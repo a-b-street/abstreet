@@ -3,21 +3,72 @@ use crate::render::{AgentColorScheme, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::UI;
 use abstutil::clamp;
 use ezgui::{
-    hotkey, Button, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, Key, Line,
-    ManagedWidget, Outcome, RewriteColor, ScreenPt, ScreenRectangle, Text,
+    hotkey, Button, Choice, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx, Key, Line,
+    ManagedWidget, Outcome, RewriteColor, ScreenDims, ScreenPt, Text,
 };
-use geom::{Circle, Distance, Polygon, Pt2D, Ring};
+use geom::{Circle, Distance, Pt2D, Ring};
 
 pub struct Minimap {
     dragging: bool,
+    nav_panel: Composite,
 
     controls: VisibilityPanel,
 }
 
 impl Minimap {
     pub fn new(ctx: &EventCtx, ui: &UI) -> Minimap {
+        let square_len = 0.15 * ctx.canvas.window_width;
         Minimap {
             dragging: false,
+            nav_panel: Composite::minimal_size_with_fillers(
+                ctx,
+                ManagedWidget::col(vec![
+                    ManagedWidget::row(vec![crate::managed::Composite::svg_button(
+                        ctx,
+                        "assets/minimap/up.svg",
+                        "pan up",
+                        None,
+                    )])
+                    .margin(5)
+                    .centered(),
+                    ManagedWidget::row(vec![
+                        ManagedWidget::col(vec![crate::managed::Composite::svg_button(
+                            ctx,
+                            "assets/minimap/left.svg",
+                            "pan left",
+                            None,
+                        )])
+                        .margin(5)
+                        .centered(),
+                        ManagedWidget::filler("minimap"),
+                        ManagedWidget::col(vec![crate::managed::Composite::svg_button(
+                            ctx,
+                            "assets/minimap/right.svg",
+                            "pan right",
+                            None,
+                        )])
+                        .margin(5)
+                        .centered(),
+                    ]),
+                    ManagedWidget::row(vec![crate::managed::Composite::svg_button(
+                        ctx,
+                        "assets/minimap/down.svg",
+                        "pan down",
+                        None,
+                    )])
+                    .margin(5)
+                    .centered(),
+                ])
+                .bg(Color::grey(0.5)),
+                ScreenPt::new(
+                    ctx.canvas.window_width - square_len - 100.0,
+                    ctx.canvas.window_height - square_len - 100.0,
+                ),
+                vec![(
+                    "minimap",
+                    Filler::new(ScreenDims::new(square_len, square_len)),
+                )],
+            ),
             controls: VisibilityPanel::new(ctx, ui),
         }
     }
@@ -27,19 +78,14 @@ impl Minimap {
             return Some(t);
         }
 
-        // TODO duplicate some stuff for now, until we figure out what to cache
-        let square_len = 0.15 * ctx.canvas.window_width;
-        let top_left = ScreenPt::new(
-            ctx.canvas.window_width - square_len - 50.0,
-            ctx.canvas.window_height - square_len - 50.0,
-        );
-        let padding = 10.0;
-        let inner_rect = ScreenRectangle {
-            x1: top_left.x + padding,
-            x2: top_left.x + square_len - padding,
-            y1: top_left.y + padding,
-            y2: top_left.y + square_len - padding,
-        };
+        match self.nav_panel.event(ctx) {
+            Some(Outcome::Clicked(x)) => {
+                println!("clicked {}", x);
+            }
+            None => {}
+        }
+
+        let inner_rect = self.nav_panel.filler_rect("minimap");
 
         let mut pt = ctx.canvas.get_cursor_in_screen_space();
         if self.dragging {
@@ -59,7 +105,7 @@ impl Minimap {
         let percent_y = (pt.y - inner_rect.y1) / (inner_rect.y2 - inner_rect.y1);
 
         let bounds = ui.primary.map.get_bounds();
-        let zoom = (square_len - (padding * 2.0)) / (bounds.max_x - bounds.min_x);
+        let zoom = inner_rect.width() / (bounds.max_x - bounds.min_x);
 
         // We're stretching to fit the entire width, so...
         let map_x = percent_x * (bounds.max_x - bounds.min_x);
@@ -78,39 +124,13 @@ impl Minimap {
             return;
         }
 
-        // The background panel
-        let square_len = 0.15 * g.canvas.window_width;
-        let top_left = ScreenPt::new(
-            g.canvas.window_width - square_len - 50.0,
-            g.canvas.window_height - square_len - 50.0,
-        );
-        let bg = Polygon::rounded_rectangle(
-            Distance::meters(square_len),
-            Distance::meters(square_len),
-            Distance::meters(10.0),
-        )
-        .translate(top_left.x, top_left.y);
-        g.canvas.mark_covered_area(ScreenRectangle {
-            x1: top_left.x,
-            x2: top_left.x + square_len,
-            y1: top_left.y,
-            y2: top_left.y + square_len,
-        });
-        g.fork_screenspace();
-        g.draw_polygon(Color::grey(0.5), &bg);
-        g.unfork();
+        self.nav_panel.draw(g);
 
         // The map
-        let padding = 10.0;
-        let inner_rect = ScreenRectangle {
-            x1: top_left.x + padding,
-            x2: top_left.x + square_len - padding,
-            y1: top_left.y + padding,
-            y2: top_left.y + square_len - padding,
-        };
+        let inner_rect = self.nav_panel.filler_rect("minimap");
         let bounds = ui.primary.map.get_bounds();
         // Fit the entire width of the map in the box, to start
-        let zoom = (square_len - (padding * 2.0)) / (bounds.max_x - bounds.min_x);
+        let zoom = inner_rect.width() / (bounds.max_x - bounds.min_x);
 
         g.fork(
             Pt2D::new(0.0, 0.0),

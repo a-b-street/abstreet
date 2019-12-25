@@ -1,7 +1,7 @@
 use crate::layout::Widget;
 use crate::{
-    Button, Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, JustDraw, Plot,
-    ScreenDims, ScreenPt, ScreenRectangle, Slider, Text, VerticalAlignment,
+    Button, Color, DrawBoth, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, JustDraw,
+    Plot, ScreenDims, ScreenPt, ScreenRectangle, Slider, Text, VerticalAlignment,
 };
 use geom::{Distance, Duration, Polygon};
 use std::collections::{HashMap, HashSet};
@@ -20,6 +20,7 @@ enum WidgetType {
     Draw(JustDraw),
     Btn(Button),
     Slider(String),
+    Filler(String),
     // TODO Sadness. Can't have some kind of wildcard generic here?
     DurationPlot(Plot<Duration>),
     UsizePlot(Plot<usize>),
@@ -164,6 +165,10 @@ impl ManagedWidget {
         ManagedWidget::new(WidgetType::Slider(label.to_string()))
     }
 
+    pub fn filler(label: &str) -> ManagedWidget {
+        ManagedWidget::new(WidgetType::Filler(label.to_string()))
+    }
+
     pub(crate) fn duration_plot(plot: Plot<Duration>) -> ManagedWidget {
         ManagedWidget::new(WidgetType::DurationPlot(plot))
     }
@@ -199,7 +204,7 @@ impl ManagedWidget {
             WidgetType::Slider(ref name) => {
                 sliders.get_mut(name).unwrap().event(ctx);
             }
-            WidgetType::DurationPlot(_) | WidgetType::UsizePlot(_) => {}
+            WidgetType::Filler(_) | WidgetType::DurationPlot(_) | WidgetType::UsizePlot(_) => {}
             WidgetType::Row(ref mut widgets) | WidgetType::Column(ref mut widgets) => {
                 for w in widgets {
                     if let Some(o) = w.event(ctx, sliders) {
@@ -220,6 +225,7 @@ impl ManagedWidget {
             WidgetType::Draw(ref j) => j.draw(g),
             WidgetType::Btn(ref btn) => btn.draw(g),
             WidgetType::Slider(ref name) => sliders[name].draw(g),
+            WidgetType::Filler(_) => {}
             WidgetType::DurationPlot(ref plot) => plot.draw(g),
             WidgetType::UsizePlot(ref plot) => plot.draw(g),
             WidgetType::Row(ref widgets) | WidgetType::Column(ref widgets) => {
@@ -235,6 +241,7 @@ impl ManagedWidget {
         &self,
         parent: Node,
         sliders: &HashMap<String, Slider>,
+        fillers: &HashMap<String, Filler>,
         stretch: &mut Stretch,
         nodes: &mut Vec<Node>,
     ) {
@@ -243,6 +250,7 @@ impl ManagedWidget {
             WidgetType::Draw(ref widget) => widget,
             WidgetType::Btn(ref widget) => widget,
             WidgetType::Slider(ref name) => &sliders[name],
+            WidgetType::Filler(ref name) => &fillers[name],
             WidgetType::DurationPlot(ref widget) => widget,
             WidgetType::UsizePlot(ref widget) => widget,
             WidgetType::Row(ref widgets) => {
@@ -254,7 +262,7 @@ impl ManagedWidget {
                 let row = stretch.new_node(style, Vec::new()).unwrap();
                 nodes.push(row);
                 for widget in widgets {
-                    widget.get_flexbox(row, sliders, stretch, nodes);
+                    widget.get_flexbox(row, sliders, fillers, stretch, nodes);
                 }
                 stretch.add_child(parent, row).unwrap();
                 return;
@@ -268,7 +276,7 @@ impl ManagedWidget {
                 let col = stretch.new_node(style, Vec::new()).unwrap();
                 nodes.push(col);
                 for widget in widgets {
-                    widget.get_flexbox(col, sliders, stretch, nodes);
+                    widget.get_flexbox(col, sliders, fillers, stretch, nodes);
                 }
                 stretch.add_child(parent, col).unwrap();
                 return;
@@ -291,6 +299,7 @@ impl ManagedWidget {
     fn apply_flexbox(
         &mut self,
         sliders: &mut HashMap<String, Slider>,
+        fillers: &mut HashMap<String, Filler>,
         stretch: &Stretch,
         nodes: &mut Vec<Node>,
         dx: f64,
@@ -339,6 +348,9 @@ impl ManagedWidget {
             WidgetType::Slider(ref name) => {
                 sliders.get_mut(name).unwrap().set_pos(top_left);
             }
+            WidgetType::Filler(ref name) => {
+                fillers.get_mut(name).unwrap().set_pos(top_left);
+            }
             WidgetType::DurationPlot(ref mut widget) => {
                 widget.set_pos(top_left);
             }
@@ -350,6 +362,7 @@ impl ManagedWidget {
                 for widget in widgets {
                     widget.apply_flexbox(
                         sliders,
+                        fillers,
                         stretch,
                         nodes,
                         x + dx,
@@ -363,6 +376,7 @@ impl ManagedWidget {
                 for widget in widgets {
                     widget.apply_flexbox(
                         sliders,
+                        fillers,
                         stretch,
                         nodes,
                         x + dx,
@@ -379,6 +393,7 @@ impl ManagedWidget {
         match self.widget {
             WidgetType::Draw(_)
             | WidgetType::Slider(_)
+            | WidgetType::Filler(_)
             | WidgetType::DurationPlot(_)
             | WidgetType::UsizePlot(_) => {}
             WidgetType::Btn(ref btn) => {
@@ -404,6 +419,7 @@ pub struct Composite {
     pos: CompositePosition,
 
     sliders: HashMap<String, Slider>,
+    fillers: HashMap<String, Filler>,
 
     // TODO This doesn't clip. There's no way to express that the scrollable thing should occupy a
     // small part of the screen.
@@ -430,6 +446,7 @@ impl Composite {
             pos,
 
             sliders: HashMap::new(),
+            fillers: HashMap::new(),
 
             scrollable: false,
         }
@@ -437,6 +454,20 @@ impl Composite {
 
     pub fn minimal_size(ctx: &EventCtx, top_level: ManagedWidget, top_left: ScreenPt) -> Composite {
         let mut c = Composite::new(top_level, CompositePosition::MinimalTopLeft(top_left));
+        c.recompute_layout(ctx);
+        c
+    }
+
+    pub fn minimal_size_with_fillers(
+        ctx: &EventCtx,
+        top_level: ManagedWidget,
+        top_left: ScreenPt,
+        fillers: Vec<(&str, Filler)>,
+    ) -> Composite {
+        let mut c = Composite::new(top_level, CompositePosition::MinimalTopLeft(top_left));
+        for (name, filler) in fillers {
+            c.fillers.insert(name.to_string(), filler);
+        }
         c.recompute_layout(ctx);
         c
     }
@@ -512,7 +543,7 @@ impl Composite {
 
         let mut nodes = vec![];
         self.top_level
-            .get_flexbox(root, &self.sliders, &mut stretch, &mut nodes);
+            .get_flexbox(root, &self.sliders, &self.fillers, &mut stretch, &mut nodes);
         nodes.reverse();
 
         stretch.compute_layout(root, Size::undefined()).unwrap();
@@ -531,6 +562,7 @@ impl Composite {
         let offset = self.scroll_y_offset(ctx);
         self.top_level.apply_flexbox(
             &mut self.sliders,
+            &mut self.fillers,
             &stretch,
             &mut nodes,
             top_left.x,
@@ -618,5 +650,10 @@ impl Composite {
     }
     pub fn take_slider(&mut self, name: &str) -> Slider {
         self.sliders.remove(name).unwrap()
+    }
+
+    pub fn filler_rect(&self, name: &str) -> ScreenRectangle {
+        let f = &self.fillers[name];
+        ScreenRectangle::top_left(f.top_left, f.dims)
     }
 }
