@@ -1,21 +1,21 @@
 name: Build
 on: [push]
 jobs:
-# TODO The build.rs in game fails for Windows. My guess is the $OUT_DIR env var isn't there.
-#  build-windows:
-#    runs-on: windows-latest
-#    steps:
-#      - uses: actions/checkout@master
-#      - uses: hecrj/setup-rust-action@v1
-#        with:
-#          rust-version: 1.40.0
-#      - name: Run build
-#        run: cargo build --release --bin game
-#      - name: Upload binary
-#        uses: actions/upload-artifact@v1
-#        with:
-#          name: game_windows.exe
-#          path: target/release/game.exe
+  build-windows:
+    runs-on: windows-latest
+    if: "contains(github.event.head_commit.message, '[rebuild]')"
+    steps:
+      - uses: actions/checkout@master
+      - uses: hecrj/setup-rust-action@v1
+        with:
+          rust-version: 1.40.0
+      - name: Run build
+        run: cargo build --release --bin game
+      - name: Upload binary
+        uses: actions/upload-artifact@v1
+        with:
+          name: game_windows.exe
+          path: target/release/game.exe
   build-macos:
     runs-on: macos-latest
     if: "contains(github.event.head_commit.message, '[rebuild]')"

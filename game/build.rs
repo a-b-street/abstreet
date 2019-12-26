@@ -1,16 +1,18 @@
 use std::collections::BTreeMap;
 use std::env;
+use std::ffi::OsStr;
 use std::fs::File;
 use std::io::{Read, Write};
+use std::path::PathBuf;
 use walkdir::WalkDir;
 
 // TODO See https://github.com/dtolnay/inventory for an alternate approach.
 fn main() {
     let mut mapping: BTreeMap<String, String> = BTreeMap::new();
     for entry in WalkDir::new("src") {
-        let path = format!("{}", entry.unwrap().into_path().display());
-        if path.ends_with(".rs") && path != "src/helpers.rs" {
-            for (k, v) in read_file(&path) {
+        let path = entry.unwrap().into_path();
+        if path.extension() == Some(OsStr::new("rs")) && path != PathBuf::from("src/helpers.rs") {
+            for (k, v) in read_file(&format!("{}", path.display())) {
                 if mapping.contains_key(&k) {
                     panic!("Color {} defined twice", k);
                 }
