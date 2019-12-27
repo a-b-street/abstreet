@@ -433,7 +433,7 @@ impl SliderWithTextBox {
     pub fn new(prompt: &str, low: Time, high: Time, ctx: &EventCtx) -> SliderWithTextBox {
         SliderWithTextBox {
             slider: Slider::horizontal(ctx, ctx.text_dims(&Text::from(Line(prompt))).width),
-            tb: TextBox::new(prompt, None, ctx),
+            tb: TextBox::new(prompt, Some(low.to_string()), ctx),
             low,
             high,
         }

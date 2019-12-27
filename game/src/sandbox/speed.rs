@@ -298,7 +298,7 @@ impl SpeedControls {
 
 fn jump_to_time(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
     let target = wiz.wrap(ctx).input_time_slider(
-        "Jump to what time?",
+        "Jump to what time in the future?",
         ui.primary.sim.time(),
         Time::END_OF_DAY,
     )?;
