@@ -25,7 +25,7 @@ pub struct GameplayRunner {
     state: Box<dyn GameplayState>,
 }
 
-#[derive(Clone)]
+#[derive(PartialEq, Clone)]
 pub enum GameplayMode {
     // TODO Maybe this should be "sandbox"
     Freeform,

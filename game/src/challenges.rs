@@ -14,27 +14,30 @@ use std::collections::{BTreeMap, HashSet};
 
 // TODO Also have some kind of screenshot to display for each challenge
 #[derive(Clone)]
-struct Challenge {
+pub struct Challenge {
     title: String,
     description: Vec<String>,
-    map_path: String,
-    gameplay: GameplayMode,
+    pub map_path: String,
+    pub alias: String,
+    pub gameplay: GameplayMode,
 }
 impl abstutil::Cloneable for Challenge {}
 
-fn all_challenges() -> BTreeMap<String, Vec<Challenge>> {
+pub fn all_challenges() -> BTreeMap<String, Vec<Challenge>> {
     let mut tree = BTreeMap::new();
     tree.insert("Fix all of the traffic signals".to_string(), vec![
         Challenge {
             title: "Tutorial 1".to_string(),
             description: vec!["Add or remove a dedicated left phase".to_string()],
             map_path: abstutil::path_synthetic_map("signal_single"),
+            alias: "trafficsig/tut1".to_string(),
             gameplay: GameplayMode::FixTrafficSignalsTutorial(0),
         },
         Challenge {
             title: "Tutorial 2".to_string(),
             description: vec!["Deal with heavy foot traffic".to_string()],
             map_path: abstutil::path_synthetic_map("signal_single"),
+            alias: "trafficsig/tut2".to_string(),
             gameplay: GameplayMode::FixTrafficSignalsTutorial(1),
         },
         Challenge {
@@ -47,6 +50,7 @@ fn all_challenges() -> BTreeMap<String, Vec<Challenge>> {
                 "Objective: Reduce the 50%ile trip time of all drivers by at least 30s".to_string()
             ],
             map_path: abstutil::path_map("montlake"),
+            alias: "trafficsig/main".to_string(),
             gameplay: GameplayMode::FixTrafficSignals,
         },
     ]);
@@ -59,6 +63,7 @@ fn all_challenges() -> BTreeMap<String, Vec<Challenge>> {
                 "Decrease the average waiting time between all of route 48's stops by at least 30s"
                     .to_string()],
                 map_path: abstutil::path_map("montlake"),
+                alias: "bus48/montlake".to_string(),
                 gameplay: GameplayMode::OptimizeBus("48".to_string()),
             },
             Challenge {
@@ -68,6 +73,7 @@ fn all_challenges() -> BTreeMap<String, Vec<Challenge>> {
                         .to_string(),
                 ],
                 map_path: abstutil::path_map("23rd"),
+                alias: "bus48/23rd".to_string(),
                 gameplay: GameplayMode::OptimizeBus("48".to_string()),
             },
         ],
@@ -78,6 +84,7 @@ fn all_challenges() -> BTreeMap<String, Vec<Challenge>> {
             title: "Gridlock all of the everything".to_string(),
             description: vec!["Make traffic as BAD as possible!".to_string()],
             map_path: abstutil::path_map("montlake"),
+            alias: "gridlock".to_string(),
             gameplay: GameplayMode::CreateGridlock,
         }],
     );
@@ -90,6 +97,7 @@ fn all_challenges() -> BTreeMap<String, Vec<Challenge>> {
                     "Reduce the 50%ile trip times of bikes by at least 1 minute".to_string()
                 ],
                 map_path: abstutil::path_map("montlake"),
+                alias: "fave/bike".to_string(),
                 gameplay: GameplayMode::FasterTrips(TripMode::Bike),
             },
             Challenge {
@@ -98,6 +106,7 @@ fn all_challenges() -> BTreeMap<String, Vec<Challenge>> {
                     "Reduce the 50%ile trip times of drivers by at least 5 minutes".to_string(),
                 ],
                 map_path: abstutil::path_map("montlake"),
+                alias: "fave/car".to_string(),
                 gameplay: GameplayMode::FasterTrips(TripMode::Drive),
             },
         ],

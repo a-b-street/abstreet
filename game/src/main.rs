@@ -52,7 +52,31 @@ fn main() {
     if let Some(x) = args.optional_parse("--hidpi_factor", |x| x.parse::<f64>()) {
         settings.override_hidpi_factor(x);
     }
+
+    let mut mode = sandbox::GameplayMode::Freeform;
+    if let Some(x) = args.optional("--challenge") {
+        let mut aliases = Vec::new();
+        'OUTER: for (_, stages) in challenges::all_challenges() {
+            for challenge in stages {
+                if challenge.alias == x {
+                    mode = challenge.gameplay;
+                    flags.sim_flags.load = challenge.map_path;
+                    break 'OUTER;
+                } else {
+                    aliases.push(challenge.alias);
+                }
+            }
+        }
+        if mode == sandbox::GameplayMode::Freeform {
+            panic!(
+                "Don't know --challenge={}. Choices: {}",
+                x,
+                aliases.join(", ")
+            );
+        }
+    }
+
     args.done();
 
-    ezgui::run(settings, |ctx| game::Game::new(flags, opts, ctx));
+    ezgui::run(settings, |ctx| game::Game::new(flags, opts, mode, ctx));
 }
