@@ -298,6 +298,11 @@ pub fn spawn_agents_around(i: IntersectionID, ui: &mut UI, ctx: &EventCtx) {
     let sim = &mut ui.primary.sim;
     let mut rng = ui.primary.current_flags.sim_flags.make_rng();
 
+    if map.all_buildings().is_empty() {
+        println!("No buildings, can't pick destinations");
+        return;
+    }
+
     let mut timer = Timer::new(format!(
         "spawning agents around {} (rng seed {:?})",
         i, ui.primary.current_flags.sim_flags.rng_seed
