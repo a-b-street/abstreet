@@ -208,7 +208,7 @@ changes here.
 - visual tweaks to cars to make front/back easier to distinguish
 - internal change to switch most assets from PNG to SVG
 
-v0.1.19
+0.1.19
 
 - some challenge modes show a histogram for counting faster/slower trips
 - new visualization of current demand per direction at a traffic signal
@@ -216,10 +216,19 @@ v0.1.19
 - replaced right-click context menus with left click to open info panels
 - fixed random issues reported by people from HN
 
-v0.1.20
+0.1.20
 
 - moved some UI functionality around, pulling graphs into info panel
 - interactive legend for the minimap, toggle visibility of different agents
 - nicer colors and shapes for cars
 - misc simulation bugfixes that might help huge_seattle
 - pedestrians choose to use transit more realistically, factoring in time for the bus to drive
+
+0.1.21
+
+- switch some analytics dashboards to use buttons, not old non-scrolling menus
+- scrollbars... at least a start
+- preview traffic signal changes from live sim as the base
+- traffic signal preview has normal time/speed controls
+- traffic signal editor has undo support
+- minimap has buttons to pan
