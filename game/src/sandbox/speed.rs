@@ -11,8 +11,6 @@ use std::time::Instant;
 const ADJUST_SPEED_PERCENT: f64 = 0.01;
 
 pub struct SpeedControls {
-    time_panel: TimePanel,
-
     composite: Composite,
 
     state: SpeedState,
@@ -161,8 +159,6 @@ impl SpeedControls {
         let composite = SpeedControls::make_panel(ctx, false, "...", slider);
 
         SpeedControls {
-            time_panel: TimePanel::new(ctx, ui),
-
             composite,
 
             state: SpeedState::Running {
@@ -176,8 +172,6 @@ impl SpeedControls {
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Outcome> {
-        self.time_panel.event(ctx, ui);
-
         let desired_speed = self.desired_speed();
         match self.composite.event(ctx, ui) {
             Some(Outcome::Transition(t)) => {
@@ -267,7 +261,6 @@ impl SpeedControls {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        self.time_panel.draw(g);
         self.composite.draw(g);
     }
 
@@ -362,13 +355,13 @@ impl State for TimeWarpScreen {
     }
 }
 
-struct TimePanel {
+pub struct TimePanel {
     time: Time,
     composite: ezgui::Composite,
 }
 
 impl TimePanel {
-    fn new(ctx: &EventCtx, ui: &UI) -> TimePanel {
+    pub fn new(ctx: &EventCtx, ui: &UI) -> TimePanel {
         TimePanel {
             time: ui.primary.sim.time(),
             composite: ezgui::Composite::aligned(
@@ -416,14 +409,14 @@ impl TimePanel {
         }
     }
 
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) {
         if self.time != ui.primary.sim.time() {
             *self = TimePanel::new(ctx, ui);
         }
         self.composite.event(ctx);
     }
 
-    fn draw(&self, g: &mut GfxCtx) {
+    pub fn draw(&self, g: &mut GfxCtx) {
         self.composite.draw(g);
     }
 }

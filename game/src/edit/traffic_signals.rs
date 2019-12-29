@@ -5,7 +5,7 @@ use crate::managed::Outcome;
 use crate::render::{
     draw_signal_phase, DrawOptions, DrawTurnGroup, TrafficSignalDiagram, BIG_ARROW_THICKNESS,
 };
-use crate::sandbox::{spawn_agents_around, SpeedControls};
+use crate::sandbox::{spawn_agents_around, SpeedControls, TimePanel};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
@@ -504,6 +504,7 @@ fn make_previewer(i: IntersectionID, phase: usize, suspended_sim: Sim) -> Box<dy
 struct PreviewTrafficSignal {
     menu: ModalMenu,
     speed: SpeedControls,
+    time_panel: TimePanel,
     orig_sim: Sim,
 }
 
@@ -516,6 +517,7 @@ impl PreviewTrafficSignal {
                 ctx,
             ),
             speed: SpeedControls::new(ctx, ui),
+            time_panel: TimePanel::new(ctx, ui),
             orig_sim: ui.primary.sim.clone(),
         }
     }
@@ -529,6 +531,7 @@ impl State for PreviewTrafficSignal {
             ui.primary.clear_sim();
             return Transition::Pop;
         }
+        self.time_panel.event(ctx, ui);
         match self.speed.event(ctx, ui) {
             Some(Outcome::Transition(t)) => {
                 return t;
@@ -552,5 +555,6 @@ impl State for PreviewTrafficSignal {
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
         self.menu.draw(g);
         self.speed.draw(g);
+        self.time_panel.draw(g);
     }
 }

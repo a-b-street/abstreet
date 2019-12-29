@@ -23,10 +23,11 @@ pub use gameplay::GameplayMode;
 use geom::Time;
 use map_model::MapEdits;
 use sim::TripMode;
-pub use speed::SpeedControls;
+pub use speed::{SpeedControls, TimePanel};
 
 pub struct SandboxMode {
     speed: SpeedControls,
+    time_panel: TimePanel,
     agent_meter: AgentMeter,
     agent_tools: AgentTools,
     overlay: Overlays,
@@ -59,6 +60,7 @@ impl SandboxMode {
 
         SandboxMode {
             speed: SpeedControls::new(ctx, ui),
+            time_panel: TimePanel::new(ctx, ui),
             agent_meter: AgentMeter::new(ctx, ui),
             agent_tools: AgentTools::new(),
             overlay: Overlays::Inactive,
@@ -134,6 +136,8 @@ impl State for SandboxMode {
                 self.overlay = Overlays::intersection_demand(i, ctx, ui);
             }
         }
+
+        self.time_panel.event(ctx, ui);
 
         match self.speed.event(ctx, ui) {
             Some(Outcome::Transition(t)) => {
@@ -262,6 +266,7 @@ impl State for SandboxMode {
         self.common.draw(g, ui);
         self.tool_panel.draw(g);
         self.speed.draw(g);
+        self.time_panel.draw(g);
         self.gameplay.draw(g, ui);
         self.agent_meter.draw(g);
         if let Some(ref m) = self.minimap {
@@ -274,7 +279,6 @@ impl State for SandboxMode {
     }
 }
 
-// TODO This and TimePanel could get refactored
 struct AgentMeter {
     time: Time,
     composite: Composite,
