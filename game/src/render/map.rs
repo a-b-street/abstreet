@@ -536,5 +536,8 @@ fn classify_percent(percent: f64) -> String {
     if percent > 0.9 {
         return "> 90%".to_string();
     }
+    if percent <= 0.1 {
+        return "<= 10%".to_string();
+    }
     format!("<= {}%", ((percent * 10.0).round() as usize) * 10)
 }

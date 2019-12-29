@@ -27,12 +27,22 @@ impl Minimap {
             nav_panel: Composite::minimal_size_with_fillers(
                 ctx,
                 ManagedWidget::col(vec![
-                    ManagedWidget::row(vec![crate::managed::Composite::svg_button(
-                        ctx,
-                        "assets/minimap/up.svg",
-                        "pan up",
-                        None,
-                    )])
+                    ManagedWidget::row(vec![
+                        ManagedWidget::btn(Button::rectangle_svg(
+                            "assets/speed/slow_down.svg",
+                            "zoom out",
+                            None,
+                            RewriteColor::ChangeAll(Color::ORANGE),
+                            ctx,
+                        )),
+                        ManagedWidget::btn(Button::rectangle_svg(
+                            "assets/speed/speed_up.svg",
+                            "zoom in",
+                            None,
+                            RewriteColor::ChangeAll(Color::ORANGE),
+                            ctx,
+                        )),
+                    ])
                     .margin(5)
                     .centered(),
                     ManagedWidget::row(vec![
@@ -91,6 +101,7 @@ impl Minimap {
             return Some(t);
         }
 
+        let zoom_speed = 2.0;
         let pan_speed = 100.0;
         match self.nav_panel.event(ctx) {
             Some(Outcome::Clicked(x)) => match x {
@@ -98,6 +109,10 @@ impl Minimap {
                 x if x == "pan down" => self.offset_y += pan_speed * self.zoom,
                 x if x == "pan left" => self.offset_x -= pan_speed * self.zoom,
                 x if x == "pan right" => self.offset_x += pan_speed * self.zoom,
+                // TODO Make the center of the cursor still point to the same thing. Same math as
+                // Canvas.
+                x if x == "zoom in" => self.zoom *= zoom_speed,
+                x if x == "zoom out" => self.zoom /= zoom_speed,
                 _ => unreachable!(),
             },
             None => {}
