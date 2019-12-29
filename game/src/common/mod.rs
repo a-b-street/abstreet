@@ -4,7 +4,6 @@ mod info;
 mod minimap;
 mod navigate;
 mod panels;
-mod plot;
 mod route_explorer;
 mod route_viewer;
 mod shortcuts;
@@ -18,7 +17,6 @@ pub use self::colors::{
 };
 pub use self::minimap::Minimap;
 pub use self::panels::{edit_map_panel, tool_panel};
-pub use self::plot::Histogram;
 pub use self::route_explorer::RouteExplorer;
 pub use self::trip_explorer::TripExplorer;
 pub use self::warp::Warping;

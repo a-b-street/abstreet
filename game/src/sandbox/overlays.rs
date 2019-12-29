@@ -1,6 +1,4 @@
-use crate::common::{
-    Histogram, ObjectColorer, ObjectColorerBuilder, RoadColorer, RoadColorerBuilder,
-};
+use crate::common::{ObjectColorer, ObjectColorerBuilder, RoadColorer, RoadColorerBuilder};
 use crate::game::{Transition, WizardState};
 use crate::helpers::ID;
 use crate::render::DrawOptions;
@@ -8,7 +6,10 @@ use crate::sandbox::bus_explorer::ShowBusRoute;
 use crate::sandbox::SandboxMode;
 use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Counter};
-use ezgui::{Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Text};
+use ezgui::{
+    Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Histogram, Key, Line,
+    ScreenPt, Text,
+};
 use geom::{Distance, Duration, PolyLine, Time};
 use map_model::IntersectionID;
 use sim::ParkingSpot;
@@ -19,7 +20,7 @@ pub enum Overlays {
     ParkingAvailability(Time, RoadColorer),
     IntersectionDelay(Time, ObjectColorer),
     CumulativeThroughput(Time, ObjectColorer),
-    FinishedTripsHistogram(Time, Histogram),
+    FinishedTripsHistogram(Time, Composite),
     BikeNetwork(RoadColorer),
     BusNetwork(RoadColorer),
     // Only set by certain gameplay modes
@@ -69,17 +70,8 @@ impl Overlays {
                 heatmap.draw(g, ui);
                 true
             }
-            Overlays::FinishedTripsHistogram(_, ref hgram) => {
-                ui.draw(
-                    g,
-                    DrawOptions::new(),
-                    &ui.primary.sim,
-                    &ShowEverything::new(),
-                );
-                hgram.draw(g);
-                true
-            }
-            Overlays::BusDelaysOverTime(ref composite) => {
+            Overlays::FinishedTripsHistogram(_, ref composite)
+            | Overlays::BusDelaysOverTime(ref composite) => {
                 ui.draw(
                     g,
                     DrawOptions::new(),
@@ -328,12 +320,20 @@ impl Overlays {
         let now = ui.primary.sim.time();
         Overlays::FinishedTripsHistogram(
             now,
-            Histogram::new(
-                ui.primary
-                    .sim
-                    .get_analytics()
-                    .finished_trip_deltas(now, ui.prebaked()),
+            Composite::minimal_size(
                 ctx,
+                Histogram::new(
+                    ui.primary
+                        .sim
+                        .get_analytics()
+                        .finished_trip_deltas(now, ui.prebaked()),
+                    ctx,
+                )
+                .bg(Color::grey(0.4)),
+                ScreenPt::new(
+                    0.7 * ctx.canvas.window_width,
+                    0.6 * ctx.canvas.window_height,
+                ),
             ),
         )
     }

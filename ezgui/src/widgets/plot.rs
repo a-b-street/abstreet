@@ -111,7 +111,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
             max_y: Box::new(max_y),
 
             top_left: ScreenPt::new(0.0, 0.0),
-            dims: ScreenDims::new(width, height + ctx.default_line_height()),
+            dims: ScreenDims::new(width, height),
         };
 
         let num_x_labels = 4;

@@ -1,7 +1,7 @@
 use crate::layout::Widget;
 use crate::{
-    Button, Color, DrawBoth, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, JustDraw,
-    Plot, ScreenDims, ScreenPt, ScreenRectangle, Slider, Text, VerticalAlignment,
+    Button, Color, DrawBoth, EventCtx, Filler, GeomBatch, GfxCtx, Histogram, HorizontalAlignment,
+    JustDraw, Plot, ScreenDims, ScreenPt, ScreenRectangle, Slider, Text, VerticalAlignment,
 };
 use geom::{Distance, Duration, Polygon};
 use std::collections::{HashMap, HashSet};
@@ -24,6 +24,7 @@ enum WidgetType {
     // TODO Sadness. Can't have some kind of wildcard generic here?
     DurationPlot(Plot<Duration>),
     UsizePlot(Plot<usize>),
+    Histogram(Histogram),
     Row(Vec<ManagedWidget>),
     Column(Vec<ManagedWidget>),
 }
@@ -177,6 +178,10 @@ impl ManagedWidget {
         ManagedWidget::new(WidgetType::UsizePlot(plot))
     }
 
+    pub(crate) fn histogram(histogram: Histogram) -> ManagedWidget {
+        ManagedWidget::new(WidgetType::Histogram(histogram))
+    }
+
     pub fn row(widgets: Vec<ManagedWidget>) -> ManagedWidget {
         ManagedWidget::new(WidgetType::Row(widgets))
     }
@@ -204,7 +209,10 @@ impl ManagedWidget {
             WidgetType::Slider(ref name) => {
                 sliders.get_mut(name).unwrap().event(ctx);
             }
-            WidgetType::Filler(_) | WidgetType::DurationPlot(_) | WidgetType::UsizePlot(_) => {}
+            WidgetType::Filler(_)
+            | WidgetType::DurationPlot(_)
+            | WidgetType::UsizePlot(_)
+            | WidgetType::Histogram(_) => {}
             WidgetType::Row(ref mut widgets) | WidgetType::Column(ref mut widgets) => {
                 for w in widgets {
                     if let Some(o) = w.event(ctx, sliders) {
@@ -228,6 +236,7 @@ impl ManagedWidget {
             WidgetType::Filler(_) => {}
             WidgetType::DurationPlot(ref plot) => plot.draw(g),
             WidgetType::UsizePlot(ref plot) => plot.draw(g),
+            WidgetType::Histogram(ref hgram) => hgram.draw(g),
             WidgetType::Row(ref widgets) | WidgetType::Column(ref widgets) => {
                 for w in widgets {
                     w.draw(g, sliders);
@@ -253,6 +262,7 @@ impl ManagedWidget {
             WidgetType::Filler(ref name) => &fillers[name],
             WidgetType::DurationPlot(ref widget) => widget,
             WidgetType::UsizePlot(ref widget) => widget,
+            WidgetType::Histogram(ref widget) => widget,
             WidgetType::Row(ref widgets) => {
                 let mut style = Style {
                     flex_direction: FlexDirection::Row,
@@ -357,6 +367,9 @@ impl ManagedWidget {
             WidgetType::UsizePlot(ref mut widget) => {
                 widget.set_pos(top_left);
             }
+            WidgetType::Histogram(ref mut widget) => {
+                widget.set_pos(top_left);
+            }
             WidgetType::Row(ref mut widgets) => {
                 // layout() doesn't return absolute position; it's relative to the container.
                 for widget in widgets {
@@ -396,6 +409,7 @@ impl ManagedWidget {
             | WidgetType::Filler(_)
             | WidgetType::DurationPlot(_)
             | WidgetType::UsizePlot(_) => {}
+            WidgetType::Histogram(_) => {}
             WidgetType::Btn(ref btn) => {
                 if actions.contains(&btn.action) {
                     panic!(

@@ -1,6 +1,7 @@
 mod autocomplete;
 mod button;
 mod filler;
+mod histogram;
 mod log_scroller;
 mod modal_menu;
 mod no_op;
@@ -15,6 +16,7 @@ mod wizard;
 pub use self::autocomplete::Autocomplete;
 pub use self::button::Button;
 pub use self::filler::Filler;
+pub use self::histogram::Histogram;
 pub use self::modal_menu::ModalMenu;
 pub use self::no_op::JustDraw;
 pub use self::plot::{Plot, Series};

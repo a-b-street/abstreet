@@ -6,7 +6,9 @@ use crate::sandbox::gameplay::{cmp_count_fewer, cmp_count_more, cmp_duration_sho
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use abstutil::Counter;
-use ezgui::{hotkey, Color, EventCtx, EventLoopMode, Key, Line, ManagedWidget, Plot, Series, Text};
+use ezgui::{
+    hotkey, Color, EventCtx, EventLoopMode, Histogram, Key, Line, ManagedWidget, Plot, Series, Text,
+};
 use geom::{Duration, Statistic, Time};
 use map_model::BusRouteID;
 use sim::{TripID, TripMode};
@@ -137,9 +139,24 @@ fn finished_trips_summary(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
         }
     }
 
+    // TODO The x-axes for the plot and histogram get stretched to the full screen. Don't do that!
     ManagedWidget::col(vec![
         ManagedWidget::draw_text(ctx, txt),
-        finished_trips_plot(ctx, ui),
+        finished_trips_plot(ctx, ui).bg(Color::grey(0.3)),
+        ManagedWidget::draw_text(
+            ctx,
+            Text::from(Line(
+                "Are finished trips faster or slower than the baseline?",
+            )),
+        ),
+        Histogram::new(
+            ui.primary
+                .sim
+                .get_analytics()
+                .finished_trip_deltas(ui.primary.sim.time(), ui.prebaked()),
+            ctx,
+        )
+        .bg(Color::grey(0.3)),
     ])
 }
 
@@ -198,7 +215,6 @@ fn finished_trips_plot(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
         ManagedWidget::draw_text(ctx, Text::from(Line("finished trips"))),
         plot.margin(10),
     ])
-    .bg(Color::grey(0.3))
 }
 
 fn pick_finished_trips_mode(ctx: &EventCtx) -> (ManagedWidget, Vec<(String, Callback)>) {
