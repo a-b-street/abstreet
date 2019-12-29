@@ -24,6 +24,7 @@ use crate::game::Transition;
 use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::ui::UI;
+use abstutil::IsLastIter;
 use ezgui::{
     hotkey, lctrl, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Text, VerticalAlignment,
 };
@@ -120,10 +121,9 @@ impl CommonState {
                 for r in &map.get_i(i).roads {
                     road_names.insert(map.get_r(*r).get_name());
                 }
-                let len = road_names.len();
-                for (idx, n) in road_names.into_iter().enumerate() {
+                for (n, is_last) in IsLastIter::set(road_names) {
                     osd.append(Line(n).fg(name_color));
-                    if idx != len - 1 {
+                    if !is_last {
                         osd.append(Line(", "));
                     }
                 }
@@ -141,10 +141,9 @@ impl CommonState {
                 osd.append_all(vec![Line(bs.to_string()).fg(id_color), Line(" serving ")]);
 
                 let routes = map.get_routes_serving_stop(bs);
-                let len = routes.len();
-                for (idx, n) in routes.into_iter().enumerate() {
+                for (n, is_last) in IsLastIter::vec(routes) {
                     osd.append(Line(&n.name).fg(name_color));
-                    if idx != len - 1 {
+                    if !is_last {
                         osd.append(Line(", "));
                     }
                 }

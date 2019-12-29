@@ -1,6 +1,7 @@
 use crate::options::TrafficSignalStyle;
 use crate::render::{DrawCtx, DrawTurnGroup, BIG_ARROW_THICKNESS};
 use crate::ui::UI;
+use abstutil::IsLastIter;
 use ezgui::{
     Button, Color, Composite, DrawBoth, EventCtx, GeomBatch, GfxCtx, Line, ManagedWidget,
     ModalMenu, Outcome, Text,
@@ -213,13 +214,12 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &EventCtx) -> 
             .iter()
             .map(|r| ui.primary.map.get_r(*r).get_name())
             .collect::<BTreeSet<_>>();
-        let len = road_names.len();
         // TODO Some kind of reusable TextStyle thing
         // TODO Need to wrap this
         txt.add(Line("").roboto().size(21).fg(Color::WHITE.alpha(0.54)));
-        for (idx, n) in road_names.into_iter().enumerate() {
+        for (n, is_last) in IsLastIter::set(road_names) {
             txt.append(Line(n).roboto().fg(Color::WHITE.alpha(0.54)));
-            if idx != len - 1 {
+            if !is_last {
                 txt.append(Line(", ").roboto().fg(Color::WHITE.alpha(0.54)));
             }
         }

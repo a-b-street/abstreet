@@ -161,3 +161,32 @@ impl<K: Copy + PartialEq, V> VecMap<K, V> {
         &mut self.inner.last_mut().unwrap().1
     }
 }
+
+pub struct IsLastIter<T> {
+    // TODO Should be able to just store the vector's iterator?
+    stack: Vec<T>,
+}
+
+impl<T> IsLastIter<T> {
+    // TODO Take an IntoIterator. Can't figure out how to say T == I::Item.
+    pub fn vec(mut vec: Vec<T>) -> IsLastIter<T> {
+        vec.reverse();
+        IsLastIter { stack: vec }
+    }
+
+    pub fn set(set: BTreeSet<T>) -> IsLastIter<T> {
+        let mut vec: Vec<T> = set.into_iter().collect();
+        vec.reverse();
+        IsLastIter { stack: vec }
+    }
+}
+
+impl<T> Iterator for IsLastIter<T> {
+    // true if we're the last item
+    type Item = (T, bool);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let item = self.stack.pop()?;
+        Some((item, self.stack.is_empty()))
+    }
+}
