@@ -6,7 +6,7 @@ use ezgui::{
     hotkey, Button, Choice, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx, Key, Line,
     ManagedWidget, Outcome, RewriteColor, ScreenDims, ScreenPt, Text,
 };
-use geom::{Circle, Distance, Pt2D, Ring};
+use geom::{Circle, Distance, Polygon, Pt2D, Ring};
 
 // TODO Some of the math in here might assume map bound minimums start at (0, 0).
 pub struct Minimap {
@@ -14,35 +14,53 @@ pub struct Minimap {
     nav_panel: Composite,
     controls: VisibilityPanel,
 
+    // [0, 3], with 0 meaning the most unzoomed
+    zoom_lvl: usize,
     zoom: f64,
     offset_x: f64,
     offset_y: f64,
 }
 
 impl Minimap {
-    pub fn new(ctx: &EventCtx, ui: &UI) -> Minimap {
+    fn make_nav_panel(ctx: &EventCtx, zoom_lvl: usize) -> Composite {
         let square_len = 0.15 * ctx.canvas.window_width;
-        let mut m = Minimap {
-            dragging: false,
-            nav_panel: Composite::minimal_size_with_fillers(
+        let mut zoom_col = vec![ManagedWidget::btn(Button::rectangle_svg(
+            "assets/speed/speed_up.svg",
+            "zoom in",
+            None,
+            RewriteColor::ChangeAll(Color::ORANGE),
+            ctx,
+        ))];
+        for i in (0..=3).rev() {
+            let color = if zoom_lvl < i {
+                Color::grey(0.2)
+            } else {
+                Color::WHITE
+            };
+            zoom_col.push(ManagedWidget::draw_batch(
                 ctx,
+                GeomBatch::from(vec![(color, Polygon::rectangle(18.0, 10.0))]),
+            ));
+        }
+        zoom_col.push(ManagedWidget::btn(Button::rectangle_svg(
+            "assets/speed/slow_down.svg",
+            "zoom out",
+            None,
+            RewriteColor::ChangeAll(Color::ORANGE),
+            ctx,
+        )));
+
+        Composite::minimal_size_with_fillers(
+            ctx,
+            ManagedWidget::row(vec![
+                ManagedWidget::col(zoom_col).margin(5).centered(),
                 ManagedWidget::col(vec![
-                    ManagedWidget::row(vec![
-                        ManagedWidget::btn(Button::rectangle_svg(
-                            "assets/speed/slow_down.svg",
-                            "zoom out",
-                            None,
-                            RewriteColor::ChangeAll(Color::ORANGE),
-                            ctx,
-                        )),
-                        ManagedWidget::btn(Button::rectangle_svg(
-                            "assets/speed/speed_up.svg",
-                            "zoom in",
-                            None,
-                            RewriteColor::ChangeAll(Color::ORANGE),
-                            ctx,
-                        )),
-                    ])
+                    ManagedWidget::row(vec![crate::managed::Composite::svg_button(
+                        ctx,
+                        "assets/minimap/up.svg",
+                        "pan up",
+                        None,
+                    )])
                     .margin(5)
                     .centered(),
                     ManagedWidget::row(vec![
@@ -72,19 +90,28 @@ impl Minimap {
                     )])
                     .margin(5)
                     .centered(),
-                ])
-                .bg(Color::grey(0.5)),
-                ScreenPt::new(
-                    ctx.canvas.window_width - square_len - 100.0,
-                    ctx.canvas.window_height - square_len - 100.0,
-                ),
-                vec![(
-                    "minimap",
-                    Filler::new(ScreenDims::new(square_len, square_len)),
-                )],
+                ]),
+            ])
+            .bg(Color::grey(0.5)),
+            ScreenPt::new(
+                ctx.canvas.window_width - square_len - 100.0,
+                ctx.canvas.window_height - square_len - 100.0,
             ),
+            vec![(
+                "minimap",
+                Filler::new(ScreenDims::new(square_len, square_len)),
+            )],
+        )
+    }
+
+    pub fn new(ctx: &EventCtx, ui: &UI) -> Minimap {
+        let zoom_lvl = 0;
+        let mut m = Minimap {
+            dragging: false,
+            nav_panel: Minimap::make_nav_panel(ctx, zoom_lvl),
             controls: VisibilityPanel::new(ctx, ui),
 
+            zoom_lvl,
             zoom: 0.0,
             offset_x: 0.0,
             offset_y: 0.0,
@@ -111,8 +138,20 @@ impl Minimap {
                 x if x == "pan right" => self.offset_x += pan_speed * self.zoom,
                 // TODO Make the center of the cursor still point to the same thing. Same math as
                 // Canvas.
-                x if x == "zoom in" => self.zoom *= zoom_speed,
-                x if x == "zoom out" => self.zoom /= zoom_speed,
+                x if x == "zoom in" => {
+                    if self.zoom_lvl != 3 {
+                        self.zoom *= zoom_speed;
+                        self.zoom_lvl += 1;
+                        self.nav_panel = Minimap::make_nav_panel(ctx, self.zoom_lvl);
+                    }
+                }
+                x if x == "zoom out" => {
+                    if self.zoom_lvl != 0 {
+                        self.zoom /= zoom_speed;
+                        self.zoom_lvl -= 1;
+                        self.nav_panel = Minimap::make_nav_panel(ctx, self.zoom_lvl);
+                    }
+                }
                 _ => unreachable!(),
             },
             None => {}

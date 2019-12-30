@@ -104,8 +104,9 @@ impl State for InfoPanel {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         self.composite.draw(g);
+        CommonState::draw_osd(g, ui, &None);
     }
 }
 
