@@ -398,11 +398,14 @@ impl GeomBatch {
     }
 
     // TODO Weird API...
-    pub fn add_svg(&mut self, filename: &str, dx: f64, dy: f64) {
+    pub fn add_svg(&mut self, filename: &str, center: Pt2D, scale: f64) {
         let mut batch = GeomBatch::new();
         svg::add_svg(&mut batch, filename);
+        let dims = batch.get_dims();
+        let dx = center.x() - dims.width * scale / 2.0;
+        let dy = center.y() - dims.height * scale / 2.0;
         for (color, poly) in batch.consume() {
-            self.push(color, poly.translate(dx, dy));
+            self.push(color, poly.scale(scale).translate(dx, dy));
         }
     }
 }

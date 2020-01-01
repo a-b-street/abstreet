@@ -6,7 +6,7 @@ use ezgui::{
     Button, Color, Composite, DrawBoth, EventCtx, GeomBatch, GfxCtx, Line, ManagedWidget,
     ModalMenu, Outcome, Text,
 };
-use geom::{Circle, Distance, Duration, Polygon};
+use geom::{Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D};
 use map_model::{IntersectionID, Phase, TurnPriority};
 use std::collections::BTreeSet;
 
@@ -28,33 +28,30 @@ pub fn draw_signal_phase(
     let yield_outline_color = Color::hex("#4CA7E9");
 
     let signal = ctx.map.get_traffic_signal(i);
-    for (id, crosswalk) in &ctx.draw_map.get_i(i).crosswalks {
-        if phase.get_priority_of_turn(*id, signal) == TurnPriority::Protected {
-            batch.append(crosswalk.clone());
-        }
-    }
 
     match ctx.opts.traffic_signal_style {
         TrafficSignalStyle::GroupArrows => {
             for g in &phase.yield_groups {
-                if g.crosswalk.is_none() {
-                    batch.push(
-                        yield_bg_color,
-                        signal.turn_groups[g]
-                            .geom
-                            .make_arrow(BIG_ARROW_THICKNESS * 2.0)
-                            .unwrap(),
-                    );
-                    batch.extend(
-                        yield_outline_color,
-                        signal.turn_groups[g]
-                            .geom
-                            .make_arrow_outline(
-                                BIG_ARROW_THICKNESS * 2.0,
-                                BIG_ARROW_THICKNESS / 2.0,
-                            )
-                            .unwrap(),
-                    );
+                assert!(g.crosswalk.is_none());
+                batch.push(
+                    yield_bg_color,
+                    signal.turn_groups[g]
+                        .geom
+                        .make_arrow(BIG_ARROW_THICKNESS * 2.0)
+                        .unwrap(),
+                );
+                batch.extend(
+                    yield_outline_color,
+                    signal.turn_groups[g]
+                        .geom
+                        .make_arrow_outline(BIG_ARROW_THICKNESS * 2.0, BIG_ARROW_THICKNESS / 2.0)
+                        .unwrap(),
+                );
+            }
+            let mut dont_walk = BTreeSet::new();
+            for g in signal.turn_groups.keys() {
+                if g.crosswalk.is_some() {
+                    dont_walk.insert(g);
                 }
             }
             for g in &phase.protected_groups {
@@ -66,7 +63,21 @@ pub fn draw_signal_phase(
                             .make_arrow(BIG_ARROW_THICKNESS * 2.0)
                             .unwrap(),
                     );
+                } else {
+                    batch.add_svg(
+                        "assets/map/walk.svg",
+                        crosswalk_icon_center(&signal.turn_groups[g].geom),
+                        0.1,
+                    );
+                    dont_walk.remove(g);
                 }
+            }
+            for g in dont_walk {
+                batch.add_svg(
+                    "assets/map/dont_walk.svg",
+                    crosswalk_icon_center(&signal.turn_groups[g].geom),
+                    0.1,
+                );
             }
         }
         TrafficSignalStyle::Icons => {
@@ -134,6 +145,11 @@ pub fn draw_signal_phase(
         ctx.cs.get("traffic signal spinner"),
         Circle::new(center, radius).to_partial_polygon(percent),
     );
+}
+
+// TODO Kind of a hack to know that the second point is a better center.
+fn crosswalk_icon_center(geom: &PolyLine) -> Pt2D {
+    Line::new(geom.points()[1], geom.points()[2]).dist_along(Distance::meters(1.0))
 }
 
 pub struct TrafficSignalDiagram {

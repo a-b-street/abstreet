@@ -7,8 +7,8 @@ use abstutil::Timer;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Angle, Distance, Line, PolyLine, Polygon, Pt2D, Time, EPSILON_DIST};
 use map_model::{
-    Intersection, IntersectionID, IntersectionType, Map, Road, RoadWithStopSign, Turn, TurnID,
-    TurnType, LANE_THICKNESS,
+    Intersection, IntersectionID, IntersectionType, Map, Road, RoadWithStopSign, Turn, TurnType,
+    LANE_THICKNESS,
 };
 use std::cell::RefCell;
 
@@ -19,8 +19,6 @@ pub struct DrawIntersection {
 
     draw_default: Drawable,
     pub draw_traffic_signal: RefCell<Option<(Time, Drawable, Text, Pt2D)>>,
-    // Only for traffic signals
-    pub crosswalks: Vec<(TurnID, GeomBatch)>,
 }
 
 impl DrawIntersection {
@@ -45,19 +43,12 @@ impl DrawIntersection {
         );
         default_geom.extend(cs.get("sidewalk"), calculate_corners(i, map, timer));
 
-        let mut crosswalks = Vec::new();
         for turn in &map.get_turns_in_intersection(i.id) {
             // Avoid double-rendering
             if turn.turn_type == TurnType::Crosswalk
                 && !turn.other_crosswalk_ids.iter().any(|id| *id < turn.id)
             {
-                if i.is_traffic_signal() {
-                    let mut batch = GeomBatch::new();
-                    make_crosswalk(&mut batch, turn, cs);
-                    crosswalks.push((turn.id, batch));
-                } else {
-                    make_crosswalk(&mut default_geom, turn, cs);
-                }
+                make_crosswalk(&mut default_geom, turn, cs);
             }
         }
 
@@ -92,7 +83,6 @@ impl DrawIntersection {
             zorder: i.get_zorder(map),
             draw_default: prerender.upload(default_geom),
             draw_traffic_signal: RefCell::new(None),
-            crosswalks,
         }
     }
 
