@@ -20,11 +20,12 @@ pub fn draw_signal_phase(
 ) {
     let protected_color = ctx
         .cs
-        .get_def("turn protected by traffic signal", Color::GREEN);
-    let yield_color = ctx.cs.get_def(
+        .get_def("turn protected by traffic signal", Color::hex("#72CE36"));
+    let yield_bg_color = ctx.cs.get_def(
         "turn that can yield by traffic signal",
-        Color::rgba(255, 105, 180, 0.8),
+        Color::rgba(76, 167, 233, 0.3),
     );
+    let yield_outline_color = Color::hex("#4CA7E9");
 
     let signal = ctx.map.get_traffic_signal(i);
     for (id, crosswalk) in &ctx.draw_map.get_i(i).crosswalks {
@@ -35,6 +36,27 @@ pub fn draw_signal_phase(
 
     match ctx.opts.traffic_signal_style {
         TrafficSignalStyle::GroupArrows => {
+            for g in &phase.yield_groups {
+                if g.crosswalk.is_none() {
+                    batch.push(
+                        yield_bg_color,
+                        signal.turn_groups[g]
+                            .geom
+                            .make_arrow(BIG_ARROW_THICKNESS * 2.0)
+                            .unwrap(),
+                    );
+                    batch.extend(
+                        yield_outline_color,
+                        signal.turn_groups[g]
+                            .geom
+                            .make_arrow_outline(
+                                BIG_ARROW_THICKNESS * 2.0,
+                                BIG_ARROW_THICKNESS / 2.0,
+                            )
+                            .unwrap(),
+                    );
+                }
+            }
             for g in &phase.protected_groups {
                 if g.crosswalk.is_none() {
                     batch.push(
@@ -42,20 +64,6 @@ pub fn draw_signal_phase(
                         signal.turn_groups[g]
                             .geom
                             .make_arrow(BIG_ARROW_THICKNESS * 2.0)
-                            .unwrap(),
-                    );
-                }
-            }
-            for g in &phase.yield_groups {
-                if g.crosswalk.is_none() {
-                    batch.extend(
-                        yield_color,
-                        signal.turn_groups[g]
-                            .geom
-                            .make_arrow_outline(
-                                BIG_ARROW_THICKNESS * 2.0,
-                                BIG_ARROW_THICKNESS / 2.0,
-                            )
                             .unwrap(),
                     );
                 }
@@ -89,7 +97,7 @@ pub fn draw_signal_phase(
                     }
                     TurnPriority::Yield => {
                         batch.extend(
-                            yield_color,
+                            yield_outline_color,
                             turn.geom
                                 .make_arrow_outline(
                                     BIG_ARROW_THICKNESS * 2.0,
@@ -108,29 +116,23 @@ pub fn draw_signal_phase(
         return;
     }
 
-    let radius = Distance::meters(0.5);
-    let box_width = (2.5 * radius).inner_meters();
-    let box_height = (6.5 * radius).inner_meters();
+    let radius = Distance::meters(2.0);
     let center = ctx.map.get_i(i).polygon.center();
-    let top_left = center.offset(-box_width / 2.0, -box_height / 2.0);
     let percent = time_left.unwrap() / phase.duration;
     // TODO Tune colors.
     batch.push(
         ctx.cs.get_def("traffic signal box", Color::grey(0.5)),
-        Polygon::rectangle(box_width, box_height).translate(top_left.x(), top_left.y()),
+        Circle::new(center, 1.2 * radius).to_polygon(),
     );
     batch.push(
-        Color::RED,
-        Circle::new(center.offset(0.0, -2.0 * radius.inner_meters()), radius).to_polygon(),
+        ctx.cs
+            .get_def("traffic signal spinner", Color::hex("#F2994A"))
+            .alpha(0.3),
+        Circle::new(center, radius).to_polygon(),
     );
-    batch.push(Color::grey(0.4), Circle::new(center, radius).to_polygon());
     batch.push(
-        Color::YELLOW,
+        ctx.cs.get("traffic signal spinner"),
         Circle::new(center, radius).to_partial_polygon(percent),
-    );
-    batch.push(
-        Color::GREEN,
-        Circle::new(center.offset(0.0, 2.0 * radius.inner_meters()), radius).to_polygon(),
     );
 }
 
