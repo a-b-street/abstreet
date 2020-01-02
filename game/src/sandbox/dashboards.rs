@@ -63,6 +63,7 @@ pub fn make(ctx: &EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
                 .padding(10),
             content,
         ]),
+        Vec::new(),
     ))
     .cb("BACK", Box::new(|_, _| Some(Transition::Pop)));
     for (t, label) in tab_data {

@@ -1,7 +1,10 @@
 use crate::widgets::log_scroller::LogScroller;
 use crate::widgets::text_box::TextBox;
 use crate::widgets::PopupMenu;
-use crate::{layout, EventCtx, GfxCtx, InputResult, Key, MultiKey, SliderWithTextBox, Text};
+use crate::{
+    layout, Color, Composite, EventCtx, GfxCtx, InputResult, Key, ManagedWidget, MultiKey,
+    SliderWithTextBox, Text,
+};
 use abstutil::Cloneable;
 use geom::Time;
 use std::collections::VecDeque;
@@ -9,7 +12,7 @@ use std::collections::VecDeque;
 pub struct Wizard {
     alive: bool,
     tb: Option<TextBox>,
-    menu: Option<PopupMenu<Box<dyn Cloneable>>>,
+    menu_comp: Option<Composite>,
     log_scroller: Option<LogScroller>,
     slider: Option<SliderWithTextBox>,
 
@@ -22,7 +25,7 @@ impl Wizard {
         Wizard {
             alive: true,
             tb: None,
-            menu: None,
+            menu_comp: None,
             log_scroller: None,
             slider: None,
             confirmed_state: Vec::new(),
@@ -30,8 +33,8 @@ impl Wizard {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        if let Some(ref menu) = self.menu {
-            menu.draw(g);
+        if let Some(ref comp) = self.menu_comp {
+            comp.draw(g);
         }
         if let Some(ref tb) = self.tb {
             tb.draw(g);
@@ -61,8 +64,12 @@ impl Wizard {
 
     // The caller can ask for any type at any time
     pub fn current_menu_choice<R: 'static + Cloneable>(&self) -> Option<&R> {
-        if let Some(ref menu) = self.menu {
-            let item: &R = menu.current_choice().as_any().downcast_ref::<R>()?;
+        if let Some(ref comp) = self.menu_comp {
+            let item: &R = comp
+                .menu("menu")
+                .current_choice()
+                .as_any()
+                .downcast_ref::<R>()?;
             return Some(item);
         }
         None
@@ -242,7 +249,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         }
 
         // If the menu was empty, wait for the user to acknowledge the text-box before aborting the
-        // wizard.
+        // wizard
         if self.wizard.log_scroller.is_some() {
             if self
                 .wizard
@@ -257,7 +264,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             return None;
         }
 
-        if self.wizard.menu.is_none() {
+        if self.wizard.menu_comp.is_none() {
             let choices: Vec<Choice<R>> = choices_generator();
             if choices.is_empty() {
                 self.wizard.log_scroller = Some(LogScroller::new(
@@ -266,19 +273,28 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                 ));
                 return None;
             }
-            self.wizard.menu = Some(PopupMenu::new(
-                Text::prompt(query),
-                choices
-                    .into_iter()
-                    .map(|c| Choice {
-                        label: c.label,
-                        data: c.data.clone_box(),
-                        hotkey: c.hotkey,
-                        active: c.active,
-                    })
-                    .collect(),
+            self.wizard.menu_comp = Some(Composite::scrollable(
                 self.ctx,
-                false,
+                ManagedWidget::col(vec![
+                    ManagedWidget::draw_text(self.ctx, Text::prompt(query)),
+                    ManagedWidget::menu("menu"),
+                ])
+                .bg(Color::grey(0.4)),
+                vec![(
+                    "menu",
+                    PopupMenu::new(
+                        choices
+                            .into_iter()
+                            .map(|c| Choice {
+                                label: c.label,
+                                data: c.data.clone_box(),
+                                hotkey: c.hotkey,
+                                active: c.active,
+                            })
+                            .collect(),
+                        self.ctx,
+                    ),
+                )],
             ));
         }
 
@@ -289,22 +305,26 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             return None;
         }
 
-        match self.wizard.menu.as_mut().unwrap().event(self.ctx) {
+        self.wizard.menu_comp.as_mut().unwrap().event(self.ctx);
+
+        let (result, destroy) = match self.wizard.menu_comp.as_ref().unwrap().menu("menu").state {
             InputResult::Canceled => {
-                self.wizard.menu = None;
                 self.wizard.alive = false;
-                None
+                (None, true)
             }
-            InputResult::StillActive => None,
-            InputResult::Done(choice, item) => {
-                self.wizard.menu = None;
+            InputResult::StillActive => (None, false),
+            InputResult::Done(ref choice, ref item) => {
                 self.wizard
                     .confirmed_state
                     .push(Box::new((choice.to_string(), item.clone())));
                 let downcasted_item: &R = item.as_any().downcast_ref::<R>().unwrap();
-                Some((choice, downcasted_item.clone()))
+                (Some((choice.to_string(), downcasted_item.clone())), true)
             }
+        };
+        if destroy {
+            self.wizard.menu_comp = None;
         }
+        result
     }
 
     pub fn choose_string<S: Into<String>, F: Fn() -> Vec<S>>(
@@ -363,7 +383,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
     // If the control flow through a wizard block needs to change, might need to call this.
     pub fn reset(&mut self) {
         assert!(self.wizard.tb.is_none());
-        assert!(self.wizard.menu.is_none());
+        assert!(self.wizard.menu_comp.is_none());
         assert!(self.wizard.log_scroller.is_none());
         assert!(self.wizard.slider.is_none());
         self.wizard.confirmed_state.clear();

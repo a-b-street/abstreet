@@ -78,7 +78,11 @@ impl InfoPanel {
         }
 
         InfoPanel {
-            composite: Composite::scrollable(ctx, ManagedWidget::col(col).bg(Color::grey(0.3))),
+            composite: Composite::scrollable(
+                ctx,
+                ManagedWidget::col(col).bg(Color::grey(0.3)),
+                Vec::new(),
+            ),
         }
     }
 }

@@ -1,6 +1,6 @@
 use crate::layout::Widget;
 use crate::{
-    hotkey, layout, text, Choice, EventCtx, GfxCtx, InputResult, Key, Line, ScreenDims, ScreenPt,
+    hotkey, text, Choice, EventCtx, GfxCtx, InputResult, Key, Line, ScreenDims, ScreenPt,
     ScreenRectangle, Text,
 };
 
@@ -8,29 +8,22 @@ use crate::{
 // complex.
 
 pub struct PopupMenu<T: Clone> {
-    prompt: Text,
     choices: Vec<Choice<T>>,
     current_idx: usize,
-    standalone_layout: Option<layout::ContainerOrientation>,
-    click_to_cancel: bool,
+
+    pub(crate) state: InputResult<T>,
 
     top_left: ScreenPt,
     dims: ScreenDims,
 }
 
 impl<T: Clone> PopupMenu<T> {
-    pub fn new(
-        prompt: Text,
-        choices: Vec<Choice<T>>,
-        ctx: &EventCtx,
-        click_to_cancel: bool,
-    ) -> PopupMenu<T> {
+    pub fn new(choices: Vec<Choice<T>>, ctx: &EventCtx) -> PopupMenu<T> {
         let mut m = PopupMenu {
-            prompt,
             choices,
             current_idx: 0,
-            standalone_layout: Some(layout::ContainerOrientation::Centered),
-            click_to_cancel,
+
+            state: InputResult::StillActive,
 
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(0.0, 0.0),
@@ -39,17 +32,16 @@ impl<T: Clone> PopupMenu<T> {
         m
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx) -> InputResult<T> {
-        if let Some(o) = self.standalone_layout {
-            layout::stack_vertically(o, ctx, vec![self]);
-            self.recalculate_dims(ctx);
+    pub fn event(&mut self, ctx: &mut EventCtx) {
+        match self.state {
+            InputResult::StillActive => {}
+            _ => unreachable!(),
         }
 
         // Handle the mouse
         if ctx.redo_mouseover() {
             let cursor = ctx.canvas.get_cursor_in_screen_space();
             let mut top_left = self.top_left;
-            top_left.y += ctx.text_dims(&self.prompt).height;
             for idx in 0..self.choices.len() {
                 let rect = ScreenRectangle {
                     x1: top_left.x,
@@ -69,7 +61,6 @@ impl<T: Clone> PopupMenu<T> {
             if ctx.normal_left_click() {
                 // Did we actually click the entry?
                 let mut top_left = self.top_left;
-                top_left.y += ctx.text_dims(&self.prompt).height;
                 top_left.y += ctx.default_line_height() * (self.current_idx as f64);
                 let rect = ScreenRectangle {
                     x1: top_left.x,
@@ -79,10 +70,9 @@ impl<T: Clone> PopupMenu<T> {
                 };
                 if rect.contains(ctx.canvas.get_cursor_in_screen_space()) {
                     if choice.active {
-                        return InputResult::Done(choice.label.clone(), choice.data.clone());
+                        self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
+                        return;
                     }
-                } else if self.click_to_cancel {
-                    return InputResult::Canceled;
                 }
             }
         }
@@ -94,7 +84,8 @@ impl<T: Clone> PopupMenu<T> {
             }
             if let Some(hotkey) = choice.hotkey {
                 if ctx.input.new_was_pressed(hotkey) {
-                    return InputResult::Done(choice.label.clone(), choice.data.clone());
+                    self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
+                    return;
                 }
             }
         }
@@ -103,9 +94,10 @@ impl<T: Clone> PopupMenu<T> {
         if ctx.input.new_was_pressed(hotkey(Key::Enter).unwrap()) {
             let choice = &self.choices[self.current_idx];
             if choice.active {
-                return InputResult::Done(choice.label.clone(), choice.data.clone());
+                self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
+                return;
             } else {
-                return InputResult::StillActive;
+                return;
             }
         } else if ctx.input.new_was_pressed(hotkey(Key::UpArrow).unwrap()) {
             if self.current_idx > 0 {
@@ -116,10 +108,9 @@ impl<T: Clone> PopupMenu<T> {
                 self.current_idx += 1;
             }
         } else if ctx.input.new_was_pressed(hotkey(Key::Escape).unwrap()) {
-            return InputResult::Canceled;
+            self.state = InputResult::Canceled;
+            return;
         }
-
-        InputResult::StillActive
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
@@ -135,7 +126,7 @@ impl<T: Clone> PopupMenu<T> {
     }
 
     fn calculate_txt(&self) -> Text {
-        let mut txt = self.prompt.clone();
+        let mut txt = Text::new();
 
         for (idx, choice) in self.choices.iter().enumerate() {
             if choice.active {

@@ -1,13 +1,17 @@
 use crate::layout::Widget;
+use crate::widgets::PopupMenu;
 use crate::{
     Button, Color, DrawBoth, EventCtx, Filler, GeomBatch, GfxCtx, Histogram, HorizontalAlignment,
     JustDraw, Plot, ScreenDims, ScreenPt, ScreenRectangle, Slider, Text, VerticalAlignment,
 };
+use abstutil::Cloneable;
 use geom::{Distance, Duration, Polygon};
 use std::collections::{HashMap, HashSet};
 use stretch::geometry::{Rect, Size};
 use stretch::node::{Node, Stretch};
 use stretch::style::{AlignItems, Dimension, FlexDirection, FlexWrap, JustifyContent, Style};
+
+type Menu = PopupMenu<Box<dyn Cloneable>>;
 
 pub struct ManagedWidget {
     widget: WidgetType,
@@ -20,6 +24,7 @@ enum WidgetType {
     Draw(JustDraw),
     Btn(Button),
     Slider(String),
+    Menu(String),
     Filler(String),
     // TODO Sadness. Can't have some kind of wildcard generic here?
     DurationPlot(Plot<Duration>),
@@ -166,6 +171,10 @@ impl ManagedWidget {
         ManagedWidget::new(WidgetType::Slider(label.to_string()))
     }
 
+    pub fn menu(label: &str) -> ManagedWidget {
+        ManagedWidget::new(WidgetType::Menu(label.to_string()))
+    }
+
     pub fn filler(label: &str) -> ManagedWidget {
         ManagedWidget::new(WidgetType::Filler(label.to_string()))
     }
@@ -197,6 +206,7 @@ impl ManagedWidget {
         &mut self,
         ctx: &mut EventCtx,
         sliders: &mut HashMap<String, Slider>,
+        menus: &mut HashMap<String, Menu>,
     ) -> Option<Outcome> {
         match self.widget {
             WidgetType::Draw(_) => {}
@@ -209,13 +219,16 @@ impl ManagedWidget {
             WidgetType::Slider(ref name) => {
                 sliders.get_mut(name).unwrap().event(ctx);
             }
+            WidgetType::Menu(ref name) => {
+                menus.get_mut(name).unwrap().event(ctx);
+            }
             WidgetType::Filler(_)
             | WidgetType::DurationPlot(_)
             | WidgetType::UsizePlot(_)
             | WidgetType::Histogram(_) => {}
             WidgetType::Row(ref mut widgets) | WidgetType::Column(ref mut widgets) => {
                 for w in widgets {
-                    if let Some(o) = w.event(ctx, sliders) {
+                    if let Some(o) = w.event(ctx, sliders, menus) {
                         return Some(o);
                     }
                 }
@@ -224,7 +237,12 @@ impl ManagedWidget {
         None
     }
 
-    fn draw(&self, g: &mut GfxCtx, sliders: &HashMap<String, Slider>) {
+    fn draw(
+        &self,
+        g: &mut GfxCtx,
+        sliders: &HashMap<String, Slider>,
+        menus: &HashMap<String, Menu>,
+    ) {
         if let Some(ref bg) = self.bg {
             bg.redraw(ScreenPt::new(self.rect.x1, self.rect.y1), g);
         }
@@ -233,13 +251,14 @@ impl ManagedWidget {
             WidgetType::Draw(ref j) => j.draw(g),
             WidgetType::Btn(ref btn) => btn.draw(g),
             WidgetType::Slider(ref name) => sliders[name].draw(g),
+            WidgetType::Menu(ref name) => menus[name].draw(g),
             WidgetType::Filler(_) => {}
             WidgetType::DurationPlot(ref plot) => plot.draw(g),
             WidgetType::UsizePlot(ref plot) => plot.draw(g),
             WidgetType::Histogram(ref hgram) => hgram.draw(g),
             WidgetType::Row(ref widgets) | WidgetType::Column(ref widgets) => {
                 for w in widgets {
-                    w.draw(g, sliders);
+                    w.draw(g, sliders, menus);
                 }
             }
         }
@@ -250,6 +269,7 @@ impl ManagedWidget {
         &self,
         parent: Node,
         sliders: &HashMap<String, Slider>,
+        menus: &HashMap<String, Menu>,
         fillers: &HashMap<String, Filler>,
         stretch: &mut Stretch,
         nodes: &mut Vec<Node>,
@@ -259,6 +279,7 @@ impl ManagedWidget {
             WidgetType::Draw(ref widget) => widget,
             WidgetType::Btn(ref widget) => widget,
             WidgetType::Slider(ref name) => &sliders[name],
+            WidgetType::Menu(ref name) => &menus[name],
             WidgetType::Filler(ref name) => &fillers[name],
             WidgetType::DurationPlot(ref widget) => widget,
             WidgetType::UsizePlot(ref widget) => widget,
@@ -272,7 +293,7 @@ impl ManagedWidget {
                 let row = stretch.new_node(style, Vec::new()).unwrap();
                 nodes.push(row);
                 for widget in widgets {
-                    widget.get_flexbox(row, sliders, fillers, stretch, nodes);
+                    widget.get_flexbox(row, sliders, menus, fillers, stretch, nodes);
                 }
                 stretch.add_child(parent, row).unwrap();
                 return;
@@ -286,7 +307,7 @@ impl ManagedWidget {
                 let col = stretch.new_node(style, Vec::new()).unwrap();
                 nodes.push(col);
                 for widget in widgets {
-                    widget.get_flexbox(col, sliders, fillers, stretch, nodes);
+                    widget.get_flexbox(col, sliders, menus, fillers, stretch, nodes);
                 }
                 stretch.add_child(parent, col).unwrap();
                 return;
@@ -309,6 +330,7 @@ impl ManagedWidget {
     fn apply_flexbox(
         &mut self,
         sliders: &mut HashMap<String, Slider>,
+        menus: &mut HashMap<String, Menu>,
         fillers: &mut HashMap<String, Filler>,
         stretch: &Stretch,
         nodes: &mut Vec<Node>,
@@ -358,6 +380,9 @@ impl ManagedWidget {
             WidgetType::Slider(ref name) => {
                 sliders.get_mut(name).unwrap().set_pos(top_left);
             }
+            WidgetType::Menu(ref name) => {
+                menus.get_mut(name).unwrap().set_pos(top_left);
+            }
             WidgetType::Filler(ref name) => {
                 fillers.get_mut(name).unwrap().set_pos(top_left);
             }
@@ -375,6 +400,7 @@ impl ManagedWidget {
                 for widget in widgets {
                     widget.apply_flexbox(
                         sliders,
+                        menus,
                         fillers,
                         stretch,
                         nodes,
@@ -389,6 +415,7 @@ impl ManagedWidget {
                 for widget in widgets {
                     widget.apply_flexbox(
                         sliders,
+                        menus,
                         fillers,
                         stretch,
                         nodes,
@@ -406,6 +433,7 @@ impl ManagedWidget {
         match self.widget {
             WidgetType::Draw(_)
             | WidgetType::Slider(_)
+            | WidgetType::Menu(_)
             | WidgetType::Filler(_)
             | WidgetType::DurationPlot(_)
             | WidgetType::UsizePlot(_) => {}
@@ -433,6 +461,7 @@ pub struct Composite {
     pos: CompositePosition,
 
     sliders: HashMap<String, Slider>,
+    menus: HashMap<String, Menu>,
     fillers: HashMap<String, Filler>,
 
     // TODO This doesn't clip. There's no way to express that the scrollable thing should occupy a
@@ -453,6 +482,8 @@ enum CompositePosition {
 
 const SCROLL_SPEED: f64 = 5.0;
 
+// TODO These APIs aren't composable. Need a builer pattern or ideally, to scrape all the special
+// objects from the tree.
 impl Composite {
     fn new(top_level: ManagedWidget, pos: CompositePosition) -> Composite {
         Composite {
@@ -460,6 +491,7 @@ impl Composite {
             pos,
 
             sliders: HashMap::new(),
+            menus: HashMap::new(),
             fillers: HashMap::new(),
 
             scrollable: false,
@@ -516,7 +548,11 @@ impl Composite {
         c
     }
 
-    pub fn scrollable(ctx: &EventCtx, top_level: ManagedWidget) -> Composite {
+    pub fn scrollable(
+        ctx: &EventCtx,
+        top_level: ManagedWidget,
+        menus: Vec<(&str, Menu)>,
+    ) -> Composite {
         let mut c = Composite::new(
             top_level,
             CompositePosition::Aligned(HorizontalAlignment::Left, VerticalAlignment::Top),
@@ -528,6 +564,9 @@ impl Composite {
             Slider::vertical(ctx, ctx.canvas.window_height - 100.0),
         );
         c.top_level = ManagedWidget::row(vec![c.top_level, ManagedWidget::slider("scrollbar")]);
+        for (name, menu) in menus {
+            c.menus.insert(name.to_string(), menu);
+        }
         c.recompute_layout(ctx);
         c
     }
@@ -556,8 +595,14 @@ impl Composite {
             .unwrap();
 
         let mut nodes = vec![];
-        self.top_level
-            .get_flexbox(root, &self.sliders, &self.fillers, &mut stretch, &mut nodes);
+        self.top_level.get_flexbox(
+            root,
+            &self.sliders,
+            &self.menus,
+            &self.fillers,
+            &mut stretch,
+            &mut nodes,
+        );
         nodes.reverse();
 
         stretch.compute_layout(root, Size::undefined()).unwrap();
@@ -576,6 +621,7 @@ impl Composite {
         let offset = self.scroll_y_offset(ctx);
         self.top_level.apply_flexbox(
             &mut self.sliders,
+            &mut self.menus,
             &mut self.fillers,
             &stretch,
             &mut nodes,
@@ -628,7 +674,9 @@ impl Composite {
         }
 
         let before = self.scroll_y_offset(ctx);
-        let result = self.top_level.event(ctx, &mut self.sliders);
+        let result = self
+            .top_level
+            .event(ctx, &mut self.sliders, &mut self.menus);
         if self.scroll_y_offset(ctx) != before {
             self.recompute_layout(ctx);
         }
@@ -637,7 +685,7 @@ impl Composite {
 
     pub fn draw(&self, g: &mut GfxCtx) {
         g.canvas.mark_covered_area(self.top_level.rect.clone());
-        self.top_level.draw(g, &self.sliders);
+        self.top_level.draw(g, &self.sliders, &self.menus);
     }
 
     pub fn get_all_click_actions(&self) -> HashSet<String> {
@@ -664,6 +712,10 @@ impl Composite {
     }
     pub fn take_slider(&mut self, name: &str) -> Slider {
         self.sliders.remove(name).unwrap()
+    }
+
+    pub fn menu(&self, name: &str) -> &Menu {
+        &self.menus[name]
     }
 
     pub fn filler_rect(&self, name: &str) -> ScreenRectangle {
