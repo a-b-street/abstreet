@@ -66,19 +66,3 @@ impl fmt::Display for Angle {
         write!(f, "Angle({} degrees)", self.normalized_degrees())
     }
 }
-
-impl std::ops::Add for Angle {
-    type Output = Angle;
-
-    fn add(self, other: Angle) -> Angle {
-        Angle::new(self.0 + other.0)
-    }
-}
-
-impl std::ops::Sub for Angle {
-    type Output = Angle;
-
-    fn sub(self, other: Angle) -> Angle {
-        Angle::new(self.0 - other.0)
-    }
-}

@@ -6,7 +6,7 @@ use ezgui::{
     Button, Color, Composite, DrawBoth, EventCtx, GeomBatch, GfxCtx, Line, ManagedWidget,
     ModalMenu, Outcome, Text,
 };
-use geom::{Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D};
+use geom::{Angle, Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D};
 use map_model::{IntersectionID, Phase, TurnPriority};
 use std::collections::BTreeSet;
 
@@ -64,20 +64,14 @@ pub fn draw_signal_phase(
                             .unwrap(),
                     );
                 } else {
-                    batch.add_svg(
-                        "assets/map/walk.svg",
-                        crosswalk_icon_center(&signal.turn_groups[g].geom),
-                        0.1,
-                    );
+                    let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
+                    batch.add_svg("assets/map/walk.svg", center, 0.1, angle);
                     dont_walk.remove(g);
                 }
             }
             for g in dont_walk {
-                batch.add_svg(
-                    "assets/map/dont_walk.svg",
-                    crosswalk_icon_center(&signal.turn_groups[g].geom),
-                    0.1,
-                );
+                let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
+                batch.add_svg("assets/map/dont_walk.svg", center, 0.1, angle);
             }
         }
         TrafficSignalStyle::Icons => {
@@ -148,8 +142,15 @@ pub fn draw_signal_phase(
 }
 
 // TODO Kind of a hack to know that the second point is a better center.
-fn crosswalk_icon_center(geom: &PolyLine) -> Pt2D {
-    Line::new(geom.points()[1], geom.points()[2]).dist_along(Distance::meters(1.0))
+// Returns (center, angle)
+fn crosswalk_icon(geom: &PolyLine) -> (Pt2D, Angle) {
+    let l = Line::new(geom.points()[1], geom.points()[2]);
+    (
+        l.dist_along(Distance::meters(1.0)),
+        l.angle()
+            .shortest_rotation_towards(Angle::new_degs(90.0))
+            .invert_y(),
+    )
 }
 
 pub struct TrafficSignalDiagram {

@@ -4,7 +4,7 @@ use crate::{
     text, Canvas, Color, EventCtx, HorizontalAlignment, ScreenDims, ScreenPt, ScreenRectangle,
     Text, VerticalAlignment,
 };
-use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
+use geom::{Angle, Bounds, Circle, Distance, Line, Polygon, Pt2D};
 use glium::uniforms::{SamplerBehavior, SamplerWrapFunction, UniformValue};
 use glium::Surface;
 use glium_glyph::glyph_brush::FontId;
@@ -398,14 +398,14 @@ impl GeomBatch {
     }
 
     // TODO Weird API...
-    pub fn add_svg(&mut self, filename: &str, center: Pt2D, scale: f64) {
+    pub fn add_svg(&mut self, filename: &str, center: Pt2D, scale: f64, rotate: Angle) {
         let mut batch = GeomBatch::new();
         svg::add_svg(&mut batch, filename);
         let dims = batch.get_dims();
         let dx = center.x() - dims.width * scale / 2.0;
         let dy = center.y() - dims.height * scale / 2.0;
         for (color, poly) in batch.consume() {
-            self.push(color, poly.scale(scale).translate(dx, dy));
+            self.push(color, poly.scale(scale).translate(dx, dy).rotate(rotate));
         }
     }
 }

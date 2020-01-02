@@ -152,6 +152,27 @@ impl Polygon {
         }
     }
 
+    pub fn rotate(&self, angle: Angle) -> Polygon {
+        let center = self.center();
+
+        Polygon {
+            points: self
+                .points
+                .iter()
+                .map(|pt| {
+                    let origin_pt = Pt2D::new(pt.x() - center.x(), pt.y() - center.y());
+                    let (sin, cos) = angle.invert_y().normalized_radians().sin_cos();
+                    Pt2D::new(
+                        center.x() + origin_pt.x() * cos - origin_pt.y() * sin,
+                        center.y() + origin_pt.y() * cos + origin_pt.x() * sin,
+                    )
+                })
+                .collect(),
+            indices: self.indices.clone(),
+            uv: None,
+        }
+    }
+
     // The order of these points depends on the constructor! The first and last point may or may
     // not match. Polygons constructed from PolyLines will have a very weird order.
     pub fn points(&self) -> &Vec<Pt2D> {

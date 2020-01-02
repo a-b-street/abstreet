@@ -283,12 +283,7 @@ fn calculate_border_arrows(i: &Intersection, r: &Road, timer: &mut Timer) -> Vec
 fn make_octagon(center: Pt2D, radius: Distance, facing: Angle) -> Polygon {
     Polygon::new(
         &(0..8)
-            .map(|i| {
-                center.project_away(
-                    radius,
-                    facing + Angle::new_degs(22.5 + f64::from(i * 360 / 8)),
-                )
-            })
+            .map(|i| center.project_away(radius, facing.rotate_degs(22.5 + f64::from(i * 360 / 8))))
             .collect(),
     )
 }
