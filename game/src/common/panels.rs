@@ -1,4 +1,4 @@
-use crate::common::{navigate, shortcuts};
+use crate::common::{navigate, shortcuts, Warping};
 use crate::edit::EditMode;
 use crate::game::Transition;
 use crate::managed::Composite;
@@ -6,8 +6,8 @@ use crate::options;
 use crate::sandbox::GameplayMode;
 use crate::ui::UI;
 use ezgui::{
-    hotkey, lctrl, Button, Color, EventCtx, HorizontalAlignment, Key, Line, ManagedWidget,
-    RewriteColor, Text, VerticalAlignment,
+    hotkey, lctrl, Button, Color, EventCtx, EventLoopMode, HorizontalAlignment, Key, Line,
+    ManagedWidget, RewriteColor, Text, VerticalAlignment,
 };
 
 // TODO Rethink this API.
@@ -36,6 +36,19 @@ pub fn tool_panel(ctx: &EventCtx, extra_buttons: Vec<ManagedWidget>) -> Composit
             "shortcuts",
             hotkey(Key::SingleQuote),
         ),
+        // TODO Mutex
+        Composite::svg_button(
+            ctx,
+            "assets/minimap/zoom_out_fully.svg",
+            "zoom out fully",
+            None,
+        ),
+        Composite::svg_button(
+            ctx,
+            "assets/minimap/zoom_in_fully.svg",
+            "zoom in fully",
+            None,
+        ),
     ];
     row.extend(extra_buttons);
 
@@ -55,6 +68,40 @@ pub fn tool_panel(ctx: &EventCtx, extra_buttons: Vec<ManagedWidget>) -> Composit
     .cb(
         "shortcuts",
         Box::new(|_, _| Some(Transition::Push(shortcuts::ChoosingShortcut::new()))),
+    )
+    .cb(
+        "zoom out fully",
+        // TODO The zoom out level should show the full width/height -- that's kind of in minimap
+        // code
+        Box::new(|ctx, ui| {
+            Some(Transition::PushWithMode(
+                Warping::new(
+                    ctx,
+                    // TODO The animated zooming is too quick. Need to specify that we want to
+                    // interpolate over the zoom factor.
+                    ctx.canvas.center_to_map_pt().offset(1.0, 1.0),
+                    Some(0.1),
+                    None,
+                    &mut ui.primary,
+                ),
+                EventLoopMode::Animation,
+            ))
+        }),
+    )
+    .cb(
+        "zoom in fully",
+        Box::new(|ctx, ui| {
+            Some(Transition::PushWithMode(
+                Warping::new(
+                    ctx,
+                    ctx.canvas.center_to_map_pt().offset(1.0, 1.0),
+                    Some(10.0),
+                    None,
+                    &mut ui.primary,
+                ),
+                EventLoopMode::Animation,
+            ))
+        }),
     )
 }
 
