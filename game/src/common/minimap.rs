@@ -3,8 +3,8 @@ use crate::render::{AgentColorScheme, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::UI;
 use abstutil::clamp;
 use ezgui::{
-    hotkey, Button, Choice, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx, Key, Line,
-    ManagedWidget, Outcome, RewriteColor, ScreenDims, ScreenPt, Text,
+    hotkey, Button, Choice, Color, Composite, DrawBoth, EventCtx, Filler, GeomBatch, GfxCtx, Key,
+    Line, ManagedWidget, Outcome, RewriteColor, ScreenDims, ScreenPt, Text,
 };
 use geom::{Circle, Distance, Polygon, Pt2D, Ring};
 
@@ -16,6 +16,7 @@ pub struct Minimap {
 
     // [0, 3], with 0 meaning the most unzoomed
     zoom_lvl: usize,
+    base_zoom: f64,
     zoom: f64,
     offset_x: f64,
     offset_y: f64,
@@ -37,10 +38,22 @@ impl Minimap {
             } else {
                 Color::WHITE
             };
-            zoom_col.push(ManagedWidget::draw_batch(
-                ctx,
-                GeomBatch::from(vec![(color, Polygon::rectangle(18.0, 10.0))]),
-            ));
+            let rect = Polygon::rectangle(20.0, 8.0);
+            zoom_col.push(ManagedWidget::btn(Button::new(
+                DrawBoth::new(
+                    ctx,
+                    GeomBatch::from(vec![(color, rect.clone())]),
+                    Vec::new(),
+                ),
+                DrawBoth::new(
+                    ctx,
+                    GeomBatch::from(vec![(Color::ORANGE, rect.clone())]),
+                    Vec::new(),
+                ),
+                None,
+                &format!("zoom to level {}", i + 1),
+                rect,
+            )));
         }
         zoom_col.push(ManagedWidget::btn(Button::rectangle_svg(
             "assets/speed/slow_down.svg",
@@ -112,6 +125,7 @@ impl Minimap {
             controls: VisibilityPanel::new(ctx, ui),
 
             zoom_lvl,
+            base_zoom: 0.0,
             zoom: 0.0,
             offset_x: 0.0,
             offset_y: 0.0,
@@ -119,8 +133,16 @@ impl Minimap {
         // Initially pick a zoom to fit the entire map's width in the minimap. Arbitrary and
         // probably pretty weird.
         let bounds = ui.primary.map.get_bounds();
-        m.zoom = m.nav_panel.filler_rect("minimap").width() / (bounds.max_x - bounds.min_x);
+        m.base_zoom = m.nav_panel.filler_rect("minimap").width() / (bounds.max_x - bounds.min_x);
+        m.zoom = m.base_zoom;
         m
+    }
+
+    fn set_zoom(&mut self, ctx: &mut EventCtx, zoom_lvl: usize) {
+        let zoom_speed: f64 = 2.0;
+        self.zoom_lvl = zoom_lvl;
+        self.zoom = self.base_zoom * zoom_speed.powi(self.zoom_lvl as i32);
+        self.nav_panel = Minimap::make_nav_panel(ctx, self.zoom_lvl);
     }
 
     pub fn event(&mut self, ui: &mut UI, ctx: &mut EventCtx) -> Option<Transition> {
@@ -128,7 +150,6 @@ impl Minimap {
             return Some(t);
         }
 
-        let zoom_speed = 2.0;
         let pan_speed = 100.0;
         match self.nav_panel.event(ctx) {
             Some(Outcome::Clicked(x)) => match x {
@@ -140,17 +161,25 @@ impl Minimap {
                 // Canvas.
                 x if x == "zoom in" => {
                     if self.zoom_lvl != 3 {
-                        self.zoom *= zoom_speed;
-                        self.zoom_lvl += 1;
-                        self.nav_panel = Minimap::make_nav_panel(ctx, self.zoom_lvl);
+                        self.set_zoom(ctx, self.zoom_lvl + 1);
                     }
                 }
                 x if x == "zoom out" => {
                     if self.zoom_lvl != 0 {
-                        self.zoom /= zoom_speed;
-                        self.zoom_lvl -= 1;
-                        self.nav_panel = Minimap::make_nav_panel(ctx, self.zoom_lvl);
+                        self.set_zoom(ctx, self.zoom_lvl - 1);
                     }
+                }
+                x if x == "zoom to level 1" => {
+                    self.set_zoom(ctx, 0);
+                }
+                x if x == "zoom to level 2" => {
+                    self.set_zoom(ctx, 1);
+                }
+                x if x == "zoom to level 3" => {
+                    self.set_zoom(ctx, 2);
+                }
+                x if x == "zoom to level 4" => {
+                    self.set_zoom(ctx, 3);
                 }
                 _ => unreachable!(),
             },
