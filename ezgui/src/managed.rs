@@ -557,17 +557,21 @@ impl Composite {
             top_level,
             CompositePosition::Aligned(HorizontalAlignment::Left, VerticalAlignment::Top),
         );
-        c.scrollable = true;
-        // TODO Height of our panel
-        c.sliders.insert(
-            "scrollbar".to_string(),
-            Slider::vertical(ctx, ctx.canvas.window_height - 100.0),
-        );
-        c.top_level = ManagedWidget::row(vec![c.top_level, ManagedWidget::slider("scrollbar")]);
-        for (name, menu) in menus {
-            c.menus.insert(name.to_string(), menu);
-        }
+
+        // If the panel fits without a scrollbar, don't add one.
         c.recompute_layout(ctx);
+        if c.top_level.rect.height() > ctx.canvas.window_height {
+            c.scrollable = true;
+            c.sliders.insert(
+                "scrollbar".to_string(),
+                Slider::vertical(ctx, ctx.canvas.window_height),
+            );
+            c.top_level = ManagedWidget::row(vec![c.top_level, ManagedWidget::slider("scrollbar")]);
+            for (name, menu) in menus {
+                c.menus.insert(name.to_string(), menu);
+            }
+            c.recompute_layout(ctx);
+        }
         c
     }
 
