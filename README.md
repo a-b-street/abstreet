@@ -95,6 +95,10 @@ Street strives to set the accessibility bar high, by being a fun, engaging game.
 ## Credits
 
 - Created by Dustin Carlino (<dabreegster@gmail.com>)
+- Design
+  - UX design by [Yuwen Li](https://www.yuwen-li.com/)
+  - Logo by [Ryan Pierson](https://www.ryandpierson.com/)
+  - Art direction with help from [Starcat Games](http://starcatgames.com/)
 - Software engineering
   - Lightning-fast pathfinding thanks to
     [fast_paths](https://github.com/easbar/fast_paths) by Andreas Barth
@@ -102,10 +106,6 @@ Street strives to set the accessibility bar high, by being a fun, engaging game.
   - And some
     [contributors](https://github.com/dabreegster/abstreet/graphs/contributors)
     found via [Democracy Lab](https://www.democracylab.org/)
-- Design
-  - Logo by [Ryan Pierson](https://www.ryandpierson.com/)
-  - UX design by [Yuwen Li](https://www.yuwen-li.com/)
-  - Art direction with help from [Starcat Games](http://starcatgames.com/)
 - Data
   - Special thanks to all [OpenStreetMap](https://www.openstreetmap.org/about)
     contributors!

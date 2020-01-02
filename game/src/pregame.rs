@@ -181,11 +181,11 @@ fn about(ctx: &EventCtx) -> Box<dyn State> {
 
     let mut txt = Text::new();
     txt.add(Line("A/B STREET").size(50));
-    txt.add(Line("Created by Dustin Carlino"));
+    txt.add(Line("Created by Dustin Carlino, UX by Yuwen Li"));
     txt.add(Line(""));
     txt.add(Line("Contact: dabreegster@gmail.com"));
     txt.add(Line(
-        "Project: http://github.com/dabreegster/abstreet / abstreet.org",
+        "Project: http://github.com/dabreegster/abstreet (aliased by abstreet.org)",
     ));
     txt.add(Line("Map data from OpenStreetMap and King County GIS"));
     // TODO Add more here

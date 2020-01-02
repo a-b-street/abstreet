@@ -144,10 +144,10 @@ impl Overlays {
             prettyprint_usize(avail_spots.len())
         )));
 
-        let awful = Color::BLACK;
-        let bad = Color::RED;
-        let meh = Color::YELLOW;
-        let good = Color::GREEN;
+        let awful = Color::hex("#4E30A6");
+        let bad = Color::hex("#EB5757");
+        let meh = Color::hex("#F2C94C");
+        let good = Color::hex("#7FFA4D");
         let mut colorer = RoadColorerBuilder::new(
             txt,
             vec![
@@ -205,9 +205,9 @@ impl Overlays {
     }
 
     pub fn intersection_delay(ctx: &EventCtx, ui: &UI) -> Overlays {
-        let fast = Color::GREEN;
-        let meh = Color::YELLOW;
-        let slow = Color::RED;
+        let fast = Color::hex("#7FFA4D");
+        let meh = Color::hex("#F4DA22");
+        let slow = Color::hex("#EB5757");
         let mut colorer = ObjectColorerBuilder::new(
             Text::from(Line(
                 "intersection delay for traffic signals in the last 2 hours (90%ile)",
@@ -237,9 +237,9 @@ impl Overlays {
     }
 
     fn cumulative_throughput(ctx: &EventCtx, ui: &UI) -> Overlays {
-        let light = Color::GREEN;
-        let medium = Color::YELLOW;
-        let heavy = Color::RED;
+        let light = Color::hex("#7FFA4D");
+        let medium = Color::hex("#F4DA22");
+        let heavy = Color::hex("#EB5757");
         let mut colorer = ObjectColorerBuilder::new(
             Text::from(Line("Throughput")),
             vec![
@@ -291,26 +291,26 @@ impl Overlays {
     }
 
     fn bike_network(ctx: &EventCtx, ui: &UI) -> Overlays {
+        let color = Color::hex("#7FFA4D");
         let mut colorer = RoadColorerBuilder::new(
             Text::from(Line("bike networks")),
-            vec![("bike lanes", Color::GREEN)],
+            vec![("bike lanes", color)],
         );
         for l in ui.primary.map.all_lanes() {
             if l.is_biking() {
-                colorer.add(l.id, Color::GREEN, &ui.primary.map);
+                colorer.add(l.id, color, &ui.primary.map);
             }
         }
         Overlays::BikeNetwork(colorer.build(ctx, &ui.primary.map))
     }
 
     fn bus_network(ctx: &EventCtx, ui: &UI) -> Overlays {
-        let mut colorer = RoadColorerBuilder::new(
-            Text::from(Line("bus networks")),
-            vec![("bus lanes", Color::GREEN)],
-        );
+        let color = Color::hex("#4CA7E9");
+        let mut colorer =
+            RoadColorerBuilder::new(Text::from(Line("bus networks")), vec![("bus lanes", color)]);
         for l in ui.primary.map.all_lanes() {
             if l.is_bus() {
-                colorer.add(l.id, Color::GREEN, &ui.primary.map);
+                colorer.add(l.id, color, &ui.primary.map);
             }
         }
         Overlays::BusNetwork(colorer.build(ctx, &ui.primary.map))
