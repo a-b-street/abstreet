@@ -71,8 +71,8 @@ impl ShowBusRoute {
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        self.colorer.draw(g, ui);
+    pub fn draw(&self, g: &mut GfxCtx) {
+        self.colorer.draw(g);
         for (label, pt) in &self.labels {
             g.draw_text_at(label, *pt);
         }
@@ -165,12 +165,8 @@ impl State for BusRouteExplorer {
         }
     }
 
-    fn draw_default_ui(&self) -> bool {
-        false
-    }
-
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        self.show.draw(g, ui);
+        self.show.draw(g);
         self.slider.draw(g);
         CommonState::draw_osd(g, ui, &ui.primary.current_selection);
     }

@@ -1,9 +1,8 @@
 use crate::common::{Colorer, ColorerBuilder};
 use crate::game::{Transition, WizardState};
-use crate::render::DrawOptions;
 use crate::sandbox::bus_explorer::ShowBusRoute;
 use crate::sandbox::SandboxMode;
-use crate::ui::{ShowEverything, UI};
+use crate::ui::UI;
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
     Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Histogram, Key, Line,
@@ -56,45 +55,25 @@ impl Overlays {
         None
     }
 
-    // True if active and should block normal drawing
-    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) -> bool {
+    pub fn draw(&self, g: &mut GfxCtx) {
         match self {
-            Overlays::Inactive => false,
+            Overlays::Inactive => {}
             Overlays::ParkingAvailability(_, ref heatmap)
             | Overlays::BikeNetwork(ref heatmap)
-            | Overlays::BusNetwork(ref heatmap) => {
-                heatmap.draw(g, ui);
-                true
-            }
-            Overlays::IntersectionDelay(_, ref heatmap)
+            | Overlays::BusNetwork(ref heatmap)
+            | Overlays::IntersectionDelay(_, ref heatmap)
             | Overlays::CumulativeThroughput(_, ref heatmap) => {
-                heatmap.draw(g, ui);
-                true
+                heatmap.draw(g);
             }
             Overlays::FinishedTripsHistogram(_, ref composite)
             | Overlays::BusDelaysOverTime(ref composite) => {
-                ui.draw(
-                    g,
-                    DrawOptions::new(),
-                    &ui.primary.sim,
-                    &ShowEverything::new(),
-                );
                 composite.draw(g);
-                true
             }
             Overlays::IntersectionDemand(_, _, ref draw) => {
-                ui.draw(
-                    g,
-                    DrawOptions::new(),
-                    &ui.primary.sim,
-                    &ShowEverything::new(),
-                );
                 g.redraw(draw);
-                true
             }
             Overlays::BusRoute(ref s) => {
-                s.draw(g, ui);
-                true
+                s.draw(g);
             }
         }
     }

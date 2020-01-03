@@ -12,7 +12,7 @@ use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::Outcome;
 use crate::pregame::main_menu;
-use crate::ui::{ShowEverything, UI};
+use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Choice, Color, Composite, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment,
@@ -247,22 +247,9 @@ impl State for SandboxMode {
         }
     }
 
-    fn draw_default_ui(&self) -> bool {
-        false
-    }
-
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        if self.overlay.draw(g, ui) {
-            // Don't draw agent tools!
-        } else {
-            ui.draw(
-                g,
-                self.common.draw_options(ui),
-                &ui.primary.sim,
-                &ShowEverything::new(),
-            );
-            self.agent_tools.draw(g);
-        }
+        self.overlay.draw(g);
+        self.agent_tools.draw(g);
         self.common.draw(g, ui);
         self.tool_panel.draw(g);
         self.speed.draw(g);

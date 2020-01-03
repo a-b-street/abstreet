@@ -1,5 +1,5 @@
-use crate::render::{DrawOptions, MIN_ZOOM_FOR_DETAIL};
-use crate::ui::{ShowEverything, UI};
+use crate::render::MIN_ZOOM_FOR_DETAIL;
+use crate::ui::UI;
 use ezgui::{
     Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ManagedWidget, ScreenPt, Text,
 };
@@ -23,14 +23,7 @@ pub struct Colorer {
 }
 
 impl Colorer {
-    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        // TODO Stop needing to do this
-        ui.draw(
-            g,
-            DrawOptions::new(),
-            &ui.primary.sim,
-            &ShowEverything::new(),
-        );
+    pub fn draw(&self, g: &mut GfxCtx) {
         if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
             g.redraw(&self.unzoomed);
         } else {
@@ -95,7 +88,10 @@ impl ColorerBuilder {
         let mut unzoomed = GeomBatch::new();
 
         for (l, color) in self.lanes {
-            zoomed.push(color.alpha(0.4), ui.primary.draw_map.get_l(l).polygon.clone());
+            zoomed.push(
+                color.alpha(0.4),
+                ui.primary.draw_map.get_l(l).polygon.clone(),
+            );
         }
         for (r, color) in self.roads {
             unzoomed.push(color, ui.primary.map.get_r(r).get_thick_polygon().unwrap());

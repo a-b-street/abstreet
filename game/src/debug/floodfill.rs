@@ -87,12 +87,8 @@ impl State for Floodfiller {
         Transition::Keep
     }
 
-    fn draw_default_ui(&self) -> bool {
-        false
-    }
-
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        self.colorer.draw(g, ui);
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.colorer.draw(g);
         self.menu.draw(g);
     }
 }

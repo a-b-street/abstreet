@@ -4,7 +4,7 @@ use crate::helpers::ID;
 use crate::managed::{Composite, Outcome};
 use crate::mission::pick_time_range;
 use crate::sandbox::{GameplayMode, SandboxMode};
-use crate::ui::{ShowEverything, UI};
+use crate::ui::UI;
 use abstutil::{prettyprint_usize, Counter, MultiMap, WeightedUsizeChoice};
 use ezgui::{
     hotkey, Choice, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line,
@@ -252,23 +252,11 @@ impl State for ScenarioManager {
         }
     }
 
-    fn draw_default_ui(&self) -> bool {
-        false
-    }
-
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         // TODO Let common contribute draw_options...
+        self.bldg_colors.draw(g);
         if let Some(ref p) = self.demand {
-            ui.draw(
-                g,
-                self.common.draw_options(ui),
-                &ui.primary.sim,
-                &ShowEverything::new(),
-            );
             g.redraw(p);
-        // TODO Color legend!
-        } else {
-            self.bldg_colors.draw(g, ui);
         }
 
         self.menu.draw(g);
