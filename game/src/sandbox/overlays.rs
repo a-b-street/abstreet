@@ -1,6 +1,5 @@
-use crate::common::{ObjectColorer, ObjectColorerBuilder, RoadColorer, RoadColorerBuilder};
+use crate::common::{Colorer, ColorerBuilder};
 use crate::game::{Transition, WizardState};
-use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::sandbox::bus_explorer::ShowBusRoute;
 use crate::sandbox::SandboxMode;
@@ -17,11 +16,11 @@ use std::collections::HashSet;
 
 pub enum Overlays {
     Inactive,
-    ParkingAvailability(Time, RoadColorer),
-    IntersectionDelay(Time, ObjectColorer),
-    CumulativeThroughput(Time, ObjectColorer),
-    BikeNetwork(RoadColorer),
-    BusNetwork(RoadColorer),
+    ParkingAvailability(Time, Colorer),
+    IntersectionDelay(Time, Colorer),
+    CumulativeThroughput(Time, Colorer),
+    BikeNetwork(Colorer),
+    BusNetwork(Colorer),
 
     // TODO These're kind of different.
     FinishedTripsHistogram(Time, Composite),
@@ -150,7 +149,7 @@ impl Overlays {
         let bad = Color::hex("#EB5757");
         let meh = Color::hex("#F2C94C");
         let good = Color::hex("#7FFA4D");
-        let mut colorer = RoadColorerBuilder::new(
+        let mut colorer = ColorerBuilder::new(
             txt,
             vec![
                 ("< 10%", awful),
@@ -200,7 +199,7 @@ impl Overlays {
             } else {
                 awful
             };
-            colorer.add(l, color, &ui.primary.map);
+            colorer.add_l(l, color, &ui.primary.map);
         }
 
         Overlays::ParkingAvailability(ui.primary.sim.time(), colorer.build(ctx, ui))
@@ -210,7 +209,7 @@ impl Overlays {
         let fast = Color::hex("#7FFA4D");
         let meh = Color::hex("#F4DA22");
         let slow = Color::hex("#EB5757");
-        let mut colorer = ObjectColorerBuilder::new(
+        let mut colorer = ColorerBuilder::new(
             Text::from(Line(
                 "intersection delay for traffic signals in the last 2 hours (90%ile)",
             )),
@@ -231,18 +230,18 @@ impl Overlays {
                 } else {
                     slow
                 };
-                colorer.add(ID::Intersection(i.id), color);
+                colorer.add_i(i.id, color);
             }
         }
 
-        Overlays::IntersectionDelay(ui.primary.sim.time(), colorer.build(ctx, &ui.primary.map))
+        Overlays::IntersectionDelay(ui.primary.sim.time(), colorer.build(ctx, ui))
     }
 
     fn cumulative_throughput(ctx: &EventCtx, ui: &UI) -> Overlays {
         let light = Color::hex("#7FFA4D");
         let medium = Color::hex("#F4DA22");
         let heavy = Color::hex("#EB5757");
-        let mut colorer = ObjectColorerBuilder::new(
+        let mut colorer = ColorerBuilder::new(
             Text::from(Line("Throughput")),
             vec![
                 ("< 50%ile", light),
@@ -269,7 +268,7 @@ impl Overlays {
                 } else {
                     heavy
                 };
-                colorer.add(ID::Road(*r), color);
+                colorer.add_r(*r, color, &ui.primary.map);
             }
         }
         // TODO dedupe
@@ -285,22 +284,22 @@ impl Overlays {
                 } else {
                     heavy
                 };
-                colorer.add(ID::Intersection(*i), color);
+                colorer.add_i(*i, color);
             }
         }
 
-        Overlays::CumulativeThroughput(ui.primary.sim.time(), colorer.build(ctx, &ui.primary.map))
+        Overlays::CumulativeThroughput(ui.primary.sim.time(), colorer.build(ctx, ui))
     }
 
     fn bike_network(ctx: &EventCtx, ui: &UI) -> Overlays {
         let color = Color::hex("#7FFA4D");
-        let mut colorer = RoadColorerBuilder::new(
+        let mut colorer = ColorerBuilder::new(
             Text::from(Line("bike networks")),
             vec![("bike lanes", color)],
         );
         for l in ui.primary.map.all_lanes() {
             if l.is_biking() {
-                colorer.add(l.id, color, &ui.primary.map);
+                colorer.add_l(l.id, color, &ui.primary.map);
             }
         }
         Overlays::BikeNetwork(colorer.build(ctx, ui))
@@ -309,10 +308,10 @@ impl Overlays {
     fn bus_network(ctx: &EventCtx, ui: &UI) -> Overlays {
         let color = Color::hex("#4CA7E9");
         let mut colorer =
-            RoadColorerBuilder::new(Text::from(Line("bus networks")), vec![("bus lanes", color)]);
+            ColorerBuilder::new(Text::from(Line("bus networks")), vec![("bus lanes", color)]);
         for l in ui.primary.map.all_lanes() {
             if l.is_bus() {
-                colorer.add(l.id, color, &ui.primary.map);
+                colorer.add_l(l.id, color, &ui.primary.map);
             }
         }
         Overlays::BusNetwork(colorer.build(ctx, ui))

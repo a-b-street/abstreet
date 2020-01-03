@@ -12,9 +12,7 @@ mod turn_cycler;
 mod warp;
 
 pub use self::agent::AgentTools;
-pub use self::colors::{
-    ColorLegend, ObjectColorer, ObjectColorerBuilder, RoadColorer, RoadColorerBuilder,
-};
+pub use self::colors::{ColorLegend, Colorer, ColorerBuilder};
 pub use self::minimap::Minimap;
 pub use self::panels::{edit_map_panel, tool_panel};
 pub use self::route_explorer::RouteExplorer;

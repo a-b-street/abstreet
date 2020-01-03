@@ -1,4 +1,4 @@
-use crate::common::{CommonState, RoadColorer, RoadColorerBuilder};
+use crate::common::{Colorer, ColorerBuilder, CommonState};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::ui::UI;
@@ -7,7 +7,7 @@ use geom::{Circle, Distance, Pt2D};
 use map_model::{BusRoute, BusRouteID, BusStopID, PathConstraints, PathRequest, PathStep};
 
 pub struct ShowBusRoute {
-    colorer: RoadColorer,
+    colorer: Colorer,
     labels: Vec<(Text, Pt2D)>,
     bus_locations: Vec<Pt2D>,
 }
@@ -28,7 +28,7 @@ impl ShowBusRoute {
 
         let mut txt = Text::from(Line(&route.name));
         txt.add(Line(format!("{} buses", bus_locations.len())));
-        let mut colorer = RoadColorerBuilder::new(txt, vec![("route", Color::RED)]);
+        let mut colorer = ColorerBuilder::new(txt, vec![("route", Color::RED)]);
         for (stop1, stop2) in
             route
                 .stops
@@ -51,7 +51,7 @@ impl ShowBusRoute {
                 .get_steps()
             {
                 if let PathStep::Lane(l) = step {
-                    colorer.add(*l, Color::RED, map);
+                    colorer.add_l(*l, Color::RED, map);
                 }
             }
         }

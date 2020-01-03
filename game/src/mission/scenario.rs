@@ -1,4 +1,4 @@
-use crate::common::{tool_panel, CommonState, ObjectColorer, ObjectColorerBuilder, Warping};
+use crate::common::{tool_panel, Colorer, ColorerBuilder, CommonState, Warping};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{Composite, Outcome};
@@ -31,7 +31,7 @@ pub struct ScenarioManager {
     trips_to_border: MultiMap<IntersectionID, usize>,
     total_cars_needed: usize,
     total_parking_spots: usize,
-    bldg_colors: ObjectColorer,
+    bldg_colors: Colorer,
 
     demand: Option<Drawable>,
 }
@@ -88,7 +88,7 @@ impl ScenarioManager {
             }
         }
 
-        let mut bldg_colors = ObjectColorerBuilder::new(
+        let mut bldg_colors = ColorerBuilder::new(
             Text::from(Line("buildings")),
             vec![
                 ("1-2 cars needed", Color::BLUE),
@@ -108,7 +108,7 @@ impl ScenarioManager {
             } else {
                 Color::BLACK
             };
-            bldg_colors.add(ID::Building(*b), color);
+            bldg_colors.add_b(*b, color);
         }
 
         let (filled_spots, free_parking_spots) = ui.primary.sim.get_all_parking_spots();
@@ -133,7 +133,7 @@ impl ScenarioManager {
             trips_to_border,
             total_cars_needed,
             total_parking_spots: free_parking_spots.len(),
-            bldg_colors: bldg_colors.build(ctx, &ui.primary.map),
+            bldg_colors: bldg_colors.build(ctx, ui),
             demand: None,
         }
     }

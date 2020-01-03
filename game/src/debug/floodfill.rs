@@ -1,4 +1,4 @@
-use crate::common::{RoadColorer, RoadColorerBuilder};
+use crate::common::{Colorer, ColorerBuilder};
 use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::ui::UI;
@@ -8,7 +8,7 @@ use std::collections::HashSet;
 
 pub struct Floodfiller {
     menu: ModalMenu,
-    colorer: RoadColorer,
+    colorer: Colorer,
 }
 
 impl Floodfiller {
@@ -43,7 +43,7 @@ impl Floodfiller {
         let reachable_color = ui.cs.get_def("reachable lane", Color::GREEN);
         let unreachable_color = ui.cs.get_def("unreachable lane", Color::RED);
 
-        let mut colorer = RoadColorerBuilder::new(
+        let mut colorer = ColorerBuilder::new(
             Text::from(Line("lane connectivity")),
             vec![
                 ("unreachable", unreachable_color),
@@ -51,11 +51,11 @@ impl Floodfiller {
             ],
         );
         for l in reachable_lanes {
-            colorer.add(l, reachable_color, map);
+            colorer.add_l(l, reachable_color, map);
         }
         let num_unreachable = unreachable_lanes.len();
         for l in unreachable_lanes {
-            colorer.add(l, unreachable_color, map);
+            colorer.add_l(l, unreachable_color, map);
             println!("{} is unreachable", l);
         }
 
