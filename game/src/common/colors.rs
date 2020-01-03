@@ -12,25 +12,28 @@ use std::collections::HashMap;
 pub struct RoadColorerBuilder {
     header: Text,
     prioritized_colors: Vec<(&'static str, Color)>,
-    zoomed_override_colors: HashMap<ID, Color>,
+    lanes: HashMap<LaneID, Color>,
     roads: HashMap<RoadID, Color>,
 }
 
 pub struct RoadColorer {
-    zoomed_override_colors: HashMap<ID, Color>,
+    zoomed: Drawable,
     unzoomed: Drawable,
     legend: ColorLegend,
 }
 
 impl RoadColorer {
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        let mut opts = DrawOptions::new();
+        ui.draw(
+            g,
+            DrawOptions::new(),
+            &ui.primary.sim,
+            &ShowEverything::new(),
+        );
         if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
-            ui.draw(g, opts, &DontDrawAgents {}, &ShowEverything::new());
             g.redraw(&self.unzoomed);
         } else {
-            opts.override_colors = self.zoomed_override_colors.clone();
-            ui.draw(g, opts, &ui.primary.sim, &ShowEverything::new());
+            g.redraw(&self.zoomed);
         }
 
         self.legend.draw(g);
@@ -44,13 +47,13 @@ impl RoadColorerBuilder {
         RoadColorerBuilder {
             header,
             prioritized_colors,
-            zoomed_override_colors: HashMap::new(),
+            lanes: HashMap::new(),
             roads: HashMap::new(),
         }
     }
 
     pub fn add(&mut self, l: LaneID, color: Color, map: &Map) {
-        self.zoomed_override_colors.insert(ID::Lane(l), color);
+        self.lanes.insert(l, color.alpha(0.4));
         let r = map.get_parent(l).id;
         if let Some(existing) = self.roads.get(&r) {
             if self
@@ -69,14 +72,18 @@ impl RoadColorerBuilder {
         }
     }
 
-    pub fn build(self, ctx: &EventCtx, map: &Map) -> RoadColorer {
-        let mut batch = GeomBatch::new();
+    pub fn build(self, ctx: &EventCtx, ui: &UI) -> RoadColorer {
+        let mut zoomed = GeomBatch::new();
+        for (l, color) in self.lanes {
+            zoomed.push(color, ui.primary.draw_map.get_l(l).polygon.clone());
+        }
+        let mut unzoomed = GeomBatch::new();
         for (r, color) in self.roads {
-            batch.push(color, map.get_r(r).get_thick_polygon().unwrap());
+            unzoomed.push(color, ui.primary.map.get_r(r).get_thick_polygon().unwrap());
         }
         RoadColorer {
-            zoomed_override_colors: self.zoomed_override_colors,
-            unzoomed: batch.upload(ctx),
+            zoomed: zoomed.upload(ctx),
+            unzoomed: unzoomed.upload(ctx),
             legend: ColorLegend::new(ctx, self.header, self.prioritized_colors),
         }
     }

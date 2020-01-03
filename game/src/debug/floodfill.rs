@@ -67,7 +67,7 @@ impl Floodfiller {
 
         Some(Box::new(Floodfiller {
             menu,
-            colorer: colorer.build(ctx, map),
+            colorer: colorer.build(ctx, ui),
         }))
     }
 }

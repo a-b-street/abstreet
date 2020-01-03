@@ -20,9 +20,11 @@ pub enum Overlays {
     ParkingAvailability(Time, RoadColorer),
     IntersectionDelay(Time, ObjectColorer),
     CumulativeThroughput(Time, ObjectColorer),
-    FinishedTripsHistogram(Time, Composite),
     BikeNetwork(RoadColorer),
     BusNetwork(RoadColorer),
+
+    // TODO These're kind of different.
+    FinishedTripsHistogram(Time, Composite),
     // Only set by certain gameplay modes
     BusRoute(ShowBusRoute),
     BusDelaysOverTime(Composite),
@@ -201,7 +203,7 @@ impl Overlays {
             colorer.add(l, color, &ui.primary.map);
         }
 
-        Overlays::ParkingAvailability(ui.primary.sim.time(), colorer.build(ctx, &ui.primary.map))
+        Overlays::ParkingAvailability(ui.primary.sim.time(), colorer.build(ctx, ui))
     }
 
     pub fn intersection_delay(ctx: &EventCtx, ui: &UI) -> Overlays {
@@ -301,7 +303,7 @@ impl Overlays {
                 colorer.add(l.id, color, &ui.primary.map);
             }
         }
-        Overlays::BikeNetwork(colorer.build(ctx, &ui.primary.map))
+        Overlays::BikeNetwork(colorer.build(ctx, ui))
     }
 
     fn bus_network(ctx: &EventCtx, ui: &UI) -> Overlays {
@@ -313,7 +315,7 @@ impl Overlays {
                 colorer.add(l.id, color, &ui.primary.map);
             }
         }
-        Overlays::BusNetwork(colorer.build(ctx, &ui.primary.map))
+        Overlays::BusNetwork(colorer.build(ctx, ui))
     }
 
     pub fn finished_trips_histogram(ctx: &EventCtx, ui: &UI) -> Overlays {
