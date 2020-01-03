@@ -557,6 +557,9 @@ impl Composite {
             top_level,
             CompositePosition::Aligned(HorizontalAlignment::Left, VerticalAlignment::Top),
         );
+        for (name, menu) in menus {
+            c.menus.insert(name.to_string(), menu);
+        }
 
         // If the panel fits without a scrollbar, don't add one.
         c.recompute_layout(ctx);
@@ -567,9 +570,6 @@ impl Composite {
                 Slider::vertical(ctx, ctx.canvas.window_height),
             );
             c.top_level = ManagedWidget::row(vec![c.top_level, ManagedWidget::slider("scrollbar")]);
-            for (name, menu) in menus {
-                c.menus.insert(name.to_string(), menu);
-            }
             c.recompute_layout(ctx);
         }
         c
