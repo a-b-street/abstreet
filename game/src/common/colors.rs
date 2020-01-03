@@ -18,7 +18,7 @@ pub struct ColorerBuilder {
 
 pub struct Colorer {
     zoomed: Drawable,
-    unzoomed: Drawable,
+    pub unzoomed: Drawable,
     legend: ColorLegend,
 }
 

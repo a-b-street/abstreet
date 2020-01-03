@@ -78,6 +78,17 @@ impl Overlays {
         }
     }
 
+    pub fn maybe_colorer(&self) -> Option<&Colorer> {
+        match self {
+            Overlays::ParkingAvailability(_, ref heatmap)
+            | Overlays::BikeNetwork(ref heatmap)
+            | Overlays::BusNetwork(ref heatmap)
+            | Overlays::IntersectionDelay(_, ref heatmap)
+            | Overlays::CumulativeThroughput(_, ref heatmap) => Some(heatmap),
+            _ => None,
+        }
+    }
+
     pub fn change_overlays(_: &mut EventCtx, _: &mut UI) -> Option<Transition> {
         Some(Transition::Push(WizardState::new(Box::new(
             |wiz, ctx, _| {

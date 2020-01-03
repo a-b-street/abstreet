@@ -257,7 +257,7 @@ impl State for SandboxMode {
         self.gameplay.draw(g, ui);
         self.agent_meter.draw(g);
         if let Some(ref m) = self.minimap {
-            m.draw(g, ui);
+            m.draw(g, ui, self.overlay.maybe_colorer());
         }
     }
 

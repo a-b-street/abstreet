@@ -1,3 +1,4 @@
+use crate::common::Colorer;
 use crate::game::{Transition, WizardState};
 use crate::render::{AgentColorScheme, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::UI;
@@ -214,7 +215,7 @@ impl Minimap {
         None
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    pub fn draw(&self, g: &mut GfxCtx, ui: &UI, colorer: Option<&Colorer>) {
         self.controls.draw(g);
 
         if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
@@ -245,6 +246,9 @@ impl Minimap {
             &inner_rect,
         );
         g.redraw_clipped(&ui.primary.draw_map.draw_all_buildings, &inner_rect);
+        if let Some(ref c) = colorer {
+            g.redraw_clipped(&c.unzoomed, &inner_rect);
+        }
 
         let mut cache = ui.primary.draw_map.agents.borrow_mut();
         cache.draw_unzoomed_agents(
