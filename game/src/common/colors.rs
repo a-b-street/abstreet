@@ -1,7 +1,8 @@
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::UI;
 use ezgui::{
-    Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ManagedWidget, ScreenPt, Text,
+    Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
+    ManagedWidget, Text, VerticalAlignment,
 };
 use geom::{Circle, Distance, Pt2D};
 use map_model::{BuildingID, IntersectionID, LaneID, Map, RoadID};
@@ -114,6 +115,7 @@ impl ColorerBuilder {
     }
 }
 
+// TODO This is almost just exclusive to Colorer!
 pub struct ColorLegend {
     composite: Composite,
 }
@@ -137,10 +139,10 @@ impl ColorLegend {
             ]));
         }
         ColorLegend {
-            composite: Composite::minimal_size(
+            composite: Composite::aligned(
                 ctx,
+                (HorizontalAlignment::Right, VerticalAlignment::Center),
                 ManagedWidget::col(col).bg(Color::grey(0.4)),
-                ScreenPt::new(0.0, 150.0),
             ),
         }
     }
