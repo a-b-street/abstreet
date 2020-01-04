@@ -335,7 +335,6 @@ impl TripManager {
         map: &Map,
         transit: &mut TransitSimState,
     ) -> Option<BusRouteID> {
-        self.events.push(Event::PedReachedBusStop(ped, stop));
         let trip = &mut self.trips[self.active_trip_mode[&AgentID::Pedestrian(ped)].0];
         match trip.legs[0] {
             TripLeg::Walk(p, _, ref spot) => {
@@ -346,6 +345,7 @@ impl TripManager {
         }
         match trip.legs[1] {
             TripLeg::RideBus(_, route, stop2) => {
+                self.events.push(Event::PedReachedBusStop(ped, stop, route));
                 self.events.push(Event::TripPhaseStarting(
                     trip.id,
                     None,

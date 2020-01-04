@@ -8,10 +8,10 @@ use crate::{
 };
 use abstutil::Timer;
 use derivative::Derivative;
-use geom::{Distance, Duration, DurationHistogram, PolyLine, Pt2D, Time};
+use geom::{Distance, Duration, PolyLine, Pt2D, Time};
 use map_model::{
-    BuildingID, BusRoute, BusRouteID, BusStopID, IntersectionID, LaneID, Map, Path,
-    PathConstraints, PathRequest, PathStep, Traversable,
+    BuildingID, BusRoute, BusRouteID, IntersectionID, LaneID, Map, Path, PathConstraints,
+    PathRequest, PathStep, Traversable,
 };
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashSet};
@@ -1021,10 +1021,6 @@ impl Sim {
 
     pub fn trip_spec_to_path_req(&self, spec: &TripSpec, map: &Map) -> PathRequest {
         spec.get_pathfinding_request(map, &self.parking)
-    }
-
-    pub fn peds_waiting_stats(&self, stop: BusStopID) -> BTreeMap<BusRouteID, DurationHistogram> {
-        self.transit.peds_waiting_stats(self.time, stop)
     }
 }
 

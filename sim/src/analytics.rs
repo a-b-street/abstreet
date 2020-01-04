@@ -14,6 +14,7 @@ pub struct Analytics {
     #[serde(skip_serializing, skip_deserializing)]
     pub(crate) test_expectations: VecDeque<Event>,
     pub bus_arrivals: Vec<(Time, CarID, BusRouteID, BusStopID)>,
+    pub bus_passengers_waiting: Vec<(Time, BusStopID, BusRouteID)>,
     // TODO Hack: No TripMode means aborted
     // Finish time, ID, mode (or None as aborted), trip duration
     pub finished_trips: Vec<(Time, TripID, Option<TripMode>, Duration)>,
@@ -53,6 +54,7 @@ impl Analytics {
             },
             test_expectations: VecDeque::new(),
             bus_arrivals: Vec::new(),
+            bus_passengers_waiting: Vec::new(),
             finished_trips: Vec::new(),
             trip_log: Vec::new(),
             intersection_delays: BTreeMap::new(),
@@ -111,6 +113,11 @@ impl Analytics {
         // Bus arrivals
         if let Event::BusArrivedAtStop(bus, route, stop) = ev {
             self.bus_arrivals.push((time, bus, route, stop));
+        }
+
+        // Bus passengers
+        if let Event::PedReachedBusStop(_, stop, route) = ev {
+            self.bus_passengers_waiting.push((time, stop, route));
         }
 
         // Finished trips
@@ -288,6 +295,48 @@ impl Analytics {
             }
         }
         delays_to_stop
+    }
+
+    // At some moment in time, what's the distribution of passengers waiting for a route like?
+    pub fn bus_passenger_delays(
+        &self,
+        now: Time,
+        r: BusRouteID,
+    ) -> BTreeMap<BusStopID, DurationHistogram> {
+        let mut waiting_per_stop = BTreeMap::new();
+        for (t, stop, route) in &self.bus_passengers_waiting {
+            if *t > now {
+                break;
+            }
+            if *route == r {
+                waiting_per_stop
+                    .entry(*stop)
+                    .or_insert_with(Vec::new)
+                    .push(*t);
+            }
+        }
+
+        for (t, _, route, stop) in &self.bus_arrivals {
+            if *t > now {
+                break;
+            }
+            if *route == r {
+                if let Some(ref mut times) = waiting_per_stop.get_mut(stop) {
+                    times.retain(|time| *time > *t);
+                }
+            }
+        }
+
+        waiting_per_stop
+            .into_iter()
+            .map(|(k, v)| {
+                let mut delays = DurationHistogram::new();
+                for t in v {
+                    delays.add(now - t);
+                }
+                (k, delays)
+            })
+            .collect()
     }
 
     // Slightly misleading -- TripMode::Transit means buses, not pedestrians taking transit

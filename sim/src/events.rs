@@ -16,7 +16,7 @@ pub enum Event {
     PedReachedParkingSpot(PedestrianID, ParkingSpot),
     PedReachedBuilding(PedestrianID, BuildingID),
     PedReachedBorder(PedestrianID, IntersectionID),
-    PedReachedBusStop(PedestrianID, BusStopID),
+    PedReachedBusStop(PedestrianID, BusStopID, BusRouteID),
     PedEntersBus(PedestrianID, CarID, BusRouteID),
     PedLeavesBus(PedestrianID, CarID, BusRouteID),
 

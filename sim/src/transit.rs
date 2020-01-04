@@ -1,6 +1,6 @@
 use crate::{CarID, Event, PedestrianID, Router, Scheduler, TripManager, WalkingSimState};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use geom::{Distance, DurationHistogram, Time};
+use geom::{Distance, Time};
 use map_model::{
     BusRoute, BusRouteID, BusStopID, Map, Path, PathConstraints, PathRequest, Position,
 };
@@ -271,22 +271,5 @@ impl TransitSimState {
         } else {
             Vec::new()
         }
-    }
-
-    pub fn peds_waiting_stats(
-        &self,
-        now: Time,
-        stop: BusStopID,
-    ) -> BTreeMap<BusRouteID, DurationHistogram> {
-        let mut per_route = BTreeMap::new();
-        if let Some(list) = self.peds_waiting.get(&stop) {
-            for (_, route, _, since) in list {
-                per_route
-                    .entry(*route)
-                    .or_insert_with(DurationHistogram::new)
-                    .add(now - *since);
-            }
-        }
-        per_route
     }
 }
