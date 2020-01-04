@@ -14,8 +14,6 @@ pub struct Analytics {
     #[serde(skip_serializing, skip_deserializing)]
     pub(crate) test_expectations: VecDeque<Event>,
     pub bus_arrivals: Vec<(Time, CarID, BusRouteID, BusStopID)>,
-    #[serde(skip_serializing, skip_deserializing)]
-    pub total_bus_passengers: Counter<BusRouteID>,
     // TODO Hack: No TripMode means aborted
     // Finish time, ID, mode (or None as aborted), trip duration
     pub finished_trips: Vec<(Time, TripID, Option<TripMode>, Duration)>,
@@ -55,7 +53,6 @@ impl Analytics {
             },
             test_expectations: VecDeque::new(),
             bus_arrivals: Vec::new(),
-            total_bus_passengers: Counter::new(),
             finished_trips: Vec::new(),
             trip_log: Vec::new(),
             intersection_delays: BTreeMap::new(),
@@ -114,11 +111,6 @@ impl Analytics {
         // Bus arrivals
         if let Event::BusArrivedAtStop(bus, route, stop) = ev {
             self.bus_arrivals.push((time, bus, route, stop));
-        }
-
-        // Bus passengers
-        if let Event::PedEntersBus(_, _, route) = ev {
-            self.total_bus_passengers.inc(route);
         }
 
         // Finished trips

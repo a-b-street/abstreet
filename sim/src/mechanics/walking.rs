@@ -140,7 +140,7 @@ impl WalkingSimState {
                         }
                         SidewalkPOI::BusStop(stop) => {
                             if let Some(route) =
-                                trips.ped_reached_bus_stop(ped.id, stop, map, transit)
+                                trips.ped_reached_bus_stop(now, ped.id, stop, map, transit)
                             {
                                 ped.state = PedState::WaitingForBus(route);
                                 ped.blocked_since = Some(now);

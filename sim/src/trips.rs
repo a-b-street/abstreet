@@ -329,6 +329,7 @@ impl TripManager {
     // If no route is returned, the pedestrian boarded a bus immediately.
     pub fn ped_reached_bus_stop(
         &mut self,
+        now: Time,
         ped: PedestrianID,
         stop: BusStopID,
         map: &Map,
@@ -350,7 +351,7 @@ impl TripManager {
                     None,
                     format!("{} waiting at {:?} for {}", ped, stop, route),
                 ));
-                if transit.ped_waiting_for_bus(ped, stop, route, stop2) {
+                if transit.ped_waiting_for_bus(now, ped, stop, route, stop2) {
                     trip.legs.pop_front();
                     None
                 } else {

@@ -261,7 +261,7 @@ fn info_for(id: ID, ui: &UI) -> Text {
         }
         ID::BusStop(id) => {
             let all_arrivals = &sim.get_analytics().bus_arrivals;
-            let passengers = &sim.get_analytics().total_bus_passengers;
+            let mut waiting = sim.peds_waiting_stats(id);
             for r in map.get_routes_serving_stop(id) {
                 txt.add_appended(vec![Line("- Route "), Line(&r.name).fg(name_color)]);
                 let arrivals: Vec<(Time, CarID)> = all_arrivals
@@ -278,10 +278,9 @@ fn info_for(id: ID, ui: &UI) -> Text {
                 } else {
                     txt.add(Line("  No arrivals yet"));
                 }
-                txt.add(Line(format!(
-                    "  {} passengers total (any stop)",
-                    prettyprint_usize(passengers.get(r.id))
-                )));
+                if let Some(hgram) = waiting.remove(&r.id) {
+                    txt.add(Line(format!("  Waiting: {}", hgram.describe())));
+                }
             }
         }
         ID::Area(id) => {

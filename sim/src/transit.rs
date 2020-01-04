@@ -1,6 +1,6 @@
 use crate::{CarID, Event, PedestrianID, Router, Scheduler, TripManager, WalkingSimState};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use geom::{Distance, Time};
+use geom::{Distance, DurationHistogram, Time};
 use map_model::{
     BusRoute, BusRouteID, BusStopID, Map, Path, PathConstraints, PathRequest, Position,
 };
@@ -53,8 +53,12 @@ pub struct TransitSimState {
         deserialize_with = "deserialize_btreemap"
     )]
     routes: BTreeMap<BusRouteID, Route>,
-    // Can organize this more to make querying cheaper
-    peds_waiting: Vec<(PedestrianID, BusStopID, BusRouteID, BusStopID)>,
+    // waiting at => (ped, route, bound for, started waiting)
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
+    peds_waiting: BTreeMap<BusStopID, Vec<(PedestrianID, BusRouteID, BusStopID, Time)>>,
 
     events: Vec<Event>,
 }
@@ -64,7 +68,7 @@ impl TransitSimState {
         TransitSimState {
             buses: BTreeMap::new(),
             routes: BTreeMap::new(),
-            peds_waiting: Vec::new(),
+            peds_waiting: BTreeMap::new(),
             events: Vec::new(),
         }
     }
@@ -153,14 +157,14 @@ impl TransitSimState {
         match bus.state {
             BusState::DrivingToStop(stop_idx) => {
                 bus.state = BusState::AtStop(stop_idx);
-                let stop = self.routes[&bus.route].stops[stop_idx].id;
+                let stop1 = self.routes[&bus.route].stops[stop_idx].id;
                 self.events
-                    .push(Event::BusArrivedAtStop(id, bus.route, stop));
+                    .push(Event::BusArrivedAtStop(id, bus.route, stop1));
 
                 // Deboard existing passengers.
                 let mut still_riding = Vec::new();
                 for (ped, stop2) in bus.passengers.drain(..) {
-                    if stop == stop2 {
+                    if stop1 == stop2 {
                         self.events.push(Event::PedLeavesBus(ped, id, bus.route));
                         trips.ped_left_bus(now, ped, map, scheduler);
                     } else {
@@ -171,8 +175,10 @@ impl TransitSimState {
 
                 // Board new passengers.
                 let mut still_waiting = Vec::new();
-                for (ped, stop1, route, stop2) in self.peds_waiting.drain(..) {
-                    if stop == stop1 && bus.route == route {
+                for (ped, route, stop2, started_waiting) in
+                    self.peds_waiting.remove(&stop1).unwrap_or_else(Vec::new)
+                {
+                    if bus.route == route {
                         bus.passengers.push((ped, stop2));
                         self.events.push(Event::PedEntersBus(ped, id, route));
                         let trip = trips.ped_boarded_bus(ped, walking);
@@ -186,10 +192,10 @@ impl TransitSimState {
                             format!("{} riding {}", ped, route),
                         ));
                     } else {
-                        still_waiting.push((ped, stop1, route, stop2));
+                        still_waiting.push((ped, route, stop2, started_waiting));
                     }
                 }
-                self.peds_waiting = still_waiting;
+                self.peds_waiting.insert(stop1, still_waiting);
             }
             BusState::AtStop(_) => unreachable!(),
         };
@@ -217,6 +223,7 @@ impl TransitSimState {
     // If true, the pedestrian boarded a bus immediately.
     pub fn ped_waiting_for_bus(
         &mut self,
+        now: Time,
         ped: PedestrianID,
         stop1: BusStopID,
         route_id: BusRouteID,
@@ -239,7 +246,10 @@ impl TransitSimState {
             }
         }
 
-        self.peds_waiting.push((ped, stop1, route_id, stop2));
+        self.peds_waiting
+            .entry(stop1)
+            .or_insert_with(Vec::new)
+            .push((ped, route_id, stop2, now));
         false
     }
 
@@ -261,5 +271,22 @@ impl TransitSimState {
         } else {
             Vec::new()
         }
+    }
+
+    pub fn peds_waiting_stats(
+        &self,
+        now: Time,
+        stop: BusStopID,
+    ) -> BTreeMap<BusRouteID, DurationHistogram> {
+        let mut per_route = BTreeMap::new();
+        if let Some(list) = self.peds_waiting.get(&stop) {
+            for (_, route, _, since) in list {
+                per_route
+                    .entry(*route)
+                    .or_insert_with(DurationHistogram::new)
+                    .add(now - *since);
+            }
+        }
+        per_route
     }
 }
