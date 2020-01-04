@@ -394,6 +394,7 @@ fn schedule_trip(
             if let Some((stop1, stop2, route)) =
                 map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos)
             {
+                println!("Using {} from {} to {}", route, stop1, stop2);
                 sim.schedule_trip(
                     sim.time(),
                     TripSpec::UsingTransit {
@@ -407,6 +408,7 @@ fn schedule_trip(
                     map,
                 );
             } else {
+                println!("Not using transit");
                 sim.schedule_trip(
                     sim.time(),
                     TripSpec::JustWalking {

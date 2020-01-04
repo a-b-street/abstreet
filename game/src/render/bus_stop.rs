@@ -19,11 +19,31 @@ impl DrawBusStop {
         // Kinda sad that bus stops might be very close to the start of the lane, but it's
         // happening.
         let lane = map.get_l(stop.id.sidewalk);
-        let polyline = lane.lane_center_pts.exact_slice(
-            Distance::ZERO.max(stop.sidewalk_pos.dist_along() - radius),
-            lane.length().min(stop.sidewalk_pos.dist_along() + radius),
-        );
-        let polygon = polyline.make_polygons(LANE_THICKNESS * 0.8);
+        let main_pl = lane
+            .lane_center_pts
+            .exact_slice(
+                Distance::ZERO.max(stop.sidewalk_pos.dist_along() - radius),
+                lane.length().min(stop.sidewalk_pos.dist_along() + radius),
+            )
+            .shift_right(LANE_THICKNESS * 0.3)
+            .unwrap();
+        let polyline = PolyLine::new(vec![
+            main_pl.first_pt().project_away(
+                LANE_THICKNESS * 0.5,
+                main_pl.first_line().angle().rotate_degs(-90.0),
+            ),
+            main_pl.first_pt(),
+        ])
+        .extend(main_pl.clone())
+        .extend(PolyLine::new(vec![
+            main_pl.last_pt(),
+            main_pl.last_pt().project_away(
+                LANE_THICKNESS * 0.5,
+                main_pl.last_line().angle().rotate_degs(-90.0),
+            ),
+        ]));
+
+        let polygon = polyline.make_polygons(LANE_THICKNESS * 0.25);
         let draw_default = prerender.upload_borrowed(vec![(
             cs.get_def("bus stop marking", Color::CYAN),
             &polygon,
@@ -54,7 +74,7 @@ impl Renderable for DrawBusStop {
 
     fn get_outline(&self, _: &Map) -> Polygon {
         self.polyline
-            .to_thick_boundary(LANE_THICKNESS * 0.8, OUTLINE_THICKNESS)
+            .to_thick_boundary(LANE_THICKNESS * 0.25, OUTLINE_THICKNESS)
             .unwrap_or_else(|| self.polygon.clone())
     }
 

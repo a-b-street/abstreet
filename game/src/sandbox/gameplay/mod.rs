@@ -182,7 +182,7 @@ impl GameplayRunner {
         GameplayRunner {
             mode,
             menu: menu
-                .set_standalone_layout(layout::ContainerOrientation::TopRightButDownABit(150.0)),
+                .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
             controller,
             state,
         }
