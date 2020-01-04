@@ -329,12 +329,16 @@ impl Analytics {
 
         waiting_per_stop
             .into_iter()
-            .map(|(k, v)| {
+            .filter_map(|(k, v)| {
                 let mut delays = DurationHistogram::new();
                 for t in v {
                     delays.add(now - t);
                 }
-                (k, delays)
+                if delays.count() == 0 {
+                    None
+                } else {
+                    Some((k, delays))
+                }
             })
             .collect()
     }

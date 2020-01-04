@@ -18,6 +18,7 @@ pub struct OptimizeBus {
     route: BusRouteID,
     time: Time,
     stat: Statistic,
+    show_passengers: bool,
 }
 
 impl OptimizeBus {
@@ -34,6 +35,7 @@ impl OptimizeBus {
                     (hotkey(Key::E), "show bus route"),
                     (hotkey(Key::T), "show delays over time"),
                     (hotkey(Key::S), "change statistic"),
+                    (hotkey(Key::P), "toggle passengers / bus arrivals"),
                     (hotkey(Key::H), "help"),
                 ],
                 ctx,
@@ -43,6 +45,7 @@ impl OptimizeBus {
                 route: route.id,
                 time: Time::START_OF_DAY,
                 stat: Statistic::Max,
+                show_passengers: true,
             }),
         )
     }
@@ -93,9 +96,27 @@ impl GameplayState for OptimizeBus {
         // TODO Expensive
         if self.time != ui.primary.sim.time() {
             self.time = ui.primary.sim.time();
-            menu.set_info(ctx, bus_route_panel(self.route, self.stat, ui));
+            menu.set_info(
+                ctx,
+                if self.show_passengers {
+                    passenger_delay_panel(self.route, ui)
+                } else {
+                    bus_route_panel(self.route, self.stat, ui)
+                },
+            );
         }
 
+        if menu.action("toggle passengers / bus arrivals") {
+            self.show_passengers = !self.show_passengers;
+            menu.set_info(
+                ctx,
+                if self.show_passengers {
+                    passenger_delay_panel(self.route, ui)
+                } else {
+                    bus_route_panel(self.route, self.stat, ui)
+                },
+            );
+        }
         if menu.action("change statistic") {
             return Some(Transition::Push(WizardState::new(Box::new(
                 move |wiz, ctx, _| {
@@ -166,6 +187,30 @@ fn bus_route_panel(id: BusRouteID, stat: Statistic, ui: &UI) -> Text {
             }
         } else {
             txt.append(Line("no arrivals yet"));
+        }
+    }
+    txt
+}
+
+fn passenger_delay_panel(id: BusRouteID, ui: &UI) -> Text {
+    let mut delay_per_stop = ui
+        .primary
+        .sim
+        .get_analytics()
+        .bus_passenger_delays(ui.primary.sim.time(), id);
+    let route = ui.primary.map.get_br(id);
+    let mut txt = Text::new();
+    txt.add(Line("Passengers waiting currently"));
+    for idx in 0..route.stops.len() {
+        txt.add(Line(format!("Stop {}: ", idx + 1)));
+        if let Some(hgram) = delay_per_stop.remove(&route.stops[idx]) {
+            txt.append(Line(format!(
+                "{} (avg {})",
+                hgram.count(),
+                hgram.select(Statistic::Mean)
+            )));
+        } else {
+            txt.append(Line("nobody"));
         }
     }
     txt

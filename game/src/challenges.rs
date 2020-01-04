@@ -55,26 +55,26 @@ pub fn all_challenges() -> BTreeMap<String, Vec<Challenge>> {
         },
     ]);
     tree.insert(
-        "Speed up bus route 48".to_string(),
+        "Speed up bus route 43".to_string(),
         vec![
             Challenge {
                 title: "Just Montlake area".to_string(),
                 description: vec![
-                "Decrease the average waiting time between all of route 48's stops by at least 30s"
+                "Decrease the average waiting time between all of route 43's stops by at least 30s"
                     .to_string()],
                 map_path: abstutil::path_map("montlake"),
-                alias: "bus48/montlake".to_string(),
-                gameplay: GameplayMode::OptimizeBus("48".to_string()),
+                alias: "bus43/montlake".to_string(),
+                gameplay: GameplayMode::OptimizeBus("43".to_string()),
             },
             Challenge {
-                title: "Larger area of the 48".to_string(),
+                title: "Larger area of the 43".to_string(),
                 description: vec![
-                    "Decrease the average waiting time between all of 48's stops by at least 30s"
+                    "Decrease the average waiting time between all of 43's stops by at least 30s"
                         .to_string(),
                 ],
                 map_path: abstutil::path_map("23rd"),
-                alias: "bus48/23rd".to_string(),
-                gameplay: GameplayMode::OptimizeBus("48".to_string()),
+                alias: "bus43/23rd".to_string(),
+                gameplay: GameplayMode::OptimizeBus("43".to_string()),
             },
         ],
     );
