@@ -234,3 +234,8 @@ changes here.
 - minimap has buttons to pan
 
 0.1.22
+
+- minimap zoom controls
+- traffic signal rendering overhaul
+- heatmap colors improved, heatmap appears on minimap
+- bus info panel, a start to live delay analytics
