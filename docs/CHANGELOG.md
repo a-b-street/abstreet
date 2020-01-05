@@ -232,3 +232,5 @@ changes here.
 - traffic signal preview has normal time/speed controls
 - traffic signal editor has undo support
 - minimap has buttons to pan
+
+0.1.22
