@@ -153,7 +153,7 @@ impl State for BusRouteExplorer {
             // TODO Or use what debug mode is showing?
             ui.recalculate_current_selection(ctx);
         }
-        ctx.canvas.handle_event(ctx.input);
+        ctx.canvas_movement();
 
         if let Some((evmode, done_warping)) = self.slider.event(ctx) {
             if done_warping {

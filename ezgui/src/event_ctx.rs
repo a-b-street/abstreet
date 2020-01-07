@@ -1,7 +1,7 @@
 use crate::assets::Assets;
 use crate::{
-    Canvas, Color, GfxCtx, HorizontalAlignment, Line, Prerender, ScreenDims, Text, UserInput,
-    VerticalAlignment,
+    Canvas, Color, Event, GfxCtx, HorizontalAlignment, Line, Prerender, ScreenDims, Text,
+    UserInput, VerticalAlignment,
 };
 use abstutil::{elapsed_seconds, Timer, TimerSink};
 use geom::Angle;
@@ -11,7 +11,8 @@ use std::collections::VecDeque;
 use std::time::Instant;
 
 pub struct EventCtx<'a> {
-    pub input: &'a mut UserInput,
+    pub(crate) fake_mouseover: bool,
+    pub input: UserInput,
     // TODO These two probably shouldn't be public
     pub canvas: &'a mut Canvas,
     pub prerender: &'a Prerender<'a>,
@@ -41,8 +42,25 @@ impl<'a> EventCtx<'a> {
         f(self, &mut timer)
     }
 
+    pub fn canvas_movement(&mut self) {
+        self.canvas.handle_event(&mut self.input)
+    }
+
+    pub(crate) fn fake_mouseover<F: FnMut(&mut EventCtx)>(&mut self, mut cb: F) {
+        let mut tmp = EventCtx {
+            fake_mouseover: true,
+            input: UserInput::new(Event::NoOp, self.canvas),
+            canvas: self.canvas,
+            prerender: self.prerender,
+            program: self.program,
+            assets: self.assets,
+        };
+        cb(&mut tmp);
+    }
+
     pub fn redo_mouseover(&self) -> bool {
-        self.input.window_lost_cursor()
+        self.fake_mouseover
+            || self.input.window_lost_cursor()
             || (!self.is_dragging() && self.input.get_moved_mouse().is_some())
             || self.input.get_mouse_scroll().is_some()
     }

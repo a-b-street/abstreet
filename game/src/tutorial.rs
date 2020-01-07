@@ -35,7 +35,7 @@ impl State for TutorialMode {
         }
         self.menu.set_info(ctx, txt);
         self.menu.event(ctx);
-        ctx.canvas.handle_event(ctx.input);
+        ctx.canvas_movement();
 
         if self.menu.action("quit") {
             return Transition::Pop;
@@ -68,7 +68,7 @@ impl State for Part2 {
         }
         self.menu.set_info(ctx, txt);
         self.menu.event(ctx);
-        ctx.canvas.handle_event(ctx.input);
+        ctx.canvas_movement();
 
         if self.menu.action("quit") {
             return Transition::Pop;

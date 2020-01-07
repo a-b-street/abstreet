@@ -17,7 +17,7 @@ pub struct FixTrafficSignals {
 
 impl FixTrafficSignals {
     pub fn new(
-        ctx: &EventCtx,
+        ctx: &mut EventCtx,
         ui: &UI,
         mode: GameplayMode,
     ) -> (ModalMenu, Composite, Box<dyn GameplayState>) {

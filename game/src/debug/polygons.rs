@@ -159,7 +159,7 @@ impl PolygonDebugger {
 
 impl State for PolygonDebugger {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
-        ctx.canvas.handle_event(ctx.input);
+        ctx.canvas_movement();
 
         if let Some((evmode, _)) = self.slider.event(ctx) {
             Transition::KeepWithMode(evmode)

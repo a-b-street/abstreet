@@ -19,7 +19,7 @@ pub struct Freeform {
 }
 
 impl Freeform {
-    pub fn new(ctx: &EventCtx, ui: &UI) -> (ModalMenu, Composite, Box<dyn GameplayState>) {
+    pub fn new(ctx: &mut EventCtx, ui: &UI) -> (ModalMenu, Composite, Box<dyn GameplayState>) {
         (
             ModalMenu::new("Freeform mode", vec![(hotkey(Key::H), "help")], ctx),
             freeform_controller(ctx, ui, GameplayMode::Freeform, "empty scenario"),
@@ -71,7 +71,7 @@ impl GameplayState for Freeform {
 }
 
 pub fn freeform_controller(
-    ctx: &EventCtx,
+    ctx: &mut EventCtx,
     ui: &UI,
     gameplay: GameplayMode,
     scenario_name: &str,

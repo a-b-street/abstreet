@@ -11,7 +11,7 @@ use ezgui::{
 };
 
 // TODO Rethink this API.
-pub fn tool_panel(ctx: &EventCtx, extra_buttons: Vec<ManagedWidget>) -> Composite {
+pub fn tool_panel(ctx: &mut EventCtx, extra_buttons: Vec<ManagedWidget>) -> Composite {
     let mut row = vec![
         // TODO Maybe this is confusing -- it doesn't jump to the title screen necessarily.
         // Caller has to handle this one
@@ -105,7 +105,7 @@ pub fn tool_panel(ctx: &EventCtx, extra_buttons: Vec<ManagedWidget>) -> Composit
     )
 }
 
-pub fn edit_map_panel(ctx: &EventCtx, ui: &UI, gameplay: GameplayMode) -> Composite {
+pub fn edit_map_panel(ctx: &mut EventCtx, ui: &UI, gameplay: GameplayMode) -> Composite {
     Composite::new(ezgui::Composite::aligned(
         ctx,
         (HorizontalAlignment::Center, VerticalAlignment::Top),

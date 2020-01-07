@@ -161,7 +161,7 @@ impl State for ScenarioManager {
             self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);
-        ctx.canvas.handle_event(ctx.input);
+        ctx.canvas_movement();
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);
         }

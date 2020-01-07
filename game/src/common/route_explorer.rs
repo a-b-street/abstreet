@@ -59,7 +59,7 @@ impl State for RouteExplorer {
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);
         }
-        ctx.canvas.handle_event(ctx.input);
+        ctx.canvas_movement();
 
         // We don't really care about setting current_selection to the current step; drawing covers
         // it up anyway.

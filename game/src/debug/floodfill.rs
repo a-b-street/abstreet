@@ -77,7 +77,7 @@ impl State for Floodfiller {
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);
         }
-        ctx.canvas.handle_event(ctx.input);
+        ctx.canvas_movement();
 
         self.menu.event(ctx);
         if self.menu.action("quit") {

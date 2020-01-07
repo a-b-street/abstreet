@@ -28,7 +28,12 @@ enum SpeedState {
 }
 
 impl SpeedControls {
-    fn make_panel(ctx: &EventCtx, paused: bool, actual_speed: &str, slider: Slider) -> Composite {
+    fn make_panel(
+        ctx: &mut EventCtx,
+        paused: bool,
+        actual_speed: &str,
+        slider: Slider,
+    ) -> Composite {
         let mut row = Vec::new();
         if paused {
             row.push(ManagedWidget::btn(Button::rectangle_svg(
@@ -148,7 +153,7 @@ impl SpeedControls {
         )
     }
 
-    pub fn new(ctx: &EventCtx, ui: &UI) -> SpeedControls {
+    pub fn new(ctx: &mut EventCtx, ui: &UI) -> SpeedControls {
         // 10 sim minutes / real second normally, or 1 sim hour / real second for dev mode
         let speed_cap: f64 = if ui.opts.dev { 3600.0 } else { 600.0 };
         let mut slider = Slider::horizontal(ctx, 160.0);
@@ -264,7 +269,7 @@ impl SpeedControls {
         self.composite.draw(g);
     }
 
-    pub fn pause(&mut self, ctx: &EventCtx) {
+    pub fn pause(&mut self, ctx: &mut EventCtx) {
         if !self.is_paused() {
             self.state = SpeedState::Paused;
             self.composite =
@@ -361,7 +366,7 @@ pub struct TimePanel {
 }
 
 impl TimePanel {
-    pub fn new(ctx: &EventCtx, ui: &UI) -> TimePanel {
+    pub fn new(ctx: &mut EventCtx, ui: &UI) -> TimePanel {
         TimePanel {
             time: ui.primary.sim.time(),
             composite: ezgui::Composite::aligned(

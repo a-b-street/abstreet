@@ -95,7 +95,7 @@ impl State for TrafficSignalEditor {
 
             self.menu.set_info(ctx, txt);
         }
-        ctx.canvas.handle_event(ctx.input);
+        ctx.canvas_movement();
         self.diagram.event(ctx, ui, &mut self.menu);
 
         if ctx.redo_mouseover() {
@@ -509,7 +509,7 @@ struct PreviewTrafficSignal {
 }
 
 impl PreviewTrafficSignal {
-    fn new(ctx: &EventCtx, ui: &UI) -> PreviewTrafficSignal {
+    fn new(ctx: &mut EventCtx, ui: &UI) -> PreviewTrafficSignal {
         PreviewTrafficSignal {
             menu: ModalMenu::new(
                 "Preview traffic signal",
@@ -525,7 +525,7 @@ impl PreviewTrafficSignal {
 
 impl State for PreviewTrafficSignal {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        ctx.canvas.handle_event(ctx.input);
+        ctx.canvas_movement();
         self.menu.event(ctx);
         if self.menu.action("back to editing") {
             ui.primary.clear_sim();

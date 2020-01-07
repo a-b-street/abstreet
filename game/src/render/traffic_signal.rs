@@ -164,7 +164,7 @@ impl TrafficSignalDiagram {
         i: IntersectionID,
         current_phase: usize,
         ui: &UI,
-        ctx: &EventCtx,
+        ctx: &mut EventCtx,
     ) -> TrafficSignalDiagram {
         TrafficSignalDiagram {
             i,
@@ -192,7 +192,7 @@ impl TrafficSignalDiagram {
         }
     }
 
-    fn change_phase(&mut self, idx: usize, ui: &UI, ctx: &EventCtx) {
+    fn change_phase(&mut self, idx: usize, ui: &UI, ctx: &mut EventCtx) {
         if self.current_phase != idx {
             let preserve_scroll = self.composite.preserve_scroll(ctx);
             self.current_phase = idx;
@@ -210,7 +210,7 @@ impl TrafficSignalDiagram {
     }
 }
 
-fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &EventCtx) -> Composite {
+fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx) -> Composite {
     // Slightly inaccurate -- the turn rendering may slightly exceed the intersection polygon --
     // but this is close enough.
     let bounds = ui.primary.map.get_i(i).polygon.get_bounds();

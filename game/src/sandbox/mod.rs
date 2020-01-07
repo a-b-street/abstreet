@@ -83,7 +83,7 @@ impl State for SandboxMode {
             return t;
         }
 
-        ctx.canvas.handle_event(ctx.input);
+        ctx.canvas_movement();
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);
         }
@@ -270,7 +270,7 @@ struct AgentMeter {
 }
 
 impl AgentMeter {
-    pub fn new(ctx: &EventCtx, ui: &UI) -> AgentMeter {
+    pub fn new(ctx: &mut EventCtx, ui: &UI) -> AgentMeter {
         let (active, unfinished, by_mode) = ui.primary.sim.num_trips();
 
         let composite = Composite::aligned(

@@ -52,7 +52,7 @@ impl StopSignEditor {
 impl State for StopSignEditor {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         self.menu.event(ctx);
-        ctx.canvas.handle_event(ctx.input);
+        ctx.canvas_movement();
 
         if ctx.redo_mouseover() {
             self.selected_sign = None;

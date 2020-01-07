@@ -135,7 +135,7 @@ impl Overlays {
 }
 
 impl Overlays {
-    fn parking_availability(ctx: &EventCtx, ui: &UI) -> Overlays {
+    fn parking_availability(ctx: &mut EventCtx, ui: &UI) -> Overlays {
         let (filled_spots, avail_spots) = ui.primary.sim.get_all_parking_spots();
         let mut txt = Text::from(Line("parking availability"));
         txt.add(Line(format!(
@@ -207,7 +207,7 @@ impl Overlays {
         Overlays::ParkingAvailability(ui.primary.sim.time(), colorer.build(ctx, ui))
     }
 
-    pub fn intersection_delay(ctx: &EventCtx, ui: &UI) -> Overlays {
+    pub fn intersection_delay(ctx: &mut EventCtx, ui: &UI) -> Overlays {
         let fast = Color::hex("#7FFA4D");
         let meh = Color::hex("#F4DA22");
         let slow = Color::hex("#EB5757");
@@ -239,7 +239,7 @@ impl Overlays {
         Overlays::IntersectionDelay(ui.primary.sim.time(), colorer.build(ctx, ui))
     }
 
-    fn cumulative_throughput(ctx: &EventCtx, ui: &UI) -> Overlays {
+    fn cumulative_throughput(ctx: &mut EventCtx, ui: &UI) -> Overlays {
         let light = Color::hex("#7FFA4D");
         let medium = Color::hex("#F4DA22");
         let heavy = Color::hex("#EB5757");
@@ -293,7 +293,7 @@ impl Overlays {
         Overlays::CumulativeThroughput(ui.primary.sim.time(), colorer.build(ctx, ui))
     }
 
-    fn bike_network(ctx: &EventCtx, ui: &UI) -> Overlays {
+    fn bike_network(ctx: &mut EventCtx, ui: &UI) -> Overlays {
         let color = Color::hex("#7FFA4D");
         let mut colorer = ColorerBuilder::new(
             Text::from(Line("bike networks")),
@@ -307,7 +307,7 @@ impl Overlays {
         Overlays::BikeNetwork(colorer.build(ctx, ui))
     }
 
-    fn bus_network(ctx: &EventCtx, ui: &UI) -> Overlays {
+    fn bus_network(ctx: &mut EventCtx, ui: &UI) -> Overlays {
         let color = Color::hex("#4CA7E9");
         let mut colorer =
             ColorerBuilder::new(Text::from(Line("bus networks")), vec![("bus lanes", color)]);
@@ -319,7 +319,7 @@ impl Overlays {
         Overlays::BusNetwork(colorer.build(ctx, ui))
     }
 
-    pub fn finished_trips_histogram(ctx: &EventCtx, ui: &UI) -> Overlays {
+    pub fn finished_trips_histogram(ctx: &mut EventCtx, ui: &UI) -> Overlays {
         let now = ui.primary.sim.time();
         Overlays::FinishedTripsHistogram(
             now,
@@ -341,7 +341,7 @@ impl Overlays {
         )
     }
 
-    pub fn intersection_demand(i: IntersectionID, ctx: &EventCtx, ui: &UI) -> Overlays {
+    pub fn intersection_demand(i: IntersectionID, ctx: &mut EventCtx, ui: &UI) -> Overlays {
         let mut batch = GeomBatch::new();
 
         let mut total_demand = 0;

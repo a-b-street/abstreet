@@ -30,7 +30,7 @@ impl Navigator {
 impl State for Navigator {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         let map = &ui.primary.map;
-        match self.autocomplete.event(ctx.input) {
+        match self.autocomplete.event(ctx) {
             InputResult::Canceled => Transition::Pop,
             InputResult::Done(name, ids) => {
                 // Roads share intersections, so of course there'll be overlap here.
@@ -74,7 +74,7 @@ impl State for CrossStreet {
     // When None, this is done.
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         let map = &ui.primary.map;
-        match self.autocomplete.event(ctx.input) {
+        match self.autocomplete.event(ctx) {
             InputResult::Canceled => {
                 // Just warp to somewhere on the first road
                 let road = map.get_r(self.first);

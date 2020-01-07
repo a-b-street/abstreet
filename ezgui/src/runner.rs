@@ -46,7 +46,7 @@ impl<G: GUI> State<G> {
     ) -> (State<G>, EventLoopMode, bool) {
         // It's impossible / very unlikey we'll grab the cursor in map space before the very first
         // start_drawing call.
-        let mut input = UserInput::new(ev, &self.canvas);
+        let input = UserInput::new(ev, &self.canvas);
         let mut gui = self.gui;
         let mut canvas = self.canvas;
 
@@ -80,31 +80,32 @@ impl<G: GUI> State<G> {
         }
 
         let assets = self.assets;
-        let event_mode = match panic::catch_unwind(panic::AssertUnwindSafe(|| {
-            gui.event(&mut EventCtx {
-                input: &mut input,
-                canvas: &mut canvas,
-                assets: &assets,
-                prerender,
-                program,
-            })
-        })) {
+        let mut ctx = EventCtx {
+            fake_mouseover: false,
+            input: input,
+            canvas: &mut canvas,
+            assets: &assets,
+            prerender,
+            program,
+        };
+        let event_mode = match panic::catch_unwind(panic::AssertUnwindSafe(|| gui.event(&mut ctx)))
+        {
             Ok(pair) => pair,
             Err(err) => {
                 gui.dump_before_abort(&canvas);
                 panic::resume_unwind(err);
             }
         };
-        self.gui = gui;
-        self.canvas = canvas;
-        self.assets = assets;
         // TODO We should always do has_been_consumed, but various hacks prevent this from being
         // true. For now, just avoid the specific annoying redraw case when a KeyRelease or Update
         // event is unused.
         let input_used = match ev {
-            Event::KeyRelease(_) | Event::Update => input.has_been_consumed(),
+            Event::KeyRelease(_) | Event::Update => ctx.input.has_been_consumed(),
             _ => true,
         };
+        self.gui = gui;
+        self.canvas = canvas;
+        self.assets = assets;
 
         (self, event_mode, input_used)
     }
@@ -296,7 +297,8 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: 
     };
 
     let gui = make_gui(&mut EventCtx {
-        input: &mut UserInput::new(Event::NoOp, &canvas),
+        fake_mouseover: true,
+        input: UserInput::new(Event::NoOp, &canvas),
         canvas: &mut canvas,
         assets: &assets,
         prerender: &prerender,

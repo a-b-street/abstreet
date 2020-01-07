@@ -93,7 +93,7 @@ impl State for DebugMode {
         }
         self.menu.event(ctx);
 
-        ctx.canvas.handle_event(ctx.input);
+        ctx.canvas_movement();
         self.associated.event(ui);
 
         if self.menu.action("save sim state") {

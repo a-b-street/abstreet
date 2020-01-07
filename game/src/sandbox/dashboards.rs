@@ -23,7 +23,7 @@ pub enum Tab {
 }
 
 // Oh the dashboards melted, but we still had the radio
-pub fn make(ctx: &EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
+pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
     let tab_data = vec![
         (Tab::FinishedTripsSummary, "Finished trips summary"),
         (

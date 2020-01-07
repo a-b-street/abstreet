@@ -104,7 +104,7 @@ impl State for TripsVisualizer {
             self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);
-        ctx.canvas.handle_event(ctx.input);
+        ctx.canvas_movement();
         layout::stack_vertically(
             layout::ContainerOrientation::TopRight,
             ctx,

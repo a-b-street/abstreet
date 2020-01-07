@@ -15,7 +15,7 @@ pub struct CreateGridlock {
 }
 
 impl CreateGridlock {
-    pub fn new(ctx: &EventCtx, ui: &UI) -> (ModalMenu, Composite, Box<dyn GameplayState>) {
+    pub fn new(ctx: &mut EventCtx, ui: &UI) -> (ModalMenu, Composite, Box<dyn GameplayState>) {
         (
             ModalMenu::new(
                 "Cause gridlock",

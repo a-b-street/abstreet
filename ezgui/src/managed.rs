@@ -498,14 +498,19 @@ impl Composite {
         }
     }
 
-    pub fn minimal_size(ctx: &EventCtx, top_level: ManagedWidget, top_left: ScreenPt) -> Composite {
+    pub fn minimal_size(
+        ctx: &mut EventCtx,
+        top_level: ManagedWidget,
+        top_left: ScreenPt,
+    ) -> Composite {
         let mut c = Composite::new(top_level, CompositePosition::MinimalTopLeft(top_left));
         c.recompute_layout(ctx);
+        ctx.fake_mouseover(|ctx| assert!(c.event(ctx).is_none()));
         c
     }
 
     pub fn minimal_size_with_fillers(
-        ctx: &EventCtx,
+        ctx: &mut EventCtx,
         top_level: ManagedWidget,
         top_left: ScreenPt,
         fillers: Vec<(&str, Filler)>,
@@ -515,27 +520,30 @@ impl Composite {
             c.fillers.insert(name.to_string(), filler);
         }
         c.recompute_layout(ctx);
+        ctx.fake_mouseover(|ctx| assert!(c.event(ctx).is_none()));
         c
     }
 
-    pub fn fill_screen(ctx: &EventCtx, top_level: ManagedWidget) -> Composite {
+    pub fn fill_screen(ctx: &mut EventCtx, top_level: ManagedWidget) -> Composite {
         let mut c = Composite::new(top_level, CompositePosition::FillScreen);
         c.recompute_layout(ctx);
+        ctx.fake_mouseover(|ctx| assert!(c.event(ctx).is_none()));
         c
     }
 
     pub fn aligned(
-        ctx: &EventCtx,
+        ctx: &mut EventCtx,
         (horiz, vert): (HorizontalAlignment, VerticalAlignment),
         top_level: ManagedWidget,
     ) -> Composite {
         let mut c = Composite::new(top_level, CompositePosition::Aligned(horiz, vert));
         c.recompute_layout(ctx);
+        ctx.fake_mouseover(|ctx| assert!(c.event(ctx).is_none()));
         c
     }
 
     pub fn aligned_with_sliders(
-        ctx: &EventCtx,
+        ctx: &mut EventCtx,
         (horiz, vert): (HorizontalAlignment, VerticalAlignment),
         top_level: ManagedWidget,
         sliders: Vec<(&str, Slider)>,
@@ -545,11 +553,12 @@ impl Composite {
             c.sliders.insert(name.to_string(), slider);
         }
         c.recompute_layout(ctx);
+        ctx.fake_mouseover(|ctx| assert!(c.event(ctx).is_none()));
         c
     }
 
     pub fn scrollable(
-        ctx: &EventCtx,
+        ctx: &mut EventCtx,
         top_level: ManagedWidget,
         menus: Vec<(&str, Menu)>,
     ) -> Composite {
@@ -572,6 +581,7 @@ impl Composite {
             c.top_level = ManagedWidget::row(vec![c.top_level, ManagedWidget::slider("scrollbar")]);
             c.recompute_layout(ctx);
         }
+        ctx.fake_mouseover(|ctx| assert!(c.event(ctx).is_none()));
         c
     }
 

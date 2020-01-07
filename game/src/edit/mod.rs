@@ -34,7 +34,7 @@ pub struct EditMode {
 }
 
 impl EditMode {
-    pub fn new(ctx: &EventCtx, ui: &mut UI, mode: GameplayMode) -> EditMode {
+    pub fn new(ctx: &mut EventCtx, ui: &mut UI, mode: GameplayMode) -> EditMode {
         let suspended_sim = ui.primary.clear_sim();
         EditMode {
             common: CommonState::new(),
@@ -137,7 +137,7 @@ impl State for EditMode {
                 return t;
             }
         }
-        ctx.canvas.handle_event(ctx.input);
+        ctx.canvas_movement();
         // It only makes sense to mouseover lanes while painting them.
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);

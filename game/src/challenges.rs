@@ -114,7 +114,7 @@ pub fn all_challenges() -> BTreeMap<String, Vec<Challenge>> {
     tree
 }
 
-pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
+pub fn challenges_picker(ctx: &mut EventCtx) -> Box<dyn State> {
     let mut col = Vec::new();
 
     col.push(ManagedWidget::row(vec![

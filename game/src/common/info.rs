@@ -17,7 +17,7 @@ pub struct InfoPanel {
 }
 
 impl InfoPanel {
-    pub fn new(id: ID, ui: &mut UI, ctx: &EventCtx) -> InfoPanel {
+    pub fn new(id: ID, ui: &mut UI, ctx: &mut EventCtx) -> InfoPanel {
         let mut col = vec![ManagedWidget::row(vec![
             {
                 let mut txt = CommonState::default_osd(id.clone(), ui);

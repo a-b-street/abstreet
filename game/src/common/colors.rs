@@ -93,7 +93,7 @@ impl ColorerBuilder {
         self.buildings.insert(b, color);
     }
 
-    pub fn build(self, ctx: &EventCtx, ui: &UI) -> Colorer {
+    pub fn build(self, ctx: &mut EventCtx, ui: &UI) -> Colorer {
         let mut zoomed = GeomBatch::new();
         let mut unzoomed = GeomBatch::new();
 
@@ -130,7 +130,7 @@ pub struct ColorLegend {
 }
 
 impl ColorLegend {
-    pub fn new(ctx: &EventCtx, header: Text, rows: Vec<(&str, Color)>) -> ColorLegend {
+    pub fn new(ctx: &mut EventCtx, header: Text, rows: Vec<(&str, Color)>) -> ColorLegend {
         let mut col = vec![ManagedWidget::row(vec![
             ManagedWidget::draw_text(ctx, header),
             crate::managed::Composite::text_button(ctx, "X", None),

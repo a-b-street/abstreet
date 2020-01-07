@@ -212,7 +212,6 @@ impl WizardState {
 
 impl State for WizardState {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        ctx.canvas.handle_event(ctx.input);
         if let Some(t) = (self.cb)(&mut self.wizard, ctx, ui) {
             return t;
         } else if self.wizard.aborted() {

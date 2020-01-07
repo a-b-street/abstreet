@@ -440,7 +440,6 @@ impl SliderWithTextBox {
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx) -> InputResult<Time> {
-        ctx.canvas.handle_event(ctx.input);
         stack_vertically(
             ContainerOrientation::Centered,
             ctx,
@@ -453,7 +452,7 @@ impl SliderWithTextBox {
             InputResult::StillActive
         } else {
             let line_before = self.tb.get_line().to_string();
-            match self.tb.event(ctx.input) {
+            match self.tb.event(&mut ctx.input) {
                 InputResult::Done(line, _) => {
                     if let Ok(t) = Time::parse(&line) {
                         if t >= self.low && t <= self.high {

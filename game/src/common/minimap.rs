@@ -24,7 +24,7 @@ pub struct Minimap {
 }
 
 impl Minimap {
-    fn make_nav_panel(ctx: &EventCtx, zoom_lvl: usize) -> Composite {
+    fn make_nav_panel(ctx: &mut EventCtx, zoom_lvl: usize) -> Composite {
         let square_len = 0.15 * ctx.canvas.window_width;
         let mut zoom_col = vec![ManagedWidget::btn(Button::rectangle_svg(
             "assets/speed/speed_up.svg",
@@ -118,7 +118,7 @@ impl Minimap {
         )
     }
 
-    pub fn new(ctx: &EventCtx, ui: &UI) -> Minimap {
+    pub fn new(ctx: &mut EventCtx, ui: &UI) -> Minimap {
         let zoom_lvl = 0;
         let mut m = Minimap {
             dragging: false,
@@ -304,7 +304,7 @@ pub struct VisibilityPanel {
 }
 
 impl VisibilityPanel {
-    fn make_panel(ctx: &EventCtx, acs: &AgentColorScheme) -> Composite {
+    fn make_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> Composite {
         let radius = 15.0;
         let mut col = vec![
             // TODO Too wide most of the time...
@@ -362,7 +362,7 @@ impl VisibilityPanel {
         )
     }
 
-    fn new(ctx: &EventCtx, ui: &UI) -> VisibilityPanel {
+    fn new(ctx: &mut EventCtx, ui: &UI) -> VisibilityPanel {
         VisibilityPanel {
             acs: ui.agent_cs.clone(),
             composite: VisibilityPanel::make_panel(ctx, &ui.agent_cs),

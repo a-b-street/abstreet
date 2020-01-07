@@ -11,7 +11,7 @@ pub struct PlayScenario;
 impl PlayScenario {
     pub fn new(
         name: &String,
-        ctx: &EventCtx,
+        ctx: &mut EventCtx,
         ui: &UI,
     ) -> (ModalMenu, Composite, Box<dyn GameplayState>) {
         (

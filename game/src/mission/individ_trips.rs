@@ -59,7 +59,7 @@ impl TripsVisualizer {
 impl State for TripsVisualizer {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         self.slider.event(ctx);
-        ctx.canvas.handle_event(ctx.input);
+        ctx.canvas_movement();
 
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);

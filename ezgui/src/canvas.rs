@@ -71,7 +71,7 @@ impl Canvas {
         }
     }
 
-    pub fn handle_event(&mut self, input: &mut UserInput) {
+    pub(crate) fn handle_event(&mut self, input: &mut UserInput) {
         // Can't start dragging or zooming on top of covered area
         if self.get_cursor_in_map_space().is_some() {
             if input.left_mouse_button_pressed() {

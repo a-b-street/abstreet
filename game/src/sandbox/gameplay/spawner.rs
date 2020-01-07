@@ -174,7 +174,7 @@ impl State for AgentSpawner {
             return Transition::Pop;
         }
 
-        ctx.canvas.handle_event(ctx.input);
+        ctx.canvas_movement();
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);
         }
@@ -552,7 +552,7 @@ impl State for SpawnManyAgents {
             return Transition::Pop;
         }
 
-        ctx.canvas.handle_event(ctx.input);
+        ctx.canvas_movement();
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);
         }

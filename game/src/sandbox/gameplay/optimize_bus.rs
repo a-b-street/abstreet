@@ -24,7 +24,7 @@ pub struct OptimizeBus {
 impl OptimizeBus {
     pub fn new(
         route_name: String,
-        ctx: &EventCtx,
+        ctx: &mut EventCtx,
         ui: &UI,
     ) -> (ModalMenu, crate::managed::Composite, Box<dyn GameplayState>) {
         let route = ui.primary.map.get_bus_route(&route_name).unwrap();

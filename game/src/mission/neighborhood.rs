@@ -21,7 +21,7 @@ impl NeighborhoodPicker {
 
 impl State for NeighborhoodPicker {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        ctx.canvas.handle_event(ctx.input);
+        ctx.canvas_movement();
 
         if let Some(n) = pick_neighborhood(&ui.primary.map, self.wizard.wrap(ctx)) {
             self.wizard = Wizard::new();
@@ -75,7 +75,7 @@ impl State for NeighborhoodEditor {
         let gps_bounds = ui.primary.map.get_gps_bounds();
 
         self.menu.event(ctx);
-        ctx.canvas.handle_event(ctx.input);
+        ctx.canvas_movement();
 
         if self.moving_pt {
             if let Some(pt) = ctx

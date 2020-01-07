@@ -1,5 +1,5 @@
 use crate::{
-    text, Event, GfxCtx, HorizontalAlignment, InputResult, Key, Line, Text, UserInput,
+    text, Event, EventCtx, GfxCtx, HorizontalAlignment, InputResult, Key, Line, Text,
     VerticalAlignment,
 };
 use simsearch::SimSearch;
@@ -85,8 +85,8 @@ impl<T: Clone + Hash + Eq> Autocomplete<T> {
         );
     }
 
-    pub fn event(&mut self, input: &mut UserInput) -> InputResult<HashSet<T>> {
-        let maybe_ev = input.use_event_directly();
+    pub fn event(&mut self, ctx: &mut EventCtx) -> InputResult<HashSet<T>> {
+        let maybe_ev = ctx.input.use_event_directly();
         if maybe_ev.is_none() {
             return InputResult::StillActive;
         }

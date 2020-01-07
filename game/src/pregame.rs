@@ -72,7 +72,7 @@ impl State for TitleScreen {
     }
 }
 
-pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
+pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
     let mut col = Vec::new();
 
     col.push(ManagedWidget::row(vec![
@@ -169,7 +169,7 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
     ManagedGUIState::new(c)
 }
 
-fn about(ctx: &EventCtx) -> Box<dyn State> {
+fn about(ctx: &mut EventCtx) -> Box<dyn State> {
     let mut col = Vec::new();
 
     col.push(Composite::svg_button(

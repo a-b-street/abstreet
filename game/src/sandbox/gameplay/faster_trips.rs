@@ -17,7 +17,7 @@ pub struct FasterTrips {
 impl FasterTrips {
     pub fn new(
         trip_mode: TripMode,
-        ctx: &EventCtx,
+        ctx: &mut EventCtx,
         ui: &UI,
     ) -> (ModalMenu, Composite, Box<dyn GameplayState>) {
         (

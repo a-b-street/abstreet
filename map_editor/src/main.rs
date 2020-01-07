@@ -122,7 +122,7 @@ impl UI {
 
 impl GUI for UI {
     fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
-        ctx.canvas.handle_event(ctx.input);
+        ctx.canvas_movement();
         self.menu.event(ctx);
         if ctx.redo_mouseover() {
             self.model.world.handle_mouseover(ctx);

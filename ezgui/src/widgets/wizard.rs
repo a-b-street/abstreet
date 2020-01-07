@@ -98,7 +98,7 @@ impl Wizard {
             vec![self.tb.as_mut().unwrap()],
         );
 
-        match self.tb.as_mut().unwrap().event(ctx.input) {
+        match self.tb.as_mut().unwrap().event(&mut ctx.input) {
             InputResult::StillActive => None,
             InputResult::Canceled => {
                 self.alive = false;
@@ -256,7 +256,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                 .log_scroller
                 .as_mut()
                 .unwrap()
-                .event(self.ctx.input)
+                .event(&mut self.ctx.input)
             {
                 self.wizard.log_scroller = None;
                 self.wizard.alive = false;
@@ -370,7 +370,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             .log_scroller
             .as_mut()
             .unwrap()
-            .event(self.ctx.input)
+            .event(&mut self.ctx.input)
         {
             self.wizard.confirmed_state.push(Box::new(()));
             self.wizard.log_scroller = None;
