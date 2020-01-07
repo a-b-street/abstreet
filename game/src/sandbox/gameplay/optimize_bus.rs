@@ -239,13 +239,13 @@ fn bus_delays(id: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> Composite {
                 .unwrap_or_else(Vec::new),
         });
     }
-    Composite::aligned(
-        ctx,
-        (HorizontalAlignment::Center, VerticalAlignment::Center),
+    Composite::new(
         ManagedWidget::col(vec![
             ManagedWidget::draw_text(ctx, Text::from(Line(format!("delays for {}", route.name)))),
             Plot::new_duration(series, ctx).margin(10),
         ])
         .bg(Color::grey(0.3)),
     )
+    .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)
+    .build(ctx)
 }

@@ -54,17 +54,16 @@ pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
         Tab::ExploreBusRoute => pick_bus_route(ctx, ui),
     };
 
-    let mut c = Composite::new(ezgui::Composite::scrollable(
-        ctx,
-        ManagedWidget::col(vec![
+    let mut c = Composite::new(
+        ezgui::Composite::new(ManagedWidget::col(vec![
             ManagedWidget::row(tabs)
                 .evenly_spaced()
                 .bg(Color::grey(0.6))
                 .padding(10),
             content,
-        ]),
-        Vec::new(),
-    ))
+        ]))
+        .build_scrollable(ctx),
+    )
     .cb("BACK", Box::new(|_, _| Some(Transition::Pop)));
     for (t, label) in tab_data {
         // TODO Not quite... all the IndividualFinishedTrips variants need to act the same

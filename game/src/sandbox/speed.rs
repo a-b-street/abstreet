@@ -114,16 +114,18 @@ impl SpeedControls {
             .bg(Color::grey(0.5)),
         );
 
-        Composite::new(ezgui::Composite::aligned_with_sliders(
-            ctx,
-            (
+        Composite::new(
+            ezgui::Composite::new(
+                ManagedWidget::row(row.into_iter().map(|x| x.margin(5)).collect())
+                    .bg(Color::hex("#4C4C4C")),
+            )
+            .slider("speed", slider)
+            .aligned(
                 HorizontalAlignment::Center,
                 VerticalAlignment::BottomAboveOSD,
-            ),
-            ManagedWidget::row(row.into_iter().map(|x| x.margin(5)).collect())
-                .bg(Color::hex("#4C4C4C")),
-            vec![("speed", slider)],
-        ))
+            )
+            .build(ctx),
+        )
         .cb(
             "jump to specific time",
             Box::new(|_, _| Some(Transition::Push(WizardState::new(Box::new(jump_to_time))))),
@@ -369,9 +371,7 @@ impl TimePanel {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> TimePanel {
         TimePanel {
             time: ui.primary.sim.time(),
-            composite: ezgui::Composite::aligned(
-                ctx,
-                (HorizontalAlignment::Left, VerticalAlignment::Top),
+            composite: ezgui::Composite::new(
                 ManagedWidget::col(vec![
                     ManagedWidget::draw_text(
                         ctx,
@@ -410,7 +410,9 @@ impl TimePanel {
                 ])
                 .bg(Color::hex("#4C4C4C"))
                 .padding(10),
-            ),
+            )
+            .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
+            .build(ctx),
         }
     }
 

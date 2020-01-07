@@ -273,14 +273,15 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                 ));
                 return None;
             }
-            self.wizard.menu_comp = Some(Composite::scrollable(
-                self.ctx,
-                ManagedWidget::col(vec![
-                    ManagedWidget::draw_text(self.ctx, Text::prompt(query)),
-                    ManagedWidget::menu("menu"),
-                ])
-                .bg(Color::grey(0.4)),
-                vec![(
+            self.wizard.menu_comp = Some(
+                Composite::new(
+                    ManagedWidget::col(vec![
+                        ManagedWidget::draw_text(self.ctx, Text::prompt(query)),
+                        ManagedWidget::menu("menu"),
+                    ])
+                    .bg(Color::grey(0.4)),
+                )
+                .menu(
                     "menu",
                     PopupMenu::new(
                         choices
@@ -294,8 +295,9 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                             .collect(),
                         self.ctx,
                     ),
-                )],
-            ));
+                )
+                .build_scrollable(self.ctx),
+            );
         }
 
         assert!(self.wizard.alive);

@@ -151,11 +151,9 @@ impl ColorLegend {
             ]));
         }
         ColorLegend {
-            composite: Composite::aligned(
-                ctx,
-                (HorizontalAlignment::Right, VerticalAlignment::Center),
-                ManagedWidget::col(col).bg(Color::grey(0.4)),
-            ),
+            composite: Composite::new(ManagedWidget::col(col).bg(Color::grey(0.4)))
+                .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+                .build(ctx),
         }
     }
 

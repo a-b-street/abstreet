@@ -28,23 +28,25 @@ impl TitleScreen {
         TitleScreen {
             // TODO Double column to get the vertical centering. For some reason, the horizontal
             // centering isn't working.
-            composite: Composite::new(ezgui::Composite::fill_screen(
-                ctx,
-                ManagedWidget::col(vec![ManagedWidget::col(vec![
-                    ManagedWidget::just_draw(JustDraw::image("assets/pregame/logo.png", ctx)),
-                    // TODO that nicer font
-                    // TODO Any key
-                    ManagedWidget::btn(Button::text(
-                        Text::from(Line("PLAY")),
-                        Color::BLUE,
-                        Color::ORANGE,
-                        hotkey(Key::Space),
-                        "start game",
-                        ctx,
-                    )),
-                ])])
-                .centered(),
-            ))
+            composite: Composite::new(
+                ezgui::Composite::new(
+                    ManagedWidget::col(vec![ManagedWidget::col(vec![
+                        ManagedWidget::just_draw(JustDraw::image("assets/pregame/logo.png", ctx)),
+                        // TODO that nicer font
+                        // TODO Any key
+                        ManagedWidget::btn(Button::text(
+                            Text::from(Line("PLAY")),
+                            Color::BLUE,
+                            Color::ORANGE,
+                            hotkey(Key::Space),
+                            "start game",
+                            ctx,
+                        )),
+                    ])])
+                    .centered(),
+                )
+                .build(ctx),
+            )
             .cb(
                 "start game",
                 Box::new(|ctx, ui| Some(Transition::Replace(main_menu(ctx, ui)))),
@@ -119,42 +121,42 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
     }
     col.push(Composite::text_button(ctx, "About A/B Street", None));
 
-    let mut c = Composite::new(ezgui::Composite::fill_screen(
-        ctx,
-        ManagedWidget::col(col).centered(),
-    ))
-    .cb(
-        "quit",
-        Box::new(|_, _| {
-            // TODO before_quit?
-            std::process::exit(0);
-        }),
-    )
-    .cb(
-        "Tutorial",
-        Box::new(|ctx, _| Some(Transition::Push(Box::new(TutorialMode::new(ctx))))),
-    )
-    .cb(
-        "Sandbox mode",
-        Box::new(|ctx, ui| {
-            Some(Transition::PushWithMode(
-                Box::new(SandboxMode::new(
-                    ctx,
-                    ui,
-                    GameplayMode::PlayScenario("random scenario with some agents".to_string()),
-                )),
-                EventLoopMode::Animation,
-            ))
-        }),
-    )
-    .cb(
-        "Challenges",
-        Box::new(|ctx, _| Some(Transition::Push(challenges_picker(ctx)))),
-    )
-    .cb(
-        "About A/B Street",
-        Box::new(|ctx, _| Some(Transition::Push(about(ctx)))),
-    );
+    let mut c =
+        Composite::new(ezgui::Composite::new(ManagedWidget::col(col).centered()).build(ctx))
+            .cb(
+                "quit",
+                Box::new(|_, _| {
+                    // TODO before_quit?
+                    std::process::exit(0);
+                }),
+            )
+            .cb(
+                "Tutorial",
+                Box::new(|ctx, _| Some(Transition::Push(Box::new(TutorialMode::new(ctx))))),
+            )
+            .cb(
+                "Sandbox mode",
+                Box::new(|ctx, ui| {
+                    Some(Transition::PushWithMode(
+                        Box::new(SandboxMode::new(
+                            ctx,
+                            ui,
+                            GameplayMode::PlayScenario(
+                                "random scenario with some agents".to_string(),
+                            ),
+                        )),
+                        EventLoopMode::Animation,
+                    ))
+                }),
+            )
+            .cb(
+                "Challenges",
+                Box::new(|ctx, _| Some(Transition::Push(challenges_picker(ctx)))),
+            )
+            .cb(
+                "About A/B Street",
+                Box::new(|ctx, _| Some(Transition::Push(about(ctx)))),
+            );
     if ui.opts.dev {
         c = c
             .cb(
@@ -219,7 +221,7 @@ fn about(ctx: &mut EventCtx) -> Box<dyn State> {
     col.push(ManagedWidget::draw_text(ctx, txt));
 
     ManagedGUIState::new(
-        Composite::new(ezgui::Composite::fill_screen(ctx, ManagedWidget::col(col)))
+        Composite::new(ezgui::Composite::new(ManagedWidget::col(col)).build(ctx))
             .cb("back", Box::new(|_, _| Some(Transition::Pop))),
     )
 }

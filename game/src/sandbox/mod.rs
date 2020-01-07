@@ -273,9 +273,7 @@ impl AgentMeter {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> AgentMeter {
         let (active, unfinished, by_mode) = ui.primary.sim.num_trips();
 
-        let composite = Composite::aligned(
-            ctx,
-            (HorizontalAlignment::Right, VerticalAlignment::Top),
+        let composite = Composite::new(
             ManagedWidget::col(vec![
                 {
                     let mut txt = Text::new();
@@ -297,7 +295,9 @@ impl AgentMeter {
             ])
             .bg(Color::grey(0.4))
             .padding(20),
-        );
+        )
+        .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
+        .build(ctx);
 
         AgentMeter {
             time: ui.primary.sim.time(),

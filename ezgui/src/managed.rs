@@ -456,6 +456,14 @@ impl ManagedWidget {
     }
 }
 
+pub struct CompositeBuilder {
+    top_level: ManagedWidget,
+    pos: CompositePosition,
+    sliders: HashMap<String, Slider>,
+    menus: HashMap<String, Menu>,
+    fillers: HashMap<String, Filler>,
+}
+
 pub struct Composite {
     top_level: ManagedWidget,
     pos: CompositePosition,
@@ -485,104 +493,14 @@ const SCROLL_SPEED: f64 = 5.0;
 // TODO These APIs aren't composable. Need a builer pattern or ideally, to scrape all the special
 // objects from the tree.
 impl Composite {
-    fn new(top_level: ManagedWidget, pos: CompositePosition) -> Composite {
-        Composite {
+    pub fn new(top_level: ManagedWidget) -> CompositeBuilder {
+        CompositeBuilder {
             top_level,
-            pos,
-
+            pos: CompositePosition::FillScreen,
             sliders: HashMap::new(),
             menus: HashMap::new(),
             fillers: HashMap::new(),
-
-            scrollable: false,
         }
-    }
-
-    pub fn minimal_size(
-        ctx: &mut EventCtx,
-        top_level: ManagedWidget,
-        top_left: ScreenPt,
-    ) -> Composite {
-        let mut c = Composite::new(top_level, CompositePosition::MinimalTopLeft(top_left));
-        c.recompute_layout(ctx);
-        ctx.fake_mouseover(|ctx| assert!(c.event(ctx).is_none()));
-        c
-    }
-
-    pub fn minimal_size_with_fillers(
-        ctx: &mut EventCtx,
-        top_level: ManagedWidget,
-        top_left: ScreenPt,
-        fillers: Vec<(&str, Filler)>,
-    ) -> Composite {
-        let mut c = Composite::new(top_level, CompositePosition::MinimalTopLeft(top_left));
-        for (name, filler) in fillers {
-            c.fillers.insert(name.to_string(), filler);
-        }
-        c.recompute_layout(ctx);
-        ctx.fake_mouseover(|ctx| assert!(c.event(ctx).is_none()));
-        c
-    }
-
-    pub fn fill_screen(ctx: &mut EventCtx, top_level: ManagedWidget) -> Composite {
-        let mut c = Composite::new(top_level, CompositePosition::FillScreen);
-        c.recompute_layout(ctx);
-        ctx.fake_mouseover(|ctx| assert!(c.event(ctx).is_none()));
-        c
-    }
-
-    pub fn aligned(
-        ctx: &mut EventCtx,
-        (horiz, vert): (HorizontalAlignment, VerticalAlignment),
-        top_level: ManagedWidget,
-    ) -> Composite {
-        let mut c = Composite::new(top_level, CompositePosition::Aligned(horiz, vert));
-        c.recompute_layout(ctx);
-        ctx.fake_mouseover(|ctx| assert!(c.event(ctx).is_none()));
-        c
-    }
-
-    pub fn aligned_with_sliders(
-        ctx: &mut EventCtx,
-        (horiz, vert): (HorizontalAlignment, VerticalAlignment),
-        top_level: ManagedWidget,
-        sliders: Vec<(&str, Slider)>,
-    ) -> Composite {
-        let mut c = Composite::new(top_level, CompositePosition::Aligned(horiz, vert));
-        for (name, slider) in sliders {
-            c.sliders.insert(name.to_string(), slider);
-        }
-        c.recompute_layout(ctx);
-        ctx.fake_mouseover(|ctx| assert!(c.event(ctx).is_none()));
-        c
-    }
-
-    pub fn scrollable(
-        ctx: &mut EventCtx,
-        top_level: ManagedWidget,
-        menus: Vec<(&str, Menu)>,
-    ) -> Composite {
-        let mut c = Composite::new(
-            top_level,
-            CompositePosition::Aligned(HorizontalAlignment::Left, VerticalAlignment::Top),
-        );
-        for (name, menu) in menus {
-            c.menus.insert(name.to_string(), menu);
-        }
-
-        // If the panel fits without a scrollbar, don't add one.
-        c.recompute_layout(ctx);
-        if c.top_level.rect.height() > ctx.canvas.window_height {
-            c.scrollable = true;
-            c.sliders.insert(
-                "scrollbar".to_string(),
-                Slider::vertical(ctx, ctx.canvas.window_height),
-            );
-            c.top_level = ManagedWidget::row(vec![c.top_level, ManagedWidget::slider("scrollbar")]);
-            c.recompute_layout(ctx);
-        }
-        ctx.fake_mouseover(|ctx| assert!(c.event(ctx).is_none()));
-        c
     }
 
     fn recompute_layout(&mut self, ctx: &EventCtx) {
@@ -735,5 +653,71 @@ impl Composite {
     pub fn filler_rect(&self, name: &str) -> ScreenRectangle {
         let f = &self.fillers[name];
         ScreenRectangle::top_left(f.top_left, f.dims)
+    }
+}
+
+impl CompositeBuilder {
+    pub fn build(self, ctx: &mut EventCtx) -> Composite {
+        let mut c = Composite {
+            top_level: self.top_level,
+            pos: self.pos,
+            sliders: self.sliders,
+            menus: self.menus,
+            fillers: self.fillers,
+            scrollable: false,
+        };
+        c.recompute_layout(ctx);
+        ctx.fake_mouseover(|ctx| assert!(c.event(ctx).is_none()));
+        c
+    }
+    pub fn build_scrollable(self, ctx: &mut EventCtx) -> Composite {
+        let mut c = Composite {
+            top_level: self.top_level,
+            pos: self.pos,
+            sliders: self.sliders,
+            menus: self.menus,
+            fillers: self.fillers,
+            scrollable: false,
+        };
+        c.pos = CompositePosition::Aligned(HorizontalAlignment::Left, VerticalAlignment::Top);
+        // If the panel fits without a scrollbar, don't add one.
+        c.recompute_layout(ctx);
+        if c.top_level.rect.height() > ctx.canvas.window_height {
+            c.scrollable = true;
+            c.sliders.insert(
+                "scrollbar".to_string(),
+                Slider::vertical(ctx, ctx.canvas.window_height),
+            );
+            c.top_level = ManagedWidget::row(vec![c.top_level, ManagedWidget::slider("scrollbar")]);
+            c.recompute_layout(ctx);
+        }
+        ctx.fake_mouseover(|ctx| assert!(c.event(ctx).is_none()));
+        c
+    }
+
+    pub fn minimal_size(mut self, top_left: ScreenPt) -> CompositeBuilder {
+        self.pos = CompositePosition::MinimalTopLeft(top_left);
+        self
+    }
+    pub fn aligned(
+        mut self,
+        horiz: HorizontalAlignment,
+        vert: VerticalAlignment,
+    ) -> CompositeBuilder {
+        self.pos = CompositePosition::Aligned(horiz, vert);
+        self
+    }
+
+    pub fn filler(mut self, name: &str, filler: Filler) -> CompositeBuilder {
+        self.fillers.insert(name.to_string(), filler);
+        self
+    }
+    pub fn slider(mut self, name: &str, slider: Slider) -> CompositeBuilder {
+        self.sliders.insert(name.to_string(), slider);
+        self
+    }
+    pub fn menu(mut self, name: &str, menu: Menu) -> CompositeBuilder {
+        self.menus.insert(name.to_string(), menu);
+        self
     }
 }

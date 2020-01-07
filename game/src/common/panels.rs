@@ -52,11 +52,14 @@ pub fn tool_panel(ctx: &mut EventCtx, extra_buttons: Vec<ManagedWidget>) -> Comp
     ];
     row.extend(extra_buttons);
 
-    Composite::new(ezgui::Composite::aligned(
-        ctx,
-        (HorizontalAlignment::Left, VerticalAlignment::BottomAboveOSD),
-        ManagedWidget::row(row.into_iter().map(|x| x.margin(10)).collect()).bg(Color::grey(0.4)),
-    ))
+    Composite::new(
+        ezgui::Composite::new(
+            ManagedWidget::row(row.into_iter().map(|x| x.margin(10)).collect())
+                .bg(Color::grey(0.4)),
+        )
+        .aligned(HorizontalAlignment::Left, VerticalAlignment::BottomAboveOSD)
+        .build(ctx),
+    )
     .cb(
         "settings",
         Box::new(|_, _| Some(Transition::Push(options::open_panel()))),
@@ -106,29 +109,31 @@ pub fn tool_panel(ctx: &mut EventCtx, extra_buttons: Vec<ManagedWidget>) -> Comp
 }
 
 pub fn edit_map_panel(ctx: &mut EventCtx, ui: &UI, gameplay: GameplayMode) -> Composite {
-    Composite::new(ezgui::Composite::aligned(
-        ctx,
-        (HorizontalAlignment::Center, VerticalAlignment::Top),
-        ManagedWidget::row(vec![
-            ManagedWidget::col(vec![
-                ManagedWidget::draw_text(ctx, Text::from(Line("Sandbox"))),
-                ManagedWidget::draw_text(ctx, Text::from(Line(ui.primary.map.get_name()))),
-            ]),
-            ManagedWidget::col(vec![
-                // TODO icon button
-                Composite::text_button(ctx, "edit map", lctrl(Key::E)),
-                {
-                    let edits = ui.primary.map.get_edits();
-                    let mut txt = Text::from(Line(&edits.edits_name));
-                    if edits.dirty {
-                        txt.append(Line("*"));
-                    }
-                    ManagedWidget::draw_text(ctx, txt)
-                },
-            ]),
-        ])
-        .bg(Color::grey(0.4)),
-    ))
+    Composite::new(
+        ezgui::Composite::new(
+            ManagedWidget::row(vec![
+                ManagedWidget::col(vec![
+                    ManagedWidget::draw_text(ctx, Text::from(Line("Sandbox"))),
+                    ManagedWidget::draw_text(ctx, Text::from(Line(ui.primary.map.get_name()))),
+                ]),
+                ManagedWidget::col(vec![
+                    // TODO icon button
+                    Composite::text_button(ctx, "edit map", lctrl(Key::E)),
+                    {
+                        let edits = ui.primary.map.get_edits();
+                        let mut txt = Text::from(Line(&edits.edits_name));
+                        if edits.dirty {
+                            txt.append(Line("*"));
+                        }
+                        ManagedWidget::draw_text(ctx, txt)
+                    },
+                ]),
+            ])
+            .bg(Color::grey(0.4)),
+        )
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        .build(ctx),
+    )
     .cb(
         "edit map",
         Box::new(move |ctx, ui| {

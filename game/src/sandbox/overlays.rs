@@ -323,8 +323,7 @@ impl Overlays {
         let now = ui.primary.sim.time();
         Overlays::FinishedTripsHistogram(
             now,
-            Composite::minimal_size(
-                ctx,
+            Composite::new(
                 Histogram::new(
                     ui.primary
                         .sim
@@ -333,11 +332,12 @@ impl Overlays {
                     ctx,
                 )
                 .bg(Color::grey(0.4)),
-                ScreenPt::new(
-                    0.7 * ctx.canvas.window_width,
-                    0.6 * ctx.canvas.window_height,
-                ),
-            ),
+            )
+            .minimal_size(ScreenPt::new(
+                0.7 * ctx.canvas.window_width,
+                0.6 * ctx.canvas.window_height,
+            ))
+            .build(ctx),
         )
     }
 

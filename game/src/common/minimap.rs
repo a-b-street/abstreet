@@ -64,8 +64,7 @@ impl Minimap {
             ctx,
         )));
 
-        Composite::minimal_size_with_fillers(
-            ctx,
+        Composite::new(
             ManagedWidget::row(vec![
                 ManagedWidget::col(zoom_col).margin(5).centered(),
                 ManagedWidget::col(vec![
@@ -107,15 +106,16 @@ impl Minimap {
                 ]),
             ])
             .bg(Color::grey(0.5)),
-            ScreenPt::new(
-                ctx.canvas.window_width - square_len - 100.0,
-                ctx.canvas.window_height - square_len - 100.0,
-            ),
-            vec![(
-                "minimap",
-                Filler::new(ScreenDims::new(square_len, square_len)),
-            )],
         )
+        .minimal_size(ScreenPt::new(
+            ctx.canvas.window_width - square_len - 100.0,
+            ctx.canvas.window_height - square_len - 100.0,
+        ))
+        .filler(
+            "minimap",
+            Filler::new(ScreenDims::new(square_len, square_len)),
+        )
+        .build(ctx)
     }
 
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> Minimap {
@@ -352,14 +352,12 @@ impl VisibilityPanel {
                 .centered_cross(),
             );
         }
-        Composite::minimal_size(
-            ctx,
-            ManagedWidget::col(col).bg(Color::grey(0.4)),
-            ScreenPt::new(
+        Composite::new(ManagedWidget::col(col).bg(Color::grey(0.4)))
+            .minimal_size(ScreenPt::new(
                 ctx.canvas.window_width - 550.0,
                 ctx.canvas.window_height - 300.0,
-            ),
-        )
+            ))
+            .build(ctx)
     }
 
     fn new(ctx: &mut EventCtx, ui: &UI) -> VisibilityPanel {

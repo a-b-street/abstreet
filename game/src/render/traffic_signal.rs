@@ -293,9 +293,5 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
         );
     }
 
-    Composite::scrollable(
-        ctx,
-        ManagedWidget::col(col).bg(Color::hex("#545454")),
-        Vec::new(),
-    )
+    Composite::new(ManagedWidget::col(col).bg(Color::hex("#545454"))).build_scrollable(ctx)
 }

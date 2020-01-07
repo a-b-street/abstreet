@@ -76,34 +76,36 @@ pub fn freeform_controller(
     gameplay: GameplayMode,
     scenario_name: &str,
 ) -> Composite {
-    Composite::new(ezgui::Composite::aligned(
-        ctx,
-        (HorizontalAlignment::Center, VerticalAlignment::Top),
-        ManagedWidget::row(vec![
-            ManagedWidget::col(vec![
-                Composite::text_button(ctx, "change map", lctrl(Key::L)),
-                ManagedWidget::draw_text(ctx, Text::from(Line(ui.primary.map.get_name()))),
-            ]),
-            ManagedWidget::col(vec![
-                Composite::text_button(ctx, "change scenario", hotkey(Key::S)),
-                ManagedWidget::draw_text(ctx, Text::from(Line(scenario_name))),
-            ]),
-            // TODO Refactor
-            ManagedWidget::col(vec![
-                // TODO icon button
-                Composite::text_button(ctx, "edit map", lctrl(Key::E)),
-                {
-                    let edits = ui.primary.map.get_edits();
-                    let mut txt = Text::from(Line(&edits.edits_name));
-                    if edits.dirty {
-                        txt.append(Line("*"));
-                    }
-                    ManagedWidget::draw_text(ctx, txt)
-                },
-            ]),
-        ])
-        .bg(Color::grey(0.4)),
-    ))
+    Composite::new(
+        ezgui::Composite::new(
+            ManagedWidget::row(vec![
+                ManagedWidget::col(vec![
+                    Composite::text_button(ctx, "change map", lctrl(Key::L)),
+                    ManagedWidget::draw_text(ctx, Text::from(Line(ui.primary.map.get_name()))),
+                ]),
+                ManagedWidget::col(vec![
+                    Composite::text_button(ctx, "change scenario", hotkey(Key::S)),
+                    ManagedWidget::draw_text(ctx, Text::from(Line(scenario_name))),
+                ]),
+                // TODO Refactor
+                ManagedWidget::col(vec![
+                    // TODO icon button
+                    Composite::text_button(ctx, "edit map", lctrl(Key::E)),
+                    {
+                        let edits = ui.primary.map.get_edits();
+                        let mut txt = Text::from(Line(&edits.edits_name));
+                        if edits.dirty {
+                            txt.append(Line("*"));
+                        }
+                        ManagedWidget::draw_text(ctx, txt)
+                    },
+                ]),
+            ])
+            .bg(Color::grey(0.4)),
+        )
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        .build(ctx),
+    )
     .cb(
         "change map",
         Box::new(|_, _| Some(Transition::Push(WizardState::new(Box::new(load_map))))),
