@@ -30,7 +30,7 @@ pub enum Overlays {
 }
 
 impl Overlays {
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) -> Option<Transition> {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) {
         let now = ui.primary.sim.time();
         match self {
             // Don't bother with Inactive, BusRoute, BusDelaysOverTime, BikeNetwork, BusNetwork --
@@ -52,7 +52,19 @@ impl Overlays {
             }
             _ => {}
         };
-        None
+
+        match self {
+            Overlays::ParkingAvailability(_, ref mut heatmap)
+            | Overlays::BikeNetwork(ref mut heatmap)
+            | Overlays::BusNetwork(ref mut heatmap)
+            | Overlays::IntersectionDelay(_, ref mut heatmap)
+            | Overlays::CumulativeThroughput(_, ref mut heatmap) => {
+                if heatmap.event(ctx) {
+                    *self = Overlays::Inactive;
+                }
+            }
+            _ => {}
+        }
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {

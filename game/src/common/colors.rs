@@ -2,7 +2,7 @@ use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::UI;
 use ezgui::{
     Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
-    ManagedWidget, Text, VerticalAlignment,
+    ManagedWidget, Outcome, Text, VerticalAlignment,
 };
 use geom::{Circle, Distance, Pt2D};
 use map_model::{BuildingID, IntersectionID, LaneID, Map, RoadID};
@@ -24,6 +24,15 @@ pub struct Colorer {
 }
 
 impl Colorer {
+    // If true, destruct this Colorer.
+    pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
+        match self.legend.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) if x == "X" => true,
+            Some(Outcome::Clicked(_)) => unreachable!(),
+            None => false,
+        }
+    }
+
     pub fn draw(&self, g: &mut GfxCtx) {
         if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
             g.redraw(&self.unzoomed);
@@ -122,7 +131,10 @@ pub struct ColorLegend {
 
 impl ColorLegend {
     pub fn new(ctx: &EventCtx, header: Text, rows: Vec<(&str, Color)>) -> ColorLegend {
-        let mut col = vec![ManagedWidget::draw_text(ctx, header)];
+        let mut col = vec![ManagedWidget::row(vec![
+            ManagedWidget::draw_text(ctx, header),
+            crate::managed::Composite::text_button(ctx, "X", None),
+        ])];
 
         let radius = 15.0;
         for (label, color) in rows {
