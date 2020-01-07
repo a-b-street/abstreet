@@ -14,6 +14,7 @@ pub struct SpeedControls {
     composite: Composite,
 
     state: SpeedState,
+    setting: SpeedSetting,
     speed_cap: f64,
 }
 
@@ -26,33 +27,125 @@ enum SpeedState {
         last_measurement_sim: Time,
     },
 }
+#[derive(Clone, Copy)]
+enum SpeedSetting {
+    Realtime,
+    Faster,
+    Fastest,
+}
 
 impl SpeedControls {
     fn make_panel(
         ctx: &mut EventCtx,
         paused: bool,
         actual_speed: &str,
+        setting: SpeedSetting,
         slider: Slider,
     ) -> Composite {
+        let bg = Color::hex("#7C7C7C");
+
         let mut row = Vec::new();
         if paused {
-            row.push(ManagedWidget::btn(Button::rectangle_svg(
-                "assets/speed/resume.svg",
-                "resume",
-                hotkey(Key::Space),
-                RewriteColor::ChangeAll(Color::ORANGE),
-                ctx,
-            )));
+            row.push(
+                ManagedWidget::btn(Button::rectangle_svg(
+                    "assets/speed/triangle.svg",
+                    "play",
+                    hotkey(Key::Space),
+                    RewriteColor::ChangeAll(Color::ORANGE),
+                    ctx,
+                ))
+                .bg(bg),
+            );
         } else {
-            row.push(ManagedWidget::btn(Button::rectangle_svg(
-                "assets/speed/pause.svg",
-                "pause",
-                hotkey(Key::Space),
-                RewriteColor::ChangeAll(Color::ORANGE),
-                ctx,
-            )));
+            row.push(
+                ManagedWidget::btn(Button::rectangle_svg(
+                    "assets/speed/pause.svg",
+                    "pause",
+                    hotkey(Key::Space),
+                    RewriteColor::ChangeAll(Color::ORANGE),
+                    ctx,
+                ))
+                .bg(bg),
+            );
         }
+
+        let mut settings = vec![ManagedWidget::btn(Button::rectangle_svg(
+            "assets/speed/triangle.svg",
+            "realtime",
+            None,
+            RewriteColor::ChangeAll(Color::ORANGE),
+            ctx,
+        ))];
+        match setting {
+            SpeedSetting::Realtime => {
+                settings.push(ManagedWidget::btn(Button::rectangle_svg_rewrite(
+                    "assets/speed/triangle.svg",
+                    "600x speed",
+                    None,
+                    RewriteColor::ChangeAll(Color::WHITE.alpha(0.2)),
+                    RewriteColor::ChangeAll(Color::ORANGE),
+                    ctx,
+                )));
+                settings.push(ManagedWidget::btn(Button::rectangle_svg_rewrite(
+                    "assets/speed/triangle.svg",
+                    "as fast as possible",
+                    None,
+                    RewriteColor::ChangeAll(Color::WHITE.alpha(0.2)),
+                    RewriteColor::ChangeAll(Color::ORANGE),
+                    ctx,
+                )));
+            }
+            SpeedSetting::Faster => {
+                settings.push(ManagedWidget::btn(Button::rectangle_svg(
+                    "assets/speed/triangle.svg",
+                    "600x speed",
+                    None,
+                    RewriteColor::ChangeAll(Color::ORANGE),
+                    ctx,
+                )));
+                settings.push(ManagedWidget::btn(Button::rectangle_svg_rewrite(
+                    "assets/speed/triangle.svg",
+                    "as fast as possible",
+                    None,
+                    RewriteColor::ChangeAll(Color::WHITE.alpha(0.2)),
+                    RewriteColor::ChangeAll(Color::ORANGE),
+                    ctx,
+                )));
+            }
+            SpeedSetting::Fastest => {
+                settings.push(ManagedWidget::btn(Button::rectangle_svg(
+                    "assets/speed/triangle.svg",
+                    "600x speed",
+                    None,
+                    RewriteColor::ChangeAll(Color::ORANGE),
+                    ctx,
+                )));
+                settings.push(ManagedWidget::btn(Button::rectangle_svg(
+                    "assets/speed/triangle.svg",
+                    "as fast as possible",
+                    None,
+                    RewriteColor::ChangeAll(Color::ORANGE),
+                    ctx,
+                )));
+            }
+        }
+        row.push(ManagedWidget::row(settings).bg(bg));
+
         row.extend(vec![
+            ManagedWidget::btn(Button::text_no_bg(
+                Text::from(Line("+0.1s").fg(Color::WHITE).size(21).roboto()),
+                Text::from(Line("+0.1s").fg(Color::ORANGE).size(21).roboto()),
+                hotkey(Key::M),
+                "step forwards 0.1 seconds",
+                ctx,
+            )),
+            ManagedWidget::btn(Button::text_no_bg(
+                Text::from(Line("+1h").fg(Color::WHITE).size(21).roboto()),
+                Text::from(Line("+1h").fg(Color::ORANGE).size(21).roboto()),
+                hotkey(Key::M),
+                "step forwards 1 hour",
+                ctx,
+            )),
             ManagedWidget::btn(Button::rectangle_svg(
                 "assets/speed/jump_to_time.svg",
                 "jump to specific time",
@@ -60,28 +153,11 @@ impl SpeedControls {
                 RewriteColor::ChangeAll(Color::ORANGE),
                 ctx,
             )),
-            ManagedWidget::btn(Button::text(
-                Text::from(Line("+0.1s").fg(Color::WHITE).size(12)),
-                Color::grey(0.6),
-                Color::ORANGE,
-                hotkey(Key::M),
-                "step forwards 0.1 seconds",
-                ctx,
-            )),
-            ManagedWidget::btn(Button::text(
-                Text::from(Line("+1h").fg(Color::WHITE).size(12)),
-                Color::grey(0.6),
-                Color::ORANGE,
-                hotkey(Key::M),
-                "step forwards 1 hour",
-                ctx,
-            )),
-            ManagedWidget::btn(Button::text(
-                Text::from(Line("reset").fg(Color::WHITE).size(12)),
-                Color::grey(0.6),
-                Color::ORANGE,
-                hotkey(Key::X),
+            ManagedWidget::btn(Button::rectangle_svg(
+                "assets/speed/reset.svg",
                 "reset to midnight",
+                hotkey(Key::X),
+                RewriteColor::ChangeAll(Color::ORANGE),
                 ctx,
             )),
         ]);
@@ -163,7 +239,8 @@ impl SpeedControls {
         slider.set_percent(ctx, (speed_cap / 1.0).powf(-1.0 / std::f64::consts::E));
 
         let now = Instant::now();
-        let composite = SpeedControls::make_panel(ctx, false, "...", slider);
+        let composite =
+            SpeedControls::make_panel(ctx, false, "...", SpeedSetting::Realtime, slider);
 
         SpeedControls {
             composite,
@@ -174,6 +251,7 @@ impl SpeedControls {
                 last_measurement: now,
                 last_measurement_sim: ui.primary.sim.time(),
             },
+            setting: SpeedSetting::Realtime,
             speed_cap,
         }
     }
@@ -185,6 +263,39 @@ impl SpeedControls {
                 return Some(Outcome::Transition(t));
             }
             Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "realtime" => {
+                    self.setting = SpeedSetting::Realtime;
+                    self.composite = SpeedControls::make_panel(
+                        ctx,
+                        false,
+                        "...",
+                        self.setting,
+                        self.composite.take_slider("speed"),
+                    );
+                    return None;
+                }
+                "600x speed" => {
+                    self.setting = SpeedSetting::Faster;
+                    self.composite = SpeedControls::make_panel(
+                        ctx,
+                        false,
+                        "...",
+                        self.setting,
+                        self.composite.take_slider("speed"),
+                    );
+                    return None;
+                }
+                "as fast as possible" => {
+                    self.setting = SpeedSetting::Fastest;
+                    self.composite = SpeedControls::make_panel(
+                        ctx,
+                        false,
+                        "...",
+                        self.setting,
+                        self.composite.take_slider("speed"),
+                    );
+                    return None;
+                }
                 "speed up" => {
                     if desired_speed != self.speed_cap {
                         let percent = self.composite.slider("speed").get_percent();
@@ -201,7 +312,7 @@ impl SpeedControls {
                             .set_percent(ctx, (percent - ADJUST_SPEED_PERCENT).max(0.0));
                     }
                 }
-                "resume" => {
+                "play" => {
                     let now = Instant::now();
                     self.state = SpeedState::Running {
                         last_step: now,
@@ -213,6 +324,7 @@ impl SpeedControls {
                         ctx,
                         false,
                         "...",
+                        self.setting,
                         self.composite.take_slider("speed"),
                     );
                     return None;
@@ -252,6 +364,7 @@ impl SpeedControls {
                         ctx,
                         false,
                         &speed_description,
+                        self.setting,
                         self.composite.take_slider("speed"),
                     );
                 }
@@ -274,8 +387,13 @@ impl SpeedControls {
     pub fn pause(&mut self, ctx: &mut EventCtx) {
         if !self.is_paused() {
             self.state = SpeedState::Paused;
-            self.composite =
-                SpeedControls::make_panel(ctx, true, "...", self.composite.take_slider("speed"));
+            self.composite = SpeedControls::make_panel(
+                ctx,
+                true,
+                "...",
+                self.setting,
+                self.composite.take_slider("speed"),
+            );
         }
     }
 

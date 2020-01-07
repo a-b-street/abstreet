@@ -193,6 +193,30 @@ impl Button {
         )
     }
 
+    pub fn rectangle_svg_rewrite(
+        filename: &str,
+        tooltip: &str,
+        key: Option<MultiKey>,
+        normal_rewrite: RewriteColor,
+        hover: RewriteColor,
+        ctx: &EventCtx,
+    ) -> Button {
+        let mut normal = GeomBatch::new();
+        let bounds = svg::add_svg(&mut normal, filename);
+        normal.rewrite_color(normal_rewrite);
+
+        let mut hovered = normal.clone();
+        hovered.rewrite_color(hover);
+
+        Button::new(
+            DrawBoth::new(ctx, normal, Vec::new()),
+            DrawBoth::new(ctx, hovered, Vec::new()),
+            key,
+            tooltip,
+            bounds.get_rectangle(),
+        )
+    }
+
     pub fn rectangle_svg_bg(
         filename: &str,
         tooltip: &str,
@@ -246,6 +270,31 @@ impl Button {
             ctx,
             GeomBatch::from(vec![(selected_bg_color, geom.clone())]),
             draw_text,
+        );
+
+        Button::new(normal, hovered, hotkey, tooltip, geom)
+    }
+
+    pub fn text_no_bg(
+        unselected_text: Text,
+        selected_text: Text,
+        hotkey: Option<MultiKey>,
+        tooltip: &str,
+        ctx: &EventCtx,
+    ) -> Button {
+        let dims = ctx.text_dims(&unselected_text);
+        assert_eq!(dims, ctx.text_dims(&selected_text));
+        let geom = Polygon::rectangle(dims.width, dims.height);
+
+        let normal = DrawBoth::new(
+            ctx,
+            GeomBatch::new(),
+            vec![(unselected_text, ScreenPt::new(0.0, 0.0))],
+        );
+        let hovered = DrawBoth::new(
+            ctx,
+            GeomBatch::new(),
+            vec![(selected_text, ScreenPt::new(0.0, 0.0))],
         );
 
         Button::new(normal, hovered, hotkey, tooltip, geom)
