@@ -224,18 +224,6 @@ impl Widget for Slider {
     }
 }
 
-// Pixels
-#[derive(Debug)]
-struct Dims {
-    bar_width: f64,
-    bar_height: f64,
-    slider_width: f64,
-    slider_height: f64,
-    horiz_padding: f64,
-    vert_padding: f64,
-    total_width: f64,
-}
-
 pub struct ItemSlider<T> {
     items: Vec<(T, Text)>,
     slider: Slider,

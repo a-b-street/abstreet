@@ -1,8 +1,6 @@
 use crate::game::{State, Transition};
 use crate::ui::UI;
-use ezgui::{
-    Button, Color, EventCtx, GfxCtx, Line, ManagedWidget, MultiKey, RewriteColor, Slider, Text,
-};
+use ezgui::{Button, Color, EventCtx, GfxCtx, Line, ManagedWidget, MultiKey, RewriteColor, Text};
 use std::collections::HashMap;
 
 pub type Callback = Box<dyn Fn(&mut EventCtx, &mut UI) -> Option<Transition>>;
@@ -49,16 +47,6 @@ impl Composite {
 
     pub fn draw(&self, g: &mut GfxCtx) {
         self.inner.draw(g);
-    }
-
-    pub fn slider(&self, name: &str) -> &Slider {
-        self.inner.slider(name)
-    }
-    pub fn mut_slider(&mut self, name: &str) -> &mut Slider {
-        self.inner.mut_slider(name)
-    }
-    pub fn take_slider(&mut self, name: &str) -> Slider {
-        self.inner.take_slider(name)
     }
 }
 

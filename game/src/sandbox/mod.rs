@@ -59,7 +59,7 @@ impl SandboxMode {
         .cb("change overlay", Box::new(Overlays::change_overlays));
 
         SandboxMode {
-            speed: SpeedControls::new(ctx, ui),
+            speed: SpeedControls::new(ctx),
             time_panel: TimePanel::new(ctx, ui),
             agent_meter: AgentMeter::new(ctx, ui),
             agent_tools: AgentTools::new(),

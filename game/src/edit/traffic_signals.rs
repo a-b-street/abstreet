@@ -516,7 +516,7 @@ impl PreviewTrafficSignal {
                 vec![(hotkey(Key::Escape), "back to editing")],
                 ctx,
             ),
-            speed: SpeedControls::new(ctx, ui),
+            speed: SpeedControls::new(ctx),
             time_panel: TimePanel::new(ctx, ui),
             orig_sim: ui.primary.sim.clone(),
         }

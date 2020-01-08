@@ -642,9 +642,6 @@ impl Composite {
     pub fn mut_slider(&mut self, name: &str) -> &mut Slider {
         self.sliders.get_mut(name).unwrap()
     }
-    pub fn take_slider(&mut self, name: &str) -> Slider {
-        self.sliders.remove(name).unwrap()
-    }
 
     pub fn menu(&self, name: &str) -> &Menu {
         &self.menus[name]
