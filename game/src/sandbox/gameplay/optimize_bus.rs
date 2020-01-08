@@ -1,6 +1,6 @@
-use crate::common::edit_map_panel;
+use crate::common::{edit_map_panel, Warping};
 use crate::game::{msg, Transition, WizardState};
-use crate::helpers::rotating_color_total;
+use crate::helpers::{rotating_color_total, ID};
 use crate::sandbox::gameplay::{
     cmp_duration_shorter, manage_overlays, GameplayMode, GameplayState,
 };
@@ -8,8 +8,8 @@ use crate::sandbox::overlays::Overlays;
 use crate::sandbox::{bus_explorer, SandboxMode};
 use crate::ui::UI;
 use ezgui::{
-    hotkey, Choice, Color, Composite, EventCtx, HorizontalAlignment, Key, Line, ManagedWidget,
-    ModalMenu, Plot, Series, Text, VerticalAlignment,
+    hotkey, Button, Choice, Color, Composite, EventCtx, EventLoopMode, HorizontalAlignment, Key,
+    Line, ManagedWidget, ModalMenu, Plot, Series, Text, VerticalAlignment,
 };
 use geom::{Statistic, Time};
 use map_model::BusRouteID;
@@ -18,7 +18,6 @@ pub struct OptimizeBus {
     route: BusRouteID,
     time: Time,
     stat: Statistic,
-    show_passengers: bool,
 }
 
 impl OptimizeBus {
@@ -34,8 +33,8 @@ impl OptimizeBus {
                 vec![
                     (hotkey(Key::E), "show bus route"),
                     (hotkey(Key::T), "show delays over time"),
+                    (hotkey(Key::P), "show bus passengers"),
                     (hotkey(Key::S), "change statistic"),
-                    (hotkey(Key::P), "toggle passengers / bus arrivals"),
                     (hotkey(Key::H), "help"),
                 ],
                 ctx,
@@ -45,7 +44,6 @@ impl OptimizeBus {
                 route: route.id,
                 time: Time::START_OF_DAY,
                 stat: Statistic::Max,
-                show_passengers: true,
             }),
         )
     }
@@ -92,31 +90,27 @@ impl GameplayState for OptimizeBus {
         ) {
             *overlays = Overlays::BusDelaysOverTime(bus_delays(self.route, ui, ctx));
         }
+        if manage_overlays(
+            menu,
+            ctx,
+            "show bus passengers",
+            "hide bus passengers",
+            overlays,
+            match overlays {
+                Overlays::BusPassengers(_) => true,
+                _ => false,
+            },
+            self.time != ui.primary.sim.time(),
+        ) {
+            *overlays = Overlays::BusPassengers(bus_passengers(self.route, ui, ctx));
+        }
 
         // TODO Expensive
         if self.time != ui.primary.sim.time() {
             self.time = ui.primary.sim.time();
-            menu.set_info(
-                ctx,
-                if self.show_passengers {
-                    passenger_delay_panel(self.route, ui)
-                } else {
-                    bus_route_panel(self.route, self.stat, ui)
-                },
-            );
+            menu.set_info(ctx, bus_route_panel(self.route, self.stat, ui));
         }
 
-        if menu.action("toggle passengers / bus arrivals") {
-            self.show_passengers = !self.show_passengers;
-            menu.set_info(
-                ctx,
-                if self.show_passengers {
-                    passenger_delay_panel(self.route, ui)
-                } else {
-                    bus_route_panel(self.route, self.stat, ui)
-                },
-            );
-        }
         if menu.action("change statistic") {
             return Some(Transition::Push(WizardState::new(Box::new(
                 move |wiz, ctx, _| {
@@ -192,28 +186,64 @@ fn bus_route_panel(id: BusRouteID, stat: Statistic, ui: &UI) -> Text {
     txt
 }
 
-fn passenger_delay_panel(id: BusRouteID, ui: &UI) -> Text {
+fn bus_passengers(id: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> crate::managed::Composite {
+    let route = ui.primary.map.get_br(id);
+    let mut col = vec![ManagedWidget::draw_text(
+        ctx,
+        Text::prompt(&format!("Passengers for {}", route.name)),
+    )];
+
     let mut delay_per_stop = ui
         .primary
         .sim
         .get_analytics()
         .bus_passenger_delays(ui.primary.sim.time(), id);
-    let route = ui.primary.map.get_br(id);
-    let mut txt = Text::new();
-    txt.add(Line("Passengers waiting currently"));
     for idx in 0..route.stops.len() {
-        txt.add(Line(format!("Stop {}: ", idx + 1)));
+        let mut row = vec![ManagedWidget::btn(Button::text_no_bg(
+            Text::from(Line(format!("Stop {}", idx + 1))),
+            Text::from(Line(format!("Stop {}", idx + 1)).fg(Color::ORANGE)),
+            None,
+            &format!("Stop {}", idx + 1),
+            ctx,
+        ))];
         if let Some(hgram) = delay_per_stop.remove(&route.stops[idx]) {
-            txt.append(Line(format!(
-                "{} (avg {})",
-                hgram.count(),
-                hgram.select(Statistic::Mean)
-            )));
+            row.push(ManagedWidget::draw_text(
+                ctx,
+                Text::from(Line(format!(
+                    ": {} (avg {})",
+                    hgram.count(),
+                    hgram.select(Statistic::Mean)
+                ))),
+            ));
         } else {
-            txt.append(Line("nobody"));
+            row.push(ManagedWidget::draw_text(ctx, Text::from(Line(": nobody"))));
         }
+        col.push(ManagedWidget::row(row));
     }
-    txt
+    let mut c = crate::managed::Composite::new(
+        Composite::new(ManagedWidget::col(col).bg(Color::grey(0.4)))
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)
+            .build(ctx),
+    );
+    for (idx, stop) in route.stops.iter().enumerate() {
+        let id = ID::BusStop(*stop);
+        c = c.cb(
+            &format!("Stop {}", idx + 1),
+            Box::new(move |ctx, ui| {
+                Some(Transition::PushWithMode(
+                    Warping::new(
+                        ctx,
+                        id.canonical_point(&ui.primary).unwrap(),
+                        Some(3.0),
+                        Some(id.clone()),
+                        &mut ui.primary,
+                    ),
+                    EventLoopMode::Animation,
+                ))
+            }),
+        );
+    }
+    c
 }
 
 fn bus_delays(id: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> Composite {

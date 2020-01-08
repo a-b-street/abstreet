@@ -1,5 +1,6 @@
 use crate::common::{Colorer, ColorerBuilder};
 use crate::game::{Transition, WizardState};
+use crate::managed::Outcome;
 use crate::sandbox::bus_explorer::ShowBusRoute;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
@@ -26,15 +27,16 @@ pub enum Overlays {
     // Only set by certain gameplay modes
     BusRoute(ShowBusRoute),
     BusDelaysOverTime(Composite),
+    BusPassengers(crate::managed::Composite),
     IntersectionDemand(Time, IntersectionID, Drawable),
 }
 
 impl Overlays {
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
         let now = ui.primary.sim.time();
         match self {
-            // Don't bother with Inactive, BusRoute, BusDelaysOverTime, BikeNetwork, BusNetwork --
-            // nothing needed or the gameplay mode will update it.
+            // Don't bother with Inactive, BusRoute, BusDelaysOverTime, BusPassengers, BikeNetwork,
+            // BusNetwork -- nothing needed or the gameplay mode will update it.
             Overlays::ParkingAvailability(t, _) if now != *t => {
                 *self = Overlays::parking_availability(ctx, ui);
             }
@@ -63,8 +65,17 @@ impl Overlays {
                     *self = Overlays::Inactive;
                 }
             }
+            Overlays::BusPassengers(ref mut c) => match c.event(ctx, ui) {
+                Some(Outcome::Transition(t)) => {
+                    return Some(t);
+                }
+                Some(Outcome::Clicked(_)) => unreachable!(),
+                None => {}
+            },
             _ => {}
         }
+
+        None
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
@@ -79,6 +90,9 @@ impl Overlays {
             }
             Overlays::FinishedTripsHistogram(_, ref composite)
             | Overlays::BusDelaysOverTime(ref composite) => {
+                composite.draw(g);
+            }
+            Overlays::BusPassengers(ref composite) => {
                 composite.draw(g);
             }
             Overlays::IntersectionDemand(_, _, ref draw) => {

@@ -160,7 +160,9 @@ impl State for SandboxMode {
         if let Some(t) = self.common.event(ctx, ui) {
             return t;
         }
-        self.overlay.event(ctx, ui);
+        if let Some(t) = self.overlay.event(ctx, ui) {
+            return t;
+        }
         match self.tool_panel.event(ctx, ui) {
             Some(Outcome::Transition(t)) => {
                 return t;
