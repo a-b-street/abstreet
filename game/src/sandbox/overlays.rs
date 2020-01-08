@@ -308,14 +308,21 @@ impl Overlays {
     }
 
     fn bus_network(ctx: &mut EventCtx, ui: &UI) -> Overlays {
-        let color = Color::hex("#4CA7E9");
-        let mut colorer =
-            ColorerBuilder::new(Text::from(Line("bus networks")), vec![("bus lanes", color)]);
+        let lane = Color::hex("#4CA7E9");
+        let stop = Color::hex("#4CA7E9");
+        let mut colorer = ColorerBuilder::new(
+            Text::from(Line("bus networks")),
+            vec![("bus lanes", lane), ("bus stops", stop)],
+        );
         for l in ui.primary.map.all_lanes() {
             if l.is_bus() {
-                colorer.add_l(l.id, color, &ui.primary.map);
+                colorer.add_l(l.id, lane, &ui.primary.map);
             }
         }
+        for bs in ui.primary.map.all_bus_stops().keys() {
+            colorer.add_bs(*bs, stop);
+        }
+
         Overlays::BusNetwork(colorer.build(ctx, ui))
     }
 

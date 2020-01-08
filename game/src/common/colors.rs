@@ -5,7 +5,7 @@ use ezgui::{
     ManagedWidget, Outcome, Text, VerticalAlignment,
 };
 use geom::{Circle, Distance, Pt2D};
-use map_model::{BuildingID, IntersectionID, LaneID, Map, RoadID};
+use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, Map, RoadID};
 use std::collections::HashMap;
 
 pub struct ColorerBuilder {
@@ -15,6 +15,7 @@ pub struct ColorerBuilder {
     roads: HashMap<RoadID, Color>,
     intersections: HashMap<IntersectionID, Color>,
     buildings: HashMap<BuildingID, Color>,
+    bus_stops: HashMap<BusStopID, Color>,
 }
 
 pub struct Colorer {
@@ -55,6 +56,7 @@ impl ColorerBuilder {
             roads: HashMap::new(),
             intersections: HashMap::new(),
             buildings: HashMap::new(),
+            bus_stops: HashMap::new(),
         }
     }
 
@@ -93,9 +95,14 @@ impl ColorerBuilder {
         self.buildings.insert(b, color);
     }
 
+    pub fn add_bs(&mut self, bs: BusStopID, color: Color) {
+        self.bus_stops.insert(bs, color);
+    }
+
     pub fn build(self, ctx: &mut EventCtx, ui: &UI) -> Colorer {
         let mut zoomed = GeomBatch::new();
         let mut unzoomed = GeomBatch::new();
+        let map = &ui.primary.map;
 
         for (l, color) in self.lanes {
             zoomed.push(
@@ -104,16 +111,25 @@ impl ColorerBuilder {
             );
         }
         for (r, color) in self.roads {
-            unzoomed.push(color, ui.primary.map.get_r(r).get_thick_polygon().unwrap());
+            unzoomed.push(color, map.get_r(r).get_thick_polygon().unwrap());
         }
 
         for (i, color) in self.intersections {
-            zoomed.push(color.alpha(0.4), ui.primary.map.get_i(i).polygon.clone());
-            unzoomed.push(color, ui.primary.map.get_i(i).polygon.clone());
+            zoomed.push(color.alpha(0.4), map.get_i(i).polygon.clone());
+            unzoomed.push(color, map.get_i(i).polygon.clone());
         }
         for (b, color) in self.buildings {
-            zoomed.push(color.alpha(0.4), ui.primary.map.get_b(b).polygon.clone());
-            unzoomed.push(color, ui.primary.map.get_b(b).polygon.clone());
+            zoomed.push(color.alpha(0.4), map.get_b(b).polygon.clone());
+            unzoomed.push(color, map.get_b(b).polygon.clone());
+        }
+
+        for (bs, color) in self.bus_stops {
+            let pt = map.get_bs(bs).sidewalk_pos.pt(map);
+            zoomed.push(
+                color.alpha(0.4),
+                Circle::new(pt, Distance::meters(5.0)).to_polygon(),
+            );
+            unzoomed.push(color, Circle::new(pt, Distance::meters(15.0)).to_polygon());
         }
 
         Colorer {
