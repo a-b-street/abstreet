@@ -98,15 +98,15 @@ pub struct Path {
 }
 
 impl Path {
-    pub(crate) fn new(
-        map: &Map,
-        steps: Vec<PathStep>,
-        end_dist: Distance,
-        total_length: Distance,
-    ) -> Path {
+    pub(crate) fn new(map: &Map, steps: Vec<PathStep>, end_dist: Distance) -> Path {
         // Haven't seen problems here in a very long time. Noticeably saves some time to skip.
         if false {
             validate(map, &steps);
+        }
+        // Slightly expensive, but the contraction hierarchy weights aren't distances.
+        let mut total_length = Distance::ZERO;
+        for s in &steps {
+            total_length += s.as_traversable().length(map);
         }
         Path {
             steps: VecDeque::from(steps),
@@ -178,6 +178,13 @@ impl Path {
         self.total_length -= self.steps[idx].as_traversable().length(map);
         self.steps[idx] = step;
         self.total_length += self.steps[idx].as_traversable().length(map);
+
+        if self.total_length < Distance::ZERO {
+            panic!(
+                "modify_step broke total_length, it's now {}",
+                self.total_length
+            );
+        }
     }
 
     pub fn current_step(&self) -> PathStep {

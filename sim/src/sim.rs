@@ -994,12 +994,21 @@ impl Sim {
 
     pub fn location_of_buses(&self, route: BusRouteID, map: &Map) -> Vec<(CarID, Pt2D)> {
         let mut results = Vec::new();
-        for car in self.transit.buses_for_route(route) {
+        for (car, _) in self.transit.buses_for_route(route) {
             // TODO This is a slow, indirect method!
             results.push((
                 car,
                 self.canonical_pt_for_agent(AgentID::Car(car), map).unwrap(),
             ));
+        }
+        results
+    }
+
+    // (bus, stop index it's coming from, percent to next stop)
+    pub fn status_of_buses(&self, route: BusRouteID) -> Vec<(CarID, usize, f64)> {
+        let mut results = Vec::new();
+        for (bus, stop_idx) in self.transit.buses_for_route(route) {
+            results.push((bus, stop_idx, self.driving.percent_along_route(bus)));
         }
         results
     }

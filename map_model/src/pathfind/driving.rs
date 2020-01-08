@@ -1,7 +1,6 @@
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::{Lane, LaneID, Map, Path, PathConstraints, PathRequest, PathStep, Turn, TurnID};
 use fast_paths::{FastGraph, InputGraph, PathCalculator};
-use geom::Distance;
 use serde_derive::{Deserialize, Serialize};
 use std::cell::RefCell;
 use thread_local::ThreadLocal;
@@ -72,12 +71,7 @@ impl VehiclePathfinder {
         }
         steps.push(PathStep::Lane(req.end.lane()));
         Some((
-            Path::new(
-                map,
-                steps,
-                req.end.dist_along(),
-                Distance::centimeters(raw_path.get_weight()),
-            ),
+            Path::new(map, steps, req.end.dist_along()),
             raw_path.get_weight(),
         ))
     }

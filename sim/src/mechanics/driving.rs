@@ -892,6 +892,10 @@ impl DrivingSimState {
         car.router.get_path().trace(map, front, dist_ahead)
     }
 
+    pub fn percent_along_route(&self, id: CarID) -> f64 {
+        self.cars[&id].router.get_path().percent_dist_crossed()
+    }
+
     pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {
         let car = self.cars.get(&id)?;
         car.vehicle.owner

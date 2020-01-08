@@ -265,9 +265,25 @@ impl TransitSimState {
         self.buses[&bus].route
     }
 
-    pub fn buses_for_route(&self, route: BusRouteID) -> Vec<CarID> {
+    // also stop idx
+    pub fn buses_for_route(&self, route: BusRouteID) -> Vec<(CarID, usize)> {
         if let Some(ref r) = self.routes.get(&route) {
-            r.buses.clone()
+            r.buses
+                .iter()
+                .map(|bus| {
+                    let stop = match self.buses[bus].state {
+                        BusState::DrivingToStop(idx) => {
+                            if idx == 0 {
+                                r.stops.len() - 1
+                            } else {
+                                idx - 1
+                            }
+                        }
+                        BusState::AtStop(idx) => idx,
+                    };
+                    (*bus, stop)
+                })
+                .collect()
         } else {
             Vec::new()
         }

@@ -8,10 +8,11 @@ use crate::sandbox::overlays::Overlays;
 use crate::sandbox::{bus_explorer, SandboxMode};
 use crate::ui::UI;
 use ezgui::{
-    hotkey, Button, Choice, Color, Composite, EventCtx, EventLoopMode, HorizontalAlignment, Key,
-    Line, ManagedWidget, ModalMenu, Plot, Series, Text, VerticalAlignment,
+    hotkey, Button, Choice, Color, Composite, DrawBoth, EventCtx, EventLoopMode, GeomBatch,
+    HorizontalAlignment, JustDraw, Key, Line, ManagedWidget, ModalMenu, Plot, Series, Text,
+    VerticalAlignment,
 };
-use geom::{Statistic, Time};
+use geom::{Circle, Distance, Polygon, Pt2D, Statistic, Time};
 use map_model::BusRouteID;
 
 pub struct OptimizeBus {
@@ -188,10 +189,11 @@ fn bus_route_panel(id: BusRouteID, stat: Statistic, ui: &UI) -> Text {
 
 fn bus_passengers(id: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> crate::managed::Composite {
     let route = ui.primary.map.get_br(id);
-    let mut col = vec![ManagedWidget::draw_text(
+    let mut master_col = vec![ManagedWidget::draw_text(
         ctx,
         Text::prompt(&format!("Passengers for {}", route.name)),
     )];
+    let mut col = Vec::new();
 
     let mut delay_per_stop = ui
         .primary
@@ -220,8 +222,45 @@ fn bus_passengers(id: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> crate::managed
         }
         col.push(ManagedWidget::row(row));
     }
+
+    let y_len = ctx.default_line_height() * (route.stops.len() as f64);
+    let mut batch = GeomBatch::new();
+    batch.push(
+        Color::CYAN,
+        Polygon::rounded_rectangle(
+            Distance::meters(15.0),
+            Distance::meters(y_len),
+            Distance::meters(4.0),
+        ),
+    );
+    for (_, stop_idx, percent_next_stop) in ui.primary.sim.status_of_buses(route.id) {
+        // TODO Line it up right in the middle of the line of text. This is probably a bit wrong.
+        let base_percent_y = if stop_idx == route.stops.len() - 1 {
+            0.0
+        } else {
+            (stop_idx as f64) / ((route.stops.len() - 1) as f64)
+        };
+        batch.push(
+            Color::BLUE,
+            Circle::new(
+                Pt2D::new(
+                    7.5,
+                    base_percent_y * y_len + percent_next_stop * ctx.default_line_height(),
+                ),
+                Distance::meters(5.0),
+            )
+            .to_polygon(),
+        );
+    }
+    let timeline = ManagedWidget::just_draw(JustDraw::wrap(DrawBoth::new(ctx, batch, Vec::new())));
+
+    master_col.push(ManagedWidget::row(vec![
+        timeline.margin(5),
+        ManagedWidget::col(col).margin(5),
+    ]));
+
     let mut c = crate::managed::Composite::new(
-        Composite::new(ManagedWidget::col(col).bg(Color::grey(0.4)))
+        Composite::new(ManagedWidget::col(master_col).bg(Color::grey(0.4)))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)
             .build(ctx),
     );
@@ -234,7 +273,7 @@ fn bus_passengers(id: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> crate::managed
                     Warping::new(
                         ctx,
                         id.canonical_point(&ui.primary).unwrap(),
-                        Some(3.0),
+                        Some(4.0),
                         Some(id.clone()),
                         &mut ui.primary,
                     ),
