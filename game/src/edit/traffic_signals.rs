@@ -449,7 +449,13 @@ fn check_for_missing_groups(
     }
     let num_missing = missing.len();
     let mut phase = Phase::new();
-    phase.yield_groups = missing;
+    for g in missing {
+        if g.crosswalk.is_some() {
+            phase.protected_groups.insert(g);
+        } else {
+            phase.yield_groups.insert(g);
+        }
+    }
     signal.phases.push(phase);
     let last_phase = signal.phases.len() - 1;
     change_traffic_signal(signal, ui, ctx);
