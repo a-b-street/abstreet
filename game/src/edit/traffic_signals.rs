@@ -361,9 +361,14 @@ fn change_traffic_signal(signal: ControlTrafficSignal, ui: &mut UI, ctx: &mut Ev
 
 fn change_phase_duration(current_duration: Duration) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, _| {
-        let new_duration = wiz.wrap(ctx).input_usize_prefilled(
+        let new_duration = wiz.wrap(ctx).input_something(
             "How long should this phase be (seconds)?",
-            format!("{}", current_duration.inner_seconds() as usize),
+            Some(format!("{}", current_duration.inner_seconds() as usize)),
+            Box::new(|line| {
+                line.parse::<usize>()
+                    .ok()
+                    .and_then(|n| if n != 0 { Some(n) } else { None })
+            }),
         )?;
         Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
             let mut editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
