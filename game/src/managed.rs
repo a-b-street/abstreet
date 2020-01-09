@@ -1,3 +1,4 @@
+use crate::common::CommonState;
 use crate::game::{State, Transition};
 use crate::ui::UI;
 use ezgui::{Button, Color, EventCtx, GfxCtx, Line, ManagedWidget, MultiKey, RewriteColor, Text};
@@ -132,5 +133,7 @@ impl State for ManagedGUIState {
         // Happens to be a nice background color too ;)
         g.clear(ui.cs.get("grass"));
         self.composite.draw(g);
+        // Still want to show hotkeys
+        CommonState::draw_osd(g, ui, &None);
     }
 }
