@@ -80,7 +80,12 @@ impl Canvas {
 
             if let Some(scroll) = input.get_mouse_scroll() {
                 let old_zoom = self.cam_zoom;
-                self.cam_zoom = 1.1_f64.powf(old_zoom.log(1.1) + scroll);
+                // By popular request, some limits ;)
+                // TODO But based on map size
+                self.cam_zoom = 1.1_f64
+                    .powf(old_zoom.log(1.1) + scroll)
+                    .max(0.05)
+                    .min(150.0);
 
                 // Make screen_to_map of cursor_{x,y} still point to the same thing after zooming.
                 self.cam_x =
