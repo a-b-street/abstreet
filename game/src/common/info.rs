@@ -4,8 +4,8 @@ use crate::helpers::{rotating_color, ID};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, Color, Composite, EventCtx, GfxCtx, Key, Line, ManagedWidget, Outcome, Plot, Series,
-    Text,
+    hotkey, Button, Color, Composite, EventCtx, GfxCtx, Key, Line, ManagedWidget, Outcome, Plot,
+    Series, Text,
 };
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, RoadID};
@@ -28,11 +28,17 @@ impl InfoPanel {
         ])];
 
         for (key, label) in ui.per_obj.consume() {
-            col.push(crate::managed::Composite::text_button(
-                ctx,
-                &label,
+            let mut txt = Text::new();
+            txt.append(Line(key.describe()).fg(ezgui::HOTKEY_COLOR));
+            txt.append(Line(format!(" - {}", label)));
+            col.push(ManagedWidget::btn(Button::text(
+                txt,
+                Color::grey(0.5),
+                Color::ORANGE,
                 hotkey(key),
-            ));
+                &label,
+                ctx,
+            )));
         }
 
         col.push(ManagedWidget::draw_text(ctx, info_for(id.clone(), ui)));
