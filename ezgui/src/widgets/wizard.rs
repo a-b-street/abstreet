@@ -1,9 +1,8 @@
-use crate::widgets::log_scroller::LogScroller;
 use crate::widgets::text_box::TextBox;
 use crate::widgets::PopupMenu;
 use crate::{
-    layout, Color, Composite, EventCtx, GfxCtx, InputResult, Key, ManagedWidget, MultiKey,
-    SliderWithTextBox, Text,
+    hotkey, layout, Button, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, InputResult,
+    Key, Line, ManagedWidget, MultiKey, Outcome, SliderWithTextBox, Text, VerticalAlignment,
 };
 use abstutil::Cloneable;
 use geom::Time;
@@ -13,7 +12,7 @@ pub struct Wizard {
     alive: bool,
     tb: Option<TextBox>,
     menu_comp: Option<Composite>,
-    log_scroller: Option<LogScroller>,
+    ack: Option<Composite>,
     slider: Option<SliderWithTextBox>,
 
     // In the order of queries made
@@ -26,7 +25,7 @@ impl Wizard {
             alive: true,
             tb: None,
             menu_comp: None,
-            log_scroller: None,
+            ack: None,
             slider: None,
             confirmed_state: Vec::new(),
         }
@@ -39,7 +38,7 @@ impl Wizard {
         if let Some(ref tb) = self.tb {
             tb.draw(g);
         }
-        if let Some(ref s) = self.log_scroller {
+        if let Some(ref s) = self.ack {
             s.draw(g);
         }
         if let Some(ref s) = self.slider {
@@ -250,27 +249,27 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
 
         // If the menu was empty, wait for the user to acknowledge the text-box before aborting the
         // wizard
-        if self.wizard.log_scroller.is_some() {
-            if self
-                .wizard
-                .log_scroller
-                .as_mut()
-                .unwrap()
-                .event(&mut self.ctx.input)
-            {
-                self.wizard.log_scroller = None;
-                self.wizard.alive = false;
+        if self.wizard.ack.is_some() {
+            match self.wizard.ack.as_mut().unwrap().event(self.ctx) {
+                Some(Outcome::Clicked(x)) => match x.as_ref() {
+                    "OK" => {
+                        self.wizard.ack = None;
+                        self.wizard.alive = false;
+                    }
+                    _ => unreachable!(),
+                },
+                None => {
+                    return None;
+                }
             }
-            return None;
         }
 
         if self.wizard.menu_comp.is_none() {
             let choices: Vec<Choice<R>> = choices_generator();
             if choices.is_empty() {
-                self.wizard.log_scroller = Some(LogScroller::new(
-                    query.to_string(),
-                    vec!["No choices, never mind".to_string()],
-                ));
+                let mut txt = Text::prompt(query);
+                txt.add(Line("No choices, never mind"));
+                self.setup_ack(txt);
                 return None;
             }
             self.wizard.menu_comp = Some(
@@ -361,32 +360,53 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             return Some(());
         }
 
-        if self.wizard.log_scroller.is_none() {
-            self.wizard.log_scroller = Some(LogScroller::new(
-                title.to_string(),
-                make_lines().into_iter().map(|l| l.into()).collect(),
-            ));
+        if self.wizard.ack.is_none() {
+            let mut txt = Text::prompt(title);
+            for l in make_lines() {
+                txt.add(Line(l));
+            }
+            self.setup_ack(txt);
         }
-        if self
-            .wizard
-            .log_scroller
-            .as_mut()
-            .unwrap()
-            .event(&mut self.ctx.input)
-        {
-            self.wizard.confirmed_state.push(Box::new(()));
-            self.wizard.log_scroller = None;
-            Some(())
-        } else {
-            None
+        match self.wizard.ack.as_mut().unwrap().event(self.ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "OK" => {
+                    self.wizard.confirmed_state.push(Box::new(()));
+                    self.wizard.ack = None;
+                    Some(())
+                }
+                _ => unreachable!(),
+            },
+            None => None,
         }
+    }
+
+    fn setup_ack(&mut self, txt: Text) {
+        assert!(self.wizard.ack.is_none());
+        self.wizard.ack = Some(
+            Composite::new(
+                ManagedWidget::col(vec![
+                    ManagedWidget::draw_text(self.ctx, txt),
+                    ManagedWidget::btn(Button::text(
+                        Text::from(Line("OK")),
+                        Color::grey(0.6),
+                        Color::ORANGE,
+                        hotkey(Key::Enter),
+                        "OK",
+                        self.ctx,
+                    )),
+                ])
+                .bg(Color::grey(0.4)),
+            )
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)
+            .build(self.ctx),
+        );
     }
 
     // If the control flow through a wizard block needs to change, might need to call this.
     pub fn reset(&mut self) {
         assert!(self.wizard.tb.is_none());
         assert!(self.wizard.menu_comp.is_none());
-        assert!(self.wizard.log_scroller.is_none());
+        assert!(self.wizard.ack.is_none());
         assert!(self.wizard.slider.is_none());
         self.wizard.confirmed_state.clear();
     }

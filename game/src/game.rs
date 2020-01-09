@@ -1,3 +1,4 @@
+use crate::common::CommonState;
 use crate::options::Options;
 use crate::pregame::TitleScreen;
 use crate::render::DrawOptions;
@@ -232,6 +233,8 @@ impl State for WizardState {
             &ShowEverything::new(),
         );
         self.wizard.draw(g);
+        // Still want to show hotkeys
+        CommonState::draw_osd(g, ui, &None);
     }
 }
 

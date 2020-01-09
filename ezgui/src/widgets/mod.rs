@@ -2,7 +2,6 @@ mod autocomplete;
 mod button;
 mod filler;
 mod histogram;
-mod log_scroller;
 mod modal_menu;
 mod no_op;
 mod plot;
