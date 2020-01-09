@@ -19,10 +19,9 @@ pub use self::route_explorer::RouteExplorer;
 pub use self::trip_explorer::TripExplorer;
 pub use self::warp::Warping;
 use crate::game::Transition;
-use crate::helpers::ID;
+use crate::helpers::{list_names, ID};
 use crate::render::DrawOptions;
 use crate::ui::UI;
-use abstutil::IsLastIter;
 use ezgui::{
     hotkey, lctrl, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Text, VerticalAlignment,
 };
@@ -83,19 +82,22 @@ impl CommonState {
         let mut osd = Text::new().with_bg();
         match id {
             ID::Lane(l) => {
+                if ui.opts.dev {
+                    osd.append(Line(l.to_string()).fg(id_color));
+                    osd.append(Line(" is "));
+                }
                 osd.append_all(vec![
-                    Line(l.to_string()).fg(id_color),
-                    Line(format!(" is {} of ", map.get_l(l).lane_type.describe())),
+                    Line(format!("{} of ", map.get_l(l).lane_type.describe())),
                     Line(map.get_parent(l).get_name()).fg(name_color),
                 ]);
             }
             ID::Building(b) => {
+                if ui.opts.dev {
+                    osd.append(Line(b.to_string()).fg(id_color));
+                    osd.append(Line(" is "));
+                }
                 let bldg = map.get_b(b);
-                osd.append_all(vec![
-                    Line(b.to_string()).fg(id_color),
-                    Line(" is "),
-                    Line(bldg.get_name(map)).fg(name_color),
-                ]);
+                osd.append(Line(bldg.get_name(map)).fg(name_color));
                 if let Some(ref p) = bldg.parking {
                     osd.append(Line(format!(
                         " ({} parking spots via {})",
@@ -104,6 +106,7 @@ impl CommonState {
                 }
             }
             ID::Turn(t) => {
+                // Only selectable in dev mode anyway
                 osd.append_all(vec![
                     Line(format!("TurnID({})", map.get_t(t).lookup_idx)).fg(id_color),
                     Line(" between "),
@@ -113,21 +116,29 @@ impl CommonState {
                 ]);
             }
             ID::Intersection(i) => {
-                osd.append_all(vec![Line(i.to_string()).fg(id_color), Line(" of ")]);
+                if map.get_i(i).is_border() {
+                    osd.append(Line("Border "));
+                }
+
+                if ui.opts.dev {
+                    osd.append(Line(i.to_string()).fg(id_color));
+                } else {
+                    osd.append(Line("Intersection"));
+                }
+                osd.append(Line(" of "));
 
                 let mut road_names = BTreeSet::new();
                 for r in &map.get_i(i).roads {
                     road_names.insert(map.get_r(*r).get_name());
                 }
-                for (n, is_last) in IsLastIter::set(road_names) {
-                    osd.append(Line(n).fg(name_color));
-                    if !is_last {
-                        osd.append(Line(", "));
-                    }
-                }
+                list_names(&mut osd, |l| l.fg(name_color), road_names);
             }
             ID::Car(c) => {
-                osd.append(Line(c.to_string()).fg(id_color));
+                if ui.opts.dev {
+                    osd.append(Line(c.to_string()).fg(id_color));
+                } else {
+                    osd.append(Line(format!("a {}", c.1)));
+                }
                 if let Some(r) = ui.primary.sim.bus_route_id(c) {
                     osd.append_all(vec![
                         Line(" serving "),
@@ -135,20 +146,40 @@ impl CommonState {
                     ]);
                 }
             }
-            ID::BusStop(bs) => {
-                osd.append_all(vec![Line(bs.to_string()).fg(id_color), Line(" serving ")]);
-
-                let routes = map.get_routes_serving_stop(bs);
-                for (n, is_last) in IsLastIter::vec(routes) {
-                    osd.append(Line(&n.name).fg(name_color));
-                    if !is_last {
-                        osd.append(Line(", "));
-                    }
+            ID::Pedestrian(p) => {
+                if ui.opts.dev {
+                    osd.append(Line(p.to_string()).fg(id_color));
+                } else {
+                    osd.append(Line("a pedestrian"));
                 }
             }
-            _ => {
-                osd.append(Line(format!("{:?}", id)).fg(id_color));
+            ID::PedCrowd(list) => {
+                osd.append(Line(format!("a crowd of {} pedestrians", list.len())));
             }
+            ID::BusStop(bs) => {
+                if ui.opts.dev {
+                    osd.append(Line(bs.to_string()).fg(id_color));
+                } else {
+                    osd.append(Line("a bus stop"));
+                }
+                osd.append(Line(" served by "));
+
+                let routes: BTreeSet<String> = map
+                    .get_routes_serving_stop(bs)
+                    .into_iter()
+                    .map(|r| r.name.clone())
+                    .collect();
+                list_names(&mut osd, |l| l.fg(name_color), routes);
+            }
+            ID::ExtraShape(es) => {
+                // Only selectable in dev mode anyway
+                osd.append(Line(es.to_string()).fg(id_color));
+            }
+            ID::Area(a) => {
+                // Only selectable in dev mode anyway
+                osd.append(Line(a.to_string()).fg(id_color));
+            }
+            ID::Road(_) => unreachable!(),
         }
         osd
     }

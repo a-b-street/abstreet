@@ -1,12 +1,12 @@
 use crate::render::ExtraShapeID;
 use crate::ui::PerMapUI;
 use abstutil::Timer;
-use ezgui::Color;
+use ezgui::{Color, Line, Text, TextSpan};
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, RoadID, TurnID};
 use serde_derive::{Deserialize, Serialize};
 use sim::{AgentID, CarID, PedestrianID};
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 // Aside from Road, everything here can actually be selected.
 #[derive(Clone, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
@@ -181,4 +181,22 @@ pub fn rotating_color_agents(idx: usize) -> Color {
         return Color::hex("#96322F");
     }
     Color::hex("#00A27B")
+}
+
+pub fn list_names<F: Fn(TextSpan) -> TextSpan>(txt: &mut Text, styler: F, names: BTreeSet<String>) {
+    let len = names.len();
+    for (idx, n) in names.into_iter().enumerate() {
+        if idx != 0 {
+            if idx == len - 1 {
+                if len == 2 {
+                    txt.append(Line(" and "));
+                } else {
+                    txt.append(Line(", and "));
+                }
+            } else {
+                txt.append(Line(", "));
+            }
+        }
+        txt.append(styler(Line(n)));
+    }
 }

@@ -59,16 +59,7 @@ pub struct CarID(pub usize, pub VehicleType);
 
 impl fmt::Display for CarID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "CarID({0} -- {1})",
-            self.0,
-            match self.1 {
-                VehicleType::Car => "car",
-                VehicleType::Bus => "bus",
-                VehicleType::Bike => "bike",
-            }
-        )
+        write!(f, "CarID({} -- {})", self.0, self.1)
     }
 }
 
@@ -119,6 +110,16 @@ pub enum VehicleType {
     Car,
     Bus,
     Bike,
+}
+
+impl fmt::Display for VehicleType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            VehicleType::Car => write!(f, "car"),
+            VehicleType::Bus => write!(f, "bus"),
+            VehicleType::Bike => write!(f, "bike"),
+        }
+    }
 }
 
 impl VehicleType {

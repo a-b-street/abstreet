@@ -338,7 +338,11 @@ impl Road {
 
     pub fn get_name(&self) -> String {
         if let Some(name) = self.osm_tags.get(osm::NAME) {
-            return name.to_string();
+            if name == "" {
+                return "???".to_string();
+            } else {
+                return name.to_string();
+            }
         }
         if let Some(name) = self.osm_tags.get("ref") {
             return name.to_string();
