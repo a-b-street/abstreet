@@ -247,17 +247,15 @@ impl State for EditMode {
         match self.tool_panel.event(ctx, ui) {
             Some(Outcome::Transition(t)) => t,
             Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "back" => {
+                "back" => ctx.loading_screen("apply edits", |ctx, mut timer| {
                     // TODO Maybe put a loading screen around these.
                     ui.primary
                         .map
-                        .recalculate_pathfinding_after_edits(&mut Timer::new(
-                            "apply pending map edits",
-                        ));
+                        .recalculate_pathfinding_after_edits(&mut timer);
                     // Parking state might've changed
                     ui.primary.clear_sim();
                     Transition::Replace(Box::new(SandboxMode::new(ctx, ui, self.mode.clone())))
-                }
+                }),
                 _ => unreachable!(),
             },
             None => Transition::Keep,
