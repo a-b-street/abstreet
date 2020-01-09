@@ -31,7 +31,8 @@ impl TitleScreen {
             composite: Composite::new(
                 ezgui::Composite::new(
                     ManagedWidget::col(vec![ManagedWidget::col(vec![
-                        ManagedWidget::just_draw(JustDraw::image("assets/pregame/logo.png", ctx)),
+                        ManagedWidget::just_draw(JustDraw::image("assets/pregame/logo.png", ctx))
+                            .bg(Color::GREEN.alpha(0.2)),
                         // TODO that nicer font
                         // TODO Any key
                         ManagedWidget::btn(Button::text(
