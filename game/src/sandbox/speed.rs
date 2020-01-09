@@ -398,7 +398,8 @@ impl TimePanel {
                         let width = 300.0;
                         let y1 = 5.0;
                         let height = Distance::meters(15.0);
-                        let percent = ui.primary.sim.time().to_percent(Time::END_OF_DAY);
+                        // Just clamp past 24 hours
+                        let percent = ui.primary.sim.time().to_percent(Time::END_OF_DAY).min(1.0);
 
                         // TODO rounded
                         batch.push(

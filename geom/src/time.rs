@@ -49,14 +49,14 @@ impl Time {
 
     pub fn ampm_tostring(self) -> String {
         let (mut hours, minutes, seconds, remainder) = self.get_parts();
-        let suffix = if hours < 12 {
-            "AM"
-        } else if hours < 24 {
-            "PM"
+        let next_day = if hours >= 24 {
+            let days = hours / 24;
+            hours = hours % 24;
+            format!(" (+{} days)", days)
         } else {
-            // Give up on the AM/PM distinction I guess. This shouldn't be used much.
-            "(+1 day)"
+            "".to_string()
         };
+        let suffix = if hours < 12 { "AM" } else { "PM" };
         if hours == 0 {
             hours = 12;
         } else if hours >= 24 {
@@ -66,8 +66,8 @@ impl Time {
         }
 
         format!(
-            "{:02}:{:02}:{:02}.{:01} {}",
-            hours, minutes, seconds, remainder, suffix
+            "{:02}:{:02}:{:02}.{:01} {}{}",
+            hours, minutes, seconds, remainder, suffix, next_day
         )
     }
 
