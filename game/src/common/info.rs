@@ -129,6 +129,9 @@ fn info_for(id: ID, ui: &UI) -> Text {
             let r = map.get_r(l.parent);
 
             txt.add(Line(format!("Lane is {} long", l.length())));
+            if ui.opts.dev {
+                txt.add(Line(format!("Parent is {}", r.id)));
+            }
 
             txt.add(Line(""));
             styled_kv(&mut txt, &r.osm_tags);

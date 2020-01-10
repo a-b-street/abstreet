@@ -260,7 +260,10 @@ impl TurnGroup {
             return false;
         }
 
-        if self.id.from == other.id.from {
+        if self.id.from == other.id.from
+            && self.turn_type != TurnType::Crosswalk
+            && other.turn_type != TurnType::Crosswalk
+        {
             return false;
         }
         if self.id.to == other.id.to {
