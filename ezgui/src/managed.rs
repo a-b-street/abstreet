@@ -572,8 +572,10 @@ impl Composite {
         }
     }
 
-    pub fn set_scroll_y_offset(&mut self, ctx: &EventCtx, offset: f64) {
-        assert!(self.scrollable);
+    fn set_scroll_y_offset(&mut self, ctx: &EventCtx, offset: f64) {
+        if !self.scrollable {
+            return;
+        }
         let max = (self.top_level.rect.height() - ctx.canvas.window_height).max(0.0);
         if max == 0.0 {
             assert_eq!(offset, 0.0);
@@ -625,12 +627,14 @@ impl Composite {
     }
 
     pub fn preserve_scroll(&self, ctx: &EventCtx) -> f64 {
-        assert!(self.scrollable);
-        self.scroll_y_offset(ctx)
+        if self.scrollable {
+            self.scroll_y_offset(ctx)
+        } else {
+            0.0
+        }
     }
 
     pub fn restore_scroll(&mut self, ctx: &EventCtx, offset: f64) {
-        assert!(self.scrollable);
         self.set_scroll_y_offset(ctx, offset);
     }
 
