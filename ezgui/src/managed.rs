@@ -484,7 +484,6 @@ pub enum Outcome {
 
 enum CompositePosition {
     FillScreen,
-    MinimalTopLeft(ScreenPt),
     Aligned(HorizontalAlignment, VerticalAlignment),
 }
 
@@ -515,7 +514,7 @@ impl Composite {
                         },
                         ..Default::default()
                     },
-                    CompositePosition::MinimalTopLeft(_) | CompositePosition::Aligned(_, _) => {
+                    CompositePosition::Aligned(_, _) => {
                         Style {
                             // TODO There a way to encode the offset in stretch?
                             ..Default::default()
@@ -540,7 +539,6 @@ impl Composite {
         stretch.compute_layout(root, Size::undefined()).unwrap();
         let top_left = match self.pos {
             CompositePosition::FillScreen => ScreenPt::new(0.0, 0.0),
-            CompositePosition::MinimalTopLeft(pt) => pt,
             CompositePosition::Aligned(horiz, vert) => {
                 let result = stretch.layout(root).unwrap();
                 ctx.canvas.align_window(
@@ -692,10 +690,6 @@ impl CompositeBuilder {
         c
     }
 
-    pub fn minimal_size(mut self, top_left: ScreenPt) -> CompositeBuilder {
-        self.pos = CompositePosition::MinimalTopLeft(top_left);
-        self
-    }
     pub fn aligned(
         mut self,
         horiz: HorizontalAlignment,

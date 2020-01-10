@@ -6,8 +6,8 @@ use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
-    Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Histogram, Key, Line,
-    ScreenPt, Text,
+    Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Histogram,
+    HorizontalAlignment, Key, Line, Text, VerticalAlignment,
 };
 use geom::{Distance, Duration, PolyLine, Time};
 use map_model::IntersectionID;
@@ -354,10 +354,7 @@ impl Overlays {
                 )
                 .bg(Color::grey(0.4)),
             )
-            .minimal_size(ScreenPt::new(
-                0.7 * ctx.canvas.window_width,
-                0.6 * ctx.canvas.window_height,
-            ))
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
             .build(ctx),
         )
     }
