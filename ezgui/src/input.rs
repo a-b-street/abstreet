@@ -155,7 +155,7 @@ impl UserInput {
         Some(self.event)
     }
 
-    fn consume_event(&mut self) {
+    pub(crate) fn consume_event(&mut self) {
         assert!(!self.event_consumed);
         self.event_consumed = true;
     }

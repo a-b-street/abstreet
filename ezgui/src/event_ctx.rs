@@ -66,7 +66,14 @@ impl<'a> EventCtx<'a> {
     }
 
     pub fn normal_left_click(&mut self) -> bool {
-        !self.is_dragging() && self.input.left_mouse_button_released()
+        if self.input.has_been_consumed() {
+            return false;
+        }
+        if !self.is_dragging() && self.input.left_mouse_button_released() {
+            self.input.consume_event();
+            return true;
+        }
+        false
     }
 
     fn is_dragging(&self) -> bool {
