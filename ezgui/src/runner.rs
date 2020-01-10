@@ -179,17 +179,15 @@ impl<G: GUI> State<G> {
 
 pub struct Settings {
     window_title: String,
-    initial_dims: (f64, f64),
     profiling_enabled: bool,
     default_font_size: usize,
     override_hidpi_factor: Option<f64>,
 }
 
 impl Settings {
-    pub fn new(window_title: &str, initial_dims: (f64, f64)) -> Settings {
+    pub fn new(window_title: &str) -> Settings {
         Settings {
             window_title: window_title.to_string(),
-            initial_dims,
             profiling_enabled: false,
             default_font_size: 30,
             override_hidpi_factor: None,
@@ -214,10 +212,7 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: 
     let events_loop = glutin::EventsLoop::new();
     let window = glutin::WindowBuilder::new()
         .with_title(settings.window_title)
-        .with_dimensions(glutin::dpi::LogicalSize::new(
-            settings.initial_dims.0,
-            settings.initial_dims.1,
-        ));
+        .with_maximized(true);
     // multisampling: 2 looks bad, 4 looks fine
     //
     // The Z values are very simple:
@@ -284,11 +279,8 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: 
         println!("... but overriding it to {} by flag", x);
         hidpi_factor = x;
     }
-    let mut canvas = Canvas::new(
-        settings.initial_dims.0,
-        settings.initial_dims.1,
-        hidpi_factor,
-    );
+    let window_size = events_loop.get_primary_monitor().get_dimensions();
+    let mut canvas = Canvas::new(window_size.width, window_size.height, hidpi_factor);
     let assets = Assets::new(&display, settings.default_font_size);
     let prerender = Prerender {
         display: &display,
