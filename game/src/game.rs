@@ -100,6 +100,15 @@ impl GUI for Game {
                 self.ui.per_obj.action_chosen(action);
                 return EventLoopMode::InputOnly;
             }
+            Transition::PushTwice(s1, s2) => {
+                self.states
+                    .last_mut()
+                    .unwrap()
+                    .on_suspend(ctx, &mut self.ui);
+                self.states.push(s1);
+                self.states.push(s2);
+                return EventLoopMode::InputOnly;
+            }
             _ => unreachable!(),
         };
         self.ui.per_obj.assert_chosen_used();
@@ -183,6 +192,7 @@ pub enum Transition {
     PopThenReplace(Box<dyn State>),
     Clear(Box<dyn State>),
     PopThenApplyObjectAction(String),
+    PushTwice(Box<dyn State>, Box<dyn State>),
 
     // These don't.
     KeepWithMode(EventLoopMode),

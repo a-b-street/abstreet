@@ -2,6 +2,7 @@ mod lanes;
 mod stop_signs;
 mod traffic_signals;
 
+pub use self::traffic_signals::TrafficSignalEditor;
 use crate::common::{tool_panel, CommonState, Warping};
 use crate::debug::DebugMode;
 use crate::game::{State, Transition, WizardState};
@@ -28,7 +29,7 @@ pub struct EditMode {
 
     // Retained state from the SandboxMode that spawned us
     mode: GameplayMode,
-    suspended_sim: Sim,
+    pub suspended_sim: Sim,
 
     lane_editor: lanes::LaneEditor,
 }
@@ -201,7 +202,7 @@ impl State for EditMode {
                     .per_obj
                     .action(ctx, Key::E, format!("edit traffic signal for {}", id))
                 {
-                    return Transition::Push(Box::new(traffic_signals::TrafficSignalEditor::new(
+                    return Transition::Push(Box::new(TrafficSignalEditor::new(
                         id,
                         ctx,
                         ui,

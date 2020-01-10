@@ -7,7 +7,7 @@ mod speed;
 use self::overlays::Overlays;
 use crate::common::{tool_panel, AgentTools, CommonState, Minimap};
 use crate::debug::DebugMode;
-use crate::edit::{apply_map_edits, save_edits};
+use crate::edit::{apply_map_edits, save_edits, EditMode, TrafficSignalEditor};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::Outcome;
@@ -131,9 +131,19 @@ impl State for SandboxMode {
         }
         if let Some(ID::Intersection(i)) = ui.primary.current_selection {
             if ui.primary.map.get_i(i).is_traffic_signal()
-                && ui.per_obj.action(ctx, Key::E, "show current demand")
+                && ui.per_obj.action(ctx, Key::C, "show current demand")
             {
                 self.overlay = Overlays::intersection_demand(i, ctx, ui);
+            }
+            if ui.primary.map.get_i(i).is_traffic_signal()
+                && ui.per_obj.action(ctx, Key::E, "edit traffic signal")
+            {
+                let edit = EditMode::new(ctx, ui, self.gameplay.mode.clone());
+                let sim_copy = edit.suspended_sim.clone();
+                return Transition::PushTwice(
+                    Box::new(edit),
+                    Box::new(TrafficSignalEditor::new(i, ctx, ui, sim_copy)),
+                );
             }
         }
 
