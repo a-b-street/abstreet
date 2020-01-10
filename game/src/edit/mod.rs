@@ -338,11 +338,20 @@ pub fn save_edits(wizard: &mut WrappedWizard, ui: &mut UI) -> Option<()> {
     let map = &mut ui.primary.map;
 
     let rename = if map.get_edits().edits_name == "no_edits" {
-        Some(wizard.input_string("Name these map edits")?)
+        Some(wizard.input_something(
+            "Name these map edits",
+            None,
+            Box::new(|l| {
+                if l.contains("/") || l == "no_edits" || l == "" {
+                    None
+                } else {
+                    Some(l)
+                }
+            }),
+        )?)
     } else {
         None
     };
-    // TODO Don't allow naming them no_edits!
 
     // TODO Do it this weird way to avoid saving edits on every event. :P
     // TODO Do some kind of versioning? Don't ask this if the file doesn't exist yet?
