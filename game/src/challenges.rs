@@ -193,7 +193,7 @@ pub fn challenges_picker(ctx: &mut EventCtx) -> Box<dyn State> {
         );
     }
 
-    ManagedGUIState::new(c)
+    ManagedGUIState::fullscreen(c)
 }
 
 struct ChallengeSplash {

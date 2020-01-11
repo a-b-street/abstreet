@@ -1,13 +1,13 @@
 use crate::common::{Colorer, ColorerBuilder};
-use crate::game::{Transition, WizardState};
-use crate::managed::Outcome;
+use crate::game::Transition;
+use crate::managed::{ManagedGUIState, Outcome};
 use crate::sandbox::bus_explorer::ShowBusRoute;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
-    Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Histogram,
-    HorizontalAlignment, Key, Line, Text, VerticalAlignment,
+    hotkey, Button, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Histogram,
+    HorizontalAlignment, Key, Line, ManagedWidget, RewriteColor, Text, VerticalAlignment,
 };
 use geom::{Distance, Duration, PolyLine, Time};
 use map_model::IntersectionID;
@@ -115,36 +115,129 @@ impl Overlays {
         }
     }
 
-    pub fn change_overlays(_: &mut EventCtx, _: &mut UI) -> Option<Transition> {
-        Some(Transition::Push(WizardState::new(Box::new(
-            |wiz, ctx, _| {
-                let (choice, _) = wiz.wrap(ctx).choose("Show which analytics overlay?", || {
-                    // TODO Filter out the current
-                    vec![
-                        Choice::new("none", ()).key(Key::N),
-                        Choice::new("parking availability", ()).key(Key::P),
-                        Choice::new("intersection delay", ()).key(Key::I),
-                        Choice::new("cumulative throughput", ()).key(Key::T),
-                        Choice::new("finished trips histogram", ()).key(Key::H),
-                        Choice::new("bike network", ()).key(Key::B),
-                        Choice::new("bus network", ()).key(Key::U),
-                    ]
-                })?;
-                Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
-                    let mut sandbox = state.downcast_mut::<SandboxMode>().unwrap();
-                    sandbox.overlay = match choice.as_ref() {
-                        "none" => Overlays::Inactive,
-                        "parking availability" => Overlays::parking_availability(ctx, ui),
-                        "intersection delay" => Overlays::intersection_delay(ctx, ui),
-                        "cumulative throughput" => Overlays::cumulative_throughput(ctx, ui),
-                        "finished trips histogram" => Overlays::finished_trips_histogram(ctx, ui),
-                        "bike network" => Overlays::bike_network(ctx, ui),
-                        "bus network" => Overlays::bus_network(ctx, ui),
-                        _ => unreachable!(),
-                    };
+    pub fn change_overlays(ctx: &mut EventCtx, _: &mut UI) -> Option<Transition> {
+        // TODO Filter out the current
+        let c = crate::managed::Composite::new(
+            Composite::new(
+                ManagedWidget::col(vec![
+                    ManagedWidget::row(vec![
+                        ManagedWidget::draw_text(ctx, Text::from(Line("Heat map layers"))),
+                        crate::managed::Composite::text_button(ctx, "X", hotkey(Key::Escape)),
+                    ]),
+                    ManagedWidget::row(vec![
+                        crate::managed::Composite::text_button(ctx, "None", hotkey(Key::N)),
+                        crate::managed::Composite::text_button(
+                            ctx,
+                            "finished trips histogram",
+                            hotkey(Key::F),
+                        ),
+                        ManagedWidget::btn(Button::rectangle_svg(
+                            "assets/layers/parking_avail.svg",
+                            "parking availability",
+                            hotkey(Key::P),
+                            RewriteColor::ChangeAll(Color::ORANGE),
+                            ctx,
+                        )),
+                        ManagedWidget::btn(Button::rectangle_svg(
+                            "assets/layers/intersection_delay.svg",
+                            "intersection delay",
+                            hotkey(Key::I),
+                            RewriteColor::ChangeAll(Color::ORANGE),
+                            ctx,
+                        )),
+                        ManagedWidget::btn(Button::rectangle_svg(
+                            "assets/layers/throughput.svg",
+                            "throughput",
+                            hotkey(Key::T),
+                            RewriteColor::ChangeAll(Color::ORANGE),
+                            ctx,
+                        )),
+                        ManagedWidget::btn(Button::rectangle_svg(
+                            "assets/layers/bike_network.svg",
+                            "bike network",
+                            hotkey(Key::B),
+                            RewriteColor::ChangeAll(Color::ORANGE),
+                            ctx,
+                        )),
+                        ManagedWidget::btn(Button::rectangle_svg(
+                            "assets/layers/bus_network.svg",
+                            "bus network",
+                            hotkey(Key::U),
+                            RewriteColor::ChangeAll(Color::ORANGE),
+                            ctx,
+                        )),
+                    ])
+                    .flex_wrap(ctx),
+                ])
+                .bg(Color::hex("#5B5B5B")),
+            )
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)
+            .build(ctx),
+        )
+        .cb("X", Box::new(|_, _| Some(Transition::Pop)))
+        .cb(
+            "None",
+            Box::new(|_, _| {
+                Some(Transition::PopWithData(Box::new(|state, _, _| {
+                    state.downcast_mut::<SandboxMode>().unwrap().overlay = Overlays::Inactive;
                 })))
-            },
-        ))))
+            }),
+        )
+        .cb(
+            "parking availability",
+            Box::new(|_, _| {
+                Some(Transition::PopWithData(Box::new(|state, ui, ctx| {
+                    state.downcast_mut::<SandboxMode>().unwrap().overlay =
+                        Overlays::parking_availability(ctx, ui);
+                })))
+            }),
+        )
+        .cb(
+            "intersection delay",
+            Box::new(|_, _| {
+                Some(Transition::PopWithData(Box::new(|state, ui, ctx| {
+                    state.downcast_mut::<SandboxMode>().unwrap().overlay =
+                        Overlays::intersection_delay(ctx, ui);
+                })))
+            }),
+        )
+        .cb(
+            "throughput",
+            Box::new(|_, _| {
+                Some(Transition::PopWithData(Box::new(|state, ui, ctx| {
+                    state.downcast_mut::<SandboxMode>().unwrap().overlay =
+                        Overlays::cumulative_throughput(ctx, ui);
+                })))
+            }),
+        )
+        .cb(
+            "bike network",
+            Box::new(|_, _| {
+                Some(Transition::PopWithData(Box::new(|state, ui, ctx| {
+                    state.downcast_mut::<SandboxMode>().unwrap().overlay =
+                        Overlays::bike_network(ctx, ui);
+                })))
+            }),
+        )
+        .cb(
+            "bus network",
+            Box::new(|_, _| {
+                Some(Transition::PopWithData(Box::new(|state, ui, ctx| {
+                    state.downcast_mut::<SandboxMode>().unwrap().overlay =
+                        Overlays::bus_network(ctx, ui);
+                })))
+            }),
+        )
+        .cb(
+            "finished trips histogram",
+            Box::new(|_, _| {
+                Some(Transition::PopWithData(Box::new(|state, ui, ctx| {
+                    state.downcast_mut::<SandboxMode>().unwrap().overlay =
+                        Overlays::finished_trips_histogram(ctx, ui);
+                })))
+            }),
+        );
+        Some(Transition::Push(ManagedGUIState::over_map(c)))
     }
 }
 

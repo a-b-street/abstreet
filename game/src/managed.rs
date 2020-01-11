@@ -105,11 +105,22 @@ impl Composite {
 
 pub struct ManagedGUIState {
     composite: Composite,
+    fullscreen: bool,
 }
 
 impl ManagedGUIState {
-    pub fn new(composite: Composite) -> Box<dyn State> {
-        Box::new(ManagedGUIState { composite })
+    pub fn fullscreen(composite: Composite) -> Box<dyn State> {
+        Box::new(ManagedGUIState {
+            composite,
+            fullscreen: true,
+        })
+    }
+
+    pub fn over_map(composite: Composite) -> Box<dyn State> {
+        Box::new(ManagedGUIState {
+            composite,
+            fullscreen: false,
+        })
     }
 }
 
@@ -126,12 +137,14 @@ impl State for ManagedGUIState {
     }
 
     fn draw_default_ui(&self) -> bool {
-        false
+        !self.fullscreen
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        // Happens to be a nice background color too ;)
-        g.clear(ui.cs.get("grass"));
+        if self.fullscreen {
+            // Happens to be a nice background color too ;)
+            g.clear(ui.cs.get("grass"));
+        }
         self.composite.draw(g);
         // Still want to show hotkeys
         CommonState::draw_osd(g, ui, &None);

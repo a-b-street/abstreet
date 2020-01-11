@@ -169,7 +169,7 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
                 Box::new(|_, _| Some(Transition::Push(PickABTest::new()))),
             );
     }
-    ManagedGUIState::new(c)
+    ManagedGUIState::fullscreen(c)
 }
 
 fn about(ctx: &mut EventCtx) -> Box<dyn State> {
@@ -221,7 +221,7 @@ fn about(ctx: &mut EventCtx) -> Box<dyn State> {
     txt.add(Line("Have the appropriate amount of fun."));
     col.push(ManagedWidget::draw_text(ctx, txt));
 
-    ManagedGUIState::new(
+    ManagedGUIState::fullscreen(
         Composite::new(ezgui::Composite::new(ManagedWidget::col(col)).build(ctx))
             .cb("back", Box::new(|_, _| Some(Transition::Pop))),
     )

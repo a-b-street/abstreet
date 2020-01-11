@@ -78,7 +78,7 @@ pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
         c = c.cb(&name, cb);
     }
 
-    ManagedGUIState::new(c)
+    ManagedGUIState::fullscreen(c)
 }
 
 fn finished_trips_summary(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
