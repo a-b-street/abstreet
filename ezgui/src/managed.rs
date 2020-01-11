@@ -97,6 +97,11 @@ impl ManagedWidget {
         });
         self
     }
+    pub fn new_flex_wrap(mut self) -> ManagedWidget {
+        self.style.flex_wrap = Some(FlexWrap::Wrap);
+        self.style.justify_content = Some(JustifyContent::SpaceAround);
+        self
+    }
 
     pub fn bg(mut self, color: Color) -> ManagedWidget {
         self.style.bg_color = Some(color);
@@ -495,6 +500,7 @@ pub enum Outcome {
 enum CompositePosition {
     FillScreen,
     Aligned(HorizontalAlignment, VerticalAlignment),
+    AlignedSizePercent(HorizontalAlignment, VerticalAlignment, f64, f64),
 }
 
 const SCROLL_SPEED: f64 = 5.0;
@@ -524,12 +530,21 @@ impl Composite {
                         },
                         ..Default::default()
                     },
-                    CompositePosition::Aligned(_, _) => {
-                        Style {
-                            // TODO There a way to encode the offset in stretch?
-                            ..Default::default()
-                        }
-                    }
+                    CompositePosition::Aligned(_, _) => Style {
+                        // TODO There a way to encode the offset in stretch?
+                        ..Default::default()
+                    },
+                    CompositePosition::AlignedSizePercent(_, _, pct_width, pct_height) => Style {
+                        size: Size {
+                            width: Dimension::Points(
+                                (ctx.canvas.window_width * (pct_width / 100.0)) as f32,
+                            ),
+                            height: Dimension::Points(
+                                (ctx.canvas.window_height * pct_height / 100.0) as f32,
+                            ),
+                        },
+                        ..Default::default()
+                    },
                 },
                 Vec::new(),
             )
@@ -549,7 +564,8 @@ impl Composite {
         stretch.compute_layout(root, Size::undefined()).unwrap();
         let top_left = match self.pos {
             CompositePosition::FillScreen => ScreenPt::new(0.0, 0.0),
-            CompositePosition::Aligned(horiz, vert) => {
+            CompositePosition::Aligned(horiz, vert)
+            | CompositePosition::AlignedSizePercent(horiz, vert, _, _) => {
                 let result = stretch.layout(root).unwrap();
                 ctx.canvas.align_window(
                     ScreenDims::new(result.size.width.into(), result.size.height.into()),
@@ -709,6 +725,18 @@ impl CompositeBuilder {
         vert: VerticalAlignment,
     ) -> CompositeBuilder {
         self.pos = CompositePosition::Aligned(horiz, vert);
+        self
+    }
+
+    pub fn aligned_size_percent(
+        mut self,
+        horiz: HorizontalAlignment,
+        vert: VerticalAlignment,
+        pct_width: usize,
+        pct_height: usize,
+    ) -> CompositeBuilder {
+        self.pos =
+            CompositePosition::AlignedSizePercent(horiz, vert, pct_width as f64, pct_height as f64);
         self
     }
 

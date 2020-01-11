@@ -168,11 +168,16 @@ impl Overlays {
                             ctx,
                         )),
                     ])
-                    .flex_wrap(ctx),
+                    .new_flex_wrap(),
                 ])
                 .bg(Color::hex("#5B5B5B")),
             )
-            .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)
+            .aligned_size_percent(
+                HorizontalAlignment::Center,
+                VerticalAlignment::Center,
+                30,
+                50,
+            )
             .build(ctx),
         )
         .cb("X", Box::new(|_, _| Some(Transition::Pop)))
