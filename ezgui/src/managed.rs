@@ -122,6 +122,16 @@ impl ManagedWidget {
         });
         self
     }
+
+    pub fn align_right(mut self) -> ManagedWidget {
+        self.style.margin = Some(Rect {
+            start: Dimension::Auto,
+            end: Dimension::Undefined,
+            top: Dimension::Undefined,
+            bottom: Dimension::Undefined,
+        });
+        self
+    }
 }
 
 // Convenient?? constructors

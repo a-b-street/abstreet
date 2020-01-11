@@ -24,7 +24,7 @@ impl InfoPanel {
                 txt.highlight_last_line(Color::BLUE);
                 ManagedWidget::draw_text(ctx, txt)
             },
-            crate::managed::Composite::text_button(ctx, "X", hotkey(Key::Escape)),
+            crate::managed::Composite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
         ])];
 
         for (key, label) in ui.per_obj.consume() {

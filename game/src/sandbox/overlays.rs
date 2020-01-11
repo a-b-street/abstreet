@@ -122,7 +122,8 @@ impl Overlays {
                 ManagedWidget::col(vec![
                     ManagedWidget::row(vec![
                         ManagedWidget::draw_text(ctx, Text::from(Line("Heat map layers"))),
-                        crate::managed::Composite::text_button(ctx, "X", hotkey(Key::Escape)),
+                        crate::managed::Composite::text_button(ctx, "X", hotkey(Key::Escape))
+                            .align_right(),
                     ]),
                     ManagedWidget::row(vec![
                         crate::managed::Composite::text_button(ctx, "None", hotkey(Key::N)),

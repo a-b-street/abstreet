@@ -149,7 +149,7 @@ impl ColorLegend {
     pub fn new(ctx: &mut EventCtx, header: Text, rows: Vec<(&str, Color)>) -> ColorLegend {
         let mut col = vec![ManagedWidget::row(vec![
             ManagedWidget::draw_text(ctx, header),
-            crate::managed::Composite::text_button(ctx, "X", None),
+            crate::managed::Composite::text_button(ctx, "X", None).align_right(),
         ])];
 
         let radius = 15.0;
