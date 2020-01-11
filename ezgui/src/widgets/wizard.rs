@@ -1,8 +1,8 @@
 use crate::widgets::text_box::TextBox;
 use crate::widgets::PopupMenu;
 use crate::{
-    hotkey, layout, Button, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, InputResult,
-    Key, Line, ManagedWidget, MultiKey, Outcome, SliderWithTextBox, Text, VerticalAlignment,
+    hotkey, layout, Button, Color, Composite, EventCtx, GfxCtx, InputResult, Key, Line,
+    ManagedWidget, MultiKey, Outcome, SliderWithTextBox, Text,
 };
 use abstutil::Cloneable;
 use geom::Time;
@@ -280,7 +280,6 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                     ])
                     .bg(Color::grey(0.4)),
                 )
-                .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)
                 .menu(
                     "menu",
                     PopupMenu::new(
@@ -398,7 +397,6 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                 ])
                 .bg(Color::grey(0.4)),
             )
-            .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)
             .build(self.ctx),
         );
     }

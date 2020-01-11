@@ -7,8 +7,7 @@ use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use abstutil::Counter;
 use ezgui::{
-    hotkey, Color, EventCtx, EventLoopMode, Histogram, HorizontalAlignment, Key, Line,
-    ManagedWidget, Plot, Series, Text, VerticalAlignment,
+    hotkey, Color, EventCtx, EventLoopMode, Histogram, Key, Line, ManagedWidget, Plot, Series, Text,
 };
 use geom::{Duration, Statistic, Time};
 use map_model::BusRouteID;
@@ -63,7 +62,7 @@ pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
                 .padding(10),
             content,
         ]))
-        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
+        .fullscreen()
         .build_scrollable(ctx),
     )
     .cb("BACK", Box::new(|_, _| Some(Transition::Pop)));

@@ -9,8 +9,7 @@ use crate::sandbox::{bus_explorer, SandboxMode};
 use crate::ui::UI;
 use ezgui::{
     hotkey, Button, Choice, Color, Composite, DrawBoth, EventCtx, EventLoopMode, GeomBatch,
-    HorizontalAlignment, JustDraw, Key, Line, ManagedWidget, ModalMenu, Plot, Series, Text,
-    VerticalAlignment,
+    JustDraw, Key, Line, ManagedWidget, ModalMenu, Plot, Series, Text,
 };
 use geom::{Circle, Distance, Polygon, Pt2D, Statistic, Time};
 use map_model::BusRouteID;
@@ -260,9 +259,7 @@ fn bus_passengers(id: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> crate::managed
     ]));
 
     let mut c = crate::managed::Composite::new(
-        Composite::new(ManagedWidget::col(master_col).bg(Color::grey(0.4)))
-            .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)
-            .build(ctx),
+        Composite::new(ManagedWidget::col(master_col).bg(Color::grey(0.4))).build(ctx),
     );
     for (idx, stop) in route.stops.iter().enumerate() {
         let id = ID::BusStop(*stop);
@@ -315,6 +312,5 @@ fn bus_delays(id: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> Composite {
         ])
         .bg(Color::grey(0.3)),
     )
-    .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)
     .build(ctx)
 }

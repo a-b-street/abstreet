@@ -473,7 +473,7 @@ impl ManagedWidget {
 
 pub struct CompositeBuilder {
     top_level: ManagedWidget,
-    pos: CompositePosition,
+    layout: Layout,
     sliders: HashMap<String, Slider>,
     menus: HashMap<String, Menu>,
     fillers: HashMap<String, Filler>,
@@ -481,7 +481,7 @@ pub struct CompositeBuilder {
 
 pub struct Composite {
     top_level: ManagedWidget,
-    pos: CompositePosition,
+    layout: Layout,
 
     sliders: HashMap<String, Slider>,
     menus: HashMap<String, Menu>,
@@ -497,10 +497,12 @@ pub enum Outcome {
     Clicked(String),
 }
 
-enum CompositePosition {
-    FillScreen,
-    Aligned(HorizontalAlignment, VerticalAlignment),
-    AlignedSizePercent(HorizontalAlignment, VerticalAlignment, f64, f64),
+struct Layout {
+    horiz: HorizontalAlignment,
+    vert: VerticalAlignment,
+    // If None, then be just as large as needed. But still don't exceed screen.
+    percent_width: Option<f64>,
+    percent_height: Option<f64>,
 }
 
 const SCROLL_SPEED: f64 = 5.0;
@@ -511,7 +513,12 @@ impl Composite {
     pub fn new(top_level: ManagedWidget) -> CompositeBuilder {
         CompositeBuilder {
             top_level,
-            pos: CompositePosition::FillScreen,
+            layout: Layout {
+                horiz: HorizontalAlignment::Center,
+                vert: VerticalAlignment::Center,
+                percent_width: None,
+                percent_height: None,
+            },
             sliders: HashMap::new(),
             menus: HashMap::new(),
             fillers: HashMap::new(),
@@ -522,29 +529,20 @@ impl Composite {
         let mut stretch = Stretch::new();
         let root = stretch
             .new_node(
-                match self.pos {
-                    CompositePosition::FillScreen => Style {
-                        size: Size {
-                            width: Dimension::Points(ctx.canvas.window_width as f32),
-                            height: Dimension::Points(ctx.canvas.window_height as f32),
+                Style {
+                    size: Size {
+                        width: if let Some(pct) = self.layout.percent_width {
+                            Dimension::Points((ctx.canvas.window_width * pct) as f32)
+                        } else {
+                            Dimension::Undefined
                         },
-                        ..Default::default()
-                    },
-                    CompositePosition::Aligned(_, _) => Style {
-                        // TODO There a way to encode the offset in stretch?
-                        ..Default::default()
-                    },
-                    CompositePosition::AlignedSizePercent(_, _, pct_width, pct_height) => Style {
-                        size: Size {
-                            width: Dimension::Points(
-                                (ctx.canvas.window_width * (pct_width / 100.0)) as f32,
-                            ),
-                            height: Dimension::Points(
-                                (ctx.canvas.window_height * pct_height / 100.0) as f32,
-                            ),
+                        height: if let Some(pct) = self.layout.percent_height {
+                            Dimension::Points((ctx.canvas.window_height * pct) as f32)
+                        } else {
+                            Dimension::Undefined
                         },
-                        ..Default::default()
                     },
+                    ..Default::default()
                 },
                 Vec::new(),
             )
@@ -562,18 +560,12 @@ impl Composite {
         nodes.reverse();
 
         stretch.compute_layout(root, Size::undefined()).unwrap();
-        let top_left = match self.pos {
-            CompositePosition::FillScreen => ScreenPt::new(0.0, 0.0),
-            CompositePosition::Aligned(horiz, vert)
-            | CompositePosition::AlignedSizePercent(horiz, vert, _, _) => {
-                let result = stretch.layout(root).unwrap();
-                ctx.canvas.align_window(
-                    ScreenDims::new(result.size.width.into(), result.size.height.into()),
-                    horiz,
-                    vert,
-                )
-            }
-        };
+        let result = stretch.layout(root).unwrap();
+        let top_left = ctx.canvas.align_window(
+            ScreenDims::new(result.size.width.into(), result.size.height.into()),
+            self.layout.horiz,
+            self.layout.vert,
+        );
         let offset = self.scroll_y_offset(ctx);
         self.top_level.apply_flexbox(
             &mut self.sliders,
@@ -685,7 +677,7 @@ impl CompositeBuilder {
     pub fn build(self, ctx: &mut EventCtx) -> Composite {
         let mut c = Composite {
             top_level: self.top_level,
-            pos: self.pos,
+            layout: self.layout,
             sliders: self.sliders,
             menus: self.menus,
             fillers: self.fillers,
@@ -698,7 +690,7 @@ impl CompositeBuilder {
     pub fn build_scrollable(self, ctx: &mut EventCtx) -> Composite {
         let mut c = Composite {
             top_level: self.top_level,
-            pos: self.pos,
+            layout: self.layout,
             sliders: self.sliders,
             menus: self.menus,
             fillers: self.fillers,
@@ -706,6 +698,7 @@ impl CompositeBuilder {
         };
         // If the panel fits without a scrollbar, don't add one.
         c.recompute_layout(ctx);
+        // TODO Max size is a little different...
         if c.top_level.rect.height() > ctx.canvas.window_height {
             c.scrollable = true;
             c.sliders.insert(
@@ -724,19 +717,19 @@ impl CompositeBuilder {
         horiz: HorizontalAlignment,
         vert: VerticalAlignment,
     ) -> CompositeBuilder {
-        self.pos = CompositePosition::Aligned(horiz, vert);
+        self.layout.horiz = horiz;
+        self.layout.vert = vert;
         self
     }
 
-    pub fn aligned_size_percent(
-        mut self,
-        horiz: HorizontalAlignment,
-        vert: VerticalAlignment,
-        pct_width: usize,
-        pct_height: usize,
-    ) -> CompositeBuilder {
-        self.pos =
-            CompositePosition::AlignedSizePercent(horiz, vert, pct_width as f64, pct_height as f64);
+    pub fn size_percent(mut self, pct_width: usize, pct_height: usize) -> CompositeBuilder {
+        self.layout.percent_width = Some((pct_width as f64) / 100.0);
+        self.layout.percent_height = Some((pct_height as f64) / 100.0);
+        self
+    }
+    pub fn fullscreen(mut self) -> CompositeBuilder {
+        self.layout.percent_width = Some(1.0);
+        self.layout.percent_height = Some(1.0);
         self
     }
 
