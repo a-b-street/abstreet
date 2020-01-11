@@ -688,7 +688,6 @@ impl CompositeBuilder {
             fillers: self.fillers,
             scrollable: false,
         };
-        c.pos = CompositePosition::Aligned(HorizontalAlignment::Left, VerticalAlignment::Top);
         // If the panel fits without a scrollbar, don't add one.
         c.recompute_layout(ctx);
         if c.top_level.rect.height() > ctx.canvas.window_height {

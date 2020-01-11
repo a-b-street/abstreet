@@ -280,6 +280,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                     ])
                     .bg(Color::grey(0.4)),
                 )
+                .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)
                 .menu(
                     "menu",
                     PopupMenu::new(

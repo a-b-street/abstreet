@@ -3,8 +3,8 @@ use crate::options::TrafficSignalStyle;
 use crate::render::{DrawCtx, DrawTurnGroup, BIG_ARROW_THICKNESS};
 use crate::ui::UI;
 use ezgui::{
-    Button, Color, Composite, DrawBoth, EventCtx, GeomBatch, GfxCtx, Line, ManagedWidget,
-    ModalMenu, Outcome, Text,
+    Button, Color, Composite, DrawBoth, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
+    ManagedWidget, ModalMenu, Outcome, Text, VerticalAlignment,
 };
 use geom::{Angle, Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D};
 use map_model::{IntersectionID, Phase, TurnPriority};
@@ -291,5 +291,7 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
         );
     }
 
-    Composite::new(ManagedWidget::col(col).bg(Color::hex("#545454"))).build_scrollable(ctx)
+    Composite::new(ManagedWidget::col(col).bg(Color::hex("#545454")))
+        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
+        .build_scrollable(ctx)
 }
