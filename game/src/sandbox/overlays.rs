@@ -115,7 +115,7 @@ impl Overlays {
         }
     }
 
-    pub fn change_overlays(ctx: &mut EventCtx, _: &mut UI) -> Option<Transition> {
+    pub fn change_overlays(ctx: &mut EventCtx) -> Option<Transition> {
         // TODO Filter out the current
         let c = crate::managed::Composite::new(
             Composite::new(

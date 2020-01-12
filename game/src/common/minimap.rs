@@ -1,12 +1,13 @@
-use crate::common::Colorer;
+use crate::common::{navigate, shortcuts, Colorer, Warping};
 use crate::game::{Transition, WizardState};
 use crate::render::{AgentColorScheme, MIN_ZOOM_FOR_DETAIL};
+use crate::sandbox::Overlays;
 use crate::ui::UI;
 use abstutil::clamp;
 use ezgui::{
-    hotkey, Button, Choice, Color, Composite, DrawBoth, EventCtx, Filler, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, RewriteColor, ScreenDims, ScreenPt,
-    Text, VerticalAlignment,
+    hotkey, Button, Choice, Color, Composite, DrawBoth, EventCtx, EventLoopMode, Filler, GeomBatch,
+    GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget, Outcome, RewriteColor, ScreenDims,
+    ScreenPt, Text, VerticalAlignment,
 };
 use geom::{Circle, Distance, Polygon, Pt2D, Ring};
 
@@ -114,6 +115,43 @@ impl Minimap {
                             Some(Transition::Pop)
                         },
                     ))));
+                }
+                x if x == "search" => {
+                    return Some(Transition::Push(Box::new(navigate::Navigator::new(ui))));
+                }
+                x if x == "shortcuts" => {
+                    return Some(Transition::Push(shortcuts::ChoosingShortcut::new()));
+                }
+                x if x == "zoom out fully" => {
+                    // TODO The zoom out level should show the full width/height -- that's kind of
+                    // in minimap code
+                    return Some(Transition::PushWithMode(
+                        Warping::new(
+                            ctx,
+                            // TODO The animated zooming is too quick. Need to specify that we want to
+                            // interpolate over the zoom factor.
+                            ctx.canvas.center_to_map_pt().offset(1.0, 1.0),
+                            Some(0.1),
+                            None,
+                            &mut ui.primary,
+                        ),
+                        EventLoopMode::Animation,
+                    ));
+                }
+                x if x == "zoom in fully" => {
+                    return Some(Transition::PushWithMode(
+                        Warping::new(
+                            ctx,
+                            ctx.canvas.center_to_map_pt().offset(1.0, 1.0),
+                            Some(10.0),
+                            None,
+                            &mut ui.primary,
+                        ),
+                        EventLoopMode::Animation,
+                    ));
+                }
+                x if x == "change overlay" => {
+                    return Overlays::change_overlays(ctx);
                 }
                 x => {
                     let key = x["show/hide ".len()..].to_string();
@@ -342,6 +380,46 @@ fn make_minimap_panel(ctx: &mut EventCtx, acs: &AgentColorScheme, zoom_lvl: usiz
 fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
     let radius = 15.0;
     let mut col = vec![
+        ManagedWidget::row(vec![
+            crate::managed::Composite::svg_button(
+                ctx,
+                "assets/tools/search.svg",
+                "search",
+                hotkey(Key::K),
+            )
+            .margin(10),
+            crate::managed::Composite::svg_button(
+                ctx,
+                "assets/tools/shortcuts.svg",
+                "shortcuts",
+                hotkey(Key::SingleQuote),
+            )
+            .margin(10),
+            if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL {
+                crate::managed::Composite::svg_button(
+                    ctx,
+                    "assets/minimap/zoom_out_fully.svg",
+                    "zoom out fully",
+                    None,
+                )
+                .margin(10)
+            } else {
+                crate::managed::Composite::svg_button(
+                    ctx,
+                    "assets/minimap/zoom_in_fully.svg",
+                    "zoom in fully",
+                    None,
+                )
+                .margin(10)
+            },
+            crate::managed::Composite::svg_button(
+                ctx,
+                "assets/tools/layers.svg",
+                "change overlay",
+                hotkey(Key::L),
+            )
+            .margin(10),
+        ]),
         // TODO Too wide most of the time...
         ManagedWidget::draw_text(ctx, Text::prompt(&acs.title)),
         ManagedWidget::btn(Button::text(

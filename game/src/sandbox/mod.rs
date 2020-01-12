@@ -4,7 +4,7 @@ mod gameplay;
 mod overlays;
 mod speed;
 
-use self::overlays::Overlays;
+pub use self::overlays::Overlays;
 use crate::common::{tool_panel, AgentTools, CommonState, Minimap};
 use crate::debug::DebugMode;
 use crate::edit::{apply_map_edits, save_edits, EditMode, TrafficSignalEditor};
@@ -41,22 +41,13 @@ impl SandboxMode {
     pub fn new(ctx: &mut EventCtx, ui: &mut UI, mode: GameplayMode) -> SandboxMode {
         let tool_panel = tool_panel(
             ctx,
-            vec![
-                crate::managed::Composite::svg_button(
-                    ctx,
-                    "assets/tools/layers.svg",
-                    "change overlay",
-                    hotkey(Key::L),
-                ),
-                crate::managed::Composite::svg_button(
-                    ctx,
-                    "assets/tools/info.svg",
-                    "info",
-                    hotkey(Key::Q),
-                ),
-            ],
-        )
-        .cb("change overlay", Box::new(Overlays::change_overlays));
+            vec![crate::managed::Composite::svg_button(
+                ctx,
+                "assets/tools/info.svg",
+                "info",
+                hotkey(Key::Q),
+            )],
+        );
 
         SandboxMode {
             speed: SpeedControls::new(ctx),
