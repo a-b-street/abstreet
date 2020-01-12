@@ -182,6 +182,7 @@ pub struct Settings {
     profiling_enabled: bool,
     default_font_size: usize,
     override_hidpi_factor: Option<f64>,
+    dump_raw_events: bool,
 }
 
 impl Settings {
@@ -191,12 +192,18 @@ impl Settings {
             profiling_enabled: false,
             default_font_size: 30,
             override_hidpi_factor: None,
+            dump_raw_events: false,
         }
     }
 
     pub fn enable_profiling(&mut self) {
         assert!(!self.profiling_enabled);
         self.profiling_enabled = true;
+    }
+
+    pub fn dump_raw_events(&mut self) {
+        assert!(!self.dump_raw_events);
+        self.dump_raw_events = true;
     }
 
     pub fn default_font_size(&mut self, size: usize) {
@@ -309,6 +316,7 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: 
         program,
         prerender,
         settings.profiling_enabled,
+        settings.dump_raw_events,
     );
 }
 
@@ -318,6 +326,7 @@ fn loop_forever<G: GUI>(
     program: glium::Program,
     prerender: Prerender,
     profiling_enabled: bool,
+    dump_raw_events: bool,
 ) {
     if profiling_enabled {
         #[cfg(feature = "profiler")]
@@ -347,6 +356,9 @@ fn loop_forever<G: GUI>(
                     }
                     state.gui.before_quit(&state.canvas);
                     process::exit(0);
+                }
+                if dump_raw_events {
+                    println!("Event: {:?}", event);
                 }
                 if let Some(ev) = Event::from_glutin_event(event, state.canvas.hidpi_factor) {
                     new_events.push(ev);

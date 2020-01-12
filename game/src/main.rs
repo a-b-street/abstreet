@@ -46,6 +46,9 @@ fn main() {
     if args.enabled("--enable_profiler") {
         settings.enable_profiling();
     }
+    if args.enabled("--dump_raw_events") {
+        settings.dump_raw_events();
+    }
     if let Some(n) = args.optional_parse("--font_size", |s| s.parse::<usize>()) {
         settings.default_font_size(n);
     }
