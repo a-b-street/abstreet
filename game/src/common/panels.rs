@@ -48,27 +48,16 @@ pub fn tool_panel(ctx: &mut EventCtx, extra_buttons: Vec<ManagedWidget>) -> Comp
 pub fn edit_map_panel(ctx: &mut EventCtx, ui: &UI, gameplay: GameplayMode) -> Composite {
     Composite::new(
         ezgui::Composite::new(
-            ManagedWidget::row(vec![
-                ManagedWidget::col(vec![
-                    ManagedWidget::draw_text(ctx, Text::from(Line("Sandbox"))),
-                    ManagedWidget::draw_text(ctx, Text::from(Line(ui.primary.map.get_name()))),
-                ]),
-                ManagedWidget::col(vec![
-                    Composite::svg_button(
-                        ctx,
-                        "assets/tools/edit_map.svg",
-                        "edit map",
-                        lctrl(Key::E),
-                    ),
-                    {
-                        let edits = ui.primary.map.get_edits();
-                        let mut txt = Text::from(Line(&edits.edits_name));
-                        if edits.dirty {
-                            txt.append(Line("*"));
-                        }
-                        ManagedWidget::draw_text(ctx, txt)
-                    },
-                ]),
+            ManagedWidget::col(vec![
+                Composite::svg_button(ctx, "assets/tools/edit_map.svg", "edit map", lctrl(Key::E)),
+                {
+                    let edits = ui.primary.map.get_edits();
+                    let mut txt = Text::from(Line(&edits.edits_name));
+                    if edits.dirty {
+                        txt.append(Line("*"));
+                    }
+                    ManagedWidget::draw_text(ctx, txt)
+                },
             ])
             .bg(Color::grey(0.4)),
         )
