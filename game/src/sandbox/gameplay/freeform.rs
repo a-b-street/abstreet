@@ -89,7 +89,12 @@ pub fn freeform_controller(
                 ]),
                 // TODO Refactor
                 ManagedWidget::col(vec![
-                    Composite::svg_button(ctx, "assets/tools/edit_map.svg", "edit map", lctrl(Key::E)),
+                    Composite::svg_button(
+                        ctx,
+                        "assets/tools/edit_map.svg",
+                        "edit map",
+                        lctrl(Key::E),
+                    ),
                     {
                         let edits = ui.primary.map.get_edits();
                         let mut txt = Text::from(Line(&edits.edits_name));

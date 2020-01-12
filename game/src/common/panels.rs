@@ -54,7 +54,12 @@ pub fn edit_map_panel(ctx: &mut EventCtx, ui: &UI, gameplay: GameplayMode) -> Co
                     ManagedWidget::draw_text(ctx, Text::from(Line(ui.primary.map.get_name()))),
                 ]),
                 ManagedWidget::col(vec![
-                    Composite::svg_button(ctx, "assets/tools/edit_map.svg", "edit map", lctrl(Key::E)),
+                    Composite::svg_button(
+                        ctx,
+                        "assets/tools/edit_map.svg",
+                        "edit map",
+                        lctrl(Key::E),
+                    ),
                     {
                         let edits = ui.primary.map.get_edits();
                         let mut txt = Text::from(Line(&edits.edits_name));

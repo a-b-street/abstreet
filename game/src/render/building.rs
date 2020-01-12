@@ -1,7 +1,7 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, GeomBatch, GfxCtx, Line, Text};
-use geom::{Circle, Distance, Line, Polygon, Pt2D};
+use geom::{Angle, Distance, Line, Polygon, Pt2D};
 use map_model::{Building, BuildingID, Map, LANE_THICKNESS};
 
 pub struct DrawBuilding {
@@ -45,30 +45,12 @@ impl DrawBuilding {
             .map(|num| Text::from(Line(num.to_string()).fg(Color::BLACK).size(50)));
 
         if bldg.parking.is_some() {
-            let center = bldg.label_center;
-            batch.push(
-                cs.get_def("parking icon background", Color::BLACK),
-                Circle::new(center, Distance::meters(5.0)).to_polygon(),
-            );
-            // Draw a 'P'
-            // TODO The result here looks pretty bad and is quite tedious to define. Figure out a
-            // reasonable way to import SVG sprites. Still need to programatically fill up the
-            // circle with color, though.
-            batch.push(
-                cs.get_def("parking icon foreground", Color::WHITE),
-                Polygon::rectangle_centered(
-                    center.offset(-1.0, 0.0),
-                    Distance::meters(1.5),
-                    Distance::meters(4.5),
-                ),
-            );
-            batch.push(
-                cs.get("parking icon foreground"),
-                Circle::new(center.offset(0.5, -0.5), Distance::meters(1.5)).to_polygon(),
-            );
-            batch.push(
-                cs.get("parking icon background"),
-                Circle::new(center.offset(0.5, -0.5), Distance::meters(0.5)).to_polygon(),
+            // Might need to scale down more for some buildings, but so far, this works everywhere.
+            batch.add_svg(
+                "assets/map/parking.svg",
+                bldg.label_center,
+                0.1,
+                Angle::ZERO,
             );
         }
 
