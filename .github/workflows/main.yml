@@ -13,11 +13,16 @@ jobs:
         run: cargo build --release --bin game
       - name: Package release
         run: ./release/build.sh abst_windows play_abstreet.bat target/release/game.exe
-      - name: Upload release
+#      - name: Upload release
+#        uses: actions/upload-artifact@v1
+#        with:
+#          name: abst_windows.zip
+#          path: abst_windows.zip
+      - name: Upload binary
         uses: actions/upload-artifact@v1
         with:
-          name: abst_windows.zip
-          path: abst_windows.zip
+          name: game_exe
+          path: target/release/game.exe
   build-macos:
     runs-on: macos-latest
     if: "contains(github.event.head_commit.message, '[rebuild]')"
