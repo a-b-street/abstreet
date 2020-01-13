@@ -47,27 +47,27 @@ fn read_file(path: &str) -> Vec<(String, String)> {
 
             // Look for the opening "
             while !src.starts_with("\"") {
-                src = src[1..].to_string();
+                shift(&mut src);
             }
-            src = src[1..].to_string();
+            shift(&mut src);
 
             // Read the key until the closing "
             let mut key = String::new();
             while !src.starts_with("\"") {
                 key.push(src.chars().next().unwrap());
-                src = src[1..].to_string();
+                shift(&mut src);
             }
-            src = src[1..].to_string();
+            shift(&mut src);
 
             // Look for the ,
             while !src.starts_with(",") {
-                src = src[1..].to_string();
+                shift(&mut src);
             }
-            src = src[1..].to_string();
+            shift(&mut src);
 
             // Look for the Color
             while !src.starts_with("Color") {
-                src = src[1..].to_string();
+                shift(&mut src);
             }
 
             // Wait for the ()'s to be mismatched, meaning we found the ) of the get_def()
@@ -82,21 +82,30 @@ fn read_file(path: &str) -> Vec<(String, String)> {
                     if counter == -1 {
                         value.pop();
                         entries.push((key, value));
-                        src = src[1..].to_string();
+                        shift(&mut src);
                         break;
                     }
                 } else if src.starts_with(",") && counter == 0 {
                     value.pop();
                     entries.push((key, value));
-                    src = src[1..].to_string();
+                    shift(&mut src);
                     break;
                 }
-                src = src[1..].to_string();
+                shift(&mut src);
             }
         } else {
-            src = src[1..].to_string();
+            shift(&mut src);
         }
     }
 
     entries
+}
+
+fn shift(s: &mut String) {
+    *s = s
+        .chars()
+        .next()
+        .map(|c| &s[c.len_utf8()..])
+        .unwrap_or("")
+        .to_string();
 }
