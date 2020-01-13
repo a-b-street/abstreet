@@ -1,7 +1,7 @@
 use crate::common::CommonState;
 use crate::edit::apply_map_edits;
 use crate::game::{msg, State, Transition, WizardState};
-use crate::helpers::list_names;
+use crate::helpers::plain_list_names;
 use crate::managed::{Composite, Outcome};
 use crate::render::{draw_signal_phase, DrawOptions, DrawTurnGroup, BIG_ARROW_THICKNESS};
 use crate::sandbox::{spawn_agents_around, SpeedControls, TimePanel};
@@ -348,17 +348,13 @@ fn make_diagram(
     // but this is close enough.
     let bounds = ui.primary.map.get_i(i).polygon.get_bounds();
     // Pick a zoom so that we fit some percentage of the screen
-    let zoom = 0.2 * ctx.canvas.window_width / (bounds.max_x - bounds.min_x);
-    let bbox = Polygon::rectangle(
-        zoom * (bounds.max_x - bounds.min_x),
-        zoom * (bounds.max_y - bounds.min_y),
-    );
+    let zoom = 0.2 * ctx.canvas.window_width / bounds.width();
+    let bbox = Polygon::rectangle(zoom * bounds.width(), zoom * bounds.height());
 
     let signal = ui.primary.map.get_traffic_signal(i);
     let mut col = vec![
         ManagedWidget::draw_text(ctx, {
             let mut txt = Text::new();
-            txt.add(Line(i.to_string()).roboto());
             let road_names = ui
                 .primary
                 .map
@@ -367,15 +363,10 @@ fn make_diagram(
                 .iter()
                 .map(|r| ui.primary.map.get_r(*r).get_name())
                 .collect::<BTreeSet<_>>();
-            // TODO Some kind of reusable TextStyle thing
-            txt.add(Line("").roboto().size(21).fg(Color::WHITE.alpha(0.54)));
-            list_names(
-                &mut txt,
-                |l| l.roboto().fg(Color::WHITE.alpha(0.54)),
-                road_names,
-            );
+            // TODO Style inside here. Also 0.4 is manually tuned and pretty wacky, because it
+            // assumes default font.
+            txt.add_wrapped(plain_list_names(road_names), 0.4 * ctx.canvas.window_width);
             txt.add(Line(format!("{} phases", signal.phases.len())));
-            txt.add(Line(""));
             txt.add(Line(format!("Signal offset: {}", signal.offset)));
             txt.add(Line(format!("One cycle lasts {}", signal.cycle_length())));
             txt

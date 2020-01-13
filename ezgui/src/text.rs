@@ -1,5 +1,5 @@
 use crate::assets::Assets;
-use crate::{Color, EventCtx, GfxCtx, ScreenDims, ScreenPt, ScreenRectangle};
+use crate::{Color, GfxCtx, ScreenDims, ScreenPt, ScreenRectangle};
 use geom::{Polygon, Pt2D};
 use glium_glyph::glyph_brush::rusttype::Scale;
 use glium_glyph::glyph_brush::{FontId, GlyphCruncher};
@@ -153,9 +153,8 @@ impl Text {
         }
     }
 
-    // TODO Ideally we'd wrap last-minute when drawing, but eh, start somewhere.
-    pub fn add_wrapped_line(&mut self, ctx: &EventCtx, line: String) {
-        let wrap_to = ctx.canvas.window_width / MAX_CHAR_WIDTH;
+    pub fn add_wrapped(&mut self, line: String, width: f64) {
+        let wrap_to = width / MAX_CHAR_WIDTH;
         for l in textwrap::wrap(&line, wrap_to as usize).into_iter() {
             self.add(Line(l));
         }

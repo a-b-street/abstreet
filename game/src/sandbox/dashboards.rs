@@ -285,7 +285,7 @@ fn pick_finished_trips(
 fn parking_overhead(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
     let mut txt = Text::new();
     for line in ui.primary.sim.get_analytics().analyze_parking_phases() {
-        txt.add_wrapped_line(ctx, line);
+        txt.add_wrapped(line, 0.9 * ctx.canvas.window_width);
     }
     ManagedWidget::draw_text(ctx, txt)
 }

@@ -7,6 +7,7 @@ use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, RoadID, T
 use serde_derive::{Deserialize, Serialize};
 use sim::{AgentID, CarID, PedestrianID};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::fmt::Write;
 
 // Aside from Road, everything here can actually be selected.
 #[derive(Clone, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
@@ -199,4 +200,25 @@ pub fn list_names<F: Fn(TextSpan) -> TextSpan>(txt: &mut Text, styler: F, names:
         }
         txt.append(styler(Line(n)));
     }
+}
+
+// TODO Ideally use list_names, but this is hard to make work with word wrap
+pub fn plain_list_names(names: BTreeSet<String>) -> String {
+    let mut s = String::new();
+    let len = names.len();
+    for (idx, n) in names.into_iter().enumerate() {
+        if idx != 0 {
+            if idx == len - 1 {
+                if len == 2 {
+                    write!(s, " and ").unwrap();
+                } else {
+                    write!(s, ", and ").unwrap();
+                }
+            } else {
+                write!(s, ", ").unwrap();
+            }
+        }
+        write!(s, "{}", n).unwrap();
+    }
+    s
 }

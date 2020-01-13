@@ -378,7 +378,7 @@ impl GeomBatch {
         for (_, poly) in &self.list {
             bounds.union(poly.get_bounds());
         }
-        ScreenDims::new(bounds.max_x - bounds.min_x, bounds.max_y - bounds.min_y)
+        ScreenDims::new(bounds.width(), bounds.height())
     }
 
     // Slightly weird use case, but hotswap colors.
@@ -495,8 +495,8 @@ impl<'a> Prerender<'a> {
                             center.y() + origin_pt.y() * cos + origin_pt.x() * sin,
                         );
 
-                        let tx = (rot_pt.x() - b.min_x) / (b.max_x - b.min_x);
-                        let ty = (rot_pt.y() - b.min_y) / (b.max_y - b.min_y);
+                        let tx = (rot_pt.x() - b.min_x) / b.width();
+                        let ty = (rot_pt.y() - b.min_y) / b.height();
                         [tx as f32, ty as f32, id.0, 100.0 + id.1]
                     }
                     Color::CustomUVTexture(id) => {
@@ -603,6 +603,6 @@ impl DrawBoth {
 
     // TODO Hack
     pub(crate) fn override_bounds(&mut self, b: Bounds) {
-        self.dims = ScreenDims::new(b.max_x - b.min_x, b.max_y - b.min_y);
+        self.dims = ScreenDims::new(b.width(), b.height());
     }
 }

@@ -31,7 +31,7 @@ impl Minimap {
         // Initially pick a zoom to fit the entire map's width in the minimap. Arbitrary and
         // probably pretty weird.
         let bounds = ui.primary.map.get_bounds();
-        let base_zoom = 0.15 * ctx.canvas.window_width / (bounds.max_x - bounds.min_x);
+        let base_zoom = 0.15 * ctx.canvas.window_width / bounds.width();
         Minimap {
             dragging: false,
             composite: make_minimap_panel(ctx, &ui.agent_cs, 0),
