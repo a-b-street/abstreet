@@ -154,7 +154,7 @@ fn crosswalk_icon(geom: &PolyLine) -> (Pt2D, Angle) {
 }
 
 pub struct TrafficSignalDiagram {
-    pub i: IntersectionID,
+    i: IntersectionID,
     composite: Composite,
     current_phase: usize,
 }
@@ -199,10 +199,6 @@ impl TrafficSignalDiagram {
             self.composite = make_diagram(self.i, self.current_phase, ui, ctx);
             self.composite.restore_scroll(ctx, preserve_scroll);
         }
-    }
-
-    pub fn current_phase(&self) -> usize {
-        self.current_phase
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {

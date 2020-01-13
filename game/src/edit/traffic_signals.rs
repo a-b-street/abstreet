@@ -1,26 +1,28 @@
 use crate::common::CommonState;
 use crate::edit::apply_map_edits;
 use crate::game::{msg, State, Transition, WizardState};
+use crate::helpers::list_names;
 use crate::managed::Outcome;
-use crate::render::{
-    draw_signal_phase, DrawOptions, DrawTurnGroup, TrafficSignalDiagram, BIG_ARROW_THICKNESS,
-};
+use crate::render::{draw_signal_phase, DrawOptions, DrawTurnGroup, BIG_ARROW_THICKNESS};
 use crate::sandbox::{spawn_agents_around, SpeedControls, TimePanel};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Choice, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu,
-    Text,
+    hotkey, lctrl, Button, Choice, Color, Composite, DrawBoth, EventCtx, EventLoopMode, GeomBatch,
+    GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget, ModalMenu, Text, VerticalAlignment,
 };
-use geom::Duration;
+use geom::{Duration, Polygon};
 use map_model::{ControlTrafficSignal, EditCmd, IntersectionID, Phase, TurnGroupID, TurnPriority};
 use sim::Sim;
 use std::collections::BTreeSet;
 
 // TODO Warn if there are empty phases or if some turn is completely absent from the signal.
 pub struct TrafficSignalEditor {
+    i: IntersectionID,
+    current_phase: usize,
+    composite: Composite,
+
     menu: ModalMenu,
-    diagram: TrafficSignalDiagram,
     groups: Vec<DrawTurnGroup>,
     group_selected: Option<TurnGroupID>,
 
@@ -64,14 +66,23 @@ impl TrafficSignalEditor {
             ctx,
         );
         TrafficSignalEditor {
+            i: id,
+            current_phase: 0,
+            composite: make_diagram(id, 0, ui, ctx),
             menu,
-            diagram: TrafficSignalDiagram::new(id, 0, ui, ctx),
             groups: DrawTurnGroup::for_i(id, &ui.primary.map),
             group_selected: None,
             suspended_sim,
             command_stack: Vec::new(),
             redo_stack: Vec::new(),
         }
+    }
+
+    fn change_phase(&mut self, idx: usize, ui: &UI, ctx: &mut EventCtx) {
+        let preserve_scroll = self.composite.preserve_scroll(ctx);
+        self.current_phase = idx;
+        self.composite = make_diagram(self.i, self.current_phase, ui, ctx);
+        self.composite.restore_scroll(ctx, preserve_scroll);
     }
 }
 
@@ -83,7 +94,23 @@ impl State for TrafficSignalEditor {
             Text::from(Line(format!("{} edits", self.command_stack.len()))),
         );
         ctx.canvas_movement();
-        self.diagram.event(ctx, ui, &mut self.menu);
+
+        if self.current_phase != 0 && self.menu.action("select previous phase") {
+            self.change_phase(self.current_phase - 1, ui, ctx);
+        }
+
+        if self.current_phase != ui.primary.map.get_traffic_signal(self.i).phases.len() - 1
+            && self.menu.action("select next phase")
+        {
+            self.change_phase(self.current_phase + 1, ui, ctx);
+        }
+
+        match self.composite.event(ctx) {
+            Some(ezgui::Outcome::Clicked(x)) => {
+                self.change_phase(x["phase ".len()..].parse::<usize>().unwrap() - 1, ui, ctx);
+            }
+            None => {}
+        }
 
         if ctx.redo_mouseover() {
             self.group_selected = None;
@@ -97,11 +124,11 @@ impl State for TrafficSignalEditor {
             }
         }
 
-        let orig_signal = ui.primary.map.get_traffic_signal(self.diagram.i);
+        let orig_signal = ui.primary.map.get_traffic_signal(self.i);
 
         if let Some(id) = self.group_selected {
             let mut new_signal = orig_signal.clone();
-            let phase = &mut new_signal.phases[self.diagram.current_phase()];
+            let phase = &mut new_signal.phases[self.current_phase];
             // Just one key to toggle between the 3 states
             let next_priority = match phase.get_priority_of_group(id) {
                 TurnPriority::Banned => {
@@ -146,89 +173,91 @@ impl State for TrafficSignalEditor {
         }
 
         if self.menu.action("quit") {
-            return check_for_missing_groups(orig_signal.clone(), &mut self.diagram, ui, ctx);
+            return check_for_missing_groups(orig_signal.clone(), &mut self.composite, ui, ctx);
         }
 
         // TODO We're missing the edits here...
         if self.menu.action("change phase duration") {
             return Transition::Push(change_phase_duration(
-                orig_signal.phases[self.diagram.current_phase()].duration,
+                orig_signal.phases[self.current_phase].duration,
             ));
         } else if self.menu.action("change signal offset") {
             return Transition::Push(change_offset(orig_signal.offset));
         } else if self.menu.action("choose a preset signal") {
-            return Transition::Push(change_preset(self.diagram.i));
+            return Transition::Push(change_preset(self.i));
         } else if self.menu.action("reset to original") {
-            let new_signal =
-                ControlTrafficSignal::get_possible_policies(&ui.primary.map, self.diagram.i)
-                    .remove(0)
-                    .1;
+            let new_signal = ControlTrafficSignal::get_possible_policies(&ui.primary.map, self.i)
+                .remove(0)
+                .1;
             self.command_stack.push(orig_signal.clone());
             self.redo_stack.clear();
             change_traffic_signal(new_signal, ui, ctx);
-            self.diagram = TrafficSignalDiagram::new(self.diagram.i, 0, ui, ctx);
+            self.change_phase(0, ui, ctx);
             return Transition::Keep;
         } else if !self.command_stack.is_empty() && self.menu.action("undo") {
             self.redo_stack.push(orig_signal.clone());
             change_traffic_signal(self.command_stack.pop().unwrap(), ui, ctx);
-            self.diagram = TrafficSignalDiagram::new(self.diagram.i, 0, ui, ctx);
+            self.change_phase(0, ui, ctx);
             return Transition::Keep;
         } else if !self.redo_stack.is_empty() && self.menu.action("redo") {
             self.command_stack.push(orig_signal.clone());
             change_traffic_signal(self.redo_stack.pop().unwrap(), ui, ctx);
-            self.diagram = TrafficSignalDiagram::new(self.diagram.i, 0, ui, ctx);
+            self.change_phase(0, ui, ctx);
             return Transition::Keep;
         }
 
         let has_sidewalks = ui
             .primary
             .map
-            .get_turns_in_intersection(self.diagram.i)
+            .get_turns_in_intersection(self.i)
             .iter()
             .any(|t| t.between_sidewalks());
 
-        let current_phase = self.diagram.current_phase();
-
-        if current_phase != 0 && self.menu.action("move current phase up") {
+        if self.current_phase != 0 && self.menu.action("move current phase up") {
             let mut new_signal = orig_signal.clone();
-            new_signal.phases.swap(current_phase, current_phase - 1);
+            new_signal
+                .phases
+                .swap(self.current_phase, self.current_phase - 1);
             self.command_stack.push(orig_signal.clone());
             self.redo_stack.clear();
             change_traffic_signal(new_signal, ui, ctx);
-            self.diagram = TrafficSignalDiagram::new(self.diagram.i, current_phase - 1, ui, ctx);
-        } else if current_phase != orig_signal.phases.len() - 1
+            self.change_phase(self.current_phase - 1, ui, ctx);
+        } else if self.current_phase != orig_signal.phases.len() - 1
             && self.menu.action("move current phase down")
         {
             let mut new_signal = orig_signal.clone();
-            new_signal.phases.swap(current_phase, current_phase + 1);
+            new_signal
+                .phases
+                .swap(self.current_phase, self.current_phase + 1);
             self.command_stack.push(orig_signal.clone());
             self.redo_stack.clear();
             change_traffic_signal(new_signal, ui, ctx);
-            self.diagram = TrafficSignalDiagram::new(self.diagram.i, current_phase + 1, ui, ctx);
+            self.change_phase(self.current_phase + 1, ui, ctx);
         } else if orig_signal.phases.len() > 1 && self.menu.action("delete current phase") {
             let mut new_signal = orig_signal.clone();
-            new_signal.phases.remove(current_phase);
+            new_signal.phases.remove(self.current_phase);
             let num_phases = new_signal.phases.len();
             self.command_stack.push(orig_signal.clone());
             self.redo_stack.clear();
             change_traffic_signal(new_signal, ui, ctx);
-            self.diagram = TrafficSignalDiagram::new(
-                self.diagram.i,
-                if current_phase == num_phases {
-                    current_phase - 1
+            self.change_phase(
+                if self.current_phase == num_phases {
+                    self.current_phase - 1
                 } else {
-                    current_phase
+                    self.current_phase
                 },
                 ui,
                 ctx,
             );
         } else if self.menu.action("add a new empty phase") {
             let mut new_signal = orig_signal.clone();
-            new_signal.phases.insert(current_phase + 1, Phase::new());
+            new_signal
+                .phases
+                .insert(self.current_phase + 1, Phase::new());
             self.command_stack.push(orig_signal.clone());
             self.redo_stack.clear();
             change_traffic_signal(new_signal, ui, ctx);
-            self.diagram = TrafficSignalDiagram::new(self.diagram.i, current_phase + 1, ui, ctx);
+            self.change_phase(self.current_phase + 1, ui, ctx);
         } else if has_sidewalks
             && self
                 .menu
@@ -239,14 +268,14 @@ impl State for TrafficSignalEditor {
             self.command_stack.push(orig_signal.clone());
             self.redo_stack.clear();
             change_traffic_signal(new_signal, ui, ctx);
-            self.diagram = TrafficSignalDiagram::new(self.diagram.i, 0, ui, ctx);
+            self.change_phase(0, ui, ctx);
         }
 
         if self.menu.action("preview changes") {
             // TODO These're expensive clones :(
             return Transition::Push(make_previewer(
-                self.diagram.i,
-                current_phase,
+                self.i,
+                self.current_phase,
                 self.suspended_sim.clone(),
             ));
         }
@@ -257,15 +286,15 @@ impl State for TrafficSignalEditor {
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         {
             let mut opts = DrawOptions::new();
-            opts.suppress_traffic_signal_details = Some(self.diagram.i);
+            opts.suppress_traffic_signal_details = Some(self.i);
             ui.draw(g, opts, &ui.primary.sim, &ShowEverything::new());
         }
 
-        let signal = ui.primary.map.get_traffic_signal(self.diagram.i);
-        let phase = &signal.phases[self.diagram.current_phase()];
+        let signal = ui.primary.map.get_traffic_signal(self.i);
+        let phase = &signal.phases[self.current_phase];
         let ctx = ui.draw_ctx();
         let mut batch = GeomBatch::new();
-        draw_signal_phase(phase, self.diagram.i, None, &mut batch, &ctx);
+        draw_signal_phase(phase, self.i, None, &mut batch, &ctx);
 
         for g in &self.groups {
             if Some(g.id) == self.group_selected {
@@ -296,7 +325,7 @@ impl State for TrafficSignalEditor {
         }
         batch.draw(g);
 
-        self.diagram.draw(g);
+        self.composite.draw(g);
 
         self.menu.draw(g);
         if let Some(id) = self.group_selected {
@@ -317,6 +346,92 @@ impl State for TrafficSignalEditor {
             CommonState::draw_osd(g, ui, &None);
         }
     }
+}
+
+fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx) -> Composite {
+    // Slightly inaccurate -- the turn rendering may slightly exceed the intersection polygon --
+    // but this is close enough.
+    let bounds = ui.primary.map.get_i(i).polygon.get_bounds();
+    // Pick a zoom so that we fit some percentage of the screen
+    let zoom = 0.2 * ctx.canvas.window_width / (bounds.max_x - bounds.min_x);
+    let bbox = Polygon::rectangle(
+        zoom * (bounds.max_x - bounds.min_x),
+        zoom * (bounds.max_y - bounds.min_y),
+    );
+
+    let signal = ui.primary.map.get_traffic_signal(i);
+    let mut col = vec![ManagedWidget::draw_text(ctx, {
+        let mut txt = Text::new();
+        txt.add(Line(i.to_string()).roboto());
+        let road_names = ui
+            .primary
+            .map
+            .get_i(i)
+            .roads
+            .iter()
+            .map(|r| ui.primary.map.get_r(*r).get_name())
+            .collect::<BTreeSet<_>>();
+        // TODO Some kind of reusable TextStyle thing
+        txt.add(Line("").roboto().size(21).fg(Color::WHITE.alpha(0.54)));
+        list_names(
+            &mut txt,
+            |l| l.roboto().fg(Color::WHITE.alpha(0.54)),
+            road_names,
+        );
+        txt.add(Line(format!("{} phases", signal.phases.len())));
+        txt.add(Line(""));
+        txt.add(Line(format!("Signal offset: {}", signal.offset)));
+        txt.add(Line(format!("One cycle lasts {}", signal.cycle_length())));
+        txt
+    })];
+    for (idx, phase) in signal.phases.iter().enumerate() {
+        col.push(
+            ManagedWidget::row(vec![
+                ManagedWidget::draw_text(ctx, Text::from(Line(format!("#{}", idx + 1)))),
+                ManagedWidget::draw_text(ctx, Text::from(Line(phase.duration.to_string()))),
+            ])
+            .margin(5)
+            .evenly_spaced(),
+        );
+
+        let mut orig_batch = GeomBatch::new();
+        draw_signal_phase(phase, i, None, &mut orig_batch, &ui.draw_ctx());
+
+        let mut normal = GeomBatch::new();
+        // TODO Ideally no background here, but we have to force the dimensions of normal and
+        // hovered to be the same. For some reason the bbox is slightly different.
+        if idx == selected {
+            normal.push(Color::RED.alpha(0.15), bbox.clone());
+        } else {
+            normal.push(Color::CYAN.alpha(0.05), bbox.clone());
+        }
+        // Move to the origin and apply zoom
+        for (color, poly) in orig_batch.consume() {
+            normal.push(
+                color,
+                poly.translate(-bounds.min_x, -bounds.min_y).scale(zoom),
+            );
+        }
+
+        let mut hovered = GeomBatch::new();
+        hovered.push(Color::RED.alpha(0.95), bbox.clone());
+        hovered.append(normal.clone());
+
+        col.push(
+            ManagedWidget::btn(Button::new(
+                DrawBoth::new(ctx, normal, Vec::new()),
+                DrawBoth::new(ctx, hovered, Vec::new()),
+                None,
+                &format!("phase {}", idx + 1),
+                bbox.clone(),
+            ))
+            .margin(5),
+        );
+    }
+
+    Composite::new(ManagedWidget::col(col).bg(Color::hex("#545454")))
+        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
+        .build_scrollable(ctx)
 }
 
 fn change_traffic_signal(signal: ControlTrafficSignal, ui: &mut UI, ctx: &mut EventCtx) {
@@ -350,14 +465,13 @@ fn change_phase_duration(current_duration: Duration) -> Box<dyn State> {
             }),
         )?;
         Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
-            let mut editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-            let mut signal = ui.primary.map.get_traffic_signal(editor.diagram.i).clone();
+            let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
+            let mut signal = ui.primary.map.get_traffic_signal(editor.i).clone();
             editor.command_stack.push(signal.clone());
             editor.redo_stack.clear();
-            let idx = editor.diagram.current_phase();
-            signal.phases[idx].duration = Duration::seconds(new_duration as f64);
+            signal.phases[editor.current_phase].duration = Duration::seconds(new_duration as f64);
             change_traffic_signal(signal, ui, ctx);
-            editor.diagram = TrafficSignalDiagram::new(editor.diagram.i, idx, ui, ctx);
+            editor.change_phase(editor.current_phase, ui, ctx);
         })))
     }))
 }
@@ -369,18 +483,13 @@ fn change_offset(current_duration: Duration) -> Box<dyn State> {
             format!("{}", current_duration.inner_seconds() as usize),
         )?;
         Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
-            let mut editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-            let mut signal = ui.primary.map.get_traffic_signal(editor.diagram.i).clone();
+            let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
+            let mut signal = ui.primary.map.get_traffic_signal(editor.i).clone();
             editor.command_stack.push(signal.clone());
             editor.redo_stack.clear();
             signal.offset = Duration::seconds(new_duration as f64);
             change_traffic_signal(signal, ui, ctx);
-            editor.diagram = TrafficSignalDiagram::new(
-                editor.diagram.i,
-                editor.diagram.current_phase(),
-                ui,
-                ctx,
-            );
+            editor.change_phase(editor.current_phase, ui, ctx);
         })))
     }))
 }
@@ -396,19 +505,19 @@ fn change_preset(i: IntersectionID) -> Box<dyn State> {
                     ))
                 })?;
         Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
-            let mut editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
+            let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
             editor
                 .command_stack
-                .push(ui.primary.map.get_traffic_signal(editor.diagram.i).clone());
+                .push(ui.primary.map.get_traffic_signal(editor.i).clone());
             change_traffic_signal(new_signal, ui, ctx);
-            editor.diagram = TrafficSignalDiagram::new(editor.diagram.i, 0, ui, ctx);
+            editor.change_phase(0, ui, ctx);
         })))
     }))
 }
 
 fn check_for_missing_groups(
     mut signal: ControlTrafficSignal,
-    diagram: &mut TrafficSignalDiagram,
+    composite: &mut Composite,
     ui: &mut UI,
     ctx: &mut EventCtx,
 ) -> Transition {
@@ -439,8 +548,9 @@ fn check_for_missing_groups(
     }
     signal.phases.push(phase);
     let last_phase = signal.phases.len() - 1;
+    let id = signal.id;
     change_traffic_signal(signal, ui, ctx);
-    *diagram = TrafficSignalDiagram::new(diagram.i, last_phase, ui, ctx);
+    *composite = make_diagram(id, last_phase, ui, ctx);
 
     Transition::Push(msg("Error: missing turns", vec![format!("{} turns are missing from this traffic signal", num_missing), "They've all been added as a new last phase. Please update your changes to include them.".to_string()]))
 }
