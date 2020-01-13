@@ -13,9 +13,7 @@ use ezgui::{
     Text,
 };
 use geom::Duration;
-use map_model::{
-    ControlTrafficSignal, EditCmd, IntersectionID, Phase, TurnGroupID, TurnPriority, TurnType,
-};
+use map_model::{ControlTrafficSignal, EditCmd, IntersectionID, Phase, TurnGroupID, TurnPriority};
 use sim::Sim;
 use std::collections::BTreeSet;
 
@@ -49,7 +47,6 @@ impl TrafficSignalEditor {
                 (hotkey(Key::J), "move current phase down"),
                 (hotkey(Key::Backspace), "delete current phase"),
                 (hotkey(Key::N), "add a new empty phase"),
-                (hotkey(Key::M), "add a new pedestrian scramble phase"),
                 (hotkey(Key::R), "reset to original"),
                 (hotkey(Key::P), "choose a preset signal"),
                 (
@@ -231,21 +228,6 @@ impl State for TrafficSignalEditor {
             new_signal.phases.insert(current_phase + 1, Phase::new());
             self.command_stack
                 .push(("add a new empty phase".to_string(), orig_signal.clone()));
-            change_traffic_signal(new_signal, ui, ctx);
-            self.diagram = TrafficSignalDiagram::new(self.diagram.i, current_phase + 1, ui, ctx);
-        } else if has_sidewalks && self.menu.action("add a new pedestrian scramble phase") {
-            let mut phase = Phase::new();
-            for g in orig_signal.turn_groups.values() {
-                if g.turn_type == TurnType::Crosswalk {
-                    phase.protected_groups.insert(g.id);
-                }
-            }
-            let mut new_signal = orig_signal.clone();
-            new_signal.phases.insert(current_phase + 1, phase);
-            self.command_stack.push((
-                "add a new pedestrian scramble phase".to_string(),
-                orig_signal.clone(),
-            ));
             change_traffic_signal(new_signal, ui, ctx);
             self.diagram = TrafficSignalDiagram::new(self.diagram.i, current_phase + 1, ui, ctx);
         } else if has_sidewalks
