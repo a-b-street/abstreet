@@ -128,9 +128,7 @@ impl Minimap {
                     return Some(Transition::PushWithMode(
                         Warping::new(
                             ctx,
-                            // TODO The animated zooming is too quick. Need to specify that we want to
-                            // interpolate over the zoom factor.
-                            ctx.canvas.center_to_map_pt().offset(1.0, 1.0),
+                            ctx.canvas.center_to_map_pt(),
                             Some(0.1),
                             None,
                             &mut ui.primary,
@@ -142,7 +140,7 @@ impl Minimap {
                     return Some(Transition::PushWithMode(
                         Warping::new(
                             ctx,
-                            ctx.canvas.center_to_map_pt().offset(1.0, 1.0),
+                            ctx.canvas.center_to_map_pt(),
                             Some(10.0),
                             None,
                             &mut ui.primary,
