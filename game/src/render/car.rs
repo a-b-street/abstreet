@@ -77,26 +77,27 @@ impl DrawCar {
                             .unwrap(),
                         );
                     }
-                    TurnType::Straight => {
-                        let (pos, angle) = input.body.dist_along(Distance::meters(0.5));
-                        // TODO rounded
-                        let window_length_gap = Distance::meters(0.2);
-                        let window_thickness = Distance::meters(0.3);
-                        draw_default.push(
-                            cs.get_def("brake light", Color::hex("#FF1300")),
-                            thick_line_from_angle(
-                                window_thickness,
-                                CAR_WIDTH - window_length_gap * 2.0,
-                                pos.project_away(
-                                    CAR_WIDTH / 2.0 - window_length_gap,
-                                    angle.rotate_degs(-90.0),
-                                ),
-                                angle.rotate_degs(90.0),
-                            ),
-                        );
-                    }
+                    TurnType::Straight => {}
                     TurnType::Crosswalk | TurnType::SharedSidewalkCorner => unreachable!(),
                 }
+
+                // Always draw the brake light
+                let (pos, angle) = input.body.dist_along(Distance::meters(0.5));
+                // TODO rounded
+                let window_length_gap = Distance::meters(0.2);
+                let window_thickness = Distance::meters(0.3);
+                draw_default.push(
+                    cs.get_def("brake light", Color::hex("#FF1300")),
+                    thick_line_from_angle(
+                        window_thickness,
+                        CAR_WIDTH - window_length_gap * 2.0,
+                        pos.project_away(
+                            CAR_WIDTH / 2.0 - window_length_gap,
+                            angle.rotate_degs(-90.0),
+                        ),
+                        angle.rotate_degs(90.0),
+                    ),
+                );
             }
         }
 
