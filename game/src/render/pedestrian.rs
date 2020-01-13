@@ -66,7 +66,7 @@ impl DrawPedestrian {
         // Jitter based on ID so we don't all walk synchronized.
         let jitter = input.id.0 % 2 == 0;
         let remainder = step_count % 6;
-        if input.waiting_for_turn.is_some() {
+        if input.waiting_for_turn.is_some() || input.waiting_for_bus {
             draw_default.push(foot_color, left_foot.to_polygon());
             draw_default.push(foot_color, right_foot.to_polygon());
             draw_default.push(hand_color, left_hand.to_polygon());

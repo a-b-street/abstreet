@@ -522,8 +522,11 @@ impl Pedestrian {
             }
             PedState::WaitingForBus(_) => {
                 let (pt, angle) = self.goal.sidewalk_pos.pt_and_angle(map);
-                // Face the road
-                (pt, angle.rotate_degs(90.0))
+                // Stand on the far side of the sidewalk (by the bus stop), facing the road
+                (
+                    pt.project_away(LANE_THICKNESS / 4.0, angle.rotate_degs(90.0)),
+                    angle.rotate_degs(-90.0),
+                )
             }
         };
 
@@ -537,6 +540,10 @@ impl Pedestrian {
             },
             preparing_bike: match self.state {
                 PedState::StartingToBike(_, _, _) | PedState::FinishingBiking(_, _, _) => true,
+                _ => false,
+            },
+            waiting_for_bus: match self.state {
+                PedState::WaitingForBus(_) => true,
                 _ => false,
             },
             on,

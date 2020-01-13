@@ -10,6 +10,7 @@ pub struct DrawPedestrianInput {
     pub facing: Angle,
     pub waiting_for_turn: Option<TurnID>,
     pub preparing_bike: bool,
+    pub waiting_for_bus: bool,
     pub on: Traversable,
     pub metadata: AgentMetadata,
 }

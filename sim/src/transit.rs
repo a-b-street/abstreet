@@ -230,20 +230,26 @@ impl TransitSimState {
         stop2: BusStopID,
     ) -> bool {
         assert!(stop1 != stop2);
-        let route = &self.routes[&route_id];
-        for bus in &route.buses {
-            if let BusState::AtStop(idx) = self.buses[bus].state {
-                if route.stops[idx].id == stop1 {
-                    self.buses
-                        .get_mut(bus)
-                        .unwrap()
-                        .passengers
-                        .push((ped, stop2));
-                    // TODO shift trips
-                    self.events.push(Event::PedEntersBus(ped, *bus, route_id));
-                    return true;
+        if let Some(route) = self.routes.get(&route_id) {
+            for bus in &route.buses {
+                if let BusState::AtStop(idx) = self.buses[bus].state {
+                    if route.stops[idx].id == stop1 {
+                        self.buses
+                            .get_mut(bus)
+                            .unwrap()
+                            .passengers
+                            .push((ped, stop2));
+                        // TODO shift trips
+                        self.events.push(Event::PedEntersBus(ped, *bus, route_id));
+                        return true;
+                    }
                 }
             }
+        } else {
+            println!(
+                "WARNING: {} waiting for {}, but that route hasn't been instantiated",
+                ped, route_id
+            );
         }
 
         self.peds_waiting
