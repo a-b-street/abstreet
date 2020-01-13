@@ -2,7 +2,8 @@ use crate::layout::Widget;
 use crate::widgets::PopupMenu;
 use crate::{
     Button, Color, DrawBoth, EventCtx, Filler, GeomBatch, GfxCtx, Histogram, HorizontalAlignment,
-    JustDraw, Plot, ScreenDims, ScreenPt, ScreenRectangle, Slider, Text, VerticalAlignment,
+    JustDraw, Plot, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Slider, Text,
+    VerticalAlignment,
 };
 use abstutil::Cloneable;
 use geom::{Distance, Duration, Polygon};
@@ -176,6 +177,16 @@ impl ManagedWidget {
 
     pub fn draw_svg(ctx: &EventCtx, filename: &str) -> ManagedWidget {
         ManagedWidget::new(WidgetType::Draw(JustDraw::svg(filename, ctx)))
+    }
+    // TODO Argh uncomposable APIs
+    pub fn draw_svg_transform(
+        ctx: &EventCtx,
+        filename: &str,
+        rewrite: RewriteColor,
+    ) -> ManagedWidget {
+        ManagedWidget::new(WidgetType::Draw(JustDraw::svg_transform(
+            filename, rewrite, ctx,
+        )))
     }
 
     pub fn btn(btn: Button) -> ManagedWidget {

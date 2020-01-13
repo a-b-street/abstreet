@@ -1,6 +1,6 @@
 use crate::layout::Widget;
 use crate::svg;
-use crate::{DrawBoth, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt, Text};
+use crate::{DrawBoth, EventCtx, GeomBatch, GfxCtx, RewriteColor, ScreenDims, ScreenPt, Text};
 
 // Just draw something. A widget just so layouting works.
 pub struct JustDraw {
@@ -29,6 +29,18 @@ impl JustDraw {
     pub fn svg(filename: &str, ctx: &EventCtx) -> JustDraw {
         let mut batch = GeomBatch::new();
         let bounds = svg::add_svg(&mut batch, filename);
+        let mut draw = DrawBoth::new(ctx, batch, vec![]);
+        // TODO The dims will be wrong; it'll only look at geometry, not the padding in the image.
+        draw.override_bounds(bounds);
+        JustDraw {
+            draw,
+            top_left: ScreenPt::new(0.0, 0.0),
+        }
+    }
+    pub fn svg_transform(filename: &str, rewrite: RewriteColor, ctx: &EventCtx) -> JustDraw {
+        let mut batch = GeomBatch::new();
+        let bounds = svg::add_svg(&mut batch, filename);
+        batch.rewrite_color(rewrite);
         let mut draw = DrawBoth::new(ctx, batch, vec![]);
         // TODO The dims will be wrong; it'll only look at geometry, not the padding in the image.
         draw.override_bounds(bounds);

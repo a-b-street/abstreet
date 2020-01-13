@@ -9,7 +9,8 @@ use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Button, Choice, Color, DrawBoth, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, ManagedWidget, ModalMenu, Text, VerticalAlignment,
+    HorizontalAlignment, Key, Line, ManagedWidget, ModalMenu, RewriteColor, Text,
+    VerticalAlignment,
 };
 use geom::{Duration, Polygon};
 use map_model::{ControlTrafficSignal, EditCmd, IntersectionID, Phase, TurnGroupID, TurnPriority};
@@ -21,8 +22,8 @@ pub struct TrafficSignalEditor {
     i: IntersectionID,
     current_phase: usize,
     composite: ezgui::Composite,
+    top_panel: ezgui::Composite,
 
-    menu: ModalMenu,
     groups: Vec<DrawTurnGroup>,
     group_selected: Option<TurnGroupID>,
 
@@ -40,24 +41,11 @@ impl TrafficSignalEditor {
         suspended_sim: Sim,
     ) -> TrafficSignalEditor {
         ui.primary.current_selection = None;
-        let menu = ModalMenu::new(
-            format!("Traffic Signal Editor for {}", id),
-            vec![
-                (lctrl(Key::Z), "undo"),
-                // TODO ctrl+shift+Z!
-                (lctrl(Key::Y), "redo"),
-                (hotkey(Key::UpArrow), "select previous phase"),
-                (hotkey(Key::DownArrow), "select next phase"),
-                (lctrl(Key::P), "preview changes"),
-                (hotkey(Key::Escape), "quit"),
-            ],
-            ctx,
-        );
         TrafficSignalEditor {
             i: id,
             current_phase: 0,
             composite: make_diagram(id, 0, ui, ctx),
-            menu,
+            top_panel: make_top_panel(false, false, ctx),
             groups: DrawTurnGroup::for_i(id, &ui.primary.map),
             group_selected: None,
             suspended_sim,
@@ -78,19 +66,15 @@ impl State for TrafficSignalEditor {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         let orig_signal = ui.primary.map.get_traffic_signal(self.i);
 
-        self.menu.event(ctx);
-        self.menu.set_info(
-            ctx,
-            Text::from(Line(format!("{} edits", self.command_stack.len()))),
-        );
         ctx.canvas_movement();
 
-        if self.current_phase != 0 && self.menu.action("select previous phase") {
+        // TODO Buttons for these...
+        if self.current_phase != 0 && ctx.input.new_was_pressed(hotkey(Key::UpArrow).unwrap()) {
             self.change_phase(self.current_phase - 1, ui, ctx);
         }
 
         if self.current_phase != ui.primary.map.get_traffic_signal(self.i).phases.len() - 1
-            && self.menu.action("select next phase")
+            && ctx.input.new_was_pressed(hotkey(Key::DownArrow).unwrap())
         {
             self.change_phase(self.current_phase + 1, ui, ctx);
         }
@@ -107,6 +91,7 @@ impl State for TrafficSignalEditor {
                             .1;
                     self.command_stack.push(orig_signal.clone());
                     self.redo_stack.clear();
+                    self.top_panel = make_top_panel(true, false, ctx);
                     change_traffic_signal(new_signal, ui, ctx);
                     self.change_phase(0, ui, ctx);
                     return Transition::Keep;
@@ -119,6 +104,7 @@ impl State for TrafficSignalEditor {
                     new_signal.convert_to_ped_scramble(&ui.primary.map);
                     self.command_stack.push(orig_signal.clone());
                     self.redo_stack.clear();
+                    self.top_panel = make_top_panel(true, false, ctx);
                     change_traffic_signal(new_signal, ui, ctx);
                     self.change_phase(0, ui, ctx);
                     return Transition::Keep;
@@ -137,6 +123,7 @@ impl State for TrafficSignalEditor {
                     let num_phases = new_signal.phases.len();
                     self.command_stack.push(orig_signal.clone());
                     self.redo_stack.clear();
+                    self.top_panel = make_top_panel(true, false, ctx);
                     change_traffic_signal(new_signal, ui, ctx);
                     // Don't use change_phase; it tries to preserve scroll
                     self.current_phase = if idx == num_phases { idx - 1 } else { idx };
@@ -149,6 +136,7 @@ impl State for TrafficSignalEditor {
                     new_signal.phases.swap(idx, idx - 1);
                     self.command_stack.push(orig_signal.clone());
                     self.redo_stack.clear();
+                    self.top_panel = make_top_panel(true, false, ctx);
                     change_traffic_signal(new_signal, ui, ctx);
                     self.change_phase(idx - 1, ui, ctx);
                     return Transition::Keep;
@@ -159,6 +147,7 @@ impl State for TrafficSignalEditor {
                     new_signal.phases.swap(idx, idx + 1);
                     self.command_stack.push(orig_signal.clone());
                     self.redo_stack.clear();
+                    self.top_panel = make_top_panel(true, false, ctx);
                     change_traffic_signal(new_signal, ui, ctx);
                     self.change_phase(idx + 1, ui, ctx);
                     return Transition::Keep;
@@ -169,6 +158,7 @@ impl State for TrafficSignalEditor {
                     new_signal.phases.insert(idx + 1, Phase::new());
                     self.command_stack.push(orig_signal.clone());
                     self.redo_stack.clear();
+                    self.top_panel = make_top_panel(true, false, ctx);
                     change_traffic_signal(new_signal, ui, ctx);
                     self.change_phase(idx + 1, ui, ctx);
                     return Transition::Keep;
@@ -234,36 +224,48 @@ impl State for TrafficSignalEditor {
                     );
                     self.command_stack.push(orig_signal.clone());
                     self.redo_stack.clear();
+                    self.top_panel = make_top_panel(true, false, ctx);
                     change_traffic_signal(new_signal, ui, ctx);
                     return Transition::Keep;
                 }
             }
         }
 
-        if self.menu.action("quit") {
-            return check_for_missing_groups(orig_signal.clone(), &mut self.composite, ui, ctx);
-        }
-
-        // TODO We're missing the edits here...
-        if !self.command_stack.is_empty() && self.menu.action("undo") {
-            self.redo_stack.push(orig_signal.clone());
-            change_traffic_signal(self.command_stack.pop().unwrap(), ui, ctx);
-            self.change_phase(0, ui, ctx);
-            return Transition::Keep;
-        } else if !self.redo_stack.is_empty() && self.menu.action("redo") {
-            self.command_stack.push(orig_signal.clone());
-            change_traffic_signal(self.redo_stack.pop().unwrap(), ui, ctx);
-            self.change_phase(0, ui, ctx);
-            return Transition::Keep;
-        }
-
-        if self.menu.action("preview changes") {
-            // TODO These're expensive clones :(
-            return Transition::Push(make_previewer(
-                self.i,
-                self.current_phase,
-                self.suspended_sim.clone(),
-            ));
+        match self.top_panel.event(ctx) {
+            Some(ezgui::Outcome::Clicked(x)) => match x.as_ref() {
+                "Finish" => {
+                    return check_for_missing_groups(
+                        orig_signal.clone(),
+                        &mut self.composite,
+                        ui,
+                        ctx,
+                    );
+                }
+                "Preview" => {
+                    // TODO These're expensive clones :(
+                    return Transition::Push(make_previewer(
+                        self.i,
+                        self.current_phase,
+                        self.suspended_sim.clone(),
+                    ));
+                }
+                "undo" => {
+                    self.redo_stack.push(orig_signal.clone());
+                    self.top_panel = make_top_panel(!self.command_stack.is_empty(), true, ctx);
+                    change_traffic_signal(self.command_stack.pop().unwrap(), ui, ctx);
+                    self.change_phase(0, ui, ctx);
+                    return Transition::Keep;
+                }
+                "redo" => {
+                    self.command_stack.push(orig_signal.clone());
+                    change_traffic_signal(self.redo_stack.pop().unwrap(), ui, ctx);
+                    self.top_panel = make_top_panel(true, !self.redo_stack.is_empty(), ctx);
+                    self.change_phase(0, ui, ctx);
+                    return Transition::Keep;
+                }
+                _ => unreachable!(),
+            },
+            None => {}
         }
 
         Transition::Keep
@@ -316,8 +318,7 @@ impl State for TrafficSignalEditor {
         batch.draw(g);
 
         self.composite.draw(g);
-
-        self.menu.draw(g);
+        self.top_panel.draw(g);
         if let Some(id) = self.group_selected {
             let osd = if id.crosswalk.is_some() {
                 Text::from(Line(format!(
@@ -336,6 +337,40 @@ impl State for TrafficSignalEditor {
             CommonState::draw_osd(g, ui, &None);
         }
     }
+}
+
+fn make_top_panel(can_undo: bool, can_redo: bool, ctx: &mut EventCtx) -> ezgui::Composite {
+    let row = vec![
+        Composite::text_button(ctx, "Finish", hotkey(Key::Escape)),
+        Composite::text_button(ctx, "Preview", lctrl(Key::P)),
+        if can_undo {
+            Composite::svg_button(ctx, "assets/tools/undo.svg", "undo", lctrl(Key::Z))
+        } else {
+            ManagedWidget::draw_svg_transform(
+                ctx,
+                "assets/tools/undo.svg",
+                RewriteColor::ChangeAll(Color::grey(0.4)),
+            )
+        },
+        if can_redo {
+            Composite::svg_button(
+                ctx,
+                "assets/tools/redo.svg",
+                "redo",
+                // TODO ctrl+shift+Z!
+                lctrl(Key::Y),
+            )
+        } else {
+            ManagedWidget::draw_svg_transform(
+                ctx,
+                "assets/tools/redo.svg",
+                RewriteColor::ChangeAll(Color::grey(0.4)),
+            )
+        },
+    ];
+    ezgui::Composite::new(ManagedWidget::row(row).bg(Color::hex("#545454")))
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        .build(ctx)
 }
 
 fn make_diagram(
@@ -523,6 +558,7 @@ fn change_phase_duration(idx: usize, current_duration: Duration) -> Box<dyn Stat
             let mut signal = ui.primary.map.get_traffic_signal(editor.i).clone();
             editor.command_stack.push(signal.clone());
             editor.redo_stack.clear();
+            editor.top_panel = make_top_panel(true, false, ctx);
             signal.phases[idx].duration = Duration::seconds(new_duration as f64);
             change_traffic_signal(signal, ui, ctx);
             editor.change_phase(idx, ui, ctx);
@@ -541,6 +577,7 @@ fn change_offset(current_duration: Duration) -> Box<dyn State> {
             let mut signal = ui.primary.map.get_traffic_signal(editor.i).clone();
             editor.command_stack.push(signal.clone());
             editor.redo_stack.clear();
+            editor.top_panel = make_top_panel(true, false, ctx);
             signal.offset = Duration::seconds(new_duration as f64);
             change_traffic_signal(signal, ui, ctx);
             editor.change_phase(editor.current_phase, ui, ctx);
@@ -563,6 +600,8 @@ fn change_preset(i: IntersectionID) -> Box<dyn State> {
             editor
                 .command_stack
                 .push(ui.primary.map.get_traffic_signal(editor.i).clone());
+            editor.redo_stack.clear();
+            editor.top_panel = make_top_panel(true, false, ctx);
             change_traffic_signal(new_signal, ui, ctx);
             editor.change_phase(0, ui, ctx);
         })))
