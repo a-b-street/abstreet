@@ -68,7 +68,7 @@ impl Bounds {
         ])
     }
 
-    // TODO Really should be Distace
+    // TODO Really should be Distance
     pub fn width(&self) -> f64 {
         self.max_x - self.min_x
     }

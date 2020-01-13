@@ -123,13 +123,11 @@ impl Minimap {
                     return Some(Transition::Push(shortcuts::ChoosingShortcut::new()));
                 }
                 x if x == "zoom out fully" => {
-                    // TODO The zoom out level should show the full width/height -- that's kind of
-                    // in minimap code
                     return Some(Transition::PushWithMode(
                         Warping::new(
                             ctx,
-                            ctx.canvas.center_to_map_pt(),
-                            Some(0.1),
+                            ui.primary.map.get_bounds().get_rectangle().center(),
+                            Some(ctx.canvas.min_zoom()),
                             None,
                             &mut ui.primary,
                         ),

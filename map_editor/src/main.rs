@@ -71,6 +71,8 @@ impl UI {
         };
         ctx.set_textures(Vec::new(), &mut Timer::throwaway());
         ctx.canvas.load_camera_state(&model.map.name);
+        let bounds = model.map.gps_bounds.to_bounds();
+        ctx.canvas.map_dims = (bounds.width(), bounds.height());
         let mut ui = UI {
             model,
             state: State::viewing(),

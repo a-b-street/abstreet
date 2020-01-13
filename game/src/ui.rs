@@ -56,6 +56,8 @@ impl UI {
                     .and_then(|l| ID::Lane(l.id).canonical_point(&primary))
             })
             .expect("Can't get canonical_point of a random building or lane");
+        let bounds = primary.map.get_bounds();
+        ctx.canvas.map_dims = (bounds.width(), bounds.height());
 
         if splash {
             ctx.canvas.center_on_map_pt(rand_focus_pt);

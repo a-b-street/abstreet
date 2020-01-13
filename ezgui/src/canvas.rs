@@ -26,6 +26,7 @@ pub struct Canvas {
     pub window_width: f64,
     pub window_height: f64,
     pub(crate) hidpi_factor: f64,
+    pub map_dims: (f64, f64),
 
     // TODO Bit weird and hacky to mutate inside of draw() calls.
     pub(crate) covered_areas: RefCell<Vec<ScreenRectangle>>,
@@ -59,6 +60,7 @@ impl Canvas {
             window_width: initial_width,
             window_height: initial_height,
             hidpi_factor,
+            map_dims: (0.0, 0.0),
 
             covered_areas: RefCell::new(Vec::new()),
             covered_polygons: RefCell::new(Vec::new()),
@@ -71,6 +73,12 @@ impl Canvas {
         }
     }
 
+    pub fn min_zoom(&self) -> f64 {
+        let percent_window = 0.8;
+        (percent_window * self.window_width / self.map_dims.0)
+            .min(percent_window * self.window_height / self.map_dims.1)
+    }
+
     pub(crate) fn handle_event(&mut self, input: &mut UserInput) {
         // Can't start dragging or zooming on top of covered area
         if self.get_cursor_in_map_space().is_some() {
@@ -81,10 +89,9 @@ impl Canvas {
             if let Some(scroll) = input.get_mouse_scroll() {
                 let old_zoom = self.cam_zoom;
                 // By popular request, some limits ;)
-                // TODO But based on map size
                 self.cam_zoom = 1.1_f64
                     .powf(old_zoom.log(1.1) + scroll)
-                    .max(0.05)
+                    .max(self.min_zoom())
                     .min(150.0);
 
                 // Make screen_to_map of cursor_{x,y} still point to the same thing after zooming.
