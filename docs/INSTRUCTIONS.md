@@ -12,16 +12,16 @@ Grab a pre-built binary release -- updated every Sunday, announced at
 [r/abstreet](http://old.reddit.com/r/abstreet):
 
 - Windows:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.22/abstreet_windows_v0_1_22.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.23/abstreet_windows_v0_1_23.zip
 - Mac:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.22/abstreet_mac_v0_1_22.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.23/abstreet_mac_v0_1_23.zip
   - The minimap may be missing, depending on your monitor's DPI. If so, modify
     the `play_abstreet.sh` script to pass `--hidpi_factor=2.0` and experiment
     with different values. If you have to do this, please
     [file an issue](https://github.com/dabreegster/abstreet/issues) and let me
     know, so I can figure out why `glutin` misreports this.
 - Linux:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.22/abstreet_linux_v0_1_22.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.23/abstreet_linux_v0_1_23.zip
 
 Unzip the folder, then run `play_abstreet.sh` or `play_abstreet.bat`. On
 Windows, you'll probably get a warning about running software from an unknown

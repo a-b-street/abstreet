@@ -239,3 +239,11 @@ changes here.
 - traffic signal rendering overhaul
 - heatmap colors improved, heatmap appears on minimap
 - bus info panel, a start to live delay analytics
+
+0.1.23
+
+- UI revamps: speed panel, minimap controls, heatmap chooser
+- bus timeline
+- hide internal IDs normally
+- limit map zoom
+- fix bugs with crosswalks conflicting with vehicle turns
