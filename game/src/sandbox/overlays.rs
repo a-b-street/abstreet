@@ -1,4 +1,4 @@
-use crate::common::{Colorer, ColorerBuilder};
+use crate::common::{ColorLegend, Colorer, ColorerBuilder};
 use crate::game::Transition;
 use crate::managed::{ManagedGUIState, Outcome};
 use crate::sandbox::bus_explorer::ShowBusRoute;
@@ -28,7 +28,7 @@ pub enum Overlays {
     BusRoute(ShowBusRoute),
     BusDelaysOverTime(Composite),
     BusPassengers(crate::managed::Composite),
-    IntersectionDemand(Time, IntersectionID, Drawable),
+    IntersectionDemand(Time, IntersectionID, Drawable, ColorLegend),
 }
 
 impl Overlays {
@@ -46,7 +46,7 @@ impl Overlays {
             Overlays::CumulativeThroughput(t, _) if now != *t => {
                 *self = Overlays::cumulative_throughput(ctx, ui);
             }
-            Overlays::IntersectionDemand(t, i, _) if now != *t => {
+            Overlays::IntersectionDemand(t, i, _, _) if now != *t => {
                 *self = Overlays::intersection_demand(*i, ctx, ui);
             }
             Overlays::FinishedTripsHistogram(t, _) if now != *t => {
@@ -72,6 +72,11 @@ impl Overlays {
                 Some(Outcome::Clicked(_)) => unreachable!(),
                 None => {}
             },
+            Overlays::IntersectionDemand(_, _, _, ref mut legend) => {
+                if legend.event(ctx) {
+                    *self = Overlays::Inactive;
+                }
+            }
             _ => {}
         }
 
@@ -95,8 +100,9 @@ impl Overlays {
             Overlays::BusPassengers(ref composite) => {
                 composite.draw(g);
             }
-            Overlays::IntersectionDemand(_, _, ref draw) => {
+            Overlays::IntersectionDemand(_, _, ref draw, ref legend) => {
                 g.redraw(draw);
+                legend.draw(g);
             }
             Overlays::BusRoute(ref s) => {
                 s.draw(g);
@@ -482,6 +488,16 @@ impl Overlays {
             );
         }
 
-        Overlays::IntersectionDemand(ui.primary.sim.time(), i, batch.upload(ctx))
+        // TODO Say which intersection. Click to warp to it.
+        Overlays::IntersectionDemand(
+            ui.primary.sim.time(),
+            i,
+            batch.upload(ctx),
+            ColorLegend::new(
+                ctx,
+                Text::from(Line("intersection demand")),
+                vec![("demand", Color::RED)],
+            ),
+        )
     }
 }

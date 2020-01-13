@@ -27,11 +27,7 @@ pub struct Colorer {
 impl Colorer {
     // If true, destruct this Colorer.
     pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
-        match self.legend.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) if x == "X" => true,
-            Some(Outcome::Clicked(_)) => unreachable!(),
-            None => false,
-        }
+        self.legend.event(ctx)
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
@@ -140,7 +136,6 @@ impl ColorerBuilder {
     }
 }
 
-// TODO This is almost just exclusive to Colorer!
 pub struct ColorLegend {
     composite: Composite,
 }
@@ -170,6 +165,15 @@ impl ColorLegend {
             composite: Composite::new(ManagedWidget::col(col).bg(Color::grey(0.4)))
                 .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
                 .build(ctx),
+        }
+    }
+
+    // If true, this legend was X'd out.
+    pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) if x == "X" => true,
+            Some(Outcome::Clicked(_)) => unreachable!(),
+            None => false,
         }
     }
 
