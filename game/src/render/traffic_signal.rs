@@ -228,7 +228,7 @@ impl TrafficSignalDiagram {
 
     fn change_phase(&mut self, idx: usize, ui: &UI, ctx: &mut EventCtx) {
         if self.current_phase != idx {
-            let preserve_scroll = self.composite.preserve_scroll(ctx);
+            let preserve_scroll = self.composite.preserve_scroll();
             self.current_phase = idx;
             self.composite = make_diagram(self.i, self.current_phase, ui, ctx);
             self.composite.restore_scroll(ctx, preserve_scroll);

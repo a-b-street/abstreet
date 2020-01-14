@@ -562,17 +562,10 @@ impl Composite {
         );
         nodes.reverse();
 
+        // TODO Express more simply. Constraining this seems useless.
         let container_size = Size {
-            width: if let Some(pct) = self.layout.percent_width {
-                Number::Defined((ctx.canvas.window_width * pct) as f32)
-            } else {
-                Number::Undefined
-            },
-            height: if let Some(pct) = self.layout.percent_height {
-                Number::Defined((ctx.canvas.window_height * pct) as f32)
-            } else {
-                Number::Undefined
-            },
+            width: Number::Undefined,
+            height: Number::Undefined,
         };
         stretch.compute_layout(root, container_size).unwrap();
         let result = stretch.layout(root).unwrap();
@@ -581,7 +574,7 @@ impl Composite {
             self.layout.horiz,
             self.layout.vert,
         );
-        let offset = self.scroll_offset(ctx);
+        let offset = self.scroll_offset();
         self.top_level.apply_flexbox(
             &mut self.sliders,
             &mut self.menus,
@@ -596,7 +589,7 @@ impl Composite {
         assert!(nodes.is_empty());
     }
 
-    fn scroll_offset(&self, ctx: &EventCtx) -> (f64, f64) {
+    fn scroll_offset(&self) -> (f64, f64) {
         let x = if self.scrollable_x {
             self.slider("horiz scrollbar").get_percent()
                 * (self.contents_dims.width - self.container_dims.width).max(0.0)
@@ -650,14 +643,14 @@ impl Composite {
         {
             if let Some((dx, dy)) = ctx.input.get_mouse_scroll() {
                 let x_offset = if self.scrollable_x {
-                    let offset = self.scroll_offset(ctx).0 + dx * SCROLL_SPEED;
+                    let offset = self.scroll_offset().0 + dx * SCROLL_SPEED;
                     let max = (self.contents_dims.width - self.container_dims.width).max(0.0);
                     abstutil::clamp(offset, 0.0, max)
                 } else {
                     0.0
                 };
                 let y_offset = if self.scrollable_y {
-                    let offset = self.scroll_offset(ctx).1 - dy * SCROLL_SPEED;
+                    let offset = self.scroll_offset().1 - dy * SCROLL_SPEED;
                     let max = (self.contents_dims.height - self.container_dims.height).max(0.0);
                     abstutil::clamp(offset, 0.0, max)
                 } else {
@@ -672,11 +665,11 @@ impl Composite {
             self.recompute_layout(ctx);
         }
 
-        let before = self.scroll_offset(ctx);
+        let before = self.scroll_offset();
         let result = self
             .top_level
             .event(ctx, &mut self.sliders, &mut self.menus);
-        if self.scroll_offset(ctx) != before {
+        if self.scroll_offset() != before {
             self.recompute_layout(ctx);
         }
         result
@@ -699,8 +692,8 @@ impl Composite {
         actions
     }
 
-    pub fn preserve_scroll(&self, ctx: &EventCtx) -> (f64, f64) {
-        self.scroll_offset(ctx)
+    pub fn preserve_scroll(&self) -> (f64, f64) {
+        self.scroll_offset()
     }
 
     pub fn restore_scroll(&mut self, ctx: &EventCtx, offset: (f64, f64)) {
@@ -803,7 +796,13 @@ impl CompositeBuilder {
             let top_left = ctx
                 .canvas
                 .align_window(c.container_dims, c.layout.horiz, c.layout.vert);
-            c.clip_rect = Some(ScreenRectangle::top_left(top_left, c.container_dims));
+            c.clip_rect = Some(ScreenRectangle::top_left(
+                top_left,
+                ScreenDims::new(
+                    c.container_dims.width + 30.0,
+                    c.container_dims.height + 30.0,
+                ),
+            ));
         }
 
         ctx.fake_mouseover(|ctx| assert!(c.event(ctx).is_none()));
