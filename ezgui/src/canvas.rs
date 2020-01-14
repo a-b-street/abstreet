@@ -86,7 +86,7 @@ impl Canvas {
                 self.drag_canvas_from = Some(self.get_cursor_in_screen_space());
             }
 
-            if let Some(scroll) = input.get_mouse_scroll() {
+            if let Some((_, scroll)) = input.get_mouse_scroll() {
                 let old_zoom = self.cam_zoom;
                 // By popular request, some limits ;)
                 self.cam_zoom = 1.1_f64

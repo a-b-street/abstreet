@@ -19,8 +19,7 @@ pub enum Event {
     MouseMovedTo(ScreenPt),
     WindowLostCursor,
     WindowGainedCursor,
-    // Vertical only
-    MouseWheelScroll(f64),
+    MouseWheelScroll(f64, f64),
     WindowResized(f64, f64),
 }
 
@@ -58,18 +57,18 @@ impl Event {
                 Some(Event::MouseMovedTo(ScreenPt::new(pos.x, pos.y)))
             }
             glutin::WindowEvent::MouseWheel { delta, .. } => match delta {
-                glutin::MouseScrollDelta::LineDelta(_, dy) => {
-                    if dy == 0.0 {
+                glutin::MouseScrollDelta::LineDelta(dx, dy) => {
+                    if dx == 0.0 && dy == 0.0 {
                         None
                     } else {
-                        Some(Event::MouseWheelScroll(f64::from(dy)))
+                        Some(Event::MouseWheelScroll(f64::from(dx), f64::from(dy)))
                     }
                 }
                 // This one only happens on Mac. The scrolling is way too fast, so slow it down.
                 // Probably the better way is to convert the LogicalPosition to a PhysicalPosition
                 // somehow knowing the DPI.
                 glutin::MouseScrollDelta::PixelDelta(pos) => {
-                    Some(Event::MouseWheelScroll(0.1 * pos.y))
+                    Some(Event::MouseWheelScroll(0.1 * pos.x, 0.1 * pos.y))
                 }
             },
             glutin::WindowEvent::Resized(size) => {

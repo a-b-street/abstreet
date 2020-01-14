@@ -363,7 +363,7 @@ impl ManagedWidget {
         nodes: &mut Vec<Node>,
         dx: f64,
         dy: f64,
-        scroll_y_offset: f64,
+        scroll_offset: (f64, f64),
         ctx: &EventCtx,
     ) {
         let result = stretch.layout(nodes.pop().unwrap()).unwrap();
@@ -373,13 +373,15 @@ impl ManagedWidget {
         let height: f64 = result.size.height.into();
         let top_left = match self.widget {
             WidgetType::Slider(ref name) => {
-                if name == "scrollbar" {
-                    ScreenPt::new(x + dx, y + dy)
+                if name == "horiz scrollbar" {
+                    ScreenPt::new(x + dx, y + dy - scroll_offset.1)
+                } else if name == "vert scrollbar" {
+                    ScreenPt::new(x + dx - scroll_offset.0, y + dy)
                 } else {
-                    ScreenPt::new(x + dx, y + dy - scroll_y_offset)
+                    ScreenPt::new(x + dx - scroll_offset.0, y + dy - scroll_offset.1)
                 }
             }
-            _ => ScreenPt::new(x + dx, y + dy - scroll_y_offset),
+            _ => ScreenPt::new(x + dx - scroll_offset.0, y + dy - scroll_offset.1),
         };
         self.rect = ScreenRectangle::top_left(top_left, ScreenDims::new(width, height));
         if let Some(color) = self.style.bg_color {
@@ -433,7 +435,7 @@ impl ManagedWidget {
                         nodes,
                         x + dx,
                         y + dy,
-                        scroll_y_offset,
+                        scroll_offset,
                         ctx,
                     );
                 }
@@ -448,7 +450,7 @@ impl ManagedWidget {
                         nodes,
                         x + dx,
                         y + dy,
-                        scroll_y_offset,
+                        scroll_offset,
                         ctx,
                     );
                 }
@@ -499,11 +501,10 @@ pub struct Composite {
     menus: HashMap<String, Menu>,
     fillers: HashMap<String, Filler>,
 
-    // TODO This needs to clip.
-    // TODO Horizontal scrolling?
-    scrollable: bool,
-    contents_height: f64,
-    container_height: f64,
+    scrollable_x: bool,
+    scrollable_y: bool,
+    contents_dims: ScreenDims,
+    container_dims: ScreenDims,
     clip_rect: Option<ScreenRectangle>,
 }
 
@@ -580,7 +581,7 @@ impl Composite {
             self.layout.horiz,
             self.layout.vert,
         );
-        let offset = self.scroll_y_offset(ctx);
+        let offset = self.scroll_offset(ctx);
         self.top_level.apply_flexbox(
             &mut self.sliders,
             &mut self.menus,
@@ -595,41 +596,75 @@ impl Composite {
         assert!(nodes.is_empty());
     }
 
-    fn scroll_y_offset(&self, ctx: &EventCtx) -> f64 {
-        if self.scrollable {
-            self.slider("scrollbar").get_percent()
-                * (self.contents_height - self.container_height).max(0.0)
+    fn scroll_offset(&self, ctx: &EventCtx) -> (f64, f64) {
+        let x = if self.scrollable_x {
+            self.slider("horiz scrollbar").get_percent()
+                * (self.contents_dims.width - self.container_dims.width).max(0.0)
         } else {
             0.0
-        }
+        };
+        let y = if self.scrollable_y {
+            self.slider("vert scrollbar").get_percent()
+                * (self.contents_dims.height - self.container_dims.height).max(0.0)
+        } else {
+            0.0
+        };
+        (x, y)
     }
 
-    fn set_scroll_y_offset(&mut self, ctx: &EventCtx, offset: f64) {
-        if !self.scrollable {
-            return;
+    fn set_scroll_offset(&mut self, ctx: &EventCtx, offset: (f64, f64)) {
+        let mut changed = false;
+        if self.scrollable_x {
+            changed = true;
+            let max = (self.contents_dims.width - self.container_dims.width).max(0.0);
+            if max == 0.0 {
+                assert_eq!(offset.0, 0.0);
+                self.mut_slider("horiz scrollbar").set_percent(ctx, 0.0);
+            } else {
+                self.mut_slider("horiz scrollbar")
+                    .set_percent(ctx, offset.0 / max);
+            }
         }
-        let max = (self.contents_height - self.container_height).max(0.0);
-        if max == 0.0 {
-            assert_eq!(offset, 0.0);
-            self.mut_slider("scrollbar").set_percent(ctx, 0.0);
-        } else {
-            self.mut_slider("scrollbar").set_percent(ctx, offset / max);
+        if self.scrollable_y {
+            changed = true;
+            let max = (self.contents_dims.height - self.container_dims.height).max(0.0);
+            if max == 0.0 {
+                assert_eq!(offset.1, 0.0);
+                self.mut_slider("vert scrollbar").set_percent(ctx, 0.0);
+            } else {
+                self.mut_slider("vert scrollbar")
+                    .set_percent(ctx, offset.1 / max);
+            }
         }
-        self.recompute_layout(ctx);
+        if changed {
+            self.recompute_layout(ctx);
+        }
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx) -> Option<Outcome> {
-        if self.scrollable
+        if (self.scrollable_x || self.scrollable_y)
             && self
                 .top_level
                 .rect
                 .contains(ctx.canvas.get_cursor_in_screen_space())
         {
-            if let Some(scroll) = ctx.input.get_mouse_scroll() {
-                let offset = self.scroll_y_offset(ctx) - scroll * SCROLL_SPEED;
-                let max = (self.contents_height - self.container_height).max(0.0);
-                // TODO Do the clamping in there instead
-                self.set_scroll_y_offset(ctx, abstutil::clamp(offset, 0.0, max));
+            if let Some((dx, dy)) = ctx.input.get_mouse_scroll() {
+                let x_offset = if self.scrollable_x {
+                    let offset = self.scroll_offset(ctx).0 + dx * SCROLL_SPEED;
+                    let max = (self.contents_dims.width - self.container_dims.width).max(0.0);
+                    abstutil::clamp(offset, 0.0, max)
+                } else {
+                    0.0
+                };
+                let y_offset = if self.scrollable_y {
+                    let offset = self.scroll_offset(ctx).1 - dy * SCROLL_SPEED;
+                    let max = (self.contents_dims.height - self.container_dims.height).max(0.0);
+                    abstutil::clamp(offset, 0.0, max)
+                } else {
+                    0.0
+                };
+                // TODO Refactor the clamping, do it in set_scroll_offset
+                self.set_scroll_offset(ctx, (x_offset, y_offset));
             }
         }
 
@@ -637,11 +672,11 @@ impl Composite {
             self.recompute_layout(ctx);
         }
 
-        let before = self.scroll_y_offset(ctx);
+        let before = self.scroll_offset(ctx);
         let result = self
             .top_level
             .event(ctx, &mut self.sliders, &mut self.menus);
-        if self.scroll_y_offset(ctx) != before {
+        if self.scroll_offset(ctx) != before {
             self.recompute_layout(ctx);
         }
         result
@@ -649,11 +684,11 @@ impl Composite {
 
     pub fn draw(&self, g: &mut GfxCtx) {
         g.canvas.mark_covered_area(self.top_level.rect.clone());
-        if self.scrollable {
+        if self.scrollable_x || self.scrollable_y {
             g.enable_clipping(self.clip_rect.clone().unwrap());
         }
         self.top_level.draw(g, &self.sliders, &self.menus);
-        if self.scrollable {
+        if self.scrollable_x || self.scrollable_y {
             g.disable_clipping();
         }
     }
@@ -664,16 +699,12 @@ impl Composite {
         actions
     }
 
-    pub fn preserve_scroll(&self, ctx: &EventCtx) -> f64 {
-        if self.scrollable {
-            self.scroll_y_offset(ctx)
-        } else {
-            0.0
-        }
+    pub fn preserve_scroll(&self, ctx: &EventCtx) -> (f64, f64) {
+        self.scroll_offset(ctx)
     }
 
-    pub fn restore_scroll(&mut self, ctx: &EventCtx, offset: f64) {
-        self.set_scroll_y_offset(ctx, offset);
+    pub fn restore_scroll(&mut self, ctx: &EventCtx, offset: (f64, f64)) {
+        self.set_scroll_offset(ctx, offset);
     }
 
     pub fn slider(&self, name: &str) -> &Slider {
@@ -702,9 +733,10 @@ impl CompositeBuilder {
             menus: self.menus,
             fillers: self.fillers,
 
-            scrollable: false,
-            contents_height: 0.0,
-            container_height: 0.0,
+            scrollable_x: false,
+            scrollable_y: false,
+            contents_dims: ScreenDims::new(0.0, 0.0),
+            container_dims: ScreenDims::new(0.0, 0.0),
             clip_rect: None,
         };
         c.recompute_layout(ctx);
@@ -719,41 +751,61 @@ impl CompositeBuilder {
             menus: self.menus,
             fillers: self.fillers,
 
-            scrollable: false,
-            contents_height: 0.0,
-            container_height: 0.0,
+            scrollable_x: false,
+            scrollable_y: false,
+            contents_dims: ScreenDims::new(0.0, 0.0),
+            container_dims: ScreenDims::new(0.0, 0.0),
             clip_rect: None,
         };
         // If the panel fits without a scrollbar, don't add one.
         c.recompute_layout(ctx);
 
-        c.contents_height = c.top_level.rect.height();
-        c.container_height = if let Some(pct) = c.layout.percent_height {
-            ctx.canvas.window_height * pct
-        } else if c.contents_height < ctx.canvas.window_height {
-            c.contents_height
-        } else {
-            ctx.canvas.window_height
-        };
+        c.contents_dims = ScreenDims::new(c.top_level.rect.width(), c.top_level.rect.height());
+        c.container_dims = ScreenDims::new(
+            if let Some(pct) = c.layout.percent_width {
+                ctx.canvas.window_width * pct
+            } else if c.contents_dims.width < ctx.canvas.window_width {
+                c.contents_dims.width
+            } else {
+                ctx.canvas.window_width
+            },
+            if let Some(pct) = c.layout.percent_height {
+                ctx.canvas.window_height * pct
+            } else if c.contents_dims.height < ctx.canvas.window_height {
+                c.contents_dims.height
+            } else {
+                ctx.canvas.window_height
+            },
+        );
 
-        if c.contents_height > c.container_height {
-            c.scrollable = true;
+        if c.contents_dims.width > c.container_dims.width {
+            c.scrollable_x = true;
             c.sliders.insert(
-                "scrollbar".to_string(),
-                Slider::vertical(ctx, c.container_height),
+                "horiz scrollbar".to_string(),
+                Slider::horizontal(ctx, c.container_dims.width),
             );
-            c.top_level = ManagedWidget::row(vec![c.top_level, ManagedWidget::slider("scrollbar")]);
+            c.top_level =
+                ManagedWidget::col(vec![c.top_level, ManagedWidget::slider("horiz scrollbar")]);
+        }
+        if c.contents_dims.height > c.container_dims.height {
+            c.scrollable_y = true;
+            c.sliders.insert(
+                "vert scrollbar".to_string(),
+                Slider::vertical(ctx, c.container_dims.height),
+            );
+            c.top_level =
+                ManagedWidget::row(vec![c.top_level, ManagedWidget::slider("vert scrollbar")]);
+        }
+
+        if c.scrollable_x || c.scrollable_y {
             c.recompute_layout(ctx);
 
-            let container_width = if let Some(pct) = c.layout.percent_width {
-                ctx.canvas.window_width * pct
-            } else {
-                c.top_level.rect.width()
-            };
-            let dims = ScreenDims::new(container_width, c.container_height);
-            let top_left = ctx.canvas.align_window(dims, c.layout.horiz, c.layout.vert);
-            c.clip_rect = Some(ScreenRectangle::top_left(top_left, dims));
+            let top_left = ctx
+                .canvas
+                .align_window(c.container_dims, c.layout.horiz, c.layout.vert);
+            c.clip_rect = Some(ScreenRectangle::top_left(top_left, c.container_dims));
         }
+
         ctx.fake_mouseover(|ctx| assert!(c.event(ctx).is_none()));
         c
     }

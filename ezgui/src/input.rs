@@ -109,9 +109,9 @@ impl UserInput {
         None
     }
 
-    pub fn get_mouse_scroll(&self) -> Option<f64> {
-        if let Event::MouseWheelScroll(dy) = self.event {
-            return Some(dy);
+    pub(crate) fn get_mouse_scroll(&self) -> Option<(f64, f64)> {
+        if let Event::MouseWheelScroll(dx, dy) = self.event {
+            return Some((dx, dy));
         }
         None
     }

@@ -62,7 +62,11 @@ impl<'a> EventCtx<'a> {
         self.fake_mouseover
             || self.input.window_lost_cursor()
             || (!self.is_dragging() && self.input.get_moved_mouse().is_some())
-            || self.input.get_mouse_scroll().is_some()
+            || self
+                .input
+                .get_mouse_scroll()
+                .map(|(_, dy)| dy != 0.0)
+                .unwrap_or(false)
     }
 
     pub fn normal_left_click(&mut self) -> bool {
