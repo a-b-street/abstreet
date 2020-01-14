@@ -1,9 +1,10 @@
 use crate::edit::EditMode;
-use crate::game::{msg, Transition, WizardState};
+use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::Composite;
-use crate::sandbox::gameplay::{change_scenario, load_map, spawner, GameplayMode, GameplayState};
+use crate::sandbox::gameplay::{change_scenario, spawner, GameplayMode, GameplayState};
 use crate::sandbox::overlays::Overlays;
+use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use ezgui::{
     hotkey, lctrl, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget,
@@ -110,10 +111,10 @@ pub fn freeform_controller(
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx),
     )
-    .cb(
-        "change map",
-        Box::new(|_, _| Some(Transition::Push(WizardState::new(Box::new(load_map))))),
-    )
+    .cb("change map", {
+        let gameplay = gameplay.clone();
+        Box::new(move |_, _| Some(Transition::Push(make_load_map(gameplay.clone()))))
+    })
     .cb(
         "change scenario",
         Box::new(|_, _| {
@@ -132,4 +133,28 @@ pub fn freeform_controller(
             ))))
         }),
     )
+}
+
+fn make_load_map(gameplay: GameplayMode) -> Box<dyn State> {
+    WizardState::new(Box::new(move |wiz, ctx, ui| {
+        if let Some(name) = wiz.wrap(ctx).choose_string("Load which map?", || {
+            let current_map = ui.primary.map.get_name();
+            abstutil::list_all_objects(abstutil::path_all_maps())
+                .into_iter()
+                .filter(|n| n != current_map)
+                .collect()
+        }) {
+            ui.switch_map(ctx, abstutil::path_map(&name));
+            // Assume a scenario with the same name exists.
+            Some(Transition::PopThenReplace(Box::new(SandboxMode::new(
+                ctx,
+                ui,
+                gameplay.clone(),
+            ))))
+        } else if wiz.aborted() {
+            Some(Transition::Pop)
+        } else {
+            None
+        }
+    }))
 }

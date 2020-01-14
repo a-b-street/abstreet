@@ -234,28 +234,6 @@ fn change_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<
     ))))
 }
 
-fn load_map(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
-    if let Some(name) = wiz.wrap(ctx).choose_string("Load which map?", || {
-        let current_map = ui.primary.map.get_name();
-        abstutil::list_all_objects(abstutil::path_all_maps())
-            .into_iter()
-            .filter(|n| n != current_map)
-            .collect()
-    }) {
-        ui.switch_map(ctx, abstutil::path_map(&name));
-        Some(Transition::PopThenReplace(Box::new(SandboxMode::new(
-            ctx,
-            ui,
-            // TODO If we were playing a scenario, load that one...
-            GameplayMode::Freeform,
-        ))))
-    } else if wiz.aborted() {
-        Some(Transition::Pop)
-    } else {
-        None
-    }
-}
-
 // Must call menu.event first. Returns true if the caller should set the overlay to the custom
 // thing.
 fn manage_overlays(
