@@ -1,4 +1,5 @@
-use crate::{ScreenDims, Text};
+use crate::{ScreenDims, ScreenPt, Text};
+use glium::Rect;
 use glium_glyph::glyph_brush::rusttype::{Font, Scale};
 use glium_glyph::glyph_brush::{FontId, GlyphCruncher};
 use glium_glyph::{GlyphBrush, GlyphBrushBuilder};
@@ -9,6 +10,7 @@ use std::collections::HashMap;
 pub struct Assets {
     pub screenspace_glyphs: RefCell<GlyphBrush<'static, 'static>>,
     pub mapspace_glyphs: RefCell<GlyphBrush<'static, 'static>>,
+    pub screenspace_clip_glyphs: RefCell<Option<(Rect, Vec<(ScreenPt, Text, ScreenDims)>)>>,
     line_height_per_font_size: RefCell<HashMap<(FontId, usize), f64>>,
     pub default_line_height: f64,
     pub font_size: usize,
@@ -40,6 +42,7 @@ impl Assets {
         let mut a = Assets {
             screenspace_glyphs: RefCell::new(screenspace_glyphs),
             mapspace_glyphs: RefCell::new(mapspace_glyphs),
+            screenspace_clip_glyphs: RefCell::new(None),
             line_height_per_font_size: RefCell::new(HashMap::new()),
             default_line_height: 0.0,
             font_size,

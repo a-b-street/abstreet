@@ -156,7 +156,7 @@ impl<G: GUI> State<G> {
             self.assets
                 .mapspace_glyphs
                 .borrow_mut()
-                .draw_queued_with_transform(transform, display, &mut target);
+                .draw_queued_with_transform(transform, display, g.target);
         }
         // The depth buffer doesn't seem to work between mapspace_glyphs and screenspace_glyphs. :\
         // So draw screenspace_glyphs last.
@@ -169,7 +169,21 @@ impl<G: GUI> State<G> {
             self.assets
                 .screenspace_glyphs
                 .borrow_mut()
-                .draw_queued_with_transform(transform, display, &mut target);
+                .draw_queued_with_transform(transform, display, g.target);
+
+            // And the clipping version.
+            if let Some((rect, list)) = self.assets.screenspace_clip_glyphs.borrow_mut().take() {
+                g.params.scissor = Some(rect.clone());
+                for (pt, txt, dims) in list {
+                    text::draw_text_bubble(&mut g, pt, &txt, dims, false);
+                }
+                g.params.scissor = None;
+
+                let mut glyphs = self.assets.screenspace_glyphs.borrow_mut();
+                glyphs.params.scissor = Some(rect);
+                glyphs.draw_queued_with_transform(transform, display, g.target);
+                glyphs.params.scissor = None;
+            }
         }
 
         target.finish().unwrap();

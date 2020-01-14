@@ -67,7 +67,7 @@ pub struct GfxCtx<'a> {
     pub(crate) target: &'a mut glium::Frame,
     program: &'a glium::Program,
     uniforms: Uniforms<'a>,
-    params: glium::DrawParameters<'a>,
+    pub(crate) params: glium::DrawParameters<'a>,
 
     screencap_mode: bool,
     pub(crate) naming_hint: Option<String>,
@@ -236,7 +236,7 @@ impl<'a> GfxCtx<'a> {
             dims.width = self.canvas.window_width;
         }
         self.canvas
-            .mark_covered_area(text::draw_text_bubble(self, top_left, txt, dims));
+            .mark_covered_area(text::draw_text_bubble(self, top_left, txt, dims, true));
     }
 
     pub fn get_screen_bounds(&self) -> Bounds {
@@ -252,6 +252,7 @@ impl<'a> GfxCtx<'a> {
             ScreenPt::new(pt.x - (dims.width / 2.0), pt.y - (dims.height / 2.0)),
             txt,
             dims,
+            true,
         );
     }
 
@@ -271,7 +272,7 @@ impl<'a> GfxCtx<'a> {
     pub fn draw_text_at_screenspace_topleft(&mut self, txt: &Text, pt: ScreenPt) {
         let dims = self.text_dims(&txt);
         self.canvas
-            .mark_covered_area(text::draw_text_bubble(self, pt, txt, dims));
+            .mark_covered_area(text::draw_text_bubble(self, pt, txt, dims, true));
     }
 
     pub fn draw_mouse_tooltip(&mut self, txt: &Text) {
@@ -282,7 +283,7 @@ impl<'a> GfxCtx<'a> {
             &self.canvas,
         );
         // No need to cover the tooltip; this tooltip follows the mouse anyway.
-        text::draw_text_bubble(self, pt, txt, dims);
+        text::draw_text_bubble(self, pt, txt, dims, true);
     }
 
     pub fn screen_to_map(&self, pt: ScreenPt) -> Pt2D {

@@ -207,7 +207,23 @@ pub fn draw_text_bubble(
     txt: &Text,
     // Callers almost always calculate this anyway
     total_dims: ScreenDims,
+    defer_clipping: bool,
 ) -> ScreenRectangle {
+    // TODO Such nonsense.
+    if g.params.scissor.is_some() && defer_clipping {
+        let mut defer = g.assets.screenspace_clip_glyphs.borrow_mut();
+        if let Some((ref rect, ref mut list)) = *defer {
+            assert_eq!(rect, g.params.scissor.as_ref().unwrap());
+            list.push((top_left, txt.clone(), total_dims));
+        } else {
+            *defer = Some((
+                g.params.scissor.clone().unwrap(),
+                vec![(top_left, txt.clone(), total_dims)],
+            ));
+        }
+        return ScreenRectangle::top_left(top_left, total_dims);
+    }
+
     // TODO Is it expensive to constantly change uniforms and the shader program?
     g.fork_screenspace();
 
