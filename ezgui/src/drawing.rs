@@ -208,12 +208,14 @@ impl<'a> GfxCtx<'a> {
     // TODO Stateful API :(
     pub fn enable_clipping(&mut self, rect: ScreenRectangle) {
         assert!(self.params.scissor.is_none());
+        // This is a bit weird, but the ScreenRectangle and window dims are already scaled up, so
+        // here, we actually have to scale down!
         self.params.scissor = Some(glium::Rect {
-            left: (self.canvas.hidpi_factor * rect.x1) as u32,
+            left: (rect.x1 / self.canvas.hidpi_factor) as u32,
             // Y-inversion
-            bottom: (self.canvas.hidpi_factor * (self.canvas.window_height - rect.y2)) as u32,
-            width: (self.canvas.hidpi_factor * (rect.x2 - rect.x1)) as u32,
-            height: (self.canvas.hidpi_factor * (rect.y2 - rect.y1)) as u32,
+            bottom: ((self.canvas.window_height - rect.y2) / self.canvas.hidpi_factor) as u32,
+            width: ((rect.x2 - rect.x1) / self.canvas.hidpi_factor) as u32,
+            height: ((rect.y2 - rect.y1) / self.canvas.hidpi_factor) as u32,
         });
     }
 
