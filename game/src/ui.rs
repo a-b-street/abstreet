@@ -160,7 +160,6 @@ impl UI {
                 &self.primary.map,
                 &self.agent_cs,
                 g,
-                None,
                 g.canvas.cam_zoom,
                 Distance::meters(10.0),
             );

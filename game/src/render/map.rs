@@ -10,7 +10,7 @@ use crate::render::Renderable;
 use crate::ui::Flags;
 use aabb_quadtree::QuadTree;
 use abstutil::{Cloneable, Timer};
-use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, ScreenRectangle};
+use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx};
 use geom::{Bounds, Circle, Distance, Duration, FindClosest, Time};
 use map_model::{
     AreaID, BuildingID, BusStopID, DirectedRoadID, Intersection, IntersectionID, LaneID, Map, Road,
@@ -333,18 +333,13 @@ impl AgentCache {
         map: &Map,
         acs: &AgentColorScheme,
         g: &mut GfxCtx,
-        clip: Option<&ScreenRectangle>,
         cam_zoom: f64,
         radius: Distance,
     ) {
         let now = source.time();
         if let Some((time, z, r, ref orig_acs, ref draw)) = self.unzoomed {
             if cam_zoom == z && now == time && radius == r && acs == orig_acs {
-                if let Some(ref rect) = clip {
-                    g.redraw_clipped(draw, rect);
-                } else {
-                    g.redraw(draw);
-                }
+                g.redraw(draw);
                 return;
             }
         }
@@ -362,11 +357,7 @@ impl AgentCache {
         }
 
         let draw = g.upload(batch);
-        if let Some(ref rect) = clip {
-            g.redraw_clipped(&draw, rect);
-        } else {
-            g.redraw(&draw);
-        }
+        g.redraw(&draw);
         self.unzoomed = Some((now, cam_zoom, radius, acs.clone(), draw));
     }
 }

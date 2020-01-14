@@ -205,25 +205,21 @@ impl<'a> GfxCtx<'a> {
         // println!("{:?}", backtrace::Backtrace::new());
     }
 
-    pub fn redraw_clipped(&mut self, obj: &Drawable, rect: &ScreenRectangle) {
-        let mut params = self.params.clone();
-        params.scissor = Some(glium::Rect {
+    // TODO Stateful API :(
+    pub fn enable_clipping(&mut self, rect: ScreenRectangle) {
+        assert!(self.params.scissor.is_none());
+        self.params.scissor = Some(glium::Rect {
             left: (self.canvas.hidpi_factor * rect.x1) as u32,
             // Y-inversion
             bottom: (self.canvas.hidpi_factor * (self.canvas.window_height - rect.y2)) as u32,
             width: (self.canvas.hidpi_factor * (rect.x2 - rect.x1)) as u32,
             height: (self.canvas.hidpi_factor * (rect.y2 - rect.y1)) as u32,
         });
-        self.target
-            .draw(
-                &obj.vertex_buffer,
-                &obj.index_buffer,
-                &self.program,
-                &self.uniforms,
-                &params,
-            )
-            .unwrap();
-        self.num_draw_calls += 1;
+    }
+
+    pub fn disable_clipping(&mut self) {
+        assert!(self.params.scissor.is_some());
+        self.params.scissor = None;
     }
 
     // Canvas stuff.

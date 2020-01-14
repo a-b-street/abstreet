@@ -209,16 +209,14 @@ impl Minimap {
             ScreenPt::new(inner_rect.x1, inner_rect.y1),
             self.zoom,
         );
-        g.redraw_clipped(&ui.primary.draw_map.boundary_polygon, &inner_rect);
-        g.redraw_clipped(&ui.primary.draw_map.draw_all_areas, &inner_rect);
-        g.redraw_clipped(&ui.primary.draw_map.draw_all_thick_roads, &inner_rect);
-        g.redraw_clipped(
-            &ui.primary.draw_map.draw_all_unzoomed_intersections,
-            &inner_rect,
-        );
-        g.redraw_clipped(&ui.primary.draw_map.draw_all_buildings, &inner_rect);
+        g.enable_clipping(inner_rect);
+        g.redraw(&ui.primary.draw_map.boundary_polygon);
+        g.redraw(&ui.primary.draw_map.draw_all_areas);
+        g.redraw(&ui.primary.draw_map.draw_all_thick_roads);
+        g.redraw(&ui.primary.draw_map.draw_all_unzoomed_intersections);
+        g.redraw(&ui.primary.draw_map.draw_all_buildings);
         if let Some(ref c) = colorer {
-            g.redraw_clipped(&c.unzoomed, &inner_rect);
+            g.redraw(&c.unzoomed);
         }
 
         let mut cache = ui.primary.draw_map.agents.borrow_mut();
@@ -227,7 +225,6 @@ impl Minimap {
             &ui.primary.map,
             &ui.agent_cs,
             g,
-            Some(&inner_rect),
             self.zoom,
             Distance::meters(5.0),
         );
@@ -265,6 +262,7 @@ impl Minimap {
             // TODO Happens when we're quite out-of-bounds. Maybe stop allowing this at all?
             println!("Warning: Minimap cursor is just a point right now");
         }
+        g.disable_clipping();
         g.unfork();
     }
 }
