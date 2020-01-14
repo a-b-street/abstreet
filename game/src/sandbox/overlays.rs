@@ -77,6 +77,15 @@ impl Overlays {
                     *self = Overlays::Inactive;
                 }
             }
+            Overlays::FinishedTripsHistogram(_, ref mut c) => match c.event(ctx) {
+                Some(ezgui::Outcome::Clicked(x)) => match x.as_ref() {
+                    "X" => {
+                        *self = Overlays::Inactive;
+                    }
+                    _ => unreachable!(),
+                },
+                None => {}
+            },
             _ => {}
         }
 
@@ -445,13 +454,22 @@ impl Overlays {
         Overlays::FinishedTripsHistogram(
             now,
             Composite::new(
-                Histogram::new(
-                    ui.primary
-                        .sim
-                        .get_analytics()
-                        .finished_trip_deltas(now, ui.prebaked()),
-                    ctx,
-                )
+                ManagedWidget::col(vec![
+                    ManagedWidget::row(vec![
+                        ManagedWidget::draw_text(
+                            ctx,
+                            Text::from(Line("Are finished trips faster or slower?")),
+                        ),
+                        crate::managed::Composite::text_button(ctx, "X", None).align_right(),
+                    ]),
+                    Histogram::new(
+                        ui.primary
+                            .sim
+                            .get_analytics()
+                            .finished_trip_deltas(now, ui.prebaked()),
+                        ctx,
+                    ),
+                ])
                 .bg(Color::grey(0.4)),
             )
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
