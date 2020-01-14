@@ -242,6 +242,7 @@ impl Canvas {
             HorizontalAlignment::Center => (self.window_width - dims.width) / 2.0,
             HorizontalAlignment::Right => self.window_width - dims.width,
             HorizontalAlignment::FillScreen => 0.0,
+            HorizontalAlignment::Percent(pct) => pct * self.window_width,
         };
         let y1 = match vert {
             VerticalAlignment::Top => 0.0,
@@ -249,6 +250,7 @@ impl Canvas {
             VerticalAlignment::Bottom => self.window_height - dims.height,
             // TODO Hack
             VerticalAlignment::BottomAboveOSD => self.window_height - dims.height - 40.0,
+            VerticalAlignment::Percent(pct) => pct * self.window_height,
         };
         ScreenPt::new(x1, y1)
     }
@@ -260,6 +262,7 @@ pub enum HorizontalAlignment {
     Center,
     Right,
     FillScreen,
+    Percent(f64),
 }
 
 #[derive(Clone, Copy)]
@@ -268,6 +271,7 @@ pub enum VerticalAlignment {
     Center,
     Bottom,
     BottomAboveOSD,
+    Percent(f64),
 }
 
 #[derive(Serialize, Deserialize, Debug)]
