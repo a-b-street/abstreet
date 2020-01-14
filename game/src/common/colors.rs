@@ -141,12 +141,8 @@ pub struct ColorLegend {
 }
 
 impl ColorLegend {
-    pub fn new(ctx: &mut EventCtx, header: Text, rows: Vec<(&str, Color)>) -> ColorLegend {
-        let mut col = vec![ManagedWidget::row(vec![
-            ManagedWidget::draw_text(ctx, header),
-            crate::managed::Composite::text_button(ctx, "X", None).align_right(),
-        ])];
-
+    pub fn rows(ctx: &mut EventCtx, rows: Vec<(&str, Color)>) -> Vec<ManagedWidget> {
+        let mut col = Vec::new();
         let radius = 15.0;
         for (label, color) in rows {
             col.push(ManagedWidget::row(vec![
@@ -161,6 +157,15 @@ impl ColorLegend {
                 ManagedWidget::draw_text(ctx, Text::from(Line(label))),
             ]));
         }
+        col
+    }
+
+    pub fn new(ctx: &mut EventCtx, header: Text, rows: Vec<(&str, Color)>) -> ColorLegend {
+        let mut col = vec![ManagedWidget::row(vec![
+            ManagedWidget::draw_text(ctx, header),
+            crate::managed::Composite::text_button(ctx, "X", None).align_right(),
+        ])];
+        col.extend(ColorLegend::rows(ctx, rows));
         ColorLegend {
             composite: Composite::new(ManagedWidget::col(col).bg(Color::grey(0.4)))
                 .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)

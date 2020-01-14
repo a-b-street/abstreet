@@ -1,13 +1,15 @@
-use crate::common::{ColorLegend, Colorer, ColorerBuilder};
+use crate::common::{ColorLegend, Colorer, ColorerBuilder, Warping};
 use crate::game::Transition;
+use crate::helpers::ID;
 use crate::managed::{ManagedGUIState, Outcome};
 use crate::sandbox::bus_explorer::ShowBusRoute;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
-    hotkey, Button, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Histogram,
-    HorizontalAlignment, Key, Line, ManagedWidget, RewriteColor, Text, VerticalAlignment,
+    hotkey, Button, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
+    Histogram, HorizontalAlignment, Key, Line, ManagedWidget, RewriteColor, Text,
+    VerticalAlignment,
 };
 use geom::{Distance, Duration, PolyLine, Time};
 use map_model::IntersectionID;
@@ -28,7 +30,7 @@ pub enum Overlays {
     BusRoute(ShowBusRoute),
     BusDelaysOverTime(Composite),
     BusPassengers(crate::managed::Composite),
-    IntersectionDemand(Time, IntersectionID, Drawable, ColorLegend),
+    IntersectionDemand(Time, IntersectionID, Drawable, Composite),
 }
 
 impl Overlays {
@@ -72,11 +74,28 @@ impl Overlays {
                 Some(Outcome::Clicked(_)) => unreachable!(),
                 None => {}
             },
-            Overlays::IntersectionDemand(_, _, _, ref mut legend) => {
-                if legend.event(ctx) {
-                    *self = Overlays::Inactive;
-                }
-            }
+            Overlays::IntersectionDemand(_, i, _, ref mut c) => match c.event(ctx) {
+                Some(ezgui::Outcome::Clicked(x)) => match x.as_ref() {
+                    "intersection demand" => {
+                        let id = ID::Intersection(*i);
+                        return Some(Transition::PushWithMode(
+                            Warping::new(
+                                ctx,
+                                id.canonical_point(&ui.primary).unwrap(),
+                                Some(10.0),
+                                Some(id.clone()),
+                                &mut ui.primary,
+                            ),
+                            EventLoopMode::Animation,
+                        ));
+                    }
+                    "X" => {
+                        *self = Overlays::Inactive;
+                    }
+                    _ => unreachable!(),
+                },
+                None => {}
+            },
             Overlays::FinishedTripsHistogram(_, ref mut c) => match c.event(ctx) {
                 Some(ezgui::Outcome::Clicked(x)) => match x.as_ref() {
                     "X" => {
@@ -506,16 +525,20 @@ impl Overlays {
             );
         }
 
-        // TODO Say which intersection. Click to warp to it.
+        let mut col = vec![ManagedWidget::row(vec![
+            // TODO Say which intersection? And have a location icon to jump to it
+            crate::managed::Composite::text_button(ctx, "intersection demand", None),
+            crate::managed::Composite::text_button(ctx, "X", None).align_right(),
+        ])];
+        col.extend(ColorLegend::rows(ctx, vec![("current demand", Color::RED)]));
+
         Overlays::IntersectionDemand(
             ui.primary.sim.time(),
             i,
             batch.upload(ctx),
-            ColorLegend::new(
-                ctx,
-                Text::from(Line("intersection demand")),
-                vec![("demand", Color::RED)],
-            ),
+            Composite::new(ManagedWidget::col(col).bg(Color::grey(0.4)))
+                .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+                .build(ctx),
         )
     }
 }
