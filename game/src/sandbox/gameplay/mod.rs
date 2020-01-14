@@ -143,12 +143,10 @@ impl GameplayRunner {
             GameplayMode::OptimizeBus(route_name) => {
                 optimize_bus::OptimizeBus::new(route_name, ctx, ui)
             }
-            GameplayMode::CreateGridlock => create_gridlock::CreateGridlock::new(ctx, ui),
-            GameplayMode::FasterTrips(trip_mode) => {
-                faster_trips::FasterTrips::new(trip_mode, ctx, ui)
-            }
+            GameplayMode::CreateGridlock => create_gridlock::CreateGridlock::new(ctx),
+            GameplayMode::FasterTrips(trip_mode) => faster_trips::FasterTrips::new(trip_mode, ctx),
             GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial(_) => {
-                fix_traffic_signals::FixTrafficSignals::new(ctx, ui, mode.clone())
+                fix_traffic_signals::FixTrafficSignals::new(ctx, mode.clone())
             }
         };
         // TODO Maybe don't load this for Freeform mode

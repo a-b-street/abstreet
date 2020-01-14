@@ -80,31 +80,21 @@ pub fn freeform_controller(
     Composite::new(
         ezgui::Composite::new(
             ManagedWidget::row(vec![
-                ManagedWidget::col(vec![
-                    Composite::text_button(ctx, "change map", lctrl(Key::L)),
-                    ManagedWidget::draw_text(ctx, Text::from(Line(ui.primary.map.get_name()))),
-                ]),
-                ManagedWidget::col(vec![
-                    Composite::text_button(ctx, "change scenario", hotkey(Key::S)),
-                    ManagedWidget::draw_text(ctx, Text::from(Line(scenario_name))),
-                ]),
-                // TODO Refactor
-                ManagedWidget::col(vec![
-                    Composite::svg_button(
-                        ctx,
-                        "assets/tools/edit_map.svg",
-                        "edit map",
-                        lctrl(Key::E),
-                    ),
-                    {
-                        let edits = ui.primary.map.get_edits();
-                        let mut txt = Text::from(Line(&edits.edits_name));
-                        if edits.dirty {
-                            txt.append(Line("*"));
-                        }
-                        ManagedWidget::draw_text(ctx, txt)
-                    },
-                ]),
+                Composite::detailed_text_button(
+                    ctx,
+                    Text::from(Line(ui.primary.map.get_name()).fg(Color::BLACK)),
+                    lctrl(Key::L),
+                    "change map",
+                ),
+                Composite::detailed_text_button(
+                    ctx,
+                    Text::from(Line(scenario_name).fg(Color::BLACK)),
+                    hotkey(Key::S),
+                    "change scenario",
+                ),
+                // TODO Name of edits and whether the current ones are saved or not is probably
+                // less interesting.
+                Composite::svg_button(ctx, "assets/tools/edit_map.svg", "edit map", lctrl(Key::E)),
             ])
             .bg(Color::grey(0.4)),
         )

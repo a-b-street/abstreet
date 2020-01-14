@@ -15,7 +15,7 @@ pub struct CreateGridlock {
 }
 
 impl CreateGridlock {
-    pub fn new(ctx: &mut EventCtx, ui: &UI) -> (ModalMenu, Composite, Box<dyn GameplayState>) {
+    pub fn new(ctx: &mut EventCtx) -> (ModalMenu, Composite, Box<dyn GameplayState>) {
         (
             ModalMenu::new(
                 "Cause gridlock",
@@ -25,7 +25,7 @@ impl CreateGridlock {
                 ],
                 ctx,
             ),
-            edit_map_panel(ctx, ui, GameplayMode::CreateGridlock),
+            edit_map_panel(ctx, GameplayMode::CreateGridlock),
             Box::new(CreateGridlock {
                 time: Time::START_OF_DAY,
             }),

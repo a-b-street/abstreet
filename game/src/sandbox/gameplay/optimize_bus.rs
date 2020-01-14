@@ -39,7 +39,7 @@ impl OptimizeBus {
                 ],
                 ctx,
             ),
-            edit_map_panel(ctx, ui, GameplayMode::OptimizeBus(route_name.clone())),
+            edit_map_panel(ctx, GameplayMode::OptimizeBus(route_name.clone())),
             Box::new(OptimizeBus {
                 route: route.id,
                 time: Time::START_OF_DAY,

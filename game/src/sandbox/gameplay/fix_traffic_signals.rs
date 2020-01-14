@@ -18,7 +18,6 @@ pub struct FixTrafficSignals {
 impl FixTrafficSignals {
     pub fn new(
         ctx: &mut EventCtx,
-        ui: &UI,
         mode: GameplayMode,
     ) -> (ModalMenu, Composite, Box<dyn GameplayState>) {
         (
@@ -32,7 +31,7 @@ impl FixTrafficSignals {
                 ],
                 ctx,
             ),
-            edit_map_panel(ctx, ui, mode),
+            edit_map_panel(ctx, mode),
             Box::new(FixTrafficSignals {
                 time: Time::START_OF_DAY,
                 once: true,

@@ -18,7 +18,6 @@ impl FasterTrips {
     pub fn new(
         trip_mode: TripMode,
         ctx: &mut EventCtx,
-        ui: &UI,
     ) -> (ModalMenu, Composite, Box<dyn GameplayState>) {
         (
             ModalMenu::new(
@@ -26,7 +25,7 @@ impl FasterTrips {
                 vec![(hotkey(Key::H), "help")],
                 ctx,
             ),
-            edit_map_panel(ctx, ui, GameplayMode::FasterTrips(trip_mode)),
+            edit_map_panel(ctx, GameplayMode::FasterTrips(trip_mode)),
             Box::new(FasterTrips {
                 mode: trip_mode,
                 time: Time::START_OF_DAY,

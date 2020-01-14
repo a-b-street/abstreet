@@ -3,10 +3,9 @@ use crate::game::Transition;
 use crate::managed::Composite;
 use crate::options;
 use crate::sandbox::GameplayMode;
-use crate::ui::UI;
 use ezgui::{
-    hotkey, lctrl, Button, Color, EventCtx, HorizontalAlignment, Key, Line, ManagedWidget,
-    RewriteColor, Text, VerticalAlignment,
+    hotkey, lctrl, Button, Color, EventCtx, HorizontalAlignment, Key, ManagedWidget, RewriteColor,
+    VerticalAlignment,
 };
 
 // TODO Rethink this API.
@@ -45,21 +44,11 @@ pub fn tool_panel(ctx: &mut EventCtx, extra_buttons: Vec<ManagedWidget>) -> Comp
     )
 }
 
-pub fn edit_map_panel(ctx: &mut EventCtx, ui: &UI, gameplay: GameplayMode) -> Composite {
+pub fn edit_map_panel(ctx: &mut EventCtx, gameplay: GameplayMode) -> Composite {
     Composite::new(
         ezgui::Composite::new(
-            ManagedWidget::col(vec![
-                Composite::svg_button(ctx, "assets/tools/edit_map.svg", "edit map", lctrl(Key::E)),
-                {
-                    let edits = ui.primary.map.get_edits();
-                    let mut txt = Text::from(Line(&edits.edits_name));
-                    if edits.dirty {
-                        txt.append(Line("*"));
-                    }
-                    ManagedWidget::draw_text(ctx, txt)
-                },
-            ])
-            .bg(Color::grey(0.4)),
+            Composite::svg_button(ctx, "assets/tools/edit_map.svg", "edit map", lctrl(Key::E))
+                .bg(Color::grey(0.4)),
         )
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx),
