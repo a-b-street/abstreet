@@ -22,6 +22,7 @@ impl Options {
 #[derive(Clone, PartialEq)]
 pub enum TrafficSignalStyle {
     GroupArrows,
+    Sidewalks,
     Icons,
     IndividualTurnArrows,
 }
@@ -36,6 +37,10 @@ pub fn open_panel() -> Box<dyn State> {
                     Choice::new(
                         "arrows showing the protected and permitted movements",
                         TrafficSignalStyle::GroupArrows,
+                    ),
+                    Choice::new(
+                        "arrows showing the protected and permitted movements, with sidewalks",
+                        TrafficSignalStyle::Sidewalks,
                     ),
                     Choice::new(
                         "icons for movements (like the editor UI)",

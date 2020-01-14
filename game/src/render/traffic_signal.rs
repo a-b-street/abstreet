@@ -1,5 +1,6 @@
 use crate::helpers::plain_list_names;
 use crate::options::TrafficSignalStyle;
+use crate::render::intersection::make_crosswalk;
 use crate::render::{DrawCtx, DrawTurnGroup, BIG_ARROW_THICKNESS};
 use crate::ui::UI;
 use ezgui::{
@@ -17,6 +18,7 @@ pub fn draw_signal_phase(
     time_left: Option<Duration>,
     batch: &mut GeomBatch,
     ctx: &DrawCtx,
+    signal_style: TrafficSignalStyle,
 ) {
     let protected_color = ctx
         .cs
@@ -29,7 +31,7 @@ pub fn draw_signal_phase(
 
     let signal = ctx.map.get_traffic_signal(i);
 
-    match ctx.opts.traffic_signal_style {
+    match signal_style {
         TrafficSignalStyle::GroupArrows => {
             for g in &phase.yield_groups {
                 assert!(g.crosswalk.is_none());
@@ -72,6 +74,38 @@ pub fn draw_signal_phase(
             for g in dont_walk {
                 let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
                 batch.add_svg("assets/map/dont_walk.svg", center, 0.1, angle);
+            }
+        }
+        TrafficSignalStyle::Sidewalks => {
+            for g in &phase.yield_groups {
+                assert!(g.crosswalk.is_none());
+                batch.push(
+                    yield_bg_color,
+                    signal.turn_groups[g]
+                        .geom
+                        .make_arrow(BIG_ARROW_THICKNESS * 2.0)
+                        .unwrap(),
+                );
+                batch.extend(
+                    yield_outline_color,
+                    signal.turn_groups[g]
+                        .geom
+                        .make_arrow_outline(BIG_ARROW_THICKNESS * 2.0, BIG_ARROW_THICKNESS / 2.0)
+                        .unwrap(),
+                );
+            }
+            for g in &phase.protected_groups {
+                if let Some(t) = g.crosswalk {
+                    make_crosswalk(batch, ctx.map.get_t(t), ctx.cs);
+                } else {
+                    batch.push(
+                        protected_color,
+                        signal.turn_groups[g]
+                            .geom
+                            .make_arrow(BIG_ARROW_THICKNESS * 2.0)
+                            .unwrap(),
+                    );
+                }
             }
         }
         TrafficSignalStyle::Icons => {
@@ -244,7 +278,14 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
         );
 
         let mut orig_batch = GeomBatch::new();
-        draw_signal_phase(phase, i, None, &mut orig_batch, &ui.draw_ctx());
+        draw_signal_phase(
+            phase,
+            i,
+            None,
+            &mut orig_batch,
+            &ui.draw_ctx(),
+            TrafficSignalStyle::Sidewalks,
+        );
 
         let mut normal = GeomBatch::new();
         // TODO Ideally no background here, but we have to force the dimensions of normal and

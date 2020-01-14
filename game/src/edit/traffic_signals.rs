@@ -3,6 +3,7 @@ use crate::edit::apply_map_edits;
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::plain_list_names;
 use crate::managed::{Composite, Outcome};
+use crate::options::TrafficSignalStyle;
 use crate::render::{draw_signal_phase, DrawOptions, DrawTurnGroup, BIG_ARROW_THICKNESS};
 use crate::sandbox::{spawn_agents_around, SpeedControls, TimePanel};
 use crate::ui::{ShowEverything, UI};
@@ -286,7 +287,14 @@ impl State for TrafficSignalEditor {
         let phase = &signal.phases[self.current_phase];
         let ctx = ui.draw_ctx();
         let mut batch = GeomBatch::new();
-        draw_signal_phase(phase, self.i, None, &mut batch, &ctx);
+        draw_signal_phase(
+            phase,
+            self.i,
+            None,
+            &mut batch,
+            &ctx,
+            ctx.opts.traffic_signal_style.clone(),
+        );
 
         for g in &self.groups {
             if Some(g.id) == self.group_selected {
@@ -452,7 +460,14 @@ fn make_diagram(
         col.push(ManagedWidget::row(row).margin(5).evenly_spaced());
 
         let mut orig_batch = GeomBatch::new();
-        draw_signal_phase(phase, i, None, &mut orig_batch, &ui.draw_ctx());
+        draw_signal_phase(
+            phase,
+            i,
+            None,
+            &mut orig_batch,
+            &ui.draw_ctx(),
+            TrafficSignalStyle::Sidewalks,
+        );
 
         let mut normal = GeomBatch::new();
         // TODO Ideally no background here, but we have to force the dimensions of normal and

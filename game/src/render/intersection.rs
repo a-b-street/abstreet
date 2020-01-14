@@ -139,7 +139,14 @@ impl Renderable for DrawIntersection {
                 if recalc {
                     let (idx, phase, t) = signal.current_phase_and_remaining_time(ctx.sim.time());
                     let mut batch = GeomBatch::new();
-                    draw_signal_phase(phase, self.id, Some(t), &mut batch, ctx);
+                    draw_signal_phase(
+                        phase,
+                        self.id,
+                        Some(t),
+                        &mut batch,
+                        ctx,
+                        ctx.opts.traffic_signal_style.clone(),
+                    );
                     *maybe_redraw = Some((
                         ctx.sim.time(),
                         g.prerender.upload(batch),
@@ -288,7 +295,7 @@ fn make_octagon(center: Pt2D, radius: Distance, facing: Angle) -> Polygon {
     )
 }
 
-fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, cs: &ColorScheme) {
+pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, cs: &ColorScheme) {
     // Start at least LANE_THICKNESS out to not hit sidewalk corners. Also account for the
     // thickness of the crosswalk line itself. Center the lines inside these two boundaries.
     let boundary = LANE_THICKNESS;
