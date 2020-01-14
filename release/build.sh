@@ -20,5 +20,4 @@ mkdir $output/game
 cp $binary $output/game
 cp -Rv game/assets $output/game
 
-zip -r $output $output
-rm -rf $output release_data.zip
+rm -f release_data.zip

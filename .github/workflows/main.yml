@@ -17,7 +17,7 @@ jobs:
 #        uses: actions/upload-artifact@v1
 #        with:
 #          name: abst_windows.zip
-#          path: abst_windows.zip
+#          path: abst_windows
       - name: Upload binary
         uses: actions/upload-artifact@v1
         with:
@@ -39,7 +39,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: abst_mac.zip
-          path: abst_mac.zip
+          path: abst_mac
   build-linux:
     runs-on: ubuntu-latest
     if: "contains(github.event.head_commit.message, '[rebuild]')"
@@ -56,4 +56,4 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: abst_linux.zip
-          path: abst_linux.zip
+          path: abst_linux
