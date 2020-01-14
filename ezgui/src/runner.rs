@@ -371,6 +371,13 @@ fn loop_forever<G: GUI>(
                     state.gui.before_quit(&state.canvas);
                     process::exit(0);
                 }
+                if let glutin::WindowEvent::HiDpiFactorChanged(hidpi_factor) = event {
+                    println!(
+                        "HiDPI factor changed from {} to {}",
+                        state.canvas.hidpi_factor, hidpi_factor
+                    );
+                    state.canvas.hidpi_factor = hidpi_factor;
+                }
                 if dump_raw_events {
                     println!("Event: {:?}", event);
                 }
