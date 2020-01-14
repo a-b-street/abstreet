@@ -1,9 +1,10 @@
 use crate::game::{State, Transition};
 use crate::helpers::ID;
-use crate::render::{DrawOptions, DrawTurn, TrafficSignalDiagram};
+use crate::render::{draw_signal_phase, DrawOptions, DrawTurn, TrafficSignalDiagram};
 use crate::ui::{ShowEverything, UI};
 use ezgui::{hotkey, Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu};
 use map_model::{IntersectionID, LaneID, Map, TurnType};
+use sim::DontDrawAgents;
 
 pub enum TurnCyclerState {
     Inactive,
@@ -121,6 +122,7 @@ fn color_turn_type(t: TurnType, ui: &UI) -> Color {
 
 struct ShowTrafficSignal {
     menu: ModalMenu,
+    // TODO Probably collapse diagram here, like editor did
     diagram: TrafficSignalDiagram,
 }
 
@@ -135,15 +137,27 @@ impl State for ShowTrafficSignal {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        ui.draw(
-            g,
-            DrawOptions::new(),
-            &ui.primary.sim,
-            &ShowEverything::new(),
-        );
-        self.diagram.draw(g);
+    fn draw_default_ui(&self) -> bool {
+        false
+    }
 
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        let mut opts = DrawOptions::new();
+        opts.suppress_traffic_signal_details = Some(self.diagram.i);
+        ui.draw(g, opts, &DontDrawAgents {}, &ShowEverything::new());
+        let ctx = ui.draw_ctx();
+        let mut batch = GeomBatch::new();
+        draw_signal_phase(
+            &ui.primary.map.get_traffic_signal(self.diagram.i).phases[self.diagram.current_phase],
+            self.diagram.i,
+            None,
+            &mut batch,
+            &ctx,
+            ctx.opts.traffic_signal_style.clone(),
+        );
+        batch.draw(g);
+
+        self.diagram.draw(g);
         self.menu.draw(g);
     }
 }
