@@ -1,10 +1,17 @@
 use crate::game::{State, Transition};
+use crate::helpers::plain_list_names;
 use crate::helpers::ID;
-use crate::render::{draw_signal_phase, DrawOptions, DrawTurn, TrafficSignalDiagram};
+use crate::options::TrafficSignalStyle;
+use crate::render::{draw_signal_phase, DrawOptions, DrawTurn};
 use crate::ui::{ShowEverything, UI};
-use ezgui::{hotkey, Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu};
+use ezgui::{
+    hotkey, Button, Color, Composite, DrawBoth, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, ManagedWidget, ModalMenu, Outcome, Text, VerticalAlignment,
+};
+use geom::Polygon;
 use map_model::{IntersectionID, LaneID, Map, TurnType};
 use sim::DontDrawAgents;
+use std::collections::BTreeSet;
 
 pub enum TurnCyclerState {
     Inactive,
@@ -160,4 +167,142 @@ impl State for ShowTrafficSignal {
         self.diagram.draw(g);
         self.menu.draw(g);
     }
+}
+
+struct TrafficSignalDiagram {
+    pub i: IntersectionID,
+    composite: Composite,
+    pub current_phase: usize,
+}
+
+impl TrafficSignalDiagram {
+    fn new(
+        i: IntersectionID,
+        current_phase: usize,
+        ui: &UI,
+        ctx: &mut EventCtx,
+    ) -> TrafficSignalDiagram {
+        TrafficSignalDiagram {
+            i,
+            composite: make_diagram(i, current_phase, ui, ctx),
+            current_phase,
+        }
+    }
+
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI, menu: &mut ModalMenu) {
+        if self.current_phase != 0 && menu.action("select previous phase") {
+            self.change_phase(self.current_phase - 1, ui, ctx);
+        }
+
+        if self.current_phase != ui.primary.map.get_traffic_signal(self.i).phases.len() - 1
+            && menu.action("select next phase")
+        {
+            self.change_phase(self.current_phase + 1, ui, ctx);
+        }
+
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => {
+                self.change_phase(x["phase ".len()..].parse::<usize>().unwrap() - 1, ui, ctx);
+            }
+            None => {}
+        }
+    }
+
+    fn change_phase(&mut self, idx: usize, ui: &UI, ctx: &mut EventCtx) {
+        if self.current_phase != idx {
+            let preserve_scroll = self.composite.preserve_scroll();
+            self.current_phase = idx;
+            self.composite = make_diagram(self.i, self.current_phase, ui, ctx);
+            self.composite.restore_scroll(ctx, preserve_scroll);
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx) {
+        self.composite.draw(g);
+    }
+}
+
+fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx) -> Composite {
+    // Slightly inaccurate -- the turn rendering may slightly exceed the intersection polygon --
+    // but this is close enough.
+    let bounds = ui.primary.map.get_i(i).polygon.get_bounds();
+    // Pick a zoom so that we fit some percentage of the screen
+    let zoom = 0.2 * ctx.canvas.window_width / bounds.width();
+    let bbox = Polygon::rectangle(zoom * bounds.width(), zoom * bounds.height());
+
+    let signal = ui.primary.map.get_traffic_signal(i);
+    let mut col = vec![ManagedWidget::draw_text(ctx, {
+        let mut txt = Text::new();
+        let road_names = ui
+            .primary
+            .map
+            .get_i(i)
+            .roads
+            .iter()
+            .map(|r| ui.primary.map.get_r(*r).get_name())
+            .collect::<BTreeSet<_>>();
+        // TODO Style inside here. Also 0.4 is manually tuned and pretty wacky, because it
+        // assumes default font.
+        txt.add_wrapped(plain_list_names(road_names), 0.4 * ctx.canvas.window_width);
+        txt.add(Line(format!("{} phases", signal.phases.len())));
+        txt.add(Line(format!("Signal offset: {}", signal.offset)));
+        txt.add(Line(format!("One cycle lasts {}", signal.cycle_length())));
+        txt
+    })];
+    for (idx, phase) in signal.phases.iter().enumerate() {
+        col.push(
+            ManagedWidget::row(vec![
+                ManagedWidget::draw_text(ctx, Text::from(Line(format!("#{}", idx + 1)))),
+                ManagedWidget::draw_text(ctx, Text::from(Line(phase.duration.to_string()))),
+            ])
+            .margin(5)
+            .evenly_spaced(),
+        );
+
+        let mut orig_batch = GeomBatch::new();
+        draw_signal_phase(
+            phase,
+            i,
+            None,
+            &mut orig_batch,
+            &ui.draw_ctx(),
+            TrafficSignalStyle::Sidewalks,
+        );
+
+        let mut normal = GeomBatch::new();
+        // TODO Ideally no background here, but we have to force the dimensions of normal and
+        // hovered to be the same. For some reason the bbox is slightly different.
+        if idx == selected {
+            normal.push(Color::RED.alpha(0.15), bbox.clone());
+        } else {
+            normal.push(Color::CYAN.alpha(0.05), bbox.clone());
+        }
+        // Move to the origin and apply zoom
+        for (color, poly) in orig_batch.consume() {
+            normal.push(
+                color,
+                poly.translate(-bounds.min_x, -bounds.min_y).scale(zoom),
+            );
+        }
+
+        let mut hovered = GeomBatch::new();
+        hovered.push(Color::RED.alpha(0.95), bbox.clone());
+        hovered.append(normal.clone());
+
+        col.push(
+            ManagedWidget::btn(Button::new(
+                DrawBoth::new(ctx, normal, Vec::new()),
+                DrawBoth::new(ctx, hovered, Vec::new()),
+                None,
+                &format!("phase {}", idx + 1),
+                bbox.clone(),
+            ))
+            .margin(5),
+        );
+    }
+
+    Composite::new(ManagedWidget::col(col).bg(Color::hex("#545454")))
+        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
+        .max_size_percent(30, 90)
+        .build(ctx)
 }

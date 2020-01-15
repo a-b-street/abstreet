@@ -535,6 +535,7 @@ fn make_diagram(
 
     ezgui::Composite::new(ManagedWidget::col(col).bg(Color::hex("#545454")))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
+        .max_size_percent(30, 90)
         .build(ctx)
 }
 
