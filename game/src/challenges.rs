@@ -138,8 +138,7 @@ pub fn challenges_picker(ctx: &mut EventCtx) -> Box<dyn State> {
     }
     col.push(ManagedWidget::row(flex_row).flex_wrap(ctx, 80));
 
-    let mut c =
-        Composite::new(ezgui::Composite::new(ManagedWidget::col(col).centered()).build(ctx));
+    let mut c = Composite::new(ezgui::Composite::new(ManagedWidget::col(col)).build(ctx));
     c = c.cb("back", Box::new(|_, _| Some(Transition::Pop)));
 
     for (name, stages) in all_challenges() {

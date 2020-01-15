@@ -62,6 +62,8 @@ pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
                 .padding(10),
             content,
         ]))
+        // Leave room for OSD
+        .max_size_percent(100, 85)
         .build(ctx),
     )
     .cb("BACK", Box::new(|_, _| Some(Transition::Pop)));
