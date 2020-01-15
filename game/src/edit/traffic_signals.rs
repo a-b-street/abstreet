@@ -535,7 +535,7 @@ fn make_diagram(
 
     ezgui::Composite::new(ManagedWidget::col(col).bg(Color::hex("#545454")))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-        .build_scrollable(ctx)
+        .build(ctx)
 }
 
 fn change_traffic_signal(signal: ControlTrafficSignal, ui: &mut UI, ctx: &mut EventCtx) {

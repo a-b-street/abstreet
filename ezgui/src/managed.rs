@@ -769,27 +769,6 @@ impl CompositeBuilder {
             clip_rect: None,
         };
         c.recompute_layout(ctx);
-        c.contents_dims = ScreenDims::new(c.top_level.rect.width(), c.top_level.rect.height());
-        c.container_dims = c.contents_dims.clone();
-        ctx.fake_mouseover(|ctx| assert!(c.event(ctx).is_none()));
-        c
-    }
-    pub fn build_scrollable(self, ctx: &mut EventCtx) -> Composite {
-        let mut c = Composite {
-            top_level: self.top_level,
-            layout: self.layout,
-            sliders: self.sliders,
-            menus: self.menus,
-            fillers: self.fillers,
-
-            scrollable_x: false,
-            scrollable_y: false,
-            contents_dims: ScreenDims::new(0.0, 0.0),
-            container_dims: ScreenDims::new(0.0, 0.0),
-            clip_rect: None,
-        };
-        // If the panel fits without a scrollbar, don't add one.
-        c.recompute_layout(ctx);
 
         c.contents_dims = ScreenDims::new(c.top_level.rect.width(), c.top_level.rect.height());
         c.container_dims = ScreenDims::new(
@@ -809,6 +788,7 @@ impl CompositeBuilder {
             },
         );
 
+        // If the panel fits without a scrollbar, don't add one.
         let top_left = ctx
             .canvas
             .align_window(c.container_dims, c.layout.horiz, c.layout.vert);
@@ -836,7 +816,6 @@ impl CompositeBuilder {
                     .abs(top_left.x + c.container_dims.width, top_left.y),
             ]);
         }
-
         if c.scrollable_x || c.scrollable_y {
             c.recompute_layout(ctx);
             c.clip_rect = Some(ScreenRectangle::top_left(top_left, c.container_dims));

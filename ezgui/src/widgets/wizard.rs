@@ -295,7 +295,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                         self.ctx,
                     ),
                 )
-                .build_scrollable(self.ctx),
+                .build(self.ctx),
             );
         }
 

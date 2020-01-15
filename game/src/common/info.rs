@@ -90,7 +90,7 @@ impl InfoPanel {
                     VerticalAlignment::Percent(0.2),
                 )
                 .size_percent(30, 60)
-                .build_scrollable(ctx),
+                .build(ctx),
         }
     }
 }

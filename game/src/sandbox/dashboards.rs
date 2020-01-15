@@ -63,7 +63,7 @@ pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
             content,
         ]))
         .fullscreen()
-        .build_scrollable(ctx),
+        .build(ctx),
     )
     .cb("BACK", Box::new(|_, _| Some(Transition::Pop)));
     for (t, label) in tab_data {

@@ -321,5 +321,5 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
 
     Composite::new(ManagedWidget::col(col).bg(Color::hex("#545454")))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-        .build_scrollable(ctx)
+        .build(ctx)
 }
