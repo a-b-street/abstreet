@@ -136,7 +136,7 @@ pub fn challenges_picker(ctx: &mut EventCtx) -> Box<dyn State> {
             &name,
         ));
     }
-    col.push(ManagedWidget::row(flex_row).flex_wrap(ctx));
+    col.push(ManagedWidget::row(flex_row).flex_wrap(ctx, 80));
 
     let mut c =
         Composite::new(ezgui::Composite::new(ManagedWidget::col(col).centered()).build(ctx));

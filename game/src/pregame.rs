@@ -118,42 +118,42 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
     }
     col.push(Composite::text_button(ctx, "About A/B Street", None));
 
-    let mut c = Composite::new(
-        ezgui::Composite::new(ManagedWidget::col(col).centered())
-            .build(ctx),
-    )
-    .cb(
-        "quit",
-        Box::new(|_, _| {
-            // TODO before_quit?
-            std::process::exit(0);
-        }),
-    )
-    .cb(
-        "Tutorial",
-        Box::new(|ctx, _| Some(Transition::Push(Box::new(TutorialMode::new(ctx))))),
-    )
-    .cb(
-        "Sandbox mode",
-        Box::new(|ctx, ui| {
-            Some(Transition::PushWithMode(
-                Box::new(SandboxMode::new(
-                    ctx,
-                    ui,
-                    GameplayMode::PlayScenario("random scenario with some agents".to_string()),
-                )),
-                EventLoopMode::Animation,
-            ))
-        }),
-    )
-    .cb(
-        "Challenges",
-        Box::new(|ctx, _| Some(Transition::Push(challenges_picker(ctx)))),
-    )
-    .cb(
-        "About A/B Street",
-        Box::new(|ctx, _| Some(Transition::Push(about(ctx)))),
-    );
+    let mut c =
+        Composite::new(ezgui::Composite::new(ManagedWidget::col(col).centered()).build(ctx))
+            .cb(
+                "quit",
+                Box::new(|_, _| {
+                    // TODO before_quit?
+                    std::process::exit(0);
+                }),
+            )
+            .cb(
+                "Tutorial",
+                Box::new(|ctx, _| Some(Transition::Push(Box::new(TutorialMode::new(ctx))))),
+            )
+            .cb(
+                "Sandbox mode",
+                Box::new(|ctx, ui| {
+                    Some(Transition::PushWithMode(
+                        Box::new(SandboxMode::new(
+                            ctx,
+                            ui,
+                            GameplayMode::PlayScenario(
+                                "random scenario with some agents".to_string(),
+                            ),
+                        )),
+                        EventLoopMode::Animation,
+                    ))
+                }),
+            )
+            .cb(
+                "Challenges",
+                Box::new(|ctx, _| Some(Transition::Push(challenges_picker(ctx)))),
+            )
+            .cb(
+                "About A/B Street",
+                Box::new(|ctx, _| Some(Transition::Push(about(ctx)))),
+            );
     if ui.opts.dev {
         c = c
             .cb(

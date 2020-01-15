@@ -202,7 +202,7 @@ impl Overlays {
                             ctx,
                         )),
                     ])
-                    .new_flex_wrap(),
+                    .flex_wrap(ctx, 20),
                 ])
                 .bg(Color::hex("#5B5B5B")),
             )

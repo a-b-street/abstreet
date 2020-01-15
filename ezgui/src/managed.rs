@@ -100,16 +100,15 @@ impl ManagedWidget {
         self
     }
 
-    pub fn flex_wrap(mut self, ctx: &EventCtx) -> ManagedWidget {
-        self.style.flex_wrap = Some(FlexWrap::Wrap);
-        self.style.justify_content = Some(JustifyContent::SpaceAround);
+    // This one is really weird. percent_width should be LESS than the max_size_percent given to
+    // the overall Composite, otherwise weird things happen.
+    pub fn flex_wrap(mut self, ctx: &EventCtx, percent_width: usize) -> ManagedWidget {
         self.style.size = Some(Size {
-            width: Dimension::Points(ctx.canvas.window_width as f32),
+            width: Dimension::Points(
+                (ctx.canvas.window_width * (percent_width as f64) / 100.0) as f32,
+            ),
             height: Dimension::Undefined,
         });
-        self
-    }
-    pub fn new_flex_wrap(mut self) -> ManagedWidget {
         self.style.flex_wrap = Some(FlexWrap::Wrap);
         self.style.justify_content = Some(JustifyContent::SpaceAround);
         self
@@ -595,13 +594,17 @@ impl Composite {
             height: Number::Undefined,
         };
         stretch.compute_layout(root, container_size).unwrap();
-        // TODO Not totally sure why we can't reuse self.container_dims here...
-        let result = stretch.layout(root).unwrap();
-        let top_left = ctx.canvas.align_window(
-            ScreenDims::new(result.size.width.into(), result.size.height.into()),
-            self.horiz,
-            self.vert,
-        );
+
+        // TODO I'm so confused why these 2 are acting differently. :(
+        let effective_dims = if self.scrollable_x || self.scrollable_y {
+            self.container_dims
+        } else {
+            let result = stretch.layout(root).unwrap();
+            ScreenDims::new(result.size.width.into(), result.size.height.into())
+        };
+        let top_left = ctx
+            .canvas
+            .align_window(effective_dims, self.horiz, self.vert);
         let offset = self.scroll_offset();
         self.top_level.apply_flexbox(
             &mut self.sliders,

@@ -235,7 +235,7 @@ fn pick_finished_trips_mode(ctx: &EventCtx) -> (ManagedWidget, Vec<(String, Call
         ));
     }
 
-    (ManagedWidget::row(buttons).flex_wrap(ctx), cbs)
+    (ManagedWidget::row(buttons).flex_wrap(ctx, 80), cbs)
 }
 
 fn pick_finished_trips(
@@ -275,7 +275,7 @@ fn pick_finished_trips(
     (
         ManagedWidget::col(vec![
             mode_picker,
-            ManagedWidget::row(buttons).flex_wrap(ctx),
+            ManagedWidget::row(buttons).flex_wrap(ctx, 80),
         ]),
         cbs,
     )
@@ -321,7 +321,7 @@ fn pick_bus_route(ctx: &EventCtx, ui: &UI) -> (ManagedWidget, Vec<(String, Callb
         ));
     }
 
-    (ManagedWidget::row(buttons).flex_wrap(ctx), cbs)
+    (ManagedWidget::row(buttons).flex_wrap(ctx, 80), cbs)
 }
 
 // TODO Refactor
