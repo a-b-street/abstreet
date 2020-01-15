@@ -300,7 +300,11 @@ impl ManagedWidget {
         match self.widget {
             WidgetType::Draw(ref j) => j.draw(g),
             WidgetType::Btn(ref btn) => btn.draw(g),
-            WidgetType::Slider(ref name) => sliders[name].draw(g),
+            WidgetType::Slider(ref name) => {
+                if name != "horiz scrollbar" && name != "vert scrollbar" {
+                    sliders[name].draw(g);
+                }
+            }
             WidgetType::Menu(ref name) => menus[name].draw(g),
             WidgetType::Filler(_) => {}
             WidgetType::DurationPlot(ref plot) => plot.draw(g),
@@ -706,6 +710,15 @@ impl Composite {
         self.top_level.draw(g, &self.sliders, &self.menus);
         if self.scrollable_x || self.scrollable_y {
             g.disable_clipping();
+
+            // Draw the scrollbars after clipping is disabled, because they actually live just
+            // outside the rectangle.
+            if self.scrollable_x {
+                self.sliders["horiz scrollbar"].draw(g);
+            }
+            if self.scrollable_y {
+                self.sliders["vert scrollbar"].draw(g);
+            }
         }
     }
 
@@ -826,17 +839,7 @@ impl CompositeBuilder {
 
         if c.scrollable_x || c.scrollable_y {
             c.recompute_layout(ctx);
-
-            // TODO The scrollbar should fit in the container, not peek outside it. Adjust the
-            // actual container dims available in other calculations.
-            let scrollbar_len = 30.0;
-            c.clip_rect = Some(ScreenRectangle::top_left(
-                top_left,
-                ScreenDims::new(
-                    c.container_dims.width + (if c.scrollable_y { scrollbar_len } else { 0.0 }),
-                    c.container_dims.height + (if c.scrollable_x { scrollbar_len } else { 0.0 }),
-                ),
-            ));
+            c.clip_rect = Some(ScreenRectangle::top_left(top_left, c.container_dims));
         }
 
         ctx.fake_mouseover(|ctx| assert!(c.event(ctx).is_none()));
