@@ -62,7 +62,6 @@ pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
                 .padding(10),
             content,
         ]))
-        .fullscreen()
         .build(ctx),
     )
     .cb("BACK", Box::new(|_, _| Some(Transition::Pop)));

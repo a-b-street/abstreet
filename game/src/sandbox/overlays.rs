@@ -206,7 +206,7 @@ impl Overlays {
                 ])
                 .bg(Color::hex("#5B5B5B")),
             )
-            .size_percent(30, 50)
+            .max_size_percent(30, 50)
             .build(ctx),
         )
         .cb("X", Box::new(|_, _| Some(Transition::Pop)))

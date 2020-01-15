@@ -120,7 +120,6 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
 
     let mut c = Composite::new(
         ezgui::Composite::new(ManagedWidget::col(col).centered())
-            .fullscreen()
             .build(ctx),
     )
     .cb(

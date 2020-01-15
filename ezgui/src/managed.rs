@@ -513,19 +513,28 @@ impl ManagedWidget {
 
 pub struct CompositeBuilder {
     top_level: ManagedWidget,
-    layout: Layout,
+
     sliders: HashMap<String, Slider>,
     menus: HashMap<String, Menu>,
     fillers: HashMap<String, Filler>,
+
+    horiz: HorizontalAlignment,
+    vert: VerticalAlignment,
+    max_percent_width: f64,
+    max_percent_height: f64,
 }
 
 pub struct Composite {
     top_level: ManagedWidget,
-    layout: Layout,
 
     sliders: HashMap<String, Slider>,
     menus: HashMap<String, Menu>,
     fillers: HashMap<String, Filler>,
+
+    horiz: HorizontalAlignment,
+    vert: VerticalAlignment,
+    max_percent_width: f64,
+    max_percent_height: f64,
 
     scrollable_x: bool,
     scrollable_y: bool,
@@ -538,14 +547,6 @@ pub enum Outcome {
     Clicked(String),
 }
 
-struct Layout {
-    horiz: HorizontalAlignment,
-    vert: VerticalAlignment,
-    // If None, then be just as large as needed. But still don't exceed screen.
-    percent_width: Option<f64>,
-    percent_height: Option<f64>,
-}
-
 const SCROLL_SPEED: f64 = 5.0;
 
 // TODO These APIs aren't composable. Need a builer pattern or ideally, to scrape all the special
@@ -554,15 +555,15 @@ impl Composite {
     pub fn new(top_level: ManagedWidget) -> CompositeBuilder {
         CompositeBuilder {
             top_level,
-            layout: Layout {
-                horiz: HorizontalAlignment::Center,
-                vert: VerticalAlignment::Center,
-                percent_width: None,
-                percent_height: None,
-            },
+
             sliders: HashMap::new(),
             menus: HashMap::new(),
             fillers: HashMap::new(),
+
+            horiz: HorizontalAlignment::Center,
+            vert: VerticalAlignment::Center,
+            max_percent_width: 1.0,
+            max_percent_height: 1.0,
         }
     }
 
@@ -598,8 +599,8 @@ impl Composite {
         let result = stretch.layout(root).unwrap();
         let top_left = ctx.canvas.align_window(
             ScreenDims::new(result.size.width.into(), result.size.height.into()),
-            self.layout.horiz,
-            self.layout.vert,
+            self.horiz,
+            self.vert,
         );
         let offset = self.scroll_offset();
         self.top_level.apply_flexbox(
@@ -757,10 +758,14 @@ impl CompositeBuilder {
     pub fn build(self, ctx: &mut EventCtx) -> Composite {
         let mut c = Composite {
             top_level: self.top_level,
-            layout: self.layout,
             sliders: self.sliders,
             menus: self.menus,
             fillers: self.fillers,
+
+            horiz: self.horiz,
+            vert: self.vert,
+            max_percent_width: self.max_percent_width,
+            max_percent_height: self.max_percent_height,
 
             scrollable_x: false,
             scrollable_y: false,
@@ -772,26 +777,16 @@ impl CompositeBuilder {
 
         c.contents_dims = ScreenDims::new(c.top_level.rect.width(), c.top_level.rect.height());
         c.container_dims = ScreenDims::new(
-            if let Some(pct) = c.layout.percent_width {
-                (ctx.canvas.window_width * pct).min(c.contents_dims.width)
-            } else if c.contents_dims.width < ctx.canvas.window_width {
-                c.contents_dims.width
-            } else {
-                ctx.canvas.window_width
-            },
-            if let Some(pct) = c.layout.percent_height {
-                (ctx.canvas.window_height * pct).min(c.contents_dims.height)
-            } else if c.contents_dims.height < ctx.canvas.window_height {
-                c.contents_dims.height
-            } else {
-                ctx.canvas.window_height
-            },
+            c.contents_dims
+                .width
+                .min(c.max_percent_width * ctx.canvas.window_width),
+            c.contents_dims
+                .height
+                .min(c.max_percent_height * ctx.canvas.window_height),
         );
 
         // If the panel fits without a scrollbar, don't add one.
-        let top_left = ctx
-            .canvas
-            .align_window(c.container_dims, c.layout.horiz, c.layout.vert);
+        let top_left = ctx.canvas.align_window(c.container_dims, c.horiz, c.vert);
         if c.contents_dims.width > c.container_dims.width {
             c.scrollable_x = true;
             c.sliders.insert(
@@ -830,19 +825,17 @@ impl CompositeBuilder {
         horiz: HorizontalAlignment,
         vert: VerticalAlignment,
     ) -> CompositeBuilder {
-        self.layout.horiz = horiz;
-        self.layout.vert = vert;
+        self.horiz = horiz;
+        self.vert = vert;
         self
     }
 
-    pub fn size_percent(mut self, pct_width: usize, pct_height: usize) -> CompositeBuilder {
-        self.layout.percent_width = Some((pct_width as f64) / 100.0);
-        self.layout.percent_height = Some((pct_height as f64) / 100.0);
-        self
-    }
-    pub fn fullscreen(mut self) -> CompositeBuilder {
-        self.layout.percent_width = Some(1.0);
-        self.layout.percent_height = Some(1.0);
+    pub fn max_size_percent(mut self, pct_width: usize, pct_height: usize) -> CompositeBuilder {
+        if pct_width == 100 && pct_height == 100 {
+            panic!("By default, Composites are capped at 100% of the screen. This is redundant.");
+        }
+        self.max_percent_width = (pct_width as f64) / 100.0;
+        self.max_percent_height = (pct_height as f64) / 100.0;
         self
     }
 
