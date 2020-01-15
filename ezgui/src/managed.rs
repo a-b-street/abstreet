@@ -11,7 +11,9 @@ use std::collections::{HashMap, HashSet};
 use stretch::geometry::{Rect, Size};
 use stretch::node::{Node, Stretch};
 use stretch::number::Number;
-use stretch::style::{AlignItems, Dimension, FlexDirection, FlexWrap, JustifyContent, Style};
+use stretch::style::{
+    AlignItems, Dimension, FlexDirection, FlexWrap, JustifyContent, PositionType, Style,
+};
 
 type Menu = PopupMenu<Box<dyn Cloneable>>;
 
@@ -44,6 +46,8 @@ struct LayoutStyle {
     size: Option<Size<Dimension>>,
     padding: Option<Rect<Dimension>>,
     margin: Option<Rect<Dimension>>,
+    position_type: Option<PositionType>,
+    position: Option<Rect<Dimension>>,
 }
 
 impl LayoutStyle {
@@ -65,6 +69,12 @@ impl LayoutStyle {
         }
         if let Some(x) = self.margin {
             style.margin = x;
+        }
+        if let Some(x) = self.position_type {
+            style.position_type = x;
+        }
+        if let Some(x) = self.position {
+            style.position = x;
         }
     }
 }
@@ -139,6 +149,17 @@ impl ManagedWidget {
         });
         self
     }
+
+    fn abs(mut self, x: f64, y: f64) -> ManagedWidget {
+        self.style.position_type = Some(PositionType::Absolute);
+        self.style.position = Some(Rect {
+            start: Dimension::Points(x as f32),
+            end: Dimension::Undefined,
+            top: Dimension::Points(y as f32),
+            bottom: Dimension::Undefined,
+        });
+        self
+    }
 }
 
 // Convenient?? constructors
@@ -154,6 +175,8 @@ impl ManagedWidget {
                 size: None,
                 padding: None,
                 margin: None,
+                position_type: None,
+                position: None,
             },
             rect: ScreenRectangle::placeholder(),
             bg: None,
@@ -373,10 +396,9 @@ impl ManagedWidget {
         let height: f64 = result.size.height.into();
         let top_left = match self.widget {
             WidgetType::Slider(ref name) => {
-                if name == "horiz scrollbar" {
-                    ScreenPt::new(x + dx, y + dy - scroll_offset.1)
-                } else if name == "vert scrollbar" {
-                    ScreenPt::new(x + dx - scroll_offset.0, y + dy)
+                // Don't scroll the scrollbars
+                if name == "horiz scrollbar" || name == "vert scrollbar" {
+                    ScreenPt::new(x, y)
                 } else {
                     ScreenPt::new(x + dx - scroll_offset.0, y + dy - scroll_offset.1)
                 }
@@ -568,6 +590,7 @@ impl Composite {
             height: Number::Undefined,
         };
         stretch.compute_layout(root, container_size).unwrap();
+        // TODO Not totally sure why we can't reuse self.container_dims here...
         let result = stretch.layout(root).unwrap();
         let top_left = ctx.canvas.align_window(
             ScreenDims::new(result.size.width.into(), result.size.height.into()),
@@ -733,6 +756,8 @@ impl CompositeBuilder {
             clip_rect: None,
         };
         c.recompute_layout(ctx);
+        c.contents_dims = ScreenDims::new(c.top_level.rect.width(), c.top_level.rect.height());
+        c.container_dims = c.contents_dims.clone();
         ctx.fake_mouseover(|ctx| assert!(c.event(ctx).is_none()));
         c
     }
@@ -771,14 +796,20 @@ impl CompositeBuilder {
             },
         );
 
+        let top_left = ctx
+            .canvas
+            .align_window(c.container_dims, c.layout.horiz, c.layout.vert);
         if c.contents_dims.width > c.container_dims.width {
             c.scrollable_x = true;
             c.sliders.insert(
                 "horiz scrollbar".to_string(),
                 Slider::horizontal(ctx, c.container_dims.width),
             );
-            c.top_level =
-                ManagedWidget::col(vec![c.top_level, ManagedWidget::slider("horiz scrollbar")]);
+            c.top_level = ManagedWidget::col(vec![
+                c.top_level,
+                ManagedWidget::slider("horiz scrollbar")
+                    .abs(top_left.x, top_left.y + c.container_dims.height),
+            ]);
         }
         if c.contents_dims.height > c.container_dims.height {
             c.scrollable_y = true;
@@ -786,21 +817,24 @@ impl CompositeBuilder {
                 "vert scrollbar".to_string(),
                 Slider::vertical(ctx, c.container_dims.height),
             );
-            c.top_level =
-                ManagedWidget::row(vec![c.top_level, ManagedWidget::slider("vert scrollbar")]);
+            c.top_level = ManagedWidget::row(vec![
+                c.top_level,
+                ManagedWidget::slider("vert scrollbar")
+                    .abs(top_left.x + c.container_dims.width, top_left.y),
+            ]);
         }
 
         if c.scrollable_x || c.scrollable_y {
             c.recompute_layout(ctx);
 
-            let top_left = ctx
-                .canvas
-                .align_window(c.container_dims, c.layout.horiz, c.layout.vert);
+            // TODO The scrollbar should fit in the container, not peek outside it. Adjust the
+            // actual container dims available in other calculations.
+            let scrollbar_len = 30.0;
             c.clip_rect = Some(ScreenRectangle::top_left(
                 top_left,
                 ScreenDims::new(
-                    c.container_dims.width + 30.0,
-                    c.container_dims.height + 30.0,
+                    c.container_dims.width + (if c.scrollable_y { scrollbar_len } else { 0.0 }),
+                    c.container_dims.height + (if c.scrollable_x { scrollbar_len } else { 0.0 }),
                 ),
             ));
         }
