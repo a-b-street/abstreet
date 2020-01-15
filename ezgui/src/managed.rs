@@ -794,14 +794,14 @@ impl CompositeBuilder {
         c.contents_dims = ScreenDims::new(c.top_level.rect.width(), c.top_level.rect.height());
         c.container_dims = ScreenDims::new(
             if let Some(pct) = c.layout.percent_width {
-                ctx.canvas.window_width * pct
+                (ctx.canvas.window_width * pct).min(c.contents_dims.width)
             } else if c.contents_dims.width < ctx.canvas.window_width {
                 c.contents_dims.width
             } else {
                 ctx.canvas.window_width
             },
             if let Some(pct) = c.layout.percent_height {
-                ctx.canvas.window_height * pct
+                (ctx.canvas.window_height * pct).min(c.contents_dims.height)
             } else if c.contents_dims.height < ctx.canvas.window_height {
                 c.contents_dims.height
             } else {
