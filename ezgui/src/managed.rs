@@ -794,7 +794,11 @@ impl CompositeBuilder {
             c.scrollable_x = true;
             c.sliders.insert(
                 "horiz scrollbar".to_string(),
-                Slider::horizontal(ctx, c.container_dims.width),
+                Slider::horizontal(
+                    ctx,
+                    c.container_dims.width,
+                    c.container_dims.width * (c.container_dims.width / c.contents_dims.width),
+                ),
             );
             c.top_level = ManagedWidget::col(vec![
                 c.top_level,
@@ -806,7 +810,11 @@ impl CompositeBuilder {
             c.scrollable_y = true;
             c.sliders.insert(
                 "vert scrollbar".to_string(),
-                Slider::vertical(ctx, c.container_dims.height),
+                Slider::vertical(
+                    ctx,
+                    c.container_dims.height,
+                    c.container_dims.height * (c.container_dims.height / c.contents_dims.height),
+                ),
             );
             c.top_level = ManagedWidget::row(vec![
                 c.top_level,

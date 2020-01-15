@@ -13,6 +13,7 @@ pub struct Slider {
 
     horiz: bool,
     main_bg_len: f64,
+    dragger_len: f64,
 
     draw: DrawBoth,
 
@@ -21,10 +22,9 @@ pub struct Slider {
 }
 
 const BG_CROSS_AXIS_LEN: f64 = 30.0;
-const DRAGGER_LEN: f64 = 25.0;
 
 impl Slider {
-    pub fn horizontal(ctx: &EventCtx, width: f64) -> Slider {
+    pub fn horizontal(ctx: &EventCtx, width: f64, dragger_len: f64) -> Slider {
         let mut s = Slider {
             current_percent: 0.0,
             mouse_on_slider: false,
@@ -32,6 +32,7 @@ impl Slider {
 
             horiz: true,
             main_bg_len: width,
+            dragger_len,
 
             draw: DrawBoth::new(ctx, GeomBatch::new(), Vec::new()),
 
@@ -42,7 +43,7 @@ impl Slider {
         s
     }
 
-    pub fn vertical(ctx: &EventCtx, height: f64) -> Slider {
+    pub fn vertical(ctx: &EventCtx, height: f64, dragger_len: f64) -> Slider {
         let mut s = Slider {
             current_percent: 0.0,
             mouse_on_slider: false,
@@ -50,6 +51,7 @@ impl Slider {
 
             horiz: false,
             main_bg_len: height,
+            dragger_len,
 
             draw: DrawBoth::new(ctx, GeomBatch::new(), Vec::new()),
 
@@ -105,11 +107,15 @@ impl Slider {
     // Doesn't touch self.top_left
     fn slider_geom(&self) -> Polygon {
         if self.horiz {
-            Polygon::rectangle(DRAGGER_LEN, BG_CROSS_AXIS_LEN)
-                .translate(self.current_percent * (self.main_bg_len - DRAGGER_LEN), 0.0)
+            Polygon::rectangle(self.dragger_len, BG_CROSS_AXIS_LEN).translate(
+                self.current_percent * (self.main_bg_len - self.dragger_len),
+                0.0,
+            )
         } else {
-            Polygon::rectangle(BG_CROSS_AXIS_LEN, DRAGGER_LEN)
-                .translate(0.0, self.current_percent * (self.main_bg_len - DRAGGER_LEN))
+            Polygon::rectangle(BG_CROSS_AXIS_LEN, self.dragger_len).translate(
+                0.0,
+                self.current_percent * (self.main_bg_len - self.dragger_len),
+            )
         }
     }
 
@@ -153,13 +159,13 @@ impl Slider {
                 let percent = if self.horiz {
                     (ctx.canvas.get_cursor_in_screen_space().x
                         - self.top_left.x
-                        - (DRAGGER_LEN / 2.0))
-                        / (self.main_bg_len - DRAGGER_LEN)
+                        - (self.dragger_len / 2.0))
+                        / (self.main_bg_len - self.dragger_len)
                 } else {
                     (ctx.canvas.get_cursor_in_screen_space().y
                         - self.top_left.y
-                        - (DRAGGER_LEN / 2.0))
-                        / (self.main_bg_len - DRAGGER_LEN)
+                        - (self.dragger_len / 2.0))
+                        / (self.main_bg_len - self.dragger_len)
                 };
                 self.current_percent = percent.min(1.0).max(0.0);
                 return true;
@@ -192,11 +198,11 @@ impl Slider {
                 .contains_pt(pt.to_pt())
             {
                 let percent = if self.horiz {
-                    (pt.x - self.top_left.x - (DRAGGER_LEN / 2.0))
-                        / (self.main_bg_len - DRAGGER_LEN)
+                    (pt.x - self.top_left.x - (self.dragger_len / 2.0))
+                        / (self.main_bg_len - self.dragger_len)
                 } else {
-                    (pt.y - self.top_left.y - (DRAGGER_LEN / 2.0))
-                        / (self.main_bg_len - DRAGGER_LEN)
+                    (pt.y - self.top_left.y - (self.dragger_len / 2.0))
+                        / (self.main_bg_len - self.dragger_len)
                 };
                 self.current_percent = percent.min(1.0).max(0.0);
                 self.mouse_on_slider = true;
@@ -261,7 +267,8 @@ impl<T> ItemSlider<T> {
         let menu = ModalMenu::new(menu_title, choices, ctx).disable_standalone_layout();
         ItemSlider {
             items,
-            slider: Slider::horizontal(ctx, menu.get_dims().width),
+            // TODO Number of items
+            slider: Slider::horizontal(ctx, menu.get_dims().width, 25.0),
             menu,
 
             noun: noun.to_string(),
@@ -420,7 +427,8 @@ pub struct SliderWithTextBox {
 impl SliderWithTextBox {
     pub fn new(prompt: &str, low: Time, high: Time, ctx: &EventCtx) -> SliderWithTextBox {
         SliderWithTextBox {
-            slider: Slider::horizontal(ctx, ctx.text_dims(&Text::from(Line(prompt))).width),
+            // TODO Some ratio based on low and high difference
+            slider: Slider::horizontal(ctx, ctx.text_dims(&Text::from(Line(prompt))).width, 25.0),
             tb: TextBox::new(prompt, Some(low.to_string()), ctx),
             low,
             high,

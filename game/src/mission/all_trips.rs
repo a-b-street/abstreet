@@ -80,7 +80,7 @@ impl TripsVisualizer {
             )
             .disable_standalone_layout(),
             trips,
-            time_slider: Slider::horizontal(ctx, 150.0),
+            time_slider: Slider::horizontal(ctx, 150.0, 25.0),
             active_trips: Vec::new(),
         }
     }
