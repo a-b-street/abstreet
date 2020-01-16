@@ -6,9 +6,7 @@ use crate::sandbox::gameplay::{cmp_count_fewer, cmp_count_more, cmp_duration_sho
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use abstutil::Counter;
-use ezgui::{
-    hotkey, Color, EventCtx, EventLoopMode, Histogram, Key, Line, ManagedWidget, Plot, Series, Text,
-};
+use ezgui::{hotkey, Color, EventCtx, Histogram, Key, Line, ManagedWidget, Plot, Series, Text};
 use geom::{Duration, Statistic, Time};
 use map_model::BusRouteID;
 use sim::{TripID, TripMode};
@@ -309,17 +307,7 @@ fn pick_bus_route(ctx: &EventCtx, ui: &UI) -> (ManagedWidget, Vec<(String, Callb
         buttons.push(Composite::text_button(ctx, name, None));
         cbs.push((
             name.to_string(),
-            Box::new(move |ctx, ui| {
-                Some(Transition::PushWithMode(
-                    Box::new(bus_explorer::BusRouteExplorer::for_route(
-                        ui.primary.map.get_br(id),
-                        None,
-                        ui,
-                        ctx,
-                    )),
-                    EventLoopMode::Animation,
-                ))
-            }),
+            Box::new(move |_, _| Some(Transition::Push(bus_explorer::make_route_picker(vec![id])))),
         ));
     }
 

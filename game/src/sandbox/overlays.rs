@@ -12,7 +12,7 @@ use ezgui::{
     VerticalAlignment,
 };
 use geom::{Distance, Duration, PolyLine, Time};
-use map_model::IntersectionID;
+use map_model::{BusRouteID, IntersectionID};
 use sim::ParkingSpot;
 use std::collections::HashSet;
 
@@ -24,37 +24,52 @@ pub enum Overlays {
     BikeNetwork(Colorer),
     BusNetwork(Colorer),
 
-    // TODO These're kind of different.
     FinishedTripsHistogram(Time, Composite),
-    // Only set by certain gameplay modes
-    BusRoute(ShowBusRoute),
+    IntersectionDemand(Time, IntersectionID, Drawable, Composite),
+    BusRoute(Time, BusRouteID, ShowBusRoute),
     BusDelaysOverTime(Composite),
     BusPassengers(crate::managed::Composite),
-    IntersectionDemand(Time, IntersectionID, Drawable, Composite),
 }
 
 impl Overlays {
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
         let now = ui.primary.sim.time();
         match self {
-            // Don't bother with Inactive, BusRoute, BusDelaysOverTime, BusPassengers, BikeNetwork,
-            // BusNetwork -- nothing needed or the gameplay mode will update it.
-            Overlays::ParkingAvailability(t, _) if now != *t => {
-                *self = Overlays::parking_availability(ctx, ui);
+            Overlays::ParkingAvailability(t, _) => {
+                if now != *t {
+                    *self = Overlays::parking_availability(ctx, ui);
+                }
             }
-            Overlays::IntersectionDelay(t, _) if now != *t => {
-                *self = Overlays::intersection_delay(ctx, ui);
+            Overlays::IntersectionDelay(t, _) => {
+                if now != *t {
+                    *self = Overlays::intersection_delay(ctx, ui);
+                }
             }
-            Overlays::CumulativeThroughput(t, _) if now != *t => {
-                *self = Overlays::cumulative_throughput(ctx, ui);
+            Overlays::CumulativeThroughput(t, _) => {
+                if now != *t {
+                    *self = Overlays::cumulative_throughput(ctx, ui);
+                }
             }
-            Overlays::IntersectionDemand(t, i, _, _) if now != *t => {
-                *self = Overlays::intersection_demand(*i, ctx, ui);
+            Overlays::IntersectionDemand(t, i, _, _) => {
+                if now != *t {
+                    *self = Overlays::intersection_demand(*i, ctx, ui);
+                }
             }
-            Overlays::FinishedTripsHistogram(t, _) if now != *t => {
-                *self = Overlays::finished_trips_histogram(ctx, ui);
+            Overlays::FinishedTripsHistogram(t, _) => {
+                if now != *t {
+                    *self = Overlays::finished_trips_histogram(ctx, ui);
+                }
             }
-            _ => {}
+            Overlays::BusRoute(t, id, _) => {
+                if now != *t {
+                    *self = Overlays::show_bus_route(*id, ctx, ui);
+                }
+            }
+            // No updates needed
+            Overlays::Inactive | Overlays::BikeNetwork(_) | Overlays::BusNetwork(_) => {}
+            // TODO do the updates here
+            Overlays::BusDelaysOverTime(_) => {}
+            Overlays::BusPassengers(_) => {}
         };
 
         match self {
@@ -64,6 +79,11 @@ impl Overlays {
             | Overlays::IntersectionDelay(_, ref mut heatmap)
             | Overlays::CumulativeThroughput(_, ref mut heatmap) => {
                 if heatmap.event(ctx) {
+                    *self = Overlays::Inactive;
+                }
+            }
+            Overlays::BusRoute(_, _, ref mut c) => {
+                if c.colorer.event(ctx) {
                     *self = Overlays::Inactive;
                 }
             }
@@ -132,7 +152,7 @@ impl Overlays {
                 g.redraw(draw);
                 legend.draw(g);
             }
-            Overlays::BusRoute(ref s) => {
+            Overlays::BusRoute(_, _, ref s) => {
                 s.draw(g);
             }
         }
@@ -145,6 +165,7 @@ impl Overlays {
             | Overlays::BusNetwork(ref heatmap)
             | Overlays::IntersectionDelay(_, ref heatmap)
             | Overlays::CumulativeThroughput(_, ref heatmap) => Some(heatmap),
+            Overlays::BusRoute(_, _, ref s) => Some(&s.colorer),
             _ => None,
         }
     }
@@ -540,5 +561,9 @@ impl Overlays {
                 .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
                 .build(ctx),
         )
+    }
+
+    pub fn show_bus_route(id: BusRouteID, ctx: &mut EventCtx, ui: &UI) -> Overlays {
+        Overlays::BusRoute(ui.primary.sim.time(), id, ShowBusRoute::new(id, ctx, ui))
     }
 }

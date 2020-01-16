@@ -87,9 +87,6 @@ impl State for SandboxMode {
         if let Some(t) = self.agent_tools.event(ctx, ui, &mut self.gameplay.menu) {
             return t;
         }
-        if let Some(explorer) = bus_explorer::BusRouteExplorer::new(ctx, ui) {
-            return Transition::PushWithMode(explorer, EventLoopMode::Animation);
-        }
 
         if ui.opts.dev && ctx.input.new_was_pressed(lctrl(Key::D).unwrap()) {
             return Transition::Push(Box::new(DebugMode::new(ctx)));
@@ -135,6 +132,14 @@ impl State for SandboxMode {
                     Box::new(edit),
                     Box::new(TrafficSignalEditor::new(i, ctx, ui, sim_copy)),
                 );
+            }
+        }
+        if let Some(ID::BusStop(bs)) = ui.primary.current_selection {
+            let routes = ui.primary.map.get_routes_serving_stop(bs);
+            if ui.per_obj.action(ctx, Key::E, "explore bus route") {
+                return Transition::Push(bus_explorer::make_route_picker(
+                    routes.into_iter().map(|r| r.id).collect(),
+                ));
             }
         }
 

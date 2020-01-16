@@ -5,7 +5,7 @@ use crate::sandbox::gameplay::{
     cmp_duration_shorter, manage_overlays, GameplayMode, GameplayState,
 };
 use crate::sandbox::overlays::Overlays;
-use crate::sandbox::{bus_explorer, SandboxMode};
+use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use ezgui::{
     hotkey, Button, Choice, Color, Composite, DrawBoth, EventCtx, EventLoopMode, GeomBatch,
@@ -65,16 +65,12 @@ impl GameplayState for OptimizeBus {
             "hide bus route",
             overlays,
             match overlays {
-                Overlays::BusRoute(_) => true,
+                Overlays::BusRoute(_, ref r, _) => *r == self.route,
                 _ => false,
             },
-            self.time != ui.primary.sim.time(),
+            false,
         ) {
-            *overlays = Overlays::BusRoute(bus_explorer::ShowBusRoute::new(
-                ui.primary.map.get_br(self.route),
-                ui,
-                ctx,
-            ));
+            *overlays = Overlays::show_bus_route(self.route, ctx, ui);
         }
         if manage_overlays(
             menu,

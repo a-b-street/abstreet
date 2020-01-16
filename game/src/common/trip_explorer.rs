@@ -80,8 +80,8 @@ impl TripExplorer {
                 unzoomed.push(end_color, i.polygon.clone());
                 zoomed.push(end_color, i.polygon.clone());
             }
-            // TODO TripExplorer is pretty useless for buses; maybe jump to BusRouteExplorer or
-            // something instead
+            // TODO TripExplorer is pretty useless for buses; maybe ShowBusRoute or something
+            // instead
             TripEnd::ServeBusRoute(br) => {
                 rows.push((
                     format!("serve route {} forever", map.get_br(br).name),
