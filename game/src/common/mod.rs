@@ -23,7 +23,7 @@ use crate::helpers::{list_names, ID};
 use crate::render::DrawOptions;
 use crate::ui::UI;
 use ezgui::{
-    hotkey, lctrl, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Text,
+    lctrl, Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Text,
     VerticalAlignment,
 };
 use std::collections::BTreeSet;
@@ -47,7 +47,7 @@ impl CommonState {
         if ctx.input.new_was_pressed(lctrl(Key::S).unwrap()) {
             ui.opts.dev = !ui.opts.dev;
         }
-        if ui.opts.dev && ctx.input.new_was_pressed(hotkey(Key::J).unwrap()) {
+        if ui.opts.dev && ctx.input.new_was_pressed(lctrl(Key::J).unwrap()) {
             return Some(Transition::Push(warp::EnteringWarp::new()));
         }
 
@@ -80,6 +80,17 @@ impl CommonState {
                             self.info_panel = None;
                             assert!(ui.per_obj.info_panel_open);
                             ui.per_obj.info_panel_open = false;
+                        } else if action == "jump to object" {
+                            return Some(Transition::PushWithMode(
+                                Warping::new(
+                                    ctx,
+                                    info.id.canonical_point(&ui.primary).unwrap(),
+                                    Some(10.0),
+                                    Some(info.id.clone()),
+                                    &mut ui.primary,
+                                ),
+                                EventLoopMode::Animation,
+                            ));
                         } else {
                             // TODO If the action was conditional on some other stuff, it might
                             // still go unused.

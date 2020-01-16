@@ -4,7 +4,7 @@ use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
     hotkey, Button, Color, Composite, EventCtx, HorizontalAlignment, Key, Line, ManagedWidget,
-    Plot, Series, Text, VerticalAlignment,
+    Plot, RewriteColor, Series, Text, VerticalAlignment,
 };
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, RoadID};
@@ -24,6 +24,13 @@ impl InfoPanel {
                 txt.highlight_last_line(Color::BLUE);
                 ManagedWidget::draw_text(ctx, txt)
             },
+            ManagedWidget::btn(Button::rectangle_svg(
+                "assets/tools/locate.svg",
+                "jump to object",
+                hotkey(Key::J),
+                RewriteColor::Change(Color::hex("#CC4121"), Color::ORANGE),
+                ctx,
+            )),
             crate::managed::Composite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
         ])];
 
