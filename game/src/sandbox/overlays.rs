@@ -561,8 +561,14 @@ impl Overlays {
         }
 
         let mut col = vec![ManagedWidget::row(vec![
-            // TODO Say which intersection? And have a location icon to jump to it
-            crate::managed::Composite::text_button(ctx, "intersection demand", None),
+            ManagedWidget::draw_text(ctx, Text::from(Line("intersection demand"))),
+            ManagedWidget::btn(Button::rectangle_svg(
+                "assets/tools/locate.svg",
+                "intersection demand",
+                None,
+                RewriteColor::Change(Color::hex("#CC4121"), Color::ORANGE),
+                ctx,
+            )),
             crate::managed::Composite::text_button(ctx, "X", None).align_right(),
         ])];
         col.extend(ColorLegend::rows(ctx, vec![("current demand", Color::RED)]));
@@ -595,13 +601,16 @@ impl Overlays {
             .get_analytics()
             .bus_passenger_delays(ui.primary.sim.time(), id);
         for idx in 0..route.stops.len() {
-            let mut row = vec![ManagedWidget::btn(Button::text_no_bg(
-                Text::from(Line(format!("Stop {}", idx + 1))),
-                Text::from(Line(format!("Stop {}", idx + 1)).fg(Color::ORANGE)),
-                None,
-                &format!("Stop {}", idx + 1),
-                ctx,
-            ))];
+            let mut row = vec![
+                ManagedWidget::draw_text(ctx, Text::from(Line(format!("Stop {}", idx + 1)))),
+                ManagedWidget::btn(Button::rectangle_svg(
+                    "assets/tools/locate.svg",
+                    &format!("Stop {}", idx + 1),
+                    None,
+                    RewriteColor::Change(Color::hex("#CC4121"), Color::ORANGE),
+                    ctx,
+                )),
+            ];
             if let Some(hgram) = delay_per_stop.remove(&route.stops[idx]) {
                 row.push(ManagedWidget::draw_text(
                     ctx,
