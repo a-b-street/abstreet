@@ -115,9 +115,8 @@ pub fn make_route_picker(routes: Vec<BusRouteID>) -> Box<dyn State> {
         Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
             state.downcast_mut::<SandboxMode>().unwrap().overlay = match choice {
                 x if x == show_route => Overlays::show_bus_route(id, ctx, ui),
-                // TODO These two
                 x if x == delays => Overlays::Inactive,
-                x if x == passengers => Overlays::Inactive,
+                x if x == passengers => Overlays::bus_passengers(id, ctx, ui),
                 _ => unreachable!(),
             };
         })))

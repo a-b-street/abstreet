@@ -7,11 +7,11 @@ use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
-    hotkey, Button, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
-    Histogram, HorizontalAlignment, Key, Line, ManagedWidget, RewriteColor, Text,
+    hotkey, Button, Color, Composite, DrawBoth, Drawable, EventCtx, EventLoopMode, GeomBatch,
+    GfxCtx, Histogram, HorizontalAlignment, JustDraw, Key, Line, ManagedWidget, RewriteColor, Text,
     VerticalAlignment,
 };
-use geom::{Distance, Duration, PolyLine, Time};
+use geom::{Circle, Distance, Duration, PolyLine, Polygon, Pt2D, Statistic, Time};
 use map_model::{BusRouteID, IntersectionID};
 use sim::ParkingSpot;
 use std::collections::HashSet;
@@ -28,7 +28,7 @@ pub enum Overlays {
     IntersectionDemand(Time, IntersectionID, Drawable, Composite),
     BusRoute(Time, BusRouteID, ShowBusRoute),
     BusDelaysOverTime(Composite),
-    BusPassengers(crate::managed::Composite),
+    BusPassengers(Time, BusRouteID, crate::managed::Composite),
 }
 
 impl Overlays {
@@ -69,7 +69,11 @@ impl Overlays {
             Overlays::Inactive | Overlays::BikeNetwork(_) | Overlays::BusNetwork(_) => {}
             // TODO do the updates here
             Overlays::BusDelaysOverTime(_) => {}
-            Overlays::BusPassengers(_) => {}
+            Overlays::BusPassengers(t, id, _) => {
+                if now != *t {
+                    *self = Overlays::bus_passengers(*id, ctx, ui);
+                }
+            }
         };
 
         match self {
@@ -87,11 +91,16 @@ impl Overlays {
                     *self = Overlays::Inactive;
                 }
             }
-            Overlays::BusPassengers(ref mut c) => match c.event(ctx, ui) {
+            Overlays::BusPassengers(_, _, ref mut c) => match c.event(ctx, ui) {
                 Some(Outcome::Transition(t)) => {
                     return Some(t);
                 }
-                Some(Outcome::Clicked(_)) => unreachable!(),
+                Some(Outcome::Clicked(x)) => match x.as_ref() {
+                    "X" => {
+                        *self = Overlays::Inactive;
+                    }
+                    _ => unreachable!(),
+                },
                 None => {}
             },
             Overlays::IntersectionDemand(_, i, _, ref mut c) => match c.event(ctx) {
@@ -145,7 +154,7 @@ impl Overlays {
             | Overlays::BusDelaysOverTime(ref composite) => {
                 composite.draw(g);
             }
-            Overlays::BusPassengers(ref composite) => {
+            Overlays::BusPassengers(_, _, ref composite) => {
                 composite.draw(g);
             }
             Overlays::IntersectionDemand(_, _, ref draw, ref legend) => {
@@ -565,5 +574,104 @@ impl Overlays {
 
     pub fn show_bus_route(id: BusRouteID, ctx: &mut EventCtx, ui: &UI) -> Overlays {
         Overlays::BusRoute(ui.primary.sim.time(), id, ShowBusRoute::new(id, ctx, ui))
+    }
+
+    pub fn bus_passengers(id: BusRouteID, ctx: &mut EventCtx, ui: &UI) -> Overlays {
+        let route = ui.primary.map.get_br(id);
+        let mut master_col = vec![ManagedWidget::row(vec![
+            ManagedWidget::draw_text(ctx, Text::prompt(&format!("Passengers for {}", route.name))),
+            crate::managed::Composite::text_button(ctx, "X", None).align_right(),
+        ])];
+        let mut col = Vec::new();
+
+        let mut delay_per_stop = ui
+            .primary
+            .sim
+            .get_analytics()
+            .bus_passenger_delays(ui.primary.sim.time(), id);
+        for idx in 0..route.stops.len() {
+            let mut row = vec![ManagedWidget::btn(Button::text_no_bg(
+                Text::from(Line(format!("Stop {}", idx + 1))),
+                Text::from(Line(format!("Stop {}", idx + 1)).fg(Color::ORANGE)),
+                None,
+                &format!("Stop {}", idx + 1),
+                ctx,
+            ))];
+            if let Some(hgram) = delay_per_stop.remove(&route.stops[idx]) {
+                row.push(ManagedWidget::draw_text(
+                    ctx,
+                    Text::from(Line(format!(
+                        ": {} (avg {})",
+                        hgram.count(),
+                        hgram.select(Statistic::Mean)
+                    ))),
+                ));
+            } else {
+                row.push(ManagedWidget::draw_text(ctx, Text::from(Line(": nobody"))));
+            }
+            col.push(ManagedWidget::row(row));
+        }
+
+        let y_len = ctx.default_line_height() * (route.stops.len() as f64);
+        let mut batch = GeomBatch::new();
+        batch.push(
+            Color::CYAN,
+            Polygon::rounded_rectangle(
+                Distance::meters(15.0),
+                Distance::meters(y_len),
+                Distance::meters(4.0),
+            ),
+        );
+        for (_, stop_idx, percent_next_stop) in ui.primary.sim.status_of_buses(route.id) {
+            // TODO Line it up right in the middle of the line of text. This is probably a bit wrong.
+            let base_percent_y = if stop_idx == route.stops.len() - 1 {
+                0.0
+            } else {
+                (stop_idx as f64) / ((route.stops.len() - 1) as f64)
+            };
+            batch.push(
+                Color::BLUE,
+                Circle::new(
+                    Pt2D::new(
+                        7.5,
+                        base_percent_y * y_len + percent_next_stop * ctx.default_line_height(),
+                    ),
+                    Distance::meters(5.0),
+                )
+                .to_polygon(),
+            );
+        }
+        let timeline =
+            ManagedWidget::just_draw(JustDraw::wrap(DrawBoth::new(ctx, batch, Vec::new())));
+
+        master_col.push(ManagedWidget::row(vec![
+            timeline.margin(5),
+            ManagedWidget::col(col).margin(5),
+        ]));
+
+        let mut c = crate::managed::Composite::new(
+            Composite::new(ManagedWidget::col(master_col).bg(Color::grey(0.4)))
+                .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+                .build(ctx),
+        );
+        for (idx, stop) in route.stops.iter().enumerate() {
+            let id = ID::BusStop(*stop);
+            c = c.cb(
+                &format!("Stop {}", idx + 1),
+                Box::new(move |ctx, ui| {
+                    Some(Transition::PushWithMode(
+                        Warping::new(
+                            ctx,
+                            id.canonical_point(&ui.primary).unwrap(),
+                            Some(4.0),
+                            Some(id.clone()),
+                            &mut ui.primary,
+                        ),
+                        EventLoopMode::Animation,
+                    ))
+                }),
+            );
+        }
+        Overlays::BusPassengers(ui.primary.sim.time(), id, c)
     }
 }

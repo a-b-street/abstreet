@@ -1,6 +1,6 @@
-use crate::common::{edit_map_panel, Warping};
+use crate::common::edit_map_panel;
 use crate::game::{msg, Transition, WizardState};
-use crate::helpers::{rotating_color_total, ID};
+use crate::helpers::rotating_color_total;
 use crate::sandbox::gameplay::{
     cmp_duration_shorter, manage_overlays, GameplayMode, GameplayState,
 };
@@ -8,10 +8,10 @@ use crate::sandbox::overlays::Overlays;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use ezgui::{
-    hotkey, Button, Choice, Color, Composite, DrawBoth, EventCtx, EventLoopMode, GeomBatch,
-    JustDraw, Key, Line, ManagedWidget, ModalMenu, Plot, Series, Text,
+    hotkey, Choice, Color, Composite, EventCtx, Key, Line, ManagedWidget, ModalMenu, Plot, Series,
+    Text,
 };
-use geom::{Circle, Distance, Polygon, Pt2D, Statistic, Time};
+use geom::{Statistic, Time};
 use map_model::BusRouteID;
 
 pub struct OptimizeBus {
@@ -93,12 +93,12 @@ impl GameplayState for OptimizeBus {
             "hide bus passengers",
             overlays,
             match overlays {
-                Overlays::BusPassengers(_) => true,
+                Overlays::BusPassengers(_, ref r, _) => *r == self.route,
                 _ => false,
             },
-            self.time != ui.primary.sim.time(),
+            false,
         ) {
-            *overlays = Overlays::BusPassengers(bus_passengers(self.route, ui, ctx));
+            *overlays = Overlays::bus_passengers(self.route, ctx, ui);
         }
 
         // TODO Expensive
@@ -180,102 +180,6 @@ fn bus_route_panel(id: BusRouteID, stat: Statistic, ui: &UI) -> Text {
         }
     }
     txt
-}
-
-fn bus_passengers(id: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> crate::managed::Composite {
-    let route = ui.primary.map.get_br(id);
-    let mut master_col = vec![ManagedWidget::draw_text(
-        ctx,
-        Text::prompt(&format!("Passengers for {}", route.name)),
-    )];
-    let mut col = Vec::new();
-
-    let mut delay_per_stop = ui
-        .primary
-        .sim
-        .get_analytics()
-        .bus_passenger_delays(ui.primary.sim.time(), id);
-    for idx in 0..route.stops.len() {
-        let mut row = vec![ManagedWidget::btn(Button::text_no_bg(
-            Text::from(Line(format!("Stop {}", idx + 1))),
-            Text::from(Line(format!("Stop {}", idx + 1)).fg(Color::ORANGE)),
-            None,
-            &format!("Stop {}", idx + 1),
-            ctx,
-        ))];
-        if let Some(hgram) = delay_per_stop.remove(&route.stops[idx]) {
-            row.push(ManagedWidget::draw_text(
-                ctx,
-                Text::from(Line(format!(
-                    ": {} (avg {})",
-                    hgram.count(),
-                    hgram.select(Statistic::Mean)
-                ))),
-            ));
-        } else {
-            row.push(ManagedWidget::draw_text(ctx, Text::from(Line(": nobody"))));
-        }
-        col.push(ManagedWidget::row(row));
-    }
-
-    let y_len = ctx.default_line_height() * (route.stops.len() as f64);
-    let mut batch = GeomBatch::new();
-    batch.push(
-        Color::CYAN,
-        Polygon::rounded_rectangle(
-            Distance::meters(15.0),
-            Distance::meters(y_len),
-            Distance::meters(4.0),
-        ),
-    );
-    for (_, stop_idx, percent_next_stop) in ui.primary.sim.status_of_buses(route.id) {
-        // TODO Line it up right in the middle of the line of text. This is probably a bit wrong.
-        let base_percent_y = if stop_idx == route.stops.len() - 1 {
-            0.0
-        } else {
-            (stop_idx as f64) / ((route.stops.len() - 1) as f64)
-        };
-        batch.push(
-            Color::BLUE,
-            Circle::new(
-                Pt2D::new(
-                    7.5,
-                    base_percent_y * y_len + percent_next_stop * ctx.default_line_height(),
-                ),
-                Distance::meters(5.0),
-            )
-            .to_polygon(),
-        );
-    }
-    let timeline = ManagedWidget::just_draw(JustDraw::wrap(DrawBoth::new(ctx, batch, Vec::new())));
-
-    master_col.push(ManagedWidget::row(vec![
-        timeline.margin(5),
-        ManagedWidget::col(col).margin(5),
-    ]));
-
-    let mut c = crate::managed::Composite::new(
-        Composite::new(ManagedWidget::col(master_col).bg(Color::grey(0.4))).build(ctx),
-    );
-    for (idx, stop) in route.stops.iter().enumerate() {
-        let id = ID::BusStop(*stop);
-        c = c.cb(
-            &format!("Stop {}", idx + 1),
-            Box::new(move |ctx, ui| {
-                Some(Transition::PushWithMode(
-                    Warping::new(
-                        ctx,
-                        id.canonical_point(&ui.primary).unwrap(),
-                        Some(4.0),
-                        Some(id.clone()),
-                        &mut ui.primary,
-                    ),
-                    EventLoopMode::Animation,
-                ))
-            }),
-        );
-    }
-    c
 }
 
 fn bus_delays(id: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> Composite {
