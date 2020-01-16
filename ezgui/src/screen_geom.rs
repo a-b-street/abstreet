@@ -20,7 +20,7 @@ impl ScreenPt {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ScreenRectangle {
     pub x1: f64,
     pub y1: f64,
