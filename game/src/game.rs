@@ -100,9 +100,7 @@ impl GUI for Game {
                 self.states.push(state);
                 EventLoopMode::InputOnly
             }
-            Transition::PopThenApplyObjectAction(action) => {
-                self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
-                assert!(!self.states.is_empty());
+            Transition::ApplyObjectAction(action) => {
                 self.ui.per_obj.action_chosen(action);
                 return EventLoopMode::InputOnly;
             }
@@ -198,7 +196,7 @@ pub enum Transition {
     Replace(Box<dyn State>),
     PopThenReplace(Box<dyn State>),
     Clear(Box<dyn State>),
-    PopThenApplyObjectAction(String),
+    ApplyObjectAction(String),
     PushTwice(Box<dyn State>, Box<dyn State>),
 
     // These don't.

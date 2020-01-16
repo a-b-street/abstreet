@@ -5,6 +5,7 @@ pub struct PerObjectActions {
     actions: RefCell<Vec<(Key, String)>>,
     chosen: RefCell<Option<String>>,
     click_action: Option<String>,
+    pub info_panel_open: bool,
 }
 
 impl PerObjectActions {
@@ -13,6 +14,7 @@ impl PerObjectActions {
             actions: RefCell::new(Vec::new()),
             chosen: RefCell::new(None),
             click_action: None,
+            info_panel_open: false,
         }
     }
 
@@ -28,7 +30,7 @@ impl PerObjectActions {
         if !(key == Key::I && lbl == "show info") {
             self.actions.borrow_mut().push((key, lbl));
         }
-        ctx.input.new_was_pressed(hotkey(key).unwrap())
+        !self.info_panel_open && ctx.input.new_was_pressed(hotkey(key).unwrap())
     }
 
     pub fn consume(&mut self) -> Vec<(Key, String)> {
@@ -62,6 +64,9 @@ impl PerObjectActions {
     pub fn get_active_keys(&self) -> (Vec<Key>, Option<&String>) {
         let mut keys: Vec<Key> = self.actions.borrow().iter().map(|(k, _)| *k).collect();
         keys.sort();
+        if self.info_panel_open {
+            keys.clear();
+        }
         (keys, self.click_action.as_ref())
     }
 }

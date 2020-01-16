@@ -1,11 +1,10 @@
 use crate::common::CommonState;
-use crate::game::{State, Transition};
 use crate::helpers::{rotating_color, ID};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, Button, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    ManagedWidget, Outcome, Plot, Series, Text, VerticalAlignment,
+    hotkey, Button, Color, Composite, EventCtx, HorizontalAlignment, Key, Line, ManagedWidget,
+    Plot, Series, Text, VerticalAlignment,
 };
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, RoadID};
@@ -13,7 +12,8 @@ use sim::{CarID, TripMode};
 use std::collections::BTreeMap;
 
 pub struct InfoPanel {
-    composite: Composite,
+    pub id: ID,
+    pub composite: Composite,
 }
 
 impl InfoPanel {
@@ -84,6 +84,7 @@ impl InfoPanel {
         }
 
         InfoPanel {
+            id,
             composite: Composite::new(ManagedWidget::col(col).bg(Color::grey(0.3)))
                 .aligned(
                     HorizontalAlignment::Percent(0.1),
@@ -92,33 +93,6 @@ impl InfoPanel {
                 .max_size_percent(30, 60)
                 .build(ctx),
         }
-    }
-}
-
-impl State for InfoPanel {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        // Can click on the map to cancel
-        if ctx.canvas.get_cursor_in_map_space().is_some()
-            && ui.per_obj.left_click(ctx, "stop showing info")
-        {
-            return Transition::Pop;
-        }
-
-        match self.composite.event(ctx) {
-            Some(Outcome::Clicked(action)) => {
-                if action == "X" {
-                    Transition::Pop
-                } else {
-                    Transition::PopThenApplyObjectAction(action)
-                }
-            }
-            None => Transition::Keep,
-        }
-    }
-
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        self.composite.draw(g);
-        CommonState::draw_osd(g, ui, &None);
     }
 }
 

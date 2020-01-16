@@ -23,22 +23,26 @@ use crate::helpers::{list_names, ID};
 use crate::render::DrawOptions;
 use crate::ui::UI;
 use ezgui::{
-    hotkey, lctrl, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Text, VerticalAlignment,
+    hotkey, lctrl, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Text,
+    VerticalAlignment,
 };
 use std::collections::BTreeSet;
 
 pub struct CommonState {
     turn_cycler: turn_cycler::TurnCyclerState,
+    info_panel: Option<info::InfoPanel>,
 }
 
 impl CommonState {
     pub fn new() -> CommonState {
         CommonState {
             turn_cycler: turn_cycler::TurnCyclerState::Inactive,
+            info_panel: None,
         }
     }
 
     // This has to be called after anything that calls ui.per_obj.action(). Oof.
+    // TODO This'll be really clear once we consume. Hah!
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
         if ctx.input.new_was_pressed(lctrl(Key::S).unwrap()) {
             ui.opts.dev = !ui.opts.dev;
@@ -55,11 +59,39 @@ impl CommonState {
             if ui.per_obj.action(ctx, Key::I, "show info")
                 || ui.per_obj.left_click(ctx, "show info")
             {
-                return Some(Transition::Push(Box::new(info::InfoPanel::new(
-                    id.clone(),
-                    ui,
-                    ctx,
-                ))));
+                ui.per_obj.info_panel_open = true;
+                self.info_panel = Some(info::InfoPanel::new(id.clone(), ui, ctx));
+            }
+        }
+
+        if let Some(ref mut info) = self.info_panel {
+            // Can click on the map to cancel
+            if ctx.canvas.get_cursor_in_map_space().is_some()
+                && ui.primary.current_selection.is_none()
+                && ui.per_obj.left_click(ctx, "stop showing info")
+            {
+                self.info_panel = None;
+                assert!(ui.per_obj.info_panel_open);
+                ui.per_obj.info_panel_open = false;
+            } else {
+                match info.composite.event(ctx) {
+                    Some(Outcome::Clicked(action)) => {
+                        if action == "X" {
+                            self.info_panel = None;
+                            assert!(ui.per_obj.info_panel_open);
+                            ui.per_obj.info_panel_open = false;
+                        } else {
+                            // TODO If the action was conditional on some other stuff, it might
+                            // still go unused.
+                            ui.primary.current_selection = Some(info.id.clone());
+                            self.info_panel = None;
+                            assert!(ui.per_obj.info_panel_open);
+                            ui.per_obj.info_panel_open = false;
+                            return Some(Transition::ApplyObjectAction(action));
+                        }
+                    }
+                    None => {}
+                }
             }
         }
 
@@ -68,6 +100,9 @@ impl CommonState {
 
     pub fn draw_no_osd(&self, g: &mut GfxCtx, ui: &UI) {
         self.turn_cycler.draw(g, ui);
+        if let Some(ref info) = self.info_panel {
+            info.composite.draw(g);
+        }
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
