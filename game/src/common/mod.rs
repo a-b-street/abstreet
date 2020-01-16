@@ -60,7 +60,8 @@ impl CommonState {
                 || ui.per_obj.left_click(ctx, "show info")
             {
                 ui.per_obj.info_panel_open = true;
-                self.info_panel = Some(info::InfoPanel::new(id.clone(), ui, ctx));
+                let actions = ui.per_obj.consume();
+                self.info_panel = Some(info::InfoPanel::new(id.clone(), ctx, ui, actions));
             }
         }
 
@@ -74,6 +75,10 @@ impl CommonState {
                 assert!(ui.per_obj.info_panel_open);
                 ui.per_obj.info_panel_open = false;
             } else {
+                if ui.primary.sim.time() != info.time {
+                    info.live_update(ctx, ui);
+                }
+
                 match info.composite.event(ctx) {
                     Some(Outcome::Clicked(action)) => {
                         if action == "X" {

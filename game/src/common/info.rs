@@ -13,11 +13,14 @@ use std::collections::BTreeMap;
 
 pub struct InfoPanel {
     pub id: ID,
+    pub time: Time,
     pub composite: Composite,
+
+    actions: Vec<(Key, String)>,
 }
 
 impl InfoPanel {
-    pub fn new(id: ID, ui: &mut UI, ctx: &mut EventCtx) -> InfoPanel {
+    pub fn new(id: ID, ctx: &mut EventCtx, ui: &UI, actions: Vec<(Key, String)>) -> InfoPanel {
         let mut col = vec![ManagedWidget::row(vec![
             {
                 let mut txt = CommonState::default_osd(id.clone(), ui);
@@ -34,7 +37,7 @@ impl InfoPanel {
             crate::managed::Composite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
         ])];
 
-        for (key, label) in ui.per_obj.consume() {
+        for (key, label) in &actions {
             let mut txt = Text::new();
             txt.append(Line(key.describe()).fg(ezgui::HOTKEY_COLOR));
             txt.append(Line(format!(" - {}", label)));
@@ -42,8 +45,8 @@ impl InfoPanel {
                 txt,
                 Color::grey(0.5),
                 Color::ORANGE,
-                hotkey(key),
-                &label,
+                hotkey(*key),
+                label,
                 ctx,
             )));
         }
@@ -92,6 +95,8 @@ impl InfoPanel {
 
         InfoPanel {
             id,
+            actions,
+            time: ui.primary.sim.time(),
             composite: Composite::new(ManagedWidget::col(col).bg(Color::grey(0.3)))
                 .aligned(
                     HorizontalAlignment::Percent(0.1),
@@ -100,6 +105,13 @@ impl InfoPanel {
                 .max_size_percent(30, 60)
                 .build(ctx),
         }
+    }
+
+    pub fn live_update(&mut self, ctx: &mut EventCtx, ui: &UI) {
+        let preserve_scroll = self.composite.preserve_scroll();
+        // TODO Can we be more efficient here?
+        *self = InfoPanel::new(self.id.clone(), ctx, ui, self.actions.clone());
+        self.composite.restore_scroll(ctx, preserve_scroll);
     }
 }
 
