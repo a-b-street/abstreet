@@ -139,6 +139,7 @@ impl State for SandboxMode {
             if ui.per_obj.action(ctx, Key::E, "explore bus route") {
                 return Transition::Push(bus_explorer::make_route_picker(
                     routes.into_iter().map(|r| r.id).collect(),
+                    true,
                 ));
             }
         }

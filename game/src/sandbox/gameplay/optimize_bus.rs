@@ -64,7 +64,6 @@ impl GameplayState for OptimizeBus {
                 Overlays::BusRoute(_, ref r, _) => *r == self.route,
                 _ => false,
             },
-            false,
         ) {
             *overlays = Overlays::show_bus_route(self.route, ctx, ui);
         }
@@ -78,7 +77,6 @@ impl GameplayState for OptimizeBus {
                 Overlays::BusDelaysOverTime(_, ref r, _) => *r == self.route,
                 _ => false,
             },
-            false,
         ) {
             *overlays = Overlays::delays_over_time(self.route, ctx, ui);
         }
@@ -92,7 +90,6 @@ impl GameplayState for OptimizeBus {
                 Overlays::BusPassengers(_, ref r, _) => *r == self.route,
                 _ => false,
             },
-            false,
         ) {
             *overlays = Overlays::bus_passengers(self.route, ctx, ui);
         }

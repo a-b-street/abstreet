@@ -241,7 +241,6 @@ fn manage_overlays(
     hide: &str,
     overlay: &mut Overlays,
     active_originally: bool,
-    time_changed: bool,
 ) -> bool {
     // Synchronize menus if needed. Player can change these separately.
     if active_originally {
@@ -256,7 +255,7 @@ fn manage_overlays(
         *overlay = Overlays::Inactive;
         false
     } else {
-        active_originally && time_changed
+        active_originally
     }
 }
 

@@ -67,7 +67,6 @@ impl GameplayState for FixTrafficSignals {
                 Overlays::IntersectionDelay(_, _) => true,
                 _ => false,
             },
-            self.time != ui.primary.sim.time(),
         ) {
             *overlays = Overlays::intersection_delay(ctx, ui);
         }
@@ -81,7 +80,6 @@ impl GameplayState for FixTrafficSignals {
                 Overlays::FinishedTripsHistogram(_, _) => true,
                 _ => false,
             },
-            self.time != ui.primary.sim.time(),
         ) {
             *overlays = Overlays::finished_trips_histogram(ctx, ui);
         }

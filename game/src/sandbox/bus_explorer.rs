@@ -83,7 +83,7 @@ impl ShowBusRoute {
     }
 }
 
-pub fn make_route_picker(routes: Vec<BusRouteID>) -> Box<dyn State> {
+pub fn make_route_picker(routes: Vec<BusRouteID>, from_sandbox_mode: bool) -> Box<dyn State> {
     let show_route = "show the route";
     let delays = "delays between stops";
     let passengers = "passengers waiting at each stop";
@@ -112,13 +112,19 @@ pub fn make_route_picker(routes: Vec<BusRouteID>) -> Box<dyn State> {
         let choice = wizard.choose_string("What do you want to see about this route?", || {
             vec![show_route, delays, passengers]
         })?;
-        Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
-            state.downcast_mut::<SandboxMode>().unwrap().overlay = match choice {
-                x if x == show_route => Overlays::show_bus_route(id, ctx, ui),
-                x if x == delays => Overlays::delays_over_time(id, ctx, ui),
-                x if x == passengers => Overlays::bus_passengers(id, ctx, ui),
-                _ => unreachable!(),
-            };
-        })))
+        let cb: Box<dyn FnOnce(&mut Box<dyn State>, &mut UI, &mut EventCtx)> =
+            Box::new(move |state, ui, ctx| {
+                state.downcast_mut::<SandboxMode>().unwrap().overlay = match choice {
+                    x if x == show_route => Overlays::show_bus_route(id, ctx, ui),
+                    x if x == delays => Overlays::delays_over_time(id, ctx, ui),
+                    x if x == passengers => Overlays::bus_passengers(id, ctx, ui),
+                    _ => unreachable!(),
+                };
+            });
+        if from_sandbox_mode {
+            Some(Transition::PopWithData(cb))
+        } else {
+            Some(Transition::PopTwiceWithData(cb))
+        }
     }))
 }

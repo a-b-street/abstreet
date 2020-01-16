@@ -307,7 +307,12 @@ fn pick_bus_route(ctx: &EventCtx, ui: &UI) -> (ManagedWidget, Vec<(String, Callb
         buttons.push(Composite::text_button(ctx, name, None));
         cbs.push((
             name.to_string(),
-            Box::new(move |_, _| Some(Transition::Push(bus_explorer::make_route_picker(vec![id])))),
+            Box::new(move |_, _| {
+                Some(Transition::Push(bus_explorer::make_route_picker(
+                    vec![id],
+                    false,
+                )))
+            }),
         ));
     }
 

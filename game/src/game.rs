@@ -67,6 +67,12 @@ impl GUI for Game {
                 cb(self.states.last_mut().unwrap(), &mut self.ui, ctx);
                 EventLoopMode::InputOnly
             }
+            Transition::PopTwiceWithData(cb) => {
+                self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
+                self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
+                cb(self.states.last_mut().unwrap(), &mut self.ui, ctx);
+                EventLoopMode::InputOnly
+            }
             Transition::PushWithMode(state, evmode) => {
                 self.states
                     .last_mut()
@@ -187,6 +193,7 @@ pub enum Transition {
     Pop,
     // If a state needs to pass data back to the parent, use this. Sadly, runtime type casting.
     PopWithData(Box<dyn FnOnce(&mut Box<dyn State>, &mut UI, &mut EventCtx)>),
+    PopTwiceWithData(Box<dyn FnOnce(&mut Box<dyn State>, &mut UI, &mut EventCtx)>),
     Push(Box<dyn State>),
     Replace(Box<dyn State>),
     PopThenReplace(Box<dyn State>),
