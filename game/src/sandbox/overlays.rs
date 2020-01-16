@@ -1,5 +1,6 @@
 use crate::common::{ColorLegend, Colorer, ColorerBuilder, Warping};
 use crate::game::Transition;
+use crate::helpers::rotating_color_total;
 use crate::helpers::ID;
 use crate::managed::{ManagedGUIState, Outcome};
 use crate::sandbox::bus_explorer::ShowBusRoute;
@@ -8,8 +9,8 @@ use crate::ui::UI;
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
     hotkey, Button, Color, Composite, DrawBoth, Drawable, EventCtx, EventLoopMode, GeomBatch,
-    GfxCtx, Histogram, HorizontalAlignment, JustDraw, Key, Line, ManagedWidget, RewriteColor, Text,
-    VerticalAlignment,
+    GfxCtx, Histogram, HorizontalAlignment, JustDraw, Key, Line, ManagedWidget, Plot, RewriteColor,
+    Series, Text, VerticalAlignment,
 };
 use geom::{Circle, Distance, Duration, PolyLine, Polygon, Pt2D, Statistic, Time};
 use map_model::{BusRouteID, IntersectionID};
@@ -27,7 +28,7 @@ pub enum Overlays {
     FinishedTripsHistogram(Time, Composite),
     IntersectionDemand(Time, IntersectionID, Drawable, Composite),
     BusRoute(Time, BusRouteID, ShowBusRoute),
-    BusDelaysOverTime(Composite),
+    BusDelaysOverTime(Time, BusRouteID, Composite),
     BusPassengers(Time, BusRouteID, crate::managed::Composite),
 }
 
@@ -67,8 +68,11 @@ impl Overlays {
             }
             // No updates needed
             Overlays::Inactive | Overlays::BikeNetwork(_) | Overlays::BusNetwork(_) => {}
-            // TODO do the updates here
-            Overlays::BusDelaysOverTime(_) => {}
+            Overlays::BusDelaysOverTime(t, id, _) => {
+                if now != *t {
+                    *self = Overlays::delays_over_time(*id, ctx, ui);
+                }
+            }
             Overlays::BusPassengers(t, id, _) => {
                 if now != *t {
                     *self = Overlays::bus_passengers(*id, ctx, ui);
@@ -125,7 +129,8 @@ impl Overlays {
                 },
                 None => {}
             },
-            Overlays::FinishedTripsHistogram(_, ref mut c) => match c.event(ctx) {
+            Overlays::FinishedTripsHistogram(_, ref mut c)
+            | Overlays::BusDelaysOverTime(_, _, ref mut c) => match c.event(ctx) {
                 Some(ezgui::Outcome::Clicked(x)) => match x.as_ref() {
                     "X" => {
                         *self = Overlays::Inactive;
@@ -134,7 +139,7 @@ impl Overlays {
                 },
                 None => {}
             },
-            _ => {}
+            Overlays::Inactive => {}
         }
 
         None
@@ -151,7 +156,7 @@ impl Overlays {
                 heatmap.draw(g);
             }
             Overlays::FinishedTripsHistogram(_, ref composite)
-            | Overlays::BusDelaysOverTime(ref composite) => {
+            | Overlays::BusDelaysOverTime(_, _, ref composite) => {
                 composite.draw(g);
             }
             Overlays::BusPassengers(_, _, ref composite) => {
@@ -673,5 +678,50 @@ impl Overlays {
             );
         }
         Overlays::BusPassengers(ui.primary.sim.time(), id, c)
+    }
+
+    pub fn delays_over_time(id: BusRouteID, ctx: &mut EventCtx, ui: &UI) -> Overlays {
+        let route = ui.primary.map.get_br(id);
+        let mut delays_per_stop = ui
+            .primary
+            .sim
+            .get_analytics()
+            .bus_arrivals_over_time(ui.primary.sim.time(), id);
+
+        let mut series = Vec::new();
+        for idx1 in 0..route.stops.len() {
+            let idx2 = if idx1 == route.stops.len() - 1 {
+                0
+            } else {
+                idx1 + 1
+            };
+            series.push(Series {
+                label: format!("Stop {}->{}", idx1 + 1, idx2 + 1),
+                color: rotating_color_total(idx1, route.stops.len()),
+                pts: delays_per_stop
+                    .remove(&route.stops[idx2])
+                    .unwrap_or_else(Vec::new),
+            });
+        }
+        Overlays::BusDelaysOverTime(
+            ui.primary.sim.time(),
+            route.id,
+            Composite::new(
+                ManagedWidget::col(vec![
+                    ManagedWidget::row(vec![
+                        ManagedWidget::draw_text(
+                            ctx,
+                            Text::from(Line(format!("delays for {}", route.name))),
+                        ),
+                        crate::managed::Composite::text_button(ctx, "X", None).align_right(),
+                    ]),
+                    Plot::new_duration(series, ctx).margin(10),
+                ])
+                .bg(Color::grey(0.3)),
+            )
+            // TODO Doesn't fit
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+            .build(ctx),
+        )
     }
 }

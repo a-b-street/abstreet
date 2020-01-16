@@ -1,16 +1,12 @@
 use crate::common::edit_map_panel;
 use crate::game::{msg, Transition, WizardState};
-use crate::helpers::rotating_color_total;
 use crate::sandbox::gameplay::{
     cmp_duration_shorter, manage_overlays, GameplayMode, GameplayState,
 };
 use crate::sandbox::overlays::Overlays;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
-use ezgui::{
-    hotkey, Choice, Color, Composite, EventCtx, Key, Line, ManagedWidget, ModalMenu, Plot, Series,
-    Text,
-};
+use ezgui::{hotkey, Choice, EventCtx, Key, Line, ModalMenu, Text};
 use geom::{Statistic, Time};
 use map_model::BusRouteID;
 
@@ -79,12 +75,12 @@ impl GameplayState for OptimizeBus {
             "hide delays over time",
             overlays,
             match overlays {
-                Overlays::BusDelaysOverTime(_) => true,
+                Overlays::BusDelaysOverTime(_, ref r, _) => *r == self.route,
                 _ => false,
             },
-            self.time != ui.primary.sim.time(),
+            false,
         ) {
-            *overlays = Overlays::BusDelaysOverTime(bus_delays(self.route, ui, ctx));
+            *overlays = Overlays::delays_over_time(self.route, ctx, ui);
         }
         if manage_overlays(
             menu,
@@ -180,37 +176,4 @@ fn bus_route_panel(id: BusRouteID, stat: Statistic, ui: &UI) -> Text {
         }
     }
     txt
-}
-
-fn bus_delays(id: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> Composite {
-    let route = ui.primary.map.get_br(id);
-    let mut delays_per_stop = ui
-        .primary
-        .sim
-        .get_analytics()
-        .bus_arrivals_over_time(ui.primary.sim.time(), id);
-
-    let mut series = Vec::new();
-    for idx1 in 0..route.stops.len() {
-        let idx2 = if idx1 == route.stops.len() - 1 {
-            0
-        } else {
-            idx1 + 1
-        };
-        series.push(Series {
-            label: format!("Stop {}->{}", idx1 + 1, idx2 + 1),
-            color: rotating_color_total(idx1, route.stops.len()),
-            pts: delays_per_stop
-                .remove(&route.stops[idx2])
-                .unwrap_or_else(Vec::new),
-        });
-    }
-    Composite::new(
-        ManagedWidget::col(vec![
-            ManagedWidget::draw_text(ctx, Text::from(Line(format!("delays for {}", route.name)))),
-            Plot::new_duration(series, ctx).margin(10),
-        ])
-        .bg(Color::grey(0.3)),
-    )
-    .build(ctx)
 }
