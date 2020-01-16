@@ -277,12 +277,12 @@ impl SpeedControls {
         }
 
         if !self.paused && ctx.input.nonblocking_is_update_event() {
-            // TODO This is very wrong. Actually cap realtime and faster to 1x and 600x, factoring
-            // in ezgui framerate.
+            // TODO This is very wrong. Actually cap realtime and faster to 1x and something else
+            // (10 minutes/s?), factoring in ezgui framerate.
             ctx.input.use_update_event();
             let max_step = match self.setting {
                 SpeedSetting::Realtime => Duration::seconds(0.1),
-                SpeedSetting::Faster => Duration::hours(1),
+                SpeedSetting::Faster => Duration::minutes(1),
                 SpeedSetting::Fastest => Duration::hours(24),
             };
             ui.primary

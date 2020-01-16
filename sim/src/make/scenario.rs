@@ -669,9 +669,13 @@ fn seed_parked_cars(
     }
 
     let mut new_cars = 0;
+    let mut ok = true;
     timer.start_iter("seed parked cars for buildings", owner_buildings.len());
     for b in owner_buildings {
         timer.next();
+        if !ok {
+            continue;
+        }
         for _ in 0..cars_per_building.sample(base_rng) {
             let mut forked_rng = fork_rng(base_rng);
             if let Some(spot) = find_spot_near_building(
@@ -694,6 +698,8 @@ fn seed_parked_cars(
                     new_cars,
                     b
                 ));
+                ok = false;
+                break;
             }
         }
     }
