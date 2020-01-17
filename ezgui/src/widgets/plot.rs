@@ -29,8 +29,8 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
     ) -> (Plot<T>, ManagedWidget, ManagedWidget, ManagedWidget) {
         let mut batch = GeomBatch::new();
 
-        let width = 0.5 * ctx.canvas.window_width;
-        let height = 0.4 * ctx.canvas.window_height;
+        let width = 0.3 * ctx.canvas.window_width;
+        let height = 0.2 * ctx.canvas.window_height;
 
         let radius = 15.0;
         let legend = ManagedWidget::col(

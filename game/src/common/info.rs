@@ -127,7 +127,7 @@ impl InfoPanel {
                     HorizontalAlignment::Percent(0.1),
                     VerticalAlignment::Percent(0.2),
                 )
-                .max_size_percent(30, 60)
+                .max_size_percent(40, 60)
                 .build(ctx),
         }
     }
@@ -329,14 +329,6 @@ fn info_for(id: ID, ui: &UI) -> Text {
                 // TODO Wrap
                 txt.add(Line(line));
             }
-
-            // TODO blocked since when
-            // TODO dist along trip
-            //
-            // actions:
-            // TODO show route
-            // TODO follow
-            // TODO jump to src/dst/current spot
         }
         ID::Pedestrian(id) => {
             for line in sim.ped_tooltip(id, map) {
