@@ -16,13 +16,12 @@ pub use self::minimap::Minimap;
 pub use self::panels::{edit_map_panel, tool_panel};
 pub use self::trip_explorer::TripExplorer;
 pub use self::warp::Warping;
-use crate::game::{msg, Transition};
+use crate::game::Transition;
 use crate::helpers::{list_names, ID};
 use crate::render::DrawOptions;
 use crate::ui::UI;
 use ezgui::{
-    lctrl, Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Text,
-    VerticalAlignment,
+    lctrl, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Text, VerticalAlignment,
 };
 use std::collections::BTreeSet;
 
@@ -64,53 +63,14 @@ impl CommonState {
         }
 
         if let Some(ref mut info) = self.info_panel {
-            // Can click on the map to cancel
-            if ctx.canvas.get_cursor_in_map_space().is_some()
-                && ui.primary.current_selection.is_none()
-                && ui.per_obj.left_click(ctx, "stop showing info")
-            {
+            let (closed, maybe_t) = info.event(ctx, ui);
+            if closed {
                 self.info_panel = None;
                 assert!(ui.per_obj.info_panel_open);
                 ui.per_obj.info_panel_open = false;
-            } else {
-                if ui.primary.sim.time() != info.time {
-                    if let Some(err) = info.live_update(ctx, ui) {
-                        self.info_panel = None;
-                        assert!(ui.per_obj.info_panel_open);
-                        ui.per_obj.info_panel_open = false;
-                        return Some(Transition::Push(msg("Closing info panel", vec![err])));
-                    }
-                }
-
-                match info.composite.event(ctx) {
-                    Some(Outcome::Clicked(action)) => {
-                        if action == "X" {
-                            self.info_panel = None;
-                            assert!(ui.per_obj.info_panel_open);
-                            ui.per_obj.info_panel_open = false;
-                        } else if action == "jump to object" {
-                            return Some(Transition::PushWithMode(
-                                Warping::new(
-                                    ctx,
-                                    info.id.canonical_point(&ui.primary).unwrap(),
-                                    Some(10.0),
-                                    Some(info.id.clone()),
-                                    &mut ui.primary,
-                                ),
-                                EventLoopMode::Animation,
-                            ));
-                        } else {
-                            // TODO If the action was conditional on some other stuff, it might
-                            // still go unused.
-                            ui.primary.current_selection = Some(info.id.clone());
-                            self.info_panel = None;
-                            assert!(ui.per_obj.info_panel_open);
-                            ui.per_obj.info_panel_open = false;
-                            return Some(Transition::ApplyObjectAction(action));
-                        }
-                    }
-                    None => {}
-                }
+            }
+            if let Some(t) = maybe_t {
+                return Some(t);
             }
         }
 

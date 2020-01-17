@@ -1,10 +1,11 @@
-use crate::common::CommonState;
+use crate::common::{CommonState, Warping};
+use crate::game::{msg, Transition};
 use crate::helpers::{rotating_color, ID};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, Button, Color, Composite, EventCtx, HorizontalAlignment, Key, Line, ManagedWidget,
-    Plot, RewriteColor, Series, Text, VerticalAlignment,
+    hotkey, Button, Color, Composite, EventCtx, EventLoopMode, HorizontalAlignment, Key, Line,
+    ManagedWidget, Outcome, Plot, RewriteColor, Series, Text, VerticalAlignment,
 };
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, RoadID};
@@ -117,21 +118,62 @@ impl InfoPanel {
         }
     }
 
-    // If this returns an error message, the object is gone.
-    pub fn live_update(&mut self, ctx: &mut EventCtx, ui: &UI) -> Option<String> {
-        if let Some(a) = self.id.agent_id() {
-            if !ui.primary.sim.does_agent_exist(a) {
-                // TODO Get a TripResult, slightly more detail?
-                return Some(format!("{} is gone", a));
-            }
+    // (Are we done, optional transition)
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (bool, Option<Transition>) {
+        // Can click on the map to cancel
+        if ctx.canvas.get_cursor_in_map_space().is_some()
+            && ui.primary.current_selection.is_none()
+            && ui.per_obj.left_click(ctx, "stop showing info")
+        {
+            return (true, None);
         }
 
-        let preserve_scroll = self.composite.preserve_scroll();
-        // TODO Can we be more efficient here?
-        *self = InfoPanel::new(self.id.clone(), ctx, ui, self.actions.clone());
-        self.composite.restore_scroll(ctx, preserve_scroll);
+        // Live update?
+        if ui.primary.sim.time() != self.time {
+            if let Some(a) = self.id.agent_id() {
+                if !ui.primary.sim.does_agent_exist(a) {
+                    // TODO Get a TripResult, slightly more detail?
+                    return (
+                        true,
+                        Some(Transition::Push(msg(
+                            "Closing info panel",
+                            vec![format!("{} is gone", a)],
+                        ))),
+                    );
+                }
+            }
 
-        None
+            let preserve_scroll = self.composite.preserve_scroll();
+            // TODO Can we be more efficient here?
+            *self = InfoPanel::new(self.id.clone(), ctx, ui, self.actions.clone());
+            self.composite.restore_scroll(ctx, preserve_scroll);
+        }
+
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(action)) => {
+                if action == "X" {
+                    return (true, None);
+                } else if action == "jump to object" {
+                    return (
+                        false,
+                        Some(Transition::PushWithMode(
+                            Warping::new(
+                                ctx,
+                                self.id.canonical_point(&ui.primary).unwrap(),
+                                Some(10.0),
+                                Some(self.id.clone()),
+                                &mut ui.primary,
+                            ),
+                            EventLoopMode::Animation,
+                        )),
+                    );
+                } else {
+                    ui.primary.current_selection = Some(self.id.clone());
+                    return (true, Some(Transition::ApplyObjectAction(action)));
+                }
+            }
+            None => (false, None),
+        }
     }
 }
 
