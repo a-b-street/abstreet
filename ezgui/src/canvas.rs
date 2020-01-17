@@ -30,7 +30,6 @@ pub struct Canvas {
 
     // TODO Bit weird and hacky to mutate inside of draw() calls.
     pub(crate) covered_areas: RefCell<Vec<ScreenRectangle>>,
-    pub(crate) covered_polygons: RefCell<Vec<Polygon>>,
 
     // Kind of just ezgui state awkwardly stuck here...
     pub(crate) lctrl_held: bool,
@@ -63,7 +62,6 @@ impl Canvas {
             map_dims: (0.0, 0.0),
 
             covered_areas: RefCell::new(Vec::new()),
-            covered_polygons: RefCell::new(Vec::new()),
 
             lctrl_held: false,
             button_tooltip: None,
@@ -127,10 +125,9 @@ impl Canvas {
 
     pub(crate) fn start_drawing(&self) {
         self.covered_areas.borrow_mut().clear();
-        self.covered_polygons.borrow_mut().clear();
     }
 
-    pub fn mark_covered_area(&self, rect: ScreenRectangle) {
+    pub(crate) fn mark_covered_area(&self, rect: ScreenRectangle) {
         self.covered_areas.borrow_mut().push(rect);
     }
 
@@ -144,11 +141,6 @@ impl Canvas {
 
             for rect in self.covered_areas.borrow().iter() {
                 if rect.contains(pt) {
-                    return None;
-                }
-            }
-            for c in self.covered_polygons.borrow().iter() {
-                if c.contains_pt(pt.to_pt()) {
                     return None;
                 }
             }

@@ -105,11 +105,6 @@ impl Button {
         } else {
             self.draw_normal.redraw(self.top_left, g);
         }
-
-        g.canvas
-            .covered_polygons
-            .borrow_mut()
-            .push(self.get_hitbox());
     }
 }
 

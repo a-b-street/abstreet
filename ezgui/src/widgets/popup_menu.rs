@@ -114,7 +114,7 @@ impl<T: Clone> PopupMenu<T> {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        g.draw_text_at_screenspace_topleft(&self.calculate_txt(), self.top_left);
+        g.draw_blocking_text_at_screenspace_topleft(&self.calculate_txt(), self.top_left);
     }
 
     pub fn current_choice(&self) -> &T {

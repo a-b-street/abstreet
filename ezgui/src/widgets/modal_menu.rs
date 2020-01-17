@@ -196,7 +196,7 @@ impl ModalMenu {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        g.draw_text_at_screenspace_topleft(&self.calculate_txt(), self.top_left);
+        g.draw_blocking_text_at_screenspace_topleft(&self.calculate_txt(), self.top_left);
     }
 
     fn recalculate_dims(&mut self, ctx: &EventCtx) {

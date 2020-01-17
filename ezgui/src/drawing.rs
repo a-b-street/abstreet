@@ -242,6 +242,12 @@ impl<'a> GfxCtx<'a> {
             .mark_covered_area(text::draw_text_bubble(self, top_left, txt, dims, true));
     }
 
+    pub(crate) fn draw_blocking_text_at_screenspace_topleft(&mut self, txt: &Text, pt: ScreenPt) {
+        let dims = self.text_dims(&txt);
+        self.canvas
+            .mark_covered_area(text::draw_text_bubble(self, pt, txt, dims, true));
+    }
+
     pub fn get_screen_bounds(&self) -> Bounds {
         self.canvas.get_screen_bounds()
     }
@@ -270,12 +276,6 @@ impl<'a> GfxCtx<'a> {
             txt,
             dims,
         );
-    }
-
-    pub fn draw_text_at_screenspace_topleft(&mut self, txt: &Text, pt: ScreenPt) {
-        let dims = self.text_dims(&txt);
-        self.canvas
-            .mark_covered_area(text::draw_text_bubble(self, pt, txt, dims, true));
     }
 
     pub fn draw_mouse_tooltip(&mut self, txt: &Text) {
@@ -590,9 +590,13 @@ impl DrawBoth {
         g.redraw(&self.geom);
         g.unfork();
         for (txt, pt) in &self.txt {
-            g.draw_text_at_screenspace_topleft(
-                txt,
+            let dims = g.text_dims(&txt);
+            text::draw_text_bubble(
+                g,
                 ScreenPt::new(top_left.x + pt.x, top_left.y + pt.y),
+                txt,
+                dims,
+                true,
             );
         }
     }

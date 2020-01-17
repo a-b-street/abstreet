@@ -94,7 +94,7 @@ impl TextBox {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        g.draw_text_at_screenspace_topleft(&self.get_text(), self.top_left);
+        g.draw_blocking_text_at_screenspace_topleft(&self.get_text(), self.top_left);
     }
 }
 

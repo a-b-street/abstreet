@@ -707,9 +707,11 @@ impl Composite {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        g.canvas.mark_covered_area(self.top_level.rect.clone());
-        if self.scrollable_x || self.scrollable_y {
-            g.enable_clipping(self.clip_rect.clone().unwrap());
+        if let Some(ref rect) = self.clip_rect {
+            g.enable_clipping(rect.clone());
+            g.canvas.mark_covered_area(rect.clone());
+        } else {
+            g.canvas.mark_covered_area(self.top_level.rect.clone());
         }
         self.top_level.draw(g, &self.sliders, &self.menus);
         if self.scrollable_x || self.scrollable_y {

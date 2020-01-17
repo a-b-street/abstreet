@@ -215,6 +215,8 @@ impl Slider {
 
     pub fn draw(&self, g: &mut GfxCtx) {
         self.draw.redraw(self.top_left, g);
+        // TODO Since the sliders in Composites are scrollbars outside of the clipping rectangle,
+        // this stays for now.
         g.canvas
             .mark_covered_area(ScreenRectangle::top_left(self.top_left, self.dims));
     }
