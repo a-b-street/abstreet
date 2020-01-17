@@ -23,7 +23,7 @@ impl RouteViewer {
             if let Some(trace) = ui.primary.sim.trace_route(agent, &ui.primary.map, None) {
                 let mut batch = GeomBatch::new();
                 batch.extend(
-                    ui.cs.get_def("route", Color::ORANGE.alpha(0.5)),
+                    ui.cs.get("route"),
                     dashed_lines(
                         &trace,
                         Distance::meters(0.75),

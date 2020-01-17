@@ -80,7 +80,7 @@ impl CommonState {
     pub fn draw_no_osd(&self, g: &mut GfxCtx, ui: &UI) {
         self.turn_cycler.draw(g, ui);
         if let Some(ref info) = self.info_panel {
-            info.composite.draw(g);
+            info.draw(g);
         }
     }
 

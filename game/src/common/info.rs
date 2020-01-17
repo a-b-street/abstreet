@@ -1,21 +1,25 @@
 use crate::common::{CommonState, Warping};
 use crate::game::{msg, Transition};
-use crate::helpers::{rotating_color, ID};
+use crate::helpers::{rotating_color, rotating_color_map, ID};
+use crate::render::{dashed_lines, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, Button, Color, Composite, EventCtx, EventLoopMode, HorizontalAlignment, Key, Line,
-    ManagedWidget, Outcome, Plot, RewriteColor, Series, Text, VerticalAlignment,
+    hotkey, Button, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Plot, RewriteColor, Series, Text,
+    VerticalAlignment,
 };
-use geom::{Duration, Statistic, Time};
+use geom::{Circle, Distance, Duration, Pt2D, Statistic, Time};
 use map_model::{IntersectionID, RoadID};
-use sim::{CarID, TripMode};
+use sim::{CarID, TripEnd, TripID, TripMode, TripStart};
 use std::collections::BTreeMap;
 
 pub struct InfoPanel {
     pub id: ID,
     pub time: Time,
     pub composite: Composite,
+
+    trip_details: Option<(Drawable, Drawable)>,
 
     actions: Vec<(Key, String)>,
 }
@@ -94,6 +98,15 @@ impl InfoPanel {
             _ => {}
         }
 
+        let trip_details =
+            if let Some(trip) = id.agent_id().and_then(|a| ui.primary.sim.agent_to_trip(a)) {
+                let (rows, unzoomed, zoomed) = trip_details(trip, ctx, ui);
+                col.push(rows);
+                Some((unzoomed, zoomed))
+            } else {
+                None
+            };
+
         // Follow the agent. When the sim is paused, this lets the player naturally pan away,
         // because the InfoPanel isn't being updated.
         // TODO Should we pin to the trip, not the specific agent?
@@ -107,6 +120,7 @@ impl InfoPanel {
         InfoPanel {
             id,
             actions,
+            trip_details,
             time: ui.primary.sim.time(),
             composite: Composite::new(ManagedWidget::col(col).bg(Color::grey(0.3)))
                 .aligned(
@@ -173,6 +187,17 @@ impl InfoPanel {
                 }
             }
             None => (false, None),
+        }
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx) {
+        self.composite.draw(g);
+        if let Some((ref unzoomed, ref zoomed)) = self.trip_details {
+            if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+                g.redraw(unzoomed);
+            } else {
+                g.redraw(zoomed);
+            }
         }
     }
 }
@@ -456,4 +481,117 @@ fn color_for_mode(m: TripMode, ui: &UI) -> Color {
         TripMode::Transit => ui.cs.get("unzoomed bus"),
         TripMode::Drive => ui.cs.get("unzoomed car"),
     }
+}
+
+// (extra rows to display, unzoomed view, zoomed view)
+fn trip_details(trip: TripID, ctx: &mut EventCtx, ui: &UI) -> (ManagedWidget, Drawable, Drawable) {
+    let map = &ui.primary.map;
+    let phases = ui.primary.sim.get_analytics().get_trip_phases(trip, map);
+
+    let mut col = vec![ManagedWidget::draw_text(
+        ctx,
+        Text::from(Line(trip.to_string())),
+    )];
+    let mut unzoomed = GeomBatch::new();
+    let mut zoomed = GeomBatch::new();
+
+    for (idx, p) in phases.into_iter().enumerate() {
+        let color = rotating_color_map(idx + 1);
+        col.push(trip_line(ctx, color, p.describe(ui.primary.sim.time())));
+
+        // TODO Could really cache this between live updates
+        if let Some((dist, ref path)) = p.path {
+            if let Some(trace) = path.trace(map, dist, None) {
+                unzoomed.push(color, trace.make_polygons(Distance::meters(10.0)));
+                zoomed.extend(
+                    ui.cs.get_def("route", Color::ORANGE.alpha(0.5)),
+                    dashed_lines(
+                        &trace,
+                        Distance::meters(0.75),
+                        Distance::meters(1.0),
+                        Distance::meters(0.4),
+                    ),
+                );
+            }
+        }
+    }
+
+    // Handle endpoints
+    let (trip_start, trip_end) = ui.primary.sim.trip_endpoints(trip);
+    let start_color = rotating_color_map(0);
+    match trip_start {
+        TripStart::Bldg(b) => {
+            let bldg = map.get_b(b);
+            col.insert(
+                0,
+                trip_line(ctx, start_color, format!("start at {}", bldg.get_name(map))),
+            );
+            unzoomed.push(start_color, bldg.polygon.clone());
+            zoomed.push(start_color, bldg.polygon.clone());
+        }
+        TripStart::Border(i) => {
+            let i = map.get_i(i);
+            col.insert(
+                0,
+                trip_line(ctx, start_color, format!("enter map via {}", i.id)),
+            );
+            unzoomed.push(start_color, i.polygon.clone());
+            zoomed.push(start_color, i.polygon.clone());
+        }
+    };
+
+    // Is the trip ongoing?
+    if let Some(pt) = ui.primary.sim.get_canonical_pt_per_trip(trip, map).ok() {
+        let color = rotating_color_map(col.len());
+        unzoomed.push(color, Circle::new(pt, Distance::meters(10.0)).to_polygon());
+        // Don't need anything when zoomed; the info panel already focuses on them.
+        col.push(trip_line(ctx, color, format!("currently here")));
+    }
+
+    let end_color = rotating_color_map(col.len());
+    match trip_end {
+        TripEnd::Bldg(b) => {
+            let bldg = map.get_b(b);
+            col.push(trip_line(
+                ctx,
+                end_color,
+                format!("end at {}", bldg.get_name(map)),
+            ));
+            unzoomed.push(end_color, bldg.polygon.clone());
+            zoomed.push(end_color, bldg.polygon.clone());
+        }
+        TripEnd::Border(i) => {
+            let i = map.get_i(i);
+            col.push(trip_line(ctx, end_color, format!("leave map via {}", i.id)));
+            unzoomed.push(end_color, i.polygon.clone());
+            zoomed.push(end_color, i.polygon.clone());
+        }
+        TripEnd::ServeBusRoute(br) => {
+            col.push(trip_line(
+                ctx,
+                end_color,
+                format!("serve route {} forever", map.get_br(br).name),
+            ));
+        }
+    };
+
+    (
+        ManagedWidget::col(col),
+        unzoomed.upload(ctx),
+        zoomed.upload(ctx),
+    )
+}
+
+fn trip_line(ctx: &EventCtx, color: Color, descr: String) -> ManagedWidget {
+    let radius = 15.0;
+    ManagedWidget::row(vec![
+        ManagedWidget::draw_batch(
+            ctx,
+            GeomBatch::from(vec![(
+                color,
+                Circle::new(Pt2D::new(radius, radius), Distance::meters(radius)).to_polygon(),
+            )]),
+        ),
+        ManagedWidget::draw_text(ctx, Text::from(Line(descr))),
+    ])
 }
