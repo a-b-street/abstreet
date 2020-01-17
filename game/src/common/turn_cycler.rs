@@ -8,16 +8,16 @@ use ezgui::{
     hotkey, Button, Color, Composite, DrawBoth, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, ManagedWidget, ModalMenu, Outcome, Text, VerticalAlignment,
 };
-use geom::{Distance, Polygon};
+use geom::{Distance, Polygon, Time};
 use map_model::{IntersectionID, LaneID, Map, TurnType};
-use sim::DontDrawAgents;
+use sim::{AgentID, DontDrawAgents};
 use std::collections::BTreeSet;
 
 // TODO Misnomer. Kind of just handles temporary hovering things now.
 pub enum TurnCyclerState {
     Inactive,
     ShowLane(LaneID),
-    ShowRoute(Drawable),
+    ShowRoute(AgentID, Time, Drawable),
     CycleTurns(LaneID, usize),
 }
 
@@ -70,21 +70,29 @@ impl TurnCyclerState {
                 *self = TurnCyclerState::Inactive;
             }
             Some(ref id) => {
-                if let Some(trace) = id
-                    .agent_id()
-                    .and_then(|a| ui.primary.sim.trace_route(a, &ui.primary.map, None))
-                {
-                    let mut batch = GeomBatch::new();
-                    batch.extend(
-                        ui.cs.get("route"),
-                        dashed_lines(
-                            &trace,
-                            Distance::meters(0.75),
-                            Distance::meters(1.0),
-                            Distance::meters(0.4),
-                        ),
-                    );
-                    *self = TurnCyclerState::ShowRoute(batch.upload(ctx));
+                if let Some(agent) = id.agent_id() {
+                    let now = ui.primary.sim.time();
+                    let recalc = match self {
+                        TurnCyclerState::ShowRoute(a, t, _) => agent != *a || now != *t,
+                        _ => true,
+                    };
+                    if recalc {
+                        if let Some(trace) =
+                            ui.primary.sim.trace_route(agent, &ui.primary.map, None)
+                        {
+                            let mut batch = GeomBatch::new();
+                            batch.extend(
+                                ui.cs.get("route"),
+                                dashed_lines(
+                                    &trace,
+                                    Distance::meters(0.75),
+                                    Distance::meters(1.0),
+                                    Distance::meters(0.4),
+                                ),
+                            );
+                            *self = TurnCyclerState::ShowRoute(agent, now, batch.upload(ctx));
+                        }
+                    }
                 }
             }
             _ => {
@@ -120,7 +128,7 @@ impl TurnCyclerState {
                 }
                 batch.draw(g);
             }
-            TurnCyclerState::ShowRoute(ref d) => {
+            TurnCyclerState::ShowRoute(_, _, ref d) => {
                 g.redraw(d);
             }
         }
@@ -131,7 +139,7 @@ impl TurnCyclerState {
             TurnCyclerState::ShowLane(l) | TurnCyclerState::CycleTurns(l, _) => {
                 Some(map.get_l(*l).dst_i)
             }
-            TurnCyclerState::ShowRoute(_) | TurnCyclerState::Inactive => None,
+            TurnCyclerState::ShowRoute(_, _, _) | TurnCyclerState::Inactive => None,
         }
     }
 }
