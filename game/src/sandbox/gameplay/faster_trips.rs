@@ -5,57 +5,54 @@ use crate::sandbox::gameplay::{cmp_count_more, cmp_duration_shorter, GameplayMod
 use crate::sandbox::overlays::Overlays;
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
-use ezgui::{hotkey, EventCtx, Key, Line, ModalMenu, Text};
+use ezgui::{hotkey, layout, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
 use geom::{Statistic, Time};
 use sim::TripMode;
 
 pub struct FasterTrips {
     mode: TripMode,
     time: Time,
+    menu: ModalMenu,
 }
 
 impl FasterTrips {
-    pub fn new(
-        trip_mode: TripMode,
-        ctx: &mut EventCtx,
-    ) -> (ModalMenu, Composite, Box<dyn GameplayState>) {
+    pub fn new(trip_mode: TripMode, ctx: &mut EventCtx) -> (Composite, Box<dyn GameplayState>) {
         (
-            ModalMenu::new(
-                format!("Speed up {} trips", trip_mode),
-                vec![(hotkey(Key::H), "help")],
-                ctx,
-            ),
             edit_map_panel(ctx, GameplayMode::FasterTrips(trip_mode)),
             Box::new(FasterTrips {
                 mode: trip_mode,
                 time: Time::START_OF_DAY,
+                menu: ModalMenu::new(
+                    format!("Speed up {} trips", trip_mode),
+                    vec![(hotkey(Key::H), "help")],
+                    ctx,
+                )
+                .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
             }),
         )
     }
 }
 
 impl GameplayState for FasterTrips {
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        ui: &mut UI,
-        _: &mut Overlays,
-        menu: &mut ModalMenu,
-    ) -> Option<Transition> {
-        menu.event(ctx);
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI, _: &mut Overlays) -> Option<Transition> {
+        self.menu.event(ctx);
 
         if self.time != ui.primary.sim.time() {
             self.time = ui.primary.sim.time();
-            menu.set_info(ctx, faster_trips_panel(self.mode, ui));
+            self.menu.set_info(ctx, faster_trips_panel(self.mode, ui));
         }
 
-        if menu.action("help") {
+        if self.menu.action("help") {
             return Some(Transition::Push(msg(
                 "Help",
                 vec!["How can you possibly speed up all trips of some mode?"],
             )));
         }
         None
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.menu.draw(g);
     }
 }
 

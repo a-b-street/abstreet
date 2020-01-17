@@ -6,44 +6,40 @@ use crate::sandbox::gameplay::{cmp_count_fewer, manage_acs, GameplayMode, Gamepl
 use crate::sandbox::overlays::Overlays;
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
-use ezgui::{hotkey, EventCtx, Key, Line, ModalMenu, Text};
+use ezgui::{hotkey, layout, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
 use geom::Time;
 use sim::TripMode;
 
 pub struct CreateGridlock {
     time: Time,
+    menu: ModalMenu,
 }
 
 impl CreateGridlock {
-    pub fn new(ctx: &mut EventCtx) -> (ModalMenu, Composite, Box<dyn GameplayState>) {
+    pub fn new(ctx: &mut EventCtx) -> (Composite, Box<dyn GameplayState>) {
         (
-            ModalMenu::new(
-                "Cause gridlock",
-                vec![
-                    (hotkey(Key::E), "show agent delay"),
-                    (hotkey(Key::H), "help"),
-                ],
-                ctx,
-            ),
             edit_map_panel(ctx, GameplayMode::CreateGridlock),
             Box::new(CreateGridlock {
                 time: Time::START_OF_DAY,
+                menu: ModalMenu::new(
+                    "Cause gridlock",
+                    vec![
+                        (hotkey(Key::E), "show agent delay"),
+                        (hotkey(Key::H), "help"),
+                    ],
+                    ctx,
+                )
+                .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
             }),
         )
     }
 }
 
 impl GameplayState for CreateGridlock {
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        ui: &mut UI,
-        _: &mut Overlays,
-        menu: &mut ModalMenu,
-    ) -> Option<Transition> {
-        menu.event(ctx);
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI, _: &mut Overlays) -> Option<Transition> {
+        self.menu.event(ctx);
         manage_acs(
-            menu,
+            &mut self.menu,
             ctx,
             ui,
             "show agent delay",
@@ -53,10 +49,10 @@ impl GameplayState for CreateGridlock {
 
         if self.time != ui.primary.sim.time() {
             self.time = ui.primary.sim.time();
-            menu.set_info(ctx, gridlock_panel(ui));
+            self.menu.set_info(ctx, gridlock_panel(ui));
         }
 
-        if menu.action("help") {
+        if self.menu.action("help") {
             return Some(Transition::Push(msg("Help", vec![
                         "You might notice a few places in the map where gridlock forms already.",
                         "You can make things worse!",
@@ -64,6 +60,10 @@ impl GameplayState for CreateGridlock {
                     ])));
         }
         None
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.menu.draw(g);
     }
 }
 

@@ -6,7 +6,7 @@ use crate::sandbox::gameplay::{
 use crate::sandbox::overlays::Overlays;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
-use ezgui::{hotkey, Choice, EventCtx, Key, Line, ModalMenu, Text};
+use ezgui::{hotkey, layout, Choice, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
 use geom::{Statistic, Time};
 use map_model::BusRouteID;
 
@@ -14,6 +14,7 @@ pub struct OptimizeBus {
     route: BusRouteID,
     time: Time,
     stat: Statistic,
+    menu: ModalMenu,
 }
 
 impl OptimizeBus {
@@ -21,25 +22,26 @@ impl OptimizeBus {
         route_name: String,
         ctx: &mut EventCtx,
         ui: &UI,
-    ) -> (ModalMenu, crate::managed::Composite, Box<dyn GameplayState>) {
+    ) -> (crate::managed::Composite, Box<dyn GameplayState>) {
         let route = ui.primary.map.get_bus_route(&route_name).unwrap();
         (
-            ModalMenu::new(
-                format!("Optimize {}", route_name),
-                vec![
-                    (hotkey(Key::E), "show bus route"),
-                    (hotkey(Key::T), "show delays over time"),
-                    (hotkey(Key::P), "show bus passengers"),
-                    (hotkey(Key::S), "change statistic"),
-                    (hotkey(Key::H), "help"),
-                ],
-                ctx,
-            ),
             edit_map_panel(ctx, GameplayMode::OptimizeBus(route_name.clone())),
             Box::new(OptimizeBus {
                 route: route.id,
                 time: Time::START_OF_DAY,
                 stat: Statistic::Max,
+                menu: ModalMenu::new(
+                    format!("Optimize {}", route_name),
+                    vec![
+                        (hotkey(Key::E), "show bus route"),
+                        (hotkey(Key::T), "show delays over time"),
+                        (hotkey(Key::P), "show bus passengers"),
+                        (hotkey(Key::S), "change statistic"),
+                        (hotkey(Key::H), "help"),
+                    ],
+                    ctx,
+                )
+                .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
             }),
         )
     }
@@ -51,11 +53,10 @@ impl GameplayState for OptimizeBus {
         ctx: &mut EventCtx,
         ui: &mut UI,
         overlays: &mut Overlays,
-        menu: &mut ModalMenu,
     ) -> Option<Transition> {
-        menu.event(ctx);
+        self.menu.event(ctx);
         if manage_overlays(
-            menu,
+            &mut self.menu,
             ctx,
             "show bus route",
             "hide bus route",
@@ -68,7 +69,7 @@ impl GameplayState for OptimizeBus {
             *overlays = Overlays::show_bus_route(self.route, ctx, ui);
         }
         if manage_overlays(
-            menu,
+            &mut self.menu,
             ctx,
             "show delays over time",
             "hide delays over time",
@@ -81,7 +82,7 @@ impl GameplayState for OptimizeBus {
             *overlays = Overlays::delays_over_time(self.route, ctx, ui);
         }
         if manage_overlays(
-            menu,
+            &mut self.menu,
             ctx,
             "show bus passengers",
             "hide bus passengers",
@@ -97,10 +98,11 @@ impl GameplayState for OptimizeBus {
         // TODO Expensive
         if self.time != ui.primary.sim.time() {
             self.time = ui.primary.sim.time();
-            menu.set_info(ctx, bus_route_panel(self.route, self.stat, ui));
+            self.menu
+                .set_info(ctx, bus_route_panel(self.route, self.stat, ui));
         }
 
-        if menu.action("change statistic") {
+        if self.menu.action("change statistic") {
             return Some(Transition::Push(WizardState::new(Box::new(
                 move |wiz, ctx, _| {
                     // TODO Filter out existing. Make this kind of thing much easier.
@@ -127,7 +129,7 @@ impl GameplayState for OptimizeBus {
                 },
             ))));
         }
-        if menu.action("help") {
+        if self.menu.action("help") {
             return Some(Transition::Push(msg(
                 "Help",
                 vec![
@@ -139,6 +141,10 @@ impl GameplayState for OptimizeBus {
             )));
         }
         None
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.menu.draw(g);
     }
 }
 

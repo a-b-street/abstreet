@@ -5,7 +5,7 @@ use crate::sandbox::gameplay::faster_trips::small_faster_trips_panel;
 use crate::sandbox::gameplay::{manage_overlays, GameplayMode, GameplayState};
 use crate::sandbox::overlays::Overlays;
 use crate::ui::UI;
-use ezgui::{hotkey, EventCtx, Key, ModalMenu};
+use ezgui::{hotkey, layout, EventCtx, GfxCtx, Key, ModalMenu};
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, Map};
 use sim::{BorderSpawnOverTime, OriginDestination, Scenario, TripMode};
@@ -13,28 +13,27 @@ use sim::{BorderSpawnOverTime, OriginDestination, Scenario, TripMode};
 pub struct FixTrafficSignals {
     time: Time,
     once: bool,
+    menu: ModalMenu,
 }
 
 impl FixTrafficSignals {
-    pub fn new(
-        ctx: &mut EventCtx,
-        mode: GameplayMode,
-    ) -> (ModalMenu, Composite, Box<dyn GameplayState>) {
+    pub fn new(ctx: &mut EventCtx, mode: GameplayMode) -> (Composite, Box<dyn GameplayState>) {
         (
-            ModalMenu::new(
-                "Fix traffic signals",
-                vec![
-                    (hotkey(Key::F), "find slowest traffic signals"),
-                    (hotkey(Key::D), "hide finished trip distribution"),
-                    (hotkey(Key::H), "help"),
-                    (hotkey(Key::S), "final score"),
-                ],
-                ctx,
-            ),
             edit_map_panel(ctx, mode),
             Box::new(FixTrafficSignals {
                 time: Time::START_OF_DAY,
                 once: true,
+                menu: ModalMenu::new(
+                    "Fix traffic signals",
+                    vec![
+                        (hotkey(Key::F), "find slowest traffic signals"),
+                        (hotkey(Key::D), "hide finished trip distribution"),
+                        (hotkey(Key::H), "help"),
+                        (hotkey(Key::S), "final score"),
+                    ],
+                    ctx,
+                )
+                .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
             }),
         )
     }
@@ -46,7 +45,6 @@ impl GameplayState for FixTrafficSignals {
         ctx: &mut EventCtx,
         ui: &mut UI,
         overlays: &mut Overlays,
-        menu: &mut ModalMenu,
     ) -> Option<Transition> {
         // Once is never...
         if self.once {
@@ -54,11 +52,11 @@ impl GameplayState for FixTrafficSignals {
             self.once = false;
         }
 
-        menu.event(ctx);
+        self.menu.event(ctx);
 
         // Technically this shows stop signs too, but mostly the bottlenecks are signals.
         if manage_overlays(
-            menu,
+            &mut self.menu,
             ctx,
             "find slowest traffic signals",
             "hide slowest traffic signals",
@@ -71,7 +69,7 @@ impl GameplayState for FixTrafficSignals {
             *overlays = Overlays::intersection_delay(ctx, ui);
         }
         if manage_overlays(
-            menu,
+            &mut self.menu,
             ctx,
             "show finished trip distribution",
             "hide finished trip distribution",
@@ -86,10 +84,11 @@ impl GameplayState for FixTrafficSignals {
 
         if self.time != ui.primary.sim.time() {
             self.time = ui.primary.sim.time();
-            menu.set_info(ctx, small_faster_trips_panel(TripMode::Drive, ui));
+            self.menu
+                .set_info(ctx, small_faster_trips_panel(TripMode::Drive, ui));
         }
 
-        if menu.action("help") {
+        if self.menu.action("help") {
             return Some(Transition::Push(msg(
                 "Help",
                 vec![
@@ -98,7 +97,7 @@ impl GameplayState for FixTrafficSignals {
                 ])));
         }
 
-        if menu.action("final score") {
+        if self.menu.action("final score") {
             return Some(Transition::Push(msg("Final score", final_score(ui))));
         }
 
@@ -108,6 +107,10 @@ impl GameplayState for FixTrafficSignals {
         }
 
         None
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.menu.draw(g);
     }
 }
 

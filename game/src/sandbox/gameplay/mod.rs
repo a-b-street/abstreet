@@ -13,14 +13,13 @@ use crate::sandbox::overlays::Overlays;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Timer};
-use ezgui::{layout, Color, EventCtx, GfxCtx, Line, ModalMenu, TextSpan, Wizard};
+use ezgui::{Color, EventCtx, GfxCtx, Line, ModalMenu, TextSpan, Wizard};
 use geom::Duration;
 use map_model::{EditCmd, Map, MapEdits};
 use sim::{Analytics, Scenario, TripMode};
 
 pub struct GameplayRunner {
     pub mode: GameplayMode,
-    pub menu: ModalMenu,
     controller: Composite,
     state: Box<dyn GameplayState>,
 }
@@ -46,9 +45,8 @@ pub trait GameplayState: downcast_rs::Downcast {
         ctx: &mut EventCtx,
         ui: &mut UI,
         overlays: &mut Overlays,
-        menu: &mut ModalMenu,
     ) -> Option<Transition>;
-    fn draw(&self, _: &mut GfxCtx, _: &UI) {}
+    fn draw(&self, g: &mut GfxCtx, ui: &UI);
 }
 downcast_rs::impl_downcast!(GameplayState);
 
@@ -135,7 +133,7 @@ impl GameplayMode {
 
 impl GameplayRunner {
     pub fn initialize(mode: GameplayMode, ui: &mut UI, ctx: &mut EventCtx) -> GameplayRunner {
-        let (menu, controller, state) = match mode.clone() {
+        let (controller, state) = match mode.clone() {
             GameplayMode::Freeform => freeform::Freeform::new(ctx, ui),
             GameplayMode::PlayScenario(scenario) => {
                 play_scenario::PlayScenario::new(&scenario, ctx, ui)
@@ -179,8 +177,6 @@ impl GameplayRunner {
         ui.set_prebaked(Some(prebaked));
         GameplayRunner {
             mode,
-            menu: menu
-                .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
             controller,
             state,
         }
@@ -199,11 +195,10 @@ impl GameplayRunner {
             Some(Outcome::Clicked(_)) => unreachable!(),
             None => {}
         }
-        self.state.event(ctx, ui, overlays, &mut self.menu)
+        self.state.event(ctx, ui, overlays)
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        self.menu.draw(g);
         self.controller.draw(g);
         self.state.draw(g, ui);
     }

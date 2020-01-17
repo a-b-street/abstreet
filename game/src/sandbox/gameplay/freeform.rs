@@ -1,5 +1,5 @@
 use crate::edit::EditMode;
-use crate::game::{msg, State, Transition, WizardState};
+use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::Composite;
 use crate::sandbox::gameplay::{change_scenario, spawner, GameplayMode, GameplayState};
@@ -7,8 +7,8 @@ use crate::sandbox::overlays::Overlays;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use ezgui::{
-    hotkey, lctrl, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget,
-    ModalMenu, Text, VerticalAlignment,
+    hotkey, lctrl, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget, Text,
+    VerticalAlignment,
 };
 use map_model::IntersectionID;
 use std::collections::BTreeSet;
@@ -20,9 +20,8 @@ pub struct Freeform {
 }
 
 impl Freeform {
-    pub fn new(ctx: &mut EventCtx, ui: &UI) -> (ModalMenu, Composite, Box<dyn GameplayState>) {
+    pub fn new(ctx: &mut EventCtx, ui: &UI) -> (Composite, Box<dyn GameplayState>) {
         (
-            ModalMenu::new("Freeform mode", vec![(hotkey(Key::H), "help")], ctx),
             freeform_controller(ctx, ui, GameplayMode::Freeform, "empty scenario"),
             Box::new(Freeform {
                 spawn_pts: BTreeSet::new(),
@@ -32,17 +31,7 @@ impl Freeform {
 }
 
 impl GameplayState for Freeform {
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        ui: &mut UI,
-        _: &mut Overlays,
-        menu: &mut ModalMenu,
-    ) -> Option<Transition> {
-        menu.event(ctx);
-        if menu.action("help") {
-            return Some(Transition::Push(msg("Help", vec!["This simulation is empty by default.", "Try right-clicking an intersection and choosing to spawn agents (or just hover over it and press Z).", "You can also spawn agents from buildings or lanes.", "You can also start a full scenario to get realistic traffic."])));
-        }
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI, _: &mut Overlays) -> Option<Transition> {
         if let Some(new_state) = spawner::AgentSpawner::new(ctx, ui) {
             return Some(Transition::Push(new_state));
         }
