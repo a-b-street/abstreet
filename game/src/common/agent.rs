@@ -1,5 +1,5 @@
 use crate::common::route_viewer::RouteViewer;
-use crate::common::{RouteExplorer, TripExplorer};
+use crate::common::TripExplorer;
 use crate::game::Transition;
 use crate::ui::UI;
 use ezgui::{EventCtx, GfxCtx, Key, ModalMenu};
@@ -23,9 +23,6 @@ impl AgentTools {
     ) -> Option<Transition> {
         self.route_viewer.event(ctx, ui, menu);
 
-        if let Some(explorer) = RouteExplorer::new(ctx, ui) {
-            return Some(Transition::Push(Box::new(explorer)));
-        }
         if let Some(trip) = ui
             .primary
             .current_selection
