@@ -33,7 +33,7 @@ impl TextBox {
         tb
     }
 
-    pub(crate) fn get_text(&self) -> Text {
+    pub fn get_text(&self) -> Text {
         let mut txt = Text::prompt(&self.prompt);
         txt.add(Line(&self.line[0..self.cursor_x]));
         if self.cursor_x < self.line.len() {
@@ -49,11 +49,11 @@ impl TextBox {
         txt
     }
 
-    pub(crate) fn get_line(&self) -> &str {
+    pub fn get_line(&self) -> &str {
         &self.line
     }
 
-    pub(crate) fn set_text(&mut self, line: String) {
+    pub fn set_text(&mut self, line: String) {
         self.line = line;
         self.cursor_x = self.line.len();
     }

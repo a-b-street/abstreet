@@ -133,7 +133,7 @@ impl Histogram {
         ])
     }
 
-    pub fn draw(&self, g: &mut GfxCtx) {
+    pub(crate) fn draw(&self, g: &mut GfxCtx) {
         self.draw.redraw(self.top_left, g);
 
         let cursor = g.canvas.get_cursor_in_screen_space();

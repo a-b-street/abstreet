@@ -141,7 +141,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
         (plot, legend, x_axis, y_axis)
     }
 
-    pub fn draw(&self, g: &mut GfxCtx) {
+    pub(crate) fn draw(&self, g: &mut GfxCtx) {
         self.draw.redraw(self.top_left, g);
 
         let cursor = g.canvas.get_cursor_in_screen_space();

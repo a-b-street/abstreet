@@ -64,7 +64,7 @@ impl Button {
         self.hitbox.translate(self.top_left.x, self.top_left.y)
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx) {
+    pub(crate) fn event(&mut self, ctx: &mut EventCtx) {
         if self.clicked {
             panic!("Caller didn't consume button click");
         }
@@ -85,18 +85,12 @@ impl Button {
         }
 
         if self.hovering {
-            // Once we asserted this was None, but because of just_replaced, sometimes not true.
+            // TODO Should we assert this is None?
             ctx.canvas.button_tooltip = Some(self.tooltip.clone());
         }
     }
 
-    pub fn just_replaced(&mut self, ctx: &EventCtx) {
-        self.hovering = self
-            .get_hitbox()
-            .contains_pt(ctx.canvas.get_cursor_in_screen_space().to_pt());
-    }
-
-    pub fn clicked(&mut self) -> bool {
+    pub(crate) fn clicked(&mut self) -> bool {
         if self.clicked {
             self.clicked = false;
             true
@@ -105,7 +99,7 @@ impl Button {
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx) {
+    pub(crate) fn draw(&self, g: &mut GfxCtx) {
         if self.hovering {
             self.draw_hovered.redraw(self.top_left, g);
         } else {
@@ -298,10 +292,5 @@ impl Button {
         );
 
         Button::new(normal, hovered, hotkey, tooltip, geom)
-    }
-
-    pub fn at(mut self, pt: ScreenPt) -> Button {
-        self.set_pos(pt);
-        self
     }
 }
