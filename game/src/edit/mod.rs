@@ -2,6 +2,7 @@ mod lanes;
 mod stop_signs;
 mod traffic_signals;
 
+use self::lanes::{Brush, LaneEditor};
 pub use self::traffic_signals::TrafficSignalEditor;
 use crate::common::{tool_panel, CommonState, Warping};
 use crate::debug::DebugMode;
@@ -31,7 +32,7 @@ pub struct EditMode {
     mode: GameplayMode,
     pub suspended_sim: Sim,
 
-    lane_editor: lanes::LaneEditor,
+    lane_editor: LaneEditor,
 }
 
 impl EditMode {
@@ -53,7 +54,7 @@ impl EditMode {
             ),
             mode,
             suspended_sim,
-            lane_editor: lanes::LaneEditor::setup(ctx),
+            lane_editor: LaneEditor::new(ctx),
         }
     }
 }
@@ -85,7 +86,7 @@ impl State for EditMode {
         self.menu.event(ctx);
 
         if self.mode.can_edit_lanes() {
-            if let Some(t) = self.lane_editor.event(ui, ctx) {
+            if let Some(t) = self.lane_editor.event(ctx, ui) {
                 return t;
             }
         }
@@ -95,13 +96,13 @@ impl State for EditMode {
             ui.recalculate_current_selection(ctx);
             if let Some(ID::Lane(_)) = ui.primary.current_selection {
             } else if let Some(ID::Intersection(_)) = ui.primary.current_selection {
-                if self.lane_editor.active_idx != Some(self.lane_editor.construction_idx)
-                    && self.lane_editor.active_idx.is_some()
+                if self.lane_editor.brush != Brush::Construction
+                    && self.lane_editor.brush != Brush::Inactive
                 {
                     ui.primary.current_selection = None;
                 }
             } else {
-                if self.lane_editor.active_idx.is_some() {
+                if self.lane_editor.brush != Brush::Inactive {
                     ui.primary.current_selection = None;
                 }
             }
