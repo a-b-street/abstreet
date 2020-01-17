@@ -1,4 +1,4 @@
-use crate::common::{CommonState, Warping};
+use crate::common::{ColorLegend, CommonState, Warping};
 use crate::game::{msg, Transition};
 use crate::helpers::{rotating_color, rotating_color_map, ID};
 use crate::render::{dashed_lines, MIN_ZOOM_FOR_DETAIL};
@@ -9,7 +9,7 @@ use ezgui::{
     HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Plot, RewriteColor, Series, Text,
     VerticalAlignment,
 };
-use geom::{Circle, Distance, Duration, Pt2D, Statistic, Time};
+use geom::{Circle, Distance, Duration, Statistic, Time};
 use map_model::{IntersectionID, RoadID};
 use sim::{CarID, TripEnd, TripID, TripMode, TripStart};
 use std::collections::BTreeMap;
@@ -493,7 +493,11 @@ fn trip_details(trip: TripID, ctx: &mut EventCtx, ui: &UI) -> (ManagedWidget, Dr
 
     for (idx, p) in phases.into_iter().enumerate() {
         let color = rotating_color_map(idx + 1);
-        col.push(trip_line(ctx, color, p.describe(ui.primary.sim.time())));
+        col.push(ColorLegend::row(
+            ctx,
+            color,
+            p.describe(ui.primary.sim.time()),
+        ));
 
         // TODO Could really cache this between live updates
         if let Some((dist, ref path)) = p.path {
@@ -520,7 +524,7 @@ fn trip_details(trip: TripID, ctx: &mut EventCtx, ui: &UI) -> (ManagedWidget, Dr
             let bldg = map.get_b(b);
             col.insert(
                 0,
-                trip_line(ctx, start_color, format!("start at {}", bldg.get_name(map))),
+                ColorLegend::row(ctx, start_color, format!("start at {}", bldg.get_name(map))),
             );
             unzoomed.push(start_color, bldg.polygon.clone());
             zoomed.push(start_color, bldg.polygon.clone());
@@ -529,7 +533,7 @@ fn trip_details(trip: TripID, ctx: &mut EventCtx, ui: &UI) -> (ManagedWidget, Dr
             let i = map.get_i(i);
             col.insert(
                 0,
-                trip_line(ctx, start_color, format!("enter map via {}", i.id)),
+                ColorLegend::row(ctx, start_color, format!("enter map via {}", i.id)),
             );
             unzoomed.push(start_color, i.polygon.clone());
             zoomed.push(start_color, i.polygon.clone());
@@ -541,14 +545,14 @@ fn trip_details(trip: TripID, ctx: &mut EventCtx, ui: &UI) -> (ManagedWidget, Dr
         let color = rotating_color_map(col.len());
         unzoomed.push(color, Circle::new(pt, Distance::meters(10.0)).to_polygon());
         // Don't need anything when zoomed; the info panel already focuses on them.
-        col.push(trip_line(ctx, color, format!("currently here")));
+        col.push(ColorLegend::row(ctx, color, "currently here"));
     }
 
     let end_color = rotating_color_map(col.len());
     match trip_end {
         TripEnd::Bldg(b) => {
             let bldg = map.get_b(b);
-            col.push(trip_line(
+            col.push(ColorLegend::row(
                 ctx,
                 end_color,
                 format!("end at {}", bldg.get_name(map)),
@@ -558,12 +562,16 @@ fn trip_details(trip: TripID, ctx: &mut EventCtx, ui: &UI) -> (ManagedWidget, Dr
         }
         TripEnd::Border(i) => {
             let i = map.get_i(i);
-            col.push(trip_line(ctx, end_color, format!("leave map via {}", i.id)));
+            col.push(ColorLegend::row(
+                ctx,
+                end_color,
+                format!("leave map via {}", i.id),
+            ));
             unzoomed.push(end_color, i.polygon.clone());
             zoomed.push(end_color, i.polygon.clone());
         }
         TripEnd::ServeBusRoute(br) => {
-            col.push(trip_line(
+            col.push(ColorLegend::row(
                 ctx,
                 end_color,
                 format!("serve route {} forever", map.get_br(br).name),
@@ -576,18 +584,4 @@ fn trip_details(trip: TripID, ctx: &mut EventCtx, ui: &UI) -> (ManagedWidget, Dr
         unzoomed.upload(ctx),
         zoomed.upload(ctx),
     )
-}
-
-fn trip_line(ctx: &EventCtx, color: Color, descr: String) -> ManagedWidget {
-    let radius = 15.0;
-    ManagedWidget::row(vec![
-        ManagedWidget::draw_batch(
-            ctx,
-            GeomBatch::from(vec![(
-                color,
-                Circle::new(Pt2D::new(radius, radius), Distance::meters(radius)).to_polygon(),
-            )]),
-        ),
-        ManagedWidget::draw_text(ctx, Text::from(Line(descr))),
-    ])
 }

@@ -21,13 +21,17 @@ pub struct ColorerBuilder {
 pub struct Colorer {
     zoomed: Drawable,
     pub unzoomed: Drawable,
-    legend: ColorLegend,
+    legend: Composite,
 }
 
 impl Colorer {
     // If true, destruct this Colorer.
     pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
-        self.legend.event(ctx)
+        match self.legend.event(ctx) {
+            Some(Outcome::Clicked(x)) if x == "X" => true,
+            Some(Outcome::Clicked(_)) => unreachable!(),
+            None => false,
+        }
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
@@ -128,61 +132,40 @@ impl ColorerBuilder {
             unzoomed.push(color, Circle::new(pt, Distance::meters(15.0)).to_polygon());
         }
 
+        // Build the legend
+        let mut col = vec![ManagedWidget::row(vec![
+            ManagedWidget::draw_text(ctx, self.header),
+            crate::managed::Composite::text_button(ctx, "X", None).align_right(),
+        ])];
+        for (label, color) in self.prioritized_colors {
+            col.push(ColorLegend::row(ctx, color, label));
+        }
+        let legend = Composite::new(ManagedWidget::col(col).bg(Color::grey(0.4)))
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+            .build(ctx);
+
         Colorer {
             zoomed: zoomed.upload(ctx),
             unzoomed: unzoomed.upload(ctx),
-            legend: ColorLegend::new(ctx, self.header, self.prioritized_colors),
+            legend,
         }
     }
 }
 
-pub struct ColorLegend {
-    composite: Composite,
-}
+pub struct ColorLegend {}
 
 impl ColorLegend {
-    pub fn rows(ctx: &mut EventCtx, rows: Vec<(&str, Color)>) -> Vec<ManagedWidget> {
-        let mut col = Vec::new();
+    pub fn row<S: Into<String>>(ctx: &mut EventCtx, color: Color, label: S) -> ManagedWidget {
         let radius = 15.0;
-        for (label, color) in rows {
-            col.push(ManagedWidget::row(vec![
-                ManagedWidget::draw_batch(
-                    ctx,
-                    GeomBatch::from(vec![(
-                        color,
-                        Circle::new(Pt2D::new(radius, radius), Distance::meters(radius))
-                            .to_polygon(),
-                    )]),
-                ),
-                ManagedWidget::draw_text(ctx, Text::from(Line(label))),
-            ]));
-        }
-        col
-    }
-
-    pub fn new(ctx: &mut EventCtx, header: Text, rows: Vec<(&str, Color)>) -> ColorLegend {
-        let mut col = vec![ManagedWidget::row(vec![
-            ManagedWidget::draw_text(ctx, header),
-            crate::managed::Composite::text_button(ctx, "X", None).align_right(),
-        ])];
-        col.extend(ColorLegend::rows(ctx, rows));
-        ColorLegend {
-            composite: Composite::new(ManagedWidget::col(col).bg(Color::grey(0.4)))
-                .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
-                .build(ctx),
-        }
-    }
-
-    // If true, this legend was X'd out.
-    pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
-        match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) if x == "X" => true,
-            Some(Outcome::Clicked(_)) => unreachable!(),
-            None => false,
-        }
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx) {
-        self.composite.draw(g);
+        ManagedWidget::row(vec![
+            ManagedWidget::draw_batch(
+                ctx,
+                GeomBatch::from(vec![(
+                    color,
+                    Circle::new(Pt2D::new(radius, radius), Distance::meters(radius)).to_polygon(),
+                )]),
+            ),
+            ManagedWidget::draw_text(ctx, Text::from(Line(label))),
+        ])
     }
 }

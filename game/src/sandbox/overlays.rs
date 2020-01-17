@@ -571,7 +571,7 @@ impl Overlays {
             )),
             crate::managed::Composite::text_button(ctx, "X", None).align_right(),
         ])];
-        col.extend(ColorLegend::rows(ctx, vec![("current demand", Color::RED)]));
+        col.push(ColorLegend::row(ctx, Color::RED, "current demand"));
 
         Overlays::IntersectionDemand(
             ui.primary.sim.time(),
