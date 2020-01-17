@@ -978,6 +978,13 @@ impl Sim {
         TripResult::ModeChange
     }
 
+    pub fn does_agent_exist(&self, id: AgentID) -> bool {
+        match id {
+            AgentID::Car(id) => self.parking.does_car_exist(id) || self.driving.does_car_exist(id),
+            AgentID::Pedestrian(id) => self.walking.does_ped_exist(id),
+        }
+    }
+
     pub fn canonical_pt_for_agent(&self, id: AgentID, map: &Map) -> Option<Pt2D> {
         match id {
             AgentID::Car(id) => self

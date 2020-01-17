@@ -18,7 +18,7 @@ pub use self::panels::{edit_map_panel, tool_panel};
 pub use self::route_explorer::RouteExplorer;
 pub use self::trip_explorer::TripExplorer;
 pub use self::warp::Warping;
-use crate::game::Transition;
+use crate::game::{msg, Transition};
 use crate::helpers::{list_names, ID};
 use crate::render::DrawOptions;
 use crate::ui::UI;
@@ -76,7 +76,12 @@ impl CommonState {
                 ui.per_obj.info_panel_open = false;
             } else {
                 if ui.primary.sim.time() != info.time {
-                    info.live_update(ctx, ui);
+                    if let Some(err) = info.live_update(ctx, ui) {
+                        self.info_panel = None;
+                        assert!(ui.per_obj.info_panel_open);
+                        ui.per_obj.info_panel_open = false;
+                        return Some(Transition::Push(msg("Closing info panel", vec![err])));
+                    }
                 }
 
                 match info.composite.event(ctx) {

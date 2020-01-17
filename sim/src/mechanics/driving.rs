@@ -770,6 +770,10 @@ impl DrivingSimState {
         self.cars.values().map(|car| car.metadata(now)).collect()
     }
 
+    pub fn does_car_exist(&self, id: CarID) -> bool {
+        self.cars.contains_key(&id)
+    }
+
     pub fn populate_trip_positions(&self, trip_positions: &mut TripPositions, map: &Map) {
         for queue in self.queues.values() {
             if queue.cars.is_empty() {

@@ -313,6 +313,10 @@ impl WalkingSimState {
         self.peds.values().map(|ped| ped.metadata(now)).collect()
     }
 
+    pub fn does_ped_exist(&self, id: PedestrianID) -> bool {
+        self.peds.contains_key(&id)
+    }
+
     pub fn populate_trip_positions(&self, trip_positions: &mut TripPositions, map: &Map) {
         for ped in self.peds.values() {
             trip_positions

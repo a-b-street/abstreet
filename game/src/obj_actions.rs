@@ -50,6 +50,9 @@ impl PerObjectActions {
     }
 
     pub fn assert_chosen_used(&mut self) {
+        // TODO I can't find any practical case where we launch an info panel with some action,
+        // then by the time the action is chosen, it's no longer valid. Can handle more gracefully
+        // when it does happen, but hard to test until I find that case.
         if let Some(action) = &*self.chosen.borrow() {
             panic!("{} chosen, but nothing used it", action);
         }

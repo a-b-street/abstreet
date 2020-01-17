@@ -107,11 +107,20 @@ impl InfoPanel {
         }
     }
 
-    pub fn live_update(&mut self, ctx: &mut EventCtx, ui: &UI) {
+    // If this returns an error message, the object is gone.
+    pub fn live_update(&mut self, ctx: &mut EventCtx, ui: &UI) -> Option<String> {
+        if let Some(a) = self.id.agent_id() {
+            if !ui.primary.sim.does_agent_exist(a) {
+                return Some(format!("{} is gone", a));
+            }
+        }
+
         let preserve_scroll = self.composite.preserve_scroll();
         // TODO Can we be more efficient here?
         *self = InfoPanel::new(self.id.clone(), ctx, ui, self.actions.clone());
         self.composite.restore_scroll(ctx, preserve_scroll);
+
+        None
     }
 }
 

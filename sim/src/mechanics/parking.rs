@@ -188,6 +188,10 @@ impl ParkingSimState {
         }
     }
 
+    pub fn does_car_exist(&self, id: CarID) -> bool {
+        self.parked_cars.contains_key(&id)
+    }
+
     // There's no DrawCarInput for cars parked offstreet, so we need this.
     pub fn canonical_pt(&self, id: CarID, map: &Map) -> Option<Pt2D> {
         let p = self.parked_cars.get(&id)?;
