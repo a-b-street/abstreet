@@ -31,7 +31,7 @@ pub struct SandboxMode {
     agent_meter: AgentMeter,
     overlay: Overlays,
     gameplay: gameplay::GameplayRunner,
-    common: CommonState,
+    pub common: CommonState,
     tool_panel: crate::managed::Composite,
     minimap: Option<Minimap>,
 }

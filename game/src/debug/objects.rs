@@ -55,9 +55,6 @@ impl ObjectDebugger {
 
 fn dump_debug(id: ID, map: &Map, sim: &Sim, draw_map: &DrawMap) {
     match id {
-        ID::Road(id) => {
-            println!("{}", abstutil::to_json(map.get_r(id)));
-        }
         ID::Lane(id) => {
             let l = map.get_l(id);
             println!("{}", abstutil::to_json(l));
@@ -155,5 +152,6 @@ fn dump_debug(id: ID, map: &Map, sim: &Sim, draw_map: &DrawMap) {
         ID::Area(id) => {
             println!("{}", abstutil::to_json(map.get_a(id)));
         }
+        ID::Road(_) | ID::Trip(_) => unreachable!(),
     }
 }

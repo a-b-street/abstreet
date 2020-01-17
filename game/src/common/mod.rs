@@ -4,14 +4,12 @@ mod minimap;
 mod navigate;
 mod panels;
 mod shortcuts;
-mod trip_explorer;
 mod turn_cycler;
 mod warp;
 
 pub use self::colors::{ColorLegend, Colorer, ColorerBuilder};
 pub use self::minimap::Minimap;
 pub use self::panels::{edit_map_panel, tool_panel};
-pub use self::trip_explorer::TripExplorer;
 pub use self::warp::Warping;
 use crate::game::Transition;
 use crate::helpers::{list_names, ID};
@@ -182,6 +180,9 @@ impl CommonState {
                     .collect();
                 list_names(&mut osd, |l| l.fg(name_color), routes);
             }
+            ID::Trip(t) => {
+                osd.append(Line(t.to_string()).fg(id_color));
+            }
             ID::ExtraShape(es) => {
                 // Only selectable in dev mode anyway
                 osd.append(Line(es.to_string()).fg(id_color));
@@ -237,5 +238,11 @@ impl CommonState {
             .turn_cycler
             .suppress_traffic_signal_details(&ui.primary.map);
         opts
+    }
+
+    // Meant to be used for launching from other states
+    pub fn launch_info_panel(&mut self, id: ID, ctx: &mut EventCtx, ui: &mut UI) {
+        self.info_panel = Some(info::InfoPanel::new(id, ctx, ui, Vec::new()));
+        ui.per_obj.info_panel_open = true;
     }
 }

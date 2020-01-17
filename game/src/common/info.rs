@@ -98,14 +98,16 @@ impl InfoPanel {
             _ => {}
         }
 
-        let trip_details =
-            if let Some(trip) = id.agent_id().and_then(|a| ui.primary.sim.agent_to_trip(a)) {
-                let (rows, unzoomed, zoomed) = trip_details(trip, ctx, ui);
-                col.push(rows);
-                Some((unzoomed, zoomed))
-            } else {
-                None
-            };
+        let trip_details = if let Some(trip) = match id {
+            ID::Trip(t) => Some(t),
+            _ => id.agent_id().and_then(|a| ui.primary.sim.agent_to_trip(a)),
+        } {
+            let (rows, unzoomed, zoomed) = trip_details(trip, ctx, ui);
+            col.push(rows);
+            Some((unzoomed, zoomed))
+        } else {
+            None
+        };
 
         // Follow the agent. When the sim is paused, this lets the player naturally pan away,
         // because the InfoPanel isn't being updated.
@@ -374,6 +376,8 @@ fn info_for(id: ID, ui: &UI) -> Text {
             let a = map.get_a(id);
             styled_kv(&mut txt, &a.osm_tags);
         }
+        // No info here, trip_details will be used
+        ID::Trip(_) => {}
     };
     txt
 }

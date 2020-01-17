@@ -1,8 +1,8 @@
-use crate::common::TripExplorer;
 use crate::game::{State, Transition};
+use crate::helpers::ID;
 use crate::managed::{Callback, Composite, ManagedGUIState};
-use crate::sandbox::bus_explorer;
 use crate::sandbox::gameplay::{cmp_count_fewer, cmp_count_more, cmp_duration_shorter};
+use crate::sandbox::{bus_explorer, SandboxMode};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use abstutil::Counter;
@@ -262,8 +262,14 @@ fn pick_finished_trips(
         let trip = *id;
         cbs.push((
             label,
-            Box::new(move |ctx, ui| {
-                Some(Transition::Push(Box::new(TripExplorer::new(trip, ctx, ui))))
+            Box::new(move |_, _| {
+                Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
+                    state
+                        .downcast_mut::<SandboxMode>()
+                        .unwrap()
+                        .common
+                        .launch_info_panel(ID::Trip(trip), ctx, ui);
+                })))
             }),
         ));
     }
