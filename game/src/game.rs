@@ -8,6 +8,7 @@ use ezgui::{
     Canvas, Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Line, Text,
     VerticalAlignment, Wizard, GUI,
 };
+use geom::Polygon;
 
 // This is the top-level of the GUI logic. This module should just manage interactions between the
 // top-level game states.
@@ -247,6 +248,15 @@ impl State for WizardState {
             &ui.primary.sim,
             &ShowEverything::new(),
         );
+        // Make it clear the map can't be interacted with right now.
+        g.fork_screenspace();
+        // TODO - OSD height
+        g.draw_polygon(
+            Color::BLACK.alpha(0.5),
+            &Polygon::rectangle(g.canvas.window_width, g.canvas.window_height),
+        );
+        g.unfork();
+
         self.wizard.draw(g);
         // Still want to show hotkeys
         CommonState::draw_osd(g, ui, &None);
