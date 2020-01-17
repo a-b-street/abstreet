@@ -144,30 +144,31 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
     pub(crate) fn draw(&self, g: &mut GfxCtx) {
         self.draw.redraw(self.top_left, g);
 
-        let cursor = g.canvas.get_cursor_in_screen_space();
-        if ScreenRectangle::top_left(self.top_left, self.dims).contains(cursor) {
-            let radius = Distance::meters(5.0);
-            let mut txt = Text::new().bg(Color::grey(0.6));
-            for (label, pt, _) in self.closest.all_close_pts(
-                Pt2D::new(cursor.x - self.top_left.x, cursor.y - self.top_left.y),
-                radius,
-            ) {
-                let t = self.max_x.percent_of(pt.x() / self.dims.width);
-                let y_percent = 1.0 - (pt.y() / self.dims.height);
+        if let Some(cursor) = g.canvas.get_cursor_in_screen_space() {
+            if ScreenRectangle::top_left(self.top_left, self.dims).contains(cursor) {
+                let radius = Distance::meters(5.0);
+                let mut txt = Text::new().bg(Color::grey(0.6));
+                for (label, pt, _) in self.closest.all_close_pts(
+                    Pt2D::new(cursor.x - self.top_left.x, cursor.y - self.top_left.y),
+                    radius,
+                ) {
+                    let t = self.max_x.percent_of(pt.x() / self.dims.width);
+                    let y_percent = 1.0 - (pt.y() / self.dims.height);
 
-                // TODO Draw this info in the ColorLegend
-                txt.add(Line(format!(
-                    "{}: at {}, {}",
-                    label,
-                    t,
-                    self.max_y.from_percent(y_percent).prettyprint()
-                )));
-            }
-            if txt.num_lines() > 0 {
-                g.fork_screenspace();
-                g.draw_circle(Color::RED, &Circle::new(cursor.to_pt(), radius));
-                g.draw_mouse_tooltip(&txt);
-                g.unfork();
+                    // TODO Draw this info in the ColorLegend
+                    txt.add(Line(format!(
+                        "{}: at {}, {}",
+                        label,
+                        t,
+                        self.max_y.from_percent(y_percent).prettyprint()
+                    )));
+                }
+                if txt.num_lines() > 0 {
+                    g.fork_screenspace();
+                    g.draw_circle(Color::RED, &Circle::new(cursor.to_pt(), radius));
+                    g.draw_mouse_tooltip(&txt);
+                    g.unfork();
+                }
             }
         }
     }

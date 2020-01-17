@@ -133,10 +133,14 @@ impl Slider {
         self.recalc(ctx);
         // Just reset dragging, to prevent chaos
         self.dragging = false;
-        self.mouse_on_slider = self
-            .slider_geom()
-            .translate(self.top_left.x, self.top_left.y)
-            .contains_pt(ctx.canvas.get_cursor_in_screen_space().to_pt());
+        if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
+            self.mouse_on_slider = self
+                .slider_geom()
+                .translate(self.top_left.x, self.top_left.y)
+                .contains_pt(pt.to_pt());
+        } else {
+            self.mouse_on_slider = false;
+        }
     }
 
     pub fn set_value(&mut self, ctx: &EventCtx, idx: usize, num_items: usize) {
@@ -157,14 +161,10 @@ impl Slider {
         if self.dragging {
             if ctx.input.get_moved_mouse().is_some() {
                 let percent = if self.horiz {
-                    (ctx.canvas.get_cursor_in_screen_space().x
-                        - self.top_left.x
-                        - (self.dragger_len / 2.0))
+                    (ctx.canvas.get_cursor().x - self.top_left.x - (self.dragger_len / 2.0))
                         / (self.main_bg_len - self.dragger_len)
                 } else {
-                    (ctx.canvas.get_cursor_in_screen_space().y
-                        - self.top_left.y
-                        - (self.dragger_len / 2.0))
+                    (ctx.canvas.get_cursor().y - self.top_left.y - (self.dragger_len / 2.0))
                         / (self.main_bg_len - self.dragger_len)
                 };
                 self.current_percent = percent.min(1.0).max(0.0);
@@ -179,10 +179,14 @@ impl Slider {
 
         if ctx.redo_mouseover() {
             let old = self.mouse_on_slider;
-            self.mouse_on_slider = self
-                .slider_geom()
-                .translate(self.top_left.x, self.top_left.y)
-                .contains_pt(ctx.canvas.get_cursor_in_screen_space().to_pt());
+            if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
+                self.mouse_on_slider = self
+                    .slider_geom()
+                    .translate(self.top_left.x, self.top_left.y)
+                    .contains_pt(pt.to_pt());
+            } else {
+                self.mouse_on_slider = false;
+            }
             return self.mouse_on_slider != old;
         }
         if ctx.input.left_mouse_button_pressed() {
@@ -192,22 +196,23 @@ impl Slider {
             }
 
             // Did we click somewhere else on the bar?
-            let pt = ctx.canvas.get_cursor_in_screen_space();
-            if Polygon::rectangle(self.dims.width, self.dims.height)
-                .translate(self.top_left.x, self.top_left.y)
-                .contains_pt(pt.to_pt())
-            {
-                let percent = if self.horiz {
-                    (pt.x - self.top_left.x - (self.dragger_len / 2.0))
-                        / (self.main_bg_len - self.dragger_len)
-                } else {
-                    (pt.y - self.top_left.y - (self.dragger_len / 2.0))
-                        / (self.main_bg_len - self.dragger_len)
-                };
-                self.current_percent = percent.min(1.0).max(0.0);
-                self.mouse_on_slider = true;
-                self.dragging = true;
-                return true;
+            if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
+                if Polygon::rectangle(self.dims.width, self.dims.height)
+                    .translate(self.top_left.x, self.top_left.y)
+                    .contains_pt(pt.to_pt())
+                {
+                    let percent = if self.horiz {
+                        (pt.x - self.top_left.x - (self.dragger_len / 2.0))
+                            / (self.main_bg_len - self.dragger_len)
+                    } else {
+                        (pt.y - self.top_left.y - (self.dragger_len / 2.0))
+                            / (self.main_bg_len - self.dragger_len)
+                    };
+                    self.current_percent = percent.min(1.0).max(0.0);
+                    self.mouse_on_slider = true;
+                    self.dragging = true;
+                    return true;
+                }
             }
         }
         false

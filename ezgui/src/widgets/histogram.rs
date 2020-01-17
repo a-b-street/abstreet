@@ -136,12 +136,13 @@ impl Histogram {
     pub(crate) fn draw(&self, g: &mut GfxCtx) {
         self.draw.redraw(self.top_left, g);
 
-        let cursor = g.canvas.get_cursor_in_screen_space();
-        let pt = Pt2D::new(cursor.x - self.top_left.x, cursor.y - self.top_left.y);
-        for (rect, lbl) in &self.rect_labels {
-            if rect.contains_pt(pt) {
-                g.draw_mouse_tooltip(lbl);
-                break;
+        if let Some(cursor) = g.canvas.get_cursor_in_screen_space() {
+            let pt = Pt2D::new(cursor.x - self.top_left.x, cursor.y - self.top_left.y);
+            for (rect, lbl) in &self.rect_labels {
+                if rect.contains_pt(pt) {
+                    g.draw_mouse_tooltip(lbl);
+                    break;
+                }
             }
         }
     }

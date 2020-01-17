@@ -162,7 +162,9 @@ impl Minimap {
         if self.zoomed {
             let inner_rect = self.composite.filler_rect("minimap");
 
-            let mut pt = ctx.canvas.get_cursor_in_screen_space();
+            // TODO Not happy about reaching in like this. The minimap logic should be an ezgui
+            // Widget eventually, a generalization of Canvas.
+            let mut pt = ctx.canvas.get_cursor();
             if self.dragging {
                 if ctx.input.left_mouse_button_released() {
                     self.dragging = false;

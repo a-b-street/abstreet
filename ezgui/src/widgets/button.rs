@@ -70,9 +70,11 @@ impl Button {
         }
 
         if ctx.redo_mouseover() {
-            self.hovering = self
-                .get_hitbox()
-                .contains_pt(ctx.canvas.get_cursor_in_screen_space().to_pt());
+            if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
+                self.hovering = self.get_hitbox().contains_pt(pt.to_pt());
+            } else {
+                self.hovering = false;
+            }
         }
         if self.hovering && ctx.normal_left_click() {
             self.clicked = true;

@@ -667,10 +667,11 @@ impl Composite {
 
     pub fn event(&mut self, ctx: &mut EventCtx) -> Option<Outcome> {
         if (self.scrollable_x || self.scrollable_y)
-            && self
-                .top_level
-                .rect
-                .contains(ctx.canvas.get_cursor_in_screen_space())
+            && ctx
+                .canvas
+                .get_cursor_in_screen_space()
+                .map(|pt| self.top_level.rect.contains(pt))
+                .unwrap_or(false)
         {
             if let Some((dx, dy)) = ctx.input.get_mouse_scroll() {
                 let x_offset = if self.scrollable_x {

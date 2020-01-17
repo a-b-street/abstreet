@@ -40,20 +40,21 @@ impl<T: Clone> PopupMenu<T> {
 
         // Handle the mouse
         if ctx.redo_mouseover() {
-            let cursor = ctx.canvas.get_cursor_in_screen_space();
-            let mut top_left = self.top_left;
-            for idx in 0..self.choices.len() {
-                let rect = ScreenRectangle {
-                    x1: top_left.x,
-                    y1: top_left.y,
-                    x2: top_left.x + self.dims.width,
-                    y2: top_left.y + ctx.default_line_height(),
-                };
-                if rect.contains(cursor) {
-                    self.current_idx = idx;
-                    break;
+            if let Some(cursor) = ctx.canvas.get_cursor_in_screen_space() {
+                let mut top_left = self.top_left;
+                for idx in 0..self.choices.len() {
+                    let rect = ScreenRectangle {
+                        x1: top_left.x,
+                        y1: top_left.y,
+                        x2: top_left.x + self.dims.width,
+                        y2: top_left.y + ctx.default_line_height(),
+                    };
+                    if rect.contains(cursor) {
+                        self.current_idx = idx;
+                        break;
+                    }
+                    top_left.y += ctx.default_line_height();
                 }
-                top_left.y += ctx.default_line_height();
             }
         }
         {
@@ -68,8 +69,8 @@ impl<T: Clone> PopupMenu<T> {
                     x2: top_left.x + self.dims.width,
                     y2: top_left.y + ctx.default_line_height(),
                 };
-                if rect.contains(ctx.canvas.get_cursor_in_screen_space()) {
-                    if choice.active {
+                if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
+                    if rect.contains(pt) && choice.active {
                         self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
                         return;
                     }

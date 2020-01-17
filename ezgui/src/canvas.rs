@@ -81,7 +81,7 @@ impl Canvas {
         // Can't start dragging or zooming on top of covered area
         if self.get_cursor_in_map_space().is_some() {
             if input.left_mouse_button_pressed() {
-                self.drag_canvas_from = Some(self.get_cursor_in_screen_space());
+                self.drag_canvas_from = Some(self.get_cursor());
             }
 
             if let Some((_, scroll)) = input.get_mouse_scroll() {
@@ -102,7 +102,7 @@ impl Canvas {
 
         // If we start the drag on the map and move the mouse off the map, keep dragging.
         if let Some(click) = self.drag_canvas_from {
-            let pt = self.get_cursor_in_screen_space();
+            let pt = self.get_cursor();
             self.cam_x += click.x - pt.x;
             self.cam_y += click.y - pt.y;
             self.drag_canvas_from = Some(pt);
@@ -131,13 +131,22 @@ impl Canvas {
         self.covered_areas.borrow_mut().push(rect);
     }
 
-    pub fn get_cursor_in_screen_space(&self) -> ScreenPt {
+    // Might be hovering anywhere.
+    pub fn get_cursor(&self) -> ScreenPt {
         ScreenPt::new(self.cursor_x, self.cursor_y)
+    }
+
+    pub fn get_cursor_in_screen_space(&self) -> Option<ScreenPt> {
+        if self.window_has_cursor && self.get_cursor_in_map_space().is_none() {
+            Some(self.get_cursor())
+        } else {
+            None
+        }
     }
 
     pub fn get_cursor_in_map_space(&self) -> Option<Pt2D> {
         if self.window_has_cursor {
-            let pt = self.get_cursor_in_screen_space();
+            let pt = self.get_cursor();
 
             for rect in self.covered_areas.borrow().iter() {
                 if rect.contains(pt) {
