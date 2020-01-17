@@ -93,6 +93,16 @@ impl InfoPanel {
             _ => {}
         }
 
+        // Follow the agent. When the sim is paused, this lets the player naturally pan away,
+        // because the InfoPanel isn't being updated.
+        // TODO Should we pin to the trip, not the specific agent?
+        if let Some(pt) = id
+            .agent_id()
+            .and_then(|a| ui.primary.sim.canonical_pt_for_agent(a, &ui.primary.map))
+        {
+            ctx.canvas.center_on_map_pt(pt);
+        }
+
         InfoPanel {
             id,
             actions,
@@ -111,6 +121,7 @@ impl InfoPanel {
     pub fn live_update(&mut self, ctx: &mut EventCtx, ui: &UI) -> Option<String> {
         if let Some(a) = self.id.agent_id() {
             if !ui.primary.sim.does_agent_exist(a) {
+                // TODO Get a TripResult, slightly more detail?
                 return Some(format!("{} is gone", a));
             }
         }
