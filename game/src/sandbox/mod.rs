@@ -5,7 +5,7 @@ mod overlays;
 mod speed;
 
 pub use self::overlays::Overlays;
-use crate::common::{tool_panel, AgentTools, CommonState, Minimap};
+use crate::common::{tool_panel, CommonState, Minimap};
 use crate::debug::DebugMode;
 use crate::edit::{apply_map_edits, save_edits, EditMode, TrafficSignalEditor};
 use crate::game::{State, Transition, WizardState};
@@ -29,7 +29,6 @@ pub struct SandboxMode {
     speed: SpeedControls,
     time_panel: TimePanel,
     agent_meter: AgentMeter,
-    agent_tools: AgentTools,
     overlay: Overlays,
     gameplay: gameplay::GameplayRunner,
     common: CommonState,
@@ -53,7 +52,6 @@ impl SandboxMode {
             speed: SpeedControls::new(ctx),
             time_panel: TimePanel::new(ctx, ui),
             agent_meter: AgentMeter::new(ctx, ui),
-            agent_tools: AgentTools::new(),
             overlay: Overlays::Inactive,
             common: CommonState::new(),
             tool_panel,
@@ -82,10 +80,6 @@ impl State for SandboxMode {
             if let Some(t) = m.event(ui, ctx) {
                 return t;
             }
-        }
-
-        if let Some(t) = self.agent_tools.event(ctx, ui, &mut self.gameplay.menu) {
-            return t;
         }
 
         if ui.opts.dev && ctx.input.new_was_pressed(lctrl(Key::D).unwrap()) {
@@ -266,7 +260,6 @@ impl State for SandboxMode {
             &ShowEverything::new(),
         );
         self.overlay.draw(g);
-        self.agent_tools.draw(g);
         self.common.draw(g, ui);
         self.tool_panel.draw(g);
         self.speed.draw(g);

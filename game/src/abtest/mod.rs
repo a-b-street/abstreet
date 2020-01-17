@@ -1,6 +1,6 @@
 pub mod setup;
 
-use crate::common::{tool_panel, AgentTools, CommonState};
+use crate::common::{tool_panel, CommonState};
 use crate::debug::DebugMode;
 use crate::game::{State, Transition};
 use crate::managed::{Composite, Outcome};
@@ -16,8 +16,6 @@ use sim::{Sim, SimOptions, TripID, TripMode};
 // TODO I took out speed controls
 pub struct ABTestMode {
     menu: ModalMenu,
-    primary_agent_tools: AgentTools,
-    secondary_agent_tools: AgentTools,
     diff_trip: Option<DiffOneTrip>,
     diff_all: Option<DiffAllTrips>,
     common: CommonState,
@@ -42,8 +40,6 @@ impl ABTestMode {
                 ],
                 ctx,
             ),
-            primary_agent_tools: AgentTools::new(),
-            secondary_agent_tools: AgentTools::new(),
             diff_trip: None,
             diff_all: None,
             common: CommonState::new(),
@@ -105,15 +101,7 @@ impl State for ABTestMode {
             ui.secondary = Some(primary);
             self.recalculate_stuff(ui, ctx);
 
-            std::mem::swap(
-                &mut self.primary_agent_tools,
-                &mut self.secondary_agent_tools,
-            );
             self.flipped = !self.flipped;
-        }
-
-        if let Some(t) = self.primary_agent_tools.event(ctx, ui, &mut self.menu) {
-            return t;
         }
 
         if self.menu.action("save state") {
@@ -193,7 +181,6 @@ impl State for ABTestMode {
             diff.draw(g, ui);
         }
         self.menu.draw(g);
-        self.primary_agent_tools.draw(g);
     }
 
     fn on_suspend(&mut self, _: &mut EventCtx, _: &mut UI) {

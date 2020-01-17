@@ -1,16 +1,13 @@
-mod agent;
 mod colors;
 mod info;
 mod minimap;
 mod navigate;
 mod panels;
-mod route_viewer;
 mod shortcuts;
 mod trip_explorer;
 mod turn_cycler;
 mod warp;
 
-pub use self::agent::AgentTools;
 pub use self::colors::{ColorLegend, Colorer, ColorerBuilder};
 pub use self::minimap::Minimap;
 pub use self::panels::{edit_map_panel, tool_panel};
