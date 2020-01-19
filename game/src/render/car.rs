@@ -40,6 +40,14 @@ impl DrawCar {
         };
 
         draw_default.push(zoomed_color_car(&input, cs), body_polygon.clone());
+        if input.status == CarStatus::Parked {
+            draw_default.add_svg(
+                "assets/map/parked_car.svg",
+                body_polygon.center(),
+                0.01,
+                Angle::ZERO,
+            );
+        }
 
         {
             let arrow_len = 0.8 * CAR_WIDTH;
