@@ -7,7 +7,7 @@ mod speed;
 pub use self::overlays::Overlays;
 use crate::common::{tool_panel, CommonState, Minimap};
 use crate::debug::DebugMode;
-use crate::edit::{apply_map_edits, save_edits, EditMode, TrafficSignalEditor};
+use crate::edit::{apply_map_edits, save_edits, EditMode, StopSignEditor, TrafficSignalEditor};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::Outcome;
@@ -125,6 +125,14 @@ impl State for SandboxMode {
                 return Transition::PushTwice(
                     Box::new(edit),
                     Box::new(TrafficSignalEditor::new(i, ctx, ui, sim_copy)),
+                );
+            }
+            if ui.primary.map.get_i(i).is_stop_sign()
+                && ui.per_obj.action(ctx, Key::E, "edit stop sign")
+            {
+                return Transition::PushTwice(
+                    Box::new(EditMode::new(ctx, ui, self.gameplay.mode.clone())),
+                    Box::new(StopSignEditor::new(i, ctx, ui)),
                 );
             }
         }

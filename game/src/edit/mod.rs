@@ -3,6 +3,7 @@ mod stop_signs;
 mod traffic_signals;
 
 use self::lanes::{Brush, LaneEditor};
+pub use self::stop_signs::StopSignEditor;
 pub use self::traffic_signals::TrafficSignalEditor;
 use crate::common::{tool_panel, CommonState, Warping};
 use crate::debug::DebugMode;
@@ -128,9 +129,7 @@ impl State for EditMode {
                         .per_obj
                         .action(ctx, Key::E, format!("edit stop signs for {}", id))
                 {
-                    return Transition::Push(Box::new(stop_signs::StopSignEditor::new(
-                        id, ctx, ui,
-                    )));
+                    return Transition::Push(Box::new(StopSignEditor::new(id, ctx, ui)));
                 } else if ui
                     .primary
                     .map
