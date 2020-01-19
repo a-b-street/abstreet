@@ -15,12 +15,12 @@ use crate::pregame::main_menu;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Choice, Color, Composite, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment,
-    Key, Line, ManagedWidget, Text, VerticalAlignment,
+    hotkey, lctrl, Choice, Color, Composite, DrawBoth, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
+    HorizontalAlignment, JustDraw, Key, Line, ManagedWidget, ScreenPt, Text, VerticalAlignment,
 };
 pub use gameplay::spawner::spawn_agents_around;
 pub use gameplay::GameplayMode;
-use geom::Time;
+use geom::{Polygon, Time};
 use map_model::MapEdits;
 use sim::TripMode;
 pub use speed::{SpeedControls, TimePanel};
@@ -38,23 +38,13 @@ pub struct SandboxMode {
 
 impl SandboxMode {
     pub fn new(ctx: &mut EventCtx, ui: &mut UI, mode: GameplayMode) -> SandboxMode {
-        let tool_panel = tool_panel(
-            ctx,
-            vec![crate::managed::Composite::svg_button(
-                ctx,
-                "assets/tools/info.svg",
-                "info",
-                hotkey(Key::Q),
-            )],
-        );
-
         SandboxMode {
             speed: SpeedControls::new(ctx),
             time_panel: TimePanel::new(ctx, ui),
             agent_meter: AgentMeter::new(ctx, ui),
             overlay: Overlays::Inactive,
             common: CommonState::new(),
-            tool_panel,
+            tool_panel: tool_panel(ctx),
             minimap: if mode.has_minimap() {
                 Some(Minimap::new(ctx, ui))
             } else {
@@ -67,7 +57,6 @@ impl SandboxMode {
 
 impl State for SandboxMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        self.agent_meter.event(ctx, ui);
         if let Some(t) = self.gameplay.event(ctx, ui, &mut self.overlay) {
             return t;
         }
@@ -237,7 +226,16 @@ impl State for SandboxMode {
                         }
                     })));
                 }
-                "info" => {
+                _ => unreachable!(),
+            },
+            None => {}
+        }
+        if self.agent_meter.time != ui.primary.sim.time() {
+            self.agent_meter = AgentMeter::new(ctx, ui);
+        }
+        match self.agent_meter.composite.event(ctx) {
+            Some(ezgui::Outcome::Clicked(x)) => match x.as_ref() {
+                "view finished trip data" => {
                     return Transition::Push(dashboards::make(
                         ctx,
                         ui,
@@ -273,7 +271,7 @@ impl State for SandboxMode {
         self.speed.draw(g);
         self.time_panel.draw(g);
         self.gameplay.draw(g, ui);
-        self.agent_meter.draw(g);
+        self.agent_meter.composite.draw(g);
         if let Some(ref m) = self.minimap {
             m.draw(g, ui, self.overlay.maybe_colorer());
         }
@@ -290,17 +288,11 @@ struct AgentMeter {
 }
 
 impl AgentMeter {
-    pub fn new(ctx: &mut EventCtx, ui: &UI) -> AgentMeter {
-        let (active, unfinished, by_mode) = ui.primary.sim.num_trips();
+    fn new(ctx: &mut EventCtx, ui: &UI) -> AgentMeter {
+        let (percent, unfinished, by_mode) = ui.primary.sim.num_trips();
 
         let composite = Composite::new(
             ManagedWidget::col(vec![
-                {
-                    let mut txt = Text::new();
-                    txt.add(Line(format!("Active trips: {}", active)));
-                    txt.add(Line(format!("Unfinished trips: {}", unfinished)));
-                    ManagedWidget::draw_text(ctx, txt)
-                },
                 ManagedWidget::row(vec![
                     ManagedWidget::draw_svg(ctx, "assets/meters/pedestrian.svg"),
                     ManagedWidget::draw_text(ctx, Text::from(Line(&by_mode[&TripMode::Walk]))),
@@ -312,6 +304,33 @@ impl AgentMeter {
                     ManagedWidget::draw_text(ctx, Text::from(Line(&by_mode[&TripMode::Transit]))),
                 ])
                 .centered(),
+                {
+                    // TODO Manaully tuned. :\
+                    let width = 350.0;
+                    let height = 30.0;
+
+                    let txt = Text::from(
+                        Line(format!("Unfinished trips: {}", unfinished)).fg(Color::BLACK),
+                    );
+                    let mut batch =
+                        GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(width, height))]);
+                    if percent != 0.0 {
+                        batch.push(Color::YELLOW, Polygon::rectangle(percent * width, height));
+                    }
+
+                    ManagedWidget::just_draw(JustDraw::wrap(DrawBoth::new(
+                        ctx,
+                        batch,
+                        vec![(txt, ScreenPt::new(0.0, 0.0))],
+                    )))
+                    .margin(10)
+                },
+                // TODO The SVG button uses clip and doesn't seem to work
+                crate::managed::Composite::text_button(
+                    ctx,
+                    "view finished trip data",
+                    hotkey(Key::Q),
+                ),
             ])
             .bg(Color::grey(0.4))
             .padding(20),
@@ -323,16 +342,5 @@ impl AgentMeter {
             time: ui.primary.sim.time(),
             composite,
         }
-    }
-
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) {
-        if self.time != ui.primary.sim.time() {
-            *self = AgentMeter::new(ctx, ui);
-        }
-        self.composite.event(ctx);
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx) {
-        self.composite.draw(g);
     }
 }

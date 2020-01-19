@@ -43,7 +43,7 @@ impl ABTestMode {
             diff_trip: None,
             diff_all: None,
             common: CommonState::new(),
-            tool_panel: tool_panel(ctx, Vec::new()),
+            tool_panel: tool_panel(ctx),
             test_name: test_name.to_string(),
             flipped: false,
         }
@@ -72,8 +72,8 @@ impl State for ABTestMode {
                     diff.lines.len()
                 )));
             }
-            let (active, unfinished, by_mode) = ui.primary.sim.num_trips();
-            txt.add(Line(format!("Active trips: {}", active)));
+            let (percent, unfinished, by_mode) = ui.primary.sim.num_trips();
+            txt.add(Line(format!("Percent of trips completed: {}", percent)));
             txt.add(Line(format!("Unfinished trips: {}", unfinished)));
             txt.add(Line(format!(
                 "Peds {}, Bikes {}, Cars {}, Buses {}",

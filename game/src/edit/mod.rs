@@ -41,7 +41,7 @@ impl EditMode {
         let suspended_sim = ui.primary.clear_sim();
         EditMode {
             common: CommonState::new(),
-            tool_panel: tool_panel(ctx, Vec::new()),
+            tool_panel: tool_panel(ctx),
             menu: ModalMenu::new(
                 "Map Edit Mode",
                 vec![

@@ -125,7 +125,7 @@ impl ScenarioManager {
                 ctx,
             ),
             common: CommonState::new(),
-            tool_panel: tool_panel(ctx, Vec::new()),
+            tool_panel: tool_panel(ctx),
             scenario,
             trips_from_bldg,
             trips_to_bldg,

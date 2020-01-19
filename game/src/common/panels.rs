@@ -8,9 +8,8 @@ use ezgui::{
     VerticalAlignment,
 };
 
-// TODO Rethink this API.
-pub fn tool_panel(ctx: &mut EventCtx, extra_buttons: Vec<ManagedWidget>) -> Composite {
-    let mut row = vec![
+pub fn tool_panel(ctx: &mut EventCtx) -> Composite {
+    let row = vec![
         // TODO Maybe this is confusing -- it doesn't jump to the title screen necessarily.
         // Caller has to handle this one
         ManagedWidget::btn(Button::rectangle_svg(
@@ -19,24 +18,21 @@ pub fn tool_panel(ctx: &mut EventCtx, extra_buttons: Vec<ManagedWidget>) -> Comp
             hotkey(Key::Escape),
             RewriteColor::ChangeAll(Color::ORANGE),
             ctx,
-        )),
+        ))
+        .margin(10),
         ManagedWidget::btn(Button::rectangle_svg(
             "assets/tools/settings.svg",
             "settings",
             None,
             RewriteColor::ChangeAll(Color::ORANGE),
             ctx,
-        )),
+        ))
+        .margin(10),
     ];
-    row.extend(extra_buttons);
-
     Composite::new(
-        ezgui::Composite::new(
-            ManagedWidget::row(row.into_iter().map(|x| x.margin(10)).collect())
-                .bg(Color::grey(0.4)),
-        )
-        .aligned(HorizontalAlignment::Left, VerticalAlignment::BottomAboveOSD)
-        .build(ctx),
+        ezgui::Composite::new(ManagedWidget::row(row).bg(Color::grey(0.4)))
+            .aligned(HorizontalAlignment::Left, VerticalAlignment::BottomAboveOSD)
+            .build(ctx),
     )
     .cb(
         "settings",
