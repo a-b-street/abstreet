@@ -72,8 +72,8 @@ impl State for ABTestMode {
                     diff.lines.len()
                 )));
             }
-            let (percent, unfinished, by_mode) = ui.primary.sim.num_trips();
-            txt.add(Line(format!("Percent of trips completed: {}", percent)));
+            let (finished, unfinished, by_mode) = ui.primary.sim.num_trips();
+            txt.add(Line(format!("Finished trips: {}", finished)));
             txt.add(Line(format!("Unfinished trips: {}", unfinished)));
             txt.add(Line(format!(
                 "Peds {}, Bikes {}, Cars {}, Buses {}",

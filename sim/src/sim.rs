@@ -660,11 +660,11 @@ impl Sim {
 
             let dt_real = Duration::realtime_elapsed(last_print);
             if dt_real >= Duration::seconds(1.0) {
-                let (percent, unfinished, _) = self.num_trips();
+                let (finished, unfinished, _) = self.num_trips();
                 println!(
-                    "{}: {}% trips complete, {} unfinished, speed = {:.2}x, {}",
+                    "{}: {} trips finished, {} unfinished, speed = {:.2}x, {}",
                     self.time(),
-                    percent * 100.0,
+                    finished,
                     unfinished,
                     (self.time() - last_sim_time) / dt_real,
                     self.scheduler.describe_stats()
@@ -816,12 +816,12 @@ impl Sim {
         self.time == Time::START_OF_DAY && self.is_done()
     }
 
-    // (percent of trips complete, number of unfinished trips, number of active by mode)
+    // (number of finished trips, number of unfinished trips, number of active by mode)
     // prettyprinted
-    pub fn num_trips(&self) -> (f64, String, BTreeMap<TripMode, String>) {
-        let (percent, unfinished, by_mode) = self.trips.num_trips();
+    pub fn num_trips(&self) -> (String, String, BTreeMap<TripMode, String>) {
+        let (finished, unfinished, by_mode) = self.trips.num_trips();
         (
-            percent,
+            abstutil::prettyprint_usize(finished),
             abstutil::prettyprint_usize(unfinished),
             by_mode
                 .into_iter()

@@ -492,8 +492,8 @@ impl TripManager {
         }
     }
 
-    // (percent of trips completed, unfinished trips, active trips by the trip's current mode)
-    pub fn num_trips(&self) -> (f64, usize, BTreeMap<TripMode, usize>) {
+    // (finished trips, unfinished trips, active trips by the trip's current mode)
+    pub fn num_trips(&self) -> (usize, usize, BTreeMap<TripMode, usize>) {
         let mut cnt = Counter::new();
         for a in self.active_trip_mode.keys() {
             cnt.inc(TripMode::from_agent(*a));
@@ -502,13 +502,11 @@ impl TripManager {
             .into_iter()
             .map(|k| (k, cnt.get(k)))
             .collect();
-        let percent = if self.trips.len() == 0 {
-            0.0
-        } else {
-            1.0 - ((self.unfinished_trips as f64) / (self.trips.len() as f64))
-        };
-
-        (percent, self.unfinished_trips, per_mode)
+        (
+            self.trips.len() - self.unfinished_trips,
+            self.unfinished_trips,
+            per_mode,
+        )
     }
 
     pub fn is_done(&self) -> bool {

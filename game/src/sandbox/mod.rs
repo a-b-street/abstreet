@@ -15,12 +15,12 @@ use crate::pregame::main_menu;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Choice, Color, Composite, DrawBoth, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
-    HorizontalAlignment, JustDraw, Key, Line, ManagedWidget, ScreenPt, Text, VerticalAlignment,
+    hotkey, lctrl, Choice, Color, Composite, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment,
+    Key, Line, ManagedWidget, Text, VerticalAlignment,
 };
 pub use gameplay::spawner::spawn_agents_around;
 pub use gameplay::GameplayMode;
-use geom::{Polygon, Time};
+use geom::Time;
 use map_model::MapEdits;
 use sim::TripMode;
 pub use speed::{SpeedControls, TimePanel};
@@ -289,7 +289,7 @@ struct AgentMeter {
 
 impl AgentMeter {
     fn new(ctx: &mut EventCtx, ui: &UI) -> AgentMeter {
-        let (percent, unfinished, by_mode) = ui.primary.sim.num_trips();
+        let (finished, unfinished, by_mode) = ui.primary.sim.num_trips();
 
         let composite = Composite::new(
             ManagedWidget::col(vec![
@@ -305,25 +305,10 @@ impl AgentMeter {
                 ])
                 .centered(),
                 {
-                    // TODO Manaully tuned. :\
-                    let width = 350.0;
-                    let height = 30.0;
-
-                    let txt = Text::from(
-                        Line(format!("Unfinished trips: {}", unfinished)).fg(Color::BLACK),
-                    );
-                    let mut batch =
-                        GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(width, height))]);
-                    if percent != 0.0 {
-                        batch.push(Color::YELLOW, Polygon::rectangle(percent * width, height));
-                    }
-
-                    ManagedWidget::just_draw(JustDraw::wrap(DrawBoth::new(
-                        ctx,
-                        batch,
-                        vec![(txt, ScreenPt::new(0.0, 0.0))],
-                    )))
-                    .margin(10)
+                    let mut txt = Text::new();
+                    txt.add(Line(format!("Finished trips: {}", finished)));
+                    txt.add(Line(format!("Unfinished trips: {}", unfinished)));
+                    ManagedWidget::draw_text(ctx, txt)
                 },
                 // TODO The SVG button uses clip and doesn't seem to work
                 crate::managed::Composite::text_button(
