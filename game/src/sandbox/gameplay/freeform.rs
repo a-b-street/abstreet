@@ -7,9 +7,10 @@ use crate::sandbox::overlays::Overlays;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use ezgui::{
-    hotkey, lctrl, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget, Text,
-    VerticalAlignment,
+    hotkey, lctrl, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    ManagedWidget, Text, VerticalAlignment,
 };
+use geom::Polygon;
 use map_model::IntersectionID;
 use std::collections::BTreeSet;
 
@@ -69,22 +70,45 @@ pub fn freeform_controller(
     Composite::new(
         ezgui::Composite::new(
             ManagedWidget::row(vec![
+                ManagedWidget::draw_text(ctx, Text::from(Line("Sandbox").size(26))).margin(5),
+                ManagedWidget::draw_batch(
+                    ctx,
+                    GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(5.0, 50.0))]),
+                )
+                .margin(5),
+                ManagedWidget::draw_text(ctx, Text::from(Line("Map:").size(18).roboto_bold()))
+                    .margin(5),
+                // TODO Different button style
                 Composite::detailed_text_button(
                     ctx,
-                    Text::from(Line(ui.primary.map.get_name()).fg(Color::BLACK)),
+                    Text::from(
+                        Line(format!("{} ▼", ui.primary.map.get_name()))
+                            .fg(Color::BLACK)
+                            .size(18)
+                            .roboto(),
+                    ),
                     lctrl(Key::L),
                     "change map",
-                ),
+                )
+                .margin(5),
+                ManagedWidget::draw_text(ctx, Text::from(Line("Traffic:").size(18).roboto_bold()))
+                    .margin(5),
                 Composite::detailed_text_button(
                     ctx,
-                    Text::from(Line(scenario_name).fg(Color::BLACK)),
+                    Text::from(
+                        Line(format!("{} ▼", scenario_name))
+                            .fg(Color::BLACK)
+                            .size(18)
+                            .roboto(),
+                    ),
                     hotkey(Key::S),
                     "change scenario",
-                ),
-                // TODO Name of edits and whether the current ones are saved or not is probably
-                // less interesting.
-                Composite::svg_button(ctx, "assets/tools/edit_map.svg", "edit map", lctrl(Key::E)),
+                )
+                .margin(5),
+                Composite::svg_button(ctx, "assets/tools/edit_map.svg", "edit map", lctrl(Key::E))
+                    .margin(5),
             ])
+            .centered()
             .bg(Color::grey(0.4)),
         )
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)

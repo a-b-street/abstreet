@@ -20,11 +20,13 @@ impl Assets {
     pub fn new(display: &glium::Display, font_size: usize) -> Assets {
         let dejavu: &[u8] = include_bytes!("assets/DejaVuSans.ttf");
         let roboto: &[u8] = include_bytes!("assets/Roboto-Regular.ttf");
+        let roboto_bold: &[u8] = include_bytes!("assets/Roboto-Bold.ttf");
         let screenspace_glyphs = GlyphBrush::new(
             display,
             vec![
                 Font::from_bytes(dejavu).unwrap(),
                 Font::from_bytes(roboto).unwrap(),
+                Font::from_bytes(roboto_bold).unwrap(),
             ],
         );
         let mapspace_glyphs = GlyphBrushBuilder::using_font_bytes(dejavu)

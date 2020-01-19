@@ -324,7 +324,7 @@ impl Overlays {
             prettyprint_usize(avail_spots.len())
         )));
 
-        let awful = Color::hex("#4E30A6");
+        let awful = Color::hex("#801F1C");
         let bad = Color::hex("#EB5757");
         let meh = Color::hex("#F2C94C");
         let good = Color::hex("#7FFA4D");

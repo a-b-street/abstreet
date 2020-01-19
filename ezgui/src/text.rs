@@ -20,6 +20,7 @@ pub const SCALE_DOWN: f64 = 10.0;
 // These're hardcoded for simplicity; this list doesn't change much.
 const DEJA_VU: FontId = FontId(0);
 const ROBOTO: FontId = FontId(1);
+const ROBOTO_BOLD: FontId = FontId(2);
 
 #[derive(Debug, Clone)]
 pub struct TextSpan {
@@ -46,6 +47,12 @@ impl TextSpan {
     pub fn roboto(mut self) -> TextSpan {
         assert_eq!(self.font, DEJA_VU);
         self.font = ROBOTO;
+        self
+    }
+
+    pub fn roboto_bold(mut self) -> TextSpan {
+        assert_eq!(self.font, DEJA_VU);
+        self.font = ROBOTO_BOLD;
         self
     }
 }
