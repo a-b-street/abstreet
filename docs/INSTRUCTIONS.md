@@ -35,24 +35,20 @@ General controls:
 
 - Click and drag to move
 - Scroll wheel or touchpad to zoom
-- Menus should work as expected. Most actions have a keybinding.
-- You can hover over an object and left-click to see more actions.
+- Click an object to see more actions
+- The bottom bar shows key shortcuts
 
 Things to try:
 
-- In sandbox mode, hover over an intersection, right click, and spawn agents.
-- To run a realistic, full day's worth of traffic, go to sandbox mode, then
-  "start a scenario" (hotkey **s**) and choose the "weekday_typical_traffic"
-  entry. Time (shown in the top-right corner) starts at midnight. Things tend to
-  get interesting around 6am -- use the speed controls in the top-left. Try
-  zooming in for details, and zooming out to see an overview.
-  - The full scenario should complete successfully on the small montlake map. On
-    other maps, it currently gridlocks or crashes. Most of these are known
-    issues.
-- Go to edit mode (note this will reset the simulation). Use the buttons at the
-  top to pick a lane type, then hover over a lane and press **space** to change
-  it. Deselect the lane tool, then click an intersection to edit stop signs or
-  traffic signals.
+- In sandbox mode, select an intersection, and spawn agents.
+- Change the default "random" traffic in sandbox mode to "weekday" to see
+  realistic trips over a full weekday.
+  - The weekday traffic scenario should complete successfully on the small
+    montlake map. On other maps, it currently gridlocks or crashes. Most of
+    these are known issues.
+- Go to edit mode (note this will reset the simulation). Select a lane type at
+  the top, then hover over a lane and press **space** to change it. Deselect the
+  lane tool, then click an intersection to edit stop signs or traffic signals.
 - Go back to the main menu and pick a challenge. Eventually these will be very
   self-guided, but there are various problems with all of them right now.
 

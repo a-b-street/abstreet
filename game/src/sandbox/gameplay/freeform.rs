@@ -23,7 +23,7 @@ pub struct Freeform {
 impl Freeform {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> (Composite, Box<dyn GameplayState>) {
         (
-            freeform_controller(ctx, ui, GameplayMode::Freeform, "empty scenario"),
+            freeform_controller(ctx, ui, GameplayMode::Freeform, "none"),
             Box::new(Freeform {
                 spawn_pts: BTreeSet::new(),
             }),
@@ -73,7 +73,7 @@ pub fn freeform_controller(
                 ManagedWidget::draw_text(ctx, Text::from(Line("Sandbox").size(26))).margin(5),
                 ManagedWidget::draw_batch(
                     ctx,
-                    GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(5.0, 50.0))]),
+                    GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
                 )
                 .margin(5),
                 ManagedWidget::draw_text(ctx, Text::from(Line("Map:").size(18).roboto_bold()))

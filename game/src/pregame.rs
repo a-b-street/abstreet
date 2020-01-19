@@ -135,7 +135,7 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
                     Box::new(SandboxMode::new(
                         ctx,
                         ui,
-                        GameplayMode::PlayScenario("random scenario with some agents".to_string()),
+                        GameplayMode::PlayScenario("random".to_string()),
                     )),
                     EventLoopMode::Animation,
                 ))

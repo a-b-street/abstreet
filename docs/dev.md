@@ -34,8 +34,8 @@ One-time setup:
 - You can start the game in different modes using flags:
   - `cargo run -- --dev ../data/system/maps/downtown.bin` starts on a particular
     map
-  - `cargo run ../data/system/scenarios/caphill/weekday_typical_traffic_from_psrc.bin`
-    starts with a scenario (which is tied to a certain map)
+  - `cargo run ../data/system/scenarios/caphill/weekday.bin` starts with a
+    scenario (which is tied to a certain map)
   - `cargo run -- --challenge=trafficsig/tut2` starts on a particular challenge.
     See the list of aliases by passing in a bad value here.
   - `cargo run ../data/player/saves/montlake/no_edits_unnamed/00h00m20.3s.bin`
