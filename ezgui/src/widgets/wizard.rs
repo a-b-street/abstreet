@@ -278,7 +278,8 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                         ManagedWidget::draw_text(self.ctx, Text::prompt(query)),
                         ManagedWidget::menu("menu"),
                     ])
-                    .bg(Color::grey(0.4)),
+                    .bg(Color::grey(0.4))
+                    .outline(Color::WHITE),
                 )
                 .menu(
                     "menu",
@@ -395,7 +396,8 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                         self.ctx,
                     )),
                 ])
-                .bg(Color::grey(0.4)),
+                .bg(Color::grey(0.4))
+                .outline(Color::WHITE),
             )
             .build(self.ctx),
         );

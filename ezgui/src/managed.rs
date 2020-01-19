@@ -40,6 +40,7 @@ enum WidgetType {
 
 struct LayoutStyle {
     bg_color: Option<Color>,
+    outline_color: Option<Color>,
     align_items: Option<AlignItems>,
     justify_content: Option<JustifyContent>,
     flex_wrap: Option<FlexWrap>,
@@ -119,6 +120,12 @@ impl ManagedWidget {
         self
     }
 
+    pub fn outline(mut self, color: Color) -> ManagedWidget {
+        self.style.outline_color = Some(color);
+        // TODO Play with any existing setting
+        self.padding(10)
+    }
+
     pub fn padding(mut self, pixels: usize) -> ManagedWidget {
         self.style.padding = Some(Rect {
             start: Dimension::Points(pixels as f32),
@@ -168,6 +175,7 @@ impl ManagedWidget {
             widget,
             style: LayoutStyle {
                 bg_color: None,
+                outline_color: None,
                 align_items: None,
                 justify_content: None,
                 flex_wrap: None,
@@ -409,19 +417,34 @@ impl ManagedWidget {
             _ => ScreenPt::new(x + dx - scroll_offset.0, y + dy - scroll_offset.1),
         };
         self.rect = ScreenRectangle::top_left(top_left, ScreenDims::new(width, height));
-        if let Some(color) = self.style.bg_color {
-            // Assume widgets don't dynamically change, so we just upload the background once.
-            if self.bg.is_none() {
-                let batch = GeomBatch::from(vec![(
-                    color,
+
+        // Assume widgets don't dynamically change, so we just upload the background once.
+        if self.bg.is_none()
+            && (self.style.bg_color.is_some() || self.style.outline_color.is_some())
+        {
+            let mut batch = GeomBatch::new();
+            if let Some(c) = self.style.bg_color {
+                batch.push(
+                    c,
                     Polygon::rounded_rectangle(
                         Distance::meters(width),
                         Distance::meters(height),
                         Distance::meters(5.0),
                     ),
-                )]);
-                self.bg = Some(DrawBoth::new(ctx, batch, Vec::new()));
+                );
             }
+            if let Some(c) = self.style.outline_color {
+                batch.push(
+                    c,
+                    Polygon::rounded_rectangle(
+                        Distance::meters(width),
+                        Distance::meters(height),
+                        Distance::meters(5.0),
+                    )
+                    .to_outline(Distance::meters(10.0)),
+                );
+            }
+            self.bg = Some(DrawBoth::new(ctx, batch, Vec::new()));
         }
 
         match self.widget {
