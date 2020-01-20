@@ -4,7 +4,7 @@ use crate::{
     text, Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, Line, MultiKey, RewriteColor, ScreenDims,
     ScreenPt, Text,
 };
-use geom::{Distance, Polygon};
+use geom::Polygon;
 
 pub struct Button {
     pub action: String,
@@ -138,9 +138,9 @@ impl Button {
         let img_rect =
             Polygon::rectangle(dims.width, dims.height).translate(HORIZ_PADDING, VERT_PADDING);
         let bg = Polygon::rounded_rectangle(
-            Distance::meters(dims.width + 2.0 * HORIZ_PADDING),
-            Distance::meters(dims.height + 2.0 * VERT_PADDING),
-            Distance::meters(VERT_PADDING),
+            dims.width + 2.0 * HORIZ_PADDING,
+            dims.height + 2.0 * VERT_PADDING,
+            VERT_PADDING,
         );
 
         let normal = DrawBoth::new(
@@ -246,9 +246,9 @@ impl Button {
     ) -> Button {
         let dims = ctx.text_dims(&text);
         let geom = Polygon::rounded_rectangle(
-            Distance::meters(dims.width + 2.0 * HORIZ_PADDING),
-            Distance::meters(dims.height + 2.0 * VERT_PADDING),
-            Distance::meters(VERT_PADDING),
+            dims.width + 2.0 * HORIZ_PADDING,
+            dims.height + 2.0 * VERT_PADDING,
+            VERT_PADDING,
         );
         let draw_text = vec![(text, ScreenPt::new(HORIZ_PADDING, VERT_PADDING))];
 

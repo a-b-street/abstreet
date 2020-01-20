@@ -5,7 +5,7 @@ use ezgui::{
     hotkey, Button, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, ManagedWidget, RewriteColor, Text, VerticalAlignment, Wizard,
 };
-use geom::{Distance, Duration, Line, Pt2D, Time};
+use geom::{Duration, Polygon, Time};
 use std::time::Instant;
 
 pub struct SpeedControls {
@@ -387,32 +387,29 @@ impl TimePanel {
             time: ui.primary.sim.time(),
             composite: ezgui::Composite::new(
                 ManagedWidget::col(vec![
-                    ManagedWidget::draw_text(
+                    ManagedWidget::row(vec![ManagedWidget::draw_text(
                         ctx,
                         Text::from(Line(ui.primary.sim.time().ampm_tostring()).size(30)),
                     )
-                    .centered(),
+                    .centered()])
+                    .padding(10),
                     {
                         let mut batch = GeomBatch::new();
                         // This is manually tuned
                         let width = 300.0;
-                        let y1 = 5.0;
-                        let height = Distance::meters(15.0);
+                        let height = 15.0;
                         // Just clamp past 24 hours
                         let percent = ui.primary.sim.time().to_percent(Time::END_OF_DAY).min(1.0);
 
                         // TODO rounded
-                        batch.push(
-                            Color::WHITE,
-                            Line::new(Pt2D::new(0.0, y1), Pt2D::new(width, y1))
-                                .make_polygons(height),
-                        );
-                        if let Some(l) =
-                            Line::maybe_new(Pt2D::new(0.0, y1), Pt2D::new(percent * width, y1))
-                        {
-                            batch.push(Color::grey(0.5), l.make_polygons(height));
+                        batch.push(Color::WHITE, Polygon::rectangle(width, height));
+                        if percent != 0.0 {
+                            batch.push(
+                                Color::grey(0.5),
+                                Polygon::rectangle(percent * width, height),
+                            );
                         }
-                        ManagedWidget::draw_batch(ctx, batch).padding(5)
+                        ManagedWidget::draw_batch(ctx, batch)
                     },
                     ManagedWidget::row(vec![
                         ManagedWidget::draw_text(ctx, Text::from(Line("00:00").size(12).roboto())),
@@ -421,10 +418,11 @@ impl TimePanel {
                         ManagedWidget::draw_svg(ctx, "assets/speed/sunset.svg"),
                         ManagedWidget::draw_text(ctx, Text::from(Line("24:00").size(12).roboto())),
                     ])
+                    .padding(10)
                     .evenly_spaced(),
                 ])
-                .bg(Color::hex("#4C4C4C"))
-                .padding(10),
+                .padding(10)
+                .bg(Color::hex("#4C4C4C")),
             )
             .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
             .build(ctx),

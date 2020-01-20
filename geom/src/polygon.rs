@@ -229,14 +229,11 @@ impl Polygon {
         Some(Polygon::rectangle(width, height).translate(x1, y1))
     }
 
-    // Top-left at the origin; use translate
-    pub fn rounded_rectangle(width: Distance, height: Distance, radius: Distance) -> Polygon {
-        assert!(2.0 * radius <= width);
-        assert!(2.0 * radius <= height);
+    // Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
+    pub fn rounded_rectangle(w: f64, h: f64, r: f64) -> Polygon {
+        assert!(2.0 * r <= w);
+        assert!(2.0 * r <= h);
 
-        let w = width.inner_meters();
-        let h = height.inner_meters();
-        let r = radius.inner_meters();
         let mut pts = vec![];
 
         const RESOLUTION: usize = 5;
@@ -245,7 +242,7 @@ impl Polygon {
                 let angle = Angle::new_degs(
                     angle1_degs + (angle2_degs - angle1_degs) * ((i as f64) / (RESOLUTION as f64)),
                 );
-                pts.push(center.project_away(radius, angle.invert_y()));
+                pts.push(center.project_away(Distance::meters(r), angle.invert_y()));
             }
         };
 

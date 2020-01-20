@@ -424,24 +424,13 @@ impl ManagedWidget {
         {
             let mut batch = GeomBatch::new();
             if let Some(c) = self.style.bg_color {
-                batch.push(
-                    c,
-                    Polygon::rounded_rectangle(
-                        Distance::meters(width),
-                        Distance::meters(height),
-                        Distance::meters(5.0),
-                    ),
-                );
+                batch.push(c, Polygon::rounded_rectangle(width, height, 5.0));
             }
             if let Some(c) = self.style.outline_color {
                 batch.push(
                     c,
-                    Polygon::rounded_rectangle(
-                        Distance::meters(width),
-                        Distance::meters(height),
-                        Distance::meters(5.0),
-                    )
-                    .to_outline(Distance::meters(10.0)),
+                    Polygon::rounded_rectangle(width, height, 5.0)
+                        .to_outline(Distance::meters(10.0)),
                 );
             }
             self.bg = Some(DrawBoth::new(ctx, batch, Vec::new()));
