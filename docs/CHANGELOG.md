@@ -247,3 +247,15 @@ changes here.
 - hide internal IDs normally
 - limit map zoom
 - fix bugs with crosswalks conflicting with vehicle turns
+
+0.1.24
+
+- overhaul traffic signal editor UI, and add redo support
+- update main edit mode UI, and add redo support
+- limit max unzoom
+- fix the infamous HiDPI bug once and for all; minimaps should work everywhere
+- almost bug-free support for floating, horizontally and vertically scrolling panels
+- overhaul top-center panel, rename scenarios to be less confusing
+- expose bus analytics outside of challenge mode
+- live info panel can exist during a running simulation
+- consolidated agent route/trip information into info panel
