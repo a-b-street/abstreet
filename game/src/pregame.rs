@@ -126,9 +126,10 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
     )
     .cb(
         "Tutorial",
-        Box::new(|ctx, _| {
+        Box::new(|ctx, ui| {
             Some(Transition::Push(Box::new(TutorialMode::new(
                 ctx,
+                ui,
                 Stage::CanvasControls,
             ))))
         }),
