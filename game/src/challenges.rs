@@ -16,7 +16,7 @@ use std::collections::{BTreeMap, HashSet};
 #[derive(Clone)]
 pub struct Challenge {
     title: String,
-    description: Vec<String>,
+    pub description: Vec<String>,
     pub map_path: String,
     pub alias: String,
     pub gameplay: GameplayMode,

@@ -6,20 +6,26 @@ mod optimize_bus;
 mod play_scenario;
 pub mod spawner;
 
-use crate::game::Transition;
+use crate::challenges;
+use crate::edit::EditMode;
+use crate::game::{msg, Transition};
 use crate::managed::{Composite, Outcome};
 use crate::render::{AgentColorScheme, InnerAgentColorScheme};
 use crate::sandbox::overlays::Overlays;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Timer};
-use ezgui::{Color, EventCtx, GfxCtx, Line, ModalMenu, TextSpan, Wizard};
-use geom::Duration;
+use ezgui::{
+    lctrl, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget,
+    ModalMenu, Text, TextSpan, VerticalAlignment, Wizard,
+};
+use geom::{Duration, Polygon};
 use map_model::{EditCmd, Map, MapEdits};
 use sim::{Analytics, Scenario, TripMode};
 
 pub struct GameplayRunner {
     pub mode: GameplayMode,
+    // TODO Why not make each state own this?
     controller: Composite,
     state: Box<dyn GameplayState>,
 }
@@ -320,4 +326,52 @@ pub fn cmp_count_more(now: usize, baseline: usize) -> TextSpan {
     } else {
         Line("same as baseline")
     }
+}
+
+pub fn challenge_controller(ctx: &mut EventCtx, gameplay: GameplayMode, title: &str) -> Composite {
+    // Scrape the description
+    let mut description = Vec::new();
+    'OUTER: for (_, stages) in challenges::all_challenges() {
+        for challenge in stages {
+            if challenge.gameplay == gameplay {
+                description = challenge.description.clone();
+                break 'OUTER;
+            }
+        }
+    }
+
+    Composite::new(
+        ezgui::Composite::new(
+            ManagedWidget::row(vec![
+                ManagedWidget::draw_text(ctx, Text::from(Line(title).size(26))).margin(5),
+                Composite::svg_button(ctx, "assets/tools/info.svg", "info", None).margin(5),
+                ManagedWidget::draw_batch(
+                    ctx,
+                    GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
+                )
+                .margin(5),
+                Composite::svg_button(ctx, "assets/tools/edit_map.svg", "edit map", lctrl(Key::E))
+                    .margin(5),
+            ])
+            .centered()
+            .bg(Color::grey(0.4)),
+        )
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        .build(ctx),
+    )
+    .cb(
+        "edit map",
+        Box::new(move |ctx, ui| {
+            Some(Transition::Replace(Box::new(EditMode::new(
+                ctx,
+                ui,
+                gameplay.clone(),
+            ))))
+        }),
+    )
+    // TODO msg() is silly, it's hard to plumb the title. Also, show the challenge splash screen.
+    .cb(
+        "info",
+        Box::new(move |_, _| Some(Transition::Push(msg("Challenge", description.clone())))),
+    )
 }

@@ -1,8 +1,9 @@
-use crate::common::edit_map_panel;
-use crate::game::{msg, Transition};
+use crate::game::Transition;
 use crate::managed::Composite;
 use crate::render::InnerAgentColorScheme;
-use crate::sandbox::gameplay::{cmp_count_fewer, manage_acs, GameplayMode, GameplayState};
+use crate::sandbox::gameplay::{
+    challenge_controller, cmp_count_fewer, manage_acs, GameplayMode, GameplayState,
+};
 use crate::sandbox::overlays::Overlays;
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
@@ -18,18 +19,11 @@ pub struct CreateGridlock {
 impl CreateGridlock {
     pub fn new(ctx: &mut EventCtx) -> (Composite, Box<dyn GameplayState>) {
         (
-            edit_map_panel(ctx, GameplayMode::CreateGridlock),
+            challenge_controller(ctx, GameplayMode::CreateGridlock, "Gridlock Challenge"),
             Box::new(CreateGridlock {
                 time: Time::START_OF_DAY,
-                menu: ModalMenu::new(
-                    "Cause gridlock",
-                    vec![
-                        (hotkey(Key::E), "show agent delay"),
-                        (hotkey(Key::H), "help"),
-                    ],
-                    ctx,
-                )
-                .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
+                menu: ModalMenu::new("", vec![(hotkey(Key::E), "show agent delay")], ctx)
+                    .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
             }),
         )
     }
@@ -52,13 +46,6 @@ impl GameplayState for CreateGridlock {
             self.menu.set_info(ctx, gridlock_panel(ui));
         }
 
-        if self.menu.action("help") {
-            return Some(Transition::Push(msg("Help", vec![
-                        "You might notice a few places in the map where gridlock forms already.",
-                        "You can make things worse!",
-                        "How few lanes can you close for construction before everything grinds to a halt?",
-                    ])));
-        }
         None
     }
 

@@ -9,7 +9,7 @@ mod warp;
 
 pub use self::colors::{ColorLegend, Colorer, ColorerBuilder};
 pub use self::minimap::Minimap;
-pub use self::panels::{edit_map_panel, tool_panel};
+pub use self::panels::tool_panel;
 pub use self::warp::Warping;
 use crate::game::Transition;
 use crate::helpers::{list_names, ID};

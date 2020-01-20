@@ -83,7 +83,10 @@ impl ModalMenu {
             self.hovering_idx = None;
             if let Some(cursor) = ctx.canvas.get_cursor_in_screen_space() {
                 let mut top_left = self.top_left;
-                top_left.y += ctx.default_line_height() + ctx.text_dims(&self.info).height;
+                top_left.y += ctx.text_dims(&self.info).height;
+                if !self.title.is_empty() {
+                    top_left.y += ctx.default_line_height();
+                }
                 for idx in 0..self.choices.len() {
                     let rect = ScreenRectangle {
                         x1: top_left.x,
@@ -205,7 +208,11 @@ impl ModalMenu {
     }
 
     fn calculate_txt(&self) -> Text {
-        let mut txt = Text::prompt(&self.title);
+        let mut txt = if self.title.is_empty() {
+            Text::new().with_bg()
+        } else {
+            Text::prompt(&self.title)
+        };
         txt.extend(&self.info);
 
         for (idx, choice) in self.choices.iter().enumerate() {

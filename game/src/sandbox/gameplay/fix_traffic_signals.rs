@@ -1,8 +1,9 @@
-use crate::common::edit_map_panel;
 use crate::game::{msg, Transition};
 use crate::managed::Composite;
 use crate::sandbox::gameplay::faster_trips::small_faster_trips_panel;
-use crate::sandbox::gameplay::{manage_overlays, GameplayMode, GameplayState};
+use crate::sandbox::gameplay::{
+    challenge_controller, manage_overlays, GameplayMode, GameplayState,
+};
 use crate::sandbox::overlays::Overlays;
 use crate::ui::UI;
 use ezgui::{hotkey, layout, EventCtx, GfxCtx, Key, ModalMenu};
@@ -19,16 +20,15 @@ pub struct FixTrafficSignals {
 impl FixTrafficSignals {
     pub fn new(ctx: &mut EventCtx, mode: GameplayMode) -> (Composite, Box<dyn GameplayState>) {
         (
-            edit_map_panel(ctx, mode),
+            challenge_controller(ctx, mode, "Traffic Signals Challenge"),
             Box::new(FixTrafficSignals {
                 time: Time::START_OF_DAY,
                 once: true,
                 menu: ModalMenu::new(
-                    "Fix traffic signals",
+                    "",
                     vec![
                         (hotkey(Key::F), "find slowest traffic signals"),
                         (hotkey(Key::D), "hide finished trip distribution"),
-                        (hotkey(Key::H), "help"),
                         (hotkey(Key::S), "final score"),
                     ],
                     ctx,
@@ -86,15 +86,6 @@ impl GameplayState for FixTrafficSignals {
             self.time = ui.primary.sim.time();
             self.menu
                 .set_info(ctx, small_faster_trips_panel(TripMode::Drive, ui));
-        }
-
-        if self.menu.action("help") {
-            return Some(Transition::Push(msg(
-                "Help",
-                vec![
-                    "All of the traffic signals follow one timing plan through the whole day.",
-                    "(Due to budget cuts, none of the vehicle-actuated signals are working -- don't worry if you don't know what these are.)",
-                ])));
         }
 
         if self.menu.action("final score") {

@@ -1,11 +1,12 @@
-use crate::common::edit_map_panel;
-use crate::game::{msg, Transition};
+use crate::game::Transition;
 use crate::managed::Composite;
-use crate::sandbox::gameplay::{cmp_count_more, cmp_duration_shorter, GameplayMode, GameplayState};
+use crate::sandbox::gameplay::{
+    challenge_controller, cmp_count_more, cmp_duration_shorter, GameplayMode, GameplayState,
+};
 use crate::sandbox::overlays::Overlays;
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
-use ezgui::{hotkey, layout, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
+use ezgui::{layout, EventCtx, GfxCtx, Line, ModalMenu, Text};
 use geom::{Statistic, Time};
 use sim::TripMode;
 
@@ -18,16 +19,16 @@ pub struct FasterTrips {
 impl FasterTrips {
     pub fn new(trip_mode: TripMode, ctx: &mut EventCtx) -> (Composite, Box<dyn GameplayState>) {
         (
-            edit_map_panel(ctx, GameplayMode::FasterTrips(trip_mode)),
+            challenge_controller(
+                ctx,
+                GameplayMode::FasterTrips(trip_mode),
+                &format!("Faster {} Trips Challenge", trip_mode),
+            ),
             Box::new(FasterTrips {
                 mode: trip_mode,
                 time: Time::START_OF_DAY,
-                menu: ModalMenu::new(
-                    format!("Speed up {} trips", trip_mode),
-                    vec![(hotkey(Key::H), "help")],
-                    ctx,
-                )
-                .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
+                menu: ModalMenu::new::<&str, &str>("", Vec::new(), ctx)
+                    .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
             }),
         )
     }
@@ -42,12 +43,6 @@ impl GameplayState for FasterTrips {
             self.menu.set_info(ctx, faster_trips_panel(self.mode, ui));
         }
 
-        if self.menu.action("help") {
-            return Some(Transition::Push(msg(
-                "Help",
-                vec!["How can you possibly speed up all trips of some mode?"],
-            )));
-        }
         None
     }
 

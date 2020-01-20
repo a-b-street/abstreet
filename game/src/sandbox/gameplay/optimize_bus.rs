@@ -1,7 +1,6 @@
-use crate::common::edit_map_panel;
-use crate::game::{msg, Transition, WizardState};
+use crate::game::{Transition, WizardState};
 use crate::sandbox::gameplay::{
-    cmp_duration_shorter, manage_overlays, GameplayMode, GameplayState,
+    challenge_controller, cmp_duration_shorter, manage_overlays, GameplayMode, GameplayState,
 };
 use crate::sandbox::overlays::Overlays;
 use crate::sandbox::SandboxMode;
@@ -25,19 +24,22 @@ impl OptimizeBus {
     ) -> (crate::managed::Composite, Box<dyn GameplayState>) {
         let route = ui.primary.map.get_bus_route(&route_name).unwrap();
         (
-            edit_map_panel(ctx, GameplayMode::OptimizeBus(route_name.clone())),
+            challenge_controller(
+                ctx,
+                GameplayMode::OptimizeBus(route_name.clone()),
+                &format!("Optimize {} Challenge", route_name),
+            ),
             Box::new(OptimizeBus {
                 route: route.id,
                 time: Time::START_OF_DAY,
                 stat: Statistic::Max,
                 menu: ModalMenu::new(
-                    format!("Optimize {}", route_name),
+                    "",
                     vec![
                         (hotkey(Key::E), "show bus route"),
                         (hotkey(Key::T), "show delays over time"),
                         (hotkey(Key::P), "show bus passengers"),
                         (hotkey(Key::S), "change statistic"),
-                        (hotkey(Key::H), "help"),
                     ],
                     ctx,
                 )
@@ -128,17 +130,6 @@ impl GameplayState for OptimizeBus {
                     })))
                 },
             ))));
-        }
-        if self.menu.action("help") {
-            return Some(Transition::Push(msg(
-                "Help",
-                vec![
-                    "First find where the bus gets stuck.",
-                    "Then use edit mode to try to speed things up.",
-                    "Try making dedicated bus lanes",
-                    "and adjusting traffic signals.",
-                ],
-            )));
         }
         None
     }
