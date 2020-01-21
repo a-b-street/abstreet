@@ -2,48 +2,16 @@ use crate::common::CommonState;
 use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use crate::render::DrawOptions;
-use crate::sandbox::{SpeedControls, TimePanel};
+use crate::sandbox::{spawn_agents_around, AgentMeter, SpeedControls, TimePanel};
 use crate::ui::{ShowEverything, UI};
 use ezgui::{
     hotkey, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, ManagedWidget, Outcome, Text, VerticalAlignment,
 };
 use geom::{Distance, Duration, PolyLine, Polygon, Pt2D, Time};
-use map_model::{BuildingID, LaneID};
+use map_model::{BuildingID, IntersectionID, LaneID};
+use sim::{TripID, TripResult};
 use std::collections::HashSet;
-
-// You've got a drone and, thanks to extremely creepy surveillance technology, the ability to peer
-// into everyone's trips.
-// People are on fixed schedules: every day, they leave at exactly the same time using the same
-// mode of transport. All you can change is how their experience will be in the short-term.
-// The city is in total crisis. You've only got 10 days to do something before all hell breaks
-// loose and people start kayaking / ziplining / crab-walking / cartwheeling / to work.
-
-/*pub enum Stage {
-    // Pan and zoom. Go find some obvious landmark.
-    // TODO Just zoom in sufficiently on it, maybe don't even click it yet.
-    CanvasControls,
-
-    // Select objects, use info panel, OSD, hotkeys. Measure the length of some roads, do
-    // action on 3 roads.
-    // (use big arrows to point to stuff)
-    SelectObjects(HashSet<LaneID>),
-
-    // Time, Speed panels. They don't do much yet. Wait until some time.
-    TimeControls,
-
-    // TODO Spawn agents at an intersection. Point out different vehicles. Show overlapping peds. Silently introduce agent meters panel. Tell people to go check out the destination of some particular car (click on it).
-    // TODO Minimap, layers
-    // TODO Multi-modal trips -- including parking. (Cars per bldg, ownership). Border intersections.
-
-    // TODO Edit mode. fixed schedules. agenda/goals.
-    // - add a bike lane, watch cars not stack up anymore
-    // - Traffic signals -- protected and permited turns
-    // - buses... bus lane to skip traffic, reduce waiting time.
-
-    // TODO Misc tools -- shortcuts, find address
-    End,
-}*/
 
 pub struct TutorialMode {
     state: TutorialState,
@@ -54,6 +22,7 @@ pub struct TutorialMode {
     common: Option<CommonState>,
     time_panel: Option<TimePanel>,
     speed: Option<SpeedControls>,
+    agent_meter: Option<AgentMeter>,
 
     // Goofy state for just some stages.
     hit_roads: HashSet<LaneID>,
@@ -61,7 +30,13 @@ pub struct TutorialMode {
 
 impl TutorialMode {
     pub fn new(ctx: &mut EventCtx, ui: &mut UI) -> Box<dyn State> {
-        TutorialState::new().make_state(ctx, ui)
+        let mut tut = TutorialState::new();
+        // For my sanity
+        if ui.opts.dev {
+            tut.latest = tut.stages.len() - 1;
+            tut.current = tut.latest;
+        }
+        tut.make_state(ctx, ui)
     }
 }
 
@@ -70,6 +45,7 @@ impl State for TutorialMode {
         match self.top_center.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "Quit" => {
+                    ui.primary.clear_sim();
                     return Transition::Pop;
                 }
                 "<" => {
@@ -91,6 +67,7 @@ impl State for TutorialMode {
                     "OK" => {
                         self.state.next();
                         if self.state.current == self.state.stages.len() {
+                            ui.primary.clear_sim();
                             return Transition::Pop;
                         } else {
                             return Transition::Replace(self.state.make_state(ctx, ui));
@@ -98,13 +75,16 @@ impl State for TutorialMode {
                     }
                     _ => unreachable!(),
                 },
-                None => {}
+                None => {
+                    // Don't allow other interactions
+                    return Transition::Keep;
+                }
             }
-        } else {
-            ctx.canvas_movement();
-            if ctx.redo_mouseover() {
-                ui.recalculate_current_selection(ctx);
-            }
+        }
+
+        ctx.canvas_movement();
+        if ctx.redo_mouseover() {
+            ui.recalculate_current_selection(ctx);
         }
 
         if let Some(ref mut tp) = self.time_panel {
@@ -118,18 +98,22 @@ impl State for TutorialMode {
                 }
                 Some(crate::managed::Outcome::Clicked(x)) => match x {
                     x if x == "reset to midnight" => {
-                        ui.primary.clear_sim();
+                        return Transition::Replace(self.state.make_state(ctx, ui));
                     }
                     _ => unreachable!(),
                 },
                 None => {}
             }
         }
+        if let Some(ref mut am) = self.agent_meter {
+            if let Some(t) = am.event(ctx, ui) {
+                return t;
+            }
+        }
 
         // Interaction things
         // TODO Maybe have callbacks for these?
         if self.state.current == 3 {
-            // TODO Not the space needle, obviously
             if ui.primary.current_selection == Some(ID::Building(BuildingID(9)))
                 && ui.per_obj.left_click(ctx, "put out the... fire?")
             {
@@ -158,6 +142,26 @@ impl State for TutorialMode {
             if ui.primary.sim.time() >= Time::START_OF_DAY + Duration::hours(17) {
                 self.state.next();
                 return Transition::Replace(self.state.make_state(ctx, ui));
+            }
+        } else if self.state.current == 10 {
+            if ui.primary.current_selection == Some(ID::Building(BuildingID(2322)))
+                && ui.per_obj.action(ctx, Key::C, "check the house")
+            {
+                match ui.primary.sim.trip_to_agent(TripID(24)) {
+                    TripResult::TripDone => {
+                        self.state.next();
+                        return Transition::Replace(self.state.make_state(ctx, ui));
+                    }
+                    _ => {
+                        return Transition::Push(msg(
+                            "Not yet!",
+                            vec![
+                                "The house is empty.",
+                                "Wait for the car and passenger to arrive!",
+                            ],
+                        ));
+                    }
+                }
             }
         }
 
@@ -199,6 +203,9 @@ impl State for TutorialMode {
         if let Some(ref speed) = self.speed {
             speed.draw(g);
         }
+        if let Some(ref am) = self.agent_meter {
+            am.draw(g);
+        }
         if let Some(ref common) = self.common {
             common.draw(g, ui);
         }
@@ -213,6 +220,19 @@ impl State for TutorialMode {
                 &PolyLine::new(vec![
                     g.canvas.center_to_screen_pt().to_pt(),
                     Pt2D::new(0.5 * g.canvas.window_width, 0.97 * g.canvas.window_height),
+                ])
+                .make_arrow(Distance::meters(20.0))
+                .unwrap(),
+            );
+            g.unfork();
+        } else if self.state.current == 8 {
+            // Point to agent meters
+            g.fork_screenspace();
+            g.draw_polygon(
+                Color::RED,
+                &PolyLine::new(vec![
+                    g.canvas.center_to_screen_pt().to_pt(),
+                    Pt2D::new(0.8 * g.canvas.window_width, 0.15 * g.canvas.window_height),
                 ])
                 .make_arrow(Distance::meters(20.0))
                 .unwrap(),
@@ -237,37 +257,6 @@ struct TutorialState {
 }
 
 impl TutorialState {
-    fn new() -> TutorialState {
-        let stages = vec![
-            // 0
-            Stage::Msg(vec!["Welcome to your first day as a contract traffic engineer --", "like a paid assassin, but capable of making WAY more people cry.", "Warring factions in Seattle have brought you here."]),
-            // 1
-            Stage::Msg(vec!["Let's start with the controls for your handy drone.", "Click and drag to pan around the map, and use your scroll wheel or touchpad to zoom."]),
-            // 2
-            Stage::Msg(vec!["Let's try that ou--", "WHOA THE SPACE NEEDLE IS ON FIRE!", "GO CLICK ON IT, QUICK!"]),
-            // 3
-            Stage::Interact("Put out the fire at the Space Needle"),
-
-            // 4
-            Stage::Msg(vec!["Er, sorry about that.", "Just a little joke we like to play on the new recruits.", "Now, let's learn how to inspect and interact with objects in the map.", "Select something, then click on it.", "", "HINT: The bottom of the screen shows keyboard shortcuts.", "", "Hmm, almost time to hit the road."]),
-            // 5
-            Stage::Interact("Go hit 3 different lanes on one road"),
-
-            // 6
-            Stage::Msg(vec!["You'll work day and night, watching traffic patterns unfold.", "Use the speed controls to pause time, speed things up, or reset to the beginning of the day."]),
-            // 7
-            Stage::Interact("Wait until 5pm"),
-
-            // 8
-            Stage::Msg(vec!["Training complete!", "Go have the appropriate amount of fun."]),
-        ];
-        TutorialState {
-            stages,
-            latest: 0,
-            current: 0,
-        }
-    }
-
     fn next(&mut self) {
         self.current += 1;
         self.latest = self.latest.max(self.current);
@@ -315,12 +304,19 @@ impl TutorialState {
     }
 
     fn make_state(&self, ctx: &mut EventCtx, ui: &mut UI) -> Box<dyn State> {
+        ui.primary.clear_sim();
         match &self.stages[self.current] {
             Stage::Msg(_) => {
                 ui.primary.current_selection = None;
             }
             Stage::Interact(_) => {}
         }
+
+        if self.current == 8 || self.current == 9 || self.current == 10 {
+            spawn_agents_around(IntersectionID(247), ui, ctx);
+        }
+
+        // TODO Warp to a particular spot. How can we push an extra Warping state on from here?
 
         Box::new(TutorialMode {
             state: self.clone(),
@@ -364,8 +360,74 @@ impl TutorialState {
             } else {
                 None
             },
+            agent_meter: if self.current >= 8 {
+                Some(AgentMeter::new(ctx, ui))
+            } else {
+                None
+            },
 
             hit_roads: HashSet::new(),
         })
+    }
+
+    fn new() -> TutorialState {
+        let stages = vec![
+            // 0
+            Stage::Msg(vec!["Welcome to your first day as a contract traffic engineer --", "like a paid assassin, but capable of making WAY more people cry.", "Warring factions in Seattle have brought you here."]),
+            // 1
+            Stage::Msg(vec!["Let's start with the controls for your handy drone.", "Click and drag to pan around the map, and use your scroll wheel or touchpad to zoom."]),
+            // 2
+            Stage::Msg(vec!["Let's try that ou--", "WHOA THE SPACE NEEDLE IS ON FIRE!", "GO CLICK ON IT, QUICK!"]),
+            // 3
+            // TODO Not the space needle, obviously
+            // TODO Just zoom in sufficiently on it, maybe don't even click it yet.
+            Stage::Interact("Put out the fire at the Space Needle"),
+
+            // 4
+            Stage::Msg(vec!["Er, sorry about that.", "Just a little joke we like to play on the new recruits.", "Now, let's learn how to inspect and interact with objects in the map.", "Select something, then click on it.", "", "HINT: The bottom of the screen shows keyboard shortcuts.", "", "Hmm, almost time to hit the road."]),
+            // 5
+            Stage::Interact("Go hit 3 different lanes on one road"),
+
+            // 6
+            Stage::Msg(vec!["You'll work day and night, watching traffic patterns unfold.", "Use the speed controls to pause time, speed things up, or reset to the beginning of the day."]),
+            // 7
+            Stage::Interact("Wait until 5pm"),
+
+            // 8
+            Stage::Msg(vec!["Oh look, some people appeared!", "We've got pedestrians, bikes, and cars moving around now.", "You can see the number of them in the top-right corner."]),
+            // 9
+            Stage::Msg(vec!["Why don't you follow the first northbound car to their destination,", "and make sure whoever gets out makes it inside their house safely?"]),
+            // 10
+            // TODO Make it clear they can reset
+            // TODO The time controls are too jumpy; can we automatically slow down when
+            // interesting stuff happens?
+            Stage::Interact("Escort the first northbound car to their home"),
+
+            // 11
+            Stage::Msg(vec!["Training complete!", "Go have the appropriate amount of fun."]),
+        ];
+        TutorialState {
+            stages,
+            latest: 0,
+            current: 0,
+        }
+
+        // You've got a drone and, thanks to extremely creepy surveillance technology, the ability to peer
+        // into everyone's trips.
+        // People are on fixed schedules: every day, they leave at exactly the same time using the same
+        // mode of transport. All you can change is how their experience will be in the short-term.
+        // The city is in total crisis. You've only got 10 days to do something before all hell breaks
+        // loose and people start kayaking / ziplining / crab-walking / cartwheeling / to work.
+
+        // TODO Show overlapping peds?
+        // TODO Minimap, layers
+        // TODO Multi-modal trips -- including parking. (Cars per bldg, ownership). Border intersections.
+
+        // TODO Edit mode. fixed schedules. agenda/goals.
+        // - add a bike lane, watch cars not stack up anymore
+        // - Traffic signals -- protected and permited turns
+        // - buses... bus lane to skip traffic, reduce waiting time.
+
+        // TODO Misc tools -- shortcuts, find address
     }
 }

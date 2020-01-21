@@ -230,21 +230,8 @@ impl State for SandboxMode {
             },
             None => {}
         }
-        if self.agent_meter.time != ui.primary.sim.time() {
-            self.agent_meter = AgentMeter::new(ctx, ui);
-        }
-        match self.agent_meter.composite.event(ctx) {
-            Some(ezgui::Outcome::Clicked(x)) => match x.as_ref() {
-                "view finished trip data" => {
-                    return Transition::Push(dashboards::make(
-                        ctx,
-                        ui,
-                        dashboards::Tab::FinishedTripsSummary,
-                    ));
-                }
-                _ => unreachable!(),
-            },
-            None => {}
+        if let Some(t) = self.agent_meter.event(ctx, ui) {
+            return t;
         }
 
         if self.speed.is_paused() {
@@ -271,7 +258,7 @@ impl State for SandboxMode {
         self.speed.draw(g);
         self.time_panel.draw(g);
         self.gameplay.draw(g, ui);
-        self.agent_meter.composite.draw(g);
+        self.agent_meter.draw(g);
         if let Some(ref m) = self.minimap {
             m.draw(g, ui, self.overlay.maybe_colorer());
         }
@@ -282,13 +269,13 @@ impl State for SandboxMode {
     }
 }
 
-struct AgentMeter {
+pub struct AgentMeter {
     time: Time,
     composite: Composite,
 }
 
 impl AgentMeter {
-    fn new(ctx: &mut EventCtx, ui: &UI) -> AgentMeter {
+    pub fn new(ctx: &mut EventCtx, ui: &UI) -> AgentMeter {
         let (finished, unfinished, by_mode) = ui.primary.sim.num_trips();
 
         let composite = Composite::new(
@@ -327,5 +314,31 @@ impl AgentMeter {
             time: ui.primary.sim.time(),
             composite,
         }
+    }
+
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) -> Option<Transition> {
+        if self.time != ui.primary.sim.time() {
+            *self = AgentMeter::new(ctx, ui);
+            return self.event(ctx, ui);
+        }
+        match self.composite.event(ctx) {
+            Some(ezgui::Outcome::Clicked(x)) => match x.as_ref() {
+                "view finished trip data" => {
+                    return Some(Transition::Push(dashboards::make(
+                        ctx,
+                        ui,
+                        dashboards::Tab::FinishedTripsSummary,
+                    )));
+                }
+                _ => unreachable!(),
+            },
+            None => {}
+        }
+
+        None
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx) {
+        self.composite.draw(g);
     }
 }
