@@ -4,13 +4,14 @@ use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::sandbox::{spawn_agents_around, AgentMeter, SpeedControls, TimePanel};
 use crate::ui::{ShowEverything, UI};
+use abstutil::Timer;
 use ezgui::{
     hotkey, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, ManagedWidget, Outcome, ScreenPt, Text, VerticalAlignment,
 };
 use geom::{Distance, Duration, PolyLine, Polygon, Pt2D, Time};
 use map_model::{BuildingID, IntersectionID, LaneID};
-use sim::{TripID, TripResult};
+use sim::{Scenario, TripID, TripResult};
 use std::collections::HashSet;
 
 pub struct TutorialMode {
@@ -217,6 +218,39 @@ impl State for TutorialMode {
                     }
                 }
             }
+        } else if interact == "Find a road with almost no parking spots available" {
+            if let Some(ID::Lane(l)) = ui.primary.current_selection {
+                if ui
+                    .per_obj
+                    .action(ctx, Key::C, "check the parking availability")
+                {
+                    let lane = ui.primary.map.get_l(l);
+                    if !lane.is_parking() {
+                        return Transition::Push(msg(
+                            "Uhh..",
+                            vec!["That's not even a parking lane"],
+                        ));
+                    }
+                    let percent = (ui.primary.sim.get_free_spots(l).len() as f64)
+                        / (lane.number_parking_spots() as f64);
+                    if percent > 0.1 {
+                        return Transition::Push(msg(
+                            "Not quite",
+                            vec![
+                                format!("This lane has {:.0}% spots free", percent * 100.0),
+                                "Try using the 'parking availability' layer from the minimap \
+                                 controls"
+                                    .to_string(),
+                            ],
+                        ));
+                    }
+                    self.state.next();
+                    return Transition::ReplaceWithMode(
+                        self.state.make_state(ctx, ui),
+                        EventLoopMode::Animation,
+                    );
+                }
+            }
         }
 
         if let Some(ref mut common) = self.common {
@@ -309,6 +343,7 @@ enum Stage {
     Interact {
         name: &'static str,
         spawn_around: Option<IntersectionID>,
+        spawn_randomly: bool,
     },
 }
 
@@ -326,6 +361,7 @@ impl Stage {
         Stage::Interact {
             name,
             spawn_around: None,
+            spawn_randomly: false,
         }
     }
 
@@ -371,6 +407,22 @@ impl Stage {
             } => {
                 assert!(spawn_around.is_none());
                 *spawn_around = Some(i);
+                self
+            }
+        }
+    }
+
+    fn spawn_randomly(mut self) -> Stage {
+        match self {
+            Stage::Msg { .. } => unreachable!(),
+            Stage::Interact {
+                ref mut spawn_randomly,
+                ref spawn_around,
+                ..
+            } => {
+                assert!(!*spawn_randomly);
+                assert!(spawn_around.is_none());
+                *spawn_randomly = true;
                 self
             }
         }
@@ -456,6 +508,18 @@ impl TutorialState {
             spawn_agents_around(*i, ui, ctx);
             ui.primary.current_flags.sim_flags.rng_seed = old;
         }
+        if match self.stage() {
+            Stage::Msg { .. } => false,
+            Stage::Interact { spawn_randomly, .. } => *spawn_randomly,
+        } {
+            Scenario::small_run(&ui.primary.map).instantiate(
+                &mut ui.primary.sim,
+                &ui.primary.map,
+                &mut ui.primary.current_flags.sim_flags.make_rng(),
+                &mut Timer::throwaway(),
+            );
+            ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
+        }
 
         Box::new(TutorialMode {
             state: self.clone(),
@@ -527,13 +591,14 @@ impl TutorialState {
         let agent_meter = AgentMeter::new(ctx, ui);
         let minimap = Minimap::new(ctx, ui);
 
-        let stages = vec![
-            Stage::msg(vec![
-                "Welcome to your first day as a contract traffic engineer --",
-                "like a paid assassin, but capable of making WAY more people cry.",
-                "Warring factions in Seattle have brought you here.",
-            ])
-            .warp_to(ID::Intersection(IntersectionID(141))),
+        let mut stages = vec![Stage::msg(vec![
+            "Welcome to your first day as a contract traffic engineer --",
+            "like a paid assassin, but capable of making WAY more people cry.",
+            "Warring factions in Seattle have brought you here.",
+        ])
+        .warp_to(ID::Intersection(IntersectionID(141)))];
+
+        stages.extend(vec![
             Stage::msg(vec![
                 "Let's start with the controls for your handy drone.",
                 "Click and drag to pan around the map, and use your scroll wheel or touchpad to \
@@ -546,6 +611,9 @@ impl TutorialState {
             ]),
             // TODO Just zoom in sufficiently on it, maybe don't even click it yet.
             Stage::interact("Put out the fire at the Montlake Market"),
+        ]);
+
+        stages.extend(vec![
             Stage::msg(vec![
                 "Er, sorry about that.",
                 "Just a little joke we like to play on the new recruits.",
@@ -561,6 +629,9 @@ impl TutorialState {
                 0.97 * ctx.canvas.window_height,
             )),
             Stage::interact("Go hit 3 different lanes on one road"),
+        ]);
+
+        stages.extend(vec![
             Stage::msg(vec![
                 "You'll work day and night, watching traffic patterns unfold.",
             ])
@@ -574,6 +645,9 @@ impl TutorialState {
             Stage::msg(vec!["And reset to the beginning of the day"])
                 .arrow(speed.composite.inner.center_of("reset to midnight")),
             Stage::interact("Wait until 5pm"),
+        ]);
+
+        stages.extend(vec![
             // Don't center on where the agents are, be a little offset
             Stage::msg(vec![
                 "Oh look, some people appeared!",
@@ -596,18 +670,29 @@ impl TutorialState {
             // interesting stuff happens?
             Stage::interact("Escort the first northbound car to their home")
                 .spawn_around(IntersectionID(247)),
+        ]);
+
+        stages.extend(vec![
             Stage::msg(vec![
                 "The map is quite large, so to help you orient",
                 "the minimap shows you an overview of all activity.",
             ])
             .arrow(minimap.composite.center_of("minimap")),
             Stage::msg(vec!["Find addresses here"]).arrow(minimap.composite.center_of("search")),
-            // TODO What's the test?
-            Stage::msg(vec![
-                "Training complete!",
-                "Go have the appropriate amount of fun.",
-            ]),
-        ];
+            Stage::msg(vec!["Set up shortcuts to favorite areas"])
+                .arrow(minimap.composite.center_of("shortcuts")),
+            Stage::msg(vec!["View different data about agents"])
+                .arrow(minimap.composite.center_of("change agent colorscheme")),
+            Stage::msg(vec!["Apply different heatmap layers to the map"])
+                .arrow(minimap.composite.center_of("change overlay")),
+            Stage::interact("Find a road with almost no parking spots available").spawn_randomly(),
+        ]);
+
+        stages.push(Stage::msg(vec![
+            "Training complete!",
+            "Go have the appropriate amount of fun.",
+        ]));
+
         TutorialState {
             stages,
             latest: 0,

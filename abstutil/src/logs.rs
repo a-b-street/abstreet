@@ -1,6 +1,6 @@
 use crate::Timer;
 
-// 
+//
 // - If it doesn't make sense to plumb Timer to a library call, return Warn<T>.
 // - If there's no Timer, plumb the Warn<T>.
 // - If a Timer is available and there's a Warn<T>, use get() or with_context().
