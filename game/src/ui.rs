@@ -79,10 +79,12 @@ impl UI {
         }
     }
 
+    pub fn has_prebaked(&self) -> bool {
+        self.prebaked.is_some()
+    }
     pub fn prebaked(&self) -> &Analytics {
         self.prebaked.as_ref().unwrap()
     }
-
     pub fn set_prebaked(&mut self, prebaked: Option<Analytics>) {
         self.prebaked = prebaked;
     }

@@ -153,8 +153,7 @@ impl GameplayRunner {
                 fix_traffic_signals::FixTrafficSignals::new(ctx, mode.clone())
             }
         };
-        // TODO Maybe don't load this for Freeform mode
-        let prebaked = ctx.loading_screen("instantiate scenario", |_, timer| {
+        ctx.loading_screen("instantiate scenario", |_, timer| {
             if let Some(scenario) =
                 mode.scenario(&ui.primary.map, ui.primary.current_flags.num_agents, timer)
             {
@@ -165,22 +164,29 @@ impl GameplayRunner {
                     timer,
                 );
                 ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
-                abstutil::maybe_read_binary::<Analytics>(
-                    abstutil::path_prebaked_results(&scenario.map_name, &scenario.scenario_name),
-                    timer,
-                )
-                .unwrap_or_else(|_| {
-                    println!(
-                        "WARNING! No prebaked sim analytics for {} on {}",
-                        scenario.scenario_name, scenario.map_name
-                    );
-                    Analytics::new()
-                })
-            } else {
-                Analytics::new()
+
+                match mode {
+                    GameplayMode::Freeform | GameplayMode::PlayScenario(_) => {}
+                    // If there's no prebaked data, so be it; some functionality disappears
+                    _ => {
+                        if let Ok(prebaked) = abstutil::maybe_read_binary::<Analytics>(
+                            abstutil::path_prebaked_results(
+                                &scenario.map_name,
+                                &scenario.scenario_name,
+                            ),
+                            timer,
+                        ) {
+                            ui.set_prebaked(Some(prebaked));
+                        } else {
+                            println!(
+                                "WARNING: No prebaked results for {} on {}, some stuff might break",
+                                scenario.scenario_name, scenario.map_name
+                            );
+                        }
+                    }
+                }
             }
         });
-        ui.set_prebaked(Some(prebaked));
         GameplayRunner {
             mode,
             controller,

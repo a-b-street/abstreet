@@ -45,7 +45,7 @@ pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
     tabs.push(Composite::text_button(ctx, "BACK", hotkey(Key::Escape)).margin(5));
 
     let (content, cbs) = match tab {
-        Tab::FinishedTripsSummary => (finished_trips_summary(ctx, ui), Vec::new()),
+        Tab::FinishedTripsSummary => (finished_trips_summary_prebaked(ctx, ui), Vec::new()),
         Tab::IndividualFinishedTrips(None) => pick_finished_trips_mode(ctx),
         Tab::IndividualFinishedTrips(Some(m)) => pick_finished_trips(m, ctx, ui),
         Tab::ParkingOverhead => (parking_overhead(ctx, ui), Vec::new()),
@@ -81,7 +81,11 @@ pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
     ManagedGUIState::fullscreen(c)
 }
 
-fn finished_trips_summary(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
+fn finished_trips_summary_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
+    if !ui.has_prebaked() {
+        return finished_trips_summary_not_prebaked(ctx, ui);
+    }
+
     let (now_all, now_aborted, now_per_mode) = ui
         .primary
         .sim
@@ -98,7 +102,7 @@ fn finished_trips_summary(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
     ]);
     txt.add_appended(vec![
         Line(format!(
-            "  {} aborted trips (",
+            "{} aborted trips (",
             prettyprint_usize(now_aborted)
         )),
         cmp_count_fewer(now_aborted, baseline_aborted),
@@ -157,6 +161,54 @@ fn finished_trips_summary(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
             ctx,
         )
         .bg(Color::grey(0.3)),
+    ])
+}
+
+fn finished_trips_summary_not_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
+    let (all, aborted, per_mode) = ui
+        .primary
+        .sim
+        .get_analytics()
+        .all_finished_trips(ui.primary.sim.time());
+
+    // TODO Include unfinished count
+    let mut txt = Text::new();
+    txt.add_appended(vec![
+        Line("Finished trips as of "),
+        Line(ui.primary.sim.time().ampm_tostring()).fg(Color::CYAN),
+    ]);
+    txt.add(Line(format!(
+        "  {} aborted trips",
+        prettyprint_usize(aborted)
+    )));
+    txt.add(Line(format!(
+        "{} total finished trips",
+        prettyprint_usize(all.count())
+    )));
+    if all.count() > 0 {
+        for stat in Statistic::all() {
+            txt.add(Line(format!("  {}: {}", stat, all.select(stat))));
+        }
+    }
+
+    for mode in TripMode::all() {
+        let a = &per_mode[&mode];
+        txt.add(Line(format!(
+            "{} {} trips",
+            prettyprint_usize(a.count()),
+            mode
+        )));
+        if a.count() > 0 {
+            for stat in Statistic::all() {
+                txt.add(Line(format!("  {}: {}", stat, a.select(stat))));
+            }
+        }
+    }
+
+    // TODO The x-axes for the plot and histogram get stretched to the full screen. Don't do that!
+    ManagedWidget::col(vec![
+        ManagedWidget::draw_text(ctx, txt),
+        finished_trips_plot(ctx, ui).bg(Color::grey(0.3)),
     ])
 }
 

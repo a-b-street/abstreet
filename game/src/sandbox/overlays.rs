@@ -186,6 +186,7 @@ impl Overlays {
 
     pub fn change_overlays(ctx: &mut EventCtx) -> Option<Transition> {
         // TODO Filter out the current
+        // TODO Filter out finished trips histogram if prebaked isn't available
         let c = crate::managed::Composite::new(
             Composite::new(
                 ManagedWidget::col(vec![
@@ -504,6 +505,10 @@ impl Overlays {
     }
 
     pub fn finished_trips_histogram(ctx: &mut EventCtx, ui: &UI) -> Overlays {
+        if !ui.has_prebaked() {
+            return Overlays::Inactive;
+        }
+
         let now = ui.primary.sim.time();
         Overlays::FinishedTripsHistogram(
             now,
