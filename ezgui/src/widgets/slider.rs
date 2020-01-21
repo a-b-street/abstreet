@@ -21,7 +21,7 @@ pub struct Slider {
     dims: ScreenDims,
 }
 
-const BG_CROSS_AXIS_LEN: f64 = 30.0;
+const BG_CROSS_AXIS_LEN: f64 = 20.0;
 
 impl Slider {
     pub fn horizontal(ctx: &EventCtx, width: f64, dragger_len: f64) -> Slider {
@@ -78,23 +78,10 @@ impl Slider {
             Polygon::rectangle(self.dims.width, self.dims.height),
         );
 
-        // The progress
-        if self.current_percent != 0.0 {
-            batch.push(
-                Color::GREEN,
-                // This is technically a bit wrong, but the dragger is covering this up anyway
-                if self.horiz {
-                    Polygon::rectangle(self.current_percent * self.main_bg_len, BG_CROSS_AXIS_LEN)
-                } else {
-                    Polygon::rectangle(BG_CROSS_AXIS_LEN, self.current_percent * self.main_bg_len)
-                },
-            );
-        }
-
         // The draggy thing
         batch.push(
             if self.mouse_on_slider {
-                Color::YELLOW
+                Color::grey(0.7).alpha(0.7)
             } else {
                 Color::grey(0.7)
             },
