@@ -1,4 +1,4 @@
-use crate::common::CommonState;
+use crate::common::{CommonState, Warping};
 use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use crate::render::DrawOptions;
@@ -26,10 +26,15 @@ pub struct TutorialMode {
 
     // Goofy state for just some stages.
     hit_roads: HashSet<LaneID>,
+    warped: bool,
 }
 
 impl TutorialMode {
     pub fn new(ctx: &mut EventCtx, ui: &mut UI) -> Box<dyn State> {
+        if ui.primary.map.get_name() != "montlake" {
+            ui.switch_map(ctx, abstutil::path_map("montlake"));
+        }
+
         let mut tut = TutorialState::new();
         // For my sanity
         if ui.opts.dev {
@@ -42,6 +47,31 @@ impl TutorialMode {
 
 impl State for TutorialMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+        // First of all, might need to initiate warping
+        if !self.warped {
+            let maybe_id = if self.state.current == 0 {
+                Some(ID::Intersection(IntersectionID(141)))
+            } else if self.state.current == 8 {
+                // Don't center on where the agents are, be a little offset
+                Some(ID::Building(BuildingID(611)))
+            } else {
+                None
+            };
+            if let Some(id) = maybe_id {
+                self.warped = true;
+                return Transition::PushWithMode(
+                    Warping::new(
+                        ctx,
+                        id.canonical_point(&ui.primary).unwrap(),
+                        Some(4.0),
+                        Some(id),
+                        &mut ui.primary,
+                    ),
+                    EventLoopMode::Animation,
+                );
+            }
+        }
+
         match self.top_center.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "Quit" => {
@@ -50,11 +80,17 @@ impl State for TutorialMode {
                 }
                 "<" => {
                     self.state.current -= 1;
-                    return Transition::Replace(self.state.make_state(ctx, ui));
+                    return Transition::ReplaceWithMode(
+                        self.state.make_state(ctx, ui),
+                        EventLoopMode::Animation,
+                    );
                 }
                 ">" => {
                     self.state.current += 1;
-                    return Transition::Replace(self.state.make_state(ctx, ui));
+                    return Transition::ReplaceWithMode(
+                        self.state.make_state(ctx, ui),
+                        EventLoopMode::Animation,
+                    );
                 }
                 _ => unreachable!(),
             },
@@ -70,7 +106,10 @@ impl State for TutorialMode {
                             ui.primary.clear_sim();
                             return Transition::Pop;
                         } else {
-                            return Transition::Replace(self.state.make_state(ctx, ui));
+                            return Transition::ReplaceWithMode(
+                                self.state.make_state(ctx, ui),
+                                EventLoopMode::Animation,
+                            );
                         }
                     }
                     _ => unreachable!(),
@@ -98,7 +137,10 @@ impl State for TutorialMode {
                 }
                 Some(crate::managed::Outcome::Clicked(x)) => match x {
                     x if x == "reset to midnight" => {
-                        return Transition::Replace(self.state.make_state(ctx, ui));
+                        return Transition::ReplaceWithMode(
+                            self.state.make_state(ctx, ui),
+                            EventLoopMode::Animation,
+                        );
                     }
                     _ => unreachable!(),
                 },
@@ -118,7 +160,10 @@ impl State for TutorialMode {
                 && ui.per_obj.left_click(ctx, "put out the... fire?")
             {
                 self.state.next();
-                return Transition::Replace(self.state.make_state(ctx, ui));
+                return Transition::ReplaceWithMode(
+                    self.state.make_state(ctx, ui),
+                    EventLoopMode::Animation,
+                );
             }
         } else if self.state.current == 5 {
             if let Some(ID::Lane(l)) = ui.primary.current_selection {
@@ -126,7 +171,10 @@ impl State for TutorialMode {
                     self.hit_roads.insert(l);
                     if self.hit_roads.len() == 3 {
                         self.state.next();
-                        return Transition::Replace(self.state.make_state(ctx, ui));
+                        return Transition::ReplaceWithMode(
+                            self.state.make_state(ctx, ui),
+                            EventLoopMode::Animation,
+                        );
                     } else {
                         return Transition::Push(msg(
                             "You hit the road",
@@ -141,7 +189,10 @@ impl State for TutorialMode {
         } else if self.state.current == 7 {
             if ui.primary.sim.time() >= Time::START_OF_DAY + Duration::hours(17) {
                 self.state.next();
-                return Transition::Replace(self.state.make_state(ctx, ui));
+                return Transition::ReplaceWithMode(
+                    self.state.make_state(ctx, ui),
+                    EventLoopMode::Animation,
+                );
             }
         } else if self.state.current == 10 {
             if ui.primary.current_selection == Some(ID::Building(BuildingID(2322)))
@@ -150,7 +201,10 @@ impl State for TutorialMode {
                 match ui.primary.sim.trip_to_agent(TripID(24)) {
                     TripResult::TripDone => {
                         self.state.next();
-                        return Transition::Replace(self.state.make_state(ctx, ui));
+                        return Transition::ReplaceWithMode(
+                            self.state.make_state(ctx, ui),
+                            EventLoopMode::Animation,
+                        );
                     }
                     _ => {
                         return Transition::Push(msg(
@@ -212,34 +266,38 @@ impl State for TutorialMode {
 
         // Special things
         // TODO Maybe have callbacks for these?
-        if self.state.current == 4 {
-            // Point to OSD
-            g.fork_screenspace();
-            g.draw_polygon(
-                Color::RED,
-                &PolyLine::new(vec![
-                    g.canvas.center_to_screen_pt().to_pt(),
-                    Pt2D::new(0.5 * g.canvas.window_width, 0.97 * g.canvas.window_height),
-                ])
-                .make_arrow(Distance::meters(20.0))
-                .unwrap(),
-            );
-            g.unfork();
+        if self.state.current == 3 {
+            g.draw_polygon(Color::RED, &ui.primary.map.get_b(BuildingID(9)).polygon);
+        } else if self.state.current == 4 {
+            // OSD
+            point_to_onscreen(g, 0.5, 0.97);
+        } else if self.state.current == 6 {
+            // Time
+            point_to_onscreen(g, 0.1, 0.15);
+            // Speed
+            point_to_onscreen(g, 0.5, 0.9);
         } else if self.state.current == 8 {
-            // Point to agent meters
-            g.fork_screenspace();
-            g.draw_polygon(
-                Color::RED,
-                &PolyLine::new(vec![
-                    g.canvas.center_to_screen_pt().to_pt(),
-                    Pt2D::new(0.8 * g.canvas.window_width, 0.15 * g.canvas.window_height),
-                ])
-                .make_arrow(Distance::meters(20.0))
-                .unwrap(),
-            );
-            g.unfork();
+            // Agent meters
+            point_to_onscreen(g, 0.8, 0.15);
         }
     }
+}
+
+fn point_to_onscreen(g: &mut GfxCtx, pct_width: f64, pct_height: f64) {
+    g.fork_screenspace();
+    g.draw_polygon(
+        Color::RED,
+        &PolyLine::new(vec![
+            g.canvas.center_to_screen_pt().to_pt(),
+            Pt2D::new(
+                pct_width * g.canvas.window_width,
+                pct_height * g.canvas.window_height,
+            ),
+        ])
+        .make_arrow(Distance::meters(20.0))
+        .unwrap(),
+    );
+    g.unfork();
 }
 
 #[derive(Clone)]
@@ -313,10 +371,11 @@ impl TutorialState {
         }
 
         if self.current == 8 || self.current == 9 || self.current == 10 {
+            let old = ui.primary.current_flags.sim_flags.rng_seed;
+            ui.primary.current_flags.sim_flags.rng_seed = Some(42);
             spawn_agents_around(IntersectionID(247), ui, ctx);
+            ui.primary.current_flags.sim_flags.rng_seed = old;
         }
-
-        // TODO Warp to a particular spot. How can we push an extra Warping state on from here?
 
         Box::new(TutorialMode {
             state: self.clone(),
@@ -334,7 +393,12 @@ impl TutorialState {
                                 }
                                 txt
                             }),
-                            crate::managed::Composite::text_button(ctx, "OK", hotkey(Key::Enter)),
+                            ManagedWidget::row(vec![crate::managed::Composite::text_button(
+                                ctx,
+                                "OK",
+                                hotkey(Key::Enter),
+                            )])
+                            .centered(),
                         ])
                         .bg(Color::grey(0.4)),
                     )
@@ -367,6 +431,7 @@ impl TutorialState {
             },
 
             hit_roads: HashSet::new(),
+            warped: false,
         })
     }
 
@@ -377,11 +442,10 @@ impl TutorialState {
             // 1
             Stage::Msg(vec!["Let's start with the controls for your handy drone.", "Click and drag to pan around the map, and use your scroll wheel or touchpad to zoom."]),
             // 2
-            Stage::Msg(vec!["Let's try that ou--", "WHOA THE SPACE NEEDLE IS ON FIRE!", "GO CLICK ON IT, QUICK!"]),
+            Stage::Msg(vec!["Let's try that ou--", "WHOA THE MONTLAKE MARKET IS ON FIRE!", "GO CLICK ON IT, QUICK!"]),
             // 3
-            // TODO Not the space needle, obviously
             // TODO Just zoom in sufficiently on it, maybe don't even click it yet.
-            Stage::Interact("Put out the fire at the Space Needle"),
+            Stage::Interact("Put out the fire at the Montlake Market"),
 
             // 4
             Stage::Msg(vec!["Er, sorry about that.", "Just a little joke we like to play on the new recruits.", "Now, let's learn how to inspect and interact with objects in the map.", "Select something, then click on it.", "", "HINT: The bottom of the screen shows keyboard shortcuts.", "", "Hmm, almost time to hit the road."]),

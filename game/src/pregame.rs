@@ -126,7 +126,12 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
     )
     .cb(
         "Tutorial",
-        Box::new(|ctx, ui| Some(Transition::Push(TutorialMode::new(ctx, ui)))),
+        Box::new(|ctx, ui| {
+            Some(Transition::PushWithMode(
+                TutorialMode::new(ctx, ui),
+                EventLoopMode::Animation,
+            ))
+        }),
     )
     .cb(
         "Sandbox mode",
