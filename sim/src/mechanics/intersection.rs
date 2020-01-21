@@ -388,7 +388,11 @@ impl State {
         if time_to_cross > remaining_phase_time {
             // Actually, we might have bigger problems...
             if time_to_cross > phase.duration {
-                println!("OYYY! {:?} is impossible to fit into phase duration of {}. Allowing, but fix the policy!", req, phase.duration);
+                println!(
+                    "OYYY! {:?} is impossible to fit into phase duration of {}. Allowing, but fix \
+                     the policy!",
+                    req, phase.duration
+                );
             } else {
                 return false;
             }

@@ -635,7 +635,8 @@ impl Overlays {
         let mut batch = GeomBatch::new();
         batch.push(Color::CYAN, Polygon::rounded_rectangle(15.0, y_len, 4.0));
         for (_, stop_idx, percent_next_stop) in ui.primary.sim.status_of_buses(route.id) {
-            // TODO Line it up right in the middle of the line of text. This is probably a bit wrong.
+            // TODO Line it up right in the middle of the line of text. This is probably a bit
+            // wrong.
             let base_percent_y = if stop_idx == route.stops.len() - 1 {
                 0.0
             } else {

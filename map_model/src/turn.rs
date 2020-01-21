@@ -56,8 +56,9 @@ pub enum TurnPriority {
     // For stop signs: Can't currently specify this!
     // For traffic signals: Can't do this turn right now.
     Banned,
-    // For stop signs: cars have to stop before doing this turn, and are accepted with the lowest priority.
-    // For traffic signals: Cars can do this immediately if there are no previously accepted conflicting turns.
+    // For stop signs: cars have to stop before doing this turn, and are accepted with the lowest
+    // priority. For traffic signals: Cars can do this immediately if there are no previously
+    // accepted conflicting turns.
     Yield,
     // For stop signs: cars can do this without stopping. These can conflict!
     // For traffic signals: Must be non-conflicting.

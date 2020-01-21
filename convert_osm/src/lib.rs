@@ -27,7 +27,8 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> RawMap {
     );
     clip::clip_map(&mut map, timer);
 
-    // Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when doing the parking hint matching.
+    // Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when
+    // doing the parking hint matching.
     abstutil::retain_btreemap(&mut map.roads, |r, _| r.i1 != r.i2);
 
     if let Some(ref path) = flags.parking_shapes {

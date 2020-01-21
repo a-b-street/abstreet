@@ -556,7 +556,8 @@ impl Map {
         loop {
             if roads_queue.is_empty() {
                 panic!(
-                    "Giving up looking for a biking or driving lane near {}, searched {} roads: {:?}",
+                    "Giving up looking for a biking or driving lane near {}, searched {} roads: \
+                     {:?}",
                     b,
                     visited.len(),
                     visited

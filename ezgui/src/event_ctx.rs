@@ -125,7 +125,10 @@ impl<'a> EventCtx<'a> {
                         .join(", ")
                 );
             }
-            panic!("Only 15 texture arrays supported by some videocards. Group more textures by using the same image dimensions.");
+            panic!(
+                "Only 15 texture arrays supported by some videocards. Group more textures by \
+                 using the same image dimensions."
+            );
         }
         for (group_idx, (raw_dims, list)) in dims_to_textures.into_iter().enumerate() {
             let mut raw_data = Vec::new();

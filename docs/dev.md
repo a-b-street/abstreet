@@ -46,8 +46,8 @@ One-time setup:
   against a baseline in challenge mode), make sure to set `--rng_seed=42`. The
   `--dev` flag does by default.
 - All code is automatically formatted using
-  https://github.com/rust-lang/rustfmt; please run `cargo fmt` before sending a
-  PR.
+  https://github.com/rust-lang/rustfmt; please run `cargo +nightly fmt` before
+  sending a PR. (You have to install the nightly toolchain just for fmt)
 - More random notes [here](/docs/misc_dev_tricks.md)
 
 ## Building map data

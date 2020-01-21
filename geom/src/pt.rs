@@ -51,7 +51,8 @@ impl Pt2D {
         };
 
         let x = (gps.longitude - b.min_lon) / (b.max_lon - b.min_lon) * width;
-        // Invert y, so that the northernmost latitude is 0. Screen drawing order, not Cartesian grid.
+        // Invert y, so that the northernmost latitude is 0. Screen drawing order, not Cartesian
+        // grid.
         let y = height - ((gps.latitude - b.min_lat) / (b.max_lat - b.min_lat) * height);
         Pt2D::new(x, y)
     }

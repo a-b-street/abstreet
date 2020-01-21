@@ -486,7 +486,18 @@ impl Analytics {
             }
             distrib.add(overhead / (driving_time + overhead));
         }
-        vec![format!("Consider all trips with both a walking and driving portion"), format!("The portion of the trip spent walking to the parked car, looking for parking, and walking from the parking space to the final destination are all overhead."), format!("So what's the distribution of overhead percentages look like? 0% is ideal -- the entire trip is spent just driving between the original source and destination."), distrib.describe()]
+        vec![
+            format!("Consider all trips with both a walking and driving portion"),
+            format!(
+                "The portion of the trip spent walking to the parked car, looking for parking, \
+                 and walking from the parking space to the final destination are all overhead."
+            ),
+            format!(
+                "So what's the distribution of overhead percentages look like? 0% is ideal -- the \
+                 entire trip is spent just driving between the original source and destination."
+            ),
+            distrib.describe(),
+        ]
     }
 
     pub fn intersection_delays(&self, i: IntersectionID, t1: Time, t2: Time) -> DurationHistogram {

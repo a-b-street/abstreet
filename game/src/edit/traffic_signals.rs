@@ -661,7 +661,15 @@ fn check_for_missing_groups(
     change_traffic_signal(signal, ui, ctx);
     *composite = make_diagram(id, last_phase, ui, ctx);
 
-    Transition::Push(msg("Error: missing turns", vec![format!("{} turns are missing from this traffic signal", num_missing), "They've all been added as a new last phase. Please update your changes to include them.".to_string()]))
+    Transition::Push(msg(
+        "Error: missing turns",
+        vec![
+            format!("{} turns are missing from this traffic signal", num_missing),
+            "They've all been added as a new last phase. Please update your changes to include \
+             them."
+                .to_string(),
+        ],
+    ))
 }
 
 // TODO I guess it's valid to preview without all turns possible. Some agents are just sad.

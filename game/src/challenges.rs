@@ -25,43 +25,52 @@ impl abstutil::Cloneable for Challenge {}
 
 pub fn all_challenges() -> BTreeMap<String, Vec<Challenge>> {
     let mut tree = BTreeMap::new();
-    tree.insert("Fix all of the traffic signals".to_string(), vec![
-        Challenge {
-            title: "Tutorial 1".to_string(),
-            description: vec!["Add or remove a dedicated left phase".to_string()],
-            map_path: abstutil::path_synthetic_map("signal_single"),
-            alias: "trafficsig/tut1".to_string(),
-            gameplay: GameplayMode::FixTrafficSignalsTutorial(0),
-        },
-        Challenge {
-            title: "Tutorial 2".to_string(),
-            description: vec!["Deal with heavy foot traffic".to_string()],
-            map_path: abstutil::path_synthetic_map("signal_single"),
-            alias: "trafficsig/tut2".to_string(),
-            gameplay: GameplayMode::FixTrafficSignalsTutorial(1),
-        },
-        Challenge {
-            title: "The real challenge!".to_string(),
-            description: vec![
-                "A city-wide power surge knocked out all of the traffic signals!".to_string(),
-                "Their timing has been reset to default settings, and drivers are stuck.".to_string(),
-                "It's up to you to repair the signals, choosing appropriate turn phases and timing.".to_string(),
-                "".to_string(),
-                "Objective: Reduce the 50%ile trip time of all drivers by at least 30s".to_string()
-            ],
-            map_path: abstutil::path_map("montlake"),
-            alias: "trafficsig/main".to_string(),
-            gameplay: GameplayMode::FixTrafficSignals,
-        },
-    ]);
+    tree.insert(
+        "Fix all of the traffic signals".to_string(),
+        vec![
+            Challenge {
+                title: "Tutorial 1".to_string(),
+                description: vec!["Add or remove a dedicated left phase".to_string()],
+                map_path: abstutil::path_synthetic_map("signal_single"),
+                alias: "trafficsig/tut1".to_string(),
+                gameplay: GameplayMode::FixTrafficSignalsTutorial(0),
+            },
+            Challenge {
+                title: "Tutorial 2".to_string(),
+                description: vec!["Deal with heavy foot traffic".to_string()],
+                map_path: abstutil::path_synthetic_map("signal_single"),
+                alias: "trafficsig/tut2".to_string(),
+                gameplay: GameplayMode::FixTrafficSignalsTutorial(1),
+            },
+            Challenge {
+                title: "The real challenge!".to_string(),
+                description: vec![
+                    "A city-wide power surge knocked out all of the traffic signals!".to_string(),
+                    "Their timing has been reset to default settings, and drivers are stuck."
+                        .to_string(),
+                    "It's up to you to repair the signals, choosing appropriate turn phases and \
+                     timing."
+                        .to_string(),
+                    "".to_string(),
+                    "Objective: Reduce the 50%ile trip time of all drivers by at least 30s"
+                        .to_string(),
+                ],
+                map_path: abstutil::path_map("montlake"),
+                alias: "trafficsig/main".to_string(),
+                gameplay: GameplayMode::FixTrafficSignals,
+            },
+        ],
+    );
     tree.insert(
         "Speed up bus route 43".to_string(),
         vec![
             Challenge {
                 title: "Just Montlake area".to_string(),
                 description: vec![
-                "Decrease the average waiting time between all of route 43's stops by at least 30s"
-                    .to_string()],
+                    "Decrease the average waiting time between all of route 43's stops by at \
+                     least 30s"
+                        .to_string(),
+                ],
                 map_path: abstutil::path_map("montlake"),
                 alias: "bus43/montlake".to_string(),
                 gameplay: GameplayMode::OptimizeBus("43".to_string()),

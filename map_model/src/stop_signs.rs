@@ -15,9 +15,9 @@ use std::collections::{BTreeMap, HashMap};
 //      realistic.
 //    - The higher priority agent might not even be at the intersection yet! This'll be a little
 //      harder to implement.
-//    - "Higher priority" has two cases -- stop sign road always yields to a non-stop sign road.
-//      But also a non-stop sign road yields to another non-stop sign road. In other words, left
-//      turns yield to straight and ideally, lane-changing yields to straight too.
+//    - "Higher priority" has two cases -- stop sign road always yields to a non-stop sign road. But
+//      also a non-stop sign road yields to another non-stop sign road. In other words, left turns
+//      yield to straight and ideally, lane-changing yields to straight too.
 //    - So there still is a notion of turn priorities -- priority (can never conflict with another
 //      priority), yield (can't impede a priority turn), stop (has to pause and can't impede a
 //      priority or yield turn). But I don't think we want to really depict this...

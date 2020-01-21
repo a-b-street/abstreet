@@ -36,7 +36,11 @@ pub fn find_sidewalk_points(
             if let Some(dist_along) = lanes[sidewalk.0].dist_along_of_point(sidewalk_pt) {
                 results.insert(query_pt, Position::new(sidewalk, dist_along));
             } else {
-                panic!("{} isn't on {} according to dist_along_of_point, even though closest_point thinks it is.\n{}", sidewalk_pt, sidewalk, lanes[sidewalk.0].lane_center_pts);
+                panic!(
+                    "{} isn't on {} according to dist_along_of_point, even though closest_point \
+                     thinks it is.\n{}",
+                    sidewalk_pt, sidewalk, lanes[sidewalk.0].lane_center_pts
+                );
             }
         }
     }

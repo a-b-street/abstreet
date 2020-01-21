@@ -113,7 +113,11 @@ impl DrivingSimState {
                     ) {
                         None | Some(ActionAtEnd::GotoLaneEnd) => {}
                         x => {
-                            panic!("Car with one-step route {:?} had unexpected result from maybe_handle_end: {:?}", car.router, x);
+                            panic!(
+                                "Car with one-step route {:?} had unexpected result from \
+                                 maybe_handle_end: {:?}",
+                                car.router, x
+                            );
                         }
                     }
                     if params.start_dist > car.router.get_end_dist() {
@@ -312,8 +316,9 @@ impl DrivingSimState {
                             }
                         }
                         CarState::WaitingToAdvance => unreachable!(),
-                        // They weren't blocked. Note that there's no way the Crossing state could jump
-                        // forwards here; the leader is still in front of them.
+                        // They weren't blocked. Note that there's no way the Crossing state could
+                        // jump forwards here; the leader is still in front
+                        // of them.
                         CarState::Crossing(_, _)
                         | CarState::Unparking(_, _, _)
                         | CarState::Parking(_, _, _)
@@ -716,11 +721,12 @@ impl DrivingSimState {
 
                     match follower.state {
                         CarState::Queued => {
-                            // If they're on their last step, they might be ending early and not right
-                            // behind us.
+                            // If they're on their last step, they might be ending early and not
+                            // right behind us.
                             if !follower.router.last_step() {
-                                // The follower has been smoothly following while the laggy head gets out
-                                // of the way. So immediately promote them to WaitingToAdvance.
+                                // The follower has been smoothly following while the laggy head
+                                // gets out of the way. So
+                                // immediately promote them to WaitingToAdvance.
                                 follower.state = CarState::WaitingToAdvance;
                                 if self.recalc_lanechanging {
                                     follower
@@ -731,8 +737,9 @@ impl DrivingSimState {
                             }
                         }
                         CarState::WaitingToAdvance => unreachable!(),
-                        // They weren't blocked. Note that there's no way the Crossing state could jump
-                        // forwards here; the leader vanished from the end of the traversable.
+                        // They weren't blocked. Note that there's no way the Crossing state could
+                        // jump forwards here; the leader vanished from the
+                        // end of the traversable.
                         CarState::Crossing(_, _)
                         | CarState::Unparking(_, _, _)
                         | CarState::Parking(_, _, _)

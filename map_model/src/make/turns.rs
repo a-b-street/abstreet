@@ -547,7 +547,11 @@ fn make_shared_sidewalk_corner(
         deduped.dedup();
         if deduped.len() >= 2 {
             if abstutil::contains_duplicates(&deduped.iter().map(|pt| pt.to_hashable()).collect()) {
-                timer.warn(format!("SharedSidewalkCorner between {} and {} has weird duplicate geometry, so just doing straight line", l1.id, l2.id));
+                timer.warn(format!(
+                    "SharedSidewalkCorner between {} and {} has weird duplicate geometry, so just \
+                     doing straight line",
+                    l1.id, l2.id
+                ));
                 return baseline;
             }
 
@@ -581,12 +585,22 @@ fn make_shared_sidewalk_corner(
         final_pts.push(l2.first_pt());
     }
     if abstutil::contains_duplicates(&final_pts.iter().map(|pt| pt.to_hashable()).collect()) {
-        timer.warn(format!("SharedSidewalkCorner between {} and {} has weird duplicate geometry, so just doing straight line", l1.id, l2.id));
+        timer.warn(format!(
+            "SharedSidewalkCorner between {} and {} has weird duplicate geometry, so just doing \
+             straight line",
+            l1.id, l2.id
+        ));
         return baseline;
     }
     let result = PolyLine::new(final_pts);
     if result.length() > 10.0 * baseline.length() {
-        timer.warn(format!("SharedSidewalkCorner between {} and {} explodes to {} long, so just doing straight line", l1.id, l2.id, result.length()));
+        timer.warn(format!(
+            "SharedSidewalkCorner between {} and {} explodes to {} long, so just doing straight \
+             line",
+            l1.id,
+            l2.id,
+            result.length()
+        ));
         return baseline;
     }
     result

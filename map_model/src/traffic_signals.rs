@@ -116,7 +116,8 @@ impl ControlTrafficSignal {
                 for g2 in phase.protected_groups.iter().map(|g| &self.turn_groups[g]) {
                     if g1.conflicts_with(g2) {
                         return Err(format!(
-                            "Traffic signal has conflicting protected groups in one phase:\n{:?}\n\n{:?}",
+                            "Traffic signal has conflicting protected groups in one \
+                             phase:\n{:?}\n\n{:?}",
                             g1, g2
                         ));
                     }
@@ -258,8 +259,8 @@ impl ControlTrafficSignal {
             .get_roads_sorted_by_incoming_angle(map.all_roads());
         let (north, west, south, east) = (roads[0], roads[1], roads[2], roads[3]);
 
-        // Four-phase with protected lefts, right turn on red (except for the protected lefts), turning
-        // cars yield to peds
+        // Four-phase with protected lefts, right turn on red (except for the protected lefts),
+        // turning cars yield to peds
         let phases = make_phases(
             map,
             i,

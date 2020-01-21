@@ -185,8 +185,9 @@ fn calculate_parking_lines(lane: &Lane) -> Vec<Polygon> {
         for idx in 0..=num_spots {
             let (pt, lane_angle) = lane.dist_along(PARKING_SPOT_LENGTH * (1.0 + idx as f64));
             let perp_angle = lane_angle.rotate_degs(270.0);
-            // Find the outside of the lane. Actually, shift inside a little bit, since the line will
-            // have thickness, but shouldn't really intersect the adjacent line when drawn.
+            // Find the outside of the lane. Actually, shift inside a little bit, since the line
+            // will have thickness, but shouldn't really intersect the adjacent line
+            // when drawn.
             let t_pt = pt.project_away(LANE_THICKNESS * 0.4, perp_angle);
             // The perp leg
             let p1 = t_pt.project_away(leg_length, perp_angle.opposite());

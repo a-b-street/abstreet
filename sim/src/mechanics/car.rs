@@ -125,8 +125,8 @@ impl Car {
                         } else {
                             driveway.to_polyline().extend(raw_body).reversed()
                         };
-                        // Then make the car creep along the added length of the driveway (which could
-                        // be really short)
+                        // Then make the car creep along the added length of the driveway (which
+                        // could be really short)
                         let creep_along = driveway.length() * percent_time;
                         // TODO Ideally the car would slowly (dis)appear into the building, but
                         // some stuff downstream needs to understand that the windows and such will

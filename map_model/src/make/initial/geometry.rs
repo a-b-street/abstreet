@@ -155,7 +155,11 @@ fn generalized_trim_back(
                         shortest_center = trimmed;
                     }
                 } else {
-                    timer.warn(format!("{} and {} hit, but the perpendicular never hit the original center line, or the trimmed thing is empty", r1, r2));
+                    timer.warn(format!(
+                        "{} and {} hit, but the perpendicular never hit the original center line, \
+                         or the trimmed thing is empty",
+                        r1, r2
+                    ));
                 }
 
                 // We could also do the update for r2, but we'll just get to it later.
@@ -234,7 +238,11 @@ fn generalized_trim_back(
                 }*/
             }
         } else {
-            timer.warn(format!("Excluding collision between original polylines of {} and something, because stuff's too short", id));
+            timer.warn(format!(
+                "Excluding collision between original polylines of {} and something, because \
+                 stuff's too short",
+                id
+            ));
         }
 
         // Shift those final centers out again to find the main endpoints for the polygon.
@@ -289,7 +297,11 @@ fn generalized_trim_back(
                 }*/
             }
         } else {
-            timer.warn(format!("Excluding collision between original polylines of {} and something, because stuff's too short", id));
+            timer.warn(format!(
+                "Excluding collision between original polylines of {} and something, because \
+                 stuff's too short",
+                id
+            ));
         }
 
         /*if *id == OriginalRoad(384) {

@@ -222,7 +222,11 @@ impl Router {
                                 format!("parking somewhere else"),
                             ));
                         } else {
-                            println!("WARNING: {} can't find parking on {} or anywhere reachable from it. Possibly we're just totally out of parking space!", vehicle.id, current_lane);
+                            println!(
+                                "WARNING: {} can't find parking on {} or anywhere reachable from \
+                                 it. Possibly we're just totally out of parking space!",
+                                vehicle.id, current_lane
+                            );
                             *stuck_end_dist = Some(map.get_l(current_lane).length());
                         }
                         return Some(ActionAtEnd::GotoLaneEnd);

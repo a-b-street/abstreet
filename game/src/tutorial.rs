@@ -528,37 +528,85 @@ impl TutorialState {
         let minimap = Minimap::new(ctx, ui);
 
         let stages = vec![
-            Stage::msg(vec!["Welcome to your first day as a contract traffic engineer --", "like a paid assassin, but capable of making WAY more people cry.", "Warring factions in Seattle have brought you here."]).warp_to(ID::Intersection(IntersectionID(141))),
-
-            Stage::msg(vec!["Let's start with the controls for your handy drone.", "Click and drag to pan around the map, and use your scroll wheel or touchpad to zoom."]),
-            Stage::msg(vec!["Let's try that ou--", "WHOA THE MONTLAKE MARKET IS ON FIRE!", "GO CLICK ON IT, QUICK!"]),
+            Stage::msg(vec![
+                "Welcome to your first day as a contract traffic engineer --",
+                "like a paid assassin, but capable of making WAY more people cry.",
+                "Warring factions in Seattle have brought you here.",
+            ])
+            .warp_to(ID::Intersection(IntersectionID(141))),
+            Stage::msg(vec![
+                "Let's start with the controls for your handy drone.",
+                "Click and drag to pan around the map, and use your scroll wheel or touchpad to \
+                 zoom.",
+            ]),
+            Stage::msg(vec![
+                "Let's try that ou--",
+                "WHOA THE MONTLAKE MARKET IS ON FIRE!",
+                "GO CLICK ON IT, QUICK!",
+            ]),
             // TODO Just zoom in sufficiently on it, maybe don't even click it yet.
             Stage::interact("Put out the fire at the Montlake Market"),
-
-            Stage::msg(vec!["Er, sorry about that.", "Just a little joke we like to play on the new recruits.", "Now, let's learn how to inspect and interact with objects in the map.", "Select something, then click on it.", "", "HINT: The bottom of the screen shows keyboard shortcuts.", "", "Hmm, almost time to hit the road."]).arrow(ScreenPt::new(0.5 * ctx.canvas.window_width, 0.97 * ctx.canvas.window_height)),
+            Stage::msg(vec![
+                "Er, sorry about that.",
+                "Just a little joke we like to play on the new recruits.",
+                "Now, let's learn how to inspect and interact with objects in the map.",
+                "Select something, then click on it.",
+                "",
+                "HINT: The bottom of the screen shows keyboard shortcuts.",
+                "",
+                "Hmm, almost time to hit the road.",
+            ])
+            .arrow(ScreenPt::new(
+                0.5 * ctx.canvas.window_width,
+                0.97 * ctx.canvas.window_height,
+            )),
             Stage::interact("Go hit 3 different lanes on one road"),
-
-            Stage::msg(vec!["You'll work day and night, watching traffic patterns unfold."]).arrow(time.composite.center_of_panel()),
-            Stage::msg(vec!["You can pause or resume time"]).arrow(speed.composite.inner.center_of("pause")),
-            Stage::msg(vec!["Speed things up"]).arrow(speed.composite.inner.center_of("600x speed")),
-            Stage::msg(vec!["Advance time by certain amounts"]).arrow(speed.composite.inner.center_of("step forwards 1 hour")),
-            Stage::msg(vec!["And reset to the beginning of the day"]).arrow(speed.composite.inner.center_of("reset to midnight")),
+            Stage::msg(vec![
+                "You'll work day and night, watching traffic patterns unfold.",
+            ])
+            .arrow(time.composite.center_of_panel()),
+            Stage::msg(vec!["You can pause or resume time"])
+                .arrow(speed.composite.inner.center_of("pause")),
+            Stage::msg(vec!["Speed things up"])
+                .arrow(speed.composite.inner.center_of("600x speed")),
+            Stage::msg(vec!["Advance time by certain amounts"])
+                .arrow(speed.composite.inner.center_of("step forwards 1 hour")),
+            Stage::msg(vec!["And reset to the beginning of the day"])
+                .arrow(speed.composite.inner.center_of("reset to midnight")),
             Stage::interact("Wait until 5pm"),
-
             // Don't center on where the agents are, be a little offset
-            Stage::msg(vec!["Oh look, some people appeared!", "We've got pedestrians, bikes, and cars moving around now.", "You can see the number of them in the top-right corner."]).arrow(agent_meter.composite.center_of_panel()).warp_to(
-                ID::Building(BuildingID(611))).spawn_around(IntersectionID(247)),
-            Stage::msg(vec!["Why don't you follow the first northbound car to their destination,", "and make sure whoever gets out makes it inside their house safely?"]).spawn_around(IntersectionID(247)),
+            Stage::msg(vec![
+                "Oh look, some people appeared!",
+                "We've got pedestrians, bikes, and cars moving around now.",
+            ])
+            .warp_to(ID::Building(BuildingID(611)))
+            .spawn_around(IntersectionID(247)),
+            Stage::msg(vec![
+                "You can see the number of them in the top-right corner.",
+            ])
+            .arrow(agent_meter.composite.center_of_panel())
+            .spawn_around(IntersectionID(247)),
+            Stage::msg(vec![
+                "Why don't you follow the first northbound car to their destination,",
+                "and make sure whoever gets out makes it inside their house safely?",
+            ])
+            .spawn_around(IntersectionID(247)),
             // TODO Make it clear they can reset
             // TODO The time controls are too jumpy; can we automatically slow down when
             // interesting stuff happens?
-            Stage::interact("Escort the first northbound car to their home").spawn_around(IntersectionID(247)),
-
-            Stage::msg(vec!["The map is quite large, so to help you orient", "the minimap shows you an overview of all activity."]).arrow(minimap.composite.center_of("minimap")),
+            Stage::interact("Escort the first northbound car to their home")
+                .spawn_around(IntersectionID(247)),
+            Stage::msg(vec![
+                "The map is quite large, so to help you orient",
+                "the minimap shows you an overview of all activity.",
+            ])
+            .arrow(minimap.composite.center_of("minimap")),
             Stage::msg(vec!["Find addresses here"]).arrow(minimap.composite.center_of("search")),
             // TODO What's the test?
-
-            Stage::msg(vec!["Training complete!", "Go have the appropriate amount of fun."]),
+            Stage::msg(vec![
+                "Training complete!",
+                "Go have the appropriate amount of fun.",
+            ]),
         ];
         TutorialState {
             stages,
@@ -566,16 +614,18 @@ impl TutorialState {
             current: 0,
         }
 
-        // You've got a drone and, thanks to extremely creepy surveillance technology, the ability to peer
-        // into everyone's trips.
-        // People are on fixed schedules: every day, they leave at exactly the same time using the same
-        // mode of transport. All you can change is how their experience will be in the short-term.
-        // The city is in total crisis. You've only got 10 days to do something before all hell breaks
-        // loose and people start kayaking / ziplining / crab-walking / cartwheeling / to work.
+        // You've got a drone and, thanks to extremely creepy surveillance technology, the ability
+        // to peer into everyone's trips.
+        // People are on fixed schedules: every day, they leave at exactly the same time using the
+        // same mode of transport. All you can change is how their experience will be in the
+        // short-term. The city is in total crisis. You've only got 10 days to do something
+        // before all hell breaks loose and people start kayaking / ziplining / crab-walking
+        // / cartwheeling / to work.
 
         // TODO Show overlapping peds?
         // TODO Minimap, layers
-        // TODO Multi-modal trips -- including parking. (Cars per bldg, ownership). Border intersections.
+        // TODO Multi-modal trips -- including parking. (Cars per bldg, ownership). Border
+        // intersections.
 
         // TODO Edit mode. fixed schedules. agenda/goals.
         // - add a bike lane, watch cars not stack up anymore

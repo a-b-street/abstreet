@@ -691,7 +691,8 @@ fn seed_parked_cars(
                 // TODO This should be more critical, but neighborhoods can currently contain a
                 // building, but not even its road, so this is inevitable.
                 timer.warn(format!(
-                    "No room to seed parked cars. {} total spots, {:?} of {} buildings requested, {} new cars so far. Searched from {}",
+                    "No room to seed parked cars. {} total spots, {:?} of {} buildings requested, \
+                     {} new cars so far. Searched from {}",
                     total_spots,
                     cars_per_building,
                     owner_buildings.len(),

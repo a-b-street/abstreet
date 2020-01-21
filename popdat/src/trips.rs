@@ -106,7 +106,8 @@ impl Trip {
                         stop2,
                     ))
                 } else {
-                    //timer.warn(format!("{:?} not actually using transit, because pathfinding didn't find any useful route", trip));
+                    //timer.warn(format!("{:?} not actually using transit, because pathfinding
+                    // didn't find any useful route", trip));
                     Some(SpawnTrip::JustWalking(self.depart_at, start, goal))
                 }
             }

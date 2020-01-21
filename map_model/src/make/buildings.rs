@@ -92,10 +92,18 @@ pub fn make_all_buildings(
                     }
                     p.driving_pos = Position::new(driving_lane, dist_along);
                     if lanes[driving_lane.0].length() - dist_along < Distance::meters(7.0) {
-                        timer.warn(format!("Skipping driveway of {}, too close to the end of the road. Forfeiting {} stalls!", bldg.id, p.num_stalls));
+                        timer.warn(format!(
+                            "Skipping driveway of {}, too close to the end of the road. \
+                             Forfeiting {} stalls!",
+                            bldg.id, p.num_stalls
+                        ));
                         bldg.parking = None;
                     } else if dist_along < Distance::meters(1.0) {
-                        timer.warn(format!("Skipping driveway of {}, too close to the start of the road. Forfeiting {} stalls!", bldg.id, p.num_stalls));
+                        timer.warn(format!(
+                            "Skipping driveway of {}, too close to the start of the road. \
+                             Forfeiting {} stalls!",
+                            bldg.id, p.num_stalls
+                        ));
                         bldg.parking = None;
                     }
                 } else {

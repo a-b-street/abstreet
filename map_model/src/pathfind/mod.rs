@@ -243,8 +243,8 @@ impl Path {
         for i in 1..self.steps.len() {
             if let Some(d) = dist_remaining {
                 if d <= Distance::ZERO {
-                    // We know there's at least some geometry if we made it here, so unwrap to verify
-                    // that understanding.
+                    // We know there's at least some geometry if we made it here, so unwrap to
+                    // verify that understanding.
                     return Some(pts_so_far.unwrap());
                 }
             }

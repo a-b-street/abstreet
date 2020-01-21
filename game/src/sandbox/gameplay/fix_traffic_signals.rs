@@ -122,7 +122,11 @@ fn final_score(ui: &UI) -> Vec<String> {
     let mut lines = Vec::new();
 
     if time < Time::END_OF_DAY {
-        lines.push(format!("You have to run the simulation until the end of the day to get final results; {} to go", Time::END_OF_DAY - time));
+        lines.push(format!(
+            "You have to run the simulation until the end of the day to get final results; {} to \
+             go",
+            Time::END_OF_DAY - time
+        ));
     }
 
     if now_50p < baseline_50p - Duration::seconds(30.0) {
@@ -133,14 +137,26 @@ fn final_score(ui: &UI) -> Vec<String> {
             baseline_50p
         ));
     } else if now_50p < baseline_50p {
-        lines.push(format!("Almost there! 50%ile trip times are now {}, which is {} faster than the baseline {}. Can you reduce the times by 30s?", now_50p, baseline_50p - now_50p, baseline_50p));
+        lines.push(format!(
+            "Almost there! 50%ile trip times are now {}, which is {} faster than the baseline {}. \
+             Can you reduce the times by 30s?",
+            now_50p,
+            baseline_50p - now_50p,
+            baseline_50p
+        ));
     } else if now_50p.epsilon_eq(baseline_50p) {
         lines.push(format!(
             "... Did you change anything? 50% ile trip times are {}, same as the baseline",
             now_50p
         ));
     } else {
-        lines.push(format!("Err... how did you make things WORSE?! 50%ile trip times are {}, which is {} slower than the baseline {}", now_50p, now_50p - baseline_50p, baseline_50p));
+        lines.push(format!(
+            "Err... how did you make things WORSE?! 50%ile trip times are {}, which is {} slower \
+             than the baseline {}",
+            now_50p,
+            now_50p - baseline_50p,
+            baseline_50p
+        ));
     }
     lines
 }

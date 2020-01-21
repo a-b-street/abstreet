@@ -89,7 +89,8 @@ impl Queue {
             if bound < Distance::ZERO {
                 dump_cars(&result, cars, self.id, now);
                 panic!(
-                    "Queue has spillover on {} at {} -- can't draw {}, bound is {}. Laggy head is {:?}",
+                    "Queue has spillover on {} at {} -- can't draw {}, bound is {}. Laggy head is \
+                     {:?}",
                     self.id, now, id, bound, self.laggy_head
                 );
             }
