@@ -271,7 +271,7 @@ impl State for SandboxMode {
 
 pub struct AgentMeter {
     time: Time,
-    composite: Composite,
+    pub composite: Composite,
 }
 
 impl AgentMeter {

@@ -14,7 +14,7 @@ use geom::{Circle, Distance, Polygon, Pt2D, Ring};
 // TODO Some of the math in here might assume map bound minimums start at (0, 0).
 pub struct Minimap {
     dragging: bool,
-    composite: Composite,
+    pub(crate) composite: Composite,
     acs: AgentColorScheme,
     zoomed: bool,
 

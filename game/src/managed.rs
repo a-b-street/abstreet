@@ -12,7 +12,7 @@ pub enum Outcome {
 }
 
 pub struct Composite {
-    inner: ezgui::Composite,
+    pub inner: ezgui::Composite,
     callbacks: HashMap<String, Callback>,
 }
 

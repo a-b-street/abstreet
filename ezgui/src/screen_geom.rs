@@ -63,6 +63,10 @@ impl ScreenRectangle {
     pub fn dims(&self) -> ScreenDims {
         ScreenDims::new(self.x2 - self.x1, self.y2 - self.y1)
     }
+
+    pub fn center(&self) -> ScreenPt {
+        ScreenPt::new((self.x1 + self.x2) / 2.0, (self.y1 + self.y2) / 2.0)
+    }
 }
 
 // TODO Everything screen-space should probably just be usize, can't have fractional pixels?

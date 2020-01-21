@@ -9,7 +9,7 @@ use geom::{Duration, Polygon, Time};
 use std::time::Instant;
 
 pub struct SpeedControls {
-    composite: Composite,
+    pub composite: Composite,
 
     paused: bool,
     setting: SpeedSetting,
@@ -378,7 +378,7 @@ impl State for TimeWarpScreen {
 
 pub struct TimePanel {
     time: Time,
-    composite: ezgui::Composite,
+    pub composite: ezgui::Composite,
 }
 
 impl TimePanel {

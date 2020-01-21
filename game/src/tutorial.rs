@@ -1,4 +1,4 @@
-use crate::common::{CommonState, Warping};
+use crate::common::{CommonState, Minimap, Warping};
 use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use crate::render::DrawOptions;
@@ -6,7 +6,7 @@ use crate::sandbox::{spawn_agents_around, AgentMeter, SpeedControls, TimePanel};
 use crate::ui::{ShowEverything, UI};
 use ezgui::{
     hotkey, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, ManagedWidget, Outcome, Text, VerticalAlignment,
+    Line, ManagedWidget, Outcome, ScreenPt, Text, VerticalAlignment,
 };
 use geom::{Distance, Duration, PolyLine, Polygon, Pt2D, Time};
 use map_model::{BuildingID, IntersectionID, LaneID};
@@ -23,6 +23,7 @@ pub struct TutorialMode {
     time_panel: Option<TimePanel>,
     speed: Option<SpeedControls>,
     agent_meter: Option<AgentMeter>,
+    minimap: Option<Minimap>,
 
     // Goofy state for just some stages.
     hit_roads: HashSet<LaneID>,
@@ -35,7 +36,7 @@ impl TutorialMode {
             ui.switch_map(ctx, abstutil::path_map("montlake"));
         }
 
-        let mut tut = TutorialState::new();
+        let mut tut = TutorialState::new(ctx, ui);
         // For my sanity
         if ui.opts.dev {
             tut.latest = tut.stages.len() - 1;
@@ -49,26 +50,20 @@ impl State for TutorialMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         // First of all, might need to initiate warping
         if !self.warped {
-            let maybe_id = if self.state.current == 0 {
-                Some(ID::Intersection(IntersectionID(141)))
-            } else if self.state.current == 8 {
-                // Don't center on where the agents are, be a little offset
-                Some(ID::Building(BuildingID(611)))
-            } else {
-                None
-            };
-            if let Some(id) = maybe_id {
-                self.warped = true;
-                return Transition::PushWithMode(
-                    Warping::new(
-                        ctx,
-                        id.canonical_point(&ui.primary).unwrap(),
-                        Some(4.0),
-                        Some(id),
-                        &mut ui.primary,
-                    ),
-                    EventLoopMode::Animation,
-                );
+            if let Stage::Msg { ref warp_pt, .. } = self.state.stage() {
+                if let Some(id) = warp_pt {
+                    self.warped = true;
+                    return Transition::PushWithMode(
+                        Warping::new(
+                            ctx,
+                            id.canonical_point(&ui.primary).unwrap(),
+                            Some(4.0),
+                            Some(id.clone()),
+                            &mut ui.primary,
+                        ),
+                        EventLoopMode::Animation,
+                    );
+                }
             }
         }
 
@@ -152,10 +147,15 @@ impl State for TutorialMode {
                 return t;
             }
         }
+        if let Some(ref mut m) = self.minimap {
+            if let Some(t) = m.event(ui, ctx) {
+                return t;
+            }
+        }
 
         // Interaction things
-        // TODO Maybe have callbacks for these?
-        if self.state.current == 3 {
+        let interact = self.state.interaction();
+        if interact == "Put out the fire at the Montlake Market" {
             if ui.primary.current_selection == Some(ID::Building(BuildingID(9)))
                 && ui.per_obj.left_click(ctx, "put out the... fire?")
             {
@@ -165,7 +165,7 @@ impl State for TutorialMode {
                     EventLoopMode::Animation,
                 );
             }
-        } else if self.state.current == 5 {
+        } else if interact == "Go hit 3 different lanes on one road" {
             if let Some(ID::Lane(l)) = ui.primary.current_selection {
                 if !self.hit_roads.contains(&l) && ui.per_obj.action(ctx, Key::H, "hit the road") {
                     self.hit_roads.insert(l);
@@ -186,7 +186,7 @@ impl State for TutorialMode {
                     }
                 }
             }
-        } else if self.state.current == 7 {
+        } else if interact == "Wait until 5pm" {
             if ui.primary.sim.time() >= Time::START_OF_DAY + Duration::hours(17) {
                 self.state.next();
                 return Transition::ReplaceWithMode(
@@ -194,7 +194,7 @@ impl State for TutorialMode {
                     EventLoopMode::Animation,
                 );
             }
-        } else if self.state.current == 10 {
+        } else if interact == "Escort the first northbound car to their home" {
             if ui.primary.current_selection == Some(ID::Building(BuildingID(2322)))
                 && ui.per_obj.action(ctx, Key::C, "check the house")
             {
@@ -246,6 +246,17 @@ impl State for TutorialMode {
             &ui.primary.sim,
             &ShowEverything::new(),
         );
+        if self.msg_panel.is_some() {
+            // Make it clear the map can't be interacted with right now.
+            g.fork_screenspace();
+            // TODO - OSD height
+            g.draw_polygon(
+                Color::BLACK.alpha(0.5),
+                &Polygon::rectangle(g.canvas.window_width, g.canvas.window_height),
+            );
+            g.unfork();
+        }
+
         self.top_center.draw(g);
 
         if let Some(ref msg) = self.msg_panel {
@@ -260,50 +271,110 @@ impl State for TutorialMode {
         if let Some(ref am) = self.agent_meter {
             am.draw(g);
         }
+        if let Some(ref m) = self.minimap {
+            m.draw(g, ui, None);
+        }
         if let Some(ref common) = self.common {
             common.draw(g, ui);
         }
 
         // Special things
-        // TODO Maybe have callbacks for these?
-        if self.state.current == 3 {
+        if self.state.interaction() == "Put out the fire at the Montlake Market" {
             g.draw_polygon(Color::RED, &ui.primary.map.get_b(BuildingID(9)).polygon);
-        } else if self.state.current == 4 {
-            // OSD
-            point_to_onscreen(g, 0.5, 0.97);
-        } else if self.state.current == 6 {
-            // Time
-            point_to_onscreen(g, 0.1, 0.15);
-            // Speed
-            point_to_onscreen(g, 0.5, 0.9);
-        } else if self.state.current == 8 {
-            // Agent meters
-            point_to_onscreen(g, 0.8, 0.15);
+        }
+
+        if let Stage::Msg { point_to, .. } = self.state.stage() {
+            if let Some(pt) = point_to {
+                g.fork_screenspace();
+                g.draw_polygon(
+                    Color::RED,
+                    &PolyLine::new(vec![g.canvas.center_to_screen_pt().to_pt(), *pt])
+                        .make_arrow(Distance::meters(20.0))
+                        .unwrap(),
+                );
+                g.unfork();
+            }
         }
     }
 }
 
-fn point_to_onscreen(g: &mut GfxCtx, pct_width: f64, pct_height: f64) {
-    g.fork_screenspace();
-    g.draw_polygon(
-        Color::RED,
-        &PolyLine::new(vec![
-            g.canvas.center_to_screen_pt().to_pt(),
-            Pt2D::new(
-                pct_width * g.canvas.window_width,
-                pct_height * g.canvas.window_height,
-            ),
-        ])
-        .make_arrow(Distance::meters(20.0))
-        .unwrap(),
-    );
-    g.unfork();
-}
-
 #[derive(Clone)]
 enum Stage {
-    Msg(Vec<&'static str>),
-    Interact(&'static str),
+    Msg {
+        lines: Vec<&'static str>,
+        point_to: Option<Pt2D>,
+        warp_pt: Option<ID>,
+        spawn_around: Option<IntersectionID>,
+    },
+    Interact {
+        name: &'static str,
+        spawn_around: Option<IntersectionID>,
+    },
+}
+
+impl Stage {
+    fn msg(lines: Vec<&'static str>) -> Stage {
+        Stage::Msg {
+            lines,
+            point_to: None,
+            warp_pt: None,
+            spawn_around: None,
+        }
+    }
+
+    fn interact(name: &'static str) -> Stage {
+        Stage::Interact {
+            name,
+            spawn_around: None,
+        }
+    }
+
+    fn arrow(mut self, pt: ScreenPt) -> Stage {
+        match self {
+            Stage::Msg {
+                ref mut point_to, ..
+            } => {
+                assert!(point_to.is_none());
+                *point_to = Some(pt.to_pt());
+                self
+            }
+            Stage::Interact { .. } => unreachable!(),
+        }
+    }
+
+    fn warp_to(mut self, id: ID) -> Stage {
+        match self {
+            Stage::Msg {
+                ref mut warp_pt, ..
+            } => {
+                assert!(warp_pt.is_none());
+                *warp_pt = Some(id);
+                self
+            }
+            Stage::Interact { .. } => unreachable!(),
+        }
+    }
+
+    fn spawn_around(mut self, i: IntersectionID) -> Stage {
+        match self {
+            Stage::Msg {
+                ref mut spawn_around,
+                ..
+            } => {
+                assert!(spawn_around.is_none());
+                *spawn_around = Some(i);
+                self
+            }
+            Stage::Interact {
+                ref mut spawn_around,
+                ..
+            } => {
+                assert!(spawn_around.is_none());
+                *spawn_around = Some(i);
+                self
+            }
+        }
+    }
 }
 
 // TODO Ideally we'd replace self, not clone.
@@ -315,6 +386,17 @@ struct TutorialState {
 }
 
 impl TutorialState {
+    fn stage(&self) -> &Stage {
+        &self.stages[self.current]
+    }
+
+    fn interaction(&self) -> String {
+        match self.stage() {
+            Stage::Msg { .. } => String::new(),
+            Stage::Interact { ref name, .. } => name.to_string(),
+        }
+    }
+
     fn next(&mut self) {
         self.current += 1;
         self.latest = self.latest.max(self.current);
@@ -346,14 +428,8 @@ impl TutorialState {
             crate::managed::Composite::text_button(ctx, "Quit", None),
         ])
         .centered()];
-        match &self.stages[self.current] {
-            Stage::Msg(_) => {}
-            Stage::Interact(instructions) => {
-                col.push(ManagedWidget::draw_text(
-                    ctx,
-                    Text::from(Line(*instructions)),
-                ));
-            }
+        if let Stage::Interact { name, .. } = self.stage() {
+            col.push(ManagedWidget::draw_text(ctx, Text::from(Line(*name))));
         }
 
         Composite::new(ManagedWidget::col(col).bg(Color::grey(0.4)))
@@ -362,18 +438,22 @@ impl TutorialState {
     }
 
     fn make_state(&self, ctx: &mut EventCtx, ui: &mut UI) -> Box<dyn State> {
-        ui.primary.clear_sim();
-        match &self.stages[self.current] {
-            Stage::Msg(_) => {
-                ui.primary.current_selection = None;
-            }
-            Stage::Interact(_) => {}
+        if let Stage::Msg { .. } = self.stage() {
+            ui.primary.current_selection = None;
         }
 
-        if self.current == 8 || self.current == 9 || self.current == 10 {
+        ui.primary.clear_sim();
+        if let Some(i) = match self.stage() {
+            Stage::Msg {
+                ref spawn_around, ..
+            } => spawn_around,
+            Stage::Interact {
+                ref spawn_around, ..
+            } => spawn_around,
+        } {
             let old = ui.primary.current_flags.sim_flags.rng_seed;
             ui.primary.current_flags.sim_flags.rng_seed = Some(42);
-            spawn_agents_around(IntersectionID(247), ui, ctx);
+            spawn_agents_around(*i, ui, ctx);
             ui.primary.current_flags.sim_flags.rng_seed = old;
         }
 
@@ -382,8 +462,8 @@ impl TutorialState {
 
             top_center: self.make_top_center(ctx),
 
-            msg_panel: match &self.stages[self.current] {
-                Stage::Msg(ref lines) => Some(
+            msg_panel: match self.stage() {
+                Stage::Msg { ref lines, .. } => Some(
                     Composite::new(
                         ManagedWidget::col(vec![
                             ManagedWidget::draw_text(ctx, {
@@ -400,12 +480,13 @@ impl TutorialState {
                             )])
                             .centered(),
                         ])
-                        .bg(Color::grey(0.4)),
+                        .bg(Color::grey(0.4))
+                        .outline(Color::WHITE),
                     )
                     .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)
                     .build(ctx),
                 ),
-                Stage::Interact(_) => None,
+                Stage::Interact { .. } => None,
             },
             common: if self.current >= 4 {
                 Some(CommonState::new())
@@ -429,46 +510,55 @@ impl TutorialState {
             } else {
                 None
             },
+            minimap: if self.current >= 11 {
+                Some(Minimap::new(ctx, ui))
+            } else {
+                None
+            },
 
             hit_roads: HashSet::new(),
             warped: false,
         })
     }
 
-    fn new() -> TutorialState {
+    fn new(ctx: &mut EventCtx, ui: &UI) -> TutorialState {
+        let time = TimePanel::new(ctx, ui);
+        let speed = SpeedControls::new(ctx);
+        let agent_meter = AgentMeter::new(ctx, ui);
+        let minimap = Minimap::new(ctx, ui);
+
         let stages = vec![
-            // 0
-            Stage::Msg(vec!["Welcome to your first day as a contract traffic engineer --", "like a paid assassin, but capable of making WAY more people cry.", "Warring factions in Seattle have brought you here."]),
-            // 1
-            Stage::Msg(vec!["Let's start with the controls for your handy drone.", "Click and drag to pan around the map, and use your scroll wheel or touchpad to zoom."]),
-            // 2
-            Stage::Msg(vec!["Let's try that ou--", "WHOA THE MONTLAKE MARKET IS ON FIRE!", "GO CLICK ON IT, QUICK!"]),
-            // 3
+            Stage::msg(vec!["Welcome to your first day as a contract traffic engineer --", "like a paid assassin, but capable of making WAY more people cry.", "Warring factions in Seattle have brought you here."]).warp_to(ID::Intersection(IntersectionID(141))),
+
+            Stage::msg(vec!["Let's start with the controls for your handy drone.", "Click and drag to pan around the map, and use your scroll wheel or touchpad to zoom."]),
+            Stage::msg(vec!["Let's try that ou--", "WHOA THE MONTLAKE MARKET IS ON FIRE!", "GO CLICK ON IT, QUICK!"]),
             // TODO Just zoom in sufficiently on it, maybe don't even click it yet.
-            Stage::Interact("Put out the fire at the Montlake Market"),
+            Stage::interact("Put out the fire at the Montlake Market"),
 
-            // 4
-            Stage::Msg(vec!["Er, sorry about that.", "Just a little joke we like to play on the new recruits.", "Now, let's learn how to inspect and interact with objects in the map.", "Select something, then click on it.", "", "HINT: The bottom of the screen shows keyboard shortcuts.", "", "Hmm, almost time to hit the road."]),
-            // 5
-            Stage::Interact("Go hit 3 different lanes on one road"),
+            Stage::msg(vec!["Er, sorry about that.", "Just a little joke we like to play on the new recruits.", "Now, let's learn how to inspect and interact with objects in the map.", "Select something, then click on it.", "", "HINT: The bottom of the screen shows keyboard shortcuts.", "", "Hmm, almost time to hit the road."]).arrow(ScreenPt::new(0.5 * ctx.canvas.window_width, 0.97 * ctx.canvas.window_height)),
+            Stage::interact("Go hit 3 different lanes on one road"),
 
-            // 6
-            Stage::Msg(vec!["You'll work day and night, watching traffic patterns unfold.", "Use the speed controls to pause time, speed things up, or reset to the beginning of the day."]),
-            // 7
-            Stage::Interact("Wait until 5pm"),
+            Stage::msg(vec!["You'll work day and night, watching traffic patterns unfold."]).arrow(time.composite.center_of_panel()),
+            Stage::msg(vec!["You can pause or resume time"]).arrow(speed.composite.inner.center_of("pause")),
+            Stage::msg(vec!["Speed things up"]).arrow(speed.composite.inner.center_of("600x speed")),
+            Stage::msg(vec!["Advance time by certain amounts"]).arrow(speed.composite.inner.center_of("step forwards 1 hour")),
+            Stage::msg(vec!["And reset to the beginning of the day"]).arrow(speed.composite.inner.center_of("reset to midnight")),
+            Stage::interact("Wait until 5pm"),
 
-            // 8
-            Stage::Msg(vec!["Oh look, some people appeared!", "We've got pedestrians, bikes, and cars moving around now.", "You can see the number of them in the top-right corner."]),
-            // 9
-            Stage::Msg(vec!["Why don't you follow the first northbound car to their destination,", "and make sure whoever gets out makes it inside their house safely?"]),
-            // 10
+            // Don't center on where the agents are, be a little offset
+            Stage::msg(vec!["Oh look, some people appeared!", "We've got pedestrians, bikes, and cars moving around now.", "You can see the number of them in the top-right corner."]).arrow(agent_meter.composite.center_of_panel()).warp_to(
+                ID::Building(BuildingID(611))).spawn_around(IntersectionID(247)),
+            Stage::msg(vec!["Why don't you follow the first northbound car to their destination,", "and make sure whoever gets out makes it inside their house safely?"]).spawn_around(IntersectionID(247)),
             // TODO Make it clear they can reset
             // TODO The time controls are too jumpy; can we automatically slow down when
             // interesting stuff happens?
-            Stage::Interact("Escort the first northbound car to their home"),
+            Stage::interact("Escort the first northbound car to their home").spawn_around(IntersectionID(247)),
 
-            // 11
-            Stage::Msg(vec!["Training complete!", "Go have the appropriate amount of fun."]),
+            Stage::msg(vec!["The map is quite large, so to help you orient", "the minimap shows you an overview of all activity."]).arrow(minimap.composite.center_of("minimap")),
+            Stage::msg(vec!["Find addresses here"]).arrow(minimap.composite.center_of("search")),
+            // TODO What's the test?
+
+            Stage::msg(vec!["Training complete!", "Go have the appropriate amount of fun."]),
         ];
         TutorialState {
             stages,

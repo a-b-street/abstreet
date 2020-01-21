@@ -520,6 +520,32 @@ impl ManagedWidget {
             }
         }
     }
+
+    fn center_of(&self, name: &str) -> Option<ScreenPt> {
+        let found = match self.widget {
+            WidgetType::Draw(_) => false,
+            WidgetType::Btn(ref btn) => btn.action == name,
+            WidgetType::Slider(ref n) => n == name,
+            WidgetType::Menu(ref n) => n == name,
+            WidgetType::Filler(ref n) => n == name,
+            WidgetType::DurationPlot(_) => false,
+            WidgetType::UsizePlot(_) => false,
+            WidgetType::Histogram(_) => false,
+            WidgetType::Row(ref widgets) | WidgetType::Column(ref widgets) => {
+                for widget in widgets {
+                    if let Some(pt) = widget.center_of(name) {
+                        return Some(pt);
+                    }
+                }
+                return None;
+            }
+        };
+        if found {
+            Some(self.rect.center())
+        } else {
+            None
+        }
+    }
 }
 
 pub struct CompositeBuilder {
@@ -769,6 +795,17 @@ impl Composite {
     pub fn filler_rect(&self, name: &str) -> ScreenRectangle {
         let f = &self.fillers[name];
         ScreenRectangle::top_left(f.top_left, f.dims)
+    }
+
+    pub fn center_of(&self, name: &str) -> ScreenPt {
+        if let Some(pt) = self.top_level.center_of(name) {
+            pt
+        } else {
+            panic!("Can't find center_of {}", name);
+        }
+    }
+    pub fn center_of_panel(&self) -> ScreenPt {
+        self.top_level.rect.center()
     }
 }
 
