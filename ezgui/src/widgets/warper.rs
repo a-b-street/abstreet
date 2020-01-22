@@ -18,7 +18,13 @@ impl Warper {
         }
     }
 
+    // None means done
     pub fn event(&self, ctx: &mut EventCtx) -> Option<EventLoopMode> {
+        // Actually nothing for us to do
+        if self.line.is_none() && self.cam_zoom.0 == self.cam_zoom.1 {
+            return None;
+        }
+
         // Weird to do stuff for any event?
         if !ctx.input.nonblocking_is_update_event() {
             return Some(EventLoopMode::Animation);
