@@ -55,16 +55,18 @@ impl State for TutorialMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         // First of all, might need to initiate warping
         if !self.warped {
-            if let Stage::Msg { ref warp_pt, .. } = self.state.stage() {
-                if let Some(id) = warp_pt {
-                    self.warped = true;
-                    return Transition::Push(Warping::new(
-                        ctx,
-                        id.canonical_point(&ui.primary).unwrap(),
-                        Some(4.0),
-                        Some(id.clone()),
-                        &mut ui.primary,
-                    ));
+            match self.state.stage() {
+                Stage::Msg { ref warp_pt, .. } | Stage::Interact { ref warp_pt, .. } => {
+                    if let Some(id) = warp_pt {
+                        self.warped = true;
+                        return Transition::Push(Warping::new(
+                            ctx,
+                            id.canonical_point(&ui.primary).unwrap(),
+                            Some(4.0),
+                            Some(id.clone()),
+                            &mut ui.primary,
+                        ));
+                    }
                 }
             }
         }
@@ -357,6 +359,7 @@ enum Stage {
     },
     Interact {
         name: &'static str,
+        warp_pt: Option<ID>,
         spawn_around: Option<IntersectionID>,
         spawn_randomly: bool,
     },
@@ -375,6 +378,7 @@ impl Stage {
     fn interact(name: &'static str) -> Stage {
         Stage::Interact {
             name,
+            warp_pt: None,
             spawn_around: None,
             spawn_randomly: false,
         }
@@ -402,7 +406,13 @@ impl Stage {
                 *warp_pt = Some(id);
                 self
             }
-            Stage::Interact { .. } => unreachable!(),
+            Stage::Interact {
+                ref mut warp_pt, ..
+            } => {
+                assert!(warp_pt.is_none());
+                *warp_pt = Some(id);
+                self
+            }
         }
     }
 
