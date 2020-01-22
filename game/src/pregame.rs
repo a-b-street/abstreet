@@ -131,24 +131,16 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
     )
     .cb(
         "Tutorial",
-        Box::new(|ctx, ui| {
-            Some(Transition::PushWithMode(
-                TutorialMode::new(ctx, ui),
-                EventLoopMode::Animation,
-            ))
-        }),
+        Box::new(|ctx, ui| Some(Transition::Push(TutorialMode::new(ctx, ui)))),
     )
     .cb(
         "Sandbox mode",
         Box::new(|ctx, ui| {
-            Some(Transition::PushWithMode(
-                Box::new(SandboxMode::new(
-                    ctx,
-                    ui,
-                    GameplayMode::PlayScenario("random".to_string()),
-                )),
-                EventLoopMode::Animation,
-            ))
+            Some(Transition::Push(Box::new(SandboxMode::new(
+                ctx,
+                ui,
+                GameplayMode::PlayScenario("random".to_string()),
+            ))))
         }),
     )
     .cb(

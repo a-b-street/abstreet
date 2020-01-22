@@ -705,10 +705,9 @@ fn make_previewer(i: IntersectionID, phase: usize, suspended_sim: Sim) -> Box<dy
             }
             _ => unreachable!(),
         };
-        Some(Transition::ReplaceWithMode(
-            Box::new(PreviewTrafficSignal::new(ctx, ui)),
-            EventLoopMode::Animation,
-        ))
+        Some(Transition::Replace(Box::new(PreviewTrafficSignal::new(
+            ctx, ui,
+        ))))
     }))
 }
 

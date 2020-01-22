@@ -55,16 +55,13 @@ impl State for TutorialMode {
             if let Stage::Msg { ref warp_pt, .. } = self.state.stage() {
                 if let Some(id) = warp_pt {
                     self.warped = true;
-                    return Transition::PushWithMode(
-                        Warping::new(
-                            ctx,
-                            id.canonical_point(&ui.primary).unwrap(),
-                            Some(4.0),
-                            Some(id.clone()),
-                            &mut ui.primary,
-                        ),
-                        EventLoopMode::Animation,
-                    );
+                    return Transition::Push(Warping::new(
+                        ctx,
+                        id.canonical_point(&ui.primary).unwrap(),
+                        Some(4.0),
+                        Some(id.clone()),
+                        &mut ui.primary,
+                    ));
                 }
             }
         }
@@ -78,17 +75,11 @@ impl State for TutorialMode {
                 }
                 "<" => {
                     self.state.current -= 1;
-                    return Transition::ReplaceWithMode(
-                        self.state.make_state(ctx, ui),
-                        EventLoopMode::Animation,
-                    );
+                    return Transition::Replace(self.state.make_state(ctx, ui));
                 }
                 ">" => {
                     self.state.current += 1;
-                    return Transition::ReplaceWithMode(
-                        self.state.make_state(ctx, ui),
-                        EventLoopMode::Animation,
-                    );
+                    return Transition::Replace(self.state.make_state(ctx, ui));
                 }
                 _ => unreachable!(),
             },
@@ -104,10 +95,7 @@ impl State for TutorialMode {
                             ui.primary.clear_sim();
                             return Transition::Pop;
                         } else {
-                            return Transition::ReplaceWithMode(
-                                self.state.make_state(ctx, ui),
-                                EventLoopMode::Animation,
-                            );
+                            return Transition::Replace(self.state.make_state(ctx, ui));
                         }
                     }
                     _ => unreachable!(),
@@ -135,10 +123,7 @@ impl State for TutorialMode {
                 }
                 Some(WrappedOutcome::Clicked(x)) => match x {
                     x if x == "reset to midnight" => {
-                        return Transition::ReplaceWithMode(
-                            self.state.make_state(ctx, ui),
-                            EventLoopMode::Animation,
-                        );
+                        return Transition::Replace(self.state.make_state(ctx, ui));
                     }
                     _ => unreachable!(),
                 },
@@ -166,10 +151,7 @@ impl State for TutorialMode {
                 && ui.per_obj.left_click(ctx, "put out the... fire?")
             {
                 self.state.next();
-                return Transition::ReplaceWithMode(
-                    self.state.make_state(ctx, ui),
-                    EventLoopMode::Animation,
-                );
+                return Transition::Replace(self.state.make_state(ctx, ui));
             }
         } else if interact == "Go hit 3 different lanes on one road" {
             if let Some(ID::Lane(l)) = ui.primary.current_selection {
@@ -177,10 +159,7 @@ impl State for TutorialMode {
                     self.hit_roads.insert(l);
                     if self.hit_roads.len() == 3 {
                         self.state.next();
-                        return Transition::ReplaceWithMode(
-                            self.state.make_state(ctx, ui),
-                            EventLoopMode::Animation,
-                        );
+                        return Transition::Replace(self.state.make_state(ctx, ui));
                     } else {
                         return Transition::Push(msg(
                             "You hit the road",
@@ -195,10 +174,7 @@ impl State for TutorialMode {
         } else if interact == "Wait until 5pm" {
             if ui.primary.sim.time() >= Time::START_OF_DAY + Duration::hours(17) {
                 self.state.next();
-                return Transition::ReplaceWithMode(
-                    self.state.make_state(ctx, ui),
-                    EventLoopMode::Animation,
-                );
+                return Transition::Replace(self.state.make_state(ctx, ui));
             }
         } else if interact == "Escort the first northbound car to their home" {
             if ui.primary.current_selection == Some(ID::Building(BuildingID(2322)))
@@ -207,10 +183,7 @@ impl State for TutorialMode {
                 match ui.primary.sim.trip_to_agent(TripID(24)) {
                     TripResult::TripDone => {
                         self.state.next();
-                        return Transition::ReplaceWithMode(
-                            self.state.make_state(ctx, ui),
-                            EventLoopMode::Animation,
-                        );
+                        return Transition::Replace(self.state.make_state(ctx, ui));
                     }
                     _ => {
                         return Transition::Push(msg(
@@ -250,10 +223,7 @@ impl State for TutorialMode {
                         ));
                     }
                     self.state.next();
-                    return Transition::ReplaceWithMode(
-                        self.state.make_state(ctx, ui),
-                        EventLoopMode::Animation,
-                    );
+                    return Transition::Replace(self.state.make_state(ctx, ui));
                 }
             }
         }

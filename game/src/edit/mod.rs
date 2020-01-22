@@ -17,8 +17,7 @@ use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::{PerMapUI, ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, ModalMenu, Text,
-    WrappedWizard,
+    hotkey, lctrl, Choice, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, WrappedWizard,
 };
 use map_model::{ControlStopSign, ControlTrafficSignal, EditCmd, LaneID, MapEdits};
 use sim::Sim;
@@ -198,16 +197,13 @@ impl State for EditMode {
                 EditCmd::UncloseIntersection(id, _) => ID::Intersection(id),
             };
             apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
-            return Transition::PushWithMode(
-                Warping::new(
-                    ctx,
-                    id.canonical_point(&ui.primary).unwrap(),
-                    None,
-                    Some(id),
-                    &mut ui.primary,
-                ),
-                EventLoopMode::Animation,
-            );
+            return Transition::Push(Warping::new(
+                ctx,
+                id.canonical_point(&ui.primary).unwrap(),
+                None,
+                Some(id),
+                &mut ui.primary,
+            ));
         }
 
         if let Some(t) = self.common.event(ctx, ui) {

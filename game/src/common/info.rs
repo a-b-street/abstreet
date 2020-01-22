@@ -6,9 +6,8 @@ use crate::render::{dashed_lines, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, Button, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Plot, RewriteColor, Series, Text,
-    VerticalAlignment,
+    hotkey, Button, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, ManagedWidget, Outcome, Plot, RewriteColor, Series, Text, VerticalAlignment,
 };
 use geom::{Circle, Distance, Duration, Statistic, Time};
 use map_model::{IntersectionID, RoadID};
@@ -173,16 +172,13 @@ impl InfoPanel {
                 } else if action == "jump to object" {
                     return (
                         false,
-                        Some(Transition::PushWithMode(
-                            Warping::new(
-                                ctx,
-                                self.id.canonical_point(&ui.primary).unwrap(),
-                                Some(10.0),
-                                Some(self.id.clone()),
-                                &mut ui.primary,
-                            ),
-                            EventLoopMode::Animation,
-                        )),
+                        Some(Transition::Push(Warping::new(
+                            ctx,
+                            self.id.canonical_point(&ui.primary).unwrap(),
+                            Some(10.0),
+                            Some(self.id.clone()),
+                            &mut ui.primary,
+                        ))),
                     );
                 } else {
                     ui.primary.current_selection = Some(self.id.clone());

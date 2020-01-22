@@ -7,8 +7,8 @@ use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Counter, MultiMap, WeightedUsizeChoice};
 use ezgui::{
-    hotkey, Choice, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line,
-    ModalMenu, Text, Wizard, WrappedWizard,
+    hotkey, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text,
+    Wizard, WrappedWizard,
 };
 use geom::{Distance, Duration, PolyLine, Time};
 use map_model::{BuildingID, IntersectionID, Map, Neighborhood};
@@ -474,16 +474,13 @@ fn make_trip_picker(
                     .collect()
             })?
             .1;
-        Some(Transition::ReplaceWithMode(
-            Warping::new(
-                ctx,
-                warp_to.canonical_point(&ui.primary).unwrap(),
-                None,
-                Some(warp_to),
-                &mut ui.primary,
-            ),
-            EventLoopMode::Animation,
-        ))
+        Some(Transition::Replace(Warping::new(
+            ctx,
+            warp_to.canonical_point(&ui.primary).unwrap(),
+            None,
+            Some(warp_to),
+            &mut ui.primary,
+        )))
     }))
 }
 

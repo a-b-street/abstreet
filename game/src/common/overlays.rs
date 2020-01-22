@@ -6,9 +6,9 @@ use crate::managed::{ManagedGUIState, WrappedComposite, WrappedOutcome};
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
-    hotkey, Button, Color, Composite, DrawBoth, Drawable, EventCtx, EventLoopMode, GeomBatch,
-    GfxCtx, Histogram, HorizontalAlignment, JustDraw, Key, Line, ManagedWidget, Outcome, Plot,
-    RewriteColor, Series, Text, VerticalAlignment,
+    hotkey, Button, Color, Composite, DrawBoth, Drawable, EventCtx, GeomBatch, GfxCtx, Histogram,
+    HorizontalAlignment, JustDraw, Key, Line, ManagedWidget, Outcome, Plot, RewriteColor, Series,
+    Text, VerticalAlignment,
 };
 use geom::{Circle, Distance, Duration, PolyLine, Polygon, Pt2D, Statistic, Time};
 use map_model::{BusRouteID, IntersectionID};
@@ -122,16 +122,13 @@ impl Overlays {
                     "intersection demand" => {
                         let id = ID::Intersection(i);
                         ui.overlay = orig_overlay;
-                        return Some(Transition::PushWithMode(
-                            Warping::new(
-                                ctx,
-                                id.canonical_point(&ui.primary).unwrap(),
-                                Some(10.0),
-                                Some(id.clone()),
-                                &mut ui.primary,
-                            ),
-                            EventLoopMode::Animation,
-                        ));
+                        return Some(Transition::Push(Warping::new(
+                            ctx,
+                            id.canonical_point(&ui.primary).unwrap(),
+                            Some(10.0),
+                            Some(id.clone()),
+                            &mut ui.primary,
+                        )));
                     }
                     "X" => {
                         ui.overlay = Overlays::Inactive;
@@ -671,16 +668,13 @@ impl Overlays {
             c = c.cb(
                 &format!("Stop {}", idx + 1),
                 Box::new(move |ctx, ui| {
-                    Some(Transition::PushWithMode(
-                        Warping::new(
-                            ctx,
-                            id.canonical_point(&ui.primary).unwrap(),
-                            Some(4.0),
-                            Some(id.clone()),
-                            &mut ui.primary,
-                        ),
-                        EventLoopMode::Animation,
-                    ))
+                    Some(Transition::Push(Warping::new(
+                        ctx,
+                        id.canonical_point(&ui.primary).unwrap(),
+                        Some(4.0),
+                        Some(id.clone()),
+                        &mut ui.primary,
+                    )))
                 }),
             );
         }

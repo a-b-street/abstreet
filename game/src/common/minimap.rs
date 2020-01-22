@@ -5,9 +5,9 @@ use crate::render::{AgentColorScheme, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::UI;
 use abstutil::clamp;
 use ezgui::{
-    hotkey, Button, Choice, Color, Composite, DrawBoth, EventCtx, EventLoopMode, Filler, GeomBatch,
-    GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget, Outcome, RewriteColor, ScreenDims,
-    ScreenPt, Text, VerticalAlignment,
+    hotkey, Button, Choice, Color, Composite, DrawBoth, EventCtx, Filler, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, RewriteColor, ScreenDims, ScreenPt,
+    Text, VerticalAlignment,
 };
 use geom::{Circle, Distance, Polygon, Pt2D, Ring};
 
@@ -123,28 +123,22 @@ impl Minimap {
                     return Some(Transition::Push(shortcuts::ChoosingShortcut::new()));
                 }
                 x if x == "zoom out fully" => {
-                    return Some(Transition::PushWithMode(
-                        Warping::new(
-                            ctx,
-                            ui.primary.map.get_bounds().get_rectangle().center(),
-                            Some(ctx.canvas.min_zoom()),
-                            None,
-                            &mut ui.primary,
-                        ),
-                        EventLoopMode::Animation,
-                    ));
+                    return Some(Transition::Push(Warping::new(
+                        ctx,
+                        ui.primary.map.get_bounds().get_rectangle().center(),
+                        Some(ctx.canvas.min_zoom()),
+                        None,
+                        &mut ui.primary,
+                    )));
                 }
                 x if x == "zoom in fully" => {
-                    return Some(Transition::PushWithMode(
-                        Warping::new(
-                            ctx,
-                            ctx.canvas.center_to_map_pt(),
-                            Some(10.0),
-                            None,
-                            &mut ui.primary,
-                        ),
-                        EventLoopMode::Animation,
-                    ));
+                    return Some(Transition::Push(Warping::new(
+                        ctx,
+                        ctx.canvas.center_to_map_pt(),
+                        Some(10.0),
+                        None,
+                        &mut ui.primary,
+                    )));
                 }
                 x if x == "change overlay" => {
                     return Overlays::change_overlays(ctx);

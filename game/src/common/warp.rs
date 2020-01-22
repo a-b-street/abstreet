@@ -1,7 +1,7 @@
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::ui::{PerMapUI, UI};
-use ezgui::{EventCtx, EventLoopMode, GfxCtx, Warper, Wizard};
+use ezgui::{EventCtx, GfxCtx, Warper, Wizard};
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, IntersectionID, LaneID, RoadID};
 use sim::{PedestrianID, TripID};
@@ -20,10 +20,13 @@ fn warp_to(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transiti
     let mut wizard = wiz.wrap(ctx);
     let to = wizard.input_string("Warp to what?")?;
     if let Some((id, pt, cam_zoom)) = warp_point(&to, &ui.primary) {
-        return Some(Transition::ReplaceWithMode(
-            Warping::new(ctx, pt, Some(cam_zoom), id, &mut ui.primary),
-            EventLoopMode::Animation,
-        ));
+        return Some(Transition::Replace(Warping::new(
+            ctx,
+            pt,
+            Some(cam_zoom),
+            id,
+            &mut ui.primary,
+        )));
     }
     wizard.acknowledge("Bad warp ID", || vec![format!("{} isn't a valid ID", to)])?;
     Some(Transition::Pop)

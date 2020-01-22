@@ -2,7 +2,7 @@ use crate::common::Warping;
 use crate::game::{State, Transition, WizardState};
 use crate::ui::UI;
 use abstutil::{Cloneable, Timer};
-use ezgui::{Choice, EventCtx, EventLoopMode, Key, Wizard};
+use ezgui::{Choice, EventCtx, Key, Wizard};
 use geom::{LonLat, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 
@@ -73,15 +73,12 @@ fn choose_shortcut(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<
         wizard.abort();
         Some(Transition::Pop)
     } else {
-        Some(Transition::ReplaceWithMode(
-            Warping::new(
-                ctx,
-                Pt2D::forcibly_from_gps(s.center, &ui.primary.map.get_gps_bounds()),
-                Some(s.cam_zoom),
-                None,
-                &mut ui.primary,
-            ),
-            EventLoopMode::Animation,
-        ))
+        Some(Transition::Replace(Warping::new(
+            ctx,
+            Pt2D::forcibly_from_gps(s.center, &ui.primary.map.get_gps_bounds()),
+            Some(s.cam_zoom),
+            None,
+            &mut ui.primary,
+        )))
     }
 }

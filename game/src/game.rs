@@ -38,30 +38,17 @@ impl GUI for Game {
     fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
         self.ui.per_obj.reset();
 
-        // First rewrite the transitions to explicitly have EventLoopMode, to avoid duplicated
-        // code.
-        let transition = match self.states.last_mut().unwrap().event(ctx, &mut self.ui) {
-            Transition::Keep => Transition::KeepWithMode(EventLoopMode::InputOnly),
-            Transition::Pop => Transition::PopWithMode(EventLoopMode::InputOnly),
-            Transition::Push(state) => Transition::PushWithMode(state, EventLoopMode::InputOnly),
-            Transition::Replace(state) => {
-                Transition::ReplaceWithMode(state, EventLoopMode::InputOnly)
-            }
-            Transition::PopThenReplace(state) => {
-                Transition::PopThenReplaceWithMode(state, EventLoopMode::InputOnly)
-            }
-            x => x,
-        };
-
+        let transition = self.states.last_mut().unwrap().event(ctx, &mut self.ui);
         let (ev_mode, new_state) = match transition {
+            Transition::Keep => (EventLoopMode::InputOnly, false),
             Transition::KeepWithMode(evmode) => (evmode, false),
-            Transition::PopWithMode(evmode) => {
+            Transition::Pop => {
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
                 if self.states.is_empty() {
                     self.before_quit(ctx.canvas);
                     std::process::exit(0);
                 }
-                (evmode, true)
+                (EventLoopMode::InputOnly, true)
             }
             Transition::PopWithData(cb) => {
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
@@ -73,25 +60,25 @@ impl GUI for Game {
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
                 (EventLoopMode::InputOnly, true)
             }
-            Transition::PushWithMode(state, evmode) => {
+            Transition::Push(state) => {
                 self.states
                     .last_mut()
                     .unwrap()
                     .on_suspend(ctx, &mut self.ui);
                 self.states.push(state);
-                (evmode, true)
+                (EventLoopMode::InputOnly, true)
             }
-            Transition::ReplaceWithMode(state, evmode) => {
+            Transition::Replace(state) => {
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
                 self.states.push(state);
-                (evmode, true)
+                (EventLoopMode::InputOnly, true)
             }
-            Transition::PopThenReplaceWithMode(state, evmode) => {
+            Transition::PopThenReplace(state) => {
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
                 assert!(!self.states.is_empty());
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
                 self.states.push(state);
-                (evmode, true)
+                (EventLoopMode::InputOnly, true)
             }
             Transition::Clear(state) => {
                 while !self.states.is_empty() {
@@ -113,7 +100,6 @@ impl GUI for Game {
                 self.states.push(s2);
                 return EventLoopMode::InputOnly;
             }
-            _ => unreachable!(),
         };
         self.ui.per_obj.assert_chosen_used();
         if new_state {
@@ -198,8 +184,8 @@ pub trait State: downcast_rs::Downcast {
 downcast_rs::impl_downcast!(State);
 
 pub enum Transition {
-    // These variants imply EventLoopMode::InputOnly.
     Keep,
+    KeepWithMode(EventLoopMode),
     Pop,
     PopTwice,
     // If a state needs to pass data back to the parent, use this. Sadly, runtime type casting.
@@ -210,13 +196,6 @@ pub enum Transition {
     Clear(Box<dyn State>),
     ApplyObjectAction(String),
     PushTwice(Box<dyn State>, Box<dyn State>),
-
-    // These don't.
-    KeepWithMode(EventLoopMode),
-    PopWithMode(EventLoopMode),
-    PushWithMode(Box<dyn State>, EventLoopMode),
-    ReplaceWithMode(Box<dyn State>, EventLoopMode),
-    PopThenReplaceWithMode(Box<dyn State>, EventLoopMode),
 }
 
 pub struct WizardState {

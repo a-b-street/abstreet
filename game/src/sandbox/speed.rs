@@ -183,13 +183,10 @@ impl SpeedControls {
         .cb(
             "step forwards 1 hour",
             Box::new(|_, ui| {
-                Some(Transition::PushWithMode(
-                    Box::new(TimeWarpScreen {
-                        target: ui.primary.sim.time() + Duration::hours(1),
-                        started: Instant::now(),
-                    }),
-                    EventLoopMode::Animation,
-                ))
+                Some(Transition::Push(Box::new(TimeWarpScreen {
+                    target: ui.primary.sim.time() + Duration::hours(1),
+                    started: Instant::now(),
+                })))
             }),
         )
     }
@@ -316,13 +313,10 @@ fn jump_to_time(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
         ui.primary.sim.time(),
         Time::END_OF_DAY,
     )?;
-    Some(Transition::ReplaceWithMode(
-        Box::new(TimeWarpScreen {
-            target,
-            started: Instant::now(),
-        }),
-        EventLoopMode::Animation,
-    ))
+    Some(Transition::Replace(Box::new(TimeWarpScreen {
+        target,
+        started: Instant::now(),
+    })))
 }
 
 // Display a nicer screen for jumping forwards in time, allowing cancellation.
