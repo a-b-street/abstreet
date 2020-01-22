@@ -82,6 +82,26 @@ impl DrawLane {
                         cs.get("general road marking"),
                         calculate_turn_markings(map, lane, timer),
                     );
+
+                    if lane.is_bus() {
+                        let buffer = Distance::meters(2.0);
+                        let btwn = Distance::meters(30.0);
+                        let len = lane.lane_center_pts.length();
+
+                        let mut dist = buffer;
+                        while dist + buffer <= len {
+                            let (pt, angle) = lane.lane_center_pts.dist_along(dist);
+                            draw.add_svg(
+                                "assets/map/bus_only.svg",
+                                pt,
+                                0.06,
+                                angle
+                                    .shortest_rotation_towards(Angle::new_degs(-90.0))
+                                    .invert_y(),
+                            );
+                            dist += btwn;
+                        }
+                    }
                 }
                 LaneType::Biking => {
                     let buffer = Distance::meters(2.0);
