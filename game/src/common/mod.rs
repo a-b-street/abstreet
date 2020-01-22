@@ -18,6 +18,7 @@ pub use self::warp::Warping;
 use crate::game::Transition;
 use crate::helpers::{list_names, ID};
 use crate::render::DrawOptions;
+use crate::sandbox::SpeedControls;
 use crate::ui::UI;
 use ezgui::{
     lctrl, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Text, VerticalAlignment,
@@ -39,7 +40,12 @@ impl CommonState {
 
     // This has to be called after anything that calls ui.per_obj.action(). Oof.
     // TODO This'll be really clear once we consume. Hah!
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    pub fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        ui: &mut UI,
+        maybe_speed: Option<&mut SpeedControls>,
+    ) -> Option<Transition> {
         if ctx.input.new_was_pressed(lctrl(Key::S).unwrap()) {
             ui.opts.dev = !ui.opts.dev;
         }
@@ -57,12 +63,19 @@ impl CommonState {
             {
                 ui.per_obj.info_panel_open = true;
                 let actions = ui.per_obj.consume();
-                self.info_panel = Some(info::InfoPanel::new(id.clone(), ctx, ui, actions));
+                self.info_panel = Some(info::InfoPanel::new(
+                    id.clone(),
+                    ctx,
+                    ui,
+                    actions,
+                    maybe_speed,
+                ));
             }
+            return None;
         }
 
         if let Some(ref mut info) = self.info_panel {
-            let (closed, maybe_t) = info.event(ctx, ui);
+            let (closed, maybe_t) = info.event(ctx, ui, maybe_speed);
             if closed {
                 self.info_panel = None;
                 assert!(ui.per_obj.info_panel_open);
@@ -246,7 +259,7 @@ impl CommonState {
 
     // Meant to be used for launching from other states
     pub fn launch_info_panel(&mut self, id: ID, ctx: &mut EventCtx, ui: &mut UI) {
-        self.info_panel = Some(info::InfoPanel::new(id, ctx, ui, Vec::new()));
+        self.info_panel = Some(info::InfoPanel::new(id, ctx, ui, Vec::new(), None));
         ui.per_obj.info_panel_open = true;
     }
 }

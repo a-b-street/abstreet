@@ -156,7 +156,7 @@ impl State for ABTestMode {
             self.recalculate_stuff(ui, ctx);
         }*/
 
-        if let Some(t) = self.common.event(ctx, ui) {
+        if let Some(t) = self.common.event(ctx, ui, None) {
             return t;
         }
         match self.tool_panel.event(ctx, ui) {

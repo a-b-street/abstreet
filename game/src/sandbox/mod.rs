@@ -27,7 +27,7 @@ pub struct SandboxMode {
     time_panel: TimePanel,
     agent_meter: AgentMeter,
     gameplay: gameplay::GameplayRunner,
-    pub common: CommonState,
+    common: CommonState,
     tool_panel: WrappedComposite,
     minimap: Option<Minimap>,
 }
@@ -150,7 +150,7 @@ impl State for SandboxMode {
             None => {}
         }
 
-        if let Some(t) = self.common.event(ctx, ui) {
+        if let Some(t) = self.common.event(ctx, ui, Some(&mut self.speed)) {
             return t;
         }
         if let Some(t) = Overlays::update(ctx, ui) {

@@ -270,7 +270,7 @@ impl State for TutorialMode {
         }
 
         if let Some(ref mut common) = self.common {
-            if let Some(t) = common.event(ctx, ui) {
+            if let Some(t) = common.event(ctx, ui, self.speed.as_mut()) {
                 return t;
             }
         }

@@ -15,7 +15,7 @@ pub struct SpeedControls {
     setting: SpeedSetting,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 enum SpeedSetting {
     Realtime,
     Faster,
@@ -298,6 +298,14 @@ impl SpeedControls {
     pub fn pause(&mut self, ctx: &mut EventCtx) {
         if !self.paused {
             self.paused = true;
+            self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+        }
+    }
+
+    pub fn resume_realtime(&mut self, ctx: &mut EventCtx) {
+        if self.paused || self.setting != SpeedSetting::Realtime {
+            self.paused = false;
+            self.setting = SpeedSetting::Realtime;
             self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
         }
     }

@@ -3,6 +3,7 @@ use crate::game::{msg, Transition};
 use crate::helpers::{rotating_color, rotating_color_map, ID};
 use crate::managed::WrappedComposite;
 use crate::render::{dashed_lines, MIN_ZOOM_FOR_DETAIL};
+use crate::sandbox::SpeedControls;
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
@@ -25,7 +26,23 @@ pub struct InfoPanel {
 }
 
 impl InfoPanel {
-    pub fn new(id: ID, ctx: &mut EventCtx, ui: &UI, actions: Vec<(Key, String)>) -> InfoPanel {
+    pub fn new(
+        id: ID,
+        ctx: &mut EventCtx,
+        ui: &UI,
+        mut actions: Vec<(Key, String)>,
+        maybe_speed: Option<&mut SpeedControls>,
+    ) -> InfoPanel {
+        if maybe_speed.map(|s| s.is_paused()).unwrap_or(false)
+            && id.agent_id().is_some()
+            && actions
+                .get(0)
+                .map(|(_, a)| a != "follow agent")
+                .unwrap_or(true)
+        {
+            actions.insert(0, (Key::F, "follow agent".to_string()));
+        }
+
         let mut col = vec![ManagedWidget::row(vec![
             {
                 let mut txt = CommonState::default_osd(id.clone(), ui);
@@ -135,7 +152,12 @@ impl InfoPanel {
     }
 
     // (Are we done, optional transition)
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (bool, Option<Transition>) {
+    pub fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        ui: &mut UI,
+        maybe_speed: Option<&mut SpeedControls>,
+    ) -> (bool, Option<Transition>) {
         // Can click on the map to cancel
         if ctx.canvas.get_cursor_in_map_space().is_some()
             && ui.primary.current_selection.is_none()
@@ -160,9 +182,9 @@ impl InfoPanel {
             }
 
             let preserve_scroll = self.composite.preserve_scroll();
-            // TODO Can we be more efficient here?
-            *self = InfoPanel::new(self.id.clone(), ctx, ui, self.actions.clone());
+            *self = InfoPanel::new(self.id.clone(), ctx, ui, self.actions.clone(), maybe_speed);
             self.composite.restore_scroll(ctx, preserve_scroll);
+            return (false, None);
         }
 
         match self.composite.event(ctx) {
@@ -180,6 +202,9 @@ impl InfoPanel {
                             &mut ui.primary,
                         ))),
                     );
+                } else if action == "follow agent" {
+                    maybe_speed.unwrap().resume_realtime(ctx);
+                    return (false, None);
                 } else {
                     ui.primary.current_selection = Some(self.id.clone());
                     return (true, Some(Transition::ApplyObjectAction(action)));
