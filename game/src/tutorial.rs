@@ -12,7 +12,7 @@ use ezgui::{
 };
 use geom::{Distance, Duration, PolyLine, Polygon, Pt2D, Time};
 use map_model::{BuildingID, IntersectionID};
-use sim::{Scenario, TripID, TripResult};
+use sim::{AgentID, CarID, Scenario, TripID, TripResult, VehicleType};
 
 pub struct TutorialMode {
     state: TutorialState,
@@ -335,11 +335,12 @@ impl State for TutorialMode {
         }
 
         if let Stage::Msg { point_to, .. } = self.state.stage() {
-            if let Some(pt) = point_to {
+            if let Some(fxn) = point_to {
+                let pt = (fxn)(g, ui);
                 g.fork_screenspace();
                 g.draw_polygon(
                     Color::RED,
-                    &PolyLine::new(vec![g.canvas.center_to_screen_pt().to_pt(), *pt])
+                    &PolyLine::new(vec![g.canvas.center_to_screen_pt().to_pt(), pt])
                         .make_arrow(Distance::meters(20.0))
                         .unwrap(),
                 );
@@ -349,11 +350,10 @@ impl State for TutorialMode {
     }
 }
 
-#[derive(Clone)]
 enum Stage {
     Msg {
         lines: Vec<&'static str>,
-        point_to: Option<Pt2D>,
+        point_to: Option<Box<dyn Fn(&GfxCtx, &UI) -> Pt2D>>,
         warp_pt: Option<ID>,
         spawn_around: Option<IntersectionID>,
     },
@@ -384,13 +384,16 @@ impl Stage {
         }
     }
 
-    fn arrow(mut self, pt: ScreenPt) -> Stage {
+    fn arrow(self, pt: ScreenPt) -> Stage {
+        self.dynamic_arrow(Box::new(move |_, _| pt.to_pt()))
+    }
+    fn dynamic_arrow(mut self, cb: Box<dyn Fn(&GfxCtx, &UI) -> Pt2D>) -> Stage {
         match self {
             Stage::Msg {
                 ref mut point_to, ..
             } => {
                 assert!(point_to.is_none());
-                *point_to = Some(pt.to_pt());
+                *point_to = Some(cb);
                 self
             }
             Stage::Interact { .. } => unreachable!(),
@@ -455,7 +458,6 @@ impl Stage {
 }
 
 // TODO Ideally we'd replace self, not clone.
-#[derive(Clone)]
 struct TutorialState {
     stages: Vec<Stage>,
     latest: usize,
@@ -556,8 +558,12 @@ impl TutorialState {
             }
         }
 
+        // TODO Expensive
+        let mut state = TutorialState::new(ctx, ui);
+        state.current = self.current;
+        state.latest = self.latest;
         Box::new(TutorialMode {
-            state: self.clone(),
+            state,
 
             top_center: self.make_top_center(ctx),
 
@@ -624,7 +630,7 @@ impl TutorialState {
         })
     }
 
-    fn new(ctx: &mut EventCtx, ui: &UI) -> TutorialState {
+    fn new(ctx: &mut EventCtx, ui: &mut UI) -> TutorialState {
         let time = TimePanel::new(ctx, ui);
         let speed = SpeedControls::new(ctx);
         let agent_meter = AgentMeter::new(ctx, ui);
@@ -734,7 +740,20 @@ impl TutorialState {
                 "and make sure whoever gets out makes it inside their house safely?",
             ])
             .spawn_around(IntersectionID(247))
-            .warp_to(ID::Building(BuildingID(611))),
+            .warp_to(ID::Building(BuildingID(611)))
+            .dynamic_arrow(Box::new(|g, ui| {
+                g.canvas
+                    .map_to_screen(
+                        ui.primary
+                            .sim
+                            .canonical_pt_for_agent(
+                                AgentID::Car(CarID(19, VehicleType::Car)),
+                                &ui.primary.map,
+                            )
+                            .unwrap(),
+                    )
+                    .to_pt()
+            })),
             // TODO Make it clear they can reset
             // TODO The time controls are too jumpy; can we automatically slow down when
             // interesting stuff happens?

@@ -180,7 +180,7 @@ impl Canvas {
         self.cam_y = (pt.y() * self.cam_zoom) - (self.window_height / 2.0);
     }
 
-    pub(crate) fn map_to_screen(&self, pt: Pt2D) -> ScreenPt {
+    pub fn map_to_screen(&self, pt: Pt2D) -> ScreenPt {
         ScreenPt::new(
             (pt.x() * self.cam_zoom) - self.cam_x,
             (pt.y() * self.cam_zoom) - self.cam_y,
