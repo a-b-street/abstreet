@@ -2,7 +2,7 @@ use crate::helpers::{ColorScheme, ID};
 use crate::render::{dashed_lines, DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
-use geom::{Distance, Line, PolyLine, Polygon, Pt2D};
+use geom::{Angle, Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{Lane, LaneID, LaneType, Map, Road, TurnType, LANE_THICKNESS, PARKING_SPOT_LENGTH};
 
 // Split into two phases like this, because AlmostDrawLane can be created in parallel, but GPU
@@ -83,7 +83,25 @@ impl DrawLane {
                         calculate_turn_markings(map, lane, timer),
                     );
                 }
-                LaneType::Biking => {}
+                LaneType::Biking => {
+                    let buffer = Distance::meters(2.0);
+                    let btwn = Distance::meters(30.0);
+                    let len = lane.lane_center_pts.length();
+
+                    let mut dist = buffer;
+                    while dist + buffer <= len {
+                        let (pt, angle) = lane.lane_center_pts.dist_along(dist);
+                        draw.add_svg(
+                            "assets/meters/bike.svg",
+                            pt,
+                            0.06,
+                            angle
+                                .shortest_rotation_towards(Angle::new_degs(-90.0))
+                                .invert_y(),
+                        );
+                        dist += btwn;
+                    }
+                }
                 LaneType::SharedLeftTurn => {
                     draw.push(
                         cs.get("road center line"),
