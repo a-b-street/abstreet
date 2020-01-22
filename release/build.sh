@@ -23,4 +23,4 @@ cp -Rv game/assets $output/game
 # TODO Github will double-zip this, but if we just pass the directory, then the
 # chmod +x bits get lost
 zip -r $output $output
-rm -f release_data.zip $output
+rm -rf release_data.zip $output

@@ -46,7 +46,8 @@ impl<'a> EventCtx<'a> {
         self.canvas.handle_event(&mut self.input)
     }
 
-    pub(crate) fn fake_mouseover<F: FnMut(&mut EventCtx)>(&mut self, mut cb: F) {
+    // Use to immediately plumb through an (empty) event to something
+    pub fn fake_mouseover<O, F: FnMut(&mut EventCtx) -> O>(&mut self, mut cb: F) -> O {
         let mut tmp = EventCtx {
             fake_mouseover: true,
             input: UserInput::new(Event::NoOp, self.canvas),
@@ -55,7 +56,7 @@ impl<'a> EventCtx<'a> {
             program: self.program,
             assets: self.assets,
         };
-        cb(&mut tmp);
+        cb(&mut tmp)
     }
 
     pub fn redo_mouseover(&self) -> bool {
