@@ -8,7 +8,7 @@ mod routes;
 use crate::common::{tool_panel, CommonState};
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
-use crate::managed::{Composite, Outcome};
+use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::{ShowLayers, ShowObject, UI};
 use ezgui::{
@@ -22,7 +22,7 @@ use std::collections::HashSet;
 pub struct DebugMode {
     menu: ModalMenu,
     common: CommonState,
-    tool_panel: Composite,
+    tool_panel: WrappedComposite,
     associated: associated::ShowAssociatedState,
     connected_roads: connected_roads::ShowConnectedRoads,
     objects: objects::ObjectDebugger,
@@ -265,8 +265,8 @@ impl State for DebugMode {
             return t;
         }
         match self.tool_panel.event(ctx, ui) {
-            Some(Outcome::Transition(t)) => t,
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Some(WrappedOutcome::Transition(t)) => t,
+            Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
                 "back" => Transition::Pop,
                 _ => unreachable!(),
             },

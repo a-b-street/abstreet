@@ -1,12 +1,12 @@
 use crate::edit::EditMode;
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
-use crate::managed::Composite;
+use crate::managed::WrappedComposite;
 use crate::sandbox::gameplay::{change_scenario, spawner, GameplayMode, GameplayState};
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use ezgui::{
-    hotkey, lctrl, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    hotkey, lctrl, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
     ManagedWidget, Text, VerticalAlignment,
 };
 use geom::Polygon;
@@ -20,7 +20,7 @@ pub struct Freeform {
 }
 
 impl Freeform {
-    pub fn new(ctx: &mut EventCtx, ui: &UI) -> (Composite, Box<dyn GameplayState>) {
+    pub fn new(ctx: &mut EventCtx, ui: &UI) -> (WrappedComposite, Box<dyn GameplayState>) {
         (
             freeform_controller(ctx, ui, GameplayMode::Freeform, "none"),
             Box::new(Freeform {
@@ -65,9 +65,9 @@ pub fn freeform_controller(
     ui: &UI,
     gameplay: GameplayMode,
     scenario_name: &str,
-) -> Composite {
-    Composite::new(
-        ezgui::Composite::new(
+) -> WrappedComposite {
+    WrappedComposite::new(
+        Composite::new(
             ManagedWidget::row(vec![
                 ManagedWidget::draw_text(ctx, Text::from(Line("Sandbox").size(26))).margin(5),
                 ManagedWidget::draw_batch(
@@ -78,7 +78,7 @@ pub fn freeform_controller(
                 ManagedWidget::draw_text(ctx, Text::from(Line("Map:").size(18).roboto_bold()))
                     .margin(5),
                 // TODO Different button style
-                Composite::detailed_text_button(
+                WrappedComposite::detailed_text_button(
                     ctx,
                     Text::from(
                         Line(format!("{} ▼", ui.primary.map.get_name()))
@@ -92,7 +92,7 @@ pub fn freeform_controller(
                 .margin(5),
                 ManagedWidget::draw_text(ctx, Text::from(Line("Traffic:").size(18).roboto_bold()))
                     .margin(5),
-                Composite::detailed_text_button(
+                WrappedComposite::detailed_text_button(
                     ctx,
                     Text::from(
                         Line(format!("{} ▼", scenario_name))
@@ -104,8 +104,13 @@ pub fn freeform_controller(
                     "change scenario",
                 )
                 .margin(5),
-                Composite::svg_button(ctx, "assets/tools/edit_map.svg", "edit map", lctrl(Key::E))
-                    .margin(5),
+                WrappedComposite::svg_button(
+                    ctx,
+                    "assets/tools/edit_map.svg",
+                    "edit map",
+                    lctrl(Key::E),
+                )
+                .margin(5),
             ])
             .centered()
             .bg(Color::grey(0.4)),

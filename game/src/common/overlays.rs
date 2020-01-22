@@ -2,7 +2,7 @@ use crate::common::{ColorLegend, Colorer, ColorerBuilder, ShowBusRoute, Warping}
 use crate::game::Transition;
 use crate::helpers::rotating_color_total;
 use crate::helpers::ID;
-use crate::managed::ManagedGUIState;
+use crate::managed::{ManagedGUIState, WrappedComposite, WrappedOutcome};
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
@@ -27,7 +27,7 @@ pub enum Overlays {
     IntersectionDemand(Time, IntersectionID, Drawable, Composite),
     BusRoute(Time, BusRouteID, ShowBusRoute),
     BusDelaysOverTime(Time, BusRouteID, Composite),
-    BusPassengers(Time, BusRouteID, crate::managed::Composite),
+    BusPassengers(Time, BusRouteID, WrappedComposite),
 }
 
 impl Overlays {
@@ -103,11 +103,11 @@ impl Overlays {
                 }
             }
             Overlays::BusPassengers(_, _, ref mut c) => match c.event(ctx, ui) {
-                Some(crate::managed::Outcome::Transition(t)) => {
+                Some(WrappedOutcome::Transition(t)) => {
                     ui.overlay = orig_overlay;
                     return Some(t);
                 }
-                Some(crate::managed::Outcome::Clicked(x)) => match x.as_ref() {
+                Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
                     "X" => {
                         ui.overlay = Overlays::Inactive;
                     }
@@ -200,17 +200,16 @@ impl Overlays {
     pub fn change_overlays(ctx: &mut EventCtx) -> Option<Transition> {
         // TODO Filter out the current
         // TODO Filter out finished trips histogram if prebaked isn't available
-        let c = crate::managed::Composite::new(
+        let c = WrappedComposite::new(
             Composite::new(
                 ManagedWidget::col(vec![
                     ManagedWidget::row(vec![
                         ManagedWidget::draw_text(ctx, Text::from(Line("Heat map layers"))),
-                        crate::managed::Composite::text_button(ctx, "X", hotkey(Key::Escape))
-                            .align_right(),
+                        WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
                     ]),
                     ManagedWidget::row(vec![
-                        crate::managed::Composite::text_button(ctx, "None", hotkey(Key::N)),
-                        crate::managed::Composite::text_button(
+                        WrappedComposite::text_button(ctx, "None", hotkey(Key::N)),
+                        WrappedComposite::text_button(
                             ctx,
                             "finished trips histogram",
                             hotkey(Key::F),
@@ -519,7 +518,7 @@ impl Overlays {
                             ctx,
                             Text::from(Line("Are finished trips faster or slower?")),
                         ),
-                        crate::managed::Composite::text_button(ctx, "X", None).align_right(),
+                        WrappedComposite::text_button(ctx, "X", None).align_right(),
                     ]),
                     Histogram::new(
                         ui.primary
@@ -574,7 +573,7 @@ impl Overlays {
                 RewriteColor::Change(Color::hex("#CC4121"), Color::ORANGE),
                 ctx,
             )),
-            crate::managed::Composite::text_button(ctx, "X", None).align_right(),
+            WrappedComposite::text_button(ctx, "X", None).align_right(),
         ])];
         col.push(ColorLegend::row(ctx, Color::RED, "current demand"));
 
@@ -596,7 +595,7 @@ impl Overlays {
         let route = ui.primary.map.get_br(id);
         let mut master_col = vec![ManagedWidget::row(vec![
             ManagedWidget::draw_text(ctx, Text::prompt(&format!("Passengers for {}", route.name))),
-            crate::managed::Composite::text_button(ctx, "X", None).align_right(),
+            WrappedComposite::text_button(ctx, "X", None).align_right(),
         ])];
         let mut col = Vec::new();
 
@@ -662,7 +661,7 @@ impl Overlays {
             ManagedWidget::col(col).margin(5),
         ]));
 
-        let mut c = crate::managed::Composite::new(
+        let mut c = WrappedComposite::new(
             Composite::new(ManagedWidget::col(master_col).bg(Color::grey(0.4)))
                 .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
                 .build(ctx),
@@ -721,7 +720,7 @@ impl Overlays {
                             ctx,
                             Text::from(Line(format!("delays for {}", route.name))),
                         ),
-                        crate::managed::Composite::text_button(ctx, "X", None).align_right(),
+                        WrappedComposite::text_button(ctx, "X", None).align_right(),
                     ]),
                     Plot::new_duration(series, ctx).margin(10),
                 ])

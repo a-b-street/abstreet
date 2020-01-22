@@ -3,7 +3,7 @@ pub mod setup;
 use crate::common::{tool_panel, CommonState};
 use crate::debug::DebugMode;
 use crate::game::{State, Transition};
-use crate::managed::{Composite, Outcome};
+use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::{PerMapUI, UI};
 use abstutil::Timer;
@@ -19,7 +19,7 @@ pub struct ABTestMode {
     diff_trip: Option<DiffOneTrip>,
     diff_all: Option<DiffAllTrips>,
     common: CommonState,
-    tool_panel: Composite,
+    tool_panel: WrappedComposite,
     test_name: String,
     flipped: bool,
 }
@@ -160,9 +160,9 @@ impl State for ABTestMode {
             return t;
         }
         match self.tool_panel.event(ctx, ui) {
-            Some(Outcome::Transition(t)) => t,
+            Some(WrappedOutcome::Transition(t)) => t,
             // TODO Confirm first
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
                 "back" => Transition::Pop,
                 _ => unreachable!(),
             },

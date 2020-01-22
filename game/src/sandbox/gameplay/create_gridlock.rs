@@ -1,5 +1,5 @@
 use crate::game::Transition;
-use crate::managed::Composite;
+use crate::managed::WrappedComposite;
 use crate::render::InnerAgentColorScheme;
 use crate::sandbox::gameplay::{
     challenge_controller, cmp_count_fewer, manage_acs, GameplayMode, GameplayState,
@@ -16,7 +16,7 @@ pub struct CreateGridlock {
 }
 
 impl CreateGridlock {
-    pub fn new(ctx: &mut EventCtx) -> (Composite, Box<dyn GameplayState>) {
+    pub fn new(ctx: &mut EventCtx) -> (WrappedComposite, Box<dyn GameplayState>) {
         (
             challenge_controller(ctx, GameplayMode::CreateGridlock, "Gridlock Challenge"),
             Box::new(CreateGridlock {

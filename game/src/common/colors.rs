@@ -1,3 +1,4 @@
+use crate::managed::WrappedComposite;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::UI;
 use ezgui::{
@@ -135,7 +136,7 @@ impl ColorerBuilder {
         // Build the legend
         let mut col = vec![ManagedWidget::row(vec![
             ManagedWidget::draw_text(ctx, self.header),
-            crate::managed::Composite::text_button(ctx, "X", None).align_right(),
+            WrappedComposite::text_button(ctx, "X", None).align_right(),
         ])];
         for (label, color) in self.prioritized_colors {
             col.push(ColorLegend::row(ctx, color, label));

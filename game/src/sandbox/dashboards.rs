@@ -1,13 +1,15 @@
 use crate::common::ShowBusRoute;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
-use crate::managed::{Callback, Composite, ManagedGUIState};
+use crate::managed::{Callback, ManagedGUIState, WrappedComposite};
 use crate::sandbox::gameplay::{cmp_count_fewer, cmp_count_more, cmp_duration_shorter};
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use abstutil::Counter;
-use ezgui::{hotkey, Color, EventCtx, Histogram, Key, Line, ManagedWidget, Plot, Series, Text};
+use ezgui::{
+    hotkey, Color, Composite, EventCtx, Histogram, Key, Line, ManagedWidget, Plot, Series, Text,
+};
 use geom::{Duration, Statistic, Time};
 use map_model::BusRouteID;
 use sim::{TripID, TripMode};
@@ -39,11 +41,11 @@ pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
             if *t == tab {
                 ManagedWidget::draw_text(ctx, Text::from(Line(*label))).margin(5)
             } else {
-                Composite::text_button(ctx, label, None).margin(5)
+                WrappedComposite::text_button(ctx, label, None).margin(5)
             }
         })
         .collect::<Vec<_>>();
-    tabs.push(Composite::text_button(ctx, "BACK", hotkey(Key::Escape)).margin(5));
+    tabs.push(WrappedComposite::text_button(ctx, "BACK", hotkey(Key::Escape)).margin(5));
 
     let (content, cbs) = match tab {
         Tab::FinishedTripsSummary => (finished_trips_summary_prebaked(ctx, ui), Vec::new()),
@@ -53,8 +55,8 @@ pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
         Tab::ExploreBusRoute => pick_bus_route(ctx, ui),
     };
 
-    let mut c = Composite::new(
-        ezgui::Composite::new(ManagedWidget::col(vec![
+    let mut c = WrappedComposite::new(
+        Composite::new(ManagedWidget::col(vec![
             ManagedWidget::row(tabs)
                 .evenly_spaced()
                 .bg(Color::grey(0.6))
@@ -275,7 +277,7 @@ fn pick_finished_trips_mode(ctx: &EventCtx) -> (ManagedWidget, Vec<(String, Call
     let mut cbs: Vec<(String, Callback)> = Vec::new();
 
     for mode in TripMode::all() {
-        buttons.push(Composite::text_button(ctx, &mode.to_string(), None));
+        buttons.push(WrappedComposite::text_button(ctx, &mode.to_string(), None));
         cbs.push((
             mode.to_string(),
             Box::new(move |ctx, ui| {
@@ -311,7 +313,7 @@ fn pick_finished_trips(
     filtered.reverse();
     for (_, id, _, dt) in filtered {
         let label = format!("{} taking {}", id, dt);
-        buttons.push(Composite::text_button(ctx, &label, None));
+        buttons.push(WrappedComposite::text_button(ctx, &label, None));
         let trip = *id;
         cbs.push((
             label,
@@ -363,7 +365,7 @@ fn pick_bus_route(ctx: &EventCtx, ui: &UI) -> (ManagedWidget, Vec<(String, Callb
     routes.sort_by_key(|(name, _)| name.to_string());
 
     for (name, id) in routes {
-        buttons.push(Composite::text_button(ctx, name, None));
+        buttons.push(WrappedComposite::text_button(ctx, name, None));
         cbs.push((
             name.to_string(),
             Box::new(move |_, _| {

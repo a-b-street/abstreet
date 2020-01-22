@@ -1,6 +1,7 @@
 use crate::common::{ColorLegend, CommonState, Warping};
 use crate::game::{msg, Transition};
 use crate::helpers::{rotating_color, rotating_color_map, ID};
+use crate::managed::WrappedComposite;
 use crate::render::{dashed_lines, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
@@ -39,7 +40,7 @@ impl InfoPanel {
                 RewriteColor::Change(Color::hex("#CC4121"), Color::ORANGE),
                 ctx,
             )),
-            crate::managed::Composite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
+            WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
         ])];
 
         for (key, label) in &actions {

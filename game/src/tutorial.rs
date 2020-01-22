@@ -1,6 +1,7 @@
 use crate::common::{CommonState, Minimap, Overlays, Warping};
 use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
+use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::DrawOptions;
 use crate::sandbox::{spawn_agents_around, AgentMeter, SpeedControls, TimePanel};
 use crate::ui::{ShowEverything, UI};
@@ -129,10 +130,10 @@ impl State for TutorialMode {
 
         if let Some(ref mut speed) = self.speed {
             match speed.event(ctx, ui) {
-                Some(crate::managed::Outcome::Transition(t)) => {
+                Some(WrappedOutcome::Transition(t)) => {
                     return t;
                 }
-                Some(crate::managed::Outcome::Clicked(x)) => match x {
+                Some(WrappedOutcome::Clicked(x)) => match x {
                     x if x == "reset to midnight" => {
                         return Transition::ReplaceWithMode(
                             self.state.make_state(ctx, ui),
@@ -475,14 +476,14 @@ impl TutorialState {
             if self.current == 0 {
                 ManagedWidget::draw_text(ctx, Text::from(Line("<")))
             } else {
-                crate::managed::Composite::text_button(ctx, "<", None)
+                WrappedComposite::text_button(ctx, "<", None)
             },
             if self.current == self.latest {
                 ManagedWidget::draw_text(ctx, Text::from(Line(">")))
             } else {
-                crate::managed::Composite::text_button(ctx, ">", None)
+                WrappedComposite::text_button(ctx, ">", None)
             },
-            crate::managed::Composite::text_button(ctx, "Quit", None),
+            WrappedComposite::text_button(ctx, "Quit", None),
         ])
         .centered()];
         if let Stage::Interact { name, .. } = self.stage() {
@@ -543,7 +544,7 @@ impl TutorialState {
                                 }
                                 txt
                             }),
-                            ManagedWidget::row(vec![crate::managed::Composite::text_button(
+                            ManagedWidget::row(vec![WrappedComposite::text_button(
                                 ctx,
                                 "OK",
                                 hotkey(Key::Enter),

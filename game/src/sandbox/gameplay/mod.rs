@@ -10,14 +10,14 @@ use crate::challenges;
 use crate::common::Overlays;
 use crate::edit::EditMode;
 use crate::game::{msg, Transition};
-use crate::managed::{Composite, Outcome};
+use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::{AgentColorScheme, InnerAgentColorScheme};
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Timer};
 use ezgui::{
-    lctrl, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget,
-    ModalMenu, Text, TextSpan, VerticalAlignment, Wizard,
+    lctrl, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    ManagedWidget, ModalMenu, Text, TextSpan, VerticalAlignment, Wizard,
 };
 use geom::{Duration, Polygon};
 use map_model::{EditCmd, Map, MapEdits};
@@ -26,7 +26,7 @@ use sim::{Analytics, Scenario, TripMode};
 pub struct GameplayRunner {
     pub mode: GameplayMode,
     // TODO Why not make each state own this?
-    controller: Composite,
+    controller: WrappedComposite,
     state: Box<dyn GameplayState>,
 }
 
@@ -191,10 +191,10 @@ impl GameplayRunner {
 
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
         match self.controller.event(ctx, ui) {
-            Some(Outcome::Transition(t)) => {
+            Some(WrappedOutcome::Transition(t)) => {
                 return Some(t);
             }
-            Some(Outcome::Clicked(_)) => unreachable!(),
+            Some(WrappedOutcome::Clicked(_)) => unreachable!(),
             None => {}
         }
         self.state.event(ctx, ui)
@@ -324,7 +324,11 @@ pub fn cmp_count_more(now: usize, baseline: usize) -> TextSpan {
     }
 }
 
-pub fn challenge_controller(ctx: &mut EventCtx, gameplay: GameplayMode, title: &str) -> Composite {
+pub fn challenge_controller(
+    ctx: &mut EventCtx,
+    gameplay: GameplayMode,
+    title: &str,
+) -> WrappedComposite {
     // Scrape the description
     let mut description = Vec::new();
     'OUTER: for (_, stages) in challenges::all_challenges() {
@@ -336,18 +340,23 @@ pub fn challenge_controller(ctx: &mut EventCtx, gameplay: GameplayMode, title: &
         }
     }
 
-    Composite::new(
-        ezgui::Composite::new(
+    WrappedComposite::new(
+        Composite::new(
             ManagedWidget::row(vec![
                 ManagedWidget::draw_text(ctx, Text::from(Line(title).size(26))).margin(5),
-                Composite::svg_button(ctx, "assets/tools/info.svg", "info", None).margin(5),
+                WrappedComposite::svg_button(ctx, "assets/tools/info.svg", "info", None).margin(5),
                 ManagedWidget::draw_batch(
                     ctx,
                     GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
                 )
                 .margin(5),
-                Composite::svg_button(ctx, "assets/tools/edit_map.svg", "edit map", lctrl(Key::E))
-                    .margin(5),
+                WrappedComposite::svg_button(
+                    ctx,
+                    "assets/tools/edit_map.svg",
+                    "edit map",
+                    lctrl(Key::E),
+                )
+                .margin(5),
             ])
             .centered()
             .bg(Color::grey(0.4)),

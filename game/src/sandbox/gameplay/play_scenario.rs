@@ -1,5 +1,5 @@
 use crate::game::Transition;
-use crate::managed::Composite;
+use crate::managed::WrappedComposite;
 use crate::sandbox::gameplay::freeform::freeform_controller;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::ui::UI;
@@ -8,7 +8,11 @@ use ezgui::{EventCtx, GfxCtx};
 pub struct PlayScenario;
 
 impl PlayScenario {
-    pub fn new(name: &String, ctx: &mut EventCtx, ui: &UI) -> (Composite, Box<dyn GameplayState>) {
+    pub fn new(
+        name: &String,
+        ctx: &mut EventCtx,
+        ui: &UI,
+    ) -> (WrappedComposite, Box<dyn GameplayState>) {
         (
             freeform_controller(ctx, ui, GameplayMode::PlayScenario(name.to_string()), name),
             Box::new(PlayScenario),

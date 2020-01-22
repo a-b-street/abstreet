@@ -1,5 +1,5 @@
 use crate::game::Transition;
-use crate::managed::Composite;
+use crate::managed::WrappedComposite;
 use crate::sandbox::gameplay::{
     challenge_controller, cmp_count_more, cmp_duration_shorter, GameplayMode, GameplayState,
 };
@@ -16,7 +16,10 @@ pub struct FasterTrips {
 }
 
 impl FasterTrips {
-    pub fn new(trip_mode: TripMode, ctx: &mut EventCtx) -> (Composite, Box<dyn GameplayState>) {
+    pub fn new(
+        trip_mode: TripMode,
+        ctx: &mut EventCtx,
+    ) -> (WrappedComposite, Box<dyn GameplayState>) {
         (
             challenge_controller(
                 ctx,

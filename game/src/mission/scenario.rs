@@ -1,7 +1,7 @@
 use crate::common::{tool_panel, Colorer, ColorerBuilder, CommonState, Warping};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
-use crate::managed::{Composite, Outcome};
+use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::mission::pick_time_range;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::UI;
@@ -21,7 +21,7 @@ use std::collections::BTreeSet;
 pub struct ScenarioManager {
     menu: ModalMenu,
     common: CommonState,
-    tool_panel: Composite,
+    tool_panel: WrappedComposite,
     scenario: Scenario,
 
     // The usizes are indices into scenario.individ_trips
@@ -243,8 +243,8 @@ impl State for ScenarioManager {
             return t;
         }
         match self.tool_panel.event(ctx, ui) {
-            Some(Outcome::Transition(t)) => t,
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Some(WrappedOutcome::Transition(t)) => t,
+            Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
                 "back" => Transition::Pop,
                 _ => unreachable!(),
             },

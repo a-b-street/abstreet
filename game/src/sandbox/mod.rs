@@ -7,13 +7,13 @@ use crate::debug::DebugMode;
 use crate::edit::{apply_map_edits, save_edits, EditMode, StopSignEditor, TrafficSignalEditor};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
-use crate::managed::Outcome;
+use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::pregame::main_menu;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Choice, Color, Composite, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment,
-    Key, Line, ManagedWidget, Text, VerticalAlignment,
+    Key, Line, ManagedWidget, Outcome, Text, VerticalAlignment,
 };
 pub use gameplay::spawner::spawn_agents_around;
 pub use gameplay::GameplayMode;
@@ -28,7 +28,7 @@ pub struct SandboxMode {
     agent_meter: AgentMeter,
     gameplay: gameplay::GameplayRunner,
     pub common: CommonState,
-    tool_panel: crate::managed::Composite,
+    tool_panel: WrappedComposite,
     minimap: Option<Minimap>,
 }
 
@@ -133,10 +133,10 @@ impl State for SandboxMode {
         self.time_panel.event(ctx, ui);
 
         match self.speed.event(ctx, ui) {
-            Some(Outcome::Transition(t)) => {
+            Some(WrappedOutcome::Transition(t)) => {
                 return t;
             }
-            Some(Outcome::Clicked(x)) => match x {
+            Some(WrappedOutcome::Clicked(x)) => match x {
                 x if x == "reset to midnight" => {
                     ui.primary.clear_sim();
                     return Transition::Replace(Box::new(SandboxMode::new(
@@ -157,10 +157,10 @@ impl State for SandboxMode {
             return t;
         }
         match self.tool_panel.event(ctx, ui) {
-            Some(Outcome::Transition(t)) => {
+            Some(WrappedOutcome::Transition(t)) => {
                 return t;
             }
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
                 "back" => {
                     return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, ui| {
                         let mut wizard = wiz.wrap(ctx);
@@ -297,11 +297,7 @@ impl AgentMeter {
                     ManagedWidget::draw_text(ctx, txt)
                 },
                 // TODO The SVG button uses clip and doesn't seem to work
-                crate::managed::Composite::text_button(
-                    ctx,
-                    "view finished trip data",
-                    hotkey(Key::Q),
-                ),
+                WrappedComposite::text_button(ctx, "view finished trip data", hotkey(Key::Q)),
             ])
             .bg(Color::grey(0.4))
             .padding(20),
@@ -321,7 +317,7 @@ impl AgentMeter {
             return self.event(ctx, ui);
         }
         match self.composite.event(ctx) {
-            Some(ezgui::Outcome::Clicked(x)) => match x.as_ref() {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "view finished trip data" => {
                     return Some(Transition::Push(dashboards::make(
                         ctx,

@@ -1,12 +1,12 @@
 use crate::edit::apply_map_edits;
 use crate::game::{State, Transition, WizardState};
-use crate::managed::{Composite, ManagedGUIState};
+use crate::managed::{ManagedGUIState, WrappedComposite};
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{
-    hotkey, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget,
-    ModalMenu, Text, VerticalAlignment,
+    hotkey, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    ManagedWidget, ModalMenu, Text, VerticalAlignment,
 };
 use geom::{Duration, Time};
 use sim::{Sim, SimFlags, SimOptions, TripMode};
@@ -127,7 +127,7 @@ pub fn challenges_picker(ctx: &mut EventCtx) -> Box<dyn State> {
     let mut col = Vec::new();
 
     col.push(ManagedWidget::row(vec![
-        Composite::svg_button(ctx, "assets/pregame/back.svg", "back", hotkey(Key::Escape)),
+        WrappedComposite::svg_button(ctx, "assets/pregame/back.svg", "back", hotkey(Key::Escape)),
         ManagedWidget::draw_text(ctx, Text::from(Line("A/B STREET").size(50))),
     ]));
 
@@ -138,7 +138,7 @@ pub fn challenges_picker(ctx: &mut EventCtx) -> Box<dyn State> {
 
     let mut flex_row = Vec::new();
     for (idx, (name, _)) in all_challenges().into_iter().enumerate() {
-        flex_row.push(Composite::detailed_text_button(
+        flex_row.push(WrappedComposite::detailed_text_button(
             ctx,
             Text::from(Line(&name).size(40).fg(Color::BLACK)),
             hotkey(Key::NUM_KEYS[idx]),
@@ -147,7 +147,7 @@ pub fn challenges_picker(ctx: &mut EventCtx) -> Box<dyn State> {
     }
     col.push(ManagedWidget::row(flex_row).flex_wrap(ctx, 80));
 
-    let mut c = Composite::new(ezgui::Composite::new(ManagedWidget::col(col)).build(ctx));
+    let mut c = WrappedComposite::new(Composite::new(ManagedWidget::col(col)).build(ctx));
     c = c.cb("back", Box::new(|_, _| Some(Transition::Pop)));
 
     for (name, stages) in all_challenges() {

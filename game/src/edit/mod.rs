@@ -9,7 +9,7 @@ use crate::common::{tool_panel, CommonState, Warping};
 use crate::debug::DebugMode;
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::{ColorScheme, ID};
-use crate::managed::{Composite, Outcome};
+use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::{
     DrawIntersection, DrawLane, DrawOptions, DrawRoad, Renderable, MIN_ZOOM_FOR_DETAIL,
 };
@@ -26,7 +26,7 @@ use std::collections::BTreeSet;
 
 pub struct EditMode {
     common: CommonState,
-    tool_panel: Composite,
+    tool_panel: WrappedComposite,
     menu: ModalMenu,
 
     // Retained state from the SandboxMode that spawned us
@@ -214,8 +214,8 @@ impl State for EditMode {
             return t;
         }
         match self.tool_panel.event(ctx, ui) {
-            Some(Outcome::Transition(t)) => t,
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Some(WrappedOutcome::Transition(t)) => t,
+            Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
                 "back" => ctx.loading_screen("apply edits", |ctx, mut timer| {
                     // TODO Maybe put a loading screen around these.
                     ui.primary

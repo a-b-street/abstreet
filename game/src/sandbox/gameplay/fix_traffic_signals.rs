@@ -1,6 +1,6 @@
 use crate::common::Overlays;
 use crate::game::{msg, Transition};
-use crate::managed::Composite;
+use crate::managed::WrappedComposite;
 use crate::sandbox::gameplay::faster_trips::small_faster_trips_panel;
 use crate::sandbox::gameplay::{
     challenge_controller, manage_overlays, GameplayMode, GameplayState,
@@ -18,7 +18,10 @@ pub struct FixTrafficSignals {
 }
 
 impl FixTrafficSignals {
-    pub fn new(ctx: &mut EventCtx, mode: GameplayMode) -> (Composite, Box<dyn GameplayState>) {
+    pub fn new(
+        ctx: &mut EventCtx,
+        mode: GameplayMode,
+    ) -> (WrappedComposite, Box<dyn GameplayState>) {
         (
             challenge_controller(ctx, mode, "Traffic Signals Challenge"),
             Box::new(FixTrafficSignals {

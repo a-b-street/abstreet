@@ -1,15 +1,15 @@
 use crate::game::{State, Transition, WizardState};
-use crate::managed::{Composite, Outcome};
+use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::ui::UI;
 use ezgui::{
-    hotkey, Button, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, ManagedWidget, RewriteColor, Text, VerticalAlignment, Wizard,
+    hotkey, Button, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, ManagedWidget, RewriteColor, Text, VerticalAlignment, Wizard,
 };
 use geom::{Duration, Polygon, Time};
 use std::time::Instant;
 
 pub struct SpeedControls {
-    pub composite: Composite,
+    pub composite: WrappedComposite,
 
     paused: bool,
     setting: SpeedSetting,
@@ -23,7 +23,7 @@ enum SpeedSetting {
 }
 
 impl SpeedControls {
-    fn make_panel(ctx: &mut EventCtx, paused: bool, setting: SpeedSetting) -> Composite {
+    fn make_panel(ctx: &mut EventCtx, paused: bool, setting: SpeedSetting) -> WrappedComposite {
         let bg = Color::hex("#7C7C7C");
 
         let mut row = Vec::new();
@@ -154,8 +154,8 @@ impl SpeedControls {
             .bg(bg),
         );
 
-        Composite::new(
-            ezgui::Composite::new(
+        WrappedComposite::new(
+            Composite::new(
                 ManagedWidget::row(row.into_iter().map(|x| x.margin(5)).collect())
                     .bg(Color::hex("#4C4C4C")),
             )
@@ -203,12 +203,12 @@ impl SpeedControls {
         }
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Outcome> {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<WrappedOutcome> {
         match self.composite.event(ctx, ui) {
-            Some(Outcome::Transition(t)) => {
-                return Some(Outcome::Transition(t));
+            Some(WrappedOutcome::Transition(t)) => {
+                return Some(WrappedOutcome::Transition(t));
             }
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
+            Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
                 "realtime" => {
                     self.setting = SpeedSetting::Realtime;
                     self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
@@ -233,7 +233,7 @@ impl SpeedControls {
                     self.pause(ctx);
                 }
                 "reset to midnight" => {
-                    return Some(Outcome::Clicked("reset to midnight".to_string()));
+                    return Some(WrappedOutcome::Clicked("reset to midnight".to_string()));
                 }
                 _ => unreachable!(),
             },
@@ -378,14 +378,14 @@ impl State for TimeWarpScreen {
 
 pub struct TimePanel {
     time: Time,
-    pub composite: ezgui::Composite,
+    pub composite: Composite,
 }
 
 impl TimePanel {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> TimePanel {
         TimePanel {
             time: ui.primary.sim.time(),
-            composite: ezgui::Composite::new(
+            composite: Composite::new(
                 ManagedWidget::col(vec![
                     ManagedWidget::row(vec![ManagedWidget::draw_text(
                         ctx,

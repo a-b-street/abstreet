@@ -1,5 +1,6 @@
 use crate::common::Overlays;
 use crate::game::{Transition, WizardState};
+use crate::managed::WrappedComposite;
 use crate::sandbox::gameplay::{
     challenge_controller, cmp_duration_shorter, manage_overlays, GameplayMode, GameplayState,
 };
@@ -21,7 +22,7 @@ impl OptimizeBus {
         route_name: String,
         ctx: &mut EventCtx,
         ui: &UI,
-    ) -> (crate::managed::Composite, Box<dyn GameplayState>) {
+    ) -> (WrappedComposite, Box<dyn GameplayState>) {
         let route = ui.primary.map.get_bus_route(&route_name).unwrap();
         (
             challenge_controller(

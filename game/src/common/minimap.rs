@@ -1,5 +1,6 @@
 use crate::common::{navigate, shortcuts, Overlays, Warping};
 use crate::game::{Transition, WizardState};
+use crate::managed::WrappedComposite;
 use crate::render::{AgentColorScheme, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::UI;
 use abstutil::clamp;
@@ -322,7 +323,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, acs: &AgentColorScheme, zoom_lvl: usiz
             make_viz_panel(ctx, acs),
             ManagedWidget::col(zoom_col).margin(5).centered(),
             ManagedWidget::col(vec![
-                ManagedWidget::row(vec![crate::managed::Composite::svg_button(
+                ManagedWidget::row(vec![WrappedComposite::svg_button(
                     ctx,
                     "assets/minimap/up.svg",
                     "pan up",
@@ -331,7 +332,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, acs: &AgentColorScheme, zoom_lvl: usiz
                 .margin(5)
                 .centered(),
                 ManagedWidget::row(vec![
-                    ManagedWidget::col(vec![crate::managed::Composite::svg_button(
+                    ManagedWidget::col(vec![WrappedComposite::svg_button(
                         ctx,
                         "assets/minimap/left.svg",
                         "pan left",
@@ -340,7 +341,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, acs: &AgentColorScheme, zoom_lvl: usiz
                     .margin(5)
                     .centered(),
                     ManagedWidget::filler("minimap"),
-                    ManagedWidget::col(vec![crate::managed::Composite::svg_button(
+                    ManagedWidget::col(vec![WrappedComposite::svg_button(
                         ctx,
                         "assets/minimap/right.svg",
                         "pan right",
@@ -349,7 +350,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, acs: &AgentColorScheme, zoom_lvl: usiz
                     .margin(5)
                     .centered(),
                 ]),
-                ManagedWidget::row(vec![crate::managed::Composite::svg_button(
+                ManagedWidget::row(vec![WrappedComposite::svg_button(
                     ctx,
                     "assets/minimap/down.svg",
                     "pan down",
@@ -376,14 +377,9 @@ fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
     let radius = 15.0;
     let mut col = vec![
         ManagedWidget::row(vec![
-            crate::managed::Composite::svg_button(
-                ctx,
-                "assets/tools/search.svg",
-                "search",
-                hotkey(Key::K),
-            )
-            .margin(10),
-            crate::managed::Composite::svg_button(
+            WrappedComposite::svg_button(ctx, "assets/tools/search.svg", "search", hotkey(Key::K))
+                .margin(10),
+            WrappedComposite::svg_button(
                 ctx,
                 "assets/tools/shortcuts.svg",
                 "shortcuts",
@@ -391,7 +387,7 @@ fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
             )
             .margin(10),
             if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL {
-                crate::managed::Composite::svg_button(
+                WrappedComposite::svg_button(
                     ctx,
                     "assets/minimap/zoom_out_fully.svg",
                     "zoom out fully",
@@ -399,7 +395,7 @@ fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
                 )
                 .margin(10)
             } else {
-                crate::managed::Composite::svg_button(
+                WrappedComposite::svg_button(
                     ctx,
                     "assets/minimap/zoom_in_fully.svg",
                     "zoom in fully",
@@ -407,7 +403,7 @@ fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
                 )
                 .margin(10)
             },
-            crate::managed::Composite::svg_button(
+            WrappedComposite::svg_button(
                 ctx,
                 "assets/tools/layers.svg",
                 "change overlay",

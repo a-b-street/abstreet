@@ -1,14 +1,14 @@
 use crate::abtest::setup::PickABTest;
 use crate::challenges::challenges_picker;
 use crate::game::{State, Transition};
-use crate::managed::{Composite, ManagedGUIState, Outcome};
+use crate::managed::{ManagedGUIState, WrappedComposite, WrappedOutcome};
 use crate::mission::MissionEditMode;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::tutorial::TutorialMode;
 use crate::ui::UI;
 use ezgui::{
-    hotkey, Button, Color, EventCtx, EventLoopMode, GfxCtx, JustDraw, Key, Line, ManagedWidget,
-    Text,
+    hotkey, Button, Color, Composite, EventCtx, EventLoopMode, GfxCtx, JustDraw, Key, Line,
+    ManagedWidget, Text,
 };
 use geom::{Duration, Line, Pt2D, Speed};
 use map_model::Map;
@@ -17,7 +17,7 @@ use rand_xorshift::XorShiftRng;
 use std::time::Instant;
 
 pub struct TitleScreen {
-    composite: Composite,
+    composite: WrappedComposite,
     screensaver: Screensaver,
     rng: XorShiftRng,
 }
@@ -26,8 +26,8 @@ impl TitleScreen {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> TitleScreen {
         let mut rng = ui.primary.current_flags.sim_flags.make_rng();
         TitleScreen {
-            composite: Composite::new(
-                ezgui::Composite::new(
+            composite: WrappedComposite::new(
+                Composite::new(
                     ManagedWidget::col(vec![
                         ManagedWidget::just_draw(JustDraw::image("assets/pregame/logo.png", ctx))
                             .bg(Color::GREEN.alpha(0.2)),
@@ -59,8 +59,8 @@ impl TitleScreen {
 impl State for TitleScreen {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         match self.composite.event(ctx, ui) {
-            Some(Outcome::Transition(t)) => t,
-            Some(Outcome::Clicked(_)) => unreachable!(),
+            Some(WrappedOutcome::Transition(t)) => t,
+            Some(WrappedOutcome::Clicked(_)) => unreachable!(),
             None => {
                 self.screensaver.update(&mut self.rng, ctx, &ui.primary.map);
                 Transition::KeepWithMode(EventLoopMode::Animation)
@@ -81,19 +81,19 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
             ManagedWidget::draw_text(ctx, txt)
         }]),
         ManagedWidget::row(vec![
-            Composite::svg_button(
+            WrappedComposite::svg_button(
                 ctx,
                 "assets/pregame/tutorial.svg",
                 "Tutorial",
                 hotkey(Key::T),
             ),
-            Composite::svg_button(
+            WrappedComposite::svg_button(
                 ctx,
                 "assets/pregame/sandbox.svg",
                 "Sandbox mode",
                 hotkey(Key::S),
             ),
-            Composite::img_button(
+            WrappedComposite::img_button(
                 ctx,
                 "assets/pregame/challenges.png",
                 hotkey(Key::C),
@@ -104,15 +104,20 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
     ];
     if ui.opts.dev {
         col.push(ManagedWidget::row(vec![
-            Composite::text_button(ctx, "INTERNAL DEV TOOLS", hotkey(Key::M)),
-            Composite::text_button(ctx, "INTERNAL A/B TEST MODE", hotkey(Key::A)),
+            WrappedComposite::text_button(ctx, "INTERNAL DEV TOOLS", hotkey(Key::M)),
+            WrappedComposite::text_button(ctx, "INTERNAL A/B TEST MODE", hotkey(Key::A)),
         ]));
     }
-    col.push(Composite::text_button(ctx, "About A/B Street", None));
+    col.push(WrappedComposite::text_button(ctx, "About A/B Street", None));
 
-    let mut c = Composite::new(
-        ezgui::Composite::new(ManagedWidget::row(vec![
-            Composite::svg_button(ctx, "assets/pregame/quit.svg", "quit", hotkey(Key::Escape)),
+    let mut c = WrappedComposite::new(
+        Composite::new(ManagedWidget::row(vec![
+            WrappedComposite::svg_button(
+                ctx,
+                "assets/pregame/quit.svg",
+                "quit",
+                hotkey(Key::Escape),
+            ),
             ManagedWidget::col(col).centered(),
         ]))
         .build(ctx),
@@ -171,7 +176,7 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
 fn about(ctx: &mut EventCtx) -> Box<dyn State> {
     let mut col = Vec::new();
 
-    col.push(Composite::svg_button(
+    col.push(WrappedComposite::svg_button(
         ctx,
         "assets/pregame/back.svg",
         "back",
@@ -218,7 +223,7 @@ fn about(ctx: &mut EventCtx) -> Box<dyn State> {
     col.push(ManagedWidget::draw_text(ctx, txt));
 
     ManagedGUIState::fullscreen(
-        Composite::new(ezgui::Composite::new(ManagedWidget::col(col)).build(ctx))
+        WrappedComposite::new(Composite::new(ManagedWidget::col(col)).build(ctx))
             .cb("back", Box::new(|_, _| Some(Transition::Pop))),
     )
 }

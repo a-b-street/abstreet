@@ -1,30 +1,33 @@
 use crate::common::CommonState;
 use crate::game::{State, Transition};
 use crate::ui::UI;
-use ezgui::{Button, Color, EventCtx, GfxCtx, Line, ManagedWidget, MultiKey, RewriteColor, Text};
+use ezgui::{
+    Button, Color, Composite, EventCtx, GfxCtx, Line, ManagedWidget, MultiKey, Outcome,
+    RewriteColor, Text,
+};
 use std::collections::HashMap;
 
 pub type Callback = Box<dyn Fn(&mut EventCtx, &mut UI) -> Option<Transition>>;
 
-pub enum Outcome {
+pub enum WrappedOutcome {
     Transition(Transition),
     Clicked(String),
 }
 
-pub struct Composite {
-    pub inner: ezgui::Composite,
+pub struct WrappedComposite {
+    pub inner: Composite,
     callbacks: HashMap<String, Callback>,
 }
 
-impl Composite {
-    pub fn new(inner: ezgui::Composite) -> Composite {
-        Composite {
+impl WrappedComposite {
+    pub fn new(inner: Composite) -> WrappedComposite {
+        WrappedComposite {
             inner,
             callbacks: HashMap::new(),
         }
     }
 
-    pub fn cb(mut self, action: &str, cb: Callback) -> Composite {
+    pub fn cb(mut self, action: &str, cb: Callback) -> WrappedComposite {
         if !self.inner.get_all_click_actions().contains(action) {
             panic!("No button produces action {}", action);
         }
@@ -33,14 +36,14 @@ impl Composite {
         self
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Outcome> {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<WrappedOutcome> {
         match self.inner.event(ctx)? {
-            ezgui::Outcome::Clicked(x) => {
+            Outcome::Clicked(x) => {
                 if let Some(ref cb) = self.callbacks.get(&x) {
                     let t = (cb)(ctx, ui)?;
-                    Some(Outcome::Transition(t))
+                    Some(WrappedOutcome::Transition(t))
                 } else {
-                    Some(Outcome::Clicked(x))
+                    Some(WrappedOutcome::Clicked(x))
                 }
             }
         }
@@ -51,7 +54,7 @@ impl Composite {
     }
 }
 
-impl Composite {
+impl WrappedComposite {
     pub fn img_button(
         ctx: &EventCtx,
         filename: &str,
@@ -77,7 +80,7 @@ impl Composite {
     }
 
     pub fn text_button(ctx: &EventCtx, label: &str, hotkey: Option<MultiKey>) -> ManagedWidget {
-        Composite::detailed_text_button(
+        WrappedComposite::detailed_text_button(
             ctx,
             Text::from(Line(label).fg(Color::BLACK)),
             hotkey,
@@ -104,19 +107,19 @@ impl Composite {
 }
 
 pub struct ManagedGUIState {
-    composite: Composite,
+    composite: WrappedComposite,
     fullscreen: bool,
 }
 
 impl ManagedGUIState {
-    pub fn fullscreen(composite: Composite) -> Box<dyn State> {
+    pub fn fullscreen(composite: WrappedComposite) -> Box<dyn State> {
         Box::new(ManagedGUIState {
             composite,
             fullscreen: true,
         })
     }
 
-    pub fn over_map(composite: Composite) -> Box<dyn State> {
+    pub fn over_map(composite: WrappedComposite) -> Box<dyn State> {
         Box::new(ManagedGUIState {
             composite,
             fullscreen: false,
@@ -127,8 +130,8 @@ impl ManagedGUIState {
 impl State for ManagedGUIState {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         match self.composite.event(ctx, ui) {
-            Some(Outcome::Transition(t)) => t,
-            Some(Outcome::Clicked(x)) => panic!(
+            Some(WrappedOutcome::Transition(t)) => t,
+            Some(WrappedOutcome::Clicked(x)) => panic!(
                 "Can't have a button {} without a callback in ManagedGUIState",
                 x
             ),

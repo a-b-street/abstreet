@@ -2,15 +2,15 @@ use crate::common::CommonState;
 use crate::edit::apply_map_edits;
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::plain_list_names;
-use crate::managed::{Composite, Outcome};
+use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::options::TrafficSignalStyle;
 use crate::render::{draw_signal_phase, DrawOptions, DrawTurnGroup, BIG_ARROW_THICKNESS};
 use crate::sandbox::{spawn_agents_around, SpeedControls, TimePanel};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Button, Choice, Color, DrawBoth, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, ManagedWidget, ModalMenu, RewriteColor, Text,
+    hotkey, lctrl, Button, Choice, Color, Composite, DrawBoth, EventCtx, EventLoopMode, GeomBatch,
+    GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget, ModalMenu, Outcome, RewriteColor, Text,
     VerticalAlignment,
 };
 use geom::{Duration, Polygon};
@@ -22,8 +22,8 @@ use std::collections::BTreeSet;
 pub struct TrafficSignalEditor {
     i: IntersectionID,
     current_phase: usize,
-    composite: ezgui::Composite,
-    top_panel: ezgui::Composite,
+    composite: Composite,
+    top_panel: Composite,
 
     groups: Vec<DrawTurnGroup>,
     group_selected: Option<TurnGroupID>,
@@ -81,7 +81,7 @@ impl State for TrafficSignalEditor {
         }
 
         match self.composite.event(ctx) {
-            Some(ezgui::Outcome::Clicked(x)) => match x {
+            Some(Outcome::Clicked(x)) => match x {
                 x if x == "Edit offset" => {
                     return Transition::Push(change_offset(orig_signal.offset));
                 }
@@ -233,7 +233,7 @@ impl State for TrafficSignalEditor {
         }
 
         match self.top_panel.event(ctx) {
-            Some(ezgui::Outcome::Clicked(x)) => match x.as_ref() {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "Finish" => {
                     return check_for_missing_groups(
                         orig_signal.clone(),
@@ -347,12 +347,12 @@ impl State for TrafficSignalEditor {
     }
 }
 
-fn make_top_panel(can_undo: bool, can_redo: bool, ctx: &mut EventCtx) -> ezgui::Composite {
+fn make_top_panel(can_undo: bool, can_redo: bool, ctx: &mut EventCtx) -> Composite {
     let row = vec![
-        Composite::text_button(ctx, "Finish", hotkey(Key::Escape)),
-        Composite::text_button(ctx, "Preview", lctrl(Key::P)),
+        WrappedComposite::text_button(ctx, "Finish", hotkey(Key::Escape)),
+        WrappedComposite::text_button(ctx, "Preview", lctrl(Key::P)),
         if can_undo {
-            Composite::svg_button(ctx, "assets/tools/undo.svg", "undo", lctrl(Key::Z))
+            WrappedComposite::svg_button(ctx, "assets/tools/undo.svg", "undo", lctrl(Key::Z))
         } else {
             ManagedWidget::draw_svg_transform(
                 ctx,
@@ -361,7 +361,7 @@ fn make_top_panel(can_undo: bool, can_redo: bool, ctx: &mut EventCtx) -> ezgui::
             )
         },
         if can_redo {
-            Composite::svg_button(
+            WrappedComposite::svg_button(
                 ctx,
                 "assets/tools/redo.svg",
                 "redo",
@@ -376,17 +376,12 @@ fn make_top_panel(can_undo: bool, can_redo: bool, ctx: &mut EventCtx) -> ezgui::
             )
         },
     ];
-    ezgui::Composite::new(ManagedWidget::row(row).bg(Color::hex("#545454")))
+    Composite::new(ManagedWidget::row(row).bg(Color::hex("#545454")))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx)
 }
 
-fn make_diagram(
-    i: IntersectionID,
-    selected: usize,
-    ui: &UI,
-    ctx: &mut EventCtx,
-) -> ezgui::Composite {
+fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx) -> Composite {
     // Slightly inaccurate -- the turn rendering may slightly exceed the intersection polygon --
     // but this is close enough.
     let bounds = ui.primary.map.get_i(i).polygon.get_bounds();
@@ -414,10 +409,10 @@ fn make_diagram(
             txt.add(Line(format!("One cycle lasts {}", signal.cycle_length())));
             txt
         }),
-        Composite::text_button(ctx, "Edit offset", hotkey(Key::O)),
+        WrappedComposite::text_button(ctx, "Edit offset", hotkey(Key::O)),
         // TODO Icons
-        Composite::text_button(ctx, "Reset to default", hotkey(Key::R)),
-        Composite::text_button(ctx, "Use preset", hotkey(Key::P)),
+        WrappedComposite::text_button(ctx, "Reset to default", hotkey(Key::R)),
+        WrappedComposite::text_button(ctx, "Use preset", hotkey(Key::P)),
     ];
     let has_sidewalks = ui
         .primary
@@ -426,14 +421,18 @@ fn make_diagram(
         .iter()
         .any(|t| t.between_sidewalks());
     if has_sidewalks {
-        col.push(Composite::text_button(ctx, "Make all-walk", hotkey(Key::B)));
+        col.push(WrappedComposite::text_button(
+            ctx,
+            "Make all-walk",
+            hotkey(Key::B),
+        ));
     }
 
     for (idx, phase) in signal.phases.iter().enumerate() {
         let mut row = vec![
             ManagedWidget::draw_text(ctx, Text::from(Line(format!("#{}", idx + 1)))),
             ManagedWidget::draw_text(ctx, Text::from(Line(phase.duration.to_string()))),
-            Composite::svg_button(
+            WrappedComposite::svg_button(
                 ctx,
                 "assets/tools/edit.svg",
                 &format!("change duration of #{}", idx + 1),
@@ -446,7 +445,7 @@ fn make_diagram(
         ];
         if signal.phases.len() > 1 {
             // TODO Trash can icon
-            row.push(Composite::text_button(
+            row.push(WrappedComposite::text_button(
                 ctx,
                 &format!("delete phase #{}", idx + 1),
                 if selected == idx {
@@ -491,7 +490,7 @@ fn make_diagram(
 
         let mut move_phase = Vec::new();
         if idx != 0 {
-            move_phase.push(Composite::detailed_text_button(
+            move_phase.push(WrappedComposite::detailed_text_button(
                 ctx,
                 Text::from(Line("↑").fg(Color::BLACK)),
                 if selected == idx {
@@ -503,7 +502,7 @@ fn make_diagram(
             ));
         }
         if idx != signal.phases.len() - 1 {
-            move_phase.push(Composite::detailed_text_button(
+            move_phase.push(WrappedComposite::detailed_text_button(
                 ctx,
                 Text::from(Line("↓").fg(Color::BLACK)),
                 if selected == idx {
@@ -526,14 +525,14 @@ fn make_diagram(
             .margin(5),
             ManagedWidget::col(move_phase),
         ]));
-        col.push(Composite::text_button(
+        col.push(WrappedComposite::text_button(
             ctx,
             &format!("add new phase after #{}", idx + 1),
             None,
         ));
     }
 
-    ezgui::Composite::new(ManagedWidget::col(col).bg(Color::hex("#545454")))
+    Composite::new(ManagedWidget::col(col).bg(Color::hex("#545454")))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .max_size_percent(30, 90)
         .build(ctx)
@@ -626,7 +625,7 @@ fn change_preset(i: IntersectionID) -> Box<dyn State> {
 
 fn check_for_missing_groups(
     mut signal: ControlTrafficSignal,
-    composite: &mut ezgui::Composite,
+    composite: &mut Composite,
     ui: &mut UI,
     ctx: &mut EventCtx,
 ) -> Transition {
@@ -747,10 +746,10 @@ impl State for PreviewTrafficSignal {
         }
         self.time_panel.event(ctx, ui);
         match self.speed.event(ctx, ui) {
-            Some(Outcome::Transition(t)) => {
+            Some(WrappedOutcome::Transition(t)) => {
                 return t;
             }
-            Some(Outcome::Clicked(x)) => match x {
+            Some(WrappedOutcome::Clicked(x)) => match x {
                 x if x == "reset to midnight" => {
                     ui.primary.sim = self.orig_sim.clone();
                     // TODO drawmap
