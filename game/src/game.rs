@@ -39,26 +39,26 @@ impl GUI for Game {
         self.ui.per_obj.reset();
 
         let transition = self.states.last_mut().unwrap().event(ctx, &mut self.ui);
-        let (ev_mode, new_state) = match transition {
-            Transition::Keep => (EventLoopMode::InputOnly, false),
-            Transition::KeepWithMode(evmode) => (evmode, false),
+        // If we fall through, there's a new state that we need to wakeup.
+        match transition {
+            Transition::Keep => {
+                return EventLoopMode::InputOnly;
+            }
+            Transition::KeepWithMode(evmode) => return evmode,
             Transition::Pop => {
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
                 if self.states.is_empty() {
                     self.before_quit(ctx.canvas);
                     std::process::exit(0);
                 }
-                (EventLoopMode::InputOnly, true)
             }
             Transition::PopWithData(cb) => {
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
                 cb(self.states.last_mut().unwrap(), &mut self.ui, ctx);
-                (EventLoopMode::InputOnly, true)
             }
             Transition::PopTwice => {
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
-                (EventLoopMode::InputOnly, true)
             }
             Transition::Push(state) => {
                 self.states
@@ -66,26 +66,22 @@ impl GUI for Game {
                     .unwrap()
                     .on_suspend(ctx, &mut self.ui);
                 self.states.push(state);
-                (EventLoopMode::InputOnly, true)
             }
             Transition::Replace(state) => {
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
                 self.states.push(state);
-                (EventLoopMode::InputOnly, true)
             }
             Transition::PopThenReplace(state) => {
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
                 assert!(!self.states.is_empty());
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
                 self.states.push(state);
-                (EventLoopMode::InputOnly, true)
             }
             Transition::Clear(state) => {
                 while !self.states.is_empty() {
                     self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
                 }
                 self.states.push(state);
-                (EventLoopMode::InputOnly, true)
             }
             Transition::ApplyObjectAction(action) => {
                 self.ui.per_obj.action_chosen(action);
@@ -102,19 +98,10 @@ impl GUI for Game {
             }
         };
         self.ui.per_obj.assert_chosen_used();
-        if new_state {
-            // Let the new state initialize with a fake event.
-            match ctx.fake_mouseover(|ctx| self.states.last_mut().unwrap().event(ctx, &mut self.ui))
-            {
-                Transition::Keep => EventLoopMode::InputOnly,
-                Transition::KeepWithMode(m) => m,
-                // TODO Not happy about this, because the stack trace is useless. I don't think
-                // anything should ever cause this to happen currently...
-                _ => panic!("Waking up a state yielded unexpected transition"),
-            }
-        } else {
-            ev_mode
-        }
+        // Let the new state initialize with a fake event. Usually these just return
+        // Transition::Keep, but nothing stops them from doing whatever. (For example, entering
+        // tutorial mode immediately pushes on a Warper.) So just recurse.
+        ctx.fake_mouseover(|ctx| self.event(ctx))
     }
 
     fn draw(&self, g: &mut GfxCtx) {
