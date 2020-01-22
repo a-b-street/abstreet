@@ -11,9 +11,8 @@ use ezgui::{
     Line, ManagedWidget, Outcome, ScreenPt, Text, VerticalAlignment,
 };
 use geom::{Distance, Duration, PolyLine, Polygon, Pt2D, Time};
-use map_model::{BuildingID, IntersectionID, LaneID};
+use map_model::{BuildingID, IntersectionID};
 use sim::{Scenario, TripID, TripResult};
-use std::collections::HashSet;
 
 pub struct TutorialMode {
     state: TutorialState,
@@ -28,7 +27,11 @@ pub struct TutorialMode {
     minimap: Option<Minimap>,
 
     // Goofy state for just some stages.
-    hit_roads: HashSet<LaneID>,
+    inspected_lane: bool,
+    inspected_building: bool,
+    inspected_intersection: bool,
+    was_paused: bool,
+    num_pauses: usize,
     warped: bool,
 }
 
@@ -153,26 +156,62 @@ impl State for TutorialMode {
                 self.state.next();
                 return Transition::Replace(self.state.make_state(ctx, ui));
             }
-        } else if interact == "Go hit 3 different lanes on one road" {
-            if let Some(ID::Lane(l)) = ui.primary.current_selection {
-                if !self.hit_roads.contains(&l) && ui.per_obj.action(ctx, Key::H, "hit the road") {
-                    self.hit_roads.insert(l);
-                    if self.hit_roads.len() == 3 {
-                        self.state.next();
-                        return Transition::Replace(self.state.make_state(ctx, ui));
-                    } else {
+        } else if interact == "Inspect a lane, intersection, and building" {
+            match ui.primary.current_selection {
+                Some(ID::Lane(_)) => {
+                    if !self.inspected_lane && ui.per_obj.action(ctx, Key::I, "inspect the lane") {
+                        self.inspected_lane = true;
                         return Transition::Push(msg(
-                            "You hit the road",
-                            vec![format!(
-                                "Ouch! Poor road. {} more",
-                                3 - self.hit_roads.len()
-                            )],
+                            "Inspection",
+                            vec!["Yup, it's a lane belonging to a road, alright."],
                         ));
                     }
                 }
+                Some(ID::Building(_)) => {
+                    if !self.inspected_building
+                        && ui.per_obj.action(ctx, Key::I, "inspect the building")
+                    {
+                        self.inspected_building = true;
+                        return Transition::Push(msg(
+                            "Inspection",
+                            vec![
+                                "Knock knock, anyone home?",
+                                "Did you know: most trips begin and end at a building.",
+                            ],
+                        ));
+                    }
+                }
+                Some(ID::Intersection(_)) => {
+                    if !self.inspected_intersection
+                        && ui.per_obj.action(ctx, Key::I, "inspect the intersection")
+                    {
+                        self.inspected_intersection = true;
+                        return Transition::Push(msg(
+                            "Inspection",
+                            vec!["Insert clever quip about intersections here"],
+                        ));
+                    }
+                }
+                _ => {}
+            }
+            if self.inspected_lane && self.inspected_building && self.inspected_intersection {
+                self.state.next();
+                return Transition::Replace(self.state.make_state(ctx, ui));
             }
         } else if interact == "Wait until 5pm" {
             if ui.primary.sim.time() >= Time::START_OF_DAY + Duration::hours(17) {
+                self.state.next();
+                return Transition::Replace(self.state.make_state(ctx, ui));
+            }
+        } else if interact == "Pause/resume 3 times" {
+            if self.was_paused && !self.speed.as_ref().unwrap().is_paused() {
+                self.was_paused = false;
+            }
+            if !self.was_paused && self.speed.as_ref().unwrap().is_paused() {
+                self.num_pauses += 1;
+                self.was_paused = true;
+            }
+            if self.num_pauses == 3 {
                 self.state.next();
                 return Transition::Replace(self.state.make_state(ctx, ui));
             }
@@ -498,6 +537,15 @@ impl TutorialState {
             ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
         }
 
+        // Ew, this is brittle.
+        let mut num_interacts = 0;
+        // Don't count the current.
+        for stage in &self.stages[0..self.current] {
+            if let Stage::Interact { .. } = stage {
+                num_interacts += 1;
+            }
+        }
+
         Box::new(TutorialMode {
             state: self.clone(),
 
@@ -529,35 +577,39 @@ impl TutorialState {
                 ),
                 Stage::Interact { .. } => None,
             },
-            common: if self.current >= 4 {
+            common: if num_interacts >= 1 {
                 Some(CommonState::new())
             } else {
                 None
             },
-            time_panel: if self.current >= 6 {
+            time_panel: if num_interacts >= 2 {
                 Some(TimePanel::new(ctx, ui))
             } else {
                 None
             },
-            speed: if self.current >= 6 {
+            speed: if num_interacts >= 2 {
                 let mut speed = SpeedControls::new(ctx);
                 speed.pause(ctx);
                 Some(speed)
             } else {
                 None
             },
-            agent_meter: if self.current >= 8 {
+            agent_meter: if num_interacts >= 4 {
                 Some(AgentMeter::new(ctx, ui))
             } else {
                 None
             },
-            minimap: if self.current >= 11 {
+            minimap: if num_interacts >= 5 {
                 Some(Minimap::new(ctx, ui))
             } else {
                 None
             },
 
-            hit_roads: HashSet::new(),
+            inspected_lane: false,
+            inspected_building: false,
+            inspected_intersection: false,
+            was_paused: true,
+            num_pauses: 0,
             warped: false,
         })
     }
@@ -586,6 +638,7 @@ impl TutorialState {
                 "WHOA THE MONTLAKE MARKET IS ON FIRE!",
                 "GO CLICK ON IT, QUICK!",
             ]),
+            Stage::msg(vec!["(Hint: Look around for an unusually red building)"]),
             // TODO Just zoom in sufficiently on it, maybe don't even click it yet.
             Stage::interact("Put out the fire at the Montlake Market"),
         ]);
@@ -594,22 +647,28 @@ impl TutorialState {
             Stage::msg(vec![
                 "Er, sorry about that.",
                 "Just a little joke we like to play on the new recruits.",
+            ]),
+            Stage::msg(vec![
                 "Now, let's learn how to inspect and interact with objects in the map.",
                 "Select something, then click on it.",
                 "",
                 "HINT: The bottom of the screen shows keyboard shortcuts.",
-                "",
-                "Hmm, almost time to hit the road.",
             ])
             .arrow(ScreenPt::new(
                 0.5 * ctx.canvas.window_width,
                 0.97 * ctx.canvas.window_height,
             )),
-            Stage::interact("Go hit 3 different lanes on one road"),
+            Stage::msg(vec![
+                "I wonder what kind of information is available for different objects? Let's find \
+                 out!",
+            ]),
+            Stage::interact("Inspect a lane, intersection, and building"),
         ]);
 
         stages.extend(vec![
             Stage::msg(vec![
+                "Inspection complete!",
+                "",
                 "You'll work day and night, watching traffic patterns unfold.",
             ])
             .arrow(time.composite.center_of_panel()),
@@ -621,10 +680,33 @@ impl TutorialState {
                 .arrow(speed.composite.inner.center_of("step forwards 1 hour")),
             Stage::msg(vec!["And reset to the beginning of the day"])
                 .arrow(speed.composite.inner.center_of("reset to midnight")),
+            Stage::msg(vec!["Let's try these controls out. Just wait until 5pm."]),
             Stage::interact("Wait until 5pm"),
         ]);
 
         stages.extend(vec![
+            Stage::msg(vec!["Whew, that took a while! (Hopefully not though..."]),
+            Stage::msg(vec![
+                "You might've figured it out already,",
+                "But you'll be pausing/resuming time VERY frequently",
+            ])
+            .arrow(speed.composite.inner.center_of("pause")),
+            Stage::msg(vec![
+                "Again, most controls have a key binding shown at the bottom of the screen.",
+                "Press SPACE to pause/resume time.",
+            ])
+            .arrow(ScreenPt::new(
+                0.5 * ctx.canvas.window_width,
+                0.97 * ctx.canvas.window_height,
+            )),
+            Stage::msg(vec![
+                "Just reassure me and pause/resume time a few times, alright?",
+            ]),
+            Stage::interact("Pause/resume 3 times"),
+        ]);
+
+        stages.extend(vec![
+            Stage::msg(vec!["Alright alright, no need to wear out your spacebar."]),
             // Don't center on where the agents are, be a little offset
             Stage::msg(vec![
                 "Oh look, some people appeared!",
@@ -641,16 +723,20 @@ impl TutorialState {
                 "Why don't you follow the first northbound car to their destination,",
                 "and make sure whoever gets out makes it inside their house safely?",
             ])
-            .spawn_around(IntersectionID(247)),
+            .spawn_around(IntersectionID(247))
+            .warp_to(ID::Building(BuildingID(611))),
             // TODO Make it clear they can reset
             // TODO The time controls are too jumpy; can we automatically slow down when
             // interesting stuff happens?
             Stage::interact("Escort the first northbound car to their home")
-                .spawn_around(IntersectionID(247)),
+                .spawn_around(IntersectionID(247))
+                .warp_to(ID::Building(BuildingID(611))),
         ]);
 
         stages.extend(vec![
             Stage::msg(vec![
+                "Escort mission complete.",
+                "",
                 "The map is quite large, so to help you orient",
                 "the minimap shows you an overview of all activity.",
             ])
@@ -662,6 +748,11 @@ impl TutorialState {
                 .arrow(minimap.composite.center_of("change agent colorscheme")),
             Stage::msg(vec!["Apply different heatmap layers to the map"])
                 .arrow(minimap.composite.center_of("change overlay")),
+            Stage::msg(vec![
+                "Let's try these out.",
+                "There are lots of cars parked everywhere.",
+                "Can you find a road that's almost out of parking spots?",
+            ]),
             Stage::interact("Find a road with almost no parking spots available").spawn_randomly(),
         ]);
 
