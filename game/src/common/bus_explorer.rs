@@ -1,7 +1,5 @@
-use crate::common::{Colorer, ColorerBuilder};
+use crate::common::{Colorer, ColorerBuilder, Overlays};
 use crate::game::{State, Transition, WizardState};
-use crate::sandbox::overlays::Overlays;
-use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use ezgui::{Choice, Color, EventCtx, GeomBatch, GfxCtx, Line, Text};
 use geom::{Circle, Distance, Pt2D};
@@ -81,50 +79,48 @@ impl ShowBusRoute {
         }
         batch.draw(g);
     }
-}
 
-pub fn make_route_picker(routes: Vec<BusRouteID>, from_sandbox_mode: bool) -> Box<dyn State> {
-    let show_route = "show the route";
-    let delays = "delays between stops";
-    let passengers = "passengers waiting at each stop";
+    pub fn make_route_picker(routes: Vec<BusRouteID>, from_sandbox_mode: bool) -> Box<dyn State> {
+        let show_route = "show the route";
+        let delays = "delays between stops";
+        let passengers = "passengers waiting at each stop";
 
-    WizardState::new(Box::new(move |wiz, ctx, ui| {
-        let mut wizard = wiz.wrap(ctx);
+        WizardState::new(Box::new(move |wiz, ctx, ui| {
+            let mut wizard = wiz.wrap(ctx);
 
-        let id = if routes.len() == 1 {
-            routes[0]
-        } else {
-            wizard
-                .choose("Explore which bus route?", || {
-                    let mut choices: Vec<(&String, BusRouteID)> = routes
-                        .iter()
-                        .map(|id| (&ui.primary.map.get_br(*id).name, *id))
-                        .collect();
-                    // TODO Sort first by length, then lexicographically
-                    choices.sort_by_key(|(name, _)| name.to_string());
-                    choices
-                        .into_iter()
-                        .map(|(name, id)| Choice::new(name, id))
-                        .collect()
-                })?
-                .1
-        };
-        let choice = wizard.choose_string("What do you want to see about this route?", || {
-            vec![show_route, delays, passengers]
-        })?;
-        let cb: Box<dyn FnOnce(&mut Box<dyn State>, &mut UI, &mut EventCtx)> =
-            Box::new(move |state, ui, ctx| {
-                state.downcast_mut::<SandboxMode>().unwrap().overlay = match choice {
-                    x if x == show_route => Overlays::show_bus_route(id, ctx, ui),
-                    x if x == delays => Overlays::delays_over_time(id, ctx, ui),
-                    x if x == passengers => Overlays::bus_passengers(id, ctx, ui),
-                    _ => unreachable!(),
-                };
-            });
-        if from_sandbox_mode {
-            Some(Transition::PopWithData(cb))
-        } else {
-            Some(Transition::PopTwiceWithData(cb))
-        }
-    }))
+            let id = if routes.len() == 1 {
+                routes[0]
+            } else {
+                wizard
+                    .choose("Explore which bus route?", || {
+                        let mut choices: Vec<(&String, BusRouteID)> = routes
+                            .iter()
+                            .map(|id| (&ui.primary.map.get_br(*id).name, *id))
+                            .collect();
+                        // TODO Sort first by length, then lexicographically
+                        choices.sort_by_key(|(name, _)| name.to_string());
+                        choices
+                            .into_iter()
+                            .map(|(name, id)| Choice::new(name, id))
+                            .collect()
+                    })?
+                    .1
+            };
+            let choice = wizard
+                .choose_string("What do you want to see about this route?", || {
+                    vec![show_route, delays, passengers]
+                })?;
+            ui.overlay = match choice {
+                x if x == show_route => Overlays::show_bus_route(id, ctx, ui),
+                x if x == delays => Overlays::delays_over_time(id, ctx, ui),
+                x if x == passengers => Overlays::bus_passengers(id, ctx, ui),
+                _ => unreachable!(),
+            };
+            if from_sandbox_mode {
+                Some(Transition::Pop)
+            } else {
+                Some(Transition::PopTwice)
+            }
+        }))
+    }
 }

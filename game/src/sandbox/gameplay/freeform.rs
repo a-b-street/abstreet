@@ -3,7 +3,6 @@ use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::Composite;
 use crate::sandbox::gameplay::{change_scenario, spawner, GameplayMode, GameplayState};
-use crate::sandbox::overlays::Overlays;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use ezgui::{
@@ -32,7 +31,7 @@ impl Freeform {
 }
 
 impl GameplayState for Freeform {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI, _: &mut Overlays) -> Option<Transition> {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
         if let Some(new_state) = spawner::AgentSpawner::new(ctx, ui) {
             return Some(Transition::Push(new_state));
         }

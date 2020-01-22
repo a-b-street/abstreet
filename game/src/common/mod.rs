@@ -1,14 +1,18 @@
+mod bus_explorer;
 mod colors;
 mod info;
 mod minimap;
 mod navigate;
+mod overlays;
 mod panels;
 mod shortcuts;
 mod turn_cycler;
 mod warp;
 
+pub use self::bus_explorer::ShowBusRoute;
 pub use self::colors::{ColorLegend, Colorer, ColorerBuilder};
 pub use self::minimap::Minimap;
+pub use self::overlays::Overlays;
 pub use self::panels::tool_panel;
 pub use self::warp::Warping;
 use crate::game::Transition;

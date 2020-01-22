@@ -1,11 +1,8 @@
-mod bus_explorer;
 mod dashboards;
 mod gameplay;
-mod overlays;
 mod speed;
 
-pub use self::overlays::Overlays;
-use crate::common::{tool_panel, CommonState, Minimap};
+use crate::common::{tool_panel, CommonState, Minimap, Overlays, ShowBusRoute};
 use crate::debug::DebugMode;
 use crate::edit::{apply_map_edits, save_edits, EditMode, StopSignEditor, TrafficSignalEditor};
 use crate::game::{State, Transition, WizardState};
@@ -29,7 +26,6 @@ pub struct SandboxMode {
     speed: SpeedControls,
     time_panel: TimePanel,
     agent_meter: AgentMeter,
-    overlay: Overlays,
     gameplay: gameplay::GameplayRunner,
     pub common: CommonState,
     tool_panel: crate::managed::Composite,
@@ -42,7 +38,6 @@ impl SandboxMode {
             speed: SpeedControls::new(ctx),
             time_panel: TimePanel::new(ctx, ui),
             agent_meter: AgentMeter::new(ctx, ui),
-            overlay: Overlays::Inactive,
             common: CommonState::new(),
             tool_panel: tool_panel(ctx),
             minimap: if mode.has_minimap() {
@@ -57,7 +52,7 @@ impl SandboxMode {
 
 impl State for SandboxMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        if let Some(t) = self.gameplay.event(ctx, ui, &mut self.overlay) {
+        if let Some(t) = self.gameplay.event(ctx, ui) {
             return t;
         }
 
@@ -104,7 +99,7 @@ impl State for SandboxMode {
             if ui.primary.map.get_i(i).is_traffic_signal()
                 && ui.per_obj.action(ctx, Key::C, "show current demand")
             {
-                self.overlay = Overlays::intersection_demand(i, ctx, ui);
+                ui.overlay = Overlays::intersection_demand(i, ctx, ui);
             }
             if ui.primary.map.get_i(i).is_traffic_signal()
                 && ui.per_obj.action(ctx, Key::E, "edit traffic signal")
@@ -128,7 +123,7 @@ impl State for SandboxMode {
         if let Some(ID::BusStop(bs)) = ui.primary.current_selection {
             let routes = ui.primary.map.get_routes_serving_stop(bs);
             if ui.per_obj.action(ctx, Key::E, "explore bus route") {
-                return Transition::Push(bus_explorer::make_route_picker(
+                return Transition::Push(ShowBusRoute::make_route_picker(
                     routes.into_iter().map(|r| r.id).collect(),
                     true,
                 ));
@@ -158,7 +153,7 @@ impl State for SandboxMode {
         if let Some(t) = self.common.event(ctx, ui) {
             return t;
         }
-        if let Some(t) = self.overlay.event(ctx, ui) {
+        if let Some(t) = Overlays::update(ctx, ui) {
             return t;
         }
         match self.tool_panel.event(ctx, ui) {
@@ -252,7 +247,7 @@ impl State for SandboxMode {
             &ui.primary.sim,
             &ShowEverything::new(),
         );
-        self.overlay.draw(g);
+        ui.overlay.draw(g);
         self.common.draw(g, ui);
         self.tool_panel.draw(g);
         self.speed.draw(g);
@@ -260,12 +255,16 @@ impl State for SandboxMode {
         self.gameplay.draw(g, ui);
         self.agent_meter.draw(g);
         if let Some(ref m) = self.minimap {
-            m.draw(g, ui, self.overlay.maybe_colorer());
+            m.draw(g, ui);
         }
     }
 
     fn on_suspend(&mut self, ctx: &mut EventCtx, _: &mut UI) {
         self.speed.pause(ctx);
+    }
+
+    fn on_destroy(&mut self, _: &mut EventCtx, ui: &mut UI) {
+        ui.overlay = Overlays::Inactive;
     }
 }
 

@@ -7,11 +7,11 @@ mod play_scenario;
 pub mod spawner;
 
 use crate::challenges;
+use crate::common::Overlays;
 use crate::edit::EditMode;
 use crate::game::{msg, Transition};
 use crate::managed::{Composite, Outcome};
 use crate::render::{AgentColorScheme, InnerAgentColorScheme};
-use crate::sandbox::overlays::Overlays;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Timer};
@@ -46,12 +46,7 @@ pub enum GameplayMode {
 }
 
 pub trait GameplayState: downcast_rs::Downcast {
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        ui: &mut UI,
-        overlays: &mut Overlays,
-    ) -> Option<Transition>;
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition>;
     fn draw(&self, g: &mut GfxCtx, ui: &UI);
 }
 downcast_rs::impl_downcast!(GameplayState);
@@ -194,12 +189,7 @@ impl GameplayRunner {
         }
     }
 
-    pub fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        ui: &mut UI,
-        overlays: &mut Overlays,
-    ) -> Option<Transition> {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
         match self.controller.event(ctx, ui) {
             Some(Outcome::Transition(t)) => {
                 return Some(t);
@@ -207,7 +197,7 @@ impl GameplayRunner {
             Some(Outcome::Clicked(_)) => unreachable!(),
             None => {}
         }
-        self.state.event(ctx, ui, overlays)
+        self.state.event(ctx, ui)
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
@@ -244,9 +234,9 @@ fn change_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<
 fn manage_overlays(
     menu: &mut ModalMenu,
     ctx: &mut EventCtx,
+    ui: &mut UI,
     show: &str,
     hide: &str,
-    overlay: &mut Overlays,
     active_originally: bool,
 ) -> bool {
     // Synchronize menus if needed. Player can change these separately.
@@ -259,7 +249,7 @@ fn manage_overlays(
     if !active_originally && menu.swap_action(show, hide, ctx) {
         true
     } else if active_originally && menu.swap_action(hide, show, ctx) {
-        *overlay = Overlays::Inactive;
+        ui.overlay = Overlays::Inactive;
         false
     } else {
         active_originally

@@ -4,7 +4,6 @@ use crate::render::InnerAgentColorScheme;
 use crate::sandbox::gameplay::{
     challenge_controller, cmp_count_fewer, manage_acs, GameplayMode, GameplayState,
 };
-use crate::sandbox::overlays::Overlays;
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{hotkey, layout, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
@@ -30,7 +29,7 @@ impl CreateGridlock {
 }
 
 impl GameplayState for CreateGridlock {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI, _: &mut Overlays) -> Option<Transition> {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
         self.menu.event(ctx);
         manage_acs(
             &mut self.menu,

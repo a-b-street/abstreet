@@ -1,16 +1,14 @@
-use crate::common::{ColorLegend, Colorer, ColorerBuilder, Warping};
+use crate::common::{ColorLegend, Colorer, ColorerBuilder, ShowBusRoute, Warping};
 use crate::game::Transition;
 use crate::helpers::rotating_color_total;
 use crate::helpers::ID;
-use crate::managed::{ManagedGUIState, Outcome};
-use crate::sandbox::bus_explorer::ShowBusRoute;
-use crate::sandbox::SandboxMode;
+use crate::managed::ManagedGUIState;
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
     hotkey, Button, Color, Composite, DrawBoth, Drawable, EventCtx, EventLoopMode, GeomBatch,
-    GfxCtx, Histogram, HorizontalAlignment, JustDraw, Key, Line, ManagedWidget, Plot, RewriteColor,
-    Series, Text, VerticalAlignment,
+    GfxCtx, Histogram, HorizontalAlignment, JustDraw, Key, Line, ManagedWidget, Outcome, Plot,
+    RewriteColor, Series, Text, VerticalAlignment,
 };
 use geom::{Circle, Distance, Duration, PolyLine, Polygon, Pt2D, Statistic, Time};
 use map_model::{BusRouteID, IntersectionID};
@@ -33,84 +31,97 @@ pub enum Overlays {
 }
 
 impl Overlays {
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    // Since Overlays is embedded in UI, we have to do this slight trick
+    pub fn update(ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
         let now = ui.primary.sim.time();
-        match self {
+        match ui.overlay {
             Overlays::ParkingAvailability(t, _) => {
-                if now != *t {
-                    *self = Overlays::parking_availability(ctx, ui);
+                if now != t {
+                    ui.overlay = Overlays::parking_availability(ctx, ui);
                 }
             }
             Overlays::IntersectionDelay(t, _) => {
-                if now != *t {
-                    *self = Overlays::intersection_delay(ctx, ui);
+                if now != t {
+                    ui.overlay = Overlays::intersection_delay(ctx, ui);
                 }
             }
             Overlays::CumulativeThroughput(t, _) => {
-                if now != *t {
-                    *self = Overlays::cumulative_throughput(ctx, ui);
+                if now != t {
+                    ui.overlay = Overlays::cumulative_throughput(ctx, ui);
                 }
             }
             Overlays::IntersectionDemand(t, i, _, _) => {
-                if now != *t {
-                    *self = Overlays::intersection_demand(*i, ctx, ui);
+                if now != t {
+                    ui.overlay = Overlays::intersection_demand(i, ctx, ui);
                 }
             }
             Overlays::FinishedTripsHistogram(t, _) => {
-                if now != *t {
-                    *self = Overlays::finished_trips_histogram(ctx, ui);
+                if now != t {
+                    ui.overlay = Overlays::finished_trips_histogram(ctx, ui);
                 }
             }
             Overlays::BusRoute(t, id, _) => {
-                if now != *t {
-                    *self = Overlays::show_bus_route(*id, ctx, ui);
+                if now != t {
+                    ui.overlay = Overlays::show_bus_route(id, ctx, ui);
                 }
             }
             // No updates needed
             Overlays::Inactive | Overlays::BikeNetwork(_) | Overlays::BusNetwork(_) => {}
             Overlays::BusDelaysOverTime(t, id, _) => {
-                if now != *t {
-                    *self = Overlays::delays_over_time(*id, ctx, ui);
+                if now != t {
+                    ui.overlay = Overlays::delays_over_time(id, ctx, ui);
                 }
             }
             Overlays::BusPassengers(t, id, _) => {
-                if now != *t {
-                    *self = Overlays::bus_passengers(*id, ctx, ui);
+                if now != t {
+                    ui.overlay = Overlays::bus_passengers(id, ctx, ui);
                 }
             }
         };
 
-        match self {
+        // Because BusPassengers has the callbacks that need UI, but UI also stores Overlays, we
+        // have to play this trick.
+        let mut orig_overlay = std::mem::replace(&mut ui.overlay, Overlays::Inactive);
+
+        match orig_overlay {
             Overlays::ParkingAvailability(_, ref mut heatmap)
             | Overlays::BikeNetwork(ref mut heatmap)
             | Overlays::BusNetwork(ref mut heatmap)
             | Overlays::IntersectionDelay(_, ref mut heatmap)
             | Overlays::CumulativeThroughput(_, ref mut heatmap) => {
                 if heatmap.event(ctx) {
-                    *self = Overlays::Inactive;
+                    ui.overlay = Overlays::Inactive;
+                } else {
+                    ui.overlay = orig_overlay;
                 }
             }
             Overlays::BusRoute(_, _, ref mut c) => {
                 if c.colorer.event(ctx) {
-                    *self = Overlays::Inactive;
+                    ui.overlay = Overlays::Inactive;
+                } else {
+                    ui.overlay = orig_overlay;
                 }
             }
             Overlays::BusPassengers(_, _, ref mut c) => match c.event(ctx, ui) {
-                Some(Outcome::Transition(t)) => {
+                Some(crate::managed::Outcome::Transition(t)) => {
+                    ui.overlay = orig_overlay;
                     return Some(t);
                 }
-                Some(Outcome::Clicked(x)) => match x.as_ref() {
+                Some(crate::managed::Outcome::Clicked(x)) => match x.as_ref() {
                     "X" => {
-                        *self = Overlays::Inactive;
+                        ui.overlay = Overlays::Inactive;
                     }
                     _ => unreachable!(),
                 },
-                None => {}
+                None => {
+                    ui.overlay = orig_overlay;
+                }
             },
             Overlays::IntersectionDemand(_, i, _, ref mut c) => match c.event(ctx) {
-                Some(ezgui::Outcome::Clicked(x)) => match x.as_ref() {
+                Some(Outcome::Clicked(x)) => match x.as_ref() {
                     "intersection demand" => {
-                        let id = ID::Intersection(*i);
+                        let id = ID::Intersection(i);
+                        ui.overlay = orig_overlay;
                         return Some(Transition::PushWithMode(
                             Warping::new(
                                 ctx,
@@ -123,7 +134,7 @@ impl Overlays {
                         ));
                     }
                     "X" => {
-                        *self = Overlays::Inactive;
+                        ui.overlay = Overlays::Inactive;
                     }
                     _ => unreachable!(),
                 },
@@ -131,13 +142,15 @@ impl Overlays {
             },
             Overlays::FinishedTripsHistogram(_, ref mut c)
             | Overlays::BusDelaysOverTime(_, _, ref mut c) => match c.event(ctx) {
-                Some(ezgui::Outcome::Clicked(x)) => match x.as_ref() {
+                Some(Outcome::Clicked(x)) => match x.as_ref() {
                     "X" => {
-                        *self = Overlays::Inactive;
+                        ui.overlay = Overlays::Inactive;
                     }
                     _ => unreachable!(),
                 },
-                None => {}
+                None => {
+                    ui.overlay = orig_overlay;
+                }
             },
             Overlays::Inactive => {}
         }
@@ -248,64 +261,51 @@ impl Overlays {
         .cb("X", Box::new(|_, _| Some(Transition::Pop)))
         .cb(
             "None",
-            Box::new(|_, _| {
-                Some(Transition::PopWithData(Box::new(|state, _, _| {
-                    state.downcast_mut::<SandboxMode>().unwrap().overlay = Overlays::Inactive;
-                })))
+            Box::new(|_, ui| {
+                ui.overlay = Overlays::Inactive;
+                Some(Transition::Pop)
             }),
         )
         .cb(
             "parking availability",
-            Box::new(|_, _| {
-                Some(Transition::PopWithData(Box::new(|state, ui, ctx| {
-                    state.downcast_mut::<SandboxMode>().unwrap().overlay =
-                        Overlays::parking_availability(ctx, ui);
-                })))
+            Box::new(|ctx, ui| {
+                ui.overlay = Overlays::parking_availability(ctx, ui);
+                Some(Transition::Pop)
             }),
         )
         .cb(
             "intersection delay",
-            Box::new(|_, _| {
-                Some(Transition::PopWithData(Box::new(|state, ui, ctx| {
-                    state.downcast_mut::<SandboxMode>().unwrap().overlay =
-                        Overlays::intersection_delay(ctx, ui);
-                })))
+            Box::new(|ctx, ui| {
+                ui.overlay = Overlays::intersection_delay(ctx, ui);
+                Some(Transition::Pop)
             }),
         )
         .cb(
             "throughput",
-            Box::new(|_, _| {
-                Some(Transition::PopWithData(Box::new(|state, ui, ctx| {
-                    state.downcast_mut::<SandboxMode>().unwrap().overlay =
-                        Overlays::cumulative_throughput(ctx, ui);
-                })))
+            Box::new(|ctx, ui| {
+                ui.overlay = Overlays::cumulative_throughput(ctx, ui);
+                Some(Transition::Pop)
             }),
         )
         .cb(
             "bike network",
-            Box::new(|_, _| {
-                Some(Transition::PopWithData(Box::new(|state, ui, ctx| {
-                    state.downcast_mut::<SandboxMode>().unwrap().overlay =
-                        Overlays::bike_network(ctx, ui);
-                })))
+            Box::new(|ctx, ui| {
+                ui.overlay = Overlays::bike_network(ctx, ui);
+                Some(Transition::Pop)
             }),
         )
         .cb(
             "bus network",
-            Box::new(|_, _| {
-                Some(Transition::PopWithData(Box::new(|state, ui, ctx| {
-                    state.downcast_mut::<SandboxMode>().unwrap().overlay =
-                        Overlays::bus_network(ctx, ui);
-                })))
+            Box::new(|ctx, ui| {
+                ui.overlay = Overlays::bus_network(ctx, ui);
+                Some(Transition::Pop)
             }),
         )
         .cb(
             "finished trips histogram",
-            Box::new(|_, _| {
-                Some(Transition::PopWithData(Box::new(|state, ui, ctx| {
-                    state.downcast_mut::<SandboxMode>().unwrap().overlay =
-                        Overlays::finished_trips_histogram(ctx, ui);
-                })))
+            Box::new(|ctx, ui| {
+                ui.overlay = Overlays::finished_trips_histogram(ctx, ui);
+                Some(Transition::Pop)
             }),
         );
         Some(Transition::Push(ManagedGUIState::over_map(c)))

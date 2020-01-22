@@ -1,8 +1,8 @@
+use crate::common::Overlays;
 use crate::game::{Transition, WizardState};
 use crate::sandbox::gameplay::{
     challenge_controller, cmp_duration_shorter, manage_overlays, GameplayMode, GameplayState,
 };
-use crate::sandbox::overlays::Overlays;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use ezgui::{hotkey, layout, Choice, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
@@ -50,51 +50,46 @@ impl OptimizeBus {
 }
 
 impl GameplayState for OptimizeBus {
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        ui: &mut UI,
-        overlays: &mut Overlays,
-    ) -> Option<Transition> {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
         self.menu.event(ctx);
         if manage_overlays(
             &mut self.menu,
             ctx,
+            ui,
             "show bus route",
             "hide bus route",
-            overlays,
-            match overlays {
+            match ui.overlay {
                 Overlays::BusRoute(_, ref r, _) => *r == self.route,
                 _ => false,
             },
         ) {
-            *overlays = Overlays::show_bus_route(self.route, ctx, ui);
+            ui.overlay = Overlays::show_bus_route(self.route, ctx, ui);
         }
         if manage_overlays(
             &mut self.menu,
             ctx,
+            ui,
             "show delays over time",
             "hide delays over time",
-            overlays,
-            match overlays {
+            match ui.overlay {
                 Overlays::BusDelaysOverTime(_, ref r, _) => *r == self.route,
                 _ => false,
             },
         ) {
-            *overlays = Overlays::delays_over_time(self.route, ctx, ui);
+            ui.overlay = Overlays::delays_over_time(self.route, ctx, ui);
         }
         if manage_overlays(
             &mut self.menu,
             ctx,
+            ui,
             "show bus passengers",
             "hide bus passengers",
-            overlays,
-            match overlays {
+            match ui.overlay {
                 Overlays::BusPassengers(_, ref r, _) => *r == self.route,
                 _ => false,
             },
         ) {
-            *overlays = Overlays::bus_passengers(self.route, ctx, ui);
+            ui.overlay = Overlays::bus_passengers(self.route, ctx, ui);
         }
 
         // TODO Expensive

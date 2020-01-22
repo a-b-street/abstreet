@@ -1,8 +1,9 @@
+use crate::common::ShowBusRoute;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::managed::{Callback, Composite, ManagedGUIState};
 use crate::sandbox::gameplay::{cmp_count_fewer, cmp_count_more, cmp_duration_shorter};
-use crate::sandbox::{bus_explorer, SandboxMode};
+use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use abstutil::Counter;
@@ -366,7 +367,7 @@ fn pick_bus_route(ctx: &EventCtx, ui: &UI) -> (ManagedWidget, Vec<(String, Callb
         cbs.push((
             name.to_string(),
             Box::new(move |_, _| {
-                Some(Transition::Push(bus_explorer::make_route_picker(
+                Some(Transition::Push(ShowBusRoute::make_route_picker(
                     vec![id],
                     false,
                 )))

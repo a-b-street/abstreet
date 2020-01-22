@@ -1,4 +1,4 @@
-use crate::common::{CommonState, Minimap, Warping};
+use crate::common::{CommonState, Minimap, Overlays, Warping};
 use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use crate::render::DrawOptions;
@@ -72,6 +72,7 @@ impl State for TutorialMode {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "Quit" => {
                     ui.primary.clear_sim();
+                    ui.overlay = Overlays::Inactive;
                     return Transition::Pop;
                 }
                 "<" => {
@@ -150,6 +151,9 @@ impl State for TutorialMode {
         }
         if let Some(ref mut m) = self.minimap {
             if let Some(t) = m.event(ui, ctx) {
+                return t;
+            }
+            if let Some(t) = Overlays::update(ctx, ui) {
                 return t;
             }
         }
@@ -280,6 +284,7 @@ impl State for TutorialMode {
             &ui.primary.sim,
             &ShowEverything::new(),
         );
+        ui.overlay.draw(g);
         if self.msg_panel.is_some() {
             // Make it clear the map can't be interacted with right now.
             g.fork_screenspace();
@@ -306,7 +311,7 @@ impl State for TutorialMode {
             am.draw(g);
         }
         if let Some(ref m) = self.minimap {
-            m.draw(g, ui, None);
+            m.draw(g, ui);
         }
         if let Some(ref common) = self.common {
             common.draw(g, ui);
@@ -495,6 +500,7 @@ impl TutorialState {
         }
 
         ui.primary.clear_sim();
+        ui.overlay = Overlays::Inactive;
         if let Some(i) = match self.stage() {
             Stage::Msg {
                 ref spawn_around, ..

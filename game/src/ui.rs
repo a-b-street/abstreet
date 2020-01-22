@@ -1,3 +1,4 @@
+use crate::common::Overlays;
 use crate::helpers::{ColorScheme, ID};
 use crate::obj_actions::PerObjectActions;
 use crate::options::Options;
@@ -25,6 +26,7 @@ pub struct UI {
     pub opts: Options,
 
     pub per_obj: PerObjectActions,
+    pub overlay: Overlays,
 }
 
 impl UI {
@@ -76,6 +78,7 @@ impl UI {
             cs,
             opts,
             per_obj: PerObjectActions::new(),
+            overlay: Overlays::Inactive,
         }
     }
 

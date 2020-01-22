@@ -1,10 +1,10 @@
+use crate::common::Overlays;
 use crate::game::{msg, Transition};
 use crate::managed::Composite;
 use crate::sandbox::gameplay::faster_trips::small_faster_trips_panel;
 use crate::sandbox::gameplay::{
     challenge_controller, manage_overlays, GameplayMode, GameplayState,
 };
-use crate::sandbox::overlays::Overlays;
 use crate::ui::UI;
 use ezgui::{hotkey, layout, EventCtx, GfxCtx, Key, ModalMenu};
 use geom::{Duration, Statistic, Time};
@@ -40,15 +40,10 @@ impl FixTrafficSignals {
 }
 
 impl GameplayState for FixTrafficSignals {
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        ui: &mut UI,
-        overlays: &mut Overlays,
-    ) -> Option<Transition> {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
         // Once is never...
         if self.once {
-            *overlays = Overlays::finished_trips_histogram(ctx, ui);
+            ui.overlay = Overlays::finished_trips_histogram(ctx, ui);
             self.once = false;
         }
 
@@ -58,28 +53,28 @@ impl GameplayState for FixTrafficSignals {
         if manage_overlays(
             &mut self.menu,
             ctx,
+            ui,
             "find slowest traffic signals",
             "hide slowest traffic signals",
-            overlays,
-            match overlays {
+            match ui.overlay {
                 Overlays::IntersectionDelay(_, _) => true,
                 _ => false,
             },
         ) {
-            *overlays = Overlays::intersection_delay(ctx, ui);
+            ui.overlay = Overlays::intersection_delay(ctx, ui);
         }
         if manage_overlays(
             &mut self.menu,
             ctx,
+            ui,
             "show finished trip distribution",
             "hide finished trip distribution",
-            overlays,
-            match overlays {
+            match ui.overlay {
                 Overlays::FinishedTripsHistogram(_, _) => true,
                 _ => false,
             },
         ) {
-            *overlays = Overlays::finished_trips_histogram(ctx, ui);
+            ui.overlay = Overlays::finished_trips_histogram(ctx, ui);
         }
 
         if self.time != ui.primary.sim.time() {

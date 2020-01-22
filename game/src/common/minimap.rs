@@ -1,7 +1,6 @@
-use crate::common::{navigate, shortcuts, Colorer, Warping};
+use crate::common::{navigate, shortcuts, Overlays, Warping};
 use crate::game::{Transition, WizardState};
 use crate::render::{AgentColorScheme, MIN_ZOOM_FOR_DETAIL};
-use crate::sandbox::Overlays;
 use crate::ui::UI;
 use abstutil::clamp;
 use ezgui::{
@@ -191,7 +190,7 @@ impl Minimap {
         None
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, ui: &UI, colorer: Option<&Colorer>) {
+    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         self.composite.draw(g);
         if !self.zoomed {
             return;
@@ -217,7 +216,7 @@ impl Minimap {
         g.redraw(&ui.primary.draw_map.draw_all_thick_roads);
         g.redraw(&ui.primary.draw_map.draw_all_unzoomed_intersections);
         g.redraw(&ui.primary.draw_map.draw_all_buildings);
-        if let Some(ref c) = colorer {
+        if let Some(ref c) = ui.overlay.maybe_colorer() {
             g.redraw(&c.unzoomed);
         }
 
