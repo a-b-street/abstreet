@@ -34,7 +34,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: abst_mac
-          path: abst_mac
+          path: abst_mac.zip
   build-linux:
     runs-on: ubuntu-latest
     if: "contains(github.event.head_commit.message, '[rebuild]')"
@@ -51,4 +51,4 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: abst_linux
-          path: abst_linux
+          path: abst_linux.zip
