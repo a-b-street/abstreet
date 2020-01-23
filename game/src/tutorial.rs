@@ -805,7 +805,6 @@ impl TutorialState {
         // / cartwheeling / to work.
 
         // TODO Show overlapping peds?
-        // TODO Minimap, layers
         // TODO Multi-modal trips -- including parking. (Cars per bldg, ownership). Border
         // intersections.
 

@@ -4,8 +4,14 @@ Ever been on a bus stuck in traffic, wondering why there are cars parked on the
 road instead of a bus lane? A/B Street is a game exploring how small changes to
 a city affect the movement of drivers, cyclists, transit users, and pedestrians.
 
+- Play on
+  [Windows](https://github.com/dabreegster/abstreet/releases/download/v0.1.24/abstreet_windows_v0_1_24.zip),
+  [Mac](https://github.com/dabreegster/abstreet/releases/download/v0.1.24/abstreet_mac_v0_1_24.zip),
+  [Linux](https://github.com/dabreegster/abstreet/releases/download/v0.1.24/abstreet_linux_v0_1_24.zip),
+  or [read all instructions](docs/INSTRUCTIONS.md)
+- [build from source](docs/dev.md)
+
 [Play A/B Street on Windows, Mac, Linux](docs/INSTRUCTIONS.md) or
-[build from source](docs/dev.md)
 
 Removing dedicated left-turn phases from a traffic signal:
 
