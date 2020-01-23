@@ -279,7 +279,8 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                         ManagedWidget::menu("menu"),
                     ])
                     .bg(Color::grey(0.4))
-                    .outline(Color::WHITE),
+                    .outline(10.0, Color::WHITE)
+                    .padding(10),
                 )
                 .menu(
                     "menu",
@@ -397,7 +398,8 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                     )),
                 ])
                 .bg(Color::grey(0.4))
-                .outline(Color::WHITE),
+                .outline(10.0, Color::WHITE)
+                .padding(10),
             )
             .build(self.ctx),
         );

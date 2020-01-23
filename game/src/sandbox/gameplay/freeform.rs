@@ -77,12 +77,10 @@ pub fn freeform_controller(
                 .margin(5),
                 ManagedWidget::draw_text(ctx, Text::from(Line("Map:").size(18).roboto_bold()))
                     .margin(5),
-                // TODO Different button style
-                WrappedComposite::detailed_text_button(
+                WrappedComposite::nice_text_button(
                     ctx,
                     Text::from(
                         Line(format!("{} ▼", ui.primary.map.get_name()))
-                            .fg(Color::BLACK)
                             .size(18)
                             .roboto(),
                     ),
@@ -92,14 +90,9 @@ pub fn freeform_controller(
                 .margin(5),
                 ManagedWidget::draw_text(ctx, Text::from(Line("Traffic:").size(18).roboto_bold()))
                     .margin(5),
-                WrappedComposite::detailed_text_button(
+                WrappedComposite::nice_text_button(
                     ctx,
-                    Text::from(
-                        Line(format!("{} ▼", scenario_name))
-                            .fg(Color::BLACK)
-                            .size(18)
-                            .roboto(),
-                    ),
+                    Text::from(Line(format!("{} ▼", scenario_name)).size(18).roboto()),
                     hotkey(Key::S),
                     "change scenario",
                 )

@@ -34,8 +34,9 @@ impl Button {
         tooltip: &str,
         hitbox: Polygon,
     ) -> Button {
-        let dims = draw_normal.get_dims();
-        assert_eq!(dims, draw_hovered.get_dims());
+        // dims are based on the hitbox, not the two drawables!
+        let bounds = hitbox.get_bounds();
+        let dims = ScreenDims::new(bounds.width(), bounds.height());
         assert!(!tooltip.is_empty());
         Button {
             action: tooltip.to_string(),
@@ -122,9 +123,6 @@ impl Widget for Button {
 
 // Stuff to construct different types of buttons
 
-const HORIZ_PADDING: f64 = 30.0;
-const VERT_PADDING: f64 = 10.0;
-
 // TODO Simplify all of these APIs!
 impl Button {
     pub fn rectangle_img(
@@ -133,6 +131,9 @@ impl Button {
         ctx: &EventCtx,
         label: &str,
     ) -> Button {
+        const HORIZ_PADDING: f64 = 30.0;
+        const VERT_PADDING: f64 = 10.0;
+
         let img_color = ctx.canvas.texture(filename);
         let dims = img_color.texture_dims();
         let img_rect =
@@ -244,6 +245,9 @@ impl Button {
         tooltip: &str,
         ctx: &EventCtx,
     ) -> Button {
+        const HORIZ_PADDING: f64 = 30.0;
+        const VERT_PADDING: f64 = 10.0;
+
         let dims = ctx.text_dims(&text);
         let geom = Polygon::rounded_rectangle(
             dims.width + 2.0 * HORIZ_PADDING,
@@ -273,19 +277,25 @@ impl Button {
         tooltip: &str,
         ctx: &EventCtx,
     ) -> Button {
+        const HORIZ_PADDING: f64 = 15.0;
+        const VERT_PADDING: f64 = 8.0;
+
         let dims = ctx.text_dims(&unselected_text);
         assert_eq!(dims, ctx.text_dims(&selected_text));
-        let geom = Polygon::rectangle(dims.width, dims.height);
+        let geom = Polygon::rectangle(
+            dims.width + 2.0 * HORIZ_PADDING,
+            dims.height + 2.0 * VERT_PADDING,
+        );
 
         let normal = DrawBoth::new(
             ctx,
             GeomBatch::new(),
-            vec![(unselected_text, ScreenPt::new(0.0, 0.0))],
+            vec![(unselected_text, ScreenPt::new(HORIZ_PADDING, VERT_PADDING))],
         );
         let hovered = DrawBoth::new(
             ctx,
             GeomBatch::new(),
-            vec![(selected_text, ScreenPt::new(0.0, 0.0))],
+            vec![(selected_text, ScreenPt::new(HORIZ_PADDING, VERT_PADDING))],
         );
 
         Button::new(normal, hovered, hotkey, tooltip, geom)

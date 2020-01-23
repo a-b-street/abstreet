@@ -73,6 +73,7 @@ pub struct Text {
     // The bg_color will cover the entire block, but some lines can have extra highlighting.
     lines: Vec<(Option<Color>, Vec<TextSpan>)>,
     bg_color: Option<Color>,
+    // TODO Definitely a hack to replace with Composite.
     pub override_width: Option<f64>,
     pub override_height: Option<f64>,
 }
@@ -108,6 +109,15 @@ impl Text {
     pub fn bg(mut self, bg: Color) -> Text {
         assert!(self.bg_color.is_none());
         self.bg_color = Some(bg);
+        self
+    }
+
+    pub fn change_fg(mut self, fg: Color) -> Text {
+        for (_, spans) in self.lines.iter_mut() {
+            for span in spans {
+                span.fg_color = fg;
+            }
+        }
         self
     }
 

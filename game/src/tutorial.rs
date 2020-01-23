@@ -594,7 +594,8 @@ impl TutorialState {
                             .centered(),
                         ])
                         .bg(Color::grey(0.4))
-                        .outline(Color::WHITE),
+                        .outline(5.0, Color::WHITE)
+                        .padding(5),
                     )
                     .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)
                     .build(ctx),

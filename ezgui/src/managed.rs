@@ -40,7 +40,7 @@ enum WidgetType {
 
 struct LayoutStyle {
     bg_color: Option<Color>,
-    outline_color: Option<Color>,
+    outline: Option<(f64, Color)>,
     align_items: Option<AlignItems>,
     justify_content: Option<JustifyContent>,
     flex_wrap: Option<FlexWrap>,
@@ -120,10 +120,10 @@ impl ManagedWidget {
         self
     }
 
-    pub fn outline(mut self, color: Color) -> ManagedWidget {
-        self.style.outline_color = Some(color);
-        // TODO Play with any existing setting
-        self.padding(10)
+    // Callers have to adjust padding too, probably
+    pub fn outline(mut self, thickness: f64, color: Color) -> ManagedWidget {
+        self.style.outline = Some((thickness, color));
+        self
     }
 
     pub fn padding(mut self, pixels: usize) -> ManagedWidget {
@@ -175,7 +175,7 @@ impl ManagedWidget {
             widget,
             style: LayoutStyle {
                 bg_color: None,
-                outline_color: None,
+                outline: None,
                 align_items: None,
                 justify_content: None,
                 flex_wrap: None,
@@ -419,18 +419,16 @@ impl ManagedWidget {
         self.rect = ScreenRectangle::top_left(top_left, ScreenDims::new(width, height));
 
         // Assume widgets don't dynamically change, so we just upload the background once.
-        if self.bg.is_none()
-            && (self.style.bg_color.is_some() || self.style.outline_color.is_some())
-        {
+        if self.bg.is_none() && (self.style.bg_color.is_some() || self.style.outline.is_some()) {
             let mut batch = GeomBatch::new();
             if let Some(c) = self.style.bg_color {
                 batch.push(c, Polygon::rounded_rectangle(width, height, 5.0));
             }
-            if let Some(c) = self.style.outline_color {
+            if let Some((thickness, c)) = self.style.outline {
                 batch.push(
                     c,
                     Polygon::rounded_rectangle(width, height, 5.0)
-                        .to_outline(Distance::meters(10.0)),
+                        .to_outline(Distance::meters(thickness)),
                 );
             }
             self.bg = Some(DrawBoth::new(ctx, batch, Vec::new()));

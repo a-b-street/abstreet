@@ -79,6 +79,22 @@ impl WrappedComposite {
         ))
     }
 
+    pub fn nice_text_button(
+        ctx: &EventCtx,
+        txt: Text,
+        hotkey: Option<MultiKey>,
+        label: &str,
+    ) -> ManagedWidget {
+        ManagedWidget::btn(Button::text_no_bg(
+            txt.clone(),
+            txt.change_fg(Color::ORANGE),
+            hotkey,
+            label,
+            ctx,
+        ))
+        .outline(2.0, Color::WHITE)
+    }
+
     pub fn text_button(ctx: &EventCtx, label: &str, hotkey: Option<MultiKey>) -> ManagedWidget {
         WrappedComposite::detailed_text_button(
             ctx,
