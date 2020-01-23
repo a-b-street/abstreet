@@ -12,7 +12,7 @@ use ezgui::{
 };
 use geom::{Distance, Duration, PolyLine, Polygon, Pt2D, Time};
 use map_model::{BuildingID, IntersectionID};
-use sim::{AgentID, CarID, Scenario, TripID, TripResult, VehicleType};
+use sim::{AgentID, CarID, Scenario, VehicleType};
 
 pub struct TutorialMode {
     state: TutorialState,
@@ -217,21 +217,29 @@ impl State for TutorialMode {
                 self.state.next();
                 return Transition::Replace(self.state.make_state(ctx, ui));
             }
-        } else if interact == "Escort the first northbound car to their home" {
-            if ui.primary.current_selection == Some(ID::Building(BuildingID(2322)))
-                && ui.per_obj.action(ctx, Key::C, "check the house")
-            {
-                match ui.primary.sim.trip_to_agent(TripID(24)) {
-                    TripResult::TripDone => {
-                        self.state.next();
-                        return Transition::Replace(self.state.make_state(ctx, ui));
-                    }
-                    _ => {
+        } else if interact == "Escort the first northbound car until they park" {
+            if let Some(ID::Car(c)) = ui.primary.current_selection {
+                if ui.per_obj.action(ctx, Key::C, "check the car") {
+                    if c == CarID(19, VehicleType::Car) {
+                        if ui.primary.sim.agent_to_trip(AgentID::Car(c)).is_some() {
+                            return Transition::Push(msg(
+                                "Not yet!",
+                                vec![
+                                    "The car is still traveling somewhee.",
+                                    "Wait for the car to park. (You can speed up time!)",
+                                ],
+                            ));
+                        } else {
+                            self.state.next();
+                            return Transition::Replace(self.state.make_state(ctx, ui));
+                        }
+                    } else {
                         return Transition::Push(msg(
-                            "Not yet!",
+                            "Wrong car",
                             vec![
-                                "The house is empty.",
-                                "Wait for the car and passenger to arrive!",
+                                "You're looking at the wrong car.",
+                                "Use the 'reset to midnight' (key binding 'X') to start over, if \
+                                 you lost the car to follow.",
                             ],
                         ));
                     }
@@ -737,7 +745,7 @@ impl TutorialState {
             .spawn_around(IntersectionID(247)),
             Stage::msg(vec![
                 "Why don't you follow the first northbound car to their destination,",
-                "and make sure whoever gets out makes it inside their house safely?",
+                "and see where they park?",
             ])
             .spawn_around(IntersectionID(247))
             .warp_to(ID::Building(BuildingID(611)))
@@ -755,9 +763,7 @@ impl TutorialState {
                     .to_pt()
             })),
             // TODO Make it clear they can reset
-            // TODO The time controls are too jumpy; can we automatically slow down when
-            // interesting stuff happens?
-            Stage::interact("Escort the first northbound car to their home")
+            Stage::interact("Escort the first northbound car until they park")
                 .spawn_around(IntersectionID(247))
                 .warp_to(ID::Building(BuildingID(611))),
         ]);
