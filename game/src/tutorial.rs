@@ -701,7 +701,7 @@ impl TutorialState {
         ]);
 
         stages.extend(vec![
-            Stage::msg(vec!["Whew, that took a while! (Hopefully not though..."]),
+            Stage::msg(vec!["Whew, that took a while! (Hopefully not though...)"]),
             Stage::msg(vec![
                 "You might've figured it out already,",
                 "But you'll be pausing/resuming time VERY frequently",

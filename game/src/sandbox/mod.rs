@@ -183,12 +183,7 @@ impl State for SandboxMode {
                                 save_edits(&mut wizard, ui)?;
 
                                 // Always reset edits if we just saved edits.
-                                apply_map_edits(
-                                    &mut ui.primary,
-                                    &ui.cs,
-                                    ctx,
-                                    MapEdits::new(map_name),
-                                );
+                                apply_map_edits(ctx, ui, MapEdits::new(map_name));
                                 ui.primary.map.mark_edits_fresh();
                                 ui.primary.map.recalculate_pathfinding_after_edits(
                                     &mut Timer::new("reset edits"),
@@ -200,12 +195,7 @@ impl State for SandboxMode {
                             }
                             "quit challenge" => {
                                 if !ui.primary.map.get_edits().is_empty() {
-                                    apply_map_edits(
-                                        &mut ui.primary,
-                                        &ui.cs,
-                                        ctx,
-                                        MapEdits::new(map_name),
-                                    );
+                                    apply_map_edits(ctx, ui, MapEdits::new(map_name));
                                     ui.primary.map.mark_edits_fresh();
                                     ui.primary.map.recalculate_pathfinding_after_edits(
                                         &mut Timer::new("reset edits"),

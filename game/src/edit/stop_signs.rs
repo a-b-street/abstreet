@@ -78,7 +78,7 @@ impl State for StopSignEditor {
 
                 let mut edits = ui.primary.map.get_edits().clone();
                 edits.commands.push(EditCmd::ChangeStopSign(sign));
-                apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+                apply_map_edits(ctx, ui, edits);
             }
         } else if self.menu.action("quit") {
             return Transition::Pop;
@@ -90,7 +90,7 @@ impl State for StopSignEditor {
                     &ui.primary.map,
                     self.id,
                 )));
-            apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+            apply_map_edits(ctx, ui, edits);
         }
         Transition::Keep
     }

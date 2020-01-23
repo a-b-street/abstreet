@@ -22,6 +22,7 @@ pub enum Overlays {
     CumulativeThroughput(Time, Colorer),
     BikeNetwork(Colorer),
     BusNetwork(Colorer),
+    Edits(Colorer),
 
     FinishedTripsHistogram(Time, Composite),
     IntersectionDemand(Time, IntersectionID, Drawable, Composite),
@@ -65,8 +66,6 @@ impl Overlays {
                     ui.overlay = Overlays::show_bus_route(id, ctx, ui);
                 }
             }
-            // No updates needed
-            Overlays::Inactive | Overlays::BikeNetwork(_) | Overlays::BusNetwork(_) => {}
             Overlays::BusDelaysOverTime(t, id, _) => {
                 if now != t {
                     ui.overlay = Overlays::delays_over_time(id, ctx, ui);
@@ -77,6 +76,11 @@ impl Overlays {
                     ui.overlay = Overlays::bus_passengers(id, ctx, ui);
                 }
             }
+            // No updates needed
+            Overlays::Inactive
+            | Overlays::BikeNetwork(_)
+            | Overlays::BusNetwork(_)
+            | Overlays::Edits(_) => {}
         };
 
         // Because BusPassengers has the callbacks that need UI, but UI also stores Overlays, we
@@ -88,7 +92,8 @@ impl Overlays {
             | Overlays::BikeNetwork(ref mut heatmap)
             | Overlays::BusNetwork(ref mut heatmap)
             | Overlays::IntersectionDelay(_, ref mut heatmap)
-            | Overlays::CumulativeThroughput(_, ref mut heatmap) => {
+            | Overlays::CumulativeThroughput(_, ref mut heatmap)
+            | Overlays::Edits(ref mut heatmap) => {
                 if heatmap.event(ctx) {
                     ui.overlay = Overlays::Inactive;
                 } else {
@@ -162,7 +167,8 @@ impl Overlays {
             | Overlays::BikeNetwork(ref heatmap)
             | Overlays::BusNetwork(ref heatmap)
             | Overlays::IntersectionDelay(_, ref heatmap)
-            | Overlays::CumulativeThroughput(_, ref heatmap) => {
+            | Overlays::CumulativeThroughput(_, ref heatmap)
+            | Overlays::Edits(ref heatmap) => {
                 heatmap.draw(g);
             }
             Overlays::FinishedTripsHistogram(_, ref composite)
@@ -188,7 +194,8 @@ impl Overlays {
             | Overlays::BikeNetwork(ref heatmap)
             | Overlays::BusNetwork(ref heatmap)
             | Overlays::IntersectionDelay(_, ref heatmap)
-            | Overlays::CumulativeThroughput(_, ref heatmap) => Some(heatmap),
+            | Overlays::CumulativeThroughput(_, ref heatmap)
+            | Overlays::Edits(ref heatmap) => Some(heatmap),
             Overlays::BusRoute(_, _, ref s) => Some(&s.colorer),
             _ => None,
         }
@@ -211,6 +218,7 @@ impl Overlays {
                             "finished trips histogram",
                             hotkey(Key::F),
                         ),
+                        WrappedComposite::text_button(ctx, "map edits", hotkey(Key::E)),
                         ManagedWidget::btn(Button::rectangle_svg(
                             "assets/layers/parking_avail.svg",
                             "parking availability",
@@ -301,6 +309,13 @@ impl Overlays {
             "finished trips histogram",
             Box::new(|ctx, ui| {
                 ui.overlay = Overlays::finished_trips_histogram(ctx, ui);
+                Some(Transition::Pop)
+            }),
+        )
+        .cb(
+            "map edits",
+            Box::new(|ctx, ui| {
+                ui.overlay = Overlays::map_edits(ctx, ui);
                 Some(Transition::Pop)
             }),
         );
@@ -724,5 +739,35 @@ impl Overlays {
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
             .build(ctx),
         )
+    }
+
+    pub fn map_edits(ctx: &mut EventCtx, ui: &UI) -> Overlays {
+        let edits = ui.primary.map.get_edits();
+
+        let mut txt = Text::from(Line(format!("map edits ({})", edits.edits_name)));
+        txt.add(Line(format!(
+            "{} lane types changed",
+            edits.original_lts.len()
+        )));
+        txt.add(Line(format!(
+            "{} lanes reversed",
+            edits.reversed_lanes.len()
+        )));
+        txt.add(Line(format!(
+            "{} intersections changed",
+            edits.changed_intersections.len()
+        )));
+
+        let changed = Color::RED;
+        let mut colorer = ColorerBuilder::new(txt, vec![("modified lane/intersection", changed)]);
+
+        for l in edits.original_lts.keys().chain(&edits.reversed_lanes) {
+            colorer.add_l(*l, changed, &ui.primary.map);
+        }
+        for i in &edits.changed_intersections {
+            colorer.add_i(*i, changed);
+        }
+
+        Overlays::Edits(colorer.build(ctx, ui))
     }
 }

@@ -5,20 +5,16 @@ mod traffic_signals;
 use self::lanes::{Brush, LaneEditor};
 pub use self::stop_signs::StopSignEditor;
 pub use self::traffic_signals::TrafficSignalEditor;
-use crate::common::{tool_panel, CommonState, Warping};
+use crate::common::{tool_panel, CommonState, Overlays, Warping};
 use crate::debug::DebugMode;
 use crate::game::{State, Transition, WizardState};
-use crate::helpers::{ColorScheme, ID};
+use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
-use crate::render::{
-    DrawIntersection, DrawLane, DrawOptions, DrawRoad, Renderable, MIN_ZOOM_FOR_DETAIL,
-};
+use crate::render::{DrawIntersection, DrawLane, DrawRoad};
 use crate::sandbox::{GameplayMode, SandboxMode};
-use crate::ui::{PerMapUI, ShowEverything, UI};
+use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::{
-    hotkey, lctrl, Choice, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, WrappedWizard,
-};
+use ezgui::{hotkey, lctrl, Choice, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, WrappedWizard};
 use map_model::{ControlStopSign, ControlTrafficSignal, EditCmd, LaneID, MapEdits};
 use sim::Sim;
 use std::collections::BTreeSet;
@@ -33,6 +29,8 @@ pub struct EditMode {
     pub suspended_sim: Sim,
 
     lane_editor: LaneEditor,
+
+    once: bool,
 }
 
 impl EditMode {
@@ -55,31 +53,25 @@ impl EditMode {
             mode,
             suspended_sim,
             lane_editor: LaneEditor::new(ctx),
+            once: true,
         }
     }
 }
 
 impl State for EditMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        {
+        // Can't do this in the constructor, because SandboxMode's on_destroy clears out Overlays
+        if self.once {
+            self.once = false;
+            // apply_map_edits will do the job later
+            ui.overlay = Overlays::map_edits(ctx, ui);
+
             let edits = ui.primary.map.get_edits();
             let mut txt = Text::new();
             txt.add(Line(format!("Edits: {}", edits.edits_name)));
             if edits.dirty {
                 txt.append(Line("*"));
             }
-            txt.add(Line(format!(
-                "{} lane types changed",
-                edits.original_lts.len()
-            )));
-            txt.add(Line(format!(
-                "{} lanes reversed",
-                edits.reversed_lanes.len()
-            )));
-            txt.add(Line(format!(
-                "{} intersections changed",
-                edits.changed_intersections.len()
-            )));
             self.menu.set_info(ctx, txt);
         }
 
@@ -144,7 +136,7 @@ impl State for EditMode {
                             &ui.primary.map,
                             id,
                         )));
-                    apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+                    apply_map_edits(ctx, ui, edits);
                 }
             }
             if ui.primary.map.maybe_get_traffic_signal(id).is_some() {
@@ -174,7 +166,7 @@ impl State for EditMode {
                             id,
                             &mut Timer::throwaway(),
                         )));
-                    apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+                    apply_map_edits(ctx, ui, edits);
                 }
             }
             if ui.primary.map.get_i(id).is_closed() && ui.per_obj.action(ctx, Key::R, "revert") {
@@ -182,7 +174,7 @@ impl State for EditMode {
                 edits
                     .commands
                     .push(EditCmd::UncloseIntersection(id, edits.original_it(id)));
-                apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+                apply_map_edits(ctx, ui, edits);
             }
         }
 
@@ -196,7 +188,7 @@ impl State for EditMode {
                 EditCmd::CloseIntersection { id, .. } => ID::Intersection(id),
                 EditCmd::UncloseIntersection(id, _) => ID::Intersection(id),
             };
-            apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+            apply_map_edits(ctx, ui, edits);
             return Transition::Push(Warping::new(
                 ctx,
                 id.canonical_point(&ui.primary).unwrap(),
@@ -213,7 +205,7 @@ impl State for EditMode {
             Some(WrappedOutcome::Transition(t)) => t,
             Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
                 "back" => ctx.loading_screen("apply edits", |ctx, mut timer| {
-                    // TODO Maybe put a loading screen around these.
+                    ui.overlay = Overlays::Inactive;
                     ui.primary
                         .map
                         .recalculate_pathfinding_after_edits(&mut timer);
@@ -238,56 +230,10 @@ impl State for EditMode {
             &ui.primary.sim,
             &ShowEverything::new(),
         );
-
-        // More generally we might want to show the diff between two edits, but for now,
-        // just show diff relative to basemap.
-        let edits = ui.primary.map.get_edits();
-
-        let ctx = ui.draw_ctx();
-        let mut opts = DrawOptions::new();
-
-        // TODO Similar to drawing areas with traffic or not -- would be convenient to just
-        // supply a set of things to highlight and have something else take care of drawing
-        // with detail or not.
-        if g.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL {
-            for l in edits.original_lts.keys().chain(&edits.reversed_lanes) {
-                opts.override_colors
-                    .insert(ID::Lane(*l), Color::HatchingStyle1);
-                ctx.draw_map.get_l(*l).draw(g, &opts, &ctx);
-            }
-            for i in &edits.changed_intersections {
-                opts.override_colors
-                    .insert(ID::Intersection(*i), Color::HatchingStyle1);
-                ctx.draw_map.get_i(*i).draw(g, &opts, &ctx);
-            }
-
-            // The hatching covers up the selection outline, so redraw it.
-            match ui.primary.current_selection {
-                Some(ID::Lane(l)) => {
-                    g.draw_polygon(
-                        ui.cs.get("selected"),
-                        &ctx.draw_map.get_l(l).get_outline(&ctx.map),
-                    );
-                }
-                Some(ID::Intersection(i)) => {
-                    g.draw_polygon(
-                        ui.cs.get("selected"),
-                        &ctx.draw_map.get_i(i).get_outline(&ctx.map),
-                    );
-                }
-                _ => {}
-            }
-        } else {
-            let color = ui.cs.get_def("unzoomed map diffs", Color::RED);
-            for l in edits.original_lts.keys().chain(&edits.reversed_lanes) {
-                g.draw_polygon(color, &ctx.map.get_parent(*l).get_thick_polygon().unwrap());
-            }
-
-            for i in &edits.changed_intersections {
-                opts.override_colors.insert(ID::Intersection(*i), color);
-                ctx.draw_map.get_i(*i).draw(g, &opts, &ctx);
-            }
-        }
+        // TODO Maybe this should be part of ui.draw
+        // TODO This has an X button, but we never call update and allow it to be changed. Should
+        // just omit the button.
+        ui.overlay.draw(g);
 
         self.common.draw(g, ui);
         self.tool_panel.draw(g);
@@ -365,37 +311,36 @@ fn make_load_edits(mode: GameplayMode) -> Box<dyn State> {
             list.push(Choice::new("no_edits", MapEdits::new(map_name.clone())));
             list
         })?;
-        apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
+        apply_map_edits(ctx, ui, new_edits);
         ui.primary.map.mark_edits_fresh();
         Some(Transition::Pop)
     }))
 }
 
-pub fn apply_map_edits(
-    bundle: &mut PerMapUI,
-    cs: &ColorScheme,
-    ctx: &mut EventCtx,
-    mut edits: MapEdits,
-) {
+pub fn apply_map_edits(ctx: &mut EventCtx, ui: &mut UI, mut edits: MapEdits) {
     edits.dirty = true;
     let mut timer = Timer::new("apply map edits");
 
     let (lanes_changed, roads_changed, turns_deleted, turns_added, mut modified_intersections) =
-        bundle.map.apply_edits(edits, &mut timer);
+        ui.primary.map.apply_edits(edits, &mut timer);
 
     for l in lanes_changed {
-        bundle.draw_map.lanes[l.0] = DrawLane::new(
-            bundle.map.get_l(l),
-            &bundle.map,
-            bundle.current_flags.draw_lane_markings,
-            cs,
+        ui.primary.draw_map.lanes[l.0] = DrawLane::new(
+            ui.primary.map.get_l(l),
+            &ui.primary.map,
+            ui.primary.current_flags.draw_lane_markings,
+            &ui.cs,
             &mut timer,
         )
         .finish(ctx.prerender);
     }
     for r in roads_changed {
-        bundle.draw_map.roads[r.0] =
-            DrawRoad::new(bundle.map.get_r(r), &bundle.map, cs, ctx.prerender);
+        ui.primary.draw_map.roads[r.0] = DrawRoad::new(
+            ui.primary.map.get_r(r),
+            &ui.primary.map,
+            &ui.cs,
+            ctx.prerender,
+        );
     }
 
     let mut lanes_of_modified_turns: BTreeSet<LaneID> = BTreeSet::new();
@@ -409,12 +354,16 @@ pub fn apply_map_edits(
     }
 
     for i in modified_intersections {
-        bundle.draw_map.intersections[i.0] = DrawIntersection::new(
-            bundle.map.get_i(i),
-            &bundle.map,
-            cs,
+        ui.primary.draw_map.intersections[i.0] = DrawIntersection::new(
+            ui.primary.map.get_i(i),
+            &ui.primary.map,
+            &ui.cs,
             ctx.prerender,
             &mut timer,
         );
+    }
+
+    if let Overlays::Edits(_) = ui.overlay {
+        ui.overlay = Overlays::map_edits(ctx, ui);
     }
 }

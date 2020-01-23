@@ -89,7 +89,7 @@ impl LaneEditor {
                         Ok(Some(cmd)) => {
                             let mut edits = ui.primary.map.get_edits().clone();
                             edits.commands.push(cmd);
-                            apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+                            apply_map_edits(ctx, ui, edits);
                         }
                         Ok(None) => {}
                         Err(err) => {
@@ -118,7 +118,7 @@ impl LaneEditor {
                         lt: *lt,
                         orig_lt: ui.primary.map.get_l(l).lane_type,
                     });
-                    apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+                    apply_map_edits(ctx, ui, edits);
                 }
             } else if ui.primary.map.get_edits().reversed_lanes.contains(&l) {
                 if ui.per_obj.action(ctx, Key::R, "revert") {
@@ -126,7 +126,7 @@ impl LaneEditor {
                         Ok(Some(cmd)) => {
                             let mut edits = ui.primary.map.get_edits().clone();
                             edits.commands.push(cmd);
-                            apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+                            apply_map_edits(ctx, ui, edits);
                         }
                         Ok(None) => {}
                         Err(err) => {
@@ -150,14 +150,14 @@ impl LaneEditor {
                     edits
                         .commands
                         .push(EditCmd::CloseIntersection { id: i, orig_it: it });
-                    apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+                    apply_map_edits(ctx, ui, edits);
 
                     let (_, disconnected) =
                         connectivity::find_scc(&ui.primary.map, PathConstraints::Pedestrian);
                     if !disconnected.is_empty() {
                         let mut edits = ui.primary.map.get_edits().clone();
                         edits.commands.pop();
-                        apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+                        apply_map_edits(ctx, ui, edits);
                         let mut err_state = msg(
                             "Error",
                             vec![format!("{} sidewalks disconnected", disconnected.len())],
@@ -323,27 +323,32 @@ fn make_bulk_edit_lanes(road: RoadID) -> Box<dyn State> {
         let road_name = ui.primary.map.get_r(road).get_name();
         let mut success = 0;
         let mut failure = 0;
-        let lane_ids: Vec<LaneID> = ui.primary.map.all_lanes().iter().map(|l| l.id).collect();
-        for l in lane_ids {
-            let orig_lt = ui.primary.map.get_l(l).lane_type;
-            if orig_lt != from || ui.primary.map.get_parent(l).get_name() != road_name {
-                continue;
+        ctx.loading_screen("apply bulk edit", |ctx, timer| {
+            let lane_ids: Vec<LaneID> = ui.primary.map.all_lanes().iter().map(|l| l.id).collect();
+            timer.start_iter("update lanes", lane_ids.len());
+            for l in lane_ids {
+                timer.next();
+                let orig_lt = ui.primary.map.get_l(l).lane_type;
+                if orig_lt != from || ui.primary.map.get_parent(l).get_name() != road_name {
+                    continue;
+                }
+                if can_change_lane_type(l, to, &ui.primary.map).is_none() {
+                    let mut edits = ui.primary.map.get_edits().clone();
+                    edits.commands.push(EditCmd::ChangeLaneType {
+                        id: l,
+                        lt: to,
+                        orig_lt,
+                    });
+                    // Do this immediately, so the next lane we consider sees the true state of the
+                    // world.
+                    apply_map_edits(ctx, ui, edits);
+                    success += 1;
+                } else {
+                    failure += 1;
+                }
             }
-            if can_change_lane_type(l, to, &ui.primary.map).is_none() {
-                let mut edits = ui.primary.map.get_edits().clone();
-                edits.commands.push(EditCmd::ChangeLaneType {
-                    id: l,
-                    lt: to,
-                    orig_lt,
-                });
-                // Do this immediately, so the next lane we consider sees the true state of the
-                // world.
-                apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
-                success += 1;
-            } else {
-                failure += 1;
-            }
-        }
+        });
+
         // TODO warn about road names changing and being weird. :)
         Some(Transition::Replace(msg(
             "Bulk lane edit",

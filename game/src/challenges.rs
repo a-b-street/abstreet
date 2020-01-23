@@ -234,7 +234,7 @@ impl State for ChallengeSplash {
                 if &abstutil::basename(&map_path) != ui.primary.map.get_name() {
                     ui.switch_map(ctx, map_path.clone());
                 }
-                apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
+                apply_map_edits(ctx, ui, new_edits);
                 ui.primary.map.mark_edits_fresh();
                 ui.primary
                     .map

@@ -554,7 +554,7 @@ fn change_traffic_signal(signal: ControlTrafficSignal, ui: &mut UI, ctx: &mut Ev
         edits.commands.pop();
     }
     edits.commands.push(EditCmd::ChangeTrafficSignal(signal));
-    apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+    apply_map_edits(ctx, ui, edits);
 }
 
 fn change_phase_duration(idx: usize, current_duration: Duration) -> Box<dyn State> {
