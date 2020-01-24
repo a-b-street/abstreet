@@ -26,7 +26,7 @@ impl abstutil::Cloneable for Challenge {}
 pub fn all_challenges() -> BTreeMap<String, Vec<Challenge>> {
     let mut tree = BTreeMap::new();
     tree.insert(
-        "Fix all of the traffic signals".to_string(),
+        "Fix traffic signals".to_string(),
         vec![
             Challenge {
                 title: "Tutorial 1".to_string(),
@@ -62,33 +62,33 @@ pub fn all_challenges() -> BTreeMap<String, Vec<Challenge>> {
         ],
     );
     tree.insert(
-        "Speed up bus route 43".to_string(),
+        "Speed up a bus route (WIP)".to_string(),
         vec![
             Challenge {
-                title: "Just Montlake area".to_string(),
+                title: "Route 43 in the small Montlake area".to_string(),
                 description: vec![
                     "Decrease the average waiting time between all of route 43's stops by at \
                      least 30s"
                         .to_string(),
                 ],
                 map_path: abstutil::path_map("montlake"),
-                alias: "bus43/montlake".to_string(),
+                alias: "bus/43_montlake".to_string(),
                 gameplay: GameplayMode::OptimizeBus("43".to_string()),
             },
             Challenge {
-                title: "Larger area of the 43".to_string(),
+                title: "Route 43 in a larger area".to_string(),
                 description: vec![
                     "Decrease the average waiting time between all of 43's stops by at least 30s"
                         .to_string(),
                 ],
                 map_path: abstutil::path_map("23rd"),
-                alias: "bus43/23rd".to_string(),
+                alias: "bus/43_23rd".to_string(),
                 gameplay: GameplayMode::OptimizeBus("43".to_string()),
             },
         ],
     );
     tree.insert(
-        "Gridlock all of the everything".to_string(),
+        "Cause gridlock (WIP)".to_string(),
         vec![Challenge {
             title: "Gridlock all of the everything".to_string(),
             description: vec!["Make traffic as BAD as possible!".to_string()],
@@ -98,7 +98,7 @@ pub fn all_challenges() -> BTreeMap<String, Vec<Challenge>> {
         }],
     );
     tree.insert(
-        "Playing favorites".to_string(),
+        "Playing favorites (WIP)".to_string(),
         vec![
             Challenge {
                 title: "Speed up all bike trips".to_string(),

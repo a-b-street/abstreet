@@ -224,3 +224,16 @@ pub fn plain_list_names(names: BTreeSet<String>) -> String {
     }
     s
 }
+
+// TODO Associate this with maps, but somehow avoid reading the entire file when listing them.
+pub fn nice_map_name(name: &str) -> &str {
+    match name {
+        "23rd" => "23rd Ave E corridor",
+        "ballard" => "Ballard",
+        "caphill" => "Capitol Hill",
+        "downtown" => "Downtown Seattle",
+        "huge_seattle" => "Seattle (entire area)",
+        "montlake" => "Montlake and Eastlake",
+        _ => name,
+    }
+}

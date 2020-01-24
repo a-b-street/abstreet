@@ -1,13 +1,13 @@
 use crate::edit::EditMode;
 use crate::game::{State, Transition, WizardState};
-use crate::helpers::ID;
+use crate::helpers::{nice_map_name, ID};
 use crate::managed::WrappedComposite;
 use crate::sandbox::gameplay::{change_scenario, spawner, GameplayMode, GameplayState};
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use ezgui::{
-    hotkey, lctrl, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    ManagedWidget, Text, VerticalAlignment,
+    hotkey, lctrl, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, ManagedWidget, Text, VerticalAlignment,
 };
 use geom::Polygon;
 use map_model::IntersectionID;
@@ -80,7 +80,7 @@ pub fn freeform_controller(
                 WrappedComposite::nice_text_button(
                     ctx,
                     Text::from(
-                        Line(format!("{} ▼", ui.primary.map.get_name()))
+                        Line(format!("{} ▼", nice_map_name(ui.primary.map.get_name())))
                             .size(18)
                             .roboto(),
                     ),
@@ -137,11 +137,12 @@ pub fn freeform_controller(
 
 fn make_load_map(gameplay: GameplayMode) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, ui| {
-        if let Some(name) = wiz.wrap(ctx).choose_string("Load which map?", || {
+        if let Some((_, name)) = wiz.wrap(ctx).choose("Load which map?", || {
             let current_map = ui.primary.map.get_name();
             abstutil::list_all_objects(abstutil::path_all_maps())
                 .into_iter()
                 .filter(|n| n != current_map)
+                .map(|n| Choice::new(nice_map_name(&n), n.clone()))
                 .collect()
         }) {
             ui.switch_map(ctx, abstutil::path_map(&name));

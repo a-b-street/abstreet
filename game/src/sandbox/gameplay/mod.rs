@@ -16,7 +16,7 @@ use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Timer};
 use ezgui::{
-    lctrl, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    lctrl, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
     ManagedWidget, ModalMenu, Text, TextSpan, VerticalAlignment, Wizard,
 };
 use geom::{Duration, Polygon};
@@ -207,16 +207,29 @@ impl GameplayRunner {
 }
 
 fn change_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
-    let scenario_name = wiz
-        .wrap(ctx)
-        .choose_string("Instantiate which scenario?", || {
-            let mut list =
-                abstutil::list_all_objects(abstutil::path_all_scenarios(ui.primary.map.get_name()));
-            list.push("random".to_string());
-            list.push("just buses".to_string());
-            list.push("empty".to_string());
-            list
-        })?;
+    let (_, scenario_name) = wiz.wrap(ctx).choose("Run what type of traffic?", || {
+        let mut list = Vec::new();
+        for name in
+            abstutil::list_all_objects(abstutil::path_all_scenarios(ui.primary.map.get_name()))
+        {
+            let nice_name = if name == "weekday" {
+                "realistic weekday traffic".to_string()
+            } else {
+                name.clone()
+            };
+            list.push(Choice::new(nice_name, name));
+        }
+        list.push(Choice::new(
+            "random unrealistic trips",
+            "random".to_string(),
+        ));
+        list.push(Choice::new("just buses", "just buses".to_string()));
+        list.push(Choice::new(
+            "none (you manually spawn traffic)",
+            "empty".to_string(),
+        ));
+        list
+    })?;
     ui.primary.clear_sim();
     Some(Transition::PopThenReplace(Box::new(SandboxMode::new(
         ctx,
