@@ -873,15 +873,13 @@ impl Sim {
             }
             lines
         } else {
-            let mut lines = self.parking.tooltip_lines(car).unwrap();
+            let mut lines = vec![format!("{} is parked", car)];
             if let Some(b) = self.parking.get_owner_of_car(car) {
                 if let Some((trip, start)) = self.trips.find_trip_using_car(car, b) {
                     lines.push(format!(
                         "{} will use this car, sometime after {}",
                         trip, start
                     ));
-                } else {
-                    lines.push("Though this car has owner, no trips using it".to_string());
                 }
             }
             lines
@@ -922,7 +920,7 @@ impl Sim {
 
         let id = CarID(idx, VehicleType::Car);
         // Only cars can be parked.
-        if self.parking.tooltip_lines(id).is_some() {
+        if self.parking.does_car_exist(id) {
             return Some(id);
         }
 

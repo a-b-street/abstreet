@@ -2,7 +2,7 @@ use crate::common::{ColorLegend, CommonState, Warping};
 use crate::game::{msg, Transition};
 use crate::helpers::{rotating_color, rotating_color_map, ID};
 use crate::managed::WrappedComposite;
-use crate::render::{dashed_lines, MIN_ZOOM_FOR_DETAIL};
+use crate::render::{dashed_lines, Renderable, MIN_ZOOM_FOR_DETAIL};
 use crate::sandbox::SpeedControls;
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
@@ -150,6 +150,17 @@ impl InfoPanel {
                 ui.cs.get_def("current object", Color::BLUE),
                 obj.get_outline(&ui.primary.map),
             );
+        }
+
+        // Show relationships between some objects
+        if let ID::Car(c) = id {
+            if let Some(b) = ui.primary.sim.get_owner_of_car(c) {
+                // TODO Mention this, with a warp tool
+                batch.push(
+                    ui.cs.get("something associated with something else"),
+                    ui.primary.draw_map.get_b(b).get_outline(&ui.primary.map),
+                );
+            }
         }
 
         InfoPanel {

@@ -302,14 +302,6 @@ impl ParkingSimState {
         }
     }
 
-    pub fn tooltip_lines(&self, id: CarID) -> Option<Vec<String>> {
-        let c = self.parked_cars.get(&id)?;
-        Some(vec![format!(
-            "{} is parked, owned by {:?}",
-            c.vehicle.id, c.vehicle.owner
-        )])
-    }
-
     pub fn get_parked_cars_by_owner(&self, b: BuildingID) -> Vec<&ParkedCar> {
         self.owned_cars_per_building
             .get(b)

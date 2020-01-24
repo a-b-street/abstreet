@@ -12,7 +12,6 @@ use std::collections::{HashMap, HashSet};
 pub enum ShowAssociatedState {
     Inactive,
     BuildingSelected(BuildingID, HashSet<CarID>),
-    CarSelected(CarID, Option<BuildingID>),
     ShapeSelected(ExtraShapeID, Option<DirectedRoadID>),
     IntersectionSelected(IntersectionID, HashSet<AgentID>),
 }
@@ -28,9 +27,6 @@ impl ShowAssociatedState {
             ShowAssociatedState::Inactive => {}
             ShowAssociatedState::BuildingSelected(b, _) => {
                 reset = selected != Some(ID::Building(*b));
-            }
-            ShowAssociatedState::CarSelected(c, _) => {
-                reset = selected != Some(ID::Car(*c));
             }
             ShowAssociatedState::ShapeSelected(es, _) => {
                 reset = selected != Some(ID::ExtraShape(*es));
@@ -56,9 +52,6 @@ impl ShowAssociatedState {
                             .collect(),
                     );
                 }
-                Some(ID::Car(id)) => {
-                    *self = ShowAssociatedState::CarSelected(id, sim.get_owner_of_car(id));
-                }
                 Some(ID::ExtraShape(id)) => {
                     *self =
                         ShowAssociatedState::ShapeSelected(id, ui.primary.draw_map.get_es(id).road);
@@ -81,9 +74,6 @@ impl ShowAssociatedState {
                 for c in cars {
                     colors.insert(ID::Car(*c), color);
                 }
-            }
-            ShowAssociatedState::CarSelected(_, Some(b)) => {
-                colors.insert(ID::Building(*b), color);
             }
             ShowAssociatedState::ShapeSelected(_, Some(dr)) => {
                 let r = ui.primary.map.get_r(dr.id);
