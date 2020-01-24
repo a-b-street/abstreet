@@ -1,4 +1,3 @@
-mod associated;
 mod connected_roads;
 mod floodfill;
 mod objects;
@@ -23,7 +22,6 @@ pub struct DebugMode {
     menu: ModalMenu,
     common: CommonState,
     tool_panel: WrappedComposite,
-    associated: associated::ShowAssociatedState,
     connected_roads: connected_roads::ShowConnectedRoads,
     objects: objects::ObjectDebugger,
     hidden: HashSet<ID>,
@@ -56,7 +54,6 @@ impl DebugMode {
             ),
             common: CommonState::new(),
             tool_panel: tool_panel(ctx),
-            associated: associated::ShowAssociatedState::Inactive,
             connected_roads: connected_roads::ShowConnectedRoads::new(),
             objects: objects::ObjectDebugger::new(),
             hidden: HashSet::new(),
@@ -94,7 +91,6 @@ impl State for DebugMode {
         self.menu.event(ctx);
 
         ctx.canvas_movement();
-        self.associated.event(ui);
 
         if self.menu.action("save sim state") {
             ctx.loading_screen("savestate", |_, timer| {
@@ -296,9 +292,6 @@ impl State for DebugMode {
                 }
             }
         }
-        self.associated
-            .override_colors(&mut opts.override_colors, ui);
-
         ui.draw(g, opts, &ui.primary.sim, self);
 
         if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {

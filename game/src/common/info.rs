@@ -157,8 +157,26 @@ impl InfoPanel {
             if let Some(b) = ui.primary.sim.get_owner_of_car(c) {
                 // TODO Mention this, with a warp tool
                 batch.push(
-                    ui.cs.get("something associated with something else"),
+                    ui.cs
+                        .get_def("something associated with something else", Color::PURPLE),
                     ui.primary.draw_map.get_b(b).get_outline(&ui.primary.map),
+                );
+            }
+        }
+        if let ID::Building(b) = id {
+            for p in ui.primary.sim.get_parked_cars_by_owner(b) {
+                batch.push(
+                    ui.cs.get("something associated with something else"),
+                    ui.primary
+                        .draw_map
+                        .get_obj(
+                            ID::Car(p.vehicle.id),
+                            ui,
+                            &mut ui.primary.draw_map.agents.borrow_mut(),
+                            ctx.prerender,
+                        )
+                        .unwrap()
+                        .get_outline(&ui.primary.map),
                 );
             }
         }
