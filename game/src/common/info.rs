@@ -20,6 +20,8 @@ pub struct InfoPanel {
     pub time: Time,
     pub composite: Composite,
 
+    also_draw: Drawable,
+    // (unzoomed, zoomed)
     trip_details: Option<(Drawable, Drawable)>,
 
     actions: Vec<(Key, String)>,
@@ -136,6 +138,20 @@ impl InfoPanel {
             ctx.canvas.center_on_map_pt(pt);
         }
 
+        let mut batch = GeomBatch::new();
+        // TODO Handle transitions between peds and crowds better
+        if let Some(obj) = ui.primary.draw_map.get_obj(
+            id.clone(),
+            ui,
+            &mut ui.primary.draw_map.agents.borrow_mut(),
+            ctx.prerender,
+        ) {
+            batch.push(
+                ui.cs.get_def("current object", Color::BLUE),
+                obj.get_outline(&ui.primary.map),
+            );
+        }
+
         InfoPanel {
             id,
             actions,
@@ -148,6 +164,7 @@ impl InfoPanel {
                 )
                 .max_size_percent(40, 60)
                 .build(ctx),
+            also_draw: batch.upload(ctx),
         }
     }
 
@@ -180,6 +197,7 @@ impl InfoPanel {
                     );
                 }
             }
+            // TODO Detect crowds changing here maybe
 
             let preserve_scroll = self.composite.preserve_scroll();
             *self = InfoPanel::new(self.id.clone(), ctx, ui, self.actions.clone(), maybe_speed);
@@ -223,6 +241,7 @@ impl InfoPanel {
                 g.redraw(zoomed);
             }
         }
+        g.redraw(&self.also_draw);
     }
 }
 

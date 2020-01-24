@@ -6,11 +6,11 @@ use crate::render::extra_shape::{DrawExtraShape, ExtraShapeID};
 use crate::render::intersection::DrawIntersection;
 use crate::render::lane::DrawLane;
 use crate::render::road::DrawRoad;
-use crate::render::Renderable;
-use crate::ui::Flags;
+use crate::render::{draw_vehicle, DrawPedCrowd, DrawPedestrian, Renderable};
+use crate::ui::{Flags, UI};
 use aabb_quadtree::QuadTree;
 use abstutil::{Cloneable, Timer};
-use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx};
+use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Duration, FindClosest, Time};
 use map_model::{
     AreaID, BuildingID, BusStopID, DirectedRoadID, Intersection, IntersectionID, LaneID, Map, Road,
@@ -281,6 +281,52 @@ impl DrawMap {
         &self.areas[id.0]
     }
 
+    pub fn get_obj<'a>(
+        &'a self,
+        id: ID,
+        ui: &UI,
+        agents: &'a mut AgentCache,
+        prerender: &Prerender,
+    ) -> Option<&'a dyn Renderable> {
+        let on = match id {
+            ID::Road(id) => {
+                return Some(self.get_r(id));
+            }
+            ID::Lane(id) => {
+                return Some(self.get_l(id));
+            }
+            ID::Intersection(id) => {
+                return Some(self.get_i(id));
+            }
+            ID::Turn(_) => unreachable!(),
+            ID::Building(id) => {
+                return Some(self.get_b(id));
+            }
+            ID::Car(id) => ui.primary.sim.get_draw_car(id, &ui.primary.map).unwrap().on,
+            ID::Pedestrian(id) => ui.primary.sim.get_draw_ped(id, &ui.primary.map).unwrap().on,
+            ID::PedCrowd(ref members) => {
+                // If the first member has vanished, just give up
+                ui.primary.sim.get_draw_ped(members[0], &ui.primary.map)?.on
+            }
+            ID::ExtraShape(id) => {
+                return Some(self.get_es(id));
+            }
+            ID::BusStop(id) => {
+                return Some(self.get_bs(id));
+            }
+            ID::Area(id) => {
+                return Some(self.get_a(id));
+            }
+            ID::Trip(_) => unreachable!(),
+        };
+
+        agents.populate_if_needed(on, &ui.primary.map, &ui.primary.sim, &ui.cs, prerender);
+
+        // Why might this fail? Pedestrians merge into crowds, and crowds dissipate into
+        // individuals
+        agents.get(on).into_iter().find(|r| r.get_id() == id)
+    }
+
     // Unsorted, unexpanded, raw result.
     pub fn get_matching_objects(&self, bounds: Bounds) -> Vec<ID> {
         let mut results: Vec<ID> = Vec::new();
@@ -300,14 +346,6 @@ pub struct AgentCache {
 }
 
 impl AgentCache {
-    pub fn has(&self, now: Time, on: Traversable) -> bool {
-        if Some(now) != self.time {
-            return false;
-        }
-        self.agents_per_on.contains_key(&on)
-    }
-
-    // Must call has() first.
     pub fn get(&self, on: Traversable) -> Vec<&dyn Renderable> {
         self.agents_per_on[&on]
             .iter()
@@ -315,14 +353,40 @@ impl AgentCache {
             .collect()
     }
 
-    pub fn put(&mut self, now: Time, on: Traversable, agents: Vec<Box<dyn Renderable>>) {
+    pub fn populate_if_needed(
+        &mut self,
+        on: Traversable,
+        map: &Map,
+        source: &dyn GetDrawAgents,
+        cs: &ColorScheme,
+        prerender: &Prerender,
+    ) {
+        let now = source.time();
+        if Some(now) == self.time && self.agents_per_on.contains_key(&on) {
+            return;
+        }
+        let step_count = source.step_count();
+
+        let mut list: Vec<Box<dyn Renderable>> = Vec::new();
+        for c in source.get_draw_cars(on, map).into_iter() {
+            list.push(draw_vehicle(c, map, prerender, cs));
+        }
+        let (loners, crowds) = source.get_draw_peds(on, map);
+        for p in loners {
+            list.push(Box::new(DrawPedestrian::new(
+                p, step_count, map, prerender, cs,
+            )));
+        }
+        for c in crowds {
+            list.push(Box::new(DrawPedCrowd::new(c, map, prerender, cs)));
+        }
+
         if Some(now) != self.time {
             self.agents_per_on.clear();
             self.time = Some(now);
         }
 
-        assert!(!self.agents_per_on.contains_key(&on));
-        self.agents_per_on.insert(on, agents);
+        self.agents_per_on.insert(on, list);
     }
 
     // TODO GetDrawAgents indirection added for time traveling, but that's been removed. Maybe
