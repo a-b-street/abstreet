@@ -407,14 +407,12 @@ fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
         ]),
         // TODO Too wide most of the time...
         ManagedWidget::draw_text(ctx, Text::prompt(&acs.title)),
-        ManagedWidget::btn(Button::text(
+        WrappedComposite::nice_text_button(
+            ctx,
             Text::from(Line("change")),
-            Color::grey(0.6),
-            Color::ORANGE,
             hotkey(Key::Semicolon),
             "change agent colorscheme",
-            ctx,
-        )),
+        ),
     ];
     for (label, color, enabled) in &acs.rows {
         col.push(

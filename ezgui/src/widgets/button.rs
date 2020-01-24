@@ -237,7 +237,7 @@ impl Button {
         )
     }
 
-    pub fn text(
+    pub fn text_bg(
         text: Text,
         unselected_bg_color: Color,
         selected_bg_color: Color,
@@ -275,27 +275,30 @@ impl Button {
         selected_text: Text,
         hotkey: Option<MultiKey>,
         tooltip: &str,
+        padding: bool,
         ctx: &EventCtx,
     ) -> Button {
-        const HORIZ_PADDING: f64 = 15.0;
-        const VERT_PADDING: f64 = 8.0;
+        // TODO Padding here is unfortunate, but I don't understand when the flexbox padding
+        // actually works.
+        let horiz_padding = if padding { 15.0 } else { 0.0 };
+        let vert_padding = if padding { 8.0 } else { 0.0 };
 
         let dims = ctx.text_dims(&unselected_text);
         assert_eq!(dims, ctx.text_dims(&selected_text));
         let geom = Polygon::rectangle(
-            dims.width + 2.0 * HORIZ_PADDING,
-            dims.height + 2.0 * VERT_PADDING,
+            dims.width + 2.0 * horiz_padding,
+            dims.height + 2.0 * vert_padding,
         );
 
         let normal = DrawBoth::new(
             ctx,
             GeomBatch::new(),
-            vec![(unselected_text, ScreenPt::new(HORIZ_PADDING, VERT_PADDING))],
+            vec![(unselected_text, ScreenPt::new(horiz_padding, vert_padding))],
         );
         let hovered = DrawBoth::new(
             ctx,
             GeomBatch::new(),
-            vec![(selected_text, ScreenPt::new(HORIZ_PADDING, VERT_PADDING))],
+            vec![(selected_text, ScreenPt::new(horiz_padding, vert_padding))],
         );
 
         Button::new(normal, hovered, hotkey, tooltip, geom)

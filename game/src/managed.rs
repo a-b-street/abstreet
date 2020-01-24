@@ -90,29 +90,19 @@ impl WrappedComposite {
             txt.change_fg(Color::ORANGE),
             hotkey,
             label,
+            true,
             ctx,
         ))
         .outline(2.0, Color::WHITE)
     }
 
     pub fn text_button(ctx: &EventCtx, label: &str, hotkey: Option<MultiKey>) -> ManagedWidget {
-        WrappedComposite::detailed_text_button(
-            ctx,
-            Text::from(Line(label).fg(Color::BLACK)),
-            hotkey,
-            label,
-        )
+        WrappedComposite::nice_text_button(ctx, Text::from(Line(label)), hotkey, label)
     }
 
-    pub fn detailed_text_button(
-        ctx: &EventCtx,
-        txt: Text,
-        hotkey: Option<MultiKey>,
-        label: &str,
-    ) -> ManagedWidget {
-        // TODO Default style. Lots of variations.
-        ManagedWidget::btn(Button::text(
-            txt,
+    pub fn text_bg_button(ctx: &EventCtx, label: &str, hotkey: Option<MultiKey>) -> ManagedWidget {
+        ManagedWidget::btn(Button::text_bg(
+            Text::from(Line(label).fg(Color::BLACK)),
             Color::WHITE,
             Color::ORANGE,
             hotkey,

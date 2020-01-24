@@ -33,7 +33,7 @@ impl TitleScreen {
                             .bg(Color::GREEN.alpha(0.2)),
                         // TODO that nicer font
                         // TODO Any key
-                        ManagedWidget::btn(Button::text(
+                        ManagedWidget::btn(Button::text_bg(
                             Text::from(Line("PLAY")),
                             Color::BLUE,
                             Color::ORANGE,
@@ -104,11 +104,15 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
     ];
     if ui.opts.dev {
         col.push(ManagedWidget::row(vec![
-            WrappedComposite::text_button(ctx, "INTERNAL DEV TOOLS", hotkey(Key::M)),
-            WrappedComposite::text_button(ctx, "INTERNAL A/B TEST MODE", hotkey(Key::A)),
+            WrappedComposite::text_bg_button(ctx, "INTERNAL DEV TOOLS", hotkey(Key::M)),
+            WrappedComposite::text_bg_button(ctx, "INTERNAL A/B TEST MODE", hotkey(Key::A)),
         ]));
     }
-    col.push(WrappedComposite::text_button(ctx, "About A/B Street", None));
+    col.push(WrappedComposite::text_bg_button(
+        ctx,
+        "About A/B Street",
+        None,
+    ));
 
     let mut c = WrappedComposite::new(
         Composite::new(ManagedWidget::row(vec![

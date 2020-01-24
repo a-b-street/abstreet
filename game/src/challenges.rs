@@ -5,7 +5,7 @@ use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{
-    hotkey, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    hotkey, Button, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
     ManagedWidget, ModalMenu, Text, VerticalAlignment,
 };
 use geom::{Duration, Time};
@@ -138,12 +138,14 @@ pub fn challenges_picker(ctx: &mut EventCtx) -> Box<dyn State> {
 
     let mut flex_row = Vec::new();
     for (idx, (name, _)) in all_challenges().into_iter().enumerate() {
-        flex_row.push(WrappedComposite::detailed_text_button(
-            ctx,
+        flex_row.push(ManagedWidget::btn(Button::text_bg(
             Text::from(Line(&name).size(40).fg(Color::BLACK)),
+            Color::WHITE,
+            Color::ORANGE,
             hotkey(Key::NUM_KEYS[idx]),
             &name,
-        ));
+            ctx,
+        )));
     }
     col.push(ManagedWidget::row(flex_row).flex_wrap(ctx, 80));
 

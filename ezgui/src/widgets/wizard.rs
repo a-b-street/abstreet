@@ -388,7 +388,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             Composite::new(
                 ManagedWidget::col(vec![
                     ManagedWidget::draw_text(self.ctx, txt),
-                    ManagedWidget::btn(Button::text(
+                    ManagedWidget::btn(Button::text_bg(
                         Text::from(Line("OK")),
                         Color::grey(0.6),
                         Color::ORANGE,

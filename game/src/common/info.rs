@@ -63,7 +63,7 @@ impl InfoPanel {
             let mut txt = Text::new();
             txt.append(Line(key.describe()).fg(ezgui::HOTKEY_COLOR));
             txt.append(Line(format!(" - {}", label)));
-            col.push(ManagedWidget::btn(Button::text(
+            col.push(ManagedWidget::btn(Button::text_bg(
                 txt,
                 Color::grey(0.5),
                 Color::ORANGE,

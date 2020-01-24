@@ -123,6 +123,7 @@ impl SpeedControls {
                         Text::from(Line("+0.1s").fg(Color::ORANGE).size(21).roboto()),
                         hotkey(Key::M),
                         "step forwards 0.1 seconds",
+                        false,
                         ctx,
                     )),
                     ManagedWidget::btn(Button::text_no_bg(
@@ -130,6 +131,7 @@ impl SpeedControls {
                         Text::from(Line("+1h").fg(Color::ORANGE).size(21).roboto()),
                         hotkey(Key::N),
                         "step forwards 1 hour",
+                        false,
                         ctx,
                     )),
                     ManagedWidget::btn(Button::rectangle_svg(

@@ -13,7 +13,7 @@ use ezgui::{
     GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget, ModalMenu, Outcome, RewriteColor, Text,
     VerticalAlignment,
 };
-use geom::{Duration, Polygon};
+use geom::{Distance, Duration, Polygon};
 use map_model::{ControlTrafficSignal, EditCmd, IntersectionID, Phase, TurnGroupID, TurnPriority};
 use sim::Sim;
 use std::collections::BTreeSet;
@@ -474,7 +474,7 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
         if idx == selected {
             normal.push(Color::RED.alpha(0.15), bbox.clone());
         } else {
-            normal.push(Color::CYAN.alpha(0.05), bbox.clone());
+            normal.push(Color::BLACK, bbox.clone());
         }
         // Move to the origin and apply zoom
         for (color, poly) in orig_batch.consume() {
@@ -485,14 +485,14 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
         }
 
         let mut hovered = GeomBatch::new();
-        hovered.push(Color::RED.alpha(0.95), bbox.clone());
         hovered.append(normal.clone());
+        hovered.push(Color::RED, bbox.to_outline(Distance::meters(5.0)));
 
         let mut move_phase = Vec::new();
         if idx != 0 {
-            move_phase.push(WrappedComposite::detailed_text_button(
+            move_phase.push(WrappedComposite::nice_text_button(
                 ctx,
-                Text::from(Line("↑").fg(Color::BLACK)),
+                Text::from(Line("↑")),
                 if selected == idx {
                     hotkey(Key::K)
                 } else {
@@ -502,9 +502,9 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
             ));
         }
         if idx != signal.phases.len() - 1 {
-            move_phase.push(WrappedComposite::detailed_text_button(
+            move_phase.push(WrappedComposite::nice_text_button(
                 ctx,
-                Text::from(Line("↓").fg(Color::BLACK)),
+                Text::from(Line("↓")),
                 if selected == idx {
                     hotkey(Key::J)
                 } else {
@@ -514,17 +514,20 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
             ));
         }
 
-        col.push(ManagedWidget::row(vec![
-            ManagedWidget::btn(Button::new(
-                DrawBoth::new(ctx, normal, Vec::new()),
-                DrawBoth::new(ctx, hovered, Vec::new()),
-                None,
-                &format!("phase {}", idx + 1),
-                bbox.clone(),
-            ))
+        col.push(
+            ManagedWidget::row(vec![
+                ManagedWidget::btn(Button::new(
+                    DrawBoth::new(ctx, normal, Vec::new()),
+                    DrawBoth::new(ctx, hovered, Vec::new()),
+                    None,
+                    &format!("phase {}", idx + 1),
+                    bbox.clone(),
+                ))
+                .margin(5),
+                ManagedWidget::col(move_phase),
+            ])
             .margin(5),
-            ManagedWidget::col(move_phase),
-        ]));
+        );
         col.push(WrappedComposite::text_button(
             ctx,
             &format!("add new phase after #{}", idx + 1),
