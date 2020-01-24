@@ -47,9 +47,13 @@ impl<'a> EventCtx<'a> {
     }
 
     // Use to immediately plumb through an (empty) event to something
-    pub fn fake_mouseover<O, F: FnMut(&mut EventCtx) -> O>(&mut self, mut cb: F) -> O {
+    pub fn no_op_event<O, F: FnMut(&mut EventCtx) -> O>(
+        &mut self,
+        fake_mouseover: bool,
+        mut cb: F,
+    ) -> O {
         let mut tmp = EventCtx {
-            fake_mouseover: true,
+            fake_mouseover,
             input: UserInput::new(Event::NoOp, self.canvas),
             canvas: self.canvas,
             prerender: self.prerender,

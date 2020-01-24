@@ -877,7 +877,7 @@ impl CompositeBuilder {
             c.clip_rect = Some(ScreenRectangle::top_left(top_left, c.container_dims));
         }
 
-        ctx.fake_mouseover(|ctx| assert!(c.event(ctx).is_none()));
+        ctx.no_op_event(true, |ctx| assert!(c.event(ctx).is_none()));
         c
     }
 

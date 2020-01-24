@@ -42,9 +42,13 @@ impl GUI for Game {
         // If we fall through, there's a new state that we need to wakeup.
         match transition {
             Transition::Keep => {
+                self.ui.per_obj.assert_chosen_used();
                 return EventLoopMode::InputOnly;
             }
-            Transition::KeepWithMode(evmode) => return evmode,
+            Transition::KeepWithMode(evmode) => {
+                self.ui.per_obj.assert_chosen_used();
+                return evmode;
+            }
             Transition::Pop => {
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
                 if self.states.is_empty() {
@@ -85,7 +89,9 @@ impl GUI for Game {
             }
             Transition::ApplyObjectAction(action) => {
                 self.ui.per_obj.action_chosen(action);
-                return EventLoopMode::InputOnly;
+                // Immediately go trigger the action. Things'll break unless current_selection
+                // remains the same, so DON'T redo mouseover.
+                return ctx.no_op_event(false, |ctx| self.event(ctx));
             }
             Transition::PushTwice(s1, s2) => {
                 self.states
@@ -94,6 +100,7 @@ impl GUI for Game {
                     .on_suspend(ctx, &mut self.ui);
                 self.states.push(s1);
                 self.states.push(s2);
+                self.ui.per_obj.assert_chosen_used();
                 return EventLoopMode::InputOnly;
             }
         };
@@ -101,7 +108,7 @@ impl GUI for Game {
         // Let the new state initialize with a fake event. Usually these just return
         // Transition::Keep, but nothing stops them from doing whatever. (For example, entering
         // tutorial mode immediately pushes on a Warper.) So just recurse.
-        ctx.fake_mouseover(|ctx| self.event(ctx))
+        ctx.no_op_event(true, |ctx| self.event(ctx))
     }
 
     fn draw(&self, g: &mut GfxCtx) {
