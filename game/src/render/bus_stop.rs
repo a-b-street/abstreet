@@ -64,12 +64,8 @@ impl Renderable for DrawBusStop {
         ID::BusStop(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, _ctx: &DrawCtx) {
-        if let Some(color) = opts.color(self.get_id()) {
-            g.draw_polygon(color, &self.polygon);
-        } else {
-            g.redraw(&self.draw_default);
-        }
+    fn draw(&self, g: &mut GfxCtx, _: &DrawOptions, _: &DrawCtx) {
+        g.redraw(&self.draw_default);
     }
 
     fn get_outline(&self, _: &Map) -> Polygon {

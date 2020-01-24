@@ -72,10 +72,7 @@ impl Renderable for DrawBuilding {
         ID::Building(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, ctx: &DrawCtx) {
-        if let Some(color) = opts.color(self.get_id()) {
-            g.draw_polygon(color, &ctx.map.get_b(self.id).polygon);
-        }
+    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, _: &DrawCtx) {
         if opts.label_buildings {
             if let Some(ref txt) = self.label {
                 g.draw_text_at_mapspace(txt, self.label_pos);

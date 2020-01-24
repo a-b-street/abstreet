@@ -121,43 +121,38 @@ impl Renderable for DrawIntersection {
     }
 
     fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, ctx: &DrawCtx) {
-        if let Some(color) = opts.color(self.get_id()) {
-            // Don't draw the sidewalk corners
-            g.draw_polygon(color, &ctx.map.get_i(self.id).polygon);
-        } else {
-            g.redraw(&self.draw_default);
+        g.redraw(&self.draw_default);
 
-            if self.intersection_type == IntersectionType::TrafficSignal
-                && opts.suppress_traffic_signal_details != Some(self.id)
-            {
-                let signal = ctx.map.get_traffic_signal(self.id);
-                let mut maybe_redraw = self.draw_traffic_signal.borrow_mut();
-                let recalc = maybe_redraw
-                    .as_ref()
-                    .map(|(t, _, _, _)| *t != ctx.sim.time())
-                    .unwrap_or(true);
-                if recalc {
-                    let (idx, phase, t) = signal.current_phase_and_remaining_time(ctx.sim.time());
-                    let mut batch = GeomBatch::new();
-                    draw_signal_phase(
-                        phase,
-                        self.id,
-                        Some(t),
-                        &mut batch,
-                        ctx,
-                        ctx.opts.traffic_signal_style.clone(),
-                    );
-                    *maybe_redraw = Some((
-                        ctx.sim.time(),
-                        g.prerender.upload(batch),
-                        Text::from(Line(format!("{}", idx + 1)).roboto()),
-                        ctx.map.get_i(self.id).polygon.center(),
-                    ));
-                }
-                let (_, batch, txt, pt) = maybe_redraw.as_ref().unwrap();
-                g.redraw(batch);
-                g.draw_text_at_mapspace(txt, *pt);
+        if self.intersection_type == IntersectionType::TrafficSignal
+            && opts.suppress_traffic_signal_details != Some(self.id)
+        {
+            let signal = ctx.map.get_traffic_signal(self.id);
+            let mut maybe_redraw = self.draw_traffic_signal.borrow_mut();
+            let recalc = maybe_redraw
+                .as_ref()
+                .map(|(t, _, _, _)| *t != ctx.sim.time())
+                .unwrap_or(true);
+            if recalc {
+                let (idx, phase, t) = signal.current_phase_and_remaining_time(ctx.sim.time());
+                let mut batch = GeomBatch::new();
+                draw_signal_phase(
+                    phase,
+                    self.id,
+                    Some(t),
+                    &mut batch,
+                    ctx,
+                    ctx.opts.traffic_signal_style.clone(),
+                );
+                *maybe_redraw = Some((
+                    ctx.sim.time(),
+                    g.prerender.upload(batch),
+                    Text::from(Line(format!("{}", idx + 1)).roboto()),
+                    ctx.map.get_i(self.id).polygon.center(),
+                ));
             }
+            let (_, batch, txt, pt) = maybe_redraw.as_ref().unwrap();
+            g.redraw(batch);
+            g.draw_text_at_mapspace(txt, *pt);
         }
     }
 

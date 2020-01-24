@@ -24,11 +24,10 @@ use crate::render::pedestrian::{DrawPedCrowd, DrawPedestrian};
 pub use crate::render::road::DrawRoad;
 pub use crate::render::traffic_signal::draw_signal_phase;
 pub use crate::render::turn::{DrawTurn, DrawTurnGroup};
-use ezgui::{Color, GfxCtx, Prerender};
+use ezgui::{GfxCtx, Prerender};
 use geom::{Distance, PolyLine, Polygon, Pt2D, EPSILON_DIST};
 use map_model::{IntersectionID, Map};
 use sim::{DrawCarInput, Sim, VehicleType};
-use std::collections::HashMap;
 
 pub const MIN_ZOOM_FOR_DETAIL: f64 = 2.5;
 
@@ -99,7 +98,6 @@ pub struct DrawCtx<'a> {
 // DrawOptions.
 #[derive(Clone)]
 pub struct DrawOptions {
-    pub override_colors: HashMap<ID, Color>,
     pub suppress_traffic_signal_details: Option<IntersectionID>,
     pub label_buildings: bool,
     pub label_roads: bool,
@@ -108,14 +106,9 @@ pub struct DrawOptions {
 impl DrawOptions {
     pub fn new() -> DrawOptions {
         DrawOptions {
-            override_colors: HashMap::new(),
             suppress_traffic_signal_details: None,
             label_buildings: false,
             label_roads: false,
         }
-    }
-
-    pub fn color(&self, id: ID) -> Option<Color> {
-        self.override_colors.get(&id).cloned()
     }
 }

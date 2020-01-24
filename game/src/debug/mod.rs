@@ -1,4 +1,3 @@
-mod connected_roads;
 mod floodfill;
 mod objects;
 mod polygons;
@@ -8,7 +7,6 @@ use crate::common::{tool_panel, CommonState};
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
-use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::{ShowLayers, ShowObject, UI};
 use ezgui::{
     hotkey, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu,
@@ -22,7 +20,6 @@ pub struct DebugMode {
     menu: ModalMenu,
     common: CommonState,
     tool_panel: WrappedComposite,
-    connected_roads: connected_roads::ShowConnectedRoads,
     objects: objects::ObjectDebugger,
     hidden: HashSet<ID>,
     layers: ShowLayers,
@@ -54,7 +51,6 @@ impl DebugMode {
             ),
             common: CommonState::new(),
             tool_panel: tool_panel(ctx),
-            connected_roads: connected_roads::ShowConnectedRoads::new(),
             objects: objects::ObjectDebugger::new(),
             hidden: HashSet::new(),
             layers: ShowLayers::new(),
@@ -79,8 +75,7 @@ impl State for DebugMode {
             if let Some(ref results) = self.search_results {
                 txt.add(Line(format!(
                     "Search for {} has {} results",
-                    results.query,
-                    results.ids.len()
+                    results.query, results.num_matches
                 )));
             }
             if let routes::AllRoutesViewer::Active(_, ref traces) = self.all_routes {
@@ -191,7 +186,6 @@ impl State for DebugMode {
                 ));
             }
         }
-        self.connected_roads.event(ctx, ui);
         self.objects.event(ctx, ui);
 
         if let Some(debugger) = polygons::PolygonDebugger::new(ctx, ui) {
@@ -278,26 +272,10 @@ impl State for DebugMode {
         let mut opts = self.common.draw_options(ui);
         opts.label_buildings = self.layers.show_labels;
         opts.label_roads = self.layers.show_labels;
-        for l in &self.connected_roads.lanes {
-            opts.override_colors.insert(
-                ID::Lane(*l),
-                ui.cs.get("something associated with something else"),
-            );
-        }
-        if g.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL {
-            if let Some(ref results) = self.search_results {
-                for id in &results.ids {
-                    opts.override_colors
-                        .insert(id.clone(), ui.cs.get("search result"));
-                }
-            }
-        }
         ui.draw(g, opts, &ui.primary.sim, self);
 
-        if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
-            if let Some(ref results) = self.search_results {
-                g.redraw(&results.unzoomed);
-            }
+        if let Some(ref results) = self.search_results {
+            g.redraw(&results.draw);
         }
 
         self.objects.draw(g, ui);
@@ -334,9 +312,10 @@ impl ShowObject for DebugMode {
 
 fn search_osm(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
     let filter = wiz.wrap(ctx).input_string("Search for what?")?;
-    let mut ids = HashSet::new();
+    let mut num_matches = 0;
     let mut batch = GeomBatch::new();
 
+    // TODO Case insensitive
     let map = &ui.primary.map;
     let color = ui.cs.get_def("search result", Color::RED);
     for r in map.all_roads() {
@@ -344,9 +323,7 @@ fn search_osm(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Trans
             .iter()
             .any(|(k, v)| format!("{} = {}", k, v).contains(&filter))
         {
-            for l in r.all_lanes() {
-                ids.insert(ID::Lane(l));
-            }
+            num_matches += 1;
             batch.push(color, r.get_thick_polygon().unwrap());
         }
     }
@@ -355,7 +332,7 @@ fn search_osm(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Trans
             .iter()
             .any(|(k, v)| format!("{} = {}", k, v).contains(&filter))
         {
-            ids.insert(ID::Building(b.id));
+            num_matches += 1;
             batch.push(color, b.polygon.clone());
         }
     }
@@ -364,15 +341,15 @@ fn search_osm(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Trans
             .iter()
             .any(|(k, v)| format!("{} = {}", k, v).contains(&filter))
         {
-            ids.insert(ID::Area(a.id));
+            num_matches += 1;
             batch.push(color, a.polygon.clone());
         }
     }
 
     let results = SearchResults {
         query: filter,
-        ids,
-        unzoomed: batch.upload(ctx),
+        num_matches,
+        draw: batch.upload(ctx),
     };
 
     Some(Transition::PopWithData(Box::new(|state, _, _| {
@@ -382,8 +359,8 @@ fn search_osm(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Trans
 
 struct SearchResults {
     query: String,
-    ids: HashSet<ID>,
-    unzoomed: Drawable,
+    num_matches: usize,
+    draw: Drawable,
 }
 
 fn load_savestate(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {

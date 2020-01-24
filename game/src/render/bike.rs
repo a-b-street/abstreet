@@ -97,12 +97,8 @@ impl Renderable for DrawBike {
         ID::Car(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, _: &DrawCtx) {
-        if let Some(color) = opts.color(self.get_id()) {
-            g.draw_circle(color, &self.body_circle);
-        } else {
-            g.redraw(&self.draw_default);
-        }
+    fn draw(&self, g: &mut GfxCtx, _: &DrawOptions, _: &DrawCtx) {
+        g.redraw(&self.draw_default);
     }
 
     fn get_outline(&self, _: &Map) -> Polygon {

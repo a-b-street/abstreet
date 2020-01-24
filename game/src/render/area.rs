@@ -25,11 +25,7 @@ impl Renderable for DrawArea {
         ID::Area(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, ctx: &DrawCtx) {
-        if let Some(color) = opts.color(self.get_id()) {
-            g.draw_polygon(color, &ctx.map.get_a(self.id).polygon);
-        }
-    }
+    fn draw(&self, _: &mut GfxCtx, _: &DrawOptions, _: &DrawCtx) {}
 
     fn get_outline(&self, map: &Map) -> Polygon {
         // Since areas are so big, don't just draw the outline

@@ -127,12 +127,8 @@ impl Renderable for DrawCar {
         ID::Car(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, _: &DrawCtx) {
-        if let Some(color) = opts.color(self.get_id()) {
-            g.draw_polygon(color, &self.body_polygon);
-        } else {
-            g.redraw(&self.draw_default);
-        }
+    fn draw(&self, g: &mut GfxCtx, _: &DrawOptions, _: &DrawCtx) {
+        g.redraw(&self.draw_default);
 
         if let Some(ref txt) = self.label {
             // TODO Would rotation make any sense? Or at least adjust position/size while turning.
