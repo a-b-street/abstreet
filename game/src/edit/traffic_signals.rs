@@ -94,7 +94,9 @@ impl State for TrafficSignalEditor {
                     self.redo_stack.clear();
                     self.top_panel = make_top_panel(true, false, ctx);
                     change_traffic_signal(new_signal, ui, ctx);
-                    self.change_phase(0, ui, ctx);
+                    // Don't use change_phase; it tries to preserve scroll
+                    self.current_phase = 0;
+                    self.composite = make_diagram(self.i, self.current_phase, ui, ctx);
                     return Transition::Keep;
                 }
                 x if x == "Use preset" => {
@@ -102,12 +104,13 @@ impl State for TrafficSignalEditor {
                 }
                 x if x == "Make all-walk" => {
                     let mut new_signal = orig_signal.clone();
-                    new_signal.convert_to_ped_scramble(&ui.primary.map);
-                    self.command_stack.push(orig_signal.clone());
-                    self.redo_stack.clear();
-                    self.top_panel = make_top_panel(true, false, ctx);
-                    change_traffic_signal(new_signal, ui, ctx);
-                    self.change_phase(0, ui, ctx);
+                    if new_signal.convert_to_ped_scramble(&ui.primary.map) {
+                        self.command_stack.push(orig_signal.clone());
+                        self.redo_stack.clear();
+                        self.top_panel = make_top_panel(true, false, ctx);
+                        change_traffic_signal(new_signal, ui, ctx);
+                        self.change_phase(0, ui, ctx);
+                    }
                     return Transition::Keep;
                 }
                 x if x.starts_with("change duration of #") => {
@@ -227,6 +230,7 @@ impl State for TrafficSignalEditor {
                     self.redo_stack.clear();
                     self.top_panel = make_top_panel(true, false, ctx);
                     change_traffic_signal(new_signal, ui, ctx);
+                    self.change_phase(self.current_phase, ui, ctx);
                     return Transition::Keep;
                 }
             }

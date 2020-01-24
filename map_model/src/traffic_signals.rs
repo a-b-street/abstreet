@@ -449,10 +449,26 @@ impl ControlTrafficSignal {
         ts.validate().ok()
     }
 
-    pub fn convert_to_ped_scramble(&mut self, map: &Map) {
+    // Returns true if this did anything
+    pub fn convert_to_ped_scramble(&mut self, map: &Map) -> bool {
+        let orig = self.clone();
+
+        let mut all_walk_phase = Phase::new();
+        for g in self.turn_groups.values() {
+            if g.turn_type == TurnType::Crosswalk {
+                all_walk_phase.edit_group(g, TurnPriority::Protected, &self.turn_groups, map);
+            }
+        }
+
         // Remove Crosswalk groups from existing phases.
         let mut replaced = std::mem::replace(&mut self.phases, Vec::new());
+        let mut has_all_walk = false;
         for phase in replaced.iter_mut() {
+            if !has_all_walk && phase == &all_walk_phase {
+                has_all_walk = true;
+                continue;
+            }
+
             // Crosswalks are only in protected_groups.
             retain_btreeset(&mut phase.protected_groups, |g| {
                 self.turn_groups[g].turn_type != TurnType::Crosswalk
@@ -472,13 +488,10 @@ impl ControlTrafficSignal {
         }
         self.phases = replaced;
 
-        let mut phase = Phase::new();
-        for g in self.turn_groups.values() {
-            if g.turn_type == TurnType::Crosswalk {
-                phase.edit_group(g, TurnPriority::Protected, &self.turn_groups, map);
-            }
+        if !has_all_walk {
+            self.phases.push(all_walk_phase);
         }
-        self.phases.push(phase);
+        self != &orig
     }
 }
 
