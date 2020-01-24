@@ -1,4 +1,4 @@
-use crate::common::{ColorLegend, Colorer, ColorerBuilder, ShowBusRoute, Warping};
+use crate::common::{ColorLegend, Colorer, ShowBusRoute, Warping};
 use crate::game::Transition;
 use crate::helpers::rotating_color_total;
 use crate::helpers::ID;
@@ -342,7 +342,7 @@ impl Overlays {
         let bad = Color::hex("#EB5757");
         let meh = Color::hex("#F2C94C");
         let good = Color::hex("#7FFA4D");
-        let mut colorer = ColorerBuilder::new(
+        let mut colorer = Colorer::new(
             txt,
             vec![
                 ("< 10%", awful),
@@ -402,7 +402,7 @@ impl Overlays {
         let fast = Color::hex("#7FFA4D");
         let meh = Color::hex("#F4DA22");
         let slow = Color::hex("#EB5757");
-        let mut colorer = ColorerBuilder::new(
+        let mut colorer = Colorer::new(
             Text::from(Line(
                 "intersection delay for traffic signals in the last 2 hours (90%ile)",
             )),
@@ -434,7 +434,7 @@ impl Overlays {
         let light = Color::hex("#7FFA4D");
         let medium = Color::hex("#F4DA22");
         let heavy = Color::hex("#EB5757");
-        let mut colorer = ColorerBuilder::new(
+        let mut colorer = Colorer::new(
             Text::from(Line("Throughput")),
             vec![
                 ("< 50%ile", light),
@@ -486,7 +486,7 @@ impl Overlays {
 
     fn bike_network(ctx: &mut EventCtx, ui: &UI) -> Overlays {
         let color = Color::hex("#7FFA4D");
-        let mut colorer = ColorerBuilder::new(
+        let mut colorer = Colorer::new(
             Text::from(Line("bike networks")),
             vec![("bike lanes", color)],
         );
@@ -501,7 +501,7 @@ impl Overlays {
     fn bus_network(ctx: &mut EventCtx, ui: &UI) -> Overlays {
         let lane = Color::hex("#4CA7E9");
         let stop = Color::hex("#4CA7E9");
-        let mut colorer = ColorerBuilder::new(
+        let mut colorer = Colorer::new(
             Text::from(Line("bus networks")),
             vec![("bus lanes", lane), ("bus stops", stop)],
         );
@@ -761,7 +761,7 @@ impl Overlays {
         )));
 
         let changed = Color::RED;
-        let mut colorer = ColorerBuilder::new(txt, vec![("modified lane/intersection", changed)]);
+        let mut colorer = Colorer::new(txt, vec![("modified lane/intersection", changed)]);
 
         for l in edits.original_lts.keys().chain(&edits.reversed_lanes) {
             colorer.add_l(*l, changed, &ui.primary.map);

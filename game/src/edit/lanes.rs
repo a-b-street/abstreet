@@ -1,10 +1,11 @@
+use crate::common::Colorer;
 use crate::edit::apply_map_edits;
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::ui::UI;
 use ezgui::{
     hotkey, Button, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key,
-    ManagedWidget, Outcome, VerticalAlignment,
+    ManagedWidget, Outcome, Text, VerticalAlignment,
 };
 use map_model::{
     connectivity, EditCmd, IntersectionType, LaneID, LaneType, Map, PathConstraints, RoadID,
@@ -158,15 +159,20 @@ impl LaneEditor {
                         let mut edits = ui.primary.map.get_edits().clone();
                         edits.commands.pop();
                         apply_map_edits(ctx, ui, edits);
+
                         let mut err_state = msg(
                             "Error",
                             vec![format!("{} sidewalks disconnected", disconnected.len())],
                         );
-                        let opts = &mut err_state.downcast_mut::<WizardState>().unwrap().draw_opts;
+
+                        let color = ui.cs.get("unreachable lane");
+                        let mut c = Colorer::new(Text::new(), vec![("", color)]);
                         for l in disconnected {
-                            opts.override_colors
-                                .insert(ID::Lane(l), ui.cs.get("unreachable lane"));
+                            c.add_l(l, color, &ui.primary.map);
                         }
+
+                        err_state.downcast_mut::<WizardState>().unwrap().also_draw =
+                            Some(c.build_zoomed(ctx, ui));
                         return Some(Transition::Push(err_state));
                     }
                 }

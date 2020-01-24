@@ -5,7 +5,7 @@ use crate::render::DrawOptions;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::{Flags, ShowEverything, UI};
 use ezgui::{
-    Canvas, Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Line, Text,
+    Canvas, Color, Drawable, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Line, Text,
     VerticalAlignment, Wizard, GUI,
 };
 use geom::Polygon;
@@ -196,7 +196,7 @@ pub struct WizardState {
     wizard: Wizard,
     // Returning None means stay in this WizardState
     cb: Box<dyn Fn(&mut Wizard, &mut EventCtx, &mut UI) -> Option<Transition>>,
-    pub draw_opts: DrawOptions,
+    pub also_draw: Option<Drawable>,
 }
 
 impl WizardState {
@@ -206,7 +206,7 @@ impl WizardState {
         Box::new(WizardState {
             wizard: Wizard::new(),
             cb,
-            draw_opts: DrawOptions::new(),
+            also_draw: None,
         })
     }
 }
@@ -221,17 +221,11 @@ impl State for WizardState {
         Transition::Keep
     }
 
-    fn draw_default_ui(&self) -> bool {
-        false
-    }
-
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        ui.draw(
-            g,
-            self.draw_opts.clone(),
-            &ui.primary.sim,
-            &ShowEverything::new(),
-        );
+        if let Some(ref d) = self.also_draw {
+            g.redraw(d);
+        }
+
         // Make it clear the map can't be interacted with right now.
         g.fork_screenspace();
         // TODO - OSD height

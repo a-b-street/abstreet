@@ -26,6 +26,20 @@ pub struct Colorer {
 }
 
 impl Colorer {
+    // Colors listed earlier override those listed later. This is used in unzoomed mode, when one
+    // road has lanes of different colors.
+    pub fn new(header: Text, prioritized_colors: Vec<(&'static str, Color)>) -> ColorerBuilder {
+        ColorerBuilder {
+            header,
+            prioritized_colors,
+            lanes: HashMap::new(),
+            roads: HashMap::new(),
+            intersections: HashMap::new(),
+            buildings: HashMap::new(),
+            bus_stops: HashMap::new(),
+        }
+    }
+
     // If true, destruct this Colorer.
     pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
         match self.legend.event(ctx) {
@@ -47,20 +61,6 @@ impl Colorer {
 }
 
 impl ColorerBuilder {
-    // Colors listed earlier override those listed later. This is used in unzoomed mode, when one
-    // road has lanes of different colors.
-    pub fn new(header: Text, prioritized_colors: Vec<(&'static str, Color)>) -> ColorerBuilder {
-        ColorerBuilder {
-            header,
-            prioritized_colors,
-            lanes: HashMap::new(),
-            roads: HashMap::new(),
-            intersections: HashMap::new(),
-            buildings: HashMap::new(),
-            bus_stops: HashMap::new(),
-        }
-    }
-
     pub fn add_l(&mut self, l: LaneID, color: Color, map: &Map) {
         self.lanes.insert(l, color);
         let r = map.get_parent(l).id;
@@ -150,6 +150,10 @@ impl ColorerBuilder {
             unzoomed: unzoomed.upload(ctx),
             legend,
         }
+    }
+
+    pub fn build_zoomed(self, ctx: &mut EventCtx, ui: &UI) -> Drawable {
+        self.build(ctx, ui).zoomed
     }
 }
 

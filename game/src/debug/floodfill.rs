@@ -1,4 +1,4 @@
-use crate::common::{Colorer, ColorerBuilder};
+use crate::common::Colorer;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::ui::UI;
@@ -43,7 +43,7 @@ impl Floodfiller {
         let reachable_color = ui.cs.get_def("reachable lane", Color::GREEN);
         let unreachable_color = ui.cs.get_def("unreachable lane", Color::RED);
 
-        let mut colorer = ColorerBuilder::new(
+        let mut colorer = Colorer::new(
             Text::from(Line("lane connectivity")),
             vec![
                 ("unreachable", unreachable_color),

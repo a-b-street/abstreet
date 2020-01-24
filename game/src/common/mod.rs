@@ -10,7 +10,7 @@ mod turn_cycler;
 mod warp;
 
 pub use self::bus_explorer::ShowBusRoute;
-pub use self::colors::{ColorLegend, Colorer, ColorerBuilder};
+pub use self::colors::{ColorLegend, Colorer};
 pub use self::minimap::Minimap;
 pub use self::overlays::Overlays;
 pub use self::panels::tool_panel;

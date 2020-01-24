@@ -1,12 +1,11 @@
-use crate::common::CommonState;
+use crate::common::{Colorer, CommonState};
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
-use crate::render::DrawOptions;
 use crate::sandbox::gameplay::freeform::Freeform;
 use crate::sandbox::SandboxMode;
-use crate::ui::{ShowEverything, UI};
+use crate::ui::UI;
 use abstutil::Timer;
-use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu};
+use ezgui::{hotkey, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
 use geom::{Distance, Duration, PolyLine};
 use map_model::{
     BuildingID, IntersectionID, LaneID, Map, PathConstraints, PathRequest, Position, LANE_THICKNESS,
@@ -24,6 +23,7 @@ pub struct AgentSpawner {
     menu: ModalMenu,
     from: Source,
     maybe_goal: Option<(Goal, Option<PolyLine>)>,
+    colorer: Colorer,
 }
 
 enum Source {
@@ -44,8 +44,13 @@ enum Goal {
 impl AgentSpawner {
     pub fn new(ctx: &mut EventCtx, ui: &mut UI) -> Option<Box<dyn State>> {
         let map = &ui.primary.map;
+        let color = ui.cs.get("selected");
+        let mut c = Colorer::new(Text::from(Line("spawning agent")), vec![("start", color)]);
+
         match ui.primary.current_selection {
             Some(ID::Building(id)) => {
+                c.add_b(id, color);
+
                 let spots = ui.primary.sim.get_free_offstreet_spots(id);
                 if !spots.is_empty() && ui.per_obj.action(ctx, Key::F6, "seed a parked car here") {
                     let mut rng = ui.primary.current_flags.sim_flags.make_rng();
@@ -69,6 +74,7 @@ impl AgentSpawner {
                         ),
                         from: Source::WalkFromBldg(id),
                         maybe_goal: None,
+                        colorer: c.build(ctx, ui),
                     }));
                 }
                 let parked = ui.primary.sim.get_parked_cars_by_owner(id);
@@ -88,6 +94,7 @@ impl AgentSpawner {
                         ),
                         from: Source::WalkFromBldgThenMaybeUseCar(id),
                         maybe_goal: None,
+                        colorer: c.build(ctx, ui),
                     }));
                 }
                 if let Some(pos) = Position::bldg_via_driving(id, map) {
@@ -100,6 +107,7 @@ impl AgentSpawner {
                             ),
                             from: Source::Drive(pos),
                             maybe_goal: None,
+                            colorer: c.build(ctx, ui),
                         }));
                     }
                 }
@@ -116,11 +124,14 @@ impl AgentSpawner {
                             ),
                             from: Source::BikeFromBldg(id, pos),
                             maybe_goal: None,
+                            colorer: c.build(ctx, ui),
                         }));
                     }
                 }
             }
             Some(ID::Lane(id)) => {
+                c.add_l(id, color, map);
+
                 if map.get_l(id).is_driving()
                     && ui.per_obj.action(ctx, Key::F3, "spawn a car starting here")
                 {
@@ -132,6 +143,7 @@ impl AgentSpawner {
                         ),
                         from: Source::Drive(Position::new(id, map.get_l(id).length() / 2.0)),
                         maybe_goal: None,
+                        colorer: c.build(ctx, ui),
                     }));
                 } else if map.get_l(id).is_sidewalk()
                     && ui
@@ -149,6 +161,7 @@ impl AgentSpawner {
                             map.get_l(id).length() / 2.0,
                         )),
                         maybe_goal: None,
+                        colorer: c.build(ctx, ui),
                     }));
                 }
             }
@@ -269,20 +282,8 @@ impl State for AgentSpawner {
         Transition::Keep
     }
 
-    fn draw_default_ui(&self) -> bool {
-        false
-    }
-
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        let src = match self.from {
-            Source::WalkFromBldg(b)
-            | Source::WalkFromBldgThenMaybeUseCar(b)
-            | Source::BikeFromBldg(b, _) => ID::Building(b),
-            Source::WalkFromSidewalk(pos) | Source::Drive(pos) => ID::Lane(pos.lane()),
-        };
-        let mut opts = DrawOptions::new();
-        opts.override_colors.insert(src, ui.cs.get("selected"));
-        ui.draw(g, opts, &ui.primary.sim, &ShowEverything::new());
+        self.colorer.draw(g);
 
         if let Some((_, Some(ref trace))) = self.maybe_goal {
             g.draw_polygon(ui.cs.get("route"), &trace.make_polygons(LANE_THICKNESS));
@@ -503,6 +504,7 @@ pub struct SpawnManyAgents {
     from: LaneID,
     maybe_goal: Option<(LaneID, Option<PolyLine>)>,
     schedule: Option<(usize, Duration)>,
+    colorer: Colorer,
 }
 
 impl SpawnManyAgents {
@@ -513,6 +515,13 @@ impl SpawnManyAgents {
                     .per_obj
                     .action(ctx, Key::F2, "spawn many cars starting here")
             {
+                let color = ui.cs.get("selected");
+                let mut c = Colorer::new(
+                    Text::from(Line("spawning many agents")),
+                    vec![("start", color)],
+                );
+                c.add_l(l, color, &ui.primary.map);
+
                 return Some(Box::new(SpawnManyAgents {
                     menu: ModalMenu::new(
                         "Spawn many agents",
@@ -522,6 +531,7 @@ impl SpawnManyAgents {
                     from: l,
                     maybe_goal: None,
                     schedule: None,
+                    colorer: c.build(ctx, ui),
                 }));
             }
         }
@@ -610,18 +620,8 @@ impl State for SpawnManyAgents {
         Transition::Keep
     }
 
-    fn draw_default_ui(&self) -> bool {
-        false
-    }
-
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        // TODO Overkill to do this just for one override?
-        // TODO Maybe invert the control, make the default draw UI ask for overrides from the
-        // state.
-        let mut opts = DrawOptions::new();
-        opts.override_colors
-            .insert(ID::Lane(self.from), ui.cs.get("selected"));
-        ui.draw(g, opts, &ui.primary.sim, &ShowEverything::new());
+        self.colorer.draw(g);
 
         if let Some((_, Some(ref trace))) = self.maybe_goal {
             g.draw_polygon(ui.cs.get("route"), &trace.make_polygons(LANE_THICKNESS));

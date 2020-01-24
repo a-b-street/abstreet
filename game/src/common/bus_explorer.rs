@@ -1,4 +1,4 @@
-use crate::common::{Colorer, ColorerBuilder, Overlays};
+use crate::common::{Colorer, Overlays};
 use crate::game::{State, Transition, WizardState};
 use crate::ui::UI;
 use ezgui::{Choice, Color, EventCtx, GeomBatch, GfxCtx, Line, Text};
@@ -23,7 +23,7 @@ impl ShowBusRoute {
 
         let mut txt = Text::from(Line(&route.name));
         txt.add(Line(format!("{} buses", bus_locations.len())));
-        let mut colorer = ColorerBuilder::new(txt, vec![("route", Color::RED)]);
+        let mut colorer = Colorer::new(txt, vec![("route", Color::RED)]);
         for (stop1, stop2) in
             route
                 .stops

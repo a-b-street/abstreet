@@ -1,4 +1,4 @@
-use crate::common::{tool_panel, Colorer, ColorerBuilder, CommonState, Warping};
+use crate::common::{tool_panel, Colorer, CommonState, Warping};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
@@ -88,7 +88,7 @@ impl ScenarioManager {
             }
         }
 
-        let mut bldg_colors = ColorerBuilder::new(
+        let mut bldg_colors = Colorer::new(
             Text::from(Line("buildings")),
             vec![
                 ("1-2 cars needed", Color::BLUE),
