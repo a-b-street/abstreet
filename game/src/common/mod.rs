@@ -70,8 +70,8 @@ impl CommonState {
                     actions,
                     maybe_speed,
                 ));
+                return None;
             }
-            return None;
         }
 
         if let Some(ref mut info) = self.info_panel {

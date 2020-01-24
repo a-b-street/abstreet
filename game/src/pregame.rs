@@ -140,6 +140,13 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
     .cb(
         "Sandbox mode",
         Box::new(|ctx, ui| {
+            // We might've left tutorial mode with a synthetic map loaded.
+            if !abstutil::list_all_objects(abstutil::path_all_maps())
+                .contains(ui.primary.map.get_name())
+            {
+                ui.switch_map(ctx, abstutil::path_map("montlake"));
+            }
+
             Some(Transition::Push(Box::new(SandboxMode::new(
                 ctx,
                 ui,

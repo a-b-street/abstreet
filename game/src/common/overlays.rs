@@ -140,7 +140,9 @@ impl Overlays {
                     }
                     _ => unreachable!(),
                 },
-                None => {}
+                None => {
+                    ui.overlay = orig_overlay;
+                }
             },
             Overlays::FinishedTripsHistogram(_, ref mut c)
             | Overlays::BusDelaysOverTime(_, _, ref mut c) => match c.event(ctx) {

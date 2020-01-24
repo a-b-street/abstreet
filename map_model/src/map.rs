@@ -805,7 +805,17 @@ fn make_half_map(
             turn_restrictions: raw.roads[&r.id]
                 .turn_restrictions
                 .iter()
-                .map(|(rt, to)| (*rt, road_id_mapping[to]))
+                .filter_map(|(rt, to)| {
+                    if let Some(t) = road_id_mapping.get(to) {
+                        Some((*rt, *t))
+                    } else {
+                        timer.warn(format!(
+                            "Turn restriction from {} points to invalid dst {}",
+                            r.id, to
+                        ));
+                        None
+                    }
+                })
                 .collect(),
             orig_id: r.id,
             children_forwards: Vec::new(),

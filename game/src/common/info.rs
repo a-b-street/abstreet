@@ -545,7 +545,7 @@ fn trip_details(trip: TripID, ctx: &mut EventCtx, ui: &UI) -> (ManagedWidget, Dr
         TripStart::Bldg(b) => {
             let bldg = map.get_b(b);
             col.insert(
-                0,
+                1,
                 ColorLegend::row(ctx, start_color, format!("start at {}", bldg.get_name(map))),
             );
             unzoomed.push(start_color, bldg.polygon.clone());
@@ -554,7 +554,7 @@ fn trip_details(trip: TripID, ctx: &mut EventCtx, ui: &UI) -> (ManagedWidget, Dr
         TripStart::Border(i) => {
             let i = map.get_i(i);
             col.insert(
-                0,
+                1,
                 ColorLegend::row(ctx, start_color, format!("enter map via {}", i.id)),
             );
             unzoomed.push(start_color, i.polygon.clone());
