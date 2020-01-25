@@ -7,8 +7,8 @@ use crate::sandbox::{spawn_agents_around, AgentMeter, SpeedControls, TimePanel};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, ManagedWidget, Outcome, ScreenPt, Text, VerticalAlignment,
+    hotkey, lctrl, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, ScreenPt, Text, VerticalAlignment,
 };
 use geom::{Distance, Duration, PolyLine, Polygon, Pt2D, Time};
 use map_model::{BuildingID, IntersectionID, RoadID};
@@ -85,6 +85,9 @@ impl State for TutorialMode {
                 ">" => {
                     self.state.current += 1;
                     return Transition::Replace(self.state.make_state(ctx, ui));
+                }
+                "edit map" => {
+                    // TODO need to make edit mode jump back here when done. Option<GameplayMode>?
                 }
                 _ => unreachable!(),
             },
@@ -275,6 +278,13 @@ impl State for TutorialMode {
                     return Transition::Replace(self.state.make_state(ctx, ui));
                 }
             }
+        } else if interact == "Watch for 2 minutes" {
+            if ui.primary.sim.time() >= Time::START_OF_DAY + Duration::minutes(2) {
+                self.state.next();
+                return Transition::Replace(self.state.make_state(ctx, ui));
+            }
+        } else if interact == "Make better use of the road space" {
+            // TODO Hmmm...
         }
 
         if let Some(ref mut common) = self.common {
@@ -496,7 +506,7 @@ impl TutorialState {
         self.latest = self.latest.max(self.current);
     }
 
-    fn make_top_center(&self, ctx: &mut EventCtx) -> Composite {
+    fn make_top_center(&self, ctx: &mut EventCtx, edit_map: bool) -> Composite {
         let mut col = vec![ManagedWidget::row(vec![
             ManagedWidget::draw_text(ctx, Text::from(Line("Tutorial").size(26))).margin(5),
             ManagedWidget::draw_batch(
@@ -524,6 +534,17 @@ impl TutorialState {
         .centered()];
         if let Stage::Interact { name, .. } = self.stage() {
             col.push(ManagedWidget::draw_text(ctx, Text::from(Line(*name))));
+        }
+        if edit_map {
+            col.push(
+                WrappedComposite::svg_button(
+                    ctx,
+                    "assets/tools/edit_map.svg",
+                    "edit map",
+                    lctrl(Key::E),
+                )
+                .margin(5),
+            );
         }
 
         Composite::new(ManagedWidget::col(col).bg(Color::grey(0.4)))
@@ -565,7 +586,7 @@ impl TutorialState {
         Box::new(TutorialMode {
             state,
 
-            top_center: self.make_top_center(ctx),
+            top_center: self.make_top_center(ctx, num_interacts >= 7),
 
             msg_panel: match self.stage() {
                 Stage::Msg { ref lines, .. } => Some(
@@ -632,19 +653,25 @@ impl TutorialState {
     }
 
     fn new(ctx: &mut EventCtx, ui: &mut UI) -> TutorialState {
+        let mut state = TutorialState {
+            stages: Vec::new(),
+            latest: 0,
+            current: 0,
+        };
+
         let time = TimePanel::new(ctx, ui);
         let speed = SpeedControls::new(ctx);
         let agent_meter = AgentMeter::new(ctx, ui);
         let minimap = Minimap::new(ctx, ui);
 
-        let mut stages = vec![Stage::msg(vec![
+        state.stages.extend(vec![Stage::msg(vec![
             "Welcome to your first day as a contract traffic engineer --",
             "like a paid assassin, but capable of making WAY more people cry.",
             "Warring factions in Seattle have brought you here.",
         ])
-        .warp_to(ID::Intersection(IntersectionID(141)))];
+        .warp_to(ID::Intersection(IntersectionID(141)))]);
 
-        stages.extend(vec![
+        state.stages.extend(vec![
             Stage::msg(vec![
                 "Let's start with the controls for your handy drone.",
                 "Click and drag to pan around the map, and use your scroll wheel or touchpad to \
@@ -659,8 +686,9 @@ impl TutorialState {
             // TODO Just zoom in sufficiently on it, maybe don't even click it yet.
             Stage::interact("Put out the fire at the Montlake Market"),
         ]);
+        // 1 interact
 
-        stages.extend(vec![
+        state.stages.extend(vec![
             Stage::msg(vec![
                 "Er, sorry about that.",
                 "Just a little joke we like to play on the new recruits.",
@@ -681,8 +709,9 @@ impl TutorialState {
             ]),
             Stage::interact("Inspect a lane, intersection, and building"),
         ]);
+        // 2 interacts
 
-        stages.extend(vec![
+        state.stages.extend(vec![
             Stage::msg(vec![
                 "Inspection complete!",
                 "",
@@ -700,8 +729,9 @@ impl TutorialState {
             Stage::msg(vec!["Let's try these controls out. Just wait until 5pm."]),
             Stage::interact("Wait until 5pm"),
         ]);
+        // 3 interacts
 
-        stages.extend(vec![
+        state.stages.extend(vec![
             Stage::msg(vec!["Whew, that took a while! (Hopefully not though...)"]),
             Stage::msg(vec![
                 "You might've figured it out already,",
@@ -721,8 +751,9 @@ impl TutorialState {
             ]),
             Stage::interact("Pause/resume 3 times"),
         ]);
+        // 4 interacts
 
-        stages.extend(vec![
+        state.stages.extend(vec![
             Stage::msg(vec!["Alright alright, no need to wear out your spacebar."]),
             // Don't center on where the agents are, be a little offset
             Stage::msg(vec![
@@ -760,8 +791,9 @@ impl TutorialState {
                 .spawn_around(IntersectionID(247))
                 .warp_to(ID::Building(BuildingID(611))),
         ]);
+        // 5 interacts
 
-        stages.extend(vec![
+        state.stages.extend(vec![
             Stage::msg(vec![
                 "Escort mission complete.",
                 "",
@@ -783,31 +815,50 @@ impl TutorialState {
             ]),
             Stage::interact("Find a road with almost no parking spots available").spawn_randomly(),
         ]);
+        // 6 interacts
 
-        stages.extend(vec![
+        state.stages.extend(vec![
             Stage::msg(vec![
                 "Well done!",
                 "",
                 "Let's see what's happening over here.",
-                "Looks like lots of cars and bikes trying to go to the playfield.",
+                "(Just watch for a moment.)",
             ])
             .warp_to(ID::Building(BuildingID(543)))
             .spawn(Box::new(start_bike_lane_scenario)),
-            Stage::interact("TODO").spawn(Box::new(start_bike_lane_scenario)),
+            Stage::interact("Watch for 2 minutes").spawn(Box::new(start_bike_lane_scenario)),
         ]);
-        // TODO Have them watch and note the problem. Suggest a solution.
+        // 7 interacts
 
-        stages.push(Stage::msg(vec![
+        let top_center = state.make_top_center(ctx, true);
+        state.stages.extend(vec![
+            Stage::msg(vec![
+                "Looks like lots of cars and bikes trying to go to the playfield.",
+                "When lots of cars and bikes share the same lane,",
+                "cars are delayed (assuming there's no room to pass) and",
+                "the cyclist probably feels unsafe too.",
+            ]),
+            Stage::msg(vec![
+                "Luckily, you have the power to modify lanes!",
+                "What if you could transform the parking lane that isn't being used much",
+                "into a protected bike lane?",
+            ]),
+            // TODO Explain how to convert lane types
+            // TODO Explain determinism
+            // TODO Explain why you can't make most changes live
+            Stage::msg(vec!["To edit lanes, click 'edit map'"])
+                .arrow(top_center.center_of("edit map")),
+            Stage::interact("Make better use of the road space")
+                .spawn(Box::new(start_bike_lane_scenario)),
+        ]);
+        // 8 interacts
+
+        state.stages.push(Stage::msg(vec![
             "Training complete!",
             "Go have the appropriate amount of fun.",
         ]));
 
-        TutorialState {
-            stages,
-            latest: 0,
-            current: 0,
-        }
-
+        state
         // You've got a drone and, thanks to extremely creepy surveillance technology, the ability
         // to peer into everyone's trips.
         // People are on fixed schedules: every day, they leave at exactly the same time using the
