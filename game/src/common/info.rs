@@ -75,58 +75,7 @@ impl InfoPanel {
             )));
         }
 
-        col.push(ManagedWidget::draw_text(ctx, info_for(id.clone(), ui)));
-
-        match id {
-            ID::Intersection(i) => {
-                if ui.primary.map.get_i(i).is_traffic_signal() {
-                    col.push(
-                        ManagedWidget::draw_text(
-                            ctx,
-                            Text::from(Line("delay in 20 minute buckets")),
-                        )
-                        .bg(Color::grey(0.5)),
-                    );
-                    col.push(
-                        intersection_delay(i, Duration::minutes(20), ctx, ui)
-                            .bg(Color::grey(0.5))
-                            .margin(10),
-                    );
-                }
-                col.push(
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line("throughput in 20 minute buckets")),
-                    )
-                    .bg(Color::grey(0.5)),
-                );
-                col.push(
-                    intersection_throughput(i, Duration::minutes(20), ctx, ui)
-                        .bg(Color::grey(0.5))
-                        .margin(10),
-                );
-            }
-            ID::Lane(l) => {
-                col.push(
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line("throughput in 20 minute buckets (entire road)")),
-                    )
-                    .bg(Color::grey(0.5)),
-                );
-                col.push(
-                    road_throughput(
-                        ui.primary.map.get_l(l).parent,
-                        Duration::minutes(20),
-                        ctx,
-                        ui,
-                    )
-                    .bg(Color::grey(0.5))
-                    .margin(10),
-                );
-            }
-            _ => {}
-        }
+        col.extend(info_for(id.clone(), ctx, ui));
 
         let trip_details = if let Some(trip) = match id {
             ID::Trip(t) => Some(t),
@@ -285,10 +234,11 @@ impl InfoPanel {
     }
 }
 
-fn info_for(id: ID, ui: &UI) -> Text {
+fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
     let (map, sim, draw_map) = (&ui.primary.map, &ui.primary.sim, &ui.primary.draw_map);
-    let mut txt = Text::new();
     let name_color = ui.cs.get("OSD name color");
+
+    let mut rows = vec![];
 
     match id {
         ID::Road(_) => unreachable!(),
@@ -296,56 +246,80 @@ fn info_for(id: ID, ui: &UI) -> Text {
             let l = map.get_l(id);
             let r = map.get_r(l.parent);
 
+            let mut txt = Text::new();
             if ui.opts.dev {
                 txt.add(Line(format!("Parent is {}", r.id)));
+                txt.add(Line(format!("Lane is {} long", l.length())));
+
+                if l.is_driving() {
+                    txt.add(Line(format!(
+                        "Parking blackhole redirect? {:?}",
+                        l.parking_blackhole
+                    )));
+                }
+
+                txt.add(Line(""));
+                styled_kv(&mut txt, &r.osm_tags);
+                txt.add(Line(""));
+
+                let mut tr = false;
+                if let Some(types) = l.get_turn_restrictions(r) {
+                    txt.add(Line(format!("Turn restriction for this lane: {:?}", types)));
+                    tr = true;
+                }
+                for (restriction, to) in &r.turn_restrictions {
+                    txt.add(Line(format!(
+                        "Restriction from this road to {}: {:?}",
+                        to, restriction
+                    )));
+                    tr = true;
+                }
+                if tr {
+                    txt.add(Line(""));
+                }
             }
-            txt.add(Line(format!("Lane is {} long", l.length())));
 
-            txt.add(Line(""));
-            styled_kv(&mut txt, &r.osm_tags);
-
-            txt.add(Line(""));
             if l.is_parking() {
                 txt.add(Line(format!(
                     "Has {} parking spots",
                     l.number_parking_spots()
                 )));
-            } else if l.is_driving() {
+                rows.push(ManagedWidget::draw_text(ctx, txt));
+            } else {
+                txt.add(Line(format!("Speed limit: {}", r.get_speed_limit())));
                 txt.add(Line(format!(
-                    "Parking blackhole redirect? {:?}",
-                    l.parking_blackhole
+                    "{} total agents crossed so far",
+                    prettyprint_usize(sim.get_analytics().thruput_stats.count_per_road.get(r.id))
                 )));
-            }
+                rows.push(ManagedWidget::draw_text(ctx, txt));
 
-            txt.add(Line(""));
-            if let Some(types) = l.get_turn_restrictions(r) {
-                txt.add(Line(format!("Turn restriction for this lane: {:?}", types)));
+                rows.push(
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line("throughput in 20 minute buckets (entire road)")),
+                    )
+                    .bg(Color::grey(0.5)),
+                );
+                rows.push(
+                    road_throughput(
+                        ui.primary.map.get_l(id).parent,
+                        Duration::minutes(20),
+                        ctx,
+                        ui,
+                    )
+                    .bg(Color::grey(0.5))
+                    .margin(10),
+                );
             }
-            for (restriction, to) in &r.turn_restrictions {
-                txt.add(Line(format!(
-                    "Restriction from this road to {}: {:?}",
-                    to, restriction
-                )));
-            }
-
-            txt.add(Line(""));
-            txt.add(Line(format!(
-                "{} total agents crossed",
-                prettyprint_usize(sim.get_analytics().thruput_stats.count_per_road.get(r.id))
-            )));
         }
         ID::Intersection(id) => {
             let i = map.get_i(id);
+
+            let mut txt = Text::new();
             txt.add(Line("Connecting"));
             for r in &i.roads {
                 let road = map.get_r(*r);
                 txt.add_appended(vec![Line("- "), Line(road.get_name()).fg(name_color)]);
-            }
-
-            let accepted = ui.primary.sim.get_accepted_agents(id);
-            if !accepted.is_empty() {
-                txt.add(Line(""));
-                txt.add(Line(format!("{} turning", accepted.len())));
             }
 
             let cnt = sim.count_trips_involving_border(id);
@@ -358,7 +332,7 @@ fn info_for(id: ID, ui: &UI) -> Text {
 
             txt.add(Line(""));
             txt.add(Line(format!(
-                "{} total agents crossed",
+                "{} total agents crossed so far",
                 prettyprint_usize(
                     sim.get_analytics()
                         .thruput_stats
@@ -366,17 +340,42 @@ fn info_for(id: ID, ui: &UI) -> Text {
                         .get(id)
                 )
             )));
+            rows.push(ManagedWidget::draw_text(ctx, txt));
+
+            if ui.primary.map.get_i(id).is_traffic_signal() {
+                rows.push(
+                    ManagedWidget::draw_text(ctx, Text::from(Line("delay in 20 minute buckets")))
+                        .bg(Color::grey(0.5)),
+                );
+                rows.push(
+                    intersection_delay(id, Duration::minutes(20), ctx, ui)
+                        .bg(Color::grey(0.5))
+                        .margin(10),
+                );
+            }
+            rows.push(
+                ManagedWidget::draw_text(ctx, Text::from(Line("throughput in 20 minute buckets")))
+                    .bg(Color::grey(0.5)),
+            );
+            rows.push(
+                intersection_throughput(id, Duration::minutes(20), ctx, ui)
+                    .bg(Color::grey(0.5))
+                    .margin(10),
+            );
         }
         ID::Turn(_) => unreachable!(),
         ID::Building(id) => {
             let b = map.get_b(id);
-            txt.add(Line(format!(
-                "Dist along sidewalk: {}",
-                b.front_path.sidewalk.dist_along()
-            )));
 
-            txt.add(Line(""));
-            styled_kv(&mut txt, &b.osm_tags);
+            let mut txt = Text::new();
+            if ui.opts.dev {
+                txt.add(Line(format!(
+                    "Dist along sidewalk: {}",
+                    b.front_path.sidewalk.dist_along()
+                )));
+                txt.add(Line(""));
+                styled_kv(&mut txt, &b.osm_tags);
+            }
 
             if let Some(ref p) = b.parking {
                 txt.add(Line(""));
@@ -384,7 +383,6 @@ fn info_for(id: ID, ui: &UI) -> Text {
                     Line(format!("{} parking spots via ", p.num_stalls)),
                     Line(&p.name).fg(name_color),
                 ]);
-                txt.add(Line(""));
             }
 
             let cnt = sim.count_trips_involving_bldg(id);
@@ -406,26 +404,36 @@ fn info_for(id: ID, ui: &UI) -> Text {
                     txt.add(Line(format!("- {}", p.vehicle.id)));
                 }
             }
+            rows.push(ManagedWidget::draw_text(ctx, txt))
         }
         ID::Car(id) => {
+            let mut txt = Text::new();
             for line in sim.car_tooltip(id) {
                 // TODO Wrap
                 txt.add(Line(line));
             }
+            rows.push(ManagedWidget::draw_text(ctx, txt))
         }
         ID::Pedestrian(id) => {
+            let mut txt = Text::new();
             for line in sim.ped_tooltip(id, map) {
                 // TODO Wrap
                 txt.add(Line(line));
             }
+            rows.push(ManagedWidget::draw_text(ctx, txt))
         }
         ID::PedCrowd(members) => {
+            let mut txt = Text::new();
             txt.add(Line(format!("Crowd of {}", members.len())));
+            rows.push(ManagedWidget::draw_text(ctx, txt))
         }
         ID::ExtraShape(id) => {
+            let mut txt = Text::new();
             styled_kv(&mut txt, &draw_map.get_es(id).attributes);
+            rows.push(ManagedWidget::draw_text(ctx, txt))
         }
         ID::BusStop(id) => {
+            let mut txt = Text::new();
             let all_arrivals = &sim.get_analytics().bus_arrivals;
             for r in map.get_routes_serving_stop(id) {
                 txt.add_appended(vec![Line("- Route "), Line(&r.name).fg(name_color)]);
@@ -452,15 +460,18 @@ fn info_for(id: ID, ui: &UI) -> Text {
                     txt.add(Line(format!("  Waiting: {}", hgram.describe())));
                 }
             }
+            rows.push(ManagedWidget::draw_text(ctx, txt))
         }
         ID::Area(id) => {
             let a = map.get_a(id);
+            let mut txt = Text::new();
             styled_kv(&mut txt, &a.osm_tags);
+            rows.push(ManagedWidget::draw_text(ctx, txt))
         }
         // No info here, trip_details will be used
         ID::Trip(_) => {}
     };
-    txt
+    rows
 }
 
 fn styled_kv(txt: &mut Text, tags: &BTreeMap<String, String>) {

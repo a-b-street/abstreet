@@ -107,6 +107,6 @@ impl ops::Mul<Duration> for Speed {
 
 impl fmt::Display for Speed {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}m/s", self.0)
+        write!(f, "{} mph", (self.0 * 2.23694).round())
     }
 }
