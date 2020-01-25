@@ -589,6 +589,7 @@ impl BorderSpawnOverTime {
 pub enum OriginDestination {
     Neighborhood(String),
     EndOfRoad(DirectedRoadID),
+    GotoBldg(BuildingID),
 }
 
 impl OriginDestination {
@@ -604,6 +605,7 @@ impl OriginDestination {
             OriginDestination::Neighborhood(ref n) => Some(DrivingGoal::ParkNear(
                 *neighborhoods[n].buildings.choose(rng).unwrap(),
             )),
+            OriginDestination::GotoBldg(b) => Some(DrivingGoal::ParkNear(*b)),
             OriginDestination::EndOfRoad(dr) => {
                 let goal = DrivingGoal::end_at_border(*dr, constraints, map);
                 if goal.is_none() {
@@ -636,6 +638,7 @@ impl OriginDestination {
                 }
                 goal
             }
+            OriginDestination::GotoBldg(b) => Some(SidewalkSpot::building(*b, map)),
         }
     }
 }

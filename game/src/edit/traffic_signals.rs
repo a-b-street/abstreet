@@ -705,7 +705,7 @@ fn make_previewer(i: IntersectionID, phase: usize, suspended_sim: Sim) -> Box<dy
                 ui.primary
                     .map
                     .recalculate_pathfinding_after_edits(&mut Timer::throwaway());
-                spawn_agents_around(i, ui, ctx);
+                spawn_agents_around(i, ui);
             }
             x if x == right_now => {
                 ui.primary.sim = suspended_sim.clone();

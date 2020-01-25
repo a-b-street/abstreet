@@ -170,7 +170,7 @@ impl AgentSpawner {
                     .per_obj
                     .action(ctx, Key::Z, "spawn agents around this intersection")
                 {
-                    spawn_agents_around(i, ui, ctx);
+                    spawn_agents_around(i, ui);
                 }
             }
             _ => {}
@@ -294,7 +294,7 @@ impl State for AgentSpawner {
     }
 }
 
-pub fn spawn_agents_around(i: IntersectionID, ui: &mut UI, ctx: &EventCtx) {
+pub fn spawn_agents_around(i: IntersectionID, ui: &mut UI) {
     let map = &ui.primary.map;
     let sim = &mut ui.primary.sim;
     let mut rng = ui.primary.current_flags.sim_flags.make_rng();
@@ -361,7 +361,6 @@ pub fn spawn_agents_around(i: IntersectionID, ui: &mut UI, ctx: &EventCtx) {
 
     sim.spawn_all_trips(map, &mut timer, false);
     sim.step(map, SMALL_DT);
-    ui.recalculate_current_selection(ctx);
 }
 
 // Returns optional error message

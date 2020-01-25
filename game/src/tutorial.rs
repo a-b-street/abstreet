@@ -11,8 +11,8 @@ use ezgui::{
     Line, ManagedWidget, Outcome, ScreenPt, Text, VerticalAlignment,
 };
 use geom::{Distance, Duration, PolyLine, Polygon, Pt2D, Time};
-use map_model::{BuildingID, IntersectionID};
-use sim::{AgentID, CarID, Scenario, VehicleType};
+use map_model::{BuildingID, IntersectionID, RoadID};
+use sim::{AgentID, BorderSpawnOverTime, CarID, OriginDestination, Scenario, VehicleType};
 
 pub struct TutorialMode {
     state: TutorialState,
@@ -363,13 +363,12 @@ enum Stage {
         lines: Vec<&'static str>,
         point_to: Option<Box<dyn Fn(&GfxCtx, &UI) -> Pt2D>>,
         warp_pt: Option<ID>,
-        spawn_around: Option<IntersectionID>,
+        spawn: Option<Box<dyn Fn(&mut UI)>>,
     },
     Interact {
         name: &'static str,
         warp_pt: Option<ID>,
-        spawn_around: Option<IntersectionID>,
-        spawn_randomly: bool,
+        spawn: Option<Box<dyn Fn(&mut UI)>>,
     },
 }
 
@@ -379,7 +378,7 @@ impl Stage {
             lines,
             point_to: None,
             warp_pt: None,
-            spawn_around: None,
+            spawn: None,
         }
     }
 
@@ -387,8 +386,7 @@ impl Stage {
         Stage::Interact {
             name,
             warp_pt: None,
-            spawn_around: None,
-            spawn_randomly: false,
+            spawn: None,
         }
     }
 
@@ -427,41 +425,29 @@ impl Stage {
         }
     }
 
-    fn spawn_around(mut self, i: IntersectionID) -> Stage {
+    fn spawn(mut self, cb: Box<dyn Fn(&mut UI)>) -> Stage {
         match self {
-            Stage::Msg {
-                ref mut spawn_around,
-                ..
-            } => {
-                assert!(spawn_around.is_none());
-                *spawn_around = Some(i);
-                self
-            }
-            Stage::Interact {
-                ref mut spawn_around,
-                ..
-            } => {
-                assert!(spawn_around.is_none());
-                *spawn_around = Some(i);
+            Stage::Msg { ref mut spawn, .. } | Stage::Interact { ref mut spawn, .. } => {
+                assert!(spawn.is_none());
+                *spawn = Some(cb);
                 self
             }
         }
     }
 
-    fn spawn_randomly(mut self) -> Stage {
-        match self {
-            Stage::Msg { .. } => unreachable!(),
-            Stage::Interact {
-                ref mut spawn_randomly,
-                ref spawn_around,
-                ..
-            } => {
-                assert!(!*spawn_randomly);
-                assert!(spawn_around.is_none());
-                *spawn_randomly = true;
-                self
-            }
-        }
+    fn spawn_around(self, i: IntersectionID) -> Stage {
+        self.spawn(Box::new(move |ui| spawn_agents_around(i, ui)))
+    }
+
+    fn spawn_randomly(self) -> Stage {
+        self.spawn(Box::new(|ui| {
+            Scenario::small_run(&ui.primary.map).instantiate(
+                &mut ui.primary.sim,
+                &ui.primary.map,
+                &mut ui.primary.current_flags.sim_flags.make_rng(),
+                &mut Timer::throwaway(),
+            )
+        }))
     }
 }
 
@@ -470,6 +456,27 @@ struct TutorialState {
     stages: Vec<Stage>,
     latest: usize,
     current: usize,
+}
+
+fn start_bike_lane_scenario(ui: &mut UI) {
+    let mut s = Scenario::empty(&ui.primary.map, "car/bike contention");
+    s.border_spawn_over_time.push(BorderSpawnOverTime {
+        num_peds: 0,
+        num_cars: 10,
+        num_bikes: 10,
+        percent_use_transit: 0.0,
+        start_time: Time::START_OF_DAY,
+        stop_time: Time::START_OF_DAY + Duration::seconds(10.0),
+        start_from_border: RoadID(303).backwards(),
+        goal: OriginDestination::GotoBldg(BuildingID(3)),
+    });
+    s.instantiate(
+        &mut ui.primary.sim,
+        &ui.primary.map,
+        &mut ui.primary.current_flags.sim_flags.make_rng(),
+        &mut Timer::throwaway(),
+    );
+    ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
 }
 
 impl TutorialState {
@@ -531,29 +538,14 @@ impl TutorialState {
 
         ui.primary.clear_sim();
         ui.overlay = Overlays::Inactive;
-        if let Some(i) = match self.stage() {
-            Stage::Msg {
-                ref spawn_around, ..
-            } => spawn_around,
-            Stage::Interact {
-                ref spawn_around, ..
-            } => spawn_around,
+        if let Some(cb) = match self.stage() {
+            Stage::Msg { ref spawn, .. } => spawn,
+            Stage::Interact { ref spawn, .. } => spawn,
         } {
             let old = ui.primary.current_flags.sim_flags.rng_seed;
             ui.primary.current_flags.sim_flags.rng_seed = Some(42);
-            spawn_agents_around(*i, ui, ctx);
+            (cb)(ui);
             ui.primary.current_flags.sim_flags.rng_seed = old;
-        }
-        if match self.stage() {
-            Stage::Msg { .. } => false,
-            Stage::Interact { spawn_randomly, .. } => *spawn_randomly,
-        } {
-            Scenario::small_run(&ui.primary.map).instantiate(
-                &mut ui.primary.sim,
-                &ui.primary.map,
-                &mut ui.primary.current_flags.sim_flags.make_rng(),
-                &mut Timer::throwaway(),
-            );
             ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
         }
 
@@ -791,6 +783,19 @@ impl TutorialState {
             ]),
             Stage::interact("Find a road with almost no parking spots available").spawn_randomly(),
         ]);
+
+        stages.extend(vec![
+            Stage::msg(vec![
+                "Well done!",
+                "",
+                "Let's see what's happening over here.",
+                "Looks like lots of cars and bikes trying to go to the playfield.",
+            ])
+            .warp_to(ID::Building(BuildingID(543)))
+            .spawn(Box::new(start_bike_lane_scenario)),
+            Stage::interact("TODO").spawn(Box::new(start_bike_lane_scenario)),
+        ]);
+        // TODO Have them watch and note the problem. Suggest a solution.
 
         stages.push(Stage::msg(vec![
             "Training complete!",
