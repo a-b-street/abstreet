@@ -348,59 +348,66 @@ impl Analytics {
         &self,
         now: Time,
         road: RoadID,
-        bucket: Duration,
+        window_size: Duration,
     ) -> BTreeMap<TripMode, Vec<(Time, usize)>> {
-        let mut max_this_bucket = now.min(Time::START_OF_DAY + bucket);
-        let mut per_mode = TripMode::all()
-            .into_iter()
-            .map(|m| (m, vec![(Time::START_OF_DAY, 0), (max_this_bucket, 0)]))
-            .collect::<BTreeMap<_, _>>();
-        for (t, m, r) in &self.thruput_stats.raw_per_road {
-            if *r != road {
-                continue;
-            }
-            if *t > now {
-                break;
-            }
-            if *t > max_this_bucket {
-                max_this_bucket = now.min(max_this_bucket + bucket);
-                for vec in per_mode.values_mut() {
-                    vec.push((max_this_bucket, 0));
-                }
-            }
-            per_mode.get_mut(m).unwrap().last_mut().unwrap().1 += 1;
-        }
-        per_mode
+        self.throughput(now, road, window_size, &self.thruput_stats.raw_per_road)
     }
 
-    // TODO Refactor!
     pub fn throughput_intersection(
         &self,
         now: Time,
         intersection: IntersectionID,
-        bucket: Duration,
+        window_size: Duration,
     ) -> BTreeMap<TripMode, Vec<(Time, usize)>> {
-        let mut per_mode = TripMode::all()
-            .into_iter()
-            .map(|m| (m, vec![(Time::START_OF_DAY, 0)]))
-            .collect::<BTreeMap<_, _>>();
-        let mut max_this_bucket = Time::START_OF_DAY + bucket;
-        for (t, m, i) in &self.thruput_stats.raw_per_intersection {
-            if *i != intersection {
+        self.throughput(
+            now,
+            intersection,
+            window_size,
+            &self.thruput_stats.raw_per_intersection,
+        )
+    }
+
+    fn throughput<X: PartialEq>(
+        &self,
+        now: Time,
+        obj: X,
+        window_size: Duration,
+        data: &Vec<(Time, TripMode, X)>,
+    ) -> BTreeMap<TripMode, Vec<(Time, usize)>> {
+        let mut pts_per_mode: BTreeMap<TripMode, Vec<(Time, usize)>> = BTreeMap::new();
+        let mut windows_per_mode: BTreeMap<TripMode, Window> = BTreeMap::new();
+        for mode in TripMode::all() {
+            pts_per_mode.insert(mode, vec![(Time::START_OF_DAY, 0)]);
+            windows_per_mode.insert(mode, Window::new(window_size));
+        }
+
+        for (t, m, x) in data {
+            if *x != obj {
                 continue;
             }
             if *t > now {
                 break;
             }
-            if *t > max_this_bucket {
-                max_this_bucket = now.min(max_this_bucket + bucket);
-                for vec in per_mode.values_mut() {
-                    vec.push((max_this_bucket, 0));
-                }
-            }
-            per_mode.get_mut(m).unwrap().last_mut().unwrap().1 += 1;
+
+            let count = windows_per_mode.get_mut(m).unwrap().add(*t);
+            pts_per_mode.get_mut(m).unwrap().push((*t, count));
         }
-        per_mode
+
+        for (m, pts) in pts_per_mode.iter_mut() {
+            let mut window = windows_per_mode.remove(m).unwrap();
+
+            // Add a drop-off after window_size (+ a little epsilon!)
+            let t = (pts.last().unwrap().0 + window_size + Duration::seconds(0.1)).min(now);
+            if pts.last().unwrap().0 != t {
+                pts.push((t, window.count(t)));
+            }
+
+            if pts.last().unwrap().0 != now {
+                pts.push((now, window.count(now)));
+            }
+        }
+
+        pts_per_mode
     }
 
     pub fn get_trip_phases(&self, trip: TripID, map: &Map) -> Vec<TripPhase> {
@@ -578,5 +585,33 @@ impl TripPhase {
                 self.description
             )
         }
+    }
+}
+
+struct Window {
+    times: VecDeque<Time>,
+    window_size: Duration,
+}
+
+impl Window {
+    fn new(window_size: Duration) -> Window {
+        Window {
+            times: VecDeque::new(),
+            window_size,
+        }
+    }
+
+    // Returns the count at time
+    fn add(&mut self, time: Time) -> usize {
+        self.times.push_back(time);
+        self.count(time)
+    }
+
+    // Grab the count at this time, but don't add a new time
+    fn count(&mut self, end: Time) -> usize {
+        while !self.times.is_empty() && end - *self.times.front().unwrap() > self.window_size {
+            self.times.pop_front();
+        }
+        self.times.len()
     }
 }

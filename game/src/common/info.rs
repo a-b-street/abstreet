@@ -81,21 +81,27 @@ impl InfoPanel {
             ID::Intersection(i) => {
                 if ui.primary.map.get_i(i).is_traffic_signal() {
                     col.push(
-                        ManagedWidget::draw_text(ctx, Text::from(Line("delay in 1 hour buckets")))
-                            .bg(Color::grey(0.5)),
+                        ManagedWidget::draw_text(
+                            ctx,
+                            Text::from(Line("delay in 20 minute buckets")),
+                        )
+                        .bg(Color::grey(0.5)),
                     );
                     col.push(
-                        intersection_delay(i, Duration::hours(1), ctx, ui)
+                        intersection_delay(i, Duration::minutes(20), ctx, ui)
                             .bg(Color::grey(0.5))
                             .margin(10),
                     );
                 }
                 col.push(
-                    ManagedWidget::draw_text(ctx, Text::from(Line("throughput in 1 hour buckets")))
-                        .bg(Color::grey(0.5)),
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line("throughput in 20 minute buckets")),
+                    )
+                    .bg(Color::grey(0.5)),
                 );
                 col.push(
-                    intersection_throughput(i, Duration::hours(1), ctx, ui)
+                    intersection_throughput(i, Duration::minutes(20), ctx, ui)
                         .bg(Color::grey(0.5))
                         .margin(10),
                 );
@@ -104,14 +110,19 @@ impl InfoPanel {
                 col.push(
                     ManagedWidget::draw_text(
                         ctx,
-                        Text::from(Line("throughput in 1 hour buckets (entire road)")),
+                        Text::from(Line("throughput in 20 minute buckets (entire road)")),
                     )
                     .bg(Color::grey(0.5)),
                 );
                 col.push(
-                    road_throughput(ui.primary.map.get_l(l).parent, Duration::hours(1), ctx, ui)
-                        .bg(Color::grey(0.5))
-                        .margin(10),
+                    road_throughput(
+                        ui.primary.map.get_l(l).parent,
+                        Duration::minutes(20),
+                        ctx,
+                        ui,
+                    )
+                    .bg(Color::grey(0.5))
+                    .margin(10),
                 );
             }
             _ => {}
