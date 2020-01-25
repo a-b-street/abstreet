@@ -678,22 +678,20 @@ impl Composite {
             changed = true;
             let max = (self.contents_dims.width - self.container_dims.width).max(0.0);
             if max == 0.0 {
-                assert_eq!(offset.0, 0.0);
                 self.mut_slider("horiz scrollbar").set_percent(ctx, 0.0);
             } else {
                 self.mut_slider("horiz scrollbar")
-                    .set_percent(ctx, offset.0 / max);
+                    .set_percent(ctx, abstutil::clamp(offset.0, 0.0, max) / max);
             }
         }
         if self.scrollable_y {
             changed = true;
             let max = (self.contents_dims.height - self.container_dims.height).max(0.0);
             if max == 0.0 {
-                assert_eq!(offset.1, 0.0);
                 self.mut_slider("vert scrollbar").set_percent(ctx, 0.0);
             } else {
                 self.mut_slider("vert scrollbar")
-                    .set_percent(ctx, offset.1 / max);
+                    .set_percent(ctx, abstutil::clamp(offset.1, 0.0, max) / max);
             }
         }
         if changed {
@@ -711,20 +709,15 @@ impl Composite {
         {
             if let Some((dx, dy)) = ctx.input.get_mouse_scroll() {
                 let x_offset = if self.scrollable_x {
-                    let offset = self.scroll_offset().0 + dx * SCROLL_SPEED;
-                    let max = (self.contents_dims.width - self.container_dims.width).max(0.0);
-                    abstutil::clamp(offset, 0.0, max)
+                    self.scroll_offset().0 + dx * SCROLL_SPEED
                 } else {
                     0.0
                 };
                 let y_offset = if self.scrollable_y {
-                    let offset = self.scroll_offset().1 - dy * SCROLL_SPEED;
-                    let max = (self.contents_dims.height - self.container_dims.height).max(0.0);
-                    abstutil::clamp(offset, 0.0, max)
+                    self.scroll_offset().1 - dy * SCROLL_SPEED
                 } else {
                     0.0
                 };
-                // TODO Refactor the clamping, do it in set_scroll_offset
                 self.set_scroll_offset(ctx, (x_offset, y_offset));
             }
         }
