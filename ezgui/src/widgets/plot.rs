@@ -141,7 +141,8 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
                 closest.add(s.label.clone(), &pts);
                 batch.push(
                     s.color,
-                    PolyLine::new(pts).make_polygons(Distance::meters(5.0)),
+                    PolyLine::new(pts)
+                        .make_polygons_with_miter_threshold(Distance::meters(5.0), 10.0),
                 );
             }
         }

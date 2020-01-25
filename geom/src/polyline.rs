@@ -6,6 +6,9 @@ use serde_derive::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::fmt;
 
+// TODO How to tune this?
+const MITER_THRESHOLD: f64 = 500.0;
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PolyLine {
     pts: Vec<Pt2D>,
@@ -86,8 +89,10 @@ impl PolyLine {
             return None;
         }
         let slice = self.exact_slice(boundary_width / 2.0, self.length() - boundary_width / 2.0);
-        let mut side1 = slice.shift_with_sharp_angles((self_width - boundary_width) / 2.0);
-        let mut side2 = slice.shift_with_sharp_angles(-(self_width - boundary_width) / 2.0);
+        let mut side1 =
+            slice.shift_with_sharp_angles((self_width - boundary_width) / 2.0, MITER_THRESHOLD);
+        let mut side2 =
+            slice.shift_with_sharp_angles(-(self_width - boundary_width) / 2.0, MITER_THRESHOLD);
         side2.reverse();
         side1.extend(side2);
         side1.push(side1[0]);
@@ -335,7 +340,7 @@ impl PolyLine {
     // - the length before and after probably don't match up
     // - the number of points will match
     fn shift_with_corrections(&self, width: Distance) -> Warn<PolyLine> {
-        let mut raw = self.shift_with_sharp_angles(width);
+        let mut raw = self.shift_with_sharp_angles(width, MITER_THRESHOLD);
         raw.dedup();
         let result = PolyLine::new(raw);
         let fixed = if result.pts.len() == self.pts.len() {
@@ -346,7 +351,7 @@ impl PolyLine {
         check_angles(self, fixed)
     }
 
-    fn shift_with_sharp_angles(&self, width: Distance) -> Vec<Pt2D> {
+    fn shift_with_sharp_angles(&self, width: Distance, miter_threshold: f64) -> Vec<Pt2D> {
         if self.pts.len() == 2 {
             let l = Line::new(self.pts[0], self.pts[1]).shift_either_direction(width);
             return vec![l.pt1(), l.pt2()];
@@ -371,8 +376,7 @@ impl PolyLine {
             if let Some(pt2_shift) = l1.infinite().intersection(&l2.infinite()) {
                 // Miter caps sometimes explode out to infinity. Hackily work around this.
                 let dist_away = l1.pt1().raw_dist_to(pt2_shift);
-                // TODO How to tune this?
-                if dist_away < 500.0 {
+                if dist_away < miter_threshold {
                     result.push(pt2_shift);
                 } else {
                     result.push(l1.pt2());
@@ -397,9 +401,18 @@ impl PolyLine {
     }
 
     pub fn make_polygons(&self, width: Distance) -> Polygon {
+        // TODO How to tune this?
+        self.make_polygons_with_miter_threshold(width, MITER_THRESHOLD)
+    }
+
+    pub fn make_polygons_with_miter_threshold(
+        &self,
+        width: Distance,
+        miter_threshold: f64,
+    ) -> Polygon {
         // TODO Don't use the angle corrections yet -- they seem to do weird things.
-        let side1 = self.shift_with_sharp_angles(width / 2.0);
-        let side2 = self.shift_with_sharp_angles(-width / 2.0);
+        let side1 = self.shift_with_sharp_angles(width / 2.0, miter_threshold);
+        let side2 = self.shift_with_sharp_angles(-width / 2.0, miter_threshold);
         assert_eq!(side1.len(), side2.len());
 
         let side2_offset = side1.len();
@@ -420,8 +433,8 @@ impl PolyLine {
     }
 
     pub fn make_polygons_with_uv(&self, width: Distance) -> Option<Polygon> {
-        let side1 = self.shift_with_sharp_angles(width / 2.0);
-        let side2 = self.shift_with_sharp_angles(-width / 2.0);
+        let side1 = self.shift_with_sharp_angles(width / 2.0, MITER_THRESHOLD);
+        let side2 = self.shift_with_sharp_angles(-width / 2.0, MITER_THRESHOLD);
         assert_eq!(side1.len(), side2.len());
         // TODO Sometimes there are dupe points.
         let side1_pl = PolyLine::maybe_new(side1.clone())?;
