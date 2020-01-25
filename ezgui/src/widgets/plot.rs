@@ -52,7 +52,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
                 .collect(),
         );
 
-        // Assume min_x is Time::START_OF_DAY and min_y is 0
+        // Assume min_x is Time::START_OF_DAY and min_y is y_zero
         let max_x = series
             .iter()
             .map(|s| {
@@ -75,6 +75,48 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
             })
             .max()
             .unwrap_or(y_zero);
+
+        // Grid lines for the Y scale. Draw up to 10 lines max to cover the order of magnitude of
+        // the range.
+        // TODO This caps correctly, but if the max is 105, then suddenly we just have 2 grid
+        // lines.
+        {
+            let order_of_mag = 10.0_f64.powf(max_y.to_f64().log10().ceil());
+            for i in 0..10 {
+                let y = max_y.from_f64(order_of_mag / 10.0 * (i as f64));
+                let pct = y.to_percent(max_y);
+                if pct > 1.0 {
+                    break;
+                }
+                batch.push(
+                    Color::BLACK,
+                    PolyLine::new(vec![
+                        Pt2D::new(0.0, (1.0 - pct) * height),
+                        Pt2D::new(width, (1.0 - pct) * height),
+                    ])
+                    .make_polygons(Distance::meters(5.0)),
+                );
+            }
+        }
+        // X axis grid
+        if max_x != Time::START_OF_DAY {
+            let order_of_mag = 10.0_f64.powf(max_x.inner_seconds().log10().ceil());
+            for i in 0..10 {
+                let x = Time::START_OF_DAY + Duration::seconds(order_of_mag / 10.0 * (i as f64));
+                let pct = x.to_percent(max_x);
+                if pct > 1.0 {
+                    break;
+                }
+                batch.push(
+                    Color::BLACK,
+                    PolyLine::new(vec![
+                        Pt2D::new(pct * width, 0.0),
+                        Pt2D::new(pct * width, height),
+                    ])
+                    .make_polygons(Distance::meters(5.0)),
+                );
+            }
+        }
 
         let mut closest = FindClosest::new(&Bounds::from(&vec![
             Pt2D::new(0.0, 0.0),
@@ -217,6 +259,9 @@ pub trait Yvalue<T> {
     fn from_percent(&self, percent: f64) -> T;
     fn to_percent(self, max: T) -> f64;
     fn prettyprint(self) -> String;
+    // For order of magnitude calculations
+    fn to_f64(self) -> f64;
+    fn from_f64(&self, x: f64) -> T;
 }
 
 impl Yvalue<usize> for usize {
@@ -233,6 +278,12 @@ impl Yvalue<usize> for usize {
     fn prettyprint(self) -> String {
         prettyprint_usize(self)
     }
+    fn to_f64(self) -> f64 {
+        self as f64
+    }
+    fn from_f64(&self, x: f64) -> usize {
+        x as usize
+    }
 }
 impl Yvalue<Duration> for Duration {
     fn from_percent(&self, percent: f64) -> Duration {
@@ -247,6 +298,12 @@ impl Yvalue<Duration> for Duration {
     }
     fn prettyprint(self) -> String {
         self.to_string()
+    }
+    fn to_f64(self) -> f64 {
+        self.inner_seconds() as f64
+    }
+    fn from_f64(&self, x: f64) -> Duration {
+        Duration::seconds(x as f64)
     }
 }
 
