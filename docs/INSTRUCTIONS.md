@@ -12,11 +12,11 @@ Grab a pre-built binary release -- updated every Sunday, announced at
 [r/abstreet](http://old.reddit.com/r/abstreet):
 
 - Windows:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.24/abstreet_windows_v0_1_24.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.25/abstreet_windows_v0_1_25.zip
 - Mac:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.24/abstreet_mac_v0_1_24.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.25/abstreet_mac_v0_1_25.zip
 - Linux:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.24/abstreet_linux_v0_1_24.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.25/abstreet_linux_v0_1_25.zip
 
 Unzip the folder, then run `play_abstreet.sh` or `play_abstreet.bat`. On
 Windows, you'll probably get a warning about running software from an unknown
@@ -35,6 +35,7 @@ General controls:
 
 Things to try:
 
+- The tutorial introduces many controls and mechanics.
 - In sandbox mode, select an intersection, and spawn agents.
 - Change the default "random" traffic in sandbox mode to "weekday" to see
   realistic trips over a full weekday.

@@ -259,3 +259,13 @@ changes here.
 - expose bus analytics outside of challenge mode
 - live info panel can exist during a running simulation
 - consolidated agent route/trip information into info panel
+
+0.1.25
+
+- overhauled the tutorial
+- tuned top-center panel for sandbox and challenge modes
+- make bike and bus lanes more obvious
+- show map edits as an overlay anywhere
+- tune info panel contents, and show relationships between parked cars and buildings
+- fixes to traffic signal editor, like making all-walk conversion idempotent
+- nicer throughput and delay plots (sliding windows, grid lines)
