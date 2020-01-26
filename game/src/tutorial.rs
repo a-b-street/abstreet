@@ -1,8 +1,10 @@
 use crate::common::{CommonState, Minimap, Overlays, Warping};
+use crate::edit::EditMode;
 use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::DrawOptions;
+use crate::sandbox::GameplayMode;
 use crate::sandbox::{spawn_agents_around, AgentMeter, SpeedControls, TimePanel};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
@@ -10,7 +12,7 @@ use ezgui::{
     hotkey, lctrl, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, ManagedWidget, Outcome, ScreenPt, Text, VerticalAlignment,
 };
-use geom::{Distance, Duration, PolyLine, Polygon, Pt2D, Time};
+use geom::{Distance, Duration, PolyLine, Polygon, Pt2D, Statistic, Time};
 use map_model::{BuildingID, IntersectionID, RoadID};
 use sim::{AgentID, BorderSpawnOverTime, CarID, OriginDestination, Scenario, VehicleType};
 
@@ -33,6 +35,7 @@ pub struct TutorialMode {
     was_paused: bool,
     num_pauses: usize,
     warped: bool,
+    score_delivered: bool,
 }
 
 impl TutorialMode {
@@ -47,6 +50,18 @@ impl TutorialMode {
             tut.latest = tut.stages.len() - 1;
             tut.current = tut.latest;
         }
+        tut.make_state(ctx, ui)
+    }
+
+    pub fn resume(
+        ctx: &mut EventCtx,
+        ui: &mut UI,
+        current: usize,
+        latest: usize,
+    ) -> Box<dyn State> {
+        let mut tut = TutorialState::new(ctx, ui);
+        tut.latest = latest;
+        tut.current = current;
         tut.make_state(ctx, ui)
     }
 }
@@ -87,7 +102,11 @@ impl State for TutorialMode {
                     return Transition::Replace(self.state.make_state(ctx, ui));
                 }
                 "edit map" => {
-                    // TODO need to make edit mode jump back here when done. Option<GameplayMode>?
+                    return Transition::Push(Box::new(EditMode::new(
+                        ctx,
+                        ui,
+                        GameplayMode::Tutorial(self.state.current, self.state.latest),
+                    )));
                 }
                 _ => unreachable!(),
             },
@@ -284,7 +303,69 @@ impl State for TutorialMode {
                 return Transition::Replace(self.state.make_state(ctx, ui));
             }
         } else if interact == "Make better use of the road space" {
-            // TODO Hmmm...
+            if ui.primary.sim.is_done() {
+                let (all, _, _) = ui
+                    .primary
+                    .sim
+                    .get_analytics()
+                    .all_finished_trips(ui.primary.sim.time());
+                let max = all.select(Statistic::Max);
+
+                if !self.score_delivered {
+                    self.score_delivered = true;
+                    if ui.primary.map.get_edits().commands.is_empty() {
+                        return Transition::Push(msg(
+                            "All trips completed",
+                            vec![
+                                "You didn't change anything!",
+                                "Try editing the map to create some bike lanes.",
+                            ],
+                        ));
+                    }
+                    // TODO Prebake results and use the normal differential stuff
+                    let baseline = Duration::minutes(7) + Duration::seconds(15.0);
+                    if max > baseline {
+                        return Transition::Push(msg(
+                            "All trips completed",
+                            vec![
+                                "Your changes made things worse!".to_string(),
+                                format!(
+                                    "The slowest trip originally took {}, but now it took {}",
+                                    baseline, max
+                                ),
+                                "".to_string(),
+                                "Try again!".to_string(),
+                            ],
+                        ));
+                    }
+                    // TODO Tune. The real solution doesn't work because of sim bugs.
+                    if max > Duration::minutes(6) + Duration::seconds(40.0) {
+                        return Transition::Push(msg(
+                            "All trips completed",
+                            vec![
+                                "Nice, you helped things a bit!".to_string(),
+                                format!(
+                                    "The slowest trip originally took {}, but now it took {}",
+                                    baseline, max
+                                ),
+                                "".to_string(),
+                                "See if you can do a little better though.".to_string(),
+                            ],
+                        ));
+                    }
+                    return Transition::Push(msg(
+                        "All trips completed",
+                        vec![format!(
+                            "Awesome! The slowest trip originally took {}, but now it only took {}",
+                            baseline, max
+                        )],
+                    ));
+                }
+                if max <= Duration::minutes(6) + Duration::seconds(30.0) {
+                    self.state.next();
+                }
+                return Transition::Replace(self.state.make_state(ctx, ui));
+            }
         }
 
         if let Some(ref mut common) = self.common {
@@ -649,6 +730,7 @@ impl TutorialState {
             was_paused: true,
             num_pauses: 0,
             warped: false,
+            score_delivered: false,
         })
     }
 
@@ -848,6 +930,7 @@ impl TutorialState {
             // TODO Explain why you can't make most changes live
             Stage::msg(vec!["To edit lanes, click 'edit map'"])
                 .arrow(top_center.center_of("edit map")),
+            // TODO Explain the finished trip data
             Stage::interact("Make better use of the road space")
                 .spawn(Box::new(start_bike_lane_scenario)),
         ]);

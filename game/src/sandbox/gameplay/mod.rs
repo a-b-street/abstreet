@@ -43,6 +43,9 @@ pub enum GameplayMode {
     FixTrafficSignals,
     // TODO Kinda gross. What stage in the tutorial?
     FixTrafficSignalsTutorial(usize),
+
+    // A weird indirection to jump back to tutorial mode, not SandboxMode at all.
+    Tutorial(usize, usize),
 }
 
 pub trait GameplayState: downcast_rs::Downcast {
@@ -147,6 +150,7 @@ impl GameplayRunner {
             GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial(_) => {
                 fix_traffic_signals::FixTrafficSignals::new(ctx, mode.clone())
             }
+            GameplayMode::Tutorial(_, _) => unreachable!(),
         };
         ctx.loading_screen("instantiate scenario", |_, timer| {
             if let Some(scenario) =
