@@ -9,7 +9,7 @@ use crate::sandbox::{spawn_agents_around, AgentMeter, SpeedControls, TimePanel};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
+    hotkey, lctrl, Button, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, ManagedWidget, Outcome, ScreenPt, Text, VerticalAlignment,
 };
 use geom::{Distance, Duration, PolyLine, Polygon, Pt2D, Statistic, Time};
@@ -629,16 +629,18 @@ impl TutorialState {
             )
             .margin(5),
             if self.current == 0 {
-                ManagedWidget::draw_text(ctx, Text::from(Line("<")))
+                Button::inactive_button("<", ctx)
             } else {
                 WrappedComposite::text_button(ctx, "<", None)
-            },
+            }
+            .margin(5),
             if self.current == self.latest {
-                ManagedWidget::draw_text(ctx, Text::from(Line(">")))
+                Button::inactive_button(">", ctx)
             } else {
                 WrappedComposite::text_button(ctx, ">", None)
-            },
-            WrappedComposite::text_button(ctx, "Quit", None),
+            }
+            .margin(5),
+            WrappedComposite::text_button(ctx, "Quit", None).margin(5),
         ])
         .centered()];
         if let Stage::Interact { name, .. } = self.stage() {

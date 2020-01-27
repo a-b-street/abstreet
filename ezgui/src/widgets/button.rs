@@ -1,10 +1,10 @@
 use crate::layout::Widget;
 use crate::svg;
 use crate::{
-    text, Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, Line, MultiKey, RewriteColor, ScreenDims,
-    ScreenPt, Text,
+    text, Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, ManagedWidget, MultiKey,
+    RewriteColor, ScreenDims, ScreenPt, Text,
 };
-use geom::Polygon;
+use geom::{Bounds, Polygon, Pt2D};
 
 pub struct Button {
     pub action: String,
@@ -302,5 +302,29 @@ impl Button {
         );
 
         Button::new(normal, hovered, hotkey, tooltip, geom)
+    }
+
+    // TODO Extreme wackiness.
+    pub fn inactive_button<S: Into<String>>(label: S, ctx: &EventCtx) -> ManagedWidget {
+        let horiz_padding = 15.0;
+        let vert_padding = 8.0;
+        let color = Color::grey(0.5);
+        let txt = Text::from(Line(label).fg(color));
+        let dims = ctx.text_dims(&txt);
+
+        let mut draw = DrawBoth::new(
+            ctx,
+            GeomBatch::new(),
+            vec![(txt, ScreenPt::new(horiz_padding, vert_padding))],
+        );
+        draw.override_bounds(Bounds::from(&vec![
+            Pt2D::new(0.0, 0.0),
+            Pt2D::new(
+                dims.width + 2.0 * horiz_padding,
+                dims.height + 2.0 * vert_padding,
+            ),
+        ]));
+        println!("{:?} padded to {:?}", dims, draw.get_dims());
+        ManagedWidget::just_draw(JustDraw::wrap(draw)).outline(2.0, Color::WHITE)
     }
 }
