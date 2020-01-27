@@ -744,7 +744,11 @@ impl TutorialState {
         let time = TimePanel::new(ctx, ui);
         let speed = SpeedControls::new(ctx);
         let agent_meter = AgentMeter::new(ctx, ui);
+        // The minimap is hidden at low zoom levels
+        let orig_zoom = ctx.canvas.cam_zoom;
+        ctx.canvas.cam_zoom = 100.0;
         let minimap = Minimap::new(ctx, ui);
+        ctx.canvas.cam_zoom = orig_zoom;
 
         state.stages.extend(vec![Stage::msg(vec![
             "Welcome to your first day as a contract traffic engineer --",

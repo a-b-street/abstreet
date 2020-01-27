@@ -5,8 +5,8 @@ use crate::{
 use abstutil::{fork_rng, prettyprint_usize, Timer, WeightedUsizeChoice};
 use geom::{Distance, Duration, Speed, Time};
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, DirectedRoadID, FullNeighborhoodInfo, Map, PathConstraints,
-    Position, RoadID,
+    BuildingID, BusRouteID, BusStopID, DirectedRoadID, FullNeighborhoodInfo, LaneID, Map,
+    PathConstraints, Position, RoadID,
 };
 use rand::seq::SliceRandom;
 use rand::Rng;
@@ -504,23 +504,19 @@ impl BorderSpawnOverTime {
         if self.num_cars == 0 {
             return;
         }
-        let starting_lanes = self.start_from_border.lanes(PathConstraints::Car, map);
-        if starting_lanes.is_empty() {
+        let lanes = pick_starting_lanes(
+            self.start_from_border.lanes(PathConstraints::Car, map),
+            false,
+            map,
+        );
+        if lanes.is_empty() {
             timer.warn(format!(
-                "Can't start car at border for {}",
-                self.start_from_border
+                "Can't start {} cars at border for {}",
+                self.num_cars, self.start_from_border
             ));
             return;
-        }
+        };
 
-        let lane_len = map.get_l(starting_lanes[0]).length();
-        if lane_len < MAX_CAR_LENGTH {
-            timer.warn(format!(
-                "Skipping {:?} because {} is only {}, too short to spawn cars",
-                self, starting_lanes[0], lane_len
-            ));
-            return;
-        }
         for _ in 0..self.num_cars {
             let spawn_time = rand_time(rng, self.start_time, self.stop_time);
             if let Some(goal) =
@@ -531,8 +527,7 @@ impl BorderSpawnOverTime {
                 sim.schedule_trip(
                     spawn_time,
                     TripSpec::CarAppearing {
-                        // TODO could pretty easily pick any lane here
-                        start_pos: Position::new(starting_lanes[0], vehicle.length),
+                        start_pos: Position::new(*lanes.choose(rng).unwrap(), vehicle.length),
                         vehicle_spec: vehicle,
                         goal,
                         ped_speed: Scenario::rand_ped_speed(rng),
@@ -554,14 +549,18 @@ impl BorderSpawnOverTime {
         if self.num_bikes == 0 {
             return;
         }
-        let starting_lanes = self.start_from_border.lanes(PathConstraints::Bike, map);
-        if starting_lanes.is_empty() || map.get_l(starting_lanes[0]).length() < BIKE_LENGTH {
+        let lanes = pick_starting_lanes(
+            self.start_from_border.lanes(PathConstraints::Bike, map),
+            true,
+            map,
+        );
+        if lanes.is_empty() {
             timer.warn(format!(
-                "Can't start bike at border for {}",
-                self.start_from_border
+                "Can't start {} bikes at border for {}",
+                self.num_bikes, self.start_from_border
             ));
             return;
-        }
+        };
 
         for _ in 0..self.num_bikes {
             let spawn_time = rand_time(rng, self.start_time, self.stop_time);
@@ -573,7 +572,7 @@ impl BorderSpawnOverTime {
                 sim.schedule_trip(
                     spawn_time,
                     TripSpec::CarAppearing {
-                        start_pos: Position::new(starting_lanes[0], bike.length),
+                        start_pos: Position::new(*lanes.choose(rng).unwrap(), bike.length),
                         vehicle_spec: bike,
                         goal,
                         ped_speed: Scenario::rand_ped_speed(rng),
@@ -899,4 +898,23 @@ impl SpawnTrip {
             ),
         }
     }
+}
+
+fn pick_starting_lanes(mut lanes: Vec<LaneID>, is_bike: bool, map: &Map) -> Vec<LaneID> {
+    let min_len = if is_bike { BIKE_LENGTH } else { MAX_CAR_LENGTH };
+    lanes.retain(|l| map.get_l(*l).length() > min_len);
+
+    if is_bike {
+        // If there's a choice between bike lanes and otherwise, always use the bike lanes.
+        let bike_lanes = lanes
+            .iter()
+            .filter(|l| map.get_l(**l).is_biking())
+            .cloned()
+            .collect::<Vec<LaneID>>();
+        if !bike_lanes.is_empty() {
+            lanes = bike_lanes;
+        }
+    }
+
+    lanes
 }
