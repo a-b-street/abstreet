@@ -15,6 +15,7 @@ use ezgui::{
 use geom::{Distance, Duration, PolyLine, Polygon, Pt2D, Statistic, Time};
 use map_model::{BuildingID, IntersectionID, RoadID};
 use sim::{AgentID, BorderSpawnOverTime, CarID, OriginDestination, Scenario, VehicleType};
+use std::collections::BTreeSet;
 
 pub struct TutorialMode {
     state: TutorialState,
@@ -71,13 +72,13 @@ impl State for TutorialMode {
         // First of all, might need to initiate warping
         if !self.warped {
             match self.state.stage() {
-                Stage::Msg { ref warp_pt, .. } | Stage::Interact { ref warp_pt, .. } => {
-                    if let Some(id) = warp_pt {
+                Stage::Msg { ref warp_to, .. } | Stage::Interact { ref warp_to, .. } => {
+                    if let Some((id, zoom)) = warp_to {
                         self.warped = true;
                         return Transition::Push(Warping::new(
                             ctx,
                             id.canonical_point(&ui.primary).unwrap(),
-                            Some(4.0),
+                            Some(*zoom),
                             Some(id.clone()),
                             &mut ui.primary,
                         ));
@@ -453,12 +454,12 @@ enum Stage {
     Msg {
         lines: Vec<&'static str>,
         point_to: Option<Box<dyn Fn(&GfxCtx, &UI) -> Pt2D>>,
-        warp_pt: Option<ID>,
+        warp_to: Option<(ID, f64)>,
         spawn: Option<Box<dyn Fn(&mut UI)>>,
     },
     Interact {
         name: &'static str,
-        warp_pt: Option<ID>,
+        warp_to: Option<(ID, f64)>,
         spawn: Option<Box<dyn Fn(&mut UI)>>,
     },
 }
@@ -468,7 +469,7 @@ impl Stage {
         Stage::Msg {
             lines,
             point_to: None,
-            warp_pt: None,
+            warp_to: None,
             spawn: None,
         }
     }
@@ -476,7 +477,7 @@ impl Stage {
     fn interact(name: &'static str) -> Stage {
         Stage::Interact {
             name,
-            warp_pt: None,
+            warp_to: None,
             spawn: None,
         }
     }
@@ -497,20 +498,16 @@ impl Stage {
         }
     }
 
-    fn warp_to(mut self, id: ID) -> Stage {
+    fn warp_to(mut self, id: ID, zoom: Option<f64>) -> Stage {
         match self {
             Stage::Msg {
-                ref mut warp_pt, ..
-            } => {
-                assert!(warp_pt.is_none());
-                *warp_pt = Some(id);
-                self
+                ref mut warp_to, ..
             }
-            Stage::Interact {
-                ref mut warp_pt, ..
+            | Stage::Interact {
+                ref mut warp_to, ..
             } => {
-                assert!(warp_pt.is_none());
-                *warp_pt = Some(id);
+                assert!(warp_to.is_none());
+                *warp_to = Some((id, zoom.unwrap_or(4.0)));
                 self
             }
         }
@@ -561,6 +558,37 @@ fn start_bike_lane_scenario(ui: &mut UI) {
         start_from_border: RoadID(303).backwards(),
         goal: OriginDestination::GotoBldg(BuildingID(3)),
     });
+    s.instantiate(
+        &mut ui.primary.sim,
+        &ui.primary.map,
+        &mut ui.primary.current_flags.sim_flags.make_rng(),
+        &mut Timer::throwaway(),
+    );
+    ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
+}
+
+fn start_bus_lane_scenario(ui: &mut UI) {
+    let mut s = Scenario::empty(&ui.primary.map, "car/bus contention");
+    let mut routes = BTreeSet::new();
+    routes.insert("43".to_string());
+    routes.insert("48".to_string());
+    s.only_seed_buses = Some(routes);
+    for src in vec![
+        RoadID(61).backwards(),
+        RoadID(240).forwards(),
+        RoadID(56).forwards(),
+    ] {
+        s.border_spawn_over_time.push(BorderSpawnOverTime {
+            num_peds: 0,
+            num_cars: 100,
+            num_bikes: 0,
+            percent_use_transit: 0.0,
+            start_time: Time::START_OF_DAY,
+            stop_time: Time::START_OF_DAY + Duration::seconds(10.0),
+            start_from_border: src,
+            goal: OriginDestination::EndOfRoad(RoadID(0).forwards()),
+        });
+    }
     s.instantiate(
         &mut ui.primary.sim,
         &ui.primary.map,
@@ -755,7 +783,7 @@ impl TutorialState {
             "like a paid assassin, but capable of making WAY more people cry.",
             "Warring factions in Seattle have brought you here.",
         ])
-        .warp_to(ID::Intersection(IntersectionID(141)))]);
+        .warp_to(ID::Intersection(IntersectionID(141)), None)]);
 
         state.stages.extend(vec![
             Stage::msg(vec![
@@ -846,7 +874,7 @@ impl TutorialState {
                 "Oh look, some people appeared!",
                 "We've got pedestrians, bikes, and cars moving around now.",
             ])
-            .warp_to(ID::Building(BuildingID(611)))
+            .warp_to(ID::Building(BuildingID(611)), None)
             .spawn_around(IntersectionID(247)),
             Stage::msg(vec![
                 "You can see the number of them in the top-right corner.",
@@ -858,7 +886,7 @@ impl TutorialState {
                 "and see where they park?",
             ])
             .spawn_around(IntersectionID(247))
-            .warp_to(ID::Building(BuildingID(611)))
+            .warp_to(ID::Building(BuildingID(611)), None)
             .dynamic_arrow(Box::new(|g, ui| {
                 g.canvas
                     .map_to_screen(
@@ -875,7 +903,7 @@ impl TutorialState {
             // TODO Make it clear they can reset
             Stage::interact("Escort the first northbound car until they park")
                 .spawn_around(IntersectionID(247))
-                .warp_to(ID::Building(BuildingID(611))),
+                .warp_to(ID::Building(BuildingID(611)), None),
         ]);
         // 5 interacts
 
@@ -910,7 +938,7 @@ impl TutorialState {
                 "Let's see what's happening over here.",
                 "(Just watch for a moment.)",
             ])
-            .warp_to(ID::Building(BuildingID(543)))
+            .warp_to(ID::Building(BuildingID(543)), None)
             .spawn(Box::new(start_bike_lane_scenario)),
             Stage::interact("Watch for 2 minutes").spawn(Box::new(start_bike_lane_scenario)),
         ]);
@@ -939,6 +967,19 @@ impl TutorialState {
                 .spawn(Box::new(start_bike_lane_scenario)),
         ]);
         // 8 interacts
+
+        state.stages.extend(vec![
+            Stage::msg(vec![
+                "Alright, now it's a game day at the University of Washington.",
+                "Everyone's heading north across the bridge.",
+                "Watch what happens to the bus 43 and 48.",
+            ])
+            .warp_to(ID::Building(BuildingID(1979)), Some(0.5))
+            .spawn(Box::new(start_bus_lane_scenario)),
+            Stage::interact("Watch the buses for 5 minutes")
+                .spawn(Box::new(start_bus_lane_scenario)),
+        ]);
+        // 9 interacts
 
         state.stages.push(Stage::msg(vec![
             "Training complete!",

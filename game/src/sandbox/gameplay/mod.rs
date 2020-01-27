@@ -85,7 +85,7 @@ impl GameplayMode {
             }
         } else if name == "just buses" {
             let mut s = Scenario::empty(map, "just buses");
-            s.seed_buses = true;
+            s.only_seed_buses = None;
             s
         } else {
             abstutil::read_binary(abstutil::path_scenario(map.get_name(), &name), timer)

@@ -9,12 +9,12 @@ e98a09a1628d8e7b9c2bad7e077e6f4c  data/system/maps/montlake.bin
 c1f770d7a77bd009cec2595137321b85  data/system/synthetic_maps/signal_double.json
 bfdbd18dd24a125d6f42f5b812be583f  data/system/synthetic_maps/signal_single.json
 7707b64b382c09a9635993856be6571c  data/system/synthetic_maps/signal_fan_in.json
-a7d0ab95bef858a0639f7455c1a94277  data/system/scenarios/ballard/weekday.bin
-c0b6fe5adec2dc439cfc6bff53df3389  data/system/scenarios/23rd/weekday.bin
-c1593c34b2fab009bbf632600dc54724  data/system/scenarios/downtown/weekday.bin
-ea93e66d15c68998d887f39c3169f9d9  data/system/scenarios/huge_seattle/weekday.bin
-513fde7459ed648883230f1059514eff  data/system/scenarios/caphill/weekday.bin
-722ceae81012b249bf7c25ee4e62ffef  data/system/scenarios/montlake/weekday.bin
+61f70dca095afbe1b38892d41e5d50bd  data/system/scenarios/ballard/weekday.bin
+24d627d749d12ace8306305d26aaceca  data/system/scenarios/23rd/weekday.bin
+e33e1fd46828ff772d866b0da9d8bd6c  data/system/scenarios/downtown/weekday.bin
+8df2f75c1ea658165e661bd28c2fd168  data/system/scenarios/huge_seattle/weekday.bin
+a9d94ca39fdb4da147a24a02a2b8f2f6  data/system/scenarios/caphill/weekday.bin
+e00f4628013d2be97ba791bd03070074  data/system/scenarios/montlake/weekday.bin
 692ce00b68b552eb05921dcf9d978a53  data/system/prebaked_results/23rd/weekday.bin
 9b03eee27c1a20f941848360ff4e6425  data/system/prebaked_results/signal_single/tutorial lvl1.bin
 fd451f62137814d9c91f38cc2e2bea62  data/system/prebaked_results/signal_single/tutorial lvl2.bin

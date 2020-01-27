@@ -76,7 +76,7 @@ fn load_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tr
 fn create_new_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
     let name = wiz.wrap(ctx).input_string("Name the scenario")?;
     let mut s = Scenario::empty(&ui.primary.map, &name);
-    s.seed_buses = true;
+    s.only_seed_buses = None;
     Some(Transition::Replace(Box::new(
         scenario::ScenarioManager::new(s, ctx, ui),
     )))
