@@ -4,7 +4,7 @@ use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::DrawOptions;
-use crate::sandbox::GameplayMode;
+use crate::sandbox::{examine_objects, GameplayMode};
 use crate::sandbox::{spawn_agents_around, AgentMeter, SpeedControls, TimePanel};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
@@ -160,6 +160,11 @@ impl State for TutorialMode {
         }
         if let Some(ref mut am) = self.agent_meter {
             if let Some(t) = am.event(ctx, ui) {
+                return t;
+            }
+
+            // By the time we're showing AgentMeter, also unlock these controls.
+            if let Some(t) = examine_objects(ctx, ui) {
                 return t;
             }
         }

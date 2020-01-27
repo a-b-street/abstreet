@@ -80,7 +80,7 @@ impl ShowBusRoute {
         batch.draw(g);
     }
 
-    pub fn make_route_picker(routes: Vec<BusRouteID>, from_sandbox_mode: bool) -> Box<dyn State> {
+    pub fn make_route_picker(routes: Vec<BusRouteID>, pop_once: bool) -> Box<dyn State> {
         let show_route = "show the route";
         let delays = "delays between stops";
         let passengers = "passengers waiting at each stop";
@@ -116,7 +116,7 @@ impl ShowBusRoute {
                 x if x == passengers => Overlays::bus_passengers(id, ctx, ui),
                 _ => unreachable!(),
             };
-            if from_sandbox_mode {
+            if pop_once {
                 Some(Transition::Pop)
             } else {
                 Some(Transition::PopTwice)

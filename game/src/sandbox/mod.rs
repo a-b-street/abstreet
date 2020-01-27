@@ -66,41 +66,10 @@ impl State for SandboxMode {
             }
         }
 
-        if ui.opts.dev && ctx.input.new_was_pressed(lctrl(Key::D).unwrap()) {
-            return Transition::Push(Box::new(DebugMode::new(ctx)));
-        }
-
-        if let Some(ID::Building(b)) = ui.primary.current_selection {
-            let cars = ui
-                .primary
-                .sim
-                .get_offstreet_parked_cars(b)
-                .into_iter()
-                .map(|p| p.vehicle.id)
-                .collect::<Vec<_>>();
-            if !cars.is_empty()
-                && ui.per_obj.action(
-                    ctx,
-                    Key::P,
-                    format!("examine {} cars parked here", cars.len()),
-                )
-            {
-                return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, _| {
-                    let _id = wiz.wrap(ctx).choose("Examine which car?", || {
-                        cars.iter()
-                            .map(|c| Choice::new(c.to_string(), *c))
-                            .collect()
-                    })?;
-                    Some(Transition::Pop)
-                })));
-            }
+        if let Some(t) = examine_objects(ctx, ui) {
+            return t;
         }
         if let Some(ID::Intersection(i)) = ui.primary.current_selection {
-            if ui.primary.map.get_i(i).is_traffic_signal()
-                && ui.per_obj.action(ctx, Key::C, "show current demand")
-            {
-                ui.overlay = Overlays::intersection_demand(i, ctx, ui);
-            }
             if ui.primary.map.get_i(i).is_traffic_signal()
                 && ui.per_obj.action(ctx, Key::E, "edit traffic signal")
             {
@@ -118,15 +87,6 @@ impl State for SandboxMode {
                     Box::new(EditMode::new(ctx, ui, self.gameplay.mode.clone())),
                     Box::new(StopSignEditor::new(i, ctx, ui)),
                 );
-            }
-        }
-        if let Some(ID::BusStop(bs)) = ui.primary.current_selection {
-            let routes = ui.primary.map.get_routes_serving_stop(bs);
-            if ui.per_obj.action(ctx, Key::E, "explore bus route") {
-                return Transition::Push(ShowBusRoute::make_route_picker(
-                    routes.into_iter().map(|r| r.id).collect(),
-                    true,
-                ));
             }
         }
 
@@ -326,4 +286,66 @@ impl AgentMeter {
     pub fn draw(&self, g: &mut GfxCtx) {
         self.composite.draw(g);
     }
+}
+
+pub fn examine_objects(ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    if ui.opts.dev && ctx.input.new_was_pressed(lctrl(Key::D).unwrap()) {
+        return Some(Transition::Push(Box::new(DebugMode::new(ctx))));
+    }
+
+    if let Some(ID::Building(b)) = ui.primary.current_selection {
+        let cars = ui
+            .primary
+            .sim
+            .get_offstreet_parked_cars(b)
+            .into_iter()
+            .map(|p| p.vehicle.id)
+            .collect::<Vec<_>>();
+        if !cars.is_empty()
+            && ui.per_obj.action(
+                ctx,
+                Key::P,
+                format!("examine {} cars parked here", cars.len()),
+            )
+        {
+            return Some(Transition::Push(WizardState::new(Box::new(
+                move |wiz, ctx, _| {
+                    let _id = wiz.wrap(ctx).choose("Examine which car?", || {
+                        cars.iter()
+                            .map(|c| Choice::new(c.to_string(), *c))
+                            .collect()
+                    })?;
+                    Some(Transition::Pop)
+                },
+            ))));
+        }
+    }
+    if let Some(ID::Intersection(i)) = ui.primary.current_selection {
+        if ui.primary.map.get_i(i).is_traffic_signal()
+            && ui.per_obj.action(ctx, Key::C, "show current demand")
+        {
+            ui.overlay = Overlays::intersection_demand(i, ctx, ui);
+        }
+    }
+    if let Some(ID::BusStop(bs)) = ui.primary.current_selection {
+        let routes = ui.primary.map.get_routes_serving_stop(bs);
+        if ui.per_obj.action(ctx, Key::E, "explore bus route") {
+            return Some(Transition::Push(ShowBusRoute::make_route_picker(
+                routes.into_iter().map(|r| r.id).collect(),
+                true,
+            )));
+        }
+    }
+    if let Some(ID::Car(c)) = ui.primary.current_selection {
+        if let Some(r) = ui.primary.sim.bus_route_id(c) {
+            if ui.per_obj.action(ctx, Key::E, "explore bus route") {
+                return Some(Transition::Push(ShowBusRoute::make_route_picker(
+                    vec![r],
+                    true,
+                )));
+            }
+        }
+    }
+
+    None
 }
