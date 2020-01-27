@@ -1,4 +1,4 @@
-use crate::{AgentID, CarID, Event, TripID, TripMode, VehicleType};
+use crate::{CarID, Event, TripID, TripMode};
 use abstutil::Counter;
 use derivative::Derivative;
 use geom::{Distance, Duration, DurationHistogram, PercentageHistogram, Time};
@@ -72,15 +72,7 @@ impl Analytics {
 
         // Throughput
         if let Event::AgentEntersTraversable(a, to) = ev {
-            let mode = match a {
-                AgentID::Pedestrian(_) => TripMode::Walk,
-                AgentID::Car(c) => match c.1 {
-                    VehicleType::Car => TripMode::Drive,
-                    VehicleType::Bike => TripMode::Bike,
-                    VehicleType::Bus => TripMode::Transit,
-                },
-            };
-
+            let mode = TripMode::from_agent(a);
             match to {
                 Traversable::Lane(l) => {
                     let r = map.get_l(l).parent;

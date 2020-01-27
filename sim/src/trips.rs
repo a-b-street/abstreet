@@ -50,8 +50,11 @@ impl TripManager {
                         mode = TripMode::Drive;
                     }
                 }
-                TripLeg::Drive(_, _) => {
+                TripLeg::Drive(ref vehicle, _) => {
                     mode = TripMode::Drive;
+                    if vehicle.vehicle_type == VehicleType::Bike {
+                        mode = TripMode::Bike;
+                    }
                 }
                 TripLeg::RideBus(_, _, _) => {
                     mode = TripMode::Transit;
@@ -691,7 +694,7 @@ impl TripMode {
         ]
     }
 
-    fn from_agent(id: AgentID) -> TripMode {
+    pub fn from_agent(id: AgentID) -> TripMode {
         match id {
             AgentID::Pedestrian(_) => TripMode::Walk,
             AgentID::Car(id) => match id.1 {

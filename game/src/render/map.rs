@@ -317,7 +317,9 @@ impl DrawMap {
             ID::Area(id) => {
                 return Some(self.get_a(id));
             }
-            ID::Trip(_) => unreachable!(),
+            ID::Trip(_) => {
+                return None;
+            }
         };
 
         agents.populate_if_needed(on, &ui.primary.map, &ui.primary.sim, &ui.cs, prerender);
