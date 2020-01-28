@@ -608,10 +608,12 @@ impl Sim {
         let goal_time = self.time + dt;
 
         loop {
-            if Duration::realtime_elapsed(started_at) > real_time_limit || self.time >= goal_time {
+            if Duration::realtime_elapsed(started_at) > real_time_limit || self.time == goal_time {
                 break;
             }
-            self.step(map, Duration::seconds(0.1));
+            // Don't exceed the goal_time. But if we have a large step to make, break it into 0.1s
+            // chunks, so we get a chance to abort if real_time_limit is passed.
+            self.step(map, Duration::seconds(0.1).min(goal_time - self.time));
         }
     }
 
