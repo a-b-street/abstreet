@@ -21,7 +21,7 @@ pub struct Flags {
 }
 
 pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> RawMap {
-    let mut map = split_ways::split_up_roads(
+    let (mut map, amenities) = split_ways::split_up_roads(
         osm_reader::extract_osm(&flags.osm, &flags.clip, timer),
         timer,
     );
@@ -30,6 +30,8 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> RawMap {
     // Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when
     // doing the parking hint matching.
     abstutil::retain_btreemap(&mut map.roads, |r, _| r.i1 != r.i2);
+
+    use_amenities(&mut map, amenities, timer);
 
     if let Some(ref path) = flags.parking_shapes {
         use_parking_hints(&mut map, path.clone(), timer);
@@ -266,4 +268,22 @@ fn use_sidewalk_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
         }
     }
     timer.stop("apply sidewalk hints");
+}
+
+fn use_amenities(map: &mut RawMap, amenities: Vec<(Pt2D, String, String)>, timer: &mut Timer) {
+    let mut closest: FindClosest<OriginalBuilding> = FindClosest::new(&map.gps_bounds.to_bounds());
+    for (id, b) in &map.buildings {
+        closest.add(*id, b.polygon.points());
+    }
+
+    timer.start_iter("match building amenities", amenities.len());
+    for (pt, name, amenity) in amenities {
+        timer.next();
+        if let Some((id, _)) = closest.closest_pt(pt, Distance::meters(50.0)) {
+            let b = map.buildings.get_mut(&id).unwrap();
+            if b.polygon.contains_pt(pt) {
+                b.amenities.insert((name, amenity));
+            }
+        }
+    }
 }

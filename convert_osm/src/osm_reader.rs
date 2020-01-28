@@ -3,7 +3,7 @@ use geom::{GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D, Ring};
 use map_model::raw::{OriginalBuilding, RawArea, RawBuilding, RawMap, RawRoad, RestrictionType};
 use map_model::{osm, AreaType};
 use osm_xml;
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
@@ -21,6 +21,8 @@ pub fn extract_osm(
     HashMap<HashablePt2D, i64>,
     // Turn restrictions: (restriction type, from way ID, via node ID, to way ID)
     Vec<(RestrictionType, i64, i64, i64)>,
+    // Amenities (location, name, amenity type)
+    Vec<(Pt2D, String, String)>,
 ) {
     let (reader, done) = FileWithProgress::new(osm_path).unwrap();
     let doc = osm_xml::OSM::parse(reader).expect("OSM parsing failed");
@@ -47,17 +49,22 @@ pub fn extract_osm(
     let mut roads: Vec<(i64, RawRoad)> = Vec::new();
     let mut traffic_signals: HashSet<HashablePt2D> = HashSet::new();
     let mut osm_node_ids = HashMap::new();
+    let mut amenities = Vec::new();
 
     timer.start_iter("processing OSM nodes", doc.nodes.len());
     for node in doc.nodes.values() {
         timer.next();
-        let pt =
-            Pt2D::forcibly_from_gps(LonLat::new(node.lon, node.lat), &map.gps_bounds).to_hashable();
-        osm_node_ids.insert(pt, node.id);
+        let pt = Pt2D::forcibly_from_gps(LonLat::new(node.lon, node.lat), &map.gps_bounds);
+        osm_node_ids.insert(pt.to_hashable(), node.id);
 
         let tags = tags_to_map(&node.tags);
         if tags.get(osm::HIGHWAY) == Some(&"traffic_signals".to_string()) {
-            traffic_signals.insert(pt);
+            traffic_signals.insert(pt.to_hashable());
+        }
+        if let Some(amenity) = tags.get("amenity") {
+            if let Some(name) = tags.get("name") {
+                amenities.push((pt, name.clone(), amenity.clone()));
+            }
         }
     }
 
@@ -139,6 +146,7 @@ pub fn extract_osm(
                     polygon: Polygon::new(&deduped),
                     osm_tags: tags,
                     parking: None,
+                    amenities: BTreeSet::new(),
                 },
             );
         } else if let Some(at) = get_area_type(&tags) {
@@ -253,7 +261,14 @@ pub fn extract_osm(
         });
     }
 
-    (map, roads, traffic_signals, osm_node_ids, turn_restrictions)
+    (
+        map,
+        roads,
+        traffic_signals,
+        osm_node_ids,
+        turn_restrictions,
+        amenities,
+    )
 }
 
 fn tags_to_map(raw_tags: &[osm_xml::Tag]) -> BTreeMap<String, String> {

@@ -547,6 +547,8 @@ pub struct RawBuilding {
     pub polygon: Polygon,
     pub osm_tags: BTreeMap<String, String>,
     pub parking: Option<OffstreetParking>,
+    // (Name, amenity type)
+    pub amenities: BTreeSet<(String, String)>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

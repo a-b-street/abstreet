@@ -69,6 +69,7 @@ pub fn make_all_buildings(
                     sidewalk: *sidewalk_pos,
                     line,
                 },
+                amenities: b.amenities.clone(),
                 parking: b.parking.clone(),
                 label_center: b.polygon.polylabel(),
             };

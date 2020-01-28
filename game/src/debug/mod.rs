@@ -331,6 +331,9 @@ fn search_osm(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Trans
         if b.osm_tags
             .iter()
             .any(|(k, v)| format!("{} = {}", k, v).contains(&filter))
+            || b.amenities
+                .iter()
+                .any(|(n, a)| n.contains(&filter) || a.contains(&filter))
         {
             num_matches += 1;
             batch.push(color, b.polygon.clone());

@@ -7,15 +7,16 @@ use map_model::{osm, IntersectionType};
 use std::collections::{HashMap, HashSet};
 
 pub fn split_up_roads(
-    (mut map, roads, traffic_signals, osm_node_ids, turn_restrictions): (
+    (mut map, roads, traffic_signals, osm_node_ids, turn_restrictions, amenities): (
         RawMap,
         Vec<(i64, RawRoad)>,
         HashSet<HashablePt2D>,
         HashMap<HashablePt2D, i64>,
         Vec<(RestrictionType, i64, i64, i64)>,
+        Vec<(Pt2D, String, String)>,
     ),
     timer: &mut Timer,
-) -> RawMap {
+) -> (RawMap, Vec<(Pt2D, String, String)>) {
     timer.start("splitting up roads");
 
     let mut pt_to_intersection: HashMap<HashablePt2D, OriginalIntersection> = HashMap::new();
@@ -134,7 +135,7 @@ pub fn split_up_roads(
     }
 
     timer.stop("splitting up roads");
-    map
+    (map, amenities)
 }
 
 // TODO Consider doing this in PolyLine::new always. extend() there does this too.

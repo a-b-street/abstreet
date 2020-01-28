@@ -1,7 +1,7 @@
 use crate::{osm, LaneID, Map, Position};
 use geom::{Line, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
@@ -40,6 +40,8 @@ pub struct Building {
     // Where a text label should be centered to have the best chances of being contained within the
     // polygon.
     pub label_center: Pt2D,
+    // (Name, amenity)
+    pub amenities: BTreeSet<(String, String)>,
 
     pub front_path: FrontPath,
     pub parking: Option<OffstreetParking>,

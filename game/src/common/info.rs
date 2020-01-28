@@ -404,6 +404,17 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                     txt.add(Line(format!("- {}", p.vehicle.id)));
                 }
             }
+
+            if !b.amenities.is_empty() {
+                txt.add(Line(""));
+                if b.amenities.len() > 1 {
+                    txt.add(Line(format!("{} amenities:", b.amenities.len())));
+                }
+                for (name, amenity) in &b.amenities {
+                    txt.add(Line(format!("- {} (a {})", name, amenity)));
+                }
+            }
+
             rows.push(ManagedWidget::draw_text(ctx, txt))
         }
         ID::Car(id) => {
