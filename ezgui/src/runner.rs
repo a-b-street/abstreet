@@ -1,12 +1,13 @@
 use crate::assets::Assets;
 use crate::{text, widgets, Canvas, Event, EventCtx, GfxCtx, Key, Prerender, UserInput};
+use geom::Duration;
 use glium::glutin;
 use std::cell::Cell;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use std::{panic, process, thread};
 
 // 30fps is 1000 / 30
-const SLEEP_BETWEEN_FRAMES: Duration = Duration::from_millis(33);
+const SLEEP_BETWEEN_FRAMES: std::time::Duration = std::time::Duration::from_millis(33);
 
 pub trait GUI {
     fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode;
@@ -100,7 +101,7 @@ impl<G: GUI> State<G> {
         // true. For now, just avoid the specific annoying redraw case when a KeyRelease or Update
         // event is unused.
         let input_used = match ev {
-            Event::KeyRelease(_) | Event::Update => ctx.input.has_been_consumed(),
+            Event::KeyRelease(_) | Event::Update(_) => ctx.input.has_been_consumed(),
             _ => true,
         };
         self.gui = gui;
@@ -354,6 +355,7 @@ fn loop_forever<G: GUI>(
     }
 
     let mut wait_for_events = false;
+    let mut prev_frame = Instant::now();
 
     loop {
         let start_frame = Instant::now();
@@ -387,7 +389,8 @@ fn loop_forever<G: GUI>(
             }
         });
         if !wait_for_events {
-            new_events.push(Event::Update);
+            new_events.push(Event::Update(Duration::realtime_elapsed(prev_frame)));
+            prev_frame = Instant::now();
         }
 
         let mut any_input_used = false;
@@ -398,6 +401,10 @@ fn loop_forever<G: GUI>(
                 any_input_used = true;
             }
             state = new_state;
+            // If we just unpaused, then don't act as if lots of time has passed.
+            if wait_for_events && mode == EventLoopMode::Animation {
+                prev_frame = Instant::now();
+            }
             wait_for_events = mode == EventLoopMode::InputOnly;
             match mode {
                 EventLoopMode::ScreenCaptureEverything {
@@ -436,8 +443,6 @@ fn loop_forever<G: GUI>(
             prerender.num_uploads.set(0);
         }
 
-        // Primitive event loop.
-        // TODO Read http://gameprogrammingpatterns.com/game-loop.html carefully.
         let this_frame = Instant::now().duration_since(start_frame);
         if SLEEP_BETWEEN_FRAMES > this_frame {
             thread::sleep(SLEEP_BETWEEN_FRAMES - this_frame);

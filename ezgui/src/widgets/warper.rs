@@ -26,7 +26,7 @@ impl Warper {
         }
 
         // Weird to do stuff for any event?
-        if !ctx.input.nonblocking_is_update_event() {
+        if ctx.input.nonblocking_is_update_event().is_none() {
             return Some(EventLoopMode::Animation);
         }
         ctx.input.use_update_event();

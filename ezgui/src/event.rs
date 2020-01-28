@@ -1,4 +1,5 @@
 use crate::ScreenPt;
+use geom::Duration;
 use glium::glutin;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -14,8 +15,9 @@ pub enum Event {
     // events while a key is held down.
     KeyPress(Key),
     KeyRelease(Key),
-    // Time has passed; EventLoopMode::Animation is active
-    Update,
+    // Some real amount of time has passed since the last update; EventLoopMode::Animation is
+    // active
+    Update(Duration),
     MouseMovedTo(ScreenPt),
     WindowLostCursor,
     WindowGainedCursor,

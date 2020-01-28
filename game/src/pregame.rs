@@ -258,7 +258,7 @@ impl Screensaver {
     }
 
     fn update(&mut self, rng: &mut XorShiftRng, ctx: &mut EventCtx, map: &Map) {
-        if ctx.input.nonblocking_is_update_event() {
+        if ctx.input.nonblocking_is_update_event().is_some() {
             ctx.input.use_update_event();
             let dist_along = Duration::realtime_elapsed(self.started) * SPEED;
             if dist_along < self.line.length() {

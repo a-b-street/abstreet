@@ -1,4 +1,5 @@
 use crate::{hotkey, lctrl, text, Canvas, Event, Key, Line, MultiKey, ScreenPt, Text};
+use geom::Duration;
 use std::collections::HashMap;
 
 // As we check for user input, record the input and the thing that would happen. This will let us
@@ -123,16 +124,23 @@ impl UserInput {
         }
     }
 
-    pub fn nonblocking_is_update_event(&mut self) -> bool {
+    pub fn nonblocking_is_update_event(&mut self) -> Option<Duration> {
         if self.event_consumed {
-            return false;
+            return None;
         }
 
-        self.event == Event::Update
+        if let Event::Update(dt) = self.event {
+            Some(dt)
+        } else {
+            None
+        }
     }
     pub fn use_update_event(&mut self) {
         self.consume_event();
-        assert!(self.event == Event::Update)
+        match self.event {
+            Event::Update(_) => {}
+            _ => panic!("Not an update event"),
+        }
     }
 
     pub fn nonblocking_is_keypress_event(&mut self) -> bool {

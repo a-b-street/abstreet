@@ -8,8 +8,7 @@ use ezgui::{
     Canvas, Color, Drawable, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Line, Text,
     VerticalAlignment, Wizard, GUI,
 };
-use geom::{Duration, Polygon};
-use std::time::Instant;
+use geom::Polygon;
 
 // This is the top-level of the GUI logic. This module should just manage interactions between the
 // top-level game states.
@@ -17,8 +16,6 @@ pub struct Game {
     // A stack of states
     states: Vec<Box<dyn State>>,
     ui: UI,
-
-    orig_start: Instant,
 }
 
 impl Game {
@@ -33,11 +30,7 @@ impl Game {
         } else {
             vec![Box::new(SandboxMode::new(ctx, &mut ui, mode))]
         };
-        Game {
-            states,
-            ui,
-            orig_start: Instant::now(),
-        }
+        Game { states, ui }
     }
 }
 
@@ -132,10 +125,7 @@ impl GUI for Game {
         state.draw(g, &self.ui);
 
         if self.ui.opts.dev && !g.is_screencap() {
-            let mut txt = Text::from(Line(format!(
-                "DEV - {}",
-                Duration::realtime_elapsed(self.orig_start)
-            )));
+            let mut txt = Text::from(Line("DEV"));
             txt.highlight_last_line(Color::RED);
             g.draw_blocking_text(
                 &txt,

@@ -275,19 +275,23 @@ impl SpeedControls {
             }
         }
 
-        if !self.paused && ctx.input.nonblocking_is_update_event() {
-            // TODO This is very wrong. Actually cap realtime and faster to 1x and something else
-            // (10 minutes/s?), factoring in ezgui framerate.
-            ctx.input.use_update_event();
-            let max_step = match self.setting {
-                SpeedSetting::Realtime => Duration::seconds(0.1),
-                SpeedSetting::Faster => Duration::minutes(1),
-                SpeedSetting::Fastest => Duration::hours(24),
-            };
-            ui.primary
-                .sim
-                .time_limited_step(&ui.primary.map, max_step, Duration::seconds(0.1));
-            ui.recalculate_current_selection(ctx);
+        if !self.paused {
+            if let Some(real_dt) = ctx.input.nonblocking_is_update_event() {
+                ctx.input.use_update_event();
+                let multiplier = match self.setting {
+                    // 1 sim second per real second
+                    SpeedSetting::Realtime => 1.0,
+                    // 1 sim minute per real second
+                    SpeedSetting::Faster => 60.0,
+                    // 1 sim hour per real second
+                    SpeedSetting::Fastest => 3600.0,
+                };
+                let dt = multiplier * real_dt;
+                ui.primary
+                    .sim
+                    .time_limited_step(&ui.primary.map, dt, Duration::seconds(0.033));
+                ui.recalculate_current_selection(ctx);
+            }
         }
 
         None
@@ -340,7 +344,7 @@ impl State for TimeWarpScreen {
         if ctx.input.new_was_pressed(hotkey(Key::Escape).unwrap()) {
             return Transition::Pop;
         }
-        if ctx.input.nonblocking_is_update_event() {
+        if ctx.input.nonblocking_is_update_event().is_some() {
             ctx.input.use_update_event();
             ui.primary.sim.time_limited_step(
                 &ui.primary.map,
