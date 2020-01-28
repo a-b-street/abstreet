@@ -94,11 +94,11 @@ impl State for TutorialMode {
                     ui.overlay = Overlays::Inactive;
                     return Transition::Pop;
                 }
-                "<" => {
+                "previous tutorial screen" => {
                     self.state.current -= 1;
                     return Transition::Replace(self.state.make_state(ctx, ui));
                 }
-                ">" => {
+                "next tutorial screen" => {
                     self.state.current += 1;
                     return Transition::Replace(self.state.make_state(ctx, ui));
                 }
@@ -372,6 +372,11 @@ impl State for TutorialMode {
                 }
                 return Transition::Replace(self.state.make_state(ctx, ui));
             }
+        } else if interact == "Watch the buses for 5 minutes" {
+            if ui.primary.sim.time() >= Time::START_OF_DAY + Duration::minutes(5) {
+                self.state.next();
+                return Transition::Replace(self.state.make_state(ctx, ui));
+            }
         }
 
         if let Some(ref mut common) = self.common {
@@ -584,10 +589,10 @@ fn start_bus_lane_scenario(ui: &mut UI) {
         RoadID(56).forwards(),
     ] {
         s.border_spawn_over_time.push(BorderSpawnOverTime {
-            num_peds: 0,
+            num_peds: 100,
             num_cars: 100,
             num_bikes: 0,
-            percent_use_transit: 0.0,
+            percent_use_transit: 1.0,
             start_time: Time::START_OF_DAY,
             stop_time: Time::START_OF_DAY + Duration::seconds(10.0),
             start_from_border: src,
@@ -636,13 +641,23 @@ impl TutorialState {
             if self.current == 0 {
                 Button::inactive_button("<", ctx)
             } else {
-                WrappedComposite::text_button(ctx, "<", None)
+                WrappedComposite::nice_text_button(
+                    ctx,
+                    Text::from(Line("<")),
+                    None,
+                    "previous tutorial screen",
+                )
             }
             .margin(5),
             if self.current == self.latest {
                 Button::inactive_button(">", ctx)
             } else {
-                WrappedComposite::text_button(ctx, ">", None)
+                WrappedComposite::nice_text_button(
+                    ctx,
+                    Text::from(Line(">")),
+                    None,
+                    "next tutorial screen",
+                )
             }
             .margin(5),
             WrappedComposite::text_button(ctx, "Quit", None).margin(5),
@@ -975,18 +990,34 @@ impl TutorialState {
         ]);
         // 8 interacts
 
-        state.stages.extend(vec![
-            Stage::msg(vec![
-                "Alright, now it's a game day at the University of Washington.",
-                "Everyone's heading north across the bridge.",
-                "Watch what happens to the bus 43 and 48.",
-            ])
-            .warp_to(ID::Building(BuildingID(1979)), Some(0.5))
-            .spawn(Box::new(start_bus_lane_scenario)),
-            Stage::interact("Watch the buses for 5 minutes")
+        if false {
+            // TODO There's no clear measurement for how well the buses are doing.
+            // TODO Probably want a steady stream of the cars appearing
+
+            state.stages.extend(vec![
+                Stage::msg(vec![
+                    "Alright, now it's a game day at the University of Washington.",
+                    "Everyone's heading north across the bridge.",
+                    "Watch what happens to the bus 43 and 48.",
+                ])
+                .warp_to(ID::Building(BuildingID(1979)), Some(0.5))
                 .spawn(Box::new(start_bus_lane_scenario)),
-        ]);
-        // 9 interacts
+                Stage::interact("Watch the buses for 5 minutes")
+                    .spawn(Box::new(start_bus_lane_scenario)),
+            ]);
+            // 9 interacts
+
+            state.stages.extend(vec![
+                Stage::msg(vec![
+                    "Let's speed up the poor bus! Why not dedicate some bus lanes to it?",
+                ])
+                .warp_to(ID::Building(BuildingID(1979)), Some(0.5))
+                .spawn(Box::new(start_bus_lane_scenario)),
+                // TODO By how much?
+                Stage::interact("Speed up bus 43 and 48").spawn(Box::new(start_bus_lane_scenario)),
+            ]);
+            // 10 interacts
+        }
 
         state.stages.push(Stage::msg(vec![
             "Training complete!",
@@ -1007,9 +1038,7 @@ impl TutorialState {
         // intersections.
 
         // TODO Edit mode. fixed schedules. agenda/goals.
-        // - add a bike lane, watch cars not stack up anymore
         // - Traffic signals -- protected and permited turns
-        // - buses... bus lane to skip traffic, reduce waiting time.
 
         // TODO Misc tools -- shortcuts, find address
     }

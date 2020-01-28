@@ -256,7 +256,6 @@ impl Minimap {
             );
         } else {
             // TODO Happens when we're quite out-of-bounds. Maybe stop allowing this at all?
-            println!("Warning: Minimap cursor is just a point right now");
         }
         g.disable_clipping();
         g.unfork();

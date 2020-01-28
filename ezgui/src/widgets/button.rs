@@ -324,7 +324,6 @@ impl Button {
                 dims.height + 2.0 * vert_padding,
             ),
         ]));
-        println!("{:?} padded to {:?}", dims, draw.get_dims());
         ManagedWidget::just_draw(JustDraw::wrap(draw)).outline(2.0, Color::WHITE)
     }
 }
