@@ -102,9 +102,9 @@ impl Minimap {
                             let (_, acs) =
                                 wiz.wrap(ctx).choose("Which colorscheme for agents?", || {
                                     let mut choices = Vec::new();
-                                    for (acs, name) in AgentColorScheme::all(&ui.cs) {
+                                    for acs in AgentColorScheme::all(&ui.cs) {
                                         if ui.agent_cs.acs != acs.acs {
-                                            choices.push(Choice::new(name, acs));
+                                            choices.push(Choice::new(acs.long_name.clone(), acs));
                                         }
                                     }
                                     choices
@@ -336,7 +336,8 @@ fn make_minimap_panel(ctx: &mut EventCtx, acs: &AgentColorScheme, zoom_lvl: usiz
                 WrappedComposite::svg_button(ctx, "assets/minimap/down.svg", "pan down", None)
                     .margin(5)
                     .centered_horiz(),
-            ]),
+            ])
+            .centered(),
         ])
         .bg(Color::grey(0.5)),
     )
@@ -388,12 +389,11 @@ fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
                 hotkey(Key::L),
             )
             .margin(10),
-        ]),
-        // TODO Too wide most of the time...
-        ManagedWidget::draw_text(ctx, Text::prompt(&acs.title)).centered_horiz(),
+        ])
+        .centered(),
         WrappedComposite::nice_text_button(
             ctx,
-            Text::from(Line("change")),
+            Text::from(Line(format!("{} ▼", acs.short_name))),
             hotkey(Key::Semicolon),
             "change agent colorscheme",
         )
@@ -402,13 +402,19 @@ fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
     for (label, color, enabled) in &acs.rows {
         col.push(
             ManagedWidget::row(vec![
-                ManagedWidget::btn(Button::rectangle_svg(
+                ManagedWidget::btn(Button::rectangle_svg_rewrite(
                     "assets/tools/visibility.svg",
                     &format!("show/hide {}", label),
                     None,
-                    RewriteColor::Change(Color::WHITE, Color::ORANGE),
+                    if *enabled {
+                        RewriteColor::NoOp
+                    } else {
+                        RewriteColor::ChangeAll(Color::WHITE.alpha(0.5))
+                    },
+                    RewriteColor::ChangeAll(Color::ORANGE),
                     ctx,
-                )),
+                ))
+                .margin(3),
                 ManagedWidget::draw_batch(
                     ctx,
                     GeomBatch::from(vec![(
@@ -420,7 +426,8 @@ fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
                         Circle::new(Pt2D::new(radius, radius), Distance::meters(radius))
                             .to_polygon(),
                     )]),
-                ),
+                )
+                .margin(3),
                 ManagedWidget::draw_text(
                     ctx,
                     Text::from(if *enabled {
@@ -428,7 +435,8 @@ fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
                     } else {
                         Line(label).fg(Color::WHITE.alpha(0.5))
                     }),
-                ),
+                )
+                .margin(3),
             ])
             .centered_cross(),
         );

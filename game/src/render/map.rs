@@ -454,10 +454,11 @@ pub enum InnerAgentColorScheme {
 }
 
 impl InnerAgentColorScheme {
-    fn data(self, cs: &ColorScheme) -> (&str, Vec<(&str, Color)>) {
+    fn data(self, cs: &ColorScheme) -> (&str, &str, Vec<(&str, Color)>) {
         match self {
             InnerAgentColorScheme::VehicleTypes => (
-                "vehicle types",
+                "types",
+                "agent types",
                 vec![
                     ("car", cs.get_def("unzoomed car", Color::RED.alpha(0.5))),
                     ("bike", cs.get_def("unzoomed bike", Color::GREEN.alpha(0.5))),
@@ -469,7 +470,8 @@ impl InnerAgentColorScheme {
                 ],
             ),
             InnerAgentColorScheme::Delay => (
-                "time spent delayed/blocked",
+                "delay",
+                "time spent delayed",
                 vec![
                     ("<= 1 minute", Color::BLUE.alpha(0.3)),
                     ("<= 5 minutes", Color::ORANGE.alpha(0.5)),
@@ -477,6 +479,7 @@ impl InnerAgentColorScheme {
                 ],
             ),
             InnerAgentColorScheme::TripTimeSoFar => (
+                "trip time",
                 "trip time so far",
                 vec![
                     ("<= 1 minute", Color::BLUE.alpha(0.3)),
@@ -485,6 +488,7 @@ impl InnerAgentColorScheme {
                 ],
             ),
             InnerAgentColorScheme::DistanceCrossedSoFar => (
+                "distance crossed",
                 "distance crossed to goal so far",
                 vec![
                     ("<= 10%", rotating_color(0)),
@@ -522,7 +526,8 @@ impl InnerAgentColorScheme {
 #[derive(Clone, PartialEq)]
 pub struct AgentColorScheme {
     pub acs: InnerAgentColorScheme,
-    pub title: String,
+    pub short_name: String,
+    pub long_name: String,
     pub rows: Vec<(String, Color, bool)>,
 }
 
@@ -530,10 +535,11 @@ impl Cloneable for AgentColorScheme {}
 
 impl AgentColorScheme {
     pub fn new(acs: InnerAgentColorScheme, cs: &ColorScheme) -> AgentColorScheme {
-        let (title, rows) = acs.data(cs);
+        let (short_name, long_name, rows) = acs.data(cs);
         AgentColorScheme {
             acs,
-            title: title.to_string(),
+            short_name: short_name.to_string(),
+            long_name: long_name.to_string(),
             rows: rows
                 .into_iter()
                 .map(|(name, color)| (name.to_string(), color, true))
@@ -545,7 +551,7 @@ impl AgentColorScheme {
         AgentColorScheme::new(InnerAgentColorScheme::VehicleTypes, cs)
     }
 
-    pub fn all(cs: &ColorScheme) -> Vec<(AgentColorScheme, String)> {
+    pub fn all(cs: &ColorScheme) -> Vec<AgentColorScheme> {
         vec![
             InnerAgentColorScheme::VehicleTypes,
             InnerAgentColorScheme::Delay,
@@ -553,11 +559,7 @@ impl AgentColorScheme {
             InnerAgentColorScheme::DistanceCrossedSoFar,
         ]
         .into_iter()
-        .map(|acs| {
-            let x = AgentColorScheme::new(acs, cs);
-            let title = x.title.clone();
-            (x, title)
-        })
+        .map(|acs| AgentColorScheme::new(acs, cs))
         .collect()
     }
 

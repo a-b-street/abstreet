@@ -172,7 +172,7 @@ pub struct LoadingScreen<'a> {
     assets: &'a Assets,
     lines: VecDeque<String>,
     max_capacity: usize,
-    last_drawn: Option<Instant>,
+    last_drawn: Instant,
     title: String,
 }
 
@@ -193,7 +193,8 @@ impl<'a> LoadingScreen<'a> {
             assets,
             lines: VecDeque::new(),
             max_capacity: (0.8 * initial_height / assets.default_line_height) as usize,
-            last_drawn: None,
+            // If the loading callback takes less than 0.2s, we don't redraw at all.
+            last_drawn: Instant::now(),
             title,
             canvas,
         }
@@ -201,12 +202,10 @@ impl<'a> LoadingScreen<'a> {
 
     // Timer throttles updates reasonably, so don't bother throttling redraws.
     fn redraw(&mut self) {
-        if let Some(t) = self.last_drawn {
-            if elapsed_seconds(t) < 0.2 {
-                return;
-            }
+        if elapsed_seconds(self.last_drawn) < 0.2 {
+            return;
         }
-        self.last_drawn = Some(Instant::now());
+        self.last_drawn = Instant::now();
 
         let mut txt = Text::prompt(&self.title);
         txt.override_width = Some(self.canvas.window_width * 0.8);
