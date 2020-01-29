@@ -55,15 +55,6 @@ impl WrappedComposite {
 }
 
 impl WrappedComposite {
-    pub fn img_button(
-        ctx: &EventCtx,
-        filename: &str,
-        hotkey: Option<MultiKey>,
-        label: &str,
-    ) -> ManagedWidget {
-        ManagedWidget::btn(Button::rectangle_img(filename, hotkey, ctx, label))
-    }
-
     pub fn svg_button(
         ctx: &EventCtx,
         filename: &str,

@@ -395,12 +395,12 @@ impl TimePanel {
             time: ui.primary.sim.time(),
             composite: Composite::new(
                 ManagedWidget::col(vec![
-                    ManagedWidget::row(vec![ManagedWidget::draw_text(
+                    ManagedWidget::draw_text(
                         ctx,
                         Text::from(Line(ui.primary.sim.time().ampm_tostring()).size(30)),
                     )
-                    .centered()])
-                    .padding(10),
+                    .padding(10)
+                    .centered_horiz(),
                     {
                         let mut batch = GeomBatch::new();
                         // This is manually tuned

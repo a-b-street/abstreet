@@ -316,41 +316,26 @@ fn make_minimap_panel(ctx: &mut EventCtx, acs: &AgentColorScheme, zoom_lvl: usiz
             make_viz_panel(ctx, acs),
             ManagedWidget::col(zoom_col).margin(5).centered(),
             ManagedWidget::col(vec![
-                ManagedWidget::row(vec![WrappedComposite::svg_button(
-                    ctx,
-                    "assets/minimap/up.svg",
-                    "pan up",
-                    None,
-                )])
-                .margin(5)
-                .centered(),
-                ManagedWidget::row(vec![
-                    ManagedWidget::col(vec![WrappedComposite::svg_button(
-                        ctx,
-                        "assets/minimap/left.svg",
-                        "pan left",
-                        None,
-                    )])
+                WrappedComposite::svg_button(ctx, "assets/minimap/up.svg", "pan up", None)
                     .margin(5)
-                    .centered(),
+                    .centered_horiz(),
+                ManagedWidget::row(vec![
+                    WrappedComposite::svg_button(ctx, "assets/minimap/left.svg", "pan left", None)
+                        .margin(5)
+                        .centered_vert(),
                     ManagedWidget::filler("minimap"),
-                    ManagedWidget::col(vec![WrappedComposite::svg_button(
+                    WrappedComposite::svg_button(
                         ctx,
                         "assets/minimap/right.svg",
                         "pan right",
                         None,
-                    )])
+                    )
                     .margin(5)
-                    .centered(),
+                    .centered_vert(),
                 ]),
-                ManagedWidget::row(vec![WrappedComposite::svg_button(
-                    ctx,
-                    "assets/minimap/down.svg",
-                    "pan down",
-                    None,
-                )])
-                .margin(5)
-                .centered(),
+                WrappedComposite::svg_button(ctx, "assets/minimap/down.svg", "pan down", None)
+                    .margin(5)
+                    .centered_horiz(),
             ]),
         ])
         .bg(Color::grey(0.5)),
@@ -405,13 +390,14 @@ fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
             .margin(10),
         ]),
         // TODO Too wide most of the time...
-        ManagedWidget::draw_text(ctx, Text::prompt(&acs.title)),
+        ManagedWidget::draw_text(ctx, Text::prompt(&acs.title)).centered_horiz(),
         WrappedComposite::nice_text_button(
             ctx,
             Text::from(Line("change")),
             hotkey(Key::Semicolon),
             "change agent colorscheme",
-        ),
+        )
+        .centered_horiz(),
     ];
     for (label, color, enabled) in &acs.rows {
         col.push(

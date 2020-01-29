@@ -93,12 +93,12 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
                 "Sandbox mode",
                 hotkey(Key::S),
             ),
-            WrappedComposite::img_button(
-                ctx,
+            ManagedWidget::btn(Button::rectangle_img(
                 "assets/pregame/challenges.png",
                 hotkey(Key::C),
+                ctx,
                 "Challenges",
-            ),
+            )),
         ])
         .centered(),
     ];

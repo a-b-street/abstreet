@@ -385,6 +385,7 @@ impl GeomBatch {
     pub fn rewrite_color(&mut self, transformation: RewriteColor) {
         for (c, _) in self.list.iter_mut() {
             match transformation {
+                RewriteColor::NoOp => {}
                 RewriteColor::Change(from, to) => {
                     if *c == from {
                         *c = to;
@@ -411,6 +412,7 @@ impl GeomBatch {
 }
 
 pub enum RewriteColor {
+    NoOp,
     Change(Color, Color),
     ChangeAll(Color),
 }

@@ -730,12 +730,8 @@ impl TutorialState {
                                 }
                                 txt
                             }),
-                            ManagedWidget::row(vec![WrappedComposite::text_button(
-                                ctx,
-                                "OK",
-                                hotkey(Key::Enter),
-                            )])
-                            .centered(),
+                            WrappedComposite::text_button(ctx, "OK", hotkey(Key::Enter))
+                                .centered_horiz(),
                         ])
                         .bg(Color::grey(0.4))
                         .outline(5.0, Color::WHITE)

@@ -209,34 +209,6 @@ impl Button {
         )
     }
 
-    pub fn rectangle_svg_bg(
-        filename: &str,
-        tooltip: &str,
-        key: Option<MultiKey>,
-        bg_color: Color,
-        hover: Color,
-        ctx: &EventCtx,
-    ) -> Button {
-        let mut throwaway = GeomBatch::new();
-        let bounds = svg::add_svg(&mut throwaway, filename);
-
-        let mut normal = GeomBatch::new();
-        normal.push(bg_color, bounds.get_rectangle());
-        svg::add_svg(&mut normal, filename);
-
-        let mut hovered = GeomBatch::new();
-        hovered.push(hover, bounds.get_rectangle());
-        svg::add_svg(&mut hovered, filename);
-
-        Button::new(
-            DrawBoth::new(ctx, normal, Vec::new()),
-            DrawBoth::new(ctx, hovered, Vec::new()),
-            key,
-            tooltip,
-            bounds.get_rectangle(),
-        )
-    }
-
     pub fn text_bg(
         text: Text,
         unselected_bg_color: Color,

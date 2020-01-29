@@ -91,6 +91,14 @@ impl ManagedWidget {
         self
     }
 
+    pub fn centered_horiz(self) -> ManagedWidget {
+        ManagedWidget::row(vec![self]).centered()
+    }
+
+    pub fn centered_vert(self) -> ManagedWidget {
+        ManagedWidget::col(vec![self]).centered()
+    }
+
     pub fn centered_cross(mut self) -> ManagedWidget {
         self.style.align_items = Some(AlignItems::Center);
         self

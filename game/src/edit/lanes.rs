@@ -4,8 +4,8 @@ use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::ui::UI;
 use ezgui::{
-    hotkey, Button, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key,
-    ManagedWidget, Outcome, Text, VerticalAlignment,
+    hotkey, Button, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    ManagedWidget, Outcome, RewriteColor, Text, VerticalAlignment,
 };
 use map_model::{
     connectivity, EditCmd, IntersectionType, LaneID, LaneType, Map, PathConstraints, RoadID,
@@ -208,25 +208,28 @@ fn make_brush_panel(ctx: &mut EventCtx, brush: Brush) -> Composite {
         ),
     ] {
         row.push(
-            ManagedWidget::col(vec![ManagedWidget::btn(Button::rectangle_svg_bg(
+            ManagedWidget::col(vec![ManagedWidget::btn(Button::rectangle_svg_rewrite(
                 &format!("assets/edit/{}.svg", icon),
                 label,
                 hotkey(key),
                 if brush == b {
-                    Color::RED
+                    RewriteColor::ChangeAll(Color::RED)
                 } else {
-                    Color::grey(0.4)
+                    RewriteColor::NoOp
                 },
-                Color::ORANGE,
+                RewriteColor::ChangeAll(Color::ORANGE),
                 ctx,
             ))])
             .padding(5),
         );
     }
     Composite::new(
-        ManagedWidget::row(row)
-            .bg(Color::hex("#4C4C4C"))
-            .padding(10),
+        ManagedWidget::col(vec![
+            ManagedWidget::draw_text(ctx, Text::from(Line("Modify lanes"))).centered_horiz(),
+            ManagedWidget::row(row).centered(),
+        ])
+        .bg(Color::hex("#4C4C4C"))
+        .padding(10),
     )
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
