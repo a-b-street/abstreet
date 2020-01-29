@@ -27,31 +27,28 @@ impl SpeedControls {
         let bg = Color::hex("#7C7C7C");
 
         let mut row = Vec::new();
-        if paused {
-            row.push(
-                ManagedWidget::row(vec![ManagedWidget::btn(Button::rectangle_svg(
+        row.push(
+            ManagedWidget::btn(if paused {
+                Button::rectangle_svg(
                     "assets/speed/triangle.svg",
                     "play",
                     hotkey(Key::Space),
                     RewriteColor::ChangeAll(Color::ORANGE),
                     ctx,
-                ))])
-                .bg(bg)
-                .margin(5),
-            );
-        } else {
-            row.push(
-                ManagedWidget::row(vec![ManagedWidget::btn(Button::rectangle_svg(
+                )
+            } else {
+                Button::rectangle_svg(
                     "assets/speed/pause.svg",
                     "pause",
                     hotkey(Key::Space),
                     RewriteColor::ChangeAll(Color::ORANGE),
                     ctx,
-                ))])
-                .bg(bg)
-                .margin(5),
-            );
-        }
+                )
+            })
+            .margin(5)
+            .centered_vert()
+            .bg(bg),
+        );
 
         let mut settings = vec![ManagedWidget::btn(Button::rectangle_svg(
             "assets/speed/triangle.svg",
@@ -113,7 +110,11 @@ impl SpeedControls {
                 )));
             }
         }
-        row.push(ManagedWidget::row(settings.into_iter().map(|x| x.margin(5)).collect()).bg(bg));
+        row.push(
+            ManagedWidget::row(settings.into_iter().map(|x| x.margin(5)).collect())
+                .bg(bg)
+                .centered(),
+        );
 
         row.push(
             ManagedWidget::row(
@@ -153,7 +154,8 @@ impl SpeedControls {
                 .map(|x| x.margin(5))
                 .collect(),
             )
-            .bg(bg),
+            .bg(bg)
+            .centered(),
         );
 
         WrappedComposite::new(
