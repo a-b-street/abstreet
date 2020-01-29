@@ -113,6 +113,7 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
         "About A/B Street",
         None,
     ));
+    col.push(ManagedWidget::draw_text(ctx, built_info::time()));
 
     let mut c = WrappedComposite::new(
         Composite::new(ManagedWidget::row(vec![
@@ -268,5 +269,23 @@ impl Screensaver {
                 *self = Screensaver::start_bounce(rng, ctx, map)
             }
         }
+    }
+}
+
+#[allow(unused)]
+mod built_info {
+    use ezgui::{Color, Line, Text};
+
+    include!(concat!(env!("OUT_DIR"), "/built.rs"));
+
+    pub fn time() -> Text {
+        let t = built::util::strptime(BUILT_TIME_UTC);
+
+        let mut txt = Text::from(Line(format!("Built on {}", t.date().naive_local())));
+        // Releases every Sunday
+        if (chrono::Utc::now() - t).num_days() > 8 {
+            txt.append(Line(format!(" (get the new release from abstreet.org)")).fg(Color::RED));
+        }
+        txt
     }
 }

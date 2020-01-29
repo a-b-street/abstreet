@@ -8,6 +8,8 @@ use walkdir::WalkDir;
 
 // TODO See https://github.com/dtolnay/inventory for an alternate approach.
 fn main() {
+    built::write_built_file().expect("Failed to acquire build-time information");
+
     let mut mapping: BTreeMap<String, String> = BTreeMap::new();
     for entry in WalkDir::new("src") {
         let path = entry.unwrap().into_path();
