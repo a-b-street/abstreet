@@ -56,10 +56,17 @@ impl TrafficSignalEditor {
     }
 
     fn change_phase(&mut self, idx: usize, ui: &UI, ctx: &mut EventCtx) {
-        let preserve_scroll = self.composite.preserve_scroll();
-        self.current_phase = idx;
-        self.composite = make_diagram(self.i, self.current_phase, ui, ctx);
-        self.composite.restore_scroll(ctx, preserve_scroll);
+        if self.current_phase == idx {
+            let preserve_scroll = self.composite.preserve_scroll();
+            self.composite = make_diagram(self.i, self.current_phase, ui, ctx);
+            self.composite.restore_scroll(ctx, preserve_scroll);
+        } else {
+            self.current_phase = idx;
+            self.composite = make_diagram(self.i, self.current_phase, ui, ctx);
+            // TODO Maybe center of previous member
+            self.composite
+                .scroll_to_member(ctx, format!("delete phase #{}", idx + 1));
+        }
     }
 }
 

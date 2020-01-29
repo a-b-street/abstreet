@@ -527,7 +527,7 @@ impl ManagedWidget {
         }
     }
 
-    fn center_of(&self, name: &str) -> Option<ScreenPt> {
+    fn rect_of(&self, name: &str) -> Option<&ScreenRectangle> {
         let found = match self.widget {
             WidgetType::Draw(_) => false,
             WidgetType::Btn(ref btn) => btn.action == name,
@@ -539,15 +539,15 @@ impl ManagedWidget {
             WidgetType::Histogram(_) => false,
             WidgetType::Row(ref widgets) | WidgetType::Column(ref widgets) => {
                 for widget in widgets {
-                    if let Some(pt) = widget.center_of(name) {
-                        return Some(pt);
+                    if let Some(rect) = widget.rect_of(name) {
+                        return Some(rect);
                     }
                 }
                 return None;
             }
         };
         if found {
-            Some(self.rect.center())
+            Some(&self.rect)
         } else {
             None
         }
@@ -780,6 +780,15 @@ impl Composite {
         self.set_scroll_offset(ctx, offset);
     }
 
+    pub fn scroll_to_member(&mut self, ctx: &EventCtx, name: String) {
+        if let Some(rect) = self.top_level.rect_of(&name) {
+            let y1 = rect.y1;
+            self.set_scroll_offset(ctx, (0.0, y1));
+        } else {
+            panic!("Can't scroll_to_member of unknown {}", name);
+        }
+    }
+
     pub fn slider(&self, name: &str) -> &Slider {
         &self.sliders[name]
     }
@@ -797,8 +806,8 @@ impl Composite {
     }
 
     pub fn center_of(&self, name: &str) -> ScreenPt {
-        if let Some(pt) = self.top_level.center_of(name) {
-            pt
+        if let Some(rect) = self.top_level.rect_of(name) {
+            rect.center()
         } else {
             panic!("Can't find center_of {}", name);
         }
