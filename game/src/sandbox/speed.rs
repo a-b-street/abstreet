@@ -15,11 +15,16 @@ pub struct SpeedControls {
     setting: SpeedSetting,
 }
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, PartialOrd)]
 enum SpeedSetting {
+    // 1 sim second per real second
     Realtime,
-    Faster,
-    Fastest,
+    // 1 sim minute per real second
+    MinutePerSec,
+    // 1 sim hour per real second
+    HourPerSec,
+    // as fast as possible
+    Uncapped,
 }
 
 impl SpeedControls {
@@ -50,70 +55,34 @@ impl SpeedControls {
             .bg(bg),
         );
 
-        let mut settings = vec![ManagedWidget::btn(Button::rectangle_svg(
-            "assets/speed/triangle.svg",
-            "realtime",
-            None,
-            RewriteColor::ChangeAll(Color::ORANGE),
-            ctx,
-        ))];
-        match setting {
-            SpeedSetting::Realtime => {
-                settings.push(ManagedWidget::btn(Button::rectangle_svg_rewrite(
-                    "assets/speed/triangle.svg",
-                    "600x speed",
-                    None,
-                    RewriteColor::ChangeAll(Color::WHITE.alpha(0.2)),
-                    RewriteColor::ChangeAll(Color::ORANGE),
-                    ctx,
-                )));
-                settings.push(ManagedWidget::btn(Button::rectangle_svg_rewrite(
-                    "assets/speed/triangle.svg",
-                    "as fast as possible",
-                    None,
-                    RewriteColor::ChangeAll(Color::WHITE.alpha(0.2)),
-                    RewriteColor::ChangeAll(Color::ORANGE),
-                    ctx,
-                )));
-            }
-            SpeedSetting::Faster => {
-                settings.push(ManagedWidget::btn(Button::rectangle_svg(
-                    "assets/speed/triangle.svg",
-                    "600x speed",
-                    None,
-                    RewriteColor::ChangeAll(Color::ORANGE),
-                    ctx,
-                )));
-                settings.push(ManagedWidget::btn(Button::rectangle_svg_rewrite(
-                    "assets/speed/triangle.svg",
-                    "as fast as possible",
-                    None,
-                    RewriteColor::ChangeAll(Color::WHITE.alpha(0.2)),
-                    RewriteColor::ChangeAll(Color::ORANGE),
-                    ctx,
-                )));
-            }
-            SpeedSetting::Fastest => {
-                settings.push(ManagedWidget::btn(Button::rectangle_svg(
-                    "assets/speed/triangle.svg",
-                    "600x speed",
-                    None,
-                    RewriteColor::ChangeAll(Color::ORANGE),
-                    ctx,
-                )));
-                settings.push(ManagedWidget::btn(Button::rectangle_svg(
-                    "assets/speed/triangle.svg",
-                    "as fast as possible",
-                    None,
-                    RewriteColor::ChangeAll(Color::ORANGE),
-                    ctx,
-                )));
-            }
-        }
         row.push(
-            ManagedWidget::row(settings.into_iter().map(|x| x.margin(5)).collect())
-                .bg(bg)
-                .centered(),
+            ManagedWidget::row(
+                vec![
+                    (SpeedSetting::Realtime, "realtime"),
+                    (SpeedSetting::MinutePerSec, "60x"),
+                    (SpeedSetting::HourPerSec, "3600x"),
+                    (SpeedSetting::Uncapped, "as fast as possible"),
+                ]
+                .into_iter()
+                .map(|(s, label)| {
+                    ManagedWidget::btn(Button::rectangle_svg_rewrite(
+                        "assets/speed/triangle.svg",
+                        label,
+                        None,
+                        if setting >= s {
+                            RewriteColor::NoOp
+                        } else {
+                            RewriteColor::ChangeAll(Color::WHITE.alpha(0.2))
+                        },
+                        RewriteColor::ChangeAll(Color::ORANGE),
+                        ctx,
+                    ))
+                    .margin(5)
+                })
+                .collect(),
+            )
+            .bg(bg)
+            .centered(),
         );
 
         row.push(
@@ -215,13 +184,18 @@ impl SpeedControls {
                     self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
                     return None;
                 }
-                "600x speed" => {
-                    self.setting = SpeedSetting::Faster;
+                "60x" => {
+                    self.setting = SpeedSetting::MinutePerSec;
+                    self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                    return None;
+                }
+                "3600x" => {
+                    self.setting = SpeedSetting::HourPerSec;
                     self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
                     return None;
                 }
                 "as fast as possible" => {
-                    self.setting = SpeedSetting::Fastest;
+                    self.setting = SpeedSetting::Uncapped;
                     self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
                     return None;
                 }
@@ -245,12 +219,16 @@ impl SpeedControls {
         if ctx.input.new_was_pressed(hotkey(Key::LeftBracket).unwrap()) {
             match self.setting {
                 SpeedSetting::Realtime => self.pause(ctx),
-                SpeedSetting::Faster => {
+                SpeedSetting::MinutePerSec => {
                     self.setting = SpeedSetting::Realtime;
                     self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
                 }
-                SpeedSetting::Fastest => {
-                    self.setting = SpeedSetting::Faster;
+                SpeedSetting::HourPerSec => {
+                    self.setting = SpeedSetting::MinutePerSec;
+                    self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                }
+                SpeedSetting::Uncapped => {
+                    self.setting = SpeedSetting::HourPerSec;
                     self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
                 }
             }
@@ -265,15 +243,19 @@ impl SpeedControls {
                         self.paused = false;
                         self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
                     } else {
-                        self.setting = SpeedSetting::Faster;
+                        self.setting = SpeedSetting::MinutePerSec;
                         self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
                     }
                 }
-                SpeedSetting::Faster => {
-                    self.setting = SpeedSetting::Fastest;
+                SpeedSetting::MinutePerSec => {
+                    self.setting = SpeedSetting::HourPerSec;
                     self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
                 }
-                SpeedSetting::Fastest => {}
+                SpeedSetting::HourPerSec => {
+                    self.setting = SpeedSetting::Uncapped;
+                    self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                }
+                SpeedSetting::Uncapped => {}
             }
         }
 
@@ -281,12 +263,10 @@ impl SpeedControls {
             if let Some(real_dt) = ctx.input.nonblocking_is_update_event() {
                 ctx.input.use_update_event();
                 let multiplier = match self.setting {
-                    // 1 sim second per real second
                     SpeedSetting::Realtime => 1.0,
-                    // 1 sim minute per real second
-                    SpeedSetting::Faster => 60.0,
-                    // 1 sim hour per real second
-                    SpeedSetting::Fastest => 3600.0,
+                    SpeedSetting::MinutePerSec => 60.0,
+                    SpeedSetting::HourPerSec => 3600.0,
+                    SpeedSetting::Uncapped => 10.0e9,
                 };
                 let dt = multiplier * real_dt;
                 ui.primary
