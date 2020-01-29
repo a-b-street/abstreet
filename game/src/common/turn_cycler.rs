@@ -93,6 +93,8 @@ impl TurnCyclerState {
                             *self = TurnCyclerState::ShowRoute(agent, now, batch.upload(ctx));
                         }
                     }
+                } else {
+                    *self = TurnCyclerState::Inactive;
                 }
             }
             _ => {

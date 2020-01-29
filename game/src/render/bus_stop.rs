@@ -71,7 +71,7 @@ impl Renderable for DrawBusStop {
     fn get_outline(&self, map: &Map) -> Polygon {
         let lane = map.get_l(self.id.sidewalk);
         self.polyline
-            .to_thick_boundary(lane.width * 0.25, OUTLINE_THICKNESS)
+            .to_thick_boundary(lane.width * 0.25, OUTLINE_THICKNESS / 2.0)
             .unwrap_or_else(|| self.polygon.clone())
     }
 
