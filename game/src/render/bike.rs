@@ -2,7 +2,7 @@ use crate::helpers::{rotating_color_agents, ColorScheme, ID};
 use crate::render::{DrawCtx, DrawOptions, Renderable};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
 use geom::{Circle, Distance, Line, PolyLine, Polygon};
-use map_model::{Map, LANE_THICKNESS};
+use map_model::{Map, SIDEWALK_THICKNESS};
 use sim::{CarID, DrawCarInput};
 
 pub struct DrawBike {
@@ -24,7 +24,7 @@ impl DrawBike {
         let mut draw_default = GeomBatch::new();
 
         // TODO Share constants with DrawPedestrian
-        let body_radius = LANE_THICKNESS / 4.0;
+        let body_radius = SIDEWALK_THICKNESS / 4.0;
         let body_color = zoomed_color_bike(&input);
         draw_default.push(
             cs.get_def("bike frame", Color::rgb(0, 128, 128)),
@@ -78,7 +78,7 @@ impl DrawBike {
                     body_pos.project_away(body_radius / 2.0, angle.opposite()),
                     body_pos.project_away(body_radius / 2.0, angle),
                 ])
-                .make_arrow(Distance::meters(0.25))
+                .make_arrow(Distance::meters(0.15))
                 .unwrap(),
             );
         }

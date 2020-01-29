@@ -1,7 +1,5 @@
 use crate::raw::{OriginalRoad, RestrictionType};
-use crate::{
-    osm, BusStopID, IntersectionID, LaneID, LaneType, Map, PathConstraints, LANE_THICKNESS,
-};
+use crate::{osm, BusStopID, IntersectionID, LaneID, LaneType, Map, PathConstraints};
 use abstutil::{Error, Warn};
 use geom::{Distance, PolyLine, Polygon, Speed};
 use serde_derive::{Deserialize, Serialize};
@@ -316,9 +314,22 @@ impl Road {
         search.iter().find(|(_, t)| lt == *t).map(|(id, _)| *id)
     }
 
-    pub fn get_thick_polyline(&self) -> Warn<(PolyLine, Distance)> {
-        let width_right = (self.children_forwards.len() as f64) * LANE_THICKNESS;
-        let width_left = (self.children_backwards.len() as f64) * LANE_THICKNESS;
+    pub fn width_right(&self, map: &Map) -> Distance {
+        self.children_forwards
+            .iter()
+            .map(|(l, _)| map.get_l(*l).width)
+            .sum()
+    }
+    pub fn width_left(&self, map: &Map) -> Distance {
+        self.children_backwards
+            .iter()
+            .map(|(l, _)| map.get_l(*l).width)
+            .sum()
+    }
+
+    pub fn get_thick_polyline(&self, map: &Map) -> Warn<(PolyLine, Distance)> {
+        let width_right = self.width_right(map);
+        let width_left = self.width_left(map);
         let total_width = width_right + width_left;
         if width_right >= width_left {
             self.center_pts
@@ -331,8 +342,8 @@ impl Road {
         }
     }
 
-    pub fn get_thick_polygon(&self) -> Warn<Polygon> {
-        self.get_thick_polyline()
+    pub fn get_thick_polygon(&self, map: &Map) -> Warn<Polygon> {
+        self.get_thick_polyline(map)
             .map(|(pl, width)| pl.make_polygons(width))
     }
 

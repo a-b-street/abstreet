@@ -35,7 +35,9 @@ pub use crate::turn::{Turn, TurnGroup, TurnGroupID, TurnID, TurnPriority, TurnTy
 use abstutil::Cloneable;
 use geom::Distance;
 
-pub const LANE_THICKNESS: Distance = Distance::const_meters(2.5);
+// TODO Minimize uses of these!
+pub const NORMAL_LANE_THICKNESS: Distance = Distance::const_meters(2.5);
+pub const SIDEWALK_THICKNESS: Distance = Distance::const_meters(1.5);
 
 impl Cloneable for BusRouteID {}
 impl Cloneable for ControlTrafficSignal {}

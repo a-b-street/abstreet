@@ -66,7 +66,7 @@ pub fn run(t: &mut TestRunner) {
         sim.run_until_expectations_met(
             &map,
             vec![
-                Event::PedReachedBusStop(ped, ped_stop1),
+                Event::PedReachedBusStop(ped, ped_stop1, route.id),
                 Event::BusArrivedAtStop(bus, route.id, ped_stop1),
                 Event::PedEntersBus(ped, bus, route.id),
                 Event::BusDepartedFromStop(bus, route.id, ped_stop1),

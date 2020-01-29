@@ -1,7 +1,7 @@
 use crate::ui::UI;
 use ezgui::{EventCtx, GfxCtx, ModalMenu};
 use geom::{PolyLine, Time};
-use map_model::LANE_THICKNESS;
+use map_model::NORMAL_LANE_THICKNESS;
 use sim::TripID;
 
 pub enum AllRoutesViewer {
@@ -33,7 +33,7 @@ impl AllRoutesViewer {
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         if let AllRoutesViewer::Active(_, ref traces) = self {
             for t in traces {
-                g.draw_polygon(ui.cs.get("route"), &t.make_polygons(LANE_THICKNESS));
+                g.draw_polygon(ui.cs.get("route"), &t.make_polygons(NORMAL_LANE_THICKNESS));
             }
         }
     }

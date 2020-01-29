@@ -5,7 +5,7 @@ use crate::render::{
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
 use geom::{Circle, FindClosest, GPSBounds, PolyLine, Polygon, Pt2D, Ring};
 use kml::ExtraShape;
-use map_model::{DirectedRoadID, Map, LANE_THICKNESS};
+use map_model::{DirectedRoadID, Map, NORMAL_LANE_THICKNESS};
 use std::collections::BTreeMap;
 use std::fmt;
 
@@ -46,7 +46,7 @@ impl DrawExtraShape {
         }
 
         let road = closest
-            .closest_pt(Pt2D::center(&pts), LANE_THICKNESS * 5.0)
+            .closest_pt(Pt2D::center(&pts), NORMAL_LANE_THICKNESS * 5.0)
             .map(|(r, _)| r);
 
         let polygon = if pts.len() == 1 {

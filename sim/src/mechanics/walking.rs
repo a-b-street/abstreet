@@ -6,7 +6,7 @@ use crate::{
 };
 use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
 use geom::{Distance, Duration, Line, PolyLine, Speed, Time};
-use map_model::{BuildingID, BusRouteID, Map, Path, PathStep, Traversable, LANE_THICKNESS};
+use map_model::{BuildingID, BusRouteID, Map, Path, PathStep, Traversable, SIDEWALK_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
@@ -284,7 +284,7 @@ impl WalkingSimState {
         dist_ahead: Option<Distance>,
     ) -> Option<PolyLine> {
         let p = self.peds.get(&id)?;
-        let body_radius = LANE_THICKNESS / 4.0;
+        let body_radius = SIDEWALK_THICKNESS / 4.0;
         let dist = (p.get_dist_along(now, map) + body_radius)
             .min(p.path.current_step().as_traversable().length(map));
         p.path.trace(map, dist, dist_ahead)
@@ -483,7 +483,7 @@ impl Pedestrian {
                     orig_angle.opposite()
                 };
                 (
-                    pos.project_away(LANE_THICKNESS / 4.0, facing.rotate_degs(90.0)),
+                    pos.project_away(SIDEWALK_THICKNESS / 4.0, facing.rotate_degs(90.0)),
                     facing,
                 )
             }
@@ -495,7 +495,7 @@ impl Pedestrian {
                     orig_angle
                 };
                 (
-                    pos.project_away(LANE_THICKNESS / 4.0, facing.rotate_degs(90.0)),
+                    pos.project_away(SIDEWALK_THICKNESS / 4.0, facing.rotate_degs(90.0)),
                     facing,
                 )
             }
@@ -528,7 +528,7 @@ impl Pedestrian {
                 let (pt, angle) = self.goal.sidewalk_pos.pt_and_angle(map);
                 // Stand on the far side of the sidewalk (by the bus stop), facing the road
                 (
-                    pt.project_away(LANE_THICKNESS / 4.0, angle.rotate_degs(90.0)),
+                    pt.project_away(SIDEWALK_THICKNESS / 4.0, angle.rotate_degs(90.0)),
                     angle.rotate_degs(-90.0),
                 )
             }
@@ -640,7 +640,7 @@ fn find_crowds(
 ) -> (Vec<PedestrianID>, Vec<DrawPedCrowdInput>) {
     let mut loners = Vec::new();
     let mut crowds = Vec::new();
-    let radius = LANE_THICKNESS / 4.0;
+    let radius = SIDEWALK_THICKNESS / 4.0;
 
     let mut current_crowd = DrawPedCrowdInput {
         low: input[0].1 - radius,

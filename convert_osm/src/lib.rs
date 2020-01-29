@@ -7,7 +7,10 @@ use abstutil::Timer;
 use geom::{Distance, FindClosest, Line, PolyLine, Pt2D};
 use kml::ExtraShapes;
 use map_model::raw::{OriginalBuilding, OriginalRoad, RawMap};
-use map_model::{osm, LaneID, OffstreetParking, Position, LANE_THICKNESS};
+use map_model::{osm, LaneID, OffstreetParking, Position};
+
+// Just used for matching hints to different sides of a road.
+const DIRECTED_ROAD_THICKNESS: Distance = Distance::const_meters(2.5);
 
 pub struct Flags {
     pub osm: String,
@@ -68,11 +71,17 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
         let center = PolyLine::new(r.center_points.clone());
         closest.add(
             (*id, true),
-            center.shift_right(LANE_THICKNESS).get(timer).points(),
+            center
+                .shift_right(DIRECTED_ROAD_THICKNESS)
+                .get(timer)
+                .points(),
         );
         closest.add(
             (*id, false),
-            center.shift_left(LANE_THICKNESS).get(timer).points(),
+            center
+                .shift_left(DIRECTED_ROAD_THICKNESS)
+                .get(timer)
+                .points(),
         );
     }
 
@@ -95,7 +104,7 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
             // Weird blockface with duplicate points. Shrug.
             continue;
         };
-        if let Some(((r, fwds), _)) = closest.closest_pt(middle, LANE_THICKNESS * 5.0) {
+        if let Some(((r, fwds), _)) = closest.closest_pt(middle, DIRECTED_ROAD_THICKNESS * 5.0) {
             let tags = &mut map.roads.get_mut(&r).unwrap().osm_tags;
 
             // Skip if the road already has this mapped.
@@ -209,11 +218,17 @@ fn use_sidewalk_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
         let center = PolyLine::new(r.center_points.clone());
         closest.add(
             (*id, true),
-            center.shift_right(LANE_THICKNESS).get(timer).points(),
+            center
+                .shift_right(DIRECTED_ROAD_THICKNESS)
+                .get(timer)
+                .points(),
         );
         closest.add(
             (*id, false),
-            center.shift_left(LANE_THICKNESS).get(timer).points(),
+            center
+                .shift_left(DIRECTED_ROAD_THICKNESS)
+                .get(timer)
+                .points(),
         );
     }
 
@@ -231,7 +246,8 @@ fn use_sidewalk_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
         // TODO Long lines sometimes cover two roads. Should maybe find ALL matches within the
         // threshold distance?
         if let Some(middle) = PolyLine::maybe_new(pts).map(|pl| pl.middle()) {
-            if let Some(((r, fwds), _)) = closest.closest_pt(middle, LANE_THICKNESS * 5.0) {
+            if let Some(((r, fwds), _)) = closest.closest_pt(middle, DIRECTED_ROAD_THICKNESS * 5.0)
+            {
                 let osm_tags = &mut map.roads.get_mut(&r).unwrap().osm_tags;
 
                 // Skip if the road already has this mapped.

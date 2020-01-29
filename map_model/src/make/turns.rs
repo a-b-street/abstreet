@@ -1,7 +1,6 @@
 use crate::raw::RestrictionType;
 use crate::{
     Intersection, IntersectionID, Lane, LaneID, LaneType, Road, RoadID, Turn, TurnID, TurnType,
-    LANE_THICKNESS,
 };
 use abstutil::{wraparound_get, Timer, Warn};
 use geom::{Distance, Line, PolyLine, Pt2D};
@@ -437,8 +436,9 @@ fn make_crosswalks(i: IntersectionID, l1: &Lane, l2: &Lane) -> Vec<Turn> {
     } else {
         1.0
     };
-    // Jut out a bit into the intersection, cross over, then jut back in.
-    let line = Line::new(l1_pt, l2_pt).shift_either_direction(direction * LANE_THICKNESS / 2.0);
+    // Jut out a bit into the intersection, cross over, then jut back in. Assumes sidewalks are the
+    // same width.
+    let line = Line::new(l1_pt, l2_pt).shift_either_direction(direction * l1.width / 2.0);
     let geom_fwds = PolyLine::new(vec![l1_pt, line.pt1(), line.pt2(), l2_pt]);
 
     vec![
@@ -532,9 +532,10 @@ fn make_shared_sidewalk_corner(
 ) -> PolyLine {
     let baseline = PolyLine::new(vec![l1.last_pt(), l2.first_pt()]);
 
-    // Find all of the points on the intersection polygon between the two sidewalks.
-    let corner1 = l1.last_line().shift_right(LANE_THICKNESS / 2.0).pt2();
-    let corner2 = l2.first_line().shift_right(LANE_THICKNESS / 2.0).pt1();
+    // Find all of the points on the intersection polygon between the two sidewalks. Assumes
+    // sidewalks are the same length.
+    let corner1 = l1.last_line().shift_right(l1.width / 2.0).pt2();
+    let corner2 = l2.first_line().shift_right(l2.width / 2.0).pt1();
 
     // The order of the points here seems backwards, but it's because we scan from corner2
     // to corner1 below.
@@ -557,7 +558,7 @@ fn make_shared_sidewalk_corner(
 
             pts_between.extend(
                 PolyLine::new(deduped)
-                    .shift_right(LANE_THICKNESS / 2.0)
+                    .shift_right(l1.width / 2.0)
                     .with_context(
                         timer,
                         format!("SharedSidewalkCorner between {} and {}", l1.id, l2.id),

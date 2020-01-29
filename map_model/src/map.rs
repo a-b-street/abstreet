@@ -4,10 +4,11 @@ use crate::{
     connectivity, make, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop,
     BusStopID, ControlStopSign, ControlTrafficSignal, EditCmd, EditEffects, Intersection,
     IntersectionID, IntersectionType, Lane, LaneID, LaneType, MapEdits, Path, PathConstraints,
-    PathRequest, Position, Road, RoadID, Turn, TurnGroupID, TurnID, TurnType, LANE_THICKNESS,
+    PathRequest, Position, Road, RoadID, Turn, TurnGroupID, TurnID, TurnType,
+    NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
-use geom::{Bounds, Distance, GPSBounds, Polygon, Pt2D};
+use geom::{Bounds, Distance, GPSBounds, PolyLine, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 
@@ -832,27 +833,31 @@ fn make_half_map(
             map.intersections[src_i.0].outgoing_lanes.push(id);
             map.intersections[dst_i.0].incoming_lanes.push(id);
 
-            let (unshifted_pts, offset) = if lane.reverse_pts {
+            let (unshifted_pts, other_lanes_width): (PolyLine, Distance) = if lane.reverse_pts {
+                let w = road.width_left(&map);
                 road.children_backwards.push((id, lane.lane_type));
-                (
-                    road.center_pts.reversed(),
-                    road.children_backwards.len() - 1,
-                )
+                (road.center_pts.reversed(), w)
             } else {
+                let w = road.width_right(&map);
                 road.children_forwards.push((id, lane.lane_type));
-                (road.center_pts.clone(), road.children_forwards.len() - 1)
+                (road.center_pts.clone(), w)
             };
             // TODO probably different behavior for oneways
             // TODO need to factor in yellow center lines (but what's the right thing to even do?
             // Reverse points for British-style driving on the left
-            let width = LANE_THICKNESS * (0.5 + (offset as f64));
+            let width = if lane.lane_type == LaneType::Sidewalk {
+                SIDEWALK_THICKNESS
+            } else {
+                NORMAL_LANE_THICKNESS
+            };
             let lane_center_pts = unshifted_pts
-                .shift_right(width)
+                .shift_right(other_lanes_width + width / 2.0)
                 .with_context(timer, format!("shift for {}", id));
 
             map.lanes.push(Lane {
                 id,
                 lane_center_pts,
+                width,
                 src_i,
                 dst_i,
                 lane_type: lane.lane_type,

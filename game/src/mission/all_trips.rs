@@ -4,7 +4,7 @@ use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{hotkey, layout, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, Slider, Text};
 use geom::{Circle, Distance, Duration, PolyLine, Time};
-use map_model::LANE_THICKNESS;
+use map_model::NORMAL_LANE_THICKNESS;
 use popdat::psrc::Mode;
 use popdat::{clip_trips, Trip};
 
@@ -179,7 +179,7 @@ impl State for TripsVisualizer {
                     pl.dist_along(percent * pl.length()).0,
                     // Draw bigger circles when zoomed out, but don't go smaller than the lane
                     // once fully zoomed in.
-                    (Distance::meters(10.0) / g.canvas.cam_zoom).max(LANE_THICKNESS),
+                    (Distance::meters(10.0) / g.canvas.cam_zoom).max(NORMAL_LANE_THICKNESS),
                 )
                 .to_polygon(),
             );

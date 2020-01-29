@@ -3,7 +3,7 @@ use crate::render::{dashed_lines, DrawCtx, DrawOptions, Renderable, OUTLINE_THIC
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
 use geom::{Angle, Distance, Line, PolyLine, Polygon, Pt2D};
-use map_model::{Lane, LaneID, LaneType, Map, Road, TurnType, LANE_THICKNESS, PARKING_SPOT_LENGTH};
+use map_model::{Lane, LaneID, LaneType, Map, Road, TurnType, PARKING_SPOT_LENGTH};
 
 // Split into two phases like this, because AlmostDrawLane can be created in parallel, but GPU
 // upload has to be serial.
@@ -42,7 +42,7 @@ impl DrawLane {
         timer: &mut Timer,
     ) -> AlmostDrawLane {
         let road = map.get_r(lane.parent);
-        let polygon = lane.lane_center_pts.make_polygons(LANE_THICKNESS);
+        let polygon = lane.lane_center_pts.make_polygons(lane.width);
 
         let mut draw = GeomBatch::new();
         draw.push(
@@ -126,14 +126,14 @@ impl DrawLane {
                     draw.push(
                         cs.get("road center line"),
                         lane.lane_center_pts
-                            .shift_right(LANE_THICKNESS / 2.0)
+                            .shift_right(lane.width / 2.0)
                             .get(timer)
                             .make_polygons(Distance::meters(0.25)),
                     );
                     draw.push(
                         cs.get("road center line"),
                         lane.lane_center_pts
-                            .shift_left(LANE_THICKNESS / 2.0)
+                            .shift_left(lane.width / 2.0)
                             .get(timer)
                             .make_polygons(Distance::meters(0.25)),
                     );
@@ -166,9 +166,9 @@ impl Renderable for DrawLane {
     }
 
     fn get_outline(&self, map: &Map) -> Polygon {
-        map.get_l(self.id)
-            .lane_center_pts
-            .to_thick_boundary(LANE_THICKNESS, OUTLINE_THICKNESS)
+        let lane = map.get_l(self.id);
+        lane.lane_center_pts
+            .to_thick_boundary(lane.width, OUTLINE_THICKNESS)
             .unwrap_or_else(|| self.polygon.clone())
     }
 
@@ -189,7 +189,7 @@ fn perp_line(l: Line, length: Distance) -> Line {
 }
 
 fn calculate_sidewalk_lines(lane: &Lane) -> Vec<Polygon> {
-    let tile_every = LANE_THICKNESS;
+    let tile_every = lane.width;
 
     let length = lane.length();
 
@@ -200,9 +200,8 @@ fn calculate_sidewalk_lines(lane: &Lane) -> Vec<Polygon> {
         let (pt, angle) = lane.dist_along(dist_along);
         // Reuse perp_line. Project away an arbitrary amount
         let pt2 = pt.project_away(Distance::meters(1.0), angle);
-        result.push(
-            perp_line(Line::new(pt, pt2), LANE_THICKNESS).make_polygons(Distance::meters(0.25)),
-        );
+        result
+            .push(perp_line(Line::new(pt, pt2), lane.width).make_polygons(Distance::meters(0.25)));
         dist_along += tile_every;
     }
 
@@ -222,7 +221,7 @@ fn calculate_parking_lines(lane: &Lane) -> Vec<Polygon> {
             // Find the outside of the lane. Actually, shift inside a little bit, since the line
             // will have thickness, but shouldn't really intersect the adjacent line
             // when drawn.
-            let t_pt = pt.project_away(LANE_THICKNESS * 0.4, perp_angle);
+            let t_pt = pt.project_away(lane.width * 0.4, perp_angle);
             // The perp leg
             let p1 = t_pt.project_away(leg_length, perp_angle.opposite());
             result.push(Line::new(t_pt, p1).make_polygons(Distance::meters(0.25)));
@@ -244,10 +243,7 @@ fn calculate_driving_lines(lane: &Lane, parent: &Road, timer: &mut Timer) -> Vec
     if idx == 0 || (dir && parent.children_forwards[idx - 1].1 == LaneType::SharedLeftTurn) {
         return Vec::new();
     }
-    let lane_edge_pts = lane
-        .lane_center_pts
-        .shift_left(LANE_THICKNESS / 2.0)
-        .get(timer);
+    let lane_edge_pts = lane.lane_center_pts.shift_left(lane.width / 2.0).get(timer);
     dashed_lines(
         &lane_edge_pts,
         Distance::meters(0.25),
@@ -289,7 +285,7 @@ fn calculate_turn_markings(map: &Map, lane: &Lane, timer: &mut Timer) -> Vec<Pol
                 common_base.last_pt(),
                 common_base
                     .last_pt()
-                    .project_away(LANE_THICKNESS / 2.0, turn.angle()),
+                    .project_away(lane.width / 2.0, turn.angle()),
             ])
             .make_arrow(thickness)
             .with_context(timer, format!("turn_markings for {}", turn.id)),

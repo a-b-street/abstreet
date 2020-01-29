@@ -36,7 +36,7 @@ const EXTRA_SHAPE_POINT_RADIUS: Distance = Distance::const_meters(10.0);
 
 pub const BIG_ARROW_THICKNESS: Distance = Distance::const_meters(0.5);
 
-pub const CROSSWALK_LINE_THICKNESS: Distance = Distance::const_meters(0.25);
+pub const CROSSWALK_LINE_THICKNESS: Distance = Distance::const_meters(0.15);
 
 pub const OUTLINE_THICKNESS: Distance = Distance::const_meters(0.5);
 

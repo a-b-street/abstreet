@@ -8,7 +8,8 @@ use abstutil::Timer;
 use ezgui::{hotkey, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
 use geom::{Distance, Duration, PolyLine};
 use map_model::{
-    BuildingID, IntersectionID, LaneID, Map, PathConstraints, PathRequest, Position, LANE_THICKNESS,
+    BuildingID, IntersectionID, LaneID, Map, PathConstraints, PathRequest, Position,
+    NORMAL_LANE_THICKNESS,
 };
 use rand::seq::SliceRandom;
 use rand::Rng;
@@ -286,7 +287,10 @@ impl State for AgentSpawner {
         self.colorer.draw(g);
 
         if let Some((_, Some(ref trace))) = self.maybe_goal {
-            g.draw_polygon(ui.cs.get("route"), &trace.make_polygons(LANE_THICKNESS));
+            g.draw_polygon(
+                ui.cs.get("route"),
+                &trace.make_polygons(NORMAL_LANE_THICKNESS),
+            );
         }
 
         self.menu.draw(g);
@@ -623,7 +627,10 @@ impl State for SpawnManyAgents {
         self.colorer.draw(g);
 
         if let Some((_, Some(ref trace))) = self.maybe_goal {
-            g.draw_polygon(ui.cs.get("route"), &trace.make_polygons(LANE_THICKNESS));
+            g.draw_polygon(
+                ui.cs.get("route"),
+                &trace.make_polygons(NORMAL_LANE_THICKNESS),
+            );
         }
 
         self.menu.draw(g);

@@ -6,8 +6,10 @@ use map_model::raw::{
     OriginalBuilding, OriginalIntersection, OriginalRoad, RawBuilding, RawIntersection, RawMap,
     RawRoad, RestrictionType, TurnRestriction,
 };
-use map_model::{osm, IntersectionType, LaneType, RoadSpec, LANE_THICKNESS};
-use std::collections::BTreeMap;
+use map_model::{
+    osm, IntersectionType, LaneType, RoadSpec, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
+};
+use std::collections::{BTreeMap, BTreeSet};
 use std::mem;
 
 const INTERSECTION_RADIUS: Distance = Distance::const_meters(5.0);
@@ -549,14 +551,21 @@ impl Model {
 
         let mut obj = Object::blank(ID::Road(id));
 
+        let mut offset = Distance::ZERO;
         for (idx, lt) in spec.fwd.iter().enumerate() {
+            let width = if *lt == LaneType::Sidewalk {
+                SIDEWALK_THICKNESS
+            } else {
+                NORMAL_LANE_THICKNESS
+            };
             obj.push(
                 Model::lt_to_color(*lt, unset, lanes_unknown),
                 center_pts
-                    .shift_right(LANE_THICKNESS * (0.5 + (idx as f64)))
+                    .shift_right(offset + width / 2.0)
                     .unwrap()
-                    .make_polygons(LANE_THICKNESS),
+                    .make_polygons(width),
             );
+            offset += width;
             if idx == 0 {
                 obj.push(
                     Color::YELLOW,
@@ -564,15 +573,22 @@ impl Model {
                 );
             }
         }
-        for (idx, lt) in spec.back.iter().enumerate() {
+        offset = Distance::ZERO;
+        for lt in &spec.back {
+            let width = if *lt == LaneType::Sidewalk {
+                SIDEWALK_THICKNESS
+            } else {
+                NORMAL_LANE_THICKNESS
+            };
             obj.push(
                 Model::lt_to_color(*lt, unset, lanes_unknown),
                 center_pts
                     .reversed()
-                    .shift_right(LANE_THICKNESS * (0.5 + (idx as f64)))
+                    .shift_right(offset + width / 2.0)
                     .unwrap()
-                    .make_polygons(LANE_THICKNESS),
+                    .make_polygons(width),
             );
+            offset += width;
         }
 
         let mut result = vec![obj];
@@ -581,7 +597,7 @@ impl Model {
                 // TODO Ideally a hollow circle with an arrow
                 Circle::new(
                     PolyLine::new(self.map.roads[&id].center_points.clone()).middle(),
-                    LANE_THICKNESS,
+                    NORMAL_LANE_THICKNESS,
                 )
                 .to_polygon()
             } else {
@@ -591,7 +607,7 @@ impl Model {
                     continue;
                 }
                 PolyLine::new(vec![self.get_r_center(id), self.get_r_center(*to)])
-                    .make_arrow(LANE_THICKNESS)
+                    .make_arrow(NORMAL_LANE_THICKNESS)
                     .unwrap()
             };
 
@@ -830,6 +846,7 @@ impl Model {
                 polygon: Polygon::rectangle_centered(center, BUILDING_LENGTH, BUILDING_LENGTH),
                 osm_tags: BTreeMap::new(),
                 parking: None,
+                amenities: BTreeSet::new(),
             },
         );
         self.bldg_added(id, prerender);

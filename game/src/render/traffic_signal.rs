@@ -91,7 +91,7 @@ pub fn draw_signal_phase(
             }
             for g in &phase.protected_groups {
                 if let Some(t) = g.crosswalk {
-                    make_crosswalk(batch, ctx.map.get_t(t), ctx.cs);
+                    make_crosswalk(batch, ctx.map.get_t(t), ctx.map, ctx.cs);
                 } else {
                     batch.push(
                         protected_color,

@@ -76,6 +76,7 @@ pub struct Lane {
     pub parent: RoadID,
     pub lane_type: LaneType,
     pub lane_center_pts: PolyLine,
+    pub width: Distance,
 
     pub src_i: IntersectionID,
     pub dst_i: IntersectionID,

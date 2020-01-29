@@ -324,7 +324,7 @@ fn search_osm(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Trans
             .any(|(k, v)| format!("{} = {}", k, v).contains(&filter))
         {
             num_matches += 1;
-            batch.push(color, r.get_thick_polygon().unwrap());
+            batch.push(color, r.get_thick_polygon(map).unwrap());
         }
     }
     for b in map.all_buildings() {

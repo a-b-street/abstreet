@@ -112,7 +112,10 @@ impl ColorerBuilder {
             );
         }
         for (r, color) in self.roads {
-            unzoomed.push(color, map.get_r(r).get_thick_polygon().unwrap());
+            unzoomed.push(
+                color,
+                map.get_r(r).get_thick_polygon(&ui.primary.map).unwrap(),
+            );
         }
 
         for (i, color) in self.intersections {

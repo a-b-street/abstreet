@@ -9,7 +9,7 @@ use ezgui::{
 };
 use geom::{Distance, Line, Polygon, Pt2D};
 use map_model::raw::{OriginalBuilding, OriginalIntersection, OriginalRoad, RestrictionType};
-use map_model::{osm, LANE_THICKNESS};
+use map_model::{osm, NORMAL_LANE_THICKNESS};
 use model::{Model, ID};
 use std::collections::HashSet;
 
@@ -630,7 +630,7 @@ impl GUI for UI {
             State::CreatingTurnRestrictionPt1(from) => {
                 if let Some(cursor) = g.get_cursor_in_map_space() {
                     if let Some(l) = Line::maybe_new(self.model.get_r_center(from), cursor) {
-                        g.draw_arrow(Color::PURPLE, LANE_THICKNESS, &l);
+                        g.draw_arrow(Color::PURPLE, NORMAL_LANE_THICKNESS, &l);
                     }
                 }
             }
@@ -638,7 +638,7 @@ impl GUI for UI {
                 if let Some(l) =
                     Line::maybe_new(self.model.get_r_center(from), self.model.get_r_center(to))
                 {
-                    g.draw_arrow(Color::PURPLE, LANE_THICKNESS, &l);
+                    g.draw_arrow(Color::PURPLE, NORMAL_LANE_THICKNESS, &l);
                 }
                 wizard.draw(g);
             }

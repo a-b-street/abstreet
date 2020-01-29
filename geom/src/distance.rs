@@ -151,3 +151,16 @@ impl ops::Div<Speed> for Distance {
         Duration::seconds(self.0 / other.inner_meters_per_second())
     }
 }
+
+impl std::iter::Sum for Distance {
+    fn sum<I>(iter: I) -> Distance
+    where
+        I: Iterator<Item = Distance>,
+    {
+        let mut sum = Distance::ZERO;
+        for x in iter {
+            sum += x;
+        }
+        sum
+    }
+}

@@ -2,7 +2,7 @@ use crate::helpers::{rotating_color_agents, ColorScheme, ID};
 use crate::render::{DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Circle, Distance, PolyLine, Polygon};
-use map_model::{Map, LANE_THICKNESS};
+use map_model::{Map, SIDEWALK_THICKNESS};
 use sim::{DrawPedCrowdInput, DrawPedestrianInput, PedCrowdLocation, PedestrianID};
 
 pub struct DrawPedestrian {
@@ -25,7 +25,7 @@ impl DrawPedestrian {
         // - route visualization is thick
         // - there are little skips when making turns
         // - front paths are too skinny
-        let radius = LANE_THICKNESS / 4.0; // TODO make const after const fn is better
+        let radius = SIDEWALK_THICKNESS / 4.0; // TODO make const after const fn is better
         let body_circle = Circle::new(input.pos, radius);
 
         let mut draw_default = GeomBatch::new();
@@ -137,7 +137,7 @@ impl DrawPedestrian {
                     input.pos.project_away(radius / 2.0, angle.opposite()),
                     input.pos.project_away(radius / 2.0, angle),
                 ])
-                .make_arrow(Distance::meters(0.25))
+                .make_arrow(Distance::meters(0.15))
                 .unwrap(),
             );
         }
@@ -191,9 +191,9 @@ impl DrawPedCrowd {
             PedCrowdLocation::Sidewalk(on, contraflow) => {
                 let pl_slice = on.exact_slice(input.low, input.high, map);
                 if contraflow {
-                    pl_slice.shift_left(LANE_THICKNESS / 4.0).unwrap()
+                    pl_slice.shift_left(SIDEWALK_THICKNESS / 4.0).unwrap()
                 } else {
-                    pl_slice.shift_right(LANE_THICKNESS / 4.0).unwrap()
+                    pl_slice.shift_right(SIDEWALK_THICKNESS / 4.0).unwrap()
                 }
             }
             PedCrowdLocation::FrontPath(b) => map
@@ -203,7 +203,7 @@ impl DrawPedCrowd {
                 .to_polyline()
                 .exact_slice(input.low, input.high),
         };
-        let blob = pl_shifted.make_polygons(LANE_THICKNESS / 2.0);
+        let blob = pl_shifted.make_polygons(SIDEWALK_THICKNESS / 2.0);
         let draw_default = prerender.upload_borrowed(vec![(
             cs.get_def("pedestrian crowd", Color::rgb_f(0.2, 0.7, 0.7)),
             &blob,
@@ -243,7 +243,7 @@ impl Renderable for DrawPedCrowd {
 
     fn get_outline(&self, _: &Map) -> Polygon {
         self.blob_pl
-            .to_thick_boundary(LANE_THICKNESS / 2.0, OUTLINE_THICKNESS)
+            .to_thick_boundary(SIDEWALK_THICKNESS / 2.0, OUTLINE_THICKNESS)
             .unwrap_or_else(|| self.blob.clone())
     }
 

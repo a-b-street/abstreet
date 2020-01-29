@@ -3,7 +3,7 @@ use crate::{
     TransitSimState, TripID, Vehicle, VehicleType,
 };
 use geom::{Distance, Duration, PolyLine, Time};
-use map_model::{Map, Traversable, LANE_THICKNESS};
+use map_model::{Map, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::VecDeque;
 
@@ -104,7 +104,7 @@ impl Car {
                 };
                 match spot {
                     ParkingSpot::Onstreet(parking_l, _) => {
-                        let width = LANE_THICKNESS * percent_time;
+                        let width = map.get_l(*parking_l).width * percent_time;
                         let driving_l = self.router.head().as_lane();
                         let parent = map.get_parent(driving_l);
                         // Is the parking lane to the left or right of the driving lane?

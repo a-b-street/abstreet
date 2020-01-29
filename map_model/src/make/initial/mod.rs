@@ -3,7 +3,7 @@ pub mod lane_specs;
 
 pub use self::geometry::intersection_polygon;
 use crate::raw::{OriginalIntersection, OriginalRoad, RawMap, RawRoad};
-use crate::{IntersectionType, LaneType, LANE_THICKNESS};
+use crate::{IntersectionType, LaneType, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
 use abstutil::Timer;
 use geom::{Bounds, Distance, PolyLine, Pt2D};
 use std::collections::{BTreeMap, BTreeSet};
@@ -34,10 +34,15 @@ impl Road {
         let mut fwd_width = Distance::ZERO;
         let mut back_width = Distance::ZERO;
         for l in &lane_specs {
-            if l.reverse_pts {
-                back_width += LANE_THICKNESS;
+            let w = if l.lane_type == LaneType::Sidewalk {
+                SIDEWALK_THICKNESS
             } else {
-                fwd_width += LANE_THICKNESS;
+                NORMAL_LANE_THICKNESS
+            };
+            if l.reverse_pts {
+                back_width += w;
+            } else {
+                fwd_width += w;
             }
         }
 

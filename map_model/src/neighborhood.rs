@@ -113,8 +113,10 @@ impl FullNeighborhoodInfo {
         }
         let mut road_quadtree = QuadTree::default(map.get_bounds().as_bbox());
         for r in map.all_roads() {
-            road_quadtree
-                .insert_with_box(r.id, r.get_thick_polygon().unwrap().get_bounds().as_bbox());
+            road_quadtree.insert_with_box(
+                r.id,
+                r.get_thick_polygon(map).unwrap().get_bounds().as_bbox(),
+            );
         }
 
         let mut full_info = HashMap::new();

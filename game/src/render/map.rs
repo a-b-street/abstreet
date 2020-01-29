@@ -14,7 +14,7 @@ use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Duration, FindClosest, Time};
 use map_model::{
     AreaID, BuildingID, BusStopID, DirectedRoadID, Intersection, IntersectionID, LaneID, Map, Road,
-    RoadID, Traversable, LANE_THICKNESS,
+    RoadID, Traversable, NORMAL_LANE_THICKNESS,
 };
 use sim::{GetDrawAgents, UnzoomedAgent, VehicleType};
 use std::borrow::Borrow;
@@ -64,7 +64,7 @@ impl DrawMap {
         for r in road_refs {
             all_roads.push(
                 osm_rank_to_color(cs, r.get_rank()),
-                r.get_thick_polygon().get(timer),
+                r.get_thick_polygon(map).get(timer),
             );
             if false {
                 all_roads.push(
@@ -153,11 +153,17 @@ impl DrawMap {
             for r in map.all_roads().iter() {
                 closest.add(
                     r.id.forwards(),
-                    r.center_pts.shift_right(LANE_THICKNESS).get(timer).points(),
+                    r.center_pts
+                        .shift_right(NORMAL_LANE_THICKNESS)
+                        .get(timer)
+                        .points(),
                 );
                 closest.add(
                     r.id.backwards(),
-                    r.center_pts.shift_left(LANE_THICKNESS).get(timer).points(),
+                    r.center_pts
+                        .shift_left(NORMAL_LANE_THICKNESS)
+                        .get(timer)
+                        .points(),
                 );
             }
 

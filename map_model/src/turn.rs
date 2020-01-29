@@ -1,4 +1,4 @@
-use crate::{IntersectionID, LaneID, Map, RoadID, LANE_THICKNESS};
+use crate::{IntersectionID, LaneID, Map, RoadID, NORMAL_LANE_THICKNESS};
 use abstutil::MultiMap;
 use geom::{Angle, Distance, PolyLine, Pt2D};
 use serde_derive::{Deserialize, Serialize};
@@ -238,7 +238,12 @@ impl TurnGroup {
         } else {
             offsets[offsets.len() / 2] as f64
         };
-        let pl = pl.shift_right(LANE_THICKNESS * (0.5 + offset)).unwrap();
+
+        // TODO Sum the lanes. Since this isn't used for sidewalks, we can get away with this hack
+        // for a moment.
+        let pl = pl
+            .shift_right(NORMAL_LANE_THICKNESS * (0.5 + offset))
+            .unwrap();
         let pl = if self
             .id
             .crosswalk
@@ -249,7 +254,7 @@ impl TurnGroup {
         } else {
             pl.reversed()
         };
-        let width = LANE_THICKNESS * ((*offsets.last().unwrap() - offsets[0] + 1) as f64);
+        let width = NORMAL_LANE_THICKNESS * ((*offsets.last().unwrap() - offsets[0] + 1) as f64);
         (pl, width)
     }
 

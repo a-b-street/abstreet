@@ -2,7 +2,7 @@ use crate::helpers::{ColorScheme, ID};
 use crate::render::{DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Distance, PolyLine, Polygon, Pt2D};
-use map_model::{BusStop, BusStopID, Map, LANE_THICKNESS};
+use map_model::{BusStop, BusStopID, Map};
 
 pub struct DrawBusStop {
     pub id: BusStopID,
@@ -25,11 +25,11 @@ impl DrawBusStop {
                 Distance::ZERO.max(stop.sidewalk_pos.dist_along() - radius),
                 lane.length().min(stop.sidewalk_pos.dist_along() + radius),
             )
-            .shift_right(LANE_THICKNESS * 0.3)
+            .shift_right(lane.width * 0.3)
             .unwrap();
         let polyline = PolyLine::new(vec![
             main_pl.first_pt().project_away(
-                LANE_THICKNESS * 0.5,
+                lane.width * 0.5,
                 main_pl.first_line().angle().rotate_degs(-90.0),
             ),
             main_pl.first_pt(),
@@ -38,12 +38,12 @@ impl DrawBusStop {
         .extend(PolyLine::new(vec![
             main_pl.last_pt(),
             main_pl.last_pt().project_away(
-                LANE_THICKNESS * 0.5,
+                lane.width * 0.5,
                 main_pl.last_line().angle().rotate_degs(-90.0),
             ),
         ]));
 
-        let polygon = polyline.make_polygons(LANE_THICKNESS * 0.25);
+        let polygon = polyline.make_polygons(lane.width * 0.25);
         let draw_default = prerender.upload_borrowed(vec![(
             cs.get_def("bus stop marking", Color::CYAN),
             &polygon,
@@ -68,9 +68,10 @@ impl Renderable for DrawBusStop {
         g.redraw(&self.draw_default);
     }
 
-    fn get_outline(&self, _: &Map) -> Polygon {
+    fn get_outline(&self, map: &Map) -> Polygon {
+        let lane = map.get_l(self.id.sidewalk);
         self.polyline
-            .to_thick_boundary(LANE_THICKNESS * 0.25, OUTLINE_THICKNESS)
+            .to_thick_boundary(lane.width * 0.25, OUTLINE_THICKNESS)
             .unwrap_or_else(|| self.polygon.clone())
     }
 

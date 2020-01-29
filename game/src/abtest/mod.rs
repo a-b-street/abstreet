@@ -9,7 +9,7 @@ use crate::ui::{PerMapUI, UI};
 use abstutil::Timer;
 use ezgui::{hotkey, lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text};
 use geom::{Circle, Distance, Line, PolyLine};
-use map_model::{Map, LANE_THICKNESS};
+use map_model::{Map, NORMAL_LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
 use sim::{Sim, SimOptions, TripID, TripMode};
 
@@ -314,21 +314,21 @@ impl DiffOneTrip {
         if let Some(l) = &self.line {
             g.draw_line(
                 ui.cs.get_def("diff agents line", Color::YELLOW.alpha(0.5)),
-                LANE_THICKNESS,
+                NORMAL_LANE_THICKNESS,
                 l,
             );
         }
         if let Some(t) = &self.primary_route {
             g.draw_polygon(
                 ui.cs.get_def("primary agent route", Color::RED.alpha(0.5)),
-                &t.make_polygons(LANE_THICKNESS),
+                &t.make_polygons(NORMAL_LANE_THICKNESS),
             );
         }
         if let Some(t) = &self.secondary_route {
             g.draw_polygon(
                 ui.cs
                     .get_def("secondary agent route", Color::BLUE.alpha(0.5)),
-                &t.make_polygons(LANE_THICKNESS),
+                &t.make_polygons(NORMAL_LANE_THICKNESS),
             );
         }
     }
@@ -369,7 +369,7 @@ impl DiffAllTrips {
             }
         } else {
             for line in &self.lines {
-                batch.push(color, line.make_polygons(LANE_THICKNESS));
+                batch.push(color, line.make_polygons(NORMAL_LANE_THICKNESS));
             }
         }
         batch.draw(g);

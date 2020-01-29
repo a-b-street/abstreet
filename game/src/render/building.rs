@@ -2,7 +2,7 @@ use crate::helpers::{ColorScheme, ID};
 use crate::render::{DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, GeomBatch, GfxCtx, Line, Text};
 use geom::{Angle, Distance, Line, Polygon, Pt2D};
-use map_model::{Building, BuildingID, Map, LANE_THICKNESS};
+use map_model::{Building, BuildingID, Map, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
 
 pub struct DrawBuilding {
     pub id: BuildingID,
@@ -16,7 +16,7 @@ impl DrawBuilding {
         // overlap. For now, this cleanup is visual; it doesn't belong in the map_model layer.
         let mut front_path_line = bldg.front_path.line.clone();
         let len = front_path_line.length();
-        let trim_back = LANE_THICKNESS / 2.0;
+        let trim_back = SIDEWALK_THICKNESS / 2.0;
         if len > trim_back && len - trim_back > geom::EPSILON_DIST {
             front_path_line = Line::new(
                 front_path_line.pt1(),
@@ -35,7 +35,7 @@ impl DrawBuilding {
         if let Some(ref p) = bldg.parking {
             batch.push(
                 cs.get("driving lane"),
-                p.driveway_line.make_polygons(LANE_THICKNESS),
+                p.driveway_line.make_polygons(NORMAL_LANE_THICKNESS),
             );
         }
 
