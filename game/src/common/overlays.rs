@@ -33,7 +33,7 @@ pub enum Overlays {
 
 impl Overlays {
     // Since Overlays is embedded in UI, we have to do this slight trick
-    pub fn update(ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    pub fn update(ctx: &mut EventCtx, ui: &mut UI, minimap: &Composite) -> Option<Transition> {
         let now = ui.primary.sim.time();
         match ui.overlay {
             Overlays::ParkingAvailability(t, _) => {
@@ -94,6 +94,7 @@ impl Overlays {
             | Overlays::IntersectionDelay(_, ref mut heatmap)
             | Overlays::CumulativeThroughput(_, ref mut heatmap)
             | Overlays::Edits(ref mut heatmap) => {
+                heatmap.legend.align_above(ctx, minimap);
                 if heatmap.event(ctx) {
                     ui.overlay = Overlays::Inactive;
                 } else {
@@ -101,61 +102,71 @@ impl Overlays {
                 }
             }
             Overlays::BusRoute(_, _, ref mut c) => {
+                c.colorer.legend.align_above(ctx, minimap);
                 if c.colorer.event(ctx) {
                     ui.overlay = Overlays::Inactive;
                 } else {
                     ui.overlay = orig_overlay;
                 }
             }
-            Overlays::BusPassengers(_, _, ref mut c) => match c.event(ctx, ui) {
-                Some(WrappedOutcome::Transition(t)) => {
-                    ui.overlay = orig_overlay;
-                    return Some(t);
-                }
-                Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
-                    "X" => {
-                        ui.overlay = Overlays::Inactive;
-                    }
-                    _ => unreachable!(),
-                },
-                None => {
-                    ui.overlay = orig_overlay;
-                }
-            },
-            Overlays::IntersectionDemand(_, i, _, ref mut c) => match c.event(ctx) {
-                Some(Outcome::Clicked(x)) => match x.as_ref() {
-                    "intersection demand" => {
-                        let id = ID::Intersection(i);
+            Overlays::BusPassengers(_, _, ref mut c) => {
+                c.inner.align_above(ctx, minimap);
+                match c.event(ctx, ui) {
+                    Some(WrappedOutcome::Transition(t)) => {
                         ui.overlay = orig_overlay;
-                        return Some(Transition::Push(Warping::new(
-                            ctx,
-                            id.canonical_point(&ui.primary).unwrap(),
-                            Some(10.0),
-                            Some(id.clone()),
-                            &mut ui.primary,
-                        )));
+                        return Some(t);
                     }
-                    "X" => {
-                        ui.overlay = Overlays::Inactive;
+                    Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
+                        "X" => {
+                            ui.overlay = Overlays::Inactive;
+                        }
+                        _ => unreachable!(),
+                    },
+                    None => {
+                        ui.overlay = orig_overlay;
                     }
-                    _ => unreachable!(),
-                },
-                None => {
-                    ui.overlay = orig_overlay;
                 }
-            },
+            }
+            Overlays::IntersectionDemand(_, i, _, ref mut c) => {
+                c.align_above(ctx, minimap);
+                match c.event(ctx) {
+                    Some(Outcome::Clicked(x)) => match x.as_ref() {
+                        "intersection demand" => {
+                            let id = ID::Intersection(i);
+                            ui.overlay = orig_overlay;
+                            return Some(Transition::Push(Warping::new(
+                                ctx,
+                                id.canonical_point(&ui.primary).unwrap(),
+                                Some(10.0),
+                                Some(id.clone()),
+                                &mut ui.primary,
+                            )));
+                        }
+                        "X" => {
+                            ui.overlay = Overlays::Inactive;
+                        }
+                        _ => unreachable!(),
+                    },
+                    None => {
+                        ui.overlay = orig_overlay;
+                    }
+                }
+            }
             Overlays::FinishedTripsHistogram(_, ref mut c)
-            | Overlays::BusDelaysOverTime(_, _, ref mut c) => match c.event(ctx) {
-                Some(Outcome::Clicked(x)) => match x.as_ref() {
-                    "X" => {
-                        ui.overlay = Overlays::Inactive;
+            | Overlays::BusDelaysOverTime(_, _, ref mut c) => {
+                c.align_above(ctx, minimap);
+                match c.event(ctx) {
+                    Some(Outcome::Clicked(x)) => match x.as_ref() {
+                        "X" => {
+                            ui.overlay = Overlays::Inactive;
+                        }
+                        _ => unreachable!(),
+                    },
+                    None => {
+                        ui.overlay = orig_overlay;
                     }
-                    _ => unreachable!(),
-                },
-                None => {
-                    ui.overlay = orig_overlay;
                 }
-            },
+            }
             Overlays::Inactive => {}
         }
 

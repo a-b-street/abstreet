@@ -22,7 +22,7 @@ pub struct ColorerBuilder {
 pub struct Colorer {
     zoomed: Drawable,
     pub unzoomed: Drawable,
-    legend: Composite,
+    pub legend: Composite,
 }
 
 impl Colorer {

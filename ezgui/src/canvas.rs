@@ -252,6 +252,7 @@ impl Canvas {
             // TODO Hack
             VerticalAlignment::BottomAboveOSD => self.window_height - dims.height - 40.0,
             VerticalAlignment::Percent(pct) => pct * self.window_height,
+            VerticalAlignment::TopAt(y) => y - dims.height,
         };
         ScreenPt::new(x1, y1)
     }
@@ -273,6 +274,7 @@ pub enum VerticalAlignment {
     Bottom,
     BottomAboveOSD,
     Percent(f64),
+    TopAt(f64),
 }
 
 #[derive(Serialize, Deserialize, Debug)]

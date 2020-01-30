@@ -109,7 +109,7 @@ impl State for SandboxMode {
         if let Some(t) = self.common.event(ctx, ui, Some(&mut self.speed)) {
             return t;
         }
-        if let Some(t) = Overlays::update(ctx, ui) {
+        if let Some(t) = Overlays::update(ctx, ui, &self.minimap.composite) {
             return t;
         }
         match self.tool_panel.event(ctx, ui) {

@@ -172,7 +172,7 @@ impl State for TutorialMode {
             if let Some(t) = m.event(ui, ctx) {
                 return t;
             }
-            if let Some(t) = Overlays::update(ctx, ui) {
+            if let Some(t) = Overlays::update(ctx, ui, &m.composite) {
                 return t;
             }
         }
