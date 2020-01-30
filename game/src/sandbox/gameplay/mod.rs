@@ -14,10 +14,10 @@ use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::{AgentColorScheme, InnerAgentColorScheme};
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
-use abstutil::{prettyprint_usize, Timer};
+use abstutil::Timer;
 use ezgui::{
     lctrl, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    ManagedWidget, ModalMenu, Text, TextSpan, VerticalAlignment, Wizard,
+    ManagedWidget, ModalMenu, Text, VerticalAlignment, Wizard,
 };
 use geom::{Duration, Polygon};
 use map_model::{EditCmd, Map, MapEdits};
@@ -295,49 +295,6 @@ fn manage_acs(
         ui.agent_cs = AgentColorScheme::new(acs, &ui.cs);
     } else if active_originally && menu.swap_action(hide, show, ctx) {
         ui.agent_cs = AgentColorScheme::default(&ui.cs);
-    }
-}
-
-// Shorter is better
-pub fn cmp_duration_shorter(now: Duration, baseline: Duration) -> Vec<TextSpan> {
-    if now.epsilon_eq(baseline) {
-        vec![Line(" (same as baseline)")]
-    } else if now < baseline {
-        vec![
-            Line(" ("),
-            Line((baseline - now).to_string()).fg(Color::GREEN),
-            Line(" faster)"),
-        ]
-    } else if now > baseline {
-        vec![
-            Line(" ("),
-            Line((now - baseline).to_string()).fg(Color::RED),
-            Line(" slower)"),
-        ]
-    } else {
-        unreachable!()
-    }
-}
-
-// Fewer is better
-pub fn cmp_count_fewer(now: usize, baseline: usize) -> TextSpan {
-    if now < baseline {
-        Line(format!("{} fewer", prettyprint_usize(baseline - now))).fg(Color::GREEN)
-    } else if now > baseline {
-        Line(format!("{} more", prettyprint_usize(now - baseline))).fg(Color::RED)
-    } else {
-        Line("same as baseline")
-    }
-}
-
-// More is better
-pub fn cmp_count_more(now: usize, baseline: usize) -> TextSpan {
-    if now < baseline {
-        Line(format!("{} fewer", prettyprint_usize(baseline - now))).fg(Color::RED)
-    } else if now > baseline {
-        Line(format!("{} more", prettyprint_usize(now - baseline))).fg(Color::GREEN)
-    } else {
-        Line("same as baseline")
     }
 }
 

@@ -1,8 +1,7 @@
 use crate::game::Transition;
+use crate::helpers::{cmp_count_more, cmp_duration_shorter};
 use crate::managed::WrappedComposite;
-use crate::sandbox::gameplay::{
-    challenge_controller, cmp_count_more, cmp_duration_shorter, GameplayMode, GameplayState,
-};
+use crate::sandbox::gameplay::{challenge_controller, GameplayMode, GameplayState};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{layout, EventCtx, GfxCtx, Line, ModalMenu, Text};
@@ -90,39 +89,12 @@ pub fn faster_trips_panel(mode: TripMode, ui: &UI) -> Text {
     }
 
     for stat in Statistic::all() {
-        txt.add(Line(format!("{}: {} ", stat, now.select(stat))));
+        txt.add(Line(format!("{}: {} (", stat, now.select(stat))));
         txt.append_all(cmp_duration_shorter(
             now.select(stat),
             baseline.select(stat),
         ));
+        txt.append(Line(")"));
     }
-    txt
-}
-
-pub fn small_faster_trips_panel(mode: TripMode, ui: &UI) -> Text {
-    let time = ui.primary.sim.time();
-    let now = ui.primary.sim.get_analytics().finished_trips(time, mode);
-    let baseline = ui.prebaked().finished_trips(time, mode);
-
-    let mut txt = Text::new();
-    txt.add_appended(vec![
-        Line(format!(
-            "{} finished {} trips (",
-            prettyprint_usize(now.count()),
-            mode
-        )),
-        cmp_count_more(now.count(), baseline.count()),
-        Line(")"),
-    ]);
-    if now.count() == 0 || baseline.count() == 0 {
-        return txt;
-    }
-
-    let stat = Statistic::P50;
-    txt.add(Line(format!("{}: {} ", stat, now.select(stat))));
-    txt.append_all(cmp_duration_shorter(
-        now.select(stat),
-        baseline.select(stat),
-    ));
     txt
 }

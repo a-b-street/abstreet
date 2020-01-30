@@ -1,8 +1,8 @@
 use crate::common::ShowBusRoute;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
+use crate::helpers::{cmp_count_fewer, cmp_count_more, cmp_duration_shorter};
 use crate::managed::{Callback, ManagedGUIState, WrappedComposite};
-use crate::sandbox::gameplay::{cmp_count_fewer, cmp_count_more, cmp_duration_shorter};
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
@@ -122,11 +122,12 @@ fn finished_trips_summary_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
     ]);
     if now_all.count() > 0 && baseline_all.count() > 0 {
         for stat in Statistic::all() {
-            txt.add(Line(format!("  {}: {} ", stat, now_all.select(stat))));
+            txt.add(Line(format!("  {}: {} (", stat, now_all.select(stat))));
             txt.append_all(cmp_duration_shorter(
                 now_all.select(stat),
                 baseline_all.select(stat),
             ));
+            txt.append(Line(")"));
         }
     }
 
@@ -140,8 +141,9 @@ fn finished_trips_summary_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
         ]);
         if a.count() > 0 && b.count() > 0 {
             for stat in Statistic::all() {
-                txt.add(Line(format!("  {}: {} ", stat, a.select(stat))));
+                txt.add(Line(format!("  {}: {} (", stat, a.select(stat))));
                 txt.append_all(cmp_duration_shorter(a.select(stat), b.select(stat)));
+                txt.append(Line(")"));
             }
         }
     }

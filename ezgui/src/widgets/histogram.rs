@@ -50,6 +50,7 @@ impl Histogram {
 
         let min_y = 0;
         let max_y = bars.iter().map(|(_, _, cnt)| *cnt).max().unwrap();
+        let mut outlines = Vec::new();
         for (idx, (min, max, cnt)) in bars.into_iter().enumerate() {
             let color = if max < Duration::ZERO {
                 Color::RED
@@ -72,10 +73,7 @@ impl Histogram {
                 Pt2D::new(width * percent_x_right, height),
             ) {
                 batch.push(color, rect.clone());
-                batch.push(
-                    Color::BLACK.alpha(0.5),
-                    rect.to_outline(Distance::meters(0.5)),
-                );
+                outlines.push(rect.to_outline(Distance::meters(1.5)));
                 rect_labels.push((
                     rect,
                     Text::from(Line(format!(
@@ -88,6 +86,7 @@ impl Histogram {
                 ));
             }
         }
+        batch.extend(Color::BLACK, outlines);
 
         let histogram = Histogram {
             draw: DrawBoth::new(ctx, batch, Vec::new()),

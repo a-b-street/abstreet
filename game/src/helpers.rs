@@ -1,8 +1,8 @@
 use crate::render::ExtraShapeID;
 use crate::ui::PerMapUI;
-use abstutil::Timer;
+use abstutil::{prettyprint_usize, Timer};
 use ezgui::{Color, Line, Text, TextSpan};
-use geom::Pt2D;
+use geom::{Duration, Pt2D};
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, RoadID, TurnID};
 use serde_derive::{Deserialize, Serialize};
 use sim::{AgentID, CarID, PedestrianID, TripID};
@@ -235,5 +235,46 @@ pub fn nice_map_name(name: &str) -> &str {
         "huge_seattle" => "Seattle (entire area)",
         "montlake" => "Montlake and Eastlake",
         _ => name,
+    }
+}
+
+// Shorter is better
+pub fn cmp_duration_shorter(now: Duration, baseline: Duration) -> Vec<TextSpan> {
+    if now.epsilon_eq(baseline) {
+        vec![Line("same as baseline")]
+    } else if now < baseline {
+        vec![
+            Line((baseline - now).to_string()).fg(Color::GREEN),
+            Line(" faster"),
+        ]
+    } else if now > baseline {
+        vec![
+            Line((now - baseline).to_string()).fg(Color::RED),
+            Line(" slower"),
+        ]
+    } else {
+        unreachable!()
+    }
+}
+
+// Fewer is better
+pub fn cmp_count_fewer(now: usize, baseline: usize) -> TextSpan {
+    if now < baseline {
+        Line(format!("{} fewer", prettyprint_usize(baseline - now))).fg(Color::GREEN)
+    } else if now > baseline {
+        Line(format!("{} more", prettyprint_usize(now - baseline))).fg(Color::RED)
+    } else {
+        Line("same as baseline")
+    }
+}
+
+// More is better
+pub fn cmp_count_more(now: usize, baseline: usize) -> TextSpan {
+    if now < baseline {
+        Line(format!("{} fewer", prettyprint_usize(baseline - now))).fg(Color::RED)
+    } else if now > baseline {
+        Line(format!("{} more", prettyprint_usize(now - baseline))).fg(Color::GREEN)
+    } else {
+        Line("same as baseline")
     }
 }

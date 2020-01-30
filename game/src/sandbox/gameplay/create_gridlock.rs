@@ -1,9 +1,8 @@
 use crate::game::Transition;
+use crate::helpers::cmp_count_fewer;
 use crate::managed::WrappedComposite;
 use crate::render::InnerAgentColorScheme;
-use crate::sandbox::gameplay::{
-    challenge_controller, cmp_count_fewer, manage_acs, GameplayMode, GameplayState,
-};
+use crate::sandbox::gameplay::{challenge_controller, manage_acs, GameplayMode, GameplayState};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{hotkey, layout, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};

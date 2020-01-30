@@ -1,8 +1,9 @@
 use crate::common::Overlays;
 use crate::game::{Transition, WizardState};
+use crate::helpers::cmp_duration_shorter;
 use crate::managed::WrappedComposite;
 use crate::sandbox::gameplay::{
-    challenge_controller, cmp_duration_shorter, manage_overlays, GameplayMode, GameplayState,
+    challenge_controller, manage_overlays, GameplayMode, GameplayState,
 };
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;

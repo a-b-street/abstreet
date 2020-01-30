@@ -1,12 +1,12 @@
 use crate::common::Overlays;
 use crate::game::{msg, Transition};
+use crate::helpers::cmp_duration_shorter;
 use crate::managed::WrappedComposite;
-use crate::sandbox::gameplay::faster_trips::small_faster_trips_panel;
 use crate::sandbox::gameplay::{
     challenge_controller, manage_overlays, GameplayMode, GameplayState,
 };
 use crate::ui::UI;
-use ezgui::{hotkey, layout, EventCtx, GfxCtx, Key, ModalMenu};
+use ezgui::{hotkey, layout, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, Map};
 use sim::{BorderSpawnOverTime, OriginDestination, Scenario, TripMode};
@@ -82,8 +82,20 @@ impl GameplayState for FixTrafficSignals {
 
         if self.time != ui.primary.sim.time() {
             self.time = ui.primary.sim.time();
-            self.menu
-                .set_info(ctx, small_faster_trips_panel(TripMode::Drive, ui));
+            // TODO Put this in the top-center panel
+            let mut txt = Text::new();
+            let (now, _, _) = ui.primary.sim.get_analytics().all_finished_trips(self.time);
+            let (baseline, _, _) = ui.prebaked().all_finished_trips(self.time);
+            txt.add(Line("Average trip time: "));
+            if now.count() > 0 && baseline.count() > 0 {
+                txt.append_all(cmp_duration_shorter(
+                    now.select(Statistic::Mean),
+                    baseline.select(Statistic::Mean),
+                ));
+            } else {
+                txt.append(Line("same as baseline"));
+            }
+            self.menu.set_info(ctx, txt);
         }
 
         if self.menu.action("final score") {
