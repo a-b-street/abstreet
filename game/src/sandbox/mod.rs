@@ -30,7 +30,7 @@ pub struct SandboxMode {
     gameplay_mode: GameplayMode,
     common: CommonState,
     tool_panel: WrappedComposite,
-    minimap: Option<Minimap>,
+    minimap: Minimap,
 }
 
 impl SandboxMode {
@@ -41,11 +41,7 @@ impl SandboxMode {
             agent_meter: AgentMeter::new(ctx, ui),
             common: CommonState::new(),
             tool_panel: tool_panel(ctx),
-            minimap: if mode.has_minimap() {
-                Some(Minimap::new(ctx, ui))
-            } else {
-                None
-            },
+            minimap: Minimap::new(ctx, ui),
             gameplay: mode.initialize(ui, ctx),
             gameplay_mode: mode,
         }
@@ -62,10 +58,8 @@ impl State for SandboxMode {
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);
         }
-        if let Some(ref mut m) = self.minimap {
-            if let Some(t) = m.event(ui, ctx) {
-                return t;
-            }
+        if let Some(t) = self.minimap.event(ui, ctx) {
+            return t;
         }
 
         if let Some(t) = examine_objects(ctx, ui) {
@@ -206,9 +200,7 @@ impl State for SandboxMode {
         self.time_panel.draw(g);
         self.gameplay.draw(g, ui);
         self.agent_meter.draw(g);
-        if let Some(ref m) = self.minimap {
-            m.draw(g, ui);
-        }
+        self.minimap.draw(g, ui);
     }
 
     fn on_suspend(&mut self, ctx: &mut EventCtx, _: &mut UI) {

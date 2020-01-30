@@ -122,13 +122,6 @@ impl GameplayMode {
         true
     }
 
-    pub fn has_minimap(&self) -> bool {
-        match self {
-            GameplayMode::FixTrafficSignalsTutorial(_) => false,
-            _ => true,
-        }
-    }
-
     pub fn initialize(&self, ui: &mut UI, ctx: &mut EventCtx) -> Box<dyn GameplayState> {
         ctx.loading_screen("instantiate scenario", |_, timer| {
             if let Some(scenario) =

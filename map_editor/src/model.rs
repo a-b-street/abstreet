@@ -1,7 +1,7 @@
 use crate::world::{Object, ObjectID, World};
 use abstutil::Timer;
 use ezgui::{Color, Line, Prerender, Text};
-use geom::{Bounds, Circle, Distance, FindClosest, PolyLine, Polygon, Pt2D};
+use geom::{Bounds, Circle, Distance, FindClosest, GPSBounds, PolyLine, Polygon, Pt2D};
 use map_model::raw::{
     OriginalBuilding, OriginalIntersection, OriginalRoad, RawBuilding, RawIntersection, RawMap,
     RawRoad, RestrictionType, TurnRestriction,
@@ -91,7 +91,39 @@ impl Model {
     // TODO Only for truly synthetic maps...
     pub fn export(&mut self) {
         assert!(self.map.name != "");
-        self.map.boundary_polygon = self.compute_bounds().get_rectangle();
+
+        // Shift the map to start at (0, 0)
+        let bounds = self.compute_bounds();
+        if bounds.min_x != 0.0 || bounds.min_y != 0.0 {
+            for b in self.map.buildings.values_mut() {
+                b.polygon = Polygon::new(
+                    &b.polygon
+                        .points()
+                        .iter()
+                        .map(|pt| pt.offset(-bounds.min_x, -bounds.min_y))
+                        .collect(),
+                );
+            }
+            for i in self.map.intersections.values_mut() {
+                i.point = i.point.offset(-bounds.min_x, -bounds.min_y);
+            }
+            for r in self.map.roads.values_mut() {
+                for pt in &mut r.center_points {
+                    *pt = pt.offset(-bounds.min_x, -bounds.min_y);
+                }
+            }
+        }
+
+        let bounds = self.compute_bounds();
+        self.map.boundary_polygon = bounds.get_rectangle();
+        // Make gps_bounds sane
+        self.map.gps_bounds = GPSBounds::new();
+        self.map.gps_bounds.update(
+            Pt2D::new(bounds.min_x, bounds.min_y).forcibly_to_gps(&GPSBounds::seattle_bounds()),
+        );
+        self.map.gps_bounds.update(
+            Pt2D::new(bounds.max_x, bounds.max_y).forcibly_to_gps(&GPSBounds::seattle_bounds()),
+        );
 
         abstutil::write_json(abstutil::path_synthetic_map(&self.map.name), &self.map);
     }

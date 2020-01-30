@@ -14,12 +14,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1035.7519,
-            "inner_y": 251.9738
+            "inner_x": 267.1578,
+            "inner_y": 110.0065
           },
           {
-            "inner_x": 982.1708,
-            "inner_y": 252.0323
+            "inner_x": 213.5767,
+            "inner_y": 110.065
           }
         ],
         "osm_tags": {
@@ -47,12 +47,12 @@
       {
         "center_points": [
           {
-            "inner_x": 768.5941,
-            "inner_y": 253.7028
+            "inner_x": 0.0,
+            "inner_y": 111.7355
           },
           {
-            "inner_x": 810.4218,
-            "inner_y": 253.5434
+            "inner_x": 41.8277,
+            "inner_y": 111.5761
           }
         ],
         "osm_tags": {
@@ -80,12 +80,12 @@
       {
         "center_points": [
           {
-            "inner_x": 902.7759,
-            "inner_y": 141.9673
+            "inner_x": 134.1818,
+            "inner_y": 0.0
           },
           {
-            "inner_x": 902.233,
-            "inner_y": 186.5627
+            "inner_x": 133.6389,
+            "inner_y": 44.5954
           }
         ],
         "osm_tags": {
@@ -113,12 +113,12 @@
       {
         "center_points": [
           {
-            "inner_x": 902.4315,
-            "inner_y": 356.3894
+            "inner_x": 133.8374,
+            "inner_y": 214.4221
           },
           {
-            "inner_x": 901.802,
-            "inner_y": 312.5814
+            "inner_x": 133.2079,
+            "inner_y": 170.6141
           }
         ],
         "osm_tags": {
@@ -146,12 +146,12 @@
       {
         "center_points": [
           {
-            "inner_x": 902.4499,
-            "inner_y": 252.6219
+            "inner_x": 133.8558,
+            "inner_y": 110.6546
           },
           {
-            "inner_x": 810.4218,
-            "inner_y": 253.5434
+            "inner_x": 41.8277,
+            "inner_y": 111.5761
           }
         ],
         "osm_tags": {
@@ -181,12 +181,12 @@
       {
         "center_points": [
           {
-            "inner_x": 902.4499,
-            "inner_y": 252.6219
+            "inner_x": 133.8558,
+            "inner_y": 110.6546
           },
           {
-            "inner_x": 982.1708,
-            "inner_y": 252.0323
+            "inner_x": 213.5767,
+            "inner_y": 110.065
           }
         ],
         "osm_tags": {
@@ -215,12 +215,12 @@
       {
         "center_points": [
           {
-            "inner_x": 902.4499,
-            "inner_y": 252.6219
+            "inner_x": 133.8558,
+            "inner_y": 110.6546
           },
           {
-            "inner_x": 902.233,
-            "inner_y": 186.5627
+            "inner_x": 133.6389,
+            "inner_y": 44.5954
           }
         ],
         "osm_tags": {
@@ -250,12 +250,12 @@
       {
         "center_points": [
           {
-            "inner_x": 902.4499,
-            "inner_y": 252.6219
+            "inner_x": 133.8558,
+            "inner_y": 110.6546
           },
           {
-            "inner_x": 901.802,
-            "inner_y": 312.5814
+            "inner_x": 133.2079,
+            "inner_y": 170.6141
           }
         ],
         "osm_tags": {
@@ -280,8 +280,8 @@
       },
       {
         "point": {
-          "inner_x": 1035.7519,
-          "inner_y": 251.9738
+          "inner_x": 267.1578,
+          "inner_y": 110.0065
         },
         "intersection_type": "Border"
       }
@@ -292,8 +292,8 @@
       },
       {
         "point": {
-          "inner_x": 768.5941,
-          "inner_y": 253.7028
+          "inner_x": 0.0,
+          "inner_y": 111.7355
         },
         "intersection_type": "Border"
       }
@@ -304,8 +304,8 @@
       },
       {
         "point": {
-          "inner_x": 902.7759,
-          "inner_y": 141.9673
+          "inner_x": 134.1818,
+          "inner_y": 0.0
         },
         "intersection_type": "Border"
       }
@@ -316,8 +316,8 @@
       },
       {
         "point": {
-          "inner_x": 902.4315,
-          "inner_y": 356.3894
+          "inner_x": 133.8374,
+          "inner_y": 214.4221
         },
         "intersection_type": "Border"
       }
@@ -328,8 +328,8 @@
       },
       {
         "point": {
-          "inner_x": 982.1708,
-          "inner_y": 252.0323
+          "inner_x": 213.5767,
+          "inner_y": 110.065
         },
         "intersection_type": "StopSign"
       }
@@ -340,8 +340,8 @@
       },
       {
         "point": {
-          "inner_x": 810.4218,
-          "inner_y": 253.5434
+          "inner_x": 41.8277,
+          "inner_y": 111.5761
         },
         "intersection_type": "StopSign"
       }
@@ -352,8 +352,8 @@
       },
       {
         "point": {
-          "inner_x": 901.802,
-          "inner_y": 312.5814
+          "inner_x": 133.2079,
+          "inner_y": 170.6141
         },
         "intersection_type": "StopSign"
       }
@@ -364,8 +364,8 @@
       },
       {
         "point": {
-          "inner_x": 902.4499,
-          "inner_y": 252.6219
+          "inner_x": 133.8558,
+          "inner_y": 110.6546
         },
         "intersection_type": "TrafficSignal"
       }
@@ -376,8 +376,8 @@
       },
       {
         "point": {
-          "inner_x": 902.233,
-          "inner_y": 186.5627
+          "inner_x": 133.6389,
+          "inner_y": 44.5954
         },
         "intersection_type": "StopSign"
       }
@@ -389,24 +389,24 @@
   "boundary_polygon": {
     "points": [
       {
-        "inner_x": 768.5941,
-        "inner_y": 141.9673
+        "inner_x": 0.0,
+        "inner_y": 0.0
       },
       {
-        "inner_x": 1035.7519,
-        "inner_y": 141.9673
+        "inner_x": 267.1578,
+        "inner_y": 0.0
       },
       {
-        "inner_x": 1035.7519,
-        "inner_y": 356.3894
+        "inner_x": 267.1578,
+        "inner_y": 214.4221
       },
       {
-        "inner_x": 768.5941,
-        "inner_y": 356.3894
+        "inner_x": 0.0,
+        "inner_y": 214.4221
       },
       {
-        "inner_x": 768.5941,
-        "inner_y": 141.9673
+        "inner_x": 0.0,
+        "inner_y": 0.0
       }
     ],
     "indices": [
@@ -423,9 +423,9 @@
     "uv": null
   },
   "gps_bounds": {
-    "min_lon": 1.7976931348623157e308,
-    "min_lat": 1.7976931348623157e308,
-    "max_lon": -1.7976931348623157e308,
-    "max_lat": -1.7976931348623157e308
+    "min_lon": -122.4416,
+    "min_lat": 47.71357165572569,
+    "max_lon": -122.43803830652608,
+    "max_lat": 47.7155
   }
 }
