@@ -4,15 +4,16 @@ use crate::helpers::cmp_duration_shorter;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::gameplay::{challenge_controller, GameplayMode, GameplayState};
 use crate::ui::UI;
-use ezgui::{hotkey, layout, EventCtx, GfxCtx, Key, Line, ManagedWidget, ModalMenu, Text};
+use ezgui::{EventCtx, GfxCtx, Line, ManagedWidget, Text};
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, Map};
-use sim::{BorderSpawnOverTime, OriginDestination, Scenario, TripMode};
+use sim::{BorderSpawnOverTime, OriginDestination, Scenario};
+
+const GOAL: Duration = Duration::const_seconds(30.0);
 
 pub struct FixTrafficSignals {
     time: Time,
     once: bool,
-    menu: ModalMenu,
     top_center: WrappedComposite,
     // TODO Keeping a copy in here seems redundant?
     mode: GameplayMode,
@@ -23,8 +24,6 @@ impl FixTrafficSignals {
         Box::new(FixTrafficSignals {
             time: Time::START_OF_DAY,
             once: true,
-            menu: ModalMenu::new("", vec![(hotkey(Key::S), "final score")], ctx)
-                .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
             top_center: make_top_center(ctx, ui, mode.clone()),
             mode,
         })
@@ -51,14 +50,9 @@ impl GameplayState for FixTrafficSignals {
             self.top_center = make_top_center(ctx, ui, self.mode.clone());
         }
 
-        self.menu.event(ctx);
-        if self.menu.action("final score") {
-            return Some(Transition::Push(msg("Final score", final_score(ui))));
-        }
-
-        if ui.primary.sim.time() >= Time::END_OF_DAY {
+        if ui.primary.sim.is_done() {
             // TODO Stop the challenge somehow
-            return Some(Transition::Push(msg("Final score", final_score(ui))));
+            return Some(Transition::Push(msg("Final score", vec![final_score(ui)])));
         }
 
         None
@@ -66,7 +60,6 @@ impl GameplayState for FixTrafficSignals {
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
         self.top_center.draw(g);
-        self.menu.draw(g);
     }
 }
 
@@ -92,11 +85,14 @@ fn make_top_center(ctx: &mut EventCtx, ui: &UI, mode: GameplayMode) -> WrappedCo
         ctx,
         mode,
         "Traffic Signals Challenge",
-        vec![ManagedWidget::row(vec![
-            ManagedWidget::draw_text(ctx, txt).margin(5),
-            WrappedComposite::text_button(ctx, "details", None).margin(5),
-        ])
-        .centered()],
+        vec![
+            ManagedWidget::row(vec![
+                ManagedWidget::draw_text(ctx, txt).margin(5),
+                WrappedComposite::text_button(ctx, "details", None).margin(5),
+            ])
+            .centered(),
+            ManagedWidget::draw_text(ctx, Text::from(Line(format!("Goal: {}", GOAL)))),
+        ],
     )
     .cb(
         "details",
@@ -107,60 +103,51 @@ fn make_top_center(ctx: &mut EventCtx, ui: &UI, mode: GameplayMode) -> WrappedCo
     )
 }
 
-fn final_score(ui: &UI) -> Vec<String> {
+fn final_score(ui: &UI) -> String {
     let time = ui.primary.sim.time();
     let now = ui
         .primary
         .sim
         .get_analytics()
-        .finished_trips(time, TripMode::Drive);
-    let baseline = ui.prebaked().finished_trips(time, TripMode::Drive);
-    // TODO Annoying to repeat this everywhere; any refactor possible?
-    if now.count() == 0 || baseline.count() == 0 {
-        return vec!["No data yet, run the simulation for longer".to_string()];
-    }
-    let now_50p = now.select(Statistic::P50);
-    let baseline_50p = baseline.select(Statistic::P50);
-    let mut lines = Vec::new();
+        .all_finished_trips(time)
+        .0
+        .select(Statistic::Mean);
+    let baseline = ui
+        .prebaked()
+        .all_finished_trips(time)
+        .0
+        .select(Statistic::Mean);
 
-    if time < Time::END_OF_DAY {
-        lines.push(format!(
-            "You have to run the simulation until the end of the day to get final results; {} to \
-             go",
-            Time::END_OF_DAY - time
-        ));
-    }
-
-    if now_50p < baseline_50p - Duration::seconds(30.0) {
-        lines.push(format!(
-            "COMPLETED! 50%ile trip times are now {}, which is {} faster than the baseline {}",
-            now_50p,
-            baseline_50p - now_50p,
-            baseline_50p
-        ));
-    } else if now_50p < baseline_50p {
-        lines.push(format!(
-            "Almost there! 50%ile trip times are now {}, which is {} faster than the baseline {}. \
-             Can you reduce the times by 30s?",
-            now_50p,
-            baseline_50p - now_50p,
-            baseline_50p
-        ));
-    } else if now_50p.epsilon_eq(baseline_50p) {
-        lines.push(format!(
-            "... Did you change anything? 50% ile trip times are {}, same as the baseline",
-            now_50p
-        ));
+    if now < baseline - GOAL {
+        format!(
+            "COMPLETED! Average trip time is now {}, which is {} faster than the baseline {}",
+            now,
+            baseline - now,
+            baseline
+        )
+    } else if now < baseline {
+        format!(
+            "Almost there! Average trip time is now {}, which is {} faster than the baseline {}. \
+             Can you reduce the average by {}?",
+            now,
+            baseline - now,
+            baseline,
+            GOAL
+        )
+    } else if now.epsilon_eq(baseline) {
+        format!(
+            "... Did you change anything? Average trip time is {}, same as the baseline",
+            now
+        )
     } else {
-        lines.push(format!(
-            "Err... how did you make things WORSE?! 50%ile trip times are {}, which is {} slower \
+        format!(
+            "Err... how did you make things WORSE?! Average trip time is {}, which is {} slower \
              than the baseline {}",
-            now_50p,
-            now_50p - baseline_50p,
-            baseline_50p
-        ));
+            now,
+            now - baseline,
+            baseline
+        )
     }
-    lines
 }
 
 // TODO Hacks in here, because I'm not convinced programatically specifying this is right. I think

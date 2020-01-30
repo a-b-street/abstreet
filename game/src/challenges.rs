@@ -52,8 +52,7 @@ pub fn all_challenges() -> BTreeMap<String, Vec<Challenge>> {
                      timing."
                         .to_string(),
                     "".to_string(),
-                    "Objective: Reduce the 50%ile trip time of all drivers by at least 30s"
-                        .to_string(),
+                    "Objective: Reduce the average trip time by at least 30s".to_string(),
                 ],
                 map_path: abstutil::path_map("montlake"),
                 alias: "trafficsig/main".to_string(),
