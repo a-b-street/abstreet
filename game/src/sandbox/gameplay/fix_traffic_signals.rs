@@ -74,7 +74,7 @@ fn make_top_center(ctx: &mut EventCtx, ui: &UI, mode: GameplayMode) -> WrappedCo
         .get_analytics()
         .all_finished_trips(ui.primary.sim.time());
     let (baseline, _, _) = ui.prebaked().all_finished_trips(ui.primary.sim.time());
-    txt.add(Line("Average trip time: "));
+    txt.add(Line("Average trip time: ").size(20));
     if now.count() > 0 && baseline.count() > 0 {
         txt.append_all(cmp_duration_shorter(
             now.select(Statistic::Mean),
@@ -91,10 +91,19 @@ fn make_top_center(ctx: &mut EventCtx, ui: &UI, mode: GameplayMode) -> WrappedCo
         vec![
             ManagedWidget::row(vec![
                 ManagedWidget::draw_text(ctx, txt).margin(5),
-                WrappedComposite::text_button(ctx, "details", None).margin(5),
-            ])
-            .centered(),
-            ManagedWidget::draw_text(ctx, Text::from(Line(format!("Goal: {} faster", GOAL)))),
+                WrappedComposite::nice_text_button(
+                    ctx,
+                    Text::from(Line("details").size(20)),
+                    None,
+                    "details",
+                )
+                .align_right(),
+            ]),
+            ManagedWidget::draw_text(
+                ctx,
+                Text::from(Line(format!("Goal: {} faster", GOAL)).size(20)),
+            )
+            .margin(5),
         ],
     )
     .cb(

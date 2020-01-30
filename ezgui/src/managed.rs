@@ -817,7 +817,8 @@ impl Composite {
     }
 
     pub fn align_above(&mut self, ctx: &mut EventCtx, other: &Composite) {
-        self.vert = VerticalAlignment::TopAt(other.top_level.rect.y1);
+        // Small padding
+        self.vert = VerticalAlignment::TopAt(other.top_level.rect.y1 - 5.0);
         self.recompute_layout(ctx);
     }
 }

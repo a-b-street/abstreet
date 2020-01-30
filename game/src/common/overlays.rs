@@ -542,8 +542,10 @@ impl Overlays {
                         ManagedWidget::draw_text(ctx, {
                             let mut txt = Text::from(Line("Are finished trips "));
                             txt.append(Line("faster").fg(Color::GREEN));
-                            txt.append(Line(" or "));
+                            txt.append(Line(", "));
                             txt.append(Line("slower").fg(Color::RED));
+                            txt.append(Line(", or "));
+                            txt.append(Line("the same").fg(Color::YELLOW));
                             txt.append(Line("?"));
                             txt
                         }),

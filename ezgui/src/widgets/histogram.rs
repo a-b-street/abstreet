@@ -24,37 +24,16 @@ impl Histogram {
         let width = 0.25 * ctx.canvas.window_width;
         let height = 0.3 * ctx.canvas.window_height;
 
-        // TODO Generic "bucket into 10 groups, give (min, max, count)"
-        let min_x = unsorted_dts.iter().min().cloned().unwrap_or(Duration::ZERO);
-        let max_x = unsorted_dts.iter().max().cloned().unwrap_or(Duration::ZERO);
-
         let num_buckets = 10;
-        let bucket_size = (max_x - min_x) / (num_buckets as f64);
-        // lower, upper, count
-        let mut bars: Vec<(Duration, Duration, usize)> = (0..num_buckets)
-            .map(|idx| {
-                let i = idx as f64;
-                (min_x + bucket_size * i, min_x + bucket_size * (i + 1.0), 0)
-            })
-            .collect();
-        for dt in unsorted_dts {
-            // TODO Could sort them and do this more efficiently.
-            if dt == max_x {
-                // Most bars represent [low, high) except the last
-                bars[num_buckets - 1].2 += 1;
-            } else {
-                let bin = ((dt - min_x) / bucket_size).floor() as usize;
-                bars[bin].2 += 1;
-            }
-        }
+        let (min_x, max_x, bars) = bucketize(unsorted_dts, num_buckets);
 
         let min_y = 0;
         let max_y = bars.iter().map(|(_, _, cnt)| *cnt).max().unwrap();
         let mut outlines = Vec::new();
         for (idx, (min, max, cnt)) in bars.into_iter().enumerate() {
-            let color = if max < Duration::ZERO {
+            let color = if min < Duration::ZERO {
                 Color::RED
-            } else if min < Duration::ZERO {
+            } else if min == Duration::ZERO && max == Duration::ZERO {
                 Color::YELLOW
             } else {
                 Color::GREEN
@@ -155,4 +134,63 @@ impl Widget for Histogram {
     fn set_pos(&mut self, top_left: ScreenPt) {
         self.top_left = top_left;
     }
+}
+
+// min, max, bars
+// TODO This has bugs. Perfect surface area to unit test.
+fn bucketize(
+    unsorted_dts: Vec<Duration>,
+    num_buckets: usize,
+) -> (Duration, Duration, Vec<(Duration, Duration, usize)>) {
+    assert!(num_buckets >= 3);
+    if unsorted_dts.is_empty() {
+        return (
+            Duration::ZERO,
+            Duration::ZERO,
+            vec![(Duration::ZERO, Duration::ZERO, 0)],
+        );
+    }
+
+    let min_x = *unsorted_dts.iter().min().unwrap();
+    let max_x = *unsorted_dts.iter().max().unwrap();
+
+    let bucket_size = (max_x - min_x) / ((num_buckets - 3) as f64);
+    // lower, upper, count
+    let mut bars: Vec<(Duration, Duration, usize)> = Vec::new();
+    let mut min = min_x;
+    while min < max_x {
+        let max = min + bucket_size;
+        if min < Duration::ZERO && max > Duration::ZERO {
+            bars.push((min, Duration::ZERO, 0));
+            bars.push((Duration::ZERO, Duration::ZERO, 0));
+            bars.push((Duration::ZERO, max, 0));
+        } else {
+            bars.push((min, max, 0));
+        }
+
+        min = max;
+    }
+    if bars.is_empty() {
+        assert_eq!(min, max_x);
+        bars.push((Duration::ZERO, Duration::ZERO, 0));
+    } else {
+        //assert_eq!(bars.len(), num_buckets);
+    }
+
+    for dt in unsorted_dts {
+        // TODO Could sort them and do this more efficiently.
+        let mut ok = false;
+        for (min, max, count) in bars.iter_mut() {
+            if (dt >= *min && dt < *max) || (*min == *max && dt == *min) {
+                *count += 1;
+                ok = true;
+                break;
+            }
+        }
+        // Most bars represent [low, high) except the last and the [0, 0] one
+        if !ok {
+            bars.last_mut().unwrap().2 += 1;
+        }
+    }
+    (min_x, max_x, bars)
 }
