@@ -157,7 +157,7 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
     )
     .cb(
         "Challenges",
-        Box::new(|ctx, _| Some(Transition::Push(challenges_picker(ctx)))),
+        Box::new(|ctx, ui| Some(Transition::Push(challenges_picker(ctx, ui)))),
     )
     .cb(
         "About A/B Street",

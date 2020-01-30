@@ -278,7 +278,7 @@ fn challenge_controller(
 ) -> WrappedComposite {
     // Scrape the description
     let mut description = Vec::new();
-    'OUTER: for (_, stages) in challenges::all_challenges() {
+    'OUTER: for (_, stages) in challenges::all_challenges(true) {
         for challenge in stages {
             if challenge.gameplay == gameplay {
                 description = challenge.description.clone();
@@ -367,7 +367,7 @@ impl State for FinalScore {
                 }
                 "back to challenges" => {
                     ui.primary.clear_sim();
-                    Transition::Clear(vec![main_menu(ctx, ui), challenges_picker(ctx)])
+                    Transition::Clear(vec![main_menu(ctx, ui), challenges_picker(ctx, ui)])
                 }
                 _ => unreachable!(),
             },

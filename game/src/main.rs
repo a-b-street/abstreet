@@ -59,7 +59,7 @@ fn main() {
     let mut mode = sandbox::GameplayMode::Freeform;
     if let Some(x) = args.optional("--challenge") {
         let mut aliases = Vec::new();
-        'OUTER: for (_, stages) in challenges::all_challenges() {
+        'OUTER: for (_, stages) in challenges::all_challenges(true) {
             for challenge in stages {
                 if challenge.alias == x {
                     mode = challenge.gameplay;
