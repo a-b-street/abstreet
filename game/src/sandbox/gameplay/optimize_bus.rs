@@ -20,8 +20,8 @@ pub struct OptimizeBus {
 }
 
 impl OptimizeBus {
-    pub fn new(route_name: String, ctx: &mut EventCtx, ui: &UI) -> Box<dyn GameplayState> {
-        let route = ui.primary.map.get_bus_route(&route_name).unwrap();
+    pub fn new(route_name: &str, ctx: &mut EventCtx, ui: &UI) -> Box<dyn GameplayState> {
+        let route = ui.primary.map.get_bus_route(route_name).unwrap();
         Box::new(OptimizeBus {
             route: route.id,
             time: Time::START_OF_DAY,
@@ -39,7 +39,7 @@ impl OptimizeBus {
             .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
             top_center: challenge_controller(
                 ctx,
-                GameplayMode::OptimizeBus(route_name.clone()),
+                GameplayMode::OptimizeBus(route_name.to_string()),
                 &format!("Optimize {} Challenge", route_name),
             ),
         })
@@ -118,11 +118,7 @@ impl GameplayState for OptimizeBus {
                     )?;
                     Some(Transition::PopWithData(Box::new(move |state, _, _| {
                         let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
-                        let opt = sandbox
-                            .gameplay
-                            .state
-                            .downcast_mut::<OptimizeBus>()
-                            .unwrap();
+                        let opt = sandbox.gameplay.downcast_mut::<OptimizeBus>().unwrap();
                         // Force recalculation
                         opt.time = Time::START_OF_DAY;
                         opt.stat = new_stat;
@@ -163,7 +159,9 @@ fn bus_route_panel(id: BusRouteID, stat: Statistic, ui: &UI) -> Text {
             txt.append(Line(a.to_string()));
 
             if let Some(ref stats2) = baseline.get(&route.stops[idx2]) {
+                txt.append(Line(" ("));
                 txt.append_all(cmp_duration_shorter(a, stats2.select(stat)));
+                txt.append(Line(")"));
             }
         } else {
             txt.append(Line("no arrivals yet"));

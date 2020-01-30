@@ -26,7 +26,8 @@ pub struct SandboxMode {
     speed: SpeedControls,
     time_panel: TimePanel,
     agent_meter: AgentMeter,
-    gameplay: gameplay::GameplayRunner,
+    gameplay: Box<dyn gameplay::GameplayState>,
+    gameplay_mode: GameplayMode,
     common: CommonState,
     tool_panel: WrappedComposite,
     minimap: Option<Minimap>,
@@ -45,7 +46,8 @@ impl SandboxMode {
             } else {
                 None
             },
-            gameplay: gameplay::GameplayRunner::initialize(mode, ui, ctx),
+            gameplay: mode.initialize(ui, ctx),
+            gameplay_mode: mode,
         }
     }
 }
@@ -73,7 +75,7 @@ impl State for SandboxMode {
             if ui.primary.map.get_i(i).is_traffic_signal()
                 && ui.per_obj.action(ctx, Key::E, "edit traffic signal")
             {
-                let edit = EditMode::new(ctx, ui, self.gameplay.mode.clone());
+                let edit = EditMode::new(ctx, ui, self.gameplay_mode.clone());
                 let sim_copy = edit.suspended_sim.clone();
                 return Transition::PushTwice(
                     Box::new(edit),
@@ -84,7 +86,7 @@ impl State for SandboxMode {
                 && ui.per_obj.action(ctx, Key::E, "edit stop sign")
             {
                 return Transition::PushTwice(
-                    Box::new(EditMode::new(ctx, ui, self.gameplay.mode.clone())),
+                    Box::new(EditMode::new(ctx, ui, self.gameplay_mode.clone())),
                     Box::new(StopSignEditor::new(i, ctx, ui)),
                 );
             }
@@ -102,7 +104,7 @@ impl State for SandboxMode {
                     return Transition::Replace(Box::new(SandboxMode::new(
                         ctx,
                         ui,
-                        self.gameplay.mode.clone(),
+                        self.gameplay_mode.clone(),
                     )));
                 }
                 _ => unreachable!(),

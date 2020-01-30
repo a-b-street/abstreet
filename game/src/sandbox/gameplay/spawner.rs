@@ -554,7 +554,7 @@ impl State for SpawnManyAgents {
             let dst = ui.primary.map.get_l(dst_l).dst_i;
             return Transition::PopWithData(Box::new(move |state, _, _| {
                 let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
-                let freeform = sandbox.gameplay.state.downcast_mut::<Freeform>().unwrap();
+                let freeform = sandbox.gameplay.downcast_mut::<Freeform>().unwrap();
                 freeform.spawn_pts.insert(src);
                 freeform.spawn_pts.insert(dst);
             }));

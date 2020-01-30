@@ -23,11 +23,6 @@ use geom::{Duration, Polygon};
 use map_model::{EditCmd, Map, MapEdits};
 use sim::{Analytics, Scenario, TripMode};
 
-pub struct GameplayRunner {
-    pub mode: GameplayMode,
-    state: Box<dyn GameplayState>,
-}
-
 #[derive(PartialEq, Clone)]
 pub enum GameplayMode {
     // TODO Maybe this should be "sandbox"
@@ -131,28 +126,26 @@ impl GameplayMode {
             _ => true,
         }
     }
-}
 
-impl GameplayRunner {
-    pub fn initialize(mode: GameplayMode, ui: &mut UI, ctx: &mut EventCtx) -> GameplayRunner {
-        let state = match mode.clone() {
+    pub fn initialize(&self, ui: &mut UI, ctx: &mut EventCtx) -> Box<dyn GameplayState> {
+        let state = match self {
             GameplayMode::Freeform => freeform::Freeform::new(ctx, ui),
-            GameplayMode::PlayScenario(scenario) => {
-                play_scenario::PlayScenario::new(&scenario, ctx, ui)
+            GameplayMode::PlayScenario(ref scenario) => {
+                play_scenario::PlayScenario::new(scenario, ctx, ui)
             }
-            GameplayMode::OptimizeBus(route_name) => {
+            GameplayMode::OptimizeBus(ref route_name) => {
                 optimize_bus::OptimizeBus::new(route_name, ctx, ui)
             }
             GameplayMode::CreateGridlock => create_gridlock::CreateGridlock::new(ctx),
-            GameplayMode::FasterTrips(trip_mode) => faster_trips::FasterTrips::new(trip_mode, ctx),
+            GameplayMode::FasterTrips(trip_mode) => faster_trips::FasterTrips::new(*trip_mode, ctx),
             GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial(_) => {
-                fix_traffic_signals::FixTrafficSignals::new(ctx, mode.clone())
+                fix_traffic_signals::FixTrafficSignals::new(ctx, self.clone())
             }
             GameplayMode::Tutorial(_, _) => unreachable!(),
         };
         ctx.loading_screen("instantiate scenario", |_, timer| {
             if let Some(scenario) =
-                mode.scenario(&ui.primary.map, ui.primary.current_flags.num_agents, timer)
+                self.scenario(&ui.primary.map, ui.primary.current_flags.num_agents, timer)
             {
                 scenario.instantiate(
                     &mut ui.primary.sim,
@@ -162,7 +155,7 @@ impl GameplayRunner {
                 );
                 ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
 
-                match mode {
+                match self {
                     GameplayMode::Freeform | GameplayMode::PlayScenario(_) => {}
                     // If there's no prebaked data, so be it; some functionality disappears
                     _ => {
@@ -184,15 +177,7 @@ impl GameplayRunner {
                 }
             }
         });
-        GameplayRunner { mode, state }
-    }
-
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
-        self.state.event(ctx, ui)
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        self.state.draw(g, ui);
+        state
     }
 }
 
