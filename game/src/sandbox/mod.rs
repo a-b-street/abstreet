@@ -153,7 +153,7 @@ impl State for SandboxMode {
                                 ui.primary.clear_sim();
                                 ui.set_prebaked(None);
                                 ctx.canvas.save_camera_state(ui.primary.map.get_name());
-                                Some(Transition::Clear(main_menu(ctx, ui)))
+                                Some(Transition::Clear(vec![main_menu(ctx, ui)]))
                             }
                             "quit challenge" => {
                                 if !ui.primary.map.get_edits().is_empty() {
@@ -166,7 +166,7 @@ impl State for SandboxMode {
                                 ui.primary.clear_sim();
                                 ui.set_prebaked(None);
                                 ctx.canvas.save_camera_state(ui.primary.map.get_name());
-                                Some(Transition::Clear(main_menu(ctx, ui)))
+                                Some(Transition::Clear(vec![main_menu(ctx, ui)]))
                             }
                             "keep playing" => Some(Transition::Pop),
                             _ => unreachable!(),

@@ -1,8 +1,8 @@
 use crate::common::Overlays;
-use crate::game::{msg, Transition};
+use crate::game::Transition;
 use crate::helpers::cmp_duration_shorter;
 use crate::managed::{WrappedComposite, WrappedOutcome};
-use crate::sandbox::gameplay::{challenge_controller, GameplayMode, GameplayState};
+use crate::sandbox::gameplay::{challenge_controller, FinalScore, GameplayMode, GameplayState};
 use crate::ui::UI;
 use ezgui::{EventCtx, GfxCtx, Line, ManagedWidget, Text};
 use geom::{Duration, Statistic, Time};
@@ -51,8 +51,11 @@ impl GameplayState for FixTrafficSignals {
         }
 
         if ui.primary.sim.is_done() {
-            // TODO Stop the challenge somehow
-            return Some(Transition::Push(msg("Final score", vec![final_score(ui)])));
+            return Some(Transition::Push(FinalScore::new(
+                ctx,
+                final_score(ui),
+                self.mode.clone(),
+            )));
         }
 
         None
@@ -91,7 +94,7 @@ fn make_top_center(ctx: &mut EventCtx, ui: &UI, mode: GameplayMode) -> WrappedCo
                 WrappedComposite::text_button(ctx, "details", None).margin(5),
             ])
             .centered(),
-            ManagedWidget::draw_text(ctx, Text::from(Line(format!("Goal: {}", GOAL)))),
+            ManagedWidget::draw_text(ctx, Text::from(Line(format!("Goal: {} faster", GOAL)))),
         ],
     )
     .cb(

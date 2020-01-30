@@ -7,17 +7,19 @@ mod play_scenario;
 pub mod spawner;
 
 use crate::challenges;
-use crate::common::Overlays;
+use crate::challenges::challenges_picker;
+use crate::common::{CommonState, Overlays};
 use crate::edit::EditMode;
-use crate::game::{msg, Transition};
+use crate::game::{msg, State, Transition};
 use crate::managed::WrappedComposite;
+use crate::pregame::main_menu;
 use crate::render::{AgentColorScheme, InnerAgentColorScheme};
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{
     lctrl, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    ManagedWidget, ModalMenu, Text, VerticalAlignment, Wizard,
+    ManagedWidget, ModalMenu, Outcome, Text, VerticalAlignment, Wizard,
 };
 use geom::{Duration, Polygon};
 use map_model::{EditCmd, Map, MapEdits};
@@ -319,4 +321,72 @@ fn challenge_controller(
         "info",
         Box::new(move |_, _| Some(Transition::Push(msg("Challenge", description.clone())))),
     )
+}
+
+struct FinalScore {
+    composite: Composite,
+    mode: GameplayMode,
+}
+
+impl FinalScore {
+    fn new(ctx: &mut EventCtx, verdict: String, mode: GameplayMode) -> Box<dyn State> {
+        let mut txt = Text::prompt("Final score");
+        txt.add(Line(verdict));
+        Box::new(FinalScore {
+            composite: Composite::new(
+                ManagedWidget::col(vec![
+                    ManagedWidget::draw_text(ctx, txt),
+                    ManagedWidget::row(vec![
+                        WrappedComposite::text_button(ctx, "try again", None),
+                        WrappedComposite::text_button(ctx, "back to challenges", None),
+                    ])
+                    .centered(),
+                ])
+                .bg(Color::grey(0.4))
+                .outline(10.0, Color::WHITE)
+                .padding(10),
+            )
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)
+            .build(ctx),
+            mode,
+        })
+    }
+}
+
+impl State for FinalScore {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "try again" => {
+                    ui.primary.clear_sim();
+                    Transition::PopThenReplace(Box::new(SandboxMode::new(
+                        ctx,
+                        ui,
+                        self.mode.clone(),
+                    )))
+                }
+                "back to challenges" => {
+                    ui.primary.clear_sim();
+                    Transition::Clear(vec![main_menu(ctx, ui), challenges_picker(ctx)])
+                }
+                _ => unreachable!(),
+            },
+            None => Transition::Keep,
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        // Make it clear the map can't be interacted with right now.
+        g.fork_screenspace();
+        // TODO - OSD height
+        g.draw_polygon(
+            Color::BLACK.alpha(0.5),
+            &Polygon::rectangle(g.canvas.window_width, g.canvas.window_height),
+        );
+        g.unfork();
+
+        self.composite.draw(g);
+        // Still want to show hotkeys
+        CommonState::draw_osd(g, ui, &None);
+    }
 }

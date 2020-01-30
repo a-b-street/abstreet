@@ -81,11 +81,11 @@ impl GUI for Game {
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
                 self.states.push(state);
             }
-            Transition::Clear(state) => {
+            Transition::Clear(states) => {
                 while !self.states.is_empty() {
                     self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
                 }
-                self.states.push(state);
+                self.states.extend(states);
             }
             Transition::ApplyObjectAction(action) => {
                 self.ui.per_obj.action_chosen(action);
@@ -187,7 +187,7 @@ pub enum Transition {
     Push(Box<dyn State>),
     Replace(Box<dyn State>),
     PopThenReplace(Box<dyn State>),
-    Clear(Box<dyn State>),
+    Clear(Vec<Box<dyn State>>),
     ApplyObjectAction(String),
     PushTwice(Box<dyn State>, Box<dyn State>),
 }
