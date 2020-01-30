@@ -128,21 +128,6 @@ impl GameplayMode {
     }
 
     pub fn initialize(&self, ui: &mut UI, ctx: &mut EventCtx) -> Box<dyn GameplayState> {
-        let state = match self {
-            GameplayMode::Freeform => freeform::Freeform::new(ctx, ui),
-            GameplayMode::PlayScenario(ref scenario) => {
-                play_scenario::PlayScenario::new(scenario, ctx, ui)
-            }
-            GameplayMode::OptimizeBus(ref route_name) => {
-                optimize_bus::OptimizeBus::new(route_name, ctx, ui)
-            }
-            GameplayMode::CreateGridlock => create_gridlock::CreateGridlock::new(ctx),
-            GameplayMode::FasterTrips(trip_mode) => faster_trips::FasterTrips::new(*trip_mode, ctx),
-            GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial(_) => {
-                fix_traffic_signals::FixTrafficSignals::new(ctx, self.clone())
-            }
-            GameplayMode::Tutorial(_, _) => unreachable!(),
-        };
         ctx.loading_screen("instantiate scenario", |_, timer| {
             if let Some(scenario) =
                 self.scenario(&ui.primary.map, ui.primary.current_flags.num_agents, timer)
@@ -177,7 +162,21 @@ impl GameplayMode {
                 }
             }
         });
-        state
+        match self {
+            GameplayMode::Freeform => freeform::Freeform::new(ctx, ui),
+            GameplayMode::PlayScenario(ref scenario) => {
+                play_scenario::PlayScenario::new(scenario, ctx, ui)
+            }
+            GameplayMode::OptimizeBus(ref route_name) => {
+                optimize_bus::OptimizeBus::new(route_name, ctx, ui)
+            }
+            GameplayMode::CreateGridlock => create_gridlock::CreateGridlock::new(ctx),
+            GameplayMode::FasterTrips(trip_mode) => faster_trips::FasterTrips::new(*trip_mode, ctx),
+            GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial(_) => {
+                fix_traffic_signals::FixTrafficSignals::new(ctx, ui, self.clone())
+            }
+            GameplayMode::Tutorial(_, _) => unreachable!(),
+        }
     }
 }
 
@@ -273,6 +272,7 @@ fn challenge_controller(
     ctx: &mut EventCtx,
     gameplay: GameplayMode,
     title: &str,
+    extra_rows: Vec<ManagedWidget>,
 ) -> WrappedComposite {
     // Scrape the description
     let mut description = Vec::new();
@@ -285,29 +285,24 @@ fn challenge_controller(
         }
     }
 
-    WrappedComposite::new(
-        Composite::new(
-            ManagedWidget::row(vec![
-                ManagedWidget::draw_text(ctx, Text::from(Line(title).size(26))).margin(5),
-                WrappedComposite::svg_button(ctx, "assets/tools/info.svg", "info", None).margin(5),
-                ManagedWidget::draw_batch(
-                    ctx,
-                    GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
-                )
-                .margin(5),
-                WrappedComposite::svg_button(
-                    ctx,
-                    "assets/tools/edit_map.svg",
-                    "edit map",
-                    lctrl(Key::E),
-                )
-                .margin(5),
-            ])
-            .centered()
-            .bg(Color::grey(0.4)),
+    let mut rows = vec![ManagedWidget::row(vec![
+        ManagedWidget::draw_text(ctx, Text::from(Line(title).size(26))).margin(5),
+        WrappedComposite::svg_button(ctx, "assets/tools/info.svg", "info", None).margin(5),
+        ManagedWidget::draw_batch(
+            ctx,
+            GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
         )
-        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-        .build(ctx),
+        .margin(5),
+        WrappedComposite::svg_button(ctx, "assets/tools/edit_map.svg", "edit map", lctrl(Key::E))
+            .margin(5),
+    ])
+    .centered()];
+    rows.extend(extra_rows);
+
+    WrappedComposite::new(
+        Composite::new(ManagedWidget::col(rows).bg(Color::grey(0.4)))
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .build(ctx),
     )
     .cb(
         "edit map",

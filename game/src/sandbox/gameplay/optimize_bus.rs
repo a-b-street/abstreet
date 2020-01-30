@@ -41,6 +41,7 @@ impl OptimizeBus {
                 ctx,
                 GameplayMode::OptimizeBus(route_name.to_string()),
                 &format!("Optimize {} Challenge", route_name),
+                Vec::new(),
             ),
         })
     }

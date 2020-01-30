@@ -25,6 +25,7 @@ impl CreateGridlock {
                 ctx,
                 GameplayMode::CreateGridlock,
                 "Gridlock Challenge",
+                Vec::new(),
             ),
         })
     }

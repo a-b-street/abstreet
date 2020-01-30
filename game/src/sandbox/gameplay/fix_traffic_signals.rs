@@ -2,11 +2,9 @@ use crate::common::Overlays;
 use crate::game::{msg, Transition};
 use crate::helpers::cmp_duration_shorter;
 use crate::managed::{WrappedComposite, WrappedOutcome};
-use crate::sandbox::gameplay::{
-    challenge_controller, manage_overlays, GameplayMode, GameplayState,
-};
+use crate::sandbox::gameplay::{challenge_controller, GameplayMode, GameplayState};
 use crate::ui::UI;
-use ezgui::{hotkey, layout, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
+use ezgui::{hotkey, layout, EventCtx, GfxCtx, Key, Line, ManagedWidget, ModalMenu, Text};
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, Map};
 use sim::{BorderSpawnOverTime, OriginDestination, Scenario, TripMode};
@@ -16,24 +14,19 @@ pub struct FixTrafficSignals {
     once: bool,
     menu: ModalMenu,
     top_center: WrappedComposite,
+    // TODO Keeping a copy in here seems redundant?
+    mode: GameplayMode,
 }
 
 impl FixTrafficSignals {
-    pub fn new(ctx: &mut EventCtx, mode: GameplayMode) -> Box<dyn GameplayState> {
+    pub fn new(ctx: &mut EventCtx, ui: &UI, mode: GameplayMode) -> Box<dyn GameplayState> {
         Box::new(FixTrafficSignals {
             time: Time::START_OF_DAY,
             once: true,
-            menu: ModalMenu::new(
-                "",
-                vec![
-                    (hotkey(Key::F), "find slowest traffic signals"),
-                    (hotkey(Key::D), "hide finished trip distribution"),
-                    (hotkey(Key::S), "final score"),
-                ],
-                ctx,
-            )
-            .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
-            top_center: challenge_controller(ctx, mode, "Traffic Signals Challenge"),
+            menu: ModalMenu::new("", vec![(hotkey(Key::S), "final score")], ctx)
+                .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
+            top_center: make_top_center(ctx, ui, mode.clone()),
+            mode,
         })
     }
 }
@@ -53,54 +46,12 @@ impl GameplayState for FixTrafficSignals {
             Some(WrappedOutcome::Clicked(_)) => unreachable!(),
             None => {}
         }
-        self.menu.event(ctx);
-
-        // Technically this shows stop signs too, but mostly the bottlenecks are signals.
-        if manage_overlays(
-            &mut self.menu,
-            ctx,
-            ui,
-            "find slowest traffic signals",
-            "hide slowest traffic signals",
-            match ui.overlay {
-                Overlays::IntersectionDelay(_, _) => true,
-                _ => false,
-            },
-        ) {
-            ui.overlay = Overlays::intersection_delay(ctx, ui);
-        }
-        if manage_overlays(
-            &mut self.menu,
-            ctx,
-            ui,
-            "show finished trip distribution",
-            "hide finished trip distribution",
-            match ui.overlay {
-                Overlays::FinishedTripsHistogram(_, _) => true,
-                _ => false,
-            },
-        ) {
-            ui.overlay = Overlays::finished_trips_histogram(ctx, ui);
-        }
-
         if self.time != ui.primary.sim.time() {
             self.time = ui.primary.sim.time();
-            // TODO Put this in the top-center panel
-            let mut txt = Text::new();
-            let (now, _, _) = ui.primary.sim.get_analytics().all_finished_trips(self.time);
-            let (baseline, _, _) = ui.prebaked().all_finished_trips(self.time);
-            txt.add(Line("Average trip time: "));
-            if now.count() > 0 && baseline.count() > 0 {
-                txt.append_all(cmp_duration_shorter(
-                    now.select(Statistic::Mean),
-                    baseline.select(Statistic::Mean),
-                ));
-            } else {
-                txt.append(Line("same as baseline"));
-            }
-            self.menu.set_info(ctx, txt);
+            self.top_center = make_top_center(ctx, ui, self.mode.clone());
         }
 
+        self.menu.event(ctx);
         if self.menu.action("final score") {
             return Some(Transition::Push(msg("Final score", final_score(ui))));
         }
@@ -117,6 +68,43 @@ impl GameplayState for FixTrafficSignals {
         self.top_center.draw(g);
         self.menu.draw(g);
     }
+}
+
+fn make_top_center(ctx: &mut EventCtx, ui: &UI, mode: GameplayMode) -> WrappedComposite {
+    let mut txt = Text::new();
+    let (now, _, _) = ui
+        .primary
+        .sim
+        .get_analytics()
+        .all_finished_trips(ui.primary.sim.time());
+    let (baseline, _, _) = ui.prebaked().all_finished_trips(ui.primary.sim.time());
+    txt.add(Line("Average trip time: "));
+    if now.count() > 0 && baseline.count() > 0 {
+        txt.append_all(cmp_duration_shorter(
+            now.select(Statistic::Mean),
+            baseline.select(Statistic::Mean),
+        ));
+    } else {
+        txt.append(Line("same as baseline"));
+    }
+
+    challenge_controller(
+        ctx,
+        mode,
+        "Traffic Signals Challenge",
+        vec![ManagedWidget::row(vec![
+            ManagedWidget::draw_text(ctx, txt).margin(5),
+            WrappedComposite::text_button(ctx, "details", None).margin(5),
+        ])
+        .centered()],
+    )
+    .cb(
+        "details",
+        Box::new(|ctx, ui| {
+            ui.overlay = Overlays::finished_trips_histogram(ctx, ui);
+            None
+        }),
+    )
 }
 
 fn final_score(ui: &UI) -> Vec<String> {

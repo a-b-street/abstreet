@@ -26,6 +26,7 @@ impl FasterTrips {
                 ctx,
                 GameplayMode::FasterTrips(trip_mode),
                 &format!("Faster {} Trips Challenge", trip_mode),
+                Vec::new(),
             ),
         })
     }
