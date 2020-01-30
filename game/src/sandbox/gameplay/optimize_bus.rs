@@ -1,7 +1,7 @@
 use crate::common::Overlays;
 use crate::game::{Transition, WizardState};
 use crate::helpers::cmp_duration_shorter;
-use crate::managed::WrappedComposite;
+use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::gameplay::{
     challenge_controller, manage_overlays, GameplayMode, GameplayState,
 };
@@ -16,43 +16,45 @@ pub struct OptimizeBus {
     time: Time,
     stat: Statistic,
     menu: ModalMenu,
+    top_center: WrappedComposite,
 }
 
 impl OptimizeBus {
-    pub fn new(
-        route_name: String,
-        ctx: &mut EventCtx,
-        ui: &UI,
-    ) -> (WrappedComposite, Box<dyn GameplayState>) {
+    pub fn new(route_name: String, ctx: &mut EventCtx, ui: &UI) -> Box<dyn GameplayState> {
         let route = ui.primary.map.get_bus_route(&route_name).unwrap();
-        (
-            challenge_controller(
+        Box::new(OptimizeBus {
+            route: route.id,
+            time: Time::START_OF_DAY,
+            stat: Statistic::Max,
+            menu: ModalMenu::new(
+                "",
+                vec![
+                    (hotkey(Key::E), "show bus route"),
+                    (hotkey(Key::T), "show delays over time"),
+                    (hotkey(Key::P), "show bus passengers"),
+                    (hotkey(Key::S), "change statistic"),
+                ],
+                ctx,
+            )
+            .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
+            top_center: challenge_controller(
                 ctx,
                 GameplayMode::OptimizeBus(route_name.clone()),
                 &format!("Optimize {} Challenge", route_name),
             ),
-            Box::new(OptimizeBus {
-                route: route.id,
-                time: Time::START_OF_DAY,
-                stat: Statistic::Max,
-                menu: ModalMenu::new(
-                    "",
-                    vec![
-                        (hotkey(Key::E), "show bus route"),
-                        (hotkey(Key::T), "show delays over time"),
-                        (hotkey(Key::P), "show bus passengers"),
-                        (hotkey(Key::S), "change statistic"),
-                    ],
-                    ctx,
-                )
-                .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
-            }),
-        )
+        })
     }
 }
 
 impl GameplayState for OptimizeBus {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+        match self.top_center.event(ctx, ui) {
+            Some(WrappedOutcome::Transition(t)) => {
+                return Some(t);
+            }
+            Some(WrappedOutcome::Clicked(_)) => unreachable!(),
+            None => {}
+        }
         self.menu.event(ctx);
         if manage_overlays(
             &mut self.menu,
@@ -132,6 +134,7 @@ impl GameplayState for OptimizeBus {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.top_center.draw(g);
         self.menu.draw(g);
     }
 }

@@ -1,7 +1,7 @@
 use crate::edit::EditMode;
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::{nice_map_name, ID};
-use crate::managed::WrappedComposite;
+use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::gameplay::{change_scenario, spawner, GameplayMode, GameplayState};
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
@@ -17,21 +17,28 @@ use std::collections::BTreeSet;
 pub struct Freeform {
     // TODO Clean these up later when done?
     pub spawn_pts: BTreeSet<IntersectionID>,
+    top_center: WrappedComposite,
 }
 
 impl Freeform {
-    pub fn new(ctx: &mut EventCtx, ui: &UI) -> (WrappedComposite, Box<dyn GameplayState>) {
-        (
-            freeform_controller(ctx, ui, GameplayMode::Freeform, "none"),
-            Box::new(Freeform {
-                spawn_pts: BTreeSet::new(),
-            }),
-        )
+    pub fn new(ctx: &mut EventCtx, ui: &UI) -> Box<dyn GameplayState> {
+        Box::new(Freeform {
+            spawn_pts: BTreeSet::new(),
+            top_center: freeform_controller(ctx, ui, GameplayMode::Freeform, "none"),
+        })
     }
 }
 
 impl GameplayState for Freeform {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+        match self.top_center.event(ctx, ui) {
+            Some(WrappedOutcome::Transition(t)) => {
+                return Some(t);
+            }
+            Some(WrappedOutcome::Clicked(_)) => unreachable!(),
+            None => {}
+        }
+
         if let Some(new_state) = spawner::AgentSpawner::new(ctx, ui) {
             return Some(Transition::Push(new_state));
         }
@@ -42,6 +49,7 @@ impl GameplayState for Freeform {
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        self.top_center.draw(g);
         // TODO Overriding draw options would be ideal, but...
         for i in &self.spawn_pts {
             g.draw_polygon(Color::GREEN.alpha(0.8), &ui.primary.map.get_i(*i).polygon);

@@ -1,7 +1,7 @@
 use crate::common::Overlays;
 use crate::game::{msg, Transition};
 use crate::helpers::cmp_duration_shorter;
-use crate::managed::WrappedComposite;
+use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::gameplay::{
     challenge_controller, manage_overlays, GameplayMode, GameplayState,
 };
@@ -15,30 +15,26 @@ pub struct FixTrafficSignals {
     time: Time,
     once: bool,
     menu: ModalMenu,
+    top_center: WrappedComposite,
 }
 
 impl FixTrafficSignals {
-    pub fn new(
-        ctx: &mut EventCtx,
-        mode: GameplayMode,
-    ) -> (WrappedComposite, Box<dyn GameplayState>) {
-        (
-            challenge_controller(ctx, mode, "Traffic Signals Challenge"),
-            Box::new(FixTrafficSignals {
-                time: Time::START_OF_DAY,
-                once: true,
-                menu: ModalMenu::new(
-                    "",
-                    vec![
-                        (hotkey(Key::F), "find slowest traffic signals"),
-                        (hotkey(Key::D), "hide finished trip distribution"),
-                        (hotkey(Key::S), "final score"),
-                    ],
-                    ctx,
-                )
-                .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
-            }),
-        )
+    pub fn new(ctx: &mut EventCtx, mode: GameplayMode) -> Box<dyn GameplayState> {
+        Box::new(FixTrafficSignals {
+            time: Time::START_OF_DAY,
+            once: true,
+            menu: ModalMenu::new(
+                "",
+                vec![
+                    (hotkey(Key::F), "find slowest traffic signals"),
+                    (hotkey(Key::D), "hide finished trip distribution"),
+                    (hotkey(Key::S), "final score"),
+                ],
+                ctx,
+            )
+            .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
+            top_center: challenge_controller(ctx, mode, "Traffic Signals Challenge"),
+        })
     }
 }
 
@@ -50,6 +46,13 @@ impl GameplayState for FixTrafficSignals {
             self.once = false;
         }
 
+        match self.top_center.event(ctx, ui) {
+            Some(WrappedOutcome::Transition(t)) => {
+                return Some(t);
+            }
+            Some(WrappedOutcome::Clicked(_)) => unreachable!(),
+            None => {}
+        }
         self.menu.event(ctx);
 
         // Technically this shows stop signs too, but mostly the bottlenecks are signals.
@@ -111,6 +114,7 @@ impl GameplayState for FixTrafficSignals {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.top_center.draw(g);
         self.menu.draw(g);
     }
 }

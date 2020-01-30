@@ -1,6 +1,6 @@
 use crate::game::Transition;
 use crate::helpers::cmp_count_fewer;
-use crate::managed::WrappedComposite;
+use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::InnerAgentColorScheme;
 use crate::sandbox::gameplay::{challenge_controller, manage_acs, GameplayMode, GameplayState};
 use crate::ui::UI;
@@ -12,23 +12,34 @@ use sim::TripMode;
 pub struct CreateGridlock {
     time: Time,
     menu: ModalMenu,
+    top_center: WrappedComposite,
 }
 
 impl CreateGridlock {
-    pub fn new(ctx: &mut EventCtx) -> (WrappedComposite, Box<dyn GameplayState>) {
-        (
-            challenge_controller(ctx, GameplayMode::CreateGridlock, "Gridlock Challenge"),
-            Box::new(CreateGridlock {
-                time: Time::START_OF_DAY,
-                menu: ModalMenu::new("", vec![(hotkey(Key::E), "show agent delay")], ctx)
-                    .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
-            }),
-        )
+    pub fn new(ctx: &mut EventCtx) -> Box<dyn GameplayState> {
+        Box::new(CreateGridlock {
+            time: Time::START_OF_DAY,
+            menu: ModalMenu::new("", vec![(hotkey(Key::E), "show agent delay")], ctx)
+                .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
+            top_center: challenge_controller(
+                ctx,
+                GameplayMode::CreateGridlock,
+                "Gridlock Challenge",
+            ),
+        })
     }
 }
 
 impl GameplayState for CreateGridlock {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+        match self.top_center.event(ctx, ui) {
+            Some(WrappedOutcome::Transition(t)) => {
+                return Some(t);
+            }
+            Some(WrappedOutcome::Clicked(_)) => unreachable!(),
+            None => {}
+        }
+
         self.menu.event(ctx);
         manage_acs(
             &mut self.menu,
@@ -48,6 +59,7 @@ impl GameplayState for CreateGridlock {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.top_center.draw(g);
         self.menu.draw(g);
     }
 }

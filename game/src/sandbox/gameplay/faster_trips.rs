@@ -1,6 +1,6 @@
 use crate::game::Transition;
 use crate::helpers::{cmp_count_more, cmp_duration_shorter};
-use crate::managed::WrappedComposite;
+use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::gameplay::{challenge_controller, GameplayMode, GameplayState};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
@@ -12,31 +12,34 @@ pub struct FasterTrips {
     mode: TripMode,
     time: Time,
     menu: ModalMenu,
+    top_center: WrappedComposite,
 }
 
 impl FasterTrips {
-    pub fn new(
-        trip_mode: TripMode,
-        ctx: &mut EventCtx,
-    ) -> (WrappedComposite, Box<dyn GameplayState>) {
-        (
-            challenge_controller(
+    pub fn new(trip_mode: TripMode, ctx: &mut EventCtx) -> Box<dyn GameplayState> {
+        Box::new(FasterTrips {
+            mode: trip_mode,
+            time: Time::START_OF_DAY,
+            menu: ModalMenu::new::<&str, &str>("", Vec::new(), ctx)
+                .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
+            top_center: challenge_controller(
                 ctx,
                 GameplayMode::FasterTrips(trip_mode),
                 &format!("Faster {} Trips Challenge", trip_mode),
             ),
-            Box::new(FasterTrips {
-                mode: trip_mode,
-                time: Time::START_OF_DAY,
-                menu: ModalMenu::new::<&str, &str>("", Vec::new(), ctx)
-                    .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
-            }),
-        )
+        })
     }
 }
 
 impl GameplayState for FasterTrips {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+        match self.top_center.event(ctx, ui) {
+            Some(WrappedOutcome::Transition(t)) => {
+                return Some(t);
+            }
+            Some(WrappedOutcome::Clicked(_)) => unreachable!(),
+            None => {}
+        }
         self.menu.event(ctx);
 
         if self.time != ui.primary.sim.time() {
@@ -48,6 +51,7 @@ impl GameplayState for FasterTrips {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.top_center.draw(g);
         self.menu.draw(g);
     }
 }

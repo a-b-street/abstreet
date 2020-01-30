@@ -10,7 +10,7 @@ use crate::challenges;
 use crate::common::Overlays;
 use crate::edit::EditMode;
 use crate::game::{msg, Transition};
-use crate::managed::{WrappedComposite, WrappedOutcome};
+use crate::managed::WrappedComposite;
 use crate::render::{AgentColorScheme, InnerAgentColorScheme};
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
@@ -25,8 +25,6 @@ use sim::{Analytics, Scenario, TripMode};
 
 pub struct GameplayRunner {
     pub mode: GameplayMode,
-    // TODO Why not make each state own this?
-    controller: WrappedComposite,
     state: Box<dyn GameplayState>,
 }
 
@@ -137,7 +135,7 @@ impl GameplayMode {
 
 impl GameplayRunner {
     pub fn initialize(mode: GameplayMode, ui: &mut UI, ctx: &mut EventCtx) -> GameplayRunner {
-        let (controller, state) = match mode.clone() {
+        let state = match mode.clone() {
             GameplayMode::Freeform => freeform::Freeform::new(ctx, ui),
             GameplayMode::PlayScenario(scenario) => {
                 play_scenario::PlayScenario::new(&scenario, ctx, ui)
@@ -186,26 +184,14 @@ impl GameplayRunner {
                 }
             }
         });
-        GameplayRunner {
-            mode,
-            controller,
-            state,
-        }
+        GameplayRunner { mode, state }
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
-        match self.controller.event(ctx, ui) {
-            Some(WrappedOutcome::Transition(t)) => {
-                return Some(t);
-            }
-            Some(WrappedOutcome::Clicked(_)) => unreachable!(),
-            None => {}
-        }
         self.state.event(ctx, ui)
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        self.controller.draw(g);
         self.state.draw(g, ui);
     }
 }
@@ -298,7 +284,7 @@ fn manage_acs(
     }
 }
 
-pub fn challenge_controller(
+fn challenge_controller(
     ctx: &mut EventCtx,
     gameplay: GameplayMode,
     title: &str,
