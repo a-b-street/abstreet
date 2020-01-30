@@ -362,7 +362,7 @@ fn make_top_panel(can_undo: bool, can_redo: bool, ctx: &mut EventCtx) -> Composi
     let row = vec![
         WrappedComposite::text_button(ctx, "Finish", hotkey(Key::Escape)),
         WrappedComposite::text_button(ctx, "Preview", lctrl(Key::P)),
-        if can_undo {
+        (if can_undo {
             WrappedComposite::svg_button(ctx, "assets/tools/undo.svg", "undo", lctrl(Key::Z))
         } else {
             ManagedWidget::draw_svg_transform(
@@ -370,8 +370,9 @@ fn make_top_panel(can_undo: bool, can_redo: bool, ctx: &mut EventCtx) -> Composi
                 "assets/tools/undo.svg",
                 RewriteColor::ChangeAll(Color::grey(0.4)),
             )
-        },
-        if can_redo {
+        })
+        .margin(15),
+        (if can_redo {
             WrappedComposite::svg_button(
                 ctx,
                 "assets/tools/redo.svg",
@@ -385,7 +386,8 @@ fn make_top_panel(can_undo: bool, can_redo: bool, ctx: &mut EventCtx) -> Composi
                 "assets/tools/redo.svg",
                 RewriteColor::ChangeAll(Color::grey(0.4)),
             )
-        },
+        })
+        .margin(15),
     ];
     Composite::new(ManagedWidget::row(row).bg(Color::hex("#545454")))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
@@ -415,9 +417,11 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
             // TODO Style inside here. Also 0.4 is manually tuned and pretty wacky, because it
             // assumes default font.
             txt.add_wrapped(plain_list_names(road_names), 0.4 * ctx.canvas.window_width);
+            txt.add(Line(""));
             txt.add(Line(format!("{} phases", signal.phases.len())));
             txt.add(Line(format!("Signal offset: {}", signal.offset)));
             txt.add(Line(format!("One cycle lasts {}", signal.cycle_length())));
+            txt.add(Line(""));
             txt
         }),
         WrappedComposite::text_button(ctx, "Edit offset", hotkey(Key::O)),
@@ -440,9 +444,22 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
     }
 
     for (idx, phase) in signal.phases.iter().enumerate() {
+        col.push(
+            ManagedWidget::draw_batch(
+                ctx,
+                GeomBatch::from(vec![(
+                    Color::WHITE,
+                    Polygon::rectangle(0.2 * ctx.canvas.window_width, 2.0),
+                )]),
+            )
+            .margin(15)
+            .centered_horiz(),
+        );
         let mut row = vec![
-            ManagedWidget::draw_text(ctx, Text::from(Line(format!("#{}", idx + 1)))),
-            ManagedWidget::draw_text(ctx, Text::from(Line(phase.duration.to_string()))),
+            ManagedWidget::draw_text(
+                ctx,
+                Text::from(Line(format!("Phase #{}: {}", idx + 1, phase.duration))),
+            ),
             WrappedComposite::svg_button(
                 ctx,
                 "assets/tools/edit.svg",
@@ -452,22 +469,25 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
                 } else {
                     None
                 },
-            ),
+            )
+            .margin(10),
         ];
         if signal.phases.len() > 1 {
-            // TODO Trash can icon
-            row.push(WrappedComposite::text_button(
-                ctx,
-                &format!("delete phase #{}", idx + 1),
-                if selected == idx {
-                    hotkey(Key::Backspace)
-                } else {
-                    None
-                },
-            ));
+            row.push(
+                WrappedComposite::svg_button(
+                    ctx,
+                    "assets/tools/delete.svg",
+                    &format!("delete phase #{}", idx + 1),
+                    if selected == idx {
+                        hotkey(Key::Backspace)
+                    } else {
+                        None
+                    },
+                )
+                .align_right(),
+            );
         }
-
-        col.push(ManagedWidget::row(row).margin(5).evenly_spaced());
+        col.push(ManagedWidget::row(row).margin(5).centered());
 
         let mut orig_batch = GeomBatch::new();
         draw_signal_phase(
@@ -535,15 +555,14 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
                     bbox.clone(),
                 ))
                 .margin(5),
-                ManagedWidget::col(move_phase),
+                ManagedWidget::col(move_phase).centered(),
             ])
             .margin(5),
         );
-        col.push(WrappedComposite::text_button(
-            ctx,
-            &format!("add new phase after #{}", idx + 1),
-            None,
-        ));
+        col.push(
+            WrappedComposite::text_button(ctx, &format!("add new phase after #{}", idx + 1), None)
+                .centered_horiz(),
+        );
     }
 
     Composite::new(ManagedWidget::col(col).bg(Color::hex("#545454")))
