@@ -48,6 +48,7 @@ impl EditMode {
                     // TODO Support redo. Bit harder here to reset the redo_stack when the edits
                     // change, because nested other places modify it too.
                     (lctrl(Key::Z), "undo"),
+                    (hotkey(Key::Escape), "finish editing"),
                 ],
                 ctx,
             ),
@@ -56,6 +57,22 @@ impl EditMode {
             lane_editor: LaneEditor::new(ctx),
             once: true,
         }
+    }
+
+    fn quit(&self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+        ctx.loading_screen("apply edits", |ctx, mut timer| {
+            ui.overlay = Overlays::Inactive;
+            ui.primary
+                .map
+                .recalculate_pathfinding_after_edits(&mut timer);
+            // Parking state might've changed
+            ui.primary.clear_sim();
+            if let GameplayMode::Tutorial(current, latest) = self.mode {
+                Transition::PopThenReplace(TutorialMode::resume(ctx, ui, current, latest))
+            } else {
+                Transition::PopThenReplace(Box::new(SandboxMode::new(ctx, ui, self.mode.clone())))
+            }
+        })
     }
 }
 
@@ -112,6 +129,8 @@ impl State for EditMode {
             })));
         } else if self.menu.action("load different edits") {
             return Transition::Push(make_load_edits(self.mode.clone()));
+        } else if self.menu.action("finish editing") {
+            return self.quit(ctx, ui);
         }
 
         if let Some(ID::Intersection(id)) = ui.primary.current_selection {
@@ -205,23 +224,7 @@ impl State for EditMode {
         match self.tool_panel.event(ctx, ui) {
             Some(WrappedOutcome::Transition(t)) => t,
             Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
-                "back" => ctx.loading_screen("apply edits", |ctx, mut timer| {
-                    ui.overlay = Overlays::Inactive;
-                    ui.primary
-                        .map
-                        .recalculate_pathfinding_after_edits(&mut timer);
-                    // Parking state might've changed
-                    ui.primary.clear_sim();
-                    if let GameplayMode::Tutorial(current, latest) = self.mode {
-                        Transition::PopThenReplace(TutorialMode::resume(ctx, ui, current, latest))
-                    } else {
-                        Transition::PopThenReplace(Box::new(SandboxMode::new(
-                            ctx,
-                            ui,
-                            self.mode.clone(),
-                        )))
-                    }
-                }),
+                "back" => self.quit(ctx, ui),
                 _ => unreachable!(),
             },
             None => Transition::Keep,
