@@ -213,9 +213,13 @@ impl State for EditMode {
                     // Parking state might've changed
                     ui.primary.clear_sim();
                     if let GameplayMode::Tutorial(current, latest) = self.mode {
-                        Transition::Replace(TutorialMode::resume(ctx, ui, current, latest))
+                        Transition::PopThenReplace(TutorialMode::resume(ctx, ui, current, latest))
                     } else {
-                        Transition::Replace(Box::new(SandboxMode::new(ctx, ui, self.mode.clone())))
+                        Transition::PopThenReplace(Box::new(SandboxMode::new(
+                            ctx,
+                            ui,
+                            self.mode.clone(),
+                        )))
                     }
                 }),
                 _ => unreachable!(),

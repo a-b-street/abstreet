@@ -109,11 +109,14 @@ impl State for TutorialMode {
                     return Transition::Replace(self.state.make_state(ctx, ui));
                 }
                 "edit map" => {
-                    return Transition::Push(Box::new(EditMode::new(
-                        ctx,
-                        ui,
-                        GameplayMode::Tutorial(self.state.current, self.state.latest),
-                    )));
+                    // TODO Ideally this would be an inactive button in message states
+                    if self.msg_panel.is_none() {
+                        return Transition::Push(Box::new(EditMode::new(
+                            ctx,
+                            ui,
+                            GameplayMode::Tutorial(self.state.current, self.state.latest),
+                        )));
+                    }
                 }
                 _ => unreachable!(),
             },
@@ -191,6 +194,7 @@ impl State for TutorialMode {
                 Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
                     "back" => {
                         // TODO Confirm?
+                        // TODO Clear edits?
                         ui.primary.clear_sim();
                         ui.overlay = Overlays::Inactive;
                         return Transition::Pop;

@@ -134,7 +134,7 @@ pub fn freeform_controller(
     .cb(
         "edit map",
         Box::new(move |ctx, ui| {
-            Some(Transition::Replace(Box::new(EditMode::new(
+            Some(Transition::Push(Box::new(EditMode::new(
                 ctx,
                 ui,
                 gameplay.clone(),
