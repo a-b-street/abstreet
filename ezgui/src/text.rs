@@ -15,7 +15,7 @@ pub const INACTIVE_CHOICE_COLOR: Color = Color::grey(0.4);
 
 // TODO Don't do this!
 const MAX_CHAR_WIDTH: f64 = 25.0;
-pub const SCALE_DOWN: f64 = 10.0;
+pub const SCALE_DOWN: f64 = 60.0;
 
 // These're hardcoded for simplicity; this list doesn't change much.
 const DEJA_VU: FontId = FontId(0);

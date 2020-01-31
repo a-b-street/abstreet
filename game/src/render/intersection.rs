@@ -146,7 +146,7 @@ impl Renderable for DrawIntersection {
                 *maybe_redraw = Some((
                     ctx.sim.time(),
                     g.prerender.upload(batch),
-                    Text::from(Line(format!("{}", idx + 1)).roboto()),
+                    Text::from(Line(format!("{}", idx + 1)).roboto().size(90)),
                     ctx.map.get_i(self.id).polygon.center(),
                 ));
             }

@@ -28,7 +28,7 @@ pub struct SandboxMode {
     agent_meter: AgentMeter,
     gameplay: Box<dyn gameplay::GameplayState>,
     gameplay_mode: GameplayMode,
-    common: CommonState,
+    pub common: CommonState,
     tool_panel: WrappedComposite,
     minimap: Minimap,
 }

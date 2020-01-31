@@ -213,7 +213,7 @@ impl DrawPedCrowd {
         let label = Text::from(
             Line(format!("{}", input.members.len()))
                 .fg(Color::BLACK)
-                .size(15),
+                .size(60),
         );
 
         DrawPedCrowd {

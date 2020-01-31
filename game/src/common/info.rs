@@ -148,10 +148,10 @@ impl InfoPanel {
             time: ui.primary.sim.time(),
             composite: Composite::new(ManagedWidget::col(col).bg(Color::grey(0.3)))
                 .aligned(
-                    HorizontalAlignment::Percent(0.1),
+                    HorizontalAlignment::Percent(0.02),
                     VerticalAlignment::Percent(0.2),
                 )
-                .max_size_percent(40, 60)
+                .max_size_percent(30, 60)
                 .build(ctx),
             also_draw: batch.upload(ctx),
         }

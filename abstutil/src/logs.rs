@@ -41,6 +41,16 @@ impl<T> Warn<T> {
         self.value
     }
 
+    pub fn expect(self, context: String) -> T {
+        if !self.warnings.is_empty() {
+            println!("{} warnings ({}):", self.warnings.len(), context);
+            for line in self.warnings {
+                println!("{}", line);
+            }
+        }
+        self.value
+    }
+
     pub fn get(self, timer: &mut Timer) -> T {
         // TODO Context from the current Timer phase, caller
         for line in self.warnings {

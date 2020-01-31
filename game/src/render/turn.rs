@@ -12,7 +12,9 @@ impl DrawTurn {
     pub fn draw_full(t: &Turn, g: &mut GfxCtx, color: Color) {
         g.draw_polygon(
             color,
-            &t.geom.make_arrow(BIG_ARROW_THICKNESS * 2.0).unwrap(),
+            &t.geom
+                .make_arrow(BIG_ARROW_THICKNESS)
+                .expect(format!("draw_full {}", t.id)),
         );
     }
 

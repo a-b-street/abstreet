@@ -1,5 +1,6 @@
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
+use crate::sandbox::SandboxMode;
 use crate::ui::{PerMapUI, UI};
 use ezgui::{EventCtx, GfxCtx, Warper, Wizard};
 use geom::Pt2D;
@@ -54,12 +55,19 @@ impl Warping {
 }
 
 impl State for Warping {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
         if let Some(evmode) = self.warper.event(ctx) {
             Transition::KeepWithMode(evmode)
         } else {
-            ui.primary.current_selection = self.id.clone();
-            Transition::Pop
+            if let Some(id) = self.id.clone() {
+                Transition::PopWithData(Box::new(move |state, ui, ctx| {
+                    if let Some(ref mut s) = state.downcast_mut::<SandboxMode>() {
+                        s.common.launch_info_panel(id, ctx, ui);
+                    }
+                }))
+            } else {
+                Transition::Pop
+            }
         }
     }
 
