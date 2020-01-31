@@ -10,4 +10,4 @@ geom = { path = "../geom" }
 itertools = "0.8.0"
 serde = "1.0.98"
 serde_derive = "1.0.98"
-transitfeed = "0.3.0"
+transitfeed = { git = "https://github.com/dabreegster/transitfeed" }

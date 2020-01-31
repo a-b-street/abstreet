@@ -276,7 +276,7 @@ impl Polygon {
     }
 
     pub fn polylabel(&self) -> Pt2D {
-        let pt = polylabel::polylabel(&to_geo(&self.points()), &1.0);
+        let pt = polylabel::polylabel(&to_geo(&self.points()), &1.0).unwrap();
         Pt2D::new(pt.x(), pt.y())
     }
 

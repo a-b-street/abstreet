@@ -566,7 +566,7 @@ pub(crate) fn clear_current_line() {
     }
 }
 
-#[cfg(windows)]
+#[cfg(not(unix))]
 pub(crate) fn clear_current_line() {
     print!("\r");
 }
