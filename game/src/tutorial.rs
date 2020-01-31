@@ -1,4 +1,4 @@
-use crate::common::{CommonState, Minimap, Overlays, Warping};
+use crate::common::{tool_panel, CommonState, Minimap, Overlays, Warping};
 use crate::edit::EditMode;
 use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
@@ -28,6 +28,7 @@ pub struct TutorialMode {
     speed: Option<SpeedControls>,
     agent_meter: Option<AgentMeter>,
     minimap: Option<Minimap>,
+    tool_panel: Option<WrappedComposite>,
 
     // Goofy state for just some stages.
     inspected_lane: bool,
@@ -174,6 +175,23 @@ impl State for TutorialMode {
             }
             if let Some(t) = Overlays::update(ctx, ui, &m.composite) {
                 return t;
+            }
+        }
+        if let Some(ref mut tp) = self.tool_panel {
+            match tp.event(ctx, ui) {
+                Some(WrappedOutcome::Transition(t)) => {
+                    return t;
+                }
+                Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
+                    "back" => {
+                        // TODO Confirm?
+                        ui.primary.clear_sim();
+                        ui.overlay = Overlays::Inactive;
+                        return Transition::Pop;
+                    }
+                    _ => unreachable!(),
+                },
+                None => {}
             }
         }
 
@@ -420,9 +438,6 @@ impl State for TutorialMode {
 
         self.top_center.draw(g);
 
-        if let Some(ref msg) = self.msg_panel {
-            msg.draw(g);
-        }
         if let Some(ref time) = self.time_panel {
             time.draw(g);
         }
@@ -435,27 +450,40 @@ impl State for TutorialMode {
         if let Some(ref m) = self.minimap {
             m.draw(g, ui);
         }
+        if let Some(ref tp) = self.tool_panel {
+            tp.draw(g);
+        }
         if let Some(ref common) = self.common {
             common.draw(g, ui);
+        }
+        if let Some(ref msg) = self.msg_panel {
+            // Arrows underneath the message panel, but on top of other panels
+            if let Stage::Msg { point_to, .. } = self.state.stage() {
+                if let Some(fxn) = point_to {
+                    let pt = (fxn)(g, ui);
+                    g.fork_screenspace();
+                    g.draw_polygon(
+                        Color::RED,
+                        &PolyLine::new(vec![
+                            self.msg_panel.as_ref().unwrap().center_of("OK").to_pt(),
+                            pt,
+                        ])
+                        .make_arrow(Distance::meters(20.0))
+                        .unwrap(),
+                    );
+                    g.unfork();
+                }
+            }
+
+            msg.draw(g);
         }
 
         // Special things
         if self.state.interaction() == "Put out the fire at the Montlake Market" {
-            g.draw_polygon(Color::RED, &ui.primary.map.get_b(BuildingID(9)).polygon);
-        }
-
-        if let Stage::Msg { point_to, .. } = self.state.stage() {
-            if let Some(fxn) = point_to {
-                let pt = (fxn)(g, ui);
-                g.fork_screenspace();
-                g.draw_polygon(
-                    Color::RED,
-                    &PolyLine::new(vec![g.canvas.center_to_screen_pt().to_pt(), pt])
-                        .make_arrow(Distance::meters(20.0))
-                        .unwrap(),
-                );
-                g.unfork();
-            }
+            g.draw_polygon(
+                Color::hex("#e25822"),
+                &ui.primary.map.get_b(BuildingID(9)).polygon,
+            );
         }
     }
 }
@@ -747,6 +775,11 @@ impl TutorialState {
             } else {
                 None
             },
+            tool_panel: if num_interacts >= 1 {
+                Some(tool_panel(ctx))
+            } else {
+                None
+            },
             time_panel: if num_interacts >= 2 {
                 Some(TimePanel::new(ctx, ui))
             } else {
@@ -787,6 +820,7 @@ impl TutorialState {
             current: 0,
         };
 
+        let tool_panel = tool_panel(ctx);
         let time = TimePanel::new(ctx, ui);
         let speed = SpeedControls::new(ctx);
         let agent_meter = AgentMeter::new(ctx, ui);
@@ -795,6 +829,11 @@ impl TutorialState {
         ctx.canvas.cam_zoom = 100.0;
         let minimap = Minimap::new(ctx, ui);
         ctx.canvas.cam_zoom = orig_zoom;
+
+        let osd = ScreenPt::new(
+            0.1 * ctx.canvas.window_width,
+            0.97 * ctx.canvas.window_height,
+        );
 
         state.stages.extend(vec![Stage::msg(vec![
             "Welcome to your first day as a contract traffic engineer --",
@@ -826,15 +865,20 @@ impl TutorialState {
                 "Just a little joke we like to play on the new recruits.",
             ]),
             Stage::msg(vec![
+                "If you're going to storm out of here, you can always go back towards the main \
+                 screen using this button",
+                "(But please continue with the training)",
+            ])
+            .arrow(tool_panel.inner.center_of("back")),
+            Stage::msg(vec![
                 "Now, let's learn how to inspect and interact with objects in the map.",
                 "Select something, then click on it.",
-                "",
-                "HINT: The bottom of the screen shows keyboard shortcuts.",
+            ]),
+            Stage::msg(vec![
+                "The bottom of the screen shows keyboard shortcuts for whatever you're selecting; \
+                 you don't have to click an object first.",
             ])
-            .arrow(ScreenPt::new(
-                0.5 * ctx.canvas.window_width,
-                0.97 * ctx.canvas.window_height,
-            )),
+            .arrow(osd),
             Stage::msg(vec![
                 "I wonder what kind of information is available for different objects? Let's find \
                  out!",
@@ -852,8 +896,7 @@ impl TutorialState {
             .arrow(time.composite.center_of_panel()),
             Stage::msg(vec!["You can pause or resume time"])
                 .arrow(speed.composite.inner.center_of("pause")),
-            Stage::msg(vec!["Speed things up"])
-                .arrow(speed.composite.inner.center_of("600x speed")),
+            Stage::msg(vec!["Speed things up"]).arrow(speed.composite.inner.center_of("60x")),
             Stage::msg(vec!["Advance time by certain amounts"])
                 .arrow(speed.composite.inner.center_of("step forwards 1 hour")),
             Stage::msg(vec!["And reset to the beginning of the day"])
@@ -874,10 +917,7 @@ impl TutorialState {
                 "Again, most controls have a key binding shown at the bottom of the screen.",
                 "Press SPACE to pause/resume time.",
             ])
-            .arrow(ScreenPt::new(
-                0.5 * ctx.canvas.window_width,
-                0.97 * ctx.canvas.window_height,
-            )),
+            .arrow(osd),
             Stage::msg(vec![
                 "Just reassure me and pause/resume time a few times, alright?",
             ]),
