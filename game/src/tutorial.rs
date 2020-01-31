@@ -13,7 +13,7 @@ use ezgui::{
     HorizontalAlignment, Key, Line, ManagedWidget, Outcome, ScreenPt, Text, VerticalAlignment,
 };
 use geom::{Distance, Duration, PolyLine, Polygon, Pt2D, Statistic, Time};
-use map_model::{BuildingID, IntersectionID, RoadID};
+use map_model::{BuildingID, IntersectionID, IntersectionType, LaneType, RoadID};
 use sim::{AgentID, BorderSpawnOverTime, CarID, OriginDestination, Scenario, VehicleType};
 use std::collections::BTreeSet;
 
@@ -33,7 +33,8 @@ pub struct TutorialMode {
     // Goofy state for just some stages.
     inspected_lane: bool,
     inspected_building: bool,
-    inspected_intersection: bool,
+    inspected_stop_sign: bool,
+    inspected_border: bool,
     was_paused: bool,
     num_pauses: usize,
     warped: bool,
@@ -95,6 +96,10 @@ impl State for TutorialMode {
                     ui.overlay = Overlays::Inactive;
                     return Transition::Pop;
                 }
+                "Restart" => {
+                    self.state.current = 0;
+                    return Transition::Replace(self.state.make_state(ctx, ui));
+                }
                 "previous tutorial screen" => {
                     self.state.current -= 1;
                     return Transition::Replace(self.state.make_state(ctx, ui));
@@ -121,6 +126,7 @@ impl State for TutorialMode {
                     "OK" => {
                         self.state.next();
                         if self.state.current == self.state.stages.len() {
+                            // TODO Clear edits?
                             ui.primary.clear_sim();
                             return Transition::Pop;
                         } else {
@@ -204,21 +210,40 @@ impl State for TutorialMode {
                 self.state.next();
                 return Transition::Replace(self.state.make_state(ctx, ui));
             }
-        } else if interact == "Inspect a lane, intersection, and building" {
+        } else if interact
+            == "Inspect one of each: lane, intersection with stop sign, building, and intersection \
+                on the map border"
+        {
             match ui.primary.current_selection {
-                Some(ID::Lane(_)) => {
-                    if !self.inspected_lane && ui.per_obj.action(ctx, Key::I, "inspect the lane") {
+                Some(ID::Lane(l)) => {
+                    if ui.per_obj.action(ctx, Key::I, "inspect the lane") {
                         self.inspected_lane = true;
                         return Transition::Push(msg(
                             "Inspection",
-                            vec!["Yup, it's a lane belonging to a road, alright."],
+                            match ui.primary.map.get_l(l).lane_type {
+                                LaneType::Driving => vec![
+                                    "This is a regular lane for driving.",
+                                    "Cars, bikes, and buses all share it.",
+                                ],
+                                LaneType::Parking => vec!["This is an on-street parking lane."],
+                                LaneType::Sidewalk => {
+                                    vec!["This is a sidewalk. Only pedestrians can use it."]
+                                }
+                                LaneType::Biking => vec!["This is a bike-only lane."],
+                                LaneType::Bus => vec!["This is a bus lane. Bikes may also use it."],
+                                LaneType::SharedLeftTurn => vec![
+                                    "This is a lane where either direction of traffic can turn \
+                                     left.",
+                                ],
+                                LaneType::Construction => {
+                                    vec!["This lane is currently closed for construction."]
+                                }
+                            },
                         ));
                     }
                 }
                 Some(ID::Building(_)) => {
-                    if !self.inspected_building
-                        && ui.per_obj.action(ctx, Key::I, "inspect the building")
-                    {
+                    if ui.per_obj.action(ctx, Key::I, "inspect the building") {
                         self.inspected_building = true;
                         return Transition::Push(msg(
                             "Inspection",
@@ -229,20 +254,51 @@ impl State for TutorialMode {
                         ));
                     }
                 }
-                Some(ID::Intersection(_)) => {
-                    if !self.inspected_intersection
-                        && ui.per_obj.action(ctx, Key::I, "inspect the intersection")
-                    {
-                        self.inspected_intersection = true;
-                        return Transition::Push(msg(
-                            "Inspection",
-                            vec!["Insert clever quip about intersections here"],
-                        ));
+                Some(ID::Intersection(i)) => {
+                    if ui.per_obj.action(ctx, Key::I, "inspect the intersection") {
+                        match ui.primary.map.get_i(i).intersection_type {
+                            IntersectionType::StopSign => {
+                                self.inspected_stop_sign = true;
+                                return Transition::Push(msg(
+                                    "Inspection",
+                                    vec!["Most intersections are regulated by stop signs."],
+                                ));
+                            }
+                            IntersectionType::TrafficSignal => {
+                                return Transition::Push(msg(
+                                    "Inspection",
+                                    vec![
+                                        "This intersection is controlled by a traffic signal. \
+                                         You'll learn more about these soon.",
+                                    ],
+                                ));
+                            }
+                            IntersectionType::Border => {
+                                self.inspected_border = true;
+                                return Transition::Push(msg(
+                                    "Inspection",
+                                    vec![
+                                        "This is a border of the map. Vehicles appear and \
+                                         disappear here.",
+                                    ],
+                                ));
+                            }
+                            IntersectionType::Construction => {
+                                return Transition::Push(msg(
+                                    "Inspection",
+                                    vec!["This intersection is currently closed for construction."],
+                                ));
+                            }
+                        }
                     }
                 }
                 _ => {}
             }
-            if self.inspected_lane && self.inspected_building && self.inspected_intersection {
+            if self.inspected_lane
+                && self.inspected_building
+                && self.inspected_stop_sign
+                && self.inspected_border
+            {
                 self.state.next();
                 return Transition::Replace(self.state.make_state(ctx, ui));
             }
@@ -688,11 +744,19 @@ impl TutorialState {
                 )
             }
             .margin(5),
+            if self.current == 0 {
+                Button::inactive_button("Restart", ctx)
+            } else {
+                WrappedComposite::text_button(ctx, "Restart", None)
+            }
+            .margin(5),
             WrappedComposite::text_button(ctx, "Quit", None).margin(5),
         ])
         .centered()];
         if let Stage::Interact { name, .. } = self.stage() {
-            col.push(ManagedWidget::draw_text(ctx, Text::from(Line(*name))));
+            let mut txt = Text::new();
+            txt.add_wrapped(name.to_string(), 0.6 * ctx.canvas.window_width);
+            col.push(ManagedWidget::draw_text(ctx, txt.change_fg(Color::CYAN)).margin(5));
         }
         if edit_map {
             col.push(
@@ -805,7 +869,8 @@ impl TutorialState {
 
             inspected_lane: false,
             inspected_building: false,
-            inspected_intersection: false,
+            inspected_stop_sign: false,
+            inspected_border: false,
             was_paused: true,
             num_pauses: 0,
             warped: false,
@@ -838,15 +903,15 @@ impl TutorialState {
         state.stages.extend(vec![Stage::msg(vec![
             "Welcome to your first day as a contract traffic engineer --",
             "like a paid assassin, but capable of making WAY more people cry.",
-            "Warring factions in Seattle have brought you here.",
+            "Seattle is a fast-growing city, and nobody can decide how to fix the traffic.",
         ])
         .warp_to(ID::Intersection(IntersectionID(141)), None)]);
 
         state.stages.extend(vec![
             Stage::msg(vec![
-                "Let's start with the controls for your handy drone.",
+                "Let's start with the controls.",
                 "Click and drag to pan around the map, and use your scroll wheel or touchpad to \
-                 zoom.",
+                 zoom in and out.",
             ]),
             Stage::msg(vec![
                 "Let's try that ou--",
@@ -867,23 +932,26 @@ impl TutorialState {
             Stage::msg(vec![
                 "If you're going to storm out of here, you can always go back towards the main \
                  screen using this button",
-                "(But please continue with the training)",
+                "(But please continue with the training.)",
             ])
             .arrow(tool_panel.inner.center_of("back")),
             Stage::msg(vec![
                 "Now, let's learn how to inspect and interact with objects in the map.",
-                "Select something, then click on it.",
+                "Select something with your mouse, then click on it.",
             ]),
             Stage::msg(vec![
-                "The bottom of the screen shows keyboard shortcuts for whatever you're selecting; \
-                 you don't have to click an object first.",
+                "(By the way, the bottom of the screen shows keyboard shortcuts",
+                "for whatever you're selecting; you don't have to click an object first.",
             ])
             .arrow(osd),
             Stage::msg(vec![
                 "I wonder what kind of information is available for different objects? Let's find \
                  out!",
             ]),
-            Stage::interact("Inspect a lane, intersection, and building"),
+            Stage::interact(
+                "Inspect one of each: lane, intersection with stop sign, building, and \
+                 intersection on the map border",
+            ),
         ]);
         // 2 interacts
 
@@ -893,7 +961,8 @@ impl TutorialState {
                 "",
                 "You'll work day and night, watching traffic patterns unfold.",
             ])
-            .arrow(time.composite.center_of_panel()),
+            .arrow(time.composite.center_of_panel())
+            .warp_to(ID::Intersection(IntersectionID(64)), None),
             Stage::msg(vec!["You can pause or resume time"])
                 .arrow(speed.composite.inner.center_of("pause")),
             Stage::msg(vec!["Speed things up"]).arrow(speed.composite.inner.center_of("60x")),
@@ -958,7 +1027,11 @@ impl TutorialState {
                     )
                     .to_pt()
             })),
-            // TODO Make it clear they can reset
+            Stage::msg(vec![
+                "You don't have to manually chase them; just click to follow.",
+                "(If you do lose track of them, just reset)",
+            ])
+            .arrow(speed.composite.inner.center_of("reset to midnight")),
             Stage::interact("Escort the first northbound car until they park")
                 .spawn_around(IntersectionID(247))
                 .warp_to(ID::Building(BuildingID(611)), None),
@@ -1012,15 +1085,22 @@ impl TutorialState {
             ]),
             Stage::msg(vec![
                 "Luckily, you have the power to modify lanes!",
-                "What if you could transform the parking lane that isn't being used much",
+                "What if you could transform the parking lanes that aren't being used much",
                 "into a protected bike lane?",
             ]),
-            // TODO Explain how to convert lane types
-            // TODO Explain determinism
-            // TODO Explain why you can't make most changes live
-            Stage::msg(vec!["To edit lanes, click 'edit map'"])
-                .arrow(top_center.center_of("edit map")),
-            // TODO Explain the finished trip data
+            Stage::msg(vec![
+                "To edit lanes, click 'edit map', choose a paintbrush, then apply it to a lane.",
+            ])
+            .arrow(top_center.center_of("edit map")),
+            Stage::msg(vec![
+                "Some changes you make can't take effect until the next day;",
+                "like what if you removed a parking lane while there are cars on it?",
+                "So when you leave edit mode, the day will always reset to midnight.",
+                "People are on fixed schedules: every day, everybody leaves at exactly the same \
+                 time,",
+                "making the same decision to drive, walk, bike, or take a bus.",
+                "All you can influence is how their experience will be in the short term.",
+            ]),
             Stage::interact("Make better use of the road space")
                 .spawn(Box::new(start_bike_lane_scenario)),
         ]);
@@ -1057,25 +1137,18 @@ impl TutorialState {
 
         state.stages.push(Stage::msg(vec![
             "Training complete!",
+            "Use sandbox mode to explore larger areas of Seattle and try out any ideas you have.",
+            "Or try your skills at a particular challenge!",
+            "",
             "Go have the appropriate amount of fun.",
         ]));
 
         state
-        // You've got a drone and, thanks to extremely creepy surveillance technology, the ability
-        // to peer into everyone's trips.
-        // People are on fixed schedules: every day, they leave at exactly the same time using the
-        // same mode of transport. All you can change is how their experience will be in the
-        // short-term. The city is in total crisis. You've only got 10 days to do something
-        // before all hell breaks loose and people start kayaking / ziplining / crab-walking
-        // / cartwheeling / to work.
 
-        // TODO Show overlapping peds?
-        // TODO Multi-modal trips -- including parking. (Cars per bldg, ownership). Border
-        // intersections.
-
-        // TODO Edit mode. fixed schedules. agenda/goals.
-        // - Traffic signals -- protected and permited turns
-
-        // TODO Misc tools -- shortcuts, find address
+        // TODO Multi-modal trips -- including parking. (Cars per bldg, ownership)
+        // TODO Explain the finished trip data
+        // The city is in total crisis. You've only got 10 days to do something before all hell
+        // breaks loose and people start kayaking / ziplining / crab-walking / cartwheeling / to
+        // work.
     }
 }

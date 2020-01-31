@@ -41,12 +41,12 @@ impl LaneEditor {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => {
                 let b = match x.as_ref() {
-                    "driving lane" => Brush::Driving,
-                    "protected bike lane" => Brush::Bike,
-                    "bus-only lane" => Brush::Bus,
-                    "on-street parking lane" => Brush::Parking,
-                    "closed for construction" => Brush::Construction,
-                    "reverse lane direction" => Brush::Reverse,
+                    "convert to a driving lane" => Brush::Driving,
+                    "convert to a protected bike lane" => Brush::Bike,
+                    "convert to a bus-only lane" => Brush::Bus,
+                    "convert to a on-street parking lane" => Brush::Parking,
+                    "convert to a closed for construction" => Brush::Construction,
+                    "convert to a reverse lane direction" => Brush::Reverse,
                     _ => unreachable!(),
                 };
                 if self.brush == b {
@@ -71,7 +71,10 @@ impl LaneEditor {
                     Brush::Construction => "closed for construction",
                     Brush::Reverse => "reverse lane direction",
                 };
-                if ui.per_obj.action(ctx, Key::Space, label) {
+                if ui
+                    .per_obj
+                    .action(ctx, Key::Space, &format!("convert to a {}", label))
+                {
                     // These errors are universal.
                     if ui.primary.map.get_l(l).is_sidewalk() {
                         return Some(Transition::Push(msg(
@@ -210,7 +213,7 @@ fn make_brush_panel(ctx: &mut EventCtx, brush: Brush) -> Composite {
         row.push(
             ManagedWidget::col(vec![ManagedWidget::btn(Button::rectangle_svg_rewrite(
                 &format!("assets/edit/{}.svg", icon),
-                label,
+                &format!("convert to a {}", label),
                 hotkey(key),
                 if brush == b {
                     RewriteColor::ChangeAll(Color::RED)
