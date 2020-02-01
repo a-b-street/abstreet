@@ -27,11 +27,14 @@ impl WrappedComposite {
         }
     }
 
-    pub fn cb(mut self, action: &str, cb: Callback) -> WrappedComposite {
+    pub fn cb(self, action: &str, cb: Callback) -> WrappedComposite {
         if !self.inner.get_all_click_actions().contains(action) {
             panic!("No button produces action {}", action);
         }
+        self.maybe_cb(action, cb)
+    }
 
+    pub fn maybe_cb(mut self, action: &str, cb: Callback) -> WrappedComposite {
         self.callbacks.insert(action.to_string(), cb);
         self
     }

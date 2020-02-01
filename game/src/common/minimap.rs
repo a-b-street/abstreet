@@ -141,7 +141,7 @@ impl Minimap {
                     )));
                 }
                 x if x == "change overlay" => {
-                    return Overlays::change_overlays(ctx);
+                    return Overlays::change_overlays(ctx, ui);
                 }
                 x => {
                     let key = x["show/hide ".len()..].to_string();

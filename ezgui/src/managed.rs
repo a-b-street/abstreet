@@ -527,6 +527,10 @@ impl ManagedWidget {
         }
     }
 
+    pub fn has_name(&self, name: &str) -> bool {
+        self.rect_of(name).is_some()
+    }
+
     fn rect_of(&self, name: &str) -> Option<&ScreenRectangle> {
         let found = match self.widget {
             WidgetType::Draw(_) => false,

@@ -23,8 +23,9 @@ pub enum Overlays {
     BikeNetwork(Colorer),
     BusNetwork(Colorer),
     Edits(Colorer),
-
     FinishedTripsHistogram(Time, Composite),
+
+    // These aren't selectable from the main picker
     IntersectionDemand(Time, IntersectionID, Drawable, Composite),
     BusRoute(Time, BusRouteID, ShowBusRoute),
     BusDelaysOverTime(Time, BusRouteID, Composite),
@@ -214,61 +215,96 @@ impl Overlays {
         }
     }
 
-    pub fn change_overlays(ctx: &mut EventCtx) -> Option<Transition> {
-        // TODO Filter out the current
-        // TODO Filter out finished trips histogram if prebaked isn't available
+    pub fn change_overlays(ctx: &mut EventCtx, ui: &UI) -> Option<Transition> {
+        let mut choices = vec![
+            WrappedComposite::text_button(ctx, "None", hotkey(Key::N)),
+            WrappedComposite::text_button(ctx, "finished trips histogram", hotkey(Key::F)),
+            WrappedComposite::text_button(ctx, "map edits", hotkey(Key::E)),
+            ManagedWidget::btn(Button::rectangle_svg(
+                "assets/layers/parking_avail.svg",
+                "parking availability",
+                hotkey(Key::P),
+                RewriteColor::Change(Color::hex("#F2F2F2"), Color::ORANGE),
+                ctx,
+            )),
+            ManagedWidget::btn(Button::rectangle_svg(
+                "assets/layers/intersection_delay.svg",
+                "intersection delay",
+                hotkey(Key::I),
+                RewriteColor::Change(Color::hex("#F2F2F2"), Color::ORANGE),
+                ctx,
+            )),
+            ManagedWidget::btn(Button::rectangle_svg(
+                "assets/layers/throughput.svg",
+                "throughput",
+                hotkey(Key::T),
+                RewriteColor::Change(Color::hex("#F2F2F2"), Color::ORANGE),
+                ctx,
+            )),
+            ManagedWidget::btn(Button::rectangle_svg(
+                "assets/layers/bike_network.svg",
+                "bike network",
+                hotkey(Key::B),
+                RewriteColor::Change(Color::hex("#F2F2F2"), Color::ORANGE),
+                ctx,
+            )),
+            ManagedWidget::btn(Button::rectangle_svg(
+                "assets/layers/bus_network.svg",
+                "bus network",
+                hotkey(Key::U),
+                RewriteColor::Change(Color::hex("#F2F2F2"), Color::ORANGE),
+                ctx,
+            )),
+        ];
+        if !ui.has_prebaked() {
+            choices.retain(|w| !w.has_name("finished trips histogram"));
+        }
+        // TODO Grey out the inactive SVGs, and add the green checkmark
+        if let Some((find, replace)) = match ui.overlay {
+            Overlays::Inactive => Some(("None", Button::inactive_button("None", ctx))),
+            Overlays::ParkingAvailability(_, _) => Some((
+                "parking availability",
+                ManagedWidget::draw_svg(ctx, "assets/layers/parking_avail.svg"),
+            )),
+            Overlays::IntersectionDelay(_, _) => Some((
+                "intersection delay",
+                ManagedWidget::draw_svg(ctx, "assets/layers/intersection_delay.svg"),
+            )),
+            Overlays::CumulativeThroughput(_, _) => Some((
+                "throughput",
+                ManagedWidget::draw_svg(ctx, "assets/layers/throughput.svg"),
+            )),
+            Overlays::BikeNetwork(_) => Some((
+                "bike network",
+                ManagedWidget::draw_svg(ctx, "assets/layers/bike_network.svg"),
+            )),
+            Overlays::BusNetwork(_) => Some((
+                "bus network",
+                ManagedWidget::draw_svg(ctx, "assets/layers/bus_network.svg"),
+            )),
+            Overlays::Edits(_) => Some(("map edits", Button::inactive_button("map edits", ctx))),
+            Overlays::FinishedTripsHistogram(_, _) => Some((
+                "finished trips histogram",
+                Button::inactive_button("finished trips histogram", ctx),
+            )),
+            _ => None,
+        } {
+            for btn in &mut choices {
+                if btn.has_name(&find) {
+                    *btn = replace.outline(2.0, Color::GREEN);
+                    break;
+                }
+            }
+        }
+
         let c = WrappedComposite::new(
             Composite::new(
                 ManagedWidget::col(vec![
                     ManagedWidget::row(vec![
-                        ManagedWidget::draw_text(ctx, Text::from(Line("Heat map layers"))),
+                        ManagedWidget::draw_text(ctx, Text::from(Line("Heat Map Layers"))),
                         WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
                     ]),
-                    ManagedWidget::row(vec![
-                        WrappedComposite::text_button(ctx, "None", hotkey(Key::N)),
-                        WrappedComposite::text_button(
-                            ctx,
-                            "finished trips histogram",
-                            hotkey(Key::F),
-                        ),
-                        WrappedComposite::text_button(ctx, "map edits", hotkey(Key::E)),
-                        ManagedWidget::btn(Button::rectangle_svg(
-                            "assets/layers/parking_avail.svg",
-                            "parking availability",
-                            hotkey(Key::P),
-                            RewriteColor::ChangeAll(Color::ORANGE),
-                            ctx,
-                        )),
-                        ManagedWidget::btn(Button::rectangle_svg(
-                            "assets/layers/intersection_delay.svg",
-                            "intersection delay",
-                            hotkey(Key::I),
-                            RewriteColor::ChangeAll(Color::ORANGE),
-                            ctx,
-                        )),
-                        ManagedWidget::btn(Button::rectangle_svg(
-                            "assets/layers/throughput.svg",
-                            "throughput",
-                            hotkey(Key::T),
-                            RewriteColor::ChangeAll(Color::ORANGE),
-                            ctx,
-                        )),
-                        ManagedWidget::btn(Button::rectangle_svg(
-                            "assets/layers/bike_network.svg",
-                            "bike network",
-                            hotkey(Key::B),
-                            RewriteColor::ChangeAll(Color::ORANGE),
-                            ctx,
-                        )),
-                        ManagedWidget::btn(Button::rectangle_svg(
-                            "assets/layers/bus_network.svg",
-                            "bus network",
-                            hotkey(Key::U),
-                            RewriteColor::ChangeAll(Color::ORANGE),
-                            ctx,
-                        )),
-                    ])
-                    .flex_wrap(ctx, 20),
+                    ManagedWidget::row(choices).flex_wrap(ctx, 20),
                 ])
                 .bg(Color::hex("#5B5B5B")),
             )
@@ -276,56 +312,56 @@ impl Overlays {
             .build(ctx),
         )
         .cb("X", Box::new(|_, _| Some(Transition::Pop)))
-        .cb(
+        .maybe_cb(
             "None",
             Box::new(|_, ui| {
                 ui.overlay = Overlays::Inactive;
                 Some(Transition::Pop)
             }),
         )
-        .cb(
+        .maybe_cb(
             "parking availability",
             Box::new(|ctx, ui| {
                 ui.overlay = Overlays::parking_availability(ctx, ui);
                 Some(Transition::Pop)
             }),
         )
-        .cb(
+        .maybe_cb(
             "intersection delay",
             Box::new(|ctx, ui| {
                 ui.overlay = Overlays::intersection_delay(ctx, ui);
                 Some(Transition::Pop)
             }),
         )
-        .cb(
+        .maybe_cb(
             "throughput",
             Box::new(|ctx, ui| {
                 ui.overlay = Overlays::cumulative_throughput(ctx, ui);
                 Some(Transition::Pop)
             }),
         )
-        .cb(
+        .maybe_cb(
             "bike network",
             Box::new(|ctx, ui| {
                 ui.overlay = Overlays::bike_network(ctx, ui);
                 Some(Transition::Pop)
             }),
         )
-        .cb(
+        .maybe_cb(
             "bus network",
             Box::new(|ctx, ui| {
                 ui.overlay = Overlays::bus_network(ctx, ui);
                 Some(Transition::Pop)
             }),
         )
-        .cb(
+        .maybe_cb(
             "finished trips histogram",
             Box::new(|ctx, ui| {
                 ui.overlay = Overlays::finished_trips_histogram(ctx, ui);
                 Some(Transition::Pop)
             }),
         )
-        .cb(
+        .maybe_cb(
             "map edits",
             Box::new(|ctx, ui| {
                 ui.overlay = Overlays::map_edits(ctx, ui);

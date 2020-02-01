@@ -135,25 +135,17 @@ impl GameplayMode {
                 );
                 ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
 
-                match self {
-                    GameplayMode::Freeform | GameplayMode::PlayScenario(_) => {}
-                    // If there's no prebaked data, so be it; some functionality disappears
-                    _ => {
-                        if let Ok(prebaked) = abstutil::maybe_read_binary::<Analytics>(
-                            abstutil::path_prebaked_results(
-                                &scenario.map_name,
-                                &scenario.scenario_name,
-                            ),
-                            timer,
-                        ) {
-                            ui.set_prebaked(Some(prebaked));
-                        } else {
-                            println!(
-                                "WARNING: No prebaked results for {} on {}, some stuff might break",
-                                scenario.scenario_name, scenario.map_name
-                            );
-                        }
-                    }
+                // If there's no prebaked data, so be it; some functionality disappears
+                if let Ok(prebaked) = abstutil::maybe_read_binary::<Analytics>(
+                    abstutil::path_prebaked_results(&scenario.map_name, &scenario.scenario_name),
+                    timer,
+                ) {
+                    ui.set_prebaked(Some(prebaked));
+                } else {
+                    println!(
+                        "WARNING: No prebaked results for {} on {}, some stuff might break",
+                        scenario.scenario_name, scenario.map_name
+                    );
                 }
             }
         });
