@@ -1,35 +1,29 @@
-use crate::common::{tool_panel, CommonState, Minimap, Overlays, Warping};
+use crate::common::{tool_panel, Minimap, Overlays, Warping};
 use crate::edit::EditMode;
-use crate::game::{msg, State, Transition};
+use crate::game::{msg, Transition};
 use crate::helpers::ID;
-use crate::managed::{WrappedComposite, WrappedOutcome};
-use crate::render::DrawOptions;
-use crate::sandbox::{examine_objects, GameplayMode};
+use crate::managed::WrappedComposite;
+use crate::sandbox::gameplay::{GameplayMode, GameplayState};
+use crate::sandbox::SandboxMode;
 use crate::sandbox::{spawn_agents_around, AgentMeter, SpeedControls, TimePanel};
-use crate::ui::{ShowEverything, UI};
+use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Button, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, ScreenPt, Text, VerticalAlignment,
+    hotkey, lctrl, Button, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, ManagedWidget, Outcome, ScreenPt, Text, VerticalAlignment,
 };
 use geom::{Distance, Duration, PolyLine, Polygon, Pt2D, Statistic, Time};
 use map_model::{BuildingID, IntersectionID, IntersectionType, LaneType, RoadID};
 use sim::{AgentID, BorderSpawnOverTime, CarID, OriginDestination, Scenario, VehicleType};
 use std::collections::BTreeSet;
 
-pub struct TutorialMode {
+pub struct Tutorial {
     state: TutorialState,
+    num_interacts: usize,
 
     top_center: Composite,
 
     msg_panel: Option<Composite>,
-    common: Option<CommonState>,
-    time_panel: Option<TimePanel>,
-    speed: Option<SpeedControls>,
-    agent_meter: Option<AgentMeter>,
-    minimap: Option<Minimap>,
-    tool_panel: Option<WrappedComposite>,
-
     // Goofy state for just some stages.
     inspected_lane: bool,
     inspected_building: bool,
@@ -41,49 +35,62 @@ pub struct TutorialMode {
     score_delivered: bool,
 }
 
-impl TutorialMode {
-    pub fn new(ctx: &mut EventCtx, ui: &mut UI) -> Box<dyn State> {
-        if ui.primary.map.get_name() != "montlake" {
-            ui.switch_map(ctx, abstutil::path_map("montlake"));
-        }
-
-        let mut tut = TutorialState::new(ctx, ui);
-        // For my sanity
-        if ui.opts.dev {
-            tut.latest = tut.stages.len() - 1;
-            tut.current = tut.latest;
-        }
-        tut.make_state(ctx, ui)
-    }
-
-    pub fn resume(
+impl Tutorial {
+    pub fn new(
         ctx: &mut EventCtx,
         ui: &mut UI,
         current: usize,
         latest: usize,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn GameplayState> {
         let mut tut = TutorialState::new(ctx, ui);
         tut.latest = latest;
         tut.current = current;
         tut.make_state(ctx, ui)
     }
+
+    pub fn event_with_speed(
+        &mut self,
+        ctx: &mut EventCtx,
+        ui: &mut UI,
+        maybe_speed: Option<&mut SpeedControls>,
+    ) -> Option<Transition> {
+        if self.state.interaction() == "Pause/resume 3 times" {
+            let is_paused = maybe_speed.unwrap().is_paused();
+            if self.was_paused && !is_paused {
+                self.was_paused = false;
+            }
+            if !self.was_paused && is_paused {
+                self.num_pauses += 1;
+                self.was_paused = true;
+            }
+            if self.num_pauses == 3 {
+                self.state.next();
+                return Some(Transition::Replace(Box::new(SandboxMode::new(
+                    ctx,
+                    ui,
+                    GameplayMode::Tutorial(self.state.current, self.state.latest),
+                ))));
+            }
+        }
+        None
+    }
 }
 
-impl State for TutorialMode {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+impl GameplayState for Tutorial {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
         // First of all, might need to initiate warping
         if !self.warped {
             match self.state.stage() {
                 Stage::Msg { ref warp_to, .. } | Stage::Interact { ref warp_to, .. } => {
                     if let Some((id, zoom)) = warp_to {
                         self.warped = true;
-                        return Transition::Push(Warping::new(
+                        return Some(Transition::Push(Warping::new(
                             ctx,
                             id.canonical_point(&ui.primary).unwrap(),
                             Some(*zoom),
-                            Some(id.clone()),
+                            None,
                             &mut ui.primary,
-                        ));
+                        )));
                     }
                 }
             }
@@ -94,28 +101,42 @@ impl State for TutorialMode {
                 "Quit" => {
                     ui.primary.clear_sim();
                     ui.overlay = Overlays::Inactive;
-                    return Transition::Pop;
+                    // TODO do the same as sandbox mode's nice quit thing, confirm or whatever
+                    // first
+                    return Some(Transition::Pop);
                 }
                 "Restart" => {
                     self.state.current = 0;
-                    return Transition::Replace(self.state.make_state(ctx, ui));
+                    return Some(Transition::Replace(Box::new(SandboxMode::new(
+                        ctx,
+                        ui,
+                        GameplayMode::Tutorial(self.state.current, self.state.latest),
+                    ))));
                 }
                 "previous tutorial screen" => {
                     self.state.current -= 1;
-                    return Transition::Replace(self.state.make_state(ctx, ui));
+                    return Some(Transition::Replace(Box::new(SandboxMode::new(
+                        ctx,
+                        ui,
+                        GameplayMode::Tutorial(self.state.current, self.state.latest),
+                    ))));
                 }
                 "next tutorial screen" => {
                     self.state.current += 1;
-                    return Transition::Replace(self.state.make_state(ctx, ui));
+                    return Some(Transition::Replace(Box::new(SandboxMode::new(
+                        ctx,
+                        ui,
+                        GameplayMode::Tutorial(self.state.current, self.state.latest),
+                    ))));
                 }
                 "edit map" => {
                     // TODO Ideally this would be an inactive button in message states
                     if self.msg_panel.is_none() {
-                        return Transition::Push(Box::new(EditMode::new(
+                        return Some(Transition::Push(Box::new(EditMode::new(
                             ctx,
                             ui,
                             GameplayMode::Tutorial(self.state.current, self.state.latest),
-                        )));
+                        ))));
                     }
                 }
                 _ => unreachable!(),
@@ -131,77 +152,21 @@ impl State for TutorialMode {
                         if self.state.current == self.state.stages.len() {
                             // TODO Clear edits?
                             ui.primary.clear_sim();
-                            return Transition::Pop;
+                            return Some(Transition::Pop);
                         } else {
-                            return Transition::Replace(self.state.make_state(ctx, ui));
+                            return Some(Transition::Replace(Box::new(SandboxMode::new(
+                                ctx,
+                                ui,
+                                GameplayMode::Tutorial(self.state.current, self.state.latest),
+                            ))));
                         }
                     }
                     _ => unreachable!(),
                 },
                 None => {
                     // Don't allow other interactions
-                    return Transition::Keep;
+                    return Some(Transition::Keep);
                 }
-            }
-        }
-
-        ctx.canvas_movement();
-        if ctx.redo_mouseover() {
-            ui.recalculate_current_selection(ctx);
-        }
-
-        if let Some(ref mut tp) = self.time_panel {
-            tp.event(ctx, ui);
-        }
-
-        if let Some(ref mut speed) = self.speed {
-            match speed.event(ctx, ui) {
-                Some(WrappedOutcome::Transition(t)) => {
-                    return t;
-                }
-                Some(WrappedOutcome::Clicked(x)) => match x {
-                    x if x == "reset to midnight" => {
-                        return Transition::Replace(self.state.make_state(ctx, ui));
-                    }
-                    _ => unreachable!(),
-                },
-                None => {}
-            }
-        }
-        if let Some(ref mut am) = self.agent_meter {
-            if let Some(t) = am.event(ctx, ui) {
-                return t;
-            }
-
-            // By the time we're showing AgentMeter, also unlock these controls.
-            if let Some(t) = examine_objects(ctx, ui) {
-                return t;
-            }
-        }
-        if let Some(ref mut m) = self.minimap {
-            if let Some(t) = m.event(ui, ctx) {
-                return t;
-            }
-            if let Some(t) = Overlays::update(ctx, ui, &m.composite) {
-                return t;
-            }
-        }
-        if let Some(ref mut tp) = self.tool_panel {
-            match tp.event(ctx, ui) {
-                Some(WrappedOutcome::Transition(t)) => {
-                    return t;
-                }
-                Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
-                    "back" => {
-                        // TODO Confirm?
-                        // TODO Clear edits?
-                        ui.primary.clear_sim();
-                        ui.overlay = Overlays::Inactive;
-                        return Transition::Pop;
-                    }
-                    _ => unreachable!(),
-                },
-                None => {}
             }
         }
 
@@ -212,7 +177,11 @@ impl State for TutorialMode {
                 && ui.per_obj.left_click(ctx, "put out the... fire?")
             {
                 self.state.next();
-                return Transition::Replace(self.state.make_state(ctx, ui));
+                return Some(Transition::Replace(Box::new(SandboxMode::new(
+                    ctx,
+                    ui,
+                    GameplayMode::Tutorial(self.state.current, self.state.latest),
+                ))));
             }
         } else if interact
             == "Inspect one of each: lane, intersection with stop sign, building, and intersection \
@@ -222,7 +191,7 @@ impl State for TutorialMode {
                 Some(ID::Lane(l)) => {
                     if ui.per_obj.action(ctx, Key::I, "inspect the lane") {
                         self.inspected_lane = true;
-                        return Transition::Push(msg(
+                        return Some(Transition::Push(msg(
                             "Inspection",
                             match ui.primary.map.get_l(l).lane_type {
                                 LaneType::Driving => vec![
@@ -243,19 +212,19 @@ impl State for TutorialMode {
                                     vec!["This lane is currently closed for construction."]
                                 }
                             },
-                        ));
+                        )));
                     }
                 }
                 Some(ID::Building(_)) => {
                     if ui.per_obj.action(ctx, Key::I, "inspect the building") {
                         self.inspected_building = true;
-                        return Transition::Push(msg(
+                        return Some(Transition::Push(msg(
                             "Inspection",
                             vec![
                                 "Knock knock, anyone home?",
                                 "Did you know: most trips begin and end at a building.",
                             ],
-                        ));
+                        )));
                     }
                 }
                 Some(ID::Intersection(i)) => {
@@ -263,35 +232,35 @@ impl State for TutorialMode {
                         match ui.primary.map.get_i(i).intersection_type {
                             IntersectionType::StopSign => {
                                 self.inspected_stop_sign = true;
-                                return Transition::Push(msg(
+                                return Some(Transition::Push(msg(
                                     "Inspection",
                                     vec!["Most intersections are regulated by stop signs."],
-                                ));
+                                )));
                             }
                             IntersectionType::TrafficSignal => {
-                                return Transition::Push(msg(
+                                return Some(Transition::Push(msg(
                                     "Inspection",
                                     vec![
                                         "This intersection is controlled by a traffic signal. \
                                          You'll learn more about these soon.",
                                     ],
-                                ));
+                                )));
                             }
                             IntersectionType::Border => {
                                 self.inspected_border = true;
-                                return Transition::Push(msg(
+                                return Some(Transition::Push(msg(
                                     "Inspection",
                                     vec![
                                         "This is a border of the map. Vehicles appear and \
                                          disappear here.",
                                     ],
-                                ));
+                                )));
                             }
                             IntersectionType::Construction => {
-                                return Transition::Push(msg(
+                                return Some(Transition::Push(msg(
                                     "Inspection",
                                     vec!["This intersection is currently closed for construction."],
-                                ));
+                                )));
                             }
                         }
                     }
@@ -304,50 +273,50 @@ impl State for TutorialMode {
                 && self.inspected_border
             {
                 self.state.next();
-                return Transition::Replace(self.state.make_state(ctx, ui));
+                return Some(Transition::Replace(Box::new(SandboxMode::new(
+                    ctx,
+                    ui,
+                    GameplayMode::Tutorial(self.state.current, self.state.latest),
+                ))));
             }
         } else if interact == "Wait until 5pm" {
             if ui.primary.sim.time() >= Time::START_OF_DAY + Duration::hours(17) {
                 self.state.next();
-                return Transition::Replace(self.state.make_state(ctx, ui));
-            }
-        } else if interact == "Pause/resume 3 times" {
-            if self.was_paused && !self.speed.as_ref().unwrap().is_paused() {
-                self.was_paused = false;
-            }
-            if !self.was_paused && self.speed.as_ref().unwrap().is_paused() {
-                self.num_pauses += 1;
-                self.was_paused = true;
-            }
-            if self.num_pauses == 3 {
-                self.state.next();
-                return Transition::Replace(self.state.make_state(ctx, ui));
+                return Some(Transition::Replace(Box::new(SandboxMode::new(
+                    ctx,
+                    ui,
+                    GameplayMode::Tutorial(self.state.current, self.state.latest),
+                ))));
             }
         } else if interact == "Escort the first northbound car until they park" {
             if let Some(ID::Car(c)) = ui.primary.current_selection {
                 if ui.per_obj.action(ctx, Key::C, "check the car") {
                     if c == CarID(19, VehicleType::Car) {
                         if ui.primary.sim.agent_to_trip(AgentID::Car(c)).is_some() {
-                            return Transition::Push(msg(
+                            return Some(Transition::Push(msg(
                                 "Not yet!",
                                 vec![
                                     "The car is still traveling somewhee.",
                                     "Wait for the car to park. (You can speed up time!)",
                                 ],
-                            ));
+                            )));
                         } else {
                             self.state.next();
-                            return Transition::Replace(self.state.make_state(ctx, ui));
+                            return Some(Transition::Replace(Box::new(SandboxMode::new(
+                                ctx,
+                                ui,
+                                GameplayMode::Tutorial(self.state.current, self.state.latest),
+                            ))));
                         }
                     } else {
-                        return Transition::Push(msg(
+                        return Some(Transition::Push(msg(
                             "Wrong car",
                             vec![
                                 "You're looking at the wrong car.",
                                 "Use the 'reset to midnight' (key binding 'X') to start over, if \
                                  you lost the car to follow.",
                             ],
-                        ));
+                        )));
                     }
                 }
             }
@@ -359,15 +328,15 @@ impl State for TutorialMode {
                 {
                     let lane = ui.primary.map.get_l(l);
                     if !lane.is_parking() {
-                        return Transition::Push(msg(
+                        return Some(Transition::Push(msg(
                             "Uhh..",
                             vec!["That's not even a parking lane"],
-                        ));
+                        )));
                     }
                     let percent = (ui.primary.sim.get_free_spots(l).len() as f64)
                         / (lane.number_parking_spots() as f64);
                     if percent > 0.1 {
-                        return Transition::Push(msg(
+                        return Some(Transition::Push(msg(
                             "Not quite",
                             vec![
                                 format!("This lane has {:.0}% spots free", percent * 100.0),
@@ -375,16 +344,24 @@ impl State for TutorialMode {
                                  controls"
                                     .to_string(),
                             ],
-                        ));
+                        )));
                     }
                     self.state.next();
-                    return Transition::Replace(self.state.make_state(ctx, ui));
+                    return Some(Transition::Replace(Box::new(SandboxMode::new(
+                        ctx,
+                        ui,
+                        GameplayMode::Tutorial(self.state.current, self.state.latest),
+                    ))));
                 }
             }
         } else if interact == "Watch for 2 minutes" {
             if ui.primary.sim.time() >= Time::START_OF_DAY + Duration::minutes(2) {
                 self.state.next();
-                return Transition::Replace(self.state.make_state(ctx, ui));
+                return Some(Transition::Replace(Box::new(SandboxMode::new(
+                    ctx,
+                    ui,
+                    GameplayMode::Tutorial(self.state.current, self.state.latest),
+                ))));
             }
         } else if interact == "Make better use of the road space" {
             if ui.primary.sim.is_done() {
@@ -398,18 +375,18 @@ impl State for TutorialMode {
                 if !self.score_delivered {
                     self.score_delivered = true;
                     if ui.primary.map.get_edits().commands.is_empty() {
-                        return Transition::Push(msg(
+                        return Some(Transition::Push(msg(
                             "All trips completed",
                             vec![
                                 "You didn't change anything!",
                                 "Try editing the map to create some bike lanes.",
                             ],
-                        ));
+                        )));
                     }
                     // TODO Prebake results and use the normal differential stuff
                     let baseline = Duration::minutes(7) + Duration::seconds(15.0);
                     if max > baseline {
-                        return Transition::Push(msg(
+                        return Some(Transition::Push(msg(
                             "All trips completed",
                             vec![
                                 "Your changes made things worse!".to_string(),
@@ -420,11 +397,11 @@ impl State for TutorialMode {
                                 "".to_string(),
                                 "Try again!".to_string(),
                             ],
-                        ));
+                        )));
                     }
                     // TODO Tune. The real solution doesn't work because of sim bugs.
                     if max > Duration::minutes(6) + Duration::seconds(40.0) {
-                        return Transition::Push(msg(
+                        return Some(Transition::Push(msg(
                             "All trips completed",
                             vec![
                                 "Nice, you helped things a bit!".to_string(),
@@ -435,56 +412,40 @@ impl State for TutorialMode {
                                 "".to_string(),
                                 "See if you can do a little better though.".to_string(),
                             ],
-                        ));
+                        )));
                     }
-                    return Transition::Push(msg(
+                    return Some(Transition::Push(msg(
                         "All trips completed",
                         vec![format!(
                             "Awesome! The slowest trip originally took {}, but now it only took {}",
                             baseline, max
                         )],
-                    ));
+                    )));
                 }
                 if max <= Duration::minutes(6) + Duration::seconds(30.0) {
                     self.state.next();
                 }
-                return Transition::Replace(self.state.make_state(ctx, ui));
+                return Some(Transition::Replace(Box::new(SandboxMode::new(
+                    ctx,
+                    ui,
+                    GameplayMode::Tutorial(self.state.current, self.state.latest),
+                ))));
             }
         } else if interact == "Watch the buses for 5 minutes" {
             if ui.primary.sim.time() >= Time::START_OF_DAY + Duration::minutes(5) {
                 self.state.next();
-                return Transition::Replace(self.state.make_state(ctx, ui));
+                return Some(Transition::Replace(Box::new(SandboxMode::new(
+                    ctx,
+                    ui,
+                    GameplayMode::Tutorial(self.state.current, self.state.latest),
+                ))));
             }
         }
 
-        if let Some(ref mut common) = self.common {
-            if let Some(t) = common.event(ctx, ui, self.speed.as_mut()) {
-                return t;
-            }
-        }
-
-        if self.speed.as_ref().map(|s| s.is_paused()).unwrap_or(true) {
-            Transition::Keep
-        } else {
-            Transition::KeepWithMode(EventLoopMode::Animation)
-        }
-    }
-
-    fn draw_default_ui(&self) -> bool {
-        false
+        None
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        ui.draw(
-            g,
-            self.common
-                .as_ref()
-                .map(|c| c.draw_options(ui))
-                .unwrap_or_else(DrawOptions::new),
-            &ui.primary.sim,
-            &ShowEverything::new(),
-        );
-        ui.overlay.draw(g);
         if self.msg_panel.is_some() {
             // Make it clear the map can't be interacted with right now.
             g.fork_screenspace();
@@ -498,24 +459,6 @@ impl State for TutorialMode {
 
         self.top_center.draw(g);
 
-        if let Some(ref time) = self.time_panel {
-            time.draw(g);
-        }
-        if let Some(ref speed) = self.speed {
-            speed.draw(g);
-        }
-        if let Some(ref am) = self.agent_meter {
-            am.draw(g);
-        }
-        if let Some(ref m) = self.minimap {
-            m.draw(g, ui);
-        }
-        if let Some(ref tp) = self.tool_panel {
-            tp.draw(g);
-        }
-        if let Some(ref common) = self.common {
-            common.draw(g, ui);
-        }
         if let Some(ref msg) = self.msg_panel {
             // Arrows underneath the message panel, but on top of other panels
             if let Stage::Msg { point_to, .. } = self.state.stage() {
@@ -545,6 +488,25 @@ impl State for TutorialMode {
                 &ui.primary.map.get_b(BuildingID(9)).polygon,
             );
         }
+    }
+
+    fn has_common(&self) -> bool {
+        self.num_interacts >= 1
+    }
+    fn has_tool_panel(&self) -> bool {
+        self.num_interacts >= 1
+    }
+    fn has_time_panel(&self) -> bool {
+        self.num_interacts >= 2
+    }
+    fn has_speed(&self) -> bool {
+        self.num_interacts >= 2
+    }
+    fn has_agent_meter(&self) -> bool {
+        self.num_interacts >= 4
+    }
+    fn has_minimap(&self) -> bool {
+        self.num_interacts >= 5
     }
 }
 
@@ -779,11 +741,12 @@ impl TutorialState {
             .build(ctx)
     }
 
-    fn make_state(&self, ctx: &mut EventCtx, ui: &mut UI) -> Box<dyn State> {
+    fn make_state(&self, ctx: &mut EventCtx, ui: &mut UI) -> Box<dyn GameplayState> {
         if let Stage::Msg { .. } = self.stage() {
             ui.primary.current_selection = None;
         }
 
+        // TODO Should some of this always happen?
         ui.primary.clear_sim();
         ui.overlay = Overlays::Inactive;
         if let Some(cb) = match self.stage() {
@@ -810,8 +773,9 @@ impl TutorialState {
         let mut state = TutorialState::new(ctx, ui);
         state.current = self.current;
         state.latest = self.latest;
-        Box::new(TutorialMode {
+        Box::new(Tutorial {
             state,
+            num_interacts,
 
             top_center: self.make_top_center(ctx, num_interacts >= 7),
 
@@ -838,39 +802,6 @@ impl TutorialState {
                 ),
                 Stage::Interact { .. } => None,
             },
-            common: if num_interacts >= 1 {
-                Some(CommonState::new())
-            } else {
-                None
-            },
-            tool_panel: if num_interacts >= 1 {
-                Some(tool_panel(ctx))
-            } else {
-                None
-            },
-            time_panel: if num_interacts >= 2 {
-                Some(TimePanel::new(ctx, ui))
-            } else {
-                None
-            },
-            speed: if num_interacts >= 2 {
-                let mut speed = SpeedControls::new(ctx);
-                speed.pause(ctx);
-                Some(speed)
-            } else {
-                None
-            },
-            agent_meter: if num_interacts >= 4 {
-                Some(AgentMeter::new(ctx, ui))
-            } else {
-                None
-            },
-            minimap: if num_interacts >= 5 {
-                Some(Minimap::new(ctx, ui))
-            } else {
-                None
-            },
-
             inspected_lane: false,
             inspected_building: false,
             inspected_stop_sign: false,

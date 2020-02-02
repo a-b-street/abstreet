@@ -5,7 +5,9 @@ mod freeform;
 mod optimize_bus;
 mod play_scenario;
 pub mod spawner;
+mod tutorial;
 
+pub use self::tutorial::Tutorial;
 use crate::challenges;
 use crate::challenges::challenges_picker;
 use crate::common::{CommonState, Overlays};
@@ -39,13 +41,32 @@ pub enum GameplayMode {
     // TODO Kinda gross. What stage in the tutorial?
     FixTrafficSignalsTutorial(usize),
 
-    // A weird indirection to jump back to tutorial mode, not SandboxMode at all.
+    // current, latest
     Tutorial(usize, usize),
 }
 
 pub trait GameplayState: downcast_rs::Downcast {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition>;
     fn draw(&self, g: &mut GfxCtx, ui: &UI);
+
+    fn has_common(&self) -> bool {
+        true
+    }
+    fn has_tool_panel(&self) -> bool {
+        true
+    }
+    fn has_time_panel(&self) -> bool {
+        true
+    }
+    fn has_speed(&self) -> bool {
+        true
+    }
+    fn has_agent_meter(&self) -> bool {
+        true
+    }
+    fn has_minimap(&self) -> bool {
+        true
+    }
 }
 downcast_rs::impl_downcast!(GameplayState);
 
@@ -69,6 +90,10 @@ impl GameplayMode {
                 } else {
                     unreachable!()
                 }
+            }
+            // TODO Some of these WILL have scenarios!
+            GameplayMode::Tutorial(_, _) => {
+                return None;
             }
             _ => "weekday".to_string(),
         };
@@ -162,7 +187,7 @@ impl GameplayMode {
             GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial(_) => {
                 fix_traffic_signals::FixTrafficSignals::new(ctx, ui, self.clone())
             }
-            GameplayMode::Tutorial(_, _) => unreachable!(),
+            GameplayMode::Tutorial(current, latest) => Tutorial::new(ctx, ui, *current, *latest),
         }
     }
 }

@@ -4,7 +4,6 @@ use crate::game::{State, Transition};
 use crate::managed::{ManagedGUIState, WrappedComposite, WrappedOutcome};
 use crate::mission::MissionEditMode;
 use crate::sandbox::{GameplayMode, SandboxMode};
-use crate::tutorial::TutorialMode;
 use crate::ui::UI;
 use ezgui::{
     hotkey, Button, Color, Composite, EventCtx, EventLoopMode, GfxCtx, JustDraw, Key, Line,
@@ -136,7 +135,24 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
     )
     .cb(
         "Tutorial",
-        Box::new(|ctx, ui| Some(Transition::Push(TutorialMode::new(ctx, ui)))),
+        Box::new(|ctx, ui| {
+            if ui.primary.map.get_name() != "montlake" {
+                ui.switch_map(ctx, abstutil::path_map("montlake"));
+            }
+
+            let mut latest = 0;
+            // For my sanity
+            if ui.opts.dev {
+                // TODO Don't hardcode
+                latest = 40;
+            }
+
+            Some(Transition::Push(Box::new(SandboxMode::new(
+                ctx,
+                ui,
+                GameplayMode::Tutorial(latest, latest),
+            ))))
+        }),
     )
     .cb(
         "Sandbox mode",

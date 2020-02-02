@@ -62,7 +62,7 @@ impl State for Warping {
             if let Some(id) = self.id.clone() {
                 Transition::PopWithData(Box::new(move |state, ui, ctx| {
                     if let Some(ref mut s) = state.downcast_mut::<SandboxMode>() {
-                        s.common.launch_info_panel(id, ctx, ui);
+                        s.common.as_mut().unwrap().launch_info_panel(id, ctx, ui);
                     }
                 }))
             } else {

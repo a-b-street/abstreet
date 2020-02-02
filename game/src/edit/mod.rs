@@ -12,7 +12,6 @@ use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::{DrawIntersection, DrawLane, DrawRoad};
 use crate::sandbox::{GameplayMode, SandboxMode};
-use crate::tutorial::TutorialMode;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{hotkey, lctrl, Choice, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, WrappedWizard};
@@ -67,11 +66,7 @@ impl EditMode {
                 .recalculate_pathfinding_after_edits(&mut timer);
             // Parking state might've changed
             ui.primary.clear_sim();
-            if let GameplayMode::Tutorial(current, latest) = self.mode {
-                Transition::PopThenReplace(TutorialMode::resume(ctx, ui, current, latest))
-            } else {
-                Transition::PopThenReplace(Box::new(SandboxMode::new(ctx, ui, self.mode.clone())))
-            }
+            Transition::PopThenReplace(Box::new(SandboxMode::new(ctx, ui, self.mode.clone())))
         })
     }
 }

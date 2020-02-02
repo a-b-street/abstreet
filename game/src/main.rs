@@ -12,7 +12,6 @@ mod options;
 mod pregame;
 mod render;
 mod sandbox;
-mod tutorial;
 mod ui;
 
 use crate::ui::Flags;

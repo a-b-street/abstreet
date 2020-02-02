@@ -9,6 +9,8 @@ use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::pregame::main_menu;
+use crate::render::DrawOptions;
+use crate::sandbox::gameplay::Tutorial;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
@@ -23,159 +25,272 @@ use sim::TripMode;
 pub use speed::{SpeedControls, TimePanel};
 
 pub struct SandboxMode {
-    speed: SpeedControls,
-    time_panel: TimePanel,
-    agent_meter: AgentMeter,
     gameplay: Box<dyn gameplay::GameplayState>,
     gameplay_mode: GameplayMode,
-    pub common: CommonState,
-    tool_panel: WrappedComposite,
-    minimap: Minimap,
+
+    pub common: Option<CommonState>,
+    tool_panel: Option<WrappedComposite>,
+    time_panel: Option<TimePanel>,
+    speed: Option<SpeedControls>,
+    agent_meter: Option<AgentMeter>,
+    minimap: Option<Minimap>,
 }
 
 impl SandboxMode {
     pub fn new(ctx: &mut EventCtx, ui: &mut UI, mode: GameplayMode) -> SandboxMode {
+        let gameplay = mode.initialize(ui, ctx);
+
         SandboxMode {
-            speed: SpeedControls::new(ctx),
-            time_panel: TimePanel::new(ctx, ui),
-            agent_meter: AgentMeter::new(ctx, ui),
-            common: CommonState::new(),
-            tool_panel: tool_panel(ctx),
-            minimap: Minimap::new(ctx, ui),
-            gameplay: mode.initialize(ui, ctx),
+            common: if gameplay.has_common() {
+                Some(CommonState::new())
+            } else {
+                None
+            },
+            tool_panel: if gameplay.has_tool_panel() {
+                Some(tool_panel(ctx))
+            } else {
+                None
+            },
+            time_panel: if gameplay.has_time_panel() {
+                Some(TimePanel::new(ctx, ui))
+            } else {
+                None
+            },
+            speed: if gameplay.has_speed() {
+                Some(SpeedControls::new(ctx))
+            } else {
+                None
+            },
+            agent_meter: if gameplay.has_agent_meter() {
+                Some(AgentMeter::new(ctx, ui))
+            } else {
+                None
+            },
+            minimap: if gameplay.has_minimap() {
+                Some(Minimap::new(ctx, ui))
+            } else {
+                None
+            },
+            gameplay,
             gameplay_mode: mode,
         }
     }
-}
 
-impl State for SandboxMode {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        if let Some(t) = self.gameplay.event(ctx, ui) {
-            return t;
+    fn examine_objects(&self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+        if ui.opts.dev && ctx.input.new_was_pressed(lctrl(Key::D).unwrap()) {
+            return Some(Transition::Push(Box::new(DebugMode::new(ctx))));
         }
 
-        ctx.canvas_movement();
-        if ctx.redo_mouseover() {
-            ui.recalculate_current_selection(ctx);
-        }
-        if let Some(t) = self.minimap.event(ui, ctx) {
-            return t;
-        }
-
-        if let Some(t) = examine_objects(ctx, ui) {
-            return t;
+        if let Some(ID::Building(b)) = ui.primary.current_selection {
+            let cars = ui
+                .primary
+                .sim
+                .get_offstreet_parked_cars(b)
+                .into_iter()
+                .map(|p| p.vehicle.id)
+                .collect::<Vec<_>>();
+            if !cars.is_empty()
+                && ui.per_obj.action(
+                    ctx,
+                    Key::P,
+                    format!("examine {} cars parked here", cars.len()),
+                )
+            {
+                return Some(Transition::Push(WizardState::new(Box::new(
+                    move |wiz, ctx, _| {
+                        let _id = wiz.wrap(ctx).choose("Examine which car?", || {
+                            cars.iter()
+                                .map(|c| Choice::new(c.to_string(), *c))
+                                .collect()
+                        })?;
+                        Some(Transition::Pop)
+                    },
+                ))));
+            }
         }
         if let Some(ID::Intersection(i)) = ui.primary.current_selection {
+            if ui.primary.map.get_i(i).is_traffic_signal()
+                && ui.per_obj.action(ctx, Key::C, "show current demand")
+            {
+                ui.overlay = Overlays::intersection_demand(i, ctx, ui);
+            }
+
             if ui.primary.map.get_i(i).is_traffic_signal()
                 && ui.per_obj.action(ctx, Key::E, "edit traffic signal")
             {
                 let edit = EditMode::new(ctx, ui, self.gameplay_mode.clone());
                 let sim_copy = edit.suspended_sim.clone();
-                return Transition::PushTwice(
+                return Some(Transition::PushTwice(
                     Box::new(edit),
                     Box::new(TrafficSignalEditor::new(i, ctx, ui, sim_copy)),
-                );
+                ));
             }
             if ui.primary.map.get_i(i).is_stop_sign()
                 && ui.per_obj.action(ctx, Key::E, "edit stop sign")
             {
-                return Transition::PushTwice(
+                return Some(Transition::PushTwice(
                     Box::new(EditMode::new(ctx, ui, self.gameplay_mode.clone())),
                     Box::new(StopSignEditor::new(i, ctx, ui)),
-                );
+                ));
             }
         }
-
-        self.time_panel.event(ctx, ui);
-
-        match self.speed.event(ctx, ui) {
-            Some(WrappedOutcome::Transition(t)) => {
-                return t;
+        if let Some(ID::BusStop(bs)) = ui.primary.current_selection {
+            let routes = ui.primary.map.get_routes_serving_stop(bs);
+            if ui.per_obj.action(ctx, Key::E, "explore bus route") {
+                return Some(Transition::Push(ShowBusRoute::make_route_picker(
+                    routes.into_iter().map(|r| r.id).collect(),
+                    true,
+                )));
             }
-            Some(WrappedOutcome::Clicked(x)) => match x {
-                x if x == "reset to midnight" => {
-                    ui.primary.clear_sim();
-                    return Transition::Replace(Box::new(SandboxMode::new(
-                        ctx,
-                        ui,
-                        self.gameplay_mode.clone(),
+        }
+        if let Some(ID::Car(c)) = ui.primary.current_selection {
+            if let Some(r) = ui.primary.sim.bus_route_id(c) {
+                if ui.per_obj.action(ctx, Key::E, "explore bus route") {
+                    return Some(Transition::Push(ShowBusRoute::make_route_picker(
+                        vec![r],
+                        true,
                     )));
                 }
-                _ => unreachable!(),
-            },
-            None => {}
+            }
         }
 
-        if let Some(t) = self.common.event(ctx, ui, Some(&mut self.speed)) {
+        None
+    }
+}
+
+impl State for SandboxMode {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+        // Do this before gameplay
+        ctx.canvas_movement();
+
+        if let Some(t) = self.gameplay.event(ctx, ui) {
             return t;
         }
-        if let Some(t) = Overlays::update(ctx, ui, &self.minimap.composite) {
-            return t;
-        }
-        match self.tool_panel.event(ctx, ui) {
-            Some(WrappedOutcome::Transition(t)) => {
+        // Sad hack. :(
+        if let Some(ref mut tut) = self.gameplay.downcast_mut::<Tutorial>() {
+            if let Some(t) = tut.event_with_speed(ctx, ui, self.speed.as_mut()) {
                 return t;
             }
-            Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
-                "back" => {
-                    return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, ui| {
-                        let mut wizard = wiz.wrap(ctx);
-                        let dirty = ui.primary.map.get_edits().dirty;
-                        let (resp, _) = wizard.choose(
-                            "Sure you want to abandon the current challenge?",
-                            || {
-                                let mut choices = Vec::new();
-                                choices.push(Choice::new("keep playing", ()));
-                                if dirty {
-                                    choices.push(Choice::new("save edits and quit", ()));
-                                }
-                                choices.push(Choice::new("quit challenge", ()).key(Key::Q));
-                                choices
-                            },
-                        )?;
-                        let map_name = ui.primary.map.get_name().to_string();
-                        match resp.as_str() {
-                            "save edits and quit" => {
-                                save_edits(&mut wizard, ui)?;
-
-                                // Always reset edits if we just saved edits.
-                                apply_map_edits(ctx, ui, MapEdits::new(map_name));
-                                ui.primary.map.mark_edits_fresh();
-                                ui.primary.map.recalculate_pathfinding_after_edits(
-                                    &mut Timer::new("reset edits"),
-                                );
-                                ui.primary.clear_sim();
-                                ui.set_prebaked(None);
-                                ctx.canvas.save_camera_state(ui.primary.map.get_name());
-                                Some(Transition::Clear(vec![main_menu(ctx, ui)]))
-                            }
-                            "quit challenge" => {
-                                if !ui.primary.map.get_edits().is_empty() {
-                                    apply_map_edits(ctx, ui, MapEdits::new(map_name));
-                                    ui.primary.map.mark_edits_fresh();
-                                    ui.primary.map.recalculate_pathfinding_after_edits(
-                                        &mut Timer::new("reset edits"),
-                                    );
-                                }
-                                ui.primary.clear_sim();
-                                ui.set_prebaked(None);
-                                ctx.canvas.save_camera_state(ui.primary.map.get_name());
-                                Some(Transition::Clear(vec![main_menu(ctx, ui)]))
-                            }
-                            "keep playing" => Some(Transition::Pop),
-                            _ => unreachable!(),
-                        }
-                    })));
-                }
-                _ => unreachable!(),
-            },
-            None => {}
         }
-        if let Some(t) = self.agent_meter.event(ctx, ui) {
+
+        if ctx.redo_mouseover() {
+            ui.recalculate_current_selection(ctx);
+        }
+
+        // Order here is pretty arbitrary
+        if let Some(ref mut m) = self.minimap {
+            if let Some(t) = m.event(ui, ctx) {
+                return t;
+            }
+            if let Some(t) = Overlays::update(ctx, ui, &m.composite) {
+                return t;
+            }
+        }
+
+        if let Some(t) = self.examine_objects(ctx, ui) {
             return t;
         }
 
-        if self.speed.is_paused() {
+        if let Some(ref mut tp) = self.time_panel {
+            tp.event(ctx, ui);
+        }
+
+        if let Some(ref mut s) = self.speed {
+            match s.event(ctx, ui) {
+                Some(WrappedOutcome::Transition(t)) => {
+                    return t;
+                }
+                Some(WrappedOutcome::Clicked(x)) => match x {
+                    x if x == "reset to midnight" => {
+                        ui.primary.clear_sim();
+                        return Transition::Replace(Box::new(SandboxMode::new(
+                            ctx,
+                            ui,
+                            self.gameplay_mode.clone(),
+                        )));
+                    }
+                    _ => unreachable!(),
+                },
+                None => {}
+            }
+        }
+
+        if let Some(ref mut tp) = self.tool_panel {
+            match tp.event(ctx, ui) {
+                Some(WrappedOutcome::Transition(t)) => {
+                    return t;
+                }
+                Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
+                    "back" => {
+                        return Transition::Push(WizardState::new(Box::new(
+                            move |wiz, ctx, ui| {
+                                let mut wizard = wiz.wrap(ctx);
+                                let dirty = ui.primary.map.get_edits().dirty;
+                                let (resp, _) = wizard.choose(
+                                    "Sure you want to abandon the current challenge?",
+                                    || {
+                                        let mut choices = Vec::new();
+                                        choices.push(Choice::new("keep playing", ()));
+                                        if dirty {
+                                            choices.push(Choice::new("save edits and quit", ()));
+                                        }
+                                        choices.push(Choice::new("quit challenge", ()).key(Key::Q));
+                                        choices
+                                    },
+                                )?;
+                                let map_name = ui.primary.map.get_name().to_string();
+                                match resp.as_str() {
+                                    "save edits and quit" => {
+                                        save_edits(&mut wizard, ui)?;
+
+                                        // Always reset edits if we just saved edits.
+                                        apply_map_edits(ctx, ui, MapEdits::new(map_name));
+                                        ui.primary.map.mark_edits_fresh();
+                                        ui.primary.map.recalculate_pathfinding_after_edits(
+                                            &mut Timer::new("reset edits"),
+                                        );
+                                        ui.primary.clear_sim();
+                                        ui.set_prebaked(None);
+                                        ctx.canvas.save_camera_state(ui.primary.map.get_name());
+                                        Some(Transition::Clear(vec![main_menu(ctx, ui)]))
+                                    }
+                                    "quit challenge" => {
+                                        if !ui.primary.map.get_edits().is_empty() {
+                                            apply_map_edits(ctx, ui, MapEdits::new(map_name));
+                                            ui.primary.map.mark_edits_fresh();
+                                            ui.primary.map.recalculate_pathfinding_after_edits(
+                                                &mut Timer::new("reset edits"),
+                                            );
+                                        }
+                                        ui.primary.clear_sim();
+                                        ui.set_prebaked(None);
+                                        ctx.canvas.save_camera_state(ui.primary.map.get_name());
+                                        Some(Transition::Clear(vec![main_menu(ctx, ui)]))
+                                    }
+                                    "keep playing" => Some(Transition::Pop),
+                                    _ => unreachable!(),
+                                }
+                            },
+                        )));
+                    }
+                    _ => unreachable!(),
+                },
+                None => {}
+            }
+        }
+        if let Some(ref mut am) = self.agent_meter {
+            if let Some(t) = am.event(ctx, ui) {
+                return t;
+            }
+        }
+
+        if let Some(ref mut c) = self.common {
+            if let Some(t) = c.event(ctx, ui, self.speed.as_mut()) {
+                return t;
+            }
+        }
+
+        if self.speed.as_ref().map(|s| s.is_paused()).unwrap_or(true) {
             Transition::Keep
         } else {
             Transition::KeepWithMode(EventLoopMode::Animation)
@@ -189,22 +304,41 @@ impl State for SandboxMode {
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         ui.draw(
             g,
-            self.common.draw_options(ui),
+            self.common
+                .as_ref()
+                .map(|c| c.draw_options(ui))
+                .unwrap_or_else(DrawOptions::new),
             &ui.primary.sim,
             &ShowEverything::new(),
         );
         ui.overlay.draw(g);
-        self.common.draw(g, ui);
-        self.tool_panel.draw(g);
-        self.speed.draw(g);
-        self.time_panel.draw(g);
+
+        if let Some(ref c) = self.common {
+            c.draw(g, ui);
+        }
+        if let Some(ref tp) = self.tool_panel {
+            tp.draw(g);
+        }
+        if let Some(ref s) = self.speed {
+            s.draw(g);
+        }
+        if let Some(ref tp) = self.time_panel {
+            tp.draw(g);
+        }
+        if let Some(ref am) = self.agent_meter {
+            am.draw(g);
+        }
+        if let Some(ref m) = self.minimap {
+            m.draw(g, ui);
+        }
+
         self.gameplay.draw(g, ui);
-        self.agent_meter.draw(g);
-        self.minimap.draw(g, ui);
     }
 
     fn on_suspend(&mut self, ctx: &mut EventCtx, _: &mut UI) {
-        self.speed.pause(ctx);
+        if let Some(ref mut s) = self.speed {
+            s.pause(ctx);
+        }
     }
 
     fn on_destroy(&mut self, _: &mut EventCtx, ui: &mut UI) {
@@ -280,66 +414,4 @@ impl AgentMeter {
     pub fn draw(&self, g: &mut GfxCtx) {
         self.composite.draw(g);
     }
-}
-
-pub fn examine_objects(ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
-    if ui.opts.dev && ctx.input.new_was_pressed(lctrl(Key::D).unwrap()) {
-        return Some(Transition::Push(Box::new(DebugMode::new(ctx))));
-    }
-
-    if let Some(ID::Building(b)) = ui.primary.current_selection {
-        let cars = ui
-            .primary
-            .sim
-            .get_offstreet_parked_cars(b)
-            .into_iter()
-            .map(|p| p.vehicle.id)
-            .collect::<Vec<_>>();
-        if !cars.is_empty()
-            && ui.per_obj.action(
-                ctx,
-                Key::P,
-                format!("examine {} cars parked here", cars.len()),
-            )
-        {
-            return Some(Transition::Push(WizardState::new(Box::new(
-                move |wiz, ctx, _| {
-                    let _id = wiz.wrap(ctx).choose("Examine which car?", || {
-                        cars.iter()
-                            .map(|c| Choice::new(c.to_string(), *c))
-                            .collect()
-                    })?;
-                    Some(Transition::Pop)
-                },
-            ))));
-        }
-    }
-    if let Some(ID::Intersection(i)) = ui.primary.current_selection {
-        if ui.primary.map.get_i(i).is_traffic_signal()
-            && ui.per_obj.action(ctx, Key::C, "show current demand")
-        {
-            ui.overlay = Overlays::intersection_demand(i, ctx, ui);
-        }
-    }
-    if let Some(ID::BusStop(bs)) = ui.primary.current_selection {
-        let routes = ui.primary.map.get_routes_serving_stop(bs);
-        if ui.per_obj.action(ctx, Key::E, "explore bus route") {
-            return Some(Transition::Push(ShowBusRoute::make_route_picker(
-                routes.into_iter().map(|r| r.id).collect(),
-                true,
-            )));
-        }
-    }
-    if let Some(ID::Car(c)) = ui.primary.current_selection {
-        if let Some(r) = ui.primary.sim.bus_route_id(c) {
-            if ui.per_obj.action(ctx, Key::E, "explore bus route") {
-                return Some(Transition::Push(ShowBusRoute::make_route_picker(
-                    vec![r],
-                    true,
-                )));
-            }
-        }
-    }
-
-    None
 }

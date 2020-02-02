@@ -325,6 +325,8 @@ fn pick_finished_trips(
                         .downcast_mut::<SandboxMode>()
                         .unwrap()
                         .common
+                        .as_mut()
+                        .unwrap()
                         .launch_info_panel(ID::Trip(trip), ctx, ui);
                 })))
             }),
