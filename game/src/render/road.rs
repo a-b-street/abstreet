@@ -16,13 +16,7 @@ pub struct DrawRoad {
 impl DrawRoad {
     pub fn new(r: &Road, map: &Map, cs: &ColorScheme, prerender: &Prerender) -> DrawRoad {
         let mut draw = GeomBatch::new();
-        // The road's original center_pts don't account for contraflow lane edits.
-        let lane = map.get_l(if !r.children_forwards.is_empty() {
-            r.children_forwards[0].0
-        } else {
-            r.children_backwards[0].0
-        });
-        let center = lane.lane_center_pts.shift_left(lane.width / 2.0).unwrap();
+        let center = r.get_current_center(map);
         let width = Distance::meters(0.25);
         // If the road is a one-way (only parking and sidewalk on the off-side), draw a solid line
         // No center line at all if there's a shared left turn lane

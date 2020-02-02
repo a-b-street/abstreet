@@ -4,7 +4,7 @@ use geom::{Distance, Line, PolyLine, Polygon};
 use map_model::{IntersectionID, LaneID, Map, Turn, TurnGroupID};
 use std::collections::{HashMap, HashSet};
 
-const TURN_ICON_ARROW_LENGTH: Distance = Distance::const_meters(2.0);
+const TURN_ICON_ARROW_LENGTH: Distance = Distance::const_meters(1.5);
 
 pub struct DrawTurn {}
 

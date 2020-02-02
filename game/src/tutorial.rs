@@ -1105,6 +1105,11 @@ impl TutorialState {
                 "making the same decision to drive, walk, bike, or take a bus.",
                 "All you can influence is how their experience will be in the short term.",
             ]),
+            Stage::msg(vec![
+                "So try to speed up all of the trips. When all trips are done, you'll get your \
+                 final score.",
+            ])
+            .arrow(agent_meter.composite.center_of_panel()),
             Stage::interact("Make better use of the road space")
                 .spawn(Box::new(start_bike_lane_scenario)),
         ]);

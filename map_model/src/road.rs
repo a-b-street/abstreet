@@ -305,6 +305,27 @@ impl Road {
             .collect()
     }
 
+    pub fn lanes_on_side(&self, dir: bool) -> Vec<LaneID> {
+        if dir {
+            &self.children_forwards
+        } else {
+            &self.children_backwards
+        }
+        .iter()
+        .map(|(id, _)| *id)
+        .collect()
+    }
+
+    pub fn get_current_center(&self, map: &Map) -> PolyLine {
+        // The original center_pts don't account for contraflow lane edits.
+        let lane = map.get_l(if !self.children_forwards.is_empty() {
+            self.children_forwards[0].0
+        } else {
+            self.children_backwards[0].0
+        });
+        lane.lane_center_pts.shift_left(lane.width / 2.0).unwrap()
+    }
+
     pub fn any_on_other_side(&self, l: LaneID, lt: LaneType) -> Option<LaneID> {
         let search = if self.is_forwards(l) {
             &self.children_backwards

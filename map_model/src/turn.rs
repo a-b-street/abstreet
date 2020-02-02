@@ -1,4 +1,4 @@
-use crate::{IntersectionID, LaneID, Map, RoadID, NORMAL_LANE_THICKNESS};
+use crate::{IntersectionID, LaneID, Map, RoadID};
 use abstutil::MultiMap;
 use geom::{Angle, Distance, PolyLine, Pt2D};
 use serde_derive::{Deserialize, Serialize};
@@ -216,34 +216,32 @@ impl TurnGroup {
     pub fn src_center_and_width(&self, map: &Map) -> (PolyLine, Distance) {
         let r = map.get_r(self.id.from);
         let dir = r.dir_and_offset(self.members[0].src).0;
-        // Points away from the intersection
+        // Points towards the intersection
         let pl = if dir {
-            r.center_pts.clone()
+            r.get_current_center(map)
         } else {
-            r.center_pts.reversed()
+            r.get_current_center(map).reversed()
         };
 
-        let mut offsets: Vec<usize> = self
-            .members
-            .iter()
-            .map(|t| r.dir_and_offset(t.src).1)
-            .collect();
-        offsets.sort();
-        offsets.dedup();
-        // TODO This breaks if the group is non-contiguous. Add a rightmost bike lane that gets a
-        // crazy left turn.
-        let offset = if offsets.len() % 2 == 0 {
-            // Middle of two lanes
-            (offsets[offsets.len() / 2] as f64) - 0.5
-        } else {
-            offsets[offsets.len() / 2] as f64
-        };
+        // TODO Poorly expressed. We just want the first leftmost value, and the last rightmost.
+        let mut leftmost = Distance::meters(99999.0);
+        let mut rightmost = Distance::ZERO;
+        let mut left = Distance::ZERO;
+        let mut right = Distance::ZERO;
 
-        // TODO Sum the lanes. Since this isn't used for sidewalks, we can get away with this hack
-        // for a moment.
-        let pl = pl
-            .shift_right(NORMAL_LANE_THICKNESS * (0.5 + offset))
-            .unwrap();
+        for l in r.lanes_on_side(dir) {
+            right += map.get_l(l).width;
+
+            if self.members.iter().any(|t| t.src == l) {
+                leftmost = leftmost.min(left);
+                rightmost = rightmost.max(right);
+            }
+
+            left += map.get_l(l).width;
+        }
+
+        let pl = pl.shift_right((leftmost + rightmost) / 2.0).unwrap();
+        // Flip direction, so we point away from the intersection
         let pl = if self
             .id
             .crosswalk
@@ -254,8 +252,7 @@ impl TurnGroup {
         } else {
             pl.reversed()
         };
-        let width = NORMAL_LANE_THICKNESS * ((*offsets.last().unwrap() - offsets[0] + 1) as f64);
-        (pl, width)
+        (pl, rightmost - leftmost)
     }
 
     pub fn conflicts_with(&self, other: &TurnGroup) -> bool {
