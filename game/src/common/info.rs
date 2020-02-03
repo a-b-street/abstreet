@@ -1,3 +1,4 @@
+use crate::colors;
 use crate::common::{ColorLegend, CommonState, Warping};
 use crate::game::{msg, Transition};
 use crate::helpers::{rotating_color, rotating_color_map, ID};
@@ -55,7 +56,7 @@ impl InfoPanel {
                 "assets/tools/locate.svg",
                 "jump to object",
                 hotkey(Key::J),
-                RewriteColor::Change(Color::hex("#CC4121"), Color::ORANGE),
+                RewriteColor::Change(Color::hex("#CC4121"), colors::HOVERING),
                 ctx,
             )),
             WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
@@ -67,8 +68,8 @@ impl InfoPanel {
             txt.append(Line(format!(" - {}", label)));
             col.push(ManagedWidget::btn(Button::text_bg(
                 txt,
-                Color::grey(0.5),
-                Color::ORANGE,
+                colors::SECTION_BG,
+                colors::HOVERING,
                 hotkey(*key),
                 label,
                 ctx,
@@ -146,7 +147,7 @@ impl InfoPanel {
             actions,
             trip_details,
             time: ui.primary.sim.time(),
-            composite: Composite::new(ManagedWidget::col(col).bg(Color::grey(0.3)))
+            composite: Composite::new(ManagedWidget::col(col).bg(colors::PANEL_BG))
                 .aligned(
                     HorizontalAlignment::Percent(0.02),
                     VerticalAlignment::Percent(0.2),
@@ -298,7 +299,7 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                         ctx,
                         Text::from(Line("throughput in 20 minute buckets (entire road)")),
                     )
-                    .bg(Color::grey(0.5)),
+                    .bg(colors::SECTION_BG),
                 );
                 rows.push(
                     road_throughput(
@@ -307,7 +308,7 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                         ctx,
                         ui,
                     )
-                    .bg(Color::grey(0.5))
+                    .bg(colors::SECTION_BG)
                     .margin(10),
                 );
             }
@@ -345,21 +346,21 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
             if ui.primary.map.get_i(id).is_traffic_signal() {
                 rows.push(
                     ManagedWidget::draw_text(ctx, Text::from(Line("delay in 20 minute buckets")))
-                        .bg(Color::grey(0.5)),
+                        .bg(colors::SECTION_BG),
                 );
                 rows.push(
                     intersection_delay(id, Duration::minutes(20), ctx, ui)
-                        .bg(Color::grey(0.5))
+                        .bg(colors::SECTION_BG)
                         .margin(10),
                 );
             }
             rows.push(
                 ManagedWidget::draw_text(ctx, Text::from(Line("throughput in 20 minute buckets")))
-                    .bg(Color::grey(0.5)),
+                    .bg(colors::SECTION_BG),
             );
             rows.push(
                 intersection_throughput(id, Duration::minutes(20), ctx, ui)
-                    .bg(Color::grey(0.5))
+                    .bg(colors::SECTION_BG)
                     .margin(10),
             );
         }

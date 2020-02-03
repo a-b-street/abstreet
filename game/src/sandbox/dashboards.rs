@@ -1,3 +1,4 @@
+use crate::colors;
 use crate::common::ShowBusRoute;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
@@ -59,7 +60,7 @@ pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
         Composite::new(ManagedWidget::col(vec![
             ManagedWidget::row(tabs)
                 .evenly_spaced()
-                .bg(Color::grey(0.6))
+                .bg(colors::PANEL_BG)
                 .padding(10),
             content,
         ]))
@@ -151,7 +152,7 @@ fn finished_trips_summary_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
     // TODO The x-axes for the plot and histogram get stretched to the full screen. Don't do that!
     ManagedWidget::col(vec![
         ManagedWidget::draw_text(ctx, txt),
-        finished_trips_plot(ctx, ui).bg(Color::grey(0.3)),
+        finished_trips_plot(ctx, ui).bg(colors::SECTION_BG),
         ManagedWidget::draw_text(
             ctx,
             Text::from(Line(
@@ -165,7 +166,7 @@ fn finished_trips_summary_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
                 .finished_trip_deltas(ui.primary.sim.time(), ui.prebaked()),
             ctx,
         )
-        .bg(Color::grey(0.3)),
+        .bg(colors::SECTION_BG),
     ])
 }
 
@@ -213,7 +214,7 @@ fn finished_trips_summary_not_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget
     // TODO The x-axes for the plot and histogram get stretched to the full screen. Don't do that!
     ManagedWidget::col(vec![
         ManagedWidget::draw_text(ctx, txt),
-        finished_trips_plot(ctx, ui).bg(Color::grey(0.3)),
+        finished_trips_plot(ctx, ui).bg(colors::SECTION_BG),
     ])
 }
 

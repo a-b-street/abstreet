@@ -10,6 +10,7 @@ mod tutorial;
 pub use self::tutorial::{Tutorial, TutorialState};
 use crate::challenges;
 use crate::challenges::challenges_picker;
+use crate::colors;
 use crate::common::{CommonState, Overlays};
 use crate::edit::EditMode;
 use crate::game::{msg, State, Transition};
@@ -312,7 +313,7 @@ fn challenge_controller(
     rows.extend(extra_rows);
 
     WrappedComposite::new(
-        Composite::new(ManagedWidget::col(rows).bg(Color::grey(0.4)))
+        Composite::new(ManagedWidget::col(rows).bg(colors::PANEL_BG))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
     )
@@ -352,7 +353,7 @@ impl FinalScore {
                     ])
                     .centered(),
                 ])
-                .bg(Color::grey(0.4))
+                .bg(colors::PANEL_BG)
                 .outline(10.0, Color::WHITE)
                 .padding(10),
             )

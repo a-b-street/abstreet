@@ -1,9 +1,10 @@
+use crate::colors;
 use crate::game::Transition;
 use crate::managed::WrappedComposite;
 use crate::options;
 use ezgui::{
-    hotkey, Button, Color, Composite, EventCtx, HorizontalAlignment, Key, ManagedWidget,
-    RewriteColor, VerticalAlignment,
+    hotkey, Button, Composite, EventCtx, HorizontalAlignment, Key, ManagedWidget, RewriteColor,
+    VerticalAlignment,
 };
 
 pub fn tool_panel(ctx: &mut EventCtx) -> WrappedComposite {
@@ -14,7 +15,7 @@ pub fn tool_panel(ctx: &mut EventCtx) -> WrappedComposite {
             "assets/tools/home.svg",
             "back",
             hotkey(Key::Escape),
-            RewriteColor::ChangeAll(Color::ORANGE),
+            RewriteColor::ChangeAll(colors::HOVERING),
             ctx,
         ))
         .margin(10),
@@ -22,13 +23,13 @@ pub fn tool_panel(ctx: &mut EventCtx) -> WrappedComposite {
             "assets/tools/settings.svg",
             "settings",
             None,
-            RewriteColor::ChangeAll(Color::ORANGE),
+            RewriteColor::ChangeAll(colors::HOVERING),
             ctx,
         ))
         .margin(10),
     ];
     WrappedComposite::new(
-        Composite::new(ManagedWidget::row(row).bg(Color::grey(0.4)))
+        Composite::new(ManagedWidget::row(row).bg(colors::PANEL_BG))
             .aligned(HorizontalAlignment::Left, VerticalAlignment::BottomAboveOSD)
             .build(ctx),
     )

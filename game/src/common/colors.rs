@@ -1,3 +1,4 @@
+use crate::colors;
 use crate::managed::WrappedComposite;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::UI;
@@ -144,7 +145,7 @@ impl ColorerBuilder {
         for (label, color) in self.prioritized_colors {
             col.push(ColorLegend::row(ctx, color, label));
         }
-        let legend = Composite::new(ManagedWidget::col(col).bg(Color::grey(0.4)))
+        let legend = Composite::new(ManagedWidget::col(col).bg(colors::PANEL_BG))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
             .build(ctx);
 

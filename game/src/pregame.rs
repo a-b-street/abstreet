@@ -1,5 +1,6 @@
 use crate::abtest::setup::PickABTest;
 use crate::challenges::challenges_picker;
+use crate::colors;
 use crate::game::{State, Transition};
 use crate::managed::{ManagedGUIState, WrappedComposite, WrappedOutcome};
 use crate::mission::MissionEditMode;
@@ -35,7 +36,7 @@ impl TitleScreen {
                         ManagedWidget::btn(Button::text_bg(
                             Text::from(Line("PLAY")),
                             Color::BLUE,
-                            Color::ORANGE,
+                            colors::HOVERING,
                             hotkey(Key::Space),
                             "start game",
                             ctx,

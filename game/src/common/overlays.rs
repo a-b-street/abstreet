@@ -1,3 +1,4 @@
+use crate::colors;
 use crate::common::{ColorLegend, Colorer, ShowBusRoute, Warping};
 use crate::game::Transition;
 use crate::helpers::rotating_color_total;
@@ -224,35 +225,35 @@ impl Overlays {
                 "assets/layers/parking_avail.svg",
                 "parking availability",
                 hotkey(Key::P),
-                RewriteColor::Change(Color::hex("#F2F2F2"), Color::ORANGE),
+                RewriteColor::Change(Color::hex("#F2F2F2"), colors::HOVERING),
                 ctx,
             )),
             ManagedWidget::btn(Button::rectangle_svg(
                 "assets/layers/intersection_delay.svg",
                 "intersection delay",
                 hotkey(Key::I),
-                RewriteColor::Change(Color::hex("#F2F2F2"), Color::ORANGE),
+                RewriteColor::Change(Color::hex("#F2F2F2"), colors::HOVERING),
                 ctx,
             )),
             ManagedWidget::btn(Button::rectangle_svg(
                 "assets/layers/throughput.svg",
                 "throughput",
                 hotkey(Key::T),
-                RewriteColor::Change(Color::hex("#F2F2F2"), Color::ORANGE),
+                RewriteColor::Change(Color::hex("#F2F2F2"), colors::HOVERING),
                 ctx,
             )),
             ManagedWidget::btn(Button::rectangle_svg(
                 "assets/layers/bike_network.svg",
                 "bike network",
                 hotkey(Key::B),
-                RewriteColor::Change(Color::hex("#F2F2F2"), Color::ORANGE),
+                RewriteColor::Change(Color::hex("#F2F2F2"), colors::HOVERING),
                 ctx,
             )),
             ManagedWidget::btn(Button::rectangle_svg(
                 "assets/layers/bus_network.svg",
                 "bus network",
                 hotkey(Key::U),
-                RewriteColor::Change(Color::hex("#F2F2F2"), Color::ORANGE),
+                RewriteColor::Change(Color::hex("#F2F2F2"), colors::HOVERING),
                 ctx,
             )),
         ];
@@ -306,7 +307,7 @@ impl Overlays {
                     ]),
                     ManagedWidget::row(choices).flex_wrap(ctx, 20),
                 ])
-                .bg(Color::hex("#5B5B5B")),
+                .bg(colors::PANEL_BG),
             )
             .max_size_percent(30, 50)
             .build(ctx),
@@ -595,7 +596,7 @@ impl Overlays {
                         ctx,
                     ),
                 ])
-                .bg(Color::grey(0.4)),
+                .bg(colors::PANEL_BG),
             )
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
             .build(ctx),
@@ -637,7 +638,7 @@ impl Overlays {
                 "assets/tools/locate.svg",
                 "intersection demand",
                 None,
-                RewriteColor::Change(Color::hex("#CC4121"), Color::ORANGE),
+                RewriteColor::Change(Color::hex("#CC4121"), colors::HOVERING),
                 ctx,
             )),
             WrappedComposite::text_button(ctx, "X", None).align_right(),
@@ -648,7 +649,7 @@ impl Overlays {
             ui.primary.sim.time(),
             i,
             batch.upload(ctx),
-            Composite::new(ManagedWidget::col(col).bg(Color::grey(0.4)))
+            Composite::new(ManagedWidget::col(col).bg(colors::PANEL_BG))
                 .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
                 .build(ctx),
         )
@@ -678,7 +679,7 @@ impl Overlays {
                     "assets/tools/locate.svg",
                     &format!("Stop {}", idx + 1),
                     None,
-                    RewriteColor::Change(Color::hex("#CC4121"), Color::ORANGE),
+                    RewriteColor::Change(Color::hex("#CC4121"), colors::HOVERING),
                     ctx,
                 )),
             ];
@@ -729,7 +730,7 @@ impl Overlays {
         ]));
 
         let mut c = WrappedComposite::new(
-            Composite::new(ManagedWidget::col(master_col).bg(Color::grey(0.4)))
+            Composite::new(ManagedWidget::col(master_col).bg(colors::PANEL_BG))
                 .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
                 .build(ctx),
         );
@@ -788,7 +789,7 @@ impl Overlays {
                     ]),
                     Plot::new_duration(series, ctx).margin(10),
                 ])
-                .bg(Color::grey(0.3)),
+                .bg(colors::PANEL_BG),
             )
             // TODO Doesn't fit
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)

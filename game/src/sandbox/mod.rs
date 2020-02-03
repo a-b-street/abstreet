@@ -2,6 +2,7 @@ mod dashboards;
 mod gameplay;
 mod speed;
 
+use crate::colors;
 use crate::common::{tool_panel, CommonState, Minimap, Overlays, ShowBusRoute};
 use crate::debug::DebugMode;
 use crate::edit::{apply_map_edits, save_edits, EditMode, StopSignEditor, TrafficSignalEditor};
@@ -14,8 +15,8 @@ use crate::sandbox::gameplay::Tutorial;
 pub use crate::sandbox::gameplay::TutorialState;
 use crate::ui::{ShowEverything, UI};
 use ezgui::{
-    hotkey, lctrl, Choice, Color, Composite, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment,
-    Key, Line, ManagedWidget, Outcome, Text, VerticalAlignment, Wizard,
+    hotkey, lctrl, Choice, Composite, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Key,
+    Line, ManagedWidget, Outcome, Text, VerticalAlignment, Wizard,
 };
 pub use gameplay::spawner::spawn_agents_around;
 pub use gameplay::GameplayMode;
@@ -368,7 +369,7 @@ impl AgentMeter {
                 // TODO The SVG button uses clip and doesn't seem to work
                 WrappedComposite::text_button(ctx, "view finished trip data", hotkey(Key::Q)),
             ])
-            .bg(Color::grey(0.4))
+            .bg(colors::PANEL_BG)
             .padding(20),
         )
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)

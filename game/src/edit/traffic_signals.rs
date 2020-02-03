@@ -1,3 +1,4 @@
+use crate::colors;
 use crate::common::CommonState;
 use crate::edit::apply_map_edits;
 use crate::game::{msg, State, Transition, WizardState};
@@ -389,7 +390,7 @@ fn make_top_panel(can_undo: bool, can_redo: bool, ctx: &mut EventCtx) -> Composi
         })
         .margin(15),
     ];
-    Composite::new(ManagedWidget::row(row).bg(Color::hex("#545454")))
+    Composite::new(ManagedWidget::row(row).bg(colors::PANEL_BG))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx)
 }
@@ -565,7 +566,7 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
         );
     }
 
-    Composite::new(ManagedWidget::col(col).bg(Color::hex("#545454")))
+    Composite::new(ManagedWidget::col(col).bg(colors::PANEL_BG))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .max_size_percent(30, 90)
         .build(ctx)

@@ -1,3 +1,4 @@
+use crate::colors;
 use crate::common::{tool_panel, Minimap, Overlays, Warping};
 use crate::edit::EditMode;
 use crate::game::{msg, Transition};
@@ -690,7 +691,7 @@ impl TutorialState {
             );
         }
 
-        Composite::new(ManagedWidget::col(col).bg(Color::grey(0.4)))
+        Composite::new(ManagedWidget::col(col).bg(colors::PANEL_BG))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx)
     }
@@ -742,7 +743,7 @@ impl TutorialState {
                             WrappedComposite::text_button(ctx, "OK", hotkey(Key::Enter))
                                 .centered_horiz(),
                         ])
-                        .bg(Color::grey(0.4))
+                        .bg(colors::PANEL_BG)
                         .outline(5.0, Color::WHITE)
                         .padding(5),
                     )

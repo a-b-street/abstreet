@@ -1,3 +1,4 @@
+use crate::colors;
 use crate::common::{navigate, shortcuts, Overlays, Warping};
 use crate::game::{Transition, WizardState};
 use crate::managed::WrappedComposite;
@@ -277,7 +278,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, acs: &AgentColorScheme, zoom_lvl: usiz
         "assets/speed/speed_up.svg",
         "zoom in",
         None,
-        RewriteColor::ChangeAll(Color::ORANGE),
+        RewriteColor::ChangeAll(colors::HOVERING),
         ctx,
     ))];
     for i in (0..=3).rev() {
@@ -295,7 +296,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, acs: &AgentColorScheme, zoom_lvl: usiz
             ),
             DrawBoth::new(
                 ctx,
-                GeomBatch::from(vec![(Color::ORANGE, rect.clone())]),
+                GeomBatch::from(vec![(colors::HOVERING, rect.clone())]),
                 Vec::new(),
             ),
             None,
@@ -307,7 +308,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, acs: &AgentColorScheme, zoom_lvl: usiz
         "assets/speed/slow_down.svg",
         "zoom out",
         None,
-        RewriteColor::ChangeAll(Color::ORANGE),
+        RewriteColor::ChangeAll(colors::HOVERING),
         ctx,
     )));
 
@@ -339,7 +340,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, acs: &AgentColorScheme, zoom_lvl: usiz
             ])
             .centered(),
         ])
-        .bg(Color::grey(0.5)),
+        .bg(colors::PANEL_BG),
     )
     .aligned(
         HorizontalAlignment::Right,
@@ -411,7 +412,7 @@ fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
                     } else {
                         RewriteColor::ChangeAll(Color::WHITE.alpha(0.5))
                     },
-                    RewriteColor::ChangeAll(Color::ORANGE),
+                    RewriteColor::ChangeAll(colors::HOVERING),
                     ctx,
                 ))
                 .margin(3),
@@ -441,5 +442,5 @@ fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
             .centered_cross(),
         );
     }
-    ManagedWidget::col(col).bg(Color::grey(0.4))
+    ManagedWidget::col(col).bg(colors::PANEL_BG)
 }

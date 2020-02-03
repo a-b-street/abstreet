@@ -1,3 +1,4 @@
+use crate::colors;
 use crate::edit::EditMode;
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::{nice_map_name, ID};
@@ -114,7 +115,7 @@ pub fn freeform_controller(
                 .margin(5),
             ])
             .centered()
-            .bg(Color::grey(0.4)),
+            .bg(colors::PANEL_BG),
         )
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx),

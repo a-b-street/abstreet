@@ -1,3 +1,4 @@
+use crate::colors;
 use crate::common::Colorer;
 use crate::edit::apply_map_edits;
 use crate::game::{msg, State, Transition, WizardState};
@@ -220,7 +221,7 @@ fn make_brush_panel(ctx: &mut EventCtx, brush: Brush) -> Composite {
                 } else {
                     RewriteColor::NoOp
                 },
-                RewriteColor::ChangeAll(Color::ORANGE),
+                RewriteColor::ChangeAll(colors::HOVERING),
                 ctx,
             ))])
             .padding(5),
@@ -231,7 +232,7 @@ fn make_brush_panel(ctx: &mut EventCtx, brush: Brush) -> Composite {
             ManagedWidget::draw_text(ctx, Text::from(Line("Modify lanes"))).centered_horiz(),
             ManagedWidget::row(row).centered(),
         ])
-        .bg(Color::hex("#4C4C4C"))
+        .bg(colors::PANEL_BG)
         .padding(10),
     )
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)

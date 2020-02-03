@@ -1,3 +1,4 @@
+use crate::colors;
 use crate::edit::apply_map_edits;
 use crate::game::{State, Transition, WizardState};
 use crate::managed::{ManagedGUIState, WrappedComposite};
@@ -139,7 +140,7 @@ pub fn challenges_picker(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
         flex_row.push(ManagedWidget::btn(Button::text_bg(
             Text::from(Line(&name).size(40).fg(Color::BLACK)),
             Color::WHITE,
-            Color::ORANGE,
+            colors::HOVERING,
             hotkey(Key::NUM_KEYS[idx]),
             &name,
             ctx,

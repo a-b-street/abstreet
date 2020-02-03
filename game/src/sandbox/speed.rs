@@ -1,3 +1,4 @@
+use crate::colors;
 use crate::game::{State, Transition, WizardState};
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::ui::UI;
@@ -29,8 +30,6 @@ enum SpeedSetting {
 
 impl SpeedControls {
     fn make_panel(ctx: &mut EventCtx, paused: bool, setting: SpeedSetting) -> WrappedComposite {
-        let bg = Color::hex("#7C7C7C");
-
         let mut row = Vec::new();
         row.push(
             ManagedWidget::btn(if paused {
@@ -38,7 +37,7 @@ impl SpeedControls {
                     "assets/speed/triangle.svg",
                     "play",
                     hotkey(Key::Space),
-                    RewriteColor::ChangeAll(Color::ORANGE),
+                    RewriteColor::ChangeAll(colors::HOVERING),
                     ctx,
                 )
             } else {
@@ -46,13 +45,13 @@ impl SpeedControls {
                     "assets/speed/pause.svg",
                     "pause",
                     hotkey(Key::Space),
-                    RewriteColor::ChangeAll(Color::ORANGE),
+                    RewriteColor::ChangeAll(colors::HOVERING),
                     ctx,
                 )
             })
             .margin(5)
             .centered_vert()
-            .bg(bg),
+            .bg(colors::SECTION_BG),
         );
 
         row.push(
@@ -74,14 +73,14 @@ impl SpeedControls {
                         } else {
                             RewriteColor::ChangeAll(Color::WHITE.alpha(0.2))
                         },
-                        RewriteColor::ChangeAll(Color::ORANGE),
+                        RewriteColor::ChangeAll(colors::HOVERING),
                         ctx,
                     ))
                     .margin(5)
                 })
                 .collect(),
             )
-            .bg(bg)
+            .bg(colors::SECTION_BG)
             .centered(),
         );
 
@@ -90,7 +89,7 @@ impl SpeedControls {
                 vec![
                     ManagedWidget::btn(Button::text_no_bg(
                         Text::from(Line("+0.1s").fg(Color::WHITE).size(21).roboto()),
-                        Text::from(Line("+0.1s").fg(Color::ORANGE).size(21).roboto()),
+                        Text::from(Line("+0.1s").fg(colors::HOVERING).size(21).roboto()),
                         hotkey(Key::M),
                         "step forwards 0.1 seconds",
                         false,
@@ -98,7 +97,7 @@ impl SpeedControls {
                     )),
                     ManagedWidget::btn(Button::text_no_bg(
                         Text::from(Line("+1h").fg(Color::WHITE).size(21).roboto()),
-                        Text::from(Line("+1h").fg(Color::ORANGE).size(21).roboto()),
+                        Text::from(Line("+1h").fg(colors::HOVERING).size(21).roboto()),
                         hotkey(Key::N),
                         "step forwards 1 hour",
                         false,
@@ -108,14 +107,14 @@ impl SpeedControls {
                         "assets/speed/jump_to_time.svg",
                         "jump to specific time",
                         hotkey(Key::B),
-                        RewriteColor::ChangeAll(Color::ORANGE),
+                        RewriteColor::ChangeAll(colors::HOVERING),
                         ctx,
                     )),
                     ManagedWidget::btn(Button::rectangle_svg(
                         "assets/speed/reset.svg",
                         "reset to midnight",
                         hotkey(Key::X),
-                        RewriteColor::ChangeAll(Color::ORANGE),
+                        RewriteColor::ChangeAll(colors::HOVERING),
                         ctx,
                     )),
                 ]
@@ -123,14 +122,14 @@ impl SpeedControls {
                 .map(|x| x.margin(5))
                 .collect(),
             )
-            .bg(bg)
+            .bg(colors::SECTION_BG)
             .centered(),
         );
 
         WrappedComposite::new(
             Composite::new(
                 ManagedWidget::row(row.into_iter().map(|x| x.margin(5)).collect())
-                    .bg(Color::hex("#4C4C4C")),
+                    .bg(colors::PANEL_BG),
             )
             .aligned(
                 HorizontalAlignment::Center,
@@ -395,7 +394,7 @@ impl TimePanel {
                         batch.push(Color::WHITE, Polygon::rectangle(width, height));
                         if percent != 0.0 {
                             batch.push(
-                                Color::grey(0.5),
+                                colors::SECTION_BG,
                                 Polygon::rectangle(percent * width, height),
                             );
                         }
@@ -412,7 +411,7 @@ impl TimePanel {
                     .evenly_spaced(),
                 ])
                 .padding(10)
-                .bg(Color::hex("#4C4C4C")),
+                .bg(colors::PANEL_BG),
             )
             .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
             .build(ctx),

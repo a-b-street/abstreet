@@ -1,3 +1,4 @@
+use crate::colors;
 use crate::common::CommonState;
 use crate::game::{State, Transition};
 use crate::ui::UI;
@@ -68,7 +69,7 @@ impl WrappedComposite {
             filename,
             tooltip,
             hotkey,
-            RewriteColor::Change(Color::WHITE, Color::ORANGE),
+            RewriteColor::Change(Color::WHITE, colors::HOVERING),
             ctx,
         ))
     }
@@ -81,7 +82,7 @@ impl WrappedComposite {
     ) -> ManagedWidget {
         ManagedWidget::btn(Button::text_no_bg(
             txt.clone(),
-            txt.change_fg(Color::ORANGE),
+            txt.change_fg(colors::HOVERING),
             hotkey,
             label,
             true,
@@ -98,7 +99,7 @@ impl WrappedComposite {
         ManagedWidget::btn(Button::text_bg(
             Text::from(Line(label).fg(Color::BLACK)),
             Color::WHITE,
-            Color::ORANGE,
+            colors::HOVERING,
             hotkey,
             label,
             ctx,

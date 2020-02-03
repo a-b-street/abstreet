@@ -1,3 +1,4 @@
+use crate::colors;
 use crate::game::{State, Transition};
 use crate::helpers::plain_list_names;
 use crate::helpers::ID;
@@ -334,7 +335,7 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
         );
     }
 
-    Composite::new(ManagedWidget::col(col).bg(Color::hex("#545454")))
+    Composite::new(ManagedWidget::col(col).bg(colors::PANEL_BG))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .max_size_percent(30, 90)
         .build(ctx)
