@@ -140,17 +140,16 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
                 ui.switch_map(ctx, abstutil::path_map("montlake"));
             }
 
-            let mut latest = 0;
-            // For my sanity
-            if ui.opts.dev {
-                // TODO Don't hardcode
-                latest = 40;
-            }
-
             Some(Transition::Push(Box::new(SandboxMode::new(
                 ctx,
                 ui,
-                GameplayMode::Tutorial(latest, latest),
+                GameplayMode::Tutorial(
+                    ui.session
+                        .tutorial
+                        .as_ref()
+                        .map(|tut| tut.current)
+                        .unwrap_or(0),
+                ),
             ))))
         }),
     )

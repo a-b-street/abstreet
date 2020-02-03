@@ -77,6 +77,9 @@ fn main() {
             );
         }
     }
+    if let Some(n) = args.optional_parse("--tutorial", |s| s.parse::<usize>()) {
+        mode = sandbox::GameplayMode::Tutorial(n - 1);
+    }
 
     args.done();
 

@@ -18,7 +18,6 @@ use sim::{AgentID, BorderSpawnOverTime, CarID, OriginDestination, Scenario, Vehi
 use std::collections::BTreeSet;
 
 pub struct Tutorial {
-    state: TutorialState,
     num_interacts: usize,
 
     top_center: Composite,
@@ -37,16 +36,16 @@ pub struct Tutorial {
 }
 
 impl Tutorial {
-    pub fn new(
-        ctx: &mut EventCtx,
-        ui: &mut UI,
-        current: usize,
-        latest: usize,
-    ) -> Box<dyn GameplayState> {
-        let mut tut = TutorialState::new(ctx, ui);
-        tut.latest = latest;
+    pub fn new(ctx: &mut EventCtx, ui: &mut UI, current: usize) -> Box<dyn GameplayState> {
+        if ui.session.tutorial.is_none() {
+            ui.session.tutorial = Some(TutorialState::new(ctx, ui));
+        }
+        let mut tut = ui.session.tutorial.take().unwrap();
         tut.current = current;
-        tut.make_state(ctx, ui)
+        tut.latest = tut.latest.max(current);
+        let state = tut.make_state(ctx, ui);
+        ui.session.tutorial = Some(tut);
+        state
     }
 
     // True if we should exit
@@ -56,7 +55,9 @@ impl Tutorial {
         ui: &mut UI,
         maybe_speed: Option<&mut SpeedControls>,
     ) -> (Option<Transition>, bool) {
-        if self.state.interaction() == "Pause/resume 3 times" {
+        let tut = ui.session.tutorial.as_mut().unwrap();
+
+        if tut.interaction() == "Pause/resume 3 times" {
             let is_paused = maybe_speed.unwrap().is_paused();
             if self.was_paused && !is_paused {
                 self.was_paused = false;
@@ -66,15 +67,8 @@ impl Tutorial {
                 self.was_paused = true;
             }
             if self.num_pauses == 3 {
-                self.state.next();
-                return (
-                    Some(Transition::Replace(Box::new(SandboxMode::new(
-                        ctx,
-                        ui,
-                        GameplayMode::Tutorial(self.state.current, self.state.latest),
-                    )))),
-                    false,
-                );
+                tut.next();
+                return (Some(transition(ctx, ui)), false);
             }
         }
         (None, std::mem::replace(&mut self.exit, false))
@@ -83,9 +77,11 @@ impl Tutorial {
 
 impl GameplayState for Tutorial {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+        let mut tut = ui.session.tutorial.as_mut().unwrap();
+
         // First of all, might need to initiate warping
         if !self.warped {
-            match self.state.stage() {
+            match tut.stage() {
                 Stage::Msg { ref warp_to, .. } | Stage::Interact { ref warp_to, .. } => {
                     if let Some((id, zoom)) = warp_to {
                         self.warped = true;
@@ -108,37 +104,22 @@ impl GameplayState for Tutorial {
                     return None;
                 }
                 "Restart" => {
-                    self.state.current = 0;
-                    return Some(Transition::Replace(Box::new(SandboxMode::new(
-                        ctx,
-                        ui,
-                        GameplayMode::Tutorial(self.state.current, self.state.latest),
-                    ))));
+                    tut.current = 0;
+                    return Some(transition(ctx, ui));
                 }
                 "previous tutorial screen" => {
-                    self.state.current -= 1;
-                    return Some(Transition::Replace(Box::new(SandboxMode::new(
-                        ctx,
-                        ui,
-                        GameplayMode::Tutorial(self.state.current, self.state.latest),
-                    ))));
+                    tut.current -= 1;
+                    return Some(transition(ctx, ui));
                 }
                 "next tutorial screen" => {
-                    self.state.current += 1;
-                    return Some(Transition::Replace(Box::new(SandboxMode::new(
-                        ctx,
-                        ui,
-                        GameplayMode::Tutorial(self.state.current, self.state.latest),
-                    ))));
+                    tut.current += 1;
+                    return Some(transition(ctx, ui));
                 }
                 "edit map" => {
                     // TODO Ideally this would be an inactive button in message states
                     if self.msg_panel.is_none() {
-                        return Some(Transition::Push(Box::new(EditMode::new(
-                            ctx,
-                            ui,
-                            GameplayMode::Tutorial(self.state.current, self.state.latest),
-                        ))));
+                        let mode = GameplayMode::Tutorial(tut.current);
+                        return Some(Transition::Push(Box::new(EditMode::new(ctx, ui, mode))));
                     }
                 }
                 _ => unreachable!(),
@@ -150,17 +131,13 @@ impl GameplayState for Tutorial {
             match msg.event(ctx) {
                 Some(Outcome::Clicked(x)) => match x.as_ref() {
                     "OK" => {
-                        self.state.next();
-                        if self.state.current == self.state.stages.len() {
+                        tut.next();
+                        if tut.current == tut.stages.len() {
                             // TODO Clear edits?
                             ui.primary.clear_sim();
                             return Some(Transition::Pop);
                         } else {
-                            return Some(Transition::Replace(Box::new(SandboxMode::new(
-                                ctx,
-                                ui,
-                                GameplayMode::Tutorial(self.state.current, self.state.latest),
-                            ))));
+                            return Some(transition(ctx, ui));
                         }
                     }
                     _ => unreachable!(),
@@ -173,17 +150,13 @@ impl GameplayState for Tutorial {
         }
 
         // Interaction things
-        let interact = self.state.interaction();
+        let interact = tut.interaction();
         if interact == "Put out the fire at the Montlake Market" {
             if ui.primary.current_selection == Some(ID::Building(BuildingID(9)))
                 && ui.per_obj.left_click(ctx, "put out the... fire?")
             {
-                self.state.next();
-                return Some(Transition::Replace(Box::new(SandboxMode::new(
-                    ctx,
-                    ui,
-                    GameplayMode::Tutorial(self.state.current, self.state.latest),
-                ))));
+                tut.next();
+                return Some(transition(ctx, ui));
             }
         } else if interact
             == "Inspect one of each: lane, intersection with stop sign, building, and intersection \
@@ -274,21 +247,13 @@ impl GameplayState for Tutorial {
                 && self.inspected_stop_sign
                 && self.inspected_border
             {
-                self.state.next();
-                return Some(Transition::Replace(Box::new(SandboxMode::new(
-                    ctx,
-                    ui,
-                    GameplayMode::Tutorial(self.state.current, self.state.latest),
-                ))));
+                tut.next();
+                return Some(transition(ctx, ui));
             }
         } else if interact == "Wait until 5pm" {
             if ui.primary.sim.time() >= Time::START_OF_DAY + Duration::hours(17) {
-                self.state.next();
-                return Some(Transition::Replace(Box::new(SandboxMode::new(
-                    ctx,
-                    ui,
-                    GameplayMode::Tutorial(self.state.current, self.state.latest),
-                ))));
+                tut.next();
+                return Some(transition(ctx, ui));
             }
         } else if interact == "Escort the first northbound car until they park" {
             if let Some(ID::Car(c)) = ui.primary.current_selection {
@@ -303,12 +268,8 @@ impl GameplayState for Tutorial {
                                 ],
                             )));
                         } else {
-                            self.state.next();
-                            return Some(Transition::Replace(Box::new(SandboxMode::new(
-                                ctx,
-                                ui,
-                                GameplayMode::Tutorial(self.state.current, self.state.latest),
-                            ))));
+                            tut.next();
+                            return Some(transition(ctx, ui));
                         }
                     } else {
                         return Some(Transition::Push(msg(
@@ -348,22 +309,14 @@ impl GameplayState for Tutorial {
                             ],
                         )));
                     }
-                    self.state.next();
-                    return Some(Transition::Replace(Box::new(SandboxMode::new(
-                        ctx,
-                        ui,
-                        GameplayMode::Tutorial(self.state.current, self.state.latest),
-                    ))));
+                    tut.next();
+                    return Some(transition(ctx, ui));
                 }
             }
         } else if interact == "Watch for 2 minutes" {
             if ui.primary.sim.time() >= Time::START_OF_DAY + Duration::minutes(2) {
-                self.state.next();
-                return Some(Transition::Replace(Box::new(SandboxMode::new(
-                    ctx,
-                    ui,
-                    GameplayMode::Tutorial(self.state.current, self.state.latest),
-                ))));
+                tut.next();
+                return Some(transition(ctx, ui));
             }
         } else if interact == "Make better use of the road space" {
             if ui.primary.sim.is_done() {
@@ -425,22 +378,14 @@ impl GameplayState for Tutorial {
                     )));
                 }
                 if max <= Duration::minutes(6) + Duration::seconds(30.0) {
-                    self.state.next();
+                    tut.next();
                 }
-                return Some(Transition::Replace(Box::new(SandboxMode::new(
-                    ctx,
-                    ui,
-                    GameplayMode::Tutorial(self.state.current, self.state.latest),
-                ))));
+                return Some(transition(ctx, ui));
             }
         } else if interact == "Watch the buses for 5 minutes" {
             if ui.primary.sim.time() >= Time::START_OF_DAY + Duration::minutes(5) {
-                self.state.next();
-                return Some(Transition::Replace(Box::new(SandboxMode::new(
-                    ctx,
-                    ui,
-                    GameplayMode::Tutorial(self.state.current, self.state.latest),
-                ))));
+                tut.next();
+                return Some(transition(ctx, ui));
             }
         }
 
@@ -448,6 +393,8 @@ impl GameplayState for Tutorial {
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        let tut = ui.session.tutorial.as_ref().unwrap();
+
         if self.msg_panel.is_some() {
             // Make it clear the map can't be interacted with right now.
             g.fork_screenspace();
@@ -463,7 +410,7 @@ impl GameplayState for Tutorial {
 
         if let Some(ref msg) = self.msg_panel {
             // Arrows underneath the message panel, but on top of other panels
-            if let Stage::Msg { point_to, .. } = self.state.stage() {
+            if let Stage::Msg { point_to, .. } = tut.stage() {
                 if let Some(fxn) = point_to {
                     let pt = (fxn)(g, ui);
                     g.fork_screenspace();
@@ -484,7 +431,7 @@ impl GameplayState for Tutorial {
         }
 
         // Special things
-        if self.state.interaction() == "Put out the fire at the Montlake Market" {
+        if tut.interaction() == "Put out the fire at the Montlake Market" {
             g.draw_polygon(
                 Color::hex("#e25822"),
                 &ui.primary.map.get_b(BuildingID(9)).polygon,
@@ -602,10 +549,10 @@ impl Stage {
 }
 
 // TODO Ideally we'd replace self, not clone.
-struct TutorialState {
+pub struct TutorialState {
     stages: Vec<Stage>,
     latest: usize,
-    current: usize,
+    pub current: usize,
 }
 
 fn start_bike_lane_scenario(ui: &mut UI) {
@@ -658,6 +605,11 @@ fn start_bus_lane_scenario(ui: &mut UI) {
         &mut Timer::throwaway(),
     );
     ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
+}
+
+fn transition(ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+    let mode = GameplayMode::Tutorial(ui.session.tutorial.as_ref().unwrap().current);
+    Transition::Replace(Box::new(SandboxMode::new(ctx, ui, mode)))
 }
 
 impl TutorialState {
@@ -771,12 +723,7 @@ impl TutorialState {
             }
         }
 
-        // TODO Expensive
-        let mut state = TutorialState::new(ctx, ui);
-        state.current = self.current;
-        state.latest = self.latest;
         Box::new(Tutorial {
-            state,
             num_interacts,
 
             top_center: self.make_top_center(ctx, num_interacts >= 7),
@@ -1085,6 +1032,11 @@ impl TutorialState {
             "",
             "Go have the appropriate amount of fun.",
         ]));
+
+        // For my debugging sanity
+        if ui.opts.dev {
+            state.latest = state.stages.len() - 1;
+        }
 
         state
 

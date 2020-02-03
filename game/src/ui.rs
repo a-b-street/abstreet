@@ -5,6 +5,7 @@ use crate::options::Options;
 use crate::render::{
     AgentCache, AgentColorScheme, DrawCtx, DrawMap, DrawOptions, Renderable, MIN_ZOOM_FOR_DETAIL,
 };
+use crate::sandbox::TutorialState;
 use abstutil::{MeasureMemory, Timer};
 use ezgui::{Color, EventCtx, GfxCtx, Prerender, TextureType};
 use geom::{Bounds, Circle, Distance, Pt2D};
@@ -26,6 +27,9 @@ pub struct UI {
 
     pub per_obj: PerObjectActions,
     pub overlay: Overlays,
+
+    // Static data that lasts the entire session. Use sparingly.
+    pub session: SessionState,
 }
 
 impl UI {
@@ -78,6 +82,7 @@ impl UI {
             opts,
             per_obj: PerObjectActions::new(),
             overlay: Overlays::Inactive,
+            session: SessionState::empty(),
         }
     }
 
@@ -95,7 +100,9 @@ impl UI {
         ctx.canvas.save_camera_state(self.primary.map.get_name());
         let mut flags = self.primary.current_flags.clone();
         flags.sim_flags.load = load;
+        let session = std::mem::replace(&mut self.session, SessionState::empty());
         *self = UI::new(flags, self.opts.clone(), ctx, false);
+        self.session = session;
     }
 
     pub fn draw_ctx(&self) -> DrawCtx<'_> {
@@ -467,5 +474,15 @@ impl PerMapUI {
                 &mut Timer::new("reset simulation"),
             ),
         )
+    }
+}
+
+pub struct SessionState {
+    pub tutorial: Option<TutorialState>,
+}
+
+impl SessionState {
+    pub fn empty() -> SessionState {
+        SessionState { tutorial: None }
     }
 }

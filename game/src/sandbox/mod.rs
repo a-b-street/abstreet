@@ -11,6 +11,7 @@ use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::pregame::main_menu;
 use crate::render::DrawOptions;
 use crate::sandbox::gameplay::Tutorial;
+pub use crate::sandbox::gameplay::TutorialState;
 use crate::ui::{ShowEverything, UI};
 use ezgui::{
     hotkey, lctrl, Choice, Color, Composite, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment,

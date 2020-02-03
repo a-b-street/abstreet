@@ -7,7 +7,7 @@ mod play_scenario;
 pub mod spawner;
 mod tutorial;
 
-pub use self::tutorial::Tutorial;
+pub use self::tutorial::{Tutorial, TutorialState};
 use crate::challenges;
 use crate::challenges::challenges_picker;
 use crate::common::{CommonState, Overlays};
@@ -41,8 +41,8 @@ pub enum GameplayMode {
     // TODO Kinda gross. What stage in the tutorial?
     FixTrafficSignalsTutorial(usize),
 
-    // current, latest
-    Tutorial(usize, usize),
+    // current
+    Tutorial(usize),
 }
 
 pub trait GameplayState: downcast_rs::Downcast {
@@ -92,7 +92,7 @@ impl GameplayMode {
                 }
             }
             // TODO Some of these WILL have scenarios!
-            GameplayMode::Tutorial(_, _) => {
+            GameplayMode::Tutorial(_) => {
                 return None;
             }
             _ => "weekday".to_string(),
@@ -187,7 +187,7 @@ impl GameplayMode {
             GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial(_) => {
                 fix_traffic_signals::FixTrafficSignals::new(ctx, ui, self.clone())
             }
-            GameplayMode::Tutorial(current, latest) => Tutorial::new(ctx, ui, *current, *latest),
+            GameplayMode::Tutorial(current) => Tutorial::new(ctx, ui, *current),
         }
     }
 }
