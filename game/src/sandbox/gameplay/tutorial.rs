@@ -24,6 +24,7 @@ pub struct Tutorial {
     top_center: Composite,
 
     msg_panel: Option<Composite>,
+    exit: bool,
     // Goofy state for just some stages.
     inspected_lane: bool,
     inspected_building: bool,
@@ -48,12 +49,13 @@ impl Tutorial {
         tut.make_state(ctx, ui)
     }
 
+    // True if we should exit
     pub fn event_with_speed(
         &mut self,
         ctx: &mut EventCtx,
         ui: &mut UI,
         maybe_speed: Option<&mut SpeedControls>,
-    ) -> Option<Transition> {
+    ) -> (Option<Transition>, bool) {
         if self.state.interaction() == "Pause/resume 3 times" {
             let is_paused = maybe_speed.unwrap().is_paused();
             if self.was_paused && !is_paused {
@@ -65,14 +67,17 @@ impl Tutorial {
             }
             if self.num_pauses == 3 {
                 self.state.next();
-                return Some(Transition::Replace(Box::new(SandboxMode::new(
-                    ctx,
-                    ui,
-                    GameplayMode::Tutorial(self.state.current, self.state.latest),
-                ))));
+                return (
+                    Some(Transition::Replace(Box::new(SandboxMode::new(
+                        ctx,
+                        ui,
+                        GameplayMode::Tutorial(self.state.current, self.state.latest),
+                    )))),
+                    false,
+                );
             }
         }
-        None
+        (None, std::mem::replace(&mut self.exit, false))
     }
 }
 
@@ -99,11 +104,8 @@ impl GameplayState for Tutorial {
         match self.top_center.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "Quit" => {
-                    ui.primary.clear_sim();
-                    ui.overlay = Overlays::Inactive;
-                    // TODO do the same as sandbox mode's nice quit thing, confirm or whatever
-                    // first
-                    return Some(Transition::Pop);
+                    self.exit = true;
+                    return None;
                 }
                 "Restart" => {
                     self.state.current = 0;
@@ -802,6 +804,7 @@ impl TutorialState {
                 ),
                 Stage::Interact { .. } => None,
             },
+            exit: false,
             inspected_lane: false,
             inspected_building: false,
             inspected_stop_sign: false,

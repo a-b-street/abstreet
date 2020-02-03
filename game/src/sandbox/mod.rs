@@ -12,10 +12,9 @@ use crate::pregame::main_menu;
 use crate::render::DrawOptions;
 use crate::sandbox::gameplay::Tutorial;
 use crate::ui::{ShowEverything, UI};
-use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Choice, Color, Composite, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment,
-    Key, Line, ManagedWidget, Outcome, Text, VerticalAlignment,
+    Key, Line, ManagedWidget, Outcome, Text, VerticalAlignment, Wizard,
 };
 pub use gameplay::spawner::spawn_agents_around;
 pub use gameplay::GameplayMode;
@@ -168,8 +167,12 @@ impl State for SandboxMode {
         }
         // Sad hack. :(
         if let Some(ref mut tut) = self.gameplay.downcast_mut::<Tutorial>() {
-            if let Some(t) = tut.event_with_speed(ctx, ui, self.speed.as_mut()) {
+            let (maybe_t, exit) = tut.event_with_speed(ctx, ui, self.speed.as_mut());
+            if let Some(t) = maybe_t {
                 return t;
+            }
+            if exit {
+                return Transition::Push(WizardState::new(Box::new(exit_sandbox)));
             }
         }
 
@@ -222,56 +225,7 @@ impl State for SandboxMode {
                 }
                 Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
                     "back" => {
-                        return Transition::Push(WizardState::new(Box::new(
-                            move |wiz, ctx, ui| {
-                                let mut wizard = wiz.wrap(ctx);
-                                let dirty = ui.primary.map.get_edits().dirty;
-                                let (resp, _) = wizard.choose(
-                                    "Sure you want to abandon the current challenge?",
-                                    || {
-                                        let mut choices = Vec::new();
-                                        choices.push(Choice::new("keep playing", ()));
-                                        if dirty {
-                                            choices.push(Choice::new("save edits and quit", ()));
-                                        }
-                                        choices.push(Choice::new("quit challenge", ()).key(Key::Q));
-                                        choices
-                                    },
-                                )?;
-                                let map_name = ui.primary.map.get_name().to_string();
-                                match resp.as_str() {
-                                    "save edits and quit" => {
-                                        save_edits(&mut wizard, ui)?;
-
-                                        // Always reset edits if we just saved edits.
-                                        apply_map_edits(ctx, ui, MapEdits::new(map_name));
-                                        ui.primary.map.mark_edits_fresh();
-                                        ui.primary.map.recalculate_pathfinding_after_edits(
-                                            &mut Timer::new("reset edits"),
-                                        );
-                                        ui.primary.clear_sim();
-                                        ui.set_prebaked(None);
-                                        ctx.canvas.save_camera_state(ui.primary.map.get_name());
-                                        Some(Transition::Clear(vec![main_menu(ctx, ui)]))
-                                    }
-                                    "quit challenge" => {
-                                        if !ui.primary.map.get_edits().is_empty() {
-                                            apply_map_edits(ctx, ui, MapEdits::new(map_name));
-                                            ui.primary.map.mark_edits_fresh();
-                                            ui.primary.map.recalculate_pathfinding_after_edits(
-                                                &mut Timer::new("reset edits"),
-                                            );
-                                        }
-                                        ui.primary.clear_sim();
-                                        ui.set_prebaked(None);
-                                        ctx.canvas.save_camera_state(ui.primary.map.get_name());
-                                        Some(Transition::Clear(vec![main_menu(ctx, ui)]))
-                                    }
-                                    "keep playing" => Some(Transition::Pop),
-                                    _ => unreachable!(),
-                                }
-                            },
-                        )));
+                        return Transition::Push(WizardState::new(Box::new(exit_sandbox)));
                     }
                     _ => unreachable!(),
                 },
@@ -315,6 +269,8 @@ impl State for SandboxMode {
 
         if let Some(ref c) = self.common {
             c.draw(g, ui);
+        } else {
+            CommonState::draw_osd(g, ui, &None);
         }
         if let Some(ref tp) = self.tool_panel {
             tp.draw(g);
@@ -344,6 +300,40 @@ impl State for SandboxMode {
     fn on_destroy(&mut self, _: &mut EventCtx, ui: &mut UI) {
         ui.overlay = Overlays::Inactive;
     }
+}
+
+fn exit_sandbox(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    let mut wizard = wiz.wrap(ctx);
+    let dirty = ui.primary.map.get_edits().dirty;
+    let (resp, _) = wizard.choose("Sure you want to abandon the current challenge?", || {
+        let mut choices = Vec::new();
+        choices.push(Choice::new("keep playing", ()));
+        if dirty {
+            choices.push(Choice::new("save edits and quit", ()));
+        }
+        choices.push(Choice::new("quit challenge", ()).key(Key::Q));
+        choices
+    })?;
+    if resp == "keep playing" {
+        return Some(Transition::Pop);
+    }
+    let map_name = ui.primary.map.get_name().to_string();
+    if resp == "save edits and quit" {
+        save_edits(&mut wizard, ui)?;
+    }
+    ctx.loading_screen("reset map and sim", |ctx, mut timer| {
+        if !ui.primary.map.get_edits().is_empty() {
+            apply_map_edits(ctx, ui, MapEdits::new(map_name));
+            ui.primary.map.mark_edits_fresh();
+            ui.primary
+                .map
+                .recalculate_pathfinding_after_edits(&mut timer);
+        }
+        ui.primary.clear_sim();
+        ui.set_prebaked(None);
+    });
+    ctx.canvas.save_camera_state(ui.primary.map.get_name());
+    Some(Transition::Clear(vec![main_menu(ctx, ui)]))
 }
 
 pub struct AgentMeter {
