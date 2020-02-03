@@ -277,11 +277,10 @@ impl Button {
     }
 
     // TODO Extreme wackiness.
-    pub fn inactive_button<S: Into<String>>(label: S, ctx: &EventCtx) -> ManagedWidget {
+    pub fn inactive_btn(ctx: &EventCtx, mut txt: Text) -> ManagedWidget {
         let horiz_padding = 15.0;
         let vert_padding = 8.0;
-        let color = Color::grey(0.5);
-        let txt = Text::from(Line(label).fg(color));
+        txt = txt.change_fg(Color::grey(0.5));
         let dims = ctx.text_dims(&txt);
 
         let mut draw = DrawBoth::new(
@@ -297,5 +296,8 @@ impl Button {
             ),
         ]));
         ManagedWidget::just_draw(JustDraw::wrap(draw)).outline(2.0, Color::WHITE)
+    }
+    pub fn inactive_button<S: Into<String>>(label: S, ctx: &EventCtx) -> ManagedWidget {
+        Button::inactive_btn(ctx, Text::from(Line(label)))
     }
 }

@@ -4,7 +4,7 @@ use crate::helpers::cmp_duration_shorter;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::gameplay::{challenge_controller, FinalScore, GameplayMode, GameplayState};
 use crate::ui::UI;
-use ezgui::{EventCtx, GfxCtx, Line, ManagedWidget, Text};
+use ezgui::{Button, EventCtx, GfxCtx, Line, ManagedWidget, Text};
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, Map};
 use sim::{BorderSpawnOverTime, OriginDestination, Scenario};
@@ -91,12 +91,18 @@ fn make_top_center(ctx: &mut EventCtx, ui: &UI, mode: GameplayMode) -> WrappedCo
         vec![
             ManagedWidget::row(vec![
                 ManagedWidget::draw_text(ctx, txt).margin(5),
-                WrappedComposite::nice_text_button(
-                    ctx,
-                    Text::from(Line("details").size(20)),
-                    None,
-                    "details",
-                )
+                // TODO Should also recalculate if the overlay changes, but this is close enough
+                match ui.overlay {
+                    Overlays::FinishedTripsHistogram(_, _) => {
+                        Button::inactive_btn(ctx, Text::from(Line("details").size(20)))
+                    }
+                    _ => WrappedComposite::nice_text_button(
+                        ctx,
+                        Text::from(Line("details").size(20)),
+                        None,
+                        "details",
+                    ),
+                }
                 .align_right(),
             ]),
             ManagedWidget::draw_text(
@@ -106,7 +112,7 @@ fn make_top_center(ctx: &mut EventCtx, ui: &UI, mode: GameplayMode) -> WrappedCo
             .margin(5),
         ],
     )
-    .cb(
+    .maybe_cb(
         "details",
         Box::new(|ctx, ui| {
             ui.overlay = Overlays::finished_trips_histogram(ctx, ui);
