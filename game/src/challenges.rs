@@ -1,14 +1,10 @@
 use crate::colors;
-use crate::edit::apply_map_edits;
-use crate::game::{State, Transition, WizardState};
-use crate::managed::{ManagedGUIState, WrappedComposite};
+use crate::game::{State, Transition};
+use crate::managed::{Callback, ManagedGUIState, WrappedComposite};
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::UI;
 use abstutil::Timer;
-use ezgui::{
-    hotkey, Button, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    ManagedWidget, ModalMenu, Text, VerticalAlignment,
-};
+use ezgui::{hotkey, Button, Color, Composite, EventCtx, Key, Line, ManagedWidget, Text};
 use geom::{Duration, Time};
 use sim::{Sim, SimFlags, SimOptions, TripMode};
 use std::collections::{BTreeMap, HashSet};
@@ -122,154 +118,136 @@ pub fn all_challenges(dev: bool) -> BTreeMap<String, Vec<Challenge>> {
     tree
 }
 
-pub fn challenges_picker(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
-    let mut col = Vec::new();
-
-    col.push(ManagedWidget::row(vec![
-        WrappedComposite::svg_button(ctx, "assets/pregame/back.svg", "back", hotkey(Key::Escape)),
-        ManagedWidget::draw_text(ctx, Text::from(Line("A/B STREET").size(50))),
-    ]));
-
-    col.push(ManagedWidget::draw_text(
-        ctx,
-        Text::from(Line("CHALLENGES")),
-    ));
-
-    let mut flex_row = Vec::new();
-    for (idx, (name, _)) in all_challenges(ui.opts.dev).into_iter().enumerate() {
-        flex_row.push(ManagedWidget::btn(Button::text_bg(
-            Text::from(Line(&name).size(40).fg(Color::BLACK)),
-            Color::WHITE,
-            colors::HOVERING,
-            hotkey(Key::NUM_KEYS[idx]),
-            &name,
-            ctx,
-        )));
-    }
-    col.push(ManagedWidget::row(flex_row).flex_wrap(ctx, 80));
-
-    let mut c = WrappedComposite::new(Composite::new(ManagedWidget::col(col)).build(ctx));
-    c = c.cb("back", Box::new(|_, _| Some(Transition::Pop)));
-
-    for (name, stages) in all_challenges(ui.opts.dev) {
-        c = c.cb(
-            &name,
-            Box::new(move |_, _| {
-                // TODO Lifetime madness
-                let stages = stages.clone();
-                Some(Transition::Push(WizardState::new(Box::new(
-                    move |wiz, ctx, _| {
-                        let stages = stages.clone();
-                        let mut wizard = wiz.wrap(ctx);
-                        let (_, challenge) =
-                            wizard.choose("Which stage of this challenge?", move || {
-                                stages
-                                    .iter()
-                                    .map(|c| Choice::new(c.title.clone(), c.clone()))
-                                    .collect()
-                            })?;
-                        wizard.reset();
-                        let edits = abstutil::list_all_objects(abstutil::path_all_edits(
-                            &abstutil::basename(&challenge.map_path),
-                        ));
-                        let mut summary = Text::new().with_bg();
-                        for l in &challenge.description {
-                            summary.add(Line(l));
-                        }
-                        summary.add(Line(""));
-                        summary.add(Line(format!("{} proposals:", edits.len())));
-                        summary.add(Line(""));
-                        for e in edits {
-                            summary.add(Line(format!("- {} (untested)", e)));
-                        }
-
-                        Some(Transition::Push(Box::new(ChallengeSplash {
-                            summary,
-                            menu: ModalMenu::new(
-                                &challenge.title,
-                                vec![
-                                    (hotkey(Key::Escape), "back to challenges"),
-                                    (hotkey(Key::S), "start challenge fresh"),
-                                    (hotkey(Key::L), "load existing proposal"),
-                                ],
-                                ctx,
-                            ),
-                            challenge: challenge.clone(),
-                        })))
-                    },
-                ))))
-            }),
-        );
-    }
-
-    ManagedGUIState::fullscreen(c)
+pub fn challenges_picker(ctx: &mut EventCtx, ui: &mut UI) -> Box<dyn State> {
+    Tab::NothingChosen.make(ctx, ui)
 }
 
-struct ChallengeSplash {
-    menu: ModalMenu,
-    summary: Text,
-    challenge: Challenge,
+enum Tab {
+    NothingChosen,
+    ChallengeStage(String, usize),
 }
 
-impl State for ChallengeSplash {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        self.menu.event(ctx);
-        if self.menu.action("back to challenges") {
-            return Transition::Pop;
-        }
-        if self.menu.action("load existing proposal") {
-            let map_path = self.challenge.map_path.clone();
-            let gameplay = self.challenge.gameplay.clone();
-            return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, ui| {
-                let mut wizard = wiz.wrap(ctx);
-                let (_, new_edits) = wizard.choose("Load which map edits?", || {
-                    Choice::from(
-                        abstutil::load_all_objects(abstutil::path_all_edits(&abstutil::basename(
-                            &map_path,
-                        )))
-                        .into_iter()
-                        .filter(|(_, edits)| gameplay.allows(edits))
-                        .collect(),
-                    )
-                })?;
-                if &abstutil::basename(&map_path) != ui.primary.map.get_name() {
-                    ui.switch_map(ctx, map_path.clone());
-                }
-                apply_map_edits(ctx, ui, new_edits);
-                ui.primary.map.mark_edits_fresh();
-                ui.primary
-                    .map
-                    .recalculate_pathfinding_after_edits(&mut Timer::new("finalize loaded edits"));
-                Some(Transition::PopThenReplace(Box::new(SandboxMode::new(
-                    ctx,
-                    ui,
-                    gameplay.clone(),
-                ))))
-            })));
-        }
-        if self.menu.action("start challenge fresh") {
-            if &abstutil::basename(&self.challenge.map_path) != ui.primary.map.get_name() {
-                ui.switch_map(ctx, self.challenge.map_path.clone());
-            }
-            return Transition::Replace(Box::new(SandboxMode::new(
+impl Tab {
+    fn make(self, ctx: &mut EventCtx, ui: &mut UI) -> Box<dyn State> {
+        let mut col = Vec::new();
+        let mut cbs: Vec<(String, Callback)> = Vec::new();
+
+        col.push(ManagedWidget::row(vec![
+            WrappedComposite::svg_button(
                 ctx,
-                ui,
-                self.challenge.gameplay.clone(),
-            )));
-        }
-        Transition::Keep
-    }
+                "assets/pregame/back.svg",
+                "back",
+                hotkey(Key::Escape),
+            ),
+            ManagedWidget::draw_text(ctx, Text::from(Line("A/B STREET").size(50))),
+        ]));
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        g.draw_blocking_text(
-            &self.summary,
-            (HorizontalAlignment::Center, VerticalAlignment::Center),
-        );
-        self.menu.draw(g);
+        col.push(ManagedWidget::draw_text(
+            ctx,
+            Text::from(Line("CHALLENGES")),
+        ));
+
+        // First list challenges
+        let mut flex_row = Vec::new();
+        for (idx, (name, _)) in all_challenges(ui.opts.dev).into_iter().enumerate() {
+            let current = match self {
+                Tab::NothingChosen => false,
+                Tab::ChallengeStage(ref n, _) => &name == n,
+            };
+            if current {
+                flex_row.push(Button::inactive_button(name, ctx));
+            } else {
+                flex_row.push(ManagedWidget::btn(Button::text_bg(
+                    Text::from(Line(&name).size(40).fg(Color::BLACK)),
+                    Color::WHITE,
+                    colors::HOVERING,
+                    hotkey(Key::NUM_KEYS[idx]),
+                    &name,
+                    ctx,
+                )));
+                cbs.push((
+                    name.clone(),
+                    Box::new(move |ctx, ui| {
+                        Some(Transition::Replace(
+                            Tab::ChallengeStage(name.clone(), 0).make(ctx, ui),
+                        ))
+                    }),
+                ));
+            }
+        }
+        col.push(ManagedWidget::row(flex_row).flex_wrap(ctx, 80));
+
+        // List stages
+        if let Tab::ChallengeStage(ref name, current) = self {
+            let mut flex_row = Vec::new();
+            for (idx, stage) in all_challenges(ui.opts.dev)
+                .remove(name)
+                .unwrap()
+                .into_iter()
+                .enumerate()
+            {
+                if current == idx {
+                    flex_row.push(Button::inactive_button(&stage.title, ctx));
+                } else {
+                    flex_row.push(WrappedComposite::text_button(ctx, &stage.title, None));
+                    let name = name.to_string();
+                    cbs.push((
+                        stage.title,
+                        Box::new(move |ctx, ui| {
+                            Some(Transition::Replace(
+                                Tab::ChallengeStage(name.clone(), idx).make(ctx, ui),
+                            ))
+                        }),
+                    ));
+                }
+            }
+            col.push(ManagedWidget::row(flex_row).flex_wrap(ctx, 80));
+        }
+
+        // Describe the specific stage
+        if let Tab::ChallengeStage(ref name, current) = self {
+            let challenge = all_challenges(ui.opts.dev)
+                .remove(name)
+                .unwrap()
+                .remove(current);
+            let mut txt = Text::new();
+            for l in &challenge.description {
+                txt.add(Line(l));
+            }
+            col.push(ManagedWidget::draw_text(ctx, txt));
+            col.push(WrappedComposite::text_button(
+                ctx,
+                "Start!",
+                hotkey(Key::Enter),
+            ));
+            cbs.push((
+                "Start!".to_string(),
+                Box::new(move |ctx, ui| {
+                    if &abstutil::basename(&challenge.map_path) != ui.primary.map.get_name() {
+                        ui.switch_map(ctx, challenge.map_path.clone());
+                    }
+                    Some(Transition::Replace(Box::new(SandboxMode::new(
+                        ctx,
+                        ui,
+                        challenge.gameplay.clone(),
+                    ))))
+                }),
+            ));
+        }
+
+        let mut c = WrappedComposite::new(
+            Composite::new(ManagedWidget::col(col))
+                .max_size_percent(100, 85)
+                .build(ctx),
+        )
+        .cb("back", Box::new(|_, _| Some(Transition::Pop)));
+        for (name, cb) in cbs {
+            c = c.cb(&name, cb);
+        }
+        ManagedGUIState::fullscreen(c)
     }
 }
 
-// TODO Move to sim crate
 pub fn prebake() {
     let mut timer = Timer::new("prebake all challenge results");
 

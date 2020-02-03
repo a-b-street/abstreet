@@ -9,7 +9,8 @@ use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use abstutil::Counter;
 use ezgui::{
-    hotkey, Color, Composite, EventCtx, Histogram, Key, Line, ManagedWidget, Plot, Series, Text,
+    hotkey, Button, Color, Composite, EventCtx, Histogram, Key, Line, ManagedWidget, Plot, Series,
+    Text,
 };
 use geom::{Duration, Statistic, Time};
 use map_model::BusRouteID;
@@ -40,10 +41,11 @@ pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
         .iter()
         .map(|(t, label)| {
             if *t == tab {
-                ManagedWidget::draw_text(ctx, Text::from(Line(*label))).margin(5)
+                Button::inactive_button(*label, ctx)
             } else {
-                WrappedComposite::text_button(ctx, label, None).margin(5)
+                WrappedComposite::text_button(ctx, label, None)
             }
+            .margin(5)
         })
         .collect::<Vec<_>>();
     tabs.push(WrappedComposite::text_button(ctx, "BACK", hotkey(Key::Escape)).margin(5));
