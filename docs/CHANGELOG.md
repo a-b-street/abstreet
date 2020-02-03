@@ -269,3 +269,12 @@ changes here.
 - tune info panel contents, and show relationships between parked cars and buildings
 - fixes to traffic signal editor, like making all-walk conversion idempotent
 - nicer throughput and delay plots (sliding windows, grid lines)
+
+0.1.26
+
+- tutorial improved in a few places
+- map data: thinner sidewalks, associate buildings with named amenities
+- traffic model: vehicles can spawn on all lanes from a border
+- much better gameplay speed (previously was too fast)
+- UI tuning: lane editor, minimap, signal editor, heatmap legends don't overwrite minimap
+- traffic signal challenge communicates score more clearly

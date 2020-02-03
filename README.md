@@ -5,9 +5,9 @@ road instead of a bus lane? A/B Street is a game exploring how small changes to
 a city affect the movement of drivers, cyclists, transit users, and pedestrians.
 
 - Play on
-  [Windows](https://github.com/dabreegster/abstreet/releases/download/v0.1.25/abstreet_windows_v0_1_25.zip),
-  [Mac](https://github.com/dabreegster/abstreet/releases/download/v0.1.25/abstreet_mac_v0_1_25.zip),
-  [Linux](https://github.com/dabreegster/abstreet/releases/download/v0.1.25/abstreet_linux_v0_1_25.zip),
+  [Windows](https://github.com/dabreegster/abstreet/releases/download/v0.1.26/abstreet_windows_v0_1_26.zip),
+  [Mac](https://github.com/dabreegster/abstreet/releases/download/v0.1.26/abstreet_mac_v0_1_26.zip),
+  [Linux](https://github.com/dabreegster/abstreet/releases/download/v0.1.26/abstreet_linux_v0_1_26.zip),
   or [read all instructions](docs/INSTRUCTIONS.md)
 - [build from source](docs/dev.md)
 
@@ -65,7 +65,8 @@ Watching the Mercer backup start at 4am:
 
 ### Roadmap
 
-Aiming for a first playable release in January 2020. After that:
+In February 2020, user-testing and polishing before a wider announcement. After
+that:
 
 - Model more things: light rail, shared bike/walking paths, ridesharing, utility
   functions for different groups
