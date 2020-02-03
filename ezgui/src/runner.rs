@@ -98,10 +98,10 @@ impl<G: GUI> State<G> {
             }
         };
         // TODO We should always do has_been_consumed, but various hacks prevent this from being
-        // true. For now, just avoid the specific annoying redraw case when a KeyRelease or Update
-        // event is unused.
+        // true. For now, just avoid the specific annoying redraw case when a KeyRelease event is
+        // unused.
         let input_used = match ev {
-            Event::KeyRelease(_) | Event::Update(_) => ctx.input.has_been_consumed(),
+            Event::KeyRelease(_) => ctx.input.has_been_consumed(),
             _ => true,
         };
         self.gui = gui;
