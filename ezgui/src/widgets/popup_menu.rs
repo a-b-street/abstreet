@@ -74,6 +74,10 @@ impl<T: Clone> PopupMenu<T> {
                         self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
                         return;
                     }
+                } else {
+                    // Clicked on the map? Cancel out
+                    self.state = InputResult::Canceled;
+                    return;
                 }
             }
         }

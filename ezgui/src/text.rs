@@ -9,7 +9,7 @@ use textwrap;
 const FG_COLOR: Color = Color::WHITE;
 pub const BG_COLOR: Color = Color::grey(0.3);
 pub const PROMPT_COLOR: Color = Color::BLUE;
-pub const SELECTED_COLOR: Color = Color::RED;
+pub const SELECTED_COLOR: Color = Color::grey(0.5);
 pub const HOTKEY_COLOR: Color = Color::GREEN;
 pub const INACTIVE_CHOICE_COLOR: Color = Color::grey(0.4);
 

@@ -234,7 +234,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
     pub fn choose_exact<R: 'static + Clone + Cloneable, F: FnOnce() -> Vec<Choice<R>>>(
         &mut self,
         (horiz, vert): (HorizontalAlignment, VerticalAlignment),
-        query: &str,
+        query: Option<&str>,
         choices_generator: F,
     ) -> Option<(String, R)> {
         if !self.ready_results.is_empty() {
@@ -268,20 +268,26 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         if self.wizard.menu_comp.is_none() {
             let choices: Vec<Choice<R>> = choices_generator();
             if choices.is_empty() {
-                let mut txt = Text::prompt(query);
+                let mut txt = if let Some(l) = query {
+                    Text::prompt(l)
+                } else {
+                    Text::new()
+                };
                 txt.add(Line("No choices, never mind"));
                 self.setup_ack(txt);
                 return None;
             }
+            let mut col = Vec::new();
+            if let Some(l) = query {
+                col.push(ManagedWidget::draw_text(self.ctx, Text::prompt(l)));
+            }
+            col.push(ManagedWidget::menu("menu"));
             self.wizard.menu_comp = Some(
                 Composite::new(
-                    ManagedWidget::col(vec![
-                        ManagedWidget::draw_text(self.ctx, Text::prompt(query)),
-                        ManagedWidget::menu("menu"),
-                    ])
-                    .bg(Color::grey(0.4))
-                    .outline(10.0, Color::WHITE)
-                    .padding(10),
+                    ManagedWidget::col(col)
+                        .bg(Color::grey(0.4))
+                        .outline(5.0, Color::WHITE)
+                        .padding(5),
                 )
                 .aligned(horiz, vert)
                 .menu(
@@ -339,7 +345,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
     ) -> Option<(String, R)> {
         self.choose_exact(
             (HorizontalAlignment::Center, VerticalAlignment::Center),
-            query,
+            Some(query),
             choices_generator,
         )
     }

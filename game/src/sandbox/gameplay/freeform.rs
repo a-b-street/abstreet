@@ -158,7 +158,7 @@ fn make_load_map(btn: ScreenRectangle, gameplay: GameplayMode) -> Box<dyn State>
                 HorizontalAlignment::Centered(btn.center().x),
                 VerticalAlignment::Below(btn.y2 + 15.0),
             ),
-            "Load which map?",
+            None,
             || {
                 let current_map = ui.primary.map.get_name();
                 abstutil::list_all_objects(abstutil::path_all_maps())
@@ -190,7 +190,7 @@ fn make_change_traffic(btn: ScreenRectangle) -> Box<dyn State> {
                 HorizontalAlignment::Centered(btn.center().x),
                 VerticalAlignment::Below(btn.y2 + 15.0),
             ),
-            "Run what type of traffic?",
+            None,
             || {
                 let mut list = Vec::new();
                 for name in abstutil::list_all_objects(abstutil::path_all_scenarios(
