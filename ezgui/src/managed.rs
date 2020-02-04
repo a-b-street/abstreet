@@ -848,12 +848,16 @@ impl Composite {
         ScreenRectangle::top_left(f.top_left, f.dims)
     }
 
-    pub fn center_of(&self, name: &str) -> ScreenPt {
+    pub fn rect_of(&self, name: &str) -> &ScreenRectangle {
         if let Some(rect) = self.top_level.rect_of(name) {
-            rect.center()
+            rect
         } else {
             panic!("Can't find center_of {}", name);
         }
+    }
+    // TODO Deprecate
+    pub fn center_of(&self, name: &str) -> ScreenPt {
+        self.rect_of(name).center()
     }
     pub fn center_of_panel(&self) -> ScreenPt {
         self.top_level.rect.center()
@@ -861,7 +865,7 @@ impl Composite {
 
     pub fn align_above(&mut self, ctx: &mut EventCtx, other: &Composite) {
         // Small padding
-        self.vert = VerticalAlignment::TopAt(other.top_level.rect.y1 - 5.0);
+        self.vert = VerticalAlignment::Above(other.top_level.rect.y1 - 5.0);
         self.recompute_layout(ctx);
     }
 }

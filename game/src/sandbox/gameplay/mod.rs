@@ -21,8 +21,8 @@ use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{
-    lctrl, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    ManagedWidget, ModalMenu, Outcome, Text, VerticalAlignment, Wizard,
+    lctrl, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    ManagedWidget, ModalMenu, Outcome, Text, VerticalAlignment,
 };
 use geom::{Duration, Polygon};
 use map_model::{EditCmd, Map, MapEdits};
@@ -191,42 +191,6 @@ impl GameplayMode {
             GameplayMode::Tutorial(current) => Tutorial::new(ctx, ui, *current),
         }
     }
-}
-
-fn change_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
-    let (_, scenario_name) = wiz.wrap(ctx).choose("Run what type of traffic?", || {
-        let mut list = Vec::new();
-        for name in
-            abstutil::list_all_objects(abstutil::path_all_scenarios(ui.primary.map.get_name()))
-        {
-            let nice_name = if name == "weekday" {
-                "realistic weekday traffic".to_string()
-            } else {
-                name.clone()
-            };
-            list.push(Choice::new(nice_name, name));
-        }
-        list.push(Choice::new(
-            "random unrealistic trips",
-            "random".to_string(),
-        ));
-        list.push(Choice::new("just buses", "just buses".to_string()));
-        list.push(Choice::new(
-            "none (you manually spawn traffic)",
-            "empty".to_string(),
-        ));
-        list
-    })?;
-    ui.primary.clear_sim();
-    Some(Transition::PopThenReplace(Box::new(SandboxMode::new(
-        ctx,
-        ui,
-        if scenario_name == "empty" {
-            GameplayMode::Freeform
-        } else {
-            GameplayMode::PlayScenario(scenario_name)
-        },
-    ))))
 }
 
 // Must call menu.event first. Returns true if the caller should set the overlay to the custom

@@ -3,12 +3,12 @@ use crate::edit::EditMode;
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::{nice_map_name, ID};
 use crate::managed::{WrappedComposite, WrappedOutcome};
-use crate::sandbox::gameplay::{change_scenario, spawner, GameplayMode, GameplayState};
+use crate::sandbox::gameplay::{spawner, GameplayMode, GameplayState};
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use ezgui::{
     hotkey, lctrl, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, ManagedWidget, Text, VerticalAlignment,
+    Line, ManagedWidget, ScreenRectangle, Text, VerticalAlignment,
 };
 use geom::Polygon;
 use map_model::IntersectionID;
@@ -75,85 +75,99 @@ pub fn freeform_controller(
     gameplay: GameplayMode,
     scenario_name: &str,
 ) -> WrappedComposite {
-    WrappedComposite::new(
-        Composite::new(
-            ManagedWidget::row(vec![
-                ManagedWidget::draw_text(ctx, Text::from(Line("Sandbox").size(26))).margin(5),
-                ManagedWidget::draw_batch(
-                    ctx,
-                    GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
-                )
-                .margin(5),
-                ManagedWidget::draw_text(ctx, Text::from(Line("Map:").size(18).roboto_bold()))
-                    .margin(5),
-                WrappedComposite::nice_text_button(
-                    ctx,
-                    Text::from(
-                        Line(format!("{} ▼", nice_map_name(ui.primary.map.get_name())))
-                            .size(18)
-                            .roboto(),
-                    ),
-                    lctrl(Key::L),
-                    "change map",
-                )
-                .margin(5),
-                ManagedWidget::draw_text(ctx, Text::from(Line("Traffic:").size(18).roboto_bold()))
-                    .margin(5),
-                WrappedComposite::nice_text_button(
-                    ctx,
-                    Text::from(Line(format!("{} ▼", scenario_name)).size(18).roboto()),
-                    hotkey(Key::S),
-                    "change scenario",
-                )
-                .margin(5),
-                WrappedComposite::svg_button(
-                    ctx,
-                    "assets/tools/edit_map.svg",
-                    "edit map",
-                    lctrl(Key::E),
-                )
-                .margin(5),
-            ])
-            .centered()
-            .bg(colors::PANEL_BG),
-        )
-        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-        .build(ctx),
-    )
-    .cb("change map", {
-        let gameplay = gameplay.clone();
-        Box::new(move |_, _| Some(Transition::Push(make_load_map(gameplay.clone()))))
-    })
-    .cb(
-        "change scenario",
-        Box::new(|_, _| {
-            Some(Transition::Push(WizardState::new(Box::new(
-                change_scenario,
-            ))))
-        }),
-    )
-    .cb(
-        "edit map",
-        Box::new(move |ctx, ui| {
-            Some(Transition::Push(Box::new(EditMode::new(
+    let c = Composite::new(
+        ManagedWidget::row(vec![
+            ManagedWidget::draw_text(ctx, Text::from(Line("Sandbox").size(26))).margin(5),
+            ManagedWidget::draw_batch(
                 ctx,
-                ui,
-                gameplay.clone(),
-            ))))
-        }),
+                GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
+            )
+            .margin(5),
+            ManagedWidget::draw_text(ctx, Text::from(Line("Map:").size(18).roboto_bold()))
+                .margin(5),
+            WrappedComposite::nice_text_button(
+                ctx,
+                Text::from(
+                    Line(format!("{} ▼", nice_map_name(ui.primary.map.get_name())))
+                        .size(18)
+                        .roboto(),
+                ),
+                lctrl(Key::L),
+                "change map",
+            )
+            .margin(5),
+            ManagedWidget::draw_text(ctx, Text::from(Line("Traffic:").size(18).roboto_bold()))
+                .margin(5),
+            WrappedComposite::nice_text_button(
+                ctx,
+                Text::from(Line(format!("{} ▼", scenario_name)).size(18).roboto()),
+                hotkey(Key::S),
+                "change traffic",
+            )
+            .margin(5),
+            WrappedComposite::svg_button(
+                ctx,
+                "assets/tools/edit_map.svg",
+                "edit map",
+                lctrl(Key::E),
+            )
+            .margin(5),
+        ])
+        .centered()
+        .bg(colors::PANEL_BG),
     )
+    .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+    .build(ctx);
+    let map_picker = c.rect_of("change map").clone();
+    let traffic_picker = c.rect_of("change traffic").clone();
+
+    WrappedComposite::new(c)
+        .cb("change map", {
+            let gameplay = gameplay.clone();
+            Box::new(move |_, _| {
+                Some(Transition::Push(make_load_map(
+                    map_picker.clone(),
+                    gameplay.clone(),
+                )))
+            })
+        })
+        .cb(
+            "change traffic",
+            Box::new(move |_, _| {
+                Some(Transition::Push(make_change_traffic(
+                    traffic_picker.clone(),
+                )))
+            }),
+        )
+        .cb(
+            "edit map",
+            Box::new(move |ctx, ui| {
+                Some(Transition::Push(Box::new(EditMode::new(
+                    ctx,
+                    ui,
+                    gameplay.clone(),
+                ))))
+            }),
+        )
 }
 
-fn make_load_map(gameplay: GameplayMode) -> Box<dyn State> {
+fn make_load_map(btn: ScreenRectangle, gameplay: GameplayMode) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, ui| {
-        if let Some((_, name)) = wiz.wrap(ctx).choose("Load which map?", || {
-            let current_map = ui.primary.map.get_name();
-            abstutil::list_all_objects(abstutil::path_all_maps())
-                .into_iter()
-                .filter(|n| n != current_map)
-                .map(|n| Choice::new(nice_map_name(&n), n.clone()))
-                .collect()
-        }) {
+        if let Some((_, name)) = wiz.wrap(ctx).choose_exact(
+            (
+                HorizontalAlignment::Centered(btn.center().x),
+                VerticalAlignment::Below(btn.y2 + 15.0),
+            ),
+            "Load which map?",
+            || {
+                let current_map = ui.primary.map.get_name();
+                abstutil::list_all_objects(abstutil::path_all_maps())
+                    .into_iter()
+                    .filter(|n| n != current_map)
+                    .map(|n| Choice::new(nice_map_name(&n), n.clone()))
+                    .collect()
+            },
+        ) {
             ui.switch_map(ctx, abstutil::path_map(&name));
             // Assume a scenario with the same name exists.
             Some(Transition::PopThenReplace(Box::new(SandboxMode::new(
@@ -166,5 +180,50 @@ fn make_load_map(gameplay: GameplayMode) -> Box<dyn State> {
         } else {
             None
         }
+    }))
+}
+
+fn make_change_traffic(btn: ScreenRectangle) -> Box<dyn State> {
+    WizardState::new(Box::new(move |wiz, ctx, ui| {
+        let (_, scenario_name) = wiz.wrap(ctx).choose_exact(
+            (
+                HorizontalAlignment::Centered(btn.center().x),
+                VerticalAlignment::Below(btn.y2 + 15.0),
+            ),
+            "Run what type of traffic?",
+            || {
+                let mut list = Vec::new();
+                for name in abstutil::list_all_objects(abstutil::path_all_scenarios(
+                    ui.primary.map.get_name(),
+                )) {
+                    let nice_name = if name == "weekday" {
+                        "realistic weekday traffic".to_string()
+                    } else {
+                        name.clone()
+                    };
+                    list.push(Choice::new(nice_name, name));
+                }
+                list.push(Choice::new(
+                    "random unrealistic trips",
+                    "random".to_string(),
+                ));
+                list.push(Choice::new("just buses", "just buses".to_string()));
+                list.push(Choice::new(
+                    "none (you manually spawn traffic)",
+                    "empty".to_string(),
+                ));
+                list
+            },
+        )?;
+        ui.primary.clear_sim();
+        Some(Transition::PopThenReplace(Box::new(SandboxMode::new(
+            ctx,
+            ui,
+            if scenario_name == "empty" {
+                GameplayMode::Freeform
+            } else {
+                GameplayMode::PlayScenario(scenario_name)
+            },
+        ))))
     }))
 }

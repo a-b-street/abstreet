@@ -1,8 +1,8 @@
 use crate::widgets::text_box::TextBox;
 use crate::widgets::PopupMenu;
 use crate::{
-    hotkey, layout, Button, Color, Composite, EventCtx, GfxCtx, InputResult, Key, Line,
-    ManagedWidget, MultiKey, Outcome, SliderWithTextBox, Text,
+    hotkey, layout, Button, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, InputResult,
+    Key, Line, ManagedWidget, MultiKey, Outcome, SliderWithTextBox, Text, VerticalAlignment,
 };
 use abstutil::Cloneable;
 use geom::Time;
@@ -231,8 +231,9 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         )
     }
 
-    pub fn choose<R: 'static + Clone + Cloneable, F: FnOnce() -> Vec<Choice<R>>>(
+    pub fn choose_exact<R: 'static + Clone + Cloneable, F: FnOnce() -> Vec<Choice<R>>>(
         &mut self,
+        (horiz, vert): (HorizontalAlignment, VerticalAlignment),
         query: &str,
         choices_generator: F,
     ) -> Option<(String, R)> {
@@ -282,6 +283,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                     .outline(10.0, Color::WHITE)
                     .padding(10),
                 )
+                .aligned(horiz, vert)
                 .menu(
                     "menu",
                     PopupMenu::new(
@@ -328,6 +330,18 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             self.wizard.menu_comp = None;
         }
         result
+    }
+
+    pub fn choose<R: 'static + Clone + Cloneable, F: FnOnce() -> Vec<Choice<R>>>(
+        &mut self,
+        query: &str,
+        choices_generator: F,
+    ) -> Option<(String, R)> {
+        self.choose_exact(
+            (HorizontalAlignment::Center, VerticalAlignment::Center),
+            query,
+            choices_generator,
+        )
     }
 
     pub fn choose_string<S: Into<String>, F: Fn() -> Vec<S>>(
