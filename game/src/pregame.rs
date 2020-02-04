@@ -75,11 +75,13 @@ impl State for TitleScreen {
 
 pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
     let mut col = vec![
-        ManagedWidget::row(vec![{
-            let mut txt = Text::from(Line("A/B STREET").size(50));
+        WrappedComposite::svg_button(ctx, "assets/pregame/quit.svg", "quit", hotkey(Key::Escape))
+            .align_left(),
+        {
+            let mut txt = Text::from(Line("A/B STREET").size(100));
             txt.add(Line("Created by Dustin Carlino"));
-            ManagedWidget::draw_text(ctx, txt)
-        }]),
+            ManagedWidget::draw_text(ctx, txt).centered_horiz()
+        },
         ManagedWidget::row(vec![
             WrappedComposite::svg_button(
                 ctx,
@@ -103,29 +105,26 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
         .centered(),
     ];
     if ui.opts.dev {
-        col.push(ManagedWidget::row(vec![
-            WrappedComposite::text_bg_button(ctx, "INTERNAL DEV TOOLS", hotkey(Key::M)),
-            WrappedComposite::text_bg_button(ctx, "INTERNAL A/B TEST MODE", hotkey(Key::A)),
-        ]));
+        col.push(
+            ManagedWidget::row(vec![
+                WrappedComposite::text_bg_button(ctx, "INTERNAL DEV TOOLS", hotkey(Key::M)),
+                WrappedComposite::text_bg_button(ctx, "INTERNAL A/B TEST MODE", hotkey(Key::A)),
+            ])
+            .centered(),
+        );
     }
-    col.push(WrappedComposite::text_bg_button(
-        ctx,
-        "About A/B Street",
-        None,
-    ));
-    col.push(ManagedWidget::draw_text(ctx, built_info::time()));
+    col.push(
+        ManagedWidget::col(vec![
+            WrappedComposite::text_bg_button(ctx, "About A/B Street", None),
+            ManagedWidget::draw_text(ctx, built_info::time()),
+        ])
+        .centered(),
+    );
 
     let mut c = WrappedComposite::new(
-        Composite::new(ManagedWidget::row(vec![
-            WrappedComposite::svg_button(
-                ctx,
-                "assets/pregame/quit.svg",
-                "quit",
-                hotkey(Key::Escape),
-            ),
-            ManagedWidget::col(col).centered(),
-        ]))
-        .build(ctx),
+        Composite::new(ManagedWidget::col(col).evenly_spaced())
+            .exact_size_percent(90, 90)
+            .build(ctx),
     )
     .cb(
         "quit",
@@ -196,12 +195,10 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
 fn about(ctx: &mut EventCtx) -> Box<dyn State> {
     let mut col = Vec::new();
 
-    col.push(WrappedComposite::svg_button(
-        ctx,
-        "assets/pregame/back.svg",
-        "back",
-        hotkey(Key::Escape),
-    ));
+    col.push(
+        WrappedComposite::svg_button(ctx, "assets/pregame/back.svg", "back", hotkey(Key::Escape))
+            .align_left(),
+    );
 
     let mut txt = Text::new();
     txt.add(Line("A/B STREET").size(50));
@@ -240,11 +237,19 @@ fn about(ctx: &mut EventCtx) -> Box<dyn State> {
         "people is probably coincidental, except for PedestrianID(42). ",
     ));
     txt.add(Line("Have the appropriate amount of fun."));
-    col.push(ManagedWidget::draw_text(ctx, txt));
+    col.push(
+        ManagedWidget::draw_text(ctx, txt)
+            .centered_horiz()
+            .align_vert_center(),
+    );
 
     ManagedGUIState::fullscreen(
-        WrappedComposite::new(Composite::new(ManagedWidget::col(col)).build(ctx))
-            .cb("back", Box::new(|_, _| Some(Transition::Pop))),
+        WrappedComposite::new(
+            Composite::new(ManagedWidget::col(col))
+                .exact_size_percent(90, 90)
+                .build(ctx),
+        )
+        .cb("back", Box::new(|_, _| Some(Transition::Pop))),
     )
 }
 

@@ -31,13 +31,13 @@ pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
         (Tab::FinishedTripsSummary, "Finished trips summary"),
         (
             Tab::IndividualFinishedTrips(None),
-            "Deep-dive into individual finished trips",
+            "Individual finished trips",
         ),
         (Tab::ParkingOverhead, "Parking overhead analysis"),
         (Tab::ExploreBusRoute, "Explore a bus route"),
     ];
 
-    let mut tabs = tab_data
+    let tabs = tab_data
         .iter()
         .map(|(t, label)| {
             if *t == tab {
@@ -48,7 +48,6 @@ pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
             .margin(5)
         })
         .collect::<Vec<_>>();
-    tabs.push(WrappedComposite::text_button(ctx, "BACK", hotkey(Key::Escape)).margin(5));
 
     let (content, cbs) = match tab {
         Tab::FinishedTripsSummary => (finished_trips_summary_prebaked(ctx, ui), Vec::new()),
@@ -59,18 +58,28 @@ pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
     };
 
     let mut c = WrappedComposite::new(
-        Composite::new(ManagedWidget::col(vec![
-            ManagedWidget::row(tabs)
-                .evenly_spaced()
-                .bg(colors::PANEL_BG)
-                .padding(10),
-            content,
-        ]))
-        // Leave room for OSD
-        .max_size_percent(100, 85)
+        Composite::new(
+            ManagedWidget::col(vec![
+                WrappedComposite::svg_button(
+                    ctx,
+                    "assets/pregame/back.svg",
+                    "back",
+                    hotkey(Key::Escape),
+                )
+                .align_left(),
+                ManagedWidget::row(tabs)
+                    .evenly_spaced()
+                    .bg(colors::PANEL_BG)
+                    .padding(10),
+                content.bg(colors::PANEL_BG),
+            ])
+            .evenly_spaced(),
+        )
+        // TODO Want to use exact, but then scrolling breaks
+        .max_size_percent(90, 90)
         .build(ctx),
     )
-    .cb("BACK", Box::new(|_, _| Some(Transition::Pop)));
+    .cb("back", Box::new(|_, _| Some(Transition::Pop)));
     for (t, label) in tab_data {
         // TODO Not quite... all the IndividualFinishedTrips variants need to act the same
         if t != tab {

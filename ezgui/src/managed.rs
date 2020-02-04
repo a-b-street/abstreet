@@ -154,12 +154,31 @@ impl ManagedWidget {
         self
     }
 
+    pub fn align_left(mut self) -> ManagedWidget {
+        self.style.margin = Some(Rect {
+            start: Dimension::Undefined,
+            end: Dimension::Auto,
+            top: Dimension::Undefined,
+            bottom: Dimension::Undefined,
+        });
+        self
+    }
     pub fn align_right(mut self) -> ManagedWidget {
         self.style.margin = Some(Rect {
             start: Dimension::Auto,
             end: Dimension::Undefined,
             top: Dimension::Undefined,
             bottom: Dimension::Undefined,
+        });
+        self
+    }
+    // This doesn't count against the entire container
+    pub fn align_vert_center(mut self) -> ManagedWidget {
+        self.style.margin = Some(Rect {
+            start: Dimension::Undefined,
+            end: Dimension::Undefined,
+            top: Dimension::Auto,
+            bottom: Dimension::Auto,
         });
         self
     }
@@ -558,6 +577,11 @@ impl ManagedWidget {
     }
 }
 
+enum Dims {
+    MaxPercent(f64, f64),
+    ExactPercent(f64, f64),
+}
+
 pub struct CompositeBuilder {
     top_level: ManagedWidget,
 
@@ -567,8 +591,7 @@ pub struct CompositeBuilder {
 
     horiz: HorizontalAlignment,
     vert: VerticalAlignment,
-    max_percent_width: f64,
-    max_percent_height: f64,
+    dims: Dims,
 }
 
 pub struct Composite {
@@ -580,8 +603,7 @@ pub struct Composite {
 
     horiz: HorizontalAlignment,
     vert: VerticalAlignment,
-    max_percent_width: f64,
-    max_percent_height: f64,
+    dims: Dims,
 
     scrollable_x: bool,
     scrollable_y: bool,
@@ -609,8 +631,7 @@ impl Composite {
 
             horiz: HorizontalAlignment::Center,
             vert: VerticalAlignment::Center,
-            max_percent_width: 1.0,
-            max_percent_height: 1.0,
+            dims: Dims::MaxPercent(1.0, 1.0),
         }
     }
 
@@ -755,6 +776,24 @@ impl Composite {
         } else {
             g.canvas.mark_covered_area(self.top_level.rect.clone());
         }
+
+        // Debugging
+        if false {
+            g.fork_screenspace();
+            g.draw_polygon(Color::RED.alpha(0.5), &self.top_level.rect.to_polygon());
+
+            let top_left = g
+                .canvas
+                .align_window(self.container_dims, self.horiz, self.vert);
+            g.draw_polygon(
+                Color::BLUE.alpha(0.5),
+                &Polygon::rectangle(self.container_dims.width, self.container_dims.height)
+                    .translate(top_left.x, top_left.y),
+            );
+        }
+
+        g.unfork();
+
         self.top_level.draw(g, &self.sliders, &self.menus);
         if self.scrollable_x || self.scrollable_y {
             g.disable_clipping();
@@ -837,8 +876,7 @@ impl CompositeBuilder {
 
             horiz: self.horiz,
             vert: self.vert,
-            max_percent_width: self.max_percent_width,
-            max_percent_height: self.max_percent_height,
+            dims: self.dims,
 
             scrollable_x: false,
             scrollable_y: false,
@@ -846,17 +884,24 @@ impl CompositeBuilder {
             container_dims: ScreenDims::new(0.0, 0.0),
             clip_rect: None,
         };
+        if let Dims::ExactPercent(w, h) = c.dims {
+            c.top_level.style.size = Some(Size {
+                width: Dimension::Points((w * ctx.canvas.window_width) as f32),
+                height: Dimension::Points((h * ctx.canvas.window_height) as f32),
+            });
+        }
         c.recompute_layout(ctx);
 
         c.contents_dims = ScreenDims::new(c.top_level.rect.width(), c.top_level.rect.height());
-        c.container_dims = ScreenDims::new(
-            c.contents_dims
-                .width
-                .min(c.max_percent_width * ctx.canvas.window_width),
-            c.contents_dims
-                .height
-                .min(c.max_percent_height * ctx.canvas.window_height),
-        );
+        c.container_dims = match c.dims {
+            Dims::MaxPercent(w, h) => ScreenDims::new(
+                c.contents_dims.width.min(w * ctx.canvas.window_width),
+                c.contents_dims.height.min(h * ctx.canvas.window_height),
+            ),
+            Dims::ExactPercent(w, h) => {
+                ScreenDims::new(w * ctx.canvas.window_width, h * ctx.canvas.window_height)
+            }
+        };
 
         // If the panel fits without a scrollbar, don't add one.
         let top_left = ctx.canvas.align_window(c.container_dims, c.horiz, c.vert);
@@ -915,8 +960,12 @@ impl CompositeBuilder {
         if pct_width == 100 && pct_height == 100 {
             panic!("By default, Composites are capped at 100% of the screen. This is redundant.");
         }
-        self.max_percent_width = (pct_width as f64) / 100.0;
-        self.max_percent_height = (pct_height as f64) / 100.0;
+        self.dims = Dims::MaxPercent((pct_width as f64) / 100.0, (pct_height as f64) / 100.0);
+        self
+    }
+
+    pub fn exact_size_percent(mut self, pct_width: usize, pct_height: usize) -> CompositeBuilder {
+        self.dims = Dims::ExactPercent((pct_width as f64) / 100.0, (pct_height as f64) / 100.0);
         self
     }
 

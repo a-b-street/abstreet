@@ -132,20 +132,20 @@ impl Tab {
         let mut col = Vec::new();
         let mut cbs: Vec<(String, Callback)> = Vec::new();
 
-        col.push(ManagedWidget::row(vec![
+        col.push(
             WrappedComposite::svg_button(
                 ctx,
                 "assets/pregame/back.svg",
                 "back",
                 hotkey(Key::Escape),
-            ),
-            ManagedWidget::draw_text(ctx, Text::from(Line("A/B STREET").size(50))),
-        ]));
-
-        col.push(ManagedWidget::draw_text(
-            ctx,
-            Text::from(Line("CHALLENGES")),
-        ));
+            )
+            .align_left(),
+        );
+        col.push({
+            let mut txt = Text::from(Line("A/B STREET").size(100));
+            txt.add(Line("CHALLENGES").size(50));
+            ManagedWidget::draw_text(ctx, txt).centered_horiz()
+        });
 
         // First list challenges
         let mut flex_row = Vec::new();
@@ -175,7 +175,12 @@ impl Tab {
                 ));
             }
         }
-        col.push(ManagedWidget::row(flex_row).flex_wrap(ctx, 80));
+        col.push(
+            ManagedWidget::row(flex_row)
+                .flex_wrap(ctx, 80)
+                .bg(colors::PANEL_BG)
+                .padding(10),
+        );
 
         // List stages
         if let Tab::ChallengeStage(ref name, current) = self {
@@ -201,7 +206,12 @@ impl Tab {
                     ));
                 }
             }
-            col.push(ManagedWidget::row(flex_row).flex_wrap(ctx, 80));
+            col.push(
+                ManagedWidget::row(flex_row)
+                    .flex_wrap(ctx, 80)
+                    .bg(colors::PANEL_BG)
+                    .padding(10),
+            );
         }
 
         // Describe the specific stage
@@ -214,12 +224,14 @@ impl Tab {
             for l in &challenge.description {
                 txt.add(Line(l));
             }
-            col.push(ManagedWidget::draw_text(ctx, txt));
-            col.push(WrappedComposite::text_button(
-                ctx,
-                "Start!",
-                hotkey(Key::Enter),
-            ));
+            col.push(
+                ManagedWidget::col(vec![
+                    ManagedWidget::draw_text(ctx, txt),
+                    WrappedComposite::text_button(ctx, "Start!", hotkey(Key::Enter)).margin(10),
+                ])
+                .bg(colors::PANEL_BG)
+                .padding(10),
+            );
             cbs.push((
                 "Start!".to_string(),
                 Box::new(move |ctx, ui| {
@@ -236,8 +248,8 @@ impl Tab {
         }
 
         let mut c = WrappedComposite::new(
-            Composite::new(ManagedWidget::col(col))
-                .max_size_percent(100, 85)
+            Composite::new(ManagedWidget::col(col).evenly_spaced())
+                .exact_size_percent(90, 90)
                 .build(ctx),
         )
         .cb("back", Box::new(|_, _| Some(Transition::Pop)));

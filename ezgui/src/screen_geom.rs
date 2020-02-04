@@ -1,5 +1,5 @@
 use crate::Canvas;
-use geom::{trim_f64, Pt2D};
+use geom::{trim_f64, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -66,6 +66,10 @@ impl ScreenRectangle {
 
     pub fn center(&self) -> ScreenPt {
         ScreenPt::new((self.x1 + self.x2) / 2.0, (self.y1 + self.y2) / 2.0)
+    }
+
+    pub fn to_polygon(&self) -> Polygon {
+        Polygon::rectangle(self.width(), self.height()).translate(self.x1, self.y1)
     }
 }
 
