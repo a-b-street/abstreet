@@ -2,7 +2,7 @@ use crate::abtest::setup::PickABTest;
 use crate::challenges::challenges_picker;
 use crate::colors;
 use crate::game::{State, Transition};
-use crate::managed::{ManagedGUIState, WrappedComposite, WrappedOutcome};
+use crate::managed::{Callback, ManagedGUIState, WrappedComposite, WrappedOutcome};
 use crate::mission::MissionEditMode;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::UI;
@@ -11,7 +11,7 @@ use ezgui::{
     ManagedWidget, Text,
 };
 use geom::{Duration, Line, Pt2D, Speed};
-use map_model::Map;
+use map_model::{Map, MapEdits};
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 use std::time::Instant;
@@ -101,6 +101,7 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
                 ctx,
                 "Challenges",
             )),
+            WrappedComposite::text_bg_button(ctx, "COMMUNITY PROPOSALS", hotkey(Key::P)),
         ])
         .centered(),
     ];
@@ -177,6 +178,10 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
     .cb(
         "About A/B Street",
         Box::new(|ctx, _| Some(Transition::Push(about(ctx)))),
+    )
+    .cb(
+        "COMMUNITY PROPOSALS",
+        Box::new(|ctx, _| Some(Transition::Push(proposals_picker(ctx)))),
     );
     if ui.opts.dev {
         c = c
@@ -251,6 +256,77 @@ fn about(ctx: &mut EventCtx) -> Box<dyn State> {
         )
         .cb("back", Box::new(|_, _| Some(Transition::Pop))),
     )
+}
+
+fn proposals_picker(ctx: &mut EventCtx) -> Box<dyn State> {
+    let mut cbs: Vec<(String, Callback)> = Vec::new();
+    let mut buttons: Vec<ManagedWidget> = Vec::new();
+    for map_name in abstutil::list_all_objects(abstutil::path_all_maps()) {
+        for (_, edits) in
+            abstutil::load_all_objects::<MapEdits>(abstutil::path_all_edits(&map_name))
+        {
+            if !edits.proposal_description.is_empty() {
+                let mut txt = Text::new();
+                for l in &edits.proposal_description {
+                    txt.add(Line(l));
+                }
+                let path = abstutil::path_edits(&edits.map_name, &edits.edits_name);
+                buttons.push(WrappedComposite::nice_text_button(ctx, txt, None, &path));
+                cbs.push((
+                    path,
+                    Box::new(move |ctx, ui| {
+                        if ui.primary.map.get_name() != &edits.map_name {
+                            ui.switch_map(ctx, abstutil::path_map(&edits.map_name));
+                        }
+                        // TODO apply edits
+                        Some(Transition::Push(Box::new(SandboxMode::new(
+                            ctx,
+                            ui,
+                            GameplayMode::PlayScenario("weekday".to_string()),
+                        ))))
+                    }),
+                ));
+            }
+        }
+    }
+
+    let mut c = WrappedComposite::new(
+        Composite::new(
+            ManagedWidget::col(vec![
+                WrappedComposite::svg_button(
+                    ctx,
+                    "assets/pregame/back.svg",
+                    "back",
+                    hotkey(Key::Escape),
+                )
+                .align_left(),
+                {
+                    let mut txt = Text::from(Line("A/B STREET").size(100));
+                    txt.add(Line("PROPOSALS").size(50));
+                    txt.add(Line(""));
+                    txt.add(Line(
+                        "These are proposed changes to Seattle made by community members.",
+                    ));
+                    txt.add(Line("Contact dabreegster@gmail.com to add your idea here!"));
+                    ManagedWidget::draw_text(ctx, txt)
+                        .centered_horiz()
+                        .bg(colors::PANEL_BG)
+                },
+                ManagedWidget::row(buttons)
+                    .flex_wrap(ctx, 80)
+                    .bg(colors::PANEL_BG)
+                    .padding(10),
+            ])
+            .evenly_spaced(),
+        )
+        .exact_size_percent(90, 90)
+        .build(ctx),
+    )
+    .cb("back", Box::new(|_, _| Some(Transition::Pop)));
+    for (name, cb) in cbs {
+        c = c.cb(&name, cb);
+    }
+    ManagedGUIState::fullscreen(c)
 }
 
 const SPEED: Speed = Speed::const_meters_per_second(20.0);

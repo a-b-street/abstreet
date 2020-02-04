@@ -8,7 +8,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MapEdits {
-    pub(crate) map_name: String,
+    pub map_name: String,
     pub edits_name: String,
     pub commands: Vec<EditCmd>,
 
@@ -16,6 +16,9 @@ pub struct MapEdits {
     pub original_lts: BTreeMap<LaneID, LaneType>,
     pub reversed_lanes: BTreeSet<LaneID>,
     pub changed_intersections: BTreeSet<IntersectionID>,
+
+    // Edits without these are player generated.
+    pub proposal_description: Vec<String>,
 
     #[serde(skip_serializing, skip_deserializing)]
     pub dirty: bool,
@@ -56,6 +59,7 @@ impl MapEdits {
             map_name,
             // Something has to fill this out later
             edits_name: "no_edits".to_string(),
+            proposal_description: Vec::new(),
             commands: Vec::new(),
 
             original_lts: BTreeMap::new(),
