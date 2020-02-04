@@ -6,7 +6,7 @@ use crate::colors;
 use crate::common::{tool_panel, CommonState, Minimap, Overlays, ShowBusRoute};
 use crate::debug::DebugMode;
 use crate::edit::{apply_map_edits, save_edits, EditMode, StopSignEditor, TrafficSignalEditor};
-use crate::game::{State, Transition, WizardState};
+use crate::game::{DrawBaselayer, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::pregame::main_menu;
@@ -253,8 +253,8 @@ impl State for SandboxMode {
         }
     }
 
-    fn draw_default_ui(&self) -> bool {
-        false
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::Custom
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {

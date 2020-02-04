@@ -1,7 +1,7 @@
 use crate::colors;
 use crate::common::CommonState;
 use crate::edit::apply_map_edits;
-use crate::game::{msg, State, Transition, WizardState};
+use crate::game::{msg, DrawBaselayer, State, Transition, WizardState};
 use crate::helpers::plain_list_names;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::options::TrafficSignalStyle;
@@ -284,8 +284,8 @@ impl State for TrafficSignalEditor {
         Transition::Keep
     }
 
-    fn draw_default_ui(&self) -> bool {
-        false
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::Custom
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {

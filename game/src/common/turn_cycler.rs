@@ -1,5 +1,5 @@
 use crate::colors;
-use crate::game::{State, Transition};
+use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::plain_list_names;
 use crate::helpers::ID;
 use crate::options::TrafficSignalStyle;
@@ -178,8 +178,8 @@ impl State for ShowTrafficSignal {
         Transition::Keep
     }
 
-    fn draw_default_ui(&self) -> bool {
-        false
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::Custom
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {

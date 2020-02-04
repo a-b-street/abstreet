@@ -4,7 +4,7 @@ mod polygons;
 mod routes;
 
 use crate::common::{tool_panel, CommonState};
-use crate::game::{msg, State, Transition, WizardState};
+use crate::game::{msg, DrawBaselayer, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::ui::{ShowLayers, ShowObject, UI};
@@ -264,8 +264,8 @@ impl State for DebugMode {
         }
     }
 
-    fn draw_default_ui(&self) -> bool {
-        false
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::Custom
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {

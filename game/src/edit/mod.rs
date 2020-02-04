@@ -7,7 +7,7 @@ pub use self::stop_signs::StopSignEditor;
 pub use self::traffic_signals::TrafficSignalEditor;
 use crate::common::{tool_panel, CommonState, Overlays, Warping};
 use crate::debug::DebugMode;
-use crate::game::{State, Transition, WizardState};
+use crate::game::{DrawBaselayer, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::{DrawIntersection, DrawLane, DrawRoad};
@@ -226,8 +226,8 @@ impl State for EditMode {
         }
     }
 
-    fn draw_default_ui(&self) -> bool {
-        false
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::Custom
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {

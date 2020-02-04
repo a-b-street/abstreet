@@ -307,7 +307,9 @@ impl Overlays {
                     ]),
                     ManagedWidget::row(choices).flex_wrap(ctx, 20),
                 ])
-                .bg(colors::PANEL_BG),
+                .bg(colors::PANEL_BG)
+                .outline(10.0, Color::WHITE)
+                .padding(10),
             )
             .max_size_percent(30, 50)
             .build(ctx),

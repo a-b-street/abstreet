@@ -114,13 +114,19 @@ impl GUI for Game {
     fn draw(&self, g: &mut GfxCtx) {
         let state = self.states.last().unwrap();
 
-        if state.draw_default_ui() {
-            self.ui.draw(
-                g,
-                DrawOptions::new(),
-                &self.ui.primary.sim,
-                &ShowEverything::new(),
-            );
+        match state.draw_baselayer() {
+            DrawBaselayer::DefaultMap => {
+                self.ui.draw(
+                    g,
+                    DrawOptions::new(),
+                    &self.ui.primary.sim,
+                    &ShowEverything::new(),
+                );
+            }
+            DrawBaselayer::Custom => {}
+            DrawBaselayer::PreviousState => {
+                self.states[self.states.len() - 2].draw(g, &self.ui);
+            }
         }
         state.draw(g, &self.ui);
 
@@ -158,14 +164,20 @@ impl GUI for Game {
     }
 }
 
+pub enum DrawBaselayer {
+    DefaultMap,
+    Custom,
+    PreviousState,
+}
+
 pub trait State: downcast_rs::Downcast {
     // Logically this returns Transition, but since EventLoopMode is almost always
     // InputOnly, the variations are encoded by Transition.
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition;
     fn draw(&self, g: &mut GfxCtx, ui: &UI);
 
-    fn draw_default_ui(&self) -> bool {
-        true
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::DefaultMap
     }
 
     // Before we push a new state on top of this one, call this.
@@ -221,7 +233,13 @@ impl State for WizardState {
         Transition::Keep
     }
 
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::PreviousState
+    }
+
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        // TODO This shouldn't get greyed out, but I think the weird z-ordering of screen-space
+        // right now is messing this up.
         if let Some(ref d) = self.also_draw {
             g.redraw(d);
         }

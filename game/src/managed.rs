@@ -1,11 +1,12 @@
 use crate::colors;
 use crate::common::CommonState;
-use crate::game::{State, Transition};
+use crate::game::{DrawBaselayer, State, Transition};
 use crate::ui::UI;
 use ezgui::{
     Button, Color, Composite, EventCtx, GfxCtx, Line, ManagedWidget, MultiKey, Outcome,
     RewriteColor, Text,
 };
+use geom::Polygon;
 use std::collections::HashMap;
 
 pub type Callback = Box<dyn Fn(&mut EventCtx, &mut UI) -> Option<Transition>>;
@@ -140,15 +141,29 @@ impl State for ManagedGUIState {
         }
     }
 
-    fn draw_default_ui(&self) -> bool {
-        !self.fullscreen
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        if self.fullscreen {
+            DrawBaselayer::Custom
+        } else {
+            DrawBaselayer::PreviousState
+        }
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         if self.fullscreen {
             // Happens to be a nice background color too ;)
             g.clear(ui.cs.get("grass"));
+        } else {
+            // Make it clear the map can't be interacted with right now.
+            g.fork_screenspace();
+            // TODO - OSD height
+            g.draw_polygon(
+                Color::BLACK.alpha(0.5),
+                &Polygon::rectangle(g.canvas.window_width, g.canvas.window_height),
+            );
+            g.unfork();
         }
+
         self.composite.draw(g);
         // Still want to show hotkeys
         CommonState::draw_osd(g, ui, &None);
