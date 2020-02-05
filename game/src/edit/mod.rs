@@ -7,20 +7,19 @@ pub use self::stop_signs::StopSignEditor;
 pub use self::traffic_signals::TrafficSignalEditor;
 use crate::common::{tool_panel, CommonState, Overlays, Warping};
 use crate::debug::DebugMode;
-use crate::game::{DrawBaselayer, State, Transition, WizardState};
+use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::{DrawIntersection, DrawLane, DrawRoad};
 use crate::sandbox::{GameplayMode, SandboxMode};
-use crate::ui::{ShowEverything, UI};
+use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{hotkey, lctrl, Choice, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, WrappedWizard};
-use map_model::{ControlStopSign, ControlTrafficSignal, EditCmd, LaneID, MapEdits};
+use map_model::{EditCmd, LaneID, MapEdits};
 use sim::Sim;
 use std::collections::BTreeSet;
 
 pub struct EditMode {
-    common: CommonState,
     tool_panel: WrappedComposite,
     menu: ModalMenu,
 
@@ -37,7 +36,6 @@ impl EditMode {
     pub fn new(ctx: &mut EventCtx, ui: &mut UI, mode: GameplayMode) -> EditMode {
         let suspended_sim = ui.primary.clear_sim();
         EditMode {
-            common: CommonState::new(),
             tool_panel: tool_panel(ctx),
             menu: ModalMenu::new(
                 "Map Edit Mode",
@@ -96,7 +94,7 @@ impl State for EditMode {
             }
         }
         ctx.canvas_movement();
-        // It only makes sense to mouseover lanes while painting them.
+        // Restrict what can be selected.
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);
             if let Some(ID::Lane(_)) = ui.primary.current_selection {
@@ -107,9 +105,7 @@ impl State for EditMode {
                     ui.primary.current_selection = None;
                 }
             } else {
-                if self.lane_editor.brush != Brush::Inactive {
-                    ui.primary.current_selection = None;
-                }
+                ui.primary.current_selection = None;
             }
         }
 
@@ -129,60 +125,21 @@ impl State for EditMode {
         }
 
         if let Some(ID::Intersection(id)) = ui.primary.current_selection {
-            if ui.primary.map.maybe_get_stop_sign(id).is_some() {
-                if self.mode.can_edit_stop_signs()
-                    && ui
-                        .per_obj
-                        .action(ctx, Key::E, format!("edit stop signs for {}", id))
-                {
-                    return Transition::Push(Box::new(StopSignEditor::new(id, ctx, ui)));
-                } else if ui
-                    .primary
-                    .map
-                    .get_edits()
-                    .changed_intersections
-                    .contains(&id)
-                    && ui.per_obj.action(ctx, Key::R, "revert")
-                {
-                    let mut edits = ui.primary.map.get_edits().clone();
-                    edits
-                        .commands
-                        .push(EditCmd::ChangeStopSign(ControlStopSign::new(
-                            &ui.primary.map,
-                            id,
-                        )));
-                    apply_map_edits(ctx, ui, edits);
-                }
+            if ui.primary.map.maybe_get_stop_sign(id).is_some()
+                && self.mode.can_edit_stop_signs()
+                && ui.per_obj.left_click(ctx, "edit stop signs")
+            {
+                return Transition::Push(Box::new(StopSignEditor::new(id, ctx, ui)));
             }
-            if ui.primary.map.maybe_get_traffic_signal(id).is_some() {
-                if ui
-                    .per_obj
-                    .action(ctx, Key::E, format!("edit traffic signal for {}", id))
-                {
-                    return Transition::Push(Box::new(TrafficSignalEditor::new(
-                        id,
-                        ctx,
-                        ui,
-                        self.suspended_sim.clone(),
-                    )));
-                } else if ui
-                    .primary
-                    .map
-                    .get_edits()
-                    .changed_intersections
-                    .contains(&id)
-                    && ui.per_obj.action(ctx, Key::R, "revert")
-                {
-                    let mut edits = ui.primary.map.get_edits().clone();
-                    edits
-                        .commands
-                        .push(EditCmd::ChangeTrafficSignal(ControlTrafficSignal::new(
-                            &ui.primary.map,
-                            id,
-                            &mut Timer::throwaway(),
-                        )));
-                    apply_map_edits(ctx, ui, edits);
-                }
+            if ui.primary.map.maybe_get_traffic_signal(id).is_some()
+                && ui.per_obj.left_click(ctx, "edit traffic signal")
+            {
+                return Transition::Push(Box::new(TrafficSignalEditor::new(
+                    id,
+                    ctx,
+                    ui,
+                    self.suspended_sim.clone(),
+                )));
             }
             if ui.primary.map.get_i(id).is_closed() && ui.per_obj.action(ctx, Key::R, "revert") {
                 let mut edits = ui.primary.map.get_edits().clone();
@@ -213,9 +170,6 @@ impl State for EditMode {
             ));
         }
 
-        if let Some(t) = self.common.event(ctx, ui, None) {
-            return t;
-        }
         match self.tool_panel.event(ctx, ui) {
             Some(WrappedOutcome::Transition(t)) => t,
             Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
@@ -226,28 +180,18 @@ impl State for EditMode {
         }
     }
 
-    fn draw_baselayer(&self) -> DrawBaselayer {
-        DrawBaselayer::Custom
-    }
-
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        ui.draw(
-            g,
-            self.common.draw_options(ui),
-            &ui.primary.sim,
-            &ShowEverything::new(),
-        );
         // TODO Maybe this should be part of ui.draw
         // TODO This has an X button, but we never call update and allow it to be changed. Should
         // just omit the button.
         ui.overlay.draw(g);
 
-        self.common.draw(g, ui);
         self.tool_panel.draw(g);
         self.menu.draw(g);
         if self.mode.can_edit_lanes() {
             self.lane_editor.draw(g);
         }
+        CommonState::draw_osd(g, ui, &ui.primary.current_selection);
     }
 }
 

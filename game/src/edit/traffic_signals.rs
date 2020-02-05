@@ -264,8 +264,8 @@ impl State for TrafficSignalEditor {
                 }
                 "undo" => {
                     self.redo_stack.push(orig_signal.clone());
-                    self.top_panel = make_top_panel(!self.command_stack.is_empty(), true, ctx);
                     change_traffic_signal(self.command_stack.pop().unwrap(), ui, ctx);
+                    self.top_panel = make_top_panel(!self.command_stack.is_empty(), true, ctx);
                     self.change_phase(0, ui, ctx);
                     return Transition::Keep;
                 }
@@ -369,7 +369,7 @@ fn make_top_panel(can_undo: bool, can_redo: bool, ctx: &mut EventCtx) -> Composi
             ManagedWidget::draw_svg_transform(
                 ctx,
                 "assets/tools/undo.svg",
-                RewriteColor::ChangeAll(Color::grey(0.4)),
+                RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
             )
         })
         .margin(15),
@@ -385,7 +385,7 @@ fn make_top_panel(can_undo: bool, can_redo: bool, ctx: &mut EventCtx) -> Composi
             ManagedWidget::draw_svg_transform(
                 ctx,
                 "assets/tools/redo.svg",
-                RewriteColor::ChangeAll(Color::grey(0.4)),
+                RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
             )
         })
         .margin(15),
