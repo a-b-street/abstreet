@@ -7,10 +7,10 @@ use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Counter, MultiMap, WeightedUsizeChoice};
 use ezgui::{
-    hotkey, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text,
-    Wizard, WrappedWizard,
+    hotkey, layout, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu,
+    Slider, Text, Wizard, WrappedWizard,
 };
-use geom::{Distance, Duration, PolyLine, Time};
+use geom::{Distance, Duration, Line, PolyLine, Polygon, Time};
 use map_model::{BuildingID, IntersectionID, Map, Neighborhood};
 use sim::{
     BorderSpawnOverTime, DrivingGoal, OriginDestination, Scenario, SeedParkedCars, SidewalkPOI,
@@ -121,6 +121,7 @@ impl ScenarioManager {
                     (hotkey(Key::S), "save"),
                     (hotkey(Key::E), "edit"),
                     (hotkey(Key::R), "instantiate"),
+                    (hotkey(Key::D), "dot map"),
                 ],
                 ctx,
             ),
@@ -178,6 +179,8 @@ impl State for ScenarioManager {
                 ui,
                 GameplayMode::PlayScenario(self.scenario.scenario_name.clone()),
             )));
+        } else if self.menu.action("dot map") {
+            return Transition::Push(Box::new(DotMap::new(ctx, ui, &self.scenario)));
         }
 
         if self.demand.is_some() && self.menu.consume_action("stop showing paths", ctx) {
@@ -672,4 +675,94 @@ fn show_demand(
     }
 
     batch.upload(ctx)
+}
+
+struct DotMap {
+    time_slider: Slider,
+    menu: ModalMenu,
+
+    lines: Vec<Line>,
+    draw: Option<(f64, Drawable)>,
+}
+
+impl DotMap {
+    fn new(ctx: &mut EventCtx, ui: &UI, scenario: &Scenario) -> DotMap {
+        let map = &ui.primary.map;
+        let lines = scenario
+            .individ_trips
+            .iter()
+            .filter_map(|trip| {
+                let (start, end) = match trip {
+                    SpawnTrip::CarAppearing { start, goal, .. } => (start.pt(map), goal.pt(map)),
+                    SpawnTrip::MaybeUsingParkedCar(_, b, goal) => {
+                        (map.get_b(*b).polygon.center(), goal.pt(map))
+                    }
+                    SpawnTrip::UsingBike(_, start, goal) => {
+                        (start.sidewalk_pos.pt(map), goal.pt(map))
+                    }
+                    SpawnTrip::JustWalking(_, start, goal) => {
+                        (start.sidewalk_pos.pt(map), goal.sidewalk_pos.pt(map))
+                    }
+                    SpawnTrip::UsingTransit(_, start, goal, _, _, _) => {
+                        (start.sidewalk_pos.pt(map), goal.sidewalk_pos.pt(map))
+                    }
+                };
+                Line::maybe_new(start, end)
+            })
+            .collect();
+        DotMap {
+            time_slider: Slider::horizontal(ctx, 150.0, 25.0),
+            menu: ModalMenu::new(
+                "Dot map of all trips",
+                vec![(hotkey(Key::Escape), "quit")],
+                ctx,
+            )
+            .disable_standalone_layout(),
+
+            lines,
+            draw: None,
+        }
+    }
+}
+
+impl State for DotMap {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
+        ctx.canvas_movement();
+
+        layout::stack_vertically(
+            layout::ContainerOrientation::TopRight,
+            ctx,
+            vec![&mut self.time_slider, &mut self.menu],
+        );
+        self.menu.event(ctx);
+        if self.menu.action("quit") {
+            return Transition::Pop;
+        }
+
+        self.time_slider.event(ctx);
+        let pct = self.time_slider.get_percent();
+
+        if self.draw.as_ref().map(|(p, _)| pct != *p).unwrap_or(true) {
+            let mut batch = GeomBatch::new();
+            let radius = Distance::meters(5.0);
+            for l in &self.lines {
+                // Circles are too expensive. :P
+                batch.push(
+                    Color::RED,
+                    Polygon::rectangle_centered(l.percent_along(pct), radius, radius),
+                );
+            }
+            self.draw = Some((pct, batch.upload(ctx)));
+        }
+
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        if let Some((_, ref d)) = self.draw {
+            g.redraw(d);
+        }
+        self.time_slider.draw(g);
+        self.menu.draw(g);
+    }
 }

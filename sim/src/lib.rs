@@ -239,6 +239,13 @@ impl DrivingGoal {
             }
         }
     }
+
+    pub fn pt(&self, map: &Map) -> Pt2D {
+        match self {
+            DrivingGoal::ParkNear(b) => map.get_b(*b).polygon.center(),
+            DrivingGoal::Border(i, _) => map.get_i(*i).polygon.center(),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
