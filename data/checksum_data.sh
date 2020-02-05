@@ -3,4 +3,4 @@
 
 set -e
 
-find data/system/ -type f \( -not -name "MANIFEST.txt" \) -exec md5sum '{}' \; > data/MANIFEST.txt
+find data/input data/system/ -type f \( -not -name "MANIFEST.txt" \) -exec md5sum '{}' \; > data/MANIFEST.txt

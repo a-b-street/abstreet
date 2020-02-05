@@ -16,6 +16,10 @@ pub struct Trip {
     // These are an upper bound when TripEndpt::Border is involved.
     pub trip_time: Duration,
     pub trip_dist: Distance,
+    // (household, person within household)
+    pub person: (usize, usize),
+    // (tour, false is to destination and true is back from dst, trip within half-tour)
+    pub seq: (usize, bool, usize),
 }
 
 #[derive(Clone, Debug)]
@@ -250,6 +254,8 @@ pub fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingI
             mode: trip.mode,
             trip_time: trip.trip_time,
             trip_dist: trip.trip_dist,
+            person: trip.person,
+            seq: trip.seq,
         };
 
         match (&trip.from, &trip.to) {

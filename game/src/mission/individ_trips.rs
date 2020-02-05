@@ -28,6 +28,10 @@ impl TripsVisualizer {
                             "Purpose: {:?} -> {:?}",
                             trip.purpose.0, trip.purpose.1
                         )));
+                        txt.add(Line(format!(
+                            "Person {:?}, trip seq {:?}",
+                            trip.person, trip.seq
+                        )));
                         txt.add(Line(format!("Mode: {:?}", trip.mode)));
                         txt.add(Line(format!("Trip time: {}", trip.trip_time)));
                         txt.add(Line(format!("Trip distance: {}", trip.trip_dist)));

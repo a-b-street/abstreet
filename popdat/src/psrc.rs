@@ -13,6 +13,10 @@ pub struct Trip {
     pub depart_at: Time,
     pub mode: Mode,
 
+    // (household, person within household)
+    pub person: (usize, usize),
+    // (tour, false is to destination and true is back from dst, trip within half-tour)
+    pub seq: (usize, bool, usize),
     pub purpose: (Purpose, Purpose),
     pub trip_time: Duration,
     pub trip_dist: Distance,
@@ -97,6 +101,18 @@ pub fn import_trips(
         // travdist
         let trip_dist = Distance::miles(rec[24].parse::<f64>()?);
 
+        // (hhno, pno)
+        let person = (
+            rec[11].trim_end_matches(".0").parse::<usize>()?,
+            rec[19].trim_end_matches(".0").parse::<usize>()?,
+        );
+        // (tour, half, tseg)
+        let seq = (
+            rec[21].trim_end_matches(".0").parse::<usize>()?,
+            &rec[10] == "2.0",
+            rec[27].trim_end_matches(".0").parse::<usize>()?,
+        );
+
         trips.push(Trip {
             from,
             to,
@@ -105,6 +121,8 @@ pub fn import_trips(
             mode,
             trip_time,
             trip_dist,
+            person,
+            seq,
         });
     }
     done(timer);
