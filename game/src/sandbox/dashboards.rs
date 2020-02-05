@@ -160,7 +160,6 @@ fn finished_trips_summary_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
         }
     }
 
-    // TODO The x-axes for the plot and histogram get stretched to the full screen. Don't do that!
     ManagedWidget::col(vec![
         ManagedWidget::draw_text(ctx, txt),
         finished_trips_plot(ctx, ui).bg(colors::SECTION_BG),
@@ -222,7 +221,6 @@ fn finished_trips_summary_not_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget
         }
     }
 
-    // TODO The x-axes for the plot and histogram get stretched to the full screen. Don't do that!
     ManagedWidget::col(vec![
         ManagedWidget::draw_text(ctx, txt),
         finished_trips_plot(ctx, ui).bg(colors::SECTION_BG),

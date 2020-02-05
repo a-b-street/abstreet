@@ -220,28 +220,30 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
 impl Plot<usize> {
     pub fn new_usize(series: Vec<Series<usize>>, ctx: &EventCtx) -> ManagedWidget {
         let (plot, legend, x_axis, y_axis) = Plot::new(series, 0, ctx);
-        ManagedWidget::col(vec![
+        // Don't let the x-axis fill the parent container
+        ManagedWidget::row(vec![ManagedWidget::col(vec![
             legend,
             ManagedWidget::row(vec![
                 y_axis.evenly_spaced(),
                 ManagedWidget::usize_plot(plot),
             ]),
             x_axis.evenly_spaced(),
-        ])
+        ])])
     }
 }
 
 impl Plot<Duration> {
     pub fn new_duration(series: Vec<Series<Duration>>, ctx: &EventCtx) -> ManagedWidget {
         let (plot, legend, x_axis, y_axis) = Plot::new(series, Duration::ZERO, ctx);
-        ManagedWidget::col(vec![
+        // Don't let the x-axis fill the parent container
+        ManagedWidget::row(vec![ManagedWidget::col(vec![
             legend,
             ManagedWidget::row(vec![
                 y_axis.evenly_spaced(),
                 ManagedWidget::duration_plot(plot),
             ]),
             x_axis.evenly_spaced(),
-        ])
+        ])])
     }
 }
 

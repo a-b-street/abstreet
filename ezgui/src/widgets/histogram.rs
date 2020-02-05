@@ -102,13 +102,14 @@ impl Histogram {
         col.reverse();
         let y_axis = ManagedWidget::col(col);
 
-        ManagedWidget::col(vec![
+        // Don't let the x-axis fill the parent container
+        ManagedWidget::row(vec![ManagedWidget::col(vec![
             ManagedWidget::row(vec![
                 y_axis.evenly_spaced(),
                 ManagedWidget::histogram(histogram),
             ]),
             x_axis.evenly_spaced(),
-        ])
+        ])])
     }
 
     pub(crate) fn draw(&self, g: &mut GfxCtx) {
