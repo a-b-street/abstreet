@@ -1,4 +1,4 @@
-use crate::helpers::{rotating_color, ColorScheme, ID};
+use crate::helpers::{heatmap_10, ColorScheme, ID};
 use crate::render::area::DrawArea;
 use crate::render::building::DrawBuilding;
 use crate::render::bus_stop::DrawBusStop;
@@ -491,16 +491,16 @@ impl InnerAgentColorScheme {
                 "distance crossed",
                 "distance crossed to goal so far",
                 vec![
-                    ("<= 10%", rotating_color(0)),
-                    ("<= 20%", rotating_color(1)),
-                    ("<= 30%", rotating_color(2)),
-                    ("<= 40%", rotating_color(3)),
-                    ("<= 50%", rotating_color(4)),
-                    ("<= 60%", rotating_color(5)),
-                    ("<= 70%", rotating_color(6)),
-                    ("<= 80%", rotating_color(7)),
-                    ("<= 90%", rotating_color(8)),
-                    ("> 90%", rotating_color(9)),
+                    ("<= 10%", heatmap_10(0)),
+                    ("<= 20%", heatmap_10(1)),
+                    ("<= 30%", heatmap_10(2)),
+                    ("<= 40%", heatmap_10(3)),
+                    ("<= 50%", heatmap_10(4)),
+                    ("<= 60%", heatmap_10(5)),
+                    ("<= 70%", heatmap_10(6)),
+                    ("<= 80%", heatmap_10(7)),
+                    ("<= 90%", heatmap_10(8)),
+                    ("> 90%", heatmap_10(9)),
                 ],
             ),
         }

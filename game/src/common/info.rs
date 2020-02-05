@@ -1,7 +1,7 @@
 use crate::colors;
 use crate::common::{ColorLegend, CommonState, Warping};
 use crate::game::{msg, Transition};
-use crate::helpers::{rotating_color, rotating_color_map, ID};
+use crate::helpers::{rotating_color_map, ID};
 use crate::managed::WrappedComposite;
 use crate::render::{dashed_lines, Renderable, MIN_ZOOM_FOR_DETAIL};
 use crate::sandbox::SpeedControls;
@@ -566,7 +566,7 @@ fn intersection_delay(
             .enumerate()
             .map(|(idx, (stat, pts))| Series {
                 label: stat.to_string(),
-                color: rotating_color(idx),
+                color: rotating_color_map(idx),
                 pts,
             })
             .collect(),

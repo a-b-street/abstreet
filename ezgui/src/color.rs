@@ -109,6 +109,18 @@ impl Color {
         Color::rgb(r, g, b)
     }
 
+    pub fn to_hex(&self) -> String {
+        match self {
+            Color::RGBA(r, g, b, _) => format!(
+                "#{:02X}{:02X}{:02X}",
+                (r * 255.0) as usize,
+                (g * 255.0) as usize,
+                (b * 255.0) as usize
+            ),
+            _ => unreachable!(),
+        }
+    }
+
     pub fn rotate(&self, angle: Angle) -> Color {
         match self {
             Color::StretchTexture(id, dims, _) => Color::StretchTexture(*id, *dims, angle),

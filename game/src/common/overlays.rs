@@ -1,7 +1,7 @@
 use crate::colors;
 use crate::common::{ColorLegend, Colorer, ShowBusRoute, Warping};
 use crate::game::Transition;
-use crate::helpers::rotating_color_total;
+use crate::helpers::rotating_color_map;
 use crate::helpers::ID;
 use crate::managed::{ManagedGUIState, WrappedComposite, WrappedOutcome};
 use crate::ui::UI;
@@ -771,7 +771,7 @@ impl Overlays {
             };
             series.push(Series {
                 label: format!("Stop {}->{}", idx1 + 1, idx2 + 1),
-                color: rotating_color_total(idx1, route.stops.len()),
+                color: rotating_color_map(idx1),
                 pts: delays_per_stop
                     .remove(&route.stops[idx2])
                     .unwrap_or_else(Vec::new),

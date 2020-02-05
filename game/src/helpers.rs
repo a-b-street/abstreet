@@ -130,60 +130,50 @@ impl ColorScheme {
 
 include!(concat!(env!("OUT_DIR"), "/init_colors.rs"));
 
-pub fn rotating_color(idx: usize) -> Color {
-    rotating_color_total(idx, 9)
-}
-
-pub fn rotating_color_total(idx: usize, total: usize) -> Color {
-    if total > 9 {
-        return rotating_color_total(idx, 9);
-    }
-    if total < 3 {
-        return rotating_color_total(idx, 3);
-    }
-
-    // TODO Cache this
-    // TODO This palette doesn't contrast well with other stuff
-    let colors: Vec<Color> =
-        colorbrewer::get_color_ramp(colorbrewer::Palette::YlOrBr, total as u32)
-            .unwrap()
-            .into_iter()
-            .map(Color::hex)
-            .collect();
-
-    colors[idx % total]
+fn modulo_color(colors: Vec<Color>, idx: usize) -> Color {
+    colors[idx % colors.len()]
 }
 
 pub fn rotating_color_map(idx: usize) -> Color {
-    if idx % 5 == 0 {
-        return Color::RED;
-    }
-    if idx % 5 == 1 {
-        return Color::BLUE;
-    }
-    if idx % 5 == 2 {
-        return Color::GREEN;
-    }
-    if idx % 5 == 3 {
-        return Color::PURPLE;
-    }
-    Color::BLACK
+    modulo_color(
+        vec![
+            Color::RED,
+            Color::BLUE,
+            Color::GREEN,
+            Color::PURPLE,
+            Color::BLACK,
+        ],
+        idx,
+    )
+}
+
+pub fn heatmap_10(idx: usize) -> Color {
+    assert!(idx <= 9);
+    vec![
+        Color::hex("#FFFFE5"),
+        Color::hex("#FFF7BC"),
+        Color::hex("#FEE391"),
+        Color::hex("#FEC44F"),
+        Color::hex("#FE9929"),
+        Color::hex("#EC7014"),
+        Color::hex("#CC4C02"),
+        Color::hex("#993404"),
+        Color::hex("#662506"),
+        Color::hex("#FF2506"),
+    ][idx]
 }
 
 pub fn rotating_color_agents(idx: usize) -> Color {
-    if idx % 5 == 0 {
-        return Color::hex("#5C45A0");
-    }
-    if idx % 5 == 1 {
-        return Color::hex("#3E8BC3");
-    }
-    if idx % 5 == 2 {
-        return Color::hex("#E1BA13");
-    }
-    if idx % 5 == 3 {
-        return Color::hex("#96322F");
-    }
-    Color::hex("#00A27B")
+    modulo_color(
+        vec![
+            Color::hex("#5C45A0"),
+            Color::hex("#3E8BC3"),
+            Color::hex("#E1BA13"),
+            Color::hex("#96322F"),
+            Color::hex("#00A27B"),
+        ],
+        idx,
+    )
 }
 
 pub fn list_names<F: Fn(TextSpan) -> TextSpan>(txt: &mut Text, styler: F, names: BTreeSet<String>) {

@@ -427,8 +427,8 @@ fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
                 ManagedWidget::draw_batch(
                     ctx,
                     GeomBatch::from(vec![(
-                        Color::WHITE.alpha(if *enabled { 1.0 } else { 0.5 }),
-                        Polygon::rectangle(2.0, radius),
+                        Color::WHITE.alpha(0.5),
+                        Polygon::rectangle(2.0, 1.5 * radius),
                     )]),
                 )
                 .margin(3),
