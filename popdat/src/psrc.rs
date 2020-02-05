@@ -67,51 +67,34 @@ pub fn import_trips(
 
     let mut trips = Vec::new();
     let (reader, done) = FileWithProgress::new(trips_path)?;
-    for rec in csv::Reader::from_reader(reader).records() {
-        let rec = rec?;
+    for rec in csv::Reader::from_reader(reader).deserialize() {
+        let rec: RawTrip = rec?;
 
-        // opcl
-        let from = skip_fail!(parcels.get(rec[15].trim_end_matches(".0"))).clone();
-        // dpcl
-        let to = skip_fail!(parcels.get(rec[6].trim_end_matches(".0"))).clone();
+        let from = skip_fail!(parcels.get(&(rec.opcl as usize))).clone();
+        let to = skip_fail!(parcels.get(&(rec.dpcl as usize))).clone();
 
         if from.osm_building == to.osm_building {
             // TODO Plumb along pass-through trips later
             if from.osm_building.is_some() {
                 timer.warn(format!(
                     "Skipping trip from parcel {} to {}; both match OSM building {:?}",
-                    &rec[15], &rec[6], from.osm_building
+                    rec.opcl, rec.dpcl, from.osm_building
                 ));
             }
             continue;
         }
 
-        // deptm
-        let depart_at =
-            Time::START_OF_DAY + Duration::minutes(rec[4].trim_end_matches(".0").parse::<usize>()?);
+        let depart_at = Time::START_OF_DAY + Duration::minutes(rec.deptm as usize);
 
-        // mode
-        let mode = skip_fail!(get_mode(&rec[13]));
+        let mode = skip_fail!(get_mode(&rec.mode));
 
-        // opurp and dpurp
-        let purpose = (get_purpose(&rec[16]), get_purpose(&rec[7]));
+        let purpose = (get_purpose(&rec.opurp), get_purpose(&rec.dpurp));
 
-        // travtime
-        let trip_time = Duration::f64_minutes(rec[25].parse::<f64>()?);
-        // travdist
-        let trip_dist = Distance::miles(rec[24].parse::<f64>()?);
+        let trip_time = Duration::f64_minutes(rec.travtime);
+        let trip_dist = Distance::miles(rec.travdist);
 
-        // (hhno, pno)
-        let person = (
-            rec[11].trim_end_matches(".0").parse::<usize>()?,
-            rec[19].trim_end_matches(".0").parse::<usize>()?,
-        );
-        // (tour, half, tseg)
-        let seq = (
-            rec[21].trim_end_matches(".0").parse::<usize>()?,
-            &rec[10] == "2.0",
-            rec[27].trim_end_matches(".0").parse::<usize>()?,
-        );
+        let person = (rec.hhno as usize, rec.pno as usize);
+        let seq = (rec.tour as usize, rec.half == 2.0, rec.tseg as usize);
 
         trips.push(Trip {
             from,
@@ -139,7 +122,7 @@ pub fn import_trips(
 fn import_parcels(
     path: &str,
     timer: &mut Timer,
-) -> Result<(HashMap<String, Endpoint>, BTreeMap<i64, Parcel>), failure::Error> {
+) -> Result<(HashMap<usize, Endpoint>, BTreeMap<i64, Parcel>), failure::Error> {
     let map = Map::new(abstutil::path_map("huge_seattle"), false, timer);
 
     // TODO I really just want to do polygon containment with a quadtree. FindClosest only does
@@ -157,18 +140,17 @@ fn import_parcels(
     for rec in csv::ReaderBuilder::new()
         .delimiter(b' ')
         .from_reader(reader)
-        .records()
+        .deserialize()
     {
-        let rec = rec?;
-        // parcelid, hh_p, emptot_p, parkdy_p, parkhr_p
+        let rec: RawParcel = rec?;
         // Note parkdy_p and parkhr_p might overlap, so this could be double-counting. >_<
         parcel_metadata.push((
-            rec[15].to_string(),
-            rec[12].parse::<usize>()?,
-            rec[11].parse::<usize>()?,
-            rec[16].parse::<usize>()? + rec[17].parse::<usize>()?,
+            rec.parcelid,
+            rec.hh_p,
+            rec.emptot_p,
+            rec.parkdy_p + rec.parkhr_p,
         ));
-        coords.write_fmt(format_args!("{} {}\n", &rec[25], &rec[26]))?;
+        coords.write_fmt(format_args!("{} {}\n", rec.xcoord_p, rec.ycoord_p))?;
     }
     done(timer);
     coords.flush()?;
@@ -266,4 +248,34 @@ fn get_mode(code: &str) -> Option<Mode> {
         "3.0" | "4.0" | "5.0" => Some(Mode::Drive),
         _ => None,
     }
+}
+
+// See https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv
+#[derive(Debug, Deserialize)]
+struct RawTrip {
+    opcl: f64,
+    dpcl: f64,
+    deptm: f64,
+    mode: String,
+    opurp: String,
+    dpurp: String,
+    travtime: f64,
+    travdist: f64,
+    hhno: f64,
+    pno: f64,
+    tour: f64,
+    half: f64,
+    tseg: f64,
+}
+
+// See https://github.com/psrc/soundcast/wiki/Outputs#buffered-parcel-file-buffered_parcelsdat
+#[derive(Debug, Deserialize)]
+struct RawParcel {
+    parcelid: usize,
+    hh_p: usize,
+    emptot_p: usize,
+    parkdy_p: usize,
+    parkhr_p: usize,
+    xcoord_p: f64,
+    ycoord_p: f64,
 }

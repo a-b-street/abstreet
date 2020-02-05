@@ -1,7 +1,9 @@
 use crate::psrc::{Endpoint, Mode, Parcel, Purpose};
 use crate::PopDat;
+use abstutil::prettyprint_usize;
 use abstutil::Timer;
 use geom::{Distance, Duration, LonLat, Polygon, Pt2D, Time};
+use itertools::Itertools;
 use map_model::{BuildingID, IntersectionID, Map, PathConstraints, Position};
 use sim::{DrivingGoal, Scenario, SidewalkSpot, SpawnTrip, TripSpec};
 use std::collections::{BTreeMap, HashMap};
@@ -286,14 +288,36 @@ pub fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingI
 
 pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
     let (trips, _) = clip_trips(map, timer);
+    let mut individ_trips: Vec<SpawnTrip> = Vec::new();
     // TODO Don't clone trips for parallelize
-    let individ_trips = timer
+    let mut num_ppl = 0;
+    for (person, list) in timer
         .parallelize("turn PSRC trips into SpawnTrips", trips.clone(), |trip| {
             trip.to_spawn_trip(map)
+                .map(|spawn| (spawn, trip.person, trip.seq))
         })
         .into_iter()
         .flatten()
-        .collect();
+        .group_by(|(_, person, _)| *person)
+        .into_iter()
+    {
+        // TODO Try doing the grouping earlier, before we filter out cases where to_spawn_trip
+        // fails
+        num_ppl += 1;
+        let mut seqs = Vec::new();
+        for (spawn, _, seq) in list {
+            seqs.push(seq);
+            individ_trips.push(spawn);
+        }
+        if seqs.len() > 1 {
+            println!("{:?} takes {} trips: {:?}", person, seqs.len(), seqs);
+        }
+    }
+    timer.note(format!(
+        "{} trips over {} people",
+        prettyprint_usize(individ_trips.len()),
+        prettyprint_usize(num_ppl)
+    ));
 
     // How many parked cars do we need to spawn near each building?
     // TODO This assumes trips are instantaneous. At runtime, somebody might try to use a parked
