@@ -300,4 +300,23 @@ impl Button {
     pub fn inactive_button<S: Into<String>>(label: S, ctx: &EventCtx) -> ManagedWidget {
         Button::inactive_btn(ctx, Text::from(Line(label)))
     }
+    // With a background
+    pub fn inactive_selected_button<S: Into<String>>(ctx: &EventCtx, label: S) -> ManagedWidget {
+        const HORIZ_PADDING: f64 = 30.0;
+        const VERT_PADDING: f64 = 10.0;
+
+        let txt = Text::from(Line(label).fg(Color::BLACK));
+        let dims = ctx.text_dims(&txt);
+        let geom = Polygon::rounded_rectangle(
+            dims.width + 2.0 * HORIZ_PADDING,
+            dims.height + 2.0 * VERT_PADDING,
+            VERT_PADDING,
+        );
+
+        ManagedWidget::just_draw(JustDraw::wrap(DrawBoth::new(
+            ctx,
+            GeomBatch::from(vec![(Color::WHITE, geom)]),
+            vec![(txt, ScreenPt::new(HORIZ_PADDING, VERT_PADDING))],
+        )))
+    }
 }

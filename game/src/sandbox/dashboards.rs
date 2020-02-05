@@ -41,7 +41,7 @@ pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
         .iter()
         .map(|(t, label)| {
             if *t == tab {
-                Button::inactive_button(*label, ctx)
+                Button::inactive_selected_button(ctx, *label)
             } else {
                 WrappedComposite::text_button(ctx, label, None)
             }
@@ -58,24 +58,19 @@ pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
     };
 
     let mut c = WrappedComposite::new(
-        Composite::new(
-            ManagedWidget::col(vec![
-                WrappedComposite::svg_button(
-                    ctx,
-                    "assets/pregame/back.svg",
-                    "back",
-                    hotkey(Key::Escape),
-                )
-                .align_left(),
-                ManagedWidget::row(tabs)
-                    .evenly_spaced()
-                    .bg(colors::PANEL_BG)
-                    .padding(10),
-                content.bg(colors::PANEL_BG),
-            ])
-            .evenly_spaced(),
-        )
-        // TODO Want to use exact, but then scrolling breaks
+        Composite::new(ManagedWidget::col(vec![
+            WrappedComposite::svg_button(
+                ctx,
+                "assets/pregame/back.svg",
+                "back",
+                hotkey(Key::Escape),
+            )
+            .align_left(),
+            ManagedWidget::row(tabs).bg(colors::PANEL_BG),
+            content.bg(colors::PANEL_BG),
+        ]))
+        // TODO Want to use exact, but then scrolling breaks. exact_size_percent will fix the
+        // jumpiness though.
         .max_size_percent(90, 90)
         .build(ctx),
     )
