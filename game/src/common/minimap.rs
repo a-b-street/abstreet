@@ -98,10 +98,17 @@ impl Minimap {
                     self.set_zoom(ctx, 3);
                 }
                 x if x == "change agent colorscheme" => {
+                    let btn = self.composite.rect_of("change agent colorscheme").clone();
                     return Some(Transition::Push(WizardState::new(Box::new(
-                        |wiz, ctx, ui| {
-                            let (_, acs) =
-                                wiz.wrap(ctx).choose("Which colorscheme for agents?", || {
+                        move |wiz, ctx, ui| {
+                            let (_, acs) = wiz.wrap(ctx).choose_exact(
+                                // TODO Below is more intuitive, but text can't overlap right now.
+                                (
+                                    HorizontalAlignment::Centered(btn.center().x),
+                                    VerticalAlignment::Above(btn.y1 - 15.0),
+                                ),
+                                None,
+                                || {
                                     let mut choices = Vec::new();
                                     for acs in AgentColorScheme::all(&ui.cs) {
                                         if ui.agent_cs.acs != acs.acs {
@@ -109,7 +116,8 @@ impl Minimap {
                                         }
                                     }
                                     choices
-                                })?;
+                                },
+                            )?;
                             ui.agent_cs = acs;
                             // TODO It'd be great to replace self here, but the lifetimes don't
                             // work out.
@@ -354,7 +362,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, acs: &AgentColorScheme, zoom_lvl: usiz
 }
 
 fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
-    let radius = 15.0;
+    let radius = 10.0;
     let mut col = vec![
         ManagedWidget::row(vec![
             WrappedComposite::svg_button(ctx, "assets/tools/search.svg", "search", hotkey(Key::K))
@@ -419,11 +427,15 @@ fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
                 ManagedWidget::draw_batch(
                     ctx,
                     GeomBatch::from(vec![(
-                        if *enabled {
-                            color.alpha(1.0)
-                        } else {
-                            color.alpha(0.5)
-                        },
+                        Color::WHITE.alpha(if *enabled { 1.0 } else { 0.5 }),
+                        Polygon::rectangle(2.0, radius),
+                    )]),
+                )
+                .margin(3),
+                ManagedWidget::draw_batch(
+                    ctx,
+                    GeomBatch::from(vec![(
+                        color.alpha(if *enabled { 1.0 } else { 0.5 }),
                         Circle::new(Pt2D::new(radius, radius), Distance::meters(radius))
                             .to_polygon(),
                     )]),

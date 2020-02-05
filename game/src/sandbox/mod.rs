@@ -367,7 +367,7 @@ impl AgentMeter {
                     ManagedWidget::draw_text(ctx, txt)
                 },
                 // TODO The SVG button uses clip and doesn't seem to work
-                WrappedComposite::text_button(ctx, "view finished trip data", hotkey(Key::Q)),
+                WrappedComposite::text_button(ctx, "finished trip data", hotkey(Key::Q)),
             ])
             .bg(colors::PANEL_BG)
             .padding(20),
@@ -388,7 +388,7 @@ impl AgentMeter {
         }
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "view finished trip data" => {
+                "finished trip data" => {
                     return Some(Transition::Push(dashboards::make(
                         ctx,
                         ui,

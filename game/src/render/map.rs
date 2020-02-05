@@ -457,7 +457,7 @@ impl InnerAgentColorScheme {
     fn data(self, cs: &ColorScheme) -> (&str, &str, Vec<(&str, Color)>) {
         match self {
             InnerAgentColorScheme::VehicleTypes => (
-                "types",
+                "agent types",
                 "agent types",
                 vec![
                     ("car", cs.get_def("unzoomed car", Color::RED.alpha(0.5))),
