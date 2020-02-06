@@ -262,7 +262,7 @@ impl Overlays {
         }
         // TODO Grey out the inactive SVGs, and add the green checkmark
         if let Some((find, replace)) = match ui.overlay {
-            Overlays::Inactive => Some(("None", Button::inactive_button("None", ctx))),
+            Overlays::Inactive => Some(("None", Button::inactive_button(ctx, "None"))),
             Overlays::ParkingAvailability(_, _) => Some((
                 "parking availability",
                 ManagedWidget::draw_svg(ctx, "assets/layers/parking_avail.svg"),
@@ -283,10 +283,10 @@ impl Overlays {
                 "bus network",
                 ManagedWidget::draw_svg(ctx, "assets/layers/bus_network.svg"),
             )),
-            Overlays::Edits(_) => Some(("map edits", Button::inactive_button("map edits", ctx))),
+            Overlays::Edits(_) => Some(("map edits", Button::inactive_button(ctx, "map edits"))),
             Overlays::FinishedTripsHistogram(_, _) => Some((
                 "finished trips histogram",
-                Button::inactive_button("finished trips histogram", ctx),
+                Button::inactive_button(ctx, "finished trips histogram"),
             )),
             _ => None,
         } {

@@ -78,7 +78,7 @@ impl LaneEditor {
         {
             WrappedComposite::text_button(ctx, "Revert", hotkey(Key::R))
         } else {
-            Button::inactive_button("Revert", ctx)
+            Button::inactive_button(ctx, "Revert")
         };
 
         let composite = Composite::new(

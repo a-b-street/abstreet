@@ -297,7 +297,7 @@ impl Button {
         ]));
         ManagedWidget::just_draw(JustDraw::wrap(draw)).outline(2.0, Color::WHITE)
     }
-    pub fn inactive_button<S: Into<String>>(label: S, ctx: &EventCtx) -> ManagedWidget {
+    pub fn inactive_button<S: Into<String>>(ctx: &mut EventCtx, label: S) -> ManagedWidget {
         Button::inactive_btn(ctx, Text::from(Line(label)))
     }
     // With a background

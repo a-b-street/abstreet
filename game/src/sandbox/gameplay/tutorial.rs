@@ -644,7 +644,7 @@ impl TutorialState {
             )
             .margin(5),
             if self.current == 0 {
-                Button::inactive_button("<", ctx)
+                Button::inactive_button(ctx, "<")
             } else {
                 WrappedComposite::nice_text_button(
                     ctx,
@@ -655,7 +655,7 @@ impl TutorialState {
             }
             .margin(5),
             if self.current == self.latest {
-                Button::inactive_button(">", ctx)
+                Button::inactive_button(ctx, ">")
             } else {
                 WrappedComposite::nice_text_button(
                     ctx,
@@ -666,7 +666,7 @@ impl TutorialState {
             }
             .margin(5),
             if self.current == 0 {
-                Button::inactive_button("Restart", ctx)
+                Button::inactive_button(ctx, "Restart")
             } else {
                 WrappedComposite::text_button(ctx, "Restart", None)
             }

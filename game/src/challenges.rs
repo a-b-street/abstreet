@@ -155,7 +155,7 @@ impl Tab {
                 Tab::ChallengeStage(ref n, _) => &name == n,
             };
             if current {
-                flex_row.push(Button::inactive_button(name, ctx));
+                flex_row.push(Button::inactive_button(ctx, name));
             } else {
                 flex_row.push(ManagedWidget::btn(Button::text_bg(
                     Text::from(Line(&name).size(40).fg(Color::BLACK)),
@@ -192,7 +192,7 @@ impl Tab {
                 .enumerate()
             {
                 if current == idx {
-                    flex_row.push(Button::inactive_button(&stage.title, ctx));
+                    flex_row.push(Button::inactive_button(ctx, &stage.title));
                 } else {
                     flex_row.push(WrappedComposite::text_button(ctx, &stage.title, None));
                     let name = name.to_string();

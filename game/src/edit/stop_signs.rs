@@ -1,9 +1,14 @@
+use crate::colors;
 use crate::common::CommonState;
 use crate::edit::{apply_map_edits, close_intersection};
 use crate::game::{State, Transition};
-use crate::render::{DrawIntersection, DrawOptions};
-use crate::ui::{ShowEverything, UI};
-use ezgui::{hotkey, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text};
+use crate::managed::WrappedComposite;
+use crate::render::DrawIntersection;
+use crate::ui::UI;
+use ezgui::{
+    hotkey, Button, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    ManagedWidget, Outcome, Text, VerticalAlignment,
+};
 use geom::Polygon;
 use map_model::{ControlStopSign, EditCmd, IntersectionID, RoadID};
 use std::collections::HashMap;
@@ -11,7 +16,7 @@ use std::collections::HashMap;
 // TODO For now, individual turns can't be manipulated. Banning turns could be useful, but I'm not
 // sure what to do about the player orphaning a section of the map.
 pub struct StopSignEditor {
-    menu: ModalMenu,
+    composite: Composite,
     id: IntersectionID,
     // (octagon, pole)
     geom: HashMap<RoadID, (Polygon, Polygon)>,
@@ -19,7 +24,7 @@ pub struct StopSignEditor {
 }
 
 impl StopSignEditor {
-    pub fn new(id: IntersectionID, ctx: &EventCtx, ui: &mut UI) -> StopSignEditor {
+    pub fn new(id: IntersectionID, ctx: &mut EventCtx, ui: &mut UI) -> StopSignEditor {
         ui.primary.current_selection = None;
         let geom = ui
             .primary
@@ -33,16 +38,32 @@ impl StopSignEditor {
                 (*r, (octagon, pole))
             })
             .collect();
+
+        let composite = Composite::new(
+            ManagedWidget::col(vec![
+                ManagedWidget::draw_text(ctx, Text::from(Line("Stop sign editor"))),
+                if ui
+                    .primary
+                    .map
+                    .get_edits()
+                    .changed_intersections
+                    .contains(&id)
+                {
+                    WrappedComposite::text_button(ctx, "reset to default", hotkey(Key::R))
+                } else {
+                    Button::inactive_button(ctx, "reset to default")
+                },
+                WrappedComposite::text_button(ctx, "close intersection for construction", None),
+                WrappedComposite::text_button(ctx, "Finish", hotkey(Key::Escape)),
+            ])
+            .bg(colors::PANEL_BG)
+            .padding(10),
+        )
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        .build(ctx);
+
         StopSignEditor {
-            menu: ModalMenu::new(
-                "Stop Sign Editor",
-                vec![
-                    (hotkey(Key::Escape), "quit"),
-                    (hotkey(Key::R), "reset to default"),
-                    (None, "close intersection for construction"),
-                ],
-                ctx,
-            ),
+            composite,
             id,
             geom,
             selected_sign: None,
@@ -52,7 +73,6 @@ impl StopSignEditor {
 
 impl State for StopSignEditor {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        self.menu.event(ctx);
         ctx.canvas_movement();
 
         if ctx.redo_mouseover() {
@@ -80,31 +100,37 @@ impl State for StopSignEditor {
                 let mut edits = ui.primary.map.get_edits().clone();
                 edits.commands.push(EditCmd::ChangeStopSign(sign));
                 apply_map_edits(ctx, ui, edits);
+                return Transition::Replace(Box::new(StopSignEditor::new(self.id, ctx, ui)));
             }
-        } else if self.menu.action("quit") {
-            return Transition::Pop;
-        } else if self.menu.action("reset to default") {
-            let mut edits = ui.primary.map.get_edits().clone();
-            edits
-                .commands
-                .push(EditCmd::ChangeStopSign(ControlStopSign::new(
-                    &ui.primary.map,
-                    self.id,
-                )));
-            apply_map_edits(ctx, ui, edits);
-        } else if self.menu.action("close intersection for construction") {
-            return close_intersection(ctx, ui, self.id);
+        }
+
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "Finish" => {
+                    return Transition::Pop;
+                }
+                "reset to default" => {
+                    let mut edits = ui.primary.map.get_edits().clone();
+                    edits
+                        .commands
+                        .push(EditCmd::ChangeStopSign(ControlStopSign::new(
+                            &ui.primary.map,
+                            self.id,
+                        )));
+                    apply_map_edits(ctx, ui, edits);
+                    return Transition::Replace(Box::new(StopSignEditor::new(self.id, ctx, ui)));
+                }
+                "close intersection for construction" => {
+                    return close_intersection(ctx, ui, self.id);
+                }
+                _ => unreachable!(),
+            },
+            None => {}
         }
         Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        ui.draw(
-            g,
-            DrawOptions::new(),
-            &ui.primary.sim,
-            &ShowEverything::new(),
-        );
         let map = &ui.primary.map;
         let sign = map.get_stop_sign(self.id);
 
@@ -131,7 +157,7 @@ impl State for StopSignEditor {
 
         batch.draw(g);
 
-        self.menu.draw(g);
+        self.composite.draw(g);
         if let Some(r) = self.selected_sign {
             let mut osd = Text::new().with_bg();
             osd.add_appended(vec![
