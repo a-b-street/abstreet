@@ -125,6 +125,20 @@ impl GUI for Game {
             }
             DrawBaselayer::Custom => {}
             DrawBaselayer::PreviousState => {
+                match self.states[self.states.len() - 2].draw_baselayer() {
+                    DrawBaselayer::DefaultMap => {
+                        self.ui.draw(
+                            g,
+                            DrawOptions::new(),
+                            &self.ui.primary.sim,
+                            &ShowEverything::new(),
+                        );
+                    }
+                    DrawBaselayer::Custom => {}
+                    // Nope, don't recurse
+                    DrawBaselayer::PreviousState => {}
+                }
+
                 self.states[self.states.len() - 2].draw(g, &self.ui);
             }
         }

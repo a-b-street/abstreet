@@ -2,7 +2,6 @@ mod lanes;
 mod stop_signs;
 mod traffic_signals;
 
-use self::lanes::{Brush, LaneEditor};
 pub use self::stop_signs::StopSignEditor;
 pub use self::traffic_signals::TrafficSignalEditor;
 use crate::common::{tool_panel, CommonState, Overlays, Warping};
@@ -15,7 +14,7 @@ use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{hotkey, lctrl, Choice, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, WrappedWizard};
-use map_model::{EditCmd, LaneID, MapEdits};
+use map_model::{EditCmd, LaneID, LaneType, MapEdits};
 use sim::Sim;
 use std::collections::BTreeSet;
 
@@ -26,8 +25,6 @@ pub struct EditMode {
     // Retained state from the SandboxMode that spawned us
     mode: GameplayMode,
     pub suspended_sim: Sim,
-
-    lane_editor: LaneEditor,
 
     once: bool,
 }
@@ -51,7 +48,6 @@ impl EditMode {
             ),
             mode,
             suspended_sim,
-            lane_editor: LaneEditor::new(ctx),
             once: true,
         }
     }
@@ -88,22 +84,18 @@ impl State for EditMode {
 
         self.menu.event(ctx);
 
-        if self.mode.can_edit_lanes() {
-            if let Some(t) = self.lane_editor.event(ctx, ui) {
-                return t;
-            }
-        }
         ctx.canvas_movement();
         // Restrict what can be selected.
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);
-            if let Some(ID::Lane(_)) = ui.primary.current_selection {
-            } else if let Some(ID::Intersection(_)) = ui.primary.current_selection {
-                if self.lane_editor.brush != Brush::Construction
-                    && self.lane_editor.brush != Brush::Inactive
+            if let Some(ID::Lane(l)) = ui.primary.current_selection {
+                if !self.mode.can_edit_lanes()
+                    || ui.primary.map.get_l(l).is_sidewalk()
+                    || ui.primary.map.get_l(l).lane_type == LaneType::SharedLeftTurn
                 {
                     ui.primary.current_selection = None;
                 }
+            } else if let Some(ID::Intersection(_)) = ui.primary.current_selection {
             } else {
                 ui.primary.current_selection = None;
             }
@@ -149,6 +141,11 @@ impl State for EditMode {
                 apply_map_edits(ctx, ui, edits);
             }
         }
+        if let Some(ID::Lane(l)) = ui.primary.current_selection {
+            if ui.per_obj.left_click(ctx, "edit lane") {
+                return Transition::Push(Box::new(lanes::LaneEditor::new(l, ctx, ui)));
+            }
+        }
 
         if !ui.primary.map.get_edits().commands.is_empty() && self.menu.action("undo") {
             let mut edits = ui.primary.map.get_edits().clone();
@@ -188,9 +185,6 @@ impl State for EditMode {
 
         self.tool_panel.draw(g);
         self.menu.draw(g);
-        if self.mode.can_edit_lanes() {
-            self.lane_editor.draw(g);
-        }
         CommonState::draw_osd(g, ui, &ui.primary.current_selection);
     }
 }

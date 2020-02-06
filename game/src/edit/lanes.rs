@@ -3,6 +3,7 @@ use crate::common::Colorer;
 use crate::edit::apply_map_edits;
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
+use crate::managed::WrappedComposite;
 use crate::ui::UI;
 use ezgui::{
     hotkey, Button, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
@@ -14,135 +15,149 @@ use map_model::{
 use std::collections::BTreeSet;
 
 pub struct LaneEditor {
-    pub brush: Brush,
+    l: LaneID,
     composite: Composite,
 }
 
-#[derive(Clone, Copy, PartialEq)]
-pub enum Brush {
-    Inactive,
-    Driving,
-    Bike,
-    Bus,
-    Parking,
-    Construction,
-    Reverse,
+impl LaneEditor {
+    pub fn new(l: LaneID, ctx: &mut EventCtx, ui: &UI) -> LaneEditor {
+        let mut row = Vec::new();
+        let lt = ui.primary.map.get_l(l).lane_type;
+        for (icon, label, key, active) in vec![
+            (
+                "driving",
+                "convert to a driving lane",
+                Key::D,
+                lt != LaneType::Driving,
+            ),
+            (
+                "bike",
+                "convert to a protected bike lane",
+                Key::B,
+                lt != LaneType::Biking,
+            ),
+            (
+                "bus",
+                "convert to a bus-only lane",
+                Key::T,
+                lt != LaneType::Bus,
+            ),
+            (
+                "parking",
+                "convert to an on-street parking lane",
+                Key::P,
+                lt != LaneType::Parking,
+            ),
+            (
+                "construction",
+                "close for construction",
+                Key::C,
+                lt != LaneType::Construction,
+            ),
+            ("contraflow", "reverse lane direction", Key::F, true),
+        ] {
+            row.push(
+                if active {
+                    ManagedWidget::btn(Button::rectangle_svg(
+                        &format!("assets/edit/{}.svg", icon),
+                        label,
+                        hotkey(key),
+                        RewriteColor::ChangeAll(colors::HOVERING),
+                        ctx,
+                    ))
+                } else {
+                    ManagedWidget::draw_svg_transform(
+                        ctx,
+                        &format!("assets/edit/{}.svg", icon),
+                        RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
+                    )
+                }
+                .padding(5),
+            );
+        }
+
+        let revert = if ui.primary.map.get_edits().original_lts.contains_key(&l)
+            || ui.primary.map.get_edits().reversed_lanes.contains(&l)
+        {
+            WrappedComposite::text_button(ctx, "Revert", hotkey(Key::R))
+        } else {
+            Button::inactive_button("Revert", ctx)
+        };
+
+        let composite = Composite::new(
+            ManagedWidget::col(vec![
+                ManagedWidget::draw_text(ctx, Text::from(Line("Modify lane"))).centered_horiz(),
+                ManagedWidget::row(row).centered(),
+                WrappedComposite::text_button(ctx, "Finish", hotkey(Key::Escape)),
+                WrappedComposite::text_button(ctx, "Edit entire road", hotkey(Key::U)),
+                revert,
+            ])
+            .bg(colors::PANEL_BG)
+            .padding(10),
+        )
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        .build(ctx);
+
+        LaneEditor { l, composite }
+    }
 }
 
-impl LaneEditor {
-    pub fn new(ctx: &mut EventCtx) -> LaneEditor {
-        LaneEditor {
-            brush: Brush::Inactive,
-            composite: make_brush_panel(ctx, Brush::Inactive),
-        }
-    }
+impl State for LaneEditor {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+        ctx.canvas_movement();
 
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
-        // Change brush
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => {
-                let b = match x.as_ref() {
-                    "convert to a driving lane" => Brush::Driving,
-                    "convert to a protected bike lane" => Brush::Bike,
-                    "convert to a bus-only lane" => Brush::Bus,
-                    "convert to a on-street parking lane" => Brush::Parking,
-                    "convert to a closed for construction" => Brush::Construction,
-                    "convert to a reverse lane direction" => Brush::Reverse,
+                let map = &ui.primary.map;
+                let result = match x.as_ref() {
+                    "convert to a driving lane" => {
+                        try_change_lane_type(self.l, LaneType::Driving, map)
+                    }
+                    "convert to a protected bike lane" => {
+                        try_change_lane_type(self.l, LaneType::Biking, map)
+                    }
+                    "convert to a bus-only lane" => {
+                        try_change_lane_type(self.l, LaneType::Bus, map)
+                    }
+                    "convert to an on-street parking lane" => {
+                        try_change_lane_type(self.l, LaneType::Parking, map)
+                    }
+                    "close for construction" => {
+                        try_change_lane_type(self.l, LaneType::Construction, map)
+                    }
+                    "reverse lane direction" => try_reverse(self.l, map),
+                    "Finish" => {
+                        return Transition::Pop;
+                    }
+                    "Edit entire road" => {
+                        return Transition::Replace(make_bulk_edit_lanes(map.get_l(self.l).parent));
+                    }
+                    "Revert" => {
+                        // TODO It's hard to revert both changes at once.
+                        if let Some(lt) = map.get_edits().original_lts.get(&self.l) {
+                            try_change_lane_type(self.l, *lt, map)
+                        } else {
+                            try_reverse(self.l, map)
+                        }
+                    }
                     _ => unreachable!(),
                 };
-                if self.brush == b {
-                    self.brush = Brush::Inactive;
-                } else {
-                    self.brush = b;
+                match result {
+                    Ok(cmd) => {
+                        let mut edits = ui.primary.map.get_edits().clone();
+                        edits.commands.push(cmd);
+                        apply_map_edits(ctx, ui, edits);
+                        return Transition::Replace(Box::new(LaneEditor::new(self.l, ctx, ui)));
+                    }
+                    Err(err) => {
+                        return Transition::Push(msg("Error", vec![err]));
+                    }
                 }
-                self.composite = make_brush_panel(ctx, self.brush);
             }
             None => {}
         }
 
-        if let Some(ID::Lane(l)) = ui.primary.current_selection {
-            // TODO Refactor all of these mappings!
-            if self.brush != Brush::Inactive {
-                let label = match self.brush {
-                    Brush::Inactive => unreachable!(),
-                    Brush::Driving => "driving lane",
-                    Brush::Bike => "protected bike lane",
-                    Brush::Bus => "bus-only lane",
-                    Brush::Parking => "on-street parking lane",
-                    Brush::Construction => "closed for construction",
-                    Brush::Reverse => "reverse lane direction",
-                };
-                if ui
-                    .per_obj
-                    .action(ctx, Key::Space, &format!("convert to a {}", label))
-                {
-                    // These errors are universal.
-                    if ui.primary.map.get_l(l).is_sidewalk() {
-                        return Some(Transition::Push(msg(
-                            "Error",
-                            vec!["Can't modify sidewalks"],
-                        )));
-                    }
-                    if ui.primary.map.get_l(l).lane_type == LaneType::SharedLeftTurn {
-                        return Some(Transition::Push(msg(
-                            "Error",
-                            vec!["Can't modify shared-left turn lanes yet"],
-                        )));
-                    }
-
-                    match apply_brush(self.brush, &ui.primary.map, l) {
-                        Ok(Some(cmd)) => {
-                            let mut edits = ui.primary.map.get_edits().clone();
-                            edits.commands.push(cmd);
-                            apply_map_edits(ctx, ui, edits);
-                        }
-                        Ok(None) => {}
-                        Err(err) => {
-                            return Some(Transition::Push(msg("Error", vec![err])));
-                        }
-                    }
-                }
-            }
-
-            if ui
-                .per_obj
-                .action(ctx, Key::U, "bulk edit lanes on this road")
-            {
-                return Some(Transition::Push(make_bulk_edit_lanes(
-                    ui.primary.map.get_l(l).parent,
-                )));
-            } else if let Some(lt) = ui.primary.map.get_edits().original_lts.get(&l) {
-                if ui.per_obj.action(ctx, Key::R, "revert") {
-                    if let Some(err) = can_change_lane_type(l, *lt, &ui.primary.map) {
-                        return Some(Transition::Push(msg("Error", vec![err])));
-                    }
-
-                    let mut edits = ui.primary.map.get_edits().clone();
-                    edits.commands.push(EditCmd::ChangeLaneType {
-                        id: l,
-                        lt: *lt,
-                        orig_lt: ui.primary.map.get_l(l).lane_type,
-                    });
-                    apply_map_edits(ctx, ui, edits);
-                }
-            } else if ui.primary.map.get_edits().reversed_lanes.contains(&l) {
-                if ui.per_obj.action(ctx, Key::R, "revert") {
-                    match apply_brush(Brush::Reverse, &ui.primary.map, l) {
-                        Ok(Some(cmd)) => {
-                            let mut edits = ui.primary.map.get_edits().clone();
-                            edits.commands.push(cmd);
-                            apply_map_edits(ctx, ui, edits);
-                        }
-                        Ok(None) => {}
-                        Err(err) => {
-                            return Some(Transition::Push(msg("Error", vec![err])));
-                        }
-                    }
-                }
-            }
-        }
-
-        // Woo, a special case! The construction tool also applies to intersections.
+        /*// Woo, a special case! The construction tool also applies to intersections.
         if let Some(ID::Intersection(i)) = ui.primary.current_selection {
             if self.brush == Brush::Construction
                 && ui
@@ -181,62 +196,14 @@ impl LaneEditor {
                     }
                 }
             }
-        }
+        }*/
 
-        None
+        Transition::Keep
     }
 
-    pub fn draw(&self, g: &mut GfxCtx) {
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
         self.composite.draw(g);
     }
-}
-
-fn make_brush_panel(ctx: &mut EventCtx, brush: Brush) -> Composite {
-    let mut row = Vec::new();
-    for (b, icon, label, key) in vec![
-        (Brush::Driving, "driving", "driving lane", Key::D),
-        (Brush::Bike, "bike", "protected bike lane", Key::B),
-        (Brush::Bus, "bus", "bus-only lane", Key::T),
-        (Brush::Parking, "parking", "on-street parking lane", Key::P),
-        (
-            Brush::Construction,
-            "construction",
-            "closed for construction",
-            Key::C,
-        ),
-        (
-            Brush::Reverse,
-            "contraflow",
-            "reverse lane direction",
-            Key::F,
-        ),
-    ] {
-        row.push(
-            ManagedWidget::col(vec![ManagedWidget::btn(Button::rectangle_svg_rewrite(
-                &format!("assets/edit/{}.svg", icon),
-                &format!("convert to a {}", label),
-                hotkey(key),
-                if brush == b {
-                    RewriteColor::ChangeAll(Color::RED)
-                } else {
-                    RewriteColor::NoOp
-                },
-                RewriteColor::ChangeAll(colors::HOVERING),
-                ctx,
-            ))])
-            .padding(5),
-        );
-    }
-    Composite::new(
-        ManagedWidget::col(vec![
-            ManagedWidget::draw_text(ctx, Text::from(Line("Modify lanes"))).centered_horiz(),
-            ManagedWidget::row(row).centered(),
-        ])
-        .bg(colors::PANEL_BG)
-        .padding(10),
-    )
-    .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-    .build(ctx)
 }
 
 fn can_change_lane_type(l: LaneID, new_lt: LaneType, map: &Map) -> Option<String> {
@@ -292,18 +259,30 @@ fn can_change_lane_type(l: LaneID, new_lt: LaneType, map: &Map) -> Option<String
     None
 }
 
-fn try_change_lane_type(l: LaneID, new_lt: LaneType, map: &Map) -> Result<Option<EditCmd>, String> {
+fn try_change_lane_type(l: LaneID, new_lt: LaneType, map: &Map) -> Result<EditCmd, String> {
     if let Some(err) = can_change_lane_type(l, new_lt, map) {
         return Err(err);
     }
-    if map.get_l(l).lane_type == new_lt {
-        Ok(None)
+    Ok(EditCmd::ChangeLaneType {
+        id: l,
+        lt: new_lt,
+        orig_lt: map.get_l(l).lane_type,
+    })
+}
+
+fn try_reverse(l: LaneID, map: &Map) -> Result<EditCmd, String> {
+    let lane = map.get_l(l);
+    if !lane.lane_type.is_for_moving_vehicles() {
+        Err(format!("You can't reverse a {:?} lane", lane.lane_type))
+    } else if map.get_r(lane.parent).dir_and_offset(l).1 != 0 {
+        Err(format!(
+            "You can only reverse the lanes next to the road's yellow center line"
+        ))
     } else {
-        Ok(Some(EditCmd::ChangeLaneType {
-            id: l,
-            lt: new_lt,
-            orig_lt: map.get_l(l).lane_type,
-        }))
+        Ok(EditCmd::ReverseLane {
+            l,
+            dst_i: lane.src_i,
+        })
     }
 }
 
@@ -371,32 +350,4 @@ fn make_bulk_edit_lanes(road: RoadID) -> Box<dyn State> {
             )],
         )))
     }))
-}
-
-// If this returns a string error message, the edit didn't work. If it returns Ok(None), then
-// it's a no-op.
-fn apply_brush(brush: Brush, map: &Map, l: LaneID) -> Result<Option<EditCmd>, String> {
-    match brush {
-        Brush::Inactive => unreachable!(),
-        Brush::Driving => try_change_lane_type(l, LaneType::Driving, map),
-        Brush::Bike => try_change_lane_type(l, LaneType::Biking, map),
-        Brush::Bus => try_change_lane_type(l, LaneType::Bus, map),
-        Brush::Parking => try_change_lane_type(l, LaneType::Parking, map),
-        Brush::Construction => try_change_lane_type(l, LaneType::Construction, map),
-        Brush::Reverse => {
-            let lane = map.get_l(l);
-            if !lane.lane_type.is_for_moving_vehicles() {
-                return Err(format!("You can't reverse a {:?} lane", lane.lane_type));
-            }
-            if map.get_r(lane.parent).dir_and_offset(l).1 != 0 {
-                return Err(format!(
-                    "You can only reverse the lanes next to the road's yellow center line"
-                ));
-            }
-            Ok(Some(EditCmd::ReverseLane {
-                l,
-                dst_i: lane.src_i,
-            }))
-        }
-    }
 }
