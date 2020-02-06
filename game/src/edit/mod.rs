@@ -62,6 +62,10 @@ impl EditMode {
                 .recalculate_pathfinding_after_edits(&mut timer);
             // Parking state might've changed
             ui.primary.clear_sim();
+            // Autosave
+            if ui.primary.map.get_edits().edits_name != "no_edits" {
+                ui.primary.map.save_edits();
+            }
             Transition::PopThenReplace(Box::new(SandboxMode::new(ctx, ui, self.mode.clone())))
         })
     }
@@ -105,6 +109,10 @@ impl State for EditMode {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "load edits" => {
+                    // Autosave first
+                    if ui.primary.map.get_edits().edits_name != "no_edits" {
+                        ui.primary.map.save_edits();
+                    }
                     return Transition::Push(make_load_edits(
                         self.composite.rect_of("load edits").clone(),
                         self.mode.clone(),
@@ -113,9 +121,9 @@ impl State for EditMode {
                 "finish editing" => {
                     return self.quit(ctx, ui);
                 }
-                "save edits" => {
+                "save edits as" => {
                     return Transition::Push(WizardState::new(Box::new(|wiz, ctx, ui| {
-                        save_edits(&mut wiz.wrap(ctx), ui)?;
+                        save_edits_as(&mut wiz.wrap(ctx), ui)?;
                         Some(Transition::Pop)
                     })));
                 }
@@ -198,13 +206,18 @@ impl State for EditMode {
     }
 }
 
-pub fn save_edits(wizard: &mut WrappedWizard, ui: &mut UI) -> Option<()> {
+pub fn save_edits_as(wizard: &mut WrappedWizard, ui: &mut UI) -> Option<()> {
     let map = &mut ui.primary.map;
+    let new_default_name = if map.get_edits().edits_name == "no_edits" {
+        "untitled edits".to_string()
+    } else {
+        format!("copy of {}", map.get_edits().edits_name)
+    };
 
-    let rename = if map.get_edits().edits_name == "no_edits" {
-        Some(wizard.input_something(
-            "Name these map edits",
-            None,
+    let name = loop {
+        let candidate = wizard.input_something(
+            "Name the new copy of these edits",
+            Some(new_default_name.clone()),
             Box::new(|l| {
                 if l.contains("/") || l == "no_edits" || l == "" {
                     None
@@ -212,27 +225,28 @@ pub fn save_edits(wizard: &mut WrappedWizard, ui: &mut UI) -> Option<()> {
                     Some(l)
                 }
             }),
-        )?)
-    } else {
-        None
+        )?;
+        if abstutil::file_exists(abstutil::path_edits(map.get_name(), &candidate)) {
+            let overwrite = "Overwrite";
+            let rename = "Rename";
+            if wizard
+                .choose_string(&format!("Edits named {} already exist", candidate), || {
+                    vec![overwrite, rename]
+                })?
+                .as_str()
+                == overwrite
+            {
+                break candidate;
+            }
+        } else {
+            break candidate;
+        }
     };
 
-    // TODO Do it this weird way to avoid saving edits on every event. :P
-    // TODO Do some kind of versioning? Don't ask this if the file doesn't exist yet?
-    let save = "save edits";
-    let cancel = "cancel";
-    if wizard
-        .choose_string("Overwrite edits?", || vec![save, cancel])?
-        .as_str()
-        == save
-    {
-        if let Some(name) = rename {
-            let mut edits = map.get_edits().clone();
-            edits.edits_name = name;
-            map.apply_edits(edits, &mut Timer::new("name map edits"));
-        }
-        map.save_edits();
-    }
+    let mut edits = map.get_edits().clone();
+    edits.edits_name = name;
+    map.apply_edits(edits, &mut Timer::new("name map edits"));
+    map.save_edits();
     Some(())
 }
 
@@ -240,7 +254,9 @@ fn make_load_edits(btn: ScreenRectangle, mode: GameplayMode) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, ui| {
         let mut wizard = wiz.wrap(ctx);
 
-        if ui.primary.map.get_edits().dirty {
+        if ui.primary.map.get_edits().edits_name == "no_edits"
+            && !ui.primary.map.get_edits().commands.is_empty()
+        {
             let save = "save edits";
             let discard = "discard";
             if wizard
@@ -248,13 +264,14 @@ fn make_load_edits(btn: ScreenRectangle, mode: GameplayMode) -> Box<dyn State> {
                 .as_str()
                 == save
             {
-                save_edits(&mut wizard, ui)?;
+                save_edits_as(&mut wizard, ui)?;
                 wizard.reset();
             }
         }
 
         // TODO Exclude current
-        let map_name = ui.primary.map.get_name().to_string();
+        let current_edits_name = ui.primary.map.get_edits().edits_name.clone();
+        let map_name = ui.primary.map.get_name().clone();
         let (_, new_edits) = wizard.choose_exact(
             (
                 HorizontalAlignment::Centered(btn.center().x),
@@ -265,7 +282,9 @@ fn make_load_edits(btn: ScreenRectangle, mode: GameplayMode) -> Box<dyn State> {
                 let mut list = Choice::from(
                     abstutil::load_all_objects(abstutil::path_all_edits(&map_name))
                         .into_iter()
-                        .filter(|(_, edits)| mode.allows(edits))
+                        .filter(|(_, edits)| {
+                            mode.allows(edits) && edits.edits_name != current_edits_name
+                        })
                         .collect(),
                 );
                 list.push(Choice::new("no_edits", MapEdits::new(map_name.clone())));
@@ -273,7 +292,6 @@ fn make_load_edits(btn: ScreenRectangle, mode: GameplayMode) -> Box<dyn State> {
             },
         )?;
         apply_map_edits(ctx, ui, new_edits);
-        ui.primary.map.mark_edits_fresh();
         Some(Transition::Pop)
     }))
 }
@@ -301,6 +319,13 @@ fn make_topcenter(ctx: &mut EventCtx, ui: &UI) -> Composite {
                     "load edits",
                 )
                 .margin(5),
+                WrappedComposite::svg_button(
+                    ctx,
+                    "assets/tools/save.svg",
+                    "save edits as",
+                    lctrl(Key::S),
+                )
+                .margin(5),
                 (if !ui.primary.map.get_edits().commands.is_empty() {
                     WrappedComposite::svg_button(
                         ctx,
@@ -316,9 +341,10 @@ fn make_topcenter(ctx: &mut EventCtx, ui: &UI) -> Composite {
                     )
                 })
                 .margin(15),
-            ]),
-            WrappedComposite::text_button(ctx, "save edits", lctrl(Key::S)),
-            WrappedComposite::text_button(ctx, "finish editing", hotkey(Key::Escape)),
+            ])
+            .centered(),
+            WrappedComposite::text_button(ctx, "finish editing", hotkey(Key::Escape))
+                .centered_horiz(),
         ])
         .bg(colors::PANEL_BG),
     )
@@ -326,8 +352,7 @@ fn make_topcenter(ctx: &mut EventCtx, ui: &UI) -> Composite {
     .build(ctx)
 }
 
-pub fn apply_map_edits(ctx: &mut EventCtx, ui: &mut UI, mut edits: MapEdits) {
-    edits.dirty = true;
+pub fn apply_map_edits(ctx: &mut EventCtx, ui: &mut UI, edits: MapEdits) {
     let mut timer = Timer::new("apply map edits");
 
     let (lanes_changed, roads_changed, turns_deleted, turns_added, mut modified_intersections) =

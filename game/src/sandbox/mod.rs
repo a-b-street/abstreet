@@ -6,7 +6,7 @@ use crate::colors;
 use crate::common::{tool_panel, CommonState, Minimap, Overlays, ShowBusRoute};
 use crate::debug::DebugMode;
 use crate::edit::{
-    apply_map_edits, can_edit_lane, save_edits, EditMode, LaneEditor, StopSignEditor,
+    apply_map_edits, can_edit_lane, save_edits_as, EditMode, LaneEditor, StopSignEditor,
     TrafficSignalEditor,
 };
 use crate::game::{DrawBaselayer, State, Transition, WizardState};
@@ -319,11 +319,12 @@ impl State for SandboxMode {
 
 fn exit_sandbox(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
     let mut wizard = wiz.wrap(ctx);
-    let dirty = ui.primary.map.get_edits().dirty;
+    let unsaved = ui.primary.map.get_edits().edits_name == "no_edits"
+        && !ui.primary.map.get_edits().commands.is_empty();
     let (resp, _) = wizard.choose("Sure you want to abandon the current challenge?", || {
         let mut choices = Vec::new();
         choices.push(Choice::new("keep playing", ()));
-        if dirty {
+        if unsaved {
             choices.push(Choice::new("save edits and quit", ()));
         }
         choices.push(Choice::new("quit challenge", ()).key(Key::Q));
@@ -334,12 +335,13 @@ fn exit_sandbox(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
     }
     let map_name = ui.primary.map.get_name().to_string();
     if resp == "save edits and quit" {
-        save_edits(&mut wizard, ui)?;
+        save_edits_as(&mut wizard, ui)?;
     }
     ctx.loading_screen("reset map and sim", |ctx, mut timer| {
-        if !ui.primary.map.get_edits().is_empty() {
+        if ui.primary.map.get_edits().edits_name != "no_edits"
+            || !ui.primary.map.get_edits().commands.is_empty()
+        {
             apply_map_edits(ctx, ui, MapEdits::new(map_name));
-            ui.primary.map.mark_edits_fresh();
             ui.primary
                 .map
                 .recalculate_pathfinding_after_edits(&mut timer);

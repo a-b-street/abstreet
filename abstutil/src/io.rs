@@ -345,3 +345,7 @@ pub fn basename(path: &str) -> String {
         .into_string()
         .unwrap()
 }
+
+pub fn file_exists(path: String) -> bool {
+    Path::new(&path).exists()
+}

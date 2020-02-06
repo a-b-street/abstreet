@@ -139,7 +139,6 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
                     ui,
                     MapEdits::load(&test.map_name, &test.edits1_name, &mut timer),
                 );
-                ui.primary.map.mark_edits_fresh();
                 ui.primary
                     .map
                     .recalculate_pathfinding_after_edits(&mut timer);
@@ -193,7 +192,6 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
                     MapEdits::load(&test.map_name, &test.edits2_name, &mut timer),
                 );
                 std::mem::swap(&mut ui.primary, &mut secondary);
-                secondary.map.mark_edits_fresh();
                 secondary
                     .map
                     .recalculate_pathfinding_after_edits(&mut timer);

@@ -19,9 +19,6 @@ pub struct MapEdits {
 
     // Edits without these are player generated.
     pub proposal_description: Vec<String>,
-
-    #[serde(skip_serializing, skip_deserializing)]
-    pub dirty: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -65,12 +62,7 @@ impl MapEdits {
             original_lts: BTreeMap::new(),
             reversed_lanes: BTreeSet::new(),
             changed_intersections: BTreeSet::new(),
-            dirty: false,
         }
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.edits_name == "no_edits" && self.commands.is_empty()
     }
 
     pub fn load(map_name: &str, edits_name: &str, timer: &mut Timer) -> MapEdits {
@@ -80,14 +72,12 @@ impl MapEdits {
         abstutil::read_json(abstutil::path_edits(map_name, edits_name), timer)
     }
 
-    // TODO Version these
+    // TODO Version these? Or it's unnecessary, since we have a command stack.
     pub(crate) fn save(&mut self, map: &Map) {
         self.compress(map);
 
-        assert!(self.dirty);
         assert_ne!(self.edits_name, "no_edits");
         abstutil::write_json(abstutil::path_edits(&self.map_name, &self.edits_name), self);
-        self.dirty = false;
     }
 
     pub fn original_it(&self, i: IntersectionID) -> IntersectionType {

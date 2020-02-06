@@ -630,11 +630,6 @@ impl Map {
         &self.edits
     }
 
-    pub fn mark_edits_fresh(&mut self) {
-        assert!(self.edits.dirty);
-        self.edits.dirty = false;
-    }
-
     pub fn save_edits(&mut self) {
         let mut edits = std::mem::replace(&mut self.edits, MapEdits::new(self.name.clone()));
         edits.save(self);

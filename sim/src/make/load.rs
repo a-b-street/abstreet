@@ -72,7 +72,6 @@ impl SimFlags {
                     MapEdits::load(map.get_name(), &sim.edits_name, timer),
                     timer,
                 );
-                map.mark_edits_fresh();
                 map.recalculate_pathfinding_after_edits(timer);
             }
             sim.restore_paths(&map, timer);
