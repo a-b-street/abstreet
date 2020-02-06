@@ -1,6 +1,6 @@
 use crate::colors;
 use crate::common::CommonState;
-use crate::edit::apply_map_edits;
+use crate::edit::{apply_map_edits, close_intersection};
 use crate::game::{msg, DrawBaselayer, State, Transition, WizardState};
 use crate::helpers::plain_list_names;
 use crate::managed::{WrappedComposite, WrappedOutcome};
@@ -109,6 +109,9 @@ impl State for TrafficSignalEditor {
                 }
                 x if x == "Use preset" => {
                     return Transition::Push(change_preset(self.i));
+                }
+                x if x == "Close intersection for construction" => {
+                    return close_intersection(ctx, ui, self.i);
                 }
                 x if x == "Make all-walk" => {
                     let mut new_signal = orig_signal.clone();
@@ -443,6 +446,11 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
             hotkey(Key::B),
         ));
     }
+    col.push(WrappedComposite::text_button(
+        ctx,
+        "Close intersection for construction",
+        None,
+    ));
 
     for (idx, phase) in signal.phases.iter().enumerate() {
         col.push(

@@ -1,5 +1,5 @@
 use crate::common::CommonState;
-use crate::edit::apply_map_edits;
+use crate::edit::{apply_map_edits, close_intersection};
 use crate::game::{State, Transition};
 use crate::render::{DrawIntersection, DrawOptions};
 use crate::ui::{ShowEverything, UI};
@@ -39,6 +39,7 @@ impl StopSignEditor {
                 vec![
                     (hotkey(Key::Escape), "quit"),
                     (hotkey(Key::R), "reset to default"),
+                    (None, "close intersection for construction"),
                 ],
                 ctx,
             ),
@@ -91,6 +92,8 @@ impl State for StopSignEditor {
                     self.id,
                 )));
             apply_map_edits(ctx, ui, edits);
+        } else if self.menu.action("close intersection for construction") {
+            return close_intersection(ctx, ui, self.id);
         }
         Transition::Keep
     }

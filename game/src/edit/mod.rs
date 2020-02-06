@@ -5,9 +5,9 @@ mod traffic_signals;
 pub use self::lanes::LaneEditor;
 pub use self::stop_signs::StopSignEditor;
 pub use self::traffic_signals::TrafficSignalEditor;
-use crate::common::{tool_panel, CommonState, Overlays, Warping};
+use crate::common::{tool_panel, Colorer, CommonState, Overlays, Warping};
 use crate::debug::DebugMode;
-use crate::game::{State, Transition, WizardState};
+use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::{DrawIntersection, DrawLane, DrawRoad};
@@ -15,7 +15,9 @@ use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{hotkey, lctrl, Choice, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, WrappedWizard};
-use map_model::{EditCmd, LaneID, LaneType, MapEdits};
+use map_model::{
+    connectivity, EditCmd, IntersectionID, LaneID, LaneType, MapEdits, PathConstraints,
+};
 use sim::Sim;
 use std::collections::BTreeSet;
 
@@ -131,7 +133,9 @@ impl State for EditMode {
                     self.suspended_sim.clone(),
                 )));
             }
-            if ui.primary.map.get_i(id).is_closed() && ui.per_obj.action(ctx, Key::R, "revert") {
+            if ui.primary.map.get_i(id).is_closed()
+                && ui.per_obj.left_click(ctx, "re-open closed intersection")
+            {
                 let mut edits = ui.primary.map.get_edits().clone();
                 edits
                     .commands
@@ -315,4 +319,38 @@ pub fn can_edit_lane(mode: &GameplayMode, l: LaneID, ui: &UI) -> bool {
     mode.can_edit_lanes()
         && !ui.primary.map.get_l(l).is_sidewalk()
         && ui.primary.map.get_l(l).lane_type != LaneType::SharedLeftTurn
+}
+
+pub fn close_intersection(ctx: &mut EventCtx, ui: &mut UI, i: IntersectionID) -> Transition {
+    let it = ui.primary.map.get_i(i).intersection_type;
+
+    let mut edits = ui.primary.map.get_edits().clone();
+    edits
+        .commands
+        .push(EditCmd::CloseIntersection { id: i, orig_it: it });
+    apply_map_edits(ctx, ui, edits);
+
+    let (_, disconnected) = connectivity::find_scc(&ui.primary.map, PathConstraints::Pedestrian);
+    if disconnected.is_empty() {
+        // Success! Quit the stop sign / signal editor.
+        return Transition::Pop;
+    }
+
+    let mut edits = ui.primary.map.get_edits().clone();
+    edits.commands.pop();
+    apply_map_edits(ctx, ui, edits);
+
+    let mut err_state = msg(
+        "Error",
+        vec![format!("{} sidewalks disconnected", disconnected.len())],
+    );
+
+    let color = ui.cs.get("unreachable lane");
+    let mut c = Colorer::new(Text::new(), vec![("", color)]);
+    for l in disconnected {
+        c.add_l(l, color, &ui.primary.map);
+    }
+
+    err_state.downcast_mut::<WizardState>().unwrap().also_draw = Some(c.build_zoomed(ctx, ui));
+    Transition::Push(err_state)
 }

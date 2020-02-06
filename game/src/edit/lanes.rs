@@ -1,17 +1,14 @@
 use crate::colors;
-use crate::common::{Colorer, CommonState};
+use crate::common::CommonState;
 use crate::edit::apply_map_edits;
 use crate::game::{msg, State, Transition, WizardState};
-use crate::helpers::ID;
 use crate::managed::WrappedComposite;
 use crate::ui::UI;
 use ezgui::{
     hotkey, Button, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
     ManagedWidget, Outcome, RewriteColor, Text, VerticalAlignment,
 };
-use map_model::{
-    connectivity, EditCmd, IntersectionType, LaneID, LaneType, Map, PathConstraints, RoadID,
-};
+use map_model::{EditCmd, LaneID, LaneType, Map, RoadID};
 use std::collections::BTreeSet;
 
 pub struct LaneEditor {
@@ -156,47 +153,6 @@ impl State for LaneEditor {
             }
             None => {}
         }
-
-        /*// Woo, a special case! The construction tool also applies to intersections.
-        if let Some(ID::Intersection(i)) = ui.primary.current_selection {
-            if self.brush == Brush::Construction
-                && ui
-                    .per_obj
-                    .action(ctx, Key::Space, "closed for construction")
-            {
-                let it = ui.primary.map.get_i(i).intersection_type;
-                if it != IntersectionType::Construction && it != IntersectionType::Border {
-                    let mut edits = ui.primary.map.get_edits().clone();
-                    edits
-                        .commands
-                        .push(EditCmd::CloseIntersection { id: i, orig_it: it });
-                    apply_map_edits(ctx, ui, edits);
-
-                    let (_, disconnected) =
-                        connectivity::find_scc(&ui.primary.map, PathConstraints::Pedestrian);
-                    if !disconnected.is_empty() {
-                        let mut edits = ui.primary.map.get_edits().clone();
-                        edits.commands.pop();
-                        apply_map_edits(ctx, ui, edits);
-
-                        let mut err_state = msg(
-                            "Error",
-                            vec![format!("{} sidewalks disconnected", disconnected.len())],
-                        );
-
-                        let color = ui.cs.get("unreachable lane");
-                        let mut c = Colorer::new(Text::new(), vec![("", color)]);
-                        for l in disconnected {
-                            c.add_l(l, color, &ui.primary.map);
-                        }
-
-                        err_state.downcast_mut::<WizardState>().unwrap().also_draw =
-                            Some(c.build_zoomed(ctx, ui));
-                        return Some(Transition::Push(err_state));
-                    }
-                }
-            }
-        }*/
 
         Transition::Keep
     }
