@@ -1,5 +1,5 @@
 use crate::colors;
-use crate::common::Colorer;
+use crate::common::{Colorer, CommonState};
 use crate::edit::apply_map_edits;
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
@@ -201,8 +201,9 @@ impl State for LaneEditor {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         self.composite.draw(g);
+        CommonState::draw_osd(g, ui, &None);
     }
 }
 

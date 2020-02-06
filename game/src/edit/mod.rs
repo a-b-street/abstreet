@@ -2,6 +2,7 @@ mod lanes;
 mod stop_signs;
 mod traffic_signals;
 
+pub use self::lanes::LaneEditor;
 pub use self::stop_signs::StopSignEditor;
 pub use self::traffic_signals::TrafficSignalEditor;
 use crate::common::{tool_panel, CommonState, Overlays, Warping};
@@ -89,10 +90,7 @@ impl State for EditMode {
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);
             if let Some(ID::Lane(l)) = ui.primary.current_selection {
-                if !self.mode.can_edit_lanes()
-                    || ui.primary.map.get_l(l).is_sidewalk()
-                    || ui.primary.map.get_l(l).lane_type == LaneType::SharedLeftTurn
-                {
+                if !can_edit_lane(&self.mode, l, ui) {
                     ui.primary.current_selection = None;
                 }
             } else if let Some(ID::Intersection(_)) = ui.primary.current_selection {
@@ -143,7 +141,7 @@ impl State for EditMode {
         }
         if let Some(ID::Lane(l)) = ui.primary.current_selection {
             if ui.per_obj.left_click(ctx, "edit lane") {
-                return Transition::Push(Box::new(lanes::LaneEditor::new(l, ctx, ui)));
+                return Transition::Push(Box::new(LaneEditor::new(l, ctx, ui)));
             }
         }
 
@@ -311,4 +309,10 @@ pub fn apply_map_edits(ctx: &mut EventCtx, ui: &mut UI, mut edits: MapEdits) {
     if let Overlays::Edits(_) = ui.overlay {
         ui.overlay = Overlays::map_edits(ctx, ui);
     }
+}
+
+pub fn can_edit_lane(mode: &GameplayMode, l: LaneID, ui: &UI) -> bool {
+    mode.can_edit_lanes()
+        && !ui.primary.map.get_l(l).is_sidewalk()
+        && ui.primary.map.get_l(l).lane_type != LaneType::SharedLeftTurn
 }

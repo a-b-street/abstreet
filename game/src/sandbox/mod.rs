@@ -5,7 +5,10 @@ mod speed;
 use crate::colors;
 use crate::common::{tool_panel, CommonState, Minimap, Overlays, ShowBusRoute};
 use crate::debug::DebugMode;
-use crate::edit::{apply_map_edits, save_edits, EditMode, StopSignEditor, TrafficSignalEditor};
+use crate::edit::{
+    apply_map_edits, can_edit_lane, save_edits, EditMode, LaneEditor, StopSignEditor,
+    TrafficSignalEditor,
+};
 use crate::game::{DrawBaselayer, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
@@ -132,6 +135,16 @@ impl SandboxMode {
                 return Some(Transition::PushTwice(
                     Box::new(EditMode::new(ctx, ui, self.gameplay_mode.clone())),
                     Box::new(StopSignEditor::new(i, ctx, ui)),
+                ));
+            }
+        }
+        if let Some(ID::Lane(l)) = ui.primary.current_selection {
+            if can_edit_lane(&self.gameplay_mode, l, ui)
+                && ui.per_obj.action(ctx, Key::E, "edit lane")
+            {
+                return Some(Transition::PushTwice(
+                    Box::new(EditMode::new(ctx, ui, self.gameplay_mode.clone())),
+                    Box::new(LaneEditor::new(l, ctx, ui)),
                 ));
             }
         }
