@@ -11,7 +11,7 @@ use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Button, Choice, Color, Composite, DrawBoth, EventCtx, EventLoopMode, GeomBatch,
-    GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget, ModalMenu, Outcome, RewriteColor, Text,
+    GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget, Outcome, RewriteColor, Text,
     VerticalAlignment,
 };
 use geom::{Distance, Duration, Polygon};
@@ -756,7 +756,7 @@ fn make_previewer(i: IntersectionID, phase: usize, suspended_sim: Sim) -> Box<dy
 // TODO Show diagram, auto-sync the phase.
 // TODO Auto quit after things are gone?
 struct PreviewTrafficSignal {
-    menu: ModalMenu,
+    composite: Composite,
     speed: SpeedControls,
     time_panel: TimePanel,
     orig_sim: Sim,
@@ -765,11 +765,16 @@ struct PreviewTrafficSignal {
 impl PreviewTrafficSignal {
     fn new(ctx: &mut EventCtx, ui: &UI) -> PreviewTrafficSignal {
         PreviewTrafficSignal {
-            menu: ModalMenu::new(
-                "Preview traffic signal",
-                vec![(hotkey(Key::Escape), "back to editing")],
-                ctx,
-            ),
+            composite: Composite::new(
+                ManagedWidget::col(vec![
+                    ManagedWidget::draw_text(ctx, Text::from(Line("Previewing traffic signal"))),
+                    WrappedComposite::text_button(ctx, "back to editing", hotkey(Key::Escape)),
+                ])
+                .bg(colors::PANEL_BG)
+                .padding(10),
+            )
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .build(ctx),
             speed: SpeedControls::new(ctx),
             time_panel: TimePanel::new(ctx, ui),
             orig_sim: ui.primary.sim.clone(),
@@ -780,11 +785,18 @@ impl PreviewTrafficSignal {
 impl State for PreviewTrafficSignal {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         ctx.canvas_movement();
-        self.menu.event(ctx);
-        if self.menu.action("back to editing") {
-            ui.primary.clear_sim();
-            return Transition::Pop;
+
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "back to editing" => {
+                    ui.primary.clear_sim();
+                    return Transition::Pop;
+                }
+                _ => unreachable!(),
+            },
+            None => {}
         }
+
         self.time_panel.event(ctx, ui);
         match self.speed.event(ctx, ui) {
             Some(WrappedOutcome::Transition(t)) => {
@@ -807,7 +819,7 @@ impl State for PreviewTrafficSignal {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        self.menu.draw(g);
+        self.composite.draw(g);
         self.speed.draw(g);
         self.time_panel.draw(g);
     }

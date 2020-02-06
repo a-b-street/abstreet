@@ -5,6 +5,7 @@ mod traffic_signals;
 pub use self::lanes::LaneEditor;
 pub use self::stop_signs::StopSignEditor;
 pub use self::traffic_signals::TrafficSignalEditor;
+use crate::colors;
 use crate::common::{tool_panel, Colorer, CommonState, Overlays, Warping};
 use crate::debug::DebugMode;
 use crate::game::{msg, State, Transition, WizardState};
@@ -14,7 +15,12 @@ use crate::render::{DrawIntersection, DrawLane, DrawRoad};
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::UI;
 use abstutil::Timer;
-use ezgui::{hotkey, lctrl, Choice, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, WrappedWizard};
+use ezgui::{
+    hotkey, lctrl, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, ManagedWidget, Outcome, RewriteColor, ScreenRectangle, Text, VerticalAlignment,
+    WrappedWizard,
+};
+use geom::Polygon;
 use map_model::{
     connectivity, EditCmd, IntersectionID, LaneID, LaneType, MapEdits, PathConstraints,
 };
@@ -23,34 +29,27 @@ use std::collections::BTreeSet;
 
 pub struct EditMode {
     tool_panel: WrappedComposite,
-    menu: ModalMenu,
+    composite: Composite,
 
     // Retained state from the SandboxMode that spawned us
     mode: GameplayMode,
     pub suspended_sim: Sim,
 
+    // edits name, number of commands
+    top_panel_key: (String, usize),
     once: bool,
 }
 
 impl EditMode {
     pub fn new(ctx: &mut EventCtx, ui: &mut UI, mode: GameplayMode) -> EditMode {
         let suspended_sim = ui.primary.clear_sim();
+        let edits = ui.primary.map.get_edits();
         EditMode {
             tool_panel: tool_panel(ctx),
-            menu: ModalMenu::new(
-                "Map Edit Mode",
-                vec![
-                    (hotkey(Key::S), "save edits"),
-                    (hotkey(Key::L), "load different edits"),
-                    // TODO Support redo. Bit harder here to reset the redo_stack when the edits
-                    // change, because nested other places modify it too.
-                    (lctrl(Key::Z), "undo"),
-                    (hotkey(Key::Escape), "finish editing"),
-                ],
-                ctx,
-            ),
+            composite: make_topcenter(ctx, ui),
             mode,
             suspended_sim,
+            top_panel_key: (edits.edits_name.clone(), edits.commands.len()),
             once: true,
         }
     }
@@ -75,17 +74,15 @@ impl State for EditMode {
             self.once = false;
             // apply_map_edits will do the job later
             ui.overlay = Overlays::map_edits(ctx, ui);
-
-            let edits = ui.primary.map.get_edits();
-            let mut txt = Text::new();
-            txt.add(Line(format!("Edits: {}", edits.edits_name)));
-            if edits.dirty {
-                txt.append(Line("*"));
-            }
-            self.menu.set_info(ctx, txt);
         }
-
-        self.menu.event(ctx);
+        {
+            let edits = ui.primary.map.get_edits();
+            let top_panel_key = (edits.edits_name.clone(), edits.commands.len());
+            if self.top_panel_key != top_panel_key {
+                self.top_panel_key = top_panel_key;
+                self.composite = make_topcenter(ctx, ui);
+            }
+        }
 
         ctx.canvas_movement();
         // Restrict what can be selected.
@@ -105,15 +102,45 @@ impl State for EditMode {
             return Transition::Push(Box::new(DebugMode::new(ctx)));
         }
 
-        if ui.primary.map.get_edits().dirty && self.menu.action("save edits") {
-            return Transition::Push(WizardState::new(Box::new(|wiz, ctx, ui| {
-                save_edits(&mut wiz.wrap(ctx), ui)?;
-                Some(Transition::Pop)
-            })));
-        } else if self.menu.action("load different edits") {
-            return Transition::Push(make_load_edits(self.mode.clone()));
-        } else if self.menu.action("finish editing") {
-            return self.quit(ctx, ui);
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "load edits" => {
+                    return Transition::Push(make_load_edits(
+                        self.composite.rect_of("load edits").clone(),
+                        self.mode.clone(),
+                    ));
+                }
+                "finish editing" => {
+                    return self.quit(ctx, ui);
+                }
+                "save edits" => {
+                    return Transition::Push(WizardState::new(Box::new(|wiz, ctx, ui| {
+                        save_edits(&mut wiz.wrap(ctx), ui)?;
+                        Some(Transition::Pop)
+                    })));
+                }
+                "undo" => {
+                    let mut edits = ui.primary.map.get_edits().clone();
+                    let id = match edits.commands.pop().unwrap() {
+                        EditCmd::ChangeLaneType { id, .. } => ID::Lane(id),
+                        EditCmd::ReverseLane { l, .. } => ID::Lane(l),
+                        EditCmd::ChangeStopSign(ss) => ID::Intersection(ss.id),
+                        EditCmd::ChangeTrafficSignal(ss) => ID::Intersection(ss.id),
+                        EditCmd::CloseIntersection { id, .. } => ID::Intersection(id),
+                        EditCmd::UncloseIntersection(id, _) => ID::Intersection(id),
+                    };
+                    apply_map_edits(ctx, ui, edits);
+                    return Transition::Push(Warping::new(
+                        ctx,
+                        id.canonical_point(&ui.primary).unwrap(),
+                        None,
+                        Some(id),
+                        &mut ui.primary,
+                    ));
+                }
+                _ => unreachable!(),
+            },
+            None => {}
         }
 
         if let Some(ID::Intersection(id)) = ui.primary.current_selection {
@@ -149,26 +176,6 @@ impl State for EditMode {
             }
         }
 
-        if !ui.primary.map.get_edits().commands.is_empty() && self.menu.action("undo") {
-            let mut edits = ui.primary.map.get_edits().clone();
-            let id = match edits.commands.pop().unwrap() {
-                EditCmd::ChangeLaneType { id, .. } => ID::Lane(id),
-                EditCmd::ReverseLane { l, .. } => ID::Lane(l),
-                EditCmd::ChangeStopSign(ss) => ID::Intersection(ss.id),
-                EditCmd::ChangeTrafficSignal(ss) => ID::Intersection(ss.id),
-                EditCmd::CloseIntersection { id, .. } => ID::Intersection(id),
-                EditCmd::UncloseIntersection(id, _) => ID::Intersection(id),
-            };
-            apply_map_edits(ctx, ui, edits);
-            return Transition::Push(Warping::new(
-                ctx,
-                id.canonical_point(&ui.primary).unwrap(),
-                None,
-                Some(id),
-                &mut ui.primary,
-            ));
-        }
-
         match self.tool_panel.event(ctx, ui) {
             Some(WrappedOutcome::Transition(t)) => t,
             Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
@@ -186,7 +193,7 @@ impl State for EditMode {
         ui.overlay.draw(g);
 
         self.tool_panel.draw(g);
-        self.menu.draw(g);
+        self.composite.draw(g);
         CommonState::draw_osd(g, ui, &ui.primary.current_selection);
     }
 }
@@ -229,7 +236,7 @@ pub fn save_edits(wizard: &mut WrappedWizard, ui: &mut UI) -> Option<()> {
     Some(())
 }
 
-fn make_load_edits(mode: GameplayMode) -> Box<dyn State> {
+fn make_load_edits(btn: ScreenRectangle, mode: GameplayMode) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, ui| {
         let mut wizard = wiz.wrap(ctx);
 
@@ -248,20 +255,75 @@ fn make_load_edits(mode: GameplayMode) -> Box<dyn State> {
 
         // TODO Exclude current
         let map_name = ui.primary.map.get_name().to_string();
-        let (_, new_edits) = wizard.choose("Load which map edits?", || {
-            let mut list = Choice::from(
-                abstutil::load_all_objects(abstutil::path_all_edits(&map_name))
-                    .into_iter()
-                    .filter(|(_, edits)| mode.allows(edits))
-                    .collect(),
-            );
-            list.push(Choice::new("no_edits", MapEdits::new(map_name.clone())));
-            list
-        })?;
+        let (_, new_edits) = wizard.choose_exact(
+            (
+                HorizontalAlignment::Centered(btn.center().x),
+                VerticalAlignment::Below(btn.y2 + 15.0),
+            ),
+            None,
+            || {
+                let mut list = Choice::from(
+                    abstutil::load_all_objects(abstutil::path_all_edits(&map_name))
+                        .into_iter()
+                        .filter(|(_, edits)| mode.allows(edits))
+                        .collect(),
+                );
+                list.push(Choice::new("no_edits", MapEdits::new(map_name.clone())));
+                list
+            },
+        )?;
         apply_map_edits(ctx, ui, new_edits);
         ui.primary.map.mark_edits_fresh();
         Some(Transition::Pop)
     }))
+}
+
+fn make_topcenter(ctx: &mut EventCtx, ui: &UI) -> Composite {
+    // TODO Support redo. Bit harder here to reset the redo_stack when the edits
+    // change, because nested other places modify it too.
+    Composite::new(
+        ManagedWidget::col(vec![
+            ManagedWidget::row(vec![
+                ManagedWidget::draw_text(ctx, Text::from(Line("Editing map").size(26))).margin(5),
+                ManagedWidget::draw_batch(
+                    ctx,
+                    GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 30.0))]),
+                )
+                .margin(5),
+                WrappedComposite::nice_text_button(
+                    ctx,
+                    Text::from(
+                        Line(format!("{} ▼", &ui.primary.map.get_edits().edits_name))
+                            .size(18)
+                            .roboto(),
+                    ),
+                    lctrl(Key::L),
+                    "load edits",
+                )
+                .margin(5),
+                (if !ui.primary.map.get_edits().commands.is_empty() {
+                    WrappedComposite::svg_button(
+                        ctx,
+                        "assets/tools/undo.svg",
+                        "undo",
+                        lctrl(Key::Z),
+                    )
+                } else {
+                    ManagedWidget::draw_svg_transform(
+                        ctx,
+                        "assets/tools/undo.svg",
+                        RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
+                    )
+                })
+                .margin(15),
+            ]),
+            WrappedComposite::text_button(ctx, "save edits", lctrl(Key::S)),
+            WrappedComposite::text_button(ctx, "finish editing", hotkey(Key::Escape)),
+        ])
+        .bg(colors::PANEL_BG),
+    )
+    .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+    .build(ctx)
 }
 
 pub fn apply_map_edits(ctx: &mut EventCtx, ui: &mut UI, mut edits: MapEdits) {
