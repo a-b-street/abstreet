@@ -409,6 +409,14 @@ impl GeomBatch {
             self.push(color, poly.scale(scale).translate(dx, dy).rotate(rotate));
         }
     }
+
+    pub fn add_text(&mut self, text: String) {
+        let mut batch = GeomBatch::new();
+        svg::add_text(&mut batch, text);
+        for (color, poly) in batch.consume() {
+            self.push(color, poly);
+        }
+    }
 }
 
 pub enum RewriteColor {

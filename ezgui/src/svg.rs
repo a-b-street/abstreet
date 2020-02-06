@@ -1,4 +1,4 @@
-use crate::{Color, GeomBatch};
+use crate::{Color, GeomBatch, ScreenDims};
 use abstutil::VecMap;
 use geom::{Bounds, Polygon, Pt2D};
 use lyon::geom::{CubicBezierSegment, LineSegment};
@@ -13,16 +13,23 @@ const TOLERANCE: f32 = 0.01;
 // Code here adapted from
 // https://github.com/nical/lyon/blob/b5c87c9a22dccfab24daa1947419a70915d60914/examples/wgpu_svg/src/main.rs.
 
+pub fn add_svg(batch: &mut GeomBatch, filename: &str) -> Bounds {
+    let svg_tree = usvg::Tree::from_file(&filename, &usvg::Options::default()).unwrap();
+    match add_svg_inner(batch, svg_tree) {
+        Ok(b) => b,
+        Err(err) => panic!("{}: {}", filename, err),
+    }
+}
+
 // No offset. I'm not exactly sure how the simplification in usvg works, but this doesn't support
 // transforms or strokes or text, just fills. Luckily, all of the files exported from Figma so far
 // work just fine.
-pub fn add_svg(batch: &mut GeomBatch, filename: &str) -> Bounds {
+fn add_svg_inner(batch: &mut GeomBatch, svg_tree: usvg::Tree) -> Result<Bounds, String> {
     let mut fill_tess = tessellation::FillTessellator::new();
     let mut stroke_tess = tessellation::StrokeTessellator::new();
     let mut fill_mesh_per_color: VecMap<Color, VertexBuffers<FillVertex, u16>> = VecMap::new();
     let mut stroke_mesh_per_color: VecMap<Color, VertexBuffers<StrokeVertex, u16>> = VecMap::new();
 
-    let svg_tree = usvg::Tree::from_file(&filename, &usvg::Options::default()).unwrap();
     for node in svg_tree.root().descendants() {
         if let usvg::NodeKind::Path(ref p) = *node.borrow() {
             // TODO Handle transforms
@@ -30,13 +37,16 @@ pub fn add_svg(batch: &mut GeomBatch, filename: &str) -> Bounds {
             if let Some(ref fill) = p.fill {
                 let color = convert_color(&fill.paint, fill.opacity.value());
                 let geom = fill_mesh_per_color.mut_or_insert(color, VertexBuffers::new);
-                fill_tess
+                if fill_tess
                     .tessellate_path(
                         convert_path(p),
                         &tessellation::FillOptions::tolerance(TOLERANCE),
                         &mut simple_builder(geom),
                     )
-                    .expect(&format!("Couldn't tesellate something from {}", filename));
+                    .is_err()
+                {
+                    return Err(format!("Couldn't tesellate something"));
+                }
             }
 
             if let Some(ref stroke) = p.stroke {
@@ -76,10 +86,10 @@ pub fn add_svg(batch: &mut GeomBatch, filename: &str) -> Bounds {
         );
     }
     let size = svg_tree.svg_node().size;
-    Bounds::from(&vec![
+    Ok(Bounds::from(&vec![
         Pt2D::new(0.0, 0.0),
         Pt2D::new(size.width(), size.height()),
-    ])
+    ]))
 }
 
 fn point(x: &f64, y: &f64) -> Point {
@@ -177,5 +187,37 @@ fn convert_color(paint: &usvg::Paint, opacity: f64) -> Color {
         )
     } else {
         panic!("Unsupported paint {:?}", paint);
+    }
+}
+
+// Returns the dims of the text
+pub fn add_text(batch: &mut GeomBatch, text: String) -> ScreenDims {
+    // If these are large enough, does this work?
+    let max_w = 9999.0;
+    let max_h = 9999.0;
+
+    let pt = crate::ScreenPt::new(30.0, 30.0);
+    let color = Color::RED;
+    let size = 30;
+    let family = "DejaVu Sans";
+    let svg = format!(
+        r##"<svg width="{}" height="{}" viewBox="0 0 {} {}" fill="none" xmlns="http://www.w3.org/2000/svg"><text x="{}" y="{}" fill="{}" font-size="{}" font-family="{}">{}</text></svg>"##,
+        max_w,
+        max_h,
+        max_w,
+        max_h,
+        pt.x,
+        pt.y,
+        color.to_hex(),
+        size,
+        family,
+        text
+    );
+
+    let svg_tree = usvg::Tree::from_str(&svg, &usvg::Options::default()).unwrap();
+    match add_svg_inner(batch, svg_tree) {
+        // TODO If the text doesn't start at 0,0 should we just take max_x and max_y here?
+        Ok(b) => ScreenDims::new(b.width(), b.height()),
+        Err(err) => panic!("add_text({}): {}", text, err),
     }
 }
