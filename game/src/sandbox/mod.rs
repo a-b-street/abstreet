@@ -319,7 +319,7 @@ impl State for SandboxMode {
 
 fn exit_sandbox(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
     let mut wizard = wiz.wrap(ctx);
-    let unsaved = ui.primary.map.get_edits().edits_name == "no_edits"
+    let unsaved = ui.primary.map.get_edits().edits_name == "untitled edits"
         && !ui.primary.map.get_edits().commands.is_empty();
     let (resp, _) = wizard.choose("Sure you want to abandon the current challenge?", || {
         let mut choices = Vec::new();
@@ -338,7 +338,7 @@ fn exit_sandbox(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
         save_edits_as(&mut wizard, ui)?;
     }
     ctx.loading_screen("reset map and sim", |ctx, mut timer| {
-        if ui.primary.map.get_edits().edits_name != "no_edits"
+        if ui.primary.map.get_edits().edits_name != "untitled edits"
             || !ui.primary.map.get_edits().commands.is_empty()
         {
             apply_map_edits(ctx, ui, MapEdits::new(map_name));

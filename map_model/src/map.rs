@@ -481,7 +481,7 @@ impl Map {
     }
 
     pub fn save(&self) {
-        assert_eq!(self.edits.edits_name, "no_edits");
+        assert_eq!(self.edits.edits_name, "untitled edits");
         assert!(!self.pathfinder_dirty);
         abstutil::write_binary(abstutil::path_map(&self.name), self);
     }

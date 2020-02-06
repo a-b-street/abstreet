@@ -266,7 +266,7 @@ fn choose_edits(
 ) -> Option<String> {
     wizard.choose_string(query, || {
         let mut list = abstutil::list_all_objects(abstutil::path_all_edits(map_name));
-        list.push("no_edits".to_string());
+        list.push("untitled edits".to_string());
         list.into_iter().filter(|x| x != &exclude).collect()
     })
 }

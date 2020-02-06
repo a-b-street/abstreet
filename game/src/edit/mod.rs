@@ -63,7 +63,7 @@ impl EditMode {
             // Parking state might've changed
             ui.primary.clear_sim();
             // Autosave
-            if ui.primary.map.get_edits().edits_name != "no_edits" {
+            if ui.primary.map.get_edits().edits_name != "untitled edits" {
                 ui.primary.map.save_edits();
             }
             Transition::PopThenReplace(Box::new(SandboxMode::new(ctx, ui, self.mode.clone())))
@@ -110,7 +110,7 @@ impl State for EditMode {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "load edits" => {
                     // Autosave first
-                    if ui.primary.map.get_edits().edits_name != "no_edits" {
+                    if ui.primary.map.get_edits().edits_name != "untitled edits" {
                         ui.primary.map.save_edits();
                     }
                     return Transition::Push(make_load_edits(
@@ -208,8 +208,8 @@ impl State for EditMode {
 
 pub fn save_edits_as(wizard: &mut WrappedWizard, ui: &mut UI) -> Option<()> {
     let map = &mut ui.primary.map;
-    let new_default_name = if map.get_edits().edits_name == "no_edits" {
-        "untitled edits".to_string()
+    let new_default_name = if map.get_edits().edits_name == "untitled edits" {
+        "".to_string()
     } else {
         format!("copy of {}", map.get_edits().edits_name)
     };
@@ -219,7 +219,7 @@ pub fn save_edits_as(wizard: &mut WrappedWizard, ui: &mut UI) -> Option<()> {
             "Name the new copy of these edits",
             Some(new_default_name.clone()),
             Box::new(|l| {
-                if l.contains("/") || l == "no_edits" || l == "" {
+                if l.contains("/") || l == "untitled edits" || l == "" {
                     None
                 } else {
                     Some(l)
@@ -254,7 +254,7 @@ fn make_load_edits(btn: ScreenRectangle, mode: GameplayMode) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, ui| {
         let mut wizard = wiz.wrap(ctx);
 
-        if ui.primary.map.get_edits().edits_name == "no_edits"
+        if ui.primary.map.get_edits().edits_name == "untitled edits"
             && !ui.primary.map.get_edits().commands.is_empty()
         {
             let save = "save edits";
@@ -287,7 +287,10 @@ fn make_load_edits(btn: ScreenRectangle, mode: GameplayMode) -> Box<dyn State> {
                         })
                         .collect(),
                 );
-                list.push(Choice::new("no_edits", MapEdits::new(map_name.clone())));
+                list.push(Choice::new(
+                    "start over with blank edits",
+                    MapEdits::new(map_name.clone()),
+                ));
                 list
             },
         )?;

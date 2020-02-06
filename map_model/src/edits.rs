@@ -55,7 +55,7 @@ impl MapEdits {
         MapEdits {
             map_name,
             // Something has to fill this out later
-            edits_name: "no_edits".to_string(),
+            edits_name: "untitled edits".to_string(),
             proposal_description: Vec::new(),
             commands: Vec::new(),
 
@@ -66,7 +66,7 @@ impl MapEdits {
     }
 
     pub fn load(map_name: &str, edits_name: &str, timer: &mut Timer) -> MapEdits {
-        if edits_name == "no_edits" {
+        if edits_name == "untitled edits" {
             return MapEdits::new(map_name.to_string());
         }
         abstutil::read_json(abstutil::path_edits(map_name, edits_name), timer)
@@ -76,7 +76,7 @@ impl MapEdits {
     pub(crate) fn save(&mut self, map: &Map) {
         self.compress(map);
 
-        assert_ne!(self.edits_name, "no_edits");
+        assert_ne!(self.edits_name, "untitled edits");
         abstutil::write_json(abstutil::path_edits(&self.map_name, &self.edits_name), self);
     }
 
