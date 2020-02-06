@@ -1,4 +1,4 @@
-use crate::{Color, GeomBatch, ScreenDims};
+use crate::{Color, GeomBatch};
 use abstutil::VecMap;
 use geom::{Bounds, Polygon, Pt2D};
 use lyon::geom::{CubicBezierSegment, LineSegment};
@@ -24,7 +24,7 @@ pub fn add_svg(batch: &mut GeomBatch, filename: &str) -> Bounds {
 // No offset. I'm not exactly sure how the simplification in usvg works, but this doesn't support
 // transforms or strokes or text, just fills. Luckily, all of the files exported from Figma so far
 // work just fine.
-fn add_svg_inner(batch: &mut GeomBatch, svg_tree: usvg::Tree) -> Result<Bounds, String> {
+pub fn add_svg_inner(batch: &mut GeomBatch, svg_tree: usvg::Tree) -> Result<Bounds, String> {
     let mut fill_tess = tessellation::FillTessellator::new();
     let mut stroke_tess = tessellation::StrokeTessellator::new();
     let mut fill_mesh_per_color: VecMap<Color, VertexBuffers<FillVertex, u16>> = VecMap::new();
@@ -187,37 +187,5 @@ fn convert_color(paint: &usvg::Paint, opacity: f64) -> Color {
         )
     } else {
         panic!("Unsupported paint {:?}", paint);
-    }
-}
-
-// Returns the dims of the text
-pub fn add_text(batch: &mut GeomBatch, text: String) -> ScreenDims {
-    // If these are large enough, does this work?
-    let max_w = 9999.0;
-    let max_h = 9999.0;
-
-    let pt = crate::ScreenPt::new(30.0, 30.0);
-    let color = Color::RED;
-    let size = 30;
-    let family = "DejaVu Sans";
-    let svg = format!(
-        r##"<svg width="{}" height="{}" viewBox="0 0 {} {}" fill="none" xmlns="http://www.w3.org/2000/svg"><text x="{}" y="{}" fill="{}" font-size="{}" font-family="{}">{}</text></svg>"##,
-        max_w,
-        max_h,
-        max_w,
-        max_h,
-        pt.x,
-        pt.y,
-        color.to_hex(),
-        size,
-        family,
-        text
-    );
-
-    let svg_tree = usvg::Tree::from_str(&svg, &usvg::Options::default()).unwrap();
-    match add_svg_inner(batch, svg_tree) {
-        // TODO If the text doesn't start at 0,0 should we just take max_x and max_y here?
-        Ok(b) => ScreenDims::new(b.width(), b.height()),
-        Err(err) => panic!("add_text({}): {}", text, err),
     }
 }

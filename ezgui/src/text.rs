@@ -1,5 +1,5 @@
 use crate::assets::Assets;
-use crate::{Color, GfxCtx, ScreenDims, ScreenPt, ScreenRectangle};
+use crate::{Color, GeomBatch, GfxCtx, ScreenDims, ScreenPt, ScreenRectangle};
 use geom::{Polygon, Pt2D};
 use glium_glyph::glyph_brush::rusttype::Scale;
 use glium_glyph::glyph_brush::{FontId, GlyphCruncher};
@@ -350,5 +350,77 @@ pub fn draw_text_bubble_mapspace(
 
         y += height;
         g.assets.mapspace_glyphs.borrow_mut().queue(section);
+    }
+}
+
+// TODO Rearrange
+impl Text {
+    pub fn render(self, master_batch: &mut GeomBatch, top_left: ScreenPt) -> ScreenRectangle {
+        /*if let Some(c) = txt.bg_color {
+            g.draw_polygon(
+                c,
+                &Polygon::rectangle(total_dims.width, total_dims.height)
+                    .translate(top_left.x, top_left.y),
+            );
+        }*/
+
+        let mut y = top_left.y;
+        let mut max_width = 0.0_f64;
+        for (line_color, line) in self.lines {
+            let mut x = top_left.x;
+            let mut line_batch = GeomBatch::new();
+            for piece in line {
+                let mini_batch = render_text(piece);
+                let dims = mini_batch.get_dims();
+                for (color, poly) in mini_batch.consume() {
+                    line_batch.push(color, poly.translate(x, y));
+                }
+                x += dims.width;
+            }
+            let line_dims = line_batch.get_dims();
+
+            if let Some(c) = line_color {
+                master_batch.push(
+                    c,
+                    Polygon::rectangle(x - top_left.x, line_dims.height).translate(top_left.x, y),
+                );
+            }
+
+            for (color, poly) in line_batch.consume() {
+                master_batch.push(color, poly.translate(0.0, line_dims.height));
+            }
+
+            y += line_dims.height;
+            max_width = max_width.max(x - top_left.x);
+        }
+
+        ScreenRectangle::top_left(top_left, ScreenDims::new(max_width, y - top_left.y))
+    }
+}
+
+fn render_text(txt: TextSpan) -> GeomBatch {
+    // If these are large enough, does this work?
+    let max_w = 9999.0;
+    let max_h = 9999.0;
+
+    let svg = format!(
+        r##"<svg width="{}" height="{}" viewBox="0 0 {} {}" fill="none" xmlns="http://www.w3.org/2000/svg"><text x="0" y="0" fill="{}" font-size="{}" font-family="{}">{}</text></svg>"##,
+        max_w,
+        max_h,
+        max_w,
+        max_h,
+        txt.fg_color.to_hex(),
+        // TODO Plumb through default font size?
+        txt.size.unwrap_or(30),
+        // TODO Make these work
+        "DejaVu Sans",
+        txt.text
+    );
+
+    let svg_tree = usvg::Tree::from_str(&svg, &usvg::Options::default()).unwrap();
+    let mut batch = GeomBatch::new();
+    match crate::svg::add_svg_inner(&mut batch, svg_tree) {
+        Ok(_) => batch,
+        Err(err) => panic!("render_text({}): {}", txt.text, err),
     }
 }
