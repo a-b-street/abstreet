@@ -233,13 +233,11 @@ impl Button {
             GeomBatch::from(vec![(unselected_bg_color, geom.clone())]),
             draw_text.clone(),
         );
-        let mut hovered_batch = GeomBatch::from(vec![(selected_bg_color, geom.clone())]);
-        // TODO Testing things out
-        let mut test = Text::from(Line(tooltip).fg(Color::PURPLE));
-        test.add(Line("123").fg(Color::RED));
-        test.append(Line(" space").fg(Color::BLUE));
-        test.render(&mut hovered_batch, ScreenPt::new(5.0, 5.0));
-        let hovered = DrawBoth::new(ctx, hovered_batch, draw_text);
+        let hovered = DrawBoth::new(
+            ctx,
+            GeomBatch::from(vec![(selected_bg_color, geom.clone())]),
+            draw_text.clone(),
+        );
 
         Button::new(normal, hovered, hotkey, tooltip, geom)
     }

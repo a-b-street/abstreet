@@ -560,29 +560,18 @@ impl<'a> Prerender<'a> {
 // thing, it'd be weird to do that.
 pub struct DrawBoth {
     geom: Drawable,
-    txt: Vec<(Text, ScreenPt)>,
     // Covers both geometry and text
     dims: ScreenDims,
 }
 
 impl DrawBoth {
-    pub fn new(ctx: &EventCtx, batch: GeomBatch, txt: Vec<(Text, ScreenPt)>) -> DrawBoth {
-        let mut total_dims = batch.get_dims();
-        for (t, pt) in &txt {
-            let dims = ctx.text_dims(t);
-            let w = dims.width + pt.x;
-            let h = dims.height + pt.y;
-            if w > total_dims.width {
-                total_dims.width = w;
-            }
-            if h > total_dims.height {
-                total_dims.height = h;
-            }
+    pub fn new(ctx: &EventCtx, mut batch: GeomBatch, texts: Vec<(Text, ScreenPt)>) -> DrawBoth {
+        for (txt, pt) in texts {
+            txt.render(&mut batch, pt);
         }
         DrawBoth {
+            dims: batch.get_dims(),
             geom: batch.upload(ctx),
-            txt,
-            dims: total_dims,
         }
     }
 
@@ -591,16 +580,6 @@ impl DrawBoth {
         g.fork(Pt2D::new(0.0, 0.0), top_left, 1.0);
         g.redraw(&self.geom);
         g.unfork();
-        for (txt, pt) in &self.txt {
-            let dims = g.text_dims(&txt);
-            text::draw_text_bubble(
-                g,
-                ScreenPt::new(top_left.x + pt.x, top_left.y + pt.y),
-                txt,
-                dims,
-                true,
-            );
-        }
     }
 
     pub fn get_dims(&self) -> ScreenDims {
