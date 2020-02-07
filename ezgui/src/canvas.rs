@@ -127,7 +127,8 @@ impl Canvas {
         self.covered_areas.borrow_mut().clear();
     }
 
-    pub(crate) fn mark_covered_area(&self, rect: ScreenRectangle) {
+    // TODO Only public for the OSD. :(
+    pub fn mark_covered_area(&self, rect: ScreenRectangle) {
         self.covered_areas.borrow_mut().push(rect);
     }
 

@@ -4,10 +4,7 @@ use crate::pregame::TitleScreen;
 use crate::render::DrawOptions;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::{Flags, ShowEverything, UI};
-use ezgui::{
-    Canvas, Color, Drawable, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Line, Text,
-    VerticalAlignment, Wizard, GUI,
-};
+use ezgui::{Canvas, Color, Drawable, EventCtx, EventLoopMode, GfxCtx, Wizard, GUI};
 use geom::Polygon;
 
 // This is the top-level of the GUI logic. This module should just manage interactions between the
@@ -143,12 +140,6 @@ impl GUI for Game {
             }
         }
         state.draw(g, &self.ui);
-
-        if self.ui.opts.dev && !g.is_screencap() {
-            let mut txt = Text::from(Line("DEV"));
-            txt.highlight_last_line(Color::RED);
-            g.draw_blocking_text(txt, (HorizontalAlignment::Right, VerticalAlignment::Bottom));
-        }
 
         /*println!(
             "----- {} uploads, {} draw calls -----",

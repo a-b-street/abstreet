@@ -159,7 +159,7 @@ impl State for StopSignEditor {
 
         self.composite.draw(g);
         if let Some(r) = self.selected_sign {
-            let mut osd = Text::new().with_bg();
+            let mut osd = Text::new();
             osd.add_appended(vec![
                 Line("Stop sign for "),
                 Line(ui.primary.map.get_r(r).get_name()).fg(ui.cs.get("OSD name color")),

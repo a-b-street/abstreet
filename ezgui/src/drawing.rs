@@ -399,7 +399,7 @@ impl GeomBatch {
         self.list.is_empty()
     }
 
-    pub(crate) fn get_dims(&self) -> ScreenDims {
+    pub fn get_dims(&self) -> ScreenDims {
         if self.is_empty() {
             panic!("Can't get_dims of empty GeomBatch");
         }
