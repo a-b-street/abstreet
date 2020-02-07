@@ -1,7 +1,7 @@
 use crate::layout::{stack_vertically, ContainerOrientation, Widget};
 use crate::widgets::text_box::TextBox;
 use crate::{
-    hotkey, Color, DrawBoth, EventCtx, EventLoopMode, GeomBatch, GfxCtx, InputResult, Key, Line,
+    hotkey, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, InputResult, Key, Line,
     ModalMenu, MultiKey, ScreenDims, ScreenPt, ScreenRectangle, Text, Warper,
 };
 use geom::{Polygon, Pt2D, Time};
@@ -15,7 +15,7 @@ pub struct Slider {
     main_bg_len: f64,
     dragger_len: f64,
 
-    draw: DrawBoth,
+    draw: Drawable,
 
     top_left: ScreenPt,
     dims: ScreenDims,
@@ -34,12 +34,7 @@ impl Slider {
             main_bg_len: width,
             dragger_len,
 
-            // Dummy value; empty GeomBatches can't be measured.
-            draw: DrawBoth::new(
-                ctx,
-                GeomBatch::from(vec![(Color::BLACK, Polygon::rectangle(1.0, 1.0))]),
-                Vec::new(),
-            ),
+            draw: ctx.upload(GeomBatch::new()),
 
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(0.0, 0.0),
@@ -58,12 +53,7 @@ impl Slider {
             main_bg_len: height,
             dragger_len,
 
-            // Dummy value; empty GeomBatches can't be measured.
-            draw: DrawBoth::new(
-                ctx,
-                GeomBatch::from(vec![(Color::BLACK, Polygon::rectangle(1.0, 1.0))]),
-                Vec::new(),
-            ),
+            draw: ctx.upload(GeomBatch::new()),
 
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(0.0, 0.0),
@@ -98,7 +88,7 @@ impl Slider {
             self.slider_geom(),
         );
 
-        self.draw = DrawBoth::new(ctx, batch, Vec::new());
+        self.draw = ctx.upload(batch);
     }
 
     // Doesn't touch self.top_left
@@ -216,7 +206,7 @@ impl Slider {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        self.draw.redraw(self.top_left, g);
+        g.redraw_at(self.top_left, &self.draw);
         // TODO Since the sliders in Composites are scrollbars outside of the clipping rectangle,
         // this stays for now.
         g.canvas

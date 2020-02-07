@@ -584,34 +584,3 @@ impl<'a> Prerender<'a> {
         }
     }
 }
-
-// I'm tempted to fold this into GeomBatch and Drawable, but since this represents a screen-space
-// thing, it'd be weird to do that.
-pub struct DrawBoth {
-    geom: Drawable,
-    // Covers both geometry and text
-    dims: ScreenDims,
-}
-
-impl DrawBoth {
-    pub fn new(ctx: &EventCtx, mut batch: GeomBatch, texts: Vec<(Text, ScreenPt)>) -> DrawBoth {
-        for (txt, pt) in texts {
-            batch.add_translated(txt.render(&ctx.prerender.assets), pt.x, pt.y);
-        }
-        DrawBoth {
-            dims: batch.get_dims(),
-            geom: batch.upload(ctx),
-        }
-    }
-
-    // DON'T fork before calling this.
-    pub fn redraw(&self, top_left: ScreenPt, g: &mut GfxCtx) {
-        g.fork(Pt2D::new(0.0, 0.0), top_left, 1.0);
-        g.redraw(&self.geom);
-        g.unfork();
-    }
-
-    pub fn get_dims(&self) -> ScreenDims {
-        self.dims
-    }
-}

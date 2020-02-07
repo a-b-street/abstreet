@@ -1,7 +1,7 @@
 use crate::layout::Widget;
 use crate::widgets::PopupMenu;
 use crate::{
-    Button, Color, DrawBoth, EventCtx, Filler, GeomBatch, GfxCtx, Histogram, HorizontalAlignment,
+    Button, Color, Drawable, EventCtx, Filler, GeomBatch, GfxCtx, Histogram, HorizontalAlignment,
     JustDraw, Plot, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Slider, Text,
     VerticalAlignment,
 };
@@ -21,7 +21,7 @@ pub struct ManagedWidget {
     widget: WidgetType,
     style: LayoutStyle,
     rect: ScreenRectangle,
-    bg: Option<DrawBoth>,
+    bg: Option<Drawable>,
 }
 
 enum WidgetType {
@@ -323,7 +323,7 @@ impl ManagedWidget {
         menus: &HashMap<String, Menu>,
     ) {
         if let Some(ref bg) = self.bg {
-            bg.redraw(ScreenPt::new(self.rect.x1, self.rect.y1), g);
+            g.redraw_at(ScreenPt::new(self.rect.x1, self.rect.y1), bg);
         }
 
         match self.widget {
@@ -453,7 +453,7 @@ impl ManagedWidget {
                         .to_outline(Distance::meters(thickness)),
                 );
             }
-            self.bg = Some(DrawBoth::new(ctx, batch, Vec::new()));
+            self.bg = Some(ctx.upload(batch));
         }
 
         match self.widget {

@@ -1,15 +1,15 @@
 use crate::layout::Widget;
 use crate::{
-    Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, Line, ManagedWidget, ScreenDims, ScreenPt, Text,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ManagedWidget, ScreenDims, ScreenPt, Text,
 };
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, Polygon, Pt2D};
 
 // The X axis is Durations, with positive meaning "faster" (considered good) and negative "slower"
 pub struct Histogram {
-    draw: DrawBoth,
+    draw: Drawable,
 
-    // TODO Bit sad to pretty much duplicate the geometry from DrawBoth...
+    // TODO Bit sad to pretty much duplicate the geometry?
     rect_labels: Vec<(Polygon, Text)>,
 
     top_left: ScreenPt,
@@ -68,7 +68,7 @@ impl Histogram {
         batch.extend(Color::BLACK, outlines);
 
         let histogram = Histogram {
-            draw: DrawBoth::new(ctx, batch, Vec::new()),
+            draw: ctx.upload(batch),
             rect_labels,
 
             top_left: ScreenPt::new(0.0, 0.0),
@@ -113,7 +113,7 @@ impl Histogram {
     }
 
     pub(crate) fn draw(&self, g: &mut GfxCtx) {
-        self.draw.redraw(self.top_left, g);
+        g.redraw_at(self.top_left, &self.draw);
 
         if let Some(cursor) = g.canvas.get_cursor_in_screen_space() {
             let pt = Pt2D::new(cursor.x - self.top_left.x, cursor.y - self.top_left.y);

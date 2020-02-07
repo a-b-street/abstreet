@@ -1,6 +1,6 @@
 use crate::layout::Widget;
 use crate::{
-    Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, Line, ManagedWidget, ScreenDims, ScreenPt,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ManagedWidget, ScreenDims, ScreenPt,
     ScreenRectangle, Text,
 };
 use abstutil::prettyprint_usize;
@@ -8,7 +8,7 @@ use geom::{Bounds, Circle, Distance, Duration, FindClosest, PolyLine, Pt2D, Time
 
 // The X is always time
 pub struct Plot<T> {
-    draw: DrawBoth,
+    draw: Drawable,
 
     // The geometry here is in screen-space.
     max_x: Time,
@@ -148,7 +148,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
         }
 
         let plot = Plot {
-            draw: DrawBoth::new(ctx, batch, Vec::new()),
+            draw: ctx.upload(batch),
             closest,
             max_x,
             max_y: Box::new(max_y),
@@ -185,7 +185,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
     }
 
     pub(crate) fn draw(&self, g: &mut GfxCtx) {
-        self.draw.redraw(self.top_left, g);
+        g.redraw_at(self.top_left, &self.draw);
 
         if let Some(cursor) = g.canvas.get_cursor_in_screen_space() {
             if ScreenRectangle::top_left(self.top_left, self.dims).contains(cursor) {
