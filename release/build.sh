@@ -8,10 +8,8 @@ runner=$2;
 binary=$3;
 
 mkdir $output
-curl -L -o release_data.zip https://www.dropbox.com/s/wzw7gucvccoxy66/release_data.zip?dl=0 
 cd $output
-unzip ../release_data.zip
-mv release_data data
+../data/grab_minimal_seed_data.sh
 cd ..
 
 cp docs/INSTRUCTIONS.md $output

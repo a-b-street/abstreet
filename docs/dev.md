@@ -12,10 +12,8 @@ One-time setup:
 1.  Download the repository:
     `git clone https://github.com/dabreegster/abstreet.git`
 
-2.  Build all input data. This is very slow, so you should seed from a pre-built
-    copy: `./data/grab_seed_data.sh`. This will download about 1GB and expand to
-    about 5GB. If you see version controlled files change after doing this, it
-    means I need to upload a new package; please let me know.
+2.  Grab the minimal amount of data to get started:
+    `./data/grab_minimal_seed_data.sh`.
 
 3.  Run the game: `cd game; cargo run --release`
 
@@ -29,7 +27,7 @@ One-time setup:
   access them. The list:
   - To toggle developer mode: press **Control+S** in game, or
     `cargo run -- --dev`
-  - To warp to an object by numeric ID: press **j**
+  - To warp to an object by numeric ID: press **Control+j**
   - To enter debug mode with all sorts of goodies: press **Control+D**
 - You can start the game in different modes using flags:
   - `cargo run -- --dev ../data/system/maps/downtown.bin` starts on a particular
@@ -42,6 +40,7 @@ One-time setup:
     restores an exact simulation state. Savestates are found in debug mode
     (**Control+D**) -- they're probably confusing for the normal player
     experience, so they're hidden for now.
+  - `cargo run -- --tutorial=12` starts somewhere in the tutorial
 - If you're testing anything related to prebaked results (used for comparisons
   against a baseline in challenge mode), make sure to set `--rng_seed=42`. The
   `--dev` flag does by default.
@@ -55,13 +54,15 @@ One-time setup:
 You can skip this section if you're just touching code in `game`, `ezgui`, and
 `sim`.
 
+You have two options: you can seed some of the intermediate data by running
+`./data/grab_all_seed_data.sh` (downloads ~1GB, expands to ~5GB), or you can
+build everything totally from scratch by running
+`./import.sh && ./precompute.sh --release`. This takes a while.
+
 You'll need some extra dependencies:
 
 - `osmconvert`: See https://wiki.openstreetmap.org/wiki/Osmconvert#Download
 - `cs2cs` from proj4: See https://proj.org
-
-The seed data from `data/grab_seed_data.sh` can be built from scratch by doing
-`./import.sh && ./precompute.sh --release`. This takes a while.
 
 Some tips:
 
