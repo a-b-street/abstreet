@@ -147,10 +147,7 @@ impl GUI for Game {
         if self.ui.opts.dev && !g.is_screencap() {
             let mut txt = Text::from(Line("DEV"));
             txt.highlight_last_line(Color::RED);
-            g.draw_blocking_text(
-                &txt,
-                (HorizontalAlignment::Right, VerticalAlignment::Bottom),
-            );
+            g.draw_blocking_text(txt, (HorizontalAlignment::Right, VerticalAlignment::Bottom));
         }
 
         /*println!(

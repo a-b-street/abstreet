@@ -45,7 +45,7 @@ impl GameplayState for FasterTrips {
 
         if self.time != ui.primary.sim.time() {
             self.time = ui.primary.sim.time();
-            self.menu.set_info(faster_trips_panel(self.mode, ui));
+            self.menu.set_info(ctx, faster_trips_panel(self.mode, ui));
         }
 
         None

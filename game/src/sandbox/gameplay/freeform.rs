@@ -63,7 +63,7 @@ impl GameplayState for Freeform {
                 for line in cnt.describe() {
                     txt.add(Line(line));
                 }
-                g.draw_mouse_tooltip(&txt);
+                g.draw_mouse_tooltip(txt);
             }
         }
     }

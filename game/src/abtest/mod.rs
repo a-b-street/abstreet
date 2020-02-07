@@ -82,7 +82,7 @@ impl State for ABTestMode {
                 by_mode[&TripMode::Drive],
                 by_mode[&TripMode::Transit]
             )));
-            self.menu.set_info(txt);
+            self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);
 

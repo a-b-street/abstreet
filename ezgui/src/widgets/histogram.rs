@@ -119,7 +119,7 @@ impl Histogram {
             let pt = Pt2D::new(cursor.x - self.top_left.x, cursor.y - self.top_left.y);
             for (rect, lbl) in &self.rect_labels {
                 if rect.contains_pt(pt) {
-                    g.draw_mouse_tooltip(lbl);
+                    g.draw_mouse_tooltip(lbl.clone());
                     break;
                 }
             }

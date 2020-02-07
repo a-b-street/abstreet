@@ -60,10 +60,10 @@ impl Floodfiller {
         }
 
         let mut menu = ModalMenu::new(title, vec![(hotkey(Key::Escape), "quit")], ctx);
-        menu.set_info(Text::from(Line(format!(
-            "{} unreachable lanes",
-            num_unreachable
-        ))));
+        menu.set_info(
+            ctx,
+            Text::from(Line(format!("{} unreachable lanes", num_unreachable))),
+        );
 
         Some(Box::new(Floodfiller {
             menu,

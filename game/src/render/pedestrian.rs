@@ -209,7 +209,8 @@ impl DrawPedCrowd {
             blob.clone(),
         );
         batch.add_transformed(
-            Text::from(Line(format!("{}", input.members.len())).fg(Color::BLACK)).render_to_batch(),
+            Text::from(Line(format!("{}", input.members.len())).fg(Color::BLACK))
+                .render_to_batch(prerender),
             blob.center(),
             0.02,
             Angle::ZERO,

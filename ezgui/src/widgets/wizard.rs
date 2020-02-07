@@ -89,7 +89,7 @@ impl Wizard {
         }
 
         if self.tb.is_none() {
-            self.tb = Some(TextBox::new(query, prefilled));
+            self.tb = Some(TextBox::new(ctx, query, prefilled));
         }
         layout::stack_vertically(
             layout::ContainerOrientation::Centered,
@@ -293,6 +293,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                 .menu(
                     "menu",
                     PopupMenu::new(
+                        self.ctx,
                         choices
                             .into_iter()
                             .map(|c| Choice {

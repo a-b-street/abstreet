@@ -209,7 +209,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
                 if txt.num_lines() > 0 {
                     g.fork_screenspace();
                     g.draw_circle(Color::RED, &Circle::new(cursor.to_pt(), radius));
-                    g.draw_mouse_tooltip(&txt);
+                    g.draw_mouse_tooltip(txt);
                     g.unfork();
                 }
             }

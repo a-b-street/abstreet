@@ -101,7 +101,7 @@ impl State for TripsVisualizer {
                 "{} active trips",
                 prettyprint_usize(self.active_trips.len())
             )));
-            self.menu.set_info(txt);
+            self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);
         ctx.canvas_movement();

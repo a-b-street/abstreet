@@ -359,7 +359,7 @@ impl State for TimeWarpScreen {
         )));
         txt.add(Line(format!("Press ESCAPE to stop now")));
         g.draw_blocking_text(
-            &txt,
+            txt,
             (HorizontalAlignment::Center, VerticalAlignment::Center),
         );
     }

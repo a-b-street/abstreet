@@ -74,7 +74,6 @@ pub struct GfxCtx<'a> {
     // TODO Don't be pub. Delegate everything.
     pub canvas: &'a Canvas,
     pub prerender: &'a Prerender<'a>,
-    pub(crate) assets: &'a Assets,
 
     pub num_draw_calls: usize,
 }
@@ -85,7 +84,6 @@ impl<'a> GfxCtx<'a> {
         prerender: &'a Prerender<'a>,
         target: &'a mut glium::Frame,
         program: &'a glium::Program,
-        assets: &'a Assets,
         screencap_mode: bool,
     ) -> GfxCtx<'a> {
         let params = glium::DrawParameters {
@@ -110,7 +108,6 @@ impl<'a> GfxCtx<'a> {
             num_draw_calls: 0,
             screencap_mode,
             naming_hint: None,
-            assets,
         }
     }
 
@@ -229,10 +226,10 @@ impl<'a> GfxCtx<'a> {
     // The text box covers up what's beneath and eats the cursor (for get_cursor_in_map_space).
     pub fn draw_blocking_text(
         &mut self,
-        txt: &Text,
+        txt: Text,
         (horiz, vert): (HorizontalAlignment, VerticalAlignment),
     ) {
-        let mut dims = txt.dims();
+        let mut dims = txt.dims(&self.prerender.assets);
         let top_left = self.canvas.align_window(dims, horiz, vert);
         // TODO This doesn't take effect anymore
         if let HorizontalAlignment::FillScreen = horiz {
@@ -242,7 +239,7 @@ impl<'a> GfxCtx<'a> {
         self.draw_blocking_text_at_screenspace_topleft(txt, top_left);
     }
 
-    pub(crate) fn draw_blocking_text_at_screenspace_topleft(&mut self, txt: &Text, pt: ScreenPt) {
+    pub(crate) fn draw_blocking_text_at_screenspace_topleft(&mut self, txt: Text, pt: ScreenPt) {
         let mut batch = GeomBatch::new();
         self.canvas
             .mark_covered_area(txt.clone().render(&mut batch, pt));
@@ -256,8 +253,8 @@ impl<'a> GfxCtx<'a> {
     }
 
     // TODO Rename these draw_nonblocking_text_*
-    pub fn draw_text_at(&mut self, txt: &Text, map_pt: Pt2D) {
-        let dims = txt.dims();
+    pub fn draw_text_at(&mut self, txt: Text, map_pt: Pt2D) {
+        let dims = txt.dims(&self.prerender.assets);
         let pt = self.canvas.map_to_screen(map_pt);
         let mut batch = GeomBatch::new();
         txt.clone().render(
@@ -269,8 +266,8 @@ impl<'a> GfxCtx<'a> {
         self.unfork();
     }
 
-    pub fn draw_mouse_tooltip(&mut self, txt: &Text) {
-        let dims = txt.dims();
+    pub fn draw_mouse_tooltip(&mut self, txt: Text) {
+        let dims = txt.dims(&self.prerender.assets);
         // TODO Maybe also consider the cursor as a valid center
         let pt = dims.top_left_for_corner(
             ScreenPt::new(self.canvas.cursor_x, self.canvas.cursor_y),
@@ -315,7 +312,7 @@ impl<'a> GfxCtx<'a> {
 
     // Delegation to assets
     pub fn default_line_height(&self) -> f64 {
-        self.assets.default_line_height
+        self.prerender.assets.default_line_height
     }
 }
 
@@ -450,6 +447,7 @@ glium::implement_vertex!(Vertex, position, style);
 
 // TODO Don't expose this directly
 pub struct Prerender<'a> {
+    pub(crate) assets: Assets,
     pub(crate) display: &'a glium::Display,
     pub(crate) num_uploads: Cell<usize>,
     // TODO Prerender doesn't know what things are temporary and permanent. Could make the API more

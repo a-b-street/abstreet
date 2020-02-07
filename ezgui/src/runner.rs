@@ -34,7 +34,6 @@ pub enum EventLoopMode {
 pub(crate) struct State<G: GUI> {
     pub(crate) gui: G,
     pub(crate) canvas: Canvas,
-    assets: Assets,
 }
 
 impl<G: GUI> State<G> {
@@ -80,12 +79,10 @@ impl<G: GUI> State<G> {
             }
         }
 
-        let assets = self.assets;
         let mut ctx = EventCtx {
             fake_mouseover: false,
             input: input,
             canvas: &mut canvas,
-            assets: &assets,
             prerender,
             program,
         };
@@ -106,7 +103,6 @@ impl<G: GUI> State<G> {
         };
         self.gui = gui;
         self.canvas = canvas;
-        self.assets = assets;
 
         (self, event_mode, input_used)
     }
@@ -120,14 +116,7 @@ impl<G: GUI> State<G> {
         screenshot: bool,
     ) -> Option<String> {
         let mut target = display.draw();
-        let mut g = GfxCtx::new(
-            &self.canvas,
-            &prerender,
-            &mut target,
-            program,
-            &self.assets,
-            screenshot,
-        );
+        let mut g = GfxCtx::new(&self.canvas, &prerender, &mut target, program, screenshot);
 
         self.canvas.start_drawing();
 
@@ -255,8 +244,8 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: 
     }
     let window_size = events_loop.get_primary_monitor().get_dimensions();
     let mut canvas = Canvas::new(window_size.width, window_size.height, hidpi_factor);
-    let assets = Assets::new(settings.default_font_size);
     let prerender = Prerender {
+        assets: Assets::new(settings.default_font_size),
         display: &display,
         num_uploads: Cell::new(0),
         total_bytes_uploaded: Cell::new(0),
@@ -266,16 +255,11 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: 
         fake_mouseover: true,
         input: UserInput::new(Event::NoOp, &canvas),
         canvas: &mut canvas,
-        assets: &assets,
         prerender: &prerender,
         program: &program,
     });
 
-    let state = State {
-        canvas,
-        assets,
-        gui,
-    };
+    let state = State { canvas, gui };
 
     loop_forever(
         state,

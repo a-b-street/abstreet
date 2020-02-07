@@ -80,7 +80,7 @@ impl<T: Clone + Hash + Eq> Autocomplete<T> {
         }
 
         g.draw_blocking_text(
-            &txt,
+            txt,
             (HorizontalAlignment::Center, VerticalAlignment::Center),
         );
     }

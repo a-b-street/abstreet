@@ -10,18 +10,18 @@ pub enum AllRoutesViewer {
 }
 
 impl AllRoutesViewer {
-    pub fn event(&mut self, ui: &mut UI, menu: &mut ModalMenu, _: &EventCtx) {
+    pub fn event(&mut self, ui: &mut UI, menu: &mut ModalMenu, ctx: &EventCtx) {
         let show = "show route for all agents";
         let hide = "hide route for all agents";
 
         match self {
             AllRoutesViewer::Inactive => {
-                if menu.swap_action(show, hide) {
+                if menu.swap_action(ctx, show, hide) {
                     *self = debug_all_routes(ui);
                 }
             }
             AllRoutesViewer::Active(time, _) => {
-                if menu.swap_action(hide, show) {
+                if menu.swap_action(ctx, hide, show) {
                     *self = AllRoutesViewer::Inactive;
                 } else if *time != ui.primary.sim.time() {
                     *self = debug_all_routes(ui);

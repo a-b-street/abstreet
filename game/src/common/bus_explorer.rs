@@ -69,7 +69,7 @@ impl ShowBusRoute {
     pub fn draw(&self, g: &mut GfxCtx) {
         self.colorer.draw(g);
         for (label, pt) in &self.labels {
-            g.draw_text_at(label, *pt);
+            g.draw_text_at(label.clone(), *pt);
         }
 
         let mut batch = GeomBatch::new();

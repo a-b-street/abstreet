@@ -144,7 +144,7 @@ impl Renderable for DrawIntersection {
                     ctx.opts.traffic_signal_style.clone(),
                 );
                 batch.add_transformed(
-                    Text::from(Line(format!("{}", idx + 1)).roboto()).render_to_batch(),
+                    Text::from(Line(format!("{}", idx + 1)).roboto()).render_to_batch(g.prerender),
                     ctx.map.get_i(self.id).polygon.center(),
                     0.1,
                     Angle::ZERO,

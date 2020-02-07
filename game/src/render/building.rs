@@ -58,7 +58,7 @@ impl DrawBuilding {
             bldg.osm_tags.get("addr:housenumber").map(|num| {
                 let mut lbl = GeomBatch::new();
                 lbl.add_transformed(
-                    Text::from(Line(num.to_string()).fg(Color::BLACK)).render_to_batch(),
+                    Text::from(Line(num.to_string()).fg(Color::BLACK)).render_to_batch(prerender),
                     bldg.label_center,
                     0.1,
                     Angle::ZERO,

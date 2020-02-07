@@ -18,7 +18,7 @@ pub struct PopupMenu<T: Clone> {
 }
 
 impl<T: Clone> PopupMenu<T> {
-    pub fn new(choices: Vec<Choice<T>>) -> PopupMenu<T> {
+    pub fn new(ctx: &EventCtx, choices: Vec<Choice<T>>) -> PopupMenu<T> {
         let mut m = PopupMenu {
             choices,
             current_idx: 0,
@@ -28,7 +28,7 @@ impl<T: Clone> PopupMenu<T> {
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(0.0, 0.0),
         };
-        m.dims = m.calculate_txt().dims();
+        m.dims = m.calculate_txt().dims(&ctx.prerender.assets);
         m
     }
 
@@ -119,7 +119,7 @@ impl<T: Clone> PopupMenu<T> {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        g.draw_blocking_text_at_screenspace_topleft(&self.calculate_txt(), self.top_left);
+        g.draw_blocking_text_at_screenspace_topleft(self.calculate_txt(), self.top_left);
     }
 
     pub fn current_choice(&self) -> &T {

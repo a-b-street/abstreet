@@ -294,7 +294,7 @@ impl<T> ItemSlider<T> {
                 abstutil::prettyprint_usize(self.items.len())
             )));
             txt.extend(&self.items[idx].1);
-            self.menu.set_info(txt);
+            self.menu.set_info(ctx, txt);
             self.menu.event(ctx);
         }
         stack_vertically(
@@ -432,8 +432,12 @@ impl SliderWithTextBox {
     pub fn new(prompt: &str, low: Time, high: Time, ctx: &EventCtx) -> SliderWithTextBox {
         SliderWithTextBox {
             // TODO Some ratio based on low and high difference
-            slider: Slider::horizontal(ctx, Text::from(Line(prompt)).dims().width, 25.0),
-            tb: TextBox::new(prompt, Some(low.to_string())),
+            slider: Slider::horizontal(
+                ctx,
+                Text::from(Line(prompt)).dims(&ctx.prerender.assets).width,
+                25.0,
+            ),
+            tb: TextBox::new(ctx, prompt, Some(low.to_string())),
             low,
             high,
         }

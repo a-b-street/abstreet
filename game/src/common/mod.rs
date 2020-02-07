@@ -244,7 +244,7 @@ impl CommonState {
         }
 
         g.draw_blocking_text(
-            &osd,
+            osd,
             (HorizontalAlignment::FillScreen, VerticalAlignment::Bottom),
         );
     }

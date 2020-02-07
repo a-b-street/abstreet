@@ -46,7 +46,7 @@ impl ObjectDebugger {
                     txt.add(Line(gps.to_string()));
                     txt.add(Line(format!("{:?}", g.canvas.get_cursor())));
                     txt.add(Line(format!("zoom: {}", g.canvas.cam_zoom)));
-                    g.draw_mouse_tooltip(&txt);
+                    g.draw_mouse_tooltip(txt);
                 }
             }
         }

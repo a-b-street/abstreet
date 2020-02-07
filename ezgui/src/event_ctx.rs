@@ -1,4 +1,3 @@
-use crate::assets::Assets;
 use crate::{
     Canvas, Color, Event, GfxCtx, HorizontalAlignment, Line, Prerender, ScreenDims, Text,
     UserInput, VerticalAlignment,
@@ -18,7 +17,6 @@ pub struct EventCtx<'a> {
     pub prerender: &'a Prerender<'a>,
 
     pub(crate) program: &'a glium::Program,
-    pub(crate) assets: &'a Assets,
 }
 
 impl<'a> EventCtx<'a> {
@@ -33,7 +31,6 @@ impl<'a> EventCtx<'a> {
             Box::new(LoadingScreen::new(
                 self.prerender,
                 self.program,
-                self.assets,
                 self.canvas.window_width,
                 self.canvas.window_height,
                 timer_name.clone(),
@@ -58,7 +55,6 @@ impl<'a> EventCtx<'a> {
             canvas: self.canvas,
             prerender: self.prerender,
             program: self.program,
-            assets: self.assets,
         };
         cb(&mut tmp)
     }
@@ -158,7 +154,7 @@ impl<'a> EventCtx<'a> {
 
     // Delegation to assets
     pub fn default_line_height(&self) -> f64 {
-        self.assets.default_line_height
+        self.prerender.assets.default_line_height
     }
 }
 
@@ -166,7 +162,6 @@ pub struct LoadingScreen<'a> {
     canvas: Canvas,
     prerender: &'a Prerender<'a>,
     program: &'a glium::Program,
-    assets: &'a Assets,
     lines: VecDeque<String>,
     max_capacity: usize,
     last_drawn: Instant,
@@ -177,7 +172,6 @@ impl<'a> LoadingScreen<'a> {
     pub fn new(
         prerender: &'a Prerender<'a>,
         program: &'a glium::Program,
-        assets: &'a Assets,
         initial_width: f64,
         initial_height: f64,
         title: String,
@@ -187,9 +181,8 @@ impl<'a> LoadingScreen<'a> {
         LoadingScreen {
             prerender,
             program,
-            assets,
             lines: VecDeque::new(),
-            max_capacity: (0.8 * initial_height / assets.default_line_height) as usize,
+            max_capacity: (0.8 * initial_height / prerender.assets.default_line_height) as usize,
             // If the loading callback takes less than 0.2s, we don't redraw at all.
             last_drawn: Instant::now(),
             title,
@@ -218,13 +211,12 @@ impl<'a> LoadingScreen<'a> {
             self.prerender,
             &mut target,
             self.program,
-            &self.assets,
             false,
         );
         g.clear(Color::BLACK);
         // TODO Keep the width fixed.
         g.draw_blocking_text(
-            &txt,
+            txt,
             (HorizontalAlignment::Center, VerticalAlignment::Center),
         );
         target.finish().unwrap();

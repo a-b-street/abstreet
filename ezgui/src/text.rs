@@ -1,4 +1,5 @@
-use crate::{Color, GeomBatch, ScreenDims, ScreenPt, ScreenRectangle};
+use crate::assets::Assets;
+use crate::{Color, GeomBatch, Prerender, ScreenDims, ScreenPt, ScreenRectangle};
 use geom::Polygon;
 use std::fmt::Write;
 use textwrap;
@@ -182,7 +183,7 @@ impl Text {
         self.lines.extend(other.lines.clone())
     }
 
-    pub(crate) fn dims(&self) -> ScreenDims {
+    pub(crate) fn dims(&self, _: &Assets) -> ScreenDims {
         // TODO Still pay attention to this hack, so the loading screen isn't dreadfully slow
         if let Some(w) = self.override_width {
             return ScreenDims::new(w, self.override_height.unwrap());
@@ -238,7 +239,7 @@ impl Text {
         ScreenRectangle::top_left(top_left, ScreenDims::new(max_width, y - top_left.y))
     }
 
-    pub fn render_to_batch(self) -> GeomBatch {
+    pub fn render_to_batch(self, _: &Prerender) -> GeomBatch {
         let mut batch = GeomBatch::new();
         self.render(&mut batch, ScreenPt::new(0.0, 0.0));
         batch.realign()

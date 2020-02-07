@@ -43,6 +43,7 @@ impl GameplayState for CreateGridlock {
 
         self.menu.event(ctx);
         manage_acs(
+            ctx,
             &mut self.menu,
             ui,
             "show agent delay",
@@ -52,7 +53,7 @@ impl GameplayState for CreateGridlock {
 
         if self.time != ui.primary.sim.time() {
             self.time = ui.primary.sim.time();
-            self.menu.set_info(gridlock_panel(ui));
+            self.menu.set_info(ctx, gridlock_panel(ui));
         }
 
         None

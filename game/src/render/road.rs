@@ -39,7 +39,7 @@ impl DrawRoad {
         // TODO Disabled because it's slow up-front cost
         if false {
             lbl.add_transformed(
-                txt.render_to_batch(),
+                txt.render_to_batch(prerender),
                 r.center_pts.middle(),
                 0.1,
                 Angle::ZERO,

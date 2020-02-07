@@ -159,7 +159,7 @@ impl State for ScenarioManager {
                 "{} parking spots",
                 prettyprint_usize(self.total_parking_spots),
             )));
-            self.menu.set_info(txt);
+            self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);
         ctx.canvas_movement();
@@ -183,7 +183,7 @@ impl State for ScenarioManager {
             return Transition::Push(Box::new(DotMap::new(ctx, ui, &self.scenario)));
         }
 
-        if self.demand.is_some() && self.menu.consume_action("stop showing paths") {
+        if self.demand.is_some() && self.menu.consume_action(ctx, "stop showing paths") {
             self.demand = None;
         }
 
@@ -206,7 +206,8 @@ impl State for ScenarioManager {
                     && ui.per_obj.action(ctx, Key::P, "show trips to and from")
                 {
                     self.demand = Some(show_demand(&self.scenario, from, to, OD::Bldg(b), ui, ctx));
-                    self.menu.push_action(hotkey(Key::P), "stop showing paths");
+                    self.menu
+                        .push_action(ctx, hotkey(Key::P), "stop showing paths");
                 }
             }
         } else if let Some(ID::Intersection(i)) = ui.primary.current_selection {
@@ -235,7 +236,8 @@ impl State for ScenarioManager {
                         ui,
                         ctx,
                     ));
-                    self.menu.push_action(hotkey(Key::P), "stop showing paths");
+                    self.menu
+                        .push_action(ctx, hotkey(Key::P), "stop showing paths");
                 }
             }
         }

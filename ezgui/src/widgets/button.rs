@@ -220,7 +220,7 @@ impl Button {
         const HORIZ_PADDING: f64 = 30.0;
         const VERT_PADDING: f64 = 10.0;
 
-        let dims = text.dims();
+        let dims = text.clone().dims(&ctx.prerender.assets);
         let geom = Polygon::rounded_rectangle(
             dims.width + 2.0 * HORIZ_PADDING,
             dims.height + 2.0 * VERT_PADDING,
@@ -255,8 +255,8 @@ impl Button {
         let horiz_padding = if padding { 15.0 } else { 0.0 };
         let vert_padding = if padding { 8.0 } else { 0.0 };
 
-        let dims = unselected_text.dims();
-        assert_eq!(dims, selected_text.dims());
+        let dims = unselected_text.clone().dims(&ctx.prerender.assets);
+        assert_eq!(dims, selected_text.clone().dims(&ctx.prerender.assets));
         let geom = Polygon::rectangle(
             dims.width + 2.0 * horiz_padding,
             dims.height + 2.0 * vert_padding,
@@ -281,7 +281,7 @@ impl Button {
         let horiz_padding = 15.0;
         let vert_padding = 8.0;
         txt = txt.change_fg(Color::grey(0.5));
-        let dims = txt.dims();
+        let dims = txt.clone().dims(&ctx.prerender.assets);
 
         let mut draw = DrawBoth::new(
             ctx,
@@ -306,7 +306,7 @@ impl Button {
         const VERT_PADDING: f64 = 10.0;
 
         let txt = Text::from(Line(label).fg(Color::BLACK));
-        let dims = txt.dims();
+        let dims = txt.clone().dims(&ctx.prerender.assets);
         let geom = Polygon::rounded_rectangle(
             dims.width + 2.0 * HORIZ_PADDING,
             dims.height + 2.0 * VERT_PADDING,
