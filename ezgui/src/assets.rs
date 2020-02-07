@@ -1,17 +1,11 @@
-use crate::{ScreenDims, ScreenPt, Text};
-use glium::Rect;
-use glium_glyph::glyph_brush::rusttype::{Font, Scale};
-use glium_glyph::glyph_brush::{FontId, GlyphCruncher};
+use crate::{ScreenDims, Text};
+use glium_glyph::glyph_brush::FontId;
 use glium_glyph::{GlyphBrush, GlyphBrushBuilder};
 use std::cell::RefCell;
-use std::collections::HashMap;
 
 // TODO We don't need refcell maybe
 pub struct Assets {
-    pub screenspace_glyphs: RefCell<GlyphBrush<'static, 'static>>,
     pub mapspace_glyphs: RefCell<GlyphBrush<'static, 'static>>,
-    pub screenspace_clip_glyphs: RefCell<Option<(Rect, Vec<(ScreenPt, Text, ScreenDims)>)>>,
-    line_height_per_font_size: RefCell<HashMap<(FontId, usize), f64>>,
     pub default_line_height: f64,
     pub font_size: usize,
 }
@@ -19,16 +13,6 @@ pub struct Assets {
 impl Assets {
     pub fn new(display: &glium::Display, font_size: usize) -> Assets {
         let dejavu: &[u8] = include_bytes!("assets/DejaVuSans.ttf");
-        let roboto: &[u8] = include_bytes!("assets/Roboto-Regular.ttf");
-        let roboto_bold: &[u8] = include_bytes!("assets/Roboto-Bold.ttf");
-        let screenspace_glyphs = GlyphBrush::new(
-            display,
-            vec![
-                Font::from_bytes(dejavu).unwrap(),
-                Font::from_bytes(roboto).unwrap(),
-                Font::from_bytes(roboto_bold).unwrap(),
-            ],
-        );
         let mapspace_glyphs = GlyphBrushBuilder::using_font_bytes(dejavu)
             .params(glium::DrawParameters {
                 blend: glium::Blend::alpha_blending(),
@@ -42,10 +26,7 @@ impl Assets {
             .build(display);
 
         let mut a = Assets {
-            screenspace_glyphs: RefCell::new(screenspace_glyphs),
             mapspace_glyphs: RefCell::new(mapspace_glyphs),
-            screenspace_clip_glyphs: RefCell::new(None),
-            line_height_per_font_size: RefCell::new(HashMap::new()),
             default_line_height: 0.0,
             font_size,
         };
@@ -58,17 +39,8 @@ impl Assets {
     }
 
     // Don't call this while screenspace_glyphs is mutably borrowed.
-    pub fn line_height(&self, font: FontId, font_size: usize) -> f64 {
-        let mut hash = self.line_height_per_font_size.borrow_mut();
-        let key = (font, font_size);
-        if hash.contains_key(&key) {
-            return hash[&key];
-        }
-        let vmetrics = self.screenspace_glyphs.borrow().fonts()[font.0]
-            .v_metrics(Scale::uniform(font_size as f32));
-        // TODO This works for this font, but could be more paranoid with abs()
-        let line_height = f64::from(vmetrics.ascent - vmetrics.descent + vmetrics.line_gap);
-        hash.insert(key, line_height);
-        line_height
+    pub fn line_height(&self, _: FontId, font_size: usize) -> f64 {
+        // TODO Ahhh this stops working.
+        font_size as f64
     }
 }

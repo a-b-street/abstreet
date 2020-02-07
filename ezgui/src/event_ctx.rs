@@ -230,11 +230,6 @@ impl<'a> LoadingScreen<'a> {
             &txt,
             (HorizontalAlignment::Center, VerticalAlignment::Center),
         );
-        self.assets
-            .screenspace_glyphs
-            .borrow_mut()
-            .draw_queued(self.prerender.display, &mut target);
-        // LoadingScreen doesn't use mapspace_glyphs
         target.finish().unwrap();
     }
 }
