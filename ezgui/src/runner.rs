@@ -1,5 +1,5 @@
 use crate::assets::Assets;
-use crate::{text, widgets, Canvas, Event, EventCtx, GfxCtx, Key, Prerender, UserInput};
+use crate::{widgets, Canvas, Event, EventCtx, GfxCtx, Key, Prerender, UserInput};
 use geom::Duration;
 use glium::glutin;
 use std::cell::Cell;
@@ -139,27 +139,6 @@ impl<G: GUI> State<G> {
         }
         let naming_hint = g.naming_hint.take();
 
-        // Flush text just once, so that GlyphBrush's internal caching works. We have to assume
-        // nothing will ever cover up text.
-        {
-            let top_left = self
-                .canvas
-                .screen_to_map(crate::screen_geom::ScreenPt::new(0.0, 0.0));
-            let bottom_right = self.canvas.screen_to_map(crate::screen_geom::ScreenPt::new(
-                self.canvas.window_width,
-                self.canvas.window_height,
-            ));
-            let transform = ortho(
-                (top_left.x() as f32, bottom_right.x() as f32),
-                (top_left.y() as f32, bottom_right.y() as f32),
-                text::SCALE_DOWN,
-            );
-            self.assets
-                .mapspace_glyphs
-                .borrow_mut()
-                .draw_queued_with_transform(transform, display, g.target);
-        }
-
         target.finish().unwrap();
         naming_hint
     }
@@ -276,7 +255,7 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: 
     }
     let window_size = events_loop.get_primary_monitor().get_dimensions();
     let mut canvas = Canvas::new(window_size.width, window_size.height, hidpi_factor);
-    let assets = Assets::new(&display, settings.default_font_size);
+    let assets = Assets::new(settings.default_font_size);
     let prerender = Prerender {
         display: &display,
         num_uploads: Cell::new(0),
@@ -421,17 +400,4 @@ fn loop_forever<G: GUI>(
             thread::sleep(SLEEP_BETWEEN_FRAMES - this_frame);
         }
     }
-}
-
-fn ortho((left, right): (f32, f32), (bottom, top): (f32, f32), scale: f64) -> [[f32; 4]; 4] {
-    let s_x = 2.0 / (right - left) / (scale as f32);
-    let s_y = 2.0 / (top - bottom) / (scale as f32);
-    let t_x = -(right + left) / (right - left);
-    let t_y = -(top + bottom) / (top - bottom);
-    [
-        [s_x, 0.0, 0.0, 0.0],
-        [0.0, s_y, 0.0, 0.0],
-        [0.0, 0.0, 1.0, 0.0],
-        [t_x, t_y, 0.0, 1.0],
-    ]
 }

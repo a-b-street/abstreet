@@ -1,9 +1,7 @@
 use crate::assets::Assets;
-use crate::{Color, GeomBatch, GfxCtx, ScreenDims, ScreenPt, ScreenRectangle};
-use geom::{Polygon, Pt2D};
-use glium_glyph::glyph_brush::rusttype::Scale;
+use crate::{Color, GeomBatch, ScreenDims, ScreenPt, ScreenRectangle};
+use geom::Polygon;
 use glium_glyph::glyph_brush::FontId;
-use glium_glyph::glyph_brush::{SectionText, VariedSection};
 use textwrap;
 
 const FG_COLOR: Color = Color::WHITE;
@@ -15,7 +13,6 @@ pub const INACTIVE_CHOICE_COLOR: Color = Color::grey(0.4);
 
 // TODO Don't do this!
 const MAX_CHAR_WIDTH: f64 = 25.0;
-pub const SCALE_DOWN: f64 = 60.0;
 
 // These're hardcoded for simplicity; this list doesn't change much.
 const DEJA_VU: FontId = FontId(0);
@@ -194,69 +191,7 @@ impl Text {
         let rect = self.clone().render(&mut batch, ScreenPt::new(0.0, 0.0));
         rect.dims()
     }
-}
 
-pub fn draw_text_bubble_mapspace(
-    g: &mut GfxCtx,
-    top_left: Pt2D,
-    txt: &Text,
-    // Callers almost always calculate this anyway
-    total_dims: ScreenDims,
-) {
-    if let Some(c) = txt.bg_color {
-        g.draw_polygon(
-            c,
-            &Polygon::rectangle(
-                total_dims.width / SCALE_DOWN,
-                total_dims.height / SCALE_DOWN,
-            )
-            .translate(top_left.x(), top_left.y()),
-        );
-    }
-
-    let mut y = top_left.y();
-    for (line_color, line) in &txt.lines {
-        let mut max_size = 0;
-        let section = VariedSection {
-            // This in map-space, but the transform matrix for mapspace_glyphs will take care of
-            // it.
-            screen_position: ((top_left.x() * SCALE_DOWN) as f32, (y * SCALE_DOWN) as f32),
-            z: 0.1,
-            text: line
-                .iter()
-                .map(|span| {
-                    max_size = max_size.max(span.size.unwrap_or(g.assets.font_size));
-                    SectionText {
-                        text: &span.text,
-                        color: match span.fg_color {
-                            Color::RGBA(r, g, b, a) => [r, g, b, a],
-                            _ => unreachable!(),
-                        },
-                        scale: Scale::uniform(span.size.unwrap_or(g.assets.font_size) as f32),
-                        ..SectionText::default()
-                    }
-                })
-                .collect(),
-            ..VariedSection::default()
-        };
-        // TODO Assume the same font for all spans
-        let height = g.line_height(line[0].font, max_size) / SCALE_DOWN;
-
-        if let Some(c) = line_color {
-            g.draw_polygon(
-                *c,
-                &Polygon::rectangle(total_dims.width / SCALE_DOWN, height)
-                    .translate(top_left.x(), y),
-            );
-        }
-
-        y += height;
-        g.assets.mapspace_glyphs.borrow_mut().queue(section);
-    }
-}
-
-// TODO Rearrange
-impl Text {
     pub fn render(self, output_batch: &mut GeomBatch, top_left: ScreenPt) -> ScreenRectangle {
         // TODO Bad guess
         let empty_line_height = 30.0;

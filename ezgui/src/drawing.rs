@@ -1,13 +1,12 @@
 use crate::assets::Assets;
 use crate::svg;
 use crate::{
-    text, Canvas, Color, EventCtx, HorizontalAlignment, ScreenDims, ScreenPt, ScreenRectangle,
-    Text, VerticalAlignment,
+    Canvas, Color, EventCtx, HorizontalAlignment, ScreenDims, ScreenPt, ScreenRectangle, Text,
+    VerticalAlignment,
 };
 use geom::{Angle, Bounds, Circle, Distance, Line, Polygon, Pt2D};
 use glium::uniforms::{SamplerBehavior, SamplerWrapFunction, UniformValue};
 use glium::Surface;
-use glium_glyph::glyph_brush::FontId;
 use std::cell::Cell;
 
 const MAPSPACE: f32 = 0.0;
@@ -272,15 +271,15 @@ impl<'a> GfxCtx<'a> {
 
     pub fn draw_text_at_mapspace(&mut self, txt: &Text, map_pt: Pt2D) {
         let dims = self.text_dims(&txt);
-        text::draw_text_bubble_mapspace(
-            self,
-            Pt2D::new(
-                map_pt.x() - (dims.width / (2.0 * text::SCALE_DOWN)),
-                map_pt.y() - (dims.height / (2.0 * text::SCALE_DOWN)),
+        let mut batch = GeomBatch::new();
+        txt.clone().render(
+            &mut batch,
+            ScreenPt::new(
+                map_pt.x() - (dims.width / 2.0),
+                map_pt.y() - (dims.height / 2.0),
             ),
-            txt,
-            dims,
         );
+        batch.draw(self);
     }
 
     pub fn draw_mouse_tooltip(&mut self, txt: &Text) {
@@ -330,9 +329,6 @@ impl<'a> GfxCtx<'a> {
     // Delegation to assets
     pub fn default_line_height(&self) -> f64 {
         self.assets.default_line_height
-    }
-    pub(crate) fn line_height(&self, font: FontId, font_size: usize) -> f64 {
-        self.assets.line_height(font, font_size)
     }
     pub fn text_dims(&self, txt: &Text) -> ScreenDims {
         self.assets.text_dims(txt)
