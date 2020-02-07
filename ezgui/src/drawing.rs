@@ -269,19 +269,6 @@ impl<'a> GfxCtx<'a> {
         self.unfork();
     }
 
-    pub fn draw_text_at_mapspace(&mut self, txt: &Text, map_pt: Pt2D) {
-        let dims = txt.dims();
-        let mut batch = GeomBatch::new();
-        txt.clone().render(
-            &mut batch,
-            ScreenPt::new(
-                map_pt.x() - (dims.width / 2.0),
-                map_pt.y() - (dims.height / 2.0),
-            ),
-        );
-        batch.draw(self);
-    }
-
     pub fn draw_mouse_tooltip(&mut self, txt: &Text) {
         let dims = txt.dims();
         // TODO Maybe also consider the cursor as a valid center
@@ -375,7 +362,7 @@ impl GeomBatch {
     }
 
     // Sets the top-left to 0, 0. Not sure exactly when this should be used.
-    pub fn realign(mut self) -> GeomBatch {
+    pub(crate) fn realign(mut self) -> GeomBatch {
         let mut bounds = Bounds::new();
         for (_, poly) in &self.list {
             bounds.union(poly.get_bounds());

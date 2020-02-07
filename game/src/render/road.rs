@@ -1,7 +1,7 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{dashed_lines, DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
-use geom::{Distance, Polygon, Pt2D};
+use geom::{Angle, Distance, Polygon, Pt2D};
 use map_model::{LaneType, Map, Road, RoadID};
 
 pub struct DrawRoad {
@@ -9,8 +9,7 @@ pub struct DrawRoad {
     zorder: isize,
 
     draw_center_line: Drawable,
-    label: Text,
-    label_pos: Pt2D,
+    label: Drawable,
 }
 
 impl DrawRoad {
@@ -34,15 +33,24 @@ impl DrawRoad {
             );
         }
 
-        let mut label = Text::new().with_bg();
-        label.add(Line(r.get_name()).size(50));
+        let mut txt = Text::new().with_bg();
+        txt.add(Line(r.get_name()));
+        let mut lbl = GeomBatch::new();
+        // TODO Disabled because it's slow up-front cost
+        if false {
+            lbl.add_transformed(
+                txt.render_to_batch(),
+                r.center_pts.middle(),
+                0.1,
+                Angle::ZERO,
+            );
+        }
 
         DrawRoad {
             id: r.id,
             zorder: r.get_zorder(),
             draw_center_line: prerender.upload(draw),
-            label,
-            label_pos: r.center_pts.middle(),
+            label: prerender.upload(lbl),
         }
     }
 }
@@ -55,7 +63,7 @@ impl Renderable for DrawRoad {
     fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, _: &DrawCtx) {
         g.redraw(&self.draw_center_line);
         if opts.label_roads {
-            g.draw_text_at_mapspace(&self.label, self.label_pos);
+            g.redraw(&self.label);
         }
     }
 

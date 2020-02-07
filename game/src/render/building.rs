@@ -1,17 +1,21 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
-use ezgui::{Color, GeomBatch, GfxCtx, Line, Text};
+use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Angle, Distance, Line, Polygon, Pt2D};
 use map_model::{Building, BuildingID, Map, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
 
 pub struct DrawBuilding {
     pub id: BuildingID,
-    label: Option<Text>,
-    label_pos: Pt2D,
+    label: Option<Drawable>,
 }
 
 impl DrawBuilding {
-    pub fn new(bldg: &Building, cs: &ColorScheme, batch: &mut GeomBatch) -> DrawBuilding {
+    pub fn new(
+        bldg: &Building,
+        cs: &ColorScheme,
+        batch: &mut GeomBatch,
+        prerender: &Prerender,
+    ) -> DrawBuilding {
         // Trim the front path line away from the sidewalk's center line, so that it doesn't
         // overlap. For now, this cleanup is visual; it doesn't belong in the map_model layer.
         let mut front_path_line = bldg.front_path.line.clone();
@@ -39,11 +43,6 @@ impl DrawBuilding {
             );
         }
 
-        let label = bldg
-            .osm_tags
-            .get("addr:housenumber")
-            .map(|num| Text::from(Line(num.to_string()).fg(Color::BLACK).size(50)));
-
         if bldg.parking.is_some() {
             // Might need to scale down more for some buildings, but so far, this works everywhere.
             batch.add_svg(
@@ -54,16 +53,28 @@ impl DrawBuilding {
             );
         }
 
+        // TODO Uh oh, this is lots of work upfront. Disable by default. :(
+        let label = if false {
+            bldg.osm_tags.get("addr:housenumber").map(|num| {
+                let mut lbl = GeomBatch::new();
+                lbl.add_transformed(
+                    Text::from(Line(num.to_string()).fg(Color::BLACK)).render_to_batch(),
+                    bldg.label_center,
+                    0.1,
+                    Angle::ZERO,
+                );
+                prerender.upload(lbl)
+            })
+        } else {
+            None
+        };
+
         // TODO Slow and looks silly, but it's a nice experiment.
         /*for poly in bldg.polygon.shrink(-3.0) {
             batch.push(cs.get_def("building roof", Color::rgb(150, 75, 0)), poly);
         }*/
 
-        DrawBuilding {
-            id: bldg.id,
-            label,
-            label_pos: bldg.label_center,
-        }
+        DrawBuilding { id: bldg.id, label }
     }
 }
 
@@ -74,8 +85,8 @@ impl Renderable for DrawBuilding {
 
     fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, _: &DrawCtx) {
         if opts.label_buildings {
-            if let Some(ref txt) = self.label {
-                g.draw_text_at_mapspace(txt, self.label_pos);
+            if let Some(ref lbl) = self.label {
+                g.redraw(lbl);
             }
         }
     }

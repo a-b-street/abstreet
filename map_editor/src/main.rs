@@ -7,7 +7,7 @@ use ezgui::{
     hotkey, Canvas, Choice, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line,
     ModalMenu, Text, Wizard, GUI,
 };
-use geom::{Distance, Line, Polygon, Pt2D};
+use geom::{Angle, Distance, Line, Polygon, Pt2D};
 use map_model::raw::{OriginalBuilding, OriginalIntersection, OriginalRoad, RestrictionType};
 use map_model::{osm, NORMAL_LANE_THICKNESS};
 use model::{Model, ID};
@@ -36,7 +36,7 @@ enum State {
     CreatingTurnRestrictionPt1(OriginalRoad),
     CreatingTurnRestrictionPt2(OriginalRoad, OriginalRoad, Wizard),
     // bool is show_tooltip
-    PreviewIntersection(Drawable, Vec<(Text, Pt2D)>, bool),
+    PreviewIntersection(Drawable, bool),
     EnteringWarp(Wizard),
     StampingRoads(String, String, String, String),
 }
@@ -94,11 +94,11 @@ impl UI {
 
             last_id: None,
         };
-        ui.recount_parking_tags(ctx);
+        ui.recount_parking_tags();
         ui
     }
 
-    fn recount_parking_tags(&mut self, ctx: &EventCtx) {
+    fn recount_parking_tags(&mut self) {
         let mut ways_audited = HashSet::new();
         let mut ways_missing = HashSet::new();
         for r in self.model.map.roads.values() {
@@ -111,14 +111,11 @@ impl UI {
                 ways_audited.insert(r.osm_tags[osm::OSM_WAY_ID].clone());
             }
         }
-        self.menu.set_info(
-            ctx,
-            Text::from(Line(format!(
-                "Parking data audited: {} / {} ways",
-                abstutil::prettyprint_usize(ways_audited.len()),
-                abstutil::prettyprint_usize(ways_audited.len() + ways_missing.len())
-            ))),
-        );
+        self.menu.set_info(Text::from(Line(format!(
+            "Parking data audited: {} / {} ways",
+            abstutil::prettyprint_usize(ways_audited.len()),
+            abstutil::prettyprint_usize(ways_audited.len() + ways_missing.len())
+        ))));
     }
 }
 
@@ -180,8 +177,8 @@ impl GUI for UI {
                                 .input
                                 .key_pressed(Key::P, "preview intersection geometry")
                         {
-                            let (draw, labels) = preview_intersection(i, &self.model, ctx);
-                            self.state = State::PreviewIntersection(draw, labels, false);
+                            let draw = preview_intersection(i, &self.model, ctx);
+                            self.state = State::PreviewIntersection(draw, false);
                         }
                     }
                     Some(ID::Building(b)) => {
@@ -214,7 +211,7 @@ impl GUI for UI {
                         } else if ctx.input.key_pressed(Key::T, "toggle parking") {
                             self.model.toggle_r_parking(r, ctx.prerender);
                             self.model.world.handle_mouseover(ctx);
-                            self.recount_parking_tags(ctx);
+                            self.recount_parking_tags();
                         } else if ctx.input.key_pressed(Key::F, "toggle sidewalks") {
                             self.model.toggle_r_sidewalks(r, ctx.prerender);
                             self.model.world.handle_mouseover(ctx);
@@ -308,28 +305,25 @@ impl GUI for UI {
                         } else if !self.model.intersection_geom
                             && self.menu.action("preview all intersections")
                         {
-                            let (draw, labels) = preview_all_intersections(&self.model, ctx);
-                            self.state = State::PreviewIntersection(draw, labels, false);
+                            let draw = preview_all_intersections(&self.model, ctx);
+                            self.state = State::PreviewIntersection(draw, false);
                         } else if self.menu.action("find overlapping intersections") {
-                            let (draw, labels) = find_overlapping_intersections(&self.model, ctx);
-                            self.state = State::PreviewIntersection(draw, labels, false);
+                            let draw = find_overlapping_intersections(&self.model, ctx);
+                            self.state = State::PreviewIntersection(draw, false);
                         } else if short_roads.is_empty()
                             && self
                                 .menu
-                                .swap_action("find short roads", "clear short roads", ctx)
+                                .swap_action("find short roads", "clear short roads")
                         {
                             *short_roads = find_short_roads(&self.model);
                             if short_roads.is_empty() {
-                                self.menu.change_action(
-                                    "clear short roads",
-                                    "find short roads",
-                                    ctx,
-                                );
+                                self.menu
+                                    .change_action("clear short roads", "find short roads");
                             }
                         } else if !short_roads.is_empty()
                             && self
                                 .menu
-                                .swap_action("clear short roads", "find short roads", ctx)
+                                .swap_action("clear short roads", "find short roads")
                         {
                             short_roads.clear();
                         }
@@ -493,7 +487,7 @@ impl GUI for UI {
                     self.model.world.handle_mouseover(ctx);
                 }
             }
-            State::PreviewIntersection(_, _, ref mut show_tooltip) => {
+            State::PreviewIntersection(_, ref mut show_tooltip) => {
                 if *show_tooltip && ctx.input.key_released(Key::RightAlt) {
                     *show_tooltip = false;
                 } else if !*show_tooltip && ctx.input.key_pressed(Key::RightAlt, "show map pt") {
@@ -588,7 +582,7 @@ impl GUI for UI {
 
         g.draw_polygon(Color::rgb(242, 239, 233), &self.model.map.boundary_polygon);
         match self.state {
-            State::PreviewIntersection(_, _, _) => self.model.world.draw(g, |id| match id {
+            State::PreviewIntersection(_, _) => self.model.world.draw(g, |id| match id {
                 ID::Intersection(_) => false,
                 _ => true,
             }),
@@ -642,11 +636,8 @@ impl GUI for UI {
                 }
                 wizard.draw(g);
             }
-            State::PreviewIntersection(ref draw, ref labels, show_tooltip) => {
+            State::PreviewIntersection(ref draw, show_tooltip) => {
                 g.redraw(draw);
-                for (txt, pt) in labels {
-                    g.draw_text_at_mapspace(txt, *pt);
-                }
 
                 if show_tooltip {
                     // TODO Argh, covers up mouseover tooltip.
@@ -676,28 +667,29 @@ impl GUI for UI {
     }
 }
 
-fn preview_intersection(
-    i: OriginalIntersection,
-    model: &Model,
-    ctx: &EventCtx,
-) -> (Drawable, Vec<(Text, Pt2D)>) {
+fn preview_intersection(i: OriginalIntersection, model: &Model, ctx: &EventCtx) -> Drawable {
     let (intersection, roads, debug) = model
         .map
         .preview_intersection(i, &mut Timer::new("calculate intersection_polygon"));
     let mut batch = GeomBatch::new();
-    let mut labels = Vec::new();
     batch.push(Color::ORANGE.alpha(0.5), intersection);
     for r in roads {
         batch.push(Color::GREEN.alpha(0.5), r);
     }
     for (label, poly) in debug {
-        labels.push((Text::from(Line(label)).with_bg(), poly.center()));
+        let center = poly.center();
         batch.push(Color::RED.alpha(0.5), poly);
+        batch.add_transformed(
+            Text::from(Line(label)).with_bg().render_to_batch(),
+            center,
+            0.1,
+            Angle::ZERO,
+        );
     }
-    (batch.upload(ctx), labels)
+    batch.upload(ctx)
 }
 
-fn preview_all_intersections(model: &Model, ctx: &EventCtx) -> (Drawable, Vec<(Text, Pt2D)>) {
+fn preview_all_intersections(model: &Model, ctx: &EventCtx) -> Drawable {
     let mut batch = GeomBatch::new();
     let mut timer = Timer::new("preview all intersections");
     timer.start_iter("preview", model.map.intersections.len());
@@ -709,10 +701,10 @@ fn preview_all_intersections(model: &Model, ctx: &EventCtx) -> (Drawable, Vec<(T
         let (intersection, _, _) = model.map.preview_intersection(*i, &mut timer);
         batch.push(Color::ORANGE.alpha(0.5), intersection);
     }
-    (batch.upload(ctx), Vec::new())
+    batch.upload(ctx)
 }
 
-fn find_overlapping_intersections(model: &Model, ctx: &EventCtx) -> (Drawable, Vec<(Text, Pt2D)>) {
+fn find_overlapping_intersections(model: &Model, ctx: &EventCtx) -> Drawable {
     let mut timer = Timer::new("find overlapping intersections");
     let mut polygons = Vec::new();
     for i in model.map.intersections.keys() {
@@ -744,7 +736,7 @@ fn find_overlapping_intersections(model: &Model, ctx: &EventCtx) -> (Drawable, V
 
     let mut batch = GeomBatch::new();
     batch.extend(Color::RED.alpha(0.5), overlap);
-    (batch.upload(ctx), Vec::new())
+    batch.upload(ctx)
 }
 
 // TODO OriginalRoad is dangerous, as this map changes. :\

@@ -237,6 +237,12 @@ impl Text {
 
         ScreenRectangle::top_left(top_left, ScreenDims::new(max_width, y - top_left.y))
     }
+
+    pub fn render_to_batch(self) -> GeomBatch {
+        let mut batch = GeomBatch::new();
+        self.render(&mut batch, ScreenPt::new(0.0, 0.0));
+        batch.realign()
+    }
 }
 
 fn render_text(spans: Vec<TextSpan>) -> GeomBatch {

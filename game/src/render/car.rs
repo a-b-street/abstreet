@@ -12,7 +12,6 @@ pub struct DrawCar {
     body: PolyLine,
     body_polygon: Polygon,
     zorder: isize,
-    label: Option<Text>,
 
     draw_default: Drawable,
 }
@@ -109,14 +108,22 @@ impl DrawCar {
             }
         }
 
+        if let Some(line) = input.label {
+            // TODO Would rotation make any sense? Or at least adjust position/size while turning.
+            // Buses are a constant length, so hardcoding this is fine.
+            draw_default.add_transformed(
+                Text::from(Line(line).fg(Color::rgb(249, 206, 24))).render_to_batch(),
+                input.body.dist_along(Distance::meters(9.0)).0,
+                0.07,
+                Angle::ZERO,
+            );
+        }
+
         DrawCar {
             id: input.id,
             body: input.body,
             body_polygon,
             zorder: input.on.get_zorder(map),
-            label: input
-                .label
-                .map(|line| Text::from(Line(line).fg(Color::rgb(249, 206, 24)).size(20))),
             draw_default: prerender.upload(draw_default),
         }
     }
@@ -129,12 +136,6 @@ impl Renderable for DrawCar {
 
     fn draw(&self, g: &mut GfxCtx, _: &DrawOptions, _: &DrawCtx) {
         g.redraw(&self.draw_default);
-
-        if let Some(ref txt) = self.label {
-            // TODO Would rotation make any sense? Or at least adjust position/size while turning.
-            // Buses are a constant length, so hardcoding this is fine.
-            g.draw_text_at_mapspace(txt, self.body.dist_along(Distance::meters(9.0)).0);
-        }
     }
 
     fn get_outline(&self, _: &Map) -> Polygon {

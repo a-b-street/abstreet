@@ -1,7 +1,7 @@
 use crate::helpers::{rotating_color_agents, ColorScheme, ID};
 use crate::render::{DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
-use geom::{Circle, Distance, PolyLine, Polygon};
+use geom::{Angle, Circle, Distance, PolyLine, Polygon};
 use map_model::{Map, SIDEWALK_THICKNESS};
 use sim::{DrawPedCrowdInput, DrawPedestrianInput, PedCrowdLocation, PedestrianID};
 
@@ -177,7 +177,6 @@ pub struct DrawPedCrowd {
     zorder: isize,
 
     draw_default: Drawable,
-    label: Text,
 }
 
 impl DrawPedCrowd {
@@ -204,16 +203,16 @@ impl DrawPedCrowd {
                 .exact_slice(input.low, input.high),
         };
         let blob = pl_shifted.make_polygons(SIDEWALK_THICKNESS / 2.0);
-        let draw_default = prerender.upload_borrowed(vec![(
+        let mut batch = GeomBatch::new();
+        batch.push(
             cs.get_def("pedestrian crowd", Color::rgb_f(0.2, 0.7, 0.7)),
-            &blob,
-        )]);
-
-        // Ideally "pedestrian head" color, but it looks really faded...
-        let label = Text::from(
-            Line(format!("{}", input.members.len()))
-                .fg(Color::BLACK)
-                .size(60),
+            blob.clone(),
+        );
+        batch.add_transformed(
+            Text::from(Line(format!("{}", input.members.len())).fg(Color::BLACK)).render_to_batch(),
+            blob.center(),
+            0.02,
+            Angle::ZERO,
         );
 
         DrawPedCrowd {
@@ -224,8 +223,7 @@ impl DrawPedCrowd {
                 PedCrowdLocation::Sidewalk(on, _) => on.get_zorder(map),
                 PedCrowdLocation::FrontPath(_) => 0,
             },
-            draw_default,
-            label,
+            draw_default: prerender.upload(batch),
         }
     }
 }
@@ -238,7 +236,6 @@ impl Renderable for DrawPedCrowd {
 
     fn draw(&self, g: &mut GfxCtx, _: &DrawOptions, _: &DrawCtx) {
         g.redraw(&self.draw_default);
-        g.draw_text_at_mapspace(&self.label, self.blob.center());
     }
 
     fn get_outline(&self, _: &Map) -> Polygon {

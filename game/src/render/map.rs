@@ -132,7 +132,7 @@ impl DrawMap {
         timer.start_iter("make DrawBuildings", map.all_buildings().len());
         for b in map.all_buildings() {
             timer.next();
-            buildings.push(DrawBuilding::new(b, cs, &mut all_buildings));
+            buildings.push(DrawBuilding::new(b, cs, &mut all_buildings, ctx.prerender));
         }
         timer.start("upload all buildings");
         let draw_all_buildings = all_buildings.upload(ctx);

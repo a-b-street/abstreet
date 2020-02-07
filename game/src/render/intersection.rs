@@ -4,7 +4,7 @@ use crate::render::{
     OUTLINE_THICKNESS,
 };
 use abstutil::Timer;
-use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, ScreenPt, Text};
+use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Angle, Distance, Line, PolyLine, Polygon, Pt2D, Time, EPSILON_DIST};
 use map_model::{
     Intersection, IntersectionID, IntersectionType, Map, Road, RoadWithStopSign, Turn, TurnType,
@@ -143,11 +143,8 @@ impl Renderable for DrawIntersection {
                     ctx,
                     ctx.opts.traffic_signal_style.clone(),
                 );
-                let mut txt = GeomBatch::new();
-                Text::from(Line(format!("{}", idx + 1)).roboto())
-                    .render(&mut txt, ScreenPt::new(0.0, 0.0));
                 batch.add_transformed(
-                    txt.realign(),
+                    Text::from(Line(format!("{}", idx + 1)).roboto()).render_to_batch(),
                     ctx.map.get_i(self.id).polygon.center(),
                     0.1,
                     Angle::ZERO,
