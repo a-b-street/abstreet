@@ -402,9 +402,16 @@ fn render_text(txt: TextSpan) -> GeomBatch {
     // If these are large enough, does this work?
     let max_w = 9999.0;
     let max_h = 9999.0;
+    let family = if txt.font == DEJA_VU {
+        "font-family=\"DejaVu Sans\""
+    } else if txt.font == ROBOTO {
+        "font-family=\"Roboto\""
+    } else {
+        "font-family=\"Roboto\" font-weight=\"bold\""
+    };
 
     let svg = format!(
-        r##"<svg width="{}" height="{}" viewBox="0 0 {} {}" fill="none" xmlns="http://www.w3.org/2000/svg"><text x="0" y="0" fill="{}" font-size="{}" font-family="{}">{}</text></svg>"##,
+        r##"<svg width="{}" height="{}" viewBox="0 0 {} {}" fill="none" xmlns="http://www.w3.org/2000/svg"><text x="0" y="0" fill="{}" font-size="{}" {}>{}</text></svg>"##,
         max_w,
         max_h,
         max_w,
@@ -413,11 +420,15 @@ fn render_text(txt: TextSpan) -> GeomBatch {
         // TODO Plumb through default font size?
         txt.size.unwrap_or(30),
         // TODO Make these work
-        "DejaVu Sans",
+        family,
         txt.text
     );
 
-    let svg_tree = usvg::Tree::from_str(&svg, &usvg::Options::default()).unwrap();
+    let mut opts = usvg::Options::default();
+    // TODO Bundle better
+    opts.font_directories
+        .push("/home/dabreegster/abstreet/ezgui/src/assets".to_string());
+    let svg_tree = usvg::Tree::from_str(&svg, &opts).unwrap();
     let mut batch = GeomBatch::new();
     match crate::svg::add_svg_inner(&mut batch, svg_tree) {
         Ok(_) => batch,
