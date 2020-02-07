@@ -373,7 +373,14 @@ impl GeomBatch {
         ctx.prerender.upload(self)
     }
 
+    pub(crate) fn is_empty(&self) -> bool {
+        self.list.is_empty()
+    }
+
     pub(crate) fn get_dims(&self) -> ScreenDims {
+        if self.is_empty() {
+            panic!("Can't get_dims of empty GeomBatch");
+        }
         let mut bounds = Bounds::new();
         for (_, poly) in &self.list {
             bounds.union(poly.get_bounds());

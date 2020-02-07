@@ -364,6 +364,9 @@ impl Text {
             );
         }*/
 
+        // TODO Bad guess
+        let empty_line_height = 30.0;
+
         let mut y = top_left.y;
         let mut max_width = 0.0_f64;
         for (line_color, line) in self.lines {
@@ -371,13 +374,21 @@ impl Text {
             let mut line_batch = GeomBatch::new();
             for piece in line {
                 let mini_batch = render_text(piece);
-                let dims = mini_batch.get_dims();
+                let dims = if mini_batch.is_empty() {
+                    ScreenDims::new(0.0, empty_line_height)
+                } else {
+                    mini_batch.get_dims()
+                };
                 for (color, poly) in mini_batch.consume() {
                     line_batch.push(color, poly.translate(x, y));
                 }
                 x += dims.width;
             }
-            let line_dims = line_batch.get_dims();
+            let line_dims = if line_batch.is_empty() {
+                ScreenDims::new(0.0, empty_line_height)
+            } else {
+                line_batch.get_dims()
+            };
 
             if let Some(c) = line_color {
                 master_batch.push(

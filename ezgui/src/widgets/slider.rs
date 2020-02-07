@@ -34,7 +34,12 @@ impl Slider {
             main_bg_len: width,
             dragger_len,
 
-            draw: DrawBoth::new(ctx, GeomBatch::new(), Vec::new()),
+            // Dummy value; empty GeomBatches can't be measured.
+            draw: DrawBoth::new(
+                ctx,
+                GeomBatch::from(vec![(Color::BLACK, Polygon::rectangle(1.0, 1.0))]),
+                Vec::new(),
+            ),
 
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(0.0, 0.0),
@@ -53,7 +58,12 @@ impl Slider {
             main_bg_len: height,
             dragger_len,
 
-            draw: DrawBoth::new(ctx, GeomBatch::new(), Vec::new()),
+            // Dummy value; empty GeomBatches can't be measured.
+            draw: DrawBoth::new(
+                ctx,
+                GeomBatch::from(vec![(Color::BLACK, Polygon::rectangle(1.0, 1.0))]),
+                Vec::new(),
+            ),
 
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(0.0, 0.0),
