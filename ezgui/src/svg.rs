@@ -8,14 +8,15 @@ use lyon::tessellation;
 use lyon::tessellation::geometry_builder::{simple_builder, VertexBuffers};
 use lyon::tessellation::{FillVertex, StrokeVertex};
 
-const TOLERANCE: f32 = 0.01;
+pub const HIGH_QUALITY: f32 = 0.01;
+pub const LOW_QUALITY: f32 = 1.0;
 
 // Code here adapted from
 // https://github.com/nical/lyon/blob/b5c87c9a22dccfab24daa1947419a70915d60914/examples/wgpu_svg/src/main.rs.
 
 pub fn add_svg(batch: &mut GeomBatch, filename: &str) -> Bounds {
     let svg_tree = usvg::Tree::from_file(&filename, &usvg::Options::default()).unwrap();
-    match add_svg_inner(batch, svg_tree) {
+    match add_svg_inner(batch, svg_tree, HIGH_QUALITY) {
         Ok(b) => b,
         Err(err) => panic!("{}: {}", filename, err),
     }
@@ -24,7 +25,11 @@ pub fn add_svg(batch: &mut GeomBatch, filename: &str) -> Bounds {
 // No offset. I'm not exactly sure how the simplification in usvg works, but this doesn't support
 // transforms or strokes or text, just fills. Luckily, all of the files exported from Figma so far
 // work just fine.
-pub fn add_svg_inner(batch: &mut GeomBatch, svg_tree: usvg::Tree) -> Result<Bounds, String> {
+pub fn add_svg_inner(
+    batch: &mut GeomBatch,
+    svg_tree: usvg::Tree,
+    tolerance: f32,
+) -> Result<Bounds, String> {
     let mut fill_tess = tessellation::FillTessellator::new();
     let mut stroke_tess = tessellation::StrokeTessellator::new();
     let mut fill_mesh_per_color: VecMap<Color, VertexBuffers<FillVertex, u16>> = VecMap::new();
@@ -40,7 +45,7 @@ pub fn add_svg_inner(batch: &mut GeomBatch, svg_tree: usvg::Tree) -> Result<Boun
                 if fill_tess
                     .tessellate_path(
                         convert_path(p),
-                        &tessellation::FillOptions::tolerance(TOLERANCE),
+                        &tessellation::FillOptions::tolerance(tolerance).with_normals(true),
                         &mut simple_builder(geom),
                     )
                     .is_err()
@@ -50,7 +55,7 @@ pub fn add_svg_inner(batch: &mut GeomBatch, svg_tree: usvg::Tree) -> Result<Boun
             }
 
             if let Some(ref stroke) = p.stroke {
-                let (color, stroke_opts) = convert_stroke(stroke);
+                let (color, stroke_opts) = convert_stroke(stroke, tolerance);
                 let geom = stroke_mesh_per_color.mut_or_insert(color, VertexBuffers::new);
                 stroke_tess
                     .tessellate_path(convert_path(p), &stroke_opts, &mut simple_builder(geom))
@@ -156,7 +161,7 @@ fn convert_path(p: &usvg::Path) -> PathConvIter<'_> {
     }
 }
 
-fn convert_stroke(s: &usvg::Stroke) -> (Color, tessellation::StrokeOptions) {
+fn convert_stroke(s: &usvg::Stroke, tolerance: f32) -> (Color, tessellation::StrokeOptions) {
     let color = convert_color(&s.paint, s.opacity.value());
     let linecap = match s.linecap {
         usvg::LineCap::Butt => tessellation::LineCap::Butt,
@@ -169,7 +174,7 @@ fn convert_stroke(s: &usvg::Stroke) -> (Color, tessellation::StrokeOptions) {
         usvg::LineJoin::Round => tessellation::LineJoin::Round,
     };
 
-    let opt = tessellation::StrokeOptions::tolerance(TOLERANCE)
+    let opt = tessellation::StrokeOptions::tolerance(tolerance)
         .with_line_width(s.width.value() as f32)
         .with_line_cap(linecap)
         .with_line_join(linejoin);

@@ -1,5 +1,5 @@
 use crate::assets::Assets;
-use crate::{Color, GeomBatch, Prerender, ScreenDims};
+use crate::{svg, Color, GeomBatch, Prerender, ScreenDims};
 use geom::Polygon;
 use std::collections::hash_map::DefaultHasher;
 use std::fmt::Write;
@@ -73,9 +73,6 @@ pub struct Text {
     // The bg_color will cover the entire block, but some lines can have extra highlighting.
     lines: Vec<(Option<Color>, Vec<TextSpan>)>,
     bg_color: Option<Color>,
-    // TODO Definitely a hack to replace with Composite.
-    pub override_width: Option<f64>,
-    pub override_height: Option<f64>,
 }
 
 impl Text {
@@ -83,8 +80,6 @@ impl Text {
         Text {
             lines: Vec::new(),
             bg_color: None,
-            override_width: None,
-            override_height: None,
         }
     }
 
@@ -186,14 +181,14 @@ impl Text {
     }
 
     pub(crate) fn dims(self, assets: &Assets) -> ScreenDims {
-        // TODO Still pay attention to this hack, so the loading screen isn't dreadfully slow
-        if let Some(w) = self.override_width {
-            return ScreenDims::new(w, self.override_height.unwrap());
-        }
         self.render(assets).get_dims()
     }
 
     pub fn render(self, assets: &Assets) -> GeomBatch {
+        self.inner_render(assets, svg::HIGH_QUALITY)
+    }
+
+    pub(crate) fn inner_render(self, assets: &Assets, tolerance: f32) -> GeomBatch {
         let hash_key = self.hash_key();
         if let Some(batch) = assets.get_cached_text(&hash_key) {
             return batch;
@@ -208,7 +203,7 @@ impl Text {
         let mut y = 0.0;
         let mut max_width = 0.0_f64;
         for (line_color, line) in self.lines {
-            let line_batch = render_text(line);
+            let line_batch = render_text(line, tolerance);
             let line_dims = if line_batch.is_empty() {
                 ScreenDims::new(0.0, empty_line_height)
             } else {
@@ -254,7 +249,7 @@ impl Text {
     }
 }
 
-fn render_text(spans: Vec<TextSpan>) -> GeomBatch {
+fn render_text(spans: Vec<TextSpan>, tolerance: f32) -> GeomBatch {
     // TODO This assumes size and font don't change mid-line. We might be able to support that now,
     // actually.
 
@@ -293,7 +288,7 @@ fn render_text(spans: Vec<TextSpan>) -> GeomBatch {
         Err(err) => panic!("render_text({}): {}", contents, err),
     };
     let mut batch = GeomBatch::new();
-    match crate::svg::add_svg_inner(&mut batch, svg_tree) {
+    match crate::svg::add_svg_inner(&mut batch, svg_tree, tolerance) {
         Ok(_) => batch,
         Err(err) => panic!("render_text({}): {}", contents, err),
     }

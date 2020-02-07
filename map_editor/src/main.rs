@@ -553,8 +553,9 @@ impl GUI for UI {
         }
 
         self.sidebar = Text::new().with_bg();
-        self.sidebar.override_width = Some(0.3 * ctx.canvas.window_width);
-        self.sidebar.override_height = Some(ctx.canvas.window_height);
+        // TODO Do this differently
+        //self.sidebar.override_width = Some(0.3 * ctx.canvas.window_width);
+        //self.sidebar.override_height = Some(ctx.canvas.window_height);
         if let Some(id) = self.model.world.get_selection() {
             self.model.populate_obj_info(id, &mut self.sidebar);
         } else {

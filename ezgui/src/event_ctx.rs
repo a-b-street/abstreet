@@ -1,5 +1,5 @@
 use crate::{
-    Canvas, Color, Drawable, Event, GeomBatch, GfxCtx, HorizontalAlignment, Line, Prerender,
+    svg, Canvas, Color, Drawable, Event, GeomBatch, GfxCtx, HorizontalAlignment, Line, Prerender,
     ScreenDims, Text, UserInput, VerticalAlignment,
 };
 use abstutil::{elapsed_seconds, Timer, TimerSink};
@@ -188,24 +188,21 @@ impl<'a> LoadingScreen<'a> {
             program,
             lines: VecDeque::new(),
             max_capacity: (0.8 * initial_height / prerender.assets.default_line_height) as usize,
-            // If the loading callback takes less than 0.2s, we don't redraw at all.
+            // If the loading callback takes less than 0.5s, we don't redraw at all.
             last_drawn: Instant::now(),
             title,
             canvas,
         }
     }
 
-    // Timer throttles updates reasonably, so don't bother throttling redraws.
     fn redraw(&mut self) {
-        // TODO Gotta speed things up before this is reasonable again
-        if elapsed_seconds(self.last_drawn) < 1.0 {
+        // TODO Ideally we wouldn't have to dothis, but text rendering is still slow. :)
+        if elapsed_seconds(self.last_drawn) < 0.5 {
             return;
         }
         self.last_drawn = Instant::now();
 
         let mut txt = Text::prompt(&self.title);
-        txt.override_width = Some(self.canvas.window_width * 0.8);
-        txt.override_height = Some(self.canvas.window_height * 0.8);
         for l in &self.lines {
             txt.add(Line(l));
         }
@@ -219,11 +216,18 @@ impl<'a> LoadingScreen<'a> {
             false,
         );
         g.clear(Color::BLACK);
-        // TODO Keep the width fixed.
-        g.draw_blocking_text(
-            txt,
-            (HorizontalAlignment::Center, VerticalAlignment::Center),
+
+        let batch = txt.inner_render(&g.prerender.assets, svg::LOW_QUALITY);
+        let draw = g.upload(batch);
+        g.redraw_at(
+            g.canvas.align_window(
+                ScreenDims::new(0.8 * g.canvas.window_width, 0.8 * g.canvas.window_height),
+                HorizontalAlignment::Center,
+                VerticalAlignment::Center,
+            ),
+            &draw,
         );
+
         target.finish().unwrap();
     }
 }
