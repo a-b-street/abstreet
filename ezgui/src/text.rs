@@ -1,5 +1,6 @@
 use crate::{Color, GeomBatch, ScreenDims, ScreenPt, ScreenRectangle};
 use geom::Polygon;
+use std::fmt::Write;
 use textwrap;
 
 const FG_COLOR: Color = Color::WHITE;
@@ -200,20 +201,7 @@ impl Text {
         let mut y = top_left.y;
         let mut max_width = 0.0_f64;
         for (line_color, line) in self.lines {
-            let mut x = top_left.x;
-            let mut line_batch = GeomBatch::new();
-            for piece in line {
-                let mini_batch = render_text(piece);
-                let dims = if mini_batch.is_empty() {
-                    ScreenDims::new(0.0, empty_line_height)
-                } else {
-                    mini_batch.get_dims()
-                };
-                for (color, poly) in mini_batch.consume() {
-                    line_batch.push(color, poly.translate(x, y));
-                }
-                x += dims.width;
-            }
+            let line_batch = render_text(line);
             let line_dims = if line_batch.is_empty() {
                 ScreenDims::new(0.0, empty_line_height)
             } else {
@@ -223,18 +211,18 @@ impl Text {
             if let Some(c) = line_color {
                 master_batch.push(
                     c,
-                    Polygon::rectangle(x - top_left.x, line_dims.height).translate(top_left.x, y),
+                    Polygon::rectangle(line_dims.width, line_dims.height).translate(top_left.x, y),
                 );
             }
 
-            // TODO If we call fix() at the right spot, can we avoid this and add directly to the
-            // master_batch?
+            // TODO Do this first or not? Should we call fix() around here?
+            y += line_dims.height;
+
             for (color, poly) in line_batch.consume() {
-                master_batch.push(color, poly.translate(0.0, line_dims.height));
+                master_batch.push(color, poly.translate(top_left.x, y));
             }
 
-            y += line_dims.height;
-            max_width = max_width.max(x - top_left.x);
+            max_width = max_width.max(line_dims.width);
         }
 
         if let Some(c) = self.bg_color {
@@ -251,29 +239,35 @@ impl Text {
     }
 }
 
-fn render_text(txt: TextSpan) -> GeomBatch {
-    // If these are large enough, does this work?
-    let max_w = 9999.0;
-    let max_h = 9999.0;
-    let family = match txt.font {
-        Font::DejaVu => "font-family=\"DejaVu Sans\"",
-        Font::Roboto => "font-family=\"Roboto\"",
-        Font::RobotoBold => "font-family=\"Roboto\" font-weight=\"bold\"",
-    };
+fn render_text(spans: Vec<TextSpan>) -> GeomBatch {
+    // TODO This assumes size and font don't change mid-line. We might be able to support that now,
+    // actually.
 
-    let svg = format!(
-        r##"<svg width="{}" height="{}" viewBox="0 0 {} {}" fill="none" xmlns="http://www.w3.org/2000/svg"><text x="0" y="0" fill="{}" font-size="{}" {}>{}</text></svg>"##,
-        max_w,
-        max_h,
-        max_w,
-        max_h,
-        txt.fg_color.to_hex(),
+    // Just set a sufficiently large view box
+    let mut svg = format!(
+        r##"<svg width="9999" height="9999" viewBox="0 0 9999 9999" xmlns="http://www.w3.org/2000/svg"><text x="0" y="0" font-size="{}" {}>"##,
         // TODO Plumb through default font size?
-        txt.size.unwrap_or(30),
-        // TODO Make these work
-        family,
-        txt.text
+        spans[0].size.unwrap_or(30),
+        match spans[0].font {
+            Font::DejaVu => "font-family=\"DejaVu Sans\"",
+            Font::Roboto => "font-family=\"Roboto\"",
+            Font::RobotoBold => "font-family=\"Roboto\" font-weight=\"bold\"",
+        }
     );
+
+    let mut contents = String::new();
+    for span in spans {
+        write!(
+            &mut contents,
+            r##"<tspan fill="{}">{}</tspan>"##,
+            span.fg_color.to_hex(),
+            span.text
+        )
+        .unwrap();
+    }
+    write!(&mut svg, "{}</text></svg>", contents).unwrap();
+
+    //println!("- Rendering: {}", contents);
 
     let mut opts = usvg::Options::default();
     // TODO Bundle better
@@ -281,11 +275,11 @@ fn render_text(txt: TextSpan) -> GeomBatch {
         .push("/home/dabreegster/abstreet/ezgui/src/assets".to_string());
     let svg_tree = match usvg::Tree::from_str(&svg, &opts) {
         Ok(t) => t,
-        Err(err) => panic!("render_text({}): {}", svg, err),
+        Err(err) => panic!("render_text({}): {}", contents, err),
     };
     let mut batch = GeomBatch::new();
     match crate::svg::add_svg_inner(&mut batch, svg_tree) {
         Ok(_) => batch,
-        Err(err) => panic!("render_text({}): {}", txt.text, err),
+        Err(err) => panic!("render_text({}): {}", contents, err),
     }
 }
