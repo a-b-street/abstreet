@@ -2,8 +2,8 @@ use crate::assets::Assets;
 use crate::{Color, GeomBatch, GfxCtx, ScreenDims, ScreenPt, ScreenRectangle};
 use geom::{Polygon, Pt2D};
 use glium_glyph::glyph_brush::rusttype::Scale;
-use glium_glyph::glyph_brush::{FontId, GlyphCruncher};
-use glium_glyph::glyph_brush::{Section, SectionText, VariedSection};
+use glium_glyph::glyph_brush::FontId;
+use glium_glyph::glyph_brush::{SectionText, VariedSection};
 use textwrap;
 
 const FG_COLOR: Color = Color::WHITE;
@@ -185,36 +185,14 @@ impl Text {
         self.lines.extend(other.lines.clone())
     }
 
-    pub(crate) fn dims(&self, assets: &Assets) -> ScreenDims {
-        let mut max_width = 0;
-        let mut height = 0.0;
-
-        for (_, line) in &self.lines {
-            let mut full_line = String::new();
-            let mut max_size = 0;
-            for span in line {
-                full_line.push_str(&span.text);
-                max_size = max_size.max(span.size.unwrap_or(assets.font_size));
-            }
-            // Empty lines or whitespace-only lines effectively have 0 width.
-            let width = assets
-                .screenspace_glyphs
-                .borrow_mut()
-                .pixel_bounds(Section {
-                    text: &full_line,
-                    scale: Scale::uniform(max_size as f32),
-                    ..Section::default()
-                })
-                .map(|rect| rect.width())
-                .unwrap_or(0);
-            max_width = max_width.max(width);
-            // TODO Assume the same font for all spans
-            height += assets.line_height(line[0].font, max_size);
+    pub(crate) fn dims(&self, _: &Assets) -> ScreenDims {
+        // TODO Still pay attention to this hack, so the loading screen isn't dreadfully slow
+        if let Some(w) = self.override_width {
+            return ScreenDims::new(w, self.override_height.unwrap());
         }
-        ScreenDims::new(
-            self.override_width.unwrap_or_else(|| f64::from(max_width)),
-            self.override_height.unwrap_or_else(|| height),
-        )
+        let mut batch = GeomBatch::new();
+        let rect = self.clone().render(&mut batch, ScreenPt::new(0.0, 0.0));
+        rect.dims()
     }
 }
 
