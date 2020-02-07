@@ -341,15 +341,23 @@ impl<'a> GfxCtx<'a> {
 #[derive(Clone)]
 pub struct GeomBatch {
     list: Vec<(Color, Polygon)>,
+    // TODO A weird hack for text.
+    pub(crate) dims_text: bool,
 }
 
 impl GeomBatch {
     pub fn new() -> GeomBatch {
-        GeomBatch { list: Vec::new() }
+        GeomBatch {
+            list: Vec::new(),
+            dims_text: false,
+        }
     }
 
     pub fn from(list: Vec<(Color, Polygon)>) -> GeomBatch {
-        GeomBatch { list }
+        GeomBatch {
+            list,
+            dims_text: false,
+        }
     }
 
     pub fn push(&mut self, color: Color, p: Polygon) {
@@ -407,7 +415,11 @@ impl GeomBatch {
         for (_, poly) in &self.list {
             bounds.union(poly.get_bounds());
         }
-        ScreenDims::new(bounds.width(), bounds.height())
+        if self.dims_text {
+            ScreenDims::new(bounds.max_x, bounds.max_y)
+        } else {
+            ScreenDims::new(bounds.width(), bounds.height())
+        }
     }
 
     // Slightly weird use case, but hotswap colors.

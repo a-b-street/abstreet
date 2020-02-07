@@ -241,13 +241,16 @@ impl Text {
         for (color, poly) in master_batch.consume() {
             output_batch.push(color, poly);
         }
+        output_batch.dims_text = true;
 
         assets.cache_text(hash_key, output_batch.clone());
         output_batch
     }
 
     pub fn render_to_batch(self, prerender: &Prerender) -> GeomBatch {
-        self.render(&prerender.assets).autocrop()
+        let mut batch = self.render(&prerender.assets);
+        batch.dims_text = false;
+        batch.autocrop()
     }
 
     fn hash_key(&self) -> String {
