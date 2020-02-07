@@ -27,10 +27,10 @@ pub struct Button {
 }
 
 impl Button {
-    // TODO Take ctx and upload here, probably
     pub fn new(
-        draw_normal: Drawable,
-        draw_hovered: Drawable,
+        ctx: &EventCtx,
+        normal: GeomBatch,
+        hovered: GeomBatch,
         hotkey: Option<MultiKey>,
         tooltip: &str,
         hitbox: Polygon,
@@ -42,8 +42,8 @@ impl Button {
         Button {
             action: tooltip.to_string(),
 
-            draw_normal,
-            draw_hovered,
+            draw_normal: ctx.upload(normal),
+            draw_hovered: ctx.upload(hovered),
             hotkey,
             tooltip: if let Some(key) = hotkey {
                 let mut txt = Text::from(Line(key.describe()).fg(text::HOTKEY_COLOR)).with_bg();
@@ -145,15 +145,15 @@ impl Button {
             VERT_PADDING,
         );
 
-        let normal = ctx.upload(GeomBatch::from(vec![
+        let normal = GeomBatch::from(vec![
             (Color::WHITE, bg.clone()),
             (img_color, img_rect.clone()),
-        ]));
-        let hovered = ctx.upload(GeomBatch::from(vec![
+        ]);
+        let hovered = GeomBatch::from(vec![
             (Color::ORANGE, bg.clone()),
             (img_color, img_rect.clone()),
-        ]));
-        Button::new(normal, hovered, key, label, bg)
+        ]);
+        Button::new(ctx, normal, hovered, key, label, bg)
     }
 
     pub fn rectangle_svg(
@@ -169,13 +169,7 @@ impl Button {
         let mut hovered = normal.clone();
         hovered.rewrite_color(hover);
 
-        Button::new(
-            ctx.upload(normal),
-            ctx.upload(hovered),
-            key,
-            tooltip,
-            bounds.get_rectangle(),
-        )
+        Button::new(ctx, normal, hovered, key, tooltip, bounds.get_rectangle())
     }
 
     pub fn rectangle_svg_rewrite(
@@ -193,13 +187,7 @@ impl Button {
         let mut hovered = normal.clone();
         hovered.rewrite_color(hover);
 
-        Button::new(
-            ctx.upload(normal),
-            ctx.upload(hovered),
-            key,
-            tooltip,
-            bounds.get_rectangle(),
-        )
+        Button::new(ctx, normal, hovered, key, tooltip, bounds.get_rectangle())
     }
 
     pub fn text_bg(
@@ -227,13 +215,7 @@ impl Button {
         let mut hovered = GeomBatch::from(vec![(selected_bg_color, geom.clone())]);
         hovered.add_translated(txt_batch.clone(), HORIZ_PADDING, VERT_PADDING);
 
-        Button::new(
-            ctx.upload(normal),
-            ctx.upload(hovered),
-            hotkey,
-            tooltip,
-            geom,
-        )
+        Button::new(ctx, normal, hovered, hotkey, tooltip, geom)
     }
 
     pub fn text_no_bg(
@@ -263,13 +245,7 @@ impl Button {
         let mut hovered = GeomBatch::new();
         hovered.add_translated(selected_batch, horiz_padding, vert_padding);
 
-        Button::new(
-            ctx.upload(normal),
-            ctx.upload(hovered),
-            hotkey,
-            tooltip,
-            geom,
-        )
+        Button::new(ctx, normal, hovered, hotkey, tooltip, geom)
     }
 
     // TODO Extreme wackiness.

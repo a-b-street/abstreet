@@ -297,8 +297,9 @@ fn make_minimap_panel(ctx: &mut EventCtx, acs: &AgentColorScheme, zoom_lvl: usiz
         };
         let rect = Polygon::rectangle(20.0, 8.0);
         zoom_col.push(ManagedWidget::btn(Button::new(
-            ctx.upload(GeomBatch::from(vec![(color, rect.clone())])),
-            ctx.upload(GeomBatch::from(vec![(colors::HOVERING, rect.clone())])),
+            ctx,
+            GeomBatch::from(vec![(color, rect.clone())]),
+            GeomBatch::from(vec![(colors::HOVERING, rect.clone())]),
             None,
             &format!("zoom to level {}", i + 1),
             rect,

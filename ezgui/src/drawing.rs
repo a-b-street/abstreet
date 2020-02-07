@@ -9,8 +9,10 @@ use glium::uniforms::{SamplerBehavior, SamplerWrapFunction, UniformValue};
 use glium::Surface;
 use std::cell::Cell;
 
-const MAPSPACE: f32 = 0.0;
-const SCREENSPACE: f32 = 1.0;
+// Lower is more on top
+const MAPSPACE_Z: f32 = 1.0;
+const SCREENSPACE_Z: f32 = 0.5;
+const TOOLTIP_Z: f32 = 0.0;
 
 struct Uniforms<'a> {
     // (cam_x, cam_y, cam_zoom)
@@ -31,7 +33,7 @@ impl<'a> Uniforms<'a> {
             window: [
                 canvas.window_width as f32,
                 canvas.window_height as f32,
-                MAPSPACE,
+                MAPSPACE_Z,
             ],
             canvas,
         }
@@ -123,7 +125,7 @@ impl<'a> GfxCtx<'a> {
         self.uniforms.window = [
             self.canvas.window_width as f32,
             self.canvas.window_height as f32,
-            SCREENSPACE,
+            SCREENSPACE_Z,
         ];
     }
 
@@ -132,7 +134,7 @@ impl<'a> GfxCtx<'a> {
         self.uniforms.window = [
             self.canvas.window_width as f32,
             self.canvas.window_height as f32,
-            SCREENSPACE,
+            SCREENSPACE_Z,
         ];
     }
 
@@ -285,9 +287,19 @@ impl<'a> GfxCtx<'a> {
         );
         let mut batch = GeomBatch::new();
         batch.add_translated(txt_batch, pt.x, pt.y);
-        self.fork_screenspace();
+
+        // fork_screenspace, but with an even more prominent Z
+        self.uniforms.transform = [0.0, 0.0, 1.0];
+        self.uniforms.window = [
+            self.canvas.window_width as f32,
+            self.canvas.window_height as f32,
+            TOOLTIP_Z,
+        ];
+        // Temporarily disable clipping if needed.
+        let clip = self.params.scissor.take();
         batch.draw(self);
         self.unfork();
+        self.params.scissor = clip;
     }
 
     pub fn screen_to_map(&self, pt: ScreenPt) -> Pt2D {

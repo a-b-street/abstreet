@@ -556,8 +556,9 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
         col.push(
             ManagedWidget::row(vec![
                 ManagedWidget::btn(Button::new(
-                    ctx.upload(normal),
-                    ctx.upload(hovered),
+                    ctx,
+                    normal,
+                    hovered,
                     None,
                     &format!("phase {}", idx + 1),
                     bbox.clone(),

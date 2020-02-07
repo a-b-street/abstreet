@@ -2,7 +2,7 @@
 
 // (x offset, y offset, zoom)
 uniform vec3 transform;
-// (window width, window height, 0.0=mapspace and 1.0=screenspace)
+// (window width, window height, z value)
 uniform vec3 window;
 
 in vec2 position;
@@ -19,12 +19,6 @@ void main() {
     float x = (screen_x / window[0] * 2.0) - 1.0;
     float y = (screen_y / window[1] * 2.0) - 1.0;
 
-    // Screen-space is at z=0.0
-    float z = 0.5;
-    if (window[2] == 1.0) {
-        z = 0.0;
-    }
-
     // Note the y inversion
-    gl_Position = vec4(x, -y, z, 1.0);
+    gl_Position = vec4(x, -y, window[2], 1.0);
 }
