@@ -10,9 +10,8 @@ use crate::sandbox::{spawn_agents_around, SpeedControls, TimePanel};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Button, Choice, Color, Composite, DrawBoth, EventCtx, EventLoopMode, GeomBatch,
-    GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget, Outcome, RewriteColor, Text,
-    VerticalAlignment,
+    hotkey, lctrl, Button, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, RewriteColor, Text, VerticalAlignment,
 };
 use geom::{Distance, Duration, Polygon};
 use map_model::{ControlTrafficSignal, EditCmd, IntersectionID, Phase, TurnGroupID, TurnPriority};
@@ -557,8 +556,8 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
         col.push(
             ManagedWidget::row(vec![
                 ManagedWidget::btn(Button::new(
-                    DrawBoth::new(ctx, normal, Vec::new()),
-                    DrawBoth::new(ctx, hovered, Vec::new()),
+                    ctx.upload(normal),
+                    ctx.upload(hovered),
                     None,
                     &format!("phase {}", idx + 1),
                     bbox.clone(),

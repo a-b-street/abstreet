@@ -29,8 +29,7 @@ impl TitleScreen {
             composite: WrappedComposite::new(
                 Composite::new(
                     ManagedWidget::col(vec![
-                        ManagedWidget::just_draw(JustDraw::image("assets/pregame/logo.png", ctx))
-                            .bg(Color::GREEN.alpha(0.2)),
+                        JustDraw::image(ctx, "assets/pregame/logo.png").bg(Color::GREEN.alpha(0.2)),
                         // TODO that nicer font
                         // TODO Any key
                         ManagedWidget::btn(Button::text_bg(

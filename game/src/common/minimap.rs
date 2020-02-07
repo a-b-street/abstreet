@@ -6,7 +6,7 @@ use crate::render::{AgentColorScheme, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::UI;
 use abstutil::clamp;
 use ezgui::{
-    hotkey, Button, Choice, Color, Composite, DrawBoth, EventCtx, Filler, GeomBatch, GfxCtx,
+    hotkey, Button, Choice, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, ManagedWidget, Outcome, RewriteColor, ScreenDims, ScreenPt,
     Text, VerticalAlignment,
 };
@@ -297,16 +297,8 @@ fn make_minimap_panel(ctx: &mut EventCtx, acs: &AgentColorScheme, zoom_lvl: usiz
         };
         let rect = Polygon::rectangle(20.0, 8.0);
         zoom_col.push(ManagedWidget::btn(Button::new(
-            DrawBoth::new(
-                ctx,
-                GeomBatch::from(vec![(color, rect.clone())]),
-                Vec::new(),
-            ),
-            DrawBoth::new(
-                ctx,
-                GeomBatch::from(vec![(colors::HOVERING, rect.clone())]),
-                Vec::new(),
-            ),
+            ctx.upload(GeomBatch::from(vec![(color, rect.clone())])),
+            ctx.upload(GeomBatch::from(vec![(colors::HOVERING, rect.clone())])),
             None,
             &format!("zoom to level {}", i + 1),
             rect,

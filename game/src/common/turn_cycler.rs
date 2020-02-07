@@ -6,8 +6,8 @@ use crate::options::TrafficSignalStyle;
 use crate::render::{dashed_lines, draw_signal_phase, DrawOptions, DrawTurn};
 use crate::ui::{ShowEverything, UI};
 use ezgui::{
-    hotkey, Button, Color, Composite, DrawBoth, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, ManagedWidget, ModalMenu, Outcome, Text, VerticalAlignment,
+    hotkey, Button, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, ManagedWidget, ModalMenu, Outcome, Text, VerticalAlignment,
 };
 use geom::{Distance, Polygon, Time};
 use map_model::{IntersectionID, LaneID, Map, TurnType};
@@ -325,8 +325,8 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
 
         col.push(
             ManagedWidget::btn(Button::new(
-                DrawBoth::new(ctx, normal, Vec::new()),
-                DrawBoth::new(ctx, hovered, Vec::new()),
+                ctx.upload(normal),
+                ctx.upload(hovered),
                 None,
                 &format!("phase {}", idx + 1),
                 bbox.clone(),

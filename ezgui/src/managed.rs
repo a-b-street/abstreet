@@ -217,24 +217,21 @@ impl ManagedWidget {
         }
     }
 
+    // TODO dupe apis!
     pub fn draw_batch(ctx: &EventCtx, batch: GeomBatch) -> ManagedWidget {
-        ManagedWidget::new(WidgetType::Draw(JustDraw::wrap(DrawBoth::new(
-            ctx,
-            batch,
-            Vec::new(),
-        ))))
+        JustDraw::wrap(ctx, batch)
     }
 
-    pub fn just_draw(j: JustDraw) -> ManagedWidget {
+    pub(crate) fn just_draw(j: JustDraw) -> ManagedWidget {
         ManagedWidget::new(WidgetType::Draw(j))
     }
 
     pub fn draw_text(ctx: &EventCtx, txt: Text) -> ManagedWidget {
-        ManagedWidget::new(WidgetType::Draw(JustDraw::text(txt, ctx)))
+        JustDraw::text(ctx, txt)
     }
 
     pub fn draw_svg(ctx: &EventCtx, filename: &str) -> ManagedWidget {
-        ManagedWidget::new(WidgetType::Draw(JustDraw::svg(filename, ctx)))
+        JustDraw::svg(ctx, filename)
     }
     // TODO Argh uncomposable APIs
     pub fn draw_svg_transform(
@@ -242,9 +239,7 @@ impl ManagedWidget {
         filename: &str,
         rewrite: RewriteColor,
     ) -> ManagedWidget {
-        ManagedWidget::new(WidgetType::Draw(JustDraw::svg_transform(
-            filename, rewrite, ctx,
-        )))
+        JustDraw::svg_transform(ctx, filename, rewrite)
     }
 
     pub fn btn(btn: Button) -> ManagedWidget {

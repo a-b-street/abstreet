@@ -1,70 +1,66 @@
 use crate::layout::Widget;
 use crate::svg;
-use crate::{DrawBoth, EventCtx, GeomBatch, GfxCtx, RewriteColor, ScreenDims, ScreenPt, Text};
+use crate::{
+    Drawable, EventCtx, GeomBatch, GfxCtx, ManagedWidget, RewriteColor, ScreenDims, ScreenPt, Text,
+};
 
 // Just draw something. A widget just so layouting works.
 pub struct JustDraw {
-    draw: DrawBoth,
+    pub(crate) draw: Drawable,
 
-    top_left: ScreenPt,
+    pub(crate) top_left: ScreenPt,
+    pub(crate) dims: ScreenDims,
 }
 
 impl JustDraw {
-    pub fn wrap(draw: DrawBoth) -> JustDraw {
-        JustDraw {
-            draw,
+    pub fn wrap(ctx: &EventCtx, batch: GeomBatch) -> ManagedWidget {
+        ManagedWidget::just_draw(JustDraw {
+            dims: batch.get_dims(),
+            draw: ctx.upload(batch),
             top_left: ScreenPt::new(0.0, 0.0),
-        }
+        })
     }
 
-    pub fn image(filename: &str, ctx: &EventCtx) -> JustDraw {
+    pub fn image(ctx: &EventCtx, filename: &str) -> ManagedWidget {
         let (color, rect) = ctx.canvas.texture_rect(filename);
         let batch = GeomBatch::from(vec![(color, rect)]);
-        JustDraw {
-            draw: DrawBoth::new(ctx, batch, vec![]),
-            top_left: ScreenPt::new(0.0, 0.0),
-        }
+        JustDraw::wrap(ctx, batch)
     }
 
-    pub fn svg(filename: &str, ctx: &EventCtx) -> JustDraw {
+    pub fn svg(ctx: &EventCtx, filename: &str) -> ManagedWidget {
         let mut batch = GeomBatch::new();
         let bounds = svg::add_svg(&mut batch, filename);
-        let mut draw = DrawBoth::new(ctx, batch, vec![]);
         // TODO The dims will be wrong; it'll only look at geometry, not the padding in the image.
-        draw.override_bounds(bounds);
-        JustDraw {
-            draw,
+        ManagedWidget::just_draw(JustDraw {
+            dims: ScreenDims::new(bounds.width(), bounds.height()),
+            draw: ctx.upload(batch),
             top_left: ScreenPt::new(0.0, 0.0),
-        }
+        })
     }
-    pub fn svg_transform(filename: &str, rewrite: RewriteColor, ctx: &EventCtx) -> JustDraw {
+    pub fn svg_transform(ctx: &EventCtx, filename: &str, rewrite: RewriteColor) -> ManagedWidget {
         let mut batch = GeomBatch::new();
         let bounds = svg::add_svg(&mut batch, filename);
         batch.rewrite_color(rewrite);
-        let mut draw = DrawBoth::new(ctx, batch, vec![]);
         // TODO The dims will be wrong; it'll only look at geometry, not the padding in the image.
-        draw.override_bounds(bounds);
-        JustDraw {
-            draw,
+        ManagedWidget::just_draw(JustDraw {
+            dims: ScreenDims::new(bounds.width(), bounds.height()),
+            draw: ctx.upload(batch),
             top_left: ScreenPt::new(0.0, 0.0),
-        }
+        })
     }
 
-    pub fn text(text: Text, ctx: &EventCtx) -> JustDraw {
-        JustDraw {
-            draw: DrawBoth::new(ctx, GeomBatch::new(), vec![(text, ScreenPt::new(0.0, 0.0))]),
-            top_left: ScreenPt::new(0.0, 0.0),
-        }
+    pub fn text(ctx: &EventCtx, text: Text) -> ManagedWidget {
+        JustDraw::wrap(ctx, text.render(&ctx.prerender.assets))
     }
 
     pub(crate) fn draw(&self, g: &mut GfxCtx) {
-        self.draw.redraw(self.top_left, g);
+        g.redraw_at(self.top_left, &self.draw);
     }
 }
 
 impl Widget for JustDraw {
     fn get_dims(&self) -> ScreenDims {
-        self.draw.get_dims()
+        self.dims
     }
 
     fn set_pos(&mut self, top_left: ScreenPt) {

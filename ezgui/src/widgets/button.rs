@@ -1,18 +1,18 @@
 use crate::layout::Widget;
 use crate::svg;
 use crate::{
-    text, Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, ManagedWidget, MultiKey,
+    text, Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, ManagedWidget, MultiKey,
     RewriteColor, ScreenDims, ScreenPt, Text,
 };
-use geom::{Bounds, Polygon, Pt2D};
+use geom::Polygon;
 
 pub struct Button {
     pub action: String,
 
     // Both of these must have the same dimensions and are oriented with their top-left corner at
     // 0, 0. Transformation happens later.
-    draw_normal: DrawBoth,
-    draw_hovered: DrawBoth,
+    draw_normal: Drawable,
+    draw_hovered: Drawable,
 
     hotkey: Option<MultiKey>,
     tooltip: Text,
@@ -27,9 +27,10 @@ pub struct Button {
 }
 
 impl Button {
+    // TODO Take ctx and upload here, probably
     pub fn new(
-        draw_normal: DrawBoth,
-        draw_hovered: DrawBoth,
+        draw_normal: Drawable,
+        draw_hovered: Drawable,
         hotkey: Option<MultiKey>,
         tooltip: &str,
         hitbox: Polygon,
@@ -104,9 +105,9 @@ impl Button {
 
     pub(crate) fn draw(&self, g: &mut GfxCtx) {
         if self.hovering {
-            self.draw_hovered.redraw(self.top_left, g);
+            g.redraw_at(self.top_left, &self.draw_hovered);
         } else {
-            self.draw_normal.redraw(self.top_left, g);
+            g.redraw_at(self.top_left, &self.draw_normal);
         }
     }
 }
@@ -144,22 +145,14 @@ impl Button {
             VERT_PADDING,
         );
 
-        let normal = DrawBoth::new(
-            ctx,
-            GeomBatch::from(vec![
-                (Color::WHITE, bg.clone()),
-                (img_color, img_rect.clone()),
-            ]),
-            vec![],
-        );
-        let hovered = DrawBoth::new(
-            ctx,
-            GeomBatch::from(vec![
-                (Color::ORANGE, bg.clone()),
-                (img_color, img_rect.clone()),
-            ]),
-            vec![],
-        );
+        let normal = ctx.upload(GeomBatch::from(vec![
+            (Color::WHITE, bg.clone()),
+            (img_color, img_rect.clone()),
+        ]));
+        let hovered = ctx.upload(GeomBatch::from(vec![
+            (Color::ORANGE, bg.clone()),
+            (img_color, img_rect.clone()),
+        ]));
         Button::new(normal, hovered, key, label, bg)
     }
 
@@ -177,8 +170,8 @@ impl Button {
         hovered.rewrite_color(hover);
 
         Button::new(
-            DrawBoth::new(ctx, normal, Vec::new()),
-            DrawBoth::new(ctx, hovered, Vec::new()),
+            ctx.upload(normal),
+            ctx.upload(hovered),
             key,
             tooltip,
             bounds.get_rectangle(),
@@ -201,8 +194,8 @@ impl Button {
         hovered.rewrite_color(hover);
 
         Button::new(
-            DrawBoth::new(ctx, normal, Vec::new()),
-            DrawBoth::new(ctx, hovered, Vec::new()),
+            ctx.upload(normal),
+            ctx.upload(hovered),
             key,
             tooltip,
             bounds.get_rectangle(),
@@ -220,26 +213,27 @@ impl Button {
         const HORIZ_PADDING: f64 = 30.0;
         const VERT_PADDING: f64 = 10.0;
 
-        let dims = text.clone().dims(&ctx.prerender.assets);
+        let txt_batch = text.render(&ctx.prerender.assets);
+        let dims = txt_batch.get_dims();
         let geom = Polygon::rounded_rectangle(
             dims.width + 2.0 * HORIZ_PADDING,
             dims.height + 2.0 * VERT_PADDING,
             VERT_PADDING,
         );
-        let draw_text = vec![(text, ScreenPt::new(HORIZ_PADDING, VERT_PADDING))];
 
-        let normal = DrawBoth::new(
-            ctx,
-            GeomBatch::from(vec![(unselected_bg_color, geom.clone())]),
-            draw_text.clone(),
-        );
-        let hovered = DrawBoth::new(
-            ctx,
-            GeomBatch::from(vec![(selected_bg_color, geom.clone())]),
-            draw_text.clone(),
-        );
+        let mut normal = GeomBatch::from(vec![(unselected_bg_color, geom.clone())]);
+        normal.add_translated(txt_batch.clone(), HORIZ_PADDING, VERT_PADDING);
 
-        Button::new(normal, hovered, hotkey, tooltip, geom)
+        let mut hovered = GeomBatch::from(vec![(selected_bg_color, geom.clone())]);
+        hovered.add_translated(txt_batch.clone(), HORIZ_PADDING, VERT_PADDING);
+
+        Button::new(
+            ctx.upload(normal),
+            ctx.upload(hovered),
+            hotkey,
+            tooltip,
+            geom,
+        )
     }
 
     pub fn text_no_bg(
@@ -255,47 +249,49 @@ impl Button {
         let horiz_padding = if padding { 15.0 } else { 0.0 };
         let vert_padding = if padding { 8.0 } else { 0.0 };
 
-        let dims = unselected_text.clone().dims(&ctx.prerender.assets);
-        assert_eq!(dims, selected_text.clone().dims(&ctx.prerender.assets));
+        let unselected_batch = unselected_text.render(&ctx.prerender.assets);
+        let dims = unselected_batch.get_dims();
+        let selected_batch = selected_text.render(&ctx.prerender.assets);
+        assert_eq!(dims, selected_batch.get_dims());
         let geom = Polygon::rectangle(
             dims.width + 2.0 * horiz_padding,
             dims.height + 2.0 * vert_padding,
         );
 
-        let normal = DrawBoth::new(
-            ctx,
-            GeomBatch::new(),
-            vec![(unselected_text, ScreenPt::new(horiz_padding, vert_padding))],
-        );
-        let hovered = DrawBoth::new(
-            ctx,
-            GeomBatch::new(),
-            vec![(selected_text, ScreenPt::new(horiz_padding, vert_padding))],
-        );
+        let mut normal = GeomBatch::new();
+        normal.add_translated(unselected_batch, horiz_padding, vert_padding);
+        let mut hovered = GeomBatch::new();
+        hovered.add_translated(selected_batch, horiz_padding, vert_padding);
 
-        Button::new(normal, hovered, hotkey, tooltip, geom)
+        Button::new(
+            ctx.upload(normal),
+            ctx.upload(hovered),
+            hotkey,
+            tooltip,
+            geom,
+        )
     }
 
     // TODO Extreme wackiness.
-    pub fn inactive_btn(ctx: &EventCtx, mut txt: Text) -> ManagedWidget {
+    pub fn inactive_btn(ctx: &EventCtx, txt: Text) -> ManagedWidget {
+        let txt_batch = txt
+            .change_fg(Color::grey(0.5))
+            .render(&ctx.prerender.assets);
+        let dims = txt_batch.get_dims();
+
         let horiz_padding = 15.0;
         let vert_padding = 8.0;
-        txt = txt.change_fg(Color::grey(0.5));
-        let dims = txt.clone().dims(&ctx.prerender.assets);
-
-        let mut draw = DrawBoth::new(
-            ctx,
-            GeomBatch::new(),
-            vec![(txt, ScreenPt::new(horiz_padding, vert_padding))],
-        );
-        draw.override_bounds(Bounds::from(&vec![
-            Pt2D::new(0.0, 0.0),
-            Pt2D::new(
+        let mut batch = GeomBatch::new();
+        batch.add_translated(txt_batch, horiz_padding, vert_padding);
+        ManagedWidget::just_draw(JustDraw {
+            draw: ctx.upload(batch),
+            top_left: ScreenPt::new(0.0, 0.0),
+            dims: ScreenDims::new(
                 dims.width + 2.0 * horiz_padding,
                 dims.height + 2.0 * vert_padding,
             ),
-        ]));
-        ManagedWidget::just_draw(JustDraw::wrap(draw)).outline(2.0, Color::WHITE)
+        })
+        .outline(2.0, Color::WHITE)
     }
     pub fn inactive_button<S: Into<String>>(ctx: &mut EventCtx, label: S) -> ManagedWidget {
         Button::inactive_btn(ctx, Text::from(Line(label)))
@@ -305,18 +301,17 @@ impl Button {
         const HORIZ_PADDING: f64 = 30.0;
         const VERT_PADDING: f64 = 10.0;
 
-        let txt = Text::from(Line(label).fg(Color::BLACK));
-        let dims = txt.clone().dims(&ctx.prerender.assets);
-        let geom = Polygon::rounded_rectangle(
-            dims.width + 2.0 * HORIZ_PADDING,
-            dims.height + 2.0 * VERT_PADDING,
-            VERT_PADDING,
-        );
-
-        ManagedWidget::just_draw(JustDraw::wrap(DrawBoth::new(
-            ctx,
-            GeomBatch::from(vec![(Color::WHITE, geom)]),
-            vec![(txt, ScreenPt::new(HORIZ_PADDING, VERT_PADDING))],
-        )))
+        let txt = Text::from(Line(label).fg(Color::BLACK)).render(&ctx.prerender.assets);
+        let dims = txt.get_dims();
+        let mut batch = GeomBatch::from(vec![(
+            Color::WHITE,
+            Polygon::rounded_rectangle(
+                dims.width + 2.0 * HORIZ_PADDING,
+                dims.height + 2.0 * VERT_PADDING,
+                VERT_PADDING,
+            ),
+        )]);
+        batch.add_translated(txt, HORIZ_PADDING, VERT_PADDING);
+        JustDraw::wrap(ctx, batch)
     }
 }

@@ -7,7 +7,7 @@ use crate::managed::{ManagedGUIState, WrappedComposite, WrappedOutcome};
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
-    hotkey, Button, Color, Composite, DrawBoth, Drawable, EventCtx, GeomBatch, GfxCtx, Histogram,
+    hotkey, Button, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Histogram,
     HorizontalAlignment, JustDraw, Key, Line, ManagedWidget, Outcome, Plot, RewriteColor, Series,
     Text, VerticalAlignment,
 };
@@ -723,8 +723,7 @@ impl Overlays {
                 .to_polygon(),
             );
         }
-        let timeline =
-            ManagedWidget::just_draw(JustDraw::wrap(DrawBoth::new(ctx, batch, Vec::new())));
+        let timeline = JustDraw::wrap(ctx, batch);
 
         master_col.push(ManagedWidget::row(vec![
             timeline.margin(5),

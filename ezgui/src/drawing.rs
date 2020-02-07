@@ -201,6 +201,12 @@ impl<'a> GfxCtx<'a> {
         // println!("{:?}", backtrace::Backtrace::new());
     }
 
+    pub fn redraw_at(&mut self, top_left: ScreenPt, obj: &Drawable) {
+        self.fork(Pt2D::new(0.0, 0.0), top_left, 1.0);
+        self.redraw(obj);
+        self.unfork();
+    }
+
     // TODO Stateful API :(
     pub fn enable_clipping(&mut self, rect: ScreenRectangle) {
         assert!(self.params.scissor.is_none());

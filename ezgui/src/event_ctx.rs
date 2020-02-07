@@ -1,6 +1,6 @@
 use crate::{
-    Canvas, Color, Event, GfxCtx, HorizontalAlignment, Line, Prerender, ScreenDims, Text,
-    UserInput, VerticalAlignment,
+    Canvas, Color, Drawable, Event, GeomBatch, GfxCtx, HorizontalAlignment, Line, Prerender,
+    ScreenDims, Text, UserInput, VerticalAlignment,
 };
 use abstutil::{elapsed_seconds, Timer, TimerSink};
 use geom::Angle;
@@ -155,6 +155,11 @@ impl<'a> EventCtx<'a> {
     // Delegation to assets
     pub fn default_line_height(&self) -> f64 {
         self.prerender.assets.default_line_height
+    }
+
+    // TODO I can't decide which way the API should go.
+    pub fn upload(&self, batch: GeomBatch) -> Drawable {
+        self.prerender.upload(batch)
     }
 }
 
