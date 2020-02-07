@@ -51,7 +51,16 @@ pub struct Map {
 impl Map {
     pub fn new(path: String, mut use_map_fixes: bool, timer: &mut Timer) -> Map {
         if path.starts_with(&abstutil::path_all_maps()) {
-            return abstutil::read_binary(path, timer);
+            match abstutil::maybe_read_binary(path.clone(), timer) {
+                Ok(map) => {
+                    return map;
+                }
+                Err(err) => {
+                    println!("\n\n{} is missing or corrupt. Check https://github.com/dabreegster/abstreet/blob/master/docs/dev.md and file an issue if you have trouble.", path);
+                    println!("\n{}", err);
+                    std::process::exit(1);
+                }
+            }
         }
 
         let mut raw: RawMap = if path.starts_with(&abstutil::path_all_raw_maps()) {
