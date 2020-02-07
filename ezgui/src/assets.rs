@@ -1,4 +1,3 @@
-use crate::{ScreenDims, Text};
 use glium_glyph::glyph_brush::FontId;
 
 // TODO We don't need refcell maybe
@@ -15,10 +14,6 @@ impl Assets {
         };
         a.default_line_height = a.line_height(FontId(0), a.font_size);
         a
-    }
-
-    pub fn text_dims(&self, txt: &Text) -> ScreenDims {
-        txt.dims(self)
     }
 
     // Don't call this while screenspace_glyphs is mutably borrowed.

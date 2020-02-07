@@ -232,7 +232,7 @@ impl<'a> GfxCtx<'a> {
         txt: &Text,
         (horiz, vert): (HorizontalAlignment, VerticalAlignment),
     ) {
-        let mut dims = self.text_dims(&txt);
+        let mut dims = txt.dims();
         let top_left = self.canvas.align_window(dims, horiz, vert);
         // TODO This doesn't take effect anymore
         if let HorizontalAlignment::FillScreen = horiz {
@@ -257,7 +257,7 @@ impl<'a> GfxCtx<'a> {
 
     // TODO Rename these draw_nonblocking_text_*
     pub fn draw_text_at(&mut self, txt: &Text, map_pt: Pt2D) {
-        let dims = self.text_dims(&txt);
+        let dims = txt.dims();
         let pt = self.canvas.map_to_screen(map_pt);
         let mut batch = GeomBatch::new();
         txt.clone().render(
@@ -270,7 +270,7 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_text_at_mapspace(&mut self, txt: &Text, map_pt: Pt2D) {
-        let dims = self.text_dims(&txt);
+        let dims = txt.dims();
         let mut batch = GeomBatch::new();
         txt.clone().render(
             &mut batch,
@@ -283,7 +283,7 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_mouse_tooltip(&mut self, txt: &Text) {
-        let dims = self.text_dims(&txt);
+        let dims = txt.dims();
         // TODO Maybe also consider the cursor as a valid center
         let pt = dims.top_left_for_corner(
             ScreenPt::new(self.canvas.cursor_x, self.canvas.cursor_y),
@@ -329,9 +329,6 @@ impl<'a> GfxCtx<'a> {
     // Delegation to assets
     pub fn default_line_height(&self) -> f64 {
         self.assets.default_line_height
-    }
-    pub fn text_dims(&self, txt: &Text) -> ScreenDims {
-        self.assets.text_dims(txt)
     }
 }
 

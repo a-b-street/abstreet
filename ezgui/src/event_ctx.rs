@@ -160,9 +160,6 @@ impl<'a> EventCtx<'a> {
     pub fn default_line_height(&self) -> f64 {
         self.assets.default_line_height
     }
-    pub fn text_dims(&self, txt: &Text) -> ScreenDims {
-        self.assets.text_dims(txt)
-    }
 }
 
 pub struct LoadingScreen<'a> {

@@ -1,7 +1,5 @@
 use crate::layout::Widget;
-use crate::{
-    text, Event, EventCtx, GfxCtx, InputResult, Key, Line, ScreenDims, ScreenPt, Text, UserInput,
-};
+use crate::{text, Event, GfxCtx, InputResult, Key, Line, ScreenDims, ScreenPt, Text, UserInput};
 
 // TODO right now, only a single line
 
@@ -17,7 +15,7 @@ pub struct TextBox {
 }
 
 impl TextBox {
-    pub fn new(prompt: &str, prefilled: Option<String>, ctx: &EventCtx) -> TextBox {
+    pub fn new(prompt: &str, prefilled: Option<String>) -> TextBox {
         let line = prefilled.unwrap_or_else(String::new);
         let mut tb = TextBox {
             prompt: prompt.to_string(),
@@ -29,7 +27,7 @@ impl TextBox {
             dims: ScreenDims::new(0.0, 0.0),
         };
         // TODO Assume the dims never exceed the prompt width?
-        tb.dims = ctx.text_dims(&tb.get_text());
+        tb.dims = tb.get_text().dims();
         tb
     }
 

@@ -59,7 +59,6 @@ impl GameplayState for OptimizeBus {
         self.menu.event(ctx);
         if manage_overlays(
             &mut self.menu,
-            ctx,
             ui,
             "show bus route",
             "hide bus route",
@@ -72,7 +71,6 @@ impl GameplayState for OptimizeBus {
         }
         if manage_overlays(
             &mut self.menu,
-            ctx,
             ui,
             "show delays over time",
             "hide delays over time",
@@ -85,7 +83,6 @@ impl GameplayState for OptimizeBus {
         }
         if manage_overlays(
             &mut self.menu,
-            ctx,
             ui,
             "show bus passengers",
             "hide bus passengers",
@@ -101,7 +98,7 @@ impl GameplayState for OptimizeBus {
         if self.time != ui.primary.sim.time() {
             self.time = ui.primary.sim.time();
             self.menu
-                .set_info(ctx, bus_route_panel(self.route, self.stat, ui));
+                .set_info(bus_route_panel(self.route, self.stat, ui));
         }
 
         if self.menu.action("change statistic") {

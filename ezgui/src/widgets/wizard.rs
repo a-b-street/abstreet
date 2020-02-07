@@ -89,7 +89,7 @@ impl Wizard {
         }
 
         if self.tb.is_none() {
-            self.tb = Some(TextBox::new(query, prefilled, ctx));
+            self.tb = Some(TextBox::new(query, prefilled));
         }
         layout::stack_vertically(
             layout::ContainerOrientation::Centered,
@@ -302,7 +302,6 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                                 active: c.active,
                             })
                             .collect(),
-                        self.ctx,
                     ),
                 )
                 .build(self.ctx),

@@ -1,4 +1,3 @@
-use crate::assets::Assets;
 use crate::{Color, GeomBatch, ScreenDims, ScreenPt, ScreenRectangle};
 use geom::Polygon;
 use glium_glyph::glyph_brush::FontId;
@@ -182,7 +181,7 @@ impl Text {
         self.lines.extend(other.lines.clone())
     }
 
-    pub(crate) fn dims(&self, _: &Assets) -> ScreenDims {
+    pub(crate) fn dims(&self) -> ScreenDims {
         // TODO Still pay attention to this hack, so the loading screen isn't dreadfully slow
         if let Some(w) = self.override_width {
             return ScreenDims::new(w, self.override_height.unwrap());

@@ -26,7 +26,7 @@ impl ModalMenu {
     pub fn new<S1: Into<String>, S2: Into<String>>(
         title: S1,
         raw_choices: Vec<(Option<MultiKey>, S2)>,
-        ctx: &EventCtx,
+        _: &EventCtx,
     ) -> ModalMenu {
         let mut m = ModalMenu {
             title: title.into(),
@@ -46,7 +46,7 @@ impl ModalMenu {
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(0.0, 0.0),
         };
-        m.recalculate_dims(ctx);
+        m.dims = m.calculate_txt().dims();
 
         m
     }
@@ -63,9 +63,9 @@ impl ModalMenu {
         self
     }
 
-    pub fn set_info(&mut self, ctx: &EventCtx, info: Text) {
+    pub fn set_info(&mut self, info: Text) {
         self.info = info.with_bg();
-        self.recalculate_dims(ctx);
+        self.dims = self.calculate_txt().dims();
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx) {
@@ -75,7 +75,7 @@ impl ModalMenu {
 
         if let Some(o) = self.standalone_layout {
             layout::stack_vertically(o, ctx, vec![self]);
-            self.recalculate_dims(ctx);
+            self.dims = self.calculate_txt().dims();
         }
 
         // Handle the mouse
@@ -83,7 +83,7 @@ impl ModalMenu {
             self.hovering_idx = None;
             if let Some(cursor) = ctx.canvas.get_cursor_in_screen_space() {
                 let mut top_left = self.top_left;
-                top_left.y += ctx.text_dims(&self.info).height;
+                top_left.y += self.info.dims().height;
                 if !self.title.is_empty() {
                     top_left.y += ctx.default_line_height();
                 }
@@ -127,54 +127,54 @@ impl ModalMenu {
         }
     }
 
-    pub fn push_action(&mut self, hotkey: Option<MultiKey>, label: &str, ctx: &EventCtx) {
+    pub fn push_action(&mut self, hotkey: Option<MultiKey>, label: &str) {
         self.choices.push(Choice {
             hotkey,
             label: label.to_string(),
             active: false,
         });
-        self.recalculate_dims(ctx);
+        self.dims = self.calculate_txt().dims();
     }
 
-    pub fn remove_action(&mut self, label: &str, ctx: &EventCtx) {
+    pub fn remove_action(&mut self, label: &str) {
         self.choices.retain(|c| c.label != label);
-        self.recalculate_dims(ctx);
+        self.dims = self.calculate_txt().dims();
     }
 
-    pub fn change_action(&mut self, old_label: &str, new_label: &str, ctx: &EventCtx) {
+    pub fn change_action(&mut self, old_label: &str, new_label: &str) {
         for c in self.choices.iter_mut() {
             if c.label == old_label {
                 c.label = new_label.to_string();
-                self.recalculate_dims(ctx);
+                self.dims = self.calculate_txt().dims();
                 return;
             }
         }
         panic!("Menu doesn't have {}", old_label);
     }
 
-    pub fn maybe_change_action(&mut self, old_label: &str, new_label: &str, ctx: &EventCtx) {
+    pub fn maybe_change_action(&mut self, old_label: &str, new_label: &str) {
         for c in self.choices.iter_mut() {
             if c.label == old_label {
                 c.label = new_label.to_string();
-                self.recalculate_dims(ctx);
+                self.dims = self.calculate_txt().dims();
                 return;
             }
         }
         // Don't panic
     }
 
-    pub fn swap_action(&mut self, old_label: &str, new_label: &str, ctx: &EventCtx) -> bool {
+    pub fn swap_action(&mut self, old_label: &str, new_label: &str) -> bool {
         if self.action(old_label) {
-            self.change_action(old_label, new_label, ctx);
+            self.change_action(old_label, new_label);
             true
         } else {
             false
         }
     }
 
-    pub fn consume_action(&mut self, name: &str, ctx: &EventCtx) -> bool {
+    pub fn consume_action(&mut self, name: &str) -> bool {
         if self.action(name) {
-            self.remove_action(name, ctx);
+            self.remove_action(name);
             true
         } else {
             false
@@ -201,10 +201,6 @@ impl ModalMenu {
 
     pub fn draw(&self, g: &mut GfxCtx) {
         g.draw_blocking_text_at_screenspace_topleft(&self.calculate_txt(), self.top_left);
-    }
-
-    fn recalculate_dims(&mut self, ctx: &EventCtx) {
-        self.dims = ctx.text_dims(&self.calculate_txt());
     }
 
     fn calculate_txt(&self) -> Text {

@@ -81,7 +81,7 @@ impl State for DebugMode {
             if let routes::AllRoutesViewer::Active(_, ref traces) = self.all_routes {
                 txt.add(Line(format!("Showing {} routes", traces.len())));
             }
-            self.menu.set_info(ctx, txt);
+            self.menu.set_info(txt);
         }
         self.menu.event(ctx);
 
@@ -151,14 +151,13 @@ impl State for DebugMode {
                     println!("Hiding {:?}", id);
                     ui.primary.current_selection = None;
                     if self.hidden.is_empty() {
-                        self.menu
-                            .push_action(hotkey(Key::H), "unhide everything", ctx);
+                        self.menu.push_action(hotkey(Key::H), "unhide everything");
                     }
                     self.hidden.insert(id);
                 }
             }
             None => {
-                if !self.hidden.is_empty() && self.menu.consume_action("unhide everything", ctx) {
+                if !self.hidden.is_empty() && self.menu.consume_action("unhide everything") {
                     self.hidden.clear();
                     ui.primary.current_selection =
                         ui.calculate_current_selection(ctx, &ui.primary.sim, self, true);
@@ -206,10 +205,10 @@ impl State for DebugMode {
                 let show = format!("show {}", label);
                 let hide = format!("hide {}", label);
 
-                if *value && self.menu.swap_action(&hide, &show, ctx) {
+                if *value && self.menu.swap_action(&hide, &show) {
                     *value = false;
                     changed = true;
-                } else if !*value && self.menu.swap_action(&show, &hide, ctx) {
+                } else if !*value && self.menu.swap_action(&show, &hide) {
                     *value = true;
                     changed = true;
                 }
@@ -235,13 +234,13 @@ impl State for DebugMode {
         if self.search_results.is_some() {
             if self
                 .menu
-                .swap_action("clear OSM search results", "search OSM metadata", ctx)
+                .swap_action("clear OSM search results", "search OSM metadata")
             {
                 self.search_results = None;
             }
         } else if self
             .menu
-            .swap_action("search OSM metadata", "clear OSM search results", ctx)
+            .swap_action("search OSM metadata", "clear OSM search results")
         {
             // TODO If the wizard aborts (pressing escape), this crashes.
             return Transition::Push(WizardState::new(Box::new(search_osm)));

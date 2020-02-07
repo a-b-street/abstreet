@@ -197,7 +197,6 @@ impl GameplayMode {
 // thing.
 fn manage_overlays(
     menu: &mut ModalMenu,
-    ctx: &mut EventCtx,
     ui: &mut UI,
     show: &str,
     hide: &str,
@@ -205,14 +204,14 @@ fn manage_overlays(
 ) -> bool {
     // Synchronize menus if needed. Player can change these separately.
     if active_originally {
-        menu.maybe_change_action(show, hide, ctx);
+        menu.maybe_change_action(show, hide);
     } else {
-        menu.maybe_change_action(hide, show, ctx);
+        menu.maybe_change_action(hide, show);
     }
 
-    if !active_originally && menu.swap_action(show, hide, ctx) {
+    if !active_originally && menu.swap_action(show, hide) {
         true
-    } else if active_originally && menu.swap_action(hide, show, ctx) {
+    } else if active_originally && menu.swap_action(hide, show) {
         ui.overlay = Overlays::Inactive;
         false
     } else {
@@ -223,7 +222,6 @@ fn manage_overlays(
 // Must call menu.event first.
 fn manage_acs(
     menu: &mut ModalMenu,
-    ctx: &mut EventCtx,
     ui: &mut UI,
     show: &str,
     hide: &str,
@@ -233,14 +231,14 @@ fn manage_acs(
 
     // Synchronize menus if needed. Player can change these separately.
     if active_originally {
-        menu.maybe_change_action(show, hide, ctx);
+        menu.maybe_change_action(show, hide);
     } else {
-        menu.maybe_change_action(hide, show, ctx);
+        menu.maybe_change_action(hide, show);
     }
 
-    if !active_originally && menu.swap_action(show, hide, ctx) {
+    if !active_originally && menu.swap_action(show, hide) {
         ui.agent_cs = AgentColorScheme::new(acs, &ui.cs);
-    } else if active_originally && menu.swap_action(hide, show, ctx) {
+    } else if active_originally && menu.swap_action(hide, show) {
         ui.agent_cs = AgentColorScheme::default(&ui.cs);
     }
 }

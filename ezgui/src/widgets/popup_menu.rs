@@ -18,7 +18,7 @@ pub struct PopupMenu<T: Clone> {
 }
 
 impl<T: Clone> PopupMenu<T> {
-    pub fn new(choices: Vec<Choice<T>>, ctx: &EventCtx) -> PopupMenu<T> {
+    pub fn new(choices: Vec<Choice<T>>) -> PopupMenu<T> {
         let mut m = PopupMenu {
             choices,
             current_idx: 0,
@@ -28,7 +28,7 @@ impl<T: Clone> PopupMenu<T> {
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(0.0, 0.0),
         };
-        m.recalculate_dims(ctx);
+        m.dims = m.calculate_txt().dims();
         m
     }
 
@@ -124,10 +124,6 @@ impl<T: Clone> PopupMenu<T> {
 
     pub fn current_choice(&self) -> &T {
         &self.choices[self.current_idx].data
-    }
-
-    fn recalculate_dims(&mut self, ctx: &EventCtx) {
-        self.dims = ctx.text_dims(&self.calculate_txt());
     }
 
     fn calculate_txt(&self) -> Text {

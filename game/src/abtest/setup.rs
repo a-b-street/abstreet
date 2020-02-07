@@ -72,7 +72,7 @@ fn pick_ab_test(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
     for line in ab_test.describe() {
         txt.add(Line(line));
     }
-    menu.set_info(ctx, txt);
+    menu.set_info(txt);
 
     Some(Transition::Replace(Box::new(ABTestSetup { menu, ab_test })))
 }
