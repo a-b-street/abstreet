@@ -381,7 +381,7 @@ impl GeomBatch {
     }
 
     // Sets the top-left to 0, 0. Not sure exactly when this should be used.
-    pub(crate) fn realign(mut self) -> GeomBatch {
+    pub(crate) fn autocrop(mut self) -> GeomBatch {
         let mut bounds = Bounds::new();
         for (_, poly) in &self.list {
             bounds.union(poly.get_bounds());

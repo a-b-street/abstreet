@@ -16,8 +16,8 @@ pub const INACTIVE_CHOICE_COLOR: Color = Color::grey(0.4);
 // TODO Don't do this!
 const MAX_CHAR_WIDTH: f64 = 25.0;
 
-#[derive(Debug, Clone, PartialEq)]
-enum Font {
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum Font {
     DejaVu,
     Roboto,
     RobotoBold,
@@ -199,20 +199,24 @@ impl Text {
             return batch;
         }
 
-        // TODO Bad guess
-        let empty_line_height = 30.0;
-
         let mut output_batch = GeomBatch::new();
         let mut master_batch = GeomBatch::new();
 
         let mut y = 0.0;
         let mut max_width = 0.0_f64;
         for (line_color, line) in self.lines {
-            let line_batch = render_text(line, tolerance, &assets.text_opts);
+            // Assume size doesn't change mid-line. Always use this fixed line height per font
+            // size.
+            let line_height = assets.line_height(
+                line[0].font,
+                line[0].size.unwrap_or(assets.default_font_size),
+            );
+
+            let line_batch = render_text(line, tolerance, assets);
             let line_dims = if line_batch.is_empty() {
-                ScreenDims::new(0.0, empty_line_height)
+                ScreenDims::new(0.0, line_height)
             } else {
-                line_batch.get_dims()
+                ScreenDims::new(line_batch.get_dims().width, line_height)
             };
 
             if let Some(c) = line_color {
@@ -222,7 +226,6 @@ impl Text {
                 );
             }
 
-            // TODO Do this first or not? Should we call realign() around here?
             y += line_dims.height;
 
             for (color, poly) in line_batch.consume() {
@@ -244,7 +247,7 @@ impl Text {
     }
 
     pub fn render_to_batch(self, prerender: &Prerender) -> GeomBatch {
-        self.render(&prerender.assets).realign()
+        self.render(&prerender.assets).autocrop()
     }
 
     fn hash_key(&self) -> String {
@@ -254,15 +257,14 @@ impl Text {
     }
 }
 
-fn render_text(spans: Vec<TextSpan>, tolerance: f32, opts: &usvg::Options) -> GeomBatch {
+fn render_text(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBatch {
     // TODO This assumes size and font don't change mid-line. We might be able to support that now,
     // actually.
 
     // Just set a sufficiently large view box
     let mut svg = format!(
         r##"<svg width="9999" height="9999" viewBox="0 0 9999 9999" xmlns="http://www.w3.org/2000/svg"><text x="0" y="0" font-size="{}" {}>"##,
-        // TODO Plumb through default font size?
-        spans[0].size.unwrap_or(30),
+        spans[0].size.unwrap_or(assets.default_font_size),
         match spans[0].font {
             Font::DejaVu => "font-family=\"DejaVu Sans\"",
             Font::Roboto => "font-family=\"Roboto\"",
@@ -284,7 +286,7 @@ fn render_text(spans: Vec<TextSpan>, tolerance: f32, opts: &usvg::Options) -> Ge
 
     //println!("- Rendering: {}", contents);
 
-    let svg_tree = match usvg::Tree::from_str(&svg, opts) {
+    let svg_tree = match usvg::Tree::from_str(&svg, &assets.text_opts) {
         Ok(t) => t,
         Err(err) => panic!("render_text({}): {}", contents, err),
     };
