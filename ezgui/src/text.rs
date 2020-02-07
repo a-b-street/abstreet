@@ -1,7 +1,9 @@
 use crate::assets::Assets;
 use crate::{Color, GeomBatch, Prerender, ScreenDims};
 use geom::Polygon;
+use std::collections::hash_map::DefaultHasher;
 use std::fmt::Write;
+use std::hash::Hasher;
 use textwrap;
 
 const FG_COLOR: Color = Color::WHITE;
@@ -191,7 +193,12 @@ impl Text {
         self.render(assets).get_dims()
     }
 
-    pub fn render(self, _: &Assets) -> GeomBatch {
+    pub fn render(self, assets: &Assets) -> GeomBatch {
+        let hash_key = self.hash_key();
+        if let Some(batch) = assets.get_cached_text(&hash_key) {
+            return batch;
+        }
+
         // TODO Bad guess
         let empty_line_height = 30.0;
 
@@ -232,11 +239,18 @@ impl Text {
             output_batch.push(color, poly);
         }
 
+        assets.cache_text(hash_key, output_batch.clone());
         output_batch
     }
 
     pub fn render_to_batch(self, prerender: &Prerender) -> GeomBatch {
         self.render(&prerender.assets).realign()
+    }
+
+    fn hash_key(&self) -> String {
+        let mut hasher = DefaultHasher::new();
+        hasher.write(format!("{:?}", self).as_ref());
+        format!("{:x}", hasher.finish())
     }
 }
 
