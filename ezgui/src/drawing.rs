@@ -235,17 +235,21 @@ impl<'a> GfxCtx<'a> {
     ) {
         let mut dims = self.text_dims(&txt);
         let top_left = self.canvas.align_window(dims, horiz, vert);
+        // TODO This doesn't take effect anymore
         if let HorizontalAlignment::FillScreen = horiz {
             dims.width = self.canvas.window_width;
         }
-        self.canvas
-            .mark_covered_area(text::draw_text_bubble(self, top_left, txt, dims, true));
+
+        self.draw_blocking_text_at_screenspace_topleft(txt, top_left);
     }
 
     pub(crate) fn draw_blocking_text_at_screenspace_topleft(&mut self, txt: &Text, pt: ScreenPt) {
-        let dims = self.text_dims(&txt);
+        let mut batch = GeomBatch::new();
         self.canvas
-            .mark_covered_area(text::draw_text_bubble(self, pt, txt, dims, true));
+            .mark_covered_area(txt.clone().render(&mut batch, pt));
+        self.fork_screenspace();
+        batch.draw(self);
+        self.unfork();
     }
 
     pub fn get_screen_bounds(&self) -> Bounds {
@@ -256,13 +260,14 @@ impl<'a> GfxCtx<'a> {
     pub fn draw_text_at(&mut self, txt: &Text, map_pt: Pt2D) {
         let dims = self.text_dims(&txt);
         let pt = self.canvas.map_to_screen(map_pt);
-        text::draw_text_bubble(
-            self,
+        let mut batch = GeomBatch::new();
+        txt.clone().render(
+            &mut batch,
             ScreenPt::new(pt.x - (dims.width / 2.0), pt.y - (dims.height / 2.0)),
-            txt,
-            dims,
-            true,
         );
+        self.fork_screenspace();
+        batch.draw(self);
+        self.unfork();
     }
 
     pub fn draw_text_at_mapspace(&mut self, txt: &Text, map_pt: Pt2D) {
@@ -285,8 +290,11 @@ impl<'a> GfxCtx<'a> {
             ScreenPt::new(self.canvas.cursor_x, self.canvas.cursor_y),
             &self.canvas,
         );
-        // No need to cover the tooltip; this tooltip follows the mouse anyway.
-        text::draw_text_bubble(self, pt, txt, dims, true);
+        let mut batch = GeomBatch::new();
+        txt.clone().render(&mut batch, pt);
+        self.fork_screenspace();
+        batch.draw(self);
+        self.unfork();
     }
 
     pub fn screen_to_map(&self, pt: ScreenPt) -> Pt2D {

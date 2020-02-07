@@ -202,7 +202,8 @@ impl<'a> LoadingScreen<'a> {
 
     // Timer throttles updates reasonably, so don't bother throttling redraws.
     fn redraw(&mut self) {
-        if elapsed_seconds(self.last_drawn) < 0.2 {
+        // TODO Gotta speed things up before this is reasonable again
+        if elapsed_seconds(self.last_drawn) < 1.0 {
             return;
         }
         self.last_drawn = Instant::now();

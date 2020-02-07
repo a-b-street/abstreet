@@ -333,17 +333,11 @@ pub fn draw_text_bubble_mapspace(
 
 // TODO Rearrange
 impl Text {
-    pub fn render(self, master_batch: &mut GeomBatch, top_left: ScreenPt) -> ScreenRectangle {
-        /*if let Some(c) = txt.bg_color {
-            g.draw_polygon(
-                c,
-                &Polygon::rectangle(total_dims.width, total_dims.height)
-                    .translate(top_left.x, top_left.y),
-            );
-        }*/
-
+    pub fn render(self, output_batch: &mut GeomBatch, top_left: ScreenPt) -> ScreenRectangle {
         // TODO Bad guess
         let empty_line_height = 30.0;
+
+        let mut master_batch = GeomBatch::new();
 
         let mut y = top_left.y;
         let mut max_width = 0.0_f64;
@@ -385,6 +379,16 @@ impl Text {
             max_width = max_width.max(x - top_left.x);
         }
 
+        if let Some(c) = self.bg_color {
+            output_batch.push(
+                c,
+                Polygon::rectangle(max_width, y - top_left.y).translate(top_left.x, top_left.y),
+            );
+        }
+        for (color, poly) in master_batch.consume() {
+            output_batch.push(color, poly);
+        }
+
         ScreenRectangle::top_left(top_left, ScreenDims::new(max_width, y - top_left.y))
     }
 }
@@ -419,7 +423,10 @@ fn render_text(txt: TextSpan) -> GeomBatch {
     // TODO Bundle better
     opts.font_directories
         .push("/home/dabreegster/abstreet/ezgui/src/assets".to_string());
-    let svg_tree = usvg::Tree::from_str(&svg, &opts).unwrap();
+    let svg_tree = match usvg::Tree::from_str(&svg, &opts) {
+        Ok(t) => t,
+        Err(err) => panic!("render_text({}): {}", svg, err),
+    };
     let mut batch = GeomBatch::new();
     match crate::svg::add_svg_inner(&mut batch, svg_tree) {
         Ok(_) => batch,
