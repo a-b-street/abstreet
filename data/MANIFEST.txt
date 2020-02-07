@@ -134,6 +134,9 @@ d7587f76ed2d514d9f925c8b60b30153  data/input/google_transit_2018_18_08/stops.txt
 3d8b080487e096ef417038739acecea5  data/input/google_transit_2018_18_08/agency.txt
 a5e849fa8883569519976ebfef3ae269  data/system/night_colors.json
 1909af5ebfefe7ad4102335c9e789d24  data/system/override_colors.json
+517a360397bbb5a7573c2558e78fa4ea  data/system/fonts/DejaVuSans.ttf
+e07df86cef2e721115583d61d1fb68a6  data/system/fonts/Roboto-Bold.ttf
+11eabca2251325cfc5589c9c6fb57b46  data/system/fonts/Roboto-Regular.ttf
 3b326aadfe2cd3804fdb30568925e3ab  data/system/maps/huge_seattle.bin
 19a0a7fbe74ebb04d82562676d0605e3  data/system/maps/ballard.bin
 f035a0a6bd037bad1ea54c28e13f7b07  data/system/maps/downtown.bin

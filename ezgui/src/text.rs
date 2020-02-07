@@ -203,7 +203,7 @@ impl Text {
         let mut y = 0.0;
         let mut max_width = 0.0_f64;
         for (line_color, line) in self.lines {
-            let line_batch = render_text(line, tolerance);
+            let line_batch = render_text(line, tolerance, &assets.text_opts);
             let line_dims = if line_batch.is_empty() {
                 ScreenDims::new(0.0, empty_line_height)
             } else {
@@ -249,7 +249,7 @@ impl Text {
     }
 }
 
-fn render_text(spans: Vec<TextSpan>, tolerance: f32) -> GeomBatch {
+fn render_text(spans: Vec<TextSpan>, tolerance: f32, opts: &usvg::Options) -> GeomBatch {
     // TODO This assumes size and font don't change mid-line. We might be able to support that now,
     // actually.
 
@@ -279,11 +279,7 @@ fn render_text(spans: Vec<TextSpan>, tolerance: f32) -> GeomBatch {
 
     //println!("- Rendering: {}", contents);
 
-    let mut opts = usvg::Options::default();
-    // TODO Bundle better
-    opts.font_directories
-        .push("/home/dabreegster/abstreet/ezgui/src/assets".to_string());
-    let svg_tree = match usvg::Tree::from_str(&svg, &opts) {
+    let svg_tree = match usvg::Tree::from_str(&svg, opts) {
         Ok(t) => t,
         Err(err) => panic!("render_text({}): {}", contents, err),
     };

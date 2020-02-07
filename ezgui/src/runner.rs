@@ -135,6 +135,7 @@ impl<G: GUI> State<G> {
 
 pub struct Settings {
     window_title: String,
+    font_dir: String,
     profiling_enabled: bool,
     default_font_size: usize,
     override_hidpi_factor: Option<f64>,
@@ -142,9 +143,10 @@ pub struct Settings {
 }
 
 impl Settings {
-    pub fn new(window_title: &str) -> Settings {
+    pub fn new(window_title: &str, font_dir: &str) -> Settings {
         Settings {
             window_title: window_title.to_string(),
+            font_dir: font_dir.to_string(),
             profiling_enabled: false,
             default_font_size: 30,
             override_hidpi_factor: None,
@@ -245,7 +247,7 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: 
     let window_size = events_loop.get_primary_monitor().get_dimensions();
     let mut canvas = Canvas::new(window_size.width, window_size.height, hidpi_factor);
     let prerender = Prerender {
-        assets: Assets::new(settings.default_font_size),
+        assets: Assets::new(settings.default_font_size, settings.font_dir),
         display: &display,
         num_uploads: Cell::new(0),
         total_bytes_uploaded: Cell::new(0),
