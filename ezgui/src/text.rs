@@ -1,5 +1,5 @@
 use crate::assets::Assets;
-use crate::{Color, GeomBatch, Prerender, ScreenDims, ScreenPt, ScreenRectangle};
+use crate::{Color, GeomBatch, Prerender, ScreenDims};
 use geom::Polygon;
 use std::fmt::Write;
 use textwrap;
@@ -183,23 +183,22 @@ impl Text {
         self.lines.extend(other.lines.clone())
     }
 
-    pub(crate) fn dims(&self, _: &Assets) -> ScreenDims {
+    pub(crate) fn dims(self, assets: &Assets) -> ScreenDims {
         // TODO Still pay attention to this hack, so the loading screen isn't dreadfully slow
         if let Some(w) = self.override_width {
             return ScreenDims::new(w, self.override_height.unwrap());
         }
-        let mut batch = GeomBatch::new();
-        let rect = self.clone().render(&mut batch, ScreenPt::new(0.0, 0.0));
-        rect.dims()
+        self.render(assets).get_dims()
     }
 
-    pub fn render(self, output_batch: &mut GeomBatch, top_left: ScreenPt) -> ScreenRectangle {
+    pub fn render(self, _: &Assets) -> GeomBatch {
         // TODO Bad guess
         let empty_line_height = 30.0;
 
+        let mut output_batch = GeomBatch::new();
         let mut master_batch = GeomBatch::new();
 
-        let mut y = top_left.y;
+        let mut y = 0.0;
         let mut max_width = 0.0_f64;
         for (line_color, line) in self.lines {
             let line_batch = render_text(line);
@@ -212,7 +211,7 @@ impl Text {
             if let Some(c) = line_color {
                 master_batch.push(
                     c,
-                    Polygon::rectangle(line_dims.width, line_dims.height).translate(top_left.x, y),
+                    Polygon::rectangle(line_dims.width, line_dims.height).translate(0.0, y),
                 );
             }
 
@@ -220,29 +219,24 @@ impl Text {
             y += line_dims.height;
 
             for (color, poly) in line_batch.consume() {
-                master_batch.push(color, poly.translate(top_left.x, y));
+                master_batch.push(color, poly.translate(0.0, y));
             }
 
             max_width = max_width.max(line_dims.width);
         }
 
         if let Some(c) = self.bg_color {
-            output_batch.push(
-                c,
-                Polygon::rectangle(max_width, y - top_left.y).translate(top_left.x, top_left.y),
-            );
+            output_batch.push(c, Polygon::rectangle(max_width, y));
         }
         for (color, poly) in master_batch.consume() {
             output_batch.push(color, poly);
         }
 
-        ScreenRectangle::top_left(top_left, ScreenDims::new(max_width, y - top_left.y))
+        output_batch
     }
 
-    pub fn render_to_batch(self, _: &Prerender) -> GeomBatch {
-        let mut batch = GeomBatch::new();
-        self.render(&mut batch, ScreenPt::new(0.0, 0.0));
-        batch.realign()
+    pub fn render_to_batch(self, prerender: &Prerender) -> GeomBatch {
+        self.render(&prerender.assets).realign()
     }
 }
 

@@ -229,7 +229,7 @@ impl<'a> GfxCtx<'a> {
         txt: Text,
         (horiz, vert): (HorizontalAlignment, VerticalAlignment),
     ) {
-        let mut dims = txt.dims(&self.prerender.assets);
+        let mut dims = txt.clone().dims(&self.prerender.assets);
         let top_left = self.canvas.align_window(dims, horiz, vert);
         // TODO This doesn't take effect anymore
         if let HorizontalAlignment::FillScreen = horiz {
@@ -241,8 +241,9 @@ impl<'a> GfxCtx<'a> {
 
     pub(crate) fn draw_blocking_text_at_screenspace_topleft(&mut self, txt: Text, pt: ScreenPt) {
         let mut batch = GeomBatch::new();
+        batch.add_translated(txt.render(&self.prerender.assets), pt.x, pt.y);
         self.canvas
-            .mark_covered_area(txt.clone().render(&mut batch, pt));
+            .mark_covered_area(ScreenRectangle::top_left(pt, batch.get_dims()));
         self.fork_screenspace();
         batch.draw(self);
         self.unfork();
@@ -254,12 +255,14 @@ impl<'a> GfxCtx<'a> {
 
     // TODO Rename these draw_nonblocking_text_*
     pub fn draw_text_at(&mut self, txt: Text, map_pt: Pt2D) {
-        let dims = txt.dims(&self.prerender.assets);
+        let txt_batch = txt.render(&self.prerender.assets);
+        let dims = txt_batch.get_dims();
         let pt = self.canvas.map_to_screen(map_pt);
         let mut batch = GeomBatch::new();
-        txt.clone().render(
-            &mut batch,
-            ScreenPt::new(pt.x - (dims.width / 2.0), pt.y - (dims.height / 2.0)),
+        batch.add_translated(
+            txt_batch,
+            pt.x - (dims.width / 2.0),
+            pt.y - (dims.height / 2.0),
         );
         self.fork_screenspace();
         batch.draw(self);
@@ -267,14 +270,15 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_mouse_tooltip(&mut self, txt: Text) {
-        let dims = txt.dims(&self.prerender.assets);
+        let txt_batch = txt.render(&self.prerender.assets);
+        let dims = txt_batch.get_dims();
         // TODO Maybe also consider the cursor as a valid center
         let pt = dims.top_left_for_corner(
             ScreenPt::new(self.canvas.cursor_x, self.canvas.cursor_y),
             &self.canvas,
         );
         let mut batch = GeomBatch::new();
-        txt.clone().render(&mut batch, pt);
+        batch.add_translated(txt_batch, pt.x, pt.y);
         self.fork_screenspace();
         batch.draw(self);
         self.unfork();
@@ -412,12 +416,19 @@ impl GeomBatch {
         self.add_transformed(batch, center, scale, rotate);
     }
 
+    // This centers on the pt!
     pub fn add_transformed(&mut self, other: GeomBatch, center: Pt2D, scale: f64, rotate: Angle) {
         let dims = other.get_dims();
         let dx = center.x() - dims.width * scale / 2.0;
         let dy = center.y() - dims.height * scale / 2.0;
         for (color, poly) in other.consume() {
             self.push(color, poly.scale(scale).translate(dx, dy).rotate(rotate));
+        }
+    }
+
+    pub fn add_translated(&mut self, other: GeomBatch, dx: f64, dy: f64) {
+        for (color, poly) in other.consume() {
+            self.push(color, poly.translate(dx, dy));
         }
     }
 }
@@ -579,7 +590,7 @@ pub struct DrawBoth {
 impl DrawBoth {
     pub fn new(ctx: &EventCtx, mut batch: GeomBatch, texts: Vec<(Text, ScreenPt)>) -> DrawBoth {
         for (txt, pt) in texts {
-            txt.render(&mut batch, pt);
+            batch.add_translated(txt.render(&ctx.prerender.assets), pt.x, pt.y);
         }
         DrawBoth {
             dims: batch.get_dims(),
