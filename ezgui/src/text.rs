@@ -397,6 +397,8 @@ impl Text {
                 );
             }
 
+            // TODO If we call fix() at the right spot, can we avoid this and add directly to the
+            // master_batch?
             for (color, poly) in line_batch.consume() {
                 master_batch.push(color, poly.translate(0.0, line_dims.height));
             }

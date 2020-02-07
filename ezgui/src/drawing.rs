@@ -373,6 +373,31 @@ impl GeomBatch {
         ctx.prerender.upload(self)
     }
 
+    // TODO Funky API. Make sure to call this in the right places.
+    pub(crate) fn fix(mut self) -> GeomBatch {
+        let mut bounds = Bounds::new();
+        for (_, poly) in &self.list {
+            bounds.union(poly.get_bounds());
+        }
+        let dx = if bounds.min_x < 0.0 {
+            -bounds.min_x
+        } else {
+            0.0
+        };
+        let dy = if bounds.min_y < 0.0 {
+            -bounds.min_y
+        } else {
+            0.0
+        };
+        if dx == 0.0 && dy == 0.0 {
+            return self;
+        }
+        for (_, poly) in &mut self.list {
+            *poly = poly.translate(dx, dy);
+        }
+        self
+    }
+
     pub(crate) fn is_empty(&self) -> bool {
         self.list.is_empty()
     }
