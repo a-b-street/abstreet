@@ -1,6 +1,5 @@
 use crate::{Color, GeomBatch, ScreenDims, ScreenPt, ScreenRectangle};
 use geom::Polygon;
-use glium_glyph::glyph_brush::FontId;
 use textwrap;
 
 const FG_COLOR: Color = Color::WHITE;
@@ -13,18 +12,19 @@ pub const INACTIVE_CHOICE_COLOR: Color = Color::grey(0.4);
 // TODO Don't do this!
 const MAX_CHAR_WIDTH: f64 = 25.0;
 
-// These're hardcoded for simplicity; this list doesn't change much.
-const DEJA_VU: FontId = FontId(0);
-const ROBOTO: FontId = FontId(1);
-const ROBOTO_BOLD: FontId = FontId(2);
+#[derive(Debug, Clone, PartialEq)]
+enum Font {
+    DejaVu,
+    Roboto,
+    RobotoBold,
+}
 
 #[derive(Debug, Clone)]
 pub struct TextSpan {
     text: String,
     fg_color: Color,
     size: Option<usize>,
-    font: FontId,
-    // TODO bold, italic, font style
+    font: Font,
 }
 
 impl TextSpan {
@@ -41,14 +41,14 @@ impl TextSpan {
     }
 
     pub fn roboto(mut self) -> TextSpan {
-        assert_eq!(self.font, DEJA_VU);
-        self.font = ROBOTO;
+        assert_eq!(self.font, Font::DejaVu);
+        self.font = Font::Roboto;
         self
     }
 
     pub fn roboto_bold(mut self) -> TextSpan {
-        assert_eq!(self.font, DEJA_VU);
-        self.font = ROBOTO_BOLD;
+        assert_eq!(self.font, Font::DejaVu);
+        self.font = Font::RobotoBold;
         self
     }
 }
@@ -60,7 +60,7 @@ pub fn Line<S: Into<String>>(text: S) -> TextSpan {
         text: text.into(),
         fg_color: FG_COLOR,
         size: None,
-        font: DEJA_VU,
+        font: Font::DejaVu,
     }
 }
 
@@ -255,12 +255,10 @@ fn render_text(txt: TextSpan) -> GeomBatch {
     // If these are large enough, does this work?
     let max_w = 9999.0;
     let max_h = 9999.0;
-    let family = if txt.font == DEJA_VU {
-        "font-family=\"DejaVu Sans\""
-    } else if txt.font == ROBOTO {
-        "font-family=\"Roboto\""
-    } else {
-        "font-family=\"Roboto\" font-weight=\"bold\""
+    let family = match txt.font {
+        Font::DejaVu => "font-family=\"DejaVu Sans\"",
+        Font::Roboto => "font-family=\"Roboto\"",
+        Font::RobotoBold => "font-family=\"Roboto\" font-weight=\"bold\"",
     };
 
     let svg = format!(
