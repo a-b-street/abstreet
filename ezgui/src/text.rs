@@ -271,7 +271,7 @@ fn render_text(spans: Vec<TextSpan>, tolerance: f32) -> GeomBatch {
             &mut contents,
             r##"<tspan fill="{}">{}</tspan>"##,
             span.fg_color.to_hex(),
-            span.text
+            htmlescape::encode_minimal(&span.text)
         )
         .unwrap();
     }
