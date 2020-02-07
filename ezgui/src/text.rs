@@ -72,6 +72,7 @@ pub fn Line<S: Into<String>>(text: S) -> TextSpan {
 pub struct Text {
     // The bg_color will cover the entire block, but some lines can have extra highlighting.
     lines: Vec<(Option<Color>, Vec<TextSpan>)>,
+    // TODO Stop using this as much as possible.
     bg_color: Option<Color>,
 }
 

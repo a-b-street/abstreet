@@ -1,9 +1,9 @@
 use crate::{
-    svg, Canvas, Color, Drawable, Event, GeomBatch, GfxCtx, HorizontalAlignment, Line, Prerender,
-    ScreenDims, Text, UserInput, VerticalAlignment,
+    svg, text, Canvas, Color, Drawable, Event, GeomBatch, GfxCtx, Line, Prerender, ScreenDims,
+    ScreenPt, Text, UserInput,
 };
 use abstutil::{elapsed_seconds, Timer, TimerSink};
-use geom::Angle;
+use geom::{Angle, Polygon};
 use glium::texture::{RawImage2d, Texture2dArray};
 use std::collections::BTreeMap;
 use std::collections::VecDeque;
@@ -202,7 +202,8 @@ impl<'a> LoadingScreen<'a> {
         }
         self.last_drawn = Instant::now();
 
-        let mut txt = Text::prompt(&self.title);
+        let mut txt = Text::from(Line(&self.title));
+        txt.highlight_last_line(text::PROMPT_COLOR);
         for l in &self.lines {
             txt.add(Line(l));
         }
@@ -217,14 +218,18 @@ impl<'a> LoadingScreen<'a> {
         );
         g.clear(Color::BLACK);
 
-        let batch = txt.inner_render(&g.prerender.assets, svg::LOW_QUALITY);
+        let mut batch = GeomBatch::from(vec![(
+            text::BG_COLOR,
+            Polygon::rectangle(0.8 * g.canvas.window_width, 0.8 * g.canvas.window_height),
+        )]);
+        batch.add_translated(
+            txt.inner_render(&g.prerender.assets, svg::LOW_QUALITY),
+            0.0,
+            0.0,
+        );
         let draw = g.upload(batch);
         g.redraw_at(
-            g.canvas.align_window(
-                ScreenDims::new(0.8 * g.canvas.window_width, 0.8 * g.canvas.window_height),
-                HorizontalAlignment::Center,
-                VerticalAlignment::Center,
-            ),
+            ScreenPt::new(0.1 * g.canvas.window_width, 0.1 * g.canvas.window_height),
             &draw,
         );
 
