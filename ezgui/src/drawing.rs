@@ -374,27 +374,17 @@ impl GeomBatch {
         ctx.prerender.upload(self)
     }
 
-    // TODO Funky API. Make sure to call this in the right places.
-    pub(crate) fn fix(mut self) -> GeomBatch {
+    // Sets the top-left to 0, 0. Not sure exactly when this should be used.
+    pub fn realign(mut self) -> GeomBatch {
         let mut bounds = Bounds::new();
         for (_, poly) in &self.list {
             bounds.union(poly.get_bounds());
         }
-        let dx = if bounds.min_x < 0.0 {
-            -bounds.min_x
-        } else {
-            0.0
-        };
-        let dy = if bounds.min_y < 0.0 {
-            -bounds.min_y
-        } else {
-            0.0
-        };
-        if dx == 0.0 && dy == 0.0 {
+        if bounds.min_x == 0.0 && bounds.min_y == 0.0 {
             return self;
         }
         for (_, poly) in &mut self.list {
-            *poly = poly.translate(dx, dy);
+            *poly = poly.translate(-bounds.min_x, -bounds.min_y);
         }
         self
     }
@@ -435,10 +425,14 @@ impl GeomBatch {
     pub fn add_svg(&mut self, filename: &str, center: Pt2D, scale: f64, rotate: Angle) {
         let mut batch = GeomBatch::new();
         svg::add_svg(&mut batch, filename);
-        let dims = batch.get_dims();
+        self.add_transformed(batch, center, scale, rotate);
+    }
+
+    pub fn add_transformed(&mut self, other: GeomBatch, center: Pt2D, scale: f64, rotate: Angle) {
+        let dims = other.get_dims();
         let dx = center.x() - dims.width * scale / 2.0;
         let dy = center.y() - dims.height * scale / 2.0;
-        for (color, poly) in batch.consume() {
+        for (color, poly) in other.consume() {
             self.push(color, poly.scale(scale).translate(dx, dy).rotate(rotate));
         }
     }

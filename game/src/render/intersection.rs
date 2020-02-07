@@ -4,7 +4,7 @@ use crate::render::{
     OUTLINE_THICKNESS,
 };
 use abstutil::Timer;
-use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
+use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, ScreenPt, Text};
 use geom::{Angle, Distance, Line, PolyLine, Polygon, Pt2D, Time, EPSILON_DIST};
 use map_model::{
     Intersection, IntersectionID, IntersectionType, Map, Road, RoadWithStopSign, Turn, TurnType,
@@ -17,7 +17,7 @@ pub struct DrawIntersection {
     zorder: isize,
 
     draw_default: Drawable,
-    pub draw_traffic_signal: RefCell<Option<(Time, Drawable, Text, Pt2D)>>,
+    pub draw_traffic_signal: RefCell<Option<(Time, Drawable)>>,
 }
 
 impl DrawIntersection {
@@ -130,7 +130,7 @@ impl Renderable for DrawIntersection {
             let mut maybe_redraw = self.draw_traffic_signal.borrow_mut();
             let recalc = maybe_redraw
                 .as_ref()
-                .map(|(t, _, _, _)| *t != ctx.sim.time())
+                .map(|(t, _)| *t != ctx.sim.time())
                 .unwrap_or(true);
             if recalc {
                 let (idx, phase, t) = signal.current_phase_and_remaining_time(ctx.sim.time());
@@ -143,16 +143,19 @@ impl Renderable for DrawIntersection {
                     ctx,
                     ctx.opts.traffic_signal_style.clone(),
                 );
-                *maybe_redraw = Some((
-                    ctx.sim.time(),
-                    g.prerender.upload(batch),
-                    Text::from(Line(format!("{}", idx + 1)).roboto().size(90)),
+                let mut txt = GeomBatch::new();
+                Text::from(Line(format!("{}", idx + 1)).roboto())
+                    .render(&mut txt, ScreenPt::new(0.0, 0.0));
+                batch.add_transformed(
+                    txt.realign(),
                     ctx.map.get_i(self.id).polygon.center(),
-                ));
+                    0.1,
+                    Angle::ZERO,
+                );
+                *maybe_redraw = Some((ctx.sim.time(), g.prerender.upload(batch)));
             }
-            let (_, batch, txt, pt) = maybe_redraw.as_ref().unwrap();
+            let (_, batch) = maybe_redraw.as_ref().unwrap();
             g.redraw(batch);
-            g.draw_text_at_mapspace(txt, *pt);
         }
     }
 

@@ -215,7 +215,7 @@ impl Text {
                 );
             }
 
-            // TODO Do this first or not? Should we call fix() around here?
+            // TODO Do this first or not? Should we call realign() around here?
             y += line_dims.height;
 
             for (color, poly) in line_batch.consume() {
