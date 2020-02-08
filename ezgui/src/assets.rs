@@ -1,5 +1,5 @@
 use crate::text::Font;
-use crate::GeomBatch;
+use crate::{text, GeomBatch};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use usvg::Options;
@@ -36,8 +36,9 @@ impl Assets {
         // TODO This is expensive and hacky!
         let mut db = usvg::Database::new();
         db.populate(&self.text_opts);
-        let height = db
-            .load_font_idx(match font {
+        // This seems to be missing line_gap, and line_gap is 0, so manually adjust here.
+        let height = text::SCALE_LINE_HEIGHT
+            * db.load_font_idx(match font {
                 Font::DejaVu => 0,
                 Font::RobotoBold => 1,
                 Font::Roboto => 2,

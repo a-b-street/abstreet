@@ -12,6 +12,7 @@ pub const PROMPT_COLOR: Color = Color::BLUE;
 pub const SELECTED_COLOR: Color = Color::grey(0.5);
 pub const HOTKEY_COLOR: Color = Color::GREEN;
 pub const INACTIVE_CHOICE_COLOR: Color = Color::grey(0.4);
+pub const SCALE_LINE_HEIGHT: f64 = 1.2;
 
 // TODO Don't do this!
 const MAX_CHAR_WIDTH: f64 = 25.0;
@@ -216,7 +217,9 @@ impl Text {
             let line_dims = if line_batch.is_empty() {
                 ScreenDims::new(0.0, line_height)
             } else {
-                ScreenDims::new(line_batch.get_dims().width, line_height)
+                // Also lie a little about width to make things look reasonable. TODO Probably
+                // should tune based on font size.
+                ScreenDims::new(line_batch.get_dims().width + 5.0, line_height)
             };
 
             if let Some(c) = line_color {
@@ -228,8 +231,10 @@ impl Text {
 
             y += line_dims.height;
 
+            // Add all of the padding at the bottom of the line.
+            let offset = line_height / SCALE_LINE_HEIGHT * 0.2;
             for (color, poly) in line_batch.consume() {
-                master_batch.push(color, poly.translate(0.0, y));
+                master_batch.push(color, poly.translate(0.0, y - offset));
             }
 
             max_width = max_width.max(line_dims.width);
