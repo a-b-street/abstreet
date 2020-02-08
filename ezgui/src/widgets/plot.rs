@@ -4,7 +4,7 @@ use crate::{
     ScreenRectangle, Text,
 };
 use abstutil::prettyprint_usize;
-use geom::{Bounds, Circle, Distance, Duration, FindClosest, PolyLine, Pt2D, Time};
+use geom::{Angle, Bounds, Circle, Distance, Duration, FindClosest, PolyLine, Pt2D, Time};
 
 // The X is always time
 pub struct Plot<T> {
@@ -162,12 +162,14 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
         for i in 0..num_x_labels {
             let percent_x = (i as f64) / ((num_x_labels - 1) as f64);
             let t = max_x.percent_of(percent_x);
-            row.push(ManagedWidget::draw_text(
-                ctx,
-                Text::from(Line(t.to_string())),
-            ));
+            // TODO Need ticks now to actually see where this goes
+            let mut batch = GeomBatch::new();
+            for (color, poly) in Text::from(Line(t.to_string())).render_ctx(ctx).consume() {
+                batch.push(color, poly.rotate(Angle::new_degs(-15.0)));
+            }
+            row.push(ManagedWidget::draw_batch(ctx, batch.autocrop()));
         }
-        let x_axis = ManagedWidget::row(row);
+        let x_axis = ManagedWidget::row(row).padding(10);
 
         let num_y_labels = 4;
         let mut col = Vec::new();
@@ -179,7 +181,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
             ));
         }
         col.reverse();
-        let y_axis = ManagedWidget::col(col);
+        let y_axis = ManagedWidget::col(col).padding(10);
 
         (plot, legend, x_axis, y_axis)
     }
@@ -189,7 +191,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
 
         if let Some(cursor) = g.canvas.get_cursor_in_screen_space() {
             if ScreenRectangle::top_left(self.top_left, self.dims).contains(cursor) {
-                let radius = Distance::meters(5.0);
+                let radius = Distance::meters(15.0);
                 let mut txt = Text::new().bg(Color::BLACK);
                 for (label, pt, _) in self.closest.all_close_pts(
                     Pt2D::new(cursor.x - self.top_left.x, cursor.y - self.top_left.y),

@@ -242,7 +242,7 @@ impl<'a> GfxCtx<'a> {
         txt: Text,
         (horiz, vert): (HorizontalAlignment, VerticalAlignment),
     ) {
-        let batch = txt.render(&self.prerender.assets);
+        let batch = txt.render_g(self);
         let dims = batch.get_dims();
         let top_left = self.canvas.align_window(dims, horiz, vert);
 
@@ -253,7 +253,7 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub(crate) fn draw_blocking_text_at_screenspace_topleft(&mut self, txt: Text, pt: ScreenPt) {
-        let batch = txt.render(&self.prerender.assets);
+        let batch = txt.render_g(self);
         self.canvas
             .mark_covered_area(ScreenRectangle::top_left(pt, batch.get_dims()));
         let draw = self.upload(batch);
@@ -262,7 +262,7 @@ impl<'a> GfxCtx<'a> {
 
     // TODO Rename these draw_nonblocking_text_*
     pub fn draw_text_at(&mut self, txt: Text, map_pt: Pt2D) {
-        let batch = txt.render(&self.prerender.assets);
+        let batch = txt.render_g(self);
         let dims = batch.get_dims();
         let pt = self.canvas.map_to_screen(map_pt);
         let draw = self.upload(batch);
@@ -273,7 +273,7 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_mouse_tooltip(&mut self, txt: Text) {
-        let txt_batch = txt.render(&self.prerender.assets);
+        let txt_batch = txt.render_g(self);
         let dims = txt_batch.get_dims();
         // TODO Maybe also consider the cursor as a valid center
         let pt = dims.top_left_for_corner(

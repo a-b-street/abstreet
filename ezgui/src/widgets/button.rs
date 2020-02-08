@@ -201,7 +201,7 @@ impl Button {
         const HORIZ_PADDING: f64 = 30.0;
         const VERT_PADDING: f64 = 10.0;
 
-        let txt_batch = text.render(&ctx.prerender.assets);
+        let txt_batch = text.render_ctx(ctx);
         let dims = txt_batch.get_dims();
         let geom = Polygon::rounded_rectangle(
             dims.width + 2.0 * HORIZ_PADDING,
@@ -231,9 +231,9 @@ impl Button {
         let horiz_padding = if padding { 15.0 } else { 0.0 };
         let vert_padding = if padding { 8.0 } else { 0.0 };
 
-        let unselected_batch = unselected_text.render(&ctx.prerender.assets);
+        let unselected_batch = unselected_text.render_ctx(ctx);
         let dims = unselected_batch.get_dims();
-        let selected_batch = selected_text.render(&ctx.prerender.assets);
+        let selected_batch = selected_text.render_ctx(ctx);
         assert_eq!(dims, selected_batch.get_dims());
         let geom = Polygon::rectangle(
             dims.width + 2.0 * horiz_padding,
@@ -250,9 +250,7 @@ impl Button {
 
     // TODO Extreme wackiness.
     pub fn inactive_btn(ctx: &EventCtx, txt: Text) -> ManagedWidget {
-        let txt_batch = txt
-            .change_fg(Color::grey(0.5))
-            .render(&ctx.prerender.assets);
+        let txt_batch = txt.change_fg(Color::grey(0.5)).render_ctx(ctx);
         let dims = txt_batch.get_dims();
 
         let horiz_padding = 15.0;
@@ -277,7 +275,7 @@ impl Button {
         const HORIZ_PADDING: f64 = 30.0;
         const VERT_PADDING: f64 = 10.0;
 
-        let txt = Text::from(Line(label).fg(Color::BLACK)).render(&ctx.prerender.assets);
+        let txt = Text::from(Line(label).fg(Color::BLACK)).render_ctx(ctx);
         let dims = txt.get_dims();
         let mut batch = GeomBatch::from(vec![(
             Color::WHITE,

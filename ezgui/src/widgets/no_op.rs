@@ -50,7 +50,7 @@ impl JustDraw {
     }
 
     pub fn text(ctx: &EventCtx, text: Text) -> ManagedWidget {
-        JustDraw::wrap(ctx, text.render(&ctx.prerender.assets))
+        JustDraw::wrap(ctx, text.render_ctx(ctx))
     }
 
     pub(crate) fn draw(&self, g: &mut GfxCtx) {

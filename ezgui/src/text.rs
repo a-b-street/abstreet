@@ -1,5 +1,5 @@
 use crate::assets::Assets;
-use crate::{svg, Color, GeomBatch, GfxCtx, Prerender, ScreenDims};
+use crate::{svg, Color, EventCtx, GeomBatch, GfxCtx, Prerender, ScreenDims};
 use geom::Polygon;
 use std::collections::hash_map::DefaultHasher;
 use std::fmt::Write;
@@ -192,6 +192,9 @@ impl Text {
 
     pub fn render_g(self, g: &GfxCtx) -> GeomBatch {
         self.render(&g.prerender.assets)
+    }
+    pub fn render_ctx(self, ctx: &EventCtx) -> GeomBatch {
+        self.render(&ctx.prerender.assets)
     }
 
     pub(crate) fn inner_render(self, assets: &Assets, tolerance: f32) -> GeomBatch {
