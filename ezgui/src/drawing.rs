@@ -78,6 +78,7 @@ pub struct GfxCtx<'a> {
     pub prerender: &'a Prerender<'a>,
 
     pub num_draw_calls: usize,
+    pub num_forks: usize,
 }
 
 impl<'a> GfxCtx<'a> {
@@ -108,6 +109,7 @@ impl<'a> GfxCtx<'a> {
             uniforms,
             params,
             num_draw_calls: 0,
+            num_forks: 0,
             screencap_mode,
             naming_hint: None,
         }
@@ -127,6 +129,7 @@ impl<'a> GfxCtx<'a> {
             self.canvas.window_height as f32,
             SCREENSPACE_Z,
         ];
+        self.num_forks += 1;
     }
 
     pub fn fork_screenspace(&mut self) {
@@ -136,10 +139,12 @@ impl<'a> GfxCtx<'a> {
             self.canvas.window_height as f32,
             SCREENSPACE_Z,
         ];
+        self.num_forks += 1;
     }
 
     pub fn unfork(&mut self) {
         self.uniforms = Uniforms::new(&self.canvas);
+        self.num_forks += 1;
     }
 
     pub fn clear(&mut self, color: Color) {
@@ -237,39 +242,34 @@ impl<'a> GfxCtx<'a> {
         txt: Text,
         (horiz, vert): (HorizontalAlignment, VerticalAlignment),
     ) {
-        let dims = txt.clone().dims(&self.prerender.assets);
+        let batch = txt.render(&self.prerender.assets);
+        let dims = batch.get_dims();
         let top_left = self.canvas.align_window(dims, horiz, vert);
-        self.draw_blocking_text_at_screenspace_topleft(txt, top_left);
+
+        self.canvas
+            .mark_covered_area(ScreenRectangle::top_left(top_left, dims));
+        let draw = self.upload(batch);
+        self.redraw_at(top_left, &draw);
     }
 
     pub(crate) fn draw_blocking_text_at_screenspace_topleft(&mut self, txt: Text, pt: ScreenPt) {
-        let mut batch = GeomBatch::new();
-        batch.add_translated(txt.render(&self.prerender.assets), pt.x, pt.y);
+        let batch = txt.render(&self.prerender.assets);
         self.canvas
             .mark_covered_area(ScreenRectangle::top_left(pt, batch.get_dims()));
-        self.fork_screenspace();
-        batch.draw(self);
-        self.unfork();
-    }
-
-    pub fn get_screen_bounds(&self) -> Bounds {
-        self.canvas.get_screen_bounds()
+        let draw = self.upload(batch);
+        self.redraw_at(pt, &draw);
     }
 
     // TODO Rename these draw_nonblocking_text_*
     pub fn draw_text_at(&mut self, txt: Text, map_pt: Pt2D) {
-        let txt_batch = txt.render(&self.prerender.assets);
-        let dims = txt_batch.get_dims();
+        let batch = txt.render(&self.prerender.assets);
+        let dims = batch.get_dims();
         let pt = self.canvas.map_to_screen(map_pt);
-        let mut batch = GeomBatch::new();
-        batch.add_translated(
-            txt_batch,
-            pt.x - (dims.width / 2.0),
-            pt.y - (dims.height / 2.0),
+        let draw = self.upload(batch);
+        self.redraw_at(
+            ScreenPt::new(pt.x - (dims.width / 2.0), pt.y - (dims.height / 2.0)),
+            &draw,
         );
-        self.fork_screenspace();
-        batch.draw(self);
-        self.unfork();
     }
 
     pub fn draw_mouse_tooltip(&mut self, txt: Text) {
@@ -290,11 +290,16 @@ impl<'a> GfxCtx<'a> {
             self.canvas.window_height as f32,
             TOOLTIP_Z,
         ];
+        self.num_forks += 1;
         // Temporarily disable clipping if needed.
         let clip = self.params.scissor.take();
         batch.draw(self);
         self.unfork();
         self.params.scissor = clip;
+    }
+
+    pub fn get_screen_bounds(&self) -> Bounds {
+        self.canvas.get_screen_bounds()
     }
 
     pub fn screen_to_map(&self, pt: ScreenPt) -> Pt2D {

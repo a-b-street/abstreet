@@ -128,6 +128,15 @@ impl<G: GUI> State<G> {
         }
         let naming_hint = g.naming_hint.take();
 
+        if false {
+            println!(
+                "----- {} uploads, {} draw calls, {} forks -----",
+                g.get_num_uploads(),
+                g.num_draw_calls,
+                g.num_forks
+            );
+        }
+
         target.finish().unwrap();
         naming_hint
     }

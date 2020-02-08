@@ -140,12 +140,6 @@ impl GUI for Game {
             }
         }
         state.draw(g, &self.ui);
-
-        /*println!(
-            "----- {} uploads, {} draw calls -----",
-            g.get_num_uploads(),
-            g.num_draw_calls
-        );*/
     }
 
     fn dump_before_abort(&self, canvas: &Canvas) {
