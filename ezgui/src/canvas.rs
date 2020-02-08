@@ -243,7 +243,6 @@ impl Canvas {
             HorizontalAlignment::Left => 0.0,
             HorizontalAlignment::Center => (self.window_width - dims.width) / 2.0,
             HorizontalAlignment::Right => self.window_width - dims.width,
-            HorizontalAlignment::FillScreen => 0.0,
             HorizontalAlignment::Percent(pct) => pct * self.window_width,
             HorizontalAlignment::Centered(x) => x - (dims.width / 2.0),
         };
@@ -266,7 +265,6 @@ pub enum HorizontalAlignment {
     Left,
     Center,
     Right,
-    FillScreen,
     Percent(f64),
     Centered(f64),
 }

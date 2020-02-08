@@ -237,13 +237,8 @@ impl<'a> GfxCtx<'a> {
         txt: Text,
         (horiz, vert): (HorizontalAlignment, VerticalAlignment),
     ) {
-        let mut dims = txt.clone().dims(&self.prerender.assets);
+        let dims = txt.clone().dims(&self.prerender.assets);
         let top_left = self.canvas.align_window(dims, horiz, vert);
-        // TODO This doesn't take effect anymore
-        if let HorizontalAlignment::FillScreen = horiz {
-            dims.width = self.canvas.window_width;
-        }
-
         self.draw_blocking_text_at_screenspace_topleft(txt, top_left);
     }
 

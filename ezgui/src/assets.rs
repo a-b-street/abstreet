@@ -1,5 +1,6 @@
 use crate::text::Font;
 use crate::{text, GeomBatch};
+use lru::LruCache;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use usvg::Options;
@@ -8,7 +9,7 @@ use usvg::Options;
 pub struct Assets {
     pub default_line_height: f64,
     pub default_font_size: usize,
-    text_cache: RefCell<HashMap<String, GeomBatch>>,
+    text_cache: RefCell<LruCache<String, GeomBatch>>,
     line_height_cache: RefCell<HashMap<(Font, usize), f64>>,
     pub text_opts: Options,
 }
@@ -18,7 +19,7 @@ impl Assets {
         let mut a = Assets {
             default_line_height: 0.0,
             default_font_size,
-            text_cache: RefCell::new(HashMap::new()),
+            text_cache: RefCell::new(LruCache::new(500)),
             line_height_cache: RefCell::new(HashMap::new()),
             text_opts: Options::default(),
         };
@@ -50,13 +51,11 @@ impl Assets {
         height
     }
 
-    pub fn get_cached_text(&self, key: &str) -> Option<GeomBatch> {
-        self.text_cache.borrow().get(key).cloned()
+    pub fn get_cached_text(&self, key: &String) -> Option<GeomBatch> {
+        self.text_cache.borrow_mut().get(key).cloned()
     }
 
     pub fn cache_text(&self, key: String, geom: GeomBatch) {
-        self.text_cache.borrow_mut().insert(key, geom);
-        //println!("cache has {} things",
-        // abstutil::prettyprint_usize(self.text_cache.borrow().len()));
+        self.text_cache.borrow_mut().put(key, geom);
     }
 }
