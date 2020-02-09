@@ -456,8 +456,16 @@ impl GeomBatch {
         let dims = other.get_dims();
         let dx = center.x() - dims.width * scale / 2.0;
         let dy = center.y() - dims.height * scale / 2.0;
-        for (color, poly) in other.consume() {
-            self.push(color, poly.scale(scale).translate(dx, dy).rotate(rotate));
+        for (color, mut poly) in other.consume() {
+            // Avoid unnecessary transformations for slight perf boost
+            if scale != 1.0 {
+                poly = poly.scale(scale);
+            }
+            poly = poly.translate(dx, dy);
+            if rotate != Angle::ZERO {
+                poly = poly.rotate(rotate);
+            }
+            self.push(color, poly);
         }
     }
 
