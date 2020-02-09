@@ -440,10 +440,15 @@ impl GeomBatch {
     }
 
     // TODO Weird API...
-    pub fn add_svg(&mut self, filename: &str, center: Pt2D, scale: f64, rotate: Angle) {
-        let mut batch = GeomBatch::new();
-        svg::add_svg(&mut batch, filename);
-        self.add_transformed(batch, center, scale, rotate);
+    pub fn add_svg(
+        &mut self,
+        prerender: &Prerender,
+        filename: &str,
+        center: Pt2D,
+        scale: f64,
+        rotate: Angle,
+    ) {
+        self.add_transformed(svg::load_svg(prerender, filename).0, center, scale, rotate);
     }
 
     // This centers on the pt!

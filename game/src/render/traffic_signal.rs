@@ -1,13 +1,14 @@
 use crate::options::TrafficSignalStyle;
 use crate::render::intersection::make_crosswalk;
 use crate::render::{DrawCtx, DrawTurnGroup, BIG_ARROW_THICKNESS};
-use ezgui::{Color, GeomBatch};
+use ezgui::{Color, GeomBatch, Prerender};
 use geom::{Angle, Circle, Distance, Duration, Line, PolyLine, Pt2D};
 use map_model::{IntersectionID, Phase, TurnPriority};
 use std::collections::BTreeSet;
 
 // Only draws a box when time_left is present
 pub fn draw_signal_phase(
+    prerender: &Prerender,
     phase: &Phase,
     i: IntersectionID,
     time_left: Option<Duration>,
@@ -62,13 +63,13 @@ pub fn draw_signal_phase(
                     );
                 } else {
                     let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
-                    batch.add_svg("assets/map/walk.svg", center, 0.07, angle);
+                    batch.add_svg(prerender, "assets/map/walk.svg", center, 0.07, angle);
                     dont_walk.remove(g);
                 }
             }
             for g in dont_walk {
                 let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
-                batch.add_svg("assets/map/dont_walk.svg", center, 0.07, angle);
+                batch.add_svg(prerender, "assets/map/dont_walk.svg", center, 0.07, angle);
             }
         }
         TrafficSignalStyle::Sidewalks => {

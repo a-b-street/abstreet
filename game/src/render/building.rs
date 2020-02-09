@@ -46,6 +46,7 @@ impl DrawBuilding {
         if bldg.parking.is_some() {
             // Might need to scale down more for some buildings, but so far, this works everywhere.
             batch.add_svg(
+                prerender,
                 "assets/map/parking.svg",
                 bldg.label_center,
                 0.1,

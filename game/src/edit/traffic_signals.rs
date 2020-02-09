@@ -302,6 +302,7 @@ impl State for TrafficSignalEditor {
         let ctx = ui.draw_ctx();
         let mut batch = GeomBatch::new();
         draw_signal_phase(
+            g.prerender,
             phase,
             self.i,
             None,
@@ -499,6 +500,7 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
 
         let mut orig_batch = GeomBatch::new();
         draw_signal_phase(
+            ctx.prerender,
             phase,
             i,
             None,

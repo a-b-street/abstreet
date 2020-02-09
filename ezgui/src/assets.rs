@@ -1,5 +1,6 @@
 use crate::text::Font;
 use crate::{text, GeomBatch};
+use geom::Bounds;
 use lru::LruCache;
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -11,6 +12,7 @@ pub struct Assets {
     pub default_font_size: usize,
     text_cache: RefCell<LruCache<String, GeomBatch>>,
     line_height_cache: RefCell<HashMap<(Font, usize), f64>>,
+    svg_cache: RefCell<HashMap<String, (GeomBatch, Bounds)>>,
     pub text_opts: Options,
 }
 
@@ -21,6 +23,7 @@ impl Assets {
             default_font_size,
             text_cache: RefCell::new(LruCache::new(500)),
             line_height_cache: RefCell::new(HashMap::new()),
+            svg_cache: RefCell::new(HashMap::new()),
             text_opts: Options::default(),
         };
         a.default_line_height = a.line_height(Font::DejaVu, a.default_font_size);
@@ -54,8 +57,14 @@ impl Assets {
     pub fn get_cached_text(&self, key: &String) -> Option<GeomBatch> {
         self.text_cache.borrow_mut().get(key).cloned()
     }
-
     pub fn cache_text(&self, key: String, geom: GeomBatch) {
         self.text_cache.borrow_mut().put(key, geom);
+    }
+
+    pub fn get_cached_svg(&self, key: &str) -> Option<(GeomBatch, Bounds)> {
+        self.svg_cache.borrow().get(key).cloned()
+    }
+    pub fn cache_svg(&self, key: String, geom: GeomBatch, bounds: Bounds) {
+        self.svg_cache.borrow_mut().insert(key, (geom, bounds));
     }
 }

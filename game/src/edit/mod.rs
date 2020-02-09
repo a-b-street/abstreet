@@ -362,14 +362,15 @@ pub fn apply_map_edits(ctx: &mut EventCtx, ui: &mut UI, edits: MapEdits) {
         ui.primary.map.apply_edits(edits, &mut timer);
 
     for l in lanes_changed {
+        let lane = ui.primary.map.get_l(l);
         ui.primary.draw_map.lanes[l.0] = DrawLane::new(
-            ui.primary.map.get_l(l),
+            lane,
             &ui.primary.map,
             ui.primary.current_flags.draw_lane_markings,
             &ui.cs,
             &mut timer,
         )
-        .finish(ctx.prerender);
+        .finish(ctx.prerender, lane);
     }
     for r in roads_changed {
         ui.primary.draw_map.roads[r.0] = DrawRoad::new(

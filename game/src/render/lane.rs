@@ -8,14 +8,55 @@ use map_model::{Lane, LaneID, LaneType, Map, Road, TurnType, PARKING_SPOT_LENGTH
 // Split into two phases like this, because AlmostDrawLane can be created in parallel, but GPU
 // upload has to be serial.
 pub struct AlmostDrawLane {
-    id: LaneID,
+    pub id: LaneID,
     polygon: Polygon,
     zorder: isize,
     draw_default: GeomBatch,
 }
 
 impl AlmostDrawLane {
-    pub fn finish(self, prerender: &Prerender) -> DrawLane {
+    pub fn finish(mut self, prerender: &Prerender, lane: &Lane) -> DrawLane {
+        // Need prerender to load the (cached) SVGs
+        if lane.is_bus() {
+            let buffer = Distance::meters(2.0);
+            let btwn = Distance::meters(30.0);
+            let len = lane.lane_center_pts.length();
+
+            let mut dist = buffer;
+            while dist + buffer <= len {
+                let (pt, angle) = lane.lane_center_pts.dist_along(dist);
+                self.draw_default.add_svg(
+                    prerender,
+                    "assets/map/bus_only.svg",
+                    pt,
+                    0.06,
+                    angle
+                        .shortest_rotation_towards(Angle::new_degs(-90.0))
+                        .invert_y(),
+                );
+                dist += btwn;
+            }
+        } else if lane.is_biking() {
+            let buffer = Distance::meters(2.0);
+            let btwn = Distance::meters(30.0);
+            let len = lane.lane_center_pts.length();
+
+            let mut dist = buffer;
+            while dist + buffer <= len {
+                let (pt, angle) = lane.lane_center_pts.dist_along(dist);
+                self.draw_default.add_svg(
+                    prerender,
+                    "assets/meters/bike.svg",
+                    pt,
+                    0.06,
+                    angle
+                        .shortest_rotation_towards(Angle::new_degs(-90.0))
+                        .invert_y(),
+                );
+                dist += btwn;
+            }
+        }
+
         DrawLane {
             id: self.id,
             polygon: self.polygon,
@@ -82,46 +123,8 @@ impl DrawLane {
                         cs.get("general road marking"),
                         calculate_turn_markings(map, lane, timer),
                     );
-
-                    if lane.is_bus() {
-                        let buffer = Distance::meters(2.0);
-                        let btwn = Distance::meters(30.0);
-                        let len = lane.lane_center_pts.length();
-
-                        let mut dist = buffer;
-                        while dist + buffer <= len {
-                            let (pt, angle) = lane.lane_center_pts.dist_along(dist);
-                            draw.add_svg(
-                                "assets/map/bus_only.svg",
-                                pt,
-                                0.06,
-                                angle
-                                    .shortest_rotation_towards(Angle::new_degs(-90.0))
-                                    .invert_y(),
-                            );
-                            dist += btwn;
-                        }
-                    }
                 }
-                LaneType::Biking => {
-                    let buffer = Distance::meters(2.0);
-                    let btwn = Distance::meters(30.0);
-                    let len = lane.lane_center_pts.length();
-
-                    let mut dist = buffer;
-                    while dist + buffer <= len {
-                        let (pt, angle) = lane.lane_center_pts.dist_along(dist);
-                        draw.add_svg(
-                            "assets/meters/bike.svg",
-                            pt,
-                            0.06,
-                            angle
-                                .shortest_rotation_towards(Angle::new_degs(-90.0))
-                                .invert_y(),
-                        );
-                        dist += btwn;
-                    }
-                }
+                LaneType::Biking => {}
                 LaneType::SharedLeftTurn => {
                     draw.push(
                         cs.get("road center line"),

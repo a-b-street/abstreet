@@ -41,6 +41,7 @@ impl DrawCar {
         draw_default.push(zoomed_color_car(&input, cs), body_polygon.clone());
         if input.status == CarStatus::Parked {
             draw_default.add_svg(
+                prerender,
                 "assets/map/parked_car.svg",
                 body_polygon.center(),
                 0.01,

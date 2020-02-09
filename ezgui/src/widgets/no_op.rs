@@ -28,8 +28,7 @@ impl JustDraw {
     }
 
     pub fn svg(ctx: &EventCtx, filename: &str) -> ManagedWidget {
-        let mut batch = GeomBatch::new();
-        let bounds = svg::add_svg(&mut batch, filename);
+        let (batch, bounds) = svg::load_svg(ctx.prerender, filename);
         // TODO The dims will be wrong; it'll only look at geometry, not the padding in the image.
         ManagedWidget::just_draw(JustDraw {
             dims: ScreenDims::new(bounds.width(), bounds.height()),
@@ -38,8 +37,7 @@ impl JustDraw {
         })
     }
     pub fn svg_transform(ctx: &EventCtx, filename: &str, rewrite: RewriteColor) -> ManagedWidget {
-        let mut batch = GeomBatch::new();
-        let bounds = svg::add_svg(&mut batch, filename);
+        let (mut batch, bounds) = svg::load_svg(ctx.prerender, filename);
         batch.rewrite_color(rewrite);
         // TODO The dims will be wrong; it'll only look at geometry, not the padding in the image.
         ManagedWidget::just_draw(JustDraw {

@@ -1,4 +1,4 @@
-use crate::{Color, GeomBatch};
+use crate::{Color, GeomBatch, Prerender};
 use abstutil::VecMap;
 use geom::{Bounds, Polygon, Pt2D};
 use lyon::geom::{CubicBezierSegment, LineSegment};
@@ -14,10 +14,20 @@ pub const LOW_QUALITY: f32 = 1.0;
 // Code here adapted from
 // https://github.com/nical/lyon/blob/b5c87c9a22dccfab24daa1947419a70915d60914/examples/wgpu_svg/src/main.rs.
 
-pub fn add_svg(batch: &mut GeomBatch, filename: &str) -> Bounds {
+pub fn load_svg(prerender: &Prerender, filename: &str) -> (GeomBatch, Bounds) {
+    if let Some(pair) = prerender.assets.get_cached_svg(filename) {
+        return pair;
+    }
+
     let svg_tree = usvg::Tree::from_file(&filename, &usvg::Options::default()).unwrap();
-    match add_svg_inner(batch, svg_tree, HIGH_QUALITY) {
-        Ok(b) => b,
+    let mut batch = GeomBatch::new();
+    match add_svg_inner(&mut batch, svg_tree, HIGH_QUALITY) {
+        Ok(bounds) => {
+            prerender
+                .assets
+                .cache_svg(filename.to_string(), batch.clone(), bounds.clone());
+            (batch, bounds)
+        }
         Err(err) => panic!("{}: {}", filename, err),
     }
 }

@@ -189,6 +189,7 @@ impl State for ShowTrafficSignal {
         let ctx = ui.draw_ctx();
         let mut batch = GeomBatch::new();
         draw_signal_phase(
+            g.prerender,
             &ui.primary.map.get_traffic_signal(self.diagram.i).phases[self.diagram.current_phase],
             self.diagram.i,
             None,
@@ -295,6 +296,7 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
 
         let mut orig_batch = GeomBatch::new();
         draw_signal_phase(
+            ctx.prerender,
             phase,
             i,
             None,

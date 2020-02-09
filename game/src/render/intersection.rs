@@ -136,6 +136,7 @@ impl Renderable for DrawIntersection {
                 let (idx, phase, t) = signal.current_phase_and_remaining_time(ctx.sim.time());
                 let mut batch = GeomBatch::new();
                 draw_signal_phase(
+                    g.prerender,
                     phase,
                     self.id,
                     Some(t),

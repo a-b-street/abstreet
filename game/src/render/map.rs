@@ -92,7 +92,8 @@ impl DrawMap {
         let mut lanes: Vec<DrawLane> = Vec::new();
         for almost in almost_lanes {
             timer.next();
-            lanes.push(almost.finish(ctx.prerender));
+            let lane = map.get_l(almost.id);
+            lanes.push(almost.finish(ctx.prerender, lane));
         }
 
         let mut intersections: Vec<DrawIntersection> = Vec::new();

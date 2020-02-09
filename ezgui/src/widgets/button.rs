@@ -163,8 +163,7 @@ impl Button {
         hover: RewriteColor,
         ctx: &EventCtx,
     ) -> Button {
-        let mut normal = GeomBatch::new();
-        let bounds = svg::add_svg(&mut normal, filename);
+        let (normal, bounds) = svg::load_svg(ctx.prerender, filename);
 
         let mut hovered = normal.clone();
         hovered.rewrite_color(hover);
@@ -180,8 +179,7 @@ impl Button {
         hover: RewriteColor,
         ctx: &EventCtx,
     ) -> Button {
-        let mut normal = GeomBatch::new();
-        let bounds = svg::add_svg(&mut normal, filename);
+        let (mut normal, bounds) = svg::load_svg(ctx.prerender, filename);
         normal.rewrite_color(normal_rewrite);
 
         let mut hovered = normal.clone();

@@ -23,6 +23,8 @@ Understand XML: just use firefox
 
 ## Profiling
 
+Actually, https://github.com/flamegraph-rs/flamegraph is pretty cool too.
+
 `apt-get install google-perftools libgoogle-perftools-dev`
 
 Follow Usage from https://crates.io/crates/cpuprofiler
