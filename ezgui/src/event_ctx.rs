@@ -141,7 +141,6 @@ impl<'a> EventCtx<'a> {
                     match tex_type {
                         TextureType::Stretch => Color::StretchTexture(tex_id, dims, Angle::ZERO),
                         TextureType::Tile => Color::TileTexture(tex_id, dims),
-                        TextureType::CustomUV => Color::CustomUVTexture(tex_id),
                     },
                 );
                 raw_data.push(RawImage2d::from_raw_rgba(raw, raw_dims));
@@ -257,5 +256,4 @@ impl<'a> TimerSink for LoadingScreen<'a> {
 pub enum TextureType {
     Stretch,
     Tile,
-    CustomUV,
 }

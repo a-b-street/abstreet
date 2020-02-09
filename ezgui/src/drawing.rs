@@ -529,8 +529,8 @@ impl<'a> Prerender<'a> {
 
         for (color, poly) in list {
             let idx_offset = vertices.len();
-            let (pts, raw_indices, maybe_uv) = poly.raw_for_rendering();
-            for (idx, pt) in pts.iter().enumerate() {
+            let (pts, raw_indices) = poly.raw_for_rendering();
+            for pt in pts {
                 // For the three texture cases, pass [U coordinate, V coordinate, texture group ID,
                 // 100 + texture offset ID] as the style. The last field is between 0 an 1 RGBA's
                 // alpha values, so bump by 100 to distinguish from that.
@@ -558,11 +558,6 @@ impl<'a> Prerender<'a> {
                         let tx = (rot_pt.x() - b.min_x) / b.width();
                         let ty = (rot_pt.y() - b.min_y) / b.height();
                         [tx as f32, ty as f32, id.0, 100.0 + id.1]
-                    }
-                    Color::CustomUVTexture(id) => {
-                        let (tx, ty) =
-                            maybe_uv.expect("CustomUVTexture with polygon lacking UV")[idx];
-                        [tx, ty, id.0, 100.0 + id.1]
                     }
                     // Two final special cases
                     Color::HatchingStyle1 => [100.0, 0.0, 0.0, 0.0],

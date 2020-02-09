@@ -83,7 +83,6 @@ pub fn add_svg_inner(
                     .map(|v| Pt2D::new(f64::from(v.position.x), f64::from(v.position.y)))
                     .collect(),
                 mesh.indices.into_iter().map(|idx| idx as usize).collect(),
-                None,
             ),
         );
     }
@@ -96,7 +95,6 @@ pub fn add_svg_inner(
                     .map(|v| Pt2D::new(f64::from(v.position.x), f64::from(v.position.y)))
                     .collect(),
                 mesh.indices.into_iter().map(|idx| idx as usize).collect(),
-                None,
             ),
         );
     }

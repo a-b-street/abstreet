@@ -429,44 +429,7 @@ impl PolyLine {
                 high_idx,
             ]);
         }
-        Polygon::precomputed(points, indices, None)
-    }
-
-    pub fn make_polygons_with_uv(&self, width: Distance) -> Option<Polygon> {
-        let side1 = self.shift_with_sharp_angles(width / 2.0, MITER_THRESHOLD);
-        let side2 = self.shift_with_sharp_angles(-width / 2.0, MITER_THRESHOLD);
-        assert_eq!(side1.len(), side2.len());
-        // TODO Sometimes there are dupe points.
-        let side1_pl = PolyLine::maybe_new(side1.clone())?;
-        let side2_pl = PolyLine::maybe_new(side2.clone())?;
-
-        // TODO Assuming the texture is pointing up. side2's first point is (0, 0). side1's first
-        // is (1, 0).
-        let mut uv = Vec::new();
-        for pt in &side1 {
-            let (dist, _) = side1_pl.dist_along_of_point(*pt).unwrap();
-            uv.push((1.0, (dist / side1_pl.length()) as f32));
-        }
-        for pt in &side2 {
-            let (dist, _) = side2_pl.dist_along_of_point(*pt).unwrap();
-            uv.push((0.0, (dist / side2_pl.length()) as f32));
-        }
-
-        let side2_offset = side1.len();
-        let mut points = side1;
-        points.extend(side2);
-        let mut indices = Vec::new();
-
-        for high_idx in 1..self.pts.len() {
-            // Duplicate first point, since that's what graphics layer expects
-            indices.extend(vec![high_idx, high_idx - 1, side2_offset + high_idx - 1]);
-            indices.extend(vec![
-                side2_offset + high_idx,
-                side2_offset + high_idx - 1,
-                high_idx,
-            ]);
-        }
-        Some(Polygon::precomputed(points, indices, Some(uv)))
+        Polygon::precomputed(points, indices)
     }
 
     pub fn dashed_polygons(

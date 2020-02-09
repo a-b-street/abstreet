@@ -16,8 +16,6 @@ pub enum Color {
     // polygon. Not sure what this means for anything but circles right now. Have to manually
     // fiddle with the original orientation to fix y inversion.
     StretchTexture(TextureID, ScreenDims, Angle),
-    // A polygon with UV coordinates for each point must be used.
-    CustomUVTexture(TextureID),
     // TODO Figure out how to pack more data into this.
     HatchingStyle1,
     HatchingStyle2,
@@ -37,7 +35,6 @@ impl fmt::Display for Color {
                 "Color::StretchTexture({}:{}, width={}, height={}, {})",
                 id.0, id.1, dims.width, dims.height, angle
             ),
-            Color::CustomUVTexture(id) => write!(f, "Color::CustomUVTexture({}:{})", id.0, id.1),
             Color::HatchingStyle1 => write!(f, "Color::HatchingStyle1"),
             Color::HatchingStyle2 => write!(f, "Color::HatchingStyle2"),
         }

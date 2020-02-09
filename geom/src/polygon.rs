@@ -10,9 +10,6 @@ pub struct Polygon {
     // Groups of three indices make up the triangles
     // TODO u32 better for later, but then we can't index stuff!
     indices: Vec<usize>,
-
-    // TODO Hack to stick this here. Almost never used.
-    uv: Option<Vec<(f32, f32)>>,
 }
 
 // TODO The triangulation is a bit of a mess. Everything except for Polygon::new comes from
@@ -80,31 +77,18 @@ impl Polygon {
         Polygon {
             points: pts,
             indices,
-            uv: None,
         }
     }
 
-    pub fn precomputed(
-        points: Vec<Pt2D>,
-        indices: Vec<usize>,
-        uv: Option<Vec<(f32, f32)>>,
-    ) -> Polygon {
+    pub fn precomputed(points: Vec<Pt2D>, indices: Vec<usize>) -> Polygon {
         assert!(indices.len() % 3 == 0);
-        if let Some(ref list) = uv {
-            assert_eq!(points.len(), list.len());
-        }
-        Polygon {
-            points,
-            indices,
-            uv,
-        }
+        Polygon { points, indices }
     }
 
     pub fn from_triangle(tri: &Triangle) -> Polygon {
         Polygon {
             points: vec![tri.pt1, tri.pt2, tri.pt3],
             indices: vec![0, 1, 2],
-            uv: None,
         }
     }
 
@@ -120,8 +104,8 @@ impl Polygon {
         triangles
     }
 
-    pub fn raw_for_rendering(&self) -> (&Vec<Pt2D>, &Vec<usize>, Option<&Vec<(f32, f32)>>) {
-        (&self.points, &self.indices, self.uv.as_ref())
+    pub fn raw_for_rendering(&self) -> (&Vec<Pt2D>, &Vec<usize>) {
+        (&self.points, &self.indices)
     }
 
     pub fn contains_pt(&self, pt: Pt2D) -> bool {
@@ -136,7 +120,6 @@ impl Polygon {
         Polygon {
             points: self.points.iter().map(|pt| pt.offset(dx, dy)).collect(),
             indices: self.indices.clone(),
-            uv: None,
         }
     }
 
@@ -148,7 +131,6 @@ impl Polygon {
                 .map(|pt| Pt2D::new(pt.x() * factor, pt.y() * factor))
                 .collect(),
             indices: self.indices.clone(),
-            uv: None,
         }
     }
 
@@ -169,7 +151,6 @@ impl Polygon {
                 })
                 .collect(),
             indices: self.indices.clone(),
-            uv: None,
         }
     }
 
@@ -198,7 +179,6 @@ impl Polygon {
                 Pt2D::new(0.0, 0.0),
             ],
             indices: vec![0, 1, 2, 0, 2, 3],
-            uv: None,
         }
     }
 
@@ -268,7 +248,7 @@ impl Polygon {
         for idx in other.indices {
             indices.push(offset + idx);
         }
-        Polygon::precomputed(points, indices, None)
+        Polygon::precomputed(points, indices)
     }
 
     pub fn intersection(&self, other: &Polygon) -> Vec<Polygon> {
