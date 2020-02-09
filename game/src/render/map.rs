@@ -11,7 +11,7 @@ use crate::ui::{Flags, UI};
 use aabb_quadtree::QuadTree;
 use abstutil::{Cloneable, Timer};
 use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender};
-use geom::{Bounds, Circle, Distance, Duration, FindClosest, Time};
+use geom::{Bounds, Circle, Distance, Duration, FindClosest, Pt2D, Time};
 use map_model::{
     AreaID, BuildingID, BusStopID, DirectedRoadID, Intersection, IntersectionID, LaneID, Map, Road,
     RoadID, Traversable, NORMAL_LANE_THICKNESS,
@@ -417,15 +417,12 @@ impl AgentCache {
             }
         }
 
-        // TODO The perf is a little slow compared to when we just returned a bunch of Pt2Ds
-        // without the extra data. Try plumbing a callback that directly populates batch.
+        // It's quite silly to produce triangles for the same circle over and over again. ;)
+        let circle = Circle::new(Pt2D::new(0.0, 0.0), radius / cam_zoom).to_polygon();
         let mut batch = GeomBatch::new();
         for agent in source.get_unzoomed_agents(map) {
             if let Some(color) = acs.color(&agent) {
-                batch.push(
-                    color,
-                    Circle::new(agent.pos, radius / cam_zoom).to_polygon(),
-                );
+                batch.push(color, circle.translate(agent.pos.x(), agent.pos.y()));
             }
         }
 
