@@ -13,8 +13,8 @@ abstutil = { path = "../abstutil" }
 # backtrace = "0.3.40"
 cpuprofiler = { version = "0.0.3", optional = true }
 geom = { path = "../geom" }
-glium = "0.25.1"
-glutin = "0.22.0"
+glium = "0.26.0"
+glutin = "0.23.0"
 htmlescape = "0.3.1"
 image = "0.22.2"
 lru = "0.4.3"
@@ -26,3 +26,4 @@ simsearch = "0.1.4"
 stretch = "0.3.2"
 textwrap = "0.11"
 usvg = { git = "https://github.com/dabreegster/resvg" }
+winit = "0.21.0"

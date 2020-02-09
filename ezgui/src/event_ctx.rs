@@ -180,7 +180,7 @@ impl<'a> LoadingScreen<'a> {
         initial_height: f64,
         title: String,
     ) -> LoadingScreen<'a> {
-        let canvas = Canvas::new(initial_width, initial_height, 1.0);
+        let canvas = Canvas::new(initial_width, initial_height);
 
         LoadingScreen {
             prerender,

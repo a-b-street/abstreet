@@ -52,9 +52,6 @@ fn main() {
     if let Some(n) = args.optional_parse("--font_size", |s| s.parse::<usize>()) {
         settings.default_font_size(n);
     }
-    if let Some(x) = args.optional_parse("--hidpi_factor", |x| x.parse::<f64>()) {
-        settings.override_hidpi_factor(x);
-    }
 
     let mut mode = sandbox::GameplayMode::Freeform;
     if let Some(x) = args.optional("--challenge") {

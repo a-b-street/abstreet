@@ -218,8 +218,9 @@ impl<'a> GfxCtx<'a> {
     pub fn enable_clipping(&mut self, rect: ScreenRectangle) {
         assert!(self.params.scissor.is_none());
         // The scissor rectangle has to be in device coordinates, so you would think some transform
-        // by self.canvas.hidpi_factor has to happen here. But actually, window dimensions and the
-        // rectangle passed in are already scaled up. So don't do anything here!
+        // by scale factor (previously called HiDPI factor) has to happen here. But actually,
+        // window dimensions and the rectangle passed in are already scaled up. So don't do
+        // anything here!
         self.params.scissor = Some(glium::Rect {
             left: rect.x1 as u32,
             // Y-inversion

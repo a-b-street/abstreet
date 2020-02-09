@@ -1,10 +1,10 @@
 use crate::assets::Assets;
 use crate::{widgets, Canvas, Event, EventCtx, GfxCtx, Key, Prerender, UserInput};
 use geom::Duration;
-use glium::glutin;
 use std::cell::Cell;
 use std::time::Instant;
 use std::{panic, process, thread};
+use winit::platform::desktop::EventLoopExtDesktop;
 
 // 30fps is 1000 / 30
 const SLEEP_BETWEEN_FRAMES: std::time::Duration = std::time::Duration::from_millis(33);
@@ -147,7 +147,6 @@ pub struct Settings {
     font_dir: String,
     profiling_enabled: bool,
     default_font_size: usize,
-    override_hidpi_factor: Option<f64>,
     dump_raw_events: bool,
 }
 
@@ -158,7 +157,6 @@ impl Settings {
             font_dir: font_dir.to_string(),
             profiling_enabled: false,
             default_font_size: 30,
-            override_hidpi_factor: None,
             dump_raw_events: false,
         }
     }
@@ -176,15 +174,11 @@ impl Settings {
     pub fn default_font_size(&mut self, size: usize) {
         self.default_font_size = size;
     }
-
-    pub fn override_hidpi_factor(&mut self, override_hidpi_factor: f64) {
-        self.override_hidpi_factor = Some(override_hidpi_factor);
-    }
 }
 
 pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: F) {
-    let events_loop = glutin::EventsLoop::new();
-    let window = glutin::WindowBuilder::new()
+    let event_loop = winit::event_loop::EventLoop::new();
+    let window = winit::window::WindowBuilder::new()
         .with_title(settings.window_title)
         .with_maximized(true);
     // multisampling: 2 looks bad, 4 looks fine
@@ -199,7 +193,7 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: 
     let context = glutin::ContextBuilder::new()
         .with_multisampling(4)
         .with_depth_buffer(2);
-    let display = glium::Display::new(window, context, &events_loop).unwrap();
+    let display = glium::Display::new(window, context, &event_loop).unwrap();
 
     let (vertex_shader, fragment_shader) =
         if display.is_glsl_version_supported(&glium::Version(glium::Api::Gl, 1, 4)) {
@@ -247,14 +241,8 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: 
     )
     .unwrap();
 
-    let mut hidpi_factor = events_loop.get_primary_monitor().get_hidpi_factor();
-    println!("HiDPI factor is purportedly {}", hidpi_factor);
-    if let Some(x) = settings.override_hidpi_factor {
-        println!("... but overriding it to {} by flag", x);
-        hidpi_factor = x;
-    }
-    let window_size = events_loop.get_primary_monitor().get_dimensions();
-    let mut canvas = Canvas::new(window_size.width, window_size.height, hidpi_factor);
+    let window_size = event_loop.primary_monitor().size();
+    let mut canvas = Canvas::new(window_size.width.into(), window_size.height.into());
     let prerender = Prerender {
         assets: Assets::new(settings.default_font_size, settings.font_dir),
         display: &display,
@@ -274,7 +262,7 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: 
 
     loop_forever(
         state,
-        events_loop,
+        event_loop,
         program,
         prerender,
         settings.profiling_enabled,
@@ -284,7 +272,7 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: 
 
 fn loop_forever<G: GUI>(
     mut state: State<G>,
-    mut events_loop: glutin::EventsLoop,
+    mut event_loop: winit::event_loop::EventLoop<()>,
     program: glium::Program,
     prerender: Prerender,
     profiling_enabled: bool,
@@ -308,9 +296,11 @@ fn loop_forever<G: GUI>(
         let start_frame = Instant::now();
 
         let mut new_events: Vec<Event> = Vec::new();
-        events_loop.poll_events(|event| {
-            if let glutin::Event::WindowEvent { event, .. } = event {
-                if event == glutin::WindowEvent::CloseRequested {
+        // TODO Switch to run, surrendering this shoddy attempt at a main loop.
+        event_loop.run_return(|event, _, control_flow| {
+            *control_flow = winit::event_loop::ControlFlow::Exit;
+            if let winit::event::Event::WindowEvent { event, .. } = event {
+                if event == winit::event::WindowEvent::CloseRequested {
                     if profiling_enabled {
                         #[cfg(feature = "profiler")]
                         {
@@ -320,17 +310,10 @@ fn loop_forever<G: GUI>(
                     state.gui.before_quit(&state.canvas);
                     process::exit(0);
                 }
-                if let glutin::WindowEvent::HiDpiFactorChanged(hidpi_factor) = event {
-                    println!(
-                        "HiDPI factor changed from {} to {}",
-                        state.canvas.hidpi_factor, hidpi_factor
-                    );
-                    state.canvas.hidpi_factor = hidpi_factor;
-                }
                 if dump_raw_events {
                     println!("Event: {:?}", event);
                 }
-                if let Some(ev) = Event::from_glutin_event(event, state.canvas.hidpi_factor) {
+                if let Some(ev) = Event::from_winit_event(event) {
                     new_events.push(ev);
                 }
             }

@@ -1,6 +1,8 @@
 use crate::ScreenPt;
 use geom::Duration;
-use glium::glutin;
+use winit::event::{
+    ElementState, KeyboardInput, MouseButton, MouseScrollDelta, VirtualKeyCode, WindowEvent,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Event {
@@ -26,26 +28,18 @@ pub enum Event {
 }
 
 impl Event {
-    pub fn from_glutin_event(ev: glutin::WindowEvent, hidpi_factor: f64) -> Option<Event> {
+    pub fn from_winit_event(ev: WindowEvent) -> Option<Event> {
         match ev {
-            glutin::WindowEvent::MouseInput { state, button, .. } => match (button, state) {
-                (glutin::MouseButton::Left, glutin::ElementState::Pressed) => {
-                    Some(Event::LeftMouseButtonDown)
-                }
-                (glutin::MouseButton::Left, glutin::ElementState::Released) => {
-                    Some(Event::LeftMouseButtonUp)
-                }
-                (glutin::MouseButton::Right, glutin::ElementState::Pressed) => {
-                    Some(Event::RightMouseButtonDown)
-                }
-                (glutin::MouseButton::Right, glutin::ElementState::Released) => {
-                    Some(Event::RightMouseButtonUp)
-                }
+            WindowEvent::MouseInput { state, button, .. } => match (button, state) {
+                (MouseButton::Left, ElementState::Pressed) => Some(Event::LeftMouseButtonDown),
+                (MouseButton::Left, ElementState::Released) => Some(Event::LeftMouseButtonUp),
+                (MouseButton::Right, ElementState::Pressed) => Some(Event::RightMouseButtonDown),
+                (MouseButton::Right, ElementState::Released) => Some(Event::RightMouseButtonUp),
                 _ => None,
             },
-            glutin::WindowEvent::KeyboardInput { input, .. } => {
-                if let Some(key) = Key::from_glutin_key(input) {
-                    if input.state == glutin::ElementState::Pressed {
+            WindowEvent::KeyboardInput { input, .. } => {
+                if let Some(key) = Key::from_winit_key(input) {
+                    if input.state == ElementState::Pressed {
                         Some(Event::KeyPress(key))
                     } else {
                         Some(Event::KeyRelease(key))
@@ -54,12 +48,11 @@ impl Event {
                     None
                 }
             }
-            glutin::WindowEvent::CursorMoved { position, .. } => {
-                let pos = position.to_physical(hidpi_factor);
-                Some(Event::MouseMovedTo(ScreenPt::new(pos.x, pos.y)))
+            WindowEvent::CursorMoved { position, .. } => {
+                Some(Event::MouseMovedTo(ScreenPt::new(position.x, position.y)))
             }
-            glutin::WindowEvent::MouseWheel { delta, .. } => match delta {
-                glutin::MouseScrollDelta::LineDelta(dx, dy) => {
+            WindowEvent::MouseWheel { delta, .. } => match delta {
+                MouseScrollDelta::LineDelta(dx, dy) => {
                     if dx == 0.0 && dy == 0.0 {
                         None
                     } else {
@@ -69,15 +62,14 @@ impl Event {
                 // This one only happens on Mac. The scrolling is way too fast, so slow it down.
                 // Probably the better way is to convert the LogicalPosition to a PhysicalPosition
                 // somehow knowing the DPI.
-                glutin::MouseScrollDelta::PixelDelta(pos) => {
+                MouseScrollDelta::PixelDelta(pos) => {
                     Some(Event::MouseWheelScroll(0.1 * pos.x, 0.1 * pos.y))
                 }
             },
-            glutin::WindowEvent::Resized(size) => {
-                let actual_size = glutin::dpi::PhysicalSize::from_logical(size, hidpi_factor);
-                Some(Event::WindowResized(actual_size.width, actual_size.height))
+            WindowEvent::Resized(size) => {
+                Some(Event::WindowResized(size.width.into(), size.height.into()))
             }
-            glutin::WindowEvent::Focused(gained) => Some(if gained {
+            WindowEvent::Focused(gained) => Some(if gained {
                 Event::WindowGainedCursor
             } else {
                 Event::WindowLostCursor
@@ -291,82 +283,82 @@ impl Key {
         }
     }
 
-    fn from_glutin_key(input: glutin::KeyboardInput) -> Option<Key> {
+    fn from_winit_key(input: KeyboardInput) -> Option<Key> {
         let key = input.virtual_keycode?;
         Some(match key {
-            glutin::VirtualKeyCode::A => Key::A,
-            glutin::VirtualKeyCode::B => Key::B,
-            glutin::VirtualKeyCode::C => Key::C,
-            glutin::VirtualKeyCode::D => Key::D,
-            glutin::VirtualKeyCode::E => Key::E,
-            glutin::VirtualKeyCode::F => Key::F,
-            glutin::VirtualKeyCode::G => Key::G,
-            glutin::VirtualKeyCode::H => Key::H,
-            glutin::VirtualKeyCode::I => Key::I,
-            glutin::VirtualKeyCode::J => Key::J,
-            glutin::VirtualKeyCode::K => Key::K,
-            glutin::VirtualKeyCode::L => Key::L,
-            glutin::VirtualKeyCode::M => Key::M,
-            glutin::VirtualKeyCode::N => Key::N,
-            glutin::VirtualKeyCode::O => Key::O,
-            glutin::VirtualKeyCode::P => Key::P,
-            glutin::VirtualKeyCode::Q => Key::Q,
-            glutin::VirtualKeyCode::R => Key::R,
-            glutin::VirtualKeyCode::S => Key::S,
-            glutin::VirtualKeyCode::T => Key::T,
-            glutin::VirtualKeyCode::U => Key::U,
-            glutin::VirtualKeyCode::V => Key::V,
-            glutin::VirtualKeyCode::W => Key::W,
-            glutin::VirtualKeyCode::X => Key::X,
-            glutin::VirtualKeyCode::Y => Key::Y,
-            glutin::VirtualKeyCode::Z => Key::Z,
-            glutin::VirtualKeyCode::Key1 => Key::Num1,
-            glutin::VirtualKeyCode::Key2 => Key::Num2,
-            glutin::VirtualKeyCode::Key3 => Key::Num3,
-            glutin::VirtualKeyCode::Key4 => Key::Num4,
-            glutin::VirtualKeyCode::Key5 => Key::Num5,
-            glutin::VirtualKeyCode::Key6 => Key::Num6,
-            glutin::VirtualKeyCode::Key7 => Key::Num7,
-            glutin::VirtualKeyCode::Key8 => Key::Num8,
-            glutin::VirtualKeyCode::Key9 => Key::Num9,
-            glutin::VirtualKeyCode::Key0 => Key::Num0,
-            glutin::VirtualKeyCode::LBracket => Key::LeftBracket,
-            glutin::VirtualKeyCode::RBracket => Key::RightBracket,
-            glutin::VirtualKeyCode::Space => Key::Space,
-            glutin::VirtualKeyCode::Slash => Key::Slash,
-            glutin::VirtualKeyCode::Period => Key::Dot,
-            glutin::VirtualKeyCode::Comma => Key::Comma,
-            glutin::VirtualKeyCode::Semicolon => Key::Semicolon,
-            glutin::VirtualKeyCode::Colon => Key::Colon,
-            glutin::VirtualKeyCode::Equals => Key::Equals,
-            glutin::VirtualKeyCode::Apostrophe => Key::SingleQuote,
-            glutin::VirtualKeyCode::Escape => Key::Escape,
-            glutin::VirtualKeyCode::Return => Key::Enter,
-            glutin::VirtualKeyCode::Tab => Key::Tab,
-            glutin::VirtualKeyCode::Back => Key::Backspace,
-            glutin::VirtualKeyCode::LShift => Key::LeftShift,
-            glutin::VirtualKeyCode::LControl => Key::LeftControl,
-            glutin::VirtualKeyCode::RControl => Key::RightControl,
-            glutin::VirtualKeyCode::LAlt => Key::LeftAlt,
-            glutin::VirtualKeyCode::RAlt => Key::RightAlt,
-            glutin::VirtualKeyCode::Left => Key::LeftArrow,
-            glutin::VirtualKeyCode::Right => Key::RightArrow,
-            glutin::VirtualKeyCode::Up => Key::UpArrow,
-            glutin::VirtualKeyCode::Down => Key::DownArrow,
-            glutin::VirtualKeyCode::F1 => Key::F1,
-            glutin::VirtualKeyCode::F2 => Key::F2,
-            glutin::VirtualKeyCode::F3 => Key::F3,
-            glutin::VirtualKeyCode::F4 => Key::F4,
-            glutin::VirtualKeyCode::F5 => Key::F5,
-            glutin::VirtualKeyCode::F6 => Key::F6,
-            glutin::VirtualKeyCode::F7 => Key::F7,
-            glutin::VirtualKeyCode::F8 => Key::F8,
-            glutin::VirtualKeyCode::F9 => Key::F9,
-            glutin::VirtualKeyCode::F10 => Key::F10,
-            glutin::VirtualKeyCode::F11 => Key::F11,
-            glutin::VirtualKeyCode::F12 => Key::F12,
+            VirtualKeyCode::A => Key::A,
+            VirtualKeyCode::B => Key::B,
+            VirtualKeyCode::C => Key::C,
+            VirtualKeyCode::D => Key::D,
+            VirtualKeyCode::E => Key::E,
+            VirtualKeyCode::F => Key::F,
+            VirtualKeyCode::G => Key::G,
+            VirtualKeyCode::H => Key::H,
+            VirtualKeyCode::I => Key::I,
+            VirtualKeyCode::J => Key::J,
+            VirtualKeyCode::K => Key::K,
+            VirtualKeyCode::L => Key::L,
+            VirtualKeyCode::M => Key::M,
+            VirtualKeyCode::N => Key::N,
+            VirtualKeyCode::O => Key::O,
+            VirtualKeyCode::P => Key::P,
+            VirtualKeyCode::Q => Key::Q,
+            VirtualKeyCode::R => Key::R,
+            VirtualKeyCode::S => Key::S,
+            VirtualKeyCode::T => Key::T,
+            VirtualKeyCode::U => Key::U,
+            VirtualKeyCode::V => Key::V,
+            VirtualKeyCode::W => Key::W,
+            VirtualKeyCode::X => Key::X,
+            VirtualKeyCode::Y => Key::Y,
+            VirtualKeyCode::Z => Key::Z,
+            VirtualKeyCode::Key1 => Key::Num1,
+            VirtualKeyCode::Key2 => Key::Num2,
+            VirtualKeyCode::Key3 => Key::Num3,
+            VirtualKeyCode::Key4 => Key::Num4,
+            VirtualKeyCode::Key5 => Key::Num5,
+            VirtualKeyCode::Key6 => Key::Num6,
+            VirtualKeyCode::Key7 => Key::Num7,
+            VirtualKeyCode::Key8 => Key::Num8,
+            VirtualKeyCode::Key9 => Key::Num9,
+            VirtualKeyCode::Key0 => Key::Num0,
+            VirtualKeyCode::LBracket => Key::LeftBracket,
+            VirtualKeyCode::RBracket => Key::RightBracket,
+            VirtualKeyCode::Space => Key::Space,
+            VirtualKeyCode::Slash => Key::Slash,
+            VirtualKeyCode::Period => Key::Dot,
+            VirtualKeyCode::Comma => Key::Comma,
+            VirtualKeyCode::Semicolon => Key::Semicolon,
+            VirtualKeyCode::Colon => Key::Colon,
+            VirtualKeyCode::Equals => Key::Equals,
+            VirtualKeyCode::Apostrophe => Key::SingleQuote,
+            VirtualKeyCode::Escape => Key::Escape,
+            VirtualKeyCode::Return => Key::Enter,
+            VirtualKeyCode::Tab => Key::Tab,
+            VirtualKeyCode::Back => Key::Backspace,
+            VirtualKeyCode::LShift => Key::LeftShift,
+            VirtualKeyCode::LControl => Key::LeftControl,
+            VirtualKeyCode::RControl => Key::RightControl,
+            VirtualKeyCode::LAlt => Key::LeftAlt,
+            VirtualKeyCode::RAlt => Key::RightAlt,
+            VirtualKeyCode::Left => Key::LeftArrow,
+            VirtualKeyCode::Right => Key::RightArrow,
+            VirtualKeyCode::Up => Key::UpArrow,
+            VirtualKeyCode::Down => Key::DownArrow,
+            VirtualKeyCode::F1 => Key::F1,
+            VirtualKeyCode::F2 => Key::F2,
+            VirtualKeyCode::F3 => Key::F3,
+            VirtualKeyCode::F4 => Key::F4,
+            VirtualKeyCode::F5 => Key::F5,
+            VirtualKeyCode::F6 => Key::F6,
+            VirtualKeyCode::F7 => Key::F7,
+            VirtualKeyCode::F8 => Key::F8,
+            VirtualKeyCode::F9 => Key::F9,
+            VirtualKeyCode::F10 => Key::F10,
+            VirtualKeyCode::F11 => Key::F11,
+            VirtualKeyCode::F12 => Key::F12,
             _ => {
-                println!("Unknown glutin key {:?}", key);
+                println!("Unknown winit key {:?}", key);
                 return None;
             }
         })
