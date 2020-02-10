@@ -75,7 +75,7 @@ pub struct GfxCtx<'a> {
 
     // TODO Don't be pub. Delegate everything.
     pub canvas: &'a Canvas,
-    pub prerender: &'a Prerender<'a>,
+    pub prerender: &'a Prerender,
 
     pub num_draw_calls: usize,
     pub num_forks: usize,
@@ -84,7 +84,7 @@ pub struct GfxCtx<'a> {
 impl<'a> GfxCtx<'a> {
     pub(crate) fn new(
         canvas: &'a Canvas,
-        prerender: &'a Prerender<'a>,
+        prerender: &'a Prerender,
         target: &'a mut glium::Frame,
         program: &'a glium::Program,
         screencap_mode: bool,
@@ -501,16 +501,16 @@ pub(crate) struct Vertex {
 glium::implement_vertex!(Vertex, position, style);
 
 // TODO Don't expose this directly
-pub struct Prerender<'a> {
+pub struct Prerender {
     pub(crate) assets: Assets,
-    pub(crate) display: &'a glium::Display,
+    pub(crate) display: glium::Display,
     pub(crate) num_uploads: Cell<usize>,
     // TODO Prerender doesn't know what things are temporary and permanent. Could make the API more
     // detailed (and use the corresponding persistent glium types).
     pub(crate) total_bytes_uploaded: Cell<usize>,
 }
 
-impl<'a> Prerender<'a> {
+impl Prerender {
     pub fn upload_borrowed(&self, list: Vec<(Color, &Polygon)>) -> Drawable {
         self.actually_upload(true, list)
     }
@@ -583,20 +583,20 @@ impl<'a> Prerender<'a> {
         }
 
         let vertex_buffer = if permanent {
-            glium::VertexBuffer::immutable(self.display, &vertices).unwrap()
+            glium::VertexBuffer::immutable(&self.display, &vertices).unwrap()
         } else {
-            glium::VertexBuffer::new(self.display, &vertices).unwrap()
+            glium::VertexBuffer::new(&self.display, &vertices).unwrap()
         };
         let index_buffer = if permanent {
             glium::IndexBuffer::immutable(
-                self.display,
+                &self.display,
                 glium::index::PrimitiveType::TrianglesList,
                 &indices,
             )
             .unwrap()
         } else {
             glium::IndexBuffer::new(
-                self.display,
+                &self.display,
                 glium::index::PrimitiveType::TrianglesList,
                 &indices,
             )

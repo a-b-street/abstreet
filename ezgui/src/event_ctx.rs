@@ -14,7 +14,7 @@ pub struct EventCtx<'a> {
     pub input: UserInput,
     // TODO These two probably shouldn't be public
     pub canvas: &'a mut Canvas,
-    pub prerender: &'a Prerender<'a>,
+    pub prerender: &'a Prerender,
 
     pub(crate) program: &'a glium::Program,
 }
@@ -147,7 +147,7 @@ impl<'a> EventCtx<'a> {
             }
             self.canvas
                 .texture_arrays
-                .push(Texture2dArray::new(self.prerender.display, raw_data).unwrap());
+                .push(Texture2dArray::new(&self.prerender.display, raw_data).unwrap());
         }
     }
 
@@ -164,7 +164,7 @@ impl<'a> EventCtx<'a> {
 
 pub struct LoadingScreen<'a> {
     canvas: Canvas,
-    prerender: &'a Prerender<'a>,
+    prerender: &'a Prerender,
     program: &'a glium::Program,
     lines: VecDeque<String>,
     max_capacity: usize,
@@ -174,7 +174,7 @@ pub struct LoadingScreen<'a> {
 
 impl<'a> LoadingScreen<'a> {
     pub fn new(
-        prerender: &'a Prerender<'a>,
+        prerender: &'a Prerender,
         program: &'a glium::Program,
         initial_width: f64,
         initial_height: f64,

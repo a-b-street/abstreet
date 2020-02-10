@@ -268,6 +268,8 @@ impl SpeedControls {
                     SpeedSetting::Uncapped => 10.0e9,
                 };
                 let dt = multiplier * real_dt;
+                // TODO This should match the update frequency in ezgui. Plumb along the deadline
+                // or frequency to here.
                 ui.primary
                     .sim
                     .time_limited_step(&ui.primary.map, dt, Duration::seconds(0.033));

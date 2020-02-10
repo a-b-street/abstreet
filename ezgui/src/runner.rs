@@ -2,12 +2,10 @@ use crate::assets::Assets;
 use crate::{widgets, Canvas, Event, EventCtx, GfxCtx, Key, Prerender, UserInput};
 use geom::Duration;
 use std::cell::Cell;
+use std::panic;
 use std::time::Instant;
-use std::{panic, process, thread};
-use winit::platform::desktop::EventLoopExtDesktop;
 
-// 30fps is 1000 / 30
-const SLEEP_BETWEEN_FRAMES: std::time::Duration = std::time::Duration::from_millis(33);
+const UPDATE_FREQUENCY: std::time::Duration = std::time::Duration::from_millis(1000 / 30);
 
 pub trait GUI {
     fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode;
@@ -39,72 +37,68 @@ pub(crate) struct State<G: GUI> {
 impl<G: GUI> State<G> {
     // The bool indicates if the input was actually used.
     fn event(
-        mut self,
+        &mut self,
         ev: Event,
         prerender: &Prerender,
         program: &glium::Program,
-    ) -> (State<G>, EventLoopMode, bool) {
+    ) -> (EventLoopMode, bool) {
         // It's impossible / very unlikey we'll grab the cursor in map space before the very first
         // start_drawing call.
         let input = UserInput::new(ev, &self.canvas);
-        let mut gui = self.gui;
-        let mut canvas = self.canvas;
 
         // Update some ezgui state that's stashed in Canvas for sad reasons.
         {
-            canvas.button_tooltip = None;
+            self.canvas.button_tooltip = None;
 
             if let Event::WindowResized(width, height) = input.event {
-                canvas.window_width = width;
-                canvas.window_height = height;
+                self.canvas.window_width = width;
+                self.canvas.window_height = height;
             }
 
             if input.event == Event::KeyPress(Key::LeftControl) {
-                canvas.lctrl_held = true;
+                self.canvas.lctrl_held = true;
             }
             if input.event == Event::KeyRelease(Key::LeftControl) {
-                canvas.lctrl_held = false;
+                self.canvas.lctrl_held = false;
             }
 
             if let Some(pt) = input.get_moved_mouse() {
-                canvas.cursor_x = pt.x;
-                canvas.cursor_y = pt.y;
+                self.canvas.cursor_x = pt.x;
+                self.canvas.cursor_y = pt.y;
             }
 
             if input.event == Event::WindowGainedCursor {
-                canvas.window_has_cursor = true;
+                self.canvas.window_has_cursor = true;
             }
             if input.window_lost_cursor() {
-                canvas.window_has_cursor = false;
+                self.canvas.window_has_cursor = false;
             }
         }
 
-        let mut ctx = EventCtx {
-            fake_mouseover: false,
-            input: input,
-            canvas: &mut canvas,
-            prerender,
-            program,
-        };
-        let event_mode = match panic::catch_unwind(panic::AssertUnwindSafe(|| gui.event(&mut ctx)))
-        {
+        match panic::catch_unwind(panic::AssertUnwindSafe(|| {
+            let mut ctx = EventCtx {
+                fake_mouseover: false,
+                input: input,
+                canvas: &mut self.canvas,
+                prerender,
+                program,
+            };
+            let evloop = self.gui.event(&mut ctx);
+            // TODO We should always do has_been_consumed, but various hacks prevent this from being
+            // true. For now, just avoid the specific annoying redraw case when a KeyRelease event
+            // is unused.
+            let input_used = match ev {
+                Event::KeyRelease(_) => ctx.input.has_been_consumed(),
+                _ => true,
+            };
+            (evloop, input_used)
+        })) {
             Ok(pair) => pair,
             Err(err) => {
-                gui.dump_before_abort(&canvas);
+                self.gui.dump_before_abort(&self.canvas);
                 panic::resume_unwind(err);
             }
-        };
-        // TODO We should always do has_been_consumed, but various hacks prevent this from being
-        // true. For now, just avoid the specific annoying redraw case when a KeyRelease event is
-        // unused.
-        let input_used = match ev {
-            Event::KeyRelease(_) => ctx.input.has_been_consumed(),
-            _ => true,
-        };
-        self.gui = gui;
-        self.canvas = canvas;
-
-        (self, event_mode, input_used)
+        }
     }
 
     // Returns naming hint. Logically consumes the number of uploads.
@@ -176,23 +170,17 @@ impl Settings {
     }
 }
 
-pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: F) {
+pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: F) -> ! {
     let event_loop = winit::event_loop::EventLoop::new();
     let window = winit::window::WindowBuilder::new()
         .with_title(settings.window_title)
         .with_maximized(true);
     // multisampling: 2 looks bad, 4 looks fine
-    //
-    // The Z values are very simple:
-    // 1.0: The buffer is reset every frame
-    // 0.5: Map-space geometry and text
-    // 0.1: Screen-space text
-    // 0.0: Screen-space geometry
-    // Had weird issues with Z buffering not working as intended, so this is slightly more
-    // complicated than necessary to work.
     let context = glutin::ContextBuilder::new()
         .with_multisampling(4)
         .with_depth_buffer(2);
+    // TODO This step got slow
+    println!("Initializing OpenGL window");
     let display = glium::Display::new(window, context, &event_loop).unwrap();
 
     let (vertex_shader, fragment_shader) =
@@ -245,7 +233,7 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: 
     let mut canvas = Canvas::new(window_size.width.into(), window_size.height.into());
     let prerender = Prerender {
         assets: Assets::new(settings.default_font_size, settings.font_dir),
-        display: &display,
+        display,
         num_uploads: Cell::new(0),
         total_bytes_uploaded: Cell::new(0),
     };
@@ -258,27 +246,9 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: 
         program: &program,
     });
 
-    let state = State { canvas, gui };
+    let mut state = State { canvas, gui };
 
-    loop_forever(
-        state,
-        event_loop,
-        program,
-        prerender,
-        settings.profiling_enabled,
-        settings.dump_raw_events,
-    );
-}
-
-fn loop_forever<G: GUI>(
-    mut state: State<G>,
-    mut event_loop: winit::event_loop::EventLoop<()>,
-    program: glium::Program,
-    prerender: Prerender,
-    profiling_enabled: bool,
-    dump_raw_events: bool,
-) {
-    if profiling_enabled {
+    if settings.profiling_enabled {
         #[cfg(feature = "profiler")]
         {
             cpuprofiler::PROFILER
@@ -289,93 +259,107 @@ fn loop_forever<G: GUI>(
         }
     }
 
-    let mut wait_for_events = false;
-    let mut prev_frame = Instant::now();
+    let profiling_enabled = settings.profiling_enabled;
+    let dump_raw_events = settings.dump_raw_events;
 
-    loop {
-        let start_frame = Instant::now();
-
-        let mut new_events: Vec<Event> = Vec::new();
-        // TODO Switch to run, surrendering this shoddy attempt at a main loop.
-        event_loop.run_return(|event, _, control_flow| {
-            *control_flow = winit::event_loop::ControlFlow::Exit;
-            if let winit::event::Event::WindowEvent { event, .. } = event {
-                if event == winit::event::WindowEvent::CloseRequested {
-                    if profiling_enabled {
-                        #[cfg(feature = "profiler")]
-                        {
-                            cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
-                        }
+    let mut running = true;
+    let mut last_update = Instant::now();
+    event_loop.run(move |event, _, control_flow| {
+        if dump_raw_events {
+            println!("Event: {:?}", event);
+        }
+        let ev = match event {
+            winit::event::Event::WindowEvent {
+                event: winit::event::WindowEvent::CloseRequested,
+                ..
+            } => {
+                // ControlFlow::Exit cleanly shuts things down, meaning on larger maps, lots of
+                // GPU stuff is dropped. Better to just abort violently and let the OS clean
+                // up.
+                if profiling_enabled {
+                    #[cfg(feature = "profiler")]
+                    {
+                        cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
                     }
-                    state.gui.before_quit(&state.canvas);
-                    process::exit(0);
                 }
-                if dump_raw_events {
-                    println!("Event: {:?}", event);
-                }
+                state.gui.before_quit(&state.canvas);
+                std::process::exit(0);
+            }
+            winit::event::Event::WindowEvent { event, .. } => {
                 if let Some(ev) = Event::from_winit_event(event) {
-                    new_events.push(ev);
+                    ev
+                } else {
+                    // Don't touch control_flow if we got an irrelevant event
+                    return;
                 }
             }
-        });
-        if !wait_for_events {
-            new_events.push(Event::Update(Duration::realtime_elapsed(prev_frame)));
-            prev_frame = Instant::now();
+            winit::event::Event::RedrawRequested(_) => {
+                state.draw(&prerender.display, &program, &prerender, false);
+                prerender.num_uploads.set(0);
+                return;
+            }
+            winit::event::Event::MainEventsCleared => {
+                // We might've switched to InputOnly after the WaitUntil was requested.
+                if running {
+                    Event::Update(Duration::realtime_elapsed(last_update))
+                } else {
+                    return;
+                }
+            }
+            _ => {
+                return;
+            }
+        };
+
+        // We want a max of UPDATE_FREQUENCY between updates, so measure the update time before
+        // doing the work (which takes time).
+        if let Event::Update(_) = ev {
+            last_update = Instant::now();
+            *control_flow =
+                winit::event_loop::ControlFlow::WaitUntil(Instant::now() + UPDATE_FREQUENCY);
         }
 
-        let mut any_input_used = false;
+        let (mode, input_used) = state.event(ev, &prerender, &program);
+        if input_used {
+            prerender.display.gl_window().window().request_redraw();
+        }
 
-        for event in new_events {
-            let (new_state, mode, input_used) = state.event(event, &prerender, &program);
-            if input_used {
-                any_input_used = true;
+        match mode {
+            EventLoopMode::InputOnly => {
+                running = false;
+                *control_flow = winit::event_loop::ControlFlow::Wait;
             }
-            state = new_state;
-            // If we just unpaused, then don't act as if lots of time has passed.
-            if wait_for_events && mode == EventLoopMode::Animation {
-                prev_frame = Instant::now();
+            EventLoopMode::Animation => {
+                // If we just unpaused, then don't act as if lots of time has passed.
+                if !running {
+                    last_update = Instant::now();
+                    *control_flow = winit::event_loop::ControlFlow::WaitUntil(
+                        Instant::now() + UPDATE_FREQUENCY,
+                    );
+                }
+
+                running = true;
             }
-            wait_for_events = mode == EventLoopMode::InputOnly;
-            match mode {
-                EventLoopMode::ScreenCaptureEverything {
-                    dir,
+            EventLoopMode::ScreenCaptureEverything {
+                dir,
+                zoom,
+                max_x,
+                max_y,
+            } => {
+                widgets::screenshot_everything(
+                    &mut state,
+                    &dir,
+                    &prerender.display,
+                    &program,
+                    &prerender,
                     zoom,
                     max_x,
                     max_y,
-                } => {
-                    state = widgets::screenshot_everything(
-                        &dir,
-                        state,
-                        &prerender.display,
-                        &program,
-                        &prerender,
-                        zoom,
-                        max_x,
-                        max_y,
-                    );
-                }
-                EventLoopMode::ScreenCaptureCurrentShot => {
-                    widgets::screenshot_current(
-                        &mut state,
-                        &prerender.display,
-                        &program,
-                        &prerender,
-                    );
-                }
-                _ => {}
-            };
+                );
+            }
+            EventLoopMode::ScreenCaptureCurrentShot => {
+                widgets::screenshot_current(&mut state, &prerender.display, &program, &prerender);
+            }
         }
-
-        // Don't draw if an event was ignored and we're not in Animation mode. Every keypress also
-        // fires a release event, most of which are ignored.
-        if any_input_used || !wait_for_events {
-            state.draw(&prerender.display, &program, &prerender, false);
-            prerender.num_uploads.set(0);
-        }
-
-        let this_frame = Instant::now().duration_since(start_frame);
-        if SLEEP_BETWEEN_FRAMES > this_frame {
-            thread::sleep(SLEEP_BETWEEN_FRAMES - this_frame);
-        }
-    }
+    });
 }
