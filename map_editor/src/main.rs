@@ -69,7 +69,6 @@ impl UI {
         } else {
             Model::blank()
         };
-        ctx.set_textures(Vec::new(), &mut Timer::throwaway());
         ctx.canvas.load_camera_state(&model.map.name);
         let bounds = model.map.gps_bounds.to_bounds();
         ctx.canvas.map_dims = (bounds.width(), bounds.height());
@@ -94,11 +93,11 @@ impl UI {
 
             last_id: None,
         };
-        ui.recount_parking_tags();
+        ui.recount_parking_tags(ctx);
         ui
     }
 
-    fn recount_parking_tags(&mut self) {
+    fn recount_parking_tags(&mut self, ctx: &EventCtx) {
         let mut ways_audited = HashSet::new();
         let mut ways_missing = HashSet::new();
         for r in self.model.map.roads.values() {
@@ -111,11 +110,14 @@ impl UI {
                 ways_audited.insert(r.osm_tags[osm::OSM_WAY_ID].clone());
             }
         }
-        self.menu.set_info(Text::from(Line(format!(
-            "Parking data audited: {} / {} ways",
-            abstutil::prettyprint_usize(ways_audited.len()),
-            abstutil::prettyprint_usize(ways_audited.len() + ways_missing.len())
-        ))));
+        self.menu.set_info(
+            ctx,
+            Text::from(Line(format!(
+                "Parking data audited: {} / {} ways",
+                abstutil::prettyprint_usize(ways_audited.len()),
+                abstutil::prettyprint_usize(ways_audited.len() + ways_missing.len())
+            ))),
+        );
     }
 }
 
@@ -211,7 +213,7 @@ impl GUI for UI {
                         } else if ctx.input.key_pressed(Key::T, "toggle parking") {
                             self.model.toggle_r_parking(r, ctx.prerender);
                             self.model.world.handle_mouseover(ctx);
-                            self.recount_parking_tags();
+                            self.recount_parking_tags(ctx);
                         } else if ctx.input.key_pressed(Key::F, "toggle sidewalks") {
                             self.model.toggle_r_sidewalks(r, ctx.prerender);
                             self.model.world.handle_mouseover(ctx);
@@ -313,17 +315,20 @@ impl GUI for UI {
                         } else if short_roads.is_empty()
                             && self
                                 .menu
-                                .swap_action("find short roads", "clear short roads")
+                                .swap_action(ctx, "find short roads", "clear short roads")
                         {
                             *short_roads = find_short_roads(&self.model);
                             if short_roads.is_empty() {
-                                self.menu
-                                    .change_action("clear short roads", "find short roads");
+                                self.menu.change_action(
+                                    ctx,
+                                    "clear short roads",
+                                    "find short roads",
+                                );
                             }
                         } else if !short_roads.is_empty()
                             && self
                                 .menu
-                                .swap_action("clear short roads", "find short roads")
+                                .swap_action(ctx, "clear short roads", "find short roads")
                         {
                             short_roads.clear();
                         }
@@ -643,7 +648,7 @@ impl GUI for UI {
                 if show_tooltip {
                     // TODO Argh, covers up mouseover tooltip.
                     if let Some(cursor) = g.canvas.get_cursor_in_map_space() {
-                        g.draw_mouse_tooltip(&Text::from(Line(cursor.to_string())).with_bg());
+                        g.draw_mouse_tooltip(Text::from(Line(cursor.to_string())).with_bg());
                     }
                 }
             }
@@ -651,7 +656,7 @@ impl GUI for UI {
 
         self.menu.draw(g);
         g.draw_blocking_text(
-            &self.sidebar,
+            self.sidebar.clone(),
             (
                 ezgui::HorizontalAlignment::Left,
                 ezgui::VerticalAlignment::Top,
@@ -681,7 +686,9 @@ fn preview_intersection(i: OriginalIntersection, model: &Model, ctx: &EventCtx) 
         let center = poly.center();
         batch.push(Color::RED.alpha(0.5), poly);
         batch.add_transformed(
-            Text::from(Line(label)).with_bg().render_to_batch(),
+            Text::from(Line(label))
+                .with_bg()
+                .render_to_batch(ctx.prerender),
             center,
             0.1,
             Angle::ZERO,

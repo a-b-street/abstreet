@@ -1,5 +1,5 @@
 use aabb_quadtree::{ItemId, QuadTree};
-use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender, Text};
+use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Polygon, Pt2D};
 use std::collections::HashMap;
 use std::fmt::Debug;
@@ -13,8 +13,6 @@ pub trait ObjectID: Clone + Copy + Debug + Eq + Hash {
 pub struct Object<ID: ObjectID> {
     id: ID,
     geometry: Vec<(Color, Polygon)>,
-    // TODO Unused
-    label: Option<Text>,
 }
 
 impl<ID: ObjectID> Object<ID> {
@@ -22,7 +20,6 @@ impl<ID: ObjectID> Object<ID> {
         Object {
             id,
             geometry: vec![(color, poly)],
-            label: None,
         }
     }
 
@@ -30,7 +27,6 @@ impl<ID: ObjectID> Object<ID> {
         Object {
             id,
             geometry: Vec::new(),
-            label: None,
         }
     }
 
@@ -46,7 +42,6 @@ impl<ID: ObjectID> Object<ID> {
 struct WorldObject {
     unioned_polygon: Polygon,
     draw: Drawable,
-    label: Option<Text>,
     quadtree_id: ItemId,
 }
 
@@ -86,9 +81,6 @@ impl<ID: ObjectID> World<ID> {
         for id in objects {
             let obj = &self.objects[&id];
             g.redraw(&obj.draw);
-            if let Some(ref txt) = obj.label {
-                g.draw_text_at(txt, obj.unioned_polygon.center());
-            }
         }
 
         if let Some(id) = self.current_selection {
@@ -156,7 +148,6 @@ impl<ID: ObjectID> World<ID> {
                 unioned_polygon,
                 draw,
                 quadtree_id,
-                label: obj.label,
             },
         );
     }
