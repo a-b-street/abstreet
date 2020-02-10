@@ -102,10 +102,9 @@ impl Minimap {
                     return Some(Transition::Push(WizardState::new(Box::new(
                         move |wiz, ctx, ui| {
                             let (_, acs) = wiz.wrap(ctx).choose_exact(
-                                // TODO Below is more intuitive, but text can't overlap right now.
                                 (
                                     HorizontalAlignment::Centered(btn.center().x),
-                                    VerticalAlignment::Above(btn.y1 - 15.0),
+                                    VerticalAlignment::Below(btn.y2 + 15.0),
                                 ),
                                 None,
                                 || {

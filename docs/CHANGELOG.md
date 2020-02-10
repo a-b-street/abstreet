@@ -278,3 +278,13 @@ changes here.
 - much better gameplay speed (previously was too fast)
 - UI tuning: lane editor, minimap, signal editor, heatmap legends don't overwrite minimap
 - traffic signal challenge communicates score more clearly
+
+0.1.27
+
+- edit mode revamped: click to edit stuff. no more lane paintbrushes. autosaving and save as.
+- tutorial: can quit and resume tutorial now
+- challenge picking flow simplified
+- UI: layouting fixes to full-screen / into stuff, popup menus go beneath buttons, plots improved
+- internal change to render all text using vector graphics. other than a few text layouting issues, shouldn't be noticeable, except now tooltips in plots don't get covered up
+- misc perf improvements (cache SVGs, drawing many circles for unzoomed agents, dont reload prebaked data)
+- upgraded winit, glutin, glium -- hopefully no new bugs introduced on any platforms
