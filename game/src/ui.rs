@@ -17,8 +17,9 @@ pub struct UI {
     pub primary: PerMapUI,
     // Invariant: This is Some(...) iff we're in A/B test mode or a sub-state.
     pub secondary: Option<PerMapUI>,
-    // Only exists in some gameplay modes. Must be carefully reset otherwise.
-    prebaked: Option<Analytics>,
+    // Only exists in some gameplay modes. Must be carefully reset otherwise. Has the map and
+    // scenario name too. TODO Embed that in Analytics directly instead.
+    prebaked: Option<(String, String, Analytics)>,
     pub cs: ColorScheme,
     // TODO This is a bit weird to keep here; it's controlled almost entirely by the minimap panel.
     // It has no meaning in edit mode.
@@ -86,13 +87,13 @@ impl UI {
         }
     }
 
-    pub fn has_prebaked(&self) -> bool {
-        self.prebaked.is_some()
+    pub fn has_prebaked(&self) -> Option<(&String, &String)> {
+        self.prebaked.as_ref().map(|(m, s, _)| (m, s))
     }
     pub fn prebaked(&self) -> &Analytics {
-        self.prebaked.as_ref().unwrap()
+        &self.prebaked.as_ref().unwrap().2
     }
-    pub fn set_prebaked(&mut self, prebaked: Option<Analytics>) {
+    pub fn set_prebaked(&mut self, prebaked: Option<(String, String, Analytics)>) {
         self.prebaked = prebaked;
     }
 

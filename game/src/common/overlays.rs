@@ -257,7 +257,7 @@ impl Overlays {
                 ctx,
             )),
         ];
-        if !ui.has_prebaked() {
+        if ui.has_prebaked().is_none() {
             choices.retain(|w| !w.has_name("finished trips histogram"));
         }
         // TODO Grey out the inactive SVGs, and add the green checkmark
@@ -568,7 +568,7 @@ impl Overlays {
     }
 
     pub fn finished_trips_histogram(ctx: &mut EventCtx, ui: &UI) -> Overlays {
-        if !ui.has_prebaked() {
+        if ui.has_prebaked().is_none() {
             return Overlays::Inactive;
         }
 

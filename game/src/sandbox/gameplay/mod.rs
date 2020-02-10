@@ -161,17 +161,31 @@ impl GameplayMode {
                 );
                 ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
 
-                // If there's no prebaked data, so be it; some functionality disappears
-                if let Ok(prebaked) = abstutil::maybe_read_binary::<Analytics>(
-                    abstutil::path_prebaked_results(&scenario.map_name, &scenario.scenario_name),
-                    timer,
-                ) {
-                    ui.set_prebaked(Some(prebaked));
-                } else {
-                    println!(
-                        "WARNING: No prebaked results for {} on {}, some stuff might break",
-                        scenario.scenario_name, scenario.map_name
-                    );
+                // Maybe we've already got prebaked data for this map+scenario.
+                if !ui
+                    .has_prebaked()
+                    .map(|(m, s)| m == &scenario.map_name && s == &scenario.scenario_name)
+                    .unwrap_or(false)
+                {
+                    // If there's no prebaked data, so be it; some functionality disappears
+                    if let Ok(prebaked) = abstutil::maybe_read_binary::<Analytics>(
+                        abstutil::path_prebaked_results(
+                            &scenario.map_name,
+                            &scenario.scenario_name,
+                        ),
+                        timer,
+                    ) {
+                        ui.set_prebaked(Some((
+                            scenario.map_name.clone(),
+                            scenario.scenario_name.clone(),
+                            prebaked,
+                        )));
+                    } else {
+                        println!(
+                            "WARNING: No prebaked results for {} on {}, some stuff might break",
+                            scenario.scenario_name, scenario.map_name
+                        );
+                    }
                 }
             }
         });

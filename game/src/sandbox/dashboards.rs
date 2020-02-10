@@ -92,7 +92,7 @@ pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
 }
 
 fn finished_trips_summary_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
-    if !ui.has_prebaked() {
+    if ui.has_prebaked().is_none() {
         return finished_trips_summary_not_prebaked(ctx, ui);
     }
 
