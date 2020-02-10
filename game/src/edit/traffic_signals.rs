@@ -299,7 +299,6 @@ impl State for TrafficSignalEditor {
 
         let signal = ui.primary.map.get_traffic_signal(self.i);
         let phase = &signal.phases[self.current_phase];
-        let ctx = ui.draw_ctx();
         let mut batch = GeomBatch::new();
         draw_signal_phase(
             g.prerender,
@@ -307,8 +306,8 @@ impl State for TrafficSignalEditor {
             self.i,
             None,
             &mut batch,
-            &ctx,
-            ctx.opts.traffic_signal_style.clone(),
+            ui,
+            ui.opts.traffic_signal_style.clone(),
         );
 
         for g in &self.groups {
@@ -505,7 +504,7 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
             i,
             None,
             &mut orig_batch,
-            &ui.draw_ctx(),
+            ui,
             TrafficSignalStyle::Sidewalks,
         );
 

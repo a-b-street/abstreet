@@ -13,7 +13,6 @@ mod traffic_signal;
 mod turn;
 
 use crate::helpers::{ColorScheme, ID};
-use crate::options::Options;
 use crate::render::bike::DrawBike;
 use crate::render::car::DrawCar;
 pub use crate::render::extra_shape::ExtraShapeID;
@@ -24,10 +23,11 @@ use crate::render::pedestrian::{DrawPedCrowd, DrawPedestrian};
 pub use crate::render::road::DrawRoad;
 pub use crate::render::traffic_signal::draw_signal_phase;
 pub use crate::render::turn::{DrawTurn, DrawTurnGroup};
+use crate::ui::UI;
 use ezgui::{GfxCtx, Prerender};
 use geom::{Distance, PolyLine, Polygon, Pt2D, EPSILON_DIST};
 use map_model::{IntersectionID, Map};
-use sim::{DrawCarInput, Sim, VehicleType};
+use sim::{DrawCarInput, VehicleType};
 
 pub const MIN_ZOOM_FOR_DETAIL: f64 = 2.5;
 
@@ -46,7 +46,8 @@ pub trait Renderable {
     // TODO This is expensive for the PedCrowd case. :( Returning a borrow is awkward, because most
     // Renderables are better off storing the inner ID directly.
     fn get_id(&self) -> ID;
-    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, ctx: &DrawCtx);
+    // Only traffic signals need UI. :\
+    fn draw(&self, g: &mut GfxCtx, ui: &UI, opts: &DrawOptions);
     // Higher z-ordered objects are drawn later. Default to low so roads at -1 don't vanish.
     fn get_zorder(&self) -> isize {
         -5
@@ -84,14 +85,6 @@ pub fn dashed_lines(
     // Don't draw the dashes too close to the ends.
     pl.exact_slice(dash_separation, pl.length() - dash_separation)
         .dashed_polygons(width, dash_len, dash_separation)
-}
-
-pub struct DrawCtx<'a> {
-    pub cs: &'a ColorScheme,
-    pub map: &'a Map,
-    pub draw_map: &'a DrawMap,
-    pub sim: &'a Sim,
-    pub opts: &'a Options,
 }
 
 // TODO Borrow, don't clone, and fix up lots of places storing indirect things to populate

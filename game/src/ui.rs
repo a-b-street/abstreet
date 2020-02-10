@@ -3,7 +3,7 @@ use crate::helpers::{ColorScheme, ID};
 use crate::obj_actions::PerObjectActions;
 use crate::options::Options;
 use crate::render::{
-    AgentCache, AgentColorScheme, DrawCtx, DrawMap, DrawOptions, Renderable, MIN_ZOOM_FOR_DETAIL,
+    AgentCache, AgentColorScheme, DrawMap, DrawOptions, Renderable, MIN_ZOOM_FOR_DETAIL,
 };
 use crate::sandbox::TutorialState;
 use abstutil::{MeasureMemory, Timer};
@@ -106,16 +106,6 @@ impl UI {
         self.session = session;
     }
 
-    pub fn draw_ctx(&self) -> DrawCtx<'_> {
-        DrawCtx {
-            cs: &self.cs,
-            map: &self.primary.map,
-            draw_map: &self.primary.draw_map,
-            sim: &self.primary.sim,
-            opts: &self.opts,
-        }
-    }
-
     pub fn draw(
         &self,
         g: &mut GfxCtx,
@@ -123,7 +113,6 @@ impl UI {
         source: &dyn GetDrawAgents,
         show_objs: &dyn ShowObject,
     ) {
-        let ctx = self.draw_ctx();
         let mut sample_intersection: Option<String> = None;
 
         g.clear(self.cs.get_def("true background", Color::BLACK));
@@ -148,7 +137,7 @@ impl UI {
             if layers.show_extra_shapes {
                 for es in &self.primary.draw_map.extra_shapes {
                     if show_objs.show(&es.get_id()) {
-                        es.draw(g, &opts, &ctx);
+                        es.draw(g, self, &opts);
                     }
                 }
             }
@@ -157,12 +146,20 @@ impl UI {
             if let Some(ID::Area(id)) = self.primary.current_selection {
                 g.draw_polygon(
                     self.cs.get("selected"),
-                    &ctx.draw_map.get_a(id).get_outline(&ctx.map),
+                    &self
+                        .primary
+                        .draw_map
+                        .get_a(id)
+                        .get_outline(&self.primary.map),
                 );
             } else if let Some(ID::ExtraShape(id)) = self.primary.current_selection {
                 g.draw_polygon(
                     self.cs.get("selected"),
-                    &ctx.draw_map.get_es(id).get_outline(&ctx.map),
+                    &self
+                        .primary
+                        .draw_map
+                        .get_es(id)
+                        .get_outline(&self.primary.map),
                 );
             }
 
@@ -189,7 +186,7 @@ impl UI {
             let mut drawn_all_areas = false;
 
             for obj in objects {
-                obj.draw(g, &opts, &ctx);
+                obj.draw(g, self, &opts);
 
                 match obj.get_id() {
                     ID::Building(_) => {
@@ -210,7 +207,7 @@ impl UI {
                 if self.primary.current_selection == Some(obj.get_id()) {
                     g.draw_polygon(
                         self.cs.get_def("selected", Color::RED.alpha(0.7)),
-                        &obj.get_outline(&ctx.map),
+                        &obj.get_outline(&self.primary.map),
                     );
                 }
 

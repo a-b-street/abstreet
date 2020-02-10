@@ -1,5 +1,6 @@
 use crate::helpers::{ColorScheme, ID};
-use crate::render::{DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
+use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
+use crate::ui::UI;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Angle, Distance, Line, Polygon, Pt2D};
 use map_model::{Building, BuildingID, Map, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
@@ -84,7 +85,7 @@ impl Renderable for DrawBuilding {
         ID::Building(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, _: &DrawCtx) {
+    fn draw(&self, g: &mut GfxCtx, _: &UI, opts: &DrawOptions) {
         if opts.label_buildings {
             if let Some(ref lbl) = self.label {
                 g.redraw(lbl);

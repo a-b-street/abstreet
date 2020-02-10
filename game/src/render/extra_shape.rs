@@ -1,7 +1,6 @@
 use crate::helpers::{ColorScheme, ID};
-use crate::render::{
-    DrawCtx, DrawOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS,
-};
+use crate::render::{DrawOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS};
+use crate::ui::UI;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
 use geom::{Circle, FindClosest, GPSBounds, PolyLine, Polygon, Pt2D, Ring};
 use kml::ExtraShape;
@@ -83,7 +82,7 @@ impl Renderable for DrawExtraShape {
         ID::ExtraShape(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &DrawOptions, _: &DrawCtx) {
+    fn draw(&self, g: &mut GfxCtx, _: &UI, _: &DrawOptions) {
         g.redraw(&self.draw_default);
     }
 

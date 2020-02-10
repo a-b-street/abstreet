@@ -1,6 +1,7 @@
 use crate::options::TrafficSignalStyle;
 use crate::render::intersection::make_crosswalk;
-use crate::render::{DrawCtx, DrawTurnGroup, BIG_ARROW_THICKNESS};
+use crate::render::{DrawTurnGroup, BIG_ARROW_THICKNESS};
+use crate::ui::UI;
 use ezgui::{Color, GeomBatch, Prerender};
 use geom::{Angle, Circle, Distance, Duration, Line, PolyLine, Pt2D};
 use map_model::{IntersectionID, Phase, TurnPriority};
@@ -13,19 +14,19 @@ pub fn draw_signal_phase(
     i: IntersectionID,
     time_left: Option<Duration>,
     batch: &mut GeomBatch,
-    ctx: &DrawCtx,
+    ui: &UI,
     signal_style: TrafficSignalStyle,
 ) {
-    let protected_color = ctx
+    let protected_color = ui
         .cs
         .get_def("turn protected by traffic signal", Color::hex("#72CE36"));
-    let yield_bg_color = ctx.cs.get_def(
+    let yield_bg_color = ui.cs.get_def(
         "turn that can yield by traffic signal",
         Color::rgba(76, 167, 233, 0.3),
     );
     let yield_outline_color = Color::hex("#4CA7E9");
 
-    let signal = ctx.map.get_traffic_signal(i);
+    let signal = ui.primary.map.get_traffic_signal(i);
 
     match signal_style {
         TrafficSignalStyle::GroupArrows => {
@@ -92,7 +93,7 @@ pub fn draw_signal_phase(
             }
             for g in &phase.protected_groups {
                 if let Some(t) = g.crosswalk {
-                    make_crosswalk(batch, ctx.map.get_t(t), ctx.map, ctx.cs);
+                    make_crosswalk(batch, ui.primary.map.get_t(t), &ui.primary.map, &ui.cs);
                 } else {
                     batch.push(
                         protected_color,
@@ -105,21 +106,21 @@ pub fn draw_signal_phase(
             }
         }
         TrafficSignalStyle::Icons => {
-            for g in DrawTurnGroup::for_i(i, ctx.map) {
-                batch.push(ctx.cs.get("turn block background"), g.block.clone());
+            for g in DrawTurnGroup::for_i(i, &ui.primary.map) {
+                batch.push(ui.cs.get("turn block background"), g.block.clone());
                 let arrow_color = match phase.get_priority_of_group(g.id) {
-                    TurnPriority::Protected => ctx.cs.get("turn protected by traffic signal"),
-                    TurnPriority::Yield => ctx
+                    TurnPriority::Protected => ui.cs.get("turn protected by traffic signal"),
+                    TurnPriority::Yield => ui
                         .cs
                         .get("turn that can yield by traffic signal")
                         .alpha(1.0),
-                    TurnPriority::Banned => ctx.cs.get("turn not in current phase"),
+                    TurnPriority::Banned => ui.cs.get("turn not in current phase"),
                 };
                 batch.push(arrow_color, g.arrow.clone());
             }
         }
         TrafficSignalStyle::IndividualTurnArrows => {
-            for turn in ctx.map.get_turns_in_intersection(i) {
+            for turn in ui.primary.map.get_turns_in_intersection(i) {
                 if turn.between_sidewalks() {
                     continue;
                 }
@@ -152,21 +153,21 @@ pub fn draw_signal_phase(
     }
 
     let radius = Distance::meters(2.0);
-    let center = ctx.map.get_i(i).polygon.center();
+    let center = ui.primary.map.get_i(i).polygon.center();
     let percent = time_left.unwrap() / phase.duration;
     // TODO Tune colors.
     batch.push(
-        ctx.cs.get_def("traffic signal box", Color::grey(0.5)),
+        ui.cs.get_def("traffic signal box", Color::grey(0.5)),
         Circle::new(center, 1.2 * radius).to_polygon(),
     );
     batch.push(
-        ctx.cs
+        ui.cs
             .get_def("traffic signal spinner", Color::hex("#F2994A"))
             .alpha(0.3),
         Circle::new(center, radius).to_polygon(),
     );
     batch.push(
-        ctx.cs.get("traffic signal spinner"),
+        ui.cs.get("traffic signal spinner"),
         Circle::new(center, radius).to_partial_polygon(percent),
     );
 }

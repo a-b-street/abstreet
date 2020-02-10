@@ -186,7 +186,6 @@ impl State for ShowTrafficSignal {
         let mut opts = DrawOptions::new();
         opts.suppress_traffic_signal_details = Some(self.diagram.i);
         ui.draw(g, opts, &DontDrawAgents {}, &ShowEverything::new());
-        let ctx = ui.draw_ctx();
         let mut batch = GeomBatch::new();
         draw_signal_phase(
             g.prerender,
@@ -194,8 +193,8 @@ impl State for ShowTrafficSignal {
             self.diagram.i,
             None,
             &mut batch,
-            &ctx,
-            ctx.opts.traffic_signal_style.clone(),
+            ui,
+            ui.opts.traffic_signal_style.clone(),
         );
         batch.draw(g);
 
@@ -301,7 +300,7 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
             i,
             None,
             &mut orig_batch,
-            &ui.draw_ctx(),
+            ui,
             TrafficSignalStyle::Sidewalks,
         );
 

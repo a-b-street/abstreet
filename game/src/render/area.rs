@@ -1,5 +1,6 @@
 use crate::helpers::{ColorScheme, ID};
-use crate::render::{DrawCtx, DrawOptions, Renderable};
+use crate::render::{DrawOptions, Renderable};
+use crate::ui::UI;
 use ezgui::{Color, GeomBatch, GfxCtx};
 use geom::Polygon;
 use map_model::{Area, AreaID, AreaType, Map};
@@ -25,7 +26,7 @@ impl Renderable for DrawArea {
         ID::Area(self.id)
     }
 
-    fn draw(&self, _: &mut GfxCtx, _: &DrawOptions, _: &DrawCtx) {}
+    fn draw(&self, _: &mut GfxCtx, _: &UI, _: &DrawOptions) {}
 
     fn get_outline(&self, map: &Map) -> Polygon {
         // Since areas are so big, don't just draw the outline
