@@ -409,8 +409,10 @@ impl GeomBatch {
     }
 
     pub fn get_dims(&self) -> ScreenDims {
+        // TODO Maybe warn about this happening and avoid in the first place? Sometimes we wind up
+        // trying to draw completely empty text.
         if self.is_empty() {
-            panic!("Can't get_dims of empty GeomBatch");
+            return ScreenDims::new(0.0, 0.0);
         }
         let mut bounds = Bounds::new();
         for (_, poly) in &self.list {
