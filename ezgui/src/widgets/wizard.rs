@@ -284,10 +284,21 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             col.push(ManagedWidget::menu("menu"));
             self.wizard.menu_comp = Some(
                 Composite::new(
-                    ManagedWidget::col(col)
-                        .bg(Color::grey(0.4))
-                        .outline(5.0, Color::WHITE)
-                        .padding(5),
+                    ManagedWidget::row(vec![
+                        ManagedWidget::col(col),
+                        // TODO nice text button
+                        ManagedWidget::btn(Button::text_bg(
+                            Text::from(Line("X").fg(Color::BLACK)),
+                            Color::WHITE,
+                            Color::ORANGE,
+                            hotkey(Key::Escape),
+                            "quit",
+                            self.ctx,
+                        )),
+                    ])
+                    .bg(Color::grey(0.4))
+                    .outline(5.0, Color::WHITE)
+                    .padding(5),
                 )
                 .aligned(horiz, vert)
                 .menu(
@@ -316,7 +327,14 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             return None;
         }
 
-        self.wizard.menu_comp.as_mut().unwrap().event(self.ctx);
+        match self.wizard.menu_comp.as_mut().unwrap().event(self.ctx) {
+            Some(Outcome::Clicked(x)) if x == "quit" => {
+                self.wizard.alive = false;
+                self.wizard.menu_comp = None;
+                return None;
+            }
+            _ => {}
+        }
 
         let (result, destroy) = match self.wizard.menu_comp.as_ref().unwrap().menu("menu").state {
             InputResult::Canceled => {

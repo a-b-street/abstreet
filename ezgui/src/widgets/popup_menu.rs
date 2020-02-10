@@ -112,9 +112,6 @@ impl<T: Clone> PopupMenu<T> {
             if self.current_idx < self.choices.len() - 1 {
                 self.current_idx += 1;
             }
-        } else if ctx.input.new_was_pressed(hotkey(Key::Escape).unwrap()) {
-            self.state = InputResult::Canceled;
-            return;
         }
     }
 
