@@ -288,3 +288,7 @@ changes here.
 - internal change to render all text using vector graphics. other than a few text layouting issues, shouldn't be noticeable, except now tooltips in plots don't get covered up
 - misc perf improvements (cache SVGs, drawing many circles for unzoomed agents, dont reload prebaked data)
 - upgraded winit, glutin, glium -- hopefully no new bugs introduced on any platforms
+
+0.1.27a
+
+- patch to fix a crash with empty text dimensions on things like building info panels
