@@ -254,6 +254,9 @@ impl Polygon {
     pub fn intersection(&self, other: &Polygon) -> Vec<Polygon> {
         from_multi(to_geo(self.points()).intersection(&to_geo(other.points())))
     }
+    pub fn difference(&self, other: &Polygon) -> Vec<Polygon> {
+        from_multi(to_geo(self.points()).difference(&to_geo(other.points())))
+    }
 
     pub fn polylabel(&self) -> Pt2D {
         let pt = polylabel::polylabel(&to_geo(&self.points()), &1.0).unwrap();

@@ -75,6 +75,12 @@ impl Bounds {
     pub fn height(&self) -> f64 {
         self.max_y - self.min_y
     }
+    pub fn center(&self) -> Pt2D {
+        Pt2D::new(
+            self.min_x + self.width() / 2.0,
+            self.min_y + self.height() / 2.0,
+        )
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

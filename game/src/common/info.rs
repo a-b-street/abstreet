@@ -13,7 +13,7 @@ use ezgui::{
 };
 use geom::{Circle, Distance, Duration, Statistic, Time};
 use map_model::{IntersectionID, RoadID};
-use sim::{CarID, TripEnd, TripID, TripMode, TripStart};
+use sim::{CarID, TripEnd, TripID, TripMode, TripStart, VehicleType};
 use std::collections::BTreeMap;
 
 pub struct InfoPanel {
@@ -107,10 +107,41 @@ impl InfoPanel {
             &mut ui.primary.draw_map.agents.borrow_mut(),
             ctx.prerender,
         ) {
-            batch.push(
-                ui.cs.get_def("current object", Color::BLUE),
-                obj.get_outline(&ui.primary.map),
-            );
+            // Different selection styles for different objects.
+            match id {
+                ID::Car(_) | ID::Pedestrian(_) | ID::PedCrowd(_) => {
+                    // Some objects are much wider/taller than others
+                    let multiplier = match id {
+                        ID::Car(c) => {
+                            if c.1 == VehicleType::Bike {
+                                3.0
+                            } else {
+                                0.75
+                            }
+                        }
+                        ID::Pedestrian(_) => 3.0,
+                        ID::PedCrowd(_) => 0.75,
+                        _ => unreachable!(),
+                    };
+                    // Make a circle to cover the object.
+                    let bounds = obj.get_outline(&ui.primary.map).get_bounds();
+                    let radius = multiplier * Distance::meters(bounds.width().max(bounds.height()));
+                    batch.push(
+                        ui.cs.get_def("current object", Color::WHITE).alpha(0.5),
+                        Circle::new(bounds.center(), radius).to_polygon(),
+                    );
+                    batch.push(
+                        ui.cs.get("current object"),
+                        Circle::outline(bounds.center(), radius, Distance::meters(0.3)),
+                    );
+
+                    // TODO And actually, don't cover up the agent. The Renderable API isn't quite
+                    // conducive to doing this yet.
+                }
+                _ => {
+                    batch.push(Color::BLUE, obj.get_outline(&ui.primary.map));
+                }
+            }
         }
 
         // Show relationships between some objects

@@ -1,4 +1,4 @@
-use crate::{Angle, Bounds, Distance, Polygon, Pt2D};
+use crate::{Angle, Bounds, Distance, Polygon, Pt2D, Ring};
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
@@ -54,6 +54,27 @@ impl Circle {
             }
         }
         Polygon::precomputed(pts, indices)
+    }
+
+    pub fn outline(center: Pt2D, radius: Distance, thickness: Distance) -> Polygon {
+        assert!(radius > thickness);
+
+        // TODO This impl doesn't work because there's a weird edge
+        if false {
+            let mut pts = Circle::new(center, radius).to_polygon().points().clone();
+            pts.push(pts[0]);
+            return Ring::new(pts).make_polygons(thickness);
+        }
+
+        // TODO Argh this one also leaves a little piece missing, but it looks less bad. Fine.
+        let bigger = Circle::new(center, radius).to_polygon();
+        let smaller = Circle::new(center, radius - thickness).to_polygon();
+        let mut polygons = bigger.difference(&smaller);
+        let mut result = polygons.pop().unwrap();
+        for p in polygons {
+            result = result.union(p);
+        }
+        result
     }
 }
 
