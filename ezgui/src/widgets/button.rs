@@ -135,7 +135,7 @@ impl Button {
         const HORIZ_PADDING: f64 = 30.0;
         const VERT_PADDING: f64 = 10.0;
 
-        let img_color = ctx.canvas.texture(filename);
+        let img_color = ctx.prerender.texture(filename);
         let dims = img_color.texture_dims();
         let img_rect =
             Polygon::rectangle(dims.width, dims.height).translate(HORIZ_PADDING, VERT_PADDING);

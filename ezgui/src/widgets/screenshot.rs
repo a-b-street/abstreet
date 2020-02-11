@@ -7,8 +7,6 @@ use std::{fs, process, thread, time};
 pub(crate) fn screenshot_everything<G: GUI>(
     state: &mut State<G>,
     dir_path: &str,
-    display: &glium::Display,
-    program: &glium::Program,
     prerender: &Prerender,
     zoom: f64,
     max_x: f64,
@@ -32,9 +30,7 @@ pub(crate) fn screenshot_everything<G: GUI>(
             state.canvas.cam_x = (tile_x as f64) * state.canvas.window_width;
             state.canvas.cam_y = (tile_y as f64) * state.canvas.window_height;
 
-            let suffix = state
-                .draw(display, program, prerender, true)
-                .unwrap_or_else(String::new);
+            let suffix = state.draw(prerender, true).unwrap_or_else(String::new);
             let filename = format!("{:02}x{:02}{}.png", tile_x + 1, tile_y + 1, suffix);
 
             // TODO Is vsync or something else causing the above redraw to not actually show up in
@@ -56,13 +52,8 @@ pub(crate) fn screenshot_everything<G: GUI>(
     finish(dir_path, filenames, num_tiles_x, num_tiles_y);
 }
 
-pub(crate) fn screenshot_current<G: GUI>(
-    state: &mut State<G>,
-    display: &glium::Display,
-    program: &glium::Program,
-    prerender: &Prerender,
-) {
-    state.draw(display, program, prerender, true);
+pub(crate) fn screenshot_current<G: GUI>(state: &mut State<G>, prerender: &Prerender) {
+    state.draw(prerender, true);
     thread::sleep(time::Duration::from_millis(100));
     screencap("../screenshot.png");
 }

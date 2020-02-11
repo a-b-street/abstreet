@@ -1,10 +1,8 @@
-use crate::{Color, ScreenDims, ScreenPt, ScreenRectangle, Text, UserInput};
+use crate::{ScreenDims, ScreenPt, ScreenRectangle, Text, UserInput};
 use abstutil::Timer;
-use geom::{Bounds, Polygon, Pt2D};
-use glium::texture::Texture2dArray;
+use geom::{Bounds, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::cell::RefCell;
-use std::collections::HashMap;
 
 pub struct Canvas {
     // All of these f64's are in screen-space, so do NOT use Pt2D.
@@ -34,10 +32,6 @@ pub struct Canvas {
     pub(crate) lctrl_held: bool,
     // This should be mutually exclusive among all buttons and things in map-space.
     pub(crate) button_tooltip: Option<Text>,
-
-    // TODO Definitely a weird place to stash this!
-    pub(crate) texture_arrays: Vec<Texture2dArray>,
-    pub(crate) texture_lookups: HashMap<String, Color>,
 }
 
 impl Canvas {
@@ -63,9 +57,6 @@ impl Canvas {
 
             lctrl_held: false,
             button_tooltip: None,
-
-            texture_arrays: Vec::new(),
-            texture_lookups: HashMap::new(),
         }
     }
 
@@ -191,19 +182,6 @@ impl Canvas {
         b.update(self.screen_to_map(ScreenPt::new(0.0, 0.0)));
         b.update(self.screen_to_map(ScreenPt::new(self.window_width, self.window_height)));
         b
-    }
-
-    pub fn texture(&self, filename: &str) -> Color {
-        if let Some(c) = self.texture_lookups.get(filename) {
-            return *c;
-        }
-        panic!("Don't know texture {}", filename);
-    }
-
-    pub fn texture_rect(&self, filename: &str) -> (Color, Polygon) {
-        let color = self.texture(filename);
-        let dims = color.texture_dims();
-        (color, Polygon::rectangle(dims.width, dims.height))
     }
 
     pub fn save_camera_state(&self, map_name: &str) {

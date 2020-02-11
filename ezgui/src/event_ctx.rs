@@ -1,10 +1,9 @@
 use crate::{
-    svg, text, Canvas, Color, Drawable, Event, GeomBatch, GfxCtx, Line, Prerender, ScreenDims,
-    ScreenPt, Text, UserInput,
+    svg, text, Canvas, Color, Drawable, Event, GeomBatch, GfxCtx, Line, Prerender, ScreenPt, Text,
+    UserInput,
 };
 use abstutil::{elapsed_seconds, Timer, TimerSink};
-use geom::{Angle, Polygon};
-use glium::texture::{RawImage2d, Texture2dArray};
+use geom::Polygon;
 use std::collections::BTreeMap;
 use std::collections::VecDeque;
 use std::time::Instant;
@@ -15,8 +14,6 @@ pub struct EventCtx<'a> {
     // TODO These two probably shouldn't be public
     pub canvas: &'a mut Canvas,
     pub prerender: &'a Prerender,
-
-    pub(crate) program: &'a glium::Program,
 }
 
 impl<'a> EventCtx<'a> {
@@ -30,7 +27,6 @@ impl<'a> EventCtx<'a> {
             &timer_name,
             Box::new(LoadingScreen::new(
                 self.prerender,
-                self.program,
                 self.canvas.window_width,
                 self.canvas.window_height,
                 timer_name.clone(),
@@ -54,7 +50,6 @@ impl<'a> EventCtx<'a> {
             input: UserInput::new(Event::NoOp, self.canvas),
             canvas: self.canvas,
             prerender: self.prerender,
-            program: self.program,
         };
         cb(&mut tmp)
     }
@@ -86,8 +81,8 @@ impl<'a> EventCtx<'a> {
     }
 
     pub fn set_textures(&mut self, textures: Vec<(&str, TextureType)>, timer: &mut Timer) {
-        self.canvas.texture_arrays.clear();
-        self.canvas.texture_lookups.clear();
+        // TODO Only allow setting once. Trying to get rid of this entirely.
+        assert!(self.prerender.inner.texture_lookups.borrow().is_empty());
 
         // Group textures with the same dimensions and create a texture array. Videocards have a
         // limit on the number of textures that can be uploaded.
@@ -131,24 +126,7 @@ impl<'a> EventCtx<'a> {
                  using the same image dimensions."
             );
         }
-        for (group_idx, (raw_dims, list)) in dims_to_textures.into_iter().enumerate() {
-            let mut raw_data = Vec::new();
-            for (tex_idx, (filename, raw, tex_type)) in list.into_iter().enumerate() {
-                let tex_id = (group_idx as f32, tex_idx as f32);
-                let dims = ScreenDims::new(f64::from(raw_dims.0), f64::from(raw_dims.1));
-                self.canvas.texture_lookups.insert(
-                    filename,
-                    match tex_type {
-                        TextureType::Stretch => Color::StretchTexture(tex_id, dims, Angle::ZERO),
-                        TextureType::Tile => Color::TileTexture(tex_id, dims),
-                    },
-                );
-                raw_data.push(RawImage2d::from_raw_rgba(raw, raw_dims));
-            }
-            self.canvas
-                .texture_arrays
-                .push(Texture2dArray::new(&self.prerender.display, raw_data).unwrap());
-        }
+        self.prerender.inner.upload_textures(dims_to_textures)
     }
 
     // Delegation to assets
@@ -165,7 +143,6 @@ impl<'a> EventCtx<'a> {
 pub struct LoadingScreen<'a> {
     canvas: Canvas,
     prerender: &'a Prerender,
-    program: &'a glium::Program,
     lines: VecDeque<String>,
     max_capacity: usize,
     last_drawn: Instant,
@@ -175,18 +152,16 @@ pub struct LoadingScreen<'a> {
 impl<'a> LoadingScreen<'a> {
     pub fn new(
         prerender: &'a Prerender,
-        program: &'a glium::Program,
         initial_width: f64,
         initial_height: f64,
         title: String,
     ) -> LoadingScreen<'a> {
         let canvas = Canvas::new(initial_width, initial_height);
-
+        let max_capacity = (0.8 * initial_height / prerender.assets.default_line_height) as usize;
         LoadingScreen {
             prerender,
-            program,
             lines: VecDeque::new(),
-            max_capacity: (0.8 * initial_height / prerender.assets.default_line_height) as usize,
+            max_capacity,
             // If the loading callback takes less than 0.5s, we don't redraw at all.
             last_drawn: Instant::now(),
             title,
@@ -195,7 +170,7 @@ impl<'a> LoadingScreen<'a> {
     }
 
     fn redraw(&mut self) {
-        // TODO Ideally we wouldn't have to dothis, but text rendering is still slow. :)
+        // TODO Ideally we wouldn't have to do this, but text rendering is still slow. :)
         if elapsed_seconds(self.last_drawn) < 0.5 {
             return;
         }
@@ -207,14 +182,7 @@ impl<'a> LoadingScreen<'a> {
             txt.add(Line(l));
         }
 
-        let mut target = self.prerender.display.draw();
-        let mut g = GfxCtx::new(
-            &self.canvas,
-            self.prerender,
-            &mut target,
-            self.program,
-            false,
-        );
+        let mut g = GfxCtx::new(self.prerender, &self.canvas, false);
         g.clear(Color::BLACK);
 
         let mut batch = GeomBatch::from(vec![(
@@ -232,7 +200,7 @@ impl<'a> LoadingScreen<'a> {
             &draw,
         );
 
-        target.finish().unwrap();
+        g.inner.finish();
     }
 }
 

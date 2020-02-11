@@ -1,4 +1,5 @@
 mod assets;
+mod backend_glium;
 mod canvas;
 mod color;
 mod drawing;
@@ -13,9 +14,10 @@ mod svg;
 mod text;
 mod widgets;
 
+pub use crate::backend_glium::Drawable;
 pub use crate::canvas::{Canvas, HorizontalAlignment, VerticalAlignment};
 pub use crate::color::Color;
-pub use crate::drawing::{Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor};
+pub use crate::drawing::{GeomBatch, GfxCtx, Prerender, RewriteColor};
 pub use crate::event::{hotkey, lctrl, Event, Key, MultiKey};
 pub use crate::event_ctx::{EventCtx, TextureType};
 pub use crate::input::UserInput;

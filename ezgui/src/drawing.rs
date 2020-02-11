@@ -1,12 +1,11 @@
 use crate::assets::Assets;
+use crate::backend_glium::{GfxCtxInnards, PrerenderInnards};
 use crate::svg;
 use crate::{
-    Canvas, Color, EventCtx, HorizontalAlignment, ScreenDims, ScreenPt, ScreenRectangle, Text,
-    VerticalAlignment,
+    Canvas, Color, Drawable, EventCtx, HorizontalAlignment, ScreenDims, ScreenPt, ScreenRectangle,
+    Text, VerticalAlignment,
 };
 use geom::{Angle, Bounds, Circle, Distance, Line, Polygon, Pt2D};
-use glium::uniforms::{SamplerBehavior, SamplerWrapFunction, UniformValue};
-use glium::Surface;
 use std::cell::Cell;
 
 // Lower is more on top
@@ -14,16 +13,15 @@ const MAPSPACE_Z: f32 = 1.0;
 const SCREENSPACE_Z: f32 = 0.5;
 const TOOLTIP_Z: f32 = 0.0;
 
-struct Uniforms<'a> {
+pub struct Uniforms {
     // (cam_x, cam_y, cam_zoom)
-    transform: [f32; 3],
+    pub transform: [f32; 3],
     // (window_width, window_height, 0.0 for mapspace or 1.0 for screenspace)
-    window: [f32; 3],
-    canvas: &'a Canvas,
+    pub window: [f32; 3],
 }
 
-impl<'a> Uniforms<'a> {
-    fn new(canvas: &'a Canvas) -> Uniforms<'a> {
+impl Uniforms {
+    pub fn new(canvas: &Canvas) -> Uniforms {
         Uniforms {
             transform: [
                 canvas.cam_x as f32,
@@ -35,40 +33,13 @@ impl<'a> Uniforms<'a> {
                 canvas.window_height as f32,
                 MAPSPACE_Z,
             ],
-            canvas,
-        }
-    }
-}
-
-impl<'b> glium::uniforms::Uniforms for Uniforms<'b> {
-    fn visit_values<'a, F: FnMut(&str, UniformValue<'a>)>(&'a self, mut output: F) {
-        output("transform", UniformValue::Vec3(self.transform));
-        output("window", UniformValue::Vec3(self.window));
-
-        // This is fine to use for all of the texture styles; all but non-tiling textures clamp to
-        // [0, 1] anyway.
-        let tile = SamplerBehavior {
-            wrap_function: (
-                SamplerWrapFunction::Repeat,
-                SamplerWrapFunction::Repeat,
-                SamplerWrapFunction::Repeat,
-            ),
-            ..Default::default()
-        };
-        for (idx, tex) in self.canvas.texture_arrays.iter().enumerate() {
-            output(
-                &format!("tex{}", idx),
-                UniformValue::Texture2dArray(tex, Some(tile)),
-            );
         }
     }
 }
 
 pub struct GfxCtx<'a> {
-    pub(crate) target: &'a mut glium::Frame,
-    program: &'a glium::Program,
-    uniforms: Uniforms<'a>,
-    pub(crate) params: glium::DrawParameters<'a>,
+    pub(crate) inner: GfxCtxInnards<'a>,
+    uniforms: Uniforms,
 
     screencap_mode: bool,
     pub(crate) naming_hint: Option<String>,
@@ -83,31 +54,16 @@ pub struct GfxCtx<'a> {
 
 impl<'a> GfxCtx<'a> {
     pub(crate) fn new(
-        canvas: &'a Canvas,
         prerender: &'a Prerender,
-        target: &'a mut glium::Frame,
-        program: &'a glium::Program,
+        canvas: &'a Canvas,
         screencap_mode: bool,
     ) -> GfxCtx<'a> {
-        let params = glium::DrawParameters {
-            blend: glium::Blend::alpha_blending(),
-            depth: glium::Depth {
-                test: glium::DepthTest::IfLessOrEqual,
-                write: true,
-                ..Default::default()
-            },
-            ..Default::default()
-        };
-
-        let uniforms = Uniforms::new(&canvas);
-
+        let uniforms = Uniforms::new(canvas);
         GfxCtx {
+            inner: prerender.inner.draw_new_frame(),
+            uniforms,
             canvas,
             prerender,
-            target,
-            program,
-            uniforms,
-            params,
             num_draw_calls: 0,
             num_forks: 0,
             screencap_mode,
@@ -148,14 +104,7 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn clear(&mut self, color: Color) {
-        match color {
-            Color::RGBA(r, g, b, a) => {
-                // Without this, SRGB gets enabled and post-processes the color from the fragment
-                // shader.
-                self.target.clear_color_srgb_and_depth((r, g, b, a), 1.0);
-            }
-            _ => unreachable!(),
-        }
+        self.inner.clear(color);
     }
 
     pub fn draw_line(&mut self, color: Color, thickness: Distance, line: &Line) {
@@ -194,15 +143,8 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn redraw(&mut self, obj: &Drawable) {
-        self.target
-            .draw(
-                &obj.vertex_buffer,
-                &obj.index_buffer,
-                &self.program,
-                &self.uniforms,
-                &self.params,
-            )
-            .unwrap();
+        self.inner
+            .redraw(obj, &self.uniforms, &self.prerender.inner);
         self.num_draw_calls += 1;
 
         // println!("{:?}", backtrace::Backtrace::new());
@@ -216,23 +158,11 @@ impl<'a> GfxCtx<'a> {
 
     // TODO Stateful API :(
     pub fn enable_clipping(&mut self, rect: ScreenRectangle) {
-        assert!(self.params.scissor.is_none());
-        // The scissor rectangle has to be in device coordinates, so you would think some transform
-        // by scale factor (previously called HiDPI factor) has to happen here. But actually,
-        // window dimensions and the rectangle passed in are already scaled up. So don't do
-        // anything here!
-        self.params.scissor = Some(glium::Rect {
-            left: rect.x1 as u32,
-            // Y-inversion
-            bottom: (self.canvas.window_height - rect.y2) as u32,
-            width: (rect.x2 - rect.x1) as u32,
-            height: (rect.y2 - rect.y1) as u32,
-        });
+        self.inner.enable_clipping(rect, self.canvas);
     }
 
     pub fn disable_clipping(&mut self) {
-        assert!(self.params.scissor.is_some());
-        self.params.scissor = None;
+        self.inner.disable_clipping();
     }
 
     // Canvas stuff.
@@ -293,10 +223,10 @@ impl<'a> GfxCtx<'a> {
         ];
         self.num_forks += 1;
         // Temporarily disable clipping if needed.
-        let clip = self.params.scissor.take();
+        let clip = self.inner.take_clip();
         batch.draw(self);
         self.unfork();
-        self.params.scissor = clip;
+        self.inner.restore_clip(clip);
     }
 
     pub fn get_screen_bounds(&self) -> Bounds {
@@ -485,31 +415,12 @@ pub enum RewriteColor {
     ChangeAll(Color),
 }
 
-// Something that's been sent to the GPU already.
-pub struct Drawable {
-    vertex_buffer: glium::VertexBuffer<Vertex>,
-    index_buffer: glium::IndexBuffer<u32>,
-}
-
-#[derive(Copy, Clone)]
-pub(crate) struct Vertex {
-    position: [f32; 2],
-    // Each type of Color encodes something different here. See the actually_upload method and
-    // fragment_140.glsl.
-    // TODO Make this u8?
-    style: [f32; 4],
-}
-
-glium::implement_vertex!(Vertex, position, style);
-
 // TODO Don't expose this directly
+// TODO Rename or something maybe. This actually owns all the permanent state of everything.
 pub struct Prerender {
+    pub(crate) inner: PrerenderInnards,
     pub(crate) assets: Assets,
-    pub(crate) display: glium::Display,
     pub(crate) num_uploads: Cell<usize>,
-    // TODO Prerender doesn't know what things are temporary and permanent. Could make the API more
-    // detailed (and use the corresponding persistent glium types).
-    pub(crate) total_bytes_uploaded: Cell<usize>,
 }
 
 impl Prerender {
@@ -523,7 +434,7 @@ impl Prerender {
     }
 
     pub fn get_total_bytes_uploaded(&self) -> usize {
-        self.total_bytes_uploaded.get()
+        self.inner.total_bytes_uploaded.get()
     }
 
     pub(crate) fn upload_temporary(&self, list: Vec<(Color, &Polygon)>) -> Drawable {
@@ -532,90 +443,24 @@ impl Prerender {
 
     fn actually_upload(&self, permanent: bool, list: Vec<(Color, &Polygon)>) -> Drawable {
         // println!("{:?}", backtrace::Backtrace::new());
-
         self.num_uploads.set(self.num_uploads.get() + 1);
+        self.inner.actually_upload(permanent, list)
+    }
 
-        let mut vertices: Vec<Vertex> = Vec::new();
-        let mut indices: Vec<u32> = Vec::new();
+    pub fn request_redraw(&self) {
+        self.inner.request_redraw()
+    }
 
-        for (color, poly) in list {
-            let idx_offset = vertices.len();
-            let (pts, raw_indices) = poly.raw_for_rendering();
-            for pt in pts {
-                // For the three texture cases, pass [U coordinate, V coordinate, texture group ID,
-                // 100 + texture offset ID] as the style. The last field is between 0 an 1 RGBA's
-                // alpha values, so bump by 100 to distinguish from that.
-                let style = match color {
-                    Color::RGBA(r, g, b, a) => [r, g, b, a],
-                    Color::TileTexture(id, tex_dims) => {
-                        // The texture uses SamplerWrapFunction::Repeat, so don't clamp to [0, 1].
-                        // Also don't offset based on the polygon's bounds -- even if there are
-                        // separate but adjacent polygons, we want seamless tiling.
-                        let tx = pt.x() / tex_dims.width;
-                        let ty = pt.y() / tex_dims.height;
-                        [tx as f32, ty as f32, id.0, 100.0 + id.1]
-                    }
-                    Color::StretchTexture(id, _, angle) => {
-                        // TODO Cache
-                        let b = poly.get_bounds();
-                        let center = poly.center();
-                        let origin_pt = Pt2D::new(pt.x() - center.x(), pt.y() - center.y());
-                        let (sin, cos) = angle.invert_y().normalized_radians().sin_cos();
-                        let rot_pt = Pt2D::new(
-                            center.x() + origin_pt.x() * cos - origin_pt.y() * sin,
-                            center.y() + origin_pt.y() * cos + origin_pt.x() * sin,
-                        );
-
-                        let tx = (rot_pt.x() - b.min_x) / b.width();
-                        let ty = (rot_pt.y() - b.min_y) / b.height();
-                        [tx as f32, ty as f32, id.0, 100.0 + id.1]
-                    }
-                    // Two final special cases
-                    Color::HatchingStyle1 => [100.0, 0.0, 0.0, 0.0],
-                    Color::HatchingStyle2 => [101.0, 0.0, 0.0, 0.0],
-                };
-                vertices.push(Vertex {
-                    position: [pt.x() as f32, pt.y() as f32],
-                    style,
-                });
-            }
-            for idx in raw_indices {
-                indices.push((idx_offset + *idx) as u32);
-            }
+    pub(crate) fn texture(&self, filename: &str) -> Color {
+        if let Some(c) = self.inner.texture_lookups.borrow().get(filename) {
+            return *c;
         }
+        panic!("Don't know texture {}", filename);
+    }
 
-        let vertex_buffer = if permanent {
-            glium::VertexBuffer::immutable(&self.display, &vertices).unwrap()
-        } else {
-            glium::VertexBuffer::new(&self.display, &vertices).unwrap()
-        };
-        let index_buffer = if permanent {
-            glium::IndexBuffer::immutable(
-                &self.display,
-                glium::index::PrimitiveType::TrianglesList,
-                &indices,
-            )
-            .unwrap()
-        } else {
-            glium::IndexBuffer::new(
-                &self.display,
-                glium::index::PrimitiveType::TrianglesList,
-                &indices,
-            )
-            .unwrap()
-        };
-
-        if permanent {
-            self.total_bytes_uploaded.set(
-                self.total_bytes_uploaded.get()
-                    + vertex_buffer.get_size()
-                    + index_buffer.get_size(),
-            );
-        }
-
-        Drawable {
-            vertex_buffer,
-            index_buffer,
-        }
+    pub(crate) fn texture_rect(&self, filename: &str) -> (Color, Polygon) {
+        let color = self.texture(filename);
+        let dims = color.texture_dims();
+        (color, Polygon::rectangle(dims.width, dims.height))
     }
 }

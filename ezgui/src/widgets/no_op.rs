@@ -22,7 +22,7 @@ impl JustDraw {
     }
 
     pub fn image(ctx: &EventCtx, filename: &str) -> ManagedWidget {
-        let (color, rect) = ctx.canvas.texture_rect(filename);
+        let (color, rect) = ctx.prerender.texture_rect(filename);
         let batch = GeomBatch::from(vec![(color, rect)]);
         JustDraw::wrap(ctx, batch)
     }

@@ -36,12 +36,7 @@ pub(crate) struct State<G: GUI> {
 
 impl<G: GUI> State<G> {
     // The bool indicates if the input was actually used.
-    fn event(
-        &mut self,
-        ev: Event,
-        prerender: &Prerender,
-        program: &glium::Program,
-    ) -> (EventLoopMode, bool) {
+    fn event(&mut self, ev: Event, prerender: &Prerender) -> (EventLoopMode, bool) {
         // It's impossible / very unlikey we'll grab the cursor in map space before the very first
         // start_drawing call.
         let input = UserInput::new(ev, &self.canvas);
@@ -81,7 +76,6 @@ impl<G: GUI> State<G> {
                 input: input,
                 canvas: &mut self.canvas,
                 prerender,
-                program,
             };
             let evloop = self.gui.event(&mut ctx);
             // TODO We should always do has_been_consumed, but various hacks prevent this from being
@@ -102,15 +96,8 @@ impl<G: GUI> State<G> {
     }
 
     // Returns naming hint. Logically consumes the number of uploads.
-    pub(crate) fn draw(
-        &mut self,
-        display: &glium::Display,
-        program: &glium::Program,
-        prerender: &Prerender,
-        screenshot: bool,
-    ) -> Option<String> {
-        let mut target = display.draw();
-        let mut g = GfxCtx::new(&self.canvas, &prerender, &mut target, program, screenshot);
+    pub(crate) fn draw(&mut self, prerender: &Prerender, screenshot: bool) -> Option<String> {
+        let mut g = GfxCtx::new(prerender, &self.canvas, screenshot);
 
         self.canvas.start_drawing();
 
@@ -131,7 +118,7 @@ impl<G: GUI> State<G> {
             );
         }
 
-        target.finish().unwrap();
+        g.inner.finish();
         naming_hint
     }
 }
@@ -171,71 +158,14 @@ impl Settings {
 }
 
 pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: F) -> ! {
-    let event_loop = winit::event_loop::EventLoop::new();
-    let window = winit::window::WindowBuilder::new()
-        .with_title(settings.window_title)
-        .with_maximized(true);
-    // multisampling: 2 looks bad, 4 looks fine
-    let context = glutin::ContextBuilder::new()
-        .with_multisampling(4)
-        .with_depth_buffer(2);
-    // TODO This step got slow
-    println!("Initializing OpenGL window");
-    let display = glium::Display::new(window, context, &event_loop).unwrap();
-
-    let (vertex_shader, fragment_shader) =
-        if display.is_glsl_version_supported(&glium::Version(glium::Api::Gl, 1, 4)) {
-            (
-                include_str!("assets/vertex_140.glsl"),
-                include_str!("assets/fragment_140.glsl"),
-            )
-        } else {
-            panic!(
-                "GLSL 140 not supported. Try {:?} or {:?}",
-                display.get_opengl_version(),
-                display.get_supported_glsl_version()
-            );
-        };
-
-    // To quickly iterate on shaders without recompiling...
-    /*let mut vert = String::new();
-    let mut frag = String::new();
-    let (vertex_shader, fragment_shader) = {
-        use std::io::Read;
-
-        let mut f1 = std::fs::File:: open("../ezgui/src/assets/vertex_140.glsl").unwrap();
-        f1.read_to_string(&mut vert).unwrap();
-
-        let mut f2 = std::fs::File:: open("../ezgui/src/assets/fragment_140.glsl").unwrap();
-        f2.read_to_string(&mut frag).unwrap();
-
-        (&vert, &frag)
-    };*/
-
-    let program = glium::Program::new(
-        &display,
-        glium::program::ProgramCreationInput::SourceCode {
-            vertex_shader,
-            tessellation_control_shader: None,
-            tessellation_evaluation_shader: None,
-            geometry_shader: None,
-            fragment_shader,
-            transform_feedback_varyings: None,
-            // Without this, SRGB gets enabled and post-processes the color from the fragment
-            // shader.
-            outputs_srgb: true,
-            uses_point_size: false,
-        },
-    )
-    .unwrap();
+    let (prerender_innards, event_loop) = crate::backend_glium::setup(&settings.window_title);
 
     let window_size = event_loop.primary_monitor().size();
     let mut canvas = Canvas::new(window_size.width.into(), window_size.height.into());
     let prerender = Prerender {
         assets: Assets::new(settings.default_font_size, settings.font_dir),
-        display,
         num_uploads: Cell::new(0),
-        total_bytes_uploaded: Cell::new(0),
+        inner: prerender_innards,
     };
 
     let gui = make_gui(&mut EventCtx {
@@ -243,7 +173,6 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
         input: UserInput::new(Event::NoOp, &canvas),
         canvas: &mut canvas,
         prerender: &prerender,
-        program: &program,
     });
 
     let mut state = State { canvas, gui };
@@ -294,7 +223,7 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
                 }
             }
             winit::event::Event::RedrawRequested(_) => {
-                state.draw(&prerender.display, &program, &prerender, false);
+                state.draw(&prerender, false);
                 prerender.num_uploads.set(0);
                 return;
             }
@@ -319,9 +248,9 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
                 winit::event_loop::ControlFlow::WaitUntil(Instant::now() + UPDATE_FREQUENCY);
         }
 
-        let (mode, input_used) = state.event(ev, &prerender, &program);
+        let (mode, input_used) = state.event(ev, &prerender);
         if input_used {
-            prerender.display.gl_window().window().request_redraw();
+            prerender.request_redraw();
         }
 
         match mode {
@@ -346,19 +275,10 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
                 max_x,
                 max_y,
             } => {
-                widgets::screenshot_everything(
-                    &mut state,
-                    &dir,
-                    &prerender.display,
-                    &program,
-                    &prerender,
-                    zoom,
-                    max_x,
-                    max_y,
-                );
+                widgets::screenshot_everything(&mut state, &dir, &prerender, zoom, max_x, max_y);
             }
             EventLoopMode::ScreenCaptureCurrentShot => {
-                widgets::screenshot_current(&mut state, &prerender.display, &program, &prerender);
+                widgets::screenshot_current(&mut state, &prerender);
             }
         }
     });
