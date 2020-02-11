@@ -83,6 +83,14 @@ impl<'a> GfxCtxInnards<'a> {
     }
 
     pub fn redraw(&mut self, obj: &Drawable, uniforms: &Uniforms, prerender: &PrerenderInnards) {
+        // TODO Uniforms
+
+        unsafe {
+            self.gl.bind_vertex_array(Some(obj.vert_array));
+            self.gl.draw_arrays(glow::TRIANGLES, 0, obj.num_vertices);
+            self.gl.bind_vertex_array(None);
+        }
+
         /*self.target
         .draw(
             &obj.vertex_buffer,
@@ -131,15 +139,11 @@ impl<'a> GfxCtxInnards<'a> {
 }
 
 // Something that's been sent to the GPU already.
-pub struct Drawable {}
-
-#[derive(Copy, Clone)]
-struct Vertex {
-    position: [f32; 2],
-    // Each type of Color encodes something different here. See the actually_upload method and
-    // fragment_140.glsl.
-    // TODO Make this u8?
-    style: [f32; 4],
+pub struct Drawable {
+    vert_buffer: u32,
+    vert_array: u32,
+    elem_buffer: u32,
+    num_vertices: i32,
 }
 
 pub struct PrerenderInnards {
@@ -156,8 +160,10 @@ pub struct PrerenderInnards {
 
 impl PrerenderInnards {
     pub fn actually_upload(&self, permanent: bool, list: Vec<(Color, &Polygon)>) -> Drawable {
-        Drawable {}
-        /*for (color, poly) in list {
+        let mut vertices: Vec<[f32; 6]> = Vec::new();
+        let mut indices: Vec<u32> = Vec::new();
+
+        for (color, poly) in list {
             let idx_offset = vertices.len();
             let (pts, raw_indices) = poly.raw_for_rendering();
             for pt in pts {
@@ -193,49 +199,89 @@ impl PrerenderInnards {
                     Color::HatchingStyle1 => [100.0, 0.0, 0.0, 0.0],
                     Color::HatchingStyle2 => [101.0, 0.0, 0.0, 0.0],
                 };
-                vertices.push(Vertex {
-                    position: [pt.x() as f32, pt.y() as f32],
-                    style,
-                });
+                vertices.push([
+                    pt.x() as f32,
+                    pt.y() as f32,
+                    style[0],
+                    style[1],
+                    style[2],
+                    style[3],
+                ]);
             }
             for idx in raw_indices {
                 indices.push((idx_offset + *idx) as u32);
             }
         }
 
-        let vertex_buffer = if permanent {
-            glium::VertexBuffer::immutable(&self.display, &vertices).unwrap()
-        } else {
-            glium::VertexBuffer::new(&self.display, &vertices).unwrap()
+        let (vert_buffer, vert_array, elem_buffer) = unsafe {
+            let vert_array = self.gl.create_vertex_array().unwrap();
+            let vert_buffer = self.gl.create_buffer().unwrap();
+            let elem_buffer = self.gl.create_buffer().unwrap();
+
+            self.gl.bind_vertex_array(Some(vert_array));
+
+            self.gl.bind_buffer(glow::ARRAY_BUFFER, Some(vert_buffer));
+            self.gl.buffer_data_u8_slice(
+                glow::ARRAY_BUFFER,
+                &vertices.align_to::<u8>().1,
+                // TODO Use permanent
+                glow::STATIC_DRAW,
+            );
+
+            self.gl
+                .bind_buffer(glow::ELEMENT_ARRAY_BUFFER, Some(elem_buffer));
+            self.gl.buffer_data_u8_slice(
+                glow::ELEMENT_ARRAY_BUFFER,
+                &indices.align_to::<u8>().1,
+                glow::STATIC_DRAW,
+            );
+
+            // TODO Can we have a single vertex array for everything, since there's an uber shader?
+
+            // position... 2 f32's
+            // TODO maybe need to do layout = 0 explicitly
+            self.gl.enable_vertex_attrib_array(0);
+            self.gl.bind_buffer(glow::ARRAY_BUFFER, Some(vert_buffer)); // TODO why again?
+                                                                        // TODO Can supposedly set 0 to auto-detect. Skip over 4 f32's of style to get to next
+            let stride = 4 * std::mem::size_of::<f32>() as i32;
+            self.gl
+                .vertex_attrib_pointer_f32(0, 2, glow::FLOAT, false, stride, 0);
+
+            // style... 4 f32's
+            self.gl.enable_vertex_attrib_array(1);
+            let stride = 2 * std::mem::size_of::<f32>() as i32;
+            self.gl.vertex_attrib_pointer_f32(
+                1,
+                4,
+                glow::FLOAT,
+                false,
+                stride,
+                2 * std::mem::size_of::<f32>() as i32,
+            );
+
+            // Safety?
+            self.gl.bind_vertex_array(None);
+            self.gl.bind_buffer(glow::ARRAY_BUFFER, None);
+            self.gl.bind_buffer(glow::ELEMENT_ARRAY_BUFFER, None);
+
+            (vert_buffer, vert_array, elem_buffer)
         };
-        let index_buffer = if permanent {
-            glium::IndexBuffer::immutable(
-                &self.display,
-                glium::index::PrimitiveType::TrianglesList,
-                &indices,
-            )
-            .unwrap()
-        } else {
-            glium::IndexBuffer::new(
-                &self.display,
-                glium::index::PrimitiveType::TrianglesList,
-                &indices,
-            )
-            .unwrap()
-        };
+        let num_vertices = vertices.len() as i32;
 
         if permanent {
-            self.total_bytes_uploaded.set(
+            /*self.total_bytes_uploaded.set(
                 self.total_bytes_uploaded.get()
                     + vertex_buffer.get_size()
                     + index_buffer.get_size(),
-            );
+            );*/
         }
 
         Drawable {
-            vertex_buffer,
-            index_buffer,
-        }*/
+            vert_buffer,
+            vert_array,
+            elem_buffer,
+            num_vertices,
+        }
     }
 
     pub fn request_redraw(&self) {
