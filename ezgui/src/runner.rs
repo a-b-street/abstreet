@@ -163,6 +163,7 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
 
     let window_size = event_loop.primary_monitor().size();
     let mut canvas = Canvas::new(window_size.width.into(), window_size.height.into());
+    prerender_innards.window_resized(canvas.window_width, canvas.window_height);
     let prerender = Prerender {
         assets: Assets::new(settings.default_font_size, settings.font_dir),
         num_uploads: Cell::new(0),

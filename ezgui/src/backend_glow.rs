@@ -29,7 +29,7 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
                 include_str!("assets/fragment_140.glsl"),
             ),
         ]
-        .into_iter()
+        .iter()
         .map(|(shader_type, source)| {
             let shader = gl
                 .create_shader(*shader_type)
@@ -52,6 +52,8 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
             gl.delete_shader(shader);
         }
         gl.use_program(Some(program));
+
+        gl.enable(glow::SCISSOR_TEST);
     }
 
     (
@@ -71,6 +73,8 @@ pub struct GfxCtxInnards<'a> {
     gl: &'a glow::Context,
     windowed_context: &'a glutin::WindowedContext<glutin::PossiblyCurrent>,
     program: &'a <glow::Context as glow::HasContext>::Program,
+
+    current_clip: Option<[i32; 4]>,
 }
 
 impl<'a> GfxCtxInnards<'a> {
@@ -84,7 +88,7 @@ impl<'a> GfxCtxInnards<'a> {
         }
     }
 
-    pub fn redraw(&mut self, obj: &Drawable, uniforms: &Uniforms, prerender: &PrerenderInnards) {
+    pub fn redraw(&mut self, obj: &Drawable, uniforms: &Uniforms, _: &PrerenderInnards) {
         unsafe {
             let transform_loc = self
                 .gl
@@ -107,31 +111,45 @@ impl<'a> GfxCtxInnards<'a> {
     }
 
     pub fn enable_clipping(&mut self, rect: ScreenRectangle, canvas: &Canvas) {
-        /*assert!(self.params.scissor.is_none());
+        assert!(self.current_clip.is_none());
         // The scissor rectangle has to be in device coordinates, so you would think some transform
         // by scale factor (previously called HiDPI factor) has to happen here. But actually,
         // window dimensions and the rectangle passed in are already scaled up. So don't do
         // anything here!
-        self.params.scissor = Some(glium::Rect {
-            left: rect.x1 as u32,
-            // Y-inversion
-            bottom: (canvas.window_height - rect.y2) as u32,
-            width: (rect.x2 - rect.x1) as u32,
-            height: (rect.y2 - rect.y1) as u32,
-        });*/
+        let left = rect.x1 as i32;
+        // Y-inversion
+        let bottom = (canvas.window_height - rect.y2) as i32;
+        let width = (rect.x2 - rect.x1) as i32;
+        let height = (rect.y2 - rect.y1) as i32;
+        unsafe {
+            self.gl.scissor(left, bottom, width, height);
+        }
+        self.current_clip = Some([left, bottom, width, height]);
     }
 
-    pub fn disable_clipping(&mut self) {
-        /*assert!(self.params.scissor.is_some());
-        self.params.scissor = None;*/
+    pub fn disable_clipping(&mut self, canvas: &Canvas) {
+        assert!(self.current_clip.is_some());
+        self.current_clip = None;
+        unsafe {
+            self.gl.scissor(
+                0,
+                0,
+                canvas.window_width as i32,
+                canvas.window_height as i32,
+            );
+        }
     }
 
-    pub fn take_clip(&mut self) -> Option<bool> {
-        //self.params.scissor.take()
-        None
+    pub fn take_clip(&mut self) -> Option<[i32; 4]> {
+        self.current_clip.take()
     }
-    pub fn restore_clip(&mut self, clip: Option<bool>) {
-        //self.params.scissor = clip;
+    pub fn restore_clip(&mut self, clip: Option<[i32; 4]>) {
+        self.current_clip = clip;
+        if let Some(c) = clip {
+            unsafe {
+                self.gl.scissor(c[0], c[1], c[2], c[3]);
+            }
+        }
     }
 
     pub fn finish(self) {
@@ -140,10 +158,11 @@ impl<'a> GfxCtxInnards<'a> {
 }
 
 // Something that's been sent to the GPU already.
+// TODO Implement Drop; have to keep a reference to gl.
 pub struct Drawable {
-    vert_buffer: u32,
+    _vert_buffer: u32,
     vert_array: u32,
-    elem_buffer: u32,
+    _elem_buffer: u32,
     num_indices: i32,
 }
 
@@ -274,9 +293,9 @@ impl PrerenderInnards {
         }
 
         Drawable {
-            vert_buffer,
+            _vert_buffer: vert_buffer,
             vert_array,
-            elem_buffer,
+            _elem_buffer: elem_buffer,
             num_indices,
         }
     }
@@ -290,6 +309,7 @@ impl PrerenderInnards {
             gl: &self.gl,
             windowed_context: &self.windowed_context,
             program: &self.program,
+            current_clip: None,
         }
     }
 
@@ -298,7 +318,7 @@ impl PrerenderInnards {
         dims_to_textures: BTreeMap<(u32, u32), Vec<(String, Vec<u8>, TextureType)>>,
     ) {
         for (group_idx, (raw_dims, list)) in dims_to_textures.into_iter().enumerate() {
-            for (tex_idx, (filename, raw, tex_type)) in list.into_iter().enumerate() {
+            for (tex_idx, (filename, _, tex_type)) in list.into_iter().enumerate() {
                 let tex_id = (group_idx as f32, tex_idx as f32);
                 let dims = ScreenDims::new(f64::from(raw_dims.0), f64::from(raw_dims.1));
                 self.texture_lookups.borrow_mut().insert(
@@ -317,6 +337,8 @@ impl PrerenderInnards {
             .resize(winit::dpi::PhysicalSize::new(width as u32, height as u32));
         unsafe {
             self.gl.viewport(0, 0, width as i32, height as i32);
+            // I think it's safe to assume there's not a clip right now.
+            self.gl.scissor(0, 0, width as i32, height as i32);
         }
     }
 }

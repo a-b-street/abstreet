@@ -162,7 +162,7 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn disable_clipping(&mut self) {
-        self.inner.disable_clipping();
+        self.inner.disable_clipping(self.canvas);
     }
 
     // Canvas stuff.
