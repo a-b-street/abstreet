@@ -101,7 +101,7 @@ impl<'a> GfxCtxInnards<'a> {
 
             self.gl.bind_vertex_array(Some(obj.vert_array));
             self.gl
-                .draw_elements(glow::TRIANGLES, obj.num_vertices, glow::UNSIGNED_INT, 0);
+                .draw_elements(glow::TRIANGLES, obj.num_indices, glow::UNSIGNED_INT, 0);
             self.gl.bind_vertex_array(None);
         }
     }
@@ -144,7 +144,7 @@ pub struct Drawable {
     vert_buffer: u32,
     vert_array: u32,
     elem_buffer: u32,
-    num_vertices: i32,
+    num_indices: i32,
 }
 
 pub struct PrerenderInnards {
@@ -263,7 +263,7 @@ impl PrerenderInnards {
 
             (vert_buffer, vert_array, elem_buffer)
         };
-        let num_vertices = vertices.len() as i32;
+        let num_indices = indices.len() as i32;
 
         if permanent {
             /*self.total_bytes_uploaded.set(
@@ -277,7 +277,7 @@ impl PrerenderInnards {
             vert_buffer,
             vert_array,
             elem_buffer,
-            num_vertices,
+            num_indices,
         }
     }
 
