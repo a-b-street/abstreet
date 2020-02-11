@@ -13,7 +13,8 @@ abstutil = { path = "../abstutil" }
 # backtrace = "0.3.40"
 cpuprofiler = { version = "0.0.3", optional = true }
 geom = { path = "../geom" }
-glium = "0.26.0"
+#glium = "0.26.0"
+glow = "0.4.0"
 glutin = "0.23.0"
 htmlescape = "0.3.1"
 image = "0.22.2"

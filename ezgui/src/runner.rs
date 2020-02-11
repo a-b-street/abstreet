@@ -158,7 +158,7 @@ impl Settings {
 }
 
 pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: F) -> ! {
-    let (prerender_innards, event_loop) = crate::backend_glium::setup(&settings.window_title);
+    let (prerender_innards, event_loop) = crate::backend_glow::setup(&settings.window_title);
 
     let window_size = event_loop.primary_monitor().size();
     let mut canvas = Canvas::new(window_size.width.into(), window_size.height.into());

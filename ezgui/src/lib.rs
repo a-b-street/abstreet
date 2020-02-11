@@ -1,5 +1,5 @@
 mod assets;
-mod backend_glium;
+mod backend_glow;
 mod canvas;
 mod color;
 mod drawing;
@@ -14,7 +14,7 @@ mod svg;
 mod text;
 mod widgets;
 
-pub use crate::backend_glium::Drawable;
+pub use crate::backend_glow::Drawable;
 pub use crate::canvas::{Canvas, HorizontalAlignment, VerticalAlignment};
 pub use crate::color::Color;
 pub use crate::drawing::{GeomBatch, GfxCtx, Prerender, RewriteColor};
