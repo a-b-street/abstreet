@@ -157,7 +157,7 @@ pub struct PrerenderInnards {
     pub total_bytes_uploaded: Cell<usize>,
 
     // Kind of a weird place for this, but ah well.
-    pub(crate) texture_lookups: RefCell<HashMap<String, Color>>,
+    pub texture_lookups: RefCell<HashMap<String, Color>>,
 }
 
 impl PrerenderInnards {
@@ -242,10 +242,11 @@ impl PrerenderInnards {
 
             let stride = 6 * std::mem::size_of::<f32>() as i32;
             // position is vec2
+            self.gl.enable_vertex_attrib_array(0);
             self.gl
                 .vertex_attrib_pointer_f32(0, 2, glow::FLOAT, false, stride, 0);
-            self.gl.enable_vertex_attrib_array(0);
             // style is vec4
+            self.gl.enable_vertex_attrib_array(1);
             self.gl.vertex_attrib_pointer_f32(
                 1,
                 4,
@@ -254,7 +255,6 @@ impl PrerenderInnards {
                 stride,
                 2 * std::mem::size_of::<f32>() as i32,
             );
-            self.gl.enable_vertex_attrib_array(1);
 
             // Safety?
             self.gl.bind_vertex_array(None);
@@ -285,7 +285,7 @@ impl PrerenderInnards {
         self.windowed_context.window().request_redraw();
     }
 
-    pub(crate) fn draw_new_frame(&self) -> GfxCtxInnards {
+    pub fn draw_new_frame(&self) -> GfxCtxInnards {
         GfxCtxInnards {
             gl: &self.gl,
             windowed_context: &self.windowed_context,
@@ -293,7 +293,7 @@ impl PrerenderInnards {
         }
     }
 
-    pub(crate) fn upload_textures(
+    pub fn upload_textures(
         &self,
         dims_to_textures: BTreeMap<(u32, u32), Vec<(String, Vec<u8>, TextureType)>>,
     ) {
@@ -309,6 +309,14 @@ impl PrerenderInnards {
                     },
                 );
             }
+        }
+    }
+
+    pub fn window_resized(&self, width: f64, height: f64) {
+        self.windowed_context
+            .resize(winit::dpi::PhysicalSize::new(width as u32, height as u32));
+        unsafe {
+            self.gl.viewport(0, 0, width as i32, height as i32);
         }
     }
 }

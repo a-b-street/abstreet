@@ -199,7 +199,7 @@ pub struct PrerenderInnards {
 
     // Kind of a weird place for this, but ah well.
     texture_arrays: RefCell<Vec<Texture2dArray>>,
-    pub(crate) texture_lookups: RefCell<HashMap<String, Color>>,
+    pub texture_lookups: RefCell<HashMap<String, Color>>,
 }
 
 impl PrerenderInnards {
@@ -292,7 +292,7 @@ impl PrerenderInnards {
         self.display.gl_window().window().request_redraw();
     }
 
-    pub(crate) fn draw_new_frame<'a>(&self) -> GfxCtxInnards<'a> {
+    pub fn draw_new_frame<'a>(&self) -> GfxCtxInnards<'a> {
         GfxCtxInnards {
             target: self.display.draw(),
             params: glium::DrawParameters {
@@ -307,7 +307,7 @@ impl PrerenderInnards {
         }
     }
 
-    pub(crate) fn upload_textures(
+    pub fn upload_textures(
         &self,
         dims_to_textures: BTreeMap<(u32, u32), Vec<(String, Vec<u8>, TextureType)>>,
     ) {

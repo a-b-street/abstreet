@@ -46,6 +46,7 @@ impl<G: GUI> State<G> {
             self.canvas.button_tooltip = None;
 
             if let Event::WindowResized(width, height) = input.event {
+                prerender.inner.window_resized(width, height);
                 self.canvas.window_width = width;
                 self.canvas.window_height = height;
             }
