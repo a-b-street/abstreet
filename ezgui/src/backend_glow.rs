@@ -172,7 +172,7 @@ pub struct PrerenderInnards {
     program: <glow::Context as glow::HasContext>::Program,
 
     // TODO Prerender doesn't know what things are temporary and permanent. Could make the API more
-    // detailed (and use the corresponding persistent glium types).
+    // detailed.
     pub total_bytes_uploaded: Cell<usize>,
 
     // Kind of a weird place for this, but ah well.

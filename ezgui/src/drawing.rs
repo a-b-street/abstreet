@@ -1,5 +1,5 @@
 use crate::assets::Assets;
-use crate::backend_glow::{GfxCtxInnards, PrerenderInnards};
+use crate::backend::{GfxCtxInnards, PrerenderInnards};
 use crate::svg;
 use crate::{
     Canvas, Color, Drawable, EventCtx, HorizontalAlignment, ScreenDims, ScreenPt, ScreenRectangle,

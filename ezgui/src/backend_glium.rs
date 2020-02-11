@@ -155,7 +155,7 @@ impl<'a> GfxCtxInnards<'a> {
         });
     }
 
-    pub fn disable_clipping(&mut self) {
+    pub fn disable_clipping(&mut self, _: &Canvas) {
         assert!(self.params.scissor.is_some());
         self.params.scissor = None;
     }
@@ -194,7 +194,7 @@ pub struct PrerenderInnards {
     program: glium::Program,
 
     // TODO Prerender doesn't know what things are temporary and permanent. Could make the API more
-    // detailed (and use the corresponding persistent glium types).
+    // detailed.
     pub total_bytes_uploaded: Cell<usize>,
 
     // Kind of a weird place for this, but ah well.
@@ -330,4 +330,6 @@ impl PrerenderInnards {
                 .push(Texture2dArray::new(&self.display, raw_data).unwrap());
         }
     }
+
+    pub fn window_resized(&self, _: f64, _: f64) {}
 }

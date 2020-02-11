@@ -12,6 +12,7 @@ chrono = "0.4.10"
 counter = "0.4.3"
 downcast-rs = "1.0.4"
 ezgui = { path = "../ezgui" }
+#ezgui = { path = "../ezgui", default-features=false, features=["glow-backend"] }
 geom = { path = "../geom" }
 kml = { path = "../kml" }
 map_model = { path = "../map_model" }

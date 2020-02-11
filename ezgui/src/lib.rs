@@ -1,4 +1,7 @@
 mod assets;
+#[cfg(feature = "glium-backend")]
+mod backend_glium;
+#[cfg(feature = "glow-backend")]
 mod backend_glow;
 mod canvas;
 mod color;
@@ -14,7 +17,7 @@ mod svg;
 mod text;
 mod widgets;
 
-pub use crate::backend_glow::Drawable;
+pub use crate::backend::Drawable;
 pub use crate::canvas::{Canvas, HorizontalAlignment, VerticalAlignment};
 pub use crate::color::Color;
 pub use crate::drawing::{GeomBatch, GfxCtx, Prerender, RewriteColor};
@@ -34,4 +37,12 @@ pub enum InputResult<T: Clone> {
     Canceled,
     StillActive,
     Done(String, T),
+}
+
+mod backend {
+    #[cfg(feature = "glium-backend")]
+    pub use crate::backend_glium::*;
+
+    #[cfg(feature = "glow-backend")]
+    pub use crate::backend_glow::*;
 }
