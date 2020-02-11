@@ -19,9 +19,9 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
     let windowed_context = unsafe { context.make_current().unwrap() };
     let gl =
         glow::Context::from_loader_function(|s| windowed_context.get_proc_address(s) as *const _);
+    let program = unsafe { gl.create_program().expect("Cannot create program") };
 
     unsafe {
-        let program = gl.create_program().expect("Cannot create program");
         let shaders = [
             (glow::VERTEX_SHADER, include_str!("assets/vertex_140.glsl")),
             (
@@ -57,6 +57,7 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
     (
         PrerenderInnards {
             gl,
+            program,
             windowed_context,
             total_bytes_uploaded: Cell::new(0),
             texture_lookups: RefCell::new(HashMap::new()),
@@ -69,6 +70,7 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
 pub struct GfxCtxInnards<'a> {
     gl: &'a glow::Context,
     windowed_context: &'a glutin::WindowedContext<glutin::PossiblyCurrent>,
+    program: &'a <glow::Context as glow::HasContext>::Program,
 }
 
 impl<'a> GfxCtxInnards<'a> {
@@ -83,26 +85,25 @@ impl<'a> GfxCtxInnards<'a> {
     }
 
     pub fn redraw(&mut self, obj: &Drawable, uniforms: &Uniforms, prerender: &PrerenderInnards) {
-        // TODO Uniforms
-
         unsafe {
+            let transform_loc = self
+                .gl
+                .get_uniform_location(*self.program, "transform")
+                .unwrap();
+            self.gl
+                .uniform_3_f32_slice(Some(transform_loc), &uniforms.transform);
+            let window_loc = self
+                .gl
+                .get_uniform_location(*self.program, "window")
+                .unwrap();
+            self.gl
+                .uniform_3_f32_slice(Some(window_loc), &uniforms.window);
+
             self.gl.bind_vertex_array(Some(obj.vert_array));
-            self.gl.draw_arrays(glow::TRIANGLES, 0, obj.num_vertices);
+            self.gl
+                .draw_elements(glow::TRIANGLES, obj.num_vertices, glow::UNSIGNED_INT, 0);
             self.gl.bind_vertex_array(None);
         }
-
-        /*self.target
-        .draw(
-            &obj.vertex_buffer,
-            &obj.index_buffer,
-            &prerender.program,
-            &InnerUniforms {
-                values: uniforms,
-                arrays: &prerender.texture_arrays.borrow(),
-            },
-            &self.params,
-        )
-        .unwrap();*/
     }
 
     pub fn enable_clipping(&mut self, rect: ScreenRectangle, canvas: &Canvas) {
@@ -149,6 +150,7 @@ pub struct Drawable {
 pub struct PrerenderInnards {
     gl: glow::Context,
     windowed_context: glutin::WindowedContext<glutin::PossiblyCurrent>,
+    program: <glow::Context as glow::HasContext>::Program,
 
     // TODO Prerender doesn't know what things are temporary and permanent. Could make the API more
     // detailed (and use the corresponding persistent glium types).
@@ -238,18 +240,12 @@ impl PrerenderInnards {
 
             // TODO Can we have a single vertex array for everything, since there's an uber shader?
 
-            // position... 2 f32's
-            // TODO maybe need to do layout = 0 explicitly
-            self.gl.enable_vertex_attrib_array(0);
-            self.gl.bind_buffer(glow::ARRAY_BUFFER, Some(vert_buffer)); // TODO why again?
-                                                                        // TODO Can supposedly set 0 to auto-detect. Skip over 4 f32's of style to get to next
-            let stride = 4 * std::mem::size_of::<f32>() as i32;
+            let stride = 6 * std::mem::size_of::<f32>() as i32;
+            // position is vec2
             self.gl
                 .vertex_attrib_pointer_f32(0, 2, glow::FLOAT, false, stride, 0);
-
-            // style... 4 f32's
-            self.gl.enable_vertex_attrib_array(1);
-            let stride = 2 * std::mem::size_of::<f32>() as i32;
+            self.gl.enable_vertex_attrib_array(0);
+            // style is vec4
             self.gl.vertex_attrib_pointer_f32(
                 1,
                 4,
@@ -258,6 +254,7 @@ impl PrerenderInnards {
                 stride,
                 2 * std::mem::size_of::<f32>() as i32,
             );
+            self.gl.enable_vertex_attrib_array(1);
 
             // Safety?
             self.gl.bind_vertex_array(None);
@@ -292,6 +289,7 @@ impl PrerenderInnards {
         GfxCtxInnards {
             gl: &self.gl,
             windowed_context: &self.windowed_context,
+            program: &self.program,
         }
     }
 

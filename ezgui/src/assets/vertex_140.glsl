@@ -1,12 +1,12 @@
-#version 140
+#version 330 core
 
 // (x offset, y offset, zoom)
 uniform vec3 transform;
 // (window width, window height, z value)
 uniform vec3 window;
 
-in vec2 position;
-in vec4 style;
+layout (location = 0) in vec2 position;
+layout (location = 1) in vec4 style;
 out vec4 pass_style;
 
 void main() {
