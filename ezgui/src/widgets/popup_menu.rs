@@ -74,6 +74,8 @@ impl<T: Clone> PopupMenu<T> {
                         self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
                         return;
                     }
+                    // Unconsume the click, it was in screen space, but not on us.
+                    ctx.input.unconsume_event();
                 } else {
                     // Clicked on the map? Cancel out
                     self.state = InputResult::Canceled;

@@ -167,6 +167,10 @@ impl UserInput {
         assert!(!self.event_consumed);
         self.event_consumed = true;
     }
+    pub(crate) fn unconsume_event(&mut self) {
+        assert!(self.event_consumed);
+        self.event_consumed = false;
+    }
 
     // Just for Wizard
     pub(crate) fn has_been_consumed(&self) -> bool {
