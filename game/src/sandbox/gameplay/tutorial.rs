@@ -104,8 +104,12 @@ impl GameplayState for Tutorial {
                     self.exit = true;
                     return None;
                 }
-                "Restart" => {
+                "Start over" => {
                     tut.current = 0;
+                    return Some(transition(ctx, ui));
+                }
+                "Last completed step" => {
+                    tut.current = tut.latest;
                     return Some(transition(ctx, ui));
                 }
                 "previous tutorial screen" => {
@@ -666,9 +670,15 @@ impl TutorialState {
             }
             .margin(5),
             if self.current == 0 {
-                Button::inactive_button(ctx, "Restart")
+                Button::inactive_button(ctx, "Start over")
             } else {
-                WrappedComposite::text_button(ctx, "Restart", None)
+                WrappedComposite::text_button(ctx, "Start over", None)
+            }
+            .margin(5),
+            if self.current == self.latest {
+                Button::inactive_button(ctx, "Last completed step")
+            } else {
+                WrappedComposite::text_button(ctx, "Last completed step", None)
             }
             .margin(5),
             WrappedComposite::text_button(ctx, "Quit", None).margin(5),
@@ -741,7 +751,8 @@ impl TutorialState {
                                 txt
                             }),
                             WrappedComposite::text_button(ctx, "OK", hotkey(Key::Enter))
-                                .centered_horiz(),
+                                .centered_horiz()
+                                .padding(10),
                         ])
                         .bg(colors::PANEL_BG)
                         .outline(5.0, Color::WHITE)
