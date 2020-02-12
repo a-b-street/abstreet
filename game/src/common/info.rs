@@ -1,5 +1,5 @@
 use crate::colors;
-use crate::common::{ColorLegend, CommonState, Warping};
+use crate::common::{ColorLegend, Warping};
 use crate::game::{msg, Transition};
 use crate::helpers::{rotating_color_map, ID};
 use crate::managed::WrappedComposite;
@@ -46,21 +46,18 @@ impl InfoPanel {
             actions.insert(0, (Key::F, "follow agent".to_string()));
         }
 
-        let mut col = vec![ManagedWidget::row(vec![
-            {
-                let mut txt = CommonState::default_osd(id.clone(), ui);
-                txt.highlight_last_line(Color::BLUE);
-                ManagedWidget::draw_text(ctx, txt)
-            },
-            ManagedWidget::btn(Button::rectangle_svg(
-                "assets/tools/locate.svg",
-                "jump to object",
-                hotkey(Key::J),
-                RewriteColor::Change(Color::hex("#CC4121"), colors::HOVERING),
-                ctx,
-            )),
-            WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
-        ])];
+        let mut col = info_for(id.clone(), ctx, ui);
+
+        let trip_details = if let Some(trip) = match id {
+            ID::Trip(t) => Some(t),
+            _ => id.agent_id().and_then(|a| ui.primary.sim.agent_to_trip(a)),
+        } {
+            let (rows, unzoomed, zoomed) = trip_details(trip, ctx, ui);
+            col.push(rows);
+            Some((unzoomed, zoomed))
+        } else {
+            None
+        };
 
         for (key, label) in &actions {
             let mut txt = Text::new();
@@ -75,19 +72,6 @@ impl InfoPanel {
                 ctx,
             )));
         }
-
-        col.extend(info_for(id.clone(), ctx, ui));
-
-        let trip_details = if let Some(trip) = match id {
-            ID::Trip(t) => Some(t),
-            _ => id.agent_id().and_then(|a| ui.primary.sim.agent_to_trip(a)),
-        } {
-            let (rows, unzoomed, zoomed) = trip_details(trip, ctx, ui);
-            col.push(rows);
-            Some((unzoomed, zoomed))
-        } else {
-            None
-        };
 
         // Follow the agent. When the sim is paused, this lets the player naturally pan away,
         // because the InfoPanel isn't being updated.
@@ -269,6 +253,15 @@ impl InfoPanel {
 fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
     let (map, sim, draw_map) = (&ui.primary.map, &ui.primary.sim, &ui.primary.draw_map);
     let name_color = ui.cs.get("OSD name color");
+    let locate_btn = ManagedWidget::btn(Button::rectangle_svg(
+        "assets/tools/locate.svg",
+        "jump to object",
+        hotkey(Key::J),
+        RewriteColor::Change(Color::hex("#CC4121"), colors::HOVERING),
+        ctx,
+    ))
+    .align_right();
+    let x_btn = WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right();
 
     let mut rows = vec![];
 
@@ -278,10 +271,65 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
             let l = map.get_l(id);
             let r = map.get_r(l.parent);
 
-            let mut txt = Text::new();
+            // Header
+            {
+                let label = if l.is_sidewalk() { "Sidewalk" } else { "Lane" };
+                rows.push(ManagedWidget::row(vec![
+                    ManagedWidget::draw_text(ctx, Text::from(Line(label).roboto_bold())),
+                    locate_btn,
+                    x_btn,
+                ]));
+                rows.push(ManagedWidget::draw_text(
+                    ctx,
+                    Text::from(Line(format!("@ {}", r.get_name()))),
+                ));
+            }
+
+            // Properties
+            {
+                let mut keys = Text::new();
+                let mut values = Text::new();
+
+                if !l.is_sidewalk() {
+                    keys.add(Line("Type:").roboto_bold());
+                    values.add(Line(l.lane_type.describe()));
+                }
+
+                if l.is_parking() {
+                    keys.add(Line("Parking:").roboto_bold());
+                    values.add(Line(format!(
+                        "{} spots, parallel parking",
+                        l.number_parking_spots()
+                    )));
+                } else {
+                    keys.add(Line("Speed limit:").roboto_bold());
+                    values.add(Line(r.get_speed_limit().to_string()));
+
+                    keys.add(Line("Length:").roboto_bold());
+                    // TODO Trim decimals
+                    values.add(Line(l.length().to_string()));
+
+                    // TODO How many per day usually, if we know
+                    keys.add(Line("Throughput since midnight:").roboto_bold());
+                    values.add(Line(format!(
+                        "{} agents crossed (entire road)",
+                        prettyprint_usize(
+                            sim.get_analytics().thruput_stats.count_per_road.get(r.id)
+                        )
+                    )));
+                }
+
+                // TODO These aren't lining up, argh, probably need a bunch of rows :(
+                rows.push(ManagedWidget::row(vec![
+                    ManagedWidget::draw_text(ctx, keys),
+                    ManagedWidget::draw_text(ctx, values),
+                ]));
+            }
+
+            // TODO Clean this up too
             if ui.opts.dev {
+                let mut txt = Text::new();
                 txt.add(Line(format!("Parent is {}", r.id)));
-                txt.add(Line(format!("Lane is {} long", l.length())));
 
                 if l.is_driving() {
                     txt.add(Line(format!(
@@ -309,22 +357,10 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                 if tr {
                     txt.add(Line(""));
                 }
+                rows.push(ManagedWidget::draw_text(ctx, txt));
             }
 
-            if l.is_parking() {
-                txt.add(Line(format!(
-                    "Has {} parking spots",
-                    l.number_parking_spots()
-                )));
-                rows.push(ManagedWidget::draw_text(ctx, txt));
-            } else {
-                txt.add(Line(format!("Speed limit: {}", r.get_speed_limit())));
-                txt.add(Line(format!(
-                    "{} total agents crossed so far",
-                    prettyprint_usize(sim.get_analytics().thruput_stats.count_per_road.get(r.id))
-                )));
-                rows.push(ManagedWidget::draw_text(ctx, txt));
-
+            if !l.is_parking() {
                 rows.push(
                     ManagedWidget::draw_text(
                         ctx,
@@ -347,6 +383,21 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
         ID::Intersection(id) => {
             let i = map.get_i(id);
 
+            // Header
+            {
+                let label = if i.is_border() {
+                    "Border"
+                } else {
+                    "Intersection"
+                };
+                rows.push(ManagedWidget::row(vec![
+                    ManagedWidget::draw_text(ctx, Text::from(Line(label).roboto_bold())),
+                    locate_btn,
+                    x_btn,
+                ]));
+            }
+
+            // TODO Reform all of this too
             let mut txt = Text::new();
             txt.add(Line("Connecting"));
             for r in &i.roads {
@@ -399,6 +450,15 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
         ID::Building(id) => {
             let b = map.get_b(id);
 
+            // Header
+            {
+                rows.push(ManagedWidget::row(vec![
+                    ManagedWidget::draw_text(ctx, Text::from(Line("Building").roboto_bold())),
+                    locate_btn,
+                    x_btn,
+                ]));
+            }
+
             let mut txt = Text::new();
             if ui.opts.dev {
                 txt.add(Line(format!(
@@ -450,6 +510,20 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
             rows.push(ManagedWidget::draw_text(ctx, txt))
         }
         ID::Car(id) => {
+            // Header
+            {
+                let label = match id.1 {
+                    VehicleType::Car => "Car",
+                    VehicleType::Bike => "Bike",
+                    VehicleType::Bus => "Bus",
+                };
+                rows.push(ManagedWidget::row(vec![
+                    ManagedWidget::draw_text(ctx, Text::from(Line(label).roboto_bold())),
+                    locate_btn,
+                    x_btn,
+                ]));
+            }
+
             let mut txt = Text::new();
             for line in sim.car_tooltip(id) {
                 // TODO Wrap
@@ -458,6 +532,15 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
             rows.push(ManagedWidget::draw_text(ctx, txt))
         }
         ID::Pedestrian(id) => {
+            // Header
+            {
+                rows.push(ManagedWidget::row(vec![
+                    ManagedWidget::draw_text(ctx, Text::from(Line("Pedestrian").roboto_bold())),
+                    locate_btn,
+                    x_btn,
+                ]));
+            }
+
             let mut txt = Text::new();
             for line in sim.ped_tooltip(id, map) {
                 // TODO Wrap
@@ -466,16 +549,49 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
             rows.push(ManagedWidget::draw_text(ctx, txt))
         }
         ID::PedCrowd(members) => {
+            // Header
+            {
+                rows.push(ManagedWidget::row(vec![
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line("Pedestrian crowd").roboto_bold()),
+                    ),
+                    locate_btn,
+                    x_btn,
+                ]));
+            }
+
             let mut txt = Text::new();
             txt.add(Line(format!("Crowd of {}", members.len())));
             rows.push(ManagedWidget::draw_text(ctx, txt))
         }
         ID::ExtraShape(id) => {
+            // Header
+            {
+                rows.push(ManagedWidget::row(vec![
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line("Extra GIS shape").roboto_bold()),
+                    ),
+                    locate_btn,
+                    x_btn,
+                ]));
+            }
+
             let mut txt = Text::new();
             styled_kv(&mut txt, &draw_map.get_es(id).attributes);
             rows.push(ManagedWidget::draw_text(ctx, txt))
         }
         ID::BusStop(id) => {
+            // Header
+            {
+                rows.push(ManagedWidget::row(vec![
+                    ManagedWidget::draw_text(ctx, Text::from(Line("Bus stop").roboto_bold())),
+                    locate_btn,
+                    x_btn,
+                ]));
+            }
+
             let mut txt = Text::new();
             let all_arrivals = &sim.get_analytics().bus_arrivals;
             for r in map.get_routes_serving_stop(id) {
@@ -506,6 +622,15 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
             rows.push(ManagedWidget::draw_text(ctx, txt))
         }
         ID::Area(id) => {
+            // Header
+            {
+                rows.push(ManagedWidget::row(vec![
+                    ManagedWidget::draw_text(ctx, Text::from(Line("Area").roboto_bold())),
+                    locate_btn,
+                    x_btn,
+                ]));
+            }
+
             let a = map.get_a(id);
             let mut txt = Text::new();
             styled_kv(&mut txt, &a.osm_tags);
