@@ -254,26 +254,44 @@ impl WalkingSimState {
         }
     }
 
-    pub fn ped_tooltip(&self, id: PedestrianID, now: Time, map: &Map) -> Vec<String> {
+    pub fn ped_properties(
+        &self,
+        id: PedestrianID,
+        now: Time,
+        map: &Map,
+    ) -> (Vec<(String, String)>, Vec<String>) {
         let p = &self.peds[&id];
-        let mut lines = vec![
-            format!("{} on {:?}", p.id, p.path.current_step()),
-            format!("{} lanes left in path", p.path.num_lanes()),
-            format!(
-                "Crossed {} / {} of path",
-                p.path.crossed_so_far(),
-                p.path.total_length()
+        let props = vec![
+            (
+                "Trip time so far".to_string(),
+                (now - p.started_at).to_string(),
             ),
-            format!(
-                "Blocked for {}",
-                p.blocked_since.map(|t| now - t).unwrap_or(Duration::ZERO)
+            (
+                "Lanes remaining in path".to_string(),
+                p.path.num_lanes().to_string(),
             ),
-            format!("Trip time so far: {}", now - p.started_at),
+            (
+                "Progress along path".to_string(),
+                format!(
+                    "crossed {} / {}",
+                    p.path.crossed_so_far().describe_rounded(),
+                    p.path.total_length().describe_rounded()
+                ),
+            ),
+            // TODO Not cumulative!
+            (
+                "Time spent waiting".to_string(),
+                p.blocked_since
+                    .map(|t| now - t)
+                    .unwrap_or(Duration::ZERO)
+                    .to_string(),
+            ),
         ];
+        let mut extra = Vec::new();
         if let PedState::WaitingForBus(r) = p.state {
-            lines.push(format!("Waiting for bus {}", map.get_br(r).name));
+            extra.push(format!("Waiting for bus {}", map.get_br(r).name));
         }
-        lines
+        (props, extra)
     }
 
     pub fn trace_route(

@@ -210,7 +210,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
                         self.max_y.from_percent(y_percent).prettyprint()
                     )));
                 }
-                if txt.num_lines() > 0 {
+                if !txt.is_empty() {
                     g.fork_screenspace();
                     g.draw_circle(Color::RED, &Circle::new(cursor.to_pt(), radius));
                     g.draw_mouse_tooltip(txt);

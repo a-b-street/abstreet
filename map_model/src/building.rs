@@ -52,17 +52,25 @@ impl Building {
         self.front_path.sidewalk.lane()
     }
 
-    // TODO Cache?
-    pub fn get_name(&self, map: &Map) -> String {
-        let address = match (
+    pub fn just_address(&self, map: &Map) -> String {
+        match (
             self.osm_tags.get("addr:housenumber"),
             self.osm_tags.get("addr:street"),
         ) {
             (Some(num), Some(st)) => format!("{} {}", num, st),
             (None, Some(st)) => format!("??? {}", st),
             _ => format!("??? {}", map.get_parent(self.sidewalk()).get_name()),
-        };
-        if let Some(name) = self.osm_tags.get(osm::NAME) {
+        }
+    }
+
+    pub fn just_name(&self) -> Option<&String> {
+        self.osm_tags.get(osm::NAME)
+    }
+
+    // TODO I think this one only has one caller
+    pub fn get_name(&self, map: &Map) -> String {
+        let address = self.just_address(map);
+        if let Some(name) = self.just_name() {
             format!("{} (at {})", name, address)
         } else {
             address

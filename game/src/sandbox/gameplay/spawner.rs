@@ -62,11 +62,7 @@ impl AgentSpawner {
                     );
                     return None;
                 }
-                if ui.per_obj.action(
-                    ctx,
-                    Key::F3,
-                    "spawn a pedestrian starting here just walking",
-                ) {
+                if ui.per_obj.action(ctx, Key::F3, "spawn a walking trip") {
                     return Some(Box::new(AgentSpawner {
                         menu: ModalMenu::new(
                             "Agent Spawner",
@@ -167,10 +163,7 @@ impl AgentSpawner {
                 }
             }
             Some(ID::Intersection(i)) => {
-                if ui
-                    .per_obj
-                    .action(ctx, Key::Z, "spawn agents around this intersection")
-                {
+                if ui.per_obj.action(ctx, Key::Z, "spawn agents here") {
                     spawn_agents_around(i, ui);
                 }
             }

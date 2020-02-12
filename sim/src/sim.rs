@@ -860,31 +860,44 @@ impl Sim {
         self.driving.debug_lane(id);
     }
 
-    pub fn ped_tooltip(&self, p: PedestrianID, map: &Map) -> Vec<String> {
-        self.walking.ped_tooltip(p, self.time, map)
+    pub fn ped_properties(
+        &self,
+        p: PedestrianID,
+        map: &Map,
+    ) -> (Vec<(String, String)>, Vec<String>) {
+        self.walking.ped_properties(p, self.time, map)
     }
 
-    pub fn car_tooltip(&self, car: CarID) -> Vec<String> {
-        if let Some(mut lines) = self.driving.tooltip_lines(car, self.time) {
+    pub fn car_properties(&self, car: CarID, map: &Map) -> (Vec<(String, String)>, Vec<String>) {
+        if let Some((mut props, extra)) = self.driving.car_properties(car, self.time, map) {
             if car.1 == VehicleType::Bus {
                 let passengers = self.transit.get_passengers(car);
-                lines.push(format!("{} passengers riding", passengers.len()));
-                for (id, stop) in passengers {
-                    lines.push(format!("- {} till {:?}", id, stop));
-                }
+                props.push(("Passengers".to_string(), passengers.len().to_string()));
+                // TODO Clean this up
+                /*for (id, stop) in passengers {
+                    extra.push(format!("- {} till {:?}", id, stop));
+                }*/
             }
-            lines
+            (props, extra)
         } else {
-            let mut lines = vec![format!("{} is parked", car)];
+            let mut props = Vec::new();
+            let mut extra = Vec::new();
             if let Some(b) = self.parking.get_owner_of_car(car) {
+                props.push(("Owner".to_string(), map.get_b(b).just_address(map)));
+                // TODO More details here
                 if let Some((trip, start)) = self.trips.find_trip_using_car(car, b) {
-                    lines.push(format!(
+                    extra.push(format!(
                         "{} will use this car, sometime after {}",
                         trip, start
                     ));
                 }
+            } else {
+                props.push((
+                    "Owner".to_string(),
+                    "visiting from outside the map".to_string(),
+                ));
             }
-            lines
+            (props, extra)
         }
     }
 
@@ -915,7 +928,7 @@ impl Sim {
     pub fn lookup_car_id(&self, idx: usize) -> Option<CarID> {
         for vt in &[VehicleType::Car, VehicleType::Bike, VehicleType::Bus] {
             let id = CarID(idx, *vt);
-            if self.driving.tooltip_lines(id, self.time).is_some() {
+            if self.driving.does_car_exist(id) {
                 return Some(id);
             }
         }

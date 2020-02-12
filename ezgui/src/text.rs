@@ -174,8 +174,8 @@ impl Text {
         }
     }
 
-    pub fn num_lines(&self) -> usize {
-        self.lines.len()
+    pub fn is_empty(&self) -> bool {
+        self.lines.is_empty()
     }
 
     pub fn extend(&mut self, other: &Text) {

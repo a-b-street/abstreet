@@ -863,24 +863,49 @@ impl DrivingSimState {
         }
     }
 
-    pub fn tooltip_lines(&self, id: CarID, now: Time) -> Option<Vec<String>> {
+    pub fn car_properties(
+        &self,
+        id: CarID,
+        now: Time,
+        map: &Map,
+    ) -> Option<(Vec<(String, String)>, Vec<String>)> {
         let car = self.cars.get(&id)?;
         let path = car.router.get_path();
-        Some(vec![
-            format!("{} on {}", id, car.router.head()),
-            format!("Owned by {:?}", car.vehicle.owner),
-            format!("{} lanes left", path.num_lanes()),
-            format!(
-                "Crossed {} / {} of path",
-                path.crossed_so_far(),
-                path.total_length()
+        let props = vec![
+            (
+                "Owner".to_string(),
+                if let Some(b) = car.vehicle.owner {
+                    map.get_b(b).just_address(map)
+                } else {
+                    "visiting from outside the map".to_string()
+                },
             ),
-            format!(
-                "Blocked for {}",
-                car.blocked_since.map(|t| now - t).unwrap_or(Duration::ZERO)
+            (
+                "Trip time so far".to_string(),
+                (now - car.started_at).to_string(),
             ),
-            format!("Trip time so far: {}", now - car.started_at),
-        ])
+            (
+                "Lanes remaining in path".to_string(),
+                path.num_lanes().to_string(),
+            ),
+            (
+                "Progress along path".to_string(),
+                format!(
+                    "crossed {} / {}",
+                    path.crossed_so_far().describe_rounded(),
+                    path.total_length().describe_rounded()
+                ),
+            ),
+            // TODO Not cumulative!
+            (
+                "Time spent waiting".to_string(),
+                car.blocked_since
+                    .map(|t| now - t)
+                    .unwrap_or(Duration::ZERO)
+                    .to_string(),
+            ),
+        ];
+        Some((props, Vec::new()))
     }
 
     pub fn get_path(&self, id: CarID) -> Option<&Path> {

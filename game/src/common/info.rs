@@ -14,7 +14,7 @@ use ezgui::{
 use geom::{Circle, Distance, Duration, Statistic, Time};
 use map_model::{IntersectionID, RoadID};
 use sim::{CarID, TripEnd, TripID, TripMode, TripStart, VehicleType};
-use std::collections::BTreeMap;
+use std::collections::BTreeSet;
 
 pub struct InfoPanel {
     pub id: ID,
@@ -343,6 +343,7 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                     "Since midnight: {} agents crossed",
                     prettyprint_usize(sim.get_analytics().thruput_stats.count_per_road.get(r.id))
                 )));
+                txt.add(Line(format!("In 20 minute buckets:")));
                 rows.push(ManagedWidget::draw_text(ctx, txt));
 
                 rows.push(
@@ -352,7 +353,6 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                         ctx,
                         ui,
                     )
-                    //.bg(colors::SECTION_BG)
                     .margin(10),
                 );
             }
@@ -373,12 +373,14 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                 ]));
             }
 
-            // TODO Reform all of this too
-            let mut txt = Text::new();
-            txt.add(Line("Connecting"));
+            let mut txt = Text::from(Line("Connecting"));
+            let mut road_names = BTreeSet::new();
             for r in &i.roads {
-                let road = map.get_r(*r);
-                txt.add_appended(vec![Line("- "), Line(road.get_name()).fg(name_color)]);
+                road_names.insert(map.get_r(*r).get_name());
+            }
+            for r in road_names {
+                // TODO The spacing is ignored, so use -
+                txt.add(Line(format!("- {}", r)));
             }
 
             let cnt = sim.count_trips_involving_border(id);
@@ -390,8 +392,9 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
             }
 
             txt.add(Line(""));
+            txt.add(Line("Throughput").roboto_bold());
             txt.add(Line(format!(
-                "{} total agents crossed so far",
+                "Since midnight: {} agents crossed",
                 prettyprint_usize(
                     sim.get_analytics()
                         .thruput_stats
@@ -399,28 +402,19 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                         .get(id)
                 )
             )));
+            txt.add(Line(format!("In 20 minute buckets:")));
             rows.push(ManagedWidget::draw_text(ctx, txt));
 
+            rows.push(intersection_throughput(id, Duration::minutes(20), ctx, ui).margin(10));
+
             if ui.primary.map.get_i(id).is_traffic_signal() {
-                rows.push(
-                    ManagedWidget::draw_text(ctx, Text::from(Line("delay in 20 minute buckets")))
-                        .bg(colors::SECTION_BG),
-                );
-                rows.push(
-                    intersection_delay(id, Duration::minutes(20), ctx, ui)
-                        .bg(colors::SECTION_BG)
-                        .margin(10),
-                );
+                let mut txt = Text::from(Line(""));
+                txt.add(Line("Delay").roboto_bold());
+                txt.add(Line(format!("In 20 minute buckets:")));
+                rows.push(ManagedWidget::draw_text(ctx, txt));
+
+                rows.push(intersection_delay(id, Duration::minutes(20), ctx, ui).margin(10));
             }
-            rows.push(
-                ManagedWidget::draw_text(ctx, Text::from(Line("throughput in 20 minute buckets")))
-                    .bg(colors::SECTION_BG),
-            );
-            rows.push(
-                intersection_throughput(id, Duration::minutes(20), ctx, ui)
-                    .bg(colors::SECTION_BG)
-                    .margin(10),
-            );
         }
         ID::Turn(_) => unreachable!(),
         ID::Building(id) => {
@@ -434,24 +428,39 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                 ]));
             }
 
+            // Properties
+            {
+                let mut kv = Vec::new();
+
+                kv.push(("Address".to_string(), b.just_address(map)));
+                if let Some(name) = b.just_name() {
+                    kv.push(("Name".to_string(), name.to_string()));
+                }
+
+                if let Some(ref p) = b.parking {
+                    kv.push((
+                        "Parking".to_string(),
+                        format!("{} spots via {}", p.num_stalls, p.name),
+                    ));
+                } else {
+                    kv.push(("Parking".to_string(), "None".to_string()));
+                }
+
+                if ui.opts.dev {
+                    kv.push((
+                        "Dist along sidewalk".to_string(),
+                        b.front_path.sidewalk.dist_along().to_string(),
+                    ));
+
+                    for (k, v) in &b.osm_tags {
+                        kv.push((k.to_string(), v.to_string()));
+                    }
+                }
+
+                rows.extend(make_table(ctx, kv));
+            }
+
             let mut txt = Text::new();
-            if ui.opts.dev {
-                txt.add(Line(format!(
-                    "Dist along sidewalk: {}",
-                    b.front_path.sidewalk.dist_along()
-                )));
-                txt.add(Line(""));
-                styled_kv(&mut txt, &b.osm_tags);
-            }
-
-            if let Some(ref p) = b.parking {
-                txt.add(Line(""));
-                txt.add_appended(vec![
-                    Line(format!("{} parking spots via ", p.num_stalls)),
-                    Line(&p.name).fg(name_color),
-                ]);
-            }
-
             let cnt = sim.count_trips_involving_bldg(id);
             if cnt.nonzero() {
                 txt.add(Line(""));
@@ -467,6 +476,7 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                     "{} parked cars owned by this building",
                     cars.len()
                 )));
+                // TODO Jump to it or see status
                 for p in cars {
                     txt.add(Line(format!("- {}", p.vehicle.id)));
                 }
@@ -482,7 +492,9 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                 }
             }
 
-            rows.push(ManagedWidget::draw_text(ctx, txt))
+            if !txt.is_empty() {
+                rows.push(ManagedWidget::draw_text(ctx, txt))
+            }
         }
         ID::Car(id) => {
             // Header
@@ -498,12 +510,15 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                 ]));
             }
 
-            let mut txt = Text::new();
-            for line in sim.car_tooltip(id) {
-                // TODO Wrap
-                txt.add(Line(line));
+            let (kv, extra) = sim.car_properties(id, map);
+            rows.extend(make_table(ctx, kv));
+            if !extra.is_empty() {
+                let mut txt = Text::from(Line(""));
+                for line in extra {
+                    txt.add(Line(line));
+                }
+                rows.push(ManagedWidget::draw_text(ctx, txt));
             }
-            rows.push(ManagedWidget::draw_text(ctx, txt))
         }
         ID::Pedestrian(id) => {
             // Header
@@ -514,12 +529,15 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                 ]));
             }
 
-            let mut txt = Text::new();
-            for line in sim.ped_tooltip(id, map) {
-                // TODO Wrap
-                txt.add(Line(line));
+            let (kv, extra) = sim.ped_properties(id, map);
+            rows.extend(make_table(ctx, kv));
+            if !extra.is_empty() {
+                let mut txt = Text::from(Line(""));
+                for line in extra {
+                    txt.add(Line(line));
+                }
+                rows.push(ManagedWidget::draw_text(ctx, txt));
             }
-            rows.push(ManagedWidget::draw_text(ctx, txt))
         }
         ID::PedCrowd(members) => {
             // Header
@@ -535,22 +553,6 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
 
             let mut txt = Text::new();
             txt.add(Line(format!("Crowd of {}", members.len())));
-            rows.push(ManagedWidget::draw_text(ctx, txt))
-        }
-        ID::ExtraShape(id) => {
-            // Header
-            {
-                rows.push(ManagedWidget::row(vec![
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line("Extra GIS shape").roboto_bold()),
-                    ),
-                    header_btns,
-                ]));
-            }
-
-            let mut txt = Text::new();
-            styled_kv(&mut txt, &draw_map.get_es(id).attributes);
             rows.push(ManagedWidget::draw_text(ctx, txt))
         }
         ID::BusStop(id) => {
@@ -571,12 +573,9 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                     .filter(|(_, _, route, stop)| r.id == *route && id == *stop)
                     .map(|(t, car, _, _)| (*t, *car))
                     .collect();
-                if let Some((t, car)) = arrivals.last() {
-                    txt.add(Line(format!(
-                        "  Last bus arrived {} ago ({})",
-                        sim.time() - *t,
-                        car
-                    )));
+                if let Some((t, _)) = arrivals.last() {
+                    // TODO Button to jump to the bus
+                    txt.add(Line(format!("  Last bus arrived {} ago", sim.time() - *t)));
                 } else {
                     txt.add(Line("  No arrivals yet"));
                 }
@@ -601,24 +600,35 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
             }
 
             let a = map.get_a(id);
-            let mut txt = Text::new();
-            styled_kv(&mut txt, &a.osm_tags);
-            rows.push(ManagedWidget::draw_text(ctx, txt))
+            let mut kv = Vec::new();
+            for (k, v) in &a.osm_tags {
+                kv.push((k.to_string(), v.to_string()));
+            }
+            rows.extend(make_table(ctx, kv));
+        }
+        ID::ExtraShape(id) => {
+            // Header
+            {
+                rows.push(ManagedWidget::row(vec![
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line("Extra GIS shape").roboto_bold()),
+                    ),
+                    header_btns,
+                ]));
+            }
+
+            let es = draw_map.get_es(id);
+            let mut kv = Vec::new();
+            for (k, v) in &es.attributes {
+                kv.push((k.to_string(), v.to_string()));
+            }
+            rows.extend(make_table(ctx, kv));
         }
         // No info here, trip_details will be used
         ID::Trip(_) => {}
     };
     rows
-}
-
-fn styled_kv(txt: &mut Text, tags: &BTreeMap<String, String>) {
-    for (k, v) in tags {
-        txt.add_appended(vec![
-            Line(k).fg(Color::RED),
-            Line(" = "),
-            Line(v).fg(Color::CYAN),
-        ]);
-    }
 }
 
 fn make_table(ctx: &EventCtx, rows: Vec<(String, String)>) -> Vec<ManagedWidget> {
