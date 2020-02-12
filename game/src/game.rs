@@ -4,7 +4,8 @@ use crate::pregame::TitleScreen;
 use crate::render::DrawOptions;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::{Flags, ShowEverything, UI};
-use ezgui::{Canvas, Color, Drawable, EventCtx, EventLoopMode, GfxCtx, Wizard, GUI};
+use abstutil::Timer;
+use ezgui::{Canvas, Color, Drawable, EventCtx, EventLoopMode, GfxCtx, TextureType, Wizard, GUI};
 use geom::Polygon;
 
 // This is the top-level of the GUI logic. This module should just manage interactions between the
@@ -21,6 +22,13 @@ impl Game {
             && !flags.sim_flags.load.contains("data/player/save")
             && !flags.sim_flags.load.contains("data/system/scenarios")
             && mode == GameplayMode::Freeform;
+        ctx.set_textures(
+            vec![
+                ("assets/pregame/challenges.png", TextureType::Stretch),
+                ("assets/pregame/logo.png", TextureType::Stretch),
+            ],
+            &mut Timer::new("load textures"),
+        );
         let mut ui = UI::new(flags, opts, ctx, title);
         let states: Vec<Box<dyn State>> = if title {
             vec![Box::new(TitleScreen::new(ctx, &ui))]

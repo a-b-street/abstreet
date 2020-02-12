@@ -7,7 +7,7 @@ use crate::render::{
 };
 use crate::sandbox::TutorialState;
 use abstutil::{MeasureMemory, Timer};
-use ezgui::{Color, EventCtx, GfxCtx, Prerender, TextureType};
+use ezgui::{Color, EventCtx, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Pt2D};
 use map_model::{Map, Traversable};
 use rand::seq::SliceRandom;
@@ -37,14 +37,6 @@ impl UI {
     pub fn new(flags: Flags, opts: Options, ctx: &mut EventCtx, splash: bool) -> UI {
         let cs = ColorScheme::load(opts.color_scheme.clone());
         let primary = ctx.loading_screen("load map", |ctx, mut timer| {
-            ctx.set_textures(
-                vec![
-                    ("assets/pregame/challenges.png", TextureType::Stretch),
-                    ("assets/pregame/logo.png", TextureType::Stretch),
-                ],
-                &mut timer,
-            );
-
             PerMapUI::new(flags, &cs, ctx, &mut timer)
         });
 

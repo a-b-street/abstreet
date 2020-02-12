@@ -382,7 +382,7 @@ impl TimePanel {
                         ctx,
                         Text::from(Line(ui.primary.sim.time().ampm_tostring()).size(30)),
                     )
-                    .padding(10)
+                    .margin(10)
                     .centered_horiz(),
                     {
                         let mut batch = GeomBatch::new();

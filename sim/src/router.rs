@@ -242,15 +242,17 @@ impl Router {
             Goal::BikeThenStop { end_dist } => {
                 if end_dist == front {
                     let last_lane = self.head().as_lane();
-                    Some(ActionAtEnd::StopBiking(
-                        SidewalkSpot::bike_rack(
-                            map.get_parent(last_lane)
-                                .bike_to_sidewalk(last_lane)
-                                .unwrap(),
-                            map,
-                        )
-                        .unwrap(),
-                    ))
+                    if let Some(sidewalk) = map.get_parent(last_lane).bike_to_sidewalk(last_lane) {
+                        Some(ActionAtEnd::StopBiking(
+                            SidewalkSpot::bike_rack(sidewalk, map).unwrap(),
+                        ))
+                    } else {
+                        println!(
+                            "WARNING: Can't BikeThenStop on {}, because there's no sidewalk",
+                            last_lane
+                        );
+                        Some(ActionAtEnd::AbortTrip)
+                    }
                 } else {
                     None
                 }
