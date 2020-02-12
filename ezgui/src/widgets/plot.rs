@@ -29,7 +29,9 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
     ) -> (Plot<T>, ManagedWidget, ManagedWidget, ManagedWidget) {
         let mut batch = GeomBatch::new();
 
-        let width = 0.3 * ctx.canvas.window_width;
+        // TODO Tuned to fit the info panel. Instead these should somehow stretch to fill their
+        // container.
+        let width = 0.25 * ctx.canvas.window_width;
         let height = 0.2 * ctx.canvas.window_height;
 
         let radius = 15.0;
@@ -157,7 +159,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
             dims: ScreenDims::new(width, height),
         };
 
-        let num_x_labels = 4;
+        let num_x_labels = 3;
         let mut row = Vec::new();
         for i in 0..num_x_labels {
             let percent_x = (i as f64) / ((num_x_labels - 1) as f64);

@@ -63,14 +63,17 @@ impl InfoPanel {
             let mut txt = Text::new();
             txt.append(Line(key.describe()).fg(ezgui::HOTKEY_COLOR));
             txt.append(Line(format!(" - {}", label)));
-            col.push(ManagedWidget::btn(Button::text_bg(
-                txt,
-                colors::SECTION_BG,
-                colors::HOVERING,
-                hotkey(*key),
-                label,
-                ctx,
-            )));
+            col.push(
+                ManagedWidget::btn(Button::text_bg(
+                    txt,
+                    colors::SECTION_BG,
+                    colors::HOVERING,
+                    hotkey(*key),
+                    label,
+                    ctx,
+                ))
+                .margin(5),
+            );
         }
 
         // Follow the agent. When the sim is paused, this lets the player naturally pan away,
@@ -162,12 +165,12 @@ impl InfoPanel {
             actions,
             trip_details,
             time: ui.primary.sim.time(),
-            composite: Composite::new(ManagedWidget::col(col).bg(colors::PANEL_BG))
+            composite: Composite::new(ManagedWidget::col(col).bg(colors::PANEL_BG).padding(10))
                 .aligned(
                     HorizontalAlignment::Percent(0.02),
                     VerticalAlignment::Percent(0.2),
                 )
-                .max_size_percent(30, 60)
+                .max_size_percent(35, 60)
                 .build(ctx),
             also_draw: batch.upload(ctx),
         }
@@ -253,15 +256,17 @@ impl InfoPanel {
 fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
     let (map, sim, draw_map) = (&ui.primary.map, &ui.primary.sim, &ui.primary.draw_map);
     let name_color = ui.cs.get("OSD name color");
-    let locate_btn = ManagedWidget::btn(Button::rectangle_svg(
-        "assets/tools/locate.svg",
-        "jump to object",
-        hotkey(Key::J),
-        RewriteColor::Change(Color::hex("#CC4121"), colors::HOVERING),
-        ctx,
-    ))
+    let header_btns = ManagedWidget::row(vec![
+        ManagedWidget::btn(Button::rectangle_svg(
+            "assets/tools/locate.svg",
+            "jump to object",
+            hotkey(Key::J),
+            RewriteColor::Change(Color::hex("#CC4121"), colors::HOVERING),
+            ctx,
+        )),
+        WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)),
+    ])
     .align_right();
-    let x_btn = WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right();
 
     let mut rows = vec![];
 
@@ -276,8 +281,7 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                 let label = if l.is_sidewalk() { "Sidewalk" } else { "Lane" };
                 rows.push(ManagedWidget::row(vec![
                     ManagedWidget::draw_text(ctx, Text::from(Line(label).roboto_bold())),
-                    locate_btn,
-                    x_btn,
+                    header_btns,
                 ]));
                 rows.push(ManagedWidget::draw_text(
                     ctx,
@@ -287,87 +291,60 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
 
             // Properties
             {
-                let mut keys = Text::new();
-                let mut values = Text::new();
+                let mut kv = Vec::new();
 
                 if !l.is_sidewalk() {
-                    keys.add(Line("Type:").roboto_bold());
-                    values.add(Line(l.lane_type.describe()));
+                    kv.push(("Type".to_string(), l.lane_type.describe().to_string()));
                 }
 
                 if l.is_parking() {
-                    keys.add(Line("Parking:").roboto_bold());
-                    values.add(Line(format!(
-                        "{} spots, parallel parking",
-                        l.number_parking_spots()
-                    )));
+                    kv.push((
+                        "Parking".to_string(),
+                        format!("{} spots, parallel parking", l.number_parking_spots()),
+                    ));
                 } else {
-                    keys.add(Line("Speed limit:").roboto_bold());
-                    values.add(Line(r.get_speed_limit().to_string()));
-
-                    keys.add(Line("Length:").roboto_bold());
-                    // TODO Trim decimals
-                    values.add(Line(l.length().to_string()));
-
-                    // TODO How many per day usually, if we know
-                    keys.add(Line("Throughput since midnight:").roboto_bold());
-                    values.add(Line(format!(
-                        "{} agents crossed (entire road)",
-                        prettyprint_usize(
-                            sim.get_analytics().thruput_stats.count_per_road.get(r.id)
-                        )
-                    )));
+                    kv.push(("Speed limit".to_string(), r.get_speed_limit().to_string()));
                 }
 
-                // TODO These aren't lining up, argh, probably need a bunch of rows :(
-                rows.push(ManagedWidget::row(vec![
-                    ManagedWidget::draw_text(ctx, keys),
-                    ManagedWidget::draw_text(ctx, values),
-                ]));
-            }
+                kv.push(("Length".to_string(), l.length().describe_rounded()));
 
-            // TODO Clean this up too
-            if ui.opts.dev {
-                let mut txt = Text::new();
-                txt.add(Line(format!("Parent is {}", r.id)));
+                if ui.opts.dev {
+                    kv.push(("Parent".to_string(), r.id.to_string()));
 
-                if l.is_driving() {
-                    txt.add(Line(format!(
-                        "Parking blackhole redirect? {:?}",
-                        l.parking_blackhole
-                    )));
+                    if l.is_driving() {
+                        kv.push((
+                            "Parking blackhole redirect".to_string(),
+                            format!("{:?}", l.parking_blackhole),
+                        ));
+                    }
+
+                    if let Some(types) = l.get_turn_restrictions(r) {
+                        kv.push(("Turn restrictions".to_string(), format!("{:?}", types)));
+                    }
+                    for (restriction, to) in &r.turn_restrictions {
+                        kv.push((
+                            format!("Restriction from this road to {}", to),
+                            format!("{:?}", restriction),
+                        ));
+                    }
+
+                    for (k, v) in &r.osm_tags {
+                        kv.push((k.to_string(), v.to_string()));
+                    }
                 }
 
-                txt.add(Line(""));
-                styled_kv(&mut txt, &r.osm_tags);
-                txt.add(Line(""));
-
-                let mut tr = false;
-                if let Some(types) = l.get_turn_restrictions(r) {
-                    txt.add(Line(format!("Turn restriction for this lane: {:?}", types)));
-                    tr = true;
-                }
-                for (restriction, to) in &r.turn_restrictions {
-                    txt.add(Line(format!(
-                        "Restriction from this road to {}: {:?}",
-                        to, restriction
-                    )));
-                    tr = true;
-                }
-                if tr {
-                    txt.add(Line(""));
-                }
-                rows.push(ManagedWidget::draw_text(ctx, txt));
+                rows.extend(make_table(ctx, kv));
             }
 
             if !l.is_parking() {
-                rows.push(
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line("throughput in 20 minute buckets (entire road)")),
-                    )
-                    .bg(colors::SECTION_BG),
-                );
+                let mut txt = Text::from(Line(""));
+                txt.add(Line("Throughput (entire road)").roboto_bold());
+                txt.add(Line(format!(
+                    "Since midnight: {} agents crossed",
+                    prettyprint_usize(sim.get_analytics().thruput_stats.count_per_road.get(r.id))
+                )));
+                rows.push(ManagedWidget::draw_text(ctx, txt));
+
                 rows.push(
                     road_throughput(
                         ui.primary.map.get_l(id).parent,
@@ -375,7 +352,7 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                         ctx,
                         ui,
                     )
-                    .bg(colors::SECTION_BG)
+                    //.bg(colors::SECTION_BG)
                     .margin(10),
                 );
             }
@@ -392,8 +369,7 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                 };
                 rows.push(ManagedWidget::row(vec![
                     ManagedWidget::draw_text(ctx, Text::from(Line(label).roboto_bold())),
-                    locate_btn,
-                    x_btn,
+                    header_btns,
                 ]));
             }
 
@@ -454,8 +430,7 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
             {
                 rows.push(ManagedWidget::row(vec![
                     ManagedWidget::draw_text(ctx, Text::from(Line("Building").roboto_bold())),
-                    locate_btn,
-                    x_btn,
+                    header_btns,
                 ]));
             }
 
@@ -519,8 +494,7 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                 };
                 rows.push(ManagedWidget::row(vec![
                     ManagedWidget::draw_text(ctx, Text::from(Line(label).roboto_bold())),
-                    locate_btn,
-                    x_btn,
+                    header_btns,
                 ]));
             }
 
@@ -536,8 +510,7 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
             {
                 rows.push(ManagedWidget::row(vec![
                     ManagedWidget::draw_text(ctx, Text::from(Line("Pedestrian").roboto_bold())),
-                    locate_btn,
-                    x_btn,
+                    header_btns,
                 ]));
             }
 
@@ -556,8 +529,7 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                         ctx,
                         Text::from(Line("Pedestrian crowd").roboto_bold()),
                     ),
-                    locate_btn,
-                    x_btn,
+                    header_btns,
                 ]));
             }
 
@@ -573,8 +545,7 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                         ctx,
                         Text::from(Line("Extra GIS shape").roboto_bold()),
                     ),
-                    locate_btn,
-                    x_btn,
+                    header_btns,
                 ]));
             }
 
@@ -587,8 +558,7 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
             {
                 rows.push(ManagedWidget::row(vec![
                     ManagedWidget::draw_text(ctx, Text::from(Line("Bus stop").roboto_bold())),
-                    locate_btn,
-                    x_btn,
+                    header_btns,
                 ]));
             }
 
@@ -626,8 +596,7 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
             {
                 rows.push(ManagedWidget::row(vec![
                     ManagedWidget::draw_text(ctx, Text::from(Line("Area").roboto_bold())),
-                    locate_btn,
-                    x_btn,
+                    header_btns,
                 ]));
             }
 
@@ -650,6 +619,32 @@ fn styled_kv(txt: &mut Text, tags: &BTreeMap<String, String>) {
             Line(v).fg(Color::CYAN),
         ]);
     }
+}
+
+fn make_table(ctx: &EventCtx, rows: Vec<(String, String)>) -> Vec<ManagedWidget> {
+    rows.into_iter()
+        .map(|(k, v)| {
+            ManagedWidget::row(vec![
+                ManagedWidget::draw_text(ctx, Text::from(Line(k).roboto_bold())),
+                // TODO not quite...
+                ManagedWidget::draw_text(ctx, Text::from(Line(v)))
+                    .centered_vert()
+                    .align_right(),
+            ])
+        })
+        .collect()
+
+    // Attempt two
+    /*let mut keys = Text::new();
+    let mut values = Text::new();
+    for (k, v) in rows {
+        keys.add(Line(k).roboto_bold());
+        values.add(Line(v));
+    }
+    vec![ManagedWidget::row(vec![
+        ManagedWidget::draw_text(ctx, keys),
+        ManagedWidget::draw_text(ctx, values).centered_vert().bg(Color::GREEN),
+    ])]*/
 }
 
 fn intersection_throughput(

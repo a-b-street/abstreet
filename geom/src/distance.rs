@@ -58,6 +58,10 @@ impl Distance {
     pub fn inner_meters(self) -> f64 {
         self.0
     }
+
+    pub fn describe_rounded(self) -> String {
+        format!("{}m", self.0.round())
+    }
 }
 
 impl fmt::Display for Distance {
