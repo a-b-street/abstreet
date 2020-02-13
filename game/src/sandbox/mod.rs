@@ -205,8 +205,10 @@ impl State for SandboxMode {
             }
         }
 
-        if let Some(t) = self.examine_objects(ctx, ui) {
-            return t;
+        if self.gameplay.can_examine_objects() {
+            if let Some(t) = self.examine_objects(ctx, ui) {
+                return t;
+            }
         }
 
         if let Some(ref mut tp) = self.time_panel {

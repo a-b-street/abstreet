@@ -50,6 +50,9 @@ pub trait GameplayState: downcast_rs::Downcast {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition>;
     fn draw(&self, g: &mut GfxCtx, ui: &UI);
 
+    fn can_examine_objects(&self) -> bool {
+        true
+    }
     fn has_common(&self) -> bool {
         true
     }

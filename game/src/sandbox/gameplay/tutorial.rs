@@ -57,6 +57,7 @@ impl Tutorial {
             if !tut.was_paused && is_paused {
                 tut.num_pauses += 1;
                 tut.was_paused = true;
+                self.top_center = tut.make_top_center(ctx, false);
             }
             if tut.num_pauses == 3 {
                 tut.next();
@@ -435,6 +436,9 @@ impl GameplayState for Tutorial {
         }
     }
 
+    fn can_examine_objects(&self) -> bool {
+        self.last_finished_task >= Task::PauseResume
+    }
     fn has_common(&self) -> bool {
         self.last_finished_task >= Task::Camera
     }
@@ -508,7 +512,11 @@ impl Task {
                 return txt;
             }
             Task::TimeControls => "Wait until 5pm",
-            Task::PauseResume => "Pause/resume 3 times",
+            Task::PauseResume => {
+                let mut txt = Text::from(Line("Pause/resume ").fg(Color::CYAN));
+                txt.append(Line(format!("{} times", 3 - state.num_pauses)).fg(Color::GREEN));
+                return txt;
+            }
             Task::Escort => "Escort the first northbound car until they park",
             Task::LowParking => "Find a road with almost no parking spots available",
             Task::WatchBikes => "Watch for 2 minutes",

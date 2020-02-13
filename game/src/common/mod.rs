@@ -55,6 +55,8 @@ impl CommonState {
             return Some(Transition::Push(warp::EnteringWarp::new()));
         }
 
+        // TODO Disable unless gameplay.can_examine_objects. Not going to worry about this right
+        // now, since these controls should change anyway.
         if let Some(t) = self.turn_cycler.event(ctx, ui) {
             return Some(t);
         }
