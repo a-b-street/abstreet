@@ -253,21 +253,47 @@ impl GameplayState for Tutorial {
                 return Some(transition(ctx, ui));
             }
         } else if tut.interaction() == Task::Escort {
+            let target = CarID(30, VehicleType::Car);
+            let is_parked = ui.primary.sim.agent_to_trip(AgentID::Car(target)).is_none();
+            if !tut.car_parked && is_parked && tut.following_car {
+                tut.car_parked = true;
+                self.top_center = tut.make_top_center(ctx, false);
+            }
+
             if let Some(ID::Car(c)) = ui.primary.current_selection {
-                if ui.per_obj.action(ctx, Key::C, "check the car") {
-                    if c == CarID(19, VehicleType::Car) {
-                        if ui.primary.sim.agent_to_trip(AgentID::Car(c)).is_some() {
+                // TODO Need to plumb along CommonState and see if we actually have the panel open
+                // or not.
+                if !tut.following_car && c == target {
+                    tut.following_car = true;
+                    self.top_center = tut.make_top_center(ctx, false);
+                }
+
+                if ui.per_obj.action(ctx, Key::C, "draw WASH ME") {
+                    if c == target {
+                        if is_parked {
+                            tut.next();
+                            return Some(transition(ctx, ui));
+                        } else {
                             return Some(Transition::Push(msg(
                                 "Not yet!",
                                 vec![
-                                    "The car is still traveling somewhee.",
-                                    "Wait for the car to park. (You can speed up time!)",
+                                    "You're going to run up to an occupied car and draw on their \
+                                     windows?",
+                                    "Sounds like we should be friends.",
+                                    "But, er, wait for the car to park. (You can speed up time!)",
                                 ],
                             )));
-                        } else {
-                            tut.next();
-                            return Some(transition(ctx, ui));
                         }
+                    } else if c.1 == VehicleType::Bike {
+                        return Some(Transition::Push(msg(
+                            "That's a bike",
+                            vec![
+                                "Achievement unlocked: You attempted to draw WASH ME on a cyclist.",
+                                "This game is PG-13 or something, so I can't really describe what \
+                                 happens next.",
+                                "But uh, don't try this at home.",
+                            ],
+                        )));
                     } else {
                         return Some(Transition::Push(msg(
                             "Wrong car",
@@ -510,7 +536,24 @@ impl Task {
                 txt.append(Line(format!("{} times", 3 - state.num_pauses)).fg(Color::GREEN));
                 return txt;
             }
-            Task::Escort => "Escort the first northbound car until they park",
+            Task::Escort => {
+                // Inspect the target car, wait for them to park, draw WASH ME on the window
+                let mut txt = Text::new();
+                txt.append(Line("Follow the target car").fg(if state.following_car {
+                    Color::GREEN
+                } else {
+                    Color::CYAN
+                }));
+                txt.append(Line(", ").fg(Color::CYAN));
+                txt.append(Line("wait for them to park").fg(if state.car_parked {
+                    Color::GREEN
+                } else {
+                    Color::CYAN
+                }));
+                txt.append(Line(",").fg(Color::CYAN));
+                txt.add(Line("then draw WASH ME on the window").fg(Color::CYAN));
+                return txt;
+            }
             Task::LowParking => "Find a road with almost no parking spots available",
             Task::WatchBikes => "Watch for 2 minutes",
             Task::FixBikes => "Make better use of the road space",
@@ -623,8 +666,13 @@ pub struct TutorialState {
     inspected_building: bool,
     inspected_stop_sign: bool,
     inspected_border: bool,
+
     was_paused: bool,
     num_pauses: usize,
+
+    following_car: bool,
+    car_parked: bool,
+
     score_delivered: bool,
 }
 
@@ -698,6 +746,8 @@ impl TutorialState {
         self.was_paused = true;
         self.num_pauses = 0;
         self.score_delivered = false;
+        self.following_car = false;
+        self.car_parked = false;
     }
 
     fn stage(&self) -> &Stage {
@@ -857,6 +907,8 @@ impl TutorialState {
             inspected_border: false,
             was_paused: true,
             num_pauses: 0,
+            following_car: false,
+            car_parked: false,
             score_delivered: false,
         };
 
@@ -969,7 +1021,7 @@ impl TutorialState {
                 "Oh look, some people appeared!",
                 "We've got pedestrians, bikes, and cars moving around now.",
             ])
-            .warp_to(ID::Building(BuildingID(611)), None)
+            .warp_to(ID::Building(BuildingID(813)), Some(10.0))
             .spawn_around(IntersectionID(247)),
             Stage::msg(vec![
                 "You can see the number of them in the top-right corner.",
@@ -977,18 +1029,18 @@ impl TutorialState {
             .arrow(agent_meter.composite.center_of_panel())
             .spawn_around(IntersectionID(247)),
             Stage::msg(vec![
-                "Why don't you follow the first northbound car to their destination,",
-                "and see where they park?",
+                "Why don't you follow this car to their destination,",
+                "see where they park, and then play a little... prank?",
             ])
             .spawn_around(IntersectionID(247))
-            .warp_to(ID::Building(BuildingID(611)), None)
+            .warp_to(ID::Building(BuildingID(813)), Some(10.0))
             .dynamic_arrow(Box::new(|g, ui| {
                 g.canvas
                     .map_to_screen(
                         ui.primary
                             .sim
                             .canonical_pt_for_agent(
-                                AgentID::Car(CarID(19, VehicleType::Car)),
+                                AgentID::Car(CarID(30, VehicleType::Car)),
                                 &ui.primary.map,
                             )
                             .unwrap(),
@@ -999,15 +1051,17 @@ impl TutorialState {
                 "You don't have to manually chase them; just click to follow.",
                 "(If you do lose track of them, just reset)",
             ])
+            .spawn_around(IntersectionID(247))
+            .warp_to(ID::Building(BuildingID(813)), Some(10.0))
             .arrow(speed.composite.inner.center_of("reset to midnight")),
             Stage::interact(Task::Escort)
                 .spawn_around(IntersectionID(247))
-                .warp_to(ID::Building(BuildingID(611)), None),
+                .warp_to(ID::Building(BuildingID(813)), Some(10.0)),
         ]);
 
         state.stages.extend(vec![
             Stage::msg(vec![
-                "Escort mission complete.",
+                "What an immature prank. You should re-evaluate your life decisions.",
                 "",
                 "The map is quite large, so to help you orient",
                 "the minimap shows you an overview of all activity.",
