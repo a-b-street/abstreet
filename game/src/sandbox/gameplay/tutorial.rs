@@ -19,21 +19,12 @@ use sim::{AgentID, BorderSpawnOverTime, CarID, OriginDestination, Scenario, Vehi
 use std::collections::BTreeSet;
 
 pub struct Tutorial {
-    num_interacts: usize,
-
     top_center: Composite,
+    last_finished_task: Task,
 
     msg_panel: Option<Composite>,
-    exit: bool,
-    // Goofy state for just some stages.
-    inspected_lane: bool,
-    inspected_building: bool,
-    inspected_stop_sign: bool,
-    inspected_border: bool,
-    was_paused: bool,
-    num_pauses: usize,
     warped: bool,
-    score_delivered: bool,
+    exit: bool,
 }
 
 impl Tutorial {
@@ -58,16 +49,16 @@ impl Tutorial {
     ) -> (Option<Transition>, bool) {
         let tut = ui.session.tutorial.as_mut().unwrap();
 
-        if tut.interaction() == "Pause/resume 3 times" {
+        if tut.interaction() == Task::PauseResume {
             let is_paused = maybe_speed.unwrap().is_paused();
-            if self.was_paused && !is_paused {
-                self.was_paused = false;
+            if tut.was_paused && !is_paused {
+                tut.was_paused = false;
             }
-            if !self.was_paused && is_paused {
-                self.num_pauses += 1;
-                self.was_paused = true;
+            if !tut.was_paused && is_paused {
+                tut.num_pauses += 1;
+                tut.was_paused = true;
             }
-            if self.num_pauses == 3 {
+            if tut.num_pauses == 3 {
                 tut.next();
                 return (Some(transition(ctx, ui)), false);
             }
@@ -155,22 +146,19 @@ impl GameplayState for Tutorial {
         }
 
         // Interaction things
-        let interact = tut.interaction();
-        if interact == "Put out the fire at the Montlake Market" {
+        if tut.interaction() == Task::Camera {
             if ui.primary.current_selection == Some(ID::Building(BuildingID(9)))
                 && ui.per_obj.left_click(ctx, "put out the... fire?")
             {
                 tut.next();
                 return Some(transition(ctx, ui));
             }
-        } else if interact
-            == "Inspect one of each: lane, intersection with stop sign, building, and intersection \
-                on the map border"
-        {
+        } else if tut.interaction() == Task::InspectObjects {
             match ui.primary.current_selection {
                 Some(ID::Lane(l)) => {
                     if ui.per_obj.action(ctx, Key::I, "inspect the lane") {
-                        self.inspected_lane = true;
+                        tut.inspected_lane = true;
+                        self.top_center = tut.make_top_center(ctx, false);
                         return Some(Transition::Push(msg(
                             "Inspection",
                             match ui.primary.map.get_l(l).lane_type {
@@ -197,7 +185,8 @@ impl GameplayState for Tutorial {
                 }
                 Some(ID::Building(_)) => {
                     if ui.per_obj.action(ctx, Key::I, "inspect the building") {
-                        self.inspected_building = true;
+                        tut.inspected_building = true;
+                        self.top_center = tut.make_top_center(ctx, false);
                         return Some(Transition::Push(msg(
                             "Inspection",
                             vec![
@@ -211,7 +200,8 @@ impl GameplayState for Tutorial {
                     if ui.per_obj.action(ctx, Key::I, "inspect the intersection") {
                         match ui.primary.map.get_i(i).intersection_type {
                             IntersectionType::StopSign => {
-                                self.inspected_stop_sign = true;
+                                tut.inspected_stop_sign = true;
+                                self.top_center = tut.make_top_center(ctx, false);
                                 return Some(Transition::Push(msg(
                                     "Inspection",
                                     vec!["Most intersections are regulated by stop signs."],
@@ -227,7 +217,8 @@ impl GameplayState for Tutorial {
                                 )));
                             }
                             IntersectionType::Border => {
-                                self.inspected_border = true;
+                                tut.inspected_border = true;
+                                self.top_center = tut.make_top_center(ctx, false);
                                 return Some(Transition::Push(msg(
                                     "Inspection",
                                     vec![
@@ -247,20 +238,20 @@ impl GameplayState for Tutorial {
                 }
                 _ => {}
             }
-            if self.inspected_lane
-                && self.inspected_building
-                && self.inspected_stop_sign
-                && self.inspected_border
+            if tut.inspected_lane
+                && tut.inspected_building
+                && tut.inspected_stop_sign
+                && tut.inspected_border
             {
                 tut.next();
                 return Some(transition(ctx, ui));
             }
-        } else if interact == "Wait until 5pm" {
+        } else if tut.interaction() == Task::TimeControls {
             if ui.primary.sim.time() >= Time::START_OF_DAY + Duration::hours(17) {
                 tut.next();
                 return Some(transition(ctx, ui));
             }
-        } else if interact == "Escort the first northbound car until they park" {
+        } else if tut.interaction() == Task::Escort {
             if let Some(ID::Car(c)) = ui.primary.current_selection {
                 if ui.per_obj.action(ctx, Key::C, "check the car") {
                     if c == CarID(19, VehicleType::Car) {
@@ -288,7 +279,7 @@ impl GameplayState for Tutorial {
                     }
                 }
             }
-        } else if interact == "Find a road with almost no parking spots available" {
+        } else if tut.interaction() == Task::LowParking {
             if let Some(ID::Lane(l)) = ui.primary.current_selection {
                 if ui
                     .per_obj
@@ -318,12 +309,12 @@ impl GameplayState for Tutorial {
                     return Some(transition(ctx, ui));
                 }
             }
-        } else if interact == "Watch for 2 minutes" {
+        } else if tut.interaction() == Task::WatchBikes {
             if ui.primary.sim.time() >= Time::START_OF_DAY + Duration::minutes(2) {
                 tut.next();
                 return Some(transition(ctx, ui));
             }
-        } else if interact == "Make better use of the road space" {
+        } else if tut.interaction() == Task::FixBikes {
             if ui.primary.sim.is_done() {
                 let (all, _, _) = ui
                     .primary
@@ -332,8 +323,8 @@ impl GameplayState for Tutorial {
                     .all_finished_trips(ui.primary.sim.time());
                 let max = all.select(Statistic::Max);
 
-                if !self.score_delivered {
-                    self.score_delivered = true;
+                if !tut.score_delivered {
+                    tut.score_delivered = true;
                     if ui.primary.map.get_edits().commands.is_empty() {
                         return Some(Transition::Push(msg(
                             "All trips completed",
@@ -387,7 +378,7 @@ impl GameplayState for Tutorial {
                 }
                 return Some(transition(ctx, ui));
             }
-        } else if interact == "Watch the buses for 5 minutes" {
+        } else if tut.interaction() == Task::WatchBuses {
             if ui.primary.sim.time() >= Time::START_OF_DAY + Duration::minutes(5) {
                 tut.next();
                 return Some(transition(ctx, ui));
@@ -436,7 +427,7 @@ impl GameplayState for Tutorial {
         }
 
         // Special things
-        if tut.interaction() == "Put out the fire at the Montlake Market" {
+        if tut.interaction() == Task::Camera {
             g.draw_polygon(
                 Color::hex("#e25822"),
                 &ui.primary.map.get_b(BuildingID(9)).polygon,
@@ -445,22 +436,90 @@ impl GameplayState for Tutorial {
     }
 
     fn has_common(&self) -> bool {
-        self.num_interacts >= 1
+        self.last_finished_task >= Task::Camera
     }
     fn has_tool_panel(&self) -> bool {
-        self.num_interacts >= 1
+        self.last_finished_task >= Task::Camera
     }
     fn has_time_panel(&self) -> bool {
-        self.num_interacts >= 2
+        self.last_finished_task >= Task::InspectObjects
     }
     fn has_speed(&self) -> bool {
-        self.num_interacts >= 2
+        self.last_finished_task >= Task::InspectObjects
     }
     fn has_agent_meter(&self) -> bool {
-        self.num_interacts >= 4
+        self.last_finished_task >= Task::PauseResume
     }
     fn has_minimap(&self) -> bool {
-        self.num_interacts >= 5
+        self.last_finished_task >= Task::Escort
+    }
+}
+
+#[derive(PartialEq, PartialOrd, Clone, Copy)]
+enum Task {
+    Nil,
+    Camera,
+    InspectObjects,
+    TimeControls,
+    PauseResume,
+    Escort,
+    LowParking,
+    WatchBikes,
+    FixBikes,
+    WatchBuses,
+    FixBuses,
+}
+
+impl Task {
+    fn top_txt(self, ctx: &EventCtx, state: &TutorialState) -> Text {
+        let simple = match self {
+            Task::Nil => unreachable!(),
+            Task::Camera => "Put out the fire at the Montlake Market",
+            Task::InspectObjects => {
+                let mut txt = Text::from(Line("Inspect one of each: ").fg(Color::CYAN));
+                txt.append(Line("lane").fg(if state.inspected_lane {
+                    Color::GREEN
+                } else {
+                    Color::CYAN
+                }));
+                txt.append(Line(", "));
+                txt.append(
+                    Line("intersection with stop sign").fg(if state.inspected_stop_sign {
+                        Color::GREEN
+                    } else {
+                        Color::CYAN
+                    }),
+                );
+                txt.append(Line(", "));
+                // That manual word wrap theaux
+                txt.add(Line("building").fg(if state.inspected_building {
+                    Color::GREEN
+                } else {
+                    Color::CYAN
+                }));
+                txt.append(Line(", "));
+                txt.append(
+                    Line("intersection on the map border").fg(if state.inspected_border {
+                        Color::GREEN
+                    } else {
+                        Color::CYAN
+                    }),
+                );
+                return txt;
+            }
+            Task::TimeControls => "Wait until 5pm",
+            Task::PauseResume => "Pause/resume 3 times",
+            Task::Escort => "Escort the first northbound car until they park",
+            Task::LowParking => "Find a road with almost no parking spots available",
+            Task::WatchBikes => "Watch for 2 minutes",
+            Task::FixBikes => "Make better use of the road space",
+            Task::WatchBuses => "Watch the buses for 5 minutes",
+            Task::FixBuses => "Speed up bus 43 and 48",
+        };
+
+        let mut txt = Text::new();
+        txt.add_wrapped(simple.to_string(), 0.6 * ctx.canvas.window_width);
+        txt.change_fg(Color::CYAN)
     }
 }
 
@@ -472,7 +531,7 @@ enum Stage {
         spawn: Option<Box<dyn Fn(&mut UI)>>,
     },
     Interact {
-        name: &'static str,
+        task: Task,
         warp_to: Option<(ID, f64)>,
         spawn: Option<Box<dyn Fn(&mut UI)>>,
     },
@@ -488,9 +547,9 @@ impl Stage {
         }
     }
 
-    fn interact(name: &'static str) -> Stage {
+    fn interact(task: Task) -> Stage {
         Stage::Interact {
-            name,
+            task,
             warp_to: None,
             spawn: None,
         }
@@ -553,11 +612,19 @@ impl Stage {
     }
 }
 
-// TODO Ideally we'd replace self, not clone.
 pub struct TutorialState {
     stages: Vec<Stage>,
     latest: usize,
     pub current: usize,
+
+    // Goofy state for just some stages.
+    inspected_lane: bool,
+    inspected_building: bool,
+    inspected_stop_sign: bool,
+    inspected_border: bool,
+    was_paused: bool,
+    num_pauses: usize,
+    score_delivered: bool,
 }
 
 fn start_bike_lane_scenario(ui: &mut UI) {
@@ -613,19 +680,33 @@ fn start_bus_lane_scenario(ui: &mut UI) {
 }
 
 fn transition(ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-    let mode = GameplayMode::Tutorial(ui.session.tutorial.as_ref().unwrap().current);
+    let tut = ui.session.tutorial.as_mut().unwrap();
+    tut.reset_state();
+    let mode = GameplayMode::Tutorial(tut.current);
     Transition::Replace(Box::new(SandboxMode::new(ctx, ui, mode)))
 }
 
 impl TutorialState {
+    // These're mutex to each state, but still important to reset. Otherwise if you go back to a
+    // previous interaction stage, it'll just be automatically marked done.
+    fn reset_state(&mut self) {
+        self.inspected_lane = false;
+        self.inspected_building = false;
+        self.inspected_stop_sign = false;
+        self.inspected_border = false;
+        self.was_paused = true;
+        self.num_pauses = 0;
+        self.score_delivered = false;
+    }
+
     fn stage(&self) -> &Stage {
         &self.stages[self.current]
     }
 
-    fn interaction(&self) -> String {
+    fn interaction(&self) -> Task {
         match self.stage() {
-            Stage::Msg { .. } => String::new(),
-            Stage::Interact { ref name, .. } => name.to_string(),
+            Stage::Msg { .. } => Task::Nil,
+            Stage::Interact { task, .. } => *task,
         }
     }
 
@@ -684,10 +765,8 @@ impl TutorialState {
             WrappedComposite::text_button(ctx, "Quit", None).margin(5),
         ])
         .centered()];
-        if let Stage::Interact { name, .. } = self.stage() {
-            let mut txt = Text::new();
-            txt.add_wrapped(name.to_string(), 0.6 * ctx.canvas.window_width);
-            col.push(ManagedWidget::draw_text(ctx, txt.change_fg(Color::CYAN)).margin(5));
+        if let Stage::Interact { task, .. } = self.stage() {
+            col.push(ManagedWidget::draw_text(ctx, task.top_txt(ctx, self)).margin(5));
         }
         if edit_map {
             col.push(
@@ -725,19 +804,16 @@ impl TutorialState {
             ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
         }
 
-        // Ew, this is brittle.
-        let mut num_interacts = 0;
-        // Don't count the current.
+        let mut last_finished_task = Task::Nil;
         for stage in &self.stages[0..self.current] {
-            if let Stage::Interact { .. } = stage {
-                num_interacts += 1;
+            if let Stage::Interact { task, .. } = stage {
+                last_finished_task = *task;
             }
         }
 
         Box::new(Tutorial {
-            num_interacts,
-
-            top_center: self.make_top_center(ctx, num_interacts >= 7),
+            top_center: self.make_top_center(ctx, last_finished_task >= Task::WatchBikes),
+            last_finished_task,
 
             msg_panel: match self.stage() {
                 Stage::Msg { ref lines, .. } => Some(
@@ -764,14 +840,7 @@ impl TutorialState {
                 Stage::Interact { .. } => None,
             },
             exit: false,
-            inspected_lane: false,
-            inspected_building: false,
-            inspected_stop_sign: false,
-            inspected_border: false,
-            was_paused: true,
-            num_pauses: 0,
             warped: false,
-            score_delivered: false,
         })
     }
 
@@ -780,6 +849,14 @@ impl TutorialState {
             stages: Vec::new(),
             latest: 0,
             current: 0,
+
+            inspected_lane: false,
+            inspected_building: false,
+            inspected_stop_sign: false,
+            inspected_border: false,
+            was_paused: true,
+            num_pauses: 0,
+            score_delivered: false,
         };
 
         let tool_panel = tool_panel(ctx);
@@ -817,9 +894,8 @@ impl TutorialState {
             ]),
             Stage::msg(vec!["(Hint: Look around for an unusually red building)"]),
             // TODO Just zoom in sufficiently on it, maybe don't even click it yet.
-            Stage::interact("Put out the fire at the Montlake Market"),
+            Stage::interact(Task::Camera),
         ]);
-        // 1 interact
 
         state.stages.extend(vec![
             Stage::msg(vec![
@@ -845,12 +921,8 @@ impl TutorialState {
                 "I wonder what kind of information is available for different objects? Let's find \
                  out!",
             ]),
-            Stage::interact(
-                "Inspect one of each: lane, intersection with stop sign, building, and \
-                 intersection on the map border",
-            ),
+            Stage::interact(Task::InspectObjects),
         ]);
-        // 2 interacts
 
         state.stages.extend(vec![
             Stage::msg(vec![
@@ -868,9 +940,8 @@ impl TutorialState {
             Stage::msg(vec!["And reset to the beginning of the day"])
                 .arrow(speed.composite.inner.center_of("reset to midnight")),
             Stage::msg(vec!["Let's try these controls out. Just wait until 5pm."]),
-            Stage::interact("Wait until 5pm"),
+            Stage::interact(Task::TimeControls),
         ]);
-        // 3 interacts
 
         state.stages.extend(vec![
             Stage::msg(vec!["Whew, that took a while! (Hopefully not though...)"]),
@@ -887,9 +958,8 @@ impl TutorialState {
             Stage::msg(vec![
                 "Just reassure me and pause/resume time a few times, alright?",
             ]),
-            Stage::interact("Pause/resume 3 times"),
+            Stage::interact(Task::PauseResume),
         ]);
-        // 4 interacts
 
         state.stages.extend(vec![
             Stage::msg(vec!["Alright alright, no need to wear out your spacebar."]),
@@ -929,11 +999,10 @@ impl TutorialState {
                 "(If you do lose track of them, just reset)",
             ])
             .arrow(speed.composite.inner.center_of("reset to midnight")),
-            Stage::interact("Escort the first northbound car until they park")
+            Stage::interact(Task::Escort)
                 .spawn_around(IntersectionID(247))
                 .warp_to(ID::Building(BuildingID(611)), None),
         ]);
-        // 5 interacts
 
         state.stages.extend(vec![
             Stage::msg(vec![
@@ -955,9 +1024,8 @@ impl TutorialState {
                 "There are lots of cars parked everywhere.",
                 "Can you find a road that's almost out of parking spots?",
             ]),
-            Stage::interact("Find a road with almost no parking spots available").spawn_randomly(),
+            Stage::interact(Task::LowParking).spawn_randomly(),
         ]);
-        // 6 interacts
 
         state.stages.extend(vec![
             Stage::msg(vec![
@@ -968,9 +1036,8 @@ impl TutorialState {
             ])
             .warp_to(ID::Building(BuildingID(543)), None)
             .spawn(Box::new(start_bike_lane_scenario)),
-            Stage::interact("Watch for 2 minutes").spawn(Box::new(start_bike_lane_scenario)),
+            Stage::interact(Task::WatchBikes).spawn(Box::new(start_bike_lane_scenario)),
         ]);
-        // 7 interacts
 
         let top_center = state.make_top_center(ctx, true);
         state.stages.extend(vec![
@@ -1003,10 +1070,8 @@ impl TutorialState {
                  final score.",
             ])
             .arrow(agent_meter.composite.center_of_panel()),
-            Stage::interact("Make better use of the road space")
-                .spawn(Box::new(start_bike_lane_scenario)),
+            Stage::interact(Task::FixBikes).spawn(Box::new(start_bike_lane_scenario)),
         ]);
-        // 8 interacts
 
         if false {
             // TODO There's no clear measurement for how well the buses are doing.
@@ -1020,8 +1085,7 @@ impl TutorialState {
                 ])
                 .warp_to(ID::Building(BuildingID(1979)), Some(0.5))
                 .spawn(Box::new(start_bus_lane_scenario)),
-                Stage::interact("Watch the buses for 5 minutes")
-                    .spawn(Box::new(start_bus_lane_scenario)),
+                Stage::interact(Task::WatchBuses).spawn(Box::new(start_bus_lane_scenario)),
             ]);
             // 9 interacts
 
@@ -1032,7 +1096,7 @@ impl TutorialState {
                 .warp_to(ID::Building(BuildingID(1979)), Some(0.5))
                 .spawn(Box::new(start_bus_lane_scenario)),
                 // TODO By how much?
-                Stage::interact("Speed up bus 43 and 48").spawn(Box::new(start_bus_lane_scenario)),
+                Stage::interact(Task::FixBuses).spawn(Box::new(start_bus_lane_scenario)),
             ]);
             // 10 interacts
         }
