@@ -13,7 +13,7 @@ use ezgui::{
 };
 use geom::{Circle, Distance, Duration, Statistic, Time};
 use map_model::{IntersectionID, RoadID};
-use sim::{CarID, TripEnd, TripID, TripMode, TripStart, VehicleType};
+use sim::{AgentID, CarID, TripEnd, TripID, TripMode, TripStart, VehicleType};
 use std::collections::BTreeSet;
 
 pub struct InfoPanel {
@@ -50,7 +50,15 @@ impl InfoPanel {
 
         let trip_details = if let Some(trip) = match id {
             ID::Trip(t) => Some(t),
-            _ => id.agent_id().and_then(|a| ui.primary.sim.agent_to_trip(a)),
+            ID::Car(c) => {
+                if c.1 == VehicleType::Bus {
+                    None
+                } else {
+                    ui.primary.sim.agent_to_trip(AgentID::Car(c))
+                }
+            }
+            ID::Pedestrian(p) => ui.primary.sim.agent_to_trip(AgentID::Pedestrian(p)),
+            _ => None,
         } {
             let (rows, unzoomed, zoomed) = trip_details(trip, ctx, ui);
             col.push(rows);
@@ -748,20 +756,63 @@ fn color_for_mode(m: TripMode, ui: &UI) -> Color {
 fn trip_details(trip: TripID, ctx: &mut EventCtx, ui: &UI) -> (ManagedWidget, Drawable, Drawable) {
     let map = &ui.primary.map;
     let phases = ui.primary.sim.get_analytics().get_trip_phases(trip, map);
+    let (trip_start, trip_end) = ui.primary.sim.trip_endpoints(trip);
 
-    let mut col = vec![ManagedWidget::draw_text(
-        ctx,
-        Text::from(Line(trip.to_string())),
-    )];
+    let mut col = vec![ManagedWidget::draw_text(ctx, {
+        let mut txt = Text::from(Line(""));
+        txt.add(Line("Trip timeline").roboto_bold());
+        txt
+    })];
     let mut unzoomed = GeomBatch::new();
     let mut zoomed = GeomBatch::new();
 
-    for (idx, p) in phases.into_iter().enumerate() {
-        let color = rotating_color_map(idx + 1);
+    // Start
+    {
+        let color = rotating_color_map(col.len() - 1);
+        match trip_start {
+            TripStart::Bldg(b) => {
+                let bldg = map.get_b(b);
+                col.push(ColorLegend::row(
+                    ctx,
+                    color,
+                    format!(
+                        "{}: leave {}",
+                        phases[0].start_time.ampm_tostring(),
+                        bldg.just_address(map)
+                    ),
+                ));
+                unzoomed.push(color, bldg.polygon.clone());
+                zoomed.push(color, bldg.polygon.clone());
+            }
+            TripStart::Border(i) => {
+                let i = map.get_i(i);
+                // TODO How to name the intersection succinctly?
+                col.push(ColorLegend::row(
+                    ctx,
+                    color,
+                    format!(
+                        "{}: start at {}",
+                        phases[0].start_time.ampm_tostring(),
+                        i.id
+                    ),
+                ));
+                unzoomed.push(color, i.polygon.clone());
+                zoomed.push(color, i.polygon.clone());
+            }
+        };
+    }
+
+    let mut end_time = None;
+    for p in phases {
+        let color = rotating_color_map(col.len() - 1);
         col.push(ColorLegend::row(
             ctx,
             color,
-            p.describe(ui.primary.sim.time()),
+            if let Some(t2) = p.end_time {
+                format!("+{}: {}", t2 - p.start_time, p.description)
+            } else {
+                format!("ongoing: {}", p.description)
+            },
         ));
 
         // TODO Could really cache this between live updates
@@ -779,70 +830,42 @@ fn trip_details(trip: TripID, ctx: &mut EventCtx, ui: &UI) -> (ManagedWidget, Dr
                 );
             }
         }
+        end_time = p.end_time;
     }
 
-    // Handle endpoints
-    let (trip_start, trip_end) = ui.primary.sim.trip_endpoints(trip);
-    let start_color = rotating_color_map(0);
-    match trip_start {
-        TripStart::Bldg(b) => {
-            let bldg = map.get_b(b);
-            col.insert(
-                1,
-                ColorLegend::row(ctx, start_color, format!("start at {}", bldg.get_name(map))),
-            );
-            unzoomed.push(start_color, bldg.polygon.clone());
-            zoomed.push(start_color, bldg.polygon.clone());
-        }
-        TripStart::Border(i) => {
-            let i = map.get_i(i);
-            col.insert(
-                1,
-                ColorLegend::row(ctx, start_color, format!("enter map via {}", i.id)),
-            );
-            unzoomed.push(start_color, i.polygon.clone());
-            zoomed.push(start_color, i.polygon.clone());
-        }
-    };
-
-    // Is the trip ongoing?
-    if let Some(pt) = ui.primary.sim.get_canonical_pt_per_trip(trip, map).ok() {
-        let color = rotating_color_map(col.len());
-        unzoomed.push(color, Circle::new(pt, Distance::meters(10.0)).to_polygon());
-        // Don't need anything when zoomed; the info panel already focuses on them.
-        col.push(ColorLegend::row(ctx, color, "currently here"));
+    // End
+    {
+        let color = rotating_color_map(col.len() - 1);
+        let time = if let Some(t) = end_time {
+            format!("{}: ", t.ampm_tostring())
+        } else {
+            String::new()
+        };
+        match trip_end {
+            TripEnd::Bldg(b) => {
+                let bldg = map.get_b(b);
+                col.push(ColorLegend::row(
+                    ctx,
+                    color,
+                    format!("{}end at {}", time, bldg.just_address(map)),
+                ));
+                unzoomed.push(color, bldg.polygon.clone());
+                zoomed.push(color, bldg.polygon.clone());
+            }
+            TripEnd::Border(i) => {
+                let i = map.get_i(i);
+                // TODO name it better
+                col.push(ColorLegend::row(
+                    ctx,
+                    color,
+                    format!("{}end at {}", time, i.id),
+                ));
+                unzoomed.push(color, i.polygon.clone());
+                zoomed.push(color, i.polygon.clone());
+            }
+            TripEnd::ServeBusRoute(_) => unreachable!(),
+        };
     }
-
-    let end_color = rotating_color_map(col.len());
-    match trip_end {
-        TripEnd::Bldg(b) => {
-            let bldg = map.get_b(b);
-            col.push(ColorLegend::row(
-                ctx,
-                end_color,
-                format!("end at {}", bldg.get_name(map)),
-            ));
-            unzoomed.push(end_color, bldg.polygon.clone());
-            zoomed.push(end_color, bldg.polygon.clone());
-        }
-        TripEnd::Border(i) => {
-            let i = map.get_i(i);
-            col.push(ColorLegend::row(
-                ctx,
-                end_color,
-                format!("leave map via {}", i.id),
-            ));
-            unzoomed.push(end_color, i.polygon.clone());
-            zoomed.push(end_color, i.polygon.clone());
-        }
-        TripEnd::ServeBusRoute(br) => {
-            col.push(ColorLegend::row(
-                ctx,
-                end_color,
-                format!("serve route {} forever", map.get_br(br).name),
-            ));
-        }
-    };
 
     (
         ManagedWidget::col(col),

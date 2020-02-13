@@ -3,7 +3,7 @@ use crate::mechanics::Queue;
 use crate::{
     ActionAtEnd, AgentID, AgentMetadata, CarID, Command, CreateCar, DistanceInterval, DrawCarInput,
     Event, IntersectionSimState, ParkedCar, ParkingSimState, Scheduler, TimeInterval,
-    TransitSimState, TripManager, TripPositions, UnzoomedAgent, WalkingSimState,
+    TransitSimState, TripManager, TripPositions, UnzoomedAgent, VehicleType, WalkingSimState,
     FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
@@ -871,7 +871,7 @@ impl DrivingSimState {
     ) -> Option<(Vec<(String, String)>, Vec<String>)> {
         let car = self.cars.get(&id)?;
         let path = car.router.get_path();
-        let props = vec![
+        let mut props = vec![
             (
                 "Owner".to_string(),
                 if let Some(b) = car.vehicle.owner {
@@ -905,6 +905,10 @@ impl DrivingSimState {
                     .to_string(),
             ),
         ];
+        // No owner
+        if id.1 == VehicleType::Bus {
+            props.remove(0);
+        }
         Some((props, Vec::new()))
     }
 

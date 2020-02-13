@@ -399,7 +399,11 @@ impl Sim {
                         events.push(Event::TripPhaseStarting(
                             create_car.trip,
                             Some(create_car.req.clone()),
-                            format!("{}", create_car.vehicle.id),
+                            if create_car.vehicle.id.1 == VehicleType::Car {
+                                "driving".to_string()
+                            } else {
+                                "biking".to_string()
+                            },
                         ));
                         self.analytics
                             .record_demand(create_car.router.get_path(), map);
@@ -482,12 +486,7 @@ impl Sim {
                         events.push(Event::TripPhaseStarting(
                             create_ped.trip,
                             Some(create_ped.req.clone()),
-                            format!(
-                                "{} from {:?} to {:?}",
-                                create_ped.id,
-                                create_ped.start.connection,
-                                create_ped.goal.connection
-                            ),
+                            "walking".to_string(),
                         ));
                         self.analytics.record_demand(&create_ped.path, map);
 
@@ -871,6 +870,10 @@ impl Sim {
     pub fn car_properties(&self, car: CarID, map: &Map) -> (Vec<(String, String)>, Vec<String>) {
         if let Some((mut props, extra)) = self.driving.car_properties(car, self.time, map) {
             if car.1 == VehicleType::Bus {
+                props.push((
+                    "Route".to_string(),
+                    map.get_br(self.transit.bus_route(car)).name.clone(),
+                ));
                 let passengers = self.transit.get_passengers(car);
                 props.push(("Passengers".to_string(), passengers.len().to_string()));
                 // TODO Clean this up

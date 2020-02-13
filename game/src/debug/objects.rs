@@ -120,7 +120,7 @@ fn dump_debug(id: ID, map: &Map, sim: &Sim, draw_map: &DrawMap) {
             if let Some(t) = sim.agent_to_trip(AgentID::Car(id)) {
                 println!("Trip log for {}", t);
                 for p in sim.get_analytics().get_trip_phases(t, map) {
-                    println!("- {}", p.describe(sim.time()));
+                    println!("- {:?}", p);
                 }
             }
         }
@@ -129,7 +129,7 @@ fn dump_debug(id: ID, map: &Map, sim: &Sim, draw_map: &DrawMap) {
             if let Some(t) = sim.agent_to_trip(AgentID::Pedestrian(id)) {
                 println!("Trip log for {}", t);
                 for p in sim.get_analytics().get_trip_phases(t, map) {
-                    println!("- {}", p.describe(sim.time()));
+                    println!("- {:?}", p);
                 }
             }
         }

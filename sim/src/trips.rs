@@ -352,7 +352,7 @@ impl TripManager {
                 self.events.push(Event::TripPhaseStarting(
                     trip.id,
                     None,
-                    format!("{} waiting at {:?} for {}", ped, stop, route),
+                    format!("waiting for bus {}", map.get_br(route).name),
                 ));
                 if transit.ped_waiting_for_bus(now, ped, stop, route, stop2) {
                     trip.legs.pop_front();

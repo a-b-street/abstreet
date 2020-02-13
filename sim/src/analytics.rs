@@ -551,33 +551,13 @@ impl Default for Analytics {
     }
 }
 
+#[derive(Debug)]
 pub struct TripPhase {
     pub start_time: Time,
     pub end_time: Option<Time>,
     // Plumb along start distance
     pub path: Option<(Distance, Path)>,
     pub description: String,
-}
-
-impl TripPhase {
-    pub fn describe(&self, now: Time) -> String {
-        if let Some(t2) = self.end_time {
-            format!(
-                "{} .. {} ({}): {}",
-                self.start_time,
-                t2,
-                t2 - self.start_time,
-                self.description
-            )
-        } else {
-            format!(
-                "{} .. ongoing ({} so far): {}",
-                self.start_time,
-                now - self.start_time,
-                self.description
-            )
-        }
-    }
 }
 
 struct Window {

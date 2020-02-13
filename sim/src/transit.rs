@@ -189,7 +189,7 @@ impl TransitSimState {
                                 end: map.get_bs(stop2).driving_pos,
                                 constraints: PathConstraints::Bus,
                             }),
-                            format!("{} riding {}", ped, route),
+                            format!("riding bus {}", map.get_br(route).name),
                         ));
                     } else {
                         still_waiting.push((ped, route, stop2, started_waiting));

@@ -173,7 +173,8 @@ impl ColorLegend {
                     color,
                     Circle::new(Pt2D::new(radius, radius), Distance::meters(radius)).to_polygon(),
                 )]),
-            ),
+            )
+            .margin(5),
             ManagedWidget::draw_text(ctx, Text::from(Line(label))),
         ])
     }
