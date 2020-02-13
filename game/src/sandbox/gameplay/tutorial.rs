@@ -1,7 +1,7 @@
 use crate::colors;
 use crate::common::{tool_panel, Minimap, Overlays, Warping};
 use crate::edit::EditMode;
-use crate::game::{msg, Transition};
+use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use crate::managed::WrappedComposite;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
@@ -393,14 +393,7 @@ impl GameplayState for Tutorial {
         let tut = ui.session.tutorial.as_ref().unwrap();
 
         if self.msg_panel.is_some() {
-            // Make it clear the map can't be interacted with right now.
-            g.fork_screenspace();
-            // TODO - OSD height
-            g.draw_polygon(
-                Color::BLACK.alpha(0.5),
-                &Polygon::rectangle(g.canvas.window_width, g.canvas.window_height),
-            );
-            g.unfork();
+            State::grey_out_map(g);
         }
 
         self.top_center.draw(g);
@@ -437,7 +430,7 @@ impl GameplayState for Tutorial {
     }
 
     fn can_examine_objects(&self) -> bool {
-        self.last_finished_task >= Task::PauseResume
+        self.last_finished_task >= Task::WatchBikes
     }
     fn has_common(&self) -> bool {
         self.last_finished_task >= Task::Camera

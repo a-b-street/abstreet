@@ -8,7 +8,6 @@ use textwrap;
 
 const FG_COLOR: Color = Color::WHITE;
 pub const BG_COLOR: Color = Color::grey(0.3);
-pub const PROMPT_COLOR: Color = Color::BLUE;
 pub const SELECTED_COLOR: Color = Color::grey(0.5);
 pub const HOTKEY_COLOR: Color = Color::GREEN;
 pub const INACTIVE_CHOICE_COLOR: Color = Color::grey(0.4);
@@ -88,12 +87,6 @@ impl Text {
     pub fn from(line: TextSpan) -> Text {
         let mut txt = Text::new();
         txt.add(line);
-        txt
-    }
-
-    pub fn prompt(line: &str) -> Text {
-        let mut txt = Text::new().with_bg();
-        txt.add_highlighted(Line(line), PROMPT_COLOR);
         txt
     }
 

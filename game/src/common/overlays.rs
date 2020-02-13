@@ -587,7 +587,8 @@ impl Overlays {
                             txt.append(Line("the same").fg(Color::YELLOW));
                             txt.append(Line("?"));
                             txt
-                        }),
+                        })
+                        .margin(10),
                         WrappedComposite::text_button(ctx, "X", None).align_right(),
                     ]),
                     Histogram::new(
@@ -664,7 +665,10 @@ impl Overlays {
     pub fn bus_passengers(id: BusRouteID, ctx: &mut EventCtx, ui: &UI) -> Overlays {
         let route = ui.primary.map.get_br(id);
         let mut master_col = vec![ManagedWidget::row(vec![
-            ManagedWidget::draw_text(ctx, Text::prompt(&format!("Passengers for {}", route.name))),
+            ManagedWidget::draw_text(
+                ctx,
+                Text::from(Line(format!("Passengers for {}", route.name)).roboto_bold()),
+            ),
             WrappedComposite::text_button(ctx, "X", None).align_right(),
         ])];
         let mut col = Vec::new();

@@ -176,8 +176,7 @@ impl<'a> LoadingScreen<'a> {
         }
         self.last_drawn = Instant::now();
 
-        let mut txt = Text::from(Line(&self.title));
-        txt.highlight_last_line(text::PROMPT_COLOR);
+        let mut txt = Text::from(Line(&self.title).roboto_bold());
         for l in &self.lines {
             txt.add(Line(l));
         }

@@ -191,6 +191,19 @@ pub trait State: downcast_rs::Downcast {
     // We don't need an on_enter -- the constructor for the state can just do it.
 }
 
+impl dyn State {
+    pub fn grey_out_map(g: &mut GfxCtx) {
+        // Make it clear the map can't be interacted with right now.
+        g.fork_screenspace();
+        // TODO - OSD height
+        g.draw_polygon(
+            Color::BLACK.alpha(0.5),
+            &Polygon::rectangle(g.canvas.window_width, g.canvas.window_height),
+        );
+        g.unfork();
+    }
+}
+
 downcast_rs::impl_downcast!(State);
 
 pub enum Transition {
@@ -248,14 +261,7 @@ impl State for WizardState {
             g.redraw(d);
         }
 
-        // Make it clear the map can't be interacted with right now.
-        g.fork_screenspace();
-        // TODO - OSD height
-        g.draw_polygon(
-            Color::BLACK.alpha(0.5),
-            &Polygon::rectangle(g.canvas.window_width, g.canvas.window_height),
-        );
-        g.unfork();
+        State::grey_out_map(g);
 
         self.wizard.draw(g);
         // Still want to show hotkeys

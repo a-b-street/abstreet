@@ -30,7 +30,7 @@ impl ModalMenu {
     ) -> ModalMenu {
         let mut m = ModalMenu {
             title: title.into(),
-            info: Text::new().with_bg(),
+            info: Text::new(),
             chosen_action: None,
             choices: raw_choices
                 .into_iter()
@@ -205,10 +205,11 @@ impl ModalMenu {
 
     fn calculate_txt(&self) -> Text {
         let mut txt = if self.title.is_empty() {
-            Text::new().with_bg()
+            Text::new()
         } else {
-            Text::prompt(&self.title)
-        };
+            Text::from(Line(&self.title).roboto_bold())
+        }
+        .with_bg();
         txt.extend(&self.info);
 
         for (idx, choice) in self.choices.iter().enumerate() {

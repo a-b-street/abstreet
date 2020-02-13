@@ -154,10 +154,12 @@ impl SpeedControls {
         )
         .cb(
             "step forwards 1 hour",
-            Box::new(|_, ui| {
+            Box::new(|ctx, ui| {
                 Some(Transition::Push(Box::new(TimeWarpScreen {
                     target: ui.primary.sim.time() + Duration::hours(1),
                     started: Instant::now(),
+                    composite: Composite::new(ManagedWidget::draw_text(ctx, Text::new()))
+                        .build(ctx),
                 })))
             }),
         )
@@ -313,6 +315,7 @@ fn jump_to_time(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
     Some(Transition::Replace(Box::new(TimeWarpScreen {
         target,
         started: Instant::now(),
+        composite: Composite::new(ManagedWidget::draw_text(ctx, Text::new())).build(ctx),
     })))
 }
 
@@ -320,6 +323,7 @@ fn jump_to_time(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
 pub struct TimeWarpScreen {
     target: Time,
     started: Instant,
+    composite: Composite,
 }
 
 impl State for TimeWarpScreen {
@@ -335,6 +339,32 @@ impl State for TimeWarpScreen {
                 Duration::seconds(0.1),
             );
             // TODO secondary for a/b test mode
+
+            // TODO Instead display base speed controls, some indication of target time and ability
+            // to cancel
+            let mut txt = Text::from(Line("Warping through time...").roboto_bold());
+            txt.add(Line(format!(
+                "Simulating until it's {}",
+                self.target.ampm_tostring()
+            )));
+            txt.add(Line(format!(
+                "It's currently {}",
+                ui.primary.sim.time().ampm_tostring()
+            )));
+            txt.add(Line(format!(
+                "Have been simulating for {}",
+                Duration::realtime_elapsed(self.started)
+            )));
+            txt.add(Line(""));
+            txt.add(Line(format!("Press ESCAPE to stop now")));
+
+            self.composite = Composite::new(
+                ManagedWidget::draw_text(ctx, txt)
+                    .padding(10)
+                    .bg(colors::PANEL_BG)
+                    .outline(5.0, Color::WHITE),
+            )
+            .build(ctx);
         }
         if ui.primary.sim.time() == self.target {
             return Transition::Pop;
@@ -343,27 +373,9 @@ impl State for TimeWarpScreen {
         Transition::KeepWithMode(EventLoopMode::Animation)
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        // TODO Instead display base speed controls, some indication of target time and ability to
-        // cancel
-        let mut txt = Text::prompt("Warping through time...");
-        txt.add(Line(format!(
-            "Simulating until it's {}",
-            self.target.ampm_tostring()
-        )));
-        txt.add(Line(format!(
-            "It's currently {}",
-            ui.primary.sim.time().ampm_tostring()
-        )));
-        txt.add(Line(format!(
-            "Have been simulating for {}",
-            Duration::realtime_elapsed(self.started)
-        )));
-        txt.add(Line(format!("Press ESCAPE to stop now")));
-        g.draw_blocking_text(
-            txt,
-            (HorizontalAlignment::Center, VerticalAlignment::Center),
-        );
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        State::grey_out_map(g);
+        self.composite.draw(g);
     }
 }
 

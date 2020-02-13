@@ -269,7 +269,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             let choices: Vec<Choice<R>> = choices_generator();
             if choices.is_empty() {
                 let mut txt = if let Some(l) = query {
-                    Text::prompt(l)
+                    Text::from(Line(l).roboto_bold())
                 } else {
                     Text::new()
                 };
@@ -279,7 +279,10 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             }
             let mut col = Vec::new();
             if let Some(l) = query {
-                col.push(ManagedWidget::draw_text(self.ctx, Text::prompt(l)));
+                col.push(ManagedWidget::draw_text(
+                    self.ctx,
+                    Text::from(Line(l).roboto_bold()),
+                ));
             }
             col.push(ManagedWidget::menu("menu"));
             self.wizard.menu_comp = Some(
@@ -294,7 +297,8 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                             hotkey(Key::Escape),
                             "quit",
                             self.ctx,
-                        )),
+                        ))
+                        .margin(5),
                     ])
                     .bg(Color::grey(0.4))
                     .outline(5.0, Color::WHITE)
@@ -401,7 +405,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         }
 
         if self.wizard.ack.is_none() {
-            let mut txt = Text::prompt(title);
+            let mut txt = Text::from(Line(title).roboto_bold());
             for l in make_lines() {
                 txt.add(Line(l));
             }
@@ -433,7 +437,8 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                         hotkey(Key::Enter),
                         "OK",
                         self.ctx,
-                    )),
+                    ))
+                    .margin(5),
                 ])
                 .bg(Color::grey(0.4))
                 .outline(10.0, Color::WHITE)

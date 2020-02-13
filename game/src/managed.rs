@@ -6,7 +6,6 @@ use ezgui::{
     Button, Color, Composite, EventCtx, GfxCtx, Line, ManagedWidget, MultiKey, Outcome,
     RewriteColor, Text,
 };
-use geom::Polygon;
 use std::collections::HashMap;
 
 pub type Callback = Box<dyn Fn(&mut EventCtx, &mut UI) -> Option<Transition>>;
@@ -154,14 +153,7 @@ impl State for ManagedGUIState {
             // Happens to be a nice background color too ;)
             g.clear(ui.cs.get("grass"));
         } else {
-            // Make it clear the map can't be interacted with right now.
-            g.fork_screenspace();
-            // TODO - OSD height
-            g.draw_polygon(
-                Color::BLACK.alpha(0.5),
-                &Polygon::rectangle(g.canvas.window_width, g.canvas.window_height),
-            );
-            g.unfork();
+            State::grey_out_map(g);
         }
 
         self.composite.draw(g);

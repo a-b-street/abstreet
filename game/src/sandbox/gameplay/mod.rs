@@ -322,7 +322,7 @@ struct FinalScore {
 
 impl FinalScore {
     fn new(ctx: &mut EventCtx, verdict: String, mode: GameplayMode) -> Box<dyn State> {
-        let mut txt = Text::prompt("Final score");
+        let mut txt = Text::from(Line("Final score").roboto_bold());
         txt.add(Line(verdict));
         Box::new(FinalScore {
             composite: Composite::new(
@@ -368,14 +368,7 @@ impl State for FinalScore {
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        // Make it clear the map can't be interacted with right now.
-        g.fork_screenspace();
-        // TODO - OSD height
-        g.draw_polygon(
-            Color::BLACK.alpha(0.5),
-            &Polygon::rectangle(g.canvas.window_width, g.canvas.window_height),
-        );
-        g.unfork();
+        State::grey_out_map(g);
 
         self.composite.draw(g);
         // Still want to show hotkeys

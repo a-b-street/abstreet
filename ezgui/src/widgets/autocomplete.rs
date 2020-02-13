@@ -57,7 +57,7 @@ impl<T: Clone + Hash + Eq> Autocomplete<T> {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        let mut txt = Text::prompt(&self.prompt);
+        let mut txt = Text::from(Line(&self.prompt).roboto_bold()).with_bg();
 
         txt.add(Line(&self.line[0..self.cursor_x]));
         if self.cursor_x < self.line.len() {

@@ -34,7 +34,7 @@ impl TextBox {
     }
 
     pub fn get_text(&self) -> Text {
-        let mut txt = Text::prompt(&self.prompt);
+        let mut txt = Text::from(Line(&self.prompt).roboto_bold()).with_bg();
         txt.add(Line(&self.line[0..self.cursor_x]));
         if self.cursor_x < self.line.len() {
             // TODO This "cursor" looks awful!
