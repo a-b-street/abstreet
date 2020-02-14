@@ -31,6 +31,7 @@ impl Assets {
         a
     }
 
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn line_height(&self, font: Font, font_size: usize) -> f64 {
         let key = (font, font_size);
         if let Some(height) = self.line_height_cache.borrow().get(&key) {
@@ -52,6 +53,12 @@ impl Assets {
 
         self.line_height_cache.borrow_mut().insert(key, height);
         height
+    }
+
+    // TODO No text in wasm yet
+    #[cfg(target_arch = "wasm32")]
+    pub fn line_height(&self, font: Font, font_size: usize) -> f64 {
+        text::SCALE_LINE_HEIGHT * 30.0
     }
 
     pub fn get_cached_text(&self, key: &String) -> Option<GeomBatch> {

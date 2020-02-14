@@ -1,4 +1,6 @@
-#version 330 core
+#version 300 es
+
+precision mediump float;
 
 // (x offset, y offset, zoom)
 uniform vec3 transform;

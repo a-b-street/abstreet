@@ -1,6 +1,6 @@
 use crate::{EventCtx, EventLoopMode};
 use geom::{Line, Pt2D};
-use std::time::Instant;
+use instant::Instant;
 
 pub struct Warper {
     started: Instant,

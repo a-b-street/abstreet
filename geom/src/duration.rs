@@ -1,7 +1,7 @@
 use crate::{trim_f64, Distance, Speed};
 use abstutil::elapsed_seconds;
+use instant::Instant;
 use serde_derive::{Deserialize, Serialize};
-use std::time::Instant;
 use std::{cmp, f64, ops};
 
 // In seconds. Can be negative.

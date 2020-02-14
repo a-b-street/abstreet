@@ -1,8 +1,8 @@
 use crate::PROGRESS_FREQUENCY_SECONDS;
+use instant::Instant;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{stdout, BufReader, Error, Read, Write};
-use std::time::Instant;
 
 pub fn elapsed_seconds(since: Instant) -> f64 {
     let dt = since.elapsed();

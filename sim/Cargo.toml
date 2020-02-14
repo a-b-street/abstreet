@@ -8,6 +8,7 @@ edition = "2018"
 abstutil = { path = "../abstutil" }
 derivative = "1.0.0"
 geom = { path = "../geom" }
+instant = "0.1.2"
 map_model = { path = "../map_model" }
 rand = "0.7.0"
 rand_xorshift = "0.2.0"

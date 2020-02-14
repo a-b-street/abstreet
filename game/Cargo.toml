@@ -14,6 +14,7 @@ downcast-rs = "1.0.4"
 ezgui = { path = "../ezgui" }
 #ezgui = { path = "../ezgui", default-features=false, features=["glow-backend"] }
 geom = { path = "../geom" }
+instant = "0.1.2"
 kml = { path = "../kml" }
 map_model = { path = "../map_model" }
 popdat = { path = "../popdat" }

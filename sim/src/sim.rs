@@ -9,6 +9,7 @@ use crate::{
 use abstutil::Timer;
 use derivative::Derivative;
 use geom::{Distance, Duration, PolyLine, Pt2D, Time};
+use instant::Instant;
 use map_model::{
     BuildingID, BusRoute, BusRouteID, IntersectionID, LaneID, Map, Path, PathConstraints,
     PathRequest, PathStep, Traversable,
@@ -16,7 +17,6 @@ use map_model::{
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashSet};
 use std::panic;
-use std::time::Instant;
 
 // TODO Do something else.
 const BLIND_RETRY_TO_SPAWN: Duration = Duration::const_seconds(5.0);

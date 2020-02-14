@@ -11,10 +11,10 @@ use ezgui::{
     ManagedWidget, Text,
 };
 use geom::{Duration, Line, Pt2D, Speed};
+use instant::Instant;
 use map_model::{Map, MapEdits};
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
-use std::time::Instant;
 
 pub struct TitleScreen {
     composite: WrappedComposite,

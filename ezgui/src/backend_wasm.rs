@@ -4,6 +4,9 @@ use geom::{Angle, Polygon, Pt2D};
 use glow::HasContext;
 use std::cell::{Cell, RefCell};
 use std::collections::{BTreeMap, HashMap};
+use stdweb::traits::INode;
+use webgl_stdweb::WebGL2RenderingContext;
+use winit::platform::web::WindowExtStdweb;
 
 pub fn setup(
     window_title: &str,
@@ -12,19 +15,26 @@ pub fn setup(
     winit::event_loop::EventLoop<()>,
     ScreenDims,
 ) {
+    stdweb::console!(log, "Setting up ezgui");
+
+    // This doesn't seem to work for the shader panics here, but later it does work. Huh.
+    std::panic::set_hook(Box::new(|info| {
+        stdweb::console!(log, "panicked: %s", format!("{}", info));
+    }));
+
     let event_loop = winit::event_loop::EventLoop::new();
     let window = winit::window::WindowBuilder::new()
         .with_title(window_title)
-        .with_maximized(true);
-    // multisampling: 2 looks bad, 4 looks fine
-    let context = glutin::ContextBuilder::new()
-        .with_multisampling(4)
-        .with_depth_buffer(2)
-        .build_windowed(window, &event_loop)
+        .build(&event_loop)
         .unwrap();
-    let windowed_context = unsafe { context.make_current().unwrap() };
-    let gl =
-        glow::Context::from_loader_function(|s| windowed_context.get_proc_address(s) as *const _);
+    let canvas = window.canvas();
+    let document = stdweb::web::document();
+    let body: stdweb::web::Node = document.body().expect("Get HTML body").into();
+    body.append_child(&canvas);
+
+    let webgl2_context: WebGL2RenderingContext = canvas.get_context().unwrap();
+    let gl = glow::Context::from_webgl2_context(webgl2_context);
+
     let program = unsafe { gl.create_program().expect("Cannot create program") };
 
     unsafe {
@@ -43,6 +53,7 @@ pub fn setup(
             gl.shader_source(shader, source);
             gl.compile_shader(shader);
             if !gl.get_shader_compile_status(shader) {
+                stdweb::console!(log, "Shader error: %s", gl.get_shader_info_log(shader));
                 panic!(gl.get_shader_info_log(shader));
             }
             gl.attach_shader(program, shader);
@@ -51,6 +62,7 @@ pub fn setup(
         .collect::<Vec<_>>();
         gl.link_program(program);
         if !gl.get_program_link_status(program) {
+            stdweb::console!(log, "Linking error: %s", gl.get_program_info_log(program));
             panic!(gl.get_program_info_log(program));
         }
         for shader in shaders {
@@ -62,24 +74,22 @@ pub fn setup(
         gl.enable(glow::SCISSOR_TEST);
     }
 
-    let window_size = event_loop.primary_monitor().size();
     (
         PrerenderInnards {
             gl,
             program,
-            windowed_context,
+            window,
             total_bytes_uploaded: Cell::new(0),
             texture_lookups: RefCell::new(HashMap::new()),
         },
         event_loop,
-        ScreenDims::new(window_size.width.into(), window_size.height.into()),
+        ScreenDims::new(canvas.width().into(), canvas.height().into()),
     )
 }
 
 // Represents one frame that's gonna be drawn
 pub struct GfxCtxInnards<'a> {
     gl: &'a glow::Context,
-    windowed_context: &'a glutin::WindowedContext<glutin::PossiblyCurrent>,
     program: &'a <glow::Context as glow::HasContext>::Program,
 
     current_clip: Option<[i32; 4]>,
@@ -160,23 +170,21 @@ impl<'a> GfxCtxInnards<'a> {
         }
     }
 
-    pub fn finish(self) {
-        self.windowed_context.swap_buffers().unwrap();
-    }
+    pub fn finish(self) {}
 }
 
 // Something that's been sent to the GPU already.
 // TODO Implement Drop; have to keep a reference to gl.
 pub struct Drawable {
-    _vert_buffer: u32,
-    vert_array: u32,
-    _elem_buffer: u32,
+    _vert_buffer: glow::WebBufferKey,
+    vert_array: glow::WebVertexArrayKey,
+    _elem_buffer: glow::WebBufferKey,
     num_indices: i32,
 }
 
 pub struct PrerenderInnards {
     gl: glow::Context,
-    windowed_context: glutin::WindowedContext<glutin::PossiblyCurrent>,
+    window: winit::window::Window,
     program: <glow::Context as glow::HasContext>::Program,
 
     // TODO Prerender doesn't know what things are temporary and permanent. Could make the API more
@@ -309,13 +317,12 @@ impl PrerenderInnards {
     }
 
     pub fn request_redraw(&self) {
-        self.windowed_context.window().request_redraw();
+        self.window.request_redraw();
     }
 
     pub fn draw_new_frame(&self) -> GfxCtxInnards {
         GfxCtxInnards {
             gl: &self.gl,
-            windowed_context: &self.windowed_context,
             program: &self.program,
             current_clip: None,
         }
@@ -341,8 +348,6 @@ impl PrerenderInnards {
     }
 
     pub fn window_resized(&self, width: f64, height: f64) {
-        self.windowed_context
-            .resize(winit::dpi::PhysicalSize::new(width as u32, height as u32));
         unsafe {
             self.gl.viewport(0, 0, width as i32, height as i32);
             // I think it's safe to assume there's not a clip right now.

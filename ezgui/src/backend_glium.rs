@@ -7,7 +7,13 @@ use glium::Surface;
 use std::cell::{Cell, RefCell};
 use std::collections::{BTreeMap, HashMap};
 
-pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventLoop<()>) {
+pub fn setup(
+    window_title: &str,
+) -> (
+    PrerenderInnards,
+    winit::event_loop::EventLoop<()>,
+    ScreenDims,
+) {
     let event_loop = winit::event_loop::EventLoop::new();
     let window = winit::window::WindowBuilder::new()
         .with_title(window_title)
@@ -66,6 +72,7 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
     )
     .unwrap();
 
+    let window_size = event_loop.primary_monitor().size();
     (
         PrerenderInnards {
             display,
@@ -75,6 +82,7 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
             texture_lookups: RefCell::new(HashMap::new()),
         },
         event_loop,
+        ScreenDims::new(window_size.width.into(), window_size.height.into()),
     )
 }
 

@@ -1,9 +1,9 @@
 use crate::assets::Assets;
 use crate::{widgets, Canvas, Event, EventCtx, GfxCtx, Key, Prerender, UserInput};
 use geom::Duration;
+use instant::Instant;
 use std::cell::Cell;
 use std::panic;
-use std::time::Instant;
 
 const UPDATE_FREQUENCY: std::time::Duration = std::time::Duration::from_millis(1000 / 30);
 
@@ -159,10 +159,10 @@ impl Settings {
 }
 
 pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: F) -> ! {
-    let (prerender_innards, event_loop) = crate::backend::setup(&settings.window_title);
+    let (prerender_innards, event_loop, window_size) =
+        crate::backend::setup(&settings.window_title);
 
-    let window_size = event_loop.primary_monitor().size();
-    let mut canvas = Canvas::new(window_size.width.into(), window_size.height.into());
+    let mut canvas = Canvas::new(window_size.width, window_size.height);
     prerender_innards.window_resized(canvas.window_width, canvas.window_height);
     let prerender = Prerender {
         assets: Assets::new(settings.default_font_size, settings.font_dir),

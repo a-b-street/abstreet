@@ -4,9 +4,9 @@ use crate::{
 };
 use abstutil::{elapsed_seconds, Timer, TimerSink};
 use geom::Polygon;
+use instant::Instant;
 use std::collections::BTreeMap;
 use std::collections::VecDeque;
-use std::time::Instant;
 
 pub struct EventCtx<'a> {
     pub(crate) fake_mouseover: bool,

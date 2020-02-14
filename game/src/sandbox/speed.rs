@@ -7,7 +7,7 @@ use ezgui::{
     HorizontalAlignment, Key, Line, ManagedWidget, RewriteColor, Text, VerticalAlignment, Wizard,
 };
 use geom::{Duration, Polygon, Time};
-use std::time::Instant;
+use instant::Instant;
 
 pub struct SpeedControls {
     pub composite: WrappedComposite,

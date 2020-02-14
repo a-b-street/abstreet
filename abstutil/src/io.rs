@@ -1,6 +1,7 @@
 use crate::time::{clear_current_line, prettyprint_time};
 use crate::{elapsed_seconds, prettyprint_usize, MultiMap, Timer, PROGRESS_FREQUENCY_SECONDS};
 use bincode;
+use instant::Instant;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_json;
@@ -10,7 +11,6 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::fs::File;
 use std::io::{stdout, BufReader, BufWriter, Error, ErrorKind, Read, Write};
 use std::path::Path;
-use std::time::Instant;
 
 pub fn to_json<T: Serialize>(obj: &T) -> String {
     serde_json::to_string_pretty(obj).unwrap()
