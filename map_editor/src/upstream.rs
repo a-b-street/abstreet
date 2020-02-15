@@ -4,6 +4,10 @@ use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::Write;
 
+#[cfg(target_arch = "wasm32")]
+pub fn find_diffs(_: &RawMap) {}
+
+#[cfg(not(target_arch = "wasm32"))]
 pub fn find_diffs(map: &RawMap) {
     let mut way_to_tags: BTreeMap<String, BTreeMap<String, String>> = BTreeMap::new();
     for r in map.roads.values() {

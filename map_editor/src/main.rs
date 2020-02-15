@@ -69,7 +69,9 @@ impl UI {
         } else {
             Model::blank()
         };
-        ctx.canvas.load_camera_state(&model.map.name);
+        if !model.map.name.is_empty() {
+            ctx.canvas.load_camera_state(&model.map.name);
+        }
         let bounds = model.map.gps_bounds.to_bounds();
         ctx.canvas.map_dims = (bounds.width(), bounds.height());
         let mut ui = UI {
@@ -665,11 +667,15 @@ impl GUI for UI {
     }
 
     fn dump_before_abort(&self, canvas: &Canvas) {
-        canvas.save_camera_state(&self.model.map.name);
+        if !self.model.map.name.is_empty() {
+            canvas.save_camera_state(&self.model.map.name);
+        }
     }
 
     fn before_quit(&self, canvas: &Canvas) {
-        canvas.save_camera_state(&self.model.map.name);
+        if !self.model.map.name.is_empty() {
+            canvas.save_camera_state(&self.model.map.name);
+        }
     }
 }
 

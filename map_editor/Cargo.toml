@@ -4,11 +4,17 @@ version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2018"
 
+# TODO Can't toggle based on target_arch. https://github.com/rust-lang/cargo/issues/2524
+# cargo web start --target wasm32-unknown-unknown --no-default-features --features wasm
+[features]
+default = ["ezgui/glium-backend", "reqwest"]
+wasm = ["ezgui/wasm-backend"]
+
 [dependencies]
 aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
-ezgui = { path = "../ezgui" }
+ezgui = { path = "../ezgui", default-features=false }
 geom = { path = "../geom" }
 map_model = { path = "../map_model" }
-reqwest = "0.9.22"
+reqwest = { version = "0.9.22", optional = true }
 xmltree = "0.8.0"
