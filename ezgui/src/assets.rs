@@ -58,6 +58,11 @@ impl Assets {
     // TODO No text in wasm yet
     #[cfg(target_arch = "wasm32")]
     pub fn line_height(&self, font: Font, font_size: usize) -> f64 {
+        let key = (font, font_size);
+        if let Some(height) = self.line_height_cache.borrow().get(&key) {
+            return *height;
+        }
+
         text::SCALE_LINE_HEIGHT * 30.0
     }
 

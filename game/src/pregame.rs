@@ -368,6 +368,7 @@ impl Screensaver {
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 #[allow(unused)]
 mod built_info {
     use ezgui::{Color, Line, Text};
@@ -383,5 +384,12 @@ mod built_info {
             txt.append(Line(format!(" (get the new release from abstreet.org)")).fg(Color::RED));
         }
         txt
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+mod built_info {
+    pub fn time() -> ezgui::Text {
+        ezgui::Text::new()
     }
 }
