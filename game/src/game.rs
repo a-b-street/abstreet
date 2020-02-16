@@ -24,8 +24,14 @@ impl Game {
             && mode == GameplayMode::Freeform;
         ctx.set_textures(
             vec![
-                ("assets/pregame/challenges.png", TextureType::Stretch),
-                ("assets/pregame/logo.png", TextureType::Stretch),
+                (
+                    "../data/system/assets/pregame/challenges.png",
+                    TextureType::Stretch,
+                ),
+                (
+                    "../data/system/assets/pregame/logo.png",
+                    TextureType::Stretch,
+                ),
             ],
             &mut Timer::new("load textures"),
         );

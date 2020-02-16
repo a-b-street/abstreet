@@ -43,7 +43,7 @@ impl DrawCar {
         if input.status == CarStatus::Parked {
             draw_default.add_svg(
                 prerender,
-                "assets/map/parked_car.svg",
+                "../data/system/assets/map/parked_car.svg",
                 body_polygon.center(),
                 0.01,
                 Angle::ZERO,

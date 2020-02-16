@@ -282,7 +282,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, acs: &AgentColorScheme, zoom_lvl: usiz
 
     let square_len = 0.15 * ctx.canvas.window_width;
     let mut zoom_col = vec![ManagedWidget::btn(Button::rectangle_svg(
-        "assets/speed/speed_up.svg",
+        "../data/system/assets/speed/speed_up.svg",
         "zoom in",
         None,
         RewriteColor::ChangeAll(colors::HOVERING),
@@ -305,7 +305,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, acs: &AgentColorScheme, zoom_lvl: usiz
         )));
     }
     zoom_col.push(ManagedWidget::btn(Button::rectangle_svg(
-        "assets/speed/slow_down.svg",
+        "../data/system/assets/speed/slow_down.svg",
         "zoom out",
         None,
         RewriteColor::ChangeAll(colors::HOVERING),
@@ -317,26 +317,41 @@ fn make_minimap_panel(ctx: &mut EventCtx, acs: &AgentColorScheme, zoom_lvl: usiz
             make_viz_panel(ctx, acs),
             ManagedWidget::col(zoom_col).margin(5).centered(),
             ManagedWidget::col(vec![
-                WrappedComposite::svg_button(ctx, "assets/minimap/up.svg", "pan up", None)
-                    .margin(5)
-                    .centered_horiz(),
+                WrappedComposite::svg_button(
+                    ctx,
+                    "../data/system/assets/minimap/up.svg",
+                    "pan up",
+                    None,
+                )
+                .margin(5)
+                .centered_horiz(),
                 ManagedWidget::row(vec![
-                    WrappedComposite::svg_button(ctx, "assets/minimap/left.svg", "pan left", None)
-                        .margin(5)
-                        .centered_vert(),
+                    WrappedComposite::svg_button(
+                        ctx,
+                        "../data/system/assets/minimap/left.svg",
+                        "pan left",
+                        None,
+                    )
+                    .margin(5)
+                    .centered_vert(),
                     ManagedWidget::filler("minimap"),
                     WrappedComposite::svg_button(
                         ctx,
-                        "assets/minimap/right.svg",
+                        "../data/system/assets/minimap/right.svg",
                         "pan right",
                         None,
                     )
                     .margin(5)
                     .centered_vert(),
                 ]),
-                WrappedComposite::svg_button(ctx, "assets/minimap/down.svg", "pan down", None)
-                    .margin(5)
-                    .centered_horiz(),
+                WrappedComposite::svg_button(
+                    ctx,
+                    "../data/system/assets/minimap/down.svg",
+                    "pan down",
+                    None,
+                )
+                .margin(5)
+                .centered_horiz(),
             ])
             .centered(),
         ])
@@ -357,11 +372,16 @@ fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
     let radius = 10.0;
     let mut col = vec![
         ManagedWidget::row(vec![
-            WrappedComposite::svg_button(ctx, "assets/tools/search.svg", "search", hotkey(Key::K))
-                .margin(10),
             WrappedComposite::svg_button(
                 ctx,
-                "assets/tools/shortcuts.svg",
+                "../data/system/assets/tools/search.svg",
+                "search",
+                hotkey(Key::K),
+            )
+            .margin(10),
+            WrappedComposite::svg_button(
+                ctx,
+                "../data/system/assets/tools/shortcuts.svg",
                 "shortcuts",
                 hotkey(Key::SingleQuote),
             )
@@ -369,7 +389,7 @@ fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
             if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL {
                 WrappedComposite::svg_button(
                     ctx,
-                    "assets/minimap/zoom_out_fully.svg",
+                    "../data/system/assets/minimap/zoom_out_fully.svg",
                     "zoom out fully",
                     None,
                 )
@@ -377,7 +397,7 @@ fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
             } else {
                 WrappedComposite::svg_button(
                     ctx,
-                    "assets/minimap/zoom_in_fully.svg",
+                    "../data/system/assets/minimap/zoom_in_fully.svg",
                     "zoom in fully",
                     None,
                 )
@@ -385,7 +405,7 @@ fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
             },
             WrappedComposite::svg_button(
                 ctx,
-                "assets/tools/layers.svg",
+                "../data/system/assets/tools/layers.svg",
                 "change overlay",
                 hotkey(Key::L),
             )
@@ -404,7 +424,7 @@ fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
         col.push(
             ManagedWidget::row(vec![
                 ManagedWidget::btn(Button::rectangle_svg_rewrite(
-                    "assets/tools/visibility.svg",
+                    "../data/system/assets/tools/visibility.svg",
                     &format!("show/hide {}", label),
                     None,
                     if *enabled {

@@ -222,35 +222,35 @@ impl Overlays {
             WrappedComposite::text_button(ctx, "finished trips histogram", hotkey(Key::F)),
             WrappedComposite::text_button(ctx, "map edits", hotkey(Key::E)),
             ManagedWidget::btn(Button::rectangle_svg(
-                "assets/layers/parking_avail.svg",
+                "../data/system/assets/layers/parking_avail.svg",
                 "parking availability",
                 hotkey(Key::P),
                 RewriteColor::Change(Color::hex("#F2F2F2"), colors::HOVERING),
                 ctx,
             )),
             ManagedWidget::btn(Button::rectangle_svg(
-                "assets/layers/intersection_delay.svg",
+                "../data/system/assets/layers/intersection_delay.svg",
                 "intersection delay",
                 hotkey(Key::I),
                 RewriteColor::Change(Color::hex("#F2F2F2"), colors::HOVERING),
                 ctx,
             )),
             ManagedWidget::btn(Button::rectangle_svg(
-                "assets/layers/throughput.svg",
+                "../data/system/assets/layers/throughput.svg",
                 "throughput",
                 hotkey(Key::T),
                 RewriteColor::Change(Color::hex("#F2F2F2"), colors::HOVERING),
                 ctx,
             )),
             ManagedWidget::btn(Button::rectangle_svg(
-                "assets/layers/bike_network.svg",
+                "../data/system/assets/layers/bike_network.svg",
                 "bike network",
                 hotkey(Key::B),
                 RewriteColor::Change(Color::hex("#F2F2F2"), colors::HOVERING),
                 ctx,
             )),
             ManagedWidget::btn(Button::rectangle_svg(
-                "assets/layers/bus_network.svg",
+                "../data/system/assets/layers/bus_network.svg",
                 "bus network",
                 hotkey(Key::U),
                 RewriteColor::Change(Color::hex("#F2F2F2"), colors::HOVERING),
@@ -265,23 +265,23 @@ impl Overlays {
             Overlays::Inactive => Some(("None", Button::inactive_button(ctx, "None"))),
             Overlays::ParkingAvailability(_, _) => Some((
                 "parking availability",
-                ManagedWidget::draw_svg(ctx, "assets/layers/parking_avail.svg"),
+                ManagedWidget::draw_svg(ctx, "../data/system/assets/layers/parking_avail.svg"),
             )),
             Overlays::IntersectionDelay(_, _) => Some((
                 "intersection delay",
-                ManagedWidget::draw_svg(ctx, "assets/layers/intersection_delay.svg"),
+                ManagedWidget::draw_svg(ctx, "../data/system/assets/layers/intersection_delay.svg"),
             )),
             Overlays::CumulativeThroughput(_, _) => Some((
                 "throughput",
-                ManagedWidget::draw_svg(ctx, "assets/layers/throughput.svg"),
+                ManagedWidget::draw_svg(ctx, "../data/system/assets/layers/throughput.svg"),
             )),
             Overlays::BikeNetwork(_) => Some((
                 "bike network",
-                ManagedWidget::draw_svg(ctx, "assets/layers/bike_network.svg"),
+                ManagedWidget::draw_svg(ctx, "../data/system/assets/layers/bike_network.svg"),
             )),
             Overlays::BusNetwork(_) => Some((
                 "bus network",
-                ManagedWidget::draw_svg(ctx, "assets/layers/bus_network.svg"),
+                ManagedWidget::draw_svg(ctx, "../data/system/assets/layers/bus_network.svg"),
             )),
             Overlays::Edits(_) => Some(("map edits", Button::inactive_button(ctx, "map edits"))),
             Overlays::FinishedTripsHistogram(_, _) => Some((
@@ -638,7 +638,7 @@ impl Overlays {
         let mut col = vec![ManagedWidget::row(vec![
             ManagedWidget::draw_text(ctx, Text::from(Line("intersection demand"))),
             ManagedWidget::btn(Button::rectangle_svg(
-                "assets/tools/locate.svg",
+                "../data/system/assets/tools/locate.svg",
                 "intersection demand",
                 None,
                 RewriteColor::Change(Color::hex("#CC4121"), colors::HOVERING),
@@ -682,7 +682,7 @@ impl Overlays {
             let mut row = vec![
                 ManagedWidget::draw_text(ctx, Text::from(Line(format!("Stop {}", idx + 1)))),
                 ManagedWidget::btn(Button::rectangle_svg(
-                    "assets/tools/locate.svg",
+                    "../data/system/assets/tools/locate.svg",
                     &format!("Stop {}", idx + 1),
                     None,
                     RewriteColor::Change(Color::hex("#CC4121"), colors::HOVERING),

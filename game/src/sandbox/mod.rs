@@ -367,13 +367,13 @@ impl AgentMeter {
         let composite = Composite::new(
             ManagedWidget::col(vec![
                 ManagedWidget::row(vec![
-                    ManagedWidget::draw_svg(ctx, "assets/meters/pedestrian.svg"),
+                    ManagedWidget::draw_svg(ctx, "../data/system/assets/meters/pedestrian.svg"),
                     ManagedWidget::draw_text(ctx, Text::from(Line(&by_mode[&TripMode::Walk]))),
-                    ManagedWidget::draw_svg(ctx, "assets/meters/bike.svg"),
+                    ManagedWidget::draw_svg(ctx, "../data/system/assets/meters/bike.svg"),
                     ManagedWidget::draw_text(ctx, Text::from(Line(&by_mode[&TripMode::Bike]))),
-                    ManagedWidget::draw_svg(ctx, "assets/meters/car.svg"),
+                    ManagedWidget::draw_svg(ctx, "../data/system/assets/meters/car.svg"),
                     ManagedWidget::draw_text(ctx, Text::from(Line(&by_mode[&TripMode::Drive]))),
-                    ManagedWidget::draw_svg(ctx, "assets/meters/bus.svg"),
+                    ManagedWidget::draw_svg(ctx, "../data/system/assets/meters/bus.svg"),
                     ManagedWidget::draw_text(ctx, Text::from(Line(&by_mode[&TripMode::Transit]))),
                 ])
                 .centered(),

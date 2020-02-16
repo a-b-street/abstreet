@@ -324,7 +324,7 @@ fn make_topcenter(ctx: &mut EventCtx, ui: &UI) -> Composite {
                 .margin(5),
                 WrappedComposite::svg_button(
                     ctx,
-                    "assets/tools/save.svg",
+                    "../data/system/assets/tools/save.svg",
                     "save edits as",
                     lctrl(Key::S),
                 )
@@ -332,14 +332,14 @@ fn make_topcenter(ctx: &mut EventCtx, ui: &UI) -> Composite {
                 (if !ui.primary.map.get_edits().commands.is_empty() {
                     WrappedComposite::svg_button(
                         ctx,
-                        "assets/tools/undo.svg",
+                        "../data/system/assets/tools/undo.svg",
                         "undo",
                         lctrl(Key::Z),
                     )
                 } else {
                     ManagedWidget::draw_svg_transform(
                         ctx,
-                        "assets/tools/undo.svg",
+                        "../data/system/assets/tools/undo.svg",
                         RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
                     )
                 })

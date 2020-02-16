@@ -15,7 +15,6 @@ cp docs/INSTRUCTIONS.md $output
 cp release/$runner $output
 mkdir $output/game
 cp $binary $output/game
-cp -Rv game/assets $output/game
 cp -Rv data $output/data
 
 # TODO Github will double-zip this, but if we just pass the directory, then the

@@ -56,7 +56,7 @@ impl LaneEditor {
             row.push(
                 if active {
                     ManagedWidget::btn(Button::rectangle_svg(
-                        &format!("assets/edit/{}.svg", icon),
+                        &format!("../data/system/assets/edit/{}.svg", icon),
                         label,
                         hotkey(key),
                         RewriteColor::ChangeAll(colors::HOVERING),
@@ -65,7 +65,7 @@ impl LaneEditor {
                 } else {
                     ManagedWidget::draw_svg_transform(
                         ctx,
-                        &format!("assets/edit/{}.svg", icon),
+                        &format!("../data/system/assets/edit/{}.svg", icon),
                         RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
                     )
                 }

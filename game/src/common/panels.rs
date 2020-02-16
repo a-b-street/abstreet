@@ -12,7 +12,7 @@ pub fn tool_panel(ctx: &mut EventCtx) -> WrappedComposite {
         // TODO Maybe this is confusing -- it doesn't jump to the title screen necessarily.
         // Caller has to handle this one
         ManagedWidget::btn(Button::rectangle_svg(
-            "assets/tools/home.svg",
+            "../data/system/assets/tools/home.svg",
             "back",
             hotkey(Key::Escape),
             RewriteColor::ChangeAll(colors::HOVERING),
@@ -20,7 +20,7 @@ pub fn tool_panel(ctx: &mut EventCtx) -> WrappedComposite {
         ))
         .margin(10),
         ManagedWidget::btn(Button::rectangle_svg(
-            "assets/tools/settings.svg",
+            "../data/system/assets/tools/settings.svg",
             "settings",
             None,
             RewriteColor::ChangeAll(colors::HOVERING),

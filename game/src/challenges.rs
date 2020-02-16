@@ -135,7 +135,7 @@ impl Tab {
         col.push(
             WrappedComposite::svg_button(
                 ctx,
-                "assets/pregame/back.svg",
+                "../data/system/assets/pregame/back.svg",
                 "back",
                 hotkey(Key::Escape),
             )

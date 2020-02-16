@@ -266,7 +266,7 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
     let name_color = ui.cs.get("OSD name color");
     let header_btns = ManagedWidget::row(vec![
         ManagedWidget::btn(Button::rectangle_svg(
-            "assets/tools/locate.svg",
+            "../data/system/assets/tools/locate.svg",
             "jump to object",
             hotkey(Key::J),
             RewriteColor::Change(Color::hex("#CC4121"), colors::HOVERING),

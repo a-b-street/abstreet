@@ -29,7 +29,8 @@ impl TitleScreen {
             composite: WrappedComposite::new(
                 Composite::new(
                     ManagedWidget::col(vec![
-                        JustDraw::image(ctx, "assets/pregame/logo.png").bg(Color::GREEN.alpha(0.2)),
+                        JustDraw::image(ctx, "../data/system/assets/pregame/logo.png")
+                            .bg(Color::GREEN.alpha(0.2)),
                         // TODO that nicer font
                         // TODO Any key
                         ManagedWidget::btn(Button::text_bg(
@@ -74,8 +75,13 @@ impl State for TitleScreen {
 
 pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
     let mut col = vec![
-        WrappedComposite::svg_button(ctx, "assets/pregame/quit.svg", "quit", hotkey(Key::Escape))
-            .align_left(),
+        WrappedComposite::svg_button(
+            ctx,
+            "../data/system/assets/pregame/quit.svg",
+            "quit",
+            hotkey(Key::Escape),
+        )
+        .align_left(),
         {
             let mut txt = Text::from(Line("A/B STREET").size(100));
             txt.add(Line("Created by Dustin Carlino"));
@@ -84,18 +90,18 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
         ManagedWidget::row(vec![
             WrappedComposite::svg_button(
                 ctx,
-                "assets/pregame/tutorial.svg",
+                "../data/system/assets/pregame/tutorial.svg",
                 "Tutorial",
                 hotkey(Key::T),
             ),
             WrappedComposite::svg_button(
                 ctx,
-                "assets/pregame/sandbox.svg",
+                "../data/system/assets/pregame/sandbox.svg",
                 "Sandbox mode",
                 hotkey(Key::S),
             ),
             ManagedWidget::btn(Button::rectangle_img(
-                "assets/pregame/challenges.png",
+                "../data/system/assets/pregame/challenges.png",
                 hotkey(Key::C),
                 ctx,
                 "Challenges",
@@ -200,8 +206,13 @@ fn about(ctx: &mut EventCtx) -> Box<dyn State> {
     let mut col = Vec::new();
 
     col.push(
-        WrappedComposite::svg_button(ctx, "assets/pregame/back.svg", "back", hotkey(Key::Escape))
-            .align_left(),
+        WrappedComposite::svg_button(
+            ctx,
+            "../data/system/assets/pregame/back.svg",
+            "back",
+            hotkey(Key::Escape),
+        )
+        .align_left(),
     );
 
     let mut txt = Text::new();
@@ -294,7 +305,7 @@ fn proposals_picker(ctx: &mut EventCtx) -> Box<dyn State> {
             ManagedWidget::col(vec![
                 WrappedComposite::svg_button(
                     ctx,
-                    "assets/pregame/back.svg",
+                    "../data/system/assets/pregame/back.svg",
                     "back",
                     hotkey(Key::Escape),
                 )

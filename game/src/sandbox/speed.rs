@@ -34,7 +34,7 @@ impl SpeedControls {
         row.push(
             ManagedWidget::btn(if paused {
                 Button::rectangle_svg(
-                    "assets/speed/triangle.svg",
+                    "../data/system/assets/speed/triangle.svg",
                     "play",
                     hotkey(Key::Space),
                     RewriteColor::ChangeAll(colors::HOVERING),
@@ -42,7 +42,7 @@ impl SpeedControls {
                 )
             } else {
                 Button::rectangle_svg(
-                    "assets/speed/pause.svg",
+                    "../data/system/assets/speed/pause.svg",
                     "pause",
                     hotkey(Key::Space),
                     RewriteColor::ChangeAll(colors::HOVERING),
@@ -65,7 +65,7 @@ impl SpeedControls {
                 .into_iter()
                 .map(|(s, label)| {
                     ManagedWidget::btn(Button::rectangle_svg_rewrite(
-                        "assets/speed/triangle.svg",
+                        "../data/system/assets/speed/triangle.svg",
                         label,
                         None,
                         if setting >= s {
@@ -104,14 +104,14 @@ impl SpeedControls {
                         ctx,
                     )),
                     ManagedWidget::btn(Button::rectangle_svg(
-                        "assets/speed/jump_to_time.svg",
+                        "../data/system/assets/speed/jump_to_time.svg",
                         "jump to specific time",
                         hotkey(Key::B),
                         RewriteColor::ChangeAll(colors::HOVERING),
                         ctx,
                     )),
                     ManagedWidget::btn(Button::rectangle_svg(
-                        "assets/speed/reset.svg",
+                        "../data/system/assets/speed/reset.svg",
                         "reset to midnight",
                         hotkey(Key::X),
                         RewriteColor::ChangeAll(colors::HOVERING),
@@ -416,9 +416,9 @@ impl TimePanel {
                     },
                     ManagedWidget::row(vec![
                         ManagedWidget::draw_text(ctx, Text::from(Line("00:00").size(12).roboto())),
-                        ManagedWidget::draw_svg(ctx, "assets/speed/sunrise.svg"),
+                        ManagedWidget::draw_svg(ctx, "../data/system/assets/speed/sunrise.svg"),
                         ManagedWidget::draw_text(ctx, Text::from(Line("12:00").size(12).roboto())),
-                        ManagedWidget::draw_svg(ctx, "assets/speed/sunset.svg"),
+                        ManagedWidget::draw_svg(ctx, "../data/system/assets/speed/sunset.svg"),
                         ManagedWidget::draw_text(ctx, Text::from(Line("24:00").size(12).roboto())),
                     ])
                     .padding(10)

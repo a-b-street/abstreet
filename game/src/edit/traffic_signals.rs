@@ -366,11 +366,16 @@ fn make_top_panel(can_undo: bool, can_redo: bool, ctx: &mut EventCtx) -> Composi
         WrappedComposite::text_button(ctx, "Finish", hotkey(Key::Escape)),
         WrappedComposite::text_button(ctx, "Preview", lctrl(Key::P)),
         (if can_undo {
-            WrappedComposite::svg_button(ctx, "assets/tools/undo.svg", "undo", lctrl(Key::Z))
+            WrappedComposite::svg_button(
+                ctx,
+                "../data/system/assets/tools/undo.svg",
+                "undo",
+                lctrl(Key::Z),
+            )
         } else {
             ManagedWidget::draw_svg_transform(
                 ctx,
-                "assets/tools/undo.svg",
+                "../data/system/assets/tools/undo.svg",
                 RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
             )
         })
@@ -378,7 +383,7 @@ fn make_top_panel(can_undo: bool, can_redo: bool, ctx: &mut EventCtx) -> Composi
         (if can_redo {
             WrappedComposite::svg_button(
                 ctx,
-                "assets/tools/redo.svg",
+                "../data/system/assets/tools/redo.svg",
                 "redo",
                 // TODO ctrl+shift+Z!
                 lctrl(Key::Y),
@@ -386,7 +391,7 @@ fn make_top_panel(can_undo: bool, can_redo: bool, ctx: &mut EventCtx) -> Composi
         } else {
             ManagedWidget::draw_svg_transform(
                 ctx,
-                "assets/tools/redo.svg",
+                "../data/system/assets/tools/redo.svg",
                 RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
             )
         })
@@ -470,7 +475,7 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
             ),
             WrappedComposite::svg_button(
                 ctx,
-                "assets/tools/edit.svg",
+                "../data/system/assets/tools/edit.svg",
                 &format!("change duration of #{}", idx + 1),
                 if selected == idx {
                     hotkey(Key::D)
@@ -484,7 +489,7 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
             row.push(
                 WrappedComposite::svg_button(
                     ctx,
-                    "assets/tools/delete.svg",
+                    "../data/system/assets/tools/delete.svg",
                     &format!("delete phase #{}", idx + 1),
                     if selected == idx {
                         hotkey(Key::Backspace)

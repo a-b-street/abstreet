@@ -107,7 +107,7 @@ pub fn freeform_controller(
             .margin(5),
             WrappedComposite::svg_button(
                 ctx,
-                "assets/tools/edit_map.svg",
+                "../data/system/assets/tools/edit_map.svg",
                 "edit map",
                 lctrl(Key::E),
             )

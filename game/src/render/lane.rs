@@ -28,7 +28,7 @@ impl AlmostDrawLane {
                 let (pt, angle) = lane.lane_center_pts.dist_along(dist);
                 self.draw_default.add_svg(
                     prerender,
-                    "assets/map/bus_only.svg",
+                    "../data/system/assets/map/bus_only.svg",
                     pt,
                     0.06,
                     angle
@@ -47,7 +47,7 @@ impl AlmostDrawLane {
                 let (pt, angle) = lane.lane_center_pts.dist_along(dist);
                 self.draw_default.add_svg(
                     prerender,
-                    "assets/meters/bike.svg",
+                    "../data/system/assets/meters/bike.svg",
                     pt,
                     0.06,
                     angle

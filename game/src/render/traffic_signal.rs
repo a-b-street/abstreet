@@ -64,13 +64,25 @@ pub fn draw_signal_phase(
                     );
                 } else {
                     let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
-                    batch.add_svg(prerender, "assets/map/walk.svg", center, 0.07, angle);
+                    batch.add_svg(
+                        prerender,
+                        "../data/system/assets/map/walk.svg",
+                        center,
+                        0.07,
+                        angle,
+                    );
                     dont_walk.remove(g);
                 }
             }
             for g in dont_walk {
                 let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
-                batch.add_svg(prerender, "assets/map/dont_walk.svg", center, 0.07, angle);
+                batch.add_svg(
+                    prerender,
+                    "../data/system/assets/map/dont_walk.svg",
+                    center,
+                    0.07,
+                    angle,
+                );
             }
         }
         TrafficSignalStyle::Sidewalks => {

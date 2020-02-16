@@ -61,7 +61,7 @@ pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
         Composite::new(ManagedWidget::col(vec![
             WrappedComposite::svg_button(
                 ctx,
-                "assets/pregame/back.svg",
+                "../data/system/assets/pregame/back.svg",
                 "back",
                 hotkey(Key::Escape),
             )

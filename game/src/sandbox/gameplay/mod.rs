@@ -281,14 +281,20 @@ fn challenge_controller(
 
     let mut rows = vec![ManagedWidget::row(vec![
         ManagedWidget::draw_text(ctx, Text::from(Line(title).size(26))).margin(5),
-        WrappedComposite::svg_button(ctx, "assets/tools/info.svg", "info", None).margin(5),
+        WrappedComposite::svg_button(ctx, "../data/system/assets/tools/info.svg", "info", None)
+            .margin(5),
         ManagedWidget::draw_batch(
             ctx,
             GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
         )
         .margin(5),
-        WrappedComposite::svg_button(ctx, "assets/tools/edit_map.svg", "edit map", lctrl(Key::E))
-            .margin(5),
+        WrappedComposite::svg_button(
+            ctx,
+            "../data/system/assets/tools/edit_map.svg",
+            "edit map",
+            lctrl(Key::E),
+        )
+        .margin(5),
     ])
     .centered()];
     rows.extend(extra_rows);

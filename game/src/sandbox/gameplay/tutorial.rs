@@ -823,7 +823,7 @@ impl TutorialState {
             col.push(
                 WrappedComposite::svg_button(
                     ctx,
-                    "assets/tools/edit_map.svg",
+                    "../data/system/assets/tools/edit_map.svg",
                     "edit map",
                     lctrl(Key::E),
                 )
