@@ -92,7 +92,9 @@ impl<'a> EventCtx<'a> {
         timer.start_iter("upload textures", num_textures);
         for (filename, tex_type) in textures {
             timer.next();
-            let img = image::open(filename).unwrap().to_rgba();
+            let img = image::load_from_memory(&abstutil::slurp_file(filename).unwrap())
+                .unwrap()
+                .to_rgba();
             let dims = img.dimensions();
             dims_to_textures.entry(dims).or_insert_with(Vec::new).push((
                 filename.to_string(),

@@ -151,7 +151,14 @@ impl<'a> Timer<'a> {
 
     // Workaround for borrow checker
     fn selfless_println(maybe_sink: &mut Option<Box<dyn TimerSink + 'a>>, line: String) {
-        println!("{}", line);
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            println!("{}", line);
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            stdweb::console!(log, "%s", &line);
+        }
         if let Some(ref mut sink) = maybe_sink {
             sink.println(line);
         }
@@ -311,8 +318,10 @@ impl<'a> Timer<'a> {
         O: Send,
         F: Send + Clone + Copy,
     {
-        // Here's the sequential equivalent, to conveniently compare times
-        if false {
+        // Here's the sequential equivalent, to conveniently compare times. Also gotta use this in
+        // wasm; no threads.
+        #[cfg(target_arch = "wasm32")]
+        {
             let mut results: Vec<O> = Vec::new();
             self.start_iter(timer_name, requests.len());
             for req in requests {
@@ -322,28 +331,31 @@ impl<'a> Timer<'a> {
             return results;
         }
 
-        scoped_threadpool::Pool::new(num_cpus::get() as u32).scoped(|scope| {
-            let (tx, rx) = std::sync::mpsc::channel();
-            let mut results: Vec<Option<O>> = std::iter::repeat_with(|| None)
-                .take(requests.len())
-                .collect();
-            for (idx, req) in requests.into_iter().enumerate() {
-                let tx = tx.clone();
-                scope.execute(move || {
-                    // TODO Can we catch panics here, dump a better stacktrace? ezgui runner does
-                    // this
-                    tx.send((idx, cb(req))).unwrap();
-                });
-            }
-            drop(tx);
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            scoped_threadpool::Pool::new(num_cpus::get() as u32).scoped(|scope| {
+                let (tx, rx) = std::sync::mpsc::channel();
+                let mut results: Vec<Option<O>> = std::iter::repeat_with(|| None)
+                    .take(requests.len())
+                    .collect();
+                for (idx, req) in requests.into_iter().enumerate() {
+                    let tx = tx.clone();
+                    scope.execute(move || {
+                        // TODO Can we catch panics here, dump a better stacktrace? ezgui runner
+                        // does this
+                        tx.send((idx, cb(req))).unwrap();
+                    });
+                }
+                drop(tx);
 
-            self.start_iter(timer_name, results.len());
-            for (idx, result) in rx.iter() {
-                self.next();
-                results[idx] = Some(result);
-            }
-            results.into_iter().map(|x| x.unwrap()).collect()
-        })
+                self.start_iter(timer_name, results.len());
+                for (idx, result) in rx.iter() {
+                    self.next();
+                    results[idx] = Some(result);
+                }
+                results.into_iter().map(|x| x.unwrap()).collect()
+            })
+        }
     }
 
     // Then the caller passes this in as a reader

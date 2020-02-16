@@ -96,20 +96,11 @@ impl SimFlags {
             (map, sim, rng)
         } else if self.load.starts_with(&abstutil::path_all_raw_maps())
             || self.load.starts_with(&abstutil::path_all_synthetic_maps())
+            || self.load.starts_with(&abstutil::path_all_maps())
         {
             timer.note(format!("Loading map {}", self.load));
 
             let map = Map::new(self.load.clone(), self.use_map_fixes, timer);
-
-            timer.start("create sim");
-            let sim = Sim::new(&map, opts, timer);
-            timer.stop("create sim");
-
-            (map, sim, rng)
-        } else if self.load.starts_with(&abstutil::path_all_maps()) {
-            timer.note(format!("Loading map {}", self.load));
-
-            let map = Map::new(self.load.clone(), false, timer);
 
             timer.start("create sim");
             let sim = Sim::new(&map, opts, timer);

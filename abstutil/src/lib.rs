@@ -17,8 +17,8 @@ pub use crate::error::Error;
 pub use crate::io::{
     basename, deserialize_btreemap, deserialize_multimap, file_exists, find_next_file,
     find_prev_file, list_all_objects, load_all_objects, maybe_read_binary, maybe_read_json,
-    read_binary, read_json, serialize_btreemap, serialize_multimap, serialized_size_bytes, to_json,
-    write_binary, write_json, FileWithProgress,
+    read_binary, read_json, serialize_btreemap, serialize_multimap, serialized_size_bytes,
+    slurp_file, to_json, write_binary, write_json, FileWithProgress,
 };
 pub use crate::logs::Warn;
 pub use crate::random::{fork_rng, WeightedUsizeChoice};

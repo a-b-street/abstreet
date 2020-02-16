@@ -19,7 +19,8 @@ pub fn load_svg(prerender: &Prerender, filename: &str) -> (GeomBatch, Bounds) {
         return pair;
     }
 
-    let svg_tree = usvg::Tree::from_file(&filename, &usvg::Options::default()).unwrap();
+    let raw = abstutil::slurp_file(&filename).unwrap();
+    let svg_tree = usvg::Tree::from_data(&raw, &usvg::Options::default()).unwrap();
     let mut batch = GeomBatch::new();
     match add_svg_inner(&mut batch, svg_tree, HIGH_QUALITY) {
         Ok(bounds) => {
