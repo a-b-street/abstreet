@@ -1,12 +1,13 @@
 use crate::colors;
 use crate::game::{State, Transition};
 use crate::managed::{Callback, ManagedGUIState, WrappedComposite};
-use crate::sandbox::{GameplayMode, SandboxMode};
+use crate::sandbox::{GameplayMode, SandboxMode, TutorialState};
 use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{hotkey, Button, Color, Composite, EventCtx, Key, Line, ManagedWidget, Text};
 use geom::{Duration, Time};
-use sim::{Sim, SimFlags, SimOptions, TripMode};
+use map_model::Map;
+use sim::{Scenario, Sim, SimFlags, SimOptions, TripMode};
 use std::collections::{BTreeMap, HashSet};
 
 // TODO Also have some kind of screenshot to display for each challenge
@@ -260,7 +261,7 @@ impl Tab {
     }
 }
 
-pub fn prebake() {
+pub fn prebake_all() {
     let mut timer = Timer::new("prebake all challenge results");
 
     let mut per_map: BTreeMap<String, Vec<Challenge>> = BTreeMap::new();
@@ -283,30 +284,41 @@ pub fn prebake() {
                     continue;
                 }
                 done_scenarios.insert(scenario.scenario_name.clone());
-                timer.start(format!(
-                    "prebake for {} / {}",
-                    scenario.map_name, scenario.scenario_name
-                ));
 
-                let mut opts = SimOptions::new("prebaked");
-                opts.savestate_every = Some(Duration::hours(1));
-                let mut sim = Sim::new(&map, opts, &mut timer);
-                // Bit of an abuse of this, but just need to fix the rng seed.
-                let mut rng = SimFlags::for_test("prebaked").make_rng();
-                scenario.instantiate(&mut sim, &map, &mut rng, &mut timer);
-                sim.timed_step(&map, Time::END_OF_DAY - Time::START_OF_DAY, &mut timer);
-
-                abstutil::write_binary(
-                    abstutil::path_prebaked_results(&scenario.map_name, &scenario.scenario_name),
-                    sim.get_analytics(),
-                );
-                timer.stop(format!(
-                    "prebake for {} / {}",
-                    scenario.map_name, scenario.scenario_name
-                ));
+                prebake(&map, scenario, &mut timer);
+            }
+        }
+        // TODO A weird hack to glue up tutorial scenarios.
+        if map.get_name() == "montlake" {
+            for scenario in TutorialState::scenarios_to_prebake(&map) {
+                prebake(&map, scenario, &mut timer);
             }
         }
 
         timer.stop(format!("prebake for {}", map_path));
     }
+}
+
+fn prebake(map: &Map, scenario: Scenario, timer: &mut Timer) {
+    timer.start(format!(
+        "prebake for {} / {}",
+        scenario.map_name, scenario.scenario_name
+    ));
+
+    let mut opts = SimOptions::new("prebaked");
+    opts.savestate_every = Some(Duration::hours(1));
+    let mut sim = Sim::new(&map, opts, timer);
+    // Bit of an abuse of this, but just need to fix the rng seed.
+    let mut rng = SimFlags::for_test("prebaked").make_rng();
+    scenario.instantiate(&mut sim, &map, &mut rng, timer);
+    sim.timed_step(&map, Time::END_OF_DAY - Time::START_OF_DAY, timer);
+
+    abstutil::write_binary(
+        abstutil::path_prebaked_results(&scenario.map_name, &scenario.scenario_name),
+        sim.get_analytics(),
+    );
+    timer.stop(format!(
+        "prebake for {} / {}",
+        scenario.map_name, scenario.scenario_name
+    ));
 }

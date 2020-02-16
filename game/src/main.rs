@@ -22,9 +22,8 @@ use sim::SimFlags;
 fn main() {
     let mut args = CmdArgs::new();
 
-    // TODO Lift this out of the game crate entirely.
     if args.enabled("--prebake") {
-        challenges::prebake();
+        challenges::prebake_all();
         return;
     }
 

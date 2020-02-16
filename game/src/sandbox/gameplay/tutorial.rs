@@ -14,8 +14,10 @@ use ezgui::{
     Line, ManagedWidget, Outcome, ScreenPt, Text, VerticalAlignment,
 };
 use geom::{Distance, Duration, PolyLine, Polygon, Pt2D, Statistic, Time};
-use map_model::{BuildingID, IntersectionID, IntersectionType, LaneType, RoadID};
-use sim::{AgentID, BorderSpawnOverTime, CarID, OriginDestination, Scenario, VehicleType};
+use map_model::{BuildingID, IntersectionID, IntersectionType, LaneType, Map, RoadID};
+use sim::{
+    AgentID, Analytics, BorderSpawnOverTime, CarID, OriginDestination, Scenario, VehicleType,
+};
 use std::collections::BTreeSet;
 
 pub struct Tutorial {
@@ -654,6 +656,28 @@ impl Stage {
             )
         }))
     }
+
+    fn spawn_scenario(self, scenario: Scenario) -> Stage {
+        self.spawn(Box::new(move |ui| {
+            let mut timer = Timer::new("spawn scenario with prebaked results");
+            scenario.instantiate(
+                &mut ui.primary.sim,
+                &ui.primary.map,
+                &mut ui.primary.current_flags.sim_flags.make_rng(),
+                &mut timer,
+            );
+
+            let prebaked: Analytics = abstutil::read_binary(
+                abstutil::path_prebaked_results(&scenario.map_name, &scenario.scenario_name),
+                &mut timer,
+            );
+            ui.set_prebaked(Some((
+                scenario.map_name.clone(),
+                scenario.scenario_name.clone(),
+                prebaked,
+            )));
+        }))
+    }
 }
 
 pub struct TutorialState {
@@ -676,8 +700,8 @@ pub struct TutorialState {
     score_delivered: bool,
 }
 
-fn start_bike_lane_scenario(ui: &mut UI) {
-    let mut s = Scenario::empty(&ui.primary.map, "car/bike contention");
+fn make_bike_lane_scenario(map: &Map) -> Scenario {
+    let mut s = Scenario::empty(map, "car vs bike contention");
     s.border_spawn_over_time.push(BorderSpawnOverTime {
         num_peds: 0,
         num_cars: 10,
@@ -688,17 +712,11 @@ fn start_bike_lane_scenario(ui: &mut UI) {
         start_from_border: RoadID(303).backwards(),
         goal: OriginDestination::GotoBldg(BuildingID(3)),
     });
-    s.instantiate(
-        &mut ui.primary.sim,
-        &ui.primary.map,
-        &mut ui.primary.current_flags.sim_flags.make_rng(),
-        &mut Timer::throwaway(),
-    );
-    ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
+    s
 }
 
-fn start_bus_lane_scenario(ui: &mut UI) {
-    let mut s = Scenario::empty(&ui.primary.map, "car/bus contention");
+fn make_bus_lane_scenario(map: &Map) -> Scenario {
+    let mut s = Scenario::empty(map, "car vs bus contention");
     let mut routes = BTreeSet::new();
     routes.insert("43".to_string());
     routes.insert("48".to_string());
@@ -719,13 +737,7 @@ fn start_bus_lane_scenario(ui: &mut UI) {
             goal: OriginDestination::EndOfRoad(RoadID(0).forwards()),
         });
     }
-    s.instantiate(
-        &mut ui.primary.sim,
-        &ui.primary.map,
-        &mut ui.primary.current_flags.sim_flags.make_rng(),
-        &mut Timer::throwaway(),
-    );
-    ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
+    s
 }
 
 fn transition(ctx: &mut EventCtx, ui: &mut UI) -> Transition {
@@ -1082,6 +1094,8 @@ impl TutorialState {
             Stage::interact(Task::LowParking).spawn_randomly(),
         ]);
 
+        let bike_lane_scenario = make_bike_lane_scenario(&ui.primary.map);
+
         state.stages.extend(vec![
             Stage::msg(vec![
                 "Well done!",
@@ -1090,8 +1104,8 @@ impl TutorialState {
                 "(Just watch for a moment.)",
             ])
             .warp_to(ID::Building(BuildingID(543)), None)
-            .spawn(Box::new(start_bike_lane_scenario)),
-            Stage::interact(Task::WatchBikes).spawn(Box::new(start_bike_lane_scenario)),
+            .spawn_scenario(bike_lane_scenario.clone()),
+            Stage::interact(Task::WatchBikes).spawn_scenario(bike_lane_scenario.clone()),
         ]);
 
         let top_center = state.make_top_center(ctx, true);
@@ -1125,10 +1139,11 @@ impl TutorialState {
                  final score.",
             ])
             .arrow(agent_meter.composite.center_of_panel()),
-            Stage::interact(Task::FixBikes).spawn(Box::new(start_bike_lane_scenario)),
+            Stage::interact(Task::FixBikes).spawn_scenario(bike_lane_scenario),
         ]);
 
         if false {
+            let bus_lane_scenario = make_bus_lane_scenario(&ui.primary.map);
             // TODO There's no clear measurement for how well the buses are doing.
             // TODO Probably want a steady stream of the cars appearing
 
@@ -1139,21 +1154,19 @@ impl TutorialState {
                     "Watch what happens to the bus 43 and 48.",
                 ])
                 .warp_to(ID::Building(BuildingID(1979)), Some(0.5))
-                .spawn(Box::new(start_bus_lane_scenario)),
-                Stage::interact(Task::WatchBuses).spawn(Box::new(start_bus_lane_scenario)),
+                .spawn_scenario(bus_lane_scenario.clone()),
+                Stage::interact(Task::WatchBuses).spawn_scenario(bus_lane_scenario.clone()),
             ]);
-            // 9 interacts
 
             state.stages.extend(vec![
                 Stage::msg(vec![
                     "Let's speed up the poor bus! Why not dedicate some bus lanes to it?",
                 ])
                 .warp_to(ID::Building(BuildingID(1979)), Some(0.5))
-                .spawn(Box::new(start_bus_lane_scenario)),
+                .spawn_scenario(bus_lane_scenario.clone()),
                 // TODO By how much?
-                Stage::interact(Task::FixBuses).spawn(Box::new(start_bus_lane_scenario)),
+                Stage::interact(Task::FixBuses).spawn_scenario(bus_lane_scenario),
             ]);
-            // 10 interacts
         }
 
         state.stages.push(Stage::msg(vec![
@@ -1176,5 +1189,10 @@ impl TutorialState {
         // The city is in total crisis. You've only got 10 days to do something before all hell
         // breaks loose and people start kayaking / ziplining / crab-walking / cartwheeling / to
         // work.
+    }
+
+    // TODO Weird hack to prebake.
+    pub fn scenarios_to_prebake(map: &Map) -> Vec<Scenario> {
+        vec![make_bike_lane_scenario(map), make_bus_lane_scenario(map)]
     }
 }

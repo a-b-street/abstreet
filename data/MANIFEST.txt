@@ -132,6 +132,62 @@ b0a3a08cac236734be96330179c40be2  data/input/google_transit_2018_18_08/trips.txt
 6ee699d3fdc218e5be3906ee90160a1d  data/input/google_transit_2018_18_08/fare_attributes.txt
 d7587f76ed2d514d9f925c8b60b30153  data/input/google_transit_2018_18_08/stops.txt
 3d8b080487e096ef417038739acecea5  data/input/google_transit_2018_18_08/agency.txt
+bbd7d9c86c3360807a7326c3d07d864c  data/system/assets/layers/parking_avail.svg
+676e4f938ef8ebe1395c3ee34ac0dd4b  data/system/assets/layers/throughput.svg
+8e0184126ba8a70da58a1f57dd2661b6  data/system/assets/layers/bike_network.svg
+e9a1bcaa265cfb89d276099f491ad4a6  data/system/assets/layers/intersection_delay.svg
+92b1f47816f3f8e4a14c630ada8e1141  data/system/assets/layers/bus_network.svg
+e4d10fa4a66453b7097d906e4616e26b  data/system/assets/meters/car.svg
+9d747979fdc362ac6df0af3c3bbffd15  data/system/assets/meters/bus.svg
+f7facfb678770c416e5529b2b2d066e5  data/system/assets/meters/pedestrian.svg
+44c3cac69d02b773a6df8b861fd9376e  data/system/assets/meters/bike.svg
+fd9dfc89f3554bd490b633916298c385  data/system/assets/pregame/logo.svg
+287a0629e1b11a2287e2fa1d902a6f3f  data/system/assets/pregame/tutorial.svg
+02dd549d1626c6ec941422f460696570  data/system/assets/pregame/sandbox.svg
+8ecaee42baceaf68a1a47ba3273a52eb  data/system/assets/pregame/challenges.png
+41d43d63ee830895eed0a2ef2fa1df7b  data/system/assets/pregame/logo.png
+254d439435ed1b7d01d7a2544fc06b09  data/system/assets/pregame/back.svg
+21145e91a6cb1c36261563e8b5b67dc1  data/system/assets/pregame/quit.svg
+3a5a5796d5ff1d94dc57515f9d808c98  data/system/assets/pregame/challenges.svg
+0fd2bedf0f16076c97738c80e64c7206  data/system/assets/speed/triangle.svg
+6e22ab750a42fadcef4d7e836d8c12c0  data/system/assets/speed/sunset.svg
+cc045df994fa528adafee4f7115fcc0d  data/system/assets/speed/slow_down.svg
+11b856ac818e797ef5e496f38b397cf1  data/system/assets/speed/sunrise.svg
+bc920c3406bd82b4f54b63845fede3ca  data/system/assets/speed/pause.svg
+11cdf641bcffa88cfbcb9bfa3c1542bd  data/system/assets/speed/jump_to_time.svg
+a28c5fa18d32c3325a5f7326fed876fa  data/system/assets/speed/reset.svg
+e348fda658d0fcb6bb8abdcec23d1dab  data/system/assets/speed/speed_up.svg
+d15fe87c4174463e84b9a440162129ed  data/system/assets/tools/undo.svg
+841a6304950389f8ede9581d04c1021f  data/system/assets/tools/visibility.svg
+512477d8556de48901712165e905782f  data/system/assets/tools/locate.svg
+e469148085a2046afd447d31a54d15ab  data/system/assets/tools/search.svg
+fe358c0fdf48b65117f7c4970fa35d91  data/system/assets/tools/settings.svg
+1e0135f13d0aea11650460d6a61b5463  data/system/assets/tools/edit.svg
+cddd0aa7a98d4d511138befe8f56a6b7  data/system/assets/tools/delete.svg
+13c640d3aef2067470c81cc324e91a30  data/system/assets/tools/shortcuts.svg
+4221e3cc98b20265d9bbbe551a018fa6  data/system/assets/tools/redo.svg
+21b36a364bee7066abfb4b9045277600  data/system/assets/tools/save.svg
+0a58c62abf259b9082c054ac6cbefddd  data/system/assets/tools/layers.svg
+54a0052191997bae5237b67318555307  data/system/assets/tools/home.svg
+db1bfe4e2c3331cd2a8cbea30127ddc4  data/system/assets/tools/edit_map.svg
+9186d38868a7b02d97d21c4521ad581f  data/system/assets/tools/info.svg
+c2d2cf72d0058b898fb508c6ea175cf1  data/system/assets/map/parking.svg
+129a465d2ee86e4d6d568d1e58d8bce7  data/system/assets/map/dont_walk.svg
+c3fa1600a398928d248cf5d96f63d294  data/system/assets/map/parked_car.svg
+c09a5debd42b9c673c6b681c62ebf861  data/system/assets/map/bus_only.svg
+8b0ef0778d81a4ad5496b34d24e6eb01  data/system/assets/map/walk.svg
+ef57ec8ce198dddc0d6289a15dd68104  data/system/assets/edit/bus.svg
+1ef84103f508ac1695dffda6fd0600d4  data/system/assets/edit/construction.svg
+90cb164f6cdc56993f0e68932e3b876c  data/system/assets/edit/bike.svg
+9a7495959b0e0a6ede402329a82e5e1d  data/system/assets/edit/contraflow.svg
+f71b2ce735102531e11934781fe748b1  data/system/assets/edit/parking.svg
+2f15de4a863cc755984726da0c29c0a4  data/system/assets/edit/driving.svg
+cad08c84562d640c5a4d4e45cd3731b2  data/system/assets/minimap/right.svg
+39eb3adcf91244c50092f0aad6628e1a  data/system/assets/minimap/left.svg
+65c3dfeadeb35e91f45038292226ab36  data/system/assets/minimap/zoom_in_fully.svg
+55598346b4b038899f8972d7468a20a6  data/system/assets/minimap/down.svg
+e761e1d1f6c9b8befe53296e0411cef2  data/system/assets/minimap/zoom_out_fully.svg
+9caf97939884d4859accca34265f45fb  data/system/assets/minimap/up.svg
 a5e849fa8883569519976ebfef3ae269  data/system/night_colors.json
 1909af5ebfefe7ad4102335c9e789d24  data/system/override_colors.json
 517a360397bbb5a7573c2558e78fa4ea  data/system/fonts/DejaVuSans.ttf
@@ -152,7 +208,9 @@ f9f0a109966db097617a13122ecaa6f3  data/system/scenarios/downtown/weekday.bin
 dd54763cfda7fce4c401ae122c6daf57  data/system/scenarios/huge_seattle/weekday.bin
 47dea892a1c4331da02494d15ce02a02  data/system/scenarios/caphill/weekday.bin
 7d6a8e8f5d716ce8674ed63d27f2da51  data/system/scenarios/montlake/weekday.bin
-8bf8ddb00479aa0dea08bfa3eeb0978b  data/system/prebaked_results/23rd/weekday.bin
-1cca5ea035284433ddf0ba357df919ce  data/system/prebaked_results/signal_single/tutorial lvl1.bin
-bff631e1d02bc82d5e5ab8d58c71f186  data/system/prebaked_results/signal_single/tutorial lvl2.bin
-12b02b6543d44a5e5b6f73295034a743  data/system/prebaked_results/montlake/weekday.bin
+80be03bcfdbb24d809d53b1ad9105b84  data/system/prebaked_results/23rd/weekday.bin
+d68c8f3beb5915c359228e38112c970b  data/system/prebaked_results/signal_single/tutorial lvl1.bin
+a6437680221c61b92964c3f376b76809  data/system/prebaked_results/signal_single/tutorial lvl2.bin
+ffc3199512974f67299bfa2a262df6c6  data/system/prebaked_results/montlake/car vs bike contention.bin
+b21a3366793c9295a8c6b6050eac778f  data/system/prebaked_results/montlake/weekday.bin
+0c0bade4ea0fe2fd1d31278a0f8fb3eb  data/system/prebaked_results/montlake/car vs bus contention.bin
