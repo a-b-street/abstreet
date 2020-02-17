@@ -17,7 +17,7 @@ use crate::game::{msg, State, Transition};
 use crate::managed::WrappedComposite;
 use crate::pregame::main_menu;
 use crate::render::{AgentColorScheme, InnerAgentColorScheme};
-use crate::sandbox::{SandboxControls, SandboxMode};
+use crate::sandbox::{SandboxControls, SandboxMode, ScoreCard};
 use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{
@@ -71,8 +71,8 @@ pub trait GameplayState: downcast_rs::Downcast {
     fn has_speed(&self) -> bool {
         true
     }
-    fn get_agent_meter_params(&self) -> Option<bool> {
-        Some(false)
+    fn get_agent_meter_params(&self) -> Option<Option<ScoreCard>> {
+        Some(None)
     }
     fn has_minimap(&self) -> bool {
         true

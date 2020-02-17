@@ -360,15 +360,20 @@ fn exit_sandbox(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
     Some(Transition::Clear(vec![main_menu(ctx, ui)]))
 }
 
+#[derive(Clone, Copy)]
+pub struct ScoreCard {
+    pub stat: Statistic,
+    pub goal: Duration,
+}
+
 pub struct AgentMeter {
     time: Time,
     pub composite: Composite,
-    // TODO Way more options than this...
-    pub show_score: bool,
+    pub show_score: Option<ScoreCard>,
 }
 
 impl AgentMeter {
-    pub fn new(ctx: &mut EventCtx, ui: &UI, show_score: bool) -> AgentMeter {
+    pub fn new(ctx: &mut EventCtx, ui: &UI, show_score: Option<ScoreCard>) -> AgentMeter {
         let (finished, unfinished, by_mode) = ui.primary.sim.num_trips();
 
         let mut rows = vec![
@@ -392,26 +397,28 @@ impl AgentMeter {
             // TODO The SVG button uses clip and doesn't seem to work
             WrappedComposite::text_button(ctx, "finished trip data", hotkey(Key::Q)),
         ];
-        if show_score {
-            let (now, _, _) = ui
-                .primary
-                .sim
-                .get_analytics()
-                .all_finished_trips(ui.primary.sim.time());
-            let (baseline, _, _) = ui.prebaked().all_finished_trips(ui.primary.sim.time());
-            let mut txt = Text::from(Line("Average trip time: ").size(20));
-            if now.count() > 0 && baseline.count() > 0 {
-                txt.append_all(cmp_duration_shorter(
-                    now.select(Statistic::Mean),
-                    baseline.select(Statistic::Mean),
-                ));
-            } else {
-                txt.append(Line("same as baseline"));
+        // TODO Slight hack. If we're jumping right into a tutorial and don't have the prebaked
+        // stuff loaded yet, just skip a tick.
+        if ui.has_prebaked().is_some() {
+            if let Some(ScoreCard { stat, goal }) = show_score {
+                let (now, _, _) = ui
+                    .primary
+                    .sim
+                    .get_analytics()
+                    .all_finished_trips(ui.primary.sim.time());
+                let (baseline, _, _) = ui.prebaked().all_finished_trips(ui.primary.sim.time());
+                let mut txt = Text::from(Line(format!("{} trip time: ", stat)).size(20));
+                if now.count() > 0 && baseline.count() > 0 {
+                    txt.append_all(cmp_duration_shorter(
+                        now.select(stat),
+                        baseline.select(stat),
+                    ));
+                } else {
+                    txt.append(Line("same as baseline"));
+                }
+                txt.add(Line(format!("Goal: {} faster", goal)).size(20));
+                rows.push(ManagedWidget::draw_text(ctx, txt));
             }
-            // TODO Definitely parameterized more ;)
-            const GOAL: Duration = Duration::const_seconds(30.0);
-            txt.add(Line(format!("Goal: {} faster", GOAL)).size(20));
-            rows.push(ManagedWidget::draw_text(ctx, txt));
         }
 
         let composite = Composite::new(ManagedWidget::col(rows).bg(colors::PANEL_BG).padding(20))

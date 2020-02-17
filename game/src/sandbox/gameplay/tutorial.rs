@@ -5,8 +5,10 @@ use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use crate::managed::WrappedComposite;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
-use crate::sandbox::{spawn_agents_around, AgentMeter, SpeedControls, TimePanel};
-use crate::sandbox::{SandboxControls, SandboxMode};
+use crate::sandbox::{
+    spawn_agents_around, AgentMeter, SandboxControls, SandboxMode, ScoreCard, SpeedControls,
+    TimePanel,
+};
 use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{
@@ -521,9 +523,16 @@ impl GameplayState for Tutorial {
     fn has_speed(&self) -> bool {
         self.last_finished_task >= Task::InspectObjects
     }
-    fn get_agent_meter_params(&self) -> Option<bool> {
+    fn get_agent_meter_params(&self) -> Option<Option<ScoreCard>> {
         if self.last_finished_task >= Task::PauseResume {
-            Some(false)
+            if self.last_finished_task == Task::WatchBikes {
+                Some(Some(ScoreCard {
+                    stat: Statistic::Max,
+                    goal: Duration::seconds(45.0),
+                }))
+            } else {
+                Some(None)
+            }
         } else {
             None
         }
@@ -979,7 +988,7 @@ impl TutorialState {
         let tool_panel = tool_panel(ctx);
         let time = TimePanel::new(ctx, ui);
         let speed = SpeedControls::new(ctx);
-        let agent_meter = AgentMeter::new(ctx, ui, false);
+        let agent_meter = AgentMeter::new(ctx, ui, None);
         // The minimap is hidden at low zoom levels
         let orig_zoom = ctx.canvas.cam_zoom;
         ctx.canvas.cam_zoom = 100.0;

@@ -2,7 +2,7 @@ use crate::common::Overlays;
 use crate::game::Transition;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::gameplay::{challenge_controller, FinalScore, GameplayMode, GameplayState};
-use crate::sandbox::SandboxControls;
+use crate::sandbox::{SandboxControls, ScoreCard};
 use crate::ui::UI;
 use ezgui::{EventCtx, GfxCtx};
 use geom::{Duration, Statistic, Time};
@@ -72,8 +72,11 @@ impl GameplayState for FixTrafficSignals {
         self.top_center.draw(g);
     }
 
-    fn get_agent_meter_params(&self) -> Option<bool> {
-        Some(true)
+    fn get_agent_meter_params(&self) -> Option<Option<ScoreCard>> {
+        Some(Some(ScoreCard {
+            stat: Statistic::Mean,
+            goal: GOAL,
+        }))
     }
 }
 
