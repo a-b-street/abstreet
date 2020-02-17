@@ -15,6 +15,8 @@ pub struct Analytics {
     pub(crate) test_expectations: VecDeque<Event>,
     pub bus_arrivals: Vec<(Time, CarID, BusRouteID, BusStopID)>,
     pub bus_passengers_waiting: Vec<(Time, BusStopID, BusRouteID)>,
+    // TODO Scraping TripMode from TripPhaseStarting is frustrating.
+    pub started_trips: BTreeMap<TripID, (Time, TripMode)>,
     // TODO Hack: No TripMode means aborted
     // Finish time, ID, mode (or None as aborted), trip duration
     pub finished_trips: Vec<(Time, TripID, Option<TripMode>, Duration)>,
@@ -55,6 +57,7 @@ impl Analytics {
             test_expectations: VecDeque::new(),
             bus_arrivals: Vec::new(),
             bus_passengers_waiting: Vec::new(),
+            started_trips: BTreeMap::new(),
             finished_trips: Vec::new(),
             trip_log: Vec::new(),
             intersection_delays: BTreeMap::new(),
@@ -112,6 +115,19 @@ impl Analytics {
             self.bus_passengers_waiting.push((time, stop, route));
         }
 
+        // Started trips
+        if let Event::TripPhaseStarting(id, mode, _, _) = ev {
+            // TODO More efficiently
+            if !self.started_trips.contains_key(&id)
+                && !self
+                    .finished_trips
+                    .iter()
+                    .any(|(_, trip, _, _)| *trip == id)
+            {
+                self.started_trips.insert(id, (time, mode));
+            }
+        }
+
         // Finished trips
         if let Event::TripFinished(id, mode, dt) = ev {
             self.finished_trips.push((time, id, Some(mode), dt));
@@ -129,7 +145,7 @@ impl Analytics {
 
         // TODO Kinda hacky, but these all consume the event, so kinda bundle em.
         match ev {
-            Event::TripPhaseStarting(id, maybe_req, metadata) => {
+            Event::TripPhaseStarting(id, _, maybe_req, metadata) => {
                 self.trip_log.push((time, id, maybe_req, metadata));
             }
             Event::TripAborted(id) => {
@@ -160,21 +176,9 @@ impl Analytics {
     // TODO If these ever need to be speeded up, just cache the histogram and index in the events
     // list.
 
-    pub fn finished_trips(&self, now: Time, mode: TripMode) -> DurationHistogram {
-        let mut distrib = DurationHistogram::new();
-        for (t, _, m, dt) in &self.finished_trips {
-            if *t > now {
-                break;
-            }
-            if *m == Some(mode) {
-                distrib.add(*dt);
-            }
-        }
-        distrib
-    }
-
-    // Returns (all trips except aborted, number of aborted trips, trips by mode)
-    pub fn all_finished_trips(
+    // Returns (all trips except aborted, number of aborted trips, trips by mode). For completed
+    // and ongoing trips as of now.
+    pub fn trip_times(
         &self,
         now: Time,
     ) -> (
@@ -182,16 +186,18 @@ impl Analytics {
         usize,
         BTreeMap<TripMode, DurationHistogram>,
     ) {
+        let mut ongoing = self.started_trips.clone();
         let mut per_mode = TripMode::all()
             .into_iter()
             .map(|m| (m, DurationHistogram::new()))
             .collect::<BTreeMap<_, _>>();
         let mut all = DurationHistogram::new();
         let mut num_aborted = 0;
-        for (t, _, m, dt) in &self.finished_trips {
+        for (t, id, m, dt) in &self.finished_trips {
             if *t > now {
                 break;
             }
+            ongoing.remove(id);
             if let Some(mode) = *m {
                 all.add(*dt);
                 per_mode.get_mut(&mode).unwrap().add(*dt);
@@ -199,35 +205,42 @@ impl Analytics {
                 num_aborted += 1;
             }
         }
+        for (_, (start, m)) in ongoing {
+            if start < now {
+                all.add(now - start);
+                per_mode.get_mut(&m).unwrap().add(now - start);
+            }
+        }
         (all, num_aborted, per_mode)
     }
 
-    // Returns unsorted list of deltas, one for each trip finished in both worlds. Positive dt
-    // means faster.
-    pub fn finished_trip_deltas(&self, now: Time, baseline: &Analytics) -> Vec<Duration> {
-        let a: BTreeMap<TripID, Duration> = self
-            .finished_trips
-            .iter()
-            .filter_map(|(t, id, mode, dt)| {
-                if *t <= now && mode.is_some() {
-                    Some((*id, *dt))
-                } else {
-                    None
+    // Returns unsorted list of deltas, one for each trip finished or ongoing in both worlds.
+    // Positive dt means faster.
+    pub fn trip_time_deltas(&self, now: Time, baseline: &Analytics) -> Vec<Duration> {
+        fn trip_times(a: &Analytics, now: Time) -> BTreeMap<TripID, Duration> {
+            let mut ongoing = a.started_trips.clone();
+            let mut trips = BTreeMap::new();
+            for (t, id, m, dt) in &a.finished_trips {
+                if *t > now {
+                    break;
                 }
-            })
-            .collect();
-        let b: BTreeMap<TripID, Duration> = baseline
-            .finished_trips
-            .iter()
-            .filter_map(|(t, id, mode, dt)| {
-                if *t <= now && mode.is_some() {
-                    Some((*id, *dt))
-                } else {
-                    None
+                ongoing.remove(id);
+                if m.is_some() {
+                    trips.insert(*id, *dt);
                 }
-            })
-            .collect();
+            }
+            for (trip, (start, _)) in ongoing {
+                if start < now {
+                    trips.insert(trip, now - start);
+                }
+            }
+            trips
+        }
 
+        let a = trip_times(&self, now);
+        let b = trip_times(baseline, now);
+
+        // TODO Think through what missing (aborted) in one but not the other means
         a.into_iter()
             .filter_map(|(id, dt1)| b.get(&id).map(|dt2| *dt2 - dt1))
             .collect()

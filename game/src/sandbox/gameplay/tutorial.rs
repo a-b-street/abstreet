@@ -387,7 +387,7 @@ impl GameplayState for Tutorial {
                     .primary
                     .sim
                     .get_analytics()
-                    .all_finished_trips(ui.primary.sim.time());
+                    .trip_times(ui.primary.sim.time());
                 let max = all.select(Statistic::Max);
 
                 if !tut.score_delivered {

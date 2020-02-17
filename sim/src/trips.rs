@@ -351,6 +351,7 @@ impl TripManager {
                 self.events.push(Event::PedReachedBusStop(ped, stop, route));
                 self.events.push(Event::TripPhaseStarting(
                     trip.id,
+                    trip.mode,
                     None,
                     format!("waiting for bus {}", map.get_br(route).name),
                 ));

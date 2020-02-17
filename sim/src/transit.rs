@@ -1,4 +1,6 @@
-use crate::{CarID, Event, PedestrianID, Router, Scheduler, TripManager, WalkingSimState};
+use crate::{
+    CarID, Event, PedestrianID, Router, Scheduler, TripManager, TripMode, WalkingSimState,
+};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Time};
 use map_model::{
@@ -184,6 +186,7 @@ impl TransitSimState {
                         let trip = trips.ped_boarded_bus(ped, walking);
                         self.events.push(Event::TripPhaseStarting(
                             trip,
+                            TripMode::Transit,
                             Some(PathRequest {
                                 start: map.get_bs(stop1).driving_pos,
                                 end: map.get_bs(stop2).driving_pos,

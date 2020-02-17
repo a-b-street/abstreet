@@ -27,7 +27,7 @@ pub enum Event {
 
     TripFinished(TripID, TripMode, Duration),
     TripAborted(TripID),
-    TripPhaseStarting(TripID, Option<PathRequest>, String),
+    TripPhaseStarting(TripID, TripMode, Option<PathRequest>, String),
 
     // Just use for parking replanning. Not happy about copying the full path in here, but the way
     // to plumb info into Analytics is Event.

@@ -395,7 +395,7 @@ impl AgentMeter {
                 ManagedWidget::draw_text(ctx, txt)
             },
             // TODO The SVG button uses clip and doesn't seem to work
-            WrappedComposite::text_button(ctx, "finished trip data", hotkey(Key::Q)),
+            WrappedComposite::text_button(ctx, "finished trips data", hotkey(Key::Q)),
         ];
         // TODO Slight hack. If we're jumping right into a tutorial and don't have the prebaked
         // stuff loaded yet, just skip a tick.
@@ -405,8 +405,8 @@ impl AgentMeter {
                     .primary
                     .sim
                     .get_analytics()
-                    .all_finished_trips(ui.primary.sim.time());
-                let (baseline, _, _) = ui.prebaked().all_finished_trips(ui.primary.sim.time());
+                    .trip_times(ui.primary.sim.time());
+                let (baseline, _, _) = ui.prebaked().trip_times(ui.primary.sim.time());
                 let mut txt = Text::from(Line(format!("{} trip time: ", stat)).size(20));
                 if now.count() > 0 && baseline.count() > 0 {
                     txt.append_all(cmp_duration_shorter(
@@ -439,11 +439,11 @@ impl AgentMeter {
         }
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "finished trip data" => {
+                "finished trips data" => {
                     return Some(Transition::Push(dashboards::make(
                         ctx,
                         ui,
-                        dashboards::Tab::FinishedTripsSummary,
+                        dashboards::Tab::TripsSummary,
                     )));
                 }
                 _ => unreachable!(),

@@ -1,5 +1,5 @@
 use crate::mechanics::Queue;
-use crate::{Event, ParkingSimState, ParkingSpot, SidewalkSpot, TripID, Vehicle};
+use crate::{Event, ParkingSimState, ParkingSpot, SidewalkSpot, TripID, TripMode, Vehicle};
 use geom::Distance;
 use map_model::{
     BuildingID, IntersectionID, LaneID, Map, Path, PathConstraints, PathRequest, PathStep,
@@ -194,6 +194,7 @@ impl Router {
                     ) {
                         events.push(Event::TripPhaseStarting(
                             trip,
+                            TripMode::Drive,
                             Some(PathRequest {
                                 start: Position::new(current_lane, front),
                                 end: new_pos,
@@ -214,6 +215,7 @@ impl Router {
                             // TODO This path might not be the same as the one found here...
                             events.push(Event::TripPhaseStarting(
                                 trip,
+                                TripMode::Drive,
                                 Some(PathRequest {
                                     start: Position::new(current_lane, front),
                                     end: new_pos,

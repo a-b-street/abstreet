@@ -42,7 +42,7 @@ impl GameplayState for FixTrafficSignals {
     ) -> (Option<Transition>, bool) {
         // Once is never...
         if self.once {
-            ui.overlay = Overlays::finished_trips_histogram(ctx, ui);
+            ui.overlay = Overlays::trips_histogram(ctx, ui);
             self.once = false;
         }
 
@@ -86,14 +86,10 @@ fn final_score(ui: &UI) -> String {
         .primary
         .sim
         .get_analytics()
-        .all_finished_trips(time)
+        .trip_times(time)
         .0
         .select(Statistic::Mean);
-    let baseline = ui
-        .prebaked()
-        .all_finished_trips(time)
-        .0
-        .select(Statistic::Mean);
+    let baseline = ui.prebaked().trip_times(time).0.select(Statistic::Mean);
 
     if now < baseline - GOAL {
         format!(

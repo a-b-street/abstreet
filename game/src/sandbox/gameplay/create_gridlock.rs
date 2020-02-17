@@ -76,14 +76,13 @@ fn gridlock_panel(ui: &UI) -> Text {
         .primary
         .sim
         .get_analytics()
-        .all_finished_trips(ui.primary.sim.time());
-    let (baseline_all, _, baseline_per_mode) =
-        ui.prebaked().all_finished_trips(ui.primary.sim.time());
+        .trip_times(ui.primary.sim.time());
+    let (baseline_all, _, baseline_per_mode) = ui.prebaked().trip_times(ui.primary.sim.time());
 
     let mut txt = Text::new();
     txt.add_appended(vec![
         Line(format!(
-            "{} total finished trips (",
+            "{} total trips (",
             prettyprint_usize(now_all.count())
         )),
         cmp_count_fewer(now_all.count(), baseline_all.count()),

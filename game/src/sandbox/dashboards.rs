@@ -19,7 +19,7 @@ use std::collections::BTreeMap;
 
 #[derive(PartialEq, Clone, Copy)]
 pub enum Tab {
-    FinishedTripsSummary,
+    TripsSummary,
     IndividualFinishedTrips(Option<TripMode>),
     ParkingOverhead,
     ExploreBusRoute,
@@ -28,7 +28,7 @@ pub enum Tab {
 // Oh the dashboards melted, but we still had the radio
 pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
     let tab_data = vec![
-        (Tab::FinishedTripsSummary, "Finished trips summary"),
+        (Tab::TripsSummary, "Trips summary"),
         (
             Tab::IndividualFinishedTrips(None),
             "Individual finished trips",
@@ -50,7 +50,7 @@ pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
         .collect::<Vec<_>>();
 
     let (content, cbs) = match tab {
-        Tab::FinishedTripsSummary => (finished_trips_summary_prebaked(ctx, ui), Vec::new()),
+        Tab::TripsSummary => (trips_summary_prebaked(ctx, ui), Vec::new()),
         Tab::IndividualFinishedTrips(None) => pick_finished_trips_mode(ctx),
         Tab::IndividualFinishedTrips(Some(m)) => pick_finished_trips(m, ctx, ui),
         Tab::ParkingOverhead => (parking_overhead(ctx, ui), Vec::new()),
@@ -91,25 +91,26 @@ pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
     ManagedGUIState::fullscreen(c)
 }
 
-fn finished_trips_summary_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
+fn trips_summary_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
     if ui.has_prebaked().is_none() {
-        return finished_trips_summary_not_prebaked(ctx, ui);
+        return trips_summary_not_prebaked(ctx, ui);
     }
 
     let (now_all, now_aborted, now_per_mode) = ui
         .primary
         .sim
         .get_analytics()
-        .all_finished_trips(ui.primary.sim.time());
+        .trip_times(ui.primary.sim.time());
     let (baseline_all, baseline_aborted, baseline_per_mode) =
-        ui.prebaked().all_finished_trips(ui.primary.sim.time());
+        ui.prebaked().trip_times(ui.primary.sim.time());
 
     // TODO Include unfinished count
     let mut txt = Text::new();
     txt.add_appended(vec![
-        Line("Finished trips as of "),
-        Line(ui.primary.sim.time().ampm_tostring()).fg(Color::CYAN),
+        Line("Trips as of "),
+        Line(ui.primary.sim.time().ampm_tostring()).roboto_bold(),
     ]);
+    txt.highlight_last_line(Color::BLUE);
     txt.add_appended(vec![
         Line(format!(
             "{} aborted trips (",
@@ -121,7 +122,7 @@ fn finished_trips_summary_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
     // TODO Refactor
     txt.add_appended(vec![
         Line(format!(
-            "{} total finished trips (",
+            "{} total trips (",
             prettyprint_usize(now_all.count())
         )),
         cmp_count_more(now_all.count(), baseline_all.count()),
@@ -129,7 +130,8 @@ fn finished_trips_summary_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
     ]);
     if now_all.count() > 0 && baseline_all.count() > 0 {
         for stat in Statistic::all() {
-            txt.add(Line(format!("  {}: {} (", stat, now_all.select(stat))));
+            // TODO Ideally we could indent
+            txt.add(Line(format!("{}: {} (", stat, now_all.select(stat))));
             txt.append_all(cmp_duration_shorter(
                 now_all.select(stat),
                 baseline_all.select(stat),
@@ -146,9 +148,10 @@ fn finished_trips_summary_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
             cmp_count_more(a.count(), b.count()),
             Line(")"),
         ]);
+        txt.highlight_last_line(Color::BLUE);
         if a.count() > 0 && b.count() > 0 {
             for stat in Statistic::all() {
-                txt.add(Line(format!("  {}: {} (", stat, a.select(stat))));
+                txt.add(Line(format!("{}: {} (", stat, a.select(stat))));
                 txt.append_all(cmp_duration_shorter(a.select(stat), b.select(stat)));
                 txt.append(Line(")"));
             }
@@ -160,45 +163,44 @@ fn finished_trips_summary_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
         finished_trips_plot(ctx, ui).bg(colors::SECTION_BG),
         ManagedWidget::draw_text(
             ctx,
-            Text::from(Line(
-                "Are finished trips faster or slower than the baseline?",
-            )),
+            Text::from(Line("Are trips faster or slower than the baseline?")),
         ),
         Histogram::new(
             ui.primary
                 .sim
                 .get_analytics()
-                .finished_trip_deltas(ui.primary.sim.time(), ui.prebaked()),
+                .trip_time_deltas(ui.primary.sim.time(), ui.prebaked()),
             ctx,
         )
         .bg(colors::SECTION_BG),
     ])
 }
 
-fn finished_trips_summary_not_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
+fn trips_summary_not_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
     let (all, aborted, per_mode) = ui
         .primary
         .sim
         .get_analytics()
-        .all_finished_trips(ui.primary.sim.time());
+        .trip_times(ui.primary.sim.time());
 
     // TODO Include unfinished count
     let mut txt = Text::new();
     txt.add_appended(vec![
-        Line("Finished trips as of "),
-        Line(ui.primary.sim.time().ampm_tostring()).fg(Color::CYAN),
+        Line("Trips as of "),
+        Line(ui.primary.sim.time().ampm_tostring()).roboto_bold(),
     ]);
+    txt.highlight_last_line(Color::BLUE);
     txt.add(Line(format!(
-        "  {} aborted trips",
+        "{} aborted trips",
         prettyprint_usize(aborted)
     )));
     txt.add(Line(format!(
-        "{} total finished trips",
+        "{} total trips",
         prettyprint_usize(all.count())
     )));
     if all.count() > 0 {
         for stat in Statistic::all() {
-            txt.add(Line(format!("  {}: {}", stat, all.select(stat))));
+            txt.add(Line(format!("{}: {}", stat, all.select(stat))));
         }
     }
 
@@ -209,9 +211,10 @@ fn finished_trips_summary_not_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget
             prettyprint_usize(a.count()),
             mode
         )));
+        txt.highlight_last_line(Color::BLUE);
         if a.count() > 0 {
             for stat in Statistic::all() {
-                txt.add(Line(format!("  {}: {}", stat, a.select(stat))));
+                txt.add(Line(format!("{}: {}", stat, a.select(stat))));
             }
         }
     }

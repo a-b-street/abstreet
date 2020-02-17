@@ -65,8 +65,15 @@ impl GameplayState for FasterTrips {
 
 pub fn faster_trips_panel(mode: TripMode, ui: &UI) -> Text {
     let time = ui.primary.sim.time();
-    let now = ui.primary.sim.get_analytics().finished_trips(time, mode);
-    let baseline = ui.prebaked().finished_trips(time, mode);
+    let now = ui
+        .primary
+        .sim
+        .get_analytics()
+        .trip_times(time)
+        .2
+        .remove(&mode)
+        .unwrap();
+    let baseline = ui.prebaked().trip_times(time).2.remove(&mode).unwrap();
 
     // Enable to debug why sim results don't match prebaked.
     if false && !now.seems_eq(&baseline) {
@@ -88,7 +95,7 @@ pub fn faster_trips_panel(mode: TripMode, ui: &UI) -> Text {
     let mut txt = Text::new();
     txt.add_appended(vec![
         Line(format!(
-            "{} finished {} trips (",
+            "{} {} trips (",
             prettyprint_usize(now.count()),
             mode
         )),

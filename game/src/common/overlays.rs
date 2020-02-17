@@ -24,7 +24,7 @@ pub enum Overlays {
     BikeNetwork(Colorer),
     BusNetwork(Colorer),
     Edits(Colorer),
-    FinishedTripsHistogram(Time, Composite),
+    TripsHistogram(Time, Composite),
 
     // These aren't selectable from the main picker
     IntersectionDemand(Time, IntersectionID, Drawable, Composite),
@@ -58,9 +58,9 @@ impl Overlays {
                     ui.overlay = Overlays::intersection_demand(i, ctx, ui);
                 }
             }
-            Overlays::FinishedTripsHistogram(t, _) => {
+            Overlays::TripsHistogram(t, _) => {
                 if now != t {
-                    ui.overlay = Overlays::finished_trips_histogram(ctx, ui);
+                    ui.overlay = Overlays::trips_histogram(ctx, ui);
                 }
             }
             Overlays::BusRoute(t, id, _) => {
@@ -154,7 +154,7 @@ impl Overlays {
                     }
                 }
             }
-            Overlays::FinishedTripsHistogram(_, ref mut c)
+            Overlays::TripsHistogram(_, ref mut c)
             | Overlays::BusDelaysOverTime(_, _, ref mut c) => {
                 c.align_above(ctx, minimap);
                 match c.event(ctx) {
@@ -186,7 +186,7 @@ impl Overlays {
             | Overlays::Edits(ref heatmap) => {
                 heatmap.draw(g);
             }
-            Overlays::FinishedTripsHistogram(_, ref composite)
+            Overlays::TripsHistogram(_, ref composite)
             | Overlays::BusDelaysOverTime(_, _, ref composite) => {
                 composite.draw(g);
             }
@@ -219,7 +219,7 @@ impl Overlays {
     pub fn change_overlays(ctx: &mut EventCtx, ui: &UI) -> Option<Transition> {
         let mut choices = vec![
             WrappedComposite::text_button(ctx, "None", hotkey(Key::N)),
-            WrappedComposite::text_button(ctx, "finished trips histogram", hotkey(Key::F)),
+            WrappedComposite::text_button(ctx, "trip times histogram", hotkey(Key::F)),
             WrappedComposite::text_button(ctx, "map edits", hotkey(Key::E)),
             ManagedWidget::btn(Button::rectangle_svg(
                 "../data/system/assets/layers/parking_avail.svg",
@@ -258,7 +258,7 @@ impl Overlays {
             )),
         ];
         if ui.has_prebaked().is_none() {
-            choices.retain(|w| !w.has_name("finished trips histogram"));
+            choices.retain(|w| !w.has_name("trip times histogram"));
         }
         // TODO Grey out the inactive SVGs, and add the green checkmark
         if let Some((find, replace)) = match ui.overlay {
@@ -284,9 +284,9 @@ impl Overlays {
                 ManagedWidget::draw_svg(ctx, "../data/system/assets/layers/bus_network.svg"),
             )),
             Overlays::Edits(_) => Some(("map edits", Button::inactive_button(ctx, "map edits"))),
-            Overlays::FinishedTripsHistogram(_, _) => Some((
-                "finished trips histogram",
-                Button::inactive_button(ctx, "finished trips histogram"),
+            Overlays::TripsHistogram(_, _) => Some((
+                "trip times histogram",
+                Button::inactive_button(ctx, "trip times histogram"),
             )),
             _ => None,
         } {
@@ -358,9 +358,9 @@ impl Overlays {
             }),
         )
         .maybe_cb(
-            "finished trips histogram",
+            "trip times histogram",
             Box::new(|ctx, ui| {
-                ui.overlay = Overlays::finished_trips_histogram(ctx, ui);
+                ui.overlay = Overlays::trips_histogram(ctx, ui);
                 Some(Transition::Pop)
             }),
         )
@@ -567,19 +567,19 @@ impl Overlays {
         Overlays::BusNetwork(colorer.build(ctx, ui))
     }
 
-    pub fn finished_trips_histogram(ctx: &mut EventCtx, ui: &UI) -> Overlays {
+    pub fn trips_histogram(ctx: &mut EventCtx, ui: &UI) -> Overlays {
         if ui.has_prebaked().is_none() {
             return Overlays::Inactive;
         }
 
         let now = ui.primary.sim.time();
-        Overlays::FinishedTripsHistogram(
+        Overlays::TripsHistogram(
             now,
             Composite::new(
                 ManagedWidget::col(vec![
                     ManagedWidget::row(vec![
                         ManagedWidget::draw_text(ctx, {
-                            let mut txt = Text::from(Line("Are finished trips "));
+                            let mut txt = Text::from(Line("Are trips "));
                             txt.append(Line("faster").fg(Color::GREEN));
                             txt.append(Line(", "));
                             txt.append(Line("slower").fg(Color::RED));
@@ -595,7 +595,7 @@ impl Overlays {
                         ui.primary
                             .sim
                             .get_analytics()
-                            .finished_trip_deltas(now, ui.prebaked()),
+                            .trip_time_deltas(now, ui.prebaked()),
                         ctx,
                     ),
                 ])
