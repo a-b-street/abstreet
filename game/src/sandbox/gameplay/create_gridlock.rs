@@ -3,6 +3,7 @@ use crate::helpers::cmp_count_fewer;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::InnerAgentColorScheme;
 use crate::sandbox::gameplay::{challenge_controller, manage_acs, GameplayMode, GameplayState};
+use crate::sandbox::SandboxControls;
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{hotkey, layout, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
@@ -32,10 +33,15 @@ impl CreateGridlock {
 }
 
 impl GameplayState for CreateGridlock {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        ui: &mut UI,
+        _: &mut SandboxControls,
+    ) -> (Option<Transition>, bool) {
         match self.top_center.event(ctx, ui) {
             Some(WrappedOutcome::Transition(t)) => {
-                return Some(t);
+                return (Some(t), false);
             }
             Some(WrappedOutcome::Clicked(_)) => unreachable!(),
             None => {}
@@ -56,7 +62,7 @@ impl GameplayState for CreateGridlock {
             self.menu.set_info(ctx, gridlock_panel(ui));
         }
 
-        None
+        (None, false)
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {

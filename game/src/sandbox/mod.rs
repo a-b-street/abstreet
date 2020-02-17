@@ -14,7 +14,6 @@ use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::pregame::main_menu;
 use crate::render::DrawOptions;
-use crate::sandbox::gameplay::Tutorial;
 pub use crate::sandbox::gameplay::TutorialState;
 use crate::ui::{ShowEverything, UI};
 use ezgui::{
@@ -33,9 +32,13 @@ pub struct SandboxMode {
     gameplay_mode: GameplayMode,
 
     pub common: Option<CommonState>,
+    controls: SandboxControls,
+}
+
+pub struct SandboxControls {
     tool_panel: Option<WrappedComposite>,
     time_panel: Option<TimePanel>,
-    speed: Option<SpeedControls>,
+    pub speed: Option<SpeedControls>,
     agent_meter: Option<AgentMeter>,
     minimap: Option<Minimap>,
 }
@@ -50,30 +53,32 @@ impl SandboxMode {
             } else {
                 None
             },
-            tool_panel: if gameplay.has_tool_panel() {
-                Some(tool_panel(ctx))
-            } else {
-                None
-            },
-            time_panel: if gameplay.has_time_panel() {
-                Some(TimePanel::new(ctx, ui))
-            } else {
-                None
-            },
-            speed: if gameplay.has_speed() {
-                Some(SpeedControls::new(ctx))
-            } else {
-                None
-            },
-            agent_meter: if gameplay.has_agent_meter() {
-                Some(AgentMeter::new(ctx, ui))
-            } else {
-                None
-            },
-            minimap: if gameplay.has_minimap() {
-                Some(Minimap::new(ctx, ui))
-            } else {
-                None
+            controls: SandboxControls {
+                tool_panel: if gameplay.has_tool_panel() {
+                    Some(tool_panel(ctx))
+                } else {
+                    None
+                },
+                time_panel: if gameplay.has_time_panel() {
+                    Some(TimePanel::new(ctx, ui))
+                } else {
+                    None
+                },
+                speed: if gameplay.has_speed() {
+                    Some(SpeedControls::new(ctx))
+                } else {
+                    None
+                },
+                agent_meter: if gameplay.has_agent_meter() {
+                    Some(AgentMeter::new(ctx, ui))
+                } else {
+                    None
+                },
+                minimap: if gameplay.has_minimap() {
+                    Some(Minimap::new(ctx, ui))
+                } else {
+                    None
+                },
             },
             gameplay,
             gameplay_mode: mode,
@@ -177,18 +182,12 @@ impl State for SandboxMode {
         // Do this before gameplay
         ctx.canvas_movement();
 
-        if let Some(t) = self.gameplay.event(ctx, ui) {
+        let (maybe_t, exit) = self.gameplay.event(ctx, ui, &mut self.controls);
+        if let Some(t) = maybe_t {
             return t;
         }
-        // Sad hack. :(
-        if let Some(ref mut tut) = self.gameplay.downcast_mut::<Tutorial>() {
-            let (maybe_t, exit) = tut.event_with_speed(ctx, ui, self.speed.as_mut());
-            if let Some(t) = maybe_t {
-                return t;
-            }
-            if exit {
-                return Transition::Push(WizardState::new(Box::new(exit_sandbox)));
-            }
+        if exit {
+            return Transition::Push(WizardState::new(Box::new(exit_sandbox)));
         }
 
         if ctx.redo_mouseover() {
@@ -196,7 +195,7 @@ impl State for SandboxMode {
         }
 
         // Order here is pretty arbitrary
-        if let Some(ref mut m) = self.minimap {
+        if let Some(ref mut m) = self.controls.minimap {
             if let Some(t) = m.event(ui, ctx) {
                 return t;
             }
@@ -211,11 +210,11 @@ impl State for SandboxMode {
             }
         }
 
-        if let Some(ref mut tp) = self.time_panel {
+        if let Some(ref mut tp) = self.controls.time_panel {
             tp.event(ctx, ui);
         }
 
-        if let Some(ref mut s) = self.speed {
+        if let Some(ref mut s) = self.controls.speed {
             match s.event(ctx, ui) {
                 Some(WrappedOutcome::Transition(t)) => {
                     return t;
@@ -235,7 +234,7 @@ impl State for SandboxMode {
             }
         }
 
-        if let Some(ref mut tp) = self.tool_panel {
+        if let Some(ref mut tp) = self.controls.tool_panel {
             match tp.event(ctx, ui) {
                 Some(WrappedOutcome::Transition(t)) => {
                     return t;
@@ -249,19 +248,25 @@ impl State for SandboxMode {
                 None => {}
             }
         }
-        if let Some(ref mut am) = self.agent_meter {
+        if let Some(ref mut am) = self.controls.agent_meter {
             if let Some(t) = am.event(ctx, ui) {
                 return t;
             }
         }
 
         if let Some(ref mut c) = self.common {
-            if let Some(t) = c.event(ctx, ui, self.speed.as_mut()) {
+            if let Some(t) = c.event(ctx, ui, self.controls.speed.as_mut()) {
                 return t;
             }
         }
 
-        if self.speed.as_ref().map(|s| s.is_paused()).unwrap_or(true) {
+        if self
+            .controls
+            .speed
+            .as_ref()
+            .map(|s| s.is_paused())
+            .unwrap_or(true)
+        {
             Transition::Keep
         } else {
             Transition::KeepWithMode(EventLoopMode::Animation)
@@ -289,19 +294,19 @@ impl State for SandboxMode {
         } else {
             CommonState::draw_osd(g, ui, &None);
         }
-        if let Some(ref tp) = self.tool_panel {
+        if let Some(ref tp) = self.controls.tool_panel {
             tp.draw(g);
         }
-        if let Some(ref s) = self.speed {
+        if let Some(ref s) = self.controls.speed {
             s.draw(g);
         }
-        if let Some(ref tp) = self.time_panel {
+        if let Some(ref tp) = self.controls.time_panel {
             tp.draw(g);
         }
-        if let Some(ref am) = self.agent_meter {
+        if let Some(ref am) = self.controls.agent_meter {
             am.draw(g);
         }
-        if let Some(ref m) = self.minimap {
+        if let Some(ref m) = self.controls.minimap {
             m.draw(g, ui);
         }
 
@@ -309,7 +314,7 @@ impl State for SandboxMode {
     }
 
     fn on_suspend(&mut self, ctx: &mut EventCtx, _: &mut UI) {
-        if let Some(ref mut s) = self.speed {
+        if let Some(ref mut s) = self.controls.speed {
             s.pause(ctx);
         }
     }

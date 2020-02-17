@@ -4,6 +4,7 @@ use crate::game::{State, Transition, WizardState};
 use crate::helpers::{nice_map_name, ID};
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::gameplay::{spawner, GameplayMode, GameplayState};
+use crate::sandbox::SandboxControls;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use ezgui::{
@@ -31,22 +32,27 @@ impl Freeform {
 }
 
 impl GameplayState for Freeform {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        ui: &mut UI,
+        _: &mut SandboxControls,
+    ) -> (Option<Transition>, bool) {
         match self.top_center.event(ctx, ui) {
             Some(WrappedOutcome::Transition(t)) => {
-                return Some(t);
+                return (Some(t), false);
             }
             Some(WrappedOutcome::Clicked(_)) => unreachable!(),
             None => {}
         }
 
         if let Some(new_state) = spawner::AgentSpawner::new(ctx, ui) {
-            return Some(Transition::Push(new_state));
+            return (Some(Transition::Push(new_state)), false);
         }
         if let Some(new_state) = spawner::SpawnManyAgents::new(ctx, ui) {
-            return Some(Transition::Push(new_state));
+            return (Some(Transition::Push(new_state)), false);
         }
-        None
+        (None, false)
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {

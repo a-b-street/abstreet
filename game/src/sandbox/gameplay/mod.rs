@@ -17,7 +17,7 @@ use crate::game::{msg, State, Transition};
 use crate::managed::WrappedComposite;
 use crate::pregame::main_menu;
 use crate::render::{AgentColorScheme, InnerAgentColorScheme};
-use crate::sandbox::SandboxMode;
+use crate::sandbox::{SandboxControls, SandboxMode};
 use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{
@@ -47,7 +47,13 @@ pub enum GameplayMode {
 }
 
 pub trait GameplayState: downcast_rs::Downcast {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition>;
+    // True if we should exit the sandbox mode.
+    fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        ui: &mut UI,
+        controls: &mut SandboxControls,
+    ) -> (Option<Transition>, bool);
     fn draw(&self, g: &mut GfxCtx, ui: &UI);
 
     fn can_examine_objects(&self) -> bool {

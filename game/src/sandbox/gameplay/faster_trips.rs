@@ -2,6 +2,7 @@ use crate::game::Transition;
 use crate::helpers::{cmp_count_more, cmp_duration_shorter};
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::gameplay::{challenge_controller, GameplayMode, GameplayState};
+use crate::sandbox::SandboxControls;
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{layout, EventCtx, GfxCtx, Line, ModalMenu, Text};
@@ -33,10 +34,15 @@ impl FasterTrips {
 }
 
 impl GameplayState for FasterTrips {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        ui: &mut UI,
+        _: &mut SandboxControls,
+    ) -> (Option<Transition>, bool) {
         match self.top_center.event(ctx, ui) {
             Some(WrappedOutcome::Transition(t)) => {
-                return Some(t);
+                return (Some(t), false);
             }
             Some(WrappedOutcome::Clicked(_)) => unreachable!(),
             None => {}
@@ -48,7 +54,7 @@ impl GameplayState for FasterTrips {
             self.menu.set_info(ctx, faster_trips_panel(self.mode, ui));
         }
 
-        None
+        (None, false)
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {

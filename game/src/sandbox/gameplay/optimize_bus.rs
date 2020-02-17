@@ -5,6 +5,7 @@ use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::gameplay::{
     challenge_controller, manage_overlays, GameplayMode, GameplayState,
 };
+use crate::sandbox::SandboxControls;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use ezgui::{hotkey, layout, Choice, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
@@ -48,10 +49,15 @@ impl OptimizeBus {
 }
 
 impl GameplayState for OptimizeBus {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        ui: &mut UI,
+        _: &mut SandboxControls,
+    ) -> (Option<Transition>, bool) {
         match self.top_center.event(ctx, ui) {
             Some(WrappedOutcome::Transition(t)) => {
-                return Some(t);
+                return (Some(t), false);
             }
             Some(WrappedOutcome::Clicked(_)) => unreachable!(),
             None => {}
@@ -105,29 +111,32 @@ impl GameplayState for OptimizeBus {
         }
 
         if self.menu.action("change statistic") {
-            return Some(Transition::Push(WizardState::new(Box::new(
-                move |wiz, ctx, _| {
-                    // TODO Filter out existing. Make this kind of thing much easier.
-                    let (_, new_stat) = wiz.wrap(ctx).choose(
-                        "Show which statistic on frequency a bus stop is visited?",
-                        || {
-                            Statistic::all()
-                                .into_iter()
-                                .map(|s| Choice::new(s.to_string(), s))
-                                .collect()
-                        },
-                    )?;
-                    Some(Transition::PopWithData(Box::new(move |state, _, _| {
-                        let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
-                        let opt = sandbox.gameplay.downcast_mut::<OptimizeBus>().unwrap();
-                        // Force recalculation
-                        opt.time = Time::START_OF_DAY;
-                        opt.stat = new_stat;
-                    })))
-                },
-            ))));
+            return (
+                Some(Transition::Push(WizardState::new(Box::new(
+                    move |wiz, ctx, _| {
+                        // TODO Filter out existing. Make this kind of thing much easier.
+                        let (_, new_stat) = wiz.wrap(ctx).choose(
+                            "Show which statistic on frequency a bus stop is visited?",
+                            || {
+                                Statistic::all()
+                                    .into_iter()
+                                    .map(|s| Choice::new(s.to_string(), s))
+                                    .collect()
+                            },
+                        )?;
+                        Some(Transition::PopWithData(Box::new(move |state, _, _| {
+                            let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
+                            let opt = sandbox.gameplay.downcast_mut::<OptimizeBus>().unwrap();
+                            // Force recalculation
+                            opt.time = Time::START_OF_DAY;
+                            opt.stat = new_stat;
+                        })))
+                    },
+                )))),
+                false,
+            );
         }
-        None
+        (None, false)
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {

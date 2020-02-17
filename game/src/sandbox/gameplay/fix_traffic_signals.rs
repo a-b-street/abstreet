@@ -3,6 +3,7 @@ use crate::game::Transition;
 use crate::helpers::cmp_duration_shorter;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::gameplay::{challenge_controller, FinalScore, GameplayMode, GameplayState};
+use crate::sandbox::SandboxControls;
 use crate::ui::UI;
 use ezgui::{Button, EventCtx, GfxCtx, Line, ManagedWidget, Text};
 use geom::{Duration, Statistic, Time};
@@ -31,7 +32,12 @@ impl FixTrafficSignals {
 }
 
 impl GameplayState for FixTrafficSignals {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        ui: &mut UI,
+        _: &mut SandboxControls,
+    ) -> (Option<Transition>, bool) {
         // Once is never...
         if self.once {
             ui.overlay = Overlays::finished_trips_histogram(ctx, ui);
@@ -40,7 +46,7 @@ impl GameplayState for FixTrafficSignals {
 
         match self.top_center.event(ctx, ui) {
             Some(WrappedOutcome::Transition(t)) => {
-                return Some(t);
+                return (Some(t), false);
             }
             Some(WrappedOutcome::Clicked(_)) => unreachable!(),
             None => {}
@@ -51,14 +57,17 @@ impl GameplayState for FixTrafficSignals {
         }
 
         if ui.primary.sim.is_done() {
-            return Some(Transition::Push(FinalScore::new(
-                ctx,
-                final_score(ui),
-                self.mode.clone(),
-            )));
+            return (
+                Some(Transition::Push(FinalScore::new(
+                    ctx,
+                    final_score(ui),
+                    self.mode.clone(),
+                ))),
+                false,
+            );
         }
 
-        None
+        (None, false)
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
