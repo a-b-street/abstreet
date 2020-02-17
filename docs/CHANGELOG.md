@@ -292,3 +292,11 @@ changes here.
 0.1.27a
 
 - patch to fix a crash with empty text dimensions on things like building info panels
+
+0.1.28
+
+- all info panels revamped
+- some tutorial stages are much more clear, with an updating goal
+- traffic signal scorecard generalized to work for some tutorial too
+- adjust how selected agents look
+- X button on popup menus
