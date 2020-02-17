@@ -10,7 +10,7 @@ use crate::edit::{
     TrafficSignalEditor,
 };
 use crate::game::{DrawBaselayer, State, Transition, WizardState};
-use crate::helpers::ID;
+use crate::helpers::{cmp_duration_shorter, ID};
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::pregame::main_menu;
 use crate::render::DrawOptions;
@@ -22,7 +22,7 @@ use ezgui::{
 };
 pub use gameplay::spawner::spawn_agents_around;
 pub use gameplay::GameplayMode;
-use geom::Time;
+use geom::{Duration, Statistic, Time};
 use map_model::MapEdits;
 use sim::TripMode;
 pub use speed::{SpeedControls, TimePanel};
@@ -69,8 +69,8 @@ impl SandboxMode {
                 } else {
                     None
                 },
-                agent_meter: if gameplay.has_agent_meter() {
-                    Some(AgentMeter::new(ctx, ui))
+                agent_meter: if let Some(show_score) = gameplay.get_agent_meter_params() {
+                    Some(AgentMeter::new(ctx, ui, show_score))
                 } else {
                     None
                 },
@@ -363,49 +363,71 @@ fn exit_sandbox(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
 pub struct AgentMeter {
     time: Time,
     pub composite: Composite,
+    // TODO Way more options than this...
+    pub show_score: bool,
 }
 
 impl AgentMeter {
-    pub fn new(ctx: &mut EventCtx, ui: &UI) -> AgentMeter {
+    pub fn new(ctx: &mut EventCtx, ui: &UI, show_score: bool) -> AgentMeter {
         let (finished, unfinished, by_mode) = ui.primary.sim.num_trips();
 
-        let composite = Composite::new(
-            ManagedWidget::col(vec![
-                ManagedWidget::row(vec![
-                    ManagedWidget::draw_svg(ctx, "../data/system/assets/meters/pedestrian.svg"),
-                    ManagedWidget::draw_text(ctx, Text::from(Line(&by_mode[&TripMode::Walk]))),
-                    ManagedWidget::draw_svg(ctx, "../data/system/assets/meters/bike.svg"),
-                    ManagedWidget::draw_text(ctx, Text::from(Line(&by_mode[&TripMode::Bike]))),
-                    ManagedWidget::draw_svg(ctx, "../data/system/assets/meters/car.svg"),
-                    ManagedWidget::draw_text(ctx, Text::from(Line(&by_mode[&TripMode::Drive]))),
-                    ManagedWidget::draw_svg(ctx, "../data/system/assets/meters/bus.svg"),
-                    ManagedWidget::draw_text(ctx, Text::from(Line(&by_mode[&TripMode::Transit]))),
-                ])
-                .centered(),
-                {
-                    let mut txt = Text::new();
-                    txt.add(Line(format!("Finished trips: {}", finished)));
-                    txt.add(Line(format!("Unfinished trips: {}", unfinished)));
-                    ManagedWidget::draw_text(ctx, txt)
-                },
-                // TODO The SVG button uses clip and doesn't seem to work
-                WrappedComposite::text_button(ctx, "finished trip data", hotkey(Key::Q)),
+        let mut rows = vec![
+            ManagedWidget::row(vec![
+                ManagedWidget::draw_svg(ctx, "../data/system/assets/meters/pedestrian.svg"),
+                ManagedWidget::draw_text(ctx, Text::from(Line(&by_mode[&TripMode::Walk]))),
+                ManagedWidget::draw_svg(ctx, "../data/system/assets/meters/bike.svg"),
+                ManagedWidget::draw_text(ctx, Text::from(Line(&by_mode[&TripMode::Bike]))),
+                ManagedWidget::draw_svg(ctx, "../data/system/assets/meters/car.svg"),
+                ManagedWidget::draw_text(ctx, Text::from(Line(&by_mode[&TripMode::Drive]))),
+                ManagedWidget::draw_svg(ctx, "../data/system/assets/meters/bus.svg"),
+                ManagedWidget::draw_text(ctx, Text::from(Line(&by_mode[&TripMode::Transit]))),
             ])
-            .bg(colors::PANEL_BG)
-            .padding(20),
-        )
-        .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
-        .build(ctx);
+            .centered(),
+            {
+                let mut txt = Text::new();
+                txt.add(Line(format!("Finished trips: {}", finished)));
+                txt.add(Line(format!("Unfinished trips: {}", unfinished)));
+                ManagedWidget::draw_text(ctx, txt)
+            },
+            // TODO The SVG button uses clip and doesn't seem to work
+            WrappedComposite::text_button(ctx, "finished trip data", hotkey(Key::Q)),
+        ];
+        if show_score {
+            let (now, _, _) = ui
+                .primary
+                .sim
+                .get_analytics()
+                .all_finished_trips(ui.primary.sim.time());
+            let (baseline, _, _) = ui.prebaked().all_finished_trips(ui.primary.sim.time());
+            let mut txt = Text::from(Line("Average trip time: ").size(20));
+            if now.count() > 0 && baseline.count() > 0 {
+                txt.append_all(cmp_duration_shorter(
+                    now.select(Statistic::Mean),
+                    baseline.select(Statistic::Mean),
+                ));
+            } else {
+                txt.append(Line("same as baseline"));
+            }
+            // TODO Definitely parameterized more ;)
+            const GOAL: Duration = Duration::const_seconds(30.0);
+            txt.add(Line(format!("Goal: {} faster", GOAL)).size(20));
+            rows.push(ManagedWidget::draw_text(ctx, txt));
+        }
+
+        let composite = Composite::new(ManagedWidget::col(rows).bg(colors::PANEL_BG).padding(20))
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
+            .build(ctx);
 
         AgentMeter {
             time: ui.primary.sim.time(),
             composite,
+            show_score,
         }
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) -> Option<Transition> {
         if self.time != ui.primary.sim.time() {
-            *self = AgentMeter::new(ctx, ui);
+            *self = AgentMeter::new(ctx, ui, self.show_score);
             return self.event(ctx, ui);
         }
         match self.composite.event(ctx) {

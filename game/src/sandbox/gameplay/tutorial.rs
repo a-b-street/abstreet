@@ -521,8 +521,12 @@ impl GameplayState for Tutorial {
     fn has_speed(&self) -> bool {
         self.last_finished_task >= Task::InspectObjects
     }
-    fn has_agent_meter(&self) -> bool {
-        self.last_finished_task >= Task::PauseResume
+    fn get_agent_meter_params(&self) -> Option<bool> {
+        if self.last_finished_task >= Task::PauseResume {
+            Some(false)
+        } else {
+            None
+        }
     }
     fn has_minimap(&self) -> bool {
         self.last_finished_task >= Task::Escort
@@ -975,7 +979,7 @@ impl TutorialState {
         let tool_panel = tool_panel(ctx);
         let time = TimePanel::new(ctx, ui);
         let speed = SpeedControls::new(ctx);
-        let agent_meter = AgentMeter::new(ctx, ui);
+        let agent_meter = AgentMeter::new(ctx, ui, false);
         // The minimap is hidden at low zoom levels
         let orig_zoom = ctx.canvas.cam_zoom;
         ctx.canvas.cam_zoom = 100.0;

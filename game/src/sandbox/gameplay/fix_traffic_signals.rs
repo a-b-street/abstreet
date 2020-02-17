@@ -1,11 +1,10 @@
 use crate::common::Overlays;
 use crate::game::Transition;
-use crate::helpers::cmp_duration_shorter;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::gameplay::{challenge_controller, FinalScore, GameplayMode, GameplayState};
 use crate::sandbox::SandboxControls;
 use crate::ui::UI;
-use ezgui::{Button, EventCtx, GfxCtx, Line, ManagedWidget, Text};
+use ezgui::{EventCtx, GfxCtx};
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, Map};
 use sim::{BorderSpawnOverTime, OriginDestination, Scenario};
@@ -13,7 +12,6 @@ use sim::{BorderSpawnOverTime, OriginDestination, Scenario};
 const GOAL: Duration = Duration::const_seconds(30.0);
 
 pub struct FixTrafficSignals {
-    time: Time,
     once: bool,
     top_center: WrappedComposite,
     // TODO Keeping a copy in here seems redundant?
@@ -21,11 +19,15 @@ pub struct FixTrafficSignals {
 }
 
 impl FixTrafficSignals {
-    pub fn new(ctx: &mut EventCtx, ui: &UI, mode: GameplayMode) -> Box<dyn GameplayState> {
+    pub fn new(ctx: &mut EventCtx, mode: GameplayMode) -> Box<dyn GameplayState> {
         Box::new(FixTrafficSignals {
-            time: Time::START_OF_DAY,
             once: true,
-            top_center: make_top_center(ctx, ui, mode.clone()),
+            top_center: challenge_controller(
+                ctx,
+                mode.clone(),
+                "Traffic Signals Challenge",
+                Vec::new(),
+            ),
             mode,
         })
     }
@@ -51,10 +53,6 @@ impl GameplayState for FixTrafficSignals {
             Some(WrappedOutcome::Clicked(_)) => unreachable!(),
             None => {}
         }
-        if self.time != ui.primary.sim.time() {
-            self.time = ui.primary.sim.time();
-            self.top_center = make_top_center(ctx, ui, self.mode.clone());
-        }
 
         if ui.primary.sim.is_done() {
             return (
@@ -73,61 +71,10 @@ impl GameplayState for FixTrafficSignals {
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
         self.top_center.draw(g);
     }
-}
 
-fn make_top_center(ctx: &mut EventCtx, ui: &UI, mode: GameplayMode) -> WrappedComposite {
-    let mut txt = Text::new();
-    let (now, _, _) = ui
-        .primary
-        .sim
-        .get_analytics()
-        .all_finished_trips(ui.primary.sim.time());
-    let (baseline, _, _) = ui.prebaked().all_finished_trips(ui.primary.sim.time());
-    txt.add(Line("Average trip time: ").size(20));
-    if now.count() > 0 && baseline.count() > 0 {
-        txt.append_all(cmp_duration_shorter(
-            now.select(Statistic::Mean),
-            baseline.select(Statistic::Mean),
-        ));
-    } else {
-        txt.append(Line("same as baseline"));
+    fn get_agent_meter_params(&self) -> Option<bool> {
+        Some(true)
     }
-
-    challenge_controller(
-        ctx,
-        mode,
-        "Traffic Signals Challenge",
-        vec![
-            ManagedWidget::row(vec![
-                ManagedWidget::draw_text(ctx, txt).margin(5),
-                // TODO Should also recalculate if the overlay changes, but this is close enough
-                match ui.overlay {
-                    Overlays::FinishedTripsHistogram(_, _) => {
-                        Button::inactive_btn(ctx, Text::from(Line("details").size(20)))
-                    }
-                    _ => WrappedComposite::nice_text_button(
-                        ctx,
-                        Text::from(Line("details").size(20)),
-                        None,
-                        "details",
-                    ),
-                }
-                .align_right(),
-            ]),
-            ManagedWidget::draw_text(
-                ctx,
-                Text::from(Line(format!("Goal: {} faster", GOAL)).size(20)),
-            )
-            .margin(5),
-        ],
-    )
-    .maybe_cb(
-        "details",
-        Box::new(|ctx, ui| {
-            ui.overlay = Overlays::finished_trips_histogram(ctx, ui);
-            None
-        }),
-    )
 }
 
 fn final_score(ui: &UI) -> String {

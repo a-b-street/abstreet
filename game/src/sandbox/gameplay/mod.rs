@@ -71,8 +71,8 @@ pub trait GameplayState: downcast_rs::Downcast {
     fn has_speed(&self) -> bool {
         true
     }
-    fn has_agent_meter(&self) -> bool {
-        true
+    fn get_agent_meter_params(&self) -> Option<bool> {
+        Some(false)
     }
     fn has_minimap(&self) -> bool {
         true
@@ -209,7 +209,7 @@ impl GameplayMode {
             GameplayMode::CreateGridlock => create_gridlock::CreateGridlock::new(ctx),
             GameplayMode::FasterTrips(trip_mode) => faster_trips::FasterTrips::new(*trip_mode, ctx),
             GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial(_) => {
-                fix_traffic_signals::FixTrafficSignals::new(ctx, ui, self.clone())
+                fix_traffic_signals::FixTrafficSignals::new(ctx, self.clone())
             }
             GameplayMode::Tutorial(current) => Tutorial::new(ctx, ui, *current),
         }
