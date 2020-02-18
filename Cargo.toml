@@ -16,3 +16,10 @@ members = [
   "sim",
   "tests",
 ]
+
+# See https://doc.rust-lang.org/cargo/reference/profiles.html#overrides. This
+# compiles all external dependencies as release mode, yielding great runtime
+# speed, but only paying the cost of slow compilation once (since we don't
+# update dependencies often).
+[profile.dev.package."*"]
+opt-level = 3
