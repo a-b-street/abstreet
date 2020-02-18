@@ -64,6 +64,7 @@ pub struct SimOptions {
     pub use_freeform_policy_everywhere: bool,
     pub disable_block_the_box: bool,
     pub recalc_lanechanging: bool,
+    pub clear_laggy_head_early: bool,
 }
 
 impl SimOptions {
@@ -74,6 +75,7 @@ impl SimOptions {
             use_freeform_policy_everywhere: false,
             disable_block_the_box: false,
             recalc_lanechanging: true,
+            clear_laggy_head_early: false,
         }
     }
 }
@@ -86,7 +88,11 @@ impl Sim {
             scheduler.push(Time::START_OF_DAY + d, Command::Savestate(d));
         }
         Sim {
-            driving: DrivingSimState::new(map, opts.recalc_lanechanging),
+            driving: DrivingSimState::new(
+                map,
+                opts.recalc_lanechanging,
+                opts.clear_laggy_head_early,
+            ),
             parking: ParkingSimState::new(map, timer),
             walking: WalkingSimState::new(),
             intersections: IntersectionSimState::new(

@@ -29,6 +29,7 @@ impl SimFlags {
                 use_freeform_policy_everywhere: args.enabled("--freeform_policy"),
                 disable_block_the_box: args.enabled("--disable_block_the_box"),
                 recalc_lanechanging: !args.enabled("--dont_recalc_lc"),
+                clear_laggy_head_early: args.enabled("--clear_laggy_head_early"),
             },
         }
     }

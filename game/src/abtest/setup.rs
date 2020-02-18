@@ -176,6 +176,10 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
                                     .sim_flags
                                     .opts
                                     .recalc_lanechanging,
+                                clear_laggy_head_early: current_flags
+                                    .sim_flags
+                                    .opts
+                                    .clear_laggy_head_early,
                             },
                         },
                         ..current_flags.clone()

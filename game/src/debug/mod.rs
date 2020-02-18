@@ -13,6 +13,7 @@ use ezgui::{
     Text, Wizard,
 };
 use geom::Duration;
+use map_model::IntersectionID;
 use sim::Sim;
 use std::collections::HashSet;
 
@@ -25,6 +26,8 @@ pub struct DebugMode {
     layers: ShowLayers,
     search_results: Option<SearchResults>,
     all_routes: routes::AllRoutesViewer,
+
+    highlighted_agents: Option<(IntersectionID, Drawable)>,
 }
 
 impl DebugMode {
@@ -56,6 +59,7 @@ impl DebugMode {
             layers: ShowLayers::new(),
             search_results: None,
             all_routes: routes::AllRoutesViewer::Inactive,
+            highlighted_agents: None,
         }
     }
 }
@@ -186,6 +190,35 @@ impl State for DebugMode {
                 ));
             }
         }
+        if let Some(ID::Intersection(id)) = ui.primary.current_selection {
+            if self
+                .highlighted_agents
+                .as_ref()
+                .map(|(i, _)| id != *i)
+                .unwrap_or(true)
+            {
+                let mut batch = GeomBatch::new();
+                for a in ui.primary.sim.get_accepted_agents(id) {
+                    batch.push(
+                        ui.cs.get("something associated with something else"),
+                        ui.primary
+                            .draw_map
+                            .get_obj(
+                                ID::from_agent(a),
+                                ui,
+                                &mut ui.primary.draw_map.agents.borrow_mut(),
+                                ctx.prerender,
+                            )
+                            .unwrap()
+                            .get_outline(&ui.primary.map),
+                    );
+                }
+                self.highlighted_agents = Some((id, ctx.upload(batch)));
+            }
+        } else {
+            self.highlighted_agents = None;
+        }
+
         self.objects.event(ctx, ui);
 
         if let Some(debugger) = polygons::PolygonDebugger::new(ctx, ui) {
@@ -276,6 +309,9 @@ impl State for DebugMode {
 
         if let Some(ref results) = self.search_results {
             g.redraw(&results.draw);
+        }
+        if let Some((_, ref draw)) = self.highlighted_agents {
+            g.redraw(draw);
         }
 
         self.objects.draw(g, ui);
