@@ -1061,19 +1061,23 @@ impl EditCmd {
                 true
             }
             EditCmd::ChangeStopSign(ref ss) => {
-                if &map.stop_signs[&ss.id] == ss {
+                if map.stop_signs.get(&ss.id) == Some(ss) {
                     return false;
                 }
 
+                map.intersections[ss.id.0].intersection_type = IntersectionType::StopSign;
+                map.traffic_signals.remove(&ss.id);
                 map.stop_signs.insert(ss.id, ss.clone());
                 effects.changed_intersections.insert(ss.id);
                 true
             }
             EditCmd::ChangeTrafficSignal(ref ts) => {
-                if &map.traffic_signals[&ts.id] == ts {
+                if map.traffic_signals.get(&ts.id) == Some(ts) {
                     return false;
                 }
 
+                map.intersections[ts.id.0].intersection_type = IntersectionType::TrafficSignal;
+                map.stop_signs.remove(&ts.id);
                 map.traffic_signals.insert(ts.id, ts.clone());
                 effects.changed_intersections.insert(ts.id);
                 true

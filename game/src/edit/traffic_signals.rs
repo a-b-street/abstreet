@@ -1,6 +1,6 @@
 use crate::colors;
 use crate::common::CommonState;
-use crate::edit::{apply_map_edits, close_intersection};
+use crate::edit::{apply_map_edits, close_intersection, StopSignEditor};
 use crate::game::{msg, DrawBaselayer, State, Transition, WizardState};
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::options::TrafficSignalStyle;
@@ -13,7 +13,10 @@ use ezgui::{
     HorizontalAlignment, Key, Line, ManagedWidget, Outcome, RewriteColor, Text, VerticalAlignment,
 };
 use geom::{Distance, Duration, Polygon};
-use map_model::{ControlTrafficSignal, EditCmd, IntersectionID, Phase, TurnGroupID, TurnPriority};
+use map_model::{
+    ControlStopSign, ControlTrafficSignal, EditCmd, IntersectionID, Phase, TurnGroupID,
+    TurnPriority,
+};
 use sim::Sim;
 use std::collections::BTreeSet;
 
@@ -110,6 +113,22 @@ impl State for TrafficSignalEditor {
                 }
                 x if x == "Close intersection for construction" => {
                     return close_intersection(ctx, ui, self.i);
+                }
+                x if x == "Convert to stop sign" => {
+                    let mut edits = ui.primary.map.get_edits().clone();
+                    edits
+                        .commands
+                        .push(EditCmd::ChangeStopSign(ControlStopSign::new(
+                            &ui.primary.map,
+                            self.i,
+                        )));
+                    apply_map_edits(ctx, ui, edits);
+                    return Transition::Replace(Box::new(StopSignEditor::new(
+                        self.i,
+                        ctx,
+                        ui,
+                        self.suspended_sim.clone(),
+                    )));
                 }
                 x if x == "Make all-walk" => {
                     let mut new_signal = orig_signal.clone();
@@ -447,6 +466,11 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
     col.push(WrappedComposite::text_button(
         ctx,
         "Close intersection for construction",
+        None,
+    ));
+    col.push(WrappedComposite::text_button(
+        ctx,
+        "Convert to stop sign",
         None,
     ));
 

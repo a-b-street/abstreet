@@ -1,16 +1,18 @@
 use crate::colors;
 use crate::common::CommonState;
-use crate::edit::{apply_map_edits, close_intersection};
+use crate::edit::{apply_map_edits, close_intersection, TrafficSignalEditor};
 use crate::game::{State, Transition};
 use crate::managed::WrappedComposite;
 use crate::render::DrawIntersection;
 use crate::ui::UI;
+use abstutil::Timer;
 use ezgui::{
     hotkey, Button, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
     ManagedWidget, Outcome, Text, VerticalAlignment,
 };
 use geom::Polygon;
-use map_model::{ControlStopSign, EditCmd, IntersectionID, RoadID};
+use map_model::{ControlStopSign, ControlTrafficSignal, EditCmd, IntersectionID, RoadID};
+use sim::Sim;
 use std::collections::HashMap;
 
 // TODO For now, individual turns can't be manipulated. Banning turns could be useful, but I'm not
@@ -21,10 +23,17 @@ pub struct StopSignEditor {
     // (octagon, pole)
     geom: HashMap<RoadID, (Polygon, Polygon)>,
     selected_sign: Option<RoadID>,
+
+    suspended_sim: Sim,
 }
 
 impl StopSignEditor {
-    pub fn new(id: IntersectionID, ctx: &mut EventCtx, ui: &mut UI) -> StopSignEditor {
+    pub fn new(
+        id: IntersectionID,
+        ctx: &mut EventCtx,
+        ui: &mut UI,
+        suspended_sim: Sim,
+    ) -> StopSignEditor {
         ui.primary.current_selection = None;
         let geom = ui
             .primary
@@ -54,6 +63,7 @@ impl StopSignEditor {
                     Button::inactive_button(ctx, "reset to default")
                 },
                 WrappedComposite::text_button(ctx, "close intersection for construction", None),
+                WrappedComposite::text_button(ctx, "convert to traffic signal", None),
                 WrappedComposite::text_button(ctx, "Finish", hotkey(Key::Escape)),
             ])
             .bg(colors::PANEL_BG)
@@ -67,6 +77,7 @@ impl StopSignEditor {
             id,
             geom,
             selected_sign: None,
+            suspended_sim,
         }
     }
 }
@@ -100,7 +111,12 @@ impl State for StopSignEditor {
                 let mut edits = ui.primary.map.get_edits().clone();
                 edits.commands.push(EditCmd::ChangeStopSign(sign));
                 apply_map_edits(ctx, ui, edits);
-                return Transition::Replace(Box::new(StopSignEditor::new(self.id, ctx, ui)));
+                return Transition::Replace(Box::new(StopSignEditor::new(
+                    self.id,
+                    ctx,
+                    ui,
+                    self.suspended_sim.clone(),
+                )));
             }
         }
 
@@ -118,10 +134,32 @@ impl State for StopSignEditor {
                             self.id,
                         )));
                     apply_map_edits(ctx, ui, edits);
-                    return Transition::Replace(Box::new(StopSignEditor::new(self.id, ctx, ui)));
+                    return Transition::Replace(Box::new(StopSignEditor::new(
+                        self.id,
+                        ctx,
+                        ui,
+                        self.suspended_sim.clone(),
+                    )));
                 }
                 "close intersection for construction" => {
                     return close_intersection(ctx, ui, self.id);
+                }
+                "convert to traffic signal" => {
+                    let mut edits = ui.primary.map.get_edits().clone();
+                    edits
+                        .commands
+                        .push(EditCmd::ChangeTrafficSignal(ControlTrafficSignal::new(
+                            &ui.primary.map,
+                            self.id,
+                            &mut Timer::throwaway(),
+                        )));
+                    apply_map_edits(ctx, ui, edits);
+                    return Transition::Replace(Box::new(TrafficSignalEditor::new(
+                        self.id,
+                        ctx,
+                        ui,
+                        self.suspended_sim.clone(),
+                    )));
                 }
                 _ => unreachable!(),
             },

@@ -137,9 +137,11 @@ impl SandboxMode {
             if ui.primary.map.get_i(i).is_stop_sign()
                 && ui.per_obj.action(ctx, Key::E, "edit stop sign")
             {
+                let edit = EditMode::new(ctx, ui, self.gameplay_mode.clone());
+                let sim_copy = edit.suspended_sim.clone();
                 return Some(Transition::PushTwice(
-                    Box::new(EditMode::new(ctx, ui, self.gameplay_mode.clone())),
-                    Box::new(StopSignEditor::new(i, ctx, ui)),
+                    Box::new(edit),
+                    Box::new(StopSignEditor::new(i, ctx, ui, sim_copy)),
                 ));
             }
         }

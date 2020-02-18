@@ -156,7 +156,12 @@ impl State for EditMode {
                 && self.mode.can_edit_stop_signs()
                 && ui.per_obj.left_click(ctx, "edit stop signs")
             {
-                return Transition::Push(Box::new(StopSignEditor::new(id, ctx, ui)));
+                return Transition::Push(Box::new(StopSignEditor::new(
+                    id,
+                    ctx,
+                    ui,
+                    self.suspended_sim.clone(),
+                )));
             }
             if ui.primary.map.maybe_get_traffic_signal(id).is_some()
                 && ui.per_obj.left_click(ctx, "edit traffic signal")
