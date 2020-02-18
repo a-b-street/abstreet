@@ -31,6 +31,14 @@ impl abstutil::Cloneable for TrafficSignalStyle {}
 pub fn open_panel() -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, ui| {
         let mut wizard = wiz.wrap(ctx);
+
+        let (_, dev) = wizard.choose("Enable developer mode?", || {
+            vec![Choice::new("no", false), Choice::new("yes", true)]
+        })?;
+        let (_, invert_scroll) = wizard
+            .choose("Invert direction of vertical scrolling?", || {
+                vec![Choice::new("no", false), Choice::new("yes", true)]
+            })?;
         let (_, traffic_signal_style) =
             wizard.choose("How should traffic signals be drawn?", || {
                 vec![
@@ -67,9 +75,6 @@ pub fn open_panel() -> Box<dyn State> {
                 ),
             ]
         })?;
-        let (_, dev) = wizard.choose("Enable developer mode?", || {
-            vec![Choice::new("yes", true), Choice::new("no", false)]
-        })?;
 
         if ui.opts.color_scheme != color_scheme {
             wizard.acknowledge("Changing color scheme", || {
@@ -81,6 +86,7 @@ pub fn open_panel() -> Box<dyn State> {
             })?;
         }
 
+        ctx.canvas.invert_scroll = invert_scroll;
         ui.opts.dev = dev;
 
         if ui.opts.traffic_signal_style != traffic_signal_style {

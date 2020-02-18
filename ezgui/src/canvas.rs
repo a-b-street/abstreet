@@ -23,7 +23,10 @@ pub struct Canvas {
 
     pub window_width: f64,
     pub window_height: f64,
+
+    // TODO Proper API for setting these
     pub map_dims: (f64, f64),
+    pub invert_scroll: bool,
 
     // TODO Bit weird and hacky to mutate inside of draw() calls.
     pub(crate) covered_areas: RefCell<Vec<ScreenRectangle>>,
@@ -51,7 +54,9 @@ impl Canvas {
 
             window_width: initial_width,
             window_height: initial_height,
+
             map_dims: (0.0, 0.0),
+            invert_scroll: false,
 
             covered_areas: RefCell::new(Vec::new()),
 

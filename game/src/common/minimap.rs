@@ -466,5 +466,5 @@ fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
             .centered_cross(),
         );
     }
-    ManagedWidget::col(col).bg(colors::PANEL_BG)
+    ManagedWidget::col(col).bg(colors::PANEL_BG).padding(5)
 }

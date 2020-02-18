@@ -36,7 +36,14 @@ pub(crate) struct State<G: GUI> {
 
 impl<G: GUI> State<G> {
     // The bool indicates if the input was actually used.
-    fn event(&mut self, ev: Event, prerender: &Prerender) -> (EventLoopMode, bool) {
+    fn event(&mut self, mut ev: Event, prerender: &Prerender) -> (EventLoopMode, bool) {
+        if let Event::MouseWheelScroll(dx, dy) = ev {
+            if self.canvas.invert_scroll {
+                // TODO Also dx?
+                ev = Event::MouseWheelScroll(dx, -dy);
+            }
+        }
+
         // It's impossible / very unlikey we'll grab the cursor in map space before the very first
         // start_drawing call.
         let input = UserInput::new(ev, &self.canvas);
