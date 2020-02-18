@@ -396,10 +396,10 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                 txt.add(Line(format!("- {}", r)));
             }
 
-            let cnt = sim.count_trips_involving_border(id);
-            if cnt.nonzero() {
+            let trip_lines = sim.count_trips_involving_border(id).describe();
+            if !trip_lines.is_empty() {
                 txt.add(Line(""));
-                for line in cnt.describe() {
+                for line in trip_lines {
                     txt.add(Line(line));
                 }
             }
@@ -477,10 +477,10 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
             }
 
             let mut txt = Text::new();
-            let cnt = sim.count_trips_involving_bldg(id);
-            if cnt.nonzero() {
+            let trip_lines = sim.count_trips_involving_bldg(id).describe();
+            if !trip_lines.is_empty() {
                 txt.add(Line(""));
-                for line in cnt.describe() {
+                for line in trip_lines {
                     txt.add(Line(line));
                 }
             }

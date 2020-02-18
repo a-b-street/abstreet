@@ -541,37 +541,37 @@ impl TripManager {
     }
     fn count_trips(&self, start: TripStart, end: TripEnd, now: Time) -> TripCount {
         let mut cnt = TripCount {
-            from_aborted: 0,
-            from_in_progress: 0,
-            from_completed: 0,
-            from_unstarted: 0,
-            to_aborted: 0,
-            to_in_progress: 0,
-            to_completed: 0,
-            to_unstarted: 0,
+            from_aborted: Vec::new(),
+            from_in_progress: Vec::new(),
+            from_completed: Vec::new(),
+            from_unstarted: Vec::new(),
+            to_aborted: Vec::new(),
+            to_in_progress: Vec::new(),
+            to_completed: Vec::new(),
+            to_unstarted: Vec::new(),
         };
         for trip in &self.trips {
             if trip.start == start {
                 if trip.aborted {
-                    cnt.from_aborted += 1;
+                    cnt.from_aborted.push(trip.id);
                 } else if trip.finished_at.is_some() {
-                    cnt.from_completed += 1;
+                    cnt.from_completed.push(trip.id);
                 } else if now >= trip.spawned_at {
-                    cnt.from_in_progress += 1;
+                    cnt.from_in_progress.push(trip.id);
                 } else {
-                    cnt.from_unstarted += 1;
+                    cnt.from_unstarted.push(trip.id);
                 }
             }
             // One trip might could towards both!
             if trip.end == end {
                 if trip.aborted {
-                    cnt.to_aborted += 1;
+                    cnt.to_aborted.push(trip.id);
                 } else if trip.finished_at.is_some() {
-                    cnt.to_completed += 1;
+                    cnt.to_completed.push(trip.id);
                 } else if now >= trip.spawned_at {
-                    cnt.to_in_progress += 1;
+                    cnt.to_in_progress.push(trip.id);
                 } else {
-                    cnt.to_unstarted += 1;
+                    cnt.to_unstarted.push(trip.id);
                 }
             }
         }
@@ -759,48 +759,49 @@ impl<T> TripResult<T> {
     }
 }
 
+// TODO Misnomer now
 pub struct TripCount {
-    pub from_aborted: usize,
-    pub from_in_progress: usize,
-    pub from_completed: usize,
-    pub from_unstarted: usize,
-    pub to_aborted: usize,
-    pub to_in_progress: usize,
-    pub to_completed: usize,
-    pub to_unstarted: usize,
+    pub from_aborted: Vec<TripID>,
+    pub from_in_progress: Vec<TripID>,
+    pub from_completed: Vec<TripID>,
+    pub from_unstarted: Vec<TripID>,
+    pub to_aborted: Vec<TripID>,
+    pub to_in_progress: Vec<TripID>,
+    pub to_completed: Vec<TripID>,
+    pub to_unstarted: Vec<TripID>,
 }
 
 impl TripCount {
-    pub fn nonzero(&self) -> bool {
-        self.from_aborted
-            + self.from_in_progress
-            + self.from_completed
-            + self.from_unstarted
-            + self.to_aborted
-            + self.to_in_progress
-            + self.to_completed
-            + self.to_unstarted
-            > 0
-    }
-
     pub fn describe(&self) -> Vec<String> {
-        vec![
-            format!(
-                "Aborted trips: {} from here, {} to here",
-                self.from_aborted, self.to_aborted
-            ),
-            format!(
+        let mut lines = Vec::new();
+        if !self.from_completed.is_empty() || !self.to_completed.is_empty() {
+            lines.push(format!(
                 "Finished trips: {} from here, {} to here",
-                self.from_completed, self.to_completed
-            ),
-            format!(
+                self.from_completed.len(),
+                self.to_completed.len()
+            ));
+        }
+        if !self.from_in_progress.is_empty() || !self.to_in_progress.is_empty() {
+            lines.push(format!(
                 "In-progress trips: {} from here, {} to here",
-                self.from_in_progress, self.to_in_progress
-            ),
-            format!(
+                self.from_in_progress.len(),
+                self.to_in_progress.len()
+            ));
+        }
+        if !self.from_unstarted.is_empty() || !self.to_unstarted.is_empty() {
+            lines.push(format!(
                 "Future trips: {} from here, {} to here",
-                self.from_unstarted, self.to_unstarted
-            ),
-        ]
+                self.from_unstarted.len(),
+                self.to_unstarted.len()
+            ));
+        }
+        if !self.from_aborted.is_empty() || !self.to_aborted.is_empty() {
+            lines.push(format!(
+                "Aborted trips: {} from here, {} to here",
+                self.from_aborted.len(),
+                self.to_aborted.len()
+            ));
+        }
+        lines
     }
 }
