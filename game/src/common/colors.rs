@@ -3,8 +3,8 @@ use crate::managed::WrappedComposite;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::UI;
 use ezgui::{
-    Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
-    ManagedWidget, Outcome, Text, VerticalAlignment,
+    Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, ManagedWidget,
+    Outcome, Text, VerticalAlignment,
 };
 use geom::{Circle, Distance, Pt2D};
 use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, Map, RoadID};
@@ -165,6 +165,12 @@ pub struct ColorLegend {}
 
 impl ColorLegend {
     pub fn row<S: Into<String>>(ctx: &mut EventCtx, color: Color, label: S) -> ManagedWidget {
+        // TODO This is a little specialized for info panels.
+        let mut txt = Text::new();
+        // TODO This is wider than the 0.35 of info panels, because add_wrapped is quite bad at max
+        // char width right now.
+        txt.add_wrapped(label.into(), 0.5 * ctx.canvas.window_width);
+
         let radius = 15.0;
         ManagedWidget::row(vec![
             ManagedWidget::draw_batch(
@@ -174,8 +180,9 @@ impl ColorLegend {
                     Circle::new(Pt2D::new(radius, radius), Distance::meters(radius)).to_polygon(),
                 )]),
             )
-            .margin(5),
-            ManagedWidget::draw_text(ctx, Text::from(Line(label))),
+            .margin(5)
+            .centered_vert(),
+            ManagedWidget::draw_text(ctx, txt),
         ])
     }
 }

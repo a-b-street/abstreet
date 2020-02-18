@@ -116,4 +116,13 @@ impl Intersection {
     pub fn some_incoming_road(&self, map: &Map) -> DirectedRoadID {
         map.get_l(self.incoming_lanes[0]).get_directed_parent(map)
     }
+
+    pub fn name(&self, map: &Map) -> String {
+        let road_names = self
+            .roads
+            .iter()
+            .map(|r| map.get_r(*r).get_name())
+            .collect::<BTreeSet<_>>();
+        abstutil::plain_list_names(road_names)
+    }
 }

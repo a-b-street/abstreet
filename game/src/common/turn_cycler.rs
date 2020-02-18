@@ -1,6 +1,5 @@
 use crate::colors;
 use crate::game::{DrawBaselayer, State, Transition};
-use crate::helpers::plain_list_names;
 use crate::helpers::ID;
 use crate::options::TrafficSignalStyle;
 use crate::render::{dashed_lines, draw_signal_phase, DrawOptions, DrawTurn};
@@ -12,7 +11,6 @@ use ezgui::{
 use geom::{Distance, Polygon, Time};
 use map_model::{IntersectionID, LaneID, Map, TurnType};
 use sim::{AgentID, DontDrawAgents};
-use std::collections::BTreeSet;
 
 // TODO Misnomer. Kind of just handles temporary hovering things now.
 pub enum TurnCyclerState {
@@ -267,17 +265,12 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
     let signal = ui.primary.map.get_traffic_signal(i);
     let mut col = vec![ManagedWidget::draw_text(ctx, {
         let mut txt = Text::new();
-        let road_names = ui
-            .primary
-            .map
-            .get_i(i)
-            .roads
-            .iter()
-            .map(|r| ui.primary.map.get_r(*r).get_name())
-            .collect::<BTreeSet<_>>();
         // TODO Style inside here. Also 0.4 is manually tuned and pretty wacky, because it
         // assumes default font.
-        txt.add_wrapped(plain_list_names(road_names), 0.4 * ctx.canvas.window_width);
+        txt.add_wrapped(
+            ui.primary.map.get_i(i).name(&ui.primary.map),
+            0.4 * ctx.canvas.window_width,
+        );
         txt.add(Line(format!("{} phases", signal.phases.len())));
         txt.add(Line(format!("Signal offset: {}", signal.offset)));
         txt.add(Line(format!("One cycle lasts {}", signal.cycle_length())));

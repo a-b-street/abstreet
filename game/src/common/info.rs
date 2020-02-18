@@ -786,14 +786,13 @@ fn trip_details(trip: TripID, ctx: &mut EventCtx, ui: &UI) -> (ManagedWidget, Dr
             }
             TripStart::Border(i) => {
                 let i = map.get_i(i);
-                // TODO How to name the intersection succinctly?
                 col.push(ColorLegend::row(
                     ctx,
                     color,
                     format!(
                         "{}: start at {}",
                         phases[0].start_time.ampm_tostring(),
-                        i.id
+                        i.name(&ui.primary.map),
                     ),
                 ));
                 unzoomed.push(color, i.polygon.clone());
@@ -854,11 +853,10 @@ fn trip_details(trip: TripID, ctx: &mut EventCtx, ui: &UI) -> (ManagedWidget, Dr
             }
             TripEnd::Border(i) => {
                 let i = map.get_i(i);
-                // TODO name it better
                 col.push(ColorLegend::row(
                     ctx,
                     color,
-                    format!("{}end at {}", time, i.id),
+                    format!("{}end at {}", time, i.name(&ui.primary.map)),
                 ));
                 unzoomed.push(color, i.polygon.clone());
                 zoomed.push(color, i.polygon.clone());

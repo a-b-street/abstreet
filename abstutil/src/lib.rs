@@ -25,6 +25,8 @@ pub use crate::random::{fork_rng, WeightedUsizeChoice};
 pub use crate::time::{
     elapsed_seconds, prettyprint_usize, MeasureMemory, Profiler, Timer, TimerSink,
 };
+use std::collections::BTreeSet;
+use std::fmt::Write;
 
 const PROGRESS_FREQUENCY_SECONDS: f64 = 0.2;
 
@@ -49,6 +51,26 @@ pub fn clamp(x: f64, min: f64, max: f64) -> f64 {
     } else {
         x
     }
+}
+
+pub fn plain_list_names(names: BTreeSet<String>) -> String {
+    let mut s = String::new();
+    let len = names.len();
+    for (idx, n) in names.into_iter().enumerate() {
+        if idx != 0 {
+            if idx == len - 1 {
+                if len == 2 {
+                    write!(s, " and ").unwrap();
+                } else {
+                    write!(s, ", and ").unwrap();
+                }
+            } else {
+                write!(s, ", ").unwrap();
+            }
+        }
+        write!(s, "{}", n).unwrap();
+    }
+    s
 }
 
 // System data (Players can't edit, needed at runtime)

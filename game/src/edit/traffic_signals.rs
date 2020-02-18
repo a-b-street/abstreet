@@ -2,7 +2,6 @@ use crate::colors;
 use crate::common::CommonState;
 use crate::edit::{apply_map_edits, close_intersection};
 use crate::game::{msg, DrawBaselayer, State, Transition, WizardState};
-use crate::helpers::plain_list_names;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::options::TrafficSignalStyle;
 use crate::render::{draw_signal_phase, DrawOptions, DrawTurnGroup, BIG_ARROW_THICKNESS};
@@ -414,17 +413,12 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
     let mut col = vec![
         ManagedWidget::draw_text(ctx, {
             let mut txt = Text::new();
-            let road_names = ui
-                .primary
-                .map
-                .get_i(i)
-                .roads
-                .iter()
-                .map(|r| ui.primary.map.get_r(*r).get_name())
-                .collect::<BTreeSet<_>>();
             // TODO Style inside here. Also 0.4 is manually tuned and pretty wacky, because it
             // assumes default font.
-            txt.add_wrapped(plain_list_names(road_names), 0.4 * ctx.canvas.window_width);
+            txt.add_wrapped(
+                ui.primary.map.get_i(i).name(&ui.primary.map),
+                0.4 * ctx.canvas.window_width,
+            );
             txt.add(Line(""));
             txt.add(Line(format!("{} phases", signal.phases.len())));
             txt.add(Line(format!("Signal offset: {}", signal.offset)));
