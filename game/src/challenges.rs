@@ -15,7 +15,6 @@ use std::collections::{BTreeMap, HashSet};
 pub struct Challenge {
     title: String,
     pub description: Vec<String>,
-    pub map_path: String,
     pub alias: String,
     pub gameplay: GameplayMode,
 }
@@ -29,14 +28,12 @@ pub fn all_challenges(dev: bool) -> BTreeMap<String, Vec<Challenge>> {
             Challenge {
                 title: "Tutorial 1".to_string(),
                 description: vec!["Add or remove a dedicated left phase".to_string()],
-                map_path: abstutil::path_synthetic_map("signal_single"),
                 alias: "trafficsig/tut1".to_string(),
                 gameplay: GameplayMode::FixTrafficSignalsTutorial(0),
             },
             Challenge {
                 title: "Tutorial 2".to_string(),
                 description: vec!["Deal with heavy foot traffic".to_string()],
-                map_path: abstutil::path_synthetic_map("signal_single"),
                 alias: "trafficsig/tut2".to_string(),
                 gameplay: GameplayMode::FixTrafficSignalsTutorial(1),
             },
@@ -52,7 +49,6 @@ pub fn all_challenges(dev: bool) -> BTreeMap<String, Vec<Challenge>> {
                     "".to_string(),
                     "Objective: Reduce the average trip time by at least 30s".to_string(),
                 ],
-                map_path: abstutil::path_map("montlake"),
                 alias: "trafficsig/main".to_string(),
                 gameplay: GameplayMode::FixTrafficSignals,
             },
@@ -67,18 +63,22 @@ pub fn all_challenges(dev: bool) -> BTreeMap<String, Vec<Challenge>> {
                     description: vec!["Decrease the average waiting time between all of route \
                                        43's stops by at least 30s"
                         .to_string()],
-                    map_path: abstutil::path_map("montlake"),
                     alias: "bus/43_montlake".to_string(),
-                    gameplay: GameplayMode::OptimizeBus("43".to_string()),
+                    gameplay: GameplayMode::OptimizeBus(
+                        abstutil::path_map("montlake"),
+                        "43".to_string(),
+                    ),
                 },
                 Challenge {
                     title: "Route 43 in a larger area".to_string(),
                     description: vec!["Decrease the average waiting time between all of 43's \
                                        stops by at least 30s"
                         .to_string()],
-                    map_path: abstutil::path_map("23rd"),
                     alias: "bus/43_23rd".to_string(),
-                    gameplay: GameplayMode::OptimizeBus("43".to_string()),
+                    gameplay: GameplayMode::OptimizeBus(
+                        abstutil::path_map("23rd"),
+                        "43".to_string(),
+                    ),
                 },
             ],
         );
@@ -87,9 +87,8 @@ pub fn all_challenges(dev: bool) -> BTreeMap<String, Vec<Challenge>> {
             vec![Challenge {
                 title: "Gridlock all of the everything".to_string(),
                 description: vec!["Make traffic as BAD as possible!".to_string()],
-                map_path: abstutil::path_map("montlake"),
                 alias: "gridlock".to_string(),
-                gameplay: GameplayMode::CreateGridlock,
+                gameplay: GameplayMode::CreateGridlock(abstutil::path_map("montlake")),
             }],
         );
         tree.insert(
@@ -100,18 +99,22 @@ pub fn all_challenges(dev: bool) -> BTreeMap<String, Vec<Challenge>> {
                     description: vec![
                         "Reduce the 50%ile trip times of bikes by at least 1 minute".to_string()
                     ],
-                    map_path: abstutil::path_map("montlake"),
                     alias: "fave/bike".to_string(),
-                    gameplay: GameplayMode::FasterTrips(TripMode::Bike),
+                    gameplay: GameplayMode::FasterTrips(
+                        abstutil::path_map("montlake"),
+                        TripMode::Bike,
+                    ),
                 },
                 Challenge {
                     title: "Speed up all car trips".to_string(),
                     description: vec!["Reduce the 50%ile trip times of drivers by at least 5 \
                                        minutes"
                         .to_string()],
-                    map_path: abstutil::path_map("montlake"),
                     alias: "fave/car".to_string(),
-                    gameplay: GameplayMode::FasterTrips(TripMode::Drive),
+                    gameplay: GameplayMode::FasterTrips(
+                        abstutil::path_map("montlake"),
+                        TripMode::Drive,
+                    ),
                 },
             ],
         );
@@ -236,9 +239,6 @@ impl Tab {
             cbs.push((
                 "Start!".to_string(),
                 Box::new(move |ctx, ui| {
-                    if &abstutil::basename(&challenge.map_path) != ui.primary.map.get_name() {
-                        ui.switch_map(ctx, challenge.map_path.clone());
-                    }
                     Some(Transition::Replace(Box::new(SandboxMode::new(
                         ctx,
                         ui,
@@ -268,7 +268,7 @@ pub fn prebake_all() {
     for (_, list) in all_challenges(true) {
         for c in list {
             per_map
-                .entry(c.map_path.clone())
+                .entry(c.gameplay.map_path())
                 .or_insert_with(Vec::new)
                 .push(c);
         }

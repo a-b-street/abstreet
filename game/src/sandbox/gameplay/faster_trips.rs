@@ -17,7 +17,11 @@ pub struct FasterTrips {
 }
 
 impl FasterTrips {
-    pub fn new(trip_mode: TripMode, ctx: &mut EventCtx) -> Box<dyn GameplayState> {
+    pub fn new(
+        ctx: &mut EventCtx,
+        trip_mode: TripMode,
+        mode: GameplayMode,
+    ) -> Box<dyn GameplayState> {
         Box::new(FasterTrips {
             mode: trip_mode,
             time: Time::START_OF_DAY,
@@ -25,7 +29,7 @@ impl FasterTrips {
                 .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
             top_center: challenge_controller(
                 ctx,
-                GameplayMode::FasterTrips(trip_mode),
+                mode,
                 &format!("Faster {} Trips Challenge", trip_mode),
                 Vec::new(),
             ),

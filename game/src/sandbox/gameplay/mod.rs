@@ -31,13 +31,17 @@ use sim::{Analytics, Scenario, TripMode};
 #[derive(PartialEq, Clone)]
 pub enum GameplayMode {
     // TODO Maybe this should be "sandbox"
-    Freeform,
-    PlayScenario(String),
-    // Route name
-    OptimizeBus(String),
-    CreateGridlock,
+    // Map path
+    Freeform(String),
+    // Map path, scenario name
+    PlayScenario(String, String),
+    // Map path, Route name
+    OptimizeBus(String, String),
+    // Map path
+    CreateGridlock(String),
     // TODO Be able to filter population by more factors
-    FasterTrips(TripMode),
+    // Map path
+    FasterTrips(String, TripMode),
     FixTrafficSignals,
     // TODO Kinda gross. What stage in the tutorial?
     FixTrafficSignalsTutorial(usize),
@@ -81,6 +85,21 @@ pub trait GameplayState: downcast_rs::Downcast {
 downcast_rs::impl_downcast!(GameplayState);
 
 impl GameplayMode {
+    pub fn map_path(&self) -> String {
+        match self {
+            GameplayMode::Freeform(ref path) => path.to_string(),
+            GameplayMode::PlayScenario(ref path, _) => path.to_string(),
+            GameplayMode::OptimizeBus(ref path, _) => path.to_string(),
+            GameplayMode::CreateGridlock(ref path) => path.to_string(),
+            GameplayMode::FasterTrips(ref path, _) => path.to_string(),
+            GameplayMode::FixTrafficSignals => abstutil::path_map("montlake"),
+            GameplayMode::FixTrafficSignalsTutorial(_) => {
+                abstutil::path_synthetic_map("signal_single")
+            }
+            GameplayMode::Tutorial(_) => abstutil::path_map("montlake"),
+        }
+    }
+
     pub fn scenario(
         &self,
         map: &Map,
@@ -88,10 +107,10 @@ impl GameplayMode {
         timer: &mut Timer,
     ) -> Option<Scenario> {
         let name = match self {
-            GameplayMode::Freeform => {
+            GameplayMode::Freeform(_) => {
                 return None;
             }
-            GameplayMode::PlayScenario(ref scenario) => scenario.to_string(),
+            GameplayMode::PlayScenario(_, ref scenario) => scenario.to_string(),
             GameplayMode::FixTrafficSignalsTutorial(stage) => {
                 if *stage == 0 {
                     return Some(fix_traffic_signals::tutorial_scenario_lvl1(map));
@@ -158,7 +177,11 @@ impl GameplayMode {
     }
 
     pub fn initialize(&self, ui: &mut UI, ctx: &mut EventCtx) -> Box<dyn GameplayState> {
-        ctx.loading_screen("instantiate scenario", |_, timer| {
+        ctx.loading_screen("setup challenge", |ctx, timer| {
+            if &abstutil::basename(&self.map_path()) != ui.primary.map.get_name() {
+                ui.switch_map(ctx, self.map_path());
+            }
+
             if let Some(scenario) =
                 self.scenario(&ui.primary.map, ui.primary.current_flags.num_agents, timer)
             {
@@ -199,15 +222,19 @@ impl GameplayMode {
             }
         });
         match self {
-            GameplayMode::Freeform => freeform::Freeform::new(ctx, ui),
-            GameplayMode::PlayScenario(ref scenario) => {
-                play_scenario::PlayScenario::new(scenario, ctx, ui)
+            GameplayMode::Freeform(_) => freeform::Freeform::new(ctx, ui, self.clone()),
+            GameplayMode::PlayScenario(_, ref scenario) => {
+                play_scenario::PlayScenario::new(ctx, ui, scenario, self.clone())
             }
-            GameplayMode::OptimizeBus(ref route_name) => {
-                optimize_bus::OptimizeBus::new(route_name, ctx, ui)
+            GameplayMode::OptimizeBus(_, ref route_name) => {
+                optimize_bus::OptimizeBus::new(ctx, ui, route_name, self.clone())
             }
-            GameplayMode::CreateGridlock => create_gridlock::CreateGridlock::new(ctx),
-            GameplayMode::FasterTrips(trip_mode) => faster_trips::FasterTrips::new(*trip_mode, ctx),
+            GameplayMode::CreateGridlock(_) => {
+                create_gridlock::CreateGridlock::new(ctx, self.clone())
+            }
+            GameplayMode::FasterTrips(_, trip_mode) => {
+                faster_trips::FasterTrips::new(ctx, *trip_mode, self.clone())
+            }
             GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial(_) => {
                 fix_traffic_signals::FixTrafficSignals::new(ctx, self.clone())
             }

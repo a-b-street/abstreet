@@ -142,10 +142,6 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
     .cb(
         "Tutorial",
         Box::new(|ctx, ui| {
-            if ui.primary.map.get_name() != "montlake" {
-                ui.switch_map(ctx, abstutil::path_map("montlake"));
-            }
-
             Some(Transition::Push(Box::new(SandboxMode::new(
                 ctx,
                 ui,
@@ -162,17 +158,18 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
     .cb(
         "Sandbox mode",
         Box::new(|ctx, ui| {
-            // We might've left tutorial mode with a synthetic map loaded.
-            if !abstutil::list_all_objects(abstutil::path_all_maps())
+            // We might've left with a synthetic map loaded.
+            let map_path = if abstutil::list_all_objects(abstutil::path_all_maps())
                 .contains(ui.primary.map.get_name())
             {
-                ui.switch_map(ctx, abstutil::path_map("montlake"));
-            }
-
+                abstutil::path_map(ui.primary.map.get_name())
+            } else {
+                abstutil::path_map("montlake")
+            };
             Some(Transition::Push(Box::new(SandboxMode::new(
                 ctx,
                 ui,
-                GameplayMode::PlayScenario("random".to_string()),
+                GameplayMode::PlayScenario(map_path, "random".to_string()),
             ))))
         }),
     )
@@ -285,14 +282,14 @@ fn proposals_picker(ctx: &mut EventCtx) -> Box<dyn State> {
                 cbs.push((
                     path,
                     Box::new(move |ctx, ui| {
-                        if ui.primary.map.get_name() != &edits.map_name {
-                            ui.switch_map(ctx, abstutil::path_map(&edits.map_name));
-                        }
                         // TODO apply edits
                         Some(Transition::Push(Box::new(SandboxMode::new(
                             ctx,
                             ui,
-                            GameplayMode::PlayScenario("weekday".to_string()),
+                            GameplayMode::PlayScenario(
+                                abstutil::path_map(&edits.map_name),
+                                "weekday".to_string(),
+                            ),
                         ))))
                     }),
                 ));

@@ -59,21 +59,21 @@ fn main() {
         settings.default_font_size(n);
     }
 
-    let mut mode = sandbox::GameplayMode::Freeform;
+    let mut mode = None;
     if let Some(x) = args.optional("--challenge") {
         let mut aliases = Vec::new();
         'OUTER: for (_, stages) in challenges::all_challenges(true) {
             for challenge in stages {
                 if challenge.alias == x {
-                    mode = challenge.gameplay;
-                    flags.sim_flags.load = challenge.map_path;
+                    flags.sim_flags.load = challenge.gameplay.map_path();
+                    mode = Some(challenge.gameplay);
                     break 'OUTER;
                 } else {
                     aliases.push(challenge.alias);
                 }
             }
         }
-        if mode == sandbox::GameplayMode::Freeform {
+        if mode.is_none() {
             panic!(
                 "Don't know --challenge={}. Choices: {}",
                 x,
@@ -82,7 +82,7 @@ fn main() {
         }
     }
     if let Some(n) = args.optional_parse("--tutorial", |s| s.parse::<usize>()) {
-        mode = sandbox::GameplayMode::Tutorial(n - 1);
+        mode = Some(sandbox::GameplayMode::Tutorial(n - 1));
     }
 
     args.done();

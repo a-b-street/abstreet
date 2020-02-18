@@ -21,7 +21,12 @@ pub struct OptimizeBus {
 }
 
 impl OptimizeBus {
-    pub fn new(route_name: &str, ctx: &mut EventCtx, ui: &UI) -> Box<dyn GameplayState> {
+    pub fn new(
+        ctx: &mut EventCtx,
+        ui: &UI,
+        route_name: &str,
+        mode: GameplayMode,
+    ) -> Box<dyn GameplayState> {
         let route = ui.primary.map.get_bus_route(route_name).unwrap();
         Box::new(OptimizeBus {
             route: route.id,
@@ -40,7 +45,7 @@ impl OptimizeBus {
             .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
             top_center: challenge_controller(
                 ctx,
-                GameplayMode::OptimizeBus(route_name.to_string()),
+                mode,
                 &format!("Optimize {} Challenge", route_name),
                 Vec::new(),
             ),

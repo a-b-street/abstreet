@@ -23,10 +23,10 @@ pub struct Freeform {
 }
 
 impl Freeform {
-    pub fn new(ctx: &mut EventCtx, ui: &UI) -> Box<dyn GameplayState> {
+    pub fn new(ctx: &mut EventCtx, ui: &UI, mode: GameplayMode) -> Box<dyn GameplayState> {
         Box::new(Freeform {
             spawn_pts: BTreeSet::new(),
-            top_center: freeform_controller(ctx, ui, GameplayMode::Freeform, "none"),
+            top_center: freeform_controller(ctx, ui, mode, "none"),
         })
     }
 }
@@ -174,12 +174,17 @@ fn make_load_map(btn: ScreenRectangle, gameplay: GameplayMode) -> Box<dyn State>
                     .collect()
             },
         ) {
-            ui.switch_map(ctx, abstutil::path_map(&name));
-            // Assume a scenario with the same name exists.
             Some(Transition::PopThenReplace(Box::new(SandboxMode::new(
                 ctx,
                 ui,
-                gameplay.clone(),
+                match gameplay {
+                    GameplayMode::Freeform(_) => GameplayMode::Freeform(abstutil::path_map(&name)),
+                    // Assume a scenario with the same name exists.
+                    GameplayMode::PlayScenario(_, ref scenario) => {
+                        GameplayMode::PlayScenario(abstutil::path_map(&name), scenario.clone())
+                    }
+                    _ => unreachable!(),
+                },
             ))))
         } else if wiz.aborted() {
             Some(Transition::Pop)
@@ -222,13 +227,14 @@ fn make_change_traffic(btn: ScreenRectangle) -> Box<dyn State> {
             },
         )?;
         ui.primary.clear_sim();
+        let map_path = abstutil::path_map(ui.primary.map.get_name());
         Some(Transition::PopThenReplace(Box::new(SandboxMode::new(
             ctx,
             ui,
             if scenario_name == "empty" {
-                GameplayMode::Freeform
+                GameplayMode::Freeform(map_path)
             } else {
-                GameplayMode::PlayScenario(scenario_name)
+                GameplayMode::PlayScenario(map_path, scenario_name)
             },
         ))))
     }))

@@ -17,17 +17,12 @@ pub struct CreateGridlock {
 }
 
 impl CreateGridlock {
-    pub fn new(ctx: &mut EventCtx) -> Box<dyn GameplayState> {
+    pub fn new(ctx: &mut EventCtx, mode: GameplayMode) -> Box<dyn GameplayState> {
         Box::new(CreateGridlock {
             time: Time::START_OF_DAY,
             menu: ModalMenu::new("", vec![(hotkey(Key::E), "show agent delay")], ctx)
                 .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
-            top_center: challenge_controller(
-                ctx,
-                GameplayMode::CreateGridlock,
-                "Gridlock Challenge",
-                Vec::new(),
-            ),
+            top_center: challenge_controller(ctx, mode, "Gridlock Challenge", Vec::new()),
         })
     }
 }

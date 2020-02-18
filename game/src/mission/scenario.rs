@@ -3,7 +3,6 @@ use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::mission::pick_time_range;
-use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Counter, MultiMap, WeightedUsizeChoice};
 use ezgui::{
@@ -120,7 +119,6 @@ impl ScenarioManager {
                 vec![
                     (hotkey(Key::S), "save"),
                     (hotkey(Key::E), "edit"),
-                    (hotkey(Key::R), "instantiate"),
                     (hotkey(Key::D), "dot map"),
                 ],
                 ctx,
@@ -173,12 +171,6 @@ impl State for ScenarioManager {
                 scenario: self.scenario.clone(),
                 wizard: Wizard::new(),
             }));
-        } else if self.menu.action("instantiate") {
-            return Transition::PopThenReplace(Box::new(SandboxMode::new(
-                ctx,
-                ui,
-                GameplayMode::PlayScenario(self.scenario.scenario_name.clone()),
-            )));
         } else if self.menu.action("dot map") {
             return Transition::Push(Box::new(DotMap::new(ctx, ui, &self.scenario)));
         }

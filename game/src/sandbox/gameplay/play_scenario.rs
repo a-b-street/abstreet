@@ -11,14 +11,14 @@ pub struct PlayScenario {
 }
 
 impl PlayScenario {
-    pub fn new(name: &String, ctx: &mut EventCtx, ui: &UI) -> Box<dyn GameplayState> {
+    pub fn new(
+        ctx: &mut EventCtx,
+        ui: &UI,
+        name: &String,
+        mode: GameplayMode,
+    ) -> Box<dyn GameplayState> {
         Box::new(PlayScenario {
-            top_center: freeform_controller(
-                ctx,
-                ui,
-                GameplayMode::PlayScenario(name.to_string()),
-                name,
-            ),
+            top_center: freeform_controller(ctx, ui, mode, name),
         })
     }
 }

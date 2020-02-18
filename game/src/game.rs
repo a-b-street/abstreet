@@ -17,11 +17,16 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(flags: Flags, opts: Options, mode: GameplayMode, ctx: &mut EventCtx) -> Game {
+    pub fn new(
+        flags: Flags,
+        opts: Options,
+        maybe_mode: Option<GameplayMode>,
+        ctx: &mut EventCtx,
+    ) -> Game {
         let title = !opts.dev
             && !flags.sim_flags.load.contains("data/player/save")
             && !flags.sim_flags.load.contains("data/system/scenarios")
-            && mode == GameplayMode::Freeform;
+            && maybe_mode.is_none();
         ctx.set_textures(
             vec![
                 (
@@ -39,6 +44,10 @@ impl Game {
         let states: Vec<Box<dyn State>> = if title {
             vec![Box::new(TitleScreen::new(ctx, &ui))]
         } else {
+            // TODO We're assuming we never wind up starting freeform mode with a synthetic map
+            let mode = maybe_mode.unwrap_or_else(|| {
+                GameplayMode::Freeform(abstutil::path_map(ui.primary.map.get_name()))
+            });
             vec![Box::new(SandboxMode::new(ctx, &mut ui, mode))]
         };
         Game { states, ui }
