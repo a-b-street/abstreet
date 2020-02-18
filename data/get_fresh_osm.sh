@@ -10,4 +10,4 @@ osmupdate -v washington-latest.osm.pbf updated_wa.osm.pbf
 rm -fv washington-latest.osm.pbf data/input/osm/*.osm
 osmconvert updated_wa.osm.pbf -B=data/input/polygons/huge_seattle.poly --complete-ways -o=data/input/osm/Seattle.osm
 rm -fv updated_wa.osm.pbf
-# Then delete the individual .osm's desired and run import.sh
+# Then run import.sh

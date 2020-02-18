@@ -286,7 +286,12 @@ impl Map {
     }
 
     pub fn get_t(&self, id: TurnID) -> &Turn {
-        &self.turns[&id]
+        // When pathfinding breaks, seeing this TurnID is useful.
+        if let Some(ref t) = self.turns.get(&id) {
+            t
+        } else {
+            panic!("Can't get_t({})", id);
+        }
     }
 
     pub fn get_b(&self, id: BuildingID) -> &Building {

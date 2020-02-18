@@ -7,6 +7,7 @@ b5f64e800ea1e70b2326792aee494e9a  data/input/osm/huge_seattle.osm
 c2f29dfce01a727671b9c67772ee3ed5  data/input/osm/ballard.osm
 f36e72469646c1cf25ceb42ae82b2a6f  data/input/osm/23rd.osm
 79f7686dcb469a6262e13d5e61571303  data/input/osm/downtown.osm
+9315a7df9e878865ff361ea89129970b  data/input/osm/intl_district.osm
 791b47c83ef94d65c709be027061d13c  data/input/osm/caphill.osm
 e2a3187ab5be2bf76369823853d86c14  data/input/osm/Seattle.osm
 b0294210de30fee57a204f4c7852df9d  data/input/neighborhoods/ballard/West Woodland.json
@@ -14,6 +15,7 @@ b0294210de30fee57a204f4c7852df9d  data/input/neighborhoods/ballard/West Woodland
 0273adb18ead495ff542fb7c90b779cc  data/input/neighborhoods/ballard/Phinney Ridge.json
 13a49dbacf1e40c2a68e756632128b7f  data/input/neighborhoods/ballard/Fremont.json
 af08ef81c9ba3d693854f65180d6c42c  data/input/neighborhoods/ballard/Lawton Park.json
+07d2b3da4fe8e71328762bb3a4a26ba0  data/input/neighborhoods/intl_district/International District.json
 721155dd7662b9aaaf68b222aa731560  data/input/neighborhoods/x1/Harrison - Denny-Blaine.json
 2e9dbd878640b904307dcadc1fd7334f  data/input/neighborhoods/x1/Madison Park.json
 f2b26082d44df01339f30d1cc2eb4178  data/input/neighborhoods/x1/Portage Bay.json
@@ -89,6 +91,7 @@ b8192a6fccb53cc1206364f4e80e08c9  data/input/raw_maps/ballard.bin
 1ef4bb1b5bf8c994643dbb77291a3524  data/input/raw_maps/downtown.bin
 24b3da18bf5be425a83ddea6c7a71d8d  data/input/raw_maps/caphill.bin
 feac6a64503a6f976b95e6c2236882ba  data/input/raw_maps/montlake.bin
+e54d7409d6fad13556f6cd7bdee78346  data/input/raw_maps/intl_district.bin
 d7e630552af64d49ff58c92a55e09356  data/input/raw_maps/23rd.bin
 2bc84e4d194d7cea6007ae3b93f3b11b  data/input/neighborhoods.geojson
 9cd47678c7f9dfc2cb80d79f90699d6f  data/input/offstreet_parking.kml
@@ -96,6 +99,7 @@ d7e630552af64d49ff58c92a55e09356  data/input/raw_maps/23rd.bin
 428bc2e92ea02089cedbb614ce1d8f25  data/input/polygons/caphill.poly
 4f291bbe84ac32a98d7d100be79ddc4b  data/input/polygons/huge_seattle.poly
 418bcd5b335d12a1aa8ef556367e0bad  data/input/polygons/montlake.poly
+502f3bf285833fc061099a52f2f70819  data/input/polygons/intl_district.poly
 5d48031ff3b288ecb22bd2a96809a0ab  data/input/polygons/ballard.poly
 0304847f270859fcfc19c8ca122ed793  data/input/polygons/23rd.poly
 54f5f16e5ec925cb29b4d1405a89ef94  data/input/polygons/downtown.poly
@@ -198,11 +202,13 @@ c828bba3efc56d0cec05687ad3876ecf  data/system/maps/huge_seattle.bin
 6566e2454957e9176516098ffbf1df74  data/system/maps/downtown.bin
 bb56cff1e30972e1c06047cd6ee5fb2d  data/system/maps/caphill.bin
 bdf60f12b14c6ba71696d75e5786dc15  data/system/maps/montlake.bin
+223d5de2338994edfa7c031f28acf8ed  data/system/maps/intl_district.bin
 3ff346bcdf8b0eb47448fe1cc3b54bf3  data/system/maps/23rd.bin
 d71169fc1789707c403e70e6f2cc27d4  data/system/synthetic_maps/signal_double.json
 407cf814c6b5c73b5e1857529b94a204  data/system/synthetic_maps/signal_single.json
 7e3b93d87b5c6cf4788122e7f65ecac1  data/system/synthetic_maps/signal_fan_in.json
 170bc2dd2ff2af864bd593e54963b1dc  data/system/scenarios/ballard/weekday.bin
+c0c4d41286fb37c0757643d47b165ad1  data/system/scenarios/intl_district/weekday.bin
 bfb6c5abe4b9de1f9b254c0c2a5cdf52  data/system/scenarios/23rd/weekday.bin
 f9f0a109966db097617a13122ecaa6f3  data/system/scenarios/downtown/weekday.bin
 dd54763cfda7fce4c401ae122c6daf57  data/system/scenarios/huge_seattle/weekday.bin
