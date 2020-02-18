@@ -25,7 +25,7 @@ use ezgui::{
     ManagedWidget, ModalMenu, Outcome, Text, VerticalAlignment,
 };
 use geom::{Duration, Polygon};
-use map_model::{EditCmd, Map, MapEdits};
+use map_model::{EditCmd, EditIntersection, Map, MapEdits};
 use sim::{Analytics, Scenario, TripMode};
 
 #[derive(PartialEq, Clone)]
@@ -163,14 +163,14 @@ impl GameplayMode {
                         return false;
                     }
                 }
-                EditCmd::ChangeStopSign(_) => {
-                    if !self.can_edit_stop_signs() {
-                        return false;
+                EditCmd::ChangeIntersection { ref new, .. } => match new {
+                    EditIntersection::StopSign(_) => {
+                        if !self.can_edit_stop_signs() {
+                            return false;
+                        }
                     }
-                }
-                EditCmd::ChangeTrafficSignal(_)
-                | EditCmd::CloseIntersection { .. }
-                | EditCmd::UncloseIntersection(_, _) => {}
+                    _ => {}
+                },
             }
         }
         true

@@ -14,8 +14,8 @@ use ezgui::{
 };
 use geom::{Distance, Duration, Polygon};
 use map_model::{
-    ControlStopSign, ControlTrafficSignal, EditCmd, IntersectionID, Phase, TurnGroupID,
-    TurnPriority,
+    ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Phase,
+    TurnGroupID, TurnPriority,
 };
 use sim::Sim;
 use std::collections::BTreeSet;
@@ -116,12 +116,14 @@ impl State for TrafficSignalEditor {
                 }
                 x if x == "Convert to stop sign" => {
                     let mut edits = ui.primary.map.get_edits().clone();
-                    edits
-                        .commands
-                        .push(EditCmd::ChangeStopSign(ControlStopSign::new(
+                    edits.commands.push(EditCmd::ChangeIntersection {
+                        i: self.i,
+                        old: ui.primary.map.get_i_edit(self.i),
+                        new: EditIntersection::StopSign(ControlStopSign::new(
                             &ui.primary.map,
                             self.i,
-                        )));
+                        )),
+                    });
                     apply_map_edits(ctx, ui, edits);
                     return Transition::Replace(Box::new(StopSignEditor::new(
                         self.i,
@@ -608,18 +610,33 @@ fn change_traffic_signal(signal: ControlTrafficSignal, ui: &mut UI, ctx: &mut Ev
     let mut edits = ui.primary.map.get_edits().clone();
     // TODO Only record one command for the entire session. Otherwise, we can exit this editor and
     // undo a few times, potentially ending at an invalid state!
-    if edits
-        .commands
-        .last()
-        .map(|cmd| match cmd {
-            EditCmd::ChangeTrafficSignal(ref s) => s.id == signal.id,
-            _ => false,
-        })
-        .unwrap_or(false)
-    {
+    let old = if let Some(prev) = edits.commands.last().and_then(|cmd| match cmd {
+        EditCmd::ChangeIntersection {
+            i,
+            ref new,
+            ref old,
+        } => {
+            if signal.id == *i {
+                match new {
+                    EditIntersection::TrafficSignal(_) => Some(old.clone()),
+                    _ => None,
+                }
+            } else {
+                None
+            }
+        }
+        _ => None,
+    }) {
         edits.commands.pop();
-    }
-    edits.commands.push(EditCmd::ChangeTrafficSignal(signal));
+        prev
+    } else {
+        ui.primary.map.get_i_edit(signal.id)
+    };
+    edits.commands.push(EditCmd::ChangeIntersection {
+        i: signal.id,
+        old,
+        new: EditIntersection::TrafficSignal(signal),
+    });
     apply_map_edits(ctx, ui, edits);
 }
 

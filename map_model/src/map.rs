@@ -2,9 +2,9 @@ use crate::pathfind::Pathfinder;
 use crate::raw::{OriginalIntersection, OriginalRoad, RawMap};
 use crate::{
     connectivity, make, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop,
-    BusStopID, ControlStopSign, ControlTrafficSignal, EditCmd, EditEffects, Intersection,
-    IntersectionID, IntersectionType, Lane, LaneID, LaneType, MapEdits, Path, PathConstraints,
-    PathRequest, Position, Road, RoadID, Turn, TurnGroupID, TurnID, TurnType,
+    BusStopID, ControlStopSign, ControlTrafficSignal, EditCmd, EditEffects, EditIntersection,
+    Intersection, IntersectionID, IntersectionType, Lane, LaneID, LaneType, MapEdits, Path,
+    PathConstraints, PathRequest, Position, Road, RoadID, Turn, TurnGroupID, TurnID, TurnType,
     NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
@@ -644,6 +644,18 @@ impl Map {
         &self.edits
     }
 
+    // Panics on borders
+    pub fn get_i_edit(&self, i: IntersectionID) -> EditIntersection {
+        match self.get_i(i).intersection_type {
+            IntersectionType::StopSign => EditIntersection::StopSign(self.get_stop_sign(i).clone()),
+            IntersectionType::TrafficSignal => {
+                EditIntersection::TrafficSignal(self.get_traffic_signal(i).clone())
+            }
+            IntersectionType::Construction => EditIntersection::Closed,
+            IntersectionType::Border => unreachable!(),
+        }
+    }
+
     pub fn save_edits(&mut self) {
         let mut edits = std::mem::replace(&mut self.edits, MapEdits::new(self.name.clone()));
         edits.save(self);
@@ -706,7 +718,7 @@ impl Map {
             }
         }
 
-        new_edits.update_derived(self, timer);
+        new_edits.update_derived(self);
         self.edits = new_edits;
         self.pathfinder_dirty = true;
         (
@@ -1060,60 +1072,28 @@ impl EditCmd {
                 recalculate_turns(dst_i, map, effects, timer);
                 true
             }
-            EditCmd::ChangeStopSign(ref ss) => {
-                if map.stop_signs.get(&ss.id) == Some(ss) {
+            EditCmd::ChangeIntersection { i, ref new, .. } => {
+                if map.get_i_edit(*i) == new.clone() {
                     return false;
                 }
 
-                map.intersections[ss.id.0].intersection_type = IntersectionType::StopSign;
-                map.traffic_signals.remove(&ss.id);
-                map.stop_signs.insert(ss.id, ss.clone());
-                effects.changed_intersections.insert(ss.id);
-                true
-            }
-            EditCmd::ChangeTrafficSignal(ref ts) => {
-                if map.traffic_signals.get(&ts.id) == Some(ts) {
-                    return false;
-                }
-
-                map.intersections[ts.id.0].intersection_type = IntersectionType::TrafficSignal;
-                map.stop_signs.remove(&ts.id);
-                map.traffic_signals.insert(ts.id, ts.clone());
-                effects.changed_intersections.insert(ts.id);
-                true
-            }
-            EditCmd::CloseIntersection { id, .. } => {
-                if map.intersections[id.0].intersection_type == IntersectionType::Construction {
-                    return false;
-                }
-
-                map.intersections[id.0].intersection_type = IntersectionType::Construction;
-                map.stop_signs.remove(id);
-                map.traffic_signals.remove(id);
-                effects.changed_intersections.insert(*id);
-                recalculate_turns(*id, map, effects, timer);
-                true
-            }
-            EditCmd::UncloseIntersection(id, orig_it) => {
-                let id = *id;
-                let orig_it = *orig_it;
-                if map.intersections[id.0].intersection_type == orig_it {
-                    return false;
-                }
-
-                map.intersections[id.0].intersection_type = orig_it;
-                recalculate_turns(id, map, effects, timer);
-                match orig_it {
-                    IntersectionType::StopSign => {
-                        map.stop_signs.insert(id, ControlStopSign::new(map, id));
+                map.stop_signs.remove(i);
+                map.traffic_signals.remove(i);
+                effects.changed_intersections.insert(*i);
+                match new {
+                    EditIntersection::StopSign(ref ss) => {
+                        map.intersections[i.0].intersection_type = IntersectionType::StopSign;
+                        map.stop_signs.insert(*i, ss.clone());
                     }
-                    IntersectionType::TrafficSignal => {
-                        map.traffic_signals
-                            .insert(id, ControlTrafficSignal::new(map, id, timer));
+                    EditIntersection::TrafficSignal(ref ts) => {
+                        map.intersections[i.0].intersection_type = IntersectionType::TrafficSignal;
+                        map.traffic_signals.insert(*i, ts.clone());
                     }
-                    IntersectionType::Border | IntersectionType::Construction => unreachable!(),
+                    EditIntersection::Closed => {
+                        map.intersections[i.0].intersection_type = IntersectionType::Construction;
+                    }
                 }
-                effects.changed_intersections.insert(id);
+                recalculate_turns(*i, map, effects, timer);
                 true
             }
         }
@@ -1141,19 +1121,14 @@ impl EditCmd {
                 }
                 .apply(effects, map, timer)
             }
-            EditCmd::ChangeStopSign(ref ss) => {
-                EditCmd::ChangeStopSign(ControlStopSign::new(map, ss.id)).apply(effects, map, timer)
-            }
-            EditCmd::ChangeTrafficSignal(ref ts) => {
-                EditCmd::ChangeTrafficSignal(ControlTrafficSignal::new(map, ts.id, timer))
-                    .apply(effects, map, timer)
-            }
-            EditCmd::CloseIntersection { id, orig_it } => {
-                EditCmd::UncloseIntersection(*id, *orig_it).apply(effects, map, timer)
-            }
-            EditCmd::UncloseIntersection(id, orig_it) => EditCmd::CloseIntersection {
-                id: *id,
-                orig_it: *orig_it,
+            EditCmd::ChangeIntersection {
+                i,
+                ref old,
+                ref new,
+            } => EditCmd::ChangeIntersection {
+                i: *i,
+                old: new.clone(),
+                new: old.clone(),
             }
             .apply(effects, map, timer),
         }

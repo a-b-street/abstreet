@@ -816,7 +816,7 @@ impl Overlays {
         )));
         txt.add(Line(format!(
             "{} intersections changed",
-            edits.changed_intersections.len()
+            edits.original_intersections.len()
         )));
 
         let changed = Color::RED;
@@ -825,7 +825,7 @@ impl Overlays {
         for l in edits.original_lts.keys().chain(&edits.reversed_lanes) {
             colorer.add_l(*l, changed, &ui.primary.map);
         }
-        for i in &edits.changed_intersections {
+        for i in edits.original_intersections.keys() {
             colorer.add_i(*i, changed);
         }
 

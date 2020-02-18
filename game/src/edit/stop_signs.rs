@@ -11,7 +11,9 @@ use ezgui::{
     ManagedWidget, Outcome, Text, VerticalAlignment,
 };
 use geom::Polygon;
-use map_model::{ControlStopSign, ControlTrafficSignal, EditCmd, IntersectionID, RoadID};
+use map_model::{
+    ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, RoadID,
+};
 use sim::Sim;
 use std::collections::HashMap;
 
@@ -51,12 +53,8 @@ impl StopSignEditor {
         let composite = Composite::new(
             ManagedWidget::col(vec![
                 ManagedWidget::draw_text(ctx, Text::from(Line("Stop sign editor"))),
-                if ui
-                    .primary
-                    .map
-                    .get_edits()
-                    .changed_intersections
-                    .contains(&id)
+                if ControlStopSign::new(&ui.primary.map, id)
+                    != ui.primary.map.get_stop_sign(id).clone()
                 {
                     WrappedComposite::text_button(ctx, "reset to default", hotkey(Key::R))
                 } else {
@@ -109,7 +107,11 @@ impl State for StopSignEditor {
                 sign.flip_sign(r);
 
                 let mut edits = ui.primary.map.get_edits().clone();
-                edits.commands.push(EditCmd::ChangeStopSign(sign));
+                edits.commands.push(EditCmd::ChangeIntersection {
+                    i: self.id,
+                    old: ui.primary.map.get_i_edit(self.id),
+                    new: EditIntersection::StopSign(sign),
+                });
                 apply_map_edits(ctx, ui, edits);
                 return Transition::Replace(Box::new(StopSignEditor::new(
                     self.id,
@@ -127,12 +129,14 @@ impl State for StopSignEditor {
                 }
                 "reset to default" => {
                     let mut edits = ui.primary.map.get_edits().clone();
-                    edits
-                        .commands
-                        .push(EditCmd::ChangeStopSign(ControlStopSign::new(
+                    edits.commands.push(EditCmd::ChangeIntersection {
+                        i: self.id,
+                        old: ui.primary.map.get_i_edit(self.id),
+                        new: EditIntersection::StopSign(ControlStopSign::new(
                             &ui.primary.map,
                             self.id,
-                        )));
+                        )),
+                    });
                     apply_map_edits(ctx, ui, edits);
                     return Transition::Replace(Box::new(StopSignEditor::new(
                         self.id,
@@ -146,13 +150,15 @@ impl State for StopSignEditor {
                 }
                 "convert to traffic signal" => {
                     let mut edits = ui.primary.map.get_edits().clone();
-                    edits
-                        .commands
-                        .push(EditCmd::ChangeTrafficSignal(ControlTrafficSignal::new(
+                    edits.commands.push(EditCmd::ChangeIntersection {
+                        i: self.id,
+                        old: ui.primary.map.get_i_edit(self.id),
+                        new: EditIntersection::TrafficSignal(ControlTrafficSignal::new(
                             &ui.primary.map,
                             self.id,
                             &mut Timer::throwaway(),
-                        )));
+                        )),
+                    });
                     apply_map_edits(ctx, ui, edits);
                     return Transition::Replace(Box::new(TrafficSignalEditor::new(
                         self.id,

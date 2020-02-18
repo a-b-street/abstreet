@@ -22,7 +22,8 @@ use ezgui::{
 };
 use geom::Polygon;
 use map_model::{
-    connectivity, EditCmd, IntersectionID, LaneID, LaneType, MapEdits, PathConstraints,
+    connectivity, EditCmd, EditIntersection, IntersectionID, LaneID, LaneType, MapEdits,
+    PathConstraints,
 };
 use sim::Sim;
 use std::collections::BTreeSet;
@@ -132,10 +133,7 @@ impl State for EditMode {
                     let id = match edits.commands.pop().unwrap() {
                         EditCmd::ChangeLaneType { id, .. } => ID::Lane(id),
                         EditCmd::ReverseLane { l, .. } => ID::Lane(l),
-                        EditCmd::ChangeStopSign(ss) => ID::Intersection(ss.id),
-                        EditCmd::ChangeTrafficSignal(ss) => ID::Intersection(ss.id),
-                        EditCmd::CloseIntersection { id, .. } => ID::Intersection(id),
-                        EditCmd::UncloseIntersection(id, _) => ID::Intersection(id),
+                        EditCmd::ChangeIntersection { i, .. } => ID::Intersection(i),
                     };
                     apply_map_edits(ctx, ui, edits);
                     return Transition::Push(Warping::new(
@@ -176,10 +174,14 @@ impl State for EditMode {
             if ui.primary.map.get_i(id).is_closed()
                 && ui.per_obj.left_click(ctx, "re-open closed intersection")
             {
+                // This resets to the original state; it doesn't undo the closure to the last
+                // state. Seems reasonable to me.
                 let mut edits = ui.primary.map.get_edits().clone();
-                edits
-                    .commands
-                    .push(EditCmd::UncloseIntersection(id, edits.original_it(id)));
+                edits.commands.push(EditCmd::ChangeIntersection {
+                    i: id,
+                    old: ui.primary.map.get_i_edit(id),
+                    new: edits.original_intersections[&id].clone(),
+                });
                 apply_map_edits(ctx, ui, edits);
             }
         }
@@ -418,12 +420,12 @@ pub fn can_edit_lane(mode: &GameplayMode, l: LaneID, ui: &UI) -> bool {
 }
 
 pub fn close_intersection(ctx: &mut EventCtx, ui: &mut UI, i: IntersectionID) -> Transition {
-    let it = ui.primary.map.get_i(i).intersection_type;
-
     let mut edits = ui.primary.map.get_edits().clone();
-    edits
-        .commands
-        .push(EditCmd::CloseIntersection { id: i, orig_it: it });
+    edits.commands.push(EditCmd::ChangeIntersection {
+        i,
+        old: ui.primary.map.get_i_edit(i),
+        new: EditIntersection::Closed,
+    });
     apply_map_edits(ctx, ui, edits);
 
     let (_, disconnected) = connectivity::find_scc(&ui.primary.map, PathConstraints::Pedestrian);

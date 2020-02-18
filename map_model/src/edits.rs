@@ -1,8 +1,7 @@
 use crate::{
-    ControlStopSign, ControlTrafficSignal, IntersectionID, IntersectionType, LaneID, LaneType, Map,
-    RoadID, TurnID,
+    ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, LaneType, Map, RoadID, TurnID,
 };
-use abstutil::{retain_btreemap, retain_btreeset, Timer};
+use abstutil::{retain_btreemap, Timer};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -15,10 +14,17 @@ pub struct MapEdits {
     // Derived from commands, kept up to date by update_derived
     pub original_lts: BTreeMap<LaneID, LaneType>,
     pub reversed_lanes: BTreeSet<LaneID>,
-    pub changed_intersections: BTreeSet<IntersectionID>,
+    pub original_intersections: BTreeMap<IntersectionID, EditIntersection>,
 
     // Edits without these are player generated.
     pub proposal_description: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum EditIntersection {
+    StopSign(ControlStopSign),
+    TrafficSignal(ControlTrafficSignal),
+    Closed,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -33,13 +39,11 @@ pub enum EditCmd {
         // New intended dst_i
         dst_i: IntersectionID,
     },
-    ChangeStopSign(ControlStopSign),
-    ChangeTrafficSignal(ControlTrafficSignal),
-    CloseIntersection {
-        id: IntersectionID,
-        orig_it: IntersectionType,
+    ChangeIntersection {
+        i: IntersectionID,
+        new: EditIntersection,
+        old: EditIntersection,
     },
-    UncloseIntersection(IntersectionID, IntersectionType),
 }
 
 pub struct EditEffects {
@@ -61,7 +65,7 @@ impl MapEdits {
 
             original_lts: BTreeMap::new(),
             reversed_lanes: BTreeSet::new(),
-            changed_intersections: BTreeSet::new(),
+            original_intersections: BTreeMap::new(),
         }
     }
 
@@ -80,24 +84,11 @@ impl MapEdits {
         abstutil::write_json(abstutil::path_edits(&self.map_name, &self.edits_name), self);
     }
 
-    pub fn original_it(&self, i: IntersectionID) -> IntersectionType {
-        for cmd in &self.commands {
-            if let EditCmd::CloseIntersection { id, orig_it } = cmd {
-                if *id == i {
-                    return *orig_it;
-                }
-            }
-        }
-        panic!("{} isn't closed", i);
-    }
-
     // Original lane types, reversed lanes, and all changed intersections
-    pub(crate) fn update_derived(&mut self, map: &Map, timer: &mut Timer) {
+    pub(crate) fn update_derived(&mut self, map: &Map) {
         let mut orig_lts = BTreeMap::new();
         let mut reversed_lanes = BTreeSet::new();
-        let mut changed_stop_signs = BTreeSet::new();
-        let mut changed_traffic_signals = BTreeSet::new();
-        let mut closed_intersections = BTreeSet::new();
+        let mut orig_intersections: BTreeMap<IntersectionID, EditIntersection> = BTreeMap::new();
 
         for cmd in &self.commands {
             match cmd {
@@ -113,44 +104,26 @@ impl MapEdits {
                         reversed_lanes.insert(*l);
                     }
                 }
-                EditCmd::ChangeStopSign(ss) => {
-                    changed_stop_signs.insert(ss.id);
-                }
-                EditCmd::ChangeTrafficSignal(ts) => {
-                    changed_traffic_signals.insert(ts.id);
-                }
-                EditCmd::CloseIntersection { id, .. } => {
-                    closed_intersections.insert(*id);
-                }
-                EditCmd::UncloseIntersection(id, _) => {
-                    closed_intersections.remove(id);
+                EditCmd::ChangeIntersection { i, ref old, .. } => {
+                    if !orig_intersections.contains_key(i) {
+                        orig_intersections.insert(*i, old.clone());
+                    }
                 }
             }
         }
 
         retain_btreemap(&mut orig_lts, |l, lt| map.get_l(*l).lane_type != *lt);
-        for i in &closed_intersections {
-            changed_stop_signs.remove(i);
-            changed_traffic_signals.remove(i);
-        }
-        retain_btreeset(&mut changed_stop_signs, |i| {
-            &ControlStopSign::new(map, *i) != map.get_stop_sign(*i)
-        });
-        retain_btreeset(&mut changed_traffic_signals, |i| {
-            &ControlTrafficSignal::new(map, *i, timer) != map.get_traffic_signal(*i)
+        retain_btreemap(&mut orig_intersections, |i, orig| {
+            map.get_i_edit(*i) != orig.clone()
         });
 
         self.original_lts = orig_lts;
         self.reversed_lanes = reversed_lanes;
-        self.changed_intersections = closed_intersections;
-        self.changed_intersections.extend(changed_stop_signs);
-        self.changed_intersections.extend(changed_traffic_signals);
+        self.original_intersections = orig_intersections;
     }
 
     // Assumes update_derived has been called.
     pub(crate) fn compress(&mut self, map: &Map) {
-        let orig_cmds: Vec<EditCmd> = self.commands.drain(..).collect();
-
         for (l, orig_lt) in &self.original_lts {
             self.commands.push(EditCmd::ChangeLaneType {
                 id: *l,
@@ -164,33 +137,12 @@ impl MapEdits {
                 dst_i: map.get_l(*l).dst_i,
             });
         }
-        for i in &self.changed_intersections {
-            match map.get_i(*i).intersection_type {
-                IntersectionType::StopSign => {
-                    self.commands
-                        .push(EditCmd::ChangeStopSign(map.get_stop_sign(*i).clone()));
-                }
-                IntersectionType::TrafficSignal => {
-                    self.commands.push(EditCmd::ChangeTrafficSignal(
-                        map.get_traffic_signal(*i).clone(),
-                    ));
-                }
-                IntersectionType::Construction => {
-                    // We have to recover orig_it from the original list of commands. :\
-                    let mut found = false;
-                    for cmd in &orig_cmds {
-                        if let EditCmd::CloseIntersection { id, .. } = cmd {
-                            if *id == *i {
-                                self.commands.push(cmd.clone());
-                                found = true;
-                                break;
-                            }
-                        }
-                    }
-                    assert!(found);
-                }
-                IntersectionType::Border => unreachable!(),
-            }
+        for (i, old) in &self.original_intersections {
+            self.commands.push(EditCmd::ChangeIntersection {
+                i: *i,
+                old: old.clone(),
+                new: map.get_i_edit(*i),
+            });
         }
     }
 }
@@ -203,19 +155,6 @@ impl EditEffects {
             changed_intersections: BTreeSet::new(),
             added_turns: BTreeSet::new(),
             deleted_turns: BTreeSet::new(),
-        }
-    }
-}
-
-impl EditCmd {
-    pub fn describe(&self) -> String {
-        match self {
-            EditCmd::ChangeLaneType { id, lt, .. } => format!("Change {} to {:?}", id, lt),
-            EditCmd::ReverseLane { l, .. } => format!("Reverse {}", l),
-            EditCmd::ChangeStopSign(ss) => format!("Edit stop sign {}", ss.id),
-            EditCmd::ChangeTrafficSignal(ts) => format!("Edit traffic signal {}", ts.id),
-            EditCmd::CloseIntersection { id, .. } => format!("Close {}", id),
-            EditCmd::UncloseIntersection(id, _) => format!("Restore {}", id),
         }
     }
 }
