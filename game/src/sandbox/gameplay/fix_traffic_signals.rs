@@ -55,11 +55,27 @@ impl GameplayState for FixTrafficSignals {
         }
 
         if ui.primary.sim.is_done() {
+            let (verdict, success) = final_score(ui);
+            let next = if success {
+                match self.mode {
+                    GameplayMode::FixTrafficSignalsTutorial(0) => {
+                        Some(GameplayMode::FixTrafficSignalsTutorial(1))
+                    }
+                    GameplayMode::FixTrafficSignalsTutorial(1) => {
+                        Some(GameplayMode::FixTrafficSignals)
+                    }
+                    GameplayMode::FixTrafficSignals => None,
+                    _ => unreachable!(),
+                }
+            } else {
+                None
+            };
             return (
                 Some(Transition::Push(FinalScore::new(
                     ctx,
-                    final_score(ui),
+                    verdict,
                     self.mode.clone(),
+                    next,
                 ))),
                 false,
             );
@@ -80,7 +96,8 @@ impl GameplayState for FixTrafficSignals {
     }
 }
 
-fn final_score(ui: &UI) -> String {
+// True if the challenge is completed
+fn final_score(ui: &UI) -> (String, bool) {
     let time = ui.primary.sim.time();
     let now = ui
         .primary
@@ -91,7 +108,7 @@ fn final_score(ui: &UI) -> String {
         .select(Statistic::Mean);
     let baseline = ui.prebaked().trip_times(time).0.select(Statistic::Mean);
 
-    if now < baseline - GOAL {
+    let verdict = if now < baseline - GOAL {
         format!(
             "COMPLETED! Average trip time is now {}, which is {} faster than the baseline {}",
             now,
@@ -120,7 +137,8 @@ fn final_score(ui: &UI) -> String {
             now - baseline,
             baseline
         )
-    }
+    };
+    (verdict, now < baseline - GOAL)
 }
 
 // TODO Hacks in here, because I'm not convinced programatically specifying this is right. I think

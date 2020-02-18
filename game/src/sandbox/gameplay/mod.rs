@@ -330,21 +330,35 @@ fn challenge_controller(
 struct FinalScore {
     composite: Composite,
     mode: GameplayMode,
+    next: Option<GameplayMode>,
 }
 
 impl FinalScore {
-    fn new(ctx: &mut EventCtx, verdict: String, mode: GameplayMode) -> Box<dyn State> {
+    fn new(
+        ctx: &mut EventCtx,
+        verdict: String,
+        mode: GameplayMode,
+        next: Option<GameplayMode>,
+    ) -> Box<dyn State> {
         let mut txt = Text::from(Line("Final score").roboto_bold());
         txt.add(Line(verdict));
+
+        let mut row = vec![
+            WrappedComposite::text_button(ctx, "try again", None),
+            WrappedComposite::text_button(ctx, "back to challenges", None),
+        ];
+        if next.is_some() {
+            row.insert(
+                0,
+                WrappedComposite::text_button(ctx, "next challenge", None),
+            );
+        }
+
         Box::new(FinalScore {
             composite: Composite::new(
                 ManagedWidget::col(vec![
                     ManagedWidget::draw_text(ctx, txt),
-                    ManagedWidget::row(vec![
-                        WrappedComposite::text_button(ctx, "try again", None),
-                        WrappedComposite::text_button(ctx, "back to challenges", None),
-                    ])
-                    .centered(),
+                    ManagedWidget::row(row).centered(),
                 ])
                 .bg(colors::PANEL_BG)
                 .outline(10.0, Color::WHITE)
@@ -353,6 +367,7 @@ impl FinalScore {
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)
             .build(ctx),
             mode,
+            next,
         })
     }
 }
@@ -361,6 +376,14 @@ impl State for FinalScore {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "next challenge" => {
+                    ui.primary.clear_sim();
+                    Transition::PopThenReplace(Box::new(SandboxMode::new(
+                        ctx,
+                        ui,
+                        self.next.clone().unwrap(),
+                    )))
+                }
                 "try again" => {
                     ui.primary.clear_sim();
                     Transition::PopThenReplace(Box::new(SandboxMode::new(
