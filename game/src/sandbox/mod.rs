@@ -396,8 +396,12 @@ impl AgentMeter {
                 txt.add(Line(format!("Unfinished trips: {}", unfinished)));
                 ManagedWidget::draw_text(ctx, txt)
             },
-            // TODO The SVG button uses clip and doesn't seem to work
-            WrappedComposite::text_button(ctx, "finished trips data", hotkey(Key::Q)),
+            WrappedComposite::svg_button(
+                ctx,
+                "../data/system/assets/meters/trip_data.svg",
+                "finished trips data",
+                hotkey(Key::Q),
+            ),
         ];
         // TODO Slight hack. If we're jumping right into a tutorial and don't have the prebaked
         // stuff loaded yet, just skip a tick.
