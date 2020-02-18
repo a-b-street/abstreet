@@ -263,7 +263,6 @@ impl InfoPanel {
 
 fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
     let (map, sim, draw_map) = (&ui.primary.map, &ui.primary.sim, &ui.primary.draw_map);
-    let name_color = ui.cs.get("OSD name color");
     let header_btns = ManagedWidget::row(vec![
         ManagedWidget::btn(Button::rectangle_svg(
             "../data/system/assets/tools/locate.svg",
@@ -288,7 +287,10 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
             {
                 let label = if l.is_sidewalk() { "Sidewalk" } else { "Lane" };
                 rows.push(ManagedWidget::row(vec![
-                    ManagedWidget::draw_text(ctx, Text::from(Line(label).roboto_bold())),
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line(format!("{} #{}", label, id.0)).roboto_bold()),
+                    ),
                     header_btns,
                 ]));
                 rows.push(ManagedWidget::draw_text(
@@ -376,7 +378,10 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                     "Intersection"
                 };
                 rows.push(ManagedWidget::row(vec![
-                    ManagedWidget::draw_text(ctx, Text::from(Line(label).roboto_bold())),
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line(format!("{} #{}", label, id.0)).roboto_bold()),
+                    ),
                     header_btns,
                 ]));
             }
@@ -431,7 +436,10 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
             // Header
             {
                 rows.push(ManagedWidget::row(vec![
-                    ManagedWidget::draw_text(ctx, Text::from(Line("Building").roboto_bold())),
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line(format!("Building #{}", id.0)).roboto_bold()),
+                    ),
                     header_btns,
                 ]));
             }
@@ -513,7 +521,10 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                     VehicleType::Bus => "Bus",
                 };
                 rows.push(ManagedWidget::row(vec![
-                    ManagedWidget::draw_text(ctx, Text::from(Line(label).roboto_bold())),
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line(format!("{} #{}", label, id.0)).roboto_bold()),
+                    ),
                     header_btns,
                 ]));
             }
@@ -532,7 +543,10 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
             // Header
             {
                 rows.push(ManagedWidget::row(vec![
-                    ManagedWidget::draw_text(ctx, Text::from(Line("Pedestrian").roboto_bold())),
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line(format!("Pedestrian #{}", id.0)).roboto_bold()),
+                    ),
                     header_btns,
                 ]));
             }
@@ -573,9 +587,13 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
             }
 
             let mut txt = Text::new();
+            txt.add(Line(format!(
+                "On {}",
+                ui.primary.map.get_parent(id.sidewalk).get_name()
+            )));
             let all_arrivals = &sim.get_analytics().bus_arrivals;
             for r in map.get_routes_serving_stop(id) {
-                txt.add_appended(vec![Line("- Route "), Line(&r.name).fg(name_color)]);
+                txt.add(Line(format!("- Route {}", r.name)).roboto_bold());
                 let arrivals: Vec<(Time, CarID)> = all_arrivals
                     .iter()
                     .filter(|(_, _, route, stop)| r.id == *route && id == *stop)
@@ -602,7 +620,10 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
             // Header
             {
                 rows.push(ManagedWidget::row(vec![
-                    ManagedWidget::draw_text(ctx, Text::from(Line("Area").roboto_bold())),
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line(format!("Area #{}", id.0)).roboto_bold()),
+                    ),
                     header_btns,
                 ]));
             }
@@ -620,7 +641,7 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                 rows.push(ManagedWidget::row(vec![
                     ManagedWidget::draw_text(
                         ctx,
-                        Text::from(Line("Extra GIS shape").roboto_bold()),
+                        Text::from(Line(format!("Extra GIS shape #{}", id.0)).roboto_bold()),
                     ),
                     header_btns,
                 ]));
