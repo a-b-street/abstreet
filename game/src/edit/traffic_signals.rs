@@ -67,7 +67,7 @@ impl TrafficSignalEditor {
             self.composite = make_diagram(self.i, self.current_phase, ui, ctx);
             // TODO Maybe center of previous member
             self.composite
-                .scroll_to_member(ctx, format!("delete phase #{}", idx + 1));
+                .scroll_to_member(ctx, format!("phase {}", idx + 1));
         }
     }
 }
@@ -98,59 +98,9 @@ impl State for TrafficSignalEditor {
                         self.suspended_sim.clone(),
                     ));
                 }
-                x if x.starts_with("change duration of #") => {
-                    let idx = x["change duration of #".len()..].parse::<usize>().unwrap() - 1;
-                    return Transition::Push(change_phase_duration(
-                        idx,
-                        orig_signal.phases[idx].duration,
-                    ));
-                }
-                x if x.starts_with("delete phase #") => {
-                    let idx = x["delete phase #".len()..].parse::<usize>().unwrap() - 1;
-                    let mut new_signal = orig_signal.clone();
-                    new_signal.phases.remove(idx);
-                    let num_phases = new_signal.phases.len();
-                    self.command_stack.push(orig_signal.clone());
-                    self.redo_stack.clear();
-                    self.top_panel = make_top_panel(true, false, ctx);
-                    change_traffic_signal(new_signal, ui, ctx);
-                    // Don't use change_phase; it tries to preserve scroll
-                    self.current_phase = if idx == num_phases { idx - 1 } else { idx };
-                    self.composite = make_diagram(self.i, self.current_phase, ui, ctx);
-                    return Transition::Keep;
-                }
-                x if x.starts_with("move up phase #") => {
-                    let idx = x["move up phase #".len()..].parse::<usize>().unwrap() - 1;
-                    let mut new_signal = orig_signal.clone();
-                    new_signal.phases.swap(idx, idx - 1);
-                    self.command_stack.push(orig_signal.clone());
-                    self.redo_stack.clear();
-                    self.top_panel = make_top_panel(true, false, ctx);
-                    change_traffic_signal(new_signal, ui, ctx);
-                    self.change_phase(idx - 1, ui, ctx);
-                    return Transition::Keep;
-                }
-                x if x.starts_with("move down phase #") => {
-                    let idx = x["move down phase #".len()..].parse::<usize>().unwrap() - 1;
-                    let mut new_signal = orig_signal.clone();
-                    new_signal.phases.swap(idx, idx + 1);
-                    self.command_stack.push(orig_signal.clone());
-                    self.redo_stack.clear();
-                    self.top_panel = make_top_panel(true, false, ctx);
-                    change_traffic_signal(new_signal, ui, ctx);
-                    self.change_phase(idx + 1, ui, ctx);
-                    return Transition::Keep;
-                }
-                x if x.starts_with("add new phase after #") => {
-                    let idx = x["add new phase after #".len()..].parse::<usize>().unwrap() - 1;
-                    let mut new_signal = orig_signal.clone();
-                    new_signal.phases.insert(idx + 1, Phase::new());
-                    self.command_stack.push(orig_signal.clone());
-                    self.redo_stack.clear();
-                    self.top_panel = make_top_panel(true, false, ctx);
-                    change_traffic_signal(new_signal, ui, ctx);
-                    self.change_phase(idx + 1, ui, ctx);
-                    return Transition::Keep;
+                x if x.starts_with("edit phase ") => {
+                    let idx = x["edit phase ".len()..].parse::<usize>().unwrap() - 1;
+                    return Transition::Push(edit_phase(ui, self.i, idx));
                 }
                 x if x.starts_with("phase ") => {
                     let idx = x["phase ".len()..].parse::<usize>().unwrap() - 1;
@@ -424,39 +374,27 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
 
         let mut phase_rows = Vec::new();
 
-        let mut row = vec![
-            ManagedWidget::draw_text(
-                ctx,
-                Text::from(Line(format!("Phase #{}: {}", idx + 1, phase.duration))),
-            ),
-            WrappedComposite::svg_button(
-                ctx,
-                "../data/system/assets/tools/edit.svg",
-                &format!("change duration of #{}", idx + 1),
-                if selected == idx {
-                    hotkey(Key::D)
-                } else {
-                    None
-                },
-            )
-            .margin(10),
-        ];
-        if signal.phases.len() > 1 {
-            row.push(
+        phase_rows.push(
+            ManagedWidget::row(vec![
+                ManagedWidget::draw_text(
+                    ctx,
+                    Text::from(Line(format!("Phase {}: {}", idx + 1, phase.duration))),
+                ),
                 WrappedComposite::svg_button(
                     ctx,
-                    "../data/system/assets/tools/delete.svg",
-                    &format!("delete phase #{}", idx + 1),
+                    "../data/system/assets/tools/edit.svg",
+                    &format!("edit phase {}", idx + 1),
                     if selected == idx {
-                        hotkey(Key::Backspace)
+                        hotkey(Key::X)
                     } else {
                         None
                     },
                 )
                 .align_right(),
-            );
-        }
-        phase_rows.push(ManagedWidget::row(row).margin(5).centered());
+            ])
+            .margin(5)
+            .centered(),
+        );
 
         let mut orig_batch = GeomBatch::new();
         draw_signal_phase(
@@ -483,50 +421,16 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
         hovered.append(normal.clone());
         hovered.push(Color::RED, bbox.to_outline(Distance::meters(5.0)));
 
-        let mut move_phase = Vec::new();
-        if idx != 0 {
-            move_phase.push(WrappedComposite::nice_text_button(
-                ctx,
-                Text::from(Line("↑")),
-                if selected == idx {
-                    hotkey(Key::K)
-                } else {
-                    None
-                },
-                &format!("move up phase #{}", idx + 1),
-            ));
-        }
-        if idx != signal.phases.len() - 1 {
-            move_phase.push(WrappedComposite::nice_text_button(
-                ctx,
-                Text::from(Line("↓")),
-                if selected == idx {
-                    hotkey(Key::J)
-                } else {
-                    None
-                },
-                &format!("move down phase #{}", idx + 1),
-            ));
-        }
-
         phase_rows.push(
-            ManagedWidget::row(vec![
-                ManagedWidget::btn(Button::new(
-                    ctx,
-                    normal,
-                    hovered,
-                    None,
-                    &format!("phase {}", idx + 1),
-                    bbox.clone(),
-                ))
-                .margin(5),
-                ManagedWidget::col(move_phase).centered(),
-            ])
+            ManagedWidget::btn(Button::new(
+                ctx,
+                normal,
+                hovered,
+                None,
+                &format!("phase {}", idx + 1),
+                bbox.clone(),
+            ))
             .margin(5),
-        );
-        phase_rows.push(
-            WrappedComposite::text_button(ctx, &format!("add new phase after #{}", idx + 1), None)
-                .centered_horiz(),
         );
 
         if idx == selected {
@@ -685,27 +589,129 @@ fn edit_entire_signal(ui: &UI, i: IntersectionID, suspended_sim: Sim) -> Box<dyn
     }))
 }
 
-fn change_phase_duration(idx: usize, current_duration: Duration) -> Box<dyn State> {
+fn edit_phase(ui: &UI, i: IntersectionID, idx: usize) -> Box<dyn State> {
+    let signal = ui.primary.map.get_traffic_signal(i);
+    let num_phases = signal.phases.len();
+    let current_duration = signal.phases[idx].duration;
+
     WizardState::new(Box::new(move |wiz, ctx, _| {
-        let new_duration = wiz.wrap(ctx).input_something(
-            "How long should this phase be (seconds)?",
-            Some(format!("{}", current_duration.inner_seconds() as usize)),
-            Box::new(|line| {
-                line.parse::<usize>()
-                    .ok()
-                    .and_then(|n| if n != 0 { Some(n) } else { None })
-            }),
-        )?;
-        Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
-            let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-            let mut signal = ui.primary.map.get_traffic_signal(editor.i).clone();
-            editor.command_stack.push(signal.clone());
-            editor.redo_stack.clear();
-            editor.top_panel = make_top_panel(true, false, ctx);
-            signal.phases[idx].duration = Duration::seconds(new_duration as f64);
-            change_traffic_signal(signal, ui, ctx);
-            editor.change_phase(idx, ui, ctx);
-        })))
+        let change_duration = "change phase duration";
+        let new_before = "add new phase before";
+        let new_after = "add new phase after";
+        let move_up = "move this phase up";
+        let move_down = "move this phase down";
+        let delete = "delete this phase";
+
+        let mut choices = vec![change_duration, new_before, new_after];
+        if idx != 0 {
+            choices.push(move_up);
+        }
+        if idx != num_phases - 1 {
+            choices.push(move_down);
+        }
+        if num_phases > 1 {
+            choices.push(delete);
+        }
+
+        // TODO Refactor these
+        let mut wizard = wiz.wrap(ctx);
+        match wizard.choose_string("", move || choices.clone())?.as_str() {
+            x if x == change_duration => {
+                let new_duration = wizard.input_something(
+                    "How long should this phase be (seconds)?",
+                    Some(format!("{}", current_duration.inner_seconds() as usize)),
+                    Box::new(|line| {
+                        line.parse::<usize>()
+                            .ok()
+                            .and_then(|n| if n != 0 { Some(n) } else { None })
+                    }),
+                )?;
+                Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
+                    let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
+                    let orig_signal = ui.primary.map.get_traffic_signal(editor.i);
+
+                    let mut new_signal = orig_signal.clone();
+                    new_signal.phases[idx].duration = Duration::seconds(new_duration as f64);
+                    editor.command_stack.push(orig_signal.clone());
+                    editor.redo_stack.clear();
+                    editor.top_panel = make_top_panel(true, false, ctx);
+                    change_traffic_signal(new_signal, ui, ctx);
+                    editor.change_phase(idx, ui, ctx);
+                })))
+            }
+            x if x == new_before => {
+                Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
+                    let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
+                    let orig_signal = ui.primary.map.get_traffic_signal(editor.i);
+
+                    let mut new_signal = orig_signal.clone();
+                    new_signal.phases.insert(idx, Phase::new());
+                    editor.command_stack.push(orig_signal.clone());
+                    editor.redo_stack.clear();
+                    editor.top_panel = make_top_panel(true, false, ctx);
+                    change_traffic_signal(new_signal, ui, ctx);
+                    editor.change_phase(idx, ui, ctx);
+                })))
+            }
+            x if x == new_after => {
+                Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
+                    let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
+                    let orig_signal = ui.primary.map.get_traffic_signal(editor.i);
+
+                    let mut new_signal = orig_signal.clone();
+                    new_signal.phases.insert(idx + 1, Phase::new());
+                    editor.command_stack.push(orig_signal.clone());
+                    editor.redo_stack.clear();
+                    editor.top_panel = make_top_panel(true, false, ctx);
+                    change_traffic_signal(new_signal, ui, ctx);
+                    editor.change_phase(idx + 1, ui, ctx);
+                })))
+            }
+            x if x == move_up => Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
+                let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
+                let orig_signal = ui.primary.map.get_traffic_signal(editor.i);
+
+                let mut new_signal = orig_signal.clone();
+                new_signal.phases.swap(idx, idx - 1);
+                editor.command_stack.push(orig_signal.clone());
+                editor.redo_stack.clear();
+                editor.top_panel = make_top_panel(true, false, ctx);
+                change_traffic_signal(new_signal, ui, ctx);
+                editor.change_phase(idx - 1, ui, ctx);
+            }))),
+            x if x == move_down => {
+                Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
+                    let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
+                    let orig_signal = ui.primary.map.get_traffic_signal(editor.i);
+
+                    let mut new_signal = orig_signal.clone();
+                    new_signal.phases.swap(idx, idx + 1);
+                    editor.command_stack.push(orig_signal.clone());
+                    editor.redo_stack.clear();
+                    editor.top_panel = make_top_panel(true, false, ctx);
+                    change_traffic_signal(new_signal, ui, ctx);
+                    editor.change_phase(idx + 1, ui, ctx);
+                })))
+            }
+            x if x == delete => {
+                Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
+                    let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
+                    let orig_signal = ui.primary.map.get_traffic_signal(editor.i);
+
+                    let mut new_signal = orig_signal.clone();
+                    new_signal.phases.remove(idx);
+                    let num_phases = new_signal.phases.len();
+                    editor.command_stack.push(orig_signal.clone());
+                    editor.redo_stack.clear();
+                    editor.top_panel = make_top_panel(true, false, ctx);
+                    change_traffic_signal(new_signal, ui, ctx);
+                    // Don't use change_phase; it tries to preserve scroll
+                    editor.current_phase = if idx == num_phases { idx - 1 } else { idx };
+                    editor.composite = make_diagram(editor.i, editor.current_phase, ui, ctx);
+                })))
+            }
+            _ => unreachable!(),
+        }
     }))
 }
 
