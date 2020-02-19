@@ -426,8 +426,8 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
     // Slightly inaccurate -- the turn rendering may slightly exceed the intersection polygon --
     // but this is close enough.
     let bounds = ui.primary.map.get_i(i).polygon.get_bounds();
-    // Pick a zoom so that we fit some percentage of the screen
-    let zoom = 0.2 * ctx.canvas.window_width / bounds.width();
+    // Pick a zoom so that we fit a fixed width in pixels
+    let zoom = 150.0 / bounds.width();
     let bbox = Polygon::rectangle(zoom * bounds.width(), zoom * bounds.height());
 
     let signal = ui.primary.map.get_traffic_signal(i);
@@ -477,6 +477,7 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
     ));
 
     for (idx, phase) in signal.phases.iter().enumerate() {
+        // Separator
         col.push(
             ManagedWidget::draw_batch(
                 ctx,
@@ -488,6 +489,9 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
             .margin(15)
             .centered_horiz(),
         );
+
+        let mut phase_rows = Vec::new();
+
         let mut row = vec![
             ManagedWidget::draw_text(
                 ctx,
@@ -520,7 +524,7 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
                 .align_right(),
             );
         }
-        col.push(ManagedWidget::row(row).margin(5).centered());
+        phase_rows.push(ManagedWidget::row(row).margin(5).centered());
 
         let mut orig_batch = GeomBatch::new();
         draw_signal_phase(
@@ -534,13 +538,7 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
         );
 
         let mut normal = GeomBatch::new();
-        // TODO Ideally no background here, but we have to force the dimensions of normal and
-        // hovered to be the same. For some reason the bbox is slightly different.
-        if idx == selected {
-            normal.push(Color::RED.alpha(0.15), bbox.clone());
-        } else {
-            normal.push(Color::BLACK, bbox.clone());
-        }
+        normal.push(Color::BLACK, bbox.clone());
         // Move to the origin and apply zoom
         for (color, poly) in orig_batch.consume() {
             normal.push(
@@ -579,7 +577,7 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
             ));
         }
 
-        col.push(
+        phase_rows.push(
             ManagedWidget::row(vec![
                 ManagedWidget::btn(Button::new(
                     ctx,
@@ -594,10 +592,16 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
             ])
             .margin(5),
         );
-        col.push(
+        phase_rows.push(
             WrappedComposite::text_button(ctx, &format!("add new phase after #{}", idx + 1), None)
                 .centered_horiz(),
         );
+
+        if idx == selected {
+            col.push(ManagedWidget::col(phase_rows).bg(Color::hex("#2A2A2A")));
+        } else {
+            col.extend(phase_rows);
+        }
     }
 
     Composite::new(ManagedWidget::col(col).bg(colors::PANEL_BG))
