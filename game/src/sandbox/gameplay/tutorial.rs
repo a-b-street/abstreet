@@ -563,7 +563,7 @@ impl Task {
             Task::Nil => unreachable!(),
             Task::Camera => "Put out the fire at the Montlake Market",
             Task::InspectObjects => {
-                let mut txt = Text::from(Line("Inspect one of each: ").fg(Color::CYAN));
+                let mut txt = Text::from(Line("Click and inspect one of each: ").fg(Color::CYAN));
                 txt.append(Line("lane").fg(if state.inspected_lane {
                     Color::GREEN
                 } else {
@@ -594,7 +594,7 @@ impl Task {
                 );
                 return txt;
             }
-            Task::TimeControls => "Wait until 5pm",
+            Task::TimeControls => "Simulate until after 5pm",
             Task::PauseResume => {
                 let mut txt = Text::from(Line("Pause/resume ").fg(Color::CYAN));
                 txt.append(Line(format!("{} times", 3 - state.num_pauses)).fg(Color::GREEN));
@@ -619,9 +619,9 @@ impl Task {
                 return txt;
             }
             Task::LowParking => "Find a road with almost no parking spots available",
-            Task::WatchBikes => "Watch for 2 minutes",
-            Task::FixBikes => "Make better use of the road space",
-            Task::WatchBuses => "Watch the buses for 5 minutes",
+            Task::WatchBikes => "Simulate 2 minutes",
+            Task::FixBikes => "Speed up the slowest trip by 45s",
+            Task::WatchBuses => "Simulate 5 minutes and watch the buses",
             Task::FixBuses => "Speed up bus 43 and 48",
         };
 
@@ -1040,12 +1040,13 @@ impl TutorialState {
             ]),
             Stage::msg(vec![
                 "(By the way, the bottom of the screen shows keyboard shortcuts",
-                "for whatever you're selecting; you don't have to click an object first.",
+                "for whatever you're selecting; you don't have to click an object first.)",
             ])
             .arrow(osd),
             Stage::msg(vec![
-                "I wonder what kind of information is available for different objects? Let's find \
-                 out!",
+                "I wonder what kind of information is available for different objects?",
+                "Let's find out! Click each object to open more details, then use the inspect \
+                 action.",
             ]),
             Stage::interact(Task::InspectObjects),
         ]);
@@ -1065,7 +1066,9 @@ impl TutorialState {
                 .arrow(speed.composite.inner.center_of("step forwards 1 hour")),
             Stage::msg(vec!["And reset to the beginning of the day"])
                 .arrow(speed.composite.inner.center_of("reset to midnight")),
-            Stage::msg(vec!["Let's try these controls out. Just wait until 5pm."]),
+            Stage::msg(vec![
+                "Let's try these controls out. Run the simulation until 5pm or later.",
+            ]),
             Stage::interact(Task::TimeControls),
         ]);
 
@@ -1096,11 +1099,9 @@ impl TutorialState {
             ])
             .warp_to(ID::Building(BuildingID(813)), Some(10.0))
             .spawn_around(IntersectionID(247)),
-            Stage::msg(vec![
-                "You can see the number of them in the top-right corner.",
-            ])
-            .arrow(agent_meter.composite.center_of_panel())
-            .spawn_around(IntersectionID(247)),
+            Stage::msg(vec!["You can see the number of them here."])
+                .arrow(agent_meter.composite.center_of_panel())
+                .spawn_around(IntersectionID(247)),
             Stage::msg(vec![
                 "Why don't you follow this car to their destination,",
                 "see where they park, and then play a little... prank?",
@@ -1162,7 +1163,7 @@ impl TutorialState {
                 "Well done!",
                 "",
                 "Let's see what's happening over here.",
-                "(Just watch for a moment.)",
+                "(Just watch for a moment at whatever speed you like.)",
             ])
             .warp_to(ID::Building(BuildingID(543)), None)
             .spawn_scenario(bike_lane_scenario.clone()),
@@ -1183,7 +1184,7 @@ impl TutorialState {
                 "into a protected bike lane?",
             ]),
             Stage::msg(vec![
-                "To edit lanes, click 'edit map', choose a paintbrush, then apply it to a lane.",
+                "To edit lanes, click 'edit map' and then select a lane.",
             ])
             .arrow(top_center.center_of("edit map")),
             Stage::msg(vec![
@@ -1196,8 +1197,8 @@ impl TutorialState {
                 "All you can influence is how their experience will be in the short term.",
             ]),
             Stage::msg(vec![
-                "So try to speed up all of the trips. When all trips are done, you'll get your \
-                 final score.",
+                "So adjust lanes and speed up the slowest trip by at least 45s.",
+                "When all trips are done, you'll get your final score.",
             ])
             .arrow(agent_meter.composite.center_of_panel()),
             Stage::interact(Task::FixBikes).spawn_scenario(bike_lane_scenario),
