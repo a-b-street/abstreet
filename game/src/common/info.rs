@@ -46,7 +46,25 @@ impl InfoPanel {
             actions.insert(0, (Key::F, "follow agent".to_string()));
         }
 
-        let mut col = info_for(id.clone(), ctx, ui);
+        let action_btns = actions
+            .iter()
+            .map(|(key, label)| {
+                let mut txt = Text::new();
+                txt.append(Line(key.describe()).fg(ezgui::HOTKEY_COLOR));
+                txt.append(Line(format!(" - {}", label)));
+                ManagedWidget::btn(Button::text_bg(
+                    txt,
+                    colors::SECTION_BG,
+                    colors::HOVERING,
+                    hotkey(*key),
+                    label,
+                    ctx,
+                ))
+                .margin(5)
+            })
+            .collect();
+
+        let mut col = info_for(ctx, ui, id.clone(), action_btns);
 
         let trip_details = if let Some(trip) = match id {
             ID::Trip(t) => Some(t),
@@ -66,23 +84,6 @@ impl InfoPanel {
         } else {
             None
         };
-
-        for (key, label) in &actions {
-            let mut txt = Text::new();
-            txt.append(Line(key.describe()).fg(ezgui::HOTKEY_COLOR));
-            txt.append(Line(format!(" - {}", label)));
-            col.push(
-                ManagedWidget::btn(Button::text_bg(
-                    txt,
-                    colors::SECTION_BG,
-                    colors::HOVERING,
-                    hotkey(*key),
-                    label,
-                    ctx,
-                ))
-                .margin(5),
-            );
-        }
 
         // Follow the agent. When the sim is paused, this lets the player naturally pan away,
         // because the InfoPanel isn't being updated.
@@ -261,7 +262,12 @@ impl InfoPanel {
     }
 }
 
-fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
+fn info_for(
+    ctx: &EventCtx,
+    ui: &UI,
+    id: ID,
+    action_btns: Vec<ManagedWidget>,
+) -> Vec<ManagedWidget> {
     let (map, sim, draw_map) = (&ui.primary.map, &ui.primary.sim, &ui.primary.draw_map);
     let header_btns = ManagedWidget::row(vec![
         ManagedWidget::btn(Button::rectangle_svg(
@@ -298,6 +304,7 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                     Text::from(Line(format!("@ {}", r.get_name()))),
                 ));
             }
+            rows.extend(action_btns);
 
             // Properties
             {
@@ -396,6 +403,8 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                 txt.add(Line(format!("- {}", r)));
             }
 
+            rows.extend(action_btns);
+
             let trip_lines = sim.count_trips_involving_border(id).describe();
             if !trip_lines.is_empty() {
                 txt.add(Line(""));
@@ -404,7 +413,6 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                 }
             }
 
-            txt.add(Line(""));
             txt.add(Line("Throughput").roboto_bold());
             txt.add(Line(format!(
                 "Since midnight: {} agents crossed",
@@ -443,6 +451,7 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                     header_btns,
                 ]));
             }
+            rows.extend(action_btns);
 
             // Properties
             {
@@ -528,6 +537,7 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                     header_btns,
                 ]));
             }
+            rows.extend(action_btns);
 
             let (kv, extra) = sim.car_properties(id, map);
             rows.extend(make_table(ctx, kv));
@@ -550,6 +560,7 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                     header_btns,
                 ]));
             }
+            rows.extend(action_btns);
 
             let (kv, extra) = sim.ped_properties(id, map);
             rows.extend(make_table(ctx, kv));
@@ -572,6 +583,7 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                     header_btns,
                 ]));
             }
+            rows.extend(action_btns);
 
             let mut txt = Text::new();
             txt.add(Line(format!("Crowd of {}", members.len())));
@@ -585,6 +597,7 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                     header_btns,
                 ]));
             }
+            rows.extend(action_btns);
 
             let mut txt = Text::new();
             txt.add(Line(format!(
@@ -627,6 +640,7 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                     header_btns,
                 ]));
             }
+            rows.extend(action_btns);
 
             let a = map.get_a(id);
             let mut kv = Vec::new();
@@ -646,6 +660,7 @@ fn info_for(id: ID, ctx: &EventCtx, ui: &UI) -> Vec<ManagedWidget> {
                     header_btns,
                 ]));
             }
+            rows.extend(action_btns);
 
             let es = draw_map.get_es(id);
             let mut kv = Vec::new();
