@@ -2,7 +2,9 @@ use crate::colors;
 use crate::common::CommonState;
 use crate::edit::apply_map_edits;
 use crate::game::{msg, State, Transition, WizardState};
+use crate::helpers::ID;
 use crate::managed::WrappedComposite;
+use crate::render::Renderable;
 use crate::ui::UI;
 use ezgui::{
     hotkey, Button, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
@@ -83,7 +85,14 @@ impl LaneEditor {
 
         let composite = Composite::new(
             ManagedWidget::col(vec![
-                ManagedWidget::draw_text(ctx, Text::from(Line("Modify lane"))).centered_horiz(),
+                ManagedWidget::draw_text(
+                    ctx,
+                    Text::from(Line(format!(
+                        "Modify lane of {}",
+                        ui.primary.map.get_parent(l).get_name()
+                    ))),
+                )
+                .centered_horiz(),
                 ManagedWidget::row(row).centered(),
                 WrappedComposite::text_button(ctx, "Finish", hotkey(Key::Escape)),
                 WrappedComposite::text_button(ctx, "Edit entire road", hotkey(Key::U)),
@@ -102,6 +111,19 @@ impl LaneEditor {
 impl State for LaneEditor {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         ctx.canvas_movement();
+        // Restrict what can be selected.
+        if ctx.redo_mouseover() {
+            ui.recalculate_current_selection(ctx);
+            if let Some(ID::Lane(_)) = ui.primary.current_selection {
+            } else {
+                ui.primary.current_selection = None;
+            }
+        }
+        if let Some(ID::Lane(l)) = ui.primary.current_selection {
+            if ui.per_obj.left_click(ctx, "edit this lane") {
+                return Transition::Replace(Box::new(LaneEditor::new(l, ctx, ui)));
+            }
+        }
 
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => {
@@ -158,6 +180,13 @@ impl State for LaneEditor {
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        g.draw_polygon(
+            ui.cs.get("perma selected thing"),
+            &ui.primary
+                .draw_map
+                .get_l(self.l)
+                .get_outline(&ui.primary.map),
+        );
         self.composite.draw(g);
         CommonState::draw_osd(g, ui, &None);
     }

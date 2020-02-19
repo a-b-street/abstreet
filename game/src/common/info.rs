@@ -135,7 +135,10 @@ impl InfoPanel {
                     // conducive to doing this yet.
                 }
                 _ => {
-                    batch.push(Color::BLUE, obj.get_outline(&ui.primary.map));
+                    batch.push(
+                        ui.cs.get_def("perma selected thing", Color::BLUE),
+                        obj.get_outline(&ui.primary.map),
+                    );
                 }
             }
         }
