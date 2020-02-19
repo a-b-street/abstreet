@@ -458,12 +458,22 @@ impl InnerAgentColorScheme {
                 "agent types",
                 "agent types",
                 vec![
-                    ("car", cs.get_def("unzoomed car", Color::RED.alpha(0.5))),
-                    ("bike", cs.get_def("unzoomed bike", Color::GREEN.alpha(0.5))),
-                    ("bus", cs.get_def("unzoomed bus", Color::BLUE.alpha(0.5))),
+                    (
+                        "car",
+                        cs.get_def("unzoomed car", Color::hex("#A32015")).alpha(0.8),
+                    ),
+                    (
+                        "bike",
+                        cs.get_def("unzoomed bike", Color::hex("#5D9630"))
+                            .alpha(0.8),
+                    ),
+                    (
+                        "bus",
+                        cs.get_def("unzoomed bus", Color::hex("#12409D")).alpha(0.8),
+                    ),
                     (
                         "pedestrian",
-                        cs.get_def("unzoomed pedestrian", Color::ORANGE.alpha(0.5)),
+                        cs.get_def("unzoomed pedestrian", Color::hex("#DF8C3D").alpha(0.8)),
                     ),
                 ],
             ),

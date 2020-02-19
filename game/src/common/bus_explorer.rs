@@ -23,7 +23,8 @@ impl ShowBusRoute {
 
         let mut txt = Text::from(Line(&route.name));
         txt.add(Line(format!("{} buses", bus_locations.len())));
-        let mut colorer = Colorer::new(txt, vec![("route", Color::RED)]);
+        let color = ui.cs.get("unzoomed bus");
+        let mut colorer = Colorer::new(txt, vec![("route", color)]);
         for (stop1, stop2) in
             route
                 .stops
@@ -46,7 +47,7 @@ impl ShowBusRoute {
                 .get_steps()
             {
                 if let PathStep::Lane(l) = step {
-                    colorer.add_l(*l, Color::RED, map);
+                    colorer.add_l(*l, color, map);
                 }
             }
         }
