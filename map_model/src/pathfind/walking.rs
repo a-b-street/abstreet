@@ -254,22 +254,26 @@ fn make_input_graph(
                         &route.stops[0],
                     )))
             {
-                let driving_cost = bus_graph
-                    .pathfind(
-                        &PathRequest {
-                            start: map.get_bs(*stop1).driving_pos,
-                            end: map.get_bs(*stop2).driving_pos,
-                            constraints: PathConstraints::Bus,
-                        },
-                        map,
-                    )
-                    .unwrap()
-                    .1;
-                input_graph.add_edge(
-                    nodes.get(Node::RideBus(*stop1)),
-                    nodes.get(Node::RideBus(*stop2)),
-                    driving_cost,
-                );
+                if let Some((_, driving_cost)) = bus_graph.pathfind(
+                    &PathRequest {
+                        start: map.get_bs(*stop1).driving_pos,
+                        end: map.get_bs(*stop2).driving_pos,
+                        constraints: PathConstraints::Bus,
+                    },
+                    map,
+                ) {
+                    input_graph.add_edge(
+                        nodes.get(Node::RideBus(*stop1)),
+                        nodes.get(Node::RideBus(*stop2)),
+                        driving_cost,
+                    );
+                } else {
+                    panic!(
+                        "No bus route from {} to {} now! Prevent this edit",
+                        map.get_bs(*stop1).driving_pos,
+                        map.get_bs(*stop2).driving_pos
+                    );
+                }
             }
         }
     }

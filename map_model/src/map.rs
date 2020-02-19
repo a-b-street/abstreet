@@ -1072,7 +1072,11 @@ impl EditCmd {
                 recalculate_turns(dst_i, map, effects, timer);
                 true
             }
-            EditCmd::ChangeIntersection { i, ref new, .. } => {
+            EditCmd::ChangeIntersection {
+                i,
+                ref new,
+                ref old,
+            } => {
                 if map.get_i_edit(*i) == new.clone() {
                     return false;
                 }
@@ -1093,7 +1097,10 @@ impl EditCmd {
                         map.intersections[i.0].intersection_type = IntersectionType::Construction;
                     }
                 }
-                recalculate_turns(*i, map, effects, timer);
+
+                if old == &EditIntersection::Closed || new == &EditIntersection::Closed {
+                    recalculate_turns(*i, map, effects, timer);
+                }
                 true
             }
         }
