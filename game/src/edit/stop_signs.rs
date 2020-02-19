@@ -146,7 +146,7 @@ impl State for StopSignEditor {
                     )));
                 }
                 "close intersection for construction" => {
-                    return close_intersection(ctx, ui, self.id);
+                    return close_intersection(ctx, ui, self.id, true);
                 }
                 "convert to traffic signal" => {
                     let mut edits = ui.primary.map.get_edits().clone();

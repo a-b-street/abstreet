@@ -419,7 +419,12 @@ pub fn can_edit_lane(mode: &GameplayMode, l: LaneID, ui: &UI) -> bool {
         && ui.primary.map.get_l(l).lane_type != LaneType::SharedLeftTurn
 }
 
-pub fn close_intersection(ctx: &mut EventCtx, ui: &mut UI, i: IntersectionID) -> Transition {
+pub fn close_intersection(
+    ctx: &mut EventCtx,
+    ui: &mut UI,
+    i: IntersectionID,
+    pop_once: bool,
+) -> Transition {
     let mut edits = ui.primary.map.get_edits().clone();
     edits.commands.push(EditCmd::ChangeIntersection {
         i,
@@ -431,7 +436,11 @@ pub fn close_intersection(ctx: &mut EventCtx, ui: &mut UI, i: IntersectionID) ->
     let (_, disconnected) = connectivity::find_scc(&ui.primary.map, PathConstraints::Pedestrian);
     if disconnected.is_empty() {
         // Success! Quit the stop sign / signal editor.
-        return Transition::Pop;
+        if pop_once {
+            return Transition::Pop;
+        } else {
+            return Transition::PopTwice;
+        }
     }
 
     let mut edits = ui.primary.map.get_edits().clone();
@@ -450,5 +459,9 @@ pub fn close_intersection(ctx: &mut EventCtx, ui: &mut UI, i: IntersectionID) ->
     }
 
     err_state.downcast_mut::<WizardState>().unwrap().also_draw = Some(c.build_zoomed(ctx, ui));
-    Transition::Push(err_state)
+    if pop_once {
+        Transition::Push(err_state)
+    } else {
+        Transition::Replace(err_state)
+    }
 }
