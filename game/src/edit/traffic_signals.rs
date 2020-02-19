@@ -182,6 +182,11 @@ impl State for TrafficSignalEditor {
                     );
                 }
                 "Preview" => {
+                    // Might have to do this first!
+                    ui.primary
+                        .map
+                        .recalculate_pathfinding_after_edits(&mut Timer::throwaway());
+
                     // TODO These're expensive clones :(
                     return Transition::Push(make_previewer(
                         self.i,
@@ -786,10 +791,6 @@ fn make_previewer(i: IntersectionID, phase: usize, suspended_sim: Sim) -> Box<dy
                 }
                 ui.primary.sim.step(&ui.primary.map, step);
 
-                // This should be a no-op
-                ui.primary
-                    .map
-                    .recalculate_pathfinding_after_edits(&mut Timer::throwaway());
                 spawn_agents_around(i, ui);
             }
             x if x == right_now => {

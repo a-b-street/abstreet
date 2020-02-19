@@ -417,7 +417,11 @@ impl AgentMeter {
             .centered_horiz(),
             {
                 let mut txt = Text::new();
-                let pct = 100.0 * (finished as f64) / ((finished + unfinished) as f64);
+                let pct = if unfinished == 0 {
+                    100.0
+                } else {
+                    100.0 * (finished as f64) / ((finished + unfinished) as f64)
+                };
                 txt.add(Line(format!(
                     "Finished trips: {} ({}%)",
                     prettyprint_usize(finished),
