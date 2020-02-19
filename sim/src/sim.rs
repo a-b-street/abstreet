@@ -681,8 +681,8 @@ impl Sim {
                 println!(
                     "{}: {} trips finished, {} unfinished, speed = {:.2}x, {}",
                     self.time(),
-                    finished,
-                    unfinished,
+                    abstutil::prettyprint_usize(finished),
+                    abstutil::prettyprint_usize(unfinished),
                     (self.time() - last_sim_time) / dt_real,
                     self.scheduler.describe_stats()
                 );
@@ -835,16 +835,8 @@ impl Sim {
 
     // (number of finished trips, number of unfinished trips, number of active by mode)
     // prettyprinted
-    pub fn num_trips(&self) -> (String, String, BTreeMap<TripMode, String>) {
-        let (finished, unfinished, by_mode) = self.trips.num_trips();
-        (
-            abstutil::prettyprint_usize(finished),
-            abstutil::prettyprint_usize(unfinished),
-            by_mode
-                .into_iter()
-                .map(|(k, v)| (k, abstutil::prettyprint_usize(v)))
-                .collect(),
-        )
+    pub fn num_trips(&self) -> (usize, usize, BTreeMap<TripMode, usize>) {
+        self.trips.num_trips()
     }
 
     pub fn count_trips_involving_bldg(&self, b: BuildingID) -> TripCount {

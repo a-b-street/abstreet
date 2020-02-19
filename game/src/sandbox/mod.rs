@@ -376,32 +376,65 @@ pub struct AgentMeter {
 
 impl AgentMeter {
     pub fn new(ctx: &mut EventCtx, ui: &UI, show_score: Option<ScoreCard>) -> AgentMeter {
+        use abstutil::prettyprint_usize;
+
         let (finished, unfinished, by_mode) = ui.primary.sim.num_trips();
 
         let mut rows = vec![
+            ManagedWidget::draw_text(ctx, Text::from(Line("Active agents"))),
             ManagedWidget::row(vec![
                 ManagedWidget::draw_svg(ctx, "../data/system/assets/meters/pedestrian.svg"),
-                ManagedWidget::draw_text(ctx, Text::from(Line(&by_mode[&TripMode::Walk]))),
+                ManagedWidget::draw_text(
+                    ctx,
+                    Text::from(Line(prettyprint_usize(by_mode[&TripMode::Walk]))),
+                ),
                 ManagedWidget::draw_svg(ctx, "../data/system/assets/meters/bike.svg"),
-                ManagedWidget::draw_text(ctx, Text::from(Line(&by_mode[&TripMode::Bike]))),
+                ManagedWidget::draw_text(
+                    ctx,
+                    Text::from(Line(prettyprint_usize(by_mode[&TripMode::Bike]))),
+                ),
                 ManagedWidget::draw_svg(ctx, "../data/system/assets/meters/car.svg"),
-                ManagedWidget::draw_text(ctx, Text::from(Line(&by_mode[&TripMode::Drive]))),
+                ManagedWidget::draw_text(
+                    ctx,
+                    Text::from(Line(prettyprint_usize(by_mode[&TripMode::Drive]))),
+                ),
                 ManagedWidget::draw_svg(ctx, "../data/system/assets/meters/bus.svg"),
-                ManagedWidget::draw_text(ctx, Text::from(Line(&by_mode[&TripMode::Transit]))),
+                ManagedWidget::draw_text(
+                    ctx,
+                    Text::from(Line(prettyprint_usize(by_mode[&TripMode::Transit]))),
+                ),
             ])
             .centered(),
+            // TODO Separator
             {
                 let mut txt = Text::new();
-                txt.add(Line(format!("Finished trips: {}", finished)));
-                txt.add(Line(format!("Unfinished trips: {}", unfinished)));
+                let pct = 100.0 * (finished as f64) / ((finished + unfinished) as f64);
+                txt.add(Line(format!(
+                    "Finished trips: {} ({}%)",
+                    prettyprint_usize(finished),
+                    pct as usize
+                )));
                 ManagedWidget::draw_text(ctx, txt)
             },
-            WrappedComposite::svg_button(
-                ctx,
-                "../data/system/assets/meters/trip_data.svg",
-                "finished trips data",
-                hotkey(Key::Q),
-            ),
+            {
+                let mut row = vec![WrappedComposite::text_bg_button(
+                    ctx,
+                    "more data",
+                    hotkey(Key::Q),
+                )];
+                if ui.has_prebaked().is_some() {
+                    row.push(
+                        WrappedComposite::svg_button(
+                            ctx,
+                            "../data/system/assets/meters/trip_histogram.svg",
+                            "compare trips to baseline",
+                            None,
+                        )
+                        .align_right(),
+                    );
+                }
+                ManagedWidget::row(row).centered()
+            },
         ];
         // TODO Slight hack. If we're jumping right into a tutorial and don't have the prebaked
         // stuff loaded yet, just skip a tick.
@@ -438,19 +471,22 @@ impl AgentMeter {
         }
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) -> Option<Transition> {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
         if self.time != ui.primary.sim.time() {
             *self = AgentMeter::new(ctx, ui, self.show_score);
             return self.event(ctx, ui);
         }
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "finished trips data" => {
+                "more data" => {
                     return Some(Transition::Push(dashboards::make(
                         ctx,
                         ui,
                         dashboards::Tab::TripsSummary,
                     )));
+                }
+                "compare trips to baseline" => {
+                    ui.overlay = Overlays::trips_histogram(ctx, ui);
                 }
                 _ => unreachable!(),
             },

@@ -219,7 +219,6 @@ impl Overlays {
     pub fn change_overlays(ctx: &mut EventCtx, ui: &UI) -> Option<Transition> {
         let mut choices = vec![
             WrappedComposite::text_button(ctx, "None", hotkey(Key::N)),
-            WrappedComposite::text_button(ctx, "trip times histogram", hotkey(Key::F)),
             WrappedComposite::text_button(ctx, "map edits", hotkey(Key::E)),
             ManagedWidget::btn(Button::rectangle_svg(
                 "../data/system/assets/layers/parking_avail.svg",
@@ -257,9 +256,6 @@ impl Overlays {
                 ctx,
             )),
         ];
-        if ui.has_prebaked().is_none() {
-            choices.retain(|w| !w.has_name("trip times histogram"));
-        }
         // TODO Grey out the inactive SVGs, and add the green checkmark
         if let Some((find, replace)) = match ui.overlay {
             Overlays::Inactive => Some(("None", Button::inactive_button(ctx, "None"))),
@@ -284,10 +280,6 @@ impl Overlays {
                 ManagedWidget::draw_svg(ctx, "../data/system/assets/layers/bus_network.svg"),
             )),
             Overlays::Edits(_) => Some(("map edits", Button::inactive_button(ctx, "map edits"))),
-            Overlays::TripsHistogram(_, _) => Some((
-                "trip times histogram",
-                Button::inactive_button(ctx, "trip times histogram"),
-            )),
             _ => None,
         } {
             for btn in &mut choices {
@@ -354,13 +346,6 @@ impl Overlays {
             "bus network",
             Box::new(|ctx, ui| {
                 ui.overlay = Overlays::bus_network(ctx, ui);
-                Some(Transition::Pop)
-            }),
-        )
-        .maybe_cb(
-            "trip times histogram",
-            Box::new(|ctx, ui| {
-                ui.overlay = Overlays::trips_histogram(ctx, ui);
                 Some(Transition::Pop)
             }),
         )
