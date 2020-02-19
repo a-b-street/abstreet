@@ -250,7 +250,7 @@ impl Tab {
 
         let mut c = WrappedComposite::new(
             Composite::new(ManagedWidget::col(col).evenly_spaced())
-                .exact_size_percent(90, 90)
+                .exact_size_percent(90, 85)
                 .build(ctx),
         )
         .cb("back", Box::new(|_, _| Some(Transition::Pop)));

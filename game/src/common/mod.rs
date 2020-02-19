@@ -252,23 +252,27 @@ impl CommonState {
         // First the constant background
         let mut batch = GeomBatch::from(vec![(
             crate::colors::PANEL_BG,
-            Polygon::rectangle(g.canvas.window_width, g.default_line_height()),
+            Polygon::rectangle(g.canvas.window_width, 1.5 * g.default_line_height()),
         )]);
-        batch.add_translated(osd.render_g(g), 0.0, 0.0);
+        batch.add_translated(osd.render_g(g), 10.0, 0.25 * g.default_line_height());
 
         if ui.opts.dev && !g.is_screencap() {
             let mut txt = Text::from(Line("DEV"));
             txt.highlight_last_line(Color::RED);
             let dev_batch = txt.render_g(g);
             let dims = dev_batch.get_dims();
-            batch.add_translated(dev_batch, g.canvas.window_width - dims.width, 0.0);
+            batch.add_translated(
+                dev_batch,
+                g.canvas.window_width - dims.width - 10.0,
+                0.25 * g.default_line_height(),
+            );
         }
         let draw = g.upload(batch);
-        let top_left = ScreenPt::new(0.0, g.canvas.window_height - g.default_line_height());
+        let top_left = ScreenPt::new(0.0, g.canvas.window_height - 1.5 * g.default_line_height());
         g.redraw_at(top_left, &draw);
         g.canvas.mark_covered_area(ScreenRectangle::top_left(
             top_left,
-            ScreenDims::new(g.canvas.window_width, g.default_line_height()),
+            ScreenDims::new(g.canvas.window_width, 1.5 * g.default_line_height()),
         ));
     }
 

@@ -71,7 +71,7 @@ pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
         ]))
         // TODO Want to use exact, but then scrolling breaks. exact_size_percent will fix the
         // jumpiness though.
-        .max_size_percent(90, 90)
+        .max_size_percent(90, 80)
         .build(ctx),
     )
     .cb("back", Box::new(|_, _| Some(Transition::Pop)));

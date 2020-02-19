@@ -129,7 +129,7 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
 
     let mut c = WrappedComposite::new(
         Composite::new(ManagedWidget::col(col).evenly_spaced())
-            .exact_size_percent(90, 90)
+            .exact_size_percent(90, 85)
             .build(ctx),
     )
     .cb(
@@ -258,7 +258,7 @@ fn about(ctx: &mut EventCtx) -> Box<dyn State> {
     ManagedGUIState::fullscreen(
         WrappedComposite::new(
             Composite::new(ManagedWidget::col(col))
-                .exact_size_percent(90, 90)
+                .exact_size_percent(90, 85)
                 .build(ctx),
         )
         .cb("back", Box::new(|_, _| Some(Transition::Pop))),
@@ -326,7 +326,7 @@ fn proposals_picker(ctx: &mut EventCtx) -> Box<dyn State> {
             ])
             .evenly_spaced(),
         )
-        .exact_size_percent(90, 90)
+        .exact_size_percent(90, 85)
         .build(ctx),
     )
     .cb("back", Box::new(|_, _| Some(Transition::Pop)));

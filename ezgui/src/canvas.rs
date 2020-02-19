@@ -232,7 +232,7 @@ impl Canvas {
             VerticalAlignment::Center => (self.window_height - dims.height) / 2.0,
             VerticalAlignment::Bottom => self.window_height - dims.height,
             // TODO Hack
-            VerticalAlignment::BottomAboveOSD => self.window_height - dims.height - 40.0,
+            VerticalAlignment::BottomAboveOSD => self.window_height - dims.height - 60.0,
             VerticalAlignment::Percent(pct) => pct * self.window_height,
             VerticalAlignment::Above(y) => y - dims.height,
             VerticalAlignment::Below(y) => y,

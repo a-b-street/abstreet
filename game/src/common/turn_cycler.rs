@@ -332,6 +332,6 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
 
     Composite::new(ManagedWidget::col(col).bg(colors::PANEL_BG))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-        .max_size_percent(30, 90)
+        .max_size_percent(30, 85)
         .build(ctx)
 }
