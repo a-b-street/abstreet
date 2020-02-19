@@ -21,8 +21,8 @@ impl Histogram {
         let mut batch = GeomBatch::new();
         let mut rect_labels = Vec::new();
 
-        let width = 0.25 * ctx.canvas.window_width;
-        let height = 0.25 * ctx.canvas.window_height;
+        let width = 0.20 * ctx.canvas.window_width;
+        let height = 0.15 * ctx.canvas.window_height;
 
         let num_buckets = 10;
         let (min_x, max_x, bars) = bucketize(unsorted_dts, num_buckets);
@@ -88,7 +88,7 @@ impl Histogram {
         }
         let x_axis = ManagedWidget::row(row);
 
-        let num_y_labels = 5;
+        let num_y_labels = 3;
         let mut col = Vec::new();
         for i in 0..num_y_labels {
             let percent_y = (i as f64) / ((num_y_labels - 1) as f64);

@@ -17,12 +17,12 @@ use crate::render::DrawOptions;
 pub use crate::sandbox::gameplay::TutorialState;
 use crate::ui::{ShowEverything, UI};
 use ezgui::{
-    hotkey, lctrl, Choice, Composite, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Key,
-    Line, ManagedWidget, Outcome, Text, VerticalAlignment, Wizard,
+    hotkey, lctrl, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Text, VerticalAlignment, Wizard,
 };
 pub use gameplay::spawner::spawn_agents_around;
 pub use gameplay::GameplayMode;
-use geom::{Duration, Statistic, Time};
+use geom::{Duration, Polygon, Statistic, Time};
 use map_model::MapEdits;
 use sim::TripMode;
 pub use speed::{SpeedControls, TimePanel};
@@ -405,7 +405,16 @@ impl AgentMeter {
                 ),
             ])
             .centered(),
-            // TODO Separator
+            // Separator
+            ManagedWidget::draw_batch(
+                ctx,
+                GeomBatch::from(vec![(
+                    Color::WHITE,
+                    Polygon::rectangle(0.2 * ctx.canvas.window_width, 2.0),
+                )]),
+            )
+            .margin(15)
+            .centered_horiz(),
             {
                 let mut txt = Text::new();
                 let pct = 100.0 * (finished as f64) / ((finished + unfinished) as f64);
@@ -440,6 +449,19 @@ impl AgentMeter {
         // stuff loaded yet, just skip a tick.
         if ui.has_prebaked().is_some() {
             if let Some(ScoreCard { stat, goal }) = show_score {
+                // Separator
+                rows.push(
+                    ManagedWidget::draw_batch(
+                        ctx,
+                        GeomBatch::from(vec![(
+                            Color::WHITE,
+                            Polygon::rectangle(0.2 * ctx.canvas.window_width, 2.0),
+                        )]),
+                    )
+                    .margin(15)
+                    .centered_horiz(),
+                );
+
                 let (now, _, _) = ui
                     .primary
                     .sim
