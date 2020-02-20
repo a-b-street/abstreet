@@ -12,7 +12,7 @@ use ezgui::{
     Key, Line, ManagedWidget, Outcome, Plot, RewriteColor, Series, Text, VerticalAlignment,
 };
 use geom::{Circle, Distance, Duration, Statistic, Time};
-use map_model::{IntersectionID, RoadID};
+use map_model::{IntersectionID, IntersectionType, RoadID};
 use sim::{AgentID, CarID, TripEnd, TripID, TripMode, TripStart, VehicleType};
 use std::collections::BTreeSet;
 
@@ -382,16 +382,18 @@ fn info_for(
 
             // Header
             {
-                let label = if i.is_border() {
-                    "Border"
-                } else {
-                    "Intersection"
+                let label = match i.intersection_type {
+                    IntersectionType::StopSign => format!("Intersection #{} (Stop signs)", id.0),
+                    IntersectionType::TrafficSignal => {
+                        format!("Intersection #{} (Traffic signals)", id.0)
+                    }
+                    IntersectionType::Border => format!("Border #{}", id.0),
+                    IntersectionType::Construction => {
+                        format!("Intersection #{} (under construction)", id.0)
+                    }
                 };
                 rows.push(ManagedWidget::row(vec![
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line(format!("{} #{}", label, id.0)).roboto_bold()),
-                    ),
+                    ManagedWidget::draw_text(ctx, Text::from(Line(label).roboto_bold())),
                     header_btns,
                 ]));
             }

@@ -29,7 +29,7 @@ use geom::{Distance, PolyLine, Polygon, Pt2D, EPSILON_DIST};
 use map_model::{IntersectionID, Map};
 use sim::{DrawCarInput, VehicleType};
 
-pub const MIN_ZOOM_FOR_DETAIL: f64 = 2.5;
+pub const MIN_ZOOM_FOR_DETAIL: f64 = 6.0;
 
 const EXTRA_SHAPE_THICKNESS: Distance = Distance::const_meters(1.0);
 const EXTRA_SHAPE_POINT_RADIUS: Distance = Distance::const_meters(10.0);

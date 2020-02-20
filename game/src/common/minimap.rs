@@ -230,7 +230,7 @@ impl Minimap {
             &ui.agent_cs,
             g,
             self.zoom,
-            Distance::meters(5.0),
+            Distance::meters(2.0 + (self.zoom_lvl as f64)),
         );
 
         // The cursor

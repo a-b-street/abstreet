@@ -449,7 +449,10 @@ pub fn close_intersection(
 
     let mut err_state = msg(
         "Error",
-        vec![format!("{} sidewalks disconnected", disconnected.len())],
+        vec![format!(
+            "Can't close this intersection; {} sidewalks disconnected",
+            disconnected.len()
+        )],
     );
 
     let color = ui.cs.get("unreachable lane");
