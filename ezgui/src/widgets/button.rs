@@ -63,6 +63,11 @@ impl Button {
         }
     }
 
+    pub fn change_tooltip(mut self, tooltip: Text) -> Button {
+        self.tooltip = tooltip;
+        self
+    }
+
     fn get_hitbox(&self) -> Polygon {
         self.hitbox.translate(self.top_left.x, self.top_left.y)
     }

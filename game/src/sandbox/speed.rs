@@ -20,12 +20,12 @@ pub struct SpeedControls {
 enum SpeedSetting {
     // 1 sim second per real second
     Realtime,
-    // 1 sim minute per real second
-    MinutePerSec,
+    // 5 sim seconds per real second
+    Fast,
+    // 30 sim seconds per real second
+    Faster,
     // 1 sim hour per real second
-    HourPerSec,
-    // as fast as possible
-    Uncapped,
+    Fastest,
 }
 
 impl SpeedControls {
@@ -57,25 +57,34 @@ impl SpeedControls {
         row.push(
             ManagedWidget::row(
                 vec![
-                    (SpeedSetting::Realtime, "realtime"),
-                    (SpeedSetting::MinutePerSec, "60x"),
-                    (SpeedSetting::HourPerSec, "3600x"),
-                    (SpeedSetting::Uncapped, "as fast as possible"),
+                    (SpeedSetting::Realtime, "real-time speed"),
+                    (SpeedSetting::Fast, "5x speed"),
+                    (SpeedSetting::Faster, "30x speed"),
+                    (SpeedSetting::Fastest, "3600x speed"),
                 ]
                 .into_iter()
                 .map(|(s, label)| {
-                    ManagedWidget::btn(Button::rectangle_svg_rewrite(
-                        "../data/system/assets/speed/triangle.svg",
-                        label,
-                        None,
-                        if setting >= s {
-                            RewriteColor::NoOp
-                        } else {
-                            RewriteColor::ChangeAll(Color::WHITE.alpha(0.2))
-                        },
-                        RewriteColor::ChangeAll(colors::HOVERING),
-                        ctx,
-                    ))
+                    let mut tooltip = Text::from(Line(label).size(20)).with_bg();
+                    tooltip.add(Line("[").fg(Color::GREEN).size(20));
+                    tooltip.append(Line(" - slow down"));
+                    tooltip.add(Line("]").fg(Color::GREEN).size(20));
+                    tooltip.append(Line(" - speed up"));
+
+                    ManagedWidget::btn(
+                        Button::rectangle_svg_rewrite(
+                            "../data/system/assets/speed/triangle.svg",
+                            label,
+                            None,
+                            if setting >= s {
+                                RewriteColor::NoOp
+                            } else {
+                                RewriteColor::ChangeAll(Color::WHITE.alpha(0.2))
+                            },
+                            RewriteColor::ChangeAll(colors::HOVERING),
+                            ctx,
+                        )
+                        .change_tooltip(tooltip),
+                    )
                     .margin(5)
                 })
                 .collect(),
@@ -180,23 +189,23 @@ impl SpeedControls {
                 return Some(WrappedOutcome::Transition(t));
             }
             Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
-                "realtime" => {
+                "real-time speed" => {
                     self.setting = SpeedSetting::Realtime;
                     self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
                     return None;
                 }
-                "60x" => {
-                    self.setting = SpeedSetting::MinutePerSec;
+                "5x speed" => {
+                    self.setting = SpeedSetting::Fast;
                     self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
                     return None;
                 }
-                "3600x" => {
-                    self.setting = SpeedSetting::HourPerSec;
+                "30x speed" => {
+                    self.setting = SpeedSetting::Faster;
                     self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
                     return None;
                 }
-                "as fast as possible" => {
-                    self.setting = SpeedSetting::Uncapped;
+                "3600x speed" => {
+                    self.setting = SpeedSetting::Fastest;
                     self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
                     return None;
                 }
@@ -220,16 +229,16 @@ impl SpeedControls {
         if ctx.input.new_was_pressed(hotkey(Key::LeftBracket).unwrap()) {
             match self.setting {
                 SpeedSetting::Realtime => self.pause(ctx),
-                SpeedSetting::MinutePerSec => {
+                SpeedSetting::Fast => {
                     self.setting = SpeedSetting::Realtime;
                     self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
                 }
-                SpeedSetting::HourPerSec => {
-                    self.setting = SpeedSetting::MinutePerSec;
+                SpeedSetting::Faster => {
+                    self.setting = SpeedSetting::Fast;
                     self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
                 }
-                SpeedSetting::Uncapped => {
-                    self.setting = SpeedSetting::HourPerSec;
+                SpeedSetting::Fastest => {
+                    self.setting = SpeedSetting::Faster;
                     self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
                 }
             }
@@ -244,19 +253,19 @@ impl SpeedControls {
                         self.paused = false;
                         self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
                     } else {
-                        self.setting = SpeedSetting::MinutePerSec;
+                        self.setting = SpeedSetting::Fast;
                         self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
                     }
                 }
-                SpeedSetting::MinutePerSec => {
-                    self.setting = SpeedSetting::HourPerSec;
+                SpeedSetting::Fast => {
+                    self.setting = SpeedSetting::Faster;
                     self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
                 }
-                SpeedSetting::HourPerSec => {
-                    self.setting = SpeedSetting::Uncapped;
+                SpeedSetting::Faster => {
+                    self.setting = SpeedSetting::Fastest;
                     self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
                 }
-                SpeedSetting::Uncapped => {}
+                SpeedSetting::Fastest => {}
             }
         }
 
@@ -265,9 +274,9 @@ impl SpeedControls {
                 ctx.input.use_update_event();
                 let multiplier = match self.setting {
                     SpeedSetting::Realtime => 1.0,
-                    SpeedSetting::MinutePerSec => 60.0,
-                    SpeedSetting::HourPerSec => 3600.0,
-                    SpeedSetting::Uncapped => 10.0e9,
+                    SpeedSetting::Fast => 5.0,
+                    SpeedSetting::Faster => 30.0,
+                    SpeedSetting::Fastest => 3600.0,
                 };
                 let dt = multiplier * real_dt;
                 // TODO This should match the update frequency in ezgui. Plumb along the deadline
