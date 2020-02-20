@@ -182,7 +182,9 @@ impl SandboxMode {
 impl State for SandboxMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         // Do this before gameplay
-        ctx.canvas_movement();
+        if self.gameplay.can_move_canvas() {
+            ctx.canvas_movement();
+        }
 
         let (maybe_t, exit) = self.gameplay.event(ctx, ui, &mut self.controls);
         if let Some(t) = maybe_t {

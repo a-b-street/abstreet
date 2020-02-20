@@ -60,6 +60,9 @@ pub trait GameplayState: downcast_rs::Downcast {
     ) -> (Option<Transition>, bool);
     fn draw(&self, g: &mut GfxCtx, ui: &UI);
 
+    fn can_move_canvas(&self) -> bool {
+        true
+    }
     fn can_examine_objects(&self) -> bool {
         true
     }

@@ -113,7 +113,7 @@ impl GameplayState for Tutorial {
         if let Some(ref mut msg) = self.msg_panel {
             match msg.event(ctx) {
                 Some(Outcome::Clicked(x)) => match x.as_ref() {
-                    "OK" => {
+                    "Next" => {
                         tut.next();
                         if tut.current == tut.stages.len() {
                             // TODO Clear edits?
@@ -486,7 +486,7 @@ impl GameplayState for Tutorial {
                     g.draw_polygon(
                         Color::RED,
                         &PolyLine::new(vec![
-                            self.msg_panel.as_ref().unwrap().center_of("OK").to_pt(),
+                            self.msg_panel.as_ref().unwrap().center_of("Next").to_pt(),
                             pt,
                         ])
                         .make_arrow(Distance::meters(20.0))
@@ -508,6 +508,9 @@ impl GameplayState for Tutorial {
         }
     }
 
+    fn can_move_canvas(&self) -> bool {
+        self.msg_panel.is_none()
+    }
     fn can_examine_objects(&self) -> bool {
         self.last_finished_task >= Task::WatchBikes
     }
@@ -563,59 +566,53 @@ impl Task {
             Task::Nil => unreachable!(),
             Task::Camera => "Put out the fire at the Montlake Market",
             Task::InspectObjects => {
-                let mut txt = Text::from(Line("Click and inspect one of each: ").fg(Color::CYAN));
-                txt.append(Line("lane").fg(if state.inspected_lane {
-                    Color::GREEN
+                let mut txt = Text::from(Line("Click and inspect one of each:").fg(Color::CYAN));
+                if state.inspected_lane {
+                    txt.add(Line("☑ lane").fg(Color::GREEN));
                 } else {
-                    Color::CYAN
-                }));
-                txt.append(Line(", "));
-                txt.append(
-                    Line("intersection with stop sign").fg(if state.inspected_stop_sign {
-                        Color::GREEN
-                    } else {
-                        Color::CYAN
-                    }),
-                );
-                txt.append(Line(", "));
-                // That manual word wrap theaux
-                txt.add(Line("building").fg(if state.inspected_building {
-                    Color::GREEN
+                    txt.add(Line("☐ lane").fg(Color::CYAN));
+                }
+                if state.inspected_building {
+                    txt.add(Line("☑ building").fg(Color::GREEN));
                 } else {
-                    Color::CYAN
-                }));
-                txt.append(Line(", "));
-                txt.append(
-                    Line("intersection on the map border").fg(if state.inspected_border {
-                        Color::GREEN
-                    } else {
-                        Color::CYAN
-                    }),
-                );
+                    txt.add(Line("☐ building").fg(Color::CYAN));
+                }
+                if state.inspected_stop_sign {
+                    txt.add(Line("☑ intersection with stop sign").fg(Color::GREEN));
+                } else {
+                    txt.add(Line("☐ intersection with stop sign").fg(Color::CYAN));
+                }
+                if state.inspected_border {
+                    txt.add(Line("☑ intersection on the map border").fg(Color::GREEN));
+                } else {
+                    txt.add(Line("☐ intersection on the map border").fg(Color::CYAN));
+                }
                 return txt;
             }
             Task::TimeControls => "Simulate until after 5pm",
             Task::PauseResume => {
-                let mut txt = Text::from(Line("Pause/resume ").fg(Color::CYAN));
+                let mut txt = Text::from(Line("☐ Pause/resume ").fg(Color::CYAN));
                 txt.append(Line(format!("{} times", 3 - state.num_pauses)).fg(Color::GREEN));
                 return txt;
             }
             Task::Escort => {
                 // Inspect the target car, wait for them to park, draw WASH ME on the window
                 let mut txt = Text::new();
-                txt.append(Line("Follow the target car").fg(if state.following_car {
-                    Color::GREEN
+                if state.following_car {
+                    txt.add(Line("☑ follow the target car").fg(Color::GREEN));
                 } else {
-                    Color::CYAN
-                }));
-                txt.append(Line(", ").fg(Color::CYAN));
-                txt.append(Line("wait for them to park").fg(if state.car_parked {
-                    Color::GREEN
+                    txt.add(Line("☐ follow the target car").fg(Color::CYAN));
+                }
+                if state.car_parked {
+                    txt.add(Line("☑ wait for them to park").fg(Color::GREEN));
                 } else {
-                    Color::CYAN
-                }));
-                txt.append(Line(",").fg(Color::CYAN));
-                txt.add(Line("then draw WASH ME on the window").fg(Color::CYAN));
+                    txt.add(Line("☐ wait for them to park").fg(Color::CYAN));
+                }
+                if state.inspected_building {
+                    txt.add(Line("☑ draw WASH ME on the window").fg(Color::GREEN));
+                } else {
+                    txt.add(Line("☐ draw WASH ME on the window").fg(Color::CYAN));
+                }
                 return txt;
             }
             Task::LowParking => "Find a road with almost no parking spots available",
@@ -626,7 +623,7 @@ impl Task {
         };
 
         let mut txt = Text::new();
-        txt.add_wrapped(simple.to_string(), 0.6 * ctx.canvas.window_width);
+        txt.add_wrapped(format!("☐ {}", simple), 0.6 * ctx.canvas.window_width);
         txt.change_fg(Color::CYAN)
     }
 }
@@ -951,7 +948,7 @@ impl TutorialState {
                                 }
                                 txt
                             }),
-                            WrappedComposite::text_button(ctx, "OK", hotkey(Key::Enter))
+                            WrappedComposite::text_button(ctx, "Next", hotkey(Key::Enter))
                                 .centered_horiz()
                                 .padding(10),
                         ])
@@ -1061,7 +1058,7 @@ impl TutorialState {
             .warp_to(ID::Intersection(IntersectionID(64)), None),
             Stage::msg(vec!["You can pause or resume time"])
                 .arrow(speed.composite.inner.center_of("pause")),
-            Stage::msg(vec!["Speed things up"]).arrow(speed.composite.inner.center_of("60x")),
+            Stage::msg(vec!["Speed things up"]).arrow(speed.composite.inner.center_of("30x speed")),
             Stage::msg(vec!["Advance time by certain amounts"])
                 .arrow(speed.composite.inner.center_of("step forwards 1 hour")),
             Stage::msg(vec!["And reset to the beginning of the day"])
@@ -1139,6 +1136,7 @@ impl TutorialState {
                 "",
                 "The map is quite large, so to help you orient",
                 "the minimap shows you an overview of all activity.",
+                "You can click and drag it just like the normal map.",
             ])
             .arrow(minimap.composite.center_of("minimap")),
             Stage::msg(vec!["Find addresses here"]).arrow(minimap.composite.center_of("search")),
@@ -1146,8 +1144,13 @@ impl TutorialState {
                 .arrow(minimap.composite.center_of("shortcuts")),
             Stage::msg(vec!["View different data about agents"])
                 .arrow(minimap.composite.center_of("change agent colorscheme")),
-            Stage::msg(vec!["Apply different heatmap layers to the map"])
-                .arrow(minimap.composite.center_of("change overlay")),
+            Stage::msg(vec![
+                "Apply different heatmap layers to the map, to find data such as:",
+                "- roads with high traffic",
+                "- bus stops",
+                "- current parking",
+            ])
+            .arrow(minimap.composite.center_of("change overlay")),
             Stage::msg(vec![
                 "Let's try these out.",
                 "There are lots of cars parked everywhere.",
@@ -1201,7 +1204,9 @@ impl TutorialState {
                 "When all trips are done, you'll get your final score.",
             ])
             .arrow(agent_meter.composite.center_of_panel()),
-            Stage::interact(Task::FixBikes).spawn_scenario(bike_lane_scenario),
+            Stage::interact(Task::FixBikes)
+                .spawn_scenario(bike_lane_scenario)
+                .warp_to(ID::Building(BuildingID(543)), None),
         ]);
 
         if false {
