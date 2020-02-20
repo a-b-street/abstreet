@@ -1,10 +1,11 @@
 use crate::colors;
-use crate::game::{State, Transition, WizardState};
+use crate::game::{msg, State, Transition};
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::ui::UI;
 use ezgui::{
     hotkey, Button, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, ManagedWidget, RewriteColor, Text, VerticalAlignment, Wizard,
+    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Plot, RewriteColor, Series, Slider,
+    Text, VerticalAlignment,
 };
 use geom::{Duration, Polygon, Time};
 use instant::Instant;
@@ -148,7 +149,13 @@ impl SpeedControls {
         )
         .cb(
             "jump to specific time",
-            Box::new(|_, _| Some(Transition::Push(WizardState::new(Box::new(jump_to_time))))),
+            Box::new(|ctx, ui| {
+                Some(Transition::Push(Box::new(JumpToTime::new(
+                    ctx,
+                    ui,
+                    ui.primary.sim.time(),
+                ))))
+            }),
         )
         .cb(
             "step forwards 0.1 seconds",
@@ -315,17 +322,113 @@ impl SpeedControls {
     }
 }
 
-fn jump_to_time(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
-    let target = wiz.wrap(ctx).input_time_slider(
-        "Jump to what time in the future?",
-        ui.primary.sim.time(),
-        Time::END_OF_DAY,
-    )?;
-    Some(Transition::Replace(Box::new(TimeWarpScreen {
-        target,
-        started: Instant::now(),
-        composite: Composite::new(ManagedWidget::draw_text(ctx, Text::new())).build(ctx),
-    })))
+struct JumpToTime {
+    composite: Composite,
+    target: Time,
+}
+
+impl JumpToTime {
+    fn new(ctx: &mut EventCtx, ui: &UI, target: Time) -> JumpToTime {
+        // TODO Auto-fill width?
+        let mut slider = Slider::horizontal(ctx, 0.25 * ctx.canvas.window_width, 25.0);
+        slider.set_percent(ctx, target.to_percent(Time::END_OF_DAY).min(1.0));
+        JumpToTime {
+            target,
+            composite: Composite::new(
+                ManagedWidget::col(vec![
+                    WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
+                    ManagedWidget::draw_text(ctx, {
+                        let mut txt = Text::from(Line("Jump to what time?").roboto_bold());
+                        txt.add(Line(target.ampm_tostring()));
+                        txt
+                    }),
+                    ManagedWidget::slider("time slider").margin(10),
+                    ManagedWidget::row(vec![
+                        ManagedWidget::draw_text(ctx, Text::from(Line("00:00").size(12).roboto())),
+                        ManagedWidget::draw_svg(ctx, "../data/system/assets/speed/sunrise.svg"),
+                        ManagedWidget::draw_text(ctx, Text::from(Line("12:00").size(12).roboto())),
+                        ManagedWidget::draw_svg(ctx, "../data/system/assets/speed/sunset.svg"),
+                        ManagedWidget::draw_text(ctx, Text::from(Line("24:00").size(12).roboto())),
+                    ])
+                    .padding(10)
+                    .evenly_spaced(),
+                    WrappedComposite::text_bg_button(ctx, "Go!", hotkey(Key::Enter))
+                        .centered_horiz(),
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line("Active agents (20 minute buckets)").roboto_bold()),
+                    ),
+                    Plot::new_usize(
+                        vec![Series {
+                            label: (if ui.has_prebaked().is_some() {
+                                "Baseline"
+                            } else {
+                                "Current simulation"
+                            })
+                            .to_string(),
+                            color: Color::RED,
+                            pts: (if ui.has_prebaked().is_some() {
+                                ui.prebaked()
+                            } else {
+                                ui.primary.sim.get_analytics()
+                            })
+                            .active_agents(Time::END_OF_DAY, Duration::minutes(20)),
+                        }],
+                        ctx,
+                    ),
+                ])
+                .bg(colors::PANEL_BG),
+            )
+            .slider("time slider", slider)
+            .build(ctx),
+        }
+    }
+}
+
+impl State for JumpToTime {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "X" => {
+                    return Transition::Pop;
+                }
+                "Go!" => {
+                    if self.target < ui.primary.sim.time() {
+                        // TODO Make it possible!
+                        return Transition::Replace(msg(
+                            "Error",
+                            vec![
+                                "You can't use this to rewind time yet.".to_string(),
+                                "Click the reset to midnight button first.".to_string(),
+                            ],
+                        ));
+                    }
+                    return Transition::Replace(Box::new(TimeWarpScreen {
+                        target: self.target,
+                        started: Instant::now(),
+                        composite: Composite::new(ManagedWidget::draw_text(ctx, Text::new()))
+                            .build(ctx),
+                    }));
+                }
+                _ => unreachable!(),
+            },
+            None => {}
+        }
+        let target =
+            Time::END_OF_DAY.percent_of(self.composite.slider("time slider").get_percent());
+        if target != self.target {
+            // TODO Just update the text widget. This will stop the slider drag from getting
+            // interrupted.
+            return Transition::Replace(Box::new(JumpToTime::new(ctx, ui, target)));
+        }
+
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        State::grey_out_map(g);
+        self.composite.draw(g);
+    }
 }
 
 // Display a nicer screen for jumping forwards in time, allowing cancellation.
