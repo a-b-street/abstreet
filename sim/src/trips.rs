@@ -207,7 +207,7 @@ impl TripManager {
             );
             self.unfinished_trips -= 1;
             trip.aborted = true;
-            self.events.push(Event::TripAborted(trip.id));
+            self.events.push(Event::TripAborted(trip.id, trip.mode));
             return;
         };
 
@@ -266,7 +266,7 @@ impl TripManager {
             );
             self.unfinished_trips -= 1;
             trip.aborted = true;
-            self.events.push(Event::TripAborted(trip.id));
+            self.events.push(Event::TripAborted(trip.id, trip.mode));
             return;
         };
 
@@ -444,7 +444,8 @@ impl TripManager {
         if !self.trips[id.0].is_bus_trip() {
             self.unfinished_trips -= 1;
         }
-        self.events.push(Event::TripAborted(id));
+        self.events
+            .push(Event::TripAborted(id, self.trips[id.0].mode));
     }
 
     pub fn abort_trip_impossible_parking(&mut self, car: CarID) {
@@ -452,7 +453,8 @@ impl TripManager {
         assert!(!self.trips[trip.0].is_bus_trip());
         self.trips[trip.0].aborted = true;
         self.unfinished_trips -= 1;
-        self.events.push(Event::TripAborted(trip));
+        self.events
+            .push(Event::TripAborted(trip, self.trips[trip.0].mode));
     }
 
     pub fn active_agents(&self) -> Vec<AgentID> {

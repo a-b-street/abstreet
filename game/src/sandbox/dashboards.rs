@@ -173,6 +173,31 @@ fn trips_summary_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
             ctx,
         )
         .bg(colors::SECTION_BG),
+        ManagedWidget::draw_text(
+            ctx,
+            Text::from(Line("Active agents (20 minute buckets)").roboto_bold()),
+        ),
+        Plot::new_usize(
+            vec![
+                Series {
+                    label: "Baseline".to_string(),
+                    color: Color::BLUE.alpha(0.5),
+                    pts: ui
+                        .prebaked()
+                        .active_agents(Time::END_OF_DAY, Duration::minutes(20)),
+                },
+                Series {
+                    label: "Current simulation".to_string(),
+                    color: Color::RED,
+                    pts: ui
+                        .primary
+                        .sim
+                        .get_analytics()
+                        .active_agents(ui.primary.sim.time(), Duration::minutes(20)),
+                },
+            ],
+            ctx,
+        ),
     ])
 }
 
@@ -222,6 +247,22 @@ fn trips_summary_not_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
     ManagedWidget::col(vec![
         ManagedWidget::draw_text(ctx, txt),
         finished_trips_plot(ctx, ui).bg(colors::SECTION_BG),
+        ManagedWidget::draw_text(
+            ctx,
+            Text::from(Line("Active agents (20 minute buckets)").roboto_bold()),
+        ),
+        Plot::new_usize(
+            vec![Series {
+                label: "Active agents".to_string(),
+                color: Color::RED,
+                pts: ui
+                    .primary
+                    .sim
+                    .get_analytics()
+                    .active_agents(ui.primary.sim.time(), Duration::minutes(20)),
+            }],
+            ctx,
+        ),
     ])
 }
 

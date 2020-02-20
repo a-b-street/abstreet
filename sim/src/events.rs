@@ -26,7 +26,7 @@ pub enum Event {
     IntersectionDelayMeasured(IntersectionID, Duration),
 
     TripFinished(TripID, TripMode, Duration),
-    TripAborted(TripID),
+    TripAborted(TripID, TripMode),
     TripPhaseStarting(TripID, TripMode, Option<PathRequest>, String),
 
     // Just use for parking replanning. Not happy about copying the full path in here, but the way
