@@ -46,11 +46,12 @@ impl Button {
             draw_hovered: ctx.upload(hovered),
             hotkey,
             tooltip: if let Some(key) = hotkey {
-                let mut txt = Text::from(Line(key.describe()).fg(text::HOTKEY_COLOR));
+                let mut txt =
+                    Text::from(Line(key.describe()).fg(text::HOTKEY_COLOR).size(20)).with_bg();
                 txt.append(Line(format!(" - {}", tooltip)));
                 txt
             } else {
-                Text::from(Line(tooltip))
+                Text::from(Line(tooltip).size(20)).with_bg()
             },
             hitbox,
 
@@ -80,17 +81,14 @@ impl Button {
         }
         if self.hovering && ctx.normal_left_click() {
             self.clicked = true;
+            self.hovering = false;
         }
 
         if let Some(hotkey) = self.hotkey {
             if ctx.input.new_was_pressed(hotkey) {
                 self.clicked = true;
+                self.hovering = false;
             }
-        }
-
-        if self.hovering {
-            // TODO Should we assert this is None?
-            ctx.canvas.button_tooltip = Some(self.tooltip.clone());
         }
     }
 
@@ -106,6 +104,7 @@ impl Button {
     pub(crate) fn draw(&self, g: &mut GfxCtx) {
         if self.hovering {
             g.redraw_at(self.top_left, &self.draw_hovered);
+            g.draw_mouse_tooltip(self.tooltip.clone());
         } else {
             g.redraw_at(self.top_left, &self.draw_normal);
         }

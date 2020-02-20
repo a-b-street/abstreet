@@ -208,7 +208,7 @@ impl<'a> GfxCtx<'a> {
         let dims = txt_batch.get_dims();
         // TODO Maybe also consider the cursor as a valid center
         let pt = dims.top_left_for_corner(
-            ScreenPt::new(self.canvas.cursor_x, self.canvas.cursor_y),
+            ScreenPt::new(self.canvas.cursor_x, self.canvas.cursor_y + 20.0),
             &self.canvas,
         );
         let mut batch = GeomBatch::new();
@@ -257,10 +257,6 @@ impl<'a> GfxCtx<'a> {
 
     pub fn upload(&mut self, batch: GeomBatch) -> Drawable {
         self.prerender.upload(batch)
-    }
-
-    pub fn button_tooltip(&self) -> Option<Text> {
-        self.canvas.button_tooltip.clone()
     }
 
     // Delegation to assets

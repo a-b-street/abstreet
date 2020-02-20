@@ -1,4 +1,4 @@
-use crate::{ScreenDims, ScreenPt, ScreenRectangle, Text, UserInput};
+use crate::{ScreenDims, ScreenPt, ScreenRectangle, UserInput};
 use abstutil::Timer;
 use geom::{Bounds, Pt2D};
 use serde_derive::{Deserialize, Serialize};
@@ -33,8 +33,6 @@ pub struct Canvas {
 
     // Kind of just ezgui state awkwardly stuck here...
     pub(crate) lctrl_held: bool,
-    // This should be mutually exclusive among all buttons and things in map-space.
-    pub(crate) button_tooltip: Option<Text>,
 }
 
 impl Canvas {
@@ -61,7 +59,6 @@ impl Canvas {
             covered_areas: RefCell::new(Vec::new()),
 
             lctrl_held: false,
-            button_tooltip: None,
         }
     }
 

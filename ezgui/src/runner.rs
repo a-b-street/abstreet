@@ -50,8 +50,6 @@ impl<G: GUI> State<G> {
 
         // Update some ezgui state that's stashed in Canvas for sad reasons.
         {
-            self.canvas.button_tooltip = None;
-
             if let Event::WindowResized(width, height) = input.event {
                 prerender.inner.window_resized(width, height);
                 self.canvas.window_width = width;

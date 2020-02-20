@@ -1,5 +1,4 @@
 use crate::colors;
-use crate::common::CommonState;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::ui::UI;
 use ezgui::{
@@ -157,7 +156,5 @@ impl State for ManagedGUIState {
         }
 
         self.composite.draw(g);
-        // Still want to show hotkeys
-        CommonState::draw_osd(g, ui, &None);
     }
 }

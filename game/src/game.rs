@@ -1,4 +1,3 @@
-use crate::common::CommonState;
 use crate::options::Options;
 use crate::pregame::TitleScreen;
 use crate::render::DrawOptions;
@@ -269,7 +268,7 @@ impl State for WizardState {
         DrawBaselayer::PreviousState
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
         // TODO This shouldn't get greyed out, but I think the weird z-ordering of screen-space
         // right now is messing this up.
         if let Some(ref d) = self.also_draw {
@@ -279,8 +278,6 @@ impl State for WizardState {
         State::grey_out_map(g);
 
         self.wizard.draw(g);
-        // Still want to show hotkeys
-        CommonState::draw_osd(g, ui, &None);
     }
 }
 
