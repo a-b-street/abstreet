@@ -162,12 +162,10 @@ impl SpeedControls {
         .cb(
             "step forwards 1 hour",
             Box::new(|ctx, ui| {
-                Some(Transition::Push(Box::new(TimeWarpScreen {
-                    target: ui.primary.sim.time() + Duration::hours(1),
-                    started: Instant::now(),
-                    composite: Composite::new(ManagedWidget::draw_text(ctx, Text::new()))
-                        .build(ctx),
-                })))
+                Some(Transition::Push(Box::new(TimeWarpScreen::new(
+                    ctx,
+                    ui.primary.sim.time() + Duration::hours(1),
+                ))))
             }),
         )
     }
@@ -416,15 +414,7 @@ impl State for JumpToTime {
                             ui.primary.clear_sim();
                             return Transition::ReplaceThenPush(
                                 Box::new(SandboxMode::new(ctx, ui, mode)),
-                                Box::new(TimeWarpScreen {
-                                    target: self.target,
-                                    started: Instant::now(),
-                                    composite: Composite::new(ManagedWidget::draw_text(
-                                        ctx,
-                                        Text::new(),
-                                    ))
-                                    .build(ctx),
-                                }),
+                                Box::new(TimeWarpScreen::new(ctx, self.target)),
                             );
                         } else {
                             return Transition::Replace(msg(
@@ -433,12 +423,7 @@ impl State for JumpToTime {
                             ));
                         }
                     }
-                    return Transition::Replace(Box::new(TimeWarpScreen {
-                        target: self.target,
-                        started: Instant::now(),
-                        composite: Composite::new(ManagedWidget::draw_text(ctx, Text::new()))
-                            .build(ctx),
-                    }));
+                    return Transition::Replace(Box::new(TimeWarpScreen::new(ctx, self.target)));
                 }
                 _ => unreachable!(),
             },
@@ -480,11 +465,26 @@ pub struct TimeWarpScreen {
     composite: Composite,
 }
 
+impl TimeWarpScreen {
+    fn new(ctx: &mut EventCtx, target: Time) -> TimeWarpScreen {
+        TimeWarpScreen {
+            target,
+            started: Instant::now(),
+            composite: Composite::new(
+                ManagedWidget::col(vec![
+                    ManagedWidget::draw_text(ctx, Text::new()).named("text"),
+                    WrappedComposite::text_bg_button(ctx, "stop now", hotkey(Key::Escape))
+                        .centered_horiz(),
+                ])
+                .bg(colors::PANEL_BG),
+            )
+            .build(ctx),
+        }
+    }
+}
+
 impl State for TimeWarpScreen {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        if ctx.input.new_was_pressed(hotkey(Key::Escape).unwrap()) {
-            return Transition::Pop;
-        }
         if ctx.input.nonblocking_is_update_event().is_some() {
             ctx.input.use_update_event();
             ui.primary.sim.time_limited_step(
@@ -494,8 +494,6 @@ impl State for TimeWarpScreen {
             );
             // TODO secondary for a/b test mode
 
-            // TODO Instead display base speed controls, some indication of target time and ability
-            // to cancel
             let mut txt = Text::from(Line("Warping through time...").roboto_bold());
             txt.add(Line(format!(
                 "Simulating until it's {}",
@@ -509,19 +507,25 @@ impl State for TimeWarpScreen {
                 "Have been simulating for {}",
                 Duration::realtime_elapsed(self.started)
             )));
-            txt.add(Line(""));
-            txt.add(Line(format!("Press ESCAPE to stop now")));
 
-            self.composite = Composite::new(
-                ManagedWidget::draw_text(ctx, txt)
-                    .padding(10)
-                    .bg(colors::PANEL_BG)
-                    .outline(5.0, Color::WHITE),
-            )
-            .build(ctx);
+            self.composite.replace(
+                ctx,
+                "text",
+                ManagedWidget::draw_text(ctx, txt).named("text"),
+            );
         }
         if ui.primary.sim.time() == self.target {
             return Transition::Pop;
+        }
+
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "stop now" => {
+                    return Transition::Pop;
+                }
+                _ => unreachable!(),
+            },
+            None => {}
         }
 
         Transition::KeepWithMode(EventLoopMode::Animation)

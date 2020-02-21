@@ -429,6 +429,7 @@ impl ManagedWidget {
         dy: f64,
         scroll_offset: (f64, f64),
         ctx: &EventCtx,
+        recompute_layout: bool,
     ) {
         let result = stretch.layout(nodes.pop().unwrap()).unwrap();
         let x: f64 = result.location.x.into();
@@ -449,7 +450,9 @@ impl ManagedWidget {
         self.rect = ScreenRectangle::top_left(top_left, ScreenDims::new(width, height));
 
         // Assume widgets don't dynamically change, so we just upload the background once.
-        if self.bg.is_none() && (self.style.bg_color.is_some() || self.style.outline.is_some()) {
+        if (self.bg.is_none() || recompute_layout)
+            && (self.style.bg_color.is_some() || self.style.outline.is_some())
+        {
             let mut batch = GeomBatch::new();
             if let Some(c) = self.style.bg_color {
                 batch.push(c, Polygon::rounded_rectangle(width, height, 5.0));
@@ -502,6 +505,7 @@ impl ManagedWidget {
                         y + dy,
                         scroll_offset,
                         ctx,
+                        recompute_layout,
                     );
                 }
             }
@@ -517,6 +521,7 @@ impl ManagedWidget {
                         y + dy,
                         scroll_offset,
                         ctx,
+                        recompute_layout,
                     );
                 }
             }
@@ -657,7 +662,7 @@ impl Composite {
         }
     }
 
-    fn recompute_layout(&mut self, ctx: &EventCtx) {
+    fn recompute_layout(&mut self, ctx: &EventCtx, recompute_bg: bool) {
         let mut stretch = Stretch::new();
         let root = stretch
             .new_node(
@@ -707,6 +712,7 @@ impl Composite {
             top_left.y,
             offset,
             ctx,
+            recompute_bg,
         );
         assert!(nodes.is_empty());
     }
@@ -750,7 +756,7 @@ impl Composite {
             }
         }
         if changed {
-            self.recompute_layout(ctx);
+            self.recompute_layout(ctx, false);
         }
     }
 
@@ -778,7 +784,7 @@ impl Composite {
         }
 
         if ctx.input.is_window_resized() {
-            self.recompute_layout(ctx);
+            self.recompute_layout(ctx, false);
         }
 
         let before = self.scroll_offset();
@@ -786,7 +792,7 @@ impl Composite {
             .top_level
             .event(ctx, &mut self.sliders, &mut self.menus);
         if self.scroll_offset() != before {
-            self.recompute_layout(ctx);
+            self.recompute_layout(ctx, false);
         }
         result
     }
@@ -888,7 +894,7 @@ impl Composite {
     pub fn align_above(&mut self, ctx: &mut EventCtx, other: &Composite) {
         // Small padding
         self.vert = VerticalAlignment::Above(other.top_level.rect.y1 - 5.0);
-        self.recompute_layout(ctx);
+        self.recompute_layout(ctx, false);
     }
 
     pub fn replace(&mut self, ctx: &mut EventCtx, id: &str, new: ManagedWidget) {
@@ -896,7 +902,7 @@ impl Composite {
             panic!("Can't replace widget {}", id);
         }
 
-        self.recompute_layout(ctx);
+        self.recompute_layout(ctx, true);
     }
 }
 
@@ -924,7 +930,7 @@ impl CompositeBuilder {
                 height: Dimension::Points((h * ctx.canvas.window_height) as f32),
             });
         }
-        c.recompute_layout(ctx);
+        c.recompute_layout(ctx, false);
 
         c.contents_dims = ScreenDims::new(c.top_level.rect.width(), c.top_level.rect.height());
         c.container_dims = match c.dims {
@@ -972,7 +978,7 @@ impl CompositeBuilder {
             ]);
         }
         if c.scrollable_x || c.scrollable_y {
-            c.recompute_layout(ctx);
+            c.recompute_layout(ctx, false);
             c.clip_rect = Some(ScreenRectangle::top_left(top_left, c.container_dims));
         }
 
