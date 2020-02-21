@@ -382,8 +382,10 @@ impl Analytics {
         window_size: Duration,
         data: &Vec<(Time, TripMode, X)>,
     ) -> BTreeMap<TripMode, Vec<(Time, usize)>> {
+        let mut pts_per_mode: BTreeMap<TripMode, Vec<(Time, usize)>> = BTreeMap::new();
         let mut windows_per_mode: BTreeMap<TripMode, Window> = BTreeMap::new();
         for mode in TripMode::all() {
+            pts_per_mode.insert(mode, vec![(Time::START_OF_DAY, 0)]);
             windows_per_mode.insert(mode, Window::new(window_size));
         }
 
@@ -395,13 +397,25 @@ impl Analytics {
                 break;
             }
 
-            windows_per_mode.get_mut(m).unwrap().add(*t, 1);
+            let count = windows_per_mode.get_mut(m).unwrap().add(*t);
+            pts_per_mode.get_mut(m).unwrap().push((*t, count));
         }
 
-        windows_per_mode
-            .into_iter()
-            .map(|(k, win)| (k, win.finalize(now)))
-            .collect()
+        for (m, pts) in pts_per_mode.iter_mut() {
+            let mut window = windows_per_mode.remove(m).unwrap();
+
+            // Add a drop-off after window_size (+ a little epsilon!)
+            let t = (pts.last().unwrap().0 + window_size + Duration::seconds(0.1)).min(now);
+            if pts.last().unwrap().0 != t {
+                pts.push((t, window.count(t)));
+            }
+
+            if pts.last().unwrap().0 != now {
+                pts.push((now, window.count(now)));
+            }
+        }
+
+        pts_per_mode
     }
 
     pub fn get_trip_phases(&self, trip: TripID, map: &Map) -> Vec<TripPhase> {
@@ -544,29 +558,46 @@ impl Analytics {
         results
     }
 
-    pub fn active_agents(&self, now: Time, window_size: Duration) -> Vec<(Time, usize)> {
-        // TODO This is not quite right. Need to figure out how Window can handle paired start/stop
-        // events.
-        let mut starts_stops: Vec<(Time, isize)> = Vec::new();
+    pub fn active_agents(&self, now: Time) -> Vec<(Time, usize)> {
+        let mut starts_stops: Vec<(Time, bool)> = Vec::new();
         for (_, (t, _)) in &self.started_trips {
             if *t <= now {
-                starts_stops.push((*t, 1));
+                starts_stops.push((*t, false));
             }
         }
         for (t, _, _, _) in &self.finished_trips {
             if *t > now {
                 break;
             }
-            starts_stops.push((*t, -1));
+            starts_stops.push((*t, true));
         }
+        // Make sure the start events get sorted before the stops.
         starts_stops.sort();
 
-        let mut window = Window::new(window_size);
-        for (t, weight) in starts_stops {
-            window.add(t, weight);
+        let mut pts = Vec::new();
+        let mut cnt = 0;
+        let mut last_t = Time::START_OF_DAY;
+        for (t, ended) in starts_stops {
+            if t != last_t {
+                // Step functions. Don't interpolate.
+                pts.push((last_t, cnt));
+            }
+            last_t = t;
+            if ended {
+                // release mode disables this check, so...
+                if cnt == 0 {
+                    panic!("active_agents at {} has more ended trips than started", t);
+                }
+                cnt -= 1;
+            } else {
+                cnt += 1;
+            }
         }
-
-        window.finalize(now)
+        pts.push((last_t, cnt));
+        if last_t != now {
+            pts.push((now, cnt));
+        }
+        pts
     }
 }
 
@@ -588,11 +619,8 @@ pub struct TripPhase {
 }
 
 struct Window {
-    times: VecDeque<(Time, isize)>,
+    times: VecDeque<Time>,
     window_size: Duration,
-
-    output: Vec<(Time, usize)>,
-    last: Option<(Time, isize)>,
 }
 
 impl Window {
@@ -600,76 +628,20 @@ impl Window {
         Window {
             times: VecDeque::new(),
             window_size,
-
-            output: vec![(Time::START_OF_DAY, 0)],
-            last: None,
         }
     }
 
-    fn add(&mut self, time: Time, weight: isize) {
-        self.times.push_back((time, weight));
-        let sum = self.sum(time);
-
-        if let Some((t, prev_sum)) = self.last {
-            if t == time {
-                // Overwrite
-                // TODO Does it make sense to add prev_sum here?
-                self.last = Some((time, sum));
-            } else {
-                /*println!("output so far: {:?}", self.output);
-                if let Some((tt, xx)) = self.output.last() {
-                    println!("  that last one: {}, {}", tt, xx);
-                }
-                println!("last was previously ({}, {})", t, prev_sum);
-                println!("we're adding ({}, {})", time, weight);
-                */
-                self.output.push((t, count(prev_sum)));
-                self.last = Some((time, sum));
-            }
-        } else {
-            self.last = Some((time, sum));
-        }
+    // Returns the count at time
+    fn add(&mut self, time: Time) -> usize {
+        self.times.push_back(time);
+        self.count(time)
     }
 
-    fn finalize(mut self, now: Time) -> Vec<(Time, usize)> {
-        if let Some((t, prev_sum)) = self.last.take() {
-            self.output.push((t, count(prev_sum)));
-        }
-
-        // Add a drop-off after window_size (+ a little epsilon!)
-        let t =
-            (self.output.last().unwrap().0 + self.window_size + Duration::seconds(0.1)).min(now);
-        if self.output.last().unwrap().0 != t {
-            let cnt = count(self.sum(t));
-            self.output.push((t, cnt));
-        }
-
-        if self.output.last().unwrap().0 != now {
-            let cnt = count(self.sum(now));
-            self.output.push((now, cnt));
-        }
-        self.output
-    }
-
-    // Grab the sum at this time, but don't add a new time
-    fn sum(&mut self, end: Time) -> isize {
-        while !self.times.is_empty() && end - self.times.front().unwrap().0 > self.window_size {
+    // Grab the count at this time, but don't add a new time
+    fn count(&mut self, end: Time) -> usize {
+        while !self.times.is_empty() && end - *self.times.front().unwrap() > self.window_size {
             self.times.pop_front();
         }
-        let mut sum = 0;
-        for (_, weight) in &self.times {
-            sum += *weight;
-        }
-        sum
+        self.times.len()
     }
-}
-
-// TODO There's probably a cast that does this
-fn count(i: isize) -> usize {
-    if i < 0 {
-        // TODO BUG ELSEWHERE!
-        return 0;
-        //panic!("Expected >= 0 count, but have {}", i);
-    }
-    i as usize
 }

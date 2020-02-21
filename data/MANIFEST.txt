@@ -145,6 +145,7 @@ e4d10fa4a66453b7097d906e4616e26b  data/system/assets/meters/car.svg
 9d747979fdc362ac6df0af3c3bbffd15  data/system/assets/meters/bus.svg
 f7facfb678770c416e5529b2b2d066e5  data/system/assets/meters/pedestrian.svg
 44c3cac69d02b773a6df8b861fd9376e  data/system/assets/meters/bike.svg
+3ba0dfb934304b0a57970daeee579aa5  data/system/assets/meters/trip_histogram.svg
 fd9dfc89f3554bd490b633916298c385  data/system/assets/pregame/logo.svg
 287a0629e1b11a2287e2fa1d902a6f3f  data/system/assets/pregame/tutorial.svg
 02dd549d1626c6ec941422f460696570  data/system/assets/pregame/sandbox.svg
@@ -214,9 +215,9 @@ f9f0a109966db097617a13122ecaa6f3  data/system/scenarios/downtown/weekday.bin
 dd54763cfda7fce4c401ae122c6daf57  data/system/scenarios/huge_seattle/weekday.bin
 47dea892a1c4331da02494d15ce02a02  data/system/scenarios/caphill/weekday.bin
 7d6a8e8f5d716ce8674ed63d27f2da51  data/system/scenarios/montlake/weekday.bin
-7dfe19826f9c24e47b64ea973dbabf9c  data/system/prebaked_results/23rd/weekday.bin
+53c6bda5d0e65cef245b480d457e4905  data/system/prebaked_results/23rd/weekday.bin
 e5b494a5e969951ea63a19ab932801f8  data/system/prebaked_results/signal_single/tutorial lvl1.bin
 08c2771c555f7e52ed0c89c511248f99  data/system/prebaked_results/signal_single/tutorial lvl2.bin
 460bd68fcc0c4686db7d654de372f46d  data/system/prebaked_results/montlake/car vs bike contention.bin
-f3d268e6c1a4b868e4006453b293236b  data/system/prebaked_results/montlake/weekday.bin
+49189fd9a466e0fa675ed24dfb4d5081  data/system/prebaked_results/montlake/weekday.bin
 2a3e97b847acfc9d6e381354e7dc46f7  data/system/prebaked_results/montlake/car vs bus contention.bin

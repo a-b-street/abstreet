@@ -354,10 +354,7 @@ impl JumpToTime {
                     .evenly_spaced(),
                     WrappedComposite::text_bg_button(ctx, "Go!", hotkey(Key::Enter))
                         .centered_horiz(),
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line("Active agents (20 minute buckets)").roboto_bold()),
-                    ),
+                    ManagedWidget::draw_text(ctx, Text::from(Line("Active agents").roboto_bold())),
                     Plot::new_usize(
                         vec![Series {
                             label: (if ui.has_prebaked().is_some() {
@@ -372,7 +369,7 @@ impl JumpToTime {
                             } else {
                                 ui.primary.sim.get_analytics()
                             })
-                            .active_agents(Time::END_OF_DAY, Duration::minutes(20)),
+                            .active_agents(Time::END_OF_DAY),
                         }],
                         ctx,
                     ),
