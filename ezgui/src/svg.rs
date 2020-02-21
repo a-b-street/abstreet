@@ -1,18 +1,16 @@
 use crate::{Color, GeomBatch, Prerender};
 use abstutil::VecMap;
 use geom::{Bounds, Polygon, Pt2D};
-use lyon::geom::{CubicBezierSegment, LineSegment};
 use lyon::math::Point;
 use lyon::path::PathEvent;
 use lyon::tessellation;
 use lyon::tessellation::geometry_builder::{simple_builder, VertexBuffers};
-use lyon::tessellation::{FillVertex, StrokeVertex};
 
 pub const HIGH_QUALITY: f32 = 0.01;
 pub const LOW_QUALITY: f32 = 1.0;
 
 // Code here adapted from
-// https://github.com/nical/lyon/blob/b5c87c9a22dccfab24daa1947419a70915d60914/examples/wgpu_svg/src/main.rs.
+// https://github.com/nical/lyon/blob/0d0ee771180fb317b986d9cf30266722e0773e01/examples/wgpu_svg/src/main.rs
 
 pub fn load_svg(prerender: &Prerender, filename: &str) -> (GeomBatch, Bounds) {
     if let Some(pair) = prerender.assets.get_cached_svg(filename) {
@@ -43,8 +41,7 @@ pub fn add_svg_inner(
 ) -> Result<Bounds, String> {
     let mut fill_tess = tessellation::FillTessellator::new();
     let mut stroke_tess = tessellation::StrokeTessellator::new();
-    let mut fill_mesh_per_color: VecMap<Color, VertexBuffers<FillVertex, u16>> = VecMap::new();
-    let mut stroke_mesh_per_color: VecMap<Color, VertexBuffers<StrokeVertex, u16>> = VecMap::new();
+    let mut mesh_per_color: VecMap<Color, VertexBuffers<_, u16>> = VecMap::new();
 
     for node in svg_tree.root().descendants() {
         if let usvg::NodeKind::Path(ref p) = *node.borrow() {
@@ -52,11 +49,11 @@ pub fn add_svg_inner(
 
             if let Some(ref fill) = p.fill {
                 let color = convert_color(&fill.paint, fill.opacity.value());
-                let geom = fill_mesh_per_color.mut_or_insert(color, VertexBuffers::new);
+                let geom = mesh_per_color.mut_or_insert(color, VertexBuffers::new);
                 if fill_tess
-                    .tessellate_path(
+                    .tessellate(
                         convert_path(p),
-                        &tessellation::FillOptions::tolerance(tolerance).with_normals(true),
+                        &tessellation::FillOptions::tolerance(tolerance),
                         &mut simple_builder(geom),
                     )
                     .is_err()
@@ -67,33 +64,21 @@ pub fn add_svg_inner(
 
             if let Some(ref stroke) = p.stroke {
                 let (color, stroke_opts) = convert_stroke(stroke, tolerance);
-                let geom = stroke_mesh_per_color.mut_or_insert(color, VertexBuffers::new);
+                let geom = mesh_per_color.mut_or_insert(color, VertexBuffers::new);
                 stroke_tess
-                    .tessellate_path(convert_path(p), &stroke_opts, &mut simple_builder(geom))
+                    .tessellate(convert_path(p), &stroke_opts, &mut simple_builder(geom))
                     .unwrap();
             }
         }
     }
 
-    for (color, mesh) in fill_mesh_per_color.consume() {
+    for (color, mesh) in mesh_per_color.consume() {
         batch.push(
             color,
             Polygon::precomputed(
                 mesh.vertices
                     .into_iter()
-                    .map(|v| Pt2D::new(f64::from(v.position.x), f64::from(v.position.y)))
-                    .collect(),
-                mesh.indices.into_iter().map(|idx| idx as usize).collect(),
-            ),
-        );
-    }
-    for (color, mesh) in stroke_mesh_per_color.consume() {
-        batch.push(
-            color,
-            Polygon::precomputed(
-                mesh.vertices
-                    .into_iter()
-                    .map(|v| Pt2D::new(f64::from(v.position.x), f64::from(v.position.y)))
+                    .map(|v| Pt2D::new(f64::from(v.x), f64::from(v.y)))
                     .collect(),
                 mesh.indices.into_iter().map(|idx| idx as usize).collect(),
             ),
@@ -114,24 +99,45 @@ struct PathConvIter<'a> {
     iter: std::slice::Iter<'a, usvg::PathSegment>,
     prev: Point,
     first: Point,
+    needs_end: bool,
+    deferred: Option<PathEvent>,
 }
 
 impl<'l> Iterator for PathConvIter<'l> {
     type Item = PathEvent;
     fn next(&mut self) -> Option<PathEvent> {
-        match self.iter.next() {
+        if self.deferred.is_some() {
+            return self.deferred.take();
+        }
+
+        let next = self.iter.next();
+        match next {
             Some(usvg::PathSegment::MoveTo { x, y }) => {
-                self.prev = point(x, y);
-                self.first = self.prev;
-                Some(PathEvent::MoveTo(self.prev))
+                if self.needs_end {
+                    let last = self.prev;
+                    let first = self.first;
+                    self.needs_end = false;
+                    self.prev = point(x, y);
+                    self.deferred = Some(PathEvent::Begin { at: self.prev });
+                    self.first = self.prev;
+                    Some(PathEvent::End {
+                        last,
+                        first,
+                        close: false,
+                    })
+                } else {
+                    self.first = point(x, y);
+                    Some(PathEvent::Begin { at: self.first })
+                }
             }
             Some(usvg::PathSegment::LineTo { x, y }) => {
+                self.needs_end = true;
                 let from = self.prev;
                 self.prev = point(x, y);
-                Some(PathEvent::Line(LineSegment {
+                Some(PathEvent::Line {
                     from,
                     to: self.prev,
-                }))
+                })
             }
             Some(usvg::PathSegment::CurveTo {
                 x1,
@@ -141,32 +147,50 @@ impl<'l> Iterator for PathConvIter<'l> {
                 x,
                 y,
             }) => {
+                self.needs_end = true;
                 let from = self.prev;
                 self.prev = point(x, y);
-                Some(PathEvent::Cubic(CubicBezierSegment {
+                Some(PathEvent::Cubic {
                     from,
                     ctrl1: point(x1, y1),
                     ctrl2: point(x2, y2),
                     to: self.prev,
-                }))
+                })
             }
             Some(usvg::PathSegment::ClosePath) => {
+                self.needs_end = false;
                 self.prev = self.first;
-                Some(PathEvent::Close(LineSegment {
-                    from: self.prev,
-                    to: self.first,
-                }))
+                Some(PathEvent::End {
+                    last: self.prev,
+                    first: self.first,
+                    close: true,
+                })
             }
-            None => None,
+            None => {
+                if self.needs_end {
+                    self.needs_end = false;
+                    let last = self.prev;
+                    let first = self.first;
+                    Some(PathEvent::End {
+                        last,
+                        first,
+                        close: false,
+                    })
+                } else {
+                    None
+                }
+            }
         }
     }
 }
 
-fn convert_path(p: &usvg::Path) -> PathConvIter<'_> {
+fn convert_path<'a>(p: &'a usvg::Path) -> PathConvIter<'a> {
     PathConvIter {
         iter: p.data.0.iter(),
         first: Point::new(0.0, 0.0),
         prev: Point::new(0.0, 0.0),
+        deferred: None,
+        needs_end: false,
     }
 }
 
