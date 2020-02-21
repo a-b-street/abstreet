@@ -29,7 +29,7 @@ impl TitleScreen {
             composite: WrappedComposite::new(
                 Composite::new(
                     ManagedWidget::col(vec![
-                        JustDraw::image(ctx, "../data/system/assets/pregame/logo.png")
+                        JustDraw::svg(ctx, "../data/system/assets/pregame/logo.svg")
                             .bg(Color::GREEN.alpha(0.2)),
                         // TODO that nicer font
                         // TODO Any key
@@ -100,12 +100,12 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
                 "Sandbox mode",
                 hotkey(Key::S),
             ),
-            ManagedWidget::btn(Button::rectangle_img(
-                "../data/system/assets/pregame/challenges.png",
-                hotkey(Key::C),
+            WrappedComposite::svg_button(
                 ctx,
+                "../data/system/assets/pregame/challenges.svg",
                 "Challenges",
-            )),
+                hotkey(Key::C),
+            ),
             WrappedComposite::text_bg_button(ctx, "COMMUNITY PROPOSALS", hotkey(Key::P)),
         ])
         .centered(),

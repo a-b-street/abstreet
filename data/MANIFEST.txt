@@ -149,8 +149,6 @@ f7facfb678770c416e5529b2b2d066e5  data/system/assets/meters/pedestrian.svg
 fd9dfc89f3554bd490b633916298c385  data/system/assets/pregame/logo.svg
 287a0629e1b11a2287e2fa1d902a6f3f  data/system/assets/pregame/tutorial.svg
 02dd549d1626c6ec941422f460696570  data/system/assets/pregame/sandbox.svg
-8ecaee42baceaf68a1a47ba3273a52eb  data/system/assets/pregame/challenges.png
-41d43d63ee830895eed0a2ef2fa1df7b  data/system/assets/pregame/logo.png
 254d439435ed1b7d01d7a2544fc06b09  data/system/assets/pregame/back.svg
 21145e91a6cb1c36261563e8b5b67dc1  data/system/assets/pregame/quit.svg
 3a5a5796d5ff1d94dc57515f9d808c98  data/system/assets/pregame/challenges.svg
