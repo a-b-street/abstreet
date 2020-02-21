@@ -21,12 +21,6 @@ impl JustDraw {
         })
     }
 
-    pub fn image(ctx: &EventCtx, filename: &str) -> ManagedWidget {
-        let (color, rect) = ctx.prerender.texture_rect(filename);
-        let batch = GeomBatch::from(vec![(color, rect)]);
-        JustDraw::wrap(ctx, batch)
-    }
-
     pub fn svg(ctx: &EventCtx, filename: &str) -> ManagedWidget {
         let (batch, bounds) = svg::load_svg(ctx.prerender, filename);
         // TODO The dims will be wrong; it'll only look at geometry, not the padding in the image.

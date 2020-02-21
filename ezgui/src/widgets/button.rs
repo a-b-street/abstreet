@@ -130,36 +130,6 @@ impl Widget for Button {
 
 // TODO Simplify all of these APIs!
 impl Button {
-    pub fn rectangle_img(
-        filename: &str,
-        key: Option<MultiKey>,
-        ctx: &EventCtx,
-        label: &str,
-    ) -> Button {
-        const HORIZ_PADDING: f64 = 30.0;
-        const VERT_PADDING: f64 = 10.0;
-
-        let img_color = ctx.prerender.texture(filename);
-        let dims = img_color.texture_dims();
-        let img_rect =
-            Polygon::rectangle(dims.width, dims.height).translate(HORIZ_PADDING, VERT_PADDING);
-        let bg = Polygon::rounded_rectangle(
-            dims.width + 2.0 * HORIZ_PADDING,
-            dims.height + 2.0 * VERT_PADDING,
-            VERT_PADDING,
-        );
-
-        let normal = GeomBatch::from(vec![
-            (Color::WHITE, bg.clone()),
-            (img_color, img_rect.clone()),
-        ]);
-        let hovered = GeomBatch::from(vec![
-            (Color::ORANGE, bg.clone()),
-            (img_color, img_rect.clone()),
-        ]);
-        Button::new(ctx, normal, hovered, key, label, bg)
-    }
-
     pub fn rectangle_svg(
         filename: &str,
         tooltip: &str,

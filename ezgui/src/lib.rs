@@ -24,7 +24,7 @@ pub use crate::canvas::{Canvas, HorizontalAlignment, VerticalAlignment};
 pub use crate::color::Color;
 pub use crate::drawing::{GeomBatch, GfxCtx, Prerender, RewriteColor};
 pub use crate::event::{hotkey, lctrl, Event, Key, MultiKey};
-pub use crate::event_ctx::{EventCtx, TextureType};
+pub use crate::event_ctx::EventCtx;
 pub use crate::input::UserInput;
 pub use crate::managed::{Composite, ManagedWidget, Outcome};
 pub use crate::runner::{run, EventLoopMode, Settings, GUI};

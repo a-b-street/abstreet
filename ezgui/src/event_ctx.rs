@@ -5,7 +5,6 @@ use crate::{
 use abstutil::{elapsed_seconds, Timer, TimerSink};
 use geom::Polygon;
 use instant::Instant;
-use std::collections::BTreeMap;
 use std::collections::VecDeque;
 
 pub struct EventCtx<'a> {
@@ -78,57 +77,6 @@ impl<'a> EventCtx<'a> {
 
     fn is_dragging(&self) -> bool {
         self.canvas.drag_canvas_from.is_some() || self.canvas.drag_just_ended
-    }
-
-    pub fn set_textures(&mut self, textures: Vec<(&str, TextureType)>, timer: &mut Timer) {
-        // TODO Only allow setting once. Trying to get rid of this entirely.
-        assert!(self.prerender.inner.texture_lookups.borrow().is_empty());
-
-        // Group textures with the same dimensions and create a texture array. Videocards have a
-        // limit on the number of textures that can be uploaded.
-        let mut dims_to_textures: BTreeMap<(u32, u32), Vec<(String, Vec<u8>, TextureType)>> =
-            BTreeMap::new();
-        let num_textures = textures.len();
-        timer.start_iter("upload textures", num_textures);
-        for (filename, tex_type) in textures {
-            timer.next();
-            let img = image::load_from_memory(&abstutil::slurp_file(filename).unwrap())
-                .unwrap()
-                .to_rgba();
-            let dims = img.dimensions();
-            dims_to_textures.entry(dims).or_insert_with(Vec::new).push((
-                filename.to_string(),
-                img.into_raw(),
-                tex_type,
-            ));
-        }
-        timer.note(format!(
-            "{} textures grouped into {} arrays (with the same dimensions)",
-            num_textures,
-            dims_to_textures.len()
-        ));
-
-        // The limit depends on videocard and drivers -- I can't find a reasonable minimum
-        // documented online. But in practice, some Mac users hit a limit of 16. :)
-        if dims_to_textures.len() > 15 {
-            for ((w, h), list) in dims_to_textures {
-                println!(
-                    "- {}x{} have {} files: {}",
-                    w,
-                    h,
-                    list.len(),
-                    list.into_iter()
-                        .map(|(filename, _, _)| filename)
-                        .collect::<Vec<_>>()
-                        .join(", ")
-                );
-            }
-            panic!(
-                "Only 15 texture arrays supported by some videocards. Group more textures by \
-                 using the same image dimensions."
-            );
-        }
-        self.prerender.inner.upload_textures(dims_to_textures)
     }
 
     // Delegation to assets
@@ -220,9 +168,4 @@ impl<'a> TimerSink for LoadingScreen<'a> {
         self.lines.push_back(line);
         self.redraw();
     }
-}
-
-pub enum TextureType {
-    Stretch,
-    Tile,
 }

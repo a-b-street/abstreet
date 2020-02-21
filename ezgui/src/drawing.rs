@@ -446,17 +446,4 @@ impl Prerender {
     pub fn request_redraw(&self) {
         self.inner.request_redraw()
     }
-
-    pub(crate) fn texture(&self, filename: &str) -> Color {
-        if let Some(c) = self.inner.texture_lookups.borrow().get(filename) {
-            return *c;
-        }
-        panic!("Don't know texture {}", filename);
-    }
-
-    pub(crate) fn texture_rect(&self, filename: &str) -> (Color, Polygon) {
-        let color = self.texture(filename);
-        let dims = color.texture_dims();
-        (color, Polygon::rectangle(dims.width, dims.height))
-    }
 }

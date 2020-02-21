@@ -1,11 +1,9 @@
 use crate::drawing::Uniforms;
-use crate::{Canvas, Color, ScreenDims, ScreenRectangle, TextureType};
-use geom::{Angle, Polygon, Pt2D};
-use glium::texture::{RawImage2d, Texture2dArray};
-use glium::uniforms::{SamplerBehavior, SamplerWrapFunction, UniformValue};
+use crate::{Canvas, Color, ScreenDims, ScreenRectangle};
+use geom::Polygon;
+use glium::uniforms::UniformValue;
 use glium::Surface;
-use std::cell::{Cell, RefCell};
-use std::collections::{BTreeMap, HashMap};
+use std::cell::Cell;
 
 pub fn setup(
     window_title: &str,
@@ -78,8 +76,6 @@ pub fn setup(
             display,
             program,
             total_bytes_uploaded: Cell::new(0),
-            texture_arrays: RefCell::new(Vec::new()),
-            texture_lookups: RefCell::new(HashMap::new()),
         },
         event_loop,
         ScreenDims::new(window_size.width.into(), window_size.height.into()),
@@ -88,30 +84,12 @@ pub fn setup(
 
 struct InnerUniforms<'a> {
     values: &'a Uniforms,
-    arrays: &'a Vec<Texture2dArray>,
 }
 
 impl<'b> glium::uniforms::Uniforms for InnerUniforms<'b> {
     fn visit_values<'a, F: FnMut(&str, UniformValue<'a>)>(&'a self, mut output: F) {
         output("transform", UniformValue::Vec3(self.values.transform));
         output("window", UniformValue::Vec3(self.values.window));
-
-        // This is fine to use for all of the texture styles; all but non-tiling textures clamp to
-        // [0, 1] anyway.
-        let tile = SamplerBehavior {
-            wrap_function: (
-                SamplerWrapFunction::Repeat,
-                SamplerWrapFunction::Repeat,
-                SamplerWrapFunction::Repeat,
-            ),
-            ..Default::default()
-        };
-        for (idx, tex) in self.arrays.iter().enumerate() {
-            output(
-                &format!("tex{}", idx),
-                UniformValue::Texture2dArray(tex, Some(tile)),
-            );
-        }
     }
 }
 
@@ -139,10 +117,7 @@ impl<'a> GfxCtxInnards<'a> {
                 &obj.vertex_buffer,
                 &obj.index_buffer,
                 &prerender.program,
-                &InnerUniforms {
-                    values: uniforms,
-                    arrays: &prerender.texture_arrays.borrow(),
-                },
+                &InnerUniforms { values: uniforms },
                 &self.params,
             )
             .unwrap();
@@ -204,10 +179,6 @@ pub struct PrerenderInnards {
     // TODO Prerender doesn't know what things are temporary and permanent. Could make the API more
     // detailed.
     pub total_bytes_uploaded: Cell<usize>,
-
-    // Kind of a weird place for this, but ah well.
-    texture_arrays: RefCell<Vec<Texture2dArray>>,
-    pub texture_lookups: RefCell<HashMap<String, Color>>,
 }
 
 impl PrerenderInnards {
@@ -219,35 +190,9 @@ impl PrerenderInnards {
             let idx_offset = vertices.len();
             let (pts, raw_indices) = poly.raw_for_rendering();
             for pt in pts {
-                // For the three texture cases, pass [U coordinate, V coordinate, texture group ID,
-                // 100 + texture offset ID] as the style. The last field is between 0 an 1 RGBA's
-                // alpha values, so bump by 100 to distinguish from that.
                 let style = match color {
                     Color::RGBA(r, g, b, a) => [r, g, b, a],
-                    Color::TileTexture(id, tex_dims) => {
-                        // The texture uses SamplerWrapFunction::Repeat, so don't clamp to [0, 1].
-                        // Also don't offset based on the polygon's bounds -- even if there are
-                        // separate but adjacent polygons, we want seamless tiling.
-                        let tx = pt.x() / tex_dims.width;
-                        let ty = pt.y() / tex_dims.height;
-                        [tx as f32, ty as f32, id.0, 100.0 + id.1]
-                    }
-                    Color::StretchTexture(id, _, angle) => {
-                        // TODO Cache
-                        let b = poly.get_bounds();
-                        let center = poly.center();
-                        let origin_pt = Pt2D::new(pt.x() - center.x(), pt.y() - center.y());
-                        let (sin, cos) = angle.invert_y().normalized_radians().sin_cos();
-                        let rot_pt = Pt2D::new(
-                            center.x() + origin_pt.x() * cos - origin_pt.y() * sin,
-                            center.y() + origin_pt.y() * cos + origin_pt.x() * sin,
-                        );
-
-                        let tx = (rot_pt.x() - b.min_x) / b.width();
-                        let ty = (rot_pt.y() - b.min_y) / b.height();
-                        [tx as f32, ty as f32, id.0, 100.0 + id.1]
-                    }
-                    // Two final special cases
+                    // Two special cases
                     Color::HatchingStyle1 => [100.0, 0.0, 0.0, 0.0],
                     Color::HatchingStyle2 => [101.0, 0.0, 0.0, 0.0],
                 };
@@ -312,30 +257,6 @@ impl PrerenderInnards {
                 },
                 ..Default::default()
             },
-        }
-    }
-
-    pub fn upload_textures(
-        &self,
-        dims_to_textures: BTreeMap<(u32, u32), Vec<(String, Vec<u8>, TextureType)>>,
-    ) {
-        for (group_idx, (raw_dims, list)) in dims_to_textures.into_iter().enumerate() {
-            let mut raw_data = Vec::new();
-            for (tex_idx, (filename, raw, tex_type)) in list.into_iter().enumerate() {
-                let tex_id = (group_idx as f32, tex_idx as f32);
-                let dims = ScreenDims::new(f64::from(raw_dims.0), f64::from(raw_dims.1));
-                self.texture_lookups.borrow_mut().insert(
-                    filename,
-                    match tex_type {
-                        TextureType::Stretch => Color::StretchTexture(tex_id, dims, Angle::ZERO),
-                        TextureType::Tile => Color::TileTexture(tex_id, dims),
-                    },
-                );
-                raw_data.push(RawImage2d::from_raw_rgba(raw, raw_dims));
-            }
-            self.texture_arrays
-                .borrow_mut()
-                .push(Texture2dArray::new(&self.display, raw_data).unwrap());
         }
     }
 
