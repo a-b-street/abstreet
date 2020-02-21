@@ -149,13 +149,7 @@ impl SpeedControls {
         )
         .cb(
             "jump to specific time",
-            Box::new(|ctx, ui| {
-                Some(Transition::Push(Box::new(JumpToTime::new(
-                    ctx,
-                    ui,
-                    ui.primary.sim.time(),
-                ))))
-            }),
+            Box::new(|ctx, ui| Some(Transition::Push(Box::new(JumpToTime::new(ctx, ui))))),
         )
         .cb(
             "step forwards 0.1 seconds",
@@ -328,7 +322,8 @@ struct JumpToTime {
 }
 
 impl JumpToTime {
-    fn new(ctx: &mut EventCtx, ui: &UI, target: Time) -> JumpToTime {
+    fn new(ctx: &mut EventCtx, ui: &UI) -> JumpToTime {
+        let target = ui.primary.sim.time();
         // TODO Auto-fill width?
         let mut slider = Slider::horizontal(ctx, 0.25 * ctx.canvas.window_width, 25.0);
         slider.set_percent(ctx, target.to_percent(Time::END_OF_DAY).min(1.0));
@@ -341,7 +336,8 @@ impl JumpToTime {
                         let mut txt = Text::from(Line("Jump to what time?").roboto_bold());
                         txt.add(Line(target.ampm_tostring()));
                         txt
-                    }),
+                    })
+                    .named("target time"),
                     ManagedWidget::slider("time slider").margin(10),
                     ManagedWidget::row(vec![
                         ManagedWidget::draw_text(ctx, Text::from(Line("00:00").size(12).roboto())),
@@ -414,9 +410,17 @@ impl State for JumpToTime {
         let target =
             Time::END_OF_DAY.percent_of(self.composite.slider("time slider").get_percent());
         if target != self.target {
-            // TODO Just update the text widget. This will stop the slider drag from getting
-            // interrupted.
-            return Transition::Replace(Box::new(JumpToTime::new(ctx, ui, target)));
+            self.target = target;
+            self.composite.replace(
+                ctx,
+                "target time",
+                ManagedWidget::draw_text(ctx, {
+                    let mut txt = Text::from(Line("Jump to what time?").roboto_bold());
+                    txt.add(Line(target.ampm_tostring()));
+                    txt
+                })
+                .named("target time"),
+            );
         }
 
         Transition::Keep

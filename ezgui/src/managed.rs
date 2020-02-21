@@ -22,6 +22,8 @@ pub struct ManagedWidget {
     style: LayoutStyle,
     rect: ScreenRectangle,
     bg: Option<Drawable>,
+    // TODO Consolidate with names in some objects (sliders, menus, buttons)
+    id: Option<String>,
 }
 
 enum WidgetType {
@@ -193,6 +195,11 @@ impl ManagedWidget {
         });
         self
     }
+
+    pub fn named(mut self, id: &str) -> ManagedWidget {
+        self.id = Some(id.to_string());
+        self
+    }
 }
 
 // Convenient?? constructors
@@ -214,6 +221,7 @@ impl ManagedWidget {
             },
             rect: ScreenRectangle::placeholder(),
             bg: None,
+            id: None,
         }
     }
 
@@ -570,6 +578,25 @@ impl ManagedWidget {
             None
         }
     }
+
+    // None if it worked, otherwise it returns the widget.
+    fn replace(&mut self, id: &str, mut new: ManagedWidget) -> Option<ManagedWidget> {
+        if self.id == Some(id.to_string()) {
+            *self = new;
+            return None;
+        }
+        if let WidgetType::Row(ref mut widgets) | WidgetType::Column(ref mut widgets) = self.widget
+        {
+            for w in widgets {
+                if let Some(returned) = w.replace(id, new) {
+                    new = returned;
+                } else {
+                    return None;
+                }
+            }
+        }
+        return Some(new);
+    }
 }
 
 enum Dims {
@@ -861,6 +888,14 @@ impl Composite {
     pub fn align_above(&mut self, ctx: &mut EventCtx, other: &Composite) {
         // Small padding
         self.vert = VerticalAlignment::Above(other.top_level.rect.y1 - 5.0);
+        self.recompute_layout(ctx);
+    }
+
+    pub fn replace(&mut self, ctx: &mut EventCtx, id: &str, new: ManagedWidget) {
+        if self.top_level.replace(id, new).is_some() {
+            panic!("Can't replace widget {}", id);
+        }
+
         self.recompute_layout(ctx);
     }
 }
