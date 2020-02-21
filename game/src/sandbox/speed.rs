@@ -1,6 +1,7 @@
 use crate::colors;
 use crate::game::{msg, State, Transition};
 use crate::managed::{WrappedComposite, WrappedOutcome};
+use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::UI;
 use ezgui::{
     hotkey, Button, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
@@ -148,10 +149,6 @@ impl SpeedControls {
             .build(ctx),
         )
         .cb(
-            "jump to specific time",
-            Box::new(|ctx, ui| Some(Transition::Push(Box::new(JumpToTime::new(ctx, ui))))),
-        )
-        .cb(
             "step forwards 0.1 seconds",
             Box::new(|ctx, ui| {
                 ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
@@ -184,10 +181,15 @@ impl SpeedControls {
         }
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<WrappedOutcome> {
+    pub fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        ui: &mut UI,
+        maybe_mode: Option<&GameplayMode>,
+    ) -> Option<Transition> {
         match self.composite.event(ctx, ui) {
             Some(WrappedOutcome::Transition(t)) => {
-                return Some(WrappedOutcome::Transition(t));
+                return Some(t);
             }
             Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
                 "real-time speed" => {
@@ -219,7 +221,26 @@ impl SpeedControls {
                     self.pause(ctx);
                 }
                 "reset to midnight" => {
-                    return Some(WrappedOutcome::Clicked("reset to midnight".to_string()));
+                    if let Some(mode) = maybe_mode {
+                        ui.primary.clear_sim();
+                        return Some(Transition::Replace(Box::new(SandboxMode::new(
+                            ctx,
+                            ui,
+                            mode.clone(),
+                        ))));
+                    } else {
+                        return Some(Transition::Push(msg(
+                            "Error",
+                            vec!["Sorry, you can't go rewind time from this mode."],
+                        )));
+                    }
+                }
+                "jump to specific time" => {
+                    return Some(Transition::Push(Box::new(JumpToTime::new(
+                        ctx,
+                        ui,
+                        maybe_mode.cloned(),
+                    ))));
                 }
                 _ => unreachable!(),
             },
@@ -316,19 +337,22 @@ impl SpeedControls {
     }
 }
 
+// TODO Text entry would be great
 struct JumpToTime {
     composite: Composite,
     target: Time,
+    maybe_mode: Option<GameplayMode>,
 }
 
 impl JumpToTime {
-    fn new(ctx: &mut EventCtx, ui: &UI) -> JumpToTime {
+    fn new(ctx: &mut EventCtx, ui: &UI, maybe_mode: Option<GameplayMode>) -> JumpToTime {
         let target = ui.primary.sim.time();
         // TODO Auto-fill width?
         let mut slider = Slider::horizontal(ctx, 0.25 * ctx.canvas.window_width, 25.0);
         slider.set_percent(ctx, target.to_percent(Time::END_OF_DAY).min(1.0));
         JumpToTime {
             target,
+            maybe_mode,
             composite: Composite::new(
                 ManagedWidget::col(vec![
                     WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
@@ -351,6 +375,7 @@ impl JumpToTime {
                     WrappedComposite::text_bg_button(ctx, "Go!", hotkey(Key::Enter))
                         .centered_horiz(),
                     ManagedWidget::draw_text(ctx, Text::from(Line("Active agents").roboto_bold())),
+                    // TODO Line up things better. And sync the slider / plot.
                     Plot::new_usize(
                         vec![Series {
                             label: (if ui.has_prebaked().is_some() {
@@ -387,14 +412,26 @@ impl State for JumpToTime {
                 }
                 "Go!" => {
                     if self.target < ui.primary.sim.time() {
-                        // TODO Make it possible!
-                        return Transition::Replace(msg(
-                            "Error",
-                            vec![
-                                "You can't use this to rewind time yet.".to_string(),
-                                "Click the reset to midnight button first.".to_string(),
-                            ],
-                        ));
+                        if let Some(mode) = self.maybe_mode.take() {
+                            ui.primary.clear_sim();
+                            return Transition::ReplaceThenPush(
+                                Box::new(SandboxMode::new(ctx, ui, mode)),
+                                Box::new(TimeWarpScreen {
+                                    target: self.target,
+                                    started: Instant::now(),
+                                    composite: Composite::new(ManagedWidget::draw_text(
+                                        ctx,
+                                        Text::new(),
+                                    ))
+                                    .build(ctx),
+                                }),
+                            );
+                        } else {
+                            return Transition::Replace(msg(
+                                "Error",
+                                vec!["Sorry, you can't go rewind time from this mode."],
+                            ));
+                        }
                     }
                     return Transition::Replace(Box::new(TimeWarpScreen {
                         target: self.target,
@@ -417,6 +454,10 @@ impl State for JumpToTime {
                 ManagedWidget::draw_text(ctx, {
                     let mut txt = Text::from(Line("Jump to what time?").roboto_bold());
                     txt.add(Line(target.ampm_tostring()));
+                    // TODO The panel jumps too much and the slider position changes place.
+                    /*if target < ui.primary.sim.time() {
+                        txt.add(Line("(Going back in time will reset to midnight, then simulate forwards)"));
+                    }*/
                     txt
                 })
                 .named("target time"),

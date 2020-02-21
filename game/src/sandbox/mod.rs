@@ -219,22 +219,8 @@ impl State for SandboxMode {
         }
 
         if let Some(ref mut s) = self.controls.speed {
-            match s.event(ctx, ui) {
-                Some(WrappedOutcome::Transition(t)) => {
-                    return t;
-                }
-                Some(WrappedOutcome::Clicked(x)) => match x {
-                    x if x == "reset to midnight" => {
-                        ui.primary.clear_sim();
-                        return Transition::Replace(Box::new(SandboxMode::new(
-                            ctx,
-                            ui,
-                            self.gameplay_mode.clone(),
-                        )));
-                    }
-                    _ => unreachable!(),
-                },
-                None => {}
+            if let Some(t) = s.event(ctx, ui, Some(&self.gameplay_mode)) {
+                return t;
             }
         }
 

@@ -2,7 +2,7 @@ use crate::colors;
 use crate::common::CommonState;
 use crate::edit::{apply_map_edits, close_intersection, StopSignEditor};
 use crate::game::{msg, DrawBaselayer, State, Transition, WizardState};
-use crate::managed::{WrappedComposite, WrappedOutcome};
+use crate::managed::WrappedComposite;
 use crate::options::TrafficSignalStyle;
 use crate::render::{draw_signal_phase, DrawOptions, DrawTurnGroup, BIG_ARROW_THICKNESS};
 use crate::sandbox::{spawn_agents_around, SpeedControls, TimePanel};
@@ -810,7 +810,6 @@ struct PreviewTrafficSignal {
     composite: Composite,
     speed: SpeedControls,
     time_panel: TimePanel,
-    orig_sim: Sim,
 }
 
 impl PreviewTrafficSignal {
@@ -828,7 +827,6 @@ impl PreviewTrafficSignal {
             .build(ctx),
             speed: SpeedControls::new(ctx),
             time_panel: TimePanel::new(ctx, ui),
-            orig_sim: ui.primary.sim.clone(),
         }
     }
 }
@@ -849,18 +847,9 @@ impl State for PreviewTrafficSignal {
         }
 
         self.time_panel.event(ctx, ui);
-        match self.speed.event(ctx, ui) {
-            Some(WrappedOutcome::Transition(t)) => {
-                return t;
-            }
-            Some(WrappedOutcome::Clicked(x)) => match x {
-                x if x == "reset to midnight" => {
-                    ui.primary.sim = self.orig_sim.clone();
-                    // TODO drawmap
-                }
-                _ => unreachable!(),
-            },
-            None => {}
+        // TODO Ideally here reset to midnight would jump back to when the preview started?
+        if let Some(t) = self.speed.event(ctx, ui, None) {
+            return t;
         }
         if self.speed.is_paused() {
             Transition::Keep
