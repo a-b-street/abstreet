@@ -300,3 +300,17 @@ changes here.
 - traffic signal scorecard generalized to work for some tutorial too
 - adjust how selected agents look
 - X button on popup menus
+
+0.1.29
+
+- new tool to convert between stop signs and traffic signals
+- lane editor easier to edit multiple lanes
+- info panels: IDs, mostly avoid horizontal scrolling, better info about trips to/from somewhere, move buttons up
+- traffic signal editor UI overhaul
+- different data in top-right agent meters panel
+- tooltips to communicate keybindings better
+- new jump-to-time panel, showing when rush hours occur
+- speed controls use more useful speeds
+- include ongoing trips in measured trip times
+- jump to next challenge after completing one
+- lots of tutorial tweaks
