@@ -67,9 +67,9 @@ impl SpeedControls {
                 .into_iter()
                 .map(|(s, label)| {
                     let mut tooltip = Text::from(Line(label).size(20)).with_bg();
-                    tooltip.add(Line("[").fg(Color::GREEN).size(20));
+                    tooltip.add(Line(Key::LeftArrow.describe()).fg(Color::GREEN).size(20));
                     tooltip.append(Line(" - slow down"));
-                    tooltip.add(Line("]").fg(Color::GREEN).size(20));
+                    tooltip.add(Line(Key::RightArrow.describe()).fg(Color::GREEN).size(20));
                     tooltip.append(Line(" - speed up"));
 
                     ManagedWidget::btn(
@@ -99,18 +99,18 @@ impl SpeedControls {
             ManagedWidget::row(
                 vec![
                     ManagedWidget::btn(Button::text_no_bg(
-                        Text::from(Line("+0.1s").fg(Color::WHITE).size(21).roboto()),
-                        Text::from(Line("+0.1s").fg(colors::HOVERING).size(21).roboto()),
-                        hotkey(Key::M),
-                        "step forwards 0.1 seconds",
-                        false,
-                        ctx,
-                    )),
-                    ManagedWidget::btn(Button::text_no_bg(
                         Text::from(Line("+1h").fg(Color::WHITE).size(21).roboto()),
                         Text::from(Line("+1h").fg(colors::HOVERING).size(21).roboto()),
                         hotkey(Key::N),
                         "step forwards 1 hour",
+                        false,
+                        ctx,
+                    )),
+                    ManagedWidget::btn(Button::text_no_bg(
+                        Text::from(Line("+0.1s").fg(Color::WHITE).size(21).roboto()),
+                        Text::from(Line("+0.1s").fg(colors::HOVERING).size(21).roboto()),
+                        hotkey(Key::M),
+                        "step forwards 0.1 seconds",
                         false,
                         ctx,
                     )),
@@ -245,8 +245,7 @@ impl SpeedControls {
             None => {}
         }
 
-        // TODO How to communicate these keys?
-        if ctx.input.new_was_pressed(hotkey(Key::LeftBracket).unwrap()) {
+        if ctx.input.new_was_pressed(hotkey(Key::LeftArrow).unwrap()) {
             match self.setting {
                 SpeedSetting::Realtime => self.pause(ctx),
                 SpeedSetting::Fast => {
@@ -263,10 +262,7 @@ impl SpeedControls {
                 }
             }
         }
-        if ctx
-            .input
-            .new_was_pressed(hotkey(Key::RightBracket).unwrap())
-        {
+        if ctx.input.new_was_pressed(hotkey(Key::RightArrow).unwrap()) {
             match self.setting {
                 SpeedSetting::Realtime => {
                     if self.paused {
@@ -448,6 +444,9 @@ impl State for JumpToTime {
                 .named("target time"),
             );
         }
+        if self.composite.clicked_outside(ctx) {
+            return Transition::Pop;
+        }
 
         Transition::Keep
     }
@@ -494,7 +493,8 @@ impl State for TimeWarpScreen {
             );
             // TODO secondary for a/b test mode
 
-            let mut txt = Text::from(Line("Warping through time...").roboto_bold());
+            // I'm covered in shame for not doing this from the start.
+            let mut txt = Text::from(Line("Let's do the time warp again!").roboto_bold());
             txt.add(Line(format!(
                 "Simulating until it's {}",
                 self.target.ampm_tostring()
@@ -526,6 +526,9 @@ impl State for TimeWarpScreen {
                 _ => unreachable!(),
             },
             None => {}
+        }
+        if self.composite.clicked_outside(ctx) {
+            return Transition::Pop;
         }
 
         Transition::KeepWithMode(EventLoopMode::Animation)

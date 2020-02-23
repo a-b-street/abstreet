@@ -214,6 +214,15 @@ impl State for SandboxMode {
             }
         }
 
+        // Fragile ordering. Don't call this before all the per_obj actions have been called. But
+        // also let this work before tool_panel, so Key::Escape from the info panel beats the one
+        // to quit.
+        if let Some(ref mut c) = self.common {
+            if let Some(t) = c.event(ctx, ui, self.controls.speed.as_mut()) {
+                return t;
+            }
+        }
+
         if let Some(ref mut tp) = self.controls.time_panel {
             tp.event(ctx, ui);
         }
@@ -240,12 +249,6 @@ impl State for SandboxMode {
         }
         if let Some(ref mut am) = self.controls.agent_meter {
             if let Some(t) = am.event(ctx, ui) {
-                return t;
-            }
-        }
-
-        if let Some(ref mut c) = self.common {
-            if let Some(t) = c.event(ctx, ui, self.controls.speed.as_mut()) {
                 return t;
             }
         }

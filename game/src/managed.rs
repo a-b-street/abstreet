@@ -130,13 +130,19 @@ impl ManagedGUIState {
 impl State for ManagedGUIState {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         match self.composite.event(ctx, ui) {
-            Some(WrappedOutcome::Transition(t)) => t,
+            Some(WrappedOutcome::Transition(t)) => {
+                return t;
+            }
             Some(WrappedOutcome::Clicked(x)) => panic!(
                 "Can't have a button {} without a callback in ManagedGUIState",
                 x
             ),
-            None => Transition::Keep,
+            None => {}
         }
+        if !self.fullscreen && self.composite.inner.clicked_outside(ctx) {
+            return Transition::Pop;
+        }
+        Transition::Keep
     }
 
     fn draw_baselayer(&self) -> DrawBaselayer {

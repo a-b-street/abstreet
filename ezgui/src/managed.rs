@@ -904,6 +904,11 @@ impl Composite {
 
         self.recompute_layout(ctx, true);
     }
+
+    pub fn clicked_outside(&self, ctx: &mut EventCtx) -> bool {
+        // TODO No great way to populate OSD from here with "click to cancel"
+        !self.top_level.rect.contains(ctx.canvas.get_cursor()) && ctx.normal_left_click()
+    }
 }
 
 impl CompositeBuilder {
