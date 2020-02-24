@@ -30,8 +30,35 @@ pub struct Tutorial {
     warped: bool,
 }
 
+#[derive(Clone, Copy, PartialEq)]
+pub struct TutorialPointer {
+    pub stage: usize,
+    // Index into messages. messages.len() means the actual task.
+    pub part: usize,
+}
+
+impl TutorialPointer {
+    pub fn new(stage: usize, part: usize) -> TutorialPointer {
+        TutorialPointer { stage, part }
+    }
+
+    fn max(self, other: TutorialPointer) -> TutorialPointer {
+        if self.stage > other.stage {
+            self
+        } else if other.stage > self.stage {
+            other
+        } else {
+            TutorialPointer::new(self.stage, self.part.max(other.part))
+        }
+    }
+}
+
 impl Tutorial {
-    pub fn new(ctx: &mut EventCtx, ui: &mut UI, current: usize) -> Box<dyn GameplayState> {
+    pub fn new(
+        ctx: &mut EventCtx,
+        ui: &mut UI,
+        current: TutorialPointer,
+    ) -> Box<dyn GameplayState> {
         if ui.session.tutorial.is_none() {
             ui.session.tutorial = Some(TutorialState::new(ctx, ui));
         }
@@ -55,22 +82,18 @@ impl GameplayState for Tutorial {
 
         // First of all, might need to initiate warping
         if !self.warped {
-            match tut.stage() {
-                Stage::Msg { ref warp_to, .. } | Stage::Interact { ref warp_to, .. } => {
-                    if let Some((id, zoom)) = warp_to {
-                        self.warped = true;
-                        return (
-                            Some(Transition::Push(Warping::new(
-                                ctx,
-                                id.canonical_point(&ui.primary).unwrap(),
-                                Some(*zoom),
-                                None,
-                                &mut ui.primary,
-                            ))),
-                            false,
-                        );
-                    }
-                }
+            if let Some((ref id, zoom)) = tut.stage().warp_to {
+                self.warped = true;
+                return (
+                    Some(Transition::Push(Warping::new(
+                        ctx,
+                        id.canonical_point(&ui.primary).unwrap(),
+                        Some(zoom),
+                        None,
+                        &mut ui.primary,
+                    ))),
+                    false,
+                );
             }
         }
 
@@ -80,7 +103,7 @@ impl GameplayState for Tutorial {
                     return (None, true);
                 }
                 "Start over" => {
-                    tut.current = 0;
+                    tut.current = TutorialPointer::new(0, 0);
                     return (Some(transition(ctx, ui)), false);
                 }
                 "Last completed step" => {
@@ -88,11 +111,11 @@ impl GameplayState for Tutorial {
                     return (Some(transition(ctx, ui)), false);
                 }
                 "previous tutorial screen" => {
-                    tut.current -= 1;
+                    tut.prev();
                     return (Some(transition(ctx, ui)), false);
                 }
                 "next tutorial screen" => {
-                    tut.current += 1;
+                    tut.next();
                     return (Some(transition(ctx, ui)), false);
                 }
                 "edit map" => {
@@ -115,13 +138,7 @@ impl GameplayState for Tutorial {
                 Some(Outcome::Clicked(x)) => match x.as_ref() {
                     "Next" => {
                         tut.next();
-                        if tut.current == tut.stages.len() {
-                            // TODO Clear edits?
-                            ui.primary.clear_sim();
-                            return (Some(Transition::Pop), false);
-                        } else {
-                            return (Some(transition(ctx, ui)), false);
-                        }
+                        return (Some(transition(ctx, ui)), false);
                     }
                     _ => unreachable!(),
                 },
@@ -463,6 +480,10 @@ impl GameplayState for Tutorial {
                 tut.next();
                 return (Some(transition(ctx, ui)), false);
             }
+        } else if tut.interaction() == Task::Done {
+            // If the player chooses to stay here, at least go back to the message panel.
+            tut.prev();
+            return (None, true);
         }
 
         (None, false)
@@ -479,21 +500,19 @@ impl GameplayState for Tutorial {
 
         if let Some(ref msg) = self.msg_panel {
             // Arrows underneath the message panel, but on top of other panels
-            if let Stage::Msg { point_to, .. } = tut.stage() {
-                if let Some(fxn) = point_to {
-                    let pt = (fxn)(g, ui);
-                    g.fork_screenspace();
-                    g.draw_polygon(
-                        Color::RED,
-                        &PolyLine::new(vec![
-                            self.msg_panel.as_ref().unwrap().center_of("Next").to_pt(),
-                            pt,
-                        ])
-                        .make_arrow(Distance::meters(20.0))
-                        .unwrap(),
-                    );
-                    g.unfork();
-                }
+            if let Some((_, Some(fxn))) = tut.lines() {
+                let pt = (fxn)(g, ui);
+                g.fork_screenspace();
+                g.draw_polygon(
+                    Color::RED,
+                    &PolyLine::new(vec![
+                        self.msg_panel.as_ref().unwrap().center_of("Next").to_pt(),
+                        pt,
+                    ])
+                    .make_arrow(Distance::meters(20.0))
+                    .unwrap(),
+                );
+                g.unfork();
             }
 
             msg.draw(g);
@@ -558,6 +577,7 @@ enum Task {
     FixBikes,
     WatchBuses,
     FixBuses,
+    Done,
 }
 
 impl Task {
@@ -620,6 +640,7 @@ impl Task {
             Task::FixBikes => "Speed up the slowest trip by 45s",
             Task::WatchBuses => "Simulate 5 minutes and watch the buses",
             Task::FixBuses => "Speed up bus 43 and 48",
+            Task::Done => "Tutorial complete!",
         };
 
         let mut txt = Text::new();
@@ -628,21 +649,7 @@ impl Task {
     }
 }
 
-enum Stage {
-    Msg {
-        lines: Vec<&'static str>,
-        point_to: Option<Box<dyn Fn(&GfxCtx, &UI) -> Pt2D>>,
-        warp_to: Option<(ID, f64)>,
-        spawn: Option<Box<dyn Fn(&mut UI)>>,
-    },
-    Interact {
-        task: Task,
-        warp_to: Option<(ID, f64)>,
-        spawn: Option<Box<dyn Fn(&mut UI)>>,
-    },
-}
-
-struct MultiStage {
+struct Stage {
     messages: Vec<(Vec<&'static str>, Option<Box<dyn Fn(&GfxCtx, &UI) -> Pt2D>>)>,
     task: Task,
     warp_to: Option<(ID, f64)>,
@@ -653,9 +660,9 @@ fn arrow(pt: ScreenPt) -> Option<Box<dyn Fn(&GfxCtx, &UI) -> Pt2D>> {
     Some(Box::new(move |_, _| pt.to_pt()))
 }
 
-impl MultiStage {
-    fn new(task: Task) -> MultiStage {
-        MultiStage {
+impl Stage {
+    fn new(task: Task) -> Stage {
+        Stage {
             messages: Vec::new(),
             task,
             warp_to: None,
@@ -667,28 +674,28 @@ impl MultiStage {
         mut self,
         lines: Vec<&'static str>,
         point_to: Option<Box<dyn Fn(&GfxCtx, &UI) -> Pt2D>>,
-    ) -> MultiStage {
+    ) -> Stage {
         self.messages.push((lines, point_to));
         self
     }
 
-    fn warp_to(mut self, id: ID, zoom: Option<f64>) -> MultiStage {
+    fn warp_to(mut self, id: ID, zoom: Option<f64>) -> Stage {
         assert!(self.warp_to.is_none());
         self.warp_to = Some((id, zoom.unwrap_or(4.0)));
         self
     }
 
-    fn spawn(mut self, cb: Box<dyn Fn(&mut UI)>) -> MultiStage {
+    fn spawn(mut self, cb: Box<dyn Fn(&mut UI)>) -> Stage {
         assert!(self.spawn.is_none());
         self.spawn = Some(cb);
         self
     }
 
-    fn spawn_around(self, i: IntersectionID) -> MultiStage {
+    fn spawn_around(self, i: IntersectionID) -> Stage {
         self.spawn(Box::new(move |ui| spawn_agents_around(i, ui)))
     }
 
-    fn spawn_randomly(self) -> MultiStage {
+    fn spawn_randomly(self) -> Stage {
         self.spawn(Box::new(|ui| {
             Scenario::small_run(&ui.primary.map).instantiate(
                 &mut ui.primary.sim,
@@ -699,7 +706,7 @@ impl MultiStage {
         }))
     }
 
-    fn spawn_scenario(self, scenario: Scenario) -> MultiStage {
+    fn spawn_scenario(self, scenario: Scenario) -> Stage {
         self.spawn(Box::new(move |ui| {
             let mut timer = Timer::new("spawn scenario with prebaked results");
             scenario.instantiate(
@@ -720,32 +727,12 @@ impl MultiStage {
             )));
         }))
     }
-
-    fn expand(self) -> Vec<Stage> {
-        let mut stages = Vec::new();
-        for (lines, point_to) in self.messages {
-            stages.push(Stage::Msg {
-                lines,
-                point_to,
-                warp_to: self.warp_to.clone(),
-                // TODO tmp
-                spawn: None,
-                //spawn: self.spawn.clone(),
-            });
-        }
-        stages.push(Stage::Interact {
-            task: self.task,
-            warp_to: self.warp_to,
-            spawn: self.spawn,
-        });
-        stages
-    }
 }
 
 pub struct TutorialState {
     stages: Vec<Stage>,
-    latest: usize,
-    pub current: usize,
+    latest: TutorialPointer,
+    pub current: TutorialPointer,
 
     // Goofy state for just some stages.
     inspected_lane: bool,
@@ -825,19 +812,42 @@ impl TutorialState {
     }
 
     fn stage(&self) -> &Stage {
-        &self.stages[self.current]
+        &self.stages[self.current.stage]
     }
 
     fn interaction(&self) -> Task {
-        match self.stage() {
-            Stage::Msg { .. } => Task::Nil,
-            Stage::Interact { task, .. } => *task,
+        let stage = self.stage();
+        if self.current.part == stage.messages.len() {
+            stage.task
+        } else {
+            Task::Nil
+        }
+    }
+    fn lines(&self) -> Option<&(Vec<&'static str>, Option<Box<dyn Fn(&GfxCtx, &UI) -> Pt2D>>)> {
+        let stage = self.stage();
+        if self.current.part == stage.messages.len() {
+            None
+        } else {
+            Some(&stage.messages[self.current.part])
         }
     }
 
     fn next(&mut self) {
-        self.current += 1;
+        self.current.part += 1;
+        if self.current.part == self.stage().messages.len() + 1 {
+            self.current = TutorialPointer::new(self.current.stage + 1, 0);
+        }
         self.latest = self.latest.max(self.current);
+    }
+    fn prev(&mut self) {
+        if self.current.part == 0 {
+            self.current = TutorialPointer::new(
+                self.current.stage - 1,
+                self.stages[self.current.stage - 1].messages.len(),
+            );
+        } else {
+            self.current.part -= 1;
+        }
     }
 
     fn make_top_center(&self, ctx: &mut EventCtx, edit_map: bool) -> Composite {
@@ -850,10 +860,12 @@ impl TutorialState {
             .margin(5),
             ManagedWidget::draw_text(
                 ctx,
-                Text::from(Line(format!("{}/{}", self.current + 1, self.stages.len())).size(20)),
+                Text::from(
+                    Line(format!("{}/{}", self.current.stage + 1, self.stages.len())).size(20),
+                ),
             )
             .margin(5),
-            if self.current == 0 {
+            if self.current == TutorialPointer::new(0, 0) {
                 Button::inactive_button(ctx, "<")
             } else {
                 WrappedComposite::nice_text_button(
@@ -875,7 +887,7 @@ impl TutorialState {
                 )
             }
             .margin(5),
-            if self.current == 0 {
+            if self.current == TutorialPointer::new(0, 0) {
                 Button::inactive_button(ctx, "Start over")
             } else {
                 WrappedComposite::text_button(ctx, "Start over", None)
@@ -890,8 +902,11 @@ impl TutorialState {
             WrappedComposite::text_button(ctx, "Quit", None).margin(5),
         ])
         .centered()];
-        if let Stage::Interact { task, .. } = self.stage() {
-            col.push(ManagedWidget::draw_text(ctx, task.top_txt(ctx, self)).margin(5));
+        {
+            let task = self.interaction();
+            if task != Task::Nil {
+                col.push(ManagedWidget::draw_text(ctx, task.top_txt(ctx, self)).margin(5));
+            }
         }
         if edit_map {
             col.push(
@@ -911,17 +926,14 @@ impl TutorialState {
     }
 
     fn make_state(&self, ctx: &mut EventCtx, ui: &mut UI) -> Box<dyn GameplayState> {
-        if let Stage::Msg { .. } = self.stage() {
+        if self.interaction() == Task::Nil {
             ui.primary.current_selection = None;
         }
 
         // TODO Should some of this always happen?
         ui.primary.clear_sim();
         ui.overlay = Overlays::Inactive;
-        if let Some(cb) = match self.stage() {
-            Stage::Msg { ref spawn, .. } => spawn,
-            Stage::Interact { ref spawn, .. } => spawn,
-        } {
+        if let Some(ref cb) = self.stage().spawn {
             let old = ui.primary.current_flags.sim_flags.rng_seed;
             ui.primary.current_flags.sim_flags.rng_seed = Some(42);
             (cb)(ui);
@@ -929,19 +941,18 @@ impl TutorialState {
             ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
         }
 
-        let mut last_finished_task = Task::Nil;
-        for stage in &self.stages[0..self.current] {
-            if let Stage::Interact { task, .. } = stage {
-                last_finished_task = *task;
-            }
-        }
+        let last_finished_task = if self.current.stage == 0 {
+            Task::Nil
+        } else {
+            self.stages[self.current.stage - 1].task
+        };
 
         Box::new(Tutorial {
             top_center: self.make_top_center(ctx, last_finished_task >= Task::WatchBikes),
             last_finished_task,
 
-            msg_panel: match self.stage() {
-                Stage::Msg { ref lines, .. } => Some(
+            msg_panel: if let Some((ref lines, _)) = self.lines() {
+                Some(
                     Composite::new(
                         ManagedWidget::col(vec![
                             ManagedWidget::draw_text(ctx, {
@@ -961,8 +972,9 @@ impl TutorialState {
                     )
                     .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)
                     .build(ctx),
-                ),
-                Stage::Interact { .. } => None,
+                )
+            } else {
+                None
             },
             warped: false,
         })
@@ -971,8 +983,8 @@ impl TutorialState {
     fn new(ctx: &mut EventCtx, ui: &mut UI) -> TutorialState {
         let mut state = TutorialState {
             stages: Vec::new(),
-            latest: 0,
-            current: 0,
+            latest: TutorialPointer::new(0, 0),
+            current: TutorialPointer::new(0, 0),
 
             inspected_lane: false,
             inspected_building: false,
@@ -1000,8 +1012,8 @@ impl TutorialState {
             0.97 * ctx.canvas.window_height,
         );
 
-        state.stages.extend(
-            MultiStage::new(Task::Camera)
+        state.stages.push(
+            Stage::new(Task::Camera)
                 .warp_to(ID::Intersection(IntersectionID(141)), None)
                 .msg(
                     vec![
@@ -1031,12 +1043,11 @@ impl TutorialState {
                 .msg(
                     vec!["(Hint: Look around for an unusually red building)"],
                     None,
-                )
-                .expand(),
+                ),
         );
 
-        state.stages.extend(
-            MultiStage::new(Task::InspectObjects)
+        state.stages.push(
+            Stage::new(Task::InspectObjects)
                 .msg(
                     vec![
                         "Er, sorry about that.",
@@ -1073,12 +1084,11 @@ impl TutorialState {
                          inspect action.",
                     ],
                     None,
-                )
-                .expand(),
+                ),
         );
 
-        state.stages.extend(
-            MultiStage::new(Task::TimeControls)
+        state.stages.push(
+            Stage::new(Task::TimeControls)
                 .warp_to(ID::Intersection(IntersectionID(64)), None)
                 .msg(
                     vec![
@@ -1107,12 +1117,11 @@ impl TutorialState {
                 .msg(
                     vec!["Let's try these controls out. Run the simulation until 5pm or later."],
                     None,
-                )
-                .expand(),
+                ),
         );
 
-        state.stages.extend(
-            MultiStage::new(Task::PauseResume)
+        state.stages.push(
+            Stage::new(Task::PauseResume)
                 .msg(
                     vec!["Whew, that took a while! (Hopefully not though...)"],
                     None,
@@ -1135,12 +1144,11 @@ impl TutorialState {
                 .msg(
                     vec!["Just reassure me and pause/resume time a few times, alright?"],
                     None,
-                )
-                .expand(),
+                ),
         );
 
-        state.stages.extend(
-            MultiStage::new(Task::Escort)
+        state.stages.push(
+            Stage::new(Task::Escort)
                 // Don't center on where the agents are, be a little offset
                 .warp_to(ID::Building(BuildingID(813)), Some(10.0))
                 .spawn_around(IntersectionID(247))
@@ -1184,12 +1192,11 @@ impl TutorialState {
                         "(If you do lose track of them, just reset)",
                     ],
                     arrow(speed.composite.inner.center_of("reset to midnight")),
-                )
-                .expand(),
+                ),
         );
 
-        state.stages.extend(
-            MultiStage::new(Task::LowParking)
+        state.stages.push(
+            Stage::new(Task::LowParking)
                 .spawn_randomly()
                 .msg(
                     vec![
@@ -1229,14 +1236,13 @@ impl TutorialState {
                         "Can you find a road that's almost out of parking spots?",
                     ],
                     None,
-                )
-                .expand(),
+                ),
         );
 
         let bike_lane_scenario = make_bike_lane_scenario(&ui.primary.map);
 
-        state.stages.extend(
-            MultiStage::new(Task::WatchBikes)
+        state.stages.push(
+            Stage::new(Task::WatchBikes)
                 .warp_to(ID::Building(BuildingID(543)), None)
                 .spawn_scenario(bike_lane_scenario.clone())
                 .msg(
@@ -1247,13 +1253,12 @@ impl TutorialState {
                         "(Just watch for a moment at whatever speed you like.)",
                     ],
                     None,
-                )
-                .expand(),
+                ),
         );
 
         let top_center = state.make_top_center(ctx, true);
-        state.stages.extend(
-            MultiStage::new(Task::FixBikes)
+        state.stages.push(
+            Stage::new(Task::FixBikes)
                 .spawn_scenario(bike_lane_scenario)
                 .warp_to(ID::Building(BuildingID(543)), None)
                 .msg(
@@ -1295,8 +1300,7 @@ impl TutorialState {
                         "When all trips are done, you'll get your final score.",
                     ],
                     arrow(agent_meter.composite.center_of_panel()),
-                )
-                .expand(),
+                ),
         );
 
         if false {
@@ -1304,8 +1308,8 @@ impl TutorialState {
             // TODO There's no clear measurement for how well the buses are doing.
             // TODO Probably want a steady stream of the cars appearing
 
-            state.stages.extend(
-                MultiStage::new(Task::WatchBuses)
+            state.stages.push(
+                Stage::new(Task::WatchBuses)
                     .warp_to(ID::Building(BuildingID(1979)), Some(0.5))
                     .spawn_scenario(bus_lane_scenario.clone())
                     .msg(
@@ -1315,24 +1319,22 @@ impl TutorialState {
                             "Watch what happens to the bus 43 and 48.",
                         ],
                         None,
-                    )
-                    .expand(),
+                    ),
             );
 
-            state.stages.extend(
-                MultiStage::new(Task::FixBuses)
+            state.stages.push(
+                Stage::new(Task::FixBuses)
                     .warp_to(ID::Building(BuildingID(1979)), Some(0.5))
                     .spawn_scenario(bus_lane_scenario.clone())
                     .msg(
                         vec!["Let's speed up the poor bus! Why not dedicate some bus lanes to it?"],
                         None,
-                    )
-                    .expand(),
+                    ),
             );
         }
 
-        state.stages.push(Stage::Msg {
-            lines: vec![
+        state.stages.push(Stage::new(Task::Done).msg(
+            vec![
                 "Training complete!",
                 "Use sandbox mode to explore larger areas of Seattle and try out any ideas you \
                  have.",
@@ -1340,14 +1342,15 @@ impl TutorialState {
                 "",
                 "Go have the appropriate amount of fun.",
             ],
-            point_to: None,
-            warp_to: None,
-            spawn: None,
-        });
+            None,
+        ));
 
         // For my debugging sanity
         if ui.opts.dev {
-            state.latest = state.stages.len() - 1;
+            state.latest = TutorialPointer::new(
+                state.stages.len() - 1,
+                state.stages.last().as_ref().unwrap().messages.len(),
+            );
         }
 
         state

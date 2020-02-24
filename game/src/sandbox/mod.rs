@@ -14,7 +14,7 @@ use crate::helpers::{cmp_duration_shorter, ID};
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::pregame::main_menu;
 use crate::render::DrawOptions;
-pub use crate::sandbox::gameplay::TutorialState;
+pub use crate::sandbox::gameplay::{TutorialPointer, TutorialState};
 use crate::ui::{ShowEverything, UI};
 use ezgui::{
     hotkey, lctrl, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,

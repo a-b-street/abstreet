@@ -7,7 +7,7 @@ mod play_scenario;
 pub mod spawner;
 mod tutorial;
 
-pub use self::tutorial::{Tutorial, TutorialState};
+pub use self::tutorial::{Tutorial, TutorialPointer, TutorialState};
 use crate::challenges;
 use crate::challenges::challenges_picker;
 use crate::colors;
@@ -47,7 +47,7 @@ pub enum GameplayMode {
     FixTrafficSignalsTutorial(usize),
 
     // current
-    Tutorial(usize),
+    Tutorial(TutorialPointer),
 }
 
 pub trait GameplayState: downcast_rs::Downcast {

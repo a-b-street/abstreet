@@ -81,8 +81,11 @@ fn main() {
             );
         }
     }
+    // TODO Stage only, not part
     if let Some(n) = args.optional_parse("--tutorial", |s| s.parse::<usize>()) {
-        mode = Some(sandbox::GameplayMode::Tutorial(n - 1));
+        mode = Some(sandbox::GameplayMode::Tutorial(
+            sandbox::TutorialPointer::new(n - 1, 0),
+        ));
     }
 
     args.done();

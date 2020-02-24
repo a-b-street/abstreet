@@ -4,7 +4,7 @@ use crate::colors;
 use crate::game::{State, Transition};
 use crate::managed::{Callback, ManagedGUIState, WrappedComposite, WrappedOutcome};
 use crate::mission::MissionEditMode;
-use crate::sandbox::{GameplayMode, SandboxMode};
+use crate::sandbox::{GameplayMode, SandboxMode, TutorialPointer};
 use crate::ui::UI;
 use ezgui::{
     hotkey, Button, Color, Composite, EventCtx, EventLoopMode, GfxCtx, JustDraw, Key, Line,
@@ -150,7 +150,7 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
                         .tutorial
                         .as_ref()
                         .map(|tut| tut.current)
-                        .unwrap_or(0),
+                        .unwrap_or(TutorialPointer::new(0, 0)),
                 ),
             ))))
         }),
