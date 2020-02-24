@@ -37,6 +37,7 @@ pub struct DrawMap {
     pub draw_all_thick_roads: Drawable,
     pub draw_all_unzoomed_intersections: Drawable,
     pub draw_all_buildings: Drawable,
+    pub draw_all_building_paths: Drawable,
     pub draw_all_areas: Drawable,
 
     quadtree: QuadTree<ID>,
@@ -130,13 +131,21 @@ impl DrawMap {
 
         let mut buildings: Vec<DrawBuilding> = Vec::new();
         let mut all_buildings = GeomBatch::new();
+        let mut all_building_paths = GeomBatch::new();
         timer.start_iter("make DrawBuildings", map.all_buildings().len());
         for b in map.all_buildings() {
             timer.next();
-            buildings.push(DrawBuilding::new(b, cs, &mut all_buildings, ctx.prerender));
+            buildings.push(DrawBuilding::new(
+                b,
+                cs,
+                &mut all_buildings,
+                &mut all_building_paths,
+                ctx.prerender,
+            ));
         }
         timer.start("upload all buildings");
         let draw_all_buildings = all_buildings.upload(ctx);
+        let draw_all_building_paths = all_building_paths.upload(ctx);
         timer.stop("upload all buildings");
 
         let mut extra_shapes: Vec<DrawExtraShape> = Vec::new();
@@ -247,6 +256,7 @@ impl DrawMap {
             draw_all_thick_roads,
             draw_all_unzoomed_intersections,
             draw_all_buildings,
+            draw_all_building_paths,
             draw_all_areas,
 
             agents: RefCell::new(AgentCache {

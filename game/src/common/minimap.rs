@@ -219,6 +219,7 @@ impl Minimap {
         g.redraw(&ui.primary.draw_map.draw_all_thick_roads);
         g.redraw(&ui.primary.draw_map.draw_all_unzoomed_intersections);
         g.redraw(&ui.primary.draw_map.draw_all_buildings);
+        // Not the building paths
         if let Some(ref c) = ui.overlay.maybe_colorer() {
             g.redraw(&c.unzoomed);
         }

@@ -14,7 +14,8 @@ impl DrawBuilding {
     pub fn new(
         bldg: &Building,
         cs: &ColorScheme,
-        batch: &mut GeomBatch,
+        bldg_batch: &mut GeomBatch,
+        paths_batch: &mut GeomBatch,
         prerender: &Prerender,
     ) -> DrawBuilding {
         // Trim the front path line away from the sidewalk's center line, so that it doesn't
@@ -30,15 +31,15 @@ impl DrawBuilding {
         }
         let front_path = front_path_line.make_polygons(Distance::meters(1.0));
 
-        batch.push(
+        bldg_batch.push(
             cs.get_def("building", Color::rgb(196, 193, 188)),
             bldg.polygon.clone(),
         );
-        batch.push(cs.get("sidewalk"), front_path);
+        paths_batch.push(cs.get("sidewalk"), front_path);
 
         // TODO Do similar trim_back for driveway
         if let Some(ref p) = bldg.parking {
-            batch.push(
+            paths_batch.push(
                 cs.get("driving lane"),
                 p.driveway_line.make_polygons(NORMAL_LANE_THICKNESS),
             );
@@ -46,7 +47,7 @@ impl DrawBuilding {
 
         if bldg.parking.is_some() {
             // Might need to scale down more for some buildings, but so far, this works everywhere.
-            batch.add_svg(
+            bldg_batch.add_svg(
                 prerender,
                 "../data/system/assets/map/parking.svg",
                 bldg.label_center,
@@ -73,7 +74,7 @@ impl DrawBuilding {
 
         // TODO Slow and looks silly, but it's a nice experiment.
         /*for poly in bldg.polygon.shrink(-3.0) {
-            batch.push(cs.get_def("building roof", Color::rgb(150, 75, 0)), poly);
+            bldg_batch.push(cs.get_def("building roof", Color::rgb(150, 75, 0)), poly);
         }*/
 
         DrawBuilding { id: bldg.id, label }

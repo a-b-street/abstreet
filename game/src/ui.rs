@@ -124,6 +124,7 @@ impl UI {
             }
             if layers.show_buildings {
                 g.redraw(&self.primary.draw_map.draw_all_buildings);
+                // Not the building paths
             }
 
             if layers.show_extra_shapes {
@@ -184,6 +185,7 @@ impl UI {
                     ID::Building(_) => {
                         if !drawn_all_buildings {
                             g.redraw(&self.primary.draw_map.draw_all_buildings);
+                            g.redraw(&self.primary.draw_map.draw_all_building_paths);
                             drawn_all_buildings = true;
                         }
                     }
