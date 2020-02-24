@@ -642,70 +642,53 @@ enum Stage {
     },
 }
 
-impl Stage {
-    fn msg(lines: Vec<&'static str>) -> Stage {
-        Stage::Msg {
-            lines,
-            point_to: None,
-            warp_to: None,
-            spawn: None,
-        }
-    }
+struct MultiStage {
+    messages: Vec<(Vec<&'static str>, Option<Box<dyn Fn(&GfxCtx, &UI) -> Pt2D>>)>,
+    task: Task,
+    warp_to: Option<(ID, f64)>,
+    spawn: Option<Box<dyn Fn(&mut UI)>>,
+}
 
-    fn interact(task: Task) -> Stage {
-        Stage::Interact {
+fn arrow(pt: ScreenPt) -> Option<Box<dyn Fn(&GfxCtx, &UI) -> Pt2D>> {
+    Some(Box::new(move |_, _| pt.to_pt()))
+}
+
+impl MultiStage {
+    fn new(task: Task) -> MultiStage {
+        MultiStage {
+            messages: Vec::new(),
             task,
             warp_to: None,
             spawn: None,
         }
     }
 
-    fn arrow(self, pt: ScreenPt) -> Stage {
-        self.dynamic_arrow(Box::new(move |_, _| pt.to_pt()))
-    }
-    fn dynamic_arrow(mut self, cb: Box<dyn Fn(&GfxCtx, &UI) -> Pt2D>) -> Stage {
-        match self {
-            Stage::Msg {
-                ref mut point_to, ..
-            } => {
-                assert!(point_to.is_none());
-                *point_to = Some(cb);
-                self
-            }
-            Stage::Interact { .. } => unreachable!(),
-        }
+    fn msg(
+        mut self,
+        lines: Vec<&'static str>,
+        point_to: Option<Box<dyn Fn(&GfxCtx, &UI) -> Pt2D>>,
+    ) -> MultiStage {
+        self.messages.push((lines, point_to));
+        self
     }
 
-    fn warp_to(mut self, id: ID, zoom: Option<f64>) -> Stage {
-        match self {
-            Stage::Msg {
-                ref mut warp_to, ..
-            }
-            | Stage::Interact {
-                ref mut warp_to, ..
-            } => {
-                assert!(warp_to.is_none());
-                *warp_to = Some((id, zoom.unwrap_or(4.0)));
-                self
-            }
-        }
+    fn warp_to(mut self, id: ID, zoom: Option<f64>) -> MultiStage {
+        assert!(self.warp_to.is_none());
+        self.warp_to = Some((id, zoom.unwrap_or(4.0)));
+        self
     }
 
-    fn spawn(mut self, cb: Box<dyn Fn(&mut UI)>) -> Stage {
-        match self {
-            Stage::Msg { ref mut spawn, .. } | Stage::Interact { ref mut spawn, .. } => {
-                assert!(spawn.is_none());
-                *spawn = Some(cb);
-                self
-            }
-        }
+    fn spawn(mut self, cb: Box<dyn Fn(&mut UI)>) -> MultiStage {
+        assert!(self.spawn.is_none());
+        self.spawn = Some(cb);
+        self
     }
 
-    fn spawn_around(self, i: IntersectionID) -> Stage {
+    fn spawn_around(self, i: IntersectionID) -> MultiStage {
         self.spawn(Box::new(move |ui| spawn_agents_around(i, ui)))
     }
 
-    fn spawn_randomly(self) -> Stage {
+    fn spawn_randomly(self) -> MultiStage {
         self.spawn(Box::new(|ui| {
             Scenario::small_run(&ui.primary.map).instantiate(
                 &mut ui.primary.sim,
@@ -716,7 +699,7 @@ impl Stage {
         }))
     }
 
-    fn spawn_scenario(self, scenario: Scenario) -> Stage {
+    fn spawn_scenario(self, scenario: Scenario) -> MultiStage {
         self.spawn(Box::new(move |ui| {
             let mut timer = Timer::new("spawn scenario with prebaked results");
             scenario.instantiate(
@@ -736,6 +719,26 @@ impl Stage {
                 prebaked,
             )));
         }))
+    }
+
+    fn expand(self) -> Vec<Stage> {
+        let mut stages = Vec::new();
+        for (lines, point_to) in self.messages {
+            stages.push(Stage::Msg {
+                lines,
+                point_to,
+                warp_to: self.warp_to.clone(),
+                // TODO tmp
+                spawn: None,
+                //spawn: self.spawn.clone(),
+            });
+        }
+        stages.push(Stage::Interact {
+            task: self.task,
+            warp_to: self.warp_to,
+            spawn: self.spawn,
+        });
+        stages
     }
 }
 
@@ -997,252 +1000,350 @@ impl TutorialState {
             0.97 * ctx.canvas.window_height,
         );
 
-        state.stages.extend(vec![Stage::msg(vec![
-            "Welcome to your first day as a contract traffic engineer --",
-            "like a paid assassin, but capable of making WAY more people cry.",
-            "Seattle is a fast-growing city, and nobody can decide how to fix the traffic.",
-        ])
-        .warp_to(ID::Intersection(IntersectionID(141)), None)]);
+        state.stages.extend(
+            MultiStage::new(Task::Camera)
+                .warp_to(ID::Intersection(IntersectionID(141)), None)
+                .msg(
+                    vec![
+                        "Welcome to your first day as a contract traffic engineer --",
+                        "like a paid assassin, but capable of making WAY more people cry.",
+                        "Seattle is a fast-growing city, and nobody can decide how to fix the \
+                         traffic.",
+                    ],
+                    None,
+                )
+                .msg(
+                    vec![
+                        "Let's start with the controls.",
+                        "Click and drag to pan around the map, and use your scroll wheel or \
+                         touchpad to zoom in and out.",
+                    ],
+                    None,
+                )
+                .msg(
+                    vec![
+                        "Let's try that ou--",
+                        "WHOA THE MONTLAKE MARKET IS ON FIRE!",
+                        "GO CLICK ON IT, QUICK!",
+                    ],
+                    None,
+                )
+                .msg(
+                    vec!["(Hint: Look around for an unusually red building)"],
+                    None,
+                )
+                .expand(),
+        );
 
-        state.stages.extend(vec![
-            Stage::msg(vec![
-                "Let's start with the controls.",
-                "Click and drag to pan around the map, and use your scroll wheel or touchpad to \
-                 zoom in and out.",
-            ]),
-            Stage::msg(vec![
-                "Let's try that ou--",
-                "WHOA THE MONTLAKE MARKET IS ON FIRE!",
-                "GO CLICK ON IT, QUICK!",
-            ]),
-            Stage::msg(vec!["(Hint: Look around for an unusually red building)"]),
-            // TODO Just zoom in sufficiently on it, maybe don't even click it yet.
-            Stage::interact(Task::Camera),
-        ]);
+        state.stages.extend(
+            MultiStage::new(Task::InspectObjects)
+                .msg(
+                    vec![
+                        "Er, sorry about that.",
+                        "Just a little joke we like to play on the new recruits.",
+                    ],
+                    None,
+                )
+                .msg(
+                    vec![
+                        "If you're going to storm out of here, you can always go back towards the \
+                         main screen using this button",
+                        "(But please continue with the training.)",
+                    ],
+                    arrow(tool_panel.inner.center_of("back")),
+                )
+                .msg(
+                    vec![
+                        "Now, let's learn how to inspect and interact with objects in the map.",
+                        "Select something with your mouse, then click on it.",
+                    ],
+                    None,
+                )
+                .msg(
+                    vec![
+                        "(By the way, the bottom of the screen shows keyboard shortcuts",
+                        "for whatever you're selecting; you don't have to click an object first.)",
+                    ],
+                    arrow(osd),
+                )
+                .msg(
+                    vec![
+                        "I wonder what kind of information is available for different objects?",
+                        "Let's find out! Click each object to open more details, then use the \
+                         inspect action.",
+                    ],
+                    None,
+                )
+                .expand(),
+        );
 
-        state.stages.extend(vec![
-            Stage::msg(vec![
-                "Er, sorry about that.",
-                "Just a little joke we like to play on the new recruits.",
-            ]),
-            Stage::msg(vec![
-                "If you're going to storm out of here, you can always go back towards the main \
-                 screen using this button",
-                "(But please continue with the training.)",
-            ])
-            .arrow(tool_panel.inner.center_of("back")),
-            Stage::msg(vec![
-                "Now, let's learn how to inspect and interact with objects in the map.",
-                "Select something with your mouse, then click on it.",
-            ]),
-            Stage::msg(vec![
-                "(By the way, the bottom of the screen shows keyboard shortcuts",
-                "for whatever you're selecting; you don't have to click an object first.)",
-            ])
-            .arrow(osd),
-            Stage::msg(vec![
-                "I wonder what kind of information is available for different objects?",
-                "Let's find out! Click each object to open more details, then use the inspect \
-                 action.",
-            ]),
-            Stage::interact(Task::InspectObjects),
-        ]);
+        state.stages.extend(
+            MultiStage::new(Task::TimeControls)
+                .warp_to(ID::Intersection(IntersectionID(64)), None)
+                .msg(
+                    vec![
+                        "Inspection complete!",
+                        "",
+                        "You'll work day and night, watching traffic patterns unfold.",
+                    ],
+                    arrow(time.composite.center_of_panel()),
+                )
+                .msg(
+                    vec!["You can pause or resume time"],
+                    arrow(speed.composite.inner.center_of("pause")),
+                )
+                .msg(
+                    vec!["Speed things up"],
+                    arrow(speed.composite.inner.center_of("30x speed")),
+                )
+                .msg(
+                    vec!["Advance time by certain amounts"],
+                    arrow(speed.composite.inner.center_of("step forwards 1 hour")),
+                )
+                .msg(
+                    vec!["And reset to the beginning of the day"],
+                    arrow(speed.composite.inner.center_of("reset to midnight")),
+                )
+                .msg(
+                    vec!["Let's try these controls out. Run the simulation until 5pm or later."],
+                    None,
+                )
+                .expand(),
+        );
 
-        state.stages.extend(vec![
-            Stage::msg(vec![
-                "Inspection complete!",
-                "",
-                "You'll work day and night, watching traffic patterns unfold.",
-            ])
-            .arrow(time.composite.center_of_panel())
-            .warp_to(ID::Intersection(IntersectionID(64)), None),
-            Stage::msg(vec!["You can pause or resume time"])
-                .arrow(speed.composite.inner.center_of("pause")),
-            Stage::msg(vec!["Speed things up"]).arrow(speed.composite.inner.center_of("30x speed")),
-            Stage::msg(vec!["Advance time by certain amounts"])
-                .arrow(speed.composite.inner.center_of("step forwards 1 hour")),
-            Stage::msg(vec!["And reset to the beginning of the day"])
-                .arrow(speed.composite.inner.center_of("reset to midnight")),
-            Stage::msg(vec![
-                "Let's try these controls out. Run the simulation until 5pm or later.",
-            ]),
-            Stage::interact(Task::TimeControls),
-        ]);
+        state.stages.extend(
+            MultiStage::new(Task::PauseResume)
+                .msg(
+                    vec!["Whew, that took a while! (Hopefully not though...)"],
+                    None,
+                )
+                .msg(
+                    vec![
+                        "You might've figured it out already,",
+                        "But you'll be pausing/resuming time VERY frequently",
+                    ],
+                    arrow(speed.composite.inner.center_of("pause")),
+                )
+                .msg(
+                    vec![
+                        "Again, most controls have a key binding shown at the bottom of the \
+                         screen.",
+                        "Press SPACE to pause/resume time.",
+                    ],
+                    arrow(osd),
+                )
+                .msg(
+                    vec!["Just reassure me and pause/resume time a few times, alright?"],
+                    None,
+                )
+                .expand(),
+        );
 
-        state.stages.extend(vec![
-            Stage::msg(vec!["Whew, that took a while! (Hopefully not though...)"]),
-            Stage::msg(vec![
-                "You might've figured it out already,",
-                "But you'll be pausing/resuming time VERY frequently",
-            ])
-            .arrow(speed.composite.inner.center_of("pause")),
-            Stage::msg(vec![
-                "Again, most controls have a key binding shown at the bottom of the screen.",
-                "Press SPACE to pause/resume time.",
-            ])
-            .arrow(osd),
-            Stage::msg(vec![
-                "Just reassure me and pause/resume time a few times, alright?",
-            ]),
-            Stage::interact(Task::PauseResume),
-        ]);
-
-        state.stages.extend(vec![
-            Stage::msg(vec!["Alright alright, no need to wear out your spacebar."]),
-            // Don't center on where the agents are, be a little offset
-            Stage::msg(vec![
-                "Oh look, some people appeared!",
-                "We've got pedestrians, bikes, and cars moving around now.",
-            ])
-            .warp_to(ID::Building(BuildingID(813)), Some(10.0))
-            .spawn_around(IntersectionID(247)),
-            Stage::msg(vec!["You can see the number of them here."])
-                .arrow(agent_meter.composite.center_of_panel())
-                .spawn_around(IntersectionID(247)),
-            Stage::msg(vec![
-                "Why don't you follow this car to their destination,",
-                "see where they park, and then play a little... prank?",
-            ])
-            .spawn_around(IntersectionID(247))
-            .warp_to(ID::Building(BuildingID(813)), Some(10.0))
-            .dynamic_arrow(Box::new(|g, ui| {
-                g.canvas
-                    .map_to_screen(
-                        ui.primary
-                            .sim
-                            .canonical_pt_for_agent(
-                                AgentID::Car(CarID(30, VehicleType::Car)),
-                                &ui.primary.map,
-                            )
-                            .unwrap(),
-                    )
-                    .to_pt()
-            })),
-            Stage::msg(vec![
-                "You don't have to manually chase them; just click to follow.",
-                "(If you do lose track of them, just reset)",
-            ])
-            .spawn_around(IntersectionID(247))
-            .warp_to(ID::Building(BuildingID(813)), Some(10.0))
-            .arrow(speed.composite.inner.center_of("reset to midnight")),
-            Stage::interact(Task::Escort)
+        state.stages.extend(
+            MultiStage::new(Task::Escort)
+                // Don't center on where the agents are, be a little offset
+                .warp_to(ID::Building(BuildingID(813)), Some(10.0))
                 .spawn_around(IntersectionID(247))
-                .warp_to(ID::Building(BuildingID(813)), Some(10.0)),
-        ]);
+                .msg(
+                    vec!["Alright alright, no need to wear out your spacebar."],
+                    None,
+                )
+                .msg(
+                    vec![
+                        "Oh look, some people appeared!",
+                        "We've got pedestrians, bikes, and cars moving around now.",
+                    ],
+                    None,
+                )
+                .msg(
+                    vec!["You can see the number of them here."],
+                    arrow(agent_meter.composite.center_of_panel()),
+                )
+                .msg(
+                    vec![
+                        "Why don't you follow this car to their destination,",
+                        "see where they park, and then play a little... prank?",
+                    ],
+                    Some(Box::new(|g, ui| {
+                        g.canvas
+                            .map_to_screen(
+                                ui.primary
+                                    .sim
+                                    .canonical_pt_for_agent(
+                                        AgentID::Car(CarID(30, VehicleType::Car)),
+                                        &ui.primary.map,
+                                    )
+                                    .unwrap(),
+                            )
+                            .to_pt()
+                    })),
+                )
+                .msg(
+                    vec![
+                        "You don't have to manually chase them; just click to follow.",
+                        "(If you do lose track of them, just reset)",
+                    ],
+                    arrow(speed.composite.inner.center_of("reset to midnight")),
+                )
+                .expand(),
+        );
 
-        state.stages.extend(vec![
-            Stage::msg(vec![
-                "What an immature prank. You should re-evaluate your life decisions.",
-                "",
-                "The map is quite large, so to help you orient",
-                "the minimap shows you an overview of all activity.",
-                "You can click and drag it just like the normal map.",
-            ])
-            .arrow(minimap.composite.center_of("minimap")),
-            Stage::msg(vec!["Find addresses here"]).arrow(minimap.composite.center_of("search")),
-            Stage::msg(vec!["Set up shortcuts to favorite areas"])
-                .arrow(minimap.composite.center_of("shortcuts")),
-            Stage::msg(vec!["View different data about agents"])
-                .arrow(minimap.composite.center_of("change agent colorscheme")),
-            Stage::msg(vec![
-                "Apply different heatmap layers to the map, to find data such as:",
-                "- roads with high traffic",
-                "- bus stops",
-                "- current parking",
-            ])
-            .arrow(minimap.composite.center_of("change overlay")),
-            Stage::msg(vec![
-                "Let's try these out.",
-                "There are lots of cars parked everywhere.",
-                "Can you find a road that's almost out of parking spots?",
-            ]),
-            Stage::interact(Task::LowParking).spawn_randomly(),
-        ]);
+        state.stages.extend(
+            MultiStage::new(Task::LowParking)
+                .spawn_randomly()
+                .msg(
+                    vec![
+                        "What an immature prank. You should re-evaluate your life decisions.",
+                        "",
+                        "The map is quite large, so to help you orient",
+                        "the minimap shows you an overview of all activity.",
+                        "You can click and drag it just like the normal map.",
+                    ],
+                    arrow(minimap.composite.center_of("minimap")),
+                )
+                .msg(
+                    vec!["Find addresses here"],
+                    arrow(minimap.composite.center_of("search")),
+                )
+                .msg(
+                    vec!["Set up shortcuts to favorite areas"],
+                    arrow(minimap.composite.center_of("shortcuts")),
+                )
+                .msg(
+                    vec!["View different data about agents"],
+                    arrow(minimap.composite.center_of("change agent colorscheme")),
+                )
+                .msg(
+                    vec![
+                        "Apply different heatmap layers to the map, to find data such as:",
+                        "- roads with high traffic",
+                        "- bus stops",
+                        "- current parking",
+                    ],
+                    arrow(minimap.composite.center_of("change overlay")),
+                )
+                .msg(
+                    vec![
+                        "Let's try these out.",
+                        "There are lots of cars parked everywhere.",
+                        "Can you find a road that's almost out of parking spots?",
+                    ],
+                    None,
+                )
+                .expand(),
+        );
 
         let bike_lane_scenario = make_bike_lane_scenario(&ui.primary.map);
 
-        state.stages.extend(vec![
-            Stage::msg(vec![
-                "Well done!",
-                "",
-                "Let's see what's happening over here.",
-                "(Just watch for a moment at whatever speed you like.)",
-            ])
-            .warp_to(ID::Building(BuildingID(543)), None)
-            .spawn_scenario(bike_lane_scenario.clone()),
-            Stage::interact(Task::WatchBikes).spawn_scenario(bike_lane_scenario.clone()),
-        ]);
+        state.stages.extend(
+            MultiStage::new(Task::WatchBikes)
+                .warp_to(ID::Building(BuildingID(543)), None)
+                .spawn_scenario(bike_lane_scenario.clone())
+                .msg(
+                    vec![
+                        "Well done!",
+                        "",
+                        "Let's see what's happening over here.",
+                        "(Just watch for a moment at whatever speed you like.)",
+                    ],
+                    None,
+                )
+                .expand(),
+        );
 
         let top_center = state.make_top_center(ctx, true);
-        state.stages.extend(vec![
-            Stage::msg(vec![
-                "Looks like lots of cars and bikes trying to go to the playfield.",
-                "When lots of cars and bikes share the same lane,",
-                "cars are delayed (assuming there's no room to pass) and",
-                "the cyclist probably feels unsafe too.",
-            ]),
-            Stage::msg(vec![
-                "Luckily, you have the power to modify lanes!",
-                "What if you could transform the parking lanes that aren't being used much",
-                "into a protected bike lane?",
-            ]),
-            Stage::msg(vec![
-                "To edit lanes, click 'edit map' and then select a lane.",
-            ])
-            .arrow(top_center.center_of("edit map")),
-            Stage::msg(vec![
-                "Some changes you make can't take effect until the next day;",
-                "like what if you removed a parking lane while there are cars on it?",
-                "So when you leave edit mode, the day will always reset to midnight.",
-                "People are on fixed schedules: every day, everybody leaves at exactly the same \
-                 time,",
-                "making the same decision to drive, walk, bike, or take a bus.",
-                "All you can influence is how their experience will be in the short term.",
-            ]),
-            Stage::msg(vec![
-                "So adjust lanes and speed up the slowest trip by at least 45s.",
-                "When all trips are done, you'll get your final score.",
-            ])
-            .arrow(agent_meter.composite.center_of_panel()),
-            Stage::interact(Task::FixBikes)
+        state.stages.extend(
+            MultiStage::new(Task::FixBikes)
                 .spawn_scenario(bike_lane_scenario)
-                .warp_to(ID::Building(BuildingID(543)), None),
-        ]);
+                .warp_to(ID::Building(BuildingID(543)), None)
+                .msg(
+                    vec![
+                        "Looks like lots of cars and bikes trying to go to the playfield.",
+                        "When lots of cars and bikes share the same lane,",
+                        "cars are delayed (assuming there's no room to pass) and",
+                        "the cyclist probably feels unsafe too.",
+                    ],
+                    None,
+                )
+                .msg(
+                    vec![
+                        "Luckily, you have the power to modify lanes!",
+                        "What if you could transform the parking lanes that aren't being used much",
+                        "into a protected bike lane?",
+                    ],
+                    None,
+                )
+                .msg(
+                    vec!["To edit lanes, click 'edit map' and then select a lane."],
+                    arrow(top_center.center_of("edit map")),
+                )
+                .msg(
+                    vec![
+                        "Some changes you make can't take effect until the next day;",
+                        "like what if you removed a parking lane while there are cars on it?",
+                        "So when you leave edit mode, the day will always reset to midnight.",
+                        "People are on fixed schedules: every day, everybody leaves at exactly \
+                         the same time,",
+                        "making the same decision to drive, walk, bike, or take a bus.",
+                        "All you can influence is how their experience will be in the short term.",
+                    ],
+                    None,
+                )
+                .msg(
+                    vec![
+                        "So adjust lanes and speed up the slowest trip by at least 45s.",
+                        "When all trips are done, you'll get your final score.",
+                    ],
+                    arrow(agent_meter.composite.center_of_panel()),
+                )
+                .expand(),
+        );
 
         if false {
             let bus_lane_scenario = make_bus_lane_scenario(&ui.primary.map);
             // TODO There's no clear measurement for how well the buses are doing.
             // TODO Probably want a steady stream of the cars appearing
 
-            state.stages.extend(vec![
-                Stage::msg(vec![
-                    "Alright, now it's a game day at the University of Washington.",
-                    "Everyone's heading north across the bridge.",
-                    "Watch what happens to the bus 43 and 48.",
-                ])
-                .warp_to(ID::Building(BuildingID(1979)), Some(0.5))
-                .spawn_scenario(bus_lane_scenario.clone()),
-                Stage::interact(Task::WatchBuses).spawn_scenario(bus_lane_scenario.clone()),
-            ]);
+            state.stages.extend(
+                MultiStage::new(Task::WatchBuses)
+                    .warp_to(ID::Building(BuildingID(1979)), Some(0.5))
+                    .spawn_scenario(bus_lane_scenario.clone())
+                    .msg(
+                        vec![
+                            "Alright, now it's a game day at the University of Washington.",
+                            "Everyone's heading north across the bridge.",
+                            "Watch what happens to the bus 43 and 48.",
+                        ],
+                        None,
+                    )
+                    .expand(),
+            );
 
-            state.stages.extend(vec![
-                Stage::msg(vec![
-                    "Let's speed up the poor bus! Why not dedicate some bus lanes to it?",
-                ])
-                .warp_to(ID::Building(BuildingID(1979)), Some(0.5))
-                .spawn_scenario(bus_lane_scenario.clone()),
-                // TODO By how much?
-                Stage::interact(Task::FixBuses).spawn_scenario(bus_lane_scenario),
-            ]);
+            state.stages.extend(
+                MultiStage::new(Task::FixBuses)
+                    .warp_to(ID::Building(BuildingID(1979)), Some(0.5))
+                    .spawn_scenario(bus_lane_scenario.clone())
+                    .msg(
+                        vec!["Let's speed up the poor bus! Why not dedicate some bus lanes to it?"],
+                        None,
+                    )
+                    .expand(),
+            );
         }
 
-        state.stages.push(Stage::msg(vec![
-            "Training complete!",
-            "Use sandbox mode to explore larger areas of Seattle and try out any ideas you have.",
-            "Or try your skills at a particular challenge!",
-            "",
-            "Go have the appropriate amount of fun.",
-        ]));
+        state.stages.push(Stage::Msg {
+            lines: vec![
+                "Training complete!",
+                "Use sandbox mode to explore larger areas of Seattle and try out any ideas you \
+                 have.",
+                "Or try your skills at a particular challenge!",
+                "",
+                "Go have the appropriate amount of fun.",
+            ],
+            point_to: None,
+            warp_to: None,
+            spawn: None,
+        });
 
         // For my debugging sanity
         if ui.opts.dev {
