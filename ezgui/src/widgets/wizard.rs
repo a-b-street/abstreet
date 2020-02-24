@@ -316,6 +316,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                                 data: c.data.clone_box(),
                                 hotkey: c.hotkey,
                                 active: c.active,
+                                tooltip: c.tooltip,
                             })
                             .collect(),
                     ),
@@ -463,6 +464,7 @@ pub struct Choice<T: Clone> {
     pub data: T,
     pub(crate) hotkey: Option<MultiKey>,
     pub(crate) active: bool,
+    pub(crate) tooltip: Option<String>,
 }
 
 impl<T: Clone> Choice<T> {
@@ -472,6 +474,7 @@ impl<T: Clone> Choice<T> {
             data,
             hotkey: None,
             active: true,
+            tooltip: None,
         }
     }
 
@@ -495,6 +498,11 @@ impl<T: Clone> Choice<T> {
 
     pub fn active(mut self, active: bool) -> Choice<T> {
         self.active = active;
+        self
+    }
+
+    pub fn tooltip<I: Into<String>>(mut self, info: I) -> Choice<T> {
+        self.tooltip = Some(info.into());
         self
     }
 }

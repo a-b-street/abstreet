@@ -166,10 +166,18 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
             } else {
                 abstutil::path_map("montlake")
             };
+            let scenario = if abstutil::file_exists(abstutil::path_scenario(
+                ui.primary.map.get_name(),
+                "weekday",
+            )) {
+                "weekday"
+            } else {
+                "random"
+            };
             Some(Transition::Push(Box::new(SandboxMode::new(
                 ctx,
                 ui,
-                GameplayMode::PlayScenario(map_path, "random".to_string()),
+                GameplayMode::PlayScenario(map_path, scenario.to_string()),
             ))))
         }),
     )

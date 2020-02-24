@@ -119,6 +119,25 @@ impl<T: Clone> PopupMenu<T> {
 
     pub fn draw(&self, g: &mut GfxCtx) {
         g.draw_blocking_text_at_screenspace_topleft(self.calculate_txt(), self.top_left);
+
+        if let Some(ref info) = self.choices[self.current_idx].tooltip {
+            // Hold on, are we actually hovering on that entry right now?
+            let mut top_left = self.top_left;
+            top_left.y += g.default_line_height() * (self.current_idx as f64);
+            let rect = ScreenRectangle {
+                x1: top_left.x,
+                y1: top_left.y,
+                x2: top_left.x + self.dims.width,
+                y2: top_left.y + g.default_line_height(),
+            };
+            if let Some(pt) = g.canvas.get_cursor_in_screen_space() {
+                if rect.contains(pt) {
+                    let mut txt = Text::new().with_bg();
+                    txt.add_wrapped(info.to_string(), 0.5 * g.canvas.window_width);
+                    g.draw_mouse_tooltip(txt);
+                }
+            }
+        }
     }
 
     pub fn current_choice(&self) -> &T {

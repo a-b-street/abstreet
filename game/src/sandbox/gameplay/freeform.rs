@@ -208,17 +208,22 @@ fn make_change_traffic(btn: ScreenRectangle) -> Box<dyn State> {
                 for name in abstutil::list_all_objects(abstutil::path_all_scenarios(
                     ui.primary.map.get_name(),
                 )) {
-                    let nice_name = if name == "weekday" {
-                        "realistic weekday traffic".to_string()
+                    if name == "weekday" {
+                        list.push(Choice::new("realistic weekday traffic", name).tooltip(
+                            "Trips will begin throughout the entire day. Midnight is usually \
+                             quiet, so you may need to fast-forward to morning rush hour. Data \
+                             comes from Puget Sound Regional Council's Soundcast model.",
+                        ));
                     } else {
-                        name.clone()
-                    };
-                    list.push(Choice::new(nice_name, name));
+                        list.push(Choice::new(name.clone(), name));
+                    }
                 }
-                list.push(Choice::new(
-                    "random unrealistic trips",
-                    "random".to_string(),
-                ));
+                list.push(
+                    Choice::new("random unrealistic trips", "random".to_string()).tooltip(
+                        "Lots of trips will start at midnight, but not constantly appear through \
+                         the day.",
+                    ),
+                );
                 list.push(Choice::new("just buses", "just buses".to_string()));
                 list.push(Choice::new(
                     "none (you manually spawn traffic)",
