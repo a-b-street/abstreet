@@ -365,6 +365,7 @@ fn pick_finished_trips(
                     state
                         .downcast_mut::<SandboxMode>()
                         .unwrap()
+                        .controls
                         .common
                         .as_mut()
                         .unwrap()

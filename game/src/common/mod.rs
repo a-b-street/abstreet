@@ -287,4 +287,8 @@ impl CommonState {
         self.info_panel = Some(info::InfoPanel::new(id, ctx, ui, Vec::new(), None));
         ui.per_obj.info_panel_open = true;
     }
+
+    pub fn info_panel_open(&self) -> Option<ID> {
+        self.info_panel.as_ref().map(|i| i.id.clone())
+    }
 }

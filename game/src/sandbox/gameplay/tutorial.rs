@@ -300,14 +300,16 @@ impl GameplayState for Tutorial {
                 self.top_center = tut.make_top_center(ctx, false);
             }
 
-            if let Some(ID::Car(c)) = ui.primary.current_selection {
-                // TODO Need to plumb along CommonState and see if we actually have the panel open
-                // or not.
-                if !tut.following_car && c == target {
+            if controls.common.as_ref().unwrap().info_panel_open() == Some(ID::Car(target)) {
+                if !tut.following_car {
+                    // TODO There's a delay of one event before the checklist updates, because the
+                    // info panel opening happens at the end of the event. Not a big deal.
                     tut.following_car = true;
                     self.top_center = tut.make_top_center(ctx, false);
                 }
+            }
 
+            if let Some(ID::Car(c)) = ui.primary.current_selection {
                 if ui.per_obj.action(ctx, Key::C, "draw WASH ME") {
                     if c == target {
                         if is_parked {

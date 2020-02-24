@@ -31,11 +31,11 @@ pub struct SandboxMode {
     gameplay: Box<dyn gameplay::GameplayState>,
     gameplay_mode: GameplayMode,
 
-    pub common: Option<CommonState>,
-    controls: SandboxControls,
+    pub controls: SandboxControls,
 }
 
 pub struct SandboxControls {
+    pub common: Option<CommonState>,
     tool_panel: Option<WrappedComposite>,
     time_panel: Option<TimePanel>,
     pub speed: Option<SpeedControls>,
@@ -48,12 +48,12 @@ impl SandboxMode {
         let gameplay = mode.initialize(ui, ctx);
 
         SandboxMode {
-            common: if gameplay.has_common() {
-                Some(CommonState::new())
-            } else {
-                None
-            },
             controls: SandboxControls {
+                common: if gameplay.has_common() {
+                    Some(CommonState::new())
+                } else {
+                    None
+                },
                 tool_panel: if gameplay.has_tool_panel() {
                     Some(tool_panel(ctx))
                 } else {
@@ -217,7 +217,7 @@ impl State for SandboxMode {
         // Fragile ordering. Don't call this before all the per_obj actions have been called. But
         // also let this work before tool_panel, so Key::Escape from the info panel beats the one
         // to quit.
-        if let Some(ref mut c) = self.common {
+        if let Some(ref mut c) = self.controls.common {
             if let Some(t) = c.event(ctx, ui, self.controls.speed.as_mut()) {
                 return t;
             }
@@ -273,7 +273,8 @@ impl State for SandboxMode {
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         ui.draw(
             g,
-            self.common
+            self.controls
+                .common
                 .as_ref()
                 .map(|c| c.draw_options(ui))
                 .unwrap_or_else(DrawOptions::new),
@@ -282,7 +283,7 @@ impl State for SandboxMode {
         );
         ui.overlay.draw(g);
 
-        if let Some(ref c) = self.common {
+        if let Some(ref c) = self.controls.common {
             c.draw(g, ui);
         } else {
             CommonState::draw_osd(g, ui, &None);
