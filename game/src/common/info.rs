@@ -1,10 +1,10 @@
 use crate::colors;
 use crate::common::{ColorLegend, Warping};
-use crate::game::{msg, Transition};
+use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::{rotating_color_map, ID};
 use crate::managed::WrappedComposite;
 use crate::render::{dashed_lines, Renderable, MIN_ZOOM_FOR_DETAIL};
-use crate::sandbox::SpeedControls;
+use crate::sandbox::{SandboxMode, SpeedControls};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
@@ -13,7 +13,7 @@ use ezgui::{
 };
 use geom::{Circle, Distance, Duration, Statistic, Time};
 use map_model::{IntersectionID, IntersectionType, RoadID};
-use sim::{AgentID, CarID, TripEnd, TripID, TripMode, TripStart, VehicleType};
+use sim::{AgentID, CarID, TripEnd, TripID, TripMode, TripResult, TripStart, VehicleType};
 use std::collections::BTreeSet;
 
 pub struct InfoPanel {
@@ -22,8 +22,8 @@ pub struct InfoPanel {
     pub composite: Composite,
 
     also_draw: Drawable,
-    // (unzoomed, zoomed)
-    trip_details: Option<(Drawable, Drawable)>,
+    // (ID, unzoomed, zoomed)
+    trip_details: Option<(TripID, Drawable, Drawable)>,
 
     actions: Vec<(Key, String)>,
 }
@@ -80,7 +80,7 @@ impl InfoPanel {
         } {
             let (rows, unzoomed, zoomed) = trip_details(trip, ctx, ui);
             col.push(rows);
-            Some((unzoomed, zoomed))
+            Some((trip, unzoomed, zoomed))
         } else {
             None
         };
@@ -206,15 +206,50 @@ impl InfoPanel {
         // Live update?
         if ui.primary.sim.time() != self.time {
             if let Some(a) = self.id.agent_id() {
-                if !ui.primary.sim.does_agent_exist(a) {
-                    // TODO Get a TripResult, slightly more detail?
-                    return (
-                        true,
-                        Some(Transition::Push(msg(
-                            "Closing info panel",
-                            vec![format!("{} is gone", a)],
-                        ))),
-                    );
+                if let Some((trip, _, _)) = self.trip_details {
+                    match ui.primary.sim.trip_to_agent(trip) {
+                        TripResult::Ok(a2) => {
+                            if a != a2 {
+                                if !ui.primary.sim.does_agent_exist(a) {
+                                    *self = InfoPanel::new(
+                                        ID::from_agent(a2),
+                                        ctx,
+                                        ui,
+                                        Vec::new(),
+                                        maybe_speed,
+                                    );
+                                    return (
+                                        false,
+                                        Some(Transition::Push(msg(
+                                            "The trip is transitioning to a new mode",
+                                            vec![format!(
+                                                "{} is now {}, following them instead",
+                                                agent_name(a),
+                                                agent_name(a2)
+                                            )],
+                                        ))),
+                                    );
+                                }
+
+                                return (false, Some(Transition::Push(trip_transition(a, a2))));
+                            }
+                        }
+                        TripResult::TripDone => {
+                            return (
+                                true,
+                                Some(Transition::Push(msg(
+                                    "Trip complete",
+                                    vec![format!(
+                                        "{} has finished their trip. Say goodbye!",
+                                        agent_name(a)
+                                    )],
+                                ))),
+                            );
+                        }
+                        TripResult::TripDoesntExist => unreachable!(),
+                        // Just wait a moment for trip_transition to kick in...
+                        TripResult::ModeChange => {}
+                    }
                 }
             }
             // TODO Detect crowds changing here maybe
@@ -254,7 +289,7 @@ impl InfoPanel {
 
     pub fn draw(&self, g: &mut GfxCtx) {
         self.composite.draw(g);
-        if let Some((ref unzoomed, ref zoomed)) = self.trip_details {
+        if let Some((_, ref unzoomed, ref zoomed)) = self.trip_details {
             if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
                 g.redraw(unzoomed);
             } else {
@@ -911,4 +946,44 @@ fn trip_details(trip: TripID, ctx: &mut EventCtx, ui: &UI) -> (ManagedWidget, Dr
         unzoomed.upload(ctx),
         zoomed.upload(ctx),
     )
+}
+
+fn trip_transition(from: AgentID, to: AgentID) -> Box<dyn State> {
+    WizardState::new(Box::new(move |wiz, ctx, _| {
+        let orig = format!("keep following {}", agent_name(from));
+        let change = format!("follow {} instead", agent_name(to));
+
+        let id = if wiz
+            .wrap(ctx)
+            .choose_string("The trip is transitioning to a new mode", || {
+                vec![orig.clone(), change.clone()]
+            })?
+            == orig
+        {
+            ID::from_agent(from)
+        } else {
+            ID::from_agent(to)
+        };
+        Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
+            state
+                .downcast_mut::<SandboxMode>()
+                .unwrap()
+                .controls
+                .common
+                .as_mut()
+                .unwrap()
+                .launch_info_panel(id, ctx, ui);
+        })))
+    }))
+}
+
+fn agent_name(a: AgentID) -> String {
+    match a {
+        AgentID::Car(c) => match c.1 {
+            VehicleType::Car => format!("Car #{}", c.0),
+            VehicleType::Bike => format!("Bike #{}", c.0),
+            VehicleType::Bus => format!("Bus #{}", c.0),
+        },
+        AgentID::Pedestrian(p) => format!("Pedestrian #{}", p.0),
+    }
 }
