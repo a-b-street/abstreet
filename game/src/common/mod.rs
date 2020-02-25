@@ -212,7 +212,13 @@ impl CommonState {
                 // Only selectable in dev mode anyway
                 osd.append(Line(a.to_string()).fg(id_color));
             }
-            ID::Road(_) => unreachable!(),
+            ID::Road(r) => {
+                if ui.opts.dev {
+                    osd.append(Line(r.to_string()).fg(id_color));
+                    osd.append(Line(" is "));
+                }
+                osd.append(Line(map.get_r(r).get_name()).fg(name_color));
+            }
         }
         osd
     }

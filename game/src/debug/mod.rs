@@ -68,7 +68,7 @@ impl State for DebugMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         if ctx.redo_mouseover() {
             ui.primary.current_selection =
-                ui.calculate_current_selection(ctx, &ui.primary.sim, self, true);
+                ui.calculate_current_selection(ctx, &ui.primary.sim, self, true, false);
         }
 
         {
@@ -165,7 +165,7 @@ impl State for DebugMode {
                 if !self.hidden.is_empty() && self.menu.consume_action(ctx, "unhide everything") {
                     self.hidden.clear();
                     ui.primary.current_selection =
-                        ui.calculate_current_selection(ctx, &ui.primary.sim, self, true);
+                        ui.calculate_current_selection(ctx, &ui.primary.sim, self, true, false);
                 }
             }
             _ => {}
@@ -250,7 +250,7 @@ impl State for DebugMode {
 
             if changed {
                 ui.primary.current_selection =
-                    ui.calculate_current_selection(ctx, &ui.primary.sim, self, true);
+                    ui.calculate_current_selection(ctx, &ui.primary.sim, self, true, false);
             }
         }
 

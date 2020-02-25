@@ -135,7 +135,8 @@ impl UI {
                 }
             }
 
-            // Still show area/extra shape selection when zoomed out.
+            // Still show some shape selection when zoomed out.
+            // TODO Refactor! Ideally use get_obj
             if let Some(ID::Area(id)) = self.primary.current_selection {
                 g.draw_polygon(
                     self.cs.get("selected"),
@@ -154,6 +155,18 @@ impl UI {
                         .get_es(id)
                         .get_outline(&self.primary.map),
                 );
+            } else if let Some(ID::Road(id)) = self.primary.current_selection {
+                g.draw_polygon(
+                    self.cs.get("selected"),
+                    &self
+                        .primary
+                        .draw_map
+                        .get_r(id)
+                        .get_outline(&self.primary.map),
+                );
+            } else if let Some(ID::Intersection(id)) = self.primary.current_selection {
+                // Actually, don't use get_outline here! Full polygon is easier to see.
+                g.draw_polygon(self.cs.get("selected"), &self.primary.map.get_i(id).polygon);
             }
 
             let mut cache = self.primary.draw_map.agents.borrow_mut();
@@ -220,8 +233,13 @@ impl UI {
 
     // Assumes some defaults.
     pub fn recalculate_current_selection(&mut self, ctx: &EventCtx) {
-        self.primary.current_selection =
-            self.calculate_current_selection(ctx, &self.primary.sim, &ShowEverything::new(), false);
+        self.primary.current_selection = self.calculate_current_selection(
+            ctx,
+            &self.primary.sim,
+            &ShowEverything::new(),
+            false,
+            false,
+        );
     }
 
     // Because we have to sometimes borrow part of self for GetDrawAgents, this just returns the
@@ -233,9 +251,12 @@ impl UI {
         source: &dyn GetDrawAgents,
         show_objs: &dyn ShowObject,
         debug_mode: bool,
+        unzoomed_roads_and_intersections: bool,
     ) -> Option<ID> {
         // Unzoomed mode. Ignore when debugging areas and extra shapes.
-        if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL && !debug_mode {
+        if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL
+            && !(debug_mode || unzoomed_roads_and_intersections)
+        {
             return None;
         }
 
@@ -252,16 +273,25 @@ impl UI {
         objects.reverse();
 
         for obj in objects {
-            // In unzoomed mode, can only mouseover areas
             match obj.get_id() {
                 ID::Area(_) | ID::ExtraShape(_) => {
                     if !debug_mode {
                         continue;
                     }
                 }
-                // Never mouseover these
                 ID::Road(_) => {
-                    continue;
+                    if !unzoomed_roads_and_intersections
+                        || ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL
+                    {
+                        continue;
+                    }
+                }
+                ID::Intersection(_) => {
+                    if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL
+                        && !unzoomed_roads_and_intersections
+                    {
+                        continue;
+                    }
                 }
                 _ => {
                     if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {

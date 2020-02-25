@@ -11,9 +11,9 @@ use crate::debug::DebugMode;
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
-use crate::render::{DrawIntersection, DrawLane, DrawRoad};
+use crate::render::{DrawIntersection, DrawLane, DrawRoad, MIN_ZOOM_FOR_DETAIL};
 use crate::sandbox::{GameplayMode, SandboxMode};
-use crate::ui::UI;
+use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
@@ -25,7 +25,7 @@ use map_model::{
     connectivity, EditCmd, EditIntersection, IntersectionID, LaneID, LaneType, MapEdits,
     PathConstraints,
 };
-use sim::Sim;
+use sim::{DontDrawAgents, Sim};
 use std::collections::BTreeSet;
 
 pub struct EditMode {
@@ -92,12 +92,19 @@ impl State for EditMode {
         ctx.canvas_movement();
         // Restrict what can be selected.
         if ctx.redo_mouseover() {
-            ui.recalculate_current_selection(ctx);
+            ui.primary.current_selection = ui.calculate_current_selection(
+                ctx,
+                &DontDrawAgents {},
+                &ShowEverything::new(),
+                false,
+                true,
+            );
             if let Some(ID::Lane(l)) = ui.primary.current_selection {
                 if !can_edit_lane(&self.mode, l, ui) {
                     ui.primary.current_selection = None;
                 }
             } else if let Some(ID::Intersection(_)) = ui.primary.current_selection {
+            } else if let Some(ID::Road(_)) = ui.primary.current_selection {
             } else {
                 ui.primary.current_selection = None;
             }
@@ -149,45 +156,59 @@ impl State for EditMode {
             None => {}
         }
 
-        if let Some(ID::Intersection(id)) = ui.primary.current_selection {
-            if ui.primary.map.maybe_get_stop_sign(id).is_some()
-                && self.mode.can_edit_stop_signs()
-                && ui.per_obj.left_click(ctx, "edit stop signs")
-            {
-                return Transition::Push(Box::new(StopSignEditor::new(
-                    id,
-                    ctx,
-                    ui,
-                    self.suspended_sim.clone(),
-                )));
+        if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+            if let Some(id) = &ui.primary.current_selection {
+                if ui.per_obj.left_click(ctx, "edit this") {
+                    return Transition::Push(Warping::new(
+                        ctx,
+                        id.canonical_point(&ui.primary).unwrap(),
+                        Some(10.0),
+                        None,
+                        &mut ui.primary,
+                    ));
+                }
             }
-            if ui.primary.map.maybe_get_traffic_signal(id).is_some()
-                && ui.per_obj.left_click(ctx, "edit traffic signal")
-            {
-                return Transition::Push(Box::new(TrafficSignalEditor::new(
-                    id,
-                    ctx,
-                    ui,
-                    self.suspended_sim.clone(),
-                )));
+        } else {
+            if let Some(ID::Intersection(id)) = ui.primary.current_selection {
+                if ui.primary.map.maybe_get_stop_sign(id).is_some()
+                    && self.mode.can_edit_stop_signs()
+                    && ui.per_obj.left_click(ctx, "edit stop signs")
+                {
+                    return Transition::Push(Box::new(StopSignEditor::new(
+                        id,
+                        ctx,
+                        ui,
+                        self.suspended_sim.clone(),
+                    )));
+                }
+                if ui.primary.map.maybe_get_traffic_signal(id).is_some()
+                    && ui.per_obj.left_click(ctx, "edit traffic signal")
+                {
+                    return Transition::Push(Box::new(TrafficSignalEditor::new(
+                        id,
+                        ctx,
+                        ui,
+                        self.suspended_sim.clone(),
+                    )));
+                }
+                if ui.primary.map.get_i(id).is_closed()
+                    && ui.per_obj.left_click(ctx, "re-open closed intersection")
+                {
+                    // This resets to the original state; it doesn't undo the closure to the last
+                    // state. Seems reasonable to me.
+                    let mut edits = ui.primary.map.get_edits().clone();
+                    edits.commands.push(EditCmd::ChangeIntersection {
+                        i: id,
+                        old: ui.primary.map.get_i_edit(id),
+                        new: edits.original_intersections[&id].clone(),
+                    });
+                    apply_map_edits(ctx, ui, edits);
+                }
             }
-            if ui.primary.map.get_i(id).is_closed()
-                && ui.per_obj.left_click(ctx, "re-open closed intersection")
-            {
-                // This resets to the original state; it doesn't undo the closure to the last
-                // state. Seems reasonable to me.
-                let mut edits = ui.primary.map.get_edits().clone();
-                edits.commands.push(EditCmd::ChangeIntersection {
-                    i: id,
-                    old: ui.primary.map.get_i_edit(id),
-                    new: edits.original_intersections[&id].clone(),
-                });
-                apply_map_edits(ctx, ui, edits);
-            }
-        }
-        if let Some(ID::Lane(l)) = ui.primary.current_selection {
-            if ui.per_obj.left_click(ctx, "edit lane") {
-                return Transition::Push(Box::new(LaneEditor::new(l, ctx, ui)));
+            if let Some(ID::Lane(l)) = ui.primary.current_selection {
+                if ui.per_obj.left_click(ctx, "edit lane") {
+                    return Transition::Push(Box::new(LaneEditor::new(l, ctx, ui)));
+                }
             }
         }
 

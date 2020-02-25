@@ -1,5 +1,5 @@
 use crate::helpers::{ColorScheme, ID};
-use crate::render::{dashed_lines, DrawOptions, Renderable, OUTLINE_THICKNESS};
+use crate::render::{dashed_lines, DrawOptions, Renderable};
 use crate::ui::UI;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Angle, Distance, Polygon, Pt2D};
@@ -69,9 +69,8 @@ impl Renderable for DrawRoad {
     }
 
     fn get_outline(&self, map: &Map) -> Polygon {
-        let (pl, width) = map.get_r(self.id).get_thick_polyline(map).unwrap();
-        pl.to_thick_boundary(width, OUTLINE_THICKNESS)
-            .unwrap_or_else(|| map.get_r(self.id).get_thick_polygon(map).unwrap())
+        // Highlight the entire thing, not just an outline
+        map.get_r(self.id).get_thick_polygon(map).unwrap()
     }
 
     fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {
