@@ -13,7 +13,7 @@ use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Button, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, ManagedWidget, Outcome, ScreenPt, Text, VerticalAlignment,
+    Line, ManagedWidget, Outcome, RewriteColor, ScreenPt, Text, VerticalAlignment,
 };
 use geom::{Distance, Duration, PolyLine, Polygon, Pt2D, Statistic, Time};
 use map_model::{BuildingID, IntersectionID, IntersectionType, LaneType, Map, RoadID};
@@ -102,20 +102,16 @@ impl GameplayState for Tutorial {
                 "Quit" => {
                     return (None, true);
                 }
-                "Start over" => {
-                    tut.current = TutorialPointer::new(0, 0);
+                "previous tutorial" => {
+                    tut.current = TutorialPointer::new(tut.current.stage - 1, 0);
                     return (Some(transition(ctx, ui)), false);
                 }
-                "Last completed step" => {
-                    tut.current = tut.latest;
+                "next tutorial" => {
+                    tut.current = TutorialPointer::new(tut.current.stage + 1, 0);
                     return (Some(transition(ctx, ui)), false);
                 }
-                "previous tutorial screen" => {
+                "help" => {
                     tut.prev();
-                    return (Some(transition(ctx, ui)), false);
-                }
-                "next tutorial screen" => {
-                    tut.next();
                     return (Some(transition(ctx, ui)), false);
                 }
                 "edit map" => {
@@ -136,7 +132,11 @@ impl GameplayState for Tutorial {
         if let Some(ref mut msg) = self.msg_panel {
             match msg.event(ctx) {
                 Some(Outcome::Clicked(x)) => match x.as_ref() {
-                    "Next" => {
+                    "previous message" => {
+                        tut.prev();
+                        return (Some(transition(ctx, ui)), false);
+                    }
+                    "next message" | "Try it" => {
                         tut.next();
                         return (Some(transition(ctx, ui)), false);
                     }
@@ -508,7 +508,11 @@ impl GameplayState for Tutorial {
                 g.draw_polygon(
                     Color::RED,
                     &PolyLine::new(vec![
-                        self.msg_panel.as_ref().unwrap().center_of("Next").to_pt(),
+                        self.msg_panel
+                            .as_ref()
+                            .unwrap()
+                            .center_of("next message")
+                            .to_pt(),
                         pt,
                     ])
                     .make_arrow(Distance::meters(20.0))
@@ -648,6 +652,23 @@ impl Task {
         let mut txt = Text::new();
         txt.add_wrapped(format!("☐ {}", simple), 0.6 * ctx.canvas.window_width);
         txt.change_fg(Color::CYAN)
+    }
+
+    fn label(self) -> &'static str {
+        match self {
+            Task::Nil => unreachable!(),
+            Task::Camera => "Moving the camera",
+            Task::InspectObjects => "Interacting with objects",
+            Task::TimeControls => "Controlling time",
+            Task::PauseResume => "Pausing/resuming",
+            Task::Escort => "Following agents",
+            Task::LowParking => "Using extra data layers",
+            Task::WatchBikes => "Observing a problem",
+            Task::FixBikes => "Editing lanes",
+            Task::WatchBuses => "Observing buses",
+            Task::FixBuses => "Speeding up buses",
+            Task::Done => "Tutorial complete!",
+        }
     }
 }
 
@@ -867,38 +888,41 @@ impl TutorialState {
                 ),
             )
             .margin(5),
-            if self.current == TutorialPointer::new(0, 0) {
+            if self.current.stage == 0 {
                 Button::inactive_button(ctx, "<")
             } else {
                 WrappedComposite::nice_text_button(
                     ctx,
                     Text::from(Line("<")),
                     None,
-                    "previous tutorial screen",
+                    "previous tutorial",
                 )
             }
             .margin(5),
-            if self.current == self.latest {
+            if self.current.stage == self.latest.stage {
                 Button::inactive_button(ctx, ">")
             } else {
                 WrappedComposite::nice_text_button(
                     ctx,
                     Text::from(Line(">")),
                     None,
-                    "next tutorial screen",
+                    "next tutorial",
                 )
             }
             .margin(5),
-            if self.current == TutorialPointer::new(0, 0) {
-                Button::inactive_button(ctx, "Start over")
+            if self.interaction() != Task::Nil {
+                WrappedComposite::svg_button(
+                    ctx,
+                    "../data/system/assets/tools/info.svg",
+                    "help",
+                    None,
+                )
             } else {
-                WrappedComposite::text_button(ctx, "Start over", None)
-            }
-            .margin(5),
-            if self.current == self.latest {
-                Button::inactive_button(ctx, "Last completed step")
-            } else {
-                WrappedComposite::text_button(ctx, "Last completed step", None)
+                ManagedWidget::draw_svg_transform(
+                    ctx,
+                    "../data/system/assets/tools/info.svg",
+                    RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
+                )
             }
             .margin(5),
             WrappedComposite::text_button(ctx, "Quit", None).margin(5),
@@ -954,25 +978,78 @@ impl TutorialState {
             last_finished_task,
 
             msg_panel: if let Some((ref lines, _)) = self.lines() {
+                let mut col = vec![
+                    ManagedWidget::draw_text(ctx, {
+                        let mut txt = Text::new();
+                        txt.add(Line(self.stage().task.label()).roboto_bold());
+                        txt.add(Line(""));
+
+                        for l in lines {
+                            txt.add(Line(*l));
+                        }
+                        txt
+                    }),
+                    ManagedWidget::row(vec![
+                        if self.current.part > 0 {
+                            WrappedComposite::svg_button(
+                                ctx,
+                                "../data/system/assets/tools/prev.svg",
+                                "previous message",
+                                hotkey(Key::LeftArrow),
+                            )
+                            .margin(5)
+                        } else {
+                            ManagedWidget::draw_svg_transform(
+                                ctx,
+                                "../data/system/assets/tools/prev.svg",
+                                RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
+                            )
+                        },
+                        ManagedWidget::draw_text(
+                            ctx,
+                            Text::from(Line(format!(
+                                "{}/{}",
+                                self.current.part + 1,
+                                self.stage().messages.len()
+                            ))),
+                        )
+                        .centered_vert()
+                        .margin(5),
+                        if self.current.part == self.stage().messages.len() - 1 {
+                            ManagedWidget::draw_svg_transform(
+                                ctx,
+                                "../data/system/assets/tools/next.svg",
+                                RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
+                            )
+                            .named("next message")
+                        } else {
+                            WrappedComposite::svg_button(
+                                ctx,
+                                "../data/system/assets/tools/next.svg",
+                                "next message",
+                                // TODO Or space or enter
+                                hotkey(Key::RightArrow),
+                            )
+                        }
+                        .margin(5),
+                    ]),
+                ];
+                if self.current.part == self.stage().messages.len() - 1 {
+                    col.push(WrappedComposite::text_bg_button(
+                        ctx,
+                        "Try it",
+                        hotkey(Key::RightArrow),
+                    ));
+                }
+
                 Some(
                     Composite::new(
-                        ManagedWidget::col(vec![
-                            ManagedWidget::draw_text(ctx, {
-                                let mut txt = Text::new();
-                                for l in lines {
-                                    txt.add(Line(*l));
-                                }
-                                txt
-                            }),
-                            WrappedComposite::text_button(ctx, "Next", hotkey(Key::Enter))
-                                .centered_horiz()
-                                .padding(10),
-                        ])
-                        .bg(colors::PANEL_BG)
-                        .outline(5.0, Color::WHITE)
-                        .padding(5),
+                        ManagedWidget::col(col)
+                            .centered()
+                            .bg(colors::PANEL_BG)
+                            .outline(5.0, Color::WHITE)
+                            .padding(5),
                     )
-                    .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)
                     .build(ctx),
                 )
             } else {
@@ -1029,8 +1106,8 @@ impl TutorialState {
                 .msg(
                     vec![
                         "Let's start with the controls.",
-                        "Click and drag to pan around the map, and use your scroll wheel or \
-                         touchpad to zoom in and out.",
+                        "Click and drag to pan around the map, and use your scroll",
+                        "wheel or touchpad to zoom in and out.",
                     ],
                     None,
                 )

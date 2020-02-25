@@ -560,7 +560,8 @@ impl ManagedWidget {
 
     fn rect_of(&self, name: &str) -> Option<&ScreenRectangle> {
         let found = match self.widget {
-            WidgetType::Draw(_) => false,
+            // TODO Consolidate and just do this
+            WidgetType::Draw(_) => self.id == Some(name.to_string()),
             WidgetType::Btn(ref btn) => btn.action == name,
             WidgetType::Slider(ref n) => n == name,
             WidgetType::Menu(ref n) => n == name,
