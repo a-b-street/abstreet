@@ -86,7 +86,7 @@ impl SandboxMode {
     }
 
     fn examine_objects(&self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
-        if ui.opts.dev && ctx.input.new_was_pressed(lctrl(Key::D).unwrap()) {
+        if ui.opts.dev && ctx.input.new_was_pressed(&lctrl(Key::D).unwrap()) {
             return Some(Transition::Push(Box::new(DebugMode::new(ctx))));
         }
 

@@ -12,8 +12,9 @@ use crate::sandbox::{
 use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Button, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, ManagedWidget, Outcome, RewriteColor, ScreenPt, Text, VerticalAlignment,
+    hotkey, hotkeys, lctrl, Button, Color, Composite, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, RewriteColor, ScreenPt, Text,
+    VerticalAlignment,
 };
 use geom::{Distance, Duration, PolyLine, Polygon, Pt2D, Statistic, Time};
 use map_model::{BuildingID, IntersectionID, IntersectionType, LaneType, Map, RoadID};
@@ -1027,8 +1028,7 @@ impl TutorialState {
                                 ctx,
                                 "../data/system/assets/tools/next.svg",
                                 "next message",
-                                // TODO Or space or enter
-                                hotkey(Key::RightArrow),
+                                hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]),
                             )
                         }
                         .margin(5),
@@ -1038,7 +1038,7 @@ impl TutorialState {
                     col.push(WrappedComposite::text_bg_button(
                         ctx,
                         "Try it",
-                        hotkey(Key::RightArrow),
+                        hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]),
                     ));
                 }
 

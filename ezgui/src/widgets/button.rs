@@ -44,8 +44,7 @@ impl Button {
 
             draw_normal: ctx.upload(normal),
             draw_hovered: ctx.upload(hovered),
-            hotkey,
-            tooltip: if let Some(key) = hotkey {
+            tooltip: if let Some(ref key) = hotkey {
                 let mut txt =
                     Text::from(Line(key.describe()).fg(text::HOTKEY_COLOR).size(20)).with_bg();
                 txt.append(Line(format!(" - {}", tooltip)));
@@ -53,6 +52,7 @@ impl Button {
             } else {
                 Text::from(Line(tooltip).size(20)).with_bg()
             },
+            hotkey,
             hitbox,
 
             hovering: false,
@@ -89,7 +89,7 @@ impl Button {
             self.hovering = false;
         }
 
-        if let Some(hotkey) = self.hotkey {
+        if let Some(ref hotkey) = self.hotkey {
             if ctx.input.new_was_pressed(hotkey) {
                 self.clicked = true;
                 self.hovering = false;

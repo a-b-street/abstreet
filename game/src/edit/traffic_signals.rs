@@ -79,12 +79,12 @@ impl State for TrafficSignalEditor {
         ctx.canvas_movement();
 
         // TODO Buttons for these...
-        if self.current_phase != 0 && ctx.input.new_was_pressed(hotkey(Key::UpArrow).unwrap()) {
+        if self.current_phase != 0 && ctx.input.new_was_pressed(&hotkey(Key::UpArrow).unwrap()) {
             self.change_phase(self.current_phase - 1, ui, ctx);
         }
 
         if self.current_phase != ui.primary.map.get_traffic_signal(self.i).phases.len() - 1
-            && ctx.input.new_was_pressed(hotkey(Key::DownArrow).unwrap())
+            && ctx.input.new_was_pressed(&hotkey(Key::DownArrow).unwrap())
         {
             self.change_phase(self.current_phase + 1, ui, ctx);
         }

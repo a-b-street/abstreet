@@ -1,4 +1,4 @@
-use crate::{hotkey, lctrl, text, Canvas, Event, Key, Line, MultiKey, ScreenPt, Text};
+use crate::{text, Canvas, Event, Key, Line, MultiKey, ScreenPt, Text};
 use geom::Duration;
 use std::collections::HashMap;
 
@@ -55,7 +55,7 @@ impl UserInput {
         false
     }
 
-    pub fn new_was_pressed(&mut self, multikey: MultiKey) -> bool {
+    pub fn new_was_pressed(&mut self, multikey: &MultiKey) -> bool {
         // TODO Reserve?
 
         if self.event_consumed {
@@ -63,13 +63,12 @@ impl UserInput {
         }
 
         if let Event::KeyPress(pressed) = self.event {
-            let mk = if self.lctrl_held {
-                lctrl(pressed)
-            } else {
-                hotkey(pressed)
-            }
-            .unwrap();
-            if mk == multikey {
+            let same = match multikey {
+                MultiKey::Normal(key) => pressed == *key && !self.lctrl_held,
+                MultiKey::LCtrl(key) => pressed == *key && self.lctrl_held,
+                MultiKey::Any(ref keys) => !self.lctrl_held && keys.contains(&pressed),
+            };
+            if same {
                 self.consume_event();
                 return true;
             }

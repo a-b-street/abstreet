@@ -110,7 +110,7 @@ impl State for EditMode {
             }
         }
 
-        if ui.opts.dev && ctx.input.new_was_pressed(lctrl(Key::D).unwrap()) {
+        if ui.opts.dev && ctx.input.new_was_pressed(&lctrl(Key::D).unwrap()) {
             return Transition::Push(Box::new(DebugMode::new(ctx)));
         }
 

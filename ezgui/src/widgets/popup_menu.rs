@@ -89,7 +89,7 @@ impl<T: Clone> PopupMenu<T> {
             if !choice.active {
                 continue;
             }
-            if let Some(hotkey) = choice.hotkey {
+            if let Some(ref hotkey) = choice.hotkey {
                 if ctx.input.new_was_pressed(hotkey) {
                     self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
                     return;
@@ -98,7 +98,7 @@ impl<T: Clone> PopupMenu<T> {
         }
 
         // Handle nav keys
-        if ctx.input.new_was_pressed(hotkey(Key::Enter).unwrap()) {
+        if ctx.input.new_was_pressed(&hotkey(Key::Enter).unwrap()) {
             let choice = &self.choices[self.current_idx];
             if choice.active {
                 self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
@@ -106,11 +106,11 @@ impl<T: Clone> PopupMenu<T> {
             } else {
                 return;
             }
-        } else if ctx.input.new_was_pressed(hotkey(Key::UpArrow).unwrap()) {
+        } else if ctx.input.new_was_pressed(&hotkey(Key::UpArrow).unwrap()) {
             if self.current_idx > 0 {
                 self.current_idx -= 1;
             }
-        } else if ctx.input.new_was_pressed(hotkey(Key::DownArrow).unwrap()) {
+        } else if ctx.input.new_was_pressed(&hotkey(Key::DownArrow).unwrap()) {
             if self.current_idx < self.choices.len() - 1 {
                 self.current_idx += 1;
             }
@@ -149,7 +149,7 @@ impl<T: Clone> PopupMenu<T> {
 
         for (idx, choice) in self.choices.iter().enumerate() {
             if choice.active {
-                if let Some(key) = choice.hotkey {
+                if let Some(ref key) = choice.hotkey {
                     txt.add_appended(vec![
                         Line(key.describe()).fg(text::HOTKEY_COLOR),
                         Line(format!(" - {}", choice.label)),
@@ -158,7 +158,7 @@ impl<T: Clone> PopupMenu<T> {
                     txt.add(Line(&choice.label));
                 }
             } else {
-                if let Some(key) = choice.hotkey {
+                if let Some(ref key) = choice.hotkey {
                     txt.add(
                         Line(format!("{} - {}", key.describe(), choice.label))
                             .fg(text::INACTIVE_CHOICE_COLOR),

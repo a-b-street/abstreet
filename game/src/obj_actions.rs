@@ -30,7 +30,7 @@ impl PerObjectActions {
         if !(key == Key::I && lbl == "show info") {
             self.actions.borrow_mut().push((key, lbl));
         }
-        !self.info_panel_open && ctx.input.new_was_pressed(hotkey(key).unwrap())
+        !self.info_panel_open && ctx.input.new_was_pressed(&hotkey(key).unwrap())
     }
 
     pub fn consume(&mut self) -> Vec<(Key, String)> {

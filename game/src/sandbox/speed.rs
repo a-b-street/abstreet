@@ -245,7 +245,7 @@ impl SpeedControls {
             None => {}
         }
 
-        if ctx.input.new_was_pressed(hotkey(Key::LeftArrow).unwrap()) {
+        if ctx.input.new_was_pressed(&hotkey(Key::LeftArrow).unwrap()) {
             match self.setting {
                 SpeedSetting::Realtime => self.pause(ctx),
                 SpeedSetting::Fast => {
@@ -262,7 +262,7 @@ impl SpeedControls {
                 }
             }
         }
-        if ctx.input.new_was_pressed(hotkey(Key::RightArrow).unwrap()) {
+        if ctx.input.new_was_pressed(&hotkey(Key::RightArrow).unwrap()) {
             match self.setting {
                 SpeedSetting::Realtime => {
                     if self.paused {

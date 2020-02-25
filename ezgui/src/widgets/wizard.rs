@@ -487,7 +487,7 @@ impl<T: Clone> Choice<T> {
 
     pub fn key(mut self, key: Key) -> Choice<T> {
         assert_eq!(self.hotkey, None);
-        self.hotkey = Some(MultiKey { key, lctrl: false });
+        self.hotkey = hotkey(key);
         self
     }
 

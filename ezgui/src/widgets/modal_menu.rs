@@ -113,7 +113,7 @@ impl ModalMenu {
             if !choice.active {
                 continue;
             }
-            if let Some(hotkey) = choice.hotkey {
+            if let Some(ref hotkey) = choice.hotkey {
                 if ctx.input.new_was_pressed(hotkey) {
                     self.chosen_action = Some(choice.label.clone());
                     break;
@@ -214,7 +214,7 @@ impl ModalMenu {
 
         for (idx, choice) in self.choices.iter().enumerate() {
             if choice.active {
-                if let Some(key) = choice.hotkey {
+                if let Some(ref key) = choice.hotkey {
                     txt.add_appended(vec![
                         Line(key.describe()).fg(text::HOTKEY_COLOR),
                         Line(format!(" - {}", choice.label)),
@@ -228,7 +228,7 @@ impl ModalMenu {
                     txt.highlight_last_line(text::SELECTED_COLOR);
                 }
             } else {
-                if let Some(key) = choice.hotkey {
+                if let Some(ref key) = choice.hotkey {
                     txt.add(
                         Line(format!("{} - {}", key.describe(), choice.label))
                             .fg(text::INACTIVE_CHOICE_COLOR),

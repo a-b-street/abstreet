@@ -366,27 +366,36 @@ impl Key {
 }
 
 // TODO This is not an ideal representation at all.
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
-pub struct MultiKey {
-    pub key: Key,
-    pub lctrl: bool,
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
+pub enum MultiKey {
+    Normal(Key),
+    LCtrl(Key),
+    Any(Vec<Key>),
 }
 
 impl MultiKey {
-    pub fn describe(self) -> String {
-        if self.lctrl {
-            format!("Ctrl+{}", self.key.describe())
-        } else {
-            self.key.describe()
+    pub fn describe(&self) -> String {
+        match self {
+            MultiKey::Normal(key) => key.describe(),
+            MultiKey::LCtrl(key) => format!("Ctrl+{}", key.describe()),
+            MultiKey::Any(ref keys) => keys
+                .iter()
+                .map(|k| k.describe())
+                .collect::<Vec<_>>()
+                .join(", "),
         }
     }
 }
 
 // For easy ModalMenu construction
 pub fn hotkey(key: Key) -> Option<MultiKey> {
-    Some(MultiKey { key, lctrl: false })
+    Some(MultiKey::Normal(key))
 }
 
 pub fn lctrl(key: Key) -> Option<MultiKey> {
-    Some(MultiKey { key, lctrl: true })
+    Some(MultiKey::LCtrl(key))
+}
+
+pub fn hotkeys(keys: Vec<Key>) -> Option<MultiKey> {
+    Some(MultiKey::Any(keys))
 }

@@ -7,8 +7,8 @@ use crate::mission::MissionEditMode;
 use crate::sandbox::{GameplayMode, SandboxMode, TutorialPointer};
 use crate::ui::UI;
 use ezgui::{
-    hotkey, Button, Color, Composite, EventCtx, EventLoopMode, GfxCtx, JustDraw, Key, Line,
-    ManagedWidget, Text,
+    hotkey, hotkeys, Button, Color, Composite, EventCtx, EventLoopMode, GfxCtx, JustDraw, Key,
+    Line, ManagedWidget, Text,
 };
 use geom::{Duration, Line, Pt2D, Speed};
 use instant::Instant;
@@ -37,7 +37,7 @@ impl TitleScreen {
                             Text::from(Line("PLAY")),
                             Color::BLUE,
                             colors::HOVERING,
-                            hotkey(Key::Space),
+                            hotkeys(vec![Key::Space, Key::Enter]),
                             "start game",
                             ctx,
                         )),

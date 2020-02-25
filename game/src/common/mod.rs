@@ -48,10 +48,10 @@ impl CommonState {
         ui: &mut UI,
         maybe_speed: Option<&mut SpeedControls>,
     ) -> Option<Transition> {
-        if ctx.input.new_was_pressed(lctrl(Key::S).unwrap()) {
+        if ctx.input.new_was_pressed(&lctrl(Key::S).unwrap()) {
             ui.opts.dev = !ui.opts.dev;
         }
-        if ui.opts.dev && ctx.input.new_was_pressed(lctrl(Key::J).unwrap()) {
+        if ui.opts.dev && ctx.input.new_was_pressed(&lctrl(Key::J).unwrap()) {
             return Some(Transition::Push(warp::EnteringWarp::new()));
         }
 
