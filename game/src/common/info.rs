@@ -710,7 +710,20 @@ fn info_for(
             rows.extend(make_table(ctx, kv));
         }
         // No info here, trip_details will be used
-        ID::Trip(_) => {}
+        ID::Trip(id) => {
+            // Header
+            {
+                rows.push(ManagedWidget::row(vec![
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line(format!("Trip #{}", id.0)).roboto_bold()),
+                    ),
+                    // No jump-to-object button; this is probably a finished trip.
+                    WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
+                ]));
+            }
+            rows.extend(action_btns);
+        }
     };
     rows
 }
