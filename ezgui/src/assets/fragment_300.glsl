@@ -1,4 +1,7 @@
-#version 140
+#version 300 es
+
+precision mediump float;
+precision mediump sampler2DArray;
 
 // (x offset, y offset, zoom)
 uniform vec3 transform;
