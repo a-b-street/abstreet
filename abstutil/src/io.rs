@@ -32,11 +32,17 @@ fn maybe_write_json<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
     Ok(())
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 pub fn write_json<T: Serialize>(path: String, obj: &T) {
     if let Err(err) = maybe_write_json(&path, obj) {
         panic!("Can't write_json({}): {}", path, err);
     }
     println!("Wrote {}", path);
+}
+
+#[cfg(target_arch = "wasm32")]
+pub fn write_json<T: Serialize>(path: String, obj: &T) {
+    // TODO not yet
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -96,11 +102,17 @@ pub fn serialized_size_bytes<T: Serialize>(obj: &T) -> usize {
     bincode::serialized_size(obj).unwrap() as usize
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 pub fn write_binary<T: Serialize>(path: String, obj: &T) {
     if let Err(err) = maybe_write_binary(&path, obj) {
         panic!("Can't write_binary({}): {}", path, err);
     }
     println!("Wrote {}", path);
+}
+
+#[cfg(target_arch = "wasm32")]
+pub fn write_binary<T: Serialize>(path: String, obj: &T) {
+    // TODO
 }
 
 #[cfg(not(target_arch = "wasm32"))]

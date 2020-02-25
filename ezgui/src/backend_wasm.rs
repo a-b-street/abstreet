@@ -1,9 +1,8 @@
 use crate::drawing::Uniforms;
 use crate::{Canvas, Color, ScreenDims, ScreenRectangle};
-use geom::{Angle, Polygon, Pt2D};
+use geom::Polygon;
 use glow::HasContext;
-use std::cell::{Cell, RefCell};
-use std::collections::{BTreeMap, HashMap};
+use std::cell::Cell;
 use stdweb::traits::INode;
 use webgl_stdweb::WebGL2RenderingContext;
 use winit::platform::web::WindowExtStdweb;
