@@ -90,11 +90,5 @@ fn main() {
 
     args.done();
 
-    // TODO Montlake map isn't loading, just start here
-    #[cfg(target_arch = "wasm32")]
-    {
-        flags.sim_flags.load = abstutil::path_synthetic_map("signal_single");
-    }
-
     ezgui::run(settings, |ctx| game::Game::new(flags, opts, mode, ctx));
 }
