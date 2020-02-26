@@ -360,8 +360,8 @@ pub struct AgentCache {
     // This time applies to agents_per_on. unzoomed has its own possibly separate Time!
     time: Option<Time>,
     agents_per_on: HashMap<Traversable, Vec<Box<dyn Renderable>>>,
-    // cam_zoom and agent radius also matters
-    unzoomed: Option<(Time, f64, Distance, AgentColorScheme, Drawable)>,
+    // agent radius also matters
+    unzoomed: Option<(Time, Distance, AgentColorScheme, Drawable)>,
 }
 
 impl AgentCache {
@@ -416,19 +416,18 @@ impl AgentCache {
         map: &Map,
         acs: &AgentColorScheme,
         g: &mut GfxCtx,
-        cam_zoom: f64,
         radius: Distance,
     ) {
         let now = source.time();
-        if let Some((time, z, r, ref orig_acs, ref draw)) = self.unzoomed {
-            if cam_zoom == z && now == time && radius == r && acs == orig_acs {
+        if let Some((time, r, ref orig_acs, ref draw)) = self.unzoomed {
+            if now == time && radius == r && acs == orig_acs {
                 g.redraw(draw);
                 return;
             }
         }
 
         // It's quite silly to produce triangles for the same circle over and over again. ;)
-        let circle = Circle::new(Pt2D::new(0.0, 0.0), radius / cam_zoom).to_polygon();
+        let circle = Circle::new(Pt2D::new(0.0, 0.0), radius).to_polygon();
         let mut batch = GeomBatch::new();
         for agent in source.get_unzoomed_agents(map) {
             if let Some(color) = acs.color(&agent) {
@@ -438,7 +437,7 @@ impl AgentCache {
 
         let draw = g.upload(batch);
         g.redraw(&draw);
-        self.unzoomed = Some((now, cam_zoom, radius, acs.clone(), draw));
+        self.unzoomed = Some((now, radius, acs.clone(), draw));
     }
 }
 
