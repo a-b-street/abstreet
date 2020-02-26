@@ -38,14 +38,16 @@ impl ControlTrafficSignal {
         id: IntersectionID,
     ) -> Vec<(String, ControlTrafficSignal)> {
         let mut results = Vec::new();
-        if let Some(ts) = ControlTrafficSignal::four_way_four_phase(map, id) {
-            results.push(("four-phase".to_string(), ts));
-        }
+        // As long as we're using silly heuristics for these by default, prefer shorter cycle
+        // length.
         if let Some(ts) = ControlTrafficSignal::four_way_two_phase(map, id) {
             results.push(("two-phase".to_string(), ts));
         }
         if let Some(ts) = ControlTrafficSignal::three_way(map, id) {
             results.push(("three-phase".to_string(), ts));
+        }
+        if let Some(ts) = ControlTrafficSignal::four_way_four_phase(map, id) {
+            results.push(("four-phase".to_string(), ts));
         }
         if let Some(ts) = ControlTrafficSignal::degenerate(map, id) {
             results.push(("degenerate (2 roads)".to_string(), ts));

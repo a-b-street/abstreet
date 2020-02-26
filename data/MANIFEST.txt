@@ -198,13 +198,13 @@ a5e849fa8883569519976ebfef3ae269  data/system/night_colors.json
 517a360397bbb5a7573c2558e78fa4ea  data/system/fonts/DejaVuSans.ttf
 e07df86cef2e721115583d61d1fb68a6  data/system/fonts/Roboto-Bold.ttf
 11eabca2251325cfc5589c9c6fb57b46  data/system/fonts/Roboto-Regular.ttf
-9d576583a35841f56d35a18576d6fed9  data/system/maps/huge_seattle.bin
-a63ed8ae6ec6e3757c467b9e0a6af814  data/system/maps/ballard.bin
-a0b3e4522b9662ca542424dea276cfc3  data/system/maps/downtown.bin
-293db774d8bd34a39f0125c7e42bc7a3  data/system/maps/caphill.bin
-673cb315f9cd30cad5c069126e76e8ba  data/system/maps/montlake.bin
-4b2e27679a6facc6ef13d9d6a794b9b7  data/system/maps/intl_district.bin
-4f61dbf6ef43917f10600595666e9284  data/system/maps/23rd.bin
+543ccb8d97828ad8080f8e25c399dcaf  data/system/maps/huge_seattle.bin
+80fc7213d29f9425c80d1e2f22113aa6  data/system/maps/ballard.bin
+15c7082403bee91a2431811f00bde464  data/system/maps/downtown.bin
+9e6e6d2d1b7aa17b8a13cd074f4aeaf4  data/system/maps/caphill.bin
+e1f6f6c288395293378b65f7cd995d1b  data/system/maps/montlake.bin
+d5f488eeea910f2c43c6829e98df4430  data/system/maps/intl_district.bin
+0b11365a2af8ebdda5a5d4a3f4d20daf  data/system/maps/23rd.bin
 d71169fc1789707c403e70e6f2cc27d4  data/system/synthetic_maps/signal_double.json
 407cf814c6b5c73b5e1857529b94a204  data/system/synthetic_maps/signal_single.json
 7e3b93d87b5c6cf4788122e7f65ecac1  data/system/synthetic_maps/signal_fan_in.json
@@ -215,9 +215,9 @@ f9f0a109966db097617a13122ecaa6f3  data/system/scenarios/downtown/weekday.bin
 dd54763cfda7fce4c401ae122c6daf57  data/system/scenarios/huge_seattle/weekday.bin
 47dea892a1c4331da02494d15ce02a02  data/system/scenarios/caphill/weekday.bin
 7d6a8e8f5d716ce8674ed63d27f2da51  data/system/scenarios/montlake/weekday.bin
-53c6bda5d0e65cef245b480d457e4905  data/system/prebaked_results/23rd/weekday.bin
-e5b494a5e969951ea63a19ab932801f8  data/system/prebaked_results/signal_single/tutorial lvl1.bin
-08c2771c555f7e52ed0c89c511248f99  data/system/prebaked_results/signal_single/tutorial lvl2.bin
+678efca4f16d5d8ce6bd88efd3afe957  data/system/prebaked_results/23rd/weekday.bin
+d14e39816482a53c2d05e593f5f47249  data/system/prebaked_results/signal_single/tutorial lvl1.bin
+22a6458bcf4bbb1cd875e12bcf012c08  data/system/prebaked_results/signal_single/tutorial lvl2.bin
 460bd68fcc0c4686db7d654de372f46d  data/system/prebaked_results/montlake/car vs bike contention.bin
-49189fd9a466e0fa675ed24dfb4d5081  data/system/prebaked_results/montlake/weekday.bin
-2a3e97b847acfc9d6e381354e7dc46f7  data/system/prebaked_results/montlake/car vs bus contention.bin
+12b13a7c7fd8cb2592607aa79b55558b  data/system/prebaked_results/montlake/weekday.bin
+160ff09f5c38d96fe83c4e9fcddfb019  data/system/prebaked_results/montlake/car vs bus contention.bin
