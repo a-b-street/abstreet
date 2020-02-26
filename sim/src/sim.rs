@@ -1060,6 +1060,12 @@ impl Sim {
             .find_blockage_front(car, map, &self.intersections)
     }
 
+    // For intersections with an agent waiting beyond some threshold, return when they started
+    // waiting. Sorted by earliest waiting (likely the root cause of gridlock).
+    pub fn delayed_intersections(&self, threshold: Duration) -> Vec<(IntersectionID, Time)> {
+        self.intersections.find_gridlock(self.time, threshold)
+    }
+
     pub fn trip_spec_to_path_req(&self, spec: &TripSpec, map: &Map) -> PathRequest {
         spec.get_pathfinding_request(map, &self.parking)
     }

@@ -20,6 +20,7 @@ pub enum Overlays {
     Inactive,
     ParkingAvailability(Time, Colorer),
     IntersectionDelay(Time, Colorer),
+    Gridlock(Time, Colorer),
     CumulativeThroughput(Time, Colorer),
     BikeNetwork(Colorer),
     BusNetwork(Colorer),
@@ -46,6 +47,11 @@ impl Overlays {
             Overlays::IntersectionDelay(t, _) => {
                 if now != t {
                     ui.overlay = Overlays::intersection_delay(ctx, ui);
+                }
+            }
+            Overlays::Gridlock(t, _) => {
+                if now != t {
+                    ui.overlay = Overlays::gridlock(ctx, ui);
                 }
             }
             Overlays::CumulativeThroughput(t, _) => {
@@ -94,6 +100,7 @@ impl Overlays {
             | Overlays::BikeNetwork(ref mut heatmap)
             | Overlays::BusNetwork(ref mut heatmap)
             | Overlays::IntersectionDelay(_, ref mut heatmap)
+            | Overlays::Gridlock(_, ref mut heatmap)
             | Overlays::CumulativeThroughput(_, ref mut heatmap)
             | Overlays::Edits(ref mut heatmap) => {
                 heatmap.legend.align_above(ctx, minimap);
@@ -182,6 +189,7 @@ impl Overlays {
             | Overlays::BikeNetwork(ref heatmap)
             | Overlays::BusNetwork(ref heatmap)
             | Overlays::IntersectionDelay(_, ref heatmap)
+            | Overlays::Gridlock(_, ref heatmap)
             | Overlays::CumulativeThroughput(_, ref heatmap)
             | Overlays::Edits(ref heatmap) => {
                 heatmap.draw(g);
@@ -209,6 +217,7 @@ impl Overlays {
             | Overlays::BikeNetwork(ref heatmap)
             | Overlays::BusNetwork(ref heatmap)
             | Overlays::IntersectionDelay(_, ref heatmap)
+            | Overlays::Gridlock(_, ref heatmap)
             | Overlays::CumulativeThroughput(_, ref heatmap)
             | Overlays::Edits(ref heatmap) => Some(heatmap),
             Overlays::BusRoute(_, _, ref s) => Some(&s.colorer),
@@ -220,6 +229,7 @@ impl Overlays {
         let mut choices = vec![
             WrappedComposite::text_button(ctx, "None", hotkey(Key::N)),
             WrappedComposite::text_button(ctx, "map edits", hotkey(Key::E)),
+            WrappedComposite::text_button(ctx, "worst traffic jams", hotkey(Key::G)),
             ManagedWidget::btn(Button::rectangle_svg(
                 "../data/system/assets/layers/parking_avail.svg",
                 "parking availability",
@@ -266,6 +276,10 @@ impl Overlays {
             Overlays::IntersectionDelay(_, _) => Some((
                 "intersection delay",
                 ManagedWidget::draw_svg(ctx, "../data/system/assets/layers/intersection_delay.svg"),
+            )),
+            Overlays::Gridlock(_, _) => Some((
+                "worst traffic jams",
+                Button::inactive_button(ctx, "worst traffic jams"),
             )),
             Overlays::CumulativeThroughput(_, _) => Some((
                 "throughput",
@@ -325,6 +339,13 @@ impl Overlays {
             "intersection delay",
             Box::new(|ctx, ui| {
                 ui.overlay = Overlays::intersection_delay(ctx, ui);
+                Some(Transition::Pop)
+            }),
+        )
+        .maybe_cb(
+            "worst traffic jams",
+            Box::new(|ctx, ui| {
+                ui.overlay = Overlays::gridlock(ctx, ui);
                 Some(Transition::Pop)
             }),
         )
@@ -463,6 +484,35 @@ impl Overlays {
         }
 
         Overlays::IntersectionDelay(ui.primary.sim.time(), colorer.build(ctx, ui))
+    }
+
+    fn gridlock(ctx: &mut EventCtx, ui: &UI) -> Overlays {
+        let jams = ui.primary.sim.delayed_intersections(Duration::minutes(5));
+
+        // TODO Silly colors
+        let others = Color::hex("#7FFA4D");
+        let early = Color::hex("#F4DA22");
+        let earliest = Color::hex("#EB5757");
+        let mut colorer = Colorer::new(
+            Text::from(Line(format!("{} traffic jams", jams.len()))),
+            vec![
+                ("longest lasting", earliest),
+                ("recent problems", early),
+                ("others", others),
+            ],
+        );
+
+        for (idx, (i, _)) in jams.into_iter().enumerate() {
+            if idx == 0 {
+                colorer.add_i(i, earliest);
+            } else if idx <= 5 {
+                colorer.add_i(i, early);
+            } else {
+                colorer.add_i(i, others);
+            }
+        }
+
+        Overlays::Gridlock(ui.primary.sim.time(), colorer.build(ctx, ui))
     }
 
     fn cumulative_throughput(ctx: &mut EventCtx, ui: &UI) -> Overlays {

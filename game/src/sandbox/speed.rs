@@ -475,6 +475,7 @@ impl TimeWarpScreen {
                     WrappedComposite::text_bg_button(ctx, "stop now", hotkey(Key::Escape))
                         .centered_horiz(),
                 ])
+                .padding(10)
                 .bg(colors::PANEL_BG),
             )
             .build(ctx),

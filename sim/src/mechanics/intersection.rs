@@ -267,6 +267,19 @@ impl IntersectionSimState {
     pub fn collect_events(&mut self) -> Vec<Event> {
         std::mem::replace(&mut self.events, Vec::new())
     }
+
+    pub fn find_gridlock(&self, now: Time, threshold: Duration) -> Vec<(IntersectionID, Time)> {
+        let mut candidates = Vec::new();
+        for state in self.state.values() {
+            if let Some(earliest) = state.waiting.values().min() {
+                if now - *earliest >= threshold {
+                    candidates.push((state.id, *earliest));
+                }
+            }
+        }
+        candidates.sort_by_key(|(_, t)| *t);
+        candidates
+    }
 }
 
 impl State {
