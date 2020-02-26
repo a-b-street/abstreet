@@ -22,8 +22,18 @@ pub fn setup(
     }));
 
     let event_loop = winit::event_loop::EventLoop::new();
+    let size = {
+        // TODO Not sure how to get scrollbar dims
+        let scrollbars = 30;
+        let win = stdweb::web::window();
+        winit::dpi::PhysicalSize::new(
+            win.inner_width() - scrollbars,
+            win.inner_height() - scrollbars,
+        )
+    };
     let window = winit::window::WindowBuilder::new()
         .with_title(window_title)
+        .with_inner_size(size)
         .build(&event_loop)
         .unwrap();
     let canvas = window.canvas();
