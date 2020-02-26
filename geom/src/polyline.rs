@@ -41,9 +41,12 @@ impl PolyLine {
 
         // Can't have duplicates! If the polyline ever crosses back on itself, all sorts of things
         // are broken.
-        let seen_pts = to_set(result.points());
-        if seen_pts.len() != result.points().len() {
-            panic!("PolyLine has repeat points: {}", result);
+        let (_, dupes) = to_set(result.points());
+        if !dupes.is_empty() {
+            panic!(
+                "PolyLine has non-adjacent repeat points: {}\nRepeated points: {:?}",
+                result, dupes
+            );
         }
 
         result
@@ -63,12 +66,22 @@ impl PolyLine {
 
         let result = PolyLine { pts, length };
 
-        let seen_pts = to_set(result.points());
-        if seen_pts.len() != result.points().len() {
+        let (_, dupes) = to_set(result.points());
+        if !dupes.is_empty() {
             return None;
         }
 
         Some(result)
+    }
+
+    // Doesn't check for duplicates. Use at your own risk.
+    pub fn unchecked_new(pts: Vec<Pt2D>) -> PolyLine {
+        assert!(pts.len() >= 2);
+        let length = pts.windows(2).fold(Distance::ZERO, |so_far, pair| {
+            so_far + pair[0].dist_to(pair[1])
+        });
+
+        PolyLine { pts, length }
     }
 
     // Only to be called by Ring.
@@ -113,8 +126,8 @@ impl PolyLine {
     pub fn maybe_extend(self, other: PolyLine) -> Option<PolyLine> {
         assert_eq!(*self.pts.last().unwrap(), other.pts[0]);
 
-        let pl1 = to_set(self.points());
-        let pl2 = to_set(&other.points()[1..]);
+        let (pl1, _) = to_set(self.points());
+        let (pl2, _) = to_set(&other.points()[1..]);
 
         let mut self_pts = self.pts;
         let mut other_pts = other.pts;
@@ -712,6 +725,17 @@ fn check_angles(orig: &PolyLine, fixed: PolyLine) -> Warn<PolyLine> {
     Warn::warnings(fixed, warnings)
 }
 
-fn to_set(pts: &[Pt2D]) -> HashSet<HashablePt2D> {
-    pts.iter().map(|pt| pt.to_hashable()).collect()
+// Also returns the duplicates.
+fn to_set(pts: &[Pt2D]) -> (HashSet<HashablePt2D>, HashSet<HashablePt2D>) {
+    let mut deduped = HashSet::new();
+    let mut dupes = HashSet::new();
+    for pt in pts {
+        let pt = pt.to_hashable();
+        if deduped.contains(&pt) {
+            dupes.insert(pt);
+        } else {
+            deduped.insert(pt);
+        }
+    }
+    (deduped, dupes)
 }

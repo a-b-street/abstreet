@@ -143,7 +143,9 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
                 closest.add(s.label.clone(), &pts);
                 batch.push(
                     s.color,
-                    PolyLine::new(pts)
+                    // The input data might be nice and deduped, but after trimming precision for
+                    // Pt2D, there might be small repeats. Just plow ahead and draw anyway.
+                    PolyLine::unchecked_new(pts)
                         .make_polygons_with_miter_threshold(Distance::meters(5.0), 10.0),
                 );
             }
