@@ -214,9 +214,15 @@ impl State for SandboxMode {
             }
         }
 
+        if let Some(ref mut s) = self.controls.speed {
+            if let Some(t) = s.event(ctx, ui, Some(&self.gameplay_mode)) {
+                return t;
+            }
+        }
+
         // Fragile ordering. Don't call this before all the per_obj actions have been called. But
         // also let this work before tool_panel, so Key::Escape from the info panel beats the one
-        // to quit.
+        // to quit. And let speed update the sim before we update the info panel.
         if let Some(ref mut c) = self.controls.common {
             if let Some(t) = c.event(ctx, ui, self.controls.speed.as_mut()) {
                 return t;
@@ -225,12 +231,6 @@ impl State for SandboxMode {
 
         if let Some(ref mut tp) = self.controls.time_panel {
             tp.event(ctx, ui);
-        }
-
-        if let Some(ref mut s) = self.controls.speed {
-            if let Some(t) = s.event(ctx, ui, Some(&self.gameplay_mode)) {
-                return t;
-            }
         }
 
         if let Some(ref mut tp) = self.controls.tool_panel {
