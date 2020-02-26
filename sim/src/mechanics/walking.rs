@@ -59,7 +59,7 @@ impl WalkingSimState {
                 ),
             ),
             speed: params.speed,
-            blocked_since: None,
+            total_blocked_time: Duration::ZERO,
             started_at: now,
             path: params.path,
             goal: params.goal,
@@ -142,8 +142,7 @@ impl WalkingSimState {
                             if let Some(route) =
                                 trips.ped_reached_bus_stop(now, ped.id, stop, map, transit)
                             {
-                                ped.state = PedState::WaitingForBus(route);
-                                ped.blocked_since = Some(now);
+                                ped.state = PedState::WaitingForBus(route, now);
                             } else {
                                 self.peds_per_traversable
                                     .remove(ped.path.current_step().as_traversable(), ped.id);
@@ -192,12 +191,11 @@ impl WalkingSimState {
                         scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
                     } else {
                         // Must've failed because we can't turn yet. Don't schedule a retry here.
-                        ped.state = PedState::WaitingToTurn(dist);
-                        ped.blocked_since = Some(now);
+                        ped.state = PedState::WaitingToTurn(dist, now);
                     }
                 }
             }
-            PedState::WaitingToTurn(_) => {
+            PedState::WaitingToTurn(_, blocked_since) => {
                 if ped.maybe_transition(
                     now,
                     map,
@@ -207,7 +205,7 @@ impl WalkingSimState {
                     scheduler,
                 ) {
                     scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
-                    ped.blocked_since = None;
+                    ped.total_blocked_time += now - blocked_since;
                 }
             }
             PedState::LeavingBuilding(b, _) => {
@@ -231,16 +229,17 @@ impl WalkingSimState {
                 ped.state = ped.crossing_state(spot.sidewalk_pos.dist_along(), now, map);
                 scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
             }
-            PedState::WaitingForBus(_) => unreachable!(),
+            PedState::WaitingForBus(_, _) => unreachable!(),
         }
     }
 
-    pub fn ped_boarded_bus(&mut self, id: PedestrianID) {
-        let ped = self.peds.remove(&id).unwrap();
+    pub fn ped_boarded_bus(&mut self, now: Time, id: PedestrianID) {
+        let mut ped = self.peds.remove(&id).unwrap();
         match ped.state {
-            PedState::WaitingForBus(_) => {
+            PedState::WaitingForBus(_, blocked_since) => {
                 self.peds_per_traversable
                     .remove(ped.path.current_step().as_traversable(), id);
+                ped.total_blocked_time += now - blocked_since;
             }
             _ => unreachable!(),
         };
@@ -261,10 +260,24 @@ impl WalkingSimState {
         map: &Map,
     ) -> (Vec<(String, String)>, Vec<String>) {
         let p = &self.peds[&id];
+        let time_spent_waiting = match p.state {
+            PedState::WaitingToTurn(_, blocked_since)
+            | PedState::WaitingForBus(_, blocked_since) => now - blocked_since,
+            _ => Duration::ZERO,
+        };
+
         let props = vec![
             (
                 "Trip time so far".to_string(),
                 (now - p.started_at).to_string(),
+            ),
+            (
+                "Percent of entire trip spent waiting".to_string(),
+                format!(
+                    "{}%",
+                    (100.0 * (p.total_blocked_time + time_spent_waiting) / (now - p.started_at))
+                        as usize
+                ),
             ),
             (
                 "Lanes remaining in path".to_string(),
@@ -278,17 +291,13 @@ impl WalkingSimState {
                     p.path.total_length().describe_rounded()
                 ),
             ),
-            // TODO Not cumulative!
             (
-                "Time spent waiting".to_string(),
-                p.blocked_since
-                    .map(|t| now - t)
-                    .unwrap_or(Duration::ZERO)
-                    .to_string(),
+                "Time spent waiting right here".to_string(),
+                time_spent_waiting.to_string(),
             ),
         ];
         let mut extra = Vec::new();
-        if let PedState::WaitingForBus(r) = p.state {
+        if let PedState::WaitingForBus(r, _) = p.state {
             extra.push(format!("Waiting for bus {}", map.get_br(r).name));
         }
         (props, extra)
@@ -366,7 +375,7 @@ impl WalkingSimState {
                         backwards.push((*id, dist));
                     }
                 }
-                PedState::WaitingToTurn(dist) => {
+                PedState::WaitingToTurn(dist, _) => {
                     if dist == Distance::ZERO {
                         backwards.push((*id, dist));
                     } else {
@@ -383,7 +392,7 @@ impl WalkingSimState {
                 }
                 PedState::StartingToBike(_, _, _)
                 | PedState::FinishingBiking(_, _, _)
-                | PedState::WaitingForBus(_) => {
+                | PedState::WaitingForBus(_, _) => {
                     // The backwards half of the sidewalk is closer to the road.
                     backwards.push((*id, dist));
                 }
@@ -447,7 +456,7 @@ struct Pedestrian {
     id: PedestrianID,
     state: PedState,
     speed: Speed,
-    blocked_since: Option<Time>,
+    total_blocked_time: Duration,
     // TODO organize analytics better.
     started_at: Time,
 
@@ -476,12 +485,12 @@ impl Pedestrian {
     fn get_dist_along(&self, now: Time, map: &Map) -> Distance {
         match self.state {
             PedState::Crossing(ref dist_int, ref time_int) => dist_int.lerp(time_int.percent(now)),
-            PedState::WaitingToTurn(dist) => dist,
+            PedState::WaitingToTurn(dist, _) => dist,
             PedState::LeavingBuilding(b, _) => map.get_b(b).front_path.sidewalk.dist_along(),
             PedState::EnteringBuilding(b, _) => map.get_b(b).front_path.sidewalk.dist_along(),
             PedState::StartingToBike(ref spot, _, _) => spot.sidewalk_pos.dist_along(),
             PedState::FinishingBiking(ref spot, _, _) => spot.sidewalk_pos.dist_along(),
-            PedState::WaitingForBus(_) => self.goal.sidewalk_pos.dist_along(),
+            PedState::WaitingForBus(_, _) => self.goal.sidewalk_pos.dist_along(),
         }
     }
 
@@ -505,7 +514,7 @@ impl Pedestrian {
                     facing,
                 )
             }
-            PedState::WaitingToTurn(dist) => {
+            PedState::WaitingToTurn(dist, _) => {
                 let (pos, orig_angle) = on.dist_along(dist, map);
                 let facing = if dist == Distance::ZERO {
                     orig_angle.opposite()
@@ -542,7 +551,7 @@ impl Pedestrian {
             PedState::FinishingBiking(_, ref line, ref time_int) => {
                 (line.percent_along(time_int.percent(now)), line.angle())
             }
-            PedState::WaitingForBus(_) => {
+            PedState::WaitingForBus(_, _) => {
                 let (pt, angle) = self.goal.sidewalk_pos.pt_and_angle(map);
                 // Stand on the far side of the sidewalk (by the bus stop), facing the road
                 (
@@ -557,7 +566,7 @@ impl Pedestrian {
             pos,
             facing,
             waiting_for_turn: match self.state {
-                PedState::WaitingToTurn(_) => Some(self.path.next_step().as_turn()),
+                PedState::WaitingToTurn(_, _) => Some(self.path.next_step().as_turn()),
                 _ => None,
             },
             preparing_bike: match self.state {
@@ -565,7 +574,7 @@ impl Pedestrian {
                 _ => false,
             },
             waiting_for_bus: match self.state {
-                PedState::WaitingForBus(_) => true,
+                PedState::WaitingForBus(_, _) => true,
                 _ => false,
             },
             on,
@@ -575,10 +584,11 @@ impl Pedestrian {
 
     fn metadata(&self, now: Time) -> AgentMetadata {
         AgentMetadata {
-            time_spent_blocked: self
-                .blocked_since
-                .map(|t| now - t)
-                .unwrap_or(Duration::ZERO),
+            time_spent_blocked: match self.state {
+                PedState::WaitingToTurn(_, blocked_since)
+                | PedState::WaitingForBus(_, blocked_since) => now - blocked_since,
+                _ => Duration::ZERO,
+            },
             percent_dist_crossed: self.path.percent_dist_crossed(),
             trip_time_so_far: now - self.started_at,
         }
@@ -628,25 +638,25 @@ impl Pedestrian {
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 enum PedState {
     Crossing(DistanceInterval, TimeInterval),
-    // The Distance is either 0 or the current traversable's length
-    WaitingToTurn(Distance),
+    // The Distance is either 0 or the current traversable's length. The Time is blocked_since.
+    WaitingToTurn(Distance, Time),
     LeavingBuilding(BuildingID, TimeInterval),
     EnteringBuilding(BuildingID, TimeInterval),
     StartingToBike(SidewalkSpot, Line, TimeInterval),
     FinishingBiking(SidewalkSpot, Line, TimeInterval),
-    WaitingForBus(BusRouteID),
+    WaitingForBus(BusRouteID, Time),
 }
 
 impl PedState {
     fn get_end_time(&self) -> Time {
         match self {
             PedState::Crossing(_, ref time_int) => time_int.end,
-            PedState::WaitingToTurn(_) => unreachable!(),
+            PedState::WaitingToTurn(_, _) => unreachable!(),
             PedState::LeavingBuilding(_, ref time_int) => time_int.end,
             PedState::EnteringBuilding(_, ref time_int) => time_int.end,
             PedState::StartingToBike(_, _, ref time_int) => time_int.end,
             PedState::FinishingBiking(_, _, ref time_int) => time_int.end,
-            PedState::WaitingForBus(_) => unreachable!(),
+            PedState::WaitingForBus(_, _) => unreachable!(),
         }
     }
 }

@@ -13,8 +13,8 @@ pub struct Car {
     pub state: CarState,
     pub router: Router,
     pub trip: TripID,
-    pub blocked_since: Option<Time>,
     pub started_at: Time,
+    pub total_blocked_time: Duration,
 
     // In reverse order -- most recently left is first. The sum length of these must be >=
     // vehicle.length.
@@ -142,15 +142,17 @@ impl Car {
             id: self.vehicle.id,
             waiting_for_turn: match self.state {
                 // TODO Maybe also when Crossing?
-                CarState::WaitingToAdvance | CarState::Queued => match self.router.maybe_next() {
-                    Some(Traversable::Turn(t)) => Some(t),
-                    _ => None,
-                },
+                CarState::WaitingToAdvance { .. } | CarState::Queued { .. } => {
+                    match self.router.maybe_next() {
+                        Some(Traversable::Turn(t)) => Some(t),
+                        _ => None,
+                    }
+                }
                 _ => None,
             },
             status: match self.state {
-                CarState::Queued => CarStatus::Moving,
-                CarState::WaitingToAdvance => CarStatus::Moving,
+                CarState::Queued { .. } => CarStatus::Moving,
+                CarState::WaitingToAdvance { .. } => CarStatus::Moving,
                 CarState::Crossing(_, _) => CarStatus::Moving,
                 // Eh they're technically moving, but this is a bit easier to spot
                 CarState::Unparking(_, _, _) => CarStatus::Parked,
@@ -175,10 +177,10 @@ impl Car {
 
     pub fn metadata(&self, now: Time) -> AgentMetadata {
         AgentMetadata {
-            time_spent_blocked: self
-                .blocked_since
-                .map(|t| now - t)
-                .unwrap_or(Duration::ZERO),
+            time_spent_blocked: match self.state {
+                CarState::Queued { blocked_since } => now - blocked_since,
+                _ => Duration::ZERO,
+            },
             percent_dist_crossed: self.router.get_path().percent_dist_crossed(),
             trip_time_so_far: now - self.started_at,
         }
@@ -188,8 +190,8 @@ impl Car {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub enum CarState {
     Crossing(TimeInterval, DistanceInterval),
-    Queued,
-    WaitingToAdvance,
+    Queued { blocked_since: Time },
+    WaitingToAdvance { blocked_since: Time },
     // Where's the front of the car while this is happening?
     Unparking(Distance, ParkingSpot, TimeInterval),
     Parking(Distance, ParkingSpot, TimeInterval),
@@ -200,8 +202,8 @@ impl CarState {
     pub fn get_end_time(&self) -> Time {
         match self {
             CarState::Crossing(ref time_int, _) => time_int.end,
-            CarState::Queued => unreachable!(),
-            CarState::WaitingToAdvance => unreachable!(),
+            CarState::Queued { .. } => unreachable!(),
+            CarState::WaitingToAdvance { .. } => unreachable!(),
             CarState::Unparking(_, _, ref time_int) => time_int.end,
             CarState::Parking(_, _, ref time_int) => time_int.end,
             CarState::Idling(_, ref time_int) => time_int.end,

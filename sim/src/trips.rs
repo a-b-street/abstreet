@@ -366,11 +366,16 @@ impl TripManager {
         }
     }
 
-    pub fn ped_boarded_bus(&mut self, ped: PedestrianID, walking: &mut WalkingSimState) -> TripID {
+    pub fn ped_boarded_bus(
+        &mut self,
+        now: Time,
+        ped: PedestrianID,
+        walking: &mut WalkingSimState,
+    ) -> TripID {
         // TODO Make sure canonical pt is the bus while the ped is riding it
         let trip = &mut self.trips[self.active_trip_mode[&AgentID::Pedestrian(ped)].0];
         trip.legs.pop_front();
-        walking.ped_boarded_bus(ped);
+        walking.ped_boarded_bus(now, ped);
         trip.id
     }
 

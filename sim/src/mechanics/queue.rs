@@ -97,14 +97,14 @@ impl Queue {
 
             let car = &cars[id];
             let front = match car.state {
-                CarState::Queued => {
+                CarState::Queued { .. } => {
                     if car.router.last_step() {
                         car.router.get_end_dist().min(bound)
                     } else {
                         bound
                     }
                 }
-                CarState::WaitingToAdvance => {
+                CarState::WaitingToAdvance { .. } => {
                     assert_eq!(bound, self.geom_len);
                     self.geom_len
                 }
@@ -227,10 +227,10 @@ fn dump_cars(
                     dist_int.start, dist_int.end, time_int.start, time_int.end
                 );
             }
-            CarState::Queued => {
+            CarState::Queued { .. } => {
                 println!("  Queued currently");
             }
-            CarState::WaitingToAdvance => {
+            CarState::WaitingToAdvance { .. } => {
                 println!("  WaitingToAdvance currently");
             }
             CarState::Unparking(_, _, ref time_int) => {
