@@ -593,32 +593,32 @@ impl Task {
             Task::Nil => unreachable!(),
             Task::Camera => "Put out the fire at the Montlake Market",
             Task::InspectObjects => {
-                let mut txt = Text::from(Line("Click and inspect one of each:").fg(Color::CYAN));
+                let mut txt = Text::from(Line("Click and inspect one of each:"));
                 if state.inspected_lane {
                     txt.add(Line("☑ lane").fg(Color::GREEN));
                 } else {
-                    txt.add(Line("☐ lane").fg(Color::CYAN));
+                    txt.add(Line("☐ lane"));
                 }
                 if state.inspected_building {
                     txt.add(Line("☑ building").fg(Color::GREEN));
                 } else {
-                    txt.add(Line("☐ building").fg(Color::CYAN));
+                    txt.add(Line("☐ building"));
                 }
                 if state.inspected_stop_sign {
                     txt.add(Line("☑ intersection with stop sign").fg(Color::GREEN));
                 } else {
-                    txt.add(Line("☐ intersection with stop sign").fg(Color::CYAN));
+                    txt.add(Line("☐ intersection with stop sign"));
                 }
                 if state.inspected_border {
                     txt.add(Line("☑ intersection on the map border").fg(Color::GREEN));
                 } else {
-                    txt.add(Line("☐ intersection on the map border").fg(Color::CYAN));
+                    txt.add(Line("☐ intersection on the map border"));
                 }
                 return txt;
             }
             Task::TimeControls => "Simulate until after 5pm",
             Task::PauseResume => {
-                let mut txt = Text::from(Line("☐ Pause/resume ").fg(Color::CYAN));
+                let mut txt = Text::from(Line("☐ Pause/resume "));
                 txt.append(Line(format!("{} times", 3 - state.num_pauses)).fg(Color::GREEN));
                 return txt;
             }
@@ -628,17 +628,17 @@ impl Task {
                 if state.following_car {
                     txt.add(Line("☑ follow the target car").fg(Color::GREEN));
                 } else {
-                    txt.add(Line("☐ follow the target car").fg(Color::CYAN));
+                    txt.add(Line("☐ follow the target car"));
                 }
                 if state.car_parked {
                     txt.add(Line("☑ wait for them to park").fg(Color::GREEN));
                 } else {
-                    txt.add(Line("☐ wait for them to park").fg(Color::CYAN));
+                    txt.add(Line("☐ wait for them to park"));
                 }
                 if state.inspected_building {
                     txt.add(Line("☑ draw WASH ME on the window").fg(Color::GREEN));
                 } else {
-                    txt.add(Line("☐ draw WASH ME on the window").fg(Color::CYAN));
+                    txt.add(Line("☐ draw WASH ME on the window"));
                 }
                 return txt;
             }
@@ -652,7 +652,7 @@ impl Task {
 
         let mut txt = Text::new();
         txt.add_wrapped(format!("☐ {}", simple), 0.6 * ctx.canvas.window_width);
-        txt.change_fg(Color::CYAN)
+        txt
     }
 
     fn label(self) -> &'static str {
@@ -911,27 +911,33 @@ impl TutorialState {
                 )
             }
             .margin(5),
-            if self.interaction() != Task::Nil {
-                WrappedComposite::svg_button(
-                    ctx,
-                    "../data/system/assets/tools/info.svg",
-                    "help",
-                    None,
-                )
-            } else {
-                ManagedWidget::draw_svg_transform(
-                    ctx,
-                    "../data/system/assets/tools/info.svg",
-                    RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
-                )
-            }
-            .margin(5),
             WrappedComposite::text_button(ctx, "Quit", None).margin(5),
         ])
         .centered()];
         {
             let task = self.interaction();
             if task != Task::Nil {
+                col.push(ManagedWidget::row(vec![
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(
+                            Line(format!(
+                                "Task {}: {}",
+                                self.current.stage + 1,
+                                self.stage().task.label()
+                            ))
+                            .roboto_bold(),
+                        ),
+                    ),
+                    WrappedComposite::svg_button(
+                        ctx,
+                        "../data/system/assets/tools/info.svg",
+                        "help",
+                        None,
+                    )
+                    .centered_vert()
+                    .align_right(),
+                ]));
                 col.push(ManagedWidget::draw_text(ctx, task.top_txt(ctx, self)).margin(5));
             }
         }
