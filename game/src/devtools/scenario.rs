@@ -1,3 +1,4 @@
+use crate::colors;
 use crate::common::{tool_panel, Colorer, CommonState, Warping};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
@@ -5,8 +6,8 @@ use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Counter, MultiMap};
 use ezgui::{
-    hotkey, layout, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu,
-    Slider, Text,
+    hotkey, lctrl, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Slider, Text, VerticalAlignment,
 };
 use geom::{Distance, Line, PolyLine, Polygon};
 use map_model::{BuildingID, IntersectionID, Map};
@@ -14,7 +15,7 @@ use sim::{DrivingGoal, Scenario, SidewalkPOI, SidewalkSpot, SpawnTrip};
 use std::collections::BTreeSet;
 
 pub struct ScenarioManager {
-    menu: ModalMenu,
+    composite: Composite,
     common: CommonState,
     tool_panel: WrappedComposite,
     scenario: Scenario,
@@ -24,8 +25,6 @@ pub struct ScenarioManager {
     trips_to_bldg: MultiMap<BuildingID, usize>,
     trips_from_border: MultiMap<IntersectionID, usize>,
     trips_to_border: MultiMap<IntersectionID, usize>,
-    total_cars_needed: usize,
-    total_parking_spots: usize,
     bldg_colors: Colorer,
 
     demand: Option<Drawable>,
@@ -110,7 +109,25 @@ impl ScenarioManager {
         assert!(filled_spots.is_empty());
 
         ScenarioManager {
-            menu: ModalMenu::new("Scenario Editor", vec![(hotkey(Key::D), "dot map")], ctx),
+            composite: WrappedComposite::quick_menu(
+                ctx,
+                format!("Scenario {}", scenario.scenario_name),
+                vec![
+                    format!(
+                        "{} total trips",
+                        prettyprint_usize(scenario.individ_trips.len())
+                    ),
+                    format!("seed {} parked cars", prettyprint_usize(total_cars_needed)),
+                    format!(
+                        "{} parking spots",
+                        prettyprint_usize(free_parking_spots.len()),
+                    ),
+                ],
+                vec![
+                    (hotkey(Key::D), "dot map"),
+                    (lctrl(Key::P), "stop showing paths"),
+                ],
+            ),
             common: CommonState::new(),
             tool_panel: tool_panel(ctx),
             scenario,
@@ -118,8 +135,6 @@ impl ScenarioManager {
             trips_to_bldg,
             trips_from_border,
             trips_to_border,
-            total_cars_needed,
-            total_parking_spots: free_parking_spots.len(),
             bldg_colors: bldg_colors.build(ctx, ui),
             demand: None,
         }
@@ -128,36 +143,26 @@ impl ScenarioManager {
 
 impl State for ScenarioManager {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        // TODO Calculate this once? Except when we modify it, nice to automatically pick up
-        // changes...
-        {
-            let mut txt = Text::new();
-            txt.add(Line(&self.scenario.scenario_name));
-            txt.add(Line(format!(
-                "{} total trips",
-                prettyprint_usize(self.scenario.individ_trips.len())
-            )));
-            txt.add(Line(format!(
-                "seed {} parked cars",
-                prettyprint_usize(self.total_cars_needed)
-            )));
-            txt.add(Line(format!(
-                "{} parking spots",
-                prettyprint_usize(self.total_parking_spots),
-            )));
-            self.menu.set_info(ctx, txt);
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "X" => {
+                    return Transition::Pop;
+                }
+                "dot map" => {
+                    return Transition::Push(Box::new(DotMap::new(ctx, ui, &self.scenario)));
+                }
+                // TODO Inactivate this sometimes
+                "stop showing paths" => {
+                    self.demand = None;
+                }
+                _ => unreachable!(),
+            },
+            None => {}
         }
-        self.menu.event(ctx);
+
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);
-        }
-        if self.menu.action("dot map") {
-            return Transition::Push(Box::new(DotMap::new(ctx, ui, &self.scenario)));
-        }
-
-        if self.demand.is_some() && self.menu.consume_action(ctx, "stop showing paths") {
-            self.demand = None;
         }
 
         if let Some(ID::Building(b)) = ui.primary.current_selection {
@@ -179,8 +184,6 @@ impl State for ScenarioManager {
                     && ui.per_obj.action(ctx, Key::P, "show trips to and from")
                 {
                     self.demand = Some(show_demand(&self.scenario, from, to, OD::Bldg(b), ui, ctx));
-                    self.menu
-                        .push_action(ctx, hotkey(Key::P), "stop showing paths");
                 }
             }
         } else if let Some(ID::Intersection(i)) = ui.primary.current_selection {
@@ -209,8 +212,6 @@ impl State for ScenarioManager {
                         ui,
                         ctx,
                     ));
-                    self.menu
-                        .push_action(ctx, hotkey(Key::P), "stop showing paths");
                 }
             }
         }
@@ -235,7 +236,7 @@ impl State for ScenarioManager {
             g.redraw(p);
         }
 
-        self.menu.draw(g);
+        self.composite.draw(g);
         self.common.draw_no_osd(g, ui);
         self.tool_panel.draw(g);
 
@@ -247,7 +248,7 @@ impl State for ScenarioManager {
                 self.trips_to_bldg.get(b).len(),
                 self.scenario.individ_parked_cars[&b]
             )));
-            CommonState::draw_custom_osd(ui, g, osd);
+            CommonState::draw_custom_osd(g, ui, osd);
         } else if let Some(ID::Intersection(i)) = ui.primary.current_selection {
             let mut osd = CommonState::default_osd(ID::Intersection(i), ui);
             osd.append(Line(format!(
@@ -255,7 +256,7 @@ impl State for ScenarioManager {
                 self.trips_from_border.get(i).len(),
                 self.trips_to_border.get(i).len(),
             )));
-            CommonState::draw_custom_osd(ui, g, osd);
+            CommonState::draw_custom_osd(g, ui, osd);
         } else {
             CommonState::draw_osd(g, ui, &ui.primary.current_selection);
         }
@@ -493,8 +494,7 @@ fn show_demand(
 }
 
 struct DotMap {
-    time_slider: Slider,
-    menu: ModalMenu,
+    composite: Composite,
 
     lines: Vec<Line>,
     draw: Option<(f64, Drawable)>,
@@ -526,13 +526,23 @@ impl DotMap {
             })
             .collect();
         DotMap {
-            time_slider: Slider::horizontal(ctx, 150.0, 25.0),
-            menu: ModalMenu::new(
-                "Dot map of all trips",
-                vec![(hotkey(Key::Escape), "quit")],
-                ctx,
+            composite: Composite::new(
+                ManagedWidget::col(vec![
+                    ManagedWidget::row(vec![
+                        ManagedWidget::draw_text(
+                            ctx,
+                            Text::from(Line("Dot map of all trips").roboto_bold()),
+                        ),
+                        WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
+                    ]),
+                    ManagedWidget::slider("time slider"),
+                ])
+                .padding(10)
+                .bg(colors::PANEL_BG),
             )
-            .disable_standalone_layout(),
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .slider("time slider", Slider::horizontal(ctx, 150.0, 25.0))
+            .build(ctx),
 
             lines,
             draw: None,
@@ -544,18 +554,17 @@ impl State for DotMap {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
         ctx.canvas_movement();
 
-        layout::stack_vertically(
-            layout::ContainerOrientation::TopRight,
-            ctx,
-            vec![&mut self.time_slider, &mut self.menu],
-        );
-        self.menu.event(ctx);
-        if self.menu.action("quit") {
-            return Transition::Pop;
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "X" => {
+                    return Transition::Pop;
+                }
+                _ => unreachable!(),
+            },
+            None => {}
         }
 
-        self.time_slider.event(ctx);
-        let pct = self.time_slider.get_percent();
+        let pct = self.composite.slider("time slider").get_percent();
 
         if self.draw.as_ref().map(|(p, _)| pct != *p).unwrap_or(true) {
             let mut batch = GeomBatch::new();
@@ -577,7 +586,6 @@ impl State for DotMap {
         if let Some((_, ref d)) = self.draw {
             g.redraw(d);
         }
-        self.time_slider.draw(g);
-        self.menu.draw(g);
+        self.composite.draw(g);
     }
 }

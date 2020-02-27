@@ -1,7 +1,12 @@
+use crate::common::CommonState;
 use crate::game::{State, Transition};
+use crate::managed::WrappedComposite;
 use crate::ui::UI;
-use ezgui::{hotkey, Choice, Color, EventCtx, GfxCtx, Key, ModalMenu, Wizard, WrappedWizard};
-use geom::{Circle, Distance, Line, Polygon, Pt2D};
+use ezgui::{
+    hotkey, Choice, Color, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Text, Wizard,
+    WrappedWizard,
+};
+use geom::{Circle, Distance, Polygon, Pt2D};
 use map_model::{Map, NeighborhoodBuilder};
 
 const POINT_RADIUS: Distance = Distance::const_meters(10.0);
@@ -26,15 +31,14 @@ impl State for NeighborhoodPicker {
         if let Some(n) = pick_neighborhood(&ui.primary.map, self.wizard.wrap(ctx)) {
             self.wizard = Wizard::new();
             return Transition::Push(Box::new(NeighborhoodEditor {
-                menu: ModalMenu::new(
+                composite: WrappedComposite::quick_menu(
+                    ctx,
                     format!("Neighborhood Editor for {}", n.name),
+                    vec![],
                     vec![
-                        (hotkey(Key::Escape), "quit"),
                         (hotkey(Key::S), "save"),
                         (hotkey(Key::X), "export as an Osmosis polygon filter"),
-                        (hotkey(Key::P), "add a new point"),
                     ],
-                    ctx,
                 ),
                 neighborhood: n,
                 mouseover_pt: None,
@@ -64,7 +68,7 @@ impl State for NeighborhoodPicker {
 }
 
 struct NeighborhoodEditor {
-    menu: ModalMenu,
+    composite: Composite,
     neighborhood: NeighborhoodBuilder,
     mouseover_pt: Option<usize>,
     moving_pt: bool,
@@ -74,7 +78,6 @@ impl State for NeighborhoodEditor {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         let gps_bounds = ui.primary.map.get_gps_bounds();
 
-        self.menu.event(ctx);
         ctx.canvas_movement();
 
         if self.moving_pt {
@@ -88,45 +91,59 @@ impl State for NeighborhoodEditor {
             if ctx.input.key_released(Key::LeftControl) {
                 self.moving_pt = false;
             }
-        } else {
-            if self.menu.action("quit") {
-                return Transition::Pop;
-            } else if self.neighborhood.points.len() >= 3 && self.menu.action("save") {
-                self.neighborhood.save();
-            } else if self.neighborhood.points.len() >= 3
-                && self.menu.action("export as an Osmosis polygon filter")
-            {
-                self.neighborhood.save_as_osmosis().unwrap();
-            } else if let Some(pt) = ctx
-                .canvas
-                .get_cursor_in_map_space()
-                .and_then(|c| c.to_gps(gps_bounds))
-            {
-                if self.menu.action("add a new point") {
-                    self.neighborhood.points.push(pt);
-                }
-            }
 
-            if let Some(cursor) = ctx.canvas.get_cursor_in_map_space() {
-                self.mouseover_pt = self.neighborhood.points.iter().position(|pt| {
-                    Circle::new(
-                        Pt2D::from_gps(*pt, gps_bounds).unwrap(),
-                        POINT_RADIUS / ctx.canvas.cam_zoom,
-                    )
-                    .contains_pt(cursor)
-                });
-            } else {
-                self.mouseover_pt = None;
-            }
-            // TODO maybe click-and-drag is more intuitive
-            if self.mouseover_pt.is_some()
-                && ctx
-                    .input
-                    .key_pressed(Key::LeftControl, "hold to move this point")
+            return Transition::Keep;
+        }
+
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "X" => {
+                    return Transition::Pop;
+                }
+                "save" => {
+                    if self.neighborhood.points.len() >= 3 {
+                        self.neighborhood.save();
+                    }
+                }
+                "export as an Osmosis polygon filter" => {
+                    if self.neighborhood.points.len() >= 3 {
+                        self.neighborhood.save_as_osmosis().unwrap();
+                    }
+                }
+                _ => unreachable!(),
+            },
+            None => {}
+        }
+
+        if let Some(cursor) = ctx.canvas.get_cursor_in_map_space() {
+            self.mouseover_pt = self.neighborhood.points.iter().position(|pt| {
+                Circle::new(
+                    Pt2D::from_gps(*pt, gps_bounds).unwrap(),
+                    POINT_RADIUS / ctx.canvas.cam_zoom,
+                )
+                .contains_pt(cursor)
+            });
+        } else {
+            self.mouseover_pt = None;
+        }
+        // TODO maybe click-and-drag is more intuitive
+        if self.mouseover_pt.is_some() {
+            if ctx
+                .input
+                .key_pressed(Key::LeftControl, "hold to move this point")
             {
                 self.moving_pt = true;
             }
+        } else if let Some(pt) = ctx
+            .canvas
+            .get_cursor_in_map_space()
+            .and_then(|c| c.to_gps(gps_bounds))
+        {
+            if ui.per_obj.left_click(ctx, "add a new point") {
+                self.neighborhood.points.push(pt);
+            }
         }
+
         Transition::Keep
     }
 
@@ -141,7 +158,7 @@ impl State for NeighborhoodEditor {
             g.draw_line(
                 ui.cs.get_def("neighborhood point", Color::RED),
                 POINT_RADIUS / 2.0,
-                &Line::new(pts[0], pts[1]),
+                &geom::Line::new(pts[0], pts[1]),
             );
         }
         if pts.len() >= 3 {
@@ -163,7 +180,16 @@ impl State for NeighborhoodEditor {
             g.draw_circle(color, &Circle::new(*pt, POINT_RADIUS / g.canvas.cam_zoom));
         }
 
-        self.menu.draw(g);
+        self.composite.draw(g);
+        if self.mouseover_pt.is_some() {
+            CommonState::draw_custom_osd(
+                g,
+                ui,
+                Text::from(Line("hold left Control to move point")),
+            );
+        } else {
+            CommonState::draw_osd(g, ui, &None);
+        }
     }
 }
 

@@ -2,8 +2,8 @@ use crate::colors;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::ui::UI;
 use ezgui::{
-    Button, Color, Composite, EventCtx, GfxCtx, Line, ManagedWidget, MultiKey, Outcome,
-    RewriteColor, Text,
+    hotkey, Button, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    ManagedWidget, MultiKey, Outcome, RewriteColor, Text, VerticalAlignment,
 };
 use std::collections::HashMap;
 
@@ -103,6 +103,41 @@ impl WrappedComposite {
             label,
             ctx,
         ))
+    }
+
+    // Always includes a built-in "X" quit option
+    pub fn quick_menu<I: Into<String>>(
+        ctx: &mut EventCtx,
+        title: I,
+        info: Vec<String>,
+        actions: Vec<(Option<MultiKey>, &str)>,
+    ) -> Composite {
+        Composite::new(
+            ManagedWidget::col(vec![
+                ManagedWidget::row(vec![
+                    ManagedWidget::draw_text(ctx, Text::from(Line(title.into()).roboto_bold())),
+                    WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
+                ]),
+                ManagedWidget::draw_text(ctx, {
+                    let mut txt = Text::new();
+                    for l in info {
+                        txt.add(Line(l));
+                    }
+                    txt
+                }),
+                ManagedWidget::row(
+                    actions
+                        .into_iter()
+                        .map(|(key, action)| WrappedComposite::text_button(ctx, action, key))
+                        .collect(),
+                )
+                .flex_wrap(ctx, 60),
+            ])
+            .padding(10)
+            .bg(colors::PANEL_BG),
+        )
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        .build(ctx)
     }
 }
 

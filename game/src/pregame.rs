@@ -1,9 +1,9 @@
 use crate::abtest::setup::PickABTest;
 use crate::challenges::challenges_picker;
 use crate::colors;
+use crate::devtools::DevToolsMode;
 use crate::game::{State, Transition};
 use crate::managed::{Callback, ManagedGUIState, WrappedComposite, WrappedOutcome};
-use crate::mission::MissionEditMode;
 use crate::sandbox::{GameplayMode, SandboxMode, TutorialPointer};
 use crate::ui::UI;
 use ezgui::{
@@ -197,7 +197,7 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
         c = c
             .cb(
                 "INTERNAL DEV TOOLS",
-                Box::new(|ctx, _| Some(Transition::Push(Box::new(MissionEditMode::new(ctx))))),
+                Box::new(|ctx, _| Some(Transition::Push(DevToolsMode::new(ctx)))),
             )
             .cb(
                 "INTERNAL A/B TEST MODE",

@@ -740,9 +740,9 @@ impl Composite {
             changed = true;
             let max = (self.contents_dims.width - self.container_dims.width).max(0.0);
             if max == 0.0 {
-                self.mut_slider("horiz scrollbar").set_percent(ctx, 0.0);
+                self.slider_mut("horiz scrollbar").set_percent(ctx, 0.0);
             } else {
-                self.mut_slider("horiz scrollbar")
+                self.slider_mut("horiz scrollbar")
                     .set_percent(ctx, abstutil::clamp(offset.0, 0.0, max) / max);
             }
         }
@@ -750,9 +750,9 @@ impl Composite {
             changed = true;
             let max = (self.contents_dims.height - self.container_dims.height).max(0.0);
             if max == 0.0 {
-                self.mut_slider("vert scrollbar").set_percent(ctx, 0.0);
+                self.slider_mut("vert scrollbar").set_percent(ctx, 0.0);
             } else {
-                self.mut_slider("vert scrollbar")
+                self.slider_mut("vert scrollbar")
                     .set_percent(ctx, abstutil::clamp(offset.1, 0.0, max) / max);
             }
         }
@@ -864,7 +864,7 @@ impl Composite {
     pub fn slider(&self, name: &str) -> &Slider {
         &self.sliders[name]
     }
-    pub fn mut_slider(&mut self, name: &str) -> &mut Slider {
+    pub fn slider_mut(&mut self, name: &str) -> &mut Slider {
         self.sliders.get_mut(name).unwrap()
     }
 

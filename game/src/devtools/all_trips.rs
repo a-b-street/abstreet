@@ -1,8 +1,13 @@
+use crate::colors;
 use crate::common::CommonState;
 use crate::game::{State, Transition};
+use crate::managed::WrappedComposite;
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
-use ezgui::{hotkey, layout, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, Slider, Text};
+use ezgui::{
+    hotkey, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget,
+    Outcome, Slider, Text, VerticalAlignment,
+};
 use geom::{Circle, Distance, Duration, PolyLine, Time};
 use map_model::NORMAL_LANE_THICKNESS;
 use popdat::psrc::Mode;
@@ -10,10 +15,8 @@ use popdat::{clip_trips, Trip};
 
 // TODO I removed the speed controls from this, for now
 pub struct TripsVisualizer {
-    menu: ModalMenu,
+    composite: Composite,
     trips: Vec<(Trip, PolyLine)>,
-    time_slider: Slider,
-
     active_trips: Vec<usize>,
 }
 
@@ -65,96 +68,108 @@ impl TripsVisualizer {
         });
 
         TripsVisualizer {
-            menu: ModalMenu::new(
-                "Trips Visualizer",
-                vec![
-                    (hotkey(Key::Dot), "forwards 10 seconds"),
-                    (hotkey(Key::Comma), "backwards 10 seconds"),
-                    (hotkey(Key::RightArrow), "forwards 30 minutes"),
-                    (hotkey(Key::LeftArrow), "backwards 30 minutes"),
-                    (hotkey(Key::F), "goto start of day"),
-                    (hotkey(Key::L), "goto end of day"),
-                    (hotkey(Key::Escape), "quit"),
-                ],
-                ctx,
+            composite: Composite::new(
+                ManagedWidget::col(vec![
+                    ManagedWidget::row(vec![
+                        ManagedWidget::draw_text(
+                            ctx,
+                            Text::from(Line("Trips Visualizer").roboto_bold()),
+                        ),
+                        WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
+                    ]),
+                    ManagedWidget::draw_text(ctx, Text::from(Line("Active trips")))
+                        .named("active trips"),
+                    ManagedWidget::row(vec![
+                        WrappedComposite::text_button(
+                            ctx,
+                            "forwards 30 minutes",
+                            hotkey(Key::RightArrow),
+                        ),
+                        WrappedComposite::text_button(
+                            ctx,
+                            "backwards 30 minutes",
+                            hotkey(Key::LeftArrow),
+                        ),
+                    ])
+                    .flex_wrap(ctx, 80),
+                    ManagedWidget::slider("time slider"),
+                ])
+                .padding(10)
+                .bg(colors::PANEL_BG),
             )
-            .disable_standalone_layout(),
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .slider("time slider", Slider::horizontal(ctx, 150.0, 25.0))
+            .build(ctx),
             trips,
-            time_slider: Slider::horizontal(ctx, 150.0, 25.0),
             active_trips: Vec::new(),
         }
     }
 
     fn current_time(&self) -> Time {
-        Time::END_OF_DAY.percent_of(self.time_slider.get_percent())
+        Time::END_OF_DAY.percent_of(self.composite.slider("time slider").get_percent())
     }
 }
 
 impl State for TripsVisualizer {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        let time = self.current_time();
-
-        {
-            let mut txt = Text::new();
-            txt.add(Line(format!("At {}", time)));
-            txt.add(Line(format!(
-                "{} active trips",
-                prettyprint_usize(self.active_trips.len())
-            )));
-            self.menu.set_info(ctx, txt);
-        }
-        self.menu.event(ctx);
         ctx.canvas_movement();
-        layout::stack_vertically(
-            layout::ContainerOrientation::TopRight,
-            ctx,
-            vec![&mut self.time_slider, &mut self.menu],
-        );
 
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);
         }
 
-        let ten_secs = Duration::seconds(10.0);
-        let thirty_mins = Duration::minutes(30);
+        let time = self.current_time();
 
-        if self.menu.action("quit") {
-            return Transition::Pop;
-        } else if time + ten_secs <= Time::END_OF_DAY && self.menu.action("forwards 10 seconds") {
-            self.time_slider
-                .set_percent(ctx, (time + ten_secs).to_percent(Time::END_OF_DAY));
-        } else if time + thirty_mins <= Time::END_OF_DAY && self.menu.action("forwards 30 minutes")
-        {
-            self.time_slider
-                .set_percent(ctx, (time + thirty_mins).to_percent(Time::END_OF_DAY));
-        } else if time >= Time::START_OF_DAY + ten_secs && self.menu.action("backwards 10 seconds")
-        {
-            self.time_slider
-                .set_percent(ctx, (time - ten_secs).to_percent(Time::END_OF_DAY));
-        } else if time >= Time::START_OF_DAY + thirty_mins
-            && self.menu.action("backwards 30 minutes")
-        {
-            self.time_slider
-                .set_percent(ctx, (time - thirty_mins).to_percent(Time::END_OF_DAY));
-        } else if time != Time::START_OF_DAY && self.menu.action("goto start of day") {
-            self.time_slider.set_percent(ctx, 0.0);
-        } else if time != Time::END_OF_DAY && self.menu.action("goto end of day") {
-            self.time_slider.set_percent(ctx, 1.0);
-        } else if self.time_slider.event(ctx) {
-            // Value changed, fall-through
-        } else {
-            return Transition::Keep;
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "X" => {
+                    return Transition::Pop;
+                }
+                "forwards 30 minutes" => {
+                    self.composite.slider_mut("time slider").set_percent(
+                        ctx,
+                        (time + Duration::minutes(30))
+                            .to_percent(Time::END_OF_DAY)
+                            .min(1.0),
+                    );
+                }
+                "backwards 30 minutes" => {
+                    self.composite.slider_mut("time slider").set_percent(
+                        ctx,
+                        (time - Duration::minutes(30))
+                            .to_percent(Time::END_OF_DAY)
+                            .max(0.0),
+                    );
+                }
+                _ => unreachable!(),
+            },
+            None => {}
         }
 
         // TODO Do this more efficiently. ;)
-        let time = self.current_time();
-        self.active_trips = self
-            .trips
-            .iter()
-            .enumerate()
-            .filter(|(_, (trip, _))| time >= trip.depart_at && time <= trip.end_time())
-            .map(|(idx, _)| idx)
-            .collect();
+        let new_time = self.current_time();
+        if time != new_time {
+            self.active_trips = self
+                .trips
+                .iter()
+                .enumerate()
+                .filter(|(_, (trip, _))| new_time >= trip.depart_at && new_time <= trip.end_time())
+                .map(|(idx, _)| idx)
+                .collect();
+
+            self.composite.replace(
+                ctx,
+                "active trips",
+                ManagedWidget::draw_text(
+                    ctx,
+                    Text::from(Line(format!(
+                        "{} active trips",
+                        prettyprint_usize(self.active_trips.len()),
+                    ))),
+                )
+                .named("active trips"),
+            );
+        }
 
         Transition::Keep
     }
@@ -186,8 +201,7 @@ impl State for TripsVisualizer {
         }
         batch.draw(g);
 
-        self.menu.draw(g);
-        self.time_slider.draw(g);
+        self.composite.draw(g);
         CommonState::draw_osd(g, ui, &ui.primary.current_selection);
     }
 }

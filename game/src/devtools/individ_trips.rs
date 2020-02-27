@@ -120,7 +120,7 @@ impl State for TripsVisualizer {
                     md.num_households, md.num_employees, md.offstreet_parking_spaces
                 )));
             }
-            CommonState::draw_custom_osd(ui, g, osd);
+            CommonState::draw_custom_osd(g, ui, osd);
         } else {
             CommonState::draw_osd(g, ui, &ui.primary.current_selection);
         }
