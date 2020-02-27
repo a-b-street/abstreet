@@ -1,27 +1,20 @@
 use crate::game::Transition;
 use crate::helpers::cmp_count_fewer;
 use crate::managed::{WrappedComposite, WrappedOutcome};
-use crate::render::InnerAgentColorScheme;
-use crate::sandbox::gameplay::{challenge_controller, manage_acs, GameplayMode, GameplayState};
+use crate::sandbox::gameplay::{challenge_controller, GameplayMode, GameplayState};
 use crate::sandbox::SandboxControls;
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
-use ezgui::{hotkey, layout, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
-use geom::Time;
+use ezgui::{EventCtx, GfxCtx, Line, Text};
 use sim::TripMode;
 
 pub struct CreateGridlock {
-    time: Time,
-    menu: ModalMenu,
     top_center: WrappedComposite,
 }
 
 impl CreateGridlock {
     pub fn new(ctx: &mut EventCtx, mode: GameplayMode) -> Box<dyn GameplayState> {
         Box::new(CreateGridlock {
-            time: Time::START_OF_DAY,
-            menu: ModalMenu::new("", vec![(hotkey(Key::E), "show agent delay")], ctx)
-                .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
             top_center: challenge_controller(ctx, mode, "Gridlock Challenge", Vec::new()),
         })
     }
@@ -42,30 +35,16 @@ impl GameplayState for CreateGridlock {
             None => {}
         }
 
-        self.menu.event(ctx);
-        manage_acs(
-            ctx,
-            &mut self.menu,
-            ui,
-            "show agent delay",
-            "hide agent delay",
-            InnerAgentColorScheme::Delay,
-        );
-
-        if self.time != ui.primary.sim.time() {
-            self.time = ui.primary.sim.time();
-            self.menu.set_info(ctx, gridlock_panel(ui));
-        }
-
         (None, false)
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
         self.top_center.draw(g);
-        self.menu.draw(g);
     }
 }
 
+// TODO Revive this data in some form
+#[allow(unused)]
 fn gridlock_panel(ui: &UI) -> Text {
     let (now_all, _, now_per_mode) = ui
         .primary

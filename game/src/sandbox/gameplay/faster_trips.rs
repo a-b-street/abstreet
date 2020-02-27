@@ -5,14 +5,11 @@ use crate::sandbox::gameplay::{challenge_controller, GameplayMode, GameplayState
 use crate::sandbox::SandboxControls;
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
-use ezgui::{layout, EventCtx, GfxCtx, Line, ModalMenu, Text};
-use geom::{Statistic, Time};
+use ezgui::{EventCtx, GfxCtx, Line, Text};
+use geom::Statistic;
 use sim::TripMode;
 
 pub struct FasterTrips {
-    mode: TripMode,
-    time: Time,
-    menu: ModalMenu,
     top_center: WrappedComposite,
 }
 
@@ -23,10 +20,6 @@ impl FasterTrips {
         mode: GameplayMode,
     ) -> Box<dyn GameplayState> {
         Box::new(FasterTrips {
-            mode: trip_mode,
-            time: Time::START_OF_DAY,
-            menu: ModalMenu::new::<&str, &str>("", Vec::new(), ctx)
-                .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
             top_center: challenge_controller(
                 ctx,
                 mode,
@@ -51,23 +44,18 @@ impl GameplayState for FasterTrips {
             Some(WrappedOutcome::Clicked(_)) => unreachable!(),
             None => {}
         }
-        self.menu.event(ctx);
-
-        if self.time != ui.primary.sim.time() {
-            self.time = ui.primary.sim.time();
-            self.menu.set_info(ctx, faster_trips_panel(self.mode, ui));
-        }
 
         (None, false)
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
         self.top_center.draw(g);
-        self.menu.draw(g);
     }
 }
 
-pub fn faster_trips_panel(mode: TripMode, ui: &UI) -> Text {
+// TODO Revive
+#[allow(unused)]
+fn faster_trips_panel(mode: TripMode, ui: &UI) -> Text {
     let time = ui.primary.sim.time();
     let now = ui
         .primary

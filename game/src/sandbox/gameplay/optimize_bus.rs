@@ -1,22 +1,15 @@
-use crate::common::Overlays;
-use crate::game::{Transition, WizardState};
+use crate::game::Transition;
 use crate::helpers::cmp_duration_shorter;
 use crate::managed::{WrappedComposite, WrappedOutcome};
-use crate::sandbox::gameplay::{
-    challenge_controller, manage_overlays, GameplayMode, GameplayState,
-};
+use crate::sandbox::gameplay::{challenge_controller, GameplayMode, GameplayState};
 use crate::sandbox::SandboxControls;
-use crate::sandbox::SandboxMode;
 use crate::ui::UI;
-use ezgui::{hotkey, layout, Choice, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
-use geom::{Statistic, Time};
+use ezgui::{EventCtx, GfxCtx, Line, Text};
+use geom::Statistic;
 use map_model::BusRouteID;
 
 pub struct OptimizeBus {
-    route: BusRouteID,
-    time: Time,
-    stat: Statistic,
-    menu: ModalMenu,
+    _route: BusRouteID,
     top_center: WrappedComposite,
 }
 
@@ -29,20 +22,7 @@ impl OptimizeBus {
     ) -> Box<dyn GameplayState> {
         let route = ui.primary.map.get_bus_route(route_name).unwrap();
         Box::new(OptimizeBus {
-            route: route.id,
-            time: Time::START_OF_DAY,
-            stat: Statistic::Max,
-            menu: ModalMenu::new(
-                "",
-                vec![
-                    (hotkey(Key::E), "show bus route"),
-                    (hotkey(Key::T), "show delays over time"),
-                    (hotkey(Key::P), "show bus passengers"),
-                    (hotkey(Key::S), "change statistic"),
-                ],
-                ctx,
-            )
-            .set_standalone_layout(layout::ContainerOrientation::TopLeftButDownABit(150.0)),
+            _route: route.id,
             top_center: challenge_controller(
                 ctx,
                 mode,
@@ -67,89 +47,16 @@ impl GameplayState for OptimizeBus {
             Some(WrappedOutcome::Clicked(_)) => unreachable!(),
             None => {}
         }
-        self.menu.event(ctx);
-        if manage_overlays(
-            ctx,
-            &mut self.menu,
-            ui,
-            "show bus route",
-            "hide bus route",
-            match ui.overlay {
-                Overlays::BusRoute(_, ref r, _) => *r == self.route,
-                _ => false,
-            },
-        ) {
-            ui.overlay = Overlays::show_bus_route(self.route, ctx, ui);
-        }
-        if manage_overlays(
-            ctx,
-            &mut self.menu,
-            ui,
-            "show delays over time",
-            "hide delays over time",
-            match ui.overlay {
-                Overlays::BusDelaysOverTime(_, ref r, _) => *r == self.route,
-                _ => false,
-            },
-        ) {
-            ui.overlay = Overlays::delays_over_time(self.route, ctx, ui);
-        }
-        if manage_overlays(
-            ctx,
-            &mut self.menu,
-            ui,
-            "show bus passengers",
-            "hide bus passengers",
-            match ui.overlay {
-                Overlays::BusPassengers(_, ref r, _) => *r == self.route,
-                _ => false,
-            },
-        ) {
-            ui.overlay = Overlays::bus_passengers(self.route, ctx, ui);
-        }
-
-        // TODO Expensive
-        if self.time != ui.primary.sim.time() {
-            self.time = ui.primary.sim.time();
-            self.menu
-                .set_info(ctx, bus_route_panel(self.route, self.stat, ui));
-        }
-
-        if self.menu.action("change statistic") {
-            return (
-                Some(Transition::Push(WizardState::new(Box::new(
-                    move |wiz, ctx, _| {
-                        // TODO Filter out existing. Make this kind of thing much easier.
-                        let (_, new_stat) = wiz.wrap(ctx).choose(
-                            "Show which statistic on frequency a bus stop is visited?",
-                            || {
-                                Statistic::all()
-                                    .into_iter()
-                                    .map(|s| Choice::new(s.to_string(), s))
-                                    .collect()
-                            },
-                        )?;
-                        Some(Transition::PopWithData(Box::new(move |state, _, _| {
-                            let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
-                            let opt = sandbox.gameplay.downcast_mut::<OptimizeBus>().unwrap();
-                            // Force recalculation
-                            opt.time = Time::START_OF_DAY;
-                            opt.stat = new_stat;
-                        })))
-                    },
-                )))),
-                false,
-            );
-        }
         (None, false)
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
         self.top_center.draw(g);
-        self.menu.draw(g);
     }
 }
 
+// TODO Surface this info differently
+#[allow(unused)]
 fn bus_route_panel(id: BusRouteID, stat: Statistic, ui: &UI) -> Text {
     let now = ui
         .primary

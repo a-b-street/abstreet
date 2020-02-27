@@ -11,18 +11,17 @@ pub use self::tutorial::{Tutorial, TutorialPointer, TutorialState};
 use crate::challenges;
 use crate::challenges::challenges_picker;
 use crate::colors;
-use crate::common::{CommonState, Overlays};
+use crate::common::CommonState;
 use crate::edit::EditMode;
 use crate::game::{msg, State, Transition};
 use crate::managed::WrappedComposite;
 use crate::pregame::main_menu;
-use crate::render::{AgentColorScheme, InnerAgentColorScheme};
 use crate::sandbox::{SandboxControls, SandboxMode, ScoreCard};
 use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{
     lctrl, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    ManagedWidget, ModalMenu, Outcome, Text, VerticalAlignment,
+    ManagedWidget, Outcome, Text, VerticalAlignment,
 };
 use geom::{Duration, Polygon};
 use map_model::{EditCmd, EditIntersection, Map, MapEdits};
@@ -243,58 +242,6 @@ impl GameplayMode {
             }
             GameplayMode::Tutorial(current) => Tutorial::new(ctx, ui, *current),
         }
-    }
-}
-
-// Must call menu.event first. Returns true if the caller should set the overlay to the custom
-// thing.
-fn manage_overlays(
-    ctx: &EventCtx,
-    menu: &mut ModalMenu,
-    ui: &mut UI,
-    show: &str,
-    hide: &str,
-    active_originally: bool,
-) -> bool {
-    // Synchronize menus if needed. Player can change these separately.
-    if active_originally {
-        menu.maybe_change_action(ctx, show, hide);
-    } else {
-        menu.maybe_change_action(ctx, hide, show);
-    }
-
-    if !active_originally && menu.swap_action(ctx, show, hide) {
-        true
-    } else if active_originally && menu.swap_action(ctx, hide, show) {
-        ui.overlay = Overlays::Inactive;
-        false
-    } else {
-        active_originally
-    }
-}
-
-// Must call menu.event first.
-fn manage_acs(
-    ctx: &EventCtx,
-    menu: &mut ModalMenu,
-    ui: &mut UI,
-    show: &str,
-    hide: &str,
-    acs: InnerAgentColorScheme,
-) {
-    let active_originally = ui.agent_cs.acs == acs;
-
-    // Synchronize menus if needed. Player can change these separately.
-    if active_originally {
-        menu.maybe_change_action(ctx, show, hide);
-    } else {
-        menu.maybe_change_action(ctx, hide, show);
-    }
-
-    if !active_originally && menu.swap_action(ctx, show, hide) {
-        ui.agent_cs = AgentColorScheme::new(acs, &ui.cs);
-    } else if active_originally && menu.swap_action(ctx, hide, show) {
-        ui.agent_cs = AgentColorScheme::default(&ui.cs);
     }
 }
 
