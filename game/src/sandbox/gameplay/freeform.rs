@@ -171,7 +171,17 @@ fn make_load_map(btn: ScreenRectangle, gameplay: GameplayMode) -> Box<dyn State>
                 abstutil::list_all_objects(abstutil::path_all_maps())
                     .into_iter()
                     .filter(|n| n != current_map)
-                    .map(|n| Choice::new(nice_map_name(&n), n.clone()))
+                    .map(|n| {
+                        let c = Choice::new(nice_map_name(&n), n.clone());
+                        // Hardcoded list for now.
+                        if n == "montlake" || n == "23rd" {
+                            c
+                        } else {
+                            c.tooltip(
+                                "This map currently has bugs causing unrealistic traffic jams.",
+                            )
+                        }
+                    })
                     .collect()
             },
         ) {
