@@ -32,7 +32,7 @@ pub use crate::screen_geom::{ScreenDims, ScreenPt, ScreenRectangle};
 pub use crate::text::{Line, Text, TextSpan, HOTKEY_COLOR};
 pub use crate::widgets::{
     Autocomplete, Button, Choice, Filler, Histogram, ItemSlider, JustDraw, ModalMenu, Plot, Series,
-    Slider, SliderWithTextBox, Warper, WarpingItemSlider, Wizard, WrappedWizard,
+    Slider, Warper, WarpingItemSlider, Wizard, WrappedWizard,
 };
 
 pub enum InputResult<T: Clone> {

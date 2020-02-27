@@ -49,15 +49,6 @@ impl TextBox {
         txt
     }
 
-    pub fn get_line(&self) -> &str {
-        &self.line
-    }
-
-    pub fn set_text(&mut self, line: String) {
-        self.line = line;
-        self.cursor_x = self.line.len();
-    }
-
     pub fn event(&mut self, input: &mut UserInput) -> InputResult<()> {
         let maybe_ev = input.use_event_directly();
         if maybe_ev.is_none() {

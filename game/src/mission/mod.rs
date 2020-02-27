@@ -6,9 +6,7 @@ mod scenario;
 use crate::game::{State, Transition, WizardState};
 use crate::ui::UI;
 use abstutil::Timer;
-use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu, Wizard, WrappedWizard};
-use geom::Time;
-use sim::Scenario;
+use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu, Wizard};
 
 pub struct MissionEditMode {
     menu: ModalMenu,
@@ -24,7 +22,6 @@ impl MissionEditMode {
                     (hotkey(Key::A), "visualize all PSRC trips"),
                     (hotkey(Key::N), "manage neighborhoods"),
                     (hotkey(Key::W), "load scenario"),
-                    (None, "create new scenario"),
                     (hotkey(Key::Escape), "quit"),
                 ],
                 ctx,
@@ -48,8 +45,6 @@ impl State for MissionEditMode {
             return Transition::Push(Box::new(neighborhood::NeighborhoodPicker::new()));
         } else if self.menu.action("load scenario") {
             return Transition::Push(WizardState::new(Box::new(load_scenario)));
-        } else if self.menu.action("create new scenario") {
-            return Transition::Push(WizardState::new(Box::new(create_new_scenario)));
         }
         Transition::Keep
     }
@@ -71,23 +66,4 @@ fn load_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tr
     Some(Transition::Replace(Box::new(
         scenario::ScenarioManager::new(scenario, ctx, ui),
     )))
-}
-
-fn create_new_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
-    let name = wiz.wrap(ctx).input_string("Name the scenario")?;
-    let mut s = Scenario::empty(&ui.primary.map, &name);
-    s.only_seed_buses = None;
-    Some(Transition::Replace(Box::new(
-        scenario::ScenarioManager::new(s, ctx, ui),
-    )))
-}
-
-pub fn pick_time_range(
-    wizard: &mut WrappedWizard,
-    low_query: &str,
-    high_query: &str,
-) -> Option<(Time, Time)> {
-    let t1 = wizard.input_time_slider(low_query, Time::START_OF_DAY, Time::END_OF_DAY)?;
-    let t2 = wizard.input_time_slider(high_query, t1, Time::END_OF_DAY)?;
-    Some((t1, t2))
 }

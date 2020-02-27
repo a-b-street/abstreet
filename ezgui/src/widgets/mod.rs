@@ -21,6 +21,6 @@ pub use self::no_op::JustDraw;
 pub use self::plot::{Plot, Series};
 pub(crate) use self::popup_menu::PopupMenu;
 pub(crate) use self::screenshot::{screenshot_current, screenshot_everything};
-pub use self::slider::{ItemSlider, Slider, SliderWithTextBox, WarpingItemSlider};
+pub use self::slider::{ItemSlider, Slider, WarpingItemSlider};
 pub use self::warper::Warper;
 pub use self::wizard::{Choice, Wizard, WrappedWizard};

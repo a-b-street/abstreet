@@ -2,10 +2,9 @@ use crate::widgets::text_box::TextBox;
 use crate::widgets::PopupMenu;
 use crate::{
     hotkey, layout, Button, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, InputResult,
-    Key, Line, ManagedWidget, MultiKey, Outcome, SliderWithTextBox, Text, VerticalAlignment,
+    Key, Line, ManagedWidget, MultiKey, Outcome, Text, VerticalAlignment,
 };
 use abstutil::Cloneable;
-use geom::Time;
 use std::collections::VecDeque;
 
 pub struct Wizard {
@@ -13,7 +12,6 @@ pub struct Wizard {
     tb: Option<TextBox>,
     menu_comp: Option<Composite>,
     ack: Option<Composite>,
-    slider: Option<SliderWithTextBox>,
 
     // In the order of queries made
     confirmed_state: Vec<Box<dyn Cloneable>>,
@@ -26,7 +24,6 @@ impl Wizard {
             tb: None,
             menu_comp: None,
             ack: None,
-            slider: None,
             confirmed_state: Vec::new(),
         }
     }
@@ -39,9 +36,6 @@ impl Wizard {
             tb.draw(g);
         }
         if let Some(ref s) = self.ack {
-            s.draw(g);
-        }
-        if let Some(ref s) = self.slider {
             s.draw(g);
         }
     }
@@ -114,37 +108,6 @@ impl Wizard {
             }
         }
     }
-
-    fn input_time_slider(
-        &mut self,
-        query: &str,
-        low: Time,
-        high: Time,
-        ctx: &mut EventCtx,
-    ) -> Option<Time> {
-        assert!(self.alive);
-
-        // Otherwise, we try to use one event for two inputs potentially
-        if ctx.input.has_been_consumed() {
-            return None;
-        }
-
-        if self.slider.is_none() {
-            self.slider = Some(SliderWithTextBox::new(query, low, high, ctx));
-        }
-
-        match self.slider.as_mut().unwrap().event(ctx) {
-            InputResult::StillActive => None,
-            InputResult::Canceled => {
-                self.alive = false;
-                None
-            }
-            InputResult::Done(_, result) => {
-                self.slider = None;
-                Some(result)
-            }
-        }
-    }
 }
 
 // Lives only for one frame -- bundles up temporary things like UserInput and statefully serve
@@ -174,21 +137,6 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             .input_with_text_box(query, prefilled, parser, self.ctx)
         {
             self.wizard.confirmed_state.push(Box::new(obj.clone()));
-            Some(obj)
-        } else {
-            None
-        }
-    }
-
-    pub fn input_time_slider(&mut self, query: &str, low: Time, high: Time) -> Option<Time> {
-        if !self.ready_results.is_empty() {
-            let first = self.ready_results.pop_front().unwrap();
-            // TODO Simplify?
-            let item: &Time = first.as_any().downcast_ref::<Time>().unwrap();
-            return Some(*item);
-        }
-        if let Some(obj) = self.wizard.input_time_slider(query, low, high, self.ctx) {
-            self.wizard.confirmed_state.push(Box::new(obj));
             Some(obj)
         } else {
             None
@@ -454,7 +402,6 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         assert!(self.wizard.tb.is_none());
         assert!(self.wizard.menu_comp.is_none());
         assert!(self.wizard.ack.is_none());
-        assert!(self.wizard.slider.is_none());
         self.wizard.confirmed_state.clear();
     }
 }

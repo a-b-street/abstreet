@@ -1,10 +1,9 @@
 use crate::layout::{stack_vertically, ContainerOrientation, Widget};
-use crate::widgets::text_box::TextBox;
 use crate::{
-    hotkey, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, InputResult, Key, Line,
-    ModalMenu, MultiKey, ScreenDims, ScreenPt, ScreenRectangle, Text, Warper,
+    hotkey, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu,
+    MultiKey, ScreenDims, ScreenPt, ScreenRectangle, Text, Warper,
 };
-use geom::{Polygon, Pt2D, Time};
+use geom::{Polygon, Pt2D};
 
 pub struct Slider {
     current_percent: f64,
@@ -407,73 +406,5 @@ impl<T: PartialEq> WarpingItemSlider<T> {
             .slider
             .set_value(ctx, idx, self.slider.items.len());
         self.warper = None;
-    }
-}
-
-// TODO Hardcoded to Times right now...
-pub struct SliderWithTextBox {
-    slider: Slider,
-    tb: TextBox,
-    low: Time,
-    high: Time,
-}
-
-impl SliderWithTextBox {
-    pub fn new(prompt: &str, low: Time, high: Time, ctx: &EventCtx) -> SliderWithTextBox {
-        SliderWithTextBox {
-            // TODO Some ratio based on low and high difference
-            slider: Slider::horizontal(
-                ctx,
-                Text::from(Line(prompt)).dims(&ctx.prerender.assets).width,
-                25.0,
-            ),
-            tb: TextBox::new(ctx, prompt, Some(low.to_string())),
-            low,
-            high,
-        }
-    }
-
-    pub fn event(&mut self, ctx: &mut EventCtx) -> InputResult<Time> {
-        stack_vertically(
-            ContainerOrientation::Centered,
-            ctx,
-            vec![&mut self.slider, &mut self.tb],
-        );
-
-        if self.slider.event(ctx) {
-            let value = self.low + self.slider.get_percent() * (self.high - self.low);
-            self.tb.set_text(value.to_string());
-            InputResult::StillActive
-        } else {
-            let line_before = self.tb.get_line().to_string();
-            match self.tb.event(&mut ctx.input) {
-                InputResult::Done(line, _) => {
-                    if let Ok(t) = Time::parse(&line) {
-                        if t >= self.low && t <= self.high {
-                            return InputResult::Done(line, t);
-                        }
-                    }
-                    println!("Bad input {}", line);
-                    InputResult::Canceled
-                }
-                InputResult::StillActive => {
-                    if line_before != self.tb.get_line() {
-                        if let Ok(t) = Time::parse(self.tb.get_line()) {
-                            if t >= self.low && t <= self.high {
-                                self.slider
-                                    .set_percent(ctx, (t - self.low) / (self.high - self.low));
-                            }
-                        }
-                    }
-                    InputResult::StillActive
-                }
-                InputResult::Canceled => InputResult::Canceled,
-            }
-        }
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx) {
-        self.slider.draw(g);
-        self.tb.draw(g);
     }
 }
