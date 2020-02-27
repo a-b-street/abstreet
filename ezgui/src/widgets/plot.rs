@@ -196,7 +196,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
         if let Some(cursor) = g.canvas.get_cursor_in_screen_space() {
             if ScreenRectangle::top_left(self.top_left, self.dims).contains(cursor) {
                 let radius = Distance::meters(15.0);
-                let mut txt = Text::new().bg(Color::BLACK);
+                let mut txt = Text::new();
                 for (label, pt, _) in self.closest.all_close_pts(
                     Pt2D::new(cursor.x - self.top_left.x, cursor.y - self.top_left.y),
                     radius,

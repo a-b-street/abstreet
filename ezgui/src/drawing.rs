@@ -204,15 +204,25 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_mouse_tooltip(&mut self, txt: Text) {
+        // Add some padding
+        let pad = 5.0;
+
         let txt_batch = txt.render_g(self);
-        let dims = txt_batch.get_dims();
+        let raw_dims = txt_batch.get_dims();
+        let dims = ScreenDims::new(raw_dims.width + 2.0 * pad, raw_dims.height + 2.0 * pad);
+
         // TODO Maybe also consider the cursor as a valid center
         let pt = dims.top_left_for_corner(
             ScreenPt::new(self.canvas.cursor_x, self.canvas.cursor_y + 20.0),
             &self.canvas,
         );
         let mut batch = GeomBatch::new();
-        batch.add_translated(txt_batch, pt.x, pt.y);
+        // TODO Outline?
+        batch.push(
+            Color::BLACK,
+            Polygon::rectangle(dims.width, dims.height).translate(pt.x, pt.y),
+        );
+        batch.add_translated(txt_batch, pt.x + pad, pt.y + pad);
 
         // fork_screenspace, but with an even more prominent Z
         self.uniforms.transform = [0.0, 0.0, 1.0];

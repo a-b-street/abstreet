@@ -650,7 +650,7 @@ impl GUI for UI {
                 if show_tooltip {
                     // TODO Argh, covers up mouseover tooltip.
                     if let Some(cursor) = g.canvas.get_cursor_in_map_space() {
-                        g.draw_mouse_tooltip(Text::from(Line(cursor.to_string())).with_bg());
+                        g.draw_mouse_tooltip(Text::from(Line(cursor.to_string())));
                     }
                 }
             }

@@ -45,12 +45,11 @@ impl Button {
             draw_normal: ctx.upload(normal),
             draw_hovered: ctx.upload(hovered),
             tooltip: if let Some(ref key) = hotkey {
-                let mut txt =
-                    Text::from(Line(key.describe()).fg(text::HOTKEY_COLOR).size(20)).with_bg();
+                let mut txt = Text::from(Line(key.describe()).fg(text::HOTKEY_COLOR).size(20));
                 txt.append(Line(format!(" - {}", tooltip)));
                 txt
             } else {
-                Text::from(Line(tooltip).size(20)).with_bg()
+                Text::from(Line(tooltip).size(20))
             },
             hotkey,
             hitbox,

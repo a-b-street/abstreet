@@ -60,8 +60,7 @@ impl Histogram {
                         min,
                         max,
                         prettyprint_usize(cnt)
-                    )))
-                    .bg(Color::BLACK),
+                    ))),
                 ));
             }
         }

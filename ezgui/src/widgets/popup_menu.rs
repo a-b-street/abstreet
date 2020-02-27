@@ -132,7 +132,7 @@ impl<T: Clone> PopupMenu<T> {
             };
             if let Some(pt) = g.canvas.get_cursor_in_screen_space() {
                 if rect.contains(pt) {
-                    let mut txt = Text::new().with_bg();
+                    let mut txt = Text::new();
                     txt.add_wrapped(info.to_string(), 0.5 * g.canvas.window_width);
                     g.draw_mouse_tooltip(txt);
                 }

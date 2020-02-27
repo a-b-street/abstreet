@@ -64,7 +64,7 @@ impl GameplayState for Freeform {
 
         if let Some(ID::Intersection(i)) = ui.primary.current_selection {
             if self.spawn_pts.contains(&i) {
-                let mut txt = Text::new().with_bg();
+                let mut txt = Text::new();
                 for line in ui.primary.sim.count_trips_involving_border(i).describe() {
                     txt.add(Line(line));
                 }

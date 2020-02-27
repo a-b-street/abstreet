@@ -66,7 +66,7 @@ impl SpeedControls {
                 ]
                 .into_iter()
                 .map(|(s, label)| {
-                    let mut tooltip = Text::from(Line(label).size(20)).with_bg();
+                    let mut tooltip = Text::from(Line(label).size(20));
                     tooltip.add(Line(Key::LeftArrow.describe()).fg(Color::GREEN).size(20));
                     tooltip.append(Line(" - slow down"));
                     tooltip.add(Line(Key::RightArrow.describe()).fg(Color::GREEN).size(20));

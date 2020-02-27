@@ -41,7 +41,7 @@ impl ObjectDebugger {
         if self.debug_tooltip_key_held {
             if let Some(pt) = g.canvas.get_cursor_in_map_space() {
                 if let Some(gps) = pt.to_gps(ui.primary.map.get_gps_bounds()) {
-                    let mut txt = Text::new().with_bg();
+                    let mut txt = Text::new();
                     txt.add(Line(pt.to_string()));
                     txt.add(Line(gps.to_string()));
                     txt.add(Line(format!("{:?}", g.canvas.get_cursor())));
