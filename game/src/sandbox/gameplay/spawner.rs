@@ -1,11 +1,16 @@
+use crate::colors;
 use crate::common::{Colorer, CommonState};
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
+use crate::managed::WrappedComposite;
 use crate::sandbox::gameplay::freeform::Freeform;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::Timer;
-use ezgui::{hotkey, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
+use ezgui::{
+    hotkey, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget, Outcome,
+    Text, VerticalAlignment,
+};
 use geom::{Distance, Duration, PolyLine};
 use map_model::{
     BuildingID, IntersectionID, LaneID, Map, PathConstraints, PathRequest, Position,
@@ -21,7 +26,7 @@ use sim::{
 const SMALL_DT: Duration = Duration::const_seconds(0.1);
 
 pub struct AgentSpawner {
-    menu: ModalMenu,
+    composite: Composite,
     from: Source,
     maybe_goal: Option<(Goal, Option<PolyLine>)>,
     colorer: Colorer,
@@ -64,10 +69,10 @@ impl AgentSpawner {
                 }
                 if ui.per_obj.action(ctx, Key::F3, "spawn a walking trip") {
                     return Some(Box::new(AgentSpawner {
-                        menu: ModalMenu::new(
-                            "Agent Spawner",
-                            vec![(hotkey(Key::Escape), "quit")],
+                        composite: make_top_bar(
                             ctx,
+                            "Spawning a pedestrian",
+                            "Pick a building or border as a destination",
                         ),
                         from: Source::WalkFromBldg(id),
                         maybe_goal: None,
@@ -84,10 +89,10 @@ impl AgentSpawner {
                     )
                 {
                     return Some(Box::new(AgentSpawner {
-                        menu: ModalMenu::new(
-                            "Agent Spawner",
-                            vec![(hotkey(Key::Escape), "quit")],
+                        composite: make_top_bar(
                             ctx,
+                            "Spawning a walking trip using a parked car",
+                            "Pick a building or border as a destination",
                         ),
                         from: Source::WalkFromBldgThenMaybeUseCar(id),
                         maybe_goal: None,
@@ -97,10 +102,10 @@ impl AgentSpawner {
                 if let Some(pos) = Position::bldg_via_driving(id, map) {
                     if ui.per_obj.action(ctx, Key::F4, "spawn a car starting here") {
                         return Some(Box::new(AgentSpawner {
-                            menu: ModalMenu::new(
-                                "Agent Spawner",
-                                vec![(hotkey(Key::Escape), "quit")],
+                            composite: make_top_bar(
                                 ctx,
+                                "Spawning a car",
+                                "Pick a building or border as a destination",
                             ),
                             from: Source::Drive(pos),
                             maybe_goal: None,
@@ -114,10 +119,10 @@ impl AgentSpawner {
                         .action(ctx, Key::F7, "spawn a bike starting here")
                     {
                         return Some(Box::new(AgentSpawner {
-                            menu: ModalMenu::new(
-                                "Agent Spawner",
-                                vec![(hotkey(Key::Escape), "quit")],
+                            composite: make_top_bar(
                                 ctx,
+                                "Spawning a bike",
+                                "Pick a building or border as a destination",
                             ),
                             from: Source::BikeFromBldg(id, pos),
                             maybe_goal: None,
@@ -133,10 +138,10 @@ impl AgentSpawner {
                     && ui.per_obj.action(ctx, Key::F3, "spawn a car starting here")
                 {
                     return Some(Box::new(AgentSpawner {
-                        menu: ModalMenu::new(
-                            "Agent Spawner",
-                            vec![(hotkey(Key::Escape), "quit")],
+                        composite: make_top_bar(
                             ctx,
+                            "Spawning a car",
+                            "Pick a building or border as a destination",
                         ),
                         from: Source::Drive(Position::new(id, map.get_l(id).length() / 2.0)),
                         maybe_goal: None,
@@ -148,10 +153,10 @@ impl AgentSpawner {
                         .action(ctx, Key::F3, "spawn a pedestrian starting here")
                 {
                     return Some(Box::new(AgentSpawner {
-                        menu: ModalMenu::new(
-                            "Agent Spawner",
-                            vec![(hotkey(Key::Escape), "quit")],
+                        composite: make_top_bar(
                             ctx,
+                            "Spawning a pedestrian",
+                            "Pick a building or border as a destination",
                         ),
                         from: Source::WalkFromSidewalk(Position::new(
                             id,
@@ -175,10 +180,14 @@ impl AgentSpawner {
 
 impl State for AgentSpawner {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        // TODO Instructions to select target building/lane
-        self.menu.event(ctx);
-        if self.menu.action("quit") {
-            return Transition::Pop;
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "X" => {
+                    return Transition::Pop;
+                }
+                _ => unreachable!(),
+            },
+            None => {}
         }
 
         ctx.canvas_movement();
@@ -286,7 +295,7 @@ impl State for AgentSpawner {
             );
         }
 
-        self.menu.draw(g);
+        self.composite.draw(g);
         CommonState::draw_osd(g, ui, &ui.primary.current_selection);
     }
 }
@@ -496,7 +505,7 @@ fn schedule_trip(
 
 // New experiment, stop squeezing in all these options into one thing, specialize.
 pub struct SpawnManyAgents {
-    menu: ModalMenu,
+    composite: Composite,
     from: LaneID,
     maybe_goal: Option<(LaneID, Option<PolyLine>)>,
     schedule: Option<(usize, Duration)>,
@@ -519,10 +528,10 @@ impl SpawnManyAgents {
                 c.add_l(l, color, &ui.primary.map);
 
                 return Some(Box::new(SpawnManyAgents {
-                    menu: ModalMenu::new(
-                        "Spawn many agents",
-                        vec![(hotkey(Key::Escape), "quit")],
+                    composite: make_top_bar(
                         ctx,
+                        "Spawning many agents",
+                        "Pick a driving lane as a destination",
                     ),
                     from: l,
                     maybe_goal: None,
@@ -553,9 +562,14 @@ impl State for SpawnManyAgents {
             }));
         }
 
-        self.menu.event(ctx);
-        if self.menu.action("quit") {
-            return Transition::Pop;
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "X" => {
+                    return Transition::Pop;
+                }
+                _ => unreachable!(),
+            },
+            None => {}
         }
 
         ctx.canvas_movement();
@@ -626,7 +640,7 @@ impl State for SpawnManyAgents {
             );
         }
 
-        self.menu.draw(g);
+        self.composite.draw(g);
         CommonState::draw_osd(g, ui, &ui.primary.current_selection);
     }
 }
@@ -659,4 +673,20 @@ fn create_swarm(ui: &mut UI, from: LaneID, to: LaneID, count: usize, duration: D
         &mut rng,
         &mut Timer::throwaway(),
     );
+}
+
+fn make_top_bar(ctx: &mut EventCtx, title: &str, howto: &str) -> Composite {
+    Composite::new(
+        ManagedWidget::col(vec![
+            ManagedWidget::row(vec![
+                ManagedWidget::draw_text(ctx, Text::from(Line(title).roboto_bold())),
+                WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
+            ]),
+            ManagedWidget::draw_text(ctx, Text::from(Line(howto))),
+        ])
+        .padding(10)
+        .bg(colors::PANEL_BG),
+    )
+    .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+    .build(ctx)
 }
