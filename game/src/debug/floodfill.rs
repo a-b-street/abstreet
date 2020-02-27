@@ -1,13 +1,14 @@
 use crate::common::Colorer;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
+use crate::managed::WrappedComposite;
 use crate::ui::UI;
-use ezgui::{hotkey, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
+use ezgui::{Color, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Text};
 use map_model::{connectivity, LaneID, Map, PathConstraints};
 use std::collections::HashSet;
 
 pub struct Floodfiller {
-    menu: ModalMenu,
+    composite: Composite,
     colorer: Colorer,
 }
 
@@ -59,14 +60,13 @@ impl Floodfiller {
             println!("{} is unreachable", l);
         }
 
-        let mut menu = ModalMenu::new(title, vec![(hotkey(Key::Escape), "quit")], ctx);
-        menu.set_info(
-            ctx,
-            Text::from(Line(format!("{} unreachable lanes", num_unreachable))),
-        );
-
         Some(Box::new(Floodfiller {
-            menu,
+            composite: WrappedComposite::quick_menu(
+                ctx,
+                title,
+                vec![format!("{} unreachable lanes", num_unreachable)],
+                vec![],
+            ),
             colorer: colorer.build(ctx, ui),
         }))
     }
@@ -79,9 +79,14 @@ impl State for Floodfiller {
         }
         ctx.canvas_movement();
 
-        self.menu.event(ctx);
-        if self.menu.action("quit") {
-            return Transition::Pop;
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "X" => {
+                    return Transition::Pop;
+                }
+                _ => unreachable!(),
+            },
+            None => {}
         }
 
         Transition::Keep
@@ -89,7 +94,7 @@ impl State for Floodfiller {
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
         self.colorer.draw(g);
-        self.menu.draw(g);
+        self.composite.draw(g);
     }
 }
 

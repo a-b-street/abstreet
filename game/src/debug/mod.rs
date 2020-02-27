@@ -3,14 +3,15 @@ mod objects;
 mod polygons;
 mod routes;
 
+use crate::colors;
 use crate::common::{tool_panel, CommonState};
 use crate::game::{msg, DrawBaselayer, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::ui::{ShowLayers, ShowObject, UI};
 use ezgui::{
-    hotkey, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu,
-    Text, Wizard,
+    hotkey, lctrl, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Text, VerticalAlignment, Wizard,
 };
 use geom::Duration;
 use map_model::IntersectionID;
@@ -18,7 +19,7 @@ use sim::Sim;
 use std::collections::HashSet;
 
 pub struct DebugMode {
-    menu: ModalMenu,
+    composite: Composite,
     common: CommonState,
     tool_panel: WrappedComposite,
     objects: objects::ObjectDebugger,
@@ -33,25 +34,42 @@ pub struct DebugMode {
 impl DebugMode {
     pub fn new(ctx: &mut EventCtx) -> DebugMode {
         DebugMode {
-            menu: ModalMenu::new(
-                "Debug Mode",
-                vec![
-                    (hotkey(Key::Num1), "hide buildings"),
-                    (hotkey(Key::Num2), "hide intersections"),
-                    (hotkey(Key::Num3), "hide lanes"),
-                    (hotkey(Key::Num4), "hide areas"),
-                    (hotkey(Key::Num5), "hide extra shapes"),
-                    (hotkey(Key::Num6), "show labels"),
-                    (hotkey(Key::R), "show route for all agents"),
-                    (None, "screenshot everything"),
-                    (hotkey(Key::Slash), "search OSM metadata"),
-                    (hotkey(Key::O), "save sim state"),
-                    (hotkey(Key::Y), "load previous sim state"),
-                    (hotkey(Key::U), "load next sim state"),
-                    (None, "pick a savestate to load"),
-                ],
-                ctx,
-            ),
+            composite: Composite::new(
+                ManagedWidget::col(vec![
+                    ManagedWidget::row(vec![
+                        ManagedWidget::draw_text(ctx, Text::from(Line("Debug Mode").roboto_bold())),
+                        WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
+                    ]),
+                    ManagedWidget::draw_text(ctx, Text::new()).named("current info"),
+                    ManagedWidget::row(
+                        vec![
+                            (hotkey(Key::Num1), "toggle buildings"),
+                            (hotkey(Key::Num2), "toggle intersections"),
+                            (hotkey(Key::Num3), "toggle lanes"),
+                            (hotkey(Key::Num4), "toggle areas"),
+                            (hotkey(Key::Num5), "toggle extra shapes"),
+                            (hotkey(Key::Num6), "toggle labels"),
+                            (lctrl(Key::H), "unhide everything"),
+                            (hotkey(Key::R), "toggle route for all agents"),
+                            (None, "screenshot everything"),
+                            (hotkey(Key::Slash), "search OSM metadata"),
+                            (lctrl(Key::Slash), "clear OSM search results"),
+                            (hotkey(Key::O), "save sim state"),
+                            (hotkey(Key::Y), "load previous sim state"),
+                            (hotkey(Key::U), "load next sim state"),
+                            (None, "pick a savestate to load"),
+                        ]
+                        .into_iter()
+                        .map(|(key, action)| WrappedComposite::text_button(ctx, action, key))
+                        .collect(),
+                    )
+                    .flex_wrap(ctx, 80),
+                ])
+                .padding(10)
+                .bg(colors::PANEL_BG),
+            )
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .build(ctx),
             common: CommonState::new(),
             tool_panel: tool_panel(ctx),
             objects: objects::ObjectDebugger::new(),
@@ -62,113 +80,173 @@ impl DebugMode {
             highlighted_agents: None,
         }
     }
+
+    fn reset_info(&mut self, ctx: &mut EventCtx) {
+        let mut txt = Text::new();
+        if !self.hidden.is_empty() {
+            txt.add(Line(format!("Hiding {} things", self.hidden.len())));
+        }
+        if let Some(ref results) = self.search_results {
+            txt.add(Line(format!(
+                "Search for {} has {} results",
+                results.query, results.num_matches
+            )));
+        }
+        if let routes::AllRoutesViewer::Active(ref traces) = self.all_routes {
+            txt.add(Line(format!("Showing {} routes", traces.len())));
+        }
+        self.composite.replace(
+            ctx,
+            "current info",
+            ManagedWidget::draw_text(ctx, txt).named("current info"),
+        );
+    }
 }
 
 impl State for DebugMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+        ctx.canvas_movement();
+
         if ctx.redo_mouseover() {
             ui.primary.current_selection =
                 ui.calculate_current_selection(ctx, &ui.primary.sim, self, true, false);
         }
 
-        {
-            let mut txt = Text::new();
-            if !self.hidden.is_empty() {
-                txt.add(Line(format!("Hiding {} things", self.hidden.len())));
-            }
-            if let Some(ref results) = self.search_results {
-                txt.add(Line(format!(
-                    "Search for {} has {} results",
-                    results.query, results.num_matches
-                )));
-            }
-            if let routes::AllRoutesViewer::Active(_, ref traces) = self.all_routes {
-                txt.add(Line(format!("Showing {} routes", traces.len())));
-            }
-            self.menu.set_info(ctx, txt);
-        }
-        self.menu.event(ctx);
-
-        ctx.canvas_movement();
-
-        if self.menu.action("save sim state") {
-            ctx.loading_screen("savestate", |_, timer| {
-                timer.start("save sim state");
-                ui.primary.sim.save();
-                timer.stop("save sim state");
-            });
-        }
-        if self.menu.action("load previous sim state") {
-            if let Some(t) = ctx.loading_screen("load previous savestate", |ctx, mut timer| {
-                let prev_state = ui
-                    .primary
-                    .sim
-                    .find_previous_savestate(ui.primary.sim.time());
-                match prev_state
-                    .clone()
-                    .and_then(|path| Sim::load_savestate(path, &ui.primary.map, &mut timer).ok())
-                {
-                    Some(new_sim) => {
-                        ui.primary.sim = new_sim;
-                        ui.recalculate_current_selection(ctx);
-                        None
-                    }
-                    None => Some(Transition::Push(msg(
-                        "Error",
-                        vec![format!("Couldn't load previous savestate {:?}", prev_state)],
-                    ))),
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "X" => {
+                    return Transition::Pop;
                 }
-            }) {
-                return t;
-            }
-        }
-        if self.menu.action("load next sim state") {
-            if let Some(t) = ctx.loading_screen("load next savestate", |ctx, mut timer| {
-                let next_state = ui.primary.sim.find_next_savestate(ui.primary.sim.time());
-                match next_state
-                    .clone()
-                    .and_then(|path| Sim::load_savestate(path, &ui.primary.map, &mut timer).ok())
-                {
-                    Some(new_sim) => {
-                        ui.primary.sim = new_sim;
-                        ui.recalculate_current_selection(ctx);
-                        None
-                    }
-                    None => Some(Transition::Push(msg(
-                        "Error",
-                        vec![format!("Couldn't load next savestate {:?}", next_state)],
-                    ))),
+                "save sim state" => {
+                    ctx.loading_screen("savestate", |_, timer| {
+                        timer.start("save sim state");
+                        ui.primary.sim.save();
+                        timer.stop("save sim state");
+                    });
                 }
-            }) {
-                return t;
-            }
-        }
-        if self.menu.action("pick a savestate to load") {
-            return Transition::Push(WizardState::new(Box::new(load_savestate)));
-        }
-
-        self.all_routes.event(ui, &mut self.menu, ctx);
-        match ui.primary.current_selection {
-            Some(ID::Lane(_)) | Some(ID::Intersection(_)) | Some(ID::ExtraShape(_)) => {
-                let id = ui.primary.current_selection.clone().unwrap();
-                if ui.per_obj.action(ctx, Key::H, format!("hide {:?}", id)) {
-                    println!("Hiding {:?}", id);
-                    ui.primary.current_selection = None;
-                    if self.hidden.is_empty() {
-                        self.menu
-                            .push_action(ctx, hotkey(Key::H), "unhide everything");
+                "load previous sim state" => {
+                    if let Some(t) =
+                        ctx.loading_screen("load previous savestate", |ctx, mut timer| {
+                            let prev_state = ui
+                                .primary
+                                .sim
+                                .find_previous_savestate(ui.primary.sim.time());
+                            match prev_state.clone().and_then(|path| {
+                                Sim::load_savestate(path, &ui.primary.map, &mut timer).ok()
+                            }) {
+                                Some(new_sim) => {
+                                    ui.primary.sim = new_sim;
+                                    ui.recalculate_current_selection(ctx);
+                                    None
+                                }
+                                None => Some(Transition::Push(msg(
+                                    "Error",
+                                    vec![format!(
+                                        "Couldn't load previous savestate {:?}",
+                                        prev_state
+                                    )],
+                                ))),
+                            }
+                        })
+                    {
+                        return t;
                     }
-                    self.hidden.insert(id);
                 }
-            }
-            None => {
-                if !self.hidden.is_empty() && self.menu.consume_action(ctx, "unhide everything") {
+                "load next sim state" => {
+                    if let Some(t) = ctx.loading_screen("load next savestate", |ctx, mut timer| {
+                        let next_state = ui.primary.sim.find_next_savestate(ui.primary.sim.time());
+                        match next_state.clone().and_then(|path| {
+                            Sim::load_savestate(path, &ui.primary.map, &mut timer).ok()
+                        }) {
+                            Some(new_sim) => {
+                                ui.primary.sim = new_sim;
+                                ui.recalculate_current_selection(ctx);
+                                None
+                            }
+                            None => Some(Transition::Push(msg(
+                                "Error",
+                                vec![format!("Couldn't load next savestate {:?}", next_state)],
+                            ))),
+                        }
+                    }) {
+                        return t;
+                    }
+                }
+                "pick a savestate to load" => {
+                    return Transition::Push(WizardState::new(Box::new(load_savestate)));
+                }
+                "unhide everything" => {
                     self.hidden.clear();
                     ui.primary.current_selection =
                         ui.calculate_current_selection(ctx, &ui.primary.sim, self, true, false);
+                    self.reset_info(ctx);
                 }
+                "toggle route for all agents" => {
+                    self.all_routes.toggle(ui);
+                    self.reset_info(ctx);
+                }
+                "search OSM metadata" => {
+                    return Transition::Push(WizardState::new(Box::new(search_osm)));
+                }
+                "clear OSM search results" => {
+                    self.search_results = None;
+                    self.reset_info(ctx);
+                }
+                "screenshot everything" => {
+                    let bounds = ui.primary.map.get_bounds();
+                    assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
+                    return Transition::KeepWithMode(EventLoopMode::ScreenCaptureEverything {
+                        dir: abstutil::path_pending_screenshots(ui.primary.map.get_name()),
+                        zoom: 3.0,
+                        max_x: bounds.max_x,
+                        max_y: bounds.max_y,
+                    });
+                }
+                "toggle buildings" => {
+                    self.layers.show_buildings = !self.layers.show_buildings;
+                    ui.primary.current_selection =
+                        ui.calculate_current_selection(ctx, &ui.primary.sim, self, true, false);
+                }
+                "toggle intersections" => {
+                    self.layers.show_intersections = !self.layers.show_intersections;
+                    ui.primary.current_selection =
+                        ui.calculate_current_selection(ctx, &ui.primary.sim, self, true, false);
+                }
+                "toggle lanes" => {
+                    self.layers.show_lanes = !self.layers.show_lanes;
+                    ui.primary.current_selection =
+                        ui.calculate_current_selection(ctx, &ui.primary.sim, self, true, false);
+                }
+                "toggle areas" => {
+                    self.layers.show_areas = !self.layers.show_areas;
+                    ui.primary.current_selection =
+                        ui.calculate_current_selection(ctx, &ui.primary.sim, self, true, false);
+                }
+                "toggle extra shapes" => {
+                    self.layers.show_extra_shapes = !self.layers.show_extra_shapes;
+                    ui.primary.current_selection =
+                        ui.calculate_current_selection(ctx, &ui.primary.sim, self, true, false);
+                }
+                "toggle labels" => {
+                    self.layers.show_labels = !self.layers.show_labels;
+                    ui.primary.current_selection =
+                        ui.calculate_current_selection(ctx, &ui.primary.sim, self, true, false);
+                }
+                _ => unreachable!(),
+            },
+            None => {}
+        }
+
+        if let Some(ID::Lane(_)) | Some(ID::Intersection(_)) | Some(ID::ExtraShape(_)) =
+            ui.primary.current_selection
+        {
+            let id = ui.primary.current_selection.clone().unwrap();
+            if ui.per_obj.action(ctx, Key::H, format!("hide {:?}", id)) {
+                println!("Hiding {:?}", id);
+                ui.primary.current_selection = None;
+                self.hidden.insert(id);
+                self.reset_info(ctx);
             }
-            _ => {}
         }
 
         if let Some(ID::Car(id)) = ui.primary.current_selection {
@@ -225,61 +303,6 @@ impl State for DebugMode {
             return Transition::Push(Box::new(debugger));
         }
 
-        {
-            let mut changed = false;
-
-            for (label, value) in vec![
-                ("buildings", &mut self.layers.show_buildings),
-                ("intersections", &mut self.layers.show_intersections),
-                ("lanes", &mut self.layers.show_lanes),
-                ("areas", &mut self.layers.show_areas),
-                ("extra shapes", &mut self.layers.show_extra_shapes),
-                ("labels", &mut self.layers.show_labels),
-            ] {
-                let show = format!("show {}", label);
-                let hide = format!("hide {}", label);
-
-                if *value && self.menu.swap_action(ctx, &hide, &show) {
-                    *value = false;
-                    changed = true;
-                } else if !*value && self.menu.swap_action(ctx, &show, &hide) {
-                    *value = true;
-                    changed = true;
-                }
-            }
-
-            if changed {
-                ui.primary.current_selection =
-                    ui.calculate_current_selection(ctx, &ui.primary.sim, self, true, false);
-            }
-        }
-
-        if self.menu.action("screenshot everything") {
-            let bounds = ui.primary.map.get_bounds();
-            assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
-            return Transition::KeepWithMode(EventLoopMode::ScreenCaptureEverything {
-                dir: abstutil::path_pending_screenshots(ui.primary.map.get_name()),
-                zoom: 3.0,
-                max_x: bounds.max_x,
-                max_y: bounds.max_y,
-            });
-        }
-
-        if self.search_results.is_some() {
-            if self
-                .menu
-                .swap_action(ctx, "clear OSM search results", "search OSM metadata")
-            {
-                self.search_results = None;
-            }
-        } else if self
-            .menu
-            .swap_action(ctx, "search OSM metadata", "clear OSM search results")
-        {
-            // TODO If the wizard aborts (pressing escape), this crashes.
-            return Transition::Push(WizardState::new(Box::new(search_osm)));
-        }
-
         if let Some(floodfiller) = floodfill::Floodfiller::new(ctx, ui) {
             return Transition::Push(floodfiller);
         }
@@ -318,7 +341,7 @@ impl State for DebugMode {
         self.all_routes.draw(g, ui);
 
         if !g.is_screencap() {
-            self.menu.draw(g);
+            self.composite.draw(g);
             self.common.draw(g, ui);
             self.tool_panel.draw(g);
         }
@@ -391,8 +414,10 @@ fn search_osm(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Trans
         draw: batch.upload(ctx),
     };
 
-    Some(Transition::PopWithData(Box::new(|state, _, _| {
-        state.downcast_mut::<DebugMode>().unwrap().search_results = Some(results);
+    Some(Transition::PopWithData(Box::new(|state, _, ctx| {
+        let mut mode = state.downcast_mut::<DebugMode>().unwrap();
+        mode.search_results = Some(results);
+        mode.reset_info(ctx);
     })))
 }
 

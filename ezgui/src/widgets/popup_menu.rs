@@ -4,9 +4,6 @@ use crate::{
     ScreenRectangle, Text,
 };
 
-// Separate from ModalMenu. There are some similarities, but I'm not sure it's worth making both
-// complex.
-
 pub struct PopupMenu<T: Clone> {
     choices: Vec<Choice<T>>,
     current_idx: usize,
