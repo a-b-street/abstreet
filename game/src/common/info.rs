@@ -235,8 +235,10 @@ impl InfoPanel {
                             }
                         }
                         TripResult::TripDone => {
+                            *self =
+                                InfoPanel::new(ID::Trip(trip), ctx, ui, Vec::new(), maybe_speed);
                             return (
-                                true,
+                                false,
                                 Some(Transition::Push(msg(
                                     "Trip complete",
                                     vec![format!(
