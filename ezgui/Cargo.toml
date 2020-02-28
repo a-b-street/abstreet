@@ -17,7 +17,7 @@ cpuprofiler = { version = "0.0.3", optional = true }
 geom = { path = "../geom" }
 glium = { version = "0.26.0", optional = true }
 glow = { version = "0.4.0", optional = true, default-features=false }
-glutin = { version = "0.23.0", optional = true }
+glutin = { git = "https://github.com/dabreegster/glutin", optional = true }
 htmlescape = "0.3.1"
 image = "0.22.2"
 instant = "0.1.2"

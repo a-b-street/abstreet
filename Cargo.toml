@@ -23,3 +23,6 @@ members = [
 # update dependencies often).
 [profile.dev.package."*"]
 opt-level = 3
+
+[patch.crates-io]
+glutin = { git = "https://github.com/dabreegster/glutin" }
