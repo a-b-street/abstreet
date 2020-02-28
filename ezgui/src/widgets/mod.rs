@@ -18,7 +18,7 @@ pub use self::filler::Filler;
 pub use self::histogram::Histogram;
 pub use self::modal_menu::ModalMenu;
 pub use self::no_op::JustDraw;
-pub use self::plot::{Plot, Series};
+pub use self::plot::{Plot, PlotOptions, Series};
 pub(crate) use self::popup_menu::PopupMenu;
 pub(crate) use self::screenshot::{screenshot_current, screenshot_everything};
 pub use self::slider::{ItemSlider, Slider, WarpingItemSlider};

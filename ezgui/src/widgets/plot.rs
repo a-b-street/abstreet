@@ -19,13 +19,24 @@ pub struct Plot<T> {
     dims: ScreenDims,
 }
 
+pub struct PlotOptions {
+    pub max_x: Option<Time>,
+}
+
+impl PlotOptions {
+    pub fn new() -> PlotOptions {
+        PlotOptions { max_x: None }
+    }
+}
+
 impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T> {
     // TODO I want to store y_zero in the trait, but then we can't Box max_y.
     // Returns (plot, legend, X axis labels, Y axis labels)
     fn new(
+        ctx: &EventCtx,
         series: Vec<Series<T>>,
         y_zero: T,
-        ctx: &EventCtx,
+        opts: PlotOptions,
     ) -> (Plot<T>, ManagedWidget, ManagedWidget, ManagedWidget) {
         let mut batch = GeomBatch::new();
 
@@ -55,17 +66,19 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
         );
 
         // Assume min_x is Time::START_OF_DAY and min_y is y_zero
-        let max_x = series
-            .iter()
-            .map(|s| {
-                s.pts
-                    .iter()
-                    .map(|(t, _)| *t)
-                    .max()
-                    .unwrap_or(Time::START_OF_DAY)
-            })
-            .max()
-            .unwrap_or(Time::START_OF_DAY);
+        let max_x = opts.max_x.unwrap_or_else(|| {
+            series
+                .iter()
+                .map(|s| {
+                    s.pts
+                        .iter()
+                        .map(|(t, _)| *t)
+                        .max()
+                        .unwrap_or(Time::START_OF_DAY)
+                })
+                .max()
+                .unwrap_or(Time::START_OF_DAY)
+        });
         let max_y = series
             .iter()
             .map(|s| {
@@ -224,8 +237,12 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
 }
 
 impl Plot<usize> {
-    pub fn new_usize(series: Vec<Series<usize>>, ctx: &EventCtx) -> ManagedWidget {
-        let (plot, legend, x_axis, y_axis) = Plot::new(series, 0, ctx);
+    pub fn new_usize(
+        ctx: &EventCtx,
+        series: Vec<Series<usize>>,
+        opts: PlotOptions,
+    ) -> ManagedWidget {
+        let (plot, legend, x_axis, y_axis) = Plot::new(ctx, series, 0, opts);
         // Don't let the x-axis fill the parent container
         ManagedWidget::row(vec![ManagedWidget::col(vec![
             legend,
@@ -239,8 +256,12 @@ impl Plot<usize> {
 }
 
 impl Plot<Duration> {
-    pub fn new_duration(series: Vec<Series<Duration>>, ctx: &EventCtx) -> ManagedWidget {
-        let (plot, legend, x_axis, y_axis) = Plot::new(series, Duration::ZERO, ctx);
+    pub fn new_duration(
+        ctx: &EventCtx,
+        series: Vec<Series<Duration>>,
+        opts: PlotOptions,
+    ) -> ManagedWidget {
+        let (plot, legend, x_axis, y_axis) = Plot::new(ctx, series, Duration::ZERO, opts);
         // Don't let the x-axis fill the parent container
         ManagedWidget::row(vec![ManagedWidget::col(vec![
             legend,

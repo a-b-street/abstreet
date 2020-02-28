@@ -5,8 +5,8 @@ use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::UI;
 use ezgui::{
     hotkey, Button, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Plot, RewriteColor, Series, Slider,
-    Text, VerticalAlignment,
+    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Plot, PlotOptions, RewriteColor,
+    Series, Slider, Text, VerticalAlignment,
 };
 use geom::{Duration, Polygon, Time};
 use instant::Instant;
@@ -369,24 +369,29 @@ impl JumpToTime {
                     WrappedComposite::text_bg_button(ctx, "Go!", hotkey(Key::Enter))
                         .centered_horiz(),
                     ManagedWidget::draw_text(ctx, Text::from(Line("Active agents").roboto_bold())),
-                    // TODO Line up things better. And sync the slider / plot.
+                    // TODO Sync the slider / plot.
                     Plot::new_usize(
-                        vec![Series {
-                            label: (if ui.has_prebaked().is_some() {
-                                "Baseline"
-                            } else {
-                                "Current simulation"
-                            })
-                            .to_string(),
-                            color: Color::RED,
-                            pts: (if ui.has_prebaked().is_some() {
-                                ui.prebaked()
-                            } else {
-                                ui.primary.sim.get_analytics()
-                            })
-                            .active_agents(Time::END_OF_DAY),
-                        }],
                         ctx,
+                        vec![if ui.has_prebaked().is_some() {
+                            Series {
+                                label: "Baseline".to_string(),
+                                color: Color::BLUE,
+                                pts: ui.prebaked().active_agents(Time::END_OF_DAY),
+                            }
+                        } else {
+                            Series {
+                                label: "Current simulation".to_string(),
+                                color: Color::RED,
+                                pts: ui
+                                    .primary
+                                    .sim
+                                    .get_analytics()
+                                    .active_agents(ui.primary.sim.time()),
+                            }
+                        }],
+                        PlotOptions {
+                            max_x: Some(Time::END_OF_DAY),
+                        },
                     ),
                 ])
                 .bg(colors::PANEL_BG),

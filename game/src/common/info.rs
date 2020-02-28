@@ -9,7 +9,8 @@ use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
     hotkey, Button, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, ManagedWidget, Outcome, Plot, RewriteColor, Series, Text, VerticalAlignment,
+    Key, Line, ManagedWidget, Outcome, Plot, PlotOptions, RewriteColor, Series, Text,
+    VerticalAlignment,
 };
 use geom::{Circle, Distance, Duration, Statistic, Time};
 use map_model::{IntersectionID, IntersectionType, RoadID};
@@ -763,6 +764,7 @@ fn intersection_throughput(
     ui: &UI,
 ) -> ManagedWidget {
     Plot::new_usize(
+        ctx,
         ui.primary
             .sim
             .get_analytics()
@@ -774,12 +776,13 @@ fn intersection_throughput(
                 pts,
             })
             .collect(),
-        ctx,
+        PlotOptions::new(),
     )
 }
 
 fn road_throughput(r: RoadID, bucket: Duration, ctx: &EventCtx, ui: &UI) -> ManagedWidget {
     Plot::new_usize(
+        ctx,
         ui.primary
             .sim
             .get_analytics()
@@ -791,7 +794,7 @@ fn road_throughput(r: RoadID, bucket: Duration, ctx: &EventCtx, ui: &UI) -> Mana
                 pts,
             })
             .collect(),
-        ctx,
+        PlotOptions::new(),
     )
 }
 
@@ -821,6 +824,7 @@ fn intersection_delay(
     }
 
     Plot::new_duration(
+        ctx,
         series
             .into_iter()
             .enumerate()
@@ -830,7 +834,7 @@ fn intersection_delay(
                 pts,
             })
             .collect(),
-        ctx,
+        PlotOptions::new(),
     )
 }
 

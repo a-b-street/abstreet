@@ -9,8 +9,8 @@ use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use abstutil::Counter;
 use ezgui::{
-    hotkey, Button, Color, Composite, EventCtx, Histogram, Key, Line, ManagedWidget, Plot, Series,
-    Text,
+    hotkey, Button, Color, Composite, EventCtx, Histogram, Key, Line, ManagedWidget, Plot,
+    PlotOptions, Series, Text,
 };
 use geom::{Duration, Statistic, Time};
 use map_model::BusRouteID;
@@ -175,6 +175,7 @@ fn trips_summary_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
         .bg(colors::SECTION_BG),
         ManagedWidget::draw_text(ctx, Text::from(Line("Active agents").roboto_bold())),
         Plot::new_usize(
+            ctx,
             vec![
                 Series {
                     label: "Baseline".to_string(),
@@ -191,7 +192,7 @@ fn trips_summary_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
                         .active_agents(ui.primary.sim.time()),
                 },
             ],
-            ctx,
+            PlotOptions::new(),
         ),
     ])
 }
@@ -244,6 +245,7 @@ fn trips_summary_not_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
         finished_trips_plot(ctx, ui).bg(colors::SECTION_BG),
         ManagedWidget::draw_text(ctx, Text::from(Line("Active agents").roboto_bold())),
         Plot::new_usize(
+            ctx,
             vec![Series {
                 label: "Active agents".to_string(),
                 color: Color::RED,
@@ -253,7 +255,7 @@ fn trips_summary_not_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
                     .get_analytics()
                     .active_agents(ui.primary.sim.time()),
             }],
-            ctx,
+            PlotOptions::new(),
         ),
     ])
 }
@@ -299,6 +301,7 @@ fn finished_trips_plot(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
     }
 
     let plot = Plot::new_usize(
+        ctx,
         lines
             .into_iter()
             .map(|(label, color, m)| Series {
@@ -307,7 +310,7 @@ fn finished_trips_plot(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
                 pts: pts_per_mode.remove(&m).unwrap(),
             })
             .collect(),
-        ctx,
+        PlotOptions::new(),
     );
     ManagedWidget::col(vec![
         ManagedWidget::draw_text(ctx, Text::from(Line("finished trips"))),

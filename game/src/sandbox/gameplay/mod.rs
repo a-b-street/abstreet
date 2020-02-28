@@ -219,6 +219,7 @@ impl GameplayMode {
                             "WARNING: No prebaked results for {} on {}, some stuff might break",
                             scenario.scenario_name, scenario.map_name
                         );
+                        ui.set_prebaked(None);
                     }
                 }
             }

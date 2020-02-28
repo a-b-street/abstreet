@@ -8,8 +8,8 @@ use crate::ui::UI;
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
     hotkey, Button, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Histogram,
-    HorizontalAlignment, JustDraw, Key, Line, ManagedWidget, Outcome, Plot, RewriteColor, Series,
-    Text, VerticalAlignment,
+    HorizontalAlignment, JustDraw, Key, Line, ManagedWidget, Outcome, Plot, PlotOptions,
+    RewriteColor, Series, Text, VerticalAlignment,
 };
 use geom::{Circle, Distance, Duration, PolyLine, Polygon, Pt2D, Statistic, Time};
 use map_model::{BusRouteID, IntersectionID};
@@ -827,7 +827,7 @@ impl Overlays {
                         ),
                         WrappedComposite::text_button(ctx, "X", None).align_right(),
                     ]),
-                    Plot::new_duration(series, ctx).margin(10),
+                    Plot::new_duration(ctx, series, PlotOptions::new()).margin(10),
                 ])
                 .bg(colors::PANEL_BG),
             )
