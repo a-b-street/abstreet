@@ -1,5 +1,7 @@
 use crate::colors;
+use crate::common::Warping;
 use crate::game::{msg, State, Transition};
+use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::UI;
@@ -166,7 +168,9 @@ impl SpeedControls {
             Box::new(|ctx, ui| {
                 Some(Transition::Push(Box::new(TimeWarpScreen::new(
                     ctx,
+                    ui,
                     ui.primary.sim.time() + Duration::hours(1),
+                    false,
                 ))))
             }),
         )
@@ -412,12 +416,14 @@ impl State for JumpToTime {
                     return Transition::Pop;
                 }
                 "Go!" => {
+                    // TODO Checkbox
+                    let traffic_jams = true;
                     if self.target < ui.primary.sim.time() {
                         if let Some(mode) = self.maybe_mode.take() {
                             ui.primary.clear_sim();
                             return Transition::ReplaceThenPush(
                                 Box::new(SandboxMode::new(ctx, ui, mode)),
-                                Box::new(TimeWarpScreen::new(ctx, self.target)),
+                                Box::new(TimeWarpScreen::new(ctx, ui, self.target, traffic_jams)),
                             );
                         } else {
                             return Transition::Replace(msg(
@@ -426,7 +432,12 @@ impl State for JumpToTime {
                             ));
                         }
                     }
-                    return Transition::Replace(Box::new(TimeWarpScreen::new(ctx, self.target)));
+                    return Transition::Replace(Box::new(TimeWarpScreen::new(
+                        ctx,
+                        ui,
+                        self.target,
+                        traffic_jams,
+                    )));
                 }
                 _ => unreachable!(),
             },
@@ -468,14 +479,22 @@ impl State for JumpToTime {
 pub struct TimeWarpScreen {
     target: Time,
     started: Instant,
+    traffic_jams: bool,
     composite: Composite,
 }
 
 impl TimeWarpScreen {
-    fn new(ctx: &mut EventCtx, target: Time) -> TimeWarpScreen {
+    fn new(ctx: &mut EventCtx, ui: &mut UI, target: Time, traffic_jams: bool) -> TimeWarpScreen {
+        if traffic_jams {
+            ui.primary
+                .sim
+                .set_gridlock_checker(Some(Duration::minutes(5)));
+        }
+
         TimeWarpScreen {
             target,
             started: Instant::now(),
+            traffic_jams,
             composite: Composite::new(
                 ManagedWidget::col(vec![
                     ManagedWidget::draw_text(ctx, Text::new()).named("text"),
@@ -494,11 +513,20 @@ impl State for TimeWarpScreen {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         if ctx.input.nonblocking_is_update_event().is_some() {
             ctx.input.use_update_event();
-            ui.primary.sim.time_limited_step(
+            if let Some(problems) = ui.primary.sim.time_limited_step(
                 &ui.primary.map,
                 self.target - ui.primary.sim.time(),
                 Duration::seconds(0.033),
-            );
+            ) {
+                let id = ID::Intersection(problems[0].0);
+                return Transition::Replace(Warping::new(
+                    ctx,
+                    id.canonical_point(&ui.primary).unwrap(),
+                    Some(10.0),
+                    Some(id),
+                    &mut ui.primary,
+                ));
+            }
             // TODO secondary for a/b test mode
 
             // I'm covered in shame for not doing this from the start.
@@ -545,6 +573,12 @@ impl State for TimeWarpScreen {
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
         State::grey_out_map(g);
         self.composite.draw(g);
+    }
+
+    fn on_destroy(&mut self, _: &mut EventCtx, ui: &mut UI) {
+        if self.traffic_jams {
+            ui.primary.sim.set_gridlock_checker(None);
+        }
     }
 }
 

@@ -55,6 +55,10 @@ pub struct Sim {
     #[derivative(PartialEq = "ignore")]
     #[serde(skip_serializing, skip_deserializing)]
     analytics: Analytics,
+
+    #[derivative(PartialEq = "ignore")]
+    #[serde(skip_serializing, skip_deserializing)]
+    check_for_gridlock: Option<(Time, Duration)>,
 }
 
 #[derive(Clone)]
@@ -115,6 +119,7 @@ impl Sim {
             run_name: opts.run_name,
             step_count: 0,
             trip_positions: None,
+            check_for_gridlock: None,
 
             analytics: Analytics::new(),
         }
@@ -629,13 +634,40 @@ impl Sim {
         self.timed_step(map, dt, &mut Timer::throwaway());
     }
 
-    pub fn time_limited_step(&mut self, map: &Map, dt: Duration, real_time_limit: Duration) {
+    // TODO Do this like periodic savestating instead?
+    pub fn set_gridlock_checker(&mut self, freq: Option<Duration>) {
+        if let Some(dt) = freq {
+            assert!(self.check_for_gridlock.is_none());
+            self.check_for_gridlock = Some((self.time + dt, dt));
+        } else {
+            assert!(self.check_for_gridlock.is_some());
+            self.check_for_gridlock = None;
+        }
+    }
+    // This will return delayed intersections if that's why it stops early.
+    pub fn time_limited_step(
+        &mut self,
+        map: &Map,
+        dt: Duration,
+        real_time_limit: Duration,
+    ) -> Option<Vec<(IntersectionID, Time)>> {
         let started_at = Instant::now();
         let end_time = self.time + dt;
 
         while self.time < end_time && Duration::realtime_elapsed(started_at) < real_time_limit {
             self.minimal_step(map, end_time - self.time);
+            if let Some((ref mut t, dt)) = self.check_for_gridlock {
+                if self.time >= *t {
+                    *t += dt;
+                    let gridlock = self.delayed_intersections(dt);
+                    if !gridlock.is_empty() {
+                        return Some(gridlock);
+                    }
+                }
+            }
         }
+
+        None
     }
 
     pub fn dump_before_abort(&self) {
