@@ -60,9 +60,10 @@ pub fn all_challenges(dev: bool) -> BTreeMap<String, Vec<Challenge>> {
             vec![
                 Challenge {
                     title: "Route 43 in the small Montlake area".to_string(),
-                    description: vec!["Decrease the average waiting time between all of route \
-                                       43's stops by at least 30s"
-                        .to_string()],
+                    description: vec![
+                        "Decrease the average waiting time between all of route ".to_string(),
+                        "43's stops by at least 30s".to_string(),
+                    ],
                     alias: "bus/43_montlake".to_string(),
                     gameplay: GameplayMode::OptimizeBus(
                         abstutil::path_map("montlake"),
@@ -71,9 +72,10 @@ pub fn all_challenges(dev: bool) -> BTreeMap<String, Vec<Challenge>> {
                 },
                 Challenge {
                     title: "Route 43 in a larger area".to_string(),
-                    description: vec!["Decrease the average waiting time between all of 43's \
-                                       stops by at least 30s"
-                        .to_string()],
+                    description: vec![
+                        "Decrease the average waiting time between all of route ".to_string(),
+                        "43's stops by at least 30s".to_string(),
+                    ],
                     alias: "bus/43_23rd".to_string(),
                     gameplay: GameplayMode::OptimizeBus(
                         abstutil::path_map("23rd"),
@@ -133,10 +135,10 @@ enum Tab {
 
 impl Tab {
     fn make(self, ctx: &mut EventCtx, ui: &mut UI) -> Box<dyn State> {
-        let mut col = Vec::new();
+        let mut master_col = Vec::new();
         let mut cbs: Vec<(String, Callback)> = Vec::new();
 
-        col.push(
+        master_col.push(
             WrappedComposite::svg_button(
                 ctx,
                 "../data/system/assets/pregame/back.svg",
@@ -145,7 +147,7 @@ impl Tab {
             )
             .align_left(),
         );
-        col.push({
+        master_col.push({
             let mut txt = Text::from(Line("A/B STREET").size(100));
             txt.add(Line("CHALLENGES").size(50));
             ManagedWidget::draw_text(ctx, txt).centered_horiz()
@@ -159,16 +161,12 @@ impl Tab {
                 Tab::ChallengeStage(ref n, _) => &name == n,
             };
             if current {
-                flex_row.push(Button::inactive_button(ctx, name));
+                flex_row.push(Button::inactive_button(ctx, name).margin(10));
             } else {
-                flex_row.push(ManagedWidget::btn(Button::text_bg(
-                    Text::from(Line(&name).size(40).fg(Color::BLACK)),
-                    Color::WHITE,
-                    colors::HOVERING,
-                    hotkey(Key::NUM_KEYS[idx]),
-                    &name,
-                    ctx,
-                )));
+                flex_row.push(
+                    WrappedComposite::text_bg_button(ctx, &name, hotkey(Key::NUM_KEYS[idx]))
+                        .margin(10),
+                );
                 cbs.push((
                     name.clone(),
                     Box::new(move |ctx, ui| {
@@ -179,16 +177,20 @@ impl Tab {
                 ));
             }
         }
-        col.push(
+        master_col.push(
             ManagedWidget::row(flex_row)
                 .flex_wrap(ctx, 80)
                 .bg(colors::PANEL_BG)
-                .padding(10),
+                .padding(10)
+                .margin(10)
+                .outline(10.0, Color::BLACK),
         );
+
+        let mut main_row = Vec::new();
 
         // List stages
         if let Tab::ChallengeStage(ref name, current) = self {
-            let mut flex_row = Vec::new();
+            let mut col = Vec::new();
             for (idx, stage) in all_challenges(ui.opts.dev)
                 .remove(name)
                 .unwrap()
@@ -196,9 +198,9 @@ impl Tab {
                 .enumerate()
             {
                 if current == idx {
-                    flex_row.push(Button::inactive_button(ctx, &stage.title));
+                    col.push(Button::inactive_button(ctx, &stage.title).margin(10));
                 } else {
-                    flex_row.push(WrappedComposite::text_button(ctx, &stage.title, None));
+                    col.push(WrappedComposite::text_button(ctx, &stage.title, None).margin(10));
                     let name = name.to_string();
                     cbs.push((
                         stage.title,
@@ -210,11 +212,12 @@ impl Tab {
                     ));
                 }
             }
-            col.push(
-                ManagedWidget::row(flex_row)
-                    .flex_wrap(ctx, 80)
+            main_row.push(
+                ManagedWidget::col(col)
                     .bg(colors::PANEL_BG)
-                    .padding(10),
+                    .padding(10)
+                    .margin(10)
+                    .outline(10.0, Color::BLACK),
             );
         }
 
@@ -228,13 +231,15 @@ impl Tab {
             for l in &challenge.description {
                 txt.add(Line(l));
             }
-            col.push(
+            main_row.push(
                 ManagedWidget::col(vec![
                     ManagedWidget::draw_text(ctx, txt),
                     WrappedComposite::text_button(ctx, "Start!", hotkey(Key::Enter)).margin(10),
                 ])
                 .bg(colors::PANEL_BG)
-                .padding(10),
+                .padding(10)
+                .margin(10)
+                .outline(10.0, Color::BLACK),
             );
             cbs.push((
                 "Start!".to_string(),
@@ -248,8 +253,10 @@ impl Tab {
             ));
         }
 
+        master_col.push(ManagedWidget::row(main_row));
+
         let mut c = WrappedComposite::new(
-            Composite::new(ManagedWidget::col(col).evenly_spaced())
+            Composite::new(ManagedWidget::col(master_col))
                 .exact_size_percent(90, 85)
                 .build(ctx),
         )
