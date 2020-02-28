@@ -157,28 +157,28 @@ impl Scheduler {
         self.queued_commands.remove(&cmd.to_type());
     }
 
+    // This next command might've actually been rescheduled to a later time; the caller won't know
+    // that here.
+    pub fn peek_next_time(&self) -> Option<Time> {
+        self.items.peek().as_ref().map(|cmd| cmd.time)
+    }
+
     // This API is safer than handing out a batch of items at a time, because while processing one
     // item, we might change the priority of other items or add new items. Don't make the caller
     // reconcile those changes -- just keep pulling items from here, one at a time.
-    pub fn get_next(&mut self, now: Time) -> Option<(Command, Time)> {
-        loop {
-            let next_time = self.items.peek().as_ref()?.time;
-            if next_time > now {
-                return None;
-            }
-
-            self.latest_time = next_time;
-            let item = self.items.pop().unwrap();
-            if let Some((_, cmd_time)) = self.queued_commands.get(&item.cmd_type) {
-                // Command was re-scheduled for later.
-                if *cmd_time > next_time {
-                    continue;
-                }
-                return self.queued_commands.remove(&item.cmd_type);
-            }
-            // If the command was outright canceled, fall-through here and pull from the queue
-            // again.
+    //
+    // TODO Above description is a little vague. This should be used with peek_next_time in a
+    // particular way...
+    pub fn get_next(&mut self) -> Option<Command> {
+        let item = self.items.pop().unwrap();
+        self.latest_time = item.time;
+        let (_, cmd_time) = self.queued_commands.get(&item.cmd_type)?;
+        // Command was re-scheduled for later.
+        if *cmd_time > item.time {
+            return None;
         }
+        let (cmd, _) = self.queued_commands.remove(&item.cmd_type)?;
+        Some(cmd)
     }
 
     pub fn describe_stats(&self) -> String {

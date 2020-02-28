@@ -151,9 +151,11 @@ impl SpeedControls {
         .cb(
             "step forwards 0.1 seconds",
             Box::new(|ctx, ui| {
-                ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
+                ui.primary
+                    .sim
+                    .normal_step(&ui.primary.map, Duration::seconds(0.1));
                 if let Some(ref mut s) = ui.secondary {
-                    s.sim.step(&s.map, Duration::seconds(0.1));
+                    s.sim.normal_step(&s.map, Duration::seconds(0.1));
                 }
                 ui.recalculate_current_selection(ctx);
                 None
@@ -495,7 +497,7 @@ impl State for TimeWarpScreen {
             ui.primary.sim.time_limited_step(
                 &ui.primary.map,
                 self.target - ui.primary.sim.time(),
-                Duration::seconds(0.1),
+                Duration::seconds(0.033),
             );
             // TODO secondary for a/b test mode
 

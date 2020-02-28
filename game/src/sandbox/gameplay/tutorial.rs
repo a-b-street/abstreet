@@ -971,7 +971,9 @@ impl TutorialState {
             ui.primary.current_flags.sim_flags.rng_seed = Some(42);
             (cb)(ui);
             ui.primary.current_flags.sim_flags.rng_seed = old;
-            ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
+            ui.primary
+                .sim
+                .normal_step(&ui.primary.map, Duration::seconds(0.1));
         }
 
         let last_finished_task = if self.current.stage == 0 {

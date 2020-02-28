@@ -146,7 +146,9 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
                 ui.primary.clear_sim();
                 let mut rng = ui.primary.current_flags.sim_flags.make_rng();
                 scenario.instantiate(&mut ui.primary.sim, &ui.primary.map, &mut rng, &mut timer);
-                ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
+                ui.primary
+                    .sim
+                    .normal_step(&ui.primary.map, Duration::seconds(0.1));
                 timer.stop("load primary");
             }
             {
@@ -203,7 +205,9 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
                 secondary.clear_sim();
                 let mut rng = secondary.current_flags.sim_flags.make_rng();
                 scenario.instantiate(&mut secondary.sim, &secondary.map, &mut rng, &mut timer);
-                secondary.sim.step(&secondary.map, Duration::seconds(0.1));
+                secondary
+                    .sim
+                    .normal_step(&secondary.map, Duration::seconds(0.1));
                 timer.stop("load secondary");
                 secondary
             }

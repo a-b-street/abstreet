@@ -175,6 +175,12 @@ impl ops::Add<Duration> for Time {
     }
 }
 
+impl ops::AddAssign<Duration> for Time {
+    fn add_assign(&mut self, other: Duration) {
+        *self = *self + other;
+    }
+}
+
 impl ops::Sub<Duration> for Time {
     type Output = Time;
 

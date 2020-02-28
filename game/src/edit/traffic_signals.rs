@@ -789,7 +789,7 @@ fn make_previewer(i: IntersectionID, phase: usize, suspended_sim: Sim) -> Box<dy
                 for idx in 0..phase {
                     step += signal.phases[idx].duration;
                 }
-                ui.primary.sim.step(&ui.primary.map, step);
+                ui.primary.sim.normal_step(&ui.primary.map, step);
 
                 spawn_agents_around(i, ui);
             }

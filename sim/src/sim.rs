@@ -364,268 +364,277 @@ impl GetDrawAgents for Sim {
 
 // Running
 impl Sim {
-    pub fn step(&mut self, map: &Map, dt: Duration) {
+    // Advances time as minimally as possible, also limited by max_dt.
+    fn minimal_step(&mut self, map: &Map, max_dt: Duration) {
         self.step_count += 1;
         if !self.spawner.is_done() {
             panic!("Forgot to call spawn_all_trips");
         }
 
-        let target_time = self.time + dt;
-        let mut savestate_at: Option<Time> = None;
-        while let Some((cmd, time)) = self.scheduler.get_next(target_time) {
-            // Many commands might be scheduled for a particular time. Savestate at the END of a
-            // certain time.
-            if let Some(t) = savestate_at {
-                if time > t {
-                    self.time = t;
-                    self.save();
-                    savestate_at = None;
+        let max_time = if let Some(t) = self.scheduler.peek_next_time() {
+            if t > self.time + max_dt {
+                // Next event is after when we want to stop.
+                self.time += max_dt;
+                return;
+            }
+            t
+        } else {
+            // No events left at all
+            self.time += max_dt;
+            return;
+        };
+
+        let mut savestate = false;
+        while let Some(time) = self.scheduler.peek_next_time() {
+            if time > max_time {
+                return;
+            }
+            if let Some(cmd) = self.scheduler.get_next() {
+                if self.do_step(map, time, cmd) {
+                    savestate = true;
                 }
             }
+        }
 
-            self.time = time;
-            let mut events = Vec::new();
-            match cmd {
-                Command::SpawnCar(create_car, retry_if_no_room) => {
-                    if self.driving.start_car_on_lane(
-                        self.time,
-                        create_car.clone(),
-                        map,
-                        &self.intersections,
-                        &self.parking,
-                        &mut self.scheduler,
-                    ) {
-                        self.trips.agent_starting_trip_leg(
-                            AgentID::Car(create_car.vehicle.id),
-                            create_car.trip,
-                        );
-                        if let Some(parked_car) = create_car.maybe_parked_car {
-                            self.parking.remove_parked_car(parked_car);
-                        }
-                        events.push(Event::TripPhaseStarting(
-                            create_car.trip,
-                            // TODO sketchy...
-                            if create_car.vehicle.id.1 == VehicleType::Car {
-                                TripMode::Drive
-                            } else {
-                                TripMode::Bike
-                            },
-                            Some(create_car.req.clone()),
-                            if create_car.vehicle.id.1 == VehicleType::Car {
-                                "driving".to_string()
-                            } else {
-                                "biking".to_string()
-                            },
-                        ));
-                        self.analytics
-                            .record_demand(create_car.router.get_path(), map);
-                    } else if retry_if_no_room {
-                        // TODO Record this in the trip log
-                        self.scheduler.push(
-                            self.time + BLIND_RETRY_TO_SPAWN,
-                            Command::SpawnCar(create_car, retry_if_no_room),
-                        );
-                    } else {
-                        println!(
-                            "No room to spawn car for {}. Not retrying!",
-                            create_car.trip
-                        );
-                        self.trips.abort_trip_failed_start(create_car.trip);
+        self.trip_positions = None;
+
+        if savestate {
+            self.save();
+        }
+    }
+
+    // If true, savestate was requested.
+    fn do_step(&mut self, map: &Map, time: Time, cmd: Command) -> bool {
+        self.time = time;
+        let mut events = Vec::new();
+        let mut savestate = false;
+        match cmd {
+            Command::SpawnCar(create_car, retry_if_no_room) => {
+                if self.driving.start_car_on_lane(
+                    self.time,
+                    create_car.clone(),
+                    map,
+                    &self.intersections,
+                    &self.parking,
+                    &mut self.scheduler,
+                ) {
+                    self.trips.agent_starting_trip_leg(
+                        AgentID::Car(create_car.vehicle.id),
+                        create_car.trip,
+                    );
+                    if let Some(parked_car) = create_car.maybe_parked_car {
+                        self.parking.remove_parked_car(parked_car);
                     }
+                    events.push(Event::TripPhaseStarting(
+                        create_car.trip,
+                        // TODO sketchy...
+                        if create_car.vehicle.id.1 == VehicleType::Car {
+                            TripMode::Drive
+                        } else {
+                            TripMode::Bike
+                        },
+                        Some(create_car.req.clone()),
+                        if create_car.vehicle.id.1 == VehicleType::Car {
+                            "driving".to_string()
+                        } else {
+                            "biking".to_string()
+                        },
+                    ));
+                    self.analytics
+                        .record_demand(create_car.router.get_path(), map);
+                } else if retry_if_no_room {
+                    // TODO Record this in the trip log
+                    self.scheduler.push(
+                        self.time + BLIND_RETRY_TO_SPAWN,
+                        Command::SpawnCar(create_car, retry_if_no_room),
+                    );
+                } else {
+                    println!(
+                        "No room to spawn car for {}. Not retrying!",
+                        create_car.trip
+                    );
+                    self.trips.abort_trip_failed_start(create_car.trip);
                 }
-                Command::SpawnPed(mut create_ped) => {
-                    let ok = if let SidewalkPOI::DeferredParkingSpot(b, driving_goal) =
-                        create_ped.goal.connection.clone()
-                    {
-                        if let Some(parked_car) = self.parking.dynamically_reserve_car(b) {
-                            create_ped.goal =
-                                SidewalkSpot::parking_spot(parked_car.spot, map, &self.parking);
-                            create_ped.req = PathRequest {
-                                start: create_ped.start.sidewalk_pos,
-                                end: create_ped.goal.sidewalk_pos,
-                                constraints: PathConstraints::Pedestrian,
-                            };
-                            if let Some(path) = map.pathfind(create_ped.req.clone()) {
-                                create_ped.path = path;
-                                let mut legs = vec![
-                                    TripLeg::Walk(
+            }
+            Command::SpawnPed(mut create_ped) => {
+                let ok = if let SidewalkPOI::DeferredParkingSpot(b, driving_goal) =
+                    create_ped.goal.connection.clone()
+                {
+                    if let Some(parked_car) = self.parking.dynamically_reserve_car(b) {
+                        create_ped.goal =
+                            SidewalkSpot::parking_spot(parked_car.spot, map, &self.parking);
+                        create_ped.req = PathRequest {
+                            start: create_ped.start.sidewalk_pos,
+                            end: create_ped.goal.sidewalk_pos,
+                            constraints: PathConstraints::Pedestrian,
+                        };
+                        if let Some(path) = map.pathfind(create_ped.req.clone()) {
+                            create_ped.path = path;
+                            let mut legs = vec![
+                                TripLeg::Walk(
+                                    create_ped.id,
+                                    create_ped.speed,
+                                    create_ped.goal.clone(),
+                                ),
+                                TripLeg::Drive(parked_car.vehicle.clone(), driving_goal.clone()),
+                            ];
+                            match driving_goal {
+                                DrivingGoal::ParkNear(b) => {
+                                    legs.push(TripLeg::Walk(
                                         create_ped.id,
                                         create_ped.speed,
-                                        create_ped.goal.clone(),
-                                    ),
-                                    TripLeg::Drive(
-                                        parked_car.vehicle.clone(),
-                                        driving_goal.clone(),
-                                    ),
-                                ];
-                                match driving_goal {
-                                    DrivingGoal::ParkNear(b) => {
-                                        legs.push(TripLeg::Walk(
-                                            create_ped.id,
-                                            create_ped.speed,
-                                            SidewalkSpot::building(b, map),
-                                        ));
-                                    }
-                                    DrivingGoal::Border(_, _) => {}
+                                        SidewalkSpot::building(b, map),
+                                    ));
                                 }
-                                self.trips.dynamically_override_legs(create_ped.trip, legs);
-                                true
-                            } else {
-                                println!(
-                                    "WARNING: At {}, {} giving up because no path from {} to {:?}",
-                                    self.time, create_ped.id, b, create_ped.goal.connection
-                                );
-                                self.parking.dynamically_return_car(parked_car);
-                                false
+                                DrivingGoal::Border(_, _) => {}
                             }
+                            self.trips.dynamically_override_legs(create_ped.trip, legs);
+                            true
                         } else {
                             println!(
-                                "WARNING: At {}, no free car for {} spawning at {}",
-                                self.time, create_ped.id, b
+                                "WARNING: At {}, {} giving up because no path from {} to {:?}",
+                                self.time, create_ped.id, b, create_ped.goal.connection
                             );
+                            self.parking.dynamically_return_car(parked_car);
                             false
                         }
                     } else {
-                        true
-                    };
-                    if ok {
-                        // Do the order a bit backwards so we don't have to clone the
-                        // CreatePedestrian. spawn_ped can't fail.
-                        self.trips.agent_starting_trip_leg(
-                            AgentID::Pedestrian(create_ped.id),
-                            create_ped.trip,
+                        println!(
+                            "WARNING: At {}, no free car for {} spawning at {}",
+                            self.time, create_ped.id, b
                         );
-                        events.push(Event::TripPhaseStarting(
-                            create_ped.trip,
-                            TripMode::Walk,
-                            Some(create_ped.req.clone()),
-                            "walking".to_string(),
-                        ));
-                        self.analytics.record_demand(&create_ped.path, map);
-
-                        // Maybe there's actually no work to do!
-                        match (&create_ped.start.connection, &create_ped.goal.connection) {
-                            (
-                                SidewalkPOI::Building(b1),
-                                SidewalkPOI::ParkingSpot(ParkingSpot::Offstreet(b2, idx)),
-                            ) if b1 == b2 => {
-                                self.trips.ped_reached_parking_spot(
-                                    self.time,
-                                    create_ped.id,
-                                    ParkingSpot::Offstreet(*b2, *idx),
-                                    map,
-                                    &self.parking,
-                                    &mut self.scheduler,
-                                );
-                            }
-                            _ => {
-                                self.walking.spawn_ped(
-                                    self.time,
-                                    create_ped,
-                                    map,
-                                    &mut self.scheduler,
-                                );
-                            }
-                        }
-                    } else {
-                        self.trips.abort_trip_failed_start(create_ped.trip);
+                        false
                     }
-                }
-                Command::UpdateCar(car) => {
-                    self.driving.update_car(
-                        car,
-                        self.time,
-                        map,
-                        &mut self.parking,
-                        &mut self.intersections,
-                        &mut self.trips,
-                        &mut self.scheduler,
-                        &mut self.transit,
-                        &mut self.walking,
+                } else {
+                    true
+                };
+                if ok {
+                    // Do the order a bit backwards so we don't have to clone the
+                    // CreatePedestrian. spawn_ped can't fail.
+                    self.trips.agent_starting_trip_leg(
+                        AgentID::Pedestrian(create_ped.id),
+                        create_ped.trip,
                     );
-                }
-                Command::UpdateLaggyHead(car) => {
-                    self.driving.update_laggy_head(
-                        car,
-                        self.time,
-                        map,
-                        &mut self.intersections,
-                        &mut self.scheduler,
-                    );
-                }
-                Command::UpdatePed(ped) => {
-                    self.walking.update_ped(
-                        ped,
-                        self.time,
-                        map,
-                        &mut self.intersections,
-                        &self.parking,
-                        &mut self.scheduler,
-                        &mut self.trips,
-                        &mut self.transit,
-                    );
-                }
-                Command::UpdateIntersection(i) => {
-                    self.intersections
-                        .update_intersection(self.time, i, map, &mut self.scheduler);
-                }
-                Command::Savestate(frequency) => {
-                    self.scheduler
-                        .push(self.time + frequency, Command::Savestate(frequency));
-                    assert_eq!(savestate_at, None);
-                    savestate_at = Some(self.time);
+                    events.push(Event::TripPhaseStarting(
+                        create_ped.trip,
+                        TripMode::Walk,
+                        Some(create_ped.req.clone()),
+                        "walking".to_string(),
+                    ));
+                    self.analytics.record_demand(&create_ped.path, map);
+
+                    // Maybe there's actually no work to do!
+                    match (&create_ped.start.connection, &create_ped.goal.connection) {
+                        (
+                            SidewalkPOI::Building(b1),
+                            SidewalkPOI::ParkingSpot(ParkingSpot::Offstreet(b2, idx)),
+                        ) if b1 == b2 => {
+                            self.trips.ped_reached_parking_spot(
+                                self.time,
+                                create_ped.id,
+                                ParkingSpot::Offstreet(*b2, *idx),
+                                map,
+                                &self.parking,
+                                &mut self.scheduler,
+                            );
+                        }
+                        _ => {
+                            self.walking
+                                .spawn_ped(self.time, create_ped, map, &mut self.scheduler);
+                        }
+                    }
+                } else {
+                    self.trips.abort_trip_failed_start(create_ped.trip);
                 }
             }
-
-            // Record events at precisely the time they occur.
-            events.extend(self.trips.collect_events());
-            events.extend(self.transit.collect_events());
-            events.extend(self.driving.collect_events());
-            events.extend(self.walking.collect_events());
-            events.extend(self.intersections.collect_events());
-            for ev in events {
-                self.analytics.event(ev, self.time, map);
+            Command::UpdateCar(car) => {
+                self.driving.update_car(
+                    car,
+                    self.time,
+                    map,
+                    &mut self.parking,
+                    &mut self.intersections,
+                    &mut self.trips,
+                    &mut self.scheduler,
+                    &mut self.transit,
+                    &mut self.walking,
+                );
+            }
+            Command::UpdateLaggyHead(car) => {
+                self.driving.update_laggy_head(
+                    car,
+                    self.time,
+                    map,
+                    &mut self.intersections,
+                    &mut self.scheduler,
+                );
+            }
+            Command::UpdatePed(ped) => {
+                self.walking.update_ped(
+                    ped,
+                    self.time,
+                    map,
+                    &mut self.intersections,
+                    &self.parking,
+                    &mut self.scheduler,
+                    &mut self.trips,
+                    &mut self.transit,
+                );
+            }
+            Command::UpdateIntersection(i) => {
+                self.intersections
+                    .update_intersection(self.time, i, map, &mut self.scheduler);
+            }
+            Command::Savestate(frequency) => {
+                self.scheduler
+                    .push(self.time + frequency, Command::Savestate(frequency));
+                savestate = true;
             }
         }
-        if let Some(t) = savestate_at {
-            self.time = t;
-            self.save();
-        }
-        self.time = target_time;
 
-        self.trip_positions = None;
+        // Record events at precisely the time they occur.
+        events.extend(self.trips.collect_events());
+        events.extend(self.transit.collect_events());
+        events.extend(self.driving.collect_events());
+        events.extend(self.walking.collect_events());
+        events.extend(self.intersections.collect_events());
+        for ev in events {
+            self.analytics.event(ev, self.time, map);
+        }
+
+        savestate
     }
 
     pub fn timed_step(&mut self, map: &Map, dt: Duration, timer: &mut Timer) {
-        // TODO Ideally print every second or so
-        let orig_time = self.time;
-        let chunks = (dt / Duration::seconds(10.0)).ceil() as usize;
-        timer.start_iter(format!("advance simulation by {}", dt), chunks);
-        for i in 0..chunks {
-            timer.next();
-            self.step(
-                map,
-                if i == chunks - 1 {
-                    orig_time + dt - self.time
-                } else {
-                    dt * (1.0 / (chunks as f64))
-                },
-            );
+        let end_time = self.time + dt;
+        let start = Instant::now();
+        let mut last_update = Instant::now();
+
+        timer.start(format!("Advance sim to {}", end_time));
+        while self.time < end_time {
+            self.minimal_step(map, end_time - self.time);
+            if Duration::realtime_elapsed(last_update) >= Duration::seconds(1.0) {
+                // TODO Not timer?
+                println!(
+                    "- After {}, the sim is at {}",
+                    Duration::realtime_elapsed(start),
+                    self.time
+                );
+                last_update = Instant::now();
+            }
         }
-        assert_eq!(self.time, orig_time + dt);
+        timer.stop(format!("Advance sim to {}", end_time));
+    }
+    pub fn normal_step(&mut self, map: &Map, dt: Duration) {
+        self.timed_step(map, dt, &mut Timer::throwaway());
     }
 
     pub fn time_limited_step(&mut self, map: &Map, dt: Duration, real_time_limit: Duration) {
         let started_at = Instant::now();
-        let goal_time = self.time + dt;
+        let end_time = self.time + dt;
 
-        loop {
-            if Duration::realtime_elapsed(started_at) > real_time_limit || self.time == goal_time {
-                break;
-            }
-            // Don't exceed the goal_time. But if we have a large step to make, break it into 0.1s
-            // chunks, so we get a chance to abort if real_time_limit is passed.
-            self.step(map, Duration::seconds(0.1).min(goal_time - self.time));
+        while self.time < end_time && Duration::realtime_elapsed(started_at) < real_time_limit {
+            self.minimal_step(map, end_time - self.time);
         }
     }
 
@@ -641,6 +650,7 @@ impl Sim {
 }
 
 // Helpers to run the sim
+// TODO Old and gunky
 impl Sim {
     pub fn just_run_until_done(&mut self, map: &Map, time_limit: Option<Duration>) {
         self.run_until_done(map, |_, _| {}, time_limit);
@@ -661,7 +671,7 @@ impl Sim {
             let dt = time_limit.unwrap_or_else(|| Duration::seconds(30.0));
 
             match panic::catch_unwind(panic::AssertUnwindSafe(|| {
-                self.step(&map, dt);
+                self.normal_step(&map, dt);
             })) {
                 Ok(()) => {}
                 Err(err) => {
@@ -716,7 +726,7 @@ impl Sim {
         // TODO No benchmark printing at all this way.
         // TODO Doesn't stop early once all expectations are met.
         self.analytics.test_expectations.extend(all_expectations);
-        self.step(&map, time_limit);
+        self.normal_step(&map, time_limit);
         if self.analytics.test_expectations.is_empty() {
             return;
         }

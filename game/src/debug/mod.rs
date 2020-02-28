@@ -255,7 +255,9 @@ impl State for DebugMode {
                 .action(ctx, Key::Backspace, "forcibly kill this car")
             {
                 ui.primary.sim.kill_stuck_car(id, &ui.primary.map);
-                ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
+                ui.primary
+                    .sim
+                    .normal_step(&ui.primary.map, Duration::seconds(0.1));
                 ui.primary.current_selection = None;
             } else if ui.per_obj.action(ctx, Key::G, "find front of blockage") {
                 return Transition::Push(msg(

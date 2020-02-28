@@ -273,7 +273,7 @@ impl State for AgentSpawner {
                 &mut rng,
             );
             sim.spawn_all_trips(map, &mut Timer::new("spawn trip"), false);
-            sim.step(map, SMALL_DT);
+            sim.normal_step(map, SMALL_DT);
             ui.recalculate_current_selection(ctx);
             if let Some(e) = err {
                 return Transition::Replace(msg("Spawning error", vec![e]));
@@ -366,7 +366,7 @@ pub fn spawn_agents_around(i: IntersectionID, ui: &mut UI) {
     }
 
     sim.spawn_all_trips(map, &mut timer, false);
-    sim.step(map, SMALL_DT);
+    sim.normal_step(map, SMALL_DT);
 }
 
 // Returns optional error message

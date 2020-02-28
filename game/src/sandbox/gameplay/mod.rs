@@ -193,7 +193,9 @@ impl GameplayMode {
                     &mut ui.primary.current_flags.sim_flags.make_rng(),
                     timer,
                 );
-                ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
+                ui.primary
+                    .sim
+                    .normal_step(&ui.primary.map, Duration::seconds(0.1));
 
                 // Maybe we've already got prebaked data for this map+scenario.
                 if !ui

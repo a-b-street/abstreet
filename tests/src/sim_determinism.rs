@@ -47,8 +47,8 @@ pub fn run(t: &mut TestRunner) {
                     sim2.save()
                 );
             }
-            sim1.step(&map, dt);
-            sim2.step(&map, dt);
+            sim1.normal_step(&map, dt);
+            sim2.normal_step(&map, dt);
         }
     });
 
@@ -74,8 +74,8 @@ pub fn run(t: &mut TestRunner) {
             &mut Timer::throwaway(),
         );
 
-        sim1.step(&map, Duration::minutes(10));
-        sim2.step(&map, Duration::minutes(10));
+        sim1.normal_step(&map, Duration::minutes(10));
+        sim2.normal_step(&map, Duration::minutes(10));
 
         if sim1 != sim2 {
             panic!(
@@ -87,7 +87,7 @@ pub fn run(t: &mut TestRunner) {
 
         let sim1_save = sim1.save();
 
-        sim1.step(&map, Duration::seconds(30.0));
+        sim1.normal_step(&map, Duration::seconds(30.0));
 
         if sim1 == sim2 {
             panic!(
