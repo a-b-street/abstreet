@@ -314,3 +314,14 @@ changes here.
 - include ongoing trips in measured trip times
 - jump to next challenge after completing one
 - lots of tutorial tweaks
+
+0.1.30
+
+- show additional info about traffic patterns and buggy maps
+- revamp tutorial UI to group tasks and messages better
+- handle different mode transitions when info panel open on an agent
+- select entire roads in unzoomed edit mode
+- show total time an agent has spent moving / blocked
+- use 2-phase traffic signals by default, making the 23rd map successfully complete!
+- jump-to-time now optionally points out traffic jams forming
+- challenge splash screen improved
