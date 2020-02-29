@@ -20,7 +20,7 @@ pub enum Overlays {
     Inactive,
     ParkingAvailability(Time, Colorer),
     IntersectionDelay(Time, Colorer),
-    Gridlock(Time, Colorer),
+    TrafficJams(Time, Colorer),
     CumulativeThroughput(Time, Colorer),
     BikeNetwork(Colorer),
     BusNetwork(Colorer),
@@ -49,9 +49,9 @@ impl Overlays {
                     ui.overlay = Overlays::intersection_delay(ctx, ui);
                 }
             }
-            Overlays::Gridlock(t, _) => {
+            Overlays::TrafficJams(t, _) => {
                 if now != t {
-                    ui.overlay = Overlays::gridlock(ctx, ui);
+                    ui.overlay = Overlays::traffic_jams(ctx, ui);
                 }
             }
             Overlays::CumulativeThroughput(t, _) => {
@@ -100,7 +100,7 @@ impl Overlays {
             | Overlays::BikeNetwork(ref mut heatmap)
             | Overlays::BusNetwork(ref mut heatmap)
             | Overlays::IntersectionDelay(_, ref mut heatmap)
-            | Overlays::Gridlock(_, ref mut heatmap)
+            | Overlays::TrafficJams(_, ref mut heatmap)
             | Overlays::CumulativeThroughput(_, ref mut heatmap)
             | Overlays::Edits(ref mut heatmap) => {
                 heatmap.legend.align_above(ctx, minimap);
@@ -189,7 +189,7 @@ impl Overlays {
             | Overlays::BikeNetwork(ref heatmap)
             | Overlays::BusNetwork(ref heatmap)
             | Overlays::IntersectionDelay(_, ref heatmap)
-            | Overlays::Gridlock(_, ref heatmap)
+            | Overlays::TrafficJams(_, ref heatmap)
             | Overlays::CumulativeThroughput(_, ref heatmap)
             | Overlays::Edits(ref heatmap) => {
                 heatmap.draw(g);
@@ -217,7 +217,7 @@ impl Overlays {
             | Overlays::BikeNetwork(ref heatmap)
             | Overlays::BusNetwork(ref heatmap)
             | Overlays::IntersectionDelay(_, ref heatmap)
-            | Overlays::Gridlock(_, ref heatmap)
+            | Overlays::TrafficJams(_, ref heatmap)
             | Overlays::CumulativeThroughput(_, ref heatmap)
             | Overlays::Edits(ref heatmap) => Some(heatmap),
             Overlays::BusRoute(_, _, ref s) => Some(&s.colorer),
@@ -277,7 +277,7 @@ impl Overlays {
                 "intersection delay",
                 ManagedWidget::draw_svg(ctx, "../data/system/assets/layers/intersection_delay.svg"),
             )),
-            Overlays::Gridlock(_, _) => Some((
+            Overlays::TrafficJams(_, _) => Some((
                 "worst traffic jams",
                 Button::inactive_button(ctx, "worst traffic jams"),
             )),
@@ -345,7 +345,7 @@ impl Overlays {
         .maybe_cb(
             "worst traffic jams",
             Box::new(|ctx, ui| {
-                ui.overlay = Overlays::gridlock(ctx, ui);
+                ui.overlay = Overlays::traffic_jams(ctx, ui);
                 Some(Transition::Pop)
             }),
         )
@@ -486,7 +486,7 @@ impl Overlays {
         Overlays::IntersectionDelay(ui.primary.sim.time(), colorer.build(ctx, ui))
     }
 
-    fn gridlock(ctx: &mut EventCtx, ui: &UI) -> Overlays {
+    pub fn traffic_jams(ctx: &mut EventCtx, ui: &UI) -> Overlays {
         let jams = ui.primary.sim.delayed_intersections(Duration::minutes(5));
 
         // TODO Silly colors
@@ -512,7 +512,7 @@ impl Overlays {
             }
         }
 
-        Overlays::Gridlock(ui.primary.sim.time(), colorer.build(ctx, ui))
+        Overlays::TrafficJams(ui.primary.sim.time(), colorer.build(ctx, ui))
     }
 
     fn cumulative_throughput(ctx: &mut EventCtx, ui: &UI) -> Overlays {

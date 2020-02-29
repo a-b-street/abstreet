@@ -1,5 +1,5 @@
 use crate::colors;
-use crate::common::Warping;
+use crate::common::{Overlays, Warping};
 use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
@@ -342,6 +342,7 @@ struct JumpToTime {
     composite: Composite,
     target: Time,
     maybe_mode: Option<GameplayMode>,
+    traffic_jams: bool,
 }
 
 impl JumpToTime {
@@ -353,6 +354,7 @@ impl JumpToTime {
         JumpToTime {
             target,
             maybe_mode,
+            traffic_jams: false,
             composite: Composite::new(
                 ManagedWidget::col(vec![
                     WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
@@ -372,6 +374,10 @@ impl JumpToTime {
                     ])
                     .padding(10)
                     .evenly_spaced(),
+                    WrappedComposite::text_button(ctx, "☐ Stop when there's a traffic jam", None)
+                        .named("traffic jams")
+                        .padding(10)
+                        .margin(10),
                     WrappedComposite::text_bg_button(ctx, "Go!", hotkey(Key::Enter))
                         .centered_horiz(),
                     ManagedWidget::draw_text(ctx, Text::from(Line("Active agents").roboto_bold())),
@@ -415,15 +421,48 @@ impl State for JumpToTime {
                 "X" => {
                     return Transition::Pop;
                 }
+                "☐ Stop when there's a traffic jam" => {
+                    self.traffic_jams = true;
+                    self.composite.replace(
+                        ctx,
+                        "traffic jams",
+                        WrappedComposite::text_button(
+                            ctx,
+                            "☑ Stop when there's a traffic jam",
+                            None,
+                        )
+                        .named("traffic jams")
+                        .padding(10)
+                        .margin(10),
+                    );
+                }
+                "☑ Stop when there's a traffic jam" => {
+                    self.traffic_jams = false;
+                    self.composite.replace(
+                        ctx,
+                        "traffic jams",
+                        WrappedComposite::text_button(
+                            ctx,
+                            "☐ Stop when there's a traffic jam",
+                            None,
+                        )
+                        .named("traffic jams")
+                        .padding(10)
+                        .margin(10),
+                    );
+                }
                 "Go!" => {
-                    // TODO Checkbox
-                    let traffic_jams = true;
                     if self.target < ui.primary.sim.time() {
                         if let Some(mode) = self.maybe_mode.take() {
                             ui.primary.clear_sim();
                             return Transition::ReplaceThenPush(
                                 Box::new(SandboxMode::new(ctx, ui, mode)),
-                                Box::new(TimeWarpScreen::new(ctx, ui, self.target, traffic_jams)),
+                                Box::new(TimeWarpScreen::new(
+                                    ctx,
+                                    ui,
+                                    self.target,
+                                    self.traffic_jams,
+                                )),
                             );
                         } else {
                             return Transition::Replace(msg(
@@ -436,7 +475,7 @@ impl State for JumpToTime {
                         ctx,
                         ui,
                         self.target,
-                        traffic_jams,
+                        self.traffic_jams,
                     )));
                 }
                 _ => unreachable!(),
@@ -519,6 +558,7 @@ impl State for TimeWarpScreen {
                 Duration::seconds(0.033),
             ) {
                 let id = ID::Intersection(problems[0].0);
+                ui.overlay = Overlays::traffic_jams(ctx, ui);
                 return Transition::Replace(Warping::new(
                     ctx,
                     id.canonical_point(&ui.primary).unwrap(),
