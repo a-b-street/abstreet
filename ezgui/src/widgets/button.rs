@@ -22,7 +22,7 @@ pub struct Button {
     hovering: bool,
     clicked: bool,
 
-    top_left: ScreenPt,
+    pub(crate) top_left: ScreenPt,
     dims: ScreenDims,
 }
 

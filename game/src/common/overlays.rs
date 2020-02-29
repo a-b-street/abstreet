@@ -297,7 +297,7 @@ impl Overlays {
             _ => None,
         } {
             for btn in &mut choices {
-                if btn.has_name(&find) {
+                if btn.is_btn(&find) {
                     *btn = replace.outline(2.0, Color::GREEN);
                     break;
                 }

@@ -342,7 +342,6 @@ struct JumpToTime {
     composite: Composite,
     target: Time,
     maybe_mode: Option<GameplayMode>,
-    traffic_jams: bool,
 }
 
 impl JumpToTime {
@@ -354,7 +353,6 @@ impl JumpToTime {
         JumpToTime {
             target,
             maybe_mode,
-            traffic_jams: false,
             composite: Composite::new(
                 ManagedWidget::col(vec![
                     WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
@@ -374,8 +372,7 @@ impl JumpToTime {
                     ])
                     .padding(10)
                     .evenly_spaced(),
-                    WrappedComposite::text_button(ctx, "☐ Stop when there's a traffic jam", None)
-                        .named("traffic jams")
+                    ManagedWidget::checkbox(ctx, "Stop when there's a traffic jam", None, false)
                         .padding(10)
                         .margin(10),
                     WrappedComposite::text_bg_button(ctx, "Go!", hotkey(Key::Enter))
@@ -421,48 +418,14 @@ impl State for JumpToTime {
                 "X" => {
                     return Transition::Pop;
                 }
-                "☐ Stop when there's a traffic jam" => {
-                    self.traffic_jams = true;
-                    self.composite.replace(
-                        ctx,
-                        "traffic jams",
-                        WrappedComposite::text_button(
-                            ctx,
-                            "☑ Stop when there's a traffic jam",
-                            None,
-                        )
-                        .named("traffic jams")
-                        .padding(10)
-                        .margin(10),
-                    );
-                }
-                "☑ Stop when there's a traffic jam" => {
-                    self.traffic_jams = false;
-                    self.composite.replace(
-                        ctx,
-                        "traffic jams",
-                        WrappedComposite::text_button(
-                            ctx,
-                            "☐ Stop when there's a traffic jam",
-                            None,
-                        )
-                        .named("traffic jams")
-                        .padding(10)
-                        .margin(10),
-                    );
-                }
                 "Go!" => {
+                    let traffic_jams = self.composite.is_checked("Stop when there's a traffic jam");
                     if self.target < ui.primary.sim.time() {
                         if let Some(mode) = self.maybe_mode.take() {
                             ui.primary.clear_sim();
                             return Transition::ReplaceThenPush(
                                 Box::new(SandboxMode::new(ctx, ui, mode)),
-                                Box::new(TimeWarpScreen::new(
-                                    ctx,
-                                    ui,
-                                    self.target,
-                                    self.traffic_jams,
-                                )),
+                                Box::new(TimeWarpScreen::new(ctx, ui, self.target, traffic_jams)),
                             );
                         } else {
                             return Transition::Replace(msg(
@@ -475,7 +438,7 @@ impl State for JumpToTime {
                         ctx,
                         ui,
                         self.target,
-                        self.traffic_jams,
+                        traffic_jams,
                     )));
                 }
                 _ => unreachable!(),

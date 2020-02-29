@@ -1,8 +1,8 @@
 use crate::layout::Widget;
-use crate::widgets::PopupMenu;
+use crate::widgets::{Checkbox, PopupMenu};
 use crate::{
     Button, Color, Drawable, EventCtx, Filler, GeomBatch, GfxCtx, Histogram, HorizontalAlignment,
-    JustDraw, Plot, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Slider, Text,
+    JustDraw, MultiKey, Plot, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Slider, Text,
     VerticalAlignment,
 };
 use abstutil::Cloneable;
@@ -29,6 +29,7 @@ pub struct ManagedWidget {
 enum WidgetType {
     Draw(JustDraw),
     Btn(Button),
+    Checkbox(Checkbox),
     Slider(String),
     Menu(String),
     Filler(String),
@@ -266,6 +267,19 @@ impl ManagedWidget {
         ManagedWidget::new(WidgetType::Filler(label.to_string()))
     }
 
+    pub fn checkbox(
+        ctx: &EventCtx,
+        label: &str,
+        hotkey: Option<MultiKey>,
+        enabled: bool,
+    ) -> ManagedWidget {
+        ManagedWidget::new(WidgetType::Checkbox(Checkbox::new(
+            ctx, label, hotkey, enabled,
+        )))
+        .outline(2.0, Color::WHITE)
+        .named(label)
+    }
+
     pub(crate) fn duration_plot(plot: Plot<Duration>) -> ManagedWidget {
         ManagedWidget::new(WidgetType::DurationPlot(plot))
     }
@@ -303,6 +317,9 @@ impl ManagedWidget {
                     return Some(Outcome::Clicked(btn.action.clone()));
                 }
             }
+            WidgetType::Checkbox(ref mut checkbox) => {
+                checkbox.event(ctx);
+            }
             WidgetType::Slider(ref name) => {
                 sliders.get_mut(name).unwrap().event(ctx);
             }
@@ -337,6 +354,7 @@ impl ManagedWidget {
         match self.widget {
             WidgetType::Draw(ref j) => j.draw(g),
             WidgetType::Btn(ref btn) => btn.draw(g),
+            WidgetType::Checkbox(ref checkbox) => checkbox.draw(g),
             WidgetType::Slider(ref name) => {
                 if name != "horiz scrollbar" && name != "vert scrollbar" {
                     sliders[name].draw(g);
@@ -369,6 +387,7 @@ impl ManagedWidget {
         let widget: &dyn Widget = match self.widget {
             WidgetType::Draw(ref widget) => widget,
             WidgetType::Btn(ref widget) => widget,
+            WidgetType::Checkbox(ref widget) => widget,
             WidgetType::Slider(ref name) => &sliders[name],
             WidgetType::Menu(ref name) => &menus[name],
             WidgetType::Filler(ref name) => &fillers[name],
@@ -474,6 +493,9 @@ impl ManagedWidget {
             WidgetType::Btn(ref mut widget) => {
                 widget.set_pos(top_left);
             }
+            WidgetType::Checkbox(ref mut widget) => {
+                widget.set_pos(top_left);
+            }
             WidgetType::Slider(ref name) => {
                 sliders.get_mut(name).unwrap().set_pos(top_left);
             }
@@ -534,6 +556,7 @@ impl ManagedWidget {
             | WidgetType::Slider(_)
             | WidgetType::Menu(_)
             | WidgetType::Filler(_)
+            | WidgetType::Checkbox(_)
             | WidgetType::DurationPlot(_)
             | WidgetType::UsizePlot(_) => {}
             WidgetType::Histogram(_) => {}
@@ -554,14 +577,18 @@ impl ManagedWidget {
         }
     }
 
-    pub fn has_name(&self, name: &str) -> bool {
-        self.rect_of(name).is_some()
+    pub fn is_btn(&self, name: &str) -> bool {
+        if let WidgetType::Btn(ref btn) = self.widget {
+            btn.action == name
+        } else {
+            false
+        }
     }
 
-    fn rect_of(&self, name: &str) -> Option<&ScreenRectangle> {
+    fn find(&self, name: &str) -> Option<&ManagedWidget> {
         let found = match self.widget {
             // TODO Consolidate and just do this
-            WidgetType::Draw(_) => self.id == Some(name.to_string()),
+            WidgetType::Draw(_) | WidgetType::Checkbox(_) => self.id == Some(name.to_string()),
             WidgetType::Btn(ref btn) => btn.action == name,
             WidgetType::Slider(ref n) => n == name,
             WidgetType::Menu(ref n) => n == name,
@@ -571,37 +598,44 @@ impl ManagedWidget {
             WidgetType::Histogram(_) => false,
             WidgetType::Row(ref widgets) | WidgetType::Column(ref widgets) => {
                 for widget in widgets {
-                    if let Some(rect) = widget.rect_of(name) {
-                        return Some(rect);
+                    if let Some(w) = widget.find(name) {
+                        return Some(w);
                     }
                 }
                 return None;
             }
         };
         if found {
-            Some(&self.rect)
+            Some(self)
         } else {
             None
         }
     }
-
-    // None if it worked, otherwise it returns the widget.
-    fn replace(&mut self, id: &str, mut new: ManagedWidget) -> Option<ManagedWidget> {
-        if self.id == Some(id.to_string()) {
-            *self = new;
-            return None;
-        }
-        if let WidgetType::Row(ref mut widgets) | WidgetType::Column(ref mut widgets) = self.widget
-        {
-            for w in widgets {
-                if let Some(returned) = w.replace(id, new) {
-                    new = returned;
-                } else {
-                    return None;
+    fn find_mut(&mut self, name: &str) -> Option<&mut ManagedWidget> {
+        let found = match self.widget {
+            // TODO Consolidate and just do this
+            WidgetType::Draw(_) | WidgetType::Checkbox(_) => self.id == Some(name.to_string()),
+            WidgetType::Btn(ref btn) => btn.action == name,
+            WidgetType::Slider(ref n) => n == name,
+            WidgetType::Menu(ref n) => n == name,
+            WidgetType::Filler(ref n) => n == name,
+            WidgetType::DurationPlot(_) => false,
+            WidgetType::UsizePlot(_) => false,
+            WidgetType::Histogram(_) => false,
+            WidgetType::Row(ref mut widgets) | WidgetType::Column(ref mut widgets) => {
+                for widget in widgets {
+                    if let Some(w) = widget.find_mut(name) {
+                        return Some(w);
+                    }
                 }
+                return None;
             }
+        };
+        if found {
+            Some(self)
+        } else {
+            None
         }
-        return Some(new);
     }
 }
 
@@ -853,8 +887,8 @@ impl Composite {
     }
 
     pub fn scroll_to_member(&mut self, ctx: &EventCtx, name: String) {
-        if let Some(rect) = self.top_level.rect_of(&name) {
-            let y1 = rect.y1;
+        if let Some(w) = self.top_level.find(&name) {
+            let y1 = w.rect.y1;
             self.set_scroll_offset(ctx, (0.0, y1));
         } else {
             panic!("Can't scroll_to_member of unknown {}", name);
@@ -872,17 +906,35 @@ impl Composite {
         &self.menus[name]
     }
 
+    pub fn is_checked(&self, name: &str) -> bool {
+        match self.find(name).widget {
+            WidgetType::Checkbox(ref checkbox) => checkbox.enabled,
+            _ => panic!("{} isn't a checkbox", name),
+        }
+    }
+
     pub fn filler_rect(&self, name: &str) -> ScreenRectangle {
         let f = &self.fillers[name];
         ScreenRectangle::top_left(f.top_left, f.dims)
     }
 
-    pub fn rect_of(&self, name: &str) -> &ScreenRectangle {
-        if let Some(rect) = self.top_level.rect_of(name) {
-            rect
+    fn find(&self, name: &str) -> &ManagedWidget {
+        if let Some(w) = self.top_level.find(name) {
+            w
         } else {
-            panic!("Can't find center_of {}", name);
+            panic!("Can't find widget {}", name);
         }
+    }
+    fn find_mut(&mut self, name: &str) -> &mut ManagedWidget {
+        if let Some(w) = self.top_level.find_mut(name) {
+            w
+        } else {
+            panic!("Can't find widget {}", name);
+        }
+    }
+
+    pub fn rect_of(&self, name: &str) -> &ScreenRectangle {
+        &self.find(name).rect
     }
     // TODO Deprecate
     pub fn center_of(&self, name: &str) -> ScreenPt {
@@ -899,10 +951,7 @@ impl Composite {
     }
 
     pub fn replace(&mut self, ctx: &mut EventCtx, id: &str, new: ManagedWidget) {
-        if self.top_level.replace(id, new).is_some() {
-            panic!("Can't replace widget {}", id);
-        }
-
+        *self.find_mut(id) = new;
         self.recompute_layout(ctx, true);
     }
 
