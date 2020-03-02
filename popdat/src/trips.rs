@@ -291,6 +291,7 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
     let mut individ_trips: Vec<SpawnTrip> = Vec::new();
     // TODO Don't clone trips for parallelize
     let mut num_ppl = 0;
+    let orig_trips = trips.len();
     for (person, list) in timer
         .parallelize("turn PSRC trips into SpawnTrips", trips.clone(), |trip| {
             trip.to_spawn_trip(map)
@@ -314,9 +315,10 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
         }
     }
     timer.note(format!(
-        "{} trips over {} people",
+        "{} trips over {} people. {} trips filtered out",
         prettyprint_usize(individ_trips.len()),
-        prettyprint_usize(num_ppl)
+        prettyprint_usize(num_ppl),
+        prettyprint_usize(orig_trips - individ_trips.len())
     ));
 
     // How many parked cars do we need to spawn near each building?

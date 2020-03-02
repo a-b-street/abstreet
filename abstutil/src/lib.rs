@@ -30,19 +30,6 @@ use std::fmt::Write;
 
 const PROGRESS_FREQUENCY_SECONDS: f64 = 0.2;
 
-// Thanks https://stackoverflow.com/a/49806368
-#[macro_export]
-macro_rules! skip_fail {
-    ($res:expr) => {
-        match $res {
-            Some(val) => val,
-            None => {
-                continue;
-            }
-        }
-    };
-}
-
 pub fn clamp(x: f64, min: f64, max: f64) -> f64 {
     if x < min {
         min

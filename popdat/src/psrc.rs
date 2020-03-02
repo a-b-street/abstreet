@@ -1,4 +1,4 @@
-use abstutil::{prettyprint_usize, skip_fail, FileWithProgress, Timer};
+use abstutil::{prettyprint_usize, FileWithProgress, Timer};
 use geom::{Distance, Duration, FindClosest, LonLat, Pt2D, Time};
 use map_model::Map;
 use serde_derive::{Deserialize, Serialize};
@@ -63,30 +63,51 @@ pub fn import_trips(
     trips_path: &str,
     timer: &mut Timer,
 ) -> Result<(Vec<Trip>, BTreeMap<i64, Parcel>), failure::Error> {
-    let (parcels, metadata) = import_parcels(parcels_path, timer)?;
+    let (parcels, metadata, oob_parcels) = import_parcels(parcels_path, timer)?;
 
     let mut trips = Vec::new();
     let (reader, done) = FileWithProgress::new(trips_path)?;
+    let mut total_records = 0;
+
     for rec in csv::Reader::from_reader(reader).deserialize() {
+        total_records += 1;
         let rec: RawTrip = rec?;
 
-        let from = skip_fail!(parcels.get(&(rec.opcl as usize))).clone();
-        let to = skip_fail!(parcels.get(&(rec.dpcl as usize))).clone();
+        let from = if let Some(f) = parcels.get(&(rec.opcl as usize)) {
+            f.clone()
+        } else {
+            if false {
+                println!(
+                    "skipping missing from {}",
+                    oob_parcels[&(rec.opcl as usize)]
+                );
+            }
+            continue;
+        };
+        let to = if let Some(t) = parcels.get(&(rec.dpcl as usize)) {
+            t.clone()
+        } else {
+            continue;
+        };
 
         if from.osm_building == to.osm_building {
             // TODO Plumb along pass-through trips later
             if from.osm_building.is_some() {
-                timer.warn(format!(
+                /*timer.warn(format!(
                     "Skipping trip from parcel {} to {}; both match OSM building {:?}",
                     rec.opcl, rec.dpcl, from.osm_building
-                ));
+                ));*/
             }
             continue;
         }
 
         let depart_at = Time::START_OF_DAY + Duration::minutes(rec.deptm as usize);
 
-        let mode = skip_fail!(get_mode(&rec.mode));
+        let mode = if let Some(m) = get_mode(&rec.mode) {
+            m
+        } else {
+            continue;
+        };
 
         let purpose = (get_purpose(&rec.opurp), get_purpose(&rec.dpurp));
 
@@ -110,7 +131,11 @@ pub fn import_trips(
     }
     done(timer);
 
-    timer.note(format!("{} trips total", prettyprint_usize(trips.len())));
+    timer.note(format!(
+        "{} trips total. {} records filtered out",
+        prettyprint_usize(trips.len()),
+        prettyprint_usize(total_records - trips.len())
+    ));
 
     trips.sort_by_key(|t| t.depart_at);
 
@@ -118,11 +143,19 @@ pub fn import_trips(
 }
 
 // TODO Do we also need the zone ID, or is parcel ID globally unique?
-// Returns (parcel ID -> Endpoint) and (OSM building ID -> metadata)
+// Returns (parcel ID -> Endpoint), (OSM building ID -> metadata), and (parcel ID -> LonLat) of
+// filtered parcels
 fn import_parcels(
     path: &str,
     timer: &mut Timer,
-) -> Result<(HashMap<usize, Endpoint>, BTreeMap<i64, Parcel>), failure::Error> {
+) -> Result<
+    (
+        HashMap<usize, Endpoint>,
+        BTreeMap<i64, Parcel>,
+        HashMap<usize, LonLat>,
+    ),
+    failure::Error,
+> {
     let map = Map::new(abstutil::path_map("huge_seattle"), false, timer);
 
     // TODO I really just want to do polygon containment with a quadtree. FindClosest only does
@@ -167,9 +200,9 @@ fn import_parcels(
     // cs2cs +init=esri:102748 +to +init=epsg:4326 -f '%.5f' foo
     let output = std::process::Command::new("cs2cs")
         .args(vec![
-            "esri:102748",
+            "+init=esri:102748",
             "+to",
-            "epsg:4326",
+            "+init=epsg:4326",
             "-f",
             "%.5f",
             "/tmp/parcels",
@@ -185,6 +218,8 @@ fn import_parcels(
     let reader = BufReader::new(output.stdout.as_slice());
     let mut result = HashMap::new();
     let mut metadata = BTreeMap::new();
+    let mut oob = HashMap::new();
+    let orig_parcels = parcel_metadata.len();
     timer.start_iter("read cs2cs output", parcel_metadata.len());
     for (line, (id, num_households, num_employees, offstreet_parking_spaces)) in
         reader.lines().zip(parcel_metadata.into_iter())
@@ -197,7 +232,7 @@ fn import_parcels(
         let pt = LonLat::new(lon, lat);
         if bounds.contains(pt) {
             let osm_building = closest_bldg
-                .closest_pt(Pt2D::from_gps(pt, bounds).unwrap(), Distance::meters(30.0))
+                .closest_pt(Pt2D::forcibly_from_gps(pt, bounds), Distance::meters(30.0))
                 .map(|(b, _)| b);
             if let Some(b) = osm_building {
                 metadata.insert(
@@ -216,9 +251,16 @@ fn import_parcels(
                     osm_building,
                 },
             );
+        } else {
+            oob.insert(id, pt);
         }
     }
-    Ok((result, metadata))
+    timer.note(format!(
+        "{} parcels. {} filtered out",
+        prettyprint_usize(result.len()),
+        prettyprint_usize(orig_parcels - result.len())
+    ));
+    Ok((result, metadata, oob))
 }
 
 // From https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv, opurp and dpurp
@@ -244,9 +286,15 @@ fn get_mode(code: &str) -> Option<Mode> {
     match code {
         "1.0" => Some(Mode::Walk),
         "2.0" => Some(Mode::Bike),
-        "6.0" => Some(Mode::Transit),
         "3.0" | "4.0" | "5.0" => Some(Mode::Drive),
-        _ => None,
+        "6.0" => Some(Mode::Transit),
+        // TODO Park-and-ride!
+        "7.0" => None,
+        // TODO School bus!
+        "8.0" => None,
+        // TODO Invalid code, what's this one mean?
+        "0.0" => None,
+        _ => panic!("Unknown mode {}", code),
     }
 }
 
