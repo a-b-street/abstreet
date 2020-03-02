@@ -1,3 +1,4 @@
+use crate::app::App;
 use crate::colors;
 use crate::common::{tool_panel, Minimap, Overlays, Warping};
 use crate::edit::EditMode;
@@ -9,7 +10,6 @@ use crate::sandbox::{
     spawn_agents_around, AgentMeter, SandboxControls, SandboxMode, ScoreCard, SpeedControls,
     TimePanel,
 };
-use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{
     hotkey, hotkeys, lctrl, Button, Color, Composite, EventCtx, GeomBatch, GfxCtx,
@@ -57,17 +57,17 @@ impl TutorialPointer {
 impl Tutorial {
     pub fn new(
         ctx: &mut EventCtx,
-        ui: &mut UI,
+        app: &mut App,
         current: TutorialPointer,
     ) -> Box<dyn GameplayState> {
-        if ui.session.tutorial.is_none() {
-            ui.session.tutorial = Some(TutorialState::new(ctx, ui));
+        if app.session.tutorial.is_none() {
+            app.session.tutorial = Some(TutorialState::new(ctx, app));
         }
-        let mut tut = ui.session.tutorial.take().unwrap();
+        let mut tut = app.session.tutorial.take().unwrap();
         tut.current = current;
         tut.latest = tut.latest.max(current);
-        let state = tut.make_state(ctx, ui);
-        ui.session.tutorial = Some(tut);
+        let state = tut.make_state(ctx, app);
+        app.session.tutorial = Some(tut);
         state
     }
 }
@@ -76,10 +76,10 @@ impl GameplayState for Tutorial {
     fn event(
         &mut self,
         ctx: &mut EventCtx,
-        ui: &mut UI,
+        app: &mut App,
         controls: &mut SandboxControls,
     ) -> (Option<Transition>, bool) {
-        let mut tut = ui.session.tutorial.as_mut().unwrap();
+        let mut tut = app.session.tutorial.as_mut().unwrap();
 
         // First of all, might need to initiate warping
         if !self.warped {
@@ -88,10 +88,10 @@ impl GameplayState for Tutorial {
                 return (
                     Some(Transition::Push(Warping::new(
                         ctx,
-                        id.canonical_point(&ui.primary).unwrap(),
+                        id.canonical_point(&app.primary).unwrap(),
                         Some(zoom),
                         None,
-                        &mut ui.primary,
+                        &mut app.primary,
                     ))),
                     false,
                 );
@@ -105,22 +105,22 @@ impl GameplayState for Tutorial {
                 }
                 "previous tutorial" => {
                     tut.current = TutorialPointer::new(tut.current.stage - 1, 0);
-                    return (Some(transition(ctx, ui)), false);
+                    return (Some(transition(ctx, app)), false);
                 }
                 "next tutorial" => {
                     tut.current = TutorialPointer::new(tut.current.stage + 1, 0);
-                    return (Some(transition(ctx, ui)), false);
+                    return (Some(transition(ctx, app)), false);
                 }
                 "help" => {
                     tut.prev();
-                    return (Some(transition(ctx, ui)), false);
+                    return (Some(transition(ctx, app)), false);
                 }
                 "edit map" => {
                     // TODO Ideally this would be an inactive button in message states
                     if self.msg_panel.is_none() {
                         let mode = GameplayMode::Tutorial(tut.current);
                         return (
-                            Some(Transition::Push(Box::new(EditMode::new(ctx, ui, mode)))),
+                            Some(Transition::Push(Box::new(EditMode::new(ctx, app, mode)))),
                             false,
                         );
                     }
@@ -135,11 +135,11 @@ impl GameplayState for Tutorial {
                 Some(Outcome::Clicked(x)) => match x.as_ref() {
                     "previous message" => {
                         tut.prev();
-                        return (Some(transition(ctx, ui)), false);
+                        return (Some(transition(ctx, app)), false);
                     }
                     "next message" | "Try it" => {
                         tut.next();
-                        return (Some(transition(ctx, ui)), false);
+                        return (Some(transition(ctx, app)), false);
                     }
                     _ => unreachable!(),
                 },
@@ -152,22 +152,22 @@ impl GameplayState for Tutorial {
 
         // Interaction things
         if tut.interaction() == Task::Camera {
-            if ui.primary.current_selection == Some(ID::Building(BuildingID(9)))
-                && ui.per_obj.left_click(ctx, "put out the... fire?")
+            if app.primary.current_selection == Some(ID::Building(BuildingID(9)))
+                && app.per_obj.left_click(ctx, "put out the... fire?")
             {
                 tut.next();
-                return (Some(transition(ctx, ui)), false);
+                return (Some(transition(ctx, app)), false);
             }
         } else if tut.interaction() == Task::InspectObjects {
-            match ui.primary.current_selection {
+            match app.primary.current_selection {
                 Some(ID::Lane(l)) => {
-                    if ui.per_obj.action(ctx, Key::I, "inspect the lane") {
+                    if app.per_obj.action(ctx, Key::I, "inspect the lane") {
                         tut.inspected_lane = true;
                         self.top_center = tut.make_top_center(ctx, false);
                         return (
                             Some(Transition::Push(msg(
                                 "Inspection",
-                                match ui.primary.map.get_l(l).lane_type {
+                                match app.primary.map.get_l(l).lane_type {
                                     LaneType::Driving => vec![
                                         "This is a regular lane for driving.",
                                         "Cars, bikes, and buses all share it.",
@@ -194,7 +194,7 @@ impl GameplayState for Tutorial {
                     }
                 }
                 Some(ID::Building(_)) => {
-                    if ui.per_obj.action(ctx, Key::I, "inspect the building") {
+                    if app.per_obj.action(ctx, Key::I, "inspect the building") {
                         tut.inspected_building = true;
                         self.top_center = tut.make_top_center(ctx, false);
                         return (
@@ -210,8 +210,8 @@ impl GameplayState for Tutorial {
                     }
                 }
                 Some(ID::Intersection(i)) => {
-                    if ui.per_obj.action(ctx, Key::I, "inspect the intersection") {
-                        match ui.primary.map.get_i(i).intersection_type {
+                    if app.per_obj.action(ctx, Key::I, "inspect the intersection") {
+                        match app.primary.map.get_i(i).intersection_type {
                             IntersectionType::StopSign => {
                                 tut.inspected_stop_sign = true;
                                 self.top_center = tut.make_top_center(ctx, false);
@@ -272,12 +272,12 @@ impl GameplayState for Tutorial {
                 && tut.inspected_border
             {
                 tut.next();
-                return (Some(transition(ctx, ui)), false);
+                return (Some(transition(ctx, app)), false);
             }
         } else if tut.interaction() == Task::TimeControls {
-            if ui.primary.sim.time() >= Time::START_OF_DAY + Duration::hours(17) {
+            if app.primary.sim.time() >= Time::START_OF_DAY + Duration::hours(17) {
                 tut.next();
-                return (Some(transition(ctx, ui)), false);
+                return (Some(transition(ctx, app)), false);
             }
         } else if tut.interaction() == Task::PauseResume {
             let is_paused = controls.speed.as_ref().unwrap().is_paused();
@@ -291,11 +291,15 @@ impl GameplayState for Tutorial {
             }
             if tut.num_pauses == 3 {
                 tut.next();
-                return (Some(transition(ctx, ui)), false);
+                return (Some(transition(ctx, app)), false);
             }
         } else if tut.interaction() == Task::Escort {
             let target = CarID(30, VehicleType::Car);
-            let is_parked = ui.primary.sim.agent_to_trip(AgentID::Car(target)).is_none();
+            let is_parked = app
+                .primary
+                .sim
+                .agent_to_trip(AgentID::Car(target))
+                .is_none();
             if !tut.car_parked && is_parked && tut.following_car {
                 tut.car_parked = true;
                 self.top_center = tut.make_top_center(ctx, false);
@@ -310,12 +314,12 @@ impl GameplayState for Tutorial {
                 }
             }
 
-            if let Some(ID::Car(c)) = ui.primary.current_selection {
-                if ui.per_obj.action(ctx, Key::C, "draw WASH ME") {
+            if let Some(ID::Car(c)) = app.primary.current_selection {
+                if app.per_obj.action(ctx, Key::C, "draw WASH ME") {
                     if c == target {
                         if is_parked {
                             tut.next();
-                            return (Some(transition(ctx, ui)), false);
+                            return (Some(transition(ctx, app)), false);
                         } else {
                             return (
                                 Some(Transition::Push(msg(
@@ -361,12 +365,12 @@ impl GameplayState for Tutorial {
                 }
             }
         } else if tut.interaction() == Task::LowParking {
-            if let Some(ID::Lane(l)) = ui.primary.current_selection {
-                if ui
+            if let Some(ID::Lane(l)) = app.primary.current_selection {
+                if app
                     .per_obj
                     .action(ctx, Key::C, "check the parking availability")
                 {
-                    let lane = ui.primary.map.get_l(l);
+                    let lane = app.primary.map.get_l(l);
                     if !lane.is_parking() {
                         return (
                             Some(Transition::Push(msg(
@@ -376,7 +380,7 @@ impl GameplayState for Tutorial {
                             false,
                         );
                     }
-                    let percent = (ui.primary.sim.get_free_spots(l).len() as f64)
+                    let percent = (app.primary.sim.get_free_spots(l).len() as f64)
                         / (lane.number_parking_spots() as f64);
                     if percent > 0.1 {
                         return (
@@ -393,26 +397,26 @@ impl GameplayState for Tutorial {
                         );
                     }
                     tut.next();
-                    return (Some(transition(ctx, ui)), false);
+                    return (Some(transition(ctx, app)), false);
                 }
             }
         } else if tut.interaction() == Task::WatchBikes {
-            if ui.primary.sim.time() >= Time::START_OF_DAY + Duration::minutes(2) {
+            if app.primary.sim.time() >= Time::START_OF_DAY + Duration::minutes(2) {
                 tut.next();
-                return (Some(transition(ctx, ui)), false);
+                return (Some(transition(ctx, app)), false);
             }
         } else if tut.interaction() == Task::FixBikes {
-            if ui.primary.sim.is_done() {
-                let (all, _, _) = ui
+            if app.primary.sim.is_done() {
+                let (all, _, _) = app
                     .primary
                     .sim
                     .get_analytics()
-                    .trip_times(ui.primary.sim.time());
+                    .trip_times(app.primary.sim.time());
                 let max = all.select(Statistic::Max);
 
                 if !tut.score_delivered {
                     tut.score_delivered = true;
-                    if ui.primary.map.get_edits().commands.is_empty() {
+                    if app.primary.map.get_edits().commands.is_empty() {
                         return (
                             Some(Transition::Push(msg(
                                 "All trips completed",
@@ -476,12 +480,12 @@ impl GameplayState for Tutorial {
                 if max <= Duration::minutes(6) + Duration::seconds(30.0) {
                     tut.next();
                 }
-                return (Some(transition(ctx, ui)), false);
+                return (Some(transition(ctx, app)), false);
             }
         } else if tut.interaction() == Task::WatchBuses {
-            if ui.primary.sim.time() >= Time::START_OF_DAY + Duration::minutes(5) {
+            if app.primary.sim.time() >= Time::START_OF_DAY + Duration::minutes(5) {
                 tut.next();
-                return (Some(transition(ctx, ui)), false);
+                return (Some(transition(ctx, app)), false);
             }
         } else if tut.interaction() == Task::Done {
             // If the player chooses to stay here, at least go back to the message panel.
@@ -492,8 +496,8 @@ impl GameplayState for Tutorial {
         (None, false)
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        let tut = ui.session.tutorial.as_ref().unwrap();
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        let tut = app.session.tutorial.as_ref().unwrap();
 
         if self.msg_panel.is_some() {
             State::grey_out_map(g);
@@ -504,7 +508,7 @@ impl GameplayState for Tutorial {
         if let Some(ref msg) = self.msg_panel {
             // Arrows underneath the message panel, but on top of other panels
             if let Some((_, Some(fxn))) = tut.lines() {
-                let pt = (fxn)(g, ui);
+                let pt = (fxn)(g, app);
                 g.fork_screenspace();
                 g.draw_polygon(
                     Color::RED,
@@ -529,7 +533,7 @@ impl GameplayState for Tutorial {
         if tut.interaction() == Task::Camera {
             g.draw_polygon(
                 Color::hex("#e25822"),
-                &ui.primary.map.get_b(BuildingID(9)).polygon,
+                &app.primary.map.get_b(BuildingID(9)).polygon,
             );
         }
     }
@@ -674,13 +678,16 @@ impl Task {
 }
 
 struct Stage {
-    messages: Vec<(Vec<&'static str>, Option<Box<dyn Fn(&GfxCtx, &UI) -> Pt2D>>)>,
+    messages: Vec<(
+        Vec<&'static str>,
+        Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>>,
+    )>,
     task: Task,
     warp_to: Option<(ID, f64)>,
-    spawn: Option<Box<dyn Fn(&mut UI)>>,
+    spawn: Option<Box<dyn Fn(&mut App)>>,
 }
 
-fn arrow(pt: ScreenPt) -> Option<Box<dyn Fn(&GfxCtx, &UI) -> Pt2D>> {
+fn arrow(pt: ScreenPt) -> Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>> {
     Some(Box::new(move |_, _| pt.to_pt()))
 }
 
@@ -697,7 +704,7 @@ impl Stage {
     fn msg(
         mut self,
         lines: Vec<&'static str>,
-        point_to: Option<Box<dyn Fn(&GfxCtx, &UI) -> Pt2D>>,
+        point_to: Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>>,
     ) -> Stage {
         self.messages.push((lines, point_to));
         self
@@ -709,34 +716,34 @@ impl Stage {
         self
     }
 
-    fn spawn(mut self, cb: Box<dyn Fn(&mut UI)>) -> Stage {
+    fn spawn(mut self, cb: Box<dyn Fn(&mut App)>) -> Stage {
         assert!(self.spawn.is_none());
         self.spawn = Some(cb);
         self
     }
 
     fn spawn_around(self, i: IntersectionID) -> Stage {
-        self.spawn(Box::new(move |ui| spawn_agents_around(i, ui)))
+        self.spawn(Box::new(move |app| spawn_agents_around(i, app)))
     }
 
     fn spawn_randomly(self) -> Stage {
-        self.spawn(Box::new(|ui| {
-            Scenario::small_run(&ui.primary.map).instantiate(
-                &mut ui.primary.sim,
-                &ui.primary.map,
-                &mut ui.primary.current_flags.sim_flags.make_rng(),
+        self.spawn(Box::new(|app| {
+            Scenario::small_run(&app.primary.map).instantiate(
+                &mut app.primary.sim,
+                &app.primary.map,
+                &mut app.primary.current_flags.sim_flags.make_rng(),
                 &mut Timer::throwaway(),
             )
         }))
     }
 
     fn spawn_scenario(self, scenario: Scenario) -> Stage {
-        self.spawn(Box::new(move |ui| {
+        self.spawn(Box::new(move |app| {
             let mut timer = Timer::new("spawn scenario with prebaked results");
             scenario.instantiate(
-                &mut ui.primary.sim,
-                &ui.primary.map,
-                &mut ui.primary.current_flags.sim_flags.make_rng(),
+                &mut app.primary.sim,
+                &app.primary.map,
+                &mut app.primary.current_flags.sim_flags.make_rng(),
                 &mut timer,
             );
 
@@ -744,7 +751,7 @@ impl Stage {
                 abstutil::path_prebaked_results(&scenario.map_name, &scenario.scenario_name),
                 &mut timer,
             );
-            ui.set_prebaked(Some((
+            app.set_prebaked(Some((
                 scenario.map_name.clone(),
                 scenario.scenario_name.clone(),
                 prebaked,
@@ -813,11 +820,11 @@ fn make_bus_lane_scenario(map: &Map) -> Scenario {
     s
 }
 
-fn transition(ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-    let tut = ui.session.tutorial.as_mut().unwrap();
+fn transition(ctx: &mut EventCtx, app: &mut App) -> Transition {
+    let tut = app.session.tutorial.as_mut().unwrap();
     tut.reset_state();
     let mode = GameplayMode::Tutorial(tut.current);
-    Transition::Replace(Box::new(SandboxMode::new(ctx, ui, mode)))
+    Transition::Replace(Box::new(SandboxMode::new(ctx, app, mode)))
 }
 
 impl TutorialState {
@@ -847,7 +854,12 @@ impl TutorialState {
             Task::Nil
         }
     }
-    fn lines(&self) -> Option<&(Vec<&'static str>, Option<Box<dyn Fn(&GfxCtx, &UI) -> Pt2D>>)> {
+    fn lines(
+        &self,
+    ) -> Option<&(
+        Vec<&'static str>,
+        Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>>,
+    )> {
         let stage = self.stage();
         if self.current.part == stage.messages.len() {
             None
@@ -958,22 +970,22 @@ impl TutorialState {
             .build(ctx)
     }
 
-    fn make_state(&self, ctx: &mut EventCtx, ui: &mut UI) -> Box<dyn GameplayState> {
+    fn make_state(&self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn GameplayState> {
         if self.interaction() == Task::Nil {
-            ui.primary.current_selection = None;
+            app.primary.current_selection = None;
         }
 
         // TODO Should some of this always happen?
-        ui.primary.clear_sim();
-        ui.overlay = Overlays::Inactive;
+        app.primary.clear_sim();
+        app.overlay = Overlays::Inactive;
         if let Some(ref cb) = self.stage().spawn {
-            let old = ui.primary.current_flags.sim_flags.rng_seed;
-            ui.primary.current_flags.sim_flags.rng_seed = Some(42);
-            (cb)(ui);
-            ui.primary.current_flags.sim_flags.rng_seed = old;
-            ui.primary
+            let old = app.primary.current_flags.sim_flags.rng_seed;
+            app.primary.current_flags.sim_flags.rng_seed = Some(42);
+            (cb)(app);
+            app.primary.current_flags.sim_flags.rng_seed = old;
+            app.primary
                 .sim
-                .normal_step(&ui.primary.map, Duration::seconds(0.1));
+                .normal_step(&app.primary.map, Duration::seconds(0.1));
         }
 
         let last_finished_task = if self.current.stage == 0 {
@@ -1067,7 +1079,7 @@ impl TutorialState {
         })
     }
 
-    fn new(ctx: &mut EventCtx, ui: &mut UI) -> TutorialState {
+    fn new(ctx: &mut EventCtx, app: &mut App) -> TutorialState {
         let mut state = TutorialState {
             stages: Vec::new(),
             latest: TutorialPointer::new(0, 0),
@@ -1085,13 +1097,13 @@ impl TutorialState {
         };
 
         let tool_panel = tool_panel(ctx);
-        let time = TimePanel::new(ctx, ui);
+        let time = TimePanel::new(ctx, app);
         let speed = SpeedControls::new(ctx);
-        let agent_meter = AgentMeter::new(ctx, ui, None);
+        let agent_meter = AgentMeter::new(ctx, app, None);
         // The minimap is hidden at low zoom levels
         let orig_zoom = ctx.canvas.cam_zoom;
         ctx.canvas.cam_zoom = 100.0;
-        let minimap = Minimap::new(ctx, ui);
+        let minimap = Minimap::new(ctx, app);
         ctx.canvas.cam_zoom = orig_zoom;
 
         let osd = ScreenPt::new(
@@ -1259,14 +1271,14 @@ impl TutorialState {
                         "Why don't you follow this car to their destination,",
                         "see where they park, and then play a little... prank?",
                     ],
-                    Some(Box::new(|g, ui| {
+                    Some(Box::new(|g, app| {
                         g.canvas
                             .map_to_screen(
-                                ui.primary
+                                app.primary
                                     .sim
                                     .canonical_pt_for_agent(
                                         AgentID::Car(CarID(30, VehicleType::Car)),
-                                        &ui.primary.map,
+                                        &app.primary.map,
                                     )
                                     .unwrap(),
                             )
@@ -1326,7 +1338,7 @@ impl TutorialState {
                 ),
         );
 
-        let bike_lane_scenario = make_bike_lane_scenario(&ui.primary.map);
+        let bike_lane_scenario = make_bike_lane_scenario(&app.primary.map);
 
         state.stages.push(
             Stage::new(Task::WatchBikes)
@@ -1391,7 +1403,7 @@ impl TutorialState {
         );
 
         if false {
-            let bus_lane_scenario = make_bus_lane_scenario(&ui.primary.map);
+            let bus_lane_scenario = make_bus_lane_scenario(&app.primary.map);
             // TODO There's no clear measurement for how well the buses are doing.
             // TODO Probably want a steady stream of the cars appearing
 
@@ -1433,7 +1445,7 @@ impl TutorialState {
         ));
 
         // For my debugging sanity
-        if ui.opts.dev {
+        if app.opts.dev {
             state.latest = TutorialPointer::new(
                 state.stages.len() - 1,
                 state.stages.last().as_ref().unwrap().messages.len(),

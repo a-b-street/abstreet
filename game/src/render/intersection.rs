@@ -1,8 +1,8 @@
+use crate::app::App;
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{
     draw_signal_phase, DrawOptions, Renderable, CROSSWALK_LINE_THICKNESS, OUTLINE_THICKNESS,
 };
-use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Angle, Distance, Line, PolyLine, Polygon, Pt2D, Time, EPSILON_DIST};
@@ -120,21 +120,21 @@ impl Renderable for DrawIntersection {
         ID::Intersection(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI, opts: &DrawOptions) {
+    fn draw(&self, g: &mut GfxCtx, app: &App, opts: &DrawOptions) {
         g.redraw(&self.draw_default);
 
         if self.intersection_type == IntersectionType::TrafficSignal
             && opts.suppress_traffic_signal_details != Some(self.id)
         {
-            let signal = ui.primary.map.get_traffic_signal(self.id);
+            let signal = app.primary.map.get_traffic_signal(self.id);
             let mut maybe_redraw = self.draw_traffic_signal.borrow_mut();
             let recalc = maybe_redraw
                 .as_ref()
-                .map(|(t, _)| *t != ui.primary.sim.time())
+                .map(|(t, _)| *t != app.primary.sim.time())
                 .unwrap_or(true);
             if recalc {
                 let (idx, phase, t) =
-                    signal.current_phase_and_remaining_time(ui.primary.sim.time());
+                    signal.current_phase_and_remaining_time(app.primary.sim.time());
                 let mut batch = GeomBatch::new();
                 draw_signal_phase(
                     g.prerender,
@@ -142,16 +142,16 @@ impl Renderable for DrawIntersection {
                     self.id,
                     Some(t),
                     &mut batch,
-                    ui,
-                    ui.opts.traffic_signal_style.clone(),
+                    app,
+                    app.opts.traffic_signal_style.clone(),
                 );
                 batch.add_transformed(
                     Text::from(Line(format!("{}", idx + 1)).roboto()).render_to_batch(g.prerender),
-                    ui.primary.map.get_i(self.id).polygon.center(),
+                    app.primary.map.get_i(self.id).polygon.center(),
                     0.1,
                     Angle::ZERO,
                 );
-                *maybe_redraw = Some((ui.primary.sim.time(), g.prerender.upload(batch)));
+                *maybe_redraw = Some((app.primary.sim.time(), g.prerender.upload(batch)));
             }
             let (_, batch) = maybe_redraw.as_ref().unwrap();
             g.redraw(batch);

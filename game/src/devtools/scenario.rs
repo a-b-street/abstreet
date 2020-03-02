@@ -1,9 +1,9 @@
+use crate::app::App;
 use crate::colors;
 use crate::common::{tool_panel, Colorer, CommonState, Warping};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
-use crate::ui::UI;
 use abstutil::{prettyprint_usize, Counter, MultiMap};
 use ezgui::{
     hotkey, lctrl, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
@@ -31,7 +31,7 @@ pub struct ScenarioManager {
 }
 
 impl ScenarioManager {
-    pub fn new(scenario: Scenario, ctx: &mut EventCtx, ui: &UI) -> ScenarioManager {
+    pub fn new(scenario: Scenario, ctx: &mut EventCtx, app: &App) -> ScenarioManager {
         let mut trips_from_bldg = MultiMap::new();
         let mut trips_to_bldg = MultiMap::new();
         let mut trips_from_border = MultiMap::new();
@@ -105,7 +105,7 @@ impl ScenarioManager {
             bldg_colors.add_b(*b, color);
         }
 
-        let (filled_spots, free_parking_spots) = ui.primary.sim.get_all_parking_spots();
+        let (filled_spots, free_parking_spots) = app.primary.sim.get_all_parking_spots();
         assert!(filled_spots.is_empty());
 
         ScenarioManager {
@@ -135,21 +135,21 @@ impl ScenarioManager {
             trips_to_bldg,
             trips_from_border,
             trips_to_border,
-            bldg_colors: bldg_colors.build(ctx, ui),
+            bldg_colors: bldg_colors.build(ctx, app),
             demand: None,
         }
     }
 }
 
 impl State for ScenarioManager {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "X" => {
                     return Transition::Pop;
                 }
                 "dot map" => {
-                    return Transition::Push(Box::new(DotMap::new(ctx, ui, &self.scenario)));
+                    return Transition::Push(Box::new(DotMap::new(ctx, app, &self.scenario)));
                 }
                 // TODO Inactivate this sometimes
                 "stop showing paths" => {
@@ -162,14 +162,14 @@ impl State for ScenarioManager {
 
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
-            ui.recalculate_current_selection(ctx);
+            app.recalculate_current_selection(ctx);
         }
 
-        if let Some(ID::Building(b)) = ui.primary.current_selection {
+        if let Some(ID::Building(b)) = app.primary.current_selection {
             let from = self.trips_from_bldg.get(b);
             let to = self.trips_to_bldg.get(b);
             if !from.is_empty() || !to.is_empty() {
-                if ui.per_obj.action(ctx, Key::T, "browse trips") {
+                if app.per_obj.action(ctx, Key::T, "browse trips") {
                     // TODO Avoid the clone? Just happens once though.
                     let mut all_trips = from.clone();
                     all_trips.extend(to);
@@ -181,16 +181,17 @@ impl State for ScenarioManager {
                         OD::Bldg(b),
                     ));
                 } else if self.demand.is_none()
-                    && ui.per_obj.action(ctx, Key::P, "show trips to and from")
+                    && app.per_obj.action(ctx, Key::P, "show trips to and from")
                 {
-                    self.demand = Some(show_demand(&self.scenario, from, to, OD::Bldg(b), ui, ctx));
+                    self.demand =
+                        Some(show_demand(&self.scenario, from, to, OD::Bldg(b), app, ctx));
                 }
             }
-        } else if let Some(ID::Intersection(i)) = ui.primary.current_selection {
+        } else if let Some(ID::Intersection(i)) = app.primary.current_selection {
             let from = self.trips_from_border.get(i);
             let to = self.trips_to_border.get(i);
             if !from.is_empty() || !to.is_empty() {
-                if ui.per_obj.action(ctx, Key::T, "browse trips") {
+                if app.per_obj.action(ctx, Key::T, "browse trips") {
                     // TODO Avoid the clone? Just happens once though.
                     let mut all_trips = from.clone();
                     all_trips.extend(to);
@@ -202,24 +203,24 @@ impl State for ScenarioManager {
                         OD::Border(i),
                     ));
                 } else if self.demand.is_none()
-                    && ui.per_obj.action(ctx, Key::P, "show trips to and from")
+                    && app.per_obj.action(ctx, Key::P, "show trips to and from")
                 {
                     self.demand = Some(show_demand(
                         &self.scenario,
                         from,
                         to,
                         OD::Border(i),
-                        ui,
+                        app,
                         ctx,
                     ));
                 }
             }
         }
 
-        if let Some(t) = self.common.event(ctx, ui, None) {
+        if let Some(t) = self.common.event(ctx, app, None) {
             return t;
         }
-        match self.tool_panel.event(ctx, ui) {
+        match self.tool_panel.event(ctx, app) {
             Some(WrappedOutcome::Transition(t)) => t,
             Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
                 "back" => Transition::Pop,
@@ -229,7 +230,7 @@ impl State for ScenarioManager {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         // TODO Let common contribute draw_options...
         self.bldg_colors.draw(g);
         if let Some(ref p) = self.demand {
@@ -237,28 +238,28 @@ impl State for ScenarioManager {
         }
 
         self.composite.draw(g);
-        self.common.draw_no_osd(g, ui);
+        self.common.draw_no_osd(g, app);
         self.tool_panel.draw(g);
 
-        if let Some(ID::Building(b)) = ui.primary.current_selection {
-            let mut osd = CommonState::default_osd(ID::Building(b), ui);
+        if let Some(ID::Building(b)) = app.primary.current_selection {
+            let mut osd = CommonState::default_osd(ID::Building(b), app);
             osd.append(Line(format!(
                 ". {} trips from here, {} trips to here, {} parked cars needed",
                 self.trips_from_bldg.get(b).len(),
                 self.trips_to_bldg.get(b).len(),
                 self.scenario.individ_parked_cars[&b]
             )));
-            CommonState::draw_custom_osd(g, ui, osd);
-        } else if let Some(ID::Intersection(i)) = ui.primary.current_selection {
-            let mut osd = CommonState::default_osd(ID::Intersection(i), ui);
+            CommonState::draw_custom_osd(g, app, osd);
+        } else if let Some(ID::Intersection(i)) = app.primary.current_selection {
+            let mut osd = CommonState::default_osd(ID::Intersection(i), app);
             osd.append(Line(format!(
                 ". {} trips from here, {} trips to here",
                 self.trips_from_border.get(i).len(),
                 self.trips_to_border.get(i).len(),
             )));
-            CommonState::draw_custom_osd(g, ui, osd);
+            CommonState::draw_custom_osd(g, app, osd);
         } else {
-            CommonState::draw_osd(g, ui, &ui.primary.current_selection);
+            CommonState::draw_osd(g, app, &app.primary.current_selection);
         }
     }
 }
@@ -276,7 +277,7 @@ fn make_trip_picker(
     noun: &'static str,
     home: OD,
 ) -> Box<dyn State> {
-    WizardState::new(Box::new(move |wiz, ctx, ui| {
+    WizardState::new(Box::new(move |wiz, ctx, app| {
         let warp_to = wiz
             .wrap(ctx)
             .choose(&format!("Trips from/to this {}", noun), || {
@@ -287,7 +288,7 @@ fn make_trip_picker(
                         let trip = &scenario.individ_trips[*idx];
                         Choice::new(
                             describe(trip, home),
-                            other_endpt(trip, home, &ui.primary.map),
+                            other_endpt(trip, home, &app.primary.map),
                         )
                     })
                     .collect()
@@ -295,10 +296,10 @@ fn make_trip_picker(
             .1;
         Some(Transition::Replace(Warping::new(
             ctx,
-            warp_to.canonical_point(&ui.primary).unwrap(),
+            warp_to.canonical_point(&app.primary).unwrap(),
             None,
             Some(warp_to),
-            &mut ui.primary,
+            &mut app.primary,
         )))
     }))
 }
@@ -430,7 +431,7 @@ fn show_demand(
     from: &BTreeSet<usize>,
     to: &BTreeSet<usize>,
     home: OD,
-    ui: &UI,
+    app: &App,
     ctx: &EventCtx,
 ) -> Drawable {
     let mut from_ids = Counter::new();
@@ -438,7 +439,7 @@ fn show_demand(
         from_ids.inc(other_endpt(
             &scenario.individ_trips[*idx],
             home,
-            &ui.primary.map,
+            &app.primary.map,
         ));
     }
     let mut to_ids = Counter::new();
@@ -446,7 +447,7 @@ fn show_demand(
         to_ids.inc(other_endpt(
             &scenario.individ_trips[*idx],
             home,
-            &ui.primary.map,
+            &app.primary.map,
         ));
     }
     let from_count = from_ids.consume();
@@ -456,8 +457,8 @@ fn show_demand(
 
     let mut batch = GeomBatch::new();
     let home_pt = match home {
-        OD::Bldg(b) => ui.primary.map.get_b(b).polygon.center(),
-        OD::Border(i) => ui.primary.map.get_i(i).polygon.center(),
+        OD::Bldg(b) => app.primary.map.get_b(b).polygon.center(),
+        OD::Border(i) => app.primary.map.get_i(i).polygon.center(),
     };
 
     for (id, cnt) in from_count {
@@ -467,14 +468,14 @@ fn show_demand(
                 + ((cnt.max(other_cnt) as f64) / max_count) * Distance::meters(2.0);
             batch.push(
                 Color::PURPLE.alpha(0.8),
-                PolyLine::new(vec![home_pt, id.canonical_point(&ui.primary).unwrap()])
+                PolyLine::new(vec![home_pt, id.canonical_point(&app.primary).unwrap()])
                     .make_polygons(width),
             );
         } else {
             let width = Distance::meters(1.0) + ((cnt as f64) / max_count) * Distance::meters(2.0);
             batch.push(
                 Color::RED.alpha(0.8),
-                PolyLine::new(vec![home_pt, id.canonical_point(&ui.primary).unwrap()])
+                PolyLine::new(vec![home_pt, id.canonical_point(&app.primary).unwrap()])
                     .make_arrow(width)
                     .unwrap(),
             );
@@ -484,7 +485,7 @@ fn show_demand(
         let width = Distance::meters(1.0) + ((cnt as f64) / max_count) * Distance::meters(2.0);
         batch.push(
             Color::BLUE.alpha(0.8),
-            PolyLine::new(vec![id.canonical_point(&ui.primary).unwrap(), home_pt])
+            PolyLine::new(vec![id.canonical_point(&app.primary).unwrap(), home_pt])
                 .make_arrow(width)
                 .unwrap(),
         );
@@ -501,8 +502,8 @@ struct DotMap {
 }
 
 impl DotMap {
-    fn new(ctx: &mut EventCtx, ui: &UI, scenario: &Scenario) -> DotMap {
-        let map = &ui.primary.map;
+    fn new(ctx: &mut EventCtx, app: &App, scenario: &Scenario) -> DotMap {
+        let map = &app.primary.map;
         let lines = scenario
             .individ_trips
             .iter()
@@ -551,7 +552,7 @@ impl DotMap {
 }
 
 impl State for DotMap {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
         ctx.canvas_movement();
 
         match self.composite.event(ctx) {
@@ -582,7 +583,7 @@ impl State for DotMap {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         if let Some((_, ref d)) = self.draw {
             g.redraw(d);
         }

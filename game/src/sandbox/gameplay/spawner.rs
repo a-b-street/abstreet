@@ -1,3 +1,4 @@
+use crate::app::App;
 use crate::colors;
 use crate::common::{Colorer, CommonState};
 use crate::game::{msg, State, Transition, WizardState};
@@ -5,7 +6,6 @@ use crate::helpers::ID;
 use crate::managed::WrappedComposite;
 use crate::sandbox::gameplay::freeform::Freeform;
 use crate::sandbox::SandboxMode;
-use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{
     hotkey, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget, Outcome,
@@ -48,26 +48,26 @@ enum Goal {
 }
 
 impl AgentSpawner {
-    pub fn new(ctx: &mut EventCtx, ui: &mut UI) -> Option<Box<dyn State>> {
-        let map = &ui.primary.map;
-        let color = ui.cs.get("selected");
+    pub fn new(ctx: &mut EventCtx, app: &mut App) -> Option<Box<dyn State>> {
+        let map = &app.primary.map;
+        let color = app.cs.get("selected");
         let mut c = Colorer::new(Text::from(Line("spawning agent")), vec![("start", color)]);
 
-        match ui.primary.current_selection {
+        match app.primary.current_selection {
             Some(ID::Building(id)) => {
                 c.add_b(id, color);
 
-                let spots = ui.primary.sim.get_free_offstreet_spots(id);
-                if !spots.is_empty() && ui.per_obj.action(ctx, Key::F6, "seed a parked car here") {
-                    let mut rng = ui.primary.current_flags.sim_flags.make_rng();
-                    ui.primary.sim.seed_parked_car(
+                let spots = app.primary.sim.get_free_offstreet_spots(id);
+                if !spots.is_empty() && app.per_obj.action(ctx, Key::F6, "seed a parked car here") {
+                    let mut rng = app.primary.current_flags.sim_flags.make_rng();
+                    app.primary.sim.seed_parked_car(
                         Scenario::rand_car(&mut rng),
                         spots[0],
                         Some(id),
                     );
                     return None;
                 }
-                if ui.per_obj.action(ctx, Key::F3, "spawn a walking trip") {
+                if app.per_obj.action(ctx, Key::F3, "spawn a walking trip") {
                     return Some(Box::new(AgentSpawner {
                         composite: make_top_bar(
                             ctx,
@@ -76,13 +76,13 @@ impl AgentSpawner {
                         ),
                         from: Source::WalkFromBldg(id),
                         maybe_goal: None,
-                        colorer: c.build(ctx, ui),
+                        colorer: c.build(ctx, app),
                     }));
                 }
-                let parked = ui.primary.sim.get_parked_cars_by_owner(id);
+                let parked = app.primary.sim.get_parked_cars_by_owner(id);
                 // TODO Check if it's claimed... Haha if it is, MaybeUsingParkedCar still snags it!
                 if !parked.is_empty()
-                    && ui.per_obj.action(
+                    && app.per_obj.action(
                         ctx,
                         Key::F5,
                         "spawn a pedestrian here using an owned parked car",
@@ -96,11 +96,14 @@ impl AgentSpawner {
                         ),
                         from: Source::WalkFromBldgThenMaybeUseCar(id),
                         maybe_goal: None,
-                        colorer: c.build(ctx, ui),
+                        colorer: c.build(ctx, app),
                     }));
                 }
                 if let Some(pos) = Position::bldg_via_driving(id, map) {
-                    if ui.per_obj.action(ctx, Key::F4, "spawn a car starting here") {
+                    if app
+                        .per_obj
+                        .action(ctx, Key::F4, "spawn a car starting here")
+                    {
                         return Some(Box::new(AgentSpawner {
                             composite: make_top_bar(
                                 ctx,
@@ -109,12 +112,12 @@ impl AgentSpawner {
                             ),
                             from: Source::Drive(pos),
                             maybe_goal: None,
-                            colorer: c.build(ctx, ui),
+                            colorer: c.build(ctx, app),
                         }));
                     }
                 }
                 if let Some(pos) = Position::bldg_via_biking(id, map) {
-                    if ui
+                    if app
                         .per_obj
                         .action(ctx, Key::F7, "spawn a bike starting here")
                     {
@@ -126,7 +129,7 @@ impl AgentSpawner {
                             ),
                             from: Source::BikeFromBldg(id, pos),
                             maybe_goal: None,
-                            colorer: c.build(ctx, ui),
+                            colorer: c.build(ctx, app),
                         }));
                     }
                 }
@@ -135,7 +138,9 @@ impl AgentSpawner {
                 c.add_l(id, color, map);
 
                 if map.get_l(id).is_driving()
-                    && ui.per_obj.action(ctx, Key::F3, "spawn a car starting here")
+                    && app
+                        .per_obj
+                        .action(ctx, Key::F3, "spawn a car starting here")
                 {
                     return Some(Box::new(AgentSpawner {
                         composite: make_top_bar(
@@ -145,10 +150,10 @@ impl AgentSpawner {
                         ),
                         from: Source::Drive(Position::new(id, map.get_l(id).length() / 2.0)),
                         maybe_goal: None,
-                        colorer: c.build(ctx, ui),
+                        colorer: c.build(ctx, app),
                     }));
                 } else if map.get_l(id).is_sidewalk()
-                    && ui
+                    && app
                         .per_obj
                         .action(ctx, Key::F3, "spawn a pedestrian starting here")
                 {
@@ -163,13 +168,13 @@ impl AgentSpawner {
                             map.get_l(id).length() / 2.0,
                         )),
                         maybe_goal: None,
-                        colorer: c.build(ctx, ui),
+                        colorer: c.build(ctx, app),
                     }));
                 }
             }
             Some(ID::Intersection(i)) => {
-                if ui.per_obj.action(ctx, Key::Z, "spawn agents here") {
-                    spawn_agents_around(i, ui);
+                if app.per_obj.action(ctx, Key::Z, "spawn agents here") {
+                    spawn_agents_around(i, app);
                 }
             }
             _ => {}
@@ -179,7 +184,7 @@ impl AgentSpawner {
 }
 
 impl State for AgentSpawner {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "X" => {
@@ -192,12 +197,12 @@ impl State for AgentSpawner {
 
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
-            ui.recalculate_current_selection(ctx);
+            app.recalculate_current_selection(ctx);
         }
 
-        let map = &ui.primary.map;
+        let map = &app.primary.map;
 
-        let new_goal = match ui.primary.current_selection {
+        let new_goal = match app.primary.current_selection {
             Some(ID::Building(b)) => Goal::Building(b),
             Some(ID::Intersection(i)) if map.get_i(i).is_border() => Goal::Border(i),
             _ => {
@@ -262,9 +267,9 @@ impl State for AgentSpawner {
             }
         }
 
-        if self.maybe_goal.is_some() && ui.per_obj.left_click(ctx, "end the agent here") {
-            let mut rng = ui.primary.current_flags.sim_flags.make_rng();
-            let sim = &mut ui.primary.sim;
+        if self.maybe_goal.is_some() && app.per_obj.left_click(ctx, "end the agent here") {
+            let mut rng = app.primary.current_flags.sim_flags.make_rng();
+            let sim = &mut app.primary.sim;
             let err = schedule_trip(
                 &self.from,
                 self.maybe_goal.take().unwrap().0,
@@ -274,7 +279,7 @@ impl State for AgentSpawner {
             );
             sim.spawn_all_trips(map, &mut Timer::new("spawn trip"), false);
             sim.normal_step(map, SMALL_DT);
-            ui.recalculate_current_selection(ctx);
+            app.recalculate_current_selection(ctx);
             if let Some(e) = err {
                 return Transition::Replace(msg("Spawning error", vec![e]));
             } else {
@@ -285,25 +290,25 @@ impl State for AgentSpawner {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.colorer.draw(g);
 
         if let Some((_, Some(ref trace))) = self.maybe_goal {
             g.draw_polygon(
-                ui.cs.get("route"),
+                app.cs.get("route"),
                 &trace.make_polygons(NORMAL_LANE_THICKNESS),
             );
         }
 
         self.composite.draw(g);
-        CommonState::draw_osd(g, ui, &ui.primary.current_selection);
+        CommonState::draw_osd(g, app, &app.primary.current_selection);
     }
 }
 
-pub fn spawn_agents_around(i: IntersectionID, ui: &mut UI) {
-    let map = &ui.primary.map;
-    let sim = &mut ui.primary.sim;
-    let mut rng = ui.primary.current_flags.sim_flags.make_rng();
+pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
+    let map = &app.primary.map;
+    let sim = &mut app.primary.sim;
+    let mut rng = app.primary.current_flags.sim_flags.make_rng();
 
     if map.all_buildings().is_empty() {
         println!("No buildings, can't pick destinations");
@@ -312,7 +317,7 @@ pub fn spawn_agents_around(i: IntersectionID, ui: &mut UI) {
 
     let mut timer = Timer::new(format!(
         "spawning agents around {} (rng seed {:?})",
-        i, ui.primary.current_flags.sim_flags.rng_seed
+        i, app.primary.current_flags.sim_flags.rng_seed
     ));
 
     for l in &map.get_i(i).incoming_lanes {
@@ -513,19 +518,19 @@ pub struct SpawnManyAgents {
 }
 
 impl SpawnManyAgents {
-    pub fn new(ctx: &mut EventCtx, ui: &mut UI) -> Option<Box<dyn State>> {
-        if let Some(ID::Lane(l)) = ui.primary.current_selection {
-            if ui.primary.map.get_l(l).is_driving()
-                && ui
+    pub fn new(ctx: &mut EventCtx, app: &mut App) -> Option<Box<dyn State>> {
+        if let Some(ID::Lane(l)) = app.primary.current_selection {
+            if app.primary.map.get_l(l).is_driving()
+                && app
                     .per_obj
                     .action(ctx, Key::F2, "spawn many cars starting here")
             {
-                let color = ui.cs.get("selected");
+                let color = app.cs.get("selected");
                 let mut c = Colorer::new(
                     Text::from(Line("spawning many agents")),
                     vec![("start", color)],
                 );
-                c.add_l(l, color, &ui.primary.map);
+                c.add_l(l, color, &app.primary.map);
 
                 return Some(Box::new(SpawnManyAgents {
                     composite: make_top_bar(
@@ -536,7 +541,7 @@ impl SpawnManyAgents {
                     from: l,
                     maybe_goal: None,
                     schedule: None,
-                    colorer: c.build(ctx, ui),
+                    colorer: c.build(ctx, app),
                 }));
             }
         }
@@ -545,15 +550,15 @@ impl SpawnManyAgents {
 }
 
 impl State for SpawnManyAgents {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         // TODO Weird pattern for handling "return value" from the wizard we launched? Maybe
         // PopWithData is a weird pattern; we should have a resume() handler that handles the
         // context
         if let Some((count, duration)) = self.schedule {
             let dst_l = self.maybe_goal.take().unwrap().0;
-            create_swarm(ui, self.from, dst_l, count, duration);
-            let src = ui.primary.map.get_l(self.from).src_i;
-            let dst = ui.primary.map.get_l(dst_l).dst_i;
+            create_swarm(app, self.from, dst_l, count, duration);
+            let src = app.primary.map.get_l(self.from).src_i;
+            let dst = app.primary.map.get_l(dst_l).dst_i;
             return Transition::PopWithData(Box::new(move |state, _, _| {
                 let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
                 let freeform = sandbox.gameplay.downcast_mut::<Freeform>().unwrap();
@@ -574,12 +579,12 @@ impl State for SpawnManyAgents {
 
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
-            ui.recalculate_current_selection(ctx);
+            app.recalculate_current_selection(ctx);
         }
 
-        let map = &ui.primary.map;
+        let map = &app.primary.map;
 
-        let new_goal = match ui.primary.current_selection {
+        let new_goal = match app.primary.current_selection {
             Some(ID::Lane(l)) if map.get_l(l).is_driving() => l,
             _ => {
                 self.maybe_goal = None;
@@ -606,7 +611,7 @@ impl State for SpawnManyAgents {
 
         if self.maybe_goal.is_some()
             && self.schedule.is_none()
-            && ui.per_obj.left_click(ctx, "end the swarm here")
+            && app.per_obj.left_click(ctx, "end the swarm here")
         {
             return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, _| {
                 let mut wizard = wiz.wrap(ctx);
@@ -630,46 +635,46 @@ impl State for SpawnManyAgents {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.colorer.draw(g);
 
         if let Some((_, Some(ref trace))) = self.maybe_goal {
             g.draw_polygon(
-                ui.cs.get("route"),
+                app.cs.get("route"),
                 &trace.make_polygons(NORMAL_LANE_THICKNESS),
             );
         }
 
         self.composite.draw(g);
-        CommonState::draw_osd(g, ui, &ui.primary.current_selection);
+        CommonState::draw_osd(g, app, &app.primary.current_selection);
     }
 }
 
-fn create_swarm(ui: &mut UI, from: LaneID, to: LaneID, count: usize, duration: Duration) {
-    let mut scenario = Scenario::empty(&ui.primary.map, "swarm");
+fn create_swarm(app: &mut App, from: LaneID, to: LaneID, count: usize, duration: Duration) {
+    let mut scenario = Scenario::empty(&app.primary.map, "swarm");
     scenario.border_spawn_over_time.push(BorderSpawnOverTime {
         num_peds: 0,
         num_cars: count,
         num_bikes: 0,
-        start_time: ui.primary.sim.time() + SMALL_DT,
-        stop_time: ui.primary.sim.time() + SMALL_DT + duration,
-        start_from_border: ui
+        start_time: app.primary.sim.time() + SMALL_DT,
+        stop_time: app.primary.sim.time() + SMALL_DT + duration,
+        start_from_border: app
             .primary
             .map
             .get_l(from)
-            .get_directed_parent(&ui.primary.map),
+            .get_directed_parent(&app.primary.map),
         goal: OriginDestination::EndOfRoad(
-            ui.primary
+            app.primary
                 .map
                 .get_l(to)
-                .get_directed_parent(&ui.primary.map),
+                .get_directed_parent(&app.primary.map),
         ),
         percent_use_transit: 0.0,
     });
-    let mut rng = ui.primary.current_flags.sim_flags.make_rng();
+    let mut rng = app.primary.current_flags.sim_flags.make_rng();
     scenario.instantiate(
-        &mut ui.primary.sim,
-        &ui.primary.map,
+        &mut app.primary.sim,
+        &app.primary.map,
         &mut rng,
         &mut Timer::throwaway(),
     );

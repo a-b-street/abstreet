@@ -1,3 +1,4 @@
+use crate::app::{App, ShowEverything};
 use crate::colors;
 use crate::common::CommonState;
 use crate::edit::{apply_map_edits, close_intersection, StopSignEditor};
@@ -6,7 +7,6 @@ use crate::managed::WrappedComposite;
 use crate::options::TrafficSignalStyle;
 use crate::render::{draw_signal_phase, DrawOptions, DrawTurnGroup, BIG_ARROW_THICKNESS};
 use crate::sandbox::{spawn_agents_around, SpeedControls, TimePanel};
-use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Button, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
@@ -40,16 +40,16 @@ impl TrafficSignalEditor {
     pub fn new(
         id: IntersectionID,
         ctx: &mut EventCtx,
-        ui: &mut UI,
+        app: &mut App,
         suspended_sim: Sim,
     ) -> TrafficSignalEditor {
-        ui.primary.current_selection = None;
+        app.primary.current_selection = None;
         TrafficSignalEditor {
             i: id,
             current_phase: 0,
-            composite: make_diagram(id, 0, ui, ctx),
+            composite: make_diagram(id, 0, app, ctx),
             top_panel: make_top_panel(false, false, ctx),
-            groups: DrawTurnGroup::for_i(id, &ui.primary.map),
+            groups: DrawTurnGroup::for_i(id, &app.primary.map),
             group_selected: None,
             suspended_sim,
             command_stack: Vec::new(),
@@ -57,14 +57,14 @@ impl TrafficSignalEditor {
         }
     }
 
-    fn change_phase(&mut self, idx: usize, ui: &UI, ctx: &mut EventCtx) {
+    fn change_phase(&mut self, idx: usize, app: &App, ctx: &mut EventCtx) {
         if self.current_phase == idx {
             let preserve_scroll = self.composite.preserve_scroll();
-            self.composite = make_diagram(self.i, self.current_phase, ui, ctx);
+            self.composite = make_diagram(self.i, self.current_phase, app, ctx);
             self.composite.restore_scroll(ctx, preserve_scroll);
         } else {
             self.current_phase = idx;
-            self.composite = make_diagram(self.i, self.current_phase, ui, ctx);
+            self.composite = make_diagram(self.i, self.current_phase, app, ctx);
             // TODO Maybe center of previous member
             self.composite
                 .scroll_to_member(ctx, format!("phase {}", idx + 1));
@@ -73,38 +73,38 @@ impl TrafficSignalEditor {
 }
 
 impl State for TrafficSignalEditor {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        let orig_signal = ui.primary.map.get_traffic_signal(self.i);
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        let orig_signal = app.primary.map.get_traffic_signal(self.i);
 
         ctx.canvas_movement();
 
         // TODO Buttons for these...
         if self.current_phase != 0 && ctx.input.new_was_pressed(&hotkey(Key::UpArrow).unwrap()) {
-            self.change_phase(self.current_phase - 1, ui, ctx);
+            self.change_phase(self.current_phase - 1, app, ctx);
         }
 
-        if self.current_phase != ui.primary.map.get_traffic_signal(self.i).phases.len() - 1
+        if self.current_phase != app.primary.map.get_traffic_signal(self.i).phases.len() - 1
             && ctx.input.new_was_pressed(&hotkey(Key::DownArrow).unwrap())
         {
-            self.change_phase(self.current_phase + 1, ui, ctx);
+            self.change_phase(self.current_phase + 1, app, ctx);
         }
 
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x {
                 x if x == "Edit entire signal" => {
                     return Transition::Push(edit_entire_signal(
-                        ui,
+                        app,
                         self.i,
                         self.suspended_sim.clone(),
                     ));
                 }
                 x if x.starts_with("edit phase ") => {
                     let idx = x["edit phase ".len()..].parse::<usize>().unwrap() - 1;
-                    return Transition::Push(edit_phase(ui, self.i, idx));
+                    return Transition::Push(edit_phase(app, self.i, idx));
                 }
                 x if x.starts_with("phase ") => {
                     let idx = x["phase ".len()..].parse::<usize>().unwrap() - 1;
-                    self.change_phase(idx, ui, ctx);
+                    self.change_phase(idx, app, ctx);
                 }
                 _ => unreachable!(),
             },
@@ -147,7 +147,7 @@ impl State for TrafficSignalEditor {
                 }
             };
             if let Some(pri) = next_priority {
-                if ui.per_obj.left_click(
+                if app.per_obj.left_click(
                     ctx,
                     format!(
                         "toggle from {:?} to {:?}",
@@ -159,13 +159,13 @@ impl State for TrafficSignalEditor {
                         &orig_signal.turn_groups[&id],
                         pri,
                         &orig_signal.turn_groups,
-                        &ui.primary.map,
+                        &app.primary.map,
                     );
                     self.command_stack.push(orig_signal.clone());
                     self.redo_stack.clear();
                     self.top_panel = make_top_panel(true, false, ctx);
-                    change_traffic_signal(new_signal, ui, ctx);
-                    self.change_phase(self.current_phase, ui, ctx);
+                    change_traffic_signal(new_signal, app, ctx);
+                    self.change_phase(self.current_phase, app, ctx);
                     return Transition::Keep;
                 }
             }
@@ -177,13 +177,13 @@ impl State for TrafficSignalEditor {
                     return check_for_missing_groups(
                         orig_signal.clone(),
                         &mut self.composite,
-                        ui,
+                        app,
                         ctx,
                     );
                 }
                 "Preview" => {
                     // Might have to do this first!
-                    ui.primary
+                    app.primary
                         .map
                         .recalculate_pathfinding_after_edits(&mut Timer::throwaway());
 
@@ -196,16 +196,16 @@ impl State for TrafficSignalEditor {
                 }
                 "undo" => {
                     self.redo_stack.push(orig_signal.clone());
-                    change_traffic_signal(self.command_stack.pop().unwrap(), ui, ctx);
+                    change_traffic_signal(self.command_stack.pop().unwrap(), app, ctx);
                     self.top_panel = make_top_panel(!self.command_stack.is_empty(), true, ctx);
-                    self.change_phase(0, ui, ctx);
+                    self.change_phase(0, app, ctx);
                     return Transition::Keep;
                 }
                 "redo" => {
                     self.command_stack.push(orig_signal.clone());
-                    change_traffic_signal(self.redo_stack.pop().unwrap(), ui, ctx);
+                    change_traffic_signal(self.redo_stack.pop().unwrap(), app, ctx);
                     self.top_panel = make_top_panel(true, !self.redo_stack.is_empty(), ctx);
-                    self.change_phase(0, ui, ctx);
+                    self.change_phase(0, app, ctx);
                     return Transition::Keep;
                 }
                 _ => unreachable!(),
@@ -220,14 +220,14 @@ impl State for TrafficSignalEditor {
         DrawBaselayer::Custom
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         {
             let mut opts = DrawOptions::new();
             opts.suppress_traffic_signal_details = Some(self.i);
-            ui.draw(g, opts, &ui.primary.sim, &ShowEverything::new());
+            app.draw(g, opts, &app.primary.sim, &ShowEverything::new());
         }
 
-        let signal = ui.primary.map.get_traffic_signal(self.i);
+        let signal = app.primary.map.get_traffic_signal(self.i);
         let phase = &signal.phases[self.current_phase];
         let mut batch = GeomBatch::new();
         draw_signal_phase(
@@ -236,16 +236,19 @@ impl State for TrafficSignalEditor {
             self.i,
             None,
             &mut batch,
-            ui,
-            ui.opts.traffic_signal_style.clone(),
+            app,
+            app.opts.traffic_signal_style.clone(),
         );
 
         for g in &self.groups {
             if Some(g.id) == self.group_selected {
-                batch.push(ui.cs.get_def("solid selected", Color::RED), g.block.clone());
+                batch.push(
+                    app.cs.get_def("solid selected", Color::RED),
+                    g.block.clone(),
+                );
                 // Overwrite the original thing
                 batch.push(
-                    ui.cs.get("solid selected"),
+                    app.cs.get("solid selected"),
                     signal.turn_groups[&g.id]
                         .geom
                         .make_arrow(BIG_ARROW_THICKNESS)
@@ -253,17 +256,17 @@ impl State for TrafficSignalEditor {
                 );
             } else {
                 batch.push(
-                    ui.cs.get_def("turn block background", Color::grey(0.6)),
+                    app.cs.get_def("turn block background", Color::grey(0.6)),
                     g.block.clone(),
                 );
             }
             let arrow_color = match phase.get_priority_of_group(g.id) {
-                TurnPriority::Protected => ui.cs.get("turn protected by traffic signal"),
-                TurnPriority::Yield => ui
+                TurnPriority::Protected => app.cs.get("turn protected by traffic signal"),
+                TurnPriority::Yield => app
                     .cs
                     .get("turn that can yield by traffic signal")
                     .alpha(1.0),
-                TurnPriority::Banned => ui.cs.get_def("turn not in current phase", Color::BLACK),
+                TurnPriority::Banned => app.cs.get_def("turn not in current phase", Color::BLACK),
             };
             batch.push(arrow_color, g.arrow.clone());
         }
@@ -275,18 +278,18 @@ impl State for TrafficSignalEditor {
             let osd = if id.crosswalk.is_some() {
                 Text::from(Line(format!(
                     "Crosswalk across {}",
-                    ui.primary.map.get_r(id.from).get_name()
+                    app.primary.map.get_r(id.from).get_name()
                 )))
             } else {
                 Text::from(Line(format!(
                     "Turn from {} to {}",
-                    ui.primary.map.get_r(id.from).get_name(),
-                    ui.primary.map.get_r(id.to).get_name()
+                    app.primary.map.get_r(id.from).get_name(),
+                    app.primary.map.get_r(id.to).get_name()
                 )))
             };
-            CommonState::draw_custom_osd(g, ui, osd);
+            CommonState::draw_custom_osd(g, app, osd);
         } else {
-            CommonState::draw_osd(g, ui, &None);
+            CommonState::draw_osd(g, app, &None);
         }
     }
 }
@@ -332,22 +335,22 @@ fn make_top_panel(can_undo: bool, can_redo: bool, ctx: &mut EventCtx) -> Composi
         .build(ctx)
 }
 
-fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx) -> Composite {
+fn make_diagram(i: IntersectionID, selected: usize, app: &App, ctx: &mut EventCtx) -> Composite {
     // Slightly inaccurate -- the turn rendering may slightly exceed the intersection polygon --
     // but this is close enough.
-    let bounds = ui.primary.map.get_i(i).polygon.get_bounds();
+    let bounds = app.primary.map.get_i(i).polygon.get_bounds();
     // Pick a zoom so that we fit a fixed width in pixels
     let zoom = 150.0 / bounds.width();
     let bbox = Polygon::rectangle(zoom * bounds.width(), zoom * bounds.height());
 
-    let signal = ui.primary.map.get_traffic_signal(i);
+    let signal = app.primary.map.get_traffic_signal(i);
     let mut col = vec![
         ManagedWidget::draw_text(ctx, {
             let mut txt = Text::from(Line(format!("Intersection #{}", i.0)).roboto_bold());
 
             let mut road_names = BTreeSet::new();
-            for r in &ui.primary.map.get_i(i).roads {
-                road_names.insert(ui.primary.map.get_r(*r).get_name());
+            for r in &app.primary.map.get_i(i).roads {
+                road_names.insert(app.primary.map.get_r(*r).get_name());
             }
             for r in road_names {
                 // TODO The spacing is ignored, so use -
@@ -408,7 +411,7 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
             i,
             None,
             &mut orig_batch,
-            ui,
+            app,
             TrafficSignalStyle::Sidewalks,
         );
 
@@ -451,8 +454,8 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
         .build(ctx)
 }
 
-fn change_traffic_signal(signal: ControlTrafficSignal, ui: &mut UI, ctx: &mut EventCtx) {
-    let mut edits = ui.primary.map.get_edits().clone();
+fn change_traffic_signal(signal: ControlTrafficSignal, app: &mut App, ctx: &mut EventCtx) {
+    let mut edits = app.primary.map.get_edits().clone();
     // TODO Only record one command for the entire session. Otherwise, we can exit this editor and
     // undo a few times, potentially ending at an invalid state!
     let old = if let Some(prev) = edits.commands.last().and_then(|cmd| match cmd {
@@ -475,26 +478,26 @@ fn change_traffic_signal(signal: ControlTrafficSignal, ui: &mut UI, ctx: &mut Ev
         edits.commands.pop();
         prev
     } else {
-        ui.primary.map.get_i_edit(signal.id)
+        app.primary.map.get_i_edit(signal.id)
     };
     edits.commands.push(EditCmd::ChangeIntersection {
         i: signal.id,
         old,
         new: EditIntersection::TrafficSignal(signal),
     });
-    apply_map_edits(ctx, ui, edits);
+    apply_map_edits(ctx, app, edits);
 }
 
-fn edit_entire_signal(ui: &UI, i: IntersectionID, suspended_sim: Sim) -> Box<dyn State> {
-    let has_sidewalks = ui
+fn edit_entire_signal(app: &App, i: IntersectionID, suspended_sim: Sim) -> Box<dyn State> {
+    let has_sidewalks = app
         .primary
         .map
         .get_turns_in_intersection(i)
         .iter()
         .any(|t| t.between_sidewalks());
-    let current_offset = ui.primary.map.get_traffic_signal(i).offset;
+    let current_offset = app.primary.map.get_traffic_signal(i).offset;
 
-    WizardState::new(Box::new(move |wiz, ctx, ui| {
+    WizardState::new(Box::new(move |wiz, ctx, app| {
         let use_template = "use template";
         let all_walk = "add an all-walk phase at the end";
         let stop_sign = "convert to stop signs";
@@ -513,80 +516,82 @@ fn edit_entire_signal(ui: &UI, i: IntersectionID, suspended_sim: Sim) -> Box<dyn
                 let (_, new_signal) =
                     wizard.choose("Use which preset for this intersection?", || {
                         Choice::from(ControlTrafficSignal::get_possible_policies(
-                            &ui.primary.map,
+                            &app.primary.map,
                             i,
                         ))
                     })?;
-                Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
+                Some(Transition::PopWithData(Box::new(move |state, app, ctx| {
                     let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
                     editor
                         .command_stack
-                        .push(ui.primary.map.get_traffic_signal(editor.i).clone());
+                        .push(app.primary.map.get_traffic_signal(editor.i).clone());
                     editor.redo_stack.clear();
                     editor.top_panel = make_top_panel(true, false, ctx);
-                    change_traffic_signal(new_signal, ui, ctx);
-                    editor.change_phase(0, ui, ctx);
+                    change_traffic_signal(new_signal, app, ctx);
+                    editor.change_phase(0, app, ctx);
                 })))
             }
-            x if x == all_walk => Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
-                let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-                let orig_signal = ui.primary.map.get_traffic_signal(editor.i);
-                let mut new_signal = orig_signal.clone();
-                if new_signal.convert_to_ped_scramble(&ui.primary.map) {
-                    editor.command_stack.push(orig_signal.clone());
-                    editor.redo_stack.clear();
-                    editor.top_panel = make_top_panel(true, false, ctx);
-                    change_traffic_signal(new_signal, ui, ctx);
-                    editor.change_phase(0, ui, ctx);
-                }
-            }))),
+            x if x == all_walk => {
+                Some(Transition::PopWithData(Box::new(move |state, app, ctx| {
+                    let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
+                    let orig_signal = app.primary.map.get_traffic_signal(editor.i);
+                    let mut new_signal = orig_signal.clone();
+                    if new_signal.convert_to_ped_scramble(&app.primary.map) {
+                        editor.command_stack.push(orig_signal.clone());
+                        editor.redo_stack.clear();
+                        editor.top_panel = make_top_panel(true, false, ctx);
+                        change_traffic_signal(new_signal, app, ctx);
+                        editor.change_phase(0, app, ctx);
+                    }
+                })))
+            }
             x if x == stop_sign => {
-                let mut edits = ui.primary.map.get_edits().clone();
+                let mut edits = app.primary.map.get_edits().clone();
                 edits.commands.push(EditCmd::ChangeIntersection {
                     i,
-                    old: ui.primary.map.get_i_edit(i),
-                    new: EditIntersection::StopSign(ControlStopSign::new(&ui.primary.map, i)),
+                    old: app.primary.map.get_i_edit(i),
+                    new: EditIntersection::StopSign(ControlStopSign::new(&app.primary.map, i)),
                 });
-                apply_map_edits(ctx, ui, edits);
+                apply_map_edits(ctx, app, edits);
                 Some(Transition::PopThenReplace(Box::new(StopSignEditor::new(
                     i,
                     ctx,
-                    ui,
+                    app,
                     suspended_sim.clone(),
                 ))))
             }
-            x if x == close => Some(close_intersection(ctx, ui, i, false)),
+            x if x == close => Some(close_intersection(ctx, app, i, false)),
             x if x == offset => {
                 let new_duration = wizard.input_usize_prefilled(
                     "What should the offset of this traffic signal be (seconds)?",
                     format!("{}", current_offset.inner_seconds() as usize),
                 )?;
-                Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
+                Some(Transition::PopWithData(Box::new(move |state, app, ctx| {
                     let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-                    let mut signal = ui.primary.map.get_traffic_signal(editor.i).clone();
+                    let mut signal = app.primary.map.get_traffic_signal(editor.i).clone();
                     editor.command_stack.push(signal.clone());
                     editor.redo_stack.clear();
                     editor.top_panel = make_top_panel(true, false, ctx);
                     signal.offset = Duration::seconds(new_duration as f64);
-                    change_traffic_signal(signal, ui, ctx);
-                    editor.change_phase(editor.current_phase, ui, ctx);
+                    change_traffic_signal(signal, app, ctx);
+                    editor.change_phase(editor.current_phase, app, ctx);
                 })))
             }
             x if x == reset => {
-                Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
+                Some(Transition::PopWithData(Box::new(move |state, app, ctx| {
                     let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-                    let orig_signal = ui.primary.map.get_traffic_signal(editor.i);
+                    let orig_signal = app.primary.map.get_traffic_signal(editor.i);
                     let new_signal =
-                        ControlTrafficSignal::get_possible_policies(&ui.primary.map, editor.i)
+                        ControlTrafficSignal::get_possible_policies(&app.primary.map, editor.i)
                             .remove(0)
                             .1;
                     editor.command_stack.push(orig_signal.clone());
                     editor.redo_stack.clear();
                     editor.top_panel = make_top_panel(true, false, ctx);
-                    change_traffic_signal(new_signal, ui, ctx);
+                    change_traffic_signal(new_signal, app, ctx);
                     // Don't use change_phase; it tries to preserve scroll
                     editor.current_phase = 0;
-                    editor.composite = make_diagram(editor.i, editor.current_phase, ui, ctx);
+                    editor.composite = make_diagram(editor.i, editor.current_phase, app, ctx);
                 })))
             }
             _ => unreachable!(),
@@ -594,8 +599,8 @@ fn edit_entire_signal(ui: &UI, i: IntersectionID, suspended_sim: Sim) -> Box<dyn
     }))
 }
 
-fn edit_phase(ui: &UI, i: IntersectionID, idx: usize) -> Box<dyn State> {
-    let signal = ui.primary.map.get_traffic_signal(i);
+fn edit_phase(app: &App, i: IntersectionID, idx: usize) -> Box<dyn State> {
+    let signal = app.primary.map.get_traffic_signal(i);
     let num_phases = signal.phases.len();
     let current_duration = signal.phases[idx].duration;
 
@@ -631,77 +636,77 @@ fn edit_phase(ui: &UI, i: IntersectionID, idx: usize) -> Box<dyn State> {
                             .and_then(|n| if n != 0 { Some(n) } else { None })
                     }),
                 )?;
-                Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
+                Some(Transition::PopWithData(Box::new(move |state, app, ctx| {
                     let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-                    let orig_signal = ui.primary.map.get_traffic_signal(editor.i);
+                    let orig_signal = app.primary.map.get_traffic_signal(editor.i);
 
                     let mut new_signal = orig_signal.clone();
                     new_signal.phases[idx].duration = Duration::seconds(new_duration as f64);
                     editor.command_stack.push(orig_signal.clone());
                     editor.redo_stack.clear();
                     editor.top_panel = make_top_panel(true, false, ctx);
-                    change_traffic_signal(new_signal, ui, ctx);
-                    editor.change_phase(idx, ui, ctx);
+                    change_traffic_signal(new_signal, app, ctx);
+                    editor.change_phase(idx, app, ctx);
                 })))
             }
             x if x == new_before => {
-                Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
+                Some(Transition::PopWithData(Box::new(move |state, app, ctx| {
                     let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-                    let orig_signal = ui.primary.map.get_traffic_signal(editor.i);
+                    let orig_signal = app.primary.map.get_traffic_signal(editor.i);
 
                     let mut new_signal = orig_signal.clone();
                     new_signal.phases.insert(idx, Phase::new());
                     editor.command_stack.push(orig_signal.clone());
                     editor.redo_stack.clear();
                     editor.top_panel = make_top_panel(true, false, ctx);
-                    change_traffic_signal(new_signal, ui, ctx);
-                    editor.change_phase(idx, ui, ctx);
+                    change_traffic_signal(new_signal, app, ctx);
+                    editor.change_phase(idx, app, ctx);
                 })))
             }
             x if x == new_after => {
-                Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
+                Some(Transition::PopWithData(Box::new(move |state, app, ctx| {
                     let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-                    let orig_signal = ui.primary.map.get_traffic_signal(editor.i);
+                    let orig_signal = app.primary.map.get_traffic_signal(editor.i);
 
                     let mut new_signal = orig_signal.clone();
                     new_signal.phases.insert(idx + 1, Phase::new());
                     editor.command_stack.push(orig_signal.clone());
                     editor.redo_stack.clear();
                     editor.top_panel = make_top_panel(true, false, ctx);
-                    change_traffic_signal(new_signal, ui, ctx);
-                    editor.change_phase(idx + 1, ui, ctx);
+                    change_traffic_signal(new_signal, app, ctx);
+                    editor.change_phase(idx + 1, app, ctx);
                 })))
             }
-            x if x == move_up => Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
+            x if x == move_up => Some(Transition::PopWithData(Box::new(move |state, app, ctx| {
                 let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-                let orig_signal = ui.primary.map.get_traffic_signal(editor.i);
+                let orig_signal = app.primary.map.get_traffic_signal(editor.i);
 
                 let mut new_signal = orig_signal.clone();
                 new_signal.phases.swap(idx, idx - 1);
                 editor.command_stack.push(orig_signal.clone());
                 editor.redo_stack.clear();
                 editor.top_panel = make_top_panel(true, false, ctx);
-                change_traffic_signal(new_signal, ui, ctx);
-                editor.change_phase(idx - 1, ui, ctx);
+                change_traffic_signal(new_signal, app, ctx);
+                editor.change_phase(idx - 1, app, ctx);
             }))),
             x if x == move_down => {
-                Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
+                Some(Transition::PopWithData(Box::new(move |state, app, ctx| {
                     let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-                    let orig_signal = ui.primary.map.get_traffic_signal(editor.i);
+                    let orig_signal = app.primary.map.get_traffic_signal(editor.i);
 
                     let mut new_signal = orig_signal.clone();
                     new_signal.phases.swap(idx, idx + 1);
                     editor.command_stack.push(orig_signal.clone());
                     editor.redo_stack.clear();
                     editor.top_panel = make_top_panel(true, false, ctx);
-                    change_traffic_signal(new_signal, ui, ctx);
-                    editor.change_phase(idx + 1, ui, ctx);
+                    change_traffic_signal(new_signal, app, ctx);
+                    editor.change_phase(idx + 1, app, ctx);
                 })))
             }
             x if x == delete => {
-                Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
+                Some(Transition::PopWithData(Box::new(move |state, app, ctx| {
                     let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-                    let orig_signal = ui.primary.map.get_traffic_signal(editor.i);
+                    let orig_signal = app.primary.map.get_traffic_signal(editor.i);
 
                     let mut new_signal = orig_signal.clone();
                     new_signal.phases.remove(idx);
@@ -709,10 +714,10 @@ fn edit_phase(ui: &UI, i: IntersectionID, idx: usize) -> Box<dyn State> {
                     editor.command_stack.push(orig_signal.clone());
                     editor.redo_stack.clear();
                     editor.top_panel = make_top_panel(true, false, ctx);
-                    change_traffic_signal(new_signal, ui, ctx);
+                    change_traffic_signal(new_signal, app, ctx);
                     // Don't use change_phase; it tries to preserve scroll
                     editor.current_phase = if idx == num_phases { idx - 1 } else { idx };
-                    editor.composite = make_diagram(editor.i, editor.current_phase, ui, ctx);
+                    editor.composite = make_diagram(editor.i, editor.current_phase, app, ctx);
                 })))
             }
             _ => unreachable!(),
@@ -723,7 +728,7 @@ fn edit_phase(ui: &UI, i: IntersectionID, idx: usize) -> Box<dyn State> {
 fn check_for_missing_groups(
     mut signal: ControlTrafficSignal,
     composite: &mut Composite,
-    ui: &mut UI,
+    app: &mut App,
     ctx: &mut EventCtx,
 ) -> Transition {
     let mut missing: BTreeSet<TurnGroupID> = signal.turn_groups.keys().cloned().collect();
@@ -754,8 +759,8 @@ fn check_for_missing_groups(
     signal.phases.push(phase);
     let last_phase = signal.phases.len() - 1;
     let id = signal.id;
-    change_traffic_signal(signal, ui, ctx);
-    *composite = make_diagram(id, last_phase, ui, ctx);
+    change_traffic_signal(signal, app, ctx);
+    *composite = make_diagram(id, last_phase, app, ctx);
 
     Transition::Push(msg(
         "Error: missing turns",
@@ -770,7 +775,7 @@ fn check_for_missing_groups(
 
 // TODO I guess it's valid to preview without all turns possible. Some agents are just sad.
 fn make_previewer(i: IntersectionID, phase: usize, suspended_sim: Sim) -> Box<dyn State> {
-    WizardState::new(Box::new(move |wiz, ctx, ui| {
+    WizardState::new(Box::new(move |wiz, ctx, app| {
         let random = "random agents around just this intersection".to_string();
         let right_now = format!("change the traffic signal live at {}", suspended_sim.time());
         match wiz
@@ -783,23 +788,23 @@ fn make_previewer(i: IntersectionID, phase: usize, suspended_sim: Sim) -> Box<dy
         {
             x if x == random => {
                 // Start at the current phase
-                let signal = ui.primary.map.get_traffic_signal(i);
+                let signal = app.primary.map.get_traffic_signal(i);
                 // TODO Use the offset correctly
                 let mut step = Duration::ZERO;
                 for idx in 0..phase {
                     step += signal.phases[idx].duration;
                 }
-                ui.primary.sim.normal_step(&ui.primary.map, step);
+                app.primary.sim.normal_step(&app.primary.map, step);
 
-                spawn_agents_around(i, ui);
+                spawn_agents_around(i, app);
             }
             x if x == right_now => {
-                ui.primary.sim = suspended_sim.clone();
+                app.primary.sim = suspended_sim.clone();
             }
             _ => unreachable!(),
         };
         Some(Transition::Replace(Box::new(PreviewTrafficSignal::new(
-            ctx, ui,
+            ctx, app,
         ))))
     }))
 }
@@ -813,7 +818,7 @@ struct PreviewTrafficSignal {
 }
 
 impl PreviewTrafficSignal {
-    fn new(ctx: &mut EventCtx, ui: &UI) -> PreviewTrafficSignal {
+    fn new(ctx: &mut EventCtx, app: &App) -> PreviewTrafficSignal {
         PreviewTrafficSignal {
             composite: Composite::new(
                 ManagedWidget::col(vec![
@@ -826,19 +831,19 @@ impl PreviewTrafficSignal {
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
             speed: SpeedControls::new(ctx),
-            time_panel: TimePanel::new(ctx, ui),
+            time_panel: TimePanel::new(ctx, app),
         }
     }
 }
 
 impl State for PreviewTrafficSignal {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "back to editing" => {
-                    ui.primary.clear_sim();
+                    app.primary.clear_sim();
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
@@ -846,9 +851,9 @@ impl State for PreviewTrafficSignal {
             None => {}
         }
 
-        self.time_panel.event(ctx, ui);
+        self.time_panel.event(ctx, app);
         // TODO Ideally here reset to midnight would jump back to when the preview started?
-        if let Some(t) = self.speed.event(ctx, ui, None) {
+        if let Some(t) = self.speed.event(ctx, app, None) {
             return t;
         }
         if self.speed.is_paused() {
@@ -858,7 +863,7 @@ impl State for PreviewTrafficSignal {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.composite.draw(g);
         self.speed.draw(g);
         self.time_panel.draw(g);

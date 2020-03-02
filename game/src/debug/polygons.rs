@@ -1,7 +1,7 @@
+use crate::app::App;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::render::calculate_corners;
-use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{EventCtx, GfxCtx, Key, Line, Text, WarpingItemSlider};
 use geom::{Polygon, Pt2D, Triangle};
@@ -18,11 +18,11 @@ enum Item {
 }
 
 impl PolygonDebugger {
-    pub fn new(ctx: &mut EventCtx, ui: &UI) -> Option<PolygonDebugger> {
-        match ui.primary.current_selection {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Option<PolygonDebugger> {
+        match app.primary.current_selection {
             Some(ID::Intersection(id)) => {
-                let i = ui.primary.map.get_i(id);
-                if ui
+                let i = app.primary.map.get_i(id);
+                if app
                     .per_obj
                     .action(ctx, Key::X, "debug intersection geometry")
                 {
@@ -40,12 +40,12 @@ impl PolygonDebugger {
                         ),
                         center: Some(Pt2D::center(&pts_without_last)),
                     });
-                } else if ui.per_obj.action(ctx, Key::F2, "debug sidewalk corners") {
+                } else if app.per_obj.action(ctx, Key::F2, "debug sidewalk corners") {
                     return Some(PolygonDebugger {
                         slider: WarpingItemSlider::new(
                             calculate_corners(
                                 i,
-                                &ui.primary.map,
+                                &app.primary.map,
                                 &mut Timer::new("calculate corners"),
                             )
                             .into_iter()
@@ -60,10 +60,10 @@ impl PolygonDebugger {
                 }
             }
             Some(ID::Lane(id)) => {
-                if ui.per_obj.action(ctx, Key::X, "debug lane geometry") {
+                if app.per_obj.action(ctx, Key::X, "debug lane geometry") {
                     return Some(PolygonDebugger {
                         slider: WarpingItemSlider::new(
-                            ui.primary
+                            app.primary
                                 .map
                                 .get_l(id)
                                 .lane_center_pts
@@ -77,13 +77,13 @@ impl PolygonDebugger {
                         ),
                         center: None,
                     });
-                } else if ui
+                } else if app
                     .per_obj
                     .action(ctx, Key::F2, "debug lane triangles geometry")
                 {
                     return Some(PolygonDebugger {
                         slider: WarpingItemSlider::new(
-                            ui.primary
+                            app.primary
                                 .draw_map
                                 .get_l(id)
                                 .polygon
@@ -106,8 +106,8 @@ impl PolygonDebugger {
                 }
             }
             Some(ID::Area(id)) => {
-                if ui.per_obj.action(ctx, Key::X, "debug area geometry") {
-                    let pts = &ui.primary.map.get_a(id).polygon.points();
+                if app.per_obj.action(ctx, Key::X, "debug area geometry") {
+                    let pts = &app.primary.map.get_a(id).polygon.points();
                     let center = if pts[0] == *pts.last().unwrap() {
                         // TODO The center looks really wrong for Volunteer Park and others, but I
                         // think it's because they have many points along some edges.
@@ -126,10 +126,10 @@ impl PolygonDebugger {
                         ),
                         center: Some(center),
                     });
-                } else if ui.per_obj.action(ctx, Key::F2, "debug area triangles") {
+                } else if app.per_obj.action(ctx, Key::F2, "debug area triangles") {
                     return Some(PolygonDebugger {
                         slider: WarpingItemSlider::new(
-                            ui.primary
+                            app.primary
                                 .map
                                 .get_a(id)
                                 .polygon
@@ -158,7 +158,7 @@ impl PolygonDebugger {
 }
 
 impl State for PolygonDebugger {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
         ctx.canvas_movement();
 
         if let Some((evmode, _)) = self.slider.event(ctx) {
@@ -168,7 +168,7 @@ impl State for PolygonDebugger {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         let (idx, item) = self.slider.get();
 
         match item {
@@ -179,10 +179,10 @@ impl State for PolygonDebugger {
                 for pt in &[tri.pt1, tri.pt2, tri.pt3] {
                     g.draw_text_at(Text::from(Line(idx.to_string())).with_bg(), *pt);
                 }
-                g.draw_polygon(ui.cs.get("selected"), &Polygon::from_triangle(tri));
+                g.draw_polygon(app.cs.get("selected"), &Polygon::from_triangle(tri));
             }
             Item::Polygon(ref poly) => {
-                g.draw_polygon(ui.cs.get("selected"), poly);
+                g.draw_polygon(app.cs.get("selected"), poly);
                 g.draw_text_at(Text::from(Line(idx.to_string())).with_bg(), poly.center());
             }
         }

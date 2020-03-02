@@ -1,9 +1,9 @@
+use crate::app::App;
 use crate::common::Overlays;
 use crate::game::Transition;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::gameplay::{challenge_controller, FinalScore, GameplayMode, GameplayState};
 use crate::sandbox::{SandboxControls, ScoreCard};
-use crate::ui::UI;
 use ezgui::{EventCtx, GfxCtx};
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, Map};
@@ -37,16 +37,16 @@ impl GameplayState for FixTrafficSignals {
     fn event(
         &mut self,
         ctx: &mut EventCtx,
-        ui: &mut UI,
+        app: &mut App,
         _: &mut SandboxControls,
     ) -> (Option<Transition>, bool) {
         // Once is never...
         if self.once {
-            ui.overlay = Overlays::trips_histogram(ctx, ui);
+            app.overlay = Overlays::trips_histogram(ctx, app);
             self.once = false;
         }
 
-        match self.top_center.event(ctx, ui) {
+        match self.top_center.event(ctx, app) {
             Some(WrappedOutcome::Transition(t)) => {
                 return (Some(t), false);
             }
@@ -54,8 +54,8 @@ impl GameplayState for FixTrafficSignals {
             None => {}
         }
 
-        if ui.primary.sim.is_done() {
-            let (verdict, success) = final_score(ui);
+        if app.primary.sim.is_done() {
+            let (verdict, success) = final_score(app);
             let next = if success {
                 match self.mode {
                     GameplayMode::FixTrafficSignalsTutorial(0) => {
@@ -84,7 +84,7 @@ impl GameplayState for FixTrafficSignals {
         (None, false)
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.top_center.draw(g);
     }
 
@@ -97,16 +97,16 @@ impl GameplayState for FixTrafficSignals {
 }
 
 // True if the challenge is completed
-fn final_score(ui: &UI) -> (String, bool) {
-    let time = ui.primary.sim.time();
-    let now = ui
+fn final_score(app: &App) -> (String, bool) {
+    let time = app.primary.sim.time();
+    let now = app
         .primary
         .sim
         .get_analytics()
         .trip_times(time)
         .0
         .select(Statistic::Mean);
-    let baseline = ui.prebaked().trip_times(time).0.select(Statistic::Mean);
+    let baseline = app.prebaked().trip_times(time).0.select(Statistic::Mean);
 
     let verdict = if now < baseline - GOAL {
         format!(

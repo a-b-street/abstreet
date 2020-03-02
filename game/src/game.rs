@@ -1,8 +1,8 @@
+use crate::app::{App, Flags, ShowEverything};
 use crate::options::Options;
 use crate::pregame::TitleScreen;
 use crate::render::DrawOptions;
 use crate::sandbox::{GameplayMode, SandboxMode};
-use crate::ui::{Flags, ShowEverything, UI};
 use ezgui::{Canvas, Color, Drawable, EventCtx, EventLoopMode, GfxCtx, Wizard, GUI};
 use geom::Polygon;
 
@@ -11,7 +11,7 @@ use geom::Polygon;
 pub struct Game {
     // A stack of states
     states: Vec<Box<dyn State>>,
-    ui: UI,
+    app: App,
 }
 
 impl Game {
@@ -25,80 +25,80 @@ impl Game {
             && !flags.sim_flags.load.contains("data/player/save")
             && !flags.sim_flags.load.contains("data/system/scenarios")
             && maybe_mode.is_none();
-        let mut ui = UI::new(flags, opts, ctx, title);
+        let mut app = App::new(flags, opts, ctx, title);
         let states: Vec<Box<dyn State>> = if title {
-            vec![Box::new(TitleScreen::new(ctx, &ui))]
+            vec![Box::new(TitleScreen::new(ctx, &app))]
         } else {
             // TODO We're assuming we never wind up starting freeform mode with a synthetic map
             let mode = maybe_mode.unwrap_or_else(|| {
-                GameplayMode::Freeform(abstutil::path_map(ui.primary.map.get_name()))
+                GameplayMode::Freeform(abstutil::path_map(app.primary.map.get_name()))
             });
-            vec![Box::new(SandboxMode::new(ctx, &mut ui, mode))]
+            vec![Box::new(SandboxMode::new(ctx, &mut app, mode))]
         };
-        Game { states, ui }
+        Game { states, app }
     }
 }
 
 impl GUI for Game {
     fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
-        self.ui.per_obj.reset();
+        self.app.per_obj.reset();
 
-        let transition = self.states.last_mut().unwrap().event(ctx, &mut self.ui);
+        let transition = self.states.last_mut().unwrap().event(ctx, &mut self.app);
         // If we fall through, there's a new state that we need to wakeup.
         match transition {
             Transition::Keep => {
-                self.ui.per_obj.assert_chosen_used();
+                self.app.per_obj.assert_chosen_used();
                 return EventLoopMode::InputOnly;
             }
             Transition::KeepWithMode(evmode) => {
-                self.ui.per_obj.assert_chosen_used();
+                self.app.per_obj.assert_chosen_used();
                 return evmode;
             }
             Transition::Pop => {
-                self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
+                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
                 if self.states.is_empty() {
                     self.before_quit(ctx.canvas);
                     std::process::exit(0);
                 }
             }
             Transition::PopWithData(cb) => {
-                self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
-                cb(self.states.last_mut().unwrap(), &mut self.ui, ctx);
+                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
+                cb(self.states.last_mut().unwrap(), &mut self.app, ctx);
             }
             Transition::PopTwice => {
-                self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
-                self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
+                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
+                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
             }
             Transition::Push(state) => {
                 self.states
                     .last_mut()
                     .unwrap()
-                    .on_suspend(ctx, &mut self.ui);
+                    .on_suspend(ctx, &mut self.app);
                 self.states.push(state);
             }
             Transition::Replace(state) => {
-                self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
+                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
                 self.states.push(state);
             }
             Transition::ReplaceThenPush(state1, state2) => {
-                self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
+                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
                 self.states.push(state1);
                 self.states.push(state2);
             }
             Transition::PopThenReplace(state) => {
-                self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
+                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
                 assert!(!self.states.is_empty());
-                self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
+                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
                 self.states.push(state);
             }
             Transition::Clear(states) => {
                 while !self.states.is_empty() {
-                    self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
+                    self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
                 }
                 self.states.extend(states);
             }
             Transition::ApplyObjectAction(action) => {
-                self.ui.per_obj.action_chosen(action);
+                self.app.per_obj.action_chosen(action);
                 // Immediately go trigger the action. Things'll break unless current_selection
                 // remains the same, so DON'T redo mouseover.
                 return ctx.no_op_event(false, |ctx| self.event(ctx));
@@ -107,14 +107,14 @@ impl GUI for Game {
                 self.states
                     .last_mut()
                     .unwrap()
-                    .on_suspend(ctx, &mut self.ui);
+                    .on_suspend(ctx, &mut self.app);
                 self.states.push(s1);
                 self.states.push(s2);
-                self.ui.per_obj.assert_chosen_used();
+                self.app.per_obj.assert_chosen_used();
                 return EventLoopMode::InputOnly;
             }
         };
-        self.ui.per_obj.assert_chosen_used();
+        self.app.per_obj.assert_chosen_used();
         // Let the new state initialize with a fake event. Usually these just return
         // Transition::Keep, but nothing stops them from doing whatever. (For example, entering
         // tutorial mode immediately pushes on a Warper.) So just recurse.
@@ -126,10 +126,10 @@ impl GUI for Game {
 
         match state.draw_baselayer() {
             DrawBaselayer::DefaultMap => {
-                self.ui.draw(
+                self.app.draw(
                     g,
                     DrawOptions::new(),
-                    &self.ui.primary.sim,
+                    &self.app.primary.sim,
                     &ShowEverything::new(),
                 );
             }
@@ -137,10 +137,10 @@ impl GUI for Game {
             DrawBaselayer::PreviousState => {
                 match self.states[self.states.len() - 2].draw_baselayer() {
                     DrawBaselayer::DefaultMap => {
-                        self.ui.draw(
+                        self.app.draw(
                             g,
                             DrawOptions::new(),
-                            &self.ui.primary.sim,
+                            &self.app.primary.sim,
                             &ShowEverything::new(),
                         );
                     }
@@ -149,10 +149,10 @@ impl GUI for Game {
                     DrawBaselayer::PreviousState => {}
                 }
 
-                self.states[self.states.len() - 2].draw(g, &self.ui);
+                self.states[self.states.len() - 2].draw(g, &self.app);
             }
         }
-        state.draw(g, &self.ui);
+        state.draw(g, &self.app);
     }
 
     fn dump_before_abort(&self, canvas: &Canvas) {
@@ -160,16 +160,16 @@ impl GUI for Game {
             "********************************************************************************"
         );
         println!("UI broke! Primary sim:");
-        self.ui.primary.sim.dump_before_abort();
-        if let Some(ref s) = self.ui.secondary {
+        self.app.primary.sim.dump_before_abort();
+        if let Some(ref s) = self.app.secondary {
             println!("Secondary sim:");
             s.sim.dump_before_abort();
         }
-        canvas.save_camera_state(self.ui.primary.map.get_name());
+        canvas.save_camera_state(self.app.primary.map.get_name());
     }
 
     fn before_quit(&self, canvas: &Canvas) {
-        canvas.save_camera_state(self.ui.primary.map.get_name());
+        canvas.save_camera_state(self.app.primary.map.get_name());
     }
 }
 
@@ -182,17 +182,17 @@ pub enum DrawBaselayer {
 pub trait State: downcast_rs::Downcast {
     // Logically this returns Transition, but since EventLoopMode is almost always
     // InputOnly, the variations are encoded by Transition.
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition;
-    fn draw(&self, g: &mut GfxCtx, ui: &UI);
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition;
+    fn draw(&self, g: &mut GfxCtx, app: &App);
 
     fn draw_baselayer(&self) -> DrawBaselayer {
         DrawBaselayer::DefaultMap
     }
 
     // Before we push a new state on top of this one, call this.
-    fn on_suspend(&mut self, _: &mut EventCtx, _: &mut UI) {}
+    fn on_suspend(&mut self, _: &mut EventCtx, _: &mut App) {}
     // Before this state is popped or replaced, call this.
-    fn on_destroy(&mut self, _: &mut EventCtx, _: &mut UI) {}
+    fn on_destroy(&mut self, _: &mut EventCtx, _: &mut App) {}
     // We don't need an on_enter -- the constructor for the state can just do it.
 }
 
@@ -217,7 +217,7 @@ pub enum Transition {
     Pop,
     PopTwice,
     // If a state needs to pass data back to the parent, use this. Sadly, runtime type casting.
-    PopWithData(Box<dyn FnOnce(&mut Box<dyn State>, &mut UI, &mut EventCtx)>),
+    PopWithData(Box<dyn FnOnce(&mut Box<dyn State>, &mut App, &mut EventCtx)>),
     Push(Box<dyn State>),
     Replace(Box<dyn State>),
     ReplaceThenPush(Box<dyn State>, Box<dyn State>),
@@ -230,13 +230,13 @@ pub enum Transition {
 pub struct WizardState {
     wizard: Wizard,
     // Returning None means stay in this WizardState
-    cb: Box<dyn Fn(&mut Wizard, &mut EventCtx, &mut UI) -> Option<Transition>>,
+    cb: Box<dyn Fn(&mut Wizard, &mut EventCtx, &mut App) -> Option<Transition>>,
     pub also_draw: Option<Drawable>,
 }
 
 impl WizardState {
     pub fn new(
-        cb: Box<dyn Fn(&mut Wizard, &mut EventCtx, &mut UI) -> Option<Transition>>,
+        cb: Box<dyn Fn(&mut Wizard, &mut EventCtx, &mut App) -> Option<Transition>>,
     ) -> Box<dyn State> {
         Box::new(WizardState {
             wizard: Wizard::new(),
@@ -247,8 +247,8 @@ impl WizardState {
 }
 
 impl State for WizardState {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        if let Some(t) = (self.cb)(&mut self.wizard, ctx, ui) {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        if let Some(t) = (self.cb)(&mut self.wizard, ctx, app) {
             return t;
         } else if self.wizard.aborted() {
             return Transition::Pop;
@@ -260,7 +260,7 @@ impl State for WizardState {
         DrawBaselayer::PreviousState
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         // TODO This shouldn't get greyed out, but I think the weird z-ordering of screen-space
         // right now is messing this up.
         if let Some(ref d) = self.also_draw {

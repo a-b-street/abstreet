@@ -1,3 +1,4 @@
+use crate::app::App;
 use crate::colors;
 use crate::edit::EditMode;
 use crate::game::{State, Transition, WizardState};
@@ -6,7 +7,6 @@ use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::gameplay::{spawner, GameplayMode, GameplayState};
 use crate::sandbox::SandboxControls;
 use crate::sandbox::SandboxMode;
-use crate::ui::UI;
 use ezgui::{
     hotkey, lctrl, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, ManagedWidget, ScreenRectangle, Text, VerticalAlignment,
@@ -23,10 +23,10 @@ pub struct Freeform {
 }
 
 impl Freeform {
-    pub fn new(ctx: &mut EventCtx, ui: &UI, mode: GameplayMode) -> Box<dyn GameplayState> {
+    pub fn new(ctx: &mut EventCtx, app: &App, mode: GameplayMode) -> Box<dyn GameplayState> {
         Box::new(Freeform {
             spawn_pts: BTreeSet::new(),
-            top_center: freeform_controller(ctx, ui, mode, "none"),
+            top_center: freeform_controller(ctx, app, mode, "none"),
         })
     }
 }
@@ -35,10 +35,10 @@ impl GameplayState for Freeform {
     fn event(
         &mut self,
         ctx: &mut EventCtx,
-        ui: &mut UI,
+        app: &mut App,
         _: &mut SandboxControls,
     ) -> (Option<Transition>, bool) {
-        match self.top_center.event(ctx, ui) {
+        match self.top_center.event(ctx, app) {
             Some(WrappedOutcome::Transition(t)) => {
                 return (Some(t), false);
             }
@@ -46,26 +46,26 @@ impl GameplayState for Freeform {
             None => {}
         }
 
-        if let Some(new_state) = spawner::AgentSpawner::new(ctx, ui) {
+        if let Some(new_state) = spawner::AgentSpawner::new(ctx, app) {
             return (Some(Transition::Push(new_state)), false);
         }
-        if let Some(new_state) = spawner::SpawnManyAgents::new(ctx, ui) {
+        if let Some(new_state) = spawner::SpawnManyAgents::new(ctx, app) {
             return (Some(Transition::Push(new_state)), false);
         }
         (None, false)
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.top_center.draw(g);
         // TODO Overriding draw options would be ideal, but...
         for i in &self.spawn_pts {
-            g.draw_polygon(Color::GREEN.alpha(0.8), &ui.primary.map.get_i(*i).polygon);
+            g.draw_polygon(Color::GREEN.alpha(0.8), &app.primary.map.get_i(*i).polygon);
         }
 
-        if let Some(ID::Intersection(i)) = ui.primary.current_selection {
+        if let Some(ID::Intersection(i)) = app.primary.current_selection {
             if self.spawn_pts.contains(&i) {
                 let mut txt = Text::new();
-                for line in ui.primary.sim.count_trips_involving_border(i).describe() {
+                for line in app.primary.sim.count_trips_involving_border(i).describe() {
                     txt.add(Line(line));
                 }
                 if !txt.is_empty() {
@@ -78,7 +78,7 @@ impl GameplayState for Freeform {
 
 pub fn freeform_controller(
     ctx: &mut EventCtx,
-    ui: &UI,
+    app: &App,
     gameplay: GameplayMode,
     scenario_name: &str,
 ) -> WrappedComposite {
@@ -95,7 +95,7 @@ pub fn freeform_controller(
             WrappedComposite::nice_text_button(
                 ctx,
                 Text::from(
-                    Line(format!("{} ▼", nice_map_name(ui.primary.map.get_name())))
+                    Line(format!("{} ▼", nice_map_name(app.primary.map.get_name())))
                         .size(18)
                         .roboto(),
                 ),
@@ -148,10 +148,10 @@ pub fn freeform_controller(
         )
         .cb(
             "edit map",
-            Box::new(move |ctx, ui| {
+            Box::new(move |ctx, app| {
                 Some(Transition::Push(Box::new(EditMode::new(
                     ctx,
-                    ui,
+                    app,
                     gameplay.clone(),
                 ))))
             }),
@@ -159,7 +159,7 @@ pub fn freeform_controller(
 }
 
 fn make_load_map(btn: ScreenRectangle, gameplay: GameplayMode) -> Box<dyn State> {
-    WizardState::new(Box::new(move |wiz, ctx, ui| {
+    WizardState::new(Box::new(move |wiz, ctx, app| {
         if let Some((_, name)) = wiz.wrap(ctx).choose_exact(
             (
                 HorizontalAlignment::Centered(btn.center().x),
@@ -167,7 +167,7 @@ fn make_load_map(btn: ScreenRectangle, gameplay: GameplayMode) -> Box<dyn State>
             ),
             None,
             || {
-                let current_map = ui.primary.map.get_name();
+                let current_map = app.primary.map.get_name();
                 abstutil::list_all_objects(abstutil::path_all_maps())
                     .into_iter()
                     .filter(|n| n != current_map)
@@ -187,7 +187,7 @@ fn make_load_map(btn: ScreenRectangle, gameplay: GameplayMode) -> Box<dyn State>
         ) {
             Some(Transition::PopThenReplace(Box::new(SandboxMode::new(
                 ctx,
-                ui,
+                app,
                 match gameplay {
                     GameplayMode::Freeform(_) => GameplayMode::Freeform(abstutil::path_map(&name)),
                     // Assume a scenario with the same name exists.
@@ -206,7 +206,7 @@ fn make_load_map(btn: ScreenRectangle, gameplay: GameplayMode) -> Box<dyn State>
 }
 
 fn make_change_traffic(btn: ScreenRectangle) -> Box<dyn State> {
-    WizardState::new(Box::new(move |wiz, ctx, ui| {
+    WizardState::new(Box::new(move |wiz, ctx, app| {
         let (_, scenario_name) = wiz.wrap(ctx).choose_exact(
             (
                 HorizontalAlignment::Centered(btn.center().x),
@@ -216,7 +216,7 @@ fn make_change_traffic(btn: ScreenRectangle) -> Box<dyn State> {
             || {
                 let mut list = Vec::new();
                 for name in abstutil::list_all_objects(abstutil::path_all_scenarios(
-                    ui.primary.map.get_name(),
+                    app.primary.map.get_name(),
                 )) {
                     if name == "weekday" {
                         list.push(Choice::new("realistic weekday traffic", name).tooltip(
@@ -242,11 +242,11 @@ fn make_change_traffic(btn: ScreenRectangle) -> Box<dyn State> {
                 list
             },
         )?;
-        ui.primary.clear_sim();
-        let map_path = abstutil::path_map(ui.primary.map.get_name());
+        app.primary.clear_sim();
+        let map_path = abstutil::path_map(app.primary.map.get_name());
         Some(Transition::PopThenReplace(Box::new(SandboxMode::new(
             ctx,
-            ui,
+            app,
             if scenario_name == "empty" {
                 GameplayMode::Freeform(map_path)
             } else {

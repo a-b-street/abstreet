@@ -1,6 +1,6 @@
+use crate::app::App;
 use crate::helpers::ID;
 use crate::render::DrawMap;
-use crate::ui::UI;
 use ezgui::{EventCtx, GfxCtx, Key, Line, Text};
 use map_model::{Map, PathConstraints};
 use sim::{AgentID, CarID, Sim};
@@ -16,7 +16,7 @@ impl ObjectDebugger {
         }
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) {
+    pub fn event(&mut self, ctx: &mut EventCtx, app: &App) {
         if self.debug_tooltip_key_held {
             self.debug_tooltip_key_held = !ctx.input.key_released(Key::RightControl);
         } else {
@@ -25,22 +25,22 @@ impl ObjectDebugger {
                 .unimportant_key_pressed(Key::RightControl, "hold to show debug tooltips");
         }
 
-        if let Some(ref id) = ui.primary.current_selection {
-            if ui.per_obj.action(ctx, Key::D, "debug") {
+        if let Some(ref id) = app.primary.current_selection {
+            if app.per_obj.action(ctx, Key::D, "debug") {
                 dump_debug(
                     id.clone(),
-                    &ui.primary.map,
-                    &ui.primary.sim,
-                    &ui.primary.draw_map,
+                    &app.primary.map,
+                    &app.primary.sim,
+                    &app.primary.draw_map,
                 );
             }
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    pub fn draw(&self, g: &mut GfxCtx, app: &App) {
         if self.debug_tooltip_key_held {
             if let Some(pt) = g.canvas.get_cursor_in_map_space() {
-                if let Some(gps) = pt.to_gps(ui.primary.map.get_gps_bounds()) {
+                if let Some(gps) = pt.to_gps(app.primary.map.get_gps_bounds()) {
                     let mut txt = Text::new();
                     txt.add(Line(pt.to_string()));
                     txt.add(Line(gps.to_string()));

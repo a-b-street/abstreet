@@ -1,9 +1,9 @@
+use crate::app::App;
 use crate::game::Transition;
 use crate::helpers::{cmp_count_more, cmp_duration_shorter};
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::gameplay::{challenge_controller, GameplayMode, GameplayState};
 use crate::sandbox::SandboxControls;
-use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{EventCtx, GfxCtx, Line, Text};
 use geom::Statistic;
@@ -34,10 +34,10 @@ impl GameplayState for FasterTrips {
     fn event(
         &mut self,
         ctx: &mut EventCtx,
-        ui: &mut UI,
+        app: &mut App,
         _: &mut SandboxControls,
     ) -> (Option<Transition>, bool) {
-        match self.top_center.event(ctx, ui) {
+        match self.top_center.event(ctx, app) {
             Some(WrappedOutcome::Transition(t)) => {
                 return (Some(t), false);
             }
@@ -48,16 +48,16 @@ impl GameplayState for FasterTrips {
         (None, false)
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.top_center.draw(g);
     }
 }
 
 // TODO Revive
 #[allow(unused)]
-fn faster_trips_panel(mode: TripMode, ui: &UI) -> Text {
-    let time = ui.primary.sim.time();
-    let now = ui
+fn faster_trips_panel(mode: TripMode, app: &App) -> Text {
+    let time = app.primary.sim.time();
+    let now = app
         .primary
         .sim
         .get_analytics()
@@ -65,15 +65,15 @@ fn faster_trips_panel(mode: TripMode, ui: &UI) -> Text {
         .2
         .remove(&mode)
         .unwrap();
-    let baseline = ui.prebaked().trip_times(time).2.remove(&mode).unwrap();
+    let baseline = app.prebaked().trip_times(time).2.remove(&mode).unwrap();
 
     // Enable to debug why sim results don't match prebaked.
     if false && !now.seems_eq(&baseline) {
         abstutil::write_json(
             "../current_sim.json".to_string(),
-            &ui.primary.sim.get_analytics().finished_trips,
+            &app.primary.sim.get_analytics().finished_trips,
         );
-        let filtered = ui
+        let filtered = app
             .prebaked()
             .finished_trips
             .iter()

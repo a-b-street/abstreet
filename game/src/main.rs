@@ -1,4 +1,5 @@
 mod abtest;
+mod app;
 mod challenges;
 mod colors;
 mod common;
@@ -13,9 +14,8 @@ mod options;
 mod pregame;
 mod render;
 mod sandbox;
-mod ui;
 
-use crate::ui::Flags;
+use crate::app::Flags;
 use abstutil::CmdArgs;
 use sim::SimFlags;
 

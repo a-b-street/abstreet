@@ -1,5 +1,5 @@
+use crate::app::PerMap;
 use crate::render::ExtraShapeID;
-use crate::ui::PerMapUI;
 use abstutil::{prettyprint_usize, Timer};
 use ezgui::{Color, Line, Text, TextSpan};
 use geom::{Duration, Pt2D};
@@ -44,7 +44,7 @@ impl ID {
         }
     }
 
-    pub fn canonical_point(&self, primary: &PerMapUI) -> Option<Pt2D> {
+    pub fn canonical_point(&self, primary: &PerMap) -> Option<Pt2D> {
         match *self {
             ID::Road(id) => primary.map.maybe_get_r(id).map(|r| r.center_pts.first_pt()),
             ID::Lane(id) => primary.map.maybe_get_l(id).map(|l| l.first_pt()),

@@ -1,13 +1,13 @@
+use crate::app::App;
 use crate::colors;
 use crate::game::{DrawBaselayer, State, Transition};
-use crate::ui::UI;
 use ezgui::{
     hotkey, Button, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
     ManagedWidget, MultiKey, Outcome, RewriteColor, Text, VerticalAlignment,
 };
 use std::collections::HashMap;
 
-pub type Callback = Box<dyn Fn(&mut EventCtx, &mut UI) -> Option<Transition>>;
+pub type Callback = Box<dyn Fn(&mut EventCtx, &mut App) -> Option<Transition>>;
 
 pub enum WrappedOutcome {
     Transition(Transition),
@@ -39,11 +39,11 @@ impl WrappedComposite {
         self
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<WrappedOutcome> {
+    pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<WrappedOutcome> {
         match self.inner.event(ctx)? {
             Outcome::Clicked(x) => {
                 if let Some(ref cb) = self.callbacks.get(&x) {
-                    let t = (cb)(ctx, ui)?;
+                    let t = (cb)(ctx, app)?;
                     Some(WrappedOutcome::Transition(t))
                 } else {
                     Some(WrappedOutcome::Clicked(x))
@@ -163,8 +163,8 @@ impl ManagedGUIState {
 }
 
 impl State for ManagedGUIState {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        match self.composite.event(ctx, ui) {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        match self.composite.event(ctx, app) {
             Some(WrappedOutcome::Transition(t)) => {
                 return t;
             }
@@ -188,10 +188,10 @@ impl State for ManagedGUIState {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         if self.fullscreen {
             // Happens to be a nice background color too ;)
-            g.clear(ui.cs.get("grass"));
+            g.clear(app.cs.get("grass"));
         } else {
             State::grey_out_map(g);
         }

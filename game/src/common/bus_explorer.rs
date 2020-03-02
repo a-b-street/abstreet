@@ -1,6 +1,6 @@
+use crate::app::App;
 use crate::common::{Colorer, Overlays};
 use crate::game::{State, Transition, WizardState};
-use crate::ui::UI;
 use ezgui::{Choice, Color, EventCtx, GeomBatch, GfxCtx, Line, Text};
 use geom::{Circle, Distance, Pt2D};
 use map_model::{BusRouteID, PathConstraints, PathRequest, PathStep};
@@ -12,18 +12,18 @@ pub struct ShowBusRoute {
 }
 
 impl ShowBusRoute {
-    pub fn new(id: BusRouteID, ctx: &mut EventCtx, ui: &UI) -> ShowBusRoute {
-        let map = &ui.primary.map;
-        let route = ui.primary.map.get_br(id);
+    pub fn new(id: BusRouteID, ctx: &mut EventCtx, app: &App) -> ShowBusRoute {
+        let map = &app.primary.map;
+        let route = app.primary.map.get_br(id);
 
         let mut bus_locations = Vec::new();
-        for (_, pt) in ui.primary.sim.location_of_buses(id, map) {
+        for (_, pt) in app.primary.sim.location_of_buses(id, map) {
             bus_locations.push(pt);
         }
 
         let mut txt = Text::from(Line(&route.name));
         txt.add(Line(format!("{} buses", bus_locations.len())));
-        let color = ui.cs.get("unzoomed bus");
+        let color = app.cs.get("unzoomed bus");
         let mut colorer = Colorer::new(txt, vec![("route", color)]);
         for (stop1, stop2) in
             route
@@ -61,7 +61,7 @@ impl ShowBusRoute {
         }
 
         ShowBusRoute {
-            colorer: colorer.build(ctx, ui),
+            colorer: colorer.build(ctx, app),
             labels,
             bus_locations,
         }
@@ -86,7 +86,7 @@ impl ShowBusRoute {
         let delays = "delays between stops";
         let passengers = "passengers waiting at each stop";
 
-        WizardState::new(Box::new(move |wiz, ctx, ui| {
+        WizardState::new(Box::new(move |wiz, ctx, app| {
             let mut wizard = wiz.wrap(ctx);
 
             let id = if routes.len() == 1 {
@@ -96,7 +96,7 @@ impl ShowBusRoute {
                     .choose("Explore which bus route?", || {
                         let mut choices: Vec<(&String, BusRouteID)> = routes
                             .iter()
-                            .map(|id| (&ui.primary.map.get_br(*id).name, *id))
+                            .map(|id| (&app.primary.map.get_br(*id).name, *id))
                             .collect();
                         // TODO Sort first by length, then lexicographically
                         choices.sort_by_key(|(name, _)| name.to_string());
@@ -111,10 +111,10 @@ impl ShowBusRoute {
                 .choose_string("What do you want to see about this route?", || {
                     vec![show_route, delays, passengers]
                 })?;
-            ui.overlay = match choice {
-                x if x == show_route => Overlays::show_bus_route(id, ctx, ui),
-                x if x == delays => Overlays::delays_over_time(id, ctx, ui),
-                x if x == passengers => Overlays::bus_passengers(id, ctx, ui),
+            app.overlay = match choice {
+                x if x == show_route => Overlays::show_bus_route(id, ctx, app),
+                x if x == delays => Overlays::delays_over_time(id, ctx, app),
+                x if x == passengers => Overlays::bus_passengers(id, ctx, app),
                 _ => unreachable!(),
             };
             if pop_once {

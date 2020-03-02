@@ -1,6 +1,6 @@
+use crate::app::App;
 use crate::helpers::{rotating_color_agents, ColorScheme, ID};
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use crate::ui::UI;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Angle, Circle, Distance, PolyLine, Polygon};
 use map_model::{Map, SIDEWALK_THICKNESS};
@@ -157,7 +157,7 @@ impl Renderable for DrawPedestrian {
         ID::Pedestrian(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI, _: &DrawOptions) {
+    fn draw(&self, g: &mut GfxCtx, _: &App, _: &DrawOptions) {
         g.redraw(&self.draw_default);
     }
 
@@ -236,7 +236,7 @@ impl Renderable for DrawPedCrowd {
         ID::PedCrowd(self.members.clone())
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI, _: &DrawOptions) {
+    fn draw(&self, g: &mut GfxCtx, _: &App, _: &DrawOptions) {
         g.redraw(&self.draw_default);
     }
 

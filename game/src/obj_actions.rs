@@ -18,7 +18,7 @@ impl PerObjectActions {
         }
     }
 
-    // &self to avoid changing lots of code that previously took &UI
+    // &self to avoid changing lots of code that previously took &App
     pub fn action<S: Into<String>>(&self, ctx: &mut EventCtx, key: Key, label: S) -> bool {
         let lbl = label.into();
         if self.chosen.borrow().as_ref() == Some(&lbl) {

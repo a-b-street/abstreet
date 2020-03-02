@@ -1,8 +1,8 @@
+use crate::app::App;
 use crate::colors;
 use crate::common::CommonState;
 use crate::game::{State, Transition};
 use crate::managed::WrappedComposite;
-use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
     hotkey, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget,
@@ -26,12 +26,12 @@ enum MaybeTrip {
 }
 
 impl TripsVisualizer {
-    pub fn new(ctx: &mut EventCtx, ui: &UI) -> TripsVisualizer {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> TripsVisualizer {
         let trips = ctx.loading_screen("load trip data", |_, mut timer| {
-            let (all_trips, _) = clip_trips(&ui.primary.map, &mut timer);
-            let map = &ui.primary.map;
-            let sim = &ui.primary.sim;
-            let flags = &ui.primary.current_flags.sim_flags;
+            let (all_trips, _) = clip_trips(&app.primary.map, &mut timer);
+            let map = &app.primary.map;
+            let sim = &app.primary.sim;
+            let flags = &app.primary.current_flags.sim_flags;
             let maybe_trips =
                 timer.parallelize("calculate paths with geometry", all_trips, |trip| {
                     if let Some(spawn_trip) = trip.to_spawn_trip(map) {
@@ -111,11 +111,11 @@ impl TripsVisualizer {
 }
 
 impl State for TripsVisualizer {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
         if ctx.redo_mouseover() {
-            ui.recalculate_current_selection(ctx);
+            app.recalculate_current_selection(ctx);
         }
 
         let time = self.current_time();
@@ -174,7 +174,7 @@ impl State for TripsVisualizer {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         let time = self.current_time();
         let mut batch = GeomBatch::new();
         for idx in &self.active_trips {
@@ -182,11 +182,11 @@ impl State for TripsVisualizer {
             let percent = (time - trip.depart_at) / trip.trip_time;
 
             let color = match trip.mode {
-                Mode::Drive => ui.cs.get("unzoomed car"),
-                Mode::Walk => ui.cs.get("unzoomed pedestrian"),
-                Mode::Bike => ui.cs.get("unzoomed bike"),
+                Mode::Drive => app.cs.get("unzoomed car"),
+                Mode::Walk => app.cs.get("unzoomed pedestrian"),
+                Mode::Bike => app.cs.get("unzoomed bike"),
                 // Little weird, but close enough.
-                Mode::Transit => ui.cs.get("unzoomed bus"),
+                Mode::Transit => app.cs.get("unzoomed bus"),
             };
             batch.push(
                 color,
@@ -202,6 +202,6 @@ impl State for TripsVisualizer {
         batch.draw(g);
 
         self.composite.draw(g);
-        CommonState::draw_osd(g, ui, &ui.primary.current_selection);
+        CommonState::draw_osd(g, app, &app.primary.current_selection);
     }
 }

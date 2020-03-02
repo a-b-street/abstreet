@@ -1,10 +1,10 @@
+use crate::app::App;
 use crate::colors;
 use crate::common::{ColorLegend, Colorer, ShowBusRoute, Warping};
 use crate::game::Transition;
 use crate::helpers::rotating_color_map;
 use crate::helpers::ID;
 use crate::managed::{ManagedGUIState, WrappedComposite, WrappedOutcome};
-use crate::ui::UI;
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
     hotkey, Button, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Histogram,
@@ -36,52 +36,52 @@ pub enum Overlays {
 
 impl Overlays {
     // Since Overlays is embedded in UI, we have to do this slight trick
-    pub fn update(ctx: &mut EventCtx, ui: &mut UI, minimap: &Composite) -> Option<Transition> {
-        let now = ui.primary.sim.time();
-        match ui.overlay {
+    pub fn update(ctx: &mut EventCtx, app: &mut App, minimap: &Composite) -> Option<Transition> {
+        let now = app.primary.sim.time();
+        match app.overlay {
             Overlays::ParkingAvailability(t, _) => {
                 if now != t {
-                    ui.overlay = Overlays::parking_availability(ctx, ui);
+                    app.overlay = Overlays::parking_availability(ctx, app);
                 }
             }
             Overlays::IntersectionDelay(t, _) => {
                 if now != t {
-                    ui.overlay = Overlays::intersection_delay(ctx, ui);
+                    app.overlay = Overlays::intersection_delay(ctx, app);
                 }
             }
             Overlays::TrafficJams(t, _) => {
                 if now != t {
-                    ui.overlay = Overlays::traffic_jams(ctx, ui);
+                    app.overlay = Overlays::traffic_jams(ctx, app);
                 }
             }
             Overlays::CumulativeThroughput(t, _) => {
                 if now != t {
-                    ui.overlay = Overlays::cumulative_throughput(ctx, ui);
+                    app.overlay = Overlays::cumulative_throughput(ctx, app);
                 }
             }
             Overlays::IntersectionDemand(t, i, _, _) => {
                 if now != t {
-                    ui.overlay = Overlays::intersection_demand(i, ctx, ui);
+                    app.overlay = Overlays::intersection_demand(i, ctx, app);
                 }
             }
             Overlays::TripsHistogram(t, _) => {
                 if now != t {
-                    ui.overlay = Overlays::trips_histogram(ctx, ui);
+                    app.overlay = Overlays::trips_histogram(ctx, app);
                 }
             }
             Overlays::BusRoute(t, id, _) => {
                 if now != t {
-                    ui.overlay = Overlays::show_bus_route(id, ctx, ui);
+                    app.overlay = Overlays::show_bus_route(id, ctx, app);
                 }
             }
             Overlays::BusDelaysOverTime(t, id, _) => {
                 if now != t {
-                    ui.overlay = Overlays::delays_over_time(id, ctx, ui);
+                    app.overlay = Overlays::delays_over_time(id, ctx, app);
                 }
             }
             Overlays::BusPassengers(t, id, _) => {
                 if now != t {
-                    ui.overlay = Overlays::bus_passengers(id, ctx, ui);
+                    app.overlay = Overlays::bus_passengers(id, ctx, app);
                 }
             }
             // No updates needed
@@ -93,7 +93,7 @@ impl Overlays {
 
         // Because BusPassengers has the callbacks that need UI, but UI also stores Overlays, we
         // have to play this trick.
-        let mut orig_overlay = std::mem::replace(&mut ui.overlay, Overlays::Inactive);
+        let mut orig_overlay = std::mem::replace(&mut app.overlay, Overlays::Inactive);
 
         match orig_overlay {
             Overlays::ParkingAvailability(_, ref mut heatmap)
@@ -105,34 +105,34 @@ impl Overlays {
             | Overlays::Edits(ref mut heatmap) => {
                 heatmap.legend.align_above(ctx, minimap);
                 if heatmap.event(ctx) {
-                    ui.overlay = Overlays::Inactive;
+                    app.overlay = Overlays::Inactive;
                 } else {
-                    ui.overlay = orig_overlay;
+                    app.overlay = orig_overlay;
                 }
             }
             Overlays::BusRoute(_, _, ref mut c) => {
                 c.colorer.legend.align_above(ctx, minimap);
                 if c.colorer.event(ctx) {
-                    ui.overlay = Overlays::Inactive;
+                    app.overlay = Overlays::Inactive;
                 } else {
-                    ui.overlay = orig_overlay;
+                    app.overlay = orig_overlay;
                 }
             }
             Overlays::BusPassengers(_, _, ref mut c) => {
                 c.inner.align_above(ctx, minimap);
-                match c.event(ctx, ui) {
+                match c.event(ctx, app) {
                     Some(WrappedOutcome::Transition(t)) => {
-                        ui.overlay = orig_overlay;
+                        app.overlay = orig_overlay;
                         return Some(t);
                     }
                     Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
                         "X" => {
-                            ui.overlay = Overlays::Inactive;
+                            app.overlay = Overlays::Inactive;
                         }
                         _ => unreachable!(),
                     },
                     None => {
-                        ui.overlay = orig_overlay;
+                        app.overlay = orig_overlay;
                     }
                 }
             }
@@ -142,22 +142,22 @@ impl Overlays {
                     Some(Outcome::Clicked(x)) => match x.as_ref() {
                         "intersection demand" => {
                             let id = ID::Intersection(i);
-                            ui.overlay = orig_overlay;
+                            app.overlay = orig_overlay;
                             return Some(Transition::Push(Warping::new(
                                 ctx,
-                                id.canonical_point(&ui.primary).unwrap(),
+                                id.canonical_point(&app.primary).unwrap(),
                                 Some(10.0),
                                 Some(id.clone()),
-                                &mut ui.primary,
+                                &mut app.primary,
                             )));
                         }
                         "X" => {
-                            ui.overlay = Overlays::Inactive;
+                            app.overlay = Overlays::Inactive;
                         }
                         _ => unreachable!(),
                     },
                     None => {
-                        ui.overlay = orig_overlay;
+                        app.overlay = orig_overlay;
                     }
                 }
             }
@@ -167,12 +167,12 @@ impl Overlays {
                 match c.event(ctx) {
                     Some(Outcome::Clicked(x)) => match x.as_ref() {
                         "X" => {
-                            ui.overlay = Overlays::Inactive;
+                            app.overlay = Overlays::Inactive;
                         }
                         _ => unreachable!(),
                     },
                     None => {
-                        ui.overlay = orig_overlay;
+                        app.overlay = orig_overlay;
                     }
                 }
             }
@@ -225,7 +225,7 @@ impl Overlays {
         }
     }
 
-    pub fn change_overlays(ctx: &mut EventCtx, ui: &UI) -> Option<Transition> {
+    pub fn change_overlays(ctx: &mut EventCtx, app: &App) -> Option<Transition> {
         let mut choices = vec![
             WrappedComposite::text_button(ctx, "None", hotkey(Key::N)),
             WrappedComposite::text_button(ctx, "map edits", hotkey(Key::E)),
@@ -267,7 +267,7 @@ impl Overlays {
             )),
         ];
         // TODO Grey out the inactive SVGs, and add the green checkmark
-        if let Some((find, replace)) = match ui.overlay {
+        if let Some((find, replace)) = match app.overlay {
             Overlays::Inactive => Some(("None", Button::inactive_button(ctx, "None"))),
             Overlays::ParkingAvailability(_, _) => Some((
                 "parking availability",
@@ -323,57 +323,57 @@ impl Overlays {
         .cb("X", Box::new(|_, _| Some(Transition::Pop)))
         .maybe_cb(
             "None",
-            Box::new(|_, ui| {
-                ui.overlay = Overlays::Inactive;
+            Box::new(|_, app| {
+                app.overlay = Overlays::Inactive;
                 Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "parking availability",
-            Box::new(|ctx, ui| {
-                ui.overlay = Overlays::parking_availability(ctx, ui);
+            Box::new(|ctx, app| {
+                app.overlay = Overlays::parking_availability(ctx, app);
                 Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "intersection delay",
-            Box::new(|ctx, ui| {
-                ui.overlay = Overlays::intersection_delay(ctx, ui);
+            Box::new(|ctx, app| {
+                app.overlay = Overlays::intersection_delay(ctx, app);
                 Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "worst traffic jams",
-            Box::new(|ctx, ui| {
-                ui.overlay = Overlays::traffic_jams(ctx, ui);
+            Box::new(|ctx, app| {
+                app.overlay = Overlays::traffic_jams(ctx, app);
                 Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "throughput",
-            Box::new(|ctx, ui| {
-                ui.overlay = Overlays::cumulative_throughput(ctx, ui);
+            Box::new(|ctx, app| {
+                app.overlay = Overlays::cumulative_throughput(ctx, app);
                 Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "bike network",
-            Box::new(|ctx, ui| {
-                ui.overlay = Overlays::bike_network(ctx, ui);
+            Box::new(|ctx, app| {
+                app.overlay = Overlays::bike_network(ctx, app);
                 Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "bus network",
-            Box::new(|ctx, ui| {
-                ui.overlay = Overlays::bus_network(ctx, ui);
+            Box::new(|ctx, app| {
+                app.overlay = Overlays::bus_network(ctx, app);
                 Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "map edits",
-            Box::new(|ctx, ui| {
-                ui.overlay = Overlays::map_edits(ctx, ui);
+            Box::new(|ctx, app| {
+                app.overlay = Overlays::map_edits(ctx, app);
                 Some(Transition::Pop)
             }),
         );
@@ -382,8 +382,8 @@ impl Overlays {
 }
 
 impl Overlays {
-    fn parking_availability(ctx: &mut EventCtx, ui: &UI) -> Overlays {
-        let (filled_spots, avail_spots) = ui.primary.sim.get_all_parking_spots();
+    fn parking_availability(ctx: &mut EventCtx, app: &App) -> Overlays {
+        let (filled_spots, avail_spots) = app.primary.sim.get_all_parking_spots();
         let mut txt = Text::from(Line("parking availability"));
         txt.add(Line(format!(
             "{} spots filled",
@@ -410,7 +410,7 @@ impl Overlays {
 
         let lane = |spot| match spot {
             ParkingSpot::Onstreet(l, _) => l,
-            ParkingSpot::Offstreet(b, _) => ui
+            ParkingSpot::Offstreet(b, _) => app
                 .primary
                 .map
                 .get_b(b)
@@ -448,13 +448,13 @@ impl Overlays {
             } else {
                 awful
             };
-            colorer.add_l(l, color, &ui.primary.map);
+            colorer.add_l(l, color, &app.primary.map);
         }
 
-        Overlays::ParkingAvailability(ui.primary.sim.time(), colorer.build(ctx, ui))
+        Overlays::ParkingAvailability(app.primary.sim.time(), colorer.build(ctx, app))
     }
 
-    pub fn intersection_delay(ctx: &mut EventCtx, ui: &UI) -> Overlays {
+    pub fn intersection_delay(ctx: &mut EventCtx, app: &App) -> Overlays {
         let fast = Color::hex("#7FFA4D");
         let meh = Color::hex("#F4DA22");
         let slow = Color::hex("#EB5757");
@@ -465,11 +465,11 @@ impl Overlays {
             vec![("< 10s", fast), ("<= 60s", meh), ("> 60s", slow)],
         );
 
-        for i in ui.primary.map.all_intersections() {
-            let delays = ui.primary.sim.get_analytics().intersection_delays(
+        for i in app.primary.map.all_intersections() {
+            let delays = app.primary.sim.get_analytics().intersection_delays(
                 i.id,
-                ui.primary.sim.time().clamped_sub(Duration::hours(2)),
-                ui.primary.sim.time(),
+                app.primary.sim.time().clamped_sub(Duration::hours(2)),
+                app.primary.sim.time(),
             );
             if let Some(d) = delays.percentile(90.0) {
                 let color = if d < Duration::seconds(10.0) {
@@ -483,11 +483,11 @@ impl Overlays {
             }
         }
 
-        Overlays::IntersectionDelay(ui.primary.sim.time(), colorer.build(ctx, ui))
+        Overlays::IntersectionDelay(app.primary.sim.time(), colorer.build(ctx, app))
     }
 
-    pub fn traffic_jams(ctx: &mut EventCtx, ui: &UI) -> Overlays {
-        let jams = ui.primary.sim.delayed_intersections(Duration::minutes(5));
+    pub fn traffic_jams(ctx: &mut EventCtx, app: &App) -> Overlays {
+        let jams = app.primary.sim.delayed_intersections(Duration::minutes(5));
 
         // TODO Silly colors
         let others = Color::hex("#7FFA4D");
@@ -512,10 +512,10 @@ impl Overlays {
             }
         }
 
-        Overlays::TrafficJams(ui.primary.sim.time(), colorer.build(ctx, ui))
+        Overlays::TrafficJams(app.primary.sim.time(), colorer.build(ctx, app))
     }
 
-    fn cumulative_throughput(ctx: &mut EventCtx, ui: &UI) -> Overlays {
+    fn cumulative_throughput(ctx: &mut EventCtx, app: &App) -> Overlays {
         let light = Color::hex("#7FFA4D");
         let medium = Color::hex("#F4DA22");
         let heavy = Color::hex("#EB5757");
@@ -528,7 +528,7 @@ impl Overlays {
             ],
         );
 
-        let stats = &ui.primary.sim.get_analytics().thruput_stats;
+        let stats = &app.primary.sim.get_analytics().thruput_stats;
 
         // TODO If there are many duplicate counts, arbitrarily some will look heavier! Find the
         // disribution of counts instead.
@@ -546,7 +546,7 @@ impl Overlays {
                 } else {
                     heavy
                 };
-                colorer.add_r(*r, color, &ui.primary.map);
+                colorer.add_r(*r, color, &app.primary.map);
             }
         }
         // TODO dedupe
@@ -566,48 +566,48 @@ impl Overlays {
             }
         }
 
-        Overlays::CumulativeThroughput(ui.primary.sim.time(), colorer.build(ctx, ui))
+        Overlays::CumulativeThroughput(app.primary.sim.time(), colorer.build(ctx, app))
     }
 
-    fn bike_network(ctx: &mut EventCtx, ui: &UI) -> Overlays {
+    fn bike_network(ctx: &mut EventCtx, app: &App) -> Overlays {
         let color = Color::hex("#7FFA4D");
         let mut colorer = Colorer::new(
             Text::from(Line("bike networks")),
             vec![("bike lanes", color)],
         );
-        for l in ui.primary.map.all_lanes() {
+        for l in app.primary.map.all_lanes() {
             if l.is_biking() {
-                colorer.add_l(l.id, color, &ui.primary.map);
+                colorer.add_l(l.id, color, &app.primary.map);
             }
         }
-        Overlays::BikeNetwork(colorer.build(ctx, ui))
+        Overlays::BikeNetwork(colorer.build(ctx, app))
     }
 
-    fn bus_network(ctx: &mut EventCtx, ui: &UI) -> Overlays {
+    fn bus_network(ctx: &mut EventCtx, app: &App) -> Overlays {
         let lane = Color::hex("#4CA7E9");
         let stop = Color::hex("#4CA7E9");
         let mut colorer = Colorer::new(
             Text::from(Line("bus networks")),
             vec![("bus lanes", lane), ("bus stops", stop)],
         );
-        for l in ui.primary.map.all_lanes() {
+        for l in app.primary.map.all_lanes() {
             if l.is_bus() {
-                colorer.add_l(l.id, lane, &ui.primary.map);
+                colorer.add_l(l.id, lane, &app.primary.map);
             }
         }
-        for bs in ui.primary.map.all_bus_stops().keys() {
+        for bs in app.primary.map.all_bus_stops().keys() {
             colorer.add_bs(*bs, stop);
         }
 
-        Overlays::BusNetwork(colorer.build(ctx, ui))
+        Overlays::BusNetwork(colorer.build(ctx, app))
     }
 
-    pub fn trips_histogram(ctx: &mut EventCtx, ui: &UI) -> Overlays {
-        if ui.has_prebaked().is_none() {
+    pub fn trips_histogram(ctx: &mut EventCtx, app: &App) -> Overlays {
+        if app.has_prebaked().is_none() {
             return Overlays::Inactive;
         }
 
-        let now = ui.primary.sim.time();
+        let now = app.primary.sim.time();
         Overlays::TripsHistogram(
             now,
             Composite::new(
@@ -627,10 +627,10 @@ impl Overlays {
                         WrappedComposite::text_button(ctx, "X", None).align_right(),
                     ]),
                     Histogram::new(
-                        ui.primary
+                        app.primary
                             .sim
                             .get_analytics()
-                            .trip_time_deltas(now, ui.prebaked()),
+                            .trip_time_deltas(now, app.prebaked()),
                         ctx,
                     ),
                 ])
@@ -641,13 +641,13 @@ impl Overlays {
         )
     }
 
-    pub fn intersection_demand(i: IntersectionID, ctx: &mut EventCtx, ui: &UI) -> Overlays {
+    pub fn intersection_demand(i: IntersectionID, ctx: &mut EventCtx, app: &App) -> Overlays {
         let mut batch = GeomBatch::new();
 
         let mut total_demand = 0;
         let mut demand_per_group: Vec<(&PolyLine, usize)> = Vec::new();
-        for g in ui.primary.map.get_traffic_signal(i).turn_groups.values() {
-            let demand = ui
+        for g in app.primary.map.get_traffic_signal(i).turn_groups.values() {
+            let demand = app
                 .primary
                 .sim
                 .get_analytics()
@@ -684,7 +684,7 @@ impl Overlays {
         col.push(ColorLegend::row(ctx, Color::RED, "current demand"));
 
         Overlays::IntersectionDemand(
-            ui.primary.sim.time(),
+            app.primary.sim.time(),
             i,
             batch.upload(ctx),
             Composite::new(ManagedWidget::col(col).bg(colors::PANEL_BG))
@@ -693,12 +693,12 @@ impl Overlays {
         )
     }
 
-    pub fn show_bus_route(id: BusRouteID, ctx: &mut EventCtx, ui: &UI) -> Overlays {
-        Overlays::BusRoute(ui.primary.sim.time(), id, ShowBusRoute::new(id, ctx, ui))
+    pub fn show_bus_route(id: BusRouteID, ctx: &mut EventCtx, app: &App) -> Overlays {
+        Overlays::BusRoute(app.primary.sim.time(), id, ShowBusRoute::new(id, ctx, app))
     }
 
-    pub fn bus_passengers(id: BusRouteID, ctx: &mut EventCtx, ui: &UI) -> Overlays {
-        let route = ui.primary.map.get_br(id);
+    pub fn bus_passengers(id: BusRouteID, ctx: &mut EventCtx, app: &App) -> Overlays {
+        let route = app.primary.map.get_br(id);
         let mut master_col = vec![ManagedWidget::row(vec![
             ManagedWidget::draw_text(
                 ctx,
@@ -708,11 +708,11 @@ impl Overlays {
         ])];
         let mut col = Vec::new();
 
-        let mut delay_per_stop = ui
+        let mut delay_per_stop = app
             .primary
             .sim
             .get_analytics()
-            .bus_passenger_delays(ui.primary.sim.time(), id);
+            .bus_passenger_delays(app.primary.sim.time(), id);
         for idx in 0..route.stops.len() {
             let mut row = vec![
                 ManagedWidget::draw_text(ctx, Text::from(Line(format!("Stop {}", idx + 1)))),
@@ -742,7 +742,7 @@ impl Overlays {
         let y_len = ctx.default_line_height() * (route.stops.len() as f64);
         let mut batch = GeomBatch::new();
         batch.push(Color::CYAN, Polygon::rounded_rectangle(15.0, y_len, 4.0));
-        for (_, stop_idx, percent_next_stop) in ui.primary.sim.status_of_buses(route.id) {
+        for (_, stop_idx, percent_next_stop) in app.primary.sim.status_of_buses(route.id) {
             // TODO Line it up right in the middle of the line of text. This is probably a bit
             // wrong.
             let base_percent_y = if stop_idx == route.stops.len() - 1 {
@@ -778,27 +778,27 @@ impl Overlays {
             let id = ID::BusStop(*stop);
             c = c.cb(
                 &format!("Stop {}", idx + 1),
-                Box::new(move |ctx, ui| {
+                Box::new(move |ctx, app| {
                     Some(Transition::Push(Warping::new(
                         ctx,
-                        id.canonical_point(&ui.primary).unwrap(),
+                        id.canonical_point(&app.primary).unwrap(),
                         Some(4.0),
                         Some(id.clone()),
-                        &mut ui.primary,
+                        &mut app.primary,
                     )))
                 }),
             );
         }
-        Overlays::BusPassengers(ui.primary.sim.time(), id, c)
+        Overlays::BusPassengers(app.primary.sim.time(), id, c)
     }
 
-    pub fn delays_over_time(id: BusRouteID, ctx: &mut EventCtx, ui: &UI) -> Overlays {
-        let route = ui.primary.map.get_br(id);
-        let mut delays_per_stop = ui
+    pub fn delays_over_time(id: BusRouteID, ctx: &mut EventCtx, app: &App) -> Overlays {
+        let route = app.primary.map.get_br(id);
+        let mut delays_per_stop = app
             .primary
             .sim
             .get_analytics()
-            .bus_arrivals_over_time(ui.primary.sim.time(), id);
+            .bus_arrivals_over_time(app.primary.sim.time(), id);
 
         let mut series = Vec::new();
         for idx1 in 0..route.stops.len() {
@@ -816,7 +816,7 @@ impl Overlays {
             });
         }
         Overlays::BusDelaysOverTime(
-            ui.primary.sim.time(),
+            app.primary.sim.time(),
             route.id,
             Composite::new(
                 ManagedWidget::col(vec![
@@ -837,8 +837,8 @@ impl Overlays {
         )
     }
 
-    pub fn map_edits(ctx: &mut EventCtx, ui: &UI) -> Overlays {
-        let edits = ui.primary.map.get_edits();
+    pub fn map_edits(ctx: &mut EventCtx, app: &App) -> Overlays {
+        let edits = app.primary.map.get_edits();
 
         let mut txt = Text::from(Line(format!("map edits ({})", edits.edits_name)));
         txt.add(Line(format!(
@@ -858,12 +858,12 @@ impl Overlays {
         let mut colorer = Colorer::new(txt, vec![("modified lane/intersection", changed)]);
 
         for l in edits.original_lts.keys().chain(&edits.reversed_lanes) {
-            colorer.add_l(*l, changed, &ui.primary.map);
+            colorer.add_l(*l, changed, &app.primary.map);
         }
         for i in edits.original_intersections.keys() {
             colorer.add_i(*i, changed);
         }
 
-        Overlays::Edits(colorer.build(ctx, ui))
+        Overlays::Edits(colorer.build(ctx, app))
     }
 }

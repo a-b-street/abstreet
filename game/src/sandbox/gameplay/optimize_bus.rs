@@ -1,9 +1,9 @@
+use crate::app::App;
 use crate::game::Transition;
 use crate::helpers::cmp_duration_shorter;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::gameplay::{challenge_controller, GameplayMode, GameplayState};
 use crate::sandbox::SandboxControls;
-use crate::ui::UI;
 use ezgui::{EventCtx, GfxCtx, Line, Text};
 use geom::Statistic;
 use map_model::BusRouteID;
@@ -16,11 +16,11 @@ pub struct OptimizeBus {
 impl OptimizeBus {
     pub fn new(
         ctx: &mut EventCtx,
-        ui: &UI,
+        app: &App,
         route_name: &str,
         mode: GameplayMode,
     ) -> Box<dyn GameplayState> {
-        let route = ui.primary.map.get_bus_route(route_name).unwrap();
+        let route = app.primary.map.get_bus_route(route_name).unwrap();
         Box::new(OptimizeBus {
             _route: route.id,
             top_center: challenge_controller(
@@ -37,10 +37,10 @@ impl GameplayState for OptimizeBus {
     fn event(
         &mut self,
         ctx: &mut EventCtx,
-        ui: &mut UI,
+        app: &mut App,
         _: &mut SandboxControls,
     ) -> (Option<Transition>, bool) {
-        match self.top_center.event(ctx, ui) {
+        match self.top_center.event(ctx, app) {
             Some(WrappedOutcome::Transition(t)) => {
                 return (Some(t), false);
             }
@@ -50,22 +50,22 @@ impl GameplayState for OptimizeBus {
         (None, false)
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.top_center.draw(g);
     }
 }
 
 // TODO Surface this info differently
 #[allow(unused)]
-fn bus_route_panel(id: BusRouteID, stat: Statistic, ui: &UI) -> Text {
-    let now = ui
+fn bus_route_panel(id: BusRouteID, stat: Statistic, app: &App) -> Text {
+    let now = app
         .primary
         .sim
         .get_analytics()
-        .bus_arrivals(ui.primary.sim.time(), id);
-    let baseline = ui.prebaked().bus_arrivals(ui.primary.sim.time(), id);
+        .bus_arrivals(app.primary.sim.time(), id);
+    let baseline = app.prebaked().bus_arrivals(app.primary.sim.time(), id);
 
-    let route = ui.primary.map.get_br(id);
+    let route = app.primary.map.get_br(id);
     let mut txt = Text::new();
     txt.add(Line(format!("{} delay between stops", stat)));
     for idx1 in 0..route.stops.len() {

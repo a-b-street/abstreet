@@ -1,6 +1,6 @@
+use crate::app::App;
 use crate::helpers::{rotating_color_agents, ColorScheme, ID};
 use crate::render::{DrawOptions, Renderable};
-use crate::ui::UI;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
 use geom::{Circle, Distance, Line, PolyLine, Polygon};
 use map_model::{Map, SIDEWALK_THICKNESS};
@@ -98,7 +98,7 @@ impl Renderable for DrawBike {
         ID::Car(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI, _: &DrawOptions) {
+    fn draw(&self, g: &mut GfxCtx, _: &App, _: &DrawOptions) {
         g.redraw(&self.draw_default);
     }
 

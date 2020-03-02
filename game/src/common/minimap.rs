@@ -1,9 +1,9 @@
+use crate::app::App;
 use crate::colors;
 use crate::common::{navigate, shortcuts, Overlays, Warping};
 use crate::game::{Transition, WizardState};
 use crate::managed::WrappedComposite;
 use crate::render::{AgentColorScheme, MIN_ZOOM_FOR_DETAIL};
-use crate::ui::UI;
 use abstutil::clamp;
 use ezgui::{
     hotkey, Button, Choice, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx,
@@ -28,15 +28,15 @@ pub struct Minimap {
 }
 
 impl Minimap {
-    pub fn new(ctx: &mut EventCtx, ui: &UI) -> Minimap {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Minimap {
         // Initially pick a zoom to fit the entire map's width in the minimap. Arbitrary and
         // probably pretty weird.
-        let bounds = ui.primary.map.get_bounds();
+        let bounds = app.primary.map.get_bounds();
         let base_zoom = 0.15 * ctx.canvas.window_width / bounds.width();
         Minimap {
             dragging: false,
-            composite: make_minimap_panel(ctx, &ui.agent_cs, 0),
-            acs: ui.agent_cs.clone(),
+            composite: make_minimap_panel(ctx, &app.agent_cs, 0),
+            acs: app.agent_cs.clone(),
             zoomed: ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL,
 
             zoom_lvl: 0,
@@ -54,10 +54,10 @@ impl Minimap {
         self.composite = make_minimap_panel(ctx, &self.acs, self.zoom_lvl);
     }
 
-    pub fn event(&mut self, ui: &mut UI, ctx: &mut EventCtx) -> Option<Transition> {
+    pub fn event(&mut self, app: &mut App, ctx: &mut EventCtx) -> Option<Transition> {
         // Happens when we changed the colorscheme in WizardState
-        if ui.agent_cs != self.acs {
-            self.acs = ui.agent_cs.clone();
+        if app.agent_cs != self.acs {
+            self.acs = app.agent_cs.clone();
             self.composite = make_minimap_panel(ctx, &self.acs, self.zoom_lvl);
         }
         let zoomed = ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL;
@@ -100,7 +100,7 @@ impl Minimap {
                 x if x == "change agent colorscheme" => {
                     let btn = self.composite.rect_of("change agent colorscheme").clone();
                     return Some(Transition::Push(WizardState::new(Box::new(
-                        move |wiz, ctx, ui| {
+                        move |wiz, ctx, app| {
                             let (_, acs) = wiz.wrap(ctx).choose_exact(
                                 (
                                     HorizontalAlignment::Centered(btn.center().x),
@@ -109,15 +109,15 @@ impl Minimap {
                                 None,
                                 || {
                                     let mut choices = Vec::new();
-                                    for acs in AgentColorScheme::all(&ui.cs) {
-                                        if ui.agent_cs.acs != acs.acs {
+                                    for acs in AgentColorScheme::all(&app.cs) {
+                                        if app.agent_cs.acs != acs.acs {
                                             choices.push(Choice::new(acs.long_name.clone(), acs));
                                         }
                                     }
                                     choices
                                 },
                             )?;
-                            ui.agent_cs = acs;
+                            app.agent_cs = acs;
                             // TODO It'd be great to replace self here, but the lifetimes don't
                             // work out.
                             Some(Transition::Pop)
@@ -125,7 +125,7 @@ impl Minimap {
                     ))));
                 }
                 x if x == "search" => {
-                    return Some(Transition::Push(Box::new(navigate::Navigator::new(ui))));
+                    return Some(Transition::Push(Box::new(navigate::Navigator::new(app))));
                 }
                 x if x == "shortcuts" => {
                     return Some(Transition::Push(shortcuts::ChoosingShortcut::new()));
@@ -133,10 +133,10 @@ impl Minimap {
                 x if x == "zoom out fully" => {
                     return Some(Transition::Push(Warping::new(
                         ctx,
-                        ui.primary.map.get_bounds().get_rectangle().center(),
+                        app.primary.map.get_bounds().get_rectangle().center(),
                         Some(ctx.canvas.min_zoom()),
                         None,
-                        &mut ui.primary,
+                        &mut app.primary,
                     )));
                 }
                 x if x == "zoom in fully" => {
@@ -145,16 +145,16 @@ impl Minimap {
                         ctx.canvas.center_to_map_pt(),
                         Some(10.0),
                         None,
-                        &mut ui.primary,
+                        &mut app.primary,
                     )));
                 }
                 x if x == "change overlay" => {
-                    return Overlays::change_overlays(ctx, ui);
+                    return Overlays::change_overlays(ctx, app);
                 }
                 x => {
                     let key = x["show/hide ".len()..].to_string();
-                    ui.agent_cs.toggle(key);
-                    self.acs = ui.agent_cs.clone();
+                    app.agent_cs.toggle(key);
+                    self.acs = app.agent_cs.clone();
                     self.composite = make_minimap_panel(ctx, &self.acs, self.zoom_lvl);
                 }
             },
@@ -193,7 +193,7 @@ impl Minimap {
         None
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    pub fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.composite.draw(g);
         if !self.zoomed {
             return;
@@ -201,7 +201,7 @@ impl Minimap {
 
         let inner_rect = self.composite.filler_rect("minimap");
 
-        let mut map_bounds = ui.primary.map.get_bounds().clone();
+        let mut map_bounds = app.primary.map.get_bounds().clone();
         // Adjust bounds to account for the current pan and zoom
         map_bounds.min_x = (map_bounds.min_x + self.offset_x) / self.zoom;
         map_bounds.min_y = (map_bounds.min_y + self.offset_y) / self.zoom;
@@ -214,21 +214,21 @@ impl Minimap {
             self.zoom,
         );
         g.enable_clipping(inner_rect);
-        g.redraw(&ui.primary.draw_map.boundary_polygon);
-        g.redraw(&ui.primary.draw_map.draw_all_areas);
-        g.redraw(&ui.primary.draw_map.draw_all_thick_roads);
-        g.redraw(&ui.primary.draw_map.draw_all_unzoomed_intersections);
-        g.redraw(&ui.primary.draw_map.draw_all_buildings);
+        g.redraw(&app.primary.draw_map.boundary_polygon);
+        g.redraw(&app.primary.draw_map.draw_all_areas);
+        g.redraw(&app.primary.draw_map.draw_all_thick_roads);
+        g.redraw(&app.primary.draw_map.draw_all_unzoomed_intersections);
+        g.redraw(&app.primary.draw_map.draw_all_buildings);
         // Not the building paths
-        if let Some(ref c) = ui.overlay.maybe_colorer() {
+        if let Some(ref c) = app.overlay.maybe_colorer() {
             g.redraw(&c.unzoomed);
         }
 
-        let mut cache = ui.primary.draw_map.agents.borrow_mut();
+        let mut cache = app.primary.draw_map.agents.borrow_mut();
         cache.draw_unzoomed_agents(
-            &ui.primary.sim,
-            &ui.primary.map,
-            &ui.agent_cs,
+            &app.primary.sim,
+            &app.primary.map,
+            &app.agent_cs,
             g,
             Distance::meters(2.0 + (self.zoom_lvl as f64)) / self.zoom,
         );

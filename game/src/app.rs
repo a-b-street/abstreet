@@ -13,10 +13,10 @@ use map_model::{Map, Traversable};
 use rand::seq::SliceRandom;
 use sim::{Analytics, GetDrawAgents, Sim, SimFlags};
 
-pub struct UI {
-    pub primary: PerMapUI,
+pub struct App {
+    pub primary: PerMap,
     // Invariant: This is Some(...) iff we're in A/B test mode or a sub-state.
-    pub secondary: Option<PerMapUI>,
+    pub secondary: Option<PerMap>,
     // Only exists in some gameplay modes. Must be carefully reset otherwise. Has the map and
     // scenario name too. TODO Embed that in Analytics directly instead.
     prebaked: Option<(String, String, Analytics)>,
@@ -33,11 +33,11 @@ pub struct UI {
     pub session: SessionState,
 }
 
-impl UI {
-    pub fn new(flags: Flags, opts: Options, ctx: &mut EventCtx, splash: bool) -> UI {
+impl App {
+    pub fn new(flags: Flags, opts: Options, ctx: &mut EventCtx, splash: bool) -> App {
         let cs = ColorScheme::load(opts.color_scheme.clone());
         let primary = ctx.loading_screen("load map", |ctx, mut timer| {
-            PerMapUI::new(flags, &cs, ctx, &mut timer)
+            PerMap::new(flags, &cs, ctx, &mut timer)
         });
 
         let mut rng = primary.current_flags.sim_flags.make_rng();
@@ -66,7 +66,7 @@ impl UI {
             }
         }
 
-        UI {
+        App {
             primary,
             secondary: None,
             prebaked: None,
@@ -94,7 +94,7 @@ impl UI {
         let mut flags = self.primary.current_flags.clone();
         flags.sim_flags.load = load;
         let session = std::mem::replace(&mut self.session, SessionState::empty());
-        *self = UI::new(flags, self.opts.clone(), ctx, false);
+        *self = App::new(flags, self.opts.clone(), ctx, false);
         self.session = session;
     }
 
@@ -454,7 +454,7 @@ pub struct Flags {
 }
 
 // All of the state that's bound to a specific map+edit has to live here.
-pub struct PerMapUI {
+pub struct PerMap {
     pub map: Map,
     pub draw_map: DrawMap,
     pub sim: Sim,
@@ -464,8 +464,8 @@ pub struct PerMapUI {
     pub last_warped_from: Option<(Pt2D, f64)>,
 }
 
-impl PerMapUI {
-    pub fn new(flags: Flags, cs: &ColorScheme, ctx: &mut EventCtx, timer: &mut Timer) -> PerMapUI {
+impl PerMap {
+    pub fn new(flags: Flags, cs: &ColorScheme, ctx: &mut EventCtx, timer: &mut Timer) -> PerMap {
         let mut mem = MeasureMemory::new();
         let (map, sim, _) = flags.sim_flags.load(timer);
         mem.reset("Map and Sim", timer);
@@ -475,7 +475,7 @@ impl PerMapUI {
         timer.stop("draw_map");
         mem.reset("DrawMap", timer);
 
-        PerMapUI {
+        PerMap {
             map,
             draw_map,
             sim,

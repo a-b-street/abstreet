@@ -1,6 +1,6 @@
+use crate::app::App;
 use crate::helpers::{rotating_color_agents, ColorScheme, ID};
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use crate::ui::UI;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Angle, Distance, PolyLine, Polygon, Pt2D};
 use map_model::{Map, TurnType};
@@ -136,7 +136,7 @@ impl Renderable for DrawCar {
         ID::Car(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI, _: &DrawOptions) {
+    fn draw(&self, g: &mut GfxCtx, _: &App, _: &DrawOptions) {
         g.redraw(&self.draw_default);
     }
 

@@ -15,11 +15,11 @@ pub use self::minimap::Minimap;
 pub use self::overlays::Overlays;
 pub use self::panels::tool_panel;
 pub use self::warp::Warping;
+use crate::app::App;
 use crate::game::Transition;
 use crate::helpers::{list_names, ID};
 use crate::render::DrawOptions;
 use crate::sandbox::SpeedControls;
-use crate::ui::UI;
 use ezgui::{
     lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenDims, ScreenPt, ScreenRectangle,
     Text,
@@ -40,37 +40,37 @@ impl CommonState {
         }
     }
 
-    // This has to be called after anything that calls ui.per_obj.action(). Oof.
+    // This has to be called after anything that calls app.per_obj.action(). Oof.
     // TODO This'll be really clear once we consume. Hah!
     pub fn event(
         &mut self,
         ctx: &mut EventCtx,
-        ui: &mut UI,
+        app: &mut App,
         maybe_speed: Option<&mut SpeedControls>,
     ) -> Option<Transition> {
         if ctx.input.new_was_pressed(&lctrl(Key::S).unwrap()) {
-            ui.opts.dev = !ui.opts.dev;
+            app.opts.dev = !app.opts.dev;
         }
-        if ui.opts.dev && ctx.input.new_was_pressed(&lctrl(Key::J).unwrap()) {
+        if app.opts.dev && ctx.input.new_was_pressed(&lctrl(Key::J).unwrap()) {
             return Some(Transition::Push(warp::EnteringWarp::new()));
         }
 
         // TODO Disable unless gameplay.can_examine_objects. Not going to worry about this right
         // now, since these controls should change anyway.
-        if let Some(t) = self.turn_cycler.event(ctx, ui) {
+        if let Some(t) = self.turn_cycler.event(ctx, app) {
             return Some(t);
         }
 
-        if let Some(ref id) = ui.primary.current_selection {
-            if ui.per_obj.action(ctx, Key::I, "show info")
-                || ui.per_obj.left_click(ctx, "show info")
+        if let Some(ref id) = app.primary.current_selection {
+            if app.per_obj.action(ctx, Key::I, "show info")
+                || app.per_obj.left_click(ctx, "show info")
             {
-                ui.per_obj.info_panel_open = true;
-                let actions = ui.per_obj.consume();
+                app.per_obj.info_panel_open = true;
+                let actions = app.per_obj.consume();
                 self.info_panel = Some(info::InfoPanel::new(
                     id.clone(),
                     ctx,
-                    ui,
+                    app,
                     actions,
                     maybe_speed,
                 ));
@@ -79,11 +79,11 @@ impl CommonState {
         }
 
         if let Some(ref mut info) = self.info_panel {
-            let (closed, maybe_t) = info.event(ctx, ui, maybe_speed);
+            let (closed, maybe_t) = info.event(ctx, app, maybe_speed);
             if closed {
                 self.info_panel = None;
-                assert!(ui.per_obj.info_panel_open);
-                ui.per_obj.info_panel_open = false;
+                assert!(app.per_obj.info_panel_open);
+                app.per_obj.info_panel_open = false;
             }
             if let Some(t) = maybe_t {
                 return Some(t);
@@ -93,26 +93,26 @@ impl CommonState {
         None
     }
 
-    pub fn draw_no_osd(&self, g: &mut GfxCtx, ui: &UI) {
-        self.turn_cycler.draw(g, ui);
+    pub fn draw_no_osd(&self, g: &mut GfxCtx, app: &App) {
+        self.turn_cycler.draw(g, app);
         if let Some(ref info) = self.info_panel {
             info.draw(g);
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        self.draw_no_osd(g, ui);
-        CommonState::draw_osd(g, ui, &ui.primary.current_selection);
+    pub fn draw(&self, g: &mut GfxCtx, app: &App) {
+        self.draw_no_osd(g, app);
+        CommonState::draw_osd(g, app, &app.primary.current_selection);
     }
 
-    pub fn default_osd(id: ID, ui: &UI) -> Text {
-        let map = &ui.primary.map;
-        let id_color = ui.cs.get_def("OSD ID color", Color::RED);
-        let name_color = ui.cs.get_def("OSD name color", Color::CYAN);
+    pub fn default_osd(id: ID, app: &App) -> Text {
+        let map = &app.primary.map;
+        let id_color = app.cs.get_def("OSD ID color", Color::RED);
+        let name_color = app.cs.get_def("OSD name color", Color::CYAN);
         let mut osd = Text::new();
         match id {
             ID::Lane(l) => {
-                if ui.opts.dev {
+                if app.opts.dev {
                     osd.append(Line(l.to_string()).fg(id_color));
                     osd.append(Line(" is "));
                 }
@@ -122,7 +122,7 @@ impl CommonState {
                 ]);
             }
             ID::Building(b) => {
-                if ui.opts.dev {
+                if app.opts.dev {
                     osd.append(Line(b.to_string()).fg(id_color));
                     osd.append(Line(" is "));
                 }
@@ -150,7 +150,7 @@ impl CommonState {
                     osd.append(Line("Border "));
                 }
 
-                if ui.opts.dev {
+                if app.opts.dev {
                     osd.append(Line(i.to_string()).fg(id_color));
                 } else {
                     osd.append(Line("Intersection"));
@@ -164,12 +164,12 @@ impl CommonState {
                 list_names(&mut osd, |l| l.fg(name_color), road_names);
             }
             ID::Car(c) => {
-                if ui.opts.dev {
+                if app.opts.dev {
                     osd.append(Line(c.to_string()).fg(id_color));
                 } else {
                     osd.append(Line(format!("a {}", c.1)));
                 }
-                if let Some(r) = ui.primary.sim.bus_route_id(c) {
+                if let Some(r) = app.primary.sim.bus_route_id(c) {
                     osd.append_all(vec![
                         Line(" serving "),
                         Line(&map.get_br(r).name).fg(name_color),
@@ -177,7 +177,7 @@ impl CommonState {
                 }
             }
             ID::Pedestrian(p) => {
-                if ui.opts.dev {
+                if app.opts.dev {
                     osd.append(Line(p.to_string()).fg(id_color));
                 } else {
                     osd.append(Line("a pedestrian"));
@@ -187,7 +187,7 @@ impl CommonState {
                 osd.append(Line(format!("a crowd of {} pedestrians", list.len())));
             }
             ID::BusStop(bs) => {
-                if ui.opts.dev {
+                if app.opts.dev {
                     osd.append(Line(bs.to_string()).fg(id_color));
                 } else {
                     osd.append(Line("a bus stop"));
@@ -213,7 +213,7 @@ impl CommonState {
                 osd.append(Line(a.to_string()).fg(id_color));
             }
             ID::Road(r) => {
-                if ui.opts.dev {
+                if app.opts.dev {
                     osd.append(Line(r.to_string()).fg(id_color));
                     osd.append(Line(" is "));
                 }
@@ -223,17 +223,17 @@ impl CommonState {
         osd
     }
 
-    pub fn draw_osd(g: &mut GfxCtx, ui: &UI, id: &Option<ID>) {
+    pub fn draw_osd(g: &mut GfxCtx, app: &App, id: &Option<ID>) {
         let osd = if let Some(id) = id {
-            CommonState::default_osd(id.clone(), ui)
+            CommonState::default_osd(id.clone(), app)
         } else {
             Text::from(Line("..."))
         };
-        CommonState::draw_custom_osd(g, ui, osd);
+        CommonState::draw_custom_osd(g, app, osd);
     }
 
-    pub fn draw_custom_osd(g: &mut GfxCtx, ui: &UI, mut osd: Text) {
-        let (keys, click_action) = ui.per_obj.get_active_keys();
+    pub fn draw_custom_osd(g: &mut GfxCtx, app: &App, mut osd: Text) {
+        let (keys, click_action) = app.per_obj.get_active_keys();
         if !keys.is_empty() {
             osd.append(Line("   Hotkeys: "));
             for (idx, key) in keys.into_iter().enumerate() {
@@ -260,7 +260,7 @@ impl CommonState {
         )]);
         batch.add_translated(osd.render_g(g), 10.0, 0.25 * g.default_line_height());
 
-        if ui.opts.dev && !g.is_screencap() {
+        if app.opts.dev && !g.is_screencap() {
             let mut txt = Text::from(Line("DEV"));
             txt.highlight_last_line(Color::RED);
             let dev_batch = txt.render_g(g);
@@ -280,18 +280,18 @@ impl CommonState {
         ));
     }
 
-    pub fn draw_options(&self, ui: &UI) -> DrawOptions {
+    pub fn draw_options(&self, app: &App) -> DrawOptions {
         let mut opts = DrawOptions::new();
         opts.suppress_traffic_signal_details = self
             .turn_cycler
-            .suppress_traffic_signal_details(&ui.primary.map);
+            .suppress_traffic_signal_details(&app.primary.map);
         opts
     }
 
     // Meant to be used for launching from other states
-    pub fn launch_info_panel(&mut self, id: ID, ctx: &mut EventCtx, ui: &mut UI) {
-        self.info_panel = Some(info::InfoPanel::new(id, ctx, ui, Vec::new(), None));
-        ui.per_obj.info_panel_open = true;
+    pub fn launch_info_panel(&mut self, id: ID, ctx: &mut EventCtx, app: &mut App) {
+        self.info_panel = Some(info::InfoPanel::new(id, ctx, app, Vec::new(), None));
+        app.per_obj.info_panel_open = true;
     }
 
     pub fn info_panel_open(&self) -> Option<ID> {

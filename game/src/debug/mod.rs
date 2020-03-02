@@ -3,12 +3,12 @@ mod objects;
 mod polygons;
 mod routes;
 
+use crate::app::{App, ShowLayers, ShowObject};
 use crate::colors;
 use crate::common::{tool_panel, CommonState};
 use crate::game::{msg, DrawBaselayer, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
-use crate::ui::{ShowLayers, ShowObject, UI};
 use ezgui::{
     hotkey, lctrl, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Text, VerticalAlignment, Wizard,
@@ -104,12 +104,12 @@ impl DebugMode {
 }
 
 impl State for DebugMode {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
         if ctx.redo_mouseover() {
-            ui.primary.current_selection =
-                ui.calculate_current_selection(ctx, &ui.primary.sim, self, true, false);
+            app.primary.current_selection =
+                app.calculate_current_selection(ctx, &app.primary.sim, self, true, false);
         }
 
         match self.composite.event(ctx) {
@@ -120,23 +120,23 @@ impl State for DebugMode {
                 "save sim state" => {
                     ctx.loading_screen("savestate", |_, timer| {
                         timer.start("save sim state");
-                        ui.primary.sim.save();
+                        app.primary.sim.save();
                         timer.stop("save sim state");
                     });
                 }
                 "load previous sim state" => {
                     if let Some(t) =
                         ctx.loading_screen("load previous savestate", |ctx, mut timer| {
-                            let prev_state = ui
+                            let prev_state = app
                                 .primary
                                 .sim
-                                .find_previous_savestate(ui.primary.sim.time());
+                                .find_previous_savestate(app.primary.sim.time());
                             match prev_state.clone().and_then(|path| {
-                                Sim::load_savestate(path, &ui.primary.map, &mut timer).ok()
+                                Sim::load_savestate(path, &app.primary.map, &mut timer).ok()
                             }) {
                                 Some(new_sim) => {
-                                    ui.primary.sim = new_sim;
-                                    ui.recalculate_current_selection(ctx);
+                                    app.primary.sim = new_sim;
+                                    app.recalculate_current_selection(ctx);
                                     None
                                 }
                                 None => Some(Transition::Push(msg(
@@ -154,13 +154,14 @@ impl State for DebugMode {
                 }
                 "load next sim state" => {
                     if let Some(t) = ctx.loading_screen("load next savestate", |ctx, mut timer| {
-                        let next_state = ui.primary.sim.find_next_savestate(ui.primary.sim.time());
+                        let next_state =
+                            app.primary.sim.find_next_savestate(app.primary.sim.time());
                         match next_state.clone().and_then(|path| {
-                            Sim::load_savestate(path, &ui.primary.map, &mut timer).ok()
+                            Sim::load_savestate(path, &app.primary.map, &mut timer).ok()
                         }) {
                             Some(new_sim) => {
-                                ui.primary.sim = new_sim;
-                                ui.recalculate_current_selection(ctx);
+                                app.primary.sim = new_sim;
+                                app.recalculate_current_selection(ctx);
                                 None
                             }
                             None => Some(Transition::Push(msg(
@@ -177,12 +178,12 @@ impl State for DebugMode {
                 }
                 "unhide everything" => {
                     self.hidden.clear();
-                    ui.primary.current_selection =
-                        ui.calculate_current_selection(ctx, &ui.primary.sim, self, true, false);
+                    app.primary.current_selection =
+                        app.calculate_current_selection(ctx, &app.primary.sim, self, true, false);
                     self.reset_info(ctx);
                 }
                 "toggle route for all agents" => {
-                    self.all_routes.toggle(ui);
+                    self.all_routes.toggle(app);
                     self.reset_info(ctx);
                 }
                 "search OSM metadata" => {
@@ -193,10 +194,10 @@ impl State for DebugMode {
                     self.reset_info(ctx);
                 }
                 "screenshot everything" => {
-                    let bounds = ui.primary.map.get_bounds();
+                    let bounds = app.primary.map.get_bounds();
                     assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
                     return Transition::KeepWithMode(EventLoopMode::ScreenCaptureEverything {
-                        dir: abstutil::path_pending_screenshots(ui.primary.map.get_name()),
+                        dir: abstutil::path_pending_screenshots(app.primary.map.get_name()),
                         zoom: 3.0,
                         max_x: bounds.max_x,
                         max_y: bounds.max_y,
@@ -204,33 +205,33 @@ impl State for DebugMode {
                 }
                 "toggle buildings" => {
                     self.layers.show_buildings = !self.layers.show_buildings;
-                    ui.primary.current_selection =
-                        ui.calculate_current_selection(ctx, &ui.primary.sim, self, true, false);
+                    app.primary.current_selection =
+                        app.calculate_current_selection(ctx, &app.primary.sim, self, true, false);
                 }
                 "toggle intersections" => {
                     self.layers.show_intersections = !self.layers.show_intersections;
-                    ui.primary.current_selection =
-                        ui.calculate_current_selection(ctx, &ui.primary.sim, self, true, false);
+                    app.primary.current_selection =
+                        app.calculate_current_selection(ctx, &app.primary.sim, self, true, false);
                 }
                 "toggle lanes" => {
                     self.layers.show_lanes = !self.layers.show_lanes;
-                    ui.primary.current_selection =
-                        ui.calculate_current_selection(ctx, &ui.primary.sim, self, true, false);
+                    app.primary.current_selection =
+                        app.calculate_current_selection(ctx, &app.primary.sim, self, true, false);
                 }
                 "toggle areas" => {
                     self.layers.show_areas = !self.layers.show_areas;
-                    ui.primary.current_selection =
-                        ui.calculate_current_selection(ctx, &ui.primary.sim, self, true, false);
+                    app.primary.current_selection =
+                        app.calculate_current_selection(ctx, &app.primary.sim, self, true, false);
                 }
                 "toggle extra shapes" => {
                     self.layers.show_extra_shapes = !self.layers.show_extra_shapes;
-                    ui.primary.current_selection =
-                        ui.calculate_current_selection(ctx, &ui.primary.sim, self, true, false);
+                    app.primary.current_selection =
+                        app.calculate_current_selection(ctx, &app.primary.sim, self, true, false);
                 }
                 "toggle labels" => {
                     self.layers.show_labels = !self.layers.show_labels;
-                    ui.primary.current_selection =
-                        ui.calculate_current_selection(ctx, &ui.primary.sim, self, true, false);
+                    app.primary.current_selection =
+                        app.calculate_current_selection(ctx, &app.primary.sim, self, true, false);
                 }
                 _ => unreachable!(),
             },
@@ -238,39 +239,39 @@ impl State for DebugMode {
         }
 
         if let Some(ID::Lane(_)) | Some(ID::Intersection(_)) | Some(ID::ExtraShape(_)) =
-            ui.primary.current_selection
+            app.primary.current_selection
         {
-            let id = ui.primary.current_selection.clone().unwrap();
-            if ui.per_obj.action(ctx, Key::H, format!("hide {:?}", id)) {
+            let id = app.primary.current_selection.clone().unwrap();
+            if app.per_obj.action(ctx, Key::H, format!("hide {:?}", id)) {
                 println!("Hiding {:?}", id);
-                ui.primary.current_selection = None;
+                app.primary.current_selection = None;
                 self.hidden.insert(id);
                 self.reset_info(ctx);
             }
         }
 
-        if let Some(ID::Car(id)) = ui.primary.current_selection {
-            if ui
+        if let Some(ID::Car(id)) = app.primary.current_selection {
+            if app
                 .per_obj
                 .action(ctx, Key::Backspace, "forcibly kill this car")
             {
-                ui.primary.sim.kill_stuck_car(id, &ui.primary.map);
-                ui.primary
+                app.primary.sim.kill_stuck_car(id, &app.primary.map);
+                app.primary
                     .sim
-                    .normal_step(&ui.primary.map, Duration::seconds(0.1));
-                ui.primary.current_selection = None;
-            } else if ui.per_obj.action(ctx, Key::G, "find front of blockage") {
+                    .normal_step(&app.primary.map, Duration::seconds(0.1));
+                app.primary.current_selection = None;
+            } else if app.per_obj.action(ctx, Key::G, "find front of blockage") {
                 return Transition::Push(msg(
                     "Blockage results",
                     vec![format!(
                         "{} is ultimately blocked by {}",
                         id,
-                        ui.primary.sim.find_blockage_front(id, &ui.primary.map)
+                        app.primary.sim.find_blockage_front(id, &app.primary.map)
                     )],
                 ));
             }
         }
-        if let Some(ID::Intersection(id)) = ui.primary.current_selection {
+        if let Some(ID::Intersection(id)) = app.primary.current_selection {
             if self
                 .highlighted_agents
                 .as_ref()
@@ -278,19 +279,19 @@ impl State for DebugMode {
                 .unwrap_or(true)
             {
                 let mut batch = GeomBatch::new();
-                for a in ui.primary.sim.get_accepted_agents(id) {
+                for a in app.primary.sim.get_accepted_agents(id) {
                     batch.push(
-                        ui.cs.get("something associated with something else"),
-                        ui.primary
+                        app.cs.get("something associated with something else"),
+                        app.primary
                             .draw_map
                             .get_obj(
                                 ID::from_agent(a),
-                                ui,
-                                &mut ui.primary.draw_map.agents.borrow_mut(),
+                                app,
+                                &mut app.primary.draw_map.agents.borrow_mut(),
                                 ctx.prerender,
                             )
                             .unwrap()
-                            .get_outline(&ui.primary.map),
+                            .get_outline(&app.primary.map),
                     );
                 }
                 self.highlighted_agents = Some((id, ctx.upload(batch)));
@@ -299,20 +300,20 @@ impl State for DebugMode {
             self.highlighted_agents = None;
         }
 
-        self.objects.event(ctx, ui);
+        self.objects.event(ctx, app);
 
-        if let Some(debugger) = polygons::PolygonDebugger::new(ctx, ui) {
+        if let Some(debugger) = polygons::PolygonDebugger::new(ctx, app) {
             return Transition::Push(Box::new(debugger));
         }
 
-        if let Some(floodfiller) = floodfill::Floodfiller::new(ctx, ui) {
+        if let Some(floodfiller) = floodfill::Floodfiller::new(ctx, app) {
             return Transition::Push(floodfiller);
         }
 
-        if let Some(t) = self.common.event(ctx, ui, None) {
+        if let Some(t) = self.common.event(ctx, app, None) {
             return t;
         }
-        match self.tool_panel.event(ctx, ui) {
+        match self.tool_panel.event(ctx, app) {
             Some(WrappedOutcome::Transition(t)) => t,
             Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
                 "back" => Transition::Pop,
@@ -326,11 +327,11 @@ impl State for DebugMode {
         DrawBaselayer::Custom
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        let mut opts = self.common.draw_options(ui);
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        let mut opts = self.common.draw_options(app);
         opts.label_buildings = self.layers.show_labels;
         opts.label_roads = self.layers.show_labels;
-        ui.draw(g, opts, &ui.primary.sim, self);
+        app.draw(g, opts, &app.primary.sim, self);
 
         if let Some(ref results) = self.search_results {
             g.redraw(&results.draw);
@@ -339,12 +340,12 @@ impl State for DebugMode {
             g.redraw(draw);
         }
 
-        self.objects.draw(g, ui);
-        self.all_routes.draw(g, ui);
+        self.objects.draw(g, app);
+        self.all_routes.draw(g, app);
 
         if !g.is_screencap() {
             self.composite.draw(g);
-            self.common.draw(g, ui);
+            self.common.draw(g, app);
             self.tool_panel.draw(g);
         }
     }
@@ -371,14 +372,14 @@ impl ShowObject for DebugMode {
     }
 }
 
-fn search_osm(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+fn search_osm(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
     let filter = wiz.wrap(ctx).input_string("Search for what?")?;
     let mut num_matches = 0;
     let mut batch = GeomBatch::new();
 
     // TODO Case insensitive
-    let map = &ui.primary.map;
-    let color = ui.cs.get_def("search result", Color::RED);
+    let map = &app.primary.map;
+    let color = app.cs.get_def("search result", Color::RED);
     for r in map.all_roads() {
         if r.osm_tags
             .iter()
@@ -429,17 +430,17 @@ struct SearchResults {
     draw: Drawable,
 }
 
-fn load_savestate(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+fn load_savestate(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
     let ss = wiz.wrap(ctx).choose_string("Load which savestate?", || {
-        abstutil::list_all_objects(ui.primary.sim.save_dir())
+        abstutil::list_all_objects(app.primary.sim.save_dir())
     })?;
     // TODO Oh no, we have to do path construction here :(
-    let ss_path = format!("{}/{}.bin", ui.primary.sim.save_dir(), ss);
+    let ss_path = format!("{}/{}.bin", app.primary.sim.save_dir(), ss);
 
     ctx.loading_screen("load savestate", |ctx, mut timer| {
-        ui.primary.sim = Sim::load_savestate(ss_path, &ui.primary.map, &mut timer)
+        app.primary.sim = Sim::load_savestate(ss_path, &app.primary.map, &mut timer)
             .expect("Can't load savestate");
-        ui.recalculate_current_selection(ctx);
+        app.recalculate_current_selection(ctx);
     });
     Some(Transition::Pop)
 }

@@ -1,7 +1,7 @@
+use crate::app::App;
 use crate::colors;
 use crate::managed::WrappedComposite;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
-use crate::ui::UI;
 use ezgui::{
     Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, ManagedWidget,
     Outcome, Text, VerticalAlignment,
@@ -101,21 +101,21 @@ impl ColorerBuilder {
         self.bus_stops.insert(bs, color);
     }
 
-    pub fn build(self, ctx: &mut EventCtx, ui: &UI) -> Colorer {
+    pub fn build(self, ctx: &mut EventCtx, app: &App) -> Colorer {
         let mut zoomed = GeomBatch::new();
         let mut unzoomed = GeomBatch::new();
-        let map = &ui.primary.map;
+        let map = &app.primary.map;
 
         for (l, color) in self.lanes {
             zoomed.push(
                 color.alpha(0.4),
-                ui.primary.draw_map.get_l(l).polygon.clone(),
+                app.primary.draw_map.get_l(l).polygon.clone(),
             );
         }
         for (r, color) in self.roads {
             unzoomed.push(
                 color,
-                map.get_r(r).get_thick_polygon(&ui.primary.map).unwrap(),
+                map.get_r(r).get_thick_polygon(&app.primary.map).unwrap(),
             );
         }
 
@@ -156,8 +156,8 @@ impl ColorerBuilder {
         }
     }
 
-    pub fn build_zoomed(self, ctx: &mut EventCtx, ui: &UI) -> Drawable {
-        self.build(ctx, ui).zoomed
+    pub fn build_zoomed(self, ctx: &mut EventCtx, app: &App) -> Drawable {
+        self.build(ctx, app).zoomed
     }
 }
 

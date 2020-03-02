@@ -1,9 +1,9 @@
+use crate::app::{App, ShowEverything};
 use crate::colors;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::ID;
 use crate::options::TrafficSignalStyle;
 use crate::render::{dashed_lines, draw_signal_phase, DrawOptions, DrawTurn};
-use crate::ui::{ShowEverything, UI};
 use ezgui::{
     hotkey, Button, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
     Key, Line, ManagedWidget, ModalMenu, Outcome, Text, VerticalAlignment,
@@ -21,13 +21,13 @@ pub enum TurnCyclerState {
 }
 
 impl TurnCyclerState {
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
-        match ui.primary.current_selection {
-            Some(ID::Lane(id)) if !ui.primary.map.get_turns_from_lane(id).is_empty() => {
+    pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
+        match app.primary.current_selection {
+            Some(ID::Lane(id)) if !app.primary.map.get_turns_from_lane(id).is_empty() => {
                 if let TurnCyclerState::CycleTurns(current, idx) = self {
                     if *current != id {
                         *self = TurnCyclerState::ShowLane(id);
-                    } else if ui
+                    } else if app
                         .per_obj
                         .action(ctx, Key::Z, "cycle through this lane's turns")
                     {
@@ -35,7 +35,7 @@ impl TurnCyclerState {
                     }
                 } else {
                     *self = TurnCyclerState::ShowLane(id);
-                    if ui
+                    if app
                         .per_obj
                         .action(ctx, Key::Z, "cycle through this lane's turns")
                     {
@@ -44,14 +44,14 @@ impl TurnCyclerState {
                 }
             }
             Some(ID::Intersection(i)) => {
-                if let Some(ref signal) = ui.primary.map.maybe_get_traffic_signal(i) {
-                    if ui
+                if let Some(ref signal) = app.primary.map.maybe_get_traffic_signal(i) {
+                    if app
                         .per_obj
                         .action(ctx, Key::F, "show full traffic signal diagram")
                     {
-                        ui.primary.current_selection = None;
+                        app.primary.current_selection = None;
                         let (idx, _, _) =
-                            signal.current_phase_and_remaining_time(ui.primary.sim.time());
+                            signal.current_phase_and_remaining_time(app.primary.sim.time());
                         return Some(Transition::Push(Box::new(ShowTrafficSignal {
                             menu: ModalMenu::new(
                                 "Traffic Signal Diagram",
@@ -62,7 +62,7 @@ impl TurnCyclerState {
                                 ],
                                 ctx,
                             ),
-                            diagram: TrafficSignalDiagram::new(i, idx, ui, ctx),
+                            diagram: TrafficSignalDiagram::new(i, idx, app, ctx),
                         })));
                     }
                 }
@@ -70,18 +70,18 @@ impl TurnCyclerState {
             }
             Some(ref id) => {
                 if let Some(agent) = id.agent_id() {
-                    let now = ui.primary.sim.time();
+                    let now = app.primary.sim.time();
                     let recalc = match self {
                         TurnCyclerState::ShowRoute(a, t, _) => agent != *a || now != *t,
                         _ => true,
                     };
                     if recalc {
                         if let Some(trace) =
-                            ui.primary.sim.trace_route(agent, &ui.primary.map, None)
+                            app.primary.sim.trace_route(agent, &app.primary.map, None)
                         {
                             let mut batch = GeomBatch::new();
                             batch.extend(
-                                ui.cs.get("route"),
+                                app.cs.get("route"),
                                 dashed_lines(
                                     &trace,
                                     Distance::meters(0.75),
@@ -104,26 +104,26 @@ impl TurnCyclerState {
         None
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    pub fn draw(&self, g: &mut GfxCtx, app: &App) {
         match self {
             TurnCyclerState::Inactive => {}
             TurnCyclerState::ShowLane(l) => {
-                for turn in &ui.primary.map.get_turns_from_lane(*l) {
-                    DrawTurn::draw_full(turn, g, color_turn_type(turn.turn_type, ui).alpha(0.5));
+                for turn in &app.primary.map.get_turns_from_lane(*l) {
+                    DrawTurn::draw_full(turn, g, color_turn_type(turn.turn_type, app).alpha(0.5));
                 }
             }
             TurnCyclerState::CycleTurns(l, idx) => {
-                let turns = ui.primary.map.get_turns_from_lane(*l);
+                let turns = app.primary.map.get_turns_from_lane(*l);
                 let current = turns[*idx % turns.len()];
-                DrawTurn::draw_full(current, g, color_turn_type(current.turn_type, ui));
+                DrawTurn::draw_full(current, g, color_turn_type(current.turn_type, app));
 
                 let mut batch = GeomBatch::new();
-                for t in ui.primary.map.get_turns_in_intersection(current.id.parent) {
+                for t in app.primary.map.get_turns_in_intersection(current.id.parent) {
                     if current.conflicts_with(t) {
                         DrawTurn::draw_dashed(
                             t,
                             &mut batch,
-                            ui.cs.get_def("conflicting turn", Color::RED.alpha(0.8)),
+                            app.cs.get_def("conflicting turn", Color::RED.alpha(0.8)),
                         );
                     }
                 }
@@ -145,17 +145,17 @@ impl TurnCyclerState {
     }
 }
 
-fn color_turn_type(t: TurnType, ui: &UI) -> Color {
+fn color_turn_type(t: TurnType, app: &App) -> Color {
     match t {
         TurnType::SharedSidewalkCorner => {
-            ui.cs.get_def("shared sidewalk corner turn", Color::BLACK)
+            app.cs.get_def("shared sidewalk corner turn", Color::BLACK)
         }
-        TurnType::Crosswalk => ui.cs.get_def("crosswalk turn", Color::WHITE),
-        TurnType::Straight => ui.cs.get_def("straight turn", Color::BLUE),
-        TurnType::LaneChangeLeft => ui.cs.get_def("change lanes left turn", Color::CYAN),
-        TurnType::LaneChangeRight => ui.cs.get_def("change lanes right turn", Color::PURPLE),
-        TurnType::Right => ui.cs.get_def("right turn", Color::GREEN),
-        TurnType::Left => ui.cs.get_def("left turn", Color::RED),
+        TurnType::Crosswalk => app.cs.get_def("crosswalk turn", Color::WHITE),
+        TurnType::Straight => app.cs.get_def("straight turn", Color::BLUE),
+        TurnType::LaneChangeLeft => app.cs.get_def("change lanes left turn", Color::CYAN),
+        TurnType::LaneChangeRight => app.cs.get_def("change lanes right turn", Color::PURPLE),
+        TurnType::Right => app.cs.get_def("right turn", Color::GREEN),
+        TurnType::Left => app.cs.get_def("left turn", Color::RED),
     }
 }
 
@@ -166,13 +166,13 @@ struct ShowTrafficSignal {
 }
 
 impl State for ShowTrafficSignal {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         self.menu.event(ctx);
         ctx.canvas_movement();
         if self.menu.action("quit") {
             return Transition::Pop;
         }
-        self.diagram.event(ctx, ui, &mut self.menu);
+        self.diagram.event(ctx, app, &mut self.menu);
         Transition::Keep
     }
 
@@ -180,19 +180,19 @@ impl State for ShowTrafficSignal {
         DrawBaselayer::Custom
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         let mut opts = DrawOptions::new();
         opts.suppress_traffic_signal_details = Some(self.diagram.i);
-        ui.draw(g, opts, &DontDrawAgents {}, &ShowEverything::new());
+        app.draw(g, opts, &DontDrawAgents {}, &ShowEverything::new());
         let mut batch = GeomBatch::new();
         draw_signal_phase(
             g.prerender,
-            &ui.primary.map.get_traffic_signal(self.diagram.i).phases[self.diagram.current_phase],
+            &app.primary.map.get_traffic_signal(self.diagram.i).phases[self.diagram.current_phase],
             self.diagram.i,
             None,
             &mut batch,
-            ui,
-            ui.opts.traffic_signal_style.clone(),
+            app,
+            app.opts.traffic_signal_style.clone(),
         );
         batch.draw(g);
 
@@ -211,39 +211,39 @@ impl TrafficSignalDiagram {
     fn new(
         i: IntersectionID,
         current_phase: usize,
-        ui: &UI,
+        app: &App,
         ctx: &mut EventCtx,
     ) -> TrafficSignalDiagram {
         TrafficSignalDiagram {
             i,
-            composite: make_diagram(i, current_phase, ui, ctx),
+            composite: make_diagram(i, current_phase, app, ctx),
             current_phase,
         }
     }
 
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI, menu: &mut ModalMenu) {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App, menu: &mut ModalMenu) {
         if self.current_phase != 0 && menu.action("select previous phase") {
-            self.change_phase(self.current_phase - 1, ui, ctx);
+            self.change_phase(self.current_phase - 1, app, ctx);
         }
 
-        if self.current_phase != ui.primary.map.get_traffic_signal(self.i).phases.len() - 1
+        if self.current_phase != app.primary.map.get_traffic_signal(self.i).phases.len() - 1
             && menu.action("select next phase")
         {
-            self.change_phase(self.current_phase + 1, ui, ctx);
+            self.change_phase(self.current_phase + 1, app, ctx);
         }
 
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => {
-                self.change_phase(x["phase ".len()..].parse::<usize>().unwrap() - 1, ui, ctx);
+                self.change_phase(x["phase ".len()..].parse::<usize>().unwrap() - 1, app, ctx);
             }
             None => {}
         }
     }
 
-    fn change_phase(&mut self, idx: usize, ui: &UI, ctx: &mut EventCtx) {
+    fn change_phase(&mut self, idx: usize, app: &App, ctx: &mut EventCtx) {
         if self.current_phase != idx {
             self.current_phase = idx;
-            self.composite = make_diagram(self.i, self.current_phase, ui, ctx);
+            self.composite = make_diagram(self.i, self.current_phase, app, ctx);
             self.composite
                 .scroll_to_member(ctx, format!("phase {}", idx + 1));
         }
@@ -254,21 +254,21 @@ impl TrafficSignalDiagram {
     }
 }
 
-fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx) -> Composite {
+fn make_diagram(i: IntersectionID, selected: usize, app: &App, ctx: &mut EventCtx) -> Composite {
     // Slightly inaccurate -- the turn rendering may slightly exceed the intersection polygon --
     // but this is close enough.
-    let bounds = ui.primary.map.get_i(i).polygon.get_bounds();
+    let bounds = app.primary.map.get_i(i).polygon.get_bounds();
     // Pick a zoom so that we fit some percentage of the screen
     let zoom = 0.2 * ctx.canvas.window_width / bounds.width();
     let bbox = Polygon::rectangle(zoom * bounds.width(), zoom * bounds.height());
 
-    let signal = ui.primary.map.get_traffic_signal(i);
+    let signal = app.primary.map.get_traffic_signal(i);
     let mut col = vec![ManagedWidget::draw_text(ctx, {
         let mut txt = Text::new();
         // TODO Style inside here. Also 0.4 is manually tuned and pretty wacky, because it
         // assumes default font.
         txt.add_wrapped(
-            ui.primary.map.get_i(i).name(&ui.primary.map),
+            app.primary.map.get_i(i).name(&app.primary.map),
             0.4 * ctx.canvas.window_width,
         );
         txt.add(Line(format!("{} phases", signal.phases.len())));
@@ -293,7 +293,7 @@ fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &mut EventCtx)
             i,
             None,
             &mut orig_batch,
-            ui,
+            app,
             TrafficSignalStyle::Sidewalks,
         );
 

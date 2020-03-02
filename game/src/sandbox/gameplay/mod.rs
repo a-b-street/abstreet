@@ -8,6 +8,7 @@ pub mod spawner;
 mod tutorial;
 
 pub use self::tutorial::{Tutorial, TutorialPointer, TutorialState};
+use crate::app::App;
 use crate::challenges;
 use crate::challenges::challenges_picker;
 use crate::colors;
@@ -17,7 +18,6 @@ use crate::game::{msg, State, Transition};
 use crate::managed::WrappedComposite;
 use crate::pregame::main_menu;
 use crate::sandbox::{SandboxControls, SandboxMode, ScoreCard};
-use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{
     lctrl, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
@@ -54,10 +54,10 @@ pub trait GameplayState: downcast_rs::Downcast {
     fn event(
         &mut self,
         ctx: &mut EventCtx,
-        ui: &mut UI,
+        app: &mut App,
         controls: &mut SandboxControls,
     ) -> (Option<Transition>, bool);
-    fn draw(&self, g: &mut GfxCtx, ui: &UI);
+    fn draw(&self, g: &mut GfxCtx, app: &App);
 
     fn can_move_canvas(&self) -> bool {
         true
@@ -178,27 +178,29 @@ impl GameplayMode {
         true
     }
 
-    pub fn initialize(&self, ui: &mut UI, ctx: &mut EventCtx) -> Box<dyn GameplayState> {
+    pub fn initialize(&self, app: &mut App, ctx: &mut EventCtx) -> Box<dyn GameplayState> {
         ctx.loading_screen("setup challenge", |ctx, timer| {
-            if &abstutil::basename(&self.map_path()) != ui.primary.map.get_name() {
-                ui.switch_map(ctx, self.map_path());
+            if &abstutil::basename(&self.map_path()) != app.primary.map.get_name() {
+                app.switch_map(ctx, self.map_path());
             }
 
-            if let Some(scenario) =
-                self.scenario(&ui.primary.map, ui.primary.current_flags.num_agents, timer)
-            {
+            if let Some(scenario) = self.scenario(
+                &app.primary.map,
+                app.primary.current_flags.num_agents,
+                timer,
+            ) {
                 scenario.instantiate(
-                    &mut ui.primary.sim,
-                    &ui.primary.map,
-                    &mut ui.primary.current_flags.sim_flags.make_rng(),
+                    &mut app.primary.sim,
+                    &app.primary.map,
+                    &mut app.primary.current_flags.sim_flags.make_rng(),
                     timer,
                 );
-                ui.primary
+                app.primary
                     .sim
-                    .normal_step(&ui.primary.map, Duration::seconds(0.1));
+                    .normal_step(&app.primary.map, Duration::seconds(0.1));
 
                 // Maybe we've already got prebaked data for this map+scenario.
-                if !ui
+                if !app
                     .has_prebaked()
                     .map(|(m, s)| m == &scenario.map_name && s == &scenario.scenario_name)
                     .unwrap_or(false)
@@ -211,7 +213,7 @@ impl GameplayMode {
                         ),
                         timer,
                     ) {
-                        ui.set_prebaked(Some((
+                        app.set_prebaked(Some((
                             scenario.map_name.clone(),
                             scenario.scenario_name.clone(),
                             prebaked,
@@ -221,18 +223,18 @@ impl GameplayMode {
                             "WARNING: No prebaked results for {} on {}, some stuff might break",
                             scenario.scenario_name, scenario.map_name
                         );
-                        ui.set_prebaked(None);
+                        app.set_prebaked(None);
                     }
                 }
             }
         });
         match self {
-            GameplayMode::Freeform(_) => freeform::Freeform::new(ctx, ui, self.clone()),
+            GameplayMode::Freeform(_) => freeform::Freeform::new(ctx, app, self.clone()),
             GameplayMode::PlayScenario(_, ref scenario) => {
-                play_scenario::PlayScenario::new(ctx, ui, scenario, self.clone())
+                play_scenario::PlayScenario::new(ctx, app, scenario, self.clone())
             }
             GameplayMode::OptimizeBus(_, ref route_name) => {
-                optimize_bus::OptimizeBus::new(ctx, ui, route_name, self.clone())
+                optimize_bus::OptimizeBus::new(ctx, app, route_name, self.clone())
             }
             GameplayMode::CreateGridlock(_) => {
                 create_gridlock::CreateGridlock::new(ctx, self.clone())
@@ -243,7 +245,7 @@ impl GameplayMode {
             GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial(_) => {
                 fix_traffic_signals::FixTrafficSignals::new(ctx, self.clone())
             }
-            GameplayMode::Tutorial(current) => Tutorial::new(ctx, ui, *current),
+            GameplayMode::Tutorial(current) => Tutorial::new(ctx, app, *current),
         }
     }
 }
@@ -292,10 +294,10 @@ fn challenge_controller(
     )
     .cb(
         "edit map",
-        Box::new(move |ctx, ui| {
+        Box::new(move |ctx, app| {
             Some(Transition::Push(Box::new(EditMode::new(
                 ctx,
-                ui,
+                app,
                 gameplay.clone(),
             ))))
         }),
@@ -353,28 +355,28 @@ impl FinalScore {
 }
 
 impl State for FinalScore {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "next challenge" => {
-                    ui.primary.clear_sim();
+                    app.primary.clear_sim();
                     Transition::PopThenReplace(Box::new(SandboxMode::new(
                         ctx,
-                        ui,
+                        app,
                         self.next.clone().unwrap(),
                     )))
                 }
                 "try again" => {
-                    ui.primary.clear_sim();
+                    app.primary.clear_sim();
                     Transition::PopThenReplace(Box::new(SandboxMode::new(
                         ctx,
-                        ui,
+                        app,
                         self.mode.clone(),
                     )))
                 }
                 "back to challenges" => {
-                    ui.primary.clear_sim();
-                    Transition::Clear(vec![main_menu(ctx, ui), challenges_picker(ctx, ui)])
+                    app.primary.clear_sim();
+                    Transition::Clear(vec![main_menu(ctx, app), challenges_picker(ctx, app)])
                 }
                 _ => unreachable!(),
             },
@@ -382,11 +384,11 @@ impl State for FinalScore {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         State::grey_out_map(g);
 
         self.composite.draw(g);
         // Still want to show hotkeys
-        CommonState::draw_osd(g, ui, &None);
+        CommonState::draw_osd(g, app, &None);
     }
 }

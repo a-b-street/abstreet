@@ -12,6 +12,7 @@ mod road;
 mod traffic_signal;
 mod turn;
 
+use crate::app::App;
 use crate::helpers::{ColorScheme, ID};
 use crate::render::bike::DrawBike;
 use crate::render::car::DrawCar;
@@ -23,7 +24,6 @@ use crate::render::pedestrian::{DrawPedCrowd, DrawPedestrian};
 pub use crate::render::road::DrawRoad;
 pub use crate::render::traffic_signal::draw_signal_phase;
 pub use crate::render::turn::{DrawTurn, DrawTurnGroup};
-use crate::ui::UI;
 use ezgui::{GfxCtx, Prerender};
 use geom::{Distance, PolyLine, Polygon, Pt2D, EPSILON_DIST};
 use map_model::{IntersectionID, Map};
@@ -47,7 +47,7 @@ pub trait Renderable {
     // Renderables are better off storing the inner ID directly.
     fn get_id(&self) -> ID;
     // Only traffic signals need UI. :\
-    fn draw(&self, g: &mut GfxCtx, ui: &UI, opts: &DrawOptions);
+    fn draw(&self, g: &mut GfxCtx, app: &App, opts: &DrawOptions);
     // Higher z-ordered objects are drawn later. Default to low so roads at -1 don't vanish.
     fn get_zorder(&self) -> isize {
         -5

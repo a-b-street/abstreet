@@ -1,8 +1,8 @@
+use crate::app::App;
 use crate::common::Colorer;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::managed::WrappedComposite;
-use crate::ui::UI;
 use ezgui::{Color, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Text};
 use map_model::{connectivity, LaneID, Map, PathConstraints};
 use std::collections::HashSet;
@@ -13,17 +13,17 @@ pub struct Floodfiller {
 }
 
 impl Floodfiller {
-    pub fn new(ctx: &mut EventCtx, ui: &UI) -> Option<Box<dyn State>> {
-        let map = &ui.primary.map;
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Option<Box<dyn State>> {
+        let map = &app.primary.map;
         let (reachable_lanes, unreachable_lanes, title) =
-            if let Some(ID::Lane(l)) = ui.primary.current_selection {
+            if let Some(ID::Lane(l)) = app.primary.current_selection {
                 let lt = map.get_l(l).lane_type;
                 if !lt.supports_any_movement() {
                     return None;
                 }
-                if ui.per_obj.action(ctx, Key::F, "floodfill from this lane") {
+                if app.per_obj.action(ctx, Key::F, "floodfill from this lane") {
                     find_reachable_from(l, map)
-                } else if ui
+                } else if app
                     .per_obj
                     .action(ctx, Key::S, "show strongly-connected components")
                 {
@@ -41,8 +41,8 @@ impl Floodfiller {
                 return None;
             };
 
-        let reachable_color = ui.cs.get_def("reachable lane", Color::GREEN);
-        let unreachable_color = ui.cs.get_def("unreachable lane", Color::RED);
+        let reachable_color = app.cs.get_def("reachable lane", Color::GREEN);
+        let unreachable_color = app.cs.get_def("unreachable lane", Color::RED);
 
         let mut colorer = Colorer::new(
             Text::from(Line("lane connectivity")),
@@ -67,15 +67,15 @@ impl Floodfiller {
                 vec![format!("{} unreachable lanes", num_unreachable)],
                 vec![],
             ),
-            colorer: colorer.build(ctx, ui),
+            colorer: colorer.build(ctx, app),
         }))
     }
 }
 
 impl State for Floodfiller {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if ctx.redo_mouseover() {
-            ui.recalculate_current_selection(ctx);
+            app.recalculate_current_selection(ctx);
         }
         ctx.canvas_movement();
 
@@ -92,7 +92,7 @@ impl State for Floodfiller {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.colorer.draw(g);
         self.composite.draw(g);
     }

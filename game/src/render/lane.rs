@@ -1,6 +1,6 @@
+use crate::app::App;
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{dashed_lines, DrawOptions, Renderable, OUTLINE_THICKNESS};
-use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
 use geom::{Angle, Distance, Line, PolyLine, Polygon, Pt2D};
@@ -165,7 +165,7 @@ impl Renderable for DrawLane {
         ID::Lane(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI, _: &DrawOptions) {
+    fn draw(&self, g: &mut GfxCtx, _: &App, _: &DrawOptions) {
         g.redraw(&self.draw_default);
     }
 

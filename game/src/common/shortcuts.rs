@@ -1,6 +1,6 @@
+use crate::app::App;
 use crate::common::Warping;
 use crate::game::{State, Transition, WizardState};
-use crate::ui::UI;
 use abstutil::{Cloneable, Timer};
 use ezgui::{Choice, EventCtx, Key, Wizard};
 use geom::{LonLat, Pt2D};
@@ -22,11 +22,11 @@ impl ChoosingShortcut {
     }
 }
 
-fn choose_shortcut(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+fn choose_shortcut(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
     let center = ctx
         .canvas
         .center_to_map_pt()
-        .forcibly_to_gps(&ui.primary.map.get_gps_bounds());
+        .forcibly_to_gps(&app.primary.map.get_gps_bounds());
     let cam_zoom = ctx.canvas.cam_zoom;
 
     let mut wizard = wiz.wrap(ctx);
@@ -40,13 +40,13 @@ fn choose_shortcut(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<
         let mut timer = Timer::new("load shortcuts");
         for name in abstutil::list_all_objects(abstutil::path_all_shortcuts()) {
             let s: Shortcut = abstutil::read_json(abstutil::path_shortcut(&name), &mut timer);
-            if ui
+            if app
                 .primary
                 .map
                 .get_boundary_polygon()
                 .contains_pt(Pt2D::forcibly_from_gps(
                     s.center,
-                    &ui.primary.map.get_gps_bounds(),
+                    &app.primary.map.get_gps_bounds(),
                 ))
             {
                 shortcuts.push(s);
@@ -75,10 +75,10 @@ fn choose_shortcut(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<
     } else {
         Some(Transition::Replace(Warping::new(
             ctx,
-            Pt2D::forcibly_from_gps(s.center, &ui.primary.map.get_gps_bounds()),
+            Pt2D::forcibly_from_gps(s.center, &app.primary.map.get_gps_bounds()),
             Some(s.cam_zoom),
             None,
-            &mut ui.primary,
+            &mut app.primary,
         )))
     }
 }

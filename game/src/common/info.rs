@@ -1,3 +1,4 @@
+use crate::app::App;
 use crate::colors;
 use crate::common::{ColorLegend, Warping};
 use crate::game::{msg, State, Transition, WizardState};
@@ -5,7 +6,6 @@ use crate::helpers::{rotating_color_map, ID};
 use crate::managed::WrappedComposite;
 use crate::render::{dashed_lines, Renderable, MIN_ZOOM_FOR_DETAIL};
 use crate::sandbox::{SandboxMode, SpeedControls};
-use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
     hotkey, Button, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
@@ -33,7 +33,7 @@ impl InfoPanel {
     pub fn new(
         id: ID,
         ctx: &mut EventCtx,
-        ui: &UI,
+        app: &App,
         mut actions: Vec<(Key, String)>,
         maybe_speed: Option<&mut SpeedControls>,
     ) -> InfoPanel {
@@ -65,7 +65,7 @@ impl InfoPanel {
             })
             .collect();
 
-        let mut col = info_for(ctx, ui, id.clone(), action_btns);
+        let mut col = info_for(ctx, app, id.clone(), action_btns);
 
         let trip_details = if let Some(trip) = match id {
             ID::Trip(t) => Some(t),
@@ -73,13 +73,13 @@ impl InfoPanel {
                 if c.1 == VehicleType::Bus {
                     None
                 } else {
-                    ui.primary.sim.agent_to_trip(AgentID::Car(c))
+                    app.primary.sim.agent_to_trip(AgentID::Car(c))
                 }
             }
-            ID::Pedestrian(p) => ui.primary.sim.agent_to_trip(AgentID::Pedestrian(p)),
+            ID::Pedestrian(p) => app.primary.sim.agent_to_trip(AgentID::Pedestrian(p)),
             _ => None,
         } {
-            let (rows, unzoomed, zoomed) = trip_details(trip, ctx, ui);
+            let (rows, unzoomed, zoomed) = trip_details(trip, ctx, app);
             col.push(rows);
             Some((trip, unzoomed, zoomed))
         } else {
@@ -91,17 +91,17 @@ impl InfoPanel {
         // TODO Should we pin to the trip, not the specific agent?
         if let Some(pt) = id
             .agent_id()
-            .and_then(|a| ui.primary.sim.canonical_pt_for_agent(a, &ui.primary.map))
+            .and_then(|a| app.primary.sim.canonical_pt_for_agent(a, &app.primary.map))
         {
             ctx.canvas.center_on_map_pt(pt);
         }
 
         let mut batch = GeomBatch::new();
         // TODO Handle transitions between peds and crowds better
-        if let Some(obj) = ui.primary.draw_map.get_obj(
+        if let Some(obj) = app.primary.draw_map.get_obj(
             id.clone(),
-            ui,
-            &mut ui.primary.draw_map.agents.borrow_mut(),
+            app,
+            &mut app.primary.draw_map.agents.borrow_mut(),
             ctx.prerender,
         ) {
             // Different selection styles for different objects.
@@ -121,14 +121,14 @@ impl InfoPanel {
                         _ => unreachable!(),
                     };
                     // Make a circle to cover the object.
-                    let bounds = obj.get_outline(&ui.primary.map).get_bounds();
+                    let bounds = obj.get_outline(&app.primary.map).get_bounds();
                     let radius = multiplier * Distance::meters(bounds.width().max(bounds.height()));
                     batch.push(
-                        ui.cs.get_def("current object", Color::WHITE).alpha(0.5),
+                        app.cs.get_def("current object", Color::WHITE).alpha(0.5),
                         Circle::new(bounds.center(), radius).to_polygon(),
                     );
                     batch.push(
-                        ui.cs.get("current object"),
+                        app.cs.get("current object"),
                         Circle::outline(bounds.center(), radius, Distance::meters(0.3)),
                     );
 
@@ -137,8 +137,8 @@ impl InfoPanel {
                 }
                 _ => {
                     batch.push(
-                        ui.cs.get_def("perma selected thing", Color::BLUE),
-                        obj.get_outline(&ui.primary.map),
+                        app.cs.get_def("perma selected thing", Color::BLUE),
+                        obj.get_outline(&app.primary.map),
                     );
                 }
             }
@@ -146,29 +146,29 @@ impl InfoPanel {
 
         // Show relationships between some objects
         if let ID::Car(c) = id {
-            if let Some(b) = ui.primary.sim.get_owner_of_car(c) {
+            if let Some(b) = app.primary.sim.get_owner_of_car(c) {
                 // TODO Mention this, with a warp tool
                 batch.push(
-                    ui.cs
+                    app.cs
                         .get_def("something associated with something else", Color::PURPLE),
-                    ui.primary.draw_map.get_b(b).get_outline(&ui.primary.map),
+                    app.primary.draw_map.get_b(b).get_outline(&app.primary.map),
                 );
             }
         }
         if let ID::Building(b) = id {
-            for p in ui.primary.sim.get_parked_cars_by_owner(b) {
+            for p in app.primary.sim.get_parked_cars_by_owner(b) {
                 batch.push(
-                    ui.cs.get("something associated with something else"),
-                    ui.primary
+                    app.cs.get("something associated with something else"),
+                    app.primary
                         .draw_map
                         .get_obj(
                             ID::Car(p.vehicle.id),
-                            ui,
-                            &mut ui.primary.draw_map.agents.borrow_mut(),
+                            app,
+                            &mut app.primary.draw_map.agents.borrow_mut(),
                             ctx.prerender,
                         )
                         .unwrap()
-                        .get_outline(&ui.primary.map),
+                        .get_outline(&app.primary.map),
                 );
             }
         }
@@ -177,7 +177,7 @@ impl InfoPanel {
             id,
             actions,
             trip_details,
-            time: ui.primary.sim.time(),
+            time: app.primary.sim.time(),
             composite: Composite::new(ManagedWidget::col(col).bg(colors::PANEL_BG).padding(10))
                 .aligned(
                     HorizontalAlignment::Percent(0.02),
@@ -193,29 +193,29 @@ impl InfoPanel {
     pub fn event(
         &mut self,
         ctx: &mut EventCtx,
-        ui: &mut UI,
+        app: &mut App,
         maybe_speed: Option<&mut SpeedControls>,
     ) -> (bool, Option<Transition>) {
         // Can click on the map to cancel
         if ctx.canvas.get_cursor_in_map_space().is_some()
-            && ui.primary.current_selection.is_none()
-            && ui.per_obj.left_click(ctx, "stop showing info")
+            && app.primary.current_selection.is_none()
+            && app.per_obj.left_click(ctx, "stop showing info")
         {
             return (true, None);
         }
 
         // Live update?
-        if ui.primary.sim.time() != self.time {
+        if app.primary.sim.time() != self.time {
             if let Some(a) = self.id.agent_id() {
                 if let Some((trip, _, _)) = self.trip_details {
-                    match ui.primary.sim.trip_to_agent(trip) {
+                    match app.primary.sim.trip_to_agent(trip) {
                         TripResult::Ok(a2) => {
                             if a != a2 {
-                                if !ui.primary.sim.does_agent_exist(a) {
+                                if !app.primary.sim.does_agent_exist(a) {
                                     *self = InfoPanel::new(
                                         ID::from_agent(a2),
                                         ctx,
-                                        ui,
+                                        app,
                                         Vec::new(),
                                         maybe_speed,
                                     );
@@ -237,7 +237,7 @@ impl InfoPanel {
                         }
                         TripResult::TripDone => {
                             *self =
-                                InfoPanel::new(ID::Trip(trip), ctx, ui, Vec::new(), maybe_speed);
+                                InfoPanel::new(ID::Trip(trip), ctx, app, Vec::new(), maybe_speed);
                             return (
                                 false,
                                 Some(Transition::Push(msg(
@@ -258,7 +258,7 @@ impl InfoPanel {
             // TODO Detect crowds changing here maybe
 
             let preserve_scroll = self.composite.preserve_scroll();
-            *self = InfoPanel::new(self.id.clone(), ctx, ui, self.actions.clone(), maybe_speed);
+            *self = InfoPanel::new(self.id.clone(), ctx, app, self.actions.clone(), maybe_speed);
             self.composite.restore_scroll(ctx, preserve_scroll);
             return (false, None);
         }
@@ -272,17 +272,17 @@ impl InfoPanel {
                         false,
                         Some(Transition::Push(Warping::new(
                             ctx,
-                            self.id.canonical_point(&ui.primary).unwrap(),
+                            self.id.canonical_point(&app.primary).unwrap(),
                             Some(10.0),
                             Some(self.id.clone()),
-                            &mut ui.primary,
+                            &mut app.primary,
                         ))),
                     );
                 } else if action == "follow agent" {
                     maybe_speed.unwrap().resume_realtime(ctx);
                     return (false, None);
                 } else {
-                    ui.primary.current_selection = Some(self.id.clone());
+                    app.primary.current_selection = Some(self.id.clone());
                     return (true, Some(Transition::ApplyObjectAction(action)));
                 }
             }
@@ -305,11 +305,11 @@ impl InfoPanel {
 
 fn info_for(
     ctx: &EventCtx,
-    ui: &UI,
+    app: &App,
     id: ID,
     action_btns: Vec<ManagedWidget>,
 ) -> Vec<ManagedWidget> {
-    let (map, sim, draw_map) = (&ui.primary.map, &ui.primary.sim, &ui.primary.draw_map);
+    let (map, sim, draw_map) = (&app.primary.map, &app.primary.sim, &app.primary.draw_map);
     let header_btns = ManagedWidget::row(vec![
         ManagedWidget::btn(Button::rectangle_svg(
             "../data/system/assets/tools/locate.svg",
@@ -366,7 +366,7 @@ fn info_for(
 
                 kv.push(("Length".to_string(), l.length().describe_rounded()));
 
-                if ui.opts.dev {
+                if app.opts.dev {
                     kv.push(("Parent".to_string(), r.id.to_string()));
 
                     if l.is_driving() {
@@ -406,10 +406,10 @@ fn info_for(
 
                 rows.push(
                     road_throughput(
-                        ui.primary.map.get_l(id).parent,
+                        app.primary.map.get_l(id).parent,
                         Duration::minutes(20),
                         ctx,
-                        ui,
+                        app,
                     )
                     .margin(10),
                 );
@@ -469,15 +469,15 @@ fn info_for(
             txt.add(Line(format!("In 20 minute buckets:")));
             rows.push(ManagedWidget::draw_text(ctx, txt));
 
-            rows.push(intersection_throughput(id, Duration::minutes(20), ctx, ui).margin(10));
+            rows.push(intersection_throughput(id, Duration::minutes(20), ctx, app).margin(10));
 
-            if ui.primary.map.get_i(id).is_traffic_signal() {
+            if app.primary.map.get_i(id).is_traffic_signal() {
                 let mut txt = Text::from(Line(""));
                 txt.add(Line("Delay").roboto_bold());
                 txt.add(Line(format!("In 20 minute buckets:")));
                 rows.push(ManagedWidget::draw_text(ctx, txt));
 
-                rows.push(intersection_delay(id, Duration::minutes(20), ctx, ui).margin(10));
+                rows.push(intersection_delay(id, Duration::minutes(20), ctx, app).margin(10));
             }
         }
         ID::Turn(_) => unreachable!(),
@@ -514,7 +514,7 @@ fn info_for(
                     kv.push(("Parking".to_string(), "None".to_string()));
                 }
 
-                if ui.opts.dev {
+                if app.opts.dev {
                     kv.push((
                         "Dist along sidewalk".to_string(),
                         b.front_path.sidewalk.dist_along().to_string(),
@@ -645,7 +645,7 @@ fn info_for(
             let mut txt = Text::new();
             txt.add(Line(format!(
                 "On {}",
-                ui.primary.map.get_parent(id.sidewalk).get_name()
+                app.primary.map.get_parent(id.sidewalk).get_name()
             )));
             let all_arrivals = &sim.get_analytics().bus_arrivals;
             for r in map.get_routes_serving_stop(id) {
@@ -761,18 +761,18 @@ fn intersection_throughput(
     i: IntersectionID,
     bucket: Duration,
     ctx: &EventCtx,
-    ui: &UI,
+    app: &App,
 ) -> ManagedWidget {
     Plot::new_usize(
         ctx,
-        ui.primary
+        app.primary
             .sim
             .get_analytics()
-            .throughput_intersection(ui.primary.sim.time(), i, bucket)
+            .throughput_intersection(app.primary.sim.time(), i, bucket)
             .into_iter()
             .map(|(m, pts)| Series {
                 label: m.to_string(),
-                color: color_for_mode(m, ui),
+                color: color_for_mode(m, app),
                 pts,
             })
             .collect(),
@@ -780,17 +780,17 @@ fn intersection_throughput(
     )
 }
 
-fn road_throughput(r: RoadID, bucket: Duration, ctx: &EventCtx, ui: &UI) -> ManagedWidget {
+fn road_throughput(r: RoadID, bucket: Duration, ctx: &EventCtx, app: &App) -> ManagedWidget {
     Plot::new_usize(
         ctx,
-        ui.primary
+        app.primary
             .sim
             .get_analytics()
-            .throughput_road(ui.primary.sim.time(), r, bucket)
+            .throughput_road(app.primary.sim.time(), r, bucket)
             .into_iter()
             .map(|(m, pts)| Series {
                 label: m.to_string(),
-                color: color_for_mode(m, ui),
+                color: color_for_mode(m, app),
                 pts,
             })
             .collect(),
@@ -802,17 +802,17 @@ fn intersection_delay(
     i: IntersectionID,
     bucket: Duration,
     ctx: &EventCtx,
-    ui: &UI,
+    app: &App,
 ) -> ManagedWidget {
     let mut series: Vec<(Statistic, Vec<(Time, Duration)>)> = Statistic::all()
         .into_iter()
         .map(|stat| (stat, Vec::new()))
         .collect();
-    for (t, distrib) in ui
+    for (t, distrib) in app
         .primary
         .sim
         .get_analytics()
-        .intersection_delays_bucketized(ui.primary.sim.time(), i, bucket)
+        .intersection_delays_bucketized(app.primary.sim.time(), i, bucket)
     {
         for (stat, pts) in series.iter_mut() {
             if distrib.count() == 0 {
@@ -838,20 +838,24 @@ fn intersection_delay(
     )
 }
 
-fn color_for_mode(m: TripMode, ui: &UI) -> Color {
+fn color_for_mode(m: TripMode, app: &App) -> Color {
     match m {
-        TripMode::Walk => ui.cs.get("unzoomed pedestrian"),
-        TripMode::Bike => ui.cs.get("unzoomed bike"),
-        TripMode::Transit => ui.cs.get("unzoomed bus"),
-        TripMode::Drive => ui.cs.get("unzoomed car"),
+        TripMode::Walk => app.cs.get("unzoomed pedestrian"),
+        TripMode::Bike => app.cs.get("unzoomed bike"),
+        TripMode::Transit => app.cs.get("unzoomed bus"),
+        TripMode::Drive => app.cs.get("unzoomed car"),
     }
 }
 
 // (extra rows to display, unzoomed view, zoomed view)
-fn trip_details(trip: TripID, ctx: &mut EventCtx, ui: &UI) -> (ManagedWidget, Drawable, Drawable) {
-    let map = &ui.primary.map;
-    let phases = ui.primary.sim.get_analytics().get_trip_phases(trip, map);
-    let (trip_start, trip_end) = ui.primary.sim.trip_endpoints(trip);
+fn trip_details(
+    trip: TripID,
+    ctx: &mut EventCtx,
+    app: &App,
+) -> (ManagedWidget, Drawable, Drawable) {
+    let map = &app.primary.map;
+    let phases = app.primary.sim.get_analytics().get_trip_phases(trip, map);
+    let (trip_start, trip_end) = app.primary.sim.trip_endpoints(trip);
 
     let mut col = vec![ManagedWidget::draw_text(ctx, {
         let mut txt = Text::from(Line(""));
@@ -887,7 +891,7 @@ fn trip_details(trip: TripID, ctx: &mut EventCtx, ui: &UI) -> (ManagedWidget, Dr
                     format!(
                         "{}: start at {}",
                         phases[0].start_time.ampm_tostring(),
-                        i.name(&ui.primary.map),
+                        i.name(&app.primary.map),
                     ),
                 ));
                 unzoomed.push(color, i.polygon.clone());
@@ -914,7 +918,7 @@ fn trip_details(trip: TripID, ctx: &mut EventCtx, ui: &UI) -> (ManagedWidget, Dr
             if let Some(trace) = path.trace(map, dist, None) {
                 unzoomed.push(color, trace.make_polygons(Distance::meters(10.0)));
                 zoomed.extend(
-                    ui.cs.get_def("route", Color::ORANGE.alpha(0.5)),
+                    app.cs.get_def("route", Color::ORANGE.alpha(0.5)),
                     dashed_lines(
                         &trace,
                         Distance::meters(0.75),
@@ -951,7 +955,7 @@ fn trip_details(trip: TripID, ctx: &mut EventCtx, ui: &UI) -> (ManagedWidget, Dr
                 col.push(ColorLegend::row(
                     ctx,
                     color,
-                    format!("{}end at {}", time, i.name(&ui.primary.map)),
+                    format!("{}end at {}", time, i.name(&app.primary.map)),
                 ));
                 unzoomed.push(color, i.polygon.clone());
                 zoomed.push(color, i.polygon.clone());
@@ -983,7 +987,7 @@ fn trip_transition(from: AgentID, to: AgentID) -> Box<dyn State> {
         } else {
             ID::from_agent(to)
         };
-        Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
+        Some(Transition::PopWithData(Box::new(move |state, app, ctx| {
             state
                 .downcast_mut::<SandboxMode>()
                 .unwrap()
@@ -991,7 +995,7 @@ fn trip_transition(from: AgentID, to: AgentID) -> Box<dyn State> {
                 .common
                 .as_mut()
                 .unwrap()
-                .launch_info_panel(id, ctx, ui);
+                .launch_info_panel(id, ctx, app);
         })))
     }))
 }

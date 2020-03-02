@@ -1,3 +1,4 @@
+use crate::app::App;
 use crate::colors;
 use crate::common::ShowBusRoute;
 use crate::game::{State, Transition};
@@ -5,7 +6,6 @@ use crate::helpers::ID;
 use crate::helpers::{cmp_count_fewer, cmp_count_more, cmp_duration_shorter};
 use crate::managed::{Callback, ManagedGUIState, WrappedComposite};
 use crate::sandbox::SandboxMode;
-use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use abstutil::Counter;
 use ezgui::{
@@ -26,7 +26,7 @@ pub enum Tab {
 }
 
 // Oh the dashboards melted, but we still had the radio
-pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
+pub fn make(ctx: &mut EventCtx, app: &App, tab: Tab) -> Box<dyn State> {
     let tab_data = vec![
         (Tab::TripsSummary, "Trips summary"),
         (
@@ -50,11 +50,11 @@ pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
         .collect::<Vec<_>>();
 
     let (content, cbs) = match tab {
-        Tab::TripsSummary => (trips_summary_prebaked(ctx, ui), Vec::new()),
+        Tab::TripsSummary => (trips_summary_prebaked(ctx, app), Vec::new()),
         Tab::IndividualFinishedTrips(None) => pick_finished_trips_mode(ctx),
-        Tab::IndividualFinishedTrips(Some(m)) => pick_finished_trips(m, ctx, ui),
-        Tab::ParkingOverhead => (parking_overhead(ctx, ui), Vec::new()),
-        Tab::ExploreBusRoute => pick_bus_route(ctx, ui),
+        Tab::IndividualFinishedTrips(Some(m)) => pick_finished_trips(m, ctx, app),
+        Tab::ParkingOverhead => (parking_overhead(ctx, app), Vec::new()),
+        Tab::ExploreBusRoute => pick_bus_route(ctx, app),
     };
 
     let mut c = WrappedComposite::new(
@@ -80,7 +80,7 @@ pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
         if t != tab {
             c = c.cb(
                 label,
-                Box::new(move |ctx, ui| Some(Transition::Replace(make(ctx, ui, t)))),
+                Box::new(move |ctx, app| Some(Transition::Replace(make(ctx, app, t)))),
             );
         }
     }
@@ -91,24 +91,24 @@ pub fn make(ctx: &mut EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
     ManagedGUIState::fullscreen(c)
 }
 
-fn trips_summary_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
-    if ui.has_prebaked().is_none() {
-        return trips_summary_not_prebaked(ctx, ui);
+fn trips_summary_prebaked(ctx: &EventCtx, app: &App) -> ManagedWidget {
+    if app.has_prebaked().is_none() {
+        return trips_summary_not_prebaked(ctx, app);
     }
 
-    let (now_all, now_aborted, now_per_mode) = ui
+    let (now_all, now_aborted, now_per_mode) = app
         .primary
         .sim
         .get_analytics()
-        .trip_times(ui.primary.sim.time());
+        .trip_times(app.primary.sim.time());
     let (baseline_all, baseline_aborted, baseline_per_mode) =
-        ui.prebaked().trip_times(ui.primary.sim.time());
+        app.prebaked().trip_times(app.primary.sim.time());
 
     // TODO Include unfinished count
     let mut txt = Text::new();
     txt.add_appended(vec![
         Line("Trips as of "),
-        Line(ui.primary.sim.time().ampm_tostring()).roboto_bold(),
+        Line(app.primary.sim.time().ampm_tostring()).roboto_bold(),
     ]);
     txt.highlight_last_line(Color::BLUE);
     txt.add_appended(vec![
@@ -160,16 +160,16 @@ fn trips_summary_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
 
     ManagedWidget::col(vec![
         ManagedWidget::draw_text(ctx, txt),
-        finished_trips_plot(ctx, ui).bg(colors::SECTION_BG),
+        finished_trips_plot(ctx, app).bg(colors::SECTION_BG),
         ManagedWidget::draw_text(
             ctx,
             Text::from(Line("Are trips faster or slower than the baseline?")),
         ),
         Histogram::new(
-            ui.primary
+            app.primary
                 .sim
                 .get_analytics()
-                .trip_time_deltas(ui.primary.sim.time(), ui.prebaked()),
+                .trip_time_deltas(app.primary.sim.time(), app.prebaked()),
             ctx,
         )
         .bg(colors::SECTION_BG),
@@ -180,16 +180,16 @@ fn trips_summary_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
                 Series {
                     label: "Baseline".to_string(),
                     color: Color::BLUE.alpha(0.5),
-                    pts: ui.prebaked().active_agents(Time::END_OF_DAY),
+                    pts: app.prebaked().active_agents(Time::END_OF_DAY),
                 },
                 Series {
                     label: "Current simulation".to_string(),
                     color: Color::RED,
-                    pts: ui
+                    pts: app
                         .primary
                         .sim
                         .get_analytics()
-                        .active_agents(ui.primary.sim.time()),
+                        .active_agents(app.primary.sim.time()),
                 },
             ],
             PlotOptions::new(),
@@ -197,18 +197,18 @@ fn trips_summary_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
     ])
 }
 
-fn trips_summary_not_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
-    let (all, aborted, per_mode) = ui
+fn trips_summary_not_prebaked(ctx: &EventCtx, app: &App) -> ManagedWidget {
+    let (all, aborted, per_mode) = app
         .primary
         .sim
         .get_analytics()
-        .trip_times(ui.primary.sim.time());
+        .trip_times(app.primary.sim.time());
 
     // TODO Include unfinished count
     let mut txt = Text::new();
     txt.add_appended(vec![
         Line("Trips as of "),
-        Line(ui.primary.sim.time().ampm_tostring()).roboto_bold(),
+        Line(app.primary.sim.time().ampm_tostring()).roboto_bold(),
     ]);
     txt.highlight_last_line(Color::BLUE);
     txt.add(Line(format!(
@@ -242,28 +242,28 @@ fn trips_summary_not_prebaked(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
 
     ManagedWidget::col(vec![
         ManagedWidget::draw_text(ctx, txt),
-        finished_trips_plot(ctx, ui).bg(colors::SECTION_BG),
+        finished_trips_plot(ctx, app).bg(colors::SECTION_BG),
         ManagedWidget::draw_text(ctx, Text::from(Line("Active agents").roboto_bold())),
         Plot::new_usize(
             ctx,
             vec![Series {
                 label: "Active agents".to_string(),
                 color: Color::RED,
-                pts: ui
+                pts: app
                     .primary
                     .sim
                     .get_analytics()
-                    .active_agents(ui.primary.sim.time()),
+                    .active_agents(app.primary.sim.time()),
             }],
             PlotOptions::new(),
         ),
     ])
 }
 
-fn finished_trips_plot(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
+fn finished_trips_plot(ctx: &EventCtx, app: &App) -> ManagedWidget {
     let mut lines: Vec<(String, Color, Option<TripMode>)> = TripMode::all()
         .into_iter()
-        .map(|m| (m.to_string(), color_for_mode(m, ui), Some(m)))
+        .map(|m| (m.to_string(), color_for_mode(m, app), Some(m)))
         .collect();
     lines.push(("aborted".to_string(), Color::PURPLE.alpha(0.5), None));
 
@@ -272,7 +272,7 @@ fn finished_trips_plot(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
     let mut times = Vec::new();
     for i in 0..num_x_pts {
         let percent_x = (i as f64) / ((num_x_pts - 1) as f64);
-        let t = ui.primary.sim.time().percent_of(percent_x);
+        let t = app.primary.sim.time().percent_of(percent_x);
         times.push(t);
     }
 
@@ -280,7 +280,7 @@ fn finished_trips_plot(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
     let mut counts = Counter::new();
     let mut pts_per_mode: BTreeMap<Option<TripMode>, Vec<(Time, usize)>> =
         lines.iter().map(|(_, _, m)| (*m, Vec::new())).collect();
-    for (t, _, m, _) in &ui.primary.sim.get_analytics().finished_trips {
+    for (t, _, m, _) in &app.primary.sim.get_analytics().finished_trips {
         counts.inc(*m);
         if *t > times[0] {
             times.remove(0);
@@ -297,7 +297,7 @@ fn finished_trips_plot(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
         pts_per_mode
             .get_mut(mode)
             .unwrap()
-            .push((ui.primary.sim.time(), counts.get(*mode)));
+            .push((app.primary.sim.time(), counts.get(*mode)));
     }
 
     let plot = Plot::new_usize(
@@ -326,10 +326,10 @@ fn pick_finished_trips_mode(ctx: &EventCtx) -> (ManagedWidget, Vec<(String, Call
         buttons.push(WrappedComposite::text_button(ctx, &mode.to_string(), None));
         cbs.push((
             mode.to_string(),
-            Box::new(move |ctx, ui| {
+            Box::new(move |ctx, app| {
                 Some(Transition::Replace(make(
                     ctx,
-                    ui,
+                    app,
                     Tab::IndividualFinishedTrips(Some(mode)),
                 )))
             }),
@@ -342,12 +342,12 @@ fn pick_finished_trips_mode(ctx: &EventCtx) -> (ManagedWidget, Vec<(String, Call
 fn pick_finished_trips(
     mode: TripMode,
     ctx: &EventCtx,
-    ui: &UI,
+    app: &App,
 ) -> (ManagedWidget, Vec<(String, Callback)>) {
     let mut buttons = Vec::new();
     let mut cbs: Vec<(String, Callback)> = Vec::new();
 
-    let mut filtered: Vec<&(Time, TripID, Option<TripMode>, Duration)> = ui
+    let mut filtered: Vec<&(Time, TripID, Option<TripMode>, Duration)> = app
         .primary
         .sim
         .get_analytics()
@@ -364,7 +364,7 @@ fn pick_finished_trips(
         cbs.push((
             label,
             Box::new(move |_, _| {
-                Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
+                Some(Transition::PopWithData(Box::new(move |state, app, ctx| {
                     state
                         .downcast_mut::<SandboxMode>()
                         .unwrap()
@@ -372,7 +372,7 @@ fn pick_finished_trips(
                         .common
                         .as_mut()
                         .unwrap()
-                        .launch_info_panel(ID::Trip(trip), ctx, ui);
+                        .launch_info_panel(ID::Trip(trip), ctx, app);
                 })))
             }),
         ));
@@ -391,19 +391,19 @@ fn pick_finished_trips(
     )
 }
 
-fn parking_overhead(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
+fn parking_overhead(ctx: &EventCtx, app: &App) -> ManagedWidget {
     let mut txt = Text::new();
-    for line in ui.primary.sim.get_analytics().analyze_parking_phases() {
+    for line in app.primary.sim.get_analytics().analyze_parking_phases() {
         txt.add_wrapped(line, 0.9 * ctx.canvas.window_width);
     }
     ManagedWidget::draw_text(ctx, txt)
 }
 
-fn pick_bus_route(ctx: &EventCtx, ui: &UI) -> (ManagedWidget, Vec<(String, Callback)>) {
+fn pick_bus_route(ctx: &EventCtx, app: &App) -> (ManagedWidget, Vec<(String, Callback)>) {
     let mut buttons = Vec::new();
     let mut cbs: Vec<(String, Callback)> = Vec::new();
 
-    let mut routes: Vec<(&String, BusRouteID)> = ui
+    let mut routes: Vec<(&String, BusRouteID)> = app
         .primary
         .map
         .get_all_bus_routes()
@@ -430,11 +430,11 @@ fn pick_bus_route(ctx: &EventCtx, ui: &UI) -> (ManagedWidget, Vec<(String, Callb
 }
 
 // TODO Refactor
-fn color_for_mode(m: TripMode, ui: &UI) -> Color {
+fn color_for_mode(m: TripMode, app: &App) -> Color {
     match m {
-        TripMode::Walk => ui.cs.get("unzoomed pedestrian"),
-        TripMode::Bike => ui.cs.get("unzoomed bike"),
-        TripMode::Transit => ui.cs.get("unzoomed bus"),
-        TripMode::Drive => ui.cs.get("unzoomed car"),
+        TripMode::Walk => app.cs.get("unzoomed pedestrian"),
+        TripMode::Bike => app.cs.get("unzoomed bike"),
+        TripMode::Transit => app.cs.get("unzoomed bus"),
+        TripMode::Drive => app.cs.get("unzoomed car"),
     }
 }

@@ -1,10 +1,10 @@
+use crate::app::App;
 use crate::colors;
 use crate::common::CommonState;
 use crate::edit::{apply_map_edits, close_intersection, TrafficSignalEditor};
 use crate::game::{State, Transition};
 use crate::managed::WrappedComposite;
 use crate::render::DrawIntersection;
-use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{
     hotkey, Button, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
@@ -33,11 +33,11 @@ impl StopSignEditor {
     pub fn new(
         id: IntersectionID,
         ctx: &mut EventCtx,
-        ui: &mut UI,
+        app: &mut App,
         suspended_sim: Sim,
     ) -> StopSignEditor {
-        ui.primary.current_selection = None;
-        let geom = ui
+        app.primary.current_selection = None;
+        let geom = app
             .primary
             .map
             .get_stop_sign(id)
@@ -45,7 +45,7 @@ impl StopSignEditor {
             .iter()
             .map(|(r, ss)| {
                 let (octagon, pole) =
-                    DrawIntersection::stop_sign_geom(ss, &ui.primary.map).unwrap();
+                    DrawIntersection::stop_sign_geom(ss, &app.primary.map).unwrap();
                 (*r, (octagon, pole))
             })
             .collect();
@@ -53,8 +53,8 @@ impl StopSignEditor {
         let composite = Composite::new(
             ManagedWidget::col(vec![
                 ManagedWidget::draw_text(ctx, Text::from(Line("Stop sign editor"))),
-                if ControlStopSign::new(&ui.primary.map, id)
-                    != ui.primary.map.get_stop_sign(id).clone()
+                if ControlStopSign::new(&app.primary.map, id)
+                    != app.primary.map.get_stop_sign(id).clone()
                 {
                     WrappedComposite::text_button(ctx, "reset to default", hotkey(Key::R))
                 } else {
@@ -81,7 +81,7 @@ impl StopSignEditor {
 }
 
 impl State for StopSignEditor {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
         if ctx.redo_mouseover() {
@@ -97,26 +97,26 @@ impl State for StopSignEditor {
         }
 
         if let Some(r) = self.selected_sign {
-            let mut sign = ui.primary.map.get_stop_sign(self.id).clone();
+            let mut sign = app.primary.map.get_stop_sign(self.id).clone();
             let label = if sign.roads[&r].must_stop {
                 "remove stop sign"
             } else {
                 "add stop sign"
             };
-            if ui.per_obj.left_click(ctx, label) {
+            if app.per_obj.left_click(ctx, label) {
                 sign.flip_sign(r);
 
-                let mut edits = ui.primary.map.get_edits().clone();
+                let mut edits = app.primary.map.get_edits().clone();
                 edits.commands.push(EditCmd::ChangeIntersection {
                     i: self.id,
-                    old: ui.primary.map.get_i_edit(self.id),
+                    old: app.primary.map.get_i_edit(self.id),
                     new: EditIntersection::StopSign(sign),
                 });
-                apply_map_edits(ctx, ui, edits);
+                apply_map_edits(ctx, app, edits);
                 return Transition::Replace(Box::new(StopSignEditor::new(
                     self.id,
                     ctx,
-                    ui,
+                    app,
                     self.suspended_sim.clone(),
                 )));
             }
@@ -128,42 +128,42 @@ impl State for StopSignEditor {
                     return Transition::Pop;
                 }
                 "reset to default" => {
-                    let mut edits = ui.primary.map.get_edits().clone();
+                    let mut edits = app.primary.map.get_edits().clone();
                     edits.commands.push(EditCmd::ChangeIntersection {
                         i: self.id,
-                        old: ui.primary.map.get_i_edit(self.id),
+                        old: app.primary.map.get_i_edit(self.id),
                         new: EditIntersection::StopSign(ControlStopSign::new(
-                            &ui.primary.map,
+                            &app.primary.map,
                             self.id,
                         )),
                     });
-                    apply_map_edits(ctx, ui, edits);
+                    apply_map_edits(ctx, app, edits);
                     return Transition::Replace(Box::new(StopSignEditor::new(
                         self.id,
                         ctx,
-                        ui,
+                        app,
                         self.suspended_sim.clone(),
                     )));
                 }
                 "close intersection for construction" => {
-                    return close_intersection(ctx, ui, self.id, true);
+                    return close_intersection(ctx, app, self.id, true);
                 }
                 "convert to traffic signal" => {
-                    let mut edits = ui.primary.map.get_edits().clone();
+                    let mut edits = app.primary.map.get_edits().clone();
                     edits.commands.push(EditCmd::ChangeIntersection {
                         i: self.id,
-                        old: ui.primary.map.get_i_edit(self.id),
+                        old: app.primary.map.get_i_edit(self.id),
                         new: EditIntersection::TrafficSignal(ControlTrafficSignal::new(
-                            &ui.primary.map,
+                            &app.primary.map,
                             self.id,
                             &mut Timer::throwaway(),
                         )),
                     });
-                    apply_map_edits(ctx, ui, edits);
+                    apply_map_edits(ctx, app, edits);
                     return Transition::Replace(Box::new(TrafficSignalEditor::new(
                         self.id,
                         ctx,
-                        ui,
+                        app,
                         self.suspended_sim.clone(),
                     )));
                 }
@@ -174,8 +174,8 @@ impl State for StopSignEditor {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        let map = &ui.primary.map;
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        let map = &app.primary.map;
         let sign = map.get_stop_sign(self.id);
 
         let mut batch = GeomBatch::new();
@@ -184,18 +184,18 @@ impl State for StopSignEditor {
             // The intersection will already draw enabled stop signs
             if Some(*r) == self.selected_sign {
                 batch.push(
-                    ui.cs.get_def("selected stop sign", Color::BLUE),
+                    app.cs.get_def("selected stop sign", Color::BLUE),
                     octagon.clone(),
                 );
                 if !sign.roads[r].must_stop {
-                    batch.push(ui.cs.get("stop sign pole").alpha(0.6), pole.clone());
+                    batch.push(app.cs.get("stop sign pole").alpha(0.6), pole.clone());
                 }
             } else if !sign.roads[r].must_stop {
                 batch.push(
-                    ui.cs.get("stop sign on side of road").alpha(0.6),
+                    app.cs.get("stop sign on side of road").alpha(0.6),
                     octagon.clone(),
                 );
-                batch.push(ui.cs.get("stop sign pole").alpha(0.6), pole.clone());
+                batch.push(app.cs.get("stop sign pole").alpha(0.6), pole.clone());
             }
         }
 
@@ -206,11 +206,11 @@ impl State for StopSignEditor {
             let mut osd = Text::new();
             osd.add_appended(vec![
                 Line("Stop sign for "),
-                Line(ui.primary.map.get_r(r).get_name()).fg(ui.cs.get("OSD name color")),
+                Line(app.primary.map.get_r(r).get_name()).fg(app.cs.get("OSD name color")),
             ]);
-            CommonState::draw_custom_osd(g, ui, osd);
+            CommonState::draw_custom_osd(g, app, osd);
         } else {
-            CommonState::draw_osd(g, ui, &None);
+            CommonState::draw_osd(g, app, &None);
         }
     }
 }

@@ -1,8 +1,8 @@
+use crate::app::App;
 use crate::colors;
 use crate::game::{State, Transition};
 use crate::managed::{Callback, ManagedGUIState, WrappedComposite};
 use crate::sandbox::{GameplayMode, SandboxMode, TutorialState};
-use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{hotkey, Button, Color, Composite, EventCtx, Key, Line, ManagedWidget, Text};
 use geom::{Duration, Time};
@@ -124,8 +124,8 @@ pub fn all_challenges(dev: bool) -> BTreeMap<String, Vec<Challenge>> {
     tree
 }
 
-pub fn challenges_picker(ctx: &mut EventCtx, ui: &mut UI) -> Box<dyn State> {
-    Tab::NothingChosen.make(ctx, ui)
+pub fn challenges_picker(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
+    Tab::NothingChosen.make(ctx, app)
 }
 
 enum Tab {
@@ -134,7 +134,7 @@ enum Tab {
 }
 
 impl Tab {
-    fn make(self, ctx: &mut EventCtx, ui: &mut UI) -> Box<dyn State> {
+    fn make(self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
         let mut master_col = Vec::new();
         let mut cbs: Vec<(String, Callback)> = Vec::new();
 
@@ -155,7 +155,7 @@ impl Tab {
 
         // First list challenges
         let mut flex_row = Vec::new();
-        for (idx, (name, _)) in all_challenges(ui.opts.dev).into_iter().enumerate() {
+        for (idx, (name, _)) in all_challenges(app.opts.dev).into_iter().enumerate() {
             let current = match self {
                 Tab::NothingChosen => false,
                 Tab::ChallengeStage(ref n, _) => &name == n,
@@ -169,9 +169,9 @@ impl Tab {
                 );
                 cbs.push((
                     name.clone(),
-                    Box::new(move |ctx, ui| {
+                    Box::new(move |ctx, app| {
                         Some(Transition::Replace(
-                            Tab::ChallengeStage(name.clone(), 0).make(ctx, ui),
+                            Tab::ChallengeStage(name.clone(), 0).make(ctx, app),
                         ))
                     }),
                 ));
@@ -191,7 +191,7 @@ impl Tab {
         // List stages
         if let Tab::ChallengeStage(ref name, current) = self {
             let mut col = Vec::new();
-            for (idx, stage) in all_challenges(ui.opts.dev)
+            for (idx, stage) in all_challenges(app.opts.dev)
                 .remove(name)
                 .unwrap()
                 .into_iter()
@@ -204,9 +204,9 @@ impl Tab {
                     let name = name.to_string();
                     cbs.push((
                         stage.title,
-                        Box::new(move |ctx, ui| {
+                        Box::new(move |ctx, app| {
                             Some(Transition::Replace(
-                                Tab::ChallengeStage(name.clone(), idx).make(ctx, ui),
+                                Tab::ChallengeStage(name.clone(), idx).make(ctx, app),
                             ))
                         }),
                     ));
@@ -223,7 +223,7 @@ impl Tab {
 
         // Describe the specific stage
         if let Tab::ChallengeStage(ref name, current) = self {
-            let challenge = all_challenges(ui.opts.dev)
+            let challenge = all_challenges(app.opts.dev)
                 .remove(name)
                 .unwrap()
                 .remove(current);
@@ -243,10 +243,10 @@ impl Tab {
             );
             cbs.push((
                 "Start!".to_string(),
-                Box::new(move |ctx, ui| {
+                Box::new(move |ctx, app| {
                     Some(Transition::Replace(Box::new(SandboxMode::new(
                         ctx,
-                        ui,
+                        app,
                         challenge.gameplay.clone(),
                     ))))
                 }),

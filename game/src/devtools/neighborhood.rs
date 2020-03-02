@@ -1,7 +1,7 @@
+use crate::app::App;
 use crate::common::CommonState;
 use crate::game::{State, Transition};
 use crate::managed::WrappedComposite;
-use crate::ui::UI;
 use ezgui::{
     hotkey, Choice, Color, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Text, Wizard,
     WrappedWizard,
@@ -25,10 +25,10 @@ impl NeighborhoodPicker {
 }
 
 impl State for NeighborhoodPicker {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
-        if let Some(n) = pick_neighborhood(&ui.primary.map, self.wizard.wrap(ctx)) {
+        if let Some(n) = pick_neighborhood(&app.primary.map, self.wizard.wrap(ctx)) {
             self.wizard = Wizard::new();
             return Transition::Push(Box::new(NeighborhoodEditor {
                 composite: WrappedComposite::quick_menu(
@@ -50,14 +50,14 @@ impl State for NeighborhoodPicker {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         // TODO is this order wrong?
         self.wizard.draw(g);
         if let Some(neighborhood) = self.wizard.current_menu_choice::<NeighborhoodBuilder>() {
             g.draw_polygon(
-                ui.cs.get("neighborhood polygon"),
+                app.cs.get("neighborhood polygon"),
                 &Polygon::new(
-                    &ui.primary
+                    &app.primary
                         .map
                         .get_gps_bounds()
                         .must_convert(&neighborhood.points),
@@ -75,8 +75,8 @@ struct NeighborhoodEditor {
 }
 
 impl State for NeighborhoodEditor {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        let gps_bounds = ui.primary.map.get_gps_bounds();
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        let gps_bounds = app.primary.map.get_gps_bounds();
 
         ctx.canvas_movement();
 
@@ -139,7 +139,7 @@ impl State for NeighborhoodEditor {
             .get_cursor_in_map_space()
             .and_then(|c| c.to_gps(gps_bounds))
         {
-            if ui.per_obj.left_click(ctx, "add a new point") {
+            if app.per_obj.left_click(ctx, "add a new point") {
                 self.neighborhood.points.push(pt);
             }
         }
@@ -147,8 +147,8 @@ impl State for NeighborhoodEditor {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        let pts: Vec<Pt2D> = ui
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        let pts: Vec<Pt2D> = app
             .primary
             .map
             .get_gps_bounds()
@@ -156,26 +156,26 @@ impl State for NeighborhoodEditor {
 
         if pts.len() == 2 {
             g.draw_line(
-                ui.cs.get_def("neighborhood point", Color::RED),
+                app.cs.get_def("neighborhood point", Color::RED),
                 POINT_RADIUS / 2.0,
                 &geom::Line::new(pts[0], pts[1]),
             );
         }
         if pts.len() >= 3 {
             g.draw_polygon(
-                ui.cs
+                app.cs
                     .get_def("neighborhood polygon", Color::BLUE.alpha(0.6)),
                 &Polygon::new(&pts),
             );
         }
         for (idx, pt) in pts.iter().enumerate() {
             let color = if Some(idx) == self.mouseover_pt {
-                ui.cs.get_def("neighborhood point to move", Color::CYAN)
+                app.cs.get_def("neighborhood point to move", Color::CYAN)
             } else if idx == pts.len() - 1 {
-                ui.cs
+                app.cs
                     .get_def("neighborhood last placed point", Color::GREEN)
             } else {
-                ui.cs.get("neighborhood point")
+                app.cs.get("neighborhood point")
             };
             g.draw_circle(color, &Circle::new(*pt, POINT_RADIUS / g.canvas.cam_zoom));
         }
@@ -184,11 +184,11 @@ impl State for NeighborhoodEditor {
         if self.mouseover_pt.is_some() {
             CommonState::draw_custom_osd(
                 g,
-                ui,
+                app,
                 Text::from(Line("hold left Control to move point")),
             );
         } else {
-            CommonState::draw_osd(g, ui, &None);
+            CommonState::draw_osd(g, app, &None);
         }
     }
 }

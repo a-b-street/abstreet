@@ -1,3 +1,4 @@
+use crate::app::{App, Flags};
 use crate::helpers::{heatmap_10, ColorScheme, ID};
 use crate::render::area::DrawArea;
 use crate::render::building::DrawBuilding;
@@ -7,7 +8,6 @@ use crate::render::intersection::DrawIntersection;
 use crate::render::lane::DrawLane;
 use crate::render::road::DrawRoad;
 use crate::render::{draw_vehicle, DrawPedCrowd, DrawPedestrian, Renderable};
-use crate::ui::{Flags, UI};
 use aabb_quadtree::QuadTree;
 use abstutil::{Cloneable, Timer};
 use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender};
@@ -301,7 +301,7 @@ impl DrawMap {
     pub fn get_obj<'a>(
         &'a self,
         id: ID,
-        ui: &UI,
+        app: &App,
         agents: &'a mut AgentCache,
         prerender: &Prerender,
     ) -> Option<&'a dyn Renderable> {
@@ -319,11 +319,26 @@ impl DrawMap {
             ID::Building(id) => {
                 return Some(self.get_b(id));
             }
-            ID::Car(id) => ui.primary.sim.get_draw_car(id, &ui.primary.map).unwrap().on,
-            ID::Pedestrian(id) => ui.primary.sim.get_draw_ped(id, &ui.primary.map).unwrap().on,
+            ID::Car(id) => {
+                app.primary
+                    .sim
+                    .get_draw_car(id, &app.primary.map)
+                    .unwrap()
+                    .on
+            }
+            ID::Pedestrian(id) => {
+                app.primary
+                    .sim
+                    .get_draw_ped(id, &app.primary.map)
+                    .unwrap()
+                    .on
+            }
             ID::PedCrowd(ref members) => {
                 // If the first member has vanished, just give up
-                ui.primary.sim.get_draw_ped(members[0], &ui.primary.map)?.on
+                app.primary
+                    .sim
+                    .get_draw_ped(members[0], &app.primary.map)?
+                    .on
             }
             ID::ExtraShape(id) => {
                 return Some(self.get_es(id));
@@ -339,7 +354,7 @@ impl DrawMap {
             }
         };
 
-        agents.populate_if_needed(on, &ui.primary.map, &ui.primary.sim, &ui.cs, prerender);
+        agents.populate_if_needed(on, &app.primary.map, &app.primary.sim, &app.cs, prerender);
 
         // Why might this fail? Pedestrians merge into crowds, and crowds dissipate into
         // individuals

@@ -29,7 +29,7 @@ pub enum TrafficSignalStyle {
 impl abstutil::Cloneable for TrafficSignalStyle {}
 
 pub fn open_panel() -> Box<dyn State> {
-    WizardState::new(Box::new(move |wiz, ctx, ui| {
+    WizardState::new(Box::new(move |wiz, ctx, app| {
         let mut wizard = wiz.wrap(ctx);
 
         let (_, dev) = wizard.choose("Enable developer mode?", || {
@@ -76,7 +76,7 @@ pub fn open_panel() -> Box<dyn State> {
             ]
         })?;
 
-        if ui.opts.color_scheme != color_scheme {
+        if app.opts.color_scheme != color_scheme {
             wizard.acknowledge("Changing color scheme", || {
                 vec![
                     "Changing color scheme will reset the simulation",
@@ -87,19 +87,19 @@ pub fn open_panel() -> Box<dyn State> {
         }
 
         ctx.canvas.invert_scroll = invert_scroll;
-        ui.opts.dev = dev;
+        app.opts.dev = dev;
 
-        if ui.opts.traffic_signal_style != traffic_signal_style {
-            ui.opts.traffic_signal_style = traffic_signal_style;
+        if app.opts.traffic_signal_style != traffic_signal_style {
+            app.opts.traffic_signal_style = traffic_signal_style;
             println!("Rerendering traffic signals...");
-            for i in ui.primary.draw_map.intersections.iter_mut() {
+            for i in app.primary.draw_map.intersections.iter_mut() {
                 *i.draw_traffic_signal.borrow_mut() = None;
             }
         }
 
-        if ui.opts.color_scheme != color_scheme {
-            ui.opts.color_scheme = color_scheme.clone();
-            ui.switch_map(ctx, ui.primary.current_flags.sim_flags.load.clone());
+        if app.opts.color_scheme != color_scheme {
+            app.opts.color_scheme = color_scheme.clone();
+            app.switch_map(ctx, app.primary.current_flags.sim_flags.load.clone());
         }
 
         Some(Transition::Pop)

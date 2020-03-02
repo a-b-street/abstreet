@@ -3,9 +3,9 @@ mod individ_trips;
 mod neighborhood;
 mod scenario;
 
+use crate::app::App;
 use crate::game::{State, Transition, WizardState};
 use crate::managed::{ManagedGUIState, WrappedComposite};
-use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{hotkey, EventCtx, Key, Wizard};
 
@@ -28,17 +28,17 @@ impl DevToolsMode {
             .cb("X", Box::new(|_, _| Some(Transition::Pop)))
             .cb(
                 "visualize individual PSRC trips",
-                Box::new(|ctx, ui| {
+                Box::new(|ctx, app| {
                     Some(Transition::Push(Box::new(
-                        individ_trips::TripsVisualizer::new(ctx, ui),
+                        individ_trips::TripsVisualizer::new(ctx, app),
                     )))
                 }),
             )
             .cb(
                 "visualize all PSRC trips",
-                Box::new(|ctx, ui| {
+                Box::new(|ctx, app| {
                     Some(Transition::Push(Box::new(all_trips::TripsVisualizer::new(
-                        ctx, ui,
+                        ctx, app,
                     ))))
                 }),
             )
@@ -58,8 +58,8 @@ impl DevToolsMode {
     }
 }
 
-fn load_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
-    let map_name = ui.primary.map.get_name().to_string();
+fn load_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
+    let map_name = app.primary.map.get_name().to_string();
     let s = wiz.wrap(ctx).choose_string("Load which scenario?", || {
         abstutil::list_all_objects(abstutil::path_all_scenarios(&map_name))
     })?;
@@ -68,6 +68,6 @@ fn load_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tr
         &mut Timer::throwaway(),
     );
     Some(Transition::Replace(Box::new(
-        scenario::ScenarioManager::new(scenario, ctx, ui),
+        scenario::ScenarioManager::new(scenario, ctx, app),
     )))
 }

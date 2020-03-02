@@ -1,11 +1,11 @@
 pub mod setup;
 
+use crate::app::{App, PerMap};
 use crate::common::{tool_panel, CommonState};
 use crate::debug::DebugMode;
 use crate::game::{State, Transition};
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
-use crate::ui::{PerMapUI, UI};
 use abstutil::Timer;
 use ezgui::{hotkey, lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text};
 use geom::{Circle, Distance, Line, PolyLine};
@@ -25,8 +25,8 @@ pub struct ABTestMode {
 }
 
 impl ABTestMode {
-    pub fn new(ctx: &mut EventCtx, ui: &mut UI, test_name: &str) -> ABTestMode {
-        ui.primary.current_selection = None;
+    pub fn new(ctx: &mut EventCtx, app: &mut App, test_name: &str) -> ABTestMode {
+        app.primary.current_selection = None;
 
         ABTestMode {
             menu: ModalMenu::new(
@@ -51,7 +51,7 @@ impl ABTestMode {
 }
 
 impl State for ABTestMode {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         {
             let mut txt = Text::new();
             if self.flipped {
@@ -61,7 +61,7 @@ impl State for ABTestMode {
             }
             txt.append(Line(format!(
                 " - {}",
-                ui.primary.map.get_edits().edits_name
+                app.primary.map.get_edits().edits_name
             )));
             if let Some(ref diff) = self.diff_trip {
                 txt.add(Line(format!("Showing diff for {}", diff.trip)));
@@ -72,7 +72,7 @@ impl State for ABTestMode {
                     diff.lines.len()
                 )));
             }
-            let (finished, unfinished, by_mode) = ui.primary.sim.num_trips();
+            let (finished, unfinished, by_mode) = app.primary.sim.num_trips();
             txt.add(Line(format!("Finished trips: {}", finished)));
             txt.add(Line(format!("Unfinished trips: {}", unfinished)));
             txt.add(Line(format!(
@@ -88,18 +88,18 @@ impl State for ABTestMode {
 
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
-            ui.recalculate_current_selection(ctx);
+            app.recalculate_current_selection(ctx);
         }
 
-        if ui.opts.dev && ctx.input.new_was_pressed(&lctrl(Key::D).unwrap()) {
+        if app.opts.dev && ctx.input.new_was_pressed(&lctrl(Key::D).unwrap()) {
             return Transition::Push(Box::new(DebugMode::new(ctx)));
         }
 
         if self.menu.action("swap") {
-            let secondary = ui.secondary.take().unwrap();
-            let primary = std::mem::replace(&mut ui.primary, secondary);
-            ui.secondary = Some(primary);
-            self.recalculate_stuff(ui, ctx);
+            let secondary = app.secondary.take().unwrap();
+            let primary = std::mem::replace(&mut app.primary, secondary);
+            app.secondary = Some(primary);
+            self.recalculate_stuff(app, ctx);
 
             self.flipped = !self.flipped;
         }
@@ -107,7 +107,7 @@ impl State for ABTestMode {
         if self.menu.action("save state") {
             ctx.loading_screen("savestate", |_, timer| {
                 timer.start("save all state");
-                self.savestate(ui);
+                self.savestate(app);
                 timer.stop("save all state");
             });
         }
@@ -121,45 +121,45 @@ impl State for ABTestMode {
                 self.diff_all = None;
             }
         } else {
-            if ui.primary.current_selection.is_none() && self.menu.action("diff all trips") {
+            if app.primary.current_selection.is_none() && self.menu.action("diff all trips") {
                 self.diff_all = Some(DiffAllTrips::new(
-                    &mut ui.primary,
-                    ui.secondary.as_mut().unwrap(),
+                    &mut app.primary,
+                    app.secondary.as_mut().unwrap(),
                 ));
-            } else if let Some(agent) = ui
+            } else if let Some(agent) = app
                 .primary
                 .current_selection
                 .as_ref()
                 .and_then(|id| id.agent_id())
             {
-                if let Some(trip) = ui.primary.sim.agent_to_trip(agent) {
-                    if ui
+                if let Some(trip) = app.primary.sim.agent_to_trip(agent) {
+                    if app
                         .per_obj
                         .action(ctx, Key::B, format!("Show {}'s parallel world", agent))
                     {
                         self.diff_trip = Some(DiffOneTrip::new(
                             trip,
-                            &ui.primary,
-                            ui.secondary.as_ref().unwrap(),
+                            &app.primary,
+                            app.secondary.as_ref().unwrap(),
                         ));
                     }
                 }
             }
         }
 
-        /*if let Some(dt) = self.speed.event(ctx, ui.primary.sim.time()) {
-            ui.primary.sim.step(&ui.primary.map, dt);
+        /*if let Some(dt) = self.speed.event(ctx, app.primary.sim.time()) {
+            app.primary.sim.step(&app.primary.map, dt);
             {
-                let s = ui.secondary.as_mut().unwrap();
+                let s = app.secondary.as_mut().unwrap();
                 s.sim.step(&s.map, dt);
             }
-            self.recalculate_stuff(ui, ctx);
+            self.recalculate_stuff(app, ctx);
         }*/
 
-        if let Some(t) = self.common.event(ctx, ui, None) {
+        if let Some(t) = self.common.event(ctx, app, None) {
             return t;
         }
-        match self.tool_panel.event(ctx, ui) {
+        match self.tool_panel.event(ctx, app) {
             Some(WrappedOutcome::Transition(t)) => t,
             // TODO Confirm first
             Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
@@ -170,69 +170,69 @@ impl State for ABTestMode {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        self.common.draw(g, ui);
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        self.common.draw(g, app);
         self.tool_panel.draw(g);
 
         if let Some(ref diff) = self.diff_trip {
-            diff.draw(g, ui);
+            diff.draw(g, app);
         }
         if let Some(ref diff) = self.diff_all {
-            diff.draw(g, ui);
+            diff.draw(g, app);
         }
         self.menu.draw(g);
     }
 
-    fn on_suspend(&mut self, _: &mut EventCtx, _: &mut UI) {
+    fn on_suspend(&mut self, _: &mut EventCtx, _: &mut App) {
         //self.speed.pause();
     }
 
-    fn on_destroy(&mut self, ctx: &mut EventCtx, ui: &mut UI) {
+    fn on_destroy(&mut self, ctx: &mut EventCtx, app: &mut App) {
         ctx.loading_screen("exit A/B test mode", |_, timer| {
             timer.start("destroy secondary sim");
             // TODO Should we clear edits too?
-            ui.primary.clear_sim();
+            app.primary.clear_sim();
 
-            ui.secondary = None;
+            app.secondary = None;
             timer.stop("destroy secondary sim");
         });
     }
 }
 
 impl ABTestMode {
-    fn recalculate_stuff(&mut self, ui: &mut UI, ctx: &EventCtx) {
+    fn recalculate_stuff(&mut self, app: &mut App, ctx: &EventCtx) {
         if let Some(diff) = self.diff_trip.take() {
             self.diff_trip = Some(DiffOneTrip::new(
                 diff.trip,
-                &ui.primary,
-                ui.secondary.as_ref().unwrap(),
+                &app.primary,
+                app.secondary.as_ref().unwrap(),
             ));
         }
         if self.diff_all.is_some() {
             self.diff_all = Some(DiffAllTrips::new(
-                &mut ui.primary,
-                ui.secondary.as_mut().unwrap(),
+                &mut app.primary,
+                app.secondary.as_mut().unwrap(),
             ));
         }
 
-        ui.recalculate_current_selection(ctx);
+        app.recalculate_current_selection(ctx);
     }
 
-    fn savestate(&mut self, ui: &mut UI) {
+    fn savestate(&mut self, app: &mut App) {
         // Preserve the original order!
         if self.flipped {
-            let secondary = ui.secondary.take().unwrap();
-            let primary = std::mem::replace(&mut ui.primary, secondary);
-            ui.secondary = Some(primary);
+            let secondary = app.secondary.take().unwrap();
+            let primary = std::mem::replace(&mut app.primary, secondary);
+            app.secondary = Some(primary);
         }
 
         // Temporarily move everything into this structure.
         let blank_map = Map::blank();
-        let mut secondary = ui.secondary.take().unwrap();
+        let mut secondary = app.secondary.take().unwrap();
         let ss = ABTestSavestate {
-            primary_map: std::mem::replace(&mut ui.primary.map, Map::blank()),
+            primary_map: std::mem::replace(&mut app.primary.map, Map::blank()),
             primary_sim: std::mem::replace(
-                &mut ui.primary.sim,
+                &mut app.primary.sim,
                 Sim::new(&blank_map, SimOptions::new("tmp"), &mut Timer::throwaway()),
             ),
             secondary_map: std::mem::replace(&mut secondary.map, Map::blank()),
@@ -252,9 +252,9 @@ impl ABTestMode {
         );
 
         // Restore everything.
-        ui.primary.sim = ss.primary_sim;
-        ui.primary.map = ss.primary_map;
-        ui.secondary = Some(PerMapUI {
+        app.primary.sim = ss.primary_sim;
+        app.primary.map = ss.primary_map;
+        app.secondary = Some(PerMap {
             map: ss.secondary_map,
             draw_map: secondary.draw_map,
             sim: ss.secondary_sim,
@@ -264,9 +264,9 @@ impl ABTestMode {
         });
 
         if self.flipped {
-            let secondary = ui.secondary.take().unwrap();
-            let primary = std::mem::replace(&mut ui.primary, secondary);
-            ui.secondary = Some(primary);
+            let secondary = app.secondary.take().unwrap();
+            let primary = std::mem::replace(&mut app.primary, secondary);
+            app.secondary = Some(primary);
         }
     }
 }
@@ -281,7 +281,7 @@ pub struct DiffOneTrip {
 }
 
 impl DiffOneTrip {
-    fn new(trip: TripID, primary: &PerMapUI, secondary: &PerMapUI) -> DiffOneTrip {
+    fn new(trip: TripID, primary: &PerMap, secondary: &PerMap) -> DiffOneTrip {
         let pt1 = primary
             .sim
             .get_canonical_pt_per_trip(trip, &primary.map)
@@ -310,23 +310,23 @@ impl DiffOneTrip {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         if let Some(l) = &self.line {
             g.draw_line(
-                ui.cs.get_def("diff agents line", Color::YELLOW.alpha(0.5)),
+                app.cs.get_def("diff agents line", Color::YELLOW.alpha(0.5)),
                 NORMAL_LANE_THICKNESS,
                 l,
             );
         }
         if let Some(t) = &self.primary_route {
             g.draw_polygon(
-                ui.cs.get_def("primary agent route", Color::RED.alpha(0.5)),
+                app.cs.get_def("primary agent route", Color::RED.alpha(0.5)),
                 &t.make_polygons(NORMAL_LANE_THICKNESS),
             );
         }
         if let Some(t) = &self.secondary_route {
             g.draw_polygon(
-                ui.cs
+                app.cs
                     .get_def("secondary agent route", Color::BLUE.alpha(0.5)),
                 &t.make_polygons(NORMAL_LANE_THICKNESS),
             );
@@ -341,7 +341,7 @@ pub struct DiffAllTrips {
 }
 
 impl DiffAllTrips {
-    fn new(primary: &mut PerMapUI, secondary: &mut PerMapUI) -> DiffAllTrips {
+    fn new(primary: &mut PerMap, secondary: &mut PerMap) -> DiffAllTrips {
         let trip_positions1 = primary.sim.get_trip_positions(&primary.map);
         let trip_positions2 = secondary.sim.get_trip_positions(&secondary.map);
         let mut same_trips = 0;
@@ -358,9 +358,9 @@ impl DiffAllTrips {
         DiffAllTrips { same_trips, lines }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         let mut batch = GeomBatch::new();
-        let color = ui.cs.get("diff agents line");
+        let color = app.cs.get("diff agents line");
         if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
             // TODO Refactor with UI
             let radius = Distance::meters(10.0) / g.canvas.cam_zoom;

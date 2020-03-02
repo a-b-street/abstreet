@@ -1,6 +1,6 @@
+use crate::app::App;
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{dashed_lines, DrawOptions, Renderable};
-use crate::ui::UI;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Angle, Distance, Polygon, Pt2D};
 use map_model::{LaneType, Map, Road, RoadID};
@@ -61,7 +61,7 @@ impl Renderable for DrawRoad {
         ID::Road(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI, opts: &DrawOptions) {
+    fn draw(&self, g: &mut GfxCtx, _: &App, opts: &DrawOptions) {
         g.redraw(&self.draw_center_line);
         if opts.label_roads {
             g.redraw(&self.label);

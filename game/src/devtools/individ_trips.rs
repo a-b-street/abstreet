@@ -1,7 +1,7 @@
+use crate::app::App;
 use crate::common::CommonState;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
-use crate::ui::UI;
 use ezgui::{hotkey, Color, EventCtx, GfxCtx, ItemSlider, Key, Line, Text};
 use geom::{Circle, Distance, Duration, Line, Speed};
 use map_model::BuildingID;
@@ -14,10 +14,10 @@ pub struct TripsVisualizer {
 }
 
 impl TripsVisualizer {
-    pub fn new(ctx: &mut EventCtx, ui: &UI) -> TripsVisualizer {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> TripsVisualizer {
         let (trips, bldgs) = ctx.loading_screen("load trip data", |_, mut timer| {
             // TODO We'll break if there are no matching trips
-            let (trips, bldgs) = clip_trips(&ui.primary.map, &mut timer);
+            let (trips, bldgs) = clip_trips(&app.primary.map, &mut timer);
             (
                 trips
                     .into_iter()
@@ -61,12 +61,12 @@ impl TripsVisualizer {
 }
 
 impl State for TripsVisualizer {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         self.slider.event(ctx);
         ctx.canvas_movement();
 
         if ctx.redo_mouseover() {
-            ui.recalculate_current_selection(ctx);
+            app.recalculate_current_selection(ctx);
         }
 
         if self.slider.action("quit") {
@@ -75,10 +75,10 @@ impl State for TripsVisualizer {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         let (_, trip) = self.slider.get();
-        let from = trip.from.polygon(&ui.primary.map);
-        let to = trip.to.polygon(&ui.primary.map);
+        let from = trip.from.polygon(&app.primary.map);
+        let to = trip.to.polygon(&app.primary.map);
 
         g.draw_polygon(Color::RED, from);
         g.draw_polygon(Color::BLUE, to);
@@ -112,17 +112,17 @@ impl State for TripsVisualizer {
         }
 
         self.slider.draw(g);
-        if let Some(ID::Building(b)) = ui.primary.current_selection {
-            let mut osd = CommonState::default_osd(ID::Building(b), ui);
+        if let Some(ID::Building(b)) = app.primary.current_selection {
+            let mut osd = CommonState::default_osd(ID::Building(b), app);
             if let Some(md) = self.bldgs.get(&b) {
                 osd.append(Line(format!(
                     ". {} households, {} employees, {} offstreet parking spaces",
                     md.num_households, md.num_employees, md.offstreet_parking_spaces
                 )));
             }
-            CommonState::draw_custom_osd(g, ui, osd);
+            CommonState::draw_custom_osd(g, app, osd);
         } else {
-            CommonState::draw_osd(g, ui, &ui.primary.current_selection);
+            CommonState::draw_osd(g, app, &app.primary.current_selection);
         }
     }
 }

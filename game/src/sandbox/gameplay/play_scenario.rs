@@ -1,9 +1,9 @@
+use crate::app::App;
 use crate::game::Transition;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::gameplay::freeform::freeform_controller;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::SandboxControls;
-use crate::ui::UI;
 use ezgui::{EventCtx, GfxCtx};
 
 pub struct PlayScenario {
@@ -13,12 +13,12 @@ pub struct PlayScenario {
 impl PlayScenario {
     pub fn new(
         ctx: &mut EventCtx,
-        ui: &UI,
+        app: &App,
         name: &String,
         mode: GameplayMode,
     ) -> Box<dyn GameplayState> {
         Box::new(PlayScenario {
-            top_center: freeform_controller(ctx, ui, mode, name),
+            top_center: freeform_controller(ctx, app, mode, name),
         })
     }
 }
@@ -27,10 +27,10 @@ impl GameplayState for PlayScenario {
     fn event(
         &mut self,
         ctx: &mut EventCtx,
-        ui: &mut UI,
+        app: &mut App,
         _: &mut SandboxControls,
     ) -> (Option<Transition>, bool) {
-        match self.top_center.event(ctx, ui) {
+        match self.top_center.event(ctx, app) {
             Some(WrappedOutcome::Transition(t)) => {
                 return (Some(t), false);
             }
@@ -41,7 +41,7 @@ impl GameplayState for PlayScenario {
         (None, false)
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.top_center.draw(g);
     }
 }

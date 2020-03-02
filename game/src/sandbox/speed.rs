@@ -1,10 +1,10 @@
+use crate::app::App;
 use crate::colors;
 use crate::common::{Overlays, Warping};
 use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::{GameplayMode, SandboxMode};
-use crate::ui::UI;
 use ezgui::{
     hotkey, Button, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Plot, PlotOptions, RewriteColor,
@@ -152,24 +152,24 @@ impl SpeedControls {
         )
         .cb(
             "step forwards 0.1 seconds",
-            Box::new(|ctx, ui| {
-                ui.primary
+            Box::new(|ctx, app| {
+                app.primary
                     .sim
-                    .normal_step(&ui.primary.map, Duration::seconds(0.1));
-                if let Some(ref mut s) = ui.secondary {
+                    .normal_step(&app.primary.map, Duration::seconds(0.1));
+                if let Some(ref mut s) = app.secondary {
                     s.sim.normal_step(&s.map, Duration::seconds(0.1));
                 }
-                ui.recalculate_current_selection(ctx);
+                app.recalculate_current_selection(ctx);
                 None
             }),
         )
         .cb(
             "step forwards 1 hour",
-            Box::new(|ctx, ui| {
+            Box::new(|ctx, app| {
                 Some(Transition::Push(Box::new(TimeWarpScreen::new(
                     ctx,
-                    ui,
-                    ui.primary.sim.time() + Duration::hours(1),
+                    app,
+                    app.primary.sim.time() + Duration::hours(1),
                     false,
                 ))))
             }),
@@ -188,10 +188,10 @@ impl SpeedControls {
     pub fn event(
         &mut self,
         ctx: &mut EventCtx,
-        ui: &mut UI,
+        app: &mut App,
         maybe_mode: Option<&GameplayMode>,
     ) -> Option<Transition> {
-        match self.composite.event(ctx, ui) {
+        match self.composite.event(ctx, app) {
             Some(WrappedOutcome::Transition(t)) => {
                 return Some(t);
             }
@@ -226,10 +226,10 @@ impl SpeedControls {
                 }
                 "reset to midnight" => {
                     if let Some(mode) = maybe_mode {
-                        ui.primary.clear_sim();
+                        app.primary.clear_sim();
                         return Some(Transition::Replace(Box::new(SandboxMode::new(
                             ctx,
-                            ui,
+                            app,
                             mode.clone(),
                         ))));
                     } else {
@@ -242,7 +242,7 @@ impl SpeedControls {
                 "jump to specific time" => {
                     return Some(Transition::Push(Box::new(JumpToTime::new(
                         ctx,
-                        ui,
+                        app,
                         maybe_mode.cloned(),
                     ))));
                 }
@@ -301,12 +301,12 @@ impl SpeedControls {
                     SpeedSetting::Fastest => 3600.0,
                 };
                 let dt = multiplier * real_dt;
-                // TODO This should match the update frequency in ezgui. Plumb along the deadline
+                // TODO This should match the update frequency in ezgapp. Plumb along the deadline
                 // or frequency to here.
-                ui.primary
+                app.primary
                     .sim
-                    .time_limited_step(&ui.primary.map, dt, Duration::seconds(0.033));
-                ui.recalculate_current_selection(ctx);
+                    .time_limited_step(&app.primary.map, dt, Duration::seconds(0.033));
+                app.recalculate_current_selection(ctx);
             }
         }
 
@@ -345,8 +345,8 @@ struct JumpToTime {
 }
 
 impl JumpToTime {
-    fn new(ctx: &mut EventCtx, ui: &UI, maybe_mode: Option<GameplayMode>) -> JumpToTime {
-        let target = ui.primary.sim.time();
+    fn new(ctx: &mut EventCtx, app: &App, maybe_mode: Option<GameplayMode>) -> JumpToTime {
+        let target = app.primary.sim.time();
         // TODO Auto-fill width?
         let mut slider = Slider::horizontal(ctx, 0.25 * ctx.canvas.window_width, 25.0);
         slider.set_percent(ctx, target.to_percent(Time::END_OF_DAY).min(1.0));
@@ -381,21 +381,21 @@ impl JumpToTime {
                     // TODO Sync the slider / plot.
                     Plot::new_usize(
                         ctx,
-                        vec![if ui.has_prebaked().is_some() {
+                        vec![if app.has_prebaked().is_some() {
                             Series {
                                 label: "Baseline".to_string(),
                                 color: Color::BLUE,
-                                pts: ui.prebaked().active_agents(Time::END_OF_DAY),
+                                pts: app.prebaked().active_agents(Time::END_OF_DAY),
                             }
                         } else {
                             Series {
                                 label: "Current simulation".to_string(),
                                 color: Color::RED,
-                                pts: ui
+                                pts: app
                                     .primary
                                     .sim
                                     .get_analytics()
-                                    .active_agents(ui.primary.sim.time()),
+                                    .active_agents(app.primary.sim.time()),
                             }
                         }],
                         PlotOptions {
@@ -412,7 +412,7 @@ impl JumpToTime {
 }
 
 impl State for JumpToTime {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "X" => {
@@ -420,12 +420,12 @@ impl State for JumpToTime {
                 }
                 "Go!" => {
                     let traffic_jams = self.composite.is_checked("Stop when there's a traffic jam");
-                    if self.target < ui.primary.sim.time() {
+                    if self.target < app.primary.sim.time() {
                         if let Some(mode) = self.maybe_mode.take() {
-                            ui.primary.clear_sim();
+                            app.primary.clear_sim();
                             return Transition::ReplaceThenPush(
-                                Box::new(SandboxMode::new(ctx, ui, mode)),
-                                Box::new(TimeWarpScreen::new(ctx, ui, self.target, traffic_jams)),
+                                Box::new(SandboxMode::new(ctx, app, mode)),
+                                Box::new(TimeWarpScreen::new(ctx, app, self.target, traffic_jams)),
                             );
                         } else {
                             return Transition::Replace(msg(
@@ -436,7 +436,7 @@ impl State for JumpToTime {
                     }
                     return Transition::Replace(Box::new(TimeWarpScreen::new(
                         ctx,
-                        ui,
+                        app,
                         self.target,
                         traffic_jams,
                     )));
@@ -456,7 +456,7 @@ impl State for JumpToTime {
                     let mut txt = Text::from(Line("Jump to what time?").roboto_bold());
                     txt.add(Line(target.ampm_tostring()));
                     // TODO The panel jumps too much and the slider position changes place.
-                    /*if target < ui.primary.sim.time() {
+                    /*if target < app.primary.sim.time() {
                         txt.add(Line("(Going back in time will reset to midnight, then simulate forwards)"));
                     }*/
                     txt
@@ -471,7 +471,7 @@ impl State for JumpToTime {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         State::grey_out_map(g);
         self.composite.draw(g);
     }
@@ -486,9 +486,9 @@ pub struct TimeWarpScreen {
 }
 
 impl TimeWarpScreen {
-    fn new(ctx: &mut EventCtx, ui: &mut UI, target: Time, traffic_jams: bool) -> TimeWarpScreen {
+    fn new(ctx: &mut EventCtx, app: &mut App, target: Time, traffic_jams: bool) -> TimeWarpScreen {
         if traffic_jams {
-            ui.primary
+            app.primary
                 .sim
                 .set_gridlock_checker(Some(Duration::minutes(5)));
         }
@@ -512,22 +512,22 @@ impl TimeWarpScreen {
 }
 
 impl State for TimeWarpScreen {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if ctx.input.nonblocking_is_update_event().is_some() {
             ctx.input.use_update_event();
-            if let Some(problems) = ui.primary.sim.time_limited_step(
-                &ui.primary.map,
-                self.target - ui.primary.sim.time(),
+            if let Some(problems) = app.primary.sim.time_limited_step(
+                &app.primary.map,
+                self.target - app.primary.sim.time(),
                 Duration::seconds(0.033),
             ) {
                 let id = ID::Intersection(problems[0].0);
-                ui.overlay = Overlays::traffic_jams(ctx, ui);
+                app.overlay = Overlays::traffic_jams(ctx, app);
                 return Transition::Replace(Warping::new(
                     ctx,
-                    id.canonical_point(&ui.primary).unwrap(),
+                    id.canonical_point(&app.primary).unwrap(),
                     Some(10.0),
                     Some(id),
-                    &mut ui.primary,
+                    &mut app.primary,
                 ));
             }
             // TODO secondary for a/b test mode
@@ -540,7 +540,7 @@ impl State for TimeWarpScreen {
             )));
             txt.add(Line(format!(
                 "It's currently {}",
-                ui.primary.sim.time().ampm_tostring()
+                app.primary.sim.time().ampm_tostring()
             )));
             txt.add(Line(format!(
                 "Have been simulating for {}",
@@ -553,7 +553,7 @@ impl State for TimeWarpScreen {
                 ManagedWidget::draw_text(ctx, txt).named("text"),
             );
         }
-        if ui.primary.sim.time() == self.target {
+        if app.primary.sim.time() == self.target {
             return Transition::Pop;
         }
 
@@ -573,14 +573,14 @@ impl State for TimeWarpScreen {
         Transition::KeepWithMode(EventLoopMode::Animation)
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         State::grey_out_map(g);
         self.composite.draw(g);
     }
 
-    fn on_destroy(&mut self, _: &mut EventCtx, ui: &mut UI) {
+    fn on_destroy(&mut self, _: &mut EventCtx, app: &mut App) {
         if self.traffic_jams {
-            ui.primary.sim.set_gridlock_checker(None);
+            app.primary.sim.set_gridlock_checker(None);
         }
     }
 }
@@ -591,14 +591,14 @@ pub struct TimePanel {
 }
 
 impl TimePanel {
-    pub fn new(ctx: &mut EventCtx, ui: &UI) -> TimePanel {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> TimePanel {
         TimePanel {
-            time: ui.primary.sim.time(),
+            time: app.primary.sim.time(),
             composite: Composite::new(
                 ManagedWidget::col(vec![
                     ManagedWidget::draw_text(
                         ctx,
-                        Text::from(Line(ui.primary.sim.time().ampm_tostring()).size(30)),
+                        Text::from(Line(app.primary.sim.time().ampm_tostring()).size(30)),
                     )
                     .margin(10)
                     .centered_horiz(),
@@ -608,7 +608,7 @@ impl TimePanel {
                         let width = 300.0;
                         let height = 15.0;
                         // Just clamp past 24 hours
-                        let percent = ui.primary.sim.time().to_percent(Time::END_OF_DAY).min(1.0);
+                        let percent = app.primary.sim.time().to_percent(Time::END_OF_DAY).min(1.0);
 
                         // TODO rounded
                         batch.push(Color::WHITE, Polygon::rectangle(width, height));
@@ -638,9 +638,9 @@ impl TimePanel {
         }
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) {
-        if self.time != ui.primary.sim.time() {
-            *self = TimePanel::new(ctx, ui);
+    pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App) {
+        if self.time != app.primary.sim.time() {
+            *self = TimePanel::new(ctx, app);
         }
         self.composite.event(ctx);
     }

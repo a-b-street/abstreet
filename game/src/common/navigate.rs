@@ -1,7 +1,7 @@
+use crate::app::App;
 use crate::common::Warping;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
-use crate::ui::UI;
 use ezgui::{Autocomplete, EventCtx, GfxCtx, InputResult};
 use map_model::RoadID;
 use std::collections::HashSet;
@@ -11,12 +11,12 @@ pub struct Navigator {
 }
 
 impl Navigator {
-    pub fn new(ui: &UI) -> Navigator {
+    pub fn new(app: &App) -> Navigator {
         // TODO Canonicalize names, handling abbreviations like east/e and street/st
         Navigator {
             autocomplete: Autocomplete::new(
                 "Warp where?",
-                ui.primary
+                app.primary
                     .map
                     .all_roads()
                     .iter()
@@ -28,8 +28,8 @@ impl Navigator {
 }
 
 impl State for Navigator {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        let map = &ui.primary.map;
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        let map = &app.primary.map;
         match self.autocomplete.event(ctx) {
             InputResult::Canceled => Transition::Pop,
             InputResult::Done(name, ids) => {
@@ -60,7 +60,7 @@ impl State for Navigator {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.autocomplete.draw(g);
     }
 }
@@ -72,8 +72,8 @@ struct CrossStreet {
 
 impl State for CrossStreet {
     // When None, this is done.
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        let map = &ui.primary.map;
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        let map = &app.primary.map;
         match self.autocomplete.event(ctx) {
             InputResult::Canceled => {
                 // Just warp to somewhere on the first road
@@ -84,7 +84,7 @@ impl State for CrossStreet {
                     road.center_pts.dist_along(road.center_pts.length() / 2.0).0,
                     None,
                     Some(ID::Lane(road.all_lanes()[0])),
-                    &mut ui.primary,
+                    &mut app.primary,
                 ))
             }
             InputResult::Done(name, ids) => {
@@ -104,14 +104,14 @@ impl State for CrossStreet {
                     pt,
                     None,
                     Some(ID::Lane(road.all_lanes()[0])),
-                    &mut ui.primary,
+                    &mut app.primary,
                 ))
             }
             InputResult::StillActive => Transition::Keep,
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.autocomplete.draw(g);
     }
 }

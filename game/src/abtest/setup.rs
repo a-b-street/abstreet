@@ -1,8 +1,8 @@
 use crate::abtest::{ABTestMode, ABTestSavestate};
+use crate::app::{App, Flags, PerMap};
 use crate::edit::apply_map_edits;
 use crate::game::{State, Transition, WizardState};
 use crate::render::DrawMap;
-use crate::ui::{Flags, PerMapUI, UI};
 use ezgui::{hotkey, Choice, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard, WrappedWizard};
 use geom::Duration;
 use map_model::MapEdits;
@@ -15,7 +15,7 @@ impl PickABTest {
     }
 }
 
-fn pick_ab_test(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+fn pick_ab_test(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
     let mut wizard = wiz.wrap(ctx);
     let load_existing = "Load existing A/B test";
     let create_new = "Create new A/B test";
@@ -26,13 +26,13 @@ fn pick_ab_test(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
         wizard
             .choose("Load which A/B test?", || {
                 Choice::from(abstutil::load_all_objects(abstutil::path_all_ab_tests(
-                    ui.primary.map.get_name(),
+                    app.primary.map.get_name(),
                 )))
             })?
             .1
     } else {
         let test_name = wizard.input_string("Name the A/B test")?;
-        let map_name = ui.primary.map.get_name();
+        let map_name = app.primary.map.get_name();
 
         let scenario_name = choose_scenario(map_name, &mut wizard, "What scenario to run?")?;
         let edits1_name = choose_edits(
@@ -83,27 +83,27 @@ struct ABTestSetup {
 }
 
 impl State for ABTestSetup {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         self.menu.event(ctx);
         ctx.canvas_movement();
 
         if self.menu.action("quit") {
             return Transition::Pop;
         } else if self.menu.action("run A/B test") {
-            return Transition::Replace(Box::new(launch_test(&self.ab_test, ui, ctx)));
+            return Transition::Replace(Box::new(launch_test(&self.ab_test, app, ctx)));
         } else if self.menu.action("load savestate") {
             return Transition::Push(make_load_savestate(self.ab_test.clone()));
         }
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.menu.draw(g);
     }
 }
 
 fn make_load_savestate(ab_test: ABTest) -> Box<dyn State> {
-    WizardState::new(Box::new(move |wiz, ctx, ui| {
+    WizardState::new(Box::new(move |wiz, ctx, app| {
         let ss = wiz.wrap(ctx).choose_string("Load which savestate?", || {
             abstutil::list_all_objects(abstutil::path_all_ab_test_saves(
                 &ab_test.map_name,
@@ -111,12 +111,12 @@ fn make_load_savestate(ab_test: ABTest) -> Box<dyn State> {
             ))
         })?;
         Some(Transition::Replace(Box::new(launch_savestate(
-            &ab_test, ss, ui, ctx,
+            &ab_test, ss, app, ctx,
         ))))
     }))
 }
 
-fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
+fn launch_test(test: &ABTest, app: &mut App, ctx: &mut EventCtx) -> ABTestMode {
     let secondary = ctx.loading_screen(
         format!("Launching A/B test {}", test.test_name),
         |ctx, mut timer| {
@@ -127,37 +127,37 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
 
             {
                 timer.start("load primary");
-                if ui.primary.current_flags.sim_flags.rng_seed.is_none() {
-                    ui.primary.current_flags.sim_flags.rng_seed = Some(42);
+                if app.primary.current_flags.sim_flags.rng_seed.is_none() {
+                    app.primary.current_flags.sim_flags.rng_seed = Some(42);
                 }
-                ui.primary.current_flags.sim_flags.opts.run_name =
+                app.primary.current_flags.sim_flags.opts.run_name =
                     format!("{} with {}", test.test_name, test.edits1_name);
-                ui.primary.current_flags.sim_flags.opts.savestate_every = None;
+                app.primary.current_flags.sim_flags.opts.savestate_every = None;
 
                 apply_map_edits(
                     ctx,
-                    ui,
+                    app,
                     MapEdits::load(&test.map_name, &test.edits1_name, &mut timer),
                 );
-                ui.primary
+                app.primary
                     .map
                     .recalculate_pathfinding_after_edits(&mut timer);
 
-                ui.primary.clear_sim();
-                let mut rng = ui.primary.current_flags.sim_flags.make_rng();
-                scenario.instantiate(&mut ui.primary.sim, &ui.primary.map, &mut rng, &mut timer);
-                ui.primary
+                app.primary.clear_sim();
+                let mut rng = app.primary.current_flags.sim_flags.make_rng();
+                scenario.instantiate(&mut app.primary.sim, &app.primary.map, &mut rng, &mut timer);
+                app.primary
                     .sim
-                    .normal_step(&ui.primary.map, Duration::seconds(0.1));
+                    .normal_step(&app.primary.map, Duration::seconds(0.1));
                 timer.stop("load primary");
             }
             {
                 timer.start("load secondary");
-                let current_flags = &ui.primary.current_flags;
+                let current_flags = &app.primary.current_flags;
                 // TODO We could try to be cheaper by cloning primary's Map, but cloning DrawMap
                 // won't help -- we need to upload new stuff to the GPU. :\  The alternative is
                 // doing apply_map_edits every time we swap.
-                let mut secondary = PerMapUI::new(
+                let mut secondary = PerMap::new(
                     Flags {
                         sim_flags: SimFlags {
                             load: abstutil::path_map(&test.map_name),
@@ -186,18 +186,18 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
                         },
                         ..current_flags.clone()
                     },
-                    &ui.cs,
+                    &app.cs,
                     ctx,
                     &mut timer,
                 );
-                // apply_map_edits always touches ui.primary, so temporarily swap things out
-                std::mem::swap(&mut ui.primary, &mut secondary);
+                // apply_map_edits always touches app.primary, so temporarily swap things out
+                std::mem::swap(&mut app.primary, &mut secondary);
                 apply_map_edits(
                     ctx,
-                    ui,
+                    app,
                     MapEdits::load(&test.map_name, &test.edits2_name, &mut timer),
                 );
-                std::mem::swap(&mut ui.primary, &mut secondary);
+                std::mem::swap(&mut app.primary, &mut secondary);
                 secondary
                     .map
                     .recalculate_pathfinding_after_edits(&mut timer);
@@ -213,35 +213,40 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
             }
         },
     );
-    ui.secondary = Some(secondary);
+    app.secondary = Some(secondary);
 
-    ABTestMode::new(ctx, ui, &test.test_name)
+    ABTestMode::new(ctx, app, &test.test_name)
 }
 
-fn launch_savestate(test: &ABTest, ss_path: String, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
+fn launch_savestate(
+    test: &ABTest,
+    ss_path: String,
+    app: &mut App,
+    ctx: &mut EventCtx,
+) -> ABTestMode {
     ctx.loading_screen(
         format!("Launch A/B test from savestate {}", ss_path),
         |ctx, mut timer| {
             let ss: ABTestSavestate = abstutil::read_binary(ss_path, &mut timer);
 
             timer.start("setup primary");
-            ui.primary.map = ss.primary_map;
-            ui.primary.sim = ss.primary_sim;
-            ui.primary.draw_map = DrawMap::new(
-                &ui.primary.map,
-                &ui.primary.current_flags,
-                &ui.cs,
+            app.primary.map = ss.primary_map;
+            app.primary.sim = ss.primary_sim;
+            app.primary.draw_map = DrawMap::new(
+                &app.primary.map,
+                &app.primary.current_flags,
+                &app.cs,
                 ctx,
                 &mut timer,
             );
             timer.stop("setup primary");
 
             timer.start("setup secondary");
-            let secondary = PerMapUI {
+            let secondary = PerMap {
                 draw_map: DrawMap::new(
                     &ss.secondary_map,
-                    &ui.primary.current_flags,
-                    &ui.cs,
+                    &app.primary.current_flags,
+                    &app.cs,
                     ctx,
                     &mut timer,
                 ),
@@ -249,13 +254,13 @@ fn launch_savestate(test: &ABTest, ss_path: String, ui: &mut UI, ctx: &mut Event
                 sim: ss.secondary_sim,
                 current_selection: None,
                 // TODO Hack... can we just remove these?
-                current_flags: ui.primary.current_flags.clone(),
+                current_flags: app.primary.current_flags.clone(),
                 last_warped_from: None,
             };
-            ui.secondary = Some(secondary);
+            app.secondary = Some(secondary);
             timer.stop("setup secondary");
 
-            ABTestMode::new(ctx, ui, &test.test_name)
+            ABTestMode::new(ctx, app, &test.test_name)
         },
     )
 }

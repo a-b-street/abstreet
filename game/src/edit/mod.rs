@@ -5,6 +5,7 @@ mod traffic_signals;
 pub use self::lanes::LaneEditor;
 pub use self::stop_signs::StopSignEditor;
 pub use self::traffic_signals::TrafficSignalEditor;
+use crate::app::{App, ShowEverything};
 use crate::colors;
 use crate::common::{tool_panel, Colorer, CommonState, Overlays, Warping};
 use crate::debug::DebugMode;
@@ -13,7 +14,6 @@ use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::{DrawIntersection, DrawLane, DrawRoad, MIN_ZOOM_FOR_DETAIL};
 use crate::sandbox::{GameplayMode, SandboxMode};
-use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
@@ -42,12 +42,12 @@ pub struct EditMode {
 }
 
 impl EditMode {
-    pub fn new(ctx: &mut EventCtx, ui: &mut UI, mode: GameplayMode) -> EditMode {
-        let suspended_sim = ui.primary.clear_sim();
-        let edits = ui.primary.map.get_edits();
+    pub fn new(ctx: &mut EventCtx, app: &mut App, mode: GameplayMode) -> EditMode {
+        let suspended_sim = app.primary.clear_sim();
+        let edits = app.primary.map.get_edits();
         EditMode {
             tool_panel: tool_panel(ctx),
-            composite: make_topcenter(ctx, ui),
+            composite: make_topcenter(ctx, app),
             mode,
             suspended_sim,
             top_panel_key: (edits.edits_name.clone(), edits.commands.len()),
@@ -55,62 +55,62 @@ impl EditMode {
         }
     }
 
-    fn quit(&self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+    fn quit(&self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.loading_screen("apply edits", |ctx, mut timer| {
-            ui.overlay = Overlays::Inactive;
-            ui.primary
+            app.overlay = Overlays::Inactive;
+            app.primary
                 .map
                 .recalculate_pathfinding_after_edits(&mut timer);
             // Parking state might've changed
-            ui.primary.clear_sim();
+            app.primary.clear_sim();
             // Autosave
-            if ui.primary.map.get_edits().edits_name != "untitled edits" {
-                ui.primary.map.save_edits();
+            if app.primary.map.get_edits().edits_name != "untitled edits" {
+                app.primary.map.save_edits();
             }
-            Transition::PopThenReplace(Box::new(SandboxMode::new(ctx, ui, self.mode.clone())))
+            Transition::PopThenReplace(Box::new(SandboxMode::new(ctx, app, self.mode.clone())))
         })
     }
 }
 
 impl State for EditMode {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         // Can't do this in the constructor, because SandboxMode's on_destroy clears out Overlays
         if self.once {
             self.once = false;
             // apply_map_edits will do the job later
-            ui.overlay = Overlays::map_edits(ctx, ui);
+            app.overlay = Overlays::map_edits(ctx, app);
         }
         {
-            let edits = ui.primary.map.get_edits();
+            let edits = app.primary.map.get_edits();
             let top_panel_key = (edits.edits_name.clone(), edits.commands.len());
             if self.top_panel_key != top_panel_key {
                 self.top_panel_key = top_panel_key;
-                self.composite = make_topcenter(ctx, ui);
+                self.composite = make_topcenter(ctx, app);
             }
         }
 
         ctx.canvas_movement();
         // Restrict what can be selected.
         if ctx.redo_mouseover() {
-            ui.primary.current_selection = ui.calculate_current_selection(
+            app.primary.current_selection = app.calculate_current_selection(
                 ctx,
                 &DontDrawAgents {},
                 &ShowEverything::new(),
                 false,
                 true,
             );
-            if let Some(ID::Lane(l)) = ui.primary.current_selection {
-                if !can_edit_lane(&self.mode, l, ui) {
-                    ui.primary.current_selection = None;
+            if let Some(ID::Lane(l)) = app.primary.current_selection {
+                if !can_edit_lane(&self.mode, l, app) {
+                    app.primary.current_selection = None;
                 }
-            } else if let Some(ID::Intersection(_)) = ui.primary.current_selection {
-            } else if let Some(ID::Road(_)) = ui.primary.current_selection {
+            } else if let Some(ID::Intersection(_)) = app.primary.current_selection {
+            } else if let Some(ID::Road(_)) = app.primary.current_selection {
             } else {
-                ui.primary.current_selection = None;
+                app.primary.current_selection = None;
             }
         }
 
-        if ui.opts.dev && ctx.input.new_was_pressed(&lctrl(Key::D).unwrap()) {
+        if app.opts.dev && ctx.input.new_was_pressed(&lctrl(Key::D).unwrap()) {
             return Transition::Push(Box::new(DebugMode::new(ctx)));
         }
 
@@ -118,8 +118,8 @@ impl State for EditMode {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "load edits" => {
                     // Autosave first
-                    if ui.primary.map.get_edits().edits_name != "untitled edits" {
-                        ui.primary.map.save_edits();
+                    if app.primary.map.get_edits().edits_name != "untitled edits" {
+                        app.primary.map.save_edits();
                     }
                     return Transition::Push(make_load_edits(
                         self.composite.rect_of("load edits").clone(),
@@ -127,28 +127,28 @@ impl State for EditMode {
                     ));
                 }
                 "finish editing" => {
-                    return self.quit(ctx, ui);
+                    return self.quit(ctx, app);
                 }
                 "save edits as" => {
-                    return Transition::Push(WizardState::new(Box::new(|wiz, ctx, ui| {
-                        save_edits_as(&mut wiz.wrap(ctx), ui)?;
+                    return Transition::Push(WizardState::new(Box::new(|wiz, ctx, app| {
+                        save_edits_as(&mut wiz.wrap(ctx), app)?;
                         Some(Transition::Pop)
                     })));
                 }
                 "undo" => {
-                    let mut edits = ui.primary.map.get_edits().clone();
+                    let mut edits = app.primary.map.get_edits().clone();
                     let id = match edits.commands.pop().unwrap() {
                         EditCmd::ChangeLaneType { id, .. } => ID::Lane(id),
                         EditCmd::ReverseLane { l, .. } => ID::Lane(l),
                         EditCmd::ChangeIntersection { i, .. } => ID::Intersection(i),
                     };
-                    apply_map_edits(ctx, ui, edits);
+                    apply_map_edits(ctx, app, edits);
                     return Transition::Push(Warping::new(
                         ctx,
-                        id.canonical_point(&ui.primary).unwrap(),
+                        id.canonical_point(&app.primary).unwrap(),
                         None,
                         Some(id),
-                        &mut ui.primary,
+                        &mut app.primary,
                     ));
                 }
                 _ => unreachable!(),
@@ -157,85 +157,85 @@ impl State for EditMode {
         }
 
         if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
-            if let Some(id) = &ui.primary.current_selection {
-                if ui.per_obj.left_click(ctx, "edit this") {
+            if let Some(id) = &app.primary.current_selection {
+                if app.per_obj.left_click(ctx, "edit this") {
                     return Transition::Push(Warping::new(
                         ctx,
-                        id.canonical_point(&ui.primary).unwrap(),
+                        id.canonical_point(&app.primary).unwrap(),
                         Some(10.0),
                         None,
-                        &mut ui.primary,
+                        &mut app.primary,
                     ));
                 }
             }
         } else {
-            if let Some(ID::Intersection(id)) = ui.primary.current_selection {
-                if ui.primary.map.maybe_get_stop_sign(id).is_some()
+            if let Some(ID::Intersection(id)) = app.primary.current_selection {
+                if app.primary.map.maybe_get_stop_sign(id).is_some()
                     && self.mode.can_edit_stop_signs()
-                    && ui.per_obj.left_click(ctx, "edit stop signs")
+                    && app.per_obj.left_click(ctx, "edit stop signs")
                 {
                     return Transition::Push(Box::new(StopSignEditor::new(
                         id,
                         ctx,
-                        ui,
+                        app,
                         self.suspended_sim.clone(),
                     )));
                 }
-                if ui.primary.map.maybe_get_traffic_signal(id).is_some()
-                    && ui.per_obj.left_click(ctx, "edit traffic signal")
+                if app.primary.map.maybe_get_traffic_signal(id).is_some()
+                    && app.per_obj.left_click(ctx, "edit traffic signal")
                 {
                     return Transition::Push(Box::new(TrafficSignalEditor::new(
                         id,
                         ctx,
-                        ui,
+                        app,
                         self.suspended_sim.clone(),
                     )));
                 }
-                if ui.primary.map.get_i(id).is_closed()
-                    && ui.per_obj.left_click(ctx, "re-open closed intersection")
+                if app.primary.map.get_i(id).is_closed()
+                    && app.per_obj.left_click(ctx, "re-open closed intersection")
                 {
                     // This resets to the original state; it doesn't undo the closure to the last
                     // state. Seems reasonable to me.
-                    let mut edits = ui.primary.map.get_edits().clone();
+                    let mut edits = app.primary.map.get_edits().clone();
                     edits.commands.push(EditCmd::ChangeIntersection {
                         i: id,
-                        old: ui.primary.map.get_i_edit(id),
+                        old: app.primary.map.get_i_edit(id),
                         new: edits.original_intersections[&id].clone(),
                     });
-                    apply_map_edits(ctx, ui, edits);
+                    apply_map_edits(ctx, app, edits);
                 }
             }
-            if let Some(ID::Lane(l)) = ui.primary.current_selection {
-                if ui.per_obj.left_click(ctx, "edit lane") {
-                    return Transition::Push(Box::new(LaneEditor::new(l, ctx, ui)));
+            if let Some(ID::Lane(l)) = app.primary.current_selection {
+                if app.per_obj.left_click(ctx, "edit lane") {
+                    return Transition::Push(Box::new(LaneEditor::new(l, ctx, app)));
                 }
             }
         }
 
-        match self.tool_panel.event(ctx, ui) {
+        match self.tool_panel.event(ctx, app) {
             Some(WrappedOutcome::Transition(t)) => t,
             Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
-                "back" => self.quit(ctx, ui),
+                "back" => self.quit(ctx, app),
                 _ => unreachable!(),
             },
             None => Transition::Keep,
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        // TODO Maybe this should be part of ui.draw
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        // TODO Maybe this should be part of app.draw
         // TODO This has an X button, but we never call update and allow it to be changed. Should
         // just omit the button.
-        ui.overlay.draw(g);
+        app.overlay.draw(g);
 
         self.tool_panel.draw(g);
         self.composite.draw(g);
-        CommonState::draw_osd(g, ui, &ui.primary.current_selection);
+        CommonState::draw_osd(g, app, &app.primary.current_selection);
     }
 }
 
-pub fn save_edits_as(wizard: &mut WrappedWizard, ui: &mut UI) -> Option<()> {
-    let map = &mut ui.primary.map;
+pub fn save_edits_as(wizard: &mut WrappedWizard, app: &mut App) -> Option<()> {
+    let map = &mut app.primary.map;
     let new_default_name = if map.get_edits().edits_name == "untitled edits" {
         "".to_string()
     } else {
@@ -279,11 +279,11 @@ pub fn save_edits_as(wizard: &mut WrappedWizard, ui: &mut UI) -> Option<()> {
 }
 
 fn make_load_edits(btn: ScreenRectangle, mode: GameplayMode) -> Box<dyn State> {
-    WizardState::new(Box::new(move |wiz, ctx, ui| {
+    WizardState::new(Box::new(move |wiz, ctx, app| {
         let mut wizard = wiz.wrap(ctx);
 
-        if ui.primary.map.get_edits().edits_name == "untitled edits"
-            && !ui.primary.map.get_edits().commands.is_empty()
+        if app.primary.map.get_edits().edits_name == "untitled edits"
+            && !app.primary.map.get_edits().commands.is_empty()
         {
             let save = "save edits";
             let discard = "discard";
@@ -292,14 +292,14 @@ fn make_load_edits(btn: ScreenRectangle, mode: GameplayMode) -> Box<dyn State> {
                 .as_str()
                 == save
             {
-                save_edits_as(&mut wizard, ui)?;
+                save_edits_as(&mut wizard, app)?;
                 wizard.reset();
             }
         }
 
         // TODO Exclude current
-        let current_edits_name = ui.primary.map.get_edits().edits_name.clone();
-        let map_name = ui.primary.map.get_name().clone();
+        let current_edits_name = app.primary.map.get_edits().edits_name.clone();
+        let map_name = app.primary.map.get_name().clone();
         let (_, new_edits) = wizard.choose_exact(
             (
                 HorizontalAlignment::Centered(btn.center().x),
@@ -322,12 +322,12 @@ fn make_load_edits(btn: ScreenRectangle, mode: GameplayMode) -> Box<dyn State> {
                 list
             },
         )?;
-        apply_map_edits(ctx, ui, new_edits);
+        apply_map_edits(ctx, app, new_edits);
         Some(Transition::Pop)
     }))
 }
 
-fn make_topcenter(ctx: &mut EventCtx, ui: &UI) -> Composite {
+fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Composite {
     // TODO Support redo. Bit harder here to reset the redo_stack when the edits
     // change, because nested other places modify it too.
     Composite::new(
@@ -342,7 +342,7 @@ fn make_topcenter(ctx: &mut EventCtx, ui: &UI) -> Composite {
                 WrappedComposite::nice_text_button(
                     ctx,
                     Text::from(
-                        Line(format!("{} ▼", &ui.primary.map.get_edits().edits_name))
+                        Line(format!("{} ▼", &app.primary.map.get_edits().edits_name))
                             .size(18)
                             .roboto(),
                     ),
@@ -357,7 +357,7 @@ fn make_topcenter(ctx: &mut EventCtx, ui: &UI) -> Composite {
                     lctrl(Key::S),
                 )
                 .margin(5),
-                (if !ui.primary.map.get_edits().commands.is_empty() {
+                (if !app.primary.map.get_edits().commands.is_empty() {
                     WrappedComposite::svg_button(
                         ctx,
                         "../data/system/assets/tools/undo.svg",
@@ -383,28 +383,28 @@ fn make_topcenter(ctx: &mut EventCtx, ui: &UI) -> Composite {
     .build(ctx)
 }
 
-pub fn apply_map_edits(ctx: &mut EventCtx, ui: &mut UI, edits: MapEdits) {
+pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
     let mut timer = Timer::new("apply map edits");
 
     let (lanes_changed, roads_changed, turns_deleted, turns_added, mut modified_intersections) =
-        ui.primary.map.apply_edits(edits, &mut timer);
+        app.primary.map.apply_edits(edits, &mut timer);
 
     for l in lanes_changed {
-        let lane = ui.primary.map.get_l(l);
-        ui.primary.draw_map.lanes[l.0] = DrawLane::new(
+        let lane = app.primary.map.get_l(l);
+        app.primary.draw_map.lanes[l.0] = DrawLane::new(
             lane,
-            &ui.primary.map,
-            ui.primary.current_flags.draw_lane_markings,
-            &ui.cs,
+            &app.primary.map,
+            app.primary.current_flags.draw_lane_markings,
+            &app.cs,
             &mut timer,
         )
         .finish(ctx.prerender, lane);
     }
     for r in roads_changed {
-        ui.primary.draw_map.roads[r.0] = DrawRoad::new(
-            ui.primary.map.get_r(r),
-            &ui.primary.map,
-            &ui.cs,
+        app.primary.draw_map.roads[r.0] = DrawRoad::new(
+            app.primary.map.get_r(r),
+            &app.primary.map,
+            &app.cs,
             ctx.prerender,
         );
     }
@@ -420,41 +420,41 @@ pub fn apply_map_edits(ctx: &mut EventCtx, ui: &mut UI, edits: MapEdits) {
     }
 
     for i in modified_intersections {
-        ui.primary.draw_map.intersections[i.0] = DrawIntersection::new(
-            ui.primary.map.get_i(i),
-            &ui.primary.map,
-            &ui.cs,
+        app.primary.draw_map.intersections[i.0] = DrawIntersection::new(
+            app.primary.map.get_i(i),
+            &app.primary.map,
+            &app.cs,
             ctx.prerender,
             &mut timer,
         );
     }
 
-    if let Overlays::Edits(_) = ui.overlay {
-        ui.overlay = Overlays::map_edits(ctx, ui);
+    if let Overlays::Edits(_) = app.overlay {
+        app.overlay = Overlays::map_edits(ctx, app);
     }
 }
 
-pub fn can_edit_lane(mode: &GameplayMode, l: LaneID, ui: &UI) -> bool {
+pub fn can_edit_lane(mode: &GameplayMode, l: LaneID, app: &App) -> bool {
     mode.can_edit_lanes()
-        && !ui.primary.map.get_l(l).is_sidewalk()
-        && ui.primary.map.get_l(l).lane_type != LaneType::SharedLeftTurn
+        && !app.primary.map.get_l(l).is_sidewalk()
+        && app.primary.map.get_l(l).lane_type != LaneType::SharedLeftTurn
 }
 
 pub fn close_intersection(
     ctx: &mut EventCtx,
-    ui: &mut UI,
+    app: &mut App,
     i: IntersectionID,
     pop_once: bool,
 ) -> Transition {
-    let mut edits = ui.primary.map.get_edits().clone();
+    let mut edits = app.primary.map.get_edits().clone();
     edits.commands.push(EditCmd::ChangeIntersection {
         i,
-        old: ui.primary.map.get_i_edit(i),
+        old: app.primary.map.get_i_edit(i),
         new: EditIntersection::Closed,
     });
-    apply_map_edits(ctx, ui, edits);
+    apply_map_edits(ctx, app, edits);
 
-    let (_, disconnected) = connectivity::find_scc(&ui.primary.map, PathConstraints::Pedestrian);
+    let (_, disconnected) = connectivity::find_scc(&app.primary.map, PathConstraints::Pedestrian);
     if disconnected.is_empty() {
         // Success! Quit the stop sign / signal editor.
         if pop_once {
@@ -464,9 +464,9 @@ pub fn close_intersection(
         }
     }
 
-    let mut edits = ui.primary.map.get_edits().clone();
+    let mut edits = app.primary.map.get_edits().clone();
     edits.commands.pop();
-    apply_map_edits(ctx, ui, edits);
+    apply_map_edits(ctx, app, edits);
 
     let mut err_state = msg(
         "Error",
@@ -476,13 +476,13 @@ pub fn close_intersection(
         )],
     );
 
-    let color = ui.cs.get("unreachable lane");
+    let color = app.cs.get("unreachable lane");
     let mut c = Colorer::new(Text::new(), vec![("", color)]);
     for l in disconnected {
-        c.add_l(l, color, &ui.primary.map);
+        c.add_l(l, color, &app.primary.map);
     }
 
-    err_state.downcast_mut::<WizardState>().unwrap().also_draw = Some(c.build_zoomed(ctx, ui));
+    err_state.downcast_mut::<WizardState>().unwrap().also_draw = Some(c.build_zoomed(ctx, app));
     if pop_once {
         Transition::Push(err_state)
     } else {

@@ -1,6 +1,6 @@
+use crate::app::App;
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use crate::ui::UI;
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Distance, PolyLine, Polygon, Pt2D};
 use map_model::{BusStop, BusStopID, Map};
@@ -65,7 +65,7 @@ impl Renderable for DrawBusStop {
         ID::BusStop(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI, _: &DrawOptions) {
+    fn draw(&self, g: &mut GfxCtx, _: &App, _: &DrawOptions) {
         g.redraw(&self.draw_default);
     }
 

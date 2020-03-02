@@ -1,11 +1,11 @@
 use crate::abtest::setup::PickABTest;
+use crate::app::App;
 use crate::challenges::challenges_picker;
 use crate::colors;
 use crate::devtools::DevToolsMode;
 use crate::game::{State, Transition};
 use crate::managed::{Callback, ManagedGUIState, WrappedComposite, WrappedOutcome};
 use crate::sandbox::{GameplayMode, SandboxMode, TutorialPointer};
-use crate::ui::UI;
 use ezgui::{
     hotkey, hotkeys, Button, Color, Composite, EventCtx, EventLoopMode, GfxCtx, JustDraw, Key,
     Line, ManagedWidget, Text,
@@ -23,8 +23,8 @@ pub struct TitleScreen {
 }
 
 impl TitleScreen {
-    pub fn new(ctx: &mut EventCtx, ui: &UI) -> TitleScreen {
-        let mut rng = ui.primary.current_flags.sim_flags.make_rng();
+    pub fn new(ctx: &mut EventCtx, app: &App) -> TitleScreen {
+        let mut rng = app.primary.current_flags.sim_flags.make_rng();
         TitleScreen {
             composite: WrappedComposite::new(
                 Composite::new(
@@ -48,32 +48,33 @@ impl TitleScreen {
             )
             .cb(
                 "start game",
-                Box::new(|ctx, ui| Some(Transition::Replace(main_menu(ctx, ui)))),
+                Box::new(|ctx, app| Some(Transition::Replace(main_menu(ctx, app)))),
             ),
-            screensaver: Screensaver::start_bounce(&mut rng, ctx, &ui.primary.map),
+            screensaver: Screensaver::start_bounce(&mut rng, ctx, &app.primary.map),
             rng,
         }
     }
 }
 
 impl State for TitleScreen {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        match self.composite.event(ctx, ui) {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        match self.composite.event(ctx, app) {
             Some(WrappedOutcome::Transition(t)) => t,
             Some(WrappedOutcome::Clicked(_)) => unreachable!(),
             None => {
-                self.screensaver.update(&mut self.rng, ctx, &ui.primary.map);
+                self.screensaver
+                    .update(&mut self.rng, ctx, &app.primary.map);
                 Transition::KeepWithMode(EventLoopMode::Animation)
             }
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.composite.draw(g);
     }
 }
 
-pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
+pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
     let mut col = vec![
         WrappedComposite::svg_button(
             ctx,
@@ -110,7 +111,7 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
         ])
         .centered(),
     ];
-    if ui.opts.dev {
+    if app.opts.dev {
         col.push(
             ManagedWidget::row(vec![
                 WrappedComposite::text_bg_button(ctx, "INTERNAL DEV TOOLS", hotkey(Key::M)),
@@ -141,12 +142,12 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
     )
     .cb(
         "Tutorial",
-        Box::new(|ctx, ui| {
+        Box::new(|ctx, app| {
             Some(Transition::Push(Box::new(SandboxMode::new(
                 ctx,
-                ui,
+                app,
                 GameplayMode::Tutorial(
-                    ui.session
+                    app.session
                         .tutorial
                         .as_ref()
                         .map(|tut| tut.current)
@@ -157,17 +158,17 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
     )
     .cb(
         "Sandbox mode",
-        Box::new(|ctx, ui| {
+        Box::new(|ctx, app| {
             // We might've left with a synthetic map loaded.
             let map_path = if abstutil::list_all_objects(abstutil::path_all_maps())
-                .contains(ui.primary.map.get_name())
+                .contains(app.primary.map.get_name())
             {
-                abstutil::path_map(ui.primary.map.get_name())
+                abstutil::path_map(app.primary.map.get_name())
             } else {
                 abstutil::path_map("montlake")
             };
             let scenario = if abstutil::file_exists(abstutil::path_scenario(
-                ui.primary.map.get_name(),
+                app.primary.map.get_name(),
                 "weekday",
             )) {
                 "weekday"
@@ -176,14 +177,14 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
             };
             Some(Transition::Push(Box::new(SandboxMode::new(
                 ctx,
-                ui,
+                app,
                 GameplayMode::PlayScenario(map_path, scenario.to_string()),
             ))))
         }),
     )
     .cb(
         "Challenges",
-        Box::new(|ctx, ui| Some(Transition::Push(challenges_picker(ctx, ui)))),
+        Box::new(|ctx, app| Some(Transition::Push(challenges_picker(ctx, app)))),
     )
     .cb(
         "About A/B Street",
@@ -193,7 +194,7 @@ pub fn main_menu(ctx: &mut EventCtx, ui: &UI) -> Box<dyn State> {
         "COMMUNITY PROPOSALS",
         Box::new(|ctx, _| Some(Transition::Push(proposals_picker(ctx)))),
     );
-    if ui.opts.dev {
+    if app.opts.dev {
         c = c
             .cb(
                 "INTERNAL DEV TOOLS",
@@ -289,11 +290,11 @@ fn proposals_picker(ctx: &mut EventCtx) -> Box<dyn State> {
                 buttons.push(WrappedComposite::nice_text_button(ctx, txt, None, &path));
                 cbs.push((
                     path,
-                    Box::new(move |ctx, ui| {
+                    Box::new(move |ctx, app| {
                         // TODO apply edits
                         Some(Transition::Push(Box::new(SandboxMode::new(
                             ctx,
-                            ui,
+                            app,
                             GameplayMode::PlayScenario(
                                 abstutil::path_map(&edits.map_name),
                                 "weekday".to_string(),

@@ -1,7 +1,7 @@
+use crate::app::{App, PerMap};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::sandbox::SandboxMode;
-use crate::ui::{PerMapUI, UI};
 use ezgui::{EventCtx, GfxCtx, Warper, Wizard};
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, IntersectionID, LaneID, RoadID};
@@ -17,16 +17,16 @@ impl EnteringWarp {
     }
 }
 
-fn warp_to(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+fn warp_to(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
     let mut wizard = wiz.wrap(ctx);
     let to = wizard.input_string("Warp to what?")?;
-    if let Some((id, pt, cam_zoom)) = warp_point(&to, &ui.primary) {
+    if let Some((id, pt, cam_zoom)) = warp_point(&to, &app.primary) {
         return Some(Transition::Replace(Warping::new(
             ctx,
             pt,
             Some(cam_zoom),
             id,
-            &mut ui.primary,
+            &mut app.primary,
         )));
     }
     wizard.acknowledge("Bad warp ID", || vec![format!("{} isn't a valid ID", to)])?;
@@ -44,7 +44,7 @@ impl Warping {
         pt: Pt2D,
         target_cam_zoom: Option<f64>,
         id: Option<ID>,
-        primary: &mut PerMapUI,
+        primary: &mut PerMap,
     ) -> Box<dyn State> {
         primary.last_warped_from = Some((ctx.canvas.center_to_map_pt(), ctx.canvas.cam_zoom));
         Box::new(Warping {
@@ -55,18 +55,18 @@ impl Warping {
 }
 
 impl State for Warping {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
         if let Some(evmode) = self.warper.event(ctx) {
             Transition::KeepWithMode(evmode)
         } else {
             if let Some(id) = self.id.clone() {
-                Transition::PopWithData(Box::new(move |state, ui, ctx| {
+                Transition::PopWithData(Box::new(move |state, app, ctx| {
                     if let Some(ref mut s) = state.downcast_mut::<SandboxMode>() {
                         s.controls
                             .common
                             .as_mut()
                             .unwrap()
-                            .launch_info_panel(id, ctx, ui);
+                            .launch_info_panel(id, ctx, app);
                     }
                 }))
             } else {
@@ -75,10 +75,10 @@ impl State for Warping {
         }
     }
 
-    fn draw(&self, _: &mut GfxCtx, _: &UI) {}
+    fn draw(&self, _: &mut GfxCtx, _: &App) {}
 }
 
-fn warp_point(line: &str, primary: &PerMapUI) -> Option<(Option<ID>, Pt2D, f64)> {
+fn warp_point(line: &str, primary: &PerMap) -> Option<(Option<ID>, Pt2D, f64)> {
     if line.is_empty() {
         return None;
     }
