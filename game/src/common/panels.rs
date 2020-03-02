@@ -35,6 +35,10 @@ pub fn tool_panel(ctx: &mut EventCtx) -> WrappedComposite {
     )
     .cb(
         "settings",
-        Box::new(|_, _| Some(Transition::Push(options::open_panel()))),
+        Box::new(|ctx, app| {
+            Some(Transition::Push(Box::new(options::OptionsPanel::new(
+                ctx, app,
+            ))))
+        }),
     )
 }
