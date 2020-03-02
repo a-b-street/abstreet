@@ -1,3 +1,4 @@
+use crate::assets::Assets;
 use crate::{ScreenDims, ScreenPt, ScreenRectangle, UserInput};
 use abstutil::Timer;
 use geom::{Bounds, Pt2D};
@@ -211,8 +212,9 @@ impl Canvas {
         }
     }
 
-    pub fn align_window(
+    pub(crate) fn align_window(
         &self,
+        assets: &Assets,
         dims: ScreenDims,
         horiz: HorizontalAlignment,
         vert: VerticalAlignment,
@@ -229,7 +231,9 @@ impl Canvas {
             VerticalAlignment::Center => (self.window_height - dims.height) / 2.0,
             VerticalAlignment::Bottom => self.window_height - dims.height,
             // TODO Hack
-            VerticalAlignment::BottomAboveOSD => self.window_height - dims.height - 60.0,
+            VerticalAlignment::BottomAboveOSD => {
+                self.window_height - dims.height - 60.0 * *assets.scale_factor.borrow()
+            }
             VerticalAlignment::Percent(pct) => pct * self.window_height,
             VerticalAlignment::Above(y) => y - dims.height,
             VerticalAlignment::Below(y) => y,

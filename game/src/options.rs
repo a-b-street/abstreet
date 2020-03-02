@@ -112,6 +112,20 @@ impl OptionsPanel {
                         )
                         .margin(5),
                     ]),
+                    ManagedWidget::row(vec![
+                        ManagedWidget::draw_text(
+                            ctx,
+                            Text::from(Line("Scale factor for text / UI elements:")),
+                        )
+                        .margin(5),
+                        WrappedComposite::nice_text_button(
+                            ctx,
+                            Text::from(Line(format!("{} ▼", ctx.get_scale_factor()))),
+                            None,
+                            "change scale factor",
+                        )
+                        .margin(5),
+                    ]),
                     WrappedComposite::text_bg_button(ctx, "Apply", hotkey(Key::Enter))
                         .margin(5)
                         .centered_horiz(),
@@ -221,6 +235,35 @@ impl State for OptionsPanel {
                                 ),
                             );
                             panel.color_scheme = path;
+                        })))
+                    })));
+                }
+                "change scale factor" => {
+                    return Transition::Push(WizardState::new(Box::new(|wiz, ctx, _| {
+                        let (_, scale) = wiz.wrap(ctx).choose(
+                            "What scale factor for text / UI elements?",
+                            || {
+                                vec![
+                                    Choice::new("0.5", 0.5),
+                                    Choice::new("1.0", 1.0),
+                                    Choice::new("1.5", 1.5),
+                                    Choice::new("2.0", 2.0),
+                                ]
+                            },
+                        )?;
+                        Some(Transition::PopWithData(Box::new(move |state, _, ctx| {
+                            let panel = state.downcast_mut::<OptionsPanel>().unwrap();
+                            panel.composite.replace(
+                                ctx,
+                                "change scale factor",
+                                WrappedComposite::nice_text_button(
+                                    ctx,
+                                    Text::from(Line(format!("{} ▼", scale))),
+                                    None,
+                                    "change scale factor",
+                                ),
+                            );
+                            ctx.set_scale_factor(scale);
                         })))
                     })));
                 }

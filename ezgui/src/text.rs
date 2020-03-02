@@ -206,7 +206,7 @@ impl Text {
             // size.
             let line_height = assets.line_height(
                 line[0].font,
-                line[0].size.unwrap_or(assets.default_font_size),
+                line[0].size.unwrap_or(*assets.default_font_size.borrow()),
             );
 
             let line_batch = render_text(line, tolerance, assets);
@@ -268,7 +268,7 @@ fn render_text(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
     // Just set a sufficiently large view box
     let mut svg = format!(
         r##"<svg width="9999" height="9999" viewBox="0 0 9999 9999" xmlns="http://www.w3.org/2000/svg"><text x="0" y="0" font-size="{}" {}>"##,
-        spans[0].size.unwrap_or(assets.default_font_size),
+        spans[0].size.unwrap_or(*assets.default_font_size.borrow()),
         match spans[0].font {
             Font::DejaVu => "font-family=\"DejaVu Sans\"",
             Font::Roboto => "font-family=\"Roboto\"",
@@ -295,7 +295,12 @@ fn render_text(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
         Err(err) => panic!("render_text({}): {}", contents, err),
     };
     let mut batch = GeomBatch::new();
-    match crate::svg::add_svg_inner(&mut batch, svg_tree, tolerance) {
+    match crate::svg::add_svg_inner(
+        &mut batch,
+        svg_tree,
+        tolerance,
+        *assets.scale_factor.borrow(),
+    ) {
         Ok(_) => batch,
         Err(err) => panic!("render_text({}): {}", contents, err),
     }

@@ -81,12 +81,20 @@ impl<'a> EventCtx<'a> {
 
     // Delegation to assets
     pub fn default_line_height(&self) -> f64 {
-        self.prerender.assets.default_line_height
+        *self.prerender.assets.default_line_height.borrow()
     }
 
     // TODO I can't decide which way the API should go.
     pub fn upload(&self, batch: GeomBatch) -> Drawable {
         self.prerender.upload(batch)
+    }
+
+    pub fn set_scale_factor(&self, scale: f64) {
+        self.prerender.assets.set_scale_factor(scale)
+    }
+
+    pub fn get_scale_factor(&self) -> f64 {
+        *self.prerender.assets.scale_factor.borrow()
     }
 }
 
@@ -107,7 +115,8 @@ impl<'a> LoadingScreen<'a> {
         title: String,
     ) -> LoadingScreen<'a> {
         let canvas = Canvas::new(initial_width, initial_height);
-        let max_capacity = (0.8 * initial_height / prerender.assets.default_line_height) as usize;
+        let max_capacity =
+            (0.8 * initial_height / *prerender.assets.default_line_height.borrow()) as usize;
         LoadingScreen {
             prerender,
             lines: VecDeque::new(),

@@ -8,8 +8,9 @@ use usvg::Options;
 
 // TODO We don't need refcell maybe? Can we take &mut Assets?
 pub struct Assets {
-    pub default_line_height: f64,
-    pub default_font_size: usize,
+    pub default_line_height: RefCell<f64>,
+    pub default_font_size: RefCell<usize>,
+    pub scale_factor: RefCell<f64>,
     text_cache: RefCell<LruCache<String, GeomBatch>>,
     line_height_cache: RefCell<HashMap<(Font, usize), f64>>,
     svg_cache: RefCell<HashMap<String, (GeomBatch, Bounds)>>,
@@ -17,16 +18,18 @@ pub struct Assets {
 }
 
 impl Assets {
-    pub fn new(default_font_size: usize, font_dir: String) -> Assets {
+    pub fn new(default_font_size: usize, font_dir: String, scale_factor: f64) -> Assets {
         let mut a = Assets {
-            default_line_height: 0.0,
-            default_font_size,
+            default_line_height: RefCell::new(0.0),
+            default_font_size: RefCell::new(default_font_size),
+            scale_factor: RefCell::new(scale_factor),
             text_cache: RefCell::new(LruCache::new(500)),
             line_height_cache: RefCell::new(HashMap::new()),
             svg_cache: RefCell::new(HashMap::new()),
             text_opts: Options::default(),
         };
-        a.default_line_height = a.line_height(Font::DejaVu, a.default_font_size);
+        *a.default_line_height.borrow_mut() =
+            a.line_height(Font::DejaVu, *a.default_font_size.borrow());
         a.text_opts.font_directories.push(font_dir);
         a
     }
@@ -43,6 +46,7 @@ impl Assets {
         db.populate(&self.text_opts);
         // This seems to be missing line_gap, and line_gap is 0, so manually adjust here.
         let height = text::SCALE_LINE_HEIGHT
+            * *self.scale_factor.borrow()
             * db.load_font_idx(match font {
                 Font::DejaVu => 0,
                 Font::RobotoBold => 1,
@@ -78,5 +82,14 @@ impl Assets {
     }
     pub fn cache_svg(&self, key: String, geom: GeomBatch, bounds: Bounds) {
         self.svg_cache.borrow_mut().insert(key, (geom, bounds));
+    }
+
+    pub fn set_scale_factor(&self, scale_factor: f64) {
+        *self.scale_factor.borrow_mut() = scale_factor;
+        self.text_cache.borrow_mut().clear();
+        self.line_height_cache.borrow_mut().clear();
+        self.svg_cache.borrow_mut().clear();
+        *self.default_line_height.borrow_mut() =
+            self.line_height(Font::DejaVu, *self.default_font_size.borrow());
     }
 }

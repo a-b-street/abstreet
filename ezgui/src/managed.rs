@@ -733,9 +733,9 @@ impl Composite {
             let result = stretch.layout(root).unwrap();
             ScreenDims::new(result.size.width.into(), result.size.height.into())
         };
-        let top_left = ctx
-            .canvas
-            .align_window(effective_dims, self.horiz, self.vert);
+        let top_left =
+            ctx.canvas
+                .align_window(&ctx.prerender.assets, effective_dims, self.horiz, self.vert);
         let offset = self.scroll_offset();
         self.top_level.apply_flexbox(
             &mut self.sliders,
@@ -845,9 +845,12 @@ impl Composite {
             g.fork_screenspace();
             g.draw_polygon(Color::RED.alpha(0.5), &self.top_level.rect.to_polygon());
 
-            let top_left = g
-                .canvas
-                .align_window(self.container_dims, self.horiz, self.vert);
+            let top_left = g.canvas.align_window(
+                &g.prerender.assets,
+                self.container_dims,
+                self.horiz,
+                self.vert,
+            );
             g.draw_polygon(
                 Color::BLUE.alpha(0.5),
                 &Polygon::rectangle(self.container_dims.width, self.container_dims.height)
@@ -999,7 +1002,9 @@ impl CompositeBuilder {
         };
 
         // If the panel fits without a scrollbar, don't add one.
-        let top_left = ctx.canvas.align_window(c.container_dims, c.horiz, c.vert);
+        let top_left =
+            ctx.canvas
+                .align_window(&ctx.prerender.assets, c.container_dims, c.horiz, c.vert);
         if c.contents_dims.width > c.container_dims.width {
             c.scrollable_x = true;
             c.sliders.insert(

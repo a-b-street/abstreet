@@ -175,7 +175,9 @@ impl<'a> GfxCtx<'a> {
     ) {
         let batch = txt.render_g(self);
         let dims = batch.get_dims();
-        let top_left = self.canvas.align_window(dims, horiz, vert);
+        let top_left = self
+            .canvas
+            .align_window(&self.prerender.assets, dims, horiz, vert);
 
         self.canvas
             .mark_covered_area(ScreenRectangle::top_left(top_left, dims));
@@ -271,7 +273,7 @@ impl<'a> GfxCtx<'a> {
 
     // Delegation to assets
     pub fn default_line_height(&self) -> f64 {
-        self.prerender.assets.default_line_height
+        *self.prerender.assets.default_line_height.borrow()
     }
 }
 

@@ -135,6 +135,7 @@ pub struct Settings {
     profiling_enabled: bool,
     default_font_size: usize,
     dump_raw_events: bool,
+    scale_factor: f64,
 }
 
 impl Settings {
@@ -145,6 +146,7 @@ impl Settings {
             profiling_enabled: false,
             default_font_size: 30,
             dump_raw_events: false,
+            scale_factor: 1.0,
         }
     }
 
@@ -161,6 +163,10 @@ impl Settings {
     pub fn default_font_size(&mut self, size: usize) {
         self.default_font_size = size;
     }
+
+    pub fn scale_factor(&mut self, scale_factor: f64) {
+        self.scale_factor = scale_factor;
+    }
 }
 
 pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: F) -> ! {
@@ -170,7 +176,11 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
     let mut canvas = Canvas::new(window_size.width, window_size.height);
     prerender_innards.window_resized(canvas.window_width, canvas.window_height);
     let prerender = Prerender {
-        assets: Assets::new(settings.default_font_size, settings.font_dir),
+        assets: Assets::new(
+            settings.default_font_size,
+            settings.font_dir,
+            settings.scale_factor,
+        ),
         num_uploads: Cell::new(0),
         inner: prerender_innards,
     };

@@ -58,6 +58,9 @@ fn main() {
     if let Some(n) = args.optional_parse("--font_size", |s| s.parse::<usize>()) {
         settings.default_font_size(n);
     }
+    if let Some(s) = args.optional_parse("--scale_factor", |s| s.parse::<f64>()) {
+        settings.scale_factor(s);
+    }
 
     let mut mode = None;
     if let Some(x) = args.optional("--challenge") {
