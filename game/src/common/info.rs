@@ -15,7 +15,7 @@ use ezgui::{
 use geom::{Circle, Distance, Duration, Statistic, Time};
 use map_model::{IntersectionID, IntersectionType, RoadID};
 use sim::{AgentID, CarID, TripEnd, TripID, TripMode, TripResult, TripStart, VehicleType};
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, HashMap};
 
 pub struct InfoPanel {
     pub id: ID,
@@ -23,10 +23,16 @@ pub struct InfoPanel {
     pub composite: Composite,
 
     also_draw: Drawable,
-    // (ID, unzoomed, zoomed)
-    trip_details: Option<(TripID, Drawable, Drawable)>,
+    trip_details: Option<TripDetails>,
 
     actions: Vec<(Key, String)>,
+}
+
+struct TripDetails {
+    id: TripID,
+    unzoomed: Drawable,
+    zoomed: Drawable,
+    markers: HashMap<String, ID>,
 }
 
 impl InfoPanel {
@@ -79,9 +85,9 @@ impl InfoPanel {
             ID::Pedestrian(p) => app.primary.sim.agent_to_trip(AgentID::Pedestrian(p)),
             _ => None,
         } {
-            let (rows, unzoomed, zoomed) = trip_details(trip, ctx, app);
+            let (rows, details) = trip_details(trip, ctx, app);
             col.push(rows);
-            Some((trip, unzoomed, zoomed))
+            Some(details)
         } else {
             None
         };
@@ -207,8 +213,8 @@ impl InfoPanel {
         // Live update?
         if app.primary.sim.time() != self.time {
             if let Some(a) = self.id.agent_id() {
-                if let Some((trip, _, _)) = self.trip_details {
-                    match app.primary.sim.trip_to_agent(trip) {
+                if let Some(ref details) = self.trip_details {
+                    match app.primary.sim.trip_to_agent(details.id) {
                         TripResult::Ok(a2) => {
                             if a != a2 {
                                 if !app.primary.sim.does_agent_exist(a) {
@@ -236,8 +242,13 @@ impl InfoPanel {
                             }
                         }
                         TripResult::TripDone => {
-                            *self =
-                                InfoPanel::new(ID::Trip(trip), ctx, app, Vec::new(), maybe_speed);
+                            *self = InfoPanel::new(
+                                ID::Trip(details.id),
+                                ctx,
+                                app,
+                                Vec::new(),
+                                maybe_speed,
+                            );
                             return (
                                 false,
                                 Some(Transition::Push(msg(
@@ -281,6 +292,21 @@ impl InfoPanel {
                 } else if action == "follow agent" {
                     maybe_speed.unwrap().resume_realtime(ctx);
                     return (false, None);
+                } else if let Some(id) = self
+                    .trip_details
+                    .as_ref()
+                    .and_then(|d| d.markers.get(&action))
+                {
+                    return (
+                        false,
+                        Some(Transition::Push(Warping::new(
+                            ctx,
+                            id.canonical_point(&app.primary).unwrap(),
+                            Some(10.0),
+                            None,
+                            &mut app.primary,
+                        ))),
+                    );
                 } else {
                     app.primary.current_selection = Some(self.id.clone());
                     return (true, Some(Transition::ApplyObjectAction(action)));
@@ -292,11 +318,11 @@ impl InfoPanel {
 
     pub fn draw(&self, g: &mut GfxCtx) {
         self.composite.draw(g);
-        if let Some((_, ref unzoomed, ref zoomed)) = self.trip_details {
+        if let Some(ref details) = self.trip_details {
             if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
-                g.redraw(unzoomed);
+                g.redraw(&details.unzoomed);
             } else {
-                g.redraw(zoomed);
+                g.redraw(&details.zoomed);
             }
         }
         g.redraw(&self.also_draw);
@@ -847,12 +873,7 @@ fn color_for_mode(m: TripMode, app: &App) -> Color {
     }
 }
 
-// (extra rows to display, unzoomed view, zoomed view)
-fn trip_details(
-    trip: TripID,
-    ctx: &mut EventCtx,
-    app: &App,
-) -> (ManagedWidget, Drawable, Drawable) {
+fn trip_details(trip: TripID, ctx: &mut EventCtx, app: &App) -> (ManagedWidget, TripDetails) {
     let map = &app.primary.map;
     let phases = app.primary.sim.get_analytics().get_trip_phases(trip, map);
     let (trip_start, trip_end) = app.primary.sim.trip_endpoints(trip);
@@ -864,6 +885,22 @@ fn trip_details(
     })];
     let mut unzoomed = GeomBatch::new();
     let mut zoomed = GeomBatch::new();
+    let mut markers = HashMap::new();
+
+    let mut start_btn = Button::rectangle_svg(
+        "../data/system/assets/tools/start_pos.svg",
+        "jump to start",
+        None,
+        RewriteColor::Change(Color::WHITE, colors::HOVERING),
+        ctx,
+    );
+    let mut goal_btn = Button::rectangle_svg(
+        "../data/system/assets/tools/goal_pos.svg",
+        "jump to goal",
+        None,
+        RewriteColor::Change(Color::WHITE, colors::HOVERING),
+        ctx,
+    );
 
     // Start
     {
@@ -871,6 +908,11 @@ fn trip_details(
         match trip_start {
             TripStart::Bldg(b) => {
                 let bldg = map.get_b(b);
+                let mut txt = Text::from(Line("jump to start"));
+                txt.add(Line(bldg.just_address(map)));
+                txt.add(Line(phases[0].start_time.ampm_tostring()));
+                start_btn = start_btn.change_tooltip(txt);
+
                 col.push(ColorLegend::row(
                     ctx,
                     color,
@@ -882,20 +924,27 @@ fn trip_details(
                 ));
                 unzoomed.push(color, bldg.polygon.clone());
                 zoomed.push(color, bldg.polygon.clone());
+                markers.insert("jump to start".to_string(), ID::Building(b));
             }
             TripStart::Border(i) => {
                 let i = map.get_i(i);
+                let mut txt = Text::from(Line("jump to start"));
+                txt.add(Line(i.name(map)));
+                txt.add(Line(phases[0].start_time.ampm_tostring()));
+                start_btn = start_btn.change_tooltip(txt);
+
                 col.push(ColorLegend::row(
                     ctx,
                     color,
                     format!(
                         "{}: start at {}",
                         phases[0].start_time.ampm_tostring(),
-                        i.name(&app.primary.map),
+                        i.name(map)
                     ),
                 ));
                 unzoomed.push(color, i.polygon.clone());
                 zoomed.push(color, i.polygon.clone());
+                markers.insert("jump to start".to_string(), ID::Intersection(i.id));
             }
         };
     }
@@ -942,6 +991,13 @@ fn trip_details(
         match trip_end {
             TripEnd::Bldg(b) => {
                 let bldg = map.get_b(b);
+                let mut txt = Text::from(Line("jump to goal"));
+                txt.add(Line(bldg.just_address(map)));
+                if let Some(t) = end_time {
+                    txt.add(Line(t.ampm_tostring()));
+                }
+                goal_btn = goal_btn.change_tooltip(txt);
+
                 col.push(ColorLegend::row(
                     ctx,
                     color,
@@ -949,25 +1005,43 @@ fn trip_details(
                 ));
                 unzoomed.push(color, bldg.polygon.clone());
                 zoomed.push(color, bldg.polygon.clone());
+                markers.insert("jump to goal".to_string(), ID::Building(b));
             }
             TripEnd::Border(i) => {
                 let i = map.get_i(i);
+                let mut txt = Text::from(Line("jump to goal"));
+                txt.add(Line(i.name(map)));
+                if let Some(t) = end_time {
+                    txt.add(Line(t.ampm_tostring()));
+                }
+                goal_btn = goal_btn.change_tooltip(txt);
+
                 col.push(ColorLegend::row(
                     ctx,
                     color,
-                    format!("{}end at {}", time, i.name(&app.primary.map)),
+                    format!("{}end at {}", time, i.name(map)),
                 ));
                 unzoomed.push(color, i.polygon.clone());
                 zoomed.push(color, i.polygon.clone());
+                markers.insert("jump to goal".to_string(), ID::Intersection(i.id));
             }
             TripEnd::ServeBusRoute(_) => unreachable!(),
         };
     }
 
+    col.push(ManagedWidget::row(vec![
+        ManagedWidget::btn(start_btn),
+        ManagedWidget::btn(goal_btn).align_right(),
+    ]));
+
     (
         ManagedWidget::col(col),
-        unzoomed.upload(ctx),
-        zoomed.upload(ctx),
+        TripDetails {
+            id: trip,
+            unzoomed: unzoomed.upload(ctx),
+            zoomed: zoomed.upload(ctx),
+            markers,
+        },
     )
 }
 
