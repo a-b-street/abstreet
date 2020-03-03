@@ -165,8 +165,6 @@ d15fe87c4174463e84b9a440162129ed  data/system/assets/tools/undo.svg
 512477d8556de48901712165e905782f  data/system/assets/tools/locate.svg
 5f3912d972b47419295ded39c52e647d  data/system/assets/tools/next.svg
 e469148085a2046afd447d31a54d15ab  data/system/assets/tools/search.svg
-b9e963ca693bb9329b065454047742e7  data/system/assets/tools/start_pos.svg
-c8433d44c82e2471ee777c90d4bcd449  data/system/assets/tools/goal_pos.svg
 4a5d6456d7c3d9ad94fc1a9e456d6f06  data/system/assets/tools/prev.svg
 fe358c0fdf48b65117f7c4970fa35d91  data/system/assets/tools/settings.svg
 1e0135f13d0aea11650460d6a61b5463  data/system/assets/tools/edit.svg
@@ -183,6 +181,12 @@ c2d2cf72d0058b898fb508c6ea175cf1  data/system/assets/map/parking.svg
 c3fa1600a398928d248cf5d96f63d294  data/system/assets/map/parked_car.svg
 c09a5debd42b9c673c6b681c62ebf861  data/system/assets/map/bus_only.svg
 8b0ef0778d81a4ad5496b34d24e6eb01  data/system/assets/map/walk.svg
+b9e963ca693bb9329b065454047742e7  data/system/assets/timeline/start_pos.svg
+c8433d44c82e2471ee777c90d4bcd449  data/system/assets/timeline/goal_pos.svg
+28f143690de67bbda88e141228393c1c  data/system/assets/timeline/parking.svg
+cb589c4b42bb9f3bdaabbf485897ab51  data/system/assets/timeline/current_pos.svg
+10b02a86fe4b695ee5bfcde982a41c10  data/system/assets/timeline/walking.svg
+680d81bc03b0115abcc85a28885ae94b  data/system/assets/timeline/driving.svg
 ef57ec8ce198dddc0d6289a15dd68104  data/system/assets/edit/bus.svg
 1ef84103f508ac1695dffda6fd0600d4  data/system/assets/edit/construction.svg
 90cb164f6cdc56993f0e68932e3b876c  data/system/assets/edit/bike.svg

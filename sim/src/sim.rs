@@ -951,6 +951,21 @@ impl Sim {
         }
     }
 
+    // Percent in [0, 1]
+    // TODO More continuous on a single lane
+    pub fn progress_along_path(&self, agent: AgentID) -> Option<f64> {
+        match agent {
+            AgentID::Car(c) => {
+                if c.1 != VehicleType::Bus {
+                    self.driving.progress_along_path(c)
+                } else {
+                    None
+                }
+            }
+            AgentID::Pedestrian(p) => self.walking.progress_along_path(p),
+        }
+    }
+
     pub fn bus_route_id(&self, maybe_bus: CarID) -> Option<BusRouteID> {
         if maybe_bus.1 == VehicleType::Bus {
             Some(self.transit.bus_route(maybe_bus))

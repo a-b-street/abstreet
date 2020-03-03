@@ -156,6 +156,15 @@ impl ManagedWidget {
         });
         self
     }
+    pub fn margin_above(mut self, pixels: usize) -> ManagedWidget {
+        self.style.margin = Some(Rect {
+            start: Dimension::Undefined,
+            end: Dimension::Undefined,
+            top: Dimension::Points(pixels as f32),
+            bottom: Dimension::Undefined,
+        });
+        self
+    }
 
     pub fn align_left(mut self) -> ManagedWidget {
         self.style.margin = Some(Rect {

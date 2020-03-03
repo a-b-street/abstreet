@@ -303,6 +303,11 @@ impl WalkingSimState {
         (props, extra)
     }
 
+    pub fn progress_along_path(&self, id: PedestrianID) -> Option<f64> {
+        let p = &self.peds[&id];
+        Some(p.path.crossed_so_far() / p.path.total_length())
+    }
+
     pub fn trace_route(
         &self,
         now: Time,

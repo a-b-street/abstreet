@@ -12,7 +12,7 @@ use ezgui::{
     Key, Line, ManagedWidget, Outcome, Plot, PlotOptions, RewriteColor, Series, Text,
     VerticalAlignment,
 };
-use geom::{Angle, Circle, Distance, Duration, Polygon, Statistic, Time};
+use geom::{Angle, Circle, Distance, Duration, Polygon, Pt2D, Statistic, Time};
 use map_model::{IntersectionID, IntersectionType, RoadID};
 use sim::{AgentID, CarID, TripEnd, TripID, TripMode, TripResult, TripStart, VehicleType};
 use std::collections::{BTreeSet, HashMap};
@@ -73,19 +73,31 @@ impl InfoPanel {
 
         let mut col = info_for(ctx, app, id.clone(), action_btns);
 
-        let trip_details = if let Some(trip) = match id {
-            ID::Trip(t) => Some(t),
+        let trip_details = if let Some((trip, progress)) = match id {
+            ID::Trip(t) => Some((t, None)),
             ID::Car(c) => {
                 if c.1 == VehicleType::Bus {
                     None
                 } else {
-                    app.primary.sim.agent_to_trip(AgentID::Car(c))
+                    app.primary
+                        .sim
+                        .agent_to_trip(AgentID::Car(c))
+                        .map(|t| (t, app.primary.sim.progress_along_path(AgentID::Car(c))))
                 }
             }
-            ID::Pedestrian(p) => app.primary.sim.agent_to_trip(AgentID::Pedestrian(p)),
+            ID::Pedestrian(p) => app
+                .primary
+                .sim
+                .agent_to_trip(AgentID::Pedestrian(p))
+                .map(|t| {
+                    (
+                        t,
+                        app.primary.sim.progress_along_path(AgentID::Pedestrian(p)),
+                    )
+                }),
             _ => None,
         } {
-            let (rows, details) = trip_details(trip, ctx, app);
+            let (rows, details) = trip_details(ctx, app, trip, progress);
             col.push(rows);
             Some(details)
         } else {
@@ -876,7 +888,12 @@ fn color_for_mode(m: TripMode, app: &App) -> Color {
     }
 }
 
-fn trip_details(trip: TripID, ctx: &mut EventCtx, app: &App) -> (ManagedWidget, TripDetails) {
+fn trip_details(
+    ctx: &mut EventCtx,
+    app: &App,
+    trip: TripID,
+    progress_along_path: Option<f64>,
+) -> (ManagedWidget, TripDetails) {
     let map = &app.primary.map;
     let phases = app.primary.sim.get_analytics().get_trip_phases(trip, map);
     let (trip_start, trip_end) = app.primary.sim.trip_endpoints(trip);
@@ -886,14 +903,14 @@ fn trip_details(trip: TripID, ctx: &mut EventCtx, app: &App) -> (ManagedWidget, 
     let mut markers = HashMap::new();
 
     let mut start_btn = Button::rectangle_svg(
-        "../data/system/assets/tools/start_pos.svg",
+        "../data/system/assets/timeline/start_pos.svg",
         "jump to start",
         None,
         RewriteColor::Change(Color::WHITE, colors::HOVERING),
         ctx,
     );
     let mut goal_btn = Button::rectangle_svg(
-        "../data/system/assets/tools/goal_pos.svg",
+        "../data/system/assets/timeline/goal_pos.svg",
         "jump to goal",
         None,
         RewriteColor::Change(Color::WHITE, colors::HOVERING),
@@ -914,14 +931,14 @@ fn trip_details(trip: TripID, ctx: &mut EventCtx, app: &App) -> (ManagedWidget, 
 
                 unzoomed.add_svg(
                     ctx.prerender,
-                    "../data/system/assets/tools/start_pos.svg",
+                    "../data/system/assets/timeline/start_pos.svg",
                     bldg.label_center,
                     1.0,
                     Angle::ZERO,
                 );
                 zoomed.add_svg(
                     ctx.prerender,
-                    "../data/system/assets/tools/start_pos.svg",
+                    "../data/system/assets/timeline/start_pos.svg",
                     bldg.label_center,
                     0.5,
                     Angle::ZERO,
@@ -938,14 +955,14 @@ fn trip_details(trip: TripID, ctx: &mut EventCtx, app: &App) -> (ManagedWidget, 
 
                 unzoomed.add_svg(
                     ctx.prerender,
-                    "../data/system/assets/tools/start_pos.svg",
+                    "../data/system/assets/timeline/start_pos.svg",
                     i.polygon.center(),
                     1.0,
                     Angle::ZERO,
                 );
                 zoomed.add_svg(
                     ctx.prerender,
-                    "../data/system/assets/tools/start_pos.svg",
+                    "../data/system/assets/timeline/start_pos.svg",
                     i.polygon.center(),
                     0.5,
                     Angle::ZERO,
@@ -970,14 +987,14 @@ fn trip_details(trip: TripID, ctx: &mut EventCtx, app: &App) -> (ManagedWidget, 
 
                 unzoomed.add_svg(
                     ctx.prerender,
-                    "../data/system/assets/tools/goal_pos.svg",
+                    "../data/system/assets/timeline/goal_pos.svg",
                     bldg.label_center,
                     1.0,
                     Angle::ZERO,
                 );
                 zoomed.add_svg(
                     ctx.prerender,
-                    "../data/system/assets/tools/goal_pos.svg",
+                    "../data/system/assets/timeline/goal_pos.svg",
                     bldg.label_center,
                     0.5,
                     Angle::ZERO,
@@ -996,14 +1013,14 @@ fn trip_details(trip: TripID, ctx: &mut EventCtx, app: &App) -> (ManagedWidget, 
 
                 unzoomed.add_svg(
                     ctx.prerender,
-                    "../data/system/assets/tools/goal_pos.svg",
+                    "../data/system/assets/timeline/goal_pos.svg",
                     i.polygon.center(),
                     1.0,
                     Angle::ZERO,
                 );
                 zoomed.add_svg(
                     ctx.prerender,
-                    "../data/system/assets/tools/goal_pos.svg",
+                    "../data/system/assets/timeline/goal_pos.svg",
                     i.polygon.center(),
                     0.5,
                     Angle::ZERO,
@@ -1017,11 +1034,12 @@ fn trip_details(trip: TripID, ctx: &mut EventCtx, app: &App) -> (ManagedWidget, 
     // TODO Width proportional to duration of this phase!
     let phase_width = total_width / (phases.len() as f64);
     let mut timeline = Vec::new();
-    for p in phases {
+    let num_phases = phases.len();
+    for (idx, p) in phases.into_iter().enumerate() {
         // TODO based on segment type
         let color = rotating_color_map(timeline.len());
 
-        let mut txt = Text::from(Line(p.description));
+        let mut txt = Text::from(Line(&p.description));
         txt.add(Line(format!(
             "- Started at {}",
             p.start_time.ampm_tostring()
@@ -1040,17 +1058,47 @@ fn trip_details(trip: TripID, ctx: &mut EventCtx, app: &App) -> (ManagedWidget, 
         }
 
         let rect = Polygon::rectangle(phase_width, 15.0);
+        let mut normal = GeomBatch::from(vec![(color, rect.clone())]);
+        if idx == num_phases - 1 {
+            if let Some(p) = progress_along_path {
+                normal.add_svg(
+                    ctx.prerender,
+                    "../data/system/assets/timeline/current_pos.svg",
+                    Pt2D::new(p * phase_width, 7.5),
+                    1.0,
+                    Angle::ZERO,
+                );
+            }
+        }
+        // TODO Hardcoded layouting...
+        normal.add_svg(
+            ctx.prerender,
+            if p.description == "driving" {
+                "../data/system/assets/timeline/driving.svg"
+            } else if p.description == "walking" {
+                "../data/system/assets/timeline/walking.svg"
+            } else if p.description == "parking on the current lane"
+                || p.description == "parking somewhere else"
+            {
+                "../data/system/assets/timeline/parking.svg"
+            } else {
+                // TODO Placeholder
+                "../data/system/assets/timeline/parking.svg"
+            },
+            Pt2D::new(0.5 * phase_width, -20.0),
+            1.0,
+            Angle::ZERO,
+        );
+
+        let mut hovered = GeomBatch::from(vec![(colors::HOVERING, rect.clone())]);
+        for (c, p) in normal.clone().consume().into_iter().skip(1) {
+            hovered.push(c, p);
+        }
+
         timeline.push(
             ManagedWidget::btn(
-                Button::new(
-                    ctx,
-                    GeomBatch::from(vec![(color, rect.clone())]),
-                    GeomBatch::from(vec![(colors::HOVERING, rect.clone())]),
-                    None,
-                    "examine trip phase",
-                    rect,
-                )
-                .change_tooltip(txt),
+                Button::new(ctx, normal, hovered, None, "examine trip phase", rect)
+                    .change_tooltip(txt),
             )
             .centered_vert(),
         );
@@ -1075,17 +1123,10 @@ fn trip_details(trip: TripID, ctx: &mut EventCtx, app: &App) -> (ManagedWidget, 
     timeline.insert(0, ManagedWidget::btn(start_btn).margin(5));
     timeline.push(ManagedWidget::btn(goal_btn).margin(5));
 
-    let col = vec![
-        ManagedWidget::draw_text(ctx, {
-            let mut txt = Text::from(Line(""));
-            txt.add(Line("Trip timeline").roboto_bold());
-            txt
-        }),
-        ManagedWidget::row(timeline).evenly_spaced(),
-    ];
-
     (
-        ManagedWidget::col(col),
+        ManagedWidget::row(timeline)
+            .evenly_spaced()
+            .margin_above(25),
         TripDetails {
             id: trip,
             unzoomed: unzoomed.upload(ctx),

@@ -940,6 +940,11 @@ impl DrivingSimState {
         Some((props, Vec::new()))
     }
 
+    pub fn progress_along_path(&self, id: CarID) -> Option<f64> {
+        let path = self.cars.get(&id)?.router.get_path();
+        Some(path.crossed_so_far() / path.total_length())
+    }
+
     pub fn get_path(&self, id: CarID) -> Option<&Path> {
         let car = self.cars.get(&id)?;
         Some(car.router.get_path())
