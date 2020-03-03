@@ -322,13 +322,13 @@ fn exit_sandbox(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<T
     let mut wizard = wiz.wrap(ctx);
     let unsaved = app.primary.map.get_edits().edits_name == "untitled edits"
         && !app.primary.map.get_edits().commands.is_empty();
-    let (resp, _) = wizard.choose("Sure you want to abandon the current challenge?", || {
+    let (resp, _) = wizard.choose("Are you ready to leave this mode?", || {
         let mut choices = Vec::new();
         choices.push(Choice::new("keep playing", ()));
         if unsaved {
-            choices.push(Choice::new("save edits and quit", ()));
+            choices.push(Choice::new("save edits first", ()));
         }
-        choices.push(Choice::new("quit challenge", ()).key(Key::Q));
+        choices.push(Choice::new("quit to main screen", ()).key(Key::Q));
         choices
     })?;
     if resp == "keep playing" {

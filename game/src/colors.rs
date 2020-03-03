@@ -1,7 +1,5 @@
 // TODO Still can't decide how to arrange colorschemes. Trying this out.
 
-//before: 256
-
 use ezgui::Color;
 
 pub const HOVERING: Color = Color::ORANGE;

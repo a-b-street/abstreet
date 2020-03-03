@@ -112,7 +112,7 @@ impl GameplayState for Tutorial {
                     return (Some(transition(ctx, app)), false);
                 }
                 "help" => {
-                    tut.prev();
+                    tut.current = TutorialPointer::new(tut.current.stage, 0);
                     return (Some(transition(ctx, app)), false);
                 }
                 "edit map" => {
@@ -1386,9 +1386,11 @@ impl TutorialState {
                         "Some changes you make can't take effect until the next day;",
                         "like what if you removed a parking lane while there are cars on it?",
                         "So when you leave edit mode, the day will always reset to midnight.",
+                        "",
                         "People are on fixed schedules: every day, everybody leaves at exactly \
                          the same time,",
                         "making the same decision to drive, walk, bike, or take a bus.",
+                        "",
                         "All you can influence is how their experience will be in the short term.",
                     ],
                     None,

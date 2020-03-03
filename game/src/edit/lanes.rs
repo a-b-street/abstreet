@@ -75,34 +75,37 @@ impl LaneEditor {
             );
         }
 
-        let revert = if app.primary.map.get_edits().original_lts.contains_key(&l)
+        let mut col = vec![
+            ManagedWidget::draw_text(
+                ctx,
+                Text::from(Line(format!(
+                    "Convert this lane of {} to what type?",
+                    app.primary.map.get_parent(l).get_name()
+                ))),
+            )
+            .centered_horiz(),
+            ManagedWidget::row(row).centered(),
+            WrappedComposite::text_button(ctx, "Finish", hotkey(Key::Escape)),
+        ];
+        // TODO Not ready for general use
+        if app.opts.dev {
+            col.push(WrappedComposite::text_button(
+                ctx,
+                "Edit entire road",
+                hotkey(Key::U),
+            ));
+        }
+        if app.primary.map.get_edits().original_lts.contains_key(&l)
             || app.primary.map.get_edits().reversed_lanes.contains(&l)
         {
-            WrappedComposite::text_button(ctx, "Revert", hotkey(Key::R))
+            col.push(WrappedComposite::text_button(ctx, "Revert", hotkey(Key::R)));
         } else {
-            Button::inactive_button(ctx, "Revert")
+            col.push(Button::inactive_button(ctx, "Revert"));
         };
 
-        let composite = Composite::new(
-            ManagedWidget::col(vec![
-                ManagedWidget::draw_text(
-                    ctx,
-                    Text::from(Line(format!(
-                        "Modify lane of {}",
-                        app.primary.map.get_parent(l).get_name()
-                    ))),
-                )
-                .centered_horiz(),
-                ManagedWidget::row(row).centered(),
-                WrappedComposite::text_button(ctx, "Finish", hotkey(Key::Escape)),
-                WrappedComposite::text_button(ctx, "Edit entire road", hotkey(Key::U)),
-                revert,
-            ])
-            .bg(colors::PANEL_BG)
-            .padding(10),
-        )
-        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-        .build(ctx);
+        let composite = Composite::new(ManagedWidget::col(col).bg(colors::PANEL_BG).padding(10))
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .build(ctx);
 
         LaneEditor { l, composite }
     }

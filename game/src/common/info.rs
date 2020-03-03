@@ -238,7 +238,7 @@ impl InfoPanel {
                                     );
                                 }
 
-                                return (false, Some(Transition::Push(trip_transition(a, a2))));
+                                return (true, Some(Transition::Push(trip_transition(a, a2))));
                             }
                         }
                         TripResult::TripDone => {
