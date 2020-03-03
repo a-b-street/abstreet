@@ -5,6 +5,10 @@ use geom::{Bounds, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::cell::RefCell;
 
+// Click and release counts as a normal click, not a drag, if the distance between click and
+// release is less than this.
+const DRAG_THRESHOLD: f64 = 5.0;
+
 pub struct Canvas {
     // All of these f64's are in screen-space, so do NOT use Pt2D.
     // Public for saving/loading... should probably do better
@@ -17,9 +21,8 @@ pub struct Canvas {
     pub(crate) cursor_y: f64,
     pub(crate) window_has_cursor: bool,
 
-    // Only for drags starting on the map. Only used to pan the map.
-    pub(crate) drag_canvas_from: Option<ScreenPt>,
-    pub(crate) actually_dragging: bool,
+    // Only for drags starting on the map. Only used to pan the map. (Last event, original)
+    pub(crate) drag_canvas_from: Option<(ScreenPt, ScreenPt)>,
     pub(crate) drag_just_ended: bool,
 
     pub window_width: f64,
@@ -48,7 +51,6 @@ impl Canvas {
             window_has_cursor: true,
 
             drag_canvas_from: None,
-            actually_dragging: false,
             drag_just_ended: false,
 
             window_width: initial_width,
@@ -73,7 +75,7 @@ impl Canvas {
         // Can't start dragging or zooming on top of covered area
         if self.get_cursor_in_map_space().is_some() {
             if input.left_mouse_button_pressed() {
-                self.drag_canvas_from = Some(self.get_cursor());
+                self.drag_canvas_from = Some((self.get_cursor(), self.get_cursor()));
             }
 
             if let Some((_, scroll)) = input.get_mouse_scroll() {
@@ -93,22 +95,18 @@ impl Canvas {
         }
 
         // If we start the drag on the map and move the mouse off the map, keep dragging.
-        if let Some(click) = self.drag_canvas_from {
+        if let Some((click, orig)) = self.drag_canvas_from {
             let pt = self.get_cursor();
             self.cam_x += click.x - pt.x;
             self.cam_y += click.y - pt.y;
-            self.drag_canvas_from = Some(pt);
-            if !self.actually_dragging && click != pt {
-                self.actually_dragging = true;
-            }
+            self.drag_canvas_from = Some((pt, orig));
 
             if input.left_mouse_button_released() {
-                self.drag_canvas_from = None;
-                if self.actually_dragging {
+                let (_, orig) = self.drag_canvas_from.take().unwrap();
+                let dist = ((pt.x - orig.x).powi(2) + (pt.y - orig.y).powi(2)).sqrt();
+                if dist > DRAG_THRESHOLD {
                     self.drag_just_ended = true;
-                } else {
                 }
-                self.actually_dragging = false;
             }
         } else if self.drag_just_ended {
             self.drag_just_ended = false;
