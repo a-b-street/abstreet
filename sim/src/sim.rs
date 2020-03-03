@@ -3,8 +3,8 @@ use crate::{
     DrawPedestrianInput, DrivingGoal, DrivingSimState, Event, GetDrawAgents, IntersectionSimState,
     ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, Router, Scheduler, SidewalkPOI,
     SidewalkSpot, TransitSimState, TripCount, TripEnd, TripID, TripLeg, TripManager, TripMode,
-    TripPositions, TripResult, TripSpawner, TripSpec, TripStart, UnzoomedAgent, VehicleSpec,
-    VehicleType, WalkingSimState, BUS_LENGTH,
+    TripPhaseType, TripPositions, TripResult, TripSpawner, TripSpec, TripStart, UnzoomedAgent,
+    VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
 };
 use abstutil::Timer;
 use derivative::Derivative;
@@ -440,9 +440,9 @@ impl Sim {
                         },
                         Some(create_car.req.clone()),
                         if create_car.vehicle.id.1 == VehicleType::Car {
-                            "driving".to_string()
+                            TripPhaseType::Driving
                         } else {
-                            "biking".to_string()
+                            TripPhaseType::Biking
                         },
                     ));
                     self.analytics
@@ -524,7 +524,7 @@ impl Sim {
                         create_ped.trip,
                         TripMode::Walk,
                         Some(create_ped.req.clone()),
-                        "walking".to_string(),
+                        TripPhaseType::Walking,
                     ));
                     self.analytics.record_demand(&create_ped.path, map);
 

@@ -14,7 +14,9 @@ use ezgui::{
 };
 use geom::{Angle, Circle, Distance, Duration, Polygon, Pt2D, Statistic, Time};
 use map_model::{IntersectionID, IntersectionType, RoadID};
-use sim::{AgentID, CarID, TripEnd, TripID, TripMode, TripResult, TripStart, VehicleType};
+use sim::{
+    AgentID, CarID, TripEnd, TripID, TripMode, TripPhaseType, TripResult, TripStart, VehicleType,
+};
 use std::collections::{BTreeSet, HashMap};
 
 pub struct InfoPanel {
@@ -1036,10 +1038,16 @@ fn trip_details(
     let mut timeline = Vec::new();
     let num_phases = phases.len();
     for (idx, p) in phases.into_iter().enumerate() {
-        // TODO based on segment type
-        let color = rotating_color_map(timeline.len());
+        let color = match p.phase_type {
+            TripPhaseType::Driving => Color::hex("#D63220"),
+            TripPhaseType::Walking => Color::hex("#DF8C3D"),
+            TripPhaseType::Parking => Color::hex("#4E30A6"),
+            // TODO The others
+            _ => rotating_color_map(timeline.len()),
+        }
+        .alpha(0.7);
 
-        let mut txt = Text::from(Line(&p.description));
+        let mut txt = Text::from(Line(&p.phase_type.describe(&app.primary.map)));
         txt.add(Line(format!(
             "- Started at {}",
             p.start_time.ampm_tostring()
@@ -1070,27 +1078,24 @@ fn trip_details(
                 );
             }
         }
-        // TODO Hardcoded layouting...
-        normal.add_svg(
-            ctx.prerender,
-            if p.description == "driving" {
-                "../data/system/assets/timeline/driving.svg"
-            } else if p.description == "walking" {
-                "../data/system/assets/timeline/walking.svg"
-            } else if p.description == "parking on the current lane"
-                || p.description == "parking somewhere else"
-            {
-                "../data/system/assets/timeline/parking.svg"
-            } else {
-                // TODO Placeholder
-                "../data/system/assets/timeline/parking.svg"
-            },
-            Pt2D::new(0.5 * phase_width, -20.0),
-            1.0,
-            Angle::ZERO,
-        );
+        if let Some(icon) = match p.phase_type {
+            TripPhaseType::Driving => Some("../data/system/assets/timeline/driving.svg"),
+            TripPhaseType::Walking => Some("../data/system/assets/timeline/walking.svg"),
+            TripPhaseType::Parking => Some("../data/system/assets/timeline/parking.svg"),
+            // TODO Add in more
+            _ => None,
+        } {
+            normal.add_svg(
+                ctx.prerender,
+                icon,
+                // TODO Hardcoded layouting...
+                Pt2D::new(0.5 * phase_width, -20.0),
+                1.0,
+                Angle::ZERO,
+            );
+        }
 
-        let mut hovered = GeomBatch::from(vec![(colors::HOVERING, rect.clone())]);
+        let mut hovered = GeomBatch::from(vec![(color.alpha(1.0), rect.clone())]);
         for (c, p) in normal.clone().consume().into_iter().skip(1) {
             hovered.push(c, p);
         }

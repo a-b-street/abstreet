@@ -1,5 +1,6 @@
 use crate::{
-    CarID, Event, PedestrianID, Router, Scheduler, TripManager, TripMode, WalkingSimState,
+    CarID, Event, PedestrianID, Router, Scheduler, TripManager, TripMode, TripPhaseType,
+    WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Time};
@@ -192,7 +193,7 @@ impl TransitSimState {
                                 end: map.get_bs(stop2).driving_pos,
                                 constraints: PathConstraints::Bus,
                             }),
-                            format!("riding bus {}", map.get_br(route).name),
+                            TripPhaseType::RidingBus(route),
                         ));
                     } else {
                         still_waiting.push((ped, route, stop2, started_waiting));

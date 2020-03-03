@@ -1,4 +1,4 @@
-use crate::{CarID, Event, TripID, TripMode};
+use crate::{CarID, Event, TripID, TripMode, TripPhaseType};
 use abstutil::Counter;
 use derivative::Derivative;
 use geom::{Distance, Duration, DurationHistogram, PercentageHistogram, Time};
@@ -21,7 +21,7 @@ pub struct Analytics {
     // Finish time, ID, mode (or None as aborted), trip duration
     pub finished_trips: Vec<(Time, TripID, Option<TripMode>, Duration)>,
     // TODO This subsumes finished_trips
-    pub trip_log: Vec<(Time, TripID, Option<PathRequest>, String)>,
+    pub trip_log: Vec<(Time, TripID, Option<PathRequest>, TripPhaseType)>,
     pub intersection_delays: BTreeMap<IntersectionID, Vec<(Time, Duration)>>,
 
     // After we restore from a savestate, don't record anything. This is only going to make sense
@@ -148,16 +148,15 @@ impl Analytics {
 
         // TODO Kinda hacky, but these all consume the event, so kinda bundle em.
         match ev {
-            Event::TripPhaseStarting(id, _, maybe_req, metadata) => {
-                self.trip_log.push((time, id, maybe_req, metadata));
+            Event::TripPhaseStarting(id, _, maybe_req, phase_type) => {
+                self.trip_log.push((time, id, maybe_req, phase_type));
             }
             Event::TripAborted(id, _) => {
-                self.trip_log
-                    .push((time, id, None, format!("trip aborted for some reason")));
+                self.trip_log.push((time, id, None, TripPhaseType::Aborted));
             }
             Event::TripFinished(id, _, _) => {
                 self.trip_log
-                    .push((time, id, None, format!("trip finished")));
+                    .push((time, id, None, TripPhaseType::Finished));
             }
             Event::PathAmended(path) => {
                 self.record_demand(&path, map);
@@ -420,14 +419,14 @@ impl Analytics {
 
     pub fn get_trip_phases(&self, trip: TripID, map: &Map) -> Vec<TripPhase> {
         let mut phases: Vec<TripPhase> = Vec::new();
-        for (t, id, maybe_req, md) in &self.trip_log {
+        for (t, id, maybe_req, phase_type) in &self.trip_log {
             if *id != trip {
                 continue;
             }
             if let Some(ref mut last) = phases.last_mut() {
                 last.end_time = Some(*t);
             }
-            if md == "trip finished" || md == "trip aborted for some reason" {
+            if *phase_type == TripPhaseType::Finished || *phase_type == TripPhaseType::Aborted {
                 break;
             }
             phases.push(TripPhase {
@@ -437,7 +436,7 @@ impl Analytics {
                 path: maybe_req
                     .as_ref()
                     .map(|req| (req.start.dist_along(), map.pathfind(req.clone()).unwrap())),
-                description: md.clone(),
+                phase_type: *phase_type,
             })
         }
         phases
@@ -445,16 +444,16 @@ impl Analytics {
 
     fn get_all_trip_phases(&self) -> BTreeMap<TripID, Vec<TripPhase>> {
         let mut trips = BTreeMap::new();
-        for (t, id, _, md) in &self.trip_log {
+        for (t, id, _, phase_type) in &self.trip_log {
             let phases: &mut Vec<TripPhase> = trips.entry(*id).or_insert_with(Vec::new);
             if let Some(ref mut last) = phases.last_mut() {
                 last.end_time = Some(*t);
             }
-            if md == "trip finished" {
+            if *phase_type == TripPhaseType::Finished {
                 continue;
             }
             // Remove aborted trips
-            if md == "trip aborted for some reason" {
+            if *phase_type == TripPhaseType::Aborted {
                 trips.remove(id);
                 continue;
             }
@@ -463,7 +462,7 @@ impl Analytics {
                 end_time: None,
                 // Don't compute any paths
                 path: None,
-                description: md.clone(),
+                phase_type: *phase_type,
             })
         }
         trips
@@ -482,17 +481,14 @@ impl Analytics {
             let mut overhead = Duration::ZERO;
             for p in phases {
                 let dt = p.end_time.unwrap() - p.start_time;
-                // TODO New enum instead of strings, if there'll be more analyses like this
-                if p.description.starts_with("CarID(") {
-                    driving_time += dt;
-                } else if p.description == "parking somewhere else"
-                    || p.description == "parking on the current lane"
-                {
-                    overhead += dt;
-                } else if p.description.starts_with("PedestrianID(") {
-                    overhead += dt;
-                } else {
-                    // Waiting for a bus. Irrelevant.
+                match p.phase_type {
+                    TripPhaseType::Driving => {
+                        driving_time += dt;
+                    }
+                    TripPhaseType::Parking | TripPhaseType::Walking => {
+                        overhead += dt;
+                    }
+                    _ => {}
                 }
             }
             // Only interested in trips with both
@@ -615,7 +611,7 @@ pub struct TripPhase {
     pub end_time: Option<Time>,
     // Plumb along start distance
     pub path: Option<(Distance, Path)>,
-    pub description: String,
+    pub phase_type: TripPhaseType,
 }
 
 struct Window {

@@ -1,7 +1,7 @@
 use crate::{
     AgentID, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, Event, ParkingSimState,
     ParkingSpot, PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripID,
-    Vehicle, VehicleType, WalkingSimState,
+    TripPhaseType, Vehicle, VehicleType, WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap, Counter};
 use geom::{Speed, Time};
@@ -353,7 +353,7 @@ impl TripManager {
                     trip.id,
                     trip.mode,
                     None,
-                    format!("waiting for bus {}", map.get_br(route).name),
+                    TripPhaseType::WaitingForBus(route),
                 ));
                 if transit.ped_waiting_for_bus(now, ped, stop, route, stop2) {
                     trip.legs.pop_front();

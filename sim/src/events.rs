@@ -1,7 +1,7 @@
 use crate::{AgentID, CarID, ParkingSpot, PedestrianID, TripID, TripMode};
 use geom::Duration;
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, Path, PathRequest, Traversable,
+    BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, Map, Path, PathRequest, Traversable,
 };
 use serde_derive::{Deserialize, Serialize};
 
@@ -27,9 +27,36 @@ pub enum Event {
 
     TripFinished(TripID, TripMode, Duration),
     TripAborted(TripID, TripMode),
-    TripPhaseStarting(TripID, TripMode, Option<PathRequest>, String),
+    TripPhaseStarting(TripID, TripMode, Option<PathRequest>, TripPhaseType),
 
     // Just use for parking replanning. Not happy about copying the full path in here, but the way
     // to plumb info into Analytics is Event.
     PathAmended(Path),
+}
+
+#[derive(Debug, PartialEq, Clone, Copy, Serialize, Deserialize)]
+pub enum TripPhaseType {
+    Driving,
+    Walking,
+    Biking,
+    Parking,
+    WaitingForBus(BusRouteID),
+    RidingBus(BusRouteID),
+    Aborted,
+    Finished,
+}
+
+impl TripPhaseType {
+    pub fn describe(self, map: &Map) -> String {
+        match self {
+            TripPhaseType::Driving => "driving".to_string(),
+            TripPhaseType::Walking => "walking".to_string(),
+            TripPhaseType::Biking => "biking".to_string(),
+            TripPhaseType::Parking => "parking".to_string(),
+            TripPhaseType::WaitingForBus(r) => format!("waiting for bus {}", map.get_br(r).name),
+            TripPhaseType::RidingBus(r) => format!("riding bus {}", map.get_br(r).name),
+            TripPhaseType::Aborted => "trip aborted due to some bug".to_string(),
+            TripPhaseType::Finished => "trip finished".to_string(),
+        }
+    }
 }

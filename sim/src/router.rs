@@ -1,5 +1,7 @@
 use crate::mechanics::Queue;
-use crate::{Event, ParkingSimState, ParkingSpot, SidewalkSpot, TripID, TripMode, Vehicle};
+use crate::{
+    Event, ParkingSimState, ParkingSpot, SidewalkSpot, TripID, TripMode, TripPhaseType, Vehicle,
+};
 use geom::Distance;
 use map_model::{
     BuildingID, IntersectionID, LaneID, Map, Path, PathConstraints, PathRequest, PathStep,
@@ -200,7 +202,7 @@ impl Router {
                                 end: new_pos,
                                 constraints: PathConstraints::Car,
                             }),
-                            format!("parking on the current lane"),
+                            TripPhaseType::Parking,
                         ));
                         *spot = Some((new_spot, new_pos.dist_along()));
                     } else {
@@ -221,7 +223,7 @@ impl Router {
                                     end: new_pos,
                                     constraints: PathConstraints::Car,
                                 }),
-                                format!("parking somewhere else"),
+                                TripPhaseType::Parking,
                             ));
                         } else {
                             println!(

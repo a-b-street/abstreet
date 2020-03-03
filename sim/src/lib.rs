@@ -10,7 +10,7 @@ mod transit;
 mod trips;
 
 pub use self::analytics::{Analytics, TripPhase};
-pub use self::events::Event;
+pub use self::events::{Event, TripPhaseType};
 pub use self::make::{
     ABTest, BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars, SimFlags,
     SpawnOverTime, SpawnTrip, TripSpawner, TripSpec,
