@@ -11,8 +11,13 @@ pub struct TrafficSignal {
     pub phases: Vec<Phase>,
     // TODO What should this be relative to?
     pub offset_seconds: usize,
+    /// Information about the person mapping the signal.
+    pub observed: Metadata,
+    /// Information about the latest person to verify a previously mapped signal.
+    pub audited: Option<Metadata>,
 }
 
+/// A traffic signal is in one phase at any time. The phase describes what movements are possible.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Phase {
     /// During this phase, these turns can be performed with the highest priority, protected by a
@@ -58,9 +63,25 @@ pub struct DirectedRoad {
     pub is_forwards: bool,
 }
 
-static DATA: include_dir::Dir = include_dir::include_dir!("data");
+/// Extra information about the occasion that a signal was mapped or audited.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+pub struct Metadata {
+    /// Name, email, or whatever else somebody wants to use to identify themselves. This can be
+    /// left blank; there's no obligation to reveal any information about yourself.
+    pub author: String,
+    /// The time when the signal was mapped or audited in TODO format. This is useful to determine
+    /// if some signals operate on a different plan on weekends, late at night, during rush hour,
+    /// etc.
+    pub datetime: String,
+    /// Any other relevant notes or observations.
+    pub notes: String,
+}
+
+static DATA: include_dir::Dir = include_dir::include_dir!("src/data");
 
 /// Returns all traffic signal data compiled into this build, keyed by OSM node ID.
+// TODO Use a build script to do this. But have to generate Rust code to populate the struct? For
+// now, the data directory is in src/ so changes to it trigger rebuild.
 pub fn load_all_data() -> Result<BTreeMap<i64, TrafficSignal>, std::io::Error> {
     let mut results = BTreeMap::new();
     for f in DATA.files() {

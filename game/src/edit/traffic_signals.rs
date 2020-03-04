@@ -176,7 +176,13 @@ impl State for TrafficSignalEditor {
                         ctx,
                     );
                 }
+                "Edit metadata" => {
+                    return Transition::Push(edit_md(self.i));
+                }
                 "Export" => {
+                    if orig_signal.observation_md.is_none() {
+                        return Transition::Push(msg("Error", vec!["Edit the metadata first"]));
+                    }
                     orig_signal.export(&app.primary.map);
                 }
                 "Preview" => {
@@ -330,6 +336,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
         .margin(15),
     ];
     if app.opts.dev {
+        row.push(WrappedComposite::text_button(ctx, "Edit metadata", None));
         row.push(WrappedComposite::text_button(ctx, "Export", None));
     }
     Composite::new(ManagedWidget::row(row).bg(colors::PANEL_BG))
@@ -870,4 +877,74 @@ impl State for PreviewTrafficSignal {
         self.speed.draw(g);
         self.time_panel.draw(g);
     }
+}
+
+fn edit_md(i: IntersectionID) -> Box<dyn State> {
+    WizardState::new(Box::new(move |wiz, ctx, app| {
+        let mut wizard = wiz.wrap(ctx);
+
+        let default = traffic_signals::Metadata {
+            author: "Anonymous".to_string(),
+            datetime: "MM/DD/YYYY HH:MM:SS".to_string(),
+            notes: "no notes".to_string(),
+        };
+        let prev_observed = app
+            .primary
+            .map
+            .get_traffic_signal(i)
+            .observation_md
+            .clone()
+            .unwrap_or_else(|| default.clone());
+        let observed = traffic_signals::Metadata {
+            author: wizard.input_string_prefilled(
+                "Who mapped this signal? (Feel free to remain anonymous.)",
+                prev_observed.author,
+            )?,
+            datetime: wizard.input_string_prefilled(
+                "When was this signal mapped? TODO format",
+                prev_observed.datetime,
+            )?,
+            notes: wizard.input_string_prefilled(
+                "Any other observations about the signal?",
+                prev_observed.notes,
+            )?,
+        };
+
+        // TODO Always ask this?
+        let prev_audited = app
+            .primary
+            .map
+            .get_traffic_signal(i)
+            .audit_md
+            .clone()
+            .unwrap_or_else(|| default.clone());
+        let audited = traffic_signals::Metadata {
+            author: wizard.input_string_prefilled(
+                "Who audited this signal? (Feel free to remain anonymous.)",
+                prev_audited.author,
+            )?,
+            datetime: wizard.input_string_prefilled(
+                "When was this signal audited? TODO format",
+                prev_audited.datetime,
+            )?,
+            notes: wizard.input_string_prefilled(
+                "Any other notes about auditing this signal?",
+                prev_audited.notes,
+            )?,
+        };
+
+        // This feels like overkill...
+        Some(Transition::PopWithData(Box::new(move |state, app, ctx| {
+            let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
+            let orig_signal = app.primary.map.get_traffic_signal(editor.i);
+            let mut new_signal = orig_signal.clone();
+            new_signal.observation_md = Some(observed);
+            new_signal.audit_md = Some(audited);
+
+            editor.command_stack.push(orig_signal.clone());
+            editor.redo_stack.clear();
+            editor.top_panel = make_top_panel(ctx, app, true, false);
+            change_traffic_signal(new_signal, app, ctx);
+        })))
+    }))
 }

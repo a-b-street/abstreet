@@ -198,7 +198,7 @@
           "is_crosswalk": false
         }
       ],
-      "duration_seconds": 50
+      "duration_seconds": 45
     },
     {
       "protected_turns": [
@@ -400,5 +400,15 @@
       "duration_seconds": 15
     }
   ],
-  "offset_seconds": 0
+  "offset_seconds": 0,
+  "observed": {
+    "author": "Dustin Carlino",
+    "datetime": "MM/DD/YYYY HH:MM:SS",
+    "notes": "fake data, testing things out"
+  },
+  "audited": {
+    "author": "Anonymous",
+    "datetime": "MM/DD/YYYY HH:MM:SS",
+    "notes": "no notes"
+  }
 }

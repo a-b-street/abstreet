@@ -28,6 +28,7 @@ rand_xorshift = "0.2.0"
 serde = "1.0.98"
 serde_derive = "1.0.98"
 sim = { path = "../sim" }
+traffic_signals = { path = "../traffic_signals" }
 
 [build-dependencies]
 built = "0.3.2"
