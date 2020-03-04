@@ -213,7 +213,7 @@ impl ControlTrafficSignal {
         let straight = turn_groups
             .values()
             .find(|g| g.turn_type == TurnType::Straight)?;
-        let (north, south) = (straight.id.from, straight.id.to);
+        let (north, south) = (straight.id.from.id, straight.id.to.id);
         let mut roads = map.get_i(i).roads.clone();
         roads.remove(&north);
         roads.remove(&south);
@@ -430,10 +430,10 @@ impl ControlTrafficSignal {
             let mut phase = Phase::new();
             for group in turn_groups.values() {
                 if group.turn_type == TurnType::Crosswalk {
-                    if group.id.from == adj1 || group.id.from == adj2 {
+                    if group.id.from.id == adj1 || group.id.from.id == adj2 {
                         phase.protected_groups.insert(group.id);
                     }
-                } else if group.id.from == r {
+                } else if group.id.from.id == r {
                     phase.yield_groups.insert(group.id);
                 }
             }
@@ -452,13 +452,13 @@ impl ControlTrafficSignal {
     }
 
     // Returns true if this did anything
-    pub fn convert_to_ped_scramble(&mut self, map: &Map) -> bool {
+    pub fn convert_to_ped_scramble(&mut self) -> bool {
         let orig = self.clone();
 
         let mut all_walk_phase = Phase::new();
         for g in self.turn_groups.values() {
             if g.turn_type == TurnType::Crosswalk {
-                all_walk_phase.edit_group(g, TurnPriority::Protected, &self.turn_groups, map);
+                all_walk_phase.edit_group(g, TurnPriority::Protected);
             }
         }
 
@@ -541,23 +541,15 @@ impl Phase {
         }
     }
 
-    pub fn edit_group(
-        &mut self,
-        g: &TurnGroup,
-        pri: TurnPriority,
-        turn_groups: &BTreeMap<TurnGroupID, TurnGroup>,
-        map: &Map,
-    ) {
+    pub fn edit_group(&mut self, g: &TurnGroup, pri: TurnPriority) {
         let mut ids = vec![g.id];
         if g.turn_type == TurnType::Crosswalk {
-            for t in &map.get_t(g.id.crosswalk.unwrap()).other_crosswalk_ids {
-                ids.push(
-                    *turn_groups
-                        .keys()
-                        .find(|id| id.crosswalk == Some(*t))
-                        .unwrap(),
-                );
-            }
+            ids.push(TurnGroupID {
+                from: g.id.to,
+                to: g.id.from,
+                parent: g.id.parent,
+                crosswalk: true,
+            });
         }
         for id in ids {
             self.protected_groups.remove(&id);
@@ -599,7 +591,7 @@ fn make_phases(
 
         for (roads, turn_type, protected) in specs.into_iter() {
             for group in turn_groups.values() {
-                if !roads.contains(&group.id.from) || turn_type != group.turn_type {
+                if !roads.contains(&group.id.from.id) || turn_type != group.turn_type {
                     continue;
                 }
 
@@ -610,8 +602,6 @@ fn make_phases(
                     } else {
                         TurnPriority::Yield
                     },
-                    &turn_groups,
-                    map,
                 );
             }
         }

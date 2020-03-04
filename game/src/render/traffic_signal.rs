@@ -31,7 +31,7 @@ pub fn draw_signal_phase(
     match signal_style {
         TrafficSignalStyle::GroupArrows => {
             for g in &phase.yield_groups {
-                assert!(g.crosswalk.is_none());
+                assert!(!g.crosswalk);
                 batch.push(
                     yield_bg_color,
                     signal.turn_groups[g]
@@ -49,12 +49,12 @@ pub fn draw_signal_phase(
             }
             let mut dont_walk = BTreeSet::new();
             for g in signal.turn_groups.keys() {
-                if g.crosswalk.is_some() {
+                if g.crosswalk {
                     dont_walk.insert(g);
                 }
             }
             for g in &phase.protected_groups {
-                if g.crosswalk.is_none() {
+                if !g.crosswalk {
                     batch.push(
                         protected_color,
                         signal.turn_groups[g]
@@ -87,7 +87,7 @@ pub fn draw_signal_phase(
         }
         TrafficSignalStyle::Sidewalks => {
             for g in &phase.yield_groups {
-                assert!(g.crosswalk.is_none());
+                assert!(!g.crosswalk);
                 batch.push(
                     yield_bg_color,
                     signal.turn_groups[g]
@@ -104,8 +104,13 @@ pub fn draw_signal_phase(
                 );
             }
             for g in &phase.protected_groups {
-                if let Some(t) = g.crosswalk {
-                    make_crosswalk(batch, app.primary.map.get_t(t), &app.primary.map, &app.cs);
+                if g.crosswalk {
+                    make_crosswalk(
+                        batch,
+                        app.primary.map.get_t(signal.turn_groups[g].members[0]),
+                        &app.primary.map,
+                        &app.cs,
+                    );
                 } else {
                     batch.push(
                         protected_color,

@@ -131,7 +131,7 @@ impl State for TrafficSignalEditor {
                 TurnPriority::Banned => {
                     if phase.could_be_protected(id, &orig_signal.turn_groups) {
                         Some(TurnPriority::Protected)
-                    } else if id.crosswalk.is_some() {
+                    } else if id.crosswalk {
                         None
                     } else {
                         Some(TurnPriority::Yield)
@@ -139,7 +139,7 @@ impl State for TrafficSignalEditor {
                 }
                 TurnPriority::Yield => Some(TurnPriority::Banned),
                 TurnPriority::Protected => {
-                    if id.crosswalk.is_some() {
+                    if id.crosswalk {
                         Some(TurnPriority::Banned)
                     } else {
                         Some(TurnPriority::Yield)
@@ -155,12 +155,7 @@ impl State for TrafficSignalEditor {
                         pri
                     ),
                 ) {
-                    phase.edit_group(
-                        &orig_signal.turn_groups[&id],
-                        pri,
-                        &orig_signal.turn_groups,
-                        &app.primary.map,
-                    );
+                    phase.edit_group(&orig_signal.turn_groups[&id], pri);
                     self.command_stack.push(orig_signal.clone());
                     self.redo_stack.clear();
                     self.top_panel = make_top_panel(true, false, ctx);
@@ -275,16 +270,16 @@ impl State for TrafficSignalEditor {
         self.composite.draw(g);
         self.top_panel.draw(g);
         if let Some(id) = self.group_selected {
-            let osd = if id.crosswalk.is_some() {
+            let osd = if id.crosswalk {
                 Text::from(Line(format!(
                     "Crosswalk across {}",
-                    app.primary.map.get_r(id.from).get_name()
+                    app.primary.map.get_r(id.from.id).get_name()
                 )))
             } else {
                 Text::from(Line(format!(
                     "Turn from {} to {}",
-                    app.primary.map.get_r(id.from).get_name(),
-                    app.primary.map.get_r(id.to).get_name()
+                    app.primary.map.get_r(id.from.id).get_name(),
+                    app.primary.map.get_r(id.to.id).get_name()
                 )))
             };
             CommonState::draw_custom_osd(g, app, osd);
@@ -536,7 +531,7 @@ fn edit_entire_signal(app: &App, i: IntersectionID, suspended_sim: Sim) -> Box<d
                     let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
                     let orig_signal = app.primary.map.get_traffic_signal(editor.i);
                     let mut new_signal = orig_signal.clone();
-                    if new_signal.convert_to_ped_scramble(&app.primary.map) {
+                    if new_signal.convert_to_ped_scramble() {
                         editor.command_stack.push(orig_signal.clone());
                         editor.redo_stack.clear();
                         editor.top_panel = make_top_panel(true, false, ctx);
@@ -750,7 +745,7 @@ fn check_for_missing_groups(
     let num_missing = missing.len();
     let mut phase = Phase::new();
     for g in missing {
-        if g.crosswalk.is_some() {
+        if g.crosswalk {
             phase.protected_groups.insert(g);
         } else {
             phase.yield_groups.insert(g);

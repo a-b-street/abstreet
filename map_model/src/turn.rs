@@ -1,4 +1,4 @@
-use crate::{IntersectionID, LaneID, Map, RoadID};
+use crate::{DirectedRoadID, IntersectionID, LaneID, Map};
 use abstutil::MultiMap;
 use geom::{Angle, Distance, PolyLine, Pt2D};
 use serde_derive::{Deserialize, Serialize};
@@ -114,13 +114,14 @@ impl Turn {
     }
 }
 
+// One road usually has 4 crosswalks, each a singleton TurnGroup. We need all of the information
+// here to keep each crosswalk separate.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct TurnGroupID {
-    pub from: RoadID,
-    pub to: RoadID,
-    // If this is true, there's only one member. There are separate TurnGroups for each side of a
-    // crosswalk! The TurnID is embedded here so the two crosswalks have different IDs.
-    pub crosswalk: Option<TurnID>,
+    pub from: DirectedRoadID,
+    pub to: DirectedRoadID,
+    pub parent: IntersectionID,
+    pub crosswalk: bool,
 }
 
 // TODO Unclear how this plays with different lane types
@@ -138,17 +139,18 @@ pub struct TurnGroup {
 impl TurnGroup {
     pub(crate) fn for_i(i: IntersectionID, map: &Map) -> BTreeMap<TurnGroupID, TurnGroup> {
         let mut results = BTreeMap::new();
-        let mut groups: MultiMap<(RoadID, RoadID), TurnID> = MultiMap::new();
+        let mut groups: MultiMap<(DirectedRoadID, DirectedRoadID), TurnID> = MultiMap::new();
         for turn in map.get_turns_in_intersection(i) {
-            let from = map.get_l(turn.id.src).parent;
-            let to = map.get_l(turn.id.dst).parent;
+            let from = map.get_l(turn.id.src).get_directed_parent(map);
+            let to = map.get_l(turn.id.dst).get_directed_parent(map);
             match turn.turn_type {
                 TurnType::SharedSidewalkCorner => {}
                 TurnType::Crosswalk => {
                     let id = TurnGroupID {
                         from,
                         to,
-                        crosswalk: Some(turn.id),
+                        parent: i,
+                        crosswalk: true,
                     };
                     results.insert(
                         id,
@@ -193,7 +195,8 @@ impl TurnGroup {
             let id = TurnGroupID {
                 from,
                 to,
-                crosswalk: None,
+                parent: i,
+                crosswalk: false,
             };
             results.insert(
                 id,
@@ -214,8 +217,8 @@ impl TurnGroup {
 
     // Polyline points FROM intersection
     pub fn src_center_and_width(&self, map: &Map) -> (PolyLine, Distance) {
-        let r = map.get_r(self.id.from);
-        let dir = r.dir_and_offset(self.members[0].src).0;
+        let r = map.get_r(self.id.from.id);
+        let dir = self.id.from.forwards;
         // Points towards the intersection
         let pl = if dir {
             r.get_current_center(map)
@@ -242,11 +245,8 @@ impl TurnGroup {
 
         let pl = pl.shift_right((leftmost + rightmost) / 2.0).unwrap();
         // Flip direction, so we point away from the intersection
-        let pl = if self
-            .id
-            .crosswalk
-            .map(|t| map.get_l(t.src).src_i == t.parent)
-            .unwrap_or(false)
+        let pl = if self.id.crosswalk
+            && map.get_l(self.members[0].src).src_i == self.members[0].parent
         {
             pl
         } else {
@@ -276,7 +276,11 @@ impl TurnGroup {
     }
 }
 
-fn turn_group_geom(polylines: Vec<&PolyLine>, from: RoadID, to: RoadID) -> PolyLine {
+fn turn_group_geom(
+    polylines: Vec<&PolyLine>,
+    from: DirectedRoadID,
+    to: DirectedRoadID,
+) -> PolyLine {
     let num_pts = polylines[0].points().len();
     for pl in &polylines {
         if num_pts != pl.points().len() {

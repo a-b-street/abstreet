@@ -38,6 +38,7 @@ pub struct Intersection {
     pub incoming_lanes: Vec<LaneID>,
     pub outgoing_lanes: Vec<LaneID>,
 
+    // TODO Maybe DirectedRoadIDs
     pub roads: BTreeSet<RoadID>,
 }
 
