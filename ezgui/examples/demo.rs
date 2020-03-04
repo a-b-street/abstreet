@@ -13,7 +13,6 @@ struct App {
     top_center: Composite,
     draw: Drawable,
 
-    paused: bool,
     elapsed: Duration,
 }
 
@@ -49,14 +48,26 @@ impl App {
                         txt
                     }),
                     ManagedWidget::row(vec![
-                        ManagedWidget::btn(Button::text_bg(
-                            Text::from(Line("Pause")),
-                            Color::BLUE,
-                            Color::ORANGE,
-                            hotkey(Key::Space),
-                            "pause the stopwatch",
-                            ctx,
-                        )),
+                        ManagedWidget::custom_checkbox(
+                            false,
+                            Button::text_bg(
+                                Text::from(Line("Pause")),
+                                Color::BLUE,
+                                Color::ORANGE,
+                                hotkey(Key::Space),
+                                "pause the stopwatch",
+                                ctx,
+                            ),
+                            Button::text_bg(
+                                Text::from(Line("Resume")),
+                                Color::BLUE,
+                                Color::ORANGE,
+                                hotkey(Key::Space),
+                                "resume the stopwatch",
+                                ctx,
+                            ),
+                        )
+                        .named("paused"),
                         ManagedWidget::btn(Button::text_no_bg(
                             Text::from(Line("Reset")),
                             Text::from(Line("Reset").fg(Color::ORANGE)),
@@ -78,7 +89,6 @@ impl App {
             .build(ctx),
             draw: batch.upload(ctx),
 
-            paused: false,
             elapsed: Duration::ZERO,
         }
     }
@@ -90,36 +100,7 @@ impl GUI for App {
 
         match self.top_center.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "pause the stopwatch" => {
-                    self.paused = true;
-                    self.top_center.replace(
-                        ctx,
-                        "pause the stopwatch",
-                        ManagedWidget::btn(Button::text_bg(
-                            Text::from(Line("Resume")),
-                            Color::BLUE,
-                            Color::ORANGE,
-                            hotkey(Key::Space),
-                            "resume the stopwatch",
-                            ctx,
-                        )),
-                    );
-                }
-                "resume the stopwatch" => {
-                    self.paused = false;
-                    self.top_center.replace(
-                        ctx,
-                        "resume the stopwatch",
-                        ManagedWidget::btn(Button::text_bg(
-                            Text::from(Line("Pause")),
-                            Color::BLUE,
-                            Color::ORANGE,
-                            hotkey(Key::Space),
-                            "pause the stopwatch",
-                            ctx,
-                        )),
-                    );
-                }
+                "pause the stopwatch" | "resume the stopwatch" => {}
                 "reset the stopwatch" => {
                     self.elapsed = Duration::ZERO;
                     self.top_center.replace(
@@ -151,7 +132,7 @@ impl GUI for App {
             );
         }
 
-        if self.paused {
+        if self.top_center.is_checked("paused") {
             EventLoopMode::InputOnly
         } else {
             EventLoopMode::Animation

@@ -33,6 +33,7 @@ enum SpeedSetting {
 }
 
 impl SpeedControls {
+    // TODO Could use custom_checkbox here, but not sure it'll make things that much simpler.
     fn make_panel(ctx: &mut EventCtx, paused: bool, setting: SpeedSetting) -> WrappedComposite {
         let mut row = Vec::new();
         row.push(

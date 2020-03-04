@@ -3,8 +3,8 @@ use crate::text;
 use crate::widgets::{Checkbox, PopupMenu, TextBox};
 use crate::{
     Button, Color, Drawable, EventCtx, Filler, GeomBatch, GfxCtx, Histogram, HorizontalAlignment,
-    JustDraw, MultiKey, Plot, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Slider, Text,
-    VerticalAlignment,
+    JustDraw, Line, MultiKey, Plot, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Slider,
+    Text, VerticalAlignment,
 };
 use abstutil::Cloneable;
 use geom::{Distance, Duration, Polygon};
@@ -284,11 +284,40 @@ impl ManagedWidget {
         hotkey: Option<MultiKey>,
         enabled: bool,
     ) -> ManagedWidget {
-        ManagedWidget::new(WidgetType::Checkbox(Checkbox::new(
-            ctx, label, hotkey, enabled,
-        )))
+        // TODO Just a copy of WrappedComposite::nice_text_button essentially...
+        fn make_btn(
+            ctx: &EventCtx,
+            label: &str,
+            hotkey: Option<MultiKey>,
+            enabled: bool,
+        ) -> Button {
+            let txt = Text::from(Line(format!(
+                "{} {}",
+                if enabled { "☑" } else { "☐" },
+                label
+            )));
+            Button::text_no_bg(
+                txt.clone(),
+                txt.change_fg(Color::ORANGE),
+                hotkey,
+                label,
+                true,
+                ctx,
+            )
+        }
+
+        ManagedWidget::custom_checkbox(
+            enabled,
+            make_btn(ctx, label, hotkey.clone(), false),
+            make_btn(ctx, label, hotkey, true),
+        )
         .outline(2.0, Color::WHITE)
         .named(label)
+    }
+    pub fn custom_checkbox(enabled: bool, false_btn: Button, true_btn: Button) -> ManagedWidget {
+        ManagedWidget::new(WidgetType::Checkbox(Checkbox::new(
+            enabled, false_btn, true_btn,
+        )))
     }
 
     pub fn text_entry(ctx: &EventCtx, prefilled: String) -> ManagedWidget {
