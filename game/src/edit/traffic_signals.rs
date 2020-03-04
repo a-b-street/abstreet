@@ -48,7 +48,7 @@ impl TrafficSignalEditor {
             i: id,
             current_phase: 0,
             composite: make_diagram(id, 0, app, ctx),
-            top_panel: make_top_panel(false, false, ctx),
+            top_panel: make_top_panel(ctx, app, false, false),
             groups: DrawTurnGroup::for_i(id, &app.primary.map),
             group_selected: None,
             suspended_sim,
@@ -158,7 +158,7 @@ impl State for TrafficSignalEditor {
                     phase.edit_group(&orig_signal.turn_groups[&id], pri);
                     self.command_stack.push(orig_signal.clone());
                     self.redo_stack.clear();
-                    self.top_panel = make_top_panel(true, false, ctx);
+                    self.top_panel = make_top_panel(ctx, app, true, false);
                     change_traffic_signal(new_signal, app, ctx);
                     self.change_phase(self.current_phase, app, ctx);
                     return Transition::Keep;
@@ -176,6 +176,9 @@ impl State for TrafficSignalEditor {
                         ctx,
                     );
                 }
+                "Export" => {
+                    orig_signal.export(&app.primary.map);
+                }
                 "Preview" => {
                     // Might have to do this first!
                     app.primary
@@ -192,14 +195,14 @@ impl State for TrafficSignalEditor {
                 "undo" => {
                     self.redo_stack.push(orig_signal.clone());
                     change_traffic_signal(self.command_stack.pop().unwrap(), app, ctx);
-                    self.top_panel = make_top_panel(!self.command_stack.is_empty(), true, ctx);
+                    self.top_panel = make_top_panel(ctx, app, !self.command_stack.is_empty(), true);
                     self.change_phase(0, app, ctx);
                     return Transition::Keep;
                 }
                 "redo" => {
                     self.command_stack.push(orig_signal.clone());
                     change_traffic_signal(self.redo_stack.pop().unwrap(), app, ctx);
-                    self.top_panel = make_top_panel(true, !self.redo_stack.is_empty(), ctx);
+                    self.top_panel = make_top_panel(ctx, app, true, !self.redo_stack.is_empty());
                     self.change_phase(0, app, ctx);
                     return Transition::Keep;
                 }
@@ -289,8 +292,9 @@ impl State for TrafficSignalEditor {
     }
 }
 
-fn make_top_panel(can_undo: bool, can_redo: bool, ctx: &mut EventCtx) -> Composite {
-    let row = vec![
+fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool) -> Composite {
+    let mut row = vec![
+        WrappedComposite::text_button(ctx, "Finish", hotkey(Key::Escape)),
         WrappedComposite::text_button(ctx, "Finish", hotkey(Key::Escape)),
         WrappedComposite::text_button(ctx, "Preview", lctrl(Key::P)),
         (if can_undo {
@@ -325,6 +329,9 @@ fn make_top_panel(can_undo: bool, can_redo: bool, ctx: &mut EventCtx) -> Composi
         })
         .margin(15),
     ];
+    if app.opts.dev {
+        row.push(WrappedComposite::text_button(ctx, "Export", None));
+    }
     Composite::new(ManagedWidget::row(row).bg(colors::PANEL_BG))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx)
@@ -521,7 +528,7 @@ fn edit_entire_signal(app: &App, i: IntersectionID, suspended_sim: Sim) -> Box<d
                         .command_stack
                         .push(app.primary.map.get_traffic_signal(editor.i).clone());
                     editor.redo_stack.clear();
-                    editor.top_panel = make_top_panel(true, false, ctx);
+                    editor.top_panel = make_top_panel(ctx, app, true, false);
                     change_traffic_signal(new_signal, app, ctx);
                     editor.change_phase(0, app, ctx);
                 })))
@@ -534,7 +541,7 @@ fn edit_entire_signal(app: &App, i: IntersectionID, suspended_sim: Sim) -> Box<d
                     if new_signal.convert_to_ped_scramble() {
                         editor.command_stack.push(orig_signal.clone());
                         editor.redo_stack.clear();
-                        editor.top_panel = make_top_panel(true, false, ctx);
+                        editor.top_panel = make_top_panel(ctx, app, true, false);
                         change_traffic_signal(new_signal, app, ctx);
                         editor.change_phase(0, app, ctx);
                     }
@@ -566,7 +573,7 @@ fn edit_entire_signal(app: &App, i: IntersectionID, suspended_sim: Sim) -> Box<d
                     let mut signal = app.primary.map.get_traffic_signal(editor.i).clone();
                     editor.command_stack.push(signal.clone());
                     editor.redo_stack.clear();
-                    editor.top_panel = make_top_panel(true, false, ctx);
+                    editor.top_panel = make_top_panel(ctx, app, true, false);
                     signal.offset = Duration::seconds(new_duration as f64);
                     change_traffic_signal(signal, app, ctx);
                     editor.change_phase(editor.current_phase, app, ctx);
@@ -582,7 +589,7 @@ fn edit_entire_signal(app: &App, i: IntersectionID, suspended_sim: Sim) -> Box<d
                             .1;
                     editor.command_stack.push(orig_signal.clone());
                     editor.redo_stack.clear();
-                    editor.top_panel = make_top_panel(true, false, ctx);
+                    editor.top_panel = make_top_panel(ctx, app, true, false);
                     change_traffic_signal(new_signal, app, ctx);
                     // Don't use change_phase; it tries to preserve scroll
                     editor.current_phase = 0;
@@ -639,7 +646,7 @@ fn edit_phase(app: &App, i: IntersectionID, idx: usize) -> Box<dyn State> {
                     new_signal.phases[idx].duration = Duration::seconds(new_duration as f64);
                     editor.command_stack.push(orig_signal.clone());
                     editor.redo_stack.clear();
-                    editor.top_panel = make_top_panel(true, false, ctx);
+                    editor.top_panel = make_top_panel(ctx, app, true, false);
                     change_traffic_signal(new_signal, app, ctx);
                     editor.change_phase(idx, app, ctx);
                 })))
@@ -653,7 +660,7 @@ fn edit_phase(app: &App, i: IntersectionID, idx: usize) -> Box<dyn State> {
                     new_signal.phases.insert(idx, Phase::new());
                     editor.command_stack.push(orig_signal.clone());
                     editor.redo_stack.clear();
-                    editor.top_panel = make_top_panel(true, false, ctx);
+                    editor.top_panel = make_top_panel(ctx, app, true, false);
                     change_traffic_signal(new_signal, app, ctx);
                     editor.change_phase(idx, app, ctx);
                 })))
@@ -667,7 +674,7 @@ fn edit_phase(app: &App, i: IntersectionID, idx: usize) -> Box<dyn State> {
                     new_signal.phases.insert(idx + 1, Phase::new());
                     editor.command_stack.push(orig_signal.clone());
                     editor.redo_stack.clear();
-                    editor.top_panel = make_top_panel(true, false, ctx);
+                    editor.top_panel = make_top_panel(ctx, app, true, false);
                     change_traffic_signal(new_signal, app, ctx);
                     editor.change_phase(idx + 1, app, ctx);
                 })))
@@ -680,7 +687,7 @@ fn edit_phase(app: &App, i: IntersectionID, idx: usize) -> Box<dyn State> {
                 new_signal.phases.swap(idx, idx - 1);
                 editor.command_stack.push(orig_signal.clone());
                 editor.redo_stack.clear();
-                editor.top_panel = make_top_panel(true, false, ctx);
+                editor.top_panel = make_top_panel(ctx, app, true, false);
                 change_traffic_signal(new_signal, app, ctx);
                 editor.change_phase(idx - 1, app, ctx);
             }))),
@@ -693,7 +700,7 @@ fn edit_phase(app: &App, i: IntersectionID, idx: usize) -> Box<dyn State> {
                     new_signal.phases.swap(idx, idx + 1);
                     editor.command_stack.push(orig_signal.clone());
                     editor.redo_stack.clear();
-                    editor.top_panel = make_top_panel(true, false, ctx);
+                    editor.top_panel = make_top_panel(ctx, app, true, false);
                     change_traffic_signal(new_signal, app, ctx);
                     editor.change_phase(idx + 1, app, ctx);
                 })))
@@ -708,7 +715,7 @@ fn edit_phase(app: &App, i: IntersectionID, idx: usize) -> Box<dyn State> {
                     let num_phases = new_signal.phases.len();
                     editor.command_stack.push(orig_signal.clone());
                     editor.redo_stack.clear();
-                    editor.top_panel = make_top_panel(true, false, ctx);
+                    editor.top_panel = make_top_panel(ctx, app, true, false);
                     change_traffic_signal(new_signal, app, ctx);
                     // Don't use change_phase; it tries to preserve scroll
                     editor.current_phase = if idx == num_phases { idx - 1 } else { idx };

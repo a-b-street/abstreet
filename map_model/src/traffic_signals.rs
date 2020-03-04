@@ -616,3 +616,56 @@ fn make_phases(
 
     phases
 }
+
+impl ControlTrafficSignal {
+    pub fn export(&self, map: &Map) {
+        let ts = traffic_signals::TrafficSignal {
+            intersection_osm_node_id: map.get_i(self.id).orig_id.osm_node_id,
+            phases: self
+                .phases
+                .iter()
+                .map(|p| traffic_signals::Phase {
+                    protected_turns: p
+                        .protected_groups
+                        .iter()
+                        .map(|t| export_turn_group(t, map))
+                        .collect(),
+                    permitted_turns: p
+                        .yield_groups
+                        .iter()
+                        .map(|t| export_turn_group(t, map))
+                        .collect(),
+                    duration_seconds: p.duration.inner_seconds() as usize,
+                })
+                .collect(),
+            offset_seconds: self.offset.inner_seconds() as usize,
+        };
+
+        abstutil::write_json(
+            format!("traffic_signal_data/{}.json", ts.intersection_osm_node_id),
+            &ts,
+        );
+    }
+}
+
+fn export_turn_group(id: &TurnGroupID, map: &Map) -> traffic_signals::Turn {
+    let from = map.get_r(id.from.id).orig_id;
+    let to = map.get_r(id.to.id).orig_id;
+
+    traffic_signals::Turn {
+        from: traffic_signals::DirectedRoad {
+            osm_way_id: from.osm_way_id,
+            osm_node1: from.i1.osm_node_id,
+            osm_node2: from.i2.osm_node_id,
+            is_forwards: id.from.forwards,
+        },
+        to: traffic_signals::DirectedRoad {
+            osm_way_id: to.osm_way_id,
+            osm_node1: to.i1.osm_node_id,
+            osm_node2: to.i2.osm_node_id,
+            is_forwards: id.to.forwards,
+        },
+        intersection_osm_node_id: map.get_i(id.parent).orig_id.osm_node_id,
+        is_crosswalk: id.crosswalk,
+    }
+}
