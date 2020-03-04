@@ -6,8 +6,7 @@ use geom::{Angle, Duration, Polygon, Pt2D};
 
 // TODO Add text to the logo (showing zoom)
 // TODO Some kind of plot?!
-// TODO Some popup dialogs?
-// TODO Something scrolling
+// TODO Some popup dialogs with form entry, even some scrolling
 // TODO Loading screen with timer?
 
 struct App {

@@ -1,15 +1,14 @@
-use crate::widgets::text_box::TextBox;
 use crate::widgets::PopupMenu;
 use crate::{
-    hotkey, layout, Button, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, InputResult,
-    Key, Line, ManagedWidget, MultiKey, Outcome, Text, VerticalAlignment,
+    hotkey, Button, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, InputResult, Key,
+    Line, ManagedWidget, MultiKey, Outcome, Text, VerticalAlignment,
 };
 use abstutil::Cloneable;
 use std::collections::VecDeque;
 
 pub struct Wizard {
     alive: bool,
-    tb: Option<TextBox>,
+    tb_comp: Option<Composite>,
     menu_comp: Option<Composite>,
     ack: Option<Composite>,
 
@@ -21,7 +20,7 @@ impl Wizard {
     pub fn new() -> Wizard {
         Wizard {
             alive: true,
-            tb: None,
+            tb_comp: None,
             menu_comp: None,
             ack: None,
             confirmed_state: Vec::new(),
@@ -32,8 +31,8 @@ impl Wizard {
         if let Some(ref comp) = self.menu_comp {
             comp.draw(g);
         }
-        if let Some(ref tb) = self.tb {
-            tb.draw(g);
+        if let Some(ref comp) = self.tb_comp {
+            comp.draw(g);
         }
         if let Some(ref s) = self.ack {
             s.draw(g);
@@ -82,30 +81,69 @@ impl Wizard {
             return None;
         }
 
-        if self.tb.is_none() {
-            self.tb = Some(TextBox::new(ctx, query, prefilled));
+        if self.tb_comp.is_none() {
+            self.tb_comp = Some(
+                Composite::new(
+                    ManagedWidget::col(vec![
+                        ManagedWidget::row(vec![
+                            ManagedWidget::draw_text(ctx, Text::from(Line(query).roboto_bold())),
+                            // TODO nice text button
+                            ManagedWidget::btn(Button::text_bg(
+                                Text::from(Line("X").fg(Color::BLACK)),
+                                Color::WHITE,
+                                Color::ORANGE,
+                                hotkey(Key::Escape),
+                                "quit",
+                                ctx,
+                            ))
+                            .margin(5)
+                            .align_right(),
+                        ]),
+                        ManagedWidget::text_entry(ctx, prefilled.unwrap_or_else(String::new))
+                            .named("input"),
+                        ManagedWidget::btn(Button::text_bg(
+                            Text::from(Line("Done").fg(Color::BLACK)),
+                            Color::WHITE,
+                            Color::ORANGE,
+                            hotkey(Key::Enter),
+                            "done",
+                            ctx,
+                        )),
+                    ])
+                    .bg(Color::grey(0.4))
+                    .outline(5.0, Color::WHITE)
+                    .padding(5),
+                )
+                .build(ctx),
+            );
         }
-        layout::stack_vertically(
-            layout::ContainerOrientation::Centered,
-            ctx,
-            vec![self.tb.as_mut().unwrap()],
-        );
 
-        match self.tb.as_mut().unwrap().event(&mut ctx.input) {
-            InputResult::StillActive => None,
-            InputResult::Canceled => {
-                self.alive = false;
-                None
-            }
-            InputResult::Done(line, _) => {
-                self.tb = None;
-                if let Some(result) = parser(line.clone()) {
-                    Some(result)
-                } else {
-                    println!("Invalid input {}", line);
-                    None
+        assert!(self.alive);
+
+        // Otherwise, we try to use one event for two inputs potentially
+        if ctx.input.has_been_consumed() {
+            return None;
+        }
+
+        match self.tb_comp.as_mut().unwrap().event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "quit" => {
+                    self.alive = false;
+                    self.tb_comp = None;
+                    return None;
                 }
-            }
+                "done" => {
+                    let line = self.tb_comp.take().unwrap().text_box("input");
+                    if let Some(result) = parser(line.clone()) {
+                        Some(result)
+                    } else {
+                        println!("Invalid input {}", line);
+                        None
+                    }
+                }
+                _ => unreachable!(),
+            },
+            None => None,
         }
     }
 }
@@ -399,7 +437,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
 
     // If the control flow through a wizard block needs to change, might need to call this.
     pub fn reset(&mut self) {
-        assert!(self.wizard.tb.is_none());
+        assert!(self.wizard.tb_comp.is_none());
         assert!(self.wizard.menu_comp.is_none());
         assert!(self.wizard.ack.is_none());
         self.wizard.confirmed_state.clear();

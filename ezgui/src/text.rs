@@ -14,7 +14,7 @@ pub const INACTIVE_CHOICE_COLOR: Color = Color::grey(0.4);
 pub const SCALE_LINE_HEIGHT: f64 = 1.2;
 
 // TODO Don't do this!
-const MAX_CHAR_WIDTH: f64 = 25.0;
+pub const MAX_CHAR_WIDTH: f64 = 25.0;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Font {

@@ -41,6 +41,18 @@ impl UserInput {
         false
     }
 
+    pub fn any_key_pressed(&mut self) -> Option<Key> {
+        if self.event_consumed {
+            return None;
+        }
+
+        if let Event::KeyPress(key) = self.event {
+            self.consume_event();
+            return Some(key);
+        }
+        None
+    }
+
     pub fn unimportant_key_pressed(&mut self, key: Key, action: &str) -> bool {
         self.reserve_key(key, action);
 

@@ -1,12 +1,9 @@
 use crate::layout::Widget;
-use crate::{
-    text, Event, EventCtx, GfxCtx, InputResult, Key, Line, ScreenDims, ScreenPt, Text, UserInput,
-};
+use crate::{text, EventCtx, GfxCtx, Key, Line, ScreenDims, ScreenPt, Text};
 
 // TODO right now, only a single line
 
 pub struct TextBox {
-    prompt: String,
     // TODO A rope would be cool.
     line: String,
     cursor_x: usize,
@@ -17,25 +14,65 @@ pub struct TextBox {
 }
 
 impl TextBox {
-    pub fn new(ctx: &EventCtx, prompt: &str, prefilled: Option<String>) -> TextBox {
-        let line = prefilled.unwrap_or_else(String::new);
-        let mut tb = TextBox {
-            prompt: prompt.to_string(),
-            cursor_x: line.len(),
-            line,
+    pub fn new(ctx: &EventCtx, max_chars: usize, prefilled: String) -> TextBox {
+        TextBox {
+            cursor_x: prefilled.len(),
+            line: prefilled,
             shift_pressed: false,
 
             top_left: ScreenPt::new(0.0, 0.0),
-            dims: ScreenDims::new(0.0, 0.0),
-        };
-        // TODO Assume the dims never exceed the prompt width?
-        tb.dims = tb.get_text().dims(&ctx.prerender.assets);
-        tb
+            dims: ScreenDims::new(
+                (max_chars as f64) * text::MAX_CHAR_WIDTH,
+                ctx.default_line_height(),
+            ),
+        }
     }
 
-    pub fn get_text(&self) -> Text {
-        let mut txt = Text::from(Line(&self.prompt).roboto_bold()).with_bg();
-        txt.add(Line(&self.line[0..self.cursor_x]));
+    pub fn event(&mut self, ctx: &mut EventCtx) {
+        if let Some(key) = ctx.input.any_key_pressed() {
+            match key {
+                Key::LeftShift => {
+                    self.shift_pressed = true;
+                }
+                Key::LeftArrow => {
+                    if self.cursor_x > 0 {
+                        self.cursor_x -= 1;
+                    }
+                }
+                Key::RightArrow => {
+                    self.cursor_x = (self.cursor_x + 1).min(self.line.len());
+                }
+                Key::Backspace => {
+                    if self.cursor_x > 0 {
+                        self.line.remove(self.cursor_x - 1);
+                        self.cursor_x -= 1;
+                    }
+                }
+                _ => {
+                    if let Some(c) = key.to_char(self.shift_pressed) {
+                        self.line.insert(self.cursor_x, c);
+                        self.cursor_x += 1;
+                    } else {
+                        ctx.input.unconsume_event();
+                    }
+                }
+            };
+        }
+        if ctx.input.key_released(Key::LeftShift) {
+            self.shift_pressed = false;
+        }
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx) {
+        g.draw_blocking_text_at_screenspace_topleft(self.calculate_text(), self.top_left);
+    }
+
+    pub fn get_entry(&self) -> String {
+        self.line.clone()
+    }
+
+    fn calculate_text(&self) -> Text {
+        let mut txt = Text::from(Line(&self.line[0..self.cursor_x]));
         if self.cursor_x < self.line.len() {
             // TODO This "cursor" looks awful!
             txt.append_all(vec![
@@ -47,45 +84,6 @@ impl TextBox {
             txt.append(Line("|").fg(text::SELECTED_COLOR));
         }
         txt
-    }
-
-    pub fn event(&mut self, input: &mut UserInput) -> InputResult<()> {
-        let maybe_ev = input.use_event_directly();
-        if maybe_ev.is_none() {
-            return InputResult::StillActive;
-        }
-        let ev = maybe_ev.unwrap();
-
-        if ev == Event::KeyPress(Key::Escape) {
-            return InputResult::Canceled;
-        } else if ev == Event::KeyPress(Key::Enter) {
-            return InputResult::Done(self.line.clone(), ());
-        } else if ev == Event::KeyPress(Key::LeftShift) {
-            self.shift_pressed = true;
-        } else if ev == Event::KeyRelease(Key::LeftShift) {
-            self.shift_pressed = false;
-        } else if ev == Event::KeyPress(Key::LeftArrow) {
-            if self.cursor_x > 0 {
-                self.cursor_x -= 1;
-            }
-        } else if ev == Event::KeyPress(Key::RightArrow) {
-            self.cursor_x = (self.cursor_x + 1).min(self.line.len());
-        } else if ev == Event::KeyPress(Key::Backspace) {
-            if self.cursor_x > 0 {
-                self.line.remove(self.cursor_x - 1);
-                self.cursor_x -= 1;
-            }
-        } else if let Event::KeyPress(key) = ev {
-            if let Some(c) = key.to_char(self.shift_pressed) {
-                self.line.insert(self.cursor_x, c);
-                self.cursor_x += 1;
-            }
-        };
-        InputResult::StillActive
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx) {
-        g.draw_blocking_text_at_screenspace_topleft(self.get_text(), self.top_left);
     }
 }
 

@@ -177,7 +177,12 @@ impl State for TrafficSignalEditor {
                     );
                 }
                 "Edit metadata" => {
-                    return Transition::Push(edit_md(self.i));
+                    // TODO Not sure which one I prefer usability or code wise...
+                    if true {
+                        return Transition::Push(Box::new(EditMetadata::new(ctx, app, self.i)));
+                    } else {
+                        return Transition::Push(edit_md(self.i));
+                    }
                 }
                 "Export" => {
                     if orig_signal.observation_md.is_none() {
@@ -876,6 +881,140 @@ impl State for PreviewTrafficSignal {
         self.composite.draw(g);
         self.speed.draw(g);
         self.time_panel.draw(g);
+    }
+}
+
+struct EditMetadata {
+    composite: Composite,
+}
+
+impl EditMetadata {
+    fn new(ctx: &mut EventCtx, app: &App, i: IntersectionID) -> EditMetadata {
+        let default = traffic_signals::Metadata {
+            author: "Anonymous".to_string(),
+            datetime: "MM/DD/YYYY HH:MM:SS".to_string(),
+            notes: "no notes".to_string(),
+        };
+        let prev_observed = app
+            .primary
+            .map
+            .get_traffic_signal(i)
+            .observation_md
+            .clone()
+            .unwrap_or_else(|| default.clone());
+        // TODO Always ask this?
+        let prev_audited = app
+            .primary
+            .map
+            .get_traffic_signal(i)
+            .audit_md
+            .clone()
+            .unwrap_or_else(|| default.clone());
+
+        EditMetadata {
+            composite: Composite::new(
+                ManagedWidget::col(vec![
+                    ManagedWidget::row(vec![
+                        ManagedWidget::draw_text(
+                            ctx,
+                            Text::from(Line("Metadata about the traffic signal").roboto_bold()),
+                        ),
+                        WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
+                    ]),
+                    ManagedWidget::draw_text(ctx, Text::from(Line("The mapper").roboto_bold())),
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line(
+                            "Who mapped this signal? (Feel free to remain anonymous.)",
+                        )),
+                    ),
+                    ManagedWidget::text_entry(ctx, prev_observed.author).named("observed author"),
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line("When was this signal mapped? TODO format")),
+                    ),
+                    ManagedWidget::text_entry(ctx, prev_observed.datetime)
+                        .named("observed datetime"),
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line("Any other observations about the signal?")),
+                    ),
+                    ManagedWidget::text_entry(ctx, prev_observed.notes).named("observed notes"),
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(
+                            Line("The last person to audit the mapped signal").roboto_bold(),
+                        ),
+                    ),
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line(
+                            "Who audited this signal? (Feel free to remain anonymous.)",
+                        )),
+                    ),
+                    ManagedWidget::text_entry(ctx, prev_audited.author).named("audited author"),
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line("When was this signal audited? TODO format")),
+                    ),
+                    ManagedWidget::text_entry(ctx, prev_audited.datetime).named("audited datetime"),
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line("Any other notes about auditing the signal?")),
+                    ),
+                    ManagedWidget::text_entry(ctx, prev_audited.notes).named("audited notes"),
+                    WrappedComposite::text_bg_button(ctx, "Done", hotkey(Key::Enter))
+                        .centered_horiz(),
+                ])
+                .bg(colors::PANEL_BG),
+            )
+            .build(ctx),
+        }
+    }
+}
+
+impl State for EditMetadata {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "X" => {
+                    return Transition::Pop;
+                }
+                "Done" => {
+                    // This feels like overkill...
+                    let observed = traffic_signals::Metadata {
+                        author: self.composite.text_box("observed author"),
+                        datetime: self.composite.text_box("observed datetime"),
+                        notes: self.composite.text_box("observed notes"),
+                    };
+                    let audited = traffic_signals::Metadata {
+                        author: self.composite.text_box("audited author"),
+                        datetime: self.composite.text_box("audited datetime"),
+                        notes: self.composite.text_box("audited notes"),
+                    };
+                    return Transition::PopWithData(Box::new(move |state, app, ctx| {
+                        let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
+                        let orig_signal = app.primary.map.get_traffic_signal(editor.i);
+                        let mut new_signal = orig_signal.clone();
+                        new_signal.observation_md = Some(observed);
+                        new_signal.audit_md = Some(audited);
+
+                        editor.command_stack.push(orig_signal.clone());
+                        editor.redo_stack.clear();
+                        editor.top_panel = make_top_panel(ctx, app, true, false);
+                        change_traffic_signal(new_signal, app, ctx);
+                    }));
+                }
+                _ => unreachable!(),
+            },
+            None => {}
+        }
+
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
+        self.composite.draw(g);
     }
 }
 

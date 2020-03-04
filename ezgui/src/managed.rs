@@ -1,5 +1,6 @@
 use crate::layout::Widget;
-use crate::widgets::{Checkbox, PopupMenu};
+use crate::text;
+use crate::widgets::{Checkbox, PopupMenu, TextBox};
 use crate::{
     Button, Color, Drawable, EventCtx, Filler, GeomBatch, GfxCtx, Histogram, HorizontalAlignment,
     JustDraw, MultiKey, Plot, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Slider, Text,
@@ -30,6 +31,7 @@ enum WidgetType {
     Draw(JustDraw),
     Btn(Button),
     Checkbox(Checkbox),
+    TextBox(TextBox),
     Slider(String),
     Menu(String),
     Filler(String),
@@ -289,6 +291,11 @@ impl ManagedWidget {
         .named(label)
     }
 
+    pub fn text_entry(ctx: &EventCtx, prefilled: String) -> ManagedWidget {
+        // TODO Hardcoded style, max chars
+        ManagedWidget::new(WidgetType::TextBox(TextBox::new(ctx, 50, prefilled))).bg(text::BG_COLOR)
+    }
+
     pub(crate) fn duration_plot(plot: Plot<Duration>) -> ManagedWidget {
         ManagedWidget::new(WidgetType::DurationPlot(plot))
     }
@@ -329,6 +336,9 @@ impl ManagedWidget {
             WidgetType::Checkbox(ref mut checkbox) => {
                 checkbox.event(ctx);
             }
+            WidgetType::TextBox(ref mut textbox) => {
+                textbox.event(ctx);
+            }
             WidgetType::Slider(ref name) => {
                 sliders.get_mut(name).unwrap().event(ctx);
             }
@@ -364,6 +374,7 @@ impl ManagedWidget {
             WidgetType::Draw(ref j) => j.draw(g),
             WidgetType::Btn(ref btn) => btn.draw(g),
             WidgetType::Checkbox(ref checkbox) => checkbox.draw(g),
+            WidgetType::TextBox(ref textbox) => textbox.draw(g),
             WidgetType::Slider(ref name) => {
                 if name != "horiz scrollbar" && name != "vert scrollbar" {
                     sliders[name].draw(g);
@@ -397,6 +408,7 @@ impl ManagedWidget {
             WidgetType::Draw(ref widget) => widget,
             WidgetType::Btn(ref widget) => widget,
             WidgetType::Checkbox(ref widget) => widget,
+            WidgetType::TextBox(ref widget) => widget,
             WidgetType::Slider(ref name) => &sliders[name],
             WidgetType::Menu(ref name) => &menus[name],
             WidgetType::Filler(ref name) => &fillers[name],
@@ -505,6 +517,9 @@ impl ManagedWidget {
             WidgetType::Checkbox(ref mut widget) => {
                 widget.set_pos(top_left);
             }
+            WidgetType::TextBox(ref mut widget) => {
+                widget.set_pos(top_left);
+            }
             WidgetType::Slider(ref name) => {
                 sliders.get_mut(name).unwrap().set_pos(top_left);
             }
@@ -566,6 +581,7 @@ impl ManagedWidget {
             | WidgetType::Menu(_)
             | WidgetType::Filler(_)
             | WidgetType::Checkbox(_)
+            | WidgetType::TextBox(_)
             | WidgetType::DurationPlot(_)
             | WidgetType::UsizePlot(_) => {}
             WidgetType::Histogram(_) => {}
@@ -597,7 +613,9 @@ impl ManagedWidget {
     fn find(&self, name: &str) -> Option<&ManagedWidget> {
         let found = match self.widget {
             // TODO Consolidate and just do this
-            WidgetType::Draw(_) | WidgetType::Checkbox(_) => self.id == Some(name.to_string()),
+            WidgetType::Draw(_) | WidgetType::Checkbox(_) | WidgetType::TextBox(_) => {
+                self.id == Some(name.to_string())
+            }
             WidgetType::Btn(ref btn) => btn.action == name,
             WidgetType::Slider(ref n) => n == name,
             WidgetType::Menu(ref n) => n == name,
@@ -623,7 +641,9 @@ impl ManagedWidget {
     fn find_mut(&mut self, name: &str) -> Option<&mut ManagedWidget> {
         let found = match self.widget {
             // TODO Consolidate and just do this
-            WidgetType::Draw(_) | WidgetType::Checkbox(_) => self.id == Some(name.to_string()),
+            WidgetType::Draw(_) | WidgetType::Checkbox(_) | WidgetType::TextBox(_) => {
+                self.id == Some(name.to_string())
+            }
             WidgetType::Btn(ref btn) => btn.action == name,
             WidgetType::Slider(ref n) => n == name,
             WidgetType::Menu(ref n) => n == name,
@@ -922,6 +942,13 @@ impl Composite {
         match self.find(name).widget {
             WidgetType::Checkbox(ref checkbox) => checkbox.enabled,
             _ => panic!("{} isn't a checkbox", name),
+        }
+    }
+
+    pub fn text_box(&self, name: &str) -> String {
+        match self.find(name).widget {
+            WidgetType::TextBox(ref textbox) => textbox.get_entry(),
+            _ => panic!("{} isn't a textbox", name),
         }
     }
 
