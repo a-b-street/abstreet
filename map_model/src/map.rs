@@ -637,6 +637,26 @@ impl Map {
         }
         None
     }
+
+    pub fn find_r(&self, id: OriginalRoad) -> RoadID {
+        // TODO Speed up with a mapping?
+        for r in self.all_roads() {
+            if r.orig_id == id {
+                return r.id;
+            }
+        }
+        panic!("Can't find {:?}", id);
+    }
+
+    pub fn find_i(&self, id: OriginalIntersection) -> IntersectionID {
+        // TODO Speed up with a mapping?
+        for i in self.all_intersections() {
+            if i.orig_id == id {
+                return i.id;
+            }
+        }
+        panic!("Can't find {:?}", id);
+    }
 }
 
 impl Map {

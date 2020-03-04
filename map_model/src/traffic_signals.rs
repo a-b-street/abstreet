@@ -1,4 +1,8 @@
-use crate::{IntersectionID, Map, RoadID, TurnGroup, TurnGroupID, TurnID, TurnPriority, TurnType};
+use crate::raw::{OriginalIntersection, OriginalRoad};
+use crate::{
+    DirectedRoadID, IntersectionID, Map, RoadID, TurnGroup, TurnGroupID, TurnID, TurnPriority,
+    TurnType,
+};
 use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, Timer};
 use geom::{Duration, Time};
 use serde_derive::{Deserialize, Serialize};
@@ -38,6 +42,18 @@ impl ControlTrafficSignal {
         id: IntersectionID,
     ) -> Vec<(String, ControlTrafficSignal)> {
         let mut results = Vec::new();
+
+        // TODO Cache with lazy_static. Don't serialize in Map; the repo of signal data may evolve
+        // independently.
+        if let Some(raw) = traffic_signals::load_all_data()
+            .unwrap()
+            .remove(&map.get_i(id).orig_id.osm_node_id)
+        {
+            if let Some(ts) = ControlTrafficSignal::import(raw, id, map) {
+                results.push(("hand-mapped current real settings".to_string(), ts));
+            }
+        }
+
         // As long as we're using silly heuristics for these by default, prefer shorter cycle
         // length.
         if let Some(ts) = ControlTrafficSignal::four_way_two_phase(map, id) {
@@ -646,6 +662,37 @@ impl ControlTrafficSignal {
             &ts,
         );
     }
+
+    fn import(
+        raw: traffic_signals::TrafficSignal,
+        id: IntersectionID,
+        map: &Map,
+    ) -> Option<ControlTrafficSignal> {
+        ControlTrafficSignal {
+            id,
+            phases: raw
+                .phases
+                .into_iter()
+                .map(|p| Phase {
+                    protected_groups: p
+                        .protected_turns
+                        .into_iter()
+                        .map(|t| import_turn_group(t, map))
+                        .collect(),
+                    yield_groups: p
+                        .permitted_turns
+                        .into_iter()
+                        .map(|t| import_turn_group(t, map))
+                        .collect(),
+                    duration: Duration::seconds(p.duration_seconds as f64),
+                })
+                .collect(),
+            offset: Duration::seconds(raw.offset_seconds as f64),
+            turn_groups: TurnGroup::for_i(id, map),
+        }
+        .validate()
+        .ok()
+    }
 }
 
 fn export_turn_group(id: &TurnGroupID, map: &Map) -> traffic_signals::Turn {
@@ -667,5 +714,31 @@ fn export_turn_group(id: &TurnGroupID, map: &Map) -> traffic_signals::Turn {
         },
         intersection_osm_node_id: map.get_i(id.parent).orig_id.osm_node_id,
         is_crosswalk: id.crosswalk,
+    }
+}
+
+fn import_turn_group(id: traffic_signals::Turn, map: &Map) -> TurnGroupID {
+    TurnGroupID {
+        from: find_r(id.from, map),
+        to: find_r(id.to, map),
+        parent: map.find_i(OriginalIntersection {
+            osm_node_id: id.intersection_osm_node_id,
+        }),
+        crosswalk: id.is_crosswalk,
+    }
+}
+
+fn find_r(id: traffic_signals::DirectedRoad, map: &Map) -> DirectedRoadID {
+    DirectedRoadID {
+        id: map.find_r(OriginalRoad {
+            osm_way_id: id.osm_way_id,
+            i1: OriginalIntersection {
+                osm_node_id: id.osm_node1,
+            },
+            i2: OriginalIntersection {
+                osm_node_id: id.osm_node2,
+            },
+        }),
+        forwards: id.is_forwards,
     }
 }

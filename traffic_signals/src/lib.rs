@@ -1,7 +1,7 @@
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct TrafficSignal {
     /// The ID of the OSM node representing the intersection with the traffic signal. This node
     /// should be tagged `highway = traffic_signals` in OSM.
@@ -13,7 +13,7 @@ pub struct TrafficSignal {
     pub offset_seconds: usize,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Phase {
     /// During this phase, these turns can be performed with the highest priority, protected by a
     /// green light. No two protected turns in the same phase should cross; that would be a
@@ -30,7 +30,7 @@ pub struct Phase {
 /// A movement through an intersection.
 ///
 /// TODO Diagram of the 4 crosswalk cases.
-#[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Turn {
     /// The movement begins at the end of this road segment.
     pub from: DirectedRoad,
@@ -45,7 +45,7 @@ pub struct Turn {
 }
 
 /// A road segment connecting two intersections, and a direction along the segment.
-#[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct DirectedRoad {
     /// The ID of the OSM way representing the road.
     pub osm_way_id: i64,
@@ -63,11 +63,9 @@ static DATA: include_dir::Dir = include_dir::include_dir!("data");
 /// Returns all traffic signal data compiled into this build, keyed by OSM node ID.
 pub fn load_all_data() -> Result<BTreeMap<i64, TrafficSignal>, std::io::Error> {
     let mut results = BTreeMap::new();
-    if let Some(dir) = DATA.get_dir("data") {
-        for f in dir.files() {
-            let ts: TrafficSignal = serde_json::from_slice(&f.contents())?;
-            results.insert(ts.intersection_osm_node_id, ts);
-        }
+    for f in DATA.files() {
+        let ts: TrafficSignal = serde_json::from_slice(&f.contents())?;
+        results.insert(ts.intersection_osm_node_id, ts);
     }
     Ok(results)
 }
