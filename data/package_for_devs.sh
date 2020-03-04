@@ -9,4 +9,4 @@ if [ "$USER" != "dabreegster" ]; then
 fi
 
 zip -r seed_data data/input data/system
-echo "Fire at will: mv seed_data.zip ~/Dropbox"
+mv -fv seed_data.zip ~/Dropbox

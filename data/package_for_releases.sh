@@ -15,4 +15,4 @@ rm -rfv release_data/system/maps/huge_seattle.bin release_data/system/scenarios/
 
 zip -r release_data release_data
 rm -rf release_data
-echo "Fire at will: mv release_data.zip ~/Dropbox"
+mv -fv release_data.zip ~/Dropbox
