@@ -670,18 +670,20 @@ impl Overlays {
             );
         }
 
-        let mut col = vec![ManagedWidget::row(vec![
-            ManagedWidget::draw_text(ctx, Text::from(Line("intersection demand"))),
-            ManagedWidget::btn(Button::rectangle_svg(
-                "../data/system/assets/tools/locate.svg",
-                "intersection demand",
-                None,
-                RewriteColor::Change(Color::hex("#CC4121"), colors::HOVERING),
-                ctx,
-            )),
-            WrappedComposite::text_button(ctx, "X", None).align_right(),
-        ])];
-        col.push(ColorLegend::row(ctx, Color::RED, "current demand"));
+        let col = vec![
+            ManagedWidget::row(vec![
+                ManagedWidget::draw_text(ctx, Text::from(Line("intersection demand"))),
+                ManagedWidget::btn(Button::rectangle_svg(
+                    "../data/system/assets/tools/locate.svg",
+                    "intersection demand",
+                    None,
+                    RewriteColor::Change(Color::hex("#CC4121"), colors::HOVERING),
+                    ctx,
+                )),
+                WrappedComposite::text_button(ctx, "X", None).align_right(),
+            ]),
+            ColorLegend::row(ctx, Color::RED, "current demand"),
+        ];
 
         Overlays::IntersectionDemand(
             app.primary.sim.time(),
@@ -714,7 +716,7 @@ impl Overlays {
             .get_analytics()
             .bus_passenger_delays(app.primary.sim.time(), id);
         for idx in 0..route.stops.len() {
-            let mut row = vec![
+            col.push(ManagedWidget::row(vec![
                 ManagedWidget::draw_text(ctx, Text::from(Line(format!("Stop {}", idx + 1)))),
                 ManagedWidget::btn(Button::rectangle_svg(
                     "../data/system/assets/tools/locate.svg",
@@ -723,20 +725,19 @@ impl Overlays {
                     RewriteColor::Change(Color::hex("#CC4121"), colors::HOVERING),
                     ctx,
                 )),
-            ];
-            if let Some(hgram) = delay_per_stop.remove(&route.stops[idx]) {
-                row.push(ManagedWidget::draw_text(
-                    ctx,
-                    Text::from(Line(format!(
-                        ": {} (avg {})",
-                        hgram.count(),
-                        hgram.select(Statistic::Mean)
-                    ))),
-                ));
-            } else {
-                row.push(ManagedWidget::draw_text(ctx, Text::from(Line(": nobody"))));
-            }
-            col.push(ManagedWidget::row(row));
+                if let Some(hgram) = delay_per_stop.remove(&route.stops[idx]) {
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line(format!(
+                            ": {} (avg {})",
+                            hgram.count(),
+                            hgram.select(Statistic::Mean)
+                        ))),
+                    )
+                } else {
+                    ManagedWidget::draw_text(ctx, Text::from(Line(": nobody")))
+                },
+            ]));
         }
 
         let y_len = ctx.default_line_height() * (route.stops.len() as f64);

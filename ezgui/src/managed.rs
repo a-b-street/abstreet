@@ -41,6 +41,7 @@ enum WidgetType {
     Histogram(Histogram),
     Row(Vec<ManagedWidget>),
     Column(Vec<ManagedWidget>),
+    Nothing,
 }
 
 struct LayoutStyle {
@@ -338,11 +339,31 @@ impl ManagedWidget {
     }
 
     pub fn row(widgets: Vec<ManagedWidget>) -> ManagedWidget {
-        ManagedWidget::new(WidgetType::Row(widgets))
+        ManagedWidget::new(WidgetType::Row(
+            widgets
+                .into_iter()
+                .filter(|w| match w.widget {
+                    WidgetType::Nothing => false,
+                    _ => true,
+                })
+                .collect(),
+        ))
     }
 
     pub fn col(widgets: Vec<ManagedWidget>) -> ManagedWidget {
-        ManagedWidget::new(WidgetType::Column(widgets))
+        ManagedWidget::new(WidgetType::Column(
+            widgets
+                .into_iter()
+                .filter(|w| match w.widget {
+                    WidgetType::Nothing => false,
+                    _ => true,
+                })
+                .collect(),
+        ))
+    }
+
+    pub fn nothing() -> ManagedWidget {
+        ManagedWidget::new(WidgetType::Nothing)
     }
 }
 
@@ -385,6 +406,7 @@ impl ManagedWidget {
                     }
                 }
             }
+            WidgetType::Nothing => unreachable!(),
         }
         None
     }
@@ -419,6 +441,7 @@ impl ManagedWidget {
                     w.draw(g, sliders, menus);
                 }
             }
+            WidgetType::Nothing => unreachable!(),
         }
     }
 
@@ -472,6 +495,7 @@ impl ManagedWidget {
                 stretch.add_child(parent, col).unwrap();
                 return;
             }
+            WidgetType::Nothing => unreachable!(),
         };
         let dims = widget.get_dims();
         let mut style = Style {
@@ -600,6 +624,7 @@ impl ManagedWidget {
                     );
                 }
             }
+            WidgetType::Nothing => unreachable!(),
         }
     }
 
@@ -628,6 +653,7 @@ impl ManagedWidget {
                     w.get_all_click_actions(actions);
                 }
             }
+            WidgetType::Nothing => unreachable!(),
         }
     }
 
@@ -660,6 +686,7 @@ impl ManagedWidget {
                 }
                 return None;
             }
+            WidgetType::Nothing => unreachable!(),
         };
         if found {
             Some(self)
@@ -688,6 +715,7 @@ impl ManagedWidget {
                 }
                 return None;
             }
+            WidgetType::Nothing => unreachable!(),
         };
         if found {
             Some(self)

@@ -422,23 +422,21 @@ impl AgentMeter {
                 ManagedWidget::draw_text(ctx, txt)
             },
             {
-                let mut row = vec![WrappedComposite::text_bg_button(
-                    ctx,
-                    "more data",
-                    hotkey(Key::Q),
-                )];
-                if app.has_prebaked().is_some() {
-                    row.push(
+                ManagedWidget::row(vec![
+                    WrappedComposite::text_bg_button(ctx, "more data", hotkey(Key::Q)),
+                    if app.has_prebaked().is_some() {
                         WrappedComposite::svg_button(
                             ctx,
                             "../data/system/assets/meters/trip_histogram.svg",
                             "compare trips to baseline",
                             None,
                         )
-                        .align_right(),
-                    );
-                }
-                ManagedWidget::row(row).centered()
+                        .align_right()
+                    } else {
+                        ManagedWidget::nothing()
+                    },
+                ])
+                .centered()
             },
         ];
         // TODO Slight hack. If we're jumping right into a tutorial and don't have the prebaked

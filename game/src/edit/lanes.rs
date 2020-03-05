@@ -75,7 +75,7 @@ impl LaneEditor {
             );
         }
 
-        let mut col = vec![
+        let col = vec![
             ManagedWidget::draw_text(
                 ctx,
                 Text::from(Line(format!(
@@ -86,22 +86,20 @@ impl LaneEditor {
             .centered_horiz(),
             ManagedWidget::row(row).centered(),
             WrappedComposite::text_button(ctx, "Finish", hotkey(Key::Escape)),
+            // TODO Not ready for general use
+            if app.opts.dev {
+                WrappedComposite::text_button(ctx, "Edit entire road", hotkey(Key::U))
+            } else {
+                ManagedWidget::nothing()
+            },
+            if app.primary.map.get_edits().original_lts.contains_key(&l)
+                || app.primary.map.get_edits().reversed_lanes.contains(&l)
+            {
+                WrappedComposite::text_button(ctx, "Revert", hotkey(Key::R))
+            } else {
+                Button::inactive_button(ctx, "Revert")
+            },
         ];
-        // TODO Not ready for general use
-        if app.opts.dev {
-            col.push(WrappedComposite::text_button(
-                ctx,
-                "Edit entire road",
-                hotkey(Key::U),
-            ));
-        }
-        if app.primary.map.get_edits().original_lts.contains_key(&l)
-            || app.primary.map.get_edits().reversed_lanes.contains(&l)
-        {
-            col.push(WrappedComposite::text_button(ctx, "Revert", hotkey(Key::R)));
-        } else {
-            col.push(Button::inactive_button(ctx, "Revert"));
-        };
 
         let composite = Composite::new(ManagedWidget::col(col).bg(colors::PANEL_BG).padding(10))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)

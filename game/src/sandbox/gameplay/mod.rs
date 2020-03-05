@@ -325,16 +325,15 @@ impl FinalScore {
         let mut txt = Text::from(Line("Final score").roboto_bold());
         txt.add(Line(verdict));
 
-        let mut row = vec![
+        let row = vec![
+            if next.is_some() {
+                WrappedComposite::text_button(ctx, "next challenge", None)
+            } else {
+                ManagedWidget::nothing()
+            },
             WrappedComposite::text_button(ctx, "try again", None),
             WrappedComposite::text_button(ctx, "back to challenges", None),
         ];
-        if next.is_some() {
-            row.insert(
-                0,
-                WrappedComposite::text_button(ctx, "next challenge", None),
-            );
-        }
 
         Box::new(FinalScore {
             composite: Composite::new(

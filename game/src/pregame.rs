@@ -75,7 +75,7 @@ impl State for TitleScreen {
 }
 
 pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
-    let mut col = vec![
+    let col = vec![
         WrappedComposite::svg_button(
             ctx,
             "../data/system/assets/pregame/quit.svg",
@@ -110,23 +110,21 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
             WrappedComposite::text_bg_button(ctx, "COMMUNITY PROPOSALS", hotkey(Key::P)),
         ])
         .centered(),
-    ];
-    if app.opts.dev {
-        col.push(
+        if app.opts.dev {
             ManagedWidget::row(vec![
                 WrappedComposite::text_bg_button(ctx, "INTERNAL DEV TOOLS", hotkey(Key::M)),
                 WrappedComposite::text_bg_button(ctx, "INTERNAL A/B TEST MODE", hotkey(Key::A)),
             ])
-            .centered(),
-        );
-    }
-    col.push(
+            .centered()
+        } else {
+            ManagedWidget::nothing()
+        },
         ManagedWidget::col(vec![
             WrappedComposite::text_bg_button(ctx, "About A/B Street", None),
             ManagedWidget::draw_text(ctx, built_info::time()),
         ])
         .centered(),
-    );
+    ];
 
     let mut c = WrappedComposite::new(
         Composite::new(ManagedWidget::col(col).evenly_spaced())
@@ -209,9 +207,7 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
 }
 
 fn about(ctx: &mut EventCtx) -> Box<dyn State> {
-    let mut col = Vec::new();
-
-    col.push(
+    let col = vec![
         WrappedComposite::svg_button(
             ctx,
             "../data/system/assets/pregame/back.svg",
@@ -219,50 +215,49 @@ fn about(ctx: &mut EventCtx) -> Box<dyn State> {
             hotkey(Key::Escape),
         )
         .align_left(),
-    );
-
-    let mut txt = Text::new();
-    txt.add(Line("A/B STREET").size(50));
-    txt.add(Line("Created by Dustin Carlino, UX by Yuwen Li"));
-    txt.add(Line(""));
-    txt.add(Line("Contact: dabreegster@gmail.com"));
-    txt.add(Line(
-        "Project: http://github.com/dabreegster/abstreet (aliased by abstreet.org)",
-    ));
-    txt.add(Line("Map data from OpenStreetMap and King County GIS"));
-    // TODO Add more here
-    txt.add(Line(
-        "See full credits at https://github.com/dabreegster/abstreet#credits",
-    ));
-    txt.add(Line(""));
-    // TODO Word wrapping please?
-    txt.add(Line(
-        "Disclaimer: This game is based on imperfect data, heuristics ",
-    ));
-    txt.add(Line(
-        "concocted under the influence of cold brew, a simplified traffic ",
-    ));
-    txt.add(Line(
-        "simulation model, and a deeply flawed understanding of how much ",
-    ));
-    txt.add(Line(
-        "articulated buses can bend around tight corners. Use this as a ",
-    ));
-    txt.add(Line(
-        "conversation starter with your city government, not a final ",
-    ));
-    txt.add(Line(
-        "decision maker. Any resemblance of in-game characters to real ",
-    ));
-    txt.add(Line(
-        "people is probably coincidental, except for PedestrianID(42). ",
-    ));
-    txt.add(Line("Have the appropriate amount of fun."));
-    col.push(
-        ManagedWidget::draw_text(ctx, txt)
-            .centered_horiz()
-            .align_vert_center(),
-    );
+        {
+            let mut txt = Text::new();
+            txt.add(Line("A/B STREET").size(50));
+            txt.add(Line("Created by Dustin Carlino, UX by Yuwen Li"));
+            txt.add(Line(""));
+            txt.add(Line("Contact: dabreegster@gmail.com"));
+            txt.add(Line(
+                "Project: http://github.com/dabreegster/abstreet (aliased by abstreet.org)",
+            ));
+            txt.add(Line("Map data from OpenStreetMap and King County GIS"));
+            // TODO Add more here
+            txt.add(Line(
+                "See full credits at https://github.com/dabreegster/abstreet#credits",
+            ));
+            txt.add(Line(""));
+            // TODO Word wrapping please?
+            txt.add(Line(
+                "Disclaimer: This game is based on imperfect data, heuristics ",
+            ));
+            txt.add(Line(
+                "concocted under the influence of cold brew, a simplified traffic ",
+            ));
+            txt.add(Line(
+                "simulation model, and a deeply flawed understanding of how much ",
+            ));
+            txt.add(Line(
+                "articulated buses can bend around tight corners. Use this as a ",
+            ));
+            txt.add(Line(
+                "conversation starter with your city government, not a final ",
+            ));
+            txt.add(Line(
+                "decision maker. Any resemblance of in-game characters to real ",
+            ));
+            txt.add(Line(
+                "people is probably coincidental, except for PedestrianID(42). ",
+            ));
+            txt.add(Line("Have the appropriate amount of fun."));
+            ManagedWidget::draw_text(ctx, txt)
+                .centered_horiz()
+                .align_vert_center()
+        },
+    ];
 
     ManagedGUIState::fullscreen(
         WrappedComposite::new(

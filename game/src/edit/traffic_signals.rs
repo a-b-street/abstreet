@@ -304,7 +304,7 @@ impl State for TrafficSignalEditor {
 }
 
 fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool) -> Composite {
-    let mut row = vec![
+    let row = vec![
         WrappedComposite::text_button(ctx, "Finish", hotkey(Key::Escape)),
         WrappedComposite::text_button(ctx, "Finish", hotkey(Key::Escape)),
         WrappedComposite::text_button(ctx, "Preview", lctrl(Key::P)),
@@ -339,11 +339,17 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
             )
         })
         .margin(15),
+        if app.opts.dev {
+            WrappedComposite::text_button(ctx, "Edit metadata", None)
+        } else {
+            ManagedWidget::nothing()
+        },
+        if app.opts.dev {
+            WrappedComposite::text_button(ctx, "Export", None)
+        } else {
+            ManagedWidget::nothing()
+        },
     ];
-    if app.opts.dev {
-        row.push(WrappedComposite::text_button(ctx, "Edit metadata", None));
-        row.push(WrappedComposite::text_button(ctx, "Export", None));
-    }
     Composite::new(ManagedWidget::row(row).bg(colors::PANEL_BG))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx)
