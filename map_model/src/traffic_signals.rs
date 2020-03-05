@@ -682,6 +682,8 @@ impl ControlTrafficSignal {
                 })
                 .collect(),
             offset_seconds: self.offset.inner_seconds() as usize,
+            // TODO
+            walk_buttons: traffic_signals::WalkButtons::Complicated,
             observed,
             audited: self.audit_md.clone(),
         };

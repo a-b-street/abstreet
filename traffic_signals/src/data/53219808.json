@@ -401,6 +401,7 @@
     }
   ],
   "offset_seconds": 0,
+  "walk_buttons": "Complicated",
   "observed": {
     "author": "Dustin Carlino",
     "datetime": "MM/DD/YYYY HH:MM:SS",

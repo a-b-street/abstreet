@@ -11,6 +11,8 @@ pub struct TrafficSignal {
     pub phases: Vec<Phase>,
     // TODO What should this be relative to?
     pub offset_seconds: usize,
+    /// Describes the pedestrian buttons for this signal.
+    pub walk_buttons: WalkButtons,
     /// Information about the person mapping the signal.
     pub observed: Metadata,
     /// Information about the latest person to verify a previously mapped signal.
@@ -75,6 +77,33 @@ pub struct Metadata {
     pub datetime: String,
     /// Any other relevant notes or observations.
     pub notes: String,
+}
+
+/// Describes the type of pedestrian buttons present at the intersection.
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub enum WalkButtons {
+    /// The intersection has no pedestrian buttons at all. The walk sign comes on automatically
+    /// during the vehicle phases or as a dedicated all-walk phase.
+    NoButtons,
+    /// Buttons are present, but the walk sign comes on automatically regardless of pushing the
+    /// buttons. Additional ADA sounds may happen when pressing the button. Pressing the button
+    /// does not alter how quickly phases change.
+    Optional,
+    /// Buttons are present, but the walk sign comes on automatically regardless of pushing the
+    /// buttons. Pressing the button reliably causes the walk sign to appear faster than if not
+    /// pressed.
+    OptionalButNice,
+    /// Buttons are present and required. If nobody presses the button, no walk sign appears. After
+    /// pressing the button, the signal continues to cycle through phases at the same speed as it
+    /// would without pressing the button.
+    SlowBeg,
+    /// Buttons are present and required. If nobody presses the button, no walk sign appears. After
+    /// pressing the button, the signal reliably gives a walk sign within 15 seconds of pressing
+    /// the button.
+    FastBeg,
+    /// Some other situation not covered by the above. For example, the intersection might have
+    /// buttons only for some crosswalks, but not others.
+    Complicated,
 }
 
 static DATA: include_dir::Dir = include_dir::include_dir!("src/data");
