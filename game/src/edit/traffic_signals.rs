@@ -22,18 +22,18 @@ use std::collections::BTreeSet;
 
 // TODO Warn if there are empty phases or if some turn is completely absent from the signal.
 pub struct TrafficSignalEditor {
-    i: IntersectionID,
+    pub i: IntersectionID,
     current_phase: usize,
     composite: Composite,
-    top_panel: Composite,
+    pub top_panel: Composite,
 
     groups: Vec<DrawTurnGroup>,
     group_selected: Option<TurnGroupID>,
 
     suspended_sim: Sim,
     // The first ControlTrafficSignal is the original
-    command_stack: Vec<ControlTrafficSignal>,
-    redo_stack: Vec<ControlTrafficSignal>,
+    pub command_stack: Vec<ControlTrafficSignal>,
+    pub redo_stack: Vec<ControlTrafficSignal>,
 }
 
 impl TrafficSignalEditor {
@@ -177,15 +177,12 @@ impl State for TrafficSignalEditor {
                     );
                 }
                 "Edit metadata" => {
-                    // TODO Not sure which one I prefer usability or code wise...
-                    if true {
-                        return Transition::Push(Box::new(EditMetadata::new(ctx, app, self.i)));
-                    } else {
-                        return Transition::Push(edit_md(self.i));
-                    }
+                    return Transition::Push(Box::new(
+                        crate::edit::mapping_traffic_signals::EditMetadata::new(ctx, app, self.i),
+                    ));
                 }
                 "Export" => {
-                    if orig_signal.observation_md.is_none() {
+                    if orig_signal.mapping_data.is_none() {
                         return Transition::Push(msg("Error", vec!["Edit the metadata first"]));
                     }
                     orig_signal.export(&app.primary.map);
@@ -303,7 +300,7 @@ impl State for TrafficSignalEditor {
     }
 }
 
-fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool) -> Composite {
+pub fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool) -> Composite {
     let row = vec![
         WrappedComposite::text_button(ctx, "Finish", hotkey(Key::Escape)),
         WrappedComposite::text_button(ctx, "Finish", hotkey(Key::Escape)),
@@ -474,7 +471,7 @@ fn make_diagram(i: IntersectionID, selected: usize, app: &App, ctx: &mut EventCt
         .build(ctx)
 }
 
-fn change_traffic_signal(signal: ControlTrafficSignal, app: &mut App, ctx: &mut EventCtx) {
+pub fn change_traffic_signal(signal: ControlTrafficSignal, app: &mut App, ctx: &mut EventCtx) {
     let mut edits = app.primary.map.get_edits().clone();
     // TODO Only record one command for the entire session. Otherwise, we can exit this editor and
     // undo a few times, potentially ending at an invalid state!
@@ -888,208 +885,4 @@ impl State for PreviewTrafficSignal {
         self.speed.draw(g);
         self.time_panel.draw(g);
     }
-}
-
-struct EditMetadata {
-    composite: Composite,
-}
-
-impl EditMetadata {
-    fn new(ctx: &mut EventCtx, app: &App, i: IntersectionID) -> EditMetadata {
-        let default = traffic_signals::Metadata {
-            author: "Anonymous".to_string(),
-            datetime: "MM/DD/YYYY HH:MM:SS".to_string(),
-            notes: "no notes".to_string(),
-        };
-        let prev_observed = app
-            .primary
-            .map
-            .get_traffic_signal(i)
-            .observation_md
-            .clone()
-            .unwrap_or_else(|| default.clone());
-        // TODO Always ask this?
-        let prev_audited = app
-            .primary
-            .map
-            .get_traffic_signal(i)
-            .audit_md
-            .clone()
-            .unwrap_or_else(|| default.clone());
-
-        EditMetadata {
-            composite: Composite::new(
-                ManagedWidget::col(vec![
-                    ManagedWidget::row(vec![
-                        ManagedWidget::draw_text(
-                            ctx,
-                            Text::from(Line("Metadata about the traffic signal").roboto_bold()),
-                        ),
-                        WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
-                    ]),
-                    ManagedWidget::draw_text(ctx, Text::from(Line("The mapper").roboto_bold())),
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line(
-                            "Who mapped this signal? (Feel free to remain anonymous.)",
-                        )),
-                    ),
-                    ManagedWidget::text_entry(ctx, prev_observed.author).named("observed author"),
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line("When was this signal mapped? TODO format")),
-                    ),
-                    ManagedWidget::text_entry(ctx, prev_observed.datetime)
-                        .named("observed datetime"),
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line("Any other observations about the signal?")),
-                    ),
-                    ManagedWidget::text_entry(ctx, prev_observed.notes).named("observed notes"),
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(
-                            Line("The last person to audit the mapped signal").roboto_bold(),
-                        ),
-                    ),
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line(
-                            "Who audited this signal? (Feel free to remain anonymous.)",
-                        )),
-                    ),
-                    ManagedWidget::text_entry(ctx, prev_audited.author).named("audited author"),
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line("When was this signal audited? TODO format")),
-                    ),
-                    ManagedWidget::text_entry(ctx, prev_audited.datetime).named("audited datetime"),
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line("Any other notes about auditing the signal?")),
-                    ),
-                    ManagedWidget::text_entry(ctx, prev_audited.notes).named("audited notes"),
-                    WrappedComposite::text_bg_button(ctx, "Done", hotkey(Key::Enter))
-                        .centered_horiz(),
-                ])
-                .bg(colors::PANEL_BG),
-            )
-            .build(ctx),
-        }
-    }
-}
-
-impl State for EditMetadata {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
-        match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "X" => {
-                    return Transition::Pop;
-                }
-                "Done" => {
-                    // This feels like overkill...
-                    let observed = traffic_signals::Metadata {
-                        author: self.composite.text_box("observed author"),
-                        datetime: self.composite.text_box("observed datetime"),
-                        notes: self.composite.text_box("observed notes"),
-                    };
-                    let audited = traffic_signals::Metadata {
-                        author: self.composite.text_box("audited author"),
-                        datetime: self.composite.text_box("audited datetime"),
-                        notes: self.composite.text_box("audited notes"),
-                    };
-                    return Transition::PopWithData(Box::new(move |state, app, ctx| {
-                        let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-                        let orig_signal = app.primary.map.get_traffic_signal(editor.i);
-                        let mut new_signal = orig_signal.clone();
-                        new_signal.observation_md = Some(observed);
-                        new_signal.audit_md = Some(audited);
-
-                        editor.command_stack.push(orig_signal.clone());
-                        editor.redo_stack.clear();
-                        editor.top_panel = make_top_panel(ctx, app, true, false);
-                        change_traffic_signal(new_signal, app, ctx);
-                    }));
-                }
-                _ => unreachable!(),
-            },
-            None => {}
-        }
-
-        Transition::Keep
-    }
-
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
-        self.composite.draw(g);
-    }
-}
-
-fn edit_md(i: IntersectionID) -> Box<dyn State> {
-    WizardState::new(Box::new(move |wiz, ctx, app| {
-        let mut wizard = wiz.wrap(ctx);
-
-        let default = traffic_signals::Metadata {
-            author: "Anonymous".to_string(),
-            datetime: "MM/DD/YYYY HH:MM:SS".to_string(),
-            notes: "no notes".to_string(),
-        };
-        let prev_observed = app
-            .primary
-            .map
-            .get_traffic_signal(i)
-            .observation_md
-            .clone()
-            .unwrap_or_else(|| default.clone());
-        let observed = traffic_signals::Metadata {
-            author: wizard.input_string_prefilled(
-                "Who mapped this signal? (Feel free to remain anonymous.)",
-                prev_observed.author,
-            )?,
-            datetime: wizard.input_string_prefilled(
-                "When was this signal mapped? TODO format",
-                prev_observed.datetime,
-            )?,
-            notes: wizard.input_string_prefilled(
-                "Any other observations about the signal?",
-                prev_observed.notes,
-            )?,
-        };
-
-        // TODO Always ask this?
-        let prev_audited = app
-            .primary
-            .map
-            .get_traffic_signal(i)
-            .audit_md
-            .clone()
-            .unwrap_or_else(|| default.clone());
-        let audited = traffic_signals::Metadata {
-            author: wizard.input_string_prefilled(
-                "Who audited this signal? (Feel free to remain anonymous.)",
-                prev_audited.author,
-            )?,
-            datetime: wizard.input_string_prefilled(
-                "When was this signal audited? TODO format",
-                prev_audited.datetime,
-            )?,
-            notes: wizard.input_string_prefilled(
-                "Any other notes about auditing this signal?",
-                prev_audited.notes,
-            )?,
-        };
-
-        // This feels like overkill...
-        Some(Transition::PopWithData(Box::new(move |state, app, ctx| {
-            let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-            let orig_signal = app.primary.map.get_traffic_signal(editor.i);
-            let mut new_signal = orig_signal.clone();
-            new_signal.observation_md = Some(observed);
-            new_signal.audit_md = Some(audited);
-
-            editor.command_stack.push(orig_signal.clone());
-            editor.redo_stack.clear();
-            editor.top_panel = make_top_panel(ctx, app, true, false);
-            change_traffic_signal(new_signal, app, ctx);
-        })))
-    }))
 }

@@ -5,6 +5,7 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+abstutil = { path = "../abstutil" }
 include_dir = "0.5.0"
 serde = "1.0.89"
 serde_derive = "1.0.98"

@@ -80,7 +80,7 @@ pub struct Metadata {
 }
 
 /// Describes the type of pedestrian buttons present at the intersection.
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub enum WalkButtons {
     /// The intersection has no pedestrian buttons at all. The walk sign comes on automatically
     /// during the vehicle phases or as a dedicated all-walk phase.
@@ -105,6 +105,23 @@ pub enum WalkButtons {
     /// buttons only for some crosswalks, but not others.
     Complicated,
 }
+
+impl WalkButtons {
+    /// Returns all types of WalkButtons.
+    pub fn all() -> Vec<WalkButtons> {
+        vec![
+            WalkButtons::NoButtons,
+            WalkButtons::Optional,
+            WalkButtons::OptionalButNice,
+            WalkButtons::SlowBeg,
+            WalkButtons::FastBeg,
+            WalkButtons::Complicated,
+        ]
+    }
+}
+
+// TODO Temporary
+impl abstutil::Cloneable for WalkButtons {}
 
 static DATA: include_dir::Dir = include_dir::include_dir!("src/data");
 
