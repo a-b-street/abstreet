@@ -51,6 +51,7 @@ pub fn load(dir_path: &str) -> Vec<Route> {
         GTFSIterator::<_, transitfeed::StopTime>::from_path(&format!("{}/stop_times.txt", dir_path))
             .unwrap()
             .map(|rec| rec.unwrap())
+            // TODO This only groups records with consecutive same trip ID. Might be a bug.
             .group_by(|rec| rec.trip_id.clone())
             .into_iter()
     {

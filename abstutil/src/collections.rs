@@ -46,6 +46,10 @@ where
         self.map.get(&key).unwrap_or(&self.empty)
     }
 
+    pub fn len(&self) -> usize {
+        self.map.len()
+    }
+
     pub(crate) fn raw_map(&self) -> &BTreeMap<K, BTreeSet<V>> {
         &self.map
     }

@@ -2,7 +2,7 @@ use abstutil::{prettyprint_usize, FileWithProgress, Timer};
 use geom::{Distance, Duration, FindClosest, LonLat, Pt2D, Time};
 use map_model::Map;
 use serde_derive::{Deserialize, Serialize};
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fs::File;
 use std::io::{BufRead, BufReader, BufWriter, Write};
 
@@ -65,9 +65,20 @@ pub fn import_trips(
 ) -> Result<(Vec<Trip>, BTreeMap<i64, Parcel>), failure::Error> {
     let (parcels, metadata, oob_parcels) = import_parcels(parcels_path, timer)?;
 
+    if false {
+        timer.start("recording parcel IDs");
+        let mut f = File::create("parcels.csv")?;
+        writeln!(f, "parcel_id")?;
+        for id in parcels.keys() {
+            writeln!(f, "{}", id)?;
+        }
+        timer.stop("recording parcel IDs");
+    }
+
     let mut trips = Vec::new();
     let (reader, done) = FileWithProgress::new(trips_path)?;
     let mut total_records = 0;
+    let mut people: HashSet<(usize, usize)> = HashSet::new();
 
     for rec in csv::Reader::from_reader(reader).deserialize() {
         total_records += 1;
@@ -91,7 +102,7 @@ pub fn import_trips(
         };
 
         if from.osm_building == to.osm_building {
-            // TODO Plumb along pass-through trips later
+            // TODO Losing some people here.
             if from.osm_building.is_some() {
                 /*timer.warn(format!(
                     "Skipping trip from parcel {} to {}; both match OSM building {:?}",
@@ -106,6 +117,7 @@ pub fn import_trips(
         let mode = if let Some(m) = get_mode(&rec.mode) {
             m
         } else {
+            // TODO Losing some people here.
             continue;
         };
 
@@ -115,6 +127,7 @@ pub fn import_trips(
         let trip_dist = Distance::miles(rec.travdist);
 
         let person = (rec.hhno as usize, rec.pno as usize);
+        people.insert(person);
         let seq = (rec.tour as usize, rec.half == 2.0, rec.tseg as usize);
 
         trips.push(Trip {
@@ -132,8 +145,9 @@ pub fn import_trips(
     done(timer);
 
     timer.note(format!(
-        "{} trips total. {} records filtered out",
+        "{} trips total, over {} people. {} records filtered out",
         prettyprint_usize(trips.len()),
+        prettyprint_usize(people.len()),
         prettyprint_usize(total_records - trips.len())
     ));
 
@@ -195,19 +209,31 @@ fn import_parcels(
         "run cs2cs on {} points",
         prettyprint_usize(parcel_metadata.len())
     ));
-    // If you have an ancient version of cs2cs (like from Ubuntu's proj-bin package), the command
-    // should instead be:
-    // cs2cs +init=esri:102748 +to +init=epsg:4326 -f '%.5f' foo
-    let output = std::process::Command::new("cs2cs")
+    let mut output = std::process::Command::new("cs2cs")
         .args(vec![
-            "+init=esri:102748",
+            "esri:102748",
             "+to",
-            "+init=epsg:4326",
+            "epsg:4326",
             "-f",
             "%.5f",
             "/tmp/parcels",
         ])
         .output()?;
+    if !output.status.success() {
+        // If you have an ancient version of cs2cs (like from Ubuntu's proj-bin package), the
+        // command should instead be:
+        // cs2cs +init=esri:102748 +to +init=epsg:4326 -f '%.5f' foo
+        output = std::process::Command::new("cs2cs")
+            .args(vec![
+                "+init=esri:102748",
+                "+to",
+                "+init=epsg:4326",
+                "-f",
+                "%.5f",
+                "/tmp/parcels",
+            ])
+            .output()?;
+    }
     assert!(output.status.success());
     timer.stop(format!(
         "run cs2cs on {} points",

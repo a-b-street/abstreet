@@ -1,9 +1,7 @@
 use crate::psrc::{Endpoint, Mode, Parcel, Purpose};
 use crate::PopDat;
-use abstutil::prettyprint_usize;
-use abstutil::Timer;
+use abstutil::{prettyprint_usize, MultiMap, Timer};
 use geom::{Distance, Duration, LonLat, Polygon, Pt2D, Time};
-use itertools::Itertools;
 use map_model::{BuildingID, IntersectionID, Map, PathConstraints, Position};
 use sim::{DrivingGoal, Scenario, SidewalkSpot, SpawnTrip, TripSpec};
 use std::collections::{BTreeMap, HashMap};
@@ -226,6 +224,7 @@ pub fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingI
         .filter_map(|i| i.polygon.center().to_gps(bounds).map(|pt| (i.id, pt)))
         .collect();
 
+    let total_trips = popdat.trips.len();
     let maybe_results: Vec<Option<Trip>> = timer.parallelize("clip trips", popdat.trips, |trip| {
         let from = TripEndpt::new(
             &trip.from,
@@ -275,7 +274,13 @@ pub fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingI
 
         Some(trip)
     });
-    let trips = maybe_results.into_iter().flatten().collect();
+    let trips: Vec<Trip> = maybe_results.into_iter().flatten().collect();
+
+    timer.note(format!(
+        "{} trips clipped down to just {}",
+        prettyprint_usize(total_trips),
+        prettyprint_usize(trips.len())
+    ));
 
     let mut bldgs = HashMap::new();
     for (osm_id, metadata) in popdat.parcels {
@@ -288,39 +293,52 @@ pub fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingI
 
 pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
     let (trips, _) = clip_trips(map, timer);
-    let mut individ_trips: Vec<SpawnTrip> = Vec::new();
-    // TODO Don't clone trips for parallelize
-    let mut num_ppl = 0;
     let orig_trips = trips.len();
-    for (person, list) in timer
-        .parallelize("turn PSRC trips into SpawnTrips", trips.clone(), |trip| {
+
+    let individ_parked_cars = count_cars(&trips, map);
+
+    let mut individ_trips: Vec<SpawnTrip> = Vec::new();
+    // person -> (trip seq, index into individ_trips)
+    let mut trips_per_person: MultiMap<(usize, usize), ((usize, bool, usize), usize)> =
+        MultiMap::new();
+    for (trip, person, seq) in timer
+        .parallelize("turn PSRC trips into SpawnTrips", trips, |trip| {
             trip.to_spawn_trip(map)
                 .map(|spawn| (spawn, trip.person, trip.seq))
         })
         .into_iter()
         .flatten()
-        .group_by(|(_, person, _)| *person)
-        .into_iter()
     {
-        // TODO Try doing the grouping earlier, before we filter out cases where to_spawn_trip
-        // fails
-        num_ppl += 1;
-        let mut seqs = Vec::new();
-        for (spawn, _, seq) in list {
-            seqs.push(seq);
-            individ_trips.push(spawn);
-        }
-        if seqs.len() > 1 {
-            println!("{:?} takes {} trips: {:?}", person, seqs.len(), seqs);
-        }
+        let idx = individ_trips.len();
+        individ_trips.push(trip);
+        trips_per_person.insert(person, (seq, idx));
     }
     timer.note(format!(
-        "{} trips over {} people. {} trips filtered out",
+        "{} clipped trips down to {}, over {} people",
+        prettyprint_usize(orig_trips),
         prettyprint_usize(individ_trips.len()),
-        prettyprint_usize(num_ppl),
-        prettyprint_usize(orig_trips - individ_trips.len())
+        prettyprint_usize(trips_per_person.len())
     ));
 
+    // TODO Just debugging for now, but plumb through a full representation of population into
+    // Scenario later. Track when there are gaps in the sequence, to explain the person warping.
+    /*for (person, seq_trips) in trips_per_person.consume() {
+        println!("{:?} takes {} trips", person, seq_trips.len());
+    }*/
+
+    Scenario {
+        scenario_name: "weekday".to_string(),
+        map_name: map.get_name().to_string(),
+        only_seed_buses: None,
+        seed_parked_cars: Vec::new(),
+        spawn_over_time: Vec::new(),
+        border_spawn_over_time: Vec::new(),
+        individ_trips,
+        individ_parked_cars,
+    }
+}
+
+fn count_cars(trips: &Vec<Trip>, map: &Map) -> BTreeMap<BuildingID, usize> {
     // How many parked cars do we need to spawn near each building?
     // TODO This assumes trips are instantaneous. At runtime, somebody might try to use a parked
     // car from a building, but one hasn't been delivered yet.
@@ -345,15 +363,5 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
             *avail_per_bldg.get_mut(&b).unwrap() += 1;
         }
     }
-
-    Scenario {
-        scenario_name: "weekday".to_string(),
-        map_name: map.get_name().to_string(),
-        only_seed_buses: None,
-        seed_parked_cars: Vec::new(),
-        spawn_over_time: Vec::new(),
-        border_spawn_over_time: Vec::new(),
-        individ_trips,
-        individ_parked_cars,
-    }
+    individ_parked_cars
 }
