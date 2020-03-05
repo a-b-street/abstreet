@@ -1,13 +1,12 @@
 use crate::app::App;
 use crate::colors;
-use crate::game::{State, Transition, WizardState};
+use crate::game::{State, Transition};
 use crate::managed::WrappedComposite;
 use ezgui::{hotkey, Choice, Composite, EventCtx, GfxCtx, Key, Line, ManagedWidget, Outcome, Text};
 use map_model::{ExtraMappingData, IntersectionID};
 
 pub struct EditMetadata {
     composite: Composite,
-    walk_buttons: traffic_signals::WalkButtons,
 }
 
 impl EditMetadata {
@@ -34,7 +33,6 @@ impl EditMetadata {
         });
 
         EditMetadata {
-            walk_buttons: data.walk_buttons.clone(),
             composite: Composite::new(
                 ManagedWidget::col(vec![
                     ManagedWidget::row(vec![
@@ -46,13 +44,15 @@ impl EditMetadata {
                     ]),
                     ManagedWidget::row(vec![
                         ManagedWidget::draw_text(ctx, Text::from(Line("Walk buttons: "))),
-                        WrappedComposite::nice_text_button(
+                        ManagedWidget::dropdown(
                             ctx,
-                            Text::from(Line(format!("{} ▼", describe(&data.walk_buttons),))),
-                            None,
                             "change walk buttons",
-                        )
-                        .margin(5),
+                            data.walk_buttons,
+                            traffic_signals::WalkButtons::all()
+                                .into_iter()
+                                .map(|btn| Choice::new(describe(&btn), btn))
+                                .collect(),
+                        ),
                     ]),
                     ManagedWidget::draw_text(ctx, Text::from(Line("The mapper").roboto_bold())),
                     ManagedWidget::draw_text(
@@ -114,36 +114,12 @@ impl State for EditMetadata {
                 "X" => {
                     return Transition::Pop;
                 }
-                "change walk buttons" => {
-                    return Transition::Push(WizardState::new(Box::new(|wiz, ctx, _| {
-                        let (_, btn) = wiz.wrap(ctx).choose(
-                            "What kind of walk buttons does this intersection have?",
-                            || {
-                                traffic_signals::WalkButtons::all()
-                                    .into_iter()
-                                    .map(|btn| Choice::new(describe(&btn), btn))
-                                    .collect()
-                            },
-                        )?;
-                        Some(Transition::PopWithData(Box::new(move |state, _, ctx| {
-                            let mut edit = state.downcast_mut::<EditMetadata>().unwrap();
-                            edit.composite.replace(
-                                ctx,
-                                "change walk buttons",
-                                WrappedComposite::nice_text_button(
-                                    ctx,
-                                    Text::from(Line(format!("{} ▼", describe(&btn)))),
-                                    None,
-                                    "change walk buttons",
-                                ),
-                            );
-                            edit.walk_buttons = btn;
-                        })))
-                    })));
-                }
                 "Done" => {
                     let mut new_data = ExtraMappingData {
-                        walk_buttons: self.walk_buttons.clone(),
+                        walk_buttons: self
+                            .composite
+                            .dropdown_value::<traffic_signals::WalkButtons>("change walk buttons")
+                            .clone(),
                         observed: traffic_signals::Metadata {
                             author: self.composite.text_box("observed author"),
                             datetime: self.composite.text_box("observed datetime"),

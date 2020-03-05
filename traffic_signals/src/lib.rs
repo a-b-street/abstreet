@@ -120,9 +120,6 @@ impl WalkButtons {
     }
 }
 
-// TODO Temporary
-impl abstutil::Cloneable for WalkButtons {}
-
 static DATA: include_dir::Dir = include_dir::include_dir!("src/data");
 
 /// Returns all traffic signal data compiled into this build, keyed by OSM node ID.

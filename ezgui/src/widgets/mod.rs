@@ -1,6 +1,7 @@
 mod autocomplete;
 mod button;
 mod checkbox;
+mod dropdown;
 mod filler;
 mod histogram;
 mod modal_menu;
@@ -16,6 +17,7 @@ mod wizard;
 pub use self::autocomplete::Autocomplete;
 pub use self::button::Button;
 pub use self::checkbox::Checkbox;
+pub(crate) use self::dropdown::Dropdown;
 pub use self::filler::Filler;
 pub use self::histogram::Histogram;
 pub use self::modal_menu::ModalMenu;

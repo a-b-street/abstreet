@@ -297,13 +297,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                         self.ctx,
                         choices
                             .into_iter()
-                            .map(|c| Choice {
-                                label: c.label,
-                                data: c.data.clone_box(),
-                                hotkey: c.hotkey,
-                                active: c.active,
-                                tooltip: c.tooltip,
-                            })
+                            .map(|c| c.with_value(c.data.clone_box()))
                             .collect(),
                     ),
                 )
@@ -444,7 +438,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
     }
 }
 
-pub struct Choice<T: Clone> {
+pub struct Choice<T> {
     pub(crate) label: String,
     pub data: T,
     pub(crate) hotkey: Option<MultiKey>,
@@ -452,7 +446,7 @@ pub struct Choice<T: Clone> {
     pub(crate) tooltip: Option<String>,
 }
 
-impl<T: Clone> Choice<T> {
+impl<T> Choice<T> {
     pub fn new<S: Into<String>>(label: S, data: T) -> Choice<T> {
         Choice {
             label: label.into(),
@@ -489,5 +483,15 @@ impl<T: Clone> Choice<T> {
     pub fn tooltip<I: Into<String>>(mut self, info: I) -> Choice<T> {
         self.tooltip = Some(info.into());
         self
+    }
+
+    pub(crate) fn with_value<X>(&self, data: X) -> Choice<X> {
+        Choice {
+            label: self.label.clone(),
+            data,
+            hotkey: self.hotkey.clone(),
+            active: self.active,
+            tooltip: self.tooltip.clone(),
+        }
     }
 }

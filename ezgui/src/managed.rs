@@ -1,10 +1,10 @@
 use crate::layout::Widget;
 use crate::text;
-use crate::widgets::{Checkbox, PopupMenu, TextBox};
+use crate::widgets::{Checkbox, Dropdown, PopupMenu, TextBox};
 use crate::{
-    Button, Color, Drawable, EventCtx, Filler, GeomBatch, GfxCtx, Histogram, HorizontalAlignment,
-    JustDraw, Line, MultiKey, Plot, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Slider,
-    Text, VerticalAlignment,
+    Button, Choice, Color, Drawable, EventCtx, Filler, GeomBatch, GfxCtx, Histogram,
+    HorizontalAlignment, JustDraw, Line, MultiKey, Plot, RewriteColor, ScreenDims, ScreenPt,
+    ScreenRectangle, Slider, Text, VerticalAlignment,
 };
 use abstutil::Cloneable;
 use geom::{Distance, Duration, Polygon};
@@ -32,6 +32,7 @@ enum WidgetType {
     Btn(Button),
     Checkbox(Checkbox),
     TextBox(TextBox),
+    Dropdown(Dropdown),
     Slider(String),
     Menu(String),
     Filler(String),
@@ -326,6 +327,22 @@ impl ManagedWidget {
         ManagedWidget::new(WidgetType::TextBox(TextBox::new(ctx, 50, prefilled))).bg(text::BG_COLOR)
     }
 
+    pub fn dropdown<T: 'static + PartialEq>(
+        ctx: &EventCtx,
+        label: &str,
+        default_value: T,
+        choices: Vec<Choice<T>>,
+    ) -> ManagedWidget {
+        ManagedWidget::new(WidgetType::Dropdown(Dropdown::new(
+            ctx,
+            label,
+            default_value,
+            choices,
+        )))
+        .named(label)
+        .outline(2.0, Color::WHITE)
+    }
+
     pub(crate) fn duration_plot(plot: Plot<Duration>) -> ManagedWidget {
         ManagedWidget::new(WidgetType::DurationPlot(plot))
     }
@@ -389,6 +406,9 @@ impl ManagedWidget {
             WidgetType::TextBox(ref mut textbox) => {
                 textbox.event(ctx);
             }
+            WidgetType::Dropdown(ref mut dropdown) => {
+                dropdown.event(ctx, &self.rect);
+            }
             WidgetType::Slider(ref name) => {
                 sliders.get_mut(name).unwrap().event(ctx);
             }
@@ -426,6 +446,7 @@ impl ManagedWidget {
             WidgetType::Btn(ref btn) => btn.draw(g),
             WidgetType::Checkbox(ref checkbox) => checkbox.draw(g),
             WidgetType::TextBox(ref textbox) => textbox.draw(g),
+            WidgetType::Dropdown(ref dropdown) => dropdown.draw(g),
             WidgetType::Slider(ref name) => {
                 if name != "horiz scrollbar" && name != "vert scrollbar" {
                     sliders[name].draw(g);
@@ -461,6 +482,7 @@ impl ManagedWidget {
             WidgetType::Btn(ref widget) => widget,
             WidgetType::Checkbox(ref widget) => widget,
             WidgetType::TextBox(ref widget) => widget,
+            WidgetType::Dropdown(ref widget) => widget,
             WidgetType::Slider(ref name) => &sliders[name],
             WidgetType::Menu(ref name) => &menus[name],
             WidgetType::Filler(ref name) => &fillers[name],
@@ -573,6 +595,9 @@ impl ManagedWidget {
             WidgetType::TextBox(ref mut widget) => {
                 widget.set_pos(top_left);
             }
+            WidgetType::Dropdown(ref mut widget) => {
+                widget.set_pos(top_left);
+            }
             WidgetType::Slider(ref name) => {
                 sliders.get_mut(name).unwrap().set_pos(top_left);
             }
@@ -636,6 +661,7 @@ impl ManagedWidget {
             | WidgetType::Filler(_)
             | WidgetType::Checkbox(_)
             | WidgetType::TextBox(_)
+            | WidgetType::Dropdown(_)
             | WidgetType::DurationPlot(_)
             | WidgetType::UsizePlot(_) => {}
             WidgetType::Histogram(_) => {}
@@ -668,9 +694,10 @@ impl ManagedWidget {
     fn find(&self, name: &str) -> Option<&ManagedWidget> {
         let found = match self.widget {
             // TODO Consolidate and just do this
-            WidgetType::Draw(_) | WidgetType::Checkbox(_) | WidgetType::TextBox(_) => {
-                self.id == Some(name.to_string())
-            }
+            WidgetType::Draw(_)
+            | WidgetType::Checkbox(_)
+            | WidgetType::TextBox(_)
+            | WidgetType::Dropdown(_) => self.id == Some(name.to_string()),
             WidgetType::Btn(ref btn) => btn.action == name,
             WidgetType::Slider(ref n) => n == name,
             WidgetType::Menu(ref n) => n == name,
@@ -697,9 +724,10 @@ impl ManagedWidget {
     fn find_mut(&mut self, name: &str) -> Option<&mut ManagedWidget> {
         let found = match self.widget {
             // TODO Consolidate and just do this
-            WidgetType::Draw(_) | WidgetType::Checkbox(_) | WidgetType::TextBox(_) => {
-                self.id == Some(name.to_string())
-            }
+            WidgetType::Draw(_)
+            | WidgetType::Checkbox(_)
+            | WidgetType::TextBox(_)
+            | WidgetType::Dropdown(_) => self.id == Some(name.to_string()),
             WidgetType::Btn(ref btn) => btn.action == name,
             WidgetType::Slider(ref n) => n == name,
             WidgetType::Menu(ref n) => n == name,
@@ -1006,6 +1034,14 @@ impl Composite {
         match self.find(name).widget {
             WidgetType::TextBox(ref textbox) => textbox.get_entry(),
             _ => panic!("{} isn't a textbox", name),
+        }
+    }
+
+    // TODO This invalidates the dropdown!
+    pub fn dropdown_value<T: 'static>(&mut self, name: &str) -> T {
+        match self.find_mut(name).widget {
+            WidgetType::Dropdown(ref mut dropdown) => dropdown.take_value(),
+            _ => panic!("{} isn't a dropdown", name),
         }
     }
 
