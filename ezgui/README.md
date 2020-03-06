@@ -5,11 +5,18 @@ considering cleaning up the API surface and making it a proper standalone crate.
 
 ## Running the demo
 
+[Example code](examples/demo.rs)
+
 ```
 git clone https://github.com/dabreegster/abstreet.git
 cd abstreet/ezgui
 cargo run --example demo --features glium-backend
 ```
+
+![demo](demo.gif)
+
+If you want a more thorough idea of what this crate can do, see
+[A/B Street](https://abstreet.org).
 
 ## Features
 
@@ -56,7 +63,7 @@ from scratch when something changes, or replace a single widget in an existing
 (This is not a performance critical library. The perf bottlenecks in A/B Street
 are not in the GUI, and I probably won't invest much time speeding things up
 here until they are. (Or if somebody else winds up using this library and hits a
-problem.)
+problem.))
 
 ### Data visualization
 
@@ -79,9 +86,9 @@ The error handling is pretty bad; lots of unwraps and panics to clean up.
 
 When I started, nothing did what I needed, or it required awkward callbacks.
 Today, [iced](https://github.com/hecrj/iced) looks awesome, but wgpu doesn't
-work on either of my laptops. This is a dealbreaker -- I want to build stuff
-that runs ~anywhere. I looked into adding an OpenGL backend, but the current
-structure of iced has a
+work on my laptop. This is a dealbreaker -- I want to build stuff that runs
+~anywhere. I looked into adding an OpenGL backend, but the current structure of
+iced has a
 [huge](https://github.com/hecrj/iced/blob/master/native/src/renderer/null.rs)
 API surface to implement for a new backend.
 
@@ -94,7 +101,7 @@ more and make it a real contender.
 
 I never wanted to call this "ezgui." :(
 
-- coldbrew (stronger than iced coffee? ;) )
+- coldbrew (stronger than iced coffee? ;) and what generally powers me )
 - allegro (where most pivotal meetings with my UX designer have happened, but
   this is also the name of some library)
 - coco (for the geom library)
