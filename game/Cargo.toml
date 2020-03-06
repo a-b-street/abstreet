@@ -15,7 +15,6 @@ aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
 built = { version = "0.3.2", optional = true }
 chrono = "0.4.10"
-counter = "0.4.3"
 downcast-rs = "1.0.4"
 ezgui = { path = "../ezgui", default-features=false }
 geom = { path = "../geom" }

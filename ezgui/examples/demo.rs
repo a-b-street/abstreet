@@ -1,3 +1,9 @@
+// To run:
+// > cargo run --example demo --features glium-backend
+//
+// Try the web version, but there's no text rendering yet:
+// > cargo web start --target wasm32-unknown-unknown --features wasm-backend --example demo
+
 use ezgui::{
     hotkey, Button, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Text, VerticalAlignment, GUI,
