@@ -12,8 +12,8 @@ mod trips;
 pub use self::analytics::{Analytics, TripPhase};
 pub use self::events::{Event, TripPhaseType};
 pub use self::make::{
-    ABTest, BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars, SimFlags,
-    SpawnOverTime, SpawnTrip, TripSpawner, TripSpec,
+    ABTest, BorderSpawnOverTime, IndividTrip, OriginDestination, Person, Population, Scenario,
+    SeedParkedCars, SimFlags, SpawnOverTime, SpawnTrip, TripSpawner, TripSpec,
 };
 pub(crate) use self::mechanics::{
     DrivingSimState, IntersectionSimState, ParkingSimState, WalkingSimState,
@@ -102,6 +102,15 @@ pub struct TripID(pub usize);
 impl fmt::Display for TripID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "TripID({0})", self.0)
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+pub struct PersonID(pub usize);
+
+impl fmt::Display for PersonID {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "PersonID({0})", self.0)
     }
 }
 

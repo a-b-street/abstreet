@@ -1,8 +1,8 @@
 use crate::{
-    CarID, DrivingGoal, ParkingSpot, SidewalkSpot, Sim, TripSpec, VehicleSpec, VehicleType,
-    BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
+    CarID, DrivingGoal, ParkingSpot, PersonID, SidewalkSpot, Sim, TripSpec, VehicleSpec,
+    VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
 };
-use abstutil::{fork_rng, prettyprint_usize, Timer, WeightedUsizeChoice};
+use abstutil::{fork_rng, Timer, WeightedUsizeChoice};
 use geom::{Distance, Duration, Speed, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, DirectedRoadID, FullNeighborhoodInfo, LaneID, Map,
@@ -27,8 +27,7 @@ pub struct Scenario {
     pub border_spawn_over_time: Vec<BorderSpawnOverTime>,
 
     // Much more detailed
-    pub individ_trips: Vec<SpawnTrip>,
-    pub individ_parked_cars: BTreeMap<BuildingID, usize>,
+    pub population: Population,
 }
 
 // SpawnOverTime and BorderSpawnOverTime should be kept separate. Agents in SpawnOverTime pick
@@ -66,25 +65,6 @@ pub struct SeedParkedCars {
 }
 
 impl Scenario {
-    pub fn describe(&self) -> Vec<String> {
-        vec![
-            format!("{} for {}", self.scenario_name, self.map_name),
-            format!(
-                "{} SeedParkedCars",
-                prettyprint_usize(self.seed_parked_cars.len())
-            ),
-            format!(
-                "{} SpawnOverTime",
-                prettyprint_usize(self.spawn_over_time.len())
-            ),
-            format!(
-                "{} BorderSpawnOverTime",
-                prettyprint_usize(self.border_spawn_over_time.len())
-            ),
-            format!("{} SpawnTrip", prettyprint_usize(self.individ_trips.len())),
-        ]
-    }
-
     // TODO may need to fork the RNG a bit more
     pub fn instantiate(&self, sim: &mut Sim, map: &Map, rng: &mut XorShiftRng, timer: &mut Timer) {
         sim.set_name(self.scenario_name.clone());
@@ -148,7 +128,7 @@ impl Scenario {
         }
 
         let mut individ_parked_cars: Vec<(BuildingID, usize)> = Vec::new();
-        for (b, cnt) in &self.individ_parked_cars {
+        for (b, cnt) in &self.population.individ_parked_cars {
             if *cnt != 0 {
                 individ_parked_cars.push((*b, *cnt));
             }
@@ -156,11 +136,11 @@ impl Scenario {
         individ_parked_cars.shuffle(rng);
         seed_individ_parked_cars(individ_parked_cars, sim, map, rng, timer);
 
-        timer.start_iter("SpawnTrip", self.individ_trips.len());
-        for t in &self.individ_trips {
+        timer.start_iter("IndividTrip", self.population.individ_trips.len());
+        for t in &self.population.individ_trips {
             timer.next();
-            let (depart, spec) = t.clone().to_trip_spec(rng);
-            sim.schedule_trip(depart, spec, map);
+            let spec = t.trip.clone().to_trip_spec(rng);
+            sim.schedule_trip(t.depart, spec, map);
         }
 
         sim.spawn_all_trips(map, timer, true);
@@ -210,8 +190,11 @@ impl Scenario {
                     percent_use_transit: 0.5,
                 })
                 .collect(),
-            individ_trips: Vec::new(),
-            individ_parked_cars: BTreeMap::new(),
+            population: Population {
+                people: Vec::new(),
+                individ_trips: Vec::new(),
+                individ_parked_cars: BTreeMap::new(),
+            },
         };
         for i in map.all_outgoing_borders() {
             s.spawn_over_time.push(SpawnOverTime {
@@ -235,8 +218,11 @@ impl Scenario {
             seed_parked_cars: Vec::new(),
             spawn_over_time: Vec::new(),
             border_spawn_over_time: Vec::new(),
-            individ_trips: Vec::new(),
-            individ_parked_cars: BTreeMap::new(),
+            population: Population {
+                people: Vec::new(),
+                individ_trips: Vec::new(),
+                individ_parked_cars: BTreeMap::new(),
+            },
         }
     }
 
@@ -262,8 +248,11 @@ impl Scenario {
                 percent_use_transit: 0.5,
             }],
             border_spawn_over_time: Vec::new(),
-            individ_trips: Vec::new(),
-            individ_parked_cars: BTreeMap::new(),
+            population: Population {
+                people: Vec::new(),
+                individ_trips: Vec::new(),
+                individ_parked_cars: BTreeMap::new(),
+            },
         }
     }
 
@@ -823,87 +812,69 @@ fn rand_time(rng: &mut XorShiftRng, low: Time, high: Time) -> Time {
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct IndividTrip {
+    pub person: PersonID,
+    pub depart: Time,
+    pub trip: SpawnTrip,
+}
+
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub enum SpawnTrip {
     CarAppearing {
-        depart: Time,
         // TODO Replace start with building|border
         start: Position,
         goal: DrivingGoal,
         // For bikes starting at a border, use CarAppearing. UsingBike implies a walk->bike trip.
         is_bike: bool,
     },
-    MaybeUsingParkedCar(Time, BuildingID, DrivingGoal),
-    UsingBike(Time, SidewalkSpot, DrivingGoal),
-    JustWalking(Time, SidewalkSpot, SidewalkSpot),
-    UsingTransit(
-        Time,
-        SidewalkSpot,
-        SidewalkSpot,
-        BusRouteID,
-        BusStopID,
-        BusStopID,
-    ),
+    MaybeUsingParkedCar(BuildingID, DrivingGoal),
+    UsingBike(SidewalkSpot, DrivingGoal),
+    JustWalking(SidewalkSpot, SidewalkSpot),
+    UsingTransit(SidewalkSpot, SidewalkSpot, BusRouteID, BusStopID, BusStopID),
 }
 
 impl SpawnTrip {
-    // (departure time, spec)
-    pub fn to_trip_spec(self, rng: &mut XorShiftRng) -> (Time, TripSpec) {
+    pub fn to_trip_spec(self, rng: &mut XorShiftRng) -> TripSpec {
         match self {
             SpawnTrip::CarAppearing {
-                depart,
                 start,
                 goal,
                 is_bike,
                 ..
-            } => (
-                depart,
-                TripSpec::CarAppearing {
-                    start_pos: start,
-                    goal,
-                    vehicle_spec: if is_bike {
-                        Scenario::rand_bike(rng)
-                    } else {
-                        Scenario::rand_car(rng)
-                    },
-                    ped_speed: Scenario::rand_ped_speed(rng),
+            } => TripSpec::CarAppearing {
+                start_pos: start,
+                goal,
+                vehicle_spec: if is_bike {
+                    Scenario::rand_bike(rng)
+                } else {
+                    Scenario::rand_car(rng)
                 },
-            ),
-            SpawnTrip::MaybeUsingParkedCar(depart, start_bldg, goal) => (
-                depart,
-                TripSpec::MaybeUsingParkedCar {
-                    start_bldg,
-                    goal,
-                    ped_speed: Scenario::rand_ped_speed(rng),
-                },
-            ),
-            SpawnTrip::UsingBike(depart, start, goal) => (
-                depart,
-                TripSpec::UsingBike {
-                    start,
-                    goal,
-                    vehicle: Scenario::rand_bike(rng),
-                    ped_speed: Scenario::rand_ped_speed(rng),
-                },
-            ),
-            SpawnTrip::JustWalking(depart, start, goal) => (
-                depart,
-                TripSpec::JustWalking {
-                    start,
-                    goal,
-                    ped_speed: Scenario::rand_ped_speed(rng),
-                },
-            ),
-            SpawnTrip::UsingTransit(depart, start, goal, route, stop1, stop2) => (
-                depart,
-                TripSpec::UsingTransit {
-                    start,
-                    goal,
-                    route,
-                    stop1,
-                    stop2,
-                    ped_speed: Scenario::rand_ped_speed(rng),
-                },
-            ),
+                ped_speed: Scenario::rand_ped_speed(rng),
+            },
+            SpawnTrip::MaybeUsingParkedCar(start_bldg, goal) => TripSpec::MaybeUsingParkedCar {
+                start_bldg,
+                goal,
+                ped_speed: Scenario::rand_ped_speed(rng),
+            },
+            SpawnTrip::UsingBike(start, goal) => TripSpec::UsingBike {
+                start,
+                goal,
+                vehicle: Scenario::rand_bike(rng),
+                ped_speed: Scenario::rand_ped_speed(rng),
+            },
+            SpawnTrip::JustWalking(start, goal) => TripSpec::JustWalking {
+                start,
+                goal,
+                ped_speed: Scenario::rand_ped_speed(rng),
+            },
+            SpawnTrip::UsingTransit(start, goal, route, stop1, stop2) => TripSpec::UsingTransit {
+                start,
+                goal,
+                route,
+                stop1,
+                stop2,
+                ped_speed: Scenario::rand_ped_speed(rng),
+            },
         }
     }
 }
@@ -925,4 +896,20 @@ fn pick_starting_lanes(mut lanes: Vec<LaneID>, is_bike: bool, map: &Map) -> Vec<
     }
 
     lanes
+}
+
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct Population {
+    pub people: Vec<Person>,
+    pub individ_trips: Vec<IndividTrip>,
+    pub individ_parked_cars: BTreeMap<BuildingID, usize>,
+}
+
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct Person {
+    pub id: PersonID,
+    pub home: Option<BuildingID>,
+    // Index into individ_trips. Each trip is referenced exactly once; this representation doesn't
+    // enforce that, but is less awkward than embedding trips here.
+    pub trips: Vec<usize>,
 }

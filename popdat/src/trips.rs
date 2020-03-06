@@ -3,7 +3,10 @@ use crate::PopDat;
 use abstutil::{prettyprint_usize, MultiMap, Timer};
 use geom::{Distance, Duration, LonLat, Polygon, Pt2D, Time};
 use map_model::{BuildingID, IntersectionID, Map, PathConstraints, Position};
-use sim::{DrivingGoal, Scenario, SidewalkSpot, SpawnTrip, TripSpec};
+use sim::{
+    DrivingGoal, IndividTrip, Person, PersonID, Population, Scenario, SidewalkSpot, SpawnTrip,
+    TripSpec,
+};
 use std::collections::{BTreeMap, HashMap};
 
 #[derive(Clone, Debug)]
@@ -47,7 +50,6 @@ impl Trip {
                         map,
                     ) {
                         Some(SpawnTrip::CarAppearing {
-                            depart: self.depart_at,
                             start,
                             goal: self.to.driving_goal(PathConstraints::Car, map),
                             is_bike: false,
@@ -59,14 +61,12 @@ impl Trip {
                     }
                 }
                 TripEndpt::Building(b) => Some(SpawnTrip::MaybeUsingParkedCar(
-                    self.depart_at,
                     b,
                     self.to.driving_goal(PathConstraints::Car, map),
                 )),
             },
             Mode::Bike => match self.from {
                 TripEndpt::Building(b) => Some(SpawnTrip::UsingBike(
-                    self.depart_at,
                     SidewalkSpot::building(b, map),
                     self.to.driving_goal(PathConstraints::Bike, map),
                 )),
@@ -79,7 +79,6 @@ impl Trip {
                         map,
                     ) {
                         Some(SpawnTrip::CarAppearing {
-                            depart: self.depart_at,
                             start,
                             goal: self.to.driving_goal(PathConstraints::Bike, map),
                             is_bike: true,
@@ -91,7 +90,6 @@ impl Trip {
                 }
             },
             Mode::Walk => Some(SpawnTrip::JustWalking(
-                self.depart_at,
                 self.from.start_sidewalk_spot(map),
                 self.to.end_sidewalk_spot(map),
             )),
@@ -101,18 +99,11 @@ impl Trip {
                 if let Some((stop1, stop2, route)) =
                     map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos)
                 {
-                    Some(SpawnTrip::UsingTransit(
-                        self.depart_at,
-                        start,
-                        goal,
-                        route,
-                        stop1,
-                        stop2,
-                    ))
+                    Some(SpawnTrip::UsingTransit(start, goal, route, stop1, stop2))
                 } else {
                     //timer.warn(format!("{:?} not actually using transit, because pathfinding
                     // didn't find any useful route", trip));
-                    Some(SpawnTrip::JustWalking(self.depart_at, start, goal))
+                    Some(SpawnTrip::JustWalking(start, goal))
                 }
             }
         }
@@ -297,20 +288,20 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
 
     let individ_parked_cars = count_cars(&trips, map);
 
-    let mut individ_trips: Vec<SpawnTrip> = Vec::new();
+    let mut individ_trips: Vec<(Time, Option<PersonID>, SpawnTrip)> = Vec::new();
     // person -> (trip seq, index into individ_trips)
     let mut trips_per_person: MultiMap<(usize, usize), ((usize, bool, usize), usize)> =
         MultiMap::new();
-    for (trip, person, seq) in timer
+    for (trip, depart, person, seq) in timer
         .parallelize("turn PSRC trips into SpawnTrips", trips, |trip| {
             trip.to_spawn_trip(map)
-                .map(|spawn| (spawn, trip.person, trip.seq))
+                .map(|spawn| (spawn, trip.depart_at, trip.person, trip.seq))
         })
         .into_iter()
         .flatten()
     {
         let idx = individ_trips.len();
-        individ_trips.push(trip);
+        individ_trips.push((depart, None, trip));
         trips_per_person.insert(person, (seq, idx));
     }
     timer.note(format!(
@@ -320,11 +311,36 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
         prettyprint_usize(trips_per_person.len())
     ));
 
-    // TODO Just debugging for now, but plumb through a full representation of population into
-    // Scenario later. Track when there are gaps in the sequence, to explain the person warping.
-    /*for (person, seq_trips) in trips_per_person.consume() {
-        println!("{:?} takes {} trips", person, seq_trips.len());
-    }*/
+    let mut population = Population {
+        people: Vec::new(),
+        individ_trips: Vec::new(),
+        individ_parked_cars,
+    };
+    let mut person_ids: HashMap<(usize, usize), PersonID> = HashMap::new();
+    for (person, seq_trips) in trips_per_person.consume() {
+        let id = PersonID(population.people.len());
+        person_ids.insert(person, id);
+        let mut trips = Vec::new();
+        for (_, idx) in seq_trips {
+            // TODO Track when there are gaps in the sequence, to explain the person warping.
+            trips.push(idx);
+            assert!(individ_trips[idx].1.is_none());
+            individ_trips[idx].1 = Some(id);
+        }
+        population.people.push(Person {
+            id,
+            // TODO Do we have to scrape a new input file for this? :(
+            home: None,
+            trips,
+        });
+    }
+    for (depart, person, trip) in individ_trips {
+        population.individ_trips.push(IndividTrip {
+            trip,
+            depart,
+            person: person.unwrap(),
+        });
+    }
 
     Scenario {
         scenario_name: "weekday".to_string(),
@@ -333,8 +349,7 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
         seed_parked_cars: Vec::new(),
         spawn_over_time: Vec::new(),
         border_spawn_over_time: Vec::new(),
-        individ_trips,
-        individ_parked_cars,
+        population,
     }
 }
 

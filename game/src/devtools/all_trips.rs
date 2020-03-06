@@ -36,7 +36,7 @@ impl TripsVisualizer {
                 timer.parallelize("calculate paths with geometry", all_trips, |trip| {
                     if let Some(spawn_trip) = trip.to_spawn_trip(map) {
                         let mut rng = flags.make_rng();
-                        let (_, spec) = spawn_trip.to_trip_spec(&mut rng);
+                        let spec = spawn_trip.to_trip_spec(&mut rng);
                         let req = sim.trip_spec_to_path_req(&spec, map);
                         if let Some(route) = map
                             .pathfind(req.clone())
