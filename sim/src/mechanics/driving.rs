@@ -905,16 +905,16 @@ impl DrivingSimState {
                 },
             ),
             (
-                "Trip time so far".to_string(),
-                (now - car.started_at).to_string(),
-            ),
-            (
-                "Percent of entire trip spent waiting".to_string(),
+                "Percent of driving time spent waiting".to_string(),
                 format!(
                     "{}%",
                     (100.0 * (car.total_blocked_time + time_spent_waiting) / (now - car.started_at))
                         as usize
                 ),
+            ),
+            (
+                "Time spent waiting right here".to_string(),
+                time_spent_waiting.to_string(),
             ),
             (
                 "Lanes remaining in path".to_string(),
@@ -927,10 +927,6 @@ impl DrivingSimState {
                     path.crossed_so_far().describe_rounded(),
                     path.total_length().describe_rounded()
                 ),
-            ),
-            (
-                "Time spent waiting right here".to_string(),
-                time_spent_waiting.to_string(),
             ),
         ];
         // No owner

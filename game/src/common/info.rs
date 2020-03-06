@@ -919,6 +919,9 @@ fn trip_details(
         ctx,
     );
 
+    let trip_start_time = phases[0].start_time;
+    let trip_end_time = phases.last().as_ref().and_then(|p| p.end_time);
+
     // Start
     {
         match trip_start {
@@ -981,7 +984,7 @@ fn trip_details(
 
                 let mut txt = Text::from(Line("jump to goal"));
                 txt.add(Line(bldg.just_address(map)));
-                if let Some(t) = phases.last().as_ref().and_then(|p| p.end_time) {
+                if let Some(t) = trip_end_time {
                     txt.add(Line(t.ampm_tostring()));
                 }
                 goal_btn = goal_btn.change_tooltip(txt);
@@ -1007,7 +1010,7 @@ fn trip_details(
 
                 let mut txt = Text::from(Line("jump to goal"));
                 txt.add(Line(i.name(map)));
-                if let Some(t) = phases.last().as_ref().and_then(|p| p.end_time) {
+                if let Some(t) = trip_end_time {
                     txt.add(Line(t.ampm_tostring()));
                 }
                 goal_btn = goal_btn.change_tooltip(txt);
@@ -1032,9 +1035,10 @@ fn trip_details(
         };
     }
 
+    let total_duration_so_far =
+        trip_end_time.unwrap_or_else(|| app.primary.sim.time()) - phases[0].start_time;
+
     let total_width = 0.3 * ctx.canvas.window_width;
-    // TODO Width proportional to duration of this phase!
-    let phase_width = total_width / (phases.len() as f64);
     let mut timeline = Vec::new();
     let num_phases = phases.len();
     for (idx, p) in phases.into_iter().enumerate() {
@@ -1052,19 +1056,23 @@ fn trip_details(
             "- Started at {}",
             p.start_time.ampm_tostring()
         )));
-        if let Some(t2) = p.end_time {
-            txt.add(Line(format!(
-                "- Ended at {} (duration: {})",
-                t2,
-                t2 - p.start_time
-            )));
+        let duration = if let Some(t2) = p.end_time {
+            let d = t2 - p.start_time;
+            txt.add(Line(format!("- Ended at {} (duration: {})", t2, d)));
+            d
         } else {
-            txt.add(Line(format!(
-                "- Ongoing (duration so far: {})",
-                app.primary.sim.time() - p.start_time
-            )));
-        }
+            let d = app.primary.sim.time() - p.start_time;
+            txt.add(Line(format!("- Ongoing (duration so far: {})", d)));
+            d
+        };
+        // TODO Problems when this is really low?
+        let percent_duration = duration / total_duration_so_far;
+        txt.add(Line(format!(
+            "- {}% of trip duration",
+            (100.0 * percent_duration) as usize
+        )));
 
+        let phase_width = total_width * percent_duration;
         let rect = Polygon::rectangle(phase_width, 15.0);
         let mut normal = GeomBatch::from(vec![(color, rect.clone())]);
         if idx == num_phases - 1 {
@@ -1128,10 +1136,20 @@ fn trip_details(
     timeline.insert(0, ManagedWidget::btn(start_btn).margin(5));
     timeline.push(ManagedWidget::btn(goal_btn).margin(5));
 
+    let mut table = vec![
+        ("Trip start".to_string(), trip_start_time.ampm_tostring()),
+        ("Duration".to_string(), total_duration_so_far.to_string()),
+    ];
+    if let Some(t) = trip_end_time {
+        table.push(("Trip end".to_string(), t.ampm_tostring()));
+    }
+    let mut col = vec![ManagedWidget::row(timeline)
+        .evenly_spaced()
+        .margin_above(25)];
+    col.extend(make_table(ctx, table));
+
     (
-        ManagedWidget::row(timeline)
-            .evenly_spaced()
-            .margin_above(25),
+        ManagedWidget::col(col),
         TripDetails {
             id: trip,
             unzoomed: unzoomed.upload(ctx),

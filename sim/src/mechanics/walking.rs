@@ -268,16 +268,16 @@ impl WalkingSimState {
 
         let props = vec![
             (
-                "Trip time so far".to_string(),
-                (now - p.started_at).to_string(),
-            ),
-            (
-                "Percent of entire trip spent waiting".to_string(),
+                "Percent of walking time spent waiting".to_string(),
                 format!(
                     "{}%",
                     (100.0 * (p.total_blocked_time + time_spent_waiting) / (now - p.started_at))
                         as usize
                 ),
+            ),
+            (
+                "Time spent waiting right here".to_string(),
+                time_spent_waiting.to_string(),
             ),
             (
                 "Lanes remaining in path".to_string(),
@@ -290,10 +290,6 @@ impl WalkingSimState {
                     p.path.crossed_so_far().describe_rounded(),
                     p.path.total_length().describe_rounded()
                 ),
-            ),
-            (
-                "Time spent waiting right here".to_string(),
-                time_spent_waiting.to_string(),
             ),
         ];
         let mut extra = Vec::new();
