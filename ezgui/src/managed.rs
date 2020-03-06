@@ -391,6 +391,7 @@ impl ManagedWidget {
         ctx: &mut EventCtx,
         sliders: &mut HashMap<String, Slider>,
         menus: &mut HashMap<String, Menu>,
+        redo_layout: &mut bool,
     ) -> Option<Outcome> {
         match self.widget {
             WidgetType::Draw(_) => {}
@@ -401,7 +402,9 @@ impl ManagedWidget {
                 }
             }
             WidgetType::Checkbox(ref mut checkbox) => {
-                checkbox.event(ctx);
+                if checkbox.event(ctx) {
+                    *redo_layout = true;
+                }
             }
             WidgetType::TextBox(ref mut textbox) => {
                 textbox.event(ctx);
@@ -421,7 +424,7 @@ impl ManagedWidget {
             | WidgetType::Histogram(_) => {}
             WidgetType::Row(ref mut widgets) | WidgetType::Column(ref mut widgets) => {
                 for w in widgets {
-                    if let Some(o) = w.event(ctx, sliders, menus) {
+                    if let Some(o) = w.event(ctx, sliders, menus, redo_layout) {
                         return Some(o);
                     }
                 }
@@ -937,11 +940,12 @@ impl Composite {
         }
 
         let before = self.scroll_offset();
-        let result = self
-            .top_level
-            .event(ctx, &mut self.sliders, &mut self.menus);
-        if self.scroll_offset() != before {
-            self.recompute_layout(ctx, false);
+        let mut redo_layout = false;
+        let result =
+            self.top_level
+                .event(ctx, &mut self.sliders, &mut self.menus, &mut redo_layout);
+        if self.scroll_offset() != before || redo_layout {
+            self.recompute_layout(ctx, true);
         }
         result
     }

@@ -24,12 +24,16 @@ impl Checkbox {
         }
     }
 
-    pub(crate) fn event(&mut self, ctx: &mut EventCtx) {
+    // If true, layout should be recomputed.
+    pub(crate) fn event(&mut self, ctx: &mut EventCtx) -> bool {
         self.btn.event(ctx);
         if self.btn.clicked() {
             std::mem::swap(&mut self.btn, &mut self.other_btn);
             self.btn.set_pos(self.other_btn.top_left);
             self.enabled = !self.enabled;
+            true
+        } else {
+            false
         }
     }
 
