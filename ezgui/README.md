@@ -1,97 +1,98 @@
 # ezgui notes
 
-I'm considering cleaning this thing up and releasing a new crate.
+This is a GUI + 2D drawing + data viz library I've built up for A/B Street. I'm
+considering cleaning up the API surface and making it a proper standalone crate.
+
+## Running the demo
+
+```
+git clone https://github.com/dabreegster/abstreet.git
+cd abstreet/ezgui
+cargo run --example demo --features glium-backend
+```
 
 ## Features
 
-Runs in lots of places. Specifically:
+### Runs in lots of places
 
-- Linux, Mac, Windows via glium
-- wasm via glow. Text support coming in O(months).
-  https://github.com/RazrFalcon/resvg/issues/229
-- Dealing with DPI sucks. There's one place to set a scale factor, then have all
-  text and widgets and stuff scaled up.
+Runs on Linux, Mac, Windows via [glium](https://github.com/glium/glium/). Also
+works in the browser using WebAssembly and
+[glow](https://github.com/grovesNL/glow/), but text support still coming in
+[a few months](https://github.com/RazrFalcon/resvg/issues/229).
 
-Fully vector.
+Why OpenGL? My requirements are super simple; I don't need the power of Vulkan
+or other new stuff. I want something simple that runs everywhere. If you want to
+make this work with WGPU or something else, it should be easy. The 3 backend
+implementations ([glium](src/backend_glium.rs),
+[glow on native](src/backend_glow.rs), [glow on wasm](src/backend_wasm.rs)) are
+each about 300 lines.
 
-- usvg -> lyon -> polygons
-- Load an svg button, programatically swap colors, rotate, scale, etc
-- Even text!
+### 2D drawing
 
-Lots of orthogonalish stuff that probably doesn't belong in a GUI library, but
-is darn useful. I didn't design this as a GUI library, I just made exactly the
-stuff I need for A/B Street.
+Everything is a colored polygon. Upload stuff once, redraw many times with a
+simple camera transform. Panning and smooth zooming. One extremely simple
+shader.
 
-- Plots and histograms
-- Screenshot entire map in chunks for visual diff tests
+Thanks to [usvg](https://github.com/RazrFalcon/resvg) and
+[lyon](https://github.com/nical/lyon/), SVGs and text are transformed into
+colored polygons. Programatically swap colors, rotate, scale stuff. Find bounds
+for precise mouseover.
 
-The canvas. Concept of map- and screen-space. Nice 2D panning and zooming.
+### GUI
 
-Composites and ManagedWidgets.
+Widgets like buttons (with keybindings), checkboxes, sliders, pop-up menus, text
+entry, and some data viz things. You can combine these in `Composite`s to
+dispatch event handling and drawing. Styling (background colors, outline,
+padding) and Flexbox-ish layouting via
+[stretch](https://vislyhq.github.io/stretch/).
 
-- flexbox styling via stretch, although I don't understand when margin/padding
-  doesnt work.
-- buttons, checkboxes (wrapper over buttons), sliders, pop-up menus, fillers for
-  custom magic, plots, histograms, extremely basic text entry
+The API / programming style is kind of funny; see the [demo](examples/demo.rs)
+to get a sense of it. No callbacks. You manually feed events into your
+`Composite`s of widgets and ask about what happened. There's no smart diffing of
+widget trees; most of the time it's fine to completely recreate a `Composite`
+from scratch when something changes, or replace a single widget in an existing
+`Composite`.
 
-Weird API. No callbacks. You manually plumb events to widgets, ask about
-results. No smart diffing of widget trees; usually recreate everything from
-scratch (it's perfectly cheap in my use cases) or replace a widget in a
-composite.
+(This is not a performance critical library. The perf bottlenecks in A/B Street
+are not in the GUI, and I probably won't invest much time speeding things up
+here until they are. (Or if somebody else winds up using this library and hits a
+problem.)
 
-Wizard... though I'm not sure about this pattern. Been switching to settings
-panels that ask you lots of stuff at once, give defaults.
+### Data visualization
 
-## Design choices
+Not exactly sure how this wound up in here too, but at some point I needed
+histograms and line plots that update live over time and show some info when you
+mouseover points, so here it is.
 
-NOT performance critical. When I spot something causing noticeable problems, I
-profile and fix it reactively. There's so much waste everywhere, like constantly
-recreating widgets from scratch and re-uploading similar geometry over and over.
-The perf is totally fine for my (reasonably complicated) use cases; if you find
-something that doesn't work for you, let's look at it.
+## Big problems to solve before release
 
-Messy error handling. unwraps and panics in different places.
+When you ask a `Composite` what action happened (what button was clicked), it
+hands you back `Option<String>`. Not so typesafe. How boilerplatey is it to
+associate buttons with a user-provided enum?
 
-Backend impl is minimal. No traits, plumbing generics -- why would you ever
-compile in more than one option anyway?
+There are hardcoded colors / padding in lots of places. Need to make style
+easily configurable, with good defaults.
 
-One (simple) uber-shader. Don't do anything fancy in the shader, calculate
-geometry on the CPU. We can use the same geometry for drawing and detecting
-mouseover.
+The error handling is pretty bad; lots of unwraps and panics to clean up.
 
-## Major problems
+## Why another Rust GUI library?
 
-Type-safe Outcomes via low-boilerplate enums?
+When I started, nothing did what I needed, or it required awkward callbacks.
+Today, [iced](https://github.com/hecrj/iced) looks awesome, but wgpu doesn't
+work on either of my laptops. This is a dealbreaker -- I want to build stuff
+that runs ~anywhere. I looked into adding an OpenGL backend, but the current
+structure of iced has a
+[huge](https://github.com/hecrj/iced/blob/master/native/src/renderer/null.rs)
+API surface to implement for a new backend.
 
-Configuring default style
-
-## FAQ
-
-### Why OpenGL?
-
-My requirements are super simple; I don't need the power of Vulkan or the new
-stuff. I want something simple that runs everywhere. If you want to make this
-work with WGPU or something else, it should be easy. The 3 backend
-implementations (glium, glow on native, glow on wasm) are each about 300 lines.
-
-### Why another? Shouldn't we consolidate?
-
-We should. I didn't particularly want to write a GUI library; nothing did what I
-wanted when I started. I don't know if it's worth polishing this up and making
-it a real contender in the Rust GUI space, or efforts should be consolidated in
-another library.
-
-### Comparison to alternatives
-
-Huge list here. Notably, why not iced? Biggest blocker is that I can't run the
-examples today; there's some bug with the wgpu support on both of my Linux
-laptops. https://github.com/hecrj/iced/issues/212. This is a deal-breaker -- I
-want stuff I make to run anywhere without hassle. I looked at adding a glium
-backend to iced, but the current structure has tons of backend-specific code. In
-contrast, ezgui has a super tiny backend API -- basically just upload triangles
-and draw them -- and all of the heavy logic sits on top of that.
+For the moment, I don't have enough time to get something else on-par with this
+library and port A/B Street over, so I'll continue to invest in this library. If
+there's lots of interest in other people using this library, I'll invest much
+more and make it a real contender.
 
 ## Naming
+
+I never wanted to call this "ezgui." :(
 
 - coldbrew (stronger than iced coffee? ;) )
 - allegro (where most pivotal meetings with my UX designer have happened, but

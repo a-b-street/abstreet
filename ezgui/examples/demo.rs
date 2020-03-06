@@ -1,3 +1,6 @@
+// You have to run from the ezgui crate (abstreet/ezgui), due to relative paths to fonts and
+// images.
+//
 // To run:
 // > cargo run --example demo --features glium-backend
 //
@@ -11,103 +14,34 @@ use ezgui::{
 };
 use geom::{Angle, Duration, Polygon, Pt2D, Time};
 
-struct App {
-    top_center: Composite,
-    draw: Drawable,
-    side_panel: Option<(Duration, Composite)>,
+fn main() {
+    // Control flow surrendered here. App implements State, which has an event handler and a draw
+    // callback.
+    ezgui::run(
+        ezgui::Settings::new("ezgui demo", "../data/system/fonts"),
+        |ctx| App::new(ctx),
+    );
+}
 
+struct App {
+    controls: Composite,
+    timeseries_panel: Option<(Duration, Composite)>,
+    scrollable_canvas: Drawable,
     elapsed: Duration,
 }
 
 impl App {
     fn new(ctx: &mut EventCtx) -> App {
-        let mut batch = GeomBatch::new();
-        batch.push(
-            Color::hex("#4E30A6"),
-            Polygon::rounded_rectangle(5000.0, 5000.0, 25.0),
-        );
-        batch.add_svg(
-            &ctx.prerender,
-            "../data/system/assets/pregame/logo.svg",
-            Pt2D::new(300.0, 300.0),
-            1.0,
-            Angle::ZERO,
-        );
-        batch.add_transformed(
-            Text::from(
-                Line("Awesome vector text thanks to usvg and lyon").fg(Color::hex("#DF8C3D")),
-            )
-            .render_to_batch(&ctx.prerender),
-            Pt2D::new(600.0, 500.0),
-            2.0,
-            Angle::new_degs(30.0),
-        );
-
-        ctx.canvas.map_dims = (5000.0, 5000.0);
-
         App {
-            top_center: Composite::new(
-                ManagedWidget::col(vec![
-                    ManagedWidget::draw_text(ctx, {
-                        let mut txt = Text::from(Line("ezgui demo").roboto_bold());
-                        txt.add(Line(
-                            "Click and drag to pan, use touchpad or scroll wheel to zoom",
-                        ));
-                        txt
-                    }),
-                    ManagedWidget::row(vec![
-                        ManagedWidget::custom_checkbox(
-                            false,
-                            Button::text_bg(
-                                Text::from(Line("Pause")),
-                                Color::BLUE,
-                                Color::ORANGE,
-                                hotkey(Key::Space),
-                                "pause the stopwatch",
-                                ctx,
-                            ),
-                            Button::text_bg(
-                                Text::from(Line("Resume")),
-                                Color::BLUE,
-                                Color::ORANGE,
-                                hotkey(Key::Space),
-                                "resume the stopwatch",
-                                ctx,
-                            ),
-                        )
-                        .named("paused")
-                        .margin(5),
-                        ManagedWidget::btn(Button::text_no_bg(
-                            Text::from(Line("Reset")),
-                            Text::from(Line("Reset").fg(Color::ORANGE)),
-                            None,
-                            "reset the stopwatch",
-                            true,
-                            ctx,
-                        ))
-                        .outline(3.0, Color::WHITE)
-                        .margin(5),
-                        ManagedWidget::checkbox(ctx, "Draw scrollable canvas", None, true)
-                            .margin(5),
-                        ManagedWidget::checkbox(ctx, "Show timeseries", lctrl(Key::T), false)
-                            .margin(5),
-                    ])
-                    .evenly_spaced(),
-                    ManagedWidget::draw_text(ctx, Text::from(Line("Stopwatch: ...")))
-                        .named("stopwatch"),
-                ])
-                .bg(Color::grey(0.4)),
-            )
-            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-            .build(ctx),
-            draw: batch.upload(ctx),
-            side_panel: None,
-
+            controls: make_controls(ctx),
+            timeseries_panel: None,
+            scrollable_canvas: setup_scrollable_canvas(ctx),
             elapsed: Duration::ZERO,
         }
     }
 
-    fn make_sidepanel(&self, ctx: &mut EventCtx) -> Composite {
+    fn make_timeseries_panel(&self, ctx: &mut EventCtx) -> Composite {
+        // Make a table with 3 columns.
         let mut col1 = vec![ManagedWidget::draw_text(
             ctx,
             Text::from(Line("Time").roboto_bold()),
@@ -151,6 +85,7 @@ impl App {
                     txt
                 })]),
                 ManagedWidget::row(vec![
+                    // Examples of styling widgets
                     ManagedWidget::col(col1)
                         .outline(3.0, Color::BLACK)
                         .margin(5),
@@ -167,6 +102,7 @@ impl App {
                         Series {
                             label: "Linear".to_string(),
                             color: Color::GREEN,
+                            // These points are (x axis = Time, y axis = usize)
                             pts: (0..(self.elapsed.inner_seconds() as usize))
                                 .map(|s| (Time::START_OF_DAY + Duration::seconds(s as f64), s))
                                 .collect(),
@@ -182,17 +118,25 @@ impl App {
                         },
                     ],
                     PlotOptions {
+                        // Without this, the plot doesn't stretch to cover times in between whole
+                        // seconds.
                         max_x: Some(Time::START_OF_DAY + self.elapsed),
                     },
                 ),
             ])
             .bg(Color::grey(0.4)),
         )
+        // Don't let the panel exceed this percentage of the window. Scrollbars appear
+        // automatically if needed.
         .max_size_percent(30, 40)
+        // We take up 30% width, and we want to leave 10% window width as buffer.
         .aligned(HorizontalAlignment::Percent(0.6), VerticalAlignment::Center)
         .build(ctx);
 
-        if let Some((_, ref old)) = self.side_panel {
+        // Since we're creating an entirely new panel when the time changes, it's nice to keep the
+        // scroll the same. If the new panel got shorter and the old scroll was too long, this
+        // clamps reasonably.
+        if let Some((_, ref old)) = self.timeseries_panel {
             c.restore_scroll(ctx, old.preserve_scroll());
         }
         c
@@ -201,14 +145,18 @@ impl App {
 
 impl GUI for App {
     fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
+        // Allow panning and zooming to work.
         ctx.canvas_movement();
 
-        match self.top_center.event(ctx) {
+        // This dispatches event handling to all of the widgets inside.
+        match self.controls.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "pause the stopwatch" | "resume the stopwatch" => {}
+                // These outcomes should probably be a custom enum per Composite, to be more
+                // typesafe.
                 "reset the stopwatch" => {
                     self.elapsed = Duration::ZERO;
-                    self.top_center.replace(
+                    // We can replace any named widget with another one. Layout gets recalculated.
+                    self.controls.replace(
                         ctx,
                         "stopwatch",
                         ManagedWidget::draw_text(
@@ -223,10 +171,14 @@ impl GUI for App {
             None => {}
         }
 
+        // An update event means that no keyboard/mouse input happened, but time has passed.
+        // (Ignore the "nonblocking"; this API is funky right now. Only one caller "consumes" an
+        // event, so that multiple things don't all respond to one keypress, but that's set up
+        // oddly for update events.)
         if let Some(dt) = ctx.input.nonblocking_is_update_event() {
             ctx.input.use_update_event();
             self.elapsed += dt;
-            self.top_center.replace(
+            self.controls.replace(
                 ctx,
                 "stopwatch",
                 ManagedWidget::draw_text(
@@ -237,20 +189,21 @@ impl GUI for App {
             );
         }
 
-        if self.top_center.is_checked("Show timeseries") {
+        if self.controls.is_checked("Show timeseries") {
+            // Update the panel when time changes.
             if self
-                .side_panel
+                .timeseries_panel
                 .as_ref()
                 .map(|(dt, _)| *dt != self.elapsed)
                 .unwrap_or(true)
             {
-                self.side_panel = Some((self.elapsed, self.make_sidepanel(ctx)));
+                self.timeseries_panel = Some((self.elapsed, self.make_timeseries_panel(ctx)));
             }
         } else {
-            self.side_panel = None;
+            self.timeseries_panel = None;
         }
 
-        if let Some((_, ref mut p)) = self.side_panel {
+        if let Some((_, ref mut p)) = self.timeseries_panel {
             match p.event(ctx) {
                 // No buttons in there
                 Some(Outcome::Clicked(_)) => unreachable!(),
@@ -258,7 +211,9 @@ impl GUI for App {
             }
         }
 
-        if self.top_center.is_checked("paused") {
+        // If we're paused, only call event() again when there's some kind of input. If not, also
+        // sprinkle in periodic update events as time passes.
+        if self.controls.is_checked("paused") {
             EventLoopMode::InputOnly
         } else {
             EventLoopMode::Animation
@@ -268,21 +223,107 @@ impl GUI for App {
     fn draw(&self, g: &mut GfxCtx) {
         g.clear(Color::BLACK);
 
-        if self.top_center.is_checked("Draw scrollable canvas") {
-            g.redraw(&self.draw);
+        if self.controls.is_checked("Draw scrollable canvas") {
+            g.redraw(&self.scrollable_canvas);
         }
 
-        self.top_center.draw(g);
+        self.controls.draw(g);
 
-        if let Some((_, ref p)) = self.side_panel {
+        if let Some((_, ref p)) = self.timeseries_panel {
             p.draw(g);
         }
     }
 }
 
-fn main() {
-    ezgui::run(
-        ezgui::Settings::new("ezgui demo", "../data/system/fonts"),
-        |ctx| App::new(ctx),
+// This prepares a bunch of geometry (colored polygons) and uploads it to the GPU once. Then it can
+// be redrawn cheaply later.
+fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
+    let mut batch = GeomBatch::new();
+    batch.push(
+        Color::hex("#4E30A6"),
+        Polygon::rounded_rectangle(5000.0, 5000.0, 25.0),
     );
+    // SVG support using lyon and usvg.
+    batch.add_svg(
+        &ctx.prerender,
+        "../data/system/assets/pregame/logo.svg",
+        // Translate
+        Pt2D::new(300.0, 300.0),
+        // Scale
+        1.0,
+        // Rotate
+        Angle::ZERO,
+    );
+    // Text rendering also goes through lyon and usvg.
+    batch.add_transformed(
+        Text::from(Line("Awesome vector text thanks to usvg and lyon").fg(Color::hex("#DF8C3D")))
+            .render_to_batch(&ctx.prerender),
+        // Translate
+        Pt2D::new(600.0, 500.0),
+        // Scale
+        2.0,
+        // Rotate
+        Angle::new_degs(30.0),
+    );
+    // This is a bit of a hack; it's needed so that zooming in/out has reasonable limits.
+    ctx.canvas.map_dims = (5000.0, 5000.0);
+    batch.upload(ctx)
+}
+
+fn make_controls(ctx: &mut EventCtx) -> Composite {
+    Composite::new(
+        ManagedWidget::col(vec![
+            ManagedWidget::draw_text(ctx, {
+                let mut txt = Text::from(Line("ezgui demo").roboto_bold());
+                txt.add(Line(
+                    "Click and drag to pan, use touchpad or scroll wheel to zoom",
+                ));
+                txt
+            }),
+            ManagedWidget::row(vec![
+                // This just cycles between two arbitrary buttons
+                ManagedWidget::custom_checkbox(
+                    false,
+                    Button::text_bg(
+                        Text::from(Line("Pause")),
+                        Color::BLUE,
+                        Color::ORANGE,
+                        hotkey(Key::Space),
+                        "pause the stopwatch",
+                        ctx,
+                    ),
+                    Button::text_bg(
+                        Text::from(Line("Resume")),
+                        Color::BLUE,
+                        Color::ORANGE,
+                        hotkey(Key::Space),
+                        "resume the stopwatch",
+                        ctx,
+                    ),
+                )
+                .named("paused")
+                .margin(5),
+                // This is pretty verbose to create buttons. In A/B Street, I have a bunch of
+                // helpers to create buttons with pre-set styles. I'm not sure if there should be a
+                // generic library to apply styles to things.
+                ManagedWidget::btn(Button::text_no_bg(
+                    Text::from(Line("Reset")),
+                    Text::from(Line("Reset").fg(Color::ORANGE)),
+                    None,
+                    "reset the stopwatch",
+                    true,
+                    ctx,
+                ))
+                .outline(3.0, Color::WHITE)
+                .margin(5),
+                ManagedWidget::checkbox(ctx, "Draw scrollable canvas", None, true).margin(5),
+                ManagedWidget::checkbox(ctx, "Show timeseries", lctrl(Key::T), false).margin(5),
+            ])
+            .evenly_spaced(),
+            ManagedWidget::draw_text(ctx, Text::from(Line("Stopwatch: ..."))).named("stopwatch"),
+        ])
+        .bg(Color::grey(0.4)),
+    )
+    .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+    .build(ctx)
 }
