@@ -1121,7 +1121,7 @@ fn trip_details(
             if let Some(trace) = path.trace(map, dist, None) {
                 unzoomed.push(color, trace.make_polygons(Distance::meters(10.0)));
                 zoomed.extend(
-                    app.cs.get_def("route", Color::ORANGE.alpha(0.5)),
+                    color,
                     dashed_lines(
                         &trace,
                         Distance::meters(0.75),

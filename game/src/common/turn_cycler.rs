@@ -81,7 +81,7 @@ impl TurnCyclerState {
                         {
                             let mut batch = GeomBatch::new();
                             batch.extend(
-                                app.cs.get("route"),
+                                app.cs.get_def("route", Color::ORANGE.alpha(0.5)),
                                 dashed_lines(
                                     &trace,
                                     Distance::meters(0.75),
