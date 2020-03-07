@@ -1066,7 +1066,11 @@ fn trip_details(
             d
         };
         // TODO Problems when this is really low?
-        let percent_duration = duration / total_duration_so_far;
+        let percent_duration = if total_duration_so_far == Duration::ZERO {
+            0.0
+        } else {
+            duration / total_duration_so_far
+        };
         txt.add(Line(format!(
             "- {}% of trip duration",
             (100.0 * percent_duration) as usize
