@@ -14,7 +14,7 @@ use crate::game::{DrawBaselayer, State, Transition, WizardState};
 use crate::helpers::{cmp_duration_shorter, ID};
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::pregame::main_menu;
-use crate::render::DrawOptions;
+use crate::render::{AgentColorScheme, DrawOptions};
 pub use crate::sandbox::gameplay::{TutorialPointer, TutorialState};
 use ezgui::{
     hotkey, lctrl, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
@@ -315,6 +315,7 @@ impl State for SandboxMode {
 
     fn on_destroy(&mut self, _: &mut EventCtx, app: &mut App) {
         app.overlay = Overlays::Inactive;
+        app.agent_cs = AgentColorScheme::default(&app.cs);
     }
 }
 

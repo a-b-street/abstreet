@@ -303,7 +303,6 @@ impl State for TrafficSignalEditor {
 pub fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool) -> Composite {
     let row = vec![
         WrappedComposite::text_button(ctx, "Finish", hotkey(Key::Escape)),
-        WrappedComposite::text_button(ctx, "Finish", hotkey(Key::Escape)),
         WrappedComposite::text_button(ctx, "Preview", lctrl(Key::P)),
         (if can_undo {
             WrappedComposite::svg_button(

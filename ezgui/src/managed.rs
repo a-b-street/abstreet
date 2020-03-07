@@ -1175,6 +1175,8 @@ impl CompositeBuilder {
             c.clip_rect = Some(ScreenRectangle::top_left(top_left, c.container_dims));
         }
 
+        // Just trigger error if a button is double-defined
+        c.get_all_click_actions();
         ctx.no_op_event(true, |ctx| assert!(c.event(ctx).is_none()));
         c
     }

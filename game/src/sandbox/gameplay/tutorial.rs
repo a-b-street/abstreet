@@ -1,6 +1,6 @@
 use crate::app::App;
 use crate::colors;
-use crate::common::{tool_panel, Minimap, Overlays, Warping};
+use crate::common::{tool_panel, Minimap, Warping};
 use crate::edit::EditMode;
 use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
@@ -977,7 +977,6 @@ impl TutorialState {
 
         // TODO Should some of this always happen?
         app.primary.clear_sim();
-        app.overlay = Overlays::Inactive;
         if let Some(ref cb) = self.stage().spawn {
             let old = app.primary.current_flags.sim_flags.rng_seed;
             app.primary.current_flags.sim_flags.rng_seed = Some(42);
