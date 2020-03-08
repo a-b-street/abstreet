@@ -230,7 +230,7 @@ impl State for TrafficSignalEditor {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         {
             let mut opts = DrawOptions::new();
-            opts.suppress_traffic_signal_details = Some(self.i);
+            opts.suppress_traffic_signal_details.push(self.i);
             app.draw(g, opts, &app.primary.sim, &ShowEverything::new());
         }
 

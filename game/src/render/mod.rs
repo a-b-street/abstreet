@@ -91,7 +91,7 @@ pub fn dashed_lines(
 // DrawOptions.
 #[derive(Clone)]
 pub struct DrawOptions {
-    pub suppress_traffic_signal_details: Option<IntersectionID>,
+    pub suppress_traffic_signal_details: Vec<IntersectionID>,
     pub label_buildings: bool,
     pub label_roads: bool,
 }
@@ -99,7 +99,7 @@ pub struct DrawOptions {
 impl DrawOptions {
     pub fn new() -> DrawOptions {
         DrawOptions {
-            suppress_traffic_signal_details: None,
+            suppress_traffic_signal_details: Vec::new(),
             label_buildings: false,
             label_roads: false,
         }

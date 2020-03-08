@@ -2,7 +2,7 @@ mod dashboards;
 mod gameplay;
 mod speed;
 
-use crate::app::{App, ShowEverything};
+use crate::app::App;
 use crate::colors;
 use crate::common::{tool_panel, CommonState, Minimap, Overlays, ShowBusRoute};
 use crate::debug::DebugMode;
@@ -10,11 +10,11 @@ use crate::edit::{
     apply_map_edits, can_edit_lane, save_edits_as, EditMode, LaneEditor, StopSignEditor,
     TrafficSignalEditor,
 };
-use crate::game::{DrawBaselayer, State, Transition, WizardState};
+use crate::game::{State, Transition, WizardState};
 use crate::helpers::{cmp_duration_shorter, ID};
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::pregame::main_menu;
-use crate::render::{AgentColorScheme, DrawOptions};
+use crate::render::AgentColorScheme;
 pub use crate::sandbox::gameplay::{TutorialPointer, TutorialState};
 use ezgui::{
     hotkey, lctrl, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
@@ -266,21 +266,7 @@ impl State for SandboxMode {
         }
     }
 
-    fn draw_baselayer(&self) -> DrawBaselayer {
-        DrawBaselayer::Custom
-    }
-
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        app.draw(
-            g,
-            self.controls
-                .common
-                .as_ref()
-                .map(|c| c.draw_options(app))
-                .unwrap_or_else(DrawOptions::new),
-            &app.primary.sim,
-            &ShowEverything::new(),
-        );
         app.overlay.draw(g);
 
         if let Some(ref c) = self.controls.common {

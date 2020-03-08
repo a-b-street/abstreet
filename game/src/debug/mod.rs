@@ -9,6 +9,7 @@ use crate::common::{tool_panel, CommonState};
 use crate::game::{msg, DrawBaselayer, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
+use crate::render::DrawOptions;
 use ezgui::{
     hotkey, lctrl, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Text, VerticalAlignment, Wizard,
@@ -328,7 +329,7 @@ impl State for DebugMode {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        let mut opts = self.common.draw_options(app);
+        let mut opts = DrawOptions::new();
         opts.label_buildings = self.layers.show_labels;
         opts.label_roads = self.layers.show_labels;
         app.draw(g, opts, &app.primary.sim, self);

@@ -124,7 +124,7 @@ impl Renderable for DrawIntersection {
         g.redraw(&self.draw_default);
 
         if self.intersection_type == IntersectionType::TrafficSignal
-            && opts.suppress_traffic_signal_details != Some(self.id)
+            && !opts.suppress_traffic_signal_details.contains(&self.id)
         {
             let signal = app.primary.map.get_traffic_signal(self.id);
             let mut maybe_redraw = self.draw_traffic_signal.borrow_mut();

@@ -18,7 +18,6 @@ pub use self::warp::Warping;
 use crate::app::App;
 use crate::game::Transition;
 use crate::helpers::{list_names, ID};
-use crate::render::DrawOptions;
 use crate::sandbox::SpeedControls;
 use ezgui::{
     lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenDims, ScreenPt, ScreenRectangle,
@@ -278,14 +277,6 @@ impl CommonState {
             top_left,
             ScreenDims::new(g.canvas.window_width, 1.5 * g.default_line_height()),
         ));
-    }
-
-    pub fn draw_options(&self, app: &App) -> DrawOptions {
-        let mut opts = DrawOptions::new();
-        opts.suppress_traffic_signal_details = self
-            .turn_cycler
-            .suppress_traffic_signal_details(&app.primary.map);
-        opts
     }
 
     // Meant to be used for launching from other states
