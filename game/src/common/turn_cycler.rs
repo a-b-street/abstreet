@@ -1,14 +1,9 @@
 use crate::app::{App, ShowEverything};
-use crate::colors;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::ID;
-use crate::options::TrafficSignalStyle;
-use crate::render::{dashed_lines, draw_signal_phase, DrawOptions, DrawTurn};
-use ezgui::{
-    hotkey, Button, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, ManagedWidget, ModalMenu, Outcome, Text, VerticalAlignment,
-};
-use geom::{Distance, Polygon, Time};
+use crate::render::{dashed_lines, draw_signal_phase, make_signal_diagram, DrawOptions, DrawTurn};
+use ezgui::{hotkey, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Outcome};
+use geom::{Distance, Time};
 use map_model::{IntersectionID, LaneID, Map, TurnType};
 use sim::{AgentID, DontDrawAgents};
 
@@ -47,22 +42,15 @@ impl TurnCyclerState {
                 if let Some(ref signal) = app.primary.map.maybe_get_traffic_signal(i) {
                     if app
                         .per_obj
-                        .action(ctx, Key::F, "show full traffic signal diagram")
+                        .action(ctx, Key::F, "explore traffic signal details")
                     {
                         app.primary.current_selection = None;
                         let (idx, _, _) =
                             signal.current_phase_and_remaining_time(app.primary.sim.time());
                         return Some(Transition::Push(Box::new(ShowTrafficSignal {
-                            menu: ModalMenu::new(
-                                "Traffic Signal Diagram",
-                                vec![
-                                    (hotkey(Key::UpArrow), "select previous phase"),
-                                    (hotkey(Key::DownArrow), "select next phase"),
-                                    (hotkey(Key::Escape), "quit"),
-                                ],
-                                ctx,
-                            ),
-                            diagram: TrafficSignalDiagram::new(i, idx, app, ctx),
+                            i,
+                            composite: make_signal_diagram(ctx, app, i, idx, false),
+                            current_phase: idx,
                         })));
                     }
                 }
@@ -160,19 +148,38 @@ fn color_turn_type(t: TurnType, app: &App) -> Color {
 }
 
 struct ShowTrafficSignal {
-    menu: ModalMenu,
-    // TODO Probably collapse diagram here, like editor did
-    diagram: TrafficSignalDiagram,
+    i: IntersectionID,
+    composite: Composite,
+    current_phase: usize,
 }
 
 impl State for ShowTrafficSignal {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        self.menu.event(ctx);
         ctx.canvas_movement();
-        if self.menu.action("quit") {
-            return Transition::Pop;
+
+        // TODO Buttons for these...
+        if self.current_phase != 0 && ctx.input.new_was_pressed(&hotkey(Key::UpArrow).unwrap()) {
+            self.change_phase(self.current_phase - 1, app, ctx);
         }
-        self.diagram.event(ctx, app, &mut self.menu);
+
+        if self.current_phase != app.primary.map.get_traffic_signal(self.i).phases.len() - 1
+            && ctx.input.new_was_pressed(&hotkey(Key::DownArrow).unwrap())
+        {
+            self.change_phase(self.current_phase + 1, app, ctx);
+        }
+
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "X" => {
+                    return Transition::Pop;
+                }
+                _ => {
+                    self.change_phase(x["phase ".len()..].parse::<usize>().unwrap() - 1, app, ctx);
+                }
+            },
+            None => {}
+        }
+
         Transition::Keep
     }
 
@@ -182,13 +189,13 @@ impl State for ShowTrafficSignal {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         let mut opts = DrawOptions::new();
-        opts.suppress_traffic_signal_details = Some(self.diagram.i);
+        opts.suppress_traffic_signal_details = Some(self.i);
         app.draw(g, opts, &DontDrawAgents {}, &ShowEverything::new());
         let mut batch = GeomBatch::new();
         draw_signal_phase(
             g.prerender,
-            &app.primary.map.get_traffic_signal(self.diagram.i).phases[self.diagram.current_phase],
-            self.diagram.i,
+            &app.primary.map.get_traffic_signal(self.i).phases[self.current_phase],
+            self.i,
             None,
             &mut batch,
             app,
@@ -196,142 +203,17 @@ impl State for ShowTrafficSignal {
         );
         batch.draw(g);
 
-        self.diagram.draw(g);
-        self.menu.draw(g);
-    }
-}
-
-struct TrafficSignalDiagram {
-    pub i: IntersectionID,
-    composite: Composite,
-    pub current_phase: usize,
-}
-
-impl TrafficSignalDiagram {
-    fn new(
-        i: IntersectionID,
-        current_phase: usize,
-        app: &App,
-        ctx: &mut EventCtx,
-    ) -> TrafficSignalDiagram {
-        TrafficSignalDiagram {
-            i,
-            composite: make_diagram(i, current_phase, app, ctx),
-            current_phase,
-        }
-    }
-
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App, menu: &mut ModalMenu) {
-        if self.current_phase != 0 && menu.action("select previous phase") {
-            self.change_phase(self.current_phase - 1, app, ctx);
-        }
-
-        if self.current_phase != app.primary.map.get_traffic_signal(self.i).phases.len() - 1
-            && menu.action("select next phase")
-        {
-            self.change_phase(self.current_phase + 1, app, ctx);
-        }
-
-        match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => {
-                self.change_phase(x["phase ".len()..].parse::<usize>().unwrap() - 1, app, ctx);
-            }
-            None => {}
-        }
-    }
-
-    fn change_phase(&mut self, idx: usize, app: &App, ctx: &mut EventCtx) {
-        if self.current_phase != idx {
-            self.current_phase = idx;
-            self.composite = make_diagram(self.i, self.current_phase, app, ctx);
-            self.composite
-                .scroll_to_member(ctx, format!("phase {}", idx + 1));
-        }
-    }
-
-    fn draw(&self, g: &mut GfxCtx) {
         self.composite.draw(g);
     }
 }
 
-fn make_diagram(i: IntersectionID, selected: usize, app: &App, ctx: &mut EventCtx) -> Composite {
-    // Slightly inaccurate -- the turn rendering may slightly exceed the intersection polygon --
-    // but this is close enough.
-    let bounds = app.primary.map.get_i(i).polygon.get_bounds();
-    // Pick a zoom so that we fit some percentage of the screen
-    let zoom = 0.2 * ctx.canvas.window_width / bounds.width();
-    let bbox = Polygon::rectangle(zoom * bounds.width(), zoom * bounds.height());
-
-    let signal = app.primary.map.get_traffic_signal(i);
-    let mut col = vec![ManagedWidget::draw_text(ctx, {
-        let mut txt = Text::new();
-        // TODO Style inside here. Also 0.4 is manually tuned and pretty wacky, because it
-        // assumes default font.
-        txt.add_wrapped(
-            app.primary.map.get_i(i).name(&app.primary.map),
-            0.4 * ctx.canvas.window_width,
-        );
-        txt.add(Line(format!("{} phases", signal.phases.len())));
-        txt.add(Line(format!("Signal offset: {}", signal.offset)));
-        txt.add(Line(format!("One cycle lasts {}", signal.cycle_length())));
-        txt
-    })];
-    for (idx, phase) in signal.phases.iter().enumerate() {
-        col.push(
-            ManagedWidget::row(vec![
-                ManagedWidget::draw_text(ctx, Text::from(Line(format!("#{}", idx + 1)))),
-                ManagedWidget::draw_text(ctx, Text::from(Line(phase.duration.to_string()))),
-            ])
-            .margin(5)
-            .evenly_spaced(),
-        );
-
-        let mut orig_batch = GeomBatch::new();
-        draw_signal_phase(
-            ctx.prerender,
-            phase,
-            i,
-            None,
-            &mut orig_batch,
-            app,
-            TrafficSignalStyle::Sidewalks,
-        );
-
-        let mut normal = GeomBatch::new();
-        // TODO Ideally no background here, but we have to force the dimensions of normal and
-        // hovered to be the same. For some reason the bbox is slightly different.
-        if idx == selected {
-            normal.push(Color::RED.alpha(0.15), bbox.clone());
-        } else {
-            normal.push(Color::CYAN.alpha(0.05), bbox.clone());
+impl ShowTrafficSignal {
+    fn change_phase(&mut self, idx: usize, app: &App, ctx: &mut EventCtx) {
+        if self.current_phase != idx {
+            self.current_phase = idx;
+            self.composite = make_signal_diagram(ctx, app, self.i, self.current_phase, false);
+            self.composite
+                .scroll_to_member(ctx, format!("phase {}", idx + 1));
         }
-        // Move to the origin and apply zoom
-        for (color, poly) in orig_batch.consume() {
-            normal.push(
-                color,
-                poly.translate(-bounds.min_x, -bounds.min_y).scale(zoom),
-            );
-        }
-
-        let mut hovered = GeomBatch::new();
-        hovered.push(Color::RED.alpha(0.95), bbox.clone());
-        hovered.append(normal.clone());
-
-        col.push(
-            ManagedWidget::btn(Button::new(
-                ctx,
-                normal,
-                hovered,
-                None,
-                &format!("phase {}", idx + 1),
-                bbox.clone(),
-            ))
-            .margin(5),
-        );
     }
-
-    Composite::new(ManagedWidget::col(col).bg(colors::PANEL_BG))
-        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-        .max_size_percent(30, 85)
-        .build(ctx)
 }

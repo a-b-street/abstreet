@@ -1,9 +1,14 @@
 use crate::app::App;
+use crate::colors;
+use crate::managed::WrappedComposite;
 use crate::options::TrafficSignalStyle;
 use crate::render::intersection::make_crosswalk;
 use crate::render::{DrawTurnGroup, BIG_ARROW_THICKNESS};
-use ezgui::{Color, GeomBatch, Prerender};
-use geom::{Angle, Circle, Distance, Duration, Line, PolyLine, Pt2D};
+use ezgui::{
+    hotkey, Button, Color, Composite, EventCtx, GeomBatch, HorizontalAlignment, Key, Line,
+    ManagedWidget, Prerender, Text, VerticalAlignment,
+};
+use geom::{Angle, Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D};
 use map_model::{IntersectionID, Phase, TurnPriority};
 use std::collections::BTreeSet;
 
@@ -199,4 +204,144 @@ fn crosswalk_icon(geom: &PolyLine) -> (Pt2D, Angle) {
             .shortest_rotation_towards(Angle::new_degs(90.0))
             .invert_y(),
     )
+}
+
+pub fn make_signal_diagram(
+    ctx: &mut EventCtx,
+    app: &App,
+    i: IntersectionID,
+    selected: usize,
+    edit_mode: bool,
+) -> Composite {
+    // Slightly inaccurate -- the turn rendering may slightly exceed the intersection polygon --
+    // but this is close enough.
+    let bounds = app.primary.map.get_i(i).polygon.get_bounds();
+    // Pick a zoom so that we fit a fixed width in pixels
+    let zoom = 150.0 / bounds.width();
+    let bbox = Polygon::rectangle(zoom * bounds.width(), zoom * bounds.height());
+
+    let signal = app.primary.map.get_traffic_signal(i);
+    let txt_widget = ManagedWidget::draw_text(ctx, {
+        let mut txt = Text::from(Line(format!("Intersection #{}", i.0)).roboto_bold());
+
+        let mut road_names = BTreeSet::new();
+        for r in &app.primary.map.get_i(i).roads {
+            road_names.insert(app.primary.map.get_r(*r).get_name());
+        }
+        for r in road_names {
+            // TODO The spacing is ignored, so use -
+            txt.add(Line(format!("- {}", r)));
+        }
+
+        txt.add(Line(""));
+        txt.add(Line(format!("{} phases", signal.phases.len())).roboto_bold());
+        txt.add(Line(format!("Signal offset: {}", signal.offset)));
+        txt.add(Line(format!("One cycle lasts {}", signal.cycle_length())));
+        txt
+    });
+    let mut col = if edit_mode {
+        vec![
+            txt_widget,
+            WrappedComposite::text_bg_button(ctx, "Edit entire signal", hotkey(Key::E)),
+        ]
+    } else {
+        vec![ManagedWidget::row(vec![
+            txt_widget,
+            WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
+        ])]
+    };
+
+    for (idx, phase) in signal.phases.iter().enumerate() {
+        // Separator
+        col.push(
+            ManagedWidget::draw_batch(
+                ctx,
+                GeomBatch::from(vec![(
+                    Color::WHITE,
+                    Polygon::rectangle(0.2 * ctx.canvas.window_width, 2.0),
+                )]),
+            )
+            .margin(15)
+            .centered_horiz(),
+        );
+
+        let mut phase_rows = Vec::new();
+
+        if edit_mode {
+            phase_rows.push(
+                ManagedWidget::row(vec![
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line(format!("Phase {}: {}", idx + 1, phase.duration))),
+                    ),
+                    WrappedComposite::svg_button(
+                        ctx,
+                        "../data/system/assets/tools/edit.svg",
+                        &format!("edit phase {}", idx + 1),
+                        if selected == idx {
+                            hotkey(Key::X)
+                        } else {
+                            None
+                        },
+                    )
+                    .align_right(),
+                ])
+                .margin(5)
+                .centered(),
+            );
+        } else {
+            phase_rows.push(ManagedWidget::draw_text(
+                ctx,
+                Text::from(Line(format!("Phase {}: {}", idx + 1, phase.duration))),
+            ));
+        }
+
+        let mut orig_batch = GeomBatch::new();
+        draw_signal_phase(
+            ctx.prerender,
+            phase,
+            i,
+            None,
+            &mut orig_batch,
+            app,
+            TrafficSignalStyle::Sidewalks,
+        );
+
+        let mut normal = GeomBatch::new();
+        normal.push(Color::BLACK, bbox.clone());
+        // Move to the origin and apply zoom
+        for (color, poly) in orig_batch.consume() {
+            normal.push(
+                color,
+                poly.translate(-bounds.min_x, -bounds.min_y).scale(zoom),
+            );
+        }
+
+        let mut hovered = GeomBatch::new();
+        hovered.append(normal.clone());
+        hovered.push(Color::RED, bbox.to_outline(Distance::meters(5.0)));
+
+        phase_rows.push(
+            ManagedWidget::btn(Button::new(
+                ctx,
+                normal,
+                hovered,
+                None,
+                &format!("phase {}", idx + 1),
+                bbox.clone(),
+            ))
+            .margin(5),
+        );
+
+        if idx == selected {
+            col.push(ManagedWidget::col(phase_rows).bg(Color::hex("#2A2A2A")));
+        } else {
+            col.extend(phase_rows);
+        }
+    }
+
+    Composite::new(ManagedWidget::col(col).bg(colors::PANEL_BG))
+        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
+        .max_size_percent(30, 85)
+        .build(ctx)
 }

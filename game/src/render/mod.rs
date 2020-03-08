@@ -22,7 +22,7 @@ pub use crate::render::lane::DrawLane;
 pub use crate::render::map::{AgentCache, AgentColorScheme, DrawMap, InnerAgentColorScheme};
 use crate::render::pedestrian::{DrawPedCrowd, DrawPedestrian};
 pub use crate::render::road::DrawRoad;
-pub use crate::render::traffic_signal::draw_signal_phase;
+pub use crate::render::traffic_signal::{draw_signal_phase, make_signal_diagram};
 pub use crate::render::turn::{DrawTurn, DrawTurnGroup};
 use ezgui::{GfxCtx, Prerender};
 use geom::{Distance, PolyLine, Polygon, Pt2D, EPSILON_DIST};

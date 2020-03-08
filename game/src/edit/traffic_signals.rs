@@ -4,15 +4,16 @@ use crate::common::CommonState;
 use crate::edit::{apply_map_edits, close_intersection, StopSignEditor};
 use crate::game::{msg, DrawBaselayer, State, Transition, WizardState};
 use crate::managed::WrappedComposite;
-use crate::options::TrafficSignalStyle;
-use crate::render::{draw_signal_phase, DrawOptions, DrawTurnGroup, BIG_ARROW_THICKNESS};
+use crate::render::{
+    draw_signal_phase, make_signal_diagram, DrawOptions, DrawTurnGroup, BIG_ARROW_THICKNESS,
+};
 use crate::sandbox::{spawn_agents_around, SpeedControls, TimePanel};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Button, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
+    hotkey, lctrl, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, ManagedWidget, Outcome, RewriteColor, Text, VerticalAlignment,
 };
-use geom::{Distance, Duration, Polygon};
+use geom::Duration;
 use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Phase,
     TurnGroupID, TurnPriority,
@@ -47,7 +48,7 @@ impl TrafficSignalEditor {
         TrafficSignalEditor {
             i: id,
             current_phase: 0,
-            composite: make_diagram(id, 0, app, ctx),
+            composite: make_signal_diagram(ctx, app, id, 0, true),
             top_panel: make_top_panel(ctx, app, false, false),
             groups: DrawTurnGroup::for_i(id, &app.primary.map),
             group_selected: None,
@@ -60,11 +61,11 @@ impl TrafficSignalEditor {
     fn change_phase(&mut self, idx: usize, app: &App, ctx: &mut EventCtx) {
         if self.current_phase == idx {
             let preserve_scroll = self.composite.preserve_scroll();
-            self.composite = make_diagram(self.i, self.current_phase, app, ctx);
+            self.composite = make_signal_diagram(ctx, app, self.i, self.current_phase, true);
             self.composite.restore_scroll(ctx, preserve_scroll);
         } else {
             self.current_phase = idx;
-            self.composite = make_diagram(self.i, self.current_phase, app, ctx);
+            self.composite = make_signal_diagram(ctx, app, self.i, self.current_phase, true);
             // TODO Maybe center of previous member
             self.composite
                 .scroll_to_member(ctx, format!("phase {}", idx + 1));
@@ -351,125 +352,6 @@ pub fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: b
         .build(ctx)
 }
 
-fn make_diagram(i: IntersectionID, selected: usize, app: &App, ctx: &mut EventCtx) -> Composite {
-    // Slightly inaccurate -- the turn rendering may slightly exceed the intersection polygon --
-    // but this is close enough.
-    let bounds = app.primary.map.get_i(i).polygon.get_bounds();
-    // Pick a zoom so that we fit a fixed width in pixels
-    let zoom = 150.0 / bounds.width();
-    let bbox = Polygon::rectangle(zoom * bounds.width(), zoom * bounds.height());
-
-    let signal = app.primary.map.get_traffic_signal(i);
-    let mut col = vec![
-        ManagedWidget::draw_text(ctx, {
-            let mut txt = Text::from(Line(format!("Intersection #{}", i.0)).roboto_bold());
-
-            let mut road_names = BTreeSet::new();
-            for r in &app.primary.map.get_i(i).roads {
-                road_names.insert(app.primary.map.get_r(*r).get_name());
-            }
-            for r in road_names {
-                // TODO The spacing is ignored, so use -
-                txt.add(Line(format!("- {}", r)));
-            }
-
-            txt.add(Line(""));
-            txt.add(Line(format!("{} phases", signal.phases.len())).roboto_bold());
-            txt.add(Line(format!("Signal offset: {}", signal.offset)));
-            txt.add(Line(format!("One cycle lasts {}", signal.cycle_length())));
-            txt
-        }),
-        WrappedComposite::text_bg_button(ctx, "Edit entire signal", hotkey(Key::E)),
-    ];
-
-    for (idx, phase) in signal.phases.iter().enumerate() {
-        // Separator
-        col.push(
-            ManagedWidget::draw_batch(
-                ctx,
-                GeomBatch::from(vec![(
-                    Color::WHITE,
-                    Polygon::rectangle(0.2 * ctx.canvas.window_width, 2.0),
-                )]),
-            )
-            .margin(15)
-            .centered_horiz(),
-        );
-
-        let mut phase_rows = Vec::new();
-
-        phase_rows.push(
-            ManagedWidget::row(vec![
-                ManagedWidget::draw_text(
-                    ctx,
-                    Text::from(Line(format!("Phase {}: {}", idx + 1, phase.duration))),
-                ),
-                WrappedComposite::svg_button(
-                    ctx,
-                    "../data/system/assets/tools/edit.svg",
-                    &format!("edit phase {}", idx + 1),
-                    if selected == idx {
-                        hotkey(Key::X)
-                    } else {
-                        None
-                    },
-                )
-                .align_right(),
-            ])
-            .margin(5)
-            .centered(),
-        );
-
-        let mut orig_batch = GeomBatch::new();
-        draw_signal_phase(
-            ctx.prerender,
-            phase,
-            i,
-            None,
-            &mut orig_batch,
-            app,
-            TrafficSignalStyle::Sidewalks,
-        );
-
-        let mut normal = GeomBatch::new();
-        normal.push(Color::BLACK, bbox.clone());
-        // Move to the origin and apply zoom
-        for (color, poly) in orig_batch.consume() {
-            normal.push(
-                color,
-                poly.translate(-bounds.min_x, -bounds.min_y).scale(zoom),
-            );
-        }
-
-        let mut hovered = GeomBatch::new();
-        hovered.append(normal.clone());
-        hovered.push(Color::RED, bbox.to_outline(Distance::meters(5.0)));
-
-        phase_rows.push(
-            ManagedWidget::btn(Button::new(
-                ctx,
-                normal,
-                hovered,
-                None,
-                &format!("phase {}", idx + 1),
-                bbox.clone(),
-            ))
-            .margin(5),
-        );
-
-        if idx == selected {
-            col.push(ManagedWidget::col(phase_rows).bg(Color::hex("#2A2A2A")));
-        } else {
-            col.extend(phase_rows);
-        }
-    }
-
-    Composite::new(ManagedWidget::col(col).bg(colors::PANEL_BG))
-        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-        .max_size_percent(30, 85)
-        .build(ctx)
-}
-
 pub fn change_traffic_signal(signal: ControlTrafficSignal, app: &mut App, ctx: &mut EventCtx) {
     let mut edits = app.primary.map.get_edits().clone();
     // TODO Only record one command for the entire session. Otherwise, we can exit this editor and
@@ -607,7 +489,8 @@ fn edit_entire_signal(app: &App, i: IntersectionID, suspended_sim: Sim) -> Box<d
                     change_traffic_signal(new_signal, app, ctx);
                     // Don't use change_phase; it tries to preserve scroll
                     editor.current_phase = 0;
-                    editor.composite = make_diagram(editor.i, editor.current_phase, app, ctx);
+                    editor.composite =
+                        make_signal_diagram(ctx, app, editor.i, editor.current_phase, true);
                 })))
             }
             _ => unreachable!(),
@@ -733,7 +616,8 @@ fn edit_phase(app: &App, i: IntersectionID, idx: usize) -> Box<dyn State> {
                     change_traffic_signal(new_signal, app, ctx);
                     // Don't use change_phase; it tries to preserve scroll
                     editor.current_phase = if idx == num_phases { idx - 1 } else { idx };
-                    editor.composite = make_diagram(editor.i, editor.current_phase, app, ctx);
+                    editor.composite =
+                        make_signal_diagram(ctx, app, editor.i, editor.current_phase, true);
                 })))
             }
             _ => unreachable!(),
@@ -776,7 +660,7 @@ fn check_for_missing_groups(
     let last_phase = signal.phases.len() - 1;
     let id = signal.id;
     change_traffic_signal(signal, app, ctx);
-    *composite = make_diagram(id, last_phase, app, ctx);
+    *composite = make_signal_diagram(ctx, app, id, last_phase, true);
 
     Transition::Push(msg(
         "Error: missing turns",
