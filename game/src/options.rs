@@ -83,6 +83,13 @@ impl OptionsPanel {
                         ctx.canvas.invert_scroll,
                     )
                     .margin(5),
+                    ManagedWidget::checkbox(
+                        ctx,
+                        "Use touchpad to pan and hold Control to zoom",
+                        None,
+                        ctx.canvas.touchpad_to_move,
+                    )
+                    .margin(5),
                     ManagedWidget::row(vec![
                         ManagedWidget::draw_text(
                             ctx,
@@ -150,6 +157,9 @@ impl State for OptionsPanel {
                     ctx.canvas.invert_scroll = self
                         .composite
                         .is_checked("Invert direction of vertical scrolling");
+                    ctx.canvas.touchpad_to_move = self
+                        .composite
+                        .is_checked("Use touchpad to pan and hold Control to zoom");
                     app.opts.dev = self.composite.is_checked("Enable developer mode");
 
                     if app.opts.traffic_signal_style != self.traffic_signal_style {

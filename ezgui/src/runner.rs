@@ -39,8 +39,7 @@ impl<G: GUI> State<G> {
     fn event(&mut self, mut ev: Event, prerender: &Prerender) -> (EventLoopMode, bool) {
         if let Event::MouseWheelScroll(dx, dy) = ev {
             if self.canvas.invert_scroll {
-                // TODO Also dx?
-                ev = Event::MouseWheelScroll(dx, -dy);
+                ev = Event::MouseWheelScroll(-dx, -dy);
             }
         }
 

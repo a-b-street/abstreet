@@ -1122,6 +1122,7 @@ impl TutorialState {
                     ],
                     None,
                 )
+                // TODO Point out settings and the alternative?
                 .msg(
                     vec![
                         "Let's start with the controls.",

@@ -9,6 +9,8 @@ use std::cell::RefCell;
 // release is less than this.
 const DRAG_THRESHOLD: f64 = 5.0;
 
+const PAN_SPEED: f64 = 15.0;
+
 pub struct Canvas {
     // All of these f64's are in screen-space, so do NOT use Pt2D.
     // Public for saving/loading... should probably do better
@@ -31,6 +33,7 @@ pub struct Canvas {
     // TODO Proper API for setting these
     pub map_dims: (f64, f64),
     pub invert_scroll: bool,
+    pub touchpad_to_move: bool,
 
     // TODO Bit weird and hacky to mutate inside of draw() calls.
     pub(crate) covered_areas: RefCell<Vec<ScreenRectangle>>,
@@ -58,6 +61,7 @@ impl Canvas {
 
             map_dims: (0.0, 0.0),
             invert_scroll: false,
+            touchpad_to_move: false,
 
             covered_areas: RefCell::new(Vec::new()),
 
@@ -74,23 +78,48 @@ impl Canvas {
     pub(crate) fn handle_event(&mut self, input: &mut UserInput) {
         // Can't start dragging or zooming on top of covered area
         if self.get_cursor_in_map_space().is_some() {
-            if input.left_mouse_button_pressed() {
-                self.drag_canvas_from = Some((self.get_cursor(), self.get_cursor()));
-            }
+            if self.touchpad_to_move {
+                if let Some((scroll_x, scroll_y)) = input.get_mouse_scroll() {
+                    if self.lctrl_held {
+                        let old_zoom = self.cam_zoom;
+                        // By popular request, some limits ;)
+                        self.cam_zoom = 1.1_f64
+                            .powf(old_zoom.log(1.1) + scroll_y)
+                            .max(self.min_zoom())
+                            .min(150.0);
 
-            if let Some((_, scroll)) = input.get_mouse_scroll() {
-                let old_zoom = self.cam_zoom;
-                // By popular request, some limits ;)
-                self.cam_zoom = 1.1_f64
-                    .powf(old_zoom.log(1.1) + scroll)
-                    .max(self.min_zoom())
-                    .min(150.0);
+                        // Make screen_to_map of cursor_{x,y} still point to the same thing after
+                        // zooming.
+                        self.cam_x = ((self.cam_zoom / old_zoom) * (self.cursor_x + self.cam_x))
+                            - self.cursor_x;
+                        self.cam_y = ((self.cam_zoom / old_zoom) * (self.cursor_y + self.cam_y))
+                            - self.cursor_y;
+                    } else {
+                        // Woo, inversion is different for the two. :P
+                        self.cam_x += scroll_x * PAN_SPEED;
+                        self.cam_y -= scroll_y * PAN_SPEED;
+                    }
+                }
+            } else {
+                if input.left_mouse_button_pressed() {
+                    self.drag_canvas_from = Some((self.get_cursor(), self.get_cursor()));
+                }
 
-                // Make screen_to_map of cursor_{x,y} still point to the same thing after zooming.
-                self.cam_x =
-                    ((self.cam_zoom / old_zoom) * (self.cursor_x + self.cam_x)) - self.cursor_x;
-                self.cam_y =
-                    ((self.cam_zoom / old_zoom) * (self.cursor_y + self.cam_y)) - self.cursor_y;
+                if let Some((_, scroll)) = input.get_mouse_scroll() {
+                    let old_zoom = self.cam_zoom;
+                    // By popular request, some limits ;)
+                    self.cam_zoom = 1.1_f64
+                        .powf(old_zoom.log(1.1) + scroll)
+                        .max(self.min_zoom())
+                        .min(150.0);
+
+                    // Make screen_to_map of cursor_{x,y} still point to the same thing after
+                    // zooming.
+                    self.cam_x =
+                        ((self.cam_zoom / old_zoom) * (self.cursor_x + self.cam_x)) - self.cursor_x;
+                    self.cam_y =
+                        ((self.cam_zoom / old_zoom) * (self.cursor_y + self.cam_y)) - self.cursor_y;
+                }
             }
         }
 
