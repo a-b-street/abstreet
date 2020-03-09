@@ -325,3 +325,11 @@ changes here.
 - use 2-phase traffic signals by default, making the 23rd map successfully complete!
 - jump-to-time now optionally points out traffic jams forming
 - challenge splash screen improved
+
+0.1.31
+
+- overhauled trip timeline in agent info panels
+- overhauled traffic signal details panel and the per-lane turn explorer
+- settings page: show all options at once. add way to scale up text/UI elements for high-DPI displays, and an alternate pan/zoom control scheme
+- traffic signal edits can now be exported and used in any slice of Seattle. will be using this to hand-map many of them.
+- many small tutorial fixes
