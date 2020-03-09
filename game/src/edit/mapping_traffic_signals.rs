@@ -61,18 +61,20 @@ impl EditMetadata {
                             "Who mapped this signal? (Feel free to remain anonymous.)",
                         )),
                     ),
-                    ManagedWidget::text_entry(ctx, data.observed.author).named("observed author"),
+                    ManagedWidget::text_entry(ctx, data.observed.author, false)
+                        .named("observed author"),
                     ManagedWidget::draw_text(
                         ctx,
                         Text::from(Line("When was this signal mapped? TODO format")),
                     ),
-                    ManagedWidget::text_entry(ctx, data.observed.datetime)
+                    ManagedWidget::text_entry(ctx, data.observed.datetime, false)
                         .named("observed datetime"),
                     ManagedWidget::draw_text(
                         ctx,
                         Text::from(Line("Any other observations about the signal?")),
                     ),
-                    ManagedWidget::text_entry(ctx, data.observed.notes).named("observed notes"),
+                    ManagedWidget::text_entry(ctx, data.observed.notes, false)
+                        .named("observed notes"),
                     ManagedWidget::draw_text(
                         ctx,
                         Text::from(
@@ -86,17 +88,18 @@ impl EditMetadata {
                             "Who audited this signal? (Feel free to remain anonymous.)",
                         )),
                     ),
-                    ManagedWidget::text_entry(ctx, audited.author).named("audited author"),
+                    ManagedWidget::text_entry(ctx, audited.author, false).named("audited author"),
                     ManagedWidget::draw_text(
                         ctx,
                         Text::from(Line("When was this signal audited? TODO format")),
                     ),
-                    ManagedWidget::text_entry(ctx, audited.datetime).named("audited datetime"),
+                    ManagedWidget::text_entry(ctx, audited.datetime, false)
+                        .named("audited datetime"),
                     ManagedWidget::draw_text(
                         ctx,
                         Text::from(Line("Any other notes about auditing the signal?")),
                     ),
-                    ManagedWidget::text_entry(ctx, audited.notes).named("audited notes"),
+                    ManagedWidget::text_entry(ctx, audited.notes, false).named("audited notes"),
                     WrappedComposite::text_bg_button(ctx, "Done", hotkey(Key::Enter))
                         .centered_horiz(),
                 ])

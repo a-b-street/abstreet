@@ -40,6 +40,7 @@ pub struct Canvas {
 
     // Kind of just ezgui state awkwardly stuck here...
     pub(crate) lctrl_held: bool,
+    pub(crate) lshift_held: bool,
 }
 
 impl Canvas {
@@ -66,6 +67,7 @@ impl Canvas {
             covered_areas: RefCell::new(Vec::new()),
 
             lctrl_held: false,
+            lshift_held: false,
         }
     }
 

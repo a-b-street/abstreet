@@ -1,24 +1,31 @@
 use crate::layout::Widget;
-use crate::{text, EventCtx, GfxCtx, Key, Line, ScreenDims, ScreenPt, Text};
+use crate::{
+    text, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenDims, ScreenPt, ScreenRectangle,
+    Text,
+};
+use geom::Polygon;
 
 // TODO right now, only a single line
 
 pub struct TextBox {
-    // TODO A rope would be cool.
     line: String,
     cursor_x: usize,
-    shift_pressed: bool,
+    has_focus: bool,
+    hovering: bool,
+    autofocus: bool,
 
     top_left: ScreenPt,
     dims: ScreenDims,
 }
 
 impl TextBox {
-    pub fn new(ctx: &EventCtx, max_chars: usize, prefilled: String) -> TextBox {
+    pub fn new(ctx: &EventCtx, max_chars: usize, prefilled: String, autofocus: bool) -> TextBox {
         TextBox {
             cursor_x: prefilled.len(),
             line: prefilled,
-            shift_pressed: false,
+            has_focus: false,
+            hovering: false,
+            autofocus,
 
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(
@@ -29,11 +36,26 @@ impl TextBox {
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx) {
+        if ctx.redo_mouseover() {
+            if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
+                self.hovering = ScreenRectangle::top_left(self.top_left, self.dims).contains(pt);
+            } else {
+                self.hovering = false;
+            }
+        }
+
+        if ctx.normal_left_click() {
+            // Let all textboxes see this event, so they can deactivate their own focus.
+            // TODO But if a button is clicked before this textbox, that event isn't seen here...
+            ctx.input.unconsume_event();
+            self.has_focus = self.hovering;
+        }
+
+        if !self.has_focus && !self.autofocus {
+            return;
+        }
         if let Some(key) = ctx.input.any_key_pressed() {
             match key {
-                Key::LeftShift => {
-                    self.shift_pressed = true;
-                }
                 Key::LeftArrow => {
                     if self.cursor_x > 0 {
                         self.cursor_x -= 1;
@@ -49,7 +71,7 @@ impl TextBox {
                     }
                 }
                 _ => {
-                    if let Some(c) = key.to_char(self.shift_pressed) {
+                    if let Some(c) = key.to_char(ctx.canvas.lshift_held) {
                         self.line.insert(self.cursor_x, c);
                         self.cursor_x += 1;
                     } else {
@@ -58,12 +80,20 @@ impl TextBox {
                 }
             };
         }
-        if ctx.input.key_released(Key::LeftShift) {
-            self.shift_pressed = false;
-        }
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
+        let bg = g.upload(GeomBatch::from(vec![(
+            if self.has_focus || self.autofocus {
+                Color::ORANGE
+            } else if self.hovering {
+                Color::ORANGE.alpha(0.5)
+            } else {
+                text::BG_COLOR
+            },
+            Polygon::rectangle(self.dims.width, self.dims.height),
+        )]));
+        g.redraw_at(self.top_left, &bg);
         g.draw_blocking_text_at_screenspace_topleft(self.calculate_text(), self.top_left);
     }
 

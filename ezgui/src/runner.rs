@@ -61,6 +61,12 @@ impl<G: GUI> State<G> {
             if input.event == Event::KeyRelease(Key::LeftControl) {
                 self.canvas.lctrl_held = false;
             }
+            if input.event == Event::KeyPress(Key::LeftShift) {
+                self.canvas.lshift_held = true;
+            }
+            if input.event == Event::KeyRelease(Key::LeftShift) {
+                self.canvas.lshift_held = false;
+            }
 
             if let Some(pt) = input.get_moved_mouse() {
                 self.canvas.cursor_x = pt.x;

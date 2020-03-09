@@ -99,7 +99,7 @@ impl Wizard {
                             .margin(5)
                             .align_right(),
                         ]),
-                        ManagedWidget::text_entry(ctx, prefilled.unwrap_or_else(String::new))
+                        ManagedWidget::text_entry(ctx, prefilled.unwrap_or_else(String::new), true)
                             .named("input"),
                         ManagedWidget::btn(Button::text_bg(
                             Text::from(Line("Done").fg(Color::BLACK)),

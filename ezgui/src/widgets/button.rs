@@ -67,10 +67,6 @@ impl Button {
         self
     }
 
-    fn get_hitbox(&self) -> Polygon {
-        self.hitbox.translate(self.top_left.x, self.top_left.y)
-    }
-
     pub(crate) fn event(&mut self, ctx: &mut EventCtx) {
         if self.clicked {
             panic!("Caller didn't consume button click");
@@ -78,7 +74,10 @@ impl Button {
 
         if ctx.redo_mouseover() {
             if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
-                self.hovering = self.get_hitbox().contains_pt(pt.to_pt());
+                self.hovering = self
+                    .hitbox
+                    .translate(self.top_left.x, self.top_left.y)
+                    .contains_pt(pt.to_pt());
             } else {
                 self.hovering = false;
             }

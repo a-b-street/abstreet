@@ -1,5 +1,4 @@
 use crate::layout::Widget;
-use crate::text;
 use crate::widgets::{Checkbox, Dropdown, PopupMenu, TextBox};
 use crate::{
     Button, Choice, Color, Drawable, EventCtx, Filler, GeomBatch, GfxCtx, Histogram,
@@ -322,9 +321,14 @@ impl ManagedWidget {
         )))
     }
 
-    pub fn text_entry(ctx: &EventCtx, prefilled: String) -> ManagedWidget {
+    pub fn text_entry(ctx: &EventCtx, prefilled: String, exclusive_focus: bool) -> ManagedWidget {
         // TODO Hardcoded style, max chars
-        ManagedWidget::new(WidgetType::TextBox(TextBox::new(ctx, 50, prefilled))).bg(text::BG_COLOR)
+        ManagedWidget::new(WidgetType::TextBox(TextBox::new(
+            ctx,
+            50,
+            prefilled,
+            exclusive_focus,
+        )))
     }
 
     pub fn dropdown<T: 'static + PartialEq>(
