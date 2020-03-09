@@ -4,6 +4,7 @@ use crate::{
     Button, Choice, Color, EventCtx, GfxCtx, InputResult, Line, ScreenDims, ScreenPt,
     ScreenRectangle, Text,
 };
+use geom::{Polygon, Pt2D};
 use std::any::Any;
 
 pub struct Dropdown {
@@ -50,7 +51,8 @@ impl Dropdown {
         }
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx, our_rect: &ScreenRectangle) {
+    // If true, layout should be recomputed.
+    pub fn event(&mut self, ctx: &mut EventCtx, our_rect: &ScreenRectangle) -> bool {
         if let Some(ref mut m) = self.menu {
             m.event(ctx);
             match m.state {
@@ -66,6 +68,7 @@ impl Dropdown {
                     // change
                     self.btn = make_btn(ctx, &self.choices[self.current_idx].label, &self.label);
                     self.btn.set_pos(top_left);
+                    return true;
                 }
             }
         } else {
@@ -85,11 +88,21 @@ impl Dropdown {
                 self.menu = Some(menu);
             }
         }
+
+        false
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
         self.btn.draw(g);
         if let Some(ref m) = self.menu {
+            // We need a background too!
+            g.fork(Pt2D::new(0.0, 0.0), m.top_left, 1.0, Some(0.1));
+            g.draw_polygon(
+                Color::grey(0.3),
+                &Polygon::rounded_rectangle(m.get_dims().width, m.get_dims().height, 5.0),
+            );
+            g.unfork();
+
             m.draw(g);
         }
     }

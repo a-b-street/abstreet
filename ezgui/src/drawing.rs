@@ -16,7 +16,7 @@ const TOOLTIP_Z: f32 = 0.0;
 pub struct Uniforms {
     // (cam_x, cam_y, cam_zoom)
     pub transform: [f32; 3],
-    // (window_width, window_height, 0.0 for mapspace or 1.0 for screenspace)
+    // (window_width, window_height, Z values)
     pub window: [f32; 3],
 }
 
@@ -74,7 +74,13 @@ impl<'a> GfxCtx<'a> {
     // Up to the caller to call unfork()!
     // TODO Canvas doesn't understand this change, so things like text drawing that use
     // map_to_screen will just be confusing.
-    pub fn fork(&mut self, top_left_map: Pt2D, top_left_screen: ScreenPt, zoom: f64) {
+    pub fn fork(
+        &mut self,
+        top_left_map: Pt2D,
+        top_left_screen: ScreenPt,
+        zoom: f64,
+        z: Option<f32>,
+    ) {
         // map_to_screen of top_left_map should be top_left_screen
         let cam_x = (top_left_map.x() * zoom) - top_left_screen.x;
         let cam_y = (top_left_map.y() * zoom) - top_left_screen.y;
@@ -83,7 +89,7 @@ impl<'a> GfxCtx<'a> {
         self.uniforms.window = [
             self.canvas.window_width as f32,
             self.canvas.window_height as f32,
-            SCREENSPACE_Z,
+            z.unwrap_or(SCREENSPACE_Z),
         ];
         self.num_forks += 1;
     }
@@ -151,7 +157,7 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn redraw_at(&mut self, top_left: ScreenPt, obj: &Drawable) {
-        self.fork(Pt2D::new(0.0, 0.0), top_left, 1.0);
+        self.fork(Pt2D::new(0.0, 0.0), top_left, 1.0, None);
         self.redraw(obj);
         self.unfork();
     }
@@ -168,6 +174,7 @@ impl<'a> GfxCtx<'a> {
     // Canvas stuff.
 
     // The text box covers up what's beneath and eats the cursor (for get_cursor_in_map_space).
+    // TODO Super close to deleting this.
     pub fn draw_blocking_text(
         &mut self,
         txt: Text,
@@ -185,6 +192,7 @@ impl<'a> GfxCtx<'a> {
         self.redraw_at(top_left, &draw);
     }
 
+    // TODO Super close to deleting this.
     pub(crate) fn draw_blocking_text_at_screenspace_topleft(&mut self, txt: Text, pt: ScreenPt) {
         let batch = txt.render_g(self);
         self.canvas
@@ -194,6 +202,7 @@ impl<'a> GfxCtx<'a> {
     }
 
     // TODO Rename these draw_nonblocking_text_*
+    // TODO Super close to deleting this.
     pub fn draw_text_at(&mut self, txt: Text, map_pt: Pt2D) {
         let batch = txt.render_g(self);
         let dims = batch.get_dims();

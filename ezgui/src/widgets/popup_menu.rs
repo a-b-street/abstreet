@@ -3,6 +3,7 @@ use crate::{
     hotkey, text, Choice, EventCtx, GfxCtx, InputResult, Key, Line, ScreenDims, ScreenPt,
     ScreenRectangle, Text,
 };
+use geom::Pt2D;
 
 pub struct PopupMenu<T: Clone> {
     choices: Vec<Choice<T>>,
@@ -10,7 +11,7 @@ pub struct PopupMenu<T: Clone> {
 
     pub(crate) state: InputResult<T>,
 
-    top_left: ScreenPt,
+    pub(crate) top_left: ScreenPt,
     dims: ScreenDims,
 }
 
@@ -115,7 +116,11 @@ impl<T: Clone> PopupMenu<T> {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        g.draw_blocking_text_at_screenspace_topleft(self.calculate_txt(), self.top_left);
+        let draw = g.upload(self.calculate_txt().render_g(g));
+        // In between tooltip and normal screenspace
+        g.fork(Pt2D::new(0.0, 0.0), self.top_left, 1.0, Some(0.1));
+        g.redraw(&draw);
+        g.unfork();
 
         if let Some(ref info) = self.choices[self.current_idx].tooltip {
             // Hold on, are we actually hovering on that entry right now?
@@ -148,7 +153,7 @@ impl<T: Clone> PopupMenu<T> {
             if choice.active {
                 if let Some(ref key) = choice.hotkey {
                     txt.add_appended(vec![
-                        Line(key.describe()).fg(text::HOTKEY_COLOR),
+                        Line(key.describe()),
                         Line(format!(" - {}", choice.label)),
                     ]);
                 } else {

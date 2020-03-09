@@ -410,7 +410,9 @@ impl ManagedWidget {
                 textbox.event(ctx);
             }
             WidgetType::Dropdown(ref mut dropdown) => {
-                dropdown.event(ctx, &self.rect);
+                if dropdown.event(ctx, &self.rect) {
+                    *redo_layout = true;
+                }
             }
             WidgetType::Slider(ref name) => {
                 sliders.get_mut(name).unwrap().event(ctx);

@@ -212,6 +212,7 @@ impl Minimap {
             Pt2D::new(map_bounds.min_x, map_bounds.min_y),
             ScreenPt::new(inner_rect.x1, inner_rect.y1),
             self.zoom,
+            None,
         );
         g.enable_clipping(inner_rect);
         g.redraw(&app.primary.draw_map.boundary_polygon);
