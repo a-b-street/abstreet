@@ -224,7 +224,6 @@ impl State for TurnExplorer {
             }
         } else {
             let current = &app.primary.map.get_turns_from_lane(self.l)[self.idx - 1];
-            DrawTurn::draw_full(current, g, app.cs.get_def("current turn", Color::GREEN));
 
             let mut batch = GeomBatch::new();
             for t in app.primary.map.get_turns_in_intersection(current.id.parent) {
@@ -237,6 +236,8 @@ impl State for TurnExplorer {
                 }
             }
             batch.draw(g);
+
+            DrawTurn::draw_full(current, g, app.cs.get_def("current turn", Color::GREEN));
         }
 
         self.composite.draw(g);
