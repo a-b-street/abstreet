@@ -214,6 +214,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
                     Pt2D::new(cursor.x - self.top_left.x, cursor.y - self.top_left.y),
                     radius,
                 ) {
+                    // TODO If some/all of the matches have the same t, write it once?
                     let t = self.max_x.percent_of(pt.x() / self.dims.width);
                     let y_percent = 1.0 - (pt.y() / self.dims.height);
 

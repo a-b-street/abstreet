@@ -13,11 +13,12 @@ use ezgui::{
     VerticalAlignment,
 };
 use geom::{Angle, Circle, Distance, Duration, Polygon, Pt2D, Statistic, Time};
-use map_model::{IntersectionID, IntersectionType, RoadID};
+use map_model::{IntersectionID, IntersectionType};
 use sim::{
-    AgentID, CarID, TripEnd, TripID, TripMode, TripPhaseType, TripResult, TripStart, VehicleType,
+    AgentID, Analytics, CarID, TripEnd, TripID, TripMode, TripPhaseType, TripResult, TripStart,
+    VehicleType,
 };
-use std::collections::{BTreeSet, HashMap};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 pub struct InfoPanel {
     pub id: ID,
@@ -447,13 +448,11 @@ fn info_for(
                 txt.add(Line(format!("In 20 minute buckets:")));
                 rows.push(ManagedWidget::draw_text(ctx, txt));
 
+                let r = app.primary.map.get_l(id).parent;
                 rows.push(
-                    road_throughput(
-                        app.primary.map.get_l(id).parent,
-                        Duration::minutes(20),
-                        ctx,
-                        app,
-                    )
+                    throughput(ctx, app, move |a, t| {
+                        a.throughput_road(t, r, Duration::minutes(20))
+                    })
                     .margin(10),
                 );
             }
@@ -512,7 +511,12 @@ fn info_for(
             txt.add(Line(format!("In 20 minute buckets:")));
             rows.push(ManagedWidget::draw_text(ctx, txt));
 
-            rows.push(intersection_throughput(id, Duration::minutes(20), ctx, app).margin(10));
+            rows.push(
+                throughput(ctx, app, move |a, t| {
+                    a.throughput_intersection(t, id, Duration::minutes(20))
+                })
+                .margin(10),
+            );
 
             if app.primary.map.get_i(id).is_traffic_signal() {
                 let mut txt = Text::from(Line(""));
@@ -520,7 +524,7 @@ fn info_for(
                 txt.add(Line(format!("In 20 minute buckets:")));
                 rows.push(ManagedWidget::draw_text(ctx, txt));
 
-                rows.push(intersection_delay(id, Duration::minutes(20), ctx, app).margin(10));
+                rows.push(intersection_delay(ctx, app, id, Duration::minutes(20)).margin(10));
             }
         }
         ID::Turn(_) => unreachable!(),
@@ -800,85 +804,81 @@ fn make_table(ctx: &EventCtx, rows: Vec<(String, String)>) -> Vec<ManagedWidget>
     ])]*/
 }
 
-fn intersection_throughput(
-    i: IntersectionID,
-    bucket: Duration,
+fn throughput<F: Fn(&Analytics, Time) -> BTreeMap<TripMode, Vec<(Time, usize)>>>(
     ctx: &EventCtx,
     app: &App,
+    get_data: F,
 ) -> ManagedWidget {
-    Plot::new_usize(
-        ctx,
-        app.primary
-            .sim
-            .get_analytics()
-            .throughput_intersection(app.primary.sim.time(), i, bucket)
-            .into_iter()
-            .map(|(m, pts)| Series {
-                label: m.to_string(),
-                color: color_for_mode(m, app),
-                pts,
-            })
-            .collect(),
-        PlotOptions::new(),
-    )
-}
-
-fn road_throughput(r: RoadID, bucket: Duration, ctx: &EventCtx, app: &App) -> ManagedWidget {
-    Plot::new_usize(
-        ctx,
-        app.primary
-            .sim
-            .get_analytics()
-            .throughput_road(app.primary.sim.time(), r, bucket)
-            .into_iter()
-            .map(|(m, pts)| Series {
-                label: m.to_string(),
-                color: color_for_mode(m, app),
-                pts,
-            })
-            .collect(),
-        PlotOptions::new(),
-    )
-}
-
-fn intersection_delay(
-    i: IntersectionID,
-    bucket: Duration,
-    ctx: &EventCtx,
-    app: &App,
-) -> ManagedWidget {
-    let mut series: Vec<(Statistic, Vec<(Time, Duration)>)> = Statistic::all()
+    let mut series = get_data(app.primary.sim.get_analytics(), app.primary.sim.time())
         .into_iter()
-        .map(|stat| (stat, Vec::new()))
-        .collect();
-    for (t, distrib) in app
-        .primary
-        .sim
-        .get_analytics()
-        .intersection_delays_bucketized(app.primary.sim.time(), i, bucket)
-    {
-        for (stat, pts) in series.iter_mut() {
-            if distrib.count() == 0 {
-                pts.push((t, Duration::ZERO));
-            } else {
-                pts.push((t, distrib.select(*stat)));
-            }
+        .map(|(m, pts)| Series {
+            label: m.to_string(),
+            color: color_for_mode(m, app),
+            pts,
+        })
+        .collect::<Vec<_>>();
+    if app.has_prebaked().is_some() {
+        // TODO Ahh these colors don't show up differently at all.
+        for (m, pts) in get_data(app.prebaked(), Time::END_OF_DAY) {
+            series.push(Series {
+                label: format!("{} (baseline)", m),
+                color: color_for_mode(m, app).alpha(0.3),
+                pts,
+            });
         }
     }
 
-    Plot::new_duration(
-        ctx,
+    Plot::new_usize(ctx, series, PlotOptions::new())
+}
+
+fn intersection_delay(
+    ctx: &EventCtx,
+    app: &App,
+    i: IntersectionID,
+    bucket: Duration,
+) -> ManagedWidget {
+    let get_data = |a: &Analytics, t: Time| {
+        let mut series: Vec<(Statistic, Vec<(Time, Duration)>)> = Statistic::all()
+            .into_iter()
+            .map(|stat| (stat, Vec::new()))
+            .collect();
+        for (t, distrib) in a.intersection_delays_bucketized(t, i, bucket) {
+            for (stat, pts) in series.iter_mut() {
+                if distrib.count() == 0 {
+                    pts.push((t, Duration::ZERO));
+                } else {
+                    pts.push((t, distrib.select(*stat)));
+                }
+            }
+        }
         series
+    };
+
+    let mut all_series = Vec::new();
+    for (idx, (stat, pts)) in get_data(app.primary.sim.get_analytics(), app.primary.sim.time())
+        .into_iter()
+        .enumerate()
+    {
+        all_series.push(Series {
+            label: stat.to_string(),
+            color: rotating_color_map(idx),
+            pts,
+        });
+    }
+    if app.has_prebaked().is_some() {
+        for (idx, (stat, pts)) in get_data(app.prebaked(), Time::END_OF_DAY)
             .into_iter()
             .enumerate()
-            .map(|(idx, (stat, pts))| Series {
-                label: stat.to_string(),
-                color: rotating_color_map(idx),
+        {
+            all_series.push(Series {
+                label: format!("{} (baseline)", stat),
+                color: rotating_color_map(idx).alpha(0.3),
                 pts,
-            })
-            .collect(),
-        PlotOptions::new(),
-    )
+            });
+        }
+    }
+
+    Plot::new_duration(ctx, all_series, PlotOptions::new())
 }
 
 fn color_for_mode(m: TripMode, app: &App) -> Color {
