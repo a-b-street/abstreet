@@ -399,17 +399,5 @@
       ],
       "duration_seconds": 15
     }
-  ],
-  "offset_seconds": 0,
-  "walk_buttons": "Complicated",
-  "observed": {
-    "author": "Dustin Carlino",
-    "datetime": "MM/DD/YYYY HH:MM:SS",
-    "notes": "fake data, testing things out"
-  },
-  "audited": {
-    "author": "Anonymous",
-    "datetime": "MM/DD/YYYY HH:MM:SS",
-    "notes": "no notes"
-  }
+  ]
 }

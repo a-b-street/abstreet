@@ -1,5 +1,4 @@
 mod lanes;
-mod mapping_traffic_signals;
 mod stop_signs;
 mod traffic_signals;
 

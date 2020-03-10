@@ -19,15 +19,6 @@ pub struct ControlTrafficSignal {
         deserialize_with = "deserialize_btreemap"
     )]
     pub turn_groups: BTreeMap<TurnGroupID, TurnGroup>,
-
-    pub mapping_data: Option<ExtraMappingData>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct ExtraMappingData {
-    pub walk_buttons: traffic_signals::WalkButtons,
-    pub observed: traffic_signals::Metadata,
-    pub audited: Option<traffic_signals::Metadata>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
@@ -196,7 +187,6 @@ impl ControlTrafficSignal {
             phases,
             offset: Duration::ZERO,
             turn_groups,
-            mapping_data: None,
         };
         // This must succeed
         ts.validate().unwrap()
@@ -225,7 +215,6 @@ impl ControlTrafficSignal {
             phases,
             offset: Duration::ZERO,
             turn_groups: TurnGroup::for_i(i, map),
-            mapping_data: None,
         };
         ts.validate().ok()
     }
@@ -273,7 +262,6 @@ impl ControlTrafficSignal {
             phases,
             offset: Duration::ZERO,
             turn_groups,
-            mapping_data: None,
         };
         ts.validate().ok()
     }
@@ -317,7 +305,6 @@ impl ControlTrafficSignal {
             phases,
             offset: Duration::ZERO,
             turn_groups: TurnGroup::for_i(i, map),
-            mapping_data: None,
         };
         ts.validate().ok()
     }
@@ -360,7 +347,6 @@ impl ControlTrafficSignal {
             phases,
             offset: Duration::ZERO,
             turn_groups: TurnGroup::for_i(i, map),
-            mapping_data: None,
         };
         ts.validate().ok()
     }
@@ -414,7 +400,6 @@ impl ControlTrafficSignal {
             phases,
             offset: Duration::ZERO,
             turn_groups: TurnGroup::for_i(i, map),
-            mapping_data: None,
         };
         ts.validate().ok()
     }
@@ -441,7 +426,6 @@ impl ControlTrafficSignal {
             phases: vec![all_walk, all_yield],
             offset: Duration::ZERO,
             turn_groups,
-            mapping_data: None,
         };
         // This must succeed
         ts.validate().unwrap()
@@ -479,7 +463,6 @@ impl ControlTrafficSignal {
             phases,
             offset: Duration::ZERO,
             turn_groups,
-            mapping_data: None,
         };
         ts.validate().ok()
     }
@@ -652,14 +635,6 @@ fn make_phases(
 
 impl ControlTrafficSignal {
     pub fn export(&self, map: &Map) {
-        let data = if let Some(ref data) = self.mapping_data {
-            data.clone()
-        } else {
-            panic!(
-                "Can't export traffic signal {}; no mapping_data filled out",
-                self.id
-            );
-        };
         let ts = traffic_signals::TrafficSignal {
             intersection_osm_node_id: map.get_i(self.id).orig_id.osm_node_id,
             phases: self
@@ -679,10 +654,6 @@ impl ControlTrafficSignal {
                     duration_seconds: p.duration.inner_seconds() as usize,
                 })
                 .collect(),
-            offset_seconds: self.offset.inner_seconds() as usize,
-            walk_buttons: data.walk_buttons,
-            observed: data.observed,
-            audited: data.audited,
         };
 
         abstutil::write_json(
@@ -715,13 +686,8 @@ impl ControlTrafficSignal {
                     duration: Duration::seconds(p.duration_seconds as f64),
                 })
                 .collect(),
-            offset: Duration::seconds(raw.offset_seconds as f64),
+            offset: Duration::ZERO,
             turn_groups: TurnGroup::for_i(id, map),
-            mapping_data: Some(ExtraMappingData {
-                walk_buttons: raw.walk_buttons.clone(),
-                observed: raw.observed.clone(),
-                audited: raw.audited.clone(),
-            }),
         }
         .validate()
         .ok()

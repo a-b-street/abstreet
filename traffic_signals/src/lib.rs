@@ -9,14 +9,6 @@ pub struct TrafficSignal {
     /// The traffic signal repeatedly cycles through these phases. During each phase, only some
     /// turns are protected and permitted through the intersection.
     pub phases: Vec<Phase>,
-    // TODO What should this be relative to?
-    pub offset_seconds: usize,
-    /// Describes the pedestrian buttons for this signal.
-    pub walk_buttons: WalkButtons,
-    /// Information about the person mapping the signal.
-    pub observed: Metadata,
-    /// Information about the latest person to verify a previously mapped signal.
-    pub audited: Option<Metadata>,
 }
 
 /// A traffic signal is in one phase at any time. The phase describes what movements are possible.
@@ -65,66 +57,10 @@ pub struct DirectedRoad {
     pub is_forwards: bool,
 }
 
-/// Extra information about the occasion that a signal was mapped or audited.
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
-pub struct Metadata {
-    /// Name, email, or whatever else somebody wants to use to identify themselves. This can be
-    /// left blank; there's no obligation to reveal any information about yourself.
-    pub author: String,
-    /// The time when the signal was mapped or audited in TODO format. This is useful to determine
-    /// if some signals operate on a different plan on weekends, late at night, during rush hour,
-    /// etc.
-    pub datetime: String,
-    /// Any other relevant notes or observations.
-    pub notes: String,
-}
-
-/// Describes the type of pedestrian buttons present at the intersection.
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
-pub enum WalkButtons {
-    /// The intersection has no pedestrian buttons at all. The walk sign comes on automatically
-    /// during the vehicle phases or as a dedicated all-walk phase.
-    NoButtons,
-    /// Buttons are present, but the walk sign comes on automatically regardless of pushing the
-    /// buttons. Additional ADA sounds may happen when pressing the button. Pressing the button
-    /// does not alter how quickly phases change.
-    Optional,
-    /// Buttons are present, but the walk sign comes on automatically regardless of pushing the
-    /// buttons. Pressing the button reliably causes the walk sign to appear faster than if not
-    /// pressed.
-    OptionalButNice,
-    /// Buttons are present and required. If nobody presses the button, no walk sign appears. After
-    /// pressing the button, the signal continues to cycle through phases at the same speed as it
-    /// would without pressing the button.
-    SlowBeg,
-    /// Buttons are present and required. If nobody presses the button, no walk sign appears. After
-    /// pressing the button, the signal reliably gives a walk sign within 15 seconds of pressing
-    /// the button.
-    FastBeg,
-    /// Some other situation not covered by the above. For example, the intersection might have
-    /// buttons only for some crosswalks, but not others.
-    Complicated,
-}
-
-impl WalkButtons {
-    /// Returns all types of WalkButtons.
-    pub fn all() -> Vec<WalkButtons> {
-        vec![
-            WalkButtons::NoButtons,
-            WalkButtons::Optional,
-            WalkButtons::OptionalButNice,
-            WalkButtons::SlowBeg,
-            WalkButtons::FastBeg,
-            WalkButtons::Complicated,
-        ]
-    }
-}
-
-static DATA: include_dir::Dir = include_dir::include_dir!("src/data");
+static DATA: include_dir::Dir = include_dir::include_dir!("data");
 
 /// Returns all traffic signal data compiled into this build, keyed by OSM node ID.
-// TODO Use a build script to do this. But have to generate Rust code to populate the struct? For
-// now, the data directory is in src/ so changes to it trigger rebuild.
+// TODO Use a build script to do this. But have to generate Rust code to populate the struct?
 pub fn load_all_data() -> Result<BTreeMap<i64, TrafficSignal>, std::io::Error> {
     let mut results = BTreeMap::new();
     for f in DATA.files() {

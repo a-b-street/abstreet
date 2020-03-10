@@ -177,15 +177,7 @@ impl State for TrafficSignalEditor {
                         ctx,
                     );
                 }
-                "Edit metadata" => {
-                    return Transition::Push(Box::new(
-                        crate::edit::mapping_traffic_signals::EditMetadata::new(ctx, app, self.i),
-                    ));
-                }
                 "Export" => {
-                    if orig_signal.mapping_data.is_none() {
-                        return Transition::Push(msg("Error", vec!["Edit the metadata first"]));
-                    }
                     orig_signal.export(&app.primary.map);
                 }
                 "Preview" => {
@@ -336,11 +328,6 @@ pub fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: b
             )
         })
         .margin(15),
-        if app.opts.dev {
-            WrappedComposite::text_button(ctx, "Edit metadata", None)
-        } else {
-            ManagedWidget::nothing()
-        },
         if app.opts.dev {
             WrappedComposite::text_button(ctx, "Export", None)
         } else {
