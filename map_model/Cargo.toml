@@ -15,4 +15,4 @@ petgraph = "0.4.13"
 serde = "1.0.89"
 serde_derive = "1.0.98"
 thread_local = "0.3.6"
-traffic_signals = { path = "../traffic_signals" }
+seattle_traffic_signals = { git = "https://github.com/dabreegster/seattle_traffic_signals" }

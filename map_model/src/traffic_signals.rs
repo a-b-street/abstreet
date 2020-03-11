@@ -45,7 +45,7 @@ impl ControlTrafficSignal {
 
         // TODO Cache with lazy_static. Don't serialize in Map; the repo of signal data may evolve
         // independently.
-        if let Some(raw) = traffic_signals::load_all_data()
+        if let Some(raw) = seattle_traffic_signals::load_all_data()
             .unwrap()
             .remove(&map.get_i(id).orig_id.osm_node_id)
         {
@@ -635,12 +635,12 @@ fn make_phases(
 
 impl ControlTrafficSignal {
     pub fn export(&self, map: &Map) {
-        let ts = traffic_signals::TrafficSignal {
+        let ts = seattle_traffic_signals::TrafficSignal {
             intersection_osm_node_id: map.get_i(self.id).orig_id.osm_node_id,
             phases: self
                 .phases
                 .iter()
-                .map(|p| traffic_signals::Phase {
+                .map(|p| seattle_traffic_signals::Phase {
                     protected_turns: p
                         .protected_groups
                         .iter()
@@ -663,7 +663,7 @@ impl ControlTrafficSignal {
     }
 
     fn import(
-        raw: traffic_signals::TrafficSignal,
+        raw: seattle_traffic_signals::TrafficSignal,
         id: IntersectionID,
         map: &Map,
     ) -> Option<ControlTrafficSignal> {
@@ -694,18 +694,18 @@ impl ControlTrafficSignal {
     }
 }
 
-fn export_turn_group(id: &TurnGroupID, map: &Map) -> traffic_signals::Turn {
+fn export_turn_group(id: &TurnGroupID, map: &Map) -> seattle_traffic_signals::Turn {
     let from = map.get_r(id.from.id).orig_id;
     let to = map.get_r(id.to.id).orig_id;
 
-    traffic_signals::Turn {
-        from: traffic_signals::DirectedRoad {
+    seattle_traffic_signals::Turn {
+        from: seattle_traffic_signals::DirectedRoad {
             osm_way_id: from.osm_way_id,
             osm_node1: from.i1.osm_node_id,
             osm_node2: from.i2.osm_node_id,
             is_forwards: id.from.forwards,
         },
-        to: traffic_signals::DirectedRoad {
+        to: seattle_traffic_signals::DirectedRoad {
             osm_way_id: to.osm_way_id,
             osm_node1: to.i1.osm_node_id,
             osm_node2: to.i2.osm_node_id,
@@ -716,7 +716,7 @@ fn export_turn_group(id: &TurnGroupID, map: &Map) -> traffic_signals::Turn {
     }
 }
 
-fn import_turn_group(id: traffic_signals::Turn, map: &Map) -> TurnGroupID {
+fn import_turn_group(id: seattle_traffic_signals::Turn, map: &Map) -> TurnGroupID {
     TurnGroupID {
         from: find_r(id.from, map),
         to: find_r(id.to, map),
@@ -727,7 +727,7 @@ fn import_turn_group(id: traffic_signals::Turn, map: &Map) -> TurnGroupID {
     }
 }
 
-fn find_r(id: traffic_signals::DirectedRoad, map: &Map) -> DirectedRoadID {
+fn find_r(id: seattle_traffic_signals::DirectedRoad, map: &Map) -> DirectedRoadID {
     DirectedRoadID {
         id: map.find_r(OriginalRoad {
             osm_way_id: id.osm_way_id,
