@@ -430,6 +430,15 @@ fn info_for(
                         ));
                     }
 
+                    kv.push((
+                        "Elevation change".to_string(),
+                        format!(
+                            "{} to {}",
+                            map.get_i(l.src_i).elevation,
+                            map.get_i(l.dst_i).elevation
+                        ),
+                    ));
+
                     for (k, v) in &r.osm_tags {
                         kv.push((k.to_string(), v.to_string()));
                     }

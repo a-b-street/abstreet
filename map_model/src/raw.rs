@@ -1,7 +1,7 @@
 use crate::make::get_lane_types;
 use crate::{osm, AreaType, IntersectionType, OffstreetParking, RoadSpec};
 use abstutil::{deserialize_btreemap, retain_btreemap, serialize_btreemap, Error, Timer};
-use geom::{GPSBounds, Polygon, Pt2D};
+use geom::{Distance, GPSBounds, Polygon, Pt2D};
 use gtfs::Route;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -314,6 +314,7 @@ impl RawMap {
             polygon: Vec::new(),
             roads: self.roads_per_intersection(id).into_iter().collect(),
             intersection_type: self.intersections[&id].intersection_type,
+            elevation: self.intersections[&id].elevation,
         };
         let mut roads = BTreeMap::new();
         for r in &i.roads {
@@ -540,6 +541,7 @@ pub struct RawIntersection {
     // RawMap; roads and intersections get merged and deleted.
     pub point: Pt2D,
     pub intersection_type: IntersectionType,
+    pub elevation: Distance,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

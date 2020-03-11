@@ -823,6 +823,7 @@ fn make_half_map(
             // of the points. Sidewalk corner rendering depends on it later.
             polygon: Polygon::new(&i.polygon),
             turns: BTreeSet::new(),
+            elevation: i.elevation,
             // Might change later
             intersection_type: i.intersection_type,
             orig_id: i.id,

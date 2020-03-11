@@ -10,6 +10,7 @@ fn main() {
         sidewalks: args.optional("--sidewalks"),
         gtfs: args.optional("--gtfs"),
         neighborhoods: args.optional("--neighborhoods"),
+        elevation: args.optional("--elevation"),
         clip: args.optional("--clip"),
         output: args.required("--output"),
     };

@@ -66,6 +66,7 @@ pub struct Intersection {
     pub polygon: Vec<Pt2D>,
     pub roads: BTreeSet<OriginalRoad>,
     pub intersection_type: IntersectionType,
+    pub elevation: Distance,
 }
 
 impl InitialMap {
@@ -85,6 +86,7 @@ impl InitialMap {
                     polygon: Vec::new(),
                     roads: BTreeSet::new(),
                     intersection_type: i.intersection_type,
+                    elevation: i.elevation,
                 },
             );
         }

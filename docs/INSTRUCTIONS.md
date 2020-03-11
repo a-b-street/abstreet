@@ -61,6 +61,7 @@ A/B Street binary releases contain pre-built maps that combine data from:
   (https://creativecommons.org/publicdomain/zero/1.0/)
 - Puget Sound Regional Council
   (https://www.psrc.org/activity-based-travel-model-soundcast)
+- USGS SRTM
 
 Other binary data bundled in:
 

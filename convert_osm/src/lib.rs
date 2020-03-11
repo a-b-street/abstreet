@@ -2,6 +2,7 @@ mod clip;
 mod neighborhoods;
 mod osm_reader;
 mod split_ways;
+mod srtm;
 
 use abstutil::Timer;
 use geom::{Distance, FindClosest, Line, PolyLine, Pt2D};
@@ -19,6 +20,7 @@ pub struct Flags {
     pub sidewalks: Option<String>,
     pub gtfs: Option<String>,
     pub neighborhoods: Option<String>,
+    pub elevation: Option<String>,
     pub clip: Option<String>,
     pub output: String,
 }
@@ -49,6 +51,9 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> RawMap {
         timer.start("load GTFS");
         map.bus_routes = gtfs::load(path);
         timer.stop("load GTFS");
+    }
+    if let Some(ref path) = flags.elevation {
+        use_elevation(&mut map, path, timer);
     }
 
     if let Some(ref path) = flags.neighborhoods {
@@ -302,4 +307,13 @@ fn use_amenities(map: &mut RawMap, amenities: Vec<(Pt2D, String, String)>, timer
             }
         }
     }
+}
+
+fn use_elevation(map: &mut RawMap, path: &str, timer: &mut Timer) {
+    timer.start("apply elevation data to intersections");
+    let elevation = srtm::Elevation::load(path).unwrap();
+    for i in map.intersections.values_mut() {
+        i.elevation = elevation.get(i.point.forcibly_to_gps(&map.gps_bounds));
+    }
+    timer.stop("apply elevation data to intersections");
 }

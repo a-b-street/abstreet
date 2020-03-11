@@ -39,6 +39,14 @@ if [ ! -f data/input/neighborhoods.geojson ]; then
 		data/input/neighborhoods.geojson;
 fi
 
+if [ ! -f data/input/N47W122.hgt ]; then
+	get_if_needed \
+		https://dds.cr.usgs.gov/srtm/version2_1/SRTM1/Region_01/N47W122.hgt.zip \
+		data/input/N47W122.hgt.zip;
+	unzip -d data/input data/input/N47W122.hgt.zip;
+	rm -f data/input/N47W122.hgt.zip;
+fi
+
 if [ ! -f data/input/osm/Seattle.osm ]; then
 	get_if_needed \
 		http://download.bbbike.org/osm/bbbike/Seattle/Seattle.osm.gz \
@@ -107,6 +115,7 @@ for poly in `ls ../data/input/polygons/`; do
 		--offstreet_parking=../data/input/offstreet_parking.kml \
 		--gtfs=../data/input/google_transit_2018_18_08 \
 		--neighborhoods=../data/input/neighborhoods.geojson \
+		--elevation=../data/input/N47W122.hgt \
 		--clip=../data/input/polygons/$name.poly \
 		--output=../data/input/raw_maps/$name.bin
 		#--sidewalks=../data/input/sidewalks.bin \

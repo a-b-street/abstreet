@@ -1,5 +1,5 @@
 use abstutil::{Counter, Timer};
-use geom::{HashablePt2D, Pt2D};
+use geom::{Distance, HashablePt2D, Pt2D};
 use map_model::raw::{
     OriginalIntersection, OriginalRoad, RawIntersection, RawMap, RawRoad, RestrictionType,
 };
@@ -48,6 +48,8 @@ pub fn split_up_roads(
                 } else {
                     IntersectionType::StopSign
                 },
+                // Filled out later
+                elevation: Distance::ZERO,
             },
         );
     }

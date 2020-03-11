@@ -17,19 +17,8 @@
           "inner_x": 459.3171,
           "inner_y": 1778.2944
         },
-        "intersection_type": "Border"
-      }
-    ],
-    [
-      {
-        "osm_node_id": 53096936
-      },
-      {
-        "point": {
-          "inner_x": 1749.1091,
-          "inner_y": 1517.4518
-        },
-        "intersection_type": "Border"
+        "intersection_type": "Border",
+        "elevation": 0.0
       }
     ],
     [
@@ -41,7 +30,8 @@
           "inner_x": 1743.0771,
           "inner_y": 1586.106
         },
-        "intersection_type": "Border"
+        "intersection_type": "Border",
+        "elevation": 0.0
       }
     ],
     [
@@ -53,19 +43,8 @@
           "inner_x": 1510.4108,
           "inner_y": 1777.7068
         },
-        "intersection_type": "Border"
-      }
-    ],
-    [
-      {
-        "osm_node_id": 59708429
-      },
-      {
-        "point": {
-          "inner_x": 1749.0327,
-          "inner_y": 698.1943
-        },
-        "intersection_type": "Border"
+        "intersection_type": "Border",
+        "elevation": 0.0
       }
     ]
   ],

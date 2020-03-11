@@ -9,6 +9,7 @@ pub fn run(t: &mut TestRunner) {
             sidewalks: Some("../data/input/sidewalks.bin".to_string()),
             gtfs: Some("../data/input/google_transit_2018_18_08".to_string()),
             neighborhoods: Some("../data/input/neighborhoods.geojson".to_string()),
+            elevation: Some("../data/input/N47W122.hgt".to_string()),
             clip: Some(abstutil::path_polygon("montlake")),
             output: "convert_osm_twice.bin".to_string(),
         };
