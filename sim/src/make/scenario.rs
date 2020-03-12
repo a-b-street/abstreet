@@ -147,11 +147,13 @@ impl Scenario {
         individ_parked_cars.shuffle(rng);
         seed_individ_parked_cars(individ_parked_cars, sim, map, rng, timer);
 
-        timer.start_iter("IndividTrip", self.population.individ_trips.len());
-        for t in &self.population.individ_trips {
+        timer.start_iter("trips for People", self.population.people.len());
+        for p in &self.population.people {
             timer.next();
-            let spec = t.trip.clone().to_trip_spec(rng);
-            spawner.schedule_trip(t.depart, spec, map, sim);
+            for t in &p.trips {
+                let spec = t.trip.clone().to_trip_spec(rng);
+                spawner.schedule_trip(t.depart, spec, map, sim);
+            }
         }
 
         sim.flush_spawner(spawner, map, timer, true);
@@ -203,7 +205,6 @@ impl Scenario {
                 .collect(),
             population: Population {
                 people: Vec::new(),
-                individ_trips: Vec::new(),
                 individ_parked_cars: BTreeMap::new(),
             },
         };
@@ -231,7 +232,6 @@ impl Scenario {
             border_spawn_over_time: Vec::new(),
             population: Population {
                 people: Vec::new(),
-                individ_trips: Vec::new(),
                 individ_parked_cars: BTreeMap::new(),
             },
         }
@@ -261,7 +261,6 @@ impl Scenario {
             border_spawn_over_time: Vec::new(),
             population: Population {
                 people: Vec::new(),
-                individ_trips: Vec::new(),
                 individ_parked_cars: BTreeMap::new(),
             },
         }
@@ -836,7 +835,6 @@ fn rand_time(rng: &mut XorShiftRng, low: Time, high: Time) -> Time {
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct IndividTrip {
-    pub person: PersonID,
     pub depart: Time,
     pub trip: SpawnTrip,
 }
@@ -923,16 +921,13 @@ fn pick_starting_lanes(mut lanes: Vec<LaneID>, is_bike: bool, map: &Map) -> Vec<
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Population {
-    pub people: Vec<Person>,
-    pub individ_trips: Vec<IndividTrip>,
+    pub people: Vec<PersonSpec>,
     pub individ_parked_cars: BTreeMap<BuildingID, usize>,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
-pub struct Person {
+pub struct PersonSpec {
     pub id: PersonID,
     pub home: Option<BuildingID>,
-    // Index into individ_trips. Each trip is referenced exactly once; this representation doesn't
-    // enforce that, but is less awkward than embedding trips here.
-    pub trips: Vec<usize>,
+    pub trips: Vec<IndividTrip>,
 }

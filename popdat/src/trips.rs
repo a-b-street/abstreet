@@ -4,7 +4,7 @@ use abstutil::{prettyprint_usize, MultiMap, Timer};
 use geom::{Distance, Duration, LonLat, Polygon, Pt2D, Time};
 use map_model::{BuildingID, IntersectionID, Map, PathConstraints, Position};
 use sim::{
-    DrivingGoal, IndividTrip, Person, PersonID, Population, Scenario, SidewalkSpot, SpawnTrip,
+    DrivingGoal, IndividTrip, PersonID, PersonSpec, Population, Scenario, SidewalkSpot, SpawnTrip,
     TripSpec,
 };
 use std::collections::{BTreeMap, HashMap};
@@ -288,7 +288,7 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
 
     let individ_parked_cars = count_cars(&trips, map);
 
-    let mut individ_trips: Vec<(Time, Option<PersonID>, SpawnTrip)> = Vec::new();
+    let mut individ_trips: Vec<Option<IndividTrip>> = Vec::new();
     // person -> (trip seq, index into individ_trips)
     let mut trips_per_person: MultiMap<(usize, usize), ((usize, bool, usize), usize)> =
         MultiMap::new();
@@ -301,7 +301,7 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
         .flatten()
     {
         let idx = individ_trips.len();
-        individ_trips.push((depart, None, trip));
+        individ_trips.push(Some(IndividTrip { depart, trip }));
         trips_per_person.insert(person, (seq, idx));
     }
     timer.note(format!(
@@ -313,33 +313,26 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
 
     let mut population = Population {
         people: Vec::new(),
-        individ_trips: Vec::new(),
         individ_parked_cars,
     };
-    let mut person_ids: HashMap<(usize, usize), PersonID> = HashMap::new();
-    for (person, seq_trips) in trips_per_person.consume() {
+    for (_, seq_trips) in trips_per_person.consume() {
         let id = PersonID(population.people.len());
-        person_ids.insert(person, id);
         let mut trips = Vec::new();
         for (_, idx) in seq_trips {
             // TODO Track when there are gaps in the sequence, to explain the person warping.
-            trips.push(idx);
-            assert!(individ_trips[idx].1.is_none());
-            individ_trips[idx].1 = Some(id);
+            trips.push(individ_trips[idx].take().unwrap());
         }
-        population.people.push(Person {
+        population.people.push(PersonSpec {
             id,
             // TODO Do we have to scrape a new input file for this? :(
             home: None,
             trips,
         });
     }
-    for (depart, person, trip) in individ_trips {
-        population.individ_trips.push(IndividTrip {
-            trip,
-            depart,
-            person: person.unwrap(),
-        });
+    for maybe_t in individ_trips {
+        if maybe_t.is_some() {
+            panic!("Some IndividTrip wasn't associated with a Person?!");
+        }
     }
 
     Scenario {
