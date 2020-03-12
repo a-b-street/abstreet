@@ -1,3 +1,4 @@
+use crate::make::TripSpawner;
 use crate::{
     CarID, DrivingGoal, ParkingSpot, PersonID, SidewalkSpot, Sim, TripSpec, VehicleSpec,
     VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
@@ -104,6 +105,8 @@ impl Scenario {
             );
         }
 
+        let mut spawner = sim.make_spawner();
+
         // Don't let two pedestrians starting from one building use the same car.
         let mut reserved_cars: HashSet<CarID> = HashSet::new();
 
@@ -115,16 +118,24 @@ impl Scenario {
             timer.start_iter("SpawnOverTime each agent", s.num_agents);
             for _ in 0..s.num_agents {
                 timer.next();
-                s.spawn_agent(rng, sim, &mut reserved_cars, &neighborhoods, map, timer);
+                s.spawn_agent(
+                    rng,
+                    sim,
+                    &mut spawner,
+                    &mut reserved_cars,
+                    &neighborhoods,
+                    map,
+                    timer,
+                );
             }
         }
 
         timer.start_iter("BorderSpawnOverTime", self.border_spawn_over_time.len());
         for s in &self.border_spawn_over_time {
             timer.next();
-            s.spawn_peds(rng, sim, &neighborhoods, map, timer);
-            s.spawn_cars(rng, sim, &neighborhoods, map, timer);
-            s.spawn_bikes(rng, sim, &neighborhoods, map, timer);
+            s.spawn_peds(rng, &mut spawner, &neighborhoods, map, sim, timer);
+            s.spawn_cars(rng, &mut spawner, &neighborhoods, map, sim, timer);
+            s.spawn_bikes(rng, &mut spawner, &neighborhoods, map, sim, timer);
         }
 
         let mut individ_parked_cars: Vec<(BuildingID, usize)> = Vec::new();
@@ -140,10 +151,10 @@ impl Scenario {
         for t in &self.population.individ_trips {
             timer.next();
             let spec = t.trip.clone().to_trip_spec(rng);
-            sim.schedule_trip(t.depart, spec, map);
+            spawner.schedule_trip(t.depart, spec, map, sim);
         }
 
-        sim.spawn_all_trips(map, timer, true);
+        sim.flush_spawner(spawner, map, timer, true);
         timer.stop(format!("Instantiating {}", self.scenario_name));
     }
 
@@ -305,7 +316,8 @@ impl SpawnOverTime {
     fn spawn_agent(
         &self,
         rng: &mut XorShiftRng,
-        sim: &mut Sim,
+        sim: &Sim,
+        spawner: &mut TripSpawner,
         reserved_cars: &mut HashSet<CarID>,
         neighborhoods: &HashMap<String, FullNeighborhoodInfo>,
         map: &Map,
@@ -331,7 +343,7 @@ impl SpawnOverTime {
             {
                 reserved_cars.insert(parked_car.vehicle.id);
                 let spot = parked_car.spot;
-                sim.schedule_trip(
+                spawner.schedule_trip(
                     spawn_time,
                     TripSpec::UsingParkedCar {
                         start: SidewalkSpot::building(from_bldg, map),
@@ -340,6 +352,7 @@ impl SpawnOverTime {
                         ped_speed: Scenario::rand_ped_speed(rng),
                     },
                     map,
+                    sim,
                 );
                 return;
             }
@@ -366,7 +379,7 @@ impl SpawnOverTime {
                         true
                     };
                     if ok {
-                        sim.schedule_trip(
+                        spawner.schedule_trip(
                             spawn_time,
                             TripSpec::UsingBike {
                                 start: SidewalkSpot::building(from_bldg, map),
@@ -375,6 +388,7 @@ impl SpawnOverTime {
                                 ped_speed: Scenario::rand_ped_speed(rng),
                             },
                             map,
+                            sim,
                         );
                         return;
                     }
@@ -395,7 +409,7 @@ impl SpawnOverTime {
                 if let Some((stop1, stop2, route)) =
                     map.should_use_transit(start_spot.sidewalk_pos, goal.sidewalk_pos)
                 {
-                    sim.schedule_trip(
+                    spawner.schedule_trip(
                         spawn_time,
                         TripSpec::UsingTransit {
                             start: start_spot,
@@ -406,12 +420,13 @@ impl SpawnOverTime {
                             ped_speed: Scenario::rand_ped_speed(rng),
                         },
                         map,
+                        sim,
                     );
                     return;
                 }
             }
 
-            sim.schedule_trip(
+            spawner.schedule_trip(
                 spawn_time,
                 TripSpec::JustWalking {
                     start: start_spot,
@@ -419,6 +434,7 @@ impl SpawnOverTime {
                     ped_speed: Scenario::rand_ped_speed(rng),
                 },
                 map,
+                sim,
             );
             return;
         }
@@ -431,9 +447,10 @@ impl BorderSpawnOverTime {
     fn spawn_peds(
         &self,
         rng: &mut XorShiftRng,
-        sim: &mut Sim,
+        spawner: &mut TripSpawner,
         neighborhoods: &HashMap<String, FullNeighborhoodInfo>,
         map: &Map,
+        sim: &Sim,
         timer: &mut Timer,
     ) {
         if self.num_peds == 0 {
@@ -461,7 +478,7 @@ impl BorderSpawnOverTime {
                     if let Some((stop1, stop2, route)) =
                         map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos)
                     {
-                        sim.schedule_trip(
+                        spawner.schedule_trip(
                             spawn_time,
                             TripSpec::UsingTransit {
                                 start: start.clone(),
@@ -472,12 +489,13 @@ impl BorderSpawnOverTime {
                                 ped_speed: Scenario::rand_ped_speed(rng),
                             },
                             map,
+                            sim,
                         );
                         continue;
                     }
                 }
 
-                sim.schedule_trip(
+                spawner.schedule_trip(
                     spawn_time,
                     TripSpec::JustWalking {
                         start: start.clone(),
@@ -485,6 +503,7 @@ impl BorderSpawnOverTime {
                         ped_speed: Scenario::rand_ped_speed(rng),
                     },
                     map,
+                    sim,
                 );
             }
         }
@@ -493,9 +512,10 @@ impl BorderSpawnOverTime {
     fn spawn_cars(
         &self,
         rng: &mut XorShiftRng,
-        sim: &mut Sim,
+        spawner: &mut TripSpawner,
         neighborhoods: &HashMap<String, FullNeighborhoodInfo>,
         map: &Map,
+        sim: &Sim,
         timer: &mut Timer,
     ) {
         if self.num_cars == 0 {
@@ -521,7 +541,7 @@ impl BorderSpawnOverTime {
                     .pick_driving_goal(PathConstraints::Car, map, &neighborhoods, rng, timer)
             {
                 let vehicle = Scenario::rand_car(rng);
-                sim.schedule_trip(
+                spawner.schedule_trip(
                     spawn_time,
                     TripSpec::CarAppearing {
                         start_pos: Position::new(*lanes.choose(rng).unwrap(), vehicle.length),
@@ -530,6 +550,7 @@ impl BorderSpawnOverTime {
                         ped_speed: Scenario::rand_ped_speed(rng),
                     },
                     map,
+                    sim,
                 );
             }
         }
@@ -538,9 +559,10 @@ impl BorderSpawnOverTime {
     fn spawn_bikes(
         &self,
         rng: &mut XorShiftRng,
-        sim: &mut Sim,
+        spawner: &mut TripSpawner,
         neighborhoods: &HashMap<String, FullNeighborhoodInfo>,
         map: &Map,
+        sim: &Sim,
         timer: &mut Timer,
     ) {
         if self.num_bikes == 0 {
@@ -566,7 +588,7 @@ impl BorderSpawnOverTime {
                     .pick_driving_goal(PathConstraints::Bike, map, &neighborhoods, rng, timer)
             {
                 let bike = Scenario::rand_bike(rng);
-                sim.schedule_trip(
+                spawner.schedule_trip(
                     spawn_time,
                     TripSpec::CarAppearing {
                         start_pos: Position::new(*lanes.choose(rng).unwrap(), bike.length),
@@ -575,6 +597,7 @@ impl BorderSpawnOverTime {
                         ped_speed: Scenario::rand_ped_speed(rng),
                     },
                     map,
+                    sim,
                 );
             }
         }

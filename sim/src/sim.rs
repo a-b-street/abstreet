@@ -30,7 +30,6 @@ pub struct Sim {
     intersections: IntersectionSimState,
     transit: TransitSimState,
     trips: TripManager,
-    spawner: TripSpawner,
     scheduler: Scheduler,
     time: Time,
     car_id_counter: usize,
@@ -107,7 +106,6 @@ impl Sim {
             ),
             transit: TransitSimState::new(),
             trips: TripManager::new(),
-            spawner: TripSpawner::new(),
             scheduler,
             time: Time::START_OF_DAY,
             car_id_counter: 0,
@@ -125,61 +123,30 @@ impl Sim {
         }
     }
 
-    pub fn schedule_trip(
-        &mut self,
-        start_time: Time,
-        spec: TripSpec,
-        map: &Map,
-    ) -> (Option<PedestrianID>, Option<CarID>) {
-        let (ped_id, car_id) = match spec {
-            TripSpec::CarAppearing {
-                ref vehicle_spec,
-                ref goal,
-                ..
-            } => {
-                let car = CarID(self.car_id_counter, vehicle_spec.vehicle_type);
-                self.car_id_counter += 1;
-                let ped = match goal {
-                    DrivingGoal::ParkNear(_) => {
-                        let id = PedestrianID(self.ped_id_counter);
-                        self.ped_id_counter += 1;
-                        Some(id)
-                    }
-                    _ => None,
-                };
-                (ped, Some(car))
-            }
-            TripSpec::UsingParkedCar { .. }
-            | TripSpec::MaybeUsingParkedCar { .. }
-            | TripSpec::JustWalking { .. }
-            | TripSpec::UsingTransit { .. } => {
-                let id = PedestrianID(self.ped_id_counter);
-                self.ped_id_counter += 1;
-                (Some(id), None)
-            }
-            TripSpec::UsingBike { .. } => {
-                let ped = PedestrianID(self.ped_id_counter);
-                self.ped_id_counter += 1;
-                let car = CarID(self.car_id_counter, VehicleType::Bike);
-                self.car_id_counter += 1;
-                (Some(ped), Some(car))
-            }
-        };
-
-        self.spawner
-            .schedule_trip(start_time, ped_id, car_id, spec, map, &self.parking);
-        (ped_id, car_id)
+    pub fn make_spawner(&self) -> TripSpawner {
+        TripSpawner::new(self.car_id_counter, self.ped_id_counter)
     }
-
-    pub fn spawn_all_trips(&mut self, map: &Map, timer: &mut Timer, retry_if_no_room: bool) {
-        self.spawner.spawn_all(
+    pub fn flush_spawner(
+        &mut self,
+        spawner: TripSpawner,
+        map: &Map,
+        timer: &mut Timer,
+        retry_if_no_room: bool,
+    ) {
+        self.car_id_counter = spawner.car_id_counter;
+        self.ped_id_counter = spawner.ped_id_counter;
+        spawner.finalize(
             map,
-            &self.parking,
             &mut self.trips,
             &mut self.scheduler,
+            &self.parking,
             timer,
             retry_if_no_room,
         );
+    }
+    // TODO Friend method pattern :(
+    pub(crate) fn spawner_parking(&self) -> &ParkingSimState {
+        &self.parking
     }
 
     pub fn get_free_spots(&self, l: LaneID) -> Vec<ParkingSpot> {
@@ -372,9 +339,6 @@ impl Sim {
     // Advances time as minimally as possible, also limited by max_dt.
     fn minimal_step(&mut self, map: &Map, max_dt: Duration) {
         self.step_count += 1;
-        if !self.spawner.is_done() {
-            panic!("Forgot to call spawn_all_trips");
-        }
 
         let max_time = if let Some(t) = self.scheduler.peek_next_time() {
             if t > self.time + max_dt {
@@ -816,10 +780,6 @@ impl Sim {
                 abstutil::prettyprint_usize(abstutil::serialized_size_bytes(&self.trips))
             );
             println!(
-                "- spawner: {} bytes",
-                abstutil::prettyprint_usize(abstutil::serialized_size_bytes(&self.spawner))
-            );
-            println!(
                 "- scheduler: {} bytes",
                 abstutil::prettyprint_usize(abstutil::serialized_size_bytes(&self.scheduler))
             );
@@ -868,7 +828,7 @@ impl Sim {
     }
 
     pub fn is_done(&self) -> bool {
-        self.spawner.is_done() && self.trips.is_done()
+        self.trips.is_done()
     }
 
     pub fn is_empty(&self) -> bool {

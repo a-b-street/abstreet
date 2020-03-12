@@ -1,7 +1,7 @@
 use crate::{
     CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, ParkingSimState, ParkingSpot,
-    PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot, TripLeg, TripManager, TripStart,
-    VehicleSpec, MAX_CAR_LENGTH,
+    PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot, Sim, TripLeg, TripManager, TripStart,
+    VehicleSpec, VehicleType, MAX_CAR_LENGTH,
 };
 use abstutil::Timer;
 use geom::{Speed, Time, EPSILON_DIST};
@@ -50,28 +50,84 @@ pub enum TripSpec {
     },
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Clone)]
+// This structure is created temporarily by a Scenario or to interactively spawn agents.
+// TODO The API isn't great. Passing in Sim and having to use friend methods is awkward.
+// Alternatives could be somehow consuming Sim temporarily and spitting it back out at the end
+// (except the interactive spawner would have to mem::replace with a blank Sim?), or just queueing
+// up commands and doing them at the end while holding onto &Sim.
 pub struct TripSpawner {
     parked_cars_claimed: BTreeSet<CarID>,
     trips: Vec<(Time, Option<PedestrianID>, Option<CarID>, TripSpec)>,
+    pub car_id_counter: usize,
+    pub ped_id_counter: usize,
 }
 
 impl TripSpawner {
-    pub fn new() -> TripSpawner {
+    pub fn new(car_id_counter: usize, ped_id_counter: usize) -> TripSpawner {
         TripSpawner {
             parked_cars_claimed: BTreeSet::new(),
             trips: Vec::new(),
+            car_id_counter,
+            ped_id_counter,
         }
     }
 
     pub fn schedule_trip(
         &mut self,
         start_time: Time,
+        spec: TripSpec,
+        map: &Map,
+        sim: &Sim,
+    ) -> (Option<PedestrianID>, Option<CarID>) {
+        let (ped_id, car_id) = match spec {
+            TripSpec::CarAppearing {
+                ref vehicle_spec,
+                ref goal,
+                ..
+            } => {
+                let car = CarID(self.car_id_counter, vehicle_spec.vehicle_type);
+                self.car_id_counter += 1;
+                let ped = match goal {
+                    DrivingGoal::ParkNear(_) => {
+                        let id = PedestrianID(self.ped_id_counter);
+                        self.ped_id_counter += 1;
+                        Some(id)
+                    }
+                    _ => None,
+                };
+                (ped, Some(car))
+            }
+            TripSpec::UsingParkedCar { .. }
+            | TripSpec::MaybeUsingParkedCar { .. }
+            | TripSpec::JustWalking { .. }
+            | TripSpec::UsingTransit { .. } => {
+                let id = PedestrianID(self.ped_id_counter);
+                self.ped_id_counter += 1;
+                (Some(id), None)
+            }
+            TripSpec::UsingBike { .. } => {
+                let ped = PedestrianID(self.ped_id_counter);
+                self.ped_id_counter += 1;
+                let car = CarID(self.car_id_counter, VehicleType::Bike);
+                self.car_id_counter += 1;
+                (Some(ped), Some(car))
+            }
+        };
+
+        self.inner_schedule_trip(start_time, ped_id, car_id, spec, map, sim);
+
+        (ped_id, car_id)
+    }
+
+    // TODO Maybe collapse this in the future
+    fn inner_schedule_trip(
+        &mut self,
+        start_time: Time,
         ped_id: Option<PedestrianID>,
         car_id: Option<CarID>,
         spec: TripSpec,
         map: &Map,
-        parking: &ParkingSimState,
+        sim: &Sim,
     ) {
         // TODO We'll want to repeat this validation when we spawn stuff later for a second leg...
         match &spec {
@@ -106,7 +162,12 @@ impl TripSpawner {
                 }
             }
             TripSpec::UsingParkedCar { spot, .. } => {
-                let car_id = parking.get_car_at_spot(*spot).unwrap().vehicle.id;
+                let car_id = sim
+                    .spawner_parking()
+                    .get_car_at_spot(*spot)
+                    .unwrap()
+                    .vehicle
+                    .id;
                 if self.parked_cars_claimed.contains(&car_id) {
                     panic!(
                         "A TripSpec wants to use {}, which is already claimed",
@@ -179,12 +240,12 @@ impl TripSpawner {
         self.trips.push((start_time, ped_id, car_id, spec));
     }
 
-    pub fn spawn_all(
-        &mut self,
+    pub fn finalize(
+        mut self,
         map: &Map,
-        parking: &ParkingSimState,
         trips: &mut TripManager,
         scheduler: &mut Scheduler,
+        parking: &ParkingSimState,
         timer: &mut Timer,
         retry_if_no_room: bool,
     ) {
@@ -468,10 +529,6 @@ impl TripSpawner {
         timer.start("finalize spawned trips");
         scheduler.finalize_batch();
         timer.stop("finalize spawned trips");
-    }
-
-    pub fn is_done(&self) -> bool {
-        self.trips.is_empty()
     }
 }
 
