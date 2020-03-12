@@ -613,11 +613,7 @@ impl Trip {
     }
 
     fn is_bus_trip(&self) -> bool {
-        self.legs.len() == 1
-            && match self.legs[0] {
-                TripLeg::ServeBusRoute(_, _) => true,
-                _ => false,
-            }
+        self.legs.len() == 1 && matches!(self.legs[0], TripLeg::ServeBusRoute(_, _))
     }
 
     // Returns true if this succeeds. If not, trip aborted.
