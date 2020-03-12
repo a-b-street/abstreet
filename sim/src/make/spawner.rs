@@ -1,7 +1,7 @@
 use crate::{
     CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, ParkingSimState, ParkingSpot,
-    PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot, Sim, TripLeg, TripManager, TripStart,
-    VehicleSpec, VehicleType, MAX_CAR_LENGTH,
+    PedestrianID, PersonID, Scheduler, SidewalkPOI, SidewalkSpot, Sim, TripLeg, TripManager,
+    TripStart, VehicleSpec, VehicleType, MAX_CAR_LENGTH,
 };
 use abstutil::Timer;
 use geom::{Speed, Time, EPSILON_DIST};
@@ -57,7 +57,13 @@ pub enum TripSpec {
 // up commands and doing them at the end while holding onto &Sim.
 pub struct TripSpawner {
     parked_cars_claimed: BTreeSet<CarID>,
-    trips: Vec<(Time, Option<PedestrianID>, Option<CarID>, TripSpec)>,
+    trips: Vec<(
+        PersonID,
+        Time,
+        Option<PedestrianID>,
+        Option<CarID>,
+        TripSpec,
+    )>,
 }
 
 impl TripSpawner {
@@ -70,6 +76,7 @@ impl TripSpawner {
 
     pub fn schedule_trip(
         &mut self,
+        person: PersonID,
         start_time: Time,
         spec: TripSpec,
         map: &Map,
@@ -105,7 +112,7 @@ impl TripSpawner {
             }
         };
 
-        self.inner_schedule_trip(start_time, ped_id, car_id, spec, map, sim);
+        self.inner_schedule_trip(person, start_time, ped_id, car_id, spec, map, sim);
 
         (ped_id, car_id)
     }
@@ -113,6 +120,7 @@ impl TripSpawner {
     // TODO Maybe collapse this in the future
     fn inner_schedule_trip(
         &mut self,
+        person: PersonID,
         start_time: Time,
         ped_id: Option<PedestrianID>,
         car_id: Option<CarID>,
@@ -212,6 +220,7 @@ impl TripSpawner {
                             start, goal
                         );
                         self.trips.push((
+                            person,
                             start_time,
                             ped_id,
                             None,
@@ -228,7 +237,7 @@ impl TripSpawner {
             TripSpec::UsingTransit { .. } => {}
         };
 
-        self.trips.push((start_time, ped_id, car_id, spec));
+        self.trips.push((person, start_time, ped_id, car_id, spec));
     }
 
     pub fn finalize(
@@ -244,13 +253,13 @@ impl TripSpawner {
             "calculate paths",
             std::mem::replace(&mut self.trips, Vec::new()),
             |tuple| {
-                let req = tuple.3.get_pathfinding_request(map, parking);
+                let req = tuple.4.get_pathfinding_request(map, parking);
                 (tuple, req.clone(), map.pathfind(req))
             },
         );
 
         timer.start_iter("spawn trips", paths.len());
-        for ((start_time, ped_id, car_id, spec), req, maybe_path) in paths {
+        for ((person, start_time, ped_id, car_id, spec), req, maybe_path) in paths {
             timer.next();
             match spec {
                 TripSpec::CarAppearing {
@@ -277,7 +286,7 @@ impl TripSpawner {
                         ));
                     }
                     let trip_start = TripStart::Border(map.get_l(start_pos.lane()).src_i);
-                    let trip = trips.new_trip(start_time, trip_start, legs);
+                    let trip = trips.new_trip(Some(person), start_time, trip_start, legs);
                     if let Some(path) = maybe_path {
                         let router = goal.make_router(path, map, vehicle.vehicle_type);
                         scheduler.quick_push(
@@ -323,8 +332,12 @@ impl TripSpawner {
                         }
                         DrivingGoal::Border(_, _) => {}
                     }
-                    let trip =
-                        trips.new_trip(start_time, TripStart::Bldg(vehicle.owner.unwrap()), legs);
+                    let trip = trips.new_trip(
+                        Some(person),
+                        start_time,
+                        TripStart::Bldg(vehicle.owner.unwrap()),
+                        legs,
+                    );
 
                     if let Some(path) = maybe_path {
                         scheduler.quick_push(
@@ -356,7 +369,8 @@ impl TripSpawner {
                     // Can't add TripLeg::Drive, because we don't know the vehicle yet! Plumb along
                     // the DrivingGoal, so we can expand the trip later.
                     let legs = vec![TripLeg::Walk(ped_id.unwrap(), ped_speed, walk_to.clone())];
-                    let trip = trips.new_trip(start_time, TripStart::Bldg(start_bldg), legs);
+                    let trip =
+                        trips.new_trip(Some(person), start_time, TripStart::Bldg(start_bldg), legs);
 
                     scheduler.quick_push(
                         start_time,
@@ -378,6 +392,7 @@ impl TripSpawner {
                     ped_speed,
                 } => {
                     let trip = trips.new_trip(
+                        Some(person),
                         start_time,
                         match start.connection {
                             SidewalkPOI::Building(b) => TripStart::Bldg(b),
@@ -434,6 +449,7 @@ impl TripSpawner {
                         DrivingGoal::Border(_, _) => {}
                     };
                     let trip = trips.new_trip(
+                        Some(person),
                         start_time,
                         match start.connection {
                             SidewalkPOI::Building(b) => TripStart::Bldg(b),
@@ -477,6 +493,7 @@ impl TripSpawner {
                 } => {
                     let walk_to = SidewalkSpot::bus_stop(stop1, map);
                     let trip = trips.new_trip(
+                        Some(person),
                         start_time,
                         match start.connection {
                             SidewalkPOI::Building(b) => TripStart::Bldg(b),

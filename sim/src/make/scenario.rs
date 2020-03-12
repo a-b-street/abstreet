@@ -150,9 +150,11 @@ impl Scenario {
         timer.start_iter("trips for People", self.population.people.len());
         for p in &self.population.people {
             timer.next();
+            // TODO Or spawner?
+            sim.new_person(p.id);
             for t in &p.trips {
                 let spec = t.trip.clone().to_trip_spec(rng);
-                spawner.schedule_trip(t.depart, spec, map, sim);
+                spawner.schedule_trip(p.id, t.depart, spec, map, sim);
             }
         }
 
@@ -343,6 +345,7 @@ impl SpawnOverTime {
                 reserved_cars.insert(parked_car.vehicle.id);
                 let spot = parked_car.spot;
                 spawner.schedule_trip(
+                    sim.random_person(),
                     spawn_time,
                     TripSpec::UsingParkedCar {
                         start: SidewalkSpot::building(from_bldg, map),
@@ -379,6 +382,7 @@ impl SpawnOverTime {
                     };
                     if ok {
                         spawner.schedule_trip(
+                            sim.random_person(),
                             spawn_time,
                             TripSpec::UsingBike {
                                 start: SidewalkSpot::building(from_bldg, map),
@@ -409,6 +413,7 @@ impl SpawnOverTime {
                     map.should_use_transit(start_spot.sidewalk_pos, goal.sidewalk_pos)
                 {
                     spawner.schedule_trip(
+                        sim.random_person(),
                         spawn_time,
                         TripSpec::UsingTransit {
                             start: start_spot,
@@ -426,6 +431,7 @@ impl SpawnOverTime {
             }
 
             spawner.schedule_trip(
+                sim.random_person(),
                 spawn_time,
                 TripSpec::JustWalking {
                     start: start_spot,
@@ -478,6 +484,7 @@ impl BorderSpawnOverTime {
                         map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos)
                     {
                         spawner.schedule_trip(
+                            sim.random_person(),
                             spawn_time,
                             TripSpec::UsingTransit {
                                 start: start.clone(),
@@ -495,6 +502,7 @@ impl BorderSpawnOverTime {
                 }
 
                 spawner.schedule_trip(
+                    sim.random_person(),
                     spawn_time,
                     TripSpec::JustWalking {
                         start: start.clone(),
@@ -541,6 +549,7 @@ impl BorderSpawnOverTime {
             {
                 let vehicle = Scenario::rand_car(rng);
                 spawner.schedule_trip(
+                    sim.random_person(),
                     spawn_time,
                     TripSpec::CarAppearing {
                         start_pos: Position::new(*lanes.choose(rng).unwrap(), vehicle.length),
@@ -588,6 +597,7 @@ impl BorderSpawnOverTime {
             {
                 let bike = Scenario::rand_bike(rng);
                 spawner.schedule_trip(
+                    sim.random_person(),
                     spawn_time,
                     TripSpec::CarAppearing {
                         start_pos: Position::new(*lanes.choose(rng).unwrap(), bike.length),

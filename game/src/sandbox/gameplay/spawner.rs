@@ -26,6 +26,10 @@ use sim::{
 
 const SMALL_DT: Duration = Duration::const_seconds(0.1);
 
+// TODO So many problems here. One is using schedule_trip directly. But using a Scenario is weird
+// because we need to keep amending it and re-instantiating it, and because picking specific
+// starting positions for vehicles depends on randomized vehicle lengths...
+
 pub struct AgentSpawner {
     composite: Composite,
     from: Source,
@@ -337,6 +341,7 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                     continue;
                 }
                 spawner.schedule_trip(
+                    sim.random_person(),
                     sim.time(),
                     TripSpec::CarAppearing {
                         start_pos: Position::new(
@@ -356,6 +361,7 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
         } else if lane.is_sidewalk() {
             for _ in 0..5 {
                 spawner.schedule_trip(
+                    sim.random_person(),
                     sim.time(),
                     TripSpec::JustWalking {
                         start: SidewalkSpot::suddenly_appear(
@@ -414,6 +420,7 @@ fn schedule_trip(
             {
                 println!("Using {} from {} to {}", route, stop1, stop2);
                 spawner.schedule_trip(
+                    sim.random_person(),
                     sim.time(),
                     TripSpec::UsingTransit {
                         start,
@@ -429,6 +436,7 @@ fn schedule_trip(
             } else {
                 println!("Not using transit");
                 spawner.schedule_trip(
+                    sim.random_person(),
                     sim.time(),
                     TripSpec::JustWalking {
                         start,
@@ -456,6 +464,7 @@ fn schedule_trip(
                 }
             };
             spawner.schedule_trip(
+                sim.random_person(),
                 sim.time(),
                 TripSpec::UsingBike {
                     start: SidewalkSpot::building(*b, map),
@@ -487,6 +496,7 @@ fn schedule_trip(
                 Source::Drive(from) => {
                     if let Some(start_pos) = TripSpec::spawn_car_at(*from, map) {
                         spawner.schedule_trip(
+                            sim.random_person(),
                             sim.time(),
                             TripSpec::CarAppearing {
                                 start_pos,
@@ -503,6 +513,7 @@ fn schedule_trip(
                 }
                 Source::WalkFromBldgThenMaybeUseCar(b) => {
                     spawner.schedule_trip(
+                        sim.random_person(),
                         sim.time(),
                         TripSpec::MaybeUsingParkedCar {
                             start_bldg: *b,

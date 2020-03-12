@@ -1,7 +1,7 @@
 use crate::{
     AgentID, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, Event, ParkingSimState,
-    ParkingSpot, PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripID,
-    TripPhaseType, Vehicle, VehicleType, WalkingSimState,
+    ParkingSpot, PedestrianID, PersonID, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState,
+    TripID, TripPhaseType, Vehicle, VehicleType, WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap, Counter};
 use geom::{Speed, Time};
@@ -14,6 +14,7 @@ use std::collections::{BTreeMap, VecDeque};
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct TripManager {
     trips: Vec<Trip>,
+    people: Vec<Person>,
     // For quick lookup of active agents
     #[serde(
         serialize_with = "serialize_btreemap",
@@ -30,6 +31,7 @@ impl TripManager {
     pub fn new() -> TripManager {
         TripManager {
             trips: Vec::new(),
+            people: Vec::new(),
             active_trip_mode: BTreeMap::new(),
             num_bus_trips: 0,
             unfinished_trips: 0,
@@ -37,7 +39,27 @@ impl TripManager {
         }
     }
 
-    pub fn new_trip(&mut self, spawned_at: Time, start: TripStart, legs: Vec<TripLeg>) -> TripID {
+    pub fn new_person(&mut self, id: PersonID) {
+        assert_eq!(id.0, self.people.len());
+        self.people.push(Person {
+            id,
+            trips: Vec::new(),
+            state: PersonState::Limbo,
+        });
+    }
+    pub fn random_person(&mut self) -> PersonID {
+        let id = PersonID(self.people.len());
+        self.new_person(id);
+        id
+    }
+
+    pub fn new_trip(
+        &mut self,
+        person: Option<PersonID>,
+        spawned_at: Time,
+        start: TripStart,
+        legs: Vec<TripLeg>,
+    ) -> TripID {
         assert!(!legs.is_empty());
         // TODO Make sure the legs constitute a valid state machine.
 
@@ -84,6 +106,7 @@ impl TripManager {
         };
         let trip = Trip {
             id,
+            person,
             spawned_at,
             finished_at: None,
             aborted: false,
@@ -94,6 +117,14 @@ impl TripManager {
         };
         if !trip.is_bus_trip() {
             self.unfinished_trips += 1;
+            let person = &mut self.people[trip.person.unwrap().0];
+            if person.trips.is_empty() {
+                person.state = match trip.start {
+                    TripStart::Bldg(b) => PersonState::Inside(b),
+                    TripStart::Border(_) => PersonState::OffMap,
+                };
+            }
+            person.trips.push(id);
         }
         self.trips.push(trip);
         id
@@ -106,13 +137,16 @@ impl TripManager {
         trip.mode = TripMode::Drive;
     }
 
-    pub fn agent_starting_trip_leg(&mut self, agent: AgentID, trip: TripID) {
+    pub fn agent_starting_trip_leg(&mut self, agent: AgentID, t: TripID) {
         assert!(!self.active_trip_mode.contains_key(&agent));
         // TODO ensure a trip only has one active agent (aka, not walking and driving at the same
         // time)
-        self.active_trip_mode.insert(agent, trip);
-        if self.trips[trip.0].is_bus_trip() {
+        self.active_trip_mode.insert(agent, t);
+        let trip = &self.trips[t.0];
+        if trip.is_bus_trip() {
             self.num_bus_trips += 1;
+        } else {
+            self.people[trip.person.unwrap().0].state = PersonState::Trip(t);
         }
     }
 
@@ -146,6 +180,7 @@ impl TripManager {
                         trip.mode,
                         now - trip.spawned_at,
                     ));
+                    self.people[trip.person.unwrap().0].state = PersonState::Inside(b1);
                     return;
                 }
                 _ => {}
@@ -208,6 +243,7 @@ impl TripManager {
             self.unfinished_trips -= 1;
             trip.aborted = true;
             self.events.push(Event::TripAborted(trip.id, trip.mode));
+            self.people[trip.person.unwrap().0].state = PersonState::Limbo;
             return;
         };
 
@@ -267,6 +303,7 @@ impl TripManager {
             self.unfinished_trips -= 1;
             trip.aborted = true;
             self.events.push(Event::TripAborted(trip.id, trip.mode));
+            self.people[trip.person.unwrap().0].state = PersonState::Limbo;
             return;
         };
 
@@ -327,6 +364,7 @@ impl TripManager {
             trip.mode,
             now - trip.spawned_at,
         ));
+        self.people[trip.person.unwrap().0].state = PersonState::Inside(bldg);
     }
 
     // If no route is returned, the pedestrian boarded a bus immediately.
@@ -424,6 +462,7 @@ impl TripManager {
             trip.mode,
             now - trip.spawned_at,
         ));
+        self.people[trip.person.unwrap().0].state = PersonState::OffMap;
     }
 
     pub fn car_or_bike_reached_border(&mut self, now: Time, car: CarID, i: IntersectionID) {
@@ -442,24 +481,30 @@ impl TripManager {
             trip.mode,
             now - trip.spawned_at,
         ));
+        self.people[trip.person.unwrap().0].state = PersonState::OffMap;
     }
 
     pub fn abort_trip_failed_start(&mut self, id: TripID) {
-        self.trips[id.0].aborted = true;
-        if !self.trips[id.0].is_bus_trip() {
+        let trip = &mut self.trips[id.0];
+        trip.aborted = true;
+        if !trip.is_bus_trip() {
             self.unfinished_trips -= 1;
+            // TODO Urgh, hack. Initialization order is now quite complicated.
+            if let Some(p) = trip.person {
+                self.people[p.0].state = PersonState::Limbo;
+            }
         }
-        self.events
-            .push(Event::TripAborted(id, self.trips[id.0].mode));
+        self.events.push(Event::TripAborted(id, trip.mode));
     }
 
     pub fn abort_trip_impossible_parking(&mut self, car: CarID) {
-        let trip = self.active_trip_mode.remove(&AgentID::Car(car)).unwrap();
-        assert!(!self.trips[trip.0].is_bus_trip());
-        self.trips[trip.0].aborted = true;
+        let id = self.active_trip_mode.remove(&AgentID::Car(car)).unwrap();
+        let trip = &mut self.trips[id.0];
+        assert!(!trip.is_bus_trip());
+        trip.aborted = true;
         self.unfinished_trips -= 1;
-        self.events
-            .push(Event::TripAborted(trip, self.trips[trip.0].mode));
+        self.events.push(Event::TripAborted(trip.id, trip.mode));
+        self.people[trip.person.unwrap().0].state = PersonState::Limbo;
     }
 
     pub fn active_agents(&self) -> Vec<AgentID> {
@@ -503,8 +548,9 @@ impl TripManager {
         }
     }
 
-    // (finished trips, unfinished trips, active trips by the trip's current mode)
-    pub fn num_trips(&self) -> (usize, usize, BTreeMap<TripMode, usize>) {
+    // (finished trips, unfinished trips, active trips by the trip's current mode, people in
+    // buildings, people off map)
+    pub fn num_trips(&self) -> (usize, usize, BTreeMap<TripMode, usize>, usize, usize) {
         let mut cnt = Counter::new();
         for a in self.active_trip_mode.keys() {
             cnt.inc(TripMode::from_agent(*a));
@@ -513,10 +559,26 @@ impl TripManager {
             .into_iter()
             .map(|k| (k, cnt.get(k)))
             .collect();
+        let mut ppl_in_bldg = 0;
+        let mut ppl_off_map = 0;
+        for p in &self.people {
+            match p.state {
+                PersonState::Trip(_) => {}
+                PersonState::Inside(_) => {
+                    ppl_in_bldg += 1;
+                }
+                PersonState::OffMap => {
+                    ppl_off_map += 1;
+                }
+                PersonState::Limbo => {}
+            }
+        }
         (
             self.trips.len() - self.unfinished_trips,
             self.unfinished_trips,
             per_mode,
+            ppl_in_bldg,
+            ppl_off_map,
         )
     }
 
@@ -596,6 +658,8 @@ struct Trip {
     mode: TripMode,
     start: TripStart,
     end: TripEnd,
+    // None for bus trips.
+    person: Option<PersonID>,
 }
 
 impl Trip {
@@ -807,4 +871,24 @@ impl TripCount {
         }
         lines
     }
+}
+
+// TODO General weirdness right now: we operate based on trips, and the people are side-effects. So
+// one "person" might start their second trip before finishing their first.
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+pub struct Person {
+    pub id: PersonID,
+    pub trips: Vec<TripID>,
+    // TODO home
+    pub state: PersonState,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+pub enum PersonState {
+    Trip(TripID),
+    Inside(BuildingID),
+    OffMap,
+    // One of the trips was aborted. Silently eat them from the exposed counters. :\
+    Limbo,
 }

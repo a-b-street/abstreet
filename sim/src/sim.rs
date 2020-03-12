@@ -1,10 +1,10 @@
 use crate::{
     AgentID, AgentMetadata, Analytics, CarID, Command, CreateCar, DrawCarInput, DrawPedCrowdInput,
     DrawPedestrianInput, DrivingGoal, DrivingSimState, Event, GetDrawAgents, IntersectionSimState,
-    ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, Router, Scheduler, SidewalkPOI,
-    SidewalkSpot, TransitSimState, TripCount, TripEnd, TripID, TripLeg, TripManager, TripMode,
-    TripPhaseType, TripPositions, TripResult, TripSpawner, TripSpec, TripStart, UnzoomedAgent,
-    VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
+    ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, PersonID, Router, Scheduler,
+    SidewalkPOI, SidewalkSpot, TransitSimState, TripCount, TripEnd, TripID, TripLeg, TripManager,
+    TripMode, TripPhaseType, TripPositions, TripResult, TripSpawner, TripSpec, TripStart,
+    UnzoomedAgent, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
 };
 use abstutil::Timer;
 use derivative::Derivative;
@@ -170,6 +170,13 @@ impl Sim {
         self.parking.get_all_parking_spots()
     }
 
+    // TODO Should these two be in TripSpawner?
+    pub fn new_person(&mut self, p: PersonID) {
+        self.trips.new_person(p);
+    }
+    pub fn random_person(&mut self) -> PersonID {
+        self.trips.random_person()
+    }
     pub fn seed_parked_car(
         &mut self,
         vehicle: VehicleSpec,
@@ -219,6 +226,7 @@ impl Sim {
             // first round of buses.
             // Same for this TripStart, though it doesn't matter too much.
             let trip = self.trips.new_trip(
+                None,
                 self.time,
                 TripStart::Border(map.get_l(path.current_step().as_lane()).src_i),
                 vec![TripLeg::ServeBusRoute(id, route.id)],
@@ -691,7 +699,7 @@ impl Sim {
 
             let dt_real = Duration::realtime_elapsed(last_print);
             if dt_real >= Duration::seconds(1.0) {
-                let (finished, unfinished, _) = self.num_trips();
+                let (finished, unfinished, _, _, _) = self.num_trips();
                 println!(
                     "{}: {} trips finished, {} unfinished, speed = {:.2}x, {}",
                     self.time(),
@@ -843,9 +851,9 @@ impl Sim {
         self.time == Time::START_OF_DAY && self.is_done()
     }
 
-    // (number of finished trips, number of unfinished trips, number of active by mode)
-    // prettyprinted
-    pub fn num_trips(&self) -> (usize, usize, BTreeMap<TripMode, usize>) {
+    // (number of finished trips, number of unfinished trips, number of active by mode, number of
+    // people in buildings, number of people off map)
+    pub fn num_trips(&self) -> (usize, usize, BTreeMap<TripMode, usize>, usize, usize) {
         self.trips.num_trips()
     }
 
