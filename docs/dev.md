@@ -115,7 +115,6 @@ Common utilities:
 - `abstutil`: a grab-bag of IO helpers, timing and logging utilities, etc
 - `geom`: types for GPS and map-space points, lines, angles, polylines,
   polygons, circles, durations, speeds
-- `tests`: a custom test runner and some (ehem broken) tests using it
 
 ## Example guide for implementing a new feature
 
