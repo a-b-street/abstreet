@@ -315,7 +315,7 @@ impl SpawnOverTime {
     fn spawn_agent(
         &self,
         rng: &mut XorShiftRng,
-        sim: &Sim,
+        sim: &mut Sim,
         spawner: &mut TripSpawner,
         reserved_cars: &mut HashSet<CarID>,
         neighborhoods: &HashMap<String, FullNeighborhoodInfo>,
@@ -449,7 +449,7 @@ impl BorderSpawnOverTime {
         spawner: &mut TripSpawner,
         neighborhoods: &HashMap<String, FullNeighborhoodInfo>,
         map: &Map,
-        sim: &Sim,
+        sim: &mut Sim,
         timer: &mut Timer,
     ) {
         if self.num_peds == 0 {
@@ -514,7 +514,7 @@ impl BorderSpawnOverTime {
         spawner: &mut TripSpawner,
         neighborhoods: &HashMap<String, FullNeighborhoodInfo>,
         map: &Map,
-        sim: &Sim,
+        sim: &mut Sim,
         timer: &mut Timer,
     ) {
         if self.num_cars == 0 {
@@ -561,7 +561,7 @@ impl BorderSpawnOverTime {
         spawner: &mut TripSpawner,
         neighborhoods: &HashMap<String, FullNeighborhoodInfo>,
         map: &Map,
-        sim: &Sim,
+        sim: &mut Sim,
         timer: &mut Timer,
     ) {
         if self.num_bikes == 0 {

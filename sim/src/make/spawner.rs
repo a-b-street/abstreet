@@ -58,17 +58,13 @@ pub enum TripSpec {
 pub struct TripSpawner {
     parked_cars_claimed: BTreeSet<CarID>,
     trips: Vec<(Time, Option<PedestrianID>, Option<CarID>, TripSpec)>,
-    pub car_id_counter: usize,
-    pub ped_id_counter: usize,
 }
 
 impl TripSpawner {
-    pub fn new(car_id_counter: usize, ped_id_counter: usize) -> TripSpawner {
+    pub fn new() -> TripSpawner {
         TripSpawner {
             parked_cars_claimed: BTreeSet::new(),
             trips: Vec::new(),
-            car_id_counter,
-            ped_id_counter,
         }
     }
 
@@ -77,7 +73,7 @@ impl TripSpawner {
         start_time: Time,
         spec: TripSpec,
         map: &Map,
-        sim: &Sim,
+        sim: &mut Sim,
     ) -> (Option<PedestrianID>, Option<CarID>) {
         let (ped_id, car_id) = match spec {
             TripSpec::CarAppearing {
@@ -85,12 +81,10 @@ impl TripSpawner {
                 ref goal,
                 ..
             } => {
-                let car = CarID(self.car_id_counter, vehicle_spec.vehicle_type);
-                self.car_id_counter += 1;
+                let car = CarID(sim.spawner_new_car_id(), vehicle_spec.vehicle_type);
                 let ped = match goal {
                     DrivingGoal::ParkNear(_) => {
-                        let id = PedestrianID(self.ped_id_counter);
-                        self.ped_id_counter += 1;
+                        let id = PedestrianID(sim.spawner_new_ped_id());
                         Some(id)
                     }
                     _ => None,
@@ -101,15 +95,12 @@ impl TripSpawner {
             | TripSpec::MaybeUsingParkedCar { .. }
             | TripSpec::JustWalking { .. }
             | TripSpec::UsingTransit { .. } => {
-                let id = PedestrianID(self.ped_id_counter);
-                self.ped_id_counter += 1;
+                let id = PedestrianID(sim.spawner_new_ped_id());
                 (Some(id), None)
             }
             TripSpec::UsingBike { .. } => {
-                let ped = PedestrianID(self.ped_id_counter);
-                self.ped_id_counter += 1;
-                let car = CarID(self.car_id_counter, VehicleType::Bike);
-                self.car_id_counter += 1;
+                let ped = PedestrianID(sim.spawner_new_ped_id());
+                let car = CarID(sim.spawner_new_car_id(), VehicleType::Bike);
                 (Some(ped), Some(car))
             }
         };

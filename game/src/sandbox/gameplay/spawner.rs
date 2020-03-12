@@ -385,7 +385,7 @@ fn schedule_trip(
     src: &Source,
     raw_goal: Goal,
     map: &Map,
-    sim: &Sim,
+    sim: &mut Sim,
     spawner: &mut TripSpawner,
     rng: &mut XorShiftRng,
 ) -> Option<String> {

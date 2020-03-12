@@ -124,7 +124,7 @@ impl Sim {
     }
 
     pub fn make_spawner(&self) -> TripSpawner {
-        TripSpawner::new(self.car_id_counter, self.ped_id_counter)
+        TripSpawner::new()
     }
     pub fn flush_spawner(
         &mut self,
@@ -133,8 +133,6 @@ impl Sim {
         timer: &mut Timer,
         retry_if_no_room: bool,
     ) {
-        self.car_id_counter = spawner.car_id_counter;
-        self.ped_id_counter = spawner.ped_id_counter;
         spawner.finalize(
             map,
             &mut self.trips,
@@ -147,6 +145,16 @@ impl Sim {
     // TODO Friend method pattern :(
     pub(crate) fn spawner_parking(&self) -> &ParkingSimState {
         &self.parking
+    }
+    pub(crate) fn spawner_new_car_id(&mut self) -> usize {
+        let id = self.car_id_counter;
+        self.car_id_counter += 1;
+        id
+    }
+    pub(crate) fn spawner_new_ped_id(&mut self) -> usize {
+        let id = self.ped_id_counter;
+        self.ped_id_counter += 1;
+        id
     }
 
     pub fn get_free_spots(&self, l: LaneID) -> Vec<ParkingSpot> {
