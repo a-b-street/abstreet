@@ -152,6 +152,6 @@ fn dump_debug(id: ID, map: &Map, sim: &Sim, draw_map: &DrawMap) {
         ID::Area(id) => {
             println!("{}", abstutil::to_json(map.get_a(id)));
         }
-        ID::Road(_) | ID::Trip(_) => unreachable!(),
+        ID::Road(_) | ID::Trip(_) | ID::Person(_) => unreachable!(),
     }
 }

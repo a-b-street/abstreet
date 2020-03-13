@@ -1,10 +1,10 @@
 use crate::{
     AgentID, AgentMetadata, Analytics, CarID, Command, CreateCar, DrawCarInput, DrawPedCrowdInput,
     DrawPedestrianInput, DrivingGoal, DrivingSimState, Event, GetDrawAgents, IntersectionSimState,
-    ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, PersonID, Router, Scheduler,
-    SidewalkPOI, SidewalkSpot, TransitSimState, TripCount, TripEnd, TripID, TripLeg, TripManager,
-    TripMode, TripPhaseType, TripPositions, TripResult, TripSpawner, TripSpec, TripStart,
-    UnzoomedAgent, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
+    ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, PersonID, PersonState, Router,
+    Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripCount, TripEnd, TripID, TripLeg,
+    TripManager, TripMode, TripPhaseType, TripPositions, TripResult, TripSpawner, TripSpec,
+    TripStart, UnzoomedAgent, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
 };
 use abstutil::Timer;
 use derivative::Derivative;
@@ -1035,6 +1035,13 @@ impl Sim {
         }
         TripResult::ModeChange
     }
+    pub fn get_canonical_pt_per_person(&self, p: PersonID, map: &Map) -> Option<Pt2D> {
+        match self.trips.get_person(p).state {
+            PersonState::Inside(b) => Some(map.get_b(b).polygon.center()),
+            PersonState::Trip(t) => self.get_canonical_pt_per_trip(t, map).ok(),
+            PersonState::OffMap | PersonState::Limbo => None,
+        }
+    }
 
     pub fn does_agent_exist(&self, id: AgentID) -> bool {
         match id {
@@ -1101,6 +1108,10 @@ impl Sim {
 
     pub fn trip_spec_to_path_req(&self, spec: &TripSpec, map: &Map) -> PathRequest {
         spec.get_pathfinding_request(map, &self.parking)
+    }
+
+    pub fn bldg_to_people(&self, b: BuildingID) -> Vec<PersonID> {
+        self.trips.bldg_to_people(b)
     }
 }
 

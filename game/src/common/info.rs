@@ -15,8 +15,8 @@ use ezgui::{
 use geom::{Angle, Circle, Distance, Duration, Polygon, Pt2D, Statistic, Time};
 use map_model::{IntersectionID, IntersectionType};
 use sim::{
-    AgentID, Analytics, CarID, TripEnd, TripID, TripMode, TripPhaseType, TripResult, TripStart,
-    VehicleType,
+    AgentID, Analytics, CarID, PersonID, TripEnd, TripID, TripMode, TripPhaseType, TripResult,
+    TripStart, VehicleType,
 };
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
@@ -325,6 +325,15 @@ impl InfoPanel {
                             &mut app.primary,
                         ))),
                     )
+                } else if let Some(idx) = strip_prefix_usize(&action, "examine Person #") {
+                    *self = InfoPanel::new(
+                        ID::Person(PersonID(idx)),
+                        ctx,
+                        app,
+                        Vec::new(),
+                        maybe_speed,
+                    );
+                    return (false, None);
                 } else {
                     app.primary.current_selection = Some(self.id.clone());
                     (true, Some(Transition::ApplyObjectAction(action)))
@@ -619,6 +628,28 @@ fn info_for(
             if !txt.is_empty() {
                 rows.push(ManagedWidget::draw_text(ctx, txt))
             }
+
+            let people = sim.bldg_to_people(id);
+            if !people.is_empty() {
+                rows.push(ManagedWidget::draw_text(
+                    ctx,
+                    Text::from(Line(format!("{} people inside right now", people.len()))),
+                ));
+                // TODO Show buttons to examine first 3, or a ...More button
+                for p in people {
+                    rows.push(
+                        ManagedWidget::btn(Button::text_bg(
+                            Text::from(Line(format!("Person #{}", p.0))),
+                            colors::SECTION_BG,
+                            colors::HOVERING,
+                            None,
+                            &format!("examine Person #{}", p.0),
+                            ctx,
+                        ))
+                        .margin(5),
+                    );
+                }
+            }
         }
         ID::Car(id) => {
             // Header
@@ -782,6 +813,22 @@ fn info_for(
                 ]));
             }
             rows.extend(action_btns);
+        }
+        ID::Person(id) => {
+            // Header
+            {
+                rows.push(ManagedWidget::row(vec![
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line(format!("Person #{}", id.0)).roboto_bold()),
+                    ),
+                    header_btns,
+                ]));
+            }
+            rows.extend(action_btns);
+
+            // TODO Info about their schedule, current status
+            // TODO All the colorful side info
         }
     };
     rows
@@ -1209,5 +1256,15 @@ fn agent_name(a: AgentID) -> String {
             VehicleType::Bus => format!("Bus #{}", c.0),
         },
         AgentID::Pedestrian(p) => format!("Pedestrian #{}", p.0),
+    }
+}
+
+// TODO Can't easily use this in the other few cases, which use a match...
+fn strip_prefix_usize(x: &String, prefix: &str) -> Option<usize> {
+    if x.starts_with(prefix) {
+        // If it starts with the prefix, insist on there being a valid number there
+        Some(x[prefix.len()..].parse::<usize>().unwrap())
+    } else {
+        None
     }
 }

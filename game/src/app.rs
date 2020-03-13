@@ -360,7 +360,8 @@ impl App {
                 | ID::Car(_)
                 | ID::Pedestrian(_)
                 | ID::PedCrowd(_)
-                | ID::Trip(_) => panic!("{:?} shouldn't be in the quadtree", id),
+                | ID::Trip(_)
+                | ID::Person(_) => panic!("{:?} shouldn't be in the quadtree", id),
             }
         }
 

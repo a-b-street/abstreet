@@ -646,6 +646,20 @@ impl TripManager {
         }
         cnt
     }
+
+    pub fn bldg_to_people(&self, b: BuildingID) -> Vec<PersonID> {
+        let mut people = Vec::new();
+        for p in &self.people {
+            if p.state == PersonState::Inside(b) {
+                people.push(p.id);
+            }
+        }
+        people
+    }
+
+    pub fn get_person(&self, p: PersonID) -> &Person {
+        &self.people[p.0]
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]

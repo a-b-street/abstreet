@@ -203,6 +203,9 @@ impl CommonState {
             ID::Trip(t) => {
                 osd.append(Line(t.to_string()).fg(id_color));
             }
+            ID::Person(p) => {
+                osd.append(Line(p.to_string()).fg(id_color));
+            }
             ID::ExtraShape(es) => {
                 // Only selectable in dev mode anyway
                 osd.append(Line(es.to_string()).fg(id_color));

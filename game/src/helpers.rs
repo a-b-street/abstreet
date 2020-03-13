@@ -5,7 +5,7 @@ use ezgui::{Color, Line, Text, TextSpan};
 use geom::{Duration, Pt2D};
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, RoadID, TurnID};
 use serde_derive::{Deserialize, Serialize};
-use sim::{AgentID, CarID, PedestrianID, TripID};
+use sim::{AgentID, CarID, PedestrianID, PersonID, TripID};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 // Aside from Road and Trip, everything here can actually be selected.
@@ -23,6 +23,7 @@ pub enum ID {
     BusStop(BusStopID),
     Area(AreaID),
     Trip(TripID),
+    Person(PersonID),
 }
 
 impl abstutil::Cloneable for ID {}
@@ -71,6 +72,7 @@ impl ID {
                 .map(|bs| bs.sidewalk_pos.pt(&primary.map)),
             ID::Area(id) => primary.map.maybe_get_a(id).map(|a| a.polygon.center()),
             ID::Trip(id) => primary.sim.get_canonical_pt_per_trip(id, &primary.map).ok(),
+            ID::Person(id) => primary.sim.get_canonical_pt_per_person(id, &primary.map),
         }
     }
 }
