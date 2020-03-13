@@ -233,6 +233,11 @@ impl Lane {
                     "slight_left" | "slight left" | "merge_to_left" => {
                         vec![TurnType::Straight, TurnType::LaneChangeLeft, TurnType::Left]
                     }
+                    "reverse" => {
+                        // TODO We need TurnType::UTurn. Until then, u-turns usually show up as
+                        // left turns.
+                        vec![TurnType::Left]
+                    }
                     _ => panic!("What's turn restriction {}?", s),
                 })
                 .collect(),
