@@ -660,6 +660,14 @@ impl TripManager {
     pub fn get_person(&self, p: PersonID) -> &Person {
         &self.people[p.0]
     }
+
+    pub fn trip_to_person(&self, id: TripID) -> Option<PersonID> {
+        self.trips[id.0].person
+    }
+
+    pub fn trip_start_time(&self, id: TripID) -> Time {
+        self.trips[id.0].spawned_at
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]

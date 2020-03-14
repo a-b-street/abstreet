@@ -13,10 +13,10 @@ use ezgui::{
     VerticalAlignment,
 };
 use geom::{Angle, Circle, Distance, Duration, Polygon, Pt2D, Statistic, Time};
-use map_model::{IntersectionID, IntersectionType};
+use map_model::{BuildingID, IntersectionID, IntersectionType};
 use sim::{
-    AgentID, Analytics, CarID, PersonID, TripEnd, TripID, TripMode, TripPhaseType, TripResult,
-    TripStart, VehicleType,
+    AgentID, Analytics, CarID, PersonID, PersonState, TripEnd, TripID, TripMode, TripPhaseType,
+    TripResult, TripStart, VehicleType,
 };
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
@@ -307,7 +307,7 @@ impl InfoPanel {
                 } else if action == "follow agent" {
                     maybe_speed.unwrap().resume_realtime(ctx);
                     (false, None)
-                } else if action == "examine trip phase" {
+                } else if let Some(_) = strip_prefix_usize(&action, "examine trip phase ") {
                     // Don't do anything! Just using buttons for convenient tooltips.
                     (false, None)
                 } else if let Some(id) = self
@@ -328,6 +328,19 @@ impl InfoPanel {
                 } else if let Some(idx) = strip_prefix_usize(&action, "examine Person #") {
                     *self = InfoPanel::new(
                         ID::Person(PersonID(idx)),
+                        ctx,
+                        app,
+                        Vec::new(),
+                        maybe_speed,
+                    );
+                    return (false, None);
+                } else if let Some(idx) = strip_prefix_usize(&action, "examine Trip #") {
+                    *self =
+                        InfoPanel::new(ID::Trip(TripID(idx)), ctx, app, Vec::new(), maybe_speed);
+                    return (false, None);
+                } else if let Some(idx) = strip_prefix_usize(&action, "examine Building #") {
+                    *self = InfoPanel::new(
+                        ID::Building(BuildingID(idx)),
                         ctx,
                         app,
                         Vec::new(),
@@ -827,7 +840,75 @@ fn info_for(
             }
             rows.extend(action_btns);
 
-            // TODO Info about their schedule, current status
+            let person = app.primary.sim.get_person(id);
+
+            // TODO Point out where the person is now, relative to schedule...
+            rows.push(match person.state {
+                PersonState::Inside(b) => ManagedWidget::btn(Button::text_bg(
+                    Text::from(Line(format!(
+                        "Currently inside {}",
+                        map.get_b(b).just_address(map)
+                    ))),
+                    colors::SECTION_BG,
+                    colors::HOVERING,
+                    None,
+                    // TODO not the best tooltip, but easy to parse :(
+                    &format!("examine Building #{}", b.0),
+                    ctx,
+                )),
+                PersonState::Trip(t) => ManagedWidget::draw_text(
+                    ctx,
+                    Text::from(Line(format!("Currently doing Trip #{}", t.0))),
+                ),
+                PersonState::OffMap => ManagedWidget::draw_text(
+                    ctx,
+                    Text::from(Line("Currently outside the map boundaries")),
+                ),
+                PersonState::Limbo => ManagedWidget::draw_text(
+                    ctx,
+                    Text::from(Line(
+                        "Currently in limbo -- they broke out of the Matrix! Woops. (A bug \
+                         occurred)",
+                    )),
+                ),
+            });
+
+            rows.push(ManagedWidget::draw_text(
+                ctx,
+                Text::from(Line("Schedule").roboto_bold()),
+            ));
+            for t in &person.trips {
+                // TODO Still maybe unsafe? Check if trip has actually started or not
+                // TODO Say where the trip goes, no matter what?
+                let start_time = app.primary.sim.trip_start_time(*t);
+                if app.primary.sim.time() < start_time {
+                    rows.push(ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line(format!(
+                            "{}: Trip #{} will start",
+                            start_time.ampm_tostring(),
+                            t.0
+                        ))),
+                    ));
+                } else {
+                    rows.push(ManagedWidget::row(vec![
+                        ManagedWidget::draw_text(
+                            ctx,
+                            Text::from(Line(format!("{}: ", start_time.ampm_tostring(),))),
+                        ),
+                        ManagedWidget::btn(Button::text_bg(
+                            Text::from(Line(format!("Trip #{}", t.0))),
+                            colors::SECTION_BG,
+                            colors::HOVERING,
+                            None,
+                            &format!("examine Trip #{}", t.0),
+                            ctx,
+                        ))
+                        .margin(5),
+                    ]));
+                }
+            }
+
             // TODO All the colorful side info
         }
     };
@@ -1170,8 +1251,15 @@ fn trip_details(
 
         timeline.push(
             ManagedWidget::btn(
-                Button::new(ctx, normal, hovered, None, "examine trip phase", rect)
-                    .change_tooltip(txt),
+                Button::new(
+                    ctx,
+                    normal,
+                    hovered,
+                    None,
+                    &format!("examine trip phase {}", idx + 1),
+                    rect,
+                )
+                .change_tooltip(txt),
             )
             .centered_vert(),
         );
@@ -1207,6 +1295,19 @@ fn trip_details(
         .evenly_spaced()
         .margin_above(25)];
     col.extend(make_table(ctx, table));
+    if let Some(p) = app.primary.sim.trip_to_person(trip) {
+        col.push(
+            ManagedWidget::btn(Button::text_bg(
+                Text::from(Line(format!("Trip by Person #{}", p.0))),
+                colors::SECTION_BG,
+                colors::HOVERING,
+                None,
+                &format!("examine Person #{}", p.0),
+                ctx,
+            ))
+            .margin(5),
+        );
+    }
 
     (
         ManagedWidget::col(col),

@@ -1,7 +1,7 @@
 use crate::{
     AgentID, AgentMetadata, Analytics, CarID, Command, CreateCar, DrawCarInput, DrawPedCrowdInput,
     DrawPedestrianInput, DrivingGoal, DrivingSimState, Event, GetDrawAgents, IntersectionSimState,
-    ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, PersonID, PersonState, Router,
+    ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, Person, PersonID, PersonState, Router,
     Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripCount, TripEnd, TripID, TripLeg,
     TripManager, TripMode, TripPhaseType, TripPositions, TripResult, TripSpawner, TripSpec,
     TripStart, UnzoomedAgent, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
@@ -964,6 +964,18 @@ impl Sim {
 
     pub fn trip_endpoints(&self, id: TripID) -> (TripStart, TripEnd) {
         self.trips.trip_endpoints(id)
+    }
+
+    pub fn trip_to_person(&self, id: TripID) -> Option<PersonID> {
+        self.trips.trip_to_person(id)
+    }
+
+    pub fn get_person(&self, id: PersonID) -> &Person {
+        self.trips.get_person(id)
+    }
+
+    pub fn trip_start_time(&self, id: TripID) -> Time {
+        self.trips.trip_start_time(id)
     }
 
     pub fn lookup_car_id(&self, idx: usize) -> Option<CarID> {
