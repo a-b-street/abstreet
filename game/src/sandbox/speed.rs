@@ -357,19 +357,19 @@ impl JumpToTime {
             composite: Composite::new(
                 ManagedWidget::col(vec![
                     WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
-                    ManagedWidget::draw_text(ctx, {
+                    {
                         let mut txt = Text::from(Line("Jump to what time?").roboto_bold());
                         txt.add(Line(target.ampm_tostring()));
-                        txt
-                    })
+                        txt.draw(ctx)
+                    }
                     .named("target time"),
                     ManagedWidget::slider("time slider").margin(10),
                     ManagedWidget::row(vec![
-                        ManagedWidget::draw_text(ctx, Text::from(Line("00:00").size(12).roboto())),
+                        Line("00:00").size(12).roboto().draw(ctx),
                         ManagedWidget::draw_svg(ctx, "../data/system/assets/speed/sunrise.svg"),
-                        ManagedWidget::draw_text(ctx, Text::from(Line("12:00").size(12).roboto())),
+                        Line("12:00").size(12).roboto().draw(ctx),
                         ManagedWidget::draw_svg(ctx, "../data/system/assets/speed/sunset.svg"),
-                        ManagedWidget::draw_text(ctx, Text::from(Line("24:00").size(12).roboto())),
+                        Line("24:00").size(12).roboto().draw(ctx),
                     ])
                     .padding(10)
                     .evenly_spaced(),
@@ -378,7 +378,7 @@ impl JumpToTime {
                         .margin(10),
                     WrappedComposite::text_bg_button(ctx, "Go!", hotkey(Key::Enter))
                         .centered_horiz(),
-                    ManagedWidget::draw_text(ctx, Text::from(Line("Active agents").roboto_bold())),
+                    Line("Active agents").roboto_bold().draw(ctx),
                     // TODO Sync the slider / plot.
                     Plot::new_usize(
                         ctx,
@@ -453,15 +453,15 @@ impl State for JumpToTime {
             self.composite.replace(
                 ctx,
                 "target time",
-                ManagedWidget::draw_text(ctx, {
+                {
                     let mut txt = Text::from(Line("Jump to what time?").roboto_bold());
                     txt.add(Line(target.ampm_tostring()));
                     // TODO The panel jumps too much and the slider position changes place.
                     /*if target < app.primary.sim.time() {
                         txt.add(Line("(Going back in time will reset to midnight, then simulate forwards)"));
                     }*/
-                    txt
-                })
+                    txt.draw(ctx)
+                }
                 .named("target time"),
             );
         }
@@ -500,7 +500,7 @@ impl TimeWarpScreen {
             traffic_jams,
             composite: Composite::new(
                 ManagedWidget::col(vec![
-                    ManagedWidget::draw_text(ctx, Text::new()).named("text"),
+                    Text::new().draw(ctx).named("text"),
                     WrappedComposite::text_bg_button(ctx, "stop now", hotkey(Key::Escape))
                         .centered_horiz(),
                 ])
@@ -548,11 +548,8 @@ impl State for TimeWarpScreen {
                 Duration::realtime_elapsed(self.started)
             )));
 
-            self.composite.replace(
-                ctx,
-                "text",
-                ManagedWidget::draw_text(ctx, txt).named("text"),
-            );
+            self.composite
+                .replace(ctx, "text", txt.draw(ctx).named("text"));
         }
         if app.primary.sim.time() == self.target {
             return Transition::Pop;
@@ -597,12 +594,10 @@ impl TimePanel {
             time: app.primary.sim.time(),
             composite: Composite::new(
                 ManagedWidget::col(vec![
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line(app.primary.sim.time().ampm_tostring()).size(30)),
-                    )
-                    .margin(10)
-                    .centered_horiz(),
+                    Text::from(Line(app.primary.sim.time().ampm_tostring()).size(30))
+                        .draw(ctx)
+                        .margin(10)
+                        .centered_horiz(),
                     {
                         let mut batch = GeomBatch::new();
                         // This is manually tuned
@@ -622,11 +617,11 @@ impl TimePanel {
                         ManagedWidget::draw_batch(ctx, batch)
                     },
                     ManagedWidget::row(vec![
-                        ManagedWidget::draw_text(ctx, Text::from(Line("00:00").size(12).roboto())),
+                        Line("00:00").size(12).roboto().draw(ctx),
                         ManagedWidget::draw_svg(ctx, "../data/system/assets/speed/sunrise.svg"),
-                        ManagedWidget::draw_text(ctx, Text::from(Line("12:00").size(12).roboto())),
+                        Line("12:00").size(12).roboto().draw(ctx),
                         ManagedWidget::draw_svg(ctx, "../data/system/assets/speed/sunset.svg"),
-                        ManagedWidget::draw_text(ctx, Text::from(Line("24:00").size(12).roboto())),
+                        Line("24:00").size(12).roboto().draw(ctx),
                     ])
                     .padding(10)
                     .evenly_spaced(),

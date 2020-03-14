@@ -9,7 +9,7 @@ use crate::sandbox::{SandboxMode, SpeedControls};
 use abstutil::prettyprint_usize;
 use ezgui::{
     hotkey, Button, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, ManagedWidget, Outcome, Plot, PlotOptions, RewriteColor, Series, Text,
+    Key, Line, ManagedWidget, Outcome, Plot, PlotOptions, RewriteColor, Series, Text, TextExt,
     VerticalAlignment,
 };
 use geom::{Angle, Circle, Distance, Duration, Polygon, Pt2D, Statistic, Time};
@@ -400,16 +400,10 @@ fn info_for(
             {
                 let label = if l.is_sidewalk() { "Sidewalk" } else { "Lane" };
                 rows.push(ManagedWidget::row(vec![
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line(format!("{} #{}", label, id.0)).roboto_bold()),
-                    ),
+                    Line(format!("{} #{}", label, id.0)).roboto_bold().draw(ctx),
                     header_btns,
                 ]));
-                rows.push(ManagedWidget::draw_text(
-                    ctx,
-                    Text::from(Line(format!("@ {}", r.get_name()))),
-                ));
+                rows.push(format!("@ {}", r.get_name()).draw_text(ctx));
             }
             rows.extend(action_btns);
 
@@ -477,7 +471,7 @@ fn info_for(
                     prettyprint_usize(sim.get_analytics().thruput_stats.count_per_road.get(r.id))
                 )));
                 txt.add(Line(format!("In 20 minute buckets:")));
-                rows.push(ManagedWidget::draw_text(ctx, txt));
+                rows.push(txt.draw(ctx));
 
                 let r = app.primary.map.get_l(id).parent;
                 rows.push(
@@ -504,7 +498,7 @@ fn info_for(
                     }
                 };
                 rows.push(ManagedWidget::row(vec![
-                    ManagedWidget::draw_text(ctx, Text::from(Line(label).roboto_bold())),
+                    Line(label).roboto_bold().draw(ctx),
                     header_btns,
                 ]));
             }
@@ -540,7 +534,7 @@ fn info_for(
                 )
             )));
             txt.add(Line(format!("In 20 minute buckets:")));
-            rows.push(ManagedWidget::draw_text(ctx, txt));
+            rows.push(txt.draw(ctx));
 
             rows.push(
                 throughput(ctx, app, move |a, t| {
@@ -553,7 +547,7 @@ fn info_for(
                 let mut txt = Text::from(Line(""));
                 txt.add(Line("Delay").roboto_bold());
                 txt.add(Line(format!("In 20 minute buckets:")));
-                rows.push(ManagedWidget::draw_text(ctx, txt));
+                rows.push(txt.draw(ctx));
 
                 rows.push(intersection_delay(ctx, app, id, Duration::minutes(20)).margin(10));
             }
@@ -565,10 +559,7 @@ fn info_for(
             // Header
             {
                 rows.push(ManagedWidget::row(vec![
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line(format!("Building #{}", id.0)).roboto_bold()),
-                    ),
+                    Line(format!("Building #{}", id.0)).roboto_bold().draw(ctx),
                     header_btns,
                 ]));
             }
@@ -639,15 +630,12 @@ fn info_for(
             }
 
             if !txt.is_empty() {
-                rows.push(ManagedWidget::draw_text(ctx, txt))
+                rows.push(txt.draw(ctx))
             }
 
             let people = sim.bldg_to_people(id);
             if !people.is_empty() {
-                rows.push(ManagedWidget::draw_text(
-                    ctx,
-                    Text::from(Line(format!("{} people inside right now", people.len()))),
-                ));
+                rows.push(format!("{} people inside right now", people.len()).draw_text(ctx));
                 // TODO Show buttons to examine first 3, or a ...More button
                 for p in people {
                     rows.push(
@@ -673,10 +661,7 @@ fn info_for(
                     VehicleType::Bus => "Bus",
                 };
                 rows.push(ManagedWidget::row(vec![
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line(format!("{} #{}", label, id.0)).roboto_bold()),
-                    ),
+                    Line(format!("{} #{}", label, id.0)).roboto_bold().draw(ctx),
                     header_btns,
                 ]));
             }
@@ -689,17 +674,16 @@ fn info_for(
                 for line in extra {
                     txt.add(Line(line));
                 }
-                rows.push(ManagedWidget::draw_text(ctx, txt));
+                rows.push(txt.draw(ctx));
             }
         }
         ID::Pedestrian(id) => {
             // Header
             {
                 rows.push(ManagedWidget::row(vec![
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line(format!("Pedestrian #{}", id.0)).roboto_bold()),
-                    ),
+                    Line(format!("Pedestrian #{}", id.0))
+                        .roboto_bold()
+                        .draw(ctx),
                     header_btns,
                 ]));
             }
@@ -712,17 +696,14 @@ fn info_for(
                 for line in extra {
                     txt.add(Line(line));
                 }
-                rows.push(ManagedWidget::draw_text(ctx, txt));
+                rows.push(txt.draw(ctx));
             }
         }
         ID::PedCrowd(members) => {
             // Header
             {
                 rows.push(ManagedWidget::row(vec![
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line("Pedestrian crowd").roboto_bold()),
-                    ),
+                    Line("Pedestrian crowd").roboto_bold().draw(ctx),
                     header_btns,
                 ]));
             }
@@ -730,13 +711,13 @@ fn info_for(
 
             let mut txt = Text::new();
             txt.add(Line(format!("Crowd of {}", members.len())));
-            rows.push(ManagedWidget::draw_text(ctx, txt))
+            rows.push(txt.draw(ctx))
         }
         ID::BusStop(id) => {
             // Header
             {
                 rows.push(ManagedWidget::row(vec![
-                    ManagedWidget::draw_text(ctx, Text::from(Line("Bus stop").roboto_bold())),
+                    Line("Bus stop").roboto_bold().draw(ctx),
                     header_btns,
                 ]));
             }
@@ -770,16 +751,13 @@ fn info_for(
                     txt.add(Line(format!("  Waiting: {}", hgram.describe())));
                 }
             }
-            rows.push(ManagedWidget::draw_text(ctx, txt))
+            rows.push(txt.draw(ctx))
         }
         ID::Area(id) => {
             // Header
             {
                 rows.push(ManagedWidget::row(vec![
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line(format!("Area #{}", id.0)).roboto_bold()),
-                    ),
+                    Line(format!("Area #{}", id.0)).roboto_bold().draw(ctx),
                     header_btns,
                 ]));
             }
@@ -796,10 +774,9 @@ fn info_for(
             // Header
             {
                 rows.push(ManagedWidget::row(vec![
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line(format!("Extra GIS shape #{}", id.0)).roboto_bold()),
-                    ),
+                    Line(format!("Extra GIS shape #{}", id.0))
+                        .roboto_bold()
+                        .draw(ctx),
                     header_btns,
                 ]));
             }
@@ -817,10 +794,7 @@ fn info_for(
             // Header
             {
                 rows.push(ManagedWidget::row(vec![
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line(format!("Trip #{}", id.0)).roboto_bold()),
-                    ),
+                    Line(format!("Trip #{}", id.0)).roboto_bold().draw(ctx),
                     // No jump-to-object button; this is probably a finished trip.
                     WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
                 ]));
@@ -831,10 +805,7 @@ fn info_for(
             // Header
             {
                 rows.push(ManagedWidget::row(vec![
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line(format!("Person #{}", id.0)).roboto_bold()),
-                    ),
+                    Line(format!("Person #{}", id.0)).roboto_bold().draw(ctx),
                     header_btns,
                 ]));
             }
@@ -856,46 +827,26 @@ fn info_for(
                     &format!("examine Building #{}", b.0),
                     ctx,
                 )),
-                PersonState::Trip(t) => ManagedWidget::draw_text(
-                    ctx,
-                    Text::from(Line(format!("Currently doing Trip #{}", t.0))),
-                ),
-                PersonState::OffMap => ManagedWidget::draw_text(
-                    ctx,
-                    Text::from(Line("Currently outside the map boundaries")),
-                ),
-                PersonState::Limbo => ManagedWidget::draw_text(
-                    ctx,
-                    Text::from(Line(
-                        "Currently in limbo -- they broke out of the Matrix! Woops. (A bug \
-                         occurred)",
-                    )),
-                ),
+                PersonState::Trip(t) => format!("Currently doing Trip #{}", t.0).draw_text(ctx),
+                PersonState::OffMap => "Currently outside the map boundaries".draw_text(ctx),
+                PersonState::Limbo => "Currently in limbo -- they broke out of the Matrix! Woops. \
+                                       (A bug occurred)"
+                    .draw_text(ctx),
             });
 
-            rows.push(ManagedWidget::draw_text(
-                ctx,
-                Text::from(Line("Schedule").roboto_bold()),
-            ));
+            rows.push(Line("Schedule").roboto_bold().draw(ctx));
             for t in &person.trips {
                 // TODO Still maybe unsafe? Check if trip has actually started or not
                 // TODO Say where the trip goes, no matter what?
                 let start_time = app.primary.sim.trip_start_time(*t);
                 if app.primary.sim.time() < start_time {
-                    rows.push(ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line(format!(
-                            "{}: Trip #{} will start",
-                            start_time.ampm_tostring(),
-                            t.0
-                        ))),
-                    ));
+                    rows.push(
+                        format!("{}: Trip #{} will start", start_time.ampm_tostring(), t.0)
+                            .draw_text(ctx),
+                    );
                 } else {
                     rows.push(ManagedWidget::row(vec![
-                        ManagedWidget::draw_text(
-                            ctx,
-                            Text::from(Line(format!("{}: ", start_time.ampm_tostring(),))),
-                        ),
+                        format!("{}: ", start_time.ampm_tostring()).draw_text(ctx),
                         ManagedWidget::btn(Button::text_bg(
                             Text::from(Line(format!("Trip #{}", t.0))),
                             colors::SECTION_BG,
@@ -919,11 +870,9 @@ fn make_table(ctx: &EventCtx, rows: Vec<(String, String)>) -> Vec<ManagedWidget>
     rows.into_iter()
         .map(|(k, v)| {
             ManagedWidget::row(vec![
-                ManagedWidget::draw_text(ctx, Text::from(Line(k).roboto_bold())),
+                Line(k).roboto_bold().draw(ctx),
                 // TODO not quite...
-                ManagedWidget::draw_text(ctx, Text::from(Line(v)))
-                    .centered_vert()
-                    .align_right(),
+                v.draw_text(ctx).centered_vert().align_right(),
             ])
         })
         .collect()
@@ -936,8 +885,8 @@ fn make_table(ctx: &EventCtx, rows: Vec<(String, String)>) -> Vec<ManagedWidget>
         values.add(Line(v));
     }
     vec![ManagedWidget::row(vec![
-        ManagedWidget::draw_text(ctx, keys),
-        ManagedWidget::draw_text(ctx, values).centered_vert().bg(Color::GREEN),
+        keys.draw(ctx),
+        values.draw(ctx).centered_vert().bg(Color::GREEN),
     ])]*/
 }
 

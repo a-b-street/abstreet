@@ -29,7 +29,7 @@ pub use crate::input::UserInput;
 pub use crate::managed::{Composite, ManagedWidget, Outcome};
 pub use crate::runner::{run, EventLoopMode, Settings, GUI};
 pub use crate::screen_geom::{ScreenDims, ScreenPt, ScreenRectangle};
-pub use crate::text::{Line, Text, TextSpan, HOTKEY_COLOR};
+pub use crate::text::{Line, Text, TextExt, TextSpan, HOTKEY_COLOR};
 pub use crate::widgets::{
     Autocomplete, Button, Choice, Filler, Histogram, ItemSlider, JustDraw, ModalMenu, Plot,
     PlotOptions, Series, Slider, Warper, WarpingItemSlider, Wizard, WrappedWizard,

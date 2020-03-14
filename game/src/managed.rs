@@ -115,16 +115,16 @@ impl WrappedComposite {
         Composite::new(
             ManagedWidget::col(vec![
                 ManagedWidget::row(vec![
-                    ManagedWidget::draw_text(ctx, Text::from(Line(title.into()).roboto_bold())),
+                    Line(title.into()).roboto_bold().draw(ctx),
                     WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
                 ]),
-                ManagedWidget::draw_text(ctx, {
+                {
                     let mut txt = Text::new();
                     for l in info {
                         txt.add(Line(l));
                     }
-                    txt
-                }),
+                    txt.draw(ctx)
+                },
                 ManagedWidget::row(
                     actions
                         .into_iter()

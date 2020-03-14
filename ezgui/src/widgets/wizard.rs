@@ -86,7 +86,7 @@ impl Wizard {
                 Composite::new(
                     ManagedWidget::col(vec![
                         ManagedWidget::row(vec![
-                            ManagedWidget::draw_text(ctx, Text::from(Line(query).roboto_bold())),
+                            Line(query).roboto_bold().draw(ctx),
                             // TODO nice text button
                             ManagedWidget::btn(Button::text_bg(
                                 Text::from(Line("X").fg(Color::BLACK)),
@@ -265,10 +265,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             }
             let mut col = Vec::new();
             if let Some(l) = query {
-                col.push(ManagedWidget::draw_text(
-                    self.ctx,
-                    Text::from(Line(l).roboto_bold()),
-                ));
+                col.push(Line(l).roboto_bold().draw(self.ctx));
             }
             col.push(ManagedWidget::menu("menu"));
             self.wizard.menu_comp = Some(
@@ -410,7 +407,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         self.wizard.ack = Some(
             Composite::new(
                 ManagedWidget::col(vec![
-                    ManagedWidget::draw_text(self.ctx, txt),
+                    txt.draw(self.ctx),
                     ManagedWidget::btn(Button::text_bg(
                         Text::from(Line("OK")),
                         Color::grey(0.6),

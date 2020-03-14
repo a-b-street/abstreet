@@ -18,7 +18,8 @@ use crate::render::AgentColorScheme;
 pub use crate::sandbox::gameplay::{TutorialPointer, TutorialState};
 use ezgui::{
     hotkey, lctrl, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Text, VerticalAlignment, Wizard,
+    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Text, TextExt, VerticalAlignment,
+    Wizard,
 };
 pub use gameplay::spawner::spawn_agents_around;
 pub use gameplay::GameplayMode;
@@ -360,39 +361,24 @@ impl AgentMeter {
         let (finished, unfinished, by_mode, ppl_in_bldg, ppl_off_map) = app.primary.sim.num_trips();
 
         let mut rows = vec![
-            ManagedWidget::draw_text(ctx, Text::from(Line("Active agents"))),
+            "Active agents".draw_text(ctx),
             ManagedWidget::row(vec![
                 ManagedWidget::draw_svg(ctx, "../data/system/assets/meters/pedestrian.svg"),
-                ManagedWidget::draw_text(
-                    ctx,
-                    Text::from(Line(prettyprint_usize(by_mode[&TripMode::Walk]))),
-                ),
+                prettyprint_usize(by_mode[&TripMode::Walk]).draw_text(ctx),
                 ManagedWidget::draw_svg(ctx, "../data/system/assets/meters/bike.svg"),
-                ManagedWidget::draw_text(
-                    ctx,
-                    Text::from(Line(prettyprint_usize(by_mode[&TripMode::Bike]))),
-                ),
+                prettyprint_usize(by_mode[&TripMode::Bike]).draw_text(ctx),
                 ManagedWidget::draw_svg(ctx, "../data/system/assets/meters/car.svg"),
-                ManagedWidget::draw_text(
-                    ctx,
-                    Text::from(Line(prettyprint_usize(by_mode[&TripMode::Drive]))),
-                ),
+                prettyprint_usize(by_mode[&TripMode::Drive]).draw_text(ctx),
                 ManagedWidget::draw_svg(ctx, "../data/system/assets/meters/bus.svg"),
-                ManagedWidget::draw_text(
-                    ctx,
-                    Text::from(Line(prettyprint_usize(by_mode[&TripMode::Transit]))),
-                ),
+                prettyprint_usize(by_mode[&TripMode::Transit]).draw_text(ctx),
             ])
             .centered(),
             // TODO Not sure about this one yet
             if app.opts.dev {
                 ManagedWidget::row(vec![
                     ManagedWidget::draw_svg(ctx, "../data/system/assets/tools/home.svg"),
-                    ManagedWidget::draw_text(ctx, Text::from(Line(prettyprint_usize(ppl_in_bldg)))),
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line(format!("Off-map: {}", prettyprint_usize(ppl_off_map)))),
-                    ),
+                    prettyprint_usize(ppl_in_bldg).draw_text(ctx),
+                    format!("Off-map: {}", prettyprint_usize(ppl_off_map)).draw_text(ctx),
                 ])
                 .centered()
             } else {
@@ -420,7 +406,7 @@ impl AgentMeter {
                     prettyprint_usize(finished),
                     pct as usize
                 )));
-                ManagedWidget::draw_text(ctx, txt)
+                txt.draw(ctx)
             },
             {
                 ManagedWidget::row(vec![
@@ -473,7 +459,7 @@ impl AgentMeter {
                     txt.append(Line("same as baseline"));
                 }
                 txt.add(Line(format!("Goal: {} faster", goal)).size(20));
-                rows.push(ManagedWidget::draw_text(ctx, txt));
+                rows.push(txt.draw(ctx));
             }
         }
 

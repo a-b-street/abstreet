@@ -13,7 +13,7 @@ use crate::sandbox::{
 use abstutil::Timer;
 use ezgui::{
     hotkey, hotkeys, lctrl, Button, Color, Composite, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, RewriteColor, ScreenPt, Text,
+    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, RewriteColor, ScreenPt, Text, TextExt,
     VerticalAlignment,
 };
 use geom::{Distance, Duration, PolyLine, Polygon, Pt2D, Statistic, Time};
@@ -888,19 +888,15 @@ impl TutorialState {
 
     fn make_top_center(&self, ctx: &mut EventCtx, edit_map: bool) -> Composite {
         let mut col = vec![ManagedWidget::row(vec![
-            ManagedWidget::draw_text(ctx, Text::from(Line("Tutorial").size(26))).margin(5),
+            Line("Tutorial").size(26).draw(ctx).margin(5),
             ManagedWidget::draw_batch(
                 ctx,
                 GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
             )
             .margin(5),
-            ManagedWidget::draw_text(
-                ctx,
-                Text::from(
-                    Line(format!("{}/{}", self.current.stage + 1, self.stages.len())).size(20),
-                ),
-            )
-            .margin(5),
+            Text::from(Line(format!("{}/{}", self.current.stage + 1, self.stages.len())).size(20))
+                .draw(ctx)
+                .margin(5),
             if self.current.stage == 0 {
                 Button::inactive_button(ctx, "<")
             } else {
@@ -930,17 +926,15 @@ impl TutorialState {
             let task = self.interaction();
             if task != Task::Nil {
                 col.push(ManagedWidget::row(vec![
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(
-                            Line(format!(
-                                "Task {}: {}",
-                                self.current.stage + 1,
-                                self.stage().task.label()
-                            ))
-                            .roboto_bold(),
-                        ),
-                    ),
+                    Text::from(
+                        Line(format!(
+                            "Task {}: {}",
+                            self.current.stage + 1,
+                            self.stage().task.label()
+                        ))
+                        .roboto_bold(),
+                    )
+                    .draw(ctx),
                     WrappedComposite::svg_button(
                         ctx,
                         "../data/system/assets/tools/info.svg",
@@ -950,7 +944,7 @@ impl TutorialState {
                     .centered_vert()
                     .align_right(),
                 ]));
-                col.push(ManagedWidget::draw_text(ctx, task.top_txt(ctx, self)).margin(5));
+                col.push(task.top_txt(ctx, self).draw(ctx).margin(5));
             }
         }
         if edit_map {
@@ -999,7 +993,7 @@ impl TutorialState {
 
             msg_panel: if let Some((ref lines, _)) = self.lines() {
                 let mut col = vec![
-                    ManagedWidget::draw_text(ctx, {
+                    {
                         let mut txt = Text::new();
                         txt.add(Line(self.stage().task.label()).roboto_bold());
                         txt.add(Line(""));
@@ -1007,8 +1001,8 @@ impl TutorialState {
                         for l in lines {
                             txt.add(Line(*l));
                         }
-                        txt
-                    }),
+                        txt.draw(ctx)
+                    },
                     ManagedWidget::row(vec![
                         if self.current.part > 0 {
                             WrappedComposite::svg_button(
@@ -1025,16 +1019,10 @@ impl TutorialState {
                                 RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
                             )
                         },
-                        ManagedWidget::draw_text(
-                            ctx,
-                            Text::from(Line(format!(
-                                "{}/{}",
-                                self.current.part + 1,
-                                self.stage().messages.len()
-                            ))),
-                        )
-                        .centered_vert()
-                        .margin(5),
+                        format!("{}/{}", self.current.part + 1, self.stage().messages.len())
+                            .draw_text(ctx)
+                            .centered_vert()
+                            .margin(5),
                         if self.current.part == self.stage().messages.len() - 1 {
                             ManagedWidget::draw_svg_transform(
                                 ctx,

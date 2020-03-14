@@ -10,7 +10,7 @@
 use ezgui::{
     hotkey, lctrl, Button, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Plot, PlotOptions, Series, Text,
-    VerticalAlignment, GUI,
+    TextExt, VerticalAlignment, GUI,
 };
 use geom::{Angle, Duration, Polygon, Pt2D, Time};
 
@@ -42,36 +42,18 @@ impl App {
 
     fn make_timeseries_panel(&self, ctx: &mut EventCtx) -> Composite {
         // Make a table with 3 columns.
-        let mut col1 = vec![ManagedWidget::draw_text(
-            ctx,
-            Text::from(Line("Time").roboto_bold()),
-        )];
-        let mut col2 = vec![ManagedWidget::draw_text(
-            ctx,
-            Text::from(Line("Linear").roboto_bold()),
-        )];
-        let mut col3 = vec![ManagedWidget::draw_text(
-            ctx,
-            Text::from(Line("Quadratic").roboto_bold()),
-        )];
+        let mut col1 = vec![Line("Time").roboto_bold().draw(ctx)];
+        let mut col2 = vec![Line("Linear").roboto_bold().draw(ctx)];
+        let mut col3 = vec![Line("Quadratic").roboto_bold().draw(ctx)];
         for s in 0..(self.elapsed.inner_seconds() as usize) {
-            col1.push(ManagedWidget::draw_text(
-                ctx,
-                Text::from(Line(Duration::seconds(s as f64).to_string())),
-            ));
-            col2.push(ManagedWidget::draw_text(
-                ctx,
-                Text::from(Line(s.to_string())),
-            ));
-            col3.push(ManagedWidget::draw_text(
-                ctx,
-                Text::from(Line(s.pow(2).to_string())),
-            ));
+            col1.push(Duration::seconds(s as f64).to_string().draw_text(ctx));
+            col2.push(s.to_string().draw_text(ctx));
+            col3.push(s.pow(2).to_string().draw_text(ctx));
         }
 
         let mut c = Composite::new(
             ManagedWidget::col(vec![
-                ManagedWidget::row(vec![ManagedWidget::draw_text(ctx, {
+                ManagedWidget::row(vec![{
                     let mut txt = Text::from(
                         Line("Here's a bunch of text to force some scrolling.").roboto_bold(),
                     );
@@ -82,8 +64,8 @@ impl App {
                         )
                         .fg(Color::RED),
                     );
-                    txt
-                })]),
+                    txt.draw(ctx)
+                }]),
                 ManagedWidget::row(vec![
                     // Examples of styling widgets
                     ManagedWidget::col(col1)
@@ -159,11 +141,9 @@ impl GUI for App {
                     self.controls.replace(
                         ctx,
                         "stopwatch",
-                        ManagedWidget::draw_text(
-                            ctx,
-                            Text::from(Line(format!("Stopwatch: {}", self.elapsed))),
-                        )
-                        .named("stopwatch"),
+                        format!("Stopwatch: {}", self.elapsed)
+                            .draw_text(ctx)
+                            .named("stopwatch"),
                     );
                 }
                 _ => unreachable!(),
@@ -181,11 +161,9 @@ impl GUI for App {
             self.controls.replace(
                 ctx,
                 "stopwatch",
-                ManagedWidget::draw_text(
-                    ctx,
-                    Text::from(Line(format!("Stopwatch: {}", self.elapsed))),
-                )
-                .named("stopwatch"),
+                format!("Stopwatch: {}", self.elapsed)
+                    .draw_text(ctx)
+                    .named("stopwatch"),
             );
         }
 
@@ -273,13 +251,13 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
 fn make_controls(ctx: &mut EventCtx) -> Composite {
     Composite::new(
         ManagedWidget::col(vec![
-            ManagedWidget::draw_text(ctx, {
+            {
                 let mut txt = Text::from(Line("ezgui demo").roboto_bold());
                 txt.add(Line(
                     "Click and drag to pan, use touchpad or scroll wheel to zoom",
                 ));
-                txt
-            }),
+                txt.draw(ctx)
+            },
             ManagedWidget::row(vec![
                 // This just cycles between two arbitrary buttons
                 ManagedWidget::custom_checkbox(
@@ -320,7 +298,7 @@ fn make_controls(ctx: &mut EventCtx) -> Composite {
                 ManagedWidget::checkbox(ctx, "Show timeseries", lctrl(Key::T), false).margin(5),
             ])
             .evenly_spaced(),
-            ManagedWidget::draw_text(ctx, Text::from(Line("Stopwatch: ..."))).named("stopwatch"),
+            "Stopwatch: ...".draw_text(ctx).named("stopwatch"),
         ])
         .bg(Color::grey(0.4)),
     )

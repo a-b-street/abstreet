@@ -150,7 +150,7 @@ impl Tab {
         master_col.push({
             let mut txt = Text::from(Line("A/B STREET").size(100));
             txt.add(Line("CHALLENGES").size(50));
-            ManagedWidget::draw_text(ctx, txt).centered_horiz()
+            txt.draw(ctx).centered_horiz()
         });
 
         // First list challenges
@@ -233,7 +233,7 @@ impl Tab {
             }
             main_row.push(
                 ManagedWidget::col(vec![
-                    ManagedWidget::draw_text(ctx, txt),
+                    txt.draw(ctx),
                     WrappedComposite::text_button(ctx, "Start!", hotkey(Key::Enter)).margin(10),
                 ])
                 .bg(colors::PANEL_BG)

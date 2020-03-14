@@ -6,7 +6,7 @@ use crate::managed::WrappedComposite;
 use abstutil::prettyprint_usize;
 use ezgui::{
     hotkey, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget,
-    Outcome, Slider, Text, VerticalAlignment,
+    Outcome, Slider, TextExt, VerticalAlignment,
 };
 use geom::{Circle, Distance, Duration, PolyLine, Time};
 use map_model::NORMAL_LANE_THICKNESS;
@@ -71,14 +71,10 @@ impl TripsVisualizer {
             composite: Composite::new(
                 ManagedWidget::col(vec![
                     ManagedWidget::row(vec![
-                        ManagedWidget::draw_text(
-                            ctx,
-                            Text::from(Line("Trips Visualizer").roboto_bold()),
-                        ),
+                        Line("Trips Visualizer").roboto_bold().draw(ctx),
                         WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
                     ]),
-                    ManagedWidget::draw_text(ctx, Text::from(Line("Active trips")))
-                        .named("active trips"),
+                    "Active trips".draw_text(ctx).named("active trips"),
                     ManagedWidget::row(vec![
                         WrappedComposite::text_button(
                             ctx,
@@ -160,13 +156,11 @@ impl State for TripsVisualizer {
             self.composite.replace(
                 ctx,
                 "active trips",
-                ManagedWidget::draw_text(
-                    ctx,
-                    Text::from(Line(format!(
-                        "{} active trips",
-                        prettyprint_usize(self.active_trips.len()),
-                    ))),
+                format!(
+                    "{} active trips",
+                    prettyprint_usize(self.active_trips.len()),
                 )
+                .draw_text(ctx)
                 .named("active trips"),
             );
         }

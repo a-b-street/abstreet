@@ -333,7 +333,7 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Composite {
     Composite::new(
         ManagedWidget::col(vec![
             ManagedWidget::row(vec![
-                ManagedWidget::draw_text(ctx, Text::from(Line("Editing map").size(26))).margin(5),
+                Line("Editing map").size(26).draw(ctx).margin(5),
                 ManagedWidget::draw_batch(
                     ctx,
                     GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 30.0))]),

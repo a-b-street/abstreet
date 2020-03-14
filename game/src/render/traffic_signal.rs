@@ -6,7 +6,7 @@ use crate::render::intersection::make_crosswalk;
 use crate::render::{DrawTurnGroup, BIG_ARROW_THICKNESS};
 use ezgui::{
     hotkey, Button, Color, Composite, EventCtx, GeomBatch, HorizontalAlignment, Key, Line,
-    ManagedWidget, Prerender, Text, VerticalAlignment,
+    ManagedWidget, Prerender, Text, TextExt, VerticalAlignment,
 };
 use geom::{Angle, Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D};
 use map_model::{IntersectionID, Phase, TurnPriority};
@@ -221,7 +221,7 @@ pub fn make_signal_diagram(
     let bbox = Polygon::rectangle(zoom * bounds.width(), zoom * bounds.height());
 
     let signal = app.primary.map.get_traffic_signal(i);
-    let txt_widget = ManagedWidget::draw_text(ctx, {
+    let txt_widget = {
         let mut txt = Text::from(Line(format!("Intersection #{}", i.0)).roboto_bold());
 
         let mut road_names = BTreeSet::new();
@@ -237,8 +237,8 @@ pub fn make_signal_diagram(
         txt.add(Line(format!("{} phases", signal.phases.len())).roboto_bold());
         txt.add(Line(format!("Signal offset: {}", signal.offset)));
         txt.add(Line(format!("One cycle lasts {}", signal.cycle_length())));
-        txt
-    });
+        txt.draw(ctx)
+    };
     let mut col = if edit_mode {
         vec![
             txt_widget,
@@ -270,10 +270,7 @@ pub fn make_signal_diagram(
         if edit_mode {
             phase_rows.push(
                 ManagedWidget::row(vec![
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line(format!("Phase {}: {}", idx + 1, phase.duration))),
-                    ),
+                    format!("Phase {}: {}", idx + 1, phase.duration).draw_text(ctx),
                     WrappedComposite::svg_button(
                         ctx,
                         "../data/system/assets/tools/edit.svg",
@@ -290,10 +287,7 @@ pub fn make_signal_diagram(
                 .centered(),
             );
         } else {
-            phase_rows.push(ManagedWidget::draw_text(
-                ctx,
-                Text::from(Line(format!("Phase {}: {}", idx + 1, phase.duration))),
-            ));
+            phase_rows.push(format!("Phase {}: {}", idx + 1, phase.duration).draw_text(ctx));
         }
 
         let mut orig_batch = GeomBatch::new();

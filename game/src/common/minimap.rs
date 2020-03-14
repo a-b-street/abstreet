@@ -454,14 +454,12 @@ fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
                     )]),
                 )
                 .margin(3),
-                ManagedWidget::draw_text(
-                    ctx,
-                    Text::from(if *enabled {
-                        Line(label)
-                    } else {
-                        Line(label).fg(Color::WHITE.alpha(0.5))
-                    }),
-                )
+                Text::from(if *enabled {
+                    Line(label)
+                } else {
+                    Line(label).fg(Color::WHITE.alpha(0.5))
+                })
+                .draw(ctx)
                 .margin(3),
             ])
             .centered_cross(),

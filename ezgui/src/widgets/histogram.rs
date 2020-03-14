@@ -1,6 +1,7 @@
 use crate::layout::Widget;
 use crate::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ManagedWidget, ScreenDims, ScreenPt, Text,
+    TextExt,
 };
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, Polygon, Pt2D};
@@ -80,10 +81,7 @@ impl Histogram {
         for i in 0..num_x_labels {
             let percent_x = (i as f64) / ((num_x_labels - 1) as f64);
             let dt = min_x + (max_x - min_x) * percent_x;
-            row.push(ManagedWidget::draw_text(
-                ctx,
-                Text::from(Line(dt.to_string())),
-            ));
+            row.push(dt.to_string().draw_text(ctx));
         }
         let x_axis = ManagedWidget::row(row);
 
@@ -91,12 +89,7 @@ impl Histogram {
         let mut col = Vec::new();
         for i in 0..num_y_labels {
             let percent_y = (i as f64) / ((num_y_labels - 1) as f64);
-            col.push(ManagedWidget::draw_text(
-                ctx,
-                Text::from(Line(prettyprint_usize(
-                    ((max_y as f64) * percent_y) as usize,
-                ))),
-            ));
+            col.push(prettyprint_usize(((max_y as f64) * percent_y) as usize).draw_text(ctx));
         }
         col.reverse();
         let y_axis = ManagedWidget::col(col);

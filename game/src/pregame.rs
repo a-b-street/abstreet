@@ -86,7 +86,7 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         {
             let mut txt = Text::from(Line("A/B STREET").size(100));
             txt.add(Line("Created by Dustin Carlino"));
-            ManagedWidget::draw_text(ctx, txt).centered_horiz()
+            txt.draw(ctx).centered_horiz()
         },
         ManagedWidget::row(vec![
             WrappedComposite::svg_button(
@@ -121,7 +121,7 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         },
         ManagedWidget::col(vec![
             WrappedComposite::text_bg_button(ctx, "About A/B Street", None),
-            ManagedWidget::draw_text(ctx, built_info::time()),
+            built_info::time().draw(ctx),
         ])
         .centered(),
     ];
@@ -253,9 +253,7 @@ fn about(ctx: &mut EventCtx) -> Box<dyn State> {
                 "people is probably coincidental, except for PedestrianID(42). ",
             ));
             txt.add(Line("Have the appropriate amount of fun."));
-            ManagedWidget::draw_text(ctx, txt)
-                .centered_horiz()
-                .align_vert_center()
+            txt.draw(ctx).centered_horiz().align_vert_center()
         },
     ];
 
@@ -319,9 +317,7 @@ fn proposals_picker(ctx: &mut EventCtx) -> Box<dyn State> {
                         "These are proposed changes to Seattle made by community members.",
                     ));
                     txt.add(Line("Contact dabreegster@gmail.com to add your idea here!"));
-                    ManagedWidget::draw_text(ctx, txt)
-                        .centered_horiz()
-                        .bg(colors::PANEL_BG)
+                    txt.draw(ctx).centered_horiz().bg(colors::PANEL_BG)
                 },
                 ManagedWidget::row(buttons)
                     .flex_wrap(ctx, 80)

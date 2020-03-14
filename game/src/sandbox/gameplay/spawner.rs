@@ -9,7 +9,7 @@ use crate::sandbox::SandboxMode;
 use abstutil::Timer;
 use ezgui::{
     hotkey, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget, Outcome,
-    Text, VerticalAlignment,
+    Text, TextExt, VerticalAlignment,
 };
 use geom::{Distance, Duration, PolyLine};
 use map_model::{
@@ -707,10 +707,10 @@ fn make_top_bar(ctx: &mut EventCtx, title: &str, howto: &str) -> Composite {
     Composite::new(
         ManagedWidget::col(vec![
             ManagedWidget::row(vec![
-                ManagedWidget::draw_text(ctx, Text::from(Line(title).roboto_bold())),
+                Line(title).roboto_bold().draw(ctx),
                 WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
             ]),
-            ManagedWidget::draw_text(ctx, Text::from(Line(howto))),
+            howto.draw_text(ctx),
         ])
         .padding(10)
         .bg(colors::PANEL_BG),

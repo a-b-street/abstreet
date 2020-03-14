@@ -268,7 +268,7 @@ fn challenge_controller(
     }
 
     let mut rows = vec![ManagedWidget::row(vec![
-        ManagedWidget::draw_text(ctx, Text::from(Line(title).size(26))).margin(5),
+        Line(title).size(26).draw(ctx).margin(5),
         WrappedComposite::svg_button(ctx, "../data/system/assets/tools/info.svg", "info", None)
             .margin(5),
         ManagedWidget::draw_batch(
@@ -337,13 +337,10 @@ impl FinalScore {
 
         Box::new(FinalScore {
             composite: Composite::new(
-                ManagedWidget::col(vec![
-                    ManagedWidget::draw_text(ctx, txt),
-                    ManagedWidget::row(row).centered(),
-                ])
-                .bg(colors::PANEL_BG)
-                .outline(10.0, Color::WHITE)
-                .padding(10),
+                ManagedWidget::col(vec![txt.draw(ctx), ManagedWidget::row(row).centered()])
+                    .bg(colors::PANEL_BG)
+                    .outline(10.0, Color::WHITE)
+                    .padding(10),
             )
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)
             .build(ctx),

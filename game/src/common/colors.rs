@@ -139,7 +139,7 @@ impl ColorerBuilder {
 
         // Build the legend
         let mut col = vec![ManagedWidget::row(vec![
-            ManagedWidget::draw_text(ctx, self.header),
+            self.header.draw(ctx),
             WrappedComposite::text_button(ctx, "X", None).align_right(),
         ])];
         for (label, color) in self.prioritized_colors {
@@ -182,7 +182,7 @@ impl ColorLegend {
             )
             .margin(5)
             .centered_vert(),
-            ManagedWidget::draw_text(ctx, txt),
+            txt.draw(ctx),
         ])
     }
 }

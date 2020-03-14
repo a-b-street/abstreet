@@ -10,7 +10,7 @@ use abstutil::prettyprint_usize;
 use abstutil::Counter;
 use ezgui::{
     hotkey, Button, Color, Composite, EventCtx, Histogram, Key, Line, ManagedWidget, Plot,
-    PlotOptions, Series, Text,
+    PlotOptions, Series, Text, TextExt,
 };
 use geom::{Duration, Statistic, Time};
 use map_model::BusRouteID;
@@ -159,12 +159,9 @@ fn trips_summary_prebaked(ctx: &EventCtx, app: &App) -> ManagedWidget {
     }
 
     ManagedWidget::col(vec![
-        ManagedWidget::draw_text(ctx, txt),
+        txt.draw(ctx),
         finished_trips_plot(ctx, app).bg(colors::SECTION_BG),
-        ManagedWidget::draw_text(
-            ctx,
-            Text::from(Line("Are trips faster or slower than the baseline?")),
-        ),
+        "Are trips faster or slower than the baseline?".draw_text(ctx),
         Histogram::new(
             app.primary
                 .sim
@@ -173,7 +170,7 @@ fn trips_summary_prebaked(ctx: &EventCtx, app: &App) -> ManagedWidget {
             ctx,
         )
         .bg(colors::SECTION_BG),
-        ManagedWidget::draw_text(ctx, Text::from(Line("Active agents").roboto_bold())),
+        Line("Active agents").roboto_bold().draw(ctx),
         Plot::new_usize(
             ctx,
             vec![
@@ -241,9 +238,9 @@ fn trips_summary_not_prebaked(ctx: &EventCtx, app: &App) -> ManagedWidget {
     }
 
     ManagedWidget::col(vec![
-        ManagedWidget::draw_text(ctx, txt),
+        txt.draw(ctx),
         finished_trips_plot(ctx, app).bg(colors::SECTION_BG),
-        ManagedWidget::draw_text(ctx, Text::from(Line("Active agents").roboto_bold())),
+        Line("Active agents").roboto_bold().draw(ctx),
         Plot::new_usize(
             ctx,
             vec![Series {
@@ -312,10 +309,7 @@ fn finished_trips_plot(ctx: &EventCtx, app: &App) -> ManagedWidget {
             .collect(),
         PlotOptions::new(),
     );
-    ManagedWidget::col(vec![
-        ManagedWidget::draw_text(ctx, Text::from(Line("finished trips"))),
-        plot.margin(10),
-    ])
+    ManagedWidget::col(vec!["finished trips".draw_text(ctx), plot.margin(10)])
 }
 
 fn pick_finished_trips_mode(ctx: &EventCtx) -> (ManagedWidget, Vec<(String, Callback)>) {
@@ -396,7 +390,7 @@ fn parking_overhead(ctx: &EventCtx, app: &App) -> ManagedWidget {
     for line in app.primary.sim.get_analytics().analyze_parking_phases() {
         txt.add_wrapped(line, 0.9 * ctx.canvas.window_width);
     }
-    ManagedWidget::draw_text(ctx, txt)
+    txt.draw(ctx)
 }
 
 fn pick_bus_route(ctx: &EventCtx, app: &App) -> (ManagedWidget, Vec<(String, Callback)>) {

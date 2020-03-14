@@ -11,7 +11,8 @@ use crate::sandbox::{spawn_agents_around, SpeedControls, TimePanel};
 use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, RewriteColor, Text, VerticalAlignment,
+    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, RewriteColor, Text, TextExt,
+    VerticalAlignment,
 };
 use geom::Duration;
 use map_model::{
@@ -709,7 +710,7 @@ impl PreviewTrafficSignal {
         PreviewTrafficSignal {
             composite: Composite::new(
                 ManagedWidget::col(vec![
-                    ManagedWidget::draw_text(ctx, Text::from(Line("Previewing traffic signal"))),
+                    "Previewing traffic signal".draw_text(ctx),
                     WrappedComposite::text_button(ctx, "back to editing", hotkey(Key::Escape)),
                 ])
                 .bg(colors::PANEL_BG)

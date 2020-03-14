@@ -1,5 +1,5 @@
 use crate::assets::Assets;
-use crate::{svg, Color, EventCtx, GeomBatch, GfxCtx, Prerender, ScreenDims};
+use crate::{svg, Color, EventCtx, GeomBatch, GfxCtx, ManagedWidget, Prerender, ScreenDims};
 use geom::Polygon;
 use std::collections::hash_map::DefaultHasher;
 use std::fmt::Write;
@@ -54,6 +54,10 @@ impl TextSpan {
         assert_eq!(self.font, Font::DejaVu);
         self.font = Font::RobotoBold;
         self
+    }
+
+    pub fn draw(self, ctx: &EventCtx) -> ManagedWidget {
+        Text::from(self).draw(ctx)
     }
 }
 
@@ -259,6 +263,10 @@ impl Text {
         hasher.write(format!("{:?}", self).as_ref());
         format!("{:x}", hasher.finish())
     }
+
+    pub fn draw(self, ctx: &EventCtx) -> ManagedWidget {
+        ManagedWidget::draw_text(ctx, self)
+    }
 }
 
 fn render_text(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBatch {
@@ -303,5 +311,21 @@ fn render_text(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
     ) {
         Ok(_) => batch,
         Err(err) => panic!("render_text({}): {}", contents, err),
+    }
+}
+
+pub trait TextExt {
+    fn draw_text(self, ctx: &EventCtx) -> ManagedWidget;
+}
+
+impl TextExt for &str {
+    fn draw_text(self, ctx: &EventCtx) -> ManagedWidget {
+        Line(self).draw(ctx)
+    }
+}
+
+impl TextExt for String {
+    fn draw_text(self, ctx: &EventCtx) -> ManagedWidget {
+        Line(self).draw(ctx)
     }
 }

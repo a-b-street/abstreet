@@ -2,7 +2,9 @@ use crate::app::App;
 use crate::colors;
 use crate::game::{State, Transition, WizardState};
 use crate::managed::WrappedComposite;
-use ezgui::{hotkey, Choice, Composite, EventCtx, GfxCtx, Key, Line, ManagedWidget, Outcome, Text};
+use ezgui::{
+    hotkey, Choice, Composite, EventCtx, GfxCtx, Key, Line, ManagedWidget, Outcome, Text, TextExt,
+};
 
 // TODO SimOptions stuff too
 #[derive(Clone)]
@@ -71,7 +73,7 @@ impl OptionsPanel {
             composite: Composite::new(
                 ManagedWidget::col(vec![
                     ManagedWidget::row(vec![
-                        ManagedWidget::draw_text(ctx, Text::from(Line("Settings").roboto_bold())),
+                        Line("Settings").roboto_bold().draw(ctx),
                         WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
                     ]),
                     ManagedWidget::checkbox(ctx, "Enable developer mode", None, app.opts.dev)
@@ -91,11 +93,7 @@ impl OptionsPanel {
                     )
                     .margin(5),
                     ManagedWidget::row(vec![
-                        ManagedWidget::draw_text(
-                            ctx,
-                            Text::from(Line("Traffic signal rendering:")),
-                        )
-                        .margin(5),
+                        "Traffic signal rendering:".draw_text(ctx).margin(5),
                         // TODO Refactor this pattern somehow, using drop-down menus or radio
                         // buttons
                         WrappedComposite::nice_text_button(
@@ -110,7 +108,7 @@ impl OptionsPanel {
                         .margin(5),
                     ]),
                     ManagedWidget::row(vec![
-                        ManagedWidget::draw_text(ctx, Text::from(Line("Color scheme:"))).margin(5),
+                        "Color scheme:".draw_text(ctx).margin(5),
                         WrappedComposite::nice_text_button(
                             ctx,
                             Text::from(Line(format!("{} ▼", app.opts.cs_name()))),
@@ -120,11 +118,9 @@ impl OptionsPanel {
                         .margin(5),
                     ]),
                     ManagedWidget::row(vec![
-                        ManagedWidget::draw_text(
-                            ctx,
-                            Text::from(Line("Scale factor for text / UI elements:")),
-                        )
-                        .margin(5),
+                        "Scale factor for text / UI elements:"
+                            .draw_text(ctx)
+                            .margin(5),
                         WrappedComposite::nice_text_button(
                             ctx,
                             Text::from(Line(format!("{} ▼", ctx.get_scale_factor()))),

@@ -249,28 +249,24 @@ impl TurnExplorer {
         let num_turns = app.primary.map.get_turns_from_lane(l).len();
 
         let mut col = vec![ManagedWidget::row(vec![
-            ManagedWidget::draw_text(
-                ctx,
-                Text::from(
-                    Line(format!(
-                        "Turns from {}",
-                        app.primary.map.get_parent(l).get_name()
-                    ))
-                    .size(26),
-                ),
+            Text::from(
+                Line(format!(
+                    "Turns from {}",
+                    app.primary.map.get_parent(l).get_name()
+                ))
+                .size(26),
             )
+            .draw(ctx)
             .margin(5),
             ManagedWidget::draw_batch(
                 ctx,
                 GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
             )
             .margin(5),
-            ManagedWidget::draw_text(
-                ctx,
-                Text::from(Line(format!("{}/{}", idx, num_turns)).size(20)),
-            )
-            .margin(5)
-            .centered_vert(),
+            Text::from(Line(format!("{}/{}", idx, num_turns)).size(20))
+                .draw(ctx)
+                .margin(5)
+                .centered_vert(),
             if idx == 0 {
                 Button::inactive_button(ctx, "<")
             } else {

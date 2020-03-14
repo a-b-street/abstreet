@@ -9,7 +9,7 @@ use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
     hotkey, Button, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Histogram,
     HorizontalAlignment, JustDraw, Key, Line, ManagedWidget, Outcome, Plot, PlotOptions,
-    RewriteColor, Series, Text, VerticalAlignment,
+    RewriteColor, Series, Text, TextExt, VerticalAlignment,
 };
 use geom::{Circle, Distance, Duration, PolyLine, Polygon, Pt2D, Statistic, Time};
 use map_model::{BusRouteID, IntersectionID};
@@ -308,7 +308,7 @@ impl Overlays {
             Composite::new(
                 ManagedWidget::col(vec![
                     ManagedWidget::row(vec![
-                        ManagedWidget::draw_text(ctx, Text::from(Line("Heat Map Layers"))),
+                        "Heat Map Layers".draw_text(ctx),
                         WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
                     ]),
                     ManagedWidget::row(choices).flex_wrap(ctx, 20),
@@ -613,7 +613,7 @@ impl Overlays {
             Composite::new(
                 ManagedWidget::col(vec![
                     ManagedWidget::row(vec![
-                        ManagedWidget::draw_text(ctx, {
+                        {
                             let mut txt = Text::from(Line("Are trips "));
                             txt.append(Line("faster").fg(Color::GREEN));
                             txt.append(Line(", "));
@@ -621,8 +621,8 @@ impl Overlays {
                             txt.append(Line(", or "));
                             txt.append(Line("the same").fg(Color::YELLOW));
                             txt.append(Line("?"));
-                            txt
-                        })
+                            txt.draw(ctx)
+                        }
                         .margin(10),
                         WrappedComposite::text_button(ctx, "X", None).align_right(),
                     ]),
@@ -672,7 +672,7 @@ impl Overlays {
 
         let col = vec![
             ManagedWidget::row(vec![
-                ManagedWidget::draw_text(ctx, Text::from(Line("intersection demand"))),
+                "intersection demand".draw_text(ctx),
                 ManagedWidget::btn(Button::rectangle_svg(
                     "../data/system/assets/tools/locate.svg",
                     "intersection demand",
@@ -702,10 +702,9 @@ impl Overlays {
     pub fn bus_passengers(id: BusRouteID, ctx: &mut EventCtx, app: &App) -> Overlays {
         let route = app.primary.map.get_br(id);
         let mut master_col = vec![ManagedWidget::row(vec![
-            ManagedWidget::draw_text(
-                ctx,
-                Text::from(Line(format!("Passengers for {}", route.name)).roboto_bold()),
-            ),
+            Line(format!("Passengers for {}", route.name))
+                .roboto_bold()
+                .draw(ctx),
             WrappedComposite::text_button(ctx, "X", None).align_right(),
         ])];
         let mut col = Vec::new();
@@ -717,7 +716,7 @@ impl Overlays {
             .bus_passenger_delays(app.primary.sim.time(), id);
         for idx in 0..route.stops.len() {
             col.push(ManagedWidget::row(vec![
-                ManagedWidget::draw_text(ctx, Text::from(Line(format!("Stop {}", idx + 1)))),
+                format!("Stop {}", idx + 1).draw_text(ctx),
                 ManagedWidget::btn(Button::rectangle_svg(
                     "../data/system/assets/tools/locate.svg",
                     &format!("Stop {}", idx + 1),
@@ -726,16 +725,14 @@ impl Overlays {
                     ctx,
                 )),
                 if let Some(hgram) = delay_per_stop.remove(&route.stops[idx]) {
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line(format!(
-                            ": {} (avg {})",
-                            hgram.count(),
-                            hgram.select(Statistic::Mean)
-                        ))),
+                    format!(
+                        ": {} (avg {})",
+                        hgram.count(),
+                        hgram.select(Statistic::Mean)
                     )
+                    .draw_text(ctx)
                 } else {
-                    ManagedWidget::draw_text(ctx, Text::from(Line(": nobody")))
+                    ": nobody".draw_text(ctx)
                 },
             ]));
         }
@@ -822,10 +819,7 @@ impl Overlays {
             Composite::new(
                 ManagedWidget::col(vec![
                     ManagedWidget::row(vec![
-                        ManagedWidget::draw_text(
-                            ctx,
-                            Text::from(Line(format!("delays for {}", route.name))),
-                        ),
+                        format!("delays for {}", route.name).draw_text(ctx),
                         WrappedComposite::text_button(ctx, "X", None).align_right(),
                     ]),
                     Plot::new_duration(ctx, series, PlotOptions::new()).margin(10),

@@ -38,10 +38,10 @@ impl DebugMode {
             composite: Composite::new(
                 ManagedWidget::col(vec![
                     ManagedWidget::row(vec![
-                        ManagedWidget::draw_text(ctx, Text::from(Line("Debug Mode").roboto_bold())),
+                        Line("Debug Mode").roboto_bold().draw(ctx),
                         WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
                     ]),
-                    ManagedWidget::draw_text(ctx, Text::new()).named("current info"),
+                    Text::new().draw(ctx).named("current info"),
                     ManagedWidget::row(
                         vec![
                             (hotkey(Key::Num1), "toggle buildings"),
@@ -96,11 +96,8 @@ impl DebugMode {
         if let routes::AllRoutesViewer::Active(ref traces) = self.all_routes {
             txt.add(Line(format!("Showing {} routes", traces.len())));
         }
-        self.composite.replace(
-            ctx,
-            "current info",
-            ManagedWidget::draw_text(ctx, txt).named("current info"),
-        );
+        self.composite
+            .replace(ctx, "current info", txt.draw(ctx).named("current info"));
     }
 }
 

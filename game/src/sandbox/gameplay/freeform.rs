@@ -84,13 +84,14 @@ pub fn freeform_controller(
 ) -> WrappedComposite {
     let c = Composite::new(
         ManagedWidget::row(vec![
-            ManagedWidget::draw_text(ctx, Text::from(Line("Sandbox").size(26))).margin(5),
+            Line("Sandbox").size(26).draw(ctx).margin(5),
             ManagedWidget::draw_batch(
                 ctx,
                 GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
             )
             .margin(5),
-            ManagedWidget::draw_text(ctx, Text::from(Line("Map:").size(18).roboto_bold()))
+            Text::from(Line("Map:").size(18).roboto_bold())
+                .draw(ctx)
                 .margin(5),
             WrappedComposite::nice_text_button(
                 ctx,
@@ -103,7 +104,8 @@ pub fn freeform_controller(
                 "change map",
             )
             .margin(5),
-            ManagedWidget::draw_text(ctx, Text::from(Line("Traffic:").size(18).roboto_bold()))
+            Text::from(Line("Traffic:").size(18).roboto_bold())
+                .draw(ctx)
                 .margin(5),
             WrappedComposite::nice_text_button(
                 ctx,

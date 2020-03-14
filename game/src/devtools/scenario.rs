@@ -554,10 +554,7 @@ impl DotMap {
             composite: Composite::new(
                 ManagedWidget::col(vec![
                     ManagedWidget::row(vec![
-                        ManagedWidget::draw_text(
-                            ctx,
-                            Text::from(Line("Dot map of all trips").roboto_bold()),
-                        ),
+                        Line("Dot map of all trips").roboto_bold().draw(ctx),
                         WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
                     ]),
                     ManagedWidget::slider("time slider"),

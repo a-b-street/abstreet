@@ -247,7 +247,7 @@ impl ManagedWidget {
         ManagedWidget::new(WidgetType::Draw(j))
     }
 
-    pub fn draw_text(ctx: &EventCtx, txt: Text) -> ManagedWidget {
+    pub(crate) fn draw_text(ctx: &EventCtx, txt: Text) -> ManagedWidget {
         JustDraw::text(ctx, txt)
     }
 

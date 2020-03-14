@@ -1,7 +1,7 @@
 use crate::layout::Widget;
 use crate::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ManagedWidget, ScreenDims, ScreenPt,
-    ScreenRectangle, Text,
+    ScreenRectangle, Text, TextExt,
 };
 use abstutil::prettyprint_usize;
 use geom::{Angle, Bounds, Circle, Distance, Duration, FindClosest, PolyLine, Pt2D, Time};
@@ -59,7 +59,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
                                     .to_polygon(),
                             )]),
                         ),
-                        ManagedWidget::draw_text(ctx, Text::from(Line(&s.label))),
+                        s.label.clone().draw_text(ctx),
                     ])
                 })
                 .collect(),
@@ -192,10 +192,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
         let mut col = Vec::new();
         for i in 0..num_y_labels {
             let percent_y = (i as f64) / ((num_y_labels - 1) as f64);
-            col.push(ManagedWidget::draw_text(
-                ctx,
-                Text::from(Line(max_y.from_percent(percent_y).prettyprint())),
-            ));
+            col.push(max_y.from_percent(percent_y).prettyprint().draw_text(ctx));
         }
         col.reverse();
         let y_axis = ManagedWidget::col(col).padding(10);

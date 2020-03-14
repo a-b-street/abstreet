@@ -7,8 +7,8 @@ use crate::helpers::ID;
 use crate::managed::WrappedComposite;
 use crate::render::Renderable;
 use ezgui::{
-    hotkey, Button, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    ManagedWidget, Outcome, RewriteColor, Text, VerticalAlignment,
+    hotkey, Button, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key,
+    ManagedWidget, Outcome, RewriteColor, TextExt, VerticalAlignment,
 };
 use map_model::{EditCmd, LaneID, LaneType, Map, RoadID};
 use std::collections::BTreeSet;
@@ -76,13 +76,11 @@ impl LaneEditor {
         }
 
         let col = vec![
-            ManagedWidget::draw_text(
-                ctx,
-                Text::from(Line(format!(
-                    "Convert this lane of {} to what type?",
-                    app.primary.map.get_parent(l).get_name()
-                ))),
+            format!(
+                "Convert this lane of {} to what type?",
+                app.primary.map.get_parent(l).get_name()
             )
+            .draw_text(ctx)
             .centered_horiz(),
             ManagedWidget::row(row).centered(),
             WrappedComposite::text_button(ctx, "Finish", hotkey(Key::Escape)),
