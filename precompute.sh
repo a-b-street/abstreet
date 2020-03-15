@@ -14,7 +14,7 @@ if [ ! -f data/input/popdat.bin ]; then
 	fi
 
 	cd popdat;
-	RUST_BACKTRACE=1 cargo run --release;
+	RUST_BACKTRACE=1 cargo run --release --features import;
 	cd ..;
 fi
 
