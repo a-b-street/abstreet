@@ -8,4 +8,4 @@ rm -rf data/input data/system
 unzip seed_data.zip
 rm -f seed_data.zip
 # The zip clobbers the .gitignore symlinks; just let git take care of it
-git checkout data/system
+git checkout data/system data/input

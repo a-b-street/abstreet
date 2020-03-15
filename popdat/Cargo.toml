@@ -9,6 +9,7 @@ abstutil = { path = "../abstutil" }
 csv = "1.0.1"
 failure = "0.1.2"
 geom = { path = "../geom" }
+gdal = "0.6.0"
 map_model = { path = "../map_model" }
 serde = "1.0.98"
 serde_derive = "1.0.98"

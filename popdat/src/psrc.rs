@@ -4,7 +4,7 @@ use map_model::Map;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fs::File;
-use std::io::{BufRead, BufReader, BufWriter, Write};
+use std::io::Write;
 
 #[derive(Serialize, Deserialize)]
 pub struct Trip {
@@ -179,7 +179,10 @@ fn import_parcels(
         closest_bldg.add(b.osm_way_id, b.polygon.points());
     }
 
-    let mut coords = BufWriter::new(File::create("/tmp/parcels")?);
+    let mut x_coords: Vec<f64> = Vec::new();
+    let mut y_coords: Vec<f64> = Vec::new();
+    // Dummy values
+    let mut z_coords: Vec<f64> = Vec::new();
     // (parcel ID, number of households, number of employees, number of parking spots)
     let mut parcel_metadata = Vec::new();
 
@@ -197,65 +200,43 @@ fn import_parcels(
             rec.emptot_p,
             rec.parkdy_p + rec.parkhr_p,
         ));
-        coords.write_fmt(format_args!("{} {}\n", rec.xcoord_p, rec.ycoord_p))?;
+        x_coords.push(rec.xcoord_p);
+        y_coords.push(rec.ycoord_p);
+        z_coords.push(0.0);
     }
     done(timer);
-    coords.flush()?;
 
-    // TODO Ideally we could just do the conversion directly without any dependencies, but the
-    // formats are documented quite confusingly. Couldn't get the Rust crate for proj or GDAL
-    // bindings to build. So just do this hack.
-    timer.start(format!(
-        "run cs2cs on {} points",
-        prettyprint_usize(parcel_metadata.len())
-    ));
-    let mut output = std::process::Command::new("cs2cs")
-        .args(vec![
-            "esri:102748",
-            "+to",
-            "epsg:4326",
-            "-f",
-            "%.5f",
-            "/tmp/parcels",
-        ])
-        .output()?;
-    if !output.status.success() {
-        // If you have an ancient version of cs2cs (like from Ubuntu's proj-bin package), the
-        // command should instead be:
-        // cs2cs +init=esri:102748 +to +init=epsg:4326 -f '%.5f' foo
-        output = std::process::Command::new("cs2cs")
-            .args(vec![
-                "+init=esri:102748",
-                "+to",
-                "+init=epsg:4326",
-                "-f",
-                "%.5f",
-                "/tmp/parcels",
-            ])
-            .output()?;
-    }
-    assert!(output.status.success());
-    timer.stop(format!(
-        "run cs2cs on {} points",
-        prettyprint_usize(parcel_metadata.len())
-    ));
+    timer.start(format!("transform {} points", parcel_metadata.len()));
+
+    // From https://epsg.io/102748 to https://epsg.io/4326
+    let transform = gdal::spatial_ref::CoordTransform::new(
+        &gdal::spatial_ref::SpatialRef::from_proj4(
+            "+proj=lcc +lat_1=47.5 +lat_2=48.73333333333333 +lat_0=47 +lon_0=-120.8333333333333 \
+             +x_0=500000.0000000002 +y_0=0 +datum=NAD83 +units=us-ft +no_defs",
+        )
+        .expect("washington state plane"),
+        &gdal::spatial_ref::SpatialRef::from_epsg(4326).unwrap(),
+    )
+    .expect("regular GPS");
+    transform
+        .transform_coords(&mut x_coords, &mut y_coords, &mut z_coords)
+        .expect("transform coords");
+
+    timer.stop(format!("transform {} points", parcel_metadata.len()));
 
     let bounds = map.get_gps_bounds();
-    let reader = BufReader::new(output.stdout.as_slice());
     let mut result = HashMap::new();
     let mut metadata = BTreeMap::new();
     let mut oob = HashMap::new();
     let orig_parcels = parcel_metadata.len();
-    timer.start_iter("read cs2cs output", parcel_metadata.len());
-    for (line, (id, num_households, num_employees, offstreet_parking_spaces)) in
-        reader.lines().zip(parcel_metadata.into_iter())
+    timer.start_iter("finalize parcel output", parcel_metadata.len());
+    for ((x, y), (id, num_households, num_employees, offstreet_parking_spaces)) in x_coords
+        .into_iter()
+        .zip(y_coords.into_iter())
+        .zip(parcel_metadata.into_iter())
     {
         timer.next();
-        let line = line?;
-        let pieces: Vec<&str> = line.split_whitespace().collect();
-        let lon: f64 = pieces[0].parse()?;
-        let lat: f64 = pieces[1].parse()?;
-        let pt = LonLat::new(lon, lat);
+        let pt = LonLat::new(x, y);
         if bounds.contains(pt) {
             let osm_building = closest_bldg
                 .closest_pt(Pt2D::forcibly_from_gps(pt, bounds), Distance::meters(30.0))

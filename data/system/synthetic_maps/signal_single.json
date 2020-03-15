@@ -283,7 +283,8 @@
           "inner_x": 267.1578,
           "inner_y": 110.0065
         },
-        "intersection_type": "Border"
+        "intersection_type": "Border",
+        "elevation": 0.0
       }
     ],
     [
@@ -295,7 +296,8 @@
           "inner_x": 0.0,
           "inner_y": 111.7355
         },
-        "intersection_type": "Border"
+        "intersection_type": "Border",
+        "elevation": 0.0
       }
     ],
     [
@@ -307,7 +309,8 @@
           "inner_x": 134.1818,
           "inner_y": 0.0
         },
-        "intersection_type": "Border"
+        "intersection_type": "Border",
+        "elevation": 0.0
       }
     ],
     [
@@ -319,7 +322,8 @@
           "inner_x": 133.8374,
           "inner_y": 214.4221
         },
-        "intersection_type": "Border"
+        "intersection_type": "Border",
+        "elevation": 0.0
       }
     ],
     [
@@ -331,7 +335,8 @@
           "inner_x": 213.5767,
           "inner_y": 110.065
         },
-        "intersection_type": "StopSign"
+        "intersection_type": "StopSign",
+        "elevation": 0.0
       }
     ],
     [
@@ -343,7 +348,8 @@
           "inner_x": 41.8277,
           "inner_y": 111.5761
         },
-        "intersection_type": "StopSign"
+        "intersection_type": "StopSign",
+        "elevation": 0.0
       }
     ],
     [
@@ -355,7 +361,8 @@
           "inner_x": 133.2079,
           "inner_y": 170.6141
         },
-        "intersection_type": "StopSign"
+        "intersection_type": "StopSign",
+        "elevation": 0.0
       }
     ],
     [
@@ -367,7 +374,8 @@
           "inner_x": 133.8558,
           "inner_y": 110.6546
         },
-        "intersection_type": "TrafficSignal"
+        "intersection_type": "TrafficSignal",
+        "elevation": 0.0
       }
     ],
     [
@@ -379,7 +387,8 @@
           "inner_x": 133.6389,
           "inner_y": 44.5954
         },
-        "intersection_type": "StopSign"
+        "intersection_type": "StopSign",
+        "elevation": 0.0
       }
     ]
   ],

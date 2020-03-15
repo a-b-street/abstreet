@@ -95,7 +95,7 @@ c891798df896dc8597402f64920fefa4  data/input/raw_maps/montlake.bin
 dcb6ddd5249cd89295aed2becaf8c472  data/input/raw_maps/23rd.bin
 2bc84e4d194d7cea6007ae3b93f3b11b  data/input/neighborhoods.geojson
 9cd47678c7f9dfc2cb80d79f90699d6f  data/input/offstreet_parking.kml
-830d2699be1215e051acaf430c2efe5f  data/input/popdat.bin
+946f8d43a49fb9238c15670e4e928319  data/input/popdat.bin
 428bc2e92ea02089cedbb614ce1d8f25  data/input/polygons/caphill.poly
 4f291bbe84ac32a98d7d100be79ddc4b  data/input/polygons/huge_seattle.poly
 418bcd5b335d12a1aa8ef556367e0bad  data/input/polygons/montlake.poly
@@ -212,19 +212,19 @@ b513d9b8898bf4f182e9f56806ea776f  data/system/maps/downtown.bin
 9db50445605d901230a47a25b775f5e7  data/system/maps/montlake.bin
 a9f1e53561af81158e3d25ef40a4c70e  data/system/maps/intl_district.bin
 7a924369483f4f43d9d04ebffeb433f6  data/system/maps/23rd.bin
-d71169fc1789707c403e70e6f2cc27d4  data/system/synthetic_maps/signal_double.json
-407cf814c6b5c73b5e1857529b94a204  data/system/synthetic_maps/signal_single.json
-7e3b93d87b5c6cf4788122e7f65ecac1  data/system/synthetic_maps/signal_fan_in.json
-b0dd7a752d56046b641f3a88c8307605  data/system/scenarios/ballard/weekday.bin
-6c6ac61123e7f801daf1d9c6176cdbe3  data/system/scenarios/intl_district/weekday.bin
-429e1182cf703edbce4add362c5fec6d  data/system/scenarios/23rd/weekday.bin
-515a34fd94860939e7e46a219e270393  data/system/scenarios/downtown/weekday.bin
-ef861b04f6163ee870e7b1b529e170ef  data/system/scenarios/huge_seattle/weekday.bin
-3dd368ab33aec9583cedd27c56584a71  data/system/scenarios/caphill/weekday.bin
-f141f12e6560aa81801dd715f4c1e01d  data/system/scenarios/montlake/weekday.bin
-5f78d73efbabf06aed28c0e80c6b6d5b  data/system/prebaked_results/23rd/weekday.bin
+bd719a801b06c4191229b1991f58cadd  data/system/synthetic_maps/signal_double.json
+75ea1d3aafa7fed11eeffe80949a8613  data/system/synthetic_maps/signal_single.json
+75828c890af7ba001e3c4a6a81ddb4f6  data/system/synthetic_maps/signal_fan_in.json
+c3fc9600f17f6da3066632f4ffb24b19  data/system/scenarios/ballard/weekday.bin
+bd654abaa8640af5552e77402de95564  data/system/scenarios/intl_district/weekday.bin
+31f908a30af3b11d985efb38fab399d5  data/system/scenarios/23rd/weekday.bin
+f9c376fed1c3342605c0eb21664c000a  data/system/scenarios/downtown/weekday.bin
+4accdf621f9b96c95a9daf9b7d60cc76  data/system/scenarios/huge_seattle/weekday.bin
+0e81cca0bffeee701452c4a512881508  data/system/scenarios/caphill/weekday.bin
+315f8ac4ff4374c2eda609280c7dce01  data/system/scenarios/montlake/weekday.bin
+aca1bff071cecad4683254b95c5570d1  data/system/prebaked_results/23rd/weekday.bin
 39dc5028982cc7ef40da44ec00ab1020  data/system/prebaked_results/signal_single/tutorial lvl1.bin
 c4f5661e5c62c0c0ccccc7c2b9f2d365  data/system/prebaked_results/signal_single/tutorial lvl2.bin
 b8137879ec00add4cd2a39e8c985420f  data/system/prebaked_results/montlake/car vs bike contention.bin
-3cb2adbb509617b15007b92b373a8b97  data/system/prebaked_results/montlake/weekday.bin
-7f9aec66506cc24bcf7b2e74dbcf38f4  data/system/prebaked_results/montlake/car vs bus contention.bin
+2662a2f6996e5f7452d4e8e047c95440  data/system/prebaked_results/montlake/weekday.bin
+449475f6f7b54bc5726f07e20a5ee342  data/system/prebaked_results/montlake/car vs bus contention.bin
