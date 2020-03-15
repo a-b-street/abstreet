@@ -24,6 +24,7 @@ pub enum Overlays {
     CumulativeThroughput(Time, Colorer),
     BikeNetwork(Colorer),
     BusNetwork(Colorer),
+    Elevation(Colorer, Drawable),
     Edits(Colorer),
     TripsHistogram(Time, Composite),
 
@@ -88,6 +89,7 @@ impl Overlays {
             Overlays::Inactive
             | Overlays::BikeNetwork(_)
             | Overlays::BusNetwork(_)
+            | Overlays::Elevation(_, _)
             | Overlays::Edits(_) => {}
         };
 
@@ -99,6 +101,7 @@ impl Overlays {
             Overlays::ParkingAvailability(_, ref mut heatmap)
             | Overlays::BikeNetwork(ref mut heatmap)
             | Overlays::BusNetwork(ref mut heatmap)
+            | Overlays::Elevation(ref mut heatmap, _)
             | Overlays::IntersectionDelay(_, ref mut heatmap)
             | Overlays::TrafficJams(_, ref mut heatmap)
             | Overlays::CumulativeThroughput(_, ref mut heatmap)
@@ -194,6 +197,10 @@ impl Overlays {
             | Overlays::Edits(ref heatmap) => {
                 heatmap.draw(g);
             }
+            Overlays::Elevation(ref heatmap, ref draw) => {
+                heatmap.draw(g);
+                g.redraw(draw);
+            }
             Overlays::TripsHistogram(_, ref composite)
             | Overlays::BusDelaysOverTime(_, _, ref composite) => {
                 composite.draw(g);
@@ -216,6 +223,7 @@ impl Overlays {
             Overlays::ParkingAvailability(_, ref heatmap)
             | Overlays::BikeNetwork(ref heatmap)
             | Overlays::BusNetwork(ref heatmap)
+            | Overlays::Elevation(ref heatmap, _)
             | Overlays::IntersectionDelay(_, ref heatmap)
             | Overlays::TrafficJams(_, ref heatmap)
             | Overlays::CumulativeThroughput(_, ref heatmap)
@@ -230,6 +238,7 @@ impl Overlays {
             WrappedComposite::text_button(ctx, "None", hotkey(Key::N)),
             WrappedComposite::text_button(ctx, "map edits", hotkey(Key::E)),
             WrappedComposite::text_button(ctx, "worst traffic jams", hotkey(Key::G)),
+            WrappedComposite::text_button(ctx, "elevation", hotkey(Key::S)),
             ManagedWidget::btn(Button::rectangle_svg(
                 "../data/system/assets/layers/parking_avail.svg",
                 "parking availability",
@@ -293,6 +302,9 @@ impl Overlays {
                 "bus network",
                 ManagedWidget::draw_svg(ctx, "../data/system/assets/layers/bus_network.svg"),
             )),
+            Overlays::Elevation(_, _) => {
+                Some(("elevation", Button::inactive_button(ctx, "elevation")))
+            }
             Overlays::Edits(_) => Some(("map edits", Button::inactive_button(ctx, "map edits"))),
             _ => None,
         } {
@@ -367,6 +379,13 @@ impl Overlays {
             "bus network",
             Box::new(|ctx, app| {
                 app.overlay = Overlays::bus_network(ctx, app);
+                Some(Transition::Pop)
+            }),
+        )
+        .maybe_cb(
+            "elevation",
+            Box::new(|ctx, app| {
+                app.overlay = Overlays::elevation(ctx, app);
                 Some(Transition::Pop)
             }),
         )
@@ -600,6 +619,88 @@ impl Overlays {
         }
 
         Overlays::BusNetwork(colorer.build(ctx, app))
+    }
+
+    fn elevation(ctx: &mut EventCtx, app: &App) -> Overlays {
+        // TODO Two passes because we have to construct the text first :(
+        let mut max = 0.0_f64;
+        for l in app.primary.map.all_lanes() {
+            let pct = l.percent_grade(&app.primary.map).abs();
+            max = max.max(pct);
+        }
+        let mut txt = Text::from(Line("elevation change"));
+        txt.add(Line(format!("Steepest road: {:.0}%", max * 100.0)));
+
+        let awful = Color::hex("#801F1C");
+        let bad = Color::hex("#EB5757");
+        let meh = Color::hex("#F2C94C");
+        let good = Color::hex("#7FFA4D");
+        let mut colorer = Colorer::new(
+            txt,
+            vec![
+                (">= 15% (steep)", awful),
+                ("< 15%", bad),
+                ("< 5%", meh),
+                ("< 1% (flat)", good),
+            ],
+        );
+
+        let mut max = 0.0_f64;
+        for l in app.primary.map.all_lanes() {
+            let pct = l.percent_grade(&app.primary.map).abs();
+            max = max.max(pct);
+
+            let color = if pct < 0.01 {
+                good
+            } else if pct < 0.05 {
+                meh
+            } else if pct < 0.15 {
+                bad
+            } else {
+                awful
+            };
+            colorer.add_l(l.id, color, &app.primary.map);
+        }
+
+        let arrow_color = Color::BLACK;
+        let mut batch = GeomBatch::new();
+        // Time for uphill arrows!
+        // TODO Draw V's, not arrows.
+        // TODO Or try gradient colors.
+        for r in app.primary.map.all_roads() {
+            let (mut pl, _) = r.get_thick_polyline(&app.primary.map).unwrap();
+            let e1 = app.primary.map.get_i(r.src_i).elevation;
+            let e2 = app.primary.map.get_i(r.dst_i).elevation;
+            if (e1 - e2).abs() / pl.length() < 0.01 {
+                // Don't bother with ~flat roads
+                continue;
+            }
+            if e1 > e2 {
+                pl = pl.reversed();
+            }
+
+            let arrow_len = Distance::meters(5.0);
+            let btwn = Distance::meters(10.0);
+            let thickness = Distance::meters(1.0);
+            let len = pl.length();
+
+            let mut dist = arrow_len;
+            while dist + arrow_len <= len {
+                let (pt, angle) = pl.dist_along(dist);
+                batch.push(
+                    arrow_color,
+                    PolyLine::new(vec![
+                        pt.project_away(arrow_len / 2.0, angle.opposite()),
+                        pt.project_away(arrow_len / 2.0, angle),
+                    ])
+                    .make_arrow(thickness)
+                    .unwrap(),
+                );
+                dist += btwn;
+            }
+        }
+
+        Overlays::Elevation(colorer.build(ctx, app), batch.upload(ctx))
     }
 
     pub fn trips_histogram(ctx: &mut EventCtx, app: &App) -> Overlays {
