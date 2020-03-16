@@ -333,3 +333,10 @@ changes here.
 - settings page: show all options at once. add way to scale up text/UI elements for high-DPI displays, and an alternate pan/zoom control scheme
 - traffic signal edits can now be exported and used in any slice of Seattle. will be using this to hand-map many of them.
 - many small tutorial fixes
+
+0.1.32
+
+- some UI work on giving focus to textboxes, improving dropdown menus
+- road/intersection plots display baseline sim data too
+- start associating people with multiple trips, exposing this a little in the UI
+- bring back elevation data, introduce a new overlay. the elevation data is still really bad.
