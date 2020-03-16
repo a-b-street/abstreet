@@ -15,7 +15,7 @@ mod warper;
 mod wizard;
 
 pub use self::autocomplete::Autocomplete;
-pub use self::button::Button;
+pub use self::button::{Btn, Button};
 pub use self::checkbox::Checkbox;
 pub(crate) use self::dropdown::Dropdown;
 pub use self::filler::Filler;

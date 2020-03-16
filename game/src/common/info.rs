@@ -3,14 +3,13 @@ use crate::colors;
 use crate::common::Warping;
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::{rotating_color_map, ID};
-use crate::managed::WrappedComposite;
 use crate::render::{dashed_lines, Renderable, MIN_ZOOM_FOR_DETAIL};
 use crate::sandbox::{SandboxMode, SpeedControls};
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, Button, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, ManagedWidget, Outcome, Plot, PlotOptions, RewriteColor, Series, Text, TextExt,
-    VerticalAlignment,
+    hotkey, Btn, Button, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Plot, PlotOptions, RewriteColor,
+    Series, Text, TextExt, VerticalAlignment,
 };
 use geom::{Angle, Circle, Distance, Duration, Polygon, Pt2D, Statistic, Time};
 use map_model::{BuildingID, IntersectionID, IntersectionType, Map, Path, PathStep};
@@ -291,7 +290,7 @@ impl InfoPanel {
 
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(action)) => {
-                if action == "X" {
+                if action == "close info" {
                     (true, None)
                 } else if action == "jump to object" {
                     (
@@ -377,14 +376,12 @@ fn info_for(
 ) -> Vec<ManagedWidget> {
     let (map, sim, draw_map) = (&app.primary.map, &app.primary.sim, &app.primary.draw_map);
     let header_btns = ManagedWidget::row(vec![
-        ManagedWidget::btn(Button::rectangle_svg(
+        Btn::svg(
             "../data/system/assets/tools/locate.svg",
-            "jump to object",
-            hotkey(Key::J),
             RewriteColor::Change(Color::hex("#CC4121"), colors::HOVERING),
-            ctx,
-        )),
-        WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)),
+        )
+        .build(ctx, "jump to object", hotkey(Key::J)),
+        Btn::text_fg("X").build(ctx, "close info", hotkey(Key::Escape)),
     ])
     .align_right();
 
@@ -652,15 +649,9 @@ fn info_for(
                 // TODO Show buttons to examine first 3, or a ...More button
                 for p in people {
                     rows.push(
-                        ManagedWidget::btn(Button::text_bg(
-                            Text::from(Line(format!("Person #{}", p.0))),
-                            colors::SECTION_BG,
-                            colors::HOVERING,
-                            None,
-                            &format!("examine Person #{}", p.0),
-                            ctx,
-                        ))
-                        .margin(5),
+                        Btn::text_bg1(format!("Person #{}", p.0))
+                            .build(ctx, format!("examine Person #{}", p.0), None)
+                            .margin(5),
                     );
                 }
             }
@@ -809,7 +800,9 @@ fn info_for(
                 rows.push(ManagedWidget::row(vec![
                     Line(format!("Trip #{}", id.0)).roboto_bold().draw(ctx),
                     // No jump-to-object button; this is probably a finished trip.
-                    WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
+                    Btn::text_fg("X")
+                        .build(ctx, "close info", hotkey(Key::Escape))
+                        .align_right(),
                 ]));
             }
             rows.extend(action_btns);
@@ -828,18 +821,12 @@ fn info_for(
 
             // TODO Point out where the person is now, relative to schedule...
             rows.push(match person.state {
-                PersonState::Inside(b) => ManagedWidget::btn(Button::text_bg(
-                    Text::from(Line(format!(
-                        "Currently inside {}",
-                        map.get_b(b).just_address(map)
-                    ))),
-                    colors::SECTION_BG,
-                    colors::HOVERING,
-                    None,
-                    // TODO not the best tooltip, but easy to parse :(
-                    &format!("examine Building #{}", b.0),
-                    ctx,
-                )),
+                // TODO not the best tooltip, but easy to parse :(
+                PersonState::Inside(b) => Btn::text_bg1(format!(
+                    "Currently inside {}",
+                    map.get_b(b).just_address(map)
+                ))
+                .build(ctx, format!("examine Building #{}", b.0), None),
                 PersonState::Trip(t) => format!("Currently doing Trip #{}", t.0).draw_text(ctx),
                 PersonState::OffMap => "Currently outside the map boundaries".draw_text(ctx),
                 PersonState::Limbo => "Currently in limbo -- they broke out of the Matrix! Woops. \
@@ -860,15 +847,9 @@ fn info_for(
                 } else {
                     rows.push(ManagedWidget::row(vec![
                         format!("{}: ", start_time.ampm_tostring()).draw_text(ctx),
-                        ManagedWidget::btn(Button::text_bg(
-                            Text::from(Line(format!("Trip #{}", t.0))),
-                            colors::SECTION_BG,
-                            colors::HOVERING,
-                            None,
-                            &format!("examine Trip #{}", t.0),
-                            ctx,
-                        ))
-                        .margin(5),
+                        Btn::text_bg1(format!("Trip #{}", t.0))
+                            .build(ctx, format!("examine Trip #{}", t.0), None)
+                            .margin(5),
                     ]));
                 }
             }
@@ -1273,15 +1254,9 @@ fn trip_details(
     col.extend(elevation);
     if let Some(p) = app.primary.sim.trip_to_person(trip) {
         col.push(
-            ManagedWidget::btn(Button::text_bg(
-                Text::from(Line(format!("Trip by Person #{}", p.0))),
-                colors::SECTION_BG,
-                colors::HOVERING,
-                None,
-                &format!("examine Person #{}", p.0),
-                ctx,
-            ))
-            .margin(5),
+            Btn::text_bg1(format!("Trip by Person #{}", p.0))
+                .build(ctx, format!("examine Person #{}", p.0), None)
+                .margin(5),
         );
     }
 

@@ -259,3 +259,64 @@ impl Button {
         JustDraw::wrap(ctx, batch)
     }
 }
+
+// TODO Experimental new refactoring
+
+pub struct Btn {}
+
+impl Btn {
+    pub fn svg(path: &str, hover: RewriteColor) -> BtnBuilder {
+        BtnBuilder::SVG(path.to_string(), hover)
+    }
+
+    pub fn text_fg<I: Into<String>>(label: I) -> BtnBuilder {
+        BtnBuilder::TextFG(label.into())
+    }
+
+    // The info panel style with the lighter background color
+    pub fn text_bg1<I: Into<String>>(label: I) -> BtnBuilder {
+        BtnBuilder::TextBG1(label.into())
+    }
+}
+
+pub enum BtnBuilder {
+    SVG(String, RewriteColor),
+    TextFG(String),
+    TextBG1(String),
+}
+
+impl BtnBuilder {
+    pub fn build<I: Into<String>>(
+        self,
+        ctx: &EventCtx,
+        action_tooltip: I,
+        key: Option<MultiKey>,
+    ) -> ManagedWidget {
+        match self {
+            BtnBuilder::SVG(path, hover) => ManagedWidget::btn(Button::rectangle_svg(
+                &path,
+                &action_tooltip.into(),
+                key,
+                hover,
+                ctx,
+            )),
+            BtnBuilder::TextFG(label) => ManagedWidget::btn(Button::text_no_bg(
+                Text::from(Line(&label)),
+                Text::from(Line(label).fg(Color::ORANGE)),
+                key,
+                &action_tooltip.into(),
+                true,
+                ctx,
+            ))
+            .outline(2.0, Color::WHITE),
+            BtnBuilder::TextBG1(label) => ManagedWidget::btn(Button::text_bg(
+                Text::from(Line(label)),
+                Color::grey(0.5),
+                Color::ORANGE,
+                key,
+                &action_tooltip.into(),
+                ctx,
+            )),
+        }
+    }
+}
