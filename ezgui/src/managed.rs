@@ -1,8 +1,8 @@
 use crate::layout::Widget;
 use crate::widgets::{Checkbox, Dropdown, PopupMenu, TextBox};
 use crate::{
-    Button, Choice, Color, Drawable, EventCtx, Filler, GeomBatch, GfxCtx, Histogram,
-    HorizontalAlignment, JustDraw, Line, MultiKey, Plot, RewriteColor, ScreenDims, ScreenPt,
+    Btn, Button, Choice, Color, Drawable, EventCtx, Filler, GeomBatch, GfxCtx, Histogram,
+    HorizontalAlignment, JustDraw, MultiKey, Plot, RewriteColor, ScreenDims, ScreenPt,
     ScreenRectangle, Slider, Text, VerticalAlignment,
 };
 use abstutil::Cloneable;
@@ -285,32 +285,17 @@ impl ManagedWidget {
         hotkey: Option<MultiKey>,
         enabled: bool,
     ) -> ManagedWidget {
-        // TODO Just a copy of WrappedComposite::nice_text_button essentially...
-        fn make_btn(
-            ctx: &EventCtx,
-            label: &str,
-            hotkey: Option<MultiKey>,
-            enabled: bool,
-        ) -> Button {
-            let txt = Text::from(Line(format!(
-                "{} {}",
-                if enabled { "☑" } else { "☐" },
-                label
-            )));
-            Button::text_no_bg(
-                txt.clone(),
-                txt.change_fg(Color::ORANGE),
-                hotkey,
-                label,
-                true,
-                ctx,
-            )
+        fn take_btn(w: ManagedWidget) -> Button {
+            match w.widget {
+                WidgetType::Btn(btn) => btn,
+                _ => unreachable!(),
+            }
         }
 
         ManagedWidget::custom_checkbox(
             enabled,
-            make_btn(ctx, label, hotkey.clone(), false),
-            make_btn(ctx, label, hotkey, true),
+            take_btn(Btn::text_fg(format!("☐ {}", label)).build(ctx, label, hotkey.clone())),
+            take_btn(Btn::text_fg(format!("☑ {}", label)).build(ctx, label, hotkey)),
         )
         .outline(2.0, Color::WHITE)
         .named(label)

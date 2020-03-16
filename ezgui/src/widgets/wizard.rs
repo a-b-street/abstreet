@@ -1,7 +1,7 @@
 use crate::widgets::PopupMenu;
 use crate::{
-    hotkey, Button, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, InputResult, Key,
-    Line, ManagedWidget, MultiKey, Outcome, Text, VerticalAlignment,
+    hotkey, Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, InputResult, Key, Line,
+    ManagedWidget, MultiKey, Outcome, Text, VerticalAlignment,
 };
 use abstutil::Cloneable;
 use std::collections::VecDeque;
@@ -87,28 +87,14 @@ impl Wizard {
                     ManagedWidget::col(vec![
                         ManagedWidget::row(vec![
                             Line(query).roboto_bold().draw(ctx),
-                            // TODO nice text button
-                            ManagedWidget::btn(Button::text_bg(
-                                Text::from(Line("X").fg(Color::BLACK)),
-                                Color::WHITE,
-                                Color::ORANGE,
-                                hotkey(Key::Escape),
-                                "quit",
-                                ctx,
-                            ))
-                            .margin(5)
-                            .align_right(),
+                            Btn::text_fg("X")
+                                .build(ctx, "quit", hotkey(Key::Escape))
+                                .margin(5)
+                                .align_right(),
                         ]),
                         ManagedWidget::text_entry(ctx, prefilled.unwrap_or_else(String::new), true)
                             .named("input"),
-                        ManagedWidget::btn(Button::text_bg(
-                            Text::from(Line("Done").fg(Color::BLACK)),
-                            Color::WHITE,
-                            Color::ORANGE,
-                            hotkey(Key::Enter),
-                            "done",
-                            ctx,
-                        )),
+                        Btn::text_bg2("Done").build(ctx, "done", hotkey(Key::Enter)),
                     ])
                     .bg(Color::grey(0.4))
                     .outline(5.0, Color::WHITE)
@@ -272,16 +258,9 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                 Composite::new(
                     ManagedWidget::row(vec![
                         ManagedWidget::col(col),
-                        // TODO nice text button
-                        ManagedWidget::btn(Button::text_bg(
-                            Text::from(Line("X").fg(Color::BLACK)),
-                            Color::WHITE,
-                            Color::ORANGE,
-                            hotkey(Key::Escape),
-                            "quit",
-                            self.ctx,
-                        ))
-                        .margin(5),
+                        Btn::text_fg("X")
+                            .build(self.ctx, "quit", hotkey(Key::Escape))
+                            .margin(5),
                     ])
                     .bg(Color::grey(0.4))
                     .outline(5.0, Color::WHITE)
@@ -408,15 +387,9 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             Composite::new(
                 ManagedWidget::col(vec![
                     txt.draw(self.ctx),
-                    ManagedWidget::btn(Button::text_bg(
-                        Text::from(Line("OK")),
-                        Color::grey(0.6),
-                        Color::ORANGE,
-                        hotkey(Key::Enter),
-                        "OK",
-                        self.ctx,
-                    ))
-                    .margin(5),
+                    Btn::text_bg2("OK")
+                        .build(self.ctx, "OK", hotkey(Key::Enter))
+                        .margin(5),
                 ])
                 .bg(Color::grey(0.4))
                 .outline(10.0, Color::WHITE)

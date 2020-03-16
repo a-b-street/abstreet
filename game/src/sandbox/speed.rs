@@ -6,7 +6,7 @@ use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::{GameplayMode, SandboxMode};
 use ezgui::{
-    hotkey, Button, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
+    hotkey, Btn, Button, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Plot, PlotOptions, RewriteColor,
     Series, Slider, Text, VerticalAlignment,
 };
@@ -37,23 +37,19 @@ impl SpeedControls {
     fn make_panel(ctx: &mut EventCtx, paused: bool, setting: SpeedSetting) -> WrappedComposite {
         let mut row = Vec::new();
         row.push(
-            ManagedWidget::btn(if paused {
-                Button::rectangle_svg(
+            if paused {
+                Btn::svg(
                     "../data/system/assets/speed/triangle.svg",
-                    "play",
-                    hotkey(Key::Space),
                     RewriteColor::ChangeAll(colors::HOVERING),
-                    ctx,
                 )
+                .build(ctx, "play", hotkey(Key::Space))
             } else {
-                Button::rectangle_svg(
+                Btn::svg(
                     "../data/system/assets/speed/pause.svg",
-                    "pause",
-                    hotkey(Key::Space),
                     RewriteColor::ChangeAll(colors::HOVERING),
-                    ctx,
                 )
-            })
+                .build(ctx, "pause", hotkey(Key::Space))
+            }
             .margin(5)
             .centered_vert()
             .bg(colors::SECTION_BG),
@@ -117,20 +113,16 @@ impl SpeedControls {
                         false,
                         ctx,
                     )),
-                    ManagedWidget::btn(Button::rectangle_svg(
+                    Btn::svg(
                         "../data/system/assets/speed/jump_to_time.svg",
-                        "jump to specific time",
-                        hotkey(Key::B),
                         RewriteColor::ChangeAll(colors::HOVERING),
-                        ctx,
-                    )),
-                    ManagedWidget::btn(Button::rectangle_svg(
+                    )
+                    .build(ctx, "jump to specific time", hotkey(Key::B)),
+                    Btn::svg(
                         "../data/system/assets/speed/reset.svg",
-                        "reset to midnight",
-                        hotkey(Key::X),
                         RewriteColor::ChangeAll(colors::HOVERING),
-                        ctx,
-                    )),
+                    )
+                    .build(ctx, "reset to midnight", hotkey(Key::X)),
                 ]
                 .into_iter()
                 .map(|x| x.margin(5))

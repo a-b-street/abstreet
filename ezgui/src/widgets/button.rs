@@ -265,10 +265,11 @@ impl Button {
 pub struct Btn {}
 
 impl Btn {
-    pub fn svg(path: &str, hover: RewriteColor) -> BtnBuilder {
-        BtnBuilder::SVG(path.to_string(), hover)
+    pub fn svg<I: Into<String>>(path: I, hover: RewriteColor) -> BtnBuilder {
+        BtnBuilder::SVG(path.into(), hover)
     }
 
+    // Same as WrappedComposite::text_button
     pub fn text_fg<I: Into<String>>(label: I) -> BtnBuilder {
         BtnBuilder::TextFG(label.into())
     }
@@ -277,12 +278,18 @@ impl Btn {
     pub fn text_bg1<I: Into<String>>(label: I) -> BtnBuilder {
         BtnBuilder::TextBG1(label.into())
     }
+
+    // The white background. WrappedComposite::text_bg_button.
+    pub fn text_bg2<I: Into<String>>(label: I) -> BtnBuilder {
+        BtnBuilder::TextBG2(label.into())
+    }
 }
 
 pub enum BtnBuilder {
     SVG(String, RewriteColor),
     TextFG(String),
     TextBG1(String),
+    TextBG2(String),
 }
 
 impl BtnBuilder {
@@ -317,6 +324,27 @@ impl BtnBuilder {
                 &action_tooltip.into(),
                 ctx,
             )),
+            BtnBuilder::TextBG2(label) => ManagedWidget::btn(Button::text_bg(
+                Text::from(Line(label).fg(Color::BLACK)),
+                Color::WHITE,
+                Color::ORANGE,
+                key,
+                &action_tooltip.into(),
+                ctx,
+            )),
+        }
+    }
+
+    // Use the text as the action
+    pub fn build_def(self, ctx: &EventCtx, hotkey: Option<MultiKey>) -> ManagedWidget {
+        match self {
+            BtnBuilder::SVG(_, _) => panic!("Can't use build_def on an SVG button"),
+            BtnBuilder::TextFG(ref label)
+            | BtnBuilder::TextBG1(ref label)
+            | BtnBuilder::TextBG2(ref label) => {
+                let copy = label.clone();
+                self.build(ctx, copy, hotkey)
+            }
         }
     }
 }

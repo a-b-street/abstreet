@@ -7,7 +7,7 @@ use crate::helpers::ID;
 use crate::managed::{ManagedGUIState, WrappedComposite, WrappedOutcome};
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
-    hotkey, Button, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Histogram,
+    hotkey, Btn, Button, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Histogram,
     HorizontalAlignment, JustDraw, Key, Line, ManagedWidget, Outcome, Plot, PlotOptions,
     RewriteColor, Series, Text, TextExt, VerticalAlignment,
 };
@@ -235,45 +235,35 @@ impl Overlays {
 
     pub fn change_overlays(ctx: &mut EventCtx, app: &App) -> Option<Transition> {
         let mut choices = vec![
-            WrappedComposite::text_button(ctx, "None", hotkey(Key::N)),
-            WrappedComposite::text_button(ctx, "map edits", hotkey(Key::E)),
-            WrappedComposite::text_button(ctx, "worst traffic jams", hotkey(Key::G)),
-            WrappedComposite::text_button(ctx, "elevation", hotkey(Key::S)),
-            ManagedWidget::btn(Button::rectangle_svg(
+            Btn::text_fg("None").build_def(ctx, hotkey(Key::N)),
+            Btn::text_fg("map edits").build_def(ctx, hotkey(Key::E)),
+            Btn::text_fg("worst traffic jams").build_def(ctx, hotkey(Key::G)),
+            Btn::text_fg("elevation").build_def(ctx, hotkey(Key::S)),
+            Btn::svg(
                 "../data/system/assets/layers/parking_avail.svg",
-                "parking availability",
-                hotkey(Key::P),
                 RewriteColor::Change(Color::hex("#F2F2F2"), colors::HOVERING),
-                ctx,
-            )),
-            ManagedWidget::btn(Button::rectangle_svg(
+            )
+            .build(ctx, "parking availability", hotkey(Key::P)),
+            Btn::svg(
                 "../data/system/assets/layers/intersection_delay.svg",
-                "intersection delay",
-                hotkey(Key::I),
                 RewriteColor::Change(Color::hex("#F2F2F2"), colors::HOVERING),
-                ctx,
-            )),
-            ManagedWidget::btn(Button::rectangle_svg(
+            )
+            .build(ctx, "intersection delay", hotkey(Key::I)),
+            Btn::svg(
                 "../data/system/assets/layers/throughput.svg",
-                "throughput",
-                hotkey(Key::T),
                 RewriteColor::Change(Color::hex("#F2F2F2"), colors::HOVERING),
-                ctx,
-            )),
-            ManagedWidget::btn(Button::rectangle_svg(
+            )
+            .build(ctx, "throughput", hotkey(Key::T)),
+            Btn::svg(
                 "../data/system/assets/layers/bike_network.svg",
-                "bike network",
-                hotkey(Key::B),
                 RewriteColor::Change(Color::hex("#F2F2F2"), colors::HOVERING),
-                ctx,
-            )),
-            ManagedWidget::btn(Button::rectangle_svg(
+            )
+            .build(ctx, "bike network", hotkey(Key::B)),
+            Btn::svg(
                 "../data/system/assets/layers/bus_network.svg",
-                "bus network",
-                hotkey(Key::U),
                 RewriteColor::Change(Color::hex("#F2F2F2"), colors::HOVERING),
-                ctx,
-            )),
+            )
+            .build(ctx, "bus network", hotkey(Key::U)),
         ];
         // TODO Grey out the inactive SVGs, and add the green checkmark
         if let Some((find, replace)) = match app.overlay {
@@ -321,7 +311,9 @@ impl Overlays {
                 ManagedWidget::col(vec![
                     ManagedWidget::row(vec![
                         "Heat Map Layers".draw_text(ctx),
-                        WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
+                        Btn::text_fg("X")
+                            .build(ctx, "close", hotkey(Key::Escape))
+                            .align_right(),
                     ]),
                     ManagedWidget::row(choices).flex_wrap(ctx, 20),
                 ])
@@ -332,7 +324,7 @@ impl Overlays {
             .max_size_percent(30, 50)
             .build(ctx),
         )
-        .cb("X", Box::new(|_, _| Some(Transition::Pop)))
+        .cb("close", Box::new(|_, _| Some(Transition::Pop)))
         .maybe_cb(
             "None",
             Box::new(|_, app| {
@@ -774,13 +766,11 @@ impl Overlays {
         let col = vec![
             ManagedWidget::row(vec![
                 "intersection demand".draw_text(ctx),
-                ManagedWidget::btn(Button::rectangle_svg(
+                Btn::svg(
                     "../data/system/assets/tools/locate.svg",
-                    "intersection demand",
-                    None,
                     RewriteColor::Change(Color::hex("#CC4121"), colors::HOVERING),
-                    ctx,
-                )),
+                )
+                .build(ctx, "intersection demand", None),
                 WrappedComposite::text_button(ctx, "X", None).align_right(),
             ]),
             ColorLegend::row(ctx, Color::RED, "current demand"),
@@ -818,13 +808,11 @@ impl Overlays {
         for idx in 0..route.stops.len() {
             col.push(ManagedWidget::row(vec![
                 format!("Stop {}", idx + 1).draw_text(ctx),
-                ManagedWidget::btn(Button::rectangle_svg(
+                Btn::svg(
                     "../data/system/assets/tools/locate.svg",
-                    &format!("Stop {}", idx + 1),
-                    None,
                     RewriteColor::Change(Color::hex("#CC4121"), colors::HOVERING),
-                    ctx,
-                )),
+                )
+                .build(ctx, format!("Stop {}", idx + 1), None),
                 if let Some(hgram) = delay_per_stop.remove(&route.stops[idx]) {
                     format!(
                         ": {} (avg {})",

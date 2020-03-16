@@ -6,7 +6,7 @@ use crate::managed::WrappedComposite;
 use crate::render::{AgentColorScheme, MIN_ZOOM_FOR_DETAIL};
 use abstutil::clamp;
 use ezgui::{
-    hotkey, Button, Choice, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx,
+    hotkey, Btn, Button, Choice, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, ManagedWidget, Outcome, RewriteColor, ScreenDims, ScreenPt,
     Text, VerticalAlignment,
 };
@@ -282,13 +282,11 @@ fn make_minimap_panel(ctx: &mut EventCtx, acs: &AgentColorScheme, zoom_lvl: usiz
     }
 
     let square_len = 0.15 * ctx.canvas.window_width;
-    let mut zoom_col = vec![ManagedWidget::btn(Button::rectangle_svg(
+    let mut zoom_col = vec![Btn::svg(
         "../data/system/assets/speed/speed_up.svg",
-        "zoom in",
-        None,
         RewriteColor::ChangeAll(colors::HOVERING),
-        ctx,
-    ))];
+    )
+    .build(ctx, "zoom in", None)];
     for i in (0..=3).rev() {
         let color = if zoom_lvl < i {
             Color::grey(0.2)
@@ -305,13 +303,13 @@ fn make_minimap_panel(ctx: &mut EventCtx, acs: &AgentColorScheme, zoom_lvl: usiz
             rect,
         )));
     }
-    zoom_col.push(ManagedWidget::btn(Button::rectangle_svg(
-        "../data/system/assets/speed/slow_down.svg",
-        "zoom out",
-        None,
-        RewriteColor::ChangeAll(colors::HOVERING),
-        ctx,
-    )));
+    zoom_col.push(
+        Btn::svg(
+            "../data/system/assets/speed/slow_down.svg",
+            RewriteColor::ChangeAll(colors::HOVERING),
+        )
+        .build(ctx, "zoom out", None),
+    );
 
     Composite::new(
         ManagedWidget::row(vec![

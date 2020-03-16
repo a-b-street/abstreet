@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::colors;
 use crate::game::{DrawBaselayer, State, Transition};
 use ezgui::{
-    hotkey, Button, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    hotkey, Btn, Button, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
     ManagedWidget, MultiKey, Outcome, RewriteColor, Text, VerticalAlignment,
 };
 use std::collections::HashMap;
@@ -64,13 +64,11 @@ impl WrappedComposite {
         tooltip: &str,
         hotkey: Option<MultiKey>,
     ) -> ManagedWidget {
-        ManagedWidget::btn(Button::rectangle_svg(
+        Btn::svg(
             filename,
-            tooltip,
-            hotkey,
             RewriteColor::Change(Color::WHITE, colors::HOVERING),
-            ctx,
-        ))
+        )
+        .build(ctx, tooltip, hotkey)
     }
 
     pub fn nice_text_button(
@@ -91,18 +89,11 @@ impl WrappedComposite {
     }
 
     pub fn text_button(ctx: &EventCtx, label: &str, hotkey: Option<MultiKey>) -> ManagedWidget {
-        WrappedComposite::nice_text_button(ctx, Text::from(Line(label)), hotkey, label)
+        Btn::text_fg(label).build_def(ctx, hotkey)
     }
 
     pub fn text_bg_button(ctx: &EventCtx, label: &str, hotkey: Option<MultiKey>) -> ManagedWidget {
-        ManagedWidget::btn(Button::text_bg(
-            Text::from(Line(label).fg(Color::BLACK)),
-            Color::WHITE,
-            colors::HOVERING,
-            hotkey,
-            label,
-            ctx,
-        ))
+        Btn::text_bg2(label).build_def(ctx, hotkey)
     }
 
     // Always includes a built-in "X" quit option

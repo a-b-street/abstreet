@@ -7,7 +7,7 @@ use crate::helpers::ID;
 use crate::managed::WrappedComposite;
 use crate::render::Renderable;
 use ezgui::{
-    hotkey, Button, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key,
+    hotkey, Btn, Button, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key,
     ManagedWidget, Outcome, RewriteColor, TextExt, VerticalAlignment,
 };
 use map_model::{EditCmd, LaneID, LaneType, Map, RoadID};
@@ -57,13 +57,11 @@ impl LaneEditor {
         ] {
             row.push(
                 if active {
-                    ManagedWidget::btn(Button::rectangle_svg(
-                        &format!("../data/system/assets/edit/{}.svg", icon),
-                        label,
-                        hotkey(key),
+                    Btn::svg(
+                        format!("../data/system/assets/edit/{}.svg", icon),
                         RewriteColor::ChangeAll(colors::HOVERING),
-                        ctx,
-                    ))
+                    )
+                    .build(ctx, label, hotkey(key))
                 } else {
                     ManagedWidget::draw_svg_transform(
                         ctx,
