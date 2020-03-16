@@ -66,6 +66,14 @@ impl CmdArgs {
         }
     }
 
+    pub fn true_false(&mut self, key: &str) -> bool {
+        match self.required(key).as_ref() {
+            "true" => true,
+            "false" => false,
+            x => panic!("{}={} is invalid; must be true or false", key, x),
+        }
+    }
+
     pub fn enabled(&mut self, key: &str) -> bool {
         if self.bits.remove(key) {
             self.used.insert(key.to_string());

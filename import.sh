@@ -117,6 +117,7 @@ for poly in `ls ../data/input/polygons/`; do
 		--neighborhoods=../data/input/neighborhoods.geojson \
 		--elevation=../data/input/N47W122.hgt \
 		--clip=../data/input/polygons/$name.poly \
+		--drive_on_right=true \
 		--output=../data/input/raw_maps/$name.bin
 		#--sidewalks=../data/input/sidewalks.bin \
 done

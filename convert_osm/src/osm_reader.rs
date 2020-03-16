@@ -292,7 +292,7 @@ fn is_road(tags: &BTreeMap<String, String>) -> bool {
 
     // https://github.com/Project-OSRM/osrm-backend/blob/master/profiles/car.lua is another
     // potential reference
-    for &value in &[
+    for value in &[
         // List of non-car types from https://wiki.openstreetmap.org/wiki/Key:highway
         // TODO Footways are very useful, but they need more work to associate with main roads
         "footway",
@@ -315,8 +315,9 @@ fn is_road(tags: &BTreeMap<String, String>) -> bool {
         "elevator",
         "planned",
         "razed",
+        "corridor",
     ] {
-        if tags.get(osm::HIGHWAY) == Some(&String::from(value)) {
+        if tags.get(osm::HIGHWAY) == Some(&value.to_string()) {
             return false;
         }
     }

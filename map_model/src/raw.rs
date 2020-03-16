@@ -30,6 +30,9 @@ pub struct RawMap {
 
     pub boundary_polygon: Polygon,
     pub gps_bounds: GPSBounds,
+    // If true, driving happens on the right side of the road (USA). If false, on the left
+    // (Australia).
+    pub drive_on_right: bool,
 }
 
 // A way to refer to roads across many maps.
@@ -95,6 +98,7 @@ impl RawMap {
             // Some nonsense thing
             boundary_polygon: Polygon::rectangle(1.0, 1.0),
             gps_bounds: GPSBounds::new(),
+            drive_on_right: true,
         }
     }
 

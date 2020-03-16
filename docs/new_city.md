@@ -15,6 +15,7 @@ everything [from source](INSTRUCTIONS.md).
 cd convert_osm
 cargo run --release -- \
   --osm=../data/input/osm/your_city.osm \
+  --drive_on_right=true|false \
   --output=../data/input/raw_maps/your_city.bin
 cd ../precompute
 cargo run --release -- ../data/input/raw_maps/your_city.bin

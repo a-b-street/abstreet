@@ -22,6 +22,7 @@ pub struct Flags {
     pub neighborhoods: Option<String>,
     pub elevation: Option<String>,
     pub clip: Option<String>,
+    pub drive_on_right: bool,
     pub output: String,
 }
 
@@ -31,6 +32,7 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> RawMap {
         timer,
     );
     clip::clip_map(&mut map, timer);
+    map.drive_on_right = flags.drive_on_right;
 
     // Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when
     // doing the parking hint matching.

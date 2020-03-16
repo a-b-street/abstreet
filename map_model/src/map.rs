@@ -38,6 +38,7 @@ pub struct Map {
 
     gps_bounds: GPSBounds,
     bounds: Bounds,
+    pub(crate) drive_on_right: bool,
 
     turn_lookup: Vec<TurnID>,
     // TODO Argh, hack, initialization order is hard!
@@ -98,6 +99,7 @@ impl Map {
             traffic_signals: BTreeMap::new(),
             gps_bounds: GPSBounds::new(),
             bounds: Bounds::new(),
+            drive_on_right: true,
             turn_lookup: Vec::new(),
             pathfinder: None,
             pathfinder_dirty: false,
@@ -800,6 +802,7 @@ fn make_half_map(
         traffic_signals: BTreeMap::new(),
         gps_bounds,
         bounds,
+        drive_on_right: raw.drive_on_right,
         turn_lookup: Vec::new(),
         pathfinder: None,
         pathfinder_dirty: false,

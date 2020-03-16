@@ -399,6 +399,7 @@ impl Road {
         "???".to_string()
     }
 
+    // Used to determine which roads have stop signs when roads of different types intersect.
     pub fn get_rank(&self) -> usize {
         if let Some(highway) = self.osm_tags.get(osm::HIGHWAY) {
             match highway.as_ref() {
@@ -424,6 +425,9 @@ impl Road {
                 "unclassified" => 0,
                 "road" => 0,
                 "crossing" => 0,
+                // If you hit this error and the highway type doesn't represent a driveable road,
+                // you may want to instead filter out the OSM way entirely in
+                // convert_osm/src/osm_reader.rs's is_road().
                 _ => panic!("Unknown OSM highway {}", highway),
             }
         } else {

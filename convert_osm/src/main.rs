@@ -12,6 +12,7 @@ fn main() {
         neighborhoods: args.optional("--neighborhoods"),
         elevation: args.optional("--elevation"),
         clip: args.optional("--clip"),
+        drive_on_right: args.true_false("--drive_on_right"),
         output: args.required("--output"),
     };
     args.done();
