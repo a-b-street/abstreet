@@ -511,7 +511,10 @@ impl Pedestrian {
                     orig_angle.opposite()
                 };
                 (
-                    pos.project_away(SIDEWALK_THICKNESS / 4.0, facing.rotate_degs(90.0)),
+                    pos.project_away(
+                        SIDEWALK_THICKNESS / 4.0,
+                        map.driving_side_angle(facing.rotate_degs(90.0)),
+                    ),
                     facing,
                 )
             }
@@ -523,7 +526,10 @@ impl Pedestrian {
                     orig_angle
                 };
                 (
-                    pos.project_away(SIDEWALK_THICKNESS / 4.0, facing.rotate_degs(90.0)),
+                    pos.project_away(
+                        SIDEWALK_THICKNESS / 4.0,
+                        map.driving_side_angle(facing.rotate_degs(90.0)),
+                    ),
                     facing,
                 )
             }
@@ -556,8 +562,11 @@ impl Pedestrian {
                 let (pt, angle) = self.goal.sidewalk_pos.pt_and_angle(map);
                 // Stand on the far side of the sidewalk (by the bus stop), facing the road
                 (
-                    pt.project_away(SIDEWALK_THICKNESS / 4.0, angle.rotate_degs(90.0)),
-                    angle.rotate_degs(-90.0),
+                    pt.project_away(
+                        SIDEWALK_THICKNESS / 4.0,
+                        map.driving_side_angle(angle.rotate_degs(90.0)),
+                    ),
+                    map.driving_side_angle(angle.rotate_degs(-90.0)),
                 )
             }
         };

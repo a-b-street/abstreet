@@ -1,7 +1,7 @@
 use crate::make::get_lane_types;
 use crate::{osm, AreaType, IntersectionType, OffstreetParking, RoadSpec};
 use abstutil::{deserialize_btreemap, retain_btreemap, serialize_btreemap, Error, Timer, Warn};
-use geom::{Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
+use geom::{Angle, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
 use gtfs::Route;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -660,31 +660,38 @@ pub enum DrivingSide {
 impl DrivingSide {
     // "right" and "left" here are in terms of DrivingSide::Right, what I'm used to reasoning about
     // in the USA. They invert appropriately for DrivingSide::Left.
-    pub fn right_shift(&self, pl: PolyLine, width: Distance) -> Warn<PolyLine> {
+    pub fn right_shift(self, pl: PolyLine, width: Distance) -> Warn<PolyLine> {
         match self {
             DrivingSide::Right => pl.shift_right(width),
             DrivingSide::Left => pl.shift_left(width),
         }
     }
 
-    pub fn left_shift(&self, pl: PolyLine, width: Distance) -> Warn<PolyLine> {
+    pub fn left_shift(self, pl: PolyLine, width: Distance) -> Warn<PolyLine> {
         match self {
             DrivingSide::Right => pl.shift_left(width),
             DrivingSide::Left => pl.shift_right(width),
         }
     }
 
-    pub fn right_shift_line(&self, line: Line, width: Distance) -> Line {
+    pub fn right_shift_line(self, line: Line, width: Distance) -> Line {
         match self {
             DrivingSide::Right => line.shift_right(width),
             DrivingSide::Left => line.shift_left(width),
         }
     }
 
-    pub fn left_shift_line(&self, line: Line, width: Distance) -> Line {
+    pub fn left_shift_line(self, line: Line, width: Distance) -> Line {
         match self {
             DrivingSide::Right => line.shift_left(width),
             DrivingSide::Left => line.shift_right(width),
+        }
+    }
+
+    pub fn angle_offset(self, a: Angle) -> Angle {
+        match self {
+            DrivingSide::Right => a,
+            DrivingSide::Left => a.opposite(),
         }
     }
 }

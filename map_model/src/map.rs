@@ -8,7 +8,7 @@ use crate::{
     NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer, Warn};
-use geom::{Bounds, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
+use geom::{Angle, Bounds, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 
@@ -671,6 +671,9 @@ impl Map {
     }
     pub fn left_shift_line(&self, line: Line, width: Distance) -> Line {
         self.driving_side.left_shift_line(line, width)
+    }
+    pub fn driving_side_angle(&self, a: Angle) -> Angle {
+        self.driving_side.angle_offset(a)
     }
     // Last resort
     pub fn get_driving_side(&self) -> DrivingSide {
