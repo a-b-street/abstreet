@@ -243,7 +243,7 @@ impl TurnGroup {
             left += map.get_l(l).width;
         }
 
-        let pl = pl.shift_right((leftmost + rightmost) / 2.0).unwrap();
+        let pl = map.right_shift(pl, (leftmost + rightmost) / 2.0).unwrap();
         // Flip direction, so we point away from the intersection
         let pl = if self.id.crosswalk
             && map.get_l(self.members[0].src).src_i == self.members[0].parent

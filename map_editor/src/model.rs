@@ -595,8 +595,9 @@ impl Model {
             };
             obj.push(
                 Model::lt_to_color(*lt, unset, lanes_unknown),
-                center_pts
-                    .shift_right(offset + width / 2.0)
+                self.map
+                    .driving_side
+                    .right_shift(center_pts.clone(), offset + width / 2.0)
                     .unwrap()
                     .make_polygons(width),
             );
@@ -617,9 +618,9 @@ impl Model {
             };
             obj.push(
                 Model::lt_to_color(*lt, unset, lanes_unknown),
-                center_pts
-                    .reversed()
-                    .shift_right(offset + width / 2.0)
+                self.map
+                    .driving_side
+                    .right_shift(center_pts.reversed(), offset + width / 2.0)
                     .unwrap()
                     .make_polygons(width),
             );

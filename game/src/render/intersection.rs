@@ -94,11 +94,13 @@ impl DrawIntersection {
             // TODO warn
             return None;
         }
-        let last_line = rightmost
-            .lane_center_pts
-            .exact_slice(Distance::ZERO, rightmost.length() - trim_back)
-            .last_line()
-            .shift_right(rightmost.width);
+        let last_line = map.right_shift_line(
+            rightmost
+                .lane_center_pts
+                .exact_slice(Distance::ZERO, rightmost.length() - trim_back)
+                .last_line(),
+            rightmost.width,
+        );
 
         let octagon = make_octagon(last_line.pt2(), Distance::meters(1.0), last_line.angle());
         let pole = Line::new(
@@ -193,13 +195,13 @@ pub fn calculate_corners(i: &Intersection, map: &Map, timer: &mut Timer) -> Vec<
             let l1 = map.get_l(turn.id.src);
             let l2 = map.get_l(turn.id.dst);
 
-            let src_line = l1.last_line().shift_left(width / 2.0);
-            let dst_line = l2.first_line().shift_left(width / 2.0);
+            let src_line = map.left_shift_line(l1.last_line(), width / 2.0);
+            let dst_line = map.left_shift_line(l2.first_line(), width / 2.0);
 
             let pt_maybe_in_intersection = src_line.infinite().intersection(&dst_line.infinite());
             // Now find all of the points on the intersection polygon between the two sidewalks.
-            let corner1 = l1.last_line().shift_right(width / 2.0).pt2();
-            let corner2 = l2.first_line().shift_right(width / 2.0).pt1();
+            let corner1 = map.right_shift_line(l1.last_line(), width / 2.0).pt2();
+            let corner2 = map.right_shift_line(l2.first_line(), width / 2.0).pt1();
             // Intersection polygons are constructed in clockwise order, so do corner2 to corner1.
             // TODO This threshold is higher than the 0.1 intersection polygons use to dedupe
             // because of jagged lane teeth from bad polyline shifting. Seemingly.
@@ -243,14 +245,18 @@ fn calculate_border_arrows(
     // These arrows should point from the void to the road
     if !i.outgoing_lanes.is_empty() {
         let (line, width) = if r.dst_i == i.id {
-            let width = r.width_left(map);
+            let width = r.width_back(map);
             (
-                r.center_pts.last_line().shift_left(width / 2.0).reverse(),
+                map.left_shift_line(r.center_pts.last_line(), width / 2.0)
+                    .reverse(),
                 width,
             )
         } else {
-            let width = r.width_right(map);
-            (r.center_pts.first_line().shift_right(width / 2.0), width)
+            let width = r.width_fwd(map);
+            (
+                map.right_shift_line(r.center_pts.first_line(), width / 2.0),
+                width,
+            )
         };
         result.push(
             // DEGENERATE_INTERSECTION_HALF_LENGTH is 5m...
@@ -266,14 +272,18 @@ fn calculate_border_arrows(
     // These arrows should point from the road to the void
     if !i.incoming_lanes.is_empty() {
         let (line, width) = if r.dst_i == i.id {
-            let width = r.width_right(map);
+            let width = r.width_fwd(map);
             (
-                r.center_pts.last_line().shift_right(width / 2.0).reverse(),
+                map.right_shift_line(r.center_pts.last_line(), width / 2.0)
+                    .reverse(),
                 width,
             )
         } else {
-            let width = r.width_left(map);
-            (r.center_pts.first_line().shift_left(width / 2.0), width)
+            let width = r.width_back(map);
+            (
+                map.left_shift_line(r.center_pts.first_line(), width / 2.0),
+                width,
+            )
         };
         result.push(
             PolyLine::new(vec![

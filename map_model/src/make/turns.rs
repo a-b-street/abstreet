@@ -1,15 +1,16 @@
-use crate::raw::RestrictionType;
+use crate::raw::{DrivingSide, RestrictionType};
 use crate::{
     Intersection, IntersectionID, Lane, LaneID, LaneType, Road, RoadID, Turn, TurnID, TurnType,
 };
 use abstutil::{wraparound_get, Timer, Warn};
-use geom::{Distance, Line, PolyLine, Pt2D};
+use geom::{Distance, Line, PolyLine, Pt2D, Ring};
 use nbez::{Bez3o, BezCurve, Point2d};
 use std::collections::{BTreeSet, HashMap, HashSet};
 
 // TODO Add proper warnings when the geometry is too small to handle.
 
 pub fn make_all_turns(
+    driving_side: DrivingSide,
     i: &Intersection,
     roads: &Vec<Road>,
     lanes: &Vec<Lane>,
@@ -19,7 +20,7 @@ pub fn make_all_turns(
 
     let mut raw_turns: Vec<Turn> = Vec::new();
     raw_turns.extend(make_vehicle_turns(i, roads, lanes, timer));
-    raw_turns.extend(make_walking_turns(i, roads, lanes, timer));
+    raw_turns.extend(make_walking_turns(driving_side, i, roads, lanes, timer));
     let unique_turns = ensure_unique(raw_turns);
 
     let mut final_turns: Vec<Turn> = Vec::new();
@@ -290,6 +291,7 @@ fn make_vehicle_turns_for_dead_end(
 }
 
 fn make_walking_turns(
+    driving_side: DrivingSide,
     i: &Intersection,
     all_roads: &Vec<Road>,
     lanes: &Vec<Lane>,
@@ -314,7 +316,7 @@ fn make_walking_turns(
                     abstutil::wraparound_get(&roads, (idx1 as isize) - 1).outgoing_lanes(i.id),
                 ) {
                     if l1.last_pt() != l2.first_pt() {
-                        let geom = make_shared_sidewalk_corner(i, l1, l2, timer);
+                        let geom = make_shared_sidewalk_corner(driving_side, i, l1, l2, timer);
                         result.push(Turn {
                             id: turn_id(i.id, l1.id, l2.id),
                             turn_type: TurnType::SharedSidewalkCorner,
@@ -338,7 +340,7 @@ fn make_walking_turns(
     if roads.len() == 1 {
         if let Some(l1) = get_sidewalk(lanes, roads[0].incoming_lanes(i.id)) {
             if let Some(l2) = get_sidewalk(lanes, roads[0].outgoing_lanes(i.id)) {
-                let geom = make_shared_sidewalk_corner(i, l1, l2, timer);
+                let geom = make_shared_sidewalk_corner(driving_side, i, l1, l2, timer);
                 result.push(Turn {
                     id: turn_id(i.id, l1.id, l2.id),
                     turn_type: TurnType::SharedSidewalkCorner,
@@ -358,6 +360,14 @@ fn make_walking_turns(
         return result;
     }
 
+    // I'm a bit confused when to do -1 and +1 honestly, but this works in practice. Angle sorting
+    // may be a little backwards.
+    let idx_offset = if driving_side == DrivingSide::Right {
+        -1
+    } else {
+        1
+    };
+
     for idx1 in 0..roads.len() {
         if let Some(l1) = get_sidewalk(lanes, roads[idx1].incoming_lanes(i.id)) {
             // Make the crosswalk to the other side
@@ -366,13 +376,12 @@ fn make_walking_turns(
             }
 
             // Find the shared corner
-            // TODO -1 and not +1 is brittle... must be the angle sorting
             if let Some(l2) = get_sidewalk(
                 lanes,
-                abstutil::wraparound_get(&roads, (idx1 as isize) - 1).outgoing_lanes(i.id),
+                abstutil::wraparound_get(&roads, (idx1 as isize) + idx_offset).outgoing_lanes(i.id),
             ) {
                 if l1.last_pt() != l2.first_pt() {
-                    let geom = make_shared_sidewalk_corner(i, l1, l2, timer);
+                    let geom = make_shared_sidewalk_corner(driving_side, i, l1, l2, timer);
                     result.push(Turn {
                         id: turn_id(i.id, l1.id, l2.id),
                         turn_type: TurnType::SharedSidewalkCorner,
@@ -525,6 +534,7 @@ fn make_degenerate_crosswalks(
 }
 
 fn make_shared_sidewalk_corner(
+    driving_side: DrivingSide,
     i: &Intersection,
     l1: &Lane,
     l2: &Lane,
@@ -534,8 +544,17 @@ fn make_shared_sidewalk_corner(
 
     // Find all of the points on the intersection polygon between the two sidewalks. Assumes
     // sidewalks are the same length.
-    let corner1 = l1.last_line().shift_right(l1.width / 2.0).pt2();
-    let corner2 = l2.first_line().shift_right(l2.width / 2.0).pt1();
+    let corner1 = driving_side
+        .right_shift_line(l1.last_line(), l1.width / 2.0)
+        .pt2();
+    let corner2 = driving_side
+        .right_shift_line(l2.first_line(), l2.width / 2.0)
+        .pt1();
+
+    // TODO Something like this will be MUCH simpler and avoid going around the long way sometimes.
+    if false {
+        return Ring::new(i.polygon.points().clone()).get_shorter_slice_btwn(corner1, corner2);
+    }
 
     // The order of the points here seems backwards, but it's because we scan from corner2
     // to corner1 below.
@@ -557,8 +576,8 @@ fn make_shared_sidewalk_corner(
             }
 
             pts_between.extend(
-                PolyLine::new(deduped)
-                    .shift_right(l1.width / 2.0)
+                driving_side
+                    .right_shift(PolyLine::new(deduped), l1.width / 2.0)
                     .with_context(
                         timer,
                         format!("SharedSidewalkCorner between {} and {}", l1.id, l2.id),

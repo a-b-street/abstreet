@@ -118,7 +118,7 @@ impl DrawLane {
                 LaneType::Driving | LaneType::Bus => {
                     draw.extend(
                         cs.get("general road marking"),
-                        calculate_driving_lines(lane, road, timer),
+                        calculate_driving_lines(map, lane, road, timer),
                     );
                     draw.extend(
                         cs.get("general road marking"),
@@ -241,13 +241,20 @@ fn calculate_parking_lines(lane: &Lane) -> Vec<Polygon> {
     result
 }
 
-fn calculate_driving_lines(lane: &Lane, parent: &Road, timer: &mut Timer) -> Vec<Polygon> {
+fn calculate_driving_lines(
+    map: &Map,
+    lane: &Lane,
+    parent: &Road,
+    timer: &mut Timer,
+) -> Vec<Polygon> {
     // The leftmost lanes don't have dashed lines.
     let (dir, idx) = parent.dir_and_offset(lane.id);
     if idx == 0 || (dir && parent.children_forwards[idx - 1].1 == LaneType::SharedLeftTurn) {
         return Vec::new();
     }
-    let lane_edge_pts = lane.lane_center_pts.shift_left(lane.width / 2.0).get(timer);
+    let lane_edge_pts = map
+        .left_shift(lane.lane_center_pts.clone(), lane.width / 2.0)
+        .get(timer);
     dashed_lines(
         &lane_edge_pts,
         Distance::meters(0.25),

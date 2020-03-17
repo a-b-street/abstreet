@@ -7,7 +7,7 @@ mod srtm;
 use abstutil::Timer;
 use geom::{Distance, FindClosest, Line, PolyLine, Pt2D};
 use kml::ExtraShapes;
-use map_model::raw::{OriginalBuilding, OriginalRoad, RawMap};
+use map_model::raw::{DrivingSide, OriginalBuilding, OriginalRoad, RawMap};
 use map_model::{osm, LaneID, OffstreetParking, Position};
 
 // Just used for matching hints to different sides of a road.
@@ -32,7 +32,11 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> RawMap {
         timer,
     );
     clip::clip_map(&mut map, timer);
-    map.drive_on_right = flags.drive_on_right;
+    map.driving_side = if flags.drive_on_right {
+        DrivingSide::Right
+    } else {
+        DrivingSide::Left
+    };
 
     // Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when
     // doing the parking hint matching.
@@ -78,15 +82,15 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
         let center = PolyLine::new(r.center_points.clone());
         closest.add(
             (*id, true),
-            center
-                .shift_right(DIRECTED_ROAD_THICKNESS)
+            map.driving_side
+                .right_shift(center.clone(), DIRECTED_ROAD_THICKNESS)
                 .get(timer)
                 .points(),
         );
         closest.add(
             (*id, false),
-            center
-                .shift_left(DIRECTED_ROAD_THICKNESS)
+            map.driving_side
+                .left_shift(center, DIRECTED_ROAD_THICKNESS)
                 .get(timer)
                 .points(),
         );
@@ -225,15 +229,15 @@ fn use_sidewalk_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
         let center = PolyLine::new(r.center_points.clone());
         closest.add(
             (*id, true),
-            center
-                .shift_right(DIRECTED_ROAD_THICKNESS)
+            map.driving_side
+                .right_shift(center.clone(), DIRECTED_ROAD_THICKNESS)
                 .get(timer)
                 .points(),
         );
         closest.add(
             (*id, false),
-            center
-                .shift_left(DIRECTED_ROAD_THICKNESS)
+            map.driving_side
+                .left_shift(center, DIRECTED_ROAD_THICKNESS)
                 .get(timer)
                 .points(),
         );

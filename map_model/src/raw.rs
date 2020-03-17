@@ -1,7 +1,7 @@
 use crate::make::get_lane_types;
 use crate::{osm, AreaType, IntersectionType, OffstreetParking, RoadSpec};
-use abstutil::{deserialize_btreemap, retain_btreemap, serialize_btreemap, Error, Timer};
-use geom::{Distance, GPSBounds, Polygon, Pt2D};
+use abstutil::{deserialize_btreemap, retain_btreemap, serialize_btreemap, Error, Timer, Warn};
+use geom::{Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
 use gtfs::Route;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -32,7 +32,7 @@ pub struct RawMap {
     pub gps_bounds: GPSBounds,
     // If true, driving happens on the right side of the road (USA). If false, on the left
     // (Australia).
-    pub drive_on_right: bool,
+    pub driving_side: DrivingSide,
 }
 
 // A way to refer to roads across many maps.
@@ -98,7 +98,7 @@ impl RawMap {
             // Some nonsense thing
             boundary_polygon: Polygon::rectangle(1.0, 1.0),
             gps_bounds: GPSBounds::new(),
-            drive_on_right: true,
+            driving_side: DrivingSide::Right,
         }
     }
 
@@ -325,7 +325,8 @@ impl RawMap {
             roads.insert(*r, initial::Road::new(*r, &self.roads[r]));
         }
 
-        let (i_pts, debug) = initial::intersection_polygon(&i, &mut roads, timer);
+        let (i_pts, debug) =
+            initial::intersection_polygon(self.driving_side, &i, &mut roads, timer);
         (
             Polygon::new(&i_pts),
             roads
@@ -333,12 +334,18 @@ impl RawMap {
                 .map(|r| {
                     // A little of get_thick_polyline
                     let pl = if r.fwd_width >= r.back_width {
-                        r.trimmed_center_pts
-                            .shift_right((r.fwd_width - r.back_width) / 2.0)
+                        self.driving_side
+                            .right_shift(
+                                r.trimmed_center_pts.clone(),
+                                (r.fwd_width - r.back_width) / 2.0,
+                            )
                             .unwrap()
                     } else {
-                        r.trimmed_center_pts
-                            .shift_left((r.back_width - r.fwd_width) / 2.0)
+                        self.driving_side
+                            .left_shift(
+                                r.trimmed_center_pts.clone(),
+                                (r.back_width - r.fwd_width) / 2.0,
+                            )
                             .unwrap()
                     };
                     pl.make_polygons(r.fwd_width + r.back_width)
@@ -641,5 +648,43 @@ impl MapFixes {
         }
 
         self.gps_bounds = local_gps_bounds.clone();
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+pub enum DrivingSide {
+    Right,
+    Left,
+}
+
+impl DrivingSide {
+    // "right" and "left" here are in terms of DrivingSide::Right, what I'm used to reasoning about
+    // in the USA. They invert appropriately for DrivingSide::Left.
+    pub fn right_shift(&self, pl: PolyLine, width: Distance) -> Warn<PolyLine> {
+        match self {
+            DrivingSide::Right => pl.shift_right(width),
+            DrivingSide::Left => pl.shift_left(width),
+        }
+    }
+
+    pub fn left_shift(&self, pl: PolyLine, width: Distance) -> Warn<PolyLine> {
+        match self {
+            DrivingSide::Right => pl.shift_left(width),
+            DrivingSide::Left => pl.shift_right(width),
+        }
+    }
+
+    pub fn right_shift_line(&self, line: Line, width: Distance) -> Line {
+        match self {
+            DrivingSide::Right => line.shift_right(width),
+            DrivingSide::Left => line.shift_left(width),
+        }
+    }
+
+    pub fn left_shift_line(&self, line: Line, width: Distance) -> Line {
+        match self {
+            DrivingSide::Right => line.shift_left(width),
+            DrivingSide::Left => line.shift_right(width),
+        }
     }
 }

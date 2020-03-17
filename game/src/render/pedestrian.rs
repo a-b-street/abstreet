@@ -191,9 +191,9 @@ impl DrawPedCrowd {
             PedCrowdLocation::Sidewalk(on, contraflow) => {
                 let pl_slice = on.exact_slice(input.low, input.high, map);
                 if contraflow {
-                    pl_slice.shift_left(SIDEWALK_THICKNESS / 4.0).unwrap()
+                    map.left_shift(pl_slice, SIDEWALK_THICKNESS / 4.0).unwrap()
                 } else {
-                    pl_slice.shift_right(SIDEWALK_THICKNESS / 4.0).unwrap()
+                    map.right_shift(pl_slice, SIDEWALK_THICKNESS / 4.0).unwrap()
                 }
             }
             PedCrowdLocation::FrontPath(b) => map

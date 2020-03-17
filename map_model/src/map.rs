@@ -1,5 +1,5 @@
 use crate::pathfind::Pathfinder;
-use crate::raw::{OriginalIntersection, OriginalRoad, RawMap};
+use crate::raw::{DrivingSide, OriginalIntersection, OriginalRoad, RawMap};
 use crate::{
     connectivity, make, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop,
     BusStopID, ControlStopSign, ControlTrafficSignal, EditCmd, EditEffects, EditIntersection,
@@ -7,8 +7,8 @@ use crate::{
     PathConstraints, PathRequest, Position, Road, RoadID, Turn, TurnGroupID, TurnID, TurnType,
     NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
 };
-use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
-use geom::{Bounds, Distance, GPSBounds, PolyLine, Polygon, Pt2D};
+use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer, Warn};
+use geom::{Bounds, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 
@@ -38,7 +38,7 @@ pub struct Map {
 
     gps_bounds: GPSBounds,
     bounds: Bounds,
-    pub(crate) drive_on_right: bool,
+    driving_side: DrivingSide,
 
     turn_lookup: Vec<TurnID>,
     // TODO Argh, hack, initialization order is hard!
@@ -99,7 +99,7 @@ impl Map {
             traffic_signals: BTreeMap::new(),
             gps_bounds: GPSBounds::new(),
             bounds: Bounds::new(),
-            drive_on_right: true,
+            driving_side: DrivingSide::Right,
             turn_lookup: Vec::new(),
             pathfinder: None,
             pathfinder_dirty: false,
@@ -659,6 +659,19 @@ impl Map {
         }
         panic!("Can't find {:?}", id);
     }
+
+    pub fn right_shift(&self, pl: PolyLine, width: Distance) -> Warn<PolyLine> {
+        self.driving_side.right_shift(pl, width)
+    }
+    pub fn left_shift(&self, pl: PolyLine, width: Distance) -> Warn<PolyLine> {
+        self.driving_side.left_shift(pl, width)
+    }
+    pub fn right_shift_line(&self, line: Line, width: Distance) -> Line {
+        self.driving_side.right_shift_line(line, width)
+    }
+    pub fn left_shift_line(&self, line: Line, width: Distance) -> Line {
+        self.driving_side.left_shift_line(line, width)
+    }
 }
 
 impl Map {
@@ -802,7 +815,7 @@ fn make_half_map(
         traffic_signals: BTreeMap::new(),
         gps_bounds,
         bounds,
-        drive_on_right: raw.drive_on_right,
+        driving_side: raw.driving_side,
         turn_lookup: Vec::new(),
         pathfinder: None,
         pathfinder_dirty: false,
@@ -879,24 +892,23 @@ fn make_half_map(
             map.intersections[dst_i.0].incoming_lanes.push(id);
 
             let (unshifted_pts, other_lanes_width): (PolyLine, Distance) = if lane.reverse_pts {
-                let w = road.width_left(&map);
+                let w = road.width_back(&map);
                 road.children_backwards.push((id, lane.lane_type));
                 (road.center_pts.reversed(), w)
             } else {
-                let w = road.width_right(&map);
+                let w = road.width_fwd(&map);
                 road.children_forwards.push((id, lane.lane_type));
                 (road.center_pts.clone(), w)
             };
             // TODO probably different behavior for oneways
             // TODO need to factor in yellow center lines (but what's the right thing to even do?
-            // Reverse points for British-style driving on the left
             let width = if lane.lane_type == LaneType::Sidewalk {
                 SIDEWALK_THICKNESS
             } else {
                 NORMAL_LANE_THICKNESS
             };
-            let lane_center_pts = unshifted_pts
-                .shift_right(other_lanes_width + width / 2.0)
+            let lane_center_pts = map
+                .right_shift(unshifted_pts, other_lanes_width + width / 2.0)
                 .with_context(timer, format!("shift for {}", id));
 
             map.lanes.push(Lane {
@@ -943,7 +955,7 @@ fn make_half_map(
             continue;
         }
 
-        for t in make::make_all_turns(i, &map.roads, &map.lanes, timer) {
+        for t in make::make_all_turns(map.driving_side, i, &map.roads, &map.lanes, timer) {
             assert!(!map.turns.contains_key(&t.id));
             i.turns.insert(t.id);
             map.turns.insert(t.id, t);
@@ -1192,7 +1204,7 @@ fn recalculate_turns(
         return;
     }
 
-    for t in make::make_all_turns(i, &map.roads, &map.lanes, timer) {
+    for t in make::make_all_turns(map.driving_side, i, &map.roads, &map.lanes, timer) {
         effects.added_turns.insert(t.id);
         i.turns.insert(t.id);
         if let Some(_existing_t) = old_turns.iter().find(|turn| turn.id == t.id) {

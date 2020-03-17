@@ -1,5 +1,5 @@
 use crate::make::initial::{Intersection, Road};
-use crate::raw::{OriginalIntersection, OriginalRoad};
+use crate::raw::{DrivingSide, OriginalIntersection, OriginalRoad};
 use abstutil::{wraparound_get, Timer};
 use geom::{Distance, Line, PolyLine, Polygon, Pt2D};
 use std::collections::BTreeMap;
@@ -10,6 +10,7 @@ const DEGENERATE_INTERSECTION_HALF_LENGTH: Distance = Distance::const_meters(2.5
 // carves up part of that space, doesn't reach past it.
 // Also returns a list of labeled polygons for debugging.
 pub fn intersection_polygon(
+    driving_side: DrivingSide,
     i: &Intersection,
     roads: &mut BTreeMap<OriginalRoad, Road>,
     timer: &mut Timer,
@@ -30,7 +31,7 @@ pub fn intersection_polygon(
         .map(|id| {
             let r = &roads[id];
 
-            let (line, width_normal, width_reverse) = if r.src_i == i.id {
+            let (pl, width_normal, width_reverse) = if r.src_i == i.id {
                 road_endpts.push(r.trimmed_center_pts.first_pt());
                 (r.trimmed_center_pts.reversed(), r.back_width, r.fwd_width)
             } else if r.dst_i == i.id {
@@ -40,13 +41,13 @@ pub fn intersection_polygon(
                 panic!("Incident road {} doesn't have an endpoint at {}", id, i.id);
             };
 
-            let pl_normal = line
-                .shift_right(width_normal)
+            let pl_normal = driving_side
+                .right_shift(pl.clone(), width_normal)
                 .with_context(timer, format!("pl_normal {}", r.id));
-            let pl_reverse = line
-                .shift_left(width_reverse)
+            let pl_reverse = driving_side
+                .left_shift(pl.clone(), width_reverse)
                 .with_context(timer, format!("pl_reverse {}", r.id));
-            (*id, line.last_line(), pl_normal, pl_reverse)
+            (*id, pl.last_line(), pl_normal, pl_reverse)
         })
         .collect();
 
@@ -65,11 +66,12 @@ pub fn intersection_polygon(
     if lines.len() == 1 {
         deadend(roads, i.id, &lines, timer)
     } else {
-        generalized_trim_back(roads, i.id, &lines, timer)
+        generalized_trim_back(driving_side, roads, i.id, &lines, timer)
     }
 }
 
 fn generalized_trim_back(
+    driving_side: DrivingSide,
     roads: &mut BTreeMap<OriginalRoad, Road>,
     i: OriginalIntersection,
     lines: &Vec<(OriginalRoad, Line, PolyLine, PolyLine)>,
@@ -248,27 +250,27 @@ fn generalized_trim_back(
         // Shift those final centers out again to find the main endpoints for the polygon.
         if r.dst_i == i {
             endpoints.push(
-                r.trimmed_center_pts
-                    .shift_right(r.fwd_width)
+                driving_side
+                    .right_shift(r.trimmed_center_pts.clone(), r.fwd_width)
                     .with_context(timer, format!("main polygon endpoints from {}", r.id))
                     .last_pt(),
             );
             endpoints.push(
-                r.trimmed_center_pts
-                    .shift_left(r.back_width)
+                driving_side
+                    .left_shift(r.trimmed_center_pts.clone(), r.back_width)
                     .with_context(timer, format!("main polygon endpoints from {}", r.id))
                     .last_pt(),
             );
         } else {
             endpoints.push(
-                r.trimmed_center_pts
-                    .shift_left(r.back_width)
+                driving_side
+                    .left_shift(r.trimmed_center_pts.clone(), r.back_width)
                     .with_context(timer, format!("main polygon endpoints from {}", r.id))
                     .first_pt(),
             );
             endpoints.push(
-                r.trimmed_center_pts
-                    .shift_right(r.fwd_width)
+                driving_side
+                    .right_shift(r.trimmed_center_pts.clone(), r.fwd_width)
                     .with_context(timer, format!("main polygon endpoints from {}", r.id))
                     .first_pt(),
             );

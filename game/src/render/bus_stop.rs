@@ -20,13 +20,14 @@ impl DrawBusStop {
         // Kinda sad that bus stops might be very close to the start of the lane, but it's
         // happening.
         let lane = map.get_l(stop.id.sidewalk);
-        let main_pl = lane
-            .lane_center_pts
-            .exact_slice(
-                Distance::ZERO.max(stop.sidewalk_pos.dist_along() - radius),
-                lane.length().min(stop.sidewalk_pos.dist_along() + radius),
+        let main_pl = map
+            .right_shift(
+                lane.lane_center_pts.exact_slice(
+                    Distance::ZERO.max(stop.sidewalk_pos.dist_along() - radius),
+                    lane.length().min(stop.sidewalk_pos.dist_along() + radius),
+                ),
+                lane.width * 0.3,
             )
-            .shift_right(lane.width * 0.3)
             .unwrap();
         let polyline = PolyLine::new(vec![
             main_pl.first_pt().project_away(

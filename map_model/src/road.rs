@@ -104,7 +104,8 @@ pub struct Road {
     pub orig_id: OriginalRoad,
 
     // Invariant: A road must contain at least one child
-    // These are ordered from left-most lane (closest to center lane) to rightmost (sidewalk)
+    // These are ordered from closest to center lane (left-most when driving on the right) to
+    // farthest (sidewalk)
     pub children_forwards: Vec<(LaneID, LaneType)>,
     pub children_backwards: Vec<(LaneID, LaneType)>,
 
@@ -323,7 +324,8 @@ impl Road {
         } else {
             self.children_backwards[0].0
         });
-        lane.lane_center_pts.shift_left(lane.width / 2.0).unwrap()
+        map.left_shift(lane.lane_center_pts.clone(), lane.width / 2.0)
+            .unwrap()
     }
 
     pub fn any_on_other_side(&self, l: LaneID, lt: LaneType) -> Option<LaneID> {
@@ -335,13 +337,13 @@ impl Road {
         search.iter().find(|(_, t)| lt == *t).map(|(id, _)| *id)
     }
 
-    pub fn width_right(&self, map: &Map) -> Distance {
+    pub fn width_fwd(&self, map: &Map) -> Distance {
         self.children_forwards
             .iter()
             .map(|(l, _)| map.get_l(*l).width)
             .sum()
     }
-    pub fn width_left(&self, map: &Map) -> Distance {
+    pub fn width_back(&self, map: &Map) -> Distance {
         self.children_backwards
             .iter()
             .map(|(l, _)| map.get_l(*l).width)
@@ -349,17 +351,15 @@ impl Road {
     }
 
     pub fn get_thick_polyline(&self, map: &Map) -> Warn<(PolyLine, Distance)> {
-        let width_right = self.width_right(map);
-        let width_left = self.width_left(map);
-        let total_width = width_right + width_left;
-        if width_right >= width_left {
-            self.center_pts
-                .shift_right((width_right - width_left) / 2.0)
-                .map(|pl| (pl, total_width))
+        let fwd = self.width_fwd(map);
+        let back = self.width_back(map);
+
+        if fwd >= back {
+            map.right_shift(self.center_pts.clone(), (fwd - back) / 2.0)
+                .map(|pl| (pl, fwd + back))
         } else {
-            self.center_pts
-                .shift_left((width_left - width_right) / 2.0)
-                .map(|pl| (pl, total_width))
+            map.left_shift(self.center_pts.clone(), (back - fwd) / 2.0)
+                .map(|pl| (pl, fwd + back))
         }
     }
 

@@ -163,15 +163,13 @@ impl DrawMap {
             for r in map.all_roads().iter() {
                 closest.add(
                     r.id.forwards(),
-                    r.center_pts
-                        .shift_right(NORMAL_LANE_THICKNESS)
+                    map.right_shift(r.center_pts.clone(), NORMAL_LANE_THICKNESS)
                         .get(timer)
                         .points(),
                 );
                 closest.add(
                     r.id.backwards(),
-                    r.center_pts
-                        .shift_left(NORMAL_LANE_THICKNESS)
+                    map.left_shift(r.center_pts.clone(), NORMAL_LANE_THICKNESS)
                         .get(timer)
                         .points(),
                 );
