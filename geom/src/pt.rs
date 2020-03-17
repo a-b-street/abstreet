@@ -149,6 +149,7 @@ impl Pt2D {
         result
     }
 
+    // TODO Try to deprecate in favor of Ring::get_shorter_slice_btwn
     pub fn find_pts_between(
         pts: &Vec<Pt2D>,
         start: Pt2D,

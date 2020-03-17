@@ -304,6 +304,14 @@ fn make_walking_turns(
         .collect();
     let mut result: Vec<Turn> = Vec::new();
 
+    // I'm a bit confused when to do -1 and +1 honestly, but this works in practice. Angle sorting
+    // may be a little backwards.
+    let idx_offset = if driving_side == DrivingSide::Right {
+        -1
+    } else {
+        1
+    };
+
     if roads.len() == 2 {
         if let Some(turns) = make_degenerate_crosswalks(i.id, lanes, roads[0], roads[1]) {
             result.extend(turns);
@@ -313,7 +321,8 @@ fn make_walking_turns(
             if let Some(l1) = get_sidewalk(lanes, roads[idx1].incoming_lanes(i.id)) {
                 if let Some(l2) = get_sidewalk(
                     lanes,
-                    abstutil::wraparound_get(&roads, (idx1 as isize) - 1).outgoing_lanes(i.id),
+                    abstutil::wraparound_get(&roads, (idx1 as isize) + idx_offset)
+                        .outgoing_lanes(i.id),
                 ) {
                     if l1.last_pt() != l2.first_pt() {
                         let geom = make_shared_sidewalk_corner(driving_side, i, l1, l2, timer);
@@ -360,14 +369,6 @@ fn make_walking_turns(
         return result;
     }
 
-    // I'm a bit confused when to do -1 and +1 honestly, but this works in practice. Angle sorting
-    // may be a little backwards.
-    let idx_offset = if driving_side == DrivingSide::Right {
-        -1
-    } else {
-        1
-    };
-
     for idx1 in 0..roads.len() {
         if let Some(l1) = get_sidewalk(lanes, roads[idx1].incoming_lanes(i.id)) {
             // Make the crosswalk to the other side
@@ -399,7 +400,7 @@ fn make_walking_turns(
                 }
             } else if let Some(l2) = get_sidewalk(
                 lanes,
-                abstutil::wraparound_get(&roads, (idx1 as isize) - 1).incoming_lanes(i.id),
+                abstutil::wraparound_get(&roads, (idx1 as isize) + idx_offset).incoming_lanes(i.id),
             ) {
                 // Adjacent road is missing a sidewalk on the near side, but has one on the far
                 // side
@@ -410,18 +411,21 @@ fn make_walking_turns(
                 // TODO Refactor and loop until we find something to connect it to?
                 if let Some(l2) = get_sidewalk(
                     lanes,
-                    abstutil::wraparound_get(&roads, (idx1 as isize) - 2).outgoing_lanes(i.id),
+                    abstutil::wraparound_get(&roads, (idx1 as isize) + 2 * idx_offset)
+                        .outgoing_lanes(i.id),
                 ) {
                     result.extend(make_crosswalks(i.id, l1, l2));
                 } else if let Some(l2) = get_sidewalk(
                     lanes,
-                    abstutil::wraparound_get(&roads, (idx1 as isize) - 2).incoming_lanes(i.id),
+                    abstutil::wraparound_get(&roads, (idx1 as isize) + 2 * idx_offset)
+                        .incoming_lanes(i.id),
                 ) {
                     result.extend(make_crosswalks(i.id, l1, l2));
                 } else if roads.len() > 3 {
                     if let Some(l2) = get_sidewalk(
                         lanes,
-                        abstutil::wraparound_get(&roads, (idx1 as isize) - 3).outgoing_lanes(i.id),
+                        abstutil::wraparound_get(&roads, (idx1 as isize) + 3 * idx_offset)
+                            .outgoing_lanes(i.id),
                     ) {
                         result.extend(make_crosswalks(i.id, l1, l2));
                     }
@@ -560,9 +564,11 @@ fn make_shared_sidewalk_corner(
     // to corner1 below.
     let mut pts_between = vec![l2.first_pt()];
     // Intersection polygons are constructed in clockwise order, so do corner2 to corner1.
-    if let Some(pts) =
-        Pt2D::find_pts_between(&i.polygon.points(), corner2, corner1, Distance::meters(0.5))
-    {
+    let mut i_pts = i.polygon.points().clone();
+    if driving_side == DrivingSide::Left {
+        i_pts.reverse();
+    }
+    if let Some(pts) = Pt2D::find_pts_between(&i_pts, corner2, corner1, Distance::meters(0.5)) {
         let mut deduped = pts.clone();
         deduped.dedup();
         if deduped.len() >= 2 {

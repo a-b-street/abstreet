@@ -327,6 +327,7 @@ fn generalized_trim_back(
     deduped = Pt2D::approx_dedupe(deduped, Distance::meters(0.1));
     let center = Pt2D::center(&deduped);
     deduped.sort_by_key(|pt| pt.angle_to(center).normalized_degrees() as i64);
+    deduped = Pt2D::approx_dedupe(deduped, Distance::meters(0.1));
     deduped = close_off_polygon(deduped);
     if main_result.len() == deduped.len() {
         (main_result, debug)

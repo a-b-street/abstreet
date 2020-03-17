@@ -672,6 +672,10 @@ impl Map {
     pub fn left_shift_line(&self, line: Line, width: Distance) -> Line {
         self.driving_side.left_shift_line(line, width)
     }
+    // Last resort
+    pub fn get_driving_side(&self) -> DrivingSide {
+        self.driving_side
+    }
 }
 
 impl Map {

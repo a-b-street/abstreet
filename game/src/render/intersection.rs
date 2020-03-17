@@ -6,6 +6,7 @@ use crate::render::{
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Angle, Distance, Line, PolyLine, Polygon, Pt2D, Time, EPSILON_DIST};
+use map_model::raw::DrivingSide;
 use map_model::{
     Intersection, IntersectionID, IntersectionType, Map, Road, RoadWithStopSign, Turn, TurnType,
 };
@@ -205,8 +206,12 @@ pub fn calculate_corners(i: &Intersection, map: &Map, timer: &mut Timer) -> Vec<
             // Intersection polygons are constructed in clockwise order, so do corner2 to corner1.
             // TODO This threshold is higher than the 0.1 intersection polygons use to dedupe
             // because of jagged lane teeth from bad polyline shifting. Seemingly.
+            let mut i_pts = i.polygon.points().clone();
+            if map.get_driving_side() == DrivingSide::Left {
+                i_pts.reverse();
+            }
             if let Some(mut pts_between) =
-                Pt2D::find_pts_between(&i.polygon.points(), corner2, corner1, Distance::meters(0.5))
+                Pt2D::find_pts_between(&i_pts, corner2, corner1, Distance::meters(0.5))
             {
                 pts_between.push(src_line.pt2());
                 // If the intersection of the two lines isn't actually inside, then just exclude
