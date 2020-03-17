@@ -6,7 +6,7 @@ use crate::managed::WrappedComposite;
 use crate::render::{AgentColorScheme, MIN_ZOOM_FOR_DETAIL};
 use abstutil::clamp;
 use ezgui::{
-    hotkey, Btn, Button, Choice, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx,
+    hotkey, Btn, Choice, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, ManagedWidget, Outcome, RewriteColor, ScreenDims, ScreenPt,
     Text, VerticalAlignment,
 };
@@ -294,14 +294,14 @@ fn make_minimap_panel(ctx: &mut EventCtx, acs: &AgentColorScheme, zoom_lvl: usiz
             Color::WHITE
         };
         let rect = Polygon::rectangle(20.0, 8.0);
-        zoom_col.push(ManagedWidget::btn(Button::new(
-            ctx,
-            GeomBatch::from(vec![(color, rect.clone())]),
-            GeomBatch::from(vec![(colors::HOVERING, rect.clone())]),
-            None,
-            &format!("zoom to level {}", i + 1),
-            rect,
-        )));
+        zoom_col.push(
+            Btn::custom(
+                GeomBatch::from(vec![(color, rect.clone())]),
+                GeomBatch::from(vec![(colors::HOVERING, rect.clone())]),
+                rect,
+            )
+            .build(ctx, format!("zoom to level {}", i + 1), None),
+        );
     }
     zoom_col.push(
         Btn::svg(
@@ -422,19 +422,23 @@ fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
     for (label, color, enabled) in &acs.rows {
         col.push(
             ManagedWidget::row(vec![
-                ManagedWidget::btn(Button::rectangle_svg_rewrite(
-                    "../data/system/assets/tools/visibility.svg",
-                    &format!("show/hide {}", label),
-                    None,
-                    if *enabled {
-                        RewriteColor::NoOp
-                    } else {
-                        RewriteColor::ChangeAll(Color::WHITE.alpha(0.5))
-                    },
-                    RewriteColor::ChangeAll(colors::HOVERING),
-                    ctx,
-                ))
-                .margin(3),
+                {
+                    let (normal, bounds) = GeomBatch::from_svg(
+                        ctx,
+                        "../data/system/assets/tools/visibility.svg",
+                        if *enabled {
+                            RewriteColor::NoOp
+                        } else {
+                            RewriteColor::ChangeAll(Color::WHITE.alpha(0.5))
+                        },
+                    );
+                    let mut hovered = normal.clone();
+                    hovered.rewrite_color(RewriteColor::ChangeAll(colors::HOVERING));
+
+                    Btn::custom(normal, hovered, bounds.get_rectangle())
+                        .build(ctx, format!("show/hide {}", label), None)
+                        .margin(3)
+                },
                 ManagedWidget::draw_batch(
                     ctx,
                     GeomBatch::from(vec![(

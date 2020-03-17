@@ -5,7 +5,7 @@ use crate::options::TrafficSignalStyle;
 use crate::render::intersection::make_crosswalk;
 use crate::render::{DrawTurnGroup, BIG_ARROW_THICKNESS};
 use ezgui::{
-    hotkey, Button, Color, Composite, EventCtx, GeomBatch, HorizontalAlignment, Key, Line,
+    hotkey, Btn, Color, Composite, EventCtx, GeomBatch, HorizontalAlignment, Key, Line,
     ManagedWidget, Prerender, Text, TextExt, VerticalAlignment,
 };
 use geom::{Angle, Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D};
@@ -316,15 +316,9 @@ pub fn make_signal_diagram(
         hovered.push(Color::RED, bbox.to_outline(Distance::meters(5.0)));
 
         phase_rows.push(
-            ManagedWidget::btn(Button::new(
-                ctx,
-                normal,
-                hovered,
-                None,
-                &format!("phase {}", idx + 1),
-                bbox.clone(),
-            ))
-            .margin(5),
+            Btn::custom(normal, hovered, bbox.clone())
+                .build(ctx, format!("phase {}", idx + 1), None)
+                .margin(5),
         );
 
         if idx == selected {

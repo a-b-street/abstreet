@@ -389,6 +389,16 @@ impl GeomBatch {
         }
     }
 
+    pub fn from_svg<I: Into<String>>(
+        ctx: &EventCtx,
+        path: I,
+        rewrite: RewriteColor,
+    ) -> (GeomBatch, Bounds) {
+        let (mut batch, bounds) = svg::load_svg(ctx.prerender, &path.into());
+        batch.rewrite_color(rewrite);
+        (batch, bounds)
+    }
+
     // TODO Weird API...
     pub fn add_svg(
         &mut self,

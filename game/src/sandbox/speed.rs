@@ -65,28 +65,28 @@ impl SpeedControls {
                 ]
                 .into_iter()
                 .map(|(s, label)| {
-                    let mut tooltip = Text::from(Line(label).size(20));
-                    tooltip.add(Line(Key::LeftArrow.describe()).fg(Color::GREEN).size(20));
-                    tooltip.append(Line(" - slow down"));
-                    tooltip.add(Line(Key::RightArrow.describe()).fg(Color::GREEN).size(20));
-                    tooltip.append(Line(" - speed up"));
+                    let mut txt = Text::from(Line(label).size(20));
+                    txt.add(Line(Key::LeftArrow.describe()).fg(Color::GREEN).size(20));
+                    txt.append(Line(" - slow down"));
+                    txt.add(Line(Key::RightArrow.describe()).fg(Color::GREEN).size(20));
+                    txt.append(Line(" - speed up"));
 
-                    ManagedWidget::btn(
-                        Button::rectangle_svg_rewrite(
-                            "../data/system/assets/speed/triangle.svg",
-                            label,
-                            None,
-                            if setting >= s {
-                                RewriteColor::NoOp
-                            } else {
-                                RewriteColor::ChangeAll(Color::WHITE.alpha(0.2))
-                            },
-                            RewriteColor::ChangeAll(colors::HOVERING),
-                            ctx,
-                        )
-                        .change_tooltip(tooltip),
-                    )
-                    .margin(5)
+                    let (normal, bounds) = GeomBatch::from_svg(
+                        ctx,
+                        "../data/system/assets/speed/triangle.svg",
+                        if setting >= s {
+                            RewriteColor::NoOp
+                        } else {
+                            RewriteColor::ChangeAll(Color::WHITE.alpha(0.2))
+                        },
+                    );
+                    let mut hovered = normal.clone();
+                    hovered.rewrite_color(RewriteColor::ChangeAll(colors::HOVERING));
+
+                    Btn::custom(normal, hovered, bounds.get_rectangle())
+                        .tooltip(txt)
+                        .build(ctx, label, None)
+                        .margin(5)
                 })
                 .collect(),
             )
