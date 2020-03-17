@@ -52,7 +52,7 @@ impl VehiclePathfinder {
         assert!(!map.get_l(req.start.lane()).is_sidewalk());
         let mut calc = self
             .path_calc
-            .get_or(|| Box::new(RefCell::new(fast_paths::create_calculator(&self.graph))))
+            .get_or(|| RefCell::new(fast_paths::create_calculator(&self.graph)))
             .borrow_mut();
         let raw_path = calc.calc_path(
             &self.graph,

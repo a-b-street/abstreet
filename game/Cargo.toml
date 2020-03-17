@@ -13,7 +13,7 @@ wasm = ["ezgui/wasm-backend"]
 [dependencies]
 aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
-built = { version = "0.3.2", optional = true }
+built = { version = "0.4.0", optional = true, features=["chrono"] }
 chrono = "0.4.10"
 downcast-rs = "1.0.4"
 ezgui = { path = "../ezgui", default-features=false }

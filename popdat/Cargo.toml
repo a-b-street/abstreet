@@ -19,3 +19,7 @@ map_model = { path = "../map_model" }
 serde = "1.0.98"
 serde_derive = "1.0.98"
 sim = { path = "../sim" }
+
+[[bin]]
+name = "popdat"
+required-features = ["import"]

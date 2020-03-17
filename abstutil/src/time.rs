@@ -556,7 +556,7 @@ impl MeasureMemory {
 
 #[cfg(target_os = "linux")]
 fn process_used_memory_mb() -> usize {
-    (procfs::Process::myself().unwrap().stat.vsize / 1024 / 1024) as usize
+    (procfs::process::Process::myself().unwrap().stat.vsize / 1024 / 1024) as usize
 }
 
 #[cfg(not(target_os = "linux"))]

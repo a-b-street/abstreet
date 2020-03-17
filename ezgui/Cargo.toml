@@ -25,7 +25,7 @@ lyon = "0.15.6"
 ordered-float = "1.0.1"
 serde = "1.0.98"
 serde_derive = "1.0.98"
-simsearch = "0.1.4"
+simsearch = "0.2.0"
 stdweb  = { version = "0.4.20", optional = true }
 stretch = "0.3.2"
 textwrap = "0.11"

@@ -108,3 +108,16 @@ rustflags = [
     "-C", "link-arg=-fuse-ld=lld",                                                    
 ]
 ```
+
+## git
+
+Keep a fork up to date:
+
+```
+# Once
+git remote add upstream https://github.com/rust-windowing/glutin/
+
+git fetch upstream
+git merge upstream/master
+git diff upstream/master
+```
