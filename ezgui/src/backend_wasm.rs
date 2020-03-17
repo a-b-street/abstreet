@@ -81,6 +81,17 @@ pub fn setup(
         gl.use_program(Some(program));
 
         gl.enable(glow::SCISSOR_TEST);
+
+        gl.enable(glow::DEPTH_TEST);
+        gl.depth_func(glow::LEQUAL);
+
+        gl.enable(glow::BLEND);
+        gl.blend_func_separate(
+            glow::SRC_ALPHA,
+            glow::ONE_MINUS_SRC_ALPHA,
+            glow::SRC_ALPHA,
+            glow::ONE_MINUS_SRC_ALPHA,
+        );
     }
 
     (
@@ -109,6 +120,9 @@ impl<'a> GfxCtxInnards<'a> {
             Color::RGBA(r, g, b, a) => unsafe {
                 self.gl.clear_color(r, g, b, a);
                 self.gl.clear(glow::COLOR_BUFFER_BIT);
+
+                self.gl.clear_depth_f32(1.0);
+                self.gl.clear(glow::DEPTH_BUFFER_BIT);
             },
             _ => unreachable!(),
         }
