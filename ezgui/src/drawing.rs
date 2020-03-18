@@ -175,7 +175,7 @@ impl<'a> GfxCtx<'a> {
 
     // The text box covers up what's beneath and eats the cursor (for get_cursor_in_map_space).
     // TODO Super close to deleting this.
-    pub fn draw_blocking_text(
+    pub(crate) fn draw_blocking_text(
         &mut self,
         txt: Text,
         (horiz, vert): (HorizontalAlignment, VerticalAlignment),

@@ -5,7 +5,7 @@ mod world;
 use abstutil::{CmdArgs, Timer};
 use ezgui::{
     hotkey, Canvas, Choice, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line,
-    ModalMenu, Text, Wizard, GUI,
+    ModalMenu, ScreenPt, Text, Wizard, GUI,
 };
 use geom::{Angle, Distance, Line, Polygon, Pt2D};
 use map_model::raw::{OriginalBuilding, OriginalIntersection, OriginalRoad, RestrictionType};
@@ -17,7 +17,8 @@ struct UI {
     model: Model,
     state: State,
     menu: ModalMenu,
-    sidebar: Text,
+    popup: Option<Drawable>,
+    info_key_held: bool,
 
     last_id: Option<ID>,
 }
@@ -91,7 +92,8 @@ impl UI {
                 ],
                 ctx,
             ),
-            sidebar: Text::new().with_bg(),
+            popup: None,
+            info_key_held: false,
 
             last_id: None,
         };
@@ -112,19 +114,27 @@ impl UI {
                 ways_audited.insert(r.osm_tags[osm::OSM_WAY_ID].clone());
             }
         }
-        self.menu.set_info(
-            ctx,
-            Text::from(Line(format!(
-                "Parking data audited: {} / {} ways",
-                abstutil::prettyprint_usize(ways_audited.len()),
-                abstutil::prettyprint_usize(ways_audited.len() + ways_missing.len())
-            ))),
-        );
+
+        let mut txt = Text::from(Line(format!(
+            "Parking data audited: {} / {} ways",
+            abstutil::prettyprint_usize(ways_audited.len()),
+            abstutil::prettyprint_usize(ways_audited.len() + ways_missing.len())
+        )));
+        txt.add(Line("Hold right Control to show info about objects"));
+        self.menu.set_info(ctx, txt);
     }
 }
 
 impl GUI for UI {
     fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
+        if self.info_key_held {
+            self.info_key_held = !ctx.input.key_released(Key::RightControl);
+        } else {
+            self.info_key_held = ctx
+                .input
+                .unimportant_key_pressed(Key::RightControl, "hold to show info");
+        }
+
         ctx.canvas_movement();
         self.menu.event(ctx);
         if ctx.redo_mouseover() {
@@ -559,22 +569,15 @@ impl GUI for UI {
             }
         }
 
-        self.sidebar = Text::new().with_bg();
-        // TODO Do this differently
-        //self.sidebar.override_width = Some(0.3 * ctx.canvas.window_width);
-        //self.sidebar.override_height = Some(ctx.canvas.window_height);
-        if let Some(id) = self.model.world.get_selection() {
-            self.model.populate_obj_info(id, &mut self.sidebar);
-        } else {
-            self.sidebar.add_highlighted(Line("..."), Color::BLUE);
+        self.popup = None;
+        if self.info_key_held {
+            if let Some(id) = self.model.world.get_selection() {
+                let mut txt = self.model.describe_obj(id);
+                txt.add(Line(""));
+                ctx.input.populate_osd(&mut txt);
+                self.popup = Some(ctx.upload(txt.render_to_batch(ctx.prerender)));
+            }
         }
-
-        // I don't think a clickable menu of buttons makes sense here. These controls need to
-        // operate on the thing where the mouse is currently. Sometimes that's not even an object
-        // (like selecting an area or placing a new building).
-        self.sidebar.add(Line(""));
-        self.sidebar.add_highlighted(Line("Controls"), Color::BLUE);
-        ctx.input.populate_osd(&mut self.sidebar);
 
         self.last_id = self.model.world.get_selection();
 
@@ -657,13 +660,9 @@ impl GUI for UI {
         };
 
         self.menu.draw(g);
-        g.draw_blocking_text(
-            self.sidebar.clone(),
-            (
-                ezgui::HorizontalAlignment::Left,
-                ezgui::VerticalAlignment::Top,
-            ),
-        );
+        if let Some(ref popup) = self.popup {
+            g.redraw_at(ScreenPt::new(0.0, 0.0), popup);
+        }
     }
 
     fn dump_before_abort(&self, canvas: &Canvas) {

@@ -83,7 +83,7 @@ impl TextBox {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        let bg = g.upload(GeomBatch::from(vec![(
+        let mut batch = GeomBatch::from(vec![(
             if self.has_focus || self.autofocus {
                 Color::ORANGE
             } else if self.hovering {
@@ -92,9 +92,10 @@ impl TextBox {
                 text::BG_COLOR
             },
             Polygon::rectangle(self.dims.width, self.dims.height),
-        )]));
-        g.redraw_at(self.top_left, &bg);
-        g.draw_blocking_text_at_screenspace_topleft(self.calculate_text(), self.top_left);
+        )]);
+        batch.append(self.calculate_text().render_to_batch(g.prerender));
+        let draw = g.upload(batch);
+        g.redraw_at(self.top_left, &draw);
     }
 
     pub fn get_entry(&self) -> String {

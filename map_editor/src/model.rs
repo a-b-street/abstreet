@@ -181,7 +181,8 @@ impl Model {
         }
     }
 
-    pub fn populate_obj_info(&self, id: ID, txt: &mut Text) {
+    pub fn describe_obj(&self, id: ID) -> Text {
+        let mut txt = Text::new().with_bg();
         match id {
             ID::Building(b) => {
                 txt.add_highlighted(Line(b.to_string()), Color::BLUE);
@@ -245,6 +246,7 @@ impl Model {
                 txt.add(Line(format!("to {}", to)));
             }
         }
+        txt
     }
 }
 
