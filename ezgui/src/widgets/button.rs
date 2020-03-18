@@ -122,34 +122,6 @@ impl Widget for Button {
 
 // TODO Simplify all of these APIs!
 impl Button {
-    pub fn text_bg(
-        text: Text,
-        unselected_bg_color: Color,
-        selected_bg_color: Color,
-        hotkey: Option<MultiKey>,
-        tooltip: &str,
-        ctx: &EventCtx,
-    ) -> Button {
-        const HORIZ_PADDING: f64 = 30.0;
-        const VERT_PADDING: f64 = 10.0;
-
-        let txt_batch = text.render_ctx(ctx);
-        let dims = txt_batch.get_dims();
-        let geom = Polygon::rounded_rectangle(
-            dims.width + 2.0 * HORIZ_PADDING,
-            dims.height + 2.0 * VERT_PADDING,
-            VERT_PADDING,
-        );
-
-        let mut normal = GeomBatch::from(vec![(unselected_bg_color, geom.clone())]);
-        normal.add_translated(txt_batch.clone(), HORIZ_PADDING, VERT_PADDING);
-
-        let mut hovered = GeomBatch::from(vec![(selected_bg_color, geom.clone())]);
-        hovered.add_translated(txt_batch.clone(), HORIZ_PADDING, VERT_PADDING);
-
-        Button::new(ctx, normal, hovered, hotkey, tooltip, geom)
-    }
-
     pub fn text_no_bg(
         unselected_text: Text,
         selected_text: Text,
@@ -236,14 +208,46 @@ impl Btn {
         BtnBuilder::TextFG(label.into(), None)
     }
 
+    pub fn text_bg<I: Into<String>>(
+        label: I,
+        text: Text,
+        unselected_bg_color: Color,
+        selected_bg_color: Color,
+    ) -> BtnBuilder {
+        BtnBuilder::TextBG {
+            label: label.into(),
+            maybe_tooltip: None,
+
+            text,
+            unselected_bg_color,
+            selected_bg_color,
+        }
+    }
+
     // The info panel style with the lighter background color
     pub fn text_bg1<I: Into<String>>(label: I) -> BtnBuilder {
-        BtnBuilder::TextBG1(label.into(), None)
+        let label = label.into();
+        BtnBuilder::TextBG {
+            label: label.clone(),
+            maybe_tooltip: None,
+
+            text: Text::from(Line(label)),
+            unselected_bg_color: Color::grey(0.5),
+            selected_bg_color: Color::ORANGE,
+        }
     }
 
     // The white background. WrappedComposite::text_bg_button.
     pub fn text_bg2<I: Into<String>>(label: I) -> BtnBuilder {
-        BtnBuilder::TextBG2(label.into(), None)
+        let label = label.into();
+        BtnBuilder::TextBG {
+            label: label.clone(),
+            maybe_tooltip: None,
+
+            text: Text::from(Line(label).fg(Color::BLACK)),
+            unselected_bg_color: Color::WHITE,
+            selected_bg_color: Color::ORANGE,
+        }
     }
 
     pub fn custom(normal: GeomBatch, hovered: GeomBatch, hitbox: Polygon) -> BtnBuilder {
@@ -254,8 +258,14 @@ impl Btn {
 pub enum BtnBuilder {
     SVG(String, RewriteColor, Option<Text>),
     TextFG(String, Option<Text>),
-    TextBG1(String, Option<Text>),
-    TextBG2(String, Option<Text>),
+    TextBG {
+        label: String,
+        maybe_tooltip: Option<Text>,
+
+        text: Text,
+        unselected_bg_color: Color,
+        selected_bg_color: Color,
+    },
     Custom(GeomBatch, GeomBatch, Polygon, Option<Text>),
 }
 
@@ -264,11 +274,16 @@ impl BtnBuilder {
         match self {
             BtnBuilder::SVG(_, _, ref mut t)
             | BtnBuilder::TextFG(_, ref mut t)
-            | BtnBuilder::TextBG1(_, ref mut t)
-            | BtnBuilder::TextBG2(_, ref mut t)
             | BtnBuilder::Custom(_, _, _, ref mut t) => {
                 assert!(t.is_none());
                 *t = Some(tooltip);
+            }
+            BtnBuilder::TextBG {
+                ref mut maybe_tooltip,
+                ..
+            } => {
+                assert!(maybe_tooltip.is_none());
+                *maybe_tooltip = Some(tooltip);
             }
         }
         self
@@ -314,30 +329,32 @@ impl BtnBuilder {
                 }
                 ManagedWidget::btn(btn).outline(2.0, Color::WHITE)
             }
-            BtnBuilder::TextBG1(label, maybe_t) => {
-                let mut btn = Button::text_bg(
-                    Text::from(Line(label)),
-                    Color::grey(0.5),
-                    Color::ORANGE,
-                    key,
-                    &action_tooltip.into(),
-                    ctx,
+            BtnBuilder::TextBG {
+                text,
+                maybe_tooltip,
+                unselected_bg_color,
+                selected_bg_color,
+                ..
+            } => {
+                const HORIZ_PADDING: f64 = 30.0;
+                const VERT_PADDING: f64 = 10.0;
+
+                let txt_batch = text.render_ctx(ctx);
+                let dims = txt_batch.get_dims();
+                let geom = Polygon::rounded_rectangle(
+                    dims.width + 2.0 * HORIZ_PADDING,
+                    dims.height + 2.0 * VERT_PADDING,
+                    VERT_PADDING,
                 );
-                if let Some(t) = maybe_t {
-                    btn.tooltip = t;
-                }
-                ManagedWidget::btn(btn)
-            }
-            BtnBuilder::TextBG2(label, maybe_t) => {
-                let mut btn = Button::text_bg(
-                    Text::from(Line(label).fg(Color::BLACK)),
-                    Color::WHITE,
-                    Color::ORANGE,
-                    key,
-                    &action_tooltip.into(),
-                    ctx,
-                );
-                if let Some(t) = maybe_t {
+
+                let mut normal = GeomBatch::from(vec![(unselected_bg_color, geom.clone())]);
+                normal.add_translated(txt_batch.clone(), HORIZ_PADDING, VERT_PADDING);
+
+                let mut hovered = GeomBatch::from(vec![(selected_bg_color, geom.clone())]);
+                hovered.add_translated(txt_batch.clone(), HORIZ_PADDING, VERT_PADDING);
+
+                let mut btn = Button::new(ctx, normal, hovered, key, &action_tooltip.into(), geom);
+                if let Some(t) = maybe_tooltip {
                     btn.tooltip = t;
                 }
                 ManagedWidget::btn(btn)
@@ -358,9 +375,7 @@ impl BtnBuilder {
         match self {
             BtnBuilder::SVG(_, _, _) => panic!("Can't use build_def on an SVG button"),
             BtnBuilder::Custom(_, _, _, _) => panic!("Can't use build_def on a custom button"),
-            BtnBuilder::TextFG(ref label, _)
-            | BtnBuilder::TextBG1(ref label, _)
-            | BtnBuilder::TextBG2(ref label, _) => {
+            BtnBuilder::TextFG(ref label, _) | BtnBuilder::TextBG { ref label, .. } => {
                 let copy = label.clone();
                 self.build(ctx, copy, hotkey)
             }

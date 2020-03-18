@@ -7,9 +7,9 @@ use crate::render::{dashed_lines, Renderable, MIN_ZOOM_FOR_DETAIL};
 use crate::sandbox::{SandboxMode, SpeedControls};
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, Btn, Button, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Plot, PlotOptions, RewriteColor,
-    Series, Text, TextExt, VerticalAlignment,
+    hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, ManagedWidget, Outcome, Plot, PlotOptions, RewriteColor, Series, Text, TextExt,
+    VerticalAlignment,
 };
 use geom::{Angle, Circle, Distance, Duration, Polygon, Pt2D, Statistic, Time};
 use map_model::{BuildingID, IntersectionID, IntersectionType, Map, Path, PathStep};
@@ -61,15 +61,9 @@ impl InfoPanel {
                 let mut txt = Text::new();
                 txt.append(Line(key.describe()).fg(ezgui::HOTKEY_COLOR));
                 txt.append(Line(format!(" - {}", label)));
-                ManagedWidget::btn(Button::text_bg(
-                    txt,
-                    colors::SECTION_BG,
-                    colors::HOVERING,
-                    hotkey(*key),
-                    label,
-                    ctx,
-                ))
-                .margin(5)
+                Btn::text_bg(label, txt, colors::SECTION_BG, colors::HOVERING)
+                    .build_def(ctx, hotkey(*key))
+                    .margin(5)
             })
             .collect();
 

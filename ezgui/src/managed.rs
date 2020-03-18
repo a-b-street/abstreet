@@ -285,6 +285,20 @@ impl ManagedWidget {
         hotkey: Option<MultiKey>,
         enabled: bool,
     ) -> ManagedWidget {
+        ManagedWidget::custom_checkbox(
+            enabled,
+            Btn::text_fg(format!("☐ {}", label)).build(ctx, label, hotkey.clone()),
+            Btn::text_fg(format!("☑ {}", label)).build(ctx, label, hotkey),
+        )
+        .outline(2.0, Color::WHITE)
+        .named(label)
+    }
+    // TODO Not typesafe! Gotta pass a button.
+    pub fn custom_checkbox(
+        enabled: bool,
+        false_btn: ManagedWidget,
+        true_btn: ManagedWidget,
+    ) -> ManagedWidget {
         fn take_btn(w: ManagedWidget) -> Button {
             match w.widget {
                 WidgetType::Btn(btn) => btn,
@@ -292,17 +306,10 @@ impl ManagedWidget {
             }
         }
 
-        ManagedWidget::custom_checkbox(
-            enabled,
-            take_btn(Btn::text_fg(format!("☐ {}", label)).build(ctx, label, hotkey.clone())),
-            take_btn(Btn::text_fg(format!("☑ {}", label)).build(ctx, label, hotkey)),
-        )
-        .outline(2.0, Color::WHITE)
-        .named(label)
-    }
-    pub fn custom_checkbox(enabled: bool, false_btn: Button, true_btn: Button) -> ManagedWidget {
         ManagedWidget::new(WidgetType::Checkbox(Checkbox::new(
-            enabled, false_btn, true_btn,
+            enabled,
+            take_btn(false_btn),
+            take_btn(true_btn),
         )))
     }
 

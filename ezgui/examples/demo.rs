@@ -8,7 +8,7 @@
 // > cargo web start --target wasm32-unknown-unknown --features wasm-backend --example demo
 
 use ezgui::{
-    hotkey, lctrl, Button, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
+    hotkey, lctrl, Btn, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Plot, PlotOptions, Series, Text,
     TextExt, VerticalAlignment, GUI,
 };
@@ -262,38 +262,14 @@ fn make_controls(ctx: &mut EventCtx) -> Composite {
                 // This just cycles between two arbitrary buttons
                 ManagedWidget::custom_checkbox(
                     false,
-                    Button::text_bg(
-                        Text::from(Line("Pause")),
-                        Color::BLUE,
-                        Color::ORANGE,
-                        hotkey(Key::Space),
-                        "pause the stopwatch",
-                        ctx,
-                    ),
-                    Button::text_bg(
-                        Text::from(Line("Resume")),
-                        Color::BLUE,
-                        Color::ORANGE,
-                        hotkey(Key::Space),
-                        "resume the stopwatch",
-                        ctx,
-                    ),
+                    Btn::text_bg1("Pause").build(ctx, "pause the stopwatch", hotkey(Key::Space)),
+                    Btn::text_bg1("Resume").build(ctx, "resume the stopwatch", hotkey(Key::Space)),
                 )
                 .named("paused")
                 .margin(5),
-                // This is pretty verbose to create buttons. In A/B Street, I have a bunch of
-                // helpers to create buttons with pre-set styles. I'm not sure if there should be a
-                // generic library to apply styles to things.
-                ManagedWidget::btn(Button::text_no_bg(
-                    Text::from(Line("Reset")),
-                    Text::from(Line("Reset").fg(Color::ORANGE)),
-                    None,
-                    "reset the stopwatch",
-                    true,
-                    ctx,
-                ))
-                .outline(3.0, Color::WHITE)
-                .margin(5),
+                Btn::text_fg("Reset")
+                    .build(ctx, "reset the stopwatch", None)
+                    .margin(5),
                 ManagedWidget::checkbox(ctx, "Draw scrollable canvas", None, true).margin(5),
                 ManagedWidget::checkbox(ctx, "Show timeseries", lctrl(Key::T), false).margin(5),
             ])

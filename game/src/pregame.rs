@@ -7,8 +7,8 @@ use crate::game::{State, Transition};
 use crate::managed::{Callback, ManagedGUIState, WrappedComposite, WrappedOutcome};
 use crate::sandbox::{GameplayMode, SandboxMode, TutorialPointer};
 use ezgui::{
-    hotkey, hotkeys, Button, Color, Composite, EventCtx, EventLoopMode, GfxCtx, JustDraw, Key,
-    Line, ManagedWidget, Text,
+    hotkey, hotkeys, Btn, Color, Composite, EventCtx, EventLoopMode, GfxCtx, JustDraw, Key, Line,
+    ManagedWidget, Text,
 };
 use geom::{Duration, Line, Pt2D, Speed};
 use instant::Instant;
@@ -29,19 +29,15 @@ impl TitleScreen {
             composite: WrappedComposite::new(
                 Composite::new(
                     ManagedWidget::col(vec![
-                        JustDraw::svg(ctx, "../data/system/assets/pregame/logo.svg")
-                            .bg(Color::GREEN.alpha(0.2)),
+                        JustDraw::svg(ctx, "../data/system/assets/pregame/logo.svg").margin(5),
                         // TODO that nicer font
                         // TODO Any key
-                        ManagedWidget::btn(Button::text_bg(
-                            Text::from(Line("PLAY")),
-                            Color::BLUE,
-                            colors::HOVERING,
-                            hotkeys(vec![Key::Space, Key::Enter]),
-                            "start game",
-                            ctx,
-                        )),
+                        Btn::text_bg2("PLAY")
+                            .build(ctx, "start game", hotkeys(vec![Key::Space, Key::Enter]))
+                            .margin(5),
                     ])
+                    .bg(app.cs.get("grass"))
+                    .outline(3.0, Color::BLACK)
                     .centered(),
                 )
                 .build(ctx),
