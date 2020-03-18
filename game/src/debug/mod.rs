@@ -1,7 +1,6 @@
 mod floodfill;
 mod objects;
 mod polygons;
-mod routes;
 
 use crate::app::{App, ShowLayers, ShowObject};
 use crate::colors;
@@ -10,13 +9,14 @@ use crate::game::{msg, DrawBaselayer, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::DrawOptions;
+use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Text, VerticalAlignment, Wizard,
 };
 use geom::Duration;
-use map_model::IntersectionID;
-use sim::Sim;
+use map_model::{IntersectionID, NORMAL_LANE_THICKNESS};
+use sim::{Sim, TripID};
 use std::collections::HashSet;
 
 pub struct DebugMode {
@@ -27,7 +27,7 @@ pub struct DebugMode {
     hidden: HashSet<ID>,
     layers: ShowLayers,
     search_results: Option<SearchResults>,
-    all_routes: routes::AllRoutesViewer,
+    all_routes: Option<(usize, Drawable)>,
 
     highlighted_agents: Option<(IntersectionID, Drawable)>,
 }
@@ -42,14 +42,14 @@ impl DebugMode {
                         WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
                     ]),
                     Text::new().draw(ctx).named("current info"),
-                    ManagedWidget::row(
+                    ManagedWidget::checkbox(ctx, "show buildings", hotkey(Key::Num1), true),
+                    ManagedWidget::checkbox(ctx, "show intersections", hotkey(Key::Num2), true),
+                    ManagedWidget::checkbox(ctx, "show lanes", hotkey(Key::Num3), true),
+                    ManagedWidget::checkbox(ctx, "show areas", hotkey(Key::Num4), true),
+                    ManagedWidget::checkbox(ctx, "show extra shapes", hotkey(Key::Num5), true),
+                    ManagedWidget::checkbox(ctx, "show labels", hotkey(Key::Num6), false),
+                    ManagedWidget::col(
                         vec![
-                            (hotkey(Key::Num1), "toggle buildings"),
-                            (hotkey(Key::Num2), "toggle intersections"),
-                            (hotkey(Key::Num3), "toggle lanes"),
-                            (hotkey(Key::Num4), "toggle areas"),
-                            (hotkey(Key::Num5), "toggle extra shapes"),
-                            (hotkey(Key::Num6), "toggle labels"),
                             (lctrl(Key::H), "unhide everything"),
                             (hotkey(Key::R), "toggle route for all agents"),
                             (None, "screenshot everything"),
@@ -63,13 +63,12 @@ impl DebugMode {
                         .into_iter()
                         .map(|(key, action)| WrappedComposite::text_button(ctx, action, key))
                         .collect(),
-                    )
-                    .flex_wrap(ctx, 80),
+                    ),
                 ])
                 .padding(10)
                 .bg(colors::PANEL_BG),
             )
-            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
             common: CommonState::new(),
             tool_panel: tool_panel(ctx),
@@ -77,7 +76,7 @@ impl DebugMode {
             hidden: HashSet::new(),
             layers: ShowLayers::new(),
             search_results: None,
-            all_routes: routes::AllRoutesViewer::Inactive,
+            all_routes: None,
             highlighted_agents: None,
         }
     }
@@ -93,8 +92,11 @@ impl DebugMode {
                 results.query, results.num_matches
             )));
         }
-        if let routes::AllRoutesViewer::Active(ref traces) = self.all_routes {
-            txt.add(Line(format!("Showing {} routes", traces.len())));
+        if let Some((n, _)) = self.all_routes {
+            txt.add(Line(format!(
+                "Showing {} routes",
+                abstutil::prettyprint_usize(n)
+            )));
         }
         self.composite
             .replace(ctx, "current info", txt.draw(ctx).named("current info"));
@@ -181,7 +183,11 @@ impl State for DebugMode {
                     self.reset_info(ctx);
                 }
                 "toggle route for all agents" => {
-                    self.all_routes.toggle(app);
+                    if self.all_routes.is_none() {
+                        self.all_routes = Some(calc_all_routes(ctx, app));
+                    } else {
+                        self.all_routes = None;
+                    }
                     self.reset_info(ctx);
                 }
                 "search OSM metadata" => {
@@ -201,40 +207,17 @@ impl State for DebugMode {
                         max_y: bounds.max_y,
                     });
                 }
-                "toggle buildings" => {
-                    self.layers.show_buildings = !self.layers.show_buildings;
-                    app.primary.current_selection =
-                        app.calculate_current_selection(ctx, &app.primary.sim, self, true, false);
-                }
-                "toggle intersections" => {
-                    self.layers.show_intersections = !self.layers.show_intersections;
-                    app.primary.current_selection =
-                        app.calculate_current_selection(ctx, &app.primary.sim, self, true, false);
-                }
-                "toggle lanes" => {
-                    self.layers.show_lanes = !self.layers.show_lanes;
-                    app.primary.current_selection =
-                        app.calculate_current_selection(ctx, &app.primary.sim, self, true, false);
-                }
-                "toggle areas" => {
-                    self.layers.show_areas = !self.layers.show_areas;
-                    app.primary.current_selection =
-                        app.calculate_current_selection(ctx, &app.primary.sim, self, true, false);
-                }
-                "toggle extra shapes" => {
-                    self.layers.show_extra_shapes = !self.layers.show_extra_shapes;
-                    app.primary.current_selection =
-                        app.calculate_current_selection(ctx, &app.primary.sim, self, true, false);
-                }
-                "toggle labels" => {
-                    self.layers.show_labels = !self.layers.show_labels;
-                    app.primary.current_selection =
-                        app.calculate_current_selection(ctx, &app.primary.sim, self, true, false);
-                }
                 _ => unreachable!(),
             },
             None => {}
         }
+        // TODO We should really recalculate current_selection when these change. Meh.
+        self.layers.show_buildings = self.composite.is_checked("show buildings");
+        self.layers.show_intersections = self.composite.is_checked("show intersections");
+        self.layers.show_lanes = self.composite.is_checked("show lanes");
+        self.layers.show_areas = self.composite.is_checked("show areas");
+        self.layers.show_extra_shapes = self.composite.is_checked("show extra shapes");
+        self.layers.show_labels = self.composite.is_checked("show labels");
 
         if let Some(ID::Lane(_)) | Some(ID::Intersection(_)) | Some(ID::ExtraShape(_)) =
             app.primary.current_selection
@@ -339,7 +322,9 @@ impl State for DebugMode {
         }
 
         self.objects.draw(g, app);
-        self.all_routes.draw(g, app);
+        if let Some((_, ref draw)) = self.all_routes {
+            g.redraw(draw);
+        }
 
         if !g.is_screencap() {
             self.composite.draw(g);
@@ -441,4 +426,33 @@ fn load_savestate(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option
         app.recalculate_current_selection(ctx);
     });
     Some(Transition::Pop)
+}
+
+fn calc_all_routes(ctx: &EventCtx, app: &mut App) -> (usize, Drawable) {
+    let trips: Vec<TripID> = app
+        .primary
+        .sim
+        .get_trip_positions(&app.primary.map)
+        .canonical_pt_per_trip
+        .keys()
+        .cloned()
+        .collect();
+    let mut batch = GeomBatch::new();
+    let mut cnt = 0;
+    let sim = &app.primary.sim;
+    let map = &app.primary.map;
+    for maybe_trace in
+        Timer::new("calculate all routes").parallelize("route to geometry", trips, |trip| {
+            sim.trip_to_agent(trip)
+                .ok()
+                .and_then(|agent| sim.trace_route(agent, map, None))
+                .map(|trace| trace.make_polygons(NORMAL_LANE_THICKNESS))
+        })
+    {
+        if let Some(t) = maybe_trace {
+            cnt += 1;
+            batch.push(app.cs.get("route"), t);
+        }
+    }
+    (cnt, ctx.upload(batch))
 }
