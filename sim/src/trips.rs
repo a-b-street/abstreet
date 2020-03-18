@@ -124,6 +124,14 @@ impl TripManager {
                     TripStart::Border(_) => PersonState::OffMap,
                 };
             }
+            if let Some(t) = person.trips.last() {
+                if self.trips[t.0].spawned_at >= trip.spawned_at {
+                    panic!(
+                        "{} has a trip starting at {}, then one at {}",
+                        person.id, self.trips[t.0].spawned_at, trip.spawned_at
+                    );
+                }
+            }
             person.trips.push(id);
         }
         self.trips.push(trip);

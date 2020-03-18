@@ -322,6 +322,9 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
             // TODO Track when there are gaps in the sequence, to explain the person warping.
             trips.push(individ_trips[idx].take().unwrap());
         }
+        // Actually, the sequence in the Soundcast dataset crosses midnight. Don't do that; sort by
+        // departure time starting with midnight.
+        trips.sort_by_key(|t| t.depart);
         population.people.push(PersonSpec {
             id,
             // TODO Do we have to scrape a new input file for this? :(
