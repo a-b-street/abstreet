@@ -118,9 +118,12 @@ impl OptionsPanel {
                         .margin(5),
                     ]),
                     ManagedWidget::row(vec![
-                        "Scale factor for text / UI elements:"
-                            .draw_text(ctx)
-                            .margin(5),
+                        format!(
+                            "Scale factor for text / UI elements (your monitor is {}):",
+                            ctx.monitor_scale_factor()
+                        )
+                        .draw_text(ctx)
+                        .margin(5),
                         WrappedComposite::nice_text_button(
                             ctx,
                             Text::from(Line(format!("{} ▼", ctx.get_scale_factor()))),

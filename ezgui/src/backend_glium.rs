@@ -261,4 +261,8 @@ impl PrerenderInnards {
     }
 
     pub fn window_resized(&self, _: f64, _: f64) {}
+
+    pub fn monitor_scale_factor(&self) -> f64 {
+        self.display.gl_window().window().scale_factor()
+    }
 }

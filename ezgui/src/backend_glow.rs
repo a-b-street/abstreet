@@ -313,4 +313,8 @@ impl PrerenderInnards {
             self.gl.scissor(0, 0, width as i32, height as i32);
         }
     }
+
+    pub fn monitor_scale_factor(&self) -> f64 {
+        self.windowed_context.window().scale_factor()
+    }
 }

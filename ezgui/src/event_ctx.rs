@@ -96,6 +96,10 @@ impl<'a> EventCtx<'a> {
     pub fn get_scale_factor(&self) -> f64 {
         *self.prerender.assets.scale_factor.borrow()
     }
+
+    pub fn monitor_scale_factor(&self) -> f64 {
+        self.prerender.inner.monitor_scale_factor()
+    }
 }
 
 pub struct LoadingScreen<'a> {
