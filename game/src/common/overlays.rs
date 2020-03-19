@@ -767,10 +767,11 @@ impl Overlays {
             ManagedWidget::row(vec![
                 "intersection demand".draw_text(ctx),
                 Btn::svg(
-                    "../data/system/assets/tools/locate.svg",
-                    RewriteColor::Change(Color::hex("#CC4121"), colors::HOVERING),
+                    "../data/system/assets/tools/location.svg",
+                    RewriteColor::ChangeAll(colors::HOVERING),
                 )
-                .build(ctx, "intersection demand", None),
+                .build(ctx, "intersection demand", None)
+                .margin(5),
                 WrappedComposite::text_button(ctx, "X", None).align_right(),
             ]),
             ColorLegend::row(ctx, Color::RED, "current demand"),
@@ -809,7 +810,7 @@ impl Overlays {
             col.push(ManagedWidget::row(vec![
                 format!("Stop {}", idx + 1).draw_text(ctx),
                 Btn::svg(
-                    "../data/system/assets/tools/locate.svg",
+                    "../data/system/assets/tools/pin.svg",
                     RewriteColor::Change(Color::hex("#CC4121"), colors::HOVERING),
                 )
                 .build(ctx, format!("Stop {}", idx + 1), None),

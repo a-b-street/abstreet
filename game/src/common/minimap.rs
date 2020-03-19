@@ -152,7 +152,8 @@ impl Minimap {
                     return Overlays::change_overlays(ctx, app);
                 }
                 x => {
-                    let key = x["show/hide ".len()..].to_string();
+                    // Handles both "show {}" and "hide {}"
+                    let key = x[5..].to_string();
                     app.agent_cs.toggle(key);
                     self.acs = app.agent_cs.clone();
                     self.composite = make_minimap_panel(ctx, &self.acs, self.zoom_lvl);
@@ -422,22 +423,21 @@ fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
     for (label, color, enabled) in &acs.rows {
         col.push(
             ManagedWidget::row(vec![
-                {
-                    let (normal, bounds) = GeomBatch::from_svg(
-                        ctx,
-                        "../data/system/assets/tools/visibility.svg",
-                        if *enabled {
-                            RewriteColor::NoOp
-                        } else {
-                            RewriteColor::ChangeAll(Color::WHITE.alpha(0.5))
-                        },
-                    );
-                    let mut hovered = normal.clone();
-                    hovered.rewrite_color(RewriteColor::ChangeAll(colors::HOVERING));
-
-                    Btn::custom(normal, hovered, bounds.get_rectangle())
-                        .build(ctx, format!("show/hide {}", label), None)
-                        .margin(3)
+                // TODO Make sure the dims of these two fit
+                if *enabled {
+                    Btn::svg(
+                        "../data/system/assets/tools/visible.svg",
+                        RewriteColor::ChangeAll(Color::ORANGE),
+                    )
+                    .build(ctx, format!("hide {}", label), None)
+                    .margin(3)
+                } else {
+                    Btn::svg(
+                        "../data/system/assets/tools/invisible.svg",
+                        RewriteColor::ChangeAll(Color::ORANGE),
+                    )
+                    .build(ctx, format!("show {}", label), None)
+                    .margin(3)
                 },
                 ManagedWidget::draw_batch(
                     ctx,

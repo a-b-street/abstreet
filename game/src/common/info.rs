@@ -371,10 +371,11 @@ fn info_for(
     let (map, sim, draw_map) = (&app.primary.map, &app.primary.sim, &app.primary.draw_map);
     let header_btns = ManagedWidget::row(vec![
         Btn::svg(
-            "../data/system/assets/tools/locate.svg",
-            RewriteColor::Change(Color::hex("#CC4121"), colors::HOVERING),
+            "../data/system/assets/tools/location.svg",
+            RewriteColor::ChangeAll(colors::HOVERING),
         )
-        .build(ctx, "jump to object", hotkey(Key::J)),
+        .build(ctx, "jump to object", hotkey(Key::J))
+        .margin(5),
         Btn::text_fg("X").build(ctx, "close info", hotkey(Key::Escape)),
     ])
     .align_right();
@@ -1115,9 +1116,11 @@ fn trip_details(
         let color = match p.phase_type {
             TripPhaseType::Driving => Color::hex("#D63220"),
             TripPhaseType::Walking => Color::hex("#DF8C3D"),
+            TripPhaseType::Biking => app.cs.get("bike lane"),
             TripPhaseType::Parking => Color::hex("#4E30A6"),
-            // TODO The others
-            _ => rotating_color_map(timeline.len()),
+            TripPhaseType::WaitingForBus(_) => app.cs.get("bus stop marking"),
+            TripPhaseType::RidingBus(_) => app.cs.get("bus lane"),
+            TripPhaseType::Aborted | TripPhaseType::Finished => unreachable!(),
         }
         .alpha(0.7);
 
@@ -1160,22 +1163,24 @@ fn trip_details(
                 );
             }
         }
-        if let Some(icon) = match p.phase_type {
-            TripPhaseType::Driving => Some("../data/system/assets/timeline/driving.svg"),
-            TripPhaseType::Walking => Some("../data/system/assets/timeline/walking.svg"),
-            TripPhaseType::Parking => Some("../data/system/assets/timeline/parking.svg"),
-            // TODO Add in more
-            _ => None,
-        } {
-            normal.add_svg(
-                ctx.prerender,
-                icon,
-                // TODO Hardcoded layouting...
-                Pt2D::new(0.5 * phase_width, -20.0),
-                1.0,
-                Angle::ZERO,
-            );
-        }
+        normal.add_svg(
+            ctx.prerender,
+            match p.phase_type {
+                TripPhaseType::Driving => "../data/system/assets/timeline/driving.svg",
+                TripPhaseType::Walking => "../data/system/assets/timeline/walking.svg",
+                TripPhaseType::Biking => "../data/system/assets/timeline/biking.svg",
+                TripPhaseType::Parking => "../data/system/assets/timeline/parking.svg",
+                TripPhaseType::WaitingForBus(_) => {
+                    "../data/system/assets/timeline/waiting_for_bus.svg"
+                }
+                TripPhaseType::RidingBus(_) => "../data/system/assets/timeline/riding_bus.svg",
+                TripPhaseType::Aborted | TripPhaseType::Finished => unreachable!(),
+            },
+            // TODO Hardcoded layouting...
+            Pt2D::new(0.5 * phase_width, -20.0),
+            1.0,
+            Angle::ZERO,
+        );
 
         let mut hovered = GeomBatch::from(vec![(color.alpha(1.0), rect.clone())]);
         for (c, p) in normal.clone().consume().into_iter().skip(1) {
