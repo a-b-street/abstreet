@@ -973,6 +973,9 @@ impl Sim {
     pub fn get_person(&self, id: PersonID) -> &Person {
         self.trips.get_person(id)
     }
+    pub fn get_all_people(&self) -> &Vec<Person> {
+        self.trips.get_all_people()
+    }
 
     pub fn trip_start_time(&self, id: TripID) -> Time {
         self.trips.trip_start_time(id)
