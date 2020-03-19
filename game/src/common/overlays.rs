@@ -19,7 +19,7 @@ use std::collections::HashSet;
 pub enum Overlays {
     Inactive,
     ParkingAvailability(Time, Colorer),
-    IntersectionDelay(Time, Colorer),
+    WorstDelay(Time, Colorer),
     TrafficJams(Time, Colorer),
     CumulativeThroughput(Time, Colorer),
     BikeNetwork(Colorer),
@@ -45,9 +45,9 @@ impl Overlays {
                     app.overlay = Overlays::parking_availability(ctx, app);
                 }
             }
-            Overlays::IntersectionDelay(t, _) => {
+            Overlays::WorstDelay(t, _) => {
                 if now != t {
-                    app.overlay = Overlays::intersection_delay(ctx, app);
+                    app.overlay = Overlays::worst_delay(ctx, app);
                 }
             }
             Overlays::TrafficJams(t, _) => {
@@ -102,7 +102,7 @@ impl Overlays {
             | Overlays::BikeNetwork(ref mut heatmap)
             | Overlays::BusNetwork(ref mut heatmap)
             | Overlays::Elevation(ref mut heatmap, _)
-            | Overlays::IntersectionDelay(_, ref mut heatmap)
+            | Overlays::WorstDelay(_, ref mut heatmap)
             | Overlays::TrafficJams(_, ref mut heatmap)
             | Overlays::CumulativeThroughput(_, ref mut heatmap)
             | Overlays::Edits(ref mut heatmap) => {
@@ -191,7 +191,7 @@ impl Overlays {
             Overlays::ParkingAvailability(_, ref heatmap)
             | Overlays::BikeNetwork(ref heatmap)
             | Overlays::BusNetwork(ref heatmap)
-            | Overlays::IntersectionDelay(_, ref heatmap)
+            | Overlays::WorstDelay(_, ref heatmap)
             | Overlays::TrafficJams(_, ref heatmap)
             | Overlays::CumulativeThroughput(_, ref heatmap)
             | Overlays::Edits(ref heatmap) => {
@@ -224,7 +224,7 @@ impl Overlays {
             | Overlays::BikeNetwork(ref heatmap)
             | Overlays::BusNetwork(ref heatmap)
             | Overlays::Elevation(ref heatmap, _)
-            | Overlays::IntersectionDelay(_, ref heatmap)
+            | Overlays::WorstDelay(_, ref heatmap)
             | Overlays::TrafficJams(_, ref heatmap)
             | Overlays::CumulativeThroughput(_, ref heatmap)
             | Overlays::Edits(ref heatmap) => Some(heatmap),
@@ -244,11 +244,12 @@ impl Overlays {
                 RewriteColor::Change(Color::hex("#F2F2F2"), colors::HOVERING),
             )
             .build(ctx, "parking availability", hotkey(Key::P)),
+            // TODO old button
             Btn::svg(
                 "../data/system/assets/layers/intersection_delay.svg",
                 RewriteColor::Change(Color::hex("#F2F2F2"), colors::HOVERING),
             )
-            .build(ctx, "intersection delay", hotkey(Key::I)),
+            .build(ctx, "delay", hotkey(Key::I)),
             Btn::svg(
                 "../data/system/assets/layers/throughput.svg",
                 RewriteColor::Change(Color::hex("#F2F2F2"), colors::HOVERING),
@@ -272,8 +273,8 @@ impl Overlays {
                 "parking availability",
                 ManagedWidget::draw_svg(ctx, "../data/system/assets/layers/parking_avail.svg"),
             )),
-            Overlays::IntersectionDelay(_, _) => Some((
-                "intersection delay",
+            Overlays::WorstDelay(_, _) => Some((
+                "delay",
                 ManagedWidget::draw_svg(ctx, "../data/system/assets/layers/intersection_delay.svg"),
             )),
             Overlays::TrafficJams(_, _) => Some((
@@ -340,9 +341,9 @@ impl Overlays {
             }),
         )
         .maybe_cb(
-            "intersection delay",
+            "delay",
             Box::new(|ctx, app| {
-                app.overlay = Overlays::intersection_delay(ctx, app);
+                app.overlay = Overlays::worst_delay(ctx, app);
                 Some(Transition::Pop)
             }),
         )
@@ -465,36 +466,43 @@ impl Overlays {
         Overlays::ParkingAvailability(app.primary.sim.time(), colorer.build(ctx, app))
     }
 
-    pub fn intersection_delay(ctx: &mut EventCtx, app: &App) -> Overlays {
-        let fast = Color::hex("#7FFA4D");
-        let meh = Color::hex("#F4DA22");
+    fn worst_delay(ctx: &mut EventCtx, app: &App) -> Overlays {
         let slow = Color::hex("#EB5757");
+        let moderate = Color::hex("#F4DA22");
+        let fast = Color::hex("#7FFA4D");
+        // TODO explain more
         let mut colorer = Colorer::new(
-            Text::from(Line(
-                "intersection delay for traffic signals in the last 2 hours (90%ile)",
-            )),
-            vec![("< 10s", fast), ("<= 60s", meh), ("> 60s", slow)],
+            Text::from(Line("delay")),
+            vec![
+                ("> 5 minutes", slow),
+                ("1 - 5 minutes", moderate),
+                ("< 60s", fast),
+            ],
         );
 
-        for i in app.primary.map.all_intersections() {
-            let delays = app.primary.sim.get_analytics().intersection_delays(
-                i.id,
-                app.primary.sim.time().clamped_sub(Duration::hours(2)),
-                app.primary.sim.time(),
-            );
-            if let Some(d) = delays.percentile(90.0) {
-                let color = if d < Duration::seconds(10.0) {
-                    fast
-                } else if d <= Duration::seconds(60.0) {
-                    meh
-                } else {
-                    slow
-                };
-                colorer.add_i(i.id, color);
-            }
+        let (per_road, per_intersection) = app.primary.sim.worst_delay(&app.primary.map);
+        for (r, d) in per_road {
+            let color = if d > Duration::minutes(5) {
+                slow
+            } else if d > Duration::minutes(1) {
+                moderate
+            } else {
+                fast
+            };
+            colorer.add_r(r, color, &app.primary.map);
+        }
+        for (i, d) in per_intersection {
+            let color = if d > Duration::minutes(5) {
+                slow
+            } else if d > Duration::minutes(1) {
+                moderate
+            } else {
+                fast
+            };
+            colorer.add_i(i, color);
         }
 
-        Overlays::IntersectionDelay(app.primary.sim.time(), colorer.build(ctx, app))
+        Overlays::WorstDelay(app.primary.sim.time(), colorer.build(ctx, app))
     }
 
     pub fn traffic_jams(ctx: &mut EventCtx, app: &App) -> Overlays {

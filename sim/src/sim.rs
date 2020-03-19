@@ -12,7 +12,7 @@ use geom::{Distance, Duration, PolyLine, Pt2D, Time};
 use instant::Instant;
 use map_model::{
     BuildingID, BusRoute, BusRouteID, IntersectionID, LaneID, Map, Path, PathConstraints,
-    PathRequest, PathStep, Traversable,
+    PathRequest, PathStep, RoadID, Traversable,
 };
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashSet};
@@ -1127,6 +1127,16 @@ impl Sim {
 
     pub fn bldg_to_people(&self, b: BuildingID) -> Vec<PersonID> {
         self.trips.bldg_to_people(b)
+    }
+
+    pub fn worst_delay(
+        &self,
+        map: &Map,
+    ) -> (
+        BTreeMap<RoadID, Duration>,
+        BTreeMap<IntersectionID, Duration>,
+    ) {
+        self.intersections.worst_delay(self.time, map)
     }
 }
 

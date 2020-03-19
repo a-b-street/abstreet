@@ -5,8 +5,8 @@ use abstutil::{deserialize_btreemap, serialize_btreemap};
 use derivative::Derivative;
 use geom::{Duration, Time};
 use map_model::{
-    ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, Map, TurnID, TurnPriority,
-    TurnType,
+    ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, Map, RoadID, TurnID,
+    TurnPriority, TurnType,
 };
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet};
@@ -279,6 +279,41 @@ impl IntersectionSimState {
         }
         candidates.sort_by_key(|(_, t)| *t);
         candidates
+    }
+
+    // Weird way to measure this, but it works.
+    pub fn worst_delay(
+        &self,
+        now: Time,
+        map: &Map,
+    ) -> (
+        BTreeMap<RoadID, Duration>,
+        BTreeMap<IntersectionID, Duration>,
+    ) {
+        let mut per_road = BTreeMap::new();
+        let mut per_intersection = BTreeMap::new();
+        for (i, state) in &self.state {
+            for (req, t) in &state.waiting {
+                {
+                    let r = map.get_l(req.turn.src).parent;
+                    let worst = per_road
+                        .get(&r)
+                        .cloned()
+                        .unwrap_or(Duration::ZERO)
+                        .max(now - *t);
+                    per_road.insert(r, worst);
+                }
+                {
+                    let worst = per_intersection
+                        .get(i)
+                        .cloned()
+                        .unwrap_or(Duration::ZERO)
+                        .max(now - *t);
+                    per_intersection.insert(*i, worst);
+                }
+            }
+        }
+        (per_road, per_intersection)
     }
 }
 
