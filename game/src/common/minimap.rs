@@ -278,7 +278,6 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
 
     Composite::new(
         ManagedWidget::row(vec![
-            make_viz_panel(ctx, app),
             ManagedWidget::col(zoom_col).margin(5).centered(),
             ManagedWidget::col(vec![
                 WrappedComposite::svg_button(
@@ -318,6 +317,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
                 .centered_horiz(),
             ])
             .centered(),
+            make_viz_panel(ctx, app).centered_vert(),
         ])
         .bg(colors::PANEL_BG),
     )
