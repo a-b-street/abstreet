@@ -4,7 +4,7 @@ use crate::game::{State, Transition};
 use crate::managed::{Callback, ManagedGUIState, WrappedComposite};
 use crate::sandbox::{GameplayMode, SandboxMode, TutorialState};
 use abstutil::Timer;
-use ezgui::{hotkey, Button, Color, Composite, EventCtx, Key, Line, ManagedWidget, Text};
+use ezgui::{hotkey, Btn, Button, Color, Composite, EventCtx, Key, Line, ManagedWidget, Text};
 use geom::{Duration, Time};
 use map_model::Map;
 use sim::{Scenario, Sim, SimFlags, SimOptions, TripMode};
@@ -139,13 +139,9 @@ impl Tab {
         let mut cbs: Vec<(String, Callback)> = Vec::new();
 
         master_col.push(
-            WrappedComposite::svg_button(
-                ctx,
-                "../data/system/assets/pregame/back.svg",
-                "back",
-                hotkey(Key::Escape),
-            )
-            .align_left(),
+            Btn::svg_def("../data/system/assets/pregame/back.svg")
+                .build(ctx, "back", hotkey(Key::Escape))
+                .align_left(),
         );
         master_col.push({
             let mut txt = Text::from(Line("A/B STREET").size(100));

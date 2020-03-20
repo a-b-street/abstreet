@@ -20,7 +20,7 @@ use crate::pregame::main_menu;
 use crate::sandbox::{SandboxControls, SandboxMode, ScoreCard};
 use abstutil::Timer;
 use ezgui::{
-    lctrl, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    lctrl, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
     ManagedWidget, Outcome, Text, VerticalAlignment,
 };
 use geom::{Duration, Polygon};
@@ -269,25 +269,17 @@ fn challenge_controller(
 
     let mut rows = vec![ManagedWidget::row(vec![
         Line(title).size(26).draw(ctx).margin(5),
-        WrappedComposite::svg_button(
-            ctx,
-            "../data/system/assets/tools/info.svg",
-            "instructions",
-            None,
-        )
-        .margin(5),
+        Btn::svg_def("../data/system/assets/tools/info.svg")
+            .build(ctx, "instructions", None)
+            .margin(5),
         ManagedWidget::draw_batch(
             ctx,
             GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
         )
         .margin(5),
-        WrappedComposite::svg_button(
-            ctx,
-            "../data/system/assets/tools/edit_map.svg",
-            "edit map",
-            lctrl(Key::E),
-        )
-        .margin(5),
+        Btn::svg_def("../data/system/assets/tools/edit_map.svg")
+            .build(ctx, "edit map", lctrl(Key::E))
+            .margin(5),
     ])
     .centered()];
     rows.extend(extra_rows);

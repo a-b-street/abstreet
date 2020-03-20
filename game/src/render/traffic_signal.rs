@@ -271,17 +271,17 @@ pub fn make_signal_diagram(
             phase_rows.push(
                 ManagedWidget::row(vec![
                     format!("Phase {}: {}", idx + 1, phase.duration).draw_text(ctx),
-                    WrappedComposite::svg_button(
-                        ctx,
-                        "../data/system/assets/tools/edit.svg",
-                        &format!("edit phase {}", idx + 1),
-                        if selected == idx {
-                            hotkey(Key::X)
-                        } else {
-                            None
-                        },
-                    )
-                    .align_right(),
+                    Btn::svg_def("../data/system/assets/tools/edit.svg")
+                        .build(
+                            ctx,
+                            format!("edit phase {}", idx + 1),
+                            if selected == idx {
+                                hotkey(Key::X)
+                            } else {
+                                None
+                            },
+                        )
+                        .align_right(),
                 ])
                 .margin(5)
                 .centered(),

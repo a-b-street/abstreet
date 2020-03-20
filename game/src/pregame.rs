@@ -8,7 +8,7 @@ use crate::managed::{Callback, ManagedGUIState, WrappedComposite, WrappedOutcome
 use crate::sandbox::{GameplayMode, SandboxMode, TutorialPointer};
 use ezgui::{
     hotkey, hotkeys, Btn, Color, Composite, EventCtx, EventLoopMode, GfxCtx, JustDraw, Key, Line,
-    ManagedWidget, Text,
+    ManagedWidget, RewriteColor, Text,
 };
 use geom::{Duration, Line, Pt2D, Speed};
 use instant::Instant;
@@ -72,37 +72,30 @@ impl State for TitleScreen {
 
 pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
     let col = vec![
-        WrappedComposite::svg_button(
-            ctx,
-            "../data/system/assets/pregame/quit.svg",
-            "quit",
-            hotkey(Key::Escape),
-        )
-        .align_left(),
+        Btn::svg_def("../data/system/assets/pregame/quit.svg")
+            .build(ctx, "quit", hotkey(Key::Escape))
+            .align_left(),
         {
             let mut txt = Text::from(Line("A/B STREET").size(100));
             txt.add(Line("Created by Dustin Carlino"));
             txt.draw(ctx).centered_horiz()
         },
         ManagedWidget::row(vec![
-            WrappedComposite::svg_button(
-                ctx,
+            Btn::svg(
                 "../data/system/assets/pregame/tutorial.svg",
-                "Tutorial",
-                hotkey(Key::T),
-            ),
-            WrappedComposite::svg_button(
-                ctx,
+                RewriteColor::Change(Color::WHITE, colors::HOVERING),
+            )
+            .build(ctx, "Tutorial", hotkey(Key::T)),
+            Btn::svg(
                 "../data/system/assets/pregame/sandbox.svg",
-                "Sandbox mode",
-                hotkey(Key::S),
-            ),
-            WrappedComposite::svg_button(
-                ctx,
+                RewriteColor::Change(Color::WHITE, colors::HOVERING),
+            )
+            .build(ctx, "Sandbox mode", hotkey(Key::S)),
+            Btn::svg(
                 "../data/system/assets/pregame/challenges.svg",
-                "Challenges",
-                hotkey(Key::C),
-            ),
+                RewriteColor::Change(Color::WHITE, colors::HOVERING),
+            )
+            .build(ctx, "Challenges", hotkey(Key::C)),
             WrappedComposite::text_bg_button(ctx, "COMMUNITY PROPOSALS", hotkey(Key::P)),
         ])
         .centered(),
@@ -204,13 +197,9 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
 
 fn about(ctx: &mut EventCtx) -> Box<dyn State> {
     let col = vec![
-        WrappedComposite::svg_button(
-            ctx,
-            "../data/system/assets/pregame/back.svg",
-            "back",
-            hotkey(Key::Escape),
-        )
-        .align_left(),
+        Btn::svg_def("../data/system/assets/pregame/back.svg")
+            .build(ctx, "back", hotkey(Key::Escape))
+            .align_left(),
         {
             let mut txt = Text::new();
             txt.add(Line("A/B STREET").size(50));
@@ -298,13 +287,9 @@ fn proposals_picker(ctx: &mut EventCtx) -> Box<dyn State> {
     let mut c = WrappedComposite::new(
         Composite::new(
             ManagedWidget::col(vec![
-                WrappedComposite::svg_button(
-                    ctx,
-                    "../data/system/assets/pregame/back.svg",
-                    "back",
-                    hotkey(Key::Escape),
-                )
-                .align_left(),
+                Btn::svg_def("../data/system/assets/pregame/back.svg")
+                    .build(ctx, "back", hotkey(Key::Escape))
+                    .align_left(),
                 {
                     let mut txt = Text::from(Line("A/B STREET").size(100));
                     txt.add(Line("PROPOSALS").size(50));

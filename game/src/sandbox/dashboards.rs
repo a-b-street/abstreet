@@ -9,7 +9,7 @@ use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
 use abstutil::Counter;
 use ezgui::{
-    hotkey, Button, Color, Composite, EventCtx, Histogram, Key, Line, ManagedWidget, Plot,
+    hotkey, Btn, Button, Color, Composite, EventCtx, Histogram, Key, Line, ManagedWidget, Plot,
     PlotOptions, Series, Text, TextExt,
 };
 use geom::{Duration, Statistic, Time};
@@ -59,13 +59,9 @@ pub fn make(ctx: &mut EventCtx, app: &App, tab: Tab) -> Box<dyn State> {
 
     let mut c = WrappedComposite::new(
         Composite::new(ManagedWidget::col(vec![
-            WrappedComposite::svg_button(
-                ctx,
-                "../data/system/assets/pregame/back.svg",
-                "back",
-                hotkey(Key::Escape),
-            )
-            .align_left(),
+            Btn::svg_def("../data/system/assets/pregame/back.svg")
+                .build(ctx, "back", hotkey(Key::Escape))
+                .align_left(),
             ManagedWidget::row(tabs).bg(colors::PANEL_BG),
             content.bg(colors::PANEL_BG),
         ]))

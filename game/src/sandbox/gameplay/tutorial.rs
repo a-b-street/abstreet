@@ -12,7 +12,7 @@ use crate::sandbox::{
 };
 use abstutil::Timer;
 use ezgui::{
-    hotkey, hotkeys, lctrl, Button, Color, Composite, EventCtx, GeomBatch, GfxCtx,
+    hotkey, hotkeys, lctrl, Btn, Button, Color, Composite, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, ManagedWidget, Outcome, RewriteColor, ScreenPt, Text, TextExt,
     VerticalAlignment,
 };
@@ -940,27 +940,19 @@ impl TutorialState {
                     .draw(ctx),
                     // TODO also text saying "instructions"... can we layout two things easily to
                     // make a button?
-                    WrappedComposite::svg_button(
-                        ctx,
-                        "../data/system/assets/tools/info.svg",
-                        "instructions",
-                        None,
-                    )
-                    .centered_vert()
-                    .align_right(),
+                    Btn::svg_def("../data/system/assets/tools/info.svg")
+                        .build(ctx, "instructions", None)
+                        .centered_vert()
+                        .align_right(),
                 ]));
                 col.push(task.top_txt(ctx, self).draw(ctx).margin(5));
             }
         }
         if edit_map {
             col.push(
-                WrappedComposite::svg_button(
-                    ctx,
-                    "../data/system/assets/tools/edit_map.svg",
-                    "edit map",
-                    lctrl(Key::E),
-                )
-                .margin(5),
+                Btn::svg_def("../data/system/assets/tools/edit_map.svg")
+                    .build(ctx, "edit map", lctrl(Key::E))
+                    .margin(5),
             );
         }
 
@@ -1010,12 +1002,11 @@ impl TutorialState {
                     },
                     ManagedWidget::row(vec![
                         if self.current.part > 0 {
-                            WrappedComposite::svg_button(
-                                ctx,
+                            Btn::svg(
                                 "../data/system/assets/tools/prev.svg",
-                                "previous message",
-                                hotkey(Key::LeftArrow),
+                                RewriteColor::Change(Color::WHITE, colors::HOVERING),
                             )
+                            .build(ctx, "previous message", hotkey(Key::LeftArrow))
                             .margin(5)
                         } else {
                             ManagedWidget::draw_svg_transform(
@@ -1036,9 +1027,12 @@ impl TutorialState {
                             )
                             .named("next message")
                         } else {
-                            WrappedComposite::svg_button(
-                                ctx,
+                            Btn::svg(
                                 "../data/system/assets/tools/next.svg",
+                                RewriteColor::Change(Color::WHITE, colors::HOVERING),
+                            )
+                            .build(
+                                ctx,
                                 "next message",
                                 hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]),
                             )

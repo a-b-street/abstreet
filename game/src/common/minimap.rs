@@ -2,7 +2,6 @@ use crate::app::App;
 use crate::colors;
 use crate::common::{navigate, shortcuts, Overlays, Warping};
 use crate::game::Transition;
-use crate::managed::WrappedComposite;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use abstutil::clamp;
 use ezgui::{
@@ -279,41 +278,25 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
         ManagedWidget::row(vec![
             ManagedWidget::col(zoom_col).margin(5).centered(),
             ManagedWidget::col(vec![
-                WrappedComposite::svg_button(
-                    ctx,
-                    "../data/system/assets/minimap/up.svg",
-                    "pan up",
-                    None,
-                )
-                .margin(5)
-                .centered_horiz(),
+                Btn::svg_def("../data/system/assets/minimap/up.svg")
+                    .build(ctx, "pan up", None)
+                    .margin(5)
+                    .centered_horiz(),
                 ManagedWidget::row(vec![
-                    WrappedComposite::svg_button(
-                        ctx,
-                        "../data/system/assets/minimap/left.svg",
-                        "pan left",
-                        None,
-                    )
-                    .margin(5)
-                    .centered_vert(),
+                    Btn::svg_def("../data/system/assets/minimap/left.svg")
+                        .build(ctx, "pan left", None)
+                        .margin(5)
+                        .centered_vert(),
                     ManagedWidget::filler("minimap"),
-                    WrappedComposite::svg_button(
-                        ctx,
-                        "../data/system/assets/minimap/right.svg",
-                        "pan right",
-                        None,
-                    )
-                    .margin(5)
-                    .centered_vert(),
+                    Btn::svg_def("../data/system/assets/minimap/right.svg")
+                        .build(ctx, "pan right", None)
+                        .margin(5)
+                        .centered_vert(),
                 ]),
-                WrappedComposite::svg_button(
-                    ctx,
-                    "../data/system/assets/minimap/down.svg",
-                    "pan down",
-                    None,
-                )
-                .margin(5)
-                .centered_horiz(),
+                Btn::svg_def("../data/system/assets/minimap/down.svg")
+                    .build(ctx, "pan down", None)
+                    .margin(5)
+                    .centered_horiz(),
             ])
             .centered(),
             make_viz_panel(ctx, app).centered_vert(),
@@ -334,36 +317,20 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
 fn make_viz_panel(ctx: &mut EventCtx, app: &App) -> ManagedWidget {
     let radius = 10.0;
     let mut col = vec![ManagedWidget::row(vec![
-        WrappedComposite::svg_button(
-            ctx,
-            "../data/system/assets/tools/search.svg",
-            "search",
-            hotkey(Key::K),
-        )
-        .margin(10),
-        WrappedComposite::svg_button(
-            ctx,
-            "../data/system/assets/tools/shortcuts.svg",
-            "shortcuts",
-            hotkey(Key::SingleQuote),
-        )
-        .margin(10),
+        Btn::svg_def("../data/system/assets/tools/search.svg")
+            .build(ctx, "search", hotkey(Key::K))
+            .margin(10),
+        Btn::svg_def("../data/system/assets/tools/shortcuts.svg")
+            .build(ctx, "shortcuts", hotkey(Key::SingleQuote))
+            .margin(10),
         if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL {
-            WrappedComposite::svg_button(
-                ctx,
-                "../data/system/assets/minimap/zoom_out_fully.svg",
-                "zoom out fully",
-                None,
-            )
-            .margin(10)
+            Btn::svg_def("../data/system/assets/minimap/zoom_out_fully.svg")
+                .build(ctx, "zoom out fully", None)
+                .margin(10)
         } else {
-            WrappedComposite::svg_button(
-                ctx,
-                "../data/system/assets/minimap/zoom_in_fully.svg",
-                "zoom in fully",
-                None,
-            )
-            .margin(10)
+            Btn::svg_def("../data/system/assets/minimap/zoom_in_fully.svg")
+                .build(ctx, "zoom in fully", None)
+                .margin(10)
         },
         Btn::svg_def("../data/system/assets/tools/layers.svg")
             .normal_color(if app.overlay.is_empty() {

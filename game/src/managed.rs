@@ -3,7 +3,7 @@ use crate::colors;
 use crate::game::{DrawBaselayer, State, Transition};
 use ezgui::{
     hotkey, Btn, Button, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    ManagedWidget, MultiKey, Outcome, RewriteColor, Text, VerticalAlignment,
+    ManagedWidget, MultiKey, Outcome, Text, VerticalAlignment,
 };
 use std::collections::HashMap;
 
@@ -58,19 +58,6 @@ impl WrappedComposite {
 }
 
 impl WrappedComposite {
-    pub fn svg_button(
-        ctx: &EventCtx,
-        filename: &str,
-        tooltip: &str,
-        hotkey: Option<MultiKey>,
-    ) -> ManagedWidget {
-        Btn::svg(
-            filename,
-            RewriteColor::Change(Color::WHITE, colors::HOVERING),
-        )
-        .build(ctx, tooltip, hotkey)
-    }
-
     pub fn nice_text_button(
         ctx: &EventCtx,
         txt: Text,

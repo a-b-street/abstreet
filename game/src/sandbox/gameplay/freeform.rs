@@ -8,8 +8,8 @@ use crate::sandbox::gameplay::{spawner, GameplayMode, GameplayState};
 use crate::sandbox::SandboxControls;
 use crate::sandbox::SandboxMode;
 use ezgui::{
-    hotkey, lctrl, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, ManagedWidget, ScreenRectangle, Text, VerticalAlignment,
+    hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, ManagedWidget, ScreenRectangle, Text, VerticalAlignment,
 };
 use geom::Polygon;
 use map_model::IntersectionID;
@@ -114,13 +114,9 @@ pub fn freeform_controller(
                 "change traffic",
             )
             .margin(5),
-            WrappedComposite::svg_button(
-                ctx,
-                "../data/system/assets/tools/edit_map.svg",
-                "edit map",
-                lctrl(Key::E),
-            )
-            .margin(5),
+            Btn::svg_def("../data/system/assets/tools/edit_map.svg")
+                .build(ctx, "edit map", lctrl(Key::E))
+                .margin(5),
         ])
         .centered()
         .bg(colors::PANEL_BG),

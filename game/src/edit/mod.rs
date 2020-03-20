@@ -16,8 +16,8 @@ use crate::render::{DrawIntersection, DrawLane, DrawRoad, MIN_ZOOM_FOR_DETAIL};
 use crate::sandbox::{GameplayMode, SandboxMode};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, ManagedWidget, Outcome, RewriteColor, ScreenRectangle, Text, VerticalAlignment,
+    hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, ManagedWidget, Outcome, RewriteColor, ScreenRectangle, Text, VerticalAlignment,
     WrappedWizard,
 };
 use geom::Polygon;
@@ -350,17 +350,12 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Composite {
                     "load edits",
                 )
                 .margin(5),
-                WrappedComposite::svg_button(
-                    ctx,
-                    "../data/system/assets/tools/save.svg",
-                    "save edits as",
-                    lctrl(Key::S),
-                )
-                .margin(5),
+                Btn::svg_def("../data/system/assets/tools/save.svg")
+                    .build(ctx, "save edits as", lctrl(Key::S))
+                    .margin(5),
                 (if !app.primary.map.get_edits().commands.is_empty() {
-                    WrappedComposite::svg_button(
+                    Btn::svg_def("../data/system/assets/tools/undo.svg").build(
                         ctx,
-                        "../data/system/assets/tools/undo.svg",
                         "undo",
                         lctrl(Key::Z),
                     )

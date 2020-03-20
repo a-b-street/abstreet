@@ -10,7 +10,7 @@ use crate::render::{
 use crate::sandbox::{spawn_agents_around, SpeedControls, TimePanel};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
+    hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, ManagedWidget, Outcome, RewriteColor, Text, TextExt,
     VerticalAlignment,
 };
@@ -299,12 +299,7 @@ pub fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: b
         WrappedComposite::text_button(ctx, "Finish", hotkey(Key::Escape)),
         WrappedComposite::text_button(ctx, "Preview", lctrl(Key::P)),
         (if can_undo {
-            WrappedComposite::svg_button(
-                ctx,
-                "../data/system/assets/tools/undo.svg",
-                "undo",
-                lctrl(Key::Z),
-            )
+            Btn::svg_def("../data/system/assets/tools/undo.svg").build(ctx, "undo", lctrl(Key::Z))
         } else {
             ManagedWidget::draw_svg_transform(
                 ctx,
@@ -314,9 +309,8 @@ pub fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: b
         })
         .margin(15),
         (if can_redo {
-            WrappedComposite::svg_button(
+            Btn::svg_def("../data/system/assets/tools/redo.svg").build(
                 ctx,
-                "../data/system/assets/tools/redo.svg",
                 "redo",
                 // TODO ctrl+shift+Z!
                 lctrl(Key::Y),

@@ -17,7 +17,7 @@ use crate::pregame::main_menu;
 use crate::render::AgentColorScheme;
 pub use crate::sandbox::gameplay::{TutorialPointer, TutorialState};
 use ezgui::{
-    hotkey, lctrl, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
+    hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Text, TextExt, VerticalAlignment,
     Wizard,
 };
@@ -412,13 +412,9 @@ impl AgentMeter {
                 ManagedWidget::row(vec![
                     WrappedComposite::text_bg_button(ctx, "more data", hotkey(Key::Q)),
                     if app.has_prebaked().is_some() {
-                        WrappedComposite::svg_button(
-                            ctx,
-                            "../data/system/assets/meters/trip_histogram.svg",
-                            "compare trips to baseline",
-                            None,
-                        )
-                        .align_right()
+                        Btn::svg_def("../data/system/assets/meters/trip_histogram.svg")
+                            .build(ctx, "compare trips to baseline", None)
+                            .align_right()
                     } else {
                         ManagedWidget::nothing()
                     },
