@@ -4,7 +4,6 @@ use crate::common::CommonState;
 use crate::edit::apply_map_edits;
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
-use crate::managed::WrappedComposite;
 use crate::render::Renderable;
 use ezgui::{
     hotkey, Btn, Button, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key,
@@ -81,17 +80,17 @@ impl LaneEditor {
             .draw_text(ctx)
             .centered_horiz(),
             ManagedWidget::row(row).centered(),
-            WrappedComposite::text_button(ctx, "Finish", hotkey(Key::Escape)),
+            Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape)),
             // TODO Not ready for general use
             if app.opts.dev {
-                WrappedComposite::text_button(ctx, "Edit entire road", hotkey(Key::U))
+                Btn::text_fg("Edit entire road").build_def(ctx, hotkey(Key::U))
             } else {
                 ManagedWidget::nothing()
             },
             if app.primary.map.get_edits().original_lts.contains_key(&l)
                 || app.primary.map.get_edits().reversed_lanes.contains(&l)
             {
-                WrappedComposite::text_button(ctx, "Revert", hotkey(Key::R))
+                Btn::text_fg("Revert").build_def(ctx, hotkey(Key::R))
             } else {
                 Button::inactive_button(ctx, "Revert")
             },

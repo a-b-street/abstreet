@@ -324,12 +324,12 @@ impl FinalScore {
 
         let row = vec![
             if next.is_some() {
-                WrappedComposite::text_button(ctx, "next challenge", None)
+                Btn::text_fg("next challenge").build_def(ctx, None)
             } else {
                 ManagedWidget::nothing()
             },
-            WrappedComposite::text_button(ctx, "try again", None),
-            WrappedComposite::text_button(ctx, "back to challenges", None),
+            Btn::text_fg("try again").build_def(ctx, None),
+            Btn::text_fg("back to challenges").build_def(ctx, None),
         ];
 
         Box::new(FinalScore {

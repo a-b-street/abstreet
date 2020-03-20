@@ -2,11 +2,10 @@ use crate::app::App;
 use crate::colors;
 use crate::common::CommonState;
 use crate::game::{State, Transition};
-use crate::managed::WrappedComposite;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget,
-    Outcome, Slider, TextExt, VerticalAlignment,
+    hotkey, Btn, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    ManagedWidget, Outcome, Slider, TextExt, VerticalAlignment,
 };
 use geom::{Circle, Distance, Duration, PolyLine, Time};
 use map_model::NORMAL_LANE_THICKNESS;
@@ -72,20 +71,14 @@ impl TripsVisualizer {
                 ManagedWidget::col(vec![
                     ManagedWidget::row(vec![
                         Line("Trips Visualizer").roboto_bold().draw(ctx),
-                        WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
+                        Btn::text_fg("X")
+                            .build_def(ctx, hotkey(Key::Escape))
+                            .align_right(),
                     ]),
                     "Active trips".draw_text(ctx).named("active trips"),
                     ManagedWidget::row(vec![
-                        WrappedComposite::text_button(
-                            ctx,
-                            "forwards 30 minutes",
-                            hotkey(Key::RightArrow),
-                        ),
-                        WrappedComposite::text_button(
-                            ctx,
-                            "backwards 30 minutes",
-                            hotkey(Key::LeftArrow),
-                        ),
+                        Btn::text_fg("forwards 30 minutes").build_def(ctx, hotkey(Key::RightArrow)),
+                        Btn::text_fg("backwards 30 minutes").build_def(ctx, hotkey(Key::LeftArrow)),
                     ])
                     .flex_wrap(ctx, 80),
                     ManagedWidget::slider("time slider"),

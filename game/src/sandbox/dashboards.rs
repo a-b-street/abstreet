@@ -43,7 +43,7 @@ pub fn make(ctx: &mut EventCtx, app: &App, tab: Tab) -> Box<dyn State> {
             if *t == tab {
                 Button::inactive_selected_button(ctx, *label)
             } else {
-                WrappedComposite::text_button(ctx, label, None)
+                Btn::text_fg(*label).build_def(ctx, None)
             }
             .margin(5)
         })
@@ -313,7 +313,7 @@ fn pick_finished_trips_mode(ctx: &EventCtx) -> (ManagedWidget, Vec<(String, Call
     let mut cbs: Vec<(String, Callback)> = Vec::new();
 
     for mode in TripMode::all() {
-        buttons.push(WrappedComposite::text_button(ctx, &mode.to_string(), None));
+        buttons.push(Btn::text_fg(&mode.to_string()).build_def(ctx, None));
         cbs.push((
             mode.to_string(),
             Box::new(move |ctx, app| {
@@ -349,7 +349,7 @@ fn pick_finished_trips(
     filtered.reverse();
     for (_, id, _, dt) in filtered {
         let label = format!("{} taking {}", id, dt);
-        buttons.push(WrappedComposite::text_button(ctx, &label, None));
+        buttons.push(Btn::text_fg(&label).build_def(ctx, None));
         let trip = *id;
         cbs.push((
             label,
@@ -404,7 +404,7 @@ fn pick_bus_route(ctx: &EventCtx, app: &App) -> (ManagedWidget, Vec<(String, Cal
     routes.sort_by_key(|(name, _)| name.to_string());
 
     for (name, id) in routes {
-        buttons.push(WrappedComposite::text_button(ctx, name, None));
+        buttons.push(Btn::text_fg(name).build_def(ctx, None));
         cbs.push((
             name.to_string(),
             Box::new(move |_, _| {

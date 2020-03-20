@@ -3,13 +3,12 @@ use crate::colors;
 use crate::common::{Colorer, CommonState};
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
-use crate::managed::WrappedComposite;
 use crate::sandbox::gameplay::freeform::Freeform;
 use crate::sandbox::SandboxMode;
 use abstutil::Timer;
 use ezgui::{
-    hotkey, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget, Outcome,
-    Text, TextExt, VerticalAlignment,
+    hotkey, Btn, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget,
+    Outcome, Text, TextExt, VerticalAlignment,
 };
 use geom::{Distance, Duration, PolyLine};
 use map_model::{
@@ -708,7 +707,9 @@ fn make_top_bar(ctx: &mut EventCtx, title: &str, howto: &str) -> Composite {
         ManagedWidget::col(vec![
             ManagedWidget::row(vec![
                 Line(title).roboto_bold().draw(ctx),
-                WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
+                Btn::text_fg("X")
+                    .build_def(ctx, hotkey(Key::Escape))
+                    .align_right(),
             ]),
             howto.draw_text(ctx),
         ])

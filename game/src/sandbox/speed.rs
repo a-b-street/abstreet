@@ -348,7 +348,9 @@ impl JumpToTime {
             maybe_mode,
             composite: Composite::new(
                 ManagedWidget::col(vec![
-                    WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
+                    Btn::text_fg("X")
+                        .build_def(ctx, hotkey(Key::Escape))
+                        .align_right(),
                     {
                         let mut txt = Text::from(Line("Jump to what time?").roboto_bold());
                         txt.add(Line(target.ampm_tostring()));
@@ -368,7 +370,8 @@ impl JumpToTime {
                     ManagedWidget::checkbox(ctx, "Stop when there's a traffic jam", None, false)
                         .padding(10)
                         .margin(10),
-                    WrappedComposite::text_bg_button(ctx, "Go!", hotkey(Key::Enter))
+                    Btn::text_bg2("Go!")
+                        .build_def(ctx, hotkey(Key::Enter))
                         .centered_horiz(),
                     Line("Active agents").roboto_bold().draw(ctx),
                     // TODO Sync the slider / plot.
@@ -493,7 +496,8 @@ impl TimeWarpScreen {
             composite: Composite::new(
                 ManagedWidget::col(vec![
                     Text::new().draw(ctx).named("text"),
-                    WrappedComposite::text_bg_button(ctx, "stop now", hotkey(Key::Escape))
+                    Btn::text_bg2("stop now")
+                        .build_def(ctx, hotkey(Key::Escape))
                         .centered_horiz(),
                 ])
                 .padding(10)

@@ -4,7 +4,6 @@ use crate::common::{tool_panel, Minimap, Warping};
 use crate::edit::EditMode;
 use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
-use crate::managed::WrappedComposite;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{
     spawn_agents_around, AgentMeter, SandboxControls, SandboxMode, ScoreCard, SpeedControls,
@@ -912,7 +911,7 @@ impl TutorialState {
                 Btn::text_fg(">").build(ctx, "next tutorial", None)
             }
             .margin(5),
-            WrappedComposite::text_button(ctx, "Quit", None).margin(5),
+            Btn::text_fg("Quit").build_def(ctx, None).margin(5),
         ])
         .centered()];
         {
@@ -1031,11 +1030,10 @@ impl TutorialState {
                     ]),
                 ];
                 if self.current.part == self.stage().messages.len() - 1 {
-                    col.push(WrappedComposite::text_bg_button(
-                        ctx,
-                        "Try it",
-                        hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]),
-                    ));
+                    col.push(
+                        Btn::text_bg2("Try it")
+                            .build_def(ctx, hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter])),
+                    );
                 }
 
                 Some(

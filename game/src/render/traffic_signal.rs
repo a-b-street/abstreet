@@ -1,6 +1,5 @@
 use crate::app::App;
 use crate::colors;
-use crate::managed::WrappedComposite;
 use crate::options::TrafficSignalStyle;
 use crate::render::intersection::make_crosswalk;
 use crate::render::{DrawTurnGroup, BIG_ARROW_THICKNESS};
@@ -242,12 +241,14 @@ pub fn make_signal_diagram(
     let mut col = if edit_mode {
         vec![
             txt_widget,
-            WrappedComposite::text_bg_button(ctx, "Edit entire signal", hotkey(Key::E)),
+            Btn::text_bg2("Edit entire signal").build_def(ctx, hotkey(Key::E)),
         ]
     } else {
         vec![ManagedWidget::row(vec![
             txt_widget,
-            WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
+            Btn::text_fg("X")
+                .build_def(ctx, hotkey(Key::Escape))
+                .align_right(),
         ])]
     };
 

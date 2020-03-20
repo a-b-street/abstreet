@@ -11,7 +11,7 @@ use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::DrawOptions;
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
+    hotkey, lctrl, Btn, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Text, VerticalAlignment, Wizard,
 };
 use geom::{Circle, Distance, Duration, Pt2D};
@@ -40,7 +40,9 @@ impl DebugMode {
                 ManagedWidget::col(vec![
                     ManagedWidget::row(vec![
                         Line("Debug Mode").roboto_bold().draw(ctx),
-                        WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
+                        Btn::text_fg("X")
+                            .build_def(ctx, hotkey(Key::Escape))
+                            .align_right(),
                     ]),
                     Text::new().draw(ctx).named("current info"),
                     ManagedWidget::checkbox(ctx, "show buildings", hotkey(Key::Num1), true),
@@ -68,7 +70,7 @@ impl DebugMode {
                             (None, "pick a savestate to load"),
                         ]
                         .into_iter()
-                        .map(|(key, action)| WrappedComposite::text_button(ctx, action, key))
+                        .map(|(key, action)| Btn::text_fg(action).build_def(ctx, key))
                         .collect(),
                     ),
                 ])

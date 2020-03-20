@@ -160,7 +160,8 @@ impl Tab {
                 flex_row.push(Button::inactive_button(ctx, name).margin(10));
             } else {
                 flex_row.push(
-                    WrappedComposite::text_bg_button(ctx, &name, hotkey(Key::NUM_KEYS[idx]))
+                    Btn::text_bg2(&name)
+                        .build_def(ctx, hotkey(Key::NUM_KEYS[idx]))
                         .margin(10),
                 );
                 cbs.push((
@@ -196,7 +197,7 @@ impl Tab {
                 if current == idx {
                     col.push(Button::inactive_button(ctx, &stage.title).margin(10));
                 } else {
-                    col.push(WrappedComposite::text_button(ctx, &stage.title, None).margin(10));
+                    col.push(Btn::text_fg(&stage.title).build_def(ctx, None).margin(10));
                     let name = name.to_string();
                     cbs.push((
                         stage.title,
@@ -230,7 +231,9 @@ impl Tab {
             main_row.push(
                 ManagedWidget::col(vec![
                     txt.draw(ctx),
-                    WrappedComposite::text_button(ctx, "Start!", hotkey(Key::Enter)).margin(10),
+                    Btn::text_fg("Start!")
+                        .build_def(ctx, hotkey(Key::Enter))
+                        .margin(10),
                 ])
                 .bg(colors::PANEL_BG)
                 .padding(10)

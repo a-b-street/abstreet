@@ -410,7 +410,7 @@ impl AgentMeter {
             },
             {
                 ManagedWidget::row(vec![
-                    WrappedComposite::text_bg_button(ctx, "more data", hotkey(Key::Q)),
+                    Btn::text_bg2("more data").build_def(ctx, hotkey(Key::Q)),
                     if app.has_prebaked().is_some() {
                         Btn::svg_def("../data/system/assets/meters/trip_histogram.svg")
                             .build(ctx, "compare trips to baseline", None)

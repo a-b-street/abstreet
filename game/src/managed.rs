@@ -58,14 +58,6 @@ impl WrappedComposite {
 }
 
 impl WrappedComposite {
-    pub fn text_button(ctx: &EventCtx, label: &str, hotkey: Option<MultiKey>) -> ManagedWidget {
-        Btn::text_fg(label).build_def(ctx, hotkey)
-    }
-
-    pub fn text_bg_button(ctx: &EventCtx, label: &str, hotkey: Option<MultiKey>) -> ManagedWidget {
-        Btn::text_bg2(label).build_def(ctx, hotkey)
-    }
-
     // Always includes a built-in "X" quit option
     pub fn quick_menu<I: Into<String>>(
         ctx: &mut EventCtx,
@@ -77,7 +69,9 @@ impl WrappedComposite {
             ManagedWidget::col(vec![
                 ManagedWidget::row(vec![
                     Line(title.into()).roboto_bold().draw(ctx),
-                    WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
+                    Btn::text_fg("X")
+                        .build_def(ctx, hotkey(Key::Escape))
+                        .align_right(),
                 ]),
                 {
                     let mut txt = Text::new();
@@ -89,7 +83,7 @@ impl WrappedComposite {
                 ManagedWidget::row(
                     actions
                         .into_iter()
-                        .map(|(key, action)| WrappedComposite::text_button(ctx, action, key))
+                        .map(|(key, action)| Btn::text_fg(action).build_def(ctx, key))
                         .collect(),
                 )
                 .flex_wrap(ctx, 60),

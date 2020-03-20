@@ -1,7 +1,6 @@
 use crate::app::App;
 use crate::colors;
 use crate::game::{State, Transition, WizardState};
-use crate::managed::WrappedComposite;
 use ezgui::{
     hotkey, Btn, Choice, Composite, EventCtx, GfxCtx, Key, Line, ManagedWidget, Outcome, TextExt,
 };
@@ -74,7 +73,9 @@ impl OptionsPanel {
                 ManagedWidget::col(vec![
                     ManagedWidget::row(vec![
                         Line("Settings").roboto_bold().draw(ctx),
-                        WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)).align_right(),
+                        Btn::text_fg("X")
+                            .build_def(ctx, hotkey(Key::Escape))
+                            .align_right(),
                     ]),
                     ManagedWidget::checkbox(ctx, "Enable developer mode", None, app.opts.dev)
                         .margin(5),
@@ -116,7 +117,8 @@ impl OptionsPanel {
                             .build(ctx, "change scale factor", None)
                             .margin(5),
                     ]),
-                    WrappedComposite::text_bg_button(ctx, "Apply", hotkey(Key::Enter))
+                    Btn::text_bg2("Apply")
+                        .build_def(ctx, hotkey(Key::Enter))
                         .margin(5)
                         .centered_horiz(),
                 ])

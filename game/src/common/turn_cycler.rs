@@ -3,7 +3,6 @@ use crate::colors;
 use crate::common::ColorLegend;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::ID;
-use crate::managed::WrappedComposite;
 use crate::render::{dashed_lines, draw_signal_phase, make_signal_diagram, DrawOptions, DrawTurn};
 use ezgui::{
     hotkey, Btn, Button, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
@@ -279,7 +278,7 @@ impl TurnExplorer {
                 Btn::text_fg(">").build(ctx, "next turn", hotkey(Key::RightArrow))
             }
             .margin(5),
-            WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)),
+            Btn::text_fg("X").build_def(ctx, hotkey(Key::Escape)),
         ])];
         if idx == 0 {
             if app.primary.map.get_l(l).is_sidewalk() {

@@ -1,10 +1,9 @@
 use crate::app::App;
 use crate::colors;
-use crate::managed::WrappedComposite;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use ezgui::{
-    Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, ManagedWidget,
-    Outcome, Text, VerticalAlignment,
+    Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
+    ManagedWidget, Outcome, Text, VerticalAlignment,
 };
 use geom::{Circle, Distance, Pt2D};
 use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, Map, RoadID};
@@ -140,7 +139,7 @@ impl ColorerBuilder {
         // Build the legend
         let mut col = vec![ManagedWidget::row(vec![
             self.header.draw(ctx),
-            WrappedComposite::text_button(ctx, "X", None).align_right(),
+            Btn::text_fg("X").build_def(ctx, None).align_right(),
         ])];
         for (label, color) in self.prioritized_colors {
             col.push(ColorLegend::row(ctx, color, label));

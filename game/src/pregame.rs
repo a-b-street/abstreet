@@ -96,20 +96,20 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
                 RewriteColor::Change(Color::WHITE, colors::HOVERING),
             )
             .build(ctx, "Challenges", hotkey(Key::C)),
-            WrappedComposite::text_bg_button(ctx, "COMMUNITY PROPOSALS", hotkey(Key::P)),
+            Btn::text_bg2("COMMUNITY PROPOSALS").build_def(ctx, hotkey(Key::P)),
         ])
         .centered(),
         if app.opts.dev {
             ManagedWidget::row(vec![
-                WrappedComposite::text_bg_button(ctx, "INTERNAL DEV TOOLS", hotkey(Key::M)),
-                WrappedComposite::text_bg_button(ctx, "INTERNAL A/B TEST MODE", hotkey(Key::A)),
+                Btn::text_bg2("INTERNAL DEV TOOLS").build_def(ctx, hotkey(Key::M)),
+                Btn::text_bg2("INTERNAL A/B TEST MODE").build_def(ctx, hotkey(Key::A)),
             ])
             .centered()
         } else {
             ManagedWidget::nothing()
         },
         ManagedWidget::col(vec![
-            WrappedComposite::text_bg_button(ctx, "About A/B Street", None),
+            Btn::text_bg2("About A/B Street").build_def(ctx, None),
             built_info::time().draw(ctx),
         ])
         .centered(),

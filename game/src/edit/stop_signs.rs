@@ -3,12 +3,11 @@ use crate::colors;
 use crate::common::CommonState;
 use crate::edit::{apply_map_edits, close_intersection, TrafficSignalEditor};
 use crate::game::{State, Transition};
-use crate::managed::WrappedComposite;
 use crate::render::DrawIntersection;
 use abstutil::Timer;
 use ezgui::{
-    hotkey, Button, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    ManagedWidget, Outcome, Text, TextExt, VerticalAlignment,
+    hotkey, Btn, Button, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, ManagedWidget, Outcome, Text, TextExt, VerticalAlignment,
 };
 use geom::Polygon;
 use map_model::{
@@ -56,13 +55,13 @@ impl StopSignEditor {
                 if ControlStopSign::new(&app.primary.map, id)
                     != app.primary.map.get_stop_sign(id).clone()
                 {
-                    WrappedComposite::text_button(ctx, "reset to default", hotkey(Key::R))
+                    Btn::text_fg("reset to default").build_def(ctx, hotkey(Key::R))
                 } else {
                     Button::inactive_button(ctx, "reset to default")
                 },
-                WrappedComposite::text_button(ctx, "close intersection for construction", None),
-                WrappedComposite::text_button(ctx, "convert to traffic signal", None),
-                WrappedComposite::text_button(ctx, "Finish", hotkey(Key::Escape)),
+                Btn::text_fg("close intersection for construction").build_def(ctx, None),
+                Btn::text_fg("convert to traffic signal").build_def(ctx, None),
+                Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape)),
             ])
             .bg(colors::PANEL_BG)
             .padding(10),

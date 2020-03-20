@@ -3,7 +3,6 @@ use crate::colors;
 use crate::common::CommonState;
 use crate::edit::{apply_map_edits, close_intersection, StopSignEditor};
 use crate::game::{msg, DrawBaselayer, State, Transition, WizardState};
-use crate::managed::WrappedComposite;
 use crate::render::{
     draw_signal_phase, make_signal_diagram, DrawOptions, DrawTurnGroup, BIG_ARROW_THICKNESS,
 };
@@ -296,8 +295,8 @@ impl State for TrafficSignalEditor {
 
 pub fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool) -> Composite {
     let row = vec![
-        WrappedComposite::text_button(ctx, "Finish", hotkey(Key::Escape)),
-        WrappedComposite::text_button(ctx, "Preview", lctrl(Key::P)),
+        Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape)),
+        Btn::text_fg("Preview").build_def(ctx, lctrl(Key::P)),
         (if can_undo {
             Btn::svg_def("../data/system/assets/tools/undo.svg").build(ctx, "undo", lctrl(Key::Z))
         } else {
@@ -324,7 +323,7 @@ pub fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: b
         })
         .margin(15),
         if app.opts.dev {
-            WrappedComposite::text_button(ctx, "Export", None)
+            Btn::text_fg("Export").build_def(ctx, None)
         } else {
             ManagedWidget::nothing()
         },
@@ -705,7 +704,7 @@ impl PreviewTrafficSignal {
             composite: Composite::new(
                 ManagedWidget::col(vec![
                     "Previewing traffic signal".draw_text(ctx),
-                    WrappedComposite::text_button(ctx, "back to editing", hotkey(Key::Escape)),
+                    Btn::text_fg("back to editing").build_def(ctx, hotkey(Key::Escape)),
                 ])
                 .bg(colors::PANEL_BG)
                 .padding(10),

@@ -720,7 +720,7 @@ impl Overlays {
                             txt.draw(ctx)
                         }
                         .margin(10),
-                        WrappedComposite::text_button(ctx, "X", None).align_right(),
+                        Btn::text_fg("X").build_def(ctx, None).align_right(),
                     ]),
                     Histogram::new(
                         app.primary
@@ -772,7 +772,7 @@ impl Overlays {
                 Btn::svg_def("../data/system/assets/tools/location.svg")
                     .build(ctx, "intersection demand", None)
                     .margin(5),
-                WrappedComposite::text_button(ctx, "X", None).align_right(),
+                Btn::text_fg("X").build_def(ctx, None).align_right(),
             ]),
             ColorLegend::row(ctx, Color::RED, "current demand"),
         ];
@@ -797,7 +797,7 @@ impl Overlays {
             Line(format!("Passengers for {}", route.name))
                 .roboto_bold()
                 .draw(ctx),
-            WrappedComposite::text_button(ctx, "X", None).align_right(),
+            Btn::text_fg("X").build_def(ctx, None).align_right(),
         ])];
         let mut col = Vec::new();
 
@@ -910,7 +910,7 @@ impl Overlays {
                 ManagedWidget::col(vec![
                     ManagedWidget::row(vec![
                         format!("delays for {}", route.name).draw_text(ctx),
-                        WrappedComposite::text_button(ctx, "X", None).align_right(),
+                        Btn::text_fg("X").build_def(ctx, None).align_right(),
                     ]),
                     Plot::new_duration(ctx, series, PlotOptions::new()).margin(10),
                 ])

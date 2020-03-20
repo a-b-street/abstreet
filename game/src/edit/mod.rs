@@ -365,7 +365,8 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Composite {
                 .margin(15),
             ])
             .centered(),
-            WrappedComposite::text_button(ctx, "finish editing", hotkey(Key::Escape))
+            Btn::text_fg("finish editing")
+                .build_def(ctx, hotkey(Key::Escape))
                 .centered_horiz(),
         ])
         .bg(colors::PANEL_BG),
