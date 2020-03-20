@@ -302,7 +302,7 @@ impl State for SandboxMode {
 
     fn on_destroy(&mut self, _: &mut EventCtx, app: &mut App) {
         app.overlay = Overlays::Inactive;
-        app.agent_cs = AgentColorScheme::default(&app.cs);
+        app.agent_cs = AgentColorScheme::new(&app.cs);
     }
 }
 

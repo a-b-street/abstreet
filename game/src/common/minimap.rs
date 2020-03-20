@@ -1,14 +1,13 @@
 use crate::app::App;
 use crate::colors;
 use crate::common::{navigate, shortcuts, Overlays, Warping};
-use crate::game::{Transition, WizardState};
+use crate::game::Transition;
 use crate::managed::WrappedComposite;
-use crate::render::{AgentColorScheme, MIN_ZOOM_FOR_DETAIL};
+use crate::render::MIN_ZOOM_FOR_DETAIL;
 use abstutil::clamp;
 use ezgui::{
-    hotkey, Btn, Choice, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, RewriteColor, ScreenDims, ScreenPt,
-    Text, VerticalAlignment,
+    hotkey, Btn, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, ManagedWidget, Outcome, RewriteColor, ScreenDims, ScreenPt, Text, VerticalAlignment,
 };
 use geom::{Circle, Distance, Polygon, Pt2D, Ring};
 
@@ -16,7 +15,6 @@ use geom::{Circle, Distance, Polygon, Pt2D, Ring};
 pub struct Minimap {
     dragging: bool,
     pub(crate) composite: Composite,
-    acs: AgentColorScheme,
     zoomed: bool,
 
     // [0, 3], with 0 meaning the most unzoomed
@@ -35,8 +33,7 @@ impl Minimap {
         let base_zoom = 0.15 * ctx.canvas.window_width / bounds.width();
         Minimap {
             dragging: false,
-            composite: make_minimap_panel(ctx, &app.agent_cs, 0),
-            acs: app.agent_cs.clone(),
+            composite: make_minimap_panel(ctx, app, 0),
             zoomed: ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL,
 
             zoom_lvl: 0,
@@ -47,23 +44,18 @@ impl Minimap {
         }
     }
 
-    fn set_zoom(&mut self, ctx: &mut EventCtx, zoom_lvl: usize) {
+    fn set_zoom(&mut self, ctx: &mut EventCtx, app: &App, zoom_lvl: usize) {
         let zoom_speed: f64 = 2.0;
         self.zoom_lvl = zoom_lvl;
         self.zoom = self.base_zoom * zoom_speed.powi(self.zoom_lvl as i32);
-        self.composite = make_minimap_panel(ctx, &self.acs, self.zoom_lvl);
+        self.composite = make_minimap_panel(ctx, app, self.zoom_lvl);
     }
 
     pub fn event(&mut self, app: &mut App, ctx: &mut EventCtx) -> Option<Transition> {
-        // Happens when we changed the colorscheme in WizardState
-        if app.agent_cs != self.acs {
-            self.acs = app.agent_cs.clone();
-            self.composite = make_minimap_panel(ctx, &self.acs, self.zoom_lvl);
-        }
         let zoomed = ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL;
         if zoomed != self.zoomed {
             self.zoomed = zoomed;
-            self.composite = make_minimap_panel(ctx, &self.acs, self.zoom_lvl);
+            self.composite = make_minimap_panel(ctx, app, self.zoom_lvl);
         }
 
         let pan_speed = 100.0;
@@ -77,52 +69,25 @@ impl Minimap {
                 // Canvas.
                 x if x == "zoom in" => {
                     if self.zoom_lvl != 3 {
-                        self.set_zoom(ctx, self.zoom_lvl + 1);
+                        self.set_zoom(ctx, app, self.zoom_lvl + 1);
                     }
                 }
                 x if x == "zoom out" => {
                     if self.zoom_lvl != 0 {
-                        self.set_zoom(ctx, self.zoom_lvl - 1);
+                        self.set_zoom(ctx, app, self.zoom_lvl - 1);
                     }
                 }
                 x if x == "zoom to level 1" => {
-                    self.set_zoom(ctx, 0);
+                    self.set_zoom(ctx, app, 0);
                 }
                 x if x == "zoom to level 2" => {
-                    self.set_zoom(ctx, 1);
+                    self.set_zoom(ctx, app, 1);
                 }
                 x if x == "zoom to level 3" => {
-                    self.set_zoom(ctx, 2);
+                    self.set_zoom(ctx, app, 2);
                 }
                 x if x == "zoom to level 4" => {
-                    self.set_zoom(ctx, 3);
-                }
-                x if x == "change agent colorscheme" => {
-                    let btn = self.composite.rect_of("change agent colorscheme").clone();
-                    return Some(Transition::Push(WizardState::new(Box::new(
-                        move |wiz, ctx, app| {
-                            let (_, acs) = wiz.wrap(ctx).choose_exact(
-                                (
-                                    HorizontalAlignment::Centered(btn.center().x),
-                                    VerticalAlignment::Below(btn.y2 + 15.0),
-                                ),
-                                None,
-                                || {
-                                    let mut choices = Vec::new();
-                                    for acs in AgentColorScheme::all(&app.cs) {
-                                        if app.agent_cs.acs != acs.acs {
-                                            choices.push(Choice::new(acs.long_name.clone(), acs));
-                                        }
-                                    }
-                                    choices
-                                },
-                            )?;
-                            app.agent_cs = acs;
-                            // TODO It'd be great to replace self here, but the lifetimes don't
-                            // work out.
-                            Some(Transition::Pop)
-                        },
-                    ))));
+                    self.set_zoom(ctx, app, 3);
                 }
                 x if x == "search" => {
                     return Some(Transition::Push(Box::new(navigate::Navigator::new(app))));
@@ -155,8 +120,7 @@ impl Minimap {
                     // Handles both "show {}" and "hide {}"
                     let key = x[5..].to_string();
                     app.agent_cs.toggle(key);
-                    self.acs = app.agent_cs.clone();
-                    self.composite = make_minimap_panel(ctx, &self.acs, self.zoom_lvl);
+                    self.composite = make_minimap_panel(ctx, app, self.zoom_lvl);
                 }
             },
             None => {}
@@ -272,9 +236,9 @@ impl Minimap {
     }
 }
 
-fn make_minimap_panel(ctx: &mut EventCtx, acs: &AgentColorScheme, zoom_lvl: usize) -> Composite {
+fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composite {
     if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
-        return Composite::new(make_viz_panel(ctx, acs))
+        return Composite::new(make_viz_panel(ctx, app))
             .aligned(
                 HorizontalAlignment::Right,
                 VerticalAlignment::BottomAboveOSD,
@@ -314,7 +278,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, acs: &AgentColorScheme, zoom_lvl: usiz
 
     Composite::new(
         ManagedWidget::row(vec![
-            make_viz_panel(ctx, acs),
+            make_viz_panel(ctx, app),
             ManagedWidget::col(zoom_col).margin(5).centered(),
             ManagedWidget::col(vec![
                 WrappedComposite::svg_button(
@@ -368,59 +332,50 @@ fn make_minimap_panel(ctx: &mut EventCtx, acs: &AgentColorScheme, zoom_lvl: usiz
     .build(ctx)
 }
 
-fn make_viz_panel(ctx: &mut EventCtx, acs: &AgentColorScheme) -> ManagedWidget {
+fn make_viz_panel(ctx: &mut EventCtx, app: &App) -> ManagedWidget {
     let radius = 10.0;
-    let mut col = vec![
-        ManagedWidget::row(vec![
-            WrappedComposite::svg_button(
-                ctx,
-                "../data/system/assets/tools/search.svg",
-                "search",
-                hotkey(Key::K),
-            )
-            .margin(10),
-            WrappedComposite::svg_button(
-                ctx,
-                "../data/system/assets/tools/shortcuts.svg",
-                "shortcuts",
-                hotkey(Key::SingleQuote),
-            )
-            .margin(10),
-            if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL {
-                WrappedComposite::svg_button(
-                    ctx,
-                    "../data/system/assets/minimap/zoom_out_fully.svg",
-                    "zoom out fully",
-                    None,
-                )
-                .margin(10)
-            } else {
-                WrappedComposite::svg_button(
-                    ctx,
-                    "../data/system/assets/minimap/zoom_in_fully.svg",
-                    "zoom in fully",
-                    None,
-                )
-                .margin(10)
-            },
-            WrappedComposite::svg_button(
-                ctx,
-                "../data/system/assets/tools/layers.svg",
-                "change overlay",
-                hotkey(Key::L),
-            )
-            .margin(10),
-        ])
-        .centered(),
-        WrappedComposite::nice_text_button(
+    let mut col = vec![ManagedWidget::row(vec![
+        WrappedComposite::svg_button(
             ctx,
-            Text::from(Line(format!("{} ▼", acs.short_name))),
-            hotkey(Key::Semicolon),
-            "change agent colorscheme",
+            "../data/system/assets/tools/search.svg",
+            "search",
+            hotkey(Key::K),
         )
-        .centered_horiz(),
-    ];
-    for (label, color, enabled) in &acs.rows {
+        .margin(10),
+        WrappedComposite::svg_button(
+            ctx,
+            "../data/system/assets/tools/shortcuts.svg",
+            "shortcuts",
+            hotkey(Key::SingleQuote),
+        )
+        .margin(10),
+        if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL {
+            WrappedComposite::svg_button(
+                ctx,
+                "../data/system/assets/minimap/zoom_out_fully.svg",
+                "zoom out fully",
+                None,
+            )
+            .margin(10)
+        } else {
+            WrappedComposite::svg_button(
+                ctx,
+                "../data/system/assets/minimap/zoom_in_fully.svg",
+                "zoom in fully",
+                None,
+            )
+            .margin(10)
+        },
+        WrappedComposite::svg_button(
+            ctx,
+            "../data/system/assets/tools/layers.svg",
+            "change overlay",
+            hotkey(Key::L),
+        )
+        .margin(10),
+    ])
+    .centered()];
+    for (label, color, enabled) in &app.agent_cs.rows {
         col.push(
             ManagedWidget::row(vec![
                 // TODO Make sure the dims of these two fit

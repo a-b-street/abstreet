@@ -1,5 +1,5 @@
 use crate::app::{App, Flags};
-use crate::helpers::{heatmap_10, ColorScheme, ID};
+use crate::helpers::{ColorScheme, ID};
 use crate::render::area::DrawArea;
 use crate::render::building::DrawBuilding;
 use crate::render::bus_stop::DrawBusStop;
@@ -9,9 +9,9 @@ use crate::render::lane::DrawLane;
 use crate::render::road::DrawRoad;
 use crate::render::{draw_vehicle, DrawPedCrowd, DrawPedestrian, Renderable};
 use aabb_quadtree::QuadTree;
-use abstutil::{Cloneable, Timer};
+use abstutil::Timer;
 use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender};
-use geom::{Bounds, Circle, Distance, Duration, FindClosest, Pt2D, Time};
+use geom::{Bounds, Circle, Distance, FindClosest, Pt2D, Time};
 use map_model::{
     AreaID, BuildingID, BusStopID, DirectedRoadID, Intersection, IntersectionID, LaneID, Map, Road,
     RoadID, Traversable, NORMAL_LANE_THICKNESS,
@@ -464,133 +464,39 @@ fn osm_rank_to_color(cs: &ColorScheme, rank: usize) -> Color {
     }
 }
 
-// TODO ETA till goal...
-#[derive(Clone, Copy, PartialEq)]
-pub enum InnerAgentColorScheme {
-    VehicleTypes,
-    Delay,
-    TripTimeSoFar,
-    DistanceCrossedSoFar,
-}
-
-impl InnerAgentColorScheme {
-    fn data(self, cs: &ColorScheme) -> (&str, &str, Vec<(&str, Color)>) {
-        match self {
-            InnerAgentColorScheme::VehicleTypes => (
-                "agent types",
-                "agent types",
-                vec![
-                    (
-                        "car",
-                        cs.get_def("unzoomed car", Color::hex("#A32015")).alpha(0.8),
-                    ),
-                    (
-                        "bike",
-                        cs.get_def("unzoomed bike", Color::hex("#5D9630"))
-                            .alpha(0.8),
-                    ),
-                    (
-                        "bus",
-                        cs.get_def("unzoomed bus", Color::hex("#12409D")).alpha(0.8),
-                    ),
-                    (
-                        "pedestrian",
-                        cs.get_def("unzoomed pedestrian", Color::hex("#DF8C3D").alpha(0.8)),
-                    ),
-                ],
-            ),
-            InnerAgentColorScheme::Delay => (
-                "delay",
-                "time spent delayed",
-                vec![
-                    ("<= 1 minute", Color::BLUE.alpha(0.3)),
-                    ("<= 5 minutes", Color::ORANGE.alpha(0.5)),
-                    ("> 5 minutes", Color::RED.alpha(0.8)),
-                ],
-            ),
-            InnerAgentColorScheme::TripTimeSoFar => (
-                "trip time",
-                "trip time so far",
-                vec![
-                    ("<= 1 minute", Color::BLUE.alpha(0.3)),
-                    ("<= 5 minutes", Color::ORANGE.alpha(0.5)),
-                    ("> 5 minutes", Color::RED.alpha(0.8)),
-                ],
-            ),
-            InnerAgentColorScheme::DistanceCrossedSoFar => (
-                "distance crossed",
-                "distance crossed to goal so far",
-                vec![
-                    ("<= 10%", heatmap_10(0)),
-                    ("<= 20%", heatmap_10(1)),
-                    ("<= 30%", heatmap_10(2)),
-                    ("<= 40%", heatmap_10(3)),
-                    ("<= 50%", heatmap_10(4)),
-                    ("<= 60%", heatmap_10(5)),
-                    ("<= 70%", heatmap_10(6)),
-                    ("<= 80%", heatmap_10(7)),
-                    ("<= 90%", heatmap_10(8)),
-                    ("> 90%", heatmap_10(9)),
-                ],
-            ),
-        }
-    }
-
-    fn classify(self, agent: &UnzoomedAgent) -> String {
-        match self {
-            InnerAgentColorScheme::VehicleTypes => match agent.vehicle_type {
-                Some(VehicleType::Car) => "car".to_string(),
-                Some(VehicleType::Bike) => "bike".to_string(),
-                Some(VehicleType::Bus) => "bus".to_string(),
-                None => "pedestrian".to_string(),
-            },
-            InnerAgentColorScheme::Delay => classify_delay(agent.metadata.time_spent_blocked),
-            InnerAgentColorScheme::TripTimeSoFar => classify_delay(agent.metadata.trip_time_so_far),
-            InnerAgentColorScheme::DistanceCrossedSoFar => {
-                classify_percent(agent.metadata.percent_dist_crossed)
-            }
-        }
-    }
-}
-
-#[derive(Clone, PartialEq)]
+#[derive(PartialEq, Clone)]
 pub struct AgentColorScheme {
-    pub acs: InnerAgentColorScheme,
-    pub short_name: String,
-    pub long_name: String,
+    // TODO Could consider specializing this more?
     pub rows: Vec<(String, Color, bool)>,
 }
 
-impl Cloneable for AgentColorScheme {}
-
 impl AgentColorScheme {
-    pub fn new(acs: InnerAgentColorScheme, cs: &ColorScheme) -> AgentColorScheme {
-        let (short_name, long_name, rows) = acs.data(cs);
+    pub fn new(cs: &ColorScheme) -> AgentColorScheme {
         AgentColorScheme {
-            acs,
-            short_name: short_name.to_string(),
-            long_name: long_name.to_string(),
-            rows: rows
-                .into_iter()
-                .map(|(name, color)| (name.to_string(), color, true))
-                .collect(),
+            rows: vec![
+                (
+                    "car".to_string(),
+                    cs.get_def("unzoomed car", Color::hex("#A32015")).alpha(0.8),
+                    true,
+                ),
+                (
+                    "bike".to_string(),
+                    cs.get_def("unzoomed bike", Color::hex("#5D9630"))
+                        .alpha(0.8),
+                    true,
+                ),
+                (
+                    "bus".to_string(),
+                    cs.get_def("unzoomed bus", Color::hex("#12409D")).alpha(0.8),
+                    true,
+                ),
+                (
+                    "pedestrian".to_string(),
+                    cs.get_def("unzoomed pedestrian", Color::hex("#DF8C3D").alpha(0.8)),
+                    true,
+                ),
+            ],
         }
-    }
-
-    pub fn default(cs: &ColorScheme) -> AgentColorScheme {
-        AgentColorScheme::new(InnerAgentColorScheme::VehicleTypes, cs)
-    }
-
-    pub fn all(cs: &ColorScheme) -> Vec<AgentColorScheme> {
-        vec![
-            InnerAgentColorScheme::VehicleTypes,
-            InnerAgentColorScheme::Delay,
-            InnerAgentColorScheme::TripTimeSoFar,
-            InnerAgentColorScheme::DistanceCrossedSoFar,
-        ]
-        .into_iter()
-        .map(|acs| AgentColorScheme::new(acs, cs))
-        .collect()
     }
 
     pub fn toggle(&mut self, name: String) {
@@ -604,7 +510,12 @@ impl AgentColorScheme {
     }
 
     fn color(&self, agent: &UnzoomedAgent) -> Option<Color> {
-        let category = self.acs.classify(agent);
+        let category = match agent.vehicle_type {
+            Some(VehicleType::Car) => "car".to_string(),
+            Some(VehicleType::Bike) => "bike".to_string(),
+            Some(VehicleType::Bus) => "bus".to_string(),
+            None => "pedestrian".to_string(),
+        };
         for (name, color, enabled) in &self.rows {
             if name == &category {
                 if *enabled {
@@ -615,24 +526,4 @@ impl AgentColorScheme {
         }
         panic!("Unknown AgentColorScheme category {}", category);
     }
-}
-
-fn classify_delay(delay: Duration) -> String {
-    if delay <= Duration::minutes(1) {
-        return "<= 1 minute".to_string();
-    }
-    if delay <= Duration::minutes(5) {
-        return "<= 5 minutes".to_string();
-    }
-    "> 5 minutes".to_string()
-}
-
-fn classify_percent(percent: f64) -> String {
-    if percent > 0.9 {
-        return "> 90%".to_string();
-    }
-    if percent <= 0.1 {
-        return "<= 10%".to_string();
-    }
-    format!("<= {}%", ((percent * 10.0).round() as usize) * 10)
 }

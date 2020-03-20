@@ -70,7 +70,7 @@ impl App {
             primary,
             secondary: None,
             prebaked: None,
-            agent_cs: AgentColorScheme::default(&cs),
+            agent_cs: AgentColorScheme::new(&cs),
             cs,
             opts,
             per_obj: PerObjectActions::new(),

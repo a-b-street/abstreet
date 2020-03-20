@@ -148,22 +148,6 @@ pub fn rotating_color_map(idx: usize) -> Color {
     )
 }
 
-pub fn heatmap_10(idx: usize) -> Color {
-    assert!(idx <= 9);
-    vec![
-        Color::hex("#FFFFE5"),
-        Color::hex("#FFF7BC"),
-        Color::hex("#FEE391"),
-        Color::hex("#FEC44F"),
-        Color::hex("#FE9929"),
-        Color::hex("#EC7014"),
-        Color::hex("#CC4C02"),
-        Color::hex("#993404"),
-        Color::hex("#662506"),
-        Color::hex("#FF2506"),
-    ][idx]
-}
-
 pub fn rotating_color_agents(idx: usize) -> Color {
     modulo_color(
         vec![
