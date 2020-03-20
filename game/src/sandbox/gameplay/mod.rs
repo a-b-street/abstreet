@@ -269,7 +269,7 @@ fn challenge_controller(
 
     let mut rows = vec![ManagedWidget::row(vec![
         Line(title).size(26).draw(ctx).margin(5),
-        WrappedComposite::svg_button(ctx, "../data/system/assets/tools/info.svg", "info", None)
+        WrappedComposite::svg_button(ctx, "../data/system/assets/tools/info.svg", "instructions", None)
             .margin(5),
         ManagedWidget::draw_batch(
             ctx,
@@ -304,7 +304,7 @@ fn challenge_controller(
     )
     // TODO msg() is silly, it's hard to plumb the title. Also, show the challenge splash screen.
     .cb(
-        "info",
+        "instructions",
         Box::new(move |_, _| Some(Transition::Push(msg("Challenge", description.clone())))),
     )
 }

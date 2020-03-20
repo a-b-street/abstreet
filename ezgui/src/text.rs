@@ -289,6 +289,7 @@ fn render_text(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
         write!(
             &mut contents,
             r##"<tspan fill="{}">{}</tspan>"##,
+            // TODO Doesn't support alpha
             span.fg_color.to_hex(),
             htmlescape::encode_minimal(&span.text)
         )

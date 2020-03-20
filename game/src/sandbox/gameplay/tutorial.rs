@@ -111,7 +111,7 @@ impl GameplayState for Tutorial {
                     tut.current = TutorialPointer::new(tut.current.stage + 1, 0);
                     return (Some(transition(ctx, app)), false);
                 }
-                "help" => {
+                "instructions" => {
                     tut.current = TutorialPointer::new(tut.current.stage, 0);
                     return (Some(transition(ctx, app)), false);
                 }
@@ -894,9 +894,6 @@ impl TutorialState {
                 GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
             )
             .margin(5),
-            Text::from(Line(format!("{}/{}", self.current.stage + 1, self.stages.len())).size(20))
-                .draw(ctx)
-                .margin(5),
             if self.current.stage == 0 {
                 Button::inactive_button(ctx, "<")
             } else {
@@ -908,6 +905,12 @@ impl TutorialState {
                 )
             }
             .margin(5),
+            {
+                let mut txt = Text::from(Line(format!("Task {}", self.current.stage + 1)));
+                // TODO Smaller font and use alpha for the "/9" part
+                txt.append(Line(format!("/{}", self.stages.len())).fg(Color::grey(0.7)));
+                txt.draw(ctx).margin(5)
+            },
             if self.current.stage == self.latest.stage {
                 Button::inactive_button(ctx, ">")
             } else {
@@ -935,10 +938,12 @@ impl TutorialState {
                         .roboto_bold(),
                     )
                     .draw(ctx),
+                    // TODO also text saying "instructions"... can we layout two things easily to
+                    // make a button?
                     WrappedComposite::svg_button(
                         ctx,
                         "../data/system/assets/tools/info.svg",
-                        "help",
+                        "instructions",
                         None,
                     )
                     .centered_vert()
@@ -1302,10 +1307,6 @@ impl TutorialState {
                 .msg(
                     vec!["Set up shortcuts to favorite areas"],
                     arrow(minimap.composite.center_of("shortcuts")),
-                )
-                .msg(
-                    vec!["View different data about agents"],
-                    arrow(minimap.composite.center_of("change agent colorscheme")),
                 )
                 .msg(
                     vec![

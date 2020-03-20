@@ -383,5 +383,5 @@
     "max_lon": -122.44015604243269,
     "max_lat": 47.7155
   },
-  "drive_on_right": true
+  "driving_side": "Right"
 }
