@@ -137,11 +137,6 @@ b0a3a08cac236734be96330179c40be2  data/input/google_transit_2018_18_08/trips.txt
 6ee699d3fdc218e5be3906ee90160a1d  data/input/google_transit_2018_18_08/fare_attributes.txt
 d7587f76ed2d514d9f925c8b60b30153  data/input/google_transit_2018_18_08/stops.txt
 3d8b080487e096ef417038739acecea5  data/input/google_transit_2018_18_08/agency.txt
-bbd7d9c86c3360807a7326c3d07d864c  data/system/assets/layers/parking_avail.svg
-676e4f938ef8ebe1395c3ee34ac0dd4b  data/system/assets/layers/throughput.svg
-8e0184126ba8a70da58a1f57dd2661b6  data/system/assets/layers/bike_network.svg
-e9a1bcaa265cfb89d276099f491ad4a6  data/system/assets/layers/intersection_delay.svg
-92b1f47816f3f8e4a14c630ada8e1141  data/system/assets/layers/bus_network.svg
 e4d10fa4a66453b7097d906e4616e26b  data/system/assets/meters/car.svg
 9d747979fdc362ac6df0af3c3bbffd15  data/system/assets/meters/bus.svg
 f7facfb678770c416e5529b2b2d066e5  data/system/assets/meters/pedestrian.svg

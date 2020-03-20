@@ -7,7 +7,8 @@ use crate::render::MIN_ZOOM_FOR_DETAIL;
 use abstutil::clamp;
 use ezgui::{
     hotkey, Btn, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, ManagedWidget, Outcome, RewriteColor, ScreenDims, ScreenPt, Text, VerticalAlignment,
+    Line, ManagedWidget, Outcome, RewriteColor, ScreenDims, ScreenPt, Text, TextExt,
+    VerticalAlignment,
 };
 use geom::{Circle, Distance, Polygon, Pt2D, Ring};
 
@@ -415,5 +416,24 @@ fn make_viz_panel(ctx: &mut EventCtx, app: &App) -> ManagedWidget {
             .centered_cross(),
         );
     }
+
+    if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL {
+        if let Some(name) = app.overlay.zoomed_name() {
+            // TODO Should the full legend have this icon too?
+            col.insert(
+                0,
+                ManagedWidget::row(vec![
+                    ManagedWidget::draw_svg_transform(
+                        ctx,
+                        "../data/system/assets/tools/layers.svg",
+                        RewriteColor::ChangeAll(Color::BLUE),
+                    )
+                    .margin(5),
+                    name.draw_text(ctx),
+                ]),
+            );
+        }
+    }
+
     ManagedWidget::col(col).bg(colors::PANEL_BG).padding(5)
 }

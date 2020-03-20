@@ -248,74 +248,34 @@ impl Overlays {
     }
 
     pub fn change_overlays(ctx: &mut EventCtx, app: &App) -> Option<Transition> {
+        // TODO Icons again, after some work
         let mut choices = vec![
             Btn::text_fg("None").build_def(ctx, hotkey(Key::N)),
             Btn::text_fg("map edits").build_def(ctx, hotkey(Key::E)),
             Btn::text_fg("worst traffic jams").build_def(ctx, hotkey(Key::G)),
             Btn::text_fg("elevation").build_def(ctx, hotkey(Key::S)),
-            Btn::svg(
-                "../data/system/assets/layers/parking_avail.svg",
-                RewriteColor::Change(Color::hex("#F2F2F2"), colors::HOVERING),
-            )
-            .build(ctx, "parking availability", hotkey(Key::P)),
-            // TODO old button
-            Btn::svg(
-                "../data/system/assets/layers/intersection_delay.svg",
-                RewriteColor::Change(Color::hex("#F2F2F2"), colors::HOVERING),
-            )
-            .build(ctx, "delay", hotkey(Key::I)),
-            Btn::svg(
-                "../data/system/assets/layers/throughput.svg",
-                RewriteColor::Change(Color::hex("#F2F2F2"), colors::HOVERING),
-            )
-            .build(ctx, "throughput", hotkey(Key::T)),
-            Btn::svg(
-                "../data/system/assets/layers/bike_network.svg",
-                RewriteColor::Change(Color::hex("#F2F2F2"), colors::HOVERING),
-            )
-            .build(ctx, "bike network", hotkey(Key::B)),
-            Btn::svg(
-                "../data/system/assets/layers/bus_network.svg",
-                RewriteColor::Change(Color::hex("#F2F2F2"), colors::HOVERING),
-            )
-            .build(ctx, "bus network", hotkey(Key::U)),
+            Btn::text_fg("parking availability").build_def(ctx, hotkey(Key::P)),
+            Btn::text_fg("delay").build_def(ctx, hotkey(Key::I)),
+            Btn::text_fg("throughput").build_def(ctx, hotkey(Key::T)),
+            Btn::text_fg("bike network").build_def(ctx, hotkey(Key::B)),
+            Btn::text_fg("bus network").build_def(ctx, hotkey(Key::U)),
         ];
         // TODO Grey out the inactive SVGs, and add the green checkmark
-        if let Some((find, replace)) = match app.overlay {
-            Overlays::Inactive => Some(("None", Button::inactive_button(ctx, "None"))),
-            Overlays::ParkingAvailability(_, _) => Some((
-                "parking availability",
-                ManagedWidget::draw_svg(ctx, "../data/system/assets/layers/parking_avail.svg"),
-            )),
-            Overlays::WorstDelay(_, _) => Some((
-                "delay",
-                ManagedWidget::draw_svg(ctx, "../data/system/assets/layers/intersection_delay.svg"),
-            )),
-            Overlays::TrafficJams(_, _) => Some((
-                "worst traffic jams",
-                Button::inactive_button(ctx, "worst traffic jams"),
-            )),
-            Overlays::CumulativeThroughput(_, _) => Some((
-                "throughput",
-                ManagedWidget::draw_svg(ctx, "../data/system/assets/layers/throughput.svg"),
-            )),
-            Overlays::BikeNetwork(_) => Some((
-                "bike network",
-                ManagedWidget::draw_svg(ctx, "../data/system/assets/layers/bike_network.svg"),
-            )),
-            Overlays::BusNetwork(_) => Some((
-                "bus network",
-                ManagedWidget::draw_svg(ctx, "../data/system/assets/layers/bus_network.svg"),
-            )),
-            Overlays::Elevation(_, _) => {
-                Some(("elevation", Button::inactive_button(ctx, "elevation")))
-            }
-            Overlays::Edits(_) => Some(("map edits", Button::inactive_button(ctx, "map edits"))),
+        if let Some(name) = match app.overlay {
+            Overlays::Inactive => Some("None"),
+            Overlays::ParkingAvailability(_, _) => Some("parking availability"),
+            Overlays::WorstDelay(_, _) => Some("delay"),
+            Overlays::TrafficJams(_, _) => Some("worst traffic jams"),
+            Overlays::CumulativeThroughput(_, _) => Some("throughput"),
+            Overlays::BikeNetwork(_) => Some("bike network"),
+            Overlays::BusNetwork(_) => Some("bus network"),
+            Overlays::Elevation(_, _) => Some("elevation"),
+            Overlays::Edits(_) => Some("map edits"),
             _ => None,
         } {
             for btn in &mut choices {
-                if btn.is_btn(&find) {
-                    *btn = replace.outline(2.0, Color::GREEN);
+                if btn.is_btn(name) {
+                    *btn = Button::inactive_button(ctx, name).outline(2.0, Color::GREEN);
                     break;
                 }
             }
@@ -330,13 +290,14 @@ impl Overlays {
                             .build(ctx, "close", hotkey(Key::Escape))
                             .align_right(),
                     ]),
-                    ManagedWidget::row(choices).flex_wrap(ctx, 20),
+                    ManagedWidget::row(choices.into_iter().map(|x| x.margin(5)).collect())
+                        .flex_wrap(ctx, 30),
                 ])
                 .bg(colors::PANEL_BG)
                 .outline(10.0, Color::WHITE)
                 .padding(10),
             )
-            .max_size_percent(30, 50)
+            .max_size_percent(35, 50)
             .build(ctx),
         )
         .cb("close", Box::new(|_, _| Some(Transition::Pop)))
@@ -351,59 +312,79 @@ impl Overlays {
             "parking availability",
             Box::new(|ctx, app| {
                 app.overlay = Overlays::parking_availability(ctx, app);
-                Some(Transition::Pop)
+                Some(maybe_unzoom(ctx, app))
             }),
         )
         .maybe_cb(
             "delay",
             Box::new(|ctx, app| {
                 app.overlay = Overlays::worst_delay(ctx, app);
-                Some(Transition::Pop)
+                Some(maybe_unzoom(ctx, app))
             }),
         )
         .maybe_cb(
             "worst traffic jams",
             Box::new(|ctx, app| {
                 app.overlay = Overlays::traffic_jams(ctx, app);
-                Some(Transition::Pop)
+                Some(maybe_unzoom(ctx, app))
             }),
         )
         .maybe_cb(
             "throughput",
             Box::new(|ctx, app| {
                 app.overlay = Overlays::cumulative_throughput(ctx, app);
-                Some(Transition::Pop)
+                Some(maybe_unzoom(ctx, app))
             }),
         )
         .maybe_cb(
             "bike network",
             Box::new(|ctx, app| {
                 app.overlay = Overlays::bike_network(ctx, app);
-                Some(Transition::Pop)
+                Some(maybe_unzoom(ctx, app))
             }),
         )
         .maybe_cb(
             "bus network",
             Box::new(|ctx, app| {
                 app.overlay = Overlays::bus_network(ctx, app);
-                Some(Transition::Pop)
+                Some(maybe_unzoom(ctx, app))
             }),
         )
         .maybe_cb(
             "elevation",
             Box::new(|ctx, app| {
                 app.overlay = Overlays::elevation(ctx, app);
-                Some(Transition::Pop)
+                Some(maybe_unzoom(ctx, app))
             }),
         )
         .maybe_cb(
             "map edits",
             Box::new(|ctx, app| {
                 app.overlay = Overlays::map_edits(ctx, app);
-                Some(Transition::Pop)
+                Some(maybe_unzoom(ctx, app))
             }),
         );
         Some(Transition::Push(ManagedGUIState::over_map(c)))
+    }
+
+    // Only for those hidden when zoomed in
+    pub fn zoomed_name(&self) -> Option<&'static str> {
+        match self {
+            Overlays::Inactive => None,
+            Overlays::ParkingAvailability(_, _) => Some("parking availability"),
+            Overlays::WorstDelay(_, _) => Some("delay"),
+            Overlays::TrafficJams(_, _) => Some("traffic jams"),
+            Overlays::CumulativeThroughput(_, _) => Some("throughput"),
+            Overlays::BikeNetwork(_) => Some("bike network"),
+            Overlays::BusNetwork(_) => Some("bus network"),
+            Overlays::Elevation(_, _) => Some("elevation"),
+            Overlays::Edits(_) => Some("map edits"),
+            Overlays::TripsHistogram(_, _) => None,
+            Overlays::IntersectionDemand(_, _, _, _) => None,
+            Overlays::BusRoute(_, _, _) => None,
+            Overlays::BusDelaysOverTime(_, _, _) => None,
+            Overlays::BusPassengers(_, _, _) => None,
+        }
     }
 }
 
@@ -970,4 +951,17 @@ impl Overlays {
 
         Overlays::Edits(colorer.build(ctx, app))
     }
+}
+
+fn maybe_unzoom(ctx: &EventCtx, app: &mut App) -> Transition {
+    if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+        return Transition::Pop;
+    }
+    Transition::Replace(Warping::new(
+        ctx,
+        ctx.canvas.center_to_map_pt(),
+        Some(0.99 * MIN_ZOOM_FOR_DETAIL),
+        None,
+        &mut app.primary,
+    ))
 }
