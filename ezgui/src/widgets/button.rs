@@ -200,7 +200,15 @@ pub struct Btn {}
 
 impl Btn {
     pub fn svg<I: Into<String>>(path: I, hover: RewriteColor) -> BtnBuilder {
-        BtnBuilder::SVG(path.into(), hover, None)
+        BtnBuilder::SVG(path.into(), RewriteColor::NoOp, hover, None)
+    }
+    pub fn svg_def<I: Into<String>>(path: I) -> BtnBuilder {
+        BtnBuilder::SVG(
+            path.into(),
+            RewriteColor::NoOp,
+            RewriteColor::ChangeAll(Color::ORANGE),
+            None,
+        )
     }
 
     // Same as WrappedComposite::text_button
@@ -256,7 +264,7 @@ impl Btn {
 }
 
 pub enum BtnBuilder {
-    SVG(String, RewriteColor, Option<Text>),
+    SVG(String, RewriteColor, RewriteColor, Option<Text>),
     TextFG(String, Option<Text>),
     TextBG {
         label: String,
@@ -272,7 +280,7 @@ pub enum BtnBuilder {
 impl BtnBuilder {
     pub fn tooltip(mut self, tooltip: Text) -> BtnBuilder {
         match self {
-            BtnBuilder::SVG(_, _, ref mut t)
+            BtnBuilder::SVG(_, _, _, ref mut t)
             | BtnBuilder::TextFG(_, ref mut t)
             | BtnBuilder::Custom(_, _, _, ref mut t) => {
                 assert!(t.is_none());
@@ -289,6 +297,20 @@ impl BtnBuilder {
         self
     }
 
+    pub fn normal_color(mut self, rewrite: RewriteColor) -> BtnBuilder {
+        match self {
+            BtnBuilder::SVG(_, ref mut normal, _, _) => {
+                match normal {
+                    RewriteColor::NoOp => {}
+                    _ => unreachable!(),
+                }
+                *normal = rewrite;
+                self
+            }
+            _ => unreachable!(),
+        }
+    }
+
     pub fn build<I: Into<String>>(
         self,
         ctx: &EventCtx,
@@ -296,11 +318,12 @@ impl BtnBuilder {
         key: Option<MultiKey>,
     ) -> ManagedWidget {
         match self {
-            BtnBuilder::SVG(path, hover, maybe_t) => {
-                let (normal, bounds) = GeomBatch::from_svg(ctx, path, RewriteColor::NoOp);
+            BtnBuilder::SVG(path, rewrite_normal, rewrite_hover, maybe_t) => {
+                let (mut normal, bounds) = GeomBatch::from_svg(ctx, path, RewriteColor::NoOp);
 
                 let mut hovered = normal.clone();
-                hovered.rewrite_color(hover);
+                normal.rewrite_color(rewrite_normal);
+                hovered.rewrite_color(rewrite_hover);
 
                 let mut btn = Button::new(
                     ctx,
@@ -373,7 +396,7 @@ impl BtnBuilder {
     // Use the text as the action
     pub fn build_def(self, ctx: &EventCtx, hotkey: Option<MultiKey>) -> ManagedWidget {
         match self {
-            BtnBuilder::SVG(_, _, _) => panic!("Can't use build_def on an SVG button"),
+            BtnBuilder::SVG(_, _, _, _) => panic!("Can't use build_def on an SVG button"),
             BtnBuilder::Custom(_, _, _, _) => panic!("Can't use build_def on a custom button"),
             BtnBuilder::TextFG(ref label, _) | BtnBuilder::TextBG { ref label, .. } => {
                 let copy = label.clone();

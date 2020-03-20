@@ -269,8 +269,13 @@ fn challenge_controller(
 
     let mut rows = vec![ManagedWidget::row(vec![
         Line(title).size(26).draw(ctx).margin(5),
-        WrappedComposite::svg_button(ctx, "../data/system/assets/tools/info.svg", "instructions", None)
-            .margin(5),
+        WrappedComposite::svg_button(
+            ctx,
+            "../data/system/assets/tools/info.svg",
+            "instructions",
+            None,
+        )
+        .margin(5),
         ManagedWidget::draw_batch(
             ctx,
             GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),

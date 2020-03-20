@@ -5,6 +5,7 @@ use crate::game::Transition;
 use crate::helpers::rotating_color_map;
 use crate::helpers::ID;
 use crate::managed::{ManagedGUIState, WrappedComposite, WrappedOutcome};
+use crate::render::MIN_ZOOM_FOR_DETAIL;
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
     hotkey, Btn, Button, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Histogram,
@@ -36,6 +37,13 @@ pub enum Overlays {
 }
 
 impl Overlays {
+    pub fn is_empty(&self) -> bool {
+        match self {
+            Overlays::Inactive => true,
+            _ => false,
+        }
+    }
+
     // Since Overlays is embedded in UI, we have to do this slight trick
     pub fn update(ctx: &mut EventCtx, app: &mut App, minimap: &Composite) -> Option<Transition> {
         let now = app.primary.sim.time();
@@ -195,12 +203,18 @@ impl Overlays {
             | Overlays::TrafficJams(_, ref heatmap)
             | Overlays::CumulativeThroughput(_, ref heatmap)
             | Overlays::Edits(ref heatmap) => {
-                heatmap.draw(g);
+                if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+                    heatmap.draw(g);
+                }
             }
             Overlays::Elevation(ref heatmap, ref draw) => {
-                heatmap.draw(g);
-                g.redraw(draw);
+                // TODO Maybe this is still useful when zoomed in
+                if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+                    heatmap.draw(g);
+                    g.redraw(draw);
+                }
             }
+            // All of these shouldn't care about zoom
             Overlays::TripsHistogram(_, ref composite)
             | Overlays::BusDelaysOverTime(_, _, ref composite) => {
                 composite.draw(g);

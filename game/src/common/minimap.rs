@@ -15,7 +15,9 @@ use geom::{Circle, Distance, Polygon, Pt2D, Ring};
 pub struct Minimap {
     dragging: bool,
     pub(crate) composite: Composite,
+    // Update panel when other things change
     zoomed: bool,
+    overlay: bool,
 
     // [0, 3], with 0 meaning the most unzoomed
     zoom_lvl: usize,
@@ -35,6 +37,7 @@ impl Minimap {
             dragging: false,
             composite: make_minimap_panel(ctx, app, 0),
             zoomed: ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL,
+            overlay: app.overlay.is_empty(),
 
             zoom_lvl: 0,
             base_zoom,
@@ -53,8 +56,10 @@ impl Minimap {
 
     pub fn event(&mut self, app: &mut App, ctx: &mut EventCtx) -> Option<Transition> {
         let zoomed = ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL;
-        if zoomed != self.zoomed {
+        let overlay = app.overlay.is_empty();
+        if zoomed != self.zoomed || overlay != self.overlay {
             self.zoomed = zoomed;
+            self.overlay = overlay;
             self.composite = make_minimap_panel(ctx, app, self.zoom_lvl);
         }
 
@@ -366,13 +371,14 @@ fn make_viz_panel(ctx: &mut EventCtx, app: &App) -> ManagedWidget {
             )
             .margin(10)
         },
-        WrappedComposite::svg_button(
-            ctx,
-            "../data/system/assets/tools/layers.svg",
-            "change overlay",
-            hotkey(Key::L),
-        )
-        .margin(10),
+        Btn::svg_def("../data/system/assets/tools/layers.svg")
+            .normal_color(if app.overlay.is_empty() {
+                RewriteColor::NoOp
+            } else {
+                RewriteColor::ChangeAll(Color::BLUE)
+            })
+            .build(ctx, "change overlay", hotkey(Key::L))
+            .margin(10),
     ])
     .centered()];
     for (label, color, enabled) in &app.agent_cs.rows {
