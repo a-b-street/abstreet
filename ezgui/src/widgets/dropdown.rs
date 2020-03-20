@@ -1,8 +1,8 @@
 use crate::layout::Widget;
 use crate::widgets::PopupMenu;
 use crate::{
-    Button, Choice, Color, EventCtx, GfxCtx, InputResult, Line, ScreenDims, ScreenPt,
-    ScreenRectangle, Text,
+    Btn, Button, Choice, Color, EventCtx, GfxCtx, InputResult, ScreenDims, ScreenPt,
+    ScreenRectangle,
 };
 use geom::{Polygon, Pt2D};
 use std::any::Any;
@@ -126,13 +126,7 @@ impl Widget for Dropdown {
 }
 
 fn make_btn(ctx: &EventCtx, name: &str, label: &str) -> Button {
-    let txt = Text::from(Line(format!("{} ▼", name)));
-    Button::text_no_bg(
-        txt.clone(),
-        txt.change_fg(Color::ORANGE),
-        None,
-        label,
-        true,
-        ctx,
-    )
+    Btn::text_fg(format!("{} ▼", name))
+        .build(ctx, label, None)
+        .take_btn()
 }

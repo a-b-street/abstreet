@@ -122,36 +122,6 @@ impl Widget for Button {
 
 // TODO Simplify all of these APIs!
 impl Button {
-    pub fn text_no_bg(
-        unselected_text: Text,
-        selected_text: Text,
-        hotkey: Option<MultiKey>,
-        tooltip: &str,
-        padding: bool,
-        ctx: &EventCtx,
-    ) -> Button {
-        // TODO Padding here is unfortunate, but I don't understand when the flexbox padding
-        // actually works.
-        let horiz_padding = if padding { 15.0 } else { 0.0 };
-        let vert_padding = if padding { 8.0 } else { 0.0 };
-
-        let unselected_batch = unselected_text.render_ctx(ctx);
-        let dims = unselected_batch.get_dims();
-        let selected_batch = selected_text.render_ctx(ctx);
-        assert_eq!(dims, selected_batch.get_dims());
-        let geom = Polygon::rectangle(
-            dims.width + 2.0 * horiz_padding,
-            dims.height + 2.0 * vert_padding,
-        );
-
-        let mut normal = GeomBatch::new();
-        normal.add_translated(unselected_batch, horiz_padding, vert_padding);
-        let mut hovered = GeomBatch::new();
-        hovered.add_translated(selected_batch, horiz_padding, vert_padding);
-
-        Button::new(ctx, normal, hovered, hotkey, tooltip, geom)
-    }
-
     // TODO Extreme wackiness.
     pub fn inactive_button<S: Into<String>>(ctx: &mut EventCtx, label: S) -> ManagedWidget {
         let txt_batch = Text::from(Line(label).fg(Color::grey(0.5))).render_ctx(ctx);
@@ -339,14 +309,26 @@ impl BtnBuilder {
                 ManagedWidget::btn(btn)
             }
             BtnBuilder::TextFG(_, normal_txt, maybe_t) => {
-                let mut btn = Button::text_no_bg(
-                    normal_txt.clone(),
-                    normal_txt.change_fg(Color::ORANGE),
-                    key,
-                    &action_tooltip.into(),
-                    true,
-                    ctx,
+                // TODO Padding here is unfortunate, but I don't understand when the flexbox padding
+                // actually works.
+                let horiz_padding = 15.0;
+                let vert_padding = 8.0;
+
+                let unselected_batch = normal_txt.clone().render_ctx(ctx);
+                let dims = unselected_batch.get_dims();
+                let selected_batch = normal_txt.change_fg(Color::ORANGE).render_ctx(ctx);
+                assert_eq!(dims, selected_batch.get_dims());
+                let geom = Polygon::rectangle(
+                    dims.width + 2.0 * horiz_padding,
+                    dims.height + 2.0 * vert_padding,
                 );
+
+                let mut normal = GeomBatch::new();
+                normal.add_translated(unselected_batch, horiz_padding, vert_padding);
+                let mut hovered = GeomBatch::new();
+                hovered.add_translated(selected_batch, horiz_padding, vert_padding);
+
+                let mut btn = Button::new(ctx, normal, hovered, key, &action_tooltip.into(), geom);
                 if let Some(t) = maybe_t {
                     btn.tooltip = t;
                 }

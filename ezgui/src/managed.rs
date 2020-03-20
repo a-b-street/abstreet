@@ -263,7 +263,7 @@ impl ManagedWidget {
         JustDraw::svg_transform(ctx, filename, rewrite)
     }
 
-    pub fn btn(btn: Button) -> ManagedWidget {
+    pub(crate) fn btn(btn: Button) -> ManagedWidget {
         ManagedWidget::new(WidgetType::Btn(btn))
     }
 
@@ -299,17 +299,10 @@ impl ManagedWidget {
         false_btn: ManagedWidget,
         true_btn: ManagedWidget,
     ) -> ManagedWidget {
-        fn take_btn(w: ManagedWidget) -> Button {
-            match w.widget {
-                WidgetType::Btn(btn) => btn,
-                _ => unreachable!(),
-            }
-        }
-
         ManagedWidget::new(WidgetType::Checkbox(Checkbox::new(
             enabled,
-            take_btn(false_btn),
-            take_btn(true_btn),
+            false_btn.take_btn(),
+            true_btn.take_btn(),
         )))
     }
 
@@ -750,6 +743,13 @@ impl ManagedWidget {
             Some(self)
         } else {
             None
+        }
+    }
+
+    pub(crate) fn take_btn(self) -> Button {
+        match self.widget {
+            WidgetType::Btn(btn) => btn,
+            _ => unreachable!(),
         }
     }
 }

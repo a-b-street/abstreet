@@ -6,9 +6,9 @@ use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::{GameplayMode, SandboxMode};
 use ezgui::{
-    hotkey, Btn, Button, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Plot, PlotOptions, RewriteColor,
-    Series, Slider, Text, VerticalAlignment,
+    hotkey, Btn, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, ManagedWidget, Outcome, Plot, PlotOptions, RewriteColor, Series, Slider, Text,
+    VerticalAlignment,
 };
 use geom::{Duration, Polygon, Time};
 use instant::Instant;
@@ -97,22 +97,31 @@ impl SpeedControls {
         row.push(
             ManagedWidget::row(
                 vec![
-                    ManagedWidget::btn(Button::text_no_bg(
-                        Text::from(Line("+1h").fg(Color::WHITE).size(21).roboto()),
-                        Text::from(Line("+1h").fg(colors::HOVERING).size(21).roboto()),
-                        hotkey(Key::N),
-                        "step forwards 1 hour",
-                        false,
-                        ctx,
-                    )),
-                    ManagedWidget::btn(Button::text_no_bg(
-                        Text::from(Line("+0.1s").fg(Color::WHITE).size(21).roboto()),
-                        Text::from(Line("+0.1s").fg(colors::HOVERING).size(21).roboto()),
-                        hotkey(Key::M),
-                        "step forwards 0.1 seconds",
-                        false,
-                        ctx,
-                    )),
+                    Btn::custom(
+                        Text::from(Line("+1h").fg(Color::WHITE).size(21).roboto()).render_ctx(ctx),
+                        Text::from(Line("+1h").fg(colors::HOVERING).size(21).roboto())
+                            .render_ctx(ctx),
+                        {
+                            let dims = Text::from(Line("+1h").size(21).roboto())
+                                .render_ctx(ctx)
+                                .get_dims();
+                            Polygon::rectangle(dims.width, dims.height)
+                        },
+                    )
+                    .build(ctx, "step forwards 1 hour", hotkey(Key::N)),
+                    Btn::custom(
+                        Text::from(Line("+0.1s").fg(Color::WHITE).size(21).roboto())
+                            .render_ctx(ctx),
+                        Text::from(Line("+0.1s").fg(colors::HOVERING).size(21).roboto())
+                            .render_ctx(ctx),
+                        {
+                            let dims = Text::from(Line("+0.1s").size(21).roboto())
+                                .render_ctx(ctx)
+                                .get_dims();
+                            Polygon::rectangle(dims.width, dims.height)
+                        },
+                    )
+                    .build(ctx, "step forwards 0.1 seconds", hotkey(Key::M)),
                     Btn::svg_def("../data/system/assets/speed/jump_to_time.svg").build(
                         ctx,
                         "jump to specific time",
