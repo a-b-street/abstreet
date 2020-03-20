@@ -57,11 +57,11 @@ impl LaneEditor {
         ] {
             row.push(
                 if active {
-                    Btn::svg(
-                        format!("../data/system/assets/edit/{}.svg", icon),
-                        RewriteColor::ChangeAll(colors::HOVERING),
+                    Btn::svg_def(format!("../data/system/assets/edit/{}.svg", icon)).build(
+                        ctx,
+                        label,
+                        hotkey(key),
                     )
-                    .build(ctx, label, hotkey(key))
                 } else {
                     ManagedWidget::draw_svg_transform(
                         ctx,

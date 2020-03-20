@@ -38,17 +38,17 @@ impl SpeedControls {
         let mut row = Vec::new();
         row.push(
             if paused {
-                Btn::svg(
-                    "../data/system/assets/speed/triangle.svg",
-                    RewriteColor::ChangeAll(colors::HOVERING),
+                Btn::svg_def("../data/system/assets/speed/triangle.svg").build(
+                    ctx,
+                    "play",
+                    hotkey(Key::Space),
                 )
-                .build(ctx, "play", hotkey(Key::Space))
             } else {
-                Btn::svg(
-                    "../data/system/assets/speed/pause.svg",
-                    RewriteColor::ChangeAll(colors::HOVERING),
+                Btn::svg_def("../data/system/assets/speed/pause.svg").build(
+                    ctx,
+                    "pause",
+                    hotkey(Key::Space),
                 )
-                .build(ctx, "pause", hotkey(Key::Space))
             }
             .margin(5)
             .centered_vert()
@@ -113,16 +113,16 @@ impl SpeedControls {
                         false,
                         ctx,
                     )),
-                    Btn::svg(
-                        "../data/system/assets/speed/jump_to_time.svg",
-                        RewriteColor::ChangeAll(colors::HOVERING),
-                    )
-                    .build(ctx, "jump to specific time", hotkey(Key::B)),
-                    Btn::svg(
-                        "../data/system/assets/speed/reset.svg",
-                        RewriteColor::ChangeAll(colors::HOVERING),
-                    )
-                    .build(ctx, "reset to midnight", hotkey(Key::X)),
+                    Btn::svg_def("../data/system/assets/speed/jump_to_time.svg").build(
+                        ctx,
+                        "jump to specific time",
+                        hotkey(Key::B),
+                    ),
+                    Btn::svg_def("../data/system/assets/speed/reset.svg").build(
+                        ctx,
+                        "reset to midnight",
+                        hotkey(Key::X),
+                    ),
                 ]
                 .into_iter()
                 .map(|x| x.margin(5))

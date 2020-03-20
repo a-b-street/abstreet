@@ -252,11 +252,8 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
     }
 
     let square_len = 0.15 * ctx.canvas.window_width;
-    let mut zoom_col = vec![Btn::svg(
-        "../data/system/assets/speed/speed_up.svg",
-        RewriteColor::ChangeAll(colors::HOVERING),
-    )
-    .build(ctx, "zoom in", None)];
+    let mut zoom_col =
+        vec![Btn::svg_def("../data/system/assets/speed/speed_up.svg").build(ctx, "zoom in", None)];
     for i in (0..=3).rev() {
         let color = if zoom_lvl < i {
             Color::grey(0.2)
@@ -274,11 +271,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
         );
     }
     zoom_col.push(
-        Btn::svg(
-            "../data/system/assets/speed/slow_down.svg",
-            RewriteColor::ChangeAll(colors::HOVERING),
-        )
-        .build(ctx, "zoom out", None),
+        Btn::svg_def("../data/system/assets/speed/slow_down.svg").build(ctx, "zoom out", None),
     );
 
     Composite::new(
@@ -386,19 +379,13 @@ fn make_viz_panel(ctx: &mut EventCtx, app: &App) -> ManagedWidget {
             ManagedWidget::row(vec![
                 // TODO Make sure the dims of these two fit
                 if *enabled {
-                    Btn::svg(
-                        "../data/system/assets/tools/visible.svg",
-                        RewriteColor::ChangeAll(Color::ORANGE),
-                    )
-                    .build(ctx, format!("hide {}", label), None)
-                    .margin(3)
+                    Btn::svg_def("../data/system/assets/tools/visible.svg")
+                        .build(ctx, format!("hide {}", label), None)
+                        .margin(3)
                 } else {
-                    Btn::svg(
-                        "../data/system/assets/tools/invisible.svg",
-                        RewriteColor::ChangeAll(Color::ORANGE),
-                    )
-                    .build(ctx, format!("show {}", label), None)
-                    .margin(3)
+                    Btn::svg_def("../data/system/assets/tools/invisible.svg")
+                        .build(ctx, format!("show {}", label), None)
+                        .margin(3)
                 },
                 ManagedWidget::draw_batch(
                     ctx,

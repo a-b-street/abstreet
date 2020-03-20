@@ -788,12 +788,9 @@ impl Overlays {
         let col = vec![
             ManagedWidget::row(vec![
                 "intersection demand".draw_text(ctx),
-                Btn::svg(
-                    "../data/system/assets/tools/location.svg",
-                    RewriteColor::ChangeAll(colors::HOVERING),
-                )
-                .build(ctx, "intersection demand", None)
-                .margin(5),
+                Btn::svg_def("../data/system/assets/tools/location.svg")
+                    .build(ctx, "intersection demand", None)
+                    .margin(5),
                 WrappedComposite::text_button(ctx, "X", None).align_right(),
             ]),
             ColorLegend::row(ctx, Color::RED, "current demand"),

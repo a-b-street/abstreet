@@ -370,12 +370,9 @@ fn info_for(
 ) -> Vec<ManagedWidget> {
     let (map, sim, draw_map) = (&app.primary.map, &app.primary.sim, &app.primary.draw_map);
     let header_btns = ManagedWidget::row(vec![
-        Btn::svg(
-            "../data/system/assets/tools/location.svg",
-            RewriteColor::ChangeAll(colors::HOVERING),
-        )
-        .build(ctx, "jump to object", hotkey(Key::J))
-        .margin(5),
+        Btn::svg_def("../data/system/assets/tools/location.svg")
+            .build(ctx, "jump to object", hotkey(Key::J))
+            .margin(5),
         Btn::text_fg("X").build(ctx, "close info", hotkey(Key::Escape)),
     ])
     .align_right();
