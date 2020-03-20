@@ -153,8 +153,8 @@ impl Button {
     }
 
     // TODO Extreme wackiness.
-    pub fn inactive_btn(ctx: &EventCtx, txt: Text) -> ManagedWidget {
-        let txt_batch = txt.change_fg(Color::grey(0.5)).render_ctx(ctx);
+    pub fn inactive_button<S: Into<String>>(ctx: &mut EventCtx, label: S) -> ManagedWidget {
+        let txt_batch = Text::from(Line(label).fg(Color::grey(0.5))).render_ctx(ctx);
         let dims = txt_batch.get_dims();
 
         let horiz_padding = 15.0;
@@ -170,9 +170,6 @@ impl Button {
             ),
         })
         .outline(2.0, Color::WHITE)
-    }
-    pub fn inactive_button<S: Into<String>>(ctx: &mut EventCtx, label: S) -> ManagedWidget {
-        Button::inactive_btn(ctx, Text::from(Line(label)))
     }
     // With a background
     pub fn inactive_selected_button<S: Into<String>>(ctx: &EventCtx, label: S) -> ManagedWidget {
@@ -211,9 +208,12 @@ impl Btn {
         )
     }
 
-    // Same as WrappedComposite::text_button
     pub fn text_fg<I: Into<String>>(label: I) -> BtnBuilder {
-        BtnBuilder::TextFG(label.into(), None)
+        let label = label.into();
+        BtnBuilder::TextFG(label.clone(), Text::from(Line(label)), None)
+    }
+    pub fn custom_text_fg(normal: Text) -> BtnBuilder {
+        BtnBuilder::TextFG(String::new(), normal, None)
     }
 
     pub fn text_bg<I: Into<String>>(
@@ -245,7 +245,7 @@ impl Btn {
         }
     }
 
-    // The white background. WrappedComposite::text_bg_button.
+    // The white background.
     pub fn text_bg2<I: Into<String>>(label: I) -> BtnBuilder {
         let label = label.into();
         BtnBuilder::TextBG {
@@ -265,7 +265,7 @@ impl Btn {
 
 pub enum BtnBuilder {
     SVG(String, RewriteColor, RewriteColor, Option<Text>),
-    TextFG(String, Option<Text>),
+    TextFG(String, Text, Option<Text>),
     TextBG {
         label: String,
         maybe_tooltip: Option<Text>,
@@ -281,7 +281,7 @@ impl BtnBuilder {
     pub fn tooltip(mut self, tooltip: Text) -> BtnBuilder {
         match self {
             BtnBuilder::SVG(_, _, _, ref mut t)
-            | BtnBuilder::TextFG(_, ref mut t)
+            | BtnBuilder::TextFG(_, _, ref mut t)
             | BtnBuilder::Custom(_, _, _, ref mut t) => {
                 assert!(t.is_none());
                 *t = Some(tooltip);
@@ -338,10 +338,10 @@ impl BtnBuilder {
                 }
                 ManagedWidget::btn(btn)
             }
-            BtnBuilder::TextFG(label, maybe_t) => {
+            BtnBuilder::TextFG(_, normal_txt, maybe_t) => {
                 let mut btn = Button::text_no_bg(
-                    Text::from(Line(&label)),
-                    Text::from(Line(label).fg(Color::ORANGE)),
+                    normal_txt.clone(),
+                    normal_txt.change_fg(Color::ORANGE),
                     key,
                     &action_tooltip.into(),
                     true,
@@ -398,7 +398,8 @@ impl BtnBuilder {
         match self {
             BtnBuilder::SVG(_, _, _, _) => panic!("Can't use build_def on an SVG button"),
             BtnBuilder::Custom(_, _, _, _) => panic!("Can't use build_def on a custom button"),
-            BtnBuilder::TextFG(ref label, _) | BtnBuilder::TextBG { ref label, .. } => {
+            BtnBuilder::TextFG(ref label, _, _) | BtnBuilder::TextBG { ref label, .. } => {
+                assert!(!label.is_empty());
                 let copy = label.clone();
                 self.build(ctx, copy, hotkey)
             }

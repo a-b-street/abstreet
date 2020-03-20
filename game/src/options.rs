@@ -3,7 +3,7 @@ use crate::colors;
 use crate::game::{State, Transition, WizardState};
 use crate::managed::WrappedComposite;
 use ezgui::{
-    hotkey, Choice, Composite, EventCtx, GfxCtx, Key, Line, ManagedWidget, Outcome, Text, TextExt,
+    hotkey, Btn, Choice, Composite, EventCtx, GfxCtx, Key, Line, ManagedWidget, Outcome, TextExt,
 };
 
 // TODO SimOptions stuff too
@@ -92,30 +92,18 @@ impl OptionsPanel {
                         ctx.canvas.touchpad_to_move,
                     )
                     .margin(5),
+                    // TODO Refactor this pattern somehow, using drop-down menus or radio buttons
                     ManagedWidget::row(vec![
                         "Traffic signal rendering:".draw_text(ctx).margin(5),
-                        // TODO Refactor this pattern somehow, using drop-down menus or radio
-                        // buttons
-                        WrappedComposite::nice_text_button(
-                            ctx,
-                            Text::from(Line(format!(
-                                "{} ▼",
-                                app.opts.traffic_signal_style.describe()
-                            ))),
-                            None,
-                            "change traffic signal style",
-                        )
-                        .margin(5),
+                        Btn::text_fg(format!("{} ▼", app.opts.traffic_signal_style.describe()))
+                            .build(ctx, "change traffic signal style", None)
+                            .margin(5),
                     ]),
                     ManagedWidget::row(vec![
                         "Color scheme:".draw_text(ctx).margin(5),
-                        WrappedComposite::nice_text_button(
-                            ctx,
-                            Text::from(Line(format!("{} ▼", app.opts.cs_name()))),
-                            None,
-                            "change color scheme",
-                        )
-                        .margin(5),
+                        Btn::text_fg(format!("{} ▼", app.opts.cs_name()))
+                            .build(ctx, "change color scheme", None)
+                            .margin(5),
                     ]),
                     ManagedWidget::row(vec![
                         format!(
@@ -124,13 +112,9 @@ impl OptionsPanel {
                         )
                         .draw_text(ctx)
                         .margin(5),
-                        WrappedComposite::nice_text_button(
-                            ctx,
-                            Text::from(Line(format!("{} ▼", ctx.get_scale_factor()))),
-                            None,
-                            "change scale factor",
-                        )
-                        .margin(5),
+                        Btn::text_fg(format!("{} ▼", ctx.get_scale_factor()))
+                            .build(ctx, "change scale factor", None)
+                            .margin(5),
                     ]),
                     WrappedComposite::text_bg_button(ctx, "Apply", hotkey(Key::Enter))
                         .margin(5)
@@ -205,12 +189,9 @@ impl State for OptionsPanel {
                             panel.composite.replace(
                                 ctx,
                                 "change traffic signal style",
-                                WrappedComposite::nice_text_button(
-                                    ctx,
-                                    Text::from(Line(format!("{} ▼", style.describe()))),
-                                    None,
-                                    "change traffic signal style",
-                                ),
+                                Btn::text_fg(format!("{} ▼", style.describe()))
+                                    .build(ctx, "change traffic signal style", None)
+                                    .margin(5),
                             );
                             panel.traffic_signal_style = style;
                         })))
@@ -236,12 +217,9 @@ impl State for OptionsPanel {
                             panel.composite.replace(
                                 ctx,
                                 "change color scheme",
-                                WrappedComposite::nice_text_button(
-                                    ctx,
-                                    Text::from(Line(format!("{} ▼", descr))),
-                                    None,
-                                    "change color scheme",
-                                ),
+                                Btn::text_fg(format!("{} ▼", descr))
+                                    .build(ctx, "change color scheme", None)
+                                    .margin(5),
                             );
                             panel.color_scheme = path;
                         })))
@@ -265,12 +243,9 @@ impl State for OptionsPanel {
                             panel.composite.replace(
                                 ctx,
                                 "change scale factor",
-                                WrappedComposite::nice_text_button(
-                                    ctx,
-                                    Text::from(Line(format!("{} ▼", scale))),
-                                    None,
-                                    "change scale factor",
-                                ),
+                                Btn::text_fg(format!("{} ▼", scale))
+                                    .build(ctx, "change scale factor", None)
+                                    .margin(5),
                             );
                             ctx.set_scale_factor(scale);
                         })))

@@ -897,12 +897,7 @@ impl TutorialState {
             if self.current.stage == 0 {
                 Button::inactive_button(ctx, "<")
             } else {
-                WrappedComposite::nice_text_button(
-                    ctx,
-                    Text::from(Line("<")),
-                    None,
-                    "previous tutorial",
-                )
+                Btn::text_fg("<").build(ctx, "previous tutorial", None)
             }
             .margin(5),
             {
@@ -914,12 +909,7 @@ impl TutorialState {
             if self.current.stage == self.latest.stage {
                 Button::inactive_button(ctx, ">")
             } else {
-                WrappedComposite::nice_text_button(
-                    ctx,
-                    Text::from(Line(">")),
-                    None,
-                    "next tutorial",
-                )
+                Btn::text_fg(">").build(ctx, "next tutorial", None)
             }
             .margin(5),
             WrappedComposite::text_button(ctx, "Quit", None).margin(5),

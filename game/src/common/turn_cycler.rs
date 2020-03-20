@@ -6,8 +6,8 @@ use crate::helpers::ID;
 use crate::managed::WrappedComposite;
 use crate::render::{dashed_lines, draw_signal_phase, make_signal_diagram, DrawOptions, DrawTurn};
 use ezgui::{
-    hotkey, Button, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, ManagedWidget, Outcome, Text, VerticalAlignment,
+    hotkey, Btn, Button, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Text, VerticalAlignment,
 };
 use geom::{Distance, Polygon, Time};
 use map_model::{IntersectionID, LaneID, TurnType};
@@ -270,23 +270,13 @@ impl TurnExplorer {
             if idx == 0 {
                 Button::inactive_button(ctx, "<")
             } else {
-                WrappedComposite::nice_text_button(
-                    ctx,
-                    Text::from(Line("<")),
-                    hotkey(Key::LeftArrow),
-                    "previous turn",
-                )
+                Btn::text_fg("<").build(ctx, "previous turn", hotkey(Key::LeftArrow))
             }
             .margin(5),
             if idx == num_turns {
                 Button::inactive_button(ctx, ">")
             } else {
-                WrappedComposite::nice_text_button(
-                    ctx,
-                    Text::from(Line(">")),
-                    hotkey(Key::RightArrow),
-                    "next turn",
-                )
+                Btn::text_fg(">").build(ctx, "next turn", hotkey(Key::RightArrow))
             }
             .margin(5),
             WrappedComposite::text_button(ctx, "X", hotkey(Key::Escape)),

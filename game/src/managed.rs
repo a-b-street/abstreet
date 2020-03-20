@@ -2,8 +2,8 @@ use crate::app::App;
 use crate::colors;
 use crate::game::{DrawBaselayer, State, Transition};
 use ezgui::{
-    hotkey, Btn, Button, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    ManagedWidget, MultiKey, Outcome, Text, VerticalAlignment,
+    hotkey, Btn, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget,
+    MultiKey, Outcome, Text, VerticalAlignment,
 };
 use std::collections::HashMap;
 
@@ -58,23 +58,6 @@ impl WrappedComposite {
 }
 
 impl WrappedComposite {
-    pub fn nice_text_button(
-        ctx: &EventCtx,
-        txt: Text,
-        hotkey: Option<MultiKey>,
-        label: &str,
-    ) -> ManagedWidget {
-        ManagedWidget::btn(Button::text_no_bg(
-            txt.clone(),
-            txt.change_fg(colors::HOVERING),
-            hotkey,
-            label,
-            true,
-            ctx,
-        ))
-        .outline(2.0, Color::WHITE)
-    }
-
     pub fn text_button(ctx: &EventCtx, label: &str, hotkey: Option<MultiKey>) -> ManagedWidget {
         Btn::text_fg(label).build_def(ctx, hotkey)
     }

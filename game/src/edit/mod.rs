@@ -339,16 +339,12 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Composite {
                     GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 30.0))]),
                 )
                 .margin(5),
-                WrappedComposite::nice_text_button(
-                    ctx,
-                    Text::from(
-                        Line(format!("{} ▼", &app.primary.map.get_edits().edits_name))
-                            .size(18)
-                            .roboto(),
-                    ),
-                    lctrl(Key::L),
-                    "load edits",
-                )
+                Btn::custom_text_fg(Text::from(
+                    Line(format!("{} ▼", &app.primary.map.get_edits().edits_name))
+                        .size(18)
+                        .roboto(),
+                ))
+                .build(ctx, "load edits", lctrl(Key::L))
                 .margin(5),
                 Btn::svg_def("../data/system/assets/tools/save.svg")
                     .build(ctx, "save edits as", lctrl(Key::S))

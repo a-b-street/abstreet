@@ -265,7 +265,7 @@ fn proposals_picker(ctx: &mut EventCtx) -> Box<dyn State> {
                     txt.add(Line(l));
                 }
                 let path = abstutil::path_edits(&edits.map_name, &edits.edits_name);
-                buttons.push(WrappedComposite::nice_text_button(ctx, txt, None, &path));
+                buttons.push(Btn::custom_text_fg(txt).build(ctx, &path, None));
                 cbs.push((
                     path,
                     Box::new(move |ctx, app| {

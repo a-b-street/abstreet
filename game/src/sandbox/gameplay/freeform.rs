@@ -93,26 +93,20 @@ pub fn freeform_controller(
             Text::from(Line("Map:").size(18).roboto_bold())
                 .draw(ctx)
                 .margin(5),
-            WrappedComposite::nice_text_button(
-                ctx,
-                Text::from(
-                    Line(format!("{} ▼", nice_map_name(app.primary.map.get_name())))
-                        .size(18)
-                        .roboto(),
-                ),
-                lctrl(Key::L),
-                "change map",
-            )
+            Btn::custom_text_fg(Text::from(
+                Line(format!("{} ▼", nice_map_name(app.primary.map.get_name())))
+                    .size(18)
+                    .roboto(),
+            ))
+            .build(ctx, "change map", lctrl(Key::L))
             .margin(5),
             Text::from(Line("Traffic:").size(18).roboto_bold())
                 .draw(ctx)
                 .margin(5),
-            WrappedComposite::nice_text_button(
-                ctx,
-                Text::from(Line(format!("{} ▼", scenario_name)).size(18).roboto()),
-                hotkey(Key::S),
-                "change traffic",
-            )
+            Btn::custom_text_fg(Text::from(
+                Line(format!("{} ▼", scenario_name)).size(18).roboto(),
+            ))
+            .build(ctx, "change traffic", hotkey(Key::S))
             .margin(5),
             Btn::svg_def("../data/system/assets/tools/edit_map.svg")
                 .build(ctx, "edit map", lctrl(Key::E))
