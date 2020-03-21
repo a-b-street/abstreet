@@ -17,7 +17,7 @@ pub mod wizard;
 use crate::{EventCtx, ScreenDims, ScreenPt};
 use ordered_float::NotNan;
 
-pub trait Widget {
+pub trait WidgetImpl {
     fn get_dims(&self) -> ScreenDims;
     fn set_pos(&mut self, top_left: ScreenPt);
 }
@@ -35,7 +35,7 @@ pub enum ContainerOrientation {
 pub fn stack_vertically(
     orientation: ContainerOrientation,
     ctx: &EventCtx,
-    widgets: Vec<&mut dyn Widget>,
+    widgets: Vec<&mut dyn WidgetImpl>,
 ) {
     assert!(!widgets.is_empty());
 

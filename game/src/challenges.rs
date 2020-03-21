@@ -4,7 +4,7 @@ use crate::game::{State, Transition};
 use crate::managed::{Callback, ManagedGUIState, WrappedComposite};
 use crate::sandbox::{GameplayMode, SandboxMode, TutorialState};
 use abstutil::Timer;
-use ezgui::{hotkey, Btn, Button, Color, Composite, EventCtx, Key, Line, ManagedWidget, Text};
+use ezgui::{hotkey, Btn, Button, Color, Composite, EventCtx, Key, Line, Text, Widget};
 use geom::{Duration, Time};
 use map_model::Map;
 use sim::{Scenario, Sim, SimFlags, SimOptions, TripMode};
@@ -175,7 +175,7 @@ impl Tab {
             }
         }
         master_col.push(
-            ManagedWidget::row(flex_row)
+            Widget::row(flex_row)
                 .flex_wrap(ctx, 80)
                 .bg(colors::PANEL_BG)
                 .padding(10)
@@ -210,7 +210,7 @@ impl Tab {
                 }
             }
             main_row.push(
-                ManagedWidget::col(col)
+                Widget::col(col)
                     .bg(colors::PANEL_BG)
                     .padding(10)
                     .margin(10)
@@ -229,7 +229,7 @@ impl Tab {
                 txt.add(Line(l));
             }
             main_row.push(
-                ManagedWidget::col(vec![
+                Widget::col(vec![
                     txt.draw(ctx),
                     Btn::text_fg("Start!")
                         .build_def(ctx, hotkey(Key::Enter))
@@ -252,10 +252,10 @@ impl Tab {
             ));
         }
 
-        master_col.push(ManagedWidget::row(main_row));
+        master_col.push(Widget::row(main_row));
 
         let mut c = WrappedComposite::new(
-            Composite::new(ManagedWidget::col(master_col))
+            Composite::new(Widget::col(master_col))
                 .exact_size_percent(90, 85)
                 .build(ctx),
         )

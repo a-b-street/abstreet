@@ -1,6 +1,6 @@
 use crate::{
     hotkey, Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, InputResult, Key, Line,
-    ManagedWidget, MultiKey, Outcome, PopupMenu, Text, VerticalAlignment,
+    MultiKey, Outcome, PopupMenu, Text, VerticalAlignment, Widget,
 };
 use abstutil::Cloneable;
 use std::collections::VecDeque;
@@ -83,15 +83,15 @@ impl Wizard {
         if self.tb_comp.is_none() {
             self.tb_comp = Some(
                 Composite::new(
-                    ManagedWidget::col(vec![
-                        ManagedWidget::row(vec![
+                    Widget::col(vec![
+                        Widget::row(vec![
                             Line(query).roboto_bold().draw(ctx),
                             Btn::text_fg("X")
                                 .build(ctx, "quit", hotkey(Key::Escape))
                                 .margin(5)
                                 .align_right(),
                         ]),
-                        ManagedWidget::text_entry(ctx, prefilled.unwrap_or_else(String::new), true)
+                        Widget::text_entry(ctx, prefilled.unwrap_or_else(String::new), true)
                             .named("input"),
                         Btn::text_bg2("Done").build(ctx, "done", hotkey(Key::Enter)),
                     ])
@@ -252,11 +252,11 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             if let Some(l) = query {
                 col.push(Line(l).roboto_bold().draw(self.ctx));
             }
-            col.push(ManagedWidget::menu("menu"));
+            col.push(Widget::menu("menu"));
             self.wizard.menu_comp = Some(
                 Composite::new(
-                    ManagedWidget::row(vec![
-                        ManagedWidget::col(col),
+                    Widget::row(vec![
+                        Widget::col(col),
                         Btn::text_fg("X")
                             .build(self.ctx, "quit", hotkey(Key::Escape))
                             .margin(5),
@@ -384,7 +384,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         assert!(self.wizard.ack.is_none());
         self.wizard.ack = Some(
             Composite::new(
-                ManagedWidget::col(vec![
+                Widget::col(vec![
                     txt.draw(self.ctx),
                     Btn::text_bg2("OK")
                         .build(self.ctx, "OK", hotkey(Key::Enter))

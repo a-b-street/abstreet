@@ -27,7 +27,7 @@ pub use crate::event::{hotkey, hotkeys, lctrl, Event, Key, MultiKey};
 pub use crate::event_ctx::EventCtx;
 pub use crate::geom::{GeomBatch, RewriteColor};
 pub use crate::input::UserInput;
-pub use crate::managed::{Composite, ManagedWidget, Outcome};
+pub use crate::managed::{Composite, Outcome, Widget};
 pub use crate::runner::{run, EventLoopMode, Settings, GUI};
 pub use crate::screen_geom::{ScreenDims, ScreenPt, ScreenRectangle};
 pub use crate::text::{Line, Text, TextExt, TextSpan, HOTKEY_COLOR};
@@ -45,6 +45,7 @@ pub use crate::widgets::slider::{ItemSlider, Slider, WarpingItemSlider};
 pub(crate) use crate::widgets::text_box::TextBox;
 pub use crate::widgets::warper::Warper;
 pub use crate::widgets::wizard::{Choice, Wizard, WrappedWizard};
+pub(crate) use crate::widgets::WidgetImpl;
 
 pub enum InputResult<T: Clone> {
     Canceled,

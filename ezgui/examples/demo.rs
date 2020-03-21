@@ -10,8 +10,8 @@
 
 use ezgui::{
     hotkey, lctrl, Btn, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Plot, PlotOptions, Series, Text,
-    TextExt, VerticalAlignment, GUI,
+    HorizontalAlignment, Key, Line, Outcome, Plot, PlotOptions, Series, Text, TextExt,
+    VerticalAlignment, Widget, GUI,
 };
 use geom::{Angle, Duration, Polygon, Pt2D, Time};
 
@@ -53,8 +53,8 @@ impl App {
         }
 
         let mut c = Composite::new(
-            ManagedWidget::col(vec![
-                ManagedWidget::row(vec![{
+            Widget::col(vec![
+                Widget::row(vec![{
                     let mut txt = Text::from(
                         Line("Here's a bunch of text to force some scrolling.").roboto_bold(),
                     );
@@ -67,17 +67,11 @@ impl App {
                     );
                     txt.draw(ctx)
                 }]),
-                ManagedWidget::row(vec![
+                Widget::row(vec![
                     // Examples of styling widgets
-                    ManagedWidget::col(col1)
-                        .outline(3.0, Color::BLACK)
-                        .margin(5),
-                    ManagedWidget::col(col2)
-                        .outline(3.0, Color::BLACK)
-                        .margin(5),
-                    ManagedWidget::col(col3)
-                        .outline(3.0, Color::BLACK)
-                        .margin(5),
+                    Widget::col(col1).outline(3.0, Color::BLACK).margin(5),
+                    Widget::col(col2).outline(3.0, Color::BLACK).margin(5),
+                    Widget::col(col3).outline(3.0, Color::BLACK).margin(5),
                 ]),
                 Plot::new_usize(
                     ctx,
@@ -251,7 +245,7 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
 
 fn make_controls(ctx: &mut EventCtx) -> Composite {
     Composite::new(
-        ManagedWidget::col(vec![
+        Widget::col(vec![
             {
                 let mut txt = Text::from(Line("ezgui demo").roboto_bold());
                 txt.add(Line(
@@ -259,9 +253,9 @@ fn make_controls(ctx: &mut EventCtx) -> Composite {
                 ));
                 txt.draw(ctx)
             },
-            ManagedWidget::row(vec![
+            Widget::row(vec![
                 // This just cycles between two arbitrary buttons
-                ManagedWidget::custom_checkbox(
+                Widget::custom_checkbox(
                     false,
                     Btn::text_bg1("Pause").build(ctx, "pause the stopwatch", hotkey(Key::Space)),
                     Btn::text_bg1("Resume").build(ctx, "resume the stopwatch", hotkey(Key::Space)),
@@ -271,8 +265,8 @@ fn make_controls(ctx: &mut EventCtx) -> Composite {
                 Btn::text_fg("Reset")
                     .build(ctx, "reset the stopwatch", None)
                     .margin(5),
-                ManagedWidget::checkbox(ctx, "Draw scrollable canvas", None, true).margin(5),
-                ManagedWidget::checkbox(ctx, "Show timeseries", lctrl(Key::T), false).margin(5),
+                Widget::checkbox(ctx, "Draw scrollable canvas", None, true).margin(5),
+                Widget::checkbox(ctx, "Show timeseries", lctrl(Key::T), false).margin(5),
             ])
             .evenly_spaced(),
             "Stopwatch: ...".draw_text(ctx).named("stopwatch"),

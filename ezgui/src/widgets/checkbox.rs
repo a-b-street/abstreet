@@ -1,5 +1,4 @@
-use crate::widgets::Widget;
-use crate::{Button, EventCtx, GfxCtx, ScreenDims, ScreenPt};
+use crate::{Button, EventCtx, GfxCtx, ScreenDims, ScreenPt, WidgetImpl};
 
 pub struct Checkbox {
     pub(crate) enabled: bool,
@@ -42,7 +41,7 @@ impl Checkbox {
     }
 }
 
-impl Widget for Checkbox {
+impl WidgetImpl for Checkbox {
     fn get_dims(&self) -> ScreenDims {
         self.btn.get_dims()
     }

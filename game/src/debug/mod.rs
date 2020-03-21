@@ -12,7 +12,7 @@ use crate::render::DrawOptions;
 use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Btn, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Text, VerticalAlignment, Wizard,
+    HorizontalAlignment, Key, Line, Outcome, Text, VerticalAlignment, Widget, Wizard,
 };
 use geom::{Circle, Distance, Duration, Pt2D};
 use map_model::{IntersectionID, NORMAL_LANE_THICKNESS};
@@ -37,28 +37,23 @@ impl DebugMode {
     pub fn new(ctx: &mut EventCtx) -> DebugMode {
         DebugMode {
             composite: Composite::new(
-                ManagedWidget::col(vec![
-                    ManagedWidget::row(vec![
+                Widget::col(vec![
+                    Widget::row(vec![
                         Line("Debug Mode").roboto_bold().draw(ctx),
                         Btn::text_fg("X")
                             .build_def(ctx, hotkey(Key::Escape))
                             .align_right(),
                     ]),
                     Text::new().draw(ctx).named("current info"),
-                    ManagedWidget::checkbox(ctx, "show buildings", hotkey(Key::Num1), true),
-                    ManagedWidget::checkbox(ctx, "show intersections", hotkey(Key::Num2), true),
-                    ManagedWidget::checkbox(ctx, "show lanes", hotkey(Key::Num3), true),
-                    ManagedWidget::checkbox(ctx, "show areas", hotkey(Key::Num4), true),
-                    ManagedWidget::checkbox(ctx, "show extra shapes", hotkey(Key::Num5), true),
-                    ManagedWidget::checkbox(ctx, "show labels", hotkey(Key::Num6), false),
-                    ManagedWidget::checkbox(
-                        ctx,
-                        "show route for all agents",
-                        hotkey(Key::R),
-                        false,
-                    ),
-                    ManagedWidget::checkbox(ctx, "show dot map of people", hotkey(Key::P), false),
-                    ManagedWidget::col(
+                    Widget::checkbox(ctx, "show buildings", hotkey(Key::Num1), true),
+                    Widget::checkbox(ctx, "show intersections", hotkey(Key::Num2), true),
+                    Widget::checkbox(ctx, "show lanes", hotkey(Key::Num3), true),
+                    Widget::checkbox(ctx, "show areas", hotkey(Key::Num4), true),
+                    Widget::checkbox(ctx, "show extra shapes", hotkey(Key::Num5), true),
+                    Widget::checkbox(ctx, "show labels", hotkey(Key::Num6), false),
+                    Widget::checkbox(ctx, "show route for all agents", hotkey(Key::R), false),
+                    Widget::checkbox(ctx, "show dot map of people", hotkey(Key::P), false),
+                    Widget::col(
                         vec![
                             (lctrl(Key::H), "unhide everything"),
                             (None, "screenshot everything"),

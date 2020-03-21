@@ -1,7 +1,6 @@
-use crate::widgets::Widget;
 use crate::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ManagedWidget, ScreenDims, ScreenPt,
-    ScreenRectangle, Text, TextExt,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ScreenDims, ScreenPt, ScreenRectangle,
+    Text, TextExt, Widget, WidgetImpl,
 };
 use abstutil::prettyprint_usize;
 use geom::{Angle, Bounds, Circle, Distance, Duration, FindClosest, PolyLine, Pt2D, Time};
@@ -37,7 +36,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
         series: Vec<Series<T>>,
         y_zero: T,
         opts: PlotOptions,
-    ) -> (Plot<T>, ManagedWidget, ManagedWidget, ManagedWidget) {
+    ) -> (Plot<T>, Widget, Widget, Widget) {
         let mut batch = GeomBatch::new();
 
         // TODO Tuned to fit the info panel. Instead these should somehow stretch to fill their
@@ -46,12 +45,12 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
         let height = 0.2 * ctx.canvas.window_height;
 
         let radius = 15.0;
-        let legend = ManagedWidget::col(
+        let legend = Widget::col(
             series
                 .iter()
                 .map(|s| {
-                    ManagedWidget::row(vec![
-                        ManagedWidget::draw_batch(
+                    Widget::row(vec![
+                        Widget::draw_batch(
                             ctx,
                             GeomBatch::from(vec![(
                                 s.color,
@@ -184,9 +183,9 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
             for (color, poly) in Text::from(Line(t.to_string())).render_ctx(ctx).consume() {
                 batch.push(color, poly.rotate(Angle::new_degs(-15.0)));
             }
-            row.push(ManagedWidget::draw_batch(ctx, batch.autocrop()));
+            row.push(Widget::draw_batch(ctx, batch.autocrop()));
         }
-        let x_axis = ManagedWidget::row(row).padding(10);
+        let x_axis = Widget::row(row).padding(10);
 
         let num_y_labels = 4;
         let mut col = Vec::new();
@@ -195,7 +194,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
             col.push(max_y.from_percent(percent_y).prettyprint().draw_text(ctx));
         }
         col.reverse();
-        let y_axis = ManagedWidget::col(col).padding(10);
+        let y_axis = Widget::col(col).padding(10);
 
         (plot, legend, x_axis, y_axis)
     }
@@ -235,19 +234,12 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
 }
 
 impl Plot<usize> {
-    pub fn new_usize(
-        ctx: &EventCtx,
-        series: Vec<Series<usize>>,
-        opts: PlotOptions,
-    ) -> ManagedWidget {
+    pub fn new_usize(ctx: &EventCtx, series: Vec<Series<usize>>, opts: PlotOptions) -> Widget {
         let (plot, legend, x_axis, y_axis) = Plot::new(ctx, series, 0, opts);
         // Don't let the x-axis fill the parent container
-        ManagedWidget::row(vec![ManagedWidget::col(vec![
+        Widget::row(vec![Widget::col(vec![
             legend,
-            ManagedWidget::row(vec![
-                y_axis.evenly_spaced(),
-                ManagedWidget::usize_plot(plot),
-            ]),
+            Widget::row(vec![y_axis.evenly_spaced(), Widget::usize_plot(plot)]),
             x_axis.evenly_spaced(),
         ])])
     }
@@ -258,21 +250,18 @@ impl Plot<Duration> {
         ctx: &EventCtx,
         series: Vec<Series<Duration>>,
         opts: PlotOptions,
-    ) -> ManagedWidget {
+    ) -> Widget {
         let (plot, legend, x_axis, y_axis) = Plot::new(ctx, series, Duration::ZERO, opts);
         // Don't let the x-axis fill the parent container
-        ManagedWidget::row(vec![ManagedWidget::col(vec![
+        Widget::row(vec![Widget::col(vec![
             legend,
-            ManagedWidget::row(vec![
-                y_axis.evenly_spaced(),
-                ManagedWidget::duration_plot(plot),
-            ]),
+            Widget::row(vec![y_axis.evenly_spaced(), Widget::duration_plot(plot)]),
             x_axis.evenly_spaced(),
         ])])
     }
 }
 
-impl<T> Widget for Plot<T> {
+impl<T> WidgetImpl for Plot<T> {
     fn get_dims(&self) -> ScreenDims {
         self.dims
     }

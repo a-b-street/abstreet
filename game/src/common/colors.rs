@@ -2,8 +2,8 @@ use crate::app::App;
 use crate::colors;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use ezgui::{
-    Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    ManagedWidget, Outcome, Text, VerticalAlignment,
+    Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Outcome,
+    Text, VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Pt2D};
 use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, Map, RoadID};
@@ -137,14 +137,14 @@ impl ColorerBuilder {
         }
 
         // Build the legend
-        let mut col = vec![ManagedWidget::row(vec![
+        let mut col = vec![Widget::row(vec![
             self.header.draw(ctx),
             Btn::text_fg("X").build_def(ctx, None).align_right(),
         ])];
         for (label, color) in self.prioritized_colors {
             col.push(ColorLegend::row(ctx, color, label));
         }
-        let legend = Composite::new(ManagedWidget::col(col).bg(colors::PANEL_BG))
+        let legend = Composite::new(Widget::col(col).bg(colors::PANEL_BG))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
             .build(ctx);
 
@@ -163,7 +163,7 @@ impl ColorerBuilder {
 pub struct ColorLegend {}
 
 impl ColorLegend {
-    pub fn row<S: Into<String>>(ctx: &mut EventCtx, color: Color, label: S) -> ManagedWidget {
+    pub fn row<S: Into<String>>(ctx: &mut EventCtx, color: Color, label: S) -> Widget {
         // TODO This is a little specialized for info panels.
         let mut txt = Text::new();
         // TODO This is wider than the 0.35 of info panels, because add_wrapped is quite bad at max
@@ -171,8 +171,8 @@ impl ColorLegend {
         txt.add_wrapped(label.into(), 0.5 * ctx.canvas.window_width);
 
         let radius = 15.0;
-        ManagedWidget::row(vec![
-            ManagedWidget::draw_batch(
+        Widget::row(vec![
+            Widget::draw_batch(
                 ctx,
                 GeomBatch::from(vec![(
                     color,

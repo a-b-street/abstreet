@@ -1,7 +1,6 @@
-use crate::svg;
-use crate::widgets::Widget;
 use crate::{
-    Drawable, EventCtx, GeomBatch, GfxCtx, ManagedWidget, RewriteColor, ScreenDims, ScreenPt, Text,
+    svg, Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor, ScreenDims, ScreenPt, Text, Widget,
+    WidgetImpl,
 };
 
 // Just draw something. A widget just so widgetsing works.
@@ -13,35 +12,35 @@ pub struct JustDraw {
 }
 
 impl JustDraw {
-    pub fn wrap(ctx: &EventCtx, batch: GeomBatch) -> ManagedWidget {
-        ManagedWidget::just_draw(JustDraw {
+    pub fn wrap(ctx: &EventCtx, batch: GeomBatch) -> Widget {
+        Widget::just_draw(JustDraw {
             dims: batch.get_dims(),
             draw: ctx.upload(batch),
             top_left: ScreenPt::new(0.0, 0.0),
         })
     }
 
-    pub fn svg(ctx: &EventCtx, filename: &str) -> ManagedWidget {
+    pub fn svg(ctx: &EventCtx, filename: &str) -> Widget {
         let (batch, bounds) = svg::load_svg(ctx.prerender, filename);
         // TODO The dims will be wrong; it'll only look at geometry, not the padding in the image.
-        ManagedWidget::just_draw(JustDraw {
+        Widget::just_draw(JustDraw {
             dims: ScreenDims::new(bounds.width(), bounds.height()),
             draw: ctx.upload(batch),
             top_left: ScreenPt::new(0.0, 0.0),
         })
     }
-    pub fn svg_transform(ctx: &EventCtx, filename: &str, rewrite: RewriteColor) -> ManagedWidget {
+    pub fn svg_transform(ctx: &EventCtx, filename: &str, rewrite: RewriteColor) -> Widget {
         let (mut batch, bounds) = svg::load_svg(ctx.prerender, filename);
         batch.rewrite_color(rewrite);
         // TODO The dims will be wrong; it'll only look at geometry, not the padding in the image.
-        ManagedWidget::just_draw(JustDraw {
+        Widget::just_draw(JustDraw {
             dims: ScreenDims::new(bounds.width(), bounds.height()),
             draw: ctx.upload(batch),
             top_left: ScreenPt::new(0.0, 0.0),
         })
     }
 
-    pub fn text(ctx: &EventCtx, text: Text) -> ManagedWidget {
+    pub fn text(ctx: &EventCtx, text: Text) -> Widget {
         JustDraw::wrap(ctx, text.render_ctx(ctx))
     }
 
@@ -50,7 +49,7 @@ impl JustDraw {
     }
 }
 
-impl Widget for JustDraw {
+impl WidgetImpl for JustDraw {
     fn get_dims(&self) -> ScreenDims {
         self.dims
     }

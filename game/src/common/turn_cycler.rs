@@ -6,7 +6,7 @@ use crate::helpers::ID;
 use crate::render::{dashed_lines, draw_signal_phase, make_signal_diagram, DrawOptions, DrawTurn};
 use ezgui::{
     hotkey, Btn, Button, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Text, VerticalAlignment,
+    HorizontalAlignment, Key, Line, Outcome, Text, VerticalAlignment, Widget,
 };
 use geom::{Distance, Polygon, Time};
 use map_model::{IntersectionID, LaneID, TurnType};
@@ -247,7 +247,7 @@ impl TurnExplorer {
     fn make_panel(ctx: &mut EventCtx, app: &App, l: LaneID, idx: usize) -> Composite {
         let num_turns = app.primary.map.get_turns_from_lane(l).len();
 
-        let mut col = vec![ManagedWidget::row(vec![
+        let mut col = vec![Widget::row(vec![
             Text::from(
                 Line(format!(
                     "Turns from {}",
@@ -257,7 +257,7 @@ impl TurnExplorer {
             )
             .draw(ctx)
             .margin(5),
-            ManagedWidget::draw_batch(
+            Widget::draw_batch(
                 ctx,
                 GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
             )
@@ -328,7 +328,7 @@ impl TurnExplorer {
             ));
         }
 
-        Composite::new(ManagedWidget::col(col).bg(colors::PANEL_BG))
+        Composite::new(Widget::col(col).bg(colors::PANEL_BG))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx)
     }

@@ -1,5 +1,7 @@
-use crate::widgets::{stack_vertically, ContainerOrientation, Widget};
-use crate::{text, EventCtx, GfxCtx, Line, MultiKey, ScreenDims, ScreenPt, ScreenRectangle, Text};
+use crate::widgets::{stack_vertically, ContainerOrientation};
+use crate::{
+    text, EventCtx, GfxCtx, Line, MultiKey, ScreenDims, ScreenPt, ScreenRectangle, Text, WidgetImpl,
+};
 
 pub struct ModalMenu {
     title: String,
@@ -240,7 +242,7 @@ impl ModalMenu {
     }
 }
 
-impl Widget for ModalMenu {
+impl WidgetImpl for ModalMenu {
     fn get_dims(&self) -> ScreenDims {
         ScreenDims::new(self.dims.width, self.dims.height)
     }

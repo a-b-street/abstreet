@@ -10,8 +10,8 @@ use crate::sandbox::{spawn_agents_around, SpeedControls, TimePanel};
 use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, RewriteColor, Text, TextExt,
-    VerticalAlignment,
+    HorizontalAlignment, Key, Line, Outcome, RewriteColor, Text, TextExt, VerticalAlignment,
+    Widget,
 };
 use geom::Duration;
 use map_model::{
@@ -300,7 +300,7 @@ pub fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: b
         (if can_undo {
             Btn::svg_def("../data/system/assets/tools/undo.svg").build(ctx, "undo", lctrl(Key::Z))
         } else {
-            ManagedWidget::draw_svg_transform(
+            Widget::draw_svg_transform(
                 ctx,
                 "../data/system/assets/tools/undo.svg",
                 RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
@@ -315,7 +315,7 @@ pub fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: b
                 lctrl(Key::Y),
             )
         } else {
-            ManagedWidget::draw_svg_transform(
+            Widget::draw_svg_transform(
                 ctx,
                 "../data/system/assets/tools/redo.svg",
                 RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
@@ -325,10 +325,10 @@ pub fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: b
         if app.opts.dev {
             Btn::text_fg("Export").build_def(ctx, None)
         } else {
-            ManagedWidget::nothing()
+            Widget::nothing()
         },
     ];
-    Composite::new(ManagedWidget::row(row).bg(colors::PANEL_BG))
+    Composite::new(Widget::row(row).bg(colors::PANEL_BG))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx)
 }
@@ -702,7 +702,7 @@ impl PreviewTrafficSignal {
     fn new(ctx: &mut EventCtx, app: &App) -> PreviewTrafficSignal {
         PreviewTrafficSignal {
             composite: Composite::new(
-                ManagedWidget::col(vec![
+                Widget::col(vec![
                     "Previewing traffic signal".draw_text(ctx),
                     Btn::text_fg("back to editing").build_def(ctx, hotkey(Key::Escape)),
                 ])

@@ -1,7 +1,6 @@
-use crate::widgets::Widget;
 use crate::{
     text, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenDims, ScreenPt, ScreenRectangle,
-    Text,
+    Text, WidgetImpl,
 };
 use geom::Polygon;
 
@@ -118,7 +117,7 @@ impl TextBox {
     }
 }
 
-impl Widget for TextBox {
+impl WidgetImpl for TextBox {
     fn get_dims(&self) -> ScreenDims {
         self.dims
     }

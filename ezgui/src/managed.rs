@@ -1,8 +1,7 @@
-use crate::widgets::Widget;
 use crate::{
     Btn, Button, Checkbox, Choice, Color, Drawable, Dropdown, EventCtx, Filler, GeomBatch, GfxCtx,
     Histogram, HorizontalAlignment, JustDraw, MultiKey, Plot, PopupMenu, RewriteColor, ScreenDims,
-    ScreenPt, ScreenRectangle, Slider, Text, TextBox, VerticalAlignment,
+    ScreenPt, ScreenRectangle, Slider, Text, TextBox, VerticalAlignment, WidgetImpl,
 };
 use abstutil::Cloneable;
 use geom::{Distance, Duration, Polygon};
@@ -16,7 +15,7 @@ use stretch::style::{
 
 type Menu = PopupMenu<Box<dyn Cloneable>>;
 
-pub struct ManagedWidget {
+pub struct Widget {
     widget: WidgetType,
     style: LayoutStyle,
     rect: ScreenRectangle,
@@ -38,8 +37,8 @@ enum WidgetType {
     DurationPlot(Plot<Duration>),
     UsizePlot(Plot<usize>),
     Histogram(Histogram),
-    Row(Vec<ManagedWidget>),
-    Column(Vec<ManagedWidget>),
+    Row(Vec<Widget>),
+    Column(Vec<Widget>),
     Nothing,
 }
 
@@ -89,34 +88,34 @@ impl LayoutStyle {
 // TODO Maybe I just want margin, not padding. And maybe more granular controls per side. And to
 // apply margin to everything in a row or column.
 // TODO Row and columns feel backwards when using them.
-impl ManagedWidget {
-    pub fn centered(mut self) -> ManagedWidget {
+impl Widget {
+    pub fn centered(mut self) -> Widget {
         self.style.align_items = Some(AlignItems::Center);
         self.style.justify_content = Some(JustifyContent::SpaceAround);
         self
     }
 
-    pub fn centered_horiz(self) -> ManagedWidget {
-        ManagedWidget::row(vec![self]).centered()
+    pub fn centered_horiz(self) -> Widget {
+        Widget::row(vec![self]).centered()
     }
 
-    pub fn centered_vert(self) -> ManagedWidget {
-        ManagedWidget::col(vec![self]).centered()
+    pub fn centered_vert(self) -> Widget {
+        Widget::col(vec![self]).centered()
     }
 
-    pub fn centered_cross(mut self) -> ManagedWidget {
+    pub fn centered_cross(mut self) -> Widget {
         self.style.align_items = Some(AlignItems::Center);
         self
     }
 
-    pub fn evenly_spaced(mut self) -> ManagedWidget {
+    pub fn evenly_spaced(mut self) -> Widget {
         self.style.justify_content = Some(JustifyContent::SpaceBetween);
         self
     }
 
     // This one is really weird. percent_width should be LESS than the max_size_percent given to
     // the overall Composite, otherwise weird things happen.
-    pub fn flex_wrap(mut self, ctx: &EventCtx, percent_width: usize) -> ManagedWidget {
+    pub fn flex_wrap(mut self, ctx: &EventCtx, percent_width: usize) -> Widget {
         self.style.size = Some(Size {
             width: Dimension::Points(
                 (ctx.canvas.window_width * (percent_width as f64) / 100.0) as f32,
@@ -128,18 +127,18 @@ impl ManagedWidget {
         self
     }
 
-    pub fn bg(mut self, color: Color) -> ManagedWidget {
+    pub fn bg(mut self, color: Color) -> Widget {
         self.style.bg_color = Some(color);
         self
     }
 
     // Callers have to adjust padding too, probably
-    pub fn outline(mut self, thickness: f64, color: Color) -> ManagedWidget {
+    pub fn outline(mut self, thickness: f64, color: Color) -> Widget {
         self.style.outline = Some((thickness, color));
         self
     }
 
-    pub fn padding(mut self, pixels: usize) -> ManagedWidget {
+    pub fn padding(mut self, pixels: usize) -> Widget {
         self.style.padding = Some(Rect {
             start: Dimension::Points(pixels as f32),
             end: Dimension::Points(pixels as f32),
@@ -149,7 +148,7 @@ impl ManagedWidget {
         self
     }
 
-    pub fn margin(mut self, pixels: usize) -> ManagedWidget {
+    pub fn margin(mut self, pixels: usize) -> Widget {
         self.style.margin = Some(Rect {
             start: Dimension::Points(pixels as f32),
             end: Dimension::Points(pixels as f32),
@@ -158,7 +157,7 @@ impl ManagedWidget {
         });
         self
     }
-    pub fn margin_above(mut self, pixels: usize) -> ManagedWidget {
+    pub fn margin_above(mut self, pixels: usize) -> Widget {
         self.style.margin = Some(Rect {
             start: Dimension::Undefined,
             end: Dimension::Undefined,
@@ -168,7 +167,7 @@ impl ManagedWidget {
         self
     }
 
-    pub fn align_left(mut self) -> ManagedWidget {
+    pub fn align_left(mut self) -> Widget {
         self.style.margin = Some(Rect {
             start: Dimension::Undefined,
             end: Dimension::Auto,
@@ -177,7 +176,7 @@ impl ManagedWidget {
         });
         self
     }
-    pub fn align_right(mut self) -> ManagedWidget {
+    pub fn align_right(mut self) -> Widget {
         self.style.margin = Some(Rect {
             start: Dimension::Auto,
             end: Dimension::Undefined,
@@ -187,7 +186,7 @@ impl ManagedWidget {
         self
     }
     // This doesn't count against the entire container
-    pub fn align_vert_center(mut self) -> ManagedWidget {
+    pub fn align_vert_center(mut self) -> Widget {
         self.style.margin = Some(Rect {
             start: Dimension::Undefined,
             end: Dimension::Undefined,
@@ -197,7 +196,7 @@ impl ManagedWidget {
         self
     }
 
-    fn abs(mut self, x: f64, y: f64) -> ManagedWidget {
+    fn abs(mut self, x: f64, y: f64) -> Widget {
         self.style.position_type = Some(PositionType::Absolute);
         self.style.position = Some(Rect {
             start: Dimension::Points(x as f32),
@@ -208,16 +207,16 @@ impl ManagedWidget {
         self
     }
 
-    pub fn named(mut self, id: &str) -> ManagedWidget {
+    pub fn named(mut self, id: &str) -> Widget {
         self.id = Some(id.to_string());
         self
     }
 }
 
 // Convenient?? constructors
-impl ManagedWidget {
-    fn new(widget: WidgetType) -> ManagedWidget {
-        ManagedWidget {
+impl Widget {
+    fn new(widget: WidgetType) -> Widget {
+        Widget {
             widget,
             style: LayoutStyle {
                 bg_color: None,
@@ -238,44 +237,40 @@ impl ManagedWidget {
     }
 
     // TODO dupe apis!
-    pub fn draw_batch(ctx: &EventCtx, batch: GeomBatch) -> ManagedWidget {
+    pub fn draw_batch(ctx: &EventCtx, batch: GeomBatch) -> Widget {
         JustDraw::wrap(ctx, batch)
     }
 
-    pub(crate) fn just_draw(j: JustDraw) -> ManagedWidget {
-        ManagedWidget::new(WidgetType::Draw(j))
+    pub(crate) fn just_draw(j: JustDraw) -> Widget {
+        Widget::new(WidgetType::Draw(j))
     }
 
-    pub(crate) fn draw_text(ctx: &EventCtx, txt: Text) -> ManagedWidget {
+    pub(crate) fn draw_text(ctx: &EventCtx, txt: Text) -> Widget {
         JustDraw::text(ctx, txt)
     }
 
-    pub fn draw_svg(ctx: &EventCtx, filename: &str) -> ManagedWidget {
+    pub fn draw_svg(ctx: &EventCtx, filename: &str) -> Widget {
         JustDraw::svg(ctx, filename)
     }
     // TODO Argh uncomposable APIs
-    pub fn draw_svg_transform(
-        ctx: &EventCtx,
-        filename: &str,
-        rewrite: RewriteColor,
-    ) -> ManagedWidget {
+    pub fn draw_svg_transform(ctx: &EventCtx, filename: &str, rewrite: RewriteColor) -> Widget {
         JustDraw::svg_transform(ctx, filename, rewrite)
     }
 
-    pub(crate) fn btn(btn: Button) -> ManagedWidget {
-        ManagedWidget::new(WidgetType::Btn(btn))
+    pub(crate) fn btn(btn: Button) -> Widget {
+        Widget::new(WidgetType::Btn(btn))
     }
 
-    pub fn slider(label: &str) -> ManagedWidget {
-        ManagedWidget::new(WidgetType::Slider(label.to_string()))
+    pub fn slider(label: &str) -> Widget {
+        Widget::new(WidgetType::Slider(label.to_string()))
     }
 
-    pub fn menu(label: &str) -> ManagedWidget {
-        ManagedWidget::new(WidgetType::Menu(label.to_string()))
+    pub fn menu(label: &str) -> Widget {
+        Widget::new(WidgetType::Menu(label.to_string()))
     }
 
-    pub fn filler(label: &str) -> ManagedWidget {
-        ManagedWidget::new(WidgetType::Filler(label.to_string()))
+    pub fn filler(label: &str) -> Widget {
+        Widget::new(WidgetType::Filler(label.to_string()))
     }
 
     pub fn checkbox(
@@ -283,8 +278,8 @@ impl ManagedWidget {
         label: &str,
         hotkey: Option<MultiKey>,
         enabled: bool,
-    ) -> ManagedWidget {
-        ManagedWidget::custom_checkbox(
+    ) -> Widget {
+        Widget::custom_checkbox(
             enabled,
             Btn::text_fg(format!("☐ {}", label)).build(ctx, label, hotkey.clone()),
             Btn::text_fg(format!("☑ {}", label)).build(ctx, label, hotkey),
@@ -293,21 +288,17 @@ impl ManagedWidget {
         .named(label)
     }
     // TODO Not typesafe! Gotta pass a button.
-    pub fn custom_checkbox(
-        enabled: bool,
-        false_btn: ManagedWidget,
-        true_btn: ManagedWidget,
-    ) -> ManagedWidget {
-        ManagedWidget::new(WidgetType::Checkbox(Checkbox::new(
+    pub fn custom_checkbox(enabled: bool, false_btn: Widget, true_btn: Widget) -> Widget {
+        Widget::new(WidgetType::Checkbox(Checkbox::new(
             enabled,
             false_btn.take_btn(),
             true_btn.take_btn(),
         )))
     }
 
-    pub fn text_entry(ctx: &EventCtx, prefilled: String, exclusive_focus: bool) -> ManagedWidget {
+    pub fn text_entry(ctx: &EventCtx, prefilled: String, exclusive_focus: bool) -> Widget {
         // TODO Hardcoded style, max chars
-        ManagedWidget::new(WidgetType::TextBox(TextBox::new(
+        Widget::new(WidgetType::TextBox(TextBox::new(
             ctx,
             50,
             prefilled,
@@ -320,8 +311,8 @@ impl ManagedWidget {
         label: &str,
         default_value: T,
         choices: Vec<Choice<T>>,
-    ) -> ManagedWidget {
-        ManagedWidget::new(WidgetType::Dropdown(Dropdown::new(
+    ) -> Widget {
+        Widget::new(WidgetType::Dropdown(Dropdown::new(
             ctx,
             label,
             default_value,
@@ -331,20 +322,20 @@ impl ManagedWidget {
         .outline(2.0, Color::WHITE)
     }
 
-    pub(crate) fn duration_plot(plot: Plot<Duration>) -> ManagedWidget {
-        ManagedWidget::new(WidgetType::DurationPlot(plot))
+    pub(crate) fn duration_plot(plot: Plot<Duration>) -> Widget {
+        Widget::new(WidgetType::DurationPlot(plot))
     }
 
-    pub(crate) fn usize_plot(plot: Plot<usize>) -> ManagedWidget {
-        ManagedWidget::new(WidgetType::UsizePlot(plot))
+    pub(crate) fn usize_plot(plot: Plot<usize>) -> Widget {
+        Widget::new(WidgetType::UsizePlot(plot))
     }
 
-    pub(crate) fn histogram(histogram: Histogram) -> ManagedWidget {
-        ManagedWidget::new(WidgetType::Histogram(histogram))
+    pub(crate) fn histogram(histogram: Histogram) -> Widget {
+        Widget::new(WidgetType::Histogram(histogram))
     }
 
-    pub fn row(widgets: Vec<ManagedWidget>) -> ManagedWidget {
-        ManagedWidget::new(WidgetType::Row(
+    pub fn row(widgets: Vec<Widget>) -> Widget {
+        Widget::new(WidgetType::Row(
             widgets
                 .into_iter()
                 .filter(|w| match w.widget {
@@ -355,8 +346,8 @@ impl ManagedWidget {
         ))
     }
 
-    pub fn col(widgets: Vec<ManagedWidget>) -> ManagedWidget {
-        ManagedWidget::new(WidgetType::Column(
+    pub fn col(widgets: Vec<Widget>) -> Widget {
+        Widget::new(WidgetType::Column(
             widgets
                 .into_iter()
                 .filter(|w| match w.widget {
@@ -367,13 +358,13 @@ impl ManagedWidget {
         ))
     }
 
-    pub fn nothing() -> ManagedWidget {
-        ManagedWidget::new(WidgetType::Nothing)
+    pub fn nothing() -> Widget {
+        Widget::new(WidgetType::Nothing)
     }
 }
 
 // Internals
-impl ManagedWidget {
+impl Widget {
     fn event(
         &mut self,
         ctx: &mut EventCtx,
@@ -470,7 +461,7 @@ impl ManagedWidget {
         nodes: &mut Vec<Node>,
     ) {
         // TODO Can I use | in the match and "cast" to Widget?
-        let widget: &dyn Widget = match self.widget {
+        let widget: &dyn WidgetImpl = match self.widget {
             WidgetType::Draw(ref widget) => widget,
             WidgetType::Btn(ref widget) => widget,
             WidgetType::Checkbox(ref widget) => widget,
@@ -684,7 +675,7 @@ impl ManagedWidget {
         }
     }
 
-    fn find(&self, name: &str) -> Option<&ManagedWidget> {
+    fn find(&self, name: &str) -> Option<&Widget> {
         let found = match self.widget {
             // TODO Consolidate and just do this
             WidgetType::Draw(_)
@@ -714,7 +705,7 @@ impl ManagedWidget {
             None
         }
     }
-    fn find_mut(&mut self, name: &str) -> Option<&mut ManagedWidget> {
+    fn find_mut(&mut self, name: &str) -> Option<&mut Widget> {
         let found = match self.widget {
             // TODO Consolidate and just do this
             WidgetType::Draw(_)
@@ -759,7 +750,7 @@ enum Dims {
 }
 
 pub struct CompositeBuilder {
-    top_level: ManagedWidget,
+    top_level: Widget,
 
     sliders: HashMap<String, Slider>,
     menus: HashMap<String, Menu>,
@@ -771,7 +762,7 @@ pub struct CompositeBuilder {
 }
 
 pub struct Composite {
-    top_level: ManagedWidget,
+    top_level: Widget,
 
     sliders: HashMap<String, Slider>,
     menus: HashMap<String, Menu>,
@@ -797,7 +788,7 @@ const SCROLL_SPEED: f64 = 5.0;
 // TODO These APIs aren't composable. Need a builer pattern or ideally, to scrape all the special
 // objects from the tree.
 impl Composite {
-    pub fn new(top_level: ManagedWidget) -> CompositeBuilder {
+    pub fn new(top_level: Widget) -> CompositeBuilder {
         CompositeBuilder {
             top_level,
 
@@ -1051,14 +1042,14 @@ impl Composite {
         ScreenRectangle::top_left(f.top_left, f.dims)
     }
 
-    fn find(&self, name: &str) -> &ManagedWidget {
+    fn find(&self, name: &str) -> &Widget {
         if let Some(w) = self.top_level.find(name) {
             w
         } else {
             panic!("Can't find widget {}", name);
         }
     }
-    fn find_mut(&mut self, name: &str) -> &mut ManagedWidget {
+    fn find_mut(&mut self, name: &str) -> &mut Widget {
         if let Some(w) = self.top_level.find_mut(name) {
             w
         } else {
@@ -1083,7 +1074,7 @@ impl Composite {
         self.recompute_layout(ctx, false);
     }
 
-    pub fn replace(&mut self, ctx: &mut EventCtx, id: &str, new: ManagedWidget) {
+    pub fn replace(&mut self, ctx: &mut EventCtx, id: &str, new: Widget) {
         *self.find_mut(id) = new;
         self.recompute_layout(ctx, true);
     }
@@ -1145,9 +1136,9 @@ impl CompositeBuilder {
                     c.container_dims.width * (c.container_dims.width / c.contents_dims.width),
                 ),
             );
-            c.top_level = ManagedWidget::col(vec![
+            c.top_level = Widget::col(vec![
                 c.top_level,
-                ManagedWidget::slider("horiz scrollbar")
+                Widget::slider("horiz scrollbar")
                     .abs(top_left.x, top_left.y + c.container_dims.height),
             ]);
         }
@@ -1161,9 +1152,9 @@ impl CompositeBuilder {
                     c.container_dims.height * (c.container_dims.height / c.contents_dims.height),
                 ),
             );
-            c.top_level = ManagedWidget::row(vec![
+            c.top_level = Widget::row(vec![
                 c.top_level,
-                ManagedWidget::slider("vert scrollbar")
+                Widget::slider("vert scrollbar")
                     .abs(top_left.x + c.container_dims.width, top_left.y),
             ]);
         }

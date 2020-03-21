@@ -7,8 +7,8 @@ use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::{GameplayMode, SandboxMode};
 use ezgui::{
     hotkey, Btn, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, ManagedWidget, Outcome, Plot, PlotOptions, RewriteColor, Series, Slider, Text,
-    VerticalAlignment,
+    Key, Line, Outcome, Plot, PlotOptions, RewriteColor, Series, Slider, Text, VerticalAlignment,
+    Widget,
 };
 use geom::{Duration, Polygon, Time};
 use instant::Instant;
@@ -56,7 +56,7 @@ impl SpeedControls {
         );
 
         row.push(
-            ManagedWidget::row(
+            Widget::row(
                 vec![
                     (SpeedSetting::Realtime, "real-time speed"),
                     (SpeedSetting::Fast, "5x speed"),
@@ -95,7 +95,7 @@ impl SpeedControls {
         );
 
         row.push(
-            ManagedWidget::row(
+            Widget::row(
                 vec![
                     Btn::custom(
                         Text::from(Line("+1h").fg(Color::WHITE).size(21).roboto()).render_ctx(ctx),
@@ -143,8 +143,7 @@ impl SpeedControls {
 
         WrappedComposite::new(
             Composite::new(
-                ManagedWidget::row(row.into_iter().map(|x| x.margin(5)).collect())
-                    .bg(colors::PANEL_BG),
+                Widget::row(row.into_iter().map(|x| x.margin(5)).collect()).bg(colors::PANEL_BG),
             )
             .aligned(
                 HorizontalAlignment::Center,
@@ -356,7 +355,7 @@ impl JumpToTime {
             target,
             maybe_mode,
             composite: Composite::new(
-                ManagedWidget::col(vec![
+                Widget::col(vec![
                     Btn::text_fg("X")
                         .build_def(ctx, hotkey(Key::Escape))
                         .align_right(),
@@ -366,17 +365,17 @@ impl JumpToTime {
                         txt.draw(ctx)
                     }
                     .named("target time"),
-                    ManagedWidget::slider("time slider").margin(10),
-                    ManagedWidget::row(vec![
+                    Widget::slider("time slider").margin(10),
+                    Widget::row(vec![
                         Line("00:00").size(12).roboto().draw(ctx),
-                        ManagedWidget::draw_svg(ctx, "../data/system/assets/speed/sunrise.svg"),
+                        Widget::draw_svg(ctx, "../data/system/assets/speed/sunrise.svg"),
                         Line("12:00").size(12).roboto().draw(ctx),
-                        ManagedWidget::draw_svg(ctx, "../data/system/assets/speed/sunset.svg"),
+                        Widget::draw_svg(ctx, "../data/system/assets/speed/sunset.svg"),
                         Line("24:00").size(12).roboto().draw(ctx),
                     ])
                     .padding(10)
                     .evenly_spaced(),
-                    ManagedWidget::checkbox(ctx, "Stop when there's a traffic jam", None, false)
+                    Widget::checkbox(ctx, "Stop when there's a traffic jam", None, false)
                         .padding(10)
                         .margin(10),
                     Btn::text_bg2("Go!")
@@ -503,7 +502,7 @@ impl TimeWarpScreen {
             started: Instant::now(),
             traffic_jams,
             composite: Composite::new(
-                ManagedWidget::col(vec![
+                Widget::col(vec![
                     Text::new().draw(ctx).named("text"),
                     Btn::text_bg2("stop now")
                         .build_def(ctx, hotkey(Key::Escape))
@@ -598,7 +597,7 @@ impl TimePanel {
         TimePanel {
             time: app.primary.sim.time(),
             composite: Composite::new(
-                ManagedWidget::col(vec![
+                Widget::col(vec![
                     Text::from(Line(app.primary.sim.time().ampm_tostring()).size(30))
                         .draw(ctx)
                         .margin(10)
@@ -619,13 +618,13 @@ impl TimePanel {
                                 Polygon::rectangle(percent * width, height),
                             );
                         }
-                        ManagedWidget::draw_batch(ctx, batch)
+                        Widget::draw_batch(ctx, batch)
                     },
-                    ManagedWidget::row(vec![
+                    Widget::row(vec![
                         Line("00:00").size(12).roboto().draw(ctx),
-                        ManagedWidget::draw_svg(ctx, "../data/system/assets/speed/sunrise.svg"),
+                        Widget::draw_svg(ctx, "../data/system/assets/speed/sunrise.svg"),
                         Line("12:00").size(12).roboto().draw(ctx),
-                        ManagedWidget::draw_svg(ctx, "../data/system/assets/speed/sunset.svg"),
+                        Widget::draw_svg(ctx, "../data/system/assets/speed/sunset.svg"),
                         Line("24:00").size(12).roboto().draw(ctx),
                     ])
                     .padding(10)

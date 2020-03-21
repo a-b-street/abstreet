@@ -7,8 +7,8 @@ use crate::sandbox::gameplay::freeform::Freeform;
 use crate::sandbox::SandboxMode;
 use abstutil::Timer;
 use ezgui::{
-    hotkey, Btn, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget,
-    Outcome, Text, TextExt, VerticalAlignment,
+    hotkey, Btn, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Text,
+    TextExt, VerticalAlignment, Widget,
 };
 use geom::{Distance, Duration, PolyLine};
 use map_model::{
@@ -704,8 +704,8 @@ fn create_swarm(app: &mut App, from: LaneID, to: LaneID, count: usize, duration:
 
 fn make_top_bar(ctx: &mut EventCtx, title: &str, howto: &str) -> Composite {
     Composite::new(
-        ManagedWidget::col(vec![
-            ManagedWidget::row(vec![
+        Widget::col(vec![
+            Widget::row(vec![
                 Line(title).roboto_bold().draw(ctx),
                 Btn::text_fg("X")
                     .build_def(ctx, hotkey(Key::Escape))

@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::colors;
 use crate::game::{State, Transition, WizardState};
 use ezgui::{
-    hotkey, Btn, Choice, Composite, EventCtx, GfxCtx, Key, Line, ManagedWidget, Outcome, TextExt,
+    hotkey, Btn, Choice, Composite, EventCtx, GfxCtx, Key, Line, Outcome, TextExt, Widget,
 };
 
 // TODO SimOptions stuff too
@@ -70,23 +70,22 @@ impl OptionsPanel {
     pub fn new(ctx: &mut EventCtx, app: &App) -> OptionsPanel {
         OptionsPanel {
             composite: Composite::new(
-                ManagedWidget::col(vec![
-                    ManagedWidget::row(vec![
+                Widget::col(vec![
+                    Widget::row(vec![
                         Line("Settings").roboto_bold().draw(ctx),
                         Btn::text_fg("X")
                             .build_def(ctx, hotkey(Key::Escape))
                             .align_right(),
                     ]),
-                    ManagedWidget::checkbox(ctx, "Enable developer mode", None, app.opts.dev)
-                        .margin(5),
-                    ManagedWidget::checkbox(
+                    Widget::checkbox(ctx, "Enable developer mode", None, app.opts.dev).margin(5),
+                    Widget::checkbox(
                         ctx,
                         "Invert direction of vertical scrolling",
                         None,
                         ctx.canvas.invert_scroll,
                     )
                     .margin(5),
-                    ManagedWidget::checkbox(
+                    Widget::checkbox(
                         ctx,
                         "Use touchpad to pan and hold Control to zoom",
                         None,
@@ -94,19 +93,19 @@ impl OptionsPanel {
                     )
                     .margin(5),
                     // TODO Refactor this pattern somehow, using drop-down menus or radio buttons
-                    ManagedWidget::row(vec![
+                    Widget::row(vec![
                         "Traffic signal rendering:".draw_text(ctx).margin(5),
                         Btn::text_fg(format!("{} ▼", app.opts.traffic_signal_style.describe()))
                             .build(ctx, "change traffic signal style", None)
                             .margin(5),
                     ]),
-                    ManagedWidget::row(vec![
+                    Widget::row(vec![
                         "Color scheme:".draw_text(ctx).margin(5),
                         Btn::text_fg(format!("{} ▼", app.opts.cs_name()))
                             .build(ctx, "change color scheme", None)
                             .margin(5),
                     ]),
-                    ManagedWidget::row(vec![
+                    Widget::row(vec![
                         format!(
                             "Scale factor for text / UI elements (your monitor is {}):",
                             ctx.monitor_scale_factor()

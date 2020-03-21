@@ -7,7 +7,7 @@ use crate::helpers::ID;
 use crate::render::Renderable;
 use ezgui::{
     hotkey, Btn, Button, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key,
-    ManagedWidget, Outcome, RewriteColor, TextExt, VerticalAlignment,
+    Outcome, RewriteColor, TextExt, VerticalAlignment, Widget,
 };
 use map_model::{EditCmd, LaneID, LaneType, Map, RoadID};
 use std::collections::BTreeSet;
@@ -62,7 +62,7 @@ impl LaneEditor {
                         hotkey(key),
                     )
                 } else {
-                    ManagedWidget::draw_svg_transform(
+                    Widget::draw_svg_transform(
                         ctx,
                         &format!("../data/system/assets/edit/{}.svg", icon),
                         RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
@@ -79,13 +79,13 @@ impl LaneEditor {
             )
             .draw_text(ctx)
             .centered_horiz(),
-            ManagedWidget::row(row).centered(),
+            Widget::row(row).centered(),
             Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape)),
             // TODO Not ready for general use
             if app.opts.dev {
                 Btn::text_fg("Edit entire road").build_def(ctx, hotkey(Key::U))
             } else {
-                ManagedWidget::nothing()
+                Widget::nothing()
             },
             if app.primary.map.get_edits().original_lts.contains_key(&l)
                 || app.primary.map.get_edits().reversed_lanes.contains(&l)
@@ -96,7 +96,7 @@ impl LaneEditor {
             },
         ];
 
-        let composite = Composite::new(ManagedWidget::col(col).bg(colors::PANEL_BG).padding(10))
+        let composite = Composite::new(Widget::col(col).bg(colors::PANEL_BG).padding(10))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx);
 

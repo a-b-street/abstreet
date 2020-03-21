@@ -9,7 +9,7 @@ use crate::sandbox::SandboxControls;
 use crate::sandbox::SandboxMode;
 use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, ManagedWidget, ScreenRectangle, Text, VerticalAlignment,
+    Key, Line, ScreenRectangle, Text, VerticalAlignment, Widget,
 };
 use geom::Polygon;
 use map_model::IntersectionID;
@@ -83,9 +83,9 @@ pub fn freeform_controller(
     scenario_name: &str,
 ) -> WrappedComposite {
     let c = Composite::new(
-        ManagedWidget::row(vec![
+        Widget::row(vec![
             Line("Sandbox").size(26).draw(ctx).margin(5),
-            ManagedWidget::draw_batch(
+            Widget::draw_batch(
                 ctx,
                 GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
             )

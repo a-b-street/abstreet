@@ -1,7 +1,6 @@
-use crate::widgets::Widget;
 use crate::{
-    text, Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, ManagedWidget, MultiKey,
-    RewriteColor, ScreenDims, ScreenPt, Text,
+    text, Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, MultiKey, RewriteColor,
+    ScreenDims, ScreenPt, Text, Widget, WidgetImpl,
 };
 use geom::Polygon;
 
@@ -108,7 +107,7 @@ impl Button {
     }
 }
 
-impl Widget for Button {
+impl WidgetImpl for Button {
     fn get_dims(&self) -> ScreenDims {
         self.dims
     }
@@ -123,7 +122,7 @@ impl Widget for Button {
 // TODO Simplify all of these APIs!
 impl Button {
     // TODO Extreme wackiness.
-    pub fn inactive_button<S: Into<String>>(ctx: &mut EventCtx, label: S) -> ManagedWidget {
+    pub fn inactive_button<S: Into<String>>(ctx: &mut EventCtx, label: S) -> Widget {
         let txt_batch = Text::from(Line(label).fg(Color::grey(0.5))).render_ctx(ctx);
         let dims = txt_batch.get_dims();
 
@@ -131,7 +130,7 @@ impl Button {
         let vert_padding = 8.0;
         let mut batch = GeomBatch::new();
         batch.add_translated(txt_batch, horiz_padding, vert_padding);
-        ManagedWidget::just_draw(JustDraw {
+        Widget::just_draw(JustDraw {
             draw: ctx.upload(batch),
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(
@@ -142,7 +141,7 @@ impl Button {
         .outline(2.0, Color::WHITE)
     }
     // With a background
-    pub fn inactive_selected_button<S: Into<String>>(ctx: &EventCtx, label: S) -> ManagedWidget {
+    pub fn inactive_selected_button<S: Into<String>>(ctx: &EventCtx, label: S) -> Widget {
         const HORIZ_PADDING: f64 = 30.0;
         const VERT_PADDING: f64 = 10.0;
 
@@ -286,7 +285,7 @@ impl BtnBuilder {
         ctx: &EventCtx,
         action_tooltip: I,
         key: Option<MultiKey>,
-    ) -> ManagedWidget {
+    ) -> Widget {
         match self {
             BtnBuilder::SVG(path, rewrite_normal, rewrite_hover, maybe_t) => {
                 let (mut normal, bounds) = GeomBatch::from_svg(ctx, path, RewriteColor::NoOp);
@@ -306,7 +305,7 @@ impl BtnBuilder {
                 if let Some(t) = maybe_t {
                     btn.tooltip = t;
                 }
-                ManagedWidget::btn(btn)
+                Widget::btn(btn)
             }
             BtnBuilder::TextFG(_, normal_txt, maybe_t) => {
                 // TODO Padding here is unfortunate, but I don't understand when the flexbox padding
@@ -332,7 +331,7 @@ impl BtnBuilder {
                 if let Some(t) = maybe_t {
                     btn.tooltip = t;
                 }
-                ManagedWidget::btn(btn).outline(2.0, Color::WHITE)
+                Widget::btn(btn).outline(2.0, Color::WHITE)
             }
             BtnBuilder::TextBG {
                 text,
@@ -362,7 +361,7 @@ impl BtnBuilder {
                 if let Some(t) = maybe_tooltip {
                     btn.tooltip = t;
                 }
-                ManagedWidget::btn(btn)
+                Widget::btn(btn)
             }
             BtnBuilder::Custom(normal, hovered, hitbox, maybe_t) => {
                 let mut btn =
@@ -370,13 +369,13 @@ impl BtnBuilder {
                 if let Some(t) = maybe_t {
                     btn.tooltip = t;
                 }
-                ManagedWidget::btn(btn)
+                Widget::btn(btn)
             }
         }
     }
 
     // Use the text as the action
-    pub fn build_def(self, ctx: &EventCtx, hotkey: Option<MultiKey>) -> ManagedWidget {
+    pub fn build_def(self, ctx: &EventCtx, hotkey: Option<MultiKey>) -> Widget {
         match self {
             BtnBuilder::SVG(_, _, _, _) => panic!("Can't use build_def on an SVG button"),
             BtnBuilder::Custom(_, _, _, _) => panic!("Can't use build_def on a custom button"),

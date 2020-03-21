@@ -7,7 +7,7 @@ use crate::managed::{WrappedComposite, WrappedOutcome};
 use abstutil::{prettyprint_usize, Counter, MultiMap};
 use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Slider, Text, VerticalAlignment,
+    HorizontalAlignment, Key, Line, Outcome, Slider, Text, VerticalAlignment, Widget,
 };
 use geom::{Distance, Line, PolyLine, Polygon};
 use map_model::{BuildingID, IntersectionID, Map};
@@ -552,14 +552,14 @@ impl DotMap {
             .collect();
         DotMap {
             composite: Composite::new(
-                ManagedWidget::col(vec![
-                    ManagedWidget::row(vec![
+                Widget::col(vec![
+                    Widget::row(vec![
                         Line("Dot map of all trips").roboto_bold().draw(ctx),
                         Btn::text_fg("X")
                             .build_def(ctx, hotkey(Key::Escape))
                             .align_right(),
                     ]),
-                    ManagedWidget::slider("time slider"),
+                    Widget::slider("time slider"),
                 ])
                 .padding(10)
                 .bg(colors::PANEL_BG),

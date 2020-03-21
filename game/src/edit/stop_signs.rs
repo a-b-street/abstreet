@@ -7,7 +7,7 @@ use crate::render::DrawIntersection;
 use abstutil::Timer;
 use ezgui::{
     hotkey, Btn, Button, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, ManagedWidget, Outcome, Text, TextExt, VerticalAlignment,
+    Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::Polygon;
 use map_model::{
@@ -50,7 +50,7 @@ impl StopSignEditor {
             .collect();
 
         let composite = Composite::new(
-            ManagedWidget::col(vec![
+            Widget::col(vec![
                 "Stop sign editor".draw_text(ctx),
                 if ControlStopSign::new(&app.primary.map, id)
                     != app.primary.map.get_stop_sign(id).clone()

@@ -1,5 +1,4 @@
-use crate::widgets::Widget;
-use crate::{ScreenDims, ScreenPt};
+use crate::{ScreenDims, ScreenPt, WidgetImpl};
 
 // Doesn't do anything by itself, just used for widgetsing. Something else reaches in, asks for the
 // ScreenRectangle to use.
@@ -17,7 +16,7 @@ impl Filler {
     }
 }
 
-impl Widget for Filler {
+impl WidgetImpl for Filler {
     fn get_dims(&self) -> ScreenDims {
         self.dims
     }

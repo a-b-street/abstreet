@@ -9,8 +9,8 @@ use crate::render::MIN_ZOOM_FOR_DETAIL;
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
     hotkey, Btn, Button, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Histogram,
-    HorizontalAlignment, JustDraw, Key, Line, ManagedWidget, Outcome, Plot, PlotOptions,
-    RewriteColor, Series, Text, TextExt, VerticalAlignment,
+    HorizontalAlignment, JustDraw, Key, Line, Outcome, Plot, PlotOptions, RewriteColor, Series,
+    Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Duration, PolyLine, Polygon, Pt2D, Statistic, Time};
 use map_model::{BusRouteID, IntersectionID};
@@ -283,14 +283,14 @@ impl Overlays {
 
         let c = WrappedComposite::new(
             Composite::new(
-                ManagedWidget::col(vec![
-                    ManagedWidget::row(vec![
+                Widget::col(vec![
+                    Widget::row(vec![
                         "Heat Map Layers".draw_text(ctx),
                         Btn::text_fg("X")
                             .build(ctx, "close", hotkey(Key::Escape))
                             .align_right(),
                     ]),
-                    ManagedWidget::row(choices.into_iter().map(|x| x.margin(5)).collect())
+                    Widget::row(choices.into_iter().map(|x| x.margin(5)).collect())
                         .flex_wrap(ctx, 30),
                 ])
                 .bg(colors::PANEL_BG)
@@ -707,8 +707,8 @@ impl Overlays {
         Overlays::TripsHistogram(
             now,
             Composite::new(
-                ManagedWidget::col(vec![
-                    ManagedWidget::row(vec![
+                Widget::col(vec![
+                    Widget::row(vec![
                         {
                             let mut txt = Text::from(Line("Are trips "));
                             txt.append(Line("faster").fg(Color::GREEN));
@@ -767,7 +767,7 @@ impl Overlays {
         }
 
         let col = vec![
-            ManagedWidget::row(vec![
+            Widget::row(vec![
                 "intersection demand".draw_text(ctx),
                 Btn::svg_def("../data/system/assets/tools/location.svg")
                     .build(ctx, "intersection demand", None)
@@ -781,7 +781,7 @@ impl Overlays {
             app.primary.sim.time(),
             i,
             batch.upload(ctx),
-            Composite::new(ManagedWidget::col(col).bg(colors::PANEL_BG))
+            Composite::new(Widget::col(col).bg(colors::PANEL_BG))
                 .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
                 .build(ctx),
         )
@@ -793,7 +793,7 @@ impl Overlays {
 
     pub fn bus_passengers(id: BusRouteID, ctx: &mut EventCtx, app: &App) -> Overlays {
         let route = app.primary.map.get_br(id);
-        let mut master_col = vec![ManagedWidget::row(vec![
+        let mut master_col = vec![Widget::row(vec![
             Line(format!("Passengers for {}", route.name))
                 .roboto_bold()
                 .draw(ctx),
@@ -807,7 +807,7 @@ impl Overlays {
             .get_analytics()
             .bus_passenger_delays(app.primary.sim.time(), id);
         for idx in 0..route.stops.len() {
-            col.push(ManagedWidget::row(vec![
+            col.push(Widget::row(vec![
                 format!("Stop {}", idx + 1).draw_text(ctx),
                 Btn::svg(
                     "../data/system/assets/tools/pin.svg",
@@ -852,13 +852,13 @@ impl Overlays {
         }
         let timeline = JustDraw::wrap(ctx, batch);
 
-        master_col.push(ManagedWidget::row(vec![
+        master_col.push(Widget::row(vec![
             timeline.margin(5),
-            ManagedWidget::col(col).margin(5),
+            Widget::col(col).margin(5),
         ]));
 
         let mut c = WrappedComposite::new(
-            Composite::new(ManagedWidget::col(master_col).bg(colors::PANEL_BG))
+            Composite::new(Widget::col(master_col).bg(colors::PANEL_BG))
                 .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
                 .build(ctx),
         );
@@ -907,8 +907,8 @@ impl Overlays {
             app.primary.sim.time(),
             route.id,
             Composite::new(
-                ManagedWidget::col(vec![
-                    ManagedWidget::row(vec![
+                Widget::col(vec![
+                    Widget::row(vec![
                         format!("delays for {}", route.name).draw_text(ctx),
                         Btn::text_fg("X").build_def(ctx, None).align_right(),
                     ]),

@@ -8,8 +8,8 @@ use crate::sandbox::{SandboxMode, SpeedControls};
 use abstutil::prettyprint_usize;
 use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, ManagedWidget, Outcome, Plot, PlotOptions, RewriteColor, Series, Text, TextExt,
-    VerticalAlignment,
+    Line, Outcome, Plot, PlotOptions, RewriteColor, Series, Text, TextExt, VerticalAlignment,
+    Widget,
 };
 use geom::{Angle, Circle, Distance, Duration, Polygon, Pt2D, Statistic, Time};
 use map_model::{BuildingID, IntersectionID, IntersectionType, Map, Path, PathStep};
@@ -192,7 +192,7 @@ impl InfoPanel {
             actions,
             trip_details,
             time: app.primary.sim.time(),
-            composite: Composite::new(ManagedWidget::col(col).bg(colors::PANEL_BG).padding(10))
+            composite: Composite::new(Widget::col(col).bg(colors::PANEL_BG).padding(10))
                 .aligned(
                     HorizontalAlignment::Percent(0.02),
                     VerticalAlignment::Percent(0.2),
@@ -362,14 +362,9 @@ impl InfoPanel {
     }
 }
 
-fn info_for(
-    ctx: &EventCtx,
-    app: &App,
-    id: ID,
-    action_btns: Vec<ManagedWidget>,
-) -> Vec<ManagedWidget> {
+fn info_for(ctx: &EventCtx, app: &App, id: ID, action_btns: Vec<Widget>) -> Vec<Widget> {
     let (map, sim, draw_map) = (&app.primary.map, &app.primary.sim, &app.primary.draw_map);
-    let header_btns = ManagedWidget::row(vec![
+    let header_btns = Widget::row(vec![
         Btn::svg_def("../data/system/assets/tools/location.svg")
             .build(ctx, "jump to object", hotkey(Key::J))
             .margin(5),
@@ -388,7 +383,7 @@ fn info_for(
             // Header
             {
                 let label = if l.is_sidewalk() { "Sidewalk" } else { "Lane" };
-                rows.push(ManagedWidget::row(vec![
+                rows.push(Widget::row(vec![
                     Line(format!("{} #{}", label, id.0)).roboto_bold().draw(ctx),
                     header_btns,
                 ]));
@@ -499,7 +494,7 @@ fn info_for(
                         format!("Intersection #{} (under construction)", id.0)
                     }
                 };
-                rows.push(ManagedWidget::row(vec![
+                rows.push(Widget::row(vec![
                     Line(label).roboto_bold().draw(ctx),
                     header_btns,
                 ]));
@@ -560,7 +555,7 @@ fn info_for(
 
             // Header
             {
-                rows.push(ManagedWidget::row(vec![
+                rows.push(Widget::row(vec![
                     Line(format!("Building #{}", id.0)).roboto_bold().draw(ctx),
                     header_btns,
                 ]));
@@ -656,7 +651,7 @@ fn info_for(
                     VehicleType::Bike => "Bike",
                     VehicleType::Bus => "Bus",
                 };
-                rows.push(ManagedWidget::row(vec![
+                rows.push(Widget::row(vec![
                     Line(format!("{} #{}", label, id.0)).roboto_bold().draw(ctx),
                     header_btns,
                 ]));
@@ -676,7 +671,7 @@ fn info_for(
         ID::Pedestrian(id) => {
             // Header
             {
-                rows.push(ManagedWidget::row(vec![
+                rows.push(Widget::row(vec![
                     Line(format!("Pedestrian #{}", id.0))
                         .roboto_bold()
                         .draw(ctx),
@@ -698,7 +693,7 @@ fn info_for(
         ID::PedCrowd(members) => {
             // Header
             {
-                rows.push(ManagedWidget::row(vec![
+                rows.push(Widget::row(vec![
                     Line("Pedestrian crowd").roboto_bold().draw(ctx),
                     header_btns,
                 ]));
@@ -712,7 +707,7 @@ fn info_for(
         ID::BusStop(id) => {
             // Header
             {
-                rows.push(ManagedWidget::row(vec![
+                rows.push(Widget::row(vec![
                     Line("Bus stop").roboto_bold().draw(ctx),
                     header_btns,
                 ]));
@@ -752,7 +747,7 @@ fn info_for(
         ID::Area(id) => {
             // Header
             {
-                rows.push(ManagedWidget::row(vec![
+                rows.push(Widget::row(vec![
                     Line(format!("Area #{}", id.0)).roboto_bold().draw(ctx),
                     header_btns,
                 ]));
@@ -769,7 +764,7 @@ fn info_for(
         ID::ExtraShape(id) => {
             // Header
             {
-                rows.push(ManagedWidget::row(vec![
+                rows.push(Widget::row(vec![
                     Line(format!("Extra GIS shape #{}", id.0))
                         .roboto_bold()
                         .draw(ctx),
@@ -789,7 +784,7 @@ fn info_for(
         ID::Trip(id) => {
             // Header
             {
-                rows.push(ManagedWidget::row(vec![
+                rows.push(Widget::row(vec![
                     Line(format!("Trip #{}", id.0)).roboto_bold().draw(ctx),
                     // No jump-to-object button; this is probably a finished trip.
                     Btn::text_fg("X")
@@ -802,7 +797,7 @@ fn info_for(
         ID::Person(id) => {
             // Header
             {
-                rows.push(ManagedWidget::row(vec![
+                rows.push(Widget::row(vec![
                     Line(format!("Person #{}", id.0)).roboto_bold().draw(ctx),
                     header_btns,
                 ]));
@@ -837,7 +832,7 @@ fn info_for(
                             .draw_text(ctx),
                     );
                 } else {
-                    rows.push(ManagedWidget::row(vec![
+                    rows.push(Widget::row(vec![
                         format!("{}: ", start_time.ampm_tostring()).draw_text(ctx),
                         Btn::text_bg1(format!("Trip #{}", t.0))
                             .build(ctx, format!("examine Trip #{}", t.0), None)
@@ -852,10 +847,10 @@ fn info_for(
     rows
 }
 
-fn make_table(ctx: &EventCtx, rows: Vec<(String, String)>) -> Vec<ManagedWidget> {
+fn make_table(ctx: &EventCtx, rows: Vec<(String, String)>) -> Vec<Widget> {
     rows.into_iter()
         .map(|(k, v)| {
-            ManagedWidget::row(vec![
+            Widget::row(vec![
                 Line(k).roboto_bold().draw(ctx),
                 // TODO not quite...
                 v.draw_text(ctx).centered_vert().align_right(),
@@ -870,7 +865,7 @@ fn make_table(ctx: &EventCtx, rows: Vec<(String, String)>) -> Vec<ManagedWidget>
         keys.add(Line(k).roboto_bold());
         values.add(Line(v));
     }
-    vec![ManagedWidget::row(vec![
+    vec![Widget::row(vec![
         keys.draw(ctx),
         values.draw(ctx).centered_vert().bg(Color::GREEN),
     ])]*/
@@ -880,7 +875,7 @@ fn throughput<F: Fn(&Analytics, Time) -> BTreeMap<TripMode, Vec<(Time, usize)>>>
     ctx: &EventCtx,
     app: &App,
     get_data: F,
-) -> ManagedWidget {
+) -> Widget {
     let mut series = get_data(app.primary.sim.get_analytics(), app.primary.sim.time())
         .into_iter()
         .map(|(m, pts)| Series {
@@ -903,12 +898,7 @@ fn throughput<F: Fn(&Analytics, Time) -> BTreeMap<TripMode, Vec<(Time, usize)>>>
     Plot::new_usize(ctx, series, PlotOptions::new())
 }
 
-fn intersection_delay(
-    ctx: &EventCtx,
-    app: &App,
-    i: IntersectionID,
-    bucket: Duration,
-) -> ManagedWidget {
+fn intersection_delay(ctx: &EventCtx, app: &App, i: IntersectionID, bucket: Duration) -> Widget {
     let get_data = |a: &Analytics, t: Time| {
         let mut series: Vec<(Statistic, Vec<(Time, Duration)>)> = Statistic::all()
             .into_iter()
@@ -967,7 +957,7 @@ fn trip_details(
     app: &App,
     trip: TripID,
     progress_along_path: Option<f64>,
-) -> (ManagedWidget, TripDetails) {
+) -> (Widget, TripDetails) {
     let map = &app.primary.map;
     let phases = app.primary.sim.get_analytics().get_trip_phases(trip, map);
     let (trip_start, trip_end) = app.primary.sim.trip_endpoints(trip);
@@ -1229,9 +1219,7 @@ fn trip_details(
     if let Some(t) = trip_end_time {
         table.push(("Trip end".to_string(), t.ampm_tostring()));
     }
-    let mut col = vec![ManagedWidget::row(timeline)
-        .evenly_spaced()
-        .margin_above(25)];
+    let mut col = vec![Widget::row(timeline).evenly_spaced().margin_above(25)];
     col.extend(make_table(ctx, table));
     col.extend(elevation);
     if let Some(p) = app.primary.sim.trip_to_person(trip) {
@@ -1243,7 +1231,7 @@ fn trip_details(
     }
 
     (
-        ManagedWidget::col(col),
+        Widget::col(col),
         TripDetails {
             id: trip,
             unzoomed: unzoomed.upload(ctx),
@@ -1303,13 +1291,7 @@ fn strip_prefix_usize(x: &String, prefix: &str) -> Option<usize> {
     }
 }
 
-fn make_elevation(
-    ctx: &EventCtx,
-    color: Color,
-    walking: bool,
-    path: &Path,
-    map: &Map,
-) -> ManagedWidget {
+fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map: &Map) -> Widget {
     let mut pts: Vec<(Distance, Distance)> = Vec::new();
     let mut dist = Distance::ZERO;
     for step in path.get_steps() {

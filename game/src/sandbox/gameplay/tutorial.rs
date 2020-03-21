@@ -12,8 +12,8 @@ use crate::sandbox::{
 use abstutil::Timer;
 use ezgui::{
     hotkey, hotkeys, lctrl, Btn, Button, Color, Composite, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, RewriteColor, ScreenPt, Text, TextExt,
-    VerticalAlignment,
+    HorizontalAlignment, Key, Line, Outcome, RewriteColor, ScreenPt, Text, TextExt,
+    VerticalAlignment, Widget,
 };
 use geom::{Distance, Duration, PolyLine, Polygon, Pt2D, Statistic, Time};
 use map_model::{BuildingID, IntersectionID, IntersectionType, LaneType, Map, RoadID};
@@ -886,9 +886,9 @@ impl TutorialState {
     }
 
     fn make_top_center(&self, ctx: &mut EventCtx, edit_map: bool) -> Composite {
-        let mut col = vec![ManagedWidget::row(vec![
+        let mut col = vec![Widget::row(vec![
             Line("Tutorial").size(26).draw(ctx).margin(5),
-            ManagedWidget::draw_batch(
+            Widget::draw_batch(
                 ctx,
                 GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
             )
@@ -917,7 +917,7 @@ impl TutorialState {
         {
             let task = self.interaction();
             if task != Task::Nil {
-                col.push(ManagedWidget::row(vec![
+                col.push(Widget::row(vec![
                     Text::from(
                         Line(format!(
                             "Task {}: {}",
@@ -945,7 +945,7 @@ impl TutorialState {
             );
         }
 
-        Composite::new(ManagedWidget::col(col).bg(colors::PANEL_BG))
+        Composite::new(Widget::col(col).bg(colors::PANEL_BG))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx)
     }
@@ -989,7 +989,7 @@ impl TutorialState {
                         }
                         txt.draw(ctx)
                     },
-                    ManagedWidget::row(vec![
+                    Widget::row(vec![
                         if self.current.part > 0 {
                             Btn::svg(
                                 "../data/system/assets/tools/prev.svg",
@@ -998,7 +998,7 @@ impl TutorialState {
                             .build(ctx, "previous message", hotkey(Key::LeftArrow))
                             .margin(5)
                         } else {
-                            ManagedWidget::draw_svg_transform(
+                            Widget::draw_svg_transform(
                                 ctx,
                                 "../data/system/assets/tools/prev.svg",
                                 RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
@@ -1009,7 +1009,7 @@ impl TutorialState {
                             .centered_vert()
                             .margin(5),
                         if self.current.part == self.stage().messages.len() - 1 {
-                            ManagedWidget::draw_svg_transform(
+                            Widget::draw_svg_transform(
                                 ctx,
                                 "../data/system/assets/tools/next.svg",
                                 RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
@@ -1038,7 +1038,7 @@ impl TutorialState {
 
                 Some(
                     Composite::new(
-                        ManagedWidget::col(col)
+                        Widget::col(col)
                             .centered()
                             .bg(colors::PANEL_BG)
                             .outline(5.0, Color::WHITE)

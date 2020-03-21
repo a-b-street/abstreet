@@ -4,8 +4,8 @@ use crate::options::TrafficSignalStyle;
 use crate::render::intersection::make_crosswalk;
 use crate::render::{DrawTurnGroup, BIG_ARROW_THICKNESS};
 use ezgui::{
-    hotkey, Btn, Color, Composite, EventCtx, GeomBatch, HorizontalAlignment, Key, Line,
-    ManagedWidget, Prerender, Text, TextExt, VerticalAlignment,
+    hotkey, Btn, Color, Composite, EventCtx, GeomBatch, HorizontalAlignment, Key, Line, Prerender,
+    Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Angle, Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D};
 use map_model::{IntersectionID, Phase, TurnPriority};
@@ -244,7 +244,7 @@ pub fn make_signal_diagram(
             Btn::text_bg2("Edit entire signal").build_def(ctx, hotkey(Key::E)),
         ]
     } else {
-        vec![ManagedWidget::row(vec![
+        vec![Widget::row(vec![
             txt_widget,
             Btn::text_fg("X")
                 .build_def(ctx, hotkey(Key::Escape))
@@ -255,7 +255,7 @@ pub fn make_signal_diagram(
     for (idx, phase) in signal.phases.iter().enumerate() {
         // Separator
         col.push(
-            ManagedWidget::draw_batch(
+            Widget::draw_batch(
                 ctx,
                 GeomBatch::from(vec![(
                     Color::WHITE,
@@ -270,7 +270,7 @@ pub fn make_signal_diagram(
 
         if edit_mode {
             phase_rows.push(
-                ManagedWidget::row(vec![
+                Widget::row(vec![
                     format!("Phase {}: {}", idx + 1, phase.duration).draw_text(ctx),
                     Btn::svg_def("../data/system/assets/tools/edit.svg")
                         .build(
@@ -323,13 +323,13 @@ pub fn make_signal_diagram(
         );
 
         if idx == selected {
-            col.push(ManagedWidget::col(phase_rows).bg(Color::hex("#2A2A2A")));
+            col.push(Widget::col(phase_rows).bg(Color::hex("#2A2A2A")));
         } else {
             col.extend(phase_rows);
         }
     }
 
-    Composite::new(ManagedWidget::col(col).bg(colors::PANEL_BG))
+    Composite::new(Widget::col(col).bg(colors::PANEL_BG))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .max_size_percent(30, 85)
         .build(ctx)

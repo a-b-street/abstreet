@@ -9,8 +9,8 @@ use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
 use abstutil::Counter;
 use ezgui::{
-    hotkey, Btn, Button, Color, Composite, EventCtx, Histogram, Key, Line, ManagedWidget, Plot,
-    PlotOptions, Series, Text, TextExt,
+    hotkey, Btn, Button, Color, Composite, EventCtx, Histogram, Key, Line, Plot, PlotOptions,
+    Series, Text, TextExt, Widget,
 };
 use geom::{Duration, Statistic, Time};
 use map_model::BusRouteID;
@@ -58,11 +58,11 @@ pub fn make(ctx: &mut EventCtx, app: &App, tab: Tab) -> Box<dyn State> {
     };
 
     let mut c = WrappedComposite::new(
-        Composite::new(ManagedWidget::col(vec![
+        Composite::new(Widget::col(vec![
             Btn::svg_def("../data/system/assets/pregame/back.svg")
                 .build(ctx, "back", hotkey(Key::Escape))
                 .align_left(),
-            ManagedWidget::row(tabs).bg(colors::PANEL_BG),
+            Widget::row(tabs).bg(colors::PANEL_BG),
             content.bg(colors::PANEL_BG),
         ]))
         // TODO Want to use exact, but then scrolling breaks. exact_size_percent will fix the
@@ -87,7 +87,7 @@ pub fn make(ctx: &mut EventCtx, app: &App, tab: Tab) -> Box<dyn State> {
     ManagedGUIState::fullscreen(c)
 }
 
-fn trips_summary_prebaked(ctx: &EventCtx, app: &App) -> ManagedWidget {
+fn trips_summary_prebaked(ctx: &EventCtx, app: &App) -> Widget {
     if app.has_prebaked().is_none() {
         return trips_summary_not_prebaked(ctx, app);
     }
@@ -154,7 +154,7 @@ fn trips_summary_prebaked(ctx: &EventCtx, app: &App) -> ManagedWidget {
         }
     }
 
-    ManagedWidget::col(vec![
+    Widget::col(vec![
         txt.draw(ctx),
         finished_trips_plot(ctx, app).bg(colors::SECTION_BG),
         "Are trips faster or slower than the baseline?".draw_text(ctx),
@@ -190,7 +190,7 @@ fn trips_summary_prebaked(ctx: &EventCtx, app: &App) -> ManagedWidget {
     ])
 }
 
-fn trips_summary_not_prebaked(ctx: &EventCtx, app: &App) -> ManagedWidget {
+fn trips_summary_not_prebaked(ctx: &EventCtx, app: &App) -> Widget {
     let (all, aborted, per_mode) = app
         .primary
         .sim
@@ -233,7 +233,7 @@ fn trips_summary_not_prebaked(ctx: &EventCtx, app: &App) -> ManagedWidget {
         }
     }
 
-    ManagedWidget::col(vec![
+    Widget::col(vec![
         txt.draw(ctx),
         finished_trips_plot(ctx, app).bg(colors::SECTION_BG),
         Line("Active agents").roboto_bold().draw(ctx),
@@ -253,7 +253,7 @@ fn trips_summary_not_prebaked(ctx: &EventCtx, app: &App) -> ManagedWidget {
     ])
 }
 
-fn finished_trips_plot(ctx: &EventCtx, app: &App) -> ManagedWidget {
+fn finished_trips_plot(ctx: &EventCtx, app: &App) -> Widget {
     let mut lines: Vec<(String, Color, Option<TripMode>)> = TripMode::all()
         .into_iter()
         .map(|m| (m.to_string(), color_for_mode(m, app), Some(m)))
@@ -305,10 +305,10 @@ fn finished_trips_plot(ctx: &EventCtx, app: &App) -> ManagedWidget {
             .collect(),
         PlotOptions::new(),
     );
-    ManagedWidget::col(vec!["finished trips".draw_text(ctx), plot.margin(10)])
+    Widget::col(vec!["finished trips".draw_text(ctx), plot.margin(10)])
 }
 
-fn pick_finished_trips_mode(ctx: &EventCtx) -> (ManagedWidget, Vec<(String, Callback)>) {
+fn pick_finished_trips_mode(ctx: &EventCtx) -> (Widget, Vec<(String, Callback)>) {
     let mut buttons = Vec::new();
     let mut cbs: Vec<(String, Callback)> = Vec::new();
 
@@ -326,14 +326,14 @@ fn pick_finished_trips_mode(ctx: &EventCtx) -> (ManagedWidget, Vec<(String, Call
         ));
     }
 
-    (ManagedWidget::row(buttons).flex_wrap(ctx, 80), cbs)
+    (Widget::row(buttons).flex_wrap(ctx, 80), cbs)
 }
 
 fn pick_finished_trips(
     mode: TripMode,
     ctx: &EventCtx,
     app: &App,
-) -> (ManagedWidget, Vec<(String, Callback)>) {
+) -> (Widget, Vec<(String, Callback)>) {
     let mut buttons = Vec::new();
     let mut cbs: Vec<(String, Callback)> = Vec::new();
 
@@ -373,15 +373,12 @@ fn pick_finished_trips(
     cbs.extend(more_cbs);
 
     (
-        ManagedWidget::col(vec![
-            mode_picker,
-            ManagedWidget::row(buttons).flex_wrap(ctx, 80),
-        ]),
+        Widget::col(vec![mode_picker, Widget::row(buttons).flex_wrap(ctx, 80)]),
         cbs,
     )
 }
 
-fn parking_overhead(ctx: &EventCtx, app: &App) -> ManagedWidget {
+fn parking_overhead(ctx: &EventCtx, app: &App) -> Widget {
     let mut txt = Text::new();
     for line in app.primary.sim.get_analytics().analyze_parking_phases() {
         txt.add_wrapped(line, 0.9 * ctx.canvas.window_width);
@@ -389,7 +386,7 @@ fn parking_overhead(ctx: &EventCtx, app: &App) -> ManagedWidget {
     txt.draw(ctx)
 }
 
-fn pick_bus_route(ctx: &EventCtx, app: &App) -> (ManagedWidget, Vec<(String, Callback)>) {
+fn pick_bus_route(ctx: &EventCtx, app: &App) -> (Widget, Vec<(String, Callback)>) {
     let mut buttons = Vec::new();
     let mut cbs: Vec<(String, Callback)> = Vec::new();
 
@@ -416,7 +413,7 @@ fn pick_bus_route(ctx: &EventCtx, app: &App) -> (ManagedWidget, Vec<(String, Cal
         ));
     }
 
-    (ManagedWidget::row(buttons).flex_wrap(ctx, 80), cbs)
+    (Widget::row(buttons).flex_wrap(ctx, 80), cbs)
 }
 
 // TODO Refactor

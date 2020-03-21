@@ -21,7 +21,7 @@ use crate::sandbox::{SandboxControls, SandboxMode, ScoreCard};
 use abstutil::Timer;
 use ezgui::{
     lctrl, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    ManagedWidget, Outcome, Text, VerticalAlignment,
+    Outcome, Text, VerticalAlignment, Widget,
 };
 use geom::{Duration, Polygon};
 use map_model::{EditCmd, EditIntersection, Map, MapEdits};
@@ -254,7 +254,7 @@ fn challenge_controller(
     ctx: &mut EventCtx,
     gameplay: GameplayMode,
     title: &str,
-    extra_rows: Vec<ManagedWidget>,
+    extra_rows: Vec<Widget>,
 ) -> WrappedComposite {
     // Scrape the description
     let mut description = Vec::new();
@@ -267,12 +267,12 @@ fn challenge_controller(
         }
     }
 
-    let mut rows = vec![ManagedWidget::row(vec![
+    let mut rows = vec![Widget::row(vec![
         Line(title).size(26).draw(ctx).margin(5),
         Btn::svg_def("../data/system/assets/tools/info.svg")
             .build(ctx, "instructions", None)
             .margin(5),
-        ManagedWidget::draw_batch(
+        Widget::draw_batch(
             ctx,
             GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
         )
@@ -285,7 +285,7 @@ fn challenge_controller(
     rows.extend(extra_rows);
 
     WrappedComposite::new(
-        Composite::new(ManagedWidget::col(rows).bg(colors::PANEL_BG))
+        Composite::new(Widget::col(rows).bg(colors::PANEL_BG))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
     )
@@ -326,7 +326,7 @@ impl FinalScore {
             if next.is_some() {
                 Btn::text_fg("next challenge").build_def(ctx, None)
             } else {
-                ManagedWidget::nothing()
+                Widget::nothing()
             },
             Btn::text_fg("try again").build_def(ctx, None),
             Btn::text_fg("back to challenges").build_def(ctx, None),
@@ -334,7 +334,7 @@ impl FinalScore {
 
         Box::new(FinalScore {
             composite: Composite::new(
-                ManagedWidget::col(vec![txt.draw(ctx), ManagedWidget::row(row).centered()])
+                Widget::col(vec![txt.draw(ctx), Widget::row(row).centered()])
                     .bg(colors::PANEL_BG)
                     .outline(10.0, Color::WHITE)
                     .padding(10),

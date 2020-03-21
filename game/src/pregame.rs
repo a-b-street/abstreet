@@ -8,7 +8,7 @@ use crate::managed::{Callback, ManagedGUIState, WrappedComposite, WrappedOutcome
 use crate::sandbox::{GameplayMode, SandboxMode, TutorialPointer};
 use ezgui::{
     hotkey, hotkeys, Btn, Color, Composite, EventCtx, EventLoopMode, GfxCtx, JustDraw, Key, Line,
-    ManagedWidget, RewriteColor, Text,
+    RewriteColor, Text, Widget,
 };
 use geom::{Duration, Line, Pt2D, Speed};
 use instant::Instant;
@@ -28,7 +28,7 @@ impl TitleScreen {
         TitleScreen {
             composite: WrappedComposite::new(
                 Composite::new(
-                    ManagedWidget::col(vec![
+                    Widget::col(vec![
                         JustDraw::svg(ctx, "../data/system/assets/pregame/logo.svg").margin(5),
                         // TODO that nicer font
                         // TODO Any key
@@ -80,7 +80,7 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
             txt.add(Line("Created by Dustin Carlino"));
             txt.draw(ctx).centered_horiz()
         },
-        ManagedWidget::row(vec![
+        Widget::row(vec![
             Btn::svg(
                 "../data/system/assets/pregame/tutorial.svg",
                 RewriteColor::Change(Color::WHITE, colors::HOVERING),
@@ -100,15 +100,15 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         ])
         .centered(),
         if app.opts.dev {
-            ManagedWidget::row(vec![
+            Widget::row(vec![
                 Btn::text_bg2("INTERNAL DEV TOOLS").build_def(ctx, hotkey(Key::M)),
                 Btn::text_bg2("INTERNAL A/B TEST MODE").build_def(ctx, hotkey(Key::A)),
             ])
             .centered()
         } else {
-            ManagedWidget::nothing()
+            Widget::nothing()
         },
-        ManagedWidget::col(vec![
+        Widget::col(vec![
             Btn::text_bg2("About A/B Street").build_def(ctx, None),
             built_info::time().draw(ctx),
         ])
@@ -116,7 +116,7 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
     ];
 
     let mut c = WrappedComposite::new(
-        Composite::new(ManagedWidget::col(col).evenly_spaced())
+        Composite::new(Widget::col(col).evenly_spaced())
             .exact_size_percent(90, 85)
             .build(ctx),
     )
@@ -244,7 +244,7 @@ fn about(ctx: &mut EventCtx) -> Box<dyn State> {
 
     ManagedGUIState::fullscreen(
         WrappedComposite::new(
-            Composite::new(ManagedWidget::col(col))
+            Composite::new(Widget::col(col))
                 .exact_size_percent(90, 85)
                 .build(ctx),
         )
@@ -254,7 +254,7 @@ fn about(ctx: &mut EventCtx) -> Box<dyn State> {
 
 fn proposals_picker(ctx: &mut EventCtx) -> Box<dyn State> {
     let mut cbs: Vec<(String, Callback)> = Vec::new();
-    let mut buttons: Vec<ManagedWidget> = Vec::new();
+    let mut buttons: Vec<Widget> = Vec::new();
     for map_name in abstutil::list_all_objects(abstutil::path_all_maps()) {
         for (_, edits) in
             abstutil::load_all_objects::<MapEdits>(abstutil::path_all_edits(&map_name))
@@ -286,7 +286,7 @@ fn proposals_picker(ctx: &mut EventCtx) -> Box<dyn State> {
 
     let mut c = WrappedComposite::new(
         Composite::new(
-            ManagedWidget::col(vec![
+            Widget::col(vec![
                 Btn::svg_def("../data/system/assets/pregame/back.svg")
                     .build(ctx, "back", hotkey(Key::Escape))
                     .align_left(),
@@ -300,7 +300,7 @@ fn proposals_picker(ctx: &mut EventCtx) -> Box<dyn State> {
                     txt.add(Line("Contact dabreegster@gmail.com to add your idea here!"));
                     txt.draw(ctx).centered_horiz().bg(colors::PANEL_BG)
                 },
-                ManagedWidget::row(buttons)
+                Widget::row(buttons)
                     .flex_wrap(ctx, 80)
                     .bg(colors::PANEL_BG)
                     .padding(10),

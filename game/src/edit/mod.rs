@@ -17,7 +17,7 @@ use crate::sandbox::{GameplayMode, SandboxMode};
 use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, ManagedWidget, Outcome, RewriteColor, ScreenRectangle, Text, VerticalAlignment,
+    Key, Line, Outcome, RewriteColor, ScreenRectangle, Text, VerticalAlignment, Widget,
     WrappedWizard,
 };
 use geom::Polygon;
@@ -331,10 +331,10 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Composite {
     // TODO Support redo. Bit harder here to reset the redo_stack when the edits
     // change, because nested other places modify it too.
     Composite::new(
-        ManagedWidget::col(vec![
-            ManagedWidget::row(vec![
+        Widget::col(vec![
+            Widget::row(vec![
                 Line("Editing map").size(26).draw(ctx).margin(5),
-                ManagedWidget::draw_batch(
+                Widget::draw_batch(
                     ctx,
                     GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 30.0))]),
                 )
@@ -356,7 +356,7 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Composite {
                         lctrl(Key::Z),
                     )
                 } else {
-                    ManagedWidget::draw_svg_transform(
+                    Widget::draw_svg_transform(
                         ctx,
                         "../data/system/assets/tools/undo.svg",
                         RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),

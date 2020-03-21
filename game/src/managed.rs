@@ -2,8 +2,8 @@ use crate::app::App;
 use crate::colors;
 use crate::game::{DrawBaselayer, State, Transition};
 use ezgui::{
-    hotkey, Btn, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget,
-    MultiKey, Outcome, Text, VerticalAlignment,
+    hotkey, Btn, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, MultiKey, Outcome,
+    Text, VerticalAlignment, Widget,
 };
 use std::collections::HashMap;
 
@@ -66,8 +66,8 @@ impl WrappedComposite {
         actions: Vec<(Option<MultiKey>, &str)>,
     ) -> Composite {
         Composite::new(
-            ManagedWidget::col(vec![
-                ManagedWidget::row(vec![
+            Widget::col(vec![
+                Widget::row(vec![
                     Line(title.into()).roboto_bold().draw(ctx),
                     Btn::text_fg("X")
                         .build_def(ctx, hotkey(Key::Escape))
@@ -80,7 +80,7 @@ impl WrappedComposite {
                     }
                     txt.draw(ctx)
                 },
-                ManagedWidget::row(
+                Widget::row(
                     actions
                         .into_iter()
                         .map(|(key, action)| Btn::text_fg(action).build_def(ctx, key))

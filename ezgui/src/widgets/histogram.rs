@@ -1,7 +1,6 @@
-use crate::widgets::Widget;
 use crate::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ManagedWidget, ScreenDims, ScreenPt, Text,
-    TextExt,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ScreenDims, ScreenPt, Text, TextExt,
+    Widget, WidgetImpl,
 };
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, Polygon, Pt2D};
@@ -18,7 +17,7 @@ pub struct Histogram {
 }
 
 impl Histogram {
-    pub fn new(unsorted_dts: Vec<Duration>, ctx: &EventCtx) -> ManagedWidget {
+    pub fn new(unsorted_dts: Vec<Duration>, ctx: &EventCtx) -> Widget {
         let mut batch = GeomBatch::new();
         let mut rect_labels = Vec::new();
 
@@ -83,7 +82,7 @@ impl Histogram {
             let dt = min_x + (max_x - min_x) * percent_x;
             row.push(dt.to_string().draw_text(ctx));
         }
-        let x_axis = ManagedWidget::row(row);
+        let x_axis = Widget::row(row);
 
         let num_y_labels = 3;
         let mut col = Vec::new();
@@ -92,14 +91,11 @@ impl Histogram {
             col.push(prettyprint_usize(((max_y as f64) * percent_y) as usize).draw_text(ctx));
         }
         col.reverse();
-        let y_axis = ManagedWidget::col(col);
+        let y_axis = Widget::col(col);
 
         // Don't let the x-axis fill the parent container
-        ManagedWidget::row(vec![ManagedWidget::col(vec![
-            ManagedWidget::row(vec![
-                y_axis.evenly_spaced(),
-                ManagedWidget::histogram(histogram),
-            ]),
+        Widget::row(vec![Widget::col(vec![
+            Widget::row(vec![y_axis.evenly_spaced(), Widget::histogram(histogram)]),
             x_axis.evenly_spaced(),
         ])])
     }
@@ -119,7 +115,7 @@ impl Histogram {
     }
 }
 
-impl Widget for Histogram {
+impl WidgetImpl for Histogram {
     fn get_dims(&self) -> ScreenDims {
         self.dims
     }

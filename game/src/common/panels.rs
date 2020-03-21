@@ -3,7 +3,7 @@ use crate::game::Transition;
 use crate::managed::WrappedComposite;
 use crate::options;
 use ezgui::{
-    hotkey, Btn, Composite, EventCtx, HorizontalAlignment, Key, ManagedWidget, VerticalAlignment,
+    hotkey, Btn, Composite, EventCtx, HorizontalAlignment, Key, VerticalAlignment, Widget,
 };
 
 pub fn tool_panel(ctx: &mut EventCtx) -> WrappedComposite {
@@ -18,7 +18,7 @@ pub fn tool_panel(ctx: &mut EventCtx) -> WrappedComposite {
             .margin(10),
     ];
     WrappedComposite::new(
-        Composite::new(ManagedWidget::row(row).bg(colors::PANEL_BG))
+        Composite::new(Widget::row(row).bg(colors::PANEL_BG))
             .aligned(HorizontalAlignment::Left, VerticalAlignment::BottomAboveOSD)
             .build(ctx),
     )

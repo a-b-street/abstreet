@@ -1,5 +1,5 @@
 use crate::assets::Assets;
-use crate::{svg, Color, EventCtx, GeomBatch, GfxCtx, ManagedWidget, Prerender, ScreenDims};
+use crate::{svg, Color, EventCtx, GeomBatch, GfxCtx, Prerender, ScreenDims, Widget};
 use geom::Polygon;
 use std::collections::hash_map::DefaultHasher;
 use std::fmt::Write;
@@ -56,7 +56,7 @@ impl TextSpan {
         self
     }
 
-    pub fn draw(self, ctx: &EventCtx) -> ManagedWidget {
+    pub fn draw(self, ctx: &EventCtx) -> Widget {
         Text::from(self).draw(ctx)
     }
 }
@@ -264,8 +264,8 @@ impl Text {
         format!("{:x}", hasher.finish())
     }
 
-    pub fn draw(self, ctx: &EventCtx) -> ManagedWidget {
-        ManagedWidget::draw_text(ctx, self)
+    pub fn draw(self, ctx: &EventCtx) -> Widget {
+        Widget::draw_text(ctx, self)
     }
 }
 
@@ -316,17 +316,17 @@ fn render_text(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
 }
 
 pub trait TextExt {
-    fn draw_text(self, ctx: &EventCtx) -> ManagedWidget;
+    fn draw_text(self, ctx: &EventCtx) -> Widget;
 }
 
 impl TextExt for &str {
-    fn draw_text(self, ctx: &EventCtx) -> ManagedWidget {
+    fn draw_text(self, ctx: &EventCtx) -> Widget {
         Line(self).draw(ctx)
     }
 }
 
 impl TextExt for String {
-    fn draw_text(self, ctx: &EventCtx) -> ManagedWidget {
+    fn draw_text(self, ctx: &EventCtx) -> Widget {
         Line(self).draw(ctx)
     }
 }

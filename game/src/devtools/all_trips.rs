@@ -4,8 +4,8 @@ use crate::common::CommonState;
 use crate::game::{State, Transition};
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, Btn, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    ManagedWidget, Outcome, Slider, TextExt, VerticalAlignment,
+    hotkey, Btn, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Slider, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Duration, PolyLine, Time};
 use map_model::NORMAL_LANE_THICKNESS;
@@ -68,20 +68,20 @@ impl TripsVisualizer {
 
         TripsVisualizer {
             composite: Composite::new(
-                ManagedWidget::col(vec![
-                    ManagedWidget::row(vec![
+                Widget::col(vec![
+                    Widget::row(vec![
                         Line("Trips Visualizer").roboto_bold().draw(ctx),
                         Btn::text_fg("X")
                             .build_def(ctx, hotkey(Key::Escape))
                             .align_right(),
                     ]),
                     "Active trips".draw_text(ctx).named("active trips"),
-                    ManagedWidget::row(vec![
+                    Widget::row(vec![
                         Btn::text_fg("forwards 30 minutes").build_def(ctx, hotkey(Key::RightArrow)),
                         Btn::text_fg("backwards 30 minutes").build_def(ctx, hotkey(Key::LeftArrow)),
                     ])
                     .flex_wrap(ctx, 80),
-                    ManagedWidget::slider("time slider"),
+                    Widget::slider("time slider"),
                 ])
                 .padding(10)
                 .bg(colors::PANEL_BG),

@@ -1,7 +1,6 @@
-use crate::widgets::Widget;
 use crate::{
     hotkey, text, Choice, EventCtx, GfxCtx, InputResult, Key, Line, ScreenDims, ScreenPt,
-    ScreenRectangle, Text,
+    ScreenRectangle, Text, WidgetImpl,
 };
 use geom::Pt2D;
 
@@ -183,7 +182,7 @@ impl<T: Clone> PopupMenu<T> {
     }
 }
 
-impl<T: Clone> Widget for PopupMenu<T> {
+impl<T: Clone> WidgetImpl for PopupMenu<T> {
     fn get_dims(&self) -> ScreenDims {
         self.dims
     }

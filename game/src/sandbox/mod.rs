@@ -18,8 +18,7 @@ use crate::render::AgentColorScheme;
 pub use crate::sandbox::gameplay::{TutorialPointer, TutorialState};
 use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, ManagedWidget, Outcome, Text, TextExt, VerticalAlignment,
-    Wizard,
+    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget, Wizard,
 };
 pub use gameplay::spawner::spawn_agents_around;
 pub use gameplay::GameplayMode;
@@ -362,30 +361,30 @@ impl AgentMeter {
 
         let mut rows = vec![
             "Active agents".draw_text(ctx),
-            ManagedWidget::row(vec![
-                ManagedWidget::draw_svg(ctx, "../data/system/assets/meters/pedestrian.svg"),
+            Widget::row(vec![
+                Widget::draw_svg(ctx, "../data/system/assets/meters/pedestrian.svg"),
                 prettyprint_usize(by_mode[&TripMode::Walk]).draw_text(ctx),
-                ManagedWidget::draw_svg(ctx, "../data/system/assets/meters/bike.svg"),
+                Widget::draw_svg(ctx, "../data/system/assets/meters/bike.svg"),
                 prettyprint_usize(by_mode[&TripMode::Bike]).draw_text(ctx),
-                ManagedWidget::draw_svg(ctx, "../data/system/assets/meters/car.svg"),
+                Widget::draw_svg(ctx, "../data/system/assets/meters/car.svg"),
                 prettyprint_usize(by_mode[&TripMode::Drive]).draw_text(ctx),
-                ManagedWidget::draw_svg(ctx, "../data/system/assets/meters/bus.svg"),
+                Widget::draw_svg(ctx, "../data/system/assets/meters/bus.svg"),
                 prettyprint_usize(by_mode[&TripMode::Transit]).draw_text(ctx),
             ])
             .centered(),
             // TODO Not sure about this one yet
             if app.opts.dev {
-                ManagedWidget::row(vec![
-                    ManagedWidget::draw_svg(ctx, "../data/system/assets/tools/home.svg"),
+                Widget::row(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/tools/home.svg"),
                     prettyprint_usize(ppl_in_bldg).draw_text(ctx),
                     format!("Off-map: {}", prettyprint_usize(ppl_off_map)).draw_text(ctx),
                 ])
                 .centered()
             } else {
-                ManagedWidget::nothing()
+                Widget::nothing()
             },
             // Separator
-            ManagedWidget::draw_batch(
+            Widget::draw_batch(
                 ctx,
                 GeomBatch::from(vec![(
                     Color::WHITE,
@@ -409,14 +408,14 @@ impl AgentMeter {
                 txt.draw(ctx)
             },
             {
-                ManagedWidget::row(vec![
+                Widget::row(vec![
                     Btn::text_bg2("more data").build_def(ctx, hotkey(Key::Q)),
                     if app.has_prebaked().is_some() {
                         Btn::svg_def("../data/system/assets/meters/trip_histogram.svg")
                             .build(ctx, "compare trips to baseline", None)
                             .align_right()
                     } else {
-                        ManagedWidget::nothing()
+                        Widget::nothing()
                     },
                 ])
                 .centered()
@@ -428,7 +427,7 @@ impl AgentMeter {
             if let Some(ScoreCard { stat, goal }) = show_score {
                 // Separator
                 rows.push(
-                    ManagedWidget::draw_batch(
+                    Widget::draw_batch(
                         ctx,
                         GeomBatch::from(vec![(
                             Color::WHITE,
@@ -459,7 +458,7 @@ impl AgentMeter {
             }
         }
 
-        let composite = Composite::new(ManagedWidget::col(rows).bg(colors::PANEL_BG).padding(20))
+        let composite = Composite::new(Widget::col(rows).bg(colors::PANEL_BG).padding(20))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx);
 

@@ -6,8 +6,7 @@ use crate::render::MIN_ZOOM_FOR_DETAIL;
 use abstutil::clamp;
 use ezgui::{
     hotkey, Btn, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, ManagedWidget, Outcome, RewriteColor, ScreenDims, ScreenPt, Text, TextExt,
-    VerticalAlignment,
+    Line, Outcome, RewriteColor, ScreenDims, ScreenPt, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Polygon, Pt2D, Ring};
 
@@ -275,19 +274,19 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
     );
 
     Composite::new(
-        ManagedWidget::row(vec![
-            ManagedWidget::col(zoom_col).margin(5).centered(),
-            ManagedWidget::col(vec![
+        Widget::row(vec![
+            Widget::col(zoom_col).margin(5).centered(),
+            Widget::col(vec![
                 Btn::svg_def("../data/system/assets/minimap/up.svg")
                     .build(ctx, "pan up", None)
                     .margin(5)
                     .centered_horiz(),
-                ManagedWidget::row(vec![
+                Widget::row(vec![
                     Btn::svg_def("../data/system/assets/minimap/left.svg")
                         .build(ctx, "pan left", None)
                         .margin(5)
                         .centered_vert(),
-                    ManagedWidget::filler("minimap"),
+                    Widget::filler("minimap"),
                     Btn::svg_def("../data/system/assets/minimap/right.svg")
                         .build(ctx, "pan right", None)
                         .margin(5)
@@ -314,9 +313,9 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
     .build(ctx)
 }
 
-fn make_viz_panel(ctx: &mut EventCtx, app: &App) -> ManagedWidget {
+fn make_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
     let radius = 10.0;
-    let mut col = vec![ManagedWidget::row(vec![
+    let mut col = vec![Widget::row(vec![
         Btn::svg_def("../data/system/assets/tools/search.svg")
             .build(ctx, "search", hotkey(Key::K))
             .margin(10),
@@ -344,7 +343,7 @@ fn make_viz_panel(ctx: &mut EventCtx, app: &App) -> ManagedWidget {
     .centered()];
     for (label, color, enabled) in &app.agent_cs.rows {
         col.push(
-            ManagedWidget::row(vec![
+            Widget::row(vec![
                 // TODO Make sure the dims of these two fit
                 if *enabled {
                     Btn::svg_def("../data/system/assets/tools/visible.svg")
@@ -355,7 +354,7 @@ fn make_viz_panel(ctx: &mut EventCtx, app: &App) -> ManagedWidget {
                         .build(ctx, format!("show {}", label), None)
                         .margin(3)
                 },
-                ManagedWidget::draw_batch(
+                Widget::draw_batch(
                     ctx,
                     GeomBatch::from(vec![(
                         Color::WHITE.alpha(0.5),
@@ -363,7 +362,7 @@ fn make_viz_panel(ctx: &mut EventCtx, app: &App) -> ManagedWidget {
                     )]),
                 )
                 .margin(3),
-                ManagedWidget::draw_batch(
+                Widget::draw_batch(
                     ctx,
                     GeomBatch::from(vec![(
                         color.alpha(if *enabled { 1.0 } else { 0.5 }),
@@ -389,8 +388,8 @@ fn make_viz_panel(ctx: &mut EventCtx, app: &App) -> ManagedWidget {
             // TODO Should the full legend have this icon too?
             col.insert(
                 0,
-                ManagedWidget::row(vec![
-                    ManagedWidget::draw_svg_transform(
+                Widget::row(vec![
+                    Widget::draw_svg_transform(
                         ctx,
                         "../data/system/assets/tools/layers.svg",
                         RewriteColor::ChangeAll(Color::BLUE),
@@ -402,5 +401,5 @@ fn make_viz_panel(ctx: &mut EventCtx, app: &App) -> ManagedWidget {
         }
     }
 
-    ManagedWidget::col(col).bg(colors::PANEL_BG).padding(5)
+    Widget::col(col).bg(colors::PANEL_BG).padding(5)
 }

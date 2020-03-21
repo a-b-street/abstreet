@@ -1,7 +1,6 @@
-use crate::widgets::Widget;
 use crate::{
     Btn, Button, Choice, Color, EventCtx, GfxCtx, InputResult, PopupMenu, ScreenDims, ScreenPt,
-    ScreenRectangle,
+    ScreenRectangle, WidgetImpl,
 };
 use geom::{Polygon, Pt2D};
 use std::any::Any;
@@ -114,7 +113,7 @@ impl Dropdown {
     }
 }
 
-impl Widget for Dropdown {
+impl WidgetImpl for Dropdown {
     fn get_dims(&self) -> ScreenDims {
         self.btn.get_dims()
     }

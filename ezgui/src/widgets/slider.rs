@@ -1,7 +1,7 @@
-use crate::widgets::{stack_vertically, ContainerOrientation, Widget};
+use crate::widgets::{stack_vertically, ContainerOrientation};
 use crate::{
     hotkey, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu,
-    MultiKey, ScreenDims, ScreenPt, ScreenRectangle, Text, Warper,
+    MultiKey, ScreenDims, ScreenPt, ScreenRectangle, Text, Warper, WidgetImpl,
 };
 use geom::{Polygon, Pt2D};
 
@@ -213,7 +213,7 @@ impl Slider {
     }
 }
 
-impl Widget for Slider {
+impl WidgetImpl for Slider {
     fn get_dims(&self) -> ScreenDims {
         self.dims
     }
