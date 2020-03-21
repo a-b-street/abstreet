@@ -1,6 +1,6 @@
 use crate::app::App;
 use crate::colors;
-use crate::common::{ColorLegend, Colorer, ShowBusRoute, Warping};
+use crate::common::{make_heatmap, ColorLegend, Colorer, ShowBusRoute, Warping};
 use crate::game::Transition;
 use crate::helpers::rotating_color_map;
 use crate::helpers::ID;
@@ -267,16 +267,16 @@ impl Overlays {
         let mut choices = vec![
             Btn::text_fg("None").build_def(ctx, hotkey(Key::N)),
             Btn::text_fg("map edits").build_def(ctx, hotkey(Key::E)),
-            Btn::text_fg("worst traffic jams").build_def(ctx, hotkey(Key::G)),
+            Btn::text_fg("worst traffic jams").build_def(ctx, hotkey(Key::J)),
             Btn::text_fg("elevation").build_def(ctx, hotkey(Key::S)),
             Btn::text_fg("parking availability").build_def(ctx, hotkey(Key::P)),
-            Btn::text_fg("delay").build_def(ctx, hotkey(Key::I)),
+            Btn::text_fg("delay").build_def(ctx, hotkey(Key::D)),
             Btn::text_fg("throughput").build_def(ctx, hotkey(Key::T)),
             Btn::text_fg("bike network").build_def(ctx, hotkey(Key::B)),
             Btn::text_fg("bus network").build_def(ctx, hotkey(Key::U)),
         ];
         if app.opts.dev {
-            choices.push(Btn::text_fg("dot map of people").build_def(ctx, None));
+            choices.push(Btn::text_fg("dot map of people").build_def(ctx, hotkey(Key::X)));
         }
         // TODO Grey out the inactive SVGs, and add the green checkmark
         if let Some(name) = match app.overlay {
@@ -1007,8 +1007,12 @@ impl Overlays {
         // It's quite silly to produce triangles for the same circle over and over again. ;)
         let circle = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(10.0)).to_polygon();
         let mut batch = GeomBatch::new();
-        for pt in pts {
-            batch.push(Color::RED.alpha(0.8), circle.translate(pt.x(), pt.y()));
+        if true {
+            make_heatmap(&mut batch, app.primary.map.get_bounds(), pts);
+        } else {
+            for pt in pts {
+                batch.push(Color::RED.alpha(0.8), circle.translate(pt.x(), pt.y()));
+            }
         }
         Overlays::PersonDotMap(app.primary.sim.time(), ctx.upload(batch))
     }

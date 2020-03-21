@@ -1,5 +1,6 @@
 mod bus_explorer;
 mod colors;
+mod heatmap;
 mod info;
 mod minimap;
 mod navigate;
@@ -11,6 +12,7 @@ mod warp;
 
 pub use self::bus_explorer::ShowBusRoute;
 pub use self::colors::{ColorLegend, Colorer};
+pub use self::heatmap::make_heatmap;
 pub use self::minimap::Minimap;
 pub use self::overlays::Overlays;
 pub use self::panels::tool_panel;
