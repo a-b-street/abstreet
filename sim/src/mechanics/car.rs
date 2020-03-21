@@ -1,6 +1,6 @@
 use crate::{
-    AgentMetadata, CarStatus, DistanceInterval, DrawCarInput, ParkingSpot, Router, TimeInterval,
-    TransitSimState, TripID, Vehicle, VehicleType,
+    CarStatus, DistanceInterval, DrawCarInput, ParkingSpot, Router, TimeInterval, TransitSimState,
+    TripID, Vehicle, VehicleType,
 };
 use geom::{Distance, Duration, PolyLine, Time};
 use map_model::{Map, Traversable};
@@ -171,18 +171,6 @@ impl Car {
                 None
             },
             body,
-            metadata: self.metadata(now),
-        }
-    }
-
-    pub fn metadata(&self, now: Time) -> AgentMetadata {
-        AgentMetadata {
-            time_spent_blocked: match self.state {
-                CarState::Queued { blocked_since } => now - blocked_since,
-                _ => Duration::ZERO,
-            },
-            percent_dist_crossed: self.router.get_path().percent_dist_crossed(),
-            trip_time_so_far: now - self.started_at,
         }
     }
 }

@@ -1,8 +1,8 @@
 use crate::{
-    AgentID, AgentMetadata, Command, CreatePedestrian, DistanceInterval, DrawPedCrowdInput,
-    DrawPedestrianInput, Event, IntersectionSimState, ParkingSimState, ParkingSpot,
-    PedCrowdLocation, PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot, TimeInterval,
-    TransitSimState, TripID, TripManager, TripPositions, UnzoomedAgent,
+    AgentID, Command, CreatePedestrian, DistanceInterval, DrawPedCrowdInput, DrawPedestrianInput,
+    Event, IntersectionSimState, ParkingSimState, ParkingSpot, PedCrowdLocation, PedestrianID,
+    Scheduler, SidewalkPOI, SidewalkSpot, TimeInterval, TransitSimState, TripID, TripManager,
+    TripPositions, UnzoomedAgent,
 };
 use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
 use geom::{Distance, Duration, Line, PolyLine, Speed, Time};
@@ -330,15 +330,10 @@ impl WalkingSimState {
             peds.push(UnzoomedAgent {
                 vehicle_type: None,
                 pos: ped.get_draw_ped(now, map).pos,
-                metadata: ped.metadata(now),
             });
         }
 
         peds
-    }
-
-    pub fn get_agent_metadata(&self, now: Time) -> Vec<AgentMetadata> {
-        self.peds.values().map(|ped| ped.metadata(now)).collect()
     }
 
     pub fn does_ped_exist(&self, id: PedestrianID) -> bool {
@@ -582,19 +577,6 @@ impl Pedestrian {
             preparing_bike: matches!(self.state, PedState::StartingToBike(_, _, _) | PedState::FinishingBiking(_, _, _)),
             waiting_for_bus: matches!(self.state, PedState::WaitingForBus(_, _)),
             on,
-            metadata: self.metadata(now),
-        }
-    }
-
-    fn metadata(&self, now: Time) -> AgentMetadata {
-        AgentMetadata {
-            time_spent_blocked: match self.state {
-                PedState::WaitingToTurn(_, blocked_since)
-                | PedState::WaitingForBus(_, blocked_since) => now - blocked_since,
-                _ => Duration::ZERO,
-            },
-            percent_dist_crossed: self.path.percent_dist_crossed(),
-            trip_time_so_far: now - self.started_at,
         }
     }
 

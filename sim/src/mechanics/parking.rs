@@ -1,9 +1,9 @@
-use crate::{AgentMetadata, CarID, CarStatus, DrawCarInput, ParkedCar, ParkingSpot, Vehicle};
+use crate::{CarID, CarStatus, DrawCarInput, ParkedCar, ParkingSpot, Vehicle};
 use abstutil::{
     deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap, MultiMap,
     Timer,
 };
-use geom::{Distance, Duration, Pt2D};
+use geom::{Distance, Pt2D};
 use map_model;
 use map_model::{BuildingID, Lane, LaneID, LaneType, Map, Position, Traversable};
 use serde_derive::{Deserialize, Serialize};
@@ -172,11 +172,6 @@ impl ParkingSimState {
                     status: CarStatus::Parked,
                     on: Traversable::Lane(lane),
                     label: None,
-                    metadata: AgentMetadata {
-                        time_spent_blocked: Duration::ZERO,
-                        percent_dist_crossed: 0.0,
-                        trip_time_so_far: Duration::ZERO,
-                    },
 
                     body: map
                         .get_l(lane)
