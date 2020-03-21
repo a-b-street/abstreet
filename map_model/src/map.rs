@@ -104,7 +104,7 @@ impl Map {
             pathfinder: None,
             pathfinder_dirty: false,
             name: "blank".to_string(),
-            edits: MapEdits::new("blank".to_string()),
+            edits: MapEdits::new("blank"),
         }
     }
 
@@ -699,7 +699,7 @@ impl Map {
     }
 
     pub fn save_edits(&mut self) {
-        let mut edits = std::mem::replace(&mut self.edits, MapEdits::new(self.name.clone()));
+        let mut edits = std::mem::replace(&mut self.edits, MapEdits::new(&self.name));
         edits.save(self);
         self.edits = edits;
     }
@@ -825,7 +825,7 @@ fn make_half_map(
         pathfinder: None,
         pathfinder_dirty: false,
         name: raw.name.clone(),
-        edits: MapEdits::new(raw.name.clone()),
+        edits: MapEdits::new(&raw.name),
     };
 
     let road_id_mapping: BTreeMap<OriginalRoad, RoadID> = initial_map

@@ -939,7 +939,7 @@ impl Overlays {
             edits.original_intersections.len()
         )));
 
-        let changed = Color::RED;
+        let changed = Color::CYAN;
         let mut colorer = Colorer::new(txt, vec![("modified lane/intersection", changed)]);
 
         for l in edits.original_lts.keys().chain(&edits.reversed_lanes) {

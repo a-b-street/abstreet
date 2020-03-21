@@ -54,9 +54,9 @@ pub struct EditEffects {
 }
 
 impl MapEdits {
-    pub fn new(map_name: String) -> MapEdits {
+    pub fn new(map_name: &str) -> MapEdits {
         MapEdits {
-            map_name,
+            map_name: map_name.to_string(),
             // Something has to fill this out later
             edits_name: "untitled edits".to_string(),
             proposal_description: Vec::new(),
@@ -70,7 +70,7 @@ impl MapEdits {
 
     pub fn load(map_name: &str, edits_name: &str, timer: &mut Timer) -> MapEdits {
         if edits_name == "untitled edits" {
-            return MapEdits::new(map_name.to_string());
+            return MapEdits::new(map_name);
         }
         abstutil::read_json(abstutil::path_edits(map_name, edits_name), timer)
     }

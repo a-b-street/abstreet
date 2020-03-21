@@ -16,9 +16,9 @@ use crate::render::{DrawIntersection, DrawLane, DrawRoad, MIN_ZOOM_FOR_DETAIL};
 use crate::sandbox::{GameplayMode, SandboxMode};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, Outcome, RewriteColor, ScreenRectangle, Text, VerticalAlignment, Widget,
-    WrappedWizard,
+    hotkey, lctrl, Btn, Button, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, RewriteColor, ScreenRectangle, Text,
+    VerticalAlignment, Widget, WrappedWizard,
 };
 use geom::Polygon;
 use map_model::{
@@ -134,6 +134,13 @@ impl State for EditMode {
                         save_edits_as(&mut wiz.wrap(ctx), app)?;
                         Some(Transition::Pop)
                     })));
+                }
+                "reset edits" => {
+                    if app.primary.map.get_edits().edits_name != "untitled edits" {
+                        // Autosave, then cut over to blank edits.
+                        app.primary.map.save_edits();
+                    }
+                    apply_map_edits(ctx, app, MapEdits::new(app.primary.map.get_name()));
                 }
                 "undo" => {
                     let mut edits = app.primary.map.get_edits().clone();
@@ -299,7 +306,7 @@ fn make_load_edits(btn: ScreenRectangle, mode: GameplayMode) -> Box<dyn State> {
 
         // TODO Exclude current
         let current_edits_name = app.primary.map.get_edits().edits_name.clone();
-        let map_name = app.primary.map.get_name().clone();
+        let map_name = app.primary.map.get_name();
         let (_, new_edits) = wizard.choose_exact(
             (
                 HorizontalAlignment::Centered(btn.center().x),
@@ -317,7 +324,7 @@ fn make_load_edits(btn: ScreenRectangle, mode: GameplayMode) -> Box<dyn State> {
                 );
                 list.push(Choice::new(
                     "start over with blank edits",
-                    MapEdits::new(map_name.clone()),
+                    MapEdits::new(map_name),
                 ));
                 list
             },
@@ -363,6 +370,11 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Composite {
                     )
                 })
                 .margin(15),
+                if !app.primary.map.get_edits().commands.is_empty() {
+                    Btn::text_fg("reset edits").build_def(ctx, None).margin(5)
+                } else {
+                    Button::inactive_button(ctx, "reset edits").margin(5)
+                },
             ])
             .centered(),
             Btn::text_fg("finish editing")
