@@ -47,7 +47,6 @@ pub enum EditCmd {
 }
 
 pub struct EditEffects {
-    pub changed_lanes: BTreeSet<LaneID>,
     pub changed_roads: BTreeSet<RoadID>,
     pub changed_intersections: BTreeSet<IntersectionID>,
     pub added_turns: BTreeSet<TurnID>,
@@ -150,7 +149,6 @@ impl MapEdits {
 impl EditEffects {
     pub fn new() -> EditEffects {
         EditEffects {
-            changed_lanes: BTreeSet::new(),
             changed_roads: BTreeSet::new(),
             changed_intersections: BTreeSet::new(),
             added_turns: BTreeSet::new(),

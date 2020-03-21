@@ -378,27 +378,27 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Composite {
 pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
     let mut timer = Timer::new("apply map edits");
 
-    let (lanes_changed, roads_changed, turns_deleted, turns_added, mut modified_intersections) =
+    let (roads_changed, turns_deleted, turns_added, mut modified_intersections) =
         app.primary.map.apply_edits(edits, &mut timer);
 
-    for l in lanes_changed {
-        let lane = app.primary.map.get_l(l);
-        app.primary.draw_map.lanes[l.0] = DrawLane::new(
-            lane,
-            &app.primary.map,
-            app.primary.current_flags.draw_lane_markings,
-            &app.cs,
-            &mut timer,
-        )
-        .finish(ctx.prerender, lane);
-    }
     for r in roads_changed {
-        app.primary.draw_map.roads[r.0] = DrawRoad::new(
-            app.primary.map.get_r(r),
-            &app.primary.map,
-            &app.cs,
-            ctx.prerender,
-        );
+        let road = app.primary.map.get_r(r);
+        app.primary.draw_map.roads[r.0] =
+            DrawRoad::new(road, &app.primary.map, &app.cs, ctx.prerender);
+
+        // An edit to one lane potentially affects markings in all lanes in the same road, because
+        // of one-way markings, driving lines, etc.
+        for l in road.all_lanes() {
+            let lane = app.primary.map.get_l(l);
+            app.primary.draw_map.lanes[l.0] = DrawLane::new(
+                lane,
+                &app.primary.map,
+                app.primary.current_flags.draw_lane_markings,
+                &app.cs,
+                &mut timer,
+            )
+            .finish(ctx.prerender, lane);
+        }
     }
 
     let mut lanes_of_modified_turns: BTreeSet<LaneID> = BTreeSet::new();

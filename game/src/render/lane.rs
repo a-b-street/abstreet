@@ -124,6 +124,10 @@ impl DrawLane {
                         cs.get("general road marking"),
                         calculate_turn_markings(map, lane, timer),
                     );
+                    draw.extend(
+                        cs.get("general road marking"),
+                        calculate_one_way_markings(lane, road),
+                    );
                 }
                 LaneType::Biking => {}
                 LaneType::SharedLeftTurn => {
@@ -306,6 +310,38 @@ fn calculate_turn_markings(map: &Map, lane: &Lane, timer: &mut Timer) -> Vec<Pol
     // Just lane-changing turns after all (common base + 2 for the arrow)
     if results.len() == 3 {
         return Vec::new();
+    }
+    results
+}
+
+fn calculate_one_way_markings(lane: &Lane, parent: &Road) -> Vec<Polygon> {
+    let mut results = Vec::new();
+    if parent
+        .any_on_other_side(lane.id, LaneType::Driving)
+        .is_some()
+    {
+        // Not a one-way
+        return results;
+    }
+
+    let arrow_len = Distance::meters(4.0);
+    let btwn = Distance::meters(30.0);
+    let thickness = Distance::meters(0.25);
+    // TODO Stop early to avoid clashing with calculate_turn_markings...
+    let len = lane.length();
+
+    let mut dist = arrow_len;
+    while dist + arrow_len <= len {
+        let (pt, angle) = lane.lane_center_pts.dist_along(dist);
+        results.push(
+            PolyLine::new(vec![
+                pt.project_away(arrow_len / 2.0, angle.opposite()),
+                pt.project_away(arrow_len / 2.0, angle),
+            ])
+            .make_arrow(thickness)
+            .unwrap(),
+        );
+        dist += btwn;
     }
     results
 }

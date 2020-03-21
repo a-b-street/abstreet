@@ -704,14 +704,13 @@ impl Map {
         self.edits = edits;
     }
 
-    // new_edits assumed to be valid. Returns actual lanes that changed, roads changed, turns
-    // deleted, turns added, intersections modified. Doesn't update pathfinding yet.
+    // new_edits assumed to be valid. Returns roads changed, turns deleted, turns added,
+    // intersections modified. Doesn't update pathfinding yet.
     pub fn apply_edits(
         &mut self,
         mut new_edits: MapEdits,
         timer: &mut Timer,
     ) -> (
-        BTreeSet<LaneID>,
         BTreeSet<RoadID>,
         BTreeSet<TurnID>,
         BTreeSet<TurnID>,
@@ -764,7 +763,6 @@ impl Map {
         self.edits = new_edits;
         self.pathfinder_dirty = true;
         (
-            effects.changed_lanes,
             // TODO We just care about contraflow roads here
             effects.changed_roads,
             effects.deleted_turns,
@@ -1060,7 +1058,6 @@ impl EditCmd {
                     r.children_backwards[idx] = (id, lt);
                 }
 
-                effects.changed_lanes.insert(id);
                 effects.changed_roads.insert(lane.parent);
                 effects.changed_intersections.insert(lane.src_i);
                 effects.changed_intersections.insert(lane.dst_i);
@@ -1096,17 +1093,10 @@ impl EditCmd {
                 if *dst_i == r.dst_i {
                     assert_eq!(r.children_backwards.remove(0).0, l);
                     r.children_forwards.insert(0, (l, lane.lane_type));
-                    for id in r.all_lanes() {
-                        effects.changed_lanes.insert(id);
-                    }
                 } else {
                     assert_eq!(r.children_forwards.remove(0).0, l);
                     r.children_backwards.insert(0, (l, lane.lane_type));
-                    for id in r.all_lanes() {
-                        effects.changed_lanes.insert(id);
-                    }
                 }
-                effects.changed_lanes.insert(l);
                 effects.changed_roads.insert(r.id);
                 effects.changed_intersections.insert(lane.src_i);
                 effects.changed_intersections.insert(lane.dst_i);
