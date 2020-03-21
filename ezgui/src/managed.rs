@@ -1,9 +1,8 @@
-use crate::layout::Widget;
-use crate::widgets::{Checkbox, Dropdown, PopupMenu, TextBox};
+use crate::widgets::Widget;
 use crate::{
-    Btn, Button, Choice, Color, Drawable, EventCtx, Filler, GeomBatch, GfxCtx, Histogram,
-    HorizontalAlignment, JustDraw, MultiKey, Plot, RewriteColor, ScreenDims, ScreenPt,
-    ScreenRectangle, Slider, Text, VerticalAlignment,
+    Btn, Button, Checkbox, Choice, Color, Drawable, Dropdown, EventCtx, Filler, GeomBatch, GfxCtx,
+    Histogram, HorizontalAlignment, JustDraw, MultiKey, Plot, PopupMenu, RewriteColor, ScreenDims,
+    ScreenPt, ScreenRectangle, Slider, Text, TextBox, VerticalAlignment,
 };
 use abstutil::Cloneable;
 use geom::{Distance, Duration, Polygon};

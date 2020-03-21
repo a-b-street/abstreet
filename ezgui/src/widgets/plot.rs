@@ -1,4 +1,4 @@
-use crate::layout::Widget;
+use crate::widgets::Widget;
 use crate::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ManagedWidget, ScreenDims, ScreenPt,
     ScreenRectangle, Text, TextExt,

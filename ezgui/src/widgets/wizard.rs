@@ -1,7 +1,6 @@
-use crate::widgets::PopupMenu;
 use crate::{
     hotkey, Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, InputResult, Key, Line,
-    ManagedWidget, MultiKey, Outcome, Text, VerticalAlignment,
+    ManagedWidget, MultiKey, Outcome, PopupMenu, Text, VerticalAlignment,
 };
 use abstutil::Cloneable;
 use std::collections::VecDeque;

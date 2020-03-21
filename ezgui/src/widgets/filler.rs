@@ -1,7 +1,7 @@
-use crate::layout::Widget;
+use crate::widgets::Widget;
 use crate::{ScreenDims, ScreenPt};
 
-// Doesn't do anything by itself, just used for layouting. Something else reaches in, asks for the
+// Doesn't do anything by itself, just used for widgetsing. Something else reaches in, asks for the
 // ScreenRectangle to use.
 pub struct Filler {
     pub(crate) top_left: ScreenPt,

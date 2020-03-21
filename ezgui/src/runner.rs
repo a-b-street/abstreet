@@ -1,5 +1,6 @@
 use crate::assets::Assets;
-use crate::{widgets, Canvas, Event, EventCtx, GfxCtx, Key, Prerender, UserInput};
+use crate::widgets::screenshot::{screenshot_current, screenshot_everything};
+use crate::{Canvas, Event, EventCtx, GfxCtx, Key, Prerender, UserInput};
 use geom::Duration;
 use instant::Instant;
 use std::cell::Cell;
@@ -297,10 +298,10 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
                 max_x,
                 max_y,
             } => {
-                widgets::screenshot_everything(&mut state, &dir, &prerender, zoom, max_x, max_y);
+                screenshot_everything(&mut state, &dir, &prerender, zoom, max_x, max_y);
             }
             EventLoopMode::ScreenCaptureCurrentShot => {
-                widgets::screenshot_current(&mut state, &prerender);
+                screenshot_current(&mut state, &prerender);
             }
         }
     });

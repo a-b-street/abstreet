@@ -1,10 +1,10 @@
-use crate::layout::Widget;
 use crate::svg;
+use crate::widgets::Widget;
 use crate::{
     Drawable, EventCtx, GeomBatch, GfxCtx, ManagedWidget, RewriteColor, ScreenDims, ScreenPt, Text,
 };
 
-// Just draw something. A widget just so layouting works.
+// Just draw something. A widget just so widgetsing works.
 pub struct JustDraw {
     pub(crate) draw: Drawable,
 

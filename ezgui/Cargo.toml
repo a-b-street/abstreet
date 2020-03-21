@@ -5,6 +5,7 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2018"
 
 [features]
+default = ["glium-backend"]
 glium-backend = ["glium", "glutin", "usvg/text"]
 glow-backend = ["glow", "glutin", "usvg/text"]
 wasm-backend = ["glow/stdweb", "instant/stdweb", "stdweb", "webgl_stdweb", "winit/stdweb"]

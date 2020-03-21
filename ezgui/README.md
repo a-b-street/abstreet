@@ -10,7 +10,7 @@ considering cleaning up the API surface and making it a proper standalone crate.
 ```
 git clone https://github.com/dabreegster/abstreet.git
 cd abstreet/ezgui
-cargo run --example demo --features glium-backend
+cargo run --example demo
 ```
 
 ![demo](demo.gif)

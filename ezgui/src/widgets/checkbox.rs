@@ -1,4 +1,4 @@
-use crate::layout::Widget;
+use crate::widgets::Widget;
 use crate::{Button, EventCtx, GfxCtx, ScreenDims, ScreenPt};
 
 pub struct Checkbox {
@@ -24,7 +24,7 @@ impl Checkbox {
         }
     }
 
-    // If true, layout should be recomputed.
+    // If true, widgets should be recomputed.
     pub(crate) fn event(&mut self, ctx: &mut EventCtx) -> bool {
         self.btn.event(ctx);
         if self.btn.clicked() {

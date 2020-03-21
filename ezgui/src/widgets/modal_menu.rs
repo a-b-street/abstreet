@@ -1,7 +1,5 @@
-use crate::layout::Widget;
-use crate::{
-    layout, text, EventCtx, GfxCtx, Line, MultiKey, ScreenDims, ScreenPt, ScreenRectangle, Text,
-};
+use crate::widgets::{stack_vertically, ContainerOrientation, Widget};
+use crate::{text, EventCtx, GfxCtx, Line, MultiKey, ScreenDims, ScreenPt, ScreenRectangle, Text};
 
 pub struct ModalMenu {
     title: String,
@@ -10,7 +8,7 @@ pub struct ModalMenu {
     choices: Vec<Choice>,
     // This can be inactive entries too.
     hovering_idx: Option<usize>,
-    standalone_layout: Option<layout::ContainerOrientation>,
+    standalone_widgets: Option<ContainerOrientation>,
 
     top_left: ScreenPt,
     dims: ScreenDims,
@@ -41,7 +39,7 @@ impl ModalMenu {
                 })
                 .collect(),
             hovering_idx: None,
-            standalone_layout: Some(layout::ContainerOrientation::TopRight),
+            standalone_widgets: Some(ContainerOrientation::TopRight),
 
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(0.0, 0.0),
@@ -52,14 +50,14 @@ impl ModalMenu {
     }
 
     // It's part of something bigger
-    pub fn disable_standalone_layout(mut self) -> ModalMenu {
-        assert!(self.standalone_layout.is_some());
-        self.standalone_layout = None;
+    pub fn disable_standalone_widgets(mut self) -> ModalMenu {
+        assert!(self.standalone_widgets.is_some());
+        self.standalone_widgets = None;
         self
     }
 
-    pub fn set_standalone_layout(mut self, layout: layout::ContainerOrientation) -> ModalMenu {
-        self.standalone_layout = Some(layout);
+    pub fn set_standalone_widgets(mut self, widgets: ContainerOrientation) -> ModalMenu {
+        self.standalone_widgets = Some(widgets);
         self
     }
 
@@ -73,8 +71,8 @@ impl ModalMenu {
             panic!("Caller didn't consume modal action '{}'", action);
         }
 
-        if let Some(o) = self.standalone_layout {
-            layout::stack_vertically(o, ctx, vec![self]);
+        if let Some(o) = self.standalone_widgets {
+            stack_vertically(o, ctx, vec![self]);
             self.dims = self.calculate_txt().dims(&ctx.prerender.assets);
         }
 

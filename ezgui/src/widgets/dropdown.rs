@@ -1,7 +1,6 @@
-use crate::layout::Widget;
-use crate::widgets::PopupMenu;
+use crate::widgets::Widget;
 use crate::{
-    Btn, Button, Choice, Color, EventCtx, GfxCtx, InputResult, ScreenDims, ScreenPt,
+    Btn, Button, Choice, Color, EventCtx, GfxCtx, InputResult, PopupMenu, ScreenDims, ScreenPt,
     ScreenRectangle,
 };
 use geom::{Polygon, Pt2D};
@@ -51,7 +50,7 @@ impl Dropdown {
         }
     }
 
-    // If true, layout should be recomputed.
+    // If true, widgets should be recomputed.
     pub fn event(&mut self, ctx: &mut EventCtx, our_rect: &ScreenRectangle) -> bool {
         if let Some(ref mut m) = self.menu {
             m.event(ctx);
@@ -64,7 +63,7 @@ impl Dropdown {
                     self.menu = None;
                     self.current_idx = idx;
                     let top_left = self.btn.top_left;
-                    // TODO Recalculate layout when this happens... outline around button should
+                    // TODO Recalculate widgets when this happens... outline around button should
                     // change
                     self.btn = make_btn(ctx, &self.choices[self.current_idx].label, &self.label);
                     self.btn.set_pos(top_left);

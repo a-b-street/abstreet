@@ -1,11 +1,10 @@
 use crate::assets::Assets;
 use crate::backend::{GfxCtxInnards, PrerenderInnards};
-use crate::svg;
 use crate::{
-    Canvas, Color, Drawable, EventCtx, HorizontalAlignment, ScreenDims, ScreenPt, ScreenRectangle,
+    Canvas, Color, Drawable, GeomBatch, HorizontalAlignment, ScreenDims, ScreenPt, ScreenRectangle,
     Text, VerticalAlignment,
 };
-use geom::{Angle, Bounds, Circle, Distance, Line, Polygon, Pt2D};
+use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
 use std::cell::Cell;
 
 // Lower is more on top
@@ -284,162 +283,6 @@ impl<'a> GfxCtx<'a> {
     pub fn default_line_height(&self) -> f64 {
         *self.prerender.assets.default_line_height.borrow()
     }
-}
-
-#[derive(Clone)]
-pub struct GeomBatch {
-    list: Vec<(Color, Polygon)>,
-    // TODO A weird hack for text.
-    pub(crate) dims_text: bool,
-}
-
-impl GeomBatch {
-    pub fn new() -> GeomBatch {
-        GeomBatch {
-            list: Vec::new(),
-            dims_text: false,
-        }
-    }
-
-    pub fn from(list: Vec<(Color, Polygon)>) -> GeomBatch {
-        GeomBatch {
-            list,
-            dims_text: false,
-        }
-    }
-
-    pub fn push(&mut self, color: Color, p: Polygon) {
-        self.list.push((color, p));
-    }
-
-    pub fn extend(&mut self, color: Color, polys: Vec<Polygon>) {
-        for p in polys {
-            self.list.push((color, p));
-        }
-    }
-
-    pub fn append(&mut self, other: GeomBatch) {
-        self.list.extend(other.list);
-    }
-
-    pub fn consume(self) -> Vec<(Color, Polygon)> {
-        self.list
-    }
-
-    pub fn draw(self, g: &mut GfxCtx) {
-        let refs = self.list.iter().map(|(color, p)| (*color, p)).collect();
-        let obj = g.prerender.upload_temporary(refs);
-        g.redraw(&obj);
-    }
-
-    pub fn upload(self, ctx: &EventCtx) -> Drawable {
-        ctx.prerender.upload(self)
-    }
-
-    // Sets the top-left to 0, 0. Not sure exactly when this should be used.
-    pub(crate) fn autocrop(mut self) -> GeomBatch {
-        let mut bounds = Bounds::new();
-        for (_, poly) in &self.list {
-            bounds.union(poly.get_bounds());
-        }
-        if bounds.min_x == 0.0 && bounds.min_y == 0.0 {
-            return self;
-        }
-        for (_, poly) in &mut self.list {
-            *poly = poly.translate(-bounds.min_x, -bounds.min_y);
-        }
-        self
-    }
-
-    pub(crate) fn is_empty(&self) -> bool {
-        self.list.is_empty()
-    }
-
-    pub fn get_dims(&self) -> ScreenDims {
-        // TODO Maybe warn about this happening and avoid in the first place? Sometimes we wind up
-        // trying to draw completely empty text.
-        if self.is_empty() {
-            return ScreenDims::new(0.0, 0.0);
-        }
-        let mut bounds = Bounds::new();
-        for (_, poly) in &self.list {
-            bounds.union(poly.get_bounds());
-        }
-        if self.dims_text {
-            ScreenDims::new(bounds.max_x, bounds.max_y)
-        } else {
-            ScreenDims::new(bounds.width(), bounds.height())
-        }
-    }
-
-    // Slightly weird use case, but hotswap colors.
-    pub fn rewrite_color(&mut self, transformation: RewriteColor) {
-        for (c, _) in self.list.iter_mut() {
-            match transformation {
-                RewriteColor::NoOp => {}
-                RewriteColor::Change(from, to) => {
-                    if *c == from {
-                        *c = to;
-                    }
-                }
-                RewriteColor::ChangeAll(to) => {
-                    *c = to;
-                }
-            }
-        }
-    }
-
-    pub fn from_svg<I: Into<String>>(
-        ctx: &EventCtx,
-        path: I,
-        rewrite: RewriteColor,
-    ) -> (GeomBatch, Bounds) {
-        let (mut batch, bounds) = svg::load_svg(ctx.prerender, &path.into());
-        batch.rewrite_color(rewrite);
-        (batch, bounds)
-    }
-
-    // TODO Weird API...
-    pub fn add_svg(
-        &mut self,
-        prerender: &Prerender,
-        filename: &str,
-        center: Pt2D,
-        scale: f64,
-        rotate: Angle,
-    ) {
-        self.add_transformed(svg::load_svg(prerender, filename).0, center, scale, rotate);
-    }
-
-    // This centers on the pt!
-    pub fn add_transformed(&mut self, other: GeomBatch, center: Pt2D, scale: f64, rotate: Angle) {
-        let dims = other.get_dims();
-        let dx = center.x() - dims.width * scale / 2.0;
-        let dy = center.y() - dims.height * scale / 2.0;
-        for (color, mut poly) in other.consume() {
-            // Avoid unnecessary transformations for slight perf boost
-            if scale != 1.0 {
-                poly = poly.scale(scale);
-            }
-            poly = poly.translate(dx, dy);
-            if rotate != Angle::ZERO {
-                poly = poly.rotate(rotate);
-            }
-            self.push(color, poly);
-        }
-    }
-
-    pub fn add_translated(&mut self, other: GeomBatch, dx: f64, dy: f64) {
-        for (color, poly) in other.consume() {
-            self.push(color, poly.translate(dx, dy));
-        }
-    }
-}
-
-pub enum RewriteColor {
-    NoOp,
-    Change(Color, Color),
-    ChangeAll(Color),
 }
 
 // TODO Don't expose this directly

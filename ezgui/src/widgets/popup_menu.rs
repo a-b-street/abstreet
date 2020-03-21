@@ -1,4 +1,4 @@
-use crate::layout::Widget;
+use crate::widgets::Widget;
 use crate::{
     hotkey, text, Choice, EventCtx, GfxCtx, InputResult, Key, Line, ScreenDims, ScreenPt,
     ScreenRectangle, Text,

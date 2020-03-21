@@ -1,4 +1,4 @@
-use crate::layout::{stack_vertically, ContainerOrientation, Widget};
+use crate::widgets::{stack_vertically, ContainerOrientation, Widget};
 use crate::{
     hotkey, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu,
     MultiKey, ScreenDims, ScreenPt, ScreenRectangle, Text, Warper,
@@ -257,7 +257,7 @@ impl<T> ItemSlider<T> {
             (hotkey(Key::Dot), last.as_str()),
         ]);
 
-        let menu = ModalMenu::new(menu_title, choices, ctx).disable_standalone_layout();
+        let menu = ModalMenu::new(menu_title, choices, ctx).disable_standalone_widgets();
         ItemSlider {
             items,
             // TODO Number of items

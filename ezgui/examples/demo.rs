@@ -2,10 +2,11 @@
 // images.
 //
 // To run:
-// > cargo run --example demo --features glium-backend
+// > cargo run --example demo
 //
 // Try the web version, but there's no text rendering yet:
-// > cargo web start --target wasm32-unknown-unknown --features wasm-backend --example demo
+// > cargo web start --target wasm32-unknown-unknown --no-default-features \
+// --features wasm-backend --example demo
 
 use ezgui::{
     hotkey, lctrl, Btn, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
