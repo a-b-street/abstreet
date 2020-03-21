@@ -14,7 +14,7 @@ use ezgui::{
 };
 use geom::{Circle, Distance, Duration, PolyLine, Polygon, Pt2D, Statistic, Time};
 use map_model::{BusRouteID, IntersectionID};
-use sim::{ParkingSpot, PersonState};
+use sim::{GetDrawAgents, ParkingSpot, PersonState};
 use std::collections::HashSet;
 
 pub enum Overlays {
@@ -983,20 +983,22 @@ impl Overlays {
     // return this kind of data instead!
     fn person_dot_map(ctx: &EventCtx, app: &App) -> Overlays {
         let mut pts = Vec::new();
+        // Faster to grab all agent positions than individually map trips to agent positions.
+        for a in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
+            pts.push(a.pos);
+        }
+
+        let mut seen_bldgs = HashSet::new();
         for person in app.primary.sim.get_all_people() {
             match person.state {
-                PersonState::Trip(t) => {
-                    if let Some(pt) = app
-                        .primary
-                        .sim
-                        .get_canonical_pt_per_trip(t, &app.primary.map)
-                        .ok()
-                    {
-                        pts.push(pt);
-                    }
-                }
+                // Already covered above
+                PersonState::Trip(_) => {}
                 PersonState::Inside(b) => {
-                    pts.push(app.primary.map.get_b(b).polygon.center());
+                    // Duplicate circles for the same building are expensive!
+                    if !seen_bldgs.contains(&b) {
+                        seen_bldgs.insert(b);
+                        pts.push(app.primary.map.get_b(b).polygon.center());
+                    }
                 }
                 PersonState::OffMap | PersonState::Limbo => {}
             }
