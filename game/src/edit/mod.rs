@@ -16,9 +16,9 @@ use crate::render::{DrawIntersection, DrawLane, DrawRoad, MIN_ZOOM_FOR_DETAIL};
 use crate::sandbox::{GameplayMode, SandboxMode};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Btn, Button, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, RewriteColor, ScreenRectangle, Text,
-    VerticalAlignment, Widget, WrappedWizard,
+    hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, Outcome, RewriteColor, ScreenRectangle, Text, VerticalAlignment, Widget,
+    WrappedWizard,
 };
 use geom::Polygon;
 use map_model::{
@@ -371,10 +371,11 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Composite {
                 })
                 .margin(15),
                 if !app.primary.map.get_edits().commands.is_empty() {
-                    Btn::text_fg("reset edits").build_def(ctx, None).margin(5)
+                    Btn::text_fg("reset edits").build_def(ctx, None)
                 } else {
-                    Button::inactive_button(ctx, "reset edits").margin(5)
-                },
+                    Btn::text_fg("reset edits").inactive(ctx)
+                }
+                .margin(5),
             ])
             .centered(),
             Btn::text_fg("finish editing")

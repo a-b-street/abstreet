@@ -117,51 +117,6 @@ impl WidgetImpl for Button {
     }
 }
 
-// Stuff to construct different types of buttons
-
-// TODO Simplify all of these APIs!
-impl Button {
-    // TODO Extreme wackiness.
-    pub fn inactive_button<S: Into<String>>(ctx: &mut EventCtx, label: S) -> Widget {
-        let txt_batch = Text::from(Line(label).fg(Color::grey(0.5))).render_ctx(ctx);
-        let dims = txt_batch.get_dims();
-
-        let horiz_padding = 15.0;
-        let vert_padding = 8.0;
-        let mut batch = GeomBatch::new();
-        batch.add_translated(txt_batch, horiz_padding, vert_padding);
-        Widget::just_draw(JustDraw {
-            draw: ctx.upload(batch),
-            top_left: ScreenPt::new(0.0, 0.0),
-            dims: ScreenDims::new(
-                dims.width + 2.0 * horiz_padding,
-                dims.height + 2.0 * vert_padding,
-            ),
-        })
-        .outline(2.0, Color::WHITE)
-    }
-    // With a background
-    pub fn inactive_selected_button<S: Into<String>>(ctx: &EventCtx, label: S) -> Widget {
-        const HORIZ_PADDING: f64 = 30.0;
-        const VERT_PADDING: f64 = 10.0;
-
-        let txt = Text::from(Line(label).fg(Color::BLACK)).render_ctx(ctx);
-        let dims = txt.get_dims();
-        let mut batch = GeomBatch::from(vec![(
-            Color::WHITE,
-            Polygon::rounded_rectangle(
-                dims.width + 2.0 * HORIZ_PADDING,
-                dims.height + 2.0 * VERT_PADDING,
-                VERT_PADDING,
-            ),
-        )]);
-        batch.add_translated(txt, HORIZ_PADDING, VERT_PADDING);
-        JustDraw::wrap(ctx, batch)
-    }
-}
-
-// TODO Experimental new refactoring
-
 pub struct Btn {}
 
 impl Btn {
@@ -384,6 +339,37 @@ impl BtnBuilder {
                 let copy = label.clone();
                 self.build(ctx, copy, hotkey)
             }
+        }
+    }
+
+    pub fn inactive(mut self, ctx: &EventCtx) -> Widget {
+        match self {
+            BtnBuilder::TextFG(_, txt, _) => {
+                let btn = Btn::custom_text_fg(txt.change_fg(Color::grey(0.5)))
+                    .build(ctx, "dummy", None)
+                    .take_btn();
+                Widget::just_draw(JustDraw {
+                    draw: btn.draw_normal,
+                    top_left: btn.top_left,
+                    dims: btn.dims,
+                })
+                .outline(2.0, Color::WHITE)
+            }
+            // TODO This'll only work reasonably for text_bg2
+            BtnBuilder::TextBG {
+                ref mut unselected_bg_color,
+                ..
+            } => {
+                assert_eq!(*unselected_bg_color, Color::WHITE);
+                *unselected_bg_color = Color::grey(0.5);
+                let btn = self.build(ctx, "dummy", None).take_btn();
+                Widget::just_draw(JustDraw {
+                    draw: btn.draw_normal,
+                    top_left: btn.top_left,
+                    dims: btn.dims,
+                })
+            }
+            _ => panic!("Can't use inactive on this kind of button"),
         }
     }
 }

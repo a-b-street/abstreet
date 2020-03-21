@@ -8,7 +8,7 @@ use crate::managed::{ManagedGUIState, WrappedComposite, WrappedOutcome};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
-    hotkey, Btn, Button, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Histogram,
+    hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Histogram,
     HorizontalAlignment, JustDraw, Key, Line, Outcome, Plot, PlotOptions, RewriteColor, Series,
     Text, TextExt, VerticalAlignment, Widget,
 };
@@ -275,7 +275,7 @@ impl Overlays {
         } {
             for btn in &mut choices {
                 if btn.is_btn(name) {
-                    *btn = Button::inactive_button(ctx, name).outline(2.0, Color::GREEN);
+                    *btn = Btn::text_fg(name).inactive(ctx).outline(2.0, Color::GREEN);
                     break;
                 }
             }

@@ -6,8 +6,8 @@ use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::render::Renderable;
 use ezgui::{
-    hotkey, Btn, Button, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key,
-    Outcome, RewriteColor, TextExt, VerticalAlignment, Widget,
+    hotkey, Btn, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome,
+    RewriteColor, TextExt, VerticalAlignment, Widget,
 };
 use map_model::{EditCmd, LaneID, LaneType, Map, RoadID};
 use std::collections::BTreeSet;
@@ -92,7 +92,7 @@ impl LaneEditor {
             {
                 Btn::text_fg("Revert").build_def(ctx, hotkey(Key::R))
             } else {
-                Button::inactive_button(ctx, "Revert")
+                Btn::text_fg("Revert").inactive(ctx)
             },
         ];
 

@@ -9,8 +9,8 @@ use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
 use abstutil::Counter;
 use ezgui::{
-    hotkey, Btn, Button, Color, Composite, EventCtx, Histogram, Key, Line, Plot, PlotOptions,
-    Series, Text, TextExt, Widget,
+    hotkey, Btn, Color, Composite, EventCtx, Histogram, Key, Line, Plot, PlotOptions, Series, Text,
+    TextExt, Widget,
 };
 use geom::{Duration, Statistic, Time};
 use map_model::BusRouteID;
@@ -41,9 +41,9 @@ pub fn make(ctx: &mut EventCtx, app: &App, tab: Tab) -> Box<dyn State> {
         .iter()
         .map(|(t, label)| {
             if *t == tab {
-                Button::inactive_selected_button(ctx, *label)
+                Btn::text_bg2(*label).inactive(ctx)
             } else {
-                Btn::text_fg(*label).build_def(ctx, None)
+                Btn::text_bg2(*label).build_def(ctx, None)
             }
             .margin(5)
         })

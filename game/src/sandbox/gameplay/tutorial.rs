@@ -11,7 +11,7 @@ use crate::sandbox::{
 };
 use abstutil::Timer;
 use ezgui::{
-    hotkey, hotkeys, lctrl, Btn, Button, Color, Composite, EventCtx, GeomBatch, GfxCtx,
+    hotkey, hotkeys, lctrl, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, RewriteColor, ScreenPt, Text, TextExt,
     VerticalAlignment, Widget,
 };
@@ -894,7 +894,7 @@ impl TutorialState {
             )
             .margin(5),
             if self.current.stage == 0 {
-                Button::inactive_button(ctx, "<")
+                Btn::text_fg("<").inactive(ctx)
             } else {
                 Btn::text_fg("<").build(ctx, "previous tutorial", None)
             }
@@ -906,7 +906,7 @@ impl TutorialState {
                 txt.draw(ctx).margin(5)
             },
             if self.current.stage == self.latest.stage {
-                Button::inactive_button(ctx, ">")
+                Btn::text_fg(">").inactive(ctx)
             } else {
                 Btn::text_fg(">").build(ctx, "next tutorial", None)
             }

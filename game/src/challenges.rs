@@ -4,7 +4,7 @@ use crate::game::{State, Transition};
 use crate::managed::{Callback, ManagedGUIState, WrappedComposite};
 use crate::sandbox::{GameplayMode, SandboxMode, TutorialState};
 use abstutil::Timer;
-use ezgui::{hotkey, Btn, Button, Color, Composite, EventCtx, Key, Line, Text, Widget};
+use ezgui::{hotkey, Btn, Color, Composite, EventCtx, Key, Line, Text, Widget};
 use geom::{Duration, Time};
 use map_model::Map;
 use sim::{Scenario, Sim, SimFlags, SimOptions, TripMode};
@@ -157,7 +157,7 @@ impl Tab {
                 Tab::ChallengeStage(ref n, _) => &name == n,
             };
             if current {
-                flex_row.push(Button::inactive_button(ctx, name).margin(10));
+                flex_row.push(Btn::text_bg2(&name).inactive(ctx).margin(10));
             } else {
                 flex_row.push(
                     Btn::text_bg2(&name)
@@ -195,7 +195,7 @@ impl Tab {
                 .enumerate()
             {
                 if current == idx {
-                    col.push(Button::inactive_button(ctx, &stage.title).margin(10));
+                    col.push(Btn::text_fg(&stage.title).inactive(ctx).margin(10));
                 } else {
                     col.push(Btn::text_fg(&stage.title).build_def(ctx, None).margin(10));
                     let name = name.to_string();

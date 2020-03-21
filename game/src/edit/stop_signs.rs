@@ -6,8 +6,8 @@ use crate::game::{State, Transition};
 use crate::render::DrawIntersection;
 use abstutil::Timer;
 use ezgui::{
-    hotkey, Btn, Button, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
+    hotkey, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::Polygon;
 use map_model::{
@@ -57,7 +57,7 @@ impl StopSignEditor {
                 {
                     Btn::text_fg("reset to default").build_def(ctx, hotkey(Key::R))
                 } else {
-                    Button::inactive_button(ctx, "reset to default")
+                    Btn::text_fg("reset to default").inactive(ctx)
                 },
                 Btn::text_fg("close intersection for construction").build_def(ctx, None),
                 Btn::text_fg("convert to traffic signal").build_def(ctx, None),
