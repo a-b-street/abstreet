@@ -14,9 +14,9 @@ use ezgui::{
     hotkey, lctrl, Btn, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Text, VerticalAlignment, Widget, Wizard,
 };
-use geom::{Circle, Distance, Duration, Pt2D};
+use geom::Duration;
 use map_model::{IntersectionID, NORMAL_LANE_THICKNESS};
-use sim::{PersonState, Sim, TripID};
+use sim::{Sim, TripID};
 use std::collections::HashSet;
 
 pub struct DebugMode {
@@ -28,7 +28,6 @@ pub struct DebugMode {
     layers: ShowLayers,
     search_results: Option<SearchResults>,
     all_routes: Option<(usize, Drawable)>,
-    dot_map: Option<Drawable>,
 
     highlighted_agents: Option<(IntersectionID, Drawable)>,
 }
@@ -52,7 +51,6 @@ impl DebugMode {
                     Widget::checkbox(ctx, "show extra shapes", hotkey(Key::Num5), true),
                     Widget::checkbox(ctx, "show labels", hotkey(Key::Num6), false),
                     Widget::checkbox(ctx, "show route for all agents", hotkey(Key::R), false),
-                    Widget::checkbox(ctx, "show dot map of people", hotkey(Key::P), false),
                     Widget::col(
                         vec![
                             (lctrl(Key::H), "unhide everything"),
@@ -81,7 +79,6 @@ impl DebugMode {
             layers: ShowLayers::new(),
             search_results: None,
             all_routes: None,
-            dot_map: None,
             highlighted_agents: None,
         }
     }
@@ -226,14 +223,6 @@ impl State for DebugMode {
                 self.reset_info(ctx);
             }
         }
-        if self.composite.is_checked("show dot map of people") {
-            if self.dot_map.is_none() {
-                self.dot_map = Some(live_dot_map(ctx, app));
-            }
-        } else {
-            self.dot_map = None;
-        }
-
         if let Some(ID::Lane(_)) | Some(ID::Intersection(_)) | Some(ID::ExtraShape(_)) =
             app.primary.current_selection
         {
@@ -338,9 +327,6 @@ impl State for DebugMode {
 
         self.objects.draw(g, app);
         if let Some((_, ref draw)) = self.all_routes {
-            g.redraw(draw);
-        }
-        if let Some(ref draw) = self.dot_map {
             g.redraw(draw);
         }
 
@@ -473,34 +459,4 @@ fn calc_all_routes(ctx: &EventCtx, app: &mut App) -> (usize, Drawable) {
         }
     }
     (cnt, ctx.upload(batch))
-}
-
-fn live_dot_map(ctx: &EventCtx, app: &App) -> Drawable {
-    let mut pts = Vec::new();
-    for person in app.primary.sim.get_all_people() {
-        match person.state {
-            PersonState::Trip(t) => {
-                if let Some(pt) = app
-                    .primary
-                    .sim
-                    .get_canonical_pt_per_trip(t, &app.primary.map)
-                    .ok()
-                {
-                    pts.push(pt);
-                }
-            }
-            PersonState::Inside(b) => {
-                pts.push(app.primary.map.get_b(b).polygon.center());
-            }
-            PersonState::OffMap | PersonState::Limbo => {}
-        }
-    }
-
-    // It's quite silly to produce triangles for the same circle over and over again. ;)
-    let circle = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(10.0)).to_polygon();
-    let mut batch = GeomBatch::new();
-    for pt in pts {
-        batch.push(Color::RED.alpha(0.8), circle.translate(pt.x(), pt.y()));
-    }
-    ctx.upload(batch)
 }

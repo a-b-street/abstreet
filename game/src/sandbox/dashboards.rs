@@ -45,7 +45,6 @@ pub fn make(ctx: &mut EventCtx, app: &App, tab: Tab) -> Box<dyn State> {
             } else {
                 Btn::text_bg2(*label).build_def(ctx, None)
             }
-            .margin(5)
         })
         .collect::<Vec<_>>();
 

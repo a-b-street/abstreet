@@ -14,7 +14,7 @@ use ezgui::{
 };
 use geom::{Circle, Distance, Duration, PolyLine, Polygon, Pt2D, Statistic, Time};
 use map_model::{BusRouteID, IntersectionID};
-use sim::ParkingSpot;
+use sim::{ParkingSpot, PersonState};
 use std::collections::HashSet;
 
 pub enum Overlays {
@@ -28,6 +28,7 @@ pub enum Overlays {
     Elevation(Colorer, Drawable),
     Edits(Colorer),
     TripsHistogram(Time, Composite),
+    PersonDotMap(Time, Drawable),
 
     // These aren't selectable from the main picker
     IntersectionDemand(Time, IntersectionID, Drawable, Composite),
@@ -91,6 +92,11 @@ impl Overlays {
             Overlays::BusPassengers(t, id, _) => {
                 if now != t {
                     app.overlay = Overlays::bus_passengers(id, ctx, app);
+                }
+            }
+            Overlays::PersonDotMap(t, _) => {
+                if now != t {
+                    app.overlay = Overlays::person_dot_map(ctx, app);
                 }
             }
             // No updates needed
@@ -187,6 +193,10 @@ impl Overlays {
                     }
                 }
             }
+            Overlays::PersonDotMap(_, _) => {
+                // TODO No controls or legend at all?
+                app.overlay = orig_overlay;
+            }
             Overlays::Inactive => {}
         }
 
@@ -211,6 +221,11 @@ impl Overlays {
                 // TODO Maybe this is still useful when zoomed in
                 if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
                     heatmap.draw(g);
+                    g.redraw(draw);
+                }
+            }
+            Overlays::PersonDotMap(_, ref draw) => {
+                if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
                     g.redraw(draw);
                 }
             }
@@ -260,6 +275,9 @@ impl Overlays {
             Btn::text_fg("bike network").build_def(ctx, hotkey(Key::B)),
             Btn::text_fg("bus network").build_def(ctx, hotkey(Key::U)),
         ];
+        if app.opts.dev {
+            choices.push(Btn::text_fg("dot map of people").build_def(ctx, None));
+        }
         // TODO Grey out the inactive SVGs, and add the green checkmark
         if let Some(name) = match app.overlay {
             Overlays::Inactive => Some("None"),
@@ -271,6 +289,7 @@ impl Overlays {
             Overlays::BusNetwork(_) => Some("bus network"),
             Overlays::Elevation(_, _) => Some("elevation"),
             Overlays::Edits(_) => Some("map edits"),
+            Overlays::PersonDotMap(_, _) => Some("dot map of people"),
             _ => None,
         } {
             for btn in &mut choices {
@@ -363,6 +382,13 @@ impl Overlays {
                 app.overlay = Overlays::map_edits(ctx, app);
                 Some(maybe_unzoom(ctx, app))
             }),
+        )
+        .maybe_cb(
+            "dot map of people",
+            Box::new(|ctx, app| {
+                app.overlay = Overlays::person_dot_map(ctx, app);
+                Some(maybe_unzoom(ctx, app))
+            }),
         );
         Some(Transition::Push(ManagedGUIState::over_map(c)))
     }
@@ -379,6 +405,7 @@ impl Overlays {
             Overlays::BusNetwork(_) => Some("bus network"),
             Overlays::Elevation(_, _) => Some("elevation"),
             Overlays::Edits(_) => Some("map edits"),
+            Overlays::PersonDotMap(_, _) => Some("dot map of people"),
             Overlays::TripsHistogram(_, _) => None,
             Overlays::IntersectionDemand(_, _, _, _) => None,
             Overlays::BusRoute(_, _, _) => None,
@@ -950,6 +977,38 @@ impl Overlays {
         }
 
         Overlays::Edits(colorer.build(ctx, app))
+    }
+
+    // TODO Disable drawing unzoomed agents... or alternatively, implement this by asking Sim to
+    // return this kind of data instead!
+    fn person_dot_map(ctx: &EventCtx, app: &App) -> Overlays {
+        let mut pts = Vec::new();
+        for person in app.primary.sim.get_all_people() {
+            match person.state {
+                PersonState::Trip(t) => {
+                    if let Some(pt) = app
+                        .primary
+                        .sim
+                        .get_canonical_pt_per_trip(t, &app.primary.map)
+                        .ok()
+                    {
+                        pts.push(pt);
+                    }
+                }
+                PersonState::Inside(b) => {
+                    pts.push(app.primary.map.get_b(b).polygon.center());
+                }
+                PersonState::OffMap | PersonState::Limbo => {}
+            }
+        }
+
+        // It's quite silly to produce triangles for the same circle over and over again. ;)
+        let circle = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(10.0)).to_polygon();
+        let mut batch = GeomBatch::new();
+        for pt in pts {
+            batch.push(Color::RED.alpha(0.8), circle.translate(pt.x(), pt.y()));
+        }
+        Overlays::PersonDotMap(app.primary.sim.time(), ctx.upload(batch))
     }
 }
 
