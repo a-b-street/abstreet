@@ -199,7 +199,7 @@ impl Overlays {
                 c.align_above(ctx, minimap);
                 match c.event(ctx) {
                     Some(Outcome::Clicked(x)) => match x.as_ref() {
-                        "X" => {
+                        "close" => {
                             app.overlay = Overlays::Inactive;
                         }
                         _ => unreachable!(),

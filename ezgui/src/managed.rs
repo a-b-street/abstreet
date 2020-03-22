@@ -23,7 +23,6 @@ pub struct Widget {
 
 enum WidgetType {
     Btn(Button),
-    Slider(Slider),
     Row(Vec<Widget>),
     Column(Vec<Widget>),
     Nothing,
@@ -252,7 +251,7 @@ impl Widget {
     }
 
     pub fn slider(slider: Slider) -> Widget {
-        Widget::new(WidgetType::Slider(slider))
+        Widget::new(WidgetType::Generic(Box::new(slider)))
     }
 
     pub fn menu<T: 'static + Clone>(menu: PopupMenu<T>) -> Widget {
@@ -359,9 +358,6 @@ impl Widget {
                     return Some(Outcome::Clicked(btn.action.clone()));
                 }
             }
-            WidgetType::Slider(ref mut slider) => {
-                slider.event(ctx);
-            }
             WidgetType::Row(ref mut widgets) | WidgetType::Column(ref mut widgets) => {
                 for w in widgets {
                     if let Some(o) = w.event(ctx, redo_layout) {
@@ -380,19 +376,19 @@ impl Widget {
     }
 
     fn draw(&self, g: &mut GfxCtx) {
+        // Don't draw these yet; clipping is still in effect.
+        if self.id == Some("horiz scrollbar".to_string())
+            || self.id == Some("vert scrollbar".to_string())
+        {
+            return;
+        }
+
         if let Some(ref bg) = self.bg {
             g.redraw_at(ScreenPt::new(self.rect.x1, self.rect.y1), bg);
         }
 
         match self.widget {
             WidgetType::Btn(ref btn) => btn.draw(g),
-            WidgetType::Slider(ref slider) => {
-                if self.id != Some("horiz scrollbar".to_string())
-                    && self.id != Some("vert scrollbar".to_string())
-                {
-                    slider.draw(g);
-                }
-            }
             WidgetType::Row(ref widgets) | WidgetType::Column(ref widgets) => {
                 for w in widgets {
                     w.draw(g);
@@ -407,7 +403,6 @@ impl Widget {
     fn get_flexbox(&self, parent: Node, stretch: &mut Stretch, nodes: &mut Vec<Node>) {
         let dims = match self.widget {
             WidgetType::Btn(ref widget) => widget.get_dims(),
-            WidgetType::Slider(ref widget) => widget.get_dims(),
             WidgetType::Row(ref widgets) => {
                 let mut style = Style {
                     flex_direction: FlexDirection::Row,
@@ -499,9 +494,6 @@ impl Widget {
             WidgetType::Btn(ref mut widget) => {
                 widget.set_pos(top_left);
             }
-            WidgetType::Slider(ref mut widget) => {
-                widget.set_pos(top_left);
-            }
             WidgetType::Row(ref mut widgets) => {
                 // layout() doesn't return absolute position; it's relative to the container.
                 for widget in widgets {
@@ -538,7 +530,6 @@ impl Widget {
 
     fn get_all_click_actions(&self, actions: &mut HashSet<String>) {
         match self.widget {
-            WidgetType::Slider(_) => {}
             WidgetType::Btn(ref btn) => {
                 if actions.contains(&btn.action) {
                     panic!(
@@ -848,19 +839,31 @@ impl Composite {
 
     pub fn slider(&self, name: &str) -> &Slider {
         match self.find(name).widget {
-            WidgetType::Slider(ref slider) => slider,
+            WidgetType::Generic(ref w) => {
+                if let Some(slider) = w.downcast_ref::<Slider>() {
+                    slider
+                } else {
+                    panic!("{} isn't a slider", name);
+                }
+            }
             _ => panic!("{} isn't a slider", name),
         }
     }
     pub fn maybe_slider(&self, name: &str) -> Option<&Slider> {
         match self.top_level.find(name).map(|w| &w.widget) {
-            Some(WidgetType::Slider(ref slider)) => Some(slider),
+            Some(WidgetType::Generic(ref w)) => w.downcast_ref::<Slider>(),
             _ => None,
         }
     }
     pub fn slider_mut(&mut self, name: &str) -> &mut Slider {
         match self.find_mut(name).widget {
-            WidgetType::Slider(ref mut slider) => slider,
+            WidgetType::Generic(ref mut w) => {
+                if let Some(slider) = w.downcast_mut::<Slider>() {
+                    slider
+                } else {
+                    panic!("{} isn't a slider", name);
+                }
+            }
             _ => panic!("{} isn't a slider", name),
         }
     }

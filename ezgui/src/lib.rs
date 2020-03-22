@@ -44,7 +44,7 @@ pub use crate::widgets::modal_menu::ModalMenu;
 pub use crate::widgets::no_op::JustDraw;
 pub use crate::widgets::plot::{Plot, PlotOptions, Series};
 pub(crate) use crate::widgets::popup_menu::PopupMenu;
-pub use crate::widgets::slider::{ItemSlider, Slider, WarpingItemSlider};
+pub use crate::widgets::slider::Slider;
 pub(crate) use crate::widgets::text_box::TextBox;
 pub use crate::widgets::wizard::{Choice, Wizard, WrappedWizard};
 pub use crate::widgets::WidgetImpl;

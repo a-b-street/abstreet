@@ -1,9 +1,8 @@
-use crate::widgets::{stack_vertically, ContainerOrientation};
 use crate::{
-    hotkey, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu,
-    MultiKey, ScreenDims, ScreenPt, ScreenRectangle, Text, Warper, WidgetImpl,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Outcome, ScreenDims, ScreenPt, ScreenRectangle,
+    WidgetImpl,
 };
-use geom::{Polygon, Pt2D};
+use geom::Polygon;
 
 pub struct Slider {
     current_percent: f64,
@@ -133,16 +132,6 @@ impl Slider {
         self.set_percent(ctx, (idx as f64) / (num_items as f64 - 1.0));
     }
 
-    // Returns true if anything changed
-    pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
-        if self.inner_event(ctx) {
-            self.recalc(ctx);
-            true
-        } else {
-            false
-        }
-    }
-
     fn inner_event(&mut self, ctx: &mut EventCtx) -> bool {
         if self.dragging {
             if ctx.input.get_moved_mouse().is_some() {
@@ -203,14 +192,6 @@ impl Slider {
         }
         false
     }
-
-    pub fn draw(&self, g: &mut GfxCtx) {
-        g.redraw_at(self.top_left, &self.draw);
-        // TODO Since the sliders in Composites are scrollbars outside of the clipping rectangle,
-        // this stays for now.
-        g.canvas
-            .mark_covered_area(ScreenRectangle::top_left(self.top_left, self.dims));
-    }
 }
 
 impl WidgetImpl for Slider {
@@ -221,190 +202,25 @@ impl WidgetImpl for Slider {
     fn set_pos(&mut self, top_left: ScreenPt) {
         self.top_left = top_left;
     }
-}
 
-pub struct ItemSlider<T> {
-    items: Vec<(T, Text)>,
-    slider: Slider,
-    menu: ModalMenu,
-
-    noun: String,
-    prev: String,
-    next: String,
-    first: String,
-    last: String,
-}
-
-impl<T> ItemSlider<T> {
-    pub fn new(
-        items: Vec<(T, Text)>,
-        menu_title: &str,
-        noun: &str,
-        other_choices: Vec<(Option<MultiKey>, &str)>,
-        ctx: &EventCtx,
-    ) -> ItemSlider<T> {
-        // Lifetime funniness...
-        let mut choices = other_choices.clone();
-
-        let prev = format!("previous {}", noun);
-        let next = format!("next {}", noun);
-        let first = format!("first {}", noun);
-        let last = format!("last {}", noun);
-        choices.extend(vec![
-            (hotkey(Key::LeftArrow), prev.as_str()),
-            (hotkey(Key::RightArrow), next.as_str()),
-            (hotkey(Key::Comma), first.as_str()),
-            (hotkey(Key::Dot), last.as_str()),
-        ]);
-
-        let menu = ModalMenu::new(menu_title, choices, ctx).disable_standalone_widgets();
-        ItemSlider {
-            items,
-            // TODO Number of items
-            slider: Slider::horizontal(ctx, menu.get_dims().width, 25.0),
-            menu,
-
-            noun: noun.to_string(),
-            prev,
-            next,
-            first,
-            last,
-        }
-    }
-
-    // Returns true if the value changed.
-    pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
-        {
-            let idx = self.slider.get_value(self.items.len());
-            let mut txt = Text::from(Line(format!(
-                "{} {}/{}",
-                self.noun,
-                abstutil::prettyprint_usize(idx + 1),
-                abstutil::prettyprint_usize(self.items.len())
-            )));
-            txt.extend(&self.items[idx].1);
-            self.menu.set_info(ctx, txt);
-            self.menu.event(ctx);
-        }
-        stack_vertically(
-            ContainerOrientation::TopRight,
-            ctx,
-            vec![&mut self.slider, &mut self.menu],
-        );
-
-        let current = self.slider.get_value(self.items.len());
-        if current != self.items.len() - 1 && self.menu.action(&self.next) {
-            self.slider.set_value(ctx, current + 1, self.items.len());
-        } else if current != self.items.len() - 1 && self.menu.action(&self.last) {
-            self.slider.set_percent(ctx, 1.0);
-        } else if current != 0 && self.menu.action(&self.prev) {
-            self.slider.set_value(ctx, current - 1, self.items.len());
-        } else if current != 0 && self.menu.action(&self.first) {
-            self.slider.set_percent(ctx, 0.0);
+    fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        _rect: &ScreenRectangle,
+        _redo_layout: &mut bool,
+    ) -> Option<Outcome> {
+        if self.inner_event(ctx) {
+            self.recalc(ctx);
         }
 
-        self.slider.event(ctx);
-
-        self.slider.get_value(self.items.len()) != current
+        None
     }
 
-    pub fn draw(&self, g: &mut GfxCtx) {
-        self.menu.draw(g);
-        self.slider.draw(g);
-    }
-
-    pub fn get(&self) -> (usize, &T) {
-        let idx = self.slider.get_value(self.items.len());
-        (idx, &self.items[idx].0)
-    }
-
-    pub fn action(&mut self, name: &str) -> bool {
-        self.menu.action(name)
-    }
-
-    // TODO Consume self
-    pub fn consume_all_items(&mut self) -> Vec<(T, Text)> {
-        std::mem::replace(&mut self.items, Vec::new())
-    }
-}
-
-pub struct WarpingItemSlider<T> {
-    slider: ItemSlider<(Pt2D, T)>,
-    warper: Option<Warper>,
-}
-
-impl<T> WarpingItemSlider<T> {
-    // Note other_choices is hardcoded to quitting.
-    pub fn new(
-        items: Vec<(Pt2D, T, Text)>,
-        menu_title: &str,
-        noun: &str,
-        ctx: &EventCtx,
-    ) -> WarpingItemSlider<T> {
-        WarpingItemSlider {
-            warper: Some(Warper::new(ctx, items[0].0, None)),
-            slider: ItemSlider::new(
-                items
-                    .into_iter()
-                    .map(|(pt, obj, label)| ((pt, obj), label))
-                    .collect(),
-                menu_title,
-                noun,
-                vec![(hotkey(Key::Escape), "quit")],
-                ctx,
-            ),
-        }
-    }
-
-    // Done when None. If the bool is true, done warping.
-    pub fn event(&mut self, ctx: &mut EventCtx) -> Option<(EventLoopMode, bool)> {
-        // Don't block while we're warping
-        let (ev_mode, done_warping) = if let Some(ref warper) = self.warper {
-            if let Some(mode) = warper.event(ctx) {
-                (mode, false)
-            } else {
-                self.warper = None;
-                (EventLoopMode::InputOnly, true)
-            }
-        } else {
-            (EventLoopMode::InputOnly, false)
-        };
-
-        let changed = self.slider.event(ctx);
-
-        if self.slider.action("quit") {
-            return None;
-        } else if !changed {
-            return Some((ev_mode, done_warping));
-        }
-
-        let (_, (pt, _)) = self.slider.get();
-        self.warper = Some(Warper::new(ctx, *pt, None));
-        // We just created a new warper, so...
-        Some((EventLoopMode::Animation, done_warping))
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx) {
-        self.slider.draw(g);
-    }
-
-    pub fn get(&self) -> (usize, &T) {
-        let (idx, (_, data)) = self.slider.get();
-        (idx, data)
-    }
-}
-
-impl<T: PartialEq> WarpingItemSlider<T> {
-    pub fn override_initial_value(&mut self, item: T, ctx: &EventCtx) {
-        let idx = self
-            .slider
-            .items
-            .iter()
-            .position(|((_, x), _)| x == &item)
-            .unwrap();
-        self.slider
-            .slider
-            .set_value(ctx, idx, self.slider.items.len());
-        self.warper = None;
+    fn draw(&self, g: &mut GfxCtx) {
+        g.redraw_at(self.top_left, &self.draw);
+        // TODO Since the sliders in Composites are scrollbars outside of the clipping rectangle,
+        // this stays for now.
+        g.canvas
+            .mark_covered_area(ScreenRectangle::top_left(self.top_left, self.dims));
     }
 }

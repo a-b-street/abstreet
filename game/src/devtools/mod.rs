@@ -1,5 +1,3 @@
-mod all_trips;
-mod individ_trips;
 mod neighborhood;
 mod scenario;
 
@@ -19,29 +17,11 @@ impl DevToolsMode {
                 "Internal dev tools",
                 vec![],
                 vec![
-                    (hotkey(Key::T), "visualize individual PSRC trips"),
-                    (hotkey(Key::A), "visualize all PSRC trips"),
                     (hotkey(Key::N), "manage neighborhoods"),
                     (hotkey(Key::W), "load scenario"),
                 ],
             ))
             .cb("X", Box::new(|_, _| Some(Transition::Pop)))
-            .cb(
-                "visualize individual PSRC trips",
-                Box::new(|ctx, app| {
-                    Some(Transition::Push(Box::new(
-                        individ_trips::TripsVisualizer::new(ctx, app),
-                    )))
-                }),
-            )
-            .cb(
-                "visualize all PSRC trips",
-                Box::new(|ctx, app| {
-                    Some(Transition::Push(Box::new(all_trips::TripsVisualizer::new(
-                        ctx, app,
-                    ))))
-                }),
-            )
             .cb(
                 "manage neighborhoods",
                 Box::new(|_, _| {
