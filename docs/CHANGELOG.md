@@ -340,3 +340,12 @@ changes here.
 - road/intersection plots display baseline sim data too
 - start associating people with multiple trips, exposing this a little in the UI
 - bring back elevation data, introduce a new overlay. the elevation data is still really bad.
+
+0.1.33
+
+- new "population" overlay, showing people (not just current trips). heatmap and dot map to visualize.
+- improved the "delay" overlay to handle roads and intersections
+- removed the confusing and useless alternate color schemes for agents
+- initial left-hand driving side, tested in Perth, also drawing more arrows for all one-way roads
+- loads of internal GUI code refactorings, preparing for a standalone release of the library
+- fixed z-buffering and alpha values for web backend
