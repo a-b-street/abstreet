@@ -33,7 +33,8 @@ enum WidgetType {
     Slider(String),
     Menu(String),
     Filler(String),
-    // TODO Sadness. Can't have some kind of wildcard generic here?
+    // TODO Sadness. Can't have some kind of wildcard generic here? I think this goes away when
+    // WidgetType becomes a trait.
     DurationPlot(Plot<Duration>),
     UsizePlot(Plot<usize>),
     Histogram(Histogram),
@@ -1007,6 +1008,9 @@ impl Composite {
     pub fn slider(&self, name: &str) -> &Slider {
         &self.sliders[name]
     }
+    pub fn maybe_slider(&self, name: &str) -> Option<&Slider> {
+        self.sliders.get(name)
+    }
     pub fn slider_mut(&mut self, name: &str) -> &mut Slider {
         self.sliders.get_mut(name).unwrap()
     }
@@ -1029,10 +1033,16 @@ impl Composite {
         }
     }
 
-    // TODO This invalidates the dropdown!
-    pub fn dropdown_value<T: 'static>(&mut self, name: &str) -> T {
+    pub fn dropdown_value<T: 'static + Clone>(&mut self, name: &str) -> T {
         match self.find_mut(name).widget {
-            WidgetType::Dropdown(ref mut dropdown) => dropdown.take_value(),
+            WidgetType::Dropdown(ref mut dropdown) => {
+                // Amusing little pattern here.
+                // TODO I think this entire hack goes away when WidgetImpl is just a trait.
+                let choice: Choice<T> = dropdown.take_value();
+                let value = choice.data.clone();
+                dropdown.return_value(choice);
+                value
+            }
             _ => panic!("{} isn't a dropdown", name),
         }
     }

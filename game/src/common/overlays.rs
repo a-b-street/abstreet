@@ -1,6 +1,8 @@
 use crate::app::App;
 use crate::colors;
-use crate::common::{make_heatmap, ColorLegend, Colorer, ShowBusRoute, Warping};
+use crate::common::{
+    make_heatmap, ColorLegend, Colorer, HeatmapColors, HeatmapOptions, ShowBusRoute, Warping,
+};
 use crate::game::Transition;
 use crate::helpers::rotating_color_map;
 use crate::helpers::ID;
@@ -10,7 +12,7 @@ use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Histogram,
     HorizontalAlignment, JustDraw, Key, Line, Outcome, Plot, PlotOptions, RewriteColor, Series,
-    Text, TextExt, VerticalAlignment, Widget,
+    Slider, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Duration, PolyLine, Polygon, Pt2D, Statistic, Time};
 use map_model::{BusRouteID, IntersectionID};
@@ -28,7 +30,7 @@ pub enum Overlays {
     Elevation(Colorer, Drawable),
     Edits(Colorer),
     TripsHistogram(Time, Composite),
-    PersonDotMap(Time, Drawable),
+    PopulationMap(Time, Option<HeatmapOptions>, Drawable, Composite),
 
     // These aren't selectable from the main picker
     IntersectionDemand(Time, IntersectionID, Drawable, Composite),
@@ -94,9 +96,9 @@ impl Overlays {
                     app.overlay = Overlays::bus_passengers(id, ctx, app);
                 }
             }
-            Overlays::PersonDotMap(t, _) => {
+            Overlays::PopulationMap(t, ref opts, _, _) => {
                 if now != t {
-                    app.overlay = Overlays::person_dot_map(ctx, app);
+                    app.overlay = Overlays::population_map(ctx, app, opts.clone());
                 }
             }
             // No updates needed
@@ -193,9 +195,24 @@ impl Overlays {
                     }
                 }
             }
-            Overlays::PersonDotMap(_, _) => {
-                // TODO No controls or legend at all?
-                app.overlay = orig_overlay;
+            Overlays::PopulationMap(_, ref mut opts, _, ref mut c) => {
+                c.align_above(ctx, minimap);
+                match c.event(ctx) {
+                    Some(Outcome::Clicked(x)) => match x.as_ref() {
+                        "X" => {
+                            app.overlay = Overlays::Inactive;
+                        }
+                        _ => unreachable!(),
+                    },
+                    None => {
+                        let new_opts = heatmap_options(c);
+                        if *opts != new_opts {
+                            app.overlay = Overlays::population_map(ctx, app, new_opts);
+                        } else {
+                            app.overlay = orig_overlay;
+                        }
+                    }
+                }
             }
             Overlays::Inactive => {}
         }
@@ -224,9 +241,10 @@ impl Overlays {
                     g.redraw(draw);
                 }
             }
-            Overlays::PersonDotMap(_, ref draw) => {
+            Overlays::PopulationMap(_, _, ref draw, ref composite) => {
                 if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
                     g.redraw(draw);
+                    composite.draw(g);
                 }
             }
             // All of these shouldn't care about zoom
@@ -274,10 +292,8 @@ impl Overlays {
             Btn::text_fg("throughput").build_def(ctx, hotkey(Key::T)),
             Btn::text_fg("bike network").build_def(ctx, hotkey(Key::B)),
             Btn::text_fg("bus network").build_def(ctx, hotkey(Key::U)),
+            Btn::text_fg("population map").build_def(ctx, hotkey(Key::X)),
         ];
-        if app.opts.dev {
-            choices.push(Btn::text_fg("dot map of people").build_def(ctx, hotkey(Key::X)));
-        }
         // TODO Grey out the inactive SVGs, and add the green checkmark
         if let Some(name) = match app.overlay {
             Overlays::Inactive => Some("None"),
@@ -289,7 +305,7 @@ impl Overlays {
             Overlays::BusNetwork(_) => Some("bus network"),
             Overlays::Elevation(_, _) => Some("elevation"),
             Overlays::Edits(_) => Some("map edits"),
-            Overlays::PersonDotMap(_, _) => Some("dot map of people"),
+            Overlays::PopulationMap(_, _, _, _) => Some("population map"),
             _ => None,
         } {
             for btn in &mut choices {
@@ -384,9 +400,9 @@ impl Overlays {
             }),
         )
         .maybe_cb(
-            "dot map of people",
+            "population map",
             Box::new(|ctx, app| {
-                app.overlay = Overlays::person_dot_map(ctx, app);
+                app.overlay = Overlays::population_map(ctx, app, None);
                 Some(maybe_unzoom(ctx, app))
             }),
         );
@@ -405,7 +421,7 @@ impl Overlays {
             Overlays::BusNetwork(_) => Some("bus network"),
             Overlays::Elevation(_, _) => Some("elevation"),
             Overlays::Edits(_) => Some("map edits"),
-            Overlays::PersonDotMap(_, _) => Some("dot map of people"),
+            Overlays::PopulationMap(_, _, _, _) => Some("population map"),
             Overlays::TripsHistogram(_, _) => None,
             Overlays::IntersectionDemand(_, _, _, _) => None,
             Overlays::BusRoute(_, _, _) => None,
@@ -981,7 +997,7 @@ impl Overlays {
 
     // TODO Disable drawing unzoomed agents... or alternatively, implement this by asking Sim to
     // return this kind of data instead!
-    fn person_dot_map(ctx: &EventCtx, app: &App) -> Overlays {
+    fn population_map(ctx: &mut EventCtx, app: &App, opts: Option<HeatmapOptions>) -> Overlays {
         let mut pts = Vec::new();
         // Faster to grab all agent positions than individually map trips to agent positions.
         for a in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
@@ -1007,14 +1023,15 @@ impl Overlays {
         // It's quite silly to produce triangles for the same circle over and over again. ;)
         let circle = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(10.0)).to_polygon();
         let mut batch = GeomBatch::new();
-        if true {
-            make_heatmap(&mut batch, app.primary.map.get_bounds(), pts);
+        if let Some(ref o) = opts {
+            make_heatmap(&mut batch, app.primary.map.get_bounds(), pts, o);
         } else {
             for pt in pts {
                 batch.push(Color::RED.alpha(0.8), circle.translate(pt.x(), pt.y()));
             }
         }
-        Overlays::PersonDotMap(app.primary.sim.time(), ctx.upload(batch))
+        let controls = population_controls(ctx, opts.as_ref());
+        Overlays::PopulationMap(app.primary.sim.time(), opts, ctx.upload(batch), controls)
     }
 }
 
@@ -1029,4 +1046,68 @@ fn maybe_unzoom(ctx: &EventCtx, app: &mut App) -> Transition {
         None,
         &mut app.primary,
     ))
+}
+
+// This function sounds more ominous than it should.
+fn population_controls(ctx: &mut EventCtx, opts: Option<&HeatmapOptions>) -> Composite {
+    let mut col = vec![
+        Widget::row(vec![
+            Line("Population").roboto_bold().draw(ctx),
+            Btn::text_fg("X")
+                .build(ctx, "close", hotkey(Key::Escape))
+                .align_right(),
+        ]),
+        Widget::checkbox(ctx, "Show heatmap", None, opts.is_some()),
+    ];
+    if let Some(ref o) = opts {
+        // TODO Display the value...
+        col.push(Widget::row(vec![
+            "Resolution (meters)".draw_text(ctx),
+            Widget::slider("resolution"),
+        ]));
+        col.push(Widget::row(vec![
+            "Diffusion (num of passes)".draw_text(ctx),
+            Widget::slider("passes"),
+        ]));
+        let mut resolution = Slider::horizontal(ctx, 100.0, 25.0);
+        // 1 to 100m
+        resolution.set_percent(ctx, (o.resolution - 1.0) / 99.0);
+        let mut passes = Slider::horizontal(ctx, 100.0, 25.0);
+        // 0 to 10
+        passes.set_percent(ctx, (o.num_passes as f64) / 10.0);
+
+        col.push(Widget::dropdown(
+            ctx,
+            "Colors",
+            o.colors,
+            HeatmapColors::choices(),
+        ));
+
+        Composite::new(Widget::col(col).bg(colors::PANEL_BG))
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+            .slider("resolution", resolution)
+            .slider("passes", passes)
+            .build(ctx)
+    } else {
+        Composite::new(Widget::col(col).bg(colors::PANEL_BG))
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+            .build(ctx)
+    }
+}
+
+fn heatmap_options(c: &mut Composite) -> Option<HeatmapOptions> {
+    if c.is_checked("Show heatmap") {
+        // Did we just change?
+        if c.maybe_slider("resolution").is_some() {
+            Some(HeatmapOptions {
+                resolution: 1.0 + c.slider("resolution").get_percent() * 99.0,
+                num_passes: (c.slider("passes").get_percent() * 10.0) as usize,
+                colors: c.dropdown_value("Colors"),
+            })
+        } else {
+            Some(HeatmapOptions::new())
+        }
+    } else {
+        None
+    }
 }

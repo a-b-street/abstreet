@@ -1,28 +1,58 @@
-use ezgui::{Color, GeomBatch};
+use ezgui::{Choice, Color, GeomBatch};
 use geom::{Bounds, Polygon, Pt2D};
 
-pub fn make_heatmap(batch: &mut GeomBatch, bounds: &Bounds, pts: Vec<Pt2D>) {
-    // Meters
-    let resolution = 10.0;
+#[derive(Clone, PartialEq)]
+pub struct HeatmapOptions {
+    // In meters
+    pub resolution: f64,
+    pub num_passes: usize,
+    pub colors: HeatmapColors,
+}
+
+impl HeatmapOptions {
+    pub fn new() -> HeatmapOptions {
+        HeatmapOptions {
+            resolution: 10.0,
+            num_passes: 5,
+            colors: HeatmapColors::FullSpectral,
+        }
+    }
+}
+
+#[derive(Clone, Copy, PartialEq)]
+pub enum HeatmapColors {
+    FullSpectral,
+    SingleHue,
+}
+
+impl HeatmapColors {
+    pub fn choices() -> Vec<Choice<HeatmapColors>> {
+        vec![
+            Choice::new("full spectral", HeatmapColors::FullSpectral),
+            Choice::new("single hue", HeatmapColors::SingleHue),
+        ]
+    }
+}
+
+pub fn make_heatmap(batch: &mut GeomBatch, bounds: &Bounds, pts: Vec<Pt2D>, opts: &HeatmapOptions) {
     // u8 is not quite enough -- one building could totally have more than 256 people.
     let mut counts: Grid<u16> = Grid::new(
-        (bounds.width() / resolution).ceil() as usize,
-        (bounds.height() / resolution).ceil() as usize,
+        (bounds.width() / opts.resolution).ceil() as usize,
+        (bounds.height() / opts.resolution).ceil() as usize,
         0,
     );
 
     for pt in pts {
         // TODO more careful rounding
         let idx = counts.idx(
-            ((pt.x() - bounds.min_x) / resolution) as usize,
-            ((pt.y() - bounds.min_y) / resolution) as usize,
+            ((pt.x() - bounds.min_x) / opts.resolution) as usize,
+            ((pt.y() - bounds.min_y) / opts.resolution) as usize,
         );
         counts.data[idx] += 1;
     }
 
     // Diffusion
-    let num_passes = 5;
-    for _ in 0..num_passes {
+    for _ in 0..opts.num_passes {
         // Have to hot-swap! Urgh
         let mut copy = counts.data.clone();
         for y in 0..counts.height {
@@ -41,24 +71,34 @@ pub fn make_heatmap(batch: &mut GeomBatch, bounds: &Bounds, pts: Vec<Pt2D>) {
 
     // Now draw rectangles
     let max = *counts.data.iter().max().unwrap();
-    // TODO Full spectral progression isn't recommended anymore!
     // This is in order from low density to high.
-    let colors = vec![
-        Color::hex("#0b2c7a"),
-        Color::hex("#1e9094"),
-        Color::hex("#0ec441"),
-        Color::hex("#7bed00"),
-        Color::hex("#f7d707"),
-        Color::hex("#e68e1c"),
-        Color::hex("#c2523c"),
-    ];
+    let colors = match opts.colors {
+        HeatmapColors::FullSpectral => vec![
+            Color::hex("#0b2c7a"),
+            Color::hex("#1e9094"),
+            Color::hex("#0ec441"),
+            Color::hex("#7bed00"),
+            Color::hex("#f7d707"),
+            Color::hex("#e68e1c"),
+            Color::hex("#c2523c"),
+        ],
+        HeatmapColors::SingleHue => vec![
+            Color::hex("#FFEBD6"),
+            Color::hex("#F5CBAE"),
+            Color::hex("#EBA988"),
+            Color::hex("#E08465"),
+            Color::hex("#D65D45"),
+            Color::hex("#CC3527"),
+            Color::hex("#C40A0A"),
+        ],
+    };
     // TODO Off by 1?
     let range = max / ((colors.len() - 1) as u16);
     if range == 0 {
         // Max is too low, use less colors?
         return;
     }
-    let square = Polygon::rectangle(resolution, resolution);
+    let square = Polygon::rectangle(opts.resolution, opts.resolution);
     for y in 0..counts.height {
         for x in 0..counts.width {
             let idx = counts.idx(x, y);
@@ -68,7 +108,7 @@ pub fn make_heatmap(batch: &mut GeomBatch, bounds: &Bounds, pts: Vec<Pt2D>) {
                 let color = colors[((cnt / range) as usize).min(colors.len() - 1)];
                 batch.push(
                     color,
-                    square.translate((x as f64) * resolution, (y as f64) * resolution),
+                    square.translate((x as f64) * opts.resolution, (y as f64) * opts.resolution),
                 );
             }
         }

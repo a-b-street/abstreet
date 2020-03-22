@@ -105,11 +105,31 @@ impl Dropdown {
         }
     }
 
-    // TODO This invalidates the entire widget!
-    pub fn take_value<T: 'static>(&mut self) -> T {
-        let data: Box<dyn Any> = self.choices.remove(self.current_idx).data;
+    // TODO This invalidates the entire widget! Have to call return_value
+    pub fn take_value<T: 'static>(&mut self) -> Choice<T> {
+        let c = self.choices.remove(self.current_idx);
+        let data: Box<dyn Any> = c.data;
         let boxed: Box<T> = data.downcast().unwrap();
-        *boxed
+        Choice {
+            label: c.label,
+            data: *boxed,
+            hotkey: c.hotkey,
+            active: c.active,
+            tooltip: c.tooltip,
+        }
+    }
+    pub fn return_value<T: 'static>(&mut self, c: Choice<T>) {
+        let data: Box<dyn Any> = Box::new(c.data);
+        self.choices.insert(
+            self.current_idx,
+            Choice {
+                label: c.label,
+                data,
+                hotkey: c.hotkey,
+                active: c.active,
+                tooltip: c.tooltip,
+            },
+        );
     }
 }
 
