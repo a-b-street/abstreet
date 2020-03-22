@@ -57,7 +57,7 @@ impl Wizard {
     pub fn current_menu_choice<R: 'static + Cloneable>(&self) -> Option<&R> {
         if let Some(ref comp) = self.menu_comp {
             let item: &R = comp
-                .menu("menu")
+                .menu::<Box<dyn Cloneable>>("menu")
                 .current_choice()
                 .as_any()
                 .downcast_ref::<R>()?;
@@ -295,7 +295,14 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             _ => {}
         }
 
-        let (result, destroy) = match self.wizard.menu_comp.as_ref().unwrap().menu("menu").state {
+        let (result, destroy) = match self
+            .wizard
+            .menu_comp
+            .as_ref()
+            .unwrap()
+            .menu::<Box<dyn Cloneable>>("menu")
+            .state
+        {
             InputResult::Canceled => {
                 self.wizard.alive = false;
                 (None, true)

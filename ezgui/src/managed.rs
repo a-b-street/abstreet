@@ -1,10 +1,10 @@
+use crate::widgets::plot::Yvalue;
 use crate::{
     Btn, Button, Checkbox, Choice, Color, Drawable, Dropdown, EventCtx, Filler, GeomBatch, GfxCtx,
     Histogram, HorizontalAlignment, JustDraw, MultiKey, Plot, PopupMenu, RewriteColor, ScreenDims,
     ScreenPt, ScreenRectangle, Slider, Text, TextBox, VerticalAlignment, WidgetImpl,
 };
-use abstutil::Cloneable;
-use geom::{Distance, Duration, Polygon};
+use geom::{Distance, Polygon};
 use std::collections::HashSet;
 use stretch::geometry::{Rect, Size};
 use stretch::node::{Node, Stretch};
@@ -18,27 +18,17 @@ pub struct Widget {
     style: LayoutStyle,
     rect: ScreenRectangle,
     bg: Option<Drawable>,
-    // TODO Only use this, not the other things
     id: Option<String>,
 }
 
 enum WidgetType {
-    Draw(JustDraw),
     Btn(Button),
-    Checkbox(Checkbox),
-    TextBox(TextBox),
     Dropdown(Dropdown),
     Slider(Slider),
-    Menu(PopupMenu<Box<dyn Cloneable>>),
-    Filler(Filler),
-    // TODO Sadness. Can't have some kind of wildcard generic here? I think this goes away when
-    // WidgetType becomes a trait.
-    DurationPlot(Plot<Duration>),
-    UsizePlot(Plot<usize>),
-    Histogram(Histogram),
     Row(Vec<Widget>),
     Column(Vec<Widget>),
     Nothing,
+    Generic(Box<dyn WidgetImpl>),
 }
 
 struct LayoutStyle {
@@ -242,7 +232,7 @@ impl Widget {
     }
 
     pub(crate) fn just_draw(j: JustDraw) -> Widget {
-        Widget::new(WidgetType::Draw(j))
+        Widget::new(WidgetType::Generic(Box::new(j)))
     }
 
     pub(crate) fn draw_text(ctx: &EventCtx, txt: Text) -> Widget {
@@ -266,12 +256,12 @@ impl Widget {
         Widget::new(WidgetType::Slider(slider))
     }
 
-    pub fn menu(menu: PopupMenu<Box<dyn Cloneable>>) -> Widget {
-        Widget::new(WidgetType::Menu(menu))
+    pub fn menu<T: 'static + Clone>(menu: PopupMenu<T>) -> Widget {
+        Widget::new(WidgetType::Generic(Box::new(menu)))
     }
 
     pub fn filler(filler: Filler) -> Widget {
-        Widget::new(WidgetType::Filler(filler))
+        Widget::new(WidgetType::Generic(Box::new(filler)))
     }
 
     pub fn checkbox(
@@ -290,21 +280,21 @@ impl Widget {
     }
     // TODO Not typesafe! Gotta pass a button.
     pub fn custom_checkbox(enabled: bool, false_btn: Widget, true_btn: Widget) -> Widget {
-        Widget::new(WidgetType::Checkbox(Checkbox::new(
+        Widget::new(WidgetType::Generic(Box::new(Checkbox::new(
             enabled,
             false_btn.take_btn(),
             true_btn.take_btn(),
-        )))
+        ))))
     }
 
     pub fn text_entry(ctx: &EventCtx, prefilled: String, exclusive_focus: bool) -> Widget {
         // TODO Hardcoded style, max chars
-        Widget::new(WidgetType::TextBox(TextBox::new(
+        Widget::new(WidgetType::Generic(Box::new(TextBox::new(
             ctx,
             50,
             prefilled,
             exclusive_focus,
-        )))
+        ))))
     }
 
     pub fn dropdown<T: 'static + PartialEq>(
@@ -323,16 +313,12 @@ impl Widget {
         .outline(2.0, Color::WHITE)
     }
 
-    pub(crate) fn duration_plot(plot: Plot<Duration>) -> Widget {
-        Widget::new(WidgetType::DurationPlot(plot))
-    }
-
-    pub(crate) fn usize_plot(plot: Plot<usize>) -> Widget {
-        Widget::new(WidgetType::UsizePlot(plot))
+    pub(crate) fn plot<T: 'static + Yvalue<T>>(plot: Plot<T>) -> Widget {
+        Widget::new(WidgetType::Generic(Box::new(plot)))
     }
 
     pub(crate) fn histogram(histogram: Histogram) -> Widget {
-        Widget::new(WidgetType::Histogram(histogram))
+        Widget::new(WidgetType::Generic(Box::new(histogram)))
     }
 
     pub fn row(widgets: Vec<Widget>) -> Widget {
@@ -368,20 +354,11 @@ impl Widget {
 impl Widget {
     fn event(&mut self, ctx: &mut EventCtx, redo_layout: &mut bool) -> Option<Outcome> {
         match self.widget {
-            WidgetType::Draw(_) => {}
             WidgetType::Btn(ref mut btn) => {
                 btn.event(ctx);
                 if btn.clicked() {
                     return Some(Outcome::Clicked(btn.action.clone()));
                 }
-            }
-            WidgetType::Checkbox(ref mut checkbox) => {
-                if checkbox.event(ctx) {
-                    *redo_layout = true;
-                }
-            }
-            WidgetType::TextBox(ref mut textbox) => {
-                textbox.event(ctx);
             }
             WidgetType::Dropdown(ref mut dropdown) => {
                 if dropdown.event(ctx, &self.rect) {
@@ -391,13 +368,6 @@ impl Widget {
             WidgetType::Slider(ref mut slider) => {
                 slider.event(ctx);
             }
-            WidgetType::Menu(ref mut menu) => {
-                menu.event(ctx);
-            }
-            WidgetType::Filler(_)
-            | WidgetType::DurationPlot(_)
-            | WidgetType::UsizePlot(_)
-            | WidgetType::Histogram(_) => {}
             WidgetType::Row(ref mut widgets) | WidgetType::Column(ref mut widgets) => {
                 for w in widgets {
                     if let Some(o) = w.event(ctx, redo_layout) {
@@ -406,6 +376,11 @@ impl Widget {
                 }
             }
             WidgetType::Nothing => unreachable!(),
+            WidgetType::Generic(ref mut w) => {
+                if let Some(o) = w.event(ctx, &self.rect, redo_layout) {
+                    return Some(o);
+                }
+            }
         }
         None
     }
@@ -416,10 +391,7 @@ impl Widget {
         }
 
         match self.widget {
-            WidgetType::Draw(ref j) => j.draw(g),
             WidgetType::Btn(ref btn) => btn.draw(g),
-            WidgetType::Checkbox(ref checkbox) => checkbox.draw(g),
-            WidgetType::TextBox(ref textbox) => textbox.draw(g),
             WidgetType::Dropdown(ref dropdown) => dropdown.draw(g),
             WidgetType::Slider(ref slider) => {
                 if self.id != Some("horiz scrollbar".to_string())
@@ -428,35 +400,22 @@ impl Widget {
                     slider.draw(g);
                 }
             }
-            WidgetType::Menu(ref menu) => menu.draw(g),
-            WidgetType::Filler(_) => {}
-            WidgetType::DurationPlot(ref plot) => plot.draw(g),
-            WidgetType::UsizePlot(ref plot) => plot.draw(g),
-            WidgetType::Histogram(ref hgram) => hgram.draw(g),
             WidgetType::Row(ref widgets) | WidgetType::Column(ref widgets) => {
                 for w in widgets {
                     w.draw(g);
                 }
             }
             WidgetType::Nothing => unreachable!(),
+            WidgetType::Generic(ref w) => w.draw(g),
         }
     }
 
     // Populate a flattened list of Nodes, matching the traversal order
     fn get_flexbox(&self, parent: Node, stretch: &mut Stretch, nodes: &mut Vec<Node>) {
-        // TODO Can I use | in the match and "cast" to Widget?
-        let widget: &dyn WidgetImpl = match self.widget {
-            WidgetType::Draw(ref widget) => widget,
-            WidgetType::Btn(ref widget) => widget,
-            WidgetType::Checkbox(ref widget) => widget,
-            WidgetType::TextBox(ref widget) => widget,
-            WidgetType::Dropdown(ref widget) => widget,
-            WidgetType::Slider(ref widget) => widget,
-            WidgetType::Menu(ref widget) => widget,
-            WidgetType::Filler(ref widget) => widget,
-            WidgetType::DurationPlot(ref widget) => widget,
-            WidgetType::UsizePlot(ref widget) => widget,
-            WidgetType::Histogram(ref widget) => widget,
+        let dims = match self.widget {
+            WidgetType::Btn(ref widget) => widget.get_dims(),
+            WidgetType::Dropdown(ref widget) => widget.get_dims(),
+            WidgetType::Slider(ref widget) => widget.get_dims(),
             WidgetType::Row(ref widgets) => {
                 let mut style = Style {
                     flex_direction: FlexDirection::Row,
@@ -486,8 +445,8 @@ impl Widget {
                 return;
             }
             WidgetType::Nothing => unreachable!(),
+            WidgetType::Generic(ref w) => w.get_dims(),
         };
-        let dims = widget.get_dims();
         let mut style = Style {
             size: Size {
                 width: Dimension::Points(dims.width as f32),
@@ -516,18 +475,13 @@ impl Widget {
         let y: f64 = result.location.y.into();
         let width: f64 = result.size.width.into();
         let height: f64 = result.size.height.into();
-        let top_left = match self.widget {
-            WidgetType::Slider(_) => {
-                // Don't scroll the scrollbars
-                if self.id == Some("horiz scrollbar".to_string())
-                    || self.id == Some("vert scrollbar".to_string())
-                {
-                    ScreenPt::new(x, y)
-                } else {
-                    ScreenPt::new(x + dx - scroll_offset.0, y + dy - scroll_offset.1)
-                }
-            }
-            _ => ScreenPt::new(x + dx - scroll_offset.0, y + dy - scroll_offset.1),
+        // Don't scroll the scrollbars
+        let top_left = if self.id == Some("horiz scrollbar".to_string())
+            || self.id == Some("vert scrollbar".to_string())
+        {
+            ScreenPt::new(x, y)
+        } else {
+            ScreenPt::new(x + dx - scroll_offset.0, y + dy - scroll_offset.1)
         };
         self.rect = ScreenRectangle::top_left(top_left, ScreenDims::new(width, height));
 
@@ -550,37 +504,13 @@ impl Widget {
         }
 
         match self.widget {
-            WidgetType::Draw(ref mut widget) => {
-                widget.set_pos(top_left);
-            }
             WidgetType::Btn(ref mut widget) => {
-                widget.set_pos(top_left);
-            }
-            WidgetType::Checkbox(ref mut widget) => {
-                widget.set_pos(top_left);
-            }
-            WidgetType::TextBox(ref mut widget) => {
                 widget.set_pos(top_left);
             }
             WidgetType::Dropdown(ref mut widget) => {
                 widget.set_pos(top_left);
             }
             WidgetType::Slider(ref mut widget) => {
-                widget.set_pos(top_left);
-            }
-            WidgetType::Menu(ref mut widget) => {
-                widget.set_pos(top_left);
-            }
-            WidgetType::Filler(ref mut widget) => {
-                widget.set_pos(top_left);
-            }
-            WidgetType::DurationPlot(ref mut widget) => {
-                widget.set_pos(top_left);
-            }
-            WidgetType::UsizePlot(ref mut widget) => {
-                widget.set_pos(top_left);
-            }
-            WidgetType::Histogram(ref mut widget) => {
                 widget.set_pos(top_left);
             }
             WidgetType::Row(ref mut widgets) => {
@@ -611,21 +541,15 @@ impl Widget {
                 }
             }
             WidgetType::Nothing => unreachable!(),
+            WidgetType::Generic(ref mut w) => {
+                w.set_pos(top_left);
+            }
         }
     }
 
     fn get_all_click_actions(&self, actions: &mut HashSet<String>) {
         match self.widget {
-            WidgetType::Draw(_)
-            | WidgetType::Slider(_)
-            | WidgetType::Menu(_)
-            | WidgetType::Filler(_)
-            | WidgetType::Checkbox(_)
-            | WidgetType::TextBox(_)
-            | WidgetType::Dropdown(_)
-            | WidgetType::DurationPlot(_)
-            | WidgetType::UsizePlot(_) => {}
-            WidgetType::Histogram(_) => {}
+            WidgetType::Slider(_) | WidgetType::Dropdown(_) => {}
             WidgetType::Btn(ref btn) => {
                 if actions.contains(&btn.action) {
                     panic!(
@@ -641,6 +565,8 @@ impl Widget {
                 }
             }
             WidgetType::Nothing => unreachable!(),
+            // TODO Will need something
+            WidgetType::Generic(_) => {}
         }
     }
 
@@ -950,23 +876,41 @@ impl Composite {
         }
     }
 
-    pub fn menu(&self, name: &str) -> &PopupMenu<Box<dyn Cloneable>> {
+    pub fn menu<T: 'static + Clone>(&self, name: &str) -> &PopupMenu<T> {
         match self.find(name).widget {
-            WidgetType::Menu(ref menu) => menu,
+            WidgetType::Generic(ref w) => {
+                if let Some(menu) = w.downcast_ref::<PopupMenu<T>>() {
+                    menu
+                } else {
+                    panic!("{} isn't a menu", name);
+                }
+            }
             _ => panic!("{} isn't a menu", name),
         }
     }
 
     pub fn is_checked(&self, name: &str) -> bool {
         match self.find(name).widget {
-            WidgetType::Checkbox(ref checkbox) => checkbox.enabled,
+            WidgetType::Generic(ref w) => {
+                if let Some(checkbox) = w.downcast_ref::<Checkbox>() {
+                    checkbox.enabled
+                } else {
+                    panic!("{} isn't a checkbox", name);
+                }
+            }
             _ => panic!("{} isn't a checkbox", name),
         }
     }
 
     pub fn text_box(&self, name: &str) -> String {
         match self.find(name).widget {
-            WidgetType::TextBox(ref textbox) => textbox.get_entry(),
+            WidgetType::Generic(ref w) => {
+                if let Some(tb) = w.downcast_ref::<TextBox>() {
+                    tb.get_line()
+                } else {
+                    panic!("{} isn't a textbox", name);
+                }
+            }
             _ => panic!("{} isn't a textbox", name),
         }
     }
@@ -986,8 +930,15 @@ impl Composite {
     }
 
     pub fn filler_rect(&self, name: &str) -> ScreenRectangle {
-        match self.find(name).widget {
-            WidgetType::Filler(ref f) => ScreenRectangle::top_left(f.top_left, f.dims),
+        let widget = self.find(name);
+        match widget.widget {
+            WidgetType::Generic(ref w) => {
+                if let Some(_) = w.downcast_ref::<Filler>() {
+                    widget.rect.clone()
+                } else {
+                    panic!("{} isn't a filler", name);
+                }
+            }
             _ => panic!("{} isn't a filler", name),
         }
     }

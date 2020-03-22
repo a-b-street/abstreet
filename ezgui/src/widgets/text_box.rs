@@ -1,6 +1,6 @@
 use crate::{
-    text, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenDims, ScreenPt, ScreenRectangle,
-    Text, WidgetImpl,
+    text, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, ScreenDims, ScreenPt,
+    ScreenRectangle, Text, WidgetImpl,
 };
 use geom::Polygon;
 
@@ -34,7 +34,41 @@ impl TextBox {
         }
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx) {
+    fn calculate_text(&self) -> Text {
+        let mut txt = Text::from(Line(&self.line[0..self.cursor_x]));
+        if self.cursor_x < self.line.len() {
+            // TODO This "cursor" looks awful!
+            txt.append_all(vec![
+                Line("|").fg(text::SELECTED_COLOR),
+                Line(&self.line[self.cursor_x..=self.cursor_x]),
+                Line(&self.line[self.cursor_x + 1..]),
+            ]);
+        } else {
+            txt.append(Line("|").fg(text::SELECTED_COLOR));
+        }
+        txt
+    }
+
+    pub fn get_line(&self) -> String {
+        self.line.clone()
+    }
+}
+
+impl WidgetImpl for TextBox {
+    fn get_dims(&self) -> ScreenDims {
+        self.dims
+    }
+
+    fn set_pos(&mut self, top_left: ScreenPt) {
+        self.top_left = top_left;
+    }
+
+    fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        _rect: &ScreenRectangle,
+        _redo_layout: &mut bool,
+    ) -> Option<Outcome> {
         if ctx.redo_mouseover() {
             if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
                 self.hovering = ScreenRectangle::top_left(self.top_left, self.dims).contains(pt);
@@ -51,7 +85,7 @@ impl TextBox {
         }
 
         if !self.has_focus && !self.autofocus {
-            return;
+            return None;
         }
         if let Some(key) = ctx.input.any_key_pressed() {
             match key {
@@ -79,9 +113,11 @@ impl TextBox {
                 }
             };
         }
+
+        None
     }
 
-    pub fn draw(&self, g: &mut GfxCtx) {
+    fn draw(&self, g: &mut GfxCtx) {
         let mut batch = GeomBatch::from(vec![(
             if self.has_focus || self.autofocus {
                 Color::ORANGE
@@ -95,34 +131,5 @@ impl TextBox {
         batch.append(self.calculate_text().render_to_batch(g.prerender));
         let draw = g.upload(batch);
         g.redraw_at(self.top_left, &draw);
-    }
-
-    pub fn get_entry(&self) -> String {
-        self.line.clone()
-    }
-
-    fn calculate_text(&self) -> Text {
-        let mut txt = Text::from(Line(&self.line[0..self.cursor_x]));
-        if self.cursor_x < self.line.len() {
-            // TODO This "cursor" looks awful!
-            txt.append_all(vec![
-                Line("|").fg(text::SELECTED_COLOR),
-                Line(&self.line[self.cursor_x..=self.cursor_x]),
-                Line(&self.line[self.cursor_x + 1..]),
-            ]);
-        } else {
-            txt.append(Line("|").fg(text::SELECTED_COLOR));
-        }
-        txt
-    }
-}
-
-impl WidgetImpl for TextBox {
-    fn get_dims(&self) -> ScreenDims {
-        self.dims
-    }
-
-    fn set_pos(&mut self, top_left: ScreenPt) {
-        self.top_left = top_left;
     }
 }

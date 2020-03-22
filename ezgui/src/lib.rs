@@ -47,7 +47,7 @@ pub(crate) use crate::widgets::popup_menu::PopupMenu;
 pub use crate::widgets::slider::{ItemSlider, Slider, WarpingItemSlider};
 pub(crate) use crate::widgets::text_box::TextBox;
 pub use crate::widgets::wizard::{Choice, Wizard, WrappedWizard};
-pub(crate) use crate::widgets::WidgetImpl;
+pub use crate::widgets::WidgetImpl;
 
 pub enum InputResult<T: Clone> {
     Canceled,

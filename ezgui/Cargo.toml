@@ -15,6 +15,7 @@ profiler = ["cpuprofiler"]
 abstutil = { path = "../abstutil" }
 # backtrace = "0.3.40"
 cpuprofiler = { version = "0.0.3", optional = true }
+downcast-rs = "1.1.1"
 geom = { path = "../geom" }
 glium = { version = "0.26.0", optional = true }
 glow = { version = "0.4.0", optional = true, default-features=false }

@@ -52,7 +52,9 @@ impl Dropdown {
     // If true, widgets should be recomputed.
     pub fn event(&mut self, ctx: &mut EventCtx, our_rect: &ScreenRectangle) -> bool {
         if let Some(ref mut m) = self.menu {
-            m.event(ctx);
+            // TODO wraaaaaaaaaaaawng
+            let mut redo_layout = false;
+            m.event(ctx, our_rect, &mut redo_layout);
             match m.state {
                 InputResult::StillActive => {}
                 InputResult::Canceled => {

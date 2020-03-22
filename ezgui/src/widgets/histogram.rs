@@ -1,6 +1,6 @@
 use crate::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ScreenDims, ScreenPt, Text, TextExt,
-    Widget, WidgetImpl,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome, ScreenDims, ScreenPt,
+    ScreenRectangle, Text, TextExt, Widget, WidgetImpl,
 };
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, Polygon, Pt2D};
@@ -99,8 +99,26 @@ impl Histogram {
             x_axis.evenly_spaced(),
         ])])
     }
+}
 
-    pub(crate) fn draw(&self, g: &mut GfxCtx) {
+impl WidgetImpl for Histogram {
+    fn get_dims(&self) -> ScreenDims {
+        self.dims
+    }
+
+    fn set_pos(&mut self, top_left: ScreenPt) {
+        self.top_left = top_left;
+    }
+
+    fn event(
+        &mut self,
+        _ctx: &mut EventCtx,
+        _rect: &ScreenRectangle,
+        _redo_layout: &mut bool,
+    ) -> Option<Outcome> {
+        None
+    }
+    fn draw(&self, g: &mut GfxCtx) {
         g.redraw_at(self.top_left, &self.draw);
 
         if let Some(cursor) = g.canvas.get_cursor_in_screen_space() {
@@ -112,16 +130,6 @@ impl Histogram {
                 }
             }
         }
-    }
-}
-
-impl WidgetImpl for Histogram {
-    fn get_dims(&self) -> ScreenDims {
-        self.dims
-    }
-
-    fn set_pos(&mut self, top_left: ScreenPt) {
-        self.top_left = top_left;
     }
 }
 

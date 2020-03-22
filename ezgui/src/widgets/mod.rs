@@ -12,13 +12,26 @@ pub mod slider;
 pub mod text_box;
 pub mod wizard;
 
-use crate::{EventCtx, ScreenDims, ScreenPt};
+use crate::{EventCtx, GfxCtx, Outcome, ScreenDims, ScreenPt, ScreenRectangle};
 use ordered_float::NotNan;
 
-pub trait WidgetImpl {
+pub trait WidgetImpl: downcast_rs::Downcast {
     fn get_dims(&self) -> ScreenDims;
     fn set_pos(&mut self, top_left: ScreenPt);
+
+    // TODO Require everyone to implement it
+    fn event(
+        &mut self,
+        _ctx: &mut EventCtx,
+        _rect: &ScreenRectangle,
+        _redo_layout: &mut bool,
+    ) -> Option<Outcome> {
+        None
+    }
+    fn draw(&self, _g: &mut GfxCtx) {}
 }
+
+downcast_rs::impl_downcast!(WidgetImpl);
 
 #[derive(Clone, Copy)]
 pub enum ContainerOrientation {

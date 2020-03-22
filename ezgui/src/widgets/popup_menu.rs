@@ -1,5 +1,5 @@
 use crate::{
-    hotkey, text, Choice, EventCtx, GfxCtx, InputResult, Key, Line, ScreenDims, ScreenPt,
+    hotkey, text, Choice, EventCtx, GfxCtx, InputResult, Key, Line, Outcome, ScreenDims, ScreenPt,
     ScreenRectangle, Text, WidgetImpl,
 };
 use geom::Pt2D;
@@ -27,118 +27,6 @@ impl<T: Clone> PopupMenu<T> {
         };
         m.dims = m.calculate_txt().dims(&ctx.prerender.assets);
         m
-    }
-
-    pub fn event(&mut self, ctx: &mut EventCtx) {
-        match self.state {
-            InputResult::StillActive => {}
-            _ => unreachable!(),
-        }
-
-        // Handle the mouse
-        if ctx.redo_mouseover() {
-            if let Some(cursor) = ctx.canvas.get_cursor_in_screen_space() {
-                let mut top_left = self.top_left;
-                for idx in 0..self.choices.len() {
-                    let rect = ScreenRectangle {
-                        x1: top_left.x,
-                        y1: top_left.y,
-                        x2: top_left.x + self.dims.width,
-                        y2: top_left.y + ctx.default_line_height(),
-                    };
-                    if rect.contains(cursor) {
-                        self.current_idx = idx;
-                        break;
-                    }
-                    top_left.y += ctx.default_line_height();
-                }
-            }
-        }
-        {
-            let choice = &self.choices[self.current_idx];
-            if ctx.normal_left_click() {
-                // Did we actually click the entry?
-                let mut top_left = self.top_left;
-                top_left.y += ctx.default_line_height() * (self.current_idx as f64);
-                let rect = ScreenRectangle {
-                    x1: top_left.x,
-                    y1: top_left.y,
-                    x2: top_left.x + self.dims.width,
-                    y2: top_left.y + ctx.default_line_height(),
-                };
-                if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
-                    if rect.contains(pt) && choice.active {
-                        self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
-                        return;
-                    }
-                    // Unconsume the click, it was in screen space, but not on us.
-                    ctx.input.unconsume_event();
-                } else {
-                    // Clicked on the map? Cancel out
-                    self.state = InputResult::Canceled;
-                    return;
-                }
-            }
-        }
-
-        // Handle hotkeys
-        for choice in &self.choices {
-            if !choice.active {
-                continue;
-            }
-            if let Some(ref hotkey) = choice.hotkey {
-                if ctx.input.new_was_pressed(hotkey) {
-                    self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
-                    return;
-                }
-            }
-        }
-
-        // Handle nav keys
-        if ctx.input.new_was_pressed(&hotkey(Key::Enter).unwrap()) {
-            let choice = &self.choices[self.current_idx];
-            if choice.active {
-                self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
-                return;
-            } else {
-                return;
-            }
-        } else if ctx.input.new_was_pressed(&hotkey(Key::UpArrow).unwrap()) {
-            if self.current_idx > 0 {
-                self.current_idx -= 1;
-            }
-        } else if ctx.input.new_was_pressed(&hotkey(Key::DownArrow).unwrap()) {
-            if self.current_idx < self.choices.len() - 1 {
-                self.current_idx += 1;
-            }
-        }
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx) {
-        let draw = g.upload(self.calculate_txt().render_g(g));
-        // In between tooltip and normal screenspace
-        g.fork(Pt2D::new(0.0, 0.0), self.top_left, 1.0, Some(0.1));
-        g.redraw(&draw);
-        g.unfork();
-
-        if let Some(ref info) = self.choices[self.current_idx].tooltip {
-            // Hold on, are we actually hovering on that entry right now?
-            let mut top_left = self.top_left;
-            top_left.y += g.default_line_height() * (self.current_idx as f64);
-            let rect = ScreenRectangle {
-                x1: top_left.x,
-                y1: top_left.y,
-                x2: top_left.x + self.dims.width,
-                y2: top_left.y + g.default_line_height(),
-            };
-            if let Some(pt) = g.canvas.get_cursor_in_screen_space() {
-                if rect.contains(pt) {
-                    let mut txt = Text::new();
-                    txt.add_wrapped(info.to_string(), 0.5 * g.canvas.window_width);
-                    g.draw_mouse_tooltip(txt);
-                }
-            }
-        }
     }
 
     pub fn current_choice(&self) -> &T {
@@ -182,12 +70,131 @@ impl<T: Clone> PopupMenu<T> {
     }
 }
 
-impl<T: Clone> WidgetImpl for PopupMenu<T> {
+impl<T: 'static + Clone> WidgetImpl for PopupMenu<T> {
     fn get_dims(&self) -> ScreenDims {
         self.dims
     }
 
     fn set_pos(&mut self, top_left: ScreenPt) {
         self.top_left = top_left;
+    }
+
+    fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        _rect: &ScreenRectangle,
+        _redo_layout: &mut bool,
+    ) -> Option<Outcome> {
+        match self.state {
+            InputResult::StillActive => {}
+            _ => unreachable!(),
+        }
+
+        // Handle the mouse
+        if ctx.redo_mouseover() {
+            if let Some(cursor) = ctx.canvas.get_cursor_in_screen_space() {
+                let mut top_left = self.top_left;
+                for idx in 0..self.choices.len() {
+                    let rect = ScreenRectangle {
+                        x1: top_left.x,
+                        y1: top_left.y,
+                        x2: top_left.x + self.dims.width,
+                        y2: top_left.y + ctx.default_line_height(),
+                    };
+                    if rect.contains(cursor) {
+                        self.current_idx = idx;
+                        break;
+                    }
+                    top_left.y += ctx.default_line_height();
+                }
+            }
+        }
+        {
+            let choice = &self.choices[self.current_idx];
+            if ctx.normal_left_click() {
+                // Did we actually click the entry?
+                let mut top_left = self.top_left;
+                top_left.y += ctx.default_line_height() * (self.current_idx as f64);
+                let rect = ScreenRectangle {
+                    x1: top_left.x,
+                    y1: top_left.y,
+                    x2: top_left.x + self.dims.width,
+                    y2: top_left.y + ctx.default_line_height(),
+                };
+                if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
+                    if rect.contains(pt) && choice.active {
+                        self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
+                        return None;
+                    }
+                    // Unconsume the click, it was in screen space, but not on us.
+                    ctx.input.unconsume_event();
+                } else {
+                    // Clicked on the map? Cancel out
+                    self.state = InputResult::Canceled;
+                    return None;
+                }
+            }
+        }
+
+        // Handle hotkeys
+        for choice in &self.choices {
+            if !choice.active {
+                continue;
+            }
+            if let Some(ref hotkey) = choice.hotkey {
+                if ctx.input.new_was_pressed(hotkey) {
+                    self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
+                    return None;
+                }
+            }
+        }
+
+        // Handle nav keys
+        if ctx.input.new_was_pressed(&hotkey(Key::Enter).unwrap()) {
+            let choice = &self.choices[self.current_idx];
+            if choice.active {
+                self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
+                return None;
+            } else {
+                return None;
+            }
+        } else if ctx.input.new_was_pressed(&hotkey(Key::UpArrow).unwrap()) {
+            if self.current_idx > 0 {
+                self.current_idx -= 1;
+            }
+        } else if ctx.input.new_was_pressed(&hotkey(Key::DownArrow).unwrap()) {
+            if self.current_idx < self.choices.len() - 1 {
+                self.current_idx += 1;
+            }
+        }
+
+        None
+    }
+
+    fn draw(&self, g: &mut GfxCtx) {
+        let draw = g.upload(self.calculate_txt().render_g(g));
+        // In between tooltip and normal screenspace
+        g.fork(Pt2D::new(0.0, 0.0), self.top_left, 1.0, Some(0.1));
+        g.redraw(&draw);
+        g.unfork();
+
+        if let Some(ref info) = self.choices[self.current_idx].tooltip {
+            // Hold on, are we actually hovering on that entry right now?
+            let mut top_left = self.top_left;
+            top_left.y += g.default_line_height() * (self.current_idx as f64);
+            let rect = ScreenRectangle {
+                x1: top_left.x,
+                y1: top_left.y,
+                x2: top_left.x + self.dims.width,
+                y2: top_left.y + g.default_line_height(),
+            };
+            if let Some(pt) = g.canvas.get_cursor_in_screen_space() {
+                if rect.contains(pt) {
+                    let mut txt = Text::new();
+                    txt.add_wrapped(info.to_string(), 0.5 * g.canvas.window_width);
+                    g.draw_mouse_tooltip(txt);
+                }
+            }
+        }
     }
 }

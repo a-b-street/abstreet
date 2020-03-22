@@ -1,6 +1,6 @@
 use crate::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ScreenDims, ScreenPt, ScreenRectangle,
-    Text, TextExt, Widget, WidgetImpl,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome, ScreenDims, ScreenPt,
+    ScreenRectangle, Text, TextExt, Widget, WidgetImpl,
 };
 use abstutil::prettyprint_usize;
 use geom::{Angle, Bounds, Circle, Distance, Duration, FindClosest, PolyLine, Pt2D, Time};
@@ -198,8 +198,56 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
 
         (plot, legend, x_axis, y_axis)
     }
+}
 
-    pub(crate) fn draw(&self, g: &mut GfxCtx) {
+// TODO Do we still need these two? :\
+impl Plot<usize> {
+    pub fn new_usize(ctx: &EventCtx, series: Vec<Series<usize>>, opts: PlotOptions) -> Widget {
+        let (plot, legend, x_axis, y_axis) = Plot::new(ctx, series, 0, opts);
+        // Don't let the x-axis fill the parent container
+        Widget::row(vec![Widget::col(vec![
+            legend,
+            Widget::row(vec![y_axis.evenly_spaced(), Widget::plot(plot)]),
+            x_axis.evenly_spaced(),
+        ])])
+    }
+}
+
+impl Plot<Duration> {
+    pub fn new_duration(
+        ctx: &EventCtx,
+        series: Vec<Series<Duration>>,
+        opts: PlotOptions,
+    ) -> Widget {
+        let (plot, legend, x_axis, y_axis) = Plot::new(ctx, series, Duration::ZERO, opts);
+        // Don't let the x-axis fill the parent container
+        Widget::row(vec![Widget::col(vec![
+            legend,
+            Widget::row(vec![y_axis.evenly_spaced(), Widget::plot(plot)]),
+            x_axis.evenly_spaced(),
+        ])])
+    }
+}
+
+impl<T: 'static + Yvalue<T>> WidgetImpl for Plot<T> {
+    fn get_dims(&self) -> ScreenDims {
+        self.dims
+    }
+
+    fn set_pos(&mut self, top_left: ScreenPt) {
+        self.top_left = top_left;
+    }
+
+    fn event(
+        &mut self,
+        _ctx: &mut EventCtx,
+        _rect: &ScreenRectangle,
+        _redo_layout: &mut bool,
+    ) -> Option<Outcome> {
+        None
+    }
+
+    fn draw(&self, g: &mut GfxCtx) {
         g.redraw_at(self.top_left, &self.draw);
 
         if let Some(cursor) = g.canvas.get_cursor_in_screen_space() {
@@ -230,44 +278,6 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
                 }
             }
         }
-    }
-}
-
-impl Plot<usize> {
-    pub fn new_usize(ctx: &EventCtx, series: Vec<Series<usize>>, opts: PlotOptions) -> Widget {
-        let (plot, legend, x_axis, y_axis) = Plot::new(ctx, series, 0, opts);
-        // Don't let the x-axis fill the parent container
-        Widget::row(vec![Widget::col(vec![
-            legend,
-            Widget::row(vec![y_axis.evenly_spaced(), Widget::usize_plot(plot)]),
-            x_axis.evenly_spaced(),
-        ])])
-    }
-}
-
-impl Plot<Duration> {
-    pub fn new_duration(
-        ctx: &EventCtx,
-        series: Vec<Series<Duration>>,
-        opts: PlotOptions,
-    ) -> Widget {
-        let (plot, legend, x_axis, y_axis) = Plot::new(ctx, series, Duration::ZERO, opts);
-        // Don't let the x-axis fill the parent container
-        Widget::row(vec![Widget::col(vec![
-            legend,
-            Widget::row(vec![y_axis.evenly_spaced(), Widget::duration_plot(plot)]),
-            x_axis.evenly_spaced(),
-        ])])
-    }
-}
-
-impl<T> WidgetImpl for Plot<T> {
-    fn get_dims(&self) -> ScreenDims {
-        self.dims
-    }
-
-    fn set_pos(&mut self, top_left: ScreenPt) {
-        self.top_left = top_left;
     }
 }
 

@@ -1,4 +1,4 @@
-use crate::{Button, EventCtx, GfxCtx, ScreenDims, ScreenPt, WidgetImpl};
+use crate::{Button, EventCtx, GfxCtx, Outcome, ScreenDims, ScreenPt, ScreenRectangle, WidgetImpl};
 
 pub struct Checkbox {
     pub(crate) enabled: bool,
@@ -22,23 +22,6 @@ impl Checkbox {
             }
         }
     }
-
-    // If true, widgets should be recomputed.
-    pub(crate) fn event(&mut self, ctx: &mut EventCtx) -> bool {
-        self.btn.event(ctx);
-        if self.btn.clicked() {
-            std::mem::swap(&mut self.btn, &mut self.other_btn);
-            self.btn.set_pos(self.other_btn.top_left);
-            self.enabled = !self.enabled;
-            true
-        } else {
-            false
-        }
-    }
-
-    pub(crate) fn draw(&self, g: &mut GfxCtx) {
-        self.btn.draw(g);
-    }
 }
 
 impl WidgetImpl for Checkbox {
@@ -48,5 +31,26 @@ impl WidgetImpl for Checkbox {
 
     fn set_pos(&mut self, top_left: ScreenPt) {
         self.btn.set_pos(top_left);
+    }
+
+    fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        _rect: &ScreenRectangle,
+        redo_layout: &mut bool,
+    ) -> Option<Outcome> {
+        self.btn.event(ctx);
+        if self.btn.clicked() {
+            std::mem::swap(&mut self.btn, &mut self.other_btn);
+            self.btn.set_pos(self.other_btn.top_left);
+            self.enabled = !self.enabled;
+            *redo_layout = true;
+        }
+
+        None
+    }
+
+    fn draw(&self, g: &mut GfxCtx) {
+        self.btn.draw(g);
     }
 }

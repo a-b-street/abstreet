@@ -1,10 +1,10 @@
-use crate::{ScreenDims, ScreenPt, WidgetImpl};
+use crate::{EventCtx, GfxCtx, Outcome, ScreenDims, ScreenPt, ScreenRectangle, WidgetImpl};
 
 // Doesn't do anything by itself, just used for widgetsing. Something else reaches in, asks for the
 // ScreenRectangle to use.
 pub struct Filler {
-    pub(crate) top_left: ScreenPt,
-    pub(crate) dims: ScreenDims,
+    top_left: ScreenPt,
+    dims: ScreenDims,
 }
 
 impl Filler {
@@ -24,4 +24,14 @@ impl WidgetImpl for Filler {
     fn set_pos(&mut self, top_left: ScreenPt) {
         self.top_left = top_left;
     }
+
+    fn event(
+        &mut self,
+        _ctx: &mut EventCtx,
+        _rect: &ScreenRectangle,
+        _redo_layout: &mut bool,
+    ) -> Option<Outcome> {
+        None
+    }
+    fn draw(&self, _g: &mut GfxCtx) {}
 }
