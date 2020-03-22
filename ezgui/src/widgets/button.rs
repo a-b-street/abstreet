@@ -3,7 +3,6 @@ use crate::{
     RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text, Widget, WidgetImpl,
 };
 use geom::Polygon;
-use std::collections::HashSet;
 
 pub struct Button {
     pub action: String,
@@ -107,16 +106,6 @@ impl WidgetImpl for Button {
         } else {
             g.redraw_at(self.top_left, &self.draw_normal);
         }
-    }
-
-    fn get_all_click_actions(&self, actions: &mut HashSet<String>) {
-        if actions.contains(&self.action) {
-            panic!(
-                "Two buttons in one Composite both use action {}",
-                self.action
-            );
-        }
-        actions.insert(self.action.clone());
     }
 }
 

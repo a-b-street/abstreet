@@ -1,3 +1,4 @@
+use crate::widgets::containers::{Container, Nothing};
 use crate::widgets::plot::Yvalue;
 use crate::{
     Btn, Button, Checkbox, Choice, Color, Drawable, Dropdown, EventCtx, Filler, GeomBatch, GfxCtx,
@@ -14,18 +15,12 @@ use stretch::style::{
 };
 
 pub struct Widget {
-    widget: WidgetType,
+    // TODO pub just for Container. Just move that here?
+    pub(crate) widget: Box<dyn WidgetImpl>,
     style: LayoutStyle,
     rect: ScreenRectangle,
     bg: Option<Drawable>,
     id: Option<String>,
-}
-
-enum WidgetType {
-    Row(Vec<Widget>),
-    Column(Vec<Widget>),
-    Nothing,
-    Generic(Box<dyn WidgetImpl>),
 }
 
 struct LayoutStyle {
@@ -202,7 +197,7 @@ impl Widget {
 
 // Convenient?? constructors
 impl Widget {
-    fn new(widget: WidgetType) -> Widget {
+    fn new(widget: Box<dyn WidgetImpl>) -> Widget {
         Widget {
             widget,
             style: LayoutStyle {
@@ -229,7 +224,7 @@ impl Widget {
     }
 
     pub(crate) fn just_draw(j: JustDraw) -> Widget {
-        Widget::new(WidgetType::Generic(Box::new(j)))
+        Widget::new(Box::new(j))
     }
 
     pub(crate) fn draw_text(ctx: &EventCtx, txt: Text) -> Widget {
@@ -246,19 +241,19 @@ impl Widget {
 
     pub(crate) fn btn(btn: Button) -> Widget {
         let action = btn.action.clone();
-        Widget::new(WidgetType::Generic(Box::new(btn))).named(action)
+        Widget::new(Box::new(btn)).named(action)
     }
 
     pub fn slider(slider: Slider) -> Widget {
-        Widget::new(WidgetType::Generic(Box::new(slider)))
+        Widget::new(Box::new(slider))
     }
 
     pub fn menu<T: 'static + Clone>(menu: PopupMenu<T>) -> Widget {
-        Widget::new(WidgetType::Generic(Box::new(menu)))
+        Widget::new(Box::new(menu))
     }
 
     pub fn filler(filler: Filler) -> Widget {
-        Widget::new(WidgetType::Generic(Box::new(filler)))
+        Widget::new(Box::new(filler))
     }
 
     pub fn checkbox(
@@ -277,21 +272,16 @@ impl Widget {
     }
     // TODO Not typesafe! Gotta pass a button.
     pub fn custom_checkbox(enabled: bool, false_btn: Widget, true_btn: Widget) -> Widget {
-        Widget::new(WidgetType::Generic(Box::new(Checkbox::new(
+        Widget::new(Box::new(Checkbox::new(
             enabled,
             false_btn.take_btn(),
             true_btn.take_btn(),
-        ))))
+        )))
     }
 
     pub fn text_entry(ctx: &EventCtx, prefilled: String, exclusive_focus: bool) -> Widget {
         // TODO Hardcoded style, max chars
-        Widget::new(WidgetType::Generic(Box::new(TextBox::new(
-            ctx,
-            50,
-            prefilled,
-            exclusive_focus,
-        ))))
+        Widget::new(Box::new(TextBox::new(ctx, 50, prefilled, exclusive_focus)))
     }
 
     pub fn dropdown<T: 'static + PartialEq + Clone>(
@@ -300,75 +290,40 @@ impl Widget {
         default_value: T,
         choices: Vec<Choice<T>>,
     ) -> Widget {
-        Widget::new(WidgetType::Generic(Box::new(Dropdown::new(
-            ctx,
-            label,
-            default_value,
-            choices,
-        ))))
-        .named(label)
-        .outline(2.0, Color::WHITE)
+        Widget::new(Box::new(Dropdown::new(ctx, label, default_value, choices)))
+            .named(label)
+            .outline(2.0, Color::WHITE)
     }
 
     pub(crate) fn plot<T: 'static + Yvalue<T>>(plot: Plot<T>) -> Widget {
-        Widget::new(WidgetType::Generic(Box::new(plot)))
+        Widget::new(Box::new(plot))
     }
 
     pub(crate) fn histogram(histogram: Histogram) -> Widget {
-        Widget::new(WidgetType::Generic(Box::new(histogram)))
+        Widget::new(Box::new(histogram))
     }
 
     pub fn row(widgets: Vec<Widget>) -> Widget {
-        Widget::new(WidgetType::Row(
-            widgets
-                .into_iter()
-                .filter(|w| match w.widget {
-                    WidgetType::Nothing => false,
-                    _ => true,
-                })
-                .collect(),
-        ))
+        Widget::new(Box::new(Container::new(true, widgets)))
     }
 
     pub fn col(widgets: Vec<Widget>) -> Widget {
-        Widget::new(WidgetType::Column(
-            widgets
-                .into_iter()
-                .filter(|w| match w.widget {
-                    WidgetType::Nothing => false,
-                    _ => true,
-                })
-                .collect(),
-        ))
+        Widget::new(Box::new(Container::new(false, widgets)))
     }
 
     pub fn nothing() -> Widget {
-        Widget::new(WidgetType::Nothing)
+        Widget::new(Box::new(Nothing {}))
     }
 }
 
 // Internals
 impl Widget {
-    fn event(&mut self, ctx: &mut EventCtx, redo_layout: &mut bool) -> Option<Outcome> {
-        match self.widget {
-            WidgetType::Row(ref mut widgets) | WidgetType::Column(ref mut widgets) => {
-                for w in widgets {
-                    if let Some(o) = w.event(ctx, redo_layout) {
-                        return Some(o);
-                    }
-                }
-            }
-            WidgetType::Nothing => unreachable!(),
-            WidgetType::Generic(ref mut w) => {
-                if let Some(o) = w.event(ctx, &self.rect, redo_layout) {
-                    return Some(o);
-                }
-            }
-        }
-        None
+    // TODO Can get rid of this indirection now
+    pub(crate) fn event(&mut self, ctx: &mut EventCtx, redo_layout: &mut bool) -> Option<Outcome> {
+        self.widget.event(ctx, &self.rect, redo_layout)
     }
 
-    fn draw(&self, g: &mut GfxCtx) {
+    pub(crate) fn draw(&self, g: &mut GfxCtx) {
         // Don't draw these yet; clipping is still in effect.
         if self.id == Some("horiz scrollbar".to_string())
             || self.id == Some("vert scrollbar".to_string())
@@ -380,62 +335,42 @@ impl Widget {
             g.redraw_at(ScreenPt::new(self.rect.x1, self.rect.y1), bg);
         }
 
-        match self.widget {
-            WidgetType::Row(ref widgets) | WidgetType::Column(ref widgets) => {
-                for w in widgets {
-                    w.draw(g);
-                }
-            }
-            WidgetType::Nothing => unreachable!(),
-            WidgetType::Generic(ref w) => w.draw(g),
-        }
+        self.widget.draw(g);
     }
 
     // Populate a flattened list of Nodes, matching the traversal order
     fn get_flexbox(&self, parent: Node, stretch: &mut Stretch, nodes: &mut Vec<Node>) {
-        let dims = match self.widget {
-            WidgetType::Row(ref widgets) => {
-                let mut style = Style {
-                    flex_direction: FlexDirection::Row,
-                    ..Default::default()
-                };
-                self.style.apply(&mut style);
-                let row = stretch.new_node(style, Vec::new()).unwrap();
-                nodes.push(row);
-                for widget in widgets {
-                    widget.get_flexbox(row, stretch, nodes);
-                }
-                stretch.add_child(parent, row).unwrap();
-                return;
+        // TODO Could add some methods to WidgetImpl, but doesn't seem worth it
+        if let Some(container) = self.widget.downcast_ref::<Container>() {
+            let mut style = Style {
+                flex_direction: if container.is_row {
+                    FlexDirection::Row
+                } else {
+                    FlexDirection::Column
+                },
+                ..Default::default()
+            };
+            self.style.apply(&mut style);
+            let node = stretch.new_node(style, Vec::new()).unwrap();
+            nodes.push(node);
+            for widget in &container.members {
+                widget.get_flexbox(node, stretch, nodes);
             }
-            WidgetType::Column(ref widgets) => {
-                let mut style = Style {
-                    flex_direction: FlexDirection::Column,
-                    ..Default::default()
-                };
-                self.style.apply(&mut style);
-                let col = stretch.new_node(style, Vec::new()).unwrap();
-                nodes.push(col);
-                for widget in widgets {
-                    widget.get_flexbox(col, stretch, nodes);
-                }
-                stretch.add_child(parent, col).unwrap();
-                return;
-            }
-            WidgetType::Nothing => unreachable!(),
-            WidgetType::Generic(ref w) => w.get_dims(),
-        };
-        let mut style = Style {
-            size: Size {
-                width: Dimension::Points(dims.width as f32),
-                height: Dimension::Points(dims.height as f32),
-            },
-            ..Default::default()
-        };
-        self.style.apply(&mut style);
-        let node = stretch.new_node(style, Vec::new()).unwrap();
-        stretch.add_child(parent, node).unwrap();
-        nodes.push(node);
+            stretch.add_child(parent, node).unwrap();
+            return;
+        } else {
+            let mut style = Style {
+                size: Size {
+                    width: Dimension::Points(self.widget.get_dims().width as f32),
+                    height: Dimension::Points(self.widget.get_dims().height as f32),
+                },
+                ..Default::default()
+            };
+            self.style.apply(&mut style);
+            let node = stretch.new_node(style, Vec::new()).unwrap();
+            stretch.add_child(parent, node).unwrap();
+            nodes.push(node);
+        }
     }
 
     fn apply_flexbox(
@@ -481,105 +416,80 @@ impl Widget {
             self.bg = Some(ctx.upload(batch));
         }
 
-        match self.widget {
-            WidgetType::Row(ref mut widgets) => {
-                // layout() doesn't return absolute position; it's relative to the container.
-                for widget in widgets {
-                    widget.apply_flexbox(
-                        stretch,
-                        nodes,
-                        x + dx,
-                        y + dy,
-                        scroll_offset,
-                        ctx,
-                        recompute_layout,
-                    );
-                }
+        // TODO Could add some methods to WidgetImpl, but doesn't seem worth it
+        if let Some(container) = self.widget.downcast_mut::<Container>() {
+            // layout() doesn't return absolute position; it's relative to the container.
+            for widget in &mut container.members {
+                widget.apply_flexbox(
+                    stretch,
+                    nodes,
+                    x + dx,
+                    y + dy,
+                    scroll_offset,
+                    ctx,
+                    recompute_layout,
+                );
             }
-            WidgetType::Column(ref mut widgets) => {
-                for widget in widgets {
-                    widget.apply_flexbox(
-                        stretch,
-                        nodes,
-                        x + dx,
-                        y + dy,
-                        scroll_offset,
-                        ctx,
-                        recompute_layout,
-                    );
-                }
-            }
-            WidgetType::Nothing => unreachable!(),
-            WidgetType::Generic(ref mut w) => {
-                w.set_pos(top_left);
-            }
+        } else {
+            self.widget.set_pos(top_left);
         }
     }
 
-    fn get_all_click_actions(&self, actions: &mut HashSet<String>) {
-        match self.widget {
-            WidgetType::Row(ref widgets) | WidgetType::Column(ref widgets) => {
-                for w in widgets {
-                    w.get_all_click_actions(actions);
-                }
+    pub(crate) fn get_all_click_actions(&self, actions: &mut HashSet<String>) {
+        if let Some(btn) = self.widget.downcast_ref::<Button>() {
+            if actions.contains(&btn.action) {
+                panic!(
+                    "Two buttons in one Composite both use action {}",
+                    btn.action
+                );
             }
-            WidgetType::Nothing => unreachable!(),
-            WidgetType::Generic(ref w) => w.get_all_click_actions(actions),
+            actions.insert(btn.action.clone());
+        } else if let Some(container) = self.widget.downcast_ref::<Container>() {
+            for w in &container.members {
+                w.get_all_click_actions(actions);
+            }
         }
     }
 
     pub fn is_btn(&self, name: &str) -> bool {
-        match self.widget {
-            WidgetType::Generic(ref w) => w
-                .downcast_ref::<Button>()
-                .map(|btn| btn.action == name)
-                .unwrap_or(false),
-            _ => false,
-        }
+        self.widget
+            .downcast_ref::<Button>()
+            .map(|btn| btn.action == name)
+            .unwrap_or(false)
     }
 
     fn find(&self, name: &str) -> Option<&Widget> {
-        let found = match self.widget {
-            WidgetType::Row(ref widgets) | WidgetType::Column(ref widgets) => {
-                for widget in widgets {
-                    if let Some(w) = widget.find(name) {
-                        return Some(w);
-                    }
-                }
-                return None;
-            }
-            _ => self.id == Some(name.to_string()),
-        };
-        if found {
-            Some(self)
-        } else {
-            None
+        if self.id == Some(name.to_string()) {
+            return Some(self);
         }
+
+        if let Some(container) = self.widget.downcast_ref::<Container>() {
+            for widget in &container.members {
+                if let Some(w) = widget.find(name) {
+                    return Some(w);
+                }
+            }
+        }
+        None
     }
     fn find_mut(&mut self, name: &str) -> Option<&mut Widget> {
-        let found = match self.widget {
-            WidgetType::Row(ref mut widgets) | WidgetType::Column(ref mut widgets) => {
-                for widget in widgets {
-                    if let Some(w) = widget.find_mut(name) {
-                        return Some(w);
-                    }
-                }
-                return None;
-            }
-            _ => self.id == Some(name.to_string()),
-        };
-        if found {
-            Some(self)
-        } else {
-            None
+        // Little weird to do this order? Nah. Plus gotta make the borrow checker happy.
+        if self.id == Some(name.to_string()) {
+            return Some(self);
         }
+
+        if let Some(container) = self.widget.downcast_mut::<Container>() {
+            for widget in &mut container.members {
+                if let Some(w) = widget.find_mut(name) {
+                    return Some(w);
+                }
+            }
+        }
+        None
     }
 
     pub(crate) fn take_btn(self) -> Button {
-        match self.widget {
-            WidgetType::Generic(w) => *w.downcast::<Button>().ok().unwrap(),
-            _ => unreachable!(),
-        }
+        *self.widget.downcast::<Button>().ok().unwrap()
     }
 }
 
@@ -818,99 +728,62 @@ impl Composite {
     }
 
     pub fn slider(&self, name: &str) -> &Slider {
-        match self.find(name).widget {
-            WidgetType::Generic(ref w) => {
-                if let Some(slider) = w.downcast_ref::<Slider>() {
-                    slider
-                } else {
-                    panic!("{} isn't a slider", name);
-                }
-            }
-            _ => panic!("{} isn't a slider", name),
+        if let Some(slider) = self.find(name).widget.downcast_ref::<Slider>() {
+            slider
+        } else {
+            panic!("{} isn't a slider", name);
         }
     }
     pub fn maybe_slider(&self, name: &str) -> Option<&Slider> {
-        match self.top_level.find(name).map(|w| &w.widget) {
-            Some(WidgetType::Generic(ref w)) => w.downcast_ref::<Slider>(),
-            _ => None,
-        }
+        let w = self.top_level.find(name)?;
+        w.widget.downcast_ref::<Slider>()
     }
     pub fn slider_mut(&mut self, name: &str) -> &mut Slider {
-        match self.find_mut(name).widget {
-            WidgetType::Generic(ref mut w) => {
-                if let Some(slider) = w.downcast_mut::<Slider>() {
-                    slider
-                } else {
-                    panic!("{} isn't a slider", name);
-                }
-            }
-            _ => panic!("{} isn't a slider", name),
+        if let Some(slider) = self.find_mut(name).widget.downcast_mut::<Slider>() {
+            slider
+        } else {
+            panic!("{} isn't a slider", name);
         }
     }
 
     pub fn menu<T: 'static + Clone>(&self, name: &str) -> &PopupMenu<T> {
-        match self.find(name).widget {
-            WidgetType::Generic(ref w) => {
-                if let Some(menu) = w.downcast_ref::<PopupMenu<T>>() {
-                    menu
-                } else {
-                    panic!("{} isn't a menu", name);
-                }
-            }
-            _ => panic!("{} isn't a menu", name),
+        if let Some(menu) = self.find(name).widget.downcast_ref::<PopupMenu<T>>() {
+            menu
+        } else {
+            panic!("{} isn't a menu", name);
         }
     }
 
     pub fn is_checked(&self, name: &str) -> bool {
-        match self.find(name).widget {
-            WidgetType::Generic(ref w) => {
-                if let Some(checkbox) = w.downcast_ref::<Checkbox>() {
-                    checkbox.enabled
-                } else {
-                    panic!("{} isn't a checkbox", name);
-                }
-            }
-            _ => panic!("{} isn't a checkbox", name),
+        if let Some(checkbox) = self.find(name).widget.downcast_ref::<Checkbox>() {
+            checkbox.enabled
+        } else {
+            panic!("{} isn't a checkbox", name);
         }
     }
 
     pub fn text_box(&self, name: &str) -> String {
-        match self.find(name).widget {
-            WidgetType::Generic(ref w) => {
-                if let Some(tb) = w.downcast_ref::<TextBox>() {
-                    tb.get_line()
-                } else {
-                    panic!("{} isn't a textbox", name);
-                }
-            }
-            _ => panic!("{} isn't a textbox", name),
+        if let Some(tb) = self.find(name).widget.downcast_ref::<TextBox>() {
+            tb.get_line()
+        } else {
+            panic!("{} isn't a textbox", name);
         }
     }
 
     pub fn dropdown_value<T: 'static + PartialEq + Clone>(&mut self, name: &str) -> T {
-        match self.find(name).widget {
-            WidgetType::Generic(ref w) => {
-                if let Some(dropdown) = w.downcast_ref::<Dropdown<T>>() {
-                    dropdown.current_value()
-                } else {
-                    panic!("{} isn't a dropdown", name);
-                }
-            }
-            _ => panic!("{} isn't a dropdown", name),
+        if let Some(dropdown) = self.find(name).widget.downcast_ref::<Dropdown<T>>() {
+            dropdown.current_value()
+        } else {
+            panic!("{} isn't a dropdown", name);
         }
     }
 
     pub fn filler_rect(&self, name: &str) -> ScreenRectangle {
-        let widget = self.find(name);
-        match widget.widget {
-            WidgetType::Generic(ref w) => {
-                if let Some(_) = w.downcast_ref::<Filler>() {
-                    widget.rect.clone()
-                } else {
-                    panic!("{} isn't a filler", name);
-                }
-            }
-            _ => panic!("{} isn't a filler", name),
+        let w = self.find(name);
+        if w.widget.is::<Filler>() {
+            w.rect.clone()
+        } else {
+            panic!("{} isn't a filler", name);
         }
     }
 
