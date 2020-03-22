@@ -23,7 +23,6 @@ pub struct Widget {
 
 enum WidgetType {
     Btn(Button),
-    Dropdown(Dropdown),
     Slider(Slider),
     Row(Vec<Widget>),
     Column(Vec<Widget>),
@@ -297,18 +296,18 @@ impl Widget {
         ))))
     }
 
-    pub fn dropdown<T: 'static + PartialEq>(
+    pub fn dropdown<T: 'static + PartialEq + Clone>(
         ctx: &EventCtx,
         label: &str,
         default_value: T,
         choices: Vec<Choice<T>>,
     ) -> Widget {
-        Widget::new(WidgetType::Dropdown(Dropdown::new(
+        Widget::new(WidgetType::Generic(Box::new(Dropdown::new(
             ctx,
             label,
             default_value,
             choices,
-        )))
+        ))))
         .named(label)
         .outline(2.0, Color::WHITE)
     }
@@ -360,11 +359,6 @@ impl Widget {
                     return Some(Outcome::Clicked(btn.action.clone()));
                 }
             }
-            WidgetType::Dropdown(ref mut dropdown) => {
-                if dropdown.event(ctx, &self.rect) {
-                    *redo_layout = true;
-                }
-            }
             WidgetType::Slider(ref mut slider) => {
                 slider.event(ctx);
             }
@@ -392,7 +386,6 @@ impl Widget {
 
         match self.widget {
             WidgetType::Btn(ref btn) => btn.draw(g),
-            WidgetType::Dropdown(ref dropdown) => dropdown.draw(g),
             WidgetType::Slider(ref slider) => {
                 if self.id != Some("horiz scrollbar".to_string())
                     && self.id != Some("vert scrollbar".to_string())
@@ -414,7 +407,6 @@ impl Widget {
     fn get_flexbox(&self, parent: Node, stretch: &mut Stretch, nodes: &mut Vec<Node>) {
         let dims = match self.widget {
             WidgetType::Btn(ref widget) => widget.get_dims(),
-            WidgetType::Dropdown(ref widget) => widget.get_dims(),
             WidgetType::Slider(ref widget) => widget.get_dims(),
             WidgetType::Row(ref widgets) => {
                 let mut style = Style {
@@ -507,9 +499,6 @@ impl Widget {
             WidgetType::Btn(ref mut widget) => {
                 widget.set_pos(top_left);
             }
-            WidgetType::Dropdown(ref mut widget) => {
-                widget.set_pos(top_left);
-            }
             WidgetType::Slider(ref mut widget) => {
                 widget.set_pos(top_left);
             }
@@ -549,7 +538,7 @@ impl Widget {
 
     fn get_all_click_actions(&self, actions: &mut HashSet<String>) {
         match self.widget {
-            WidgetType::Slider(_) | WidgetType::Dropdown(_) => {}
+            WidgetType::Slider(_) => {}
             WidgetType::Btn(ref btn) => {
                 if actions.contains(&btn.action) {
                     panic!(
@@ -915,15 +904,14 @@ impl Composite {
         }
     }
 
-    pub fn dropdown_value<T: 'static + Clone>(&mut self, name: &str) -> T {
-        match self.find_mut(name).widget {
-            WidgetType::Dropdown(ref mut dropdown) => {
-                // Amusing little pattern here.
-                // TODO I think this entire hack goes away when WidgetImpl is just a trait.
-                let choice: Choice<T> = dropdown.take_value();
-                let value = choice.data.clone();
-                dropdown.return_value(choice);
-                value
+    pub fn dropdown_value<T: 'static + PartialEq + Clone>(&mut self, name: &str) -> T {
+        match self.find(name).widget {
+            WidgetType::Generic(ref w) => {
+                if let Some(dropdown) = w.downcast_ref::<Dropdown<T>>() {
+                    dropdown.current_value()
+                } else {
+                    panic!("{} isn't a dropdown", name);
+                }
             }
             _ => panic!("{} isn't a dropdown", name),
         }
