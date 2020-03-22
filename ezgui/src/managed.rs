@@ -22,7 +22,6 @@ pub struct Widget {
 }
 
 enum WidgetType {
-    Btn(Button),
     Row(Vec<Widget>),
     Column(Vec<Widget>),
     Nothing,
@@ -247,7 +246,7 @@ impl Widget {
 
     pub(crate) fn btn(btn: Button) -> Widget {
         let action = btn.action.clone();
-        Widget::new(WidgetType::Btn(btn)).named(action)
+        Widget::new(WidgetType::Generic(Box::new(btn))).named(action)
     }
 
     pub fn slider(slider: Slider) -> Widget {
@@ -352,12 +351,6 @@ impl Widget {
 impl Widget {
     fn event(&mut self, ctx: &mut EventCtx, redo_layout: &mut bool) -> Option<Outcome> {
         match self.widget {
-            WidgetType::Btn(ref mut btn) => {
-                btn.event(ctx);
-                if btn.clicked() {
-                    return Some(Outcome::Clicked(btn.action.clone()));
-                }
-            }
             WidgetType::Row(ref mut widgets) | WidgetType::Column(ref mut widgets) => {
                 for w in widgets {
                     if let Some(o) = w.event(ctx, redo_layout) {
@@ -388,7 +381,6 @@ impl Widget {
         }
 
         match self.widget {
-            WidgetType::Btn(ref btn) => btn.draw(g),
             WidgetType::Row(ref widgets) | WidgetType::Column(ref widgets) => {
                 for w in widgets {
                     w.draw(g);
@@ -402,7 +394,6 @@ impl Widget {
     // Populate a flattened list of Nodes, matching the traversal order
     fn get_flexbox(&self, parent: Node, stretch: &mut Stretch, nodes: &mut Vec<Node>) {
         let dims = match self.widget {
-            WidgetType::Btn(ref widget) => widget.get_dims(),
             WidgetType::Row(ref widgets) => {
                 let mut style = Style {
                     flex_direction: FlexDirection::Row,
@@ -491,9 +482,6 @@ impl Widget {
         }
 
         match self.widget {
-            WidgetType::Btn(ref mut widget) => {
-                widget.set_pos(top_left);
-            }
             WidgetType::Row(ref mut widgets) => {
                 // layout() doesn't return absolute position; it's relative to the container.
                 for widget in widgets {
@@ -530,31 +518,23 @@ impl Widget {
 
     fn get_all_click_actions(&self, actions: &mut HashSet<String>) {
         match self.widget {
-            WidgetType::Btn(ref btn) => {
-                if actions.contains(&btn.action) {
-                    panic!(
-                        "Two buttons in one Composite both use action {}",
-                        btn.action
-                    );
-                }
-                actions.insert(btn.action.clone());
-            }
             WidgetType::Row(ref widgets) | WidgetType::Column(ref widgets) => {
                 for w in widgets {
                     w.get_all_click_actions(actions);
                 }
             }
             WidgetType::Nothing => unreachable!(),
-            // TODO Will need something
-            WidgetType::Generic(_) => {}
+            WidgetType::Generic(ref w) => w.get_all_click_actions(actions),
         }
     }
 
     pub fn is_btn(&self, name: &str) -> bool {
-        if let WidgetType::Btn(ref btn) = self.widget {
-            btn.action == name
-        } else {
-            false
+        match self.widget {
+            WidgetType::Generic(ref w) => w
+                .downcast_ref::<Button>()
+                .map(|btn| btn.action == name)
+                .unwrap_or(false),
+            _ => false,
         }
     }
 
@@ -597,7 +577,7 @@ impl Widget {
 
     pub(crate) fn take_btn(self) -> Button {
         match self.widget {
-            WidgetType::Btn(btn) => btn,
+            WidgetType::Generic(w) => *w.downcast::<Button>().ok().unwrap(),
             _ => unreachable!(),
         }
     }

@@ -36,11 +36,11 @@ impl WidgetImpl for Checkbox {
     fn event(
         &mut self,
         ctx: &mut EventCtx,
-        _rect: &ScreenRectangle,
+        rect: &ScreenRectangle,
         redo_layout: &mut bool,
     ) -> Option<Outcome> {
-        self.btn.event(ctx);
-        if self.btn.clicked() {
+        // TODO Lying about the rectangle
+        if self.btn.event(ctx, rect, redo_layout).is_some() {
             std::mem::swap(&mut self.btn, &mut self.other_btn);
             self.btn.set_pos(self.other_btn.top_left);
             self.enabled = !self.enabled;

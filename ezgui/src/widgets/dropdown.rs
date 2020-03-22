@@ -75,8 +75,8 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
                 }
             }
         } else {
-            self.btn.event(ctx);
-            if self.btn.clicked() {
+            // TODO Again lying about the rectangle
+            if self.btn.event(ctx, rect, redo_layout).is_some() {
                 // TODO set current idx in menu
                 // TODO Choice::map_value?
                 let mut menu = PopupMenu::new(

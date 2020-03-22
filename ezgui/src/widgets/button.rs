@@ -1,8 +1,9 @@
 use crate::{
-    text, Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, MultiKey, RewriteColor,
-    ScreenDims, ScreenPt, Text, Widget, WidgetImpl,
+    text, Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, MultiKey, Outcome,
+    RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text, Widget, WidgetImpl,
 };
 use geom::Polygon;
+use std::collections::HashSet;
 
 pub struct Button {
     pub action: String,
@@ -18,7 +19,6 @@ pub struct Button {
     hitbox: Polygon,
 
     hovering: bool,
-    clicked: bool,
 
     pub(crate) top_left: ScreenPt,
     dims: ScreenDims,
@@ -53,56 +53,9 @@ impl Button {
             hitbox,
 
             hovering: false,
-            clicked: false,
 
             top_left: ScreenPt::new(0.0, 0.0),
             dims,
-        }
-    }
-
-    pub(crate) fn event(&mut self, ctx: &mut EventCtx) {
-        if self.clicked {
-            panic!("Caller didn't consume button click");
-        }
-
-        if ctx.redo_mouseover() {
-            if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
-                self.hovering = self
-                    .hitbox
-                    .translate(self.top_left.x, self.top_left.y)
-                    .contains_pt(pt.to_pt());
-            } else {
-                self.hovering = false;
-            }
-        }
-        if self.hovering && ctx.normal_left_click() {
-            self.clicked = true;
-            self.hovering = false;
-        }
-
-        if let Some(ref hotkey) = self.hotkey {
-            if ctx.input.new_was_pressed(hotkey) {
-                self.clicked = true;
-                self.hovering = false;
-            }
-        }
-    }
-
-    pub(crate) fn clicked(&mut self) -> bool {
-        if self.clicked {
-            self.clicked = false;
-            true
-        } else {
-            false
-        }
-    }
-
-    pub(crate) fn draw(&self, g: &mut GfxCtx) {
-        if self.hovering {
-            g.redraw_at(self.top_left, &self.draw_hovered);
-            g.draw_mouse_tooltip(self.tooltip.clone());
-        } else {
-            g.redraw_at(self.top_left, &self.draw_normal);
         }
     }
 }
@@ -114,6 +67,56 @@ impl WidgetImpl for Button {
 
     fn set_pos(&mut self, top_left: ScreenPt) {
         self.top_left = top_left;
+    }
+
+    fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        _rect: &ScreenRectangle,
+        _redo_layout: &mut bool,
+    ) -> Option<Outcome> {
+        if ctx.redo_mouseover() {
+            if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
+                self.hovering = self
+                    .hitbox
+                    .translate(self.top_left.x, self.top_left.y)
+                    .contains_pt(pt.to_pt());
+            } else {
+                self.hovering = false;
+            }
+        }
+        if self.hovering && ctx.normal_left_click() {
+            self.hovering = false;
+            return Some(Outcome::Clicked(self.action.clone()));
+        }
+
+        if let Some(ref hotkey) = self.hotkey {
+            if ctx.input.new_was_pressed(hotkey) {
+                self.hovering = false;
+                return Some(Outcome::Clicked(self.action.clone()));
+            }
+        }
+
+        None
+    }
+
+    fn draw(&self, g: &mut GfxCtx) {
+        if self.hovering {
+            g.redraw_at(self.top_left, &self.draw_hovered);
+            g.draw_mouse_tooltip(self.tooltip.clone());
+        } else {
+            g.redraw_at(self.top_left, &self.draw_normal);
+        }
+    }
+
+    fn get_all_click_actions(&self, actions: &mut HashSet<String>) {
+        if actions.contains(&self.action) {
+            panic!(
+                "Two buttons in one Composite both use action {}",
+                self.action
+            );
+        }
+        actions.insert(self.action.clone());
     }
 }
 

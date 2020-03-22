@@ -14,6 +14,7 @@ pub mod wizard;
 
 use crate::{EventCtx, GfxCtx, Outcome, ScreenDims, ScreenPt, ScreenRectangle};
 use ordered_float::NotNan;
+use std::collections::HashSet;
 
 pub trait WidgetImpl: downcast_rs::Downcast {
     fn get_dims(&self) -> ScreenDims;
@@ -29,6 +30,8 @@ pub trait WidgetImpl: downcast_rs::Downcast {
         None
     }
     fn draw(&self, _g: &mut GfxCtx) {}
+
+    fn get_all_click_actions(&self, _actions: &mut HashSet<String>) {}
 }
 
 downcast_rs::impl_downcast!(WidgetImpl);
