@@ -1113,7 +1113,7 @@ fn population_controls(ctx: &mut EventCtx, app: &App, opts: Option<&HeatmapOptio
 fn heatmap_options(c: &mut Composite) -> Option<HeatmapOptions> {
     if c.is_checked("Show heatmap") {
         // Did we just change?
-        if c.maybe_slider("resolution").is_some() {
+        if c.has_widget("resolution") {
             Some(HeatmapOptions {
                 resolution: 1.0 + c.slider("resolution").get_percent() * 99.0,
                 num_passes: (c.slider("passes").get_percent() * 10.0) as usize,

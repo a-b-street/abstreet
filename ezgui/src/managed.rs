@@ -18,7 +18,7 @@ pub struct Widget {
     // TODO pub just for Container. Just move that here?
     pub(crate) widget: Box<dyn WidgetImpl>,
     style: LayoutStyle,
-    rect: ScreenRectangle,
+    pub(crate) rect: ScreenRectangle,
     bg: Option<Drawable>,
     id: Option<String>,
 }
@@ -318,11 +318,6 @@ impl Widget {
 
 // Internals
 impl Widget {
-    // TODO Can get rid of this indirection now
-    pub(crate) fn event(&mut self, ctx: &mut EventCtx, redo_layout: &mut bool) -> Option<Outcome> {
-        self.widget.event(ctx, &self.rect, redo_layout)
-    }
-
     pub(crate) fn draw(&self, g: &mut GfxCtx) {
         // Don't draw these yet; clipping is still in effect.
         if self.id == Some("horiz scrollbar".to_string())
@@ -340,7 +335,6 @@ impl Widget {
 
     // Populate a flattened list of Nodes, matching the traversal order
     fn get_flexbox(&self, parent: Node, stretch: &mut Stretch, nodes: &mut Vec<Node>) {
-        // TODO Could add some methods to WidgetImpl, but doesn't seem worth it
         if let Some(container) = self.widget.downcast_ref::<Container>() {
             let mut style = Style {
                 flex_direction: if container.is_row {
@@ -416,7 +410,6 @@ impl Widget {
             self.bg = Some(ctx.upload(batch));
         }
 
-        // TODO Could add some methods to WidgetImpl, but doesn't seem worth it
         if let Some(container) = self.widget.downcast_mut::<Container>() {
             // layout() doesn't return absolute position; it's relative to the container.
             for widget in &mut container.members {
@@ -470,10 +463,10 @@ impl Widget {
                 }
             }
         }
+
         None
     }
     fn find_mut(&mut self, name: &str) -> Option<&mut Widget> {
-        // Little weird to do this order? Nah. Plus gotta make the borrow checker happy.
         if self.id == Some(name.to_string()) {
             return Some(self);
         }
@@ -485,6 +478,7 @@ impl Widget {
                 }
             }
         }
+
         None
     }
 
@@ -654,7 +648,10 @@ impl Composite {
 
         let before = self.scroll_offset();
         let mut redo_layout = false;
-        let result = self.top_level.event(ctx, &mut redo_layout);
+        let result = self
+            .top_level
+            .widget
+            .event(ctx, &self.top_level.rect, &mut redo_layout);
         if self.scroll_offset() != before || redo_layout {
             self.recompute_layout(ctx, true);
         }
@@ -727,83 +724,67 @@ impl Composite {
         }
     }
 
-    pub fn slider(&self, name: &str) -> &Slider {
-        if let Some(slider) = self.find(name).widget.downcast_ref::<Slider>() {
-            slider
-        } else {
-            panic!("{} isn't a slider", name);
-        }
+    pub fn has_widget(&self, name: &str) -> bool {
+        self.top_level.find(name).is_some()
     }
-    pub fn maybe_slider(&self, name: &str) -> Option<&Slider> {
-        let w = self.top_level.find(name)?;
-        w.widget.downcast_ref::<Slider>()
+
+    pub fn slider(&self, name: &str) -> &Slider {
+        self.find(name)
     }
     pub fn slider_mut(&mut self, name: &str) -> &mut Slider {
-        if let Some(slider) = self.find_mut(name).widget.downcast_mut::<Slider>() {
-            slider
-        } else {
-            panic!("{} isn't a slider", name);
-        }
+        self.find_mut(name)
     }
 
     pub fn menu<T: 'static + Clone>(&self, name: &str) -> &PopupMenu<T> {
-        if let Some(menu) = self.find(name).widget.downcast_ref::<PopupMenu<T>>() {
-            menu
-        } else {
-            panic!("{} isn't a menu", name);
-        }
+        self.find(name)
     }
 
     pub fn is_checked(&self, name: &str) -> bool {
-        if let Some(checkbox) = self.find(name).widget.downcast_ref::<Checkbox>() {
-            checkbox.enabled
-        } else {
-            panic!("{} isn't a checkbox", name);
-        }
+        self.find::<Checkbox>(name).enabled
     }
 
     pub fn text_box(&self, name: &str) -> String {
-        if let Some(tb) = self.find(name).widget.downcast_ref::<TextBox>() {
-            tb.get_line()
-        } else {
-            panic!("{} isn't a textbox", name);
-        }
+        self.find::<TextBox>(name).get_line()
     }
 
     pub fn dropdown_value<T: 'static + PartialEq + Clone>(&mut self, name: &str) -> T {
-        if let Some(dropdown) = self.find(name).widget.downcast_ref::<Dropdown<T>>() {
-            dropdown.current_value()
-        } else {
-            panic!("{} isn't a dropdown", name);
-        }
+        self.find::<Dropdown<T>>(name).current_value()
     }
 
     pub fn filler_rect(&self, name: &str) -> ScreenRectangle {
-        let w = self.find(name);
-        if w.widget.is::<Filler>() {
-            w.rect.clone()
-        } else {
-            panic!("{} isn't a filler", name);
+        if let Some(w) = self.top_level.find(name) {
+            if w.widget.is::<Filler>() {
+                return w.rect.clone();
+            }
         }
+        panic!("{} isn't a filler", name);
     }
 
-    fn find(&self, name: &str) -> &Widget {
+    pub fn find<T: WidgetImpl>(&self, name: &str) -> &T {
         if let Some(w) = self.top_level.find(name) {
-            w
+            if let Some(x) = w.widget.downcast_ref::<T>() {
+                x
+            } else {
+                panic!("Found widget {}, but wrong type", name);
+            }
         } else {
             panic!("Can't find widget {}", name);
         }
     }
-    fn find_mut(&mut self, name: &str) -> &mut Widget {
+    pub fn find_mut<T: WidgetImpl>(&mut self, name: &str) -> &mut T {
         if let Some(w) = self.top_level.find_mut(name) {
-            w
+            if let Some(x) = w.widget.downcast_mut::<T>() {
+                x
+            } else {
+                panic!("Found widget {}, but wrong type", name);
+            }
         } else {
             panic!("Can't find widget {}", name);
         }
     }
 
     pub fn rect_of(&self, name: &str) -> &ScreenRectangle {
-        &self.find(name).rect
+        &self.top_level.find(name).unwrap().rect
     }
     // TODO Deprecate
     pub fn center_of(&self, name: &str) -> ScreenPt {
@@ -820,7 +801,7 @@ impl Composite {
     }
 
     pub fn replace(&mut self, ctx: &mut EventCtx, id: &str, new: Widget) {
-        *self.find_mut(id) = new;
+        *self.top_level.find_mut(id).unwrap() = new;
         self.recompute_layout(ctx, true);
     }
 

@@ -52,7 +52,7 @@ impl WidgetImpl for Container {
         redo_layout: &mut bool,
     ) -> Option<Outcome> {
         for w in &mut self.members {
-            if let Some(o) = w.event(ctx, redo_layout) {
+            if let Some(o) = w.widget.event(ctx, &w.rect, redo_layout) {
                 return Some(o);
             }
         }
