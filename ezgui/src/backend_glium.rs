@@ -20,15 +20,13 @@ pub fn setup(
     let context = glutin::ContextBuilder::new()
         .with_multisampling(4)
         .with_depth_buffer(2);
-    // TODO This step got slow
-    println!("Initializing OpenGL window");
     let display = glium::Display::new(window, context, &event_loop).unwrap();
 
     let (vertex_shader, fragment_shader) =
         if display.is_glsl_version_supported(&glium::Version(glium::Api::Gl, 1, 4)) {
             (
-                include_str!("assets/vertex_140.glsl"),
-                include_str!("assets/fragment_140.glsl"),
+                include_str!("shaders/vertex_140.glsl"),
+                include_str!("shaders/fragment_140.glsl"),
             )
         } else {
             panic!(
@@ -44,10 +42,10 @@ pub fn setup(
     let (vertex_shader, fragment_shader) = {
         use std::io::Read;
 
-        let mut f1 = std::fs::File:: open("../ezgui/src/assets/vertex_140.glsl").unwrap();
+        let mut f1 = std::fs::File:: open("../ezgui/src/shaders/vertex_140.glsl").unwrap();
         f1.read_to_string(&mut vert).unwrap();
 
-        let mut f2 = std::fs::File:: open("../ezgui/src/assets/fragment_140.glsl").unwrap();
+        let mut f2 = std::fs::File:: open("../ezgui/src/shaders/fragment_140.glsl").unwrap();
         f2.read_to_string(&mut frag).unwrap();
 
         (&vert, &frag)

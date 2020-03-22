@@ -48,10 +48,10 @@ pub fn setup(
 
     unsafe {
         let shaders = [
-            (glow::VERTEX_SHADER, include_str!("assets/vertex_300.glsl")),
+            (glow::VERTEX_SHADER, include_str!("shaders/vertex_300.glsl")),
             (
                 glow::FRAGMENT_SHADER,
-                include_str!("assets/fragment_300.glsl"),
+                include_str!("shaders/fragment_300.glsl"),
             ),
         ]
         .iter()

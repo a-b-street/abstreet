@@ -17,6 +17,7 @@ mod runner;
 mod screen_geom;
 mod svg;
 mod text;
+mod tools;
 mod widgets;
 
 pub use crate::backend::Drawable;
@@ -31,6 +32,7 @@ pub use crate::managed::{Composite, Outcome, Widget};
 pub use crate::runner::{run, EventLoopMode, Settings, GUI};
 pub use crate::screen_geom::{ScreenDims, ScreenPt, ScreenRectangle};
 pub use crate::text::{Line, Text, TextExt, TextSpan, HOTKEY_COLOR};
+pub use crate::tools::warper::Warper;
 pub use crate::widgets::autocomplete::Autocomplete;
 pub use crate::widgets::button::Btn;
 pub(crate) use crate::widgets::button::Button;
@@ -44,7 +46,6 @@ pub use crate::widgets::plot::{Plot, PlotOptions, Series};
 pub(crate) use crate::widgets::popup_menu::PopupMenu;
 pub use crate::widgets::slider::{ItemSlider, Slider, WarpingItemSlider};
 pub(crate) use crate::widgets::text_box::TextBox;
-pub use crate::widgets::warper::Warper;
 pub use crate::widgets::wizard::{Choice, Wizard, WrappedWizard};
 pub(crate) use crate::widgets::WidgetImpl;
 

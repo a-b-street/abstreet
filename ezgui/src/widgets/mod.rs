@@ -8,10 +8,8 @@ pub mod modal_menu;
 pub mod no_op;
 pub mod plot;
 pub mod popup_menu;
-pub mod screenshot;
 pub mod slider;
 pub mod text_box;
-pub mod warper;
 pub mod wizard;
 
 use crate::{EventCtx, ScreenDims, ScreenPt};

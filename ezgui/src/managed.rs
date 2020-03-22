@@ -206,8 +206,9 @@ impl Widget {
         self
     }
 
-    pub fn named(mut self, id: &str) -> Widget {
-        self.id = Some(id.to_string());
+    pub fn named<I: Into<String>>(mut self, id: I) -> Widget {
+        assert!(self.id.is_none());
+        self.id = Some(id.into());
         self
     }
 }
@@ -257,7 +258,8 @@ impl Widget {
     }
 
     pub(crate) fn btn(btn: Button) -> Widget {
-        Widget::new(WidgetType::Btn(btn))
+        let action = btn.action.clone();
+        Widget::new(WidgetType::Btn(btn)).named(action)
     }
 
     pub fn slider(slider: Slider) -> Widget {
@@ -652,18 +654,6 @@ impl Widget {
 
     fn find(&self, name: &str) -> Option<&Widget> {
         let found = match self.widget {
-            // TODO Consolidate and just do this
-            WidgetType::Draw(_)
-            | WidgetType::Checkbox(_)
-            | WidgetType::TextBox(_)
-            | WidgetType::Dropdown(_)
-            | WidgetType::Slider(_)
-            | WidgetType::Filler(_)
-            | WidgetType::Menu(_) => self.id == Some(name.to_string()),
-            WidgetType::Btn(ref btn) => btn.action == name,
-            WidgetType::DurationPlot(_) => false,
-            WidgetType::UsizePlot(_) => false,
-            WidgetType::Histogram(_) => false,
             WidgetType::Row(ref widgets) | WidgetType::Column(ref widgets) => {
                 for widget in widgets {
                     if let Some(w) = widget.find(name) {
@@ -672,7 +662,7 @@ impl Widget {
                 }
                 return None;
             }
-            WidgetType::Nothing => unreachable!(),
+            _ => self.id == Some(name.to_string()),
         };
         if found {
             Some(self)
@@ -682,18 +672,6 @@ impl Widget {
     }
     fn find_mut(&mut self, name: &str) -> Option<&mut Widget> {
         let found = match self.widget {
-            // TODO Consolidate and just do this
-            WidgetType::Draw(_)
-            | WidgetType::Checkbox(_)
-            | WidgetType::TextBox(_)
-            | WidgetType::Dropdown(_)
-            | WidgetType::Slider(_)
-            | WidgetType::Filler(_)
-            | WidgetType::Menu(_) => self.id == Some(name.to_string()),
-            WidgetType::Btn(ref btn) => btn.action == name,
-            WidgetType::DurationPlot(_) => false,
-            WidgetType::UsizePlot(_) => false,
-            WidgetType::Histogram(_) => false,
             WidgetType::Row(ref mut widgets) | WidgetType::Column(ref mut widgets) => {
                 for widget in widgets {
                     if let Some(w) = widget.find_mut(name) {
@@ -702,7 +680,7 @@ impl Widget {
                 }
                 return None;
             }
-            WidgetType::Nothing => unreachable!(),
+            _ => self.id == Some(name.to_string()),
         };
         if found {
             Some(self)
@@ -752,8 +730,6 @@ pub enum Outcome {
 
 const SCROLL_SPEED: f64 = 5.0;
 
-// TODO These APIs aren't composable. Need a builer pattern or ideally, to scrape all the special
-// objects from the tree.
 impl Composite {
     pub fn new(top_level: Widget) -> CompositeBuilder {
         CompositeBuilder {

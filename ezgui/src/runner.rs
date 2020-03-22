@@ -1,5 +1,5 @@
 use crate::assets::Assets;
-use crate::widgets::screenshot::{screenshot_current, screenshot_everything};
+use crate::tools::screenshot::{screenshot_current, screenshot_everything};
 use crate::{Canvas, Event, EventCtx, GfxCtx, Key, Prerender, UserInput};
 use geom::Duration;
 use instant::Instant;
