@@ -20,7 +20,7 @@ pub struct Widget {
     style: LayoutStyle,
     rect: ScreenRectangle,
     bg: Option<Drawable>,
-    // TODO Consolidate with names in some objects (sliders, menus, buttons)
+    // TODO Consolidate with names in some objects (menus, buttons)
     id: Option<String>,
 }
 
@@ -30,7 +30,7 @@ enum WidgetType {
     Checkbox(Checkbox),
     TextBox(TextBox),
     Dropdown(Dropdown),
-    Slider(String),
+    Slider(Slider),
     Menu(String),
     Filler(String),
     // TODO Sadness. Can't have some kind of wildcard generic here? I think this goes away when
@@ -262,8 +262,8 @@ impl Widget {
         Widget::new(WidgetType::Btn(btn))
     }
 
-    pub fn slider(label: &str) -> Widget {
-        Widget::new(WidgetType::Slider(label.to_string()))
+    pub fn slider(slider: Slider) -> Widget {
+        Widget::new(WidgetType::Slider(slider))
     }
 
     pub fn menu(label: &str) -> Widget {
@@ -369,7 +369,6 @@ impl Widget {
     fn event(
         &mut self,
         ctx: &mut EventCtx,
-        sliders: &mut HashMap<String, Slider>,
         menus: &mut HashMap<String, Menu>,
         redo_layout: &mut bool,
     ) -> Option<Outcome> {
@@ -394,8 +393,8 @@ impl Widget {
                     *redo_layout = true;
                 }
             }
-            WidgetType::Slider(ref name) => {
-                sliders.get_mut(name).unwrap().event(ctx);
+            WidgetType::Slider(ref mut slider) => {
+                slider.event(ctx);
             }
             WidgetType::Menu(ref name) => {
                 menus.get_mut(name).unwrap().event(ctx);
@@ -406,7 +405,7 @@ impl Widget {
             | WidgetType::Histogram(_) => {}
             WidgetType::Row(ref mut widgets) | WidgetType::Column(ref mut widgets) => {
                 for w in widgets {
-                    if let Some(o) = w.event(ctx, sliders, menus, redo_layout) {
+                    if let Some(o) = w.event(ctx, menus, redo_layout) {
                         return Some(o);
                     }
                 }
@@ -416,12 +415,7 @@ impl Widget {
         None
     }
 
-    fn draw(
-        &self,
-        g: &mut GfxCtx,
-        sliders: &HashMap<String, Slider>,
-        menus: &HashMap<String, Menu>,
-    ) {
+    fn draw(&self, g: &mut GfxCtx, menus: &HashMap<String, Menu>) {
         if let Some(ref bg) = self.bg {
             g.redraw_at(ScreenPt::new(self.rect.x1, self.rect.y1), bg);
         }
@@ -432,9 +426,11 @@ impl Widget {
             WidgetType::Checkbox(ref checkbox) => checkbox.draw(g),
             WidgetType::TextBox(ref textbox) => textbox.draw(g),
             WidgetType::Dropdown(ref dropdown) => dropdown.draw(g),
-            WidgetType::Slider(ref name) => {
-                if name != "horiz scrollbar" && name != "vert scrollbar" {
-                    sliders[name].draw(g);
+            WidgetType::Slider(ref slider) => {
+                if self.id != Some("horiz scrollbar".to_string())
+                    && self.id != Some("vert scrollbar".to_string())
+                {
+                    slider.draw(g);
                 }
             }
             WidgetType::Menu(ref name) => menus[name].draw(g),
@@ -444,7 +440,7 @@ impl Widget {
             WidgetType::Histogram(ref hgram) => hgram.draw(g),
             WidgetType::Row(ref widgets) | WidgetType::Column(ref widgets) => {
                 for w in widgets {
-                    w.draw(g, sliders, menus);
+                    w.draw(g, menus);
                 }
             }
             WidgetType::Nothing => unreachable!(),
@@ -455,7 +451,6 @@ impl Widget {
     fn get_flexbox(
         &self,
         parent: Node,
-        sliders: &HashMap<String, Slider>,
         menus: &HashMap<String, Menu>,
         fillers: &HashMap<String, Filler>,
         stretch: &mut Stretch,
@@ -468,7 +463,7 @@ impl Widget {
             WidgetType::Checkbox(ref widget) => widget,
             WidgetType::TextBox(ref widget) => widget,
             WidgetType::Dropdown(ref widget) => widget,
-            WidgetType::Slider(ref name) => &sliders[name],
+            WidgetType::Slider(ref widget) => widget,
             WidgetType::Menu(ref name) => &menus[name],
             WidgetType::Filler(ref name) => &fillers[name],
             WidgetType::DurationPlot(ref widget) => widget,
@@ -483,7 +478,7 @@ impl Widget {
                 let row = stretch.new_node(style, Vec::new()).unwrap();
                 nodes.push(row);
                 for widget in widgets {
-                    widget.get_flexbox(row, sliders, menus, fillers, stretch, nodes);
+                    widget.get_flexbox(row, menus, fillers, stretch, nodes);
                 }
                 stretch.add_child(parent, row).unwrap();
                 return;
@@ -497,7 +492,7 @@ impl Widget {
                 let col = stretch.new_node(style, Vec::new()).unwrap();
                 nodes.push(col);
                 for widget in widgets {
-                    widget.get_flexbox(col, sliders, menus, fillers, stretch, nodes);
+                    widget.get_flexbox(col, menus, fillers, stretch, nodes);
                 }
                 stretch.add_child(parent, col).unwrap();
                 return;
@@ -520,7 +515,6 @@ impl Widget {
 
     fn apply_flexbox(
         &mut self,
-        sliders: &mut HashMap<String, Slider>,
         menus: &mut HashMap<String, Menu>,
         fillers: &mut HashMap<String, Filler>,
         stretch: &Stretch,
@@ -537,9 +531,11 @@ impl Widget {
         let width: f64 = result.size.width.into();
         let height: f64 = result.size.height.into();
         let top_left = match self.widget {
-            WidgetType::Slider(ref name) => {
+            WidgetType::Slider(_) => {
                 // Don't scroll the scrollbars
-                if name == "horiz scrollbar" || name == "vert scrollbar" {
+                if self.id == Some("horiz scrollbar".to_string())
+                    || self.id == Some("vert scrollbar".to_string())
+                {
                     ScreenPt::new(x, y)
                 } else {
                     ScreenPt::new(x + dx - scroll_offset.0, y + dy - scroll_offset.1)
@@ -583,8 +579,8 @@ impl Widget {
             WidgetType::Dropdown(ref mut widget) => {
                 widget.set_pos(top_left);
             }
-            WidgetType::Slider(ref name) => {
-                sliders.get_mut(name).unwrap().set_pos(top_left);
+            WidgetType::Slider(ref mut widget) => {
+                widget.set_pos(top_left);
             }
             WidgetType::Menu(ref name) => {
                 menus.get_mut(name).unwrap().set_pos(top_left);
@@ -605,7 +601,6 @@ impl Widget {
                 // layout() doesn't return absolute position; it's relative to the container.
                 for widget in widgets {
                     widget.apply_flexbox(
-                        sliders,
                         menus,
                         fillers,
                         stretch,
@@ -621,7 +616,6 @@ impl Widget {
             WidgetType::Column(ref mut widgets) => {
                 for widget in widgets {
                     widget.apply_flexbox(
-                        sliders,
                         menus,
                         fillers,
                         stretch,
@@ -682,9 +676,9 @@ impl Widget {
             WidgetType::Draw(_)
             | WidgetType::Checkbox(_)
             | WidgetType::TextBox(_)
-            | WidgetType::Dropdown(_) => self.id == Some(name.to_string()),
+            | WidgetType::Dropdown(_)
+            | WidgetType::Slider(_) => self.id == Some(name.to_string()),
             WidgetType::Btn(ref btn) => btn.action == name,
-            WidgetType::Slider(ref n) => n == name,
             WidgetType::Menu(ref n) => n == name,
             WidgetType::Filler(ref n) => n == name,
             WidgetType::DurationPlot(_) => false,
@@ -712,9 +706,9 @@ impl Widget {
             WidgetType::Draw(_)
             | WidgetType::Checkbox(_)
             | WidgetType::TextBox(_)
-            | WidgetType::Dropdown(_) => self.id == Some(name.to_string()),
+            | WidgetType::Dropdown(_)
+            | WidgetType::Slider(_) => self.id == Some(name.to_string()),
             WidgetType::Btn(ref btn) => btn.action == name,
-            WidgetType::Slider(ref n) => n == name,
             WidgetType::Menu(ref n) => n == name,
             WidgetType::Filler(ref n) => n == name,
             WidgetType::DurationPlot(_) => false,
@@ -753,7 +747,6 @@ enum Dims {
 pub struct CompositeBuilder {
     top_level: Widget,
 
-    sliders: HashMap<String, Slider>,
     menus: HashMap<String, Menu>,
     fillers: HashMap<String, Filler>,
 
@@ -765,7 +758,6 @@ pub struct CompositeBuilder {
 pub struct Composite {
     top_level: Widget,
 
-    sliders: HashMap<String, Slider>,
     menus: HashMap<String, Menu>,
     fillers: HashMap<String, Filler>,
 
@@ -793,7 +785,6 @@ impl Composite {
         CompositeBuilder {
             top_level,
 
-            sliders: HashMap::new(),
             menus: HashMap::new(),
             fillers: HashMap::new(),
 
@@ -815,14 +806,8 @@ impl Composite {
             .unwrap();
 
         let mut nodes = vec![];
-        self.top_level.get_flexbox(
-            root,
-            &self.sliders,
-            &self.menus,
-            &self.fillers,
-            &mut stretch,
-            &mut nodes,
-        );
+        self.top_level
+            .get_flexbox(root, &self.menus, &self.fillers, &mut stretch, &mut nodes);
         nodes.reverse();
 
         // TODO Express more simply. Constraining this seems useless.
@@ -844,7 +829,6 @@ impl Composite {
                 .align_window(&ctx.prerender.assets, effective_dims, self.horiz, self.vert);
         let offset = self.scroll_offset();
         self.top_level.apply_flexbox(
-            &mut self.sliders,
             &mut self.menus,
             &mut self.fillers,
             &stretch,
@@ -930,9 +914,7 @@ impl Composite {
 
         let before = self.scroll_offset();
         let mut redo_layout = false;
-        let result =
-            self.top_level
-                .event(ctx, &mut self.sliders, &mut self.menus, &mut redo_layout);
+        let result = self.top_level.event(ctx, &mut self.menus, &mut redo_layout);
         if self.scroll_offset() != before || redo_layout {
             self.recompute_layout(ctx, true);
         }
@@ -967,17 +949,17 @@ impl Composite {
 
         g.unfork();
 
-        self.top_level.draw(g, &self.sliders, &self.menus);
+        self.top_level.draw(g, &self.menus);
         if self.scrollable_x || self.scrollable_y {
             g.disable_clipping();
 
             // Draw the scrollbars after clipping is disabled, because they actually live just
             // outside the rectangle.
             if self.scrollable_x {
-                self.sliders["horiz scrollbar"].draw(g);
+                self.slider("horiz scrollbar").draw(g);
             }
             if self.scrollable_y {
-                self.sliders["vert scrollbar"].draw(g);
+                self.slider("vert scrollbar").draw(g);
             }
         }
     }
@@ -1006,13 +988,22 @@ impl Composite {
     }
 
     pub fn slider(&self, name: &str) -> &Slider {
-        &self.sliders[name]
+        match self.find(name).widget {
+            WidgetType::Slider(ref slider) => slider,
+            _ => panic!("{} isn't a slider", name),
+        }
     }
     pub fn maybe_slider(&self, name: &str) -> Option<&Slider> {
-        self.sliders.get(name)
+        match self.top_level.find(name).map(|w| &w.widget) {
+            Some(WidgetType::Slider(ref slider)) => Some(slider),
+            _ => None,
+        }
     }
     pub fn slider_mut(&mut self, name: &str) -> &mut Slider {
-        self.sliders.get_mut(name).unwrap()
+        match self.find_mut(name).widget {
+            WidgetType::Slider(ref mut slider) => slider,
+            _ => panic!("{} isn't a slider", name),
+        }
     }
 
     pub fn menu(&self, name: &str) -> &Menu {
@@ -1099,7 +1090,6 @@ impl CompositeBuilder {
     pub fn build(self, ctx: &mut EventCtx) -> Composite {
         let mut c = Composite {
             top_level: self.top_level,
-            sliders: self.sliders,
             menus: self.menus,
             fillers: self.fillers,
 
@@ -1138,34 +1128,28 @@ impl CompositeBuilder {
                 .align_window(&ctx.prerender.assets, c.container_dims, c.horiz, c.vert);
         if c.contents_dims.width > c.container_dims.width {
             c.scrollable_x = true;
-            c.sliders.insert(
-                "horiz scrollbar".to_string(),
-                Slider::horizontal(
+            c.top_level = Widget::col(vec![
+                c.top_level,
+                Widget::slider(Slider::horizontal(
                     ctx,
                     c.container_dims.width,
                     c.container_dims.width * (c.container_dims.width / c.contents_dims.width),
-                ),
-            );
-            c.top_level = Widget::col(vec![
-                c.top_level,
-                Widget::slider("horiz scrollbar")
-                    .abs(top_left.x, top_left.y + c.container_dims.height),
+                ))
+                .named("horiz scrollbar")
+                .abs(top_left.x, top_left.y + c.container_dims.height),
             ]);
         }
         if c.contents_dims.height > c.container_dims.height {
             c.scrollable_y = true;
-            c.sliders.insert(
-                "vert scrollbar".to_string(),
-                Slider::vertical(
+            c.top_level = Widget::row(vec![
+                c.top_level,
+                Widget::slider(Slider::vertical(
                     ctx,
                     c.container_dims.height,
                     c.container_dims.height * (c.container_dims.height / c.contents_dims.height),
-                ),
-            );
-            c.top_level = Widget::row(vec![
-                c.top_level,
-                Widget::slider("vert scrollbar")
-                    .abs(top_left.x + c.container_dims.width, top_left.y),
+                ))
+                .named("vert scrollbar")
+                .abs(top_left.x + c.container_dims.width, top_left.y),
             ]);
         }
         if c.scrollable_x || c.scrollable_y {
@@ -1204,10 +1188,6 @@ impl CompositeBuilder {
 
     pub fn filler(mut self, name: &str, filler: Filler) -> CompositeBuilder {
         self.fillers.insert(name.to_string(), filler);
-        self
-    }
-    pub fn slider(mut self, name: &str, slider: Slider) -> CompositeBuilder {
-        self.sliders.insert(name.to_string(), slider);
         self
     }
     pub fn menu(mut self, name: &str, menu: Menu) -> CompositeBuilder {

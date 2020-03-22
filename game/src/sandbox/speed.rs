@@ -348,9 +348,6 @@ struct JumpToTime {
 impl JumpToTime {
     fn new(ctx: &mut EventCtx, app: &App, maybe_mode: Option<GameplayMode>) -> JumpToTime {
         let target = app.primary.sim.time();
-        // TODO Auto-fill width?
-        let mut slider = Slider::horizontal(ctx, 0.25 * ctx.canvas.window_width, 25.0);
-        slider.set_percent(ctx, target.to_percent(Time::END_OF_DAY).min(1.0));
         JumpToTime {
             target,
             maybe_mode,
@@ -365,7 +362,15 @@ impl JumpToTime {
                         txt.draw(ctx)
                     }
                     .named("target time"),
-                    Widget::slider("time slider").margin(10),
+                    Widget::slider({
+                        // TODO Auto-fill width?
+                        let mut slider =
+                            Slider::horizontal(ctx, 0.25 * ctx.canvas.window_width, 25.0);
+                        slider.set_percent(ctx, target.to_percent(Time::END_OF_DAY).min(1.0));
+                        slider
+                    })
+                    .named("time slider")
+                    .margin(10),
                     Widget::row(vec![
                         Line("00:00").size(12).roboto().draw(ctx),
                         Widget::draw_svg(ctx, "../data/system/assets/speed/sunrise.svg"),
@@ -409,7 +414,6 @@ impl JumpToTime {
                 ])
                 .bg(colors::PANEL_BG),
             )
-            .slider("time slider", slider)
             .build(ctx),
         }
     }

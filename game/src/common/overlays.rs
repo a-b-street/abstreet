@@ -1063,18 +1063,24 @@ fn population_controls(ctx: &mut EventCtx, opts: Option<&HeatmapOptions>) -> Com
         // TODO Display the value...
         col.push(Widget::row(vec![
             "Resolution (meters)".draw_text(ctx),
-            Widget::slider("resolution"),
+            Widget::slider({
+                let mut slider = Slider::horizontal(ctx, 100.0, 25.0);
+                // 1 to 100m
+                slider.set_percent(ctx, (o.resolution - 1.0) / 99.0);
+                slider
+            })
+            .named("resolution"),
         ]));
         col.push(Widget::row(vec![
             "Diffusion (num of passes)".draw_text(ctx),
-            Widget::slider("passes"),
+            Widget::slider({
+                let mut slider = Slider::horizontal(ctx, 100.0, 25.0);
+                // 0 to 10
+                slider.set_percent(ctx, (o.num_passes as f64) / 10.0);
+                slider
+            })
+            .named("passes"),
         ]));
-        let mut resolution = Slider::horizontal(ctx, 100.0, 25.0);
-        // 1 to 100m
-        resolution.set_percent(ctx, (o.resolution - 1.0) / 99.0);
-        let mut passes = Slider::horizontal(ctx, 100.0, 25.0);
-        // 0 to 10
-        passes.set_percent(ctx, (o.num_passes as f64) / 10.0);
 
         col.push(Widget::dropdown(
             ctx,
@@ -1082,17 +1088,11 @@ fn population_controls(ctx: &mut EventCtx, opts: Option<&HeatmapOptions>) -> Com
             o.colors,
             HeatmapColors::choices(),
         ));
-
-        Composite::new(Widget::col(col).bg(colors::PANEL_BG))
-            .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
-            .slider("resolution", resolution)
-            .slider("passes", passes)
-            .build(ctx)
-    } else {
-        Composite::new(Widget::col(col).bg(colors::PANEL_BG))
-            .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
-            .build(ctx)
     }
+
+    Composite::new(Widget::col(col).bg(colors::PANEL_BG))
+        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+        .build(ctx)
 }
 
 fn heatmap_options(c: &mut Composite) -> Option<HeatmapOptions> {

@@ -559,13 +559,12 @@ impl DotMap {
                             .build_def(ctx, hotkey(Key::Escape))
                             .align_right(),
                     ]),
-                    Widget::slider("time slider"),
+                    Widget::slider(Slider::horizontal(ctx, 150.0, 25.0)).named("time slider"),
                 ])
                 .padding(10)
                 .bg(colors::PANEL_BG),
             )
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-            .slider("time slider", Slider::horizontal(ctx, 150.0, 25.0))
             .build(ctx),
 
             lines,
