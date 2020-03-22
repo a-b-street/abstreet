@@ -5,7 +5,7 @@ use crate::{
 };
 use abstutil::Cloneable;
 use geom::{Distance, Duration, Polygon};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use stretch::geometry::{Rect, Size};
 use stretch::node::{Node, Stretch};
 use stretch::number::Number;
@@ -13,14 +13,12 @@ use stretch::style::{
     AlignItems, Dimension, FlexDirection, FlexWrap, JustifyContent, PositionType, Style,
 };
 
-type Menu = PopupMenu<Box<dyn Cloneable>>;
-
 pub struct Widget {
     widget: WidgetType,
     style: LayoutStyle,
     rect: ScreenRectangle,
     bg: Option<Drawable>,
-    // TODO Consolidate with names in some objects (menus, buttons)
+    // TODO Only use this, not the other things
     id: Option<String>,
 }
 
@@ -31,8 +29,8 @@ enum WidgetType {
     TextBox(TextBox),
     Dropdown(Dropdown),
     Slider(Slider),
-    Menu(String),
-    Filler(String),
+    Menu(PopupMenu<Box<dyn Cloneable>>),
+    Filler(Filler),
     // TODO Sadness. Can't have some kind of wildcard generic here? I think this goes away when
     // WidgetType becomes a trait.
     DurationPlot(Plot<Duration>),
@@ -266,12 +264,12 @@ impl Widget {
         Widget::new(WidgetType::Slider(slider))
     }
 
-    pub fn menu(label: &str) -> Widget {
-        Widget::new(WidgetType::Menu(label.to_string()))
+    pub fn menu(menu: PopupMenu<Box<dyn Cloneable>>) -> Widget {
+        Widget::new(WidgetType::Menu(menu))
     }
 
-    pub fn filler(label: &str) -> Widget {
-        Widget::new(WidgetType::Filler(label.to_string()))
+    pub fn filler(filler: Filler) -> Widget {
+        Widget::new(WidgetType::Filler(filler))
     }
 
     pub fn checkbox(
@@ -366,12 +364,7 @@ impl Widget {
 
 // Internals
 impl Widget {
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        menus: &mut HashMap<String, Menu>,
-        redo_layout: &mut bool,
-    ) -> Option<Outcome> {
+    fn event(&mut self, ctx: &mut EventCtx, redo_layout: &mut bool) -> Option<Outcome> {
         match self.widget {
             WidgetType::Draw(_) => {}
             WidgetType::Btn(ref mut btn) => {
@@ -396,8 +389,8 @@ impl Widget {
             WidgetType::Slider(ref mut slider) => {
                 slider.event(ctx);
             }
-            WidgetType::Menu(ref name) => {
-                menus.get_mut(name).unwrap().event(ctx);
+            WidgetType::Menu(ref mut menu) => {
+                menu.event(ctx);
             }
             WidgetType::Filler(_)
             | WidgetType::DurationPlot(_)
@@ -405,7 +398,7 @@ impl Widget {
             | WidgetType::Histogram(_) => {}
             WidgetType::Row(ref mut widgets) | WidgetType::Column(ref mut widgets) => {
                 for w in widgets {
-                    if let Some(o) = w.event(ctx, menus, redo_layout) {
+                    if let Some(o) = w.event(ctx, redo_layout) {
                         return Some(o);
                     }
                 }
@@ -415,7 +408,7 @@ impl Widget {
         None
     }
 
-    fn draw(&self, g: &mut GfxCtx, menus: &HashMap<String, Menu>) {
+    fn draw(&self, g: &mut GfxCtx) {
         if let Some(ref bg) = self.bg {
             g.redraw_at(ScreenPt::new(self.rect.x1, self.rect.y1), bg);
         }
@@ -433,14 +426,14 @@ impl Widget {
                     slider.draw(g);
                 }
             }
-            WidgetType::Menu(ref name) => menus[name].draw(g),
+            WidgetType::Menu(ref menu) => menu.draw(g),
             WidgetType::Filler(_) => {}
             WidgetType::DurationPlot(ref plot) => plot.draw(g),
             WidgetType::UsizePlot(ref plot) => plot.draw(g),
             WidgetType::Histogram(ref hgram) => hgram.draw(g),
             WidgetType::Row(ref widgets) | WidgetType::Column(ref widgets) => {
                 for w in widgets {
-                    w.draw(g, menus);
+                    w.draw(g);
                 }
             }
             WidgetType::Nothing => unreachable!(),
@@ -448,14 +441,7 @@ impl Widget {
     }
 
     // Populate a flattened list of Nodes, matching the traversal order
-    fn get_flexbox(
-        &self,
-        parent: Node,
-        menus: &HashMap<String, Menu>,
-        fillers: &HashMap<String, Filler>,
-        stretch: &mut Stretch,
-        nodes: &mut Vec<Node>,
-    ) {
+    fn get_flexbox(&self, parent: Node, stretch: &mut Stretch, nodes: &mut Vec<Node>) {
         // TODO Can I use | in the match and "cast" to Widget?
         let widget: &dyn WidgetImpl = match self.widget {
             WidgetType::Draw(ref widget) => widget,
@@ -464,8 +450,8 @@ impl Widget {
             WidgetType::TextBox(ref widget) => widget,
             WidgetType::Dropdown(ref widget) => widget,
             WidgetType::Slider(ref widget) => widget,
-            WidgetType::Menu(ref name) => &menus[name],
-            WidgetType::Filler(ref name) => &fillers[name],
+            WidgetType::Menu(ref widget) => widget,
+            WidgetType::Filler(ref widget) => widget,
             WidgetType::DurationPlot(ref widget) => widget,
             WidgetType::UsizePlot(ref widget) => widget,
             WidgetType::Histogram(ref widget) => widget,
@@ -478,7 +464,7 @@ impl Widget {
                 let row = stretch.new_node(style, Vec::new()).unwrap();
                 nodes.push(row);
                 for widget in widgets {
-                    widget.get_flexbox(row, menus, fillers, stretch, nodes);
+                    widget.get_flexbox(row, stretch, nodes);
                 }
                 stretch.add_child(parent, row).unwrap();
                 return;
@@ -492,7 +478,7 @@ impl Widget {
                 let col = stretch.new_node(style, Vec::new()).unwrap();
                 nodes.push(col);
                 for widget in widgets {
-                    widget.get_flexbox(col, menus, fillers, stretch, nodes);
+                    widget.get_flexbox(col, stretch, nodes);
                 }
                 stretch.add_child(parent, col).unwrap();
                 return;
@@ -515,8 +501,6 @@ impl Widget {
 
     fn apply_flexbox(
         &mut self,
-        menus: &mut HashMap<String, Menu>,
-        fillers: &mut HashMap<String, Filler>,
         stretch: &Stretch,
         nodes: &mut Vec<Node>,
         dx: f64,
@@ -582,11 +566,11 @@ impl Widget {
             WidgetType::Slider(ref mut widget) => {
                 widget.set_pos(top_left);
             }
-            WidgetType::Menu(ref name) => {
-                menus.get_mut(name).unwrap().set_pos(top_left);
+            WidgetType::Menu(ref mut widget) => {
+                widget.set_pos(top_left);
             }
-            WidgetType::Filler(ref name) => {
-                fillers.get_mut(name).unwrap().set_pos(top_left);
+            WidgetType::Filler(ref mut widget) => {
+                widget.set_pos(top_left);
             }
             WidgetType::DurationPlot(ref mut widget) => {
                 widget.set_pos(top_left);
@@ -601,8 +585,6 @@ impl Widget {
                 // layout() doesn't return absolute position; it's relative to the container.
                 for widget in widgets {
                     widget.apply_flexbox(
-                        menus,
-                        fillers,
                         stretch,
                         nodes,
                         x + dx,
@@ -616,8 +598,6 @@ impl Widget {
             WidgetType::Column(ref mut widgets) => {
                 for widget in widgets {
                     widget.apply_flexbox(
-                        menus,
-                        fillers,
                         stretch,
                         nodes,
                         x + dx,
@@ -677,10 +657,10 @@ impl Widget {
             | WidgetType::Checkbox(_)
             | WidgetType::TextBox(_)
             | WidgetType::Dropdown(_)
-            | WidgetType::Slider(_) => self.id == Some(name.to_string()),
+            | WidgetType::Slider(_)
+            | WidgetType::Filler(_)
+            | WidgetType::Menu(_) => self.id == Some(name.to_string()),
             WidgetType::Btn(ref btn) => btn.action == name,
-            WidgetType::Menu(ref n) => n == name,
-            WidgetType::Filler(ref n) => n == name,
             WidgetType::DurationPlot(_) => false,
             WidgetType::UsizePlot(_) => false,
             WidgetType::Histogram(_) => false,
@@ -707,10 +687,10 @@ impl Widget {
             | WidgetType::Checkbox(_)
             | WidgetType::TextBox(_)
             | WidgetType::Dropdown(_)
-            | WidgetType::Slider(_) => self.id == Some(name.to_string()),
+            | WidgetType::Slider(_)
+            | WidgetType::Filler(_)
+            | WidgetType::Menu(_) => self.id == Some(name.to_string()),
             WidgetType::Btn(ref btn) => btn.action == name,
-            WidgetType::Menu(ref n) => n == name,
-            WidgetType::Filler(ref n) => n == name,
             WidgetType::DurationPlot(_) => false,
             WidgetType::UsizePlot(_) => false,
             WidgetType::Histogram(_) => false,
@@ -747,9 +727,6 @@ enum Dims {
 pub struct CompositeBuilder {
     top_level: Widget,
 
-    menus: HashMap<String, Menu>,
-    fillers: HashMap<String, Filler>,
-
     horiz: HorizontalAlignment,
     vert: VerticalAlignment,
     dims: Dims,
@@ -757,9 +734,6 @@ pub struct CompositeBuilder {
 
 pub struct Composite {
     top_level: Widget,
-
-    menus: HashMap<String, Menu>,
-    fillers: HashMap<String, Filler>,
 
     horiz: HorizontalAlignment,
     vert: VerticalAlignment,
@@ -785,9 +759,6 @@ impl Composite {
         CompositeBuilder {
             top_level,
 
-            menus: HashMap::new(),
-            fillers: HashMap::new(),
-
             horiz: HorizontalAlignment::Center,
             vert: VerticalAlignment::Center,
             dims: Dims::MaxPercent(1.0, 1.0),
@@ -806,8 +777,7 @@ impl Composite {
             .unwrap();
 
         let mut nodes = vec![];
-        self.top_level
-            .get_flexbox(root, &self.menus, &self.fillers, &mut stretch, &mut nodes);
+        self.top_level.get_flexbox(root, &mut stretch, &mut nodes);
         nodes.reverse();
 
         // TODO Express more simply. Constraining this seems useless.
@@ -829,8 +799,6 @@ impl Composite {
                 .align_window(&ctx.prerender.assets, effective_dims, self.horiz, self.vert);
         let offset = self.scroll_offset();
         self.top_level.apply_flexbox(
-            &mut self.menus,
-            &mut self.fillers,
             &stretch,
             &mut nodes,
             top_left.x,
@@ -914,7 +882,7 @@ impl Composite {
 
         let before = self.scroll_offset();
         let mut redo_layout = false;
-        let result = self.top_level.event(ctx, &mut self.menus, &mut redo_layout);
+        let result = self.top_level.event(ctx, &mut redo_layout);
         if self.scroll_offset() != before || redo_layout {
             self.recompute_layout(ctx, true);
         }
@@ -949,7 +917,7 @@ impl Composite {
 
         g.unfork();
 
-        self.top_level.draw(g, &self.menus);
+        self.top_level.draw(g);
         if self.scrollable_x || self.scrollable_y {
             g.disable_clipping();
 
@@ -1006,8 +974,11 @@ impl Composite {
         }
     }
 
-    pub fn menu(&self, name: &str) -> &Menu {
-        &self.menus[name]
+    pub fn menu(&self, name: &str) -> &PopupMenu<Box<dyn Cloneable>> {
+        match self.find(name).widget {
+            WidgetType::Menu(ref menu) => menu,
+            _ => panic!("{} isn't a menu", name),
+        }
     }
 
     pub fn is_checked(&self, name: &str) -> bool {
@@ -1039,8 +1010,10 @@ impl Composite {
     }
 
     pub fn filler_rect(&self, name: &str) -> ScreenRectangle {
-        let f = &self.fillers[name];
-        ScreenRectangle::top_left(f.top_left, f.dims)
+        match self.find(name).widget {
+            WidgetType::Filler(ref f) => ScreenRectangle::top_left(f.top_left, f.dims),
+            _ => panic!("{} isn't a filler", name),
+        }
     }
 
     fn find(&self, name: &str) -> &Widget {
@@ -1090,8 +1063,6 @@ impl CompositeBuilder {
     pub fn build(self, ctx: &mut EventCtx) -> Composite {
         let mut c = Composite {
             top_level: self.top_level,
-            menus: self.menus,
-            fillers: self.fillers,
 
             horiz: self.horiz,
             vert: self.vert,
@@ -1183,15 +1154,6 @@ impl CompositeBuilder {
 
     pub fn exact_size_percent(mut self, pct_width: usize, pct_height: usize) -> CompositeBuilder {
         self.dims = Dims::ExactPercent((pct_width as f64) / 100.0, (pct_height as f64) / 100.0);
-        self
-    }
-
-    pub fn filler(mut self, name: &str, filler: Filler) -> CompositeBuilder {
-        self.fillers.insert(name.to_string(), filler);
-        self
-    }
-    pub fn menu(mut self, name: &str, menu: Menu) -> CompositeBuilder {
-        self.menus.insert(name.to_string(), menu);
         self
     }
 }

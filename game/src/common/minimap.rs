@@ -286,7 +286,8 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
                         .build(ctx, "pan left", None)
                         .margin(5)
                         .centered_vert(),
-                    Widget::filler("minimap"),
+                    Widget::filler(Filler::new(ScreenDims::new(square_len, square_len)))
+                        .named("minimap"),
                     Btn::svg_def("../data/system/assets/minimap/right.svg")
                         .build(ctx, "pan right", None)
                         .margin(5)
@@ -305,10 +306,6 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
     .aligned(
         HorizontalAlignment::Right,
         VerticalAlignment::BottomAboveOSD,
-    )
-    .filler(
-        "minimap",
-        Filler::new(ScreenDims::new(square_len, square_len)),
     )
     .build(ctx)
 }

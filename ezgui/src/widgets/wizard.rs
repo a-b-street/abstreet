@@ -252,7 +252,16 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             if let Some(l) = query {
                 col.push(Line(l).roboto_bold().draw(self.ctx));
             }
-            col.push(Widget::menu("menu"));
+            col.push(
+                Widget::menu(PopupMenu::new(
+                    self.ctx,
+                    choices
+                        .into_iter()
+                        .map(|c| c.with_value(c.data.clone_box()))
+                        .collect(),
+                ))
+                .named("menu"),
+            );
             self.wizard.menu_comp = Some(
                 Composite::new(
                     Widget::row(vec![
@@ -266,16 +275,6 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                     .padding(5),
                 )
                 .aligned(horiz, vert)
-                .menu(
-                    "menu",
-                    PopupMenu::new(
-                        self.ctx,
-                        choices
-                            .into_iter()
-                            .map(|c| c.with_value(c.data.clone_box()))
-                            .collect(),
-                    ),
-                )
                 .build(self.ctx),
             );
         }
