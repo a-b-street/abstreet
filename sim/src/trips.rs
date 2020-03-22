@@ -557,9 +557,7 @@ impl TripManager {
         }
     }
 
-    // (finished trips, unfinished trips, active trips by the trip's current mode, people in
-    // buildings, people off map)
-    pub fn num_trips(&self) -> (usize, usize, BTreeMap<TripMode, usize>, usize, usize) {
+    pub fn num_trips(&self) -> (usize, usize, BTreeMap<TripMode, usize>) {
         let mut cnt = Counter::new();
         for a in self.active_trip_mode.keys() {
             cnt.inc(TripMode::from_agent(*a));
@@ -568,6 +566,13 @@ impl TripManager {
             .into_iter()
             .map(|k| (k, cnt.get(k)))
             .collect();
+        (
+            self.trips.len() - self.unfinished_trips,
+            self.unfinished_trips,
+            per_mode,
+        )
+    }
+    pub fn num_ppl(&self) -> (usize, usize, usize) {
         let mut ppl_in_bldg = 0;
         let mut ppl_off_map = 0;
         for p in &self.people {
@@ -582,13 +587,7 @@ impl TripManager {
                 PersonState::Limbo => {}
             }
         }
-        (
-            self.trips.len() - self.unfinished_trips,
-            self.unfinished_trips,
-            per_mode,
-            ppl_in_bldg,
-            ppl_off_map,
-        )
+        (self.people.len(), ppl_in_bldg, ppl_off_map)
     }
 
     pub fn is_done(&self) -> bool {

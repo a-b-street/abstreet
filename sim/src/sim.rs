@@ -699,7 +699,7 @@ impl Sim {
 
             let dt_real = Duration::realtime_elapsed(last_print);
             if dt_real >= Duration::seconds(1.0) {
-                let (finished, unfinished, _, _, _) = self.num_trips();
+                let (finished, unfinished, _) = self.num_trips();
                 println!(
                     "{}: {} trips finished, {} unfinished, speed = {:.2}x, {}",
                     self.time(),
@@ -851,10 +851,13 @@ impl Sim {
         self.time == Time::START_OF_DAY && self.is_done()
     }
 
-    // (number of finished trips, number of unfinished trips, number of active by mode, number of
-    // people in buildings, number of people off map)
-    pub fn num_trips(&self) -> (usize, usize, BTreeMap<TripMode, usize>, usize, usize) {
+    // (number of finished trips, number of unfinished trips, number of active by mode)
+    pub fn num_trips(&self) -> (usize, usize, BTreeMap<TripMode, usize>) {
         self.trips.num_trips()
+    }
+    // (total number of people, just in buildings, just off map)
+    pub fn num_ppl(&self) -> (usize, usize, usize) {
+        self.trips.num_ppl()
     }
 
     pub fn count_trips_involving_bldg(&self, b: BuildingID) -> TripCount {

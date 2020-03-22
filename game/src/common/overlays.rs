@@ -402,7 +402,7 @@ impl Overlays {
         .maybe_cb(
             "population map",
             Box::new(|ctx, app| {
-                app.overlay = Overlays::population_map(ctx, app, None);
+                app.overlay = Overlays::population_map(ctx, app, Some(HeatmapOptions::new()));
                 Some(maybe_unzoom(ctx, app))
             }),
         );
@@ -1030,7 +1030,7 @@ impl Overlays {
                 batch.push(Color::RED.alpha(0.8), circle.translate(pt.x(), pt.y()));
             }
         }
-        let controls = population_controls(ctx, opts.as_ref());
+        let controls = population_controls(ctx, app, opts.as_ref());
         Overlays::PopulationMap(app.primary.sim.time(), opts, ctx.upload(batch), controls)
     }
 }
@@ -1049,37 +1049,52 @@ fn maybe_unzoom(ctx: &EventCtx, app: &mut App) -> Transition {
 }
 
 // This function sounds more ominous than it should.
-fn population_controls(ctx: &mut EventCtx, opts: Option<&HeatmapOptions>) -> Composite {
+fn population_controls(ctx: &mut EventCtx, app: &App, opts: Option<&HeatmapOptions>) -> Composite {
+    let (total_ppl, ppl_in_bldg, ppl_off_map) = app.primary.sim.num_ppl();
+
     let mut col = vec![
         Widget::row(vec![
-            Line("Population").roboto_bold().draw(ctx),
+            // TODO Only bold the first part
+            Line(format!("Population: {}", prettyprint_usize(total_ppl)))
+                .roboto_bold()
+                .draw(ctx),
             Btn::text_fg("X")
                 .build(ctx, "close", hotkey(Key::Escape))
                 .align_right(),
         ]),
+        Widget::row(vec![
+            Widget::draw_svg(ctx, "../data/system/assets/tools/home.svg"),
+            prettyprint_usize(ppl_in_bldg).draw_text(ctx),
+            format!("Off-map: {}", prettyprint_usize(ppl_off_map)).draw_text(ctx),
+        ])
+        .centered(),
         Widget::checkbox(ctx, "Show heatmap", None, opts.is_some()),
     ];
     if let Some(ref o) = opts {
         // TODO Display the value...
         col.push(Widget::row(vec![
-            "Resolution (meters)".draw_text(ctx),
+            "Resolution (meters)".draw_text(ctx).margin(5),
             Widget::slider({
                 let mut slider = Slider::horizontal(ctx, 100.0, 25.0);
                 // 1 to 100m
                 slider.set_percent(ctx, (o.resolution - 1.0) / 99.0);
                 slider
             })
-            .named("resolution"),
+            .named("resolution")
+            .align_right()
+            .centered_vert(),
         ]));
         col.push(Widget::row(vec![
-            "Diffusion (num of passes)".draw_text(ctx),
+            "Diffusion (num of passes)".draw_text(ctx).margin(5),
             Widget::slider({
                 let mut slider = Slider::horizontal(ctx, 100.0, 25.0);
                 // 0 to 10
                 slider.set_percent(ctx, (o.num_passes as f64) / 10.0);
                 slider
             })
-            .named("passes"),
+            .named("passes")
+            .align_right()
+            .centered_vert(),
         ]));
 
         col.push(Widget::dropdown(
@@ -1090,7 +1105,7 @@ fn population_controls(ctx: &mut EventCtx, opts: Option<&HeatmapOptions>) -> Com
         ));
     }
 
-    Composite::new(Widget::col(col).bg(colors::PANEL_BG))
+    Composite::new(Widget::col(col).padding(5).bg(colors::PANEL_BG))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx)
 }

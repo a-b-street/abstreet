@@ -72,7 +72,7 @@ impl State for ABTestMode {
                     diff.lines.len()
                 )));
             }
-            let (finished, unfinished, by_mode, _, _) = app.primary.sim.num_trips();
+            let (finished, unfinished, by_mode) = app.primary.sim.num_trips();
             txt.add(Line(format!("Finished trips: {}", finished)));
             txt.add(Line(format!("Unfinished trips: {}", unfinished)));
             txt.add(Line(format!(
