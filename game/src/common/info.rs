@@ -21,13 +21,23 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 pub struct InfoPanel {
     pub id: ID,
-    pub time: Time,
-    pub composite: Composite,
+    tab: Tab,
+    time: Time,
+    composite: Composite,
 
     also_draw: Drawable,
     trip_details: Option<TripDetails>,
 
     actions: Vec<(Key, String)>,
+}
+
+// TODO Safer to expand out ID cases here
+#[derive(Clone)]
+pub enum Tab {
+    Nil,
+    // If we're live updating, the people inside could change! We're choosing to freeze the list
+    // here.
+    BldgPeople(Vec<PersonID>, usize),
 }
 
 struct TripDetails {
@@ -40,6 +50,7 @@ struct TripDetails {
 impl InfoPanel {
     pub fn new(
         id: ID,
+        tab: Tab,
         ctx: &mut EventCtx,
         app: &App,
         mut actions: Vec<(Key, String)>,
@@ -67,7 +78,7 @@ impl InfoPanel {
             })
             .collect();
 
-        let mut col = info_for(ctx, app, id.clone(), action_btns);
+        let mut col = info_for(ctx, app, id.clone(), tab.clone(), action_btns);
 
         let trip_details = if let Some((trip, progress)) = match id {
             ID::Trip(t) => Some((t, None)),
@@ -189,6 +200,7 @@ impl InfoPanel {
 
         InfoPanel {
             id,
+            tab,
             actions,
             trip_details,
             time: app.primary.sim.time(),
@@ -228,6 +240,7 @@ impl InfoPanel {
                                 if !app.primary.sim.does_agent_exist(a) {
                                     *self = InfoPanel::new(
                                         ID::from_agent(a2),
+                                        Tab::Nil,
                                         ctx,
                                         app,
                                         Vec::new(),
@@ -252,6 +265,7 @@ impl InfoPanel {
                         TripResult::TripDone => {
                             *self = InfoPanel::new(
                                 ID::Trip(details.id),
+                                Tab::Nil,
                                 ctx,
                                 app,
                                 Vec::new(),
@@ -277,7 +291,14 @@ impl InfoPanel {
             // TODO Detect crowds changing here maybe
 
             let preserve_scroll = self.composite.preserve_scroll();
-            *self = InfoPanel::new(self.id.clone(), ctx, app, self.actions.clone(), maybe_speed);
+            *self = InfoPanel::new(
+                self.id.clone(),
+                self.tab.clone(),
+                ctx,
+                app,
+                self.actions.clone(),
+                maybe_speed,
+            );
             self.composite.restore_scroll(ctx, preserve_scroll);
             return (false, None);
         }
@@ -318,22 +339,71 @@ impl InfoPanel {
                             &mut app.primary,
                         ))),
                     )
-                } else if let Some(idx) = strip_prefix_usize(&action, "examine Person #") {
+                } else if action == "examine people inside" {
+                    let ppl = match self.id {
+                        ID::Building(b) => app.primary.sim.bldg_to_people(b),
+                        _ => unreachable!(),
+                    };
+                    let preserve_scroll = self.composite.preserve_scroll();
                     *self = InfoPanel::new(
-                        ID::Person(PersonID(idx)),
+                        self.id.clone(),
+                        Tab::BldgPeople(ppl, 0),
+                        ctx,
+                        app,
+                        Vec::new(),
+                        maybe_speed,
+                    );
+                    self.composite.restore_scroll(ctx, preserve_scroll);
+                    return (false, None);
+                } else if action == "previous" {
+                    let tab = match self.tab.clone() {
+                        Tab::BldgPeople(ppl, idx) => {
+                            Tab::BldgPeople(ppl, if idx != 0 { idx - 1 } else { idx })
+                        }
+                        _ => unreachable!(),
+                    };
+                    let preserve_scroll = self.composite.preserve_scroll();
+                    *self = InfoPanel::new(self.id.clone(), tab, ctx, app, Vec::new(), maybe_speed);
+                    self.composite.restore_scroll(ctx, preserve_scroll);
+                    return (false, None);
+                } else if action == "next" {
+                    let tab = match self.tab.clone() {
+                        Tab::BldgPeople(ppl, idx) => Tab::BldgPeople(
+                            ppl.clone(),
+                            if idx != ppl.len() - 1 { idx + 1 } else { idx },
+                        ),
+                        _ => unreachable!(),
+                    };
+                    let preserve_scroll = self.composite.preserve_scroll();
+                    *self = InfoPanel::new(self.id.clone(), tab, ctx, app, Vec::new(), maybe_speed);
+                    self.composite.restore_scroll(ctx, preserve_scroll);
+                    return (false, None);
+                } else if action == "close occupants panel" {
+                    let preserve_scroll = self.composite.preserve_scroll();
+                    *self = InfoPanel::new(
+                        self.id.clone(),
+                        Tab::Nil,
+                        ctx,
+                        app,
+                        Vec::new(),
+                        maybe_speed,
+                    );
+                    self.composite.restore_scroll(ctx, preserve_scroll);
+                    return (false, None);
+                } else if let Some(idx) = strip_prefix_usize(&action, "examine Trip #") {
+                    *self = InfoPanel::new(
+                        ID::Trip(TripID(idx)),
+                        Tab::Nil,
                         ctx,
                         app,
                         Vec::new(),
                         maybe_speed,
                     );
                     return (false, None);
-                } else if let Some(idx) = strip_prefix_usize(&action, "examine Trip #") {
-                    *self =
-                        InfoPanel::new(ID::Trip(TripID(idx)), ctx, app, Vec::new(), maybe_speed);
-                    return (false, None);
                 } else if let Some(idx) = strip_prefix_usize(&action, "examine Building #") {
                     *self = InfoPanel::new(
                         ID::Building(BuildingID(idx)),
+                        Tab::Nil,
                         ctx,
                         app,
                         Vec::new(),
@@ -362,7 +432,7 @@ impl InfoPanel {
     }
 }
 
-fn info_for(ctx: &EventCtx, app: &App, id: ID, action_btns: Vec<Widget>) -> Vec<Widget> {
+fn info_for(ctx: &EventCtx, app: &App, id: ID, tab: Tab, action_btns: Vec<Widget>) -> Vec<Widget> {
     let (map, sim, draw_map) = (&app.primary.map, &app.primary.sim, &app.primary.draw_map);
     let header_btns = Widget::row(vec![
         Btn::svg_def("../data/system/assets/tools/location.svg")
@@ -630,16 +700,36 @@ fn info_for(ctx: &EventCtx, app: &App, id: ID, action_btns: Vec<Widget>) -> Vec<
                 rows.push(txt.draw(ctx))
             }
 
-            let people = sim.bldg_to_people(id);
-            if !people.is_empty() {
-                rows.push(format!("{} people inside right now", people.len()).draw_text(ctx));
-                // TODO Show buttons to examine first 3, or a ...More button
-                for p in people {
-                    rows.push(
-                        Btn::text_bg1(format!("Person #{}", p.0))
-                            .build(ctx, format!("examine Person #{}", p.0), None)
-                            .margin(5),
-                    );
+            match tab {
+                Tab::Nil => {
+                    let num = sim.bldg_to_people(id).len();
+                    if num > 0 {
+                        rows.push(
+                            Btn::text_bg1(format!("{} people inside", num))
+                                .build(ctx, "examine people inside", None)
+                                .margin(5),
+                        );
+                    }
+                }
+                Tab::BldgPeople(ppl, idx) => {
+                    let mut inner = vec![
+                        // TODO Keys are weird! But left/right for speed
+                        Widget::row(vec![
+                            Btn::text_fg("<")
+                                .build(ctx, "previous", hotkey(Key::UpArrow))
+                                .margin(5),
+                            format!("Occupant {}/{}", idx + 1, ppl.len()).draw_text(ctx),
+                            Btn::text_fg(">")
+                                .build(ctx, "next", hotkey(Key::DownArrow))
+                                .margin(5),
+                            Btn::text_fg("X")
+                                .build(ctx, "close occupants panel", None)
+                                .align_right(),
+                        ])
+                        .centered(),
+                    ];
+                    inner.extend(info_for_person(ctx, app, ppl[idx], false, Vec::new()));
+                    rows.push(Widget::col(inner).bg(colors::INNER_PANEL_BG));
                 }
             }
         }
@@ -795,55 +885,84 @@ fn info_for(ctx: &EventCtx, app: &App, id: ID, action_btns: Vec<Widget>) -> Vec<
             rows.extend(action_btns);
         }
         ID::Person(id) => {
-            // Header
-            {
-                rows.push(Widget::row(vec![
-                    Line(format!("Person #{}", id.0)).roboto_bold().draw(ctx),
-                    header_btns,
-                ]));
-            }
-            rows.extend(action_btns);
-
-            let person = app.primary.sim.get_person(id);
-
-            // TODO Point out where the person is now, relative to schedule...
-            rows.push(match person.state {
-                // TODO not the best tooltip, but easy to parse :(
-                PersonState::Inside(b) => Btn::text_bg1(format!(
-                    "Currently inside {}",
-                    map.get_b(b).just_address(map)
-                ))
-                .build(ctx, format!("examine Building #{}", b.0), None),
-                PersonState::Trip(t) => format!("Currently doing Trip #{}", t.0).draw_text(ctx),
-                PersonState::OffMap => "Currently outside the map boundaries".draw_text(ctx),
-                PersonState::Limbo => "Currently in limbo -- they broke out of the Matrix! Woops. \
-                                       (A bug occurred)"
-                    .draw_text(ctx),
-            });
-
-            rows.push(Line("Schedule").roboto_bold().draw(ctx));
-            for t in &person.trips {
-                // TODO Still maybe unsafe? Check if trip has actually started or not
-                // TODO Say where the trip goes, no matter what?
-                let start_time = app.primary.sim.trip_start_time(*t);
-                if app.primary.sim.time() < start_time {
-                    rows.push(
-                        format!("{}: Trip #{} will start", start_time.ampm_tostring(), t.0)
-                            .draw_text(ctx),
-                    );
-                } else {
-                    rows.push(Widget::row(vec![
-                        format!("{}: ", start_time.ampm_tostring()).draw_text(ctx),
-                        Btn::text_bg1(format!("Trip #{}", t.0))
-                            .build(ctx, format!("examine Trip #{}", t.0), None)
-                            .margin(5),
-                    ]));
-                }
-            }
-
-            // TODO All the colorful side info
+            rows.extend(info_for_person(ctx, app, id, true, action_btns));
         }
     };
+    rows
+}
+
+fn info_for_person(
+    ctx: &EventCtx,
+    app: &App,
+    id: PersonID,
+    standalone: bool,
+    action_btns: Vec<Widget>,
+) -> Vec<Widget> {
+    let mut rows = vec![];
+
+    // Header
+    {
+        let header_btns = Widget::row(vec![
+            Btn::svg_def("../data/system/assets/tools/location.svg")
+                .build(ctx, "jump to object", hotkey(Key::J))
+                .margin(5),
+            Btn::text_fg("X").build(ctx, "close info", hotkey(Key::Escape)),
+        ])
+        .align_right();
+
+        if standalone {
+            rows.push(Widget::row(vec![
+                Line(format!("Person #{}", id.0)).roboto_bold().draw(ctx),
+                header_btns,
+            ]));
+        } else {
+            rows.push(Line(format!("Person #{}", id.0)).roboto_bold().draw(ctx));
+        }
+    }
+    rows.extend(action_btns);
+
+    let person = app.primary.sim.get_person(id);
+
+    // TODO Redundant to say they're inside when the panel is embedded. But... if the person leaves
+    // while we have the panel open, then it IS relevant.
+    if standalone {
+        // TODO Point out where the person is now, relative to schedule...
+        rows.push(match person.state {
+            // TODO not the best tooltip, but easy to parse :(
+            PersonState::Inside(b) => Btn::text_bg1(format!(
+                "Currently inside {}",
+                app.primary.map.get_b(b).just_address(&app.primary.map)
+            ))
+            .build(ctx, format!("examine Building #{}", b.0), None),
+            PersonState::Trip(t) => format!("Currently doing Trip #{}", t.0).draw_text(ctx),
+            PersonState::OffMap => "Currently outside the map boundaries".draw_text(ctx),
+            PersonState::Limbo => "Currently in limbo -- they broke out of the Matrix! Woops. (A \
+                                   bug occurred)"
+                .draw_text(ctx),
+        });
+    }
+
+    rows.push(Line("Schedule").roboto_bold().draw(ctx));
+    for t in &person.trips {
+        // TODO Still maybe unsafe? Check if trip has actually started or not
+        // TODO Say where the trip goes, no matter what?
+        let start_time = app.primary.sim.trip_start_time(*t);
+        if app.primary.sim.time() < start_time {
+            rows.push(
+                format!("{}: Trip #{} will start", start_time.ampm_tostring(), t.0).draw_text(ctx),
+            );
+        } else {
+            rows.push(Widget::row(vec![
+                format!("{}: ", start_time.ampm_tostring()).draw_text(ctx),
+                Btn::text_bg1(format!("Trip #{}", t.0))
+                    .build(ctx, format!("examine Trip #{}", t.0), None)
+                    .margin(5),
+            ]));
+        }
+    }
+
+    // TODO All the colorful side info
+
     rows
 }
 

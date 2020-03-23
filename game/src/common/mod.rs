@@ -70,6 +70,7 @@ impl CommonState {
                 let actions = app.per_obj.consume();
                 self.info_panel = Some(info::InfoPanel::new(
                     id.clone(),
+                    info::Tab::Nil,
                     ctx,
                     app,
                     actions,
@@ -286,7 +287,14 @@ impl CommonState {
 
     // Meant to be used for launching from other states
     pub fn launch_info_panel(&mut self, id: ID, ctx: &mut EventCtx, app: &mut App) {
-        self.info_panel = Some(info::InfoPanel::new(id, ctx, app, Vec::new(), None));
+        self.info_panel = Some(info::InfoPanel::new(
+            id,
+            info::Tab::Nil,
+            ctx,
+            app,
+            Vec::new(),
+            None,
+        ));
         app.per_obj.info_panel_open = true;
     }
 
