@@ -1,6 +1,6 @@
 use crate::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome, ScreenDims, ScreenPt,
-    ScreenRectangle, Text, TextExt, Widget, WidgetImpl,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome, ScreenDims, ScreenPt, Text,
+    TextExt, Widget, WidgetImpl,
 };
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, Polygon, Pt2D};
@@ -110,12 +110,7 @@ impl WidgetImpl for Histogram {
         self.top_left = top_left;
     }
 
-    fn event(
-        &mut self,
-        _ctx: &mut EventCtx,
-        _rect: &ScreenRectangle,
-        _redo_layout: &mut bool,
-    ) -> Option<Outcome> {
+    fn event(&mut self, _ctx: &mut EventCtx, _redo_layout: &mut bool) -> Option<Outcome> {
         None
     }
     fn draw(&self, g: &mut GfxCtx) {

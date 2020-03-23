@@ -1,6 +1,6 @@
 use crate::{
-    svg, Drawable, EventCtx, GeomBatch, GfxCtx, Outcome, RewriteColor, ScreenDims, ScreenPt,
-    ScreenRectangle, Text, Widget, WidgetImpl,
+    svg, Drawable, EventCtx, GeomBatch, GfxCtx, Outcome, RewriteColor, ScreenDims, ScreenPt, Text,
+    Widget, WidgetImpl,
 };
 
 // Just draw something. A widget just so widgetsing works.
@@ -54,12 +54,7 @@ impl WidgetImpl for JustDraw {
         self.top_left = top_left;
     }
 
-    fn event(
-        &mut self,
-        _ctx: &mut EventCtx,
-        _rect: &ScreenRectangle,
-        _redo_layout: &mut bool,
-    ) -> Option<Outcome> {
+    fn event(&mut self, _ctx: &mut EventCtx, _redo_layout: &mut bool) -> Option<Outcome> {
         None
     }
 

@@ -648,10 +648,7 @@ impl Composite {
 
         let before = self.scroll_offset();
         let mut redo_layout = false;
-        let result = self
-            .top_level
-            .widget
-            .event(ctx, &self.top_level.rect, &mut redo_layout);
+        let result = self.top_level.widget.event(ctx, &mut redo_layout);
         if self.scroll_offset() != before || redo_layout {
             self.recompute_layout(ctx, true);
         }

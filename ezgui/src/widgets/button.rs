@@ -1,6 +1,6 @@
 use crate::{
     text, Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, MultiKey, Outcome,
-    RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text, Widget, WidgetImpl,
+    RewriteColor, ScreenDims, ScreenPt, Text, Widget, WidgetImpl,
 };
 use geom::Polygon;
 
@@ -20,7 +20,7 @@ pub struct Button {
     hovering: bool,
 
     pub(crate) top_left: ScreenPt,
-    dims: ScreenDims,
+    pub(crate) dims: ScreenDims,
 }
 
 impl Button {
@@ -68,12 +68,7 @@ impl WidgetImpl for Button {
         self.top_left = top_left;
     }
 
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        _rect: &ScreenRectangle,
-        _redo_layout: &mut bool,
-    ) -> Option<Outcome> {
+    fn event(&mut self, ctx: &mut EventCtx, _redo_layout: &mut bool) -> Option<Outcome> {
         if ctx.redo_mouseover() {
             if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
                 self.hovering = self

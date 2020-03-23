@@ -1,4 +1,4 @@
-use crate::{Button, EventCtx, GfxCtx, Outcome, ScreenDims, ScreenPt, ScreenRectangle, WidgetImpl};
+use crate::{Button, EventCtx, GfxCtx, Outcome, ScreenDims, ScreenPt, WidgetImpl};
 
 pub struct Checkbox {
     pub(crate) enabled: bool,
@@ -33,14 +33,8 @@ impl WidgetImpl for Checkbox {
         self.btn.set_pos(top_left);
     }
 
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        rect: &ScreenRectangle,
-        redo_layout: &mut bool,
-    ) -> Option<Outcome> {
-        // TODO Lying about the rectangle
-        if self.btn.event(ctx, rect, redo_layout).is_some() {
+    fn event(&mut self, ctx: &mut EventCtx, redo_layout: &mut bool) -> Option<Outcome> {
+        if self.btn.event(ctx, redo_layout).is_some() {
             std::mem::swap(&mut self.btn, &mut self.other_btn);
             self.btn.set_pos(self.other_btn.top_left);
             self.enabled = !self.enabled;

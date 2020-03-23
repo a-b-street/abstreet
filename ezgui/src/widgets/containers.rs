@@ -1,4 +1,4 @@
-use crate::{EventCtx, GfxCtx, Outcome, ScreenDims, ScreenPt, ScreenRectangle, Widget, WidgetImpl};
+use crate::{EventCtx, GfxCtx, Outcome, ScreenDims, ScreenPt, Widget, WidgetImpl};
 
 pub struct Nothing {}
 
@@ -11,12 +11,7 @@ impl WidgetImpl for Nothing {
         unreachable!()
     }
 
-    fn event(
-        &mut self,
-        _ctx: &mut EventCtx,
-        _rect: &ScreenRectangle,
-        _redo_layout: &mut bool,
-    ) -> Option<Outcome> {
+    fn event(&mut self, _ctx: &mut EventCtx, _redo_layout: &mut bool) -> Option<Outcome> {
         unreachable!()
     }
     fn draw(&self, _g: &mut GfxCtx) {
@@ -45,14 +40,9 @@ impl WidgetImpl for Container {
         unreachable!()
     }
 
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        _rect: &ScreenRectangle,
-        redo_layout: &mut bool,
-    ) -> Option<Outcome> {
+    fn event(&mut self, ctx: &mut EventCtx, redo_layout: &mut bool) -> Option<Outcome> {
         for w in &mut self.members {
-            if let Some(o) = w.widget.event(ctx, &w.rect, redo_layout) {
+            if let Some(o) = w.widget.event(ctx, redo_layout) {
                 return Some(o);
             }
         }

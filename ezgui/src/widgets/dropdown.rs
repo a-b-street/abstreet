@@ -1,6 +1,6 @@
 use crate::{
     Btn, Button, Choice, Color, EventCtx, GfxCtx, InputResult, Outcome, PopupMenu, ScreenDims,
-    ScreenPt, ScreenRectangle, WidgetImpl,
+    ScreenPt, WidgetImpl,
 };
 use geom::{Polygon, Pt2D};
 
@@ -48,16 +48,9 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
         self.btn.set_pos(top_left);
     }
 
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        rect: &ScreenRectangle,
-        redo_layout: &mut bool,
-    ) -> Option<Outcome> {
+    fn event(&mut self, ctx: &mut EventCtx, redo_layout: &mut bool) -> Option<Outcome> {
         if let Some(ref mut m) = self.menu {
-            // TODO Pass in the dropdown's rectangle, not the menu's. This is a lie! But the menu
-            // doesn't use it, so fine?
-            m.event(ctx, rect, redo_layout);
+            m.event(ctx, redo_layout);
             match m.state {
                 InputResult::StillActive => {}
                 InputResult::Canceled => {
@@ -75,8 +68,7 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
                 }
             }
         } else {
-            // TODO Again lying about the rectangle
-            if self.btn.event(ctx, rect, redo_layout).is_some() {
+            if self.btn.event(ctx, redo_layout).is_some() {
                 // TODO set current idx in menu
                 // TODO Choice::map_value?
                 let mut menu = PopupMenu::new(
@@ -87,7 +79,10 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
                         .map(|(idx, c)| c.with_value(idx))
                         .collect(),
                 );
-                menu.set_pos(ScreenPt::new(rect.x1, rect.y2 + 15.0));
+                menu.set_pos(ScreenPt::new(
+                    self.btn.top_left.x,
+                    self.btn.top_left.y + self.btn.dims.height + 15.0,
+                ));
                 self.menu = Some(menu);
             }
         }

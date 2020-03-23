@@ -203,12 +203,7 @@ impl WidgetImpl for Slider {
         self.top_left = top_left;
     }
 
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        _rect: &ScreenRectangle,
-        _redo_layout: &mut bool,
-    ) -> Option<Outcome> {
+    fn event(&mut self, ctx: &mut EventCtx, _redo_layout: &mut bool) -> Option<Outcome> {
         if self.inner_event(ctx) {
             self.recalc(ctx);
         }

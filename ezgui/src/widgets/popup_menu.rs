@@ -79,12 +79,7 @@ impl<T: 'static + Clone> WidgetImpl for PopupMenu<T> {
         self.top_left = top_left;
     }
 
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        _rect: &ScreenRectangle,
-        _redo_layout: &mut bool,
-    ) -> Option<Outcome> {
+    fn event(&mut self, ctx: &mut EventCtx, _redo_layout: &mut bool) -> Option<Outcome> {
         match self.state {
             InputResult::StillActive => {}
             _ => unreachable!(),

@@ -238,12 +238,7 @@ impl<T: 'static + Yvalue<T>> WidgetImpl for Plot<T> {
         self.top_left = top_left;
     }
 
-    fn event(
-        &mut self,
-        _ctx: &mut EventCtx,
-        _rect: &ScreenRectangle,
-        _redo_layout: &mut bool,
-    ) -> Option<Outcome> {
+    fn event(&mut self, _ctx: &mut EventCtx, _redo_layout: &mut bool) -> Option<Outcome> {
         None
     }
 
