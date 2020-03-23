@@ -197,7 +197,7 @@ impl Widget {
 
 // Convenient?? constructors
 impl Widget {
-    fn new(widget: Box<dyn WidgetImpl>) -> Widget {
+    pub fn new(widget: Box<dyn WidgetImpl>) -> Widget {
         Widget {
             widget,
             style: LayoutStyle {

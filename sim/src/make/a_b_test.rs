@@ -11,13 +11,6 @@ pub struct ABTest {
 }
 
 impl ABTest {
-    pub fn describe(&self) -> Vec<String> {
-        abstutil::to_json(self)
-            .split('\n')
-            .map(|s| s.to_string())
-            .collect()
-    }
-
     pub fn save(&self) {
         abstutil::write_json(
             abstutil::path_ab_test(&self.map_name, &self.test_name),

@@ -4,8 +4,9 @@ mod world;
 
 use abstutil::{CmdArgs, Timer};
 use ezgui::{
-    hotkey, Canvas, Choice, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line,
-    ModalMenu, ScreenPt, Text, Wizard, GUI,
+    hotkey, Btn, Canvas, Choice, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch,
+    GfxCtx, HorizontalAlignment, Key, Line, Outcome, ScreenPt, Text, VerticalAlignment, Widget,
+    Wizard, GUI,
 };
 use geom::{Angle, Distance, Line, Polygon, Pt2D};
 use map_model::raw::{OriginalBuilding, OriginalIntersection, OriginalRoad, RestrictionType};
@@ -16,7 +17,7 @@ use std::collections::HashSet;
 struct UI {
     model: Model,
     state: State,
-    menu: ModalMenu,
+    composite: Composite,
     popup: Option<Drawable>,
     info_key_held: bool,
 
@@ -78,20 +79,31 @@ impl UI {
         let mut ui = UI {
             model,
             state: State::viewing(),
-            menu: ModalMenu::new(
-                "Map Editor",
-                vec![
-                    (hotkey(Key::Escape), "quit"),
-                    (None, "save raw map"),
-                    (hotkey(Key::F), "save map fixes"),
-                    (hotkey(Key::J), "warp to something"),
-                    (None, "produce OSM parking+sidewalk diff"),
-                    (hotkey(Key::G), "preview all intersections"),
-                    (None, "find overlapping intersections"),
-                    (hotkey(Key::Z), "find short roads"),
-                ],
-                ctx,
-            ),
+            composite: Composite::new(
+                Widget::col(vec![
+                    Line("Map Editor").roboto_bold().draw(ctx),
+                    Text::new().draw(ctx).named("current info"),
+                    Widget::col(
+                        vec![
+                            (hotkey(Key::Escape), "quit"),
+                            (None, "save raw map"),
+                            (hotkey(Key::F), "save map fixes"),
+                            (hotkey(Key::J), "warp to something"),
+                            (None, "produce OSM parking+sidewalk diff"),
+                            (hotkey(Key::G), "preview all intersections"),
+                            (None, "find overlapping intersections"),
+                            (hotkey(Key::Z), "find/clear short roads"),
+                        ]
+                        .into_iter()
+                        .map(|(key, action)| Btn::text_fg(action).build_def(ctx, key))
+                        .collect(),
+                    ),
+                ])
+                .padding(10)
+                .bg(Color::grey(0.4)),
+            )
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
+            .build(ctx),
             popup: None,
             info_key_held: false,
 
@@ -101,7 +113,7 @@ impl UI {
         ui
     }
 
-    fn recount_parking_tags(&mut self, ctx: &EventCtx) {
+    fn recount_parking_tags(&mut self, ctx: &mut EventCtx) {
         let mut ways_audited = HashSet::new();
         let mut ways_missing = HashSet::new();
         for r in self.model.map.roads.values() {
@@ -121,7 +133,8 @@ impl UI {
             abstutil::prettyprint_usize(ways_audited.len() + ways_missing.len())
         )));
         txt.add(Line("Hold right Control to show info about objects"));
-        self.menu.set_info(ctx, txt);
+        self.composite
+            .replace(ctx, "current info", txt.draw(ctx).named("current info"));
     }
 }
 
@@ -136,7 +149,6 @@ impl GUI for UI {
         }
 
         ctx.canvas_movement();
-        self.menu.event(ctx);
         if ctx.redo_mouseover() {
             self.model.world.handle_mouseover(ctx);
         }
@@ -284,65 +296,68 @@ impl GUI for UI {
                         }
                     }
                     None => {
-                        if self.menu.action("quit") {
-                            self.before_quit(ctx.canvas);
-                            std::process::exit(0);
-                        } else if self.menu.action("save raw map") {
-                            // TODO Only do this for synthetic maps
-                            if self.model.map.name != "" {
-                                self.model.export();
-                            } else {
-                                self.state = State::SavingModel(Wizard::new());
+                        match self.composite.event(ctx) {
+                            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                                "quit" => {
+                                    self.before_quit(ctx.canvas);
+                                    std::process::exit(0);
+                                }
+                                "save raw map" => {
+                                    // TODO Only do this for synthetic maps
+                                    if self.model.map.name != "" {
+                                        self.model.export();
+                                    } else {
+                                        self.state = State::SavingModel(Wizard::new());
+                                    }
+                                }
+                                "save map fixes" => {
+                                    self.model.save_fixes();
+                                }
+                                "warp to something" => {
+                                    self.state = State::EnteringWarp(Wizard::new());
+                                }
+                                "produce OSM parking+sidewalk diff" => {
+                                    upstream::find_diffs(&self.model.map);
+                                }
+                                "preview all intersections" => {
+                                    if !self.model.intersection_geom {
+                                        let draw = preview_all_intersections(&self.model, ctx);
+                                        self.state = State::PreviewIntersection(draw, false);
+                                    }
+                                }
+                                "find overlapping intersections" => {
+                                    let draw = find_overlapping_intersections(&self.model, ctx);
+                                    self.state = State::PreviewIntersection(draw, false);
+                                }
+                                "find/clear short roads" => {
+                                    if short_roads.is_empty() {
+                                        *short_roads = find_short_roads(&self.model);
+                                    } else {
+                                        short_roads.clear();
+                                    }
+                                }
+                                _ => unreachable!(),
+                            },
+                            None => {
+                                if ctx.input.key_pressed(Key::I, "create intersection") {
+                                    if let Some(pt) = cursor {
+                                        self.model.create_i(pt, ctx.prerender);
+                                        self.model.world.handle_mouseover(ctx);
+                                    }
+                                // TODO Silly bug: Mouseover doesn't actually work! I think the
+                                // cursor being dead-center messes
+                                // up the precomputed triangles.
+                                } else if ctx.input.key_pressed(Key::B, "create building") {
+                                    if let Some(pt) = cursor {
+                                        let id = self.model.create_b(pt, ctx.prerender);
+                                        self.model.world.force_set_selection(id);
+                                    }
+                                } else if ctx.input.key_pressed(Key::LeftShift, "select area") {
+                                    if let Some(pt) = cursor {
+                                        self.state = State::SelectingRectangle(pt, pt, true);
+                                    }
+                                }
                             }
-                        } else if self.menu.action("save map fixes") {
-                            self.model.save_fixes();
-                        } else if ctx.input.key_pressed(Key::I, "create intersection") {
-                            if let Some(pt) = cursor {
-                                self.model.create_i(pt, ctx.prerender);
-                                self.model.world.handle_mouseover(ctx);
-                            }
-                        // TODO Silly bug: Mouseover doesn't actually work! I think the cursor being
-                        // dead-center messes up the precomputed triangles.
-                        } else if ctx.input.key_pressed(Key::B, "create building") {
-                            if let Some(pt) = cursor {
-                                let id = self.model.create_b(pt, ctx.prerender);
-                                self.model.world.force_set_selection(id);
-                            }
-                        } else if ctx.input.key_pressed(Key::LeftShift, "select area") {
-                            if let Some(pt) = cursor {
-                                self.state = State::SelectingRectangle(pt, pt, true);
-                            }
-                        } else if self.menu.action("warp to something") {
-                            self.state = State::EnteringWarp(Wizard::new());
-                        } else if self.menu.action("produce OSM parking+sidewalk diff") {
-                            upstream::find_diffs(&self.model.map);
-                        } else if !self.model.intersection_geom
-                            && self.menu.action("preview all intersections")
-                        {
-                            let draw = preview_all_intersections(&self.model, ctx);
-                            self.state = State::PreviewIntersection(draw, false);
-                        } else if self.menu.action("find overlapping intersections") {
-                            let draw = find_overlapping_intersections(&self.model, ctx);
-                            self.state = State::PreviewIntersection(draw, false);
-                        } else if short_roads.is_empty()
-                            && self
-                                .menu
-                                .swap_action(ctx, "find short roads", "clear short roads")
-                        {
-                            *short_roads = find_short_roads(&self.model);
-                            if short_roads.is_empty() {
-                                self.menu.change_action(
-                                    ctx,
-                                    "clear short roads",
-                                    "find short roads",
-                                );
-                            }
-                        } else if !short_roads.is_empty()
-                            && self
-                                .menu
-                                .swap_action(ctx, "clear short roads", "find short roads")
-                        {
-                            short_roads.clear();
                         }
                     }
                 }
@@ -511,6 +526,7 @@ impl GUI for UI {
                     *show_tooltip = true;
                 }
 
+                // TODO Woops, not communicating this kind of thing anymore
                 if ctx
                     .input
                     .key_pressed(Key::P, "stop previewing intersection")
@@ -659,7 +675,7 @@ impl GUI for UI {
             }
         };
 
-        self.menu.draw(g);
+        self.composite.draw(g);
         if let Some(ref popup) = self.popup {
             g.redraw_at(ScreenPt::new(0.0, 0.0), popup);
         }

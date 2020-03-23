@@ -3,7 +3,7 @@ use crate::app::{App, Flags, PerMap};
 use crate::edit::apply_map_edits;
 use crate::game::{State, Transition, WizardState};
 use crate::render::DrawMap;
-use ezgui::{hotkey, Choice, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard, WrappedWizard};
+use ezgui::{Choice, EventCtx, GfxCtx, Wizard, WrappedWizard};
 use geom::Duration;
 use map_model::MapEdits;
 use sim::{ABTest, Scenario, SimFlags, SimOptions};
@@ -58,48 +58,32 @@ fn pick_ab_test(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<T
         t
     };
 
-    let mut menu = ModalMenu::new(
-        "A/B Test Editor",
-        vec![
-            (hotkey(Key::Escape), "quit"),
-            (hotkey(Key::R), "run A/B test"),
-            (hotkey(Key::L), "load savestate"),
-        ],
-        ctx,
-    );
-    let mut txt = Text::new();
-    txt.add(Line(&ab_test.test_name));
-    for line in ab_test.describe() {
-        txt.add(Line(line));
-    }
-    menu.set_info(ctx, txt);
-
-    Some(Transition::Replace(Box::new(ABTestSetup { menu, ab_test })))
+    Some(Transition::Replace(Box::new(ABTestSetup { ab_test })))
 }
 
+// TODO I took out controls, obviously
 struct ABTestSetup {
-    menu: ModalMenu,
     ab_test: ABTest,
 }
 
 impl State for ABTestSetup {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        self.menu.event(ctx);
         ctx.canvas_movement();
 
-        if self.menu.action("quit") {
+        if false {
+            // quit
             return Transition::Pop;
-        } else if self.menu.action("run A/B test") {
+        } else if false {
+            // run test
             return Transition::Replace(Box::new(launch_test(&self.ab_test, app, ctx)));
-        } else if self.menu.action("load savestate") {
+        } else if false {
+            // load savestate
             return Transition::Push(make_load_savestate(self.ab_test.clone()));
         }
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
-        self.menu.draw(g);
-    }
+    fn draw(&self, _: &mut GfxCtx, _: &App) {}
 }
 
 fn make_load_savestate(ab_test: ABTest) -> Box<dyn State> {

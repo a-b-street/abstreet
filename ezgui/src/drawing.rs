@@ -191,15 +191,6 @@ impl<'a> GfxCtx<'a> {
         self.redraw_at(top_left, &draw);
     }
 
-    // TODO Super close to deleting this.
-    pub(crate) fn draw_blocking_text_at_screenspace_topleft(&mut self, txt: Text, pt: ScreenPt) {
-        let batch = txt.render_g(self);
-        self.canvas
-            .mark_covered_area(ScreenRectangle::top_left(pt, batch.get_dims()));
-        let draw = self.upload(batch);
-        self.redraw_at(pt, &draw);
-    }
-
     // TODO Rename these draw_nonblocking_text_*
     // TODO Super close to deleting this.
     pub fn draw_text_at(&mut self, txt: Text, map_pt: Pt2D) {

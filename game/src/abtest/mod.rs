@@ -7,15 +7,14 @@ use crate::game::{State, Transition};
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use abstutil::Timer;
-use ezgui::{hotkey, lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text};
+use ezgui::{lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Text};
 use geom::{Circle, Distance, Line, PolyLine};
 use map_model::{Map, NORMAL_LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
-use sim::{Sim, SimOptions, TripID, TripMode};
+use sim::{Sim, SimOptions, TripID};
 
-// TODO I took out speed controls
+// TODO Controls have been removed.
 pub struct ABTestMode {
-    menu: ModalMenu,
     diff_trip: Option<DiffOneTrip>,
     diff_all: Option<DiffAllTrips>,
     common: CommonState,
@@ -29,17 +28,6 @@ impl ABTestMode {
         app.primary.current_selection = None;
 
         ABTestMode {
-            menu: ModalMenu::new(
-                "A/B Test Mode",
-                vec![
-                    (hotkey(Key::S), "swap"),
-                    (hotkey(Key::D), "diff all trips"),
-                    (hotkey(Key::A), "stop diffing trips"),
-                    (hotkey(Key::O), "save state"),
-                    // TODO load arbitrary savestate
-                ],
-                ctx,
-            ),
             diff_trip: None,
             diff_all: None,
             common: CommonState::new(),
@@ -72,19 +60,8 @@ impl State for ABTestMode {
                     diff.lines.len()
                 )));
             }
-            let (finished, unfinished, by_mode) = app.primary.sim.num_trips();
-            txt.add(Line(format!("Finished trips: {}", finished)));
-            txt.add(Line(format!("Unfinished trips: {}", unfinished)));
-            txt.add(Line(format!(
-                "Peds {}, Bikes {}, Cars {}, Buses {}",
-                by_mode[&TripMode::Walk],
-                by_mode[&TripMode::Bike],
-                by_mode[&TripMode::Drive],
-                by_mode[&TripMode::Transit]
-            )));
-            self.menu.set_info(ctx, txt);
+            // TODO Stick this info somewhere
         }
-        self.menu.event(ctx);
 
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
@@ -95,7 +72,8 @@ impl State for ABTestMode {
             return Transition::Push(Box::new(DebugMode::new(ctx)));
         }
 
-        if self.menu.action("swap") {
+        if false {
+            // swap
             let secondary = app.secondary.take().unwrap();
             let primary = std::mem::replace(&mut app.primary, secondary);
             app.secondary = Some(primary);
@@ -104,7 +82,8 @@ impl State for ABTestMode {
             self.flipped = !self.flipped;
         }
 
-        if self.menu.action("save state") {
+        if false {
+            // save state
             ctx.loading_screen("savestate", |_, timer| {
                 timer.start("save all state");
                 self.savestate(app);
@@ -113,15 +92,18 @@ impl State for ABTestMode {
         }
 
         if self.diff_trip.is_some() {
-            if self.menu.action("stop diffing trips") {
+            if false {
+                // stop diffing trips
                 self.diff_trip = None;
             }
         } else if self.diff_all.is_some() {
-            if self.menu.action("stop diffing trips") {
+            if false {
+                // stop diffing trips
                 self.diff_all = None;
             }
         } else {
-            if app.primary.current_selection.is_none() && self.menu.action("diff all trips") {
+            if app.primary.current_selection.is_none() && false {
+                // diff all trips
                 self.diff_all = Some(DiffAllTrips::new(
                     &mut app.primary,
                     app.secondary.as_mut().unwrap(),
@@ -180,7 +162,6 @@ impl State for ABTestMode {
         if let Some(ref diff) = self.diff_all {
             diff.draw(g, app);
         }
-        self.menu.draw(g);
     }
 
     fn on_suspend(&mut self, _: &mut EventCtx, _: &mut App) {

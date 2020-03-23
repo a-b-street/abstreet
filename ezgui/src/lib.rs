@@ -40,7 +40,6 @@ pub use crate::widgets::checkbox::Checkbox;
 pub(crate) use crate::widgets::dropdown::Dropdown;
 pub use crate::widgets::filler::Filler;
 pub use crate::widgets::histogram::Histogram;
-pub use crate::widgets::modal_menu::ModalMenu;
 pub use crate::widgets::no_op::JustDraw;
 pub use crate::widgets::plot::{Plot, PlotOptions, Series};
 pub(crate) use crate::widgets::popup_menu::PopupMenu;

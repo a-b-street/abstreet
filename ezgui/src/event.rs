@@ -402,7 +402,6 @@ impl MultiKey {
     }
 }
 
-// For easy ModalMenu construction
 pub fn hotkey(key: Key) -> Option<MultiKey> {
     Some(MultiKey::Normal(key))
 }

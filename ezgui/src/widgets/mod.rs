@@ -5,7 +5,6 @@ pub mod containers;
 pub mod dropdown;
 pub mod filler;
 pub mod histogram;
-pub mod modal_menu;
 pub mod no_op;
 pub mod plot;
 pub mod popup_menu;
@@ -14,65 +13,27 @@ pub mod text_box;
 pub mod wizard;
 
 use crate::{EventCtx, GfxCtx, Outcome, ScreenDims, ScreenPt, ScreenRectangle};
-use ordered_float::NotNan;
 
+/// Create a new widget by implementing this trait. You can instantiate your widget by calling
+/// `Widget::new(Box::new(instance of your new widget))`, which gives you the usual style options.
 pub trait WidgetImpl: downcast_rs::Downcast {
+    /// What width and height does the widget occupy? If this changes, be sure to set
+    /// `redo_layout` to true in `event`.
     fn get_dims(&self) -> ScreenDims;
+    /// Your widget's top left corner should be here. Handle mouse events and draw appropriately.
     fn set_pos(&mut self, top_left: ScreenPt);
-
-    // TODO Require everyone to implement it
+    // TODO I think we can scrap rect
+    /// Your chance to react to an event. If this event should trigger layouting to be recalculated
+    /// (because this widget changes dimensions), set `redo_layout` to true. Most widgets should
+    /// return `None` instead of an `Outcome`.
     fn event(
         &mut self,
-        _ctx: &mut EventCtx,
-        _rect: &ScreenRectangle,
-        _redo_layout: &mut bool,
-    ) -> Option<Outcome> {
-        None
-    }
-    fn draw(&self, _g: &mut GfxCtx) {}
+        ctx: &mut EventCtx,
+        rect: &ScreenRectangle,
+        redo_layout: &mut bool,
+    ) -> Option<Outcome>;
+    /// Draw the widget. Be sure to draw relative to the top-left specified by `set_pos`.
+    fn draw(&self, g: &mut GfxCtx);
 }
 
 downcast_rs::impl_downcast!(WidgetImpl);
-
-#[derive(Clone, Copy)]
-pub enum ContainerOrientation {
-    TopLeft,
-    TopRight,
-    TopLeftButDownABit(f64),
-    Centered,
-    // Place the widget this percentage along the width of the screen
-    Top(f64),
-}
-
-pub fn stack_vertically(
-    orientation: ContainerOrientation,
-    ctx: &EventCtx,
-    widgets: Vec<&mut dyn WidgetImpl>,
-) {
-    assert!(!widgets.is_empty());
-
-    let dims_per_widget: Vec<ScreenDims> = widgets.iter().map(|w| w.get_dims()).collect();
-    let total_width = dims_per_widget
-        .iter()
-        .map(|d| d.width)
-        .max_by_key(|x| NotNan::new(*x).unwrap())
-        .unwrap();
-    let total_height: f64 = dims_per_widget.iter().map(|d| d.height).sum();
-
-    let mut top_left = match orientation {
-        ContainerOrientation::TopLeft => ScreenPt::new(0.0, 0.0),
-        ContainerOrientation::TopRight => ScreenPt::new(ctx.canvas.window_width - total_width, 0.0),
-        ContainerOrientation::TopLeftButDownABit(y1) => ScreenPt::new(0.0, y1),
-        ContainerOrientation::Centered => {
-            let mut pt = ctx.canvas.center_to_screen_pt();
-            pt.x -= total_width / 2.0;
-            pt.y -= total_height / 2.0;
-            pt
-        }
-        ContainerOrientation::Top(percent) => ScreenPt::new(ctx.canvas.window_width * percent, 0.0),
-    };
-    for (w, dims) in widgets.into_iter().zip(dims_per_widget) {
-        w.set_pos(top_left);
-        top_left.y += dims.height;
-    }
-}
