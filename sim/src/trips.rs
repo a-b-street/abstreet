@@ -543,7 +543,8 @@ impl TripManager {
         }
     }
 
-    // This will be None for parked cars
+    // This will be None for parked cars. Buses technically do have trips. Should always work for
+    // pedestrians.
     pub fn agent_to_trip(&self, id: AgentID) -> Option<TripID> {
         self.active_trip_mode.get(&id).cloned()
     }

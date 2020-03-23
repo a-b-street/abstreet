@@ -1,7 +1,6 @@
 mod bus_explorer;
 mod colors;
 mod heatmap;
-mod info;
 mod minimap;
 mod navigate;
 mod overlays;
@@ -20,6 +19,7 @@ pub use self::warp::Warping;
 use crate::app::App;
 use crate::game::Transition;
 use crate::helpers::{list_names, ID};
+use crate::info::{InfoPanel, InfoTab};
 use crate::sandbox::SpeedControls;
 use ezgui::{
     lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenDims, ScreenPt, ScreenRectangle,
@@ -30,7 +30,7 @@ use std::collections::BTreeSet;
 
 pub struct CommonState {
     turn_cycler: turn_cycler::TurnCyclerState,
-    info_panel: Option<info::InfoPanel>,
+    info_panel: Option<InfoPanel>,
 }
 
 impl CommonState {
@@ -68,9 +68,9 @@ impl CommonState {
             {
                 app.per_obj.info_panel_open = true;
                 let actions = app.per_obj.consume();
-                self.info_panel = Some(info::InfoPanel::new(
+                self.info_panel = Some(InfoPanel::new(
                     id.clone(),
-                    info::Tab::Nil,
+                    InfoTab::Nil,
                     ctx,
                     app,
                     actions,
@@ -287,14 +287,7 @@ impl CommonState {
 
     // Meant to be used for launching from other states
     pub fn launch_info_panel(&mut self, id: ID, ctx: &mut EventCtx, app: &mut App) {
-        self.info_panel = Some(info::InfoPanel::new(
-            id,
-            info::Tab::Nil,
-            ctx,
-            app,
-            Vec::new(),
-            None,
-        ));
+        self.info_panel = Some(InfoPanel::new(id, InfoTab::Nil, ctx, app, Vec::new(), None));
         app.per_obj.info_panel_open = true;
     }
 

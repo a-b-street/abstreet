@@ -8,6 +8,7 @@ mod devtools;
 mod edit;
 mod game;
 mod helpers;
+mod info;
 mod managed;
 mod obj_actions;
 mod options;
