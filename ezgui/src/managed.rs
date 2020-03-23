@@ -1,9 +1,8 @@
 use crate::widgets::containers::{Container, Nothing};
-use crate::widgets::plot::Yvalue;
 use crate::{
     Btn, Button, Checkbox, Choice, Color, Drawable, Dropdown, EventCtx, Filler, GeomBatch, GfxCtx,
-    Histogram, HorizontalAlignment, JustDraw, MultiKey, Plot, PopupMenu, RewriteColor, ScreenDims,
-    ScreenPt, ScreenRectangle, Slider, Text, TextBox, VerticalAlignment, WidgetImpl,
+    HorizontalAlignment, JustDraw, Menu, MultiKey, RewriteColor, ScreenDims, ScreenPt,
+    ScreenRectangle, Slider, TextBox, VerticalAlignment, WidgetImpl,
 };
 use geom::{Distance, Polygon};
 use std::collections::HashSet;
@@ -218,44 +217,19 @@ impl Widget {
         }
     }
 
-    // TODO dupe apis!
+    // TODO These are literally just convenient APIs to avoid importing JustDraw. Do we want this
+    // or not?
     pub fn draw_batch(ctx: &EventCtx, batch: GeomBatch) -> Widget {
         JustDraw::wrap(ctx, batch)
     }
-
-    pub(crate) fn just_draw(j: JustDraw) -> Widget {
-        Widget::new(Box::new(j))
-    }
-
-    pub(crate) fn draw_text(ctx: &EventCtx, txt: Text) -> Widget {
-        JustDraw::text(ctx, txt)
-    }
-
     pub fn draw_svg(ctx: &EventCtx, filename: &str) -> Widget {
         JustDraw::svg(ctx, filename)
     }
-    // TODO Argh uncomposable APIs
     pub fn draw_svg_transform(ctx: &EventCtx, filename: &str, rewrite: RewriteColor) -> Widget {
         JustDraw::svg_transform(ctx, filename, rewrite)
     }
 
-    pub(crate) fn btn(btn: Button) -> Widget {
-        let action = btn.action.clone();
-        Widget::new(Box::new(btn)).named(action)
-    }
-
-    pub fn slider(slider: Slider) -> Widget {
-        Widget::new(Box::new(slider))
-    }
-
-    pub fn menu<T: 'static + Clone>(menu: PopupMenu<T>) -> Widget {
-        Widget::new(Box::new(menu))
-    }
-
-    pub fn filler(filler: Filler) -> Widget {
-        Widget::new(Box::new(filler))
-    }
-
+    // TODO Convenient constructors here, but shouldn't do it like this
     pub fn checkbox(
         ctx: &EventCtx,
         label: &str,
@@ -279,11 +253,13 @@ impl Widget {
         )))
     }
 
+    // TODO Likewise
     pub fn text_entry(ctx: &EventCtx, prefilled: String, exclusive_focus: bool) -> Widget {
         // TODO Hardcoded style, max chars
         Widget::new(Box::new(TextBox::new(ctx, 50, prefilled, exclusive_focus)))
     }
 
+    // TODO Likewise
     pub fn dropdown<T: 'static + PartialEq + Clone>(
         ctx: &EventCtx,
         label: &str,
@@ -293,14 +269,6 @@ impl Widget {
         Widget::new(Box::new(Dropdown::new(ctx, label, default_value, choices)))
             .named(label)
             .outline(2.0, Color::WHITE)
-    }
-
-    pub(crate) fn plot<T: 'static + Yvalue<T>>(plot: Plot<T>) -> Widget {
-        Widget::new(Box::new(plot))
-    }
-
-    pub(crate) fn histogram(histogram: Histogram) -> Widget {
-        Widget::new(Box::new(histogram))
     }
 
     pub fn row(widgets: Vec<Widget>) -> Widget {
@@ -732,7 +700,7 @@ impl Composite {
         self.find_mut(name)
     }
 
-    pub fn menu<T: 'static + Clone>(&self, name: &str) -> &PopupMenu<T> {
+    pub fn menu<T: 'static + Clone>(&self, name: &str) -> &Menu<T> {
         self.find(name)
     }
 
@@ -850,11 +818,12 @@ impl CompositeBuilder {
             c.scrollable_x = true;
             c.top_level = Widget::col(vec![
                 c.top_level,
-                Widget::slider(Slider::horizontal(
+                Slider::horizontal(
                     ctx,
                     c.container_dims.width,
                     c.container_dims.width * (c.container_dims.width / c.contents_dims.width),
-                ))
+                    0.0,
+                )
                 .named("horiz scrollbar")
                 .abs(top_left.x, top_left.y + c.container_dims.height),
             ]);
@@ -863,11 +832,12 @@ impl CompositeBuilder {
             c.scrollable_y = true;
             c.top_level = Widget::row(vec![
                 c.top_level,
-                Widget::slider(Slider::vertical(
+                Slider::vertical(
                     ctx,
                     c.container_dims.height,
                     c.container_dims.height * (c.container_dims.height / c.contents_dims.height),
-                ))
+                    0.0,
+                )
                 .named("vert scrollbar")
                 .abs(top_left.x + c.container_dims.width, top_left.y),
             ]);

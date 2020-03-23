@@ -11,8 +11,8 @@ use crate::render::MIN_ZOOM_FOR_DETAIL;
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Histogram,
-    HorizontalAlignment, JustDraw, Key, Line, Outcome, Plot, PlotOptions, RewriteColor, Series,
-    Slider, Text, TextExt, VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Outcome, Plot, PlotOptions, RewriteColor, Series, Slider, Text,
+    TextExt, VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Duration, PolyLine, Polygon, Pt2D, Statistic, Time};
 use map_model::{BusRouteID, IntersectionID};
@@ -893,7 +893,7 @@ impl Overlays {
                 .to_polygon(),
             );
         }
-        let timeline = JustDraw::wrap(ctx, batch);
+        let timeline = Widget::draw_batch(ctx, batch);
 
         master_col.push(Widget::row(vec![
             timeline.margin(5),
@@ -1074,27 +1074,19 @@ fn population_controls(ctx: &mut EventCtx, app: &App, opts: Option<&HeatmapOptio
         // TODO Display the value...
         col.push(Widget::row(vec![
             "Resolution (meters)".draw_text(ctx).margin(5),
-            Widget::slider({
-                let mut slider = Slider::horizontal(ctx, 100.0, 25.0);
-                // 1 to 100m
-                slider.set_percent(ctx, (o.resolution - 1.0) / 99.0);
-                slider
-            })
-            .named("resolution")
-            .align_right()
-            .centered_vert(),
+            // 1 to 100m
+            Slider::horizontal(ctx, 100.0, 25.0, (o.resolution - 1.0) / 99.0)
+                .named("resolution")
+                .align_right()
+                .centered_vert(),
         ]));
         col.push(Widget::row(vec![
             "Diffusion (num of passes)".draw_text(ctx).margin(5),
-            Widget::slider({
-                let mut slider = Slider::horizontal(ctx, 100.0, 25.0);
-                // 0 to 10
-                slider.set_percent(ctx, (o.num_passes as f64) / 10.0);
-                slider
-            })
-            .named("passes")
-            .align_right()
-            .centered_vert(),
+            // 0 to 10
+            Slider::horizontal(ctx, 100.0, 25.0, (o.num_passes as f64) / 10.0)
+                .named("passes")
+                .align_right()
+                .centered_vert(),
         ]));
 
         col.push(Widget::dropdown(

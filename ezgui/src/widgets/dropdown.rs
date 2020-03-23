@@ -1,13 +1,13 @@
 use crate::{
-    Btn, Button, Choice, Color, EventCtx, GfxCtx, InputResult, Outcome, PopupMenu, ScreenDims,
-    ScreenPt, WidgetImpl,
+    Btn, Button, Choice, Color, EventCtx, GfxCtx, InputResult, Menu, Outcome, ScreenDims, ScreenPt,
+    WidgetImpl,
 };
 use geom::{Polygon, Pt2D};
 
 pub struct Dropdown<T: Clone> {
     current_idx: usize,
     btn: Button,
-    menu: Option<PopupMenu<usize>>,
+    menu: Option<Menu<usize>>,
     label: String,
 
     choices: Vec<Choice<T>>,
@@ -70,15 +70,18 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
         } else {
             if self.btn.event(ctx, redo_layout).is_some() {
                 // TODO set current idx in menu
-                // TODO Choice::map_value?
-                let mut menu = PopupMenu::new(
+                let mut menu = *Menu::new(
                     ctx,
                     self.choices
                         .iter()
                         .enumerate()
                         .map(|(idx, c)| c.with_value(idx))
                         .collect(),
-                );
+                )
+                .widget
+                .downcast::<Menu<usize>>()
+                .ok()
+                .unwrap();
                 menu.set_pos(ScreenPt::new(
                     self.btn.top_left.x,
                     self.btn.top_left.y + self.btn.dims.height + 15.0,

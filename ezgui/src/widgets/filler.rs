@@ -1,4 +1,4 @@
-use crate::{EventCtx, GfxCtx, Outcome, ScreenDims, ScreenPt, WidgetImpl};
+use crate::{EventCtx, GfxCtx, Outcome, ScreenDims, ScreenPt, Widget, WidgetImpl};
 
 // Doesn't do anything by itself, just used for widgetsing. Something else reaches in, asks for the
 // ScreenRectangle to use.
@@ -8,11 +8,11 @@ pub struct Filler {
 }
 
 impl Filler {
-    pub fn new(dims: ScreenDims) -> Filler {
-        Filler {
+    pub fn new(dims: ScreenDims) -> Widget {
+        Widget::new(Box::new(Filler {
             dims,
             top_left: ScreenPt::new(0.0, 0.0),
-        }
+        }))
     }
 }
 

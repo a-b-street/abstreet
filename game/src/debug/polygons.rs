@@ -219,7 +219,7 @@ fn make_panel(ctx: &mut EventCtx) -> Composite {
                 Btn::text_fg(">").build(ctx, "next", hotkey(Key::RightArrow)),
             ])
             .evenly_spaced(),
-            Widget::slider(Slider::horizontal(ctx, 100.0, 25.0))
+            Slider::horizontal(ctx, 100.0, 25.0, 0.0)
                 .named("slider")
                 .centered_horiz(),
         ])

@@ -362,13 +362,13 @@ impl JumpToTime {
                         txt.draw(ctx)
                     }
                     .named("target time"),
-                    Widget::slider({
-                        // TODO Auto-fill width?
-                        let mut slider =
-                            Slider::horizontal(ctx, 0.25 * ctx.canvas.window_width, 25.0);
-                        slider.set_percent(ctx, target.to_percent(Time::END_OF_DAY).min(1.0));
-                        slider
-                    })
+                    // TODO Auto-fill width?
+                    Slider::horizontal(
+                        ctx,
+                        0.25 * ctx.canvas.window_width,
+                        25.0,
+                        target.to_percent(Time::END_OF_DAY).min(1.0),
+                    )
                     .named("time slider")
                     .margin(10),
                     Widget::row(vec![

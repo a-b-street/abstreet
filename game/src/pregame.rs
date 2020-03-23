@@ -7,7 +7,7 @@ use crate::game::{State, Transition};
 use crate::managed::{Callback, ManagedGUIState, WrappedComposite, WrappedOutcome};
 use crate::sandbox::{GameplayMode, SandboxMode, TutorialPointer};
 use ezgui::{
-    hotkey, hotkeys, Btn, Color, Composite, EventCtx, EventLoopMode, GfxCtx, JustDraw, Key, Line,
+    hotkey, hotkeys, Btn, Color, Composite, EventCtx, EventLoopMode, GfxCtx, Key, Line,
     RewriteColor, Text, Widget,
 };
 use geom::{Duration, Line, Pt2D, Speed};
@@ -29,7 +29,7 @@ impl TitleScreen {
             composite: WrappedComposite::new(
                 Composite::new(
                     Widget::col(vec![
-                        JustDraw::svg(ctx, "../data/system/assets/pregame/logo.svg").margin(5),
+                        Widget::draw_svg(ctx, "../data/system/assets/pregame/logo.svg").margin(5),
                         // TODO that nicer font
                         // TODO Any key
                         Btn::text_bg2("PLAY")

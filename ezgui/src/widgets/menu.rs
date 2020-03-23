@@ -1,10 +1,10 @@
 use crate::{
     hotkey, text, Choice, EventCtx, GfxCtx, InputResult, Key, Line, Outcome, ScreenDims, ScreenPt,
-    ScreenRectangle, Text, WidgetImpl,
+    ScreenRectangle, Text, Widget, WidgetImpl,
 };
 use geom::Pt2D;
 
-pub struct PopupMenu<T: Clone> {
+pub struct Menu<T: Clone> {
     choices: Vec<Choice<T>>,
     current_idx: usize,
 
@@ -14,9 +14,9 @@ pub struct PopupMenu<T: Clone> {
     dims: ScreenDims,
 }
 
-impl<T: Clone> PopupMenu<T> {
-    pub fn new(ctx: &EventCtx, choices: Vec<Choice<T>>) -> PopupMenu<T> {
-        let mut m = PopupMenu {
+impl<T: 'static + Clone> Menu<T> {
+    pub fn new(ctx: &EventCtx, choices: Vec<Choice<T>>) -> Widget {
+        let mut m = Menu {
             choices,
             current_idx: 0,
 
@@ -26,7 +26,7 @@ impl<T: Clone> PopupMenu<T> {
             dims: ScreenDims::new(0.0, 0.0),
         };
         m.dims = m.calculate_txt().dims(&ctx.prerender.assets);
-        m
+        Widget::new(Box::new(m))
     }
 
     pub fn current_choice(&self) -> &T {
@@ -70,7 +70,7 @@ impl<T: Clone> PopupMenu<T> {
     }
 }
 
-impl<T: 'static + Clone> WidgetImpl for PopupMenu<T> {
+impl<T: 'static + Clone> WidgetImpl for Menu<T> {
     fn get_dims(&self) -> ScreenDims {
         self.dims
     }

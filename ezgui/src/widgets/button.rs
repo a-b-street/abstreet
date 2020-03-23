@@ -30,18 +30,21 @@ impl Button {
         hovered: GeomBatch,
         hotkey: Option<MultiKey>,
         tooltip: &str,
+        maybe_tooltip: Option<Text>,
         hitbox: Polygon,
-    ) -> Button {
+    ) -> Widget {
         // dims are based on the hitbox, not the two drawables!
         let bounds = hitbox.get_bounds();
         let dims = ScreenDims::new(bounds.width(), bounds.height());
         assert!(!tooltip.is_empty());
-        Button {
+        Widget::new(Box::new(Button {
             action: tooltip.to_string(),
 
             draw_normal: ctx.upload(normal),
             draw_hovered: ctx.upload(hovered),
-            tooltip: if let Some(ref key) = hotkey {
+            tooltip: if let Some(t) = maybe_tooltip {
+                t
+            } else if let Some(ref key) = hotkey {
                 let mut txt = Text::from(Line(key.describe()).fg(text::HOTKEY_COLOR).size(20));
                 txt.append(Line(format!(" - {}", tooltip)));
                 txt
@@ -55,7 +58,8 @@ impl Button {
 
             top_left: ScreenPt::new(0.0, 0.0),
             dims,
-        }
+        }))
+        .named(tooltip)
     }
 }
 
@@ -236,18 +240,15 @@ impl BtnBuilder {
                 normal.rewrite_color(rewrite_normal);
                 hovered.rewrite_color(rewrite_hover);
 
-                let mut btn = Button::new(
+                Button::new(
                     ctx,
                     normal,
                     hovered,
                     key,
                     &action_tooltip.into(),
+                    maybe_t,
                     bounds.get_rectangle(),
-                );
-                if let Some(t) = maybe_t {
-                    btn.tooltip = t;
-                }
-                Widget::btn(btn)
+                )
             }
             BtnBuilder::TextFG(_, normal_txt, maybe_t) => {
                 // TODO Padding here is unfortunate, but I don't understand when the flexbox padding
@@ -269,11 +270,16 @@ impl BtnBuilder {
                 let mut hovered = GeomBatch::new();
                 hovered.add_translated(selected_batch, horiz_padding, vert_padding);
 
-                let mut btn = Button::new(ctx, normal, hovered, key, &action_tooltip.into(), geom);
-                if let Some(t) = maybe_t {
-                    btn.tooltip = t;
-                }
-                Widget::btn(btn).outline(2.0, Color::WHITE)
+                Button::new(
+                    ctx,
+                    normal,
+                    hovered,
+                    key,
+                    &action_tooltip.into(),
+                    maybe_t,
+                    geom,
+                )
+                .outline(2.0, Color::WHITE)
             }
             BtnBuilder::TextBG {
                 text,
@@ -299,20 +305,25 @@ impl BtnBuilder {
                 let mut hovered = GeomBatch::from(vec![(selected_bg_color, geom.clone())]);
                 hovered.add_translated(txt_batch.clone(), HORIZ_PADDING, VERT_PADDING);
 
-                let mut btn = Button::new(ctx, normal, hovered, key, &action_tooltip.into(), geom);
-                if let Some(t) = maybe_tooltip {
-                    btn.tooltip = t;
-                }
-                Widget::btn(btn)
+                Button::new(
+                    ctx,
+                    normal,
+                    hovered,
+                    key,
+                    &action_tooltip.into(),
+                    maybe_tooltip,
+                    geom,
+                )
             }
-            BtnBuilder::Custom(normal, hovered, hitbox, maybe_t) => {
-                let mut btn =
-                    Button::new(ctx, normal, hovered, key, &action_tooltip.into(), hitbox);
-                if let Some(t) = maybe_t {
-                    btn.tooltip = t;
-                }
-                Widget::btn(btn)
-            }
+            BtnBuilder::Custom(normal, hovered, hitbox, maybe_t) => Button::new(
+                ctx,
+                normal,
+                hovered,
+                key,
+                &action_tooltip.into(),
+                maybe_t,
+                hitbox,
+            ),
         }
     }
 
@@ -335,11 +346,11 @@ impl BtnBuilder {
                 let btn = Btn::custom_text_fg(txt.change_fg(Color::grey(0.5)))
                     .build(ctx, "dummy", None)
                     .take_btn();
-                Widget::just_draw(JustDraw {
+                Widget::new(Box::new(JustDraw {
                     draw: btn.draw_normal,
                     top_left: btn.top_left,
                     dims: btn.dims,
-                })
+                }))
                 .outline(2.0, Color::WHITE)
             }
             // TODO This'll only work reasonably for text_bg2
@@ -350,11 +361,11 @@ impl BtnBuilder {
                 assert_eq!(*unselected_bg_color, Color::WHITE);
                 *unselected_bg_color = Color::grey(0.5);
                 let btn = self.build(ctx, "dummy", None).take_btn();
-                Widget::just_draw(JustDraw {
+                Widget::new(Box::new(JustDraw {
                     draw: btn.draw_normal,
                     top_left: btn.top_left,
                     dims: btn.dims,
-                })
+                }))
             }
             _ => panic!("Can't use inactive on this kind of button"),
         }

@@ -207,7 +207,7 @@ impl Plot<usize> {
         // Don't let the x-axis fill the parent container
         Widget::row(vec![Widget::col(vec![
             legend,
-            Widget::row(vec![y_axis.evenly_spaced(), Widget::plot(plot)]),
+            Widget::row(vec![y_axis.evenly_spaced(), Widget::new(Box::new(plot))]),
             x_axis.evenly_spaced(),
         ])])
     }
@@ -223,7 +223,7 @@ impl Plot<Duration> {
         // Don't let the x-axis fill the parent container
         Widget::row(vec![Widget::col(vec![
             legend,
-            Widget::row(vec![y_axis.evenly_spaced(), Widget::plot(plot)]),
+            Widget::row(vec![y_axis.evenly_spaced(), Widget::new(Box::new(plot))]),
             x_axis.evenly_spaced(),
         ])])
     }

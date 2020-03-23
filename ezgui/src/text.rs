@@ -1,5 +1,5 @@
 use crate::assets::Assets;
-use crate::{svg, Color, EventCtx, GeomBatch, GfxCtx, Prerender, ScreenDims, Widget};
+use crate::{svg, Color, EventCtx, GeomBatch, GfxCtx, JustDraw, Prerender, ScreenDims, Widget};
 use geom::Polygon;
 use std::collections::hash_map::DefaultHasher;
 use std::fmt::Write;
@@ -265,7 +265,7 @@ impl Text {
     }
 
     pub fn draw(self, ctx: &EventCtx) -> Widget {
-        Widget::draw_text(ctx, self)
+        JustDraw::wrap(ctx, self.render_ctx(ctx))
     }
 }
 

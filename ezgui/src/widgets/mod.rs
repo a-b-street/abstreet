@@ -5,12 +5,11 @@ pub mod containers;
 pub mod dropdown;
 pub mod filler;
 pub mod histogram;
-pub mod no_op;
+pub mod just_draw;
+pub mod menu;
 pub mod plot;
-pub mod popup_menu;
 pub mod slider;
 pub mod text_box;
-pub mod wizard;
 
 use crate::{EventCtx, GfxCtx, Outcome, ScreenDims, ScreenPt};
 

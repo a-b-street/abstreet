@@ -1,6 +1,6 @@
 use crate::{
     hotkey, Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, InputResult, Key, Line,
-    MultiKey, Outcome, PopupMenu, Text, VerticalAlignment, Widget,
+    Menu, MultiKey, Outcome, Text, VerticalAlignment, Widget,
 };
 use abstutil::Cloneable;
 use std::collections::VecDeque;
@@ -253,13 +253,13 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                 col.push(Line(l).roboto_bold().draw(self.ctx));
             }
             col.push(
-                Widget::menu(PopupMenu::new(
+                Menu::new(
                     self.ctx,
                     choices
                         .into_iter()
                         .map(|c| c.with_value(c.data.clone_box()))
                         .collect(),
-                ))
+                )
                 .named("menu"),
             );
             self.wizard.menu_comp = Some(

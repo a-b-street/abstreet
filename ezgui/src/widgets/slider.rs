@@ -1,6 +1,6 @@
 use crate::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, Outcome, ScreenDims, ScreenPt, ScreenRectangle,
-    WidgetImpl,
+    Widget, WidgetImpl,
 };
 use geom::Polygon;
 
@@ -22,9 +22,14 @@ pub struct Slider {
 const BG_CROSS_AXIS_LEN: f64 = 20.0;
 
 impl Slider {
-    pub fn horizontal(ctx: &EventCtx, width: f64, dragger_len: f64) -> Slider {
+    pub fn horizontal(
+        ctx: &EventCtx,
+        width: f64,
+        dragger_len: f64,
+        current_percent: f64,
+    ) -> Widget {
         let mut s = Slider {
-            current_percent: 0.0,
+            current_percent,
             mouse_on_slider: false,
             dragging: false,
 
@@ -38,12 +43,12 @@ impl Slider {
             dims: ScreenDims::new(0.0, 0.0),
         };
         s.recalc(ctx);
-        s
+        Widget::new(Box::new(s))
     }
 
-    pub fn vertical(ctx: &EventCtx, height: f64, dragger_len: f64) -> Slider {
+    pub fn vertical(ctx: &EventCtx, height: f64, dragger_len: f64, current_percent: f64) -> Widget {
         let mut s = Slider {
-            current_percent: 0.0,
+            current_percent,
             mouse_on_slider: false,
             dragging: false,
 
@@ -57,7 +62,7 @@ impl Slider {
             dims: ScreenDims::new(0.0, 0.0),
         };
         s.recalc(ctx);
-        s
+        Widget::new(Box::new(s))
     }
 
     fn recalc(&mut self, ctx: &EventCtx) {
@@ -126,10 +131,6 @@ impl Slider {
         } else {
             self.mouse_on_slider = false;
         }
-    }
-
-    pub fn set_value(&mut self, ctx: &EventCtx, idx: usize, num_items: usize) {
-        self.set_percent(ctx, (idx as f64) / (num_items as f64 - 1.0));
     }
 
     fn inner_event(&mut self, ctx: &mut EventCtx) -> bool {

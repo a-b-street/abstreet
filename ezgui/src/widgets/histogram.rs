@@ -95,7 +95,10 @@ impl Histogram {
 
         // Don't let the x-axis fill the parent container
         Widget::row(vec![Widget::col(vec![
-            Widget::row(vec![y_axis.evenly_spaced(), Widget::histogram(histogram)]),
+            Widget::row(vec![
+                y_axis.evenly_spaced(),
+                Widget::new(Box::new(histogram)),
+            ]),
             x_axis.evenly_spaced(),
         ])])
     }
