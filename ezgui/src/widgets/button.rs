@@ -1,6 +1,6 @@
 use crate::{
-    text, Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, MultiKey, Outcome,
-    RewriteColor, ScreenDims, ScreenPt, Text, Widget, WidgetImpl,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, MultiKey, Outcome, RewriteColor,
+    ScreenDims, ScreenPt, Text, Widget, WidgetImpl,
 };
 use geom::Polygon;
 
@@ -44,12 +44,8 @@ impl Button {
             draw_hovered: ctx.upload(hovered),
             tooltip: if let Some(t) = maybe_tooltip {
                 t
-            } else if let Some(ref key) = hotkey {
-                let mut txt = Text::from(Line(key.describe()).fg(text::HOTKEY_COLOR).size(20));
-                txt.append(Line(format!(" - {}", tooltip)));
-                txt
             } else {
-                Text::from(Line(tooltip).size(20))
+                Text::tooltip(hotkey.clone(), tooltip)
             },
             hotkey,
             hitbox,

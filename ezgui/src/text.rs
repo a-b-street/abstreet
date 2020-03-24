@@ -1,5 +1,7 @@
 use crate::assets::Assets;
-use crate::{svg, Color, EventCtx, GeomBatch, GfxCtx, JustDraw, Prerender, ScreenDims, Widget};
+use crate::{
+    svg, Color, EventCtx, GeomBatch, GfxCtx, JustDraw, MultiKey, Prerender, ScreenDims, Widget,
+};
 use geom::Polygon;
 use std::collections::hash_map::DefaultHasher;
 use std::fmt::Write;
@@ -106,6 +108,17 @@ impl Text {
         self
     }
 
+    // TODO Not exactly sure this is the right place for this, but better than code duplication
+    pub fn tooltip(hotkey: Option<MultiKey>, action: &str) -> Text {
+        if let Some(ref key) = hotkey {
+            let mut txt = Text::from(Line(key.describe()).fg(HOTKEY_COLOR).size(20));
+            txt.append(Line(format!(" - {}", action)));
+            txt
+        } else {
+            Text::from(Line(action).size(20))
+        }
+    }
+
     pub fn change_fg(mut self, fg: Color) -> Text {
         for (_, spans) in self.lines.iter_mut() {
             for span in spans {
@@ -175,8 +188,8 @@ impl Text {
         self.lines.is_empty()
     }
 
-    pub fn extend(&mut self, other: &Text) {
-        self.lines.extend(other.lines.clone())
+    pub fn extend(&mut self, other: Text) {
+        self.lines.extend(other.lines);
     }
 
     pub(crate) fn dims(self, assets: &Assets) -> ScreenDims {

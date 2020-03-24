@@ -85,24 +85,45 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
                 "../data/system/assets/pregame/tutorial.svg",
                 RewriteColor::Change(Color::WHITE, colors::HOVERING),
             )
+            .tooltip({
+                let mut txt = Text::tooltip(hotkey(Key::T), "Tutorial");
+                txt.add(Line("Learn how to play the game"));
+                txt
+            })
             .build(ctx, "Tutorial", hotkey(Key::T)),
             Btn::svg(
                 "../data/system/assets/pregame/sandbox.svg",
                 RewriteColor::Change(Color::WHITE, colors::HOVERING),
             )
+            .tooltip({
+                let mut txt = Text::tooltip(hotkey(Key::S), "Sandbox");
+                txt.add(Line("No goals, try out any idea here"));
+                txt
+            })
             .build(ctx, "Sandbox mode", hotkey(Key::S)),
             Btn::svg(
                 "../data/system/assets/pregame/challenges.svg",
                 RewriteColor::Change(Color::WHITE, colors::HOVERING),
             )
+            .tooltip({
+                let mut txt = Text::tooltip(hotkey(Key::C), "Challenges");
+                txt.add(Line("Fix specific problems"));
+                txt
+            })
             .build(ctx, "Challenges", hotkey(Key::C)),
-            Btn::text_bg2("COMMUNITY PROPOSALS").build_def(ctx, hotkey(Key::P)),
+            Btn::text_bg2("Community Proposals")
+                .tooltip({
+                    let mut txt = Text::tooltip(hotkey(Key::P), "Community Proposals");
+                    txt.add(Line("See existing ideas for improving traffic"));
+                    txt
+                })
+                .build_def(ctx, hotkey(Key::P)),
         ])
         .centered(),
         if app.opts.dev {
             Widget::row(vec![
-                Btn::text_bg2("INTERNAL DEV TOOLS").build_def(ctx, hotkey(Key::M)),
-                Btn::text_bg2("INTERNAL A/B TEST MODE").build_def(ctx, hotkey(Key::A)),
+                Btn::text_bg2("Internal Dev Tools").build_def(ctx, hotkey(Key::M)),
+                Btn::text_bg2("Internal A/B Test Mode").build_def(ctx, hotkey(Key::A)),
             ])
             .centered()
         } else {
@@ -178,17 +199,17 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         Box::new(|ctx, _| Some(Transition::Push(about(ctx)))),
     )
     .cb(
-        "COMMUNITY PROPOSALS",
+        "Community Proposals",
         Box::new(|ctx, _| Some(Transition::Push(proposals_picker(ctx)))),
     );
     if app.opts.dev {
         c = c
             .cb(
-                "INTERNAL DEV TOOLS",
+                "Internal Dev Tools",
                 Box::new(|ctx, _| Some(Transition::Push(DevToolsMode::new(ctx)))),
             )
             .cb(
-                "INTERNAL A/B TEST MODE",
+                "Internal A/B Test Mode",
                 Box::new(|_, _| Some(Transition::Push(PickABTest::new()))),
             );
     }
@@ -235,7 +256,7 @@ fn about(ctx: &mut EventCtx) -> Box<dyn State> {
                 "decision maker. Any resemblance of in-game characters to real ",
             ));
             txt.add(Line(
-                "people is probably coincidental, except for PedestrianID(42). ",
+                "people is probably coincidental, except for Pedestrian #42.",
             ));
             txt.add(Line("Have the appropriate amount of fun."));
             txt.draw(ctx).centered_horiz().align_vert_center()

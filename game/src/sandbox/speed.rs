@@ -66,10 +66,8 @@ impl SpeedControls {
                 .into_iter()
                 .map(|(s, label)| {
                     let mut txt = Text::from(Line(label).size(20));
-                    txt.add(Line(Key::LeftArrow.describe()).fg(Color::GREEN).size(20));
-                    txt.append(Line(" - slow down"));
-                    txt.add(Line(Key::RightArrow.describe()).fg(Color::GREEN).size(20));
-                    txt.append(Line(" - speed up"));
+                    txt.extend(Text::tooltip(hotkey(Key::LeftArrow), "slow down"));
+                    txt.extend(Text::tooltip(hotkey(Key::RightArrow), "speed up"));
 
                     let (normal, bounds) = GeomBatch::from_svg(
                         ctx,
