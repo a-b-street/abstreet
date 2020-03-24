@@ -42,6 +42,8 @@ pub enum InfoTab {
     // If we're live updating, the people inside could change! We're choosing to freeze the list
     // here.
     BldgPeople(Vec<PersonID>, usize),
+    Lane(lane::Tab),
+    Intersection(intersection::Tab),
 }
 
 pub struct TripDetails {
@@ -139,9 +141,12 @@ impl InfoPanel {
         .align_right();
         let (col, trip_details) = match id.clone() {
             ID::Road(_) => unreachable!(),
-            ID::Lane(id) => (lane::info(ctx, app, id, header_btns, action_btns), None),
+            ID::Lane(id) => (
+                lane::info(ctx, app, id, tab.clone(), header_btns, action_btns),
+                None,
+            ),
             ID::Intersection(id) => (
-                intersection::info(ctx, app, id, header_btns, action_btns),
+                intersection::info(ctx, app, id, tab.clone(), header_btns, action_btns),
                 None,
             ),
             ID::Turn(_) => unreachable!(),
@@ -404,6 +409,68 @@ impl InfoPanel {
                         ctx,
                         app,
                         Vec::new(),
+                        maybe_speed,
+                    );
+                    return (false, None);
+                // TODO For lanes. This is an insane mess...
+                } else if action == "Main" {
+                    *self = InfoPanel::new(
+                        self.id.clone(),
+                        // TODO For both lanes and intersections...
+                        InfoTab::Nil,
+                        ctx,
+                        app,
+                        self.actions.clone(),
+                        maybe_speed,
+                    );
+                    return (false, None);
+                } else if action == "OpenStreetMap" {
+                    *self = InfoPanel::new(
+                        self.id.clone(),
+                        InfoTab::Lane(lane::Tab::OSM),
+                        ctx,
+                        app,
+                        self.actions.clone(),
+                        maybe_speed,
+                    );
+                    return (false, None);
+                } else if action == "Debug" {
+                    *self = InfoPanel::new(
+                        self.id.clone(),
+                        InfoTab::Lane(lane::Tab::Debug),
+                        ctx,
+                        app,
+                        self.actions.clone(),
+                        maybe_speed,
+                    );
+                    return (false, None);
+                } else if action == "Traffic" {
+                    *self = InfoPanel::new(
+                        self.id.clone(),
+                        InfoTab::Lane(lane::Tab::Throughput),
+                        ctx,
+                        app,
+                        self.actions.clone(),
+                        maybe_speed,
+                    );
+                    return (false, None);
+                } else if action == "Throughput" {
+                    *self = InfoPanel::new(
+                        self.id.clone(),
+                        InfoTab::Intersection(intersection::Tab::Throughput),
+                        ctx,
+                        app,
+                        self.actions.clone(),
+                        maybe_speed,
+                    );
+                    return (false, None);
+                } else if action == "Delay" {
+                    *self = InfoPanel::new(
+                        self.id.clone(),
+                        InfoTab::Intersection(intersection::Tab::Delay),
+                        ctx,
+                        app,
+                        self.actions.clone(),
                         maybe_speed,
                     );
                     return (false, None);

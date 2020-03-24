@@ -123,6 +123,7 @@ pub fn info(
             inner.extend(person::info(ctx, app, ppl[idx], None, Vec::new()));
             rows.push(Widget::col(inner).bg(colors::INNER_PANEL_BG));
         }
+        _ => unreachable!(),
     }
 
     for p in app.primary.sim.get_parked_cars_by_owner(id) {

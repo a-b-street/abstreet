@@ -1,21 +1,28 @@
 use crate::app::App;
-use crate::info::{make_table, throughput};
+use crate::info::{make_table, throughput, InfoTab};
 use abstutil::prettyprint_usize;
-use ezgui::{EventCtx, Line, Text, TextExt, Widget};
+use ezgui::{Btn, EventCtx, Line, Text, TextExt, Widget};
 use geom::Duration;
 use map_model::LaneID;
+
+#[derive(Clone)]
+pub enum Tab {
+    OSM,
+    Debug,
+    Throughput,
+}
 
 pub fn info(
     ctx: &EventCtx,
     app: &App,
     id: LaneID,
+    tab: InfoTab,
     header_btns: Widget,
     action_btns: Vec<Widget>,
 ) -> Vec<Widget> {
     let mut rows = vec![];
 
     let map = &app.primary.map;
-
     let l = map.get_l(id);
     let r = map.get_r(l.parent);
 
@@ -25,28 +32,45 @@ pub fn info(
         header_btns,
     ]));
     rows.push(format!("@ {}", r.get_name()).draw_text(ctx));
-    rows.extend(action_btns);
 
-    // Properties
-    {
-        let mut kv = Vec::new();
+    // TODO Inactive
+    // TODO Naming, style...
+    rows.push(Widget::row(vec![
+        Btn::text_bg2("Main").build_def(ctx, None),
+        Btn::text_bg2("OpenStreetMap").build_def(ctx, None),
+        Btn::text_bg2("Debug").build_def(ctx, None),
+        Btn::text_bg2("Traffic").build_def(ctx, None),
+    ]));
 
-        if !l.is_sidewalk() {
-            kv.push(("Type".to_string(), l.lane_type.describe().to_string()));
+    match tab {
+        InfoTab::Nil => {
+            rows.extend(action_btns);
+
+            let mut kv = Vec::new();
+
+            if !l.is_sidewalk() {
+                kv.push(("Type".to_string(), l.lane_type.describe().to_string()));
+            }
+
+            if l.is_parking() {
+                kv.push((
+                    "Parking".to_string(),
+                    format!("{} spots, parallel parking", l.number_parking_spots()),
+                ));
+            } else {
+                kv.push(("Speed limit".to_string(), r.get_speed_limit().to_string()));
+            }
+
+            kv.push(("Length".to_string(), l.length().describe_rounded()));
+
+            rows.extend(make_table(ctx, kv));
         }
-
-        if l.is_parking() {
-            kv.push((
-                "Parking".to_string(),
-                format!("{} spots, parallel parking", l.number_parking_spots()),
-            ));
-        } else {
-            kv.push(("Speed limit".to_string(), r.get_speed_limit().to_string()));
+        InfoTab::Lane(Tab::OSM) => {
+            rows.extend(make_table(ctx, r.osm_tags.clone().into_iter().collect()));
         }
+        InfoTab::Lane(Tab::Debug) => {
+            let mut kv = Vec::new();
 
-        kv.push(("Length".to_string(), l.length().describe_rounded()));
-
-        if app.opts.dev {
             kv.push(("Parent".to_string(), r.id.to_string()));
 
             if l.is_driving() {
@@ -88,38 +112,35 @@ pub fn info(
                 ),
             ));
 
-            for (k, v) in &r.osm_tags {
-                kv.push((k.to_string(), v.to_string()));
-            }
+            rows.extend(make_table(ctx, kv));
         }
+        InfoTab::Lane(Tab::Throughput) => {
+            // Since this applies to the entire road, ignore lane type.
+            let mut txt = Text::from(Line(""));
+            txt.add(Line("Throughput (entire road)").roboto_bold());
+            txt.add(Line(format!(
+                "Since midnight: {} agents crossed",
+                prettyprint_usize(
+                    app.primary
+                        .sim
+                        .get_analytics()
+                        .thruput_stats
+                        .count_per_road
+                        .get(r.id)
+                )
+            )));
+            txt.add(Line(format!("In 20 minute buckets:")));
+            rows.push(txt.draw(ctx));
 
-        rows.extend(make_table(ctx, kv));
-    }
-
-    if !l.is_parking() {
-        let mut txt = Text::from(Line(""));
-        txt.add(Line("Throughput (entire road)").roboto_bold());
-        txt.add(Line(format!(
-            "Since midnight: {} agents crossed",
-            prettyprint_usize(
-                app.primary
-                    .sim
-                    .get_analytics()
-                    .thruput_stats
-                    .count_per_road
-                    .get(r.id)
-            )
-        )));
-        txt.add(Line(format!("In 20 minute buckets:")));
-        rows.push(txt.draw(ctx));
-
-        let r = app.primary.map.get_l(id).parent;
-        rows.push(
-            throughput(ctx, app, move |a, t| {
-                a.throughput_road(t, r, Duration::minutes(20))
-            })
-            .margin(10),
-        );
+            let r = app.primary.map.get_l(id).parent;
+            rows.push(
+                throughput(ctx, app, move |a, t| {
+                    a.throughput_road(t, r, Duration::minutes(20))
+                })
+                .margin(10),
+            );
+        }
+        _ => unreachable!(),
     }
 
     rows

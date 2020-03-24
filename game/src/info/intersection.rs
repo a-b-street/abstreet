@@ -1,17 +1,24 @@
 use crate::app::App;
 use crate::helpers::rotating_color_map;
-use crate::info::throughput;
+use crate::info::{throughput, InfoTab};
 use abstutil::prettyprint_usize;
-use ezgui::{EventCtx, Line, Plot, PlotOptions, Series, Text, Widget};
+use ezgui::{Btn, EventCtx, Line, Plot, PlotOptions, Series, Text, Widget};
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, IntersectionType};
 use sim::Analytics;
 use std::collections::BTreeSet;
 
+#[derive(Clone)]
+pub enum Tab {
+    Throughput,
+    Delay,
+}
+
 pub fn info(
     ctx: &EventCtx,
     app: &App,
     id: IntersectionID,
+    tab: InfoTab,
     header_btns: Widget,
     action_btns: Vec<Widget>,
 ) -> Vec<Widget> {
@@ -39,46 +46,67 @@ pub fn info(
         // TODO The spacing is ignored, so use -
         txt.add(Line(format!("- {}", r)));
     }
-
-    rows.extend(action_btns);
-
-    let trip_lines = app.primary.sim.count_trips_involving_border(id).describe();
-    if !trip_lines.is_empty() {
-        txt.add(Line(""));
-        for line in trip_lines {
-            txt.add(Line(line));
-        }
-    }
-
-    txt.add(Line("Throughput").roboto_bold());
-    txt.add(Line(format!(
-        "Since midnight: {} agents crossed",
-        prettyprint_usize(
-            app.primary
-                .sim
-                .get_analytics()
-                .thruput_stats
-                .count_per_intersection
-                .get(id)
-        )
-    )));
-    txt.add(Line(format!("In 20 minute buckets:")));
     rows.push(txt.draw(ctx));
 
-    rows.push(
-        throughput(ctx, app, move |a, t| {
-            a.throughput_intersection(t, id, Duration::minutes(20))
-        })
-        .margin(10),
-    );
+    // TODO Inactive
+    // TODO Naming, style...
+    rows.push(Widget::row(vec![
+        Btn::text_bg2("Main").build_def(ctx, None),
+        Btn::text_bg2("Throughput").build_def(ctx, None), // TODO temporary name
+        if app.primary.map.get_i(id).is_traffic_signal() {
+            Btn::text_bg2("Delay").build_def(ctx, None)
+        } else {
+            Widget::nothing()
+        },
+    ]));
 
-    if app.primary.map.get_i(id).is_traffic_signal() {
-        let mut txt = Text::from(Line(""));
-        txt.add(Line("Delay").roboto_bold());
-        txt.add(Line(format!("In 20 minute buckets:")));
-        rows.push(txt.draw(ctx));
+    match tab {
+        InfoTab::Nil => {
+            rows.extend(action_btns);
 
-        rows.push(delay(ctx, app, id, Duration::minutes(20)).margin(10));
+            let trip_lines = app.primary.sim.count_trips_involving_border(id).describe();
+            if !trip_lines.is_empty() {
+                let mut txt = Text::new();
+                for line in trip_lines {
+                    txt.add(Line(line));
+                }
+                rows.push(txt.draw(ctx));
+            }
+        }
+        InfoTab::Intersection(Tab::Throughput) => {
+            let mut txt = Text::new();
+
+            txt.add(Line("Throughput").roboto_bold());
+            txt.add(Line(format!(
+                "Since midnight: {} agents crossed",
+                prettyprint_usize(
+                    app.primary
+                        .sim
+                        .get_analytics()
+                        .thruput_stats
+                        .count_per_intersection
+                        .get(id)
+                )
+            )));
+            txt.add(Line(format!("In 20 minute buckets:")));
+            rows.push(txt.draw(ctx));
+
+            rows.push(
+                throughput(ctx, app, move |a, t| {
+                    a.throughput_intersection(t, id, Duration::minutes(20))
+                })
+                .margin(10),
+            );
+        }
+        InfoTab::Intersection(Tab::Delay) => {
+            assert!(app.primary.map.get_i(id).is_traffic_signal());
+            let mut txt = Text::from(Line("Delay").roboto_bold());
+            txt.add(Line(format!("In 20 minute buckets:")));
+            rows.push(txt.draw(ctx));
+
+            rows.push(delay(ctx, app, id, Duration::minutes(20)).margin(10));
+        }
+        _ => unreachable!(),
     }
 
     rows
