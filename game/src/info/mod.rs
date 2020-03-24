@@ -36,7 +36,8 @@ pub struct InfoPanel {
 }
 
 // TODO Safer to expand out ID cases here
-#[derive(Clone)]
+// The PartialEq is ONLY used for determining when we're on the current tab. So maybe omit data.
+#[derive(Clone, PartialEq)]
 pub enum InfoTab {
     Nil,
     Bldg(building::Tab),
@@ -520,4 +521,23 @@ fn strip_prefix_usize(x: &String, prefix: &str) -> Option<usize> {
     } else {
         None
     }
+}
+
+fn make_tabs(
+    ctx: &EventCtx,
+    hyperlinks: &mut HashMap<String, (ID, InfoTab)>,
+    id: ID,
+    current_tab: InfoTab,
+    tabs: Vec<(&str, InfoTab)>,
+) -> Widget {
+    let mut row = Vec::new();
+    for (name, link) in tabs {
+        if current_tab == link {
+            row.push(Btn::text_bg2(name).inactive(ctx));
+        } else {
+            hyperlinks.insert(name.to_string(), (id.clone(), link));
+            row.push(Btn::text_bg2(name).build_def(ctx, None));
+        }
+    }
+    Widget::row(row)
 }

@@ -1,14 +1,14 @@
 use crate::app::App;
 use crate::helpers::{rotating_color_map, ID};
-use crate::info::{throughput, InfoTab};
+use crate::info::{make_tabs, throughput, InfoTab};
 use abstutil::prettyprint_usize;
-use ezgui::{Btn, EventCtx, Line, Plot, PlotOptions, Series, Text, Widget};
+use ezgui::{EventCtx, Line, Plot, PlotOptions, Series, Text, Widget};
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, IntersectionType};
 use sim::Analytics;
 use std::collections::{BTreeSet, HashMap};
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum Tab {
     Throughput,
     Delay,
@@ -49,27 +49,23 @@ pub fn info(
     }
     rows.push(txt.draw(ctx));
 
-    // TODO Inactive
-    // TODO Naming, style...
-    rows.push(Widget::row(vec![
-        Btn::text_bg2("Main").build_def(ctx, None),
-        Btn::text_bg2("Throughput").build_def(ctx, None), // TODO temporary name
-        if app.primary.map.get_i(id).is_traffic_signal() {
-            Btn::text_bg2("Delay").build_def(ctx, None)
-        } else {
-            Widget::nothing()
+    rows.push(make_tabs(
+        ctx,
+        hyperlinks,
+        ID::Intersection(id),
+        tab.clone(),
+        {
+            let mut tabs = vec![
+                ("Main", InfoTab::Nil),
+                // TODO Temporary name
+                ("Throughput", InfoTab::Intersection(Tab::Throughput)),
+            ];
+            if app.primary.map.get_i(id).is_traffic_signal() {
+                tabs.push(("Delay", InfoTab::Intersection(Tab::Delay)));
+            }
+            tabs
         },
-    ]));
-    hyperlinks.insert(
-        "Throughput".to_string(),
-        (ID::Intersection(id), InfoTab::Intersection(Tab::Throughput)),
-    );
-    if app.primary.map.get_i(id).is_traffic_signal() {
-        hyperlinks.insert(
-            "Delay".to_string(),
-            (ID::Intersection(id), InfoTab::Intersection(Tab::Delay)),
-        );
-    }
+    ));
 
     match tab {
         InfoTab::Nil => {

@@ -1,7 +1,7 @@
 use crate::app::App;
 use crate::colors;
 use crate::helpers::ID;
-use crate::info::{make_table, person, InfoTab};
+use crate::info::{make_table, make_tabs, person, InfoTab};
 use ezgui::{hotkey, Btn, EventCtx, GeomBatch, Key, Line, Text, TextExt, Widget};
 use map_model::BuildingID;
 use sim::PersonID;
@@ -13,6 +13,15 @@ pub enum Tab {
     // here.
     People(Vec<PersonID>, usize),
     OSM,
+}
+impl std::cmp::PartialEq for Tab {
+    fn eq(&self, other: &Tab) -> bool {
+        match (self, other) {
+            (Tab::People(_, _), Tab::People(_, _)) => true,
+            (Tab::OSM, Tab::OSM) => true,
+            _ => false,
+        }
+    }
 }
 
 pub fn info(
@@ -34,27 +43,20 @@ pub fn info(
         header_btns,
     ]));
 
-    // TODO Inactive
-    // TODO Naming, style...
-    let ppl = app.primary.sim.bldg_to_people(id);
-    rows.push(Widget::row(vec![
-        Btn::text_bg2("Main").build_def(ctx, None),
-        // TODO Has to be different than lane's OSM :(
-        Btn::text_bg2("OSM").build_def(ctx, None),
-        if ppl.is_empty() {
-            Widget::nothing()
-        } else {
-            hyperlinks.insert(
-                "People".to_string(),
-                (ID::Building(id), InfoTab::Bldg(Tab::People(ppl, 0))),
-            );
-            Btn::text_bg2("People").build_def(ctx, None)
-        },
-    ]));
-    hyperlinks.insert(
-        "OSM".to_string(),
-        (ID::Building(id), InfoTab::Bldg(Tab::OSM)),
-    );
+    rows.push(make_tabs(ctx, hyperlinks, ID::Building(id), tab.clone(), {
+        let mut tabs = vec![
+            ("Main", InfoTab::Nil),
+            // TODO Has to be different than lane's OSM :(
+            ("OSM", InfoTab::Bldg(Tab::OSM)),
+        ];
+
+        let ppl = app.primary.sim.bldg_to_people(id);
+        if !ppl.is_empty() {
+            tabs.push(("People", InfoTab::Bldg(Tab::People(ppl, 0))));
+        }
+
+        tabs
+    }));
 
     match tab {
         InfoTab::Nil => {

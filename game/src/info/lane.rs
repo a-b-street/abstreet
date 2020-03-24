@@ -1,13 +1,13 @@
 use crate::app::App;
 use crate::helpers::ID;
-use crate::info::{make_table, throughput, InfoTab};
+use crate::info::{make_table, make_tabs, throughput, InfoTab};
 use abstutil::prettyprint_usize;
-use ezgui::{Btn, EventCtx, Line, Text, TextExt, Widget};
+use ezgui::{EventCtx, Line, Text, TextExt, Widget};
 use geom::Duration;
 use map_model::LaneID;
 use std::collections::HashMap;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum Tab {
     OSM,
     Debug,
@@ -36,26 +36,19 @@ pub fn info(
     ]));
     rows.push(format!("@ {}", r.get_name()).draw_text(ctx));
 
-    // TODO Inactive
-    // TODO Naming, style...
-    rows.push(Widget::row(vec![
-        Btn::text_bg2("Main").build_def(ctx, None),
-        Btn::text_bg2("OpenStreetMap").build_def(ctx, None),
-        Btn::text_bg2("Debug").build_def(ctx, None),
-        Btn::text_bg2("Traffic").build_def(ctx, None),
-    ]));
-    hyperlinks.insert(
-        "OpenStreetMap".to_string(),
-        (ID::Lane(id), InfoTab::Lane(Tab::OSM)),
-    );
-    hyperlinks.insert(
-        "Debug".to_string(),
-        (ID::Lane(id), InfoTab::Lane(Tab::Debug)),
-    );
-    hyperlinks.insert(
-        "Traffic".to_string(),
-        (ID::Lane(id), InfoTab::Lane(Tab::Throughput)),
-    );
+    // TODO Naming still weird
+    rows.push(make_tabs(
+        ctx,
+        hyperlinks,
+        ID::Lane(id),
+        tab.clone(),
+        vec![
+            ("Main", InfoTab::Nil),
+            ("OpenStreetMap", InfoTab::Lane(Tab::OSM)),
+            ("Debug", InfoTab::Lane(Tab::Debug)),
+            ("Traffic", InfoTab::Lane(Tab::Throughput)),
+        ],
+    ));
 
     match tab {
         InfoTab::Nil => {
