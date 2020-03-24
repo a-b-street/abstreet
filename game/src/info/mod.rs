@@ -413,7 +413,7 @@ impl InfoPanel {
     }
 }
 
-fn make_table(ctx: &EventCtx, rows: Vec<(String, String)>) -> Vec<Widget> {
+fn make_table<I: Into<String>>(ctx: &EventCtx, rows: Vec<(I, String)>) -> Vec<Widget> {
     rows.into_iter()
         .map(|(k, v)| {
             Widget::row(vec![

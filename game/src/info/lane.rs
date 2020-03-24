@@ -57,19 +57,19 @@ pub fn info(
             let mut kv = Vec::new();
 
             if !l.is_sidewalk() {
-                kv.push(("Type".to_string(), l.lane_type.describe().to_string()));
+                kv.push(("Type", l.lane_type.describe().to_string()));
             }
 
             if l.is_parking() {
                 kv.push((
-                    "Parking".to_string(),
+                    "Parking",
                     format!("{} spots, parallel parking", l.number_parking_spots()),
                 ));
             } else {
-                kv.push(("Speed limit".to_string(), r.get_speed_limit().to_string()));
+                kv.push(("Speed limit", r.get_speed_limit().to_string()));
             }
 
-            kv.push(("Length".to_string(), l.length().describe_rounded()));
+            kv.push(("Length", l.length().describe_rounded()));
 
             rows.extend(make_table(ctx, kv));
         }

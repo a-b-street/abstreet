@@ -296,15 +296,15 @@ pub fn trip_details(
     timeline.insert(0, start_btn.margin(5));
     timeline.push(goal_btn.margin(5));
 
-    let mut table = vec![
-        ("Trip start".to_string(), trip_start_time.ampm_tostring()),
-        ("Duration".to_string(), total_duration_so_far.to_string()),
+    let mut kv = vec![
+        ("Trip start", trip_start_time.ampm_tostring()),
+        ("Duration", total_duration_so_far.to_string()),
     ];
     if let Some(t) = trip_end_time {
-        table.push(("Trip end".to_string(), t.ampm_tostring()));
+        kv.push(("Trip end", t.ampm_tostring()));
     }
     let mut col = vec![Widget::row(timeline).evenly_spaced().margin_above(25)];
-    col.extend(make_table(ctx, table));
+    col.extend(make_table(ctx, kv));
     col.extend(elevation);
     if let Some(p) = app.primary.sim.trip_to_person(trip) {
         col.push(

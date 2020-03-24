@@ -64,18 +64,15 @@ pub fn info(
 
             let mut kv = Vec::new();
 
-            kv.push(("Address".to_string(), b.just_address(&app.primary.map)));
+            kv.push(("Address", b.just_address(&app.primary.map)));
             if let Some(name) = b.just_name() {
-                kv.push(("Name".to_string(), name.to_string()));
+                kv.push(("Name", name.to_string()));
             }
 
             if let Some(ref p) = b.parking {
-                kv.push((
-                    "Parking".to_string(),
-                    format!("{} spots via {}", p.num_stalls, p.name),
-                ));
+                kv.push(("Parking", format!("{} spots via {}", p.num_stalls, p.name)));
             } else {
-                kv.push(("Parking".to_string(), "None".to_string()));
+                kv.push(("Parking", "None".to_string()));
             }
 
             rows.extend(make_table(ctx, kv));
