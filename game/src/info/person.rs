@@ -1,6 +1,9 @@
 use crate::app::App;
+use crate::helpers::ID;
+use crate::info::InfoTab;
 use ezgui::{Btn, EventCtx, Line, TextExt, Widget};
 use sim::{PersonID, PersonState};
+use std::collections::HashMap;
 
 pub fn info(
     ctx: &EventCtx,
@@ -9,6 +12,7 @@ pub fn info(
     // If None, then the panel is embedded
     header_btns: Option<Widget>,
     action_btns: Vec<Widget>,
+    hyperlinks: &mut HashMap<String, (ID, InfoTab)>,
 ) -> Vec<Widget> {
     let mut rows = vec![];
 
@@ -31,12 +35,18 @@ pub fn info(
     if standalone {
         // TODO Point out where the person is now, relative to schedule...
         rows.push(match person.state {
-            // TODO not the best tooltip, but easy to parse :(
-            PersonState::Inside(b) => Btn::text_bg1(format!(
-                "Currently inside {}",
-                app.primary.map.get_b(b).just_address(&app.primary.map)
-            ))
-            .build(ctx, format!("examine Building #{}", b.0), None),
+            PersonState::Inside(b) => {
+                // TODO not the best tooltip, but disambiguous:(
+                hyperlinks.insert(
+                    format!("examine Building #{}", b.0),
+                    (ID::Building(b), InfoTab::Nil),
+                );
+                Btn::text_bg1(format!(
+                    "Currently inside {}",
+                    app.primary.map.get_b(b).just_address(&app.primary.map)
+                ))
+                .build(ctx, format!("examine Building #{}", b.0), None)
+            }
             PersonState::Trip(t) => format!("Currently doing Trip #{}", t.0).draw_text(ctx),
             PersonState::OffMap => "Currently outside the map boundaries".draw_text(ctx),
             PersonState::Limbo => "Currently in limbo -- they broke out of the Matrix! Woops. (A \
@@ -55,6 +65,10 @@ pub fn info(
                 format!("{}: Trip #{} will start", start_time.ampm_tostring(), t.0).draw_text(ctx),
             );
         } else {
+            hyperlinks.insert(
+                format!("examine Trip #{}", t.0),
+                (ID::Trip(*t), InfoTab::Nil),
+            );
             rows.push(Widget::row(vec![
                 format!("{}: ", start_time.ampm_tostring()).draw_text(ctx),
                 Btn::text_bg1(format!("Trip #{}", t.0))

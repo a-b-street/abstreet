@@ -1,12 +1,12 @@
 use crate::app::App;
-use crate::helpers::rotating_color_map;
+use crate::helpers::{rotating_color_map, ID};
 use crate::info::{throughput, InfoTab};
 use abstutil::prettyprint_usize;
 use ezgui::{Btn, EventCtx, Line, Plot, PlotOptions, Series, Text, Widget};
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, IntersectionType};
 use sim::Analytics;
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, HashMap};
 
 #[derive(Clone)]
 pub enum Tab {
@@ -21,6 +21,7 @@ pub fn info(
     tab: InfoTab,
     header_btns: Widget,
     action_btns: Vec<Widget>,
+    hyperlinks: &mut HashMap<String, (ID, InfoTab)>,
 ) -> Vec<Widget> {
     let mut rows = vec![];
 
@@ -59,6 +60,16 @@ pub fn info(
             Widget::nothing()
         },
     ]));
+    hyperlinks.insert(
+        "Throughput".to_string(),
+        (ID::Intersection(id), InfoTab::Intersection(Tab::Throughput)),
+    );
+    if app.primary.map.get_i(id).is_traffic_signal() {
+        hyperlinks.insert(
+            "Delay".to_string(),
+            (ID::Intersection(id), InfoTab::Intersection(Tab::Delay)),
+        );
+    }
 
     match tab {
         InfoTab::Nil => {

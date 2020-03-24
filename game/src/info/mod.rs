@@ -19,7 +19,6 @@ use ezgui::{
     Line, Outcome, Plot, PlotOptions, Series, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Time};
-use map_model::BuildingID;
 use sim::{AgentID, Analytics, PersonID, TripID, TripMode, TripResult, VehicleType};
 use std::collections::{BTreeMap, HashMap};
 
@@ -33,15 +32,14 @@ pub struct InfoPanel {
     trip_details: Option<TripDetails>,
 
     actions: Vec<(Key, String)>,
+    hyperlinks: HashMap<String, (ID, InfoTab)>,
 }
 
 // TODO Safer to expand out ID cases here
 #[derive(Clone)]
 pub enum InfoTab {
     Nil,
-    // If we're live updating, the people inside could change! We're choosing to freeze the list
-    // here.
-    BldgPeople(Vec<PersonID>, usize),
+    Bldg(building::Tab),
     Lane(lane::Tab),
     Intersection(intersection::Tab),
 }
@@ -139,14 +137,31 @@ impl InfoPanel {
             Btn::text_fg("X").build(ctx, "close info", hotkey(Key::Escape)),
         ])
         .align_right();
+        let mut hyperlinks = HashMap::new();
         let (col, trip_details) = match id.clone() {
             ID::Road(_) => unreachable!(),
             ID::Lane(id) => (
-                lane::info(ctx, app, id, tab.clone(), header_btns, action_btns),
+                lane::info(
+                    ctx,
+                    app,
+                    id,
+                    tab.clone(),
+                    header_btns,
+                    action_btns,
+                    &mut hyperlinks,
+                ),
                 None,
             ),
             ID::Intersection(id) => (
-                intersection::info(ctx, app, id, tab.clone(), header_btns, action_btns),
+                intersection::info(
+                    ctx,
+                    app,
+                    id,
+                    tab.clone(),
+                    header_btns,
+                    action_btns,
+                    &mut hyperlinks,
+                ),
                 None,
             ),
             ID::Turn(_) => unreachable!(),
@@ -159,6 +174,7 @@ impl InfoPanel {
                     header_btns,
                     action_btns,
                     &mut batch,
+                    &mut hyperlinks,
                 ),
                 None,
             ),
@@ -176,7 +192,14 @@ impl InfoPanel {
             ),
             ID::Trip(id) => trip::info(ctx, app, id, action_btns),
             ID::Person(id) => (
-                person::info(ctx, app, id, Some(header_btns), action_btns),
+                person::info(
+                    ctx,
+                    app,
+                    id,
+                    Some(header_btns),
+                    action_btns,
+                    &mut hyperlinks,
+                ),
                 None,
             ),
         };
@@ -204,6 +227,7 @@ impl InfoPanel {
                 .max_size_percent(35, 60)
                 .build(ctx),
             also_draw: batch.upload(ctx),
+            hyperlinks,
         }
     }
 
@@ -297,7 +321,21 @@ impl InfoPanel {
 
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(action)) => {
-                if action == "close info" {
+                if let Some((new_id, tab)) = self.hyperlinks.get(&action).cloned() {
+                    *self = InfoPanel::new(
+                        new_id.clone(),
+                        tab,
+                        ctx,
+                        app,
+                        if self.id == new_id {
+                            self.actions.clone()
+                        } else {
+                            Vec::new()
+                        },
+                        maybe_speed,
+                    );
+                    return (false, None);
+                } else if action == "close info" {
                     (true, None)
                 } else if action == "jump to object" {
                     (
@@ -331,67 +369,6 @@ impl InfoPanel {
                             &mut app.primary,
                         ))),
                     )
-                } else if action == "examine people inside" {
-                    let ppl = match self.id {
-                        ID::Building(b) => app.primary.sim.bldg_to_people(b),
-                        _ => unreachable!(),
-                    };
-                    let preserve_scroll = self.composite.preserve_scroll();
-                    *self = InfoPanel::new(
-                        self.id.clone(),
-                        InfoTab::BldgPeople(ppl, 0),
-                        ctx,
-                        app,
-                        Vec::new(),
-                        maybe_speed,
-                    );
-                    self.composite.restore_scroll(ctx, preserve_scroll);
-                    return (false, None);
-                } else if action == "previous" {
-                    let tab = match self.tab.clone() {
-                        InfoTab::BldgPeople(ppl, idx) => {
-                            InfoTab::BldgPeople(ppl, if idx != 0 { idx - 1 } else { idx })
-                        }
-                        _ => unreachable!(),
-                    };
-                    let preserve_scroll = self.composite.preserve_scroll();
-                    *self = InfoPanel::new(self.id.clone(), tab, ctx, app, Vec::new(), maybe_speed);
-                    self.composite.restore_scroll(ctx, preserve_scroll);
-                    return (false, None);
-                } else if action == "next" {
-                    let tab = match self.tab.clone() {
-                        InfoTab::BldgPeople(ppl, idx) => InfoTab::BldgPeople(
-                            ppl.clone(),
-                            if idx != ppl.len() - 1 { idx + 1 } else { idx },
-                        ),
-                        _ => unreachable!(),
-                    };
-                    let preserve_scroll = self.composite.preserve_scroll();
-                    *self = InfoPanel::new(self.id.clone(), tab, ctx, app, Vec::new(), maybe_speed);
-                    self.composite.restore_scroll(ctx, preserve_scroll);
-                    return (false, None);
-                } else if action == "close occupants panel" {
-                    let preserve_scroll = self.composite.preserve_scroll();
-                    *self = InfoPanel::new(
-                        self.id.clone(),
-                        InfoTab::Nil,
-                        ctx,
-                        app,
-                        Vec::new(),
-                        maybe_speed,
-                    );
-                    self.composite.restore_scroll(ctx, preserve_scroll);
-                    return (false, None);
-                } else if let Some(idx) = strip_prefix_usize(&action, "examine Trip #") {
-                    *self = InfoPanel::new(
-                        ID::Trip(TripID(idx)),
-                        InfoTab::Nil,
-                        ctx,
-                        app,
-                        Vec::new(),
-                        maybe_speed,
-                    );
-                    return (false, None);
                 } else if let Some(idx) = strip_prefix_usize(&action, "examine Person #") {
                     *self = InfoPanel::new(
                         ID::Person(PersonID(idx)),
@@ -402,72 +379,11 @@ impl InfoPanel {
                         maybe_speed,
                     );
                     return (false, None);
-                } else if let Some(idx) = strip_prefix_usize(&action, "examine Building #") {
-                    *self = InfoPanel::new(
-                        ID::Building(BuildingID(idx)),
-                        InfoTab::Nil,
-                        ctx,
-                        app,
-                        Vec::new(),
-                        maybe_speed,
-                    );
-                    return (false, None);
-                // TODO For lanes. This is an insane mess...
                 } else if action == "Main" {
+                    // Genericish
                     *self = InfoPanel::new(
                         self.id.clone(),
-                        // TODO For both lanes and intersections...
                         InfoTab::Nil,
-                        ctx,
-                        app,
-                        self.actions.clone(),
-                        maybe_speed,
-                    );
-                    return (false, None);
-                } else if action == "OpenStreetMap" {
-                    *self = InfoPanel::new(
-                        self.id.clone(),
-                        InfoTab::Lane(lane::Tab::OSM),
-                        ctx,
-                        app,
-                        self.actions.clone(),
-                        maybe_speed,
-                    );
-                    return (false, None);
-                } else if action == "Debug" {
-                    *self = InfoPanel::new(
-                        self.id.clone(),
-                        InfoTab::Lane(lane::Tab::Debug),
-                        ctx,
-                        app,
-                        self.actions.clone(),
-                        maybe_speed,
-                    );
-                    return (false, None);
-                } else if action == "Traffic" {
-                    *self = InfoPanel::new(
-                        self.id.clone(),
-                        InfoTab::Lane(lane::Tab::Throughput),
-                        ctx,
-                        app,
-                        self.actions.clone(),
-                        maybe_speed,
-                    );
-                    return (false, None);
-                } else if action == "Throughput" {
-                    *self = InfoPanel::new(
-                        self.id.clone(),
-                        InfoTab::Intersection(intersection::Tab::Throughput),
-                        ctx,
-                        app,
-                        self.actions.clone(),
-                        maybe_speed,
-                    );
-                    return (false, None);
-                } else if action == "Delay" {
-                    *self = InfoPanel::new(
-                        self.id.clone(),
-                        InfoTab::Intersection(intersection::Tab::Delay),
                         ctx,
                         app,
                         self.actions.clone(),

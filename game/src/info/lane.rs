@@ -1,9 +1,11 @@
 use crate::app::App;
+use crate::helpers::ID;
 use crate::info::{make_table, throughput, InfoTab};
 use abstutil::prettyprint_usize;
 use ezgui::{Btn, EventCtx, Line, Text, TextExt, Widget};
 use geom::Duration;
 use map_model::LaneID;
+use std::collections::HashMap;
 
 #[derive(Clone)]
 pub enum Tab {
@@ -19,6 +21,7 @@ pub fn info(
     tab: InfoTab,
     header_btns: Widget,
     action_btns: Vec<Widget>,
+    hyperlinks: &mut HashMap<String, (ID, InfoTab)>,
 ) -> Vec<Widget> {
     let mut rows = vec![];
 
@@ -41,6 +44,18 @@ pub fn info(
         Btn::text_bg2("Debug").build_def(ctx, None),
         Btn::text_bg2("Traffic").build_def(ctx, None),
     ]));
+    hyperlinks.insert(
+        "OpenStreetMap".to_string(),
+        (ID::Lane(id), InfoTab::Lane(Tab::OSM)),
+    );
+    hyperlinks.insert(
+        "Debug".to_string(),
+        (ID::Lane(id), InfoTab::Lane(Tab::Debug)),
+    );
+    hyperlinks.insert(
+        "Traffic".to_string(),
+        (ID::Lane(id), InfoTab::Lane(Tab::Throughput)),
+    );
 
     match tab {
         InfoTab::Nil => {

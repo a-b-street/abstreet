@@ -259,6 +259,7 @@ pub fn trip_details(
 
         timeline.push(
             Btn::custom(normal, hovered, rect)
+                .tooltip(txt)
                 .build(ctx, format!("examine trip phase {}", idx + 1), None)
                 .centered_vert(),
         );
