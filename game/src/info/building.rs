@@ -12,13 +12,13 @@ pub enum Tab {
     // If we're live updating, the people inside could change! We're choosing to freeze the list
     // here.
     People(Vec<PersonID>, usize),
-    OSM,
+    Debug,
 }
 impl std::cmp::PartialEq for Tab {
     fn eq(&self, other: &Tab) -> bool {
         match (self, other) {
             (Tab::People(_, _), Tab::People(_, _)) => true,
-            (Tab::OSM, Tab::OSM) => true,
+            (Tab::Debug, Tab::Debug) => true,
             _ => false,
         }
     }
@@ -44,11 +44,7 @@ pub fn info(
     ]));
 
     rows.push(make_tabs(ctx, hyperlinks, ID::Building(id), tab.clone(), {
-        let mut tabs = vec![
-            ("Main", InfoTab::Nil),
-            // TODO Has to be different than lane's OSM :(
-            ("OSM", InfoTab::Bldg(Tab::OSM)),
-        ];
+        let mut tabs = vec![("Info", InfoTab::Nil), ("Debug", InfoTab::Bldg(Tab::Debug))];
 
         let ppl = app.primary.sim.bldg_to_people(id);
         if !ppl.is_empty() {
@@ -114,20 +110,16 @@ pub fn info(
                 rows.push(txt.draw(ctx))
             }
         }
-        InfoTab::Bldg(Tab::OSM) => {
-            let mut kv = Vec::new();
-
-            // TODO Not OSM, but separate debug panel seems weird
-            kv.push((
-                "Dist along sidewalk".to_string(),
-                b.front_path.sidewalk.dist_along().to_string(),
+        InfoTab::Bldg(Tab::Debug) => {
+            rows.extend(make_table(
+                ctx,
+                vec![(
+                    "Dist along sidewalk",
+                    b.front_path.sidewalk.dist_along().to_string(),
+                )],
             ));
-
-            for (k, v) in &b.osm_tags {
-                kv.push((k.to_string(), v.to_string()));
-            }
-
-            rows.extend(make_table(ctx, kv));
+            rows.push("Raw OpenStreetMap data".draw_text(ctx));
+            rows.extend(make_table(ctx, b.osm_tags.clone().into_iter().collect()));
         }
         InfoTab::Bldg(Tab::People(ppl, idx)) => {
             let mut inner = vec![

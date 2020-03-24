@@ -57,25 +57,17 @@ pub fn info(
 
     rows.push(Line("Schedule").roboto_bold().draw(ctx));
     for t in &person.trips {
-        // TODO Still maybe unsafe? Check if trip has actually started or not
-        // TODO Say where the trip goes, no matter what?
         let start_time = app.primary.sim.trip_start_time(*t);
-        if app.primary.sim.time() < start_time {
-            rows.push(
-                format!("{}: Trip #{} will start", start_time.ampm_tostring(), t.0).draw_text(ctx),
-            );
-        } else {
-            hyperlinks.insert(
-                format!("examine Trip #{}", t.0),
-                (ID::Trip(*t), InfoTab::Nil),
-            );
-            rows.push(Widget::row(vec![
-                format!("{}: ", start_time.ampm_tostring()).draw_text(ctx),
-                Btn::text_bg1(format!("Trip #{}", t.0))
-                    .build(ctx, format!("examine Trip #{}", t.0), None)
-                    .margin(5),
-            ]));
-        }
+        hyperlinks.insert(
+            format!("examine Trip #{}", t.0),
+            (ID::Trip(*t), InfoTab::Nil),
+        );
+        rows.push(Widget::row(vec![
+            format!("{}: ", start_time.ampm_tostring()).draw_text(ctx),
+            Btn::text_bg1(format!("Trip #{}", t.0))
+                .build(ctx, format!("examine Trip #{}", t.0), None)
+                .margin(5),
+        ]));
     }
 
     // TODO All the colorful side info

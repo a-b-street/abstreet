@@ -5,7 +5,7 @@ use crate::info::{make_table, TripDetails};
 use crate::render::dashed_lines;
 use ezgui::{
     hotkey, Btn, Color, EventCtx, GeomBatch, Key, Line, Plot, PlotOptions, RewriteColor, Series,
-    Text, Widget,
+    Text, TextExt, Widget,
 };
 use geom::{Angle, Distance, Duration, Polygon, Pt2D, Time};
 use map_model::{Map, Path, PathStep};
@@ -48,6 +48,24 @@ pub fn trip_details(
     let mut unzoomed = GeomBatch::new();
     let mut zoomed = GeomBatch::new();
     let mut markers = HashMap::new();
+
+    if phases.is_empty() {
+        // TODO Still have some info here
+        return (
+            format!(
+                "Trip #{} starts at {}",
+                trip.0,
+                app.primary.sim.trip_start_time(trip).ampm_tostring()
+            )
+            .draw_text(ctx),
+            TripDetails {
+                id: trip,
+                unzoomed: unzoomed.upload(ctx),
+                zoomed: zoomed.upload(ctx),
+                markers,
+            },
+        );
+    }
 
     let trip_start_time = phases[0].start_time;
     let trip_end_time = phases.last().as_ref().and_then(|p| p.end_time);

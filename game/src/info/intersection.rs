@@ -56,9 +56,8 @@ pub fn info(
         tab.clone(),
         {
             let mut tabs = vec![
-                ("Main", InfoTab::Nil),
-                // TODO Temporary name
-                ("Throughput", InfoTab::Intersection(Tab::Throughput)),
+                ("Info", InfoTab::Nil),
+                ("Traffic", InfoTab::Intersection(Tab::Throughput)),
             ];
             if app.primary.map.get_i(id).is_traffic_signal() {
                 tabs.push(("Delay", InfoTab::Intersection(Tab::Delay)));

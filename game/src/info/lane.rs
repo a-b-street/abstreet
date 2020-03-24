@@ -9,7 +9,6 @@ use std::collections::HashMap;
 
 #[derive(Clone, PartialEq)]
 pub enum Tab {
-    OSM,
     Debug,
     Throughput,
 }
@@ -36,17 +35,15 @@ pub fn info(
     ]));
     rows.push(format!("@ {}", r.get_name()).draw_text(ctx));
 
-    // TODO Naming still weird
     rows.push(make_tabs(
         ctx,
         hyperlinks,
         ID::Lane(id),
         tab.clone(),
         vec![
-            ("Main", InfoTab::Nil),
-            ("OpenStreetMap", InfoTab::Lane(Tab::OSM)),
-            ("Debug", InfoTab::Lane(Tab::Debug)),
+            ("Info", InfoTab::Nil),
             ("Traffic", InfoTab::Lane(Tab::Throughput)),
+            ("Debug", InfoTab::Lane(Tab::Debug)),
         ],
     ));
 
@@ -72,9 +69,6 @@ pub fn info(
             kv.push(("Length", l.length().describe_rounded()));
 
             rows.extend(make_table(ctx, kv));
-        }
-        InfoTab::Lane(Tab::OSM) => {
-            rows.extend(make_table(ctx, r.osm_tags.clone().into_iter().collect()));
         }
         InfoTab::Lane(Tab::Debug) => {
             let mut kv = Vec::new();
@@ -121,6 +115,12 @@ pub fn info(
             ));
 
             rows.extend(make_table(ctx, kv));
+
+            let mut txt = Text::from(Line(""));
+            txt.add(Line("Raw OpenStreetMap data"));
+            rows.push(txt.draw(ctx));
+
+            rows.extend(make_table(ctx, r.osm_tags.clone().into_iter().collect()));
         }
         InfoTab::Lane(Tab::Throughput) => {
             // Since this applies to the entire road, ignore lane type.

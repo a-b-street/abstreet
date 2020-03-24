@@ -380,7 +380,7 @@ impl InfoPanel {
                         maybe_speed,
                     );
                     return (false, None);
-                } else if action == "Main" {
+                } else if action == "Info" {
                     // Genericish
                     *self = InfoPanel::new(
                         self.id.clone(),
