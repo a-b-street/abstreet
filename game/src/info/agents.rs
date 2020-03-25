@@ -34,6 +34,7 @@ pub fn car_info(
     action_btns: Vec<Widget>,
     batch: &mut GeomBatch,
     hyperlinks: &mut HashMap<String, (ID, InfoTab)>,
+    warpers: &mut HashMap<String, ID>,
 ) -> (Vec<Widget>, Option<TripDetails>) {
     let mut rows = vec![];
 
@@ -87,13 +88,22 @@ pub fn car_info(
                     app,
                     t,
                     app.primary.sim.progress_along_path(AgentID::Car(id)),
+                    warpers,
                 );
                 rows.push(more);
                 details
             });
         }
         InfoTab::Agent(Tab::Person(p)) => {
-            rows.extend(person::info(ctx, app, p, None, Vec::new(), hyperlinks));
+            rows.extend(person::info(
+                ctx,
+                app,
+                p,
+                None,
+                Vec::new(),
+                hyperlinks,
+                warpers,
+            ));
         }
         _ => unreachable!(),
     }
@@ -118,6 +128,7 @@ pub fn ped_info(
     header_btns: Widget,
     action_btns: Vec<Widget>,
     hyperlinks: &mut HashMap<String, (ID, InfoTab)>,
+    warpers: &mut HashMap<String, ID>,
 ) -> (Vec<Widget>, Option<TripDetails>) {
     let mut rows = vec![];
 
@@ -172,12 +183,21 @@ pub fn ped_info(
                     .agent_to_trip(AgentID::Pedestrian(id))
                     .unwrap(),
                 app.primary.sim.progress_along_path(AgentID::Pedestrian(id)),
+                warpers,
             );
             rows.push(more);
             details = Some(trip_details);
         }
         InfoTab::Agent(Tab::Person(p)) => {
-            rows.extend(person::info(ctx, app, p, None, Vec::new(), hyperlinks));
+            rows.extend(person::info(
+                ctx,
+                app,
+                p,
+                None,
+                Vec::new(),
+                hyperlinks,
+                warpers,
+            ));
         }
         _ => unreachable!(),
     }
@@ -192,6 +212,7 @@ pub fn crowd_info(
     mut tab: InfoTab,
     header_btns: Widget,
     hyperlinks: &mut HashMap<String, (ID, InfoTab)>,
+    warpers: &mut HashMap<String, ID>,
 ) -> Vec<Widget> {
     let mut rows = vec![];
 
@@ -230,6 +251,7 @@ pub fn crowd_info(
                     Widget::nothing(),
                     Vec::new(),
                     hyperlinks,
+                    warpers,
                 )
                 .0,
             );

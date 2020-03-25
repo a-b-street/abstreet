@@ -33,6 +33,7 @@ pub struct InfoPanel {
 
     actions: Vec<(Key, String)>,
     hyperlinks: HashMap<String, (ID, InfoTab)>,
+    warpers: HashMap<String, ID>,
 }
 
 // TODO Safer to expand out ID cases here
@@ -51,7 +52,6 @@ pub struct TripDetails {
     id: TripID,
     unzoomed: Drawable,
     zoomed: Drawable,
-    markers: HashMap<String, ID>,
 }
 
 impl InfoPanel {
@@ -141,6 +141,7 @@ impl InfoPanel {
         ])
         .align_right();
         let mut hyperlinks = HashMap::new();
+        let mut warpers = HashMap::new();
         let (col, trip_details) = match id.clone() {
             ID::Road(_) => unreachable!(),
             ID::Lane(id) => (
@@ -178,6 +179,7 @@ impl InfoPanel {
                     action_btns,
                     &mut batch,
                     &mut hyperlinks,
+                    &mut warpers,
                 ),
                 None,
             ),
@@ -190,6 +192,7 @@ impl InfoPanel {
                 action_btns,
                 &mut batch,
                 &mut hyperlinks,
+                &mut warpers,
             ),
             ID::Pedestrian(id) => agents::ped_info(
                 ctx,
@@ -199,6 +202,7 @@ impl InfoPanel {
                 header_btns,
                 action_btns,
                 &mut hyperlinks,
+                &mut warpers,
             ),
             ID::PedCrowd(members) => {
                 assert!(action_btns.is_empty());
@@ -210,6 +214,7 @@ impl InfoPanel {
                         tab.clone(),
                         header_btns,
                         &mut hyperlinks,
+                        &mut warpers,
                     ),
                     None,
                 )
@@ -230,6 +235,7 @@ impl InfoPanel {
                     Vec::new(),
                     &mut batch,
                     &mut hyperlinks,
+                    &mut warpers,
                 ),
                 Some(AgentID::Pedestrian(p)) => agents::ped_info(
                     ctx,
@@ -239,10 +245,17 @@ impl InfoPanel {
                     header_btns,
                     Vec::new(),
                     &mut hyperlinks,
+                    &mut warpers,
                 ),
-                None => {
-                    trip::inactive_info(ctx, app, id, tab.clone(), action_btns, &mut hyperlinks)
-                }
+                None => trip::inactive_info(
+                    ctx,
+                    app,
+                    id,
+                    tab.clone(),
+                    action_btns,
+                    &mut hyperlinks,
+                    &mut warpers,
+                ),
             },
             ID::Person(id) => (
                 person::info(
@@ -252,6 +265,7 @@ impl InfoPanel {
                     Some(header_btns),
                     action_btns,
                     &mut hyperlinks,
+                    &mut warpers,
                 ),
                 None,
             ),
@@ -281,6 +295,7 @@ impl InfoPanel {
                 .build(ctx),
             also_draw: batch.upload(ctx),
             hyperlinks,
+            warpers,
         }
     }
 
@@ -404,14 +419,10 @@ impl InfoPanel {
                 } else if action == "follow agent" {
                     maybe_speed.unwrap().resume_realtime(ctx);
                     (false, None)
-                } else if let Some(_) = strip_prefix_usize(&action, "examine trip phase ") {
+                } else if action.starts_with("examine trip phase") {
                     // Don't do anything! Just using buttons for convenient tooltips.
                     (false, None)
-                } else if let Some(id) = self
-                    .trip_details
-                    .as_ref()
-                    .and_then(|d| d.markers.get(&action))
-                {
+                } else if let Some(id) = self.warpers.get(&action) {
                     (
                         false,
                         Some(Transition::Push(Warping::new(
@@ -552,16 +563,6 @@ fn agent_name(a: AgentID) -> String {
             VehicleType::Bus => format!("Bus #{}", c.0),
         },
         AgentID::Pedestrian(p) => format!("Pedestrian #{}", p.0),
-    }
-}
-
-// TODO Can't easily use this in the other few cases, which use a match...
-fn strip_prefix_usize(x: &String, prefix: &str) -> Option<usize> {
-    if x.starts_with(prefix) {
-        // If it starts with the prefix, insist on there being a valid number there
-        Some(x[prefix.len()..].parse::<usize>().unwrap())
-    } else {
-        None
     }
 }
 

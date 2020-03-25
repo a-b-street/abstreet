@@ -24,6 +24,7 @@ pub fn inactive_info(
     tab: InfoTab,
     action_btns: Vec<Widget>,
     hyperlinks: &mut HashMap<String, (ID, InfoTab)>,
+    warpers: &mut HashMap<String, ID>,
 ) -> (Vec<Widget>, Option<TripDetails>) {
     let mut rows = vec![];
 
@@ -54,12 +55,20 @@ pub fn inactive_info(
         InfoTab::Nil => {
             rows.extend(action_btns);
 
-            let (more, trip_details) = trip_details(ctx, app, id, None);
+            let (more, trip_details) = trip_details(ctx, app, id, None, warpers);
             rows.push(more);
             details = Some(trip_details);
         }
         InfoTab::Trip(Tab::Person(p)) => {
-            rows.extend(person::info(ctx, app, p, None, Vec::new(), hyperlinks));
+            rows.extend(person::info(
+                ctx,
+                app,
+                p,
+                None,
+                Vec::new(),
+                hyperlinks,
+                warpers,
+            ));
         }
         _ => unreachable!(),
     }
@@ -72,6 +81,7 @@ pub fn trip_details(
     app: &App,
     trip: TripID,
     progress_along_path: Option<f64>,
+    warpers: &mut HashMap<String, ID>,
 ) -> (Widget, TripDetails) {
     let map = &app.primary.map;
     let phases = app.primary.sim.get_analytics().get_trip_phases(trip, map);
@@ -79,15 +89,15 @@ pub fn trip_details(
 
     let mut unzoomed = GeomBatch::new();
     let mut zoomed = GeomBatch::new();
-    let mut markers = HashMap::new();
 
     if phases.is_empty() {
         // The trip hasn't started
         let kv = vec![
-            ("Trip start", start_time.ampm_tostring()),
+            ("Departure", start_time.ampm_tostring()),
             ("Type", trip_mode.to_string()),
             // TODO If we're looking at a building, then "here"...
             // TODO Buttons
+            // TODO Should we explicitly print this for the other case, instead of the icons?
             ("From", endpoint(&trip_start, map).2),
             ("To", endpoint(&trip_end, map).2),
         ];
@@ -97,14 +107,13 @@ pub fn trip_details(
                 id: trip,
                 unzoomed: unzoomed.upload(ctx),
                 zoomed: zoomed.upload(ctx),
-                markers,
             },
         );
     }
 
     let start_btn = {
         let (id, center, name) = endpoint(&trip_start, map);
-        markers.insert("jump to start".to_string(), id);
+        warpers.insert(format!("jump to start of Trip #{}", trip.0), id);
         unzoomed.add_svg(
             ctx.prerender,
             "../data/system/assets/timeline/start_pos.svg",
@@ -127,14 +136,14 @@ pub fn trip_details(
             RewriteColor::Change(Color::WHITE, colors::HOVERING),
         )
         .tooltip(txt)
-        .build(ctx, "jump to start", None)
+        .build(ctx, format!("jump to start of Trip #{}", trip.0), None)
     };
 
     let end_time = phases.last().as_ref().and_then(|p| p.end_time);
 
     let goal_btn = {
         let (id, center, name) = endpoint(&trip_end, map);
-        markers.insert("jump to goal".to_string(), id);
+        warpers.insert(format!("jump to goal of Trip #{}", trip.0), id);
         unzoomed.add_svg(
             ctx.prerender,
             "../data/system/assets/timeline/goal_pos.svg",
@@ -159,7 +168,7 @@ pub fn trip_details(
             RewriteColor::Change(Color::WHITE, colors::HOVERING),
         )
         .tooltip(txt)
-        .build(ctx, "jump to goal", None)
+        .build(ctx, format!("jump to goal of Trip #{}", trip.0), None)
     };
 
     let total_duration_so_far =
@@ -247,7 +256,11 @@ pub fn trip_details(
         timeline.push(
             Btn::custom(normal, hovered, rect)
                 .tooltip(txt)
-                .build(ctx, format!("examine trip phase {}", idx + 1), None)
+                .build(
+                    ctx,
+                    format!("examine trip phase {} of Trip #{}", idx + 1, trip.0),
+                    None,
+                )
                 .centered_vert(),
         );
 
@@ -300,7 +313,6 @@ pub fn trip_details(
             id: trip,
             unzoomed: unzoomed.upload(ctx),
             zoomed: zoomed.upload(ctx),
-            markers,
         },
     )
 }

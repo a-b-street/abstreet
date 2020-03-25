@@ -1,23 +1,26 @@
 use crate::app::App;
+use crate::colors;
 use crate::helpers::ID;
+use crate::info::trip::trip_details;
 use crate::info::InfoTab;
-use ezgui::{Btn, EventCtx, Line, TextExt, Widget};
-use sim::{PersonID, PersonState};
+use ezgui::{EventCtx, Line, TextExt, Widget};
+use map_model::Map;
+use sim::{Person, PersonID, PersonState, TripResult};
 use std::collections::HashMap;
 
 pub fn info(
-    ctx: &EventCtx,
+    ctx: &mut EventCtx,
     app: &App,
     id: PersonID,
     // If None, then the panel is embedded
     header_btns: Option<Widget>,
     action_btns: Vec<Widget>,
     hyperlinks: &mut HashMap<String, (ID, InfoTab)>,
+    warpers: &mut HashMap<String, ID>,
 ) -> Vec<Widget> {
     let mut rows = vec![];
 
     // Header
-    let standalone = header_btns.is_some();
     if let Some(btns) = header_btns {
         rows.push(Widget::row(vec![
             Line(format!("Person #{}", id.0)).roboto_bold().draw(ctx),
@@ -26,51 +29,61 @@ pub fn info(
     } else {
         rows.push(Line(format!("Person #{}", id.0)).roboto_bold().draw(ctx));
     }
+    // TODO None of these right now
     rows.extend(action_btns);
 
-    let person = app.primary.sim.get_person(id);
+    let map = &app.primary.map;
+    let sim = &app.primary.sim;
+    let person = sim.get_person(id);
 
-    // TODO Redundant to say they're inside when the panel is embedded. But... if the person leaves
-    // while we have the panel open, then it IS relevant.
-    if standalone {
-        // TODO Point out where the person is now, relative to schedule...
-        rows.push(match person.state {
-            PersonState::Inside(b) => {
-                // TODO not the best tooltip, but disambiguous:(
-                hyperlinks.insert(
-                    format!("examine Building #{}", b.0),
-                    (ID::Building(b), InfoTab::Nil),
-                );
-                Btn::text_bg1(format!(
-                    "Currently inside {}",
-                    app.primary.map.get_b(b).just_address(&app.primary.map)
-                ))
-                .build(ctx, format!("examine Building #{}", b.0), None)
-            }
-            PersonState::Trip(t) => format!("Currently doing Trip #{}", t.0).draw_text(ctx),
-            PersonState::OffMap => "Currently outside the map boundaries".draw_text(ctx),
-            PersonState::Limbo => "Currently in limbo -- they broke out of the Matrix! Woops. (A \
-                                   bug occurred)"
-                .draw_text(ctx),
-        });
-    }
-
-    rows.push(Line("Schedule").roboto_bold().draw(ctx));
+    // I'm sorry for bad variable names
+    let mut wheres_waldo = true;
     for t in &person.trips {
-        let (start_time, _, _, _) = app.primary.sim.trip_info(*t);
-        hyperlinks.insert(
-            format!("examine Trip #{}", t.0),
-            (ID::Trip(*t), InfoTab::Nil),
+        match sim.trip_to_agent(*t) {
+            TripResult::TripNotStarted => {
+                if wheres_waldo {
+                    wheres_waldo = false;
+                    rows.push(current_status(ctx, person, map));
+                }
+            }
+            TripResult::Ok(_) | TripResult::ModeChange => {
+                // ongoing
+                assert!(wheres_waldo);
+                wheres_waldo = false;
+            }
+            TripResult::TripDone => {
+                assert!(wheres_waldo);
+            }
+            TripResult::TripDoesntExist => unreachable!(),
+        }
+        rows.push(
+            Widget::col(vec![
+                Line(format!("Trip #{}", t.0)).roboto_bold().draw(ctx),
+                trip_details(ctx, app, *t, None, warpers).0,
+            ])
+            .bg(colors::SECTION_BG)
+            .margin(10),
         );
-        rows.push(Widget::row(vec![
-            format!("{}: ", start_time.ampm_tostring()).draw_text(ctx),
-            Btn::text_bg1(format!("Trip #{}", t.0))
-                .build(ctx, format!("examine Trip #{}", t.0), None)
-                .margin(5),
-        ]));
+    }
+    if wheres_waldo {
+        rows.push(current_status(ctx, person, map));
     }
 
     // TODO All the colorful side info
 
     rows
+}
+
+fn current_status(ctx: &EventCtx, person: &Person, map: &Map) -> Widget {
+    match person.state {
+        PersonState::Inside(b) => {
+            // TODO hyperlink
+            format!("Currently inside {}", map.get_b(b).just_address(map)).draw_text(ctx)
+        }
+        PersonState::Trip(_) => unreachable!(),
+        PersonState::OffMap => "Currently outside the map boundaries".draw_text(ctx),
+        PersonState::Limbo => "Currently in limbo -- they broke out of the Matrix! Woops. (A bug \
+                               occurred)"
+            .draw_text(ctx),
+    }
 }

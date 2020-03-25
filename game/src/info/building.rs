@@ -25,7 +25,7 @@ impl std::cmp::PartialEq for Tab {
 }
 
 pub fn info(
-    ctx: &EventCtx,
+    ctx: &mut EventCtx,
     app: &App,
     id: BuildingID,
     tab: InfoTab,
@@ -33,6 +33,7 @@ pub fn info(
     action_btns: Vec<Widget>,
     batch: &mut GeomBatch,
     hyperlinks: &mut HashMap<String, (ID, InfoTab)>,
+    warpers: &mut HashMap<String, ID>,
 ) -> Vec<Widget> {
     let mut rows = vec![];
 
@@ -142,6 +143,7 @@ pub fn info(
                 None,
                 Vec::new(),
                 hyperlinks,
+                warpers,
             ));
             rows.push(Widget::col(inner).bg(colors::INNER_PANEL_BG));
         }
