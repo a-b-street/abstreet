@@ -1,15 +1,28 @@
 use crate::app::App;
+use crate::colors;
 use crate::helpers::ID;
 use crate::info::trip::trip_details;
-use crate::info::{make_table, make_tabs, person, InfoTab, TripDetails};
+use crate::info::{make_browser, make_table, make_tabs, person, InfoTab, TripDetails};
 use crate::render::Renderable;
 use ezgui::{Color, EventCtx, GeomBatch, Line, Text, Widget};
 use sim::{AgentID, CarID, PedestrianID, PersonID, VehicleType};
 use std::collections::HashMap;
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone)]
 pub enum Tab {
     Person(PersonID),
+    // The crowd could change as we go; just freeze the list.
+    Crowd(Vec<PedestrianID>, usize),
+}
+impl std::cmp::PartialEq for Tab {
+    fn eq(&self, other: &Tab) -> bool {
+        match (self, other) {
+            // Only one possibility per ID
+            (Tab::Person(_), Tab::Person(_)) => true,
+            (Tab::Crowd(_, _), Tab::Crowd(_, _)) => true,
+            _ => false,
+        }
+    }
 }
 
 pub fn car_info(
@@ -172,13 +185,13 @@ pub fn ped_info(
     (rows, details)
 }
 
-// TODO Embedded panel is perfect here
 pub fn crowd_info(
-    ctx: &EventCtx,
-    _app: &App,
+    ctx: &mut EventCtx,
+    app: &App,
     members: Vec<PedestrianID>,
+    mut tab: InfoTab,
     header_btns: Widget,
-    action_btns: Vec<Widget>,
+    hyperlinks: &mut HashMap<String, (ID, InfoTab)>,
 ) -> Vec<Widget> {
     let mut rows = vec![];
 
@@ -186,11 +199,44 @@ pub fn crowd_info(
         Line("Pedestrian crowd").roboto_bold().draw(ctx),
         header_btns,
     ]));
-    rows.extend(action_btns);
 
-    let mut txt = Text::new();
-    txt.add(Line(format!("Crowd of {}", members.len())));
-    rows.push(txt.draw(ctx));
+    if tab == InfoTab::Nil {
+        tab = InfoTab::Agent(Tab::Crowd(members, 0));
+    }
+
+    match tab {
+        InfoTab::Agent(Tab::Crowd(peds, idx)) => {
+            let mut inner = vec![make_browser(
+                ctx,
+                hyperlinks,
+                "Pedestrian",
+                peds.len(),
+                idx,
+                |n| {
+                    (
+                        ID::PedCrowd(peds.clone()),
+                        InfoTab::Agent(Tab::Crowd(peds.clone(), n)),
+                    )
+                },
+            )];
+            // If we click a tab for a pedestrian, we lose the crowd. Woops?
+            inner.extend(
+                ped_info(
+                    ctx,
+                    app,
+                    peds[idx],
+                    InfoTab::Nil,
+                    // No header buttons
+                    Widget::nothing(),
+                    Vec::new(),
+                    hyperlinks,
+                )
+                .0,
+            );
+            rows.push(Widget::col(inner).bg(colors::INNER_PANEL_BG));
+        }
+        _ => unreachable!(),
+    }
 
     rows
 }

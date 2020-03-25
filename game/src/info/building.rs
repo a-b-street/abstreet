@@ -1,8 +1,8 @@
 use crate::app::App;
 use crate::colors;
 use crate::helpers::ID;
-use crate::info::{make_table, make_tabs, person, InfoTab};
-use ezgui::{hotkey, Btn, EventCtx, GeomBatch, Key, Line, Text, TextExt, Widget};
+use crate::info::{make_browser, make_table, make_tabs, person, InfoTab};
+use ezgui::{EventCtx, GeomBatch, Line, Text, TextExt, Widget};
 use map_model::BuildingID;
 use sim::PersonID;
 use std::collections::HashMap;
@@ -122,39 +122,14 @@ pub fn info(
             rows.extend(make_table(ctx, b.osm_tags.clone().into_iter().collect()));
         }
         InfoTab::Bldg(Tab::People(ppl, idx)) => {
-            let mut inner = vec![
-                // TODO Keys are weird! But left/right for speed
-                Widget::row(vec![
-                    if idx != 0 {
-                        hyperlinks.insert(
-                            "previous".to_string(),
-                            (
-                                ID::Building(id),
-                                InfoTab::Bldg(Tab::People(ppl.clone(), idx - 1)),
-                            ),
-                        );
-                        Btn::text_fg("<").build(ctx, "previous", hotkey(Key::UpArrow))
-                    } else {
-                        Btn::text_fg("<").inactive(ctx)
-                    }
-                    .margin(5),
-                    format!("Occupant {}/{}", idx + 1, ppl.len()).draw_text(ctx),
-                    if idx != ppl.len() - 1 {
-                        hyperlinks.insert(
-                            "next".to_string(),
-                            (
-                                ID::Building(id),
-                                InfoTab::Bldg(Tab::People(ppl.clone(), idx + 1)),
-                            ),
-                        );
-                        Btn::text_fg(">").build(ctx, "next", hotkey(Key::DownArrow))
-                    } else {
-                        Btn::text_fg(">").inactive(ctx)
-                    }
-                    .margin(5),
-                ])
-                .centered(),
-            ];
+            let mut inner = vec![make_browser(
+                ctx,
+                hyperlinks,
+                "Occupant",
+                ppl.len(),
+                idx,
+                |n| (ID::Building(id), InfoTab::Bldg(Tab::People(ppl.clone(), n))),
+            )];
             inner.extend(person::info(
                 ctx,
                 app,

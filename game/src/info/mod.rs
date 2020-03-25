@@ -200,10 +200,20 @@ impl InfoPanel {
                 action_btns,
                 &mut hyperlinks,
             ),
-            ID::PedCrowd(members) => (
-                agents::crowd_info(ctx, app, members, header_btns, action_btns),
-                None,
-            ),
+            ID::PedCrowd(members) => {
+                assert!(action_btns.is_empty());
+                (
+                    agents::crowd_info(
+                        ctx,
+                        app,
+                        members,
+                        tab.clone(),
+                        header_btns,
+                        &mut hyperlinks,
+                    ),
+                    None,
+                )
+            }
             ID::BusStop(id) => (bus_stop::info(ctx, app, id, header_btns, action_btns), None),
             ID::Area(id) => (debug::area(ctx, app, id, header_btns, action_btns), None),
             ID::ExtraShape(id) => (
@@ -572,4 +582,33 @@ fn make_tabs(
         }
     }
     Widget::row(row)
+}
+
+fn make_browser<F: Fn(usize) -> (ID, InfoTab)>(
+    ctx: &EventCtx,
+    hyperlinks: &mut HashMap<String, (ID, InfoTab)>,
+    noun: &str,
+    total: usize,
+    idx: usize,
+    make_link: F,
+) -> Widget {
+    // TODO Keys are weird! But left/right for speed
+    Widget::row(vec![
+        if idx != 0 {
+            hyperlinks.insert("previous".to_string(), make_link(idx - 1));
+            Btn::text_fg("<").build(ctx, "previous", hotkey(Key::UpArrow))
+        } else {
+            Btn::text_fg("<").inactive(ctx)
+        }
+        .margin(5),
+        format!("{} {}/{}", noun, idx + 1, total).draw_text(ctx),
+        if idx != total - 1 {
+            hyperlinks.insert("next".to_string(), make_link(idx + 1));
+            Btn::text_fg(">").build(ctx, "next", hotkey(Key::DownArrow))
+        } else {
+            Btn::text_fg(">").inactive(ctx)
+        }
+        .margin(5),
+    ])
+    .centered()
 }

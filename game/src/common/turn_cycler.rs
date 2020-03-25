@@ -262,16 +262,16 @@ impl TurnExplorer {
                 GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
             )
             .margin(5),
-            Text::from(Line(format!("{}/{}", idx, num_turns)).size(20))
-                .draw(ctx)
-                .margin(5)
-                .centered_vert(),
             if idx == 0 {
                 Btn::text_fg("<").inactive(ctx)
             } else {
                 Btn::text_fg("<").build(ctx, "previous turn", hotkey(Key::LeftArrow))
             }
             .margin(5),
+            Text::from(Line(format!("{}/{}", idx, num_turns)).size(20))
+                .draw(ctx)
+                .margin(5)
+                .centered_vert(),
             if idx == num_turns {
                 Btn::text_fg(">").inactive(ctx)
             } else {
