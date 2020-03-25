@@ -55,7 +55,7 @@ impl TripManager {
         &mut self,
         person: PersonID,
         spawned_at: Time,
-        start: TripStart,
+        start: TripEndpoint,
         legs: Vec<TripLeg>,
     ) -> TripID {
         assert!(!legs.is_empty());
@@ -83,17 +83,17 @@ impl TripManager {
         }
         let end = match legs.last() {
             Some(TripLeg::Walk(_, _, ref spot)) => match spot.connection {
-                SidewalkPOI::Building(b) => TripEnd::Bldg(b),
-                SidewalkPOI::Border(i) => TripEnd::Border(i),
+                SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
+                SidewalkPOI::Border(i) => TripEndpoint::Border(i),
                 SidewalkPOI::DeferredParkingSpot(_, ref goal) => match goal {
-                    DrivingGoal::ParkNear(b) => TripEnd::Bldg(*b),
-                    DrivingGoal::Border(i, _) => TripEnd::Border(*i),
+                    DrivingGoal::ParkNear(b) => TripEndpoint::Bldg(*b),
+                    DrivingGoal::Border(i, _) => TripEndpoint::Border(*i),
                 },
                 _ => unreachable!(),
             },
             Some(TripLeg::Drive(_, ref goal)) => match goal {
-                DrivingGoal::ParkNear(b) => TripEnd::Bldg(*b),
-                DrivingGoal::Border(i, _) => TripEnd::Border(*i),
+                DrivingGoal::ParkNear(b) => TripEndpoint::Bldg(*b),
+                DrivingGoal::Border(i, _) => TripEndpoint::Border(*i),
             },
             _ => unreachable!(),
         };
@@ -112,8 +112,8 @@ impl TripManager {
         let person = &mut self.people[trip.person.0];
         if person.trips.is_empty() {
             person.state = match trip.start {
-                TripStart::Bldg(b) => PersonState::Inside(b),
-                TripStart::Border(_) => PersonState::OffMap,
+                TripEndpoint::Bldg(b) => PersonState::Inside(b),
+                TripEndpoint::Border(_) => PersonState::OffMap,
             };
         }
         if let Some(t) = person.trips.last() {
@@ -591,19 +591,12 @@ impl TripManager {
         Some((t.id, t.spawned_at))
     }
 
-    pub fn trip_info(&self, id: TripID) -> (Time, TripStart, TripEnd, TripMode) {
+    pub fn trip_info(&self, id: TripID) -> (Time, TripEndpoint, TripEndpoint, TripMode) {
         let t = &self.trips[id.0];
         (t.spawned_at, t.start.clone(), t.end.clone(), t.mode)
     }
 
-    // TODO Refactor after wrangling the TripStart/TripEnd mess
-    pub fn count_trips_involving_bldg(&self, b: BuildingID, now: Time) -> TripCount {
-        self.count_trips(TripStart::Bldg(b), TripEnd::Bldg(b), now)
-    }
-    pub fn count_trips_involving_border(&self, i: IntersectionID, now: Time) -> TripCount {
-        self.count_trips(TripStart::Border(i), TripEnd::Border(i), now)
-    }
-    fn count_trips(&self, start: TripStart, end: TripEnd, now: Time) -> TripCount {
+    pub fn count_trips(&self, endpt: TripEndpoint, now: Time) -> TripCount {
         let mut cnt = TripCount {
             from_aborted: Vec::new(),
             from_in_progress: Vec::new(),
@@ -615,7 +608,7 @@ impl TripManager {
             to_unstarted: Vec::new(),
         };
         for trip in &self.trips {
-            if trip.start == start {
+            if trip.start == endpt {
                 if trip.aborted {
                     cnt.from_aborted.push(trip.id);
                 } else if trip.finished_at.is_some() {
@@ -627,7 +620,7 @@ impl TripManager {
                 }
             }
             // One trip might could towards both!
-            if trip.end == end {
+            if trip.end == endpt {
                 if trip.aborted {
                     cnt.to_aborted.push(trip.id);
                 } else if trip.finished_at.is_some() {
@@ -672,8 +665,8 @@ struct Trip {
     aborted: bool,
     legs: VecDeque<TripLeg>,
     mode: TripMode,
-    start: TripStart,
-    end: TripEnd,
+    start: TripEndpoint,
+    end: TripEndpoint,
     person: PersonID,
 }
 
@@ -796,16 +789,8 @@ impl std::fmt::Display for TripMode {
     }
 }
 
-// TODO Argh no, not more of these variants!
-
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
-pub enum TripStart {
-    Bldg(BuildingID),
-    Border(IntersectionID),
-}
-
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
-pub enum TripEnd {
+pub enum TripEndpoint {
     Bldg(BuildingID),
     Border(IntersectionID),
 }

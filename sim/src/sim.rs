@@ -2,9 +2,9 @@ use crate::{
     AgentID, Analytics, CarID, Command, CreateCar, DrawCarInput, DrawPedCrowdInput,
     DrawPedestrianInput, DrivingGoal, DrivingSimState, Event, GetDrawAgents, IntersectionSimState,
     ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, Person, PersonID, PersonState, Router,
-    Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripCount, TripEnd, TripID, TripLeg,
-    TripManager, TripMode, TripPhaseType, TripPositions, TripResult, TripSpawner, TripSpec,
-    TripStart, UnzoomedAgent, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
+    Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripCount, TripEndpoint, TripID,
+    TripLeg, TripManager, TripMode, TripPhaseType, TripPositions, TripResult, TripSpawner,
+    TripSpec, UnzoomedAgent, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
 };
 use abstutil::Timer;
 use derivative::Derivative;
@@ -851,11 +851,8 @@ impl Sim {
         self.trips.num_ppl()
     }
 
-    pub fn count_trips_involving_bldg(&self, b: BuildingID) -> TripCount {
-        self.trips.count_trips_involving_bldg(b, self.time)
-    }
-    pub fn count_trips_involving_border(&self, i: IntersectionID) -> TripCount {
-        self.trips.count_trips_involving_border(i, self.time)
+    pub fn count_trips(&self, endpt: TripEndpoint) -> TripCount {
+        self.trips.count_trips(endpt, self.time)
     }
 
     pub fn debug_ped(&self, id: PedestrianID) {
@@ -957,7 +954,7 @@ impl Sim {
     }
 
     // (start time, start position, end position, trip type)
-    pub fn trip_info(&self, id: TripID) -> (Time, TripStart, TripEnd, TripMode) {
+    pub fn trip_info(&self, id: TripID) -> (Time, TripEndpoint, TripEndpoint, TripMode) {
         self.trips.trip_info(id)
     }
 

@@ -4,7 +4,7 @@ use crate::helpers::ID;
 use crate::info::{make_browser, make_table, make_tabs, person, InfoTab};
 use ezgui::{EventCtx, GeomBatch, Line, Text, TextExt, Widget};
 use map_model::BuildingID;
-use sim::PersonID;
+use sim::{PersonID, TripEndpoint};
 use std::collections::HashMap;
 
 #[derive(Clone)]
@@ -85,7 +85,12 @@ pub fn info(
                 }
             }
 
-            let trip_lines = app.primary.sim.count_trips_involving_bldg(id).describe();
+            // TODO Rethink this
+            let trip_lines = app
+                .primary
+                .sim
+                .count_trips(TripEndpoint::Bldg(id))
+                .describe();
             if !trip_lines.is_empty() {
                 txt.add(Line(""));
                 for line in trip_lines {

@@ -5,7 +5,7 @@ use abstutil::prettyprint_usize;
 use ezgui::{EventCtx, Line, Plot, PlotOptions, Series, Text, Widget};
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, IntersectionType};
-use sim::Analytics;
+use sim::{Analytics, TripEndpoint};
 use std::collections::{BTreeSet, HashMap};
 
 #[derive(Clone, PartialEq)]
@@ -70,7 +70,12 @@ pub fn info(
         InfoTab::Nil => {
             rows.extend(action_btns);
 
-            let trip_lines = app.primary.sim.count_trips_involving_border(id).describe();
+            // TODO Rethink
+            let trip_lines = app
+                .primary
+                .sim
+                .count_trips(TripEndpoint::Border(id))
+                .describe();
             if !trip_lines.is_empty() {
                 let mut txt = Text::new();
                 for line in trip_lines {

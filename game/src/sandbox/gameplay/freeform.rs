@@ -13,6 +13,7 @@ use ezgui::{
 };
 use geom::Polygon;
 use map_model::IntersectionID;
+use sim::TripEndpoint;
 use std::collections::BTreeSet;
 
 // TODO Maybe remember what things were spawned, offer to replay this later
@@ -65,7 +66,12 @@ impl GameplayState for Freeform {
         if let Some(ID::Intersection(i)) = app.primary.current_selection {
             if self.spawn_pts.contains(&i) {
                 let mut txt = Text::new();
-                for line in app.primary.sim.count_trips_involving_border(i).describe() {
+                for line in app
+                    .primary
+                    .sim
+                    .count_trips(TripEndpoint::Border(i))
+                    .describe()
+                {
                     txt.add(Line(line));
                 }
                 if !txt.is_empty() {

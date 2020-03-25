@@ -9,7 +9,7 @@ use ezgui::{
 };
 use geom::{Angle, Distance, Duration, Polygon, Pt2D, Time};
 use map_model::{Map, Path, PathStep};
-use sim::{PersonID, TripEnd, TripID, TripPhaseType, TripStart};
+use sim::{PersonID, TripEndpoint, TripID, TripPhaseType};
 use std::collections::HashMap;
 
 #[derive(Clone, PartialEq)]
@@ -87,22 +87,9 @@ pub fn trip_details(
             ("Trip start", start_time.ampm_tostring()),
             ("Type", trip_mode.to_string()),
             // TODO If we're looking at a building, then "here"...
-            // TODO Refactor... TripStart.name(map)?
             // TODO Buttons
-            (
-                "From",
-                match trip_start {
-                    TripStart::Bldg(b) => map.get_b(b).just_address(map),
-                    TripStart::Border(i) => map.get_i(i).name(map),
-                },
-            ),
-            (
-                "To",
-                match trip_end {
-                    TripEnd::Bldg(b) => map.get_b(b).just_address(map),
-                    TripEnd::Border(i) => map.get_i(i).name(map),
-                },
-            ),
+            ("From", endpoint(&trip_start, map).2),
+            ("To", endpoint(&trip_end, map).2),
         ];
         return (
             Widget::col(make_table(ctx, kv)),
@@ -116,16 +103,7 @@ pub fn trip_details(
     }
 
     let start_btn = {
-        let (id, center, name) = match trip_start {
-            TripStart::Bldg(b) => {
-                let bldg = map.get_b(b);
-                (ID::Building(b), bldg.label_center, bldg.just_address(map))
-            }
-            TripStart::Border(i) => {
-                let i = map.get_i(i);
-                (ID::Intersection(i.id), i.polygon.center(), i.name(map))
-            }
-        };
+        let (id, center, name) = endpoint(&trip_start, map);
         markers.insert("jump to start".to_string(), id);
         unzoomed.add_svg(
             ctx.prerender,
@@ -155,16 +133,7 @@ pub fn trip_details(
     let end_time = phases.last().as_ref().and_then(|p| p.end_time);
 
     let goal_btn = {
-        let (id, center, name) = match trip_end {
-            TripEnd::Bldg(b) => {
-                let bldg = map.get_b(b);
-                (ID::Building(b), bldg.label_center, bldg.just_address(map))
-            }
-            TripEnd::Border(i) => {
-                let i = map.get_i(i);
-                (ID::Intersection(i.id), i.polygon.center(), i.name(map))
-            }
-        };
+        let (id, center, name) = endpoint(&trip_end, map);
         markers.insert("jump to goal".to_string(), id);
         unzoomed.add_svg(
             ctx.prerender,
@@ -370,4 +339,18 @@ fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map:
         PlotOptions::new(),
     )
     .bg(colors::PANEL_BG)
+}
+
+// (ID, center, name)
+fn endpoint(endpt: &TripEndpoint, map: &Map) -> (ID, Pt2D, String) {
+    match endpt {
+        TripEndpoint::Bldg(b) => {
+            let bldg = map.get_b(*b);
+            (ID::Building(*b), bldg.label_center, bldg.just_address(map))
+        }
+        TripEndpoint::Border(i) => {
+            let i = map.get_i(*i);
+            (ID::Intersection(i.id), i.polygon.center(), i.name(map))
+        }
+    }
 }
