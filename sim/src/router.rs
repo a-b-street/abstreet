@@ -127,7 +127,7 @@ impl Router {
         vehicle: &Vehicle,
         parking: &ParkingSimState,
         map: &Map,
-        trip: TripID,
+        trip: Option<TripID>,
         events: &mut Vec<Event>,
     ) -> Traversable {
         let prev = self.path.shift(map).as_traversable();
@@ -159,7 +159,7 @@ impl Router {
         parking: &ParkingSimState,
         map: &Map,
         // TODO Not so nice to plumb all of this here
-        trip: TripID,
+        trip: Option<TripID>,
         events: &mut Vec<Event>,
     ) -> Option<ActionAtEnd> {
         match self.goal {
@@ -194,16 +194,18 @@ impl Router {
                         vehicle,
                         map,
                     ) {
-                        events.push(Event::TripPhaseStarting(
-                            trip,
-                            TripMode::Drive,
-                            Some(PathRequest {
-                                start: Position::new(current_lane, front),
-                                end: new_pos,
-                                constraints: PathConstraints::Car,
-                            }),
-                            TripPhaseType::Parking,
-                        ));
+                        if let Some(t) = trip {
+                            events.push(Event::TripPhaseStarting(
+                                t,
+                                TripMode::Drive,
+                                Some(PathRequest {
+                                    start: Position::new(current_lane, front),
+                                    end: new_pos,
+                                    constraints: PathConstraints::Car,
+                                }),
+                                TripPhaseType::Parking,
+                            ));
+                        }
                         *spot = Some((new_spot, new_pos.dist_along()));
                     } else {
                         if let Some((new_path_steps, new_spot, new_pos)) =
@@ -215,16 +217,18 @@ impl Router {
                             }
                             events.push(Event::PathAmended(self.path.clone()));
                             // TODO This path might not be the same as the one found here...
-                            events.push(Event::TripPhaseStarting(
-                                trip,
-                                TripMode::Drive,
-                                Some(PathRequest {
-                                    start: Position::new(current_lane, front),
-                                    end: new_pos,
-                                    constraints: PathConstraints::Car,
-                                }),
-                                TripPhaseType::Parking,
-                            ));
+                            if let Some(t) = trip {
+                                events.push(Event::TripPhaseStarting(
+                                    t,
+                                    TripMode::Drive,
+                                    Some(PathRequest {
+                                        start: Position::new(current_lane, front),
+                                        end: new_pos,
+                                        constraints: PathConstraints::Car,
+                                    }),
+                                    TripPhaseType::Parking,
+                                ));
+                            }
                         } else {
                             println!(
                                 "WARNING: {} can't find parking on {} or anywhere reachable from \

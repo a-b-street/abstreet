@@ -21,7 +21,6 @@ pub struct TripManager {
         deserialize_with = "deserialize_btreemap"
     )]
     active_trip_mode: BTreeMap<AgentID, TripID>,
-    num_bus_trips: usize,
     unfinished_trips: usize,
 
     events: Vec<Event>,
@@ -33,7 +32,6 @@ impl TripManager {
             trips: Vec::new(),
             people: Vec::new(),
             active_trip_mode: BTreeMap::new(),
-            num_bus_trips: 0,
             unfinished_trips: 0,
             events: Vec::new(),
         }
@@ -55,7 +53,7 @@ impl TripManager {
 
     pub fn new_trip(
         &mut self,
-        person: Option<PersonID>,
+        person: PersonID,
         spawned_at: Time,
         start: TripStart,
         legs: Vec<TripLeg>,
@@ -81,10 +79,6 @@ impl TripManager {
                 TripLeg::RideBus(_, _, _) => {
                     mode = TripMode::Transit;
                 }
-                TripLeg::ServeBusRoute(_, _) => {
-                    // Confusing, because Transit usually means riding transit
-                    mode = TripMode::Transit;
-                }
             }
         }
         let end = match legs.last() {
@@ -101,7 +95,6 @@ impl TripManager {
                 DrivingGoal::ParkNear(b) => TripEnd::Bldg(*b),
                 DrivingGoal::Border(i, _) => TripEnd::Border(*i),
             },
-            Some(TripLeg::ServeBusRoute(_, route)) => TripEnd::ServeBusRoute(*route),
             _ => unreachable!(),
         };
         let trip = Trip {
@@ -115,26 +108,24 @@ impl TripManager {
             start,
             end,
         };
-        if !trip.is_bus_trip() {
-            self.unfinished_trips += 1;
-            let person = &mut self.people[trip.person.unwrap().0];
-            if person.trips.is_empty() {
-                person.state = match trip.start {
-                    TripStart::Bldg(b) => PersonState::Inside(b),
-                    TripStart::Border(_) => PersonState::OffMap,
-                };
-            }
-            if let Some(t) = person.trips.last() {
-                // TODO If it's exactly ==, what?! See the ID.
-                if self.trips[t.0].spawned_at > trip.spawned_at {
-                    panic!(
-                        "{} has a trip starting at {}, then one at {}",
-                        person.id, self.trips[t.0].spawned_at, trip.spawned_at
-                    );
-                }
-            }
-            person.trips.push(id);
+        self.unfinished_trips += 1;
+        let person = &mut self.people[trip.person.0];
+        if person.trips.is_empty() {
+            person.state = match trip.start {
+                TripStart::Bldg(b) => PersonState::Inside(b),
+                TripStart::Border(_) => PersonState::OffMap,
+            };
         }
+        if let Some(t) = person.trips.last() {
+            // TODO If it's exactly ==, what?! See the ID.
+            if self.trips[t.0].spawned_at > trip.spawned_at {
+                panic!(
+                    "{} has a trip starting at {}, then one at {}",
+                    person.id, self.trips[t.0].spawned_at, trip.spawned_at
+                );
+            }
+        }
+        person.trips.push(id);
         self.trips.push(trip);
         id
     }
@@ -152,11 +143,7 @@ impl TripManager {
         // time)
         self.active_trip_mode.insert(agent, t);
         let trip = &self.trips[t.0];
-        if trip.is_bus_trip() {
-            self.num_bus_trips += 1;
-        } else {
-            self.people[trip.person.unwrap().0].state = PersonState::Trip(t);
-        }
+        self.people[trip.person.0].state = PersonState::Trip(t);
     }
 
     pub fn car_reached_parking_spot(
@@ -189,7 +176,7 @@ impl TripManager {
                         trip.mode,
                         now - trip.spawned_at,
                     ));
-                    self.people[trip.person.unwrap().0].state = PersonState::Inside(b1);
+                    self.people[trip.person.0].state = PersonState::Inside(b1);
                     return;
                 }
                 _ => {}
@@ -252,7 +239,7 @@ impl TripManager {
             self.unfinished_trips -= 1;
             trip.aborted = true;
             self.events.push(Event::TripAborted(trip.id, trip.mode));
-            self.people[trip.person.unwrap().0].state = PersonState::Limbo;
+            self.people[trip.person.0].state = PersonState::Limbo;
             return;
         };
 
@@ -312,7 +299,7 @@ impl TripManager {
             self.unfinished_trips -= 1;
             trip.aborted = true;
             self.events.push(Event::TripAborted(trip.id, trip.mode));
-            self.people[trip.person.unwrap().0].state = PersonState::Limbo;
+            self.people[trip.person.0].state = PersonState::Limbo;
             return;
         };
 
@@ -373,7 +360,7 @@ impl TripManager {
             trip.mode,
             now - trip.spawned_at,
         ));
-        self.people[trip.person.unwrap().0].state = PersonState::Inside(bldg);
+        self.people[trip.person.0].state = PersonState::Inside(bldg);
     }
 
     // If no route is returned, the pedestrian boarded a bus immediately.
@@ -471,7 +458,7 @@ impl TripManager {
             trip.mode,
             now - trip.spawned_at,
         ));
-        self.people[trip.person.unwrap().0].state = PersonState::OffMap;
+        self.people[trip.person.0].state = PersonState::OffMap;
     }
 
     pub fn car_or_bike_reached_border(&mut self, now: Time, car: CarID, i: IntersectionID) {
@@ -490,30 +477,25 @@ impl TripManager {
             trip.mode,
             now - trip.spawned_at,
         ));
-        self.people[trip.person.unwrap().0].state = PersonState::OffMap;
+        self.people[trip.person.0].state = PersonState::OffMap;
     }
 
     pub fn abort_trip_failed_start(&mut self, id: TripID) {
         let trip = &mut self.trips[id.0];
         trip.aborted = true;
-        if !trip.is_bus_trip() {
-            self.unfinished_trips -= 1;
-            // TODO Urgh, hack. Initialization order is now quite complicated.
-            if let Some(p) = trip.person {
-                self.people[p.0].state = PersonState::Limbo;
-            }
-        }
+        self.unfinished_trips -= 1;
+        // TODO Urgh, hack. Initialization order is now quite complicated.
+        self.people[trip.person.0].state = PersonState::Limbo;
         self.events.push(Event::TripAborted(id, trip.mode));
     }
 
     pub fn abort_trip_impossible_parking(&mut self, car: CarID) {
         let id = self.active_trip_mode.remove(&AgentID::Car(car)).unwrap();
         let trip = &mut self.trips[id.0];
-        assert!(!trip.is_bus_trip());
         trip.aborted = true;
         self.unfinished_trips -= 1;
         self.events.push(Event::TripAborted(trip.id, trip.mode));
-        self.people[trip.person.unwrap().0].state = PersonState::Limbo;
+        self.people[trip.person.0].state = PersonState::Limbo;
     }
 
     pub fn active_agents(&self) -> Vec<AgentID> {
@@ -539,7 +521,6 @@ impl TripManager {
             TripLeg::Drive(vehicle, _) => AgentID::Car(vehicle.id),
             // TODO Should be the bus, but apparently transit sim tracks differently?
             TripLeg::RideBus(ped, _, _) => AgentID::Pedestrian(*ped),
-            TripLeg::ServeBusRoute(id, _) => AgentID::Car(*id),
         };
         if self.active_trip_mode.get(&a) == Some(&id) {
             TripResult::Ok(a)
@@ -548,8 +529,7 @@ impl TripManager {
         }
     }
 
-    // This will be None for parked cars. Buses technically do have trips. Should always work for
-    // pedestrians.
+    // This will be None for parked cars and buses. Should always work for pedestrians.
     pub fn agent_to_trip(&self, id: AgentID) -> Option<TripID> {
         self.active_trip_mode.get(&id).cloned()
     }
@@ -566,6 +546,7 @@ impl TripManager {
     pub fn num_trips(&self) -> (usize, usize, BTreeMap<TripMode, usize>) {
         let mut cnt = Counter::new();
         for a in self.active_trip_mode.keys() {
+            // TODO This conflates bus riders and buses...
             cnt.inc(TripMode::from_agent(*a));
         }
         let per_mode = TripMode::all()
@@ -678,7 +659,7 @@ impl TripManager {
         &self.people
     }
 
-    pub fn trip_to_person(&self, id: TripID) -> Option<PersonID> {
+    pub fn trip_to_person(&self, id: TripID) -> PersonID {
         self.trips[id.0].person
     }
 }
@@ -693,8 +674,7 @@ struct Trip {
     mode: TripMode,
     start: TripStart,
     end: TripEnd,
-    // None for bus trips.
-    person: Option<PersonID>,
+    person: PersonID,
 }
 
 impl Trip {
@@ -709,10 +689,6 @@ impl Trip {
             TripLeg::Drive(ref vehicle, _) => vehicle.id == id,
             _ => false,
         })
-    }
-
-    fn is_bus_trip(&self) -> bool {
-        self.legs.len() == 1 && matches!(self.legs[0], TripLeg::ServeBusRoute(_, _))
     }
 
     // Returns true if this succeeds. If not, trip aborted.
@@ -776,7 +752,6 @@ pub enum TripLeg {
     Walk(PedestrianID, Speed, SidewalkSpot),
     Drive(Vehicle, DrivingGoal),
     RideBus(PedestrianID, BusRouteID, BusStopID),
-    ServeBusRoute(CarID, BusRouteID),
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone, Copy, PartialOrd, Ord)]
@@ -797,12 +772,13 @@ impl TripMode {
         ]
     }
 
-    pub fn from_agent(id: AgentID) -> TripMode {
+    pub(crate) fn from_agent(id: AgentID) -> TripMode {
         match id {
             AgentID::Pedestrian(_) => TripMode::Walk,
             AgentID::Car(id) => match id.1 {
                 VehicleType::Car => TripMode::Drive,
                 VehicleType::Bike => TripMode::Bike,
+                // Little confusing; this means buses, not bus riders.
                 VehicleType::Bus => TripMode::Transit,
             },
         }
@@ -832,8 +808,6 @@ pub enum TripStart {
 pub enum TripEnd {
     Bldg(BuildingID),
     Border(IntersectionID),
-    // No end!
-    ServeBusRoute(BusRouteID),
 }
 
 pub enum TripResult<T> {

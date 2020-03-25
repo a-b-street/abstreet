@@ -286,7 +286,7 @@ impl TripSpawner {
                         ));
                     }
                     let trip_start = TripStart::Border(map.get_l(start_pos.lane()).src_i);
-                    let trip = trips.new_trip(Some(person), start_time, trip_start, legs);
+                    let trip = trips.new_trip(person, start_time, trip_start, legs);
                     if let Some(path) = maybe_path {
                         let router = goal.make_router(path, map, vehicle.vehicle_type);
                         scheduler.quick_push(
@@ -333,7 +333,7 @@ impl TripSpawner {
                         DrivingGoal::Border(_, _) => {}
                     }
                     let trip = trips.new_trip(
-                        Some(person),
+                        person,
                         start_time,
                         TripStart::Bldg(vehicle.owner.unwrap()),
                         legs,
@@ -370,7 +370,7 @@ impl TripSpawner {
                     // the DrivingGoal, so we can expand the trip later.
                     let legs = vec![TripLeg::Walk(ped_id.unwrap(), ped_speed, walk_to.clone())];
                     let trip =
-                        trips.new_trip(Some(person), start_time, TripStart::Bldg(start_bldg), legs);
+                        trips.new_trip(person, start_time, TripStart::Bldg(start_bldg), legs);
 
                     scheduler.quick_push(
                         start_time,
@@ -392,7 +392,7 @@ impl TripSpawner {
                     ped_speed,
                 } => {
                     let trip = trips.new_trip(
-                        Some(person),
+                        person,
                         start_time,
                         match start.connection {
                             SidewalkPOI::Building(b) => TripStart::Bldg(b),
@@ -449,7 +449,7 @@ impl TripSpawner {
                         DrivingGoal::Border(_, _) => {}
                     };
                     let trip = trips.new_trip(
-                        Some(person),
+                        person,
                         start_time,
                         match start.connection {
                             SidewalkPOI::Building(b) => TripStart::Bldg(b),
@@ -493,7 +493,7 @@ impl TripSpawner {
                 } => {
                     let walk_to = SidewalkSpot::bus_stop(stop1, map);
                     let trip = trips.new_trip(
-                        Some(person),
+                        person,
                         start_time,
                         match start.connection {
                             SidewalkPOI::Building(b) => TripStart::Bldg(b),

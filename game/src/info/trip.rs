@@ -43,7 +43,7 @@ pub fn inactive_info(
             ("Info", InfoTab::Nil),
             (
                 "Schedule",
-                InfoTab::Trip(Tab::Person(app.primary.sim.trip_to_person(id).unwrap())),
+                InfoTab::Trip(Tab::Person(app.primary.sim.trip_to_person(id))),
             ),
         ],
     ));
@@ -101,7 +101,6 @@ pub fn trip_details(
                 match trip_end {
                     TripEnd::Bldg(b) => map.get_b(b).just_address(map),
                     TripEnd::Border(i) => map.get_i(i).name(map),
-                    TripEnd::ServeBusRoute(_) => unreachable!(),
                 },
             ),
         ];
@@ -165,7 +164,6 @@ pub fn trip_details(
                 let i = map.get_i(i);
                 (ID::Intersection(i.id), i.polygon.center(), i.name(map))
             }
-            TripEnd::ServeBusRoute(_) => unreachable!(),
         };
         markers.insert("jump to goal".to_string(), id);
         unzoomed.add_svg(

@@ -222,23 +222,12 @@ impl Sim {
             }
             .make(id, None);
 
-            // TODO The path analytics (total dist, dist crossed so far) will be wrong for the
-            // first round of buses.
-            // Same for this TripStart, though it doesn't matter too much.
-            let trip = self.trips.new_trip(
-                None,
-                self.time,
-                TripStart::Border(map.get_l(path.current_step().as_lane()).src_i),
-                vec![TripLeg::ServeBusRoute(id, route.id)],
-            );
-
             loop {
                 if path.is_last_step() {
                     timer.warn(format!(
                         "Giving up on seeding a bus headed towards stop {} of {} ({})",
                         next_stop_idx, route.name, route.id
                     ));
-                    self.trips.abort_trip_failed_start(trip);
                     break;
                 }
                 let start_lane = if let PathStep::Lane(l) = path.current_step() {
@@ -263,14 +252,13 @@ impl Sim {
                         req: req.clone(),
                         router: Router::follow_bus_route(path.clone(), end_dist),
                         maybe_parked_car: None,
-                        trip,
+                        trip: None,
                     },
                     map,
                     &self.intersections,
                     &self.parking,
                     &mut self.scheduler,
                 ) {
-                    self.trips.agent_starting_trip_leg(AgentID::Car(id), trip);
                     self.transit.bus_created(id, route.id, next_stop_idx);
                     self.analytics.record_demand(&path, map);
                     results.push(id);
@@ -403,28 +391,30 @@ impl Sim {
                     &self.parking,
                     &mut self.scheduler,
                 ) {
-                    self.trips.agent_starting_trip_leg(
-                        AgentID::Car(create_car.vehicle.id),
-                        create_car.trip,
-                    );
+                    if let Some(trip) = create_car.trip {
+                        self.trips
+                            .agent_starting_trip_leg(AgentID::Car(create_car.vehicle.id), trip);
+                    }
                     if let Some(parked_car) = create_car.maybe_parked_car {
                         self.parking.remove_parked_car(parked_car);
                     }
-                    events.push(Event::TripPhaseStarting(
-                        create_car.trip,
-                        // TODO sketchy...
-                        if create_car.vehicle.id.1 == VehicleType::Car {
-                            TripMode::Drive
-                        } else {
-                            TripMode::Bike
-                        },
-                        Some(create_car.req.clone()),
-                        if create_car.vehicle.id.1 == VehicleType::Car {
-                            TripPhaseType::Driving
-                        } else {
-                            TripPhaseType::Biking
-                        },
-                    ));
+                    if let Some(trip) = create_car.trip {
+                        events.push(Event::TripPhaseStarting(
+                            trip,
+                            // TODO sketchy...
+                            if create_car.vehicle.id.1 == VehicleType::Car {
+                                TripMode::Drive
+                            } else {
+                                TripMode::Bike
+                            },
+                            Some(create_car.req.clone()),
+                            if create_car.vehicle.id.1 == VehicleType::Car {
+                                TripPhaseType::Driving
+                            } else {
+                                TripPhaseType::Biking
+                            },
+                        ));
+                    }
                     self.analytics
                         .record_demand(create_car.router.get_path(), map);
                 } else if retry_if_no_room {
@@ -434,11 +424,12 @@ impl Sim {
                         Command::SpawnCar(create_car, retry_if_no_room),
                     );
                 } else {
-                    println!(
-                        "No room to spawn car for {}. Not retrying!",
-                        create_car.trip
-                    );
-                    self.trips.abort_trip_failed_start(create_car.trip);
+                    if let Some(trip) = create_car.trip {
+                        println!("No room to spawn car for {}. Not retrying!", trip);
+                        self.trips.abort_trip_failed_start(trip);
+                    } else {
+                        println!("No room to spawn bus (no trip). Not retrying!");
+                    }
                 }
             }
             Command::SpawnPed(mut create_ped) => {
@@ -970,7 +961,7 @@ impl Sim {
         self.trips.trip_info(id)
     }
 
-    pub fn trip_to_person(&self, id: TripID) -> Option<PersonID> {
+    pub fn trip_to_person(&self, id: TripID) -> PersonID {
         self.trips.trip_to_person(id)
     }
 

@@ -802,9 +802,11 @@ impl DrivingSimState {
             for (car, dist) in
                 queue.get_car_positions(trip_positions.time, &self.cars, &self.queues)
             {
-                trip_positions
-                    .canonical_pt_per_trip
-                    .insert(self.cars[&car].trip, queue.id.dist_along(dist, map).0);
+                if let Some(trip) = self.cars[&car].trip {
+                    trip_positions
+                        .canonical_pt_per_trip
+                        .insert(trip, queue.id.dist_along(dist, map).0);
+                }
             }
         }
     }

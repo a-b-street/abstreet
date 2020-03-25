@@ -12,7 +12,8 @@ pub struct Car {
     pub vehicle: Vehicle,
     pub state: CarState,
     pub router: Router,
-    pub trip: TripID,
+    // None for buses
+    pub trip: Option<TripID>,
     pub started_at: Time,
     pub total_blocked_time: Duration,
 

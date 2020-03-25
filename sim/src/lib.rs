@@ -482,7 +482,8 @@ pub struct CreateCar {
     pub req: PathRequest,
     pub start_dist: Distance,
     pub maybe_parked_car: Option<ParkedCar>,
-    pub trip: TripID,
+    // None for buses
+    pub trip: Option<TripID>,
 }
 
 impl CreateCar {
@@ -499,7 +500,7 @@ impl CreateCar {
             req,
             start_dist: start_pos.dist_along(),
             maybe_parked_car: None,
-            trip,
+            trip: Some(trip),
         }
     }
 
@@ -517,7 +518,7 @@ impl CreateCar {
             req,
             start_dist,
             maybe_parked_car: Some(parked_car),
-            trip,
+            trip: Some(trip),
         }
     }
 }

@@ -53,7 +53,7 @@ pub fn car_info(
             .primary
             .sim
             .agent_to_trip(AgentID::Car(id))
-            .and_then(|t| app.primary.sim.trip_to_person(t))
+            .map(|t| app.primary.sim.trip_to_person(t))
         {
             tabs.push(("Schedule", InfoTab::Agent(Tab::Person(p))));
         }
@@ -143,7 +143,7 @@ pub fn ped_info(
             ("Info", InfoTab::Nil),
             (
                 "Schedule",
-                InfoTab::Agent(Tab::Person(app.primary.sim.trip_to_person(trip).unwrap())),
+                InfoTab::Agent(Tab::Person(app.primary.sim.trip_to_person(trip))),
             ),
         ],
     ));
