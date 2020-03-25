@@ -16,7 +16,7 @@ use stretch::style::{
 pub struct Widget {
     // TODO pub just for Container. Just move that here?
     pub(crate) widget: Box<dyn WidgetImpl>,
-    style: LayoutStyle,
+    layout: LayoutStyle,
     pub(crate) rect: ScreenRectangle,
     bg: Option<Drawable>,
     id: Option<String>,
@@ -25,43 +25,7 @@ pub struct Widget {
 struct LayoutStyle {
     bg_color: Option<Color>,
     outline: Option<(f64, Color)>,
-    align_items: Option<AlignItems>,
-    justify_content: Option<JustifyContent>,
-    flex_wrap: Option<FlexWrap>,
-    size: Option<Size<Dimension>>,
-    padding: Option<Rect<Dimension>>,
-    margin: Option<Rect<Dimension>>,
-    position_type: Option<PositionType>,
-    position: Option<Rect<Dimension>>,
-}
-
-impl LayoutStyle {
-    fn apply(&self, style: &mut Style) {
-        if let Some(x) = self.align_items {
-            style.align_items = x;
-        }
-        if let Some(x) = self.justify_content {
-            style.justify_content = x;
-        }
-        if let Some(x) = self.flex_wrap {
-            style.flex_wrap = x;
-        }
-        if let Some(x) = self.size {
-            style.size = x;
-        }
-        if let Some(x) = self.padding {
-            style.padding = x;
-        }
-        if let Some(x) = self.margin {
-            style.margin = x;
-        }
-        if let Some(x) = self.position_type {
-            style.position_type = x;
-        }
-        if let Some(x) = self.position {
-            style.position = x;
-        }
-    }
+    style: Style,
 }
 
 // Layouting
@@ -70,8 +34,8 @@ impl LayoutStyle {
 // TODO Row and columns feel backwards when using them.
 impl Widget {
     pub fn centered(mut self) -> Widget {
-        self.style.align_items = Some(AlignItems::Center);
-        self.style.justify_content = Some(JustifyContent::SpaceAround);
+        self.layout.style.align_items = AlignItems::Center;
+        self.layout.style.justify_content = JustifyContent::SpaceAround;
         self
     }
 
@@ -84,106 +48,106 @@ impl Widget {
     }
 
     pub fn centered_cross(mut self) -> Widget {
-        self.style.align_items = Some(AlignItems::Center);
+        self.layout.style.align_items = AlignItems::Center;
         self
     }
 
     pub fn evenly_spaced(mut self) -> Widget {
-        self.style.justify_content = Some(JustifyContent::SpaceBetween);
+        self.layout.style.justify_content = JustifyContent::SpaceBetween;
         self
     }
 
     // This one is really weird. percent_width should be LESS than the max_size_percent given to
     // the overall Composite, otherwise weird things happen.
     pub fn flex_wrap(mut self, ctx: &EventCtx, percent_width: usize) -> Widget {
-        self.style.size = Some(Size {
+        self.layout.style.size = Size {
             width: Dimension::Points(
                 (ctx.canvas.window_width * (percent_width as f64) / 100.0) as f32,
             ),
             height: Dimension::Undefined,
-        });
-        self.style.flex_wrap = Some(FlexWrap::Wrap);
-        self.style.justify_content = Some(JustifyContent::SpaceAround);
+        };
+        self.layout.style.flex_wrap = FlexWrap::Wrap;
+        self.layout.style.justify_content = JustifyContent::SpaceAround;
         self
     }
 
     pub fn bg(mut self, color: Color) -> Widget {
-        self.style.bg_color = Some(color);
+        self.layout.bg_color = Some(color);
         self
     }
 
     // Callers have to adjust padding too, probably
     pub fn outline(mut self, thickness: f64, color: Color) -> Widget {
-        self.style.outline = Some((thickness, color));
+        self.layout.outline = Some((thickness, color));
         self
     }
 
     pub fn padding(mut self, pixels: usize) -> Widget {
-        self.style.padding = Some(Rect {
+        self.layout.style.padding = Rect {
             start: Dimension::Points(pixels as f32),
             end: Dimension::Points(pixels as f32),
             top: Dimension::Points(pixels as f32),
             bottom: Dimension::Points(pixels as f32),
-        });
+        };
         self
     }
 
     pub fn margin(mut self, pixels: usize) -> Widget {
-        self.style.margin = Some(Rect {
+        self.layout.style.margin = Rect {
             start: Dimension::Points(pixels as f32),
             end: Dimension::Points(pixels as f32),
             top: Dimension::Points(pixels as f32),
             bottom: Dimension::Points(pixels as f32),
-        });
+        };
         self
     }
     pub fn margin_above(mut self, pixels: usize) -> Widget {
-        self.style.margin = Some(Rect {
+        self.layout.style.margin = Rect {
             start: Dimension::Undefined,
             end: Dimension::Undefined,
             top: Dimension::Points(pixels as f32),
             bottom: Dimension::Undefined,
-        });
+        };
         self
     }
 
     pub fn align_left(mut self) -> Widget {
-        self.style.margin = Some(Rect {
+        self.layout.style.margin = Rect {
             start: Dimension::Undefined,
             end: Dimension::Auto,
             top: Dimension::Undefined,
             bottom: Dimension::Undefined,
-        });
+        };
         self
     }
     pub fn align_right(mut self) -> Widget {
-        self.style.margin = Some(Rect {
+        self.layout.style.margin = Rect {
             start: Dimension::Auto,
             end: Dimension::Undefined,
             top: Dimension::Undefined,
             bottom: Dimension::Undefined,
-        });
+        };
         self
     }
     // This doesn't count against the entire container
     pub fn align_vert_center(mut self) -> Widget {
-        self.style.margin = Some(Rect {
+        self.layout.style.margin = Rect {
             start: Dimension::Undefined,
             end: Dimension::Undefined,
             top: Dimension::Auto,
             bottom: Dimension::Auto,
-        });
+        };
         self
     }
 
     fn abs(mut self, x: f64, y: f64) -> Widget {
-        self.style.position_type = Some(PositionType::Absolute);
-        self.style.position = Some(Rect {
+        self.layout.style.position_type = PositionType::Absolute;
+        self.layout.style.position = Rect {
             start: Dimension::Points(x as f32),
             end: Dimension::Undefined,
             top: Dimension::Points(y as f32),
             bottom: Dimension::Undefined,
-        });
+        };
         self
     }
 
@@ -199,17 +163,12 @@ impl Widget {
     pub fn new(widget: Box<dyn WidgetImpl>) -> Widget {
         Widget {
             widget,
-            style: LayoutStyle {
+            layout: LayoutStyle {
                 bg_color: None,
                 outline: None,
-                align_items: None,
-                justify_content: None,
-                flex_wrap: None,
-                size: None,
-                padding: None,
-                margin: None,
-                position_type: None,
-                position: None,
+                style: Style {
+                    ..Default::default()
+                },
             },
             rect: ScreenRectangle::placeholder(),
             bg: None,
@@ -304,15 +263,12 @@ impl Widget {
     // Populate a flattened list of Nodes, matching the traversal order
     fn get_flexbox(&self, parent: Node, stretch: &mut Stretch, nodes: &mut Vec<Node>) {
         if let Some(container) = self.widget.downcast_ref::<Container>() {
-            let mut style = Style {
-                flex_direction: if container.is_row {
-                    FlexDirection::Row
-                } else {
-                    FlexDirection::Column
-                },
-                ..Default::default()
+            let mut style = self.layout.style.clone();
+            style.flex_direction = if container.is_row {
+                FlexDirection::Row
+            } else {
+                FlexDirection::Column
             };
-            self.style.apply(&mut style);
             let node = stretch.new_node(style, Vec::new()).unwrap();
             nodes.push(node);
             for widget in &container.members {
@@ -321,14 +277,11 @@ impl Widget {
             stretch.add_child(parent, node).unwrap();
             return;
         } else {
-            let mut style = Style {
-                size: Size {
-                    width: Dimension::Points(self.widget.get_dims().width as f32),
-                    height: Dimension::Points(self.widget.get_dims().height as f32),
-                },
-                ..Default::default()
+            let mut style = self.layout.style.clone();
+            style.size = Size {
+                width: Dimension::Points(self.widget.get_dims().width as f32),
+                height: Dimension::Points(self.widget.get_dims().height as f32),
             };
-            self.style.apply(&mut style);
             let node = stretch.new_node(style, Vec::new()).unwrap();
             stretch.add_child(parent, node).unwrap();
             nodes.push(node);
@@ -362,13 +315,13 @@ impl Widget {
 
         // Assume widgets don't dynamically change, so we just upload the background once.
         if (self.bg.is_none() || recompute_layout)
-            && (self.style.bg_color.is_some() || self.style.outline.is_some())
+            && (self.layout.bg_color.is_some() || self.layout.outline.is_some())
         {
             let mut batch = GeomBatch::new();
-            if let Some(c) = self.style.bg_color {
+            if let Some(c) = self.layout.bg_color {
                 batch.push(c, Polygon::rounded_rectangle(width, height, 5.0));
             }
-            if let Some((thickness, c)) = self.style.outline {
+            if let Some((thickness, c)) = self.layout.outline {
                 batch.push(
                     c,
                     Polygon::rounded_rectangle(width, height, 5.0)
@@ -792,10 +745,10 @@ impl CompositeBuilder {
             clip_rect: None,
         };
         if let Dims::ExactPercent(w, h) = c.dims {
-            c.top_level.style.size = Some(Size {
+            c.top_level.layout.style.size = Size {
                 width: Dimension::Points((w * ctx.canvas.window_width) as f32),
                 height: Dimension::Points((h * ctx.canvas.window_height) as f32),
-            });
+            };
         }
         c.recompute_layout(ctx, false);
 
