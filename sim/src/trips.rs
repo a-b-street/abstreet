@@ -534,12 +534,17 @@ impl TripManager {
             return TripResult::TripDone;
         }
 
-        match &trip.legs[0] {
-            TripLeg::Walk(id, _, _) => TripResult::Ok(AgentID::Pedestrian(*id)),
-            TripLeg::Drive(vehicle, _) => TripResult::Ok(AgentID::Car(vehicle.id)),
+        let a = match &trip.legs[0] {
+            TripLeg::Walk(id, _, _) => AgentID::Pedestrian(*id),
+            TripLeg::Drive(vehicle, _) => AgentID::Car(vehicle.id),
             // TODO Should be the bus, but apparently transit sim tracks differently?
-            TripLeg::RideBus(ped, _, _) => TripResult::Ok(AgentID::Pedestrian(*ped)),
-            TripLeg::ServeBusRoute(id, _) => TripResult::Ok(AgentID::Car(*id)),
+            TripLeg::RideBus(ped, _, _) => AgentID::Pedestrian(*ped),
+            TripLeg::ServeBusRoute(id, _) => AgentID::Car(*id),
+        };
+        if self.active_trip_mode.get(&a) == Some(&id) {
+            TripResult::Ok(a)
+        } else {
+            TripResult::TripNotStarted
         }
     }
 
@@ -840,6 +845,7 @@ pub enum TripResult<T> {
     ModeChange,
     TripDone,
     TripDoesntExist,
+    TripNotStarted,
 }
 
 impl<T> TripResult<T> {
@@ -856,6 +862,7 @@ impl<T> TripResult<T> {
             TripResult::ModeChange => TripResult::ModeChange,
             TripResult::TripDone => TripResult::TripDone,
             TripResult::TripDoesntExist => TripResult::TripDoesntExist,
+            TripResult::TripNotStarted => TripResult::TripNotStarted,
         }
     }
 }

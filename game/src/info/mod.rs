@@ -19,7 +19,7 @@ use ezgui::{
     Line, Outcome, Plot, PlotOptions, Series, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Time};
-use sim::{AgentID, Analytics, PersonID, TripID, TripMode, TripResult, VehicleType};
+use sim::{AgentID, Analytics, TripID, TripMode, TripResult, VehicleType};
 use std::collections::{BTreeMap, HashMap};
 
 pub struct InfoPanel {
@@ -43,6 +43,8 @@ pub enum InfoTab {
     Bldg(building::Tab),
     Lane(lane::Tab),
     Intersection(intersection::Tab),
+    Agent(agents::Tab),
+    Trip(trip::Tab),
 }
 
 pub struct TripDetails {
@@ -179,8 +181,25 @@ impl InfoPanel {
                 ),
                 None,
             ),
-            ID::Car(id) => agents::car_info(ctx, app, id, header_btns, action_btns, &mut batch),
-            ID::Pedestrian(id) => agents::ped_info(ctx, app, id, header_btns, action_btns),
+            ID::Car(id) => agents::car_info(
+                ctx,
+                app,
+                id,
+                tab.clone(),
+                header_btns,
+                action_btns,
+                &mut batch,
+                &mut hyperlinks,
+            ),
+            ID::Pedestrian(id) => agents::ped_info(
+                ctx,
+                app,
+                id,
+                tab.clone(),
+                header_btns,
+                action_btns,
+                &mut hyperlinks,
+            ),
             ID::PedCrowd(members) => (
                 agents::crowd_info(ctx, app, members, header_btns, action_btns),
                 None,
@@ -191,7 +210,30 @@ impl InfoPanel {
                 debug::extra_shape(ctx, app, id, header_btns, action_btns),
                 None,
             ),
-            ID::Trip(id) => trip::info(ctx, app, id, action_btns),
+            ID::Trip(id) => match app.primary.sim.trip_to_agent(id).ok() {
+                Some(AgentID::Car(c)) => agents::car_info(
+                    ctx,
+                    app,
+                    c,
+                    tab.clone(),
+                    header_btns,
+                    Vec::new(),
+                    &mut batch,
+                    &mut hyperlinks,
+                ),
+                Some(AgentID::Pedestrian(p)) => agents::ped_info(
+                    ctx,
+                    app,
+                    p,
+                    tab.clone(),
+                    header_btns,
+                    Vec::new(),
+                    &mut hyperlinks,
+                ),
+                None => {
+                    trip::inactive_info(ctx, app, id, tab.clone(), action_btns, &mut hyperlinks)
+                }
+            },
             ID::Person(id) => (
                 person::info(
                     ctx,
@@ -299,7 +341,7 @@ impl InfoPanel {
                                 ))),
                             );
                         }
-                        TripResult::TripDoesntExist => unreachable!(),
+                        TripResult::TripNotStarted | TripResult::TripDoesntExist => unreachable!(),
                         // Just wait a moment for trip_transition to kick in...
                         TripResult::ModeChange => {}
                     }
@@ -370,16 +412,6 @@ impl InfoPanel {
                             &mut app.primary,
                         ))),
                     )
-                } else if let Some(idx) = strip_prefix_usize(&action, "examine Person #") {
-                    *self = InfoPanel::new(
-                        ID::Person(PersonID(idx)),
-                        InfoTab::Nil,
-                        ctx,
-                        app,
-                        Vec::new(),
-                        maybe_speed,
-                    );
-                    return (false, None);
                 } else if action == "Info" {
                     // Genericish
                     *self = InfoPanel::new(

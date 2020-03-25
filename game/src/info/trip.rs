@@ -1,7 +1,7 @@
 use crate::app::App;
 use crate::colors;
 use crate::helpers::ID;
-use crate::info::{make_table, TripDetails};
+use crate::info::{make_table, make_tabs, person, InfoTab, TripDetails};
 use crate::render::dashed_lines;
 use ezgui::{
     hotkey, Btn, Color, EventCtx, GeomBatch, Key, Line, Plot, PlotOptions, RewriteColor, Series,
@@ -9,30 +9,62 @@ use ezgui::{
 };
 use geom::{Angle, Distance, Duration, Polygon, Pt2D, Time};
 use map_model::{Map, Path, PathStep};
-use sim::{TripEnd, TripID, TripPhaseType, TripStart};
+use sim::{PersonID, TripEnd, TripID, TripPhaseType, TripStart};
 use std::collections::HashMap;
 
-pub fn info(
+#[derive(Clone, PartialEq)]
+pub enum Tab {
+    Person(PersonID),
+}
+
+pub fn inactive_info(
     ctx: &mut EventCtx,
     app: &App,
     id: TripID,
+    tab: InfoTab,
     action_btns: Vec<Widget>,
+    hyperlinks: &mut HashMap<String, (ID, InfoTab)>,
 ) -> (Vec<Widget>, Option<TripDetails>) {
     let mut rows = vec![];
 
     rows.push(Widget::row(vec![
         Line(format!("Trip #{}", id.0)).roboto_bold().draw(ctx),
-        // No jump-to-object button; this is probably a finished trip.
         Btn::text_fg("X")
             .build(ctx, "close info", hotkey(Key::Escape))
             .align_right(),
     ]));
-    rows.extend(action_btns);
 
-    let (more, details) = trip_details(ctx, app, id, None);
-    rows.push(more);
+    rows.push(make_tabs(
+        ctx,
+        hyperlinks,
+        ID::Trip(id),
+        tab.clone(),
+        vec![
+            ("Info", InfoTab::Nil),
+            (
+                "Schedule",
+                InfoTab::Trip(Tab::Person(app.primary.sim.trip_to_person(id).unwrap())),
+            ),
+        ],
+    ));
 
-    (rows, Some(details))
+    let mut details: Option<TripDetails> = None;
+
+    match tab {
+        InfoTab::Nil => {
+            rows.extend(action_btns);
+
+            let (more, trip_details) = trip_details(ctx, app, id, None);
+            rows.push(more);
+            details = Some(trip_details);
+        }
+        InfoTab::Trip(Tab::Person(p)) => {
+            rows.extend(person::info(ctx, app, p, None, Vec::new(), hyperlinks));
+        }
+        _ => unreachable!(),
+    }
+
+    (rows, details)
 }
 
 pub fn trip_details(
@@ -324,13 +356,6 @@ pub fn trip_details(
     let mut col = vec![Widget::row(timeline).evenly_spaced().margin_above(25)];
     col.extend(make_table(ctx, kv));
     col.extend(elevation);
-    if let Some(p) = app.primary.sim.trip_to_person(trip) {
-        col.push(
-            Btn::text_bg1(format!("Trip by Person #{}", p.0))
-                .build(ctx, format!("examine Person #{}", p.0), None)
-                .margin(5),
-        );
-    }
 
     (
         Widget::col(col),
