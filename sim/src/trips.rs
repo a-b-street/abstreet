@@ -610,9 +610,9 @@ impl TripManager {
         Some((t.id, t.spawned_at))
     }
 
-    pub fn trip_endpoints(&self, id: TripID) -> (TripStart, TripEnd) {
+    pub fn trip_info(&self, id: TripID) -> (Time, TripStart, TripEnd, TripMode) {
         let t = &self.trips[id.0];
-        (t.start.clone(), t.end.clone())
+        (t.spawned_at, t.start.clone(), t.end.clone(), t.mode)
     }
 
     // TODO Refactor after wrangling the TripStart/TripEnd mess
@@ -680,10 +680,6 @@ impl TripManager {
 
     pub fn trip_to_person(&self, id: TripID) -> Option<PersonID> {
         self.trips[id.0].person
-    }
-
-    pub fn trip_start_time(&self, id: TripID) -> Time {
-        self.trips[id.0].spawned_at
     }
 }
 

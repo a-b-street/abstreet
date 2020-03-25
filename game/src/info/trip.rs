@@ -5,7 +5,7 @@ use crate::info::{make_table, make_tabs, person, InfoTab, TripDetails};
 use crate::render::dashed_lines;
 use ezgui::{
     hotkey, Btn, Color, EventCtx, GeomBatch, Key, Line, Plot, PlotOptions, RewriteColor, Series,
-    Text, TextExt, Widget,
+    Text, Widget,
 };
 use geom::{Angle, Distance, Duration, Polygon, Pt2D, Time};
 use map_model::{Map, Path, PathStep};
@@ -75,21 +75,38 @@ pub fn trip_details(
 ) -> (Widget, TripDetails) {
     let map = &app.primary.map;
     let phases = app.primary.sim.get_analytics().get_trip_phases(trip, map);
-    let (trip_start, trip_end) = app.primary.sim.trip_endpoints(trip);
+    let (start_time, trip_start, trip_end, trip_mode) = app.primary.sim.trip_info(trip);
 
     let mut unzoomed = GeomBatch::new();
     let mut zoomed = GeomBatch::new();
     let mut markers = HashMap::new();
 
     if phases.is_empty() {
-        // TODO Still have some info here
+        // The trip hasn't started
+        let kv = vec![
+            ("Trip start", start_time.ampm_tostring()),
+            ("Type", trip_mode.to_string()),
+            // TODO If we're looking at a building, then "here"...
+            // TODO Refactor... TripStart.name(map)?
+            // TODO Buttons
+            (
+                "From",
+                match trip_start {
+                    TripStart::Bldg(b) => map.get_b(b).just_address(map),
+                    TripStart::Border(i) => map.get_i(i).name(map),
+                },
+            ),
+            (
+                "To",
+                match trip_end {
+                    TripEnd::Bldg(b) => map.get_b(b).just_address(map),
+                    TripEnd::Border(i) => map.get_i(i).name(map),
+                    TripEnd::ServeBusRoute(_) => unreachable!(),
+                },
+            ),
+        ];
         return (
-            format!(
-                "Trip #{} starts at {}",
-                trip.0,
-                app.primary.sim.trip_start_time(trip).ampm_tostring()
-            )
-            .draw_text(ctx),
+            Widget::col(make_table(ctx, kv)),
             TripDetails {
                 id: trip,
                 unzoomed: unzoomed.upload(ctx),
@@ -99,134 +116,87 @@ pub fn trip_details(
         );
     }
 
-    let trip_start_time = phases[0].start_time;
-    let trip_end_time = phases.last().as_ref().and_then(|p| p.end_time);
-
-    let start_tooltip = match trip_start {
-        TripStart::Bldg(b) => {
-            let bldg = map.get_b(b);
-
-            markers.insert("jump to start".to_string(), ID::Building(b));
-
-            unzoomed.add_svg(
-                ctx.prerender,
-                "../data/system/assets/timeline/start_pos.svg",
-                bldg.label_center,
-                1.0,
-                Angle::ZERO,
-            );
-            zoomed.add_svg(
-                ctx.prerender,
-                "../data/system/assets/timeline/start_pos.svg",
-                bldg.label_center,
-                0.5,
-                Angle::ZERO,
-            );
-
-            let mut txt = Text::from(Line("jump to start"));
-            txt.add(Line(bldg.just_address(map)));
-            txt.add(Line(phases[0].start_time.ampm_tostring()));
-            txt
-        }
-        TripStart::Border(i) => {
-            let i = map.get_i(i);
-
-            markers.insert("jump to start".to_string(), ID::Intersection(i.id));
-
-            unzoomed.add_svg(
-                ctx.prerender,
-                "../data/system/assets/timeline/start_pos.svg",
-                i.polygon.center(),
-                1.0,
-                Angle::ZERO,
-            );
-            zoomed.add_svg(
-                ctx.prerender,
-                "../data/system/assets/timeline/start_pos.svg",
-                i.polygon.center(),
-                0.5,
-                Angle::ZERO,
-            );
-
-            let mut txt = Text::from(Line("jump to start"));
-            txt.add(Line(i.name(map)));
-            txt.add(Line(phases[0].start_time.ampm_tostring()));
-            txt
-        }
-    };
-    let start_btn = Btn::svg(
-        "../data/system/assets/timeline/start_pos.svg",
-        RewriteColor::Change(Color::WHITE, colors::HOVERING),
-    )
-    .tooltip(start_tooltip)
-    .build(ctx, "jump to start", None);
-
-    let goal_tooltip = match trip_end {
-        TripEnd::Bldg(b) => {
-            let bldg = map.get_b(b);
-
-            markers.insert("jump to goal".to_string(), ID::Building(b));
-
-            unzoomed.add_svg(
-                ctx.prerender,
-                "../data/system/assets/timeline/goal_pos.svg",
-                bldg.label_center,
-                1.0,
-                Angle::ZERO,
-            );
-            zoomed.add_svg(
-                ctx.prerender,
-                "../data/system/assets/timeline/goal_pos.svg",
-                bldg.label_center,
-                0.5,
-                Angle::ZERO,
-            );
-
-            let mut txt = Text::from(Line("jump to goal"));
-            txt.add(Line(bldg.just_address(map)));
-            if let Some(t) = trip_end_time {
-                txt.add(Line(t.ampm_tostring()));
+    let start_btn = {
+        let (id, center, name) = match trip_start {
+            TripStart::Bldg(b) => {
+                let bldg = map.get_b(b);
+                (ID::Building(b), bldg.label_center, bldg.just_address(map))
             }
-            txt
-        }
-        TripEnd::Border(i) => {
-            let i = map.get_i(i);
-
-            markers.insert("jump to goal".to_string(), ID::Intersection(i.id));
-
-            unzoomed.add_svg(
-                ctx.prerender,
-                "../data/system/assets/timeline/goal_pos.svg",
-                i.polygon.center(),
-                1.0,
-                Angle::ZERO,
-            );
-            zoomed.add_svg(
-                ctx.prerender,
-                "../data/system/assets/timeline/goal_pos.svg",
-                i.polygon.center(),
-                0.5,
-                Angle::ZERO,
-            );
-
-            let mut txt = Text::from(Line("jump to goal"));
-            txt.add(Line(i.name(map)));
-            if let Some(t) = trip_end_time {
-                txt.add(Line(t.ampm_tostring()));
+            TripStart::Border(i) => {
+                let i = map.get_i(i);
+                (ID::Intersection(i.id), i.polygon.center(), i.name(map))
             }
-            txt
-        }
-        TripEnd::ServeBusRoute(_) => unreachable!(),
+        };
+        markers.insert("jump to start".to_string(), id);
+        unzoomed.add_svg(
+            ctx.prerender,
+            "../data/system/assets/timeline/start_pos.svg",
+            center,
+            1.0,
+            Angle::ZERO,
+        );
+        zoomed.add_svg(
+            ctx.prerender,
+            "../data/system/assets/timeline/start_pos.svg",
+            center,
+            0.5,
+            Angle::ZERO,
+        );
+        let mut txt = Text::from(Line("jump to start"));
+        txt.add(Line(name));
+        txt.add(Line(start_time.ampm_tostring()));
+        Btn::svg(
+            "../data/system/assets/timeline/start_pos.svg",
+            RewriteColor::Change(Color::WHITE, colors::HOVERING),
+        )
+        .tooltip(txt)
+        .build(ctx, "jump to start", None)
     };
-    let goal_btn = Btn::svg(
-        "../data/system/assets/timeline/goal_pos.svg",
-        RewriteColor::Change(Color::WHITE, colors::HOVERING),
-    )
-    .tooltip(goal_tooltip)
-    .build(ctx, "jump to goal", None);
+
+    let end_time = phases.last().as_ref().and_then(|p| p.end_time);
+
+    let goal_btn = {
+        let (id, center, name) = match trip_end {
+            TripEnd::Bldg(b) => {
+                let bldg = map.get_b(b);
+                (ID::Building(b), bldg.label_center, bldg.just_address(map))
+            }
+            TripEnd::Border(i) => {
+                let i = map.get_i(i);
+                (ID::Intersection(i.id), i.polygon.center(), i.name(map))
+            }
+            TripEnd::ServeBusRoute(_) => unreachable!(),
+        };
+        markers.insert("jump to goal".to_string(), id);
+        unzoomed.add_svg(
+            ctx.prerender,
+            "../data/system/assets/timeline/goal_pos.svg",
+            center,
+            1.0,
+            Angle::ZERO,
+        );
+        zoomed.add_svg(
+            ctx.prerender,
+            "../data/system/assets/timeline/goal_pos.svg",
+            center,
+            0.5,
+            Angle::ZERO,
+        );
+        let mut txt = Text::from(Line("jump to goal"));
+        txt.add(Line(name));
+        if let Some(t) = end_time {
+            txt.add(Line(t.ampm_tostring()));
+        }
+        Btn::svg(
+            "../data/system/assets/timeline/goal_pos.svg",
+            RewriteColor::Change(Color::WHITE, colors::HOVERING),
+        )
+        .tooltip(txt)
+        .build(ctx, "jump to goal", None)
+    };
 
     let total_duration_so_far =
-        trip_end_time.unwrap_or_else(|| app.primary.sim.time()) - phases[0].start_time;
+        end_time.unwrap_or_else(|| app.primary.sim.time()) - phases[0].start_time;
 
     let total_width = 0.3 * ctx.canvas.window_width;
     let mut timeline = Vec::new();
@@ -244,7 +214,7 @@ pub fn trip_details(
         }
         .alpha(0.7);
 
-        let mut txt = Text::from(Line(&p.phase_type.describe(&app.primary.map)));
+        let mut txt = Text::from(Line(&p.phase_type.describe(map)));
         txt.add(Line(format!(
             "- Started at {}",
             p.start_time.ampm_tostring()
@@ -347,10 +317,10 @@ pub fn trip_details(
     timeline.push(goal_btn.margin(5));
 
     let mut kv = vec![
-        ("Trip start", trip_start_time.ampm_tostring()),
+        ("Trip start", start_time.ampm_tostring()),
         ("Duration", total_duration_so_far.to_string()),
     ];
-    if let Some(t) = trip_end_time {
+    if let Some(t) = end_time {
         kv.push(("Trip end", t.ampm_tostring()));
     }
     let mut col = vec![Widget::row(timeline).evenly_spaced().margin_above(25)];

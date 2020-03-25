@@ -965,8 +965,9 @@ impl Sim {
         self.trips.trip_to_agent(id)
     }
 
-    pub fn trip_endpoints(&self, id: TripID) -> (TripStart, TripEnd) {
-        self.trips.trip_endpoints(id)
+    // (start time, start position, end position, trip type)
+    pub fn trip_info(&self, id: TripID) -> (Time, TripStart, TripEnd, TripMode) {
+        self.trips.trip_info(id)
     }
 
     pub fn trip_to_person(&self, id: TripID) -> Option<PersonID> {
@@ -978,10 +979,6 @@ impl Sim {
     }
     pub fn get_all_people(&self) -> &Vec<Person> {
         self.trips.get_all_people()
-    }
-
-    pub fn trip_start_time(&self, id: TripID) -> Time {
-        self.trips.trip_start_time(id)
     }
 
     pub fn lookup_car_id(&self, idx: usize) -> Option<CarID> {

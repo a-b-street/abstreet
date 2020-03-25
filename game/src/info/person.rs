@@ -57,7 +57,7 @@ pub fn info(
 
     rows.push(Line("Schedule").roboto_bold().draw(ctx));
     for t in &person.trips {
-        let start_time = app.primary.sim.trip_start_time(*t);
+        let (start_time, _, _, _) = app.primary.sim.trip_info(*t);
         hyperlinks.insert(
             format!("examine Trip #{}", t.0),
             (ID::Trip(*t), InfoTab::Nil),
