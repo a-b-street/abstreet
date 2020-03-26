@@ -1,27 +1,16 @@
 use crate::app::App;
-use crate::colors;
 use crate::helpers::ID;
-use crate::info::{make_browser, make_table, make_tabs, person, InfoTab};
+use crate::info::{make_table, make_tabs, person, InfoTab};
 use ezgui::{EventCtx, GeomBatch, Line, Text, TextExt, Widget};
 use map_model::BuildingID;
-use sim::{PersonID, TripEndpoint};
+use sim::TripEndpoint;
 use std::collections::HashMap;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum Tab {
-    // If we're live updating, the people inside could change! We're choosing to freeze the list
-    // here.
-    People(Vec<PersonID>, usize),
+    // If we're live updating, the people inside could change! Re-calculate constantly.
+    People,
     Debug,
-}
-impl std::cmp::PartialEq for Tab {
-    fn eq(&self, other: &Tab) -> bool {
-        match (self, other) {
-            (Tab::People(_, _), Tab::People(_, _)) => true,
-            (Tab::Debug, Tab::Debug) => true,
-            _ => false,
-        }
-    }
 }
 
 pub fn info(
@@ -33,11 +22,11 @@ pub fn info(
     action_btns: Vec<Widget>,
     batch: &mut GeomBatch,
     hyperlinks: &mut HashMap<String, (ID, InfoTab)>,
-    warpers: &mut HashMap<String, ID>,
 ) -> Vec<Widget> {
     let mut rows = vec![];
 
     let b = app.primary.map.get_b(id);
+    let ppl = app.primary.sim.bldg_to_people(id);
 
     rows.push(Widget::row(vec![
         Line(format!("Building #{}", id.0)).roboto_bold().draw(ctx),
@@ -46,12 +35,9 @@ pub fn info(
 
     rows.push(make_tabs(ctx, hyperlinks, ID::Building(id), tab.clone(), {
         let mut tabs = vec![("Info", InfoTab::Nil), ("Debug", InfoTab::Bldg(Tab::Debug))];
-
-        let ppl = app.primary.sim.bldg_to_people(id);
         if !ppl.is_empty() {
-            tabs.push(("People", InfoTab::Bldg(Tab::People(ppl, 0))));
+            tabs.push(("People", InfoTab::Bldg(Tab::People)));
         }
-
         tabs
     }));
 
@@ -127,25 +113,12 @@ pub fn info(
             rows.push("Raw OpenStreetMap data".draw_text(ctx));
             rows.extend(make_table(ctx, b.osm_tags.clone().into_iter().collect()));
         }
-        InfoTab::Bldg(Tab::People(ppl, idx)) => {
-            let mut inner = vec![make_browser(
-                ctx,
-                hyperlinks,
-                "Occupant",
-                ppl.len(),
-                idx,
-                |n| (ID::Building(id), InfoTab::Bldg(Tab::People(ppl.clone(), n))),
-            )];
-            inner.extend(person::info(
-                ctx,
-                app,
-                ppl[idx],
-                None,
-                Vec::new(),
-                hyperlinks,
-                warpers,
-            ));
-            rows.push(Widget::col(inner).bg(colors::INNER_PANEL_BG));
+        InfoTab::Bldg(Tab::People) => {
+            // TODO Sort/group better
+            // Show minimal info: ID, next departure time, type of that trip
+            for person in ppl {
+                rows.push(person::summary(ctx, app, person, hyperlinks));
+            }
         }
         _ => unreachable!(),
     }

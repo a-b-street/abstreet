@@ -3,9 +3,10 @@ use crate::colors;
 use crate::helpers::ID;
 use crate::info::trip::trip_details;
 use crate::info::InfoTab;
-use ezgui::{EventCtx, Line, TextExt, Widget};
+use ezgui::{EventCtx, Btn, Line, TextExt, Widget};
 use map_model::Map;
-use sim::{Person, PersonID, PersonState, TripResult};
+use sim::{Person, TripMode, PersonID, PersonState, TripResult};
+use geom::Time;
 use std::collections::HashMap;
 
 pub fn info(
@@ -86,4 +87,36 @@ fn current_status(ctx: &EventCtx, person: &Person, map: &Map) -> Widget {
                                occurred)"
             .draw_text(ctx),
     }
+}
+
+pub fn summary(ctx: &EventCtx, app: &App, id: PersonID, hyperlinks: &mut HashMap<String, (ID, InfoTab)>) -> Widget {
+    let person = app.primary.sim.get_person(id);
+
+    let mut next_trip: Option<(Time, TripMode)> = None;
+    for t in &person.trips {
+        match app.primary.sim.trip_to_agent(*t) {
+            TripResult::TripNotStarted => {
+                let (start_time, _, _, mode) = app.primary.sim.trip_info(*t);
+                next_trip = Some((start_time, mode));
+                break;
+            }
+            TripResult::Ok(_) | TripResult::ModeChange => {
+                // TODO What to do here? This is meant for building callers right now
+                break;
+            }
+            TripResult::TripDone => {}
+            TripResult::TripDoesntExist => unreachable!(),
+        }
+    }
+
+    let label = format!("Person #{}", id.0);
+    hyperlinks.insert(label.clone(), (ID::Person(id), InfoTab::Nil));
+    Widget::col(vec![
+        Btn::text_bg1(label).build_def(ctx, None),
+        if let Some((t, mode)) = next_trip {
+            format!("Leaving in {} to {}", t - app.primary.sim.time(), mode).draw_text(ctx)
+        } else {
+            "Staying inside".draw_text(ctx)
+        },
+    ])
 }

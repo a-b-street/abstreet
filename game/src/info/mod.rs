@@ -179,7 +179,6 @@ impl InfoPanel {
                     action_btns,
                     &mut batch,
                     &mut hyperlinks,
-                    &mut warpers,
                 ),
                 None,
             ),
