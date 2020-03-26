@@ -7,5 +7,12 @@ edition = "2018"
 [dependencies]
 abstutil = { path = "../abstutil" }
 convert_osm = { path = "../convert_osm" }
+csv = "1.0.1"
+failure = "0.1.2"
 geom = { path = "../geom" }
+gdal = "0.6.0"
 kml = { path = "../kml" }
+map_model = { path = "../map_model" }
+popdat = { path = "../popdat" }
+serde = "1.0.98"
+serde_derive = "1.0.98"

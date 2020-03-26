@@ -1,7 +1,6 @@
-mod utils;
+use crate::utils::{download, osmconvert, rm};
 
-use utils::{download, osmconvert, rm};
-
+// Grab all raw input files for Seattle.
 fn seattle_input() {
     download(
         "../data/input/google_transit/",
@@ -37,7 +36,8 @@ fn seattle_input() {
     download("../data/input/offstreet_parking.bin", "http://data-seattlecitygis.opendata.arcgis.com/datasets/8e52dfde6d5d45948f7a90654c8d50cd_0.kml");
 }
 
-pub fn seattle_map(name: String) {
+// Raw input -> RawMap for Seattle
+pub fn osm_to_raw(name: &str) {
     seattle_input();
     osmconvert(
         "../data/input/osm/Seattle.osm",
@@ -67,4 +67,21 @@ pub fn seattle_map(name: String) {
     );
     println!("- Saving {}", output);
     abstutil::write_binary(output, &map);
+}
+
+// Download and pre-process data needed to generate Seattle scenarios.
+pub fn ensure_popdat_exists(use_fixes: bool) {
+    if abstutil::file_exists(abstutil::path_popdat()) {
+        println!("- {} exists, not regenerating it", abstutil::path_popdat());
+        return;
+    }
+
+    if !abstutil::file_exists(abstutil::path_raw_map("huge_seattle")) {
+        osm_to_raw("huge_seattle");
+    }
+    if !abstutil::file_exists(abstutil::path_map("huge_seattle")) {
+        crate::utils::raw_to_map("huge_seattle", use_fixes);
+    }
+
+    crate::psrc::import_psrc_data();
 }

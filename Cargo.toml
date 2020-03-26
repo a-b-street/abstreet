@@ -13,7 +13,6 @@ members = [
   "map_editor",
   "map_model",
   "popdat",
-  "precompute",
   "sim",
 ]
 

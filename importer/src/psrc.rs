@@ -7,7 +7,8 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fs::File;
 use std::io::Write;
 
-fn main() {
+// Extract trip demand data from PSRC's Soundcast outputs.
+pub fn import_psrc_data() {
     let mut timer = abstutil::Timer::new("creating popdat");
     let (trips, parcels) = import_trips(
         "../data/input/parcels_urbansim.txt",

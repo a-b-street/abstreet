@@ -1,6 +1,9 @@
 use std::path::Path;
 use std::process::Command;
 
+// If the output file doesn't already exist, downloads the URL into that location. Automatically
+// uncompresses .zip and .gz files. .kml files are automatically clipped to a hardcoded boundary of
+// Seattle.
 pub fn download(output: &str, url: &str) {
     if Path::new(output).exists() {
         println!("- {} already exists", output);
@@ -45,6 +48,8 @@ pub fn download(output: &str, url: &str) {
     }
 }
 
+// Uses osmconvert to clip the input .osm (or .pbf) against a polygon and produce some output.
+// Skips if the output exists.
 pub fn osmconvert(input: &str, clipping_polygon: String, output: String) {
     if Path::new(&output).exists() {
         println!("- {} already exists", output);
@@ -59,12 +64,14 @@ pub fn osmconvert(input: &str, clipping_polygon: String, output: String) {
         .arg(format!("-o={}", output)));
 }
 
+// Removes files. Be careful!
 pub fn rm<I: Into<String>>(path: I) {
     let path = path.into();
     println!("- Removing {}", path);
     run(Command::new("rm").arg("-rfv").arg(path));
 }
 
+// Runs a command, asserts success. STDOUT and STDERR aren't touched.
 fn run(cmd: &mut Command) {
     println!("- Running {:?}", cmd);
     match cmd.status() {
@@ -77,4 +84,13 @@ fn run(cmd: &mut Command) {
             panic!("Failed to run {:?}: {:?}", cmd, err);
         }
     }
+}
+
+// Converts a RawMap to a Map.
+pub fn raw_to_map(name: &str, use_fixes: bool) {
+    let mut timer = abstutil::Timer::new(format!("Raw->Map for {}", name));
+    let map = map_model::Map::new(abstutil::path_raw_map(name), use_fixes, &mut timer);
+    timer.start("save map");
+    map.save();
+    timer.stop("save map");
 }

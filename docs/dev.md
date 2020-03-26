@@ -57,8 +57,7 @@ You can skip this section if you're just touching code in `game`, `ezgui`, and
 You have two options: you can seed some of the intermediate data by running
 `./data/grab_all_seed_data.sh` (downloads ~1GB, expands to ~5GB), or you can
 build everything totally from scratch by running
-`cd importer && cargo run --release && cd .. && ./precompute.sh --release`. This
-takes a while.
+`./import.sh --osm --map --scenario`. This takes a while.
 
 You'll need some extra dependencies:
 
@@ -66,16 +65,14 @@ You'll need some extra dependencies:
 - `libgdal-dev`: See https://gdal.org/ if your OS package manager doesn't have
   this
 
-Some tips:
+You can rerun specific stages of the importer:
 
 - If you're modifying the initial OSM data -> RawMap conversion in
-  `convert_osm`, then you do need to rerun
-  `cd importer; cargo run --release; cd ..` and `precompute.sh` to regenerate
-  the map.
+  `convert_osm`, you need `./import.sh --osm --map`.
 - If you're modifying `map_model` but not the OSM -> RawMap conversion, then you
-  can just do `precompute.sh`.
-- Both of those scripts can just regenerate a single map, which is much faster:
-  `cd importer && cargo run --release -- caphill && cd .. && ./precompute.sh caphill`
+  just need `./import.sh --map`.
+- By default, all maps are regenerated. You can also specify a single map:
+  `./import.sh --map downtown`.
 
 ## Understanding stuff
 
@@ -96,12 +93,11 @@ Constructing the map:
 - `kml`: extract shapes from KML shapefiles
 - `map_model`: the final representation of the map, also conversion from the
   intermediate map format into the final format
-- `precompute`: small tool to run the second stage of map conversion and write
-  final output
 - `popdat`: importing daily trips from PSRC's Soundcast model, specific to
   Seattle
 - `map_editor`: GUI for modifying geometry of maps and creating maps from
   scratch
+- `importer`: tool to run the entire import pipeline
 
 Traffic simulation:
 

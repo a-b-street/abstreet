@@ -4,22 +4,10 @@ version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2018"
 
-[features]
-default = []
-import = ["gdal"]
-
 [dependencies]
 abstutil = { path = "../abstutil" }
-csv = "1.0.1"
-failure = "0.1.2"
 geom = { path = "../geom" }
-# Only needed for the offline precompute step, not at runtime. Skip on WASM.
-gdal = { version = "0.6.0", optional = true }
 map_model = { path = "../map_model" }
 serde = "1.0.98"
 serde_derive = "1.0.98"
 sim = { path = "../sim" }
-
-[[bin]]
-name = "popdat"
-required-features = ["import"]
