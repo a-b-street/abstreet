@@ -41,7 +41,7 @@ impl OptionsPanel {
             composite: Composite::new(
                 Widget::col(vec![
                     Widget::row(vec![
-                        Line("Settings").roboto_bold().draw(ctx),
+                        Line("Settings").small_heading().draw(ctx),
                         Btn::text_fg("X")
                             .build_def(ctx, hotkey(Key::Escape))
                             .align_right(),

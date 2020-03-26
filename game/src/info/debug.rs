@@ -14,7 +14,7 @@ pub fn area(
     let mut rows = vec![];
 
     rows.push(Widget::row(vec![
-        Line(format!("Area #{}", id.0)).roboto_bold().draw(ctx),
+        Line(format!("Area #{}", id.0)).small_heading().draw(ctx),
         header_btns,
     ]));
     rows.extend(action_btns);
@@ -40,7 +40,7 @@ pub fn extra_shape(
 
     rows.push(Widget::row(vec![
         Line(format!("Extra GIS shape #{}", id.0))
-            .roboto_bold()
+            .small_heading()
             .draw(ctx),
         header_btns,
     ]));

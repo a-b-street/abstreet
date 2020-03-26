@@ -29,7 +29,7 @@ pub fn inactive_info(
     let mut rows = vec![];
 
     rows.push(Widget::row(vec![
-        Line(format!("Trip #{}", id.0)).roboto_bold().draw(ctx),
+        Line(format!("Trip #{}", id.0)).small_heading().draw(ctx),
         Btn::text_fg("X")
             .build(ctx, "close info", hotkey(Key::Escape))
             .align_right(),

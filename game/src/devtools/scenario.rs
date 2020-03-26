@@ -554,7 +554,7 @@ impl DotMap {
             composite: Composite::new(
                 Widget::col(vec![
                     Widget::row(vec![
-                        Line("Dot map of all trips").roboto_bold().draw(ctx),
+                        Line("Dot map of all trips").small_heading().draw(ctx),
                         Btn::text_fg("X")
                             .build_def(ctx, hotkey(Key::Escape))
                             .align_right(),

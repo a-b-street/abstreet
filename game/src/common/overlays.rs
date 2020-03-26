@@ -838,7 +838,7 @@ impl Overlays {
         let route = app.primary.map.get_br(id);
         let mut master_col = vec![Widget::row(vec![
             Line(format!("Passengers for {}", route.name))
-                .roboto_bold()
+                .small_heading()
                 .draw(ctx),
             Btn::text_fg("X").build_def(ctx, None).align_right(),
         ])];
@@ -1056,7 +1056,7 @@ fn population_controls(ctx: &mut EventCtx, app: &App, opts: Option<&HeatmapOptio
         Widget::row(vec![
             // TODO Only bold the first part
             Line(format!("Population: {}", prettyprint_usize(total_ppl)))
-                .roboto_bold()
+                .small_heading()
                 .draw(ctx),
             Btn::text_fg("X")
                 .build(ctx, "close", hotkey(Key::Escape))

@@ -887,7 +887,7 @@ impl TutorialState {
 
     fn make_top_center(&self, ctx: &mut EventCtx, edit_map: bool) -> Composite {
         let mut col = vec![Widget::row(vec![
-            Line("Tutorial").size(26).draw(ctx).margin(5),
+            Line("Tutorial").small_heading().draw(ctx).margin(5),
             Widget::draw_batch(
                 ctx,
                 GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
@@ -924,7 +924,7 @@ impl TutorialState {
                             self.current.stage + 1,
                             self.stage().task.label()
                         ))
-                        .roboto_bold(),
+                        .small_heading(),
                     )
                     .draw(ctx),
                     // TODO also text saying "instructions"... can we layout two things easily to
@@ -981,7 +981,7 @@ impl TutorialState {
                 let mut col = vec![
                     {
                         let mut txt = Text::new();
-                        txt.add(Line(self.stage().task.label()).roboto_bold());
+                        txt.add(Line(self.stage().task.label()).small_heading());
                         txt.add(Line(""));
 
                         for l in lines {

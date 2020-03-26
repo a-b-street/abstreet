@@ -202,8 +202,9 @@ e761e1d1f6c9b8befe53296e0411cef2  data/system/assets/minimap/zoom_out_fully.svg
 9caf97939884d4859accca34265f45fb  data/system/assets/minimap/up.svg
 a5e849fa8883569519976ebfef3ae269  data/system/night_colors.json
 1909af5ebfefe7ad4102335c9e789d24  data/system/override_colors.json
-517a360397bbb5a7573c2558e78fa4ea  data/system/fonts/DejaVuSans.ttf
 e07df86cef2e721115583d61d1fb68a6  data/system/fonts/Roboto-Bold.ttf
+2a13391023ce8787887331530cac35a7  data/system/fonts/BungeeInline-Regular.ttf
+259d4afad7edca07e727ef80f5bbce07  data/system/fonts/Bungee-Regular.ttf
 11eabca2251325cfc5589c9c6fb57b46  data/system/fonts/Roboto-Regular.ttf
 b38a9172d4a3c5521c1bde089b87a4b5  data/system/maps/huge_seattle.bin
 06e7705be021d6b236b4c90e9a8f4d35  data/system/maps/ballard.bin

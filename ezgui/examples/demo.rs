@@ -43,20 +43,24 @@ impl App {
 
     fn make_timeseries_panel(&self, ctx: &mut EventCtx) -> Composite {
         // Make a table with 3 columns.
-        let mut col1 = vec![Line("Time").roboto_bold().draw(ctx)];
-        let mut col2 = vec![Line("Linear").roboto_bold().draw(ctx)];
-        let mut col3 = vec![Line("Quadratic").roboto_bold().draw(ctx)];
+        let mut col1 = vec![Line("Time").draw(ctx)];
+        let mut col2 = vec![Line("Linear").draw(ctx)];
+        let mut col3 = vec![Line("Quadratic").draw(ctx)];
         for s in 0..(self.elapsed.inner_seconds() as usize) {
-            col1.push(Duration::seconds(s as f64).to_string().draw_text(ctx));
-            col2.push(s.to_string().draw_text(ctx));
-            col3.push(s.pow(2).to_string().draw_text(ctx));
+            col1.push(
+                Line(Duration::seconds(s as f64).to_string())
+                    .secondary()
+                    .draw(ctx),
+            );
+            col2.push(Line(s.to_string()).secondary().draw(ctx));
+            col3.push(Line(s.pow(2).to_string()).secondary().draw(ctx));
         }
 
         let mut c = Composite::new(
             Widget::col(vec![
                 Widget::row(vec![{
                     let mut txt = Text::from(
-                        Line("Here's a bunch of text to force some scrolling.").roboto_bold(),
+                        Line("Here's a bunch of text to force some scrolling.").small_heading(),
                     );
                     txt.add(
                         Line(
@@ -247,7 +251,7 @@ fn make_controls(ctx: &mut EventCtx) -> Composite {
     Composite::new(
         Widget::col(vec![
             {
-                let mut txt = Text::from(Line("ezgui demo").roboto_bold());
+                let mut txt = Text::from(Line("ezgui demo").small_heading());
                 txt.add(Line(
                     "Click and drag to pan, use touchpad or scroll wheel to zoom",
                 ));

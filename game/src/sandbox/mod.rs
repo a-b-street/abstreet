@@ -433,7 +433,7 @@ impl AgentMeter {
                     .get_analytics()
                     .trip_times(app.primary.sim.time());
                 let (baseline, _, _) = app.prebaked().trip_times(app.primary.sim.time());
-                let mut txt = Text::from(Line(format!("{} trip time: ", stat)).size(20));
+                let mut txt = Text::from(Line(format!("{} trip time: ", stat)).secondary());
                 if now.count() > 0 && baseline.count() > 0 {
                     txt.append_all(cmp_duration_shorter(
                         now.select(stat),
@@ -442,7 +442,7 @@ impl AgentMeter {
                 } else {
                     txt.append(Line("same as baseline"));
                 }
-                txt.add(Line(format!("Goal: {} faster", goal)).size(20));
+                txt.add(Line(format!("Goal: {} faster", goal)).secondary());
                 rows.push(txt.draw(ctx));
             }
         }

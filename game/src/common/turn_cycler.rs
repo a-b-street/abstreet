@@ -253,7 +253,7 @@ impl TurnExplorer {
                     "Turns from {}",
                     app.primary.map.get_parent(l).get_name()
                 ))
-                .size(26),
+                .small_heading(),
             )
             .draw(ctx)
             .margin(5),
@@ -268,7 +268,7 @@ impl TurnExplorer {
                 Btn::text_fg("<").build(ctx, "previous turn", hotkey(Key::LeftArrow))
             }
             .margin(5),
-            Text::from(Line(format!("{}/{}", idx, num_turns)).size(20))
+            Text::from(Line(format!("{}/{}", idx, num_turns)).secondary())
                 .draw(ctx)
                 .margin(5)
                 .centered_vert(),

@@ -469,7 +469,7 @@ fn make_table<I: Into<String>>(ctx: &EventCtx, rows: Vec<(I, String)>) -> Vec<Wi
     rows.into_iter()
         .map(|(k, v)| {
             Widget::row(vec![
-                Line(k).roboto_bold().draw(ctx),
+                Line(k).draw(ctx),
                 // TODO not quite...
                 v.draw_text(ctx).centered_vert().align_right(),
             ])
@@ -480,7 +480,7 @@ fn make_table<I: Into<String>>(ctx: &EventCtx, rows: Vec<(I, String)>) -> Vec<Wi
     /*let mut keys = Text::new();
     let mut values = Text::new();
     for (k, v) in rows {
-        keys.add(Line(k).roboto_bold());
+        keys.add(Line(k));
         values.add(Line(v));
     }
     vec![Widget::row(vec![

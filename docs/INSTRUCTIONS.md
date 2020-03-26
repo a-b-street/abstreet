@@ -65,5 +65,5 @@ A/B Street binary releases contain pre-built maps that combine data from:
 
 Other binary data bundled in:
 
-- DejaVuSans.ttf (https://dejavu-fonts.github.io/License.html)
-- Roboto-Regular.ttf (https://fonts.google.com/specimen/Roboto, Apache license)
+- Roboto font (https://fonts.google.com/specimen/Roboto, Apache license)
+- Bungee fonts (https://fonts.google.com/specimen/Bungee, Open Font License)

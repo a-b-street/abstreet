@@ -30,7 +30,9 @@ pub fn info(
 
     let label = if l.is_sidewalk() { "Sidewalk" } else { "Lane" };
     rows.push(Widget::row(vec![
-        Line(format!("{} #{}", label, id.0)).roboto_bold().draw(ctx),
+        Line(format!("{} #{}", label, id.0))
+            .small_heading()
+            .draw(ctx),
         header_btns,
     ]));
     rows.push(format!("@ {}", r.get_name()).draw_text(ctx));
@@ -125,19 +127,22 @@ pub fn info(
         InfoTab::Lane(Tab::Throughput) => {
             // Since this applies to the entire road, ignore lane type.
             let mut txt = Text::from(Line(""));
-            txt.add(Line("Throughput (entire road)").roboto_bold());
-            txt.add(Line(format!(
-                "Since midnight: {} agents crossed",
-                prettyprint_usize(
-                    app.primary
-                        .sim
-                        .get_analytics()
-                        .thruput_stats
-                        .count_per_road
-                        .get(r.id)
-                )
-            )));
-            txt.add(Line(format!("In 20 minute buckets:")));
+            txt.add(Line("Throughput (entire road)"));
+            txt.add(
+                Line(format!(
+                    "Since midnight: {} agents crossed",
+                    prettyprint_usize(
+                        app.primary
+                            .sim
+                            .get_analytics()
+                            .thruput_stats
+                            .count_per_road
+                            .get(r.id)
+                    )
+                ))
+                .secondary(),
+            );
+            txt.add(Line(format!("In 20 minute buckets:")).secondary());
             rows.push(txt.draw(ctx));
 
             let r = app.primary.map.get_l(id).parent;

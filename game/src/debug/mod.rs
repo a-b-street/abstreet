@@ -38,7 +38,7 @@ impl DebugMode {
             composite: Composite::new(
                 Widget::col(vec![
                     Widget::row(vec![
-                        Line("Debug Mode").roboto_bold().draw(ctx),
+                        Line("Debug Mode").small_heading().draw(ctx),
                         Btn::text_fg("X")
                             .build_def(ctx, hotkey(Key::Escape))
                             .align_right(),

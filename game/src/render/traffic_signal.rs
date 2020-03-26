@@ -221,7 +221,7 @@ pub fn make_signal_diagram(
 
     let signal = app.primary.map.get_traffic_signal(i);
     let txt_widget = {
-        let mut txt = Text::from(Line(format!("Intersection #{}", i.0)).roboto_bold());
+        let mut txt = Text::from(Line(format!("Intersection #{}", i.0)).big_heading_plain());
 
         let mut road_names = BTreeSet::new();
         for r in &app.primary.map.get_i(i).roads {
@@ -233,7 +233,7 @@ pub fn make_signal_diagram(
         }
 
         txt.add(Line(""));
-        txt.add(Line(format!("{} phases", signal.phases.len())).roboto_bold());
+        txt.add(Line(format!("{} phases", signal.phases.len())).small_heading());
         txt.add(Line(format!("Signal offset: {}", signal.offset)));
         txt.add(Line(format!("One cycle lasts {}", signal.cycle_length())));
         txt.draw(ctx)

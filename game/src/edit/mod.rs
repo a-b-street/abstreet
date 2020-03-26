@@ -340,19 +340,15 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Composite {
     Composite::new(
         Widget::col(vec![
             Widget::row(vec![
-                Line("Editing map").size(26).draw(ctx).margin(5),
+                Line("Editing map").small_heading().draw(ctx).margin(5),
                 Widget::draw_batch(
                     ctx,
                     GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 30.0))]),
                 )
                 .margin(5),
-                Btn::custom_text_fg(Text::from(
-                    Line(format!("{} ▼", &app.primary.map.get_edits().edits_name))
-                        .size(18)
-                        .roboto(),
-                ))
-                .build(ctx, "load edits", lctrl(Key::L))
-                .margin(5),
+                Btn::text_fg(format!("{} ▼", &app.primary.map.get_edits().edits_name))
+                    .build(ctx, "load edits", lctrl(Key::L))
+                    .margin(5),
                 Btn::svg_def("../data/system/assets/tools/save.svg")
                     .build(ctx, "save edits as", lctrl(Key::S))
                     .margin(5),

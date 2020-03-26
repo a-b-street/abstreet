@@ -16,7 +16,7 @@ pub fn info(
     let sim = &app.primary.sim;
 
     rows.push(Widget::row(vec![
-        Line("Bus stop").roboto_bold().draw(ctx),
+        Line("Bus stop").small_heading().draw(ctx),
         header_btns,
     ]));
     rows.extend(action_btns);
@@ -28,7 +28,7 @@ pub fn info(
     )));
     let all_arrivals = &sim.get_analytics().bus_arrivals;
     for r in app.primary.map.get_routes_serving_stop(id) {
-        txt.add(Line(format!("- Route {}", r.name)).roboto_bold());
+        txt.add(Line(format!("- Route {}", r.name)));
         let arrivals: Vec<(Time, CarID)> = all_arrivals
             .iter()
             .filter(|(_, _, route, stop)| r.id == *route && id == *stop)
@@ -36,9 +36,9 @@ pub fn info(
             .collect();
         if let Some((t, _)) = arrivals.last() {
             // TODO Button to jump to the bus
-            txt.add(Line(format!("  Last bus arrived {} ago", sim.time() - *t)));
+            txt.add(Line(format!("  Last bus arrived {} ago", sim.time() - *t)).secondary());
         } else {
-            txt.add(Line("  No arrivals yet"));
+            txt.add(Line("  No arrivals yet").secondary());
         }
         // TODO Kind of inefficient...
         if let Some(hgram) = sim
@@ -46,7 +46,7 @@ pub fn info(
             .bus_passenger_delays(sim.time(), r.id)
             .remove(&id)
         {
-            txt.add(Line(format!("  Waiting: {}", hgram.describe())));
+            txt.add(Line(format!("  Waiting: {}", hgram.describe())).secondary());
         }
     }
     rows.push(txt.draw(ctx));

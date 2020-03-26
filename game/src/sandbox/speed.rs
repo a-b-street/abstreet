@@ -65,7 +65,7 @@ impl SpeedControls {
                 ]
                 .into_iter()
                 .map(|(s, label)| {
-                    let mut txt = Text::from(Line(label).size(20));
+                    let mut txt = Text::from(Line(label).small());
                     txt.extend(Text::tooltip(hotkey(Key::LeftArrow), "slow down"));
                     txt.extend(Text::tooltip(hotkey(Key::RightArrow), "speed up"));
 
@@ -96,26 +96,19 @@ impl SpeedControls {
             Widget::row(
                 vec![
                     Btn::custom(
-                        Text::from(Line("+1h").fg(Color::WHITE).size(21).roboto()).render_ctx(ctx),
-                        Text::from(Line("+1h").fg(colors::HOVERING).size(21).roboto())
-                            .render_ctx(ctx),
+                        Text::from(Line("+1h").fg(Color::WHITE)).render_ctx(ctx),
+                        Text::from(Line("+1h").fg(colors::HOVERING)).render_ctx(ctx),
                         {
-                            let dims = Text::from(Line("+1h").size(21).roboto())
-                                .render_ctx(ctx)
-                                .get_dims();
+                            let dims = Text::from(Line("+1h")).render_ctx(ctx).get_dims();
                             Polygon::rectangle(dims.width, dims.height)
                         },
                     )
                     .build(ctx, "step forwards 1 hour", hotkey(Key::N)),
                     Btn::custom(
-                        Text::from(Line("+0.1s").fg(Color::WHITE).size(21).roboto())
-                            .render_ctx(ctx),
-                        Text::from(Line("+0.1s").fg(colors::HOVERING).size(21).roboto())
-                            .render_ctx(ctx),
+                        Text::from(Line("+0.1s").fg(Color::WHITE)).render_ctx(ctx),
+                        Text::from(Line("+0.1s").fg(colors::HOVERING)).render_ctx(ctx),
                         {
-                            let dims = Text::from(Line("+0.1s").size(21).roboto())
-                                .render_ctx(ctx)
-                                .get_dims();
+                            let dims = Text::from(Line("+0.1s")).render_ctx(ctx).get_dims();
                             Polygon::rectangle(dims.width, dims.height)
                         },
                     )
@@ -355,7 +348,7 @@ impl JumpToTime {
                         .build_def(ctx, hotkey(Key::Escape))
                         .align_right(),
                     {
-                        let mut txt = Text::from(Line("Jump to what time?").roboto_bold());
+                        let mut txt = Text::from(Line("Jump to what time?").small_heading());
                         txt.add(Line(target.ampm_tostring()));
                         txt.draw(ctx)
                     }
@@ -370,11 +363,11 @@ impl JumpToTime {
                     .named("time slider")
                     .margin(10),
                     Widget::row(vec![
-                        Line("00:00").size(12).roboto().draw(ctx),
+                        Line("00:00").small().draw(ctx),
                         Widget::draw_svg(ctx, "../data/system/assets/speed/sunrise.svg"),
-                        Line("12:00").size(12).roboto().draw(ctx),
+                        Line("12:00").small().draw(ctx),
                         Widget::draw_svg(ctx, "../data/system/assets/speed/sunset.svg"),
-                        Line("24:00").size(12).roboto().draw(ctx),
+                        Line("24:00").small().draw(ctx),
                     ])
                     .padding(10)
                     .evenly_spaced(),
@@ -384,7 +377,7 @@ impl JumpToTime {
                     Btn::text_bg2("Go!")
                         .build_def(ctx, hotkey(Key::Enter))
                         .centered_horiz(),
-                    Line("Active agents").roboto_bold().draw(ctx),
+                    Line("Active agents").small_heading().draw(ctx),
                     // TODO Sync the slider / plot.
                     Plot::new_usize(
                         ctx,
@@ -459,7 +452,7 @@ impl State for JumpToTime {
                 ctx,
                 "target time",
                 {
-                    let mut txt = Text::from(Line("Jump to what time?").roboto_bold());
+                    let mut txt = Text::from(Line("Jump to what time?").small_heading());
                     txt.add(Line(target.ampm_tostring()));
                     // TODO The panel jumps too much and the slider position changes place.
                     /*if target < app.primary.sim.time() {
@@ -540,7 +533,7 @@ impl State for TimeWarpScreen {
             // TODO secondary for a/b test mode
 
             // I'm covered in shame for not doing this from the start.
-            let mut txt = Text::from(Line("Let's do the time warp again!").roboto_bold());
+            let mut txt = Text::from(Line("Let's do the time warp again!").small_heading());
             txt.add(Line(format!(
                 "Simulating until it's {}",
                 self.target.ampm_tostring()
@@ -600,7 +593,7 @@ impl TimePanel {
             time: app.primary.sim.time(),
             composite: Composite::new(
                 Widget::col(vec![
-                    Text::from(Line(app.primary.sim.time().ampm_tostring()).size(30))
+                    Text::from(Line(app.primary.sim.time().ampm_tostring()).big_heading_styled())
                         .draw(ctx)
                         .margin(10)
                         .centered_horiz(),
@@ -633,11 +626,11 @@ impl TimePanel {
                         Widget::draw_batch(ctx, batch)
                     },
                     Widget::row(vec![
-                        Line("00:00").size(12).roboto().draw(ctx),
+                        Line("00:00").small().draw(ctx),
                         Widget::draw_svg(ctx, "../data/system/assets/speed/sunrise.svg"),
-                        Line("12:00").size(12).roboto().draw(ctx),
+                        Line("12:00").small().draw(ctx),
                         Widget::draw_svg(ctx, "../data/system/assets/speed/sunset.svg"),
-                        Line("24:00").size(12).roboto().draw(ctx),
+                        Line("24:00").small().draw(ctx),
                     ])
                     .padding(10)
                     .evenly_spaced(),

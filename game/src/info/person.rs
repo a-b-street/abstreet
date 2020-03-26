@@ -3,10 +3,10 @@ use crate::colors;
 use crate::helpers::ID;
 use crate::info::trip::trip_details;
 use crate::info::InfoTab;
-use ezgui::{EventCtx, Btn, Line, TextExt, Widget};
-use map_model::Map;
-use sim::{Person, TripMode, PersonID, PersonState, TripResult};
+use ezgui::{Btn, EventCtx, Line, TextExt, Widget};
 use geom::Time;
+use map_model::Map;
+use sim::{Person, PersonID, PersonState, TripMode, TripResult};
 use std::collections::HashMap;
 
 pub fn info(
@@ -24,11 +24,11 @@ pub fn info(
     // Header
     if let Some(btns) = header_btns {
         rows.push(Widget::row(vec![
-            Line(format!("Person #{}", id.0)).roboto_bold().draw(ctx),
+            Line(format!("Person #{}", id.0)).small_heading().draw(ctx),
             btns,
         ]));
     } else {
-        rows.push(Line(format!("Person #{}", id.0)).roboto_bold().draw(ctx));
+        rows.push(Line(format!("Person #{}", id.0)).small_heading().draw(ctx));
     }
     // TODO None of these right now
     rows.extend(action_btns);
@@ -59,7 +59,7 @@ pub fn info(
         }
         rows.push(
             Widget::col(vec![
-                Line(format!("Trip #{}", t.0)).roboto_bold().draw(ctx),
+                Line(format!("Trip #{}", t.0)).small_heading().draw(ctx),
                 trip_details(ctx, app, *t, None, warpers).0,
             ])
             .bg(colors::SECTION_BG)
@@ -89,7 +89,12 @@ fn current_status(ctx: &EventCtx, person: &Person, map: &Map) -> Widget {
     }
 }
 
-pub fn summary(ctx: &EventCtx, app: &App, id: PersonID, hyperlinks: &mut HashMap<String, (ID, InfoTab)>) -> Widget {
+pub fn summary(
+    ctx: &EventCtx,
+    app: &App,
+    id: PersonID,
+    hyperlinks: &mut HashMap<String, (ID, InfoTab)>,
+) -> Widget {
     let person = app.primary.sim.get_person(id);
 
     let mut next_trip: Option<(Time, TripMode)> = None;

@@ -268,7 +268,7 @@ fn challenge_controller(
     }
 
     let mut rows = vec![Widget::row(vec![
-        Line(title).size(26).draw(ctx).margin(5),
+        Line(title).small_heading().draw(ctx).margin(5),
         Btn::svg_def("../data/system/assets/tools/info.svg")
             .build(ctx, "instructions", None)
             .margin(5),
@@ -319,7 +319,7 @@ impl FinalScore {
         mode: GameplayMode,
         next: Option<GameplayMode>,
     ) -> Box<dyn State> {
-        let mut txt = Text::from(Line("Final score").roboto_bold());
+        let mut txt = Text::from(Line("Final score").small_heading());
         txt.add(Line(verdict));
 
         let row = vec![

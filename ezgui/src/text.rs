@@ -20,9 +20,10 @@ pub const MAX_CHAR_WIDTH: f64 = 25.0;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Font {
-    DejaVu,
     Roboto,
     RobotoBold,
+    Bungee,
+    BungeeInline,
 }
 
 #[derive(Debug, Clone)]
@@ -40,26 +41,49 @@ impl TextSpan {
         self
     }
 
-    pub fn size(mut self, size: usize) -> TextSpan {
-        assert_eq!(self.size, None);
-        self.size = Some(size);
-        self
-    }
-
-    pub fn roboto(mut self) -> TextSpan {
-        assert_eq!(self.font, Font::DejaVu);
-        self.font = Font::Roboto;
-        self
-    }
-
-    pub fn roboto_bold(mut self) -> TextSpan {
-        assert_eq!(self.font, Font::DejaVu);
-        self.font = Font::RobotoBold;
-        self
-    }
-
     pub fn draw(self, ctx: &EventCtx) -> Widget {
         Text::from(self).draw(ctx)
+    }
+
+    // Yuwen's new styles, defined in Figma. Should document them in Github better.
+
+    pub fn display_title(mut self) -> TextSpan {
+        self.font = Font::BungeeInline;
+        self.size = Some(64);
+        self
+    }
+    pub fn big_heading_styled(mut self) -> TextSpan {
+        self.font = Font::Bungee;
+        self.size = Some(32);
+        self
+    }
+    pub fn big_heading_plain(mut self) -> TextSpan {
+        self.font = Font::RobotoBold;
+        self.size = Some(32);
+        self
+    }
+    pub fn small_heading(mut self) -> TextSpan {
+        // TODO Roboto medium?
+        self.font = Font::RobotoBold;
+        self.size = Some(26);
+        self
+    }
+    // The default
+    pub fn body(mut self) -> TextSpan {
+        self.font = Font::Roboto;
+        self.size = Some(21);
+        self
+    }
+    pub fn secondary(mut self) -> TextSpan {
+        self.font = Font::Roboto;
+        self.size = Some(21);
+        self.fg_color = Color::hex("#A3A3A3");
+        self
+    }
+    pub fn small(mut self) -> TextSpan {
+        self.font = Font::Roboto;
+        self.size = Some(16);
+        self
     }
 }
 
@@ -70,7 +94,7 @@ pub fn Line<S: Into<String>>(text: S) -> TextSpan {
         text: text.into(),
         fg_color: FG_COLOR,
         size: None,
-        font: Font::DejaVu,
+        font: Font::Roboto,
     }
 }
 
@@ -111,11 +135,11 @@ impl Text {
     // TODO Not exactly sure this is the right place for this, but better than code duplication
     pub fn tooltip(hotkey: Option<MultiKey>, action: &str) -> Text {
         if let Some(ref key) = hotkey {
-            let mut txt = Text::from(Line(key.describe()).fg(HOTKEY_COLOR).size(20));
+            let mut txt = Text::from(Line(key.describe()).fg(HOTKEY_COLOR).small());
             txt.append(Line(format!(" - {}", action)));
             txt
         } else {
-            Text::from(Line(action).size(20))
+            Text::from(Line(action).small())
         }
     }
 
@@ -291,7 +315,8 @@ fn render_text(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
         r##"<svg width="9999" height="9999" viewBox="0 0 9999 9999" xmlns="http://www.w3.org/2000/svg"><text x="0" y="0" font-size="{}" {}>"##,
         spans[0].size.unwrap_or(*assets.default_font_size.borrow()),
         match spans[0].font {
-            Font::DejaVu => "font-family=\"DejaVu Sans\"",
+            Font::BungeeInline => "font-family=\"Bungee Inline\"",
+            Font::Bungee => "font-family=\"Bungee\"",
             Font::Roboto => "font-family=\"Roboto\"",
             Font::RobotoBold => "font-family=\"Roboto\" font-weight=\"bold\"",
         }

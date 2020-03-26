@@ -144,8 +144,8 @@ impl Tab {
                 .align_left(),
         );
         master_col.push({
-            let mut txt = Text::from(Line("A/B STREET").size(100));
-            txt.add(Line("CHALLENGES").size(50));
+            let mut txt = Text::from(Line("A/B STREET").display_title());
+            txt.add(Line("CHALLENGES").big_heading_styled());
             txt.draw(ctx).centered_horiz()
         });
 

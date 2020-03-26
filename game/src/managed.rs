@@ -68,7 +68,7 @@ impl WrappedComposite {
         Composite::new(
             Widget::col(vec![
                 Widget::row(vec![
-                    Line(title.into()).roboto_bold().draw(ctx),
+                    Line(title.into()).small_heading().draw(ctx),
                     Btn::text_fg("X")
                         .build_def(ctx, hotkey(Key::Escape))
                         .align_right(),

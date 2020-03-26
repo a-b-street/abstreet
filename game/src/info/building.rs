@@ -29,7 +29,9 @@ pub fn info(
     let ppl = app.primary.sim.bldg_to_people(id);
 
     rows.push(Widget::row(vec![
-        Line(format!("Building #{}", id.0)).roboto_bold().draw(ctx),
+        Line(format!("Building #{}", id.0))
+            .small_heading()
+            .draw(ctx),
         header_btns,
     ]));
 

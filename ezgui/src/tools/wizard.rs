@@ -85,7 +85,7 @@ impl Wizard {
                 Composite::new(
                     Widget::col(vec![
                         Widget::row(vec![
-                            Line(query).roboto_bold().draw(ctx),
+                            Line(query).small_heading().draw(ctx),
                             Btn::text_fg("X")
                                 .build(ctx, "quit", hotkey(Key::Escape))
                                 .margin(5)
@@ -240,7 +240,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             let choices: Vec<Choice<R>> = choices_generator();
             if choices.is_empty() {
                 let mut txt = if let Some(l) = query {
-                    Text::from(Line(l).roboto_bold())
+                    Text::from(Line(l).small_heading())
                 } else {
                     Text::new()
                 };
@@ -250,7 +250,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             }
             let mut col = Vec::new();
             if let Some(l) = query {
-                col.push(Line(l).roboto_bold().draw(self.ctx));
+                col.push(Line(l).small_heading().draw(self.ctx));
             }
             col.push(
                 Menu::new(
@@ -367,7 +367,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         }
 
         if self.wizard.ack.is_none() {
-            let mut txt = Text::from(Line(title).roboto_bold());
+            let mut txt = Text::from(Line(title).small_heading());
             for l in make_lines() {
                 txt.add(Line(l));
             }

@@ -139,7 +139,7 @@ impl<'a> LoadingScreen<'a> {
         }
         self.last_drawn = Instant::now();
 
-        let mut txt = Text::from(Line(&self.title).roboto_bold());
+        let mut txt = Text::from(Line(&self.title).small_heading());
         for l in &self.lines {
             txt.add(Line(l));
         }

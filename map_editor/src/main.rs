@@ -81,7 +81,7 @@ impl UI {
             state: State::viewing(),
             composite: Composite::new(
                 Widget::col(vec![
-                    Line("Map Editor").roboto_bold().draw(ctx),
+                    Line("Map Editor").small_heading().draw(ctx),
                     Text::new().draw(ctx).named("current info"),
                     Widget::col(
                         vec![

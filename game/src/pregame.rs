@@ -76,7 +76,7 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
             .build(ctx, "quit", hotkey(Key::Escape))
             .align_left(),
         {
-            let mut txt = Text::from(Line("A/B STREET").size(100));
+            let mut txt = Text::from(Line("A/B STREET").display_title());
             txt.add(Line("Created by Dustin Carlino"));
             txt.draw(ctx).centered_horiz()
         },
@@ -87,7 +87,7 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
             )
             .tooltip({
                 let mut txt = Text::tooltip(hotkey(Key::T), "Tutorial");
-                txt.add(Line("Learn how to play the game"));
+                txt.add(Line("Learn how to play the game").small());
                 txt
             })
             .build(ctx, "Tutorial", hotkey(Key::T)),
@@ -97,7 +97,7 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
             )
             .tooltip({
                 let mut txt = Text::tooltip(hotkey(Key::S), "Sandbox");
-                txt.add(Line("No goals, try out any idea here"));
+                txt.add(Line("No goals, try out any idea here").small());
                 txt
             })
             .build(ctx, "Sandbox mode", hotkey(Key::S)),
@@ -107,14 +107,14 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
             )
             .tooltip({
                 let mut txt = Text::tooltip(hotkey(Key::C), "Challenges");
-                txt.add(Line("Fix specific problems"));
+                txt.add(Line("Fix specific problems").small());
                 txt
             })
             .build(ctx, "Challenges", hotkey(Key::C)),
             Btn::text_bg2("Community Proposals")
                 .tooltip({
                     let mut txt = Text::tooltip(hotkey(Key::P), "Community Proposals");
-                    txt.add(Line("See existing ideas for improving traffic"));
+                    txt.add(Line("See existing ideas for improving traffic").small());
                     txt
                 })
                 .build_def(ctx, hotkey(Key::P)),
@@ -223,7 +223,7 @@ fn about(ctx: &mut EventCtx) -> Box<dyn State> {
             .align_left(),
         {
             let mut txt = Text::new();
-            txt.add(Line("A/B STREET").size(50));
+            txt.add(Line("A/B STREET").display_title());
             txt.add(Line("Created by Dustin Carlino, UX by Yuwen Li"));
             txt.add(Line(""));
             txt.add(Line("Contact: dabreegster@gmail.com"));
@@ -312,8 +312,8 @@ fn proposals_picker(ctx: &mut EventCtx) -> Box<dyn State> {
                     .build(ctx, "back", hotkey(Key::Escape))
                     .align_left(),
                 {
-                    let mut txt = Text::from(Line("A/B STREET").size(100));
-                    txt.add(Line("PROPOSALS").size(50));
+                    let mut txt = Text::from(Line("A/B STREET").display_title());
+                    txt.add(Line("PROPOSALS").big_heading_styled());
                     txt.add(Line(""));
                     txt.add(Line(
                         "These are proposed changes to Seattle made by community members.",

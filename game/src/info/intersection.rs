@@ -34,7 +34,7 @@ pub fn info(
         IntersectionType::Construction => format!("Intersection #{} (under construction)", id.0),
     };
     rows.push(Widget::row(vec![
-        Line(label).roboto_bold().draw(ctx),
+        Line(label).small_heading().draw(ctx),
         header_btns,
     ]));
 
@@ -87,19 +87,22 @@ pub fn info(
         InfoTab::Intersection(Tab::Throughput) => {
             let mut txt = Text::new();
 
-            txt.add(Line("Throughput").roboto_bold());
-            txt.add(Line(format!(
-                "Since midnight: {} agents crossed",
-                prettyprint_usize(
-                    app.primary
-                        .sim
-                        .get_analytics()
-                        .thruput_stats
-                        .count_per_intersection
-                        .get(id)
-                )
-            )));
-            txt.add(Line(format!("In 20 minute buckets:")));
+            txt.add(Line("Throughput"));
+            txt.add(
+                Line(format!(
+                    "Since midnight: {} agents crossed",
+                    prettyprint_usize(
+                        app.primary
+                            .sim
+                            .get_analytics()
+                            .thruput_stats
+                            .count_per_intersection
+                            .get(id)
+                    )
+                ))
+                .secondary(),
+            );
+            txt.add(Line(format!("In 20 minute buckets:")).secondary());
             rows.push(txt.draw(ctx));
 
             rows.push(
@@ -111,8 +114,8 @@ pub fn info(
         }
         InfoTab::Intersection(Tab::Delay) => {
             assert!(app.primary.map.get_i(id).is_traffic_signal());
-            let mut txt = Text::from(Line("Delay").roboto_bold());
-            txt.add(Line(format!("In 20 minute buckets:")));
+            let mut txt = Text::from(Line("Delay"));
+            txt.add(Line(format!("In 20 minute buckets:")).secondary());
             rows.push(txt.draw(ctx));
 
             rows.push(delay(ctx, app, id, Duration::minutes(20)).margin(10));

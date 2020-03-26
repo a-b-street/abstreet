@@ -207,7 +207,10 @@ fn make_panel(ctx: &mut EventCtx) -> Composite {
     Composite::new(
         Widget::col(vec![
             Widget::row(vec![
-                Line("Geometry debugger").roboto_bold().draw(ctx).margin(5),
+                Line("Geometry debugger")
+                    .small_heading()
+                    .draw(ctx)
+                    .margin(5),
                 Btn::text_fg("X")
                     .build(ctx, "close", hotkey(Key::Escape))
                     .align_right(),

@@ -44,7 +44,9 @@ pub fn car_info(
         VehicleType::Bus => "Bus",
     };
     rows.push(Widget::row(vec![
-        Line(format!("{} #{}", label, id.0)).roboto_bold().draw(ctx),
+        Line(format!("{} #{}", label, id.0))
+            .small_heading()
+            .draw(ctx),
         header_btns,
     ]));
 
@@ -134,7 +136,7 @@ pub fn ped_info(
 
     rows.push(Widget::row(vec![
         Line(format!("Pedestrian #{}", id.0))
-            .roboto_bold()
+            .small_heading()
             .draw(ctx),
         header_btns,
     ]));
@@ -217,7 +219,7 @@ pub fn crowd_info(
     let mut rows = vec![];
 
     rows.push(Widget::row(vec![
-        Line("Pedestrian crowd").roboto_bold().draw(ctx),
+        Line("Pedestrian crowd").small_heading().draw(ctx),
         header_btns,
     ]));
 

@@ -86,6 +86,7 @@ pub fn make(ctx: &mut EventCtx, app: &App, tab: Tab) -> Box<dyn State> {
     ManagedGUIState::fullscreen(c)
 }
 
+// TODO Overhaul typography.
 fn trips_summary_prebaked(ctx: &EventCtx, app: &App) -> Widget {
     if app.has_prebaked().is_none() {
         return trips_summary_not_prebaked(ctx, app);
@@ -101,11 +102,10 @@ fn trips_summary_prebaked(ctx: &EventCtx, app: &App) -> Widget {
 
     // TODO Include unfinished count
     let mut txt = Text::new();
-    txt.add_appended(vec![
-        Line("Trips as of "),
-        Line(app.primary.sim.time().ampm_tostring()).roboto_bold(),
-    ]);
-    txt.highlight_last_line(Color::BLUE);
+    txt.add(Line(format!(
+        "Trips as of {}",
+        app.primary.sim.time().ampm_tostring()
+    )));
     txt.add_appended(vec![
         Line(format!(
             "{} aborted trips (",
@@ -143,7 +143,6 @@ fn trips_summary_prebaked(ctx: &EventCtx, app: &App) -> Widget {
             cmp_count_more(a.count(), b.count()),
             Line(")"),
         ]);
-        txt.highlight_last_line(Color::BLUE);
         if a.count() > 0 && b.count() > 0 {
             for stat in Statistic::all() {
                 txt.add(Line(format!("{}: {} (", stat, a.select(stat))));
@@ -165,7 +164,7 @@ fn trips_summary_prebaked(ctx: &EventCtx, app: &App) -> Widget {
             ctx,
         )
         .bg(colors::SECTION_BG),
-        Line("Active agents").roboto_bold().draw(ctx),
+        Line("Active agents").small_heading().draw(ctx),
         Plot::new_usize(
             ctx,
             vec![
@@ -198,11 +197,10 @@ fn trips_summary_not_prebaked(ctx: &EventCtx, app: &App) -> Widget {
 
     // TODO Include unfinished count
     let mut txt = Text::new();
-    txt.add_appended(vec![
-        Line("Trips as of "),
-        Line(app.primary.sim.time().ampm_tostring()).roboto_bold(),
-    ]);
-    txt.highlight_last_line(Color::BLUE);
+    txt.add(Line(format!(
+        "Trips as of {}",
+        app.primary.sim.time().ampm_tostring()
+    )));
     txt.add(Line(format!(
         "{} aborted trips",
         prettyprint_usize(aborted)
@@ -224,7 +222,6 @@ fn trips_summary_not_prebaked(ctx: &EventCtx, app: &App) -> Widget {
             prettyprint_usize(a.count()),
             mode
         )));
-        txt.highlight_last_line(Color::BLUE);
         if a.count() > 0 {
             for stat in Statistic::all() {
                 txt.add(Line(format!("{}: {}", stat, a.select(stat))));
@@ -235,7 +232,7 @@ fn trips_summary_not_prebaked(ctx: &EventCtx, app: &App) -> Widget {
     Widget::col(vec![
         txt.draw(ctx),
         finished_trips_plot(ctx, app).bg(colors::SECTION_BG),
-        Line("Active agents").roboto_bold().draw(ctx),
+        Line("Active agents").small_heading().draw(ctx),
         Plot::new_usize(
             ctx,
             vec![Series {

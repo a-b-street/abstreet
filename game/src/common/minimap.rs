@@ -6,7 +6,7 @@ use crate::render::MIN_ZOOM_FOR_DETAIL;
 use abstutil::clamp;
 use ezgui::{
     hotkey, Btn, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, RewriteColor, ScreenDims, ScreenPt, Text, TextExt, VerticalAlignment, Widget,
+    Line, Outcome, RewriteColor, ScreenDims, ScreenPt, Text, VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Polygon, Pt2D, Ring};
 
@@ -368,9 +368,9 @@ fn make_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
                 )
                 .margin(3),
                 Text::from(if *enabled {
-                    Line(label)
+                    Line(label).small()
                 } else {
-                    Line(label).fg(Color::WHITE.alpha(0.5))
+                    Line(label).small().fg(Color::WHITE.alpha(0.5))
                 })
                 .draw(ctx)
                 .margin(3),
@@ -391,7 +391,7 @@ fn make_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
                         RewriteColor::ChangeAll(Color::BLUE),
                     )
                     .margin(5),
-                    name.draw_text(ctx),
+                    Line(name).small().draw(ctx),
                 ]),
             );
         }

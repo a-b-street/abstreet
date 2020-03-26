@@ -706,7 +706,7 @@ fn make_top_bar(ctx: &mut EventCtx, title: &str, howto: &str) -> Composite {
     Composite::new(
         Widget::col(vec![
             Widget::row(vec![
-                Line(title).roboto_bold().draw(ctx),
+                Line(title).small_heading().draw(ctx),
                 Btn::text_fg("X")
                     .build_def(ctx, hotkey(Key::Escape))
                     .align_right(),

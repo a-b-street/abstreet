@@ -150,7 +150,7 @@ impl Settings {
             window_title: window_title.to_string(),
             font_dir: font_dir.to_string(),
             profiling_enabled: false,
-            default_font_size: 30,
+            default_font_size: 21,
             dump_raw_events: false,
             scale_factor: 1.0,
         }

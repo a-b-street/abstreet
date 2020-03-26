@@ -9,7 +9,7 @@ use crate::sandbox::SandboxControls;
 use crate::sandbox::SandboxMode;
 use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, ScreenRectangle, Text, VerticalAlignment, Widget,
+    Key, Line, ScreenRectangle, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::Polygon;
 use map_model::IntersectionID;
@@ -90,30 +90,20 @@ pub fn freeform_controller(
 ) -> WrappedComposite {
     let c = Composite::new(
         Widget::row(vec![
-            Line("Sandbox").size(26).draw(ctx).margin(5),
+            Line("Sandbox").small_heading().draw(ctx).margin(5),
             Widget::draw_batch(
                 ctx,
                 GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
             )
             .margin(5),
-            Text::from(Line("Map:").size(18).roboto_bold())
-                .draw(ctx)
+            "Map:".draw_text(ctx).margin(5),
+            Btn::text_fg(format!("{} ▼", nice_map_name(app.primary.map.get_name())))
+                .build(ctx, "change map", lctrl(Key::L))
                 .margin(5),
-            Btn::custom_text_fg(Text::from(
-                Line(format!("{} ▼", nice_map_name(app.primary.map.get_name())))
-                    .size(18)
-                    .roboto(),
-            ))
-            .build(ctx, "change map", lctrl(Key::L))
-            .margin(5),
-            Text::from(Line("Traffic:").size(18).roboto_bold())
-                .draw(ctx)
+            "Traffic:".draw_text(ctx).margin(5),
+            Btn::text_fg(format!("{} ▼", scenario_name))
+                .build(ctx, "change traffic", hotkey(Key::S))
                 .margin(5),
-            Btn::custom_text_fg(Text::from(
-                Line(format!("{} ▼", scenario_name)).size(18).roboto(),
-            ))
-            .build(ctx, "change traffic", hotkey(Key::S))
-            .margin(5),
             Btn::svg_def("../data/system/assets/tools/edit_map.svg")
                 .build(ctx, "edit map", lctrl(Key::E))
                 .margin(5),

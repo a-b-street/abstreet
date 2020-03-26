@@ -149,7 +149,7 @@ impl Renderable for DrawIntersection {
                     app.opts.traffic_signal_style.clone(),
                 );
                 batch.add_transformed(
-                    Text::from(Line(format!("{}", idx + 1)).roboto()).render_to_batch(g.prerender),
+                    Text::from(Line(format!("{}", idx + 1))).render_to_batch(g.prerender),
                     app.primary.map.get_i(self.id).polygon.center(),
                     0.1,
                     Angle::ZERO,
