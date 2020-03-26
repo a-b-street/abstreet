@@ -609,34 +609,24 @@ impl TimePanel {
                         // This is manually tuned
                         let width = 300.0;
                         let height = 15.0;
-                        let mut percent = app.primary.sim.time().to_percent(Time::END_OF_DAY);
+                        // Just clamp past 24 hours
+                        let percent = app.primary.sim.time().to_percent(Time::END_OF_DAY).min(1.0);
+
+                        // TODO Why is the rounding so hard? The white background is always rounded
+                        // at both ends. The moving bar should always be rounded on the left, flat
+                        // on the right, except at the very end (for the last 'radius' pixels). And
+                        // when the width is too small for the radius, this messes up.
 
                         batch.push(Color::WHITE, Polygon::rectangle(width, height));
 
-                        // Midnight to sunrise
-                        if percent > 0.0 {
+                        if percent != 0.0 {
                             batch.push(
-                                app.cs.get_def("night time", Color::hex("#12409D")),
-                                Polygon::rectangle(percent.min(0.25) * width, height),
-                            );
-                        }
-                        percent -= 0.25;
-                        // Daytime
-                        if percent > 0.0 {
-                            batch.push(
-                                app.cs.get_def("day time", Color::hex("#F4DA22")),
-                                Polygon::rectangle(percent.min(0.5) * width, height)
-                                    .translate(0.25 * width, 0.0),
-                            );
-                        }
-                        percent -= 0.5;
-                        // Sunset to midnight
-                        if percent > 0.0 {
-                            // Just clamp past 24 hours
-                            batch.push(
-                                app.cs.get("night time"),
-                                Polygon::rectangle(percent.min(0.25) * width, height)
-                                    .translate(0.75 * width, 0.0),
+                                if percent < 0.25 || percent > 0.75 {
+                                    app.cs.get_def("night time", Color::hex("#12409D"))
+                                } else {
+                                    app.cs.get_def("day time", Color::hex("#F4DA22"))
+                                },
+                                Polygon::rectangle(percent * width, height),
                             );
                         }
 
