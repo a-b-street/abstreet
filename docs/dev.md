@@ -57,7 +57,8 @@ You can skip this section if you're just touching code in `game`, `ezgui`, and
 You have two options: you can seed some of the intermediate data by running
 `./data/grab_all_seed_data.sh` (downloads ~1GB, expands to ~5GB), or you can
 build everything totally from scratch by running
-`./import.sh && ./precompute.sh --release`. This takes a while.
+`cd importer && cargo run --release && cd .. && ./precompute.sh --release`. This
+takes a while.
 
 You'll need some extra dependencies:
 
@@ -68,12 +69,13 @@ You'll need some extra dependencies:
 Some tips:
 
 - If you're modifying the initial OSM data -> RawMap conversion in
-  `convert_osm`, then you do need to rerun `./import.sh` and `precompute.sh` to
-  regenerate the map.
+  `convert_osm`, then you do need to rerun
+  `cd importer; cargo run --release; cd ..` and `precompute.sh` to regenerate
+  the map.
 - If you're modifying `map_model` but not the OSM -> RawMap conversion, then you
   can just do `precompute.sh`.
 - Both of those scripts can just regenerate a single map, which is much faster:
-  `./import.sh caphill; ./precompute.sh caphill`
+  `cd importer && cargo run --release -- caphill && cd .. && ./precompute.sh caphill`
 
 ## Understanding stuff
 

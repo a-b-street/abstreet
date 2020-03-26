@@ -106,3 +106,7 @@ I never wanted to call this "ezgui." :(
   this is also the name of some library)
 - coco (for the geom library)
 - abstgui (too obvious)
+
+## Future work
+
+- Draggable panels

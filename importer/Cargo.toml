@@ -1,0 +1,11 @@
+[package]
+name = "importer"
+version = "0.1.0"
+authors = ["Dustin Carlino <dabreegster@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+abstutil = { path = "../abstutil" }
+convert_osm = { path = "../convert_osm" }
+geom = { path = "../geom" }
+kml = { path = "../kml" }

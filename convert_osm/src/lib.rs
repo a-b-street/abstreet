@@ -48,7 +48,7 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> RawMap {
         use_parking_hints(&mut map, path.clone(), timer);
     }
     if let Some(ref path) = flags.offstreet_parking {
-        use_offstreet_parking(&mut map, path, timer);
+        use_offstreet_parking(&mut map, path.clone(), timer);
     }
     if let Some(ref path) = flags.sidewalks {
         use_sidewalk_hints(&mut map, path.clone(), timer);
@@ -170,9 +170,9 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
     timer.stop("apply parking hints");
 }
 
-fn use_offstreet_parking(map: &mut RawMap, path: &str, timer: &mut Timer) {
+fn use_offstreet_parking(map: &mut RawMap, path: String, timer: &mut Timer) {
     timer.start("match offstreet parking points");
-    let shapes = kml::load(path, &map.gps_bounds, timer).expect("loading offstreet_parking failed");
+    let shapes: ExtraShapes = abstutil::read_binary(path, timer);
 
     let mut closest: FindClosest<OriginalBuilding> = FindClosest::new(&map.gps_bounds.to_bounds());
     for (id, b) in &map.buildings {

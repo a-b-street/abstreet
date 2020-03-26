@@ -3,11 +3,11 @@
 *.swp
 
 data/input/blockface.bin
-data/input/google_transit_2018_18_08
+data/input/google_transit
 data/input/neighborhoods
 data/input/neighborhoods.geojson
 data/input/N47W122.hgt
-data/input/offstreet_parking.kml
+data/input/offstreet_parking.bin
 data/input/parcels_urbansim.txt
 data/input/popdat.bin
 data/input/screenshots/*/*.png

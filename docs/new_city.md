@@ -1,9 +1,9 @@
 # Importing a new city into A/B Street
 
 My current priority is to make Seattle work very well, but if you want to try
-out A/B Street in another place, you can follow this guide. Add to [this
-issue](https://github.com/dabreegster/abstreet/issues/27) if you find a new
-problem.
+out A/B Street in another place, you can follow this guide. Add to
+[this issue](https://github.com/dabreegster/abstreet/issues/27) if you find a
+new problem.
 
 First obtain a `.osm` with your desired area. You can use a tool like Osmosis to
 clip a specific area from a large file. Put the `.osm` in `data/input/osm`.
@@ -26,7 +26,8 @@ or by running `cd game; cargo run --release ../data/system/maps/your_city.bin`.
 
 ## Future work
 
-There are Seattleisms baked into the code.
+There are Seattleisms baked into the code. (As of March 2020, this is out of
+date; I'm actively fixing most of these.)
 
 - `import.sh` should be generalized.
 - The driving side of the road is hard-coded to the right. Look for "driving on

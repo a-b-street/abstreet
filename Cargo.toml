@@ -8,6 +8,7 @@ members = [
   "geom",
   "gtfs",
   "headless",
+  "importer",
   "kml",
   "map_editor",
   "map_model",
