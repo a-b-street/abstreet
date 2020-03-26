@@ -609,17 +609,37 @@ impl TimePanel {
                         // This is manually tuned
                         let width = 300.0;
                         let height = 15.0;
-                        // Just clamp past 24 hours
-                        let percent = app.primary.sim.time().to_percent(Time::END_OF_DAY).min(1.0);
+                        let mut percent = app.primary.sim.time().to_percent(Time::END_OF_DAY);
 
-                        // TODO rounded
                         batch.push(Color::WHITE, Polygon::rectangle(width, height));
-                        if percent != 0.0 {
+
+                        // Midnight to sunrise
+                        if percent > 0.0 {
                             batch.push(
-                                colors::SECTION_BG,
-                                Polygon::rectangle(percent * width, height),
+                                app.cs.get_def("night time", Color::hex("#12409D")),
+                                Polygon::rectangle(percent.min(0.25) * width, height),
                             );
                         }
+                        percent -= 0.25;
+                        // Daytime
+                        if percent > 0.0 {
+                            batch.push(
+                                app.cs.get_def("day time", Color::hex("#F4DA22")),
+                                Polygon::rectangle(percent.min(0.5) * width, height)
+                                    .translate(0.25 * width, 0.0),
+                            );
+                        }
+                        percent -= 0.5;
+                        // Sunset to midnight
+                        if percent > 0.0 {
+                            // Just clamp past 24 hours
+                            batch.push(
+                                app.cs.get("night time"),
+                                Polygon::rectangle(percent.min(0.25) * width, height)
+                                    .translate(0.75 * width, 0.0),
+                            );
+                        }
+
                         Widget::draw_batch(ctx, batch)
                     },
                     Widget::row(vec![

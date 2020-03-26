@@ -57,7 +57,7 @@ You can skip this section if you're just touching code in `game`, `ezgui`, and
 You have two options: you can seed some of the intermediate data by running
 `./data/grab_all_seed_data.sh` (downloads ~1GB, expands to ~5GB), or you can
 build everything totally from scratch by running
-`./import.sh --osm --map --scenario`. This takes a while.
+`./import.sh --raw --map --scenario`. This takes a while.
 
 You'll need some extra dependencies:
 
@@ -68,7 +68,7 @@ You'll need some extra dependencies:
 You can rerun specific stages of the importer:
 
 - If you're modifying the initial OSM data -> RawMap conversion in
-  `convert_osm`, you need `./import.sh --osm --map`.
+  `convert_osm`, you need `./import.sh --raw --map`.
 - If you're modifying `map_model` but not the OSM -> RawMap conversion, then you
   just need `./import.sh --map`.
 - By default, all maps are regenerated. You can also specify a single map:
