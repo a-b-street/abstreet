@@ -145,7 +145,8 @@ fn header(
 
     // TODO On every tab?
     for p in app.primary.sim.get_parked_cars_by_owner(id) {
-        let shape = app
+        // The car might be parked inside!
+        if let Some(shape) = app
             .primary
             .draw_map
             .get_obj(
@@ -154,16 +155,17 @@ fn header(
                 &mut app.primary.draw_map.agents.borrow_mut(),
                 ctx.prerender,
             )
-            .unwrap()
-            .get_outline(&app.primary.map);
-        details.unzoomed.push(
-            app.cs.get("something associated with something else"),
-            shape.clone(),
-        );
-        details.zoomed.push(
-            app.cs.get("something associated with something else"),
-            shape,
-        );
+            .map(|obj| obj.get_outline(&app.primary.map))
+        {
+            details.unzoomed.push(
+                app.cs.get("something associated with something else"),
+                shape.clone(),
+            );
+            details.zoomed.push(
+                app.cs.get("something associated with something else"),
+                shape,
+            );
+        }
     }
 
     draw_occupants(
@@ -172,6 +174,7 @@ fn header(
         app.primary.map.get_b(id),
         app.primary.sim.bldg_to_people(id).len(),
     );
+    // TODO Draw cars parked inside?
 
     rows
 }

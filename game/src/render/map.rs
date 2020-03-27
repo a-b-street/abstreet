@@ -318,11 +318,8 @@ impl DrawMap {
                 return Some(self.get_b(id));
             }
             ID::Car(id) => {
-                app.primary
-                    .sim
-                    .get_draw_car(id, &app.primary.map)
-                    .unwrap()
-                    .on
+                // Cars might be parked in a garage!
+                app.primary.sim.get_draw_car(id, &app.primary.map)?.on
             }
             ID::Pedestrian(id) => {
                 app.primary
