@@ -58,7 +58,7 @@ pub fn car_info(
             .agent_to_trip(AgentID::Car(id))
             .map(|t| app.primary.sim.trip_to_person(t))
         {
-            tabs.push(("Schedule", InfoTab::Agent(Tab::Person(p))));
+            tabs.push(("Trips", InfoTab::Agent(Tab::Person(p))));
         }
         tabs
     }));
@@ -97,10 +97,12 @@ pub fn car_info(
             });
         }
         InfoTab::Agent(Tab::Person(p)) => {
+            // TODO Reorganize this
             rows.extend(person::info(
                 ctx,
                 app,
                 p,
+                InfoTab::Nil,
                 None,
                 Vec::new(),
                 hyperlinks,
@@ -155,7 +157,7 @@ pub fn ped_info(
         vec![
             ("Info", InfoTab::Nil),
             (
-                "Schedule",
+                "Trips",
                 InfoTab::Agent(Tab::Person(app.primary.sim.trip_to_person(trip))),
             ),
         ],
@@ -191,10 +193,12 @@ pub fn ped_info(
             details = Some(trip_details);
         }
         InfoTab::Agent(Tab::Person(p)) => {
+            // TODO Reorganize this
             rows.extend(person::info(
                 ctx,
                 app,
                 p,
+                InfoTab::Nil,
                 None,
                 Vec::new(),
                 hyperlinks,

@@ -2,17 +2,23 @@ use crate::app::App;
 use crate::colors;
 use crate::helpers::ID;
 use crate::info::trip::trip_details;
-use crate::info::InfoTab;
+use crate::info::{make_table, make_tabs, InfoTab};
 use ezgui::{Btn, EventCtx, Line, TextExt, Widget};
 use geom::Time;
 use map_model::Map;
 use sim::{Person, PersonID, PersonState, TripMode, TripResult};
 use std::collections::HashMap;
 
+#[derive(Clone, PartialEq)]
+pub enum Tab {
+    Bio,
+}
+
 pub fn info(
     ctx: &mut EventCtx,
     app: &App,
     id: PersonID,
+    tab: InfoTab,
     // If None, then the panel is embedded
     header_btns: Option<Widget>,
     action_btns: Vec<Widget>,
@@ -30,47 +36,77 @@ pub fn info(
     } else {
         rows.push(Line(format!("Person #{}", id.0)).small_heading().draw(ctx));
     }
-    // TODO None of these right now
-    rows.extend(action_btns);
 
-    let map = &app.primary.map;
-    let sim = &app.primary.sim;
-    let person = sim.get_person(id);
+    rows.push(make_tabs(
+        ctx,
+        hyperlinks,
+        ID::Person(id),
+        tab.clone(),
+        vec![("Trips", InfoTab::Nil), ("Bio", InfoTab::Person(Tab::Bio))],
+    ));
 
-    // I'm sorry for bad variable names
-    let mut wheres_waldo = true;
-    for t in &person.trips {
-        match sim.trip_to_agent(*t) {
-            TripResult::TripNotStarted => {
-                if wheres_waldo {
-                    wheres_waldo = false;
-                    rows.push(current_status(ctx, person, map));
+    match tab {
+        InfoTab::Nil => {
+            // TODO None of these right now
+            rows.extend(action_btns);
+
+            let map = &app.primary.map;
+            let sim = &app.primary.sim;
+            let person = sim.get_person(id);
+
+            // I'm sorry for bad variable names
+            let mut wheres_waldo = true;
+            for t in &person.trips {
+                match sim.trip_to_agent(*t) {
+                    TripResult::TripNotStarted => {
+                        if wheres_waldo {
+                            wheres_waldo = false;
+                            rows.push(current_status(ctx, person, map));
+                        }
+                    }
+                    TripResult::Ok(_) | TripResult::ModeChange => {
+                        // ongoing
+                        assert!(wheres_waldo);
+                        wheres_waldo = false;
+                    }
+                    TripResult::TripDone => {
+                        assert!(wheres_waldo);
+                    }
+                    TripResult::TripDoesntExist => unreachable!(),
                 }
+                rows.push(
+                    Widget::col(vec![
+                        Line(format!("Trip #{}", t.0)).small_heading().draw(ctx),
+                        trip_details(ctx, app, *t, None, warpers).0,
+                    ])
+                    .bg(colors::SECTION_BG)
+                    .margin(10),
+                );
             }
-            TripResult::Ok(_) | TripResult::ModeChange => {
-                // ongoing
-                assert!(wheres_waldo);
-                wheres_waldo = false;
+            if wheres_waldo {
+                rows.push(current_status(ctx, person, map));
             }
-            TripResult::TripDone => {
-                assert!(wheres_waldo);
-            }
-            TripResult::TripDoesntExist => unreachable!(),
         }
-        rows.push(
-            Widget::col(vec![
-                Line(format!("Trip #{}", t.0)).small_heading().draw(ctx),
-                trip_details(ctx, app, *t, None, warpers).0,
-            ])
-            .bg(colors::SECTION_BG)
-            .margin(10),
-        );
+        InfoTab::Person(Tab::Bio) => {
+            // TODO A little picture
+            rows.extend(make_table(
+                ctx,
+                vec![
+                    ("Name", "Somebody".to_string()),
+                    ("Age", "42".to_string()),
+                    ("Occupation", "classified".to_string()),
+                ],
+            ));
+            // TODO Mad libs!
+            // - Keeps a collection of ___ at all times
+            // - Origin story: accidentally fell into a vat of cheese curds
+            // - Superpower: Makes unnervingly realistic squirrel noises
+            // - Rides a fixie
+            // - Has 17 pinky toe piercings (surprising, considering they're the state champ at
+            // barefoot marathons)
+        }
+        _ => unreachable!(),
     }
-    if wheres_waldo {
-        rows.push(current_status(ctx, person, map));
-    }
-
-    // TODO All the colorful side info
 
     rows
 }

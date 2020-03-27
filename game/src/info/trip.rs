@@ -43,7 +43,7 @@ pub fn inactive_info(
         vec![
             ("Info", InfoTab::Nil),
             (
-                "Schedule",
+                "Trips",
                 InfoTab::Trip(Tab::Person(app.primary.sim.trip_to_person(id))),
             ),
         ],
@@ -60,10 +60,12 @@ pub fn inactive_info(
             details = Some(trip_details);
         }
         InfoTab::Trip(Tab::Person(p)) => {
+            // TODO Hyperlink?
             rows.extend(person::info(
                 ctx,
                 app,
                 p,
+                InfoTab::Nil,
                 None,
                 Vec::new(),
                 hyperlinks,

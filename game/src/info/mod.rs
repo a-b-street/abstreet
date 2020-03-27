@@ -46,6 +46,7 @@ pub enum InfoTab {
     Intersection(intersection::Tab),
     Agent(agents::Tab),
     Trip(trip::Tab),
+    Person(person::Tab),
 }
 
 pub struct TripDetails {
@@ -261,6 +262,7 @@ impl InfoPanel {
                     ctx,
                     app,
                     id,
+                    tab.clone(),
                     Some(header_btns),
                     action_btns,
                     &mut hyperlinks,
