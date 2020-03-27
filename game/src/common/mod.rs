@@ -19,7 +19,7 @@ pub use self::warp::Warping;
 use crate::app::App;
 use crate::game::Transition;
 use crate::helpers::{list_names, ID};
-use crate::info::{InfoPanel, InfoTab};
+use crate::info::InfoPanel;
 use crate::sandbox::SpeedControls;
 use ezgui::{
     lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenDims, ScreenPt, ScreenRectangle,
@@ -68,11 +68,10 @@ impl CommonState {
             {
                 app.per_obj.info_panel_open = true;
                 let actions = app.per_obj.consume();
-                self.info_panel = Some(InfoPanel::new(
-                    id.clone(),
-                    InfoTab::Nil,
+                self.info_panel = Some(InfoPanel::launch(
                     ctx,
                     app,
+                    id.clone(),
                     actions,
                     maybe_speed,
                 ));
@@ -285,11 +284,12 @@ impl CommonState {
 
     // Meant to be used for launching from other states
     pub fn launch_info_panel(&mut self, id: ID, ctx: &mut EventCtx, app: &mut App) {
-        self.info_panel = Some(InfoPanel::new(id, InfoTab::Nil, ctx, app, Vec::new(), None));
+        self.info_panel = Some(InfoPanel::launch(ctx, app, id, Vec::new(), None));
         app.per_obj.info_panel_open = true;
     }
 
     pub fn info_panel_open(&self) -> Option<ID> {
-        self.info_panel.as_ref().map(|i| i.id.clone())
+        panic!("TODO")
+        //self.info_panel.as_ref().map(|i| i.id.clone())
     }
 }

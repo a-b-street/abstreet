@@ -961,6 +961,9 @@ impl Sim {
     pub fn trip_to_person(&self, id: TripID) -> PersonID {
         self.trips.trip_to_person(id)
     }
+    pub fn agent_to_person(&self, id: AgentID) -> Option<PersonID> {
+        self.agent_to_trip(id).map(|t| self.trip_to_person(t))
+    }
 
     pub fn get_person(&self, id: PersonID) -> &Person {
         self.trips.get_person(id)
