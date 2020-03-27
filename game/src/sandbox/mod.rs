@@ -362,14 +362,22 @@ impl AgentMeter {
         let mut rows = vec![
             "Active agents".draw_text(ctx),
             Widget::row(vec![
-                Widget::draw_svg(ctx, "../data/system/assets/meters/pedestrian.svg"),
-                prettyprint_usize(by_mode[&TripMode::Walk]).draw_text(ctx),
-                Widget::draw_svg(ctx, "../data/system/assets/meters/bike.svg"),
-                prettyprint_usize(by_mode[&TripMode::Bike]).draw_text(ctx),
-                Widget::draw_svg(ctx, "../data/system/assets/meters/car.svg"),
-                prettyprint_usize(by_mode[&TripMode::Drive]).draw_text(ctx),
-                Widget::draw_svg(ctx, "../data/system/assets/meters/bus.svg"),
-                prettyprint_usize(by_mode[&TripMode::Transit]).draw_text(ctx),
+                Widget::row(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/meters/pedestrian.svg"),
+                    prettyprint_usize(by_mode[&TripMode::Walk]).draw_text(ctx),
+                ]),
+                Widget::row(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/meters/bike.svg"),
+                    prettyprint_usize(by_mode[&TripMode::Bike]).draw_text(ctx),
+                ]),
+                Widget::row(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/meters/car.svg"),
+                    prettyprint_usize(by_mode[&TripMode::Drive]).draw_text(ctx),
+                ]),
+                Widget::row(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/meters/bus.svg"),
+                    prettyprint_usize(by_mode[&TripMode::Transit]).draw_text(ctx),
+                ]),
             ])
             .centered(),
             // Separator
