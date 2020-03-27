@@ -10,7 +10,7 @@ use geom::{Angle, Distance, Duration, Polygon, Pt2D, Time};
 use map_model::{Map, Path, PathStep};
 use sim::{TripEndpoint, TripID, TripPhaseType};
 
-pub fn trip_details(
+pub fn details(
     ctx: &mut EventCtx,
     app: &App,
     trip: TripID,

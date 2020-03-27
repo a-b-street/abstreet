@@ -1,7 +1,6 @@
 use crate::app::App;
 use crate::colors;
-use crate::info::trip::trip_details;
-use crate::info::{header_btns, make_table, make_tabs, Details, Tab, Text};
+use crate::info::{header_btns, make_table, make_tabs, trip, Details, Tab, Text};
 use crate::render::Renderable;
 use ezgui::{Btn, Color, EventCtx, Line, TextExt, Widget};
 use map_model::Map;
@@ -31,11 +30,6 @@ pub fn status(ctx: &mut EventCtx, app: &App, details: &mut Details, id: PersonID
         }
         PersonState::Trip(t) => {
             if let Some(a) = sim.trip_to_agent(t).ok() {
-                rows.push(Widget::col(vec![
-                    Line(format!("Trip #{}", t.0)).small_heading().draw(ctx),
-                    trip_details(ctx, app, t, sim.progress_along_path(a), details),
-                ]));
-
                 let (kv, extra) = match a {
                     AgentID::Car(c) => sim.car_properties(c, map),
                     AgentID::Pedestrian(p) => sim.ped_properties(p, map),
@@ -48,12 +42,19 @@ pub fn status(ctx: &mut EventCtx, app: &App, details: &mut Details, id: PersonID
                     }
                     rows.push(txt.draw(ctx));
                 }
+
+                rows.push(Line(format!("Ongoing trip #{}", t.0)).draw(ctx));
+                rows.push(trip::details(
+                    ctx,
+                    app,
+                    t,
+                    sim.progress_along_path(a),
+                    details,
+                ));
             } else {
                 // TODO Temporary mode change, what's going on?
-                rows.push(Widget::col(vec![
-                    Line(format!("Trip #{}", t.0)).small_heading().draw(ctx),
-                    trip_details(ctx, app, t, None, details),
-                ]));
+                rows.push(Line(format!("Ongoing trip #{}", t.0)).draw(ctx));
+                rows.push(trip::details(ctx, app, t, None, details));
             }
         }
     }
@@ -91,8 +92,8 @@ pub fn trips(ctx: &mut EventCtx, app: &App, details: &mut Details, id: PersonID)
         }
         rows.push(
             Widget::col(vec![
-                Line(format!("Trip #{}", t.0)).small_heading().draw(ctx),
-                trip_details(ctx, app, *t, None, details),
+                Line(format!("Trip #{}", t.0)).draw(ctx),
+                trip::details(ctx, app, *t, None, details),
             ])
             .bg(colors::SECTION_BG)
             .margin(10),

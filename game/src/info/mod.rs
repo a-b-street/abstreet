@@ -17,9 +17,9 @@ use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Outcome, Plot, PlotOptions, Series, Text, TextExt, VerticalAlignment, Widget,
 };
-use geom::Time;
+use geom::{Circle, Distance, Time};
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID};
-use sim::{AgentID, Analytics, CarID, PedestrianID, PersonID, TripMode, VehicleType};
+use sim::{AgentID, Analytics, CarID, PedestrianID, PersonID, PersonState, TripMode, VehicleType};
 use std::collections::{BTreeMap, HashMap};
 
 pub struct InfoPanel {
@@ -93,6 +93,35 @@ impl Tab {
             ID::Area(a) => Tab::Area(a),
         }
     }
+
+    // TODO Temporary hack until object actions go away.
+    fn to_id(self, app: &App) -> Option<ID> {
+        match self {
+            Tab::PersonStatus(p) | Tab::PersonTrips(p) | Tab::PersonBio(p) => {
+                match app.primary.sim.get_person(p).state {
+                    PersonState::Inside(b) => Some(ID::Building(b)),
+                    PersonState::Trip(t) => app
+                        .primary
+                        .sim
+                        .trip_to_agent(t)
+                        .ok()
+                        .map(|a| ID::from_agent(a)),
+                    _ => None,
+                }
+            }
+            Tab::Bus(c) => Some(ID::Car(c)),
+            Tab::BusStop(bs) => Some(ID::BusStop(bs)),
+            Tab::ParkedCar(c) => Some(ID::Car(c)),
+            Tab::BldgInfo(b) | Tab::BldgDebug(b) | Tab::BldgPeople(b) => Some(ID::Building(b)),
+            Tab::Crowd(members) => Some(ID::PedCrowd(members)),
+            Tab::Area(a) => Some(ID::Area(a)),
+            Tab::ExtraShape(es) => Some(ID::ExtraShape(es)),
+            Tab::IntersectionInfo(i) | Tab::IntersectionTraffic(i) | Tab::IntersectionDelay(i) => {
+                Some(ID::Intersection(i))
+            }
+            Tab::LaneInfo(l) | Tab::LaneDebug(l) | Tab::LaneTraffic(l) => Some(ID::Lane(l)),
+        }
+    }
 }
 
 // TODO Name sucks
@@ -118,7 +147,7 @@ impl InfoPanel {
         ctx: &mut EventCtx,
         app: &App,
         tab: Tab,
-        mut actions: Vec<(Key, String)>,
+        actions: Vec<(Key, String)>,
         maybe_speed: Option<&mut SpeedControls>,
     ) -> InfoPanel {
         /*if maybe_speed.map(|s| s.is_paused()).unwrap_or(false)
@@ -131,19 +160,6 @@ impl InfoPanel {
             actions.insert(0, (Key::F, "follow agent".to_string()));
         }*/
 
-        // TODO dont forget these
-        let action_btns = actions
-            .iter()
-            .map(|(key, label)| {
-                let mut txt = Text::new();
-                txt.append(Line(key.describe()).fg(ezgui::HOTKEY_COLOR));
-                txt.append(Line(format!(" - {}", label)));
-                Btn::text_bg(label, txt, colors::SECTION_BG, colors::HOVERING)
-                    .build_def(ctx, hotkey(*key))
-                    .margin(5)
-            })
-            .collect::<Vec<_>>();
-
         let mut details = Details {
             unzoomed: GeomBatch::new(),
             zoomed: GeomBatch::new(),
@@ -151,54 +167,7 @@ impl InfoPanel {
             warpers: HashMap::new(),
         };
 
-        // Highlight something?
-        /*if let Some(obj) = app.primary.draw_map.get_obj(
-            id.clone(),
-            app,
-            &mut app.primary.draw_map.agents.borrow_mut(),
-            ctx.prerender,
-        ) {
-            // Different selection styles for different objects.
-            match id {
-                ID::Car(_) | ID::Pedestrian(_) | ID::PedCrowd(_) => {
-                    // Some objects are much wider/taller than others
-                    let multiplier = match id {
-                        ID::Car(c) => {
-                            if c.1 == VehicleType::Bike {
-                                3.0
-                            } else {
-                                0.75
-                            }
-                        }
-                        ID::Pedestrian(_) => 3.0,
-                        ID::PedCrowd(_) => 0.75,
-                        _ => unreachable!(),
-                    };
-                    // Make a circle to cover the object.
-                    let bounds = obj.get_outline(&app.primary.map).get_bounds();
-                    let radius = multiplier * Distance::meters(bounds.width().max(bounds.height()));
-                    batch.push(
-                        app.cs.get_def("current object", Color::WHITE).alpha(0.5),
-                        Circle::new(bounds.center(), radius).to_polygon(),
-                    );
-                    batch.push(
-                        app.cs.get("current object"),
-                        Circle::outline(bounds.center(), radius, Distance::meters(0.3)),
-                    );
-
-                    // TODO And actually, don't cover up the agent. The Renderable API isn't quite
-                    // conducive to doing this yet.
-                }
-                _ => {
-                    batch.push(
-                        app.cs.get_def("perma selected thing", Color::BLUE),
-                        obj.get_outline(&app.primary.map),
-                    );
-                }
-            }
-        }*/
-
-        let col = match tab {
+        let mut col = match tab {
             Tab::PersonStatus(p) => person::status(ctx, app, &mut details, p),
             Tab::PersonTrips(p) => person::trips(ctx, app, &mut details, p),
             Tab::PersonBio(p) => person::bio(ctx, app, &mut details, p),
@@ -218,16 +187,91 @@ impl InfoPanel {
             Tab::LaneDebug(l) => lane::debug(ctx, app, &mut details, l),
             Tab::LaneTraffic(l) => lane::traffic(ctx, app, &mut details, l),
         };
+        // TODO Totally rethink these context-sensitive actions
+        for (key, label) in &actions {
+            let mut txt = Text::new();
+            txt.append(Line(key.describe()).fg(ezgui::HOTKEY_COLOR));
+            txt.append(Line(format!(" - {}", label)));
+            col.push(
+                Btn::text_bg(label, txt, colors::SECTION_BG, colors::HOVERING)
+                    .build_def(ctx, hotkey(*key))
+                    .margin(5),
+            );
+        }
 
-        /*
+        // Highlight something?
+        if let Some((id, outline)) = tab.clone().to_id(app).and_then(|id| {
+            app.primary
+                .draw_map
+                .get_obj(
+                    id.clone(),
+                    app,
+                    &mut app.primary.draw_map.agents.borrow_mut(),
+                    ctx.prerender,
+                )
+                .map(|obj| (id, obj.get_outline(&app.primary.map)))
+        }) {
+            // Different selection styles for different objects.
+            match id {
+                ID::Car(_) | ID::Pedestrian(_) | ID::PedCrowd(_) => {
+                    // Some objects are much wider/taller than others
+                    let multiplier = match id {
+                        ID::Car(c) => {
+                            if c.1 == VehicleType::Bike {
+                                3.0
+                            } else {
+                                0.75
+                            }
+                        }
+                        ID::Pedestrian(_) => 3.0,
+                        ID::PedCrowd(_) => 0.75,
+                        _ => unreachable!(),
+                    };
+                    // Make a circle to cover the object.
+                    let bounds = outline.get_bounds();
+                    let radius = multiplier * Distance::meters(bounds.width().max(bounds.height()));
+                    details.unzoomed.push(
+                        app.cs.get_def("current object", Color::WHITE).alpha(0.5),
+                        Circle::new(bounds.center(), radius).to_polygon(),
+                    );
+                    details.unzoomed.push(
+                        app.cs.get("current object"),
+                        Circle::outline(bounds.center(), radius, Distance::meters(0.3)),
+                    );
+                    details.zoomed.push(
+                        app.cs.get("current object").alpha(0.5),
+                        Circle::new(bounds.center(), radius).to_polygon(),
+                    );
+                    details.zoomed.push(
+                        app.cs.get("current object"),
+                        Circle::outline(bounds.center(), radius, Distance::meters(0.3)),
+                    );
+
+                    // TODO And actually, don't cover up the agent. The Renderable API isn't quite
+                    // conducive to doing this yet.
+                }
+                _ => {
+                    details.unzoomed.push(
+                        app.cs.get_def("perma selected thing", Color::BLUE),
+                        outline.clone(),
+                    );
+                    details
+                        .zoomed
+                        .push(app.cs.get("perma selected thing"), outline);
+                }
+            }
+        }
+
         // Follow the agent. When the sim is paused, this lets the player naturally pan away,
         // because the InfoPanel isn't being updated.
-        if let Some(pt) = id
-            .agent_id()
+        if let Some(pt) = tab
+            .clone()
+            .to_id(app)
+            .and_then(|id| id.agent_id())
             .and_then(|a| app.primary.sim.canonical_pt_for_agent(a, &app.primary.map))
         {
             ctx.canvas.center_on_map_pt(pt);
-        }*/
+        }
 
         InfoPanel {
             tab,
@@ -264,7 +308,16 @@ impl InfoPanel {
 
         // Live update?
         if app.primary.sim.time() != self.time {
-            // TODO
+            let preserve_scroll = self.composite.preserve_scroll();
+            *self = InfoPanel::new(
+                ctx,
+                app,
+                self.tab.clone(),
+                self.actions.clone(),
+                maybe_speed,
+            );
+            self.composite.restore_scroll(ctx, preserve_scroll);
+            return (false, None);
         }
 
         match self.composite.event(ctx) {
@@ -274,7 +327,7 @@ impl InfoPanel {
                         ctx,
                         app,
                         new_tab.clone(),
-                        if self.tab == new_tab {
+                        if self.tab.clone().to_id(app) == new_tab.to_id(app) {
                             self.actions.clone()
                         } else {
                             Vec::new()
@@ -285,17 +338,21 @@ impl InfoPanel {
                 } else if action == "close info" {
                     (true, None)
                 } else if action == "jump to object" {
-                    /*(
-                        false,
-                        Some(Transition::Push(Warping::new(
-                            ctx,
-                            self.id.canonical_point(&app.primary).unwrap(),
-                            Some(10.0),
-                            Some(self.id.clone()),
-                            &mut app.primary,
-                        ))),
-                    )*/
-                    (false, None)
+                    // TODO Messy way of doing this
+                    if let Some(id) = self.tab.clone().to_id(app) {
+                        return (
+                            false,
+                            Some(Transition::Push(Warping::new(
+                                ctx,
+                                id.canonical_point(&app.primary).unwrap(),
+                                Some(10.0),
+                                Some(id),
+                                &mut app.primary,
+                            ))),
+                        );
+                    } else {
+                        return (false, None);
+                    }
                 } else if action == "follow agent" {
                     maybe_speed.unwrap().resume_realtime(ctx);
                     (false, None)
@@ -314,9 +371,8 @@ impl InfoPanel {
                         ))),
                     )
                 } else {
-                    /*app.primary.current_selection = Some(self.id.clone());
-                    (true, Some(Transition::ApplyObjectAction(action)))*/
-                    (false, None)
+                    app.primary.current_selection = Some(self.tab.clone().to_id(app).unwrap());
+                    (true, Some(Transition::ApplyObjectAction(action)))
                 }
             }
             None => (false, None),
