@@ -4,7 +4,7 @@ use crate::info::{header_btns, make_table, make_tabs, Details, Tab};
 use ezgui::{Btn, EventCtx, Line, Text, TextExt, Widget};
 use geom::Time;
 use map_model::BuildingID;
-use sim::{TripEndpoint, TripMode, TripResult};
+use sim::{TripMode, TripResult};
 
 pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID) -> Vec<Widget> {
     let mut rows = header(ctx, app, details, id, Tab::BldgInfo(id));
@@ -34,19 +34,6 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
         }
         for (name, amenity) in &b.amenities {
             txt.add(Line(format!("- {} (a {})", name, amenity)));
-        }
-    }
-
-    // TODO Rethink this
-    let trip_lines = app
-        .primary
-        .sim
-        .count_trips(TripEndpoint::Bldg(id))
-        .describe();
-    if !trip_lines.is_empty() {
-        txt.add(Line(""));
-        for line in trip_lines {
-            txt.add(Line(line));
         }
     }
 
@@ -114,7 +101,7 @@ pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Building
         let label = format!("Person #{}", p.0);
         details
             .hyperlinks
-            .insert(label.clone(), Tab::PersonStatus(p));
+            .insert(label.clone(), Tab::PersonTrips(p));
         rows.push(Widget::col(vec![
             Btn::text_bg1(label).build_def(ctx, None),
             if let Some((t, mode)) = next_trip {

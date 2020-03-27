@@ -8,31 +8,50 @@ use ezgui::{
 };
 use geom::{Angle, Distance, Duration, Polygon, Pt2D, Time};
 use map_model::{Map, Path, PathStep};
-use sim::{TripEndpoint, TripID, TripPhaseType};
+use sim::{TripEndpoint, TripID, TripPhaseType, TripResult};
 
-pub fn details(
-    ctx: &mut EventCtx,
-    app: &App,
-    trip: TripID,
-    progress_along_path: Option<f64>,
-    details: &mut Details,
-) -> Widget {
+pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Details) -> Widget {
     let map = &app.primary.map;
-    let phases = app.primary.sim.get_analytics().get_trip_phases(trip, map);
-    let (start_time, trip_start, trip_end, trip_mode) = app.primary.sim.trip_info(trip);
+    let sim = &app.primary.sim;
+    let phases = sim.get_analytics().get_trip_phases(trip, map);
+    let (start_time, trip_start, trip_end, trip_mode) = sim.trip_info(trip);
+    let end_time = phases.last().as_ref().and_then(|p| p.end_time);
+
+    let (trip_status, progress_along_path) = match sim.trip_to_agent(trip) {
+        TripResult::TripNotStarted => ("future", None),
+        TripResult::Ok(a) => ("ongoing", sim.progress_along_path(a)),
+        TripResult::ModeChange => ("ongoing", None),
+        TripResult::TripDone => ("finished", None),
+        TripResult::TripDoesntExist => unreachable!(),
+    };
+    let mut col = vec![Line(format!("Trip #{} ({})", trip.0, trip_status)).draw(ctx)];
+
+    let mut kv = vec![
+        ("Departure", start_time.ampm_tostring()),
+        ("Type", trip_mode.to_string()),
+    ];
+
+    // TODO Style should maybe change. This overlaps with the two markers on the timeline.
+    let (id1, _, name1) = endpoint(&trip_start, map);
+    let (id2, _, name2) = endpoint(&trip_end, map);
+    col.push(
+        Widget::row(vec![
+            Btn::custom_text_fg(Text::from(Line(&name1).small())).build(ctx, &name1, None),
+            Line("to").draw(ctx),
+            Btn::custom_text_fg(Text::from(Line(&name2).small())).build(ctx, &name2, None),
+        ])
+        .evenly_spaced(),
+    );
+    details.warpers.insert(name1, id1);
+    details.warpers.insert(name2, id2);
 
     if phases.is_empty() {
         // The trip hasn't started
-        let kv = vec![
-            ("Departure", start_time.ampm_tostring()),
-            ("Type", trip_mode.to_string()),
-            // TODO If we're looking at a building, then "here"...
-            // TODO Buttons
-            // TODO Should we explicitly print this for the other case, instead of the icons?
-            ("From", endpoint(&trip_start, map).2),
-            ("To", endpoint(&trip_end, map).2),
-        ];
-        return Widget::col(make_table(ctx, kv));
+        col.extend(make_table(ctx, kv));
+        return Widget::col(col)
+            .bg(colors::SECTION_BG)
+            .padding(5)
+            .margin(10);
     }
 
     let start_btn = {
@@ -64,8 +83,6 @@ pub fn details(
         .tooltip(txt)
         .build(ctx, format!("jump to start of Trip #{}", trip.0), None)
     };
-
-    let end_time = phases.last().as_ref().and_then(|p| p.end_time);
 
     let goal_btn = {
         let (id, center, name) = endpoint(&trip_end, map);
@@ -99,10 +116,9 @@ pub fn details(
         .build(ctx, format!("jump to goal of Trip #{}", trip.0), None)
     };
 
-    let total_duration_so_far =
-        end_time.unwrap_or_else(|| app.primary.sim.time()) - phases[0].start_time;
+    let total_duration_so_far = end_time.unwrap_or_else(|| sim.time()) - phases[0].start_time;
 
-    let total_width = 0.3 * ctx.canvas.window_width;
+    let total_width = 0.29 * ctx.canvas.window_width;
     let mut timeline = Vec::new();
     let num_phases = phases.len();
     let mut elevation = Vec::new();
@@ -128,7 +144,7 @@ pub fn details(
             txt.add(Line(format!("- Ended at {} (duration: {})", t2, d)));
             d
         } else {
-            let d = app.primary.sim.time() - p.start_time;
+            let d = sim.time() - p.start_time;
             txt.add(Line(format!("- Ongoing (duration so far: {})", d)));
             d
         };
@@ -226,18 +242,18 @@ pub fn details(
     timeline.insert(0, start_btn.margin(5));
     timeline.push(goal_btn.margin(5));
 
-    let mut kv = vec![
-        ("Trip start", start_time.ampm_tostring()),
-        ("Duration", total_duration_so_far.to_string()),
-    ];
+    kv.push(("Duration", total_duration_so_far.to_string()));
     if let Some(t) = end_time {
         kv.push(("Trip end", t.ampm_tostring()));
     }
-    let mut col = vec![Widget::row(timeline).evenly_spaced().margin_above(25)];
+    col.push(Widget::row(timeline).evenly_spaced().margin_above(25));
     col.extend(make_table(ctx, kv));
     col.extend(elevation);
 
     Widget::col(col)
+        .bg(colors::SECTION_BG)
+        .padding(5)
+        .margin(10)
 }
 
 fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map: &Map) -> Widget {

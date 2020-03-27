@@ -283,6 +283,8 @@ impl InfoPanel {
                     VerticalAlignment::Percent(0.2),
                 )
                 .max_size_percent(35, 60)
+                // trip::details endpoints...
+                .allow_duplicate_buttons()
                 .build(ctx),
             unzoomed: details.unzoomed.upload(ctx),
             zoomed: details.zoomed.upload(ctx),

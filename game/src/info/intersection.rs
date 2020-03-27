@@ -5,7 +5,7 @@ use abstutil::prettyprint_usize;
 use ezgui::{EventCtx, Line, Plot, PlotOptions, Series, Text, Widget};
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, IntersectionType};
-use sim::{Analytics, TripEndpoint};
+use sim::Analytics;
 use std::collections::BTreeSet;
 
 pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID) -> Vec<Widget> {
@@ -22,20 +22,6 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID
         txt.add(Line(format!("- {}", r)));
     }
     rows.push(txt.draw(ctx));
-
-    // TODO Rethink
-    let trip_lines = app
-        .primary
-        .sim
-        .count_trips(TripEndpoint::Border(id))
-        .describe();
-    if !trip_lines.is_empty() {
-        let mut txt = Text::new();
-        for line in trip_lines {
-            txt.add(Line(line));
-        }
-        rows.push(txt.draw(ctx));
-    }
 
     rows
 }

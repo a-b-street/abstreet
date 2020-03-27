@@ -349,7 +349,7 @@ impl Widget {
         }
     }
 
-    pub(crate) fn get_all_click_actions(&self, actions: &mut HashSet<String>) {
+    fn get_all_click_actions(&self, actions: &mut HashSet<String>) {
         if let Some(btn) = self.widget.downcast_ref::<Button>() {
             if actions.contains(&btn.action) {
                 panic!(
@@ -415,15 +415,14 @@ enum Dims {
 
 pub struct CompositeBuilder {
     top_level: Widget,
-
     horiz: HorizontalAlignment,
     vert: VerticalAlignment,
     dims: Dims,
+    allow_duplicate_buttons: bool,
 }
 
 pub struct Composite {
     top_level: Widget,
-
     horiz: HorizontalAlignment,
     vert: VerticalAlignment,
     dims: Dims,
@@ -445,10 +444,10 @@ impl Composite {
     pub fn new(top_level: Widget) -> CompositeBuilder {
         CompositeBuilder {
             top_level,
-
             horiz: HorizontalAlignment::Center,
             vert: VerticalAlignment::Center,
             dims: Dims::MaxPercent(1.0, 1.0),
+            allow_duplicate_buttons: false,
         }
     }
 
@@ -800,8 +799,10 @@ impl CompositeBuilder {
             c.clip_rect = Some(ScreenRectangle::top_left(top_left, c.container_dims));
         }
 
-        // Just trigger error if a button is double-defined
-        c.get_all_click_actions();
+        if !self.allow_duplicate_buttons {
+            // Just trigger error if a button is double-defined
+            c.get_all_click_actions();
+        }
         ctx.no_op_event(true, |ctx| assert!(c.event(ctx).is_none()));
         c
     }
@@ -826,6 +827,11 @@ impl CompositeBuilder {
 
     pub fn exact_size_percent(mut self, pct_width: usize, pct_height: usize) -> CompositeBuilder {
         self.dims = Dims::ExactPercent((pct_width as f64) / 100.0, (pct_height as f64) / 100.0);
+        self
+    }
+
+    pub fn allow_duplicate_buttons(mut self) -> CompositeBuilder {
+        self.allow_duplicate_buttons = true;
         self
     }
 }

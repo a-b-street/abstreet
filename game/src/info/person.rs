@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::colors;
 use crate::info::{header_btns, make_table, make_tabs, trip, Details, Tab, Text};
 use crate::render::Renderable;
 use ezgui::{Btn, Color, EventCtx, Line, TextExt, Widget};
@@ -42,20 +41,9 @@ pub fn status(ctx: &mut EventCtx, app: &App, details: &mut Details, id: PersonID
                     }
                     rows.push(txt.draw(ctx));
                 }
-
-                rows.push(Line(format!("Ongoing trip #{}", t.0)).draw(ctx));
-                rows.push(trip::details(
-                    ctx,
-                    app,
-                    t,
-                    sim.progress_along_path(a),
-                    details,
-                ));
-            } else {
-                // TODO Temporary mode change, what's going on?
-                rows.push(Line(format!("Ongoing trip #{}", t.0)).draw(ctx));
-                rows.push(trip::details(ctx, app, t, None, details));
             }
+
+            rows.push(trip::details(ctx, app, t, details));
         }
     }
 
@@ -71,7 +59,8 @@ pub fn trips(ctx: &mut EventCtx, app: &App, details: &mut Details, id: PersonID)
 
     // I'm sorry for bad variable names
     let mut wheres_waldo = true;
-    // TODO Classify trips as not started, ongoing, done. Don't mention current status as much?
+    // TODO Color by future/ongoing/done
+    // TODO Do we need to echo current status here?
     for t in &person.trips {
         match sim.trip_to_agent(*t) {
             TripResult::TripNotStarted => {
@@ -90,14 +79,7 @@ pub fn trips(ctx: &mut EventCtx, app: &App, details: &mut Details, id: PersonID)
             }
             TripResult::TripDoesntExist => unreachable!(),
         }
-        rows.push(
-            Widget::col(vec![
-                Line(format!("Trip #{}", t.0)).draw(ctx),
-                trip::details(ctx, app, *t, None, details),
-            ])
-            .bg(colors::SECTION_BG)
-            .margin(10),
-        );
+        rows.push(trip::details(ctx, app, *t, details));
     }
     if wheres_waldo {
         rows.push(current_status(ctx, person, map));
