@@ -197,8 +197,8 @@ impl Widget {
     ) -> Widget {
         Widget::custom_checkbox(
             enabled,
-            Btn::text_fg(format!("☐ {}", label)).build(ctx, label, hotkey.clone()),
-            Btn::text_fg(format!("☑ {}", label)).build(ctx, label, hotkey),
+            Btn::text_fg(format!("[ ] {}", label)).build(ctx, label, hotkey.clone()),
+            Btn::text_fg(format!("[X] {}", label)).build(ctx, label, hotkey),
         )
         .outline(2.0, Color::WHITE)
         .named(label)
