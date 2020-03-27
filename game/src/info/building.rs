@@ -1,10 +1,11 @@
 use crate::app::App;
-use crate::helpers::ID;
+use crate::helpers::{ColorScheme, ID};
 use crate::info::{header_btns, make_table, make_tabs, Details, Tab};
+use crate::render::DrawPedestrian;
 use ezgui::{Btn, EventCtx, Line, Text, TextExt, Widget};
-use geom::Time;
-use map_model::BuildingID;
-use sim::{TripMode, TripResult};
+use geom::{Angle, Time};
+use map_model::{Building, BuildingID, LaneID, Traversable, SIDEWALK_THICKNESS};
+use sim::{DrawPedestrianInput, PedestrianID, TripMode, TripResult};
 
 pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID) -> Vec<Widget> {
     let mut rows = header(ctx, app, details, id, Tab::BldgInfo(id));
@@ -165,5 +166,58 @@ fn header(
         );
     }
 
+    draw_occupants(
+        details,
+        &app.cs,
+        app.primary.map.get_b(id),
+        app.primary.sim.bldg_to_people(id).len(),
+    );
+
     rows
+}
+
+fn draw_occupants(details: &mut Details, cs: &ColorScheme, bldg: &Building, num_ppl: usize) {
+    // TODO Lots of fun ideas here. Have a deterministic simulation based on building ID and time
+    // to have people "realistically" move around. Draw little floor plans.
+
+    let num_rows_cols = (num_ppl as f64).sqrt().ceil() as usize;
+
+    let ped_len = SIDEWALK_THICKNESS.inner_meters() / 2.0;
+    let separation = ped_len * 1.5;
+
+    let total_width_height = (num_rows_cols as f64) * (ped_len + separation);
+    let top_left = bldg
+        .label_center
+        .offset(-total_width_height / 2.0, -total_width_height / 2.0);
+
+    // TODO Current thing is inefficient and can easily wind up outside the building.
+
+    let mut cnt = 0;
+    'OUTER: for x in 0..num_rows_cols {
+        for y in 0..num_rows_cols {
+            DrawPedestrian::geometry(
+                &mut details.zoomed,
+                cs,
+                &DrawPedestrianInput {
+                    id: PedestrianID(cnt),
+                    pos: top_left.offset(
+                        (x as f64) * (ped_len + separation),
+                        (y as f64) * (ped_len + separation),
+                    ),
+                    facing: Angle::new_degs(90.0),
+                    waiting_for_turn: None,
+                    preparing_bike: false,
+                    // Both hands and feet!
+                    waiting_for_bus: true,
+                    on: Traversable::Lane(LaneID(0)),
+                },
+                0,
+            );
+
+            cnt += 1;
+            if cnt == num_ppl {
+                break 'OUTER;
+            }
+        }
+    }
 }
