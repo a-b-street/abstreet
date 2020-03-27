@@ -2,25 +2,22 @@ use crate::app::App;
 use crate::colors;
 use crate::common::ShowBusRoute;
 use crate::game::{State, Transition};
-use crate::helpers::ID;
 use crate::helpers::{cmp_count_fewer, cmp_count_more, cmp_duration_shorter};
 use crate::managed::{Callback, ManagedGUIState, WrappedComposite};
-use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
 use abstutil::Counter;
 use ezgui::{
     hotkey, Btn, Color, Composite, EventCtx, Histogram, Key, Line, Plot, PlotOptions, Series, Text,
     TextExt, Widget,
 };
-use geom::{Duration, Statistic, Time};
+use geom::{Statistic, Time};
 use map_model::BusRouteID;
-use sim::{TripID, TripMode};
+use sim::TripMode;
 use std::collections::BTreeMap;
 
 #[derive(PartialEq, Clone, Copy)]
 pub enum Tab {
     TripsSummary,
-    IndividualFinishedTrips(Option<TripMode>),
     ParkingOverhead,
     ExploreBusRoute,
 }
@@ -29,10 +26,6 @@ pub enum Tab {
 pub fn make(ctx: &mut EventCtx, app: &App, tab: Tab) -> Box<dyn State> {
     let tab_data = vec![
         (Tab::TripsSummary, "Trips summary"),
-        (
-            Tab::IndividualFinishedTrips(None),
-            "Individual finished trips",
-        ),
         (Tab::ParkingOverhead, "Parking overhead analysis"),
         (Tab::ExploreBusRoute, "Explore a bus route"),
     ];
@@ -50,8 +43,6 @@ pub fn make(ctx: &mut EventCtx, app: &App, tab: Tab) -> Box<dyn State> {
 
     let (content, cbs) = match tab {
         Tab::TripsSummary => (trips_summary_prebaked(ctx, app), Vec::new()),
-        Tab::IndividualFinishedTrips(None) => pick_finished_trips_mode(ctx),
-        Tab::IndividualFinishedTrips(Some(m)) => pick_finished_trips(m, ctx, app),
         Tab::ParkingOverhead => (parking_overhead(ctx, app), Vec::new()),
         Tab::ExploreBusRoute => pick_bus_route(ctx, app),
     };
@@ -71,7 +62,6 @@ pub fn make(ctx: &mut EventCtx, app: &App, tab: Tab) -> Box<dyn State> {
     )
     .cb("back", Box::new(|_, _| Some(Transition::Pop)));
     for (t, label) in tab_data {
-        // TODO Not quite... all the IndividualFinishedTrips variants need to act the same
         if t != tab {
             c = c.cb(
                 label,
@@ -302,76 +292,6 @@ fn finished_trips_plot(ctx: &EventCtx, app: &App) -> Widget {
         PlotOptions::new(),
     );
     Widget::col(vec!["finished trips".draw_text(ctx), plot.margin(10)])
-}
-
-fn pick_finished_trips_mode(ctx: &EventCtx) -> (Widget, Vec<(String, Callback)>) {
-    let mut buttons = Vec::new();
-    let mut cbs: Vec<(String, Callback)> = Vec::new();
-
-    for mode in TripMode::all() {
-        buttons.push(Btn::text_fg(&mode.to_string()).build_def(ctx, None));
-        cbs.push((
-            mode.to_string(),
-            Box::new(move |ctx, app| {
-                Some(Transition::Replace(make(
-                    ctx,
-                    app,
-                    Tab::IndividualFinishedTrips(Some(mode)),
-                )))
-            }),
-        ));
-    }
-
-    (Widget::row(buttons).flex_wrap(ctx, 80), cbs)
-}
-
-fn pick_finished_trips(
-    mode: TripMode,
-    ctx: &EventCtx,
-    app: &App,
-) -> (Widget, Vec<(String, Callback)>) {
-    let mut buttons = Vec::new();
-    let mut cbs: Vec<(String, Callback)> = Vec::new();
-
-    let mut filtered: Vec<&(Time, TripID, Option<TripMode>, Duration)> = app
-        .primary
-        .sim
-        .get_analytics()
-        .finished_trips
-        .iter()
-        .filter(|(_, _, m, _)| *m == Some(mode))
-        .collect();
-    filtered.sort_by_key(|(_, _, _, dt)| *dt);
-    filtered.reverse();
-    for (_, id, _, dt) in filtered {
-        let label = format!("{} taking {}", id, dt);
-        buttons.push(Btn::text_fg(&label).build_def(ctx, None));
-        let trip = *id;
-        cbs.push((
-            label,
-            Box::new(move |_, _| {
-                Some(Transition::PopWithData(Box::new(move |state, app, ctx| {
-                    state
-                        .downcast_mut::<SandboxMode>()
-                        .unwrap()
-                        .controls
-                        .common
-                        .as_mut()
-                        .unwrap()
-                        .launch_info_panel(ID::Trip(trip), ctx, app);
-                })))
-            }),
-        ));
-    }
-
-    // TODO Indicate the current mode
-    let (mode_picker, more_cbs) = pick_finished_trips_mode(ctx);
-    cbs.extend(more_cbs);
-
-    (
-        Widget::col(vec![mode_picker, Widget::row(buttons).flex_wrap(ctx, 80)]),
-        cbs,
-    )
 }
 
 fn parking_overhead(ctx: &EventCtx, app: &App) -> Widget {
