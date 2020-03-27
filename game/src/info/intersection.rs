@@ -38,17 +38,6 @@ pub fn info(
         header_btns,
     ]));
 
-    let mut txt = Text::from(Line("Connecting"));
-    let mut road_names = BTreeSet::new();
-    for r in &i.roads {
-        road_names.insert(app.primary.map.get_r(*r).get_name());
-    }
-    for r in road_names {
-        // TODO The spacing is ignored, so use -
-        txt.add(Line(format!("- {}", r)));
-    }
-    rows.push(txt.draw(ctx));
-
     rows.push(make_tabs(
         ctx,
         hyperlinks,
@@ -69,6 +58,17 @@ pub fn info(
     match tab {
         InfoTab::Nil => {
             rows.extend(action_btns);
+
+            let mut txt = Text::from(Line("Connecting"));
+            let mut road_names = BTreeSet::new();
+            for r in &i.roads {
+                road_names.insert(app.primary.map.get_r(*r).get_name());
+            }
+            for r in road_names {
+                // TODO The spacing is ignored, so use -
+                txt.add(Line(format!("- {}", r)));
+            }
+            rows.push(txt.draw(ctx));
 
             // TODO Rethink
             let trip_lines = app

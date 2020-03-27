@@ -266,9 +266,7 @@ impl CommonState {
         batch.add_translated(osd.render_g(g), 10.0, 0.25 * g.default_line_height());
 
         if app.opts.dev && !g.is_screencap() {
-            let mut txt = Text::from(Line("DEV"));
-            txt.highlight_last_line(Color::RED);
-            let dev_batch = txt.render_g(g);
+            let dev_batch = Text::from(Line("DEV")).bg(Color::RED).render_g(g);
             let dims = dev_batch.get_dims();
             batch.add_translated(
                 dev_batch,

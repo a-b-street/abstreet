@@ -581,7 +581,9 @@ fn make_tabs(
             row.push(Btn::text_bg2(name).build_def(ctx, None));
         }
     }
-    Widget::row(row)
+    // TODO Centered, but actually, we need to set the padding of each button to divide the
+    // available space evenly. Fancy fill rules... hmmm.
+    Widget::row(row).bg(Color::WHITE)
 }
 
 fn make_browser<F: Fn(usize) -> (ID, InfoTab)>(

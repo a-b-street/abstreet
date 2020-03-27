@@ -160,7 +160,8 @@ impl Text {
         self.lines.push((Some(highlight), vec![line]));
     }
 
-    pub fn highlight_last_line(&mut self, highlight: Color) {
+    // TODO Just one user...
+    pub(crate) fn highlight_last_line(&mut self, highlight: Color) {
         self.lines.last_mut().unwrap().0 = Some(highlight);
     }
 

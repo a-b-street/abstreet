@@ -163,9 +163,11 @@ impl Btn {
             label: label.clone(),
             maybe_tooltip: None,
 
-            text: Text::from(Line(label).fg(Color::BLACK)),
+            text: Text::from(Line(label).fg(Color::hex("#5B5B5B"))),
+            // This is sometimes against a white background and could just be None, but some
+            // callers need the background.
             unselected_bg_color: Color::WHITE,
-            selected_bg_color: Color::ORANGE,
+            selected_bg_color: Color::grey(0.8),
         }
     }
 
@@ -355,7 +357,7 @@ impl BtnBuilder {
                 ..
             } => {
                 assert_eq!(*unselected_bg_color, Color::WHITE);
-                *unselected_bg_color = Color::grey(0.5);
+                *unselected_bg_color = Color::hex("#E9E9E9");
                 let btn = self.build(ctx, "dummy", None).take_btn();
                 Widget::new(Box::new(JustDraw {
                     draw: btn.draw_normal,
