@@ -1,11 +1,11 @@
 use crate::app::App;
-use crate::helpers::{ColorScheme, ID};
+use crate::helpers::ID;
 use crate::info::{header_btns, make_table, make_tabs, Details, Tab};
 use crate::render::DrawPedestrian;
-use ezgui::{Btn, EventCtx, Line, Text, TextExt, Widget};
-use geom::{Angle, Time};
-use map_model::{Building, BuildingID, LaneID, Traversable, SIDEWALK_THICKNESS};
-use sim::{DrawPedestrianInput, PedestrianID, TripMode, TripResult};
+use ezgui::{Btn, Color, EventCtx, Line, Text, TextExt, Widget};
+use geom::{Angle, Circle, Time};
+use map_model::{BuildingID, LaneID, Traversable, SIDEWALK_THICKNESS};
+use sim::{DrawPedestrianInput, PedestrianID, PersonID, TripMode, TripResult};
 
 pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID) -> Vec<Widget> {
     let mut rows = header(ctx, app, details, id, Tab::BldgInfo(id));
@@ -168,45 +168,58 @@ fn header(
         }
     }
 
-    draw_occupants(
-        details,
-        &app.cs,
-        app.primary.map.get_b(id),
-        app.primary.sim.bldg_to_people(id).len(),
-    );
+    draw_occupants(details, app, id, None);
     // TODO Draw cars parked inside?
 
     rows
 }
 
-fn draw_occupants(details: &mut Details, cs: &ColorScheme, bldg: &Building, num_ppl: usize) {
+pub fn draw_occupants(details: &mut Details, app: &App, id: BuildingID, focus: Option<PersonID>) {
     // TODO Lots of fun ideas here. Have a deterministic simulation based on building ID and time
     // to have people "realistically" move around. Draw little floor plans.
 
-    let num_rows_cols = (num_ppl as f64).sqrt().ceil() as usize;
+    let mut ppl = app.primary.sim.bldg_to_people(id);
+    let num_rows_cols = (ppl.len() as f64).sqrt().ceil() as usize;
 
     let ped_len = SIDEWALK_THICKNESS.inner_meters() / 2.0;
     let separation = ped_len * 1.5;
 
     let total_width_height = (num_rows_cols as f64) * (ped_len + separation);
-    let top_left = bldg
+    let top_left = app
+        .primary
+        .map
+        .get_b(id)
         .label_center
         .offset(-total_width_height / 2.0, -total_width_height / 2.0);
 
     // TODO Current thing is inefficient and can easily wind up outside the building.
 
-    let mut cnt = 0;
     'OUTER: for x in 0..num_rows_cols {
         for y in 0..num_rows_cols {
+            let person = if let Some(p) = ppl.pop() {
+                p
+            } else {
+                break 'OUTER;
+            };
+            let pos = top_left.offset(
+                (x as f64) * (ped_len + separation),
+                (y as f64) * (ped_len + separation),
+            );
+
+            if Some(person) == focus {
+                details.zoomed.push(
+                    Color::YELLOW.alpha(0.8),
+                    Circle::new(pos, SIDEWALK_THICKNESS).to_polygon(),
+                );
+            }
+
             DrawPedestrian::geometry(
                 &mut details.zoomed,
-                cs,
+                &app.cs,
                 &DrawPedestrianInput {
-                    id: PedestrianID(cnt),
-                    pos: top_left.offset(
-                        (x as f64) * (ped_len + separation),
-                        (y as f64) * (ped_len + separation),
-                    ),
+                    // Lies
+                    id: PedestrianID(person.0),
+                    pos,
                     facing: Angle::new_degs(90.0),
                     waiting_for_turn: None,
                     preparing_bike: false,
@@ -216,11 +229,6 @@ fn draw_occupants(details: &mut Details, cs: &ColorScheme, bldg: &Building, num_
                 },
                 0,
             );
-
-            cnt += 1;
-            if cnt == num_ppl {
-                break 'OUTER;
-            }
         }
     }
 }

@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::info::{header_btns, make_table, make_tabs, trip, Details, Tab, Text};
+use crate::info::{building, header_btns, make_table, make_tabs, trip, Details, Tab, Text};
 use crate::render::Renderable;
 use ezgui::{Btn, Color, EventCtx, Line, TextExt, Widget};
 use map_model::Map;
@@ -179,7 +179,7 @@ pub fn parked_car(ctx: &EventCtx, app: &App, details: &mut Details, id: CarID) -
     rows
 }
 
-fn header(ctx: &EventCtx, _: &App, details: &mut Details, id: PersonID, tab: Tab) -> Vec<Widget> {
+fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: PersonID, tab: Tab) -> Vec<Widget> {
     let mut rows = vec![];
 
     rows.push(Widget::row(vec![
@@ -197,6 +197,10 @@ fn header(ctx: &EventCtx, _: &App, details: &mut Details, id: PersonID, tab: Tab
             ("Bio", Tab::PersonBio(id)),
         ],
     ));
+
+    if let PersonState::Inside(b) = app.primary.sim.get_person(id).state {
+        building::draw_occupants(details, app, b, Some(id));
+    }
 
     rows
 }
