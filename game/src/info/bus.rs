@@ -1,25 +1,20 @@
 use crate::app::App;
+use crate::info::{header_btns, make_table, Details};
 use ezgui::{EventCtx, Line, Text, Widget};
 use geom::Time;
 use map_model::BusStopID;
 use sim::CarID;
 
-pub fn info(
-    ctx: &EventCtx,
-    app: &App,
-    id: BusStopID,
-    header_btns: Widget,
-    action_btns: Vec<Widget>,
-) -> Vec<Widget> {
+// TODO Needs much more work
+pub fn stop(ctx: &EventCtx, app: &App, details: &mut Details, id: BusStopID) -> Vec<Widget> {
     let mut rows = vec![];
 
     let sim = &app.primary.sim;
 
     rows.push(Widget::row(vec![
         Line("Bus stop").small_heading().draw(ctx),
-        header_btns,
+        header_btns(ctx),
     ]));
-    rows.extend(action_btns);
 
     let mut txt = Text::new();
     txt.add(Line(format!(
@@ -50,6 +45,28 @@ pub fn info(
         }
     }
     rows.push(txt.draw(ctx));
+
+    rows
+}
+
+// TODO Likewise
+pub fn bus(ctx: &EventCtx, app: &App, details: &mut Details, id: CarID) -> Vec<Widget> {
+    let mut rows = vec![];
+
+    rows.push(Widget::row(vec![
+        Line(format!("Bus #{}", id.0)).small_heading().draw(ctx),
+        header_btns(ctx),
+    ]));
+
+    let (kv, extra) = app.primary.sim.car_properties(id, &app.primary.map);
+    rows.extend(make_table(ctx, kv));
+    if !extra.is_empty() {
+        let mut txt = Text::from(Line(""));
+        for line in extra {
+            txt.add(Line(line));
+        }
+        rows.push(txt.draw(ctx));
+    }
 
     rows
 }

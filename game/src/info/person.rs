@@ -1,112 +1,222 @@
 use crate::app::App;
 use crate::colors;
-use crate::helpers::ID;
 use crate::info::trip::trip_details;
-use crate::info::{make_table, make_tabs, InfoTab};
-use ezgui::{Btn, EventCtx, Line, TextExt, Widget};
-use geom::Time;
+use crate::info::{header_btns, make_table, make_tabs, Details, Tab, Text};
+use crate::render::Renderable;
+use ezgui::{Btn, Color, EventCtx, Line, TextExt, Widget};
 use map_model::Map;
-use sim::{Person, PersonID, PersonState, TripMode, TripResult};
-use std::collections::HashMap;
+use sim::{AgentID, CarID, PedestrianID, Person, PersonID, PersonState, TripResult};
 
-#[derive(Clone, PartialEq)]
-pub enum Tab {
-    Bio,
+pub fn status(ctx: &mut EventCtx, app: &App, details: &mut Details, id: PersonID) -> Vec<Widget> {
+    let mut rows = header(ctx, app, details, id, Tab::PersonStatus(id));
+
+    let map = &app.primary.map;
+    let sim = &app.primary.sim;
+    let person = sim.get_person(id);
+
+    match sim.get_person(id).state {
+        PersonState::Inside(b) => {
+            // TODO hyperlink
+            rows.push(
+                format!("Currently inside {}", map.get_b(b).just_address(map)).draw_text(ctx),
+            );
+        }
+        PersonState::OffMap => {
+            rows.push("Currently outside the map boundaries".draw_text(ctx));
+        }
+        PersonState::Limbo => {
+            rows.push(
+                "Currently in limbo -- they broke out of the Matrix! Woops. (A bug occurred)"
+                    .draw_text(ctx),
+            );
+        }
+        PersonState::Trip(t) => {
+            if let Some(a) = sim.trip_to_agent(t).ok() {
+                rows.push(Widget::col(vec![
+                    Line(format!("Trip #{}", t.0)).small_heading().draw(ctx),
+                    trip_details(ctx, app, t, sim.progress_along_path(a), details),
+                ]));
+
+                let (kv, extra) = match a {
+                    AgentID::Car(c) => sim.car_properties(c, map),
+                    AgentID::Pedestrian(p) => sim.ped_properties(p, map),
+                };
+                rows.extend(make_table(ctx, kv));
+                if !extra.is_empty() {
+                    let mut txt = Text::from(Line(""));
+                    for line in extra {
+                        txt.add(Line(line));
+                    }
+                    rows.push(txt.draw(ctx));
+                }
+
+                if let AgentID::Car(c) = a {
+                    if let Some(b) = app.primary.sim.get_owner_of_car(c) {
+                        // TODO Mention this, with a warp tool
+                        details.unzoomed.push(
+                            app.cs
+                                .get_def("something associated with something else", Color::PURPLE),
+                            app.primary.draw_map.get_b(b).get_outline(&app.primary.map),
+                        );
+                        details.zoomed.push(
+                            app.cs.get("something associated with something else"),
+                            app.primary.draw_map.get_b(b).get_outline(&app.primary.map),
+                        );
+                    }
+                }
+            } else {
+                // TODO Temporary mode change, what's going on?
+                rows.push(Widget::col(vec![
+                    Line(format!("Trip #{}", t.0)).small_heading().draw(ctx),
+                    trip_details(ctx, app, t, None, details),
+                ]));
+            }
+        }
+    }
+
+    rows
 }
 
-pub fn info(
-    ctx: &mut EventCtx,
+pub fn trips(ctx: &mut EventCtx, app: &App, details: &mut Details, id: PersonID) -> Vec<Widget> {
+    let mut rows = header(ctx, app, details, id, Tab::PersonTrips(id));
+
+    let map = &app.primary.map;
+    let sim = &app.primary.sim;
+    let person = sim.get_person(id);
+
+    // I'm sorry for bad variable names
+    let mut wheres_waldo = true;
+    // TODO Classify trips as not started, ongoing, done. Don't mention current status as much?
+    for t in &person.trips {
+        match sim.trip_to_agent(*t) {
+            TripResult::TripNotStarted => {
+                if wheres_waldo {
+                    wheres_waldo = false;
+                    rows.push(current_status(ctx, person, map));
+                }
+            }
+            TripResult::Ok(_) | TripResult::ModeChange => {
+                // ongoing
+                assert!(wheres_waldo);
+                wheres_waldo = false;
+            }
+            TripResult::TripDone => {
+                assert!(wheres_waldo);
+            }
+            TripResult::TripDoesntExist => unreachable!(),
+        }
+        rows.push(
+            Widget::col(vec![
+                Line(format!("Trip #{}", t.0)).small_heading().draw(ctx),
+                trip_details(ctx, app, *t, None, details),
+            ])
+            .bg(colors::SECTION_BG)
+            .margin(10),
+        );
+    }
+    if wheres_waldo {
+        rows.push(current_status(ctx, person, map));
+    }
+
+    rows
+}
+
+pub fn bio(ctx: &EventCtx, app: &App, details: &mut Details, id: PersonID) -> Vec<Widget> {
+    let mut rows = header(ctx, app, details, id, Tab::PersonBio(id));
+
+    // TODO A little picture
+    rows.extend(make_table(
+        ctx,
+        vec![
+            ("Name", "Somebody".to_string()),
+            ("Age", "42".to_string()),
+            ("Occupation", "classified".to_string()),
+        ],
+    ));
+    // TODO Mad libs!
+    // - Keeps a collection of ___ at all times
+    // - Origin story: accidentally fell into a vat of cheese curds
+    // - Superpower: Makes unnervingly realistic squirrel noises
+    // - Rides a fixie
+    // - Has 17 pinky toe piercings (surprising, considering they're the state champ at
+    // barefoot marathons)
+
+    rows
+}
+
+pub fn crowd(
+    ctx: &EventCtx,
     app: &App,
-    id: PersonID,
-    tab: InfoTab,
-    // If None, then the panel is embedded
-    header_btns: Option<Widget>,
-    action_btns: Vec<Widget>,
-    hyperlinks: &mut HashMap<String, (ID, InfoTab)>,
-    warpers: &mut HashMap<String, ID>,
+    details: &mut Details,
+    members: &Vec<PedestrianID>,
 ) -> Vec<Widget> {
     let mut rows = vec![];
 
-    // Header
-    if let Some(btns) = header_btns {
+    rows.push(Widget::row(vec![
+        Line("Pedestrian crowd").small_heading().draw(ctx),
+        header_btns(ctx),
+    ]));
+
+    for (idx, id) in members.into_iter().enumerate() {
+        let person = app
+            .primary
+            .sim
+            .agent_to_person(AgentID::Pedestrian(*id))
+            .unwrap();
+        // TODO What other info is useful to summarize?
         rows.push(Widget::row(vec![
-            Line(format!("Person #{}", id.0)).small_heading().draw(ctx),
-            btns,
+            format!("{})", idx + 1).draw_text(ctx),
+            Btn::text_fg(format!("Person #{}", person.0)).build_def(ctx, None),
         ]));
-    } else {
-        rows.push(Line(format!("Person #{}", id.0)).small_heading().draw(ctx));
+        details
+            .hyperlinks
+            .insert(format!("Person #{}", person.0), Tab::PersonStatus(person));
     }
+
+    rows
+}
+
+pub fn parked_car(ctx: &EventCtx, app: &App, details: &mut Details, id: CarID) -> Vec<Widget> {
+    let mut rows = vec![];
+
+    rows.push(Widget::row(vec![
+        Line(format!("Parked car #{}", id.0))
+            .small_heading()
+            .draw(ctx),
+        header_btns(ctx),
+    ]));
+
+    let (kv, extra) = app.primary.sim.car_properties(id, &app.primary.map);
+    rows.extend(make_table(ctx, kv));
+    if !extra.is_empty() {
+        let mut txt = Text::from(Line(""));
+        for line in extra {
+            txt.add(Line(line));
+        }
+        rows.push(txt.draw(ctx));
+    }
+
+    rows
+}
+
+fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: PersonID, tab: Tab) -> Vec<Widget> {
+    let mut rows = vec![];
+
+    rows.push(Widget::row(vec![
+        Line(format!("Person #{}", id.0)).small_heading().draw(ctx),
+        header_btns(ctx),
+    ]));
 
     rows.push(make_tabs(
         ctx,
-        hyperlinks,
-        ID::Person(id),
-        tab.clone(),
-        vec![("Trips", InfoTab::Nil), ("Bio", InfoTab::Person(Tab::Bio))],
+        &mut details.hyperlinks,
+        tab,
+        vec![
+            ("Status", Tab::PersonStatus(id)),
+            ("Trips", Tab::PersonTrips(id)),
+            ("Bio", Tab::PersonBio(id)),
+        ],
     ));
-
-    match tab {
-        InfoTab::Nil => {
-            // TODO None of these right now
-            rows.extend(action_btns);
-
-            let map = &app.primary.map;
-            let sim = &app.primary.sim;
-            let person = sim.get_person(id);
-
-            // I'm sorry for bad variable names
-            let mut wheres_waldo = true;
-            for t in &person.trips {
-                match sim.trip_to_agent(*t) {
-                    TripResult::TripNotStarted => {
-                        if wheres_waldo {
-                            wheres_waldo = false;
-                            rows.push(current_status(ctx, person, map));
-                        }
-                    }
-                    TripResult::Ok(_) | TripResult::ModeChange => {
-                        // ongoing
-                        assert!(wheres_waldo);
-                        wheres_waldo = false;
-                    }
-                    TripResult::TripDone => {
-                        assert!(wheres_waldo);
-                    }
-                    TripResult::TripDoesntExist => unreachable!(),
-                }
-                rows.push(
-                    Widget::col(vec![
-                        Line(format!("Trip #{}", t.0)).small_heading().draw(ctx),
-                        trip_details(ctx, app, *t, None, warpers).0,
-                    ])
-                    .bg(colors::SECTION_BG)
-                    .margin(10),
-                );
-            }
-            if wheres_waldo {
-                rows.push(current_status(ctx, person, map));
-            }
-        }
-        InfoTab::Person(Tab::Bio) => {
-            // TODO A little picture
-            rows.extend(make_table(
-                ctx,
-                vec![
-                    ("Name", "Somebody".to_string()),
-                    ("Age", "42".to_string()),
-                    ("Occupation", "classified".to_string()),
-                ],
-            ));
-            // TODO Mad libs!
-            // - Keeps a collection of ___ at all times
-            // - Origin story: accidentally fell into a vat of cheese curds
-            // - Superpower: Makes unnervingly realistic squirrel noises
-            // - Rides a fixie
-            // - Has 17 pinky toe piercings (surprising, considering they're the state champ at
-            // barefoot marathons)
-        }
-        _ => unreachable!(),
-    }
 
     rows
 }
@@ -123,41 +233,4 @@ fn current_status(ctx: &EventCtx, person: &Person, map: &Map) -> Widget {
                                occurred)"
             .draw_text(ctx),
     }
-}
-
-pub fn summary(
-    ctx: &EventCtx,
-    app: &App,
-    id: PersonID,
-    hyperlinks: &mut HashMap<String, (ID, InfoTab)>,
-) -> Widget {
-    let person = app.primary.sim.get_person(id);
-
-    let mut next_trip: Option<(Time, TripMode)> = None;
-    for t in &person.trips {
-        match app.primary.sim.trip_to_agent(*t) {
-            TripResult::TripNotStarted => {
-                let (start_time, _, _, mode) = app.primary.sim.trip_info(*t);
-                next_trip = Some((start_time, mode));
-                break;
-            }
-            TripResult::Ok(_) | TripResult::ModeChange => {
-                // TODO What to do here? This is meant for building callers right now
-                break;
-            }
-            TripResult::TripDone => {}
-            TripResult::TripDoesntExist => unreachable!(),
-        }
-    }
-
-    let label = format!("Person #{}", id.0);
-    hyperlinks.insert(label.clone(), (ID::Person(id), InfoTab::Nil));
-    Widget::col(vec![
-        Btn::text_bg1(label).build_def(ctx, None),
-        if let Some((t, mode)) = next_trip {
-            format!("Leaving in {} to {}", t - app.primary.sim.time(), mode).draw_text(ctx)
-        } else {
-            "Staying inside".draw_text(ctx)
-        },
-    ])
 }

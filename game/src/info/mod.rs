@@ -1,9 +1,10 @@
-//mod building;
-//mod bus;
+mod building;
+mod bus;
 mod debug;
 mod intersection;
 mod lane;
-//mod person;
+mod person;
+mod trip;
 
 use crate::app::App;
 use crate::colors;
@@ -200,20 +201,16 @@ impl InfoPanel {
         }*/
 
         let col = match tab {
-            /*Tab::PersonStatus(p) => person::status(ctx, app, &mut details, p),
+            Tab::PersonStatus(p) => person::status(ctx, app, &mut details, p),
             Tab::PersonTrips(p) => person::trips(ctx, app, &mut details, p),
             Tab::PersonBio(p) => person::bio(ctx, app, &mut details, p),
-
             Tab::Bus(c) => bus::bus(ctx, app, &mut details, c),
             Tab::BusStop(bs) => bus::stop(ctx, app, &mut details, bs),
-
             Tab::ParkedCar(c) => person::parked_car(ctx, app, &mut details, c),
-
             Tab::BldgInfo(b) => building::info(ctx, app, &mut details, b),
             Tab::BldgDebug(b) => building::debug(ctx, app, &mut details, b),
             Tab::BldgPeople(b) => building::people(ctx, app, &mut details, b),
-
-            Tab::Crowd(members) => person::crowd(ctx, app, &mut details, members),*/
+            Tab::Crowd(ref members) => person::crowd(ctx, app, &mut details, members),
             Tab::Area(a) => debug::area(ctx, app, &mut details, a),
             Tab::ExtraShape(es) => debug::extra_shape(ctx, app, &mut details, es),
             Tab::IntersectionInfo(i) => intersection::info(ctx, app, &mut details, i),
@@ -222,7 +219,6 @@ impl InfoPanel {
             Tab::LaneInfo(l) => lane::info(ctx, app, &mut details, l),
             Tab::LaneDebug(l) => lane::debug(ctx, app, &mut details, l),
             Tab::LaneTraffic(l) => lane::traffic(ctx, app, &mut details, l),
-            _ => panic!("TODO"),
         };
 
         /*
@@ -428,35 +424,6 @@ fn make_tabs(
     // TODO Centered, but actually, we need to set the padding of each button to divide the
     // available space evenly. Fancy fill rules... hmmm.
     Widget::row(row).bg(Color::WHITE)
-}
-
-fn make_browser<F: Fn(usize) -> Tab>(
-    ctx: &EventCtx,
-    hyperlinks: &mut HashMap<String, Tab>,
-    noun: &str,
-    total: usize,
-    idx: usize,
-    make_link: F,
-) -> Widget {
-    // TODO Keys are weird! But left/right for speed
-    Widget::row(vec![
-        if idx != 0 {
-            hyperlinks.insert("previous".to_string(), make_link(idx - 1));
-            Btn::text_fg("<").build(ctx, "previous", hotkey(Key::UpArrow))
-        } else {
-            Btn::text_fg("<").inactive(ctx)
-        }
-        .margin(5),
-        format!("{} {}/{}", noun, idx + 1, total).draw_text(ctx),
-        if idx != total - 1 {
-            hyperlinks.insert("next".to_string(), make_link(idx + 1));
-            Btn::text_fg(">").build(ctx, "next", hotkey(Key::DownArrow))
-        } else {
-            Btn::text_fg(">").inactive(ctx)
-        }
-        .margin(5),
-    ])
-    .centered()
 }
 
 fn header_btns(ctx: &EventCtx) -> Widget {

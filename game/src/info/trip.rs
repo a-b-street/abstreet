@@ -1,96 +1,25 @@
 use crate::app::App;
 use crate::colors;
 use crate::helpers::ID;
-use crate::info::{make_table, make_tabs, person, InfoTab, TripDetails};
+use crate::info::{make_table, Details};
 use crate::render::dashed_lines;
 use ezgui::{
-    hotkey, Btn, Color, EventCtx, GeomBatch, Key, Line, Plot, PlotOptions, RewriteColor, Series,
-    Text, Widget,
+    Btn, Color, EventCtx, GeomBatch, Line, Plot, PlotOptions, RewriteColor, Series, Text, Widget,
 };
 use geom::{Angle, Distance, Duration, Polygon, Pt2D, Time};
 use map_model::{Map, Path, PathStep};
-use sim::{PersonID, TripEndpoint, TripID, TripPhaseType};
-use std::collections::HashMap;
-
-#[derive(Clone, PartialEq)]
-pub enum Tab {
-    Person(PersonID),
-}
-
-pub fn inactive_info(
-    ctx: &mut EventCtx,
-    app: &App,
-    id: TripID,
-    tab: InfoTab,
-    action_btns: Vec<Widget>,
-    hyperlinks: &mut HashMap<String, (ID, InfoTab)>,
-    warpers: &mut HashMap<String, ID>,
-) -> (Vec<Widget>, Option<TripDetails>) {
-    let mut rows = vec![];
-
-    rows.push(Widget::row(vec![
-        Line(format!("Trip #{}", id.0)).small_heading().draw(ctx),
-        Btn::text_fg("X")
-            .build(ctx, "close info", hotkey(Key::Escape))
-            .align_right(),
-    ]));
-
-    rows.push(make_tabs(
-        ctx,
-        hyperlinks,
-        ID::Trip(id),
-        tab.clone(),
-        vec![
-            ("Info", InfoTab::Nil),
-            (
-                "Trips",
-                InfoTab::Trip(Tab::Person(app.primary.sim.trip_to_person(id))),
-            ),
-        ],
-    ));
-
-    let mut details: Option<TripDetails> = None;
-
-    match tab {
-        InfoTab::Nil => {
-            rows.extend(action_btns);
-
-            let (more, trip_details) = trip_details(ctx, app, id, None, warpers);
-            rows.push(more);
-            details = Some(trip_details);
-        }
-        InfoTab::Trip(Tab::Person(p)) => {
-            // TODO Hyperlink?
-            rows.extend(person::info(
-                ctx,
-                app,
-                p,
-                InfoTab::Nil,
-                None,
-                Vec::new(),
-                hyperlinks,
-                warpers,
-            ));
-        }
-        _ => unreachable!(),
-    }
-
-    (rows, details)
-}
+use sim::{TripEndpoint, TripID, TripPhaseType};
 
 pub fn trip_details(
     ctx: &mut EventCtx,
     app: &App,
     trip: TripID,
     progress_along_path: Option<f64>,
-    warpers: &mut HashMap<String, ID>,
-) -> (Widget, TripDetails) {
+    details: &mut Details,
+) -> Widget {
     let map = &app.primary.map;
     let phases = app.primary.sim.get_analytics().get_trip_phases(trip, map);
     let (start_time, trip_start, trip_end, trip_mode) = app.primary.sim.trip_info(trip);
-
-    let mut unzoomed = GeomBatch::new();
-    let mut zoomed = GeomBatch::new();
 
     if phases.is_empty() {
         // The trip hasn't started
@@ -103,27 +32,22 @@ pub fn trip_details(
             ("From", endpoint(&trip_start, map).2),
             ("To", endpoint(&trip_end, map).2),
         ];
-        return (
-            Widget::col(make_table(ctx, kv)),
-            TripDetails {
-                id: trip,
-                unzoomed: unzoomed.upload(ctx),
-                zoomed: zoomed.upload(ctx),
-            },
-        );
+        return Widget::col(make_table(ctx, kv));
     }
 
     let start_btn = {
         let (id, center, name) = endpoint(&trip_start, map);
-        warpers.insert(format!("jump to start of Trip #{}", trip.0), id);
-        unzoomed.add_svg(
+        details
+            .warpers
+            .insert(format!("jump to start of Trip #{}", trip.0), id);
+        details.unzoomed.add_svg(
             ctx.prerender,
             "../data/system/assets/timeline/start_pos.svg",
             center,
             1.0,
             Angle::ZERO,
         );
-        zoomed.add_svg(
+        details.zoomed.add_svg(
             ctx.prerender,
             "../data/system/assets/timeline/start_pos.svg",
             center,
@@ -145,15 +69,17 @@ pub fn trip_details(
 
     let goal_btn = {
         let (id, center, name) = endpoint(&trip_end, map);
-        warpers.insert(format!("jump to goal of Trip #{}", trip.0), id);
-        unzoomed.add_svg(
+        details
+            .warpers
+            .insert(format!("jump to goal of Trip #{}", trip.0), id);
+        details.unzoomed.add_svg(
             ctx.prerender,
             "../data/system/assets/timeline/goal_pos.svg",
             center,
             1.0,
             Angle::ZERO,
         );
-        zoomed.add_svg(
+        details.zoomed.add_svg(
             ctx.prerender,
             "../data/system/assets/timeline/goal_pos.svg",
             center,
@@ -281,8 +207,10 @@ pub fn trip_details(
             }
 
             if let Some(trace) = path.trace(map, dist, None) {
-                unzoomed.push(color, trace.make_polygons(Distance::meters(10.0)));
-                zoomed.extend(
+                details
+                    .unzoomed
+                    .push(color, trace.make_polygons(Distance::meters(10.0)));
+                details.zoomed.extend(
                     color,
                     dashed_lines(
                         &trace,
@@ -309,14 +237,7 @@ pub fn trip_details(
     col.extend(make_table(ctx, kv));
     col.extend(elevation);
 
-    (
-        Widget::col(col),
-        TripDetails {
-            id: trip,
-            unzoomed: unzoomed.upload(ctx),
-            zoomed: zoomed.upload(ctx),
-        },
-    )
+    Widget::col(col)
 }
 
 fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map: &Map) -> Widget {
