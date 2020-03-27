@@ -347,9 +347,6 @@ impl DrawMap {
             ID::Area(id) => {
                 return Some(self.get_a(id));
             }
-            ID::Trip(_) | ID::Person(_) => {
-                return None;
-            }
         };
 
         agents.populate_if_needed(on, &app.primary.map, &app.primary.sim, &app.cs, prerender);

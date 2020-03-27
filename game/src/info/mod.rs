@@ -91,8 +91,6 @@ impl Tab {
             ID::ExtraShape(es) => Tab::ExtraShape(es),
             ID::BusStop(bs) => Tab::BusStop(bs),
             ID::Area(a) => Tab::Area(a),
-            ID::Trip(_) => unreachable!(),
-            ID::Person(_) => unreachable!(),
         }
     }
 }
@@ -392,17 +390,6 @@ fn color_for_mode(m: TripMode, app: &App) -> Color {
         TripMode::Bike => app.cs.get("unzoomed bike"),
         TripMode::Transit => app.cs.get("unzoomed bus"),
         TripMode::Drive => app.cs.get("unzoomed car"),
-    }
-}
-
-fn agent_name(a: AgentID) -> String {
-    match a {
-        AgentID::Car(c) => match c.1 {
-            VehicleType::Car => format!("Car #{}", c.0),
-            VehicleType::Bike => format!("Bike #{}", c.0),
-            VehicleType::Bus => format!("Bus #{}", c.0),
-        },
-        AgentID::Pedestrian(p) => format!("Pedestrian #{}", p.0),
     }
 }
 

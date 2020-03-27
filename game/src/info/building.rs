@@ -137,8 +137,6 @@ fn header(
 ) -> Vec<Widget> {
     let mut rows = vec![];
 
-    let b = app.primary.map.get_b(id);
-
     rows.push(Widget::row(vec![
         Line(format!("Building #{}", id.0))
             .small_heading()

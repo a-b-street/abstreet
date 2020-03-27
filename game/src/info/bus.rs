@@ -6,7 +6,7 @@ use map_model::BusStopID;
 use sim::CarID;
 
 // TODO Needs much more work
-pub fn stop(ctx: &EventCtx, app: &App, details: &mut Details, id: BusStopID) -> Vec<Widget> {
+pub fn stop(ctx: &EventCtx, app: &App, _: &mut Details, id: BusStopID) -> Vec<Widget> {
     let mut rows = vec![];
 
     let sim = &app.primary.sim;
@@ -50,7 +50,7 @@ pub fn stop(ctx: &EventCtx, app: &App, details: &mut Details, id: BusStopID) -> 
 }
 
 // TODO Likewise
-pub fn bus(ctx: &EventCtx, app: &App, details: &mut Details, id: CarID) -> Vec<Widget> {
+pub fn bus(ctx: &EventCtx, app: &App, _: &mut Details, id: CarID) -> Vec<Widget> {
     let mut rows = vec![];
 
     rows.push(Widget::row(vec![

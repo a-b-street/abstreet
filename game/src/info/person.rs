@@ -12,7 +12,6 @@ pub fn status(ctx: &mut EventCtx, app: &App, details: &mut Details, id: PersonID
 
     let map = &app.primary.map;
     let sim = &app.primary.sim;
-    let person = sim.get_person(id);
 
     match sim.get_person(id).state {
         PersonState::Inside(b) => {
@@ -48,21 +47,6 @@ pub fn status(ctx: &mut EventCtx, app: &App, details: &mut Details, id: PersonID
                         txt.add(Line(line));
                     }
                     rows.push(txt.draw(ctx));
-                }
-
-                if let AgentID::Car(c) = a {
-                    if let Some(b) = app.primary.sim.get_owner_of_car(c) {
-                        // TODO Mention this, with a warp tool
-                        details.unzoomed.push(
-                            app.cs
-                                .get_def("something associated with something else", Color::PURPLE),
-                            app.primary.draw_map.get_b(b).get_outline(&app.primary.map),
-                        );
-                        details.zoomed.push(
-                            app.cs.get("something associated with something else"),
-                            app.primary.draw_map.get_b(b).get_outline(&app.primary.map),
-                        );
-                    }
                 }
             } else {
                 // TODO Temporary mode change, what's going on?
@@ -196,10 +180,23 @@ pub fn parked_car(ctx: &EventCtx, app: &App, details: &mut Details, id: CarID) -
         rows.push(txt.draw(ctx));
     }
 
+    if let Some(b) = app.primary.sim.get_owner_of_car(id) {
+        // TODO Mention this, with a warp tool
+        details.unzoomed.push(
+            app.cs
+                .get_def("something associated with something else", Color::PURPLE),
+            app.primary.draw_map.get_b(b).get_outline(&app.primary.map),
+        );
+        details.zoomed.push(
+            app.cs.get("something associated with something else"),
+            app.primary.draw_map.get_b(b).get_outline(&app.primary.map),
+        );
+    }
+
     rows
 }
 
-fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: PersonID, tab: Tab) -> Vec<Widget> {
+fn header(ctx: &EventCtx, _: &App, details: &mut Details, id: PersonID, tab: Tab) -> Vec<Widget> {
     let mut rows = vec![];
 
     rows.push(Widget::row(vec![

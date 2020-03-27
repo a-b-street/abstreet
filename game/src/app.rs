@@ -355,13 +355,9 @@ impl App {
                 ID::Building(id) => buildings.push(draw_map.get_b(id)),
                 ID::ExtraShape(id) => extra_shapes.push(draw_map.get_es(id)),
 
-                ID::BusStop(_)
-                | ID::Turn(_)
-                | ID::Car(_)
-                | ID::Pedestrian(_)
-                | ID::PedCrowd(_)
-                | ID::Trip(_)
-                | ID::Person(_) => panic!("{:?} shouldn't be in the quadtree", id),
+                ID::BusStop(_) | ID::Turn(_) | ID::Car(_) | ID::Pedestrian(_) | ID::PedCrowd(_) => {
+                    panic!("{:?} shouldn't be in the quadtree", id)
+                }
             }
         }
 

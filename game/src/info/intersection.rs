@@ -47,7 +47,6 @@ pub fn traffic(
     id: IntersectionID,
 ) -> Vec<Widget> {
     let mut rows = header(ctx, app, details, id, Tab::IntersectionTraffic(id));
-    let i = app.primary.map.get_i(id);
 
     let mut txt = Text::new();
 
