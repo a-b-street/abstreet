@@ -4,7 +4,9 @@ mod speed;
 
 use crate::app::App;
 use crate::colors;
-use crate::common::{tool_panel, CommonState, Minimap, Overlays, RoutePreview, ShowBusRoute};
+use crate::common::{
+    tool_panel, CommonState, ContextualActions, Minimap, Overlays, RoutePreview, ShowBusRoute,
+};
 use crate::debug::DebugMode;
 use crate::edit::{
     apply_map_edits, can_edit_lane, save_edits_as, EditMode, LaneEditor, StopSignEditor,
@@ -236,7 +238,7 @@ impl State for SandboxMode {
         // also let this work before tool_panel, so Key::Escape from the info panel beats the one
         // to quit. And let speed update the sim before we update the info panel.
         if let Some(ref mut c) = self.controls.common {
-            if let Some(t) = c.event(ctx, app, self.controls.speed.as_mut()) {
+            if let Some(t) = c.event(ctx, app, self.controls.speed.as_mut(), &mut Actions {}) {
                 return t;
             }
         }
@@ -508,5 +510,15 @@ impl AgentMeter {
 
     pub fn draw(&self, g: &mut GfxCtx) {
         self.composite.draw(g);
+    }
+}
+
+struct Actions;
+impl ContextualActions for Actions {
+    fn actions(&self, app: &App, id: ID) -> Vec<(Key, String)> {
+        Vec::new()
+    }
+    fn execute(&mut self, ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
+        Transition::Keep
     }
 }

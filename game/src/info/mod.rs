@@ -139,8 +139,16 @@ impl InfoPanel {
         id: ID,
         actions: Vec<(Key, String)>,
         maybe_speed: Option<&mut SpeedControls>,
+        ctx_actions: &mut dyn ContextualActions,
     ) -> InfoPanel {
-        InfoPanel::new(ctx, app, Tab::from_id(app, id), actions, maybe_speed)
+        InfoPanel::new(
+            ctx,
+            app,
+            Tab::from_id(app, id),
+            actions,
+            maybe_speed,
+            ctx_actions,
+        )
     }
 
     fn new(
@@ -149,6 +157,7 @@ impl InfoPanel {
         tab: Tab,
         actions: Vec<(Key, String)>,
         maybe_speed: Option<&mut SpeedControls>,
+        ctx_actions: &mut dyn ContextualActions,
     ) -> InfoPanel {
         /*if maybe_speed.map(|s| s.is_paused()).unwrap_or(false)
             && id.agent_id().is_some()
@@ -198,9 +207,22 @@ impl InfoPanel {
                     .margin(5),
             );
         }
+        let maybe_id = tab.clone().to_id(app);
+        if let Some(id) = maybe_id.clone() {
+        for (key, label) in ctx_actions.actions(app, id) {
+            let mut txt = Text::new();
+            txt.append(Line(key.describe()).fg(ezgui::HOTKEY_COLOR));
+            txt.append(Line(format!(" - {}", label)));
+            col.push(
+                Btn::text_bg(label, txt, colors::SECTION_BG, colors::HOVERING)
+                    .build_def(ctx, hotkey(key))
+                    .margin(5),
+            );
+        }
+        }
 
         // Highlight something?
-        if let Some((id, outline)) = tab.clone().to_id(app).and_then(|id| {
+        if let Some((id, outline)) = maybe_id.clone().and_then(|id| {
             app.primary
                 .draw_map
                 .get_obj(
@@ -264,9 +286,7 @@ impl InfoPanel {
 
         // Follow the agent. When the sim is paused, this lets the player naturally pan away,
         // because the InfoPanel isn't being updated.
-        if let Some(pt) = tab
-            .clone()
-            .to_id(app)
+        if let Some(pt) = maybe_id
             .and_then(|id| id.agent_id())
             .and_then(|a| app.primary.sim.canonical_pt_for_agent(a, &app.primary.map))
         {
@@ -299,6 +319,7 @@ impl InfoPanel {
         ctx: &mut EventCtx,
         app: &mut App,
         maybe_speed: Option<&mut SpeedControls>,
+        ctx_actions: &mut dyn ContextualActions,
     ) -> (bool, Option<Transition>) {
         // Can click on the map to cancel
         if ctx.canvas.get_cursor_in_map_space().is_some()
@@ -317,11 +338,13 @@ impl InfoPanel {
                 self.tab.clone(),
                 self.actions.clone(),
                 maybe_speed,
+                ctx_actions,
             );
             self.composite.restore_scroll(ctx, preserve_scroll);
             return (false, None);
         }
 
+        let maybe_id = self.tab.clone().to_id(app);
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(action)) => {
                 if let Some(new_tab) = self.hyperlinks.get(&action).cloned() {
@@ -329,12 +352,13 @@ impl InfoPanel {
                         ctx,
                         app,
                         new_tab.clone(),
-                        if self.tab.clone().to_id(app) == new_tab.to_id(app) {
+                        if maybe_id == new_tab.to_id(app) {
                             self.actions.clone()
                         } else {
                             Vec::new()
                         },
                         maybe_speed,
+                        ctx_actions,
                     );
                     return (false, None);
                 } else if action == "close info" {
@@ -373,8 +397,10 @@ impl InfoPanel {
                         ))),
                     )
                 } else {
-                    app.primary.current_selection = Some(self.tab.clone().to_id(app).unwrap());
-                    (true, Some(Transition::ApplyObjectAction(action)))
+                    /*app.primary.current_selection = Some(self.tab.clone().to_id(app).unwrap());
+                    (true, Some(Transition::ApplyObjectAction(action)))*/
+
+                    (true, Some(ctx_actions.execute(ctx, app, maybe_id.unwrap(), action)))
                 }
             }
             None => (false, None),
@@ -479,4 +505,10 @@ fn header_btns(ctx: &EventCtx) -> Widget {
         Btn::text_fg("X").build(ctx, "close info", hotkey(Key::Escape)),
     ])
     .align_right()
+}
+
+pub trait ContextualActions {
+    // TODO &str?
+    fn actions(&self, app: &App, id: ID) -> Vec<(Key, String)>;
+    fn execute(&mut self, ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition;
 }

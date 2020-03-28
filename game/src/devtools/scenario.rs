@@ -1,6 +1,6 @@
 use crate::app::App;
 use crate::colors;
-use crate::common::{tool_panel, Colorer, CommonState, Warping};
+use crate::common::{tool_panel, Colorer, CommonState, ContextualActions, Warping};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
@@ -171,59 +171,19 @@ impl State for ScenarioManager {
             app.recalculate_current_selection(ctx);
         }
 
-        if let Some(ID::Building(b)) = app.primary.current_selection {
-            let from = self.trips_from_bldg.get(b);
-            let to = self.trips_to_bldg.get(b);
-            if !from.is_empty() || !to.is_empty() {
-                if app.per_obj.action(ctx, Key::T, "browse trips") {
-                    // TODO Avoid the clone? Just happens once though.
-                    let mut all_trips = from.clone();
-                    all_trips.extend(to);
-
-                    return Transition::Push(make_trip_picker(
-                        self.scenario.clone(),
-                        all_trips,
-                        "building",
-                        OD::Bldg(b),
-                    ));
-                } else if self.demand.is_none()
-                    && app.per_obj.action(ctx, Key::P, "show trips to and from")
-                {
-                    self.demand =
-                        Some(show_demand(&self.scenario, from, to, OD::Bldg(b), app, ctx));
-                }
-            }
-        } else if let Some(ID::Intersection(i)) = app.primary.current_selection {
-            let from = self.trips_from_border.get(i);
-            let to = self.trips_to_border.get(i);
-            if !from.is_empty() || !to.is_empty() {
-                if app.per_obj.action(ctx, Key::T, "browse trips") {
-                    // TODO Avoid the clone? Just happens once though.
-                    let mut all_trips = from.clone();
-                    all_trips.extend(to);
-
-                    return Transition::Push(make_trip_picker(
-                        self.scenario.clone(),
-                        all_trips,
-                        "border",
-                        OD::Border(i),
-                    ));
-                } else if self.demand.is_none()
-                    && app.per_obj.action(ctx, Key::P, "show trips to and from")
-                {
-                    self.demand = Some(show_demand(
-                        &self.scenario,
-                        from,
-                        to,
-                        OD::Border(i),
-                        app,
-                        ctx,
-                    ));
-                }
-            }
-        }
-
-        if let Some(t) = self.common.event(ctx, app, None) {
+        if let Some(t) = self.common.event(
+            ctx,
+            app,
+            None,
+            &mut Actions {
+                demand: &mut self.demand,
+                scenario: &self.scenario,
+                trips_from_bldg: &self.trips_from_bldg,
+                trips_to_bldg: &self.trips_to_bldg,
+                trips_from_border: &self.trips_from_border,
+                trips_to_border: &self.trips_to_border,
+            },
+        ) {
             return t;
         }
         match self.tool_panel.event(ctx, app) {
@@ -610,5 +570,93 @@ impl State for DotMap {
             g.redraw(d);
         }
         self.composite.draw(g);
+    }
+}
+
+struct Actions<'a> {
+    demand: &'a mut Option<Drawable>,
+    scenario: &'a Scenario,
+    trips_from_bldg: &'a MultiMap<BuildingID, (usize, usize)>,
+    trips_to_bldg: &'a MultiMap<BuildingID, (usize, usize)>,
+    trips_from_border: &'a MultiMap<IntersectionID, (usize, usize)>,
+    trips_to_border: &'a MultiMap<IntersectionID, (usize, usize)>,
+}
+impl<'a> ContextualActions for Actions<'a> {
+    fn actions(&self, app: &App, id: ID) -> Vec<(Key, String)> {
+        let mut actions = Vec::new();
+
+        // TODO Actually no, tell them the ID.
+        if let ID::Building(b) = id {
+            let from = self.trips_from_bldg.get(b);
+            let to = self.trips_to_bldg.get(b);
+            if !from.is_empty() || !to.is_empty() {
+                actions.push((Key::T, "browse trips".to_string()));
+                if self.demand.is_none() {
+                    actions.push((Key::P, "show trips to and from".to_string()));
+                }
+            }
+        } else if let ID::Intersection(i) = id {
+            let from = self.trips_from_border.get(i);
+            let to = self.trips_to_border.get(i);
+            if !from.is_empty() || !to.is_empty() {
+                actions.push((Key::T, "browse trips".to_string()));
+                if self.demand.is_none() {
+                    actions.push((Key::P, "show trips to and from".to_string()));
+                }
+            }
+        }
+
+        actions
+    }
+    fn execute(&mut self, ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
+        match (id, action.as_ref()) {
+            (ID::Building(b), "browse trips") => {
+                // TODO Avoid the clone? Just happens once though.
+                let mut all_trips = self.trips_from_bldg.get(b).clone();
+                all_trips.extend(self.trips_to_bldg.get(b).clone());
+                Transition::Push(make_trip_picker(
+                    self.scenario.clone(),
+                    all_trips,
+                    "building",
+                    OD::Bldg(b),
+                ))
+            }
+            (ID::Building(b), "show trips to and from") => {
+                *self.demand = Some(show_demand(
+                    self.scenario,
+                    self.trips_from_bldg.get(b),
+                    self.trips_to_bldg.get(b),
+                    OD::Bldg(b),
+                    app,
+                    ctx,
+                ));
+                Transition::Keep
+            }
+            _ => unreachable!(),
+        }
+
+        /*if app.per_obj.action(ctx, Key::T, "browse trips") {
+            // TODO Avoid the clone? Just happens once though.
+            let mut all_trips = from.clone();
+            all_trips.extend(to);
+
+            return Transition::Push(make_trip_picker(
+                self.scenario.clone(),
+                all_trips,
+                "border",
+                OD::Border(i),
+            ));
+        } else if self.demand.is_none()
+            && app.per_obj.action(ctx, Key::P, "show trips to and from")
+        {
+            self.demand = Some(show_demand(
+                &self.scenario,
+                from,
+                to,
+                OD::Border(i),
+                app,
+                ctx,
+            ));
+        }*/
     }
 }

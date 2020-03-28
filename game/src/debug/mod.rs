@@ -4,7 +4,7 @@ mod polygons;
 
 use crate::app::{App, ShowLayers, ShowObject};
 use crate::colors;
-use crate::common::{tool_panel, CommonState};
+use crate::common::{tool_panel, CommonState, ContextualActions};
 use crate::game::{msg, DrawBaselayer, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
@@ -295,7 +295,7 @@ impl State for DebugMode {
             return Transition::Push(floodfiller);
         }
 
-        if let Some(t) = self.common.event(ctx, app, None) {
+        if let Some(t) = self.common.event(ctx, app, None, &mut Actions {}) {
             return t;
         }
         match self.tool_panel.event(ctx, app) {
@@ -459,4 +459,14 @@ fn calc_all_routes(ctx: &EventCtx, app: &mut App) -> (usize, Drawable) {
         }
     }
     (cnt, ctx.upload(batch))
+}
+
+struct Actions;
+impl ContextualActions for Actions {
+    fn actions(&self, app: &App, id: ID) -> Vec<(Key, String)> {
+        Vec::new()
+    }
+    fn execute(&mut self, ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
+        Transition::Keep
+    }
 }

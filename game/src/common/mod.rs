@@ -20,22 +20,26 @@ pub use self::warp::Warping;
 use crate::app::App;
 use crate::game::Transition;
 use crate::helpers::{list_names, ID};
+pub use crate::info::ContextualActions;
 use crate::info::InfoPanel;
 use crate::sandbox::SpeedControls;
 use ezgui::{
-    lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenDims, ScreenPt, ScreenRectangle,
+    hotkey, lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenDims, ScreenPt, ScreenRectangle,
     Text,
 };
 use geom::Polygon;
 use std::collections::BTreeSet;
 
 pub struct CommonState {
+    // TODO Better to express these as mutex
     info_panel: Option<InfoPanel>,
+    // Just for drawing the OSD
+    cached_actions: Vec<(Key, String)>,
 }
 
 impl CommonState {
     pub fn new() -> CommonState {
-        CommonState { info_panel: None }
+        CommonState { info_panel: None, cached_actions: Vec::new() }
     }
 
     // This has to be called after anything that calls app.per_obj.action(). Oof.
@@ -45,6 +49,7 @@ impl CommonState {
         ctx: &mut EventCtx,
         app: &mut App,
         maybe_speed: Option<&mut SpeedControls>,
+        ctx_actions: &mut dyn ContextualActions,
     ) -> Option<Transition> {
         if ctx.input.new_was_pressed(&lctrl(Key::S).unwrap()) {
             app.opts.dev = !app.opts.dev;
@@ -65,13 +70,14 @@ impl CommonState {
                     id.clone(),
                     actions,
                     maybe_speed,
+                    ctx_actions,
                 ));
                 return None;
             }
         }
 
         if let Some(ref mut info) = self.info_panel {
-            let (closed, maybe_t) = info.event(ctx, app, maybe_speed);
+            let (closed, maybe_t) = info.event(ctx, app, maybe_speed, ctx_actions);
             if closed {
                 self.info_panel = None;
                 assert!(app.per_obj.info_panel_open);
@@ -79,6 +85,19 @@ impl CommonState {
             }
             if let Some(t) = maybe_t {
                 return Some(t);
+            }
+        }
+
+        if self.info_panel.is_none() {
+            if let Some(id) = app.primary.current_selection.clone() {
+                self.cached_actions = ctx_actions.actions(app, id.clone());
+
+                // Allow hotkeys to work without opening the panel.
+                for (k, action) in &self.cached_actions {
+                    if ctx.input.new_was_pressed(&hotkey(*k).unwrap()) {
+                        return Some(ctx_actions.execute(ctx, app, id, action.clone()));
+                    }
+                }
             }
         }
 
@@ -267,8 +286,21 @@ impl CommonState {
     }
 
     // Meant to be used for launching from other states
-    pub fn launch_info_panel(&mut self, id: ID, ctx: &mut EventCtx, app: &mut App) {
-        self.info_panel = Some(InfoPanel::launch(ctx, app, id, Vec::new(), None));
+    pub fn launch_info_panel(
+        &mut self,
+        id: ID,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        ctx_actions: &mut dyn ContextualActions,
+    ) {
+        self.info_panel = Some(InfoPanel::launch(
+            ctx,
+            app,
+            id,
+            Vec::new(),
+            None,
+            ctx_actions,
+        ));
         app.per_obj.info_panel_open = true;
     }
 

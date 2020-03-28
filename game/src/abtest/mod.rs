@@ -1,7 +1,8 @@
 pub mod setup;
 
 use crate::app::{App, PerMap};
-use crate::common::{tool_panel, CommonState};
+use crate::common::{tool_panel, CommonState, ContextualActions};
+use crate::helpers::ID;
 use crate::debug::DebugMode;
 use crate::game::{State, Transition};
 use crate::managed::{WrappedComposite, WrappedOutcome};
@@ -138,7 +139,7 @@ impl State for ABTestMode {
             self.recalculate_stuff(app, ctx);
         }*/
 
-        if let Some(t) = self.common.event(ctx, app, None) {
+        if let Some(t) = self.common.event(ctx, app, None, &mut Actions {}) {
             return t;
         }
         match self.tool_panel.event(ctx, app) {
@@ -363,4 +364,14 @@ pub struct ABTestSavestate {
     primary_sim: Sim,
     secondary_map: Map,
     secondary_sim: Sim,
+}
+
+struct Actions;
+impl ContextualActions for Actions {
+    fn actions(&self, app: &App, id: ID) -> Vec<(Key, String)> {
+        Vec::new()
+    }
+    fn execute(&mut self, ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
+        Transition::Keep
+    }
 }
