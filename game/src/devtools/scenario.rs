@@ -204,29 +204,8 @@ impl State for ScenarioManager {
         }
 
         self.composite.draw(g);
-        self.common.draw_no_osd(g);
+        self.common.draw(g, app);
         self.tool_panel.draw(g);
-
-        if let Some(ID::Building(b)) = app.primary.current_selection {
-            let mut osd = CommonState::default_osd(ID::Building(b), app);
-            osd.append(Line(format!(
-                ". {} trips from here, {} trips to here, {} parked cars needed",
-                self.trips_from_bldg.get(b).len(),
-                self.trips_to_bldg.get(b).len(),
-                self.scenario.population.individ_parked_cars[&b]
-            )));
-            CommonState::draw_custom_osd(g, app, osd);
-        } else if let Some(ID::Intersection(i)) = app.primary.current_selection {
-            let mut osd = CommonState::default_osd(ID::Intersection(i), app);
-            osd.append(Line(format!(
-                ". {} trips from here, {} trips to here",
-                self.trips_from_border.get(i).len(),
-                self.trips_to_border.get(i).len(),
-            )));
-            CommonState::draw_custom_osd(g, app, osd);
-        } else {
-            CommonState::draw_osd(g, app, &app.primary.current_selection);
-        }
     }
 }
 

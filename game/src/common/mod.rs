@@ -24,8 +24,8 @@ pub use crate::info::ContextualActions;
 use crate::info::InfoPanel;
 use crate::sandbox::SpeedControls;
 use ezgui::{
-    hotkey, lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenDims, ScreenPt, ScreenRectangle,
-    Text,
+    hotkey, lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenDims, ScreenPt,
+    ScreenRectangle, Text,
 };
 use geom::Polygon;
 use std::collections::BTreeSet;
@@ -34,12 +34,15 @@ pub struct CommonState {
     // TODO Better to express these as mutex
     info_panel: Option<InfoPanel>,
     // Just for drawing the OSD
-    cached_actions: Vec<(Key, String)>,
+    cached_actions: Vec<Key>,
 }
 
 impl CommonState {
     pub fn new() -> CommonState {
-        CommonState { info_panel: None, cached_actions: Vec::new() }
+        CommonState {
+            info_panel: None,
+            cached_actions: Vec::new(),
+        }
     }
 
     // This has to be called after anything that calls app.per_obj.action(). Oof.
@@ -89,14 +92,14 @@ impl CommonState {
         }
 
         if self.info_panel.is_none() {
+            self.cached_actions.clear();
             if let Some(id) = app.primary.current_selection.clone() {
-                self.cached_actions = ctx_actions.actions(app, id.clone());
-
                 // Allow hotkeys to work without opening the panel.
-                for (k, action) in &self.cached_actions {
-                    if ctx.input.new_was_pressed(&hotkey(*k).unwrap()) {
-                        return Some(ctx_actions.execute(ctx, app, id, action.clone()));
+                for (k, action) in ctx_actions.actions(app, id.clone()) {
+                    if ctx.input.new_was_pressed(&hotkey(k).unwrap()) {
+                        return Some(ctx_actions.execute(ctx, app, id, action));
                     }
+                    self.cached_actions.push(k);
                 }
             }
         }
@@ -104,18 +107,32 @@ impl CommonState {
         None
     }
 
-    pub fn draw_no_osd(&self, g: &mut GfxCtx) {
-        if let Some(ref info) = self.info_panel {
-            info.draw(g);
-        }
-    }
-
     pub fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.draw_no_osd(g);
-        CommonState::draw_osd(g, app, &app.primary.current_selection);
+        let keys = if let Some(ref info) = self.info_panel {
+            info.draw(g);
+            info.active_keys()
+        } else {
+            &self.cached_actions
+        };
+        let mut osd = if let Some(id) = &app.primary.current_selection {
+            CommonState::osd_for(app, id.clone())
+        } else {
+            Text::from(Line("..."))
+        };
+        if !keys.is_empty() {
+            osd.append(Line("   Hotkeys: "));
+            for (idx, key) in keys.into_iter().enumerate() {
+                if idx != 0 {
+                    osd.append(Line(", "));
+                }
+                osd.append(Line(key.describe()).fg(ezgui::HOTKEY_COLOR));
+            }
+        }
+
+        CommonState::draw_custom_osd(g, app, osd);
     }
 
-    pub fn default_osd(id: ID, app: &App) -> Text {
+    fn osd_for(app: &App, id: ID) -> Text {
         let map = &app.primary.map;
         let id_color = app.cs.get_def("OSD ID color", Color::RED);
         let name_color = app.cs.get_def("OSD name color", Color::CYAN);
@@ -232,7 +249,7 @@ impl CommonState {
 
     pub fn draw_osd(g: &mut GfxCtx, app: &App, id: &Option<ID>) {
         let osd = if let Some(id) = id {
-            CommonState::default_osd(id.clone(), app)
+            CommonState::osd_for(app, id.clone())
         } else {
             Text::from(Line("..."))
         };

@@ -2,9 +2,9 @@ pub mod setup;
 
 use crate::app::{App, PerMap};
 use crate::common::{tool_panel, CommonState, ContextualActions};
-use crate::helpers::ID;
 use crate::debug::DebugMode;
 use crate::game::{State, Transition};
+use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use abstutil::Timer;

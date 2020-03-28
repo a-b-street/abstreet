@@ -33,6 +33,9 @@ pub struct InfoPanel {
     actions: Vec<(Key, String)>,
     hyperlinks: HashMap<String, Tab>,
     warpers: HashMap<String, ID>,
+
+    // For drawing the OSD only
+    cached_actions: Vec<Key>,
 }
 
 #[derive(Clone, PartialEq)]
@@ -208,17 +211,19 @@ impl InfoPanel {
             );
         }
         let maybe_id = tab.clone().to_id(app);
+        let mut cached_actions = Vec::new();
         if let Some(id) = maybe_id.clone() {
-        for (key, label) in ctx_actions.actions(app, id) {
-            let mut txt = Text::new();
-            txt.append(Line(key.describe()).fg(ezgui::HOTKEY_COLOR));
-            txt.append(Line(format!(" - {}", label)));
-            col.push(
-                Btn::text_bg(label, txt, colors::SECTION_BG, colors::HOVERING)
-                    .build_def(ctx, hotkey(key))
-                    .margin(5),
-            );
-        }
+            for (key, label) in ctx_actions.actions(app, id) {
+                cached_actions.push(key);
+                let mut txt = Text::new();
+                txt.append(Line(key.describe()).fg(ezgui::HOTKEY_COLOR));
+                txt.append(Line(format!(" - {}", label)));
+                col.push(
+                    Btn::text_bg(label, txt, colors::SECTION_BG, colors::HOVERING)
+                        .build_def(ctx, hotkey(key))
+                        .margin(5),
+                );
+            }
         }
 
         // Highlight something?
@@ -310,6 +315,7 @@ impl InfoPanel {
             zoomed: details.zoomed.upload(ctx),
             hyperlinks: details.hyperlinks,
             warpers: details.warpers,
+            cached_actions,
         }
     }
 
@@ -400,7 +406,10 @@ impl InfoPanel {
                     /*app.primary.current_selection = Some(self.tab.clone().to_id(app).unwrap());
                     (true, Some(Transition::ApplyObjectAction(action)))*/
 
-                    (true, Some(ctx_actions.execute(ctx, app, maybe_id.unwrap(), action)))
+                    (
+                        true,
+                        Some(ctx_actions.execute(ctx, app, maybe_id.unwrap(), action)),
+                    )
                 }
             }
             None => (false, None),
@@ -414,6 +423,10 @@ impl InfoPanel {
         } else {
             g.redraw(&self.zoomed);
         }
+    }
+
+    pub fn active_keys(&self) -> &Vec<Key> {
+        &self.cached_actions
     }
 }
 
