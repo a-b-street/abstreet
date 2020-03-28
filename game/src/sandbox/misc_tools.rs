@@ -2,7 +2,6 @@ use crate::app::{App, ShowEverything};
 use crate::colors;
 use crate::common::ColorLegend;
 use crate::game::{DrawBaselayer, State, Transition};
-use crate::helpers::ID;
 use crate::render::{dashed_lines, draw_signal_phase, make_signal_diagram, DrawOptions, DrawTurn};
 use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
@@ -24,35 +23,7 @@ impl RoutePreview {
 
 impl RoutePreview {
     pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
-        if let Some(ID::Lane(id)) = app.primary.current_selection {
-            if !app.primary.map.get_turns_from_lane(id).is_empty()
-                && app
-                    .per_obj
-                    .action(ctx, Key::Z, "explore turns from this lane")
-            {
-                return Some(Transition::Push(Box::new(TurnExplorer {
-                    l: id,
-                    idx: 0,
-                    composite: TurnExplorer::make_panel(ctx, app, id, 0),
-                })));
-            }
-        } else if let Some(ID::Intersection(i)) = app.primary.current_selection {
-            if let Some(ref signal) = app.primary.map.maybe_get_traffic_signal(i) {
-                if app
-                    .per_obj
-                    .action(ctx, Key::F, "explore traffic signal details")
-                {
-                    app.primary.current_selection = None;
-                    let (idx, _, _) =
-                        signal.current_phase_and_remaining_time(app.primary.sim.time());
-                    return Some(Transition::Push(Box::new(ShowTrafficSignal {
-                        i,
-                        composite: make_signal_diagram(ctx, app, i, idx, false),
-                        current_phase: idx,
-                    })));
-                }
-            }
-        } else if let Some(agent) = app
+        if let Some(agent) = app
             .primary
             .current_selection
             .as_ref()
@@ -93,10 +64,34 @@ impl RoutePreview {
     }
 }
 
-struct ShowTrafficSignal {
+pub struct ShowTrafficSignal {
     i: IntersectionID,
     composite: Composite,
     current_phase: usize,
+}
+
+impl ShowTrafficSignal {
+    pub fn new(ctx: &mut EventCtx, app: &App, i: IntersectionID) -> Box<dyn State> {
+        let (idx, _, _) = app
+            .primary
+            .map
+            .get_traffic_signal(i)
+            .current_phase_and_remaining_time(app.primary.sim.time());
+        return Box::new(ShowTrafficSignal {
+            i,
+            composite: make_signal_diagram(ctx, app, i, idx, false),
+            current_phase: idx,
+        });
+    }
+
+    fn change_phase(&mut self, idx: usize, app: &App, ctx: &mut EventCtx) {
+        if self.current_phase != idx {
+            self.current_phase = idx;
+            self.composite = make_signal_diagram(ctx, app, self.i, self.current_phase, false);
+            self.composite
+                .scroll_to_member(ctx, format!("phase {}", idx + 1));
+        }
+    }
 }
 
 impl State for ShowTrafficSignal {
@@ -153,22 +148,21 @@ impl State for ShowTrafficSignal {
     }
 }
 
-impl ShowTrafficSignal {
-    fn change_phase(&mut self, idx: usize, app: &App, ctx: &mut EventCtx) {
-        if self.current_phase != idx {
-            self.current_phase = idx;
-            self.composite = make_signal_diagram(ctx, app, self.i, self.current_phase, false);
-            self.composite
-                .scroll_to_member(ctx, format!("phase {}", idx + 1));
-        }
-    }
-}
-
-struct TurnExplorer {
+pub struct TurnExplorer {
     l: LaneID,
     // 0 means all turns, otherwise one particular turn
     idx: usize,
     composite: Composite,
+}
+
+impl TurnExplorer {
+    pub fn new(ctx: &mut EventCtx, app: &App, l: LaneID) -> Box<dyn State> {
+        Box::new(TurnExplorer {
+            l,
+            idx: 0,
+            composite: TurnExplorer::make_panel(ctx, app, l, 0),
+        })
+    }
 }
 
 impl State for TurnExplorer {

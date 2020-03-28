@@ -1,12 +1,12 @@
 mod dashboards;
 mod gameplay;
+mod misc_tools;
 mod speed;
 
+use self::misc_tools::{RoutePreview, ShowTrafficSignal, TurnExplorer};
 use crate::app::App;
 use crate::colors;
-use crate::common::{
-    tool_panel, CommonState, ContextualActions, Minimap, Overlays, RoutePreview, ShowBusRoute,
-};
+use crate::common::{tool_panel, CommonState, ContextualActions, Minimap, Overlays, ShowBusRoute};
 use crate::debug::DebugMode;
 use crate::edit::{
     apply_map_edits, can_edit_lane, save_edits_as, EditMode, LaneEditor, StopSignEditor,
@@ -26,7 +26,7 @@ pub use gameplay::spawner::spawn_agents_around;
 pub use gameplay::GameplayMode;
 use geom::{Duration, Polygon, Statistic, Time};
 use map_model::MapEdits;
-use sim::TripMode;
+use sim::{TripMode, VehicleType};
 pub use speed::{SpeedControls, TimePanel};
 
 pub struct SandboxMode {
@@ -92,99 +92,6 @@ impl SandboxMode {
             gameplay_mode: mode,
         }
     }
-
-    fn examine_objects(&self, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
-        if app.opts.dev && ctx.input.new_was_pressed(&lctrl(Key::D).unwrap()) {
-            return Some(Transition::Push(Box::new(DebugMode::new(ctx))));
-        }
-
-        if let Some(ID::Building(b)) = app.primary.current_selection {
-            let cars = app
-                .primary
-                .sim
-                .get_offstreet_parked_cars(b)
-                .into_iter()
-                .map(|p| p.vehicle.id)
-                .collect::<Vec<_>>();
-            if !cars.is_empty()
-                && app.per_obj.action(
-                    ctx,
-                    Key::P,
-                    format!("examine {} cars parked here", cars.len()),
-                )
-            {
-                return Some(Transition::Push(WizardState::new(Box::new(
-                    move |wiz, ctx, _| {
-                        let _id = wiz.wrap(ctx).choose("Examine which car?", || {
-                            cars.iter()
-                                .map(|c| Choice::new(c.to_string(), *c))
-                                .collect()
-                        })?;
-                        Some(Transition::Pop)
-                    },
-                ))));
-            }
-        }
-        if let Some(ID::Intersection(i)) = app.primary.current_selection {
-            if app.primary.map.get_i(i).is_traffic_signal()
-                && app.per_obj.action(ctx, Key::C, "show current demand")
-            {
-                app.overlay = Overlays::intersection_demand(i, ctx, app);
-            }
-
-            if app.primary.map.get_i(i).is_traffic_signal()
-                && app.per_obj.action(ctx, Key::E, "edit traffic signal")
-            {
-                let edit = EditMode::new(ctx, app, self.gameplay_mode.clone());
-                let sim_copy = edit.suspended_sim.clone();
-                return Some(Transition::PushTwice(
-                    Box::new(edit),
-                    Box::new(TrafficSignalEditor::new(i, ctx, app, sim_copy)),
-                ));
-            }
-            if app.primary.map.get_i(i).is_stop_sign()
-                && app.per_obj.action(ctx, Key::E, "edit stop sign")
-            {
-                let edit = EditMode::new(ctx, app, self.gameplay_mode.clone());
-                let sim_copy = edit.suspended_sim.clone();
-                return Some(Transition::PushTwice(
-                    Box::new(edit),
-                    Box::new(StopSignEditor::new(i, ctx, app, sim_copy)),
-                ));
-            }
-        }
-        if let Some(ID::Lane(l)) = app.primary.current_selection {
-            if can_edit_lane(&self.gameplay_mode, l, app)
-                && app.per_obj.action(ctx, Key::E, "edit lane")
-            {
-                return Some(Transition::PushTwice(
-                    Box::new(EditMode::new(ctx, app, self.gameplay_mode.clone())),
-                    Box::new(LaneEditor::new(l, ctx, app)),
-                ));
-            }
-        }
-        if let Some(ID::BusStop(bs)) = app.primary.current_selection {
-            let routes = app.primary.map.get_routes_serving_stop(bs);
-            if app.per_obj.action(ctx, Key::E, "explore bus route") {
-                return Some(Transition::Push(ShowBusRoute::make_route_picker(
-                    routes.into_iter().map(|r| r.id).collect(),
-                    true,
-                )));
-            }
-        }
-        if let Some(ID::Car(c)) = app.primary.current_selection {
-            if let Some(r) = app.primary.sim.bus_route_id(c) {
-                if app.per_obj.action(ctx, Key::E, "explore bus route") {
-                    return Some(Transition::Push(ShowBusRoute::make_route_picker(
-                        vec![r],
-                        true,
-                    )));
-                }
-            }
-        }
-
-        None
-    }
 }
 
 impl State for SandboxMode {
@@ -207,17 +114,15 @@ impl State for SandboxMode {
         }
 
         // Order here is pretty arbitrary
+        if app.opts.dev && ctx.input.new_was_pressed(&lctrl(Key::D).unwrap()) {
+            return Transition::Push(Box::new(DebugMode::new(ctx)));
+        }
+
         if let Some(ref mut m) = self.controls.minimap {
             if let Some(t) = m.event(app, ctx) {
                 return t;
             }
             if let Some(t) = Overlays::update(ctx, app, &m.composite) {
-                return t;
-            }
-        }
-
-        if self.gameplay.can_examine_objects() {
-            if let Some(t) = self.examine_objects(ctx, app) {
                 return t;
             }
         }
@@ -238,7 +143,15 @@ impl State for SandboxMode {
         // also let this work before tool_panel, so Key::Escape from the info panel beats the one
         // to quit. And let speed update the sim before we update the info panel.
         if let Some(ref mut c) = self.controls.common {
-            if let Some(t) = c.event(ctx, app, self.controls.speed.as_mut(), &mut Actions {}) {
+            if let Some(t) = c.event(
+                ctx,
+                app,
+                self.controls.speed.as_mut(),
+                &mut Actions {
+                    can_interact: self.gameplay.can_examine_objects(),
+                    gameplay: self.gameplay_mode.clone(),
+                },
+            ) {
                 return t;
             }
         }
@@ -513,12 +426,96 @@ impl AgentMeter {
     }
 }
 
-struct Actions;
+struct Actions {
+    can_interact: bool,
+    gameplay: GameplayMode,
+}
 impl ContextualActions for Actions {
     fn actions(&self, app: &App, id: ID) -> Vec<(Key, String)> {
-        Vec::new()
+        let mut actions = Vec::new();
+        if !self.can_interact {
+            return actions;
+        }
+        match id {
+            ID::Intersection(i) => {
+                if app.primary.map.get_i(i).is_traffic_signal() {
+                    actions.push((Key::F, "explore traffic signal details".to_string()));
+                    actions.push((Key::C, "show current demand".to_string()));
+                    actions.push((Key::E, "edit traffic signal".to_string()));
+                }
+                if app.primary.map.get_i(i).is_stop_sign() {
+                    actions.push((Key::E, "edit stop sign".to_string()));
+                }
+            }
+            ID::Lane(l) => {
+                if !app.primary.map.get_turns_from_lane(l).is_empty() {
+                    actions.push((Key::Z, "explore turns from this lane".to_string()));
+                }
+                if can_edit_lane(&self.gameplay, l, app) {
+                    actions.push((Key::E, "edit lane".to_string()));
+                }
+            }
+            ID::Car(c) => {
+                if c.1 == VehicleType::Bus {
+                    actions.push((Key::E, "explore bus route".to_string()));
+                }
+            }
+            ID::BusStop(_) => {
+                actions.push((Key::E, "explore bus route".to_string()));
+            }
+            _ => {}
+        }
+
+        actions
     }
     fn execute(&mut self, ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
-        Transition::Keep
+        match (id, action.as_ref()) {
+            (ID::Intersection(i), "explore traffic signal details") => {
+                Transition::Push(ShowTrafficSignal::new(ctx, app, i))
+            }
+            (ID::Intersection(i), "show current demand") => {
+                app.overlay = Overlays::intersection_demand(i, ctx, app);
+                Transition::Keep
+            }
+            (ID::Intersection(i), "edit traffic signal") => {
+                let edit = EditMode::new(ctx, app, self.gameplay.clone());
+                let sim_copy = edit.suspended_sim.clone();
+                Transition::PushTwice(
+                    Box::new(edit),
+                    Box::new(TrafficSignalEditor::new(i, ctx, app, sim_copy)),
+                )
+            }
+            (ID::Intersection(i), "edit stop sign") => {
+                let edit = EditMode::new(ctx, app, self.gameplay.clone());
+                let sim_copy = edit.suspended_sim.clone();
+                Transition::PushTwice(
+                    Box::new(edit),
+                    Box::new(StopSignEditor::new(i, ctx, app, sim_copy)),
+                )
+            }
+            (ID::Lane(l), "explore turns from this lane") => {
+                Transition::Push(TurnExplorer::new(ctx, app, l))
+            }
+            (ID::Lane(l), "edit lane") => Transition::PushTwice(
+                Box::new(EditMode::new(ctx, app, self.gameplay.clone())),
+                Box::new(LaneEditor::new(l, ctx, app)),
+            ),
+            (ID::Car(c), "explore bus route") => Transition::Push(ShowBusRoute::make_route_picker(
+                vec![app.primary.sim.bus_route_id(c).unwrap()],
+                true,
+            )),
+            (ID::BusStop(bs), "explore bus route") => {
+                Transition::Push(ShowBusRoute::make_route_picker(
+                    app.primary
+                        .map
+                        .get_routes_serving_stop(bs)
+                        .into_iter()
+                        .map(|r| r.id)
+                        .collect(),
+                    true,
+                ))
+            }
+            _ => unreachable!(),
+        }
     }
 }
