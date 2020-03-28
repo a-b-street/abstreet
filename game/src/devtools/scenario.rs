@@ -244,7 +244,7 @@ impl State for ScenarioManager {
         }
 
         self.composite.draw(g);
-        self.common.draw_no_osd(g, app);
+        self.common.draw_no_osd(g);
         self.tool_panel.draw(g);
 
         if let Some(ID::Building(b)) = app.primary.current_selection {

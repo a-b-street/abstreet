@@ -12,87 +12,83 @@ use geom::{Distance, Polygon, Time};
 use map_model::{IntersectionID, LaneID, TurnType};
 use sim::{AgentID, DontDrawAgents};
 
-// TODO Misnomer. Kind of just handles temporary hovering things now.
-pub enum TurnCyclerState {
-    Inactive,
-    ShowRoute(AgentID, Time, Drawable),
+pub struct RoutePreview {
+    preview: Option<(AgentID, Time, Drawable)>,
 }
 
-impl TurnCyclerState {
+impl RoutePreview {
+    pub fn new() -> RoutePreview {
+        RoutePreview { preview: None }
+    }
+}
+
+impl RoutePreview {
     pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
-        match app.primary.current_selection {
-            Some(ID::Lane(id)) if !app.primary.map.get_turns_from_lane(id).is_empty() => {
-                if app
+        if let Some(ID::Lane(id)) = app.primary.current_selection {
+            if !app.primary.map.get_turns_from_lane(id).is_empty()
+                && app
                     .per_obj
                     .action(ctx, Key::Z, "explore turns from this lane")
+            {
+                return Some(Transition::Push(Box::new(TurnExplorer {
+                    l: id,
+                    idx: 0,
+                    composite: TurnExplorer::make_panel(ctx, app, id, 0),
+                })));
+            }
+        } else if let Some(ID::Intersection(i)) = app.primary.current_selection {
+            if let Some(ref signal) = app.primary.map.maybe_get_traffic_signal(i) {
+                if app
+                    .per_obj
+                    .action(ctx, Key::F, "explore traffic signal details")
                 {
-                    return Some(Transition::Push(Box::new(TurnExplorer {
-                        l: id,
-                        idx: 0,
-                        composite: TurnExplorer::make_panel(ctx, app, id, 0),
+                    app.primary.current_selection = None;
+                    let (idx, _, _) =
+                        signal.current_phase_and_remaining_time(app.primary.sim.time());
+                    return Some(Transition::Push(Box::new(ShowTrafficSignal {
+                        i,
+                        composite: make_signal_diagram(ctx, app, i, idx, false),
+                        current_phase: idx,
                     })));
                 }
             }
-            Some(ID::Intersection(i)) => {
-                if let Some(ref signal) = app.primary.map.maybe_get_traffic_signal(i) {
-                    if app
-                        .per_obj
-                        .action(ctx, Key::F, "explore traffic signal details")
-                    {
-                        app.primary.current_selection = None;
-                        let (idx, _, _) =
-                            signal.current_phase_and_remaining_time(app.primary.sim.time());
-                        return Some(Transition::Push(Box::new(ShowTrafficSignal {
-                            i,
-                            composite: make_signal_diagram(ctx, app, i, idx, false),
-                            current_phase: idx,
-                        })));
-                    }
-                }
-                *self = TurnCyclerState::Inactive;
-            }
-            Some(ref id) => {
-                if let Some(agent) = id.agent_id() {
-                    let now = app.primary.sim.time();
-                    let recalc = match self {
-                        TurnCyclerState::ShowRoute(a, t, _) => agent != *a || now != *t,
-                        _ => true,
-                    };
-                    if recalc {
-                        if let Some(trace) =
-                            app.primary.sim.trace_route(agent, &app.primary.map, None)
-                        {
-                            let mut batch = GeomBatch::new();
-                            batch.extend(
-                                app.cs.get_def("route", Color::ORANGE.alpha(0.5)),
-                                dashed_lines(
-                                    &trace,
-                                    Distance::meters(0.75),
-                                    Distance::meters(1.0),
-                                    Distance::meters(0.4),
-                                ),
-                            );
-                            *self = TurnCyclerState::ShowRoute(agent, now, batch.upload(ctx));
-                        }
-                    }
-                } else {
-                    *self = TurnCyclerState::Inactive;
+        } else if let Some(agent) = app
+            .primary
+            .current_selection
+            .as_ref()
+            .and_then(|id| id.agent_id())
+        {
+            let now = app.primary.sim.time();
+            if self
+                .preview
+                .as_ref()
+                .map(|(a, t, _)| agent != *a || now != *t)
+                .unwrap_or(true)
+            {
+                if let Some(trace) = app.primary.sim.trace_route(agent, &app.primary.map, None) {
+                    let mut batch = GeomBatch::new();
+                    batch.extend(
+                        app.cs.get_def("route", Color::ORANGE.alpha(0.5)),
+                        dashed_lines(
+                            &trace,
+                            Distance::meters(0.75),
+                            Distance::meters(1.0),
+                            Distance::meters(0.4),
+                        ),
+                    );
+                    self.preview = Some((agent, now, batch.upload(ctx)));
                 }
             }
-            _ => {
-                *self = TurnCyclerState::Inactive;
-            }
+            return None;
         }
+        self.preview = None;
 
         None
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, _: &App) {
-        match self {
-            TurnCyclerState::Inactive => {}
-            TurnCyclerState::ShowRoute(_, _, ref d) => {
-                g.redraw(d);
-            }
+    pub fn draw(&self, g: &mut GfxCtx) {
+        if let Some((_, _, ref d)) = self.preview {
+            g.redraw(d);
         }
     }
 }

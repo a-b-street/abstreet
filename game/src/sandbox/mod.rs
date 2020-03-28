@@ -4,7 +4,7 @@ mod speed;
 
 use crate::app::App;
 use crate::colors;
-use crate::common::{tool_panel, CommonState, Minimap, Overlays, ShowBusRoute};
+use crate::common::{tool_panel, CommonState, Minimap, Overlays, RoutePreview, ShowBusRoute};
 use crate::debug::DebugMode;
 use crate::edit::{
     apply_map_edits, can_edit_lane, save_edits_as, EditMode, LaneEditor, StopSignEditor,
@@ -36,6 +36,7 @@ pub struct SandboxMode {
 
 pub struct SandboxControls {
     pub common: Option<CommonState>,
+    route_preview: Option<RoutePreview>,
     tool_panel: Option<WrappedComposite>,
     time_panel: Option<TimePanel>,
     pub speed: Option<SpeedControls>,
@@ -51,6 +52,11 @@ impl SandboxMode {
             controls: SandboxControls {
                 common: if gameplay.has_common() {
                     Some(CommonState::new())
+                } else {
+                    None
+                },
+                route_preview: if gameplay.can_examine_objects() {
+                    Some(RoutePreview::new())
                 } else {
                     None
                 },
@@ -220,6 +226,12 @@ impl State for SandboxMode {
             }
         }
 
+        if let Some(ref mut r) = self.controls.route_preview {
+            if let Some(t) = r.event(ctx, app) {
+                return t;
+            }
+        }
+
         // Fragile ordering. Don't call this before all the per_obj actions have been called. But
         // also let this work before tool_panel, so Key::Escape from the info panel beats the one
         // to quit. And let speed update the sim before we update the info panel.
@@ -288,6 +300,9 @@ impl State for SandboxMode {
         }
         if let Some(ref m) = self.controls.minimap {
             m.draw(g, app);
+        }
+        if let Some(ref r) = self.controls.route_preview {
+            r.draw(g);
         }
 
         self.gameplay.draw(g, app);

@@ -2,17 +2,18 @@ mod bus_explorer;
 mod colors;
 mod heatmap;
 mod minimap;
+mod misc_tools;
 mod navigate;
 mod overlays;
 mod panels;
 mod shortcuts;
-mod turn_cycler;
 mod warp;
 
 pub use self::bus_explorer::ShowBusRoute;
 pub use self::colors::{ColorLegend, Colorer};
 pub use self::heatmap::{make_heatmap, HeatmapColors, HeatmapOptions};
 pub use self::minimap::Minimap;
+pub use self::misc_tools::RoutePreview;
 pub use self::overlays::Overlays;
 pub use self::panels::tool_panel;
 pub use self::warp::Warping;
@@ -29,16 +30,12 @@ use geom::Polygon;
 use std::collections::BTreeSet;
 
 pub struct CommonState {
-    turn_cycler: turn_cycler::TurnCyclerState,
     info_panel: Option<InfoPanel>,
 }
 
 impl CommonState {
     pub fn new() -> CommonState {
-        CommonState {
-            turn_cycler: turn_cycler::TurnCyclerState::Inactive,
-            info_panel: None,
-        }
+        CommonState { info_panel: None }
     }
 
     // This has to be called after anything that calls app.per_obj.action(). Oof.
@@ -54,12 +51,6 @@ impl CommonState {
         }
         if app.opts.dev && ctx.input.new_was_pressed(&lctrl(Key::J).unwrap()) {
             return Some(Transition::Push(warp::EnteringWarp::new()));
-        }
-
-        // TODO Disable unless gameplay.can_examine_objects. Not going to worry about this right
-        // now, since these controls should change anyway.
-        if let Some(t) = self.turn_cycler.event(ctx, app) {
-            return Some(t);
         }
 
         if let Some(ref id) = app.primary.current_selection {
@@ -94,15 +85,14 @@ impl CommonState {
         None
     }
 
-    pub fn draw_no_osd(&self, g: &mut GfxCtx, app: &App) {
-        self.turn_cycler.draw(g, app);
+    pub fn draw_no_osd(&self, g: &mut GfxCtx) {
         if let Some(ref info) = self.info_panel {
             info.draw(g);
         }
     }
 
     pub fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.draw_no_osd(g, app);
+        self.draw_no_osd(g);
         CommonState::draw_osd(g, app, &app.primary.current_selection);
     }
 
