@@ -47,11 +47,9 @@ impl GUI for Game {
         // If we fall through, there's a new state that we need to wakeup.
         match transition {
             Transition::Keep => {
-                self.app.per_obj.assert_chosen_used();
                 return EventLoopMode::InputOnly;
             }
             Transition::KeepWithMode(evmode) => {
-                self.app.per_obj.assert_chosen_used();
                 return evmode;
             }
             Transition::Pop => {
@@ -108,12 +106,6 @@ impl GUI for Game {
                 }
                 self.states.extend(states);
             }
-            Transition::ApplyObjectAction(action) => {
-                self.app.per_obj.action_chosen(action);
-                // Immediately go trigger the action. Things'll break unless current_selection
-                // remains the same, so DON'T redo mouseover.
-                return ctx.no_op_event(false, |ctx| self.event(ctx));
-            }
             Transition::PushTwice(s1, s2) => {
                 self.states
                     .last_mut()
@@ -121,11 +113,9 @@ impl GUI for Game {
                     .on_suspend(ctx, &mut self.app);
                 self.states.push(s1);
                 self.states.push(s2);
-                self.app.per_obj.assert_chosen_used();
                 return EventLoopMode::InputOnly;
             }
         };
-        self.app.per_obj.assert_chosen_used();
         // Let the new state initialize with a fake event. Usually these just return
         // Transition::Keep, but nothing stops them from doing whatever. (For example, entering
         // tutorial mode immediately pushes on a Warper.) So just recurse.
@@ -236,7 +226,6 @@ pub enum Transition {
     ReplaceThenPush(Box<dyn State>, Box<dyn State>),
     PopThenReplace(Box<dyn State>),
     Clear(Vec<Box<dyn State>>),
-    ApplyObjectAction(String),
     PushTwice(Box<dyn State>, Box<dyn State>),
 }
 

@@ -30,7 +30,6 @@ pub struct InfoPanel {
     unzoomed: Drawable,
     zoomed: Drawable,
 
-    actions: Vec<(Key, String)>,
     hyperlinks: HashMap<String, Tab>,
     warpers: HashMap<String, ID>,
 
@@ -140,25 +139,16 @@ impl InfoPanel {
         ctx: &mut EventCtx,
         app: &App,
         id: ID,
-        actions: Vec<(Key, String)>,
         maybe_speed: Option<&mut SpeedControls>,
         ctx_actions: &mut dyn ContextualActions,
     ) -> InfoPanel {
-        InfoPanel::new(
-            ctx,
-            app,
-            Tab::from_id(app, id),
-            actions,
-            maybe_speed,
-            ctx_actions,
-        )
+        InfoPanel::new(ctx, app, Tab::from_id(app, id), maybe_speed, ctx_actions)
     }
 
     fn new(
         ctx: &mut EventCtx,
         app: &App,
         tab: Tab,
-        actions: Vec<(Key, String)>,
         maybe_speed: Option<&mut SpeedControls>,
         ctx_actions: &mut dyn ContextualActions,
     ) -> InfoPanel {
@@ -199,17 +189,6 @@ impl InfoPanel {
             Tab::LaneDebug(l) => lane::debug(ctx, app, &mut details, l),
             Tab::LaneTraffic(l) => lane::traffic(ctx, app, &mut details, l),
         };
-        // TODO Totally rethink these context-sensitive actions
-        for (key, label) in &actions {
-            let mut txt = Text::new();
-            txt.append(Line(key.describe()).fg(ezgui::HOTKEY_COLOR));
-            txt.append(Line(format!(" - {}", label)));
-            col.push(
-                Btn::text_bg(label, txt, colors::SECTION_BG, colors::HOVERING)
-                    .build_def(ctx, hotkey(*key))
-                    .margin(5),
-            );
-        }
         let maybe_id = tab.clone().to_id(app);
         let mut cached_actions = Vec::new();
         if let Some(id) = maybe_id.clone() {
@@ -300,7 +279,6 @@ impl InfoPanel {
 
         InfoPanel {
             tab,
-            actions,
             time: app.primary.sim.time(),
             composite: Composite::new(Widget::col(col).bg(colors::PANEL_BG).padding(10))
                 .aligned(
@@ -338,14 +316,7 @@ impl InfoPanel {
         // Live update?
         if app.primary.sim.time() != self.time {
             let preserve_scroll = self.composite.preserve_scroll();
-            *self = InfoPanel::new(
-                ctx,
-                app,
-                self.tab.clone(),
-                self.actions.clone(),
-                maybe_speed,
-                ctx_actions,
-            );
+            *self = InfoPanel::new(ctx, app, self.tab.clone(), maybe_speed, ctx_actions);
             self.composite.restore_scroll(ctx, preserve_scroll);
             return (false, None);
         }
@@ -354,18 +325,7 @@ impl InfoPanel {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(action)) => {
                 if let Some(new_tab) = self.hyperlinks.get(&action).cloned() {
-                    *self = InfoPanel::new(
-                        ctx,
-                        app,
-                        new_tab.clone(),
-                        if maybe_id == new_tab.to_id(app) {
-                            self.actions.clone()
-                        } else {
-                            Vec::new()
-                        },
-                        maybe_speed,
-                        ctx_actions,
-                    );
+                    *self = InfoPanel::new(ctx, app, new_tab, maybe_speed, ctx_actions);
                     return (false, None);
                 } else if action == "close info" {
                     (true, None)

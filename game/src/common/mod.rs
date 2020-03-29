@@ -43,8 +43,6 @@ impl CommonState {
         }
     }
 
-    // This has to be called after anything that calls app.per_obj.action(). Oof.
-    // TODO This'll be really clear once we consume. Hah!
     pub fn event(
         &mut self,
         ctx: &mut EventCtx,
@@ -60,16 +58,12 @@ impl CommonState {
         }
 
         if let Some(ref id) = app.primary.current_selection {
-            if app.per_obj.action(ctx, Key::I, "show info")
-                || app.per_obj.left_click(ctx, "show info")
-            {
-                app.per_obj.info_panel_open = true;
-                let actions = app.per_obj.consume();
+            // TODO Also have a hotkey binding for this?
+            if app.per_obj.left_click(ctx, "show info") {
                 self.info_panel = Some(InfoPanel::launch(
                     ctx,
                     app,
                     id.clone(),
-                    actions,
                     maybe_speed,
                     ctx_actions,
                 ));
@@ -81,8 +75,6 @@ impl CommonState {
             let (closed, maybe_t) = info.event(ctx, app, maybe_speed, ctx_actions);
             if closed {
                 self.info_panel = None;
-                assert!(app.per_obj.info_panel_open);
-                app.per_obj.info_panel_open = false;
             }
             if let Some(t) = maybe_t {
                 return Some(t);
@@ -255,17 +247,7 @@ impl CommonState {
     }
 
     pub fn draw_custom_osd(g: &mut GfxCtx, app: &App, mut osd: Text) {
-        let (keys, click_action) = app.per_obj.get_active_keys();
-        if !keys.is_empty() {
-            osd.append(Line("   Hotkeys: "));
-            for (idx, key) in keys.into_iter().enumerate() {
-                if idx != 0 {
-                    osd.append(Line(", "));
-                }
-                osd.append(Line(key.describe()).fg(ezgui::HOTKEY_COLOR));
-            }
-        }
-        if let Some(action) = click_action {
+        if let Some(ref action) = app.per_obj.click_action {
             osd.append_all(vec![
                 Line("; "),
                 Line("click").fg(ezgui::HOTKEY_COLOR),
@@ -308,15 +290,7 @@ impl CommonState {
         app: &mut App,
         ctx_actions: &mut dyn ContextualActions,
     ) {
-        self.info_panel = Some(InfoPanel::launch(
-            ctx,
-            app,
-            id,
-            Vec::new(),
-            None,
-            ctx_actions,
-        ));
-        app.per_obj.info_panel_open = true;
+        self.info_panel = Some(InfoPanel::launch(ctx, app, id, None, ctx_actions));
     }
 
     pub fn info_panel_open(&self, app: &App) -> Option<ID> {
