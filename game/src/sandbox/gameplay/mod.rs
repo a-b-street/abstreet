@@ -12,9 +12,10 @@ use crate::app::App;
 use crate::challenges;
 use crate::challenges::challenges_picker;
 use crate::colors;
-use crate::common::CommonState;
+use crate::common::{CommonState, ContextualActions};
 use crate::edit::EditMode;
 use crate::game::{msg, State, Transition};
+use crate::helpers::ID;
 use crate::managed::WrappedComposite;
 use crate::pregame::main_menu;
 use crate::sandbox::{SandboxControls, SandboxMode, ScoreCard};
@@ -246,6 +247,24 @@ impl GameplayMode {
                 fix_traffic_signals::FixTrafficSignals::new(ctx, self.clone())
             }
             GameplayMode::Tutorial(current) => Tutorial::new(ctx, app, *current),
+        }
+    }
+}
+
+impl ContextualActions for GameplayMode {
+    fn actions(&self, app: &App, id: ID) -> Vec<(Key, String)> {
+        match self {
+            GameplayMode::Freeform(_) => spawner::actions(app, id),
+            GameplayMode::Tutorial(_) => tutorial::actions(app, id),
+            _ => Vec::new(),
+        }
+    }
+
+    fn execute(&mut self, ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
+        match self {
+            GameplayMode::Freeform(_) => spawner::execute(ctx, app, id, action),
+            GameplayMode::Tutorial(_) => tutorial::execute(ctx, app, id, action),
+            _ => unreachable!(),
         }
     }
 }

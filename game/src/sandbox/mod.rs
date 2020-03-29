@@ -433,42 +433,38 @@ struct Actions {
 impl ContextualActions for Actions {
     fn actions(&self, app: &App, id: ID) -> Vec<(Key, String)> {
         let mut actions = Vec::new();
-        if !self.can_interact {
-            return actions;
-        }
-        match id.clone() {
-            ID::Intersection(i) => {
-                if app.primary.map.get_i(i).is_traffic_signal() {
-                    actions.push((Key::F, "explore traffic signal details".to_string()));
-                    actions.push((Key::C, "show current demand".to_string()));
-                    actions.push((Key::E, "edit traffic signal".to_string()));
+        if self.can_interact {
+            match id.clone() {
+                ID::Intersection(i) => {
+                    if app.primary.map.get_i(i).is_traffic_signal() {
+                        actions.push((Key::F, "explore traffic signal details".to_string()));
+                        actions.push((Key::C, "show current demand".to_string()));
+                        actions.push((Key::E, "edit traffic signal".to_string()));
+                    }
+                    if app.primary.map.get_i(i).is_stop_sign() {
+                        actions.push((Key::E, "edit stop sign".to_string()));
+                    }
                 }
-                if app.primary.map.get_i(i).is_stop_sign() {
-                    actions.push((Key::E, "edit stop sign".to_string()));
+                ID::Lane(l) => {
+                    if !app.primary.map.get_turns_from_lane(l).is_empty() {
+                        actions.push((Key::Z, "explore turns from this lane".to_string()));
+                    }
+                    if can_edit_lane(&self.gameplay, l, app) {
+                        actions.push((Key::E, "edit lane".to_string()));
+                    }
                 }
-            }
-            ID::Lane(l) => {
-                if !app.primary.map.get_turns_from_lane(l).is_empty() {
-                    actions.push((Key::Z, "explore turns from this lane".to_string()));
+                ID::Car(c) => {
+                    if c.1 == VehicleType::Bus {
+                        actions.push((Key::E, "explore bus route".to_string()));
+                    }
                 }
-                if can_edit_lane(&self.gameplay, l, app) {
-                    actions.push((Key::E, "edit lane".to_string()));
-                }
-            }
-            ID::Car(c) => {
-                if c.1 == VehicleType::Bus {
+                ID::BusStop(_) => {
                     actions.push((Key::E, "explore bus route".to_string()));
                 }
+                _ => {}
             }
-            ID::BusStop(_) => {
-                actions.push((Key::E, "explore bus route".to_string()));
-            }
-            _ => {}
         }
-        if let GameplayMode::Freeform(_) = self.gameplay {
-            actions.extend(gameplay::spawner::Actions.actions(app, id));
-        }
-
+        actions.extend(self.gameplay.actions(app, id));
         actions
     }
     fn execute(&mut self, ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
@@ -518,7 +514,7 @@ impl ContextualActions for Actions {
                     true,
                 ))
             }
-            (id, action) => gameplay::spawner::Actions.execute(ctx, app, id, action.to_string()),
+            (id, action) => self.gameplay.execute(ctx, app, id, action.to_string()),
         }
     }
 }

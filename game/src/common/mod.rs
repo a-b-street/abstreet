@@ -319,8 +319,7 @@ impl CommonState {
         app.per_obj.info_panel_open = true;
     }
 
-    pub fn info_panel_open(&self) -> Option<ID> {
-        panic!("TODO")
-        //self.info_panel.as_ref().map(|i| i.id.clone())
+    pub fn info_panel_open(&self, app: &App) -> Option<ID> {
+        self.info_panel.as_ref().and_then(|i| i.active_id(app))
     }
 }

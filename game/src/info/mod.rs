@@ -428,6 +428,10 @@ impl InfoPanel {
     pub fn active_keys(&self) -> &Vec<Key> {
         &self.cached_actions
     }
+
+    pub fn active_id(&self, app: &App) -> Option<ID> {
+        self.tab.clone().to_id(app)
+    }
 }
 
 fn make_table<I: Into<String>>(ctx: &EventCtx, rows: Vec<(I, String)>) -> Vec<Widget> {

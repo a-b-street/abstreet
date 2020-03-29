@@ -1,6 +1,6 @@
 use crate::app::App;
 use crate::colors;
-use crate::common::{Colorer, CommonState, ContextualActions};
+use crate::common::{Colorer, CommonState};
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::sandbox::gameplay::freeform::Freeform;
@@ -552,167 +552,164 @@ fn make_top_bar(ctx: &mut EventCtx, title: &str, howto: &str) -> Composite {
     .build(ctx)
 }
 
-pub struct Actions;
-impl ContextualActions for Actions {
-    fn actions(&self, app: &App, id: ID) -> Vec<(Key, String)> {
-        let mut actions = Vec::new();
-        let map = &app.primary.map;
+pub fn actions(app: &App, id: ID) -> Vec<(Key, String)> {
+    let mut actions = Vec::new();
+    let map = &app.primary.map;
 
-        match id {
-            ID::Building(id) => {
-                if !app.primary.sim.get_free_offstreet_spots(id).is_empty() {
-                    actions.push((Key::F6, "seed a parked car here".to_string()));
-                }
-                actions.push((Key::F3, "spawn a walking trip".to_string()));
-                // TODO Check if it's claimed... Haha if it is, MaybeUsingParkedCar still snags it!
-                if !app.primary.sim.get_parked_cars_by_owner(id).is_empty() {
-                    actions.push((
-                        Key::F5,
-                        "spawn a pedestrian here using an owned parked car".to_string(),
-                    ));
-                }
-                if Position::bldg_via_driving(id, map).is_some() {
-                    actions.push((Key::F4, "spawn a car starting here".to_string()));
-                }
-                if Position::bldg_via_biking(id, map).is_some() {
-                    actions.push((Key::F7, "spawn a bike starting here".to_string()));
-                }
+    match id {
+        ID::Building(id) => {
+            if !app.primary.sim.get_free_offstreet_spots(id).is_empty() {
+                actions.push((Key::F6, "seed a parked car here".to_string()));
             }
-            ID::Lane(id) => {
-                if map.get_l(id).is_driving() {
-                    actions.push((Key::F3, "spawn a car starting here".to_string()));
-                    actions.push((Key::F2, "spawn many cars starting here".to_string()));
-                } else if map.get_l(id).is_sidewalk() {
-                    actions.push((Key::F3, "spawn a pedestrian starting here".to_string()));
-                }
+            actions.push((Key::F3, "spawn a walking trip".to_string()));
+            // TODO Check if it's claimed... Haha if it is, MaybeUsingParkedCar still snags it!
+            if !app.primary.sim.get_parked_cars_by_owner(id).is_empty() {
+                actions.push((
+                    Key::F5,
+                    "spawn a pedestrian here using an owned parked car".to_string(),
+                ));
             }
-            ID::Intersection(_) => {
-                actions.push((Key::Z, "spawn agents here".to_string()));
+            if Position::bldg_via_driving(id, map).is_some() {
+                actions.push((Key::F4, "spawn a car starting here".to_string()));
             }
-            _ => {}
+            if Position::bldg_via_biking(id, map).is_some() {
+                actions.push((Key::F7, "spawn a bike starting here".to_string()));
+            }
         }
-        actions
+        ID::Lane(id) => {
+            if map.get_l(id).is_driving() {
+                actions.push((Key::F3, "spawn a car starting here".to_string()));
+                actions.push((Key::F2, "spawn many cars starting here".to_string()));
+            } else if map.get_l(id).is_sidewalk() {
+                actions.push((Key::F3, "spawn a pedestrian starting here".to_string()));
+            }
+        }
+        ID::Intersection(_) => {
+            actions.push((Key::Z, "spawn agents here".to_string()));
+        }
+        _ => {}
     }
+    actions
+}
 
-    fn execute(&mut self, ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
-        let map = &app.primary.map;
-        let color = app.cs.get("selected");
-        let mut c = Colorer::new(Text::from(Line("spawning agent")), vec![("start", color)]);
+pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
+    let map = &app.primary.map;
+    let color = app.cs.get("selected");
+    let mut c = Colorer::new(Text::from(Line("spawning agent")), vec![("start", color)]);
 
-        match (id, action.as_ref()) {
-            (ID::Building(id), "seed a parked car here") => {
-                let spots = app.primary.sim.get_free_offstreet_spots(id);
-                let mut rng = app.primary.current_flags.sim_flags.make_rng();
-                app.primary
-                    .sim
-                    .seed_parked_car(Scenario::rand_car(&mut rng), spots[0], Some(id));
-                Transition::Keep
-            }
-            (ID::Building(id), "spawn a walking trip") => {
-                c.add_b(id, color);
-                Transition::Push(Box::new(AgentSpawner {
-                    composite: make_top_bar(
-                        ctx,
-                        "Spawning a pedestrian",
-                        "Pick a building or border as a destination",
-                    ),
-                    from: Source::WalkFromBldg(id),
-                    maybe_goal: None,
-                    colorer: c.build(ctx, app),
-                }))
-            }
-            (ID::Building(id), "spawn a pedestrian here using an owned parked car") => {
-                c.add_b(id, color);
-                Transition::Push(Box::new(AgentSpawner {
-                    composite: make_top_bar(
-                        ctx,
-                        "Spawning a walking trip using a parked car",
-                        "Pick a building or border as a destination",
-                    ),
-                    from: Source::WalkFromBldgThenMaybeUseCar(id),
-                    maybe_goal: None,
-                    colorer: c.build(ctx, app),
-                }))
-            }
-            (ID::Building(id), "spawn a car starting here") => {
-                c.add_b(id, color);
-                let pos = Position::bldg_via_driving(id, map).unwrap();
-                Transition::Push(Box::new(AgentSpawner {
-                    composite: make_top_bar(
-                        ctx,
-                        "Spawning a car",
-                        "Pick a building or border as a destination",
-                    ),
-                    from: Source::Drive(pos),
-                    maybe_goal: None,
-                    colorer: c.build(ctx, app),
-                }))
-            }
-            (ID::Building(id), "spawn a bike starting here") => {
-                c.add_b(id, color);
-                let pos = Position::bldg_via_biking(id, map).unwrap();
-                Transition::Push(Box::new(AgentSpawner {
-                    composite: make_top_bar(
-                        ctx,
-                        "Spawning a bike",
-                        "Pick a building or border as a destination",
-                    ),
-                    from: Source::BikeFromBldg(id, pos),
-                    maybe_goal: None,
-                    colorer: c.build(ctx, app),
-                }))
-            }
-            (ID::Lane(id), "spawn a car starting here") => {
-                c.add_l(id, color, map);
-                Transition::Push(Box::new(AgentSpawner {
-                    composite: make_top_bar(
-                        ctx,
-                        "Spawning a car",
-                        "Pick a building or border as a destination",
-                    ),
-                    from: Source::Drive(Position::new(id, map.get_l(id).length() / 2.0)),
-                    maybe_goal: None,
-                    colorer: c.build(ctx, app),
-                }))
-            }
-            (ID::Lane(id), "spawn a pedestrian starting here") => {
-                c.add_l(id, color, map);
-                Transition::Push(Box::new(AgentSpawner {
-                    composite: make_top_bar(
-                        ctx,
-                        "Spawning a pedestrian",
-                        "Pick a building or border as a destination",
-                    ),
-                    from: Source::WalkFromSidewalk(Position::new(id, map.get_l(id).length() / 2.0)),
-                    maybe_goal: None,
-                    colorer: c.build(ctx, app),
-                }))
-            }
-            (ID::Lane(l), "spawn many cars starting here") => {
-                let color = app.cs.get("selected");
-                let mut c = Colorer::new(
-                    Text::from(Line("spawning many agents")),
-                    vec![("start", color)],
-                );
-                c.add_l(l, color, &app.primary.map);
-
-                Transition::Push(Box::new(SpawnManyAgents {
-                    composite: make_top_bar(
-                        ctx,
-                        "Spawning many agents",
-                        "Pick a driving lane as a destination",
-                    ),
-                    from: l,
-                    maybe_goal: None,
-                    schedule: None,
-                    colorer: c.build(ctx, app),
-                }))
-            }
-            (ID::Intersection(id), "spawn agents here") => {
-                spawn_agents_around(id, app);
-                Transition::Keep
-            }
-            _ => unreachable!(),
+    match (id, action.as_ref()) {
+        (ID::Building(id), "seed a parked car here") => {
+            let spots = app.primary.sim.get_free_offstreet_spots(id);
+            let mut rng = app.primary.current_flags.sim_flags.make_rng();
+            app.primary
+                .sim
+                .seed_parked_car(Scenario::rand_car(&mut rng), spots[0], Some(id));
+            Transition::Keep
         }
+        (ID::Building(id), "spawn a walking trip") => {
+            c.add_b(id, color);
+            Transition::Push(Box::new(AgentSpawner {
+                composite: make_top_bar(
+                    ctx,
+                    "Spawning a pedestrian",
+                    "Pick a building or border as a destination",
+                ),
+                from: Source::WalkFromBldg(id),
+                maybe_goal: None,
+                colorer: c.build(ctx, app),
+            }))
+        }
+        (ID::Building(id), "spawn a pedestrian here using an owned parked car") => {
+            c.add_b(id, color);
+            Transition::Push(Box::new(AgentSpawner {
+                composite: make_top_bar(
+                    ctx,
+                    "Spawning a walking trip using a parked car",
+                    "Pick a building or border as a destination",
+                ),
+                from: Source::WalkFromBldgThenMaybeUseCar(id),
+                maybe_goal: None,
+                colorer: c.build(ctx, app),
+            }))
+        }
+        (ID::Building(id), "spawn a car starting here") => {
+            c.add_b(id, color);
+            let pos = Position::bldg_via_driving(id, map).unwrap();
+            Transition::Push(Box::new(AgentSpawner {
+                composite: make_top_bar(
+                    ctx,
+                    "Spawning a car",
+                    "Pick a building or border as a destination",
+                ),
+                from: Source::Drive(pos),
+                maybe_goal: None,
+                colorer: c.build(ctx, app),
+            }))
+        }
+        (ID::Building(id), "spawn a bike starting here") => {
+            c.add_b(id, color);
+            let pos = Position::bldg_via_biking(id, map).unwrap();
+            Transition::Push(Box::new(AgentSpawner {
+                composite: make_top_bar(
+                    ctx,
+                    "Spawning a bike",
+                    "Pick a building or border as a destination",
+                ),
+                from: Source::BikeFromBldg(id, pos),
+                maybe_goal: None,
+                colorer: c.build(ctx, app),
+            }))
+        }
+        (ID::Lane(id), "spawn a car starting here") => {
+            c.add_l(id, color, map);
+            Transition::Push(Box::new(AgentSpawner {
+                composite: make_top_bar(
+                    ctx,
+                    "Spawning a car",
+                    "Pick a building or border as a destination",
+                ),
+                from: Source::Drive(Position::new(id, map.get_l(id).length() / 2.0)),
+                maybe_goal: None,
+                colorer: c.build(ctx, app),
+            }))
+        }
+        (ID::Lane(id), "spawn a pedestrian starting here") => {
+            c.add_l(id, color, map);
+            Transition::Push(Box::new(AgentSpawner {
+                composite: make_top_bar(
+                    ctx,
+                    "Spawning a pedestrian",
+                    "Pick a building or border as a destination",
+                ),
+                from: Source::WalkFromSidewalk(Position::new(id, map.get_l(id).length() / 2.0)),
+                maybe_goal: None,
+                colorer: c.build(ctx, app),
+            }))
+        }
+        (ID::Lane(l), "spawn many cars starting here") => {
+            let color = app.cs.get("selected");
+            let mut c = Colorer::new(
+                Text::from(Line("spawning many agents")),
+                vec![("start", color)],
+            );
+            c.add_l(l, color, &app.primary.map);
+
+            Transition::Push(Box::new(SpawnManyAgents {
+                composite: make_top_bar(
+                    ctx,
+                    "Spawning many agents",
+                    "Pick a driving lane as a destination",
+                ),
+                from: l,
+                maybe_goal: None,
+                schedule: None,
+                colorer: c.build(ctx, app),
+            }))
+        }
+        (ID::Intersection(id), "spawn agents here") => {
+            spawn_agents_around(id, app);
+            Transition::Keep
+        }
+        _ => unreachable!(),
     }
 }

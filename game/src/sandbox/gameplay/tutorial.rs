@@ -78,6 +78,11 @@ impl GameplayState for Tutorial {
         app: &mut App,
         controls: &mut SandboxControls,
     ) -> (Option<Transition>, bool) {
+        // TODO Hack. We have to do this before grabbing the tutorial session.
+        let target = CarID(30, VehicleType::Car);
+        let following_car =
+            controls.common.as_ref().unwrap().info_panel_open(app) == Some(ID::Car(target));
+
         let mut tut = app.session.tutorial.as_mut().unwrap();
 
         // First of all, might need to initiate warping
@@ -158,113 +163,6 @@ impl GameplayState for Tutorial {
                 return (Some(transition(ctx, app)), false);
             }
         } else if tut.interaction() == Task::InspectObjects {
-            match app.primary.current_selection {
-                Some(ID::Lane(l)) => {
-                    if app.per_obj.action(ctx, Key::I, "inspect the lane") {
-                        tut.inspected_lane = true;
-                        self.top_center = tut.make_top_center(ctx, false);
-                        return (
-                            Some(Transition::Push(msg(
-                                "Inspection",
-                                match app.primary.map.get_l(l).lane_type {
-                                    LaneType::Driving => vec![
-                                        "This is a regular lane for driving.",
-                                        "Cars, bikes, and buses all share it.",
-                                    ],
-                                    LaneType::Parking => vec!["This is an on-street parking lane."],
-                                    LaneType::Sidewalk => {
-                                        vec!["This is a sidewalk. Only pedestrians can use it."]
-                                    }
-                                    LaneType::Biking => vec!["This is a bike-only lane."],
-                                    LaneType::Bus => {
-                                        vec!["This is a bus lane. Bikes may also use it."]
-                                    }
-                                    LaneType::SharedLeftTurn => vec![
-                                        "This is a lane where either direction of traffic can \
-                                         turn left.",
-                                    ],
-                                    LaneType::Construction => {
-                                        vec!["This lane is currently closed for construction."]
-                                    }
-                                },
-                            ))),
-                            false,
-                        );
-                    }
-                }
-                Some(ID::Building(_)) => {
-                    if app.per_obj.action(ctx, Key::I, "inspect the building") {
-                        tut.inspected_building = true;
-                        self.top_center = tut.make_top_center(ctx, false);
-                        return (
-                            Some(Transition::Push(msg(
-                                "Inspection",
-                                vec![
-                                    "Knock knock, anyone home?",
-                                    "Did you know: most trips begin and end at a building.",
-                                ],
-                            ))),
-                            false,
-                        );
-                    }
-                }
-                Some(ID::Intersection(i)) => {
-                    if app.per_obj.action(ctx, Key::I, "inspect the intersection") {
-                        match app.primary.map.get_i(i).intersection_type {
-                            IntersectionType::StopSign => {
-                                tut.inspected_stop_sign = true;
-                                self.top_center = tut.make_top_center(ctx, false);
-                                return (
-                                    Some(Transition::Push(msg(
-                                        "Inspection",
-                                        vec!["Most intersections are regulated by stop signs."],
-                                    ))),
-                                    false,
-                                );
-                            }
-                            IntersectionType::TrafficSignal => {
-                                return (
-                                    Some(Transition::Push(msg(
-                                        "Inspection",
-                                        vec![
-                                            "This intersection is controlled by a traffic signal. \
-                                             You'll learn more about these soon.",
-                                        ],
-                                    ))),
-                                    false,
-                                );
-                            }
-                            IntersectionType::Border => {
-                                tut.inspected_border = true;
-                                self.top_center = tut.make_top_center(ctx, false);
-                                return (
-                                    Some(Transition::Push(msg(
-                                        "Inspection",
-                                        vec![
-                                            "This is a border of the map. Vehicles appear and \
-                                             disappear here.",
-                                        ],
-                                    ))),
-                                    false,
-                                );
-                            }
-                            IntersectionType::Construction => {
-                                return (
-                                    Some(Transition::Push(msg(
-                                        "Inspection",
-                                        vec![
-                                            "This intersection is currently closed for \
-                                             construction.",
-                                        ],
-                                    ))),
-                                    false,
-                                );
-                            }
-                        }
-                    }
-                }
-                _ => {}
-            }
             if tut.inspected_lane
                 && tut.inspected_building
                 && tut.inspected_stop_sign
@@ -293,7 +191,6 @@ impl GameplayState for Tutorial {
                 return (Some(transition(ctx, app)), false);
             }
         } else if tut.interaction() == Task::Escort {
-            let target = CarID(30, VehicleType::Car);
             let is_parked = app
                 .primary
                 .sim
@@ -304,100 +201,21 @@ impl GameplayState for Tutorial {
                 self.top_center = tut.make_top_center(ctx, false);
             }
 
-            if controls.common.as_ref().unwrap().info_panel_open() == Some(ID::Car(target)) {
-                if !tut.following_car {
-                    // TODO There's a delay of one event before the checklist updates, because the
-                    // info panel opening happens at the end of the event. Not a big deal.
-                    tut.following_car = true;
-                    self.top_center = tut.make_top_center(ctx, false);
-                }
+            if following_car && !tut.following_car {
+                // TODO There's a delay of one event before the checklist updates, because the
+                // info panel opening happens at the end of the event. Not a big deal.
+                tut.following_car = true;
+                self.top_center = tut.make_top_center(ctx, false);
             }
 
-            if let Some(ID::Car(c)) = app.primary.current_selection {
-                if app.per_obj.action(ctx, Key::C, "draw WASH ME") {
-                    if c == target {
-                        if is_parked {
-                            tut.next();
-                            return (Some(transition(ctx, app)), false);
-                        } else {
-                            return (
-                                Some(Transition::Push(msg(
-                                    "Not yet!",
-                                    vec![
-                                        "You're going to run up to an occupied car and draw on \
-                                         their windows?",
-                                        "Sounds like we should be friends.",
-                                        "But, er, wait for the car to park. (You can speed up \
-                                         time!)",
-                                    ],
-                                ))),
-                                false,
-                            );
-                        }
-                    } else if c.1 == VehicleType::Bike {
-                        return (
-                            Some(Transition::Push(msg(
-                                "That's a bike",
-                                vec![
-                                    "Achievement unlocked: You attempted to draw WASH ME on a \
-                                     cyclist.",
-                                    "This game is PG-13 or something, so I can't really describe \
-                                     what happens next.",
-                                    "But uh, don't try this at home.",
-                                ],
-                            ))),
-                            false,
-                        );
-                    } else {
-                        return (
-                            Some(Transition::Push(msg(
-                                "Wrong car",
-                                vec![
-                                    "You're looking at the wrong car.",
-                                    "Use the 'reset to midnight' (key binding 'X') to start over, \
-                                     if you lost the car to follow.",
-                                ],
-                            ))),
-                            false,
-                        );
-                    }
-                }
+            if tut.prank_done {
+                tut.next();
+                return (Some(transition(ctx, app)), false);
             }
         } else if tut.interaction() == Task::LowParking {
-            if let Some(ID::Lane(l)) = app.primary.current_selection {
-                if app
-                    .per_obj
-                    .action(ctx, Key::C, "check the parking availability")
-                {
-                    let lane = app.primary.map.get_l(l);
-                    if !lane.is_parking() {
-                        return (
-                            Some(Transition::Push(msg(
-                                "Uhh..",
-                                vec!["That's not even a parking lane"],
-                            ))),
-                            false,
-                        );
-                    }
-                    let percent = (app.primary.sim.get_free_spots(l).len() as f64)
-                        / (lane.number_parking_spots() as f64);
-                    if percent > 0.1 {
-                        return (
-                            Some(Transition::Push(msg(
-                                "Not quite",
-                                vec![
-                                    format!("This lane has {:.0}% spots free", percent * 100.0),
-                                    "Try using the 'parking availability' layer from the minimap \
-                                     controls"
-                                        .to_string(),
-                                ],
-                            ))),
-                            false,
-                        );
-                    }
-                    tut.next();
-                    return (Some(transition(ctx, app)), false);
-                }
+            if tut.parking_found {
+                tut.next();
+                return (Some(transition(ctx, app)), false);
             }
         } else if tut.interaction() == Task::WatchBikes {
             if app.primary.sim.time() >= Time::START_OF_DAY + Duration::minutes(2) {
@@ -598,24 +416,24 @@ impl Task {
             Task::InspectObjects => {
                 let mut txt = Text::from(Line("Click and inspect one of each:"));
                 if state.inspected_lane {
-                    txt.add(Line("☑ lane").fg(Color::GREEN));
+                    txt.add(Line("[X] lane").fg(Color::GREEN));
                 } else {
-                    txt.add(Line("☐ lane"));
+                    txt.add(Line("[ ] lane"));
                 }
                 if state.inspected_building {
-                    txt.add(Line("☑ building").fg(Color::GREEN));
+                    txt.add(Line("[X] building").fg(Color::GREEN));
                 } else {
-                    txt.add(Line("☐ building"));
+                    txt.add(Line("[ ] building"));
                 }
                 if state.inspected_stop_sign {
-                    txt.add(Line("☑ intersection with stop sign").fg(Color::GREEN));
+                    txt.add(Line("[X] intersection with stop sign").fg(Color::GREEN));
                 } else {
-                    txt.add(Line("☐ intersection with stop sign"));
+                    txt.add(Line("[ ] intersection with stop sign"));
                 }
                 if state.inspected_border {
-                    txt.add(Line("☑ intersection on the map border").fg(Color::GREEN));
+                    txt.add(Line("[X] intersection on the map border").fg(Color::GREEN));
                 } else {
-                    txt.add(Line("☐ intersection on the map border"));
+                    txt.add(Line("[ ] intersection on the map border"));
                 }
                 return txt;
             }
@@ -629,19 +447,19 @@ impl Task {
                 // Inspect the target car, wait for them to park, draw WASH ME on the window
                 let mut txt = Text::new();
                 if state.following_car {
-                    txt.add(Line("☑ follow the target car").fg(Color::GREEN));
+                    txt.add(Line("[X] follow the target car").fg(Color::GREEN));
                 } else {
-                    txt.add(Line("☐ follow the target car"));
+                    txt.add(Line("[ ] follow the target car"));
                 }
                 if state.car_parked {
-                    txt.add(Line("☑ wait for them to park").fg(Color::GREEN));
+                    txt.add(Line("[X] wait for them to park").fg(Color::GREEN));
                 } else {
-                    txt.add(Line("☐ wait for them to park"));
+                    txt.add(Line("[ ] wait for them to park"));
                 }
                 if state.inspected_building {
-                    txt.add(Line("☑ draw WASH ME on the window").fg(Color::GREEN));
+                    txt.add(Line("[X] draw WASH ME on the window").fg(Color::GREEN));
                 } else {
-                    txt.add(Line("☐ draw WASH ME on the window"));
+                    txt.add(Line("[ ] draw WASH ME on the window"));
                 }
                 return txt;
             }
@@ -775,6 +593,9 @@ pub struct TutorialState {
 
     following_car: bool,
     car_parked: bool,
+    prank_done: bool,
+
+    parking_found: bool,
 
     score_delivered: bool,
 }
@@ -839,6 +660,8 @@ impl TutorialState {
         self.score_delivered = false;
         self.following_car = false;
         self.car_parked = false;
+        self.prank_done = false;
+        self.parking_found = false;
     }
 
     fn stage(&self) -> &Stage {
@@ -1067,6 +890,8 @@ impl TutorialState {
             num_pauses: 0,
             following_car: false,
             car_parked: false,
+            prank_done: false,
+            parking_found: false,
             score_delivered: false,
         };
 
@@ -1438,4 +1263,171 @@ impl TutorialState {
     pub fn scenarios_to_prebake(map: &Map) -> Vec<Scenario> {
         vec![make_bike_lane_scenario(map), make_bus_lane_scenario(map)]
     }
+}
+
+pub fn actions(app: &App, id: ID) -> Vec<(Key, String)> {
+    match (app.session.tutorial.as_ref().unwrap().interaction(), id) {
+        (Task::InspectObjects, ID::Lane(_)) => vec![(Key::I, "inspect the lane".to_string())],
+        (Task::InspectObjects, ID::Building(_)) => {
+            vec![(Key::I, "inspect the building".to_string())]
+        }
+        (Task::InspectObjects, ID::Intersection(_)) => {
+            vec![(Key::I, "inspect the intersection".to_string())]
+        }
+        (Task::LowParking, ID::Lane(_)) => {
+            vec![(Key::C, "check the parking availability".to_string())]
+        }
+        (Task::Escort, ID::Car(_)) => vec![(Key::C, "draw WASH ME".to_string())],
+        _ => Vec::new(),
+    }
+}
+
+pub fn execute(_: &mut EventCtx, _: &mut App, id: ID, action: String) -> Transition {
+    Transition::PushWithData(Box::new(move |state, app, ctx| {
+        let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
+        let tutorial = sandbox.gameplay.downcast_mut::<Tutorial>().unwrap();
+        let mut tut = app.session.tutorial.as_mut().unwrap();
+
+        match (id, action.as_ref()) {
+            (ID::Lane(l), "inspect the lane") => {
+                tut.inspected_lane = true;
+                tutorial.top_center = tut.make_top_center(ctx, false);
+                msg(
+                    "Inspection",
+                    match app.primary.map.get_l(l).lane_type {
+                        LaneType::Driving => vec![
+                            "This is a regular lane for driving.",
+                            "Cars, bikes, and buses all share it.",
+                        ],
+                        LaneType::Parking => vec!["This is an on-street parking lane."],
+                        LaneType::Sidewalk => {
+                            vec!["This is a sidewalk. Only pedestrians can use it."]
+                        }
+                        LaneType::Biking => vec!["This is a bike-only lane."],
+                        LaneType::Bus => vec!["This is a bus lane. Bikes may also use it."],
+                        LaneType::SharedLeftTurn => {
+                            vec!["This is a lane where either direction of traffic can turn left."]
+                        }
+                        LaneType::Construction => {
+                            vec!["This lane is currently closed for construction."]
+                        }
+                    },
+                )
+            }
+            (ID::Building(_), "inspect the building") => {
+                tut.inspected_building = true;
+                tutorial.top_center = tut.make_top_center(ctx, false);
+                msg(
+                    "Inspection",
+                    vec![
+                        "Knock knock, anyone home?",
+                        "Did you know: most trips begin and end at a building.",
+                    ],
+                )
+            }
+            (ID::Intersection(i), "inspect the intersection") => {
+                match app.primary.map.get_i(i).intersection_type {
+                    IntersectionType::StopSign => {
+                        tut.inspected_stop_sign = true;
+                        tutorial.top_center = tut.make_top_center(ctx, false);
+                        msg(
+                            "Inspection",
+                            vec!["Most intersections are regulated by stop signs."],
+                        )
+                    }
+                    IntersectionType::TrafficSignal => msg(
+                        "Inspection",
+                        vec![
+                            "This intersection is controlled by a traffic signal. You'll learn \
+                             more about these soon.",
+                        ],
+                    ),
+                    IntersectionType::Border => {
+                        tut.inspected_border = true;
+                        tutorial.top_center = tut.make_top_center(ctx, false);
+                        msg(
+                            "Inspection",
+                            vec![
+                                "This is a border of the map. Vehicles appear and disappear here.",
+                            ],
+                        )
+                    }
+                    IntersectionType::Construction => msg(
+                        "Inspection",
+                        vec!["This intersection is currently closed for construction."],
+                    ),
+                }
+            }
+            (ID::Car(c), "draw WASH ME") => {
+                let target = CarID(30, VehicleType::Car);
+                let is_parked = app
+                    .primary
+                    .sim
+                    .agent_to_trip(AgentID::Car(target))
+                    .is_none();
+                if c == target {
+                    if is_parked {
+                        tut.prank_done = true;
+                        msg(
+                            "Prank in progress",
+                            vec!["You quickly scribble on the window..."],
+                        )
+                    } else {
+                        msg(
+                            "Not yet!",
+                            vec![
+                                "You're going to run up to an occupied car and draw on their \
+                                 windows?",
+                                "Sounds like we should be friends.",
+                                "But, er, wait for the car to park. (You can speed up time!)",
+                            ],
+                        )
+                    }
+                } else if c.1 == VehicleType::Bike {
+                    msg(
+                        "That's a bike",
+                        vec![
+                            "Achievement unlocked: You attempted to draw WASH ME on a cyclist.",
+                            "This game is PG-13 or something, so I can't really describe what \
+                             happens next.",
+                            "But uh, don't try this at home.",
+                        ],
+                    )
+                } else {
+                    msg(
+                        "Wrong car",
+                        vec![
+                            "You're looking at the wrong car.",
+                            "Use the 'reset to midnight' (key binding 'X') to start over, if you \
+                             lost the car to follow.",
+                        ],
+                    )
+                }
+            }
+            (ID::Lane(l), "check the parking availability") => {
+                let lane = app.primary.map.get_l(l);
+                if lane.is_parking() {
+                    let percent = (app.primary.sim.get_free_spots(l).len() as f64)
+                        / (lane.number_parking_spots() as f64);
+                    if percent > 0.1 {
+                        msg(
+                            "Not quite",
+                            vec![
+                                format!("This lane has {:.0}% spots free", percent * 100.0),
+                                "Try using the 'parking availability' layer from the minimap \
+                                 controls"
+                                    .to_string(),
+                            ],
+                        )
+                    } else {
+                        tut.parking_found = true;
+                        msg("Noice", vec!["Yup, paralell parking would be tough here!"])
+                    }
+                } else {
+                    msg("Uhh..", vec!["That's not even a parking lane"])
+                }
+            }
+            _ => unreachable!(),
+        }
+    }))
 }
