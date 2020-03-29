@@ -16,7 +16,7 @@ impl ObjectDebugger {
         }
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx, app: &App) {
+    pub fn event(&mut self, ctx: &mut EventCtx) {
         if self.debug_tooltip_key_held {
             self.debug_tooltip_key_held = !ctx.input.key_released(Key::RightControl);
         } else {

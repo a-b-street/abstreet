@@ -253,7 +253,7 @@ impl State for DebugMode {
             self.highlighted_agents = None;
         }
 
-        self.objects.event(ctx, app);
+        self.objects.event(ctx);
 
         if let Some(t) = self.common.event(ctx, app, None, &mut Actions {}) {
             return t;

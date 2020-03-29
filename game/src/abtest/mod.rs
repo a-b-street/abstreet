@@ -116,10 +116,8 @@ impl State for ABTestMode {
                 .and_then(|id| id.agent_id())
             {
                 if let Some(trip) = app.primary.sim.agent_to_trip(agent) {
-                    if app
-                        .per_obj
-                        .action(ctx, Key::B, format!("Show {}'s parallel world", agent))
-                    {
+                    // TODO Contextual action, Key::B, show parallel world
+                    if false {
                         self.diff_trip = Some(DiffOneTrip::new(
                             trip,
                             &app.primary,
@@ -368,10 +366,10 @@ pub struct ABTestSavestate {
 
 struct Actions;
 impl ContextualActions for Actions {
-    fn actions(&self, app: &App, id: ID) -> Vec<(Key, String)> {
-        Vec::new()
+    fn actions(&self, _: &App, _: ID) -> Vec<(Key, String)> {
+        unreachable!()
     }
-    fn execute(&mut self, ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
-        Transition::Keep
+    fn execute(&mut self, _: &mut EventCtx, _: &mut App, _: ID, _: String) -> Transition {
+        unreachable!()
     }
 }

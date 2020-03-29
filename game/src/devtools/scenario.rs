@@ -561,7 +561,7 @@ struct Actions<'a> {
     trips_to_border: &'a MultiMap<IntersectionID, (usize, usize)>,
 }
 impl<'a> ContextualActions for Actions<'a> {
-    fn actions(&self, app: &App, id: ID) -> Vec<(Key, String)> {
+    fn actions(&self, _: &App, id: ID) -> Vec<(Key, String)> {
         let mut actions = Vec::new();
 
         if let ID::Building(b) = id {

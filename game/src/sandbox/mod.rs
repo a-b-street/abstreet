@@ -436,7 +436,7 @@ impl ContextualActions for Actions {
         if !self.can_interact {
             return actions;
         }
-        match id {
+        match id.clone() {
             ID::Intersection(i) => {
                 if app.primary.map.get_i(i).is_traffic_signal() {
                     actions.push((Key::F, "explore traffic signal details".to_string()));
@@ -464,6 +464,9 @@ impl ContextualActions for Actions {
                 actions.push((Key::E, "explore bus route".to_string()));
             }
             _ => {}
+        }
+        if let GameplayMode::Freeform(_) = self.gameplay {
+            actions.extend(gameplay::spawner::Actions.actions(app, id));
         }
 
         actions
@@ -515,7 +518,7 @@ impl ContextualActions for Actions {
                     true,
                 ))
             }
-            _ => unreachable!(),
+            (id, action) => gameplay::spawner::Actions.execute(ctx, app, id, action.to_string()),
         }
     }
 }
