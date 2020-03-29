@@ -92,6 +92,14 @@ impl SandboxMode {
             gameplay_mode: mode,
         }
     }
+
+    // Just for Warping
+    pub fn contextual_actions(&self) -> Actions {
+        Actions {
+            can_interact: self.gameplay.can_examine_objects(),
+            gameplay: self.gameplay_mode.clone(),
+        }
+    }
 }
 
 impl State for SandboxMode {
@@ -139,19 +147,11 @@ impl State for SandboxMode {
             }
         }
 
-        // Fragile ordering. Don't call this before all the per_obj actions have been called. But
-        // also let this work before tool_panel, so Key::Escape from the info panel beats the one
-        // to quit. And let speed update the sim before we update the info panel.
+        // Fragile ordering. Let this work before tool_panel, so Key::Escape from the info panel
+        // beats the one to quit. And let speed update the sim before we update the info panel.
+        let mut actions = self.contextual_actions();
         if let Some(ref mut c) = self.controls.common {
-            if let Some(t) = c.event(
-                ctx,
-                app,
-                self.controls.speed.as_mut(),
-                &mut Actions {
-                    can_interact: self.gameplay.can_examine_objects(),
-                    gameplay: self.gameplay_mode.clone(),
-                },
-            ) {
+            if let Some(t) = c.event(ctx, app, self.controls.speed.as_mut(), &mut actions) {
                 return t;
             }
         }
@@ -426,7 +426,8 @@ impl AgentMeter {
     }
 }
 
-struct Actions {
+// pub for Warping
+pub struct Actions {
     can_interact: bool,
     gameplay: GameplayMode,
 }

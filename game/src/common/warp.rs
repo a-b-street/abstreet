@@ -1,9 +1,8 @@
 use crate::app::{App, PerMap};
-use crate::common::ContextualActions;
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::sandbox::SandboxMode;
-use ezgui::{EventCtx, GfxCtx, Key, Warper, Wizard};
+use ezgui::{EventCtx, GfxCtx, Warper, Wizard};
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, IntersectionID, LaneID, RoadID};
 use sim::{PedestrianID, TripID};
@@ -62,12 +61,14 @@ impl State for Warping {
         } else {
             if let Some(id) = self.id.clone() {
                 Transition::PopWithData(Box::new(move |state, app, ctx| {
+                    // Other states pretty much don't use info panels.
                     if let Some(ref mut s) = state.downcast_mut::<SandboxMode>() {
+                        let mut actions = s.contextual_actions();
                         s.controls.common.as_mut().unwrap().launch_info_panel(
                             id,
                             ctx,
                             app,
-                            &mut Actions {},
+                            &mut actions,
                         );
                     }
                 }))
@@ -129,16 +130,5 @@ fn warp_point(line: &str, primary: &PerMap) -> Option<(Option<ID>, Pt2D, f64)> {
         Some((Some(id), pt, WARP_TO_CAM_ZOOM))
     } else {
         None
-    }
-}
-
-// TODO Nooo! Need to be passed one of these from the creator
-struct Actions;
-impl ContextualActions for Actions {
-    fn actions(&self, app: &App, id: ID) -> Vec<(Key, String)> {
-        Vec::new()
-    }
-    fn execute(&mut self, ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
-        Transition::Keep
     }
 }
