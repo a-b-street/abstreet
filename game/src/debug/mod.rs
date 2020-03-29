@@ -8,13 +8,13 @@ use crate::common::{tool_panel, CommonState, ContextualActions};
 use crate::game::{msg, DrawBaselayer, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
-use crate::render::DrawOptions;
+use crate::render::{calculate_corners, DrawOptions};
 use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Btn, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Text, VerticalAlignment, Widget, Wizard,
 };
-use geom::Duration;
+use geom::{Duration, Pt2D};
 use map_model::{IntersectionID, NORMAL_LANE_THICKNESS};
 use sim::{Sim, TripID};
 use std::collections::HashSet;
@@ -223,39 +223,7 @@ impl State for DebugMode {
                 self.reset_info(ctx);
             }
         }
-        if let Some(ID::Lane(_)) | Some(ID::Intersection(_)) | Some(ID::ExtraShape(_)) =
-            app.primary.current_selection
-        {
-            let id = app.primary.current_selection.clone().unwrap();
-            if app.per_obj.action(ctx, Key::H, format!("hide {:?}", id)) {
-                println!("Hiding {:?}", id);
-                app.primary.current_selection = None;
-                self.hidden.insert(id);
-                self.reset_info(ctx);
-            }
-        }
 
-        if let Some(ID::Car(id)) = app.primary.current_selection {
-            if app
-                .per_obj
-                .action(ctx, Key::Backspace, "forcibly kill this car")
-            {
-                app.primary.sim.kill_stuck_car(id, &app.primary.map);
-                app.primary
-                    .sim
-                    .normal_step(&app.primary.map, Duration::seconds(0.1));
-                app.primary.current_selection = None;
-            } else if app.per_obj.action(ctx, Key::G, "find front of blockage") {
-                return Transition::Push(msg(
-                    "Blockage results",
-                    vec![format!(
-                        "{} is ultimately blocked by {}",
-                        id,
-                        app.primary.sim.find_blockage_front(id, &app.primary.map)
-                    )],
-                ));
-            }
-        }
         if let Some(ID::Intersection(id)) = app.primary.current_selection {
             if self
                 .highlighted_agents
@@ -286,14 +254,6 @@ impl State for DebugMode {
         }
 
         self.objects.event(ctx, app);
-
-        if let Some(debugger) = polygons::PolygonDebugger::new(ctx, app) {
-            return Transition::Push(Box::new(debugger));
-        }
-
-        if let Some(floodfiller) = floodfill::Floodfiller::new(ctx, app) {
-            return Transition::Push(floodfiller);
-        }
 
         if let Some(t) = self.common.event(ctx, app, None, &mut Actions {}) {
             return t;
@@ -464,9 +424,166 @@ fn calc_all_routes(ctx: &EventCtx, app: &mut App) -> (usize, Drawable) {
 struct Actions;
 impl ContextualActions for Actions {
     fn actions(&self, app: &App, id: ID) -> Vec<(Key, String)> {
-        Vec::new()
+        let mut actions = vec![(Key::D, "debug".to_string())];
+        match id {
+            ID::Lane(l) => {
+                actions.push((Key::H, "hide this".to_string()));
+                if app.primary.map.get_l(l).lane_type.supports_any_movement() {
+                    actions.push((Key::F, "floodfill from this lane".to_string()));
+                    actions.push((Key::S, "show strongly-connected components".to_string()));
+                }
+                actions.push((Key::X, "debug lane geometry".to_string()));
+                actions.push((Key::F2, "debug lane triangles geometry".to_string()));
+            }
+            ID::Intersection(_) => {
+                actions.push((Key::H, "hide this".to_string()));
+                actions.push((Key::X, "debug intersection geometry".to_string()));
+                actions.push((Key::F2, "debug sidewalk corners".to_string()));
+            }
+            ID::ExtraShape(_) => {
+                actions.push((Key::H, "hide this".to_string()));
+            }
+            ID::Car(_) => {
+                actions.push((Key::Backspace, "forcibly kill this car".to_string()));
+                actions.push((Key::G, "find front of blockage".to_string()));
+            }
+            ID::Area(_) => {
+                actions.push((Key::X, "debug area geometry".to_string()));
+                actions.push((Key::F2, "debug area triangles".to_string()));
+            }
+            _ => {}
+        }
+        actions
     }
+
     fn execute(&mut self, ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
-        Transition::Keep
+        match (id, action.as_ref()) {
+            (id, "hide this") => Transition::KeepWithData(Box::new(|state, app, ctx| {
+                let mode = state.downcast_mut::<DebugMode>().unwrap();
+                println!("Hiding {:?}", id);
+                app.primary.current_selection = None;
+                mode.hidden.insert(id);
+                mode.reset_info(ctx);
+            })),
+            (id, "debug") => {
+                objects::ObjectDebugger::dump_debug(
+                    id,
+                    &app.primary.map,
+                    &app.primary.sim,
+                    &app.primary.draw_map,
+                );
+                Transition::Keep
+            }
+            (ID::Car(c), "forcibly kill this car") => {
+                app.primary.sim.kill_stuck_car(c, &app.primary.map);
+                app.primary
+                    .sim
+                    .normal_step(&app.primary.map, Duration::seconds(0.1));
+                app.primary.current_selection = None;
+                Transition::Keep
+            }
+            (ID::Car(c), "find front of blockage") => Transition::Push(msg(
+                "Blockage results",
+                vec![format!(
+                    "{} is ultimately blocked by {}",
+                    c,
+                    app.primary.sim.find_blockage_front(c, &app.primary.map)
+                )],
+            )),
+            (ID::Lane(l), "floodfill from this lane") => {
+                Transition::Push(floodfill::Floodfiller::floodfill(ctx, app, l))
+            }
+            (ID::Lane(l), "show strongly-connected components") => {
+                Transition::Push(floodfill::Floodfiller::scc(ctx, app, l))
+            }
+            (ID::Intersection(i), "debug intersection geometry") => {
+                let pts = app.primary.map.get_i(i).polygon.points();
+                let mut pts_without_last = pts.clone();
+                pts_without_last.pop();
+                Transition::Push(polygons::PolygonDebugger::new(
+                    ctx,
+                    "point",
+                    pts.iter().map(|pt| polygons::Item::Point(*pt)).collect(),
+                    Some(Pt2D::center(&pts_without_last)),
+                ))
+            }
+            (ID::Intersection(i), "debug sidewalk corners") => {
+                Transition::Push(polygons::PolygonDebugger::new(
+                    ctx,
+                    "corner",
+                    calculate_corners(
+                        app.primary.map.get_i(i),
+                        &app.primary.map,
+                        &mut Timer::new("calculate corners"),
+                    )
+                    .into_iter()
+                    .map(|poly| polygons::Item::Polygon(poly))
+                    .collect(),
+                    None,
+                ))
+            }
+            (ID::Lane(l), "debug lane geometry") => {
+                Transition::Push(polygons::PolygonDebugger::new(
+                    ctx,
+                    "point",
+                    app.primary
+                        .map
+                        .get_l(l)
+                        .lane_center_pts
+                        .points()
+                        .iter()
+                        .map(|pt| polygons::Item::Point(*pt))
+                        .collect(),
+                    None,
+                ))
+            }
+            (ID::Lane(l), "debug lane triangles geometry") => {
+                Transition::Push(polygons::PolygonDebugger::new(
+                    ctx,
+                    "triangle",
+                    app.primary
+                        .draw_map
+                        .get_l(l)
+                        .polygon
+                        .triangles()
+                        .into_iter()
+                        .map(|tri| polygons::Item::Triangle(tri))
+                        .collect(),
+                    None,
+                ))
+            }
+            (ID::Area(a), "debug area geometry") => {
+                let pts = &app.primary.map.get_a(a).polygon.points();
+                let center = if pts[0] == *pts.last().unwrap() {
+                    // TODO The center looks really wrong for Volunteer Park and others, but I
+                    // think it's because they have many points along some edges.
+                    Pt2D::center(&pts.iter().skip(1).cloned().collect())
+                } else {
+                    Pt2D::center(pts)
+                };
+                Transition::Push(polygons::PolygonDebugger::new(
+                    ctx,
+                    "point",
+                    pts.iter().map(|pt| polygons::Item::Point(*pt)).collect(),
+                    Some(center),
+                ))
+            }
+            (ID::Area(a), "debug area triangles") => {
+                Transition::Push(polygons::PolygonDebugger::new(
+                    ctx,
+                    "triangle",
+                    app.primary
+                        .map
+                        .get_a(a)
+                        .polygon
+                        .triangles()
+                        .into_iter()
+                        .map(|tri| polygons::Item::Triangle(tri))
+                        .collect(),
+                    None,
+                ))
+            }
+            _ => unreachable!(),
+        }
     }
 }

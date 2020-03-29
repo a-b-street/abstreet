@@ -65,6 +65,9 @@ impl GUI for Game {
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
                 cb(self.states.last_mut().unwrap(), &mut self.app, ctx);
             }
+            Transition::KeepWithData(cb) => {
+                cb(self.states.last_mut().unwrap(), &mut self.app, ctx);
+            }
             Transition::PopTwice => {
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
@@ -218,6 +221,7 @@ pub enum Transition {
     PopTwice,
     // If a state needs to pass data back to the parent, use this. Sadly, runtime type casting.
     PopWithData(Box<dyn FnOnce(&mut Box<dyn State>, &mut App, &mut EventCtx)>),
+    KeepWithData(Box<dyn FnOnce(&mut Box<dyn State>, &mut App, &mut EventCtx)>),
     Push(Box<dyn State>),
     Replace(Box<dyn State>),
     ReplaceThenPush(Box<dyn State>, Box<dyn State>),

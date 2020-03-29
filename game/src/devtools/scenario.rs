@@ -564,7 +564,6 @@ impl<'a> ContextualActions for Actions<'a> {
     fn actions(&self, app: &App, id: ID) -> Vec<(Key, String)> {
         let mut actions = Vec::new();
 
-        // TODO Actually no, tell them the ID.
         if let ID::Building(b) = id {
             let from = self.trips_from_bldg.get(b);
             let to = self.trips_to_bldg.get(b);
@@ -611,31 +610,29 @@ impl<'a> ContextualActions for Actions<'a> {
                 ));
                 Transition::Keep
             }
+            (ID::Intersection(i), "browse trips") => {
+                // TODO Avoid the clone? Just happens once though.
+                let mut all_trips = self.trips_from_border.get(i).clone();
+                all_trips.extend(self.trips_to_border.get(i).clone());
+                Transition::Push(make_trip_picker(
+                    self.scenario.clone(),
+                    all_trips,
+                    "border",
+                    OD::Border(i),
+                ))
+            }
+            (ID::Intersection(i), "show trips to and from") => {
+                *self.demand = Some(show_demand(
+                    self.scenario,
+                    self.trips_from_border.get(i),
+                    self.trips_to_border.get(i),
+                    OD::Border(i),
+                    app,
+                    ctx,
+                ));
+                Transition::Keep
+            }
             _ => unreachable!(),
         }
-
-        /*if app.per_obj.action(ctx, Key::T, "browse trips") {
-            // TODO Avoid the clone? Just happens once though.
-            let mut all_trips = from.clone();
-            all_trips.extend(to);
-
-            return Transition::Push(make_trip_picker(
-                self.scenario.clone(),
-                all_trips,
-                "border",
-                OD::Border(i),
-            ));
-        } else if self.demand.is_none()
-            && app.per_obj.action(ctx, Key::P, "show trips to and from")
-        {
-            self.demand = Some(show_demand(
-                &self.scenario,
-                from,
-                to,
-                OD::Border(i),
-                app,
-                ctx,
-            ));
-        }*/
     }
 }

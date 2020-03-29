@@ -24,17 +24,6 @@ impl ObjectDebugger {
                 .input
                 .unimportant_key_pressed(Key::RightControl, "hold to show debug tooltips");
         }
-
-        if let Some(ref id) = app.primary.current_selection {
-            if app.per_obj.action(ctx, Key::D, "debug") {
-                dump_debug(
-                    id.clone(),
-                    &app.primary.map,
-                    &app.primary.sim,
-                    &app.primary.draw_map,
-                );
-            }
-        }
     }
 
     pub fn draw(&self, g: &mut GfxCtx, app: &App) {
@@ -51,107 +40,107 @@ impl ObjectDebugger {
             }
         }
     }
-}
 
-fn dump_debug(id: ID, map: &Map, sim: &Sim, draw_map: &DrawMap) {
-    match id {
-        ID::Lane(id) => {
-            let l = map.get_l(id);
-            println!("{}", abstutil::to_json(l));
+    pub fn dump_debug(id: ID, map: &Map, sim: &Sim, draw_map: &DrawMap) {
+        match id {
+            ID::Lane(id) => {
+                let l = map.get_l(id);
+                println!("{}", abstutil::to_json(l));
 
-            sim.debug_lane(id);
+                sim.debug_lane(id);
 
-            let r = map.get_parent(id);
-            println!("Parent {} ({}) points to {}", r.id, r.orig_id, r.dst_i);
+                let r = map.get_parent(id);
+                println!("Parent {} ({}) points to {}", r.id, r.orig_id, r.dst_i);
 
-            if l.lane_type.is_for_moving_vehicles() {
-                for constraint in vec![
-                    PathConstraints::Car,
-                    PathConstraints::Bike,
-                    PathConstraints::Bus,
-                ] {
-                    if constraint.can_use(l, map) {
-                        println!(
-                            "Cost for {:?}: {}",
-                            constraint,
-                            l.get_max_cost(constraint, map)
-                        );
+                if l.lane_type.is_for_moving_vehicles() {
+                    for constraint in vec![
+                        PathConstraints::Car,
+                        PathConstraints::Bike,
+                        PathConstraints::Bus,
+                    ] {
+                        if constraint.can_use(l, map) {
+                            println!(
+                                "Cost for {:?}: {}",
+                                constraint,
+                                l.get_max_cost(constraint, map)
+                            );
+                        }
                     }
                 }
             }
-        }
-        ID::Intersection(id) => {
-            let i = map.get_i(id);
-            println!("{}", abstutil::to_json(i));
+            ID::Intersection(id) => {
+                let i = map.get_i(id);
+                println!("{}", abstutil::to_json(i));
 
-            sim.debug_intersection(id, map);
+                sim.debug_intersection(id, map);
 
-            println!("{} connecting:", i.orig_id);
-            for r in &i.roads {
-                let road = map.get_r(*r);
-                println!("- {} = {}", road.id, road.orig_id);
-            }
-        }
-        ID::Turn(id) => {
-            println!("{}", abstutil::to_json(map.get_t(id)));
-        }
-        ID::Building(id) => {
-            println!("{}", abstutil::to_json(map.get_b(id)));
-            for (cars, descr) in vec![
-                (
-                    sim.get_parked_cars_by_owner(id),
-                    format!("currently parked cars are owned by {}", id),
-                ),
-                (
-                    sim.get_offstreet_parked_cars(id),
-                    format!("cars are parked inside {}", id),
-                ),
-            ] {
-                println!(
-                    "{} {}: {:?}",
-                    cars.len(),
-                    descr,
-                    cars.iter().map(|p| p.vehicle.id).collect::<Vec<CarID>>()
-                );
-            }
-        }
-        ID::Car(id) => {
-            sim.debug_car(id);
-            if let Some(t) = sim.agent_to_trip(AgentID::Car(id)) {
-                println!("Trip log for {}", t);
-                for p in sim.get_analytics().get_trip_phases(t, map) {
-                    println!("- {:?}", p);
+                println!("{} connecting:", i.orig_id);
+                for r in &i.roads {
+                    let road = map.get_r(*r);
+                    println!("- {} = {}", road.id, road.orig_id);
                 }
             }
-        }
-        ID::Pedestrian(id) => {
-            sim.debug_ped(id);
-            if let Some(t) = sim.agent_to_trip(AgentID::Pedestrian(id)) {
-                println!("Trip log for {}", t);
-                for p in sim.get_analytics().get_trip_phases(t, map) {
-                    println!("- {:?}", p);
+            ID::Turn(id) => {
+                println!("{}", abstutil::to_json(map.get_t(id)));
+            }
+            ID::Building(id) => {
+                println!("{}", abstutil::to_json(map.get_b(id)));
+                for (cars, descr) in vec![
+                    (
+                        sim.get_parked_cars_by_owner(id),
+                        format!("currently parked cars are owned by {}", id),
+                    ),
+                    (
+                        sim.get_offstreet_parked_cars(id),
+                        format!("cars are parked inside {}", id),
+                    ),
+                ] {
+                    println!(
+                        "{} {}: {:?}",
+                        cars.len(),
+                        descr,
+                        cars.iter().map(|p| p.vehicle.id).collect::<Vec<CarID>>()
+                    );
                 }
             }
-        }
-        ID::PedCrowd(members) => {
-            println!("Crowd with {} members", members.len());
-            for p in members {
-                sim.debug_ped(p);
+            ID::Car(id) => {
+                sim.debug_car(id);
+                if let Some(t) = sim.agent_to_trip(AgentID::Car(id)) {
+                    println!("Trip log for {}", t);
+                    for p in sim.get_analytics().get_trip_phases(t, map) {
+                        println!("- {:?}", p);
+                    }
+                }
             }
-        }
-        ID::ExtraShape(id) => {
-            let es = draw_map.get_es(id);
-            for (k, v) in &es.attributes {
-                println!("{} = {}", k, v);
+            ID::Pedestrian(id) => {
+                sim.debug_ped(id);
+                if let Some(t) = sim.agent_to_trip(AgentID::Pedestrian(id)) {
+                    println!("Trip log for {}", t);
+                    for p in sim.get_analytics().get_trip_phases(t, map) {
+                        println!("- {:?}", p);
+                    }
+                }
             }
-            println!("associated road: {:?}", es.road);
+            ID::PedCrowd(members) => {
+                println!("Crowd with {} members", members.len());
+                for p in members {
+                    sim.debug_ped(p);
+                }
+            }
+            ID::ExtraShape(id) => {
+                let es = draw_map.get_es(id);
+                for (k, v) in &es.attributes {
+                    println!("{} = {}", k, v);
+                }
+                println!("associated road: {:?}", es.road);
+            }
+            ID::BusStop(id) => {
+                println!("{}", abstutil::to_json(map.get_bs(id)));
+            }
+            ID::Area(id) => {
+                println!("{}", abstutil::to_json(map.get_a(id)));
+            }
+            ID::Road(_) => unreachable!(),
         }
-        ID::BusStop(id) => {
-            println!("{}", abstutil::to_json(map.get_bs(id)));
-        }
-        ID::Area(id) => {
-            println!("{}", abstutil::to_json(map.get_a(id)));
-        }
-        ID::Road(_) => unreachable!(),
     }
 }

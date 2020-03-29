@@ -1,9 +1,8 @@
 use crate::app::App;
 use crate::common::Colorer;
 use crate::game::{State, Transition};
-use crate::helpers::ID;
 use crate::managed::WrappedComposite;
-use ezgui::{Color, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Text};
+use ezgui::{Color, Composite, EventCtx, GfxCtx, Line, Outcome, Text};
 use map_model::{connectivity, LaneID, Map, PathConstraints};
 use std::collections::HashSet;
 
@@ -13,34 +12,30 @@ pub struct Floodfiller {
 }
 
 impl Floodfiller {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Option<Box<dyn State>> {
-        let map = &app.primary.map;
-        let (reachable_lanes, unreachable_lanes, title) =
-            if let Some(ID::Lane(l)) = app.primary.current_selection {
-                let lt = map.get_l(l).lane_type;
-                if !lt.supports_any_movement() {
-                    return None;
-                }
-                if app.per_obj.action(ctx, Key::F, "floodfill from this lane") {
-                    find_reachable_from(l, map)
-                } else if app
-                    .per_obj
-                    .action(ctx, Key::S, "show strongly-connected components")
-                {
-                    let constraints = PathConstraints::from_lt(lt);
-                    let (good, bad) = connectivity::find_scc(map, constraints);
-                    (
-                        good,
-                        bad,
-                        format!("strongly-connected components for {:?}", constraints),
-                    )
-                } else {
-                    return None;
-                }
-            } else {
-                return None;
-            };
+    pub fn floodfill(ctx: &mut EventCtx, app: &App, l: LaneID) -> Box<dyn State> {
+        let (r, u, t) = find_reachable_from(l, &app.primary.map);
+        Floodfiller::new(ctx, app, r, u, t)
+    }
+    pub fn scc(ctx: &mut EventCtx, app: &App, l: LaneID) -> Box<dyn State> {
+        let constraints = PathConstraints::from_lt(app.primary.map.get_l(l).lane_type);
+        let (good, bad) = connectivity::find_scc(&app.primary.map, constraints);
+        Floodfiller::new(
+            ctx,
+            app,
+            good,
+            bad,
+            format!("strongly-connected components for {:?}", constraints),
+        )
+    }
 
+    fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        reachable_lanes: HashSet<LaneID>,
+        unreachable_lanes: HashSet<LaneID>,
+        title: String,
+    ) -> Box<dyn State> {
+        let map = &app.primary.map;
         let reachable_color = app.cs.get_def("reachable lane", Color::GREEN);
         let unreachable_color = app.cs.get_def("unreachable lane", Color::RED);
 
@@ -60,7 +55,7 @@ impl Floodfiller {
             println!("{} is unreachable", l);
         }
 
-        Some(Box::new(Floodfiller {
+        Box::new(Floodfiller {
             composite: WrappedComposite::quick_menu(
                 ctx,
                 title,
@@ -68,7 +63,7 @@ impl Floodfiller {
                 vec![],
             ),
             colorer: colorer.build(ctx, app),
-        }))
+        })
     }
 }
 
