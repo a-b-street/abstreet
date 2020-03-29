@@ -79,7 +79,9 @@ pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Building
     let mut rows = header(ctx, app, details, id, Tab::BldgPeople(id));
     // TODO Sort/group better
     // Show minimal info: ID, next departure time, type of that trip
+    let mut any = false;
     for p in app.primary.sim.bldg_to_people(id) {
+        any = true;
         let person = app.primary.sim.get_person(p);
 
         let mut next_trip: Option<(Time, TripMode)> = None;
@@ -111,6 +113,9 @@ pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Building
                 "Staying inside".draw_text(ctx)
             },
         ]));
+    }
+    if !any {
+        rows.push("Nobody's inside right now".draw_text(ctx));
     }
 
     rows

@@ -100,23 +100,19 @@ pub fn traffic(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> 
     let r = map.get_r(l.parent);
 
     // Since this applies to the entire road, ignore lane type.
-    let mut txt = Text::from(Line(""));
-    txt.add(Line("Throughput (entire road)"));
-    txt.add(
-        Line(format!(
-            "Since midnight: {} agents crossed",
-            prettyprint_usize(
-                app.primary
-                    .sim
-                    .get_analytics()
-                    .thruput_stats
-                    .count_per_road
-                    .get(r.id)
-            )
-        ))
-        .secondary(),
-    );
-    txt.add(Line(format!("In 20 minute buckets:")).secondary());
+    let mut txt = Text::from(Line("Traffic over entire road, not just this lane"));
+    txt.add(Line(format!(
+        "Since midnight: {} agents crossed",
+        prettyprint_usize(
+            app.primary
+                .sim
+                .get_analytics()
+                .thruput_stats
+                .count_per_road
+                .get(r.id)
+        )
+    )));
+    txt.add(Line(format!("In 20 minute buckets:")));
     rows.push(txt.draw(ctx));
 
     let r = map.get_l(id).parent;

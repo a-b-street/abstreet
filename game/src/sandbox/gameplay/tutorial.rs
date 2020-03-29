@@ -80,8 +80,11 @@ impl GameplayState for Tutorial {
     ) -> (Option<Transition>, bool) {
         // TODO Hack. We have to do this before grabbing the tutorial session.
         let target = CarID(30, VehicleType::Car);
-        let following_car =
-            controls.common.as_ref().unwrap().info_panel_open(app) == Some(ID::Car(target));
+        let following_car = controls
+            .common
+            .as_ref()
+            .map(|c| c.info_panel_open(app) == Some(ID::Car(target)))
+            .unwrap_or(false);
 
         let mut tut = app.session.tutorial.as_mut().unwrap();
 
@@ -439,7 +442,7 @@ impl Task {
             }
             Task::TimeControls => "Simulate until after 5pm",
             Task::PauseResume => {
-                let mut txt = Text::from(Line("☐ Pause/resume "));
+                let mut txt = Text::from(Line("[ ] Pause/resume "));
                 txt.append(Line(format!("{} times", 3 - state.num_pauses)).fg(Color::GREEN));
                 return txt;
             }
@@ -472,7 +475,7 @@ impl Task {
         };
 
         let mut txt = Text::new();
-        txt.add_wrapped(format!("☐ {}", simple), 0.6 * ctx.canvas.window_width);
+        txt.add_wrapped(format!("[ ] {}", simple), 0.6 * ctx.canvas.window_width);
         txt
     }
 

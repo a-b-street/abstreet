@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::helpers::rotating_color_map;
 use crate::info::{header_btns, make_tabs, throughput, Details, Tab};
 use abstutil::prettyprint_usize;
-use ezgui::{EventCtx, Line, Plot, PlotOptions, Series, Text, Widget};
+use ezgui::{EventCtx, Line, Plot, PlotOptions, Series, Text, TextExt, Widget};
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, IntersectionType};
 use sim::Analytics;
@@ -36,22 +36,18 @@ pub fn traffic(
 
     let mut txt = Text::new();
 
-    txt.add(Line("Throughput"));
-    txt.add(
-        Line(format!(
-            "Since midnight: {} agents crossed",
-            prettyprint_usize(
-                app.primary
-                    .sim
-                    .get_analytics()
-                    .thruput_stats
-                    .count_per_intersection
-                    .get(id)
-            )
-        ))
-        .secondary(),
-    );
-    txt.add(Line(format!("In 20 minute buckets:")).secondary());
+    txt.add(Line(format!(
+        "Since midnight: {} agents crossed",
+        prettyprint_usize(
+            app.primary
+                .sim
+                .get_analytics()
+                .thruput_stats
+                .count_per_intersection
+                .get(id)
+        )
+    )));
+    txt.add(Line(format!("In 20 minute buckets:")));
     rows.push(txt.draw(ctx));
 
     rows.push(
@@ -69,9 +65,7 @@ pub fn delay(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionI
     let i = app.primary.map.get_i(id);
 
     assert!(i.is_traffic_signal());
-    let mut txt = Text::from(Line("Delay"));
-    txt.add(Line(format!("In 20 minute buckets:")).secondary());
-    rows.push(txt.draw(ctx));
+    rows.push("In 20 minute buckets".draw_text(ctx));
 
     rows.push(delay_plot(ctx, app, id, Duration::minutes(20)).margin(10));
 

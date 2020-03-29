@@ -57,7 +57,8 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
                                 Circle::new(Pt2D::new(radius, radius), Distance::meters(radius))
                                     .to_polygon(),
                             )]),
-                        ),
+                        )
+                        .margin(5),
                         s.label.clone().draw_text(ctx),
                     ])
                 })
