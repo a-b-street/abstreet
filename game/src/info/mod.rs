@@ -169,39 +169,43 @@ impl InfoPanel {
             warpers: HashMap::new(),
         };
 
-        let mut col = match tab {
-            Tab::PersonStatus(p) => person::status(ctx, app, &mut details, p),
-            Tab::PersonTrips(p) => person::trips(ctx, app, &mut details, p),
-            Tab::PersonBio(p) => person::bio(ctx, app, &mut details, p),
-            Tab::Bus(c) => bus::bus(ctx, app, &mut details, c),
-            Tab::BusStop(bs) => bus::stop(ctx, app, &mut details, bs),
-            Tab::ParkedCar(c) => person::parked_car(ctx, app, &mut details, c),
-            Tab::BldgInfo(b) => building::info(ctx, app, &mut details, b),
-            Tab::BldgDebug(b) => building::debug(ctx, app, &mut details, b),
-            Tab::BldgPeople(b) => building::people(ctx, app, &mut details, b),
-            Tab::Crowd(ref members) => person::crowd(ctx, app, &mut details, members),
-            Tab::Area(a) => debug::area(ctx, app, &mut details, a),
-            Tab::ExtraShape(es) => debug::extra_shape(ctx, app, &mut details, es),
-            Tab::IntersectionInfo(i) => intersection::info(ctx, app, &mut details, i),
-            Tab::IntersectionTraffic(i) => intersection::traffic(ctx, app, &mut details, i),
-            Tab::IntersectionDelay(i) => intersection::delay(ctx, app, &mut details, i),
-            Tab::LaneInfo(l) => lane::info(ctx, app, &mut details, l),
-            Tab::LaneDebug(l) => lane::debug(ctx, app, &mut details, l),
-            Tab::LaneTraffic(l) => lane::traffic(ctx, app, &mut details, l),
+        let (mut col, main_tab) = match tab {
+            Tab::PersonStatus(p) => (person::status(ctx, app, &mut details, p), true),
+            Tab::PersonTrips(p) => (person::trips(ctx, app, &mut details, p), false),
+            Tab::PersonBio(p) => (person::bio(ctx, app, &mut details, p), false),
+            Tab::Bus(c) => (bus::bus(ctx, app, &mut details, c), true),
+            Tab::BusStop(bs) => (bus::stop(ctx, app, &mut details, bs), true),
+            Tab::ParkedCar(c) => (person::parked_car(ctx, app, &mut details, c), true),
+            Tab::BldgInfo(b) => (building::info(ctx, app, &mut details, b), true),
+            Tab::BldgDebug(b) => (building::debug(ctx, app, &mut details, b), false),
+            Tab::BldgPeople(b) => (building::people(ctx, app, &mut details, b), false),
+            Tab::Crowd(ref members) => (person::crowd(ctx, app, &mut details, members), true),
+            Tab::Area(a) => (debug::area(ctx, app, &mut details, a), true),
+            Tab::ExtraShape(es) => (debug::extra_shape(ctx, app, &mut details, es), true),
+            Tab::IntersectionInfo(i) => (intersection::info(ctx, app, &mut details, i), true),
+            Tab::IntersectionTraffic(i) => {
+                (intersection::traffic(ctx, app, &mut details, i), false)
+            }
+            Tab::IntersectionDelay(i) => (intersection::delay(ctx, app, &mut details, i), false),
+            Tab::LaneInfo(l) => (lane::info(ctx, app, &mut details, l), true),
+            Tab::LaneDebug(l) => (lane::debug(ctx, app, &mut details, l), false),
+            Tab::LaneTraffic(l) => (lane::traffic(ctx, app, &mut details, l), false),
         };
         let maybe_id = tab.clone().to_id(app);
         let mut cached_actions = Vec::new();
-        if let Some(id) = maybe_id.clone() {
-            for (key, label) in ctx_actions.actions(app, id) {
-                cached_actions.push(key);
-                let mut txt = Text::new();
-                txt.append(Line(key.describe()).fg(ezgui::HOTKEY_COLOR));
-                txt.append(Line(format!(" - {}", label)));
-                col.push(
-                    Btn::text_bg(label, txt, colors::SECTION_BG, colors::HOVERING)
-                        .build_def(ctx, hotkey(key))
-                        .margin(5),
-                );
+        if main_tab {
+            if let Some(id) = maybe_id.clone() {
+                for (key, label) in ctx_actions.actions(app, id) {
+                    cached_actions.push(key);
+                    let mut txt = Text::new();
+                    txt.append(Line(key.describe()).fg(ezgui::HOTKEY_COLOR));
+                    txt.append(Line(format!(" - {}", label)));
+                    col.push(
+                        Btn::text_bg(label, txt, colors::SECTION_BG, colors::HOVERING)
+                            .build_def(ctx, hotkey(key))
+                            .margin(5),
+                    );
+                }
             }
         }
 
