@@ -349,3 +349,10 @@ changes here.
 - initial left-hand driving side, tested in Perth, also drawing more arrows for all one-way roads
 - loads of internal GUI code refactorings, preparing for a standalone release of the library
 - fixed z-buffering and alpha values for web backend
+
+0.1.34
+
+- info panels have been totally overhauled again. multiple tabs, way more clear representation of agents, trips, and people.
+- draw people inside of a building
+- applied consistent typography everywhere
+- lots of internal refactoring
