@@ -1,4 +1,4 @@
-use crate::{CarID, Event, TripID, TripMode, TripPhaseType};
+use crate::{CarID, Event, PedestrianID, TripID, TripMode, TripPhaseType};
 use abstutil::Counter;
 use derivative::Derivative;
 use geom::{Distance, Duration, DurationHistogram, PercentageHistogram, Time};
@@ -28,6 +28,9 @@ pub struct Analytics {
     // if savestates are only used for quickly previewing against prebaked results, where we have
     // the full Analytics anyway.
     record_anything: bool,
+
+    // pedestrians waiting at a bus stop
+    bus_pedestrian_waiting: Vec<(PedestrianID, Time, BusStopID, BusRouteID)>,
 }
 
 #[derive(Clone, Serialize, Deserialize, Derivative)]
@@ -62,6 +65,7 @@ impl Analytics {
             trip_log: Vec::new(),
             intersection_delays: BTreeMap::new(),
             record_anything: true,
+            bus_pedestrian_waiting: Vec::new(),
         }
     }
 
@@ -111,8 +115,10 @@ impl Analytics {
         }
 
         // Bus passengers
-        if let Event::PedReachedBusStop(_, stop, route) = ev {
+        if let Event::PedReachedBusStop(ped_id, stop, route) = ev {
             self.bus_passengers_waiting.push((time, stop, route));
+            self.bus_pedestrian_waiting
+                .push((ped_id, time, stop, route));
         }
 
         // Started trips
@@ -346,6 +352,58 @@ impl Analytics {
                 } else {
                     Some((k, delays))
                 }
+            })
+            .collect()
+    }
+
+    // At some moment in time, what are the persons waiting at a bus stop along a route
+    pub fn bus_stop_persons_timings(
+        &self,
+        now: Time,
+        r: BusRouteID,
+    ) -> BTreeMap<BusStopID, Vec<(PedestrianID, Time, Time)>> {
+        let mut waiting_at_stop = BTreeMap::new();
+        for (ped_id, t, stop, route) in &self.bus_pedestrian_waiting {
+            if *t > now {
+                break;
+            }
+            if *route == r {
+                waiting_at_stop
+                    .entry(*stop)
+                    .or_insert_with(Vec::new)
+                    .push((*ped_id, *t, None));
+            }
+        }
+
+        for (t, _, route, stop) in &self.bus_arrivals {
+            if *t > now {
+                break;
+            }
+            if *route == r {
+                if let Some(ref mut pedestrians) = waiting_at_stop.get_mut(stop) {
+                    pedestrians.iter_mut().for_each(|(_, _, time)| match time {
+                        None => *time = Some(*t),
+                        _ => (),
+                    });
+                }
+            }
+        }
+
+        waiting_at_stop
+            .into_iter()
+            .filter_map(|(k, v)| {
+                Some((
+                    k,
+                    v.into_iter()
+                        .filter_map(|(pers_id, t1, opt_t2)| {
+                            if let Some(t2) = opt_t2 {
+                                Some((pers_id, t1, t2))
+                            } else {
+                                None
+                            }
+                        })
+                        .collect(),
+                ))
             })
             .collect()
     }
