@@ -138,7 +138,7 @@ impl<'a> GfxCtx<'a> {
     pub fn draw_polygon(&mut self, color: Color, poly: &Polygon) {
         let obj = self
             .prerender
-            .upload_temporary(vec![(FancyColor::Plain(color), poly)]);
+            .upload_temporary(vec![(FancyColor::RGBA(color), poly)]);
         self.redraw(&obj);
     }
 
@@ -146,7 +146,7 @@ impl<'a> GfxCtx<'a> {
         let obj = self.prerender.upload_temporary(
             polygons
                 .iter()
-                .map(|p| (FancyColor::Plain(color), p))
+                .map(|p| (FancyColor::RGBA(color), p))
                 .collect(),
         );
         self.redraw(&obj);

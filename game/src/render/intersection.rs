@@ -4,7 +4,7 @@ use crate::render::{
     draw_signal_phase, DrawOptions, Renderable, CROSSWALK_LINE_THICKNESS, OUTLINE_THICKNESS,
 };
 use abstutil::Timer;
-use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
+use ezgui::{Color, Drawable, FancyColor, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Angle, Distance, Line, PolyLine, Polygon, Pt2D, Time, EPSILON_DIST};
 use map_model::raw::DrivingSide;
 use map_model::{
@@ -72,7 +72,7 @@ impl DrawIntersection {
                 }
             }
             IntersectionType::Construction => {
-                default_geom.push(cs.get("construction hatching"), i.polygon.clone());
+                default_geom.fancy_push(FancyColor::Hatching, i.polygon.clone());
             }
             IntersectionType::TrafficSignal => {}
         }

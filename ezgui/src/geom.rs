@@ -23,7 +23,7 @@ impl GeomBatch {
         GeomBatch {
             list: list
                 .into_iter()
-                .map(|(c, p)| (FancyColor::Plain(c), p))
+                .map(|(c, p)| (FancyColor::RGBA(c), p))
                 .collect(),
             dims_text: false,
         }
@@ -31,7 +31,7 @@ impl GeomBatch {
 
     /// Adds a single colored polygon.
     pub fn push(&mut self, color: Color, p: Polygon) {
-        self.list.push((FancyColor::Plain(color), p));
+        self.list.push((FancyColor::RGBA(color), p));
     }
     pub fn fancy_push(&mut self, color: FancyColor, p: Polygon) {
         self.list.push((color, p));
@@ -40,7 +40,7 @@ impl GeomBatch {
     /// Applies one color to many polygons.
     pub fn extend(&mut self, color: Color, polys: Vec<Polygon>) {
         for p in polys {
-            self.list.push((FancyColor::Plain(color), p));
+            self.list.push((FancyColor::RGBA(color), p));
         }
     }
 
@@ -112,7 +112,7 @@ impl GeomBatch {
     /// Transforms all colors in a batch.
     pub fn rewrite_color(&mut self, transformation: RewriteColor) {
         for (fancy, _) in self.list.iter_mut() {
-            if let FancyColor::Plain(ref mut c) = fancy {
+            if let FancyColor::RGBA(ref mut c) = fancy {
                 match transformation {
                     RewriteColor::NoOp => {}
                     RewriteColor::Change(from, to) => {

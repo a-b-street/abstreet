@@ -671,15 +671,9 @@ impl Model {
             LaneType::Construction => Color::rgb(255, 109, 0),
         };
         if unset {
-            match color {
-                Color::RGBA(_, g, b, _) => Color::rgba_f(0.9, g, b, 0.5),
-                _ => unreachable!(),
-            }
+            Color::rgba_f(0.9, color.g, color.b, 0.5)
         } else if lanes_unknown {
-            match color {
-                Color::RGBA(r, g, _, _) => Color::rgba_f(r, g, 0.9, 0.5),
-                _ => unreachable!(),
-            }
+            Color::rgba_f(color.r, color.g, 0.9, 0.5)
         } else {
             color
         }

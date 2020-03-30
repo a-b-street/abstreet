@@ -1,4 +1,4 @@
-use crate::{Color, FancyColor, GeomBatch, Prerender};
+use crate::{Color, FancyColor, GeomBatch, LinearGradient, Prerender};
 use abstutil::VecMap;
 use geom::{Bounds, Polygon, Pt2D};
 use lyon::math::Point;
@@ -232,14 +232,14 @@ fn convert_stroke(
 
 fn convert_color(paint: &usvg::Paint, opacity: f64, tree: &usvg::Tree) -> FancyColor {
     match paint {
-        usvg::Paint::Color(c) => FancyColor::Plain(Color::rgba(
+        usvg::Paint::Color(c) => FancyColor::RGBA(Color::rgba(
             c.red as usize,
             c.green as usize,
             c.blue as usize,
             opacity as f32,
         )),
         usvg::Paint::Link(name) => match *tree.defs_by_id(name).unwrap().borrow() {
-            usvg::NodeKind::LinearGradient(ref lg) => FancyColor::linear_gradient(lg),
+            usvg::NodeKind::LinearGradient(ref lg) => LinearGradient::new(lg),
             _ => panic!("Unsupported color style {}", name),
         },
     }

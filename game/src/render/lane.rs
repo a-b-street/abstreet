@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{dashed_lines, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use abstutil::Timer;
-use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
+use ezgui::{Color, Drawable, FancyColor, GeomBatch, GfxCtx, Prerender};
 use geom::{Angle, Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{Lane, LaneID, LaneType, Map, Road, TurnType, PARKING_SPOT_LENGTH};
 
@@ -147,10 +147,8 @@ impl DrawLane {
                     );
                 }
                 LaneType::Construction => {
-                    draw.push(
-                        cs.get_def("construction hatching", Color::HatchingStyle2),
-                        polygon.clone(),
-                    );
+                    // TODO Can't put this in ColorScheme without switching to FancyColor
+                    draw.fancy_push(FancyColor::Hatching, polygon.clone());
                 }
             };
         }

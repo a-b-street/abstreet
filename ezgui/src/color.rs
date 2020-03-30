@@ -3,30 +3,29 @@ use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
-pub enum Color {
-    RGBA(f32, f32, f32, f32),
-    // TODO Figure out how to pack more data into this.
-    HatchingStyle1,
-    HatchingStyle2,
+pub struct Color {
+    pub r: f32,
+    pub g: f32,
+    pub b: f32,
+    pub a: f32,
 }
 
 impl fmt::Display for Color {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Color::RGBA(r, g, b, a) => write!(f, "Color(r={}, g={}, b={}, a={})", r, g, b, a),
-            Color::HatchingStyle1 => write!(f, "Color::HatchingStyle1"),
-            Color::HatchingStyle2 => write!(f, "Color::HatchingStyle2"),
-        }
+        write!(
+            f,
+            "Color(r={}, g={}, b={}, a={})",
+            self.r, self.g, self.b, self.a
+        )
     }
 }
 
-// TODO Not sure if this is hacky or not. Maybe Color should be specialized to RGBA, and these are
-// other cases...
+// TODO Maybe needs a better name
 #[derive(Clone, PartialEq)]
 pub enum FancyColor {
-    Plain(Color),
-    // The line, then stops (percent along, color)
-    LinearGradient(Line, Vec<(f64, Color)>),
+    RGBA(Color),
+    Hatching,
+    LinearGradient(LinearGradient),
 }
 
 impl Color {
@@ -52,38 +51,38 @@ impl Color {
     }
 
     pub const fn rgb_f(r: f32, g: f32, b: f32) -> Color {
-        Color::RGBA(r, g, b, 1.0)
+        Color { r, g, b, a: 1.0 }
     }
 
     pub fn rgba(r: usize, g: usize, b: usize, a: f32) -> Color {
-        Color::RGBA(
-            (r as f32) / 255.0,
-            (g as f32) / 255.0,
-            (b as f32) / 255.0,
+        Color {
+            r: (r as f32) / 255.0,
+            g: (g as f32) / 255.0,
+            b: (b as f32) / 255.0,
             a,
-        )
+        }
     }
 
     pub const fn rgba_f(r: f32, g: f32, b: f32, a: f32) -> Color {
-        Color::RGBA(r, g, b, a)
+        Color { r, g, b, a }
     }
 
     pub const fn grey(f: f32) -> Color {
-        Color::RGBA(f, f, f, 1.0)
+        Color::rgb_f(f, f, f)
     }
 
     pub fn alpha(&self, a: f32) -> Color {
-        match self {
-            Color::RGBA(r, g, b, _) => Color::RGBA(*r, *g, *b, a),
-            _ => unreachable!(),
-        }
+        let mut c = self.clone();
+        c.a = a;
+        c
     }
 
     pub fn fade(&self, factor: f32) -> Color {
-        match self {
-            Color::RGBA(r, g, b, a) => Color::RGBA(*r / factor, *g / factor, *b / factor, *a),
-            _ => unreachable!(),
-        }
+        let mut c = self.clone();
+        c.r /= factor;
+        c.g /= factor;
+        c.b /= factor;
+        c
     }
 
     pub fn hex(raw: &str) -> Color {
@@ -95,32 +94,34 @@ impl Color {
     }
 
     pub fn to_hex(&self) -> String {
-        match self {
-            Color::RGBA(r, g, b, _) => format!(
-                "#{:02X}{:02X}{:02X}",
-                (r * 255.0) as usize,
-                (g * 255.0) as usize,
-                (b * 255.0) as usize
-            ),
-            _ => unreachable!(),
-        }
+        format!(
+            "#{:02X}{:02X}{:02X}",
+            (self.r * 255.0) as usize,
+            (self.g * 255.0) as usize,
+            (self.b * 255.0) as usize
+        )
     }
 
     fn lerp(self, other: Color, pct: f32) -> Color {
-        match (self, other) {
-            (Color::RGBA(r1, g1, b1, a1), Color::RGBA(r2, g2, b2, a2)) => Color::RGBA(
-                lerp(pct, (r1, r2)),
-                lerp(pct, (g1, g2)),
-                lerp(pct, (b1, b2)),
-                lerp(pct, (a1, a2)),
-            ),
-            _ => unreachable!(),
-        }
+        Color::rgba_f(
+            lerp(pct, (self.r, other.r)),
+            lerp(pct, (self.g, other.g)),
+            lerp(pct, (self.b, other.b)),
+            lerp(pct, (self.a, other.a)),
+        )
     }
 }
 
-impl FancyColor {
-    pub(crate) fn linear_gradient(lg: &usvg::LinearGradient) -> FancyColor {
+// https://developer.mozilla.org/en-US/docs/Web/CSS/linear-gradient is the best reference I've
+// found, even though it's technically for CSS, not SVG
+#[derive(Clone, PartialEq)]
+pub struct LinearGradient {
+    line: Line,
+    stops: Vec<(f64, Color)>,
+}
+
+impl LinearGradient {
+    pub(crate) fn new(lg: &usvg::LinearGradient) -> FancyColor {
         let line = Line::new(Pt2D::new(lg.x1, lg.y1), Pt2D::new(lg.x2, lg.y2));
         let mut stops = Vec::new();
         for stop in &lg.stops {
@@ -132,23 +133,22 @@ impl FancyColor {
             );
             stops.push((stop.offset.value(), color));
         }
-        FancyColor::LinearGradient(line, stops)
+        FancyColor::LinearGradient(LinearGradient { line, stops })
     }
 
-    pub(crate) fn interp_lg(line: &Line, stops: &Vec<(f64, Color)>, corner: Pt2D) -> Color {
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/linear-gradient is the best reference
-        // I've found, even though it's technically for CSS, not SVG
-        let pct = line
-            .percent_along_of_point(line.project_pt(corner))
+    fn interp(&self, pt: Pt2D) -> Color {
+        let pct = self
+            .line
+            .percent_along_of_point(self.line.project_pt(pt))
             .unwrap();
-        if pct < stops[0].0 {
-            return stops[0].1;
+        if pct < self.stops[0].0 {
+            return self.stops[0].1;
         }
-        if pct > stops.last().unwrap().0 {
-            return stops.last().unwrap().1;
+        if pct > self.stops.last().unwrap().0 {
+            return self.stops.last().unwrap().1;
         }
         // In between two
-        for ((pct1, c1), (pct2, c2)) in stops.iter().zip(stops.iter().skip(1)) {
+        for ((pct1, c1), (pct2, c2)) in self.stops.iter().zip(self.stops.iter().skip(1)) {
             if pct >= *pct1 && pct <= *pct2 {
                 return c1.lerp(*c2, to_pct(pct, (*pct1, *pct2)) as f32);
             }
@@ -166,4 +166,17 @@ fn to_pct(value: f64, (low, high): (f64, f64)) -> f64 {
 
 fn lerp(pct: f32, (x1, x2): (f32, f32)) -> f32 {
     x1 + pct * (x2 - x1)
+}
+
+impl FancyColor {
+    pub(crate) fn style(&self, pt: Pt2D) -> [f32; 4] {
+        match self {
+            FancyColor::RGBA(c) => [c.r, c.g, c.b, c.a],
+            FancyColor::Hatching => [100.0, 0.0, 0.0, 0.0],
+            FancyColor::LinearGradient(ref lg) => {
+                let c = lg.interp(pt);
+                [c.r, c.g, c.b, c.a]
+            }
+        }
+    }
 }
