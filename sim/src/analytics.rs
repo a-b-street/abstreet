@@ -358,54 +358,52 @@ impl Analytics {
 
     // At some moment in time, what are the persons waiting at a bus stop along a route
     pub fn bus_stop_persons_timings(
-        &self,
+        &mut self,
         now: Time,
         r: BusRouteID,
     ) -> BTreeMap<BusStopID, Vec<(PedestrianID, Time, Time)>> {
+        let bus_arrival_at_route_before_now: Vec<_> = self
+            .bus_arrivals
+            .iter()
+            .filter_map(|(t, _, route, stop)| {
+                if *t <= now && *route == r {
+                    Some((*t, *stop))
+                } else {
+                    None
+                }
+            })
+            .collect(); // collect all stops on route_id before now
+
+        let mut i = 0;
         let mut waiting_at_stop = BTreeMap::new();
-        for (ped_id, t, stop, route) in &self.bus_pedestrian_waiting {
-            if *t > now {
-                break;
-            }
-            if *route == r {
+        while i != self.bus_pedestrian_waiting.len() {
+            let (is_valid, max_t) = {
+                let (_, t, stop, route) = self.bus_pedestrian_waiting[i];
+                if let Some((bus_t, _)) = bus_arrival_at_route_before_now.iter().find(|(b_t, b_s)| stop == *b_s && *b_t >= t) {
+                    (true && route == r, *bus_t)
+                    
+                } else {
+                    (false, t)
+                }
+            };
+            if is_valid {
+                let (ped_id, t, stop, _) = self.bus_pedestrian_waiting.remove(i);
                 waiting_at_stop
-                    .entry(*stop)
+                    .entry(stop)
                     .or_insert_with(Vec::new)
-                    .push((*ped_id, *t, None));
+                    .push((ped_id, t, max_t));
+            } else {
+                i += 1;
             }
         }
 
-        for (t, _, route, stop) in &self.bus_arrivals {
-            if *t > now {
-                break;
-            }
-            if *route == r {
-                if let Some(ref mut pedestrians) = waiting_at_stop.get_mut(stop) {
-                    pedestrians.iter_mut().for_each(|(_, _, time)| match time {
-                        None => *time = Some(*t),
-                        _ => (),
-                    });
-                }
-            }
-        }
+        // TODO go to nigthly to use drain_Filter
+        // let drained_pedestrians = self.bus_pedestrian_waiting.drain_filter(|(_, t, stop, route)| {
+        //     bus_arrival_at_route_before_now.iter().any(|(&bus_t, &bus_s)| stop == bus_s && bus_t >= t)
+        //     && *route == r && *t <= now
+        // }).collect();
 
         waiting_at_stop
-            .into_iter()
-            .filter_map(|(k, v)| {
-                Some((
-                    k,
-                    v.into_iter()
-                        .filter_map(|(pers_id, t1, opt_t2)| {
-                            if let Some(t2) = opt_t2 {
-                                Some((pers_id, t1, t2))
-                            } else {
-                                None
-                            }
-                        })
-                        .collect(),
-                ))
-            })
-            .collect()
     }
 
     // Slightly misleading -- TripMode::Transit means buses, not pedestrians taking transit
