@@ -350,6 +350,7 @@ impl TripSpawner {
                                 path,
                                 req,
                                 trip,
+                                person,
                             }),
                         );
                     } else {
@@ -383,6 +384,7 @@ impl TripSpawner {
                             path: maybe_path.unwrap(),
                             req,
                             trip,
+                            person,
                         }),
                     );
                 }
@@ -416,6 +418,7 @@ impl TripSpawner {
                                 path,
                                 req,
                                 trip,
+                                person,
                             }),
                         );
                     } else {
@@ -473,6 +476,7 @@ impl TripSpawner {
                                 path,
                                 req,
                                 trip,
+                                person,
                             }),
                         );
                     } else {
@@ -521,6 +525,7 @@ impl TripSpawner {
                                 path,
                                 req,
                                 trip,
+                                person,
                             }),
                         );
                     } else {

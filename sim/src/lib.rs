@@ -473,6 +473,7 @@ pub struct CreatePedestrian {
     pub req: PathRequest,
     pub path: Path,
     pub trip: TripID,
+    pub person: PersonID,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]

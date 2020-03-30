@@ -344,12 +344,13 @@ impl TripManager {
         bldg: BuildingID,
         map: &Map,
     ) {
-        self.events.push(Event::PedReachedBuilding(ped, bldg));
         let trip = &mut self.trips[self
             .active_trip_mode
             .remove(&AgentID::Pedestrian(ped))
             .unwrap()
             .0];
+        self.events
+            .push(Event::PedEntersBuilding(ped, trip.person, bldg));
         trip.assert_walking_leg(ped, SidewalkSpot::building(bldg, map));
         assert!(trip.legs.is_empty());
         assert!(!trip.finished_at.is_some());
@@ -722,6 +723,7 @@ impl Trip {
                 path,
                 req,
                 trip: self.id,
+                person: self.person,
             }),
         );
         true

@@ -515,6 +515,14 @@ impl Sim {
                             );
                         }
                         _ => {
+                            if let SidewalkPOI::Building(b) = &create_ped.start.connection {
+                                events.push(Event::PedLeavesBuilding(
+                                    create_ped.id,
+                                    create_ped.person,
+                                    *b,
+                                ));
+                            }
+
                             self.walking
                                 .spawn_ped(self.time, create_ped, map, &mut self.scheduler);
                         }
