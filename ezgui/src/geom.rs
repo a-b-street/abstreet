@@ -1,10 +1,10 @@
-use crate::{svg, Color, Drawable, EventCtx, GfxCtx, Prerender, ScreenDims};
+use crate::{svg, Color, Drawable, EventCtx, FancyColor, GfxCtx, Prerender, ScreenDims};
 use geom::{Angle, Bounds, Polygon, Pt2D};
 
 /// A mutable builder for a group of colored polygons.
 #[derive(Clone)]
 pub struct GeomBatch {
-    pub(crate) list: Vec<(Color, Polygon)>,
+    pub(crate) list: Vec<(FancyColor, Polygon)>,
     // TODO A weird hack for text.
     pub(crate) dims_text: bool,
 }
@@ -21,20 +21,26 @@ impl GeomBatch {
     /// Creates a batch of colored polygons.
     pub fn from(list: Vec<(Color, Polygon)>) -> GeomBatch {
         GeomBatch {
-            list,
+            list: list
+                .into_iter()
+                .map(|(c, p)| (FancyColor::Plain(c), p))
+                .collect(),
             dims_text: false,
         }
     }
 
     /// Adds a single colored polygon.
     pub fn push(&mut self, color: Color, p: Polygon) {
+        self.list.push((FancyColor::Plain(color), p));
+    }
+    pub fn fancy_push(&mut self, color: FancyColor, p: Polygon) {
         self.list.push((color, p));
     }
 
     /// Applies one color to many polygons.
     pub fn extend(&mut self, color: Color, polys: Vec<Polygon>) {
         for p in polys {
-            self.list.push((color, p));
+            self.list.push((FancyColor::Plain(color), p));
         }
     }
 
@@ -44,13 +50,17 @@ impl GeomBatch {
     }
 
     /// Returns the colored polygons in this batch, destroying the batch.
-    pub fn consume(self) -> Vec<(Color, Polygon)> {
+    pub fn consume(self) -> Vec<(FancyColor, Polygon)> {
         self.list
     }
 
     /// Draws the batch, consuming it. Only use this for drawing things once.
     pub fn draw(self, g: &mut GfxCtx) {
-        let refs = self.list.iter().map(|(color, p)| (*color, p)).collect();
+        let refs = self
+            .list
+            .iter()
+            .map(|(color, p)| (color.clone(), p))
+            .collect();
         let obj = g.prerender.upload_temporary(refs);
         g.redraw(&obj);
     }
@@ -101,16 +111,18 @@ impl GeomBatch {
 
     /// Transforms all colors in a batch.
     pub fn rewrite_color(&mut self, transformation: RewriteColor) {
-        for (c, _) in self.list.iter_mut() {
-            match transformation {
-                RewriteColor::NoOp => {}
-                RewriteColor::Change(from, to) => {
-                    if *c == from {
+        for (fancy, _) in self.list.iter_mut() {
+            if let FancyColor::Plain(ref mut c) = fancy {
+                match transformation {
+                    RewriteColor::NoOp => {}
+                    RewriteColor::Change(from, to) => {
+                        if *c == from {
+                            *c = to;
+                        }
+                    }
+                    RewriteColor::ChangeAll(to) => {
                         *c = to;
                     }
-                }
-                RewriteColor::ChangeAll(to) => {
-                    *c = to;
                 }
             }
         }
@@ -158,7 +170,7 @@ impl GeomBatch {
             if rotate != Angle::ZERO {
                 poly = poly.rotate(rotate);
             }
-            self.push(color, poly);
+            self.fancy_push(color, poly);
         }
     }
 
@@ -166,7 +178,7 @@ impl GeomBatch {
     /// Adds geometry from another batch to the current batch, first translating it.
     pub fn add_translated(&mut self, other: GeomBatch, dx: f64, dy: f64) {
         for (color, poly) in other.consume() {
-            self.push(color, poly.translate(dx, dy));
+            self.fancy_push(color, poly.translate(dx, dy));
         }
     }
 }

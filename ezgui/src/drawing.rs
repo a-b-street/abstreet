@@ -1,8 +1,8 @@
 use crate::assets::Assets;
 use crate::backend::{GfxCtxInnards, PrerenderInnards};
 use crate::{
-    Canvas, Color, Drawable, GeomBatch, HorizontalAlignment, ScreenDims, ScreenPt, ScreenRectangle,
-    Text, VerticalAlignment,
+    Canvas, Color, Drawable, FancyColor, GeomBatch, HorizontalAlignment, ScreenDims, ScreenPt,
+    ScreenRectangle, Text, VerticalAlignment,
 };
 use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
 use std::cell::Cell;
@@ -136,14 +136,19 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_polygon(&mut self, color: Color, poly: &Polygon) {
-        let obj = self.prerender.upload_temporary(vec![(color, poly)]);
+        let obj = self
+            .prerender
+            .upload_temporary(vec![(FancyColor::Plain(color), poly)]);
         self.redraw(&obj);
     }
 
     pub fn draw_polygons(&mut self, color: Color, polygons: &Vec<Polygon>) {
-        let obj = self
-            .prerender
-            .upload_temporary(polygons.iter().map(|p| (color, p)).collect());
+        let obj = self.prerender.upload_temporary(
+            polygons
+                .iter()
+                .map(|p| (FancyColor::Plain(color), p))
+                .collect(),
+        );
         self.redraw(&obj);
     }
 
@@ -285,12 +290,8 @@ pub struct Prerender {
 }
 
 impl Prerender {
-    pub fn upload_borrowed(&self, list: Vec<(Color, &Polygon)>) -> Drawable {
-        self.actually_upload(true, list)
-    }
-
     pub fn upload(&self, batch: GeomBatch) -> Drawable {
-        let borrows = batch.list.iter().map(|(c, p)| (*c, p)).collect();
+        let borrows = batch.list.iter().map(|(c, p)| (c.clone(), p)).collect();
         self.actually_upload(true, borrows)
     }
 
@@ -298,11 +299,11 @@ impl Prerender {
         self.inner.total_bytes_uploaded.get()
     }
 
-    pub(crate) fn upload_temporary(&self, list: Vec<(Color, &Polygon)>) -> Drawable {
+    pub(crate) fn upload_temporary(&self, list: Vec<(FancyColor, &Polygon)>) -> Drawable {
         self.actually_upload(false, list)
     }
 
-    fn actually_upload(&self, permanent: bool, list: Vec<(Color, &Polygon)>) -> Drawable {
+    fn actually_upload(&self, permanent: bool, list: Vec<(FancyColor, &Polygon)>) -> Drawable {
         // println!("{:?}", backtrace::Backtrace::new());
         self.num_uploads.set(self.num_uploads.get() + 1);
         self.inner.actually_upload(permanent, list)

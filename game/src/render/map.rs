@@ -208,10 +208,10 @@ impl DrawMap {
         let draw_all_areas = all_areas.upload(ctx);
         timer.stop("upload all areas");
 
-        let boundary_polygon = ctx.prerender.upload_borrowed(vec![(
+        let boundary_polygon = ctx.prerender.upload(GeomBatch::from(vec![(
             cs.get_def("map background", Color::grey(0.87)),
-            map.get_boundary_polygon(),
-        )]);
+            map.get_boundary_polygon().clone(),
+        )]));
 
         timer.start("create quadtree");
         let mut quadtree = QuadTree::default(map.get_bounds().as_bbox());

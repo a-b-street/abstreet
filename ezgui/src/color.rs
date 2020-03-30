@@ -1,3 +1,4 @@
+use geom::{Line, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
@@ -17,6 +18,15 @@ impl fmt::Display for Color {
             Color::HatchingStyle2 => write!(f, "Color::HatchingStyle2"),
         }
     }
+}
+
+// TODO Not sure if this is hacky or not. Maybe Color should be specialized to RGBA, and these are
+// other cases...
+#[derive(Clone, PartialEq)]
+pub enum FancyColor {
+    Plain(Color),
+    // The line, then stops (percent along, color)
+    LinearGradient(Line, Vec<(f64, Color)>),
 }
 
 impl Color {
@@ -95,4 +105,65 @@ impl Color {
             _ => unreachable!(),
         }
     }
+
+    fn lerp(self, other: Color, pct: f32) -> Color {
+        match (self, other) {
+            (Color::RGBA(r1, g1, b1, a1), Color::RGBA(r2, g2, b2, a2)) => Color::RGBA(
+                lerp(pct, (r1, r2)),
+                lerp(pct, (g1, g2)),
+                lerp(pct, (b1, b2)),
+                lerp(pct, (a1, a2)),
+            ),
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl FancyColor {
+    pub(crate) fn linear_gradient(lg: &usvg::LinearGradient) -> FancyColor {
+        let line = Line::new(Pt2D::new(lg.x1, lg.y1), Pt2D::new(lg.x2, lg.y2));
+        let mut stops = Vec::new();
+        for stop in &lg.stops {
+            let color = Color::rgba(
+                stop.color.red as usize,
+                stop.color.green as usize,
+                stop.color.blue as usize,
+                stop.opacity.value() as f32,
+            );
+            stops.push((stop.offset.value(), color));
+        }
+        FancyColor::LinearGradient(line, stops)
+    }
+
+    pub(crate) fn interp_lg(line: &Line, stops: &Vec<(f64, Color)>, corner: Pt2D) -> Color {
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/linear-gradient is the best reference
+        // I've found, even though it's technically for CSS, not SVG
+        let pct = line
+            .percent_along_of_point(line.project_pt(corner))
+            .unwrap();
+        if pct < stops[0].0 {
+            return stops[0].1;
+        }
+        if pct > stops.last().unwrap().0 {
+            return stops.last().unwrap().1;
+        }
+        // In between two
+        for ((pct1, c1), (pct2, c2)) in stops.iter().zip(stops.iter().skip(1)) {
+            if pct >= *pct1 && pct <= *pct2 {
+                return c1.lerp(*c2, to_pct(pct, (*pct1, *pct2)) as f32);
+            }
+        }
+        unreachable!()
+    }
+}
+
+fn to_pct(value: f64, (low, high): (f64, f64)) -> f64 {
+    assert!(low <= high);
+    assert!(value >= low);
+    assert!(value <= high);
+    (value - low) / (high - low)
+}
+
+fn lerp(pct: f32, (x1, x2): (f32, f32)) -> f32 {
+    x1 + pct * (x2 - x1)
 }

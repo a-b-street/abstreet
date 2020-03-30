@@ -306,7 +306,7 @@ pub fn make_signal_diagram(
         normal.push(Color::BLACK, bbox.clone());
         // Move to the origin and apply zoom
         for (color, poly) in orig_batch.consume() {
-            normal.push(
+            normal.fancy_push(
                 color,
                 poly.translate(-bounds.min_x, -bounds.min_y).scale(zoom),
             );

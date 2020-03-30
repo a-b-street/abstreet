@@ -1,7 +1,7 @@
 use crate::app::App;
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use ezgui::{Color, Drawable, GfxCtx, Prerender};
+use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
 use geom::{Distance, PolyLine, Polygon, Pt2D};
 use map_model::{BusStop, BusStopID, Map};
 
@@ -46,10 +46,10 @@ impl DrawBusStop {
         ]));
 
         let polygon = polyline.make_polygons(lane.width * 0.25);
-        let draw_default = prerender.upload_borrowed(vec![(
+        let draw_default = prerender.upload(GeomBatch::from(vec![(
             cs.get_def("bus stop marking", Color::CYAN),
-            &polygon,
-        )]);
+            polygon.clone(),
+        )]));
 
         DrawBusStop {
             id: stop.id,

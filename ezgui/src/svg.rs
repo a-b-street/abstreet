@@ -1,4 +1,4 @@
-use crate::{Color, GeomBatch, Prerender};
+use crate::{Color, FancyColor, GeomBatch, Prerender};
 use abstutil::VecMap;
 use geom::{Bounds, Polygon, Pt2D};
 use lyon::math::Point;
@@ -51,14 +51,15 @@ pub fn add_svg_inner(
 ) -> Result<Bounds, String> {
     let mut fill_tess = tessellation::FillTessellator::new();
     let mut stroke_tess = tessellation::StrokeTessellator::new();
-    let mut mesh_per_color: VecMap<Color, VertexBuffers<_, u16>> = VecMap::new();
+    // TODO This breaks on start.svg; the order there matters. color1, color2, then color1 again.
+    let mut mesh_per_color: VecMap<FancyColor, VertexBuffers<_, u16>> = VecMap::new();
 
     for node in svg_tree.root().descendants() {
         if let usvg::NodeKind::Path(ref p) = *node.borrow() {
             // TODO Handle transforms
 
             if let Some(ref fill) = p.fill {
-                let color = convert_color(&fill.paint, fill.opacity.value());
+                let color = convert_color(&fill.paint, fill.opacity.value(), &svg_tree);
                 let geom = mesh_per_color.mut_or_insert(color, VertexBuffers::new);
                 if fill_tess
                     .tessellate(
@@ -73,7 +74,7 @@ pub fn add_svg_inner(
             }
 
             if let Some(ref stroke) = p.stroke {
-                let (color, stroke_opts) = convert_stroke(stroke, tolerance);
+                let (color, stroke_opts) = convert_stroke(stroke, tolerance, &svg_tree);
                 let geom = mesh_per_color.mut_or_insert(color, VertexBuffers::new);
                 stroke_tess
                     .tessellate(convert_path(p), &stroke_opts, &mut simple_builder(geom))
@@ -83,7 +84,7 @@ pub fn add_svg_inner(
     }
 
     for (color, mesh) in mesh_per_color.consume() {
-        batch.push(
+        batch.fancy_push(
             color,
             Polygon::precomputed(
                 mesh.vertices
@@ -204,8 +205,12 @@ fn convert_path<'a>(p: &'a usvg::Path) -> PathConvIter<'a> {
     }
 }
 
-fn convert_stroke(s: &usvg::Stroke, tolerance: f32) -> (Color, tessellation::StrokeOptions) {
-    let color = convert_color(&s.paint, s.opacity.value());
+fn convert_stroke(
+    s: &usvg::Stroke,
+    tolerance: f32,
+    tree: &usvg::Tree,
+) -> (FancyColor, tessellation::StrokeOptions) {
+    let color = convert_color(&s.paint, s.opacity.value(), tree);
     let linecap = match s.linecap {
         usvg::LineCap::Butt => tessellation::LineCap::Butt,
         usvg::LineCap::Square => tessellation::LineCap::Square,
@@ -225,15 +230,17 @@ fn convert_stroke(s: &usvg::Stroke, tolerance: f32) -> (Color, tessellation::Str
     (color, opt)
 }
 
-fn convert_color(paint: &usvg::Paint, opacity: f64) -> Color {
-    if let usvg::Paint::Color(c) = paint {
-        Color::rgba(
+fn convert_color(paint: &usvg::Paint, opacity: f64, tree: &usvg::Tree) -> FancyColor {
+    match paint {
+        usvg::Paint::Color(c) => FancyColor::Plain(Color::rgba(
             c.red as usize,
             c.green as usize,
             c.blue as usize,
             opacity as f32,
-        )
-    } else {
-        panic!("Unsupported paint {:?}", paint);
+        )),
+        usvg::Paint::Link(name) => match *tree.defs_by_id(name).unwrap().borrow() {
+            usvg::NodeKind::LinearGradient(ref lg) => FancyColor::linear_gradient(lg),
+            _ => panic!("Unsupported color style {}", name),
+        },
     }
 }

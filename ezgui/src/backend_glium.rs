@@ -1,5 +1,5 @@
 use crate::drawing::Uniforms;
-use crate::{Canvas, Color, ScreenDims, ScreenRectangle};
+use crate::{Canvas, Color, FancyColor, ScreenDims, ScreenRectangle};
 use geom::Polygon;
 use glium::uniforms::UniformValue;
 use glium::Surface;
@@ -180,7 +180,7 @@ pub struct PrerenderInnards {
 }
 
 impl PrerenderInnards {
-    pub fn actually_upload(&self, permanent: bool, list: Vec<(Color, &Polygon)>) -> Drawable {
+    pub fn actually_upload(&self, permanent: bool, list: Vec<(FancyColor, &Polygon)>) -> Drawable {
         let mut vertices: Vec<Vertex> = Vec::new();
         let mut indices: Vec<u32> = Vec::new();
 
@@ -189,10 +189,16 @@ impl PrerenderInnards {
             let (pts, raw_indices) = poly.raw_for_rendering();
             for pt in pts {
                 let style = match color {
-                    Color::RGBA(r, g, b, a) => [r, g, b, a],
+                    FancyColor::Plain(Color::RGBA(r, g, b, a)) => [r, g, b, a],
                     // Two special cases
-                    Color::HatchingStyle1 => [100.0, 0.0, 0.0, 0.0],
-                    Color::HatchingStyle2 => [101.0, 0.0, 0.0, 0.0],
+                    FancyColor::Plain(Color::HatchingStyle1) => [100.0, 0.0, 0.0, 0.0],
+                    FancyColor::Plain(Color::HatchingStyle2) => [101.0, 0.0, 0.0, 0.0],
+                    FancyColor::LinearGradient(ref line, ref lg) => {
+                        match FancyColor::interp_lg(line, lg, *pt) {
+                            Color::RGBA(r, g, b, a) => [r, g, b, a],
+                            _ => unreachable!(),
+                        }
+                    }
                 };
                 vertices.push(Vertex {
                     position: [pt.x() as f32, pt.y() as f32],

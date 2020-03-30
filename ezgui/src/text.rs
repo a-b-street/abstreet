@@ -272,7 +272,7 @@ impl Text {
             // Add all of the padding at the bottom of the line.
             let offset = line_height / SCALE_LINE_HEIGHT * 0.2;
             for (color, poly) in line_batch.consume() {
-                master_batch.push(color, poly.translate(0.0, y - offset));
+                master_batch.fancy_push(color, poly.translate(0.0, y - offset));
             }
 
             max_width = max_width.max(line_dims.width);
@@ -282,7 +282,7 @@ impl Text {
             output_batch.push(c, Polygon::rectangle(max_width, y));
         }
         for (color, poly) in master_batch.consume() {
-            output_batch.push(color, poly);
+            output_batch.fancy_push(color, poly);
         }
         output_batch.dims_text = true;
 
