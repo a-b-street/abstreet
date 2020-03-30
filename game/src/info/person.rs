@@ -3,7 +3,7 @@ use crate::info::{building, header_btns, make_table, make_tabs, trip, Details, T
 use crate::render::Renderable;
 use ezgui::{Btn, Color, EventCtx, Line, TextExt, Widget};
 use map_model::Map;
-use sim::{AgentID, CarID, PedestrianID, Person, PersonID, PersonState, TripResult};
+use sim::{AgentID, CarID, PedestrianID, Person, PersonID, PersonState, TripResult, VehicleType};
 
 pub fn status(ctx: &mut EventCtx, app: &App, details: &mut Details, id: PersonID) -> Vec<Widget> {
     let mut rows = header(ctx, app, details, id, Tab::PersonStatus(id));
@@ -182,8 +182,29 @@ pub fn parked_car(ctx: &EventCtx, app: &App, details: &mut Details, id: CarID) -
 fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: PersonID, tab: Tab) -> Vec<Widget> {
     let mut rows = vec![];
 
+    let descr = match app.primary.sim.get_person(id).state {
+        PersonState::Inside(b) => {
+            building::draw_occupants(details, app, b, Some(id));
+            "inside"
+        }
+        PersonState::Trip(t) => match app.primary.sim.trip_to_agent(t).ok() {
+            Some(AgentID::Pedestrian(_)) => "on foot",
+            Some(AgentID::Car(c)) => match c.1 {
+                VehicleType::Car => "in a car",
+                VehicleType::Bike => "on a bike",
+                VehicleType::Bus => unreachable!(),
+            },
+            // TODO Really should clean up the TripModeChange issue
+            None => "...",
+        },
+        PersonState::OffMap => "off map",
+        PersonState::Limbo => "in limbo",
+    };
+
     rows.push(Widget::row(vec![
-        Line(format!("Person #{}", id.0)).small_heading().draw(ctx),
+        Line(format!("Person #{} ({})", id.0, descr))
+            .small_heading()
+            .draw(ctx),
         header_btns(ctx),
     ]));
 
@@ -197,10 +218,6 @@ fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: PersonID, tab: T
             ("Bio", Tab::PersonBio(id)),
         ],
     ));
-
-    if let PersonState::Inside(b) = app.primary.sim.get_person(id).state {
-        building::draw_occupants(details, app, b, Some(id));
-    }
 
     rows
 }

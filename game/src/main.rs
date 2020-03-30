@@ -10,7 +10,6 @@ mod game;
 mod helpers;
 mod info;
 mod managed;
-mod obj_actions;
 mod options;
 mod pregame;
 mod render;
