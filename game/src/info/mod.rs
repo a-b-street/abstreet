@@ -12,7 +12,6 @@ use crate::common::Warping;
 use crate::game::Transition;
 use crate::helpers::ID;
 use crate::render::{ExtraShapeID, MIN_ZOOM_FOR_DETAIL};
-use crate::sandbox::SpeedControls;
 use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Outcome, Plot, PlotOptions, Series, Text, TextExt, VerticalAlignment, Widget,
@@ -139,29 +138,17 @@ impl InfoPanel {
         ctx: &mut EventCtx,
         app: &App,
         id: ID,
-        maybe_speed: Option<&mut SpeedControls>,
         ctx_actions: &mut dyn ContextualActions,
     ) -> InfoPanel {
-        InfoPanel::new(ctx, app, Tab::from_id(app, id), maybe_speed, ctx_actions)
+        InfoPanel::new(ctx, app, Tab::from_id(app, id), ctx_actions)
     }
 
     fn new(
         ctx: &mut EventCtx,
         app: &App,
         tab: Tab,
-        maybe_speed: Option<&mut SpeedControls>,
         ctx_actions: &mut dyn ContextualActions,
     ) -> InfoPanel {
-        /*if maybe_speed.map(|s| s.is_paused()).unwrap_or(false)
-            && id.agent_id().is_some()
-            && actions
-                .get(0)
-                .map(|(_, a)| a != "follow agent")
-                .unwrap_or(true)
-        {
-            actions.insert(0, (Key::F, "follow agent".to_string()));
-        }*/
-
         let mut details = Details {
             unzoomed: GeomBatch::new(),
             zoomed: GeomBatch::new(),
@@ -306,7 +293,6 @@ impl InfoPanel {
         &mut self,
         ctx: &mut EventCtx,
         app: &mut App,
-        maybe_speed: Option<&mut SpeedControls>,
         ctx_actions: &mut dyn ContextualActions,
     ) -> (bool, Option<Transition>) {
         // Can click on the map to cancel
@@ -320,7 +306,7 @@ impl InfoPanel {
         // Live update?
         if app.primary.sim.time() != self.time {
             let preserve_scroll = self.composite.preserve_scroll();
-            *self = InfoPanel::new(ctx, app, self.tab.clone(), maybe_speed, ctx_actions);
+            *self = InfoPanel::new(ctx, app, self.tab.clone(), ctx_actions);
             self.composite.restore_scroll(ctx, preserve_scroll);
             return (false, None);
         }
@@ -329,7 +315,7 @@ impl InfoPanel {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(action)) => {
                 if let Some(new_tab) = self.hyperlinks.get(&action).cloned() {
-                    *self = InfoPanel::new(ctx, app, new_tab, maybe_speed, ctx_actions);
+                    *self = InfoPanel::new(ctx, app, new_tab, ctx_actions);
                     return (false, None);
                 } else if action == "close info" {
                     (true, None)
@@ -349,9 +335,6 @@ impl InfoPanel {
                     } else {
                         return (false, None);
                     }
-                } else if action == "follow agent" {
-                    maybe_speed.unwrap().resume_realtime(ctx);
-                    (false, None)
                 } else if action.starts_with("examine trip phase") {
                     // Don't do anything! Just using buttons for convenient tooltips.
                     (false, None)
@@ -367,13 +350,10 @@ impl InfoPanel {
                         ))),
                     )
                 } else {
-                    /*app.primary.current_selection = Some(self.tab.clone().to_id(app).unwrap());
-                    (true, Some(Transition::ApplyObjectAction(action)))*/
-
-                    (
-                        true,
-                        Some(ctx_actions.execute(ctx, app, maybe_id.unwrap(), action)),
-                    )
+                    let mut close_panel = true;
+                    let t =
+                        ctx_actions.execute(ctx, app, maybe_id.unwrap(), action, &mut close_panel);
+                    (close_panel, Some(t))
                 }
             }
             None => (false, None),
@@ -491,5 +471,12 @@ fn header_btns(ctx: &EventCtx) -> Widget {
 pub trait ContextualActions {
     // TODO &str?
     fn actions(&self, app: &App, id: ID) -> Vec<(Key, String)>;
-    fn execute(&mut self, ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition;
+    fn execute(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        id: ID,
+        action: String,
+        close_panel: &mut bool,
+    ) -> Transition;
 }

@@ -137,7 +137,7 @@ impl State for ABTestMode {
             self.recalculate_stuff(app, ctx);
         }*/
 
-        if let Some(t) = self.common.event(ctx, app, None, &mut Actions {}) {
+        if let Some(t) = self.common.event(ctx, app, &mut Actions {}) {
             return t;
         }
         match self.tool_panel.event(ctx, app) {
@@ -369,7 +369,14 @@ impl ContextualActions for Actions {
     fn actions(&self, _: &App, _: ID) -> Vec<(Key, String)> {
         unreachable!()
     }
-    fn execute(&mut self, _: &mut EventCtx, _: &mut App, _: ID, _: String) -> Transition {
+    fn execute(
+        &mut self,
+        _: &mut EventCtx,
+        _: &mut App,
+        _: ID,
+        _: String,
+        _: &mut bool,
+    ) -> Transition {
         unreachable!()
     }
 }

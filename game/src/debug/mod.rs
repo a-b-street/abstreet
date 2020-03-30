@@ -255,7 +255,7 @@ impl State for DebugMode {
 
         self.objects.event(ctx);
 
-        if let Some(t) = self.common.event(ctx, app, None, &mut Actions {}) {
+        if let Some(t) = self.common.event(ctx, app, &mut Actions {}) {
             return t;
         }
         match self.tool_panel.event(ctx, app) {
@@ -456,7 +456,14 @@ impl ContextualActions for Actions {
         actions
     }
 
-    fn execute(&mut self, ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
+    fn execute(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        id: ID,
+        action: String,
+        close_info: &mut bool,
+    ) -> Transition {
         match (id, action.as_ref()) {
             (id, "hide this") => Transition::KeepWithData(Box::new(|state, app, ctx| {
                 let mode = state.downcast_mut::<DebugMode>().unwrap();
@@ -466,6 +473,7 @@ impl ContextualActions for Actions {
                 mode.reset_info(ctx);
             })),
             (id, "debug") => {
+                *close_info = false;
                 objects::ObjectDebugger::dump_debug(
                     id,
                     &app.primary.map,

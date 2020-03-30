@@ -41,7 +41,7 @@ pub struct SandboxControls {
     route_preview: Option<RoutePreview>,
     tool_panel: Option<WrappedComposite>,
     time_panel: Option<TimePanel>,
-    pub speed: Option<SpeedControls>,
+    speed: Option<SpeedControls>,
     agent_meter: Option<AgentMeter>,
     minimap: Option<Minimap>,
 }
@@ -151,7 +151,7 @@ impl State for SandboxMode {
         // beats the one to quit. And let speed update the sim before we update the info panel.
         let mut actions = self.contextual_actions();
         if let Some(ref mut c) = self.controls.common {
-            if let Some(t) = c.event(ctx, app, self.controls.speed.as_mut(), &mut actions) {
+            if let Some(t) = c.event(ctx, app, &mut actions) {
                 return t;
             }
         }
@@ -464,11 +464,21 @@ impl ContextualActions for Actions {
                 }
                 _ => {}
             }
+            if id.agent_id().is_some() {
+                actions.push((Key::F, "follow/unfollow".to_string()));
+            }
         }
         actions.extend(self.gameplay.actions(app, id));
         actions
     }
-    fn execute(&mut self, ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
+    fn execute(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        id: ID,
+        action: String,
+        close_panel: &mut bool,
+    ) -> Transition {
         match (id, action.as_ref()) {
             (ID::Intersection(i), "explore traffic signal details") => {
                 Transition::Push(ShowTrafficSignal::new(ctx, app, i))
@@ -515,7 +525,21 @@ impl ContextualActions for Actions {
                     true,
                 ))
             }
-            (id, action) => self.gameplay.execute(ctx, app, id, action.to_string()),
+            (_, "follow/unfollow") => {
+                *close_panel = false;
+                Transition::KeepWithData(Box::new(|state, _, ctx| {
+                    let mode = state.downcast_mut::<SandboxMode>().unwrap();
+                    let speed = mode.controls.speed.as_mut().unwrap();
+                    if speed.is_paused() {
+                        speed.resume_realtime(ctx);
+                    } else {
+                        speed.pause(ctx);
+                    }
+                }))
+            }
+            (id, action) => self
+                .gameplay
+                .execute(ctx, app, id, action.to_string(), close_panel),
         }
     }
 }
