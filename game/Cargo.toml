@@ -20,6 +20,7 @@ ezgui = { path = "../ezgui", default-features=false }
 geom = { path = "../geom" }
 instant = "0.1.2"
 kml = { path = "../kml" }
+maplit = "1.0.2"
 map_model = { path = "../map_model" }
 popdat = { path = "../popdat" }
 rand = "0.7.0"

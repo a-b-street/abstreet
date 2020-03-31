@@ -76,7 +76,7 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
         progress_along_path,
     ));
 
-    Widget::col(col).padding(5).margin(10)
+    Widget::col(col)
 }
 
 fn make_timeline(
@@ -97,7 +97,7 @@ fn make_timeline(
         let (id, center, name) = endpoint(&trip_start, map);
         details
             .warpers
-            .insert(format!("jump to start of Trip #{}", trip.0), id);
+            .insert(format!("jump to start of {}", trip), id);
         details.unzoomed.add_svg(
             ctx.prerender,
             "../data/system/assets/timeline/start_pos.svg",
@@ -119,14 +119,14 @@ fn make_timeline(
             RewriteColor::Change(Color::WHITE, colors::HOVERING),
         )
         .tooltip(txt)
-        .build(ctx, format!("jump to start of Trip #{}", trip.0), None)
+        .build(ctx, format!("jump to start of {}", trip), None)
     };
 
     let goal_btn = {
         let (id, center, name) = endpoint(&trip_end, map);
         details
             .warpers
-            .insert(format!("jump to goal of Trip #{}", trip.0), id);
+            .insert(format!("jump to goal of {}", trip), id);
         details.unzoomed.add_svg(
             ctx.prerender,
             "../data/system/assets/timeline/goal_pos.svg",
@@ -150,7 +150,7 @@ fn make_timeline(
             RewriteColor::Change(Color::WHITE, colors::HOVERING),
         )
         .tooltip(txt)
-        .build(ctx, format!("jump to goal of Trip #{}", trip.0), None)
+        .build(ctx, format!("jump to goal of {}", trip), None)
     };
 
     let total_duration_so_far = end_time.unwrap_or_else(|| sim.time()) - phases[0].start_time;
@@ -239,7 +239,7 @@ fn make_timeline(
                 .tooltip(txt)
                 .build(
                     ctx,
-                    format!("examine trip phase {} of Trip #{}", idx + 1, trip.0),
+                    format!("examine trip phase {} of {}", idx + 1, trip),
                     None,
                 )
                 .centered_vert(),

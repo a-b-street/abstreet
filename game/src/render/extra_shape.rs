@@ -13,7 +13,7 @@ pub struct ExtraShapeID(pub usize);
 
 impl fmt::Display for ExtraShapeID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "ExtraShapeID({0})", self.0)
+        write!(f, "Extra GIS shape #{}", self.0)
     }
 }
 

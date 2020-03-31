@@ -19,6 +19,7 @@ use ezgui::{
 };
 use geom::{Circle, Distance, Duration, Time};
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID};
+use maplit::btreeset;
 use sim::{
     AgentID, Analytics, CarID, PedestrianID, PersonID, PersonState, TripID, TripMode, VehicleType,
 };
@@ -78,10 +79,10 @@ impl Tab {
             ID::Building(b) => Tab::BldgInfo(b),
             ID::Car(c) => {
                 if let Some(p) = app.primary.sim.agent_to_person(AgentID::Car(c)) {
-                    // TODO Can we get the macro please?
-                    let mut open_trips = BTreeSet::new();
-                    open_trips.insert(app.primary.sim.agent_to_trip(AgentID::Car(c)).unwrap());
-                    Tab::PersonTrips(p, open_trips)
+                    Tab::PersonTrips(
+                        p,
+                        btreeset! {app.primary.sim.agent_to_trip(AgentID::Car(c)).unwrap()},
+                    )
                 } else if c.1 == VehicleType::Bus {
                     Tab::BusStatus(c)
                 } else {
@@ -93,16 +94,7 @@ impl Tab {
                     .sim
                     .agent_to_person(AgentID::Pedestrian(p))
                     .unwrap(),
-                {
-                    let mut open_trips = BTreeSet::new();
-                    open_trips.insert(
-                        app.primary
-                            .sim
-                            .agent_to_trip(AgentID::Pedestrian(p))
-                            .unwrap(),
-                    );
-                    open_trips
-                },
+                btreeset! {app.primary.sim.agent_to_trip(AgentID::Pedestrian(p)).unwrap()},
             ),
             ID::PedCrowd(members) => Tab::Crowd(members),
             ID::ExtraShape(es) => Tab::ExtraShape(es),

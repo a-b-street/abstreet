@@ -17,10 +17,10 @@ use ezgui::{
 };
 use geom::{Distance, Duration, PolyLine, Polygon, Pt2D, Statistic, Time};
 use map_model::{BuildingID, IntersectionID, IntersectionType, LaneType, Map, RoadID};
+use maplit::btreeset;
 use sim::{
     AgentID, Analytics, BorderSpawnOverTime, CarID, OriginDestination, Scenario, VehicleType,
 };
-use std::collections::BTreeSet;
 
 pub struct Tutorial {
     top_center: Composite,
@@ -620,10 +620,7 @@ fn make_bike_lane_scenario(map: &Map) -> Scenario {
 
 fn make_bus_lane_scenario(map: &Map) -> Scenario {
     let mut s = Scenario::empty(map, "car vs bus contention");
-    let mut routes = BTreeSet::new();
-    routes.insert("43".to_string());
-    routes.insert("48".to_string());
-    s.only_seed_buses = Some(routes);
+    s.only_seed_buses = Some(btreeset! {"43".to_string(), "48".to_string()});
     for src in vec![
         RoadID(61).backwards(),
         RoadID(240).forwards(),

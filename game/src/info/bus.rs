@@ -92,8 +92,8 @@ fn bus_header(
     let mut rows = vec![];
     rows.push(Widget::row(vec![
         Line(format!(
-            "Bus #{} (route {})",
-            id.0,
+            "{} (route {})",
+            id,
             app.primary.map.get_br(route).name
         ))
         .small_heading()

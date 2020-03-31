@@ -102,12 +102,11 @@ pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Building
             }
         }
 
-        let label = format!("Person #{}", p.0);
         details
             .hyperlinks
-            .insert(label.clone(), Tab::PersonTrips(p, BTreeSet::new()));
+            .insert(p.to_string(), Tab::PersonTrips(p, BTreeSet::new()));
         rows.push(Widget::col(vec![
-            Btn::text_bg1(label).build_def(ctx, None),
+            Btn::text_bg1(p.to_string()).build_def(ctx, None),
             if let Some((t, mode)) = next_trip {
                 format!("Leaving in {} to {}", t - app.primary.sim.time(), mode).draw_text(ctx)
             } else {
@@ -132,9 +131,7 @@ fn header(
     let mut rows = vec![];
 
     rows.push(Widget::row(vec![
-        Line(format!("Building #{}", id.0))
-            .small_heading()
-            .draw(ctx),
+        Line(id.to_string()).small_heading().draw(ctx),
         header_btns(ctx),
     ]));
 

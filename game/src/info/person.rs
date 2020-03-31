@@ -3,6 +3,7 @@ use crate::info::{building, header_btns, make_table, make_tabs, trip, Details, T
 use crate::render::Renderable;
 use ezgui::{Btn, Color, EventCtx, Line, TextExt, Widget};
 use map_model::Map;
+use maplit::btreeset;
 use sim::{
     AgentID, CarID, PedestrianID, Person, PersonID, PersonState, TripID, TripResult, VehicleType,
 };
@@ -54,18 +55,18 @@ pub fn trips(
         // TODO Style wrong. Button should be the entire row.
         rows.push(
             Widget::row(vec![
-                format!("Trip #{} ({})", t.0, trip_status).draw_text(ctx),
+                format!("{} ({})", t, trip_status).draw_text(ctx),
                 Btn::text_fg(if open_trips.contains(t) { "▲" } else { "▼" })
                     .build(
                         ctx,
                         format!(
-                            "{} Trip #{}",
+                            "{} {}",
                             if open_trips.contains(t) {
                                 "hide"
                             } else {
                                 "show"
                             },
-                            t.0
+                            t
                         ),
                         None,
                     )
@@ -79,17 +80,15 @@ pub fn trips(
 
             let mut new_trips = open_trips.clone();
             new_trips.remove(t);
-            details.hyperlinks.insert(
-                format!("hide Trip #{}", t.0),
-                Tab::PersonTrips(id, new_trips),
-            );
+            details
+                .hyperlinks
+                .insert(format!("hide {}", t), Tab::PersonTrips(id, new_trips));
         } else {
             let mut new_trips = open_trips.clone();
             new_trips.insert(*t);
-            details.hyperlinks.insert(
-                format!("show Trip #{}", t.0),
-                Tab::PersonTrips(id, new_trips),
-            );
+            details
+                .hyperlinks
+                .insert(format!("show {}", t), Tab::PersonTrips(id, new_trips));
         }
     }
     if wheres_waldo {
@@ -144,18 +143,14 @@ pub fn crowd(
         // TODO What other info is useful to summarize?
         rows.push(Widget::row(vec![
             format!("{})", idx + 1).draw_text(ctx),
-            Btn::text_fg(format!("Person #{}", person.0)).build_def(ctx, None),
+            Btn::text_fg(person.to_string()).build_def(ctx, None),
         ]));
-        let mut open_trips = BTreeSet::new();
-        open_trips.insert(
-            app.primary
-                .sim
-                .agent_to_trip(AgentID::Pedestrian(*id))
-                .unwrap(),
-        );
         details.hyperlinks.insert(
-            format!("Person #{}", person.0),
-            Tab::PersonTrips(person, open_trips),
+            person.to_string(),
+            Tab::PersonTrips(
+                person,
+                btreeset! {app.primary.sim.agent_to_trip(AgentID::Pedestrian(*id)).unwrap()},
+            ),
         );
     }
 
@@ -217,16 +212,17 @@ fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: PersonID, tab: T
     };
 
     rows.push(Widget::row(vec![
-        Line(format!("Person #{} ({})", id.0, descr))
+        Line(format!("{} ({})", id, descr))
             .small_heading()
             .draw(ctx),
         header_btns(ctx),
     ]));
 
-    let mut open_trips = BTreeSet::new();
-    if let Some(t) = current_trip {
-        open_trips.insert(t);
-    }
+    let open_trips = if let Some(t) = current_trip {
+        btreeset! {t}
+    } else {
+        BTreeSet::new()
+    };
     rows.push(make_tabs(
         ctx,
         &mut details.hyperlinks,
