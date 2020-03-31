@@ -190,9 +190,7 @@ impl InfoPanel {
         };
 
         let (mut col, main_tab) = match tab {
-            Tab::PersonTrips(p, ref open) => {
-                (person::trips(ctx, app, &mut details, p, open), false)
-            }
+            Tab::PersonTrips(p, ref open) => (person::trips(ctx, app, &mut details, p, open), true),
             Tab::PersonBio(p) => (person::bio(ctx, app, &mut details, p), false),
             Tab::BusStatus(c) => (bus::bus_status(ctx, app, &mut details, c), true),
             Tab::BusDelays(c) => (bus::bus_delays(ctx, app, &mut details, c), true),
@@ -316,8 +314,11 @@ impl InfoPanel {
                     HorizontalAlignment::Percent(0.02),
                     VerticalAlignment::Percent(0.2),
                 )
-                .max_size_percent(35, 60)
+                // TODO Some headings are too wide.. Intersection #xyz (Traffic signals)
+                // TODO Also does this mess up scrolling? Argh
+                .exact_size_percent(30, 60)
                 // trip::details endpoints...
+                // TODO I think we can remove this now
                 .allow_duplicate_buttons()
                 .build(ctx),
             unzoomed: details.unzoomed.upload(ctx),

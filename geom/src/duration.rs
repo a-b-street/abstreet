@@ -138,6 +138,10 @@ impl Duration {
 
 impl std::fmt::Display for Duration {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        if *self == Duration::ZERO {
+            write!(f, "0s")?;
+            return Ok(());
+        }
         if *self < Duration::ZERO {
             write!(f, "-")?;
         }

@@ -897,8 +897,8 @@ impl Sim {
         self.walking.ped_properties(p, self.time, map)
     }
 
-    pub fn car_properties(&self, car: CarID, map: &Map) -> (Vec<(String, String)>, Vec<String>) {
-        if let Some((mut props, extra)) = self.driving.car_properties(car, self.time, map) {
+    pub fn car_properties(&self, car: CarID, map: &Map) -> Vec<(String, String)> {
+        if let Some(mut props) = self.driving.car_properties(car, self.time, map) {
             if car.1 == VehicleType::Bus {
                 props.push((
                     "Route".to_string(),
@@ -911,26 +911,25 @@ impl Sim {
                     extra.push(format!("- {} till {:?}", id, stop));
                 }*/
             }
-            (props, extra)
+            props
         } else {
             let mut props = Vec::new();
-            let mut extra = Vec::new();
             if let Some(b) = self.parking.get_owner_of_car(car) {
                 props.push(("Owner".to_string(), map.get_b(b).just_address(map)));
-                // TODO More details here
-                if let Some((trip, start)) = self.trips.find_trip_using_car(car, b) {
-                    extra.push(format!(
-                        "{} will use this car, sometime after {}",
-                        trip, start
-                    ));
-                }
+            // TODO More details here
+            /*if let Some((trip, start)) = self.trips.find_trip_using_car(car, b) {
+                extra.push(format!(
+                    "{} will use this car, sometime after {}",
+                    trip, start
+                ));
+            }*/
             } else {
                 props.push((
                     "Owner".to_string(),
                     "visiting from outside the map".to_string(),
                 ));
             }
-            (props, extra)
+            props
         }
     }
 

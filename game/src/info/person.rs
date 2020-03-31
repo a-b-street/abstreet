@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::info::{building, header_btns, make_table, make_tabs, trip, Details, Tab, Text};
+use crate::info::{building, header_btns, make_table, make_tabs, trip, Details, Tab};
 use crate::render::Renderable;
 use ezgui::{Btn, Color, EventCtx, Line, TextExt, Widget};
 use map_model::Map;
@@ -29,39 +29,61 @@ pub fn trips(
 
     // I'm sorry for bad variable names
     let mut wheres_waldo = true;
-    // TODO Color by future/ongoing/done
-    // TODO Do we need to echo current status here?
     for t in &person.trips {
-        match sim.trip_to_agent(*t) {
+        let trip_status = match sim.trip_to_agent(*t) {
             TripResult::TripNotStarted => {
                 if wheres_waldo {
                     wheres_waldo = false;
                     rows.push(current_status(ctx, person, map));
                 }
+                "future"
             }
             TripResult::Ok(_) | TripResult::ModeChange => {
                 // ongoing
                 assert!(wheres_waldo);
                 wheres_waldo = false;
+                "ongoing"
             }
             TripResult::TripDone => {
                 assert!(wheres_waldo);
+                "finished"
             }
             TripResult::TripDoesntExist => unreachable!(),
-        }
+        };
+
+        // TODO Style wrong. Button should be the entire row.
+        rows.push(
+            Widget::row(vec![
+                format!("Trip #{} ({})", t.0, trip_status).draw_text(ctx),
+                Btn::text_fg(if open_trips.contains(t) { "▲" } else { "▼" })
+                    .build(
+                        ctx,
+                        format!(
+                            "{} Trip #{}",
+                            if open_trips.contains(t) {
+                                "hide"
+                            } else {
+                                "show"
+                            },
+                            t.0
+                        ),
+                        None,
+                    )
+                    .align_right(),
+            ])
+            .outline(2.0, Color::WHITE),
+        );
+
         if open_trips.contains(t) {
-            rows.push(trip::details(ctx, app, *t, details, id, open_trips.clone()));
-        } else {
-            // TODO Style wrong. Button should be the entire row.
-            rows.push(
-                Widget::row(vec![
-                    format!("Trip #{}", t.0).draw_text(ctx),
-                    Btn::text_fg("▼")
-                        .build(ctx, format!("show Trip #{}", t.0), None)
-                        .align_right(),
-                ])
-                .outline(2.0, Color::WHITE),
+            rows.push(trip::details(ctx, app, *t, details).outline(2.0, Color::WHITE));
+
+            let mut new_trips = open_trips.clone();
+            new_trips.remove(t);
+            details.hyperlinks.insert(
+                format!("hide Trip #{}", t.0),
+                Tab::PersonTrips(id, new_trips),
             );
+        } else {
             let mut new_trips = open_trips.clone();
             new_trips.insert(*t);
             details.hyperlinks.insert(
@@ -150,15 +172,8 @@ pub fn parked_car(ctx: &EventCtx, app: &App, details: &mut Details, id: CarID) -
         header_btns(ctx),
     ]));
 
-    let (kv, extra) = app.primary.sim.car_properties(id, &app.primary.map);
+    let kv = app.primary.sim.car_properties(id, &app.primary.map);
     rows.extend(make_table(ctx, kv));
-    if !extra.is_empty() {
-        let mut txt = Text::from(Line(""));
-        for line in extra {
-            txt.add(Line(line));
-        }
-        rows.push(txt.draw(ctx));
-    }
 
     if let Some(b) = app.primary.sim.get_owner_of_car(id) {
         // TODO Mention this, with a warp tool
@@ -226,7 +241,7 @@ fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: PersonID, tab: T
 }
 
 fn current_status(ctx: &EventCtx, person: &Person, map: &Map) -> Widget {
-    match person.state {
+    (match person.state {
         PersonState::Inside(b) => {
             // TODO hyperlink
             format!("Currently inside {}", map.get_b(b).just_address(map)).draw_text(ctx)
@@ -236,5 +251,6 @@ fn current_status(ctx: &EventCtx, person: &Person, map: &Map) -> Widget {
         PersonState::Limbo => "Currently in limbo -- they broke out of the Matrix! Woops. (A bug \
                                occurred)"
             .draw_text(ctx),
-    }
+    })
+    .outline(2.0, Color::WHITE)
 }
