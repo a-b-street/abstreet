@@ -182,7 +182,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
             // TODO Need ticks now to actually see where this goes
             let mut batch = GeomBatch::new();
             for (color, poly) in Text::from(Line(t.to_string())).render_ctx(ctx).consume() {
-                batch.push(color, poly.rotate(Angle::new_degs(-15.0)));
+                batch.fancy_push(color, poly.rotate(Angle::new_degs(-15.0)));
             }
             row.push(Widget::draw_batch(ctx, batch.autocrop()));
         }

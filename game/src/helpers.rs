@@ -88,15 +88,7 @@ impl ColorScheme {
         if false {
             let mut copy = OverrideColorScheme(BTreeMap::new());
             for (name, c) in &map {
-                if let Color::RGBA(r, g, b, a) = *c {
-                    let hex = format!(
-                        "#{:02X}{:02X}{:02X}",
-                        (r * 255.0) as usize,
-                        (g * 255.0) as usize,
-                        (b * 255.0) as usize
-                    );
-                    copy.0.insert(name.clone(), (hex, a));
-                }
+                copy.0.insert(name.clone(), (c.to_hex(), c.a));
             }
             abstutil::write_json("../data/system/override_colors.json".to_string(), &copy);
         }

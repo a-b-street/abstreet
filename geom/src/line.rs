@@ -1,4 +1,5 @@
 use crate::{Angle, Distance, PolyLine, Polygon, Pt2D, EPSILON_DIST};
+use geo::prelude::ClosestPoint;
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
@@ -131,12 +132,15 @@ impl Line {
         self.percent_along(dist / len)
     }
 
-    pub fn percent_along(&self, percent: f64) -> Pt2D {
-        assert!(percent >= 0.0 && percent <= 1.0);
+    pub fn unbounded_percent_along(&self, percent: f64) -> Pt2D {
         Pt2D::new(
             self.pt1().x() + percent * (self.pt2().x() - self.pt1().x()),
             self.pt1().y() + percent * (self.pt2().y() - self.pt1().y()),
         )
+    }
+    pub fn percent_along(&self, percent: f64) -> Pt2D {
+        assert!(percent >= 0.0 && percent <= 1.0);
+        self.unbounded_percent_along(percent)
     }
 
     pub fn unbounded_dist_along(&self, dist: Distance) -> Pt2D {
@@ -160,6 +164,25 @@ impl Line {
             Some(Distance::meters(dist1))
         } else {
             None
+        }
+    }
+    pub fn percent_along_of_point(&self, pt: Pt2D) -> Option<f64> {
+        let dist = self.dist_along_of_point(pt)?;
+        Some(dist / self.length())
+    }
+
+    // Returns a point on the line segment.
+    pub fn project_pt(&self, pt: Pt2D) -> Pt2D {
+        let line: geo::LineString<f64> = vec![
+            geo::Point::new(self.0.x(), self.0.y()),
+            geo::Point::new(self.1.x(), self.1.y()),
+        ]
+        .into();
+        match line.closest_point(&geo::Point::new(pt.x(), pt.y())) {
+            geo::Closest::Intersection(hit) | geo::Closest::SinglePoint(hit) => {
+                Pt2D::new(hit.x(), hit.y())
+            }
+            geo::Closest::Indeterminate => unreachable!(),
         }
     }
 }

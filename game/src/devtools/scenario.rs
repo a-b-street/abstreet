@@ -174,7 +174,6 @@ impl State for ScenarioManager {
         if let Some(t) = self.common.event(
             ctx,
             app,
-            None,
             &mut Actions {
                 demand: &mut self.demand,
                 scenario: &self.scenario,
@@ -586,7 +585,14 @@ impl<'a> ContextualActions for Actions<'a> {
 
         actions
     }
-    fn execute(&mut self, ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
+    fn execute(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        id: ID,
+        action: String,
+        _: &mut bool,
+    ) -> Transition {
         match (id, action.as_ref()) {
             (ID::Building(b), "browse trips") => {
                 // TODO Avoid the clone? Just happens once though.

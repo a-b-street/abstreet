@@ -141,6 +141,10 @@ impl Sim {
             timer,
             retry_if_no_room,
         );
+        // TODO Should do this for everything, not just the one that I know records something ;)
+        for ev in self.trips.collect_events() {
+            self.analytics.event(ev, self.time, map);
+        }
     }
     // TODO Friend method pattern :(
     pub(crate) fn spawner_parking(&self) -> &ParkingSimState {
@@ -396,6 +400,13 @@ impl Sim {
                             .agent_starting_trip_leg(AgentID::Car(create_car.vehicle.id), trip);
                     }
                     if let Some(parked_car) = create_car.maybe_parked_car {
+                        if let ParkingSpot::Offstreet(b, _) = parked_car.spot {
+                            // Buses don't start in parking garages, so trip must exist
+                            events.push(Event::PersonLeavesBuilding(
+                                self.trip_to_person(create_car.trip.unwrap()),
+                                b,
+                            ));
+                        }
                         self.parking.remove_parked_car(parked_car);
                     }
                     if let Some(trip) = create_car.trip {
@@ -515,6 +526,10 @@ impl Sim {
                             );
                         }
                         _ => {
+                            if let SidewalkPOI::Building(b) = &create_ped.start.connection {
+                                events.push(Event::PersonLeavesBuilding(create_ped.person, *b));
+                            }
+
                             self.walking
                                 .spawn_ped(self.time, create_ped, map, &mut self.scheduler);
                         }

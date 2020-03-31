@@ -148,7 +148,7 @@ pub struct VecMap<K, V> {
     inner: Vec<(K, V)>,
 }
 
-impl<K: Copy + PartialEq, V> VecMap<K, V> {
+impl<K: Clone + PartialEq, V> VecMap<K, V> {
     pub fn new() -> VecMap<K, V> {
         VecMap { inner: Vec::new() }
     }

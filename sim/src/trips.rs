@@ -112,7 +112,11 @@ impl TripManager {
         let person = &mut self.people[trip.person.0];
         if person.trips.is_empty() {
             person.state = match trip.start {
-                TripEndpoint::Bldg(b) => PersonState::Inside(b),
+                TripEndpoint::Bldg(b) => {
+                    self.events
+                        .push(Event::PersonEntersBuilding(trip.person, b));
+                    PersonState::Inside(b)
+                }
                 TripEndpoint::Border(_) => PersonState::OffMap,
             };
         }
@@ -177,6 +181,8 @@ impl TripManager {
                         now - trip.spawned_at,
                     ));
                     self.people[trip.person.0].state = PersonState::Inside(b1);
+                    self.events
+                        .push(Event::PersonEntersBuilding(trip.person, b1));
                     return;
                 }
                 _ => {}
@@ -344,7 +350,6 @@ impl TripManager {
         bldg: BuildingID,
         map: &Map,
     ) {
-        self.events.push(Event::PedReachedBuilding(ped, bldg));
         let trip = &mut self.trips[self
             .active_trip_mode
             .remove(&AgentID::Pedestrian(ped))
@@ -361,6 +366,8 @@ impl TripManager {
             now - trip.spawned_at,
         ));
         self.people[trip.person.0].state = PersonState::Inside(bldg);
+        self.events
+            .push(Event::PersonEntersBuilding(trip.person, bldg));
     }
 
     // If no route is returned, the pedestrian boarded a bus immediately.
@@ -722,6 +729,7 @@ impl Trip {
                 path,
                 req,
                 trip: self.id,
+                person: self.person,
             }),
         );
         true

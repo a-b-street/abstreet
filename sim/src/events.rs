@@ -1,10 +1,13 @@
-use crate::{AgentID, CarID, ParkingSpot, PedestrianID, TripID, TripMode};
+use crate::{AgentID, CarID, ParkingSpot, PedestrianID, PersonID, TripID, TripMode};
 use geom::Duration;
 use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, Map, Path, PathRequest, Traversable,
 };
 use serde_derive::{Deserialize, Serialize};
 
+// Many of these were created for a test framework that's been abandoned. They could be removed or
+// have their API adjusted, but it's not urgent; publishing an event that's not used by Analytics
+// has no performance impact.
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub enum Event {
     CarReachedParkingSpot(CarID, ParkingSpot),
@@ -13,12 +16,15 @@ pub enum Event {
     BusArrivedAtStop(CarID, BusRouteID, BusStopID),
     BusDepartedFromStop(CarID, BusRouteID, BusStopID),
 
-    PedReachedParkingSpot(PedestrianID, ParkingSpot),
-    PedReachedBuilding(PedestrianID, BuildingID),
-    PedReachedBorder(PedestrianID, IntersectionID),
-    PedReachedBusStop(PedestrianID, BusStopID, BusRouteID),
     PedEntersBus(PedestrianID, CarID, BusRouteID),
     PedLeavesBus(PedestrianID, CarID, BusRouteID),
+
+    PersonEntersBuilding(PersonID, BuildingID),
+    PersonLeavesBuilding(PersonID, BuildingID),
+
+    PedReachedParkingSpot(PedestrianID, ParkingSpot),
+    PedReachedBorder(PedestrianID, IntersectionID),
+    PedReachedBusStop(PedestrianID, BusStopID, BusRouteID),
 
     BikeStoppedAtSidewalk(CarID, LaneID),
 

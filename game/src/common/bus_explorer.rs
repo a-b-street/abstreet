@@ -1,7 +1,6 @@
 use crate::app::App;
-use crate::common::{Colorer, Overlays};
-use crate::game::{State, Transition, WizardState};
-use ezgui::{Choice, Color, EventCtx, GeomBatch, GfxCtx, Line, Text};
+use crate::common::Colorer;
+use ezgui::{Color, EventCtx, GeomBatch, GfxCtx, Line, Text};
 use geom::{Circle, Distance, Pt2D};
 use map_model::{BusRouteID, PathConstraints, PathRequest, PathStep};
 
@@ -79,49 +78,5 @@ impl ShowBusRoute {
             batch.push(Color::BLUE, Circle::new(*pt, radius).to_polygon());
         }
         batch.draw(g);
-    }
-
-    pub fn make_route_picker(routes: Vec<BusRouteID>, pop_once: bool) -> Box<dyn State> {
-        let show_route = "show the route";
-        let delays = "delays between stops";
-        let passengers = "passengers waiting at each stop";
-
-        WizardState::new(Box::new(move |wiz, ctx, app| {
-            let mut wizard = wiz.wrap(ctx);
-
-            let id = if routes.len() == 1 {
-                routes[0]
-            } else {
-                wizard
-                    .choose("Explore which bus route?", || {
-                        let mut choices: Vec<(&String, BusRouteID)> = routes
-                            .iter()
-                            .map(|id| (&app.primary.map.get_br(*id).name, *id))
-                            .collect();
-                        // TODO Sort first by length, then lexicographically
-                        choices.sort_by_key(|(name, _)| name.to_string());
-                        choices
-                            .into_iter()
-                            .map(|(name, id)| Choice::new(name, id))
-                            .collect()
-                    })?
-                    .1
-            };
-            let choice = wizard
-                .choose_string("What do you want to see about this route?", || {
-                    vec![show_route, delays, passengers]
-                })?;
-            app.overlay = match choice {
-                x if x == show_route => Overlays::show_bus_route(id, ctx, app),
-                x if x == delays => Overlays::delays_over_time(id, ctx, app),
-                x if x == passengers => Overlays::bus_passengers(id, ctx, app),
-                _ => unreachable!(),
-            };
-            if pop_once {
-                Some(Transition::Pop)
-            } else {
-                Some(Transition::PopTwice)
-            }
-        }))
     }
 }

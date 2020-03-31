@@ -1,5 +1,5 @@
 use crate::drawing::Uniforms;
-use crate::{Canvas, Color, ScreenDims, ScreenRectangle};
+use crate::{Canvas, Color, FancyColor, ScreenDims, ScreenRectangle};
 use geom::Polygon;
 use glow::HasContext;
 use std::cell::Cell;
@@ -96,15 +96,12 @@ pub struct GfxCtxInnards<'a> {
 
 impl<'a> GfxCtxInnards<'a> {
     pub fn clear(&mut self, color: Color) {
-        match color {
-            Color::RGBA(r, g, b, a) => unsafe {
-                self.gl.clear_color(r, g, b, a);
-                self.gl.clear(glow::COLOR_BUFFER_BIT);
+        unsafe {
+            self.gl.clear_color(color.r, color.g, color.b, color.a);
+            self.gl.clear(glow::COLOR_BUFFER_BIT);
 
-                self.gl.clear_depth_f32(1.0);
-                self.gl.clear(glow::DEPTH_BUFFER_BIT);
-            },
-            _ => unreachable!(),
+            self.gl.clear_depth_f32(1.0);
+            self.gl.clear(glow::DEPTH_BUFFER_BIT);
         }
     }
 
@@ -197,7 +194,7 @@ pub struct PrerenderInnards {
 }
 
 impl PrerenderInnards {
-    pub fn actually_upload(&self, permanent: bool, list: Vec<(Color, &Polygon)>) -> Drawable {
+    pub fn actually_upload(&self, permanent: bool, list: Vec<(FancyColor, &Polygon)>) -> Drawable {
         let mut vertices: Vec<[f32; 6]> = Vec::new();
         let mut indices: Vec<u32> = Vec::new();
 
@@ -205,12 +202,7 @@ impl PrerenderInnards {
             let idx_offset = vertices.len();
             let (pts, raw_indices) = poly.raw_for_rendering();
             for pt in pts {
-                let style = match color {
-                    Color::RGBA(r, g, b, a) => [r, g, b, a],
-                    // Two special cases
-                    Color::HatchingStyle1 => [100.0, 0.0, 0.0, 0.0],
-                    Color::HatchingStyle2 => [101.0, 0.0, 0.0, 0.0],
-                };
+                let style = color.style(*pt);
                 vertices.push([
                     pt.x() as f32,
                     pt.y() as f32,

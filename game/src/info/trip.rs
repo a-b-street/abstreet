@@ -194,7 +194,7 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
 
         let mut hovered = GeomBatch::from(vec![(color.alpha(1.0), rect.clone())]);
         for (c, p) in normal.clone().consume().into_iter().skip(1) {
-            hovered.push(c, p);
+            hovered.fancy_push(c, p);
         }
 
         timeline.push(

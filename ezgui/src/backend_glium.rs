@@ -1,5 +1,5 @@
 use crate::drawing::Uniforms;
-use crate::{Canvas, Color, ScreenDims, ScreenRectangle};
+use crate::{Canvas, Color, FancyColor, ScreenDims, ScreenRectangle};
 use geom::Polygon;
 use glium::uniforms::UniformValue;
 use glium::Surface;
@@ -98,15 +98,11 @@ pub struct GfxCtxInnards<'a> {
 }
 
 impl<'a> GfxCtxInnards<'a> {
-    pub fn clear(&mut self, color: Color) {
-        match color {
-            Color::RGBA(r, g, b, a) => {
-                // Without this, SRGB gets enabled and post-processes the color from the fragment
-                // shader.
-                self.target.clear_color_srgb_and_depth((r, g, b, a), 1.0);
-            }
-            _ => unreachable!(),
-        }
+    pub fn clear(&mut self, c: Color) {
+        // Without this, SRGB gets enabled and post-processes the color from the fragment
+        // shader.
+        self.target
+            .clear_color_srgb_and_depth((c.r, c.g, c.b, c.a), 1.0);
     }
 
     pub fn redraw(&mut self, obj: &Drawable, uniforms: &Uniforms, prerender: &PrerenderInnards) {
@@ -180,7 +176,7 @@ pub struct PrerenderInnards {
 }
 
 impl PrerenderInnards {
-    pub fn actually_upload(&self, permanent: bool, list: Vec<(Color, &Polygon)>) -> Drawable {
+    pub fn actually_upload(&self, permanent: bool, list: Vec<(FancyColor, &Polygon)>) -> Drawable {
         let mut vertices: Vec<Vertex> = Vec::new();
         let mut indices: Vec<u32> = Vec::new();
 
@@ -188,15 +184,9 @@ impl PrerenderInnards {
             let idx_offset = vertices.len();
             let (pts, raw_indices) = poly.raw_for_rendering();
             for pt in pts {
-                let style = match color {
-                    Color::RGBA(r, g, b, a) => [r, g, b, a],
-                    // Two special cases
-                    Color::HatchingStyle1 => [100.0, 0.0, 0.0, 0.0],
-                    Color::HatchingStyle2 => [101.0, 0.0, 0.0, 0.0],
-                };
                 vertices.push(Vertex {
                     position: [pt.x() as f32, pt.y() as f32],
-                    style,
+                    style: color.style(*pt),
                 });
             }
             for idx in raw_indices {

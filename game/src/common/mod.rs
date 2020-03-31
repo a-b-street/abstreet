@@ -20,7 +20,6 @@ use crate::game::Transition;
 use crate::helpers::{list_names, ID};
 pub use crate::info::ContextualActions;
 use crate::info::InfoPanel;
-use crate::sandbox::SpeedControls;
 use ezgui::{
     hotkey, lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenDims, ScreenPt,
     ScreenRectangle, Text,
@@ -28,6 +27,7 @@ use ezgui::{
 use geom::Polygon;
 use std::collections::BTreeSet;
 
+// TODO Weird name.
 pub struct CommonState {
     // TODO Better to express these as mutex
     info_panel: Option<InfoPanel>,
@@ -47,7 +47,6 @@ impl CommonState {
         &mut self,
         ctx: &mut EventCtx,
         app: &mut App,
-        maybe_speed: Option<&mut SpeedControls>,
         ctx_actions: &mut dyn ContextualActions,
     ) -> Option<Transition> {
         if ctx.input.new_was_pressed(&lctrl(Key::S).unwrap()) {
@@ -60,19 +59,13 @@ impl CommonState {
         if let Some(ref id) = app.primary.current_selection {
             // TODO Also have a hotkey binding for this?
             if app.per_obj.left_click(ctx, "show info") {
-                self.info_panel = Some(InfoPanel::launch(
-                    ctx,
-                    app,
-                    id.clone(),
-                    maybe_speed,
-                    ctx_actions,
-                ));
+                self.info_panel = Some(InfoPanel::launch(ctx, app, id.clone(), ctx_actions));
                 return None;
             }
         }
 
         if let Some(ref mut info) = self.info_panel {
-            let (closed, maybe_t) = info.event(ctx, app, maybe_speed, ctx_actions);
+            let (closed, maybe_t) = info.event(ctx, app, ctx_actions);
             if closed {
                 self.info_panel = None;
             }
@@ -87,7 +80,7 @@ impl CommonState {
                 // Allow hotkeys to work without opening the panel.
                 for (k, action) in ctx_actions.actions(app, id.clone()) {
                     if ctx.input.new_was_pressed(&hotkey(k).unwrap()) {
-                        return Some(ctx_actions.execute(ctx, app, id, action));
+                        return Some(ctx_actions.execute(ctx, app, id, action, &mut false));
                     }
                     self.cached_actions.push(k);
                 }
@@ -290,7 +283,7 @@ impl CommonState {
         app: &mut App,
         ctx_actions: &mut dyn ContextualActions,
     ) {
-        self.info_panel = Some(InfoPanel::launch(ctx, app, id, None, ctx_actions));
+        self.info_panel = Some(InfoPanel::launch(ctx, app, id, ctx_actions));
     }
 
     pub fn info_panel_open(&self, app: &App) -> Option<ID> {

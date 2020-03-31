@@ -4,19 +4,17 @@ use crate::common::{
     make_heatmap, ColorLegend, Colorer, HeatmapColors, HeatmapOptions, ShowBusRoute, Warping,
 };
 use crate::game::Transition;
-use crate::helpers::rotating_color_map;
 use crate::helpers::ID;
-use crate::managed::{ManagedGUIState, WrappedComposite, WrappedOutcome};
+use crate::managed::{ManagedGUIState, WrappedComposite};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Histogram,
-    HorizontalAlignment, Key, Line, Outcome, Plot, PlotOptions, RewriteColor, Series, Slider, Text,
-    TextExt, VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Outcome, Slider, Text, TextExt, VerticalAlignment, Widget,
 };
-use geom::{Circle, Distance, Duration, PolyLine, Polygon, Pt2D, Statistic, Time};
+use geom::{Circle, Distance, Duration, PolyLine, Pt2D, Time};
 use map_model::{BusRouteID, IntersectionID};
-use sim::{GetDrawAgents, ParkingSpot, PersonState};
+use sim::{GetDrawAgents, PandemicModel, ParkingSpot, PersonState};
 use std::collections::HashSet;
 
 pub enum Overlays {
@@ -32,11 +30,10 @@ pub enum Overlays {
     TripsHistogram(Time, Composite),
     PopulationMap(Time, Option<HeatmapOptions>, Drawable, Composite),
 
-    // These aren't selectable from the main picker
+    // These aren't selectable from the main picker; they're particular to some object.
+    // TODO They should become something else, like an info panel tab.
     IntersectionDemand(Time, IntersectionID, Drawable, Composite),
     BusRoute(Time, BusRouteID, ShowBusRoute),
-    BusDelaysOverTime(Time, BusRouteID, Composite),
-    BusPassengers(Time, BusRouteID, WrappedComposite),
 }
 
 impl Overlays {
@@ -86,16 +83,6 @@ impl Overlays {
                     app.overlay = Overlays::show_bus_route(id, ctx, app);
                 }
             }
-            Overlays::BusDelaysOverTime(t, id, _) => {
-                if now != t {
-                    app.overlay = Overlays::delays_over_time(id, ctx, app);
-                }
-            }
-            Overlays::BusPassengers(t, id, _) => {
-                if now != t {
-                    app.overlay = Overlays::bus_passengers(id, ctx, app);
-                }
-            }
             Overlays::PopulationMap(t, ref opts, _, _) => {
                 if now != t {
                     app.overlay = Overlays::population_map(ctx, app, opts.clone());
@@ -109,11 +96,7 @@ impl Overlays {
             | Overlays::Edits(_) => {}
         };
 
-        // Because BusPassengers has the callbacks that need UI, but UI also stores Overlays, we
-        // have to play this trick.
-        let mut orig_overlay = std::mem::replace(&mut app.overlay, Overlays::Inactive);
-
-        match orig_overlay {
+        match app.overlay {
             Overlays::ParkingAvailability(_, ref mut heatmap)
             | Overlays::BikeNetwork(ref mut heatmap)
             | Overlays::BusNetwork(ref mut heatmap)
@@ -125,34 +108,12 @@ impl Overlays {
                 heatmap.legend.align_above(ctx, minimap);
                 if heatmap.event(ctx) {
                     app.overlay = Overlays::Inactive;
-                } else {
-                    app.overlay = orig_overlay;
                 }
             }
             Overlays::BusRoute(_, _, ref mut c) => {
                 c.colorer.legend.align_above(ctx, minimap);
                 if c.colorer.event(ctx) {
                     app.overlay = Overlays::Inactive;
-                } else {
-                    app.overlay = orig_overlay;
-                }
-            }
-            Overlays::BusPassengers(_, _, ref mut c) => {
-                c.inner.align_above(ctx, minimap);
-                match c.event(ctx, app) {
-                    Some(WrappedOutcome::Transition(t)) => {
-                        app.overlay = orig_overlay;
-                        return Some(t);
-                    }
-                    Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
-                        "X" => {
-                            app.overlay = Overlays::Inactive;
-                        }
-                        _ => unreachable!(),
-                    },
-                    None => {
-                        app.overlay = orig_overlay;
-                    }
                 }
             }
             Overlays::IntersectionDemand(_, i, _, ref mut c) => {
@@ -161,7 +122,6 @@ impl Overlays {
                     Some(Outcome::Clicked(x)) => match x.as_ref() {
                         "intersection demand" => {
                             let id = ID::Intersection(i);
-                            app.overlay = orig_overlay;
                             return Some(Transition::Push(Warping::new(
                                 ctx,
                                 id.canonical_point(&app.primary).unwrap(),
@@ -175,13 +135,10 @@ impl Overlays {
                         }
                         _ => unreachable!(),
                     },
-                    None => {
-                        app.overlay = orig_overlay;
-                    }
+                    None => {}
                 }
             }
-            Overlays::TripsHistogram(_, ref mut c)
-            | Overlays::BusDelaysOverTime(_, _, ref mut c) => {
+            Overlays::TripsHistogram(_, ref mut c) => {
                 c.align_above(ctx, minimap);
                 match c.event(ctx) {
                     Some(Outcome::Clicked(x)) => match x.as_ref() {
@@ -190,9 +147,7 @@ impl Overlays {
                         }
                         _ => unreachable!(),
                     },
-                    None => {
-                        app.overlay = orig_overlay;
-                    }
+                    None => {}
                 }
             }
             Overlays::PopulationMap(_, ref mut opts, _, ref mut c) => {
@@ -208,8 +163,6 @@ impl Overlays {
                         let new_opts = heatmap_options(c);
                         if *opts != new_opts {
                             app.overlay = Overlays::population_map(ctx, app, new_opts);
-                        } else {
-                            app.overlay = orig_overlay;
                         }
                     }
                 }
@@ -248,11 +201,7 @@ impl Overlays {
                 }
             }
             // All of these shouldn't care about zoom
-            Overlays::TripsHistogram(_, ref composite)
-            | Overlays::BusDelaysOverTime(_, _, ref composite) => {
-                composite.draw(g);
-            }
-            Overlays::BusPassengers(_, _, ref composite) => {
+            Overlays::TripsHistogram(_, ref composite) => {
                 composite.draw(g);
             }
             Overlays::IntersectionDemand(_, _, ref draw, ref legend) => {
@@ -425,8 +374,6 @@ impl Overlays {
             Overlays::TripsHistogram(_, _) => None,
             Overlays::IntersectionDemand(_, _, _, _) => None,
             Overlays::BusRoute(_, _, _) => None,
-            Overlays::BusDelaysOverTime(_, _, _) => None,
-            Overlays::BusPassengers(_, _, _) => None,
         }
     }
 }
@@ -834,137 +781,6 @@ impl Overlays {
         Overlays::BusRoute(app.primary.sim.time(), id, ShowBusRoute::new(id, ctx, app))
     }
 
-    pub fn bus_passengers(id: BusRouteID, ctx: &mut EventCtx, app: &App) -> Overlays {
-        let route = app.primary.map.get_br(id);
-        let mut master_col = vec![Widget::row(vec![
-            Line(format!("Passengers for {}", route.name))
-                .small_heading()
-                .draw(ctx),
-            Btn::text_fg("X").build_def(ctx, None).align_right(),
-        ])];
-        let mut col = Vec::new();
-
-        let mut delay_per_stop = app
-            .primary
-            .sim
-            .get_analytics()
-            .bus_passenger_delays(app.primary.sim.time(), id);
-        for idx in 0..route.stops.len() {
-            col.push(Widget::row(vec![
-                format!("Stop {}", idx + 1).draw_text(ctx),
-                Btn::svg(
-                    "../data/system/assets/tools/pin.svg",
-                    RewriteColor::Change(Color::hex("#CC4121"), colors::HOVERING),
-                )
-                .build(ctx, format!("Stop {}", idx + 1), None),
-                if let Some(hgram) = delay_per_stop.remove(&route.stops[idx]) {
-                    format!(
-                        ": {} (avg {})",
-                        hgram.count(),
-                        hgram.select(Statistic::Mean)
-                    )
-                    .draw_text(ctx)
-                } else {
-                    ": nobody".draw_text(ctx)
-                },
-            ]));
-        }
-
-        let y_len = ctx.default_line_height() * (route.stops.len() as f64);
-        let mut batch = GeomBatch::new();
-        batch.push(Color::CYAN, Polygon::rounded_rectangle(15.0, y_len, 4.0));
-        for (_, stop_idx, percent_next_stop) in app.primary.sim.status_of_buses(route.id) {
-            // TODO Line it up right in the middle of the line of text. This is probably a bit
-            // wrong.
-            let base_percent_y = if stop_idx == route.stops.len() - 1 {
-                0.0
-            } else {
-                (stop_idx as f64) / ((route.stops.len() - 1) as f64)
-            };
-            batch.push(
-                Color::BLUE,
-                Circle::new(
-                    Pt2D::new(
-                        7.5,
-                        base_percent_y * y_len + percent_next_stop * ctx.default_line_height(),
-                    ),
-                    Distance::meters(5.0),
-                )
-                .to_polygon(),
-            );
-        }
-        let timeline = Widget::draw_batch(ctx, batch);
-
-        master_col.push(Widget::row(vec![
-            timeline.margin(5),
-            Widget::col(col).margin(5),
-        ]));
-
-        let mut c = WrappedComposite::new(
-            Composite::new(Widget::col(master_col).bg(colors::PANEL_BG))
-                .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
-                .build(ctx),
-        );
-        for (idx, stop) in route.stops.iter().enumerate() {
-            let id = ID::BusStop(*stop);
-            c = c.cb(
-                &format!("Stop {}", idx + 1),
-                Box::new(move |ctx, app| {
-                    Some(Transition::Push(Warping::new(
-                        ctx,
-                        id.canonical_point(&app.primary).unwrap(),
-                        Some(4.0),
-                        Some(id.clone()),
-                        &mut app.primary,
-                    )))
-                }),
-            );
-        }
-        Overlays::BusPassengers(app.primary.sim.time(), id, c)
-    }
-
-    pub fn delays_over_time(id: BusRouteID, ctx: &mut EventCtx, app: &App) -> Overlays {
-        let route = app.primary.map.get_br(id);
-        let mut delays_per_stop = app
-            .primary
-            .sim
-            .get_analytics()
-            .bus_arrivals_over_time(app.primary.sim.time(), id);
-
-        let mut series = Vec::new();
-        for idx1 in 0..route.stops.len() {
-            let idx2 = if idx1 == route.stops.len() - 1 {
-                0
-            } else {
-                idx1 + 1
-            };
-            series.push(Series {
-                label: format!("Stop {}->{}", idx1 + 1, idx2 + 1),
-                color: rotating_color_map(idx1),
-                pts: delays_per_stop
-                    .remove(&route.stops[idx2])
-                    .unwrap_or_else(Vec::new),
-            });
-        }
-        Overlays::BusDelaysOverTime(
-            app.primary.sim.time(),
-            route.id,
-            Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
-                        format!("delays for {}", route.name).draw_text(ctx),
-                        Btn::text_fg("X").build_def(ctx, None).align_right(),
-                    ]),
-                    Plot::new_duration(ctx, series, PlotOptions::new()).margin(10),
-                ])
-                .bg(colors::PANEL_BG),
-            )
-            // TODO Doesn't fit
-            .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
-            .build(ctx),
-        )
-    }
-
     pub fn map_edits(ctx: &mut EventCtx, app: &App) -> Overlays {
         let edits = app.primary.map.get_edits();
 
@@ -1070,6 +886,30 @@ fn population_controls(ctx: &mut EventCtx, app: &App, opts: Option<&HeatmapOptio
         .centered(),
         Widget::checkbox(ctx, "Show heatmap", None, opts.is_some()),
     ];
+
+    // TODO tmp place to put pandemic model
+    if app.opts.dev {
+        // TODO Why not app.primary.current_flags.sim_flags.make_rng()? Because that'll only be the
+        // same every time this code runs (frequently, as the simulation is run) if --rng_seed is
+        // specified in the flags. If you forget it, quite confusing to see the model jump around.
+        use rand::SeedableRng;
+        use rand_xorshift::XorShiftRng;
+
+        let model = PandemicModel::calculate(
+            app.primary.sim.get_analytics(),
+            app.primary.sim.time(),
+            &mut XorShiftRng::from_seed([42; 16]),
+        );
+        col.push(
+            format!(
+                "Pandemic model: {} infected ({:.1}%)",
+                prettyprint_usize(model.infected.len()),
+                (model.infected.len() as f64) / (total_ppl as f64) * 100.0
+            )
+            .draw_text(ctx),
+        );
+    }
+
     if let Some(ref o) = opts {
         // TODO Display the value...
         col.push(Widget::row(vec![

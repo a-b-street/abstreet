@@ -1,9 +1,10 @@
 use crate::app::App;
 use crate::colors;
-use crate::common::ShowBusRoute;
-use crate::game::{State, Transition};
+use crate::game::{msg, State, Transition};
+use crate::helpers::ID;
 use crate::helpers::{cmp_count_fewer, cmp_count_more, cmp_duration_shorter};
 use crate::managed::{Callback, ManagedGUIState, WrappedComposite};
+use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
 use abstutil::Counter;
 use ezgui::{
@@ -318,13 +319,29 @@ fn pick_bus_route(ctx: &EventCtx, app: &App) -> (Widget, Vec<(String, Callback)>
 
     for (name, id) in routes {
         buttons.push(Btn::text_fg(name).build_def(ctx, None));
+        let route_name = name.to_string();
         cbs.push((
             name.to_string(),
-            Box::new(move |_, _| {
-                Some(Transition::Push(ShowBusRoute::make_route_picker(
-                    vec![id],
-                    false,
-                )))
+            Box::new(move |_, app| {
+                let buses = app.primary.sim.status_of_buses(id);
+                if buses.is_empty() {
+                    Some(Transition::Push(msg(
+                        "No buses running",
+                        vec![format!("Sorry, no buses for route {} running", route_name)],
+                    )))
+                } else {
+                    Some(Transition::PopWithData(Box::new(move |state, app, ctx| {
+                        let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
+                        let mut actions = sandbox.contextual_actions();
+                        sandbox.controls.common.as_mut().unwrap().launch_info_panel(
+                            // Arbitrarily use the first one
+                            ID::Car(buses[0].0),
+                            ctx,
+                            app,
+                            &mut actions,
+                        );
+                    })))
+                }
             }),
         ));
     }

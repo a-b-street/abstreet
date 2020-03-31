@@ -2,6 +2,7 @@ mod analytics;
 mod events;
 mod make;
 mod mechanics;
+mod pandemic;
 mod render;
 mod router;
 mod scheduler;
@@ -35,6 +36,7 @@ use map_model::{
     BuildingID, BusStopID, DirectedRoadID, IntersectionID, LaneID, Map, Path, PathConstraints,
     PathRequest, Position,
 };
+pub use pandemic::PandemicModel;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fmt;
@@ -473,6 +475,7 @@ pub struct CreatePedestrian {
     pub req: PathRequest,
     pub path: Path,
     pub trip: TripID,
+    pub person: PersonID,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]

@@ -260,7 +260,14 @@ impl ContextualActions for GameplayMode {
         }
     }
 
-    fn execute(&mut self, ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
+    fn execute(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        id: ID,
+        action: String,
+        _: &mut bool,
+    ) -> Transition {
         match self {
             GameplayMode::Freeform(_) => spawner::execute(ctx, app, id, action),
             GameplayMode::Tutorial(_) => tutorial::execute(ctx, app, id, action),
