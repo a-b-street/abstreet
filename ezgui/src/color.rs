@@ -113,7 +113,8 @@ impl Color {
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/linear-gradient is the best reference I've
-// found, even though it's technically for CSS, not SVG
+// found, even though it's technically for CSS, not SVG. Ah, and
+// https://www.w3.org/TR/SVG11/pservers.html
 #[derive(Clone, PartialEq)]
 pub struct LinearGradient {
     line: Line,

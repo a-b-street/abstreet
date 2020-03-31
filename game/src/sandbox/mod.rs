@@ -456,7 +456,13 @@ impl ContextualActions for Actions {
                 }
                 ID::Car(c) => {
                     if c.1 == VehicleType::Bus {
-                        actions.push((Key::E, "explore bus route".to_string()));
+                        let route = app.primary.sim.bus_route_id(c).unwrap();
+                        match app.overlay {
+                            Overlays::BusRoute(_, r, _) if r == route => {}
+                            _ => {
+                                actions.push((Key::R, "show route".to_string()));
+                            }
+                        }
                     }
                 }
                 ID::BusStop(_) => {
@@ -510,10 +516,12 @@ impl ContextualActions for Actions {
                 Box::new(EditMode::new(ctx, app, self.gameplay.clone())),
                 Box::new(LaneEditor::new(l, ctx, app)),
             ),
-            (ID::Car(c), "explore bus route") => Transition::Push(ShowBusRoute::make_route_picker(
-                vec![app.primary.sim.bus_route_id(c).unwrap()],
-                true,
-            )),
+            (ID::Car(c), "show route") => {
+                *close_panel = false;
+                app.overlay =
+                    Overlays::show_bus_route(app.primary.sim.bus_route_id(c).unwrap(), ctx, app);
+                Transition::Keep
+            }
             (ID::BusStop(bs), "explore bus route") => {
                 Transition::Push(ShowBusRoute::make_route_picker(
                     app.primary

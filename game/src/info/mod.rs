@@ -42,7 +42,8 @@ pub enum Tab {
     PersonTrips(PersonID),
     PersonBio(PersonID),
 
-    Bus(CarID),
+    BusStatus(CarID),
+    BusDelays(CarID),
     BusStop(BusStopID),
 
     ParkedCar(CarID),
@@ -77,7 +78,7 @@ impl Tab {
                 if let Some(p) = app.primary.sim.agent_to_person(AgentID::Car(c)) {
                     Tab::PersonStatus(p)
                 } else if c.1 == VehicleType::Bus {
-                    Tab::Bus(c)
+                    Tab::BusStatus(c)
                 } else {
                     Tab::ParkedCar(c)
                 }
@@ -110,7 +111,7 @@ impl Tab {
                     _ => None,
                 }
             }
-            Tab::Bus(c) => Some(ID::Car(c)),
+            Tab::BusStatus(c) | Tab::BusDelays(c) => Some(ID::Car(c)),
             Tab::BusStop(bs) => Some(ID::BusStop(bs)),
             Tab::ParkedCar(c) => Some(ID::Car(c)),
             Tab::BldgInfo(b) | Tab::BldgDebug(b) | Tab::BldgPeople(b) => Some(ID::Building(b)),
@@ -160,7 +161,8 @@ impl InfoPanel {
             Tab::PersonStatus(p) => (person::status(ctx, app, &mut details, p), true),
             Tab::PersonTrips(p) => (person::trips(ctx, app, &mut details, p), false),
             Tab::PersonBio(p) => (person::bio(ctx, app, &mut details, p), false),
-            Tab::Bus(c) => (bus::bus(ctx, app, &mut details, c), true),
+            Tab::BusStatus(c) => (bus::bus_status(ctx, app, &mut details, c), true),
+            Tab::BusDelays(c) => (bus::bus_delays(ctx, app, &mut details, c), true),
             Tab::BusStop(bs) => (bus::stop(ctx, app, &mut details, bs), true),
             Tab::ParkedCar(c) => (person::parked_car(ctx, app, &mut details, c), true),
             Tab::BldgInfo(b) => (building::info(ctx, app, &mut details, b), true),

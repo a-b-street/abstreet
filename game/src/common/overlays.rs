@@ -32,7 +32,8 @@ pub enum Overlays {
     TripsHistogram(Time, Composite),
     PopulationMap(Time, Option<HeatmapOptions>, Drawable, Composite),
 
-    // These aren't selectable from the main picker
+    // These aren't selectable from the main picker; they're particular to some object.
+    // TODO They should become something else, like an info panel tab.
     IntersectionDemand(Time, IntersectionID, Drawable, Composite),
     BusRoute(Time, BusRouteID, ShowBusRoute),
     BusDelaysOverTime(Time, BusRouteID, Composite),
