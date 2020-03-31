@@ -29,26 +29,6 @@ impl PandemicModel {
             bldg_occupants: BTreeMap::new(),
         };
 
-        // Kind of a messy way of figuring out where people are originally.
-        // TODO Before anyone leaves a building, there are 0 people as seen by this model. Very
-        // weird.
-        let mut seen_ppl = BTreeSet::new();
-        for (_, p, b, left) in &analytics.building_transitions {
-            if *left && !seen_ppl.contains(p) {
-                seen_ppl.insert(*p);
-                state
-                    .bldg_occupants
-                    .entry(*b)
-                    .or_insert_with(Vec::new)
-                    .push((*p, Time::START_OF_DAY));
-
-                // Make up some initial infection state
-                if rng.gen_bool(0.1) {
-                    state.infected.insert(*p);
-                }
-            }
-        }
-
         // Now track people's movements through buildings
         for (time, person, bldg, left) in &analytics.building_transitions {
             if *time > now {
@@ -97,6 +77,13 @@ impl PandemicModel {
                     .entry(*bldg)
                     .or_insert_with(Vec::new)
                     .push((*person, *time));
+
+                // Bit of a hack to seed initial state per person here, but eh
+                if *time == Time::START_OF_DAY {
+                    if rng.gen_bool(0.1) {
+                        state.infected.insert(*person);
+                    }
+                }
             }
         }
 

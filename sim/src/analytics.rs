@@ -151,10 +151,10 @@ impl Analytics {
         }
 
         // Building transitions
-        if let Event::PedEntersBuilding(_, p, b) = ev {
+        if let Event::PersonEntersBuilding(p, b) = ev {
             self.building_transitions.push((time, p, b, false));
         }
-        if let Event::PedLeavesBuilding(_, p, b) = ev {
+        if let Event::PersonLeavesBuilding(p, b) = ev {
             self.building_transitions.push((time, p, b, true));
         }
 
