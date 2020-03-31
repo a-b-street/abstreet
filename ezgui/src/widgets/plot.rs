@@ -45,7 +45,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
         let height = 0.2 * ctx.canvas.window_height;
 
         let radius = 15.0;
-        let legend = Widget::col(
+        let legend = Widget::row(
             series
                 .iter()
                 .map(|s| {
@@ -63,7 +63,8 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
                     ])
                 })
                 .collect(),
-        );
+        )
+        .flex_wrap(ctx, 24);
 
         // Assume min_x is Time::START_OF_DAY and min_y is y_zero
         let max_x = opts.max_x.unwrap_or_else(|| {

@@ -487,6 +487,7 @@ pub struct CreateCar {
     pub maybe_parked_car: Option<ParkedCar>,
     // None for buses
     pub trip: Option<TripID>,
+    pub person: Option<PersonID>,
 }
 
 impl CreateCar {
@@ -496,6 +497,7 @@ impl CreateCar {
         router: Router,
         req: PathRequest,
         trip: TripID,
+        person: PersonID,
     ) -> CreateCar {
         CreateCar {
             vehicle,
@@ -504,6 +506,7 @@ impl CreateCar {
             start_dist: start_pos.dist_along(),
             maybe_parked_car: None,
             trip: Some(trip),
+            person: Some(person),
         }
     }
 
@@ -514,6 +517,7 @@ impl CreateCar {
         req: PathRequest,
         start_dist: Distance,
         trip: TripID,
+        person: PersonID,
     ) -> CreateCar {
         CreateCar {
             vehicle: parked_car.vehicle.clone(),
@@ -522,6 +526,7 @@ impl CreateCar {
             start_dist,
             maybe_parked_car: Some(parked_car),
             trip: Some(trip),
+            person: Some(person),
         }
     }
 }

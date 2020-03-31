@@ -13,10 +13,11 @@ use crate::game::Transition;
 use crate::helpers::ID;
 use crate::render::{ExtraShapeID, MIN_ZOOM_FOR_DETAIL};
 use ezgui::{
-    hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Plot, PlotOptions, Series, Text, TextExt, VerticalAlignment, Widget,
+    hotkey, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Plot, PlotOptions, Series, Text, TextExt,
+    VerticalAlignment, Widget,
 };
-use geom::{Circle, Distance, Time};
+use geom::{Circle, Distance, Duration, Time};
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID};
 use sim::{AgentID, Analytics, CarID, PedestrianID, PersonID, PersonState, TripMode, VehicleType};
 use std::collections::{BTreeMap, HashMap};
@@ -58,12 +59,12 @@ pub enum Tab {
     ExtraShape(ExtraShapeID),
 
     IntersectionInfo(IntersectionID),
-    IntersectionTraffic(IntersectionID),
-    IntersectionDelay(IntersectionID),
+    IntersectionTraffic(IntersectionID, DataOptions),
+    IntersectionDelay(IntersectionID, DataOptions),
 
     LaneInfo(LaneID),
     LaneDebug(LaneID),
-    LaneTraffic(LaneID),
+    LaneTraffic(LaneID, DataOptions),
 }
 
 impl Tab {
@@ -118,10 +119,27 @@ impl Tab {
             Tab::Crowd(members) => Some(ID::PedCrowd(members)),
             Tab::Area(a) => Some(ID::Area(a)),
             Tab::ExtraShape(es) => Some(ID::ExtraShape(es)),
-            Tab::IntersectionInfo(i) | Tab::IntersectionTraffic(i) | Tab::IntersectionDelay(i) => {
-                Some(ID::Intersection(i))
+            Tab::IntersectionInfo(i)
+            | Tab::IntersectionTraffic(i, _)
+            | Tab::IntersectionDelay(i, _) => Some(ID::Intersection(i)),
+            Tab::LaneInfo(l) | Tab::LaneDebug(l) | Tab::LaneTraffic(l, _) => Some(ID::Lane(l)),
+        }
+    }
+
+    fn changed_settings(&self, c: &Composite) -> Option<Tab> {
+        let mut new_tab = self.clone();
+        match new_tab {
+            Tab::IntersectionTraffic(_, ref mut opts)
+            | Tab::IntersectionDelay(_, ref mut opts)
+            | Tab::LaneTraffic(_, ref mut opts) => {
+                *opts = DataOptions::from_controls(c);
             }
-            Tab::LaneInfo(l) | Tab::LaneDebug(l) | Tab::LaneTraffic(l) => Some(ID::Lane(l)),
+            _ => {}
+        }
+        if &new_tab == self {
+            None
+        } else {
+            Some(new_tab)
         }
     }
 }
@@ -172,13 +190,18 @@ impl InfoPanel {
             Tab::Area(a) => (debug::area(ctx, app, &mut details, a), true),
             Tab::ExtraShape(es) => (debug::extra_shape(ctx, app, &mut details, es), true),
             Tab::IntersectionInfo(i) => (intersection::info(ctx, app, &mut details, i), true),
-            Tab::IntersectionTraffic(i) => {
-                (intersection::traffic(ctx, app, &mut details, i), false)
+            Tab::IntersectionTraffic(i, ref opts) => (
+                intersection::traffic(ctx, app, &mut details, i, opts),
+                false,
+            ),
+            Tab::IntersectionDelay(i, ref opts) => {
+                (intersection::delay(ctx, app, &mut details, i, opts), false)
             }
-            Tab::IntersectionDelay(i) => (intersection::delay(ctx, app, &mut details, i), false),
             Tab::LaneInfo(l) => (lane::info(ctx, app, &mut details, l), true),
             Tab::LaneDebug(l) => (lane::debug(ctx, app, &mut details, l), false),
-            Tab::LaneTraffic(l) => (lane::traffic(ctx, app, &mut details, l), false),
+            Tab::LaneTraffic(l, ref opts) => {
+                (lane::traffic(ctx, app, &mut details, l, opts), false)
+            }
         };
         let maybe_id = tab.clone().to_id(app);
         let mut cached_actions = Vec::new();
@@ -358,7 +381,15 @@ impl InfoPanel {
                     (close_panel, Some(t))
                 }
             }
-            None => (false, None),
+            None => {
+                // Maybe a non-click action should change the tab. Aka, checkboxes/dropdowns/etc on
+                // a tab.
+                if let Some(new_tab) = self.tab.changed_settings(&self.composite) {
+                    *self = InfoPanel::new(ctx, app, new_tab, ctx_actions);
+                }
+
+                (false, None)
+            }
         }
     }
 
@@ -408,6 +439,7 @@ fn throughput<F: Fn(&Analytics, Time) -> BTreeMap<TripMode, Vec<(Time, usize)>>>
     ctx: &EventCtx,
     app: &App,
     get_data: F,
+    show_baseline: bool,
 ) -> Widget {
     let mut series = get_data(app.primary.sim.get_analytics(), app.primary.sim.time())
         .into_iter()
@@ -417,7 +449,7 @@ fn throughput<F: Fn(&Analytics, Time) -> BTreeMap<TripMode, Vec<(Time, usize)>>>
             pts,
         })
         .collect::<Vec<_>>();
-    if app.has_prebaked().is_some() {
+    if show_baseline {
         // TODO Ahh these colors don't show up differently at all.
         for (m, pts) in get_data(app.prebaked(), Time::END_OF_DAY) {
             series.push(Series {
@@ -481,4 +513,52 @@ pub trait ContextualActions {
         action: String,
         close_panel: &mut bool,
     ) -> Transition;
+}
+
+#[derive(Clone, PartialEq)]
+pub struct DataOptions {
+    pub show_baseline: bool,
+    pub bucket_size: Duration,
+}
+
+impl DataOptions {
+    pub fn new(app: &App) -> DataOptions {
+        DataOptions {
+            show_baseline: app.has_prebaked().is_some(),
+            bucket_size: Duration::minutes(20),
+        }
+    }
+
+    pub fn to_controls(&self, ctx: &mut EventCtx, app: &App) -> Widget {
+        Widget::col(vec![
+            Widget::row(vec![
+                "In".draw_text(ctx),
+                Widget::dropdown(
+                    ctx,
+                    "bucket size",
+                    self.bucket_size,
+                    vec![
+                        Choice::new("20 minute", Duration::minutes(20)),
+                        Choice::new("1 hour", Duration::hours(1)),
+                        Choice::new("6 hour", Duration::hours(6)),
+                    ],
+                )
+                .margin(3),
+                "buckets".draw_text(ctx),
+            ]),
+            if app.has_prebaked().is_some() {
+                // TODO Change the wording of this
+                Widget::checkbox(ctx, "Show baseline data", None, self.show_baseline)
+            } else {
+                Widget::nothing()
+            },
+        ])
+    }
+
+    pub fn from_controls(c: &Composite) -> DataOptions {
+        DataOptions {
+            show_baseline: c.has_widget("Show baseline data") && c.is_checked("Show baseline data"),
+            bucket_size: c.dropdown_value("bucket size"),
+        }
+    }
 }

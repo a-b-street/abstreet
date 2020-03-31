@@ -36,11 +36,11 @@ impl PandemicModel {
     //
     // This recomputes everything every time the UI asks for it. That's fine for the scale of
     // simulations now; everything else in Analytics works the same way. The faster streaming
-    // version is very straightforward -- cache this output and only process new events to update.
+    // version is very straightforward -- cache this output and only process new events.
     pub fn calculate(analytics: &Analytics, now: Time, rng: &mut XorShiftRng) -> PandemicModel {
         let mut state = PandemicModel::new();
 
-        // Now track people's movements through buildings
+        // Track people's movements through buildings
         for (time, person, bldg, left) in &analytics.building_transitions {
             if *time > now {
                 break;
@@ -60,7 +60,8 @@ impl PandemicModel {
                             true
                         }
                     });
-                // TODO Same bug as above.
+                // TODO A person left a building, but they weren't inside of it? Bug -- few
+                // possible causes...
                 if inside_since.is_none() {
                     continue;
                 }

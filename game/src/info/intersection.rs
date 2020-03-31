@@ -1,8 +1,8 @@
 use crate::app::App;
 use crate::helpers::rotating_color_map;
-use crate::info::{header_btns, make_tabs, throughput, Details, Tab};
+use crate::info::{header_btns, make_tabs, throughput, DataOptions, Details, Tab};
 use abstutil::prettyprint_usize;
-use ezgui::{EventCtx, Line, Plot, PlotOptions, Series, Text, TextExt, Widget};
+use ezgui::{EventCtx, Line, Plot, PlotOptions, Series, Text, Widget};
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, IntersectionType};
 use sim::Analytics;
@@ -27,12 +27,19 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID
 }
 
 pub fn traffic(
-    ctx: &EventCtx,
+    ctx: &mut EventCtx,
     app: &App,
     details: &mut Details,
     id: IntersectionID,
+    opts: &DataOptions,
 ) -> Vec<Widget> {
-    let mut rows = header(ctx, app, details, id, Tab::IntersectionTraffic(id));
+    let mut rows = header(
+        ctx,
+        app,
+        details,
+        id,
+        Tab::IntersectionTraffic(id, opts.clone()),
+    );
 
     let mut txt = Text::new();
 
@@ -47,38 +54,54 @@ pub fn traffic(
                 .get(id)
         )
     )));
-    txt.add(Line(format!("In 20 minute buckets:")));
     rows.push(txt.draw(ctx));
 
+    rows.push(opts.to_controls(ctx, app));
+
     rows.push(
-        throughput(ctx, app, move |a, t| {
-            a.throughput_intersection(t, id, Duration::minutes(20))
-        })
+        throughput(
+            ctx,
+            app,
+            move |a, t| a.throughput_intersection(t, id, opts.bucket_size),
+            opts.show_baseline,
+        )
         .margin(10),
     );
 
     rows
 }
 
-pub fn delay(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID) -> Vec<Widget> {
-    let mut rows = header(ctx, app, details, id, Tab::IntersectionDelay(id));
+pub fn delay(
+    ctx: &mut EventCtx,
+    app: &App,
+    details: &mut Details,
+    id: IntersectionID,
+    opts: &DataOptions,
+) -> Vec<Widget> {
+    let mut rows = header(
+        ctx,
+        app,
+        details,
+        id,
+        Tab::IntersectionDelay(id, opts.clone()),
+    );
     let i = app.primary.map.get_i(id);
 
     assert!(i.is_traffic_signal());
-    rows.push("In 20 minute buckets".draw_text(ctx));
+    rows.push(opts.to_controls(ctx, app));
 
-    rows.push(delay_plot(ctx, app, id, Duration::minutes(20)).margin(10));
+    rows.push(delay_plot(ctx, app, id, opts).margin(10));
 
     rows
 }
 
-fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, bucket: Duration) -> Widget {
+fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) -> Widget {
     let get_data = |a: &Analytics, t: Time| {
         let mut series: Vec<(Statistic, Vec<(Time, Duration)>)> = Statistic::all()
             .into_iter()
             .map(|stat| (stat, Vec::new()))
             .collect();
-        for (t, distrib) in a.intersection_delays_bucketized(t, i, bucket) {
+        for (t, distrib) in a.intersection_delays_bucketized(t, i, opts.bucket_size) {
             for (stat, pts) in series.iter_mut() {
                 if distrib.count() == 0 {
                     pts.push((t, Duration::ZERO));
@@ -101,7 +124,7 @@ fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, bucket: Duration) ->
             pts,
         });
     }
-    if app.has_prebaked().is_some() {
+    if opts.show_baseline {
         for (idx, (stat, pts)) in get_data(app.prebaked(), Time::END_OF_DAY)
             .into_iter()
             .enumerate()
@@ -142,10 +165,13 @@ fn header(
     rows.push(make_tabs(ctx, &mut details.hyperlinks, tab, {
         let mut tabs = vec![
             ("Info", Tab::IntersectionInfo(id)),
-            ("Traffic", Tab::IntersectionTraffic(id)),
+            (
+                "Traffic",
+                Tab::IntersectionTraffic(id, DataOptions::new(app)),
+            ),
         ];
         if i.is_traffic_signal() {
-            tabs.push(("Delay", Tab::IntersectionDelay(id)));
+            tabs.push(("Delay", Tab::IntersectionDelay(id, DataOptions::new(app))));
         }
         tabs
     }));

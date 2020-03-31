@@ -292,7 +292,9 @@ impl TripSpawner {
                         scheduler.quick_push(
                             start_time,
                             Command::SpawnCar(
-                                CreateCar::for_appearing(vehicle, start_pos, router, req, trip),
+                                CreateCar::for_appearing(
+                                    vehicle, start_pos, router, req, trip, person,
+                                ),
                                 retry_if_no_room,
                             ),
                         );

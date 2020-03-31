@@ -1,6 +1,6 @@
 use crate::{
-    CarStatus, DistanceInterval, DrawCarInput, ParkingSpot, Router, TimeInterval, TransitSimState,
-    TripID, Vehicle, VehicleType,
+    CarStatus, DistanceInterval, DrawCarInput, ParkingSpot, PersonID, Router, TimeInterval,
+    TransitSimState, TripID, Vehicle, VehicleType,
 };
 use geom::{Distance, Duration, PolyLine, Time};
 use map_model::{Map, Traversable};
@@ -14,6 +14,7 @@ pub struct Car {
     pub router: Router,
     // None for buses
     pub trip: Option<TripID>,
+    pub person: Option<PersonID>,
     pub started_at: Time,
     pub total_blocked_time: Duration,
 

@@ -259,6 +259,7 @@ impl TripManager {
                     req,
                     start.dist_along(),
                     trip.id,
+                    trip.person,
                 ),
                 true,
             ),
@@ -313,7 +314,7 @@ impl TripManager {
         scheduler.push(
             now,
             Command::SpawnCar(
-                CreateCar::for_appearing(vehicle, driving_pos, router, req, trip.id),
+                CreateCar::for_appearing(vehicle, driving_pos, router, req, trip.id, trip.person),
                 true,
             ),
         );
