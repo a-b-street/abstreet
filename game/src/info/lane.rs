@@ -1,8 +1,7 @@
 use crate::app::App;
-use crate::info::{header_btns, make_table, make_tabs, throughput, Details, Tab};
+use crate::info::{header_btns, make_table, make_tabs, throughput, DataOptions, Details, Tab};
 use abstutil::prettyprint_usize;
 use ezgui::{EventCtx, Line, Text, TextExt, Widget};
-use geom::Duration;
 use map_model::LaneID;
 
 pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec<Widget> {
@@ -93,8 +92,14 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
     rows
 }
 
-pub fn traffic(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec<Widget> {
-    let mut rows = header(ctx, app, details, id, Tab::LaneTraffic(id));
+pub fn traffic(
+    ctx: &mut EventCtx,
+    app: &App,
+    details: &mut Details,
+    id: LaneID,
+    opts: &DataOptions,
+) -> Vec<Widget> {
+    let mut rows = header(ctx, app, details, id, Tab::LaneTraffic(id, opts.clone()));
     let map = &app.primary.map;
     let l = map.get_l(id);
     let r = map.get_r(l.parent);
@@ -112,14 +117,18 @@ pub fn traffic(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> 
                 .get(r.id)
         )
     )));
-    txt.add(Line(format!("In 20 minute buckets:")));
     rows.push(txt.draw(ctx));
+
+    rows.push(opts.to_controls(ctx, app));
 
     let r = map.get_l(id).parent;
     rows.push(
-        throughput(ctx, app, move |a, t| {
-            a.throughput_road(t, r, Duration::minutes(20))
-        })
+        throughput(
+            ctx,
+            app,
+            move |a, t| a.throughput_road(t, r, opts.bucket_size),
+            opts.show_baseline,
+        )
         .margin(10),
     );
 
@@ -148,7 +157,7 @@ fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID, tab: Tab
         tab,
         vec![
             ("Info", Tab::LaneInfo(id)),
-            ("Traffic", Tab::LaneTraffic(id)),
+            ("Traffic", Tab::LaneTraffic(id, DataOptions::new(app))),
             ("Debug", Tab::LaneDebug(id)),
         ],
     ));

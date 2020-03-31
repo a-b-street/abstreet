@@ -664,7 +664,7 @@ impl Composite {
         self.find::<TextBox>(name).get_line()
     }
 
-    pub fn dropdown_value<T: 'static + PartialEq + Clone>(&mut self, name: &str) -> T {
+    pub fn dropdown_value<T: 'static + PartialEq + Clone>(&self, name: &str) -> T {
         self.find::<Dropdown<T>>(name).current_value()
     }
 

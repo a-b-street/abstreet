@@ -149,10 +149,11 @@ impl std::fmt::Display for Duration {
             write!(f, "{}m", minutes)?;
         }
         if remainder != 0 {
-            write!(f, "{}.{:01}s", seconds, remainder)
-        } else {
-            write!(f, "{}s", seconds)
+            write!(f, "{}.{:01}s", seconds, remainder)?;
+        } else if seconds != 0 {
+            write!(f, "{}s", seconds)?;
         }
+        Ok(())
     }
 }
 
