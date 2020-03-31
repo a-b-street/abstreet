@@ -1,0 +1,2 @@
+[build]
+rustc-wrapper = "/home/malaspor/.cargo/bin/sccache"

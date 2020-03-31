@@ -6,7 +6,11 @@ use rand_xorshift::XorShiftRng;
 use std::collections::{BTreeMap, BTreeSet};
 
 pub struct PandemicModel {
+    // TODO For the moment let's develop everything with the SEIR model and refactor
+    pub sane: BTreeSet<PersonID>,
+    pub exposed: BTreeSet<PersonID>,
     pub infected: BTreeSet<PersonID>,
+    pub recovered: BTreeSet<PersonID>,
     // Since when has a person been inside a building?
     // TODO This is an awkward data structure; abstutil::MultiMap is also bad, because key removal
     // would require knowing the time. Want something closer to
@@ -25,7 +29,10 @@ impl PandemicModel {
     // version is very straightforward -- cache this output and only process new events to update.
     pub fn calculate(analytics: &Analytics, now: Time, rng: &mut XorShiftRng) -> PandemicModel {
         let mut state = PandemicModel {
+            sane: BTreeSet::new(),
+            exposed: BTreeSet::new(),
             infected: BTreeSet::new(),
+            recovered: BTreeSet::new(),
             bldg_occupants: BTreeMap::new(),
         };
 
