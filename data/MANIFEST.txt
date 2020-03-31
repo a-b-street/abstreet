@@ -146,6 +146,7 @@ fd9dfc89f3554bd490b633916298c385  data/system/assets/pregame/logo.svg
 287a0629e1b11a2287e2fa1d902a6f3f  data/system/assets/pregame/tutorial.svg
 02dd549d1626c6ec941422f460696570  data/system/assets/pregame/sandbox.svg
 254d439435ed1b7d01d7a2544fc06b09  data/system/assets/pregame/back.svg
+d4615c4cb06658959bacb474293211f8  data/system/assets/pregame/start.svg
 21145e91a6cb1c36261563e8b5b67dc1  data/system/assets/pregame/quit.svg
 3a5a5796d5ff1d94dc57515f9d808c98  data/system/assets/pregame/challenges.svg
 0fd2bedf0f16076c97738c80e64c7206  data/system/assets/speed/triangle.svg
@@ -223,9 +224,9 @@ af8cefc0c99972082ab3ce3363412d47  data/system/scenarios/downtown/weekday.bin
 e780764fe58e760ca76f017c1fd87244  data/system/scenarios/huge_seattle/weekday.bin
 cd85737ea5e775f7c67b1d82c08b64fe  data/system/scenarios/caphill/weekday.bin
 b6367e75ae8bb7e824beb57a845c15e0  data/system/scenarios/montlake/weekday.bin
-19df25a1ca21b8b9b0379723d858543d  data/system/prebaked_results/23rd/weekday.bin
-39dc5028982cc7ef40da44ec00ab1020  data/system/prebaked_results/signal_single/tutorial lvl1.bin
-c4f5661e5c62c0c0ccccc7c2b9f2d365  data/system/prebaked_results/signal_single/tutorial lvl2.bin
-b8137879ec00add4cd2a39e8c985420f  data/system/prebaked_results/montlake/car vs bike contention.bin
-7b21dd09012381f79c2de6b79650c7cd  data/system/prebaked_results/montlake/weekday.bin
-f275f3d5a926afc054f2b1a2b8d139b3  data/system/prebaked_results/montlake/car vs bus contention.bin
+7051db6adccc82f47a1eca38bca758ee  data/system/prebaked_results/23rd/weekday.bin
+1adfeaed9d4095b3048999ec745de780  data/system/prebaked_results/signal_single/tutorial lvl1.bin
+1c5a9a6f69b5f8b7ad9615af9c0ecc8c  data/system/prebaked_results/signal_single/tutorial lvl2.bin
+1e26ae48f3b5f31f55ab34b7a1d8c162  data/system/prebaked_results/montlake/car vs bike contention.bin
+bce8e96ccc3ac8fdae1039ce2f3aa89a  data/system/prebaked_results/montlake/weekday.bin
+f15bffa5c937d56515dc2a59770f7510  data/system/prebaked_results/montlake/car vs bus contention.bin

@@ -14,7 +14,7 @@ use ezgui::{
 };
 use geom::{Circle, Distance, Duration, PolyLine, Pt2D, Time};
 use map_model::{BusRouteID, IntersectionID};
-use sim::{GetDrawAgents, ParkingSpot, PersonState};
+use sim::{GetDrawAgents, PandemicModel, ParkingSpot, PersonState};
 use std::collections::HashSet;
 
 pub enum Overlays {
@@ -886,6 +886,30 @@ fn population_controls(ctx: &mut EventCtx, app: &App, opts: Option<&HeatmapOptio
         .centered(),
         Widget::checkbox(ctx, "Show heatmap", None, opts.is_some()),
     ];
+
+    // TODO tmp place to put pandemic model
+    if app.opts.dev {
+        // TODO Why not app.primary.current_flags.sim_flags.make_rng()? Because that'll only be the
+        // same every time this code runs (frequently, as the simulation is run) if --rng_seed is
+        // specified in the flags. If you forget it, quite confusing to see the model jump around.
+        use rand::SeedableRng;
+        use rand_xorshift::XorShiftRng;
+
+        let model = PandemicModel::calculate(
+            app.primary.sim.get_analytics(),
+            app.primary.sim.time(),
+            &mut XorShiftRng::from_seed([42; 16]),
+        );
+        col.push(
+            format!(
+                "Pandemic model: {} infected ({:.1}%)",
+                prettyprint_usize(model.infected.len()),
+                (model.infected.len() as f64) / (total_ppl as f64) * 100.0
+            )
+            .draw_text(ctx),
+        );
+    }
+
     if let Some(ref o) = opts {
         // TODO Display the value...
         col.push(Widget::row(vec![
