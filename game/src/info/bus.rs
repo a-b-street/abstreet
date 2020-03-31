@@ -10,8 +10,7 @@ use geom::{Circle, Distance, Polygon, Pt2D, Statistic, Time};
 use map_model::{BusRouteID, BusStopID};
 use sim::CarID;
 
-// TODO Needs much more work
-pub fn stop(ctx: &mut EventCtx, app: &App, _: &mut Details, id: BusStopID) -> Vec<Widget> {
+pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID) -> Vec<Widget> {
     let mut rows = vec![];
 
     let sim = &app.primary.sim;
@@ -20,20 +19,26 @@ pub fn stop(ctx: &mut EventCtx, app: &App, _: &mut Details, id: BusStopID) -> Ve
         Line("Bus stop").small_heading().draw(ctx),
         header_btns(ctx),
     ]));
+    rows.push(format!("On {}", app.primary.map.get_parent(id.sidewalk).get_name()).draw_text(ctx));
 
-    let mut txt = Text::new();
-    txt.add(Line(format!(
-        "On {}",
-        app.primary.map.get_parent(id.sidewalk).get_name()
-    )));
     let all_arrivals = &sim.get_analytics().bus_arrivals;
     for r in app.primary.map.get_routes_serving_stop(id) {
-        txt.add(Line(format!("- Route {}", r.name)));
+        let buses = app.primary.sim.status_of_buses(r.id);
+        if buses.is_empty() {
+            rows.push(format!("Route {}: no buses running", r.name).draw_text(ctx));
+        } else {
+            rows.push(Btn::text_fg(format!("Route {}", r.name)).build_def(ctx, None));
+            details
+                .hyperlinks
+                .insert(format!("Route {}", r.name), Tab::BusStatus(buses[0].0));
+        }
+
         let arrivals: Vec<(Time, CarID)> = all_arrivals
             .iter()
             .filter(|(_, _, route, stop)| r.id == *route && id == *stop)
             .map(|(t, car, _, _)| (*t, *car))
             .collect();
+        let mut txt = Text::new();
         if let Some((t, _)) = arrivals.last() {
             // TODO Button to jump to the bus
             txt.add(Line(format!("  Last bus arrived {} ago", sim.time() - *t)).secondary());
@@ -48,8 +53,8 @@ pub fn stop(ctx: &mut EventCtx, app: &App, _: &mut Details, id: BusStopID) -> Ve
         {
             txt.add(Line(format!("  Waiting: {}", hgram.describe())).secondary());
         }
+        rows.push(txt.draw(ctx));
     }
-    rows.push(txt.draw(ctx));
 
     rows
 }

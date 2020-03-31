@@ -6,7 +6,7 @@ mod speed;
 use self::misc_tools::{RoutePreview, ShowTrafficSignal, TurnExplorer};
 use crate::app::App;
 use crate::colors;
-use crate::common::{tool_panel, CommonState, ContextualActions, Minimap, Overlays, ShowBusRoute};
+use crate::common::{tool_panel, CommonState, ContextualActions, Minimap, Overlays};
 use crate::debug::DebugMode;
 use crate::edit::{
     apply_map_edits, can_edit_lane, save_edits_as, EditMode, LaneEditor, StopSignEditor,
@@ -465,9 +465,6 @@ impl ContextualActions for Actions {
                         }
                     }
                 }
-                ID::BusStop(_) => {
-                    actions.push((Key::E, "explore bus route".to_string()));
-                }
                 _ => {}
             }
             if id.agent_id().is_some() {
@@ -521,17 +518,6 @@ impl ContextualActions for Actions {
                 app.overlay =
                     Overlays::show_bus_route(app.primary.sim.bus_route_id(c).unwrap(), ctx, app);
                 Transition::Keep
-            }
-            (ID::BusStop(bs), "explore bus route") => {
-                Transition::Push(ShowBusRoute::make_route_picker(
-                    app.primary
-                        .map
-                        .get_routes_serving_stop(bs)
-                        .into_iter()
-                        .map(|r| r.id)
-                        .collect(),
-                    true,
-                ))
             }
             (_, "follow/unfollow") => {
                 *close_panel = false;
