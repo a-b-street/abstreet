@@ -8,53 +8,6 @@ use sim::{
 };
 use std::collections::BTreeSet;
 
-pub fn status(ctx: &mut EventCtx, app: &App, details: &mut Details, id: PersonID) -> Vec<Widget> {
-    let mut rows = header(ctx, app, details, id, Tab::PersonStatus(id));
-
-    let map = &app.primary.map;
-    let sim = &app.primary.sim;
-
-    match sim.get_person(id).state {
-        PersonState::Inside(b) => {
-            // TODO hyperlink
-            rows.push(
-                format!("Currently inside {}", map.get_b(b).just_address(map)).draw_text(ctx),
-            );
-        }
-        PersonState::OffMap => {
-            rows.push("Currently outside the map boundaries".draw_text(ctx));
-        }
-        PersonState::Limbo => {
-            rows.push(
-                "Currently in limbo -- they broke out of the Matrix! Woops. (A bug occurred)"
-                    .draw_text(ctx),
-            );
-        }
-        PersonState::Trip(t) => {
-            if let Some(a) = sim.trip_to_agent(t).ok() {
-                let (kv, extra) = match a {
-                    AgentID::Car(c) => sim.car_properties(c, map),
-                    AgentID::Pedestrian(p) => sim.ped_properties(p, map),
-                };
-                rows.extend(make_table(ctx, kv));
-                if !extra.is_empty() {
-                    let mut txt = Text::from(Line(""));
-                    for line in extra {
-                        txt.add(Line(line));
-                    }
-                    rows.push(txt.draw(ctx));
-                }
-            }
-
-            let mut open_trips = BTreeSet::new();
-            open_trips.insert(t);
-            rows.push(trip::details(ctx, app, t, details, id, open_trips));
-        }
-    }
-
-    rows
-}
-
 pub fn trips(
     ctx: &mut EventCtx,
     app: &App,
@@ -171,9 +124,17 @@ pub fn crowd(
             format!("{})", idx + 1).draw_text(ctx),
             Btn::text_fg(format!("Person #{}", person.0)).build_def(ctx, None),
         ]));
-        details
-            .hyperlinks
-            .insert(format!("Person #{}", person.0), Tab::PersonStatus(person));
+        let mut open_trips = BTreeSet::new();
+        open_trips.insert(
+            app.primary
+                .sim
+                .agent_to_trip(AgentID::Pedestrian(*id))
+                .unwrap(),
+        );
+        details.hyperlinks.insert(
+            format!("Person #{}", person.0),
+            Tab::PersonTrips(person, open_trips),
+        );
     }
 
     rows
@@ -256,7 +217,6 @@ fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: PersonID, tab: T
         &mut details.hyperlinks,
         tab,
         vec![
-            ("Status", Tab::PersonStatus(id)),
             ("Trips", Tab::PersonTrips(id, open_trips)),
             ("Bio", Tab::PersonBio(id)),
         ],

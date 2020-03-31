@@ -41,7 +41,6 @@ pub struct InfoPanel {
 
 #[derive(Clone, PartialEq)]
 pub enum Tab {
-    PersonStatus(PersonID),
     PersonTrips(PersonID, BTreeSet<TripID>),
     PersonBio(PersonID),
 
@@ -79,18 +78,31 @@ impl Tab {
             ID::Building(b) => Tab::BldgInfo(b),
             ID::Car(c) => {
                 if let Some(p) = app.primary.sim.agent_to_person(AgentID::Car(c)) {
-                    Tab::PersonStatus(p)
+                    // TODO Can we get the macro please?
+                    let mut open_trips = BTreeSet::new();
+                    open_trips.insert(app.primary.sim.agent_to_trip(AgentID::Car(c)).unwrap());
+                    Tab::PersonTrips(p, open_trips)
                 } else if c.1 == VehicleType::Bus {
                     Tab::BusStatus(c)
                 } else {
                     Tab::ParkedCar(c)
                 }
             }
-            ID::Pedestrian(p) => Tab::PersonStatus(
+            ID::Pedestrian(p) => Tab::PersonTrips(
                 app.primary
                     .sim
                     .agent_to_person(AgentID::Pedestrian(p))
                     .unwrap(),
+                {
+                    let mut open_trips = BTreeSet::new();
+                    open_trips.insert(
+                        app.primary
+                            .sim
+                            .agent_to_trip(AgentID::Pedestrian(p))
+                            .unwrap(),
+                    );
+                    open_trips
+                },
             ),
             ID::PedCrowd(members) => Tab::Crowd(members),
             ID::ExtraShape(es) => Tab::ExtraShape(es),
@@ -102,7 +114,7 @@ impl Tab {
     // TODO Temporary hack until object actions go away.
     fn to_id(self, app: &App) -> Option<ID> {
         match self {
-            Tab::PersonStatus(p) | Tab::PersonTrips(p, _) | Tab::PersonBio(p) => {
+            Tab::PersonTrips(p, _) | Tab::PersonBio(p) => {
                 match app.primary.sim.get_person(p).state {
                     PersonState::Inside(b) => Some(ID::Building(b)),
                     PersonState::Trip(t) => app
@@ -178,7 +190,6 @@ impl InfoPanel {
         };
 
         let (mut col, main_tab) = match tab {
-            Tab::PersonStatus(p) => (person::status(ctx, app, &mut details, p), true),
             Tab::PersonTrips(p, ref open) => {
                 (person::trips(ctx, app, &mut details, p, open), false)
             }

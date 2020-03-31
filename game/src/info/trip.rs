@@ -8,7 +8,7 @@ use ezgui::{
 };
 use geom::{Angle, Distance, Duration, Polygon, Pt2D, Time};
 use map_model::{Map, Path, PathStep};
-use sim::{PersonID, TripEndpoint, TripID, TripPhaseType, TripResult};
+use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhaseType, TripResult};
 use std::collections::BTreeSet;
 
 pub fn details(
@@ -261,13 +261,34 @@ pub fn details(
 
     timeline.insert(0, start_btn.margin(5));
     timeline.push(goal_btn.margin(5));
+    col.push(Widget::row(timeline).evenly_spaced().margin_above(25));
 
     kv.push(("Duration", total_duration_so_far.to_string()));
     if let Some(t) = end_time {
         kv.push(("Trip end", t.ampm_tostring()));
     }
-    col.push(Widget::row(timeline).evenly_spaced().margin_above(25));
-    col.extend(make_table(ctx, kv));
+
+    if let Some(a) = sim.trip_to_agent(trip).ok() {
+        let (more_kv, extra) = match a {
+            AgentID::Car(c) => sim.car_properties(c, map),
+            AgentID::Pedestrian(p) => sim.ped_properties(p, map),
+        };
+        for (k, v) in &more_kv {
+            kv.push((k, v.to_string()));
+        }
+        col.extend(make_table(ctx, kv));
+
+        if !extra.is_empty() {
+            let mut txt = Text::from(Line(""));
+            for line in extra {
+                txt.add(Line(line));
+            }
+            col.push(txt.draw(ctx));
+        }
+    } else {
+        col.extend(make_table(ctx, kv));
+    }
+
     col.extend(elevation);
 
     Widget::col(col)
