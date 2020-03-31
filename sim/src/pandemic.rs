@@ -19,6 +19,16 @@ pub struct PandemicModel {
 }
 
 impl PandemicModel {
+    fn new() -> Self {
+        PandemicModel {
+            sane: BTreeSet::new(),
+            exposed: BTreeSet::new(),
+            infected: BTreeSet::new(),
+            recovered: BTreeSet::new(),
+            bldg_occupants: BTreeMap::new(),
+        }
+    }
+
     // I think this general pattern makes the most sense. Unless we want to treat the pandemic
     // model as a first-class part of the main traffic simulation, we don't really need to put the
     // state in the rest of the sim crate. When the UI wants to do some reporting, we just read
@@ -28,20 +38,14 @@ impl PandemicModel {
     // simulations now; everything else in Analytics works the same way. The faster streaming
     // version is very straightforward -- cache this output and only process new events to update.
     pub fn calculate(analytics: &Analytics, now: Time, rng: &mut XorShiftRng) -> PandemicModel {
-        let mut state = PandemicModel {
-            sane: BTreeSet::new(),
-            exposed: BTreeSet::new(),
-            infected: BTreeSet::new(),
-            recovered: BTreeSet::new(),
-            bldg_occupants: BTreeMap::new(),
-        };
+        let mut state = PandemicModel::new();
 
         // Now track people's movements through buildings
         for (time, person, bldg, left) in &analytics.building_transitions {
             if *time > now {
                 break;
             }
-            if *left {
+            if *left { // person left building let's (let's see its contacts)
                 // TODO Messy to mutate state inside a retain closure
                 let mut inside_since: Option<Time> = None;
                 state
@@ -63,7 +67,7 @@ impl PandemicModel {
                 let inside_since = inside_since.unwrap();
 
                 // Was this person leaving infected while they were inside?
-                if !state.infected.contains(person) {
+                if state.sane.contains(person) {
                     //let time_in_bldg = time - inside_since.unwrap();
                     let mut longest_overlap_with_infected = Duration::ZERO;
                     for (p, t) in &state.bldg_occupants[bldg] {
