@@ -820,97 +820,82 @@ impl Overlays {
     // TODO Disable drawing unzoomed agents... or alternatively, implement this by asking Sim to
     // return this kind of data instead!
     fn population_map(ctx: &mut EventCtx, app: &App, opts: PopulationOptions) -> Overlays {
-        if opts.pandemic {
-            return Overlays::pandemic_map(ctx, app, opts);
-        }
+        // Only display infected people if this is enabled.
+        let maybe_pandemic = if opts.pandemic {
+            // TODO Why not app.primary.current_flags.sim_flags.make_rng()? Because that'll only be
+            // the same every time this code runs (frequently, as the simulation is run)
+            // if --rng_seed is specified in the flags. If you forget it, quite
+            // confusing to see the model jump around.
+            use rand::SeedableRng;
+            use rand_xorshift::XorShiftRng;
+
+            Some(PandemicModel::calculate(
+                app.primary.sim.get_analytics(),
+                app.primary.sim.time(),
+                &mut XorShiftRng::from_seed([42; 16]),
+            ))
+        } else {
+            None
+        };
 
         let mut pts = Vec::new();
         // Faster to grab all agent positions than individually map trips to agent positions.
-        for a in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
-            pts.push(a.pos);
+        if let Some(ref model) = maybe_pandemic {
+            for a in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
+                if let Some(p) = a.person {
+                    if model.infected.contains(&p) {
+                        pts.push(a.pos);
+                    }
+                }
+            }
+        } else {
+            for a in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
+                pts.push(a.pos);
+            }
         }
 
+        // Many people are probably in the same building. If we're building a heatmap, we
+        // absolutely care about these repeats! If we're just drawing the simple dot map, avoid
+        // drawing repeat circles.
         let mut seen_bldgs = HashSet::new();
+        let mut repeat_pts = Vec::new();
         for person in app.primary.sim.get_all_people() {
             match person.state {
                 // Already covered above
                 PersonState::Trip(_) => {}
                 PersonState::Inside(b) => {
-                    // Duplicate circles for the same building are expensive!
-                    if !seen_bldgs.contains(&b) {
+                    if maybe_pandemic
+                        .as_ref()
+                        .map(|m| !m.infected.contains(&person.id))
+                        .unwrap_or(false)
+                    {
+                        continue;
+                    }
+
+                    let pt = app.primary.map.get_b(b).polygon.center();
+                    if seen_bldgs.contains(&b) {
+                        repeat_pts.push(pt);
+                    } else {
                         seen_bldgs.insert(b);
-                        pts.push(app.primary.map.get_b(b).polygon.center());
+                        pts.push(pt);
                     }
                 }
                 PersonState::OffMap | PersonState::Limbo => {}
             }
         }
 
-        // It's quite silly to produce triangles for the same circle over and over again. ;)
-        let circle = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(10.0)).to_polygon();
         let mut batch = GeomBatch::new();
         if let Some(ref o) = opts.heatmap {
+            pts.extend(repeat_pts);
             make_heatmap(&mut batch, app.primary.map.get_bounds(), pts, o);
         } else {
+            // It's quite silly to produce triangles for the same circle over and over again. ;)
+            let circle = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(10.0)).to_polygon();
             for pt in pts {
                 batch.push(Color::RED.alpha(0.8), circle.translate(pt.x(), pt.y()));
             }
         }
-        let controls = population_controls(ctx, app, &opts, None);
-        Overlays::PopulationMap(app.primary.sim.time(), opts, ctx.upload(batch), controls)
-    }
-
-    // Similar to population_map, but only display infected people.
-    fn pandemic_map(ctx: &mut EventCtx, app: &App, opts: PopulationOptions) -> Overlays {
-        // TODO Why not app.primary.current_flags.sim_flags.make_rng()? Because that'll only be the
-        // same every time this code runs (frequently, as the simulation is run) if --rng_seed is
-        // specified in the flags. If you forget it, quite confusing to see the model jump around.
-        use rand::SeedableRng;
-        use rand_xorshift::XorShiftRng;
-
-        let model = PandemicModel::calculate(
-            app.primary.sim.get_analytics(),
-            app.primary.sim.time(),
-            &mut XorShiftRng::from_seed([42; 16]),
-        );
-
-        let mut infected_pts = Vec::new();
-        // Faster to grab all agent positions than individually map trips to agent positions.
-        for a in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
-            if let Some(p) = a.person {
-                if model.infected.contains(&p) {
-                    infected_pts.push(a.pos);
-                }
-            }
-        }
-
-        let mut seen_bldgs = HashSet::new();
-        for person in app.primary.sim.get_all_people() {
-            match person.state {
-                // Already covered above
-                PersonState::Trip(_) => {}
-                PersonState::Inside(b) => {
-                    // Duplicate circles for the same building are expensive!
-                    if model.infected.contains(&person.id) && !seen_bldgs.contains(&b) {
-                        seen_bldgs.insert(b);
-                        infected_pts.push(app.primary.map.get_b(b).polygon.center());
-                    }
-                }
-                PersonState::OffMap | PersonState::Limbo => {}
-            }
-        }
-
-        // It's quite silly to produce triangles for the same circle over and over again. ;)
-        let circle = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(10.0)).to_polygon();
-        let mut batch = GeomBatch::new();
-        if let Some(ref o) = opts.heatmap {
-            make_heatmap(&mut batch, app.primary.map.get_bounds(), infected_pts, o);
-        } else {
-            for pt in infected_pts {
-                batch.push(Color::RED.alpha(0.8), circle.translate(pt.x(), pt.y()));
-            }
-        }
-        let controls = population_controls(ctx, app, &opts, Some(model));
+        let controls = population_controls(ctx, app, &opts, maybe_pandemic);
         Overlays::PopulationMap(app.primary.sim.time(), opts, ctx.upload(batch), controls)
     }
 }
