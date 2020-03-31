@@ -28,7 +28,7 @@ pub enum Overlays {
     Elevation(Colorer, Drawable),
     Edits(Colorer),
     TripsHistogram(Time, Composite),
-    PopulationMap(Time, Option<HeatmapOptions>, Drawable, Composite),
+    PopulationMap(Time, PopulationOptions, Drawable, Composite),
 
     // These aren't selectable from the main picker; they're particular to some object.
     // TODO They should become something else, like an info panel tab.
@@ -160,7 +160,7 @@ impl Overlays {
                         _ => unreachable!(),
                     },
                     None => {
-                        let new_opts = heatmap_options(c);
+                        let new_opts = population_options(c);
                         if *opts != new_opts {
                             app.overlay = Overlays::population_map(ctx, app, new_opts);
                         }
@@ -243,7 +243,6 @@ impl Overlays {
             Btn::text_fg("bus network").build_def(ctx, hotkey(Key::U)),
             Btn::text_fg("population map").build_def(ctx, hotkey(Key::X)),
         ];
-        // TODO Grey out the inactive SVGs, and add the green checkmark
         if let Some(name) = match app.overlay {
             Overlays::Inactive => Some("None"),
             Overlays::ParkingAvailability(_, _) => Some("parking availability"),
@@ -351,7 +350,14 @@ impl Overlays {
         .maybe_cb(
             "population map",
             Box::new(|ctx, app| {
-                app.overlay = Overlays::population_map(ctx, app, Some(HeatmapOptions::new()));
+                app.overlay = Overlays::population_map(
+                    ctx,
+                    app,
+                    PopulationOptions {
+                        pandemic: false,
+                        heatmap: Some(HeatmapOptions::new()),
+                    },
+                );
                 Some(maybe_unzoom(ctx, app))
             }),
         );
@@ -813,7 +819,11 @@ impl Overlays {
 
     // TODO Disable drawing unzoomed agents... or alternatively, implement this by asking Sim to
     // return this kind of data instead!
-    fn population_map(ctx: &mut EventCtx, app: &App, opts: Option<HeatmapOptions>) -> Overlays {
+    fn population_map(ctx: &mut EventCtx, app: &App, opts: PopulationOptions) -> Overlays {
+        if opts.pandemic {
+            return Overlays::pandemic_map(ctx, app, opts);
+        }
+
         let mut pts = Vec::new();
         // Faster to grab all agent positions than individually map trips to agent positions.
         for a in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
@@ -839,14 +849,68 @@ impl Overlays {
         // It's quite silly to produce triangles for the same circle over and over again. ;)
         let circle = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(10.0)).to_polygon();
         let mut batch = GeomBatch::new();
-        if let Some(ref o) = opts {
+        if let Some(ref o) = opts.heatmap {
             make_heatmap(&mut batch, app.primary.map.get_bounds(), pts, o);
         } else {
             for pt in pts {
                 batch.push(Color::RED.alpha(0.8), circle.translate(pt.x(), pt.y()));
             }
         }
-        let controls = population_controls(ctx, app, opts.as_ref());
+        let controls = population_controls(ctx, app, &opts, None);
+        Overlays::PopulationMap(app.primary.sim.time(), opts, ctx.upload(batch), controls)
+    }
+
+    // Similar to population_map, but only display infected people.
+    fn pandemic_map(ctx: &mut EventCtx, app: &App, opts: PopulationOptions) -> Overlays {
+        // TODO Why not app.primary.current_flags.sim_flags.make_rng()? Because that'll only be the
+        // same every time this code runs (frequently, as the simulation is run) if --rng_seed is
+        // specified in the flags. If you forget it, quite confusing to see the model jump around.
+        use rand::SeedableRng;
+        use rand_xorshift::XorShiftRng;
+
+        let model = PandemicModel::calculate(
+            app.primary.sim.get_analytics(),
+            app.primary.sim.time(),
+            &mut XorShiftRng::from_seed([42; 16]),
+        );
+
+        let mut infected_pts = Vec::new();
+        // Faster to grab all agent positions than individually map trips to agent positions.
+        for a in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
+            if let Some(p) = a.person {
+                if model.infected.contains(&p) {
+                    infected_pts.push(a.pos);
+                }
+            }
+        }
+
+        let mut seen_bldgs = HashSet::new();
+        for person in app.primary.sim.get_all_people() {
+            match person.state {
+                // Already covered above
+                PersonState::Trip(_) => {}
+                PersonState::Inside(b) => {
+                    // Duplicate circles for the same building are expensive!
+                    if model.infected.contains(&person.id) && !seen_bldgs.contains(&b) {
+                        seen_bldgs.insert(b);
+                        infected_pts.push(app.primary.map.get_b(b).polygon.center());
+                    }
+                }
+                PersonState::OffMap | PersonState::Limbo => {}
+            }
+        }
+
+        // It's quite silly to produce triangles for the same circle over and over again. ;)
+        let circle = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(10.0)).to_polygon();
+        let mut batch = GeomBatch::new();
+        if let Some(ref o) = opts.heatmap {
+            make_heatmap(&mut batch, app.primary.map.get_bounds(), infected_pts, o);
+        } else {
+            for pt in infected_pts {
+                batch.push(Color::RED.alpha(0.8), circle.translate(pt.x(), pt.y()));
+            }
+        }
+        let controls = population_controls(ctx, app, &opts, Some(model));
         Overlays::PopulationMap(app.primary.sim.time(), opts, ctx.upload(batch), controls)
     }
 }
@@ -864,8 +928,20 @@ fn maybe_unzoom(ctx: &EventCtx, app: &mut App) -> Transition {
     ))
 }
 
+#[derive(Clone, PartialEq)]
+pub struct PopulationOptions {
+    pandemic: bool,
+    // If None, just a dot map
+    heatmap: Option<HeatmapOptions>,
+}
+
 // This function sounds more ominous than it should.
-fn population_controls(ctx: &mut EventCtx, app: &App, opts: Option<&HeatmapOptions>) -> Composite {
+fn population_controls(
+    ctx: &mut EventCtx,
+    app: &App,
+    opts: &PopulationOptions,
+    pandemic: Option<PandemicModel>,
+) -> Composite {
     let (total_ppl, ppl_in_bldg, ppl_off_map) = app.primary.sim.num_ppl();
 
     let mut col = vec![
@@ -884,22 +960,10 @@ fn population_controls(ctx: &mut EventCtx, app: &App, opts: Option<&HeatmapOptio
             format!("Off-map: {}", prettyprint_usize(ppl_off_map)).draw_text(ctx),
         ])
         .centered(),
-        Widget::checkbox(ctx, "Show heatmap", None, opts.is_some()),
+        Widget::checkbox(ctx, "Run pandemic model", None, opts.pandemic),
     ];
 
-    // TODO tmp place to put pandemic model
-    if app.opts.dev {
-        // TODO Why not app.primary.current_flags.sim_flags.make_rng()? Because that'll only be the
-        // same every time this code runs (frequently, as the simulation is run) if --rng_seed is
-        // specified in the flags. If you forget it, quite confusing to see the model jump around.
-        use rand::SeedableRng;
-        use rand_xorshift::XorShiftRng;
-
-        let model = PandemicModel::calculate(
-            app.primary.sim.get_analytics(),
-            app.primary.sim.time(),
-            &mut XorShiftRng::from_seed([42; 16]),
-        );
+    if let Some(model) = pandemic {
         col.push(
             format!(
                 "Pandemic model: {} infected ({:.1}%)",
@@ -910,7 +974,13 @@ fn population_controls(ctx: &mut EventCtx, app: &App, opts: Option<&HeatmapOptio
         );
     }
 
-    if let Some(ref o) = opts {
+    col.push(Widget::checkbox(
+        ctx,
+        "Show heatmap",
+        None,
+        opts.heatmap.is_some(),
+    ));
+    if let Some(ref o) = opts.heatmap {
         // TODO Display the value...
         col.push(Widget::row(vec![
             "Resolution (meters)".draw_text(ctx).margin(5),
@@ -942,8 +1012,8 @@ fn population_controls(ctx: &mut EventCtx, app: &App, opts: Option<&HeatmapOptio
         .build(ctx)
 }
 
-fn heatmap_options(c: &mut Composite) -> Option<HeatmapOptions> {
-    if c.is_checked("Show heatmap") {
+fn population_options(c: &mut Composite) -> PopulationOptions {
+    let heatmap = if c.is_checked("Show heatmap") {
         // Did we just change?
         if c.has_widget("resolution") {
             Some(HeatmapOptions {
@@ -956,5 +1026,9 @@ fn heatmap_options(c: &mut Composite) -> Option<HeatmapOptions> {
         }
     } else {
         None
+    };
+    PopulationOptions {
+        pandemic: c.is_checked("Run pandemic model"),
+        heatmap,
     }
 }

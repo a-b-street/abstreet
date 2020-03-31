@@ -257,6 +257,7 @@ impl Sim {
                         router: Router::follow_bus_route(path.clone(), end_dist),
                         maybe_parked_car: None,
                         trip: None,
+                        person: None,
                     },
                     map,
                     &self.intersections,

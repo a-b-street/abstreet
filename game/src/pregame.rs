@@ -30,9 +30,9 @@ impl TitleScreen {
                 Composite::new(
                     Widget::col(vec![
                         Widget::draw_svg(ctx, "../data/system/assets/pregame/logo.svg").margin(5),
+                        // TODO that nicer font
                         // TODO Any key
-                        // TODO The hover color is wacky
-                        Btn::svg_def("../data/system/assets/pregame/start.svg")
+                        Btn::text_bg2("PLAY")
                             .build(ctx, "start game", hotkeys(vec![Key::Space, Key::Enter]))
                             .margin(5),
                     ])

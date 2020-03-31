@@ -1,4 +1,4 @@
-use crate::{CarID, PedestrianID, VehicleType};
+use crate::{CarID, PedestrianID, PersonID, VehicleType};
 use geom::{Angle, Distance, PolyLine, Pt2D, Time};
 use map_model::{BuildingID, Map, Traversable, TurnID};
 
@@ -50,6 +50,8 @@ pub struct UnzoomedAgent {
     // None means a pedestrian.
     pub vehicle_type: Option<VehicleType>,
     pub pos: Pt2D,
+    // None means a bus.
+    pub person: Option<PersonID>,
 }
 
 // TODO Can we return borrows instead? Nice for time travel, not for main sim?

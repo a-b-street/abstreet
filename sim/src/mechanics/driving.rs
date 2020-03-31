@@ -98,6 +98,7 @@ impl DrivingSimState {
                 started_at: now,
                 total_blocked_time: Duration::ZERO,
                 trip: params.trip,
+                person: params.person,
             };
             if let Some(p) = params.maybe_parked_car {
                 car.state = CarState::Unparking(
@@ -782,6 +783,7 @@ impl DrivingSimState {
                 result.push(UnzoomedAgent {
                     vehicle_type: Some(car.vehicle.vehicle_type),
                     pos: queue.id.dist_along(dist, map).0,
+                    person: car.person,
                 });
             }
         }
