@@ -19,8 +19,10 @@ use ezgui::{
 };
 use geom::{Circle, Distance, Duration, Time};
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID};
-use sim::{AgentID, Analytics, CarID, PedestrianID, PersonID, PersonState, TripMode, VehicleType};
-use std::collections::{BTreeMap, HashMap};
+use sim::{
+    AgentID, Analytics, CarID, PedestrianID, PersonID, PersonState, TripID, TripMode, VehicleType,
+};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 pub struct InfoPanel {
     tab: Tab,
@@ -40,7 +42,7 @@ pub struct InfoPanel {
 #[derive(Clone, PartialEq)]
 pub enum Tab {
     PersonStatus(PersonID),
-    PersonTrips(PersonID),
+    PersonTrips(PersonID, BTreeSet<TripID>),
     PersonBio(PersonID),
 
     BusStatus(CarID),
@@ -100,7 +102,7 @@ impl Tab {
     // TODO Temporary hack until object actions go away.
     fn to_id(self, app: &App) -> Option<ID> {
         match self {
-            Tab::PersonStatus(p) | Tab::PersonTrips(p) | Tab::PersonBio(p) => {
+            Tab::PersonStatus(p) | Tab::PersonTrips(p, _) | Tab::PersonBio(p) => {
                 match app.primary.sim.get_person(p).state {
                     PersonState::Inside(b) => Some(ID::Building(b)),
                     PersonState::Trip(t) => app
@@ -177,7 +179,9 @@ impl InfoPanel {
 
         let (mut col, main_tab) = match tab {
             Tab::PersonStatus(p) => (person::status(ctx, app, &mut details, p), true),
-            Tab::PersonTrips(p) => (person::trips(ctx, app, &mut details, p), false),
+            Tab::PersonTrips(p, ref open) => {
+                (person::trips(ctx, app, &mut details, p, open), false)
+            }
             Tab::PersonBio(p) => (person::bio(ctx, app, &mut details, p), false),
             Tab::BusStatus(c) => (bus::bus_status(ctx, app, &mut details, c), true),
             Tab::BusDelays(c) => (bus::bus_delays(ctx, app, &mut details, c), true),

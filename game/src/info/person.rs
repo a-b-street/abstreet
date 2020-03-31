@@ -3,7 +3,10 @@ use crate::info::{building, header_btns, make_table, make_tabs, trip, Details, T
 use crate::render::Renderable;
 use ezgui::{Btn, Color, EventCtx, Line, TextExt, Widget};
 use map_model::Map;
-use sim::{AgentID, CarID, PedestrianID, Person, PersonID, PersonState, TripResult, VehicleType};
+use sim::{
+    AgentID, CarID, PedestrianID, Person, PersonID, PersonState, TripID, TripResult, VehicleType,
+};
+use std::collections::BTreeSet;
 
 pub fn status(ctx: &mut EventCtx, app: &App, details: &mut Details, id: PersonID) -> Vec<Widget> {
     let mut rows = header(ctx, app, details, id, Tab::PersonStatus(id));
@@ -43,15 +46,29 @@ pub fn status(ctx: &mut EventCtx, app: &App, details: &mut Details, id: PersonID
                 }
             }
 
-            rows.push(trip::details(ctx, app, t, details));
+            let mut open_trips = BTreeSet::new();
+            open_trips.insert(t);
+            rows.push(trip::details(ctx, app, t, details, id, open_trips));
         }
     }
 
     rows
 }
 
-pub fn trips(ctx: &mut EventCtx, app: &App, details: &mut Details, id: PersonID) -> Vec<Widget> {
-    let mut rows = header(ctx, app, details, id, Tab::PersonTrips(id));
+pub fn trips(
+    ctx: &mut EventCtx,
+    app: &App,
+    details: &mut Details,
+    id: PersonID,
+    open_trips: &BTreeSet<TripID>,
+) -> Vec<Widget> {
+    let mut rows = header(
+        ctx,
+        app,
+        details,
+        id,
+        Tab::PersonTrips(id, open_trips.clone()),
+    );
 
     let map = &app.primary.map;
     let sim = &app.primary.sim;
@@ -79,7 +96,26 @@ pub fn trips(ctx: &mut EventCtx, app: &App, details: &mut Details, id: PersonID)
             }
             TripResult::TripDoesntExist => unreachable!(),
         }
-        rows.push(trip::details(ctx, app, *t, details));
+        if open_trips.contains(t) {
+            rows.push(trip::details(ctx, app, *t, details, id, open_trips.clone()));
+        } else {
+            // TODO Style wrong. Button should be the entire row.
+            rows.push(
+                Widget::row(vec![
+                    format!("Trip #{}", t.0).draw_text(ctx),
+                    Btn::text_fg("▼")
+                        .build(ctx, format!("show Trip #{}", t.0), None)
+                        .align_right(),
+                ])
+                .outline(2.0, Color::WHITE),
+            );
+            let mut new_trips = open_trips.clone();
+            new_trips.insert(*t);
+            details.hyperlinks.insert(
+                format!("show Trip #{}", t.0),
+                Tab::PersonTrips(id, new_trips),
+            );
+        }
     }
     if wheres_waldo {
         rows.push(current_status(ctx, person, map));
@@ -182,23 +218,26 @@ pub fn parked_car(ctx: &EventCtx, app: &App, details: &mut Details, id: CarID) -
 fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: PersonID, tab: Tab) -> Vec<Widget> {
     let mut rows = vec![];
 
-    let descr = match app.primary.sim.get_person(id).state {
+    let (current_trip, descr) = match app.primary.sim.get_person(id).state {
         PersonState::Inside(b) => {
             building::draw_occupants(details, app, b, Some(id));
-            "inside"
+            (None, "inside")
         }
-        PersonState::Trip(t) => match app.primary.sim.trip_to_agent(t).ok() {
-            Some(AgentID::Pedestrian(_)) => "on foot",
-            Some(AgentID::Car(c)) => match c.1 {
-                VehicleType::Car => "in a car",
-                VehicleType::Bike => "on a bike",
-                VehicleType::Bus => unreachable!(),
+        PersonState::Trip(t) => (
+            Some(t),
+            match app.primary.sim.trip_to_agent(t).ok() {
+                Some(AgentID::Pedestrian(_)) => "on foot",
+                Some(AgentID::Car(c)) => match c.1 {
+                    VehicleType::Car => "in a car",
+                    VehicleType::Bike => "on a bike",
+                    VehicleType::Bus => unreachable!(),
+                },
+                // TODO Really should clean up the TripModeChange issue
+                None => "...",
             },
-            // TODO Really should clean up the TripModeChange issue
-            None => "...",
-        },
-        PersonState::OffMap => "off map",
-        PersonState::Limbo => "in limbo",
+        ),
+        PersonState::OffMap => (None, "off map"),
+        PersonState::Limbo => (None, "in limbo"),
     };
 
     rows.push(Widget::row(vec![
@@ -208,13 +247,17 @@ fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: PersonID, tab: T
         header_btns(ctx),
     ]));
 
+    let mut open_trips = BTreeSet::new();
+    if let Some(t) = current_trip {
+        open_trips.insert(t);
+    }
     rows.push(make_tabs(
         ctx,
         &mut details.hyperlinks,
         tab,
         vec![
             ("Status", Tab::PersonStatus(id)),
-            ("Trips", Tab::PersonTrips(id)),
+            ("Trips", Tab::PersonTrips(id, open_trips)),
             ("Bio", Tab::PersonBio(id)),
         ],
     ));

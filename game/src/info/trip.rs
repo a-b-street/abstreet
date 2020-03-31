@@ -1,16 +1,24 @@
 use crate::app::App;
 use crate::colors;
 use crate::helpers::ID;
-use crate::info::{make_table, Details};
+use crate::info::{make_table, Details, Tab};
 use crate::render::dashed_lines;
 use ezgui::{
     Btn, Color, EventCtx, GeomBatch, Line, Plot, PlotOptions, RewriteColor, Series, Text, Widget,
 };
 use geom::{Angle, Distance, Duration, Polygon, Pt2D, Time};
 use map_model::{Map, Path, PathStep};
-use sim::{TripEndpoint, TripID, TripPhaseType, TripResult};
+use sim::{PersonID, TripEndpoint, TripID, TripPhaseType, TripResult};
+use std::collections::BTreeSet;
 
-pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Details) -> Widget {
+pub fn details(
+    ctx: &mut EventCtx,
+    app: &App,
+    trip: TripID,
+    details: &mut Details,
+    person: PersonID,
+    mut open_trips: BTreeSet<TripID>,
+) -> Widget {
     let map = &app.primary.map;
     let sim = &app.primary.sim;
     let phases = sim.get_analytics().get_trip_phases(trip, map);
@@ -24,7 +32,19 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
         TripResult::TripDone => ("finished", None),
         TripResult::TripDoesntExist => unreachable!(),
     };
-    let mut col = vec![Line(format!("Trip #{} ({})", trip.0, trip_status)).draw(ctx)];
+    let mut col = vec![Widget::row(vec![
+        Line(format!("Trip #{} ({})", trip.0, trip_status)).draw(ctx),
+        Btn::text_fg("▲")
+            .build(ctx, format!("hide Trip #{}", trip.0), None)
+            .align_right(),
+    ])
+    .outline(2.0, Color::WHITE)];
+
+    open_trips.remove(&trip);
+    details.hyperlinks.insert(
+        format!("hide Trip #{}", trip.0),
+        Tab::PersonTrips(person, open_trips),
+    );
 
     let mut kv = vec![
         ("Departure", start_time.ampm_tostring()),
