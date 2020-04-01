@@ -13,8 +13,8 @@ const E_RATIO: f64 = I_RATIO / 2.0;
 
 pub struct PandemicModel {
     // TODO For the moment let's develop everything with the SEIR model and refactor
-    pub exposed: BTreeMap<PersonID, Time>,
-    pub infected: BTreeMap<PersonID, Time>,
+    pub exposed: BTreeMap<PersonID, (Time, Time)>,
+    pub infected: BTreeMap<PersonID, (Time, Time)>,
     pub recovered: BTreeSet<PersonID>,
     // Since when has a person been inside a building?
     // TODO This is an awkward data structure; abstutil::MultiMap is also bad, because key removal
@@ -24,6 +24,18 @@ pub struct PandemicModel {
     t_inf: f64,
     t_inc: f64,
     r0: f64,
+}
+
+fn bad_proba(prob: f64) {
+    if prob < 0.0 && prob > 1.0 {
+        panic!("Bad probability {}", prob);
+    }
+}
+
+fn bad_time_order(t0: f64, t1: f64) {
+    if t0 > t1 {
+        panic!("Bad time ordering {} {}", t0, t1);
+    }
 }
 
 impl PandemicModel {
@@ -41,23 +53,43 @@ impl PandemicModel {
 
     fn proba_s_to_e(&self, time: f64) -> f64 {
         let prob = 1.0 - (-time * self.r0 / self.t_inf).exp();
-        assert!(prob >= 0.0 && prob <= 1.0);
+        bad_proba(prob);
         prob
     }
 
+    // goind from -infinity to t
     fn erf_distrib(t: f64, mu: f64, sigma: f64) -> f64 {
         0.5 - 0.5 * libm::erf((-t + mu) / (f64::sqrt(2.0) * sigma))
     }
 
+    fn erf_distrib_bounded(t0: f64, t1: f64, mu: f64, sigma: f64) -> f64 {
+        bad_time_order(t0, t1);
+        0.5*libm::erf((-t0+mu)/(f64::sqrt(2.0) * sigma)) - 0.5*libm::erf((-t1+mu)/(f64::sqrt(2.0) * sigma))
+    }
+    
+
     fn proba_e_to_i(&self, time: f64) -> f64 {
         let prob = Self::erf_distrib(time, self.t_inc, self.t_inc / 4.0);
-        assert!(prob >= 0.0 && prob <= 1.0);
+        bad_proba(prob);
         prob
     }
 
     fn proba_i_to_r(&self, time: f64) -> f64 {
         let prob = Self::erf_distrib(time, self.t_inf, self.t_inf / 4.0);
-        assert!(prob >= 0.0 && prob <= 1.0);
+        bad_proba(prob);
+        prob
+    }
+    
+
+    fn proba_e_to_i_bounded(&self, ti: f64, t0: f64, t1: f64) -> f64 {
+        let prob = Self::erf_distrib_bounded(t0, t1, ti + self.t_inc, self.t_inc / 4.0);
+        bad_proba(prob);
+        prob
+    }
+
+    fn proba_i_to_r_bounded(&self, ti: f64, t0: f64, t1: f64) -> f64 {
+        let prob = Self::erf_distrib_bounded(t0, t1, ti + self.t_inf, self.t_inf / 4.0);
+        bad_proba(prob);
         prob
     }
 
@@ -119,7 +151,8 @@ impl PandemicModel {
                     if rng
                         .gen_bool(state.proba_s_to_e(longest_overlap_with_infected.inner_seconds()))
                     {
-                        state.exposed.insert(*person, *time);
+                        // implifitly the person was sane before
+                        state.exposed.insert(*person, (*time, *time));
                     }
                 }
             } else {
@@ -136,12 +169,12 @@ impl PandemicModel {
 
                         // let rnd_time: f64 = rng.gen::<f64>() * state.t_inf;
                         // state.exposed.insert(*person, Time::START_OF_DAY - Duration::seconds(rnd_time));
-                        state.exposed.insert(*person, Time::START_OF_DAY);
+                        state.exposed.insert(*person, (Time::START_OF_DAY, Time::START_OF_DAY));
                     } else if rng.gen_bool(I_RATIO) {
                         // TODO ideally we would like to have negative times for intialisation
                         // let rnd_time: f64 = rng.gen::<f64>() * state.t_inc;
                         // state.infected.insert(*person, Time::START_OF_DAY - Duration::seconds(rnd_time));
-                        state.infected.insert(*person, Time::START_OF_DAY);
+                        state.infected.insert(*person, (Time::START_OF_DAY, Time::START_OF_DAY));
                     }
                 }
             }
@@ -149,29 +182,37 @@ impl PandemicModel {
             // Not perfect because we are only considering people entering/leaving buildings
             // this should be performed by listening to any event actually (let's see how to get that)
             // Transition I -> R
-            if let Some(t0) = state.infected.get(person) {
-                let dt = now - *t0;
-
-                if rng.gen_bool(state.proba_i_to_r(dt.inner_seconds())) {
+            let inf_pers = {
+                state.infected.get(person).clone()
+            };
+            if let Some((t0, last_check)) = inf_pers {
+                // let dt = now - *t0;
+                if rng.gen_bool(state.proba_i_to_r_bounded(t0.inner_seconds(), last_check.inner_seconds(), time.inner_seconds())) {
                     state.recovered.insert(*person);
                     state.infected.remove(person);
+                } else {
+                    // We rather store the last moment
+                    state.infected.insert(*person, (*t0, *time));
                 }
             }
 
             // Not perfect because we are only considering people leaving building
             // this should be performed by listening to any event actually (let's see how to get that)
             // Transition E -> I
-            if let Some(t0) = state.exposed.get(person) {
-                let dt = now - *t0;
-                if rng.gen_bool(state.proba_e_to_i(dt.inner_seconds())) {
-                    state.infected.insert(*person, *time);
+            let exp_pers = {
+                state.exposed.get(person).clone()
+            };
+            if let Some((t0, last_check)) = exp_pers {
+                // let dt = now - *t0;
+                let prob = state.proba_e_to_i_bounded(t0.inner_seconds(), last_check.inner_seconds(), time.inner_seconds());
+                println!("prob = {}", prob);
+                if rng.gen_bool(prob) {
+                    state.infected.insert(*person, (*time, *time));
                     state.exposed.remove(person);
+                } else {
+                    // We rather store the last moment
+                    state.exposed.insert(*person, (*t0, *time));
                 }
-
-                // } else {
-                //     // We rather store the last moment
-                //     state.exposed.insert(*person, now);
-                // }
             }
         }
 
