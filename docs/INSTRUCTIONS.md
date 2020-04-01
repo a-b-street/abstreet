@@ -65,5 +65,5 @@ A/B Street binary releases contain pre-built maps that combine data from:
 
 Other binary data bundled in:
 
-- Roboto font (https://fonts.google.com/specimen/Roboto, Apache license)
+- Overpass font (https://fonts.google.com/specimen/Overpass, Open Font License)
 - Bungee fonts (https://fonts.google.com/specimen/Bungee, Open Font License)

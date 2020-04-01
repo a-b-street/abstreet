@@ -20,10 +20,11 @@ pub const MAX_CHAR_WIDTH: f64 = 25.0;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Font {
-    Roboto,
-    RobotoBold,
-    Bungee,
-    BungeeInline,
+    BungeeInlineRegular,
+    BungeeRegular,
+    OverpassBold,
+    OverpassRegular,
+    OverpassSemiBold,
 }
 
 #[derive(Debug, Clone)]
@@ -48,40 +49,39 @@ impl TextSpan {
     // Yuwen's new styles, defined in Figma. Should document them in Github better.
 
     pub fn display_title(mut self) -> TextSpan {
-        self.font = Font::BungeeInline;
+        self.font = Font::BungeeInlineRegular;
         self.size = Some(64);
         self
     }
     pub fn big_heading_styled(mut self) -> TextSpan {
-        self.font = Font::Bungee;
+        self.font = Font::BungeeRegular;
         self.size = Some(32);
         self
     }
     pub fn big_heading_plain(mut self) -> TextSpan {
-        self.font = Font::RobotoBold;
+        self.font = Font::OverpassBold;
         self.size = Some(32);
         self
     }
     pub fn small_heading(mut self) -> TextSpan {
-        // TODO Roboto medium?
-        self.font = Font::RobotoBold;
+        self.font = Font::OverpassSemiBold;
         self.size = Some(26);
         self
     }
     // The default
     pub fn body(mut self) -> TextSpan {
-        self.font = Font::Roboto;
+        self.font = Font::OverpassRegular;
         self.size = Some(21);
         self
     }
     pub fn secondary(mut self) -> TextSpan {
-        self.font = Font::Roboto;
+        self.font = Font::OverpassRegular;
         self.size = Some(21);
         self.fg_color = Color::hex("#A3A3A3");
         self
     }
     pub fn small(mut self) -> TextSpan {
-        self.font = Font::Roboto;
+        self.font = Font::OverpassRegular;
         self.size = Some(16);
         self
     }
@@ -94,7 +94,7 @@ pub fn Line<S: Into<String>>(text: S) -> TextSpan {
         text: text.into(),
         fg_color: FG_COLOR,
         size: None,
-        font: Font::Roboto,
+        font: Font::OverpassRegular,
     }
 }
 
@@ -316,10 +316,11 @@ fn render_text(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
         r##"<svg width="9999" height="9999" viewBox="0 0 9999 9999" xmlns="http://www.w3.org/2000/svg"><text x="0" y="0" font-size="{}" {}>"##,
         spans[0].size.unwrap_or(*assets.default_font_size.borrow()),
         match spans[0].font {
-            Font::BungeeInline => "font-family=\"Bungee Inline\"",
-            Font::Bungee => "font-family=\"Bungee\"",
-            Font::Roboto => "font-family=\"Roboto\"",
-            Font::RobotoBold => "font-family=\"Roboto\" font-weight=\"bold\"",
+            Font::BungeeInlineRegular => "font-family=\"Bungee Inline\"",
+            Font::BungeeRegular => "font-family=\"Bungee\"",
+            Font::OverpassBold => "font-family=\"Overpass\" font-weight=\"bold\"",
+            Font::OverpassRegular => "font-family=\"Overpass\"",
+            Font::OverpassSemiBold => "font-family=\"Overpass\" font-weight=\"600\"",
         }
     );
 

@@ -29,7 +29,7 @@ impl Assets {
             text_opts: Options::default(),
         };
         *a.default_line_height.borrow_mut() =
-            a.line_height(Font::Roboto, *a.default_font_size.borrow());
+            a.line_height(Font::OverpassRegular, *a.default_font_size.borrow());
         a.text_opts.font_directories.push(font_dir);
         a
     }
@@ -48,10 +48,11 @@ impl Assets {
         let height = text::SCALE_LINE_HEIGHT
             * *self.scale_factor.borrow()
             * db.load_font_idx(match font {
-                Font::BungeeInline => 0,
-                Font::Bungee => 1,
-                Font::RobotoBold => 2,
-                Font::Roboto => 3,
+                Font::BungeeInlineRegular => 0,
+                Font::BungeeRegular => 1,
+                Font::OverpassBold => 2,
+                Font::OverpassRegular => 3,
+                Font::OverpassSemiBold => 4,
             })
             .unwrap()
             .height(font_size as f64);
@@ -91,6 +92,6 @@ impl Assets {
         self.line_height_cache.borrow_mut().clear();
         self.svg_cache.borrow_mut().clear();
         *self.default_line_height.borrow_mut() =
-            self.line_height(Font::Roboto, *self.default_font_size.borrow());
+            self.line_height(Font::OverpassRegular, *self.default_font_size.borrow());
     }
 }
