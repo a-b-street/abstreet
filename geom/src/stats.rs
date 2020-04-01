@@ -68,6 +68,18 @@ impl HgramValue<u16> for u16 {
     }
 }
 
+impl HgramValue<usize> for usize {
+    fn zero() -> usize {
+        0
+    }
+    fn to_u64(self) -> u64 {
+        self as u64
+    }
+    fn from_u64(x: u64) -> usize {
+        x as usize
+    }
+}
+
 #[derive(Clone)]
 pub struct Histogram<T: HgramValue<T>> {
     count: usize,

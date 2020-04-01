@@ -5,7 +5,7 @@ use geom::{Bounds, Histogram, Polygon, Pt2D};
 pub struct HeatmapOptions {
     // In meters
     pub resolution: f64,
-    pub num_passes: usize,
+    pub radius: usize,
     pub colors: HeatmapColors,
 }
 
@@ -13,7 +13,7 @@ impl HeatmapOptions {
     pub fn new() -> HeatmapOptions {
         HeatmapOptions {
             resolution: 10.0,
-            num_passes: 5,
+            radius: 3,
             colors: HeatmapColors::FullSpectral,
         }
     }
@@ -39,43 +39,38 @@ pub fn make_heatmap(batch: &mut GeomBatch, bounds: &Bounds, pts: Vec<Pt2D>, opts
         return;
     }
 
-    // u8 is not quite enough -- one building could totally have more than 256 people.
-    let mut counts: Grid<u16> = Grid::new(
+    let mut grid: Grid<f64> = Grid::new(
         (bounds.width() / opts.resolution).ceil() as usize,
         (bounds.height() / opts.resolution).ceil() as usize,
-        0,
+        0.0,
     );
 
+    // At each point, add a 2D Gaussian kernel centered at the point.
     for pt in pts {
-        // TODO more careful rounding
-        let idx = counts.idx(
-            ((pt.x() - bounds.min_x) / opts.resolution) as usize,
-            ((pt.y() - bounds.min_y) / opts.resolution) as usize,
-        );
-        counts.data[idx] += 1;
-    }
+        let base_x = ((pt.x() - bounds.min_x) / opts.resolution) as isize;
+        let base_y = ((pt.y() - bounds.min_y) / opts.resolution) as isize;
+        let denom = 2.0 * (opts.radius as f64).powi(2);
 
-    // Diffusion
-    for _ in 0..opts.num_passes {
-        // Have to hot-swap! Urgh
-        let mut copy = counts.data.clone();
-        for y in 0..counts.height {
-            for x in 0..counts.width {
-                let idx = counts.idx(x, y);
-                if counts.data[idx] > 0 {
-                    copy[idx] += 1;
-                    for idx in counts.neighbors_8(x, y) {
-                        copy[idx] += 1;
-                    }
+        let r = opts.radius as isize;
+        for x in base_x - r..=base_x + r {
+            for y in base_y - r..=base_y + r {
+                if x > 0 && y > 0 && x < (grid.width as isize) && y < (grid.height as isize) {
+                    // https://en.wikipedia.org/wiki/Gaussian_function#Two-dimensional_Gaussian_function
+                    // TODO Amplitude of 1 fine?
+                    let value = (-(((x - base_x) as f64).powi(2) / denom
+                        + ((y - base_y) as f64).powi(2) / denom))
+                        .exp();
+                    let idx = grid.idx(x as usize, y as usize);
+                    grid.data[idx] += value;
                 }
             }
         }
-        counts.data = copy;
     }
 
-    let mut cnt_distrib = Histogram::new();
-    for cnt in &counts.data {
-        cnt_distrib.add(*cnt);
+    let mut distrib = Histogram::new();
+    for count in &grid.data {
+        // TODO Just truncate the decimal?
+        distrib.add(*count as usize);
     }
 
     // This is in order from low density to high.
@@ -100,25 +95,25 @@ pub fn make_heatmap(batch: &mut GeomBatch, bounds: &Bounds, pts: Vec<Pt2D>, opts
         ],
     };
     let num_colors = colors.len();
-    let max_cnts_per_bucket: Vec<(u16, Color)> = (1..=num_colors)
+    let max_count_per_bucket: Vec<(usize, Color)> = (1..=num_colors)
         .map(|i| {
-            cnt_distrib
+            distrib
                 .percentile(100.0 * (i as f64) / (num_colors as f64))
-                .unwrap()
+                .unwrap() as usize
         })
         .zip(colors.into_iter())
         .collect();
 
     // Now draw rectangles
     let square = Polygon::rectangle(opts.resolution, opts.resolution);
-    for y in 0..counts.height {
-        for x in 0..counts.width {
-            let idx = counts.idx(x, y);
-            let cnt = counts.data[idx];
-            if cnt > 0 {
-                let mut color = max_cnts_per_bucket[0].1;
-                for (max, c) in &max_cnts_per_bucket {
-                    if cnt >= *max {
+    for y in 0..grid.height {
+        for x in 0..grid.width {
+            let idx = grid.idx(x, y);
+            let count = grid.data[idx];
+            if count > 0.0 {
+                let mut color = max_count_per_bucket[0].1;
+                for (max, c) in &max_count_per_bucket {
+                    if count as usize >= *max {
                         color = *c;
                     } else {
                         break;
@@ -152,19 +147,5 @@ impl<T: Copy> Grid<T> {
     fn idx(&self, x: usize, y: usize) -> usize {
         // Row-major
         y * self.width + x
-    }
-
-    fn neighbors_8(&self, x: usize, y: usize) -> Vec<usize> {
-        let mut indices = Vec::new();
-        let x1 = if x == 0 { 0 } else { x - 1 };
-        let x2 = if x == self.width - 1 { x } else { x + 1 };
-        let y1 = if y == 0 { 0 } else { y - 1 };
-        let y2 = if y == self.height - 1 { y } else { y + 1 };
-        for x in x1..=x2 {
-            for y in y1..=y2 {
-                indices.push(self.idx(x, y));
-            }
-        }
-        indices
     }
 }

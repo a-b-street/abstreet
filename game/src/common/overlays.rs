@@ -976,20 +976,18 @@ fn population_controls(
                 .centered_vert(),
         ]));
         col.push(Widget::row(vec![
-            "Diffusion (num of passes)".draw_text(ctx).margin(5),
+            "Radius (0 to 10 * resolution)".draw_text(ctx).margin(5),
             // 0 to 10
-            Slider::horizontal(ctx, 100.0, 25.0, (o.num_passes as f64) / 10.0)
-                .named("passes")
+            Slider::horizontal(ctx, 100.0, 25.0, (o.radius as f64) / 10.0)
+                .named("radius")
                 .align_right()
                 .centered_vert(),
         ]));
 
-        col.push(Widget::dropdown(
-            ctx,
-            "Colors",
-            o.colors,
-            HeatmapColors::choices(),
-        ));
+        col.push(Widget::row(vec![
+            "Color scheme".draw_text(ctx).margin(5),
+            Widget::dropdown(ctx, "Colors", o.colors, HeatmapColors::choices()),
+        ]));
     }
 
     Composite::new(Widget::col(col).padding(5).bg(colors::PANEL_BG))
@@ -1003,7 +1001,7 @@ fn population_options(c: &mut Composite) -> PopulationOptions {
         if c.has_widget("resolution") {
             Some(HeatmapOptions {
                 resolution: 1.0 + c.slider("resolution").get_percent() * 99.0,
-                num_passes: (c.slider("passes").get_percent() * 10.0) as usize,
+                radius: (c.slider("radius").get_percent() * 10.0) as usize,
                 colors: c.dropdown_value("Colors"),
             })
         } else {
