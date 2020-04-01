@@ -5,9 +5,11 @@ use rand::Rng;
 use rand_xorshift::XorShiftRng;
 use std::collections::{BTreeMap, BTreeSet};
 
-const T_INF: f64 = 3600.0; // TODO dummy values
+const T_INF: f64 = 3600.0 * 24.0 * 7.0; // TODO dummy values
 const T_INC: f64 = 3600.0; // TODO dummy values
 const R_0: f64 = 2.5;
+const I_RATIO: f64 = 0.01;
+const E_RATIO: f64 = I_RATIO / 2.0;
 
 pub struct PandemicModel {
     // TODO For the moment let's develop everything with the SEIR model and refactor
@@ -44,7 +46,7 @@ impl PandemicModel {
     }
 
     fn erf_distrib(t: f64, mu: f64, sigma: f64) -> f64 {
-        0.5 - 0.5 * libm::erf((-t + mu) / f64::sqrt(2.0 * sigma))
+        0.5 - 0.5 * libm::erf((-t + mu) / (f64::sqrt(2.0) * sigma))
     }
 
     fn proba_e_to_i(&self, time: f64) -> f64 {
@@ -120,28 +122,6 @@ impl PandemicModel {
                         state.exposed.insert(*person, *time);
                     }
                 }
-
-                // Not perfect because we are only considering people leaving building
-                // this should be performed by listening to any event actually (let's see how to get that)
-                if let Some(t0) = state.infected.get(person) {
-                    let dt = now - *t0;
-
-                    if rng.gen_bool(state.proba_i_to_r(dt.inner_seconds())) {
-                        state.recovered.insert(*person);
-                        state.infected.remove(person);
-                    }
-                }
-
-                // Not perfect because we are only considering people leaving building
-                // this should be performed by listening to any event actually (let's see how to get that)
-                if let Some(t0) = state.exposed.get(person) {
-                    let dt = now - *t0;
-
-                    if rng.gen_bool(state.proba_e_to_i(dt.inner_seconds())) {
-                        state.infected.insert(*person, *time);
-                        state.exposed.remove(person);
-                    }
-                }
             } else {
                 state
                     .bldg_occupants
@@ -151,12 +131,47 @@ impl PandemicModel {
 
                 // Bit of a hack to seed initial state per person here, but eh
                 if *time == Time::START_OF_DAY {
-                    if rng.gen_bool(0.1) {
-                        state.exposed.insert(*person, *time);
-                    } else if rng.gen_bool(0.1) {
-                        state.infected.insert(*person, *time);
+                    if rng.gen_bool(E_RATIO) {
+                        // TODO ideally we would like to have negative times for intialisation
+
+                        // let rnd_time: f64 = rng.gen::<f64>() * state.t_inf;
+                        // state.exposed.insert(*person, Time::START_OF_DAY - Duration::seconds(rnd_time));
+                        state.exposed.insert(*person, Time::START_OF_DAY);
+                    } else if rng.gen_bool(I_RATIO) {
+                        // TODO ideally we would like to have negative times for intialisation
+                        // let rnd_time: f64 = rng.gen::<f64>() * state.t_inc;
+                        // state.infected.insert(*person, Time::START_OF_DAY - Duration::seconds(rnd_time));
+                        state.infected.insert(*person, Time::START_OF_DAY);
                     }
                 }
+            }
+
+            // Not perfect because we are only considering people entering/leaving buildings
+            // this should be performed by listening to any event actually (let's see how to get that)
+            // Transition I -> R
+            if let Some(t0) = state.infected.get(person) {
+                let dt = now - *t0;
+
+                if rng.gen_bool(state.proba_i_to_r(dt.inner_seconds())) {
+                    state.recovered.insert(*person);
+                    state.infected.remove(person);
+                }
+            }
+
+            // Not perfect because we are only considering people leaving building
+            // this should be performed by listening to any event actually (let's see how to get that)
+            // Transition E -> I
+            if let Some(t0) = state.exposed.get(person) {
+                let dt = now - *t0;
+                if rng.gen_bool(state.proba_e_to_i(dt.inner_seconds())) {
+                    state.infected.insert(*person, *time);
+                    state.exposed.remove(person);
+                }
+
+                // } else {
+                //     // We rather store the last moment
+                //     state.exposed.insert(*person, now);
+                // }
             }
         }
 
