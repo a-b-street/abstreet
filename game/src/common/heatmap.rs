@@ -1,5 +1,5 @@
 use ezgui::{Choice, Color, GeomBatch};
-use geom::{Bounds, Polygon, Pt2D};
+use geom::{Bounds, Histogram, Polygon, Pt2D};
 
 #[derive(Clone, PartialEq)]
 pub struct HeatmapOptions {
@@ -35,6 +35,10 @@ impl HeatmapColors {
 }
 
 pub fn make_heatmap(batch: &mut GeomBatch, bounds: &Bounds, pts: Vec<Pt2D>, opts: &HeatmapOptions) {
+    if pts.is_empty() {
+        return;
+    }
+
     // u8 is not quite enough -- one building could totally have more than 256 people.
     let mut counts: Grid<u16> = Grid::new(
         (bounds.width() / opts.resolution).ceil() as usize,
@@ -69,8 +73,11 @@ pub fn make_heatmap(batch: &mut GeomBatch, bounds: &Bounds, pts: Vec<Pt2D>, opts
         counts.data = copy;
     }
 
-    // Now draw rectangles
-    let max = *counts.data.iter().max().unwrap();
+    let mut cnt_distrib = Histogram::new();
+    for cnt in &counts.data {
+        cnt_distrib.add(*cnt);
+    }
+
     // This is in order from low density to high.
     let colors = match opts.colors {
         HeatmapColors::FullSpectral => vec![
@@ -92,20 +99,32 @@ pub fn make_heatmap(batch: &mut GeomBatch, bounds: &Bounds, pts: Vec<Pt2D>, opts
             Color::hex("#C40A0A"),
         ],
     };
-    // TODO Off by 1?
-    let range = max / ((colors.len() - 1) as u16);
-    if range == 0 {
-        // Max is too low, use less colors?
-        return;
-    }
+    let num_colors = colors.len();
+    let max_cnts_per_bucket: Vec<(u16, Color)> = (1..=num_colors)
+        .map(|i| {
+            cnt_distrib
+                .percentile(100.0 * (i as f64) / (num_colors as f64))
+                .unwrap()
+        })
+        .zip(colors.into_iter())
+        .collect();
+
+    // Now draw rectangles
     let square = Polygon::rectangle(opts.resolution, opts.resolution);
     for y in 0..counts.height {
         for x in 0..counts.width {
             let idx = counts.idx(x, y);
             let cnt = counts.data[idx];
             if cnt > 0 {
-                // TODO Urgh, uneven buckets
-                let color = colors[((cnt / range) as usize).min(colors.len() - 1)];
+                let mut color = max_cnts_per_bucket[0].1;
+                for (max, c) in &max_cnts_per_bucket {
+                    if cnt >= *max {
+                        color = *c;
+                    } else {
+                        break;
+                    }
+                }
+
                 batch.push(
                     color,
                     square.translate((x as f64) * opts.resolution, (y as f64) * opts.resolution),
