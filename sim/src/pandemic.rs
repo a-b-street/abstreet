@@ -5,8 +5,8 @@ use rand::Rng;
 use rand_xorshift::XorShiftRng;
 use std::collections::{BTreeMap, BTreeSet};
 
-const T_INF: f64 = 3600.0 * 24.0 * 5.0;
-const T_INC: f64 = 3600.0 * 24.0 * 5.0;
+const T_INF: f64 = 3600.0; // TODO dummy values
+const T_INC: f64 = 3600.0; // TODO dummy values
 const R_0: f64 = 2.5;
 
 pub struct PandemicModel {
@@ -100,7 +100,7 @@ impl PandemicModel {
                 // this should be performed by listening to any event actually (let's see how to get that)
                 if let Some(t0) = state.infected.get(person) {
                     let dt = now - *t0;
-                    let m = dt.inner_seconds() - state.t_inf;
+                    let m = (dt.inner_seconds() - state.t_inf).abs();
                     let n = state.t_inf / 4.0;
 
                     let prob = libm::erf(0.5 * m * f64::sqrt(2.0)/n.sqrt()) - libm::erf(0.5 * f64::sqrt(2.0) * (-dt.inner_seconds() + m) / n.sqrt());
@@ -114,7 +114,7 @@ impl PandemicModel {
                 // this should be performed by listening to any event actually (let's see how to get that)
                 if let Some(t0) = state.exposed.get(person) {
                     let dt = now - *t0;
-                    let m = dt.inner_seconds() - state.t_inc;
+                    let m = (dt.inner_seconds() - state.t_inc).abs();
                     let n = state.t_inf / 4.0;
 
                     let prob = libm::erf(0.5 * m * f64::sqrt(2.0)/n.sqrt()) - libm::erf(0.5 * f64::sqrt(2.0) * (-dt.inner_seconds() + m) / n.sqrt());
@@ -131,7 +131,7 @@ impl PandemicModel {
                     .push((*person, *time));
 
                 // Bit of a hack to seed initial state per person here, but eh
-                if *time == Time::START_OF_DAY {
+                if *time < Time::START_OF_DAY + Duration::hours(1) {
                     if rng.gen_bool(0.1) {
                         state.exposed.insert(*person, *time);
                     }

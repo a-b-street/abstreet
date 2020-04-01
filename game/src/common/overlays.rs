@@ -843,7 +843,7 @@ impl Overlays {
         if let Some(ref model) = maybe_pandemic {
             for a in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
                 if let Some(p) = a.person {
-                    if model.infected.contains_key(&p) {
+                    if model.infected.contains_key(&p) || model.exposed.contains_key(&p) {
                         pts.push(a.pos);
                     }
                 }
@@ -866,7 +866,7 @@ impl Overlays {
                 PersonState::Inside(b) => {
                     if maybe_pandemic
                         .as_ref()
-                        .map(|m| !m.infected.contains_key(&person.id))
+                        .map(|m| !m.infected.contains_key(&person.id) && !m.exposed.contains_key(&person.id))
                         .unwrap_or(false)
                     {
                         continue;
@@ -951,7 +951,9 @@ fn population_controls(
     if let Some(model) = pandemic {
         col.push(
             format!(
-                "Pandemic model: {} infected ({:.1}%)",
+                "Pandemic model: {} exposed ({:.1}%), {} infected ({:.1}%)",
+                prettyprint_usize(model.exposed.len()),
+                (model.exposed.len() as f64) / (total_ppl as f64) * 100.0,
                 prettyprint_usize(model.infected.len()),
                 (model.infected.len() as f64) / (total_ppl as f64) * 100.0
             )
