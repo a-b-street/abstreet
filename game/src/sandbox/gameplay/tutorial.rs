@@ -16,10 +16,11 @@ use ezgui::{
     VerticalAlignment, Widget,
 };
 use geom::{Distance, Duration, PolyLine, Polygon, Pt2D, Statistic, Time};
-use map_model::{BuildingID, IntersectionID, IntersectionType, LaneType, Map, RoadID};
+use map_model::{BuildingID, IntersectionID, IntersectionType, LaneType, RoadID};
 use maplit::btreeset;
 use sim::{
-    AgentID, Analytics, BorderSpawnOverTime, CarID, OriginDestination, Scenario, VehicleType,
+    AgentID, Analytics, BorderSpawnOverTime, CarID, OriginDestination, ScenarioGenerator,
+    VehicleType,
 };
 
 pub struct Tutorial {
@@ -548,18 +549,29 @@ impl Stage {
 
     fn spawn_randomly(self) -> Stage {
         self.spawn(Box::new(|app| {
-            Scenario::small_run(&app.primary.map).instantiate(
-                &mut app.primary.sim,
-                &app.primary.map,
-                &mut app.primary.current_flags.sim_flags.make_rng(),
-                &mut Timer::throwaway(),
-            )
+            ScenarioGenerator::small_run(&app.primary.map)
+                .generate(
+                    &app.primary.map,
+                    &mut app.primary.current_flags.sim_flags.make_rng(),
+                    &mut Timer::throwaway(),
+                )
+                .instantiate(
+                    &mut app.primary.sim,
+                    &app.primary.map,
+                    &mut app.primary.current_flags.sim_flags.make_rng(),
+                    &mut Timer::throwaway(),
+                )
         }))
     }
 
-    fn spawn_scenario(self, scenario: Scenario) -> Stage {
+    fn spawn_scenario(self, generator: ScenarioGenerator) -> Stage {
         self.spawn(Box::new(move |app| {
             let mut timer = Timer::new("spawn scenario with prebaked results");
+            let scenario = generator.generate(
+                &app.primary.map,
+                &mut app.primary.current_flags.sim_flags.make_rng(),
+                &mut timer,
+            );
             scenario.instantiate(
                 &mut app.primary.sim,
                 &app.primary.map,
@@ -603,8 +615,8 @@ pub struct TutorialState {
     score_delivered: bool,
 }
 
-fn make_bike_lane_scenario(map: &Map) -> Scenario {
-    let mut s = Scenario::empty(map, "car vs bike contention");
+fn make_bike_lane_scenario() -> ScenarioGenerator {
+    let mut s = ScenarioGenerator::empty("car vs bike contention");
     s.border_spawn_over_time.push(BorderSpawnOverTime {
         num_peds: 0,
         num_cars: 10,
@@ -618,8 +630,8 @@ fn make_bike_lane_scenario(map: &Map) -> Scenario {
     s
 }
 
-fn make_bus_lane_scenario(map: &Map) -> Scenario {
-    let mut s = Scenario::empty(map, "car vs bus contention");
+fn make_bus_lane_scenario() -> ScenarioGenerator {
+    let mut s = ScenarioGenerator::empty("car vs bus contention");
     s.only_seed_buses = Some(btreeset! {"43".to_string(), "48".to_string()});
     for src in vec![
         RoadID(61).backwards(),
@@ -1134,7 +1146,7 @@ impl TutorialState {
                 ),
         );
 
-        let bike_lane_scenario = make_bike_lane_scenario(&app.primary.map);
+        let bike_lane_scenario = make_bike_lane_scenario();
 
         state.stages.push(
             Stage::new(Task::WatchBikes)
@@ -1201,7 +1213,7 @@ impl TutorialState {
         );
 
         if false {
-            let bus_lane_scenario = make_bus_lane_scenario(&app.primary.map);
+            let bus_lane_scenario = make_bus_lane_scenario();
             // TODO There's no clear measurement for how well the buses are doing.
             // TODO Probably want a steady stream of the cars appearing
 
@@ -1260,8 +1272,8 @@ impl TutorialState {
     }
 
     // TODO Weird hack to prebake.
-    pub fn scenarios_to_prebake(map: &Map) -> Vec<Scenario> {
-        vec![make_bike_lane_scenario(map), make_bus_lane_scenario(map)]
+    pub fn scenarios_to_prebake() -> Vec<ScenarioGenerator> {
+        vec![make_bike_lane_scenario(), make_bus_lane_scenario()]
     }
 }
 

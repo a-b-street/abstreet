@@ -4,8 +4,7 @@ use abstutil::{prettyprint_usize, MultiMap, Timer};
 use geom::{Distance, Duration, LonLat, Polygon, Pt2D, Time};
 use map_model::{BuildingID, IntersectionID, Map, PathConstraints, Position};
 use sim::{
-    DrivingGoal, IndividTrip, PersonID, PersonSpec, Population, Scenario, SidewalkSpot, SpawnTrip,
-    TripSpec,
+    DrivingGoal, IndividTrip, PersonID, PersonSpec, Scenario, SidewalkSpot, SpawnTrip, TripSpec,
 };
 use std::collections::{BTreeMap, HashMap};
 
@@ -286,7 +285,7 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
     let (trips, _) = clip_trips(map, timer);
     let orig_trips = trips.len();
 
-    let individ_parked_cars = count_cars(&trips, map);
+    let parked_cars_per_bldg = count_cars(&trips, map);
 
     let mut individ_trips: Vec<Option<IndividTrip>> = Vec::new();
     // person -> (trip seq, index into individ_trips)
@@ -311,12 +310,9 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
         prettyprint_usize(trips_per_person.len())
     ));
 
-    let mut population = Population {
-        people: Vec::new(),
-        individ_parked_cars,
-    };
+    let mut people = Vec::new();
     for (_, seq_trips) in trips_per_person.consume() {
-        let id = PersonID(population.people.len());
+        let id = PersonID(people.len());
         let mut trips = Vec::new();
         for (_, idx) in seq_trips {
             // TODO Track when there are gaps in the sequence, to explain the person warping.
@@ -325,12 +321,7 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
         // Actually, the sequence in the Soundcast dataset crosses midnight. Don't do that; sort by
         // departure time starting with midnight.
         trips.sort_by_key(|t| t.depart);
-        population.people.push(PersonSpec {
-            id,
-            // TODO Do we have to scrape a new input file for this? :(
-            home: None,
-            trips,
-        });
+        people.push(PersonSpec { id, trips });
     }
     for maybe_t in individ_trips {
         if maybe_t.is_some() {
@@ -341,11 +332,9 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
     Scenario {
         scenario_name: "weekday".to_string(),
         map_name: map.get_name().to_string(),
+        people,
+        parked_cars_per_bldg,
         only_seed_buses: None,
-        seed_parked_cars: Vec::new(),
-        spawn_over_time: Vec::new(),
-        border_spawn_over_time: Vec::new(),
-        population,
     }
 }
 
@@ -353,10 +342,10 @@ fn count_cars(trips: &Vec<Trip>, map: &Map) -> BTreeMap<BuildingID, usize> {
     // How many parked cars do we need to spawn near each building?
     // TODO This assumes trips are instantaneous. At runtime, somebody might try to use a parked
     // car from a building, but one hasn't been delivered yet.
-    let mut individ_parked_cars = BTreeMap::new();
+    let mut parked_cars_per_bldg = BTreeMap::new();
     let mut avail_per_bldg = BTreeMap::new();
     for b in map.all_buildings() {
-        individ_parked_cars.insert(b.id, 0);
+        parked_cars_per_bldg.insert(b.id, 0);
         avail_per_bldg.insert(b.id, 0);
     }
     for trip in trips {
@@ -367,12 +356,12 @@ fn count_cars(trips: &Vec<Trip>, map: &Map) -> BTreeMap<BuildingID, usize> {
             if avail_per_bldg[&b] > 0 {
                 *avail_per_bldg.get_mut(&b).unwrap() -= 1;
             } else {
-                *individ_parked_cars.get_mut(&b).unwrap() += 1;
+                *parked_cars_per_bldg.get_mut(&b).unwrap() += 1;
             }
         }
         if let TripEndpt::Building(b) = trip.to {
             *avail_per_bldg.get_mut(&b).unwrap() += 1;
         }
     }
-    individ_parked_cars
+    parked_cars_per_bldg
 }

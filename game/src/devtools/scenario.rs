@@ -20,7 +20,7 @@ pub struct ScenarioManager {
     tool_panel: WrappedComposite,
     scenario: Scenario,
 
-    // The (person, trip) usizes are indices into scenario.population.people[x].trips[y]
+    // The (person, trip) usizes are indices into scenario.people[x].trips[y]
     trips_from_bldg: MultiMap<BuildingID, (usize, usize)>,
     trips_to_bldg: MultiMap<BuildingID, (usize, usize)>,
     trips_from_border: MultiMap<IntersectionID, (usize, usize)>,
@@ -37,7 +37,7 @@ impl ScenarioManager {
         let mut trips_from_border = MultiMap::new();
         let mut trips_to_border = MultiMap::new();
         let mut num_trips = 0;
-        for (idx1, person) in scenario.population.people.iter().enumerate() {
+        for (idx1, person) in scenario.people.iter().enumerate() {
             for (idx2, trip) in person.trips.iter().enumerate() {
                 num_trips += 1;
                 let idx = (idx1, idx2);
@@ -96,7 +96,7 @@ impl ScenarioManager {
             ],
         );
         let mut total_cars_needed = 0;
-        for (b, count) in &scenario.population.individ_parked_cars {
+        for (b, count) in &scenario.parked_cars_per_bldg {
             total_cars_needed += count;
             let color = if *count == 0 {
                 continue;
@@ -119,10 +119,7 @@ impl ScenarioManager {
                 format!("Scenario {}", scenario.scenario_name),
                 vec![
                     format!("{} total trips", prettyprint_usize(num_trips),),
-                    format!(
-                        "{} people",
-                        prettyprint_usize(scenario.population.people.len())
-                    ),
+                    format!("{} people", prettyprint_usize(scenario.people.len())),
                     format!("seed {} parked cars", prettyprint_usize(total_cars_needed)),
                     format!(
                         "{} parking spots",
@@ -224,7 +221,7 @@ fn make_trip_picker(
     WizardState::new(Box::new(move |wiz, ctx, app| {
         let mut people = BTreeSet::new();
         for (idx1, _) in &indices {
-            people.insert(scenario.population.people[*idx1].id);
+            people.insert(scenario.people[*idx1].id);
         }
 
         let warp_to = wiz
@@ -236,7 +233,7 @@ fn make_trip_picker(
                     indices
                         .iter()
                         .map(|(idx1, idx2)| {
-                            let person = &scenario.population.people[*idx1];
+                            let person = &scenario.people[*idx1];
                             let trip = &person.trips[*idx2];
                             Choice::new(
                                 describe(person, trip, home),
@@ -394,7 +391,7 @@ fn show_demand(
     let mut from_ids = Counter::new();
     for (idx1, idx2) in from {
         from_ids.inc(other_endpt(
-            &scenario.population.people[*idx1].trips[*idx2],
+            &scenario.people[*idx1].trips[*idx2],
             home,
             &app.primary.map,
         ));
@@ -402,7 +399,7 @@ fn show_demand(
     let mut to_ids = Counter::new();
     for (idx1, idx2) in to {
         to_ids.inc(other_endpt(
-            &scenario.population.people[*idx1].trips[*idx2],
+            &scenario.people[*idx1].trips[*idx2],
             home,
             &app.primary.map,
         ));
@@ -462,7 +459,6 @@ impl DotMap {
     fn new(ctx: &mut EventCtx, app: &App, scenario: &Scenario) -> DotMap {
         let map = &app.primary.map;
         let lines = scenario
-            .population
             .people
             .iter()
             .flat_map(|p| {

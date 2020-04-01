@@ -19,8 +19,8 @@ use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 use sim::{
-    BorderSpawnOverTime, DrivingGoal, OriginDestination, Scenario, SidewalkSpot, Sim, TripSpawner,
-    TripSpec,
+    BorderSpawnOverTime, DrivingGoal, OriginDestination, Scenario, ScenarioGenerator, SidewalkSpot,
+    Sim, TripSpawner, TripSpec,
 };
 
 const SMALL_DT: Duration = Duration::const_seconds(0.1);
@@ -505,7 +505,7 @@ impl State for SpawnManyAgents {
 }
 
 fn create_swarm(app: &mut App, from: LaneID, to: LaneID, count: usize, duration: Duration) {
-    let mut scenario = Scenario::empty(&app.primary.map, "swarm");
+    let mut scenario = ScenarioGenerator::empty("swarm");
     scenario.border_spawn_over_time.push(BorderSpawnOverTime {
         num_peds: 0,
         num_cars: count,
@@ -526,12 +526,14 @@ fn create_swarm(app: &mut App, from: LaneID, to: LaneID, count: usize, duration:
         percent_use_transit: 0.0,
     });
     let mut rng = app.primary.current_flags.sim_flags.make_rng();
-    scenario.instantiate(
-        &mut app.primary.sim,
-        &app.primary.map,
-        &mut rng,
-        &mut Timer::throwaway(),
-    );
+    scenario
+        .generate(&app.primary.map, &mut rng, &mut Timer::throwaway())
+        .instantiate(
+            &mut app.primary.sim,
+            &app.primary.map,
+            &mut rng,
+            &mut Timer::throwaway(),
+        );
 }
 
 fn make_top_bar(ctx: &mut EventCtx, title: &str, howto: &str) -> Composite {

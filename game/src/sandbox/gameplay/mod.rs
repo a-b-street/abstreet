@@ -26,7 +26,8 @@ use ezgui::{
 };
 use geom::{Duration, Polygon};
 use map_model::{EditCmd, EditIntersection, Map, MapEdits};
-use sim::{Analytics, Scenario, TripMode};
+use rand_xorshift::XorShiftRng;
+use sim::{Analytics, Scenario, ScenarioGenerator, TripMode};
 
 #[derive(PartialEq, Clone)]
 pub enum GameplayMode {
@@ -107,6 +108,7 @@ impl GameplayMode {
         &self,
         map: &Map,
         num_agents: Option<usize>,
+        mut rng: XorShiftRng,
         timer: &mut Timer,
     ) -> Option<Scenario> {
         let name = match self {
@@ -115,13 +117,14 @@ impl GameplayMode {
             }
             GameplayMode::PlayScenario(_, ref scenario) => scenario.to_string(),
             GameplayMode::FixTrafficSignalsTutorial(stage) => {
-                if *stage == 0 {
-                    return Some(fix_traffic_signals::tutorial_scenario_lvl1(map));
+                let generator = if *stage == 0 {
+                    fix_traffic_signals::tutorial_scenario_lvl1(map)
                 } else if *stage == 1 {
-                    return Some(fix_traffic_signals::tutorial_scenario_lvl2(map));
+                    fix_traffic_signals::tutorial_scenario_lvl2(map)
                 } else {
                     unreachable!()
-                }
+                };
+                return Some(generator.generate(map, &mut rng, timer));
             }
             // TODO Some of these WILL have scenarios!
             GameplayMode::Tutorial(_) => {
@@ -130,17 +133,26 @@ impl GameplayMode {
             _ => "weekday".to_string(),
         };
         Some(if name == "random" {
-            if let Some(n) = num_agents {
-                Scenario::scaled_run(map, n)
+            (if let Some(n) = num_agents {
+                ScenarioGenerator::scaled_run(n)
             } else {
-                Scenario::small_run(map)
-            }
+                ScenarioGenerator::small_run(map)
+            })
+            .generate(map, &mut rng, &mut Timer::new("generate scenario"))
         } else if name == "just buses" {
             let mut s = Scenario::empty(map, "just buses");
             s.only_seed_buses = None;
             s
         } else {
-            abstutil::read_binary(abstutil::path_scenario(map.get_name(), &name), timer)
+            let path = abstutil::path_scenario(map.get_name(), &name);
+            match abstutil::maybe_read_binary(path.clone(), timer) {
+                Ok(s) => s,
+                Err(err) => {
+                    println!("\n\n{} is missing or corrupt. Check https://github.com/dabreegster/abstreet/blob/master/docs/dev.md and file an issue if you have trouble.", path);
+                    println!("\n{}", err);
+                    std::process::exit(1);
+                }
+            }
         })
     }
 
@@ -188,6 +200,7 @@ impl GameplayMode {
             if let Some(scenario) = self.scenario(
                 &app.primary.map,
                 app.primary.current_flags.num_agents,
+                app.primary.current_flags.sim_flags.make_rng(),
                 timer,
             ) {
                 scenario.instantiate(

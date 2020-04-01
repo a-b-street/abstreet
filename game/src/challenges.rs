@@ -285,7 +285,13 @@ pub fn prebake_all() {
 
         let mut done_scenarios = HashSet::new();
         for challenge in list {
-            if let Some(scenario) = challenge.gameplay.scenario(&map, None, &mut timer) {
+            // Bit of an abuse of this, but just need to fix the rng seed.
+            if let Some(scenario) = challenge.gameplay.scenario(
+                &map,
+                None,
+                SimFlags::for_test("prebaked").make_rng(),
+                &mut timer,
+            ) {
                 if done_scenarios.contains(&scenario.scenario_name) {
                     continue;
                 }
@@ -296,7 +302,12 @@ pub fn prebake_all() {
         }
         // TODO A weird hack to glue up tutorial scenarios.
         if map.get_name() == "montlake" {
-            for scenario in TutorialState::scenarios_to_prebake(&map) {
+            for generator in TutorialState::scenarios_to_prebake() {
+                let scenario = generator.generate(
+                    &map,
+                    &mut SimFlags::for_test("prebaked").make_rng(),
+                    &mut timer,
+                );
                 prebake(&map, scenario, &mut timer);
             }
         }

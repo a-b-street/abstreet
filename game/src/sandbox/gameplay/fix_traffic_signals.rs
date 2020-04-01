@@ -7,7 +7,7 @@ use crate::sandbox::{SandboxControls, ScoreCard};
 use ezgui::{EventCtx, GfxCtx};
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, Map};
-use sim::{BorderSpawnOverTime, OriginDestination, Scenario};
+use sim::{BorderSpawnOverTime, OriginDestination, ScenarioGenerator};
 
 const GOAL: Duration = Duration::const_seconds(30.0);
 
@@ -146,7 +146,7 @@ fn final_score(app: &App) -> (String, bool) {
 // UI.
 
 // Motivate a separate left turn phase for north/south, but not left/right
-pub fn tutorial_scenario_lvl1(map: &Map) -> Scenario {
+pub fn tutorial_scenario_lvl1(map: &Map) -> ScenarioGenerator {
     // TODO In lieu of the deleted labels
     let north = IntersectionID(2);
     let south = IntersectionID(3);
@@ -154,7 +154,7 @@ pub fn tutorial_scenario_lvl1(map: &Map) -> Scenario {
     let left = IntersectionID(1);
     let right = IntersectionID(0);
 
-    let mut s = Scenario::empty(map, "tutorial lvl1");
+    let mut s = ScenarioGenerator::empty("tutorial lvl1");
 
     // What's the essence of what I've specified below? Don't care about the time distribution,
     // exact number of agents, different modes. It's just an OD matrix with relative weights.
@@ -195,7 +195,7 @@ pub fn tutorial_scenario_lvl1(map: &Map) -> Scenario {
 }
 
 // Motivate a pedestrian scramble cycle
-pub fn tutorial_scenario_lvl2(map: &Map) -> Scenario {
+pub fn tutorial_scenario_lvl2(map: &Map) -> ScenarioGenerator {
     let north = IntersectionID(3);
     let south = IntersectionID(3);
     let left = IntersectionID(1);
@@ -216,21 +216,21 @@ pub fn tutorial_scenario_lvl2(map: &Map) -> Scenario {
     s
 }
 
-fn heavy(s: &mut Scenario, map: &Map, from: IntersectionID, to: IntersectionID) {
+fn heavy(s: &mut ScenarioGenerator, map: &Map, from: IntersectionID, to: IntersectionID) {
     spawn(s, map, from, to, 100, 0);
 }
-fn heavy_peds(s: &mut Scenario, map: &Map, from: IntersectionID, to: IntersectionID) {
+fn heavy_peds(s: &mut ScenarioGenerator, map: &Map, from: IntersectionID, to: IntersectionID) {
     spawn(s, map, from, to, 0, 100);
 }
-fn medium(s: &mut Scenario, map: &Map, from: IntersectionID, to: IntersectionID) {
+fn medium(s: &mut ScenarioGenerator, map: &Map, from: IntersectionID, to: IntersectionID) {
     spawn(s, map, from, to, 100, 0);
 }
-fn light(s: &mut Scenario, map: &Map, from: IntersectionID, to: IntersectionID) {
+fn light(s: &mut ScenarioGenerator, map: &Map, from: IntersectionID, to: IntersectionID) {
     spawn(s, map, from, to, 100, 0);
 }
 
 fn spawn(
-    s: &mut Scenario,
+    s: &mut ScenarioGenerator,
     map: &Map,
     from: IntersectionID,
     to: IntersectionID,

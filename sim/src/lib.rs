@@ -13,8 +13,8 @@ mod trips;
 pub use self::analytics::{Analytics, TripPhase};
 pub use self::events::{Event, TripPhaseType};
 pub use self::make::{
-    ABTest, BorderSpawnOverTime, IndividTrip, OriginDestination, PersonSpec, Population, Scenario,
-    SeedParkedCars, SimFlags, SpawnOverTime, SpawnTrip, TripSpawner, TripSpec,
+    ABTest, BorderSpawnOverTime, IndividTrip, OriginDestination, PersonSpec, Scenario,
+    ScenarioGenerator, SeedParkedCars, SimFlags, SpawnOverTime, SpawnTrip, TripSpawner, TripSpec,
 };
 pub(crate) use self::mechanics::{
     DrivingSimState, IntersectionSimState, ParkingSimState, WalkingSimState,
