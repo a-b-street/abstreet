@@ -1,6 +1,6 @@
 use crate::Duration;
-use histogram::Histogram;
 use serde_derive::{Deserialize, Serialize};
+use std::convert::TryFrom;
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum Statistic {
@@ -38,42 +38,70 @@ impl std::fmt::Display for Statistic {
     }
 }
 
-// TODO Generic histogram
-
-#[derive(Clone)]
-pub struct DurationHistogram {
-    count: usize,
-    histogram: Histogram,
-    min: Duration,
-    max: Duration,
+pub trait HgramValue<T>: Copy + std::cmp::Ord + std::fmt::Display {
+    fn zero() -> T;
+    fn to_u64(self) -> u64;
+    fn from_u64(x: u64) -> T;
 }
 
-impl Default for DurationHistogram {
-    fn default() -> DurationHistogram {
-        DurationHistogram {
+impl HgramValue<Duration> for Duration {
+    fn zero() -> Duration {
+        Duration::ZERO
+    }
+    fn to_u64(self) -> u64 {
+        self.to_u64()
+    }
+    fn from_u64(x: u64) -> Duration {
+        Duration::from_u64(x)
+    }
+}
+
+impl HgramValue<u16> for u16 {
+    fn zero() -> u16 {
+        0
+    }
+    fn to_u64(self) -> u64 {
+        self as u64
+    }
+    fn from_u64(x: u64) -> u16 {
+        u16::try_from(x).unwrap()
+    }
+}
+
+#[derive(Clone)]
+pub struct Histogram<T: HgramValue<T>> {
+    count: usize,
+    histogram: histogram::Histogram,
+    min: T,
+    max: T,
+}
+
+impl<T: HgramValue<T>> Default for Histogram<T> {
+    fn default() -> Histogram<T> {
+        Histogram {
             count: 0,
             histogram: Default::default(),
-            min: Duration::ZERO,
-            max: Duration::ZERO,
+            min: T::zero(),
+            max: T::zero(),
         }
     }
 }
 
-impl DurationHistogram {
-    pub fn new() -> DurationHistogram {
+impl<T: HgramValue<T>> Histogram<T> {
+    pub fn new() -> Histogram<T> {
         Default::default()
     }
 
-    pub fn add(&mut self, t: Duration) {
+    pub fn add(&mut self, x: T) {
         if self.count == 0 {
-            self.min = t;
-            self.max = t;
+            self.min = x;
+            self.max = x;
         } else {
-            self.min = self.min.min(t);
-            self.max = self.max.max(t);
+            self.min = self.min.min(x);
+            self.max = self.max.max(x);
         }
         self.count += 1;
-        self.histogram.increment(t.to_u64()).unwrap();
+        self.histogram.increment(x.to_u64()).unwrap();
     }
 
     pub fn describe(&self) -> String {
@@ -94,14 +122,14 @@ impl DurationHistogram {
     }
 
     // None if empty
-    pub fn percentile(&self, p: f64) -> Option<Duration> {
+    pub fn percentile(&self, p: f64) -> Option<T> {
         if self.count == 0 {
             return None;
         }
-        Some(Duration::from_u64(self.histogram.percentile(p).unwrap()))
+        Some(T::from_u64(self.histogram.percentile(p).unwrap()))
     }
 
-    pub fn select(&self, stat: Statistic) -> Duration {
+    pub fn select(&self, stat: Statistic) -> T {
         assert_ne!(self.count, 0);
         let raw = match stat {
             Statistic::P50 => self.histogram.percentile(50.0).unwrap(),
@@ -115,7 +143,7 @@ impl DurationHistogram {
                 return self.max;
             }
         };
-        Duration::from_u64(raw)
+        T::from_u64(raw)
     }
 
     pub fn count(&self) -> usize {
@@ -123,99 +151,7 @@ impl DurationHistogram {
     }
 
     // Could implement PartialEq, but be a bit more clear how approximate this is
-    pub fn seems_eq(&self, other: &DurationHistogram) -> bool {
+    pub fn seems_eq(&self, other: &Histogram<T>) -> bool {
         self.describe() == other.describe()
     }
-}
-
-pub struct PercentageHistogram {
-    count: usize,
-    histogram: Histogram,
-    min: f64,
-    max: f64,
-}
-
-impl Default for PercentageHistogram {
-    fn default() -> PercentageHistogram {
-        PercentageHistogram {
-            count: 0,
-            histogram: Default::default(),
-            min: 0.0,
-            max: 0.0,
-        }
-    }
-}
-
-impl PercentageHistogram {
-    pub fn new() -> PercentageHistogram {
-        Default::default()
-    }
-
-    pub fn add(&mut self, p: f64) {
-        if self.count == 0 {
-            self.min = p;
-            self.max = p;
-        } else {
-            self.min = self.min.min(p);
-            self.max = self.max.max(p);
-        }
-        self.count += 1;
-        self.histogram.increment((p * 1000.0) as u64).unwrap();
-    }
-
-    pub fn describe(&self) -> String {
-        if self.count == 0 {
-            return "no data yet".to_string();
-        }
-
-        format!(
-            "{} count, 50%ile {}, 90%ile {}, 99%ile {}, min {}, mean {}, max {}",
-            abstutil::prettyprint_usize(self.count),
-            self.select(Statistic::P50),
-            self.select(Statistic::P90),
-            self.select(Statistic::P99),
-            self.select(Statistic::Min),
-            self.select(Statistic::Mean),
-            self.select(Statistic::Max),
-        )
-    }
-
-    // None if empty
-    pub fn percentile(&self, p: f64) -> Option<f64> {
-        if self.count == 0 {
-            return None;
-        }
-        Some((self.histogram.percentile(p).unwrap() as f64) / 1000.0)
-    }
-
-    pub fn select(&self, stat: Statistic) -> String {
-        assert_ne!(self.count, 0);
-        let raw = match stat {
-            Statistic::P50 => self.histogram.percentile(50.0).unwrap(),
-            Statistic::P90 => self.histogram.percentile(90.0).unwrap(),
-            Statistic::P99 => self.histogram.percentile(99.0).unwrap(),
-            Statistic::Min => {
-                return print_percentage(self.min);
-            }
-            Statistic::Mean => self.histogram.mean().unwrap(),
-            Statistic::Max => {
-                return print_percentage(self.max);
-            }
-        };
-        print_percentage((raw as f64) / 1000.0)
-    }
-
-    pub fn count(&self) -> usize {
-        self.count
-    }
-
-    // Could implement PartialEq, but be a bit more clear how approximate this is
-    pub fn seems_eq(&self, other: &PercentageHistogram) -> bool {
-        self.describe() == other.describe()
-    }
-}
-
-// TODO geom needs a Percentage type -- there are enough uses everywhere
-fn print_percentage(p: f64) -> String {
-    format!("{:.1}%", p * 100.0)
 }

@@ -379,7 +379,7 @@ impl JumpToTime {
                         .centered_horiz(),
                     Line("Active agents").small_heading().draw(ctx),
                     // TODO Sync the slider / plot.
-                    Plot::new_usize(
+                    Plot::new(
                         ctx,
                         vec![if app.has_prebaked().is_some() {
                             Series {

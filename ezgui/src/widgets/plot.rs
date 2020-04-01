@@ -6,12 +6,12 @@ use abstutil::prettyprint_usize;
 use geom::{Angle, Bounds, Circle, Distance, Duration, FindClosest, PolyLine, Pt2D, Time};
 
 // The X is always time
-pub struct Plot<T> {
+pub struct Plot<T: Yvalue<T>> {
     draw: Drawable,
 
     // The geometry here is in screen-space.
     max_x: Time,
-    max_y: Box<dyn Yvalue<T>>,
+    max_y: T,
     closest: FindClosest<String>,
 
     top_left: ScreenPt,
@@ -28,15 +28,8 @@ impl PlotOptions {
     }
 }
 
-impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T> {
-    // TODO I want to store y_zero in the trait, but then we can't Box max_y.
-    // Returns (plot, legend, X axis labels, Y axis labels)
-    fn new(
-        ctx: &EventCtx,
-        series: Vec<Series<T>>,
-        y_zero: T,
-        opts: PlotOptions,
-    ) -> (Plot<T>, Widget, Widget, Widget) {
+impl<T: Yvalue<T>> Plot<T> {
+    pub fn new(ctx: &EventCtx, series: Vec<Series<T>>, opts: PlotOptions) -> Widget {
         let mut batch = GeomBatch::new();
 
         // TODO Tuned to fit the info panel. Instead these should somehow stretch to fill their
@@ -66,7 +59,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
         )
         .flex_wrap(ctx, 24);
 
-        // Assume min_x is Time::START_OF_DAY and min_y is y_zero
+        // Assume min_x is Time::START_OF_DAY and min_y is T::zero()
         let max_x = opts.max_x.unwrap_or_else(|| {
             series
                 .iter()
@@ -87,10 +80,10 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
                     .iter()
                     .map(|(_, value)| *value)
                     .max()
-                    .unwrap_or(y_zero)
+                    .unwrap_or(T::zero())
             })
             .max()
-            .unwrap_or(y_zero);
+            .unwrap_or(T::zero());
 
         // Grid lines for the Y scale. Draw up to 10 lines max to cover the order of magnitude of
         // the range.
@@ -169,7 +162,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
             draw: ctx.upload(batch),
             closest,
             max_x,
-            max_y: Box::new(max_y),
+            max_y: max_y,
 
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(width, height),
@@ -198,14 +191,6 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
         col.reverse();
         let y_axis = Widget::col(col).padding(10);
 
-        (plot, legend, x_axis, y_axis)
-    }
-}
-
-// TODO Do we still need these two? :\
-impl Plot<usize> {
-    pub fn new_usize(ctx: &EventCtx, series: Vec<Series<usize>>, opts: PlotOptions) -> Widget {
-        let (plot, legend, x_axis, y_axis) = Plot::new(ctx, series, 0, opts);
         // Don't let the x-axis fill the parent container
         Widget::row(vec![Widget::col(vec![
             legend,
@@ -215,23 +200,7 @@ impl Plot<usize> {
     }
 }
 
-impl Plot<Duration> {
-    pub fn new_duration(
-        ctx: &EventCtx,
-        series: Vec<Series<Duration>>,
-        opts: PlotOptions,
-    ) -> Widget {
-        let (plot, legend, x_axis, y_axis) = Plot::new(ctx, series, Duration::ZERO, opts);
-        // Don't let the x-axis fill the parent container
-        Widget::row(vec![Widget::col(vec![
-            legend,
-            Widget::row(vec![y_axis.evenly_spaced(), Widget::new(Box::new(plot))]),
-            x_axis.evenly_spaced(),
-        ])])
-    }
-}
-
-impl<T: 'static + Yvalue<T>> WidgetImpl for Plot<T> {
+impl<T: Yvalue<T>> WidgetImpl for Plot<T> {
     fn get_dims(&self) -> ScreenDims {
         self.dims
     }
@@ -278,7 +247,7 @@ impl<T: 'static + Yvalue<T>> WidgetImpl for Plot<T> {
     }
 }
 
-pub trait Yvalue<T> {
+pub trait Yvalue<T>: 'static + Copy + std::cmp::Ord {
     // percent is [0.0, 1.0]
     fn from_percent(&self, percent: f64) -> T;
     fn to_percent(self, max: T) -> f64;
@@ -286,6 +255,7 @@ pub trait Yvalue<T> {
     // For order of magnitude calculations
     fn to_f64(self) -> f64;
     fn from_f64(&self, x: f64) -> T;
+    fn zero() -> T;
 }
 
 impl Yvalue<usize> for usize {
@@ -308,6 +278,9 @@ impl Yvalue<usize> for usize {
     fn from_f64(&self, x: f64) -> usize {
         x as usize
     }
+    fn zero() -> usize {
+        0
+    }
 }
 impl Yvalue<Duration> for Duration {
     fn from_percent(&self, percent: f64) -> Duration {
@@ -328,6 +301,9 @@ impl Yvalue<Duration> for Duration {
     }
     fn from_f64(&self, x: f64) -> Duration {
         Duration::seconds(x as f64)
+    }
+    fn zero() -> Duration {
+        Duration::ZERO
     }
 }
 

@@ -1,7 +1,7 @@
 use crate::{CarID, Event, PersonID, TripID, TripMode, TripPhaseType};
 use abstutil::Counter;
 use derivative::Derivative;
-use geom::{Distance, Duration, DurationHistogram, PercentageHistogram, Time};
+use geom::{Distance, Duration, Histogram, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, Map, Path, PathRequest, RoadID, Traversable,
     TurnGroupID,
@@ -196,16 +196,16 @@ impl Analytics {
         &self,
         now: Time,
     ) -> (
-        DurationHistogram,
+        Histogram<Duration>,
         usize,
-        BTreeMap<TripMode, DurationHistogram>,
+        BTreeMap<TripMode, Histogram<Duration>>,
     ) {
         let mut ongoing = self.started_trips.clone();
         let mut per_mode = TripMode::all()
             .into_iter()
-            .map(|m| (m, DurationHistogram::new()))
+            .map(|m| (m, Histogram::new()))
             .collect::<BTreeMap<_, _>>();
-        let mut all = DurationHistogram::new();
+        let mut all = Histogram::new();
         let mut num_aborted = 0;
         for (t, id, m, dt) in &self.finished_trips {
             if *t > now {
@@ -260,7 +260,11 @@ impl Analytics {
             .collect()
     }
 
-    pub fn bus_arrivals(&self, now: Time, r: BusRouteID) -> BTreeMap<BusStopID, DurationHistogram> {
+    pub fn bus_arrivals(
+        &self,
+        now: Time,
+        r: BusRouteID,
+    ) -> BTreeMap<BusStopID, Histogram<Duration>> {
         let mut per_bus: BTreeMap<CarID, Vec<(Time, BusStopID)>> = BTreeMap::new();
         for (t, car, route, stop) in &self.bus_arrivals {
             if *t > now {
@@ -273,12 +277,12 @@ impl Analytics {
                     .push((*t, *stop));
             }
         }
-        let mut delay_to_stop: BTreeMap<BusStopID, DurationHistogram> = BTreeMap::new();
+        let mut delay_to_stop: BTreeMap<BusStopID, Histogram<Duration>> = BTreeMap::new();
         for events in per_bus.values() {
             for pair in events.windows(2) {
                 delay_to_stop
                     .entry(pair[1].1)
-                    .or_insert_with(DurationHistogram::new)
+                    .or_insert_with(Histogram::new)
                     .add(pair[1].0 - pair[0].0);
             }
         }
@@ -321,7 +325,7 @@ impl Analytics {
         &self,
         now: Time,
         r: BusRouteID,
-    ) -> BTreeMap<BusStopID, DurationHistogram> {
+    ) -> BTreeMap<BusStopID, Histogram<Duration>> {
         let mut waiting_per_stop = BTreeMap::new();
         for (t, stop, route) in &self.bus_passengers_waiting {
             if *t > now {
@@ -349,7 +353,7 @@ impl Analytics {
         waiting_per_stop
             .into_iter()
             .filter_map(|(k, v)| {
-                let mut delays = DurationHistogram::new();
+                let mut delays = Histogram::new();
                 for t in v {
                     delays.add(now - t);
                 }
@@ -484,7 +488,7 @@ impl Analytics {
         // Of all completed trips involving parking, what percentage of total time was spent as
         // "overhead" -- not the main driving part of the trip?
         // TODO This is misleading for border trips -- the driving lasts longer.
-        let mut distrib = PercentageHistogram::new();
+        let mut distrib: Histogram<u16> = Histogram::new();
         for (_, phases) in self.get_all_trip_phases() {
             if phases.last().as_ref().unwrap().end_time.is_none() {
                 continue;
@@ -507,7 +511,8 @@ impl Analytics {
             if driving_time == Duration::ZERO || overhead == Duration::ZERO {
                 continue;
             }
-            distrib.add(overhead / (driving_time + overhead));
+            let pct = (overhead / (driving_time + overhead) * 100.0) as u16;
+            distrib.add(pct);
         }
         vec![
             format!("Consider all trips with both a walking and driving portion"),
@@ -523,8 +528,13 @@ impl Analytics {
         ]
     }
 
-    pub fn intersection_delays(&self, i: IntersectionID, t1: Time, t2: Time) -> DurationHistogram {
-        let mut delays = DurationHistogram::new();
+    pub fn intersection_delays(
+        &self,
+        i: IntersectionID,
+        t1: Time,
+        t2: Time,
+    ) -> Histogram<Duration> {
+        let mut delays = Histogram::new();
         // TODO Binary search
         if let Some(list) = self.intersection_delays.get(&i) {
             for (t, dt) in list {
@@ -545,11 +555,11 @@ impl Analytics {
         now: Time,
         i: IntersectionID,
         bucket: Duration,
-    ) -> Vec<(Time, DurationHistogram)> {
+    ) -> Vec<(Time, Histogram<Duration>)> {
         let mut max_this_bucket = now.min(Time::START_OF_DAY + bucket);
         let mut results = vec![
-            (Time::START_OF_DAY, DurationHistogram::new()),
-            (max_this_bucket, DurationHistogram::new()),
+            (Time::START_OF_DAY, Histogram::new()),
+            (max_this_bucket, Histogram::new()),
         ];
         if let Some(list) = self.intersection_delays.get(&i) {
             for (t, dt) in list {
@@ -558,7 +568,7 @@ impl Analytics {
                 }
                 if *t > max_this_bucket {
                     max_this_bucket = now.min(max_this_bucket + bucket);
-                    results.push((max_this_bucket, DurationHistogram::new()));
+                    results.push((max_this_bucket, Histogram::new()));
                 }
                 results.last_mut().unwrap().1.add(*dt);
             }

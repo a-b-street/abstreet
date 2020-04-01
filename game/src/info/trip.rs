@@ -305,7 +305,7 @@ fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map:
     }
     // TODO Plot needs to support Distance as both X and Y axis. :P
     // TODO Show roughly where we are in the trip; use distance covered by current path for this
-    Plot::new_usize(
+    Plot::new(
         ctx,
         vec![Series {
             label: if walking {
