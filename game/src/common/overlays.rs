@@ -836,6 +836,7 @@ impl Overlays {
 
             Some(PandemicModel::calculate(
                 app.primary.sim.get_analytics(),
+                app.primary.sim.get_all_people(),
                 app.primary.sim.time(),
                 &mut XorShiftRng::from_seed([42; 16]),
             ))
