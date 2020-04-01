@@ -91,6 +91,10 @@ impl WidgetImpl for Button {
             }
         }
 
+        if self.hovering {
+            ctx.cursor_clickable();
+        }
+
         None
     }
 

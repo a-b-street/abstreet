@@ -100,6 +100,12 @@ impl<'a> EventCtx<'a> {
     pub fn monitor_scale_factor(&self) -> f64 {
         self.prerender.inner.monitor_scale_factor()
     }
+
+    pub(crate) fn cursor_clickable(&mut self) {
+        self.prerender
+            .inner
+            .set_cursor_icon(winit::window::CursorIcon::Hand);
+    }
 }
 
 pub struct LoadingScreen<'a> {

@@ -233,6 +233,10 @@ impl PrerenderInnards {
         self.display.gl_window().window().request_redraw();
     }
 
+    pub fn set_cursor_icon(&self, icon: winit::window::CursorIcon) {
+        self.display.gl_window().window().set_cursor_icon(icon);
+    }
+
     pub fn draw_new_frame<'a>(&self) -> GfxCtxInnards<'a> {
         GfxCtxInnards {
             target: self.display.draw(),

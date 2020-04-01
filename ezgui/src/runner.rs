@@ -44,6 +44,25 @@ impl<G: GUI> State<G> {
             }
         }
 
+        // Always reset the cursor, unless we're handling an update event. If we're hovering on a
+        // button, we'll discover that by plumbing through the event.
+        if let Event::Update(_) = ev {
+        } else {
+            prerender
+                .inner
+                .set_cursor_icon(if self.canvas.drag_canvas_from.is_some() {
+                    // We haven't run canvas_movement() yet, so we don't know if the button has been
+                    // released. Bit of a hack to check this here, but better behavior.
+                    if ev == Event::LeftMouseButtonUp {
+                        winit::window::CursorIcon::Default
+                    } else {
+                        winit::window::CursorIcon::Grabbing
+                    }
+                } else {
+                    winit::window::CursorIcon::Default
+                });
+        }
+
         // It's impossible / very unlikey we'll grab the cursor in map space before the very first
         // start_drawing call.
         let input = UserInput::new(ev, &self.canvas);
