@@ -24,7 +24,8 @@ pub struct Widget {
 
 struct LayoutStyle {
     bg_color: Option<Color>,
-    outline: Option<(f64, Color)>,
+    // (thickness, radius, color)
+    outline: Option<(f64, f64, Color)>,
     style: Style,
 }
 
@@ -78,7 +79,11 @@ impl Widget {
 
     // Callers have to adjust padding too, probably
     pub fn outline(mut self, thickness: f64, color: Color) -> Widget {
-        self.layout.outline = Some((thickness, color));
+        self.layout.outline = Some((thickness, 5.0, color));
+        self
+    }
+    pub fn rounder_outline(mut self, thickness: f64, radius: f64, color: Color) -> Widget {
+        self.layout.outline = Some((thickness, radius, color));
         self
     }
 
@@ -102,22 +107,26 @@ impl Widget {
         self
     }
     pub fn margin_above(mut self, pixels: usize) -> Widget {
-        self.layout.style.margin = Rect {
-            start: Dimension::Undefined,
-            end: Dimension::Undefined,
-            top: Dimension::Points(pixels as f32),
-            bottom: Dimension::Undefined,
-        };
+        self.layout.style.margin.top = Dimension::Points(pixels as f32);
+        self
+    }
+    pub fn margin_below(mut self, pixels: usize) -> Widget {
+        self.layout.style.margin.bottom = Dimension::Points(pixels as f32);
+        self
+    }
+    pub fn margin_horiz(mut self, pixels: usize) -> Widget {
+        self.layout.style.margin.start = Dimension::Points(pixels as f32);
+        self.layout.style.margin.end = Dimension::Points(pixels as f32);
+        self
+    }
+    pub fn margin_vert(mut self, pixels: usize) -> Widget {
+        self.layout.style.margin.top = Dimension::Points(pixels as f32);
+        self.layout.style.margin.bottom = Dimension::Points(pixels as f32);
         self
     }
 
     pub fn align_left(mut self) -> Widget {
-        self.layout.style.margin = Rect {
-            start: Dimension::Undefined,
-            end: Dimension::Auto,
-            top: Dimension::Undefined,
-            bottom: Dimension::Undefined,
-        };
+        self.layout.style.margin.end = Dimension::Auto;
         self
     }
     pub fn align_right(mut self) -> Widget {
@@ -321,10 +330,10 @@ impl Widget {
             if let Some(c) = self.layout.bg_color {
                 batch.push(c, Polygon::rounded_rectangle(width, height, 5.0));
             }
-            if let Some((thickness, c)) = self.layout.outline {
+            if let Some((thickness, radius, color)) = self.layout.outline {
                 batch.push(
-                    c,
-                    Polygon::rounded_rectangle(width, height, 5.0)
+                    color,
+                    Polygon::rounded_rectangle(width, height, radius)
                         .to_outline(Distance::meters(thickness)),
                 );
             }

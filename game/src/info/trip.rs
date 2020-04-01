@@ -32,9 +32,7 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
                 ("From", name1),
                 ("To", name2),
             ],
-        ))
-        .padding(5)
-        .margin(10);
+        ));
     }
 
     let mut col = Vec::new();
@@ -155,7 +153,7 @@ fn make_timeline(
 
     let total_duration_so_far = end_time.unwrap_or_else(|| sim.time()) - phases[0].start_time;
 
-    let total_width = 0.25 * ctx.canvas.window_width;
+    let total_width = 0.22 * ctx.canvas.window_width;
     let mut timeline = Vec::new();
     let num_phases = phases.len();
     let mut elevation = Vec::new();

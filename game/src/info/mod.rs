@@ -301,14 +301,14 @@ impl InfoPanel {
         InfoPanel {
             tab,
             time: app.primary.sim.time(),
-            composite: Composite::new(Widget::col(col).bg(colors::PANEL_BG).padding(10))
+            composite: Composite::new(Widget::col(col).bg(Color::hex("#5B5B5B")).padding(16))
                 .aligned(
                     HorizontalAlignment::Percent(0.02),
                     VerticalAlignment::Percent(0.2),
                 )
                 // TODO Some headings are too wide.. Intersection #xyz (Traffic signals)
-                // TODO Also does this mess up scrolling? Argh
-                .exact_size_percent(30, 60)
+                // TODO Want exact_size_percent, but this mess up scrolling! Argh
+                .max_size_percent(30, 60)
                 // trip::details endpoints...
                 // TODO I think we can remove this now
                 .allow_duplicate_buttons()
@@ -497,7 +497,7 @@ fn make_tabs(
     }
     // TODO Centered, but actually, we need to set the padding of each button to divide the
     // available space evenly. Fancy fill rules... hmmm.
-    Widget::row(row).bg(Color::WHITE)
+    Widget::row(row).bg(Color::WHITE).margin_vert(16)
 }
 
 fn header_btns(ctx: &EventCtx) -> Widget {
@@ -505,7 +505,7 @@ fn header_btns(ctx: &EventCtx) -> Widget {
         Btn::svg_def("../data/system/assets/tools/location.svg")
             .build(ctx, "jump to object", hotkey(Key::J))
             .margin(5),
-        Btn::text_fg("X").build(ctx, "close info", hotkey(Key::Escape)),
+        Btn::plaintext("X").build(ctx, "close info", hotkey(Key::Escape)),
     ])
     .align_right()
 }

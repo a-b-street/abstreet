@@ -1,4 +1,5 @@
 use crate::app::App;
+use crate::colors;
 use crate::info::{building, header_btns, make_table, make_tabs, trip, Details, Tab};
 use crate::render::Renderable;
 use ezgui::{Btn, Color, EventCtx, Line, TextExt, Widget};
@@ -30,6 +31,7 @@ pub fn trips(
 
     // I'm sorry for bad variable names
     let mut wheres_waldo = true;
+    let mut is_first = true;
     for t in &person.trips {
         let trip_status = match sim.trip_to_agent(*t) {
             TripResult::TripNotStarted => {
@@ -55,8 +57,22 @@ pub fn trips(
         // TODO Style wrong. Button should be the entire row.
         rows.push(
             Widget::row(vec![
-                format!("{} ({})", t, trip_status).draw_text(ctx),
-                Btn::text_fg(if open_trips.contains(t) { "▲" } else { "▼" })
+                t.to_string().draw_text(ctx),
+                if trip_status == "ongoing" {
+                    // TODO Padding doesn't work without wrapping in a row
+                    Widget::row(vec![Line(trip_status)
+                        .small()
+                        .fg(Color::hex("#7FFA4D"))
+                        .draw(ctx)])
+                    .rounder_outline(1.0, 10.0, Color::hex("#7FFA4D"))
+                    .bg(Color::rgba(127, 250, 77, 0.2))
+                    .padding(5)
+                } else {
+                    Line(trip_status).small().draw(ctx)
+                }
+                .margin_horiz(15)
+                .margin_vert(5),
+                Btn::plaintext(if open_trips.contains(t) { "▲" } else { "▼" })
                     .build(
                         ctx,
                         format!(
@@ -72,11 +88,20 @@ pub fn trips(
                     )
                     .align_right(),
             ])
-            .outline(2.0, Color::WHITE),
+            .outline(2.0, Color::WHITE)
+            .padding(16)
+            .bg(colors::INNER_PANEL)
+            .margin_above(if is_first { 0 } else { 16 }),
         );
+        is_first = false;
 
         if open_trips.contains(t) {
-            rows.push(trip::details(ctx, app, *t, details).outline(2.0, Color::WHITE));
+            rows.push(
+                trip::details(ctx, app, *t, details)
+                    .outline(2.0, Color::WHITE)
+                    .bg(colors::INNER_PANEL)
+                    .padding(16),
+            );
 
             let mut new_trips = open_trips.clone();
             new_trips.remove(t);
@@ -249,4 +274,5 @@ fn current_status(ctx: &EventCtx, person: &Person, map: &Map) -> Widget {
             .draw_text(ctx),
     })
     .outline(2.0, Color::WHITE)
+    .margin_vert(16)
 }
