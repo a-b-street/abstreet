@@ -9,7 +9,7 @@ pub struct AreaID(pub usize);
 
 impl fmt::Display for AreaID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "AreaID({0})", self.0)
+        write!(f, "Area #{}", self.0)
     }
 }
 

@@ -4,11 +4,12 @@ use crate::helpers::ID;
 use crate::info::{make_table, Details};
 use crate::render::dashed_lines;
 use ezgui::{
-    Btn, Color, EventCtx, GeomBatch, Line, Plot, PlotOptions, RewriteColor, Series, Text, Widget,
+    Btn, Color, EventCtx, GeomBatch, Line, Plot, PlotOptions, RewriteColor, Series, Text, TextExt,
+    Widget,
 };
 use geom::{Angle, Distance, Duration, Polygon, Pt2D, Time};
 use map_model::{Map, Path, PathStep};
-use sim::{TripEndpoint, TripID, TripPhaseType, TripResult};
+use sim::{AgentID, TripEndpoint, TripID, TripPhase, TripPhaseType};
 
 pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Details) -> Widget {
     let map = &app.primary.map;
@@ -17,48 +18,84 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
     let (start_time, trip_start, trip_end, trip_mode) = sim.trip_info(trip);
     let end_time = phases.last().as_ref().and_then(|p| p.end_time);
 
-    let (trip_status, progress_along_path) = match sim.trip_to_agent(trip) {
-        TripResult::TripNotStarted => ("future", None),
-        TripResult::Ok(a) => ("ongoing", sim.progress_along_path(a)),
-        TripResult::ModeChange => ("ongoing", None),
-        TripResult::TripDone => ("finished", None),
-        TripResult::TripDoesntExist => unreachable!(),
-    };
-    let mut col = vec![Line(format!("Trip #{} ({})", trip.0, trip_status)).draw(ctx)];
-
-    let mut kv = vec![
-        ("Departure", start_time.ampm_tostring()),
-        ("Type", trip_mode.to_string()),
-    ];
-
-    // TODO Style should maybe change. This overlaps with the two markers on the timeline.
-    let (id1, _, name1) = endpoint(&trip_start, map);
-    let (id2, _, name2) = endpoint(&trip_end, map);
-    col.push(
-        Widget::row(vec![
-            Btn::custom_text_fg(Text::from(Line(&name1).small())).build(ctx, &name1, None),
-            Line("to").draw(ctx),
-            Btn::custom_text_fg(Text::from(Line(&name2).small())).build(ctx, &name2, None),
-        ])
-        .evenly_spaced(),
-    );
-    details.warpers.insert(name1, id1);
-    details.warpers.insert(name2, id2);
-
     if phases.is_empty() {
         // The trip hasn't started
-        col.extend(make_table(ctx, kv));
-        return Widget::col(col)
-            .bg(colors::SECTION_BG)
-            .padding(5)
-            .margin(10);
+
+        // TODO Warp buttons. make_table is showing its age.
+        let (_, _, name1) = endpoint(&trip_start, map);
+        let (_, _, name2) = endpoint(&trip_end, map);
+        return Widget::col(make_table(
+            ctx,
+            vec![
+                ("Type", trip_mode.to_string()),
+                ("Departure", start_time.ampm_tostring()),
+                ("From", name1),
+                ("To", name2),
+            ],
+        ));
     }
+
+    let mut col = Vec::new();
+    let total_duration_so_far = end_time.unwrap_or_else(|| sim.time()) - phases[0].start_time;
+    let mut kv = vec![
+        ("Type", trip_mode.to_string()),
+        ("Duration", total_duration_so_far.to_string()),
+    ];
+    let progress_along_path = if let Some(a) = sim.trip_to_agent(trip).ok() {
+        let (more_kv, extra) = match a {
+            AgentID::Car(c) => (sim.car_properties(c, map), Vec::new()),
+            AgentID::Pedestrian(p) => sim.ped_properties(p, map),
+        };
+        for (k, v) in &more_kv {
+            kv.push((k, v.to_string()));
+        }
+        col.extend(make_table(ctx, kv));
+
+        if !extra.is_empty() {
+            let mut txt = Text::from(Line(""));
+            for line in extra {
+                txt.add(Line(line));
+            }
+            col.push(txt.draw(ctx));
+        }
+
+        sim.progress_along_path(a)
+    } else {
+        col.extend(make_table(ctx, kv));
+        None
+    };
+
+    col.push(make_timeline(
+        ctx,
+        app,
+        trip,
+        details,
+        phases,
+        progress_along_path,
+    ));
+
+    Widget::col(col)
+}
+
+fn make_timeline(
+    ctx: &mut EventCtx,
+    app: &App,
+    trip: TripID,
+    details: &mut Details,
+    phases: Vec<TripPhase>,
+    progress_along_path: Option<f64>,
+) -> Widget {
+    let map = &app.primary.map;
+    let sim = &app.primary.sim;
+    // TODO Repeating stuff
+    let (start_time, trip_start, trip_end, _) = sim.trip_info(trip);
+    let end_time = phases.last().as_ref().and_then(|p| p.end_time);
 
     let start_btn = {
         let (id, center, name) = endpoint(&trip_start, map);
         details
             .warpers
-            .insert(format!("jump to start of Trip #{}", trip.0), id);
+            .insert(format!("jump to start of {}", trip), id);
         details.unzoomed.add_svg(
             ctx.prerender,
             "../data/system/assets/timeline/start_pos.svg",
@@ -73,22 +110,21 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
             0.5,
             Angle::ZERO,
         );
-        let mut txt = Text::from(Line("jump to start"));
-        txt.add(Line(name));
+        let mut txt = Text::from(Line(name));
         txt.add(Line(start_time.ampm_tostring()));
         Btn::svg(
             "../data/system/assets/timeline/start_pos.svg",
             RewriteColor::Change(Color::WHITE, colors::HOVERING),
         )
         .tooltip(txt)
-        .build(ctx, format!("jump to start of Trip #{}", trip.0), None)
+        .build(ctx, format!("jump to start of {}", trip), None)
     };
 
     let goal_btn = {
         let (id, center, name) = endpoint(&trip_end, map);
         details
             .warpers
-            .insert(format!("jump to goal of Trip #{}", trip.0), id);
+            .insert(format!("jump to goal of {}", trip), id);
         details.unzoomed.add_svg(
             ctx.prerender,
             "../data/system/assets/timeline/goal_pos.svg",
@@ -103,8 +139,7 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
             0.5,
             Angle::ZERO,
         );
-        let mut txt = Text::from(Line("jump to goal"));
-        txt.add(Line(name));
+        let mut txt = Text::from(Line(name));
         if let Some(t) = end_time {
             txt.add(Line(t.ampm_tostring()));
         }
@@ -113,12 +148,12 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
             RewriteColor::Change(Color::WHITE, colors::HOVERING),
         )
         .tooltip(txt)
-        .build(ctx, format!("jump to goal of Trip #{}", trip.0), None)
+        .build(ctx, format!("jump to goal of {}", trip), None)
     };
 
     let total_duration_so_far = end_time.unwrap_or_else(|| sim.time()) - phases[0].start_time;
 
-    let total_width = 0.29 * ctx.canvas.window_width;
+    let total_width = 0.22 * ctx.canvas.window_width;
     let mut timeline = Vec::new();
     let num_phases = phases.len();
     let mut elevation = Vec::new();
@@ -202,7 +237,7 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
                 .tooltip(txt)
                 .build(
                     ctx,
-                    format!("examine trip phase {} of Trip #{}", idx + 1, trip.0),
+                    format!("examine trip phase {} of {}", idx + 1, trip),
                     None,
                 )
                 .centered_vert(),
@@ -241,19 +276,22 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
 
     timeline.insert(0, start_btn.margin(5));
     timeline.push(goal_btn.margin(5));
-
-    kv.push(("Duration", total_duration_so_far.to_string()));
-    if let Some(t) = end_time {
-        kv.push(("Trip end", t.ampm_tostring()));
+    let mut col = vec![
+        Widget::row(timeline).evenly_spaced().margin_above(25),
+        if let Some(t) = end_time {
+            Widget::row(vec![
+                start_time.ampm_tostring().draw_text(ctx),
+                t.ampm_tostring().draw_text(ctx).align_right(),
+            ])
+        } else {
+            start_time.ampm_tostring().draw_text(ctx)
+        },
+    ];
+    // TODO This just needs too much more work
+    if false {
+        col.extend(elevation);
     }
-    col.push(Widget::row(timeline).evenly_spaced().margin_above(25));
-    col.extend(make_table(ctx, kv));
-    col.extend(elevation);
-
     Widget::col(col)
-        .bg(colors::SECTION_BG)
-        .padding(5)
-        .margin(10)
 }
 
 fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map: &Map) -> Widget {
@@ -267,7 +305,7 @@ fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map:
     }
     // TODO Plot needs to support Distance as both X and Y axis. :P
     // TODO Show roughly where we are in the trip; use distance covered by current path for this
-    Plot::new_usize(
+    Plot::new(
         ctx,
         vec![Series {
             label: if walking {
@@ -289,7 +327,6 @@ fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map:
         }],
         PlotOptions::new(),
     )
-    .bg(colors::PANEL_BG)
 }
 
 // (ID, center, name)

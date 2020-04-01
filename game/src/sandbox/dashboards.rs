@@ -156,7 +156,7 @@ fn trips_summary_prebaked(ctx: &EventCtx, app: &App) -> Widget {
         )
         .bg(colors::SECTION_BG),
         Line("Active agents").small_heading().draw(ctx),
-        Plot::new_usize(
+        Plot::new(
             ctx,
             vec![
                 Series {
@@ -224,7 +224,7 @@ fn trips_summary_not_prebaked(ctx: &EventCtx, app: &App) -> Widget {
         txt.draw(ctx),
         finished_trips_plot(ctx, app).bg(colors::SECTION_BG),
         Line("Active agents").small_heading().draw(ctx),
-        Plot::new_usize(
+        Plot::new(
             ctx,
             vec![Series {
                 label: "Active agents".to_string(),
@@ -280,7 +280,7 @@ fn finished_trips_plot(ctx: &EventCtx, app: &App) -> Widget {
             .push((app.primary.sim.time(), counts.get(*mode)));
     }
 
-    let plot = Plot::new_usize(
+    let plot = Plot::new(
         ctx,
         lines
             .into_iter()

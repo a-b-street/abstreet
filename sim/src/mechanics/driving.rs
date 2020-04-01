@@ -877,12 +877,7 @@ impl DrivingSimState {
         }
     }
 
-    pub fn car_properties(
-        &self,
-        id: CarID,
-        now: Time,
-        map: &Map,
-    ) -> Option<(Vec<(String, String)>, Vec<String>)> {
+    pub fn car_properties(&self, id: CarID, now: Time, map: &Map) -> Option<Vec<(String, String)>> {
         let car = self.cars.get(&id)?;
         let path = car.router.get_path();
 
@@ -931,7 +926,7 @@ impl DrivingSimState {
         if id.1 == VehicleType::Bus {
             props.remove(0);
         }
-        Some((props, Vec::new()))
+        Some(props)
     }
 
     pub fn progress_along_path(&self, id: CarID) -> Option<f64> {

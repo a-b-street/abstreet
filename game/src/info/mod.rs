@@ -19,8 +19,11 @@ use ezgui::{
 };
 use geom::{Circle, Distance, Duration, Time};
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID};
-use sim::{AgentID, Analytics, CarID, PedestrianID, PersonID, PersonState, TripMode, VehicleType};
-use std::collections::{BTreeMap, HashMap};
+use maplit::btreeset;
+use sim::{
+    AgentID, Analytics, CarID, PedestrianID, PersonID, PersonState, TripID, TripMode, VehicleType,
+};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 pub struct InfoPanel {
     tab: Tab,
@@ -39,8 +42,7 @@ pub struct InfoPanel {
 
 #[derive(Clone, PartialEq)]
 pub enum Tab {
-    PersonStatus(PersonID),
-    PersonTrips(PersonID),
+    PersonTrips(PersonID, BTreeSet<TripID>),
     PersonBio(PersonID),
 
     BusStatus(CarID),
@@ -77,18 +79,22 @@ impl Tab {
             ID::Building(b) => Tab::BldgInfo(b),
             ID::Car(c) => {
                 if let Some(p) = app.primary.sim.agent_to_person(AgentID::Car(c)) {
-                    Tab::PersonStatus(p)
+                    Tab::PersonTrips(
+                        p,
+                        btreeset! {app.primary.sim.agent_to_trip(AgentID::Car(c)).unwrap()},
+                    )
                 } else if c.1 == VehicleType::Bus {
                     Tab::BusStatus(c)
                 } else {
                     Tab::ParkedCar(c)
                 }
             }
-            ID::Pedestrian(p) => Tab::PersonStatus(
+            ID::Pedestrian(p) => Tab::PersonTrips(
                 app.primary
                     .sim
                     .agent_to_person(AgentID::Pedestrian(p))
                     .unwrap(),
+                btreeset! {app.primary.sim.agent_to_trip(AgentID::Pedestrian(p)).unwrap()},
             ),
             ID::PedCrowd(members) => Tab::Crowd(members),
             ID::ExtraShape(es) => Tab::ExtraShape(es),
@@ -100,7 +106,7 @@ impl Tab {
     // TODO Temporary hack until object actions go away.
     fn to_id(self, app: &App) -> Option<ID> {
         match self {
-            Tab::PersonStatus(p) | Tab::PersonTrips(p) | Tab::PersonBio(p) => {
+            Tab::PersonTrips(p, _) | Tab::PersonBio(p) => {
                 match app.primary.sim.get_person(p).state {
                     PersonState::Inside(b) => Some(ID::Building(b)),
                     PersonState::Trip(t) => app
@@ -176,8 +182,7 @@ impl InfoPanel {
         };
 
         let (mut col, main_tab) = match tab {
-            Tab::PersonStatus(p) => (person::status(ctx, app, &mut details, p), true),
-            Tab::PersonTrips(p) => (person::trips(ctx, app, &mut details, p), false),
+            Tab::PersonTrips(p, ref open) => (person::trips(ctx, app, &mut details, p, open), true),
             Tab::PersonBio(p) => (person::bio(ctx, app, &mut details, p), false),
             Tab::BusStatus(c) => (bus::bus_status(ctx, app, &mut details, c), true),
             Tab::BusDelays(c) => (bus::bus_delays(ctx, app, &mut details, c), true),
@@ -296,13 +301,16 @@ impl InfoPanel {
         InfoPanel {
             tab,
             time: app.primary.sim.time(),
-            composite: Composite::new(Widget::col(col).bg(colors::PANEL_BG).padding(10))
+            composite: Composite::new(Widget::col(col).bg(Color::hex("#5B5B5B")).padding(16))
                 .aligned(
                     HorizontalAlignment::Percent(0.02),
                     VerticalAlignment::Percent(0.2),
                 )
-                .max_size_percent(35, 60)
+                // TODO Some headings are too wide.. Intersection #xyz (Traffic signals)
+                // TODO Want exact_size_percent, but this mess up scrolling! Argh
+                .max_size_percent(30, 60)
                 // trip::details endpoints...
+                // TODO I think we can remove this now
                 .allow_duplicate_buttons()
                 .build(ctx),
             unzoomed: details.unzoomed.upload(ctx),
@@ -460,7 +468,7 @@ fn throughput<F: Fn(&Analytics, Time) -> BTreeMap<TripMode, Vec<(Time, usize)>>>
         }
     }
 
-    Plot::new_usize(ctx, series, PlotOptions::new())
+    Plot::new(ctx, series, PlotOptions::new())
 }
 
 fn color_for_mode(m: TripMode, app: &App) -> Color {
@@ -489,7 +497,7 @@ fn make_tabs(
     }
     // TODO Centered, but actually, we need to set the padding of each button to divide the
     // available space evenly. Fancy fill rules... hmmm.
-    Widget::row(row).bg(Color::WHITE)
+    Widget::row(row).bg(Color::WHITE).margin_vert(16)
 }
 
 fn header_btns(ctx: &EventCtx) -> Widget {
@@ -497,7 +505,7 @@ fn header_btns(ctx: &EventCtx) -> Widget {
         Btn::svg_def("../data/system/assets/tools/location.svg")
             .build(ctx, "jump to object", hotkey(Key::J))
             .margin(5),
-        Btn::text_fg("X").build(ctx, "close info", hotkey(Key::Escape)),
+        Btn::plaintext("X").build(ctx, "close info", hotkey(Key::Escape)),
     ])
     .align_right()
 }

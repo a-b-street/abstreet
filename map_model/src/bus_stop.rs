@@ -21,7 +21,7 @@ pub struct BusRouteID(pub usize);
 
 impl fmt::Display for BusRouteID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "BusRouteID({0})", self.0)
+        write!(f, "BusRoute #{}", self.0)
     }
 }
 

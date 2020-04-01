@@ -119,6 +119,11 @@ impl Btn {
         )
     }
 
+    pub fn plaintext<I: Into<String>>(label: I) -> BtnBuilder {
+        let label = label.into();
+        BtnBuilder::PlainText(label.clone(), Text::from(Line(label)), None)
+    }
+
     pub fn text_fg<I: Into<String>>(label: I) -> BtnBuilder {
         let label = label.into();
         BtnBuilder::TextFG(label.clone(), Text::from(Line(label)), None)
@@ -179,6 +184,7 @@ impl Btn {
 pub enum BtnBuilder {
     SVG(String, RewriteColor, RewriteColor, Option<Text>),
     TextFG(String, Text, Option<Text>),
+    PlainText(String, Text, Option<Text>),
     TextBG {
         label: String,
         maybe_tooltip: Option<Text>,
@@ -195,6 +201,7 @@ impl BtnBuilder {
         match self {
             BtnBuilder::SVG(_, _, _, ref mut t)
             | BtnBuilder::TextFG(_, _, ref mut t)
+            | BtnBuilder::PlainText(_, _, ref mut t)
             | BtnBuilder::Custom(_, _, _, ref mut t) => {
                 assert!(t.is_none());
                 *t = Some(tooltip);
@@ -279,6 +286,37 @@ impl BtnBuilder {
                 )
                 .outline(2.0, Color::WHITE)
             }
+            // Same as TextFG without the outline
+            BtnBuilder::PlainText(_, normal_txt, maybe_t) => {
+                // TODO Padding here is unfortunate, but I don't understand when the flexbox padding
+                // actually works.
+                let horiz_padding = 15.0;
+                let vert_padding = 8.0;
+
+                let unselected_batch = normal_txt.clone().render_ctx(ctx);
+                let dims = unselected_batch.get_dims();
+                let selected_batch = normal_txt.change_fg(Color::ORANGE).render_ctx(ctx);
+                assert_eq!(dims, selected_batch.get_dims());
+                let geom = Polygon::rectangle(
+                    dims.width + 2.0 * horiz_padding,
+                    dims.height + 2.0 * vert_padding,
+                );
+
+                let mut normal = GeomBatch::new();
+                normal.add_translated(unselected_batch, horiz_padding, vert_padding);
+                let mut hovered = GeomBatch::new();
+                hovered.add_translated(selected_batch, horiz_padding, vert_padding);
+
+                Button::new(
+                    ctx,
+                    normal,
+                    hovered,
+                    key,
+                    &action_tooltip.into(),
+                    maybe_t,
+                    geom,
+                )
+            }
             BtnBuilder::TextBG {
                 text,
                 maybe_tooltip,
@@ -330,7 +368,9 @@ impl BtnBuilder {
         match self {
             BtnBuilder::SVG(_, _, _, _) => panic!("Can't use build_def on an SVG button"),
             BtnBuilder::Custom(_, _, _, _) => panic!("Can't use build_def on a custom button"),
-            BtnBuilder::TextFG(ref label, _, _) | BtnBuilder::TextBG { ref label, .. } => {
+            BtnBuilder::TextFG(ref label, _, _)
+            | BtnBuilder::PlainText(ref label, _, _)
+            | BtnBuilder::TextBG { ref label, .. } => {
                 assert!(!label.is_empty());
                 let copy = label.clone();
                 self.build(ctx, copy, hotkey)

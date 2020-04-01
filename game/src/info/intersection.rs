@@ -137,7 +137,7 @@ fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) 
         }
     }
 
-    Plot::new_duration(ctx, all_series, PlotOptions::new())
+    Plot::new(ctx, all_series, PlotOptions::new())
 }
 
 fn header(
@@ -152,10 +152,10 @@ fn header(
     let i = app.primary.map.get_i(id);
 
     let label = match i.intersection_type {
-        IntersectionType::StopSign => format!("Intersection #{} (Stop signs)", id.0),
-        IntersectionType::TrafficSignal => format!("Intersection #{} (Traffic signals)", id.0),
+        IntersectionType::StopSign => format!("{} (Stop signs)", id),
+        IntersectionType::TrafficSignal => format!("{} (Traffic signals)", id),
         IntersectionType::Border => format!("Border #{}", id.0),
-        IntersectionType::Construction => format!("Intersection #{} (under construction)", id.0),
+        IntersectionType::Construction => format!("{} (under construction)", id),
     };
     rows.push(Widget::row(vec![
         Line(label).small_heading().draw(ctx),

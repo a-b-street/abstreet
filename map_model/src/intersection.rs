@@ -11,7 +11,7 @@ pub struct IntersectionID(pub usize);
 
 impl fmt::Display for IntersectionID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "IntersectionID({0})", self.0)
+        write!(f, "Intersection #{}", self.0)
     }
 }
 

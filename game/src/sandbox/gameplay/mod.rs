@@ -221,7 +221,8 @@ impl GameplayMode {
                         )));
                     } else {
                         println!(
-                            "WARNING: No prebaked results for {} on {}, some stuff might break",
+                            "WARNING: Missing or corrupt prebaked results for {} on {}, some \
+                             stuff might break",
                             scenario.scenario_name, scenario.map_name
                         );
                         app.set_prebaked(None);

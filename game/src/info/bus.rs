@@ -64,15 +64,8 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
 pub fn bus_status(ctx: &mut EventCtx, app: &App, details: &mut Details, id: CarID) -> Vec<Widget> {
     let mut rows = bus_header(ctx, app, details, id, Tab::BusStatus(id));
 
-    let (kv, extra) = app.primary.sim.car_properties(id, &app.primary.map);
+    let kv = app.primary.sim.car_properties(id, &app.primary.map);
     rows.extend(make_table(ctx, kv));
-    if !extra.is_empty() {
-        let mut txt = Text::from(Line(""));
-        for line in extra {
-            txt.add(Line(line));
-        }
-        rows.push(txt.draw(ctx));
-    }
 
     let route = app.primary.sim.bus_route_id(id).unwrap();
     rows.push(passenger_delay(ctx, app, details, route));
@@ -99,8 +92,8 @@ fn bus_header(
     let mut rows = vec![];
     rows.push(Widget::row(vec![
         Line(format!(
-            "Bus #{} (route {})",
-            id.0,
+            "{} (route {})",
+            id,
             app.primary.map.get_br(route).name
         ))
         .small_heading()
@@ -145,7 +138,7 @@ fn delays_over_time(ctx: &mut EventCtx, app: &App, id: BusRouteID) -> Widget {
     }
     Widget::col(vec![
         Line("Delays between stops").small_heading().draw(ctx),
-        Plot::new_duration(ctx, series, PlotOptions::new()).margin(10),
+        Plot::new(ctx, series, PlotOptions::new()).margin(10),
     ])
 }
 

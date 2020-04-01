@@ -17,7 +17,7 @@ pub struct LaneID(pub usize);
 
 impl fmt::Display for LaneID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "LaneID({0})", self.0)
+        write!(f, "Lane #{}", self.0)
     }
 }
 

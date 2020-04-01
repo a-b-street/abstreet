@@ -1,6 +1,6 @@
 use crate::{AgentID, CarID, CreateCar, CreatePedestrian, PedestrianID};
 use derivative::Derivative;
-use geom::{Duration, DurationHistogram, Time};
+use geom::{Duration, Histogram, Time};
 use map_model::{IntersectionID, Path, PathRequest};
 use serde_derive::{Deserialize, Serialize};
 use std::cmp::Ordering;
@@ -86,7 +86,7 @@ pub struct Scheduler {
     latest_time: Time,
     #[derivative(PartialEq = "ignore")]
     #[serde(skip_serializing, skip_deserializing)]
-    delta_times: DurationHistogram,
+    delta_times: Histogram<Duration>,
 }
 
 impl Scheduler {
@@ -95,7 +95,7 @@ impl Scheduler {
             items: BinaryHeap::new(),
             queued_commands: BTreeMap::new(),
             latest_time: Time::START_OF_DAY,
-            delta_times: DurationHistogram::new(),
+            delta_times: Histogram::new(),
         }
     }
 

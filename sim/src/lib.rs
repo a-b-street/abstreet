@@ -61,7 +61,11 @@ pub struct CarID(pub usize, pub VehicleType);
 
 impl fmt::Display for CarID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "CarID({} -- {})", self.0, self.1)
+        match self.1 {
+            VehicleType::Car => write!(f, "Car #{}", self.0),
+            VehicleType::Bus => write!(f, "Bus #{}", self.0),
+            VehicleType::Bike => write!(f, "Bike #{}", self.0),
+        }
     }
 }
 
@@ -70,7 +74,7 @@ pub struct PedestrianID(pub usize);
 
 impl fmt::Display for PedestrianID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "PedestrianID({0})", self.0)
+        write!(f, "Pedestrian #{}", self.0)
     }
 }
 
@@ -103,7 +107,7 @@ pub struct TripID(pub usize);
 
 impl fmt::Display for TripID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "TripID({0})", self.0)
+        write!(f, "Trip #{}", self.0)
     }
 }
 
@@ -112,7 +116,7 @@ pub struct PersonID(pub usize);
 
 impl fmt::Display for PersonID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "PersonID({0})", self.0)
+        write!(f, "Person {}", self.0)
     }
 }
 

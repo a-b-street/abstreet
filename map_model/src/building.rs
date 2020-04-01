@@ -10,7 +10,7 @@ pub struct BuildingID(pub usize);
 
 impl fmt::Display for BuildingID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "BuildingID({0})", self.0)
+        write!(f, "Building #{}", self.0)
     }
 }
 

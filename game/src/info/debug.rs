@@ -8,7 +8,7 @@ pub fn area(ctx: &EventCtx, app: &App, _: &mut Details, id: AreaID) -> Vec<Widge
     let mut rows = vec![];
 
     rows.push(Widget::row(vec![
-        Line(format!("Area #{}", id.0)).small_heading().draw(ctx),
+        Line(id.to_string()).small_heading().draw(ctx),
         header_btns(ctx),
     ]));
 
@@ -26,9 +26,7 @@ pub fn extra_shape(ctx: &EventCtx, app: &App, _: &mut Details, id: ExtraShapeID)
     let mut rows = vec![];
 
     rows.push(Widget::row(vec![
-        Line(format!("Extra GIS shape #{}", id.0))
-            .small_heading()
-            .draw(ctx),
+        Line(id.to_string()).small_heading().draw(ctx),
         header_btns(ctx),
     ]));
 
