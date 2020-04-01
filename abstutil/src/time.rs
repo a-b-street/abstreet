@@ -2,7 +2,7 @@ use crate::PROGRESS_FREQUENCY_SECONDS;
 use instant::Instant;
 use std::collections::HashMap;
 use std::fs::File;
-use std::io::{stdout, BufReader, Error, Read, Write};
+use std::io::{stdout, BufReader, Error, ErrorKind, Read, Write};
 
 pub fn elapsed_seconds(since: Instant) -> f64 {
     let dt = since.elapsed();
@@ -612,7 +612,12 @@ impl<'a> Read for Timer<'a> {
     fn read(&mut self, buf: &mut [u8]) -> Result<usize, Error> {
         let mut file = match self.stack.last_mut() {
             Some(StackEntry::File(ref mut f)) => f,
-            _ => unreachable!(),
+            _ => {
+                return Err(Error::new(
+                    ErrorKind::Other,
+                    "trying to read when Timer doesn't have file on the stack?!",
+                ));
+            }
         };
 
         let bytes = file.inner.read(buf)?;
