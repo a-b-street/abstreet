@@ -1,6 +1,6 @@
 use crate::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, MultiKey, Outcome, RewriteColor,
-    ScreenDims, ScreenPt, Text, Widget, WidgetImpl,
+    svg, Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, MultiKey, Outcome,
+    RewriteColor, ScreenDims, ScreenPt, Text, Widget, WidgetImpl,
 };
 use geom::Polygon;
 
@@ -243,8 +243,7 @@ impl BtnBuilder {
     ) -> Widget {
         match self {
             BtnBuilder::SVG(path, rewrite_normal, rewrite_hover, maybe_t) => {
-                let (mut normal, bounds) = GeomBatch::from_svg(ctx, path, RewriteColor::NoOp);
-
+                let (mut normal, bounds) = svg::load_svg(ctx.prerender, &path);
                 let mut hovered = normal.clone();
                 normal.rewrite_color(rewrite_normal);
                 hovered.rewrite_color(rewrite_hover);

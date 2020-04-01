@@ -379,4 +379,7 @@ impl ContextualActions for Actions {
     ) -> Transition {
         unreachable!()
     }
+    fn is_paused(&self) -> bool {
+        unreachable!()
+    }
 }

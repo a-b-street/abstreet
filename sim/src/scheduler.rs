@@ -121,15 +121,6 @@ impl Scheduler {
         self.items.push(Item { time, cmd_type });
     }
 
-    // Doesn't touch the histogram. Have to call finalize_batch() after. Only for scheduling lots
-    // of stuff at the beginning of a simulation.
-    // TODO Phase this out?
-    pub fn quick_push(&mut self, time: Time, cmd: Command) {
-        self.push(time, cmd);
-    }
-
-    pub fn finalize_batch(&mut self) {}
-
     pub fn update(&mut self, new_time: Time, cmd: Command) {
         if new_time < self.latest_time {
             panic!(

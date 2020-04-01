@@ -637,4 +637,8 @@ impl<'a> ContextualActions for Actions<'a> {
             _ => unreachable!(),
         }
     }
+
+    fn is_paused(&self) -> bool {
+        true
+    }
 }

@@ -289,7 +289,7 @@ impl TripSpawner {
                     let trip = trips.new_trip(person, start_time, trip_start, legs);
                     if let Some(path) = maybe_path {
                         let router = goal.make_router(path, map, vehicle.vehicle_type);
-                        scheduler.quick_push(
+                        scheduler.push(
                             start_time,
                             Command::SpawnCar(
                                 CreateCar::for_appearing(
@@ -342,7 +342,7 @@ impl TripSpawner {
                     );
 
                     if let Some(path) = maybe_path {
-                        scheduler.quick_push(
+                        scheduler.push(
                             start_time,
                             Command::SpawnPed(CreatePedestrian {
                                 id: ped_id.unwrap(),
@@ -375,7 +375,7 @@ impl TripSpawner {
                     let trip =
                         trips.new_trip(person, start_time, TripEndpoint::Bldg(start_bldg), legs);
 
-                    scheduler.quick_push(
+                    scheduler.push(
                         start_time,
                         Command::SpawnPed(CreatePedestrian {
                             id: ped_id.unwrap(),
@@ -410,7 +410,7 @@ impl TripSpawner {
                     );
 
                     if let Some(path) = maybe_path {
-                        scheduler.quick_push(
+                        scheduler.push(
                             start_time,
                             Command::SpawnPed(CreatePedestrian {
                                 id: ped_id.unwrap(),
@@ -468,7 +468,7 @@ impl TripSpawner {
                     );
 
                     if let Some(path) = maybe_path {
-                        scheduler.quick_push(
+                        scheduler.push(
                             start_time,
                             Command::SpawnPed(CreatePedestrian {
                                 id: ped_id.unwrap(),
@@ -517,7 +517,7 @@ impl TripSpawner {
                     );
 
                     if let Some(path) = maybe_path {
-                        scheduler.quick_push(
+                        scheduler.push(
                             start_time,
                             Command::SpawnPed(CreatePedestrian {
                                 id: ped_id.unwrap(),
@@ -540,10 +540,6 @@ impl TripSpawner {
                 }
             }
         }
-
-        timer.start("finalize spawned trips");
-        scheduler.finalize_batch();
-        timer.stop("finalize spawned trips");
     }
 }
 

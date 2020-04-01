@@ -69,19 +69,12 @@ impl SpeedControls {
                     txt.extend(Text::tooltip(hotkey(Key::LeftArrow), "slow down"));
                     txt.extend(Text::tooltip(hotkey(Key::RightArrow), "speed up"));
 
-                    let (normal, bounds) = GeomBatch::from_svg(
-                        ctx,
-                        "../data/system/assets/speed/triangle.svg",
-                        if setting >= s {
+                    Btn::svg_def("../data/system/assets/speed/triangle.svg")
+                        .normal_color(if setting >= s {
                             RewriteColor::NoOp
                         } else {
                             RewriteColor::ChangeAll(Color::WHITE.alpha(0.2))
-                        },
-                    );
-                    let mut hovered = normal.clone();
-                    hovered.rewrite_color(RewriteColor::ChangeAll(colors::HOVERING));
-
-                    Btn::custom(normal, hovered, bounds.get_rectangle())
+                        })
                         .tooltip(txt)
                         .build(ctx, label, None)
                         .margin(5)

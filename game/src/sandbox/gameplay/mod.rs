@@ -288,6 +288,10 @@ impl ContextualActions for GameplayMode {
             _ => unreachable!(),
         }
     }
+
+    fn is_paused(&self) -> bool {
+        unreachable!()
+    }
 }
 
 fn challenge_controller(

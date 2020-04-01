@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::colors;
 use crate::info::{building, header_btns, make_table, make_tabs, trip, Details, Tab};
 use crate::render::Renderable;
-use ezgui::{Btn, Color, EventCtx, Line, TextExt, Widget};
+use ezgui::{hotkey, Btn, Color, EventCtx, Key, Line, RewriteColor, TextExt, Widget};
 use map_model::Map;
 use maplit::btreeset;
 use sim::{
@@ -16,6 +16,7 @@ pub fn trips(
     details: &mut Details,
     id: PersonID,
     open_trips: &BTreeSet<TripID>,
+    is_paused: bool,
 ) -> Vec<Widget> {
     let mut rows = header(
         ctx,
@@ -23,6 +24,7 @@ pub fn trips(
         details,
         id,
         Tab::PersonTrips(id, open_trips.clone()),
+        is_paused,
     );
 
     let map = &app.primary.map;
@@ -123,8 +125,14 @@ pub fn trips(
     rows
 }
 
-pub fn bio(ctx: &EventCtx, app: &App, details: &mut Details, id: PersonID) -> Vec<Widget> {
-    let mut rows = header(ctx, app, details, id, Tab::PersonBio(id));
+pub fn bio(
+    ctx: &EventCtx,
+    app: &App,
+    details: &mut Details,
+    id: PersonID,
+    is_paused: bool,
+) -> Vec<Widget> {
+    let mut rows = header(ctx, app, details, id, Tab::PersonBio(id), is_paused);
 
     // TODO A little picture
     rows.extend(make_table(
@@ -211,7 +219,14 @@ pub fn parked_car(ctx: &EventCtx, app: &App, details: &mut Details, id: CarID) -
     rows
 }
 
-fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: PersonID, tab: Tab) -> Vec<Widget> {
+fn header(
+    ctx: &EventCtx,
+    app: &App,
+    details: &mut Details,
+    id: PersonID,
+    tab: Tab,
+    is_paused: bool,
+) -> Vec<Widget> {
     let mut rows = vec![];
 
     let (current_trip, descr) = match app.primary.sim.get_person(id).state {
@@ -240,7 +255,23 @@ fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: PersonID, tab: T
         Line(format!("{} ({})", id, descr))
             .small_heading()
             .draw(ctx),
-        header_btns(ctx),
+        Widget::row(vec![
+            // Little indirect, but the handler of this action is actually the ContextualActions
+            // for SandboxMode.
+            if is_paused {
+                Btn::svg_def("../data/system/assets/tools/location.svg")
+                    .build(ctx, "follow", hotkey(Key::F))
+                    .margin(5)
+            } else {
+                // TODO Blink
+                Btn::svg_def("../data/system/assets/tools/location.svg")
+                    .normal_color(RewriteColor::ChangeAll(Color::hex("#7FFA4D")))
+                    .build(ctx, "unfollow", hotkey(Key::F))
+                    .margin(5)
+            },
+            Btn::plaintext("X").build(ctx, "close info", hotkey(Key::Escape)),
+        ])
+        .align_right(),
     ]));
 
     let open_trips = if let Some(t) = current_trip {

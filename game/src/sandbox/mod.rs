@@ -96,6 +96,12 @@ impl SandboxMode {
     // Just for Warping
     pub fn contextual_actions(&self) -> Actions {
         Actions {
+            is_paused: self
+                .controls
+                .speed
+                .as_ref()
+                .map(|s| s.is_paused())
+                .unwrap_or(true),
             can_interact: self.gameplay.can_examine_objects(),
             gameplay: self.gameplay_mode.clone(),
         }
@@ -428,6 +434,7 @@ impl AgentMeter {
 
 // pub for Warping
 pub struct Actions {
+    is_paused: bool,
     can_interact: bool,
     gameplay: GameplayMode,
 }
@@ -466,9 +473,6 @@ impl ContextualActions for Actions {
                     }
                 }
                 _ => {}
-            }
-            if id.agent_id().is_some() {
-                actions.push((Key::F, "follow/unfollow".to_string()));
             }
         }
         actions.extend(self.gameplay.actions(app, id));
@@ -519,21 +523,31 @@ impl ContextualActions for Actions {
                     Overlays::show_bus_route(app.primary.sim.bus_route_id(c).unwrap(), ctx, app);
                 Transition::Keep
             }
-            (_, "follow/unfollow") => {
+            (_, "follow") => {
                 *close_panel = false;
                 Transition::KeepWithData(Box::new(|state, _, ctx| {
                     let mode = state.downcast_mut::<SandboxMode>().unwrap();
                     let speed = mode.controls.speed.as_mut().unwrap();
-                    if speed.is_paused() {
-                        speed.resume_realtime(ctx);
-                    } else {
-                        speed.pause(ctx);
-                    }
+                    assert!(speed.is_paused());
+                    speed.resume_realtime(ctx);
+                }))
+            }
+            (_, "unfollow") => {
+                *close_panel = false;
+                Transition::KeepWithData(Box::new(|state, _, ctx| {
+                    let mode = state.downcast_mut::<SandboxMode>().unwrap();
+                    let speed = mode.controls.speed.as_mut().unwrap();
+                    assert!(!speed.is_paused());
+                    speed.pause(ctx);
                 }))
             }
             (id, action) => self
                 .gameplay
                 .execute(ctx, app, id, action.to_string(), close_panel),
         }
+    }
+
+    fn is_paused(&self) -> bool {
+        self.is_paused
     }
 }

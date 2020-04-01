@@ -129,20 +129,6 @@ impl GeomBatch {
     }
 
     // TODO Weird API.
-    /// Creates a new batch containing an SVG image, also returning the bounds of the SVG. The
-    /// dimensions come from the SVG image size -- if the image has blank padding on the right and
-    /// bottom side, this is captured by the bounds.
-    pub fn from_svg<I: Into<String>>(
-        ctx: &EventCtx,
-        path: I,
-        rewrite: RewriteColor,
-    ) -> (GeomBatch, Bounds) {
-        let (mut batch, bounds) = svg::load_svg(ctx.prerender, &path.into());
-        batch.rewrite_color(rewrite);
-        (batch, bounds)
-    }
-
-    // TODO Weird API.
     /// Adds an SVG image to the current batch, applying the transformations first.
     pub fn add_svg(
         &mut self,

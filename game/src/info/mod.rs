@@ -28,6 +28,7 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 pub struct InfoPanel {
     tab: Tab,
     time: Time,
+    is_paused: bool,
     composite: Composite,
 
     unzoomed: Drawable,
@@ -182,8 +183,14 @@ impl InfoPanel {
         };
 
         let (mut col, main_tab) = match tab {
-            Tab::PersonTrips(p, ref open) => (person::trips(ctx, app, &mut details, p, open), true),
-            Tab::PersonBio(p) => (person::bio(ctx, app, &mut details, p), false),
+            Tab::PersonTrips(p, ref open) => (
+                person::trips(ctx, app, &mut details, p, open, ctx_actions.is_paused()),
+                true,
+            ),
+            Tab::PersonBio(p) => (
+                person::bio(ctx, app, &mut details, p, ctx_actions.is_paused()),
+                false,
+            ),
             Tab::BusStatus(c) => (bus::bus_status(ctx, app, &mut details, c), true),
             Tab::BusDelays(c) => (bus::bus_delays(ctx, app, &mut details, c), true),
             Tab::BusStop(bs) => (bus::stop(ctx, app, &mut details, bs), true),
@@ -301,6 +308,7 @@ impl InfoPanel {
         InfoPanel {
             tab,
             time: app.primary.sim.time(),
+            is_paused: ctx_actions.is_paused(),
             composite: Composite::new(Widget::col(col).bg(Color::hex("#5B5B5B")).padding(16))
                 .aligned(
                     HorizontalAlignment::Percent(0.02),
@@ -337,7 +345,7 @@ impl InfoPanel {
         }
 
         // Live update?
-        if app.primary.sim.time() != self.time {
+        if app.primary.sim.time() != self.time || ctx_actions.is_paused() != self.is_paused {
             let preserve_scroll = self.composite.preserve_scroll();
             *self = InfoPanel::new(ctx, app, self.tab.clone(), ctx_actions);
             self.composite.restore_scroll(ctx, preserve_scroll);
@@ -521,6 +529,9 @@ pub trait ContextualActions {
         action: String,
         close_panel: &mut bool,
     ) -> Transition;
+
+    // Slightly weird way to plumb in extra info, but...
+    fn is_paused(&self) -> bool;
 }
 
 #[derive(Clone, PartialEq)]
