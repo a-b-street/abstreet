@@ -885,17 +885,18 @@ impl Overlays {
         }
 
         let mut batch = GeomBatch::new();
-        if let Some(ref o) = opts.heatmap {
+        let color_scale = if let Some(ref o) = opts.heatmap {
             pts.extend(repeat_pts);
-            make_heatmap(&mut batch, app.primary.map.get_bounds(), pts, o);
+            make_heatmap(&mut batch, app.primary.map.get_bounds(), pts, o)
         } else {
             // It's quite silly to produce triangles for the same circle over and over again. ;)
             let circle = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(10.0)).to_polygon();
             for pt in pts {
                 batch.push(Color::RED.alpha(0.8), circle.translate(pt.x(), pt.y()));
             }
-        }
-        let controls = population_controls(ctx, app, &opts, maybe_pandemic);
+            Vec::new()
+        };
+        let controls = population_controls(ctx, app, &opts, maybe_pandemic, color_scale);
         Overlays::PopulationMap(app.primary.sim.time(), opts, ctx.upload(batch), controls)
     }
 }
@@ -926,6 +927,7 @@ fn population_controls(
     app: &App,
     opts: &PopulationOptions,
     pandemic: Option<PandemicModel>,
+    max_per_color: Vec<(f64, Color)>,
 ) -> Composite {
     let (total_ppl, ppl_in_bldg, ppl_off_map) = app.primary.sim.num_ppl();
 
@@ -988,6 +990,11 @@ fn population_controls(
             "Color scheme".draw_text(ctx).margin(5),
             Widget::dropdown(ctx, "Colors", o.colors, HeatmapColors::choices()),
         ]));
+
+        // Legend for the heatmap colors
+        for (max, color) in max_per_color {
+            col.push(ColorLegend::row(ctx, color, format!("<= {}", max)));
+        }
     }
 
     Composite::new(Widget::col(col).padding(5).bg(colors::PANEL_BG))

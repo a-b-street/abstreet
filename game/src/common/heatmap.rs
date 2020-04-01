@@ -34,9 +34,15 @@ impl HeatmapColors {
     }
 }
 
-pub fn make_heatmap(batch: &mut GeomBatch, bounds: &Bounds, pts: Vec<Pt2D>, opts: &HeatmapOptions) {
+// Returns the ordered list of (max value per bucket, color)
+pub fn make_heatmap(
+    batch: &mut GeomBatch,
+    bounds: &Bounds,
+    pts: Vec<Pt2D>,
+    opts: &HeatmapOptions,
+) -> Vec<(f64, Color)> {
     if pts.is_empty() {
-        return;
+        return Vec::new();
     }
 
     let mut grid: Grid<f64> = Grid::new(
@@ -95,11 +101,11 @@ pub fn make_heatmap(batch: &mut GeomBatch, bounds: &Bounds, pts: Vec<Pt2D>, opts
         ],
     };
     let num_colors = colors.len();
-    let max_count_per_bucket: Vec<(usize, Color)> = (1..=num_colors)
+    let max_count_per_bucket: Vec<(f64, Color)> = (1..=num_colors)
         .map(|i| {
             distrib
                 .percentile(100.0 * (i as f64) / (num_colors as f64))
-                .unwrap() as usize
+                .unwrap() as f64
         })
         .zip(colors.into_iter())
         .collect();
@@ -113,7 +119,7 @@ pub fn make_heatmap(batch: &mut GeomBatch, bounds: &Bounds, pts: Vec<Pt2D>, opts
             if count > 0.0 {
                 let mut color = max_count_per_bucket[0].1;
                 for (max, c) in &max_count_per_bucket {
-                    if count as usize >= *max {
+                    if count >= *max {
                         color = *c;
                     } else {
                         break;
@@ -127,6 +133,8 @@ pub fn make_heatmap(batch: &mut GeomBatch, bounds: &Bounds, pts: Vec<Pt2D>, opts
             }
         }
     }
+
+    max_count_per_bucket
 }
 
 struct Grid<T> {
