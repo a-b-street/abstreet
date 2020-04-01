@@ -58,6 +58,7 @@ impl PandemicModel {
     }
 
     // goind from -infinity to t
+    #[allow(dead_code)]
     fn erf_distrib(t: f64, mu: f64, sigma: f64) -> f64 {
         0.5 - 0.5 * libm::erf((-t + mu) / (f64::sqrt(2.0) * sigma))
     }
@@ -67,13 +68,14 @@ impl PandemicModel {
         0.5*libm::erf((-t0+mu)/(f64::sqrt(2.0) * sigma)) - 0.5*libm::erf((-t1+mu)/(f64::sqrt(2.0) * sigma))
     }
     
-
+    #[allow(dead_code)]
     fn proba_e_to_i(&self, time: f64) -> f64 {
         let prob = Self::erf_distrib(time, self.t_inc, self.t_inc / 4.0);
         bad_proba(prob);
         prob
     }
 
+    #[allow(dead_code)]
     fn proba_i_to_r(&self, time: f64) -> f64 {
         let prob = Self::erf_distrib(time, self.t_inf, self.t_inf / 4.0);
         bad_proba(prob);
@@ -182,9 +184,7 @@ impl PandemicModel {
             // Not perfect because we are only considering people entering/leaving buildings
             // this should be performed by listening to any event actually (let's see how to get that)
             // Transition I -> R
-            let inf_pers = {
-                state.infected.get(person).clone()
-            };
+            let inf_pers = state.infected.get(person).map(|pers| *pers);
             if let Some((t0, last_check)) = inf_pers {
                 // let dt = now - *t0;
                 if rng.gen_bool(state.proba_i_to_r_bounded(t0.inner_seconds(), last_check.inner_seconds(), time.inner_seconds())) {
@@ -192,16 +192,14 @@ impl PandemicModel {
                     state.infected.remove(person);
                 } else {
                     // We rather store the last moment
-                    state.infected.insert(*person, (*t0, *time));
+                    state.infected.insert(*person, (t0, *time));
                 }
             }
 
             // Not perfect because we are only considering people leaving building
             // this should be performed by listening to any event actually (let's see how to get that)
             // Transition E -> I
-            let exp_pers = {
-                state.exposed.get(person).clone()
-            };
+            let exp_pers = state.exposed.get(person).map(|pers| *pers);
             if let Some((t0, last_check)) = exp_pers {
                 // let dt = now - *t0;
                 let prob = state.proba_e_to_i_bounded(t0.inner_seconds(), last_check.inner_seconds(), time.inner_seconds());
@@ -211,7 +209,7 @@ impl PandemicModel {
                     state.exposed.remove(person);
                 } else {
                     // We rather store the last moment
-                    state.exposed.insert(*person, (*t0, *time));
+                    state.exposed.insert(*person, (t0, *time));
                 }
             }
         }
