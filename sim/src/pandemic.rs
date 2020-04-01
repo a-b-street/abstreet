@@ -153,7 +153,7 @@ impl PandemicModel {
                     if rng
                         .gen_bool(state.proba_s_to_e(longest_overlap_with_infected.inner_seconds()))
                     {
-                        // implifitly the person was sane before
+                        // implicitly the person was sane before
                         state.exposed.insert(*person, (*time, *time));
                     }
                 }
@@ -181,7 +181,7 @@ impl PandemicModel {
                 }
             }
 
-            // Not perfect because we are only considering people entering/leaving buildings
+            // Not perfect because we are only considering entering or leaving buildings
             // this should be performed by listening to any event actually (let's see how to get that)
             // Transition I -> R
             let inf_pers = state.infected.get(person).map(|pers| *pers);
@@ -196,7 +196,7 @@ impl PandemicModel {
                 }
             }
 
-            // Not perfect because we are only considering people leaving building
+            // Not perfect because we are only considering entering or leaving buildings
             // this should be performed by listening to any event actually (let's see how to get that)
             // Transition E -> I
             let exp_pers = state.exposed.get(person).map(|pers| *pers);
