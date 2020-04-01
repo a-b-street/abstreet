@@ -949,13 +949,18 @@ fn population_controls(
     ];
 
     if let Some(model) = pandemic {
+        let sane_ppl = total_ppl - (model.infected.len() + model.exposed.len() + model.recovered.len());
         col.push(
             format!(
-                "Pandemic model: {} exposed ({:.1}%), {} infected ({:.1}%)",
+                "Pandemic model: {} S ({:.1}%), {} E ({:.1}%), {} I ({:.1}%), {} R ({:.1}%)",
+                prettyprint_usize(sane_ppl),
+                sane_ppl as f64 / (total_ppl as f64) * 100.0,
                 prettyprint_usize(model.exposed.len()),
                 (model.exposed.len() as f64) / (total_ppl as f64) * 100.0,
                 prettyprint_usize(model.infected.len()),
-                (model.infected.len() as f64) / (total_ppl as f64) * 100.0
+                (model.infected.len() as f64) / (total_ppl as f64) * 100.0,
+                prettyprint_usize(model.recovered.len()),
+                (model.recovered.len() as f64) / (total_ppl as f64) * 100.0
             )
             .draw_text(ctx),
         );

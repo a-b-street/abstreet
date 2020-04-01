@@ -11,7 +11,6 @@ const R_0: f64 = 2.5;
 
 pub struct PandemicModel {
     // TODO For the moment let's develop everything with the SEIR model and refactor
-    pub sane: BTreeSet<PersonID>,
     pub exposed: BTreeMap<PersonID, Time>,
     pub infected: BTreeMap<PersonID, Time>,
     pub recovered: BTreeSet<PersonID>,
@@ -21,14 +20,13 @@ pub struct PandemicModel {
     // https://guava.dev/releases/19.0/api/docs/com/google/common/collect/Table.html.
     bldg_occupants: BTreeMap<BuildingID, Vec<(PersonID, Time)>>,
     t_inf: f64,
-    t_inc: f64, 
+    t_inc: f64,
     r0: f64,
 }
 
 impl PandemicModel {
     fn new() -> Self {
         PandemicModel {
-            sane: BTreeSet::new(),
             exposed: BTreeMap::new(),
             infected: BTreeMap::new(),
             recovered: BTreeSet::new(),
@@ -37,6 +35,28 @@ impl PandemicModel {
             t_inc: T_INC,
             r0: R_0,
         }
+    }
+
+    fn proba_s_to_e(&self, time: f64) -> f64 {
+        let prob = 1.0 - (-time * self.r0 / self.t_inf).exp();
+        assert!(prob >= 0.0 && prob <= 1.0);
+        prob
+    }
+
+    fn erf_distrib(t: f64, mu: f64, sigma: f64) -> f64 {
+        0.5 - 0.5 * libm::erf((-t + mu) / f64::sqrt(2.0 * sigma))
+    }
+
+    fn proba_e_to_i(&self, time: f64) -> f64 {
+        let prob = Self::erf_distrib(time, self.t_inc, self.t_inc / 4.0);
+        assert!(prob >= 0.0 && prob <= 1.0);
+        prob
+    }
+
+    fn proba_i_to_r(&self, time: f64) -> f64 {
+        let prob = Self::erf_distrib(time, self.t_inf, self.t_inf / 4.0);
+        assert!(prob >= 0.0 && prob <= 1.0);
+        prob
     }
 
     // I think this general pattern makes the most sense. Unless we want to treat the pandemic
@@ -56,8 +76,8 @@ impl PandemicModel {
                 break;
             }
 
-
-            if *left { // person left building let's (let's see its contacts)
+            if *left {
+                // person left building let's (let's see its contacts)
                 // TODO Messy to mutate state inside a retain closure
                 let mut inside_since: Option<Time> = None;
                 state
@@ -80,7 +100,10 @@ impl PandemicModel {
                 let inside_since = inside_since.unwrap();
 
                 // Was this person leaving infected while they were inside?
-                if state.sane.contains(person) {
+                if !state.infected.contains_key(person)
+                    && !state.infected.contains_key(person)
+                    && !state.recovered.contains(person)
+                {
                     //let time_in_bldg = time - inside_since.unwrap();
                     let mut longest_overlap_with_infected = Duration::ZERO;
                     for (p, t) in &state.bldg_occupants[bldg] {
@@ -91,7 +114,9 @@ impl PandemicModel {
                         let dt = *time - (*t).max(inside_since);
                         longest_overlap_with_infected = longest_overlap_with_infected.max(dt);
                     }
-                    if rng.gen_bool(1.0 - (- longest_overlap_with_infected.inner_seconds() * state.r0 / state.t_inf).exp()) {
+                    if rng
+                        .gen_bool(state.proba_s_to_e(longest_overlap_with_infected.inner_seconds()))
+                    {
                         state.exposed.insert(*person, *time);
                     }
                 }
@@ -100,13 +125,10 @@ impl PandemicModel {
                 // this should be performed by listening to any event actually (let's see how to get that)
                 if let Some(t0) = state.infected.get(person) {
                     let dt = now - *t0;
-                    let m = (dt.inner_seconds() - state.t_inf).abs();
-                    let n = state.t_inf / 4.0;
 
-                    let prob = libm::erf(0.5 * m * f64::sqrt(2.0)/n.sqrt()) - libm::erf(0.5 * f64::sqrt(2.0) * (-dt.inner_seconds() + m) / n.sqrt());
-
-                    if rng.gen_bool(prob) {
+                    if rng.gen_bool(state.proba_i_to_r(dt.inner_seconds())) {
                         state.recovered.insert(*person);
+                        state.infected.remove(person);
                     }
                 }
 
@@ -114,13 +136,10 @@ impl PandemicModel {
                 // this should be performed by listening to any event actually (let's see how to get that)
                 if let Some(t0) = state.exposed.get(person) {
                     let dt = now - *t0;
-                    let m = (dt.inner_seconds() - state.t_inc).abs();
-                    let n = state.t_inf / 4.0;
 
-                    let prob = libm::erf(0.5 * m * f64::sqrt(2.0)/n.sqrt()) - libm::erf(0.5 * f64::sqrt(2.0) * (-dt.inner_seconds() + m) / n.sqrt());
-
-                    if rng.gen_bool(prob) {
-                        state.recovered.insert(*person);
+                    if rng.gen_bool(state.proba_e_to_i(dt.inner_seconds())) {
+                        state.infected.insert(*person, *time);
+                        state.exposed.remove(person);
                     }
                 }
             } else {
@@ -131,9 +150,11 @@ impl PandemicModel {
                     .push((*person, *time));
 
                 // Bit of a hack to seed initial state per person here, but eh
-                if *time < Time::START_OF_DAY + Duration::hours(1) {
+                if *time == Time::START_OF_DAY {
                     if rng.gen_bool(0.1) {
                         state.exposed.insert(*person, *time);
+                    } else if rng.gen_bool(0.1) {
+                        state.infected.insert(*person, *time);
                     }
                 }
             }
