@@ -192,7 +192,7 @@ impl TransitSimState {
                                 end: map.get_bs(stop2).driving_pos,
                                 constraints: PathConstraints::Bus,
                             }),
-                            TripPhaseType::RidingBus(route, bus.car),
+                            TripPhaseType::RidingBus(route, stop1, bus.car),
                         ));
                     } else {
                         still_waiting.push((ped, route, stop2, started_waiting));
@@ -254,7 +254,7 @@ impl TransitSimState {
                                 end: map.get_bs(stop2).driving_pos,
                                 constraints: PathConstraints::Bus,
                             }),
-                            TripPhaseType::RidingBus(route_id, *bus),
+                            TripPhaseType::RidingBus(route_id, stop1, *bus),
                         ));
                         return true;
                     }

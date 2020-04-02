@@ -49,7 +49,8 @@ pub enum TripPhaseType {
     Biking,
     Parking,
     WaitingForBus(BusRouteID, BusStopID),
-    RidingBus(BusRouteID, CarID),
+    // What stop did they board at?
+    RidingBus(BusRouteID, BusStopID, CarID),
     Aborted,
     Finished,
 }
@@ -62,7 +63,7 @@ impl TripPhaseType {
             TripPhaseType::Biking => "biking".to_string(),
             TripPhaseType::Parking => "parking".to_string(),
             TripPhaseType::WaitingForBus(r, _) => format!("waiting for bus {}", map.get_br(r).name),
-            TripPhaseType::RidingBus(r, _) => format!("riding bus {}", map.get_br(r).name),
+            TripPhaseType::RidingBus(r, _, _) => format!("riding bus {}", map.get_br(r).name),
             TripPhaseType::Aborted => "trip aborted due to some bug".to_string(),
             TripPhaseType::Finished => "trip finished".to_string(),
         }
