@@ -645,8 +645,11 @@ impl Composite {
         self.scroll_offset()
     }
 
-    pub fn restore_scroll(&mut self, ctx: &EventCtx, offset: (f64, f64)) {
+    pub fn restore_scroll(&mut self, ctx: &mut EventCtx, offset: (f64, f64)) {
         self.set_scroll_offset(ctx, offset);
+
+        // Since we just moved things around, let all widgets respond to the mouse being somewhere
+        ctx.no_op_event(true, |ctx| assert!(self.event(ctx).is_none()));
     }
 
     pub fn scroll_to_member(&mut self, ctx: &EventCtx, name: String) {
@@ -736,11 +739,16 @@ impl Composite {
         // Small padding
         self.vert = VerticalAlignment::Above(other.top_level.rect.y1 - 5.0);
         self.recompute_layout(ctx, false);
+
+        // Since we just moved things around, let all widgets respond to the mouse being somewhere
+        ctx.no_op_event(true, |ctx| assert!(self.event(ctx).is_none()));
     }
 
     pub fn replace(&mut self, ctx: &mut EventCtx, id: &str, new: Widget) {
         *self.top_level.find_mut(id).unwrap() = new;
         self.recompute_layout(ctx, true);
+
+        // TODO Same no_op_event as align_above? Should we always do this in recompute_layout?
     }
 
     pub fn clicked_outside(&self, ctx: &mut EventCtx) -> bool {
@@ -824,6 +832,7 @@ impl CompositeBuilder {
             // Just trigger error if a button is double-defined
             c.get_all_click_actions();
         }
+        // Let all widgets initially respond to the mouse being somewhere
         ctx.no_op_event(true, |ctx| assert!(c.event(ctx).is_none()));
         c
     }
