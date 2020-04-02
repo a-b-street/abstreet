@@ -141,6 +141,12 @@ impl GeomBatch {
         self.add_transformed(svg::load_svg(prerender, filename).0, center, scale, rotate);
     }
 
+    /// Adds geometry from another batch to the current batch, first centering it on the given
+    /// point.
+    pub fn add_centered(&mut self, other: GeomBatch, center: Pt2D) {
+        self.add_transformed(other, center, 1.0, Angle::ZERO);
+    }
+
     /// Adds geometry from another batch to the current batch, first transforming it. The
     /// translation centers on the given point.
     pub fn add_transformed(&mut self, other: GeomBatch, center: Pt2D, scale: f64, rotate: Angle) {

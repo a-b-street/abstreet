@@ -2,9 +2,10 @@ use crate::{
     text, Btn, Button, EventCtx, GeomBatch, GfxCtx, Line, Outcome, ScreenDims, ScreenPt, Text,
     Widget, WidgetImpl,
 };
-use geom::Polygon;
+use geom::{Polygon, Pt2D};
 
-const TEXT_WIDTH: f64 = 5.0 * text::MAX_CHAR_WIDTH;
+// TODO MAX_CHAR_WIDTH is a hardcoded nonsense value
+const TEXT_WIDTH: f64 = 2.0 * text::MAX_CHAR_WIDTH;
 
 // TODO Allow text entry
 // TODO Allow click and hold
@@ -84,15 +85,11 @@ impl WidgetImpl for Spinner {
         // TODO Cache
         let mut batch = GeomBatch::from(vec![(
             text::BG_COLOR,
-            Polygon::rectangle(self.dims.width, self.dims.height),
+            Polygon::rounded_rectangle(self.dims.width, self.dims.height, 5.0),
         )]);
-        let txt_batch = Text::from(Line(self.current.to_string())).render_to_batch(g.prerender);
-        // TODO Don't we have some centering methods somewhere?
-        let dims = txt_batch.get_dims();
-        batch.add_translated(
-            txt_batch,
-            (TEXT_WIDTH - dims.width) / 2.0,
-            (self.dims.height - dims.height) / 2.0,
+        batch.add_centered(
+            Text::from(Line(self.current.to_string())).render_to_batch(g.prerender),
+            Pt2D::new(TEXT_WIDTH / 2.0, self.dims.height / 2.0),
         );
         let draw = g.upload(batch);
         g.redraw_at(self.top_left, &draw);

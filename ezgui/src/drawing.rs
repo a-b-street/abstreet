@@ -196,18 +196,6 @@ impl<'a> GfxCtx<'a> {
         self.redraw_at(top_left, &draw);
     }
 
-    // TODO Super close to deleting this.
-    pub fn draw_text_at(&mut self, txt: Text, map_pt: Pt2D) {
-        let batch = txt.render_g(self);
-        let dims = batch.get_dims();
-        let pt = self.canvas.map_to_screen(map_pt);
-        let draw = self.upload(batch);
-        self.redraw_at(
-            ScreenPt::new(pt.x - (dims.width / 2.0), pt.y - (dims.height / 2.0)),
-            &draw,
-        );
-    }
-
     pub fn draw_mouse_tooltip(&mut self, txt: Text) {
         // Add some padding
         let pad = 5.0;

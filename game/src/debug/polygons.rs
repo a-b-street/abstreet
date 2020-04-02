@@ -2,8 +2,8 @@ use crate::app::App;
 use crate::colors;
 use crate::game::{State, Transition};
 use ezgui::{
-    hotkey, Btn, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Slider,
-    Text, TextExt, VerticalAlignment, Widget,
+    hotkey, Btn, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Slider, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Polygon, Pt2D, Triangle};
 
@@ -82,26 +82,52 @@ impl State for PolygonDebugger {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
+        // This is drawn in screen-space, so zooming doesn't affect the text size
+        let mut batch = GeomBatch::new();
+
         let idx = (self.composite.slider("slider").get_percent() * (self.items.len() - 1) as f64)
             as usize;
         match &self.items[idx] {
             Item::Point(pt) => {
-                g.draw_text_at(Text::from(Line(idx.to_string())).with_bg(), *pt);
+                batch.add_centered(
+                    Text::from(Line(idx.to_string()))
+                        .bg(colors::PANEL_BG)
+                        .render_g(g),
+                    g.canvas.map_to_screen(*pt).to_pt(),
+                );
             }
             Item::Triangle(ref tri) => {
                 for pt in &[tri.pt1, tri.pt2, tri.pt3] {
-                    g.draw_text_at(Text::from(Line(idx.to_string())).with_bg(), *pt);
+                    batch.add_centered(
+                        Text::from(Line(idx.to_string()))
+                            .bg(colors::PANEL_BG)
+                            .render_g(g),
+                        g.canvas.map_to_screen(*pt).to_pt(),
+                    );
                 }
                 g.draw_polygon(app.cs.get("selected"), &Polygon::from_triangle(tri));
             }
             Item::Polygon(ref poly) => {
                 g.draw_polygon(app.cs.get("selected"), poly);
-                g.draw_text_at(Text::from(Line(idx.to_string())).with_bg(), poly.center());
+                batch.add_centered(
+                    Text::from(Line(idx.to_string()))
+                        .bg(colors::PANEL_BG)
+                        .render_g(g),
+                    g.canvas.map_to_screen(poly.center()).to_pt(),
+                );
             }
         }
         if let Some(pt) = self.center {
-            g.draw_text_at(Text::from(Line("c")).with_bg(), pt);
+            batch.add_centered(
+                Text::from(Line("c")).bg(colors::PANEL_BG).render_g(g),
+                g.canvas.map_to_screen(pt).to_pt(),
+            );
         }
+
+        let draw = g.upload(batch);
+        g.fork_screenspace();
+        g.redraw(&draw);
+        g.unfork();
 
         self.composite.draw(g);
     }

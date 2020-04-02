@@ -68,9 +68,18 @@ impl ShowBusRoute {
 
     pub fn draw(&self, g: &mut GfxCtx) {
         self.colorer.draw(g);
+
+        let mut screen_batch = GeomBatch::new();
         for (label, pt) in &self.labels {
-            g.draw_text_at(label.clone(), *pt);
+            screen_batch.add_centered(
+                label.clone().render_g(g),
+                g.canvas.map_to_screen(*pt).to_pt(),
+            );
         }
+        let draw = g.upload(screen_batch);
+        g.fork_screenspace();
+        g.redraw(&draw);
+        g.unfork();
 
         let mut batch = GeomBatch::new();
         let radius = Distance::meters(20.0) / g.canvas.cam_zoom;
