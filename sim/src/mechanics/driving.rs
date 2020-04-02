@@ -97,8 +97,7 @@ impl DrivingSimState {
                 last_steps: VecDeque::new(),
                 started_at: now,
                 total_blocked_time: Duration::ZERO,
-                trip: params.trip,
-                person: params.person,
+                trip_and_person: params.trip_and_person,
             };
             if let Some(p) = params.maybe_parked_car {
                 car.state = CarState::Unparking(
@@ -114,7 +113,7 @@ impl DrivingSimState {
                         &car.vehicle,
                         parking,
                         map,
-                        car.trip,
+                        car.trip_and_person,
                         &mut self.events,
                     ) {
                         None | Some(ActionAtEnd::GotoLaneEnd) => {}
@@ -275,7 +274,7 @@ impl DrivingSimState {
                         &car.vehicle,
                         parking,
                         map,
-                        car.trip,
+                        car.trip_and_person,
                         &mut self.events,
                     );
                 }
@@ -365,9 +364,13 @@ impl DrivingSimState {
                 // We do NOT need to update the follower. If they were Queued, they'll remain that
                 // way, until laggy_head is None.
 
-                let last_step =
-                    car.router
-                        .advance(&car.vehicle, parking, map, car.trip, &mut self.events);
+                let last_step = car.router.advance(
+                    &car.vehicle,
+                    parking,
+                    map,
+                    car.trip_and_person,
+                    &mut self.events,
+                );
                 car.total_blocked_time += now - blocked_since;
                 car.state = car.crossing_state(Distance::ZERO, now, map);
                 scheduler.push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
@@ -442,7 +445,7 @@ impl DrivingSimState {
                     &car.vehicle,
                     parking,
                     map,
-                    car.trip,
+                    car.trip_and_person,
                     &mut self.events,
                 ) {
                     Some(ActionAtEnd::VanishAtBorder(i)) => {
@@ -783,7 +786,7 @@ impl DrivingSimState {
                 result.push(UnzoomedAgent {
                     vehicle_type: Some(car.vehicle.vehicle_type),
                     pos: queue.id.dist_along(dist, map).0,
-                    person: car.person,
+                    person: car.trip_and_person.map(|(_, p)| p),
                 });
             }
         }
@@ -804,7 +807,7 @@ impl DrivingSimState {
             for (car, dist) in
                 queue.get_car_positions(trip_positions.time, &self.cars, &self.queues)
             {
-                if let Some(trip) = self.cars[&car].trip {
+                if let Some((trip, _)) = self.cars[&car].trip_and_person {
                     trip_positions
                         .canonical_pt_per_trip
                         .insert(trip, queue.id.dist_along(dist, map).0);

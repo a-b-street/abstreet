@@ -1,6 +1,6 @@
 use crate::{
-    CarID, Event, PedestrianID, Router, Scheduler, TripManager, TripMode, TripPhaseType,
-    WalkingSimState,
+    CarID, Event, PedestrianID, PersonID, Router, Scheduler, TripID, TripManager, TripMode,
+    TripPhaseType, WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Time};
@@ -168,7 +168,6 @@ impl TransitSimState {
                 let mut still_riding = Vec::new();
                 for (ped, stop2) in bus.passengers.drain(..) {
                     if stop1 == stop2 {
-                        self.events.push(Event::PedLeavesBus(ped, id, bus.route));
                         trips.ped_left_bus(now, ped, map, scheduler);
                     } else {
                         still_riding.push((ped, stop2));
@@ -183,17 +182,17 @@ impl TransitSimState {
                 {
                     if bus.route == route {
                         bus.passengers.push((ped, stop2));
-                        self.events.push(Event::PedEntersBus(ped, id, route));
-                        let trip = trips.ped_boarded_bus(now, ped, walking);
+                        let (trip, person) = trips.ped_boarded_bus(now, ped, walking);
                         self.events.push(Event::TripPhaseStarting(
                             trip,
+                            person,
                             TripMode::Transit,
                             Some(PathRequest {
                                 start: map.get_bs(stop1).driving_pos,
                                 end: map.get_bs(stop2).driving_pos,
                                 constraints: PathConstraints::Bus,
                             }),
-                            TripPhaseType::RidingBus(route),
+                            TripPhaseType::RidingBus(route, bus.car),
                         ));
                     } else {
                         still_waiting.push((ped, route, stop2, started_waiting));
@@ -229,9 +228,12 @@ impl TransitSimState {
         &mut self,
         now: Time,
         ped: PedestrianID,
+        trip: TripID,
+        person: PersonID,
         stop1: BusStopID,
         route_id: BusRouteID,
         stop2: BusStopID,
+        map: &Map,
     ) -> bool {
         assert!(stop1 != stop2);
         if let Some(route) = self.routes.get(&route_id) {
@@ -243,8 +245,17 @@ impl TransitSimState {
                             .unwrap()
                             .passengers
                             .push((ped, stop2));
-                        // TODO shift trips
-                        self.events.push(Event::PedEntersBus(ped, *bus, route_id));
+                        self.events.push(Event::TripPhaseStarting(
+                            trip,
+                            person,
+                            TripMode::Transit,
+                            Some(PathRequest {
+                                start: map.get_bs(stop1).driving_pos,
+                                end: map.get_bs(stop2).driving_pos,
+                                constraints: PathConstraints::Bus,
+                            }),
+                            TripPhaseType::RidingBus(route_id, *bus),
+                        ));
                         return true;
                     }
                 }

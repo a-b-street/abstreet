@@ -11,7 +11,8 @@ mod transit;
 mod trips;
 
 pub use self::analytics::{Analytics, TripPhase};
-pub use self::events::{Event, TripPhaseType};
+pub(crate) use self::events::Event;
+pub use self::events::TripPhaseType;
 pub use self::make::{
     ABTest, BorderSpawnOverTime, IndividTrip, OriginDestination, PersonSpec, Scenario,
     ScenarioGenerator, SeedParkedCars, SimFlags, SpawnOverTime, SpawnTrip, TripSpawner, TripSpec,
@@ -490,8 +491,7 @@ pub struct CreateCar {
     pub start_dist: Distance,
     pub maybe_parked_car: Option<ParkedCar>,
     // None for buses
-    pub trip: Option<TripID>,
-    pub person: Option<PersonID>,
+    pub trip_and_person: Option<(TripID, PersonID)>,
 }
 
 impl CreateCar {
@@ -509,8 +509,7 @@ impl CreateCar {
             req,
             start_dist: start_pos.dist_along(),
             maybe_parked_car: None,
-            trip: Some(trip),
-            person: Some(person),
+            trip_and_person: Some((trip, person)),
         }
     }
 
@@ -529,8 +528,7 @@ impl CreateCar {
             req,
             start_dist,
             maybe_parked_car: Some(parked_car),
-            trip: Some(trip),
-            person: Some(person),
+            trip_and_person: Some((trip, person)),
         }
     }
 }

@@ -111,12 +111,14 @@ impl Analytics {
         }
 
         // Bus passengers
-        if let Event::PedReachedBusStop(_, stop, route) = ev {
-            self.bus_passengers_waiting.push((time, stop, route));
+        if let Event::TripPhaseStarting(_, _, _, _, ref tpt) = ev {
+            if let TripPhaseType::WaitingForBus(route, stop) = tpt {
+                self.bus_passengers_waiting.push((time, *stop, *route));
+            }
         }
 
         // Started trips
-        if let Event::TripPhaseStarting(id, mode, _, _) = ev {
+        if let Event::TripPhaseStarting(id, _, mode, _, _) = ev {
             // TODO More efficiently
             if !self.started_trips.contains_key(&id)
                 && !self
@@ -148,7 +150,7 @@ impl Analytics {
 
         // TODO Kinda hacky, but these all consume the event, so kinda bundle em.
         match ev {
-            Event::TripPhaseStarting(id, _, maybe_req, phase_type) => {
+            Event::TripPhaseStarting(id, _, _, maybe_req, phase_type) => {
                 self.trip_log.push((time, id, maybe_req, phase_type));
             }
             Event::TripAborted(id, _) => {

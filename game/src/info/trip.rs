@@ -163,8 +163,8 @@ fn make_timeline(
             TripPhaseType::Walking => Color::hex("#DF8C3D"),
             TripPhaseType::Biking => app.cs.get("bike lane"),
             TripPhaseType::Parking => Color::hex("#4E30A6"),
-            TripPhaseType::WaitingForBus(_) => app.cs.get("bus stop marking"),
-            TripPhaseType::RidingBus(_) => app.cs.get("bus lane"),
+            TripPhaseType::WaitingForBus(_, _) => app.cs.get("bus stop marking"),
+            TripPhaseType::RidingBus(_, _) => app.cs.get("bus lane"),
             TripPhaseType::Aborted | TripPhaseType::Finished => unreachable!(),
         }
         .alpha(0.7);
@@ -215,10 +215,10 @@ fn make_timeline(
                 TripPhaseType::Walking => "../data/system/assets/timeline/walking.svg",
                 TripPhaseType::Biking => "../data/system/assets/timeline/biking.svg",
                 TripPhaseType::Parking => "../data/system/assets/timeline/parking.svg",
-                TripPhaseType::WaitingForBus(_) => {
+                TripPhaseType::WaitingForBus(_, _) => {
                     "../data/system/assets/timeline/waiting_for_bus.svg"
                 }
-                TripPhaseType::RidingBus(_) => "../data/system/assets/timeline/riding_bus.svg",
+                TripPhaseType::RidingBus(_, _) => "../data/system/assets/timeline/riding_bus.svg",
                 TripPhaseType::Aborted | TripPhaseType::Finished => unreachable!(),
             },
             // TODO Hardcoded layouting...

@@ -390,14 +390,23 @@ impl TripManager {
         }
         match trip.legs[1] {
             TripLeg::RideBus(_, route, stop2) => {
-                self.events.push(Event::PedReachedBusStop(ped, stop, route));
                 self.events.push(Event::TripPhaseStarting(
                     trip.id,
+                    trip.person,
                     trip.mode,
                     None,
-                    TripPhaseType::WaitingForBus(route),
+                    TripPhaseType::WaitingForBus(route, stop),
                 ));
-                if transit.ped_waiting_for_bus(now, ped, stop, route, stop2) {
+                if transit.ped_waiting_for_bus(
+                    now,
+                    ped,
+                    trip.id,
+                    trip.person,
+                    stop,
+                    route,
+                    stop2,
+                    map,
+                ) {
                     trip.legs.pop_front();
                     None
                 } else {
@@ -413,12 +422,12 @@ impl TripManager {
         now: Time,
         ped: PedestrianID,
         walking: &mut WalkingSimState,
-    ) -> TripID {
+    ) -> (TripID, PersonID) {
         // TODO Make sure canonical pt is the bus while the ped is riding it
         let trip = &mut self.trips[self.active_trip_mode[&AgentID::Pedestrian(ped)].0];
         trip.legs.pop_front();
         walking.ped_boarded_bus(now, ped);
-        trip.id
+        (trip.id, trip.person)
     }
 
     pub fn ped_left_bus(

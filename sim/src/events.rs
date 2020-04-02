@@ -16,15 +16,11 @@ pub enum Event {
     BusArrivedAtStop(CarID, BusRouteID, BusStopID),
     BusDepartedFromStop(CarID, BusRouteID, BusStopID),
 
-    PedEntersBus(PedestrianID, CarID, BusRouteID),
-    PedLeavesBus(PedestrianID, CarID, BusRouteID),
-
     PersonEntersBuilding(PersonID, BuildingID),
     PersonLeavesBuilding(PersonID, BuildingID),
 
     PedReachedParkingSpot(PedestrianID, ParkingSpot),
     PedReachedBorder(PedestrianID, IntersectionID),
-    PedReachedBusStop(PedestrianID, BusStopID, BusRouteID),
 
     BikeStoppedAtSidewalk(CarID, LaneID),
 
@@ -33,7 +29,13 @@ pub enum Event {
 
     TripFinished(TripID, TripMode, Duration),
     TripAborted(TripID, TripMode),
-    TripPhaseStarting(TripID, TripMode, Option<PathRequest>, TripPhaseType),
+    TripPhaseStarting(
+        TripID,
+        PersonID,
+        TripMode,
+        Option<PathRequest>,
+        TripPhaseType,
+    ),
 
     // Just use for parking replanning. Not happy about copying the full path in here, but the way
     // to plumb info into Analytics is Event.
@@ -46,8 +48,8 @@ pub enum TripPhaseType {
     Walking,
     Biking,
     Parking,
-    WaitingForBus(BusRouteID),
-    RidingBus(BusRouteID),
+    WaitingForBus(BusRouteID, BusStopID),
+    RidingBus(BusRouteID, CarID),
     Aborted,
     Finished,
 }
@@ -59,8 +61,8 @@ impl TripPhaseType {
             TripPhaseType::Walking => "walking".to_string(),
             TripPhaseType::Biking => "biking".to_string(),
             TripPhaseType::Parking => "parking".to_string(),
-            TripPhaseType::WaitingForBus(r) => format!("waiting for bus {}", map.get_br(r).name),
-            TripPhaseType::RidingBus(r) => format!("riding bus {}", map.get_br(r).name),
+            TripPhaseType::WaitingForBus(r, _) => format!("waiting for bus {}", map.get_br(r).name),
+            TripPhaseType::RidingBus(r, _) => format!("riding bus {}", map.get_br(r).name),
             TripPhaseType::Aborted => "trip aborted due to some bug".to_string(),
             TripPhaseType::Finished => "trip finished".to_string(),
         }

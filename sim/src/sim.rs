@@ -269,8 +269,7 @@ impl Sim {
                         req: req.clone(),
                         router: Router::follow_bus_route(path.clone(), end_dist),
                         maybe_parked_car: None,
-                        trip: None,
-                        person: None,
+                        trip_and_person: None,
                     },
                     map,
                     &self.intersections,
@@ -409,7 +408,7 @@ impl Sim {
                     &self.parking,
                     &mut self.scheduler,
                 ) {
-                    if let Some(trip) = create_car.trip {
+                    if let Some((trip, _)) = create_car.trip_and_person {
                         self.trips
                             .agent_starting_trip_leg(AgentID::Car(create_car.vehicle.id), trip);
                     }
@@ -417,15 +416,16 @@ impl Sim {
                         if let ParkingSpot::Offstreet(b, _) = parked_car.spot {
                             // Buses don't start in parking garages, so trip must exist
                             events.push(Event::PersonLeavesBuilding(
-                                self.trip_to_person(create_car.trip.unwrap()),
+                                create_car.trip_and_person.unwrap().1,
                                 b,
                             ));
                         }
                         self.parking.remove_parked_car(parked_car);
                     }
-                    if let Some(trip) = create_car.trip {
+                    if let Some((trip, person)) = create_car.trip_and_person {
                         events.push(Event::TripPhaseStarting(
                             trip,
+                            person,
                             // TODO sketchy...
                             if create_car.vehicle.id.1 == VehicleType::Car {
                                 TripMode::Drive
@@ -449,7 +449,7 @@ impl Sim {
                         Command::SpawnCar(create_car, retry_if_no_room),
                     );
                 } else {
-                    if let Some(trip) = create_car.trip {
+                    if let Some((trip, _)) = create_car.trip_and_person {
                         println!("No room to spawn car for {}. Not retrying!", trip);
                         self.trips.abort_trip_failed_start(trip);
                     } else {
@@ -518,6 +518,7 @@ impl Sim {
                     );
                     events.push(Event::TripPhaseStarting(
                         create_ped.trip,
+                        create_ped.person,
                         TripMode::Walk,
                         Some(create_ped.req.clone()),
                         TripPhaseType::Walking,

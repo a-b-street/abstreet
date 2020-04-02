@@ -1,6 +1,7 @@
 use crate::mechanics::Queue;
 use crate::{
-    Event, ParkingSimState, ParkingSpot, SidewalkSpot, TripID, TripMode, TripPhaseType, Vehicle,
+    Event, ParkingSimState, ParkingSpot, PersonID, SidewalkSpot, TripID, TripMode, TripPhaseType,
+    Vehicle,
 };
 use geom::Distance;
 use map_model::{
@@ -127,13 +128,20 @@ impl Router {
         vehicle: &Vehicle,
         parking: &ParkingSimState,
         map: &Map,
-        trip: Option<TripID>,
+        trip_and_person: Option<(TripID, PersonID)>,
         events: &mut Vec<Event>,
     ) -> Traversable {
         let prev = self.path.shift(map).as_traversable();
         if self.last_step() {
             // Do this to trigger the side-effect of looking for parking.
-            self.maybe_handle_end(Distance::ZERO, vehicle, parking, map, trip, events);
+            self.maybe_handle_end(
+                Distance::ZERO,
+                vehicle,
+                parking,
+                map,
+                trip_and_person,
+                events,
+            );
         }
 
         // Sanity check laws haven't been broken
@@ -159,7 +167,7 @@ impl Router {
         parking: &ParkingSimState,
         map: &Map,
         // TODO Not so nice to plumb all of this here
-        trip: Option<TripID>,
+        trip_and_person: Option<(TripID, PersonID)>,
         events: &mut Vec<Event>,
     ) -> Option<ActionAtEnd> {
         match self.goal {
@@ -194,9 +202,10 @@ impl Router {
                         vehicle,
                         map,
                     ) {
-                        if let Some(t) = trip {
+                        if let Some((t, p)) = trip_and_person {
                             events.push(Event::TripPhaseStarting(
                                 t,
+                                p,
                                 TripMode::Drive,
                                 Some(PathRequest {
                                     start: Position::new(current_lane, front),
@@ -217,9 +226,10 @@ impl Router {
                             }
                             events.push(Event::PathAmended(self.path.clone()));
                             // TODO This path might not be the same as the one found here...
-                            if let Some(t) = trip {
+                            if let Some((t, p)) = trip_and_person {
                                 events.push(Event::TripPhaseStarting(
                                     t,
+                                    p,
                                     TripMode::Drive,
                                     Some(PathRequest {
                                         start: Position::new(current_lane, front),
