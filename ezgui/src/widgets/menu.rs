@@ -80,6 +80,10 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
     }
 
     fn event(&mut self, ctx: &mut EventCtx, _redo_layout: &mut bool) -> Option<Outcome> {
+        if self.choices.is_empty() {
+            return None;
+        }
+
         match self.state {
             InputResult::StillActive => {}
             _ => unreachable!(),
@@ -167,6 +171,10 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
     }
 
     fn draw(&self, g: &mut GfxCtx) {
+        if self.choices.is_empty() {
+            return;
+        }
+
         let draw = g.upload(self.calculate_txt().render_g(g));
         // In between tooltip and normal screenspace
         g.fork(Pt2D::new(0.0, 0.0), self.top_left, 1.0, Some(0.1));

@@ -1,140 +1,120 @@
 use crate::{
-    text, Event, EventCtx, GfxCtx, HorizontalAlignment, InputResult, Key, Line, Text,
-    VerticalAlignment,
+    Choice, EventCtx, GfxCtx, InputResult, Menu, Outcome, ScreenDims, ScreenPt, TextBox, Widget,
+    WidgetImpl,
 };
 use simsearch::SimSearch;
-use std::collections::{BTreeMap, HashSet};
-use std::hash::Hash;
+use std::collections::HashMap;
 
-const NUM_SEARCH_RESULTS: usize = 5;
+const NUM_SEARCH_RESULTS: usize = 10;
 
-pub struct Autocomplete<T: Clone + Hash + Eq> {
-    prompt: String,
-    choices: BTreeMap<String, HashSet<T>>,
+// TODO I don't even think we need to declare Clone...
+pub struct Autocomplete<T: Clone> {
+    choices: HashMap<String, Vec<T>>,
     // Maps index to choice
     search_map: Vec<String>,
     search: SimSearch<usize>,
 
-    line: String,
-    cursor_x: usize,
-    shift_pressed: bool,
-    current_results: Vec<usize>,
-    cursor_y: usize,
+    tb: TextBox,
+    menu: Menu<()>,
+
+    current_line: String,
+    chosen_values: Option<Vec<T>>,
 }
 
-impl<T: Clone + Hash + Eq> Autocomplete<T> {
-    pub fn new(prompt: &str, choices_list: Vec<(String, T)>) -> Autocomplete<T> {
-        let mut choices = BTreeMap::new();
-        for (name, data) in choices_list {
-            if !choices.contains_key(&name) {
-                choices.insert(name.clone(), HashSet::new());
-            }
-            choices.get_mut(&name).unwrap().insert(data);
-        }
-        let mut search_map = Vec::new();
-        let mut search = SimSearch::new();
-        let mut current_results = Vec::new();
-        for (idx, name) in choices.keys().enumerate() {
-            search_map.push(name.to_string());
-            search.insert(idx, name);
-            if idx < NUM_SEARCH_RESULTS {
-                current_results.push(idx);
-            }
+impl<T: 'static + Clone> Autocomplete<T> {
+    // If multiple names map to the same data, all of the possible values will be returned
+    pub fn new(ctx: &mut EventCtx, raw_choices: Vec<(String, T)>) -> Widget {
+        let mut choices = HashMap::new();
+        for (name, data) in raw_choices {
+            choices.entry(name).or_insert_with(Vec::new).push(data);
         }
 
-        Autocomplete {
-            prompt: prompt.to_string(),
+        let mut search_map = Vec::new();
+        let mut search = SimSearch::new();
+        for name in choices.keys() {
+            search.insert(search_map.len(), name);
+            search_map.push(name.to_string());
+        }
+
+        let mut a = Autocomplete {
             choices,
             search_map,
             search,
 
-            line: String::new(),
-            cursor_x: 0,
-            shift_pressed: false,
-            current_results,
-            cursor_y: 0,
-        }
-    }
+            tb: TextBox::new(ctx, 50, String::new(), true),
+            menu: Menu::<()>::new(ctx, Vec::new()).take_menu(),
 
-    pub fn draw(&self, g: &mut GfxCtx) {
-        let mut txt = Text::from(Line(&self.prompt).small_heading()).with_bg();
-
-        txt.add(Line(&self.line[0..self.cursor_x]));
-        if self.cursor_x < self.line.len() {
-            // TODO This "cursor" looks awful!
-            txt.append_all(vec![
-                Line("|").fg(text::SELECTED_COLOR),
-                Line(&self.line[self.cursor_x..=self.cursor_x]),
-                Line(&self.line[self.cursor_x + 1..]),
-            ]);
-        } else {
-            txt.append(Line("|").fg(text::SELECTED_COLOR));
-        }
-
-        for (idx, id) in self.current_results.iter().enumerate() {
-            if idx == self.cursor_y {
-                txt.add_highlighted(Line(&self.search_map[*id]), text::SELECTED_COLOR);
-            } else {
-                txt.add(Line(&self.search_map[*id]));
-            }
-        }
-
-        g.draw_blocking_text(
-            txt,
-            (HorizontalAlignment::Center, VerticalAlignment::Center),
-        );
-    }
-
-    pub fn event(&mut self, ctx: &mut EventCtx) -> InputResult<HashSet<T>> {
-        let maybe_ev = ctx.input.use_event_directly();
-        if maybe_ev.is_none() {
-            return InputResult::StillActive;
-        }
-        let ev = maybe_ev.unwrap();
-
-        if ev == Event::KeyPress(Key::Escape) {
-            return InputResult::Canceled;
-        } else if ev == Event::KeyPress(Key::Enter) {
-            if self.current_results.is_empty() {
-                return InputResult::Canceled;
-            }
-            let name = &self.search_map[self.current_results[self.cursor_y]];
-            return InputResult::Done(name.to_string(), self.choices.remove(name).unwrap());
-        } else if ev == Event::KeyPress(Key::LeftShift) {
-            self.shift_pressed = true;
-        } else if ev == Event::KeyRelease(Key::LeftShift) {
-            self.shift_pressed = false;
-        } else if ev == Event::KeyPress(Key::LeftArrow) {
-            if self.cursor_x > 0 {
-                self.cursor_x -= 1;
-            }
-        } else if ev == Event::KeyPress(Key::RightArrow) {
-            self.cursor_x = (self.cursor_x + 1).min(self.line.len());
-        } else if ev == Event::KeyPress(Key::UpArrow) {
-            if self.cursor_y > 0 {
-                self.cursor_y -= 1;
-            }
-        } else if ev == Event::KeyPress(Key::DownArrow) {
-            self.cursor_y = (self.cursor_y + 1).min(self.current_results.len() - 1);
-        } else if ev == Event::KeyPress(Key::Backspace) {
-            if self.cursor_x > 0 {
-                self.line.remove(self.cursor_x - 1);
-                self.cursor_x -= 1;
-
-                self.current_results = self.search.search(&self.line);
-                self.current_results.truncate(NUM_SEARCH_RESULTS);
-                self.cursor_y = 0;
-            }
-        } else if let Event::KeyPress(key) = ev {
-            if let Some(c) = key.to_char(self.shift_pressed) {
-                self.line.insert(self.cursor_x, c);
-                self.cursor_x += 1;
-
-                self.current_results = self.search.search(&self.line);
-                self.current_results.truncate(NUM_SEARCH_RESULTS);
-                self.cursor_y = 0;
-            }
+            current_line: String::new(),
+            chosen_values: None,
         };
-        InputResult::StillActive
+        a.recalc_menu(ctx);
+        Widget::new(Box::new(a))
+    }
+
+    pub fn final_value(&self) -> Option<Vec<T>> {
+        self.chosen_values.clone()
+    }
+
+    fn recalc_menu(&mut self, ctx: &mut EventCtx) {
+        let mut indices = self.search.search(&self.current_line);
+        if indices.is_empty() {
+            indices = (0..NUM_SEARCH_RESULTS.min(self.search_map.len())).collect();
+        }
+
+        self.menu = Menu::new(
+            ctx,
+            indices
+                .into_iter()
+                .take(NUM_SEARCH_RESULTS)
+                .map(|idx| Choice::new(&self.search_map[idx], ()))
+                .collect(),
+        )
+        .take_menu();
+    }
+}
+
+impl<T: 'static + Clone> WidgetImpl for Autocomplete<T> {
+    fn get_dims(&self) -> ScreenDims {
+        let d1 = self.tb.get_dims();
+        let d2 = self.menu.get_dims();
+        ScreenDims::new(d1.width.max(d2.width), d1.height + d2.height)
+    }
+
+    fn set_pos(&mut self, top_left: ScreenPt) {
+        self.tb.set_pos(top_left);
+        self.menu.set_pos(ScreenPt::new(
+            top_left.x,
+            top_left.y + self.tb.get_dims().height,
+        ));
+    }
+
+    fn event(&mut self, ctx: &mut EventCtx, redo_layout: &mut bool) -> Option<Outcome> {
+        assert!(self.chosen_values.is_none());
+
+        self.tb.event(ctx, redo_layout);
+        if self.tb.get_line() != self.current_line {
+            self.current_line = self.tb.get_line();
+            self.recalc_menu(ctx);
+            *redo_layout = true;
+        } else {
+            self.menu.event(ctx, redo_layout);
+            match self.menu.state {
+                InputResult::StillActive => {}
+                // Ignore this and make sure the Composite has a quit control
+                InputResult::Canceled => {}
+                InputResult::Done(ref name, _) => {
+                    // Mutating choices is fine, because we're supposed to be consumed by the
+                    // caller immediately after this.
+                    self.chosen_values = Some(self.choices.remove(name).unwrap());
+                }
+            }
+        }
+
+        None
+    }
+
+    fn draw(&self, g: &mut GfxCtx) {
+        self.tb.draw(g);
+        self.menu.draw(g);
     }
 }

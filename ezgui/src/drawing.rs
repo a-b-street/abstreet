@@ -1,8 +1,7 @@
 use crate::assets::Assets;
 use crate::backend::{GfxCtxInnards, PrerenderInnards};
 use crate::{
-    Canvas, Color, Drawable, FancyColor, GeomBatch, HorizontalAlignment, ScreenDims, ScreenPt,
-    ScreenRectangle, Text, VerticalAlignment,
+    Canvas, Color, Drawable, FancyColor, GeomBatch, ScreenDims, ScreenPt, ScreenRectangle, Text,
 };
 use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
 use std::cell::Cell;
@@ -176,25 +175,6 @@ impl<'a> GfxCtx<'a> {
     }
 
     // Canvas stuff.
-
-    // The text box covers up what's beneath and eats the cursor (for get_cursor_in_map_space).
-    // TODO Super close to deleting this.
-    pub(crate) fn draw_blocking_text(
-        &mut self,
-        txt: Text,
-        (horiz, vert): (HorizontalAlignment, VerticalAlignment),
-    ) {
-        let batch = txt.render_g(self);
-        let dims = batch.get_dims();
-        let top_left = self
-            .canvas
-            .align_window(&self.prerender.assets, dims, horiz, vert);
-
-        self.canvas
-            .mark_covered_area(ScreenRectangle::top_left(top_left, dims));
-        let draw = self.upload(batch);
-        self.redraw_at(top_left, &draw);
-    }
 
     pub fn draw_mouse_tooltip(&mut self, txt: Text) {
         // Add some padding

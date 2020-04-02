@@ -68,7 +68,7 @@ pub use crate::widgets::spinner::Spinner;
 pub(crate) use crate::widgets::text_box::TextBox;
 pub use crate::widgets::WidgetImpl;
 
-pub enum InputResult<T: Clone> {
+pub(crate) enum InputResult<T: Clone> {
     Canceled,
     StillActive,
     Done(String, T),

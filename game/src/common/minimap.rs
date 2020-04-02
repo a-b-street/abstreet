@@ -94,7 +94,7 @@ impl Minimap {
                     self.set_zoom(ctx, app, 3);
                 }
                 x if x == "search" => {
-                    return Some(Transition::Push(Box::new(navigate::Navigator::new(app))));
+                    return Some(Transition::Push(navigate::Navigator::new(ctx, app)));
                 }
                 x if x == "shortcuts" => {
                     return Some(Transition::Push(shortcuts::ChoosingShortcut::new()));

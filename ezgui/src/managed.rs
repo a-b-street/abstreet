@@ -1,8 +1,8 @@
 use crate::widgets::containers::{Container, Nothing};
 use crate::{
-    Btn, Button, Checkbox, Choice, Color, Drawable, Dropdown, EventCtx, Filler, GeomBatch, GfxCtx,
-    HorizontalAlignment, JustDraw, Menu, MultiKey, RewriteColor, ScreenDims, ScreenPt,
-    ScreenRectangle, Slider, Spinner, TextBox, VerticalAlignment, WidgetImpl,
+    Autocomplete, Btn, Button, Checkbox, Choice, Color, Drawable, Dropdown, EventCtx, Filler,
+    GeomBatch, GfxCtx, HorizontalAlignment, JustDraw, Menu, MultiKey, RewriteColor, ScreenDims,
+    ScreenPt, ScreenRectangle, Slider, Spinner, TextBox, VerticalAlignment, WidgetImpl,
 };
 use geom::{Distance, Polygon};
 use std::collections::HashSet;
@@ -423,6 +423,10 @@ impl Widget {
     pub(crate) fn take_btn(self) -> Button {
         *self.widget.downcast::<Button>().ok().unwrap()
     }
+
+    pub(crate) fn take_menu<T: 'static + Clone>(self) -> Menu<T> {
+        *self.widget.downcast::<Menu<T>>().ok().unwrap()
+    }
 }
 
 enum Dims {
@@ -690,6 +694,10 @@ impl Composite {
 
     pub fn dropdown_value<T: 'static + PartialEq + Clone>(&self, name: &str) -> T {
         self.find::<Dropdown<T>>(name).current_value()
+    }
+
+    pub fn autocomplete_done<T: 'static + Clone>(&self, name: &str) -> Option<Vec<T>> {
+        self.find::<Autocomplete<T>>(name).final_value()
     }
 
     pub fn filler_rect(&self, name: &str) -> ScreenRectangle {

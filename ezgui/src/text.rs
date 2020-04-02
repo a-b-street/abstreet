@@ -120,6 +120,7 @@ impl Text {
         txt
     }
 
+    // TODO Remove this
     pub fn with_bg(mut self) -> Text {
         assert!(self.bg_color.is_none());
         self.bg_color = Some(BG_COLOR);

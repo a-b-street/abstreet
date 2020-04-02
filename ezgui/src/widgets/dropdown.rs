@@ -7,6 +7,7 @@ use geom::{Polygon, Pt2D};
 pub struct Dropdown<T: Clone> {
     current_idx: usize,
     btn: Button,
+    // TODO Why not T?
     menu: Option<Menu<usize>>,
     label: String,
 
@@ -70,7 +71,7 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
         } else {
             if self.btn.event(ctx, redo_layout).is_some() {
                 // TODO set current idx in menu
-                let mut menu = *Menu::new(
+                let mut menu = Menu::new(
                     ctx,
                     self.choices
                         .iter()
@@ -78,10 +79,7 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
                         .map(|(idx, c)| c.with_value(idx))
                         .collect(),
                 )
-                .widget
-                .downcast::<Menu<usize>>()
-                .ok()
-                .unwrap();
+                .take_menu();
                 menu.set_pos(ScreenPt::new(
                     self.btn.top_left.x,
                     self.btn.top_left.y + self.btn.dims.height + 15.0,

@@ -165,15 +165,6 @@ impl UserInput {
         }
     }
 
-    // TODO I'm not sure this is even useful anymore
-    pub(crate) fn use_event_directly(&mut self) -> Option<Event> {
-        if self.event_consumed {
-            return None;
-        }
-        self.consume_event();
-        Some(self.event)
-    }
-
     pub(crate) fn consume_event(&mut self) {
         assert!(!self.event_consumed);
         self.event_consumed = true;
