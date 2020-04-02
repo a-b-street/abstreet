@@ -114,6 +114,14 @@ impl Widget {
         self.layout.style.margin.bottom = Dimension::Points(pixels as f32);
         self
     }
+    pub fn margin_left(mut self, pixels: usize) -> Widget {
+        self.layout.style.margin.start = Dimension::Points(pixels as f32);
+        self
+    }
+    pub fn margin_right(mut self, pixels: usize) -> Widget {
+        self.layout.style.margin.end = Dimension::Points(pixels as f32);
+        self
+    }
     pub fn margin_horiz(mut self, pixels: usize) -> Widget {
         self.layout.style.margin.start = Dimension::Points(pixels as f32);
         self.layout.style.margin.end = Dimension::Points(pixels as f32);

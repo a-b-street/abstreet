@@ -229,32 +229,47 @@ fn header(
 ) -> Vec<Widget> {
     let mut rows = vec![];
 
-    let (current_trip, descr) = match app.primary.sim.get_person(id).state {
+    let (current_trip, (descr, maybe_icon)) = match app.primary.sim.get_person(id).state {
         PersonState::Inside(b) => {
             building::draw_occupants(details, app, b, Some(id));
-            (None, "inside")
+            (
+                None,
+                ("inside", Some("../data/system/assets/tools/home.svg")),
+            )
         }
         PersonState::Trip(t) => (
             Some(t),
             match app.primary.sim.trip_to_agent(t).ok() {
-                Some(AgentID::Pedestrian(_)) => "on foot",
+                Some(AgentID::Pedestrian(_)) => (
+                    "walking",
+                    Some("../data/system/assets/meters/pedestrian.svg"),
+                ),
                 Some(AgentID::Car(c)) => match c.1 {
-                    VehicleType::Car => "in a car",
-                    VehicleType::Bike => "on a bike",
+                    VehicleType::Car => ("driving", Some("../data/system/assets/meters/car.svg")),
+                    VehicleType::Bike => ("biking", Some("../data/system/assets/meters/bike.svg")),
                     VehicleType::Bus => unreachable!(),
                 },
                 // TODO Really should clean up the TripModeChange issue
-                None => "...",
+                None => ("...", None),
             },
         ),
-        PersonState::OffMap => (None, "off map"),
-        PersonState::Limbo => (None, "in limbo"),
+        PersonState::OffMap => (None, ("off map", None)),
+        PersonState::Limbo => (None, ("in limbo", None)),
     };
 
     rows.push(Widget::row(vec![
-        Line(format!("{} ({})", id, descr))
+        Line(format!("{}", id)).small_heading().draw(ctx),
+        if let Some(icon) = maybe_icon {
+            Widget::draw_svg_transform(ctx, icon, RewriteColor::ChangeAll(Color::hex("#A3A3A3")))
+                .margin_left(28)
+        } else {
+            Widget::nothing()
+        },
+        Line(format!("{}", descr))
             .small_heading()
-            .draw(ctx),
+            .fg(Color::hex("#A3A3A3"))
+            .draw(ctx)
+            .margin_horiz(10),
         Widget::row(vec![
             // Little indirect, but the handler of this action is actually the ContextualActions
             // for SandboxMode.
