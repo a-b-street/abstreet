@@ -196,7 +196,6 @@ impl<'a> GfxCtx<'a> {
         self.redraw_at(top_left, &draw);
     }
 
-    // TODO Rename these draw_nonblocking_text_*
     // TODO Super close to deleting this.
     pub fn draw_text_at(&mut self, txt: Text, map_pt: Pt2D) {
         let batch = txt.render_g(self);

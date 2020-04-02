@@ -9,6 +9,7 @@ pub mod just_draw;
 pub mod menu;
 pub mod plot;
 pub mod slider;
+pub mod spinner;
 pub mod text_box;
 
 use crate::{EventCtx, GfxCtx, Outcome, ScreenDims, ScreenPt};

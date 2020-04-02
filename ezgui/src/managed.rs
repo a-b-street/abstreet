@@ -2,7 +2,7 @@ use crate::widgets::containers::{Container, Nothing};
 use crate::{
     Btn, Button, Checkbox, Choice, Color, Drawable, Dropdown, EventCtx, Filler, GeomBatch, GfxCtx,
     HorizontalAlignment, JustDraw, Menu, MultiKey, RewriteColor, ScreenDims, ScreenPt,
-    ScreenRectangle, Slider, TextBox, VerticalAlignment, WidgetImpl,
+    ScreenRectangle, Slider, Spinner, TextBox, VerticalAlignment, WidgetImpl,
 };
 use geom::{Distance, Polygon};
 use std::collections::HashSet;
@@ -679,6 +679,10 @@ impl Composite {
 
     pub fn text_box(&self, name: &str) -> String {
         self.find::<TextBox>(name).get_line()
+    }
+
+    pub fn spinner(&self, name: &str) -> usize {
+        self.find::<Spinner>(name).current
     }
 
     pub fn dropdown_value<T: 'static + PartialEq + Clone>(&self, name: &str) -> T {

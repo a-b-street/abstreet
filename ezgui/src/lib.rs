@@ -14,6 +14,7 @@
 //! * [`Menu`] - select something from a menu, with keybindings
 //! * [`Plot`] - visualize 2 variables with a line plot
 //! * [`Slider`] - horizontal and vertical sliders
+//! * [`Spinner`] - numeric input with up/down buttons
 //! * [`TexBox`] - single line text entry
 
 mod assets;
@@ -63,6 +64,7 @@ pub(crate) use crate::widgets::just_draw::JustDraw;
 pub(crate) use crate::widgets::menu::Menu;
 pub use crate::widgets::plot::{Plot, PlotOptions, Series};
 pub use crate::widgets::slider::Slider;
+pub use crate::widgets::spinner::Spinner;
 pub(crate) use crate::widgets::text_box::TextBox;
 pub use crate::widgets::WidgetImpl;
 

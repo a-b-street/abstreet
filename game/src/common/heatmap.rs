@@ -4,7 +4,7 @@ use geom::{Bounds, Histogram, Polygon, Pt2D};
 #[derive(Clone, PartialEq)]
 pub struct HeatmapOptions {
     // In meters
-    pub resolution: f64,
+    pub resolution: usize,
     pub radius: usize,
     pub colors: HeatmapColors,
 }
@@ -12,7 +12,7 @@ pub struct HeatmapOptions {
 impl HeatmapOptions {
     pub fn new() -> HeatmapOptions {
         HeatmapOptions {
-            resolution: 10.0,
+            resolution: 10,
             radius: 3,
             colors: HeatmapColors::FullSpectral,
         }
@@ -46,15 +46,15 @@ pub fn make_heatmap(
     }
 
     let mut grid: Grid<f64> = Grid::new(
-        (bounds.width() / opts.resolution).ceil() as usize,
-        (bounds.height() / opts.resolution).ceil() as usize,
+        (bounds.width() / opts.resolution as f64).ceil() as usize,
+        (bounds.height() / opts.resolution as f64).ceil() as usize,
         0.0,
     );
 
     // At each point, add a 2D Gaussian kernel centered at the point.
     for pt in pts {
-        let base_x = ((pt.x() - bounds.min_x) / opts.resolution) as isize;
-        let base_y = ((pt.y() - bounds.min_y) / opts.resolution) as isize;
+        let base_x = ((pt.x() - bounds.min_x) / opts.resolution as f64) as isize;
+        let base_y = ((pt.y() - bounds.min_y) / opts.resolution as f64) as isize;
         let denom = 2.0 * (opts.radius as f64).powi(2);
 
         let r = opts.radius as isize;
@@ -111,7 +111,7 @@ pub fn make_heatmap(
         .collect();
 
     // Now draw rectangles
-    let square = Polygon::rectangle(opts.resolution, opts.resolution);
+    let square = Polygon::rectangle(opts.resolution as f64, opts.resolution as f64);
     for y in 0..grid.height {
         for x in 0..grid.width {
             let idx = grid.idx(x, y);
@@ -128,7 +128,7 @@ pub fn make_heatmap(
 
                 batch.push(
                     color,
-                    square.translate((x as f64) * opts.resolution, (y as f64) * opts.resolution),
+                    square.translate((x * opts.resolution) as f64, (y * opts.resolution) as f64),
                 );
             }
         }

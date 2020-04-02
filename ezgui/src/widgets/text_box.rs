@@ -113,6 +113,7 @@ impl WidgetImpl for TextBox {
     }
 
     fn draw(&self, g: &mut GfxCtx) {
+        // TODO Cache
         let mut batch = GeomBatch::from(vec![(
             if self.has_focus || self.autofocus {
                 Color::ORANGE

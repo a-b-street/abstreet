@@ -10,7 +10,7 @@ use crate::render::MIN_ZOOM_FOR_DETAIL;
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Histogram,
-    HorizontalAlignment, Key, Line, Outcome, Slider, Text, TextExt, VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Outcome, Spinner, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Duration, PolyLine, Pt2D, Time};
 use map_model::{BusRouteID, IntersectionID};
@@ -163,6 +163,11 @@ impl Overlays {
                         let new_opts = population_options(c);
                         if *opts != new_opts {
                             app.overlay = Overlays::population_map(ctx, app, new_opts);
+                            // Immediately fix the alignment. TODO Do this for all of them, in a
+                            // more uniform way
+                            if let Overlays::PopulationMap(_, _, _, ref mut c) = app.overlay {
+                                c.align_above(ctx, minimap);
+                            }
                         }
                     }
                 }
@@ -971,16 +976,14 @@ fn population_controls(
         // TODO Display the value...
         col.push(Widget::row(vec![
             "Resolution (meters)".draw_text(ctx).margin(5),
-            // 1 to 100m
-            Slider::horizontal(ctx, 100.0, 25.0, (o.resolution - 1.0) / 99.0)
+            Spinner::new(ctx, (1, 100), o.resolution)
                 .named("resolution")
                 .align_right()
                 .centered_vert(),
         ]));
         col.push(Widget::row(vec![
-            "Radius (0 to 10 * resolution)".draw_text(ctx).margin(5),
-            // 0 to 10
-            Slider::horizontal(ctx, 100.0, 25.0, (o.radius as f64) / 10.0)
+            "Radius (resolution multiplier)".draw_text(ctx).margin(5),
+            Spinner::new(ctx, (0, 10), o.radius)
                 .named("radius")
                 .align_right()
                 .centered_vert(),
@@ -1007,8 +1010,8 @@ fn population_options(c: &mut Composite) -> PopulationOptions {
         // Did we just change?
         if c.has_widget("resolution") {
             Some(HeatmapOptions {
-                resolution: 1.0 + c.slider("resolution").get_percent() * 99.0,
-                radius: (c.slider("radius").get_percent() * 10.0) as usize,
+                resolution: c.spinner("resolution"),
+                radius: c.spinner("radius"),
                 colors: c.dropdown_value("Colors"),
             })
         } else {
