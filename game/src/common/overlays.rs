@@ -14,7 +14,7 @@ use ezgui::{
 };
 use geom::{Circle, Distance, Duration, PolyLine, Pt2D, Time};
 use map_model::{BusRouteID, IntersectionID};
-use sim::{GetDrawAgents, PandemicModel, ParkingSpot, PersonState};
+use sim::{GetDrawAgents, ParkingSpot, PersonState};
 use std::collections::HashSet;
 
 pub enum Overlays {
@@ -827,19 +827,7 @@ impl Overlays {
     fn population_map(ctx: &mut EventCtx, app: &App, opts: PopulationOptions) -> Overlays {
         // Only display infected people if this is enabled.
         let maybe_pandemic = if opts.pandemic {
-            // TODO Why not app.primary.current_flags.sim_flags.make_rng()? Because that'll only be
-            // the same every time this code runs (frequently, as the simulation is run)
-            // if --rng_seed is specified in the flags. If you forget it, quite
-            // confusing to see the model jump around.
-            use rand::SeedableRng;
-            use rand_xorshift::XorShiftRng;
-
-            Some(PandemicModel::calculate(
-                app.primary.sim.get_analytics(),
-                app.primary.sim.get_all_people(),
-                app.primary.sim.time(),
-                &mut XorShiftRng::from_seed([42; 16]),
-            ))
+            app.primary.sim.get_pandemic_model()
         } else {
             None
         };
@@ -902,7 +890,7 @@ impl Overlays {
             }
             Vec::new()
         };
-        let controls = population_controls(ctx, app, &opts, maybe_pandemic, color_scale);
+        let controls = population_controls(ctx, app, &opts, color_scale);
         Overlays::PopulationMap(app.primary.sim.time(), opts, ctx.upload(batch), controls)
     }
 }
@@ -932,7 +920,6 @@ fn population_controls(
     ctx: &mut EventCtx,
     app: &App,
     opts: &PopulationOptions,
-    pandemic: Option<PandemicModel>,
     max_per_color: Vec<(f64, Color)>,
 ) -> Composite {
     let (total_ppl, ppl_in_bldg, ppl_off_map) = app.primary.sim.num_ppl();
@@ -953,10 +940,15 @@ fn population_controls(
             format!("Off-map: {}", prettyprint_usize(ppl_off_map)).draw_text(ctx),
         ])
         .centered(),
-        Widget::checkbox(ctx, "Run pandemic model", None, opts.pandemic),
+        if app.primary.sim.get_pandemic_model().is_some() {
+            Widget::checkbox(ctx, "Run pandemic model", None, opts.pandemic)
+        } else {
+            Widget::nothing()
+        },
     ];
 
-    if let Some(model) = pandemic {
+    if opts.pandemic {
+        let model = app.primary.sim.get_pandemic_model().unwrap();
         col.push(
             format!(
                 "Pandemic model: {} infected ({:.1}%)",
@@ -1022,7 +1014,7 @@ fn population_options(c: &mut Composite) -> PopulationOptions {
         None
     };
     PopulationOptions {
-        pandemic: c.is_checked("Run pandemic model"),
+        pandemic: c.has_widget("Run pandemic model") && c.is_checked("Run pandemic model"),
         heatmap,
     }
 }

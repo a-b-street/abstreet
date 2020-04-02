@@ -166,6 +166,7 @@ fn launch_test(test: &ABTest, app: &mut App, ctx: &mut EventCtx) -> ABTestMode {
                                     .sim_flags
                                     .opts
                                     .clear_laggy_head_early,
+                                enable_pandemic_model: None,
                             },
                         },
                         ..current_flags.clone()

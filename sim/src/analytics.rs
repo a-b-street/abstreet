@@ -1,10 +1,9 @@
-use crate::{CarID, Event, PersonID, TripID, TripMode, TripPhaseType};
+use crate::{CarID, Event, TripID, TripMode, TripPhaseType};
 use abstutil::Counter;
 use derivative::Derivative;
 use geom::{Distance, Duration, Histogram, Time};
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, IntersectionID, Map, Path, PathRequest, RoadID, Traversable,
-    TurnGroupID,
+    BusRouteID, BusStopID, IntersectionID, Map, Path, PathRequest, RoadID, Traversable, TurnGroupID,
 };
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
@@ -24,8 +23,6 @@ pub struct Analytics {
     // TODO This subsumes finished_trips
     pub trip_log: Vec<(Time, TripID, Option<PathRequest>, TripPhaseType)>,
     pub intersection_delays: BTreeMap<IntersectionID, Vec<(Time, Duration)>>,
-    // True if a person left a building at some time, false if they entered
-    pub building_transitions: Vec<(Time, PersonID, BuildingID, bool)>,
 
     // After we restore from a savestate, don't record anything. This is only going to make sense
     // if savestates are only used for quickly previewing against prebaked results, where we have
@@ -64,7 +61,6 @@ impl Analytics {
             finished_trips: Vec::new(),
             trip_log: Vec::new(),
             intersection_delays: BTreeMap::new(),
-            building_transitions: Vec::new(),
             record_anything: true,
         }
     }
@@ -148,14 +144,6 @@ impl Analytics {
                 .entry(id)
                 .or_insert_with(Vec::new)
                 .push((time, delay));
-        }
-
-        // Building transitions
-        if let Event::PersonEntersBuilding(p, b) = ev {
-            self.building_transitions.push((time, p, b, false));
-        }
-        if let Event::PersonLeavesBuilding(p, b) = ev {
-            self.building_transitions.push((time, p, b, true));
         }
 
         // TODO Kinda hacky, but these all consume the event, so kinda bundle em.

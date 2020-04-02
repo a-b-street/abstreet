@@ -15,12 +15,14 @@ pub struct SimFlags {
 
 impl SimFlags {
     pub fn from_args(args: &mut CmdArgs) -> SimFlags {
+        let rng_seed = args.optional_parse("--rng_seed", |s| s.parse());
+
         SimFlags {
             load: args
                 .optional_free()
                 .unwrap_or_else(|| "../data/system/maps/montlake.bin".to_string()),
             use_map_fixes: !args.enabled("--nofixes"),
-            rng_seed: args.optional_parse("--rng_seed", |s| s.parse()),
+            rng_seed,
             opts: SimOptions {
                 run_name: args
                     .optional("--run_name")
@@ -30,6 +32,15 @@ impl SimFlags {
                 disable_block_the_box: args.enabled("--disable_block_the_box"),
                 recalc_lanechanging: !args.enabled("--dont_recalc_lc"),
                 clear_laggy_head_early: args.enabled("--clear_laggy_head_early"),
+                enable_pandemic_model: if args.enabled("--pandemic") {
+                    if let Some(seed) = rng_seed {
+                        Some(XorShiftRng::from_seed([seed; 16]))
+                    } else {
+                        Some(XorShiftRng::from_entropy())
+                    }
+                } else {
+                    None
+                },
             },
         }
     }

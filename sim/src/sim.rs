@@ -1,10 +1,10 @@
 use crate::{
     AgentID, Analytics, CarID, Command, CreateCar, DrawCarInput, DrawPedCrowdInput,
     DrawPedestrianInput, DrivingGoal, DrivingSimState, Event, GetDrawAgents, IntersectionSimState,
-    ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, Person, PersonID, PersonState, Router,
-    Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripCount, TripEndpoint, TripID,
-    TripLeg, TripManager, TripMode, TripPhaseType, TripPositions, TripResult, TripSpawner,
-    TripSpec, UnzoomedAgent, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
+    PandemicModel, ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, Person, PersonID,
+    PersonState, Router, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripCount,
+    TripEndpoint, TripID, TripLeg, TripManager, TripMode, TripPhaseType, TripPositions, TripResult,
+    TripSpawner, TripSpec, UnzoomedAgent, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
 };
 use abstutil::Timer;
 use derivative::Derivative;
@@ -14,6 +14,7 @@ use map_model::{
     BuildingID, BusRoute, BusRouteID, IntersectionID, LaneID, Map, Path, PathConstraints,
     PathRequest, PathStep, RoadID, Traversable,
 };
+use rand_xorshift::XorShiftRng;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashSet};
 use std::panic;
@@ -30,6 +31,9 @@ pub struct Sim {
     intersections: IntersectionSimState,
     transit: TransitSimState,
     trips: TripManager,
+    #[derivative(PartialEq = "ignore")]
+    #[serde(skip_serializing, skip_deserializing)]
+    pandemic: Option<PandemicModel>,
     scheduler: Scheduler,
     time: Time,
     car_id_counter: usize,
@@ -68,6 +72,7 @@ pub struct SimOptions {
     pub disable_block_the_box: bool,
     pub recalc_lanechanging: bool,
     pub clear_laggy_head_early: bool,
+    pub enable_pandemic_model: Option<XorShiftRng>,
 }
 
 impl SimOptions {
@@ -79,6 +84,7 @@ impl SimOptions {
             disable_block_the_box: false,
             recalc_lanechanging: true,
             clear_laggy_head_early: false,
+            enable_pandemic_model: None,
         }
     }
 }
@@ -106,6 +112,11 @@ impl Sim {
             ),
             transit: TransitSimState::new(),
             trips: TripManager::new(),
+            pandemic: if let Some(rng) = opts.enable_pandemic_model {
+                Some(PandemicModel::new(rng))
+            } else {
+                None
+            },
             scheduler,
             time: Time::START_OF_DAY,
             car_id_counter: 0,
@@ -141,10 +152,12 @@ impl Sim {
             timer,
             retry_if_no_room,
         );
-        // TODO Should do this for everything, not just the one that I know records something ;)
-        for ev in self.trips.collect_events() {
-            self.analytics.event(ev, self.time, map);
+
+        if let Some(ref mut m) = self.pandemic {
+            m.initialize(self.trips.get_all_people(), &mut self.scheduler);
         }
+
+        self.dispatch_events(Vec::new(), map);
     }
     // TODO Friend method pattern :(
     pub(crate) fn spawner_parking(&self) -> &ParkingSimState {
@@ -582,19 +595,33 @@ impl Sim {
                     .push(self.time + frequency, Command::Savestate(frequency));
                 savestate = true;
             }
+            Command::Pandemic(cmd) => {
+                self.pandemic
+                    .as_mut()
+                    .unwrap()
+                    .handle_cmd(self.time, cmd, &mut self.scheduler);
+            }
         }
 
         // Record events at precisely the time they occur.
+        self.dispatch_events(events, map);
+
+        savestate
+    }
+
+    fn dispatch_events(&mut self, mut events: Vec<Event>, map: &Map) {
         events.extend(self.trips.collect_events());
         events.extend(self.transit.collect_events());
         events.extend(self.driving.collect_events());
         events.extend(self.walking.collect_events());
         events.extend(self.intersections.collect_events());
         for ev in events {
+            if let Some(ref mut m) = self.pandemic {
+                m.handle_event(self.time, &ev, &mut self.scheduler);
+            }
+
             self.analytics.event(ev, self.time, map);
         }
-
-        savestate
     }
 
     pub fn timed_step(&mut self, map: &Map, dt: Duration, timer: &mut Timer) {
@@ -1137,6 +1164,10 @@ impl Sim {
         BTreeMap<IntersectionID, Duration>,
     ) {
         self.intersections.worst_delay(self.time, map)
+    }
+
+    pub fn get_pandemic_model(&self) -> Option<&PandemicModel> {
+        self.pandemic.as_ref()
     }
 }
 

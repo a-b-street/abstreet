@@ -1,4 +1,4 @@
-use crate::{AgentID, CarID, CreateCar, CreatePedestrian, PedestrianID};
+use crate::{pandemic, AgentID, CarID, CreateCar, CreatePedestrian, PedestrianID};
 use derivative::Derivative;
 use geom::{Duration, Histogram, Time};
 use map_model::{IntersectionID, Path, PathRequest};
@@ -17,6 +17,7 @@ pub enum Command {
     UpdatePed(PedestrianID),
     UpdateIntersection(IntersectionID),
     Savestate(Duration),
+    Pandemic(pandemic::Cmd),
 }
 
 impl Command {
@@ -36,6 +37,7 @@ impl Command {
             Command::UpdatePed(id) => CommandType::Ped(*id),
             Command::UpdateIntersection(id) => CommandType::Intersection(*id),
             Command::Savestate(_) => CommandType::Savestate,
+            Command::Pandemic(ref p) => CommandType::Pandemic(p.clone()),
         }
     }
 }
@@ -49,6 +51,7 @@ pub enum CommandType {
     Ped(PedestrianID),
     Intersection(IntersectionID),
     Savestate,
+    Pandemic(pandemic::Cmd),
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Clone)]
