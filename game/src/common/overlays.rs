@@ -951,12 +951,19 @@ fn population_controls(
         let model = app.primary.sim.get_pandemic_model().unwrap();
         col.push(
             format!(
-                "Pandemic model: {} infected ({:.1}%)",
-                prettyprint_usize(model.infected.len()),
-                (model.infected.len() as f64) / (total_ppl as f64) * 100.0
+                "Pandemic model: {} S ({:.1}%),  {} E ({:.1}%),  {} I ({:.1}%),  {} R ({:.1}%)",
+                prettyprint_usize(model.count_sane()),
+                (model.count_sane() as f64) / (total_ppl as f64) * 100.0,
+                prettyprint_usize(model.count_exposed()),
+                (model.count_exposed() as f64) / (total_ppl as f64) * 100.0,
+                prettyprint_usize(model.count_infected()),
+                (model.count_infected() as f64) / (total_ppl as f64) * 100.0,
+                prettyprint_usize(model.count_recovered()),
+                (model.count_recovered() as f64) / (total_ppl as f64) * 100.0
             )
             .draw_text(ctx),
         );
+        assert!(total_ppl == model.count_total());
     }
 
     col.push(Widget::checkbox(
