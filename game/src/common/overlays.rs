@@ -837,7 +837,7 @@ impl Overlays {
         if let Some(ref model) = maybe_pandemic {
             for a in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
                 if let Some(p) = a.person {
-                    if model.infected.contains(&p) {
+                    if model.infected.contains_key(&p) {
                         pts.push(a.pos);
                     }
                 }
@@ -860,7 +860,7 @@ impl Overlays {
                 PersonState::Inside(b) => {
                     if maybe_pandemic
                         .as_ref()
-                        .map(|m| !m.infected.contains(&person.id))
+                        .map(|m| !m.infected.contains_key(&person.id))
                         .unwrap_or(false)
                     {
                         continue;

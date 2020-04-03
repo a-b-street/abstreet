@@ -121,7 +121,9 @@ impl PandemicModel {
                             self.transmission(now, person, others, scheduler);
                         }
                     }
-                    _ => {}
+                    _ => {
+                        self.transition(now, person, scheduler);
+                    }
                 }
             }
             _ => {}
@@ -165,11 +167,22 @@ impl PandemicModel {
         let inf_pers = self.infected.get(&person).map(|pers| *pers);
         if let Some((t0, last_check)) = inf_pers {
             // let dt = now - *t0;
+            if self.recovery_occurs(t0, last_check, now) {
+                self.transition_to_recovered(now, person, scheduler);
+            } else {
+                // We rather store the last moment
+                self.stay_infected(t0, now, person, scheduler);
+            }
+        }
+
+        let exp_pers = self.exposed.get(&person).map(|pers| *pers);
+        if let Some((t0, last_check)) = exp_pers {
+            // let dt = now - *t0;
             if self.infection_occurs(t0, last_check, now) {
                 self.transition_to_infected(now, person, scheduler);
             } else {
                 // We rather store the last moment
-                self.stay_infected(t0, now, person, scheduler);
+                self.stay_exposed(t0, now, person, scheduler);
             }
         }
     }
@@ -224,6 +237,18 @@ impl PandemicModel {
         self.infected.insert(person, (now, now));
     }
 
+    fn transition_to_recovered(&mut self, now: Time, person: PersonID, scheduler: &mut Scheduler) {
+        self.recovered.insert(person);
+        self.infected.remove(&person);
+
+        // if self.rng.gen_bool(0.1) {
+        //     scheduler.push(
+        //         now + self.rand_duration(Duration::hours(1), Duration::hours(3)),
+        //         Command::Pandemic(Cmd::BecomeHospitalized(person)),
+        //     );
+        // }
+    }
+
     fn transition_to_infected(&mut self, now: Time, person: PersonID, scheduler: &mut Scheduler) {
         self.infected.insert(person, (now, now));
         self.exposed.remove(&person);
@@ -240,17 +265,17 @@ impl PandemicModel {
         self.infected.insert(person, (ini, now));
     }
 
-    fn become_recovered(&mut self, now: Time, person: PersonID, scheduler: &mut Scheduler) {
-        self.recovered.insert(person);
+    fn stay_exposed(&mut self, ini: Time, now: Time, person: PersonID, scheduler: &mut Scheduler) {
+        self.exposed.insert(person, (ini, now));
     }
 
-    fn rand_duration(&mut self, low: Duration, high: Duration) -> Duration {
-        assert!(high > low);
-        Duration::seconds(
-            self.rng
-                .gen_range(low.inner_seconds(), high.inner_seconds()),
-        )
-    }
+    // fn rand_duration(&mut self, low: Duration, high: Duration) -> Duration {
+    //     assert!(high > low);
+    //     Duration::seconds(
+    //         self.rng
+    //             .gen_range(low.inner_seconds(), high.inner_seconds()),
+    //     )
+    // }
 }
 
 #[derive(Clone)]
