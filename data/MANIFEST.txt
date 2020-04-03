@@ -197,9 +197,9 @@ f71b2ce735102531e11934781fe748b1  data/system/assets/edit/parking.svg
 2f15de4a863cc755984726da0c29c0a4  data/system/assets/edit/driving.svg
 cad08c84562d640c5a4d4e45cd3731b2  data/system/assets/minimap/right.svg
 39eb3adcf91244c50092f0aad6628e1a  data/system/assets/minimap/left.svg
-65c3dfeadeb35e91f45038292226ab36  data/system/assets/minimap/zoom_in_fully.svg
+c063a7b561f00f4b2ccad16390d3c5f0  data/system/assets/minimap/zoom_in_fully.svg
 55598346b4b038899f8972d7468a20a6  data/system/assets/minimap/down.svg
-e761e1d1f6c9b8befe53296e0411cef2  data/system/assets/minimap/zoom_out_fully.svg
+add7f832f0a7b501a59c505b63a0c5b5  data/system/assets/minimap/zoom_out_fully.svg
 9caf97939884d4859accca34265f45fb  data/system/assets/minimap/up.svg
 a5e849fa8883569519976ebfef3ae269  data/system/night_colors.json
 1909af5ebfefe7ad4102335c9e789d24  data/system/override_colors.json
