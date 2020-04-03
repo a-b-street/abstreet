@@ -29,7 +29,7 @@ impl Assets {
             text_opts: Options::default(),
         };
         *a.default_line_height.borrow_mut() =
-            a.line_height(Font::OverpassRegular, *a.default_font_size.borrow());
+            a.line_height(text::DEFAULT_FONT, *a.default_font_size.borrow());
         a.text_opts.font_directories.push(font_dir);
         a
     }
@@ -92,6 +92,6 @@ impl Assets {
         self.line_height_cache.borrow_mut().clear();
         self.svg_cache.borrow_mut().clear();
         *self.default_line_height.borrow_mut() =
-            self.line_height(Font::OverpassRegular, *self.default_font_size.borrow());
+            self.line_height(text::DEFAULT_FONT, *self.default_font_size.borrow());
     }
 }

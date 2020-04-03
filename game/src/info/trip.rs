@@ -56,30 +56,28 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
             },
         };
 
-        // TODO Can we change font mid line please?
         col.push(Widget::row(vec![
             Widget::row(vec![Line("Trip time").secondary().draw(ctx)]).force_width(ctx, col_width),
-            props.total_time.to_string().draw_text(ctx),
-            Line(format!("{} / {} this trip", activity, total_trip_time))
-                .secondary()
-                .draw(ctx),
+            Text::from_all(vec![
+                Line(props.total_time.to_string()),
+                Line(format!(" {} / {} this trip", activity, total_trip_time)).secondary(),
+            ])
+            .draw(ctx),
         ]));
 
         col.push(Widget::row(vec![
             Widget::row(vec![Line("Distance").secondary().draw(ctx)]).force_width(ctx, col_width),
             Widget::col(vec![
-                Widget::row(vec![
-                    props.dist_crossed.describe_rounded().draw_text(ctx),
-                    Line(format!("/{}", props.total_dist.describe_rounded()))
-                        .secondary()
-                        .draw(ctx),
-                ]),
-                Widget::row(vec![
-                    format!("{} lanes", props.lanes_crossed).draw_text(ctx),
-                    Line(format!("/{}", props.total_lanes))
-                        .secondary()
-                        .draw(ctx),
-                ]),
+                Text::from_all(vec![
+                    Line(props.dist_crossed.describe_rounded()),
+                    Line(format!("/{}", props.total_dist.describe_rounded())).secondary(),
+                ])
+                .draw(ctx),
+                Text::from_all(vec![
+                    Line(format!("{} lanes", props.lanes_crossed)),
+                    Line(format!("/{}", props.total_lanes)).secondary(),
+                ])
+                .draw(ctx),
             ]),
         ]));
 
@@ -87,18 +85,18 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
             Widget::row(vec![Line("Waiting").secondary().draw(ctx)]).force_width(ctx, col_width),
             Widget::col(vec![
                 format!("{} here", props.waiting_here).draw_text(ctx),
-                Widget::row(vec![
-                    (if props.total_waiting != Duration::ZERO {
-                        format!(
+                Text::from_all(vec![
+                    if props.total_waiting != Duration::ZERO {
+                        Line(format!(
                             "{}%",
                             (100.0 * (props.waiting_here / props.total_waiting)) as usize
-                        )
+                        ))
                     } else {
-                        "0%".to_string()
-                    })
-                    .draw_text(ctx),
-                    Line(format!(" of {} time", activity)).secondary().draw(ctx),
-                ]),
+                        Line("0%")
+                    },
+                    Line(format!(" of {} time", activity)).secondary(),
+                ])
+                .draw(ctx),
             ]),
         ]));
 

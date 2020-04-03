@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::colors;
 use crate::info::{building, header_btns, make_table, make_tabs, trip, Details, Tab};
 use crate::render::Renderable;
-use ezgui::{hotkey, Btn, Color, EventCtx, Key, Line, RewriteColor, TextExt, Widget};
+use ezgui::{hotkey, Btn, Color, EventCtx, Key, Line, RewriteColor, Text, TextExt, Widget};
 use map_model::Map;
 use maplit::btreeset;
 use sim::{
@@ -60,8 +60,11 @@ pub fn trips(
         // TODO Style wrong. Button should be the entire row.
         rows.push(
             Widget::row(vec![
-                t.to_string().draw_text(ctx),
-                Line(trip_mode.ongoing_verb()).secondary().draw(ctx),
+                Text::from_all(vec![
+                    Line(format!("{} ", t)),
+                    Line(trip_mode.ongoing_verb()).secondary(),
+                ])
+                .draw(ctx),
                 if trip_status == "ongoing" {
                     // TODO Padding doesn't work without wrapping in a row
                     Widget::row(vec![Line(trip_status)
