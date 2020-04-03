@@ -22,7 +22,7 @@ pub(crate) use self::mechanics::{
 };
 pub(crate) use self::router::{ActionAtEnd, Router};
 pub(crate) use self::scheduler::{Command, Scheduler};
-pub use self::sim::{Sim, SimOptions};
+pub use self::sim::{AgentProperties, Sim, SimOptions};
 pub(crate) use self::transit::TransitSimState;
 pub use self::trips::{Person, PersonState, TripCount, TripResult};
 pub use self::trips::{TripEndpoint, TripMode};

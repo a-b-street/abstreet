@@ -1,8 +1,8 @@
 use crate::{
-    AgentID, Command, CreatePedestrian, DistanceInterval, DrawPedCrowdInput, DrawPedestrianInput,
-    Event, IntersectionSimState, ParkingSimState, ParkingSpot, PedCrowdLocation, PedestrianID,
-    PersonID, Scheduler, SidewalkPOI, SidewalkSpot, TimeInterval, TransitSimState, TripID,
-    TripManager, TripPositions, UnzoomedAgent,
+    AgentID, AgentProperties, Command, CreatePedestrian, DistanceInterval, DrawPedCrowdInput,
+    DrawPedestrianInput, Event, IntersectionSimState, ParkingSimState, ParkingSpot,
+    PedCrowdLocation, PedestrianID, PersonID, Scheduler, SidewalkPOI, SidewalkSpot, TimeInterval,
+    TransitSimState, TripID, TripManager, TripPositions, UnzoomedAgent,
 };
 use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
 use geom::{Distance, Duration, Line, PolyLine, Speed, Time};
@@ -254,12 +254,7 @@ impl WalkingSimState {
         }
     }
 
-    pub fn ped_properties(
-        &self,
-        id: PedestrianID,
-        now: Time,
-        map: &Map,
-    ) -> (Vec<(String, String)>, Vec<String>) {
+    pub fn agent_properties(&self, id: PedestrianID, now: Time) -> AgentProperties {
         let p = &self.peds[&id];
         let time_spent_waiting = match p.state {
             PedState::WaitingToTurn(_, blocked_since)
@@ -267,42 +262,20 @@ impl WalkingSimState {
             _ => Duration::ZERO,
         };
 
-        let props = vec![
-            (
-                "Percent of walking time spent waiting".to_string(),
-                format!(
-                    "{}%",
-                    (100.0 * (p.total_blocked_time + time_spent_waiting) / (now - p.started_at))
-                        as usize
-                ),
-            ),
-            (
-                "Time spent waiting right here".to_string(),
-                time_spent_waiting.to_string(),
-            ),
-            (
-                "Lanes remaining in path".to_string(),
-                p.path.num_lanes().to_string(),
-            ),
-            (
-                "Progress along path".to_string(),
-                format!(
-                    "crossed {} / {}",
-                    p.path.crossed_so_far().describe_rounded(),
-                    p.path.total_length().describe_rounded()
-                ),
-            ),
-        ];
-        let mut extra = Vec::new();
-        if let PedState::WaitingForBus(r, _) = p.state {
+        // TODO Incorporate this somewhere
+        /*if let PedState::WaitingForBus(r, _) = p.state {
             extra.push(format!("Waiting for bus {}", map.get_br(r).name));
-        }
-        (props, extra)
-    }
+        }*/
 
-    pub fn progress_along_path(&self, id: PedestrianID) -> Option<f64> {
-        let p = &self.peds[&id];
-        Some(p.path.crossed_so_far() / p.path.total_length())
+        AgentProperties {
+            total_time: now - p.started_at,
+            waiting_here: time_spent_waiting,
+            total_waiting: p.total_blocked_time + time_spent_waiting,
+            dist_crossed: p.path.crossed_so_far(),
+            total_dist: p.path.total_length(),
+            lanes_crossed: p.path.lanes_crossed_so_far(),
+            total_lanes: p.path.total_lanes(),
+        }
     }
 
     pub fn trace_route(

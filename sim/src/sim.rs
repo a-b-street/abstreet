@@ -917,63 +917,24 @@ impl Sim {
         self.driving.debug_lane(id);
     }
 
-    pub fn ped_properties(
-        &self,
-        p: PedestrianID,
-        map: &Map,
-    ) -> (Vec<(String, String)>, Vec<String>) {
-        self.walking.ped_properties(p, self.time, map)
-    }
-
-    pub fn car_properties(&self, car: CarID, map: &Map) -> Vec<(String, String)> {
-        if let Some(mut props) = self.driving.car_properties(car, self.time, map) {
-            if car.1 == VehicleType::Bus {
-                props.push((
-                    "Route".to_string(),
-                    map.get_br(self.transit.bus_route(car)).name.clone(),
-                ));
-                let passengers = self.transit.get_passengers(car);
-                props.push(("Passengers".to_string(), passengers.len().to_string()));
-                // TODO Clean this up
-                /*for (id, stop) in passengers {
-                    extra.push(format!("- {} till {:?}", id, stop));
-                }*/
-            }
-            props
-        } else {
-            let mut props = Vec::new();
-            if let Some(b) = self.parking.get_owner_of_car(car) {
-                props.push(("Owner".to_string(), map.get_b(b).just_address(map)));
-            // TODO More details here
-            /*if let Some((trip, start)) = self.trips.find_trip_using_car(car, b) {
-                extra.push(format!(
-                    "{} will use this car, sometime after {}",
-                    trip, start
-                ));
-            }*/
-            } else {
-                props.push((
-                    "Owner".to_string(),
-                    "visiting from outside the map".to_string(),
-                ));
-            }
-            props
+    // Only call for active agents, will panic otherwise
+    pub fn agent_properties(&self, id: AgentID) -> AgentProperties {
+        match id {
+            AgentID::Pedestrian(id) => self.walking.agent_properties(id, self.time),
+            AgentID::Car(id) => self.driving.agent_properties(id, self.time),
         }
     }
 
-    // Percent in [0, 1]
-    // TODO More continuous on a single lane
-    pub fn progress_along_path(&self, agent: AgentID) -> Option<f64> {
-        match agent {
-            AgentID::Car(c) => {
-                if c.1 != VehicleType::Bus {
-                    self.driving.progress_along_path(c)
-                } else {
-                    None
-                }
-            }
-            AgentID::Pedestrian(p) => self.walking.progress_along_path(p),
-        }
+    // TODO Temporary until we figure out all the info to expose
+    pub fn bus_properties(&self, car: CarID, map: &Map) -> Vec<(String, String)> {
+        let passengers = self.transit.get_passengers(car);
+        vec![
+            (
+                "Route".to_string(),
+                map.get_br(self.transit.bus_route(car)).name.clone(),
+            ),
+            ("Passengers".to_string(), passengers.len().to_string()),
+        ]
     }
 
     pub fn bus_route_id(&self, maybe_bus: CarID) -> Option<BusRouteID> {
@@ -1189,4 +1150,18 @@ impl Sim {
             println!("{} has no trip?!", id);
         }
     }
+}
+
+pub struct AgentProperties {
+    // TODO Of this leg of the trip only!
+    pub total_time: Duration,
+    pub waiting_here: Duration,
+    pub total_waiting: Duration,
+
+    // TODO More continuous on a single lane
+    pub dist_crossed: Distance,
+    pub total_dist: Distance,
+
+    pub lanes_crossed: usize,
+    pub total_lanes: usize,
 }

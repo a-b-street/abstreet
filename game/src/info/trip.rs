@@ -9,7 +9,7 @@ use ezgui::{
 };
 use geom::{Angle, Distance, Duration, Polygon, Pt2D, Time};
 use map_model::{Map, Path, PathStep};
-use sim::{AgentID, TripEndpoint, TripID, TripPhase, TripPhaseType};
+use sim::{TripEndpoint, TripID, TripPhase, TripPhaseType};
 
 pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Details) -> Widget {
     let map = &app.primary.map;
@@ -36,32 +36,70 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
     }
 
     let mut col = Vec::new();
-    let total_duration_so_far = end_time.unwrap_or_else(|| sim.time()) - phases[0].start_time;
-    let mut kv = vec![
-        ("Type", trip_mode.to_string()),
-        ("Duration", total_duration_so_far.to_string()),
-    ];
+
+    // Describe properties of the trip
+    let total_trip_time = end_time.unwrap_or_else(|| sim.time()) - phases[0].start_time;
+    // TODO Depict differently
+    col.extend(make_table(ctx, vec![("Type", trip_mode.to_string())]));
+
+    // Describe this leg of the trip
     let progress_along_path = if let Some(a) = sim.trip_to_agent(trip).ok() {
-        let (more_kv, extra) = match a {
-            AgentID::Car(c) => (sim.car_properties(c, map), Vec::new()),
-            AgentID::Pedestrian(p) => sim.ped_properties(p, map),
-        };
-        for (k, v) in &more_kv {
-            kv.push((k, v.to_string()));
-        }
-        col.extend(make_table(ctx, kv));
+        let props = sim.agent_properties(a);
+        // TODO we want the current TripPhaseType.describe here
+        let activity = "here";
 
-        if !extra.is_empty() {
-            let mut txt = Text::from(Line(""));
-            for line in extra {
-                txt.add(Line(line));
-            }
-            col.push(txt.draw(ctx));
-        }
+        // TODO Style needs work. Like, always.
 
-        sim.progress_along_path(a)
+        // TODO Can we change font mid line please?
+        col.push(Widget::row(vec![
+            Line("Trip time").secondary().draw(ctx).margin_right(20),
+            props.total_time.to_string().draw_text(ctx),
+            Line(format!("{} / {} this trip", activity, total_trip_time))
+                .secondary()
+                .draw(ctx),
+        ]));
+
+        col.push(Widget::row(vec![
+            Line("Distance").secondary().draw(ctx).margin_right(20),
+            Widget::col(vec![
+                Widget::row(vec![
+                    props.dist_crossed.describe_rounded().draw_text(ctx),
+                    Line(format!("/{}", props.total_dist.describe_rounded()))
+                        .secondary()
+                        .draw(ctx),
+                ]),
+                Widget::row(vec![
+                    format!("{} lanes", props.lanes_crossed).draw_text(ctx),
+                    Line(format!("/{}", props.total_lanes))
+                        .secondary()
+                        .draw(ctx),
+                ]),
+            ]),
+        ]));
+
+        col.push(Widget::row(vec![
+            Line("Waiting").secondary().draw(ctx).margin_right(20),
+            Widget::col(vec![
+                format!("{} here", props.waiting_here).draw_text(ctx),
+                Widget::row(vec![
+                    (if props.total_waiting != Duration::ZERO {
+                        format!(
+                            "{}%",
+                            (100.0 * (props.waiting_here / props.total_waiting)) as usize
+                        )
+                    } else {
+                        "0%".to_string()
+                    })
+                    .draw_text(ctx),
+                    Line(format!(" of {} time", activity)).secondary().draw(ctx),
+                ]),
+            ]),
+        ]));
+
+        Some(props.dist_crossed / props.total_dist)
     } else {
-        col.extend(make_table(ctx, kv));
+        // The trip is finished
+        // TODO total time
         None
     };
 

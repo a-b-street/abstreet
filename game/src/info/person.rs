@@ -200,8 +200,7 @@ pub fn parked_car(ctx: &EventCtx, app: &App, details: &mut Details, id: CarID) -
         header_btns(ctx),
     ]));
 
-    let kv = app.primary.sim.car_properties(id, &app.primary.map);
-    rows.extend(make_table(ctx, kv));
+    // TODO Owner, how long idle, prev trips, next trips, etc
 
     if let Some(b) = app.primary.sim.get_owner_of_car(id) {
         // TODO Mention this, with a warp tool

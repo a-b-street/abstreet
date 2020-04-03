@@ -1,9 +1,10 @@
 use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::Queue;
 use crate::{
-    ActionAtEnd, AgentID, CarID, Command, CreateCar, DistanceInterval, DrawCarInput, Event,
-    IntersectionSimState, ParkedCar, ParkingSimState, Scheduler, TimeInterval, TransitSimState,
-    TripManager, TripPositions, UnzoomedAgent, VehicleType, WalkingSimState, FOLLOWING_DISTANCE,
+    ActionAtEnd, AgentID, AgentProperties, CarID, Command, CreateCar, DistanceInterval,
+    DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSimState, Scheduler, TimeInterval,
+    TransitSimState, TripManager, TripPositions, UnzoomedAgent, WalkingSimState,
+    FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Duration, PolyLine, Time};
@@ -880,8 +881,8 @@ impl DrivingSimState {
         }
     }
 
-    pub fn car_properties(&self, id: CarID, now: Time, map: &Map) -> Option<Vec<(String, String)>> {
-        let car = self.cars.get(&id)?;
+    pub fn agent_properties(&self, id: CarID, now: Time) -> AgentProperties {
+        let car = self.cars.get(&id).unwrap();
         let path = car.router.get_path();
 
         let time_spent_waiting = match car.state {
@@ -891,50 +892,15 @@ impl DrivingSimState {
             _ => Duration::ZERO,
         };
 
-        let mut props = vec![
-            (
-                "Owner".to_string(),
-                if let Some(b) = car.vehicle.owner {
-                    map.get_b(b).just_address(map)
-                } else {
-                    "visiting from outside the map".to_string()
-                },
-            ),
-            (
-                "Percent of driving time spent waiting".to_string(),
-                format!(
-                    "{}%",
-                    (100.0 * (car.total_blocked_time + time_spent_waiting) / (now - car.started_at))
-                        as usize
-                ),
-            ),
-            (
-                "Time spent waiting right here".to_string(),
-                time_spent_waiting.to_string(),
-            ),
-            (
-                "Lanes remaining in path".to_string(),
-                path.num_lanes().to_string(),
-            ),
-            (
-                "Progress along path".to_string(),
-                format!(
-                    "crossed {} / {}",
-                    path.crossed_so_far().describe_rounded(),
-                    path.total_length().describe_rounded()
-                ),
-            ),
-        ];
-        // No owner
-        if id.1 == VehicleType::Bus {
-            props.remove(0);
+        AgentProperties {
+            total_time: now - car.started_at,
+            waiting_here: time_spent_waiting,
+            total_waiting: car.total_blocked_time + time_spent_waiting,
+            dist_crossed: path.crossed_so_far(),
+            total_dist: path.total_length(),
+            lanes_crossed: path.lanes_crossed_so_far(),
+            total_lanes: path.total_lanes(),
         }
-        Some(props)
-    }
-
-    pub fn progress_along_path(&self, id: CarID) -> Option<f64> {
-        let path = self.cars.get(&id)?.router.get_path();
-        Some(path.crossed_so_far() / path.total_length())
     }
 
     pub fn get_path(&self, id: CarID) -> Option<&Path> {

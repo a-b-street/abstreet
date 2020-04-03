@@ -95,6 +95,8 @@ pub struct Path {
     // Also track progress along the original path.
     total_length: Distance,
     crossed_so_far: Distance,
+
+    total_lanes: usize,
 }
 
 impl Path {
@@ -105,14 +107,20 @@ impl Path {
         }
         // Slightly expensive, but the contraction hierarchy weights aren't distances.
         let mut total_length = Distance::ZERO;
+        let mut total_lanes = 0;
         for s in &steps {
             total_length += s.as_traversable().length(map);
+            match s {
+                PathStep::Lane(_) | PathStep::ContraflowLane(_) => total_lanes += 1,
+                _ => {}
+            }
         }
         Path {
             steps: VecDeque::from(steps),
             end_dist,
             total_length,
             crossed_so_far: Distance::ZERO,
+            total_lanes,
         }
     }
 
@@ -123,18 +131,22 @@ impl Path {
             end_dist: Distance::ZERO,
             total_length: Distance::ZERO,
             crossed_so_far: Distance::ZERO,
+            total_lanes: 0,
         }
     }
 
-    pub fn num_lanes(&self) -> usize {
-        let mut count = 0;
+    pub fn total_lanes(&self) -> usize {
+        self.total_lanes
+    }
+    pub fn lanes_crossed_so_far(&self) -> usize {
+        let mut remaining = 0;
         for s in &self.steps {
             match s {
-                PathStep::Lane(_) | PathStep::ContraflowLane(_) => count += 1,
+                PathStep::Lane(_) | PathStep::ContraflowLane(_) => remaining += 1,
                 _ => {}
             };
         }
-        count
+        self.total_lanes - remaining
     }
 
     pub fn crossed_so_far(&self) -> Distance {

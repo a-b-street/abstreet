@@ -210,18 +210,13 @@ impl Polygon {
     }
 
     // Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
+    pub fn fully_rounded_rectangle(w: f64, h: f64) -> Polygon {
+        Polygon::rounded_rectangle(w, h, w.min(h) / 2.0)
+    }
+
     pub fn rounded_rectangle(w: f64, h: f64, r: f64) -> Polygon {
-        /*assert!(2.0 * r <= w);
-        assert!(2.0 * r <= h);*/
-        // TODO Some info panel outline is breaking this. Actually, maybe it was just due to the
-        // exact_size_percent bug.
-        if 2.0 * r > w || 2.0 * r > h {
-            println!(
-                "WARNING: Can't make rounded rectangle of width {}, height {}, radius {}",
-                w, h, r
-            );
-            return Polygon::rectangle(w, h);
-        }
+        assert!(2.0 * r <= w);
+        assert!(2.0 * r <= h);
 
         let mut pts = vec![];
 
