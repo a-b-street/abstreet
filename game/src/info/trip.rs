@@ -40,6 +40,7 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
     let total_trip_time = end_time.unwrap_or_else(|| sim.time()) - phases[0].start_time;
 
     // Describe this leg of the trip
+    let col_width = 7;
     let progress_along_path = if let Some(a) = sim.trip_to_agent(trip).ok() {
         let props = sim.agent_properties(a);
         // This is different than the entire TripMode, and also not the current TripPhaseType.
@@ -55,11 +56,9 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
             },
         };
 
-        // TODO Style needs work. Like, always.
-
         // TODO Can we change font mid line please?
         col.push(Widget::row(vec![
-            Line("Trip time").secondary().draw(ctx).margin_right(20),
+            Widget::row(vec![Line("Trip time").secondary().draw(ctx)]).force_width(ctx, col_width),
             props.total_time.to_string().draw_text(ctx),
             Line(format!("{} / {} this trip", activity, total_trip_time))
                 .secondary()
@@ -67,7 +66,7 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
         ]));
 
         col.push(Widget::row(vec![
-            Line("Distance").secondary().draw(ctx).margin_right(20),
+            Widget::row(vec![Line("Distance").secondary().draw(ctx)]).force_width(ctx, col_width),
             Widget::col(vec![
                 Widget::row(vec![
                     props.dist_crossed.describe_rounded().draw_text(ctx),
@@ -85,7 +84,7 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
         ]));
 
         col.push(Widget::row(vec![
-            Line("Waiting").secondary().draw(ctx).margin_right(20),
+            Widget::row(vec![Line("Waiting").secondary().draw(ctx)]).force_width(ctx, col_width),
             Widget::col(vec![
                 format!("{} here", props.waiting_here).draw_text(ctx),
                 Widget::row(vec![
@@ -107,7 +106,7 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
     } else {
         // The trip is finished
         col.push(Widget::row(vec![
-            Line("Trip time").secondary().draw(ctx).margin_right(20),
+            Widget::row(vec![Line("Trip time").secondary().draw(ctx)]).force_width(ctx, col_width),
             total_trip_time.to_string().draw_text(ctx),
         ]));
         None

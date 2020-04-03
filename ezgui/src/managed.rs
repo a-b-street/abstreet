@@ -62,6 +62,7 @@ impl Widget {
 
     // This one is really weird. percent_width should be LESS than the max_size_percent given to
     // the overall Composite, otherwise weird things happen.
+    // Only makes sense for rows/columns.
     pub fn flex_wrap(mut self, ctx: &EventCtx, percent_width: usize) -> Widget {
         self.layout.style.size = Size {
             width: Dimension::Points(
@@ -71,6 +72,12 @@ impl Widget {
         };
         self.layout.style.flex_wrap = FlexWrap::Wrap;
         self.layout.style.justify_content = JustifyContent::SpaceAround;
+        self
+    }
+    // Only for rows/columns. Used to force table columns to line up.
+    pub fn force_width(mut self, ctx: &EventCtx, percent_width: usize) -> Widget {
+        self.layout.style.size.width =
+            Dimension::Points((ctx.canvas.window_width * (percent_width as f64) / 100.0) as f32);
         self
     }
 
