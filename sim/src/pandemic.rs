@@ -1,3 +1,4 @@
+use crate::pmodel::{erf_distrib_bounded, proba_decaying_sigmoid};
 use crate::{CarID, Command, Event, Person, PersonID, Scheduler, TripPhaseType};
 use geom::{Duration, Time};
 use map_model::{BuildingID, BusStopID};
@@ -12,7 +13,13 @@ use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Clone)]
 pub struct PandemicModel {
-    pub infected: BTreeSet<PersonID>,
+    pub sane: BTreeSet<PersonID>,
+    // first time is the time of exposition/infection
+    // second time is the time sine the last chek of
+    // transition was performed
+    pub exposed: BTreeMap<PersonID, (Time, Time)>,
+    pub infected: BTreeMap<PersonID, (Time, Time)>,
+    pub recovered: BTreeSet<PersonID>,
     hospitalized: BTreeSet<PersonID>,
 
     bldgs: SharedSpace<BuildingID>,
@@ -41,8 +48,11 @@ pub enum Cmd {
 impl PandemicModel {
     pub fn new(rng: XorShiftRng) -> PandemicModel {
         PandemicModel {
-            infected: BTreeSet::new(),
+            sane: BTreeSet::new(),
+            exposed: BTreeMap::new(),
+            infected: BTreeMap::new(),
             hospitalized: BTreeSet::new(),
+            recovered: BTreeSet::new(),
 
             bldgs: SharedSpace::new(),
             bus_stops: SharedSpace::new(),
@@ -62,8 +72,11 @@ impl PandemicModel {
 
         // Seed initially infected people.
         for p in population {
+            // TODO add generic number here and also seed the other compartiments
             if self.rng.gen_bool(0.1) {
                 self.become_infected(Time::START_OF_DAY, p.id, scheduler);
+            } else {
+                self.sane.insert(p.id);
             }
         }
     }
@@ -118,6 +131,8 @@ impl PandemicModel {
     pub fn handle_cmd(&mut self, _now: Time, cmd: Cmd, _scheduler: &mut Scheduler) {
         assert!(self.initialized);
 
+        // TODO Here we might enforce policies. Like severe -> become hospitalized
+        // Symptomatic -> stay quaratined, and/or track contacts to quarantine them too (or test them)
         match cmd {
             Cmd::BecomeHospitalized(person) => {
                 self.hospitalized.insert(person);
@@ -135,27 +150,90 @@ impl PandemicModel {
         // person has spent some duration in the same space as other people. Does transmission
         // occur?
         for (other, overlap) in other_occupants {
-            if self.infected.contains(&person) != self.infected.contains(&other) {
-                if overlap > Duration::hours(1) && self.rng.gen_bool(0.1) {
-                    if self.infected.contains(&person) {
-                        self.become_infected(now, other, scheduler);
-                    } else {
-                        self.become_infected(now, person, scheduler);
-                    }
+            if let Some(pid) = self.might_become_exposed(person, other) {
+                if self.exposition_occurs(overlap) {
+                    self.become_exposed(now, pid, scheduler);
                 }
             }
         }
     }
 
-    fn become_infected(&mut self, now: Time, person: PersonID, scheduler: &mut Scheduler) {
-        self.infected.insert(person);
-
-        if self.rng.gen_bool(0.1) {
-            scheduler.push(
-                now + self.rand_duration(Duration::hours(1), Duration::hours(3)),
-                Command::Pandemic(Cmd::BecomeHospitalized(person)),
-            );
+    // transition from a state to another without interaction with others
+    fn transition(&mut self, now: Time, person: PersonID, scheduler: &mut Scheduler) {
+        // person has spent some duration in the same space as other people. Does transmission
+        // occur?
+        let inf_pers = self.infected.get(&person).map(|pers| *pers);
+        if let Some((t0, last_check)) = inf_pers {
+            // let dt = now - *t0;
+            if self.become_exposed(now: Time, person: PersonID, scheduler: &mut Scheduler)rng.gen_bool(state.proba_i_to_r_bounded(
+                t0.inner_seconds(),
+                last_check.inner_seconds(),
+                time.inner_seconds(),
+            )) {
+                state.recovered.insert(*person);
+                state.infected.remove(person);
+            } else {
+                // We rather store the last moment
+                state.infected.insert(*person, (t0, *time));
+            }
         }
+
+        for (other, overlap) in other_occupants {
+            if let Some(pid) = self.might_become_exposed(person, other) {
+                if self.exposition_occurs(overlap) {
+                    self.become_exposed(now, pid, scheduler);
+                }
+            }
+        }
+    }
+
+    fn might_become_exposed(&self, person: PersonID, other: PersonID) -> Option<PersonID> {
+        if self.infected.contains_key(&person) && self.sane.contains(&other) {
+            return Some(other);
+        } else if self.sane.contains(&person) && self.infected.contains_key(&other) {
+            return Some(person);
+        }
+        None
+    }
+
+    // infection occurs on average after some time (the probability is given between t0, t1),
+    // but we must take into accoutn the time of exposition (ti)
+    fn infection_occurs(&mut self, ti: Time, t0: Time, t1: Time) -> bool {
+        // TODO put some variable instead of 1.0, 1.0
+        self.rng.gen_bool(erf_distrib_bounded(
+            t0.inner_seconds(),
+            t1.inner_seconds(),
+            ti.inner_seconds() + 1.0,
+            1.0,
+        ))
+    }
+
+    // Infection is the transition
+    fn exposition_occurs(&mut self, overlap: Duration) -> bool {
+        // TODO put some variable instead of 0.1
+        self.rng
+            .gen_bool(proba_decaying_sigmoid(overlap.inner_seconds(), 0.1))
+    }
+
+    fn become_exposed(&mut self, now: Time, person: PersonID, scheduler: &mut Scheduler) {
+        // TODO We might want to track that contact at some point
+        // SO let's keep the scheduler here
+        self.exposed.insert(person, (now, now));
+    }
+
+    fn become_infected(&mut self, now: Time, person: PersonID, scheduler: &mut Scheduler) {
+        self.infected.insert(person, (now, now));
+
+        // if self.rng.gen_bool(0.1) {
+        //     scheduler.push(
+        //         now + self.rand_duration(Duration::hours(1), Duration::hours(3)),
+        //         Command::Pandemic(Cmd::BecomeHospitalized(person)),
+        //     );
+        // }
+    }
+
+    fn become_recovered(&mut self, now: Time, person: PersonID, scheduler: &mut Scheduler) {
+        self.recovered.insert(person);
     }
 
     fn rand_duration(&mut self, low: Duration, high: Duration) -> Duration {
