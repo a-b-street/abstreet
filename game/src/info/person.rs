@@ -68,7 +68,8 @@ pub fn trips(
                         .small()
                         .fg(Color::hex("#7FFA4D"))
                         .draw(ctx)])
-                    .rounder_outline(1.0, 10.0, Color::hex("#7FFA4D"))
+                    .fully_rounded()
+                    .outline(1.0, Color::hex("#7FFA4D"))
                     .bg(Color::rgba(127, 250, 77, 0.2))
                     .padding(5)
                 } else {

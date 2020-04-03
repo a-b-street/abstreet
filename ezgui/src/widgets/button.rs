@@ -335,7 +335,7 @@ impl BtnBuilder {
                 let geom = Polygon::rounded_rectangle(
                     dims.width + 2.0 * HORIZ_PADDING,
                     dims.height + 2.0 * VERT_PADDING,
-                    VERT_PADDING,
+                    Some(VERT_PADDING),
                 );
 
                 let mut normal = GeomBatch::from(vec![(unselected_bg_color, geom.clone())]);

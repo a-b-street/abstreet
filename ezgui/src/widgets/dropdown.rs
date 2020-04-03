@@ -98,7 +98,7 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
             g.fork(Pt2D::new(0.0, 0.0), m.top_left, 1.0, Some(0.1));
             g.draw_polygon(
                 Color::grey(0.3),
-                &Polygon::rounded_rectangle(m.get_dims().width, m.get_dims().height, 5.0),
+                &Polygon::rounded_rectangle(m.get_dims().width, m.get_dims().height, Some(5.0)),
             );
             g.unfork();
 

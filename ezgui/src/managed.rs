@@ -24,8 +24,10 @@ pub struct Widget {
 
 struct LayoutStyle {
     bg_color: Option<Color>,
-    // (thickness, radius, color)
-    outline: Option<(f64, f64, Color)>,
+    // (thickness, color)
+    outline: Option<(f64, Color)>,
+    // If None, as round as possible
+    rounded_radius: Option<f64>,
     style: Style,
 }
 
@@ -79,11 +81,11 @@ impl Widget {
 
     // Callers have to adjust padding too, probably
     pub fn outline(mut self, thickness: f64, color: Color) -> Widget {
-        self.layout.outline = Some((thickness, 5.0, color));
+        self.layout.outline = Some((thickness, color));
         self
     }
-    pub fn rounder_outline(mut self, thickness: f64, radius: f64, color: Color) -> Widget {
-        self.layout.outline = Some((thickness, radius, color));
+    pub fn fully_rounded(mut self) -> Widget {
+        self.layout.rounded_radius = None;
         self
     }
 
@@ -183,6 +185,7 @@ impl Widget {
             layout: LayoutStyle {
                 bg_color: None,
                 outline: None,
+                rounded_radius: Some(5.0),
                 style: Style {
                     ..Default::default()
                 },
@@ -336,12 +339,15 @@ impl Widget {
         {
             let mut batch = GeomBatch::new();
             if let Some(c) = self.layout.bg_color {
-                batch.push(c, Polygon::rounded_rectangle(width, height, 5.0));
+                batch.push(
+                    c,
+                    Polygon::rounded_rectangle(width, height, self.layout.rounded_radius),
+                );
             }
-            if let Some((thickness, radius, color)) = self.layout.outline {
+            if let Some((thickness, color)) = self.layout.outline {
                 batch.push(
                     color,
-                    Polygon::rounded_rectangle(width, height, radius)
+                    Polygon::rounded_rectangle(width, height, self.layout.rounded_radius)
                         .to_outline(Distance::meters(thickness)),
                 );
             }
