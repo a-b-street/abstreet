@@ -81,6 +81,26 @@ impl PandemicModel {
         }
     }
 
+    pub fn count_sane(&self) -> usize {
+        self.sane.len()
+    }
+
+    pub fn count_exposed(&self) -> usize {
+        self.exposed.len()
+    }
+
+    pub fn count_infected(&self) -> usize {
+        self.infected.len()
+    }
+
+    pub fn count_recovered(&self) -> usize {
+        self.recovered.len()
+    }
+
+    pub fn count_total(&self) -> usize {
+        self.count_sane() + self.count_exposed() + self.count_infected() + self.count_recovered()
+    }
+
     pub fn handle_event(&mut self, now: Time, ev: &Event, scheduler: &mut Scheduler) {
         assert!(self.initialized);
 
@@ -231,6 +251,7 @@ impl PandemicModel {
         // TODO We might want to track that contact at some point
         // SO let's keep the scheduler here
         self.exposed.insert(person, (now, now));
+        self.sane.remove(&person);
     }
 
     fn become_infected(&mut self, now: Time, person: PersonID, scheduler: &mut Scheduler) {
