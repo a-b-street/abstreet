@@ -55,11 +55,13 @@ pub fn trips(
             }
             TripResult::TripDoesntExist => unreachable!(),
         };
+        let (_, _, _, trip_mode) = sim.trip_info(*t);
 
         // TODO Style wrong. Button should be the entire row.
         rows.push(
             Widget::row(vec![
                 t.to_string().draw_text(ctx),
+                Line(trip_mode.ongoing_verb()).secondary().draw(ctx),
                 if trip_status == "ongoing" {
                     // TODO Padding doesn't work without wrapping in a row
                     Widget::row(vec![Line(trip_status)

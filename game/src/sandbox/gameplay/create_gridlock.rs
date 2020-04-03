@@ -67,7 +67,11 @@ fn gridlock_panel(app: &App) -> Text {
         let a = now_per_mode[&mode].count();
         let b = baseline_per_mode[&mode].count();
         txt.add_appended(vec![
-            Line(format!("  {}: {} (", mode, prettyprint_usize(a))),
+            Line(format!(
+                "  {}: {} (",
+                mode.ongoing_verb(),
+                prettyprint_usize(a)
+            )),
             cmp_count_fewer(a, b),
             Line(")"),
         ]);

@@ -23,7 +23,7 @@ impl FasterTrips {
             top_center: challenge_controller(
                 ctx,
                 mode,
-                &format!("Faster {} Trips Challenge", trip_mode),
+                &format!("Faster Trips {} Challenge", trip_mode.ongoing_verb()),
                 Vec::new(),
             ),
         })
@@ -87,9 +87,9 @@ fn faster_trips_panel(mode: TripMode, app: &App) -> Text {
     let mut txt = Text::new();
     txt.add_appended(vec![
         Line(format!(
-            "{} {} trips (",
+            "{} trips {} (",
             prettyprint_usize(now.count()),
-            mode
+            mode.ongoing_verb()
         )),
         cmp_count_more(now.count(), baseline.count()),
         Line(")"),

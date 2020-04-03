@@ -9,13 +9,13 @@ use ezgui::{
 };
 use geom::{Angle, Distance, Duration, Polygon, Pt2D, Time};
 use map_model::{Map, Path, PathStep};
-use sim::{TripEndpoint, TripID, TripPhase, TripPhaseType};
+use sim::{AgentID, TripEndpoint, TripID, TripPhase, TripPhaseType, VehicleType};
 
 pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Details) -> Widget {
     let map = &app.primary.map;
     let sim = &app.primary.sim;
     let phases = sim.get_analytics().get_trip_phases(trip, map);
-    let (start_time, trip_start, trip_end, trip_mode) = sim.trip_info(trip);
+    let (start_time, trip_start, trip_end, _) = sim.trip_info(trip);
     let end_time = phases.last().as_ref().and_then(|p| p.end_time);
 
     if phases.is_empty() {
@@ -27,7 +27,6 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
         return Widget::col(make_table(
             ctx,
             vec![
-                ("Type", trip_mode.to_string()),
                 ("Departure", start_time.ampm_tostring()),
                 ("From", name1),
                 ("To", name2),
@@ -39,14 +38,22 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
 
     // Describe properties of the trip
     let total_trip_time = end_time.unwrap_or_else(|| sim.time()) - phases[0].start_time;
-    // TODO Depict differently
-    col.extend(make_table(ctx, vec![("Type", trip_mode.to_string())]));
 
     // Describe this leg of the trip
     let progress_along_path = if let Some(a) = sim.trip_to_agent(trip).ok() {
         let props = sim.agent_properties(a);
-        // TODO we want the current TripPhaseType.describe here
-        let activity = "here";
+        // This is different than the entire TripMode, and also not the current TripPhaseType.
+        // Sigh.
+        let activity = match a {
+            AgentID::Pedestrian(_) => "walking",
+            AgentID::Car(c) => match c.1 {
+                VehicleType::Car => "driving",
+                VehicleType::Bike => "biking",
+                // TODO And probably riding a bus is broken, I don't know how that gets mapped right
+                // now
+                VehicleType::Bus => "riding the bus",
+            },
+        };
 
         // TODO Style needs work. Like, always.
 
@@ -99,7 +106,10 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
         Some(props.dist_crossed / props.total_dist)
     } else {
         // The trip is finished
-        // TODO total time
+        col.push(Widget::row(vec![
+            Line("Trip time").secondary().draw(ctx).margin_right(20),
+            total_trip_time.to_string().draw_text(ctx),
+        ]));
         None
     };
 

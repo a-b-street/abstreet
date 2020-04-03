@@ -460,7 +460,7 @@ fn throughput<F: Fn(&Analytics, Time) -> BTreeMap<TripMode, Vec<(Time, usize)>>>
     let mut series = get_data(app.primary.sim.get_analytics(), app.primary.sim.time())
         .into_iter()
         .map(|(m, pts)| Series {
-            label: m.to_string(),
+            label: m.ongoing_verb().to_string(),
             color: color_for_mode(m, app),
             pts,
         })
@@ -469,7 +469,7 @@ fn throughput<F: Fn(&Analytics, Time) -> BTreeMap<TripMode, Vec<(Time, usize)>>>
         // TODO Ahh these colors don't show up differently at all.
         for (m, pts) in get_data(app.prebaked(), Time::END_OF_DAY) {
             series.push(Series {
-                label: format!("{} (baseline)", m),
+                label: format!("{} (baseline)", m.ongoing_verb()),
                 color: color_for_mode(m, app).alpha(0.3),
                 pts,
             });

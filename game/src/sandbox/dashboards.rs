@@ -130,7 +130,11 @@ fn trips_summary_prebaked(ctx: &EventCtx, app: &App) -> Widget {
         let a = &now_per_mode[&mode];
         let b = &baseline_per_mode[&mode];
         txt.add_appended(vec![
-            Line(format!("{} {} trips (", prettyprint_usize(a.count()), mode)),
+            Line(format!(
+                "{} trips {} (",
+                prettyprint_usize(a.count()),
+                mode.ongoing_verb()
+            )),
             cmp_count_more(a.count(), b.count()),
             Line(")"),
         ]);
@@ -209,9 +213,9 @@ fn trips_summary_not_prebaked(ctx: &EventCtx, app: &App) -> Widget {
     for mode in TripMode::all() {
         let a = &per_mode[&mode];
         txt.add(Line(format!(
-            "{} {} trips",
+            "{} trips {}",
             prettyprint_usize(a.count()),
-            mode
+            mode.ongoing_verb()
         )));
         if a.count() > 0 {
             for stat in Statistic::all() {
@@ -243,7 +247,13 @@ fn trips_summary_not_prebaked(ctx: &EventCtx, app: &App) -> Widget {
 fn finished_trips_plot(ctx: &EventCtx, app: &App) -> Widget {
     let mut lines: Vec<(String, Color, Option<TripMode>)> = TripMode::all()
         .into_iter()
-        .map(|m| (m.to_string(), color_for_mode(m, app), Some(m)))
+        .map(|m| {
+            (
+                m.ongoing_verb().to_string(),
+                color_for_mode(m, app),
+                Some(m),
+            )
+        })
         .collect();
     lines.push(("aborted".to_string(), Color::PURPLE.alpha(0.5), None));
 
