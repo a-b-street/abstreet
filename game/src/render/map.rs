@@ -469,23 +469,23 @@ impl AgentColorScheme {
         AgentColorScheme {
             rows: vec![
                 (
-                    "car".to_string(),
+                    "Car".to_string(),
                     cs.get_def("unzoomed car", Color::hex("#A32015")).alpha(0.8),
                     true,
                 ),
                 (
-                    "bike".to_string(),
+                    "Bike".to_string(),
                     cs.get_def("unzoomed bike", Color::hex("#5D9630"))
                         .alpha(0.8),
                     true,
                 ),
                 (
-                    "bus".to_string(),
+                    "Bus".to_string(),
                     cs.get_def("unzoomed bus", Color::hex("#12409D")).alpha(0.8),
                     true,
                 ),
                 (
-                    "pedestrian".to_string(),
+                    "Pedestrian".to_string(),
                     cs.get_def("unzoomed pedestrian", Color::hex("#DF8C3D").alpha(0.8)),
                     true,
                 ),
@@ -505,10 +505,10 @@ impl AgentColorScheme {
 
     fn color(&self, agent: &UnzoomedAgent) -> Option<Color> {
         let category = match agent.vehicle_type {
-            Some(VehicleType::Car) => "car".to_string(),
-            Some(VehicleType::Bike) => "bike".to_string(),
-            Some(VehicleType::Bus) => "bus".to_string(),
-            None => "pedestrian".to_string(),
+            Some(VehicleType::Car) => "Car".to_string(),
+            Some(VehicleType::Bike) => "Bike".to_string(),
+            Some(VehicleType::Bus) => "Bus".to_string(),
+            None => "Pedestrian".to_string(),
         };
         for (name, color, enabled) in &self.rows {
             if name == &category {

@@ -158,11 +158,10 @@ bc920c3406bd82b4f54b63845fede3ca  data/system/assets/speed/pause.svg
 a28c5fa18d32c3325a5f7326fed876fa  data/system/assets/speed/reset.svg
 e348fda658d0fcb6bb8abdcec23d1dab  data/system/assets/speed/speed_up.svg
 d15fe87c4174463e84b9a440162129ed  data/system/assets/tools/undo.svg
-3b1d7fddf0babf8722be242c76094faf  data/system/assets/tools/invisible.svg
-841a6304950389f8ede9581d04c1021f  data/system/assets/tools/visible.svg
 5f3912d972b47419295ded39c52e647d  data/system/assets/tools/next.svg
 e469148085a2046afd447d31a54d15ab  data/system/assets/tools/search.svg
 8aeb89a0a9ef4e84d0202fb45f65d642  data/system/assets/tools/location.svg
+e26e99e490443b1c2f6296586cda4551  data/system/assets/tools/checkmark.svg
 4a5d6456d7c3d9ad94fc1a9e456d6f06  data/system/assets/tools/prev.svg
 fe358c0fdf48b65117f7c4970fa35d91  data/system/assets/tools/settings.svg
 1e0135f13d0aea11650460d6a61b5463  data/system/assets/tools/edit.svg

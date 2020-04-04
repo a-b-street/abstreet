@@ -6,9 +6,9 @@ use crate::render::MIN_ZOOM_FOR_DETAIL;
 use abstutil::clamp;
 use ezgui::{
     hotkey, Btn, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, RewriteColor, ScreenDims, ScreenPt, Text, VerticalAlignment, Widget,
+    Line, Outcome, RewriteColor, ScreenDims, ScreenPt, VerticalAlignment, Widget,
 };
-use geom::{Circle, Distance, Polygon, Pt2D, Ring};
+use geom::{Distance, Polygon, Pt2D, Ring};
 
 // TODO Some of the math in here might assume map bound minimums start at (0, 0).
 pub struct Minimap {
@@ -242,13 +242,12 @@ impl Minimap {
 
 fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composite {
     if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
-        return Composite::new(
-            Widget::col(vec![
-                make_tool_panel(ctx, app).align_right().margin_below(5),
-                make_viz_panel(ctx, app).bg(colors::PANEL_BG),
-            ])
-            .padding(7),
-        )
+        return Composite::new(Widget::row(vec![
+            make_tool_panel(ctx, app).align_right().margin_right(16),
+            make_vert_viz_panel(ctx, app)
+                .bg(colors::PANEL_BG)
+                .padding(7),
+        ]))
         .aligned(
             HorizontalAlignment::Right,
             VerticalAlignment::BottomAboveOSD,
@@ -315,7 +314,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
         make_tool_panel(ctx, app).margin_right(16),
         Widget::col(vec![
             Widget::row(vec![minimap_controls, zoom_col]),
-            make_viz_panel(ctx, app),
+            make_horiz_viz_panel(ctx, app),
         ])
         .padding(7)
         .bg(colors::PANEL_BG),
@@ -347,13 +346,12 @@ fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
         .padding(9)
         .margin_below(16),
         Btn::svg_def("../data/system/assets/tools/layers.svg")
-            .normal_color(if app.overlay.is_empty() {
-                RewriteColor::NoOp
-            } else {
-                RewriteColor::ChangeAll(Color::BLUE)
-            })
             .build(ctx, "change overlay", hotkey(Key::L))
-            .bg(colors::INNER_PANEL)
+            .bg(if app.overlay.is_empty() {
+                colors::INNER_PANEL
+            } else {
+                colors::HOVERING
+            })
             .padding(9)
             .margin_below(16),
         Btn::svg_def("../data/system/assets/tools/search.svg")
@@ -368,7 +366,7 @@ fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
     ])
 }
 
-fn make_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
+fn make_horiz_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
     let mut col = Vec::new();
 
     // TODO Really rethink this
@@ -379,7 +377,7 @@ fn make_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
                 Widget::draw_svg_transform(
                     ctx,
                     "../data/system/assets/tools/layers.svg",
-                    RewriteColor::ChangeAll(Color::BLUE),
+                    RewriteColor::ChangeAll(colors::HOVERING),
                 )
                 .margin(5),
                 Line(name).small().draw(ctx),
@@ -388,39 +386,56 @@ fn make_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
     }
 
     let mut row = Vec::new();
-    let radius = 10.0;
     for (label, color, enabled) in &app.agent_cs.rows {
-        // TODO Make sure the dims of these two fit
-        row.push(if *enabled {
-            Btn::svg_def("../data/system/assets/tools/visible.svg")
-                .build(ctx, format!("hide {}", label), None)
-                .margin(3)
-        } else {
-            Btn::svg_def("../data/system/assets/tools/invisible.svg")
-                .build(ctx, format!("show {}", label), None)
-                .margin(3)
-        });
-        row.push(
-            Widget::draw_batch(
-                ctx,
-                GeomBatch::from(vec![(
-                    color.alpha(if *enabled { 1.0 } else { 0.5 }),
-                    Circle::new(Pt2D::new(radius, radius), Distance::meters(radius)).to_polygon(),
-                )]),
-            )
-            .margin(3),
-        );
-        row.push(
-            Text::from(if *enabled {
-                Line(label).small()
-            } else {
-                Line(label).small().fg(Color::WHITE.alpha(0.5))
-            })
-            .draw(ctx)
-            .margin(3),
-        );
+        row.push(colored_checkbox(ctx, label, *color, *enabled).margin_right(8));
+        row.push(Line(label).draw(ctx).margin_right(24));
     }
+    let last = row.pop().unwrap();
+    row.push(last.margin_right(0));
     col.push(Widget::row(row));
 
     Widget::col(col)
+}
+
+fn make_vert_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
+    let mut col = Vec::new();
+
+    for (label, color, enabled) in &app.agent_cs.rows {
+        let mut row = Vec::new();
+        row.push(colored_checkbox(ctx, label, *color, *enabled).margin_right(8));
+        row.push(Line(label).draw(ctx));
+        col.push(Widget::row(row).margin_below(7));
+    }
+    let last = col.pop().unwrap();
+    col.push(last.margin_below(0));
+
+    Widget::col(col)
+}
+
+fn colored_checkbox(ctx: &EventCtx, label: &str, color: Color, enabled: bool) -> Widget {
+    if enabled {
+        Btn::svg(
+            "../data/system/assets/tools/checkmark.svg",
+            RewriteColor::ChangeMore(vec![
+                (Color::BLACK, color),
+                (Color::WHITE, colors::HOVERING),
+            ]),
+        )
+        .normal_color(RewriteColor::Change(Color::BLACK, color))
+        .build(ctx, format!("hide {}", label), None)
+    } else {
+        // Fancy way of saying a circle ;)
+        Btn::svg(
+            "../data/system/assets/tools/checkmark.svg",
+            RewriteColor::ChangeMore(vec![
+                (Color::BLACK, color),
+                (Color::WHITE, Color::INVISIBLE),
+            ]),
+        )
+        .normal_color(RewriteColor::ChangeMore(vec![
+            (Color::BLACK, color.alpha(0.3)),
+            (Color::WHITE, Color::INVISIBLE),
+        ]))
+        .build(ctx, format!("show {}", label), None)
+    }
 }
