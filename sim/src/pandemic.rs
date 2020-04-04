@@ -15,7 +15,7 @@ use std::collections::{BTreeMap, BTreeSet};
 pub struct PandemicModel {
     pub sane: BTreeSet<PersonID>,
     // first time is the time of exposition/infection
-    // second time is the time sine the last chek of
+    // second time is the time since the last check of
     // transition was performed
     pub exposed: BTreeMap<PersonID, (Time, Time)>,
     pub infected: BTreeMap<PersonID, (Time, Time)>,
@@ -204,7 +204,7 @@ impl PandemicModel {
                 SEIR::get_transition_time_uncertainty_from(SEIR::Infectious),
             ) {
                 self.transition_to_recovered(now, person, scheduler);
-                // TODO add an else if with hospitalized
+            // TODO add an else if with hospitalized
             } else {
                 // We rather store the last moment
                 self.stay_infected(t0, now, person, scheduler);
@@ -281,7 +281,12 @@ impl PandemicModel {
         self.recovered.insert(person);
     }
 
-    fn transition_to_recovered(&mut self, _now: Time, person: PersonID, _scheduler: &mut Scheduler) {
+    fn transition_to_recovered(
+        &mut self,
+        _now: Time,
+        person: PersonID,
+        _scheduler: &mut Scheduler,
+    ) {
         self.recovered.insert(person);
         self.infected.remove(&person);
 
@@ -305,7 +310,13 @@ impl PandemicModel {
         // }
     }
 
-    fn stay_infected(&mut self, ini: Time, now: Time, person: PersonID, _scheduler: &mut Scheduler) {
+    fn stay_infected(
+        &mut self,
+        ini: Time,
+        now: Time,
+        person: PersonID,
+        _scheduler: &mut Scheduler,
+    ) {
         self.infected.insert(person, (ini, now));
     }
 
