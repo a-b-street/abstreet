@@ -215,16 +215,6 @@ impl ColorScheme {
             idx,
         )
     }
-
-    pub fn osm_rank_to_color(&self, rank: usize) -> Color {
-        if rank >= 16 {
-            self.unzoomed_highway
-        } else if rank >= 6 {
-            self.unzoomed_arterial
-        } else {
-            self.unzoomed_residential
-        }
-    }
 }
 
 fn modulo_color(colors: Vec<Color>, idx: usize) -> Color {

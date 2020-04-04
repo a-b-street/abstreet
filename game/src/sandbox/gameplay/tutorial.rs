@@ -1129,7 +1129,7 @@ impl TutorialState {
                 )
                 .msg(
                     vec![
-                        "Apply different heatmap layers to the map, to find data such as:",
+                        "Apply different layers to the map, to find data such as:",
                         "- roads with high traffic",
                         "- bus stops",
                         "- current parking",

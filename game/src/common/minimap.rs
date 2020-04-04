@@ -189,9 +189,7 @@ impl Minimap {
         g.redraw(&app.primary.draw_map.draw_all_unzoomed_intersections);
         g.redraw(&app.primary.draw_map.draw_all_buildings);
         // Not the building paths
-        if let Some(ref c) = app.overlay.maybe_colorer() {
-            g.redraw(&c.unzoomed);
-        }
+        app.overlay.draw_minimap(g);
 
         let mut cache = app.primary.draw_map.agents.borrow_mut();
         cache.draw_unzoomed_agents(
@@ -360,24 +358,6 @@ fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
 }
 
 fn make_horiz_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
-    let mut col = Vec::new();
-
-    // TODO Really rethink this
-    if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL {
-        if let Some(name) = app.overlay.zoomed_name() {
-            // TODO Should the full legend have this icon too?
-            col.push(Widget::row(vec![
-                Widget::draw_svg_transform(
-                    ctx,
-                    "../data/system/assets/tools/layers.svg",
-                    RewriteColor::ChangeAll(app.cs.hovering),
-                )
-                .margin(5),
-                Line(name).small().draw(ctx),
-            ]));
-        }
-    }
-
     let mut row = Vec::new();
     for (label, color, enabled) in &app.agent_cs.rows {
         row.push(colored_checkbox(ctx, app, label, *color, *enabled).margin_right(8));
@@ -385,9 +365,7 @@ fn make_horiz_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
     }
     let last = row.pop().unwrap();
     row.push(last.margin_right(0));
-    col.push(Widget::row(row));
-
-    Widget::col(col)
+    Widget::row(row)
 }
 
 fn make_vert_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {

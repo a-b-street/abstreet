@@ -65,7 +65,7 @@ impl DrawMap {
         let mut all_roads = GeomBatch::new();
         for r in road_refs {
             all_roads.push(
-                cs.osm_rank_to_color(r.get_rank()),
+                osm_rank_to_color(cs, r.get_rank()),
                 r.get_thick_polygon(map).get(timer),
             );
             /*if false {
@@ -113,7 +113,7 @@ impl DrawMap {
             // TODO Would be neat to show closed intersections here, but then edits need to
             // regenerate this
             if i.is_stop_sign() {
-                all_intersections.push(cs.osm_rank_to_color(i.get_rank(map)), i.polygon.clone());
+                all_intersections.push(osm_rank_to_color(cs, i.get_rank(map)), i.polygon.clone());
             /*if false {
                 all_intersections.push(
                     color,
@@ -494,5 +494,15 @@ impl AgentColorScheme {
             }
         }
         panic!("Unknown AgentColorScheme category {}", category);
+    }
+}
+
+fn osm_rank_to_color(cs: &ColorScheme, rank: usize) -> Color {
+    if rank >= 16 {
+        cs.unzoomed_highway
+    } else if rank >= 6 {
+        cs.unzoomed_arterial
+    } else {
+        cs.unzoomed_residential
     }
 }
