@@ -35,7 +35,7 @@ pub struct App {
 
 impl App {
     pub fn new(flags: Flags, opts: Options, ctx: &mut EventCtx, splash: bool) -> App {
-        let cs = ColorScheme::load(opts.color_scheme.clone());
+        let cs = ColorScheme::new(opts.color_scheme);
         let primary = ctx.loading_screen("load map", |ctx, mut timer| {
             PerMap::new(flags, &cs, ctx, &mut timer)
         });

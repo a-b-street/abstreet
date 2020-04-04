@@ -1,4 +1,5 @@
 use crate::app::App;
+use crate::colors::ColorSchemeChoice;
 use crate::game::{State, Transition};
 use ezgui::{
     hotkey, Btn, Choice, Composite, EventCtx, GfxCtx, Key, Line, Outcome, TextExt, Widget,
@@ -9,7 +10,7 @@ use geom::Duration;
 #[derive(Clone)]
 pub struct Options {
     pub traffic_signal_style: TrafficSignalStyle,
-    pub color_scheme: Option<String>,
+    pub color_scheme: ColorSchemeChoice,
     pub dev: bool,
     pub time_increment: Duration,
 }
@@ -18,7 +19,7 @@ impl Options {
     pub fn default() -> Options {
         Options {
             traffic_signal_style: TrafficSignalStyle::GroupArrows,
-            color_scheme: None,
+            color_scheme: ColorSchemeChoice::Standard,
             dev: false,
             time_increment: Duration::minutes(10),
         }
@@ -95,17 +96,10 @@ impl OptionsPanel {
                         Widget::dropdown(
                             ctx,
                             "Color scheme",
-                            app.opts.color_scheme.clone(),
+                            app.opts.color_scheme,
                             vec![
-                                Choice::new("default", None),
-                                Choice::new(
-                                    "overridden colors",
-                                    Some("../data/system/override_colors.json".to_string()),
-                                ),
-                                Choice::new(
-                                    "night mode",
-                                    Some("../data/system/night_colors.json".to_string()),
-                                ),
+                                Choice::new("default", ColorSchemeChoice::Standard),
+                                Choice::new("night mode", ColorSchemeChoice::NightMode),
                             ],
                         ),
                     ]),

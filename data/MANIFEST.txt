@@ -200,8 +200,6 @@ c063a7b561f00f4b2ccad16390d3c5f0  data/system/assets/minimap/zoom_in_fully.svg
 55598346b4b038899f8972d7468a20a6  data/system/assets/minimap/down.svg
 add7f832f0a7b501a59c505b63a0c5b5  data/system/assets/minimap/zoom_out_fully.svg
 9caf97939884d4859accca34265f45fb  data/system/assets/minimap/up.svg
-a5e849fa8883569519976ebfef3ae269  data/system/night_colors.json
-1909af5ebfefe7ad4102335c9e789d24  data/system/override_colors.json
 d02d0d103f7b00672a5f1145c5169d8c  data/system/fonts/Overpass-Bold.ttf
 0807de33685581f680c95f790cbe3236  data/system/fonts/Overpass-Regular.ttf
 2a13391023ce8787887331530cac35a7  data/system/fonts/BungeeInline-Regular.ttf
