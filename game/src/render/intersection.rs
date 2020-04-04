@@ -5,7 +5,7 @@ use crate::render::{
     draw_signal_phase, DrawOptions, Renderable, CROSSWALK_LINE_THICKNESS, OUTLINE_THICKNESS,
 };
 use abstutil::Timer;
-use ezgui::{Color, Drawable, FancyColor, GeomBatch, GfxCtx, Line, Prerender, Text};
+use ezgui::{Drawable, FancyColor, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Angle, Distance, Line, PolyLine, Polygon, Pt2D, Time, EPSILON_DIST};
 use map_model::raw::DrivingSide;
 use map_model::{
@@ -34,15 +34,15 @@ impl DrawIntersection {
         let mut default_geom = GeomBatch::new();
         default_geom.push(
             if i.is_border() {
-                cs.get_def("border intersection", Color::rgb(50, 205, 50))
+                cs.border_intersection
             } else if i.is_closed() {
-                cs.get("construction background")
+                cs.under_construction
             } else {
-                cs.get_def("normal intersection", Color::grey(0.2))
+                cs.normal_intersection
             },
             i.polygon.clone(),
         );
-        default_geom.extend(cs.get("sidewalk"), calculate_corners(i, map, timer));
+        default_geom.extend(cs.sidewalk, calculate_corners(i, map, timer));
 
         for turn in &map.get_turns_in_intersection(i.id) {
             // Avoid double-rendering
@@ -56,18 +56,14 @@ impl DrawIntersection {
         match i.intersection_type {
             IntersectionType::Border => {
                 let r = map.get_r(*i.roads.iter().next().unwrap());
-                default_geom.extend(
-                    cs.get_def("incoming border node arrow", Color::PURPLE),
-                    calculate_border_arrows(i, r, map, timer),
-                );
+                default_geom.extend(cs.border_arrow, calculate_border_arrows(i, r, map, timer));
             }
             IntersectionType::StopSign => {
                 for ss in map.get_stop_sign(i.id).roads.values() {
                     if ss.must_stop {
                         if let Some((octagon, pole)) = DrawIntersection::stop_sign_geom(ss, map) {
-                            default_geom
-                                .push(cs.get_def("stop sign on side of road", Color::RED), octagon);
-                            default_geom.push(cs.get_def("stop sign pole", Color::grey(0.5)), pole);
+                            default_geom.push(cs.stop_sign, octagon);
+                            default_geom.push(cs.stop_sign_pole, pole);
                         }
                     }
                 }
@@ -335,7 +331,7 @@ pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorS
             // Reuse perp_line. Project away an arbitrary amount
             let pt2 = pt1.project_away(Distance::meters(1.0), turn.angle());
             batch.push(
-                cs.get("general road marking"),
+                cs.general_road_marking,
                 perp_line(Line::new(pt1, pt2), width).make_polygons(CROSSWALK_LINE_THICKNESS),
             );
 
@@ -343,7 +339,7 @@ pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorS
             let pt3 = line.dist_along(dist_along + 2.0 * CROSSWALK_LINE_THICKNESS);
             let pt4 = pt3.project_away(Distance::meters(1.0), turn.angle());
             batch.push(
-                cs.get("general road marking"),
+                cs.general_road_marking,
                 perp_line(Line::new(pt3, pt4), width).make_polygons(CROSSWALK_LINE_THICKNESS),
             );
 

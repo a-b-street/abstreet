@@ -36,12 +36,12 @@ impl DrawBuilding {
             cs.get_def("building", Color::rgb(196, 193, 188)),
             bldg.polygon.clone(),
         );
-        paths_batch.push(cs.get("sidewalk"), front_path);
+        paths_batch.push(cs.sidewalk, front_path);
 
         // TODO Do similar trim_back for driveway
         if let Some(ref p) = bldg.parking {
             paths_batch.push(
-                cs.get("driving lane"),
+                cs.driving_lane,
                 p.driveway_line.make_polygons(NORMAL_LANE_THICKNESS),
             );
         }

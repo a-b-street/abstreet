@@ -480,10 +480,10 @@ fn throughput<F: Fn(&Analytics, Time) -> BTreeMap<TripMode, Vec<(Time, usize)>>>
 
 fn color_for_mode(m: TripMode, app: &App) -> Color {
     match m {
-        TripMode::Walk => app.cs.get("unzoomed pedestrian"),
-        TripMode::Bike => app.cs.get("unzoomed bike"),
-        TripMode::Transit => app.cs.get("unzoomed bus"),
-        TripMode::Drive => app.cs.get("unzoomed car"),
+        TripMode::Walk => app.cs.unzoomed_pedestrian,
+        TripMode::Bike => app.cs.unzoomed_bike,
+        TripMode::Transit => app.cs.unzoomed_bus,
+        TripMode::Drive => app.cs.unzoomed_car,
     }
 }
 

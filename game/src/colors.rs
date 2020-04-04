@@ -20,6 +20,41 @@ pub struct ColorScheme {
     pub panel_bg: Color,
     pub section_bg: Color,
     pub inner_panel: Color,
+
+    // Roads
+    pub driving_lane: Color,
+    pub bus_lane: Color,
+    pub parking_lane: Color,
+    pub bike_lane: Color,
+    pub under_construction: Color,
+    pub sidewalk: Color,
+    pub sidewalk_lines: Color,
+    pub general_road_marking: Color,
+    pub road_center_line: Color,
+
+    // Intersections
+    pub border_intersection: Color,
+    pub border_arrow: Color,
+    pub normal_intersection: Color,
+    pub stop_sign: Color,
+    pub stop_sign_pole: Color,
+
+    // Unzoomed static elements
+    pub map_background: Color,
+    pub unzoomed_interesting_intersection: Color,
+
+    // Unzoomed dynamic elements
+    pub unzoomed_car: Color,
+    pub unzoomed_bike: Color,
+    pub unzoomed_bus: Color,
+    pub unzoomed_pedestrian: Color,
+
+    // Agent
+    pub route: Color,
+    pub turn_arrow: Color,
+    pub brake_light: Color,
+    pub bus_body: Color,
+    pub bus_label: Color,
 }
 
 // Ideal for editing; values are (hex, alpha value).
@@ -31,10 +66,46 @@ impl ColorScheme {
         ColorScheme {
             old: HashMap::new(),
 
+            // UI
             hovering: Color::ORANGE,
             panel_bg: Color::grey(0.4),
             section_bg: Color::grey(0.5),
             inner_panel: Color::hex("#4C4C4C"),
+
+            // Roads
+            driving_lane: Color::BLACK,
+            bus_lane: Color::rgb(190, 74, 76),
+            parking_lane: Color::grey(0.2),
+            bike_lane: Color::rgb(15, 125, 75),
+            under_construction: Color::rgb(255, 109, 0),
+            sidewalk: Color::grey(0.8),
+            sidewalk_lines: Color::grey(0.7),
+            general_road_marking: Color::WHITE,
+            road_center_line: Color::YELLOW,
+
+            // Intersections
+            border_intersection: Color::rgb(50, 205, 50),
+            border_arrow: Color::PURPLE,
+            normal_intersection: Color::grey(0.2),
+            stop_sign: Color::RED,
+            stop_sign_pole: Color::grey(0.5),
+
+            // Unzoomed static elements
+            map_background: Color::grey(0.87),
+            unzoomed_interesting_intersection: Color::BLACK,
+
+            // Unzoomed dynamic elements
+            unzoomed_car: Color::hex("#A32015"),
+            unzoomed_bike: Color::hex("#5D9630"),
+            unzoomed_bus: Color::hex("#12409D"),
+            unzoomed_pedestrian: Color::hex("#DF8C3D"),
+
+            // Agents
+            route: Color::ORANGE.alpha(0.5),
+            turn_arrow: Color::hex("#DF8C3D"),
+            brake_light: Color::hex("#FF1300"),
+            bus_body: Color::rgb(50, 133, 117),
+            bus_label: Color::rgb(249, 206, 24),
         }
     }
 
@@ -100,6 +171,19 @@ impl ColorScheme {
             ],
             idx,
         )
+    }
+
+    pub fn osm_rank_to_color(&self, rank: usize) -> Color {
+        if rank >= 16 {
+            // Highway
+            Color::rgb(232, 146, 162)
+        } else if rank >= 6 {
+            // Arterial
+            Color::rgb(255, 199, 62)
+        } else {
+            // Residential
+            Color::WHITE
+        }
     }
 }
 

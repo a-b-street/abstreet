@@ -414,7 +414,7 @@ fn calc_all_routes(ctx: &EventCtx, app: &mut App) -> (usize, Drawable) {
     {
         if let Some(t) = maybe_trace {
             cnt += 1;
-            batch.push(app.cs.get("route"), t);
+            batch.push(app.cs.route, t);
         }
     }
     (cnt, ctx.upload(batch))

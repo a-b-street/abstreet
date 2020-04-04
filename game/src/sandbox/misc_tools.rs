@@ -38,7 +38,7 @@ impl RoutePreview {
                 if let Some(trace) = app.primary.sim.trace_route(agent, &app.primary.map, None) {
                     let mut batch = GeomBatch::new();
                     batch.extend(
-                        app.cs.get_def("route", Color::ORANGE.alpha(0.5)),
+                        app.cs.route,
                         dashed_lines(
                             &trace,
                             Distance::meters(0.75),
@@ -208,7 +208,7 @@ impl State for TurnExplorer {
 
         if self.idx == 0 {
             for turn in &app.primary.map.get_turns_from_lane(self.l) {
-                DrawTurn::draw_full(turn, g, color_turn_type(turn.turn_type, app).alpha(0.5));
+                DrawTurn::draw_full(turn, g, color_turn_type(turn.turn_type).alpha(0.5));
             }
         } else {
             let current = &app.primary.map.get_turns_from_lane(self.l)[self.idx - 1];
@@ -216,16 +216,12 @@ impl State for TurnExplorer {
             let mut batch = GeomBatch::new();
             for t in app.primary.map.get_turns_in_intersection(current.id.parent) {
                 if current.conflicts_with(t) {
-                    DrawTurn::draw_dashed(
-                        t,
-                        &mut batch,
-                        app.cs.get_def("conflicting turn", Color::RED.alpha(0.8)),
-                    );
+                    DrawTurn::draw_dashed(t, &mut batch, CONFLICTING_TURN);
                 }
             }
             batch.draw(g);
 
-            DrawTurn::draw_full(current, g, app.cs.get_def("current turn", Color::GREEN));
+            DrawTurn::draw_full(current, g, CURRENT_TURN);
         }
 
         self.composite.draw(g);
@@ -273,48 +269,44 @@ impl TurnExplorer {
             if app.primary.map.get_l(l).is_sidewalk() {
                 col.push(ColorLegend::row(
                     ctx,
-                    app.cs.get("crosswalk turn"),
+                    color_turn_type(TurnType::Crosswalk),
                     "crosswalk",
                 ));
                 col.push(ColorLegend::row(
                     ctx,
-                    app.cs.get("shared sidewalk corner turn"),
+                    color_turn_type(TurnType::SharedSidewalkCorner),
                     "sidewalk connection",
                 ));
             } else {
                 col.push(ColorLegend::row(
                     ctx,
-                    app.cs.get("straight turn"),
+                    color_turn_type(TurnType::Straight),
                     "straight",
                 ));
                 col.push(ColorLegend::row(
                     ctx,
-                    app.cs.get("right turn"),
+                    color_turn_type(TurnType::Right),
                     "right turn",
                 ));
-                col.push(ColorLegend::row(ctx, app.cs.get("left turn"), "left turn"));
                 col.push(ColorLegend::row(
                     ctx,
-                    app.cs.get("change lanes left turn"),
+                    color_turn_type(TurnType::Left),
+                    "left turn",
+                ));
+                col.push(ColorLegend::row(
+                    ctx,
+                    color_turn_type(TurnType::LaneChangeLeft),
                     "straight, but lane-change left",
                 ));
                 col.push(ColorLegend::row(
                     ctx,
-                    app.cs.get("change lanes right turn"),
+                    color_turn_type(TurnType::LaneChangeRight),
                     "straight, but lane-change right",
                 ));
             }
         } else {
-            col.push(ColorLegend::row(
-                ctx,
-                app.cs.get("current turn"),
-                "current turn",
-            ));
-            col.push(ColorLegend::row(
-                ctx,
-                app.cs.get("conflicting turn"),
-                "conflicting turn",
-            ));
+            col.push(ColorLegend::row(ctx, CURRENT_TURN, "current turn"));
+            col.push(ColorLegend::row(ctx, CONFLICTING_TURN, "conflicting turn"));
         }
 
         Composite::new(Widget::col(col).bg(app.cs.panel_bg))
@@ -323,16 +315,18 @@ impl TurnExplorer {
     }
 }
 
-fn color_turn_type(t: TurnType, app: &App) -> Color {
+// Since this is extremely localized and probably changing, not going to put this in ColorScheme.
+fn color_turn_type(t: TurnType) -> Color {
     match t {
-        TurnType::SharedSidewalkCorner => {
-            app.cs.get_def("shared sidewalk corner turn", Color::BLACK)
-        }
-        TurnType::Crosswalk => app.cs.get_def("crosswalk turn", Color::WHITE),
-        TurnType::Straight => app.cs.get_def("straight turn", Color::BLUE),
-        TurnType::LaneChangeLeft => app.cs.get_def("change lanes left turn", Color::CYAN),
-        TurnType::LaneChangeRight => app.cs.get_def("change lanes right turn", Color::PURPLE),
-        TurnType::Right => app.cs.get_def("right turn", Color::GREEN),
-        TurnType::Left => app.cs.get_def("left turn", Color::RED),
+        TurnType::SharedSidewalkCorner => Color::BLACK,
+        TurnType::Crosswalk => Color::WHITE,
+        TurnType::Straight => Color::BLUE,
+        TurnType::LaneChangeLeft => Color::CYAN,
+        TurnType::LaneChangeRight => Color::PURPLE,
+        TurnType::Right => Color::GREEN,
+        TurnType::Left => Color::RED,
     }
 }
+
+const CURRENT_TURN: Color = Color::GREEN;
+const CONFLICTING_TURN: Color = Color::RED.alpha(0.8);

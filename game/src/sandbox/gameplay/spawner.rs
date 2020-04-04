@@ -163,10 +163,7 @@ impl State for AgentSpawner {
         self.colorer.draw(g);
 
         if let Some((_, Some(ref trace))) = self.maybe_goal {
-            g.draw_polygon(
-                app.cs.get("route"),
-                &trace.make_polygons(NORMAL_LANE_THICKNESS),
-            );
+            g.draw_polygon(app.cs.route, &trace.make_polygons(NORMAL_LANE_THICKNESS));
         }
 
         self.composite.draw(g);
@@ -492,10 +489,7 @@ impl State for SpawnManyAgents {
         self.colorer.draw(g);
 
         if let Some((_, Some(ref trace))) = self.maybe_goal {
-            g.draw_polygon(
-                app.cs.get("route"),
-                &trace.make_polygons(NORMAL_LANE_THICKNESS),
-            );
+            g.draw_polygon(app.cs.route, &trace.make_polygons(NORMAL_LANE_THICKNESS));
         }
 
         self.composite.draw(g);

@@ -75,7 +75,7 @@ impl DrawBike {
         if let Some(t) = input.waiting_for_turn {
             let angle = map.get_t(t).angle();
             draw_default.push(
-                cs.get("turn arrow"),
+                cs.turn_arrow,
                 PolyLine::new(vec![
                     body_pos.project_away(body_radius / 2.0, angle.opposite()),
                     body_pos.project_away(body_radius / 2.0, angle),
