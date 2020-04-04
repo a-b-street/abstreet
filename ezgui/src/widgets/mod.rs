@@ -7,6 +7,7 @@ pub mod filler;
 pub mod histogram;
 pub mod just_draw;
 pub mod menu;
+pub mod persistent_split;
 pub mod plot;
 pub mod slider;
 pub mod spinner;

@@ -2,18 +2,17 @@ use crate::app::App;
 use crate::common::{Overlays, Warping};
 use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
-use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::{GameplayMode, SandboxMode};
 use ezgui::{
-    hotkey, Btn, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, Outcome, Plot, PlotOptions, RewriteColor, Series, Slider, Text, VerticalAlignment,
-    Widget,
+    hotkey, Btn, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, PersistentSplit, Plot, PlotOptions, RewriteColor,
+    Series, Slider, Text, VerticalAlignment, Widget,
 };
 use geom::{Duration, Polygon, Time};
 use instant::Instant;
 
 pub struct SpeedControls {
-    pub composite: WrappedComposite,
+    pub composite: Composite,
 
     paused: bool,
     setting: SpeedSetting,
@@ -33,12 +32,7 @@ enum SpeedSetting {
 
 impl SpeedControls {
     // TODO Could use custom_checkbox here, but not sure it'll make things that much simpler.
-    fn make_panel(
-        ctx: &mut EventCtx,
-        app: &App,
-        paused: bool,
-        setting: SpeedSetting,
-    ) -> WrappedComposite {
+    fn make_panel(ctx: &mut EventCtx, app: &App, paused: bool, setting: SpeedSetting) -> Composite {
         let mut row = Vec::new();
         row.push(
             if paused {
@@ -87,26 +81,18 @@ impl SpeedControls {
         );
 
         row.push(
-            Widget::row(vec![
-                Btn::custom(
-                    Text::from(Line("+1h").fg(Color::WHITE)).render_ctx(ctx),
-                    Text::from(Line("+1h").fg(app.cs.hovering)).render_ctx(ctx),
-                    {
-                        let dims = Text::from(Line("+1h")).render_ctx(ctx).get_dims();
-                        Polygon::rectangle(dims.width, dims.height)
-                    },
-                )
-                .build(ctx, "step forwards 1 hour", hotkey(Key::N)),
-                Btn::custom(
-                    Text::from(Line("+0.1s").fg(Color::WHITE)).render_ctx(ctx),
-                    Text::from(Line("+0.1s").fg(app.cs.hovering)).render_ctx(ctx),
-                    {
-                        let dims = Text::from(Line("+0.1s")).render_ctx(ctx).get_dims();
-                        Polygon::rectangle(dims.width, dims.height)
-                    },
-                )
-                .build(ctx, "step forwards 0.1 seconds", hotkey(Key::M)),
-            ])
+            PersistentSplit::new(
+                ctx,
+                "step forwards",
+                app.opts.time_increment,
+                hotkey(Key::M),
+                vec![
+                    Choice::new("+1h", Duration::hours(1)),
+                    Choice::new("+30m", Duration::minutes(30)),
+                    Choice::new("+10m", Duration::minutes(10)),
+                    Choice::new("+0.1s", Duration::seconds(0.1)),
+                ],
+            )
             .bg(app.cs.section_bg)
             .margin_right(16),
         );
@@ -123,38 +109,12 @@ impl SpeedControls {
             .bg(app.cs.section_bg),
         );
 
-        WrappedComposite::new(
-            Composite::new(Widget::row(row).bg(app.cs.panel_bg).padding(16))
-                .aligned(
-                    HorizontalAlignment::Center,
-                    VerticalAlignment::BottomAboveOSD,
-                )
-                .build(ctx),
-        )
-        .cb(
-            "step forwards 0.1 seconds",
-            Box::new(|ctx, app| {
-                app.primary
-                    .sim
-                    .normal_step(&app.primary.map, Duration::seconds(0.1));
-                if let Some(ref mut s) = app.secondary {
-                    s.sim.normal_step(&s.map, Duration::seconds(0.1));
-                }
-                app.recalculate_current_selection(ctx);
-                None
-            }),
-        )
-        .cb(
-            "step forwards 1 hour",
-            Box::new(|ctx, app| {
-                Some(Transition::Push(Box::new(TimeWarpScreen::new(
-                    ctx,
-                    app,
-                    app.primary.sim.time() + Duration::hours(1),
-                    false,
-                ))))
-            }),
-        )
+        Composite::new(Widget::row(row).bg(app.cs.panel_bg).padding(16))
+            .aligned(
+                HorizontalAlignment::Center,
+                VerticalAlignment::BottomAboveOSD,
+            )
+            .build(ctx)
     }
 
     pub fn new(ctx: &mut EventCtx, app: &App) -> SpeedControls {
@@ -172,11 +132,8 @@ impl SpeedControls {
         app: &mut App,
         maybe_mode: Option<&GameplayMode>,
     ) -> Option<Transition> {
-        match self.composite.event(ctx, app) {
-            Some(WrappedOutcome::Transition(t)) => {
-                return Some(t);
-            }
-            Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "real-time speed" => {
                     self.setting = SpeedSetting::Realtime;
                     self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
@@ -227,10 +184,29 @@ impl SpeedControls {
                         maybe_mode.cloned(),
                     ))));
                 }
+                "step forwards" => {
+                    let dt = self.composite.persistent_split_value("step forwards");
+                    if dt == Duration::seconds(0.1) {
+                        app.primary.sim.normal_step(&app.primary.map, dt);
+                        if let Some(ref mut s) = app.secondary {
+                            s.sim.normal_step(&s.map, dt);
+                        }
+                        app.recalculate_current_selection(ctx);
+                        return None;
+                    }
+                    return Some(Transition::Push(Box::new(TimeWarpScreen::new(
+                        ctx,
+                        app,
+                        app.primary.sim.time() + dt,
+                        false,
+                    ))));
+                }
                 _ => unreachable!(),
             },
             None => {}
         }
+        // Just kind of constantly scrape this
+        app.opts.time_increment = self.composite.persistent_split_value("step forwards");
 
         if ctx.input.new_was_pressed(&hotkey(Key::LeftArrow).unwrap()) {
             match self.setting {

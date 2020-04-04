@@ -12,7 +12,7 @@ pub struct Button {
     draw_normal: Drawable,
     draw_hovered: Drawable,
 
-    hotkey: Option<MultiKey>,
+    pub(crate) hotkey: Option<MultiKey>,
     tooltip: Text,
     // Screenspace, top-left always at the origin. Also, probably not a box. :P
     hitbox: Polygon,

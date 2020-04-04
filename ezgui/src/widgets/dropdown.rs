@@ -1,8 +1,8 @@
 use crate::{
-    Btn, Button, Choice, Color, EventCtx, GfxCtx, InputResult, Menu, Outcome, ScreenDims, ScreenPt,
-    WidgetImpl,
+    Btn, Button, Choice, Color, EventCtx, GeomBatch, GfxCtx, InputResult, Menu, Outcome,
+    ScreenDims, ScreenPt, ScreenRectangle, WidgetImpl,
 };
-use geom::{Polygon, Pt2D};
+use geom::{Distance, Polygon, Pt2D};
 
 pub struct Dropdown<T: Clone> {
     current_idx: usize,
@@ -10,6 +10,7 @@ pub struct Dropdown<T: Clone> {
     // TODO Why not T?
     menu: Option<Menu<usize>>,
     label: String,
+    blank_btn_label: bool,
 
     choices: Vec<Choice<T>>,
 }
@@ -20,6 +21,8 @@ impl<T: 'static + PartialEq + Clone> Dropdown<T> {
         label: &str,
         default_value: T,
         choices: Vec<Choice<T>>,
+        // TODO Ideally builder style
+        blank_btn_label: bool,
     ) -> Dropdown<T> {
         let current_idx = choices
             .iter()
@@ -28,15 +31,19 @@ impl<T: 'static + PartialEq + Clone> Dropdown<T> {
 
         Dropdown {
             current_idx,
-            btn: make_btn(ctx, &choices[current_idx].label, label),
+            btn: make_btn(ctx, &choices[current_idx].label, label, blank_btn_label),
             menu: None,
             label: label.to_string(),
+            blank_btn_label,
             choices,
         }
     }
 
     pub fn current_value(&self) -> T {
         self.choices[self.current_idx].data.clone()
+    }
+    pub(crate) fn current_value_label(&self) -> String {
+        self.choices[self.current_idx].label.clone()
     }
 }
 
@@ -61,9 +68,12 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
                     self.menu = None;
                     self.current_idx = idx;
                     let top_left = self.btn.top_left;
-                    // TODO Recalculate widgets when this happens... outline around button should
-                    // change
-                    self.btn = make_btn(ctx, &self.choices[self.current_idx].label, &self.label);
+                    self.btn = make_btn(
+                        ctx,
+                        &self.choices[self.current_idx].label,
+                        &self.label,
+                        self.blank_btn_label,
+                    );
                     self.btn.set_pos(top_left);
                     *redo_layout = true;
                 }
@@ -80,9 +90,16 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
                         .collect(),
                 )
                 .take_menu();
+                let y1_below = self.btn.top_left.y + self.btn.dims.height + 15.0;
+
                 menu.set_pos(ScreenPt::new(
                     self.btn.top_left.x,
-                    self.btn.top_left.y + self.btn.dims.height + 15.0,
+                    // top_left_for_corner doesn't quite work
+                    if y1_below + menu.get_dims().height < ctx.canvas.window_height {
+                        y1_below
+                    } else {
+                        self.btn.top_left.y - 15.0 - menu.get_dims().height
+                    },
                 ));
                 self.menu = Some(menu);
             }
@@ -94,21 +111,41 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
     fn draw(&self, g: &mut GfxCtx) {
         self.btn.draw(g);
         if let Some(ref m) = self.menu {
-            // We need a background too!
-            g.fork(Pt2D::new(0.0, 0.0), m.top_left, 1.0, Some(0.1));
-            g.draw_polygon(
-                Color::grey(0.3),
-                &Polygon::rounded_rectangle(m.get_dims().width, m.get_dims().height, Some(5.0)),
+            // We need a background too! Add some padding and an outline.
+            // TODO Little embedded Composite could make more sense?
+            let pad = 5.0;
+            let width = m.get_dims().width + 2.0 * pad;
+            let height = m.get_dims().height + 2.0 * pad;
+            let rect = Polygon::rounded_rectangle(width, height, Some(5.0));
+            let draw_bg = g.upload(GeomBatch::from(vec![
+                (Color::grey(0.3), rect.clone()),
+                (Color::WHITE, rect.to_outline(Distance::meters(3.0))),
+            ]));
+            g.fork(
+                Pt2D::new(0.0, 0.0),
+                ScreenPt::new(m.top_left.x - pad, m.top_left.y - pad),
+                1.0,
+                // Between SCREENSPACE_Z and TOOLTIP_Z
+                Some(0.1),
             );
+            g.redraw(&draw_bg);
             g.unfork();
 
             m.draw(g);
+
+            // Dropdown menus often leak out of their Composite
+            g.canvas
+                .mark_covered_area(ScreenRectangle::top_left(m.top_left, m.get_dims()));
         }
     }
 }
 
-fn make_btn(ctx: &EventCtx, name: &str, label: &str) -> Button {
-    Btn::text_fg(format!("{} ▼", name))
-        .build(ctx, label, None)
-        .take_btn()
+fn make_btn(ctx: &EventCtx, name: &str, label: &str, blank_btn_label: bool) -> Button {
+    (if blank_btn_label {
+        Btn::text_fg("▼")
+    } else {
+        Btn::text_fg(format!("{} ▼", name))
+    })
+    .build(ctx, label, None)
+    .take_btn()
 }

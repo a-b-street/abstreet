@@ -3,6 +3,7 @@ use crate::game::{State, Transition};
 use ezgui::{
     hotkey, Btn, Choice, Composite, EventCtx, GfxCtx, Key, Line, Outcome, TextExt, Widget,
 };
+use geom::Duration;
 
 // TODO SimOptions stuff too
 #[derive(Clone)]
@@ -10,6 +11,7 @@ pub struct Options {
     pub traffic_signal_style: TrafficSignalStyle,
     pub color_scheme: Option<String>,
     pub dev: bool,
+    pub time_increment: Duration,
 }
 
 impl Options {
@@ -18,6 +20,7 @@ impl Options {
             traffic_signal_style: TrafficSignalStyle::GroupArrows,
             color_scheme: None,
             dev: false,
+            time_increment: Duration::minutes(10),
         }
     }
 }

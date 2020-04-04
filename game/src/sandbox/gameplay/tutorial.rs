@@ -1011,19 +1011,19 @@ impl TutorialState {
                 )
                 .msg(
                     vec!["You can pause or resume time"],
-                    arrow(speed.composite.inner.center_of("pause")),
+                    arrow(speed.composite.center_of("pause")),
                 )
                 .msg(
                     vec!["Speed things up"],
-                    arrow(speed.composite.inner.center_of("30x speed")),
+                    arrow(speed.composite.center_of("30x speed")),
                 )
                 .msg(
                     vec!["Advance time by certain amounts"],
-                    arrow(speed.composite.inner.center_of("step forwards 1 hour")),
+                    arrow(speed.composite.center_of("step forwards")),
                 )
                 .msg(
                     vec!["And reset to the beginning of the day"],
-                    arrow(speed.composite.inner.center_of("reset to midnight")),
+                    arrow(speed.composite.center_of("reset to midnight")),
                 )
                 .msg(
                     vec!["Let's try these controls out. Run the simulation until 5pm or later."],
@@ -1042,7 +1042,7 @@ impl TutorialState {
                         "You might've figured it out already,",
                         "But you'll be pausing/resuming time VERY frequently",
                     ],
-                    arrow(speed.composite.inner.center_of("pause")),
+                    arrow(speed.composite.center_of("pause")),
                 )
                 .msg(
                     vec![
@@ -1102,7 +1102,7 @@ impl TutorialState {
                         "You don't have to manually chase them; just click to follow.",
                         "(If you do lose track of them, just reset)",
                     ],
-                    arrow(speed.composite.inner.center_of("reset to midnight")),
+                    arrow(speed.composite.center_of("reset to midnight")),
                 ),
         );
 

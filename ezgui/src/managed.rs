@@ -1,8 +1,9 @@
 use crate::widgets::containers::{Container, Nothing};
 use crate::{
     Autocomplete, Btn, Button, Checkbox, Choice, Color, Drawable, Dropdown, EventCtx, Filler,
-    GeomBatch, GfxCtx, HorizontalAlignment, JustDraw, Menu, MultiKey, RewriteColor, ScreenDims,
-    ScreenPt, ScreenRectangle, Slider, Spinner, TextBox, VerticalAlignment, WidgetImpl,
+    GeomBatch, GfxCtx, HorizontalAlignment, JustDraw, Menu, MultiKey, PersistentSplit,
+    RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Slider, Spinner, TextBox,
+    VerticalAlignment, WidgetImpl,
 };
 use geom::{Distance, Polygon};
 use std::collections::HashSet;
@@ -253,9 +254,15 @@ impl Widget {
         default_value: T,
         choices: Vec<Choice<T>>,
     ) -> Widget {
-        Widget::new(Box::new(Dropdown::new(ctx, label, default_value, choices)))
-            .named(label)
-            .outline(2.0, Color::WHITE)
+        Widget::new(Box::new(Dropdown::new(
+            ctx,
+            label,
+            default_value,
+            choices,
+            false,
+        )))
+        .named(label)
+        .outline(2.0, Color::WHITE)
     }
 
     pub fn row(widgets: Vec<Widget>) -> Widget {
@@ -708,6 +715,9 @@ impl Composite {
 
     pub fn dropdown_value<T: 'static + PartialEq + Clone>(&self, name: &str) -> T {
         self.find::<Dropdown<T>>(name).current_value()
+    }
+    pub fn persistent_split_value<T: 'static + PartialEq + Clone>(&self, name: &str) -> T {
+        self.find::<PersistentSplit<T>>(name).current_value()
     }
 
     pub fn autocomplete_done<T: 'static + Clone>(&self, name: &str) -> Option<Vec<T>> {
