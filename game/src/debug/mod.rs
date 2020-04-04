@@ -233,7 +233,7 @@ impl State for DebugMode {
                 let mut batch = GeomBatch::new();
                 for a in app.primary.sim.get_accepted_agents(id) {
                     batch.push(
-                        app.cs.get("something associated with something else"),
+                        app.cs.associated_object,
                         app.primary
                             .draw_map
                             .get_obj(
@@ -325,7 +325,7 @@ fn search_osm(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Tra
 
     // TODO Case insensitive
     let map = &app.primary.map;
-    let color = app.cs.get_def("search result", Color::RED);
+    let color = Color::RED;
     for r in map.all_roads() {
         if r.osm_tags
             .iter()

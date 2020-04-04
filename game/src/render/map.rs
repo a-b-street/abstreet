@@ -70,7 +70,7 @@ impl DrawMap {
             );
             /*if false {
                 all_roads.push(
-                    cs.get_def("unzoomed outline", Color::BLACK),
+                    color,
                     roads[r.id.0].get_outline(map),
                 );
             }*/
@@ -116,7 +116,7 @@ impl DrawMap {
                 all_intersections.push(cs.osm_rank_to_color(i.get_rank(map)), i.polygon.clone());
             /*if false {
                 all_intersections.push(
-                    cs.get("unzoomed outline"),
+                    color,
                     intersections[i.id.0].get_outline(map),
                 );
             }*/

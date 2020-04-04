@@ -95,8 +95,8 @@ impl DrawPedestrian {
                 .project_away(radius, input.facing.rotate_degs(right_hand_angle)),
             hand_radius,
         );
-        let foot_color = cs.get_def("pedestrian foot", Color::BLACK);
-        let hand_color = cs.get("pedestrian head");
+        let foot_color = cs.ped_foot;
+        let hand_color = cs.ped_head;
         // Jitter based on ID so we don't all walk synchronized.
         let jitter = input.id.0 % 2 == 0;
         let remainder = step_count % 6;
@@ -158,16 +158,13 @@ impl DrawPedestrian {
         let head_circle = Circle::new(input.pos, 0.5 * radius);
         batch.push(
             if input.preparing_bike {
-                cs.get_def("pedestrian preparing bike", Color::rgb(255, 0, 144))
+                cs.ped_preparing_bike_body
             } else {
                 cs.rotating_color_agents(input.id.0)
             },
             body_circle.to_polygon(),
         );
-        batch.push(
-            cs.get_def("pedestrian head", Color::rgb(139, 69, 19)),
-            head_circle.to_polygon(),
-        );
+        batch.push(cs.ped_head, head_circle.to_polygon());
     }
 }
 
@@ -224,10 +221,7 @@ impl DrawPedCrowd {
         };
         let blob = pl_shifted.make_polygons(SIDEWALK_THICKNESS / 2.0);
         let mut batch = GeomBatch::new();
-        batch.push(
-            cs.get_def("pedestrian crowd", Color::rgb_f(0.2, 0.7, 0.7)),
-            blob.clone(),
-        );
+        batch.push(cs.ped_crowd, blob.clone());
         batch.add_transformed(
             Text::from(Line(format!("{}", input.members.len())).fg(Color::BLACK))
                 .render_to_batch(prerender),

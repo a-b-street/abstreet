@@ -146,7 +146,7 @@ impl State for ManagedGUIState {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         if self.fullscreen {
             // Happens to be a nice background color too ;)
-            g.clear(app.cs.get("grass"));
+            g.clear(app.cs.grass);
         } else {
             State::grey_out_map(g);
         }

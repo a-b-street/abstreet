@@ -105,10 +105,10 @@ impl State for PolygonDebugger {
                         g.canvas.map_to_screen(*pt).to_pt(),
                     );
                 }
-                g.draw_polygon(app.cs.get("selected"), &Polygon::from_triangle(tri));
+                g.draw_polygon(app.cs.selected, &Polygon::from_triangle(tri));
             }
             Item::Polygon(ref poly) => {
-                g.draw_polygon(app.cs.get("selected"), poly);
+                g.draw_polygon(app.cs.selected, poly);
                 batch.add_centered(
                     Text::from(Line(idx.to_string()))
                         .bg(app.cs.panel_bg)

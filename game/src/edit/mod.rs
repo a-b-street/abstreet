@@ -476,7 +476,7 @@ pub fn close_intersection(
         )],
     );
 
-    let color = app.cs.get("unreachable lane");
+    let color = Color::RED;
     let mut c = Colorer::new(Text::new(), vec![("", color)]);
     for l in disconnected {
         c.add_l(l, color, &app.primary.map);

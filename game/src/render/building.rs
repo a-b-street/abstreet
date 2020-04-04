@@ -32,10 +32,7 @@ impl DrawBuilding {
         }
         let front_path = front_path_line.make_polygons(Distance::meters(1.0));
 
-        bldg_batch.push(
-            cs.get_def("building", Color::rgb(196, 193, 188)),
-            bldg.polygon.clone(),
-        );
+        bldg_batch.push(cs.building, bldg.polygon.clone());
         paths_batch.push(cs.sidewalk, front_path);
 
         // TODO Do similar trim_back for driveway
@@ -75,7 +72,7 @@ impl DrawBuilding {
 
         // TODO Slow and looks silly, but it's a nice experiment.
         /*for poly in bldg.polygon.shrink(-3.0) {
-            bldg_batch.push(cs.get_def("building roof", Color::rgb(150, 75, 0)), poly);
+            bldg_batch.push(color, poly);
         }*/
 
         DrawBuilding { id: bldg.id, label }

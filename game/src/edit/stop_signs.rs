@@ -5,8 +5,8 @@ use crate::game::{State, Transition};
 use crate::render::DrawIntersection;
 use abstutil::Timer;
 use ezgui::{
-    hotkey, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Text, TextExt, VerticalAlignment, Widget,
+    hotkey, Btn, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::Polygon;
 use map_model::{
@@ -181,19 +181,13 @@ impl State for StopSignEditor {
         for (r, (octagon, pole)) in &self.geom {
             // The intersection will already draw enabled stop signs
             if Some(*r) == self.selected_sign {
-                batch.push(
-                    app.cs.get_def("selected stop sign", Color::BLUE),
-                    octagon.clone(),
-                );
+                batch.push(app.cs.perma_selected_object, octagon.clone());
                 if !sign.roads[r].must_stop {
-                    batch.push(app.cs.get("stop sign pole").alpha(0.6), pole.clone());
+                    batch.push(app.cs.stop_sign_pole.alpha(0.6), pole.clone());
                 }
             } else if !sign.roads[r].must_stop {
-                batch.push(
-                    app.cs.get("stop sign on side of road").alpha(0.6),
-                    octagon.clone(),
-                );
-                batch.push(app.cs.get("stop sign pole").alpha(0.6), pole.clone());
+                batch.push(app.cs.stop_sign.alpha(0.6), octagon.clone());
+                batch.push(app.cs.stop_sign_pole.alpha(0.6), pole.clone());
             }
         }
 
@@ -204,7 +198,7 @@ impl State for StopSignEditor {
             let mut osd = Text::new();
             osd.add_appended(vec![
                 Line("Stop sign for "),
-                Line(app.primary.map.get_r(r).get_name()).fg(app.cs.get("OSD name color")),
+                Line(app.primary.map.get_r(r).get_name()).fg(app.cs.bottom_bar_name),
             ]);
             CommonState::draw_custom_osd(g, app, osd);
         } else {

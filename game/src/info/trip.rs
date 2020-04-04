@@ -203,12 +203,12 @@ fn make_timeline(
     let mut elevation = Vec::new();
     for (idx, p) in phases.into_iter().enumerate() {
         let color = match p.phase_type {
-            TripPhaseType::Driving => Color::hex("#D63220"),
-            TripPhaseType::Walking => Color::hex("#DF8C3D"),
-            TripPhaseType::Biking => app.cs.get("bike lane"),
-            TripPhaseType::Parking => Color::hex("#4E30A6"),
-            TripPhaseType::WaitingForBus(_, _) => app.cs.get("bus stop marking"),
-            TripPhaseType::RidingBus(_, _, _) => app.cs.get("bus lane"),
+            TripPhaseType::Driving => app.cs.unzoomed_car,
+            TripPhaseType::Walking => app.cs.unzoomed_pedestrian,
+            TripPhaseType::Biking => app.cs.bike_lane,
+            TripPhaseType::Parking => app.cs.parking_trip,
+            TripPhaseType::WaitingForBus(_, _) => app.cs.bus_stop,
+            TripPhaseType::RidingBus(_, _, _) => app.cs.bus_lane,
             TripPhaseType::Aborted | TripPhaseType::Finished => unreachable!(),
         }
         .alpha(0.7);

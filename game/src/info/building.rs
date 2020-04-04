@@ -165,14 +165,10 @@ fn header(
             )
             .map(|obj| obj.get_outline(&app.primary.map))
         {
-            details.unzoomed.push(
-                app.cs.get("something associated with something else"),
-                shape.clone(),
-            );
-            details.zoomed.push(
-                app.cs.get("something associated with something else"),
-                shape,
-            );
+            details
+                .unzoomed
+                .push(app.cs.associated_object, shape.clone());
+            details.zoomed.push(app.cs.associated_object, shape);
         }
     }
 

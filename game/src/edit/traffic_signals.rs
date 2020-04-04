@@ -240,31 +240,22 @@ impl State for TrafficSignalEditor {
 
         for g in &self.groups {
             if Some(g.id) == self.group_selected {
-                batch.push(
-                    app.cs.get_def("solid selected", Color::RED),
-                    g.block.clone(),
-                );
+                batch.push(app.cs.selected, g.block.clone());
                 // Overwrite the original thing
                 batch.push(
-                    app.cs.get("solid selected"),
+                    app.cs.selected,
                     signal.turn_groups[&g.id]
                         .geom
                         .make_arrow(BIG_ARROW_THICKNESS)
                         .unwrap(),
                 );
             } else {
-                batch.push(
-                    app.cs.get_def("turn block background", Color::grey(0.6)),
-                    g.block.clone(),
-                );
+                batch.push(app.cs.signal_turn_block_bg, g.block.clone());
             }
             let arrow_color = match phase.get_priority_of_group(g.id) {
-                TurnPriority::Protected => app.cs.get("turn protected by traffic signal"),
-                TurnPriority::Yield => app
-                    .cs
-                    .get("turn that can yield by traffic signal")
-                    .alpha(1.0),
-                TurnPriority::Banned => app.cs.get_def("turn not in current phase", Color::BLACK),
+                TurnPriority::Protected => app.cs.signal_protected_turn,
+                TurnPriority::Yield => app.cs.signal_permitted_turn.alpha(1.0),
+                TurnPriority::Banned => app.cs.signal_banned_turn,
             };
             batch.push(arrow_color, g.arrow.clone());
         }

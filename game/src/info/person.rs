@@ -210,12 +210,11 @@ pub fn parked_car(ctx: &EventCtx, app: &App, details: &mut Details, id: CarID) -
     if let Some(b) = app.primary.sim.get_owner_of_car(id) {
         // TODO Mention this, with a warp tool
         details.unzoomed.push(
-            app.cs
-                .get_def("something associated with something else", Color::PURPLE),
+            app.cs.associated_object,
             app.primary.draw_map.get_b(b).get_outline(&app.primary.map),
         );
         details.zoomed.push(
-            app.cs.get("something associated with something else"),
+            app.cs.associated_object,
             app.primary.draw_map.get_b(b).get_outline(&app.primary.map),
         );
     }

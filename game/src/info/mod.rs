@@ -264,19 +264,19 @@ impl InfoPanel {
                     let bounds = outline.get_bounds();
                     let radius = multiplier * Distance::meters(bounds.width().max(bounds.height()));
                     details.unzoomed.push(
-                        app.cs.get_def("current object", Color::WHITE).alpha(0.5),
+                        app.cs.current_object.alpha(0.5),
                         Circle::new(bounds.center(), radius).to_polygon(),
                     );
                     details.unzoomed.push(
-                        app.cs.get("current object"),
+                        app.cs.current_object,
                         Circle::outline(bounds.center(), radius, Distance::meters(0.3)),
                     );
                     details.zoomed.push(
-                        app.cs.get("current object").alpha(0.5),
+                        app.cs.current_object.alpha(0.5),
                         Circle::new(bounds.center(), radius).to_polygon(),
                     );
                     details.zoomed.push(
-                        app.cs.get("current object"),
+                        app.cs.current_object,
                         Circle::outline(bounds.center(), radius, Distance::meters(0.3)),
                     );
 
@@ -284,13 +284,10 @@ impl InfoPanel {
                     // conducive to doing this yet.
                 }
                 _ => {
-                    details.unzoomed.push(
-                        app.cs.get_def("perma selected thing", Color::BLUE),
-                        outline.clone(),
-                    );
                     details
-                        .zoomed
-                        .push(app.cs.get("perma selected thing"), outline);
+                        .unzoomed
+                        .push(app.cs.perma_selected_object, outline.clone());
+                    details.zoomed.push(app.cs.perma_selected_object, outline);
                 }
             }
         }

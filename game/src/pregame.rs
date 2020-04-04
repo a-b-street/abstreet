@@ -35,7 +35,7 @@ impl TitleScreen {
                             .build(ctx, "start game", hotkeys(vec![Key::Space, Key::Enter]))
                             .margin(5),
                     ])
-                    .bg(app.cs.get("grass"))
+                    .bg(app.cs.grass)
                     .outline(3.0, Color::BLACK)
                     .centered(),
                 )

@@ -176,7 +176,7 @@ impl State for LaneEditor {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.draw_polygon(
-            app.cs.get("perma selected thing"),
+            app.cs.perma_selected_object,
             &app.primary
                 .draw_map
                 .get_l(self.l)

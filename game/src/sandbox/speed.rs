@@ -584,9 +584,9 @@ impl TimePanel {
                         if percent != 0.0 {
                             batch.push(
                                 if percent < 0.25 || percent > 0.75 {
-                                    app.cs.get_def("night time", Color::hex("#12409D"))
+                                    app.cs.night_time_slider
                                 } else {
-                                    app.cs.get_def("day time", Color::hex("#F4DA22"))
+                                    app.cs.day_time_slider
                                 },
                                 Polygon::rectangle(percent * width, height),
                             );

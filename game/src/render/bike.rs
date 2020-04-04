@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable};
-use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
+use ezgui::{Drawable, GeomBatch, GfxCtx, Prerender};
 use geom::{Circle, Distance, Line, PolyLine, Polygon};
 use map_model::{Map, SIDEWALK_THICKNESS};
 use sim::{CarID, DrawCarInput};
@@ -29,7 +29,7 @@ impl DrawBike {
         let body_radius = SIDEWALK_THICKNESS / 4.0;
         let body_color = cs.rotating_color_agents(input.id.0);
         draw_default.push(
-            cs.get_def("bike frame", Color::rgb(0, 128, 128)),
+            cs.bike_frame,
             input.body.make_polygons(Distance::meters(0.4)),
         );
 
@@ -37,7 +37,7 @@ impl DrawBike {
         let body_circle = Circle::new(body_pos, body_radius);
         draw_default.push(body_color, body_circle.to_polygon());
         draw_default.push(
-            cs.get("pedestrian head"),
+            cs.ped_head,
             Circle::new(body_pos, 0.5 * body_radius).to_polygon(),
         );
 
@@ -45,7 +45,7 @@ impl DrawBike {
             // Handlebars
             let (hand_pos, hand_angle) = input.body.dist_along(0.9 * input.body.length());
             draw_default.push(
-                cs.get("bike frame"),
+                cs.bike_frame,
                 Line::new(
                     hand_pos.project_away(body_radius, hand_angle.rotate_degs(90.0)),
                     hand_pos.project_away(body_radius, hand_angle.rotate_degs(-90.0)),
