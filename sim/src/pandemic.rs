@@ -204,6 +204,7 @@ impl PandemicModel {
                 SEIR::get_transition_time_uncertainty_from(SEIR::Infectious),
             ) {
                 self.transition_to_recovered(now, person, scheduler);
+                // TODO add an else if with hospitalized
             } else {
                 // We rather store the last moment
                 self.stay_infected(t0, now, person, scheduler);
@@ -216,8 +217,8 @@ impl PandemicModel {
             if self.infection_occurs(
                 last_check,
                 now,
-                t0 + SEIR::get_transition_time_from(SEIR::Infectious),
-                SEIR::get_transition_time_uncertainty_from(SEIR::Infectious),
+                t0 + SEIR::get_transition_time_from(SEIR::Exposed),
+                SEIR::get_transition_time_uncertainty_from(SEIR::Exposed),
             ) {
                 self.transition_to_infected(now, person, scheduler);
             } else {
