@@ -42,21 +42,16 @@ impl SpeedControls {
         let mut row = Vec::new();
         row.push(
             if paused {
-                Btn::svg_def("../data/system/assets/speed/triangle.svg").build(
-                    ctx,
-                    "play",
-                    hotkey(Key::Space),
-                )
+                Btn::svg_def("../data/system/assets/speed/triangle.svg")
+                    .pad(9)
+                    .build(ctx, "play", hotkey(Key::Space))
             } else {
-                Btn::svg_def("../data/system/assets/speed/pause.svg").build(
-                    ctx,
-                    "pause",
-                    hotkey(Key::Space),
-                )
+                Btn::svg_def("../data/system/assets/speed/pause.svg")
+                    .pad(9)
+                    .build(ctx, "pause", hotkey(Key::Space))
             }
-            .margin(5)
-            .centered_vert()
-            .bg(app.cs.section_bg),
+            .bg(app.cs.section_bg)
+            .margin_right(16),
         );
 
         row.push(
@@ -79,65 +74,62 @@ impl SpeedControls {
                         } else {
                             RewriteColor::ChangeAll(Color::WHITE.alpha(0.2))
                         })
+                        .pad(3)
                         .tooltip(txt)
                         .build(ctx, label, None)
-                        .margin(5)
                 })
                 .collect(),
             )
             .bg(app.cs.section_bg)
-            .centered(),
+            .centered()
+            .padding(6)
+            .margin_right(16),
         );
 
         row.push(
-            Widget::row(
-                vec![
-                    Btn::custom(
-                        Text::from(Line("+1h").fg(Color::WHITE)).render_ctx(ctx),
-                        Text::from(Line("+1h").fg(app.cs.hovering)).render_ctx(ctx),
-                        {
-                            let dims = Text::from(Line("+1h")).render_ctx(ctx).get_dims();
-                            Polygon::rectangle(dims.width, dims.height)
-                        },
-                    )
-                    .build(ctx, "step forwards 1 hour", hotkey(Key::N)),
-                    Btn::custom(
-                        Text::from(Line("+0.1s").fg(Color::WHITE)).render_ctx(ctx),
-                        Text::from(Line("+0.1s").fg(app.cs.hovering)).render_ctx(ctx),
-                        {
-                            let dims = Text::from(Line("+0.1s")).render_ctx(ctx).get_dims();
-                            Polygon::rectangle(dims.width, dims.height)
-                        },
-                    )
-                    .build(ctx, "step forwards 0.1 seconds", hotkey(Key::M)),
-                    Btn::svg_def("../data/system/assets/speed/jump_to_time.svg").build(
-                        ctx,
-                        "jump to specific time",
-                        hotkey(Key::B),
-                    ),
-                    Btn::svg_def("../data/system/assets/speed/reset.svg").build(
-                        ctx,
-                        "reset to midnight",
-                        hotkey(Key::X),
-                    ),
-                ]
-                .into_iter()
-                .map(|x| x.margin(5))
-                .collect(),
-            )
+            Widget::row(vec![
+                Btn::custom(
+                    Text::from(Line("+1h").fg(Color::WHITE)).render_ctx(ctx),
+                    Text::from(Line("+1h").fg(app.cs.hovering)).render_ctx(ctx),
+                    {
+                        let dims = Text::from(Line("+1h")).render_ctx(ctx).get_dims();
+                        Polygon::rectangle(dims.width, dims.height)
+                    },
+                )
+                .build(ctx, "step forwards 1 hour", hotkey(Key::N)),
+                Btn::custom(
+                    Text::from(Line("+0.1s").fg(Color::WHITE)).render_ctx(ctx),
+                    Text::from(Line("+0.1s").fg(app.cs.hovering)).render_ctx(ctx),
+                    {
+                        let dims = Text::from(Line("+0.1s")).render_ctx(ctx).get_dims();
+                        Polygon::rectangle(dims.width, dims.height)
+                    },
+                )
+                .build(ctx, "step forwards 0.1 seconds", hotkey(Key::M)),
+            ])
             .bg(app.cs.section_bg)
-            .centered(),
+            .margin_right(16),
+        );
+
+        row.push(
+            Widget::row(vec![
+                Btn::svg_def("../data/system/assets/speed/jump_to_time.svg")
+                    .pad(9)
+                    .build(ctx, "jump to specific time", hotkey(Key::B)),
+                Btn::svg_def("../data/system/assets/speed/reset.svg")
+                    .pad(9)
+                    .build(ctx, "reset to midnight", hotkey(Key::X)),
+            ])
+            .bg(app.cs.section_bg),
         );
 
         WrappedComposite::new(
-            Composite::new(
-                Widget::row(row.into_iter().map(|x| x.margin(5)).collect()).bg(app.cs.panel_bg),
-            )
-            .aligned(
-                HorizontalAlignment::Center,
-                VerticalAlignment::BottomAboveOSD,
-            )
-            .build(ctx),
+            Composite::new(Widget::row(row).bg(app.cs.panel_bg).padding(16))
+                .aligned(
+                    HorizontalAlignment::Center,
+                    VerticalAlignment::BottomAboveOSD,
+                )
+                .build(ctx),
         )
         .cb(
             "step forwards 0.1 seconds",
@@ -592,10 +584,12 @@ impl TimePanel {
             time: app.primary.sim.time(),
             composite: Composite::new(
                 Widget::col(vec![
-                    Text::from(Line(app.primary.sim.time().ampm_tostring()).big_heading_styled())
-                        .draw(ctx)
-                        .margin(10)
-                        .centered_horiz(),
+                    Text::from(
+                        Line(app.primary.sim.time().ampm_tostring_spacers()).big_heading_styled(),
+                    )
+                    .draw(ctx)
+                    .margin(10)
+                    .centered_horiz(),
                     {
                         let mut batch = GeomBatch::new();
                         // This is manually tuned

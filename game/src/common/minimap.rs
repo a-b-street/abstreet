@@ -340,7 +340,6 @@ fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
             )
         })
         .bg(app.cs.inner_panel)
-        .padding(9)
         .margin_below(16),
         Btn::svg_def("../data/system/assets/tools/layers.svg")
             .build(ctx, "change overlay", hotkey(Key::L))
@@ -349,17 +348,14 @@ fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
             } else {
                 app.cs.hovering
             })
-            .padding(9)
             .margin_below(16),
         Btn::svg_def("../data/system/assets/tools/search.svg")
             .build(ctx, "search", hotkey(Key::K))
             .bg(app.cs.inner_panel)
-            .padding(9)
             .margin_below(16),
         Btn::svg_def("../data/system/assets/tools/shortcuts.svg")
             .build(ctx, "shortcuts", hotkey(Key::SingleQuote))
-            .bg(app.cs.inner_panel)
-            .padding(9),
+            .bg(app.cs.inner_panel),
     ])
 }
 

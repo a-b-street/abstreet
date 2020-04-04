@@ -96,6 +96,7 @@ impl Widget {
         self
     }
 
+    // TODO Alright, this seems to not work on JustDraw's (or at least SVGs).
     pub fn padding(mut self, pixels: usize) -> Widget {
         self.layout.style.padding = Rect {
             start: Dimension::Points(pixels as f32),
