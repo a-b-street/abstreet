@@ -21,6 +21,7 @@ pub struct PandemicModel {
     pub infected: BTreeMap<PersonID, (Time, Time)>,
     pub recovered: BTreeSet<PersonID>,
     hospitalized: BTreeSet<PersonID>,
+    quarantined: BTreeSet<PersonID>,
 
     bldgs: SharedSpace<BuildingID>,
     bus_stops: SharedSpace<BusStopID>,
@@ -35,6 +36,7 @@ pub struct PandemicModel {
 #[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Debug)]
 pub enum Cmd {
     BecomeHospitalized(PersonID),
+    BecomeQuarantined(PersonID),
 }
 
 // TODO Pretend handle_event and handle_cmd also take in some object that lets you do things like:
@@ -52,6 +54,7 @@ impl PandemicModel {
             exposed: BTreeMap::new(),
             infected: BTreeMap::new(),
             hospitalized: BTreeSet::new(),
+            quarantined: BTreeSet::new(),
             recovered: BTreeSet::new(),
 
             bldgs: SharedSpace::new(),
@@ -158,6 +161,9 @@ impl PandemicModel {
         match cmd {
             Cmd::BecomeHospitalized(person) => {
                 self.hospitalized.insert(person);
+            }
+            Cmd::BecomeQuarantined(person) => {
+                self.quarantined.insert(person);
             }
         }
     }
@@ -297,7 +303,7 @@ impl PandemicModel {
     //             .gen_range(low.inner_seconds(), high.inner_seconds()),
     //     )
     // }
-}
+    }
 
 #[derive(Clone)]
 struct SharedSpace<T: Ord> {
