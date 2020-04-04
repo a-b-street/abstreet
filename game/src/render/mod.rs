@@ -13,7 +13,8 @@ mod traffic_signal;
 mod turn;
 
 use crate::app::App;
-use crate::helpers::{ColorScheme, ID};
+use crate::colors::ColorScheme;
+use crate::helpers::ID;
 use crate::render::bike::DrawBike;
 use crate::render::car::DrawCar;
 pub use crate::render::extra_shape::ExtraShapeID;

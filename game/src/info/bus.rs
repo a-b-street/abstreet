@@ -1,6 +1,5 @@
 use crate::app::App;
-use crate::colors;
-use crate::helpers::{rotating_color_map, ID};
+use crate::helpers::ID;
 use crate::info::{header_btns, make_table, make_tabs, Details, Tab};
 use ezgui::{
     Btn, Color, EventCtx, GeomBatch, Line, Plot, PlotOptions, RewriteColor, Series, Text, TextExt,
@@ -130,7 +129,7 @@ fn delays_over_time(ctx: &mut EventCtx, app: &App, id: BusRouteID) -> Widget {
         };
         series.push(Series {
             label: format!("Stop {}->{}", idx1 + 1, idx2 + 1),
-            color: rotating_color_map(idx1),
+            color: app.cs.rotating_color_map(idx1),
             pts: delays_per_stop
                 .remove(&route.stops[idx2])
                 .unwrap_or_else(Vec::new),
@@ -157,7 +156,7 @@ fn passenger_delay(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Bus
             format!("Stop {}", idx + 1).draw_text(ctx),
             Btn::svg(
                 "../data/system/assets/tools/pin.svg",
-                RewriteColor::Change(Color::hex("#CC4121"), colors::HOVERING),
+                RewriteColor::Change(Color::hex("#CC4121"), app.cs.hovering),
             )
             .build(ctx, format!("Stop {}", idx + 1), None),
             if let Some(hgram) = delay_per_stop.remove(&route.stops[idx]) {
@@ -178,7 +177,10 @@ fn passenger_delay(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Bus
 
     let y_len = ctx.default_line_height() * (route.stops.len() as f64);
     let mut batch = GeomBatch::new();
-    batch.push(Color::CYAN, Polygon::rounded_rectangle(15.0, y_len, 4.0));
+    batch.push(
+        Color::CYAN,
+        Polygon::rounded_rectangle(15.0, y_len, Some(4.0)),
+    );
     for (_, stop_idx, percent_next_stop) in app.primary.sim.status_of_buses(route.id) {
         // TODO Line it up right in the middle of the line of text. This is probably a bit
         // wrong.

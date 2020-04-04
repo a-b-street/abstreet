@@ -10,6 +10,11 @@ use geom::{Circle, Distance, Polygon, Pt2D};
 use map_model::{Map, NeighborhoodBuilder};
 
 const POINT_RADIUS: Distance = Distance::const_meters(10.0);
+// Localized and internal, so don't put in ColorScheme.
+const POINT_COLOR: Color = Color::RED;
+const POLYGON_COLOR: Color = Color::BLUE.alpha(0.6);
+const POINT_TO_MOVE: Color = Color::CYAN;
+const LAST_PLACED_POINT: Color = Color::GREEN;
 
 // This shouldn't get subsumed by WizardState, since it has such an interesting draw().
 pub struct NeighborhoodPicker {
@@ -33,6 +38,7 @@ impl State for NeighborhoodPicker {
             return Transition::Push(Box::new(NeighborhoodEditor {
                 composite: WrappedComposite::quick_menu(
                     ctx,
+                    app,
                     format!("Neighborhood Editor for {}", n.name),
                     vec![],
                     vec![
@@ -55,7 +61,7 @@ impl State for NeighborhoodPicker {
         self.wizard.draw(g);
         if let Some(neighborhood) = self.wizard.current_menu_choice::<NeighborhoodBuilder>() {
             g.draw_polygon(
-                app.cs.get("neighborhood polygon"),
+                POLYGON_COLOR,
                 &Polygon::new(
                     &app.primary
                         .map
@@ -156,26 +162,21 @@ impl State for NeighborhoodEditor {
 
         if pts.len() == 2 {
             g.draw_line(
-                app.cs.get_def("neighborhood point", Color::RED),
+                POINT_COLOR,
                 POINT_RADIUS / 2.0,
                 &geom::Line::new(pts[0], pts[1]),
             );
         }
         if pts.len() >= 3 {
-            g.draw_polygon(
-                app.cs
-                    .get_def("neighborhood polygon", Color::BLUE.alpha(0.6)),
-                &Polygon::new(&pts),
-            );
+            g.draw_polygon(POLYGON_COLOR, &Polygon::new(&pts));
         }
         for (idx, pt) in pts.iter().enumerate() {
             let color = if Some(idx) == self.mouseover_pt {
-                app.cs.get_def("neighborhood point to move", Color::CYAN)
+                POINT_TO_MOVE
             } else if idx == pts.len() - 1 {
-                app.cs
-                    .get_def("neighborhood last placed point", Color::GREEN)
+                LAST_PLACED_POINT
             } else {
-                app.cs.get("neighborhood point")
+                POINT_COLOR
             };
             g.draw_circle(color, &Circle::new(*pt, POINT_RADIUS / g.canvas.cam_zoom));
         }

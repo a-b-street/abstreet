@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::colors;
 use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use crate::helpers::{cmp_count_fewer, cmp_count_more, cmp_duration_shorter};
@@ -53,8 +52,8 @@ pub fn make(ctx: &mut EventCtx, app: &App, tab: Tab) -> Box<dyn State> {
             Btn::svg_def("../data/system/assets/pregame/back.svg")
                 .build(ctx, "back", hotkey(Key::Escape))
                 .align_left(),
-            Widget::row(tabs).bg(colors::PANEL_BG),
-            content.bg(colors::PANEL_BG),
+            Widget::row(tabs).bg(app.cs.panel_bg),
+            content.bg(app.cs.panel_bg),
         ]))
         // TODO Want to use exact, but then scrolling breaks. exact_size_percent will fix the
         // jumpiness though.
@@ -130,7 +129,11 @@ fn trips_summary_prebaked(ctx: &EventCtx, app: &App) -> Widget {
         let a = &now_per_mode[&mode];
         let b = &baseline_per_mode[&mode];
         txt.add_appended(vec![
-            Line(format!("{} {} trips (", prettyprint_usize(a.count()), mode)),
+            Line(format!(
+                "{} trips {} (",
+                prettyprint_usize(a.count()),
+                mode.ongoing_verb()
+            )),
             cmp_count_more(a.count(), b.count()),
             Line(")"),
         ]);
@@ -145,7 +148,7 @@ fn trips_summary_prebaked(ctx: &EventCtx, app: &App) -> Widget {
 
     Widget::col(vec![
         txt.draw(ctx),
-        finished_trips_plot(ctx, app).bg(colors::SECTION_BG),
+        finished_trips_plot(ctx, app).bg(app.cs.section_bg),
         "Are trips faster or slower than the baseline?".draw_text(ctx),
         Histogram::new(
             app.primary
@@ -154,7 +157,7 @@ fn trips_summary_prebaked(ctx: &EventCtx, app: &App) -> Widget {
                 .trip_time_deltas(app.primary.sim.time(), app.prebaked()),
             ctx,
         )
-        .bg(colors::SECTION_BG),
+        .bg(app.cs.section_bg),
         Line("Active agents").small_heading().draw(ctx),
         Plot::new(
             ctx,
@@ -209,9 +212,9 @@ fn trips_summary_not_prebaked(ctx: &EventCtx, app: &App) -> Widget {
     for mode in TripMode::all() {
         let a = &per_mode[&mode];
         txt.add(Line(format!(
-            "{} {} trips",
+            "{} trips {}",
             prettyprint_usize(a.count()),
-            mode
+            mode.ongoing_verb()
         )));
         if a.count() > 0 {
             for stat in Statistic::all() {
@@ -222,7 +225,7 @@ fn trips_summary_not_prebaked(ctx: &EventCtx, app: &App) -> Widget {
 
     Widget::col(vec![
         txt.draw(ctx),
-        finished_trips_plot(ctx, app).bg(colors::SECTION_BG),
+        finished_trips_plot(ctx, app).bg(app.cs.section_bg),
         Line("Active agents").small_heading().draw(ctx),
         Plot::new(
             ctx,
@@ -243,7 +246,13 @@ fn trips_summary_not_prebaked(ctx: &EventCtx, app: &App) -> Widget {
 fn finished_trips_plot(ctx: &EventCtx, app: &App) -> Widget {
     let mut lines: Vec<(String, Color, Option<TripMode>)> = TripMode::all()
         .into_iter()
-        .map(|m| (m.to_string(), color_for_mode(m, app), Some(m)))
+        .map(|m| {
+            (
+                m.ongoing_verb().to_string(),
+                color_for_mode(m, app),
+                Some(m),
+            )
+        })
         .collect();
     lines.push(("aborted".to_string(), Color::PURPLE.alpha(0.5), None));
 
@@ -352,9 +361,9 @@ fn pick_bus_route(ctx: &EventCtx, app: &App) -> (Widget, Vec<(String, Callback)>
 // TODO Refactor
 fn color_for_mode(m: TripMode, app: &App) -> Color {
     match m {
-        TripMode::Walk => app.cs.get("unzoomed pedestrian"),
-        TripMode::Bike => app.cs.get("unzoomed bike"),
-        TripMode::Transit => app.cs.get("unzoomed bus"),
-        TripMode::Drive => app.cs.get("unzoomed car"),
+        TripMode::Walk => app.cs.unzoomed_pedestrian,
+        TripMode::Bike => app.cs.unzoomed_bike,
+        TripMode::Transit => app.cs.unzoomed_bus,
+        TripMode::Drive => app.cs.unzoomed_car,
     }
 }

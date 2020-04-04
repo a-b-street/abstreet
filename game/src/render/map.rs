@@ -1,5 +1,6 @@
 use crate::app::{App, Flags};
-use crate::helpers::{ColorScheme, ID};
+use crate::colors::ColorScheme;
+use crate::helpers::ID;
 use crate::render::area::DrawArea;
 use crate::render::building::DrawBuilding;
 use crate::render::bus_stop::DrawBusStop;
@@ -67,12 +68,12 @@ impl DrawMap {
                 osm_rank_to_color(cs, r.get_rank()),
                 r.get_thick_polygon(map).get(timer),
             );
-            if false {
+            /*if false {
                 all_roads.push(
-                    cs.get_def("unzoomed outline", Color::BLACK),
+                    color,
                     roads[r.id.0].get_outline(map),
                 );
-            }
+            }*/
         }
         let draw_all_thick_roads = all_roads.upload(ctx);
         timer.stop("generate thick roads");
@@ -113,17 +114,14 @@ impl DrawMap {
             // regenerate this
             if i.is_stop_sign() {
                 all_intersections.push(osm_rank_to_color(cs, i.get_rank(map)), i.polygon.clone());
-                if false {
-                    all_intersections.push(
-                        cs.get("unzoomed outline"),
-                        intersections[i.id.0].get_outline(map),
-                    );
-                }
-            } else {
+            /*if false {
                 all_intersections.push(
-                    cs.get_def("unzoomed interesting intersection", Color::BLACK),
-                    i.polygon.clone(),
+                    color,
+                    intersections[i.id.0].get_outline(map),
                 );
+            }*/
+            } else {
+                all_intersections.push(cs.unzoomed_interesting_intersection, i.polygon.clone());
             }
         }
         let draw_all_unzoomed_intersections = all_intersections.upload(ctx);
@@ -209,7 +207,7 @@ impl DrawMap {
         timer.stop("upload all areas");
 
         let boundary_polygon = ctx.prerender.upload(GeomBatch::from(vec![(
-            cs.get_def("map background", Color::grey(0.87)),
+            cs.map_background,
             map.get_boundary_polygon().clone(),
         )]));
 
@@ -448,16 +446,6 @@ impl AgentCache {
     }
 }
 
-fn osm_rank_to_color(cs: &ColorScheme, rank: usize) -> Color {
-    if rank >= 16 {
-        cs.get_def("unzoomed highway road", Color::rgb(232, 146, 162))
-    } else if rank >= 6 {
-        cs.get_def("unzoomed arterial road", Color::rgb(255, 199, 62))
-    } else {
-        cs.get_def("unzoomed residential road", Color::WHITE)
-    }
-}
-
 #[derive(PartialEq, Clone)]
 pub struct AgentColorScheme {
     // TODO Could consider specializing this more?
@@ -468,25 +456,12 @@ impl AgentColorScheme {
     pub fn new(cs: &ColorScheme) -> AgentColorScheme {
         AgentColorScheme {
             rows: vec![
+                ("Car".to_string(), cs.unzoomed_car.alpha(0.8), true),
+                ("Bike".to_string(), cs.unzoomed_bike.alpha(0.8), true),
+                ("Bus".to_string(), cs.unzoomed_bus.alpha(0.8), true),
                 (
-                    "car".to_string(),
-                    cs.get_def("unzoomed car", Color::hex("#A32015")).alpha(0.8),
-                    true,
-                ),
-                (
-                    "bike".to_string(),
-                    cs.get_def("unzoomed bike", Color::hex("#5D9630"))
-                        .alpha(0.8),
-                    true,
-                ),
-                (
-                    "bus".to_string(),
-                    cs.get_def("unzoomed bus", Color::hex("#12409D")).alpha(0.8),
-                    true,
-                ),
-                (
-                    "pedestrian".to_string(),
-                    cs.get_def("unzoomed pedestrian", Color::hex("#DF8C3D").alpha(0.8)),
+                    "Pedestrian".to_string(),
+                    cs.unzoomed_pedestrian.alpha(0.8),
                     true,
                 ),
             ],
@@ -505,10 +480,10 @@ impl AgentColorScheme {
 
     fn color(&self, agent: &UnzoomedAgent) -> Option<Color> {
         let category = match agent.vehicle_type {
-            Some(VehicleType::Car) => "car".to_string(),
-            Some(VehicleType::Bike) => "bike".to_string(),
-            Some(VehicleType::Bus) => "bus".to_string(),
-            None => "pedestrian".to_string(),
+            Some(VehicleType::Car) => "Car".to_string(),
+            Some(VehicleType::Bike) => "Bike".to_string(),
+            Some(VehicleType::Bus) => "Bus".to_string(),
+            None => "Pedestrian".to_string(),
         };
         for (name, color, enabled) in &self.rows {
             if name == &category {
@@ -519,5 +494,15 @@ impl AgentColorScheme {
             }
         }
         panic!("Unknown AgentColorScheme category {}", category);
+    }
+}
+
+fn osm_rank_to_color(cs: &ColorScheme, rank: usize) -> Color {
+    if rank >= 16 {
+        cs.unzoomed_highway
+    } else if rank >= 6 {
+        cs.unzoomed_arterial
+    } else {
+        cs.unzoomed_residential
     }
 }

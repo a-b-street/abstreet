@@ -71,10 +71,8 @@ impl Color {
         Color::rgb_f(f, f, f)
     }
 
-    pub fn alpha(&self, a: f32) -> Color {
-        let mut c = self.clone();
-        c.a = a;
-        c
+    pub const fn alpha(&self, a: f32) -> Color {
+        Color::rgba_f(self.r, self.g, self.b, a)
     }
 
     pub fn fade(&self, factor: f32) -> Color {

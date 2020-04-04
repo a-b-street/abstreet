@@ -1,8 +1,9 @@
 use crate::widgets::containers::{Container, Nothing};
 use crate::{
     Autocomplete, Btn, Button, Checkbox, Choice, Color, Drawable, Dropdown, EventCtx, Filler,
-    GeomBatch, GfxCtx, HorizontalAlignment, JustDraw, Menu, MultiKey, RewriteColor, ScreenDims,
-    ScreenPt, ScreenRectangle, Slider, Spinner, TextBox, VerticalAlignment, WidgetImpl,
+    GeomBatch, GfxCtx, HorizontalAlignment, JustDraw, Menu, MultiKey, PersistentSplit,
+    RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Slider, Spinner, TextBox,
+    VerticalAlignment, WidgetImpl,
 };
 use geom::{Distance, Polygon};
 use std::collections::HashSet;
@@ -24,8 +25,10 @@ pub struct Widget {
 
 struct LayoutStyle {
     bg_color: Option<Color>,
-    // (thickness, radius, color)
-    outline: Option<(f64, f64, Color)>,
+    // (thickness, color)
+    outline: Option<(f64, Color)>,
+    // If None, as round as possible
+    rounded_radius: Option<f64>,
     style: Style,
 }
 
@@ -60,6 +63,7 @@ impl Widget {
 
     // This one is really weird. percent_width should be LESS than the max_size_percent given to
     // the overall Composite, otherwise weird things happen.
+    // Only makes sense for rows/columns.
     pub fn flex_wrap(mut self, ctx: &EventCtx, percent_width: usize) -> Widget {
         self.layout.style.size = Size {
             width: Dimension::Points(
@@ -71,6 +75,12 @@ impl Widget {
         self.layout.style.justify_content = JustifyContent::SpaceAround;
         self
     }
+    // Only for rows/columns. Used to force table columns to line up.
+    pub fn force_width(mut self, ctx: &EventCtx, percent_width: usize) -> Widget {
+        self.layout.style.size.width =
+            Dimension::Points((ctx.canvas.window_width * (percent_width as f64) / 100.0) as f32);
+        self
+    }
 
     pub fn bg(mut self, color: Color) -> Widget {
         self.layout.bg_color = Some(color);
@@ -79,14 +89,15 @@ impl Widget {
 
     // Callers have to adjust padding too, probably
     pub fn outline(mut self, thickness: f64, color: Color) -> Widget {
-        self.layout.outline = Some((thickness, 5.0, color));
+        self.layout.outline = Some((thickness, color));
         self
     }
-    pub fn rounder_outline(mut self, thickness: f64, radius: f64, color: Color) -> Widget {
-        self.layout.outline = Some((thickness, radius, color));
+    pub fn fully_rounded(mut self) -> Widget {
+        self.layout.rounded_radius = None;
         self
     }
 
+    // TODO Alright, this seems to not work on JustDraw's (or at least SVGs).
     pub fn padding(mut self, pixels: usize) -> Widget {
         self.layout.style.padding = Rect {
             start: Dimension::Points(pixels as f32),
@@ -183,6 +194,7 @@ impl Widget {
             layout: LayoutStyle {
                 bg_color: None,
                 outline: None,
+                rounded_radius: Some(5.0),
                 style: Style {
                     ..Default::default()
                 },
@@ -242,9 +254,15 @@ impl Widget {
         default_value: T,
         choices: Vec<Choice<T>>,
     ) -> Widget {
-        Widget::new(Box::new(Dropdown::new(ctx, label, default_value, choices)))
-            .named(label)
-            .outline(2.0, Color::WHITE)
+        Widget::new(Box::new(Dropdown::new(
+            ctx,
+            label,
+            default_value,
+            choices,
+            false,
+        )))
+        .named(label)
+        .outline(2.0, Color::WHITE)
     }
 
     pub fn row(widgets: Vec<Widget>) -> Widget {
@@ -336,12 +354,15 @@ impl Widget {
         {
             let mut batch = GeomBatch::new();
             if let Some(c) = self.layout.bg_color {
-                batch.push(c, Polygon::rounded_rectangle(width, height, 5.0));
+                batch.push(
+                    c,
+                    Polygon::rounded_rectangle(width, height, self.layout.rounded_radius),
+                );
             }
-            if let Some((thickness, radius, color)) = self.layout.outline {
+            if let Some((thickness, color)) = self.layout.outline {
                 batch.push(
                     color,
-                    Polygon::rounded_rectangle(width, height, radius)
+                    Polygon::rounded_rectangle(width, height, self.layout.rounded_radius)
                         .to_outline(Distance::meters(thickness)),
                 );
             }
@@ -694,6 +715,9 @@ impl Composite {
 
     pub fn dropdown_value<T: 'static + PartialEq + Clone>(&self, name: &str) -> T {
         self.find::<Dropdown<T>>(name).current_value()
+    }
+    pub fn persistent_split_value<T: 'static + PartialEq + Clone>(&self, name: &str) -> T {
+        self.find::<PersistentSplit<T>>(name).current_value()
     }
 
     pub fn autocomplete_done<T: 'static + Clone>(&self, name: &str) -> Option<Vec<T>> {

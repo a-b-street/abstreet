@@ -1,7 +1,8 @@
 use crate::app::App;
-use crate::helpers::{ColorScheme, ID};
+use crate::colors::ColorScheme;
+use crate::helpers::ID;
 use crate::render::{dashed_lines, DrawOptions, Renderable};
-use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
+use ezgui::{Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Angle, Distance, Polygon, Pt2D};
 use map_model::{LaneType, Map, Road, RoadID};
 
@@ -24,12 +25,12 @@ impl DrawRoad {
             .iter()
             .all(|(_, lt)| *lt == LaneType::Parking || *lt == LaneType::Sidewalk)
         {
-            draw.push(cs.get("road center line"), center.make_polygons(width));
+            draw.push(cs.road_center_line, center.make_polygons(width));
         } else if r.children_forwards.is_empty()
             || r.children_forwards[0].1 != LaneType::SharedLeftTurn
         {
             draw.extend(
-                cs.get_def("road center line", Color::YELLOW),
+                cs.road_center_line,
                 dashed_lines(&center, width, Distance::meters(2.0), Distance::meters(1.0)),
             );
         }

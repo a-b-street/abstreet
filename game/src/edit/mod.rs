@@ -6,7 +6,6 @@ pub use self::lanes::LaneEditor;
 pub use self::stop_signs::StopSignEditor;
 pub use self::traffic_signals::TrafficSignalEditor;
 use crate::app::{App, ShowEverything};
-use crate::colors;
 use crate::common::{tool_panel, Colorer, CommonState, Overlays, Warping};
 use crate::debug::DebugMode;
 use crate::game::{msg, State, Transition, WizardState};
@@ -46,7 +45,7 @@ impl EditMode {
         let suspended_sim = app.primary.clear_sim();
         let edits = app.primary.map.get_edits();
         EditMode {
-            tool_panel: tool_panel(ctx),
+            tool_panel: tool_panel(ctx, app),
             composite: make_topcenter(ctx, app),
             mode,
             suspended_sim,
@@ -111,7 +110,7 @@ impl State for EditMode {
         }
 
         if app.opts.dev && ctx.input.new_was_pressed(&lctrl(Key::D).unwrap()) {
-            return Transition::Push(Box::new(DebugMode::new(ctx)));
+            return Transition::Push(Box::new(DebugMode::new(ctx, app)));
         }
 
         match self.composite.event(ctx) {
@@ -378,7 +377,7 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Composite {
                 .build_def(ctx, hotkey(Key::Escape))
                 .centered_horiz(),
         ])
-        .bg(colors::PANEL_BG),
+        .bg(app.cs.panel_bg),
     )
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
@@ -477,7 +476,7 @@ pub fn close_intersection(
         )],
     );
 
-    let color = app.cs.get("unreachable lane");
+    let color = Color::RED;
     let mut c = Colorer::new(Text::new(), vec![("", color)]);
     for l in disconnected {
         c.add_l(l, color, &app.primary.map);

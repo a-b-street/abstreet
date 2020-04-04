@@ -10,10 +10,11 @@ use ezgui::{hotkey, EventCtx, Key, Wizard};
 pub struct DevToolsMode;
 
 impl DevToolsMode {
-    pub fn new(ctx: &mut EventCtx) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         ManagedGUIState::over_map(
             WrappedComposite::new(WrappedComposite::quick_menu(
                 ctx,
+                app,
                 "Internal dev tools",
                 vec![],
                 vec![

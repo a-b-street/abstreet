@@ -46,7 +46,11 @@ fn main() {
     }
 
     if let Some(x) = args.optional("--color_scheme") {
-        opts.color_scheme = Some(format!("../data/system/{}", x));
+        // TODO Share names between the options Choice and here
+        opts.color_scheme = match x.as_ref() {
+            "night" => colors::ColorSchemeChoice::NightMode,
+            _ => panic!("Don't know --color_scheme={}. Valid values are: night", x),
+        }
     }
     let mut settings = ezgui::Settings::new("A/B Street", "../data/system/fonts");
     if args.enabled("--enable_profiler") {

@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::colors;
 use crate::common::{
     make_heatmap, ColorLegend, Colorer, HeatmapColors, HeatmapOptions, ShowBusRoute, Warping,
 };
@@ -97,16 +96,16 @@ impl Overlays {
         };
 
         match app.overlay {
-            Overlays::ParkingAvailability(_, ref mut heatmap)
-            | Overlays::BikeNetwork(ref mut heatmap)
-            | Overlays::BusNetwork(ref mut heatmap)
-            | Overlays::Elevation(ref mut heatmap, _)
-            | Overlays::WorstDelay(_, ref mut heatmap)
-            | Overlays::TrafficJams(_, ref mut heatmap)
-            | Overlays::CumulativeThroughput(_, ref mut heatmap)
-            | Overlays::Edits(ref mut heatmap) => {
-                heatmap.legend.align_above(ctx, minimap);
-                if heatmap.event(ctx) {
+            Overlays::ParkingAvailability(_, ref mut c)
+            | Overlays::BikeNetwork(ref mut c)
+            | Overlays::BusNetwork(ref mut c)
+            | Overlays::Elevation(ref mut c, _)
+            | Overlays::WorstDelay(_, ref mut c)
+            | Overlays::TrafficJams(_, ref mut c)
+            | Overlays::CumulativeThroughput(_, ref mut c)
+            | Overlays::Edits(ref mut c) => {
+                c.legend.align_above(ctx, minimap);
+                if c.event(ctx) {
                     app.overlay = Overlays::Inactive;
                 }
             }
@@ -178,31 +177,29 @@ impl Overlays {
         None
     }
 
+    // Draw both controls and, if zoomed, the overlay contents
     pub fn draw(&self, g: &mut GfxCtx) {
         match self {
             Overlays::Inactive => {}
-            Overlays::ParkingAvailability(_, ref heatmap)
-            | Overlays::BikeNetwork(ref heatmap)
-            | Overlays::BusNetwork(ref heatmap)
-            | Overlays::WorstDelay(_, ref heatmap)
-            | Overlays::TrafficJams(_, ref heatmap)
-            | Overlays::CumulativeThroughput(_, ref heatmap)
-            | Overlays::Edits(ref heatmap) => {
-                if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
-                    heatmap.draw(g);
-                }
+            Overlays::ParkingAvailability(_, ref c)
+            | Overlays::BikeNetwork(ref c)
+            | Overlays::BusNetwork(ref c)
+            | Overlays::WorstDelay(_, ref c)
+            | Overlays::TrafficJams(_, ref c)
+            | Overlays::CumulativeThroughput(_, ref c)
+            | Overlays::Edits(ref c) => {
+                c.draw(g);
             }
-            Overlays::Elevation(ref heatmap, ref draw) => {
-                // TODO Maybe this is still useful when zoomed in
+            Overlays::Elevation(ref c, ref draw) => {
+                c.draw(g);
                 if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
-                    heatmap.draw(g);
                     g.redraw(draw);
                 }
             }
             Overlays::PopulationMap(_, _, ref draw, ref composite) => {
+                composite.draw(g);
                 if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
                     g.redraw(draw);
-                    composite.draw(g);
                 }
             }
             // All of these shouldn't care about zoom
@@ -219,18 +216,31 @@ impl Overlays {
         }
     }
 
-    pub fn maybe_colorer(&self) -> Option<&Colorer> {
+    // Just draw contents and do it always
+    pub fn draw_minimap(&self, g: &mut GfxCtx) {
         match self {
-            Overlays::ParkingAvailability(_, ref heatmap)
-            | Overlays::BikeNetwork(ref heatmap)
-            | Overlays::BusNetwork(ref heatmap)
-            | Overlays::Elevation(ref heatmap, _)
-            | Overlays::WorstDelay(_, ref heatmap)
-            | Overlays::TrafficJams(_, ref heatmap)
-            | Overlays::CumulativeThroughput(_, ref heatmap)
-            | Overlays::Edits(ref heatmap) => Some(heatmap),
-            Overlays::BusRoute(_, _, ref s) => Some(&s.colorer),
-            _ => None,
+            Overlays::Inactive => {}
+            Overlays::ParkingAvailability(_, ref c)
+            | Overlays::BikeNetwork(ref c)
+            | Overlays::BusNetwork(ref c)
+            | Overlays::WorstDelay(_, ref c)
+            | Overlays::TrafficJams(_, ref c)
+            | Overlays::CumulativeThroughput(_, ref c)
+            | Overlays::Edits(ref c) => {
+                g.redraw(&c.unzoomed);
+            }
+            Overlays::Elevation(ref c, ref draw) => {
+                g.redraw(&c.unzoomed);
+                g.redraw(draw);
+            }
+            Overlays::PopulationMap(_, _, ref draw, _) => {
+                g.redraw(draw);
+            }
+            Overlays::TripsHistogram(_, _) => {}
+            Overlays::IntersectionDemand(_, _, _, _) => {}
+            Overlays::BusRoute(_, _, ref s) => {
+                s.draw(g);
+            }
         }
     }
 
@@ -281,7 +291,7 @@ impl Overlays {
                     Widget::row(choices.into_iter().map(|x| x.margin(5)).collect())
                         .flex_wrap(ctx, 30),
                 ])
-                .bg(colors::PANEL_BG)
+                .bg(app.cs.panel_bg)
                 .outline(10.0, Color::WHITE)
                 .padding(10),
             )
@@ -367,25 +377,6 @@ impl Overlays {
             }),
         );
         Some(Transition::Push(ManagedGUIState::over_map(c)))
-    }
-
-    // Only for those hidden when zoomed in
-    pub fn zoomed_name(&self) -> Option<&'static str> {
-        match self {
-            Overlays::Inactive => None,
-            Overlays::ParkingAvailability(_, _) => Some("parking availability"),
-            Overlays::WorstDelay(_, _) => Some("delay"),
-            Overlays::TrafficJams(_, _) => Some("traffic jams"),
-            Overlays::CumulativeThroughput(_, _) => Some("throughput"),
-            Overlays::BikeNetwork(_) => Some("bike network"),
-            Overlays::BusNetwork(_) => Some("bus network"),
-            Overlays::Elevation(_, _) => Some("elevation"),
-            Overlays::Edits(_) => Some("map edits"),
-            Overlays::PopulationMap(_, _, _, _) => Some("population map"),
-            Overlays::TripsHistogram(_, _) => None,
-            Overlays::IntersectionDemand(_, _, _, _) => None,
-            Overlays::BusRoute(_, _, _) => None,
-        }
     }
 }
 
@@ -731,7 +722,7 @@ impl Overlays {
                         ctx,
                     ),
                 ])
-                .bg(colors::PANEL_BG),
+                .bg(app.cs.panel_bg),
             )
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
             .build(ctx),
@@ -782,7 +773,7 @@ impl Overlays {
             app.primary.sim.time(),
             i,
             batch.upload(ctx),
-            Composite::new(Widget::col(col).bg(colors::PANEL_BG))
+            Composite::new(Widget::col(col).bg(app.cs.panel_bg))
                 .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
                 .build(ctx),
         )
@@ -1000,7 +991,7 @@ fn population_controls(
         }
     }
 
-    Composite::new(Widget::col(col).padding(5).bg(colors::PANEL_BG))
+    Composite::new(Widget::col(col).padding(5).bg(app.cs.panel_bg))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx)
 }

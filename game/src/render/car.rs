@@ -1,5 +1,6 @@
 use crate::app::App;
-use crate::helpers::{rotating_color_agents, ColorScheme, ID};
+use crate::colors::ColorScheme;
+use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Angle, Distance, PolyLine, Polygon, Pt2D};
@@ -62,7 +63,7 @@ impl DrawCar {
                             .dist_along(input.body.length() - Distance::meters(2.5));
 
                         draw_default.push(
-                            cs.get_def("turn arrow", Color::hex("#DF8C3D")),
+                            cs.turn_arrow,
                             PolyLine::new(vec![
                                 pos.project_away(arrow_len / 2.0, angle.rotate_degs(90.0)),
                                 pos.project_away(arrow_len / 2.0, angle.rotate_degs(-90.0)),
@@ -77,7 +78,7 @@ impl DrawCar {
                             .dist_along(input.body.length() - Distance::meters(2.5));
 
                         draw_default.push(
-                            cs.get("turn arrow"),
+                            cs.turn_arrow,
                             PolyLine::new(vec![
                                 pos.project_away(arrow_len / 2.0, angle.rotate_degs(-90.0)),
                                 pos.project_away(arrow_len / 2.0, angle.rotate_degs(90.0)),
@@ -96,7 +97,7 @@ impl DrawCar {
                 let window_length_gap = Distance::meters(0.2);
                 let window_thickness = Distance::meters(0.3);
                 draw_default.push(
-                    cs.get_def("brake light", Color::hex("#FF1300")),
+                    cs.brake_light,
                     thick_line_from_angle(
                         window_thickness,
                         CAR_WIDTH - window_length_gap * 2.0,
@@ -114,7 +115,7 @@ impl DrawCar {
             // TODO Would rotation make any sense? Or at least adjust position/size while turning.
             // Buses are a constant length, so hardcoding this is fine.
             draw_default.add_transformed(
-                Text::from(Line(line).fg(Color::rgb(249, 206, 24))).render_to_batch(prerender),
+                Text::from(Line(line).fg(cs.bus_label)).render_to_batch(prerender),
                 input.body.dist_along(Distance::meters(9.0)).0,
                 0.07,
                 Angle::ZERO,
@@ -168,11 +169,11 @@ fn thick_line_from_angle(
 
 fn zoomed_color_car(input: &DrawCarInput, cs: &ColorScheme) -> Color {
     if input.id.1 == VehicleType::Bus {
-        cs.get_def("bus", Color::rgb(50, 133, 117))
+        cs.bus_body
     } else {
         match input.status {
-            CarStatus::Moving => rotating_color_agents(input.id.0),
-            CarStatus::Parked => rotating_color_agents(input.id.0).fade(1.5),
+            CarStatus::Moving => cs.rotating_color_agents(input.id.0),
+            CarStatus::Parked => cs.rotating_color_agents(input.id.0).fade(1.5),
         }
     }
 }

@@ -22,7 +22,7 @@ impl ShowBusRoute {
 
         let mut txt = Text::from(Line(&route.name));
         txt.add(Line(format!("{} buses", bus_locations.len())));
-        let color = app.cs.get("unzoomed bus");
+        let color = app.cs.unzoomed_bus;
         let mut colorer = Colorer::new(txt, vec![("route", color)]);
         for (stop1, stop2) in
             route

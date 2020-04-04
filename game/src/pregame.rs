@@ -1,7 +1,6 @@
 use crate::abtest::setup::PickABTest;
 use crate::app::App;
 use crate::challenges::challenges_picker;
-use crate::colors;
 use crate::devtools::DevToolsMode;
 use crate::game::{State, Transition};
 use crate::managed::{Callback, ManagedGUIState, WrappedComposite, WrappedOutcome};
@@ -36,7 +35,7 @@ impl TitleScreen {
                             .build(ctx, "start game", hotkeys(vec![Key::Space, Key::Enter]))
                             .margin(5),
                     ])
-                    .bg(app.cs.get("grass"))
+                    .bg(app.cs.grass)
                     .outline(3.0, Color::BLACK)
                     .centered(),
                 )
@@ -83,7 +82,7 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         Widget::row(vec![
             Btn::svg(
                 "../data/system/assets/pregame/tutorial.svg",
-                RewriteColor::Change(Color::WHITE, colors::HOVERING),
+                RewriteColor::Change(Color::WHITE, app.cs.hovering),
             )
             .tooltip({
                 let mut txt = Text::tooltip(hotkey(Key::T), "Tutorial");
@@ -93,7 +92,7 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
             .build(ctx, "Tutorial", hotkey(Key::T)),
             Btn::svg(
                 "../data/system/assets/pregame/sandbox.svg",
-                RewriteColor::Change(Color::WHITE, colors::HOVERING),
+                RewriteColor::Change(Color::WHITE, app.cs.hovering),
             )
             .tooltip({
                 let mut txt = Text::tooltip(hotkey(Key::S), "Sandbox");
@@ -103,7 +102,7 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
             .build(ctx, "Sandbox mode", hotkey(Key::S)),
             Btn::svg(
                 "../data/system/assets/pregame/challenges.svg",
-                RewriteColor::Change(Color::WHITE, colors::HOVERING),
+                RewriteColor::Change(Color::WHITE, app.cs.hovering),
             )
             .tooltip({
                 let mut txt = Text::tooltip(hotkey(Key::C), "Challenges");
@@ -200,13 +199,13 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
     )
     .cb(
         "Community Proposals",
-        Box::new(|ctx, _| Some(Transition::Push(proposals_picker(ctx)))),
+        Box::new(|ctx, app| Some(Transition::Push(proposals_picker(ctx, app)))),
     );
     if app.opts.dev {
         c = c
             .cb(
                 "Internal Dev Tools",
-                Box::new(|ctx, _| Some(Transition::Push(DevToolsMode::new(ctx)))),
+                Box::new(|ctx, app| Some(Transition::Push(DevToolsMode::new(ctx, app)))),
             )
             .cb(
                 "Internal A/B Test Mode",
@@ -273,7 +272,7 @@ fn about(ctx: &mut EventCtx) -> Box<dyn State> {
     )
 }
 
-fn proposals_picker(ctx: &mut EventCtx) -> Box<dyn State> {
+fn proposals_picker(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
     let mut cbs: Vec<(String, Callback)> = Vec::new();
     let mut buttons: Vec<Widget> = Vec::new();
     for map_name in abstutil::list_all_objects(abstutil::path_all_maps()) {
@@ -319,11 +318,11 @@ fn proposals_picker(ctx: &mut EventCtx) -> Box<dyn State> {
                         "These are proposed changes to Seattle made by community members.",
                     ));
                     txt.add(Line("Contact dabreegster@gmail.com to add your idea here!"));
-                    txt.draw(ctx).centered_horiz().bg(colors::PANEL_BG)
+                    txt.draw(ctx).centered_horiz().bg(app.cs.panel_bg)
                 },
                 Widget::row(buttons)
                     .flex_wrap(ctx, 80)
-                    .bg(colors::PANEL_BG)
+                    .bg(app.cs.panel_bg)
                     .padding(10),
             ])
             .evenly_spaced(),

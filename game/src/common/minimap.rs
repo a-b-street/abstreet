@@ -1,14 +1,13 @@
 use crate::app::App;
-use crate::colors;
 use crate::common::{navigate, shortcuts, Overlays, Warping};
 use crate::game::Transition;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use abstutil::clamp;
 use ezgui::{
     hotkey, Btn, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, RewriteColor, ScreenDims, ScreenPt, Text, VerticalAlignment, Widget,
+    Line, Outcome, RewriteColor, ScreenDims, ScreenPt, VerticalAlignment, Widget,
 };
-use geom::{Circle, Distance, Polygon, Pt2D, Ring};
+use geom::{Distance, Polygon, Pt2D, Ring};
 
 // TODO Some of the math in here might assume map bound minimums start at (0, 0).
 pub struct Minimap {
@@ -190,9 +189,7 @@ impl Minimap {
         g.redraw(&app.primary.draw_map.draw_all_unzoomed_intersections);
         g.redraw(&app.primary.draw_map.draw_all_buildings);
         // Not the building paths
-        if let Some(ref c) = app.overlay.maybe_colorer() {
-            g.redraw(&c.unzoomed);
-        }
+        app.overlay.draw_minimap(g);
 
         let mut cache = app.primary.draw_map.agents.borrow_mut();
         cache.draw_unzoomed_agents(
@@ -242,66 +239,81 @@ impl Minimap {
 
 fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composite {
     if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
-        return Composite::new(make_viz_panel(ctx, app))
-            .aligned(
-                HorizontalAlignment::Right,
-                VerticalAlignment::BottomAboveOSD,
-            )
-            .build(ctx);
+        return Composite::new(Widget::row(vec![
+            make_tool_panel(ctx, app).align_right().margin_right(16),
+            make_vert_viz_panel(ctx, app).bg(app.cs.panel_bg).padding(7),
+        ]))
+        .aligned(
+            HorizontalAlignment::Right,
+            VerticalAlignment::BottomAboveOSD,
+        )
+        .build(ctx);
     }
+
+    let zoom_col = {
+        let mut col = vec![Btn::svg_def("../data/system/assets/speed/speed_up.svg")
+            .build(ctx, "zoom in", None)
+            .margin(12)];
+        for i in (0..=3).rev() {
+            let color = if zoom_lvl < i {
+                Color::WHITE.alpha(0.2)
+            } else {
+                Color::WHITE
+            };
+            let rect = Polygon::rectangle(20.0, 8.0);
+            col.push(
+                Btn::custom(
+                    GeomBatch::from(vec![(color, rect.clone())]),
+                    GeomBatch::from(vec![(app.cs.hovering, rect.clone())]),
+                    rect,
+                )
+                .build(ctx, format!("zoom to level {}", i + 1), None)
+                .margin(12),
+            );
+        }
+        col.push(
+            Btn::svg_def("../data/system/assets/speed/slow_down.svg")
+                .build(ctx, "zoom out", None)
+                .margin(12),
+        );
+        // The zoom column should start below the "pan up" arrow. But if we put it on the row with
+        // <, minimap, and > then it messes up the horizontal alignment of the pan up arrow.
+        // Also, double column to avoid the background color stretching to the bottom of the row.
+        Widget::col(vec![Widget::col(col).bg(app.cs.inner_panel)]).margin_above(26)
+    };
 
     let square_len = 0.15 * ctx.canvas.window_width;
-    let mut zoom_col =
-        vec![Btn::svg_def("../data/system/assets/speed/speed_up.svg").build(ctx, "zoom in", None)];
-    for i in (0..=3).rev() {
-        let color = if zoom_lvl < i {
-            Color::grey(0.2)
-        } else {
-            Color::WHITE
-        };
-        let rect = Polygon::rectangle(20.0, 8.0);
-        zoom_col.push(
-            Btn::custom(
-                GeomBatch::from(vec![(color, rect.clone())]),
-                GeomBatch::from(vec![(colors::HOVERING, rect.clone())]),
-                rect,
-            )
-            .build(ctx, format!("zoom to level {}", i + 1), None),
-        );
-    }
-    zoom_col.push(
-        Btn::svg_def("../data/system/assets/speed/slow_down.svg").build(ctx, "zoom out", None),
-    );
-
-    Composite::new(
+    let minimap_controls = Widget::col(vec![
+        Btn::svg_def("../data/system/assets/minimap/up.svg")
+            .build(ctx, "pan up", None)
+            .margin(5)
+            .centered_horiz(),
         Widget::row(vec![
-            Widget::col(zoom_col).margin(5).centered(),
-            Widget::col(vec![
-                Btn::svg_def("../data/system/assets/minimap/up.svg")
-                    .build(ctx, "pan up", None)
-                    .margin(5)
-                    .centered_horiz(),
-                Widget::row(vec![
-                    Btn::svg_def("../data/system/assets/minimap/left.svg")
-                        .build(ctx, "pan left", None)
-                        .margin(5)
-                        .centered_vert(),
-                    Filler::new(ScreenDims::new(square_len, square_len)).named("minimap"),
-                    Btn::svg_def("../data/system/assets/minimap/right.svg")
-                        .build(ctx, "pan right", None)
-                        .margin(5)
-                        .centered_vert(),
-                ]),
-                Btn::svg_def("../data/system/assets/minimap/down.svg")
-                    .build(ctx, "pan down", None)
-                    .margin(5)
-                    .centered_horiz(),
-            ])
-            .centered(),
-            make_viz_panel(ctx, app).centered_vert(),
+            Btn::svg_def("../data/system/assets/minimap/left.svg")
+                .build(ctx, "pan left", None)
+                .margin(5)
+                .centered_vert(),
+            Filler::new(ScreenDims::new(square_len, square_len)).named("minimap"),
+            Btn::svg_def("../data/system/assets/minimap/right.svg")
+                .build(ctx, "pan right", None)
+                .margin(5)
+                .centered_vert(),
+        ]),
+        Btn::svg_def("../data/system/assets/minimap/down.svg")
+            .build(ctx, "pan down", None)
+            .margin(5)
+            .centered_horiz(),
+    ]);
+
+    Composite::new(Widget::row(vec![
+        make_tool_panel(ctx, app).margin_right(16),
+        Widget::col(vec![
+            Widget::row(vec![minimap_controls, zoom_col]),
+            make_horiz_viz_panel(ctx, app),
         ])
-        .bg(colors::PANEL_BG),
-    )
+        .padding(7)
+        .bg(app.cs.panel_bg),
+    ]))
     .aligned(
         HorizontalAlignment::Right,
         VerticalAlignment::BottomAboveOSD,
@@ -309,93 +321,89 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
     .build(ctx)
 }
 
-fn make_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
-    let radius = 10.0;
-    let mut col = vec![Widget::row(vec![
+fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
+    // TODO Apply something to everything in the column
+    Widget::col(vec![
+        (if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL {
+            Btn::svg_def("../data/system/assets/minimap/zoom_out_fully.svg").build(
+                ctx,
+                "zoom out fully",
+                None,
+            )
+        } else {
+            Btn::svg_def("../data/system/assets/minimap/zoom_in_fully.svg").build(
+                ctx,
+                "zoom in fully",
+                None,
+            )
+        })
+        .bg(app.cs.inner_panel)
+        .margin_below(16),
+        Btn::svg_def("../data/system/assets/tools/layers.svg")
+            .build(ctx, "change overlay", hotkey(Key::L))
+            .bg(if app.overlay.is_empty() {
+                app.cs.inner_panel
+            } else {
+                app.cs.hovering
+            })
+            .margin_below(16),
         Btn::svg_def("../data/system/assets/tools/search.svg")
             .build(ctx, "search", hotkey(Key::K))
-            .margin(10),
+            .bg(app.cs.inner_panel)
+            .margin_below(16),
         Btn::svg_def("../data/system/assets/tools/shortcuts.svg")
             .build(ctx, "shortcuts", hotkey(Key::SingleQuote))
-            .margin(10),
-        if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL {
-            Btn::svg_def("../data/system/assets/minimap/zoom_out_fully.svg")
-                .build(ctx, "zoom out fully", None)
-                .margin(10)
-        } else {
-            Btn::svg_def("../data/system/assets/minimap/zoom_in_fully.svg")
-                .build(ctx, "zoom in fully", None)
-                .margin(10)
-        },
-        Btn::svg_def("../data/system/assets/tools/layers.svg")
-            .normal_color(if app.overlay.is_empty() {
-                RewriteColor::NoOp
-            } else {
-                RewriteColor::ChangeAll(Color::BLUE)
-            })
-            .build(ctx, "change overlay", hotkey(Key::L))
-            .margin(10),
+            .bg(app.cs.inner_panel),
     ])
-    .centered()];
+}
+
+fn make_horiz_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
+    let mut row = Vec::new();
     for (label, color, enabled) in &app.agent_cs.rows {
-        col.push(
-            Widget::row(vec![
-                // TODO Make sure the dims of these two fit
-                if *enabled {
-                    Btn::svg_def("../data/system/assets/tools/visible.svg")
-                        .build(ctx, format!("hide {}", label), None)
-                        .margin(3)
-                } else {
-                    Btn::svg_def("../data/system/assets/tools/invisible.svg")
-                        .build(ctx, format!("show {}", label), None)
-                        .margin(3)
-                },
-                Widget::draw_batch(
-                    ctx,
-                    GeomBatch::from(vec![(
-                        Color::WHITE.alpha(0.5),
-                        Polygon::rectangle(2.0, 1.5 * radius),
-                    )]),
-                )
-                .margin(3),
-                Widget::draw_batch(
-                    ctx,
-                    GeomBatch::from(vec![(
-                        color.alpha(if *enabled { 1.0 } else { 0.5 }),
-                        Circle::new(Pt2D::new(radius, radius), Distance::meters(radius))
-                            .to_polygon(),
-                    )]),
-                )
-                .margin(3),
-                Text::from(if *enabled {
-                    Line(label).small()
-                } else {
-                    Line(label).small().fg(Color::WHITE.alpha(0.5))
-                })
-                .draw(ctx)
-                .margin(3),
-            ])
-            .centered_cross(),
-        );
+        row.push(colored_checkbox(ctx, app, label, *color, *enabled).margin_right(8));
+        row.push(Line(label).draw(ctx).margin_right(24));
     }
+    let last = row.pop().unwrap();
+    row.push(last.margin_right(0));
+    Widget::row(row)
+}
 
-    if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL {
-        if let Some(name) = app.overlay.zoomed_name() {
-            // TODO Should the full legend have this icon too?
-            col.insert(
-                0,
-                Widget::row(vec![
-                    Widget::draw_svg_transform(
-                        ctx,
-                        "../data/system/assets/tools/layers.svg",
-                        RewriteColor::ChangeAll(Color::BLUE),
-                    )
-                    .margin(5),
-                    Line(name).small().draw(ctx),
-                ]),
-            );
-        }
+fn make_vert_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
+    let mut col = Vec::new();
+
+    for (label, color, enabled) in &app.agent_cs.rows {
+        let mut row = Vec::new();
+        row.push(colored_checkbox(ctx, app, label, *color, *enabled).margin_right(8));
+        row.push(Line(label).draw(ctx));
+        col.push(Widget::row(row).margin_below(7));
     }
+    let last = col.pop().unwrap();
+    col.push(last.margin_below(0));
 
-    Widget::col(col).bg(colors::PANEL_BG).padding(5)
+    Widget::col(col)
+}
+
+fn colored_checkbox(ctx: &EventCtx, app: &App, label: &str, color: Color, enabled: bool) -> Widget {
+    if enabled {
+        Btn::svg(
+            "../data/system/assets/tools/checkmark.svg",
+            RewriteColor::ChangeMore(vec![(Color::BLACK, color), (Color::WHITE, app.cs.hovering)]),
+        )
+        .normal_color(RewriteColor::Change(Color::BLACK, color))
+        .build(ctx, format!("hide {}", label), None)
+    } else {
+        // Fancy way of saying a circle ;)
+        Btn::svg(
+            "../data/system/assets/tools/checkmark.svg",
+            RewriteColor::ChangeMore(vec![
+                (Color::BLACK, color),
+                (Color::WHITE, Color::INVISIBLE),
+            ]),
+        )
+        .normal_color(RewriteColor::ChangeMore(vec![
+            (Color::BLACK, color.alpha(0.3)),
+            (Color::WHITE, Color::INVISIBLE),
+        ]))
+        .build(ctx, format!("show {}", label), None)
+    }
 }

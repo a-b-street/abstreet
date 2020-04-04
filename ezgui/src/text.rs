@@ -8,7 +8,11 @@ use std::fmt::Write;
 use std::hash::Hasher;
 use textwrap;
 
-const FG_COLOR: Color = Color::WHITE;
+// Same as body()
+pub const DEFAULT_FONT: Font = Font::OverpassRegular;
+pub const DEFAULT_FONT_SIZE: usize = 21;
+const DEFAULT_FG_COLOR: Color = Color::WHITE;
+
 pub const BG_COLOR: Color = Color::grey(0.3);
 pub const SELECTED_COLOR: Color = Color::grey(0.5);
 pub const HOTKEY_COLOR: Color = Color::GREEN;
@@ -31,13 +35,13 @@ pub enum Font {
 pub struct TextSpan {
     text: String,
     fg_color: Color,
-    size: Option<usize>,
+    size: usize,
     font: Font,
 }
 
 impl TextSpan {
     pub fn fg(mut self, color: Color) -> TextSpan {
-        assert_eq!(self.fg_color, FG_COLOR);
+        assert_eq!(self.fg_color, DEFAULT_FG_COLOR);
         self.fg_color = color;
         self
     }
@@ -50,39 +54,39 @@ impl TextSpan {
 
     pub fn display_title(mut self) -> TextSpan {
         self.font = Font::BungeeInlineRegular;
-        self.size = Some(64);
+        self.size = 64;
         self
     }
     pub fn big_heading_styled(mut self) -> TextSpan {
         self.font = Font::BungeeRegular;
-        self.size = Some(32);
+        self.size = 32;
         self
     }
     pub fn big_heading_plain(mut self) -> TextSpan {
         self.font = Font::OverpassBold;
-        self.size = Some(32);
+        self.size = 32;
         self
     }
     pub fn small_heading(mut self) -> TextSpan {
         self.font = Font::OverpassSemiBold;
-        self.size = Some(26);
+        self.size = 26;
         self
     }
     // The default
     pub fn body(mut self) -> TextSpan {
         self.font = Font::OverpassRegular;
-        self.size = Some(21);
+        self.size = 21;
         self
     }
     pub fn secondary(mut self) -> TextSpan {
         self.font = Font::OverpassRegular;
-        self.size = Some(21);
+        self.size = 21;
         self.fg_color = Color::hex("#A3A3A3");
         self
     }
     pub fn small(mut self) -> TextSpan {
         self.font = Font::OverpassRegular;
-        self.size = Some(16);
+        self.size = 16;
         self
     }
 }
@@ -92,9 +96,9 @@ impl TextSpan {
 pub fn Line<S: Into<String>>(text: S) -> TextSpan {
     TextSpan {
         text: text.into(),
-        fg_color: FG_COLOR,
-        size: None,
-        font: Font::OverpassRegular,
+        fg_color: DEFAULT_FG_COLOR,
+        size: DEFAULT_FONT_SIZE,
+        font: DEFAULT_FONT,
     }
 }
 
@@ -120,6 +124,14 @@ impl Text {
         txt
     }
 
+    pub fn from_all(lines: Vec<TextSpan>) -> Text {
+        let mut txt = Text::new();
+        for l in lines {
+            txt.append(l);
+        }
+        txt
+    }
+
     // TODO Remove this
     pub fn with_bg(mut self) -> Text {
         assert!(self.bg_color.is_none());
@@ -136,9 +148,10 @@ impl Text {
     // TODO Not exactly sure this is the right place for this, but better than code duplication
     pub fn tooltip(hotkey: Option<MultiKey>, action: &str) -> Text {
         if let Some(ref key) = hotkey {
-            let mut txt = Text::from(Line(key.describe()).fg(HOTKEY_COLOR).small());
-            txt.append(Line(format!(" - {}", action)));
-            txt
+            Text::from_all(vec![
+                Line(key.describe()).fg(HOTKEY_COLOR).small(),
+                Line(format!(" - {}", action)).small(),
+            ])
         } else {
             Text::from(Line(action).small())
         }
@@ -166,22 +179,16 @@ impl Text {
         self.lines.last_mut().unwrap().0 = Some(highlight);
     }
 
-    pub fn append(&mut self, mut line: TextSpan) {
+    pub fn append(&mut self, line: TextSpan) {
         if self.lines.is_empty() {
             self.add(line);
             return;
         }
 
-        // Can't override the size mid-line.
-        assert_eq!(line.size, None);
-        line.size = self
-            .lines
-            .last()
-            .unwrap()
-            .1
-            .last()
-            .map(|span| span.size)
-            .unwrap();
+        // Can't override the size or font mid-line.
+        let last = self.lines.last().unwrap().1.last().unwrap();
+        assert_eq!(line.size, last.size);
+        assert_eq!(line.font, last.font);
 
         self.lines.last_mut().unwrap().1.push(line);
     }
@@ -203,6 +210,7 @@ impl Text {
         }
     }
 
+    // TODO Not at all correct!
     pub fn add_wrapped(&mut self, line: String, width: f64) {
         let wrap_to = width / MAX_CHAR_WIDTH;
         for l in textwrap::wrap(&line, wrap_to as usize).into_iter() {
@@ -247,10 +255,7 @@ impl Text {
         for (line_color, line) in self.lines {
             // Assume size doesn't change mid-line. Always use this fixed line height per font
             // size.
-            let line_height = assets.line_height(
-                line[0].font,
-                line[0].size.unwrap_or(*assets.default_font_size.borrow()),
-            );
+            let line_height = assets.line_height(line[0].font, line[0].size);
 
             let line_batch = render_text(line, tolerance, assets);
             let line_dims = if line_batch.is_empty() {
@@ -311,11 +316,15 @@ impl Text {
 fn render_text(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBatch {
     // TODO This assumes size and font don't change mid-line. We might be able to support that now,
     // actually.
+    // https://www.oreilly.com/library/view/svg-text-layout/9781491933817/ch04.html
 
     // Just set a sufficiently large view box
-    let mut svg = format!(
-        r##"<svg width="9999" height="9999" viewBox="0 0 9999 9999" xmlns="http://www.w3.org/2000/svg"><text x="0" y="0" font-size="{}" {}>"##,
-        spans[0].size.unwrap_or(*assets.default_font_size.borrow()),
+    let mut svg = r##"<svg width="9999" height="9999" viewBox="0 0 9999 9999" xmlns="http://www.w3.org/2000/svg">"##.to_string();
+
+    write!(
+        &mut svg,
+        r##"<text x="0" y="0" font-size="{}" {}>"##,
+        spans[0].size,
         match spans[0].font {
             Font::BungeeInlineRegular => "font-family=\"Bungee Inline\"",
             Font::BungeeRegular => "font-family=\"Bungee\"",
@@ -323,7 +332,8 @@ fn render_text(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
             Font::OverpassRegular => "font-family=\"Overpass\"",
             Font::OverpassSemiBold => "font-family=\"Overpass\" font-weight=\"600\"",
         }
-    );
+    )
+    .unwrap();
 
     let mut contents = String::new();
     for span in spans {
@@ -337,8 +347,6 @@ fn render_text(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
         .unwrap();
     }
     write!(&mut svg, "{}</text></svg>", contents).unwrap();
-
-    //println!("- Rendering: {}", contents);
 
     let svg_tree = match usvg::Tree::from_str(&svg, &assets.text_opts) {
         Ok(t) => t,

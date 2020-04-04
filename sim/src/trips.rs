@@ -794,15 +794,23 @@ impl TripMode {
             },
         }
     }
-}
 
-impl std::fmt::Display for TripMode {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    pub fn verb(self) -> &'static str {
         match self {
-            TripMode::Walk => write!(f, "walk"),
-            TripMode::Bike => write!(f, "bike"),
-            TripMode::Transit => write!(f, "transit"),
-            TripMode::Drive => write!(f, "drive"),
+            TripMode::Walk => "walk",
+            TripMode::Bike => "bike",
+            TripMode::Transit => "use transit",
+            TripMode::Drive => "drive",
+        }
+    }
+
+    // If I used "present participle" in a method name, I'd never live it down.
+    pub fn ongoing_verb(self) -> &'static str {
+        match self {
+            TripMode::Walk => "walking",
+            TripMode::Bike => "biking",
+            TripMode::Transit => "using transit",
+            TripMode::Drive => "driving",
         }
     }
 }

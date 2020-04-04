@@ -19,11 +19,12 @@ pub struct FixTrafficSignals {
 }
 
 impl FixTrafficSignals {
-    pub fn new(ctx: &mut EventCtx, mode: GameplayMode) -> Box<dyn GameplayState> {
+    pub fn new(ctx: &mut EventCtx, app: &App, mode: GameplayMode) -> Box<dyn GameplayState> {
         Box::new(FixTrafficSignals {
             once: true,
             top_center: challenge_controller(
                 ctx,
+                app,
                 mode.clone(),
                 "Traffic Signals Challenge",
                 Vec::new(),
@@ -73,6 +74,7 @@ impl GameplayState for FixTrafficSignals {
             return (
                 Some(Transition::Push(FinalScore::new(
                     ctx,
+                    app,
                     verdict,
                     self.mode.clone(),
                     next,

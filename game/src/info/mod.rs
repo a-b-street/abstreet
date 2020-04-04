@@ -7,7 +7,6 @@ mod person;
 mod trip;
 
 use crate::app::App;
-use crate::colors;
 use crate::common::Warping;
 use crate::game::Transition;
 use crate::helpers::ID;
@@ -225,7 +224,7 @@ impl InfoPanel {
                     txt.append(Line(key.describe()).fg(ezgui::HOTKEY_COLOR));
                     txt.append(Line(format!(" - {}", label)));
                     col.push(
-                        Btn::text_bg(label, txt, colors::SECTION_BG, colors::HOVERING)
+                        Btn::text_bg(label, txt, app.cs.section_bg, app.cs.hovering)
                             .build_def(ctx, hotkey(key))
                             .margin(5),
                     );
@@ -265,19 +264,19 @@ impl InfoPanel {
                     let bounds = outline.get_bounds();
                     let radius = multiplier * Distance::meters(bounds.width().max(bounds.height()));
                     details.unzoomed.push(
-                        app.cs.get_def("current object", Color::WHITE).alpha(0.5),
+                        app.cs.current_object.alpha(0.5),
                         Circle::new(bounds.center(), radius).to_polygon(),
                     );
                     details.unzoomed.push(
-                        app.cs.get("current object"),
+                        app.cs.current_object,
                         Circle::outline(bounds.center(), radius, Distance::meters(0.3)),
                     );
                     details.zoomed.push(
-                        app.cs.get("current object").alpha(0.5),
+                        app.cs.current_object.alpha(0.5),
                         Circle::new(bounds.center(), radius).to_polygon(),
                     );
                     details.zoomed.push(
-                        app.cs.get("current object"),
+                        app.cs.current_object,
                         Circle::outline(bounds.center(), radius, Distance::meters(0.3)),
                     );
 
@@ -285,13 +284,10 @@ impl InfoPanel {
                     // conducive to doing this yet.
                 }
                 _ => {
-                    details.unzoomed.push(
-                        app.cs.get_def("perma selected thing", Color::BLUE),
-                        outline.clone(),
-                    );
                     details
-                        .zoomed
-                        .push(app.cs.get("perma selected thing"), outline);
+                        .unzoomed
+                        .push(app.cs.perma_selected_object, outline.clone());
+                    details.zoomed.push(app.cs.perma_selected_object, outline);
                 }
             }
         }
@@ -460,7 +456,7 @@ fn throughput<F: Fn(&Analytics, Time) -> BTreeMap<TripMode, Vec<(Time, usize)>>>
     let mut series = get_data(app.primary.sim.get_analytics(), app.primary.sim.time())
         .into_iter()
         .map(|(m, pts)| Series {
-            label: m.to_string(),
+            label: m.ongoing_verb().to_string(),
             color: color_for_mode(m, app),
             pts,
         })
@@ -469,7 +465,7 @@ fn throughput<F: Fn(&Analytics, Time) -> BTreeMap<TripMode, Vec<(Time, usize)>>>
         // TODO Ahh these colors don't show up differently at all.
         for (m, pts) in get_data(app.prebaked(), Time::END_OF_DAY) {
             series.push(Series {
-                label: format!("{} (baseline)", m),
+                label: format!("{} (baseline)", m.ongoing_verb()),
                 color: color_for_mode(m, app).alpha(0.3),
                 pts,
             });
@@ -481,10 +477,10 @@ fn throughput<F: Fn(&Analytics, Time) -> BTreeMap<TripMode, Vec<(Time, usize)>>>
 
 fn color_for_mode(m: TripMode, app: &App) -> Color {
     match m {
-        TripMode::Walk => app.cs.get("unzoomed pedestrian"),
-        TripMode::Bike => app.cs.get("unzoomed bike"),
-        TripMode::Transit => app.cs.get("unzoomed bus"),
-        TripMode::Drive => app.cs.get("unzoomed car"),
+        TripMode::Walk => app.cs.unzoomed_pedestrian,
+        TripMode::Bike => app.cs.unzoomed_bike,
+        TripMode::Transit => app.cs.unzoomed_bus,
+        TripMode::Drive => app.cs.unzoomed_car,
     }
 }
 

@@ -71,6 +71,31 @@ impl Time {
         )
     }
 
+    // TODO Ahh code duplication because of a weird font!
+    pub fn ampm_tostring_spacers(self) -> String {
+        let (mut hours, minutes, seconds, remainder) = self.get_parts();
+        let next_day = if hours >= 24 {
+            let days = hours / 24;
+            hours = hours % 24;
+            format!(" (+{} days)", days)
+        } else {
+            "".to_string()
+        };
+        let suffix = if hours < 12 { "AM" } else { "PM" };
+        if hours == 0 {
+            hours = 12;
+        } else if hours >= 24 {
+            hours -= 24;
+        } else if hours > 12 {
+            hours -= 12;
+        }
+
+        format!(
+            "{:02} : {:02} : {:02}.{:01} {}{}",
+            hours, minutes, seconds, remainder, suffix, next_day
+        )
+    }
+
     pub fn as_filename(self) -> String {
         let (hours, minutes, seconds, remainder) = self.get_parts();
         format!(

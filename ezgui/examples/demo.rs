@@ -218,7 +218,7 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
     let mut batch = GeomBatch::new();
     batch.push(
         Color::hex("#4E30A6"),
-        Polygon::rounded_rectangle(5000.0, 5000.0, 25.0),
+        Polygon::rounded_rectangle(5000.0, 5000.0, Some(25.0)),
     );
     // SVG support using lyon and usvg.
     batch.add_svg(

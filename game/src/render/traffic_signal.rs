@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::colors;
 use crate::options::TrafficSignalStyle;
 use crate::render::intersection::make_crosswalk;
 use crate::render::{DrawTurnGroup, BIG_ARROW_THICKNESS};
@@ -21,14 +20,9 @@ pub fn draw_signal_phase(
     app: &App,
     signal_style: TrafficSignalStyle,
 ) {
-    let protected_color = app
-        .cs
-        .get_def("turn protected by traffic signal", Color::hex("#72CE36"));
-    let yield_bg_color = app.cs.get_def(
-        "turn that can yield by traffic signal",
-        Color::rgba(76, 167, 233, 0.3),
-    );
-    let yield_outline_color = Color::hex("#4CA7E9");
+    let protected_color = app.cs.signal_protected_turn;
+    let yield_bg_color = app.cs.signal_permitted_turn;
+    let yield_outline_color = app.cs.signal_permitted_turn_outline;
 
     let signal = app.primary.map.get_traffic_signal(i);
 
@@ -128,14 +122,11 @@ pub fn draw_signal_phase(
         }
         TrafficSignalStyle::Icons => {
             for g in DrawTurnGroup::for_i(i, &app.primary.map) {
-                batch.push(app.cs.get("turn block background"), g.block.clone());
+                batch.push(app.cs.signal_turn_block_bg, g.block.clone());
                 let arrow_color = match phase.get_priority_of_group(g.id) {
-                    TurnPriority::Protected => app.cs.get("turn protected by traffic signal"),
-                    TurnPriority::Yield => app
-                        .cs
-                        .get("turn that can yield by traffic signal")
-                        .alpha(1.0),
-                    TurnPriority::Banned => app.cs.get("turn not in current phase"),
+                    TurnPriority::Protected => app.cs.signal_protected_turn,
+                    TurnPriority::Yield => app.cs.signal_permitted_turn.alpha(1.0),
+                    TurnPriority::Banned => app.cs.signal_banned_turn,
                 };
                 batch.push(arrow_color, g.arrow.clone());
             }
@@ -176,19 +167,16 @@ pub fn draw_signal_phase(
     let radius = Distance::meters(2.0);
     let center = app.primary.map.get_i(i).polygon.center();
     let percent = time_left.unwrap() / phase.duration;
-    // TODO Tune colors.
     batch.push(
-        app.cs.get_def("traffic signal box", Color::grey(0.5)),
+        app.cs.signal_box,
         Circle::new(center, 1.2 * radius).to_polygon(),
     );
     batch.push(
-        app.cs
-            .get_def("traffic signal spinner", Color::hex("#F2994A"))
-            .alpha(0.3),
+        app.cs.signal_spinner.alpha(0.3),
         Circle::new(center, radius).to_polygon(),
     );
     batch.push(
-        app.cs.get("traffic signal spinner"),
+        app.cs.signal_spinner,
         Circle::new(center, radius).to_partial_polygon(percent),
     );
 }
@@ -329,7 +317,7 @@ pub fn make_signal_diagram(
         }
     }
 
-    Composite::new(Widget::col(col).bg(colors::PANEL_BG))
+    Composite::new(Widget::col(col).bg(app.cs.panel_bg))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .max_size_percent(30, 85)
         .build(ctx)

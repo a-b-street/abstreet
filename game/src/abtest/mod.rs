@@ -32,7 +32,7 @@ impl ABTestMode {
             diff_trip: None,
             diff_all: None,
             common: CommonState::new(),
-            tool_panel: tool_panel(ctx),
+            tool_panel: tool_panel(ctx, app),
             test_name: test_name.to_string(),
             flipped: false,
         }
@@ -70,7 +70,7 @@ impl State for ABTestMode {
         }
 
         if app.opts.dev && ctx.input.new_was_pressed(&lctrl(Key::D).unwrap()) {
-            return Transition::Push(Box::new(DebugMode::new(ctx)));
+            return Transition::Push(Box::new(DebugMode::new(ctx, app)));
         }
 
         if false {
@@ -290,24 +290,19 @@ impl DiffOneTrip {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         if let Some(l) = &self.line {
-            g.draw_line(
-                app.cs.get_def("diff agents line", Color::YELLOW.alpha(0.5)),
-                NORMAL_LANE_THICKNESS,
-                l,
-            );
+            g.draw_line(Color::YELLOW.alpha(0.5), NORMAL_LANE_THICKNESS, l);
         }
         if let Some(t) = &self.primary_route {
             g.draw_polygon(
-                app.cs.get_def("primary agent route", Color::RED.alpha(0.5)),
+                Color::RED.alpha(0.5),
                 &t.make_polygons(NORMAL_LANE_THICKNESS),
             );
         }
         if let Some(t) = &self.secondary_route {
             g.draw_polygon(
-                app.cs
-                    .get_def("secondary agent route", Color::BLUE.alpha(0.5)),
+                Color::BLUE.alpha(0.5),
                 &t.make_polygons(NORMAL_LANE_THICKNESS),
             );
         }
@@ -338,9 +333,9 @@ impl DiffAllTrips {
         DiffAllTrips { same_trips, lines }
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         let mut batch = GeomBatch::new();
-        let color = app.cs.get("diff agents line");
+        let color = Color::YELLOW.alpha(0.5);
         if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
             // TODO Refactor with UI
             let radius = Distance::meters(10.0) / g.canvas.cam_zoom;

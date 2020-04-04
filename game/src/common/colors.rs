@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::colors;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use ezgui::{
     Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Outcome,
@@ -144,7 +143,7 @@ impl ColorerBuilder {
         for (label, color) in self.prioritized_colors {
             col.push(ColorLegend::row(ctx, color, label));
         }
-        let legend = Composite::new(Widget::col(col).bg(colors::PANEL_BG))
+        let legend = Composite::new(Widget::col(col).bg(app.cs.panel_bg))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
             .build(ctx);
 

@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::colors;
+use crate::colors::ColorScheme;
 use crate::common::{tool_panel, Minimap, Warping};
 use crate::edit::EditMode;
 use crate::game::{msg, State, Transition};
@@ -188,7 +188,7 @@ impl GameplayState for Tutorial {
             if !tut.was_paused && is_paused {
                 tut.num_pauses += 1;
                 tut.was_paused = true;
-                self.top_center = tut.make_top_center(ctx, false);
+                self.top_center = tut.make_top_center(ctx, &app.cs, false);
             }
             if tut.num_pauses == 3 {
                 tut.next();
@@ -202,14 +202,14 @@ impl GameplayState for Tutorial {
                 .is_none();
             if !tut.car_parked && is_parked && tut.following_car {
                 tut.car_parked = true;
-                self.top_center = tut.make_top_center(ctx, false);
+                self.top_center = tut.make_top_center(ctx, &app.cs, false);
             }
 
             if following_car && !tut.following_car {
                 // TODO There's a delay of one event before the checklist updates, because the
                 // info panel opening happens at the end of the event. Not a big deal.
                 tut.following_car = true;
-                self.top_center = tut.make_top_center(ctx, false);
+                self.top_center = tut.make_top_center(ctx, &app.cs, false);
             }
 
             if tut.prank_done {
@@ -720,7 +720,7 @@ impl TutorialState {
         }
     }
 
-    fn make_top_center(&self, ctx: &mut EventCtx, edit_map: bool) -> Composite {
+    fn make_top_center(&self, ctx: &mut EventCtx, cs: &ColorScheme, edit_map: bool) -> Composite {
         let mut col = vec![Widget::row(vec![
             Line("Tutorial").small_heading().draw(ctx).margin(5),
             Widget::draw_batch(
@@ -780,7 +780,7 @@ impl TutorialState {
             );
         }
 
-        Composite::new(Widget::col(col).bg(colors::PANEL_BG))
+        Composite::new(Widget::col(col).bg(cs.panel_bg))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx)
     }
@@ -809,7 +809,7 @@ impl TutorialState {
         };
 
         Box::new(Tutorial {
-            top_center: self.make_top_center(ctx, last_finished_task >= Task::WatchBikes),
+            top_center: self.make_top_center(ctx, &app.cs, last_finished_task >= Task::WatchBikes),
             last_finished_task,
 
             msg_panel: if let Some((ref lines, _)) = self.lines() {
@@ -828,7 +828,7 @@ impl TutorialState {
                         if self.current.part > 0 {
                             Btn::svg(
                                 "../data/system/assets/tools/prev.svg",
-                                RewriteColor::Change(Color::WHITE, colors::HOVERING),
+                                RewriteColor::Change(Color::WHITE, app.cs.hovering),
                             )
                             .build(ctx, "previous message", hotkey(Key::LeftArrow))
                             .margin(5)
@@ -853,7 +853,7 @@ impl TutorialState {
                         } else {
                             Btn::svg(
                                 "../data/system/assets/tools/next.svg",
-                                RewriteColor::Change(Color::WHITE, colors::HOVERING),
+                                RewriteColor::Change(Color::WHITE, app.cs.hovering),
                             )
                             .build(
                                 ctx,
@@ -875,7 +875,7 @@ impl TutorialState {
                     Composite::new(
                         Widget::col(col)
                             .centered()
-                            .bg(colors::PANEL_BG)
+                            .bg(app.cs.panel_bg)
                             .outline(5.0, Color::WHITE)
                             .padding(5),
                     )
@@ -907,9 +907,9 @@ impl TutorialState {
             score_delivered: false,
         };
 
-        let tool_panel = tool_panel(ctx);
+        let tool_panel = tool_panel(ctx, app);
         let time = TimePanel::new(ctx, app);
-        let speed = SpeedControls::new(ctx);
+        let speed = SpeedControls::new(ctx, app);
         let agent_meter = AgentMeter::new(ctx, app, None);
         // The minimap is hidden at low zoom levels
         let orig_zoom = ctx.canvas.cam_zoom;
@@ -1011,19 +1011,19 @@ impl TutorialState {
                 )
                 .msg(
                     vec!["You can pause or resume time"],
-                    arrow(speed.composite.inner.center_of("pause")),
+                    arrow(speed.composite.center_of("pause")),
                 )
                 .msg(
                     vec!["Speed things up"],
-                    arrow(speed.composite.inner.center_of("30x speed")),
+                    arrow(speed.composite.center_of("30x speed")),
                 )
                 .msg(
                     vec!["Advance time by certain amounts"],
-                    arrow(speed.composite.inner.center_of("step forwards 1 hour")),
+                    arrow(speed.composite.center_of("step forwards")),
                 )
                 .msg(
                     vec!["And reset to the beginning of the day"],
-                    arrow(speed.composite.inner.center_of("reset to midnight")),
+                    arrow(speed.composite.center_of("reset to midnight")),
                 )
                 .msg(
                     vec!["Let's try these controls out. Run the simulation until 5pm or later."],
@@ -1042,7 +1042,7 @@ impl TutorialState {
                         "You might've figured it out already,",
                         "But you'll be pausing/resuming time VERY frequently",
                     ],
-                    arrow(speed.composite.inner.center_of("pause")),
+                    arrow(speed.composite.center_of("pause")),
                 )
                 .msg(
                     vec![
@@ -1102,7 +1102,7 @@ impl TutorialState {
                         "You don't have to manually chase them; just click to follow.",
                         "(If you do lose track of them, just reset)",
                     ],
-                    arrow(speed.composite.inner.center_of("reset to midnight")),
+                    arrow(speed.composite.center_of("reset to midnight")),
                 ),
         );
 
@@ -1129,7 +1129,7 @@ impl TutorialState {
                 )
                 .msg(
                     vec![
-                        "Apply different heatmap layers to the map, to find data such as:",
+                        "Apply different layers to the map, to find data such as:",
                         "- roads with high traffic",
                         "- bus stops",
                         "- current parking",
@@ -1163,7 +1163,7 @@ impl TutorialState {
                 ),
         );
 
-        let top_center = state.make_top_center(ctx, true);
+        let top_center = state.make_top_center(ctx, &app.cs, true);
         state.stages.push(
             Stage::new(Task::FixBikes)
                 .spawn_scenario(bike_lane_scenario)
@@ -1303,7 +1303,7 @@ pub fn execute(_: &mut EventCtx, _: &mut App, id: ID, action: String) -> Transit
         match (id, action.as_ref()) {
             (ID::Lane(l), "inspect the lane") => {
                 tut.inspected_lane = true;
-                tutorial.top_center = tut.make_top_center(ctx, false);
+                tutorial.top_center = tut.make_top_center(ctx, &app.cs, false);
                 msg(
                     "Inspection",
                     match app.primary.map.get_l(l).lane_type {
@@ -1328,7 +1328,7 @@ pub fn execute(_: &mut EventCtx, _: &mut App, id: ID, action: String) -> Transit
             }
             (ID::Building(_), "inspect the building") => {
                 tut.inspected_building = true;
-                tutorial.top_center = tut.make_top_center(ctx, false);
+                tutorial.top_center = tut.make_top_center(ctx, &app.cs, false);
                 msg(
                     "Inspection",
                     vec![
@@ -1341,7 +1341,7 @@ pub fn execute(_: &mut EventCtx, _: &mut App, id: ID, action: String) -> Transit
                 match app.primary.map.get_i(i).intersection_type {
                     IntersectionType::StopSign => {
                         tut.inspected_stop_sign = true;
-                        tutorial.top_center = tut.make_top_center(ctx, false);
+                        tutorial.top_center = tut.make_top_center(ctx, &app.cs, false);
                         msg(
                             "Inspection",
                             vec!["Most intersections are regulated by stop signs."],
@@ -1356,7 +1356,7 @@ pub fn execute(_: &mut EventCtx, _: &mut App, id: ID, action: String) -> Transit
                     ),
                     IntersectionType::Border => {
                         tut.inspected_border = true;
-                        tutorial.top_center = tut.make_top_center(ctx, false);
+                        tutorial.top_center = tut.make_top_center(ctx, &app.cs, false);
                         msg(
                             "Inspection",
                             vec![

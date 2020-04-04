@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::colors;
 use crate::game::{State, Transition};
 use ezgui::{
     hotkey, Btn, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
@@ -23,12 +22,13 @@ pub enum Item {
 impl PolygonDebugger {
     pub fn new(
         ctx: &mut EventCtx,
+        app: &App,
         noun: &str,
         items: Vec<Item>,
         center: Option<Pt2D>,
     ) -> Box<dyn State> {
         Box::new(PolygonDebugger {
-            composite: make_panel(ctx),
+            composite: make_panel(ctx, app),
             noun: noun.to_string(),
             items,
             center,
@@ -91,7 +91,7 @@ impl State for PolygonDebugger {
             Item::Point(pt) => {
                 batch.add_centered(
                     Text::from(Line(idx.to_string()))
-                        .bg(colors::PANEL_BG)
+                        .bg(app.cs.panel_bg)
                         .render_g(g),
                     g.canvas.map_to_screen(*pt).to_pt(),
                 );
@@ -100,18 +100,18 @@ impl State for PolygonDebugger {
                 for pt in &[tri.pt1, tri.pt2, tri.pt3] {
                     batch.add_centered(
                         Text::from(Line(idx.to_string()))
-                            .bg(colors::PANEL_BG)
+                            .bg(app.cs.panel_bg)
                             .render_g(g),
                         g.canvas.map_to_screen(*pt).to_pt(),
                     );
                 }
-                g.draw_polygon(app.cs.get("selected"), &Polygon::from_triangle(tri));
+                g.draw_polygon(app.cs.selected, &Polygon::from_triangle(tri));
             }
             Item::Polygon(ref poly) => {
-                g.draw_polygon(app.cs.get("selected"), poly);
+                g.draw_polygon(app.cs.selected, poly);
                 batch.add_centered(
                     Text::from(Line(idx.to_string()))
-                        .bg(colors::PANEL_BG)
+                        .bg(app.cs.panel_bg)
                         .render_g(g),
                     g.canvas.map_to_screen(poly.center()).to_pt(),
                 );
@@ -119,7 +119,7 @@ impl State for PolygonDebugger {
         }
         if let Some(pt) = self.center {
             batch.add_centered(
-                Text::from(Line("c")).bg(colors::PANEL_BG).render_g(g),
+                Text::from(Line("c")).bg(app.cs.panel_bg).render_g(g),
                 g.canvas.map_to_screen(pt).to_pt(),
             );
         }
@@ -133,7 +133,7 @@ impl State for PolygonDebugger {
     }
 }
 
-fn make_panel(ctx: &mut EventCtx) -> Composite {
+fn make_panel(ctx: &mut EventCtx, app: &App) -> Composite {
     Composite::new(
         Widget::col(vec![
             Widget::row(vec![
@@ -156,7 +156,7 @@ fn make_panel(ctx: &mut EventCtx) -> Composite {
                 .named("slider")
                 .centered_horiz(),
         ])
-        .bg(colors::PANEL_BG)
+        .bg(app.cs.panel_bg)
         .padding(5),
     )
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)

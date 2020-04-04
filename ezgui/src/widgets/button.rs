@@ -12,7 +12,7 @@ pub struct Button {
     draw_normal: Drawable,
     draw_hovered: Drawable,
 
-    hotkey: Option<MultiKey>,
+    pub(crate) hotkey: Option<MultiKey>,
     tooltip: Text,
     // Screenspace, top-left always at the origin. Also, probably not a box. :P
     hitbox: Polygon,
@@ -111,16 +111,23 @@ impl WidgetImpl for Button {
 pub struct Btn {}
 
 impl Btn {
-    pub fn svg<I: Into<String>>(path: I, hover: RewriteColor) -> BtnBuilder {
-        BtnBuilder::SVG(path.into(), RewriteColor::NoOp, hover, None)
+    pub fn svg<I: Into<String>>(path: I, rewrite_hover: RewriteColor) -> BtnBuilder {
+        BtnBuilder::SVG {
+            path: path.into(),
+            rewrite_normal: RewriteColor::NoOp,
+            rewrite_hover,
+            maybe_tooltip: None,
+            pad: 0,
+        }
     }
     pub fn svg_def<I: Into<String>>(path: I) -> BtnBuilder {
-        BtnBuilder::SVG(
-            path.into(),
-            RewriteColor::NoOp,
-            RewriteColor::ChangeAll(Color::ORANGE),
-            None,
-        )
+        BtnBuilder::SVG {
+            path: path.into(),
+            rewrite_normal: RewriteColor::NoOp,
+            rewrite_hover: RewriteColor::ChangeAll(Color::ORANGE),
+            maybe_tooltip: None,
+            pad: 0,
+        }
     }
 
     pub fn plaintext<I: Into<String>>(label: I) -> BtnBuilder {
@@ -186,7 +193,13 @@ impl Btn {
 }
 
 pub enum BtnBuilder {
-    SVG(String, RewriteColor, RewriteColor, Option<Text>),
+    SVG {
+        path: String,
+        rewrite_normal: RewriteColor,
+        rewrite_hover: RewriteColor,
+        maybe_tooltip: Option<Text>,
+        pad: usize,
+    },
     TextFG(String, Text, Option<Text>),
     PlainText(String, Text, Option<Text>),
     TextBG {
@@ -203,14 +216,17 @@ pub enum BtnBuilder {
 impl BtnBuilder {
     pub fn tooltip(mut self, tooltip: Text) -> BtnBuilder {
         match self {
-            BtnBuilder::SVG(_, _, _, ref mut t)
-            | BtnBuilder::TextFG(_, _, ref mut t)
+            BtnBuilder::TextFG(_, _, ref mut t)
             | BtnBuilder::PlainText(_, _, ref mut t)
             | BtnBuilder::Custom(_, _, _, ref mut t) => {
                 assert!(t.is_none());
                 *t = Some(tooltip);
             }
-            BtnBuilder::TextBG {
+            BtnBuilder::SVG {
+                ref mut maybe_tooltip,
+                ..
+            }
+            | BtnBuilder::TextBG {
                 ref mut maybe_tooltip,
                 ..
             } => {
@@ -223,12 +239,25 @@ impl BtnBuilder {
 
     pub fn normal_color(mut self, rewrite: RewriteColor) -> BtnBuilder {
         match self {
-            BtnBuilder::SVG(_, ref mut normal, _, _) => {
-                match normal {
+            BtnBuilder::SVG {
+                ref mut rewrite_normal,
+                ..
+            } => {
+                match rewrite_normal {
                     RewriteColor::NoOp => {}
                     _ => unreachable!(),
                 }
-                *normal = rewrite;
+                *rewrite_normal = rewrite;
+                self
+            }
+            _ => unreachable!(),
+        }
+    }
+
+    pub fn pad(mut self, new_pad: usize) -> BtnBuilder {
+        match self {
+            BtnBuilder::SVG { ref mut pad, .. } => {
+                *pad = new_pad;
                 self
             }
             _ => unreachable!(),
@@ -242,10 +271,24 @@ impl BtnBuilder {
         key: Option<MultiKey>,
     ) -> Widget {
         match self {
-            BtnBuilder::SVG(path, rewrite_normal, rewrite_hover, maybe_t) => {
-                let (mut normal, bounds) = svg::load_svg(ctx.prerender, &path);
-                let mut hovered = normal.clone();
+            BtnBuilder::SVG {
+                path,
+                rewrite_normal,
+                rewrite_hover,
+                maybe_tooltip,
+                pad,
+            } => {
+                let (orig, bounds) = svg::load_svg(ctx.prerender, &path);
+                let pad = pad as f64;
+                let geom =
+                    Polygon::rectangle(bounds.width() + 2.0 * pad, bounds.height() + 2.0 * pad);
+
+                let mut normal = GeomBatch::new();
+                normal.add_translated(orig.clone(), pad, pad);
                 normal.rewrite_color(rewrite_normal);
+
+                let mut hovered = GeomBatch::new();
+                hovered.add_translated(orig, pad, pad);
                 hovered.rewrite_color(rewrite_hover);
 
                 Button::new(
@@ -254,8 +297,8 @@ impl BtnBuilder {
                     hovered,
                     key,
                     &action_tooltip.into(),
-                    maybe_t,
-                    bounds.get_rectangle(),
+                    maybe_tooltip,
+                    geom,
                 )
             }
             BtnBuilder::TextFG(_, normal_txt, maybe_t) => {
@@ -335,7 +378,7 @@ impl BtnBuilder {
                 let geom = Polygon::rounded_rectangle(
                     dims.width + 2.0 * HORIZ_PADDING,
                     dims.height + 2.0 * VERT_PADDING,
-                    VERT_PADDING,
+                    Some(VERT_PADDING),
                 );
 
                 let mut normal = GeomBatch::from(vec![(unselected_bg_color, geom.clone())]);
@@ -369,7 +412,7 @@ impl BtnBuilder {
     // Use the text as the action
     pub fn build_def(self, ctx: &EventCtx, hotkey: Option<MultiKey>) -> Widget {
         match self {
-            BtnBuilder::SVG(_, _, _, _) => panic!("Can't use build_def on an SVG button"),
+            BtnBuilder::SVG { .. } => panic!("Can't use build_def on an SVG button"),
             BtnBuilder::Custom(_, _, _, _) => panic!("Can't use build_def on a custom button"),
             BtnBuilder::TextFG(ref label, _, _)
             | BtnBuilder::PlainText(ref label, _, _)

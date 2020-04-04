@@ -1,8 +1,9 @@
 use crate::app::App;
-use crate::helpers::{ColorScheme, ID};
+use crate::colors::ColorScheme;
+use crate::helpers::ID;
 use crate::render::{dashed_lines, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use abstutil::Timer;
-use ezgui::{Color, Drawable, FancyColor, GeomBatch, GfxCtx, Prerender};
+use ezgui::{Drawable, FancyColor, GeomBatch, GfxCtx, Prerender};
 use geom::{Angle, Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{Lane, LaneID, LaneType, Map, Road, TurnType, PARKING_SPOT_LENGTH};
 
@@ -89,57 +90,49 @@ impl DrawLane {
         let mut draw = GeomBatch::new();
         draw.push(
             match lane.lane_type {
-                LaneType::Driving => cs.get_def("driving lane", Color::BLACK),
-                LaneType::Bus => cs.get_def("bus lane", Color::rgb(190, 74, 76)),
-                LaneType::Parking => cs.get_def("parking lane", Color::grey(0.2)),
-                LaneType::Sidewalk => cs.get_def("sidewalk", Color::grey(0.8)),
-                LaneType::Biking => cs.get_def("bike lane", Color::rgb(15, 125, 75)),
-                LaneType::SharedLeftTurn => cs.get("driving lane"),
-                LaneType::Construction => {
-                    cs.get_def("construction background", Color::rgb(255, 109, 0))
-                }
+                LaneType::Driving => cs.driving_lane,
+                LaneType::Bus => cs.bus_lane,
+                LaneType::Parking => cs.parking_lane,
+                LaneType::Sidewalk => cs.sidewalk,
+                LaneType::Biking => cs.bike_lane,
+                LaneType::SharedLeftTurn => cs.driving_lane,
+                LaneType::Construction => cs.under_construction,
             },
             polygon.clone(),
         );
         if draw_lane_markings {
             match lane.lane_type {
                 LaneType::Sidewalk => {
-                    draw.extend(
-                        cs.get_def("sidewalk lines", Color::grey(0.7)),
-                        calculate_sidewalk_lines(lane),
-                    );
+                    draw.extend(cs.sidewalk_lines, calculate_sidewalk_lines(lane));
                 }
                 LaneType::Parking => {
-                    draw.extend(
-                        cs.get_def("general road marking", Color::WHITE),
-                        calculate_parking_lines(map, lane),
-                    );
+                    draw.extend(cs.general_road_marking, calculate_parking_lines(map, lane));
                 }
                 LaneType::Driving | LaneType::Bus => {
                     draw.extend(
-                        cs.get("general road marking"),
+                        cs.general_road_marking,
                         calculate_driving_lines(map, lane, road, timer),
                     );
                     draw.extend(
-                        cs.get("general road marking"),
+                        cs.general_road_marking,
                         calculate_turn_markings(map, lane, timer),
                     );
                     draw.extend(
-                        cs.get("general road marking"),
+                        cs.general_road_marking,
                         calculate_one_way_markings(lane, road),
                     );
                 }
                 LaneType::Biking => {}
                 LaneType::SharedLeftTurn => {
                     draw.push(
-                        cs.get("road center line"),
+                        cs.road_center_line,
                         lane.lane_center_pts
                             .shift_right(lane.width / 2.0)
                             .get(timer)
                             .make_polygons(Distance::meters(0.25)),
                     );
                     draw.push(
-                        cs.get("road center line"),
+                        cs.road_center_line,
                         lane.lane_center_pts
                             .shift_left(lane.width / 2.0)
                             .get(timer)

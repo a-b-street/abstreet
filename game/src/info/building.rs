@@ -108,7 +108,12 @@ pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Building
         rows.push(Widget::col(vec![
             Btn::text_bg1(p.to_string()).build_def(ctx, None),
             if let Some((t, mode)) = next_trip {
-                format!("Leaving in {} to {}", t - app.primary.sim.time(), mode).draw_text(ctx)
+                format!(
+                    "Leaving in {} to {}",
+                    t - app.primary.sim.time(),
+                    mode.verb()
+                )
+                .draw_text(ctx)
             } else {
                 "Staying inside".draw_text(ctx)
             },
@@ -160,14 +165,10 @@ fn header(
             )
             .map(|obj| obj.get_outline(&app.primary.map))
         {
-            details.unzoomed.push(
-                app.cs.get("something associated with something else"),
-                shape.clone(),
-            );
-            details.zoomed.push(
-                app.cs.get("something associated with something else"),
-                shape,
-            );
+            details
+                .unzoomed
+                .push(app.cs.associated_object, shape.clone());
+            details.zoomed.push(app.cs.associated_object, shape);
         }
     }
 

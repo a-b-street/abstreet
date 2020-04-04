@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::colors;
 use crate::common::Warping;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
@@ -36,7 +35,7 @@ impl Navigator {
                     )
                     .named("street"),
                 ])
-                .bg(colors::PANEL_BG),
+                .bg(app.cs.panel_bg),
             )
             .build(ctx),
         })
@@ -120,7 +119,7 @@ impl CrossStreet {
                     )
                     .named("street"),
                 ])
-                .bg(colors::PANEL_BG),
+                .bg(app.cs.panel_bg),
             )
             .build(ctx),
         })

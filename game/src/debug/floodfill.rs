@@ -36,8 +36,9 @@ impl Floodfiller {
         title: String,
     ) -> Box<dyn State> {
         let map = &app.primary.map;
-        let reachable_color = app.cs.get_def("reachable lane", Color::GREEN);
-        let unreachable_color = app.cs.get_def("unreachable lane", Color::RED);
+        // Localized and debug
+        let reachable_color = Color::GREEN;
+        let unreachable_color = Color::RED;
 
         let mut colorer = Colorer::new(
             Text::from(Line("lane connectivity")),
@@ -58,6 +59,7 @@ impl Floodfiller {
         Box::new(Floodfiller {
             composite: WrappedComposite::quick_menu(
                 ctx,
+                app,
                 title,
                 vec![format!("{} unreachable lanes", num_unreachable)],
                 vec![],

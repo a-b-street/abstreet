@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::colors;
 use crate::game::{State, Transition};
 use crate::managed::{Callback, ManagedGUIState, WrappedComposite};
 use crate::sandbox::{GameplayMode, SandboxMode, TutorialState};
@@ -177,7 +176,7 @@ impl Tab {
         master_col.push(
             Widget::row(flex_row)
                 .flex_wrap(ctx, 80)
-                .bg(colors::PANEL_BG)
+                .bg(app.cs.panel_bg)
                 .padding(10)
                 .margin(10)
                 .outline(10.0, Color::BLACK),
@@ -211,7 +210,7 @@ impl Tab {
             }
             main_row.push(
                 Widget::col(col)
-                    .bg(colors::PANEL_BG)
+                    .bg(app.cs.panel_bg)
                     .padding(10)
                     .margin(10)
                     .outline(10.0, Color::BLACK),
@@ -235,7 +234,7 @@ impl Tab {
                         .build_def(ctx, hotkey(Key::Enter))
                         .margin(10),
                 ])
-                .bg(colors::PANEL_BG)
+                .bg(app.cs.panel_bg)
                 .padding(10)
                 .margin(10)
                 .outline(10.0, Color::BLACK),

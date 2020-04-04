@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::colors;
 use crate::helpers::ID;
 use crate::info::{make_table, Details};
 use crate::render::dashed_lines;
@@ -9,13 +8,13 @@ use ezgui::{
 };
 use geom::{Angle, Distance, Duration, Polygon, Pt2D, Time};
 use map_model::{Map, Path, PathStep};
-use sim::{TripEndpoint, TripID, TripPhase, TripPhaseType};
+use sim::{AgentID, TripEndpoint, TripID, TripPhase, TripPhaseType, VehicleType};
 
 pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Details) -> Widget {
     let map = &app.primary.map;
     let sim = &app.primary.sim;
     let phases = sim.get_analytics().get_trip_phases(trip, map);
-    let (start_time, trip_start, trip_end, trip_mode) = sim.trip_info(trip);
+    let (start_time, trip_start, trip_end, _) = sim.trip_info(trip);
     let end_time = phases.last().as_ref().and_then(|p| p.end_time);
 
     if phases.is_empty() {
@@ -27,7 +26,6 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
         return Widget::col(make_table(
             ctx,
             vec![
-                ("Type", trip_mode.to_string()),
                 ("Departure", start_time.ampm_tostring()),
                 ("From", name1),
                 ("To", name2),
@@ -39,67 +37,75 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
 
     // Describe properties of the trip
     let total_trip_time = end_time.unwrap_or_else(|| sim.time()) - phases[0].start_time;
-    // TODO Depict differently
-    col.extend(make_table(ctx, vec![("Type", trip_mode.to_string())]));
 
     // Describe this leg of the trip
+    let col_width = 7;
     let progress_along_path = if let Some(a) = sim.trip_to_agent(trip).ok() {
         let props = sim.agent_properties(a);
-        // TODO we want the current TripPhaseType.describe here
-        let activity = "here";
+        // This is different than the entire TripMode, and also not the current TripPhaseType.
+        // Sigh.
+        let activity = match a {
+            AgentID::Pedestrian(_) => "walking",
+            AgentID::Car(c) => match c.1 {
+                VehicleType::Car => "driving",
+                VehicleType::Bike => "biking",
+                // TODO And probably riding a bus is broken, I don't know how that gets mapped right
+                // now
+                VehicleType::Bus => "riding the bus",
+            },
+        };
 
-        // TODO Style needs work. Like, always.
-
-        // TODO Can we change font mid line please?
         col.push(Widget::row(vec![
-            Line("Trip time").secondary().draw(ctx).margin_right(20),
-            props.total_time.to_string().draw_text(ctx),
-            Line(format!("{} / {} this trip", activity, total_trip_time))
-                .secondary()
-                .draw(ctx),
+            Widget::row(vec![Line("Trip time").secondary().draw(ctx)]).force_width(ctx, col_width),
+            Text::from_all(vec![
+                Line(props.total_time.to_string()),
+                Line(format!(" {} / {} this trip", activity, total_trip_time)).secondary(),
+            ])
+            .draw(ctx),
         ]));
 
         col.push(Widget::row(vec![
-            Line("Distance").secondary().draw(ctx).margin_right(20),
+            Widget::row(vec![Line("Distance").secondary().draw(ctx)]).force_width(ctx, col_width),
             Widget::col(vec![
-                Widget::row(vec![
-                    props.dist_crossed.describe_rounded().draw_text(ctx),
-                    Line(format!("/{}", props.total_dist.describe_rounded()))
-                        .secondary()
-                        .draw(ctx),
-                ]),
-                Widget::row(vec![
-                    format!("{} lanes", props.lanes_crossed).draw_text(ctx),
-                    Line(format!("/{}", props.total_lanes))
-                        .secondary()
-                        .draw(ctx),
-                ]),
+                Text::from_all(vec![
+                    Line(props.dist_crossed.describe_rounded()),
+                    Line(format!("/{}", props.total_dist.describe_rounded())).secondary(),
+                ])
+                .draw(ctx),
+                Text::from_all(vec![
+                    Line(format!("{} lanes", props.lanes_crossed)),
+                    Line(format!("/{}", props.total_lanes)).secondary(),
+                ])
+                .draw(ctx),
             ]),
         ]));
 
         col.push(Widget::row(vec![
-            Line("Waiting").secondary().draw(ctx).margin_right(20),
+            Widget::row(vec![Line("Waiting").secondary().draw(ctx)]).force_width(ctx, col_width),
             Widget::col(vec![
                 format!("{} here", props.waiting_here).draw_text(ctx),
-                Widget::row(vec![
-                    (if props.total_waiting != Duration::ZERO {
-                        format!(
+                Text::from_all(vec![
+                    if props.total_waiting != Duration::ZERO {
+                        Line(format!(
                             "{}%",
                             (100.0 * (props.waiting_here / props.total_waiting)) as usize
-                        )
+                        ))
                     } else {
-                        "0%".to_string()
-                    })
-                    .draw_text(ctx),
-                    Line(format!(" of {} time", activity)).secondary().draw(ctx),
-                ]),
+                        Line("0%")
+                    },
+                    Line(format!(" of {} time", activity)).secondary(),
+                ])
+                .draw(ctx),
             ]),
         ]));
 
         Some(props.dist_crossed / props.total_dist)
     } else {
         // The trip is finished
-        // TODO total time
+        col.push(Widget::row(vec![
+            Widget::row(vec![Line("Trip time").secondary().draw(ctx)]).force_width(ctx, col_width),
+            total_trip_time.to_string().draw_text(ctx),
+        ]));
         None
     };
 
@@ -152,7 +158,7 @@ fn make_timeline(
         txt.add(Line(start_time.ampm_tostring()));
         Btn::svg(
             "../data/system/assets/timeline/start_pos.svg",
-            RewriteColor::Change(Color::WHITE, colors::HOVERING),
+            RewriteColor::Change(Color::WHITE, app.cs.hovering),
         )
         .tooltip(txt)
         .build(ctx, format!("jump to start of {}", trip), None)
@@ -183,7 +189,7 @@ fn make_timeline(
         }
         Btn::svg(
             "../data/system/assets/timeline/goal_pos.svg",
-            RewriteColor::Change(Color::WHITE, colors::HOVERING),
+            RewriteColor::Change(Color::WHITE, app.cs.hovering),
         )
         .tooltip(txt)
         .build(ctx, format!("jump to goal of {}", trip), None)
@@ -197,12 +203,12 @@ fn make_timeline(
     let mut elevation = Vec::new();
     for (idx, p) in phases.into_iter().enumerate() {
         let color = match p.phase_type {
-            TripPhaseType::Driving => Color::hex("#D63220"),
-            TripPhaseType::Walking => Color::hex("#DF8C3D"),
-            TripPhaseType::Biking => app.cs.get("bike lane"),
-            TripPhaseType::Parking => Color::hex("#4E30A6"),
-            TripPhaseType::WaitingForBus(_, _) => app.cs.get("bus stop marking"),
-            TripPhaseType::RidingBus(_, _, _) => app.cs.get("bus lane"),
+            TripPhaseType::Driving => app.cs.unzoomed_car,
+            TripPhaseType::Walking => app.cs.unzoomed_pedestrian,
+            TripPhaseType::Biking => app.cs.bike_lane,
+            TripPhaseType::Parking => app.cs.parking_trip,
+            TripPhaseType::WaitingForBus(_, _) => app.cs.bus_stop,
+            TripPhaseType::RidingBus(_, _, _) => app.cs.bus_lane,
             TripPhaseType::Aborted | TripPhaseType::Finished => unreachable!(),
         }
         .alpha(0.7);

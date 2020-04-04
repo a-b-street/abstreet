@@ -1,12 +1,13 @@
+use crate::colors::ColorScheme;
 use crate::common::Overlays;
-use crate::helpers::{ColorScheme, ID};
+use crate::helpers::ID;
 use crate::options::Options;
 use crate::render::{
     AgentCache, AgentColorScheme, DrawMap, DrawOptions, Renderable, MIN_ZOOM_FOR_DETAIL,
 };
 use crate::sandbox::TutorialState;
 use abstutil::{MeasureMemory, Timer};
-use ezgui::{Color, EventCtx, GfxCtx, Prerender};
+use ezgui::{EventCtx, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Pt2D};
 use map_model::{Map, Traversable};
 use rand::seq::SliceRandom;
@@ -34,7 +35,7 @@ pub struct App {
 
 impl App {
     pub fn new(flags: Flags, opts: Options, ctx: &mut EventCtx, splash: bool) -> App {
-        let cs = ColorScheme::load(opts.color_scheme.clone());
+        let cs = ColorScheme::new(opts.color_scheme);
         let primary = ctx.loading_screen("load map", |ctx, mut timer| {
             PerMap::new(flags, &cs, ctx, &mut timer)
         });
@@ -106,7 +107,7 @@ impl App {
     ) {
         let mut sample_intersection: Option<String> = None;
 
-        g.clear(self.cs.get_def("true background", Color::BLACK));
+        g.clear(self.cs.void_background);
         g.redraw(&self.primary.draw_map.boundary_polygon);
 
         if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL && !g.is_screencap() {
@@ -138,7 +139,7 @@ impl App {
             // TODO Refactor! Ideally use get_obj
             if let Some(ID::Area(id)) = self.primary.current_selection {
                 g.draw_polygon(
-                    self.cs.get("selected"),
+                    self.cs.selected,
                     &self
                         .primary
                         .draw_map
@@ -147,7 +148,7 @@ impl App {
                 );
             } else if let Some(ID::ExtraShape(id)) = self.primary.current_selection {
                 g.draw_polygon(
-                    self.cs.get("selected"),
+                    self.cs.selected,
                     &self
                         .primary
                         .draw_map
@@ -156,7 +157,7 @@ impl App {
                 );
             } else if let Some(ID::Road(id)) = self.primary.current_selection {
                 g.draw_polygon(
-                    self.cs.get("selected"),
+                    self.cs.selected,
                     &self
                         .primary
                         .draw_map
@@ -165,7 +166,7 @@ impl App {
                 );
             } else if let Some(ID::Intersection(id)) = self.primary.current_selection {
                 // Actually, don't use get_outline here! Full polygon is easier to see.
-                g.draw_polygon(self.cs.get("selected"), &self.primary.map.get_i(id).polygon);
+                g.draw_polygon(self.cs.selected, &self.primary.map.get_i(id).polygon);
             }
 
             let mut cache = self.primary.draw_map.agents.borrow_mut();
@@ -210,10 +211,7 @@ impl App {
                 };
 
                 if self.primary.current_selection == Some(obj.get_id()) {
-                    g.draw_polygon(
-                        self.cs.get_def("selected", Color::RED.alpha(0.7)),
-                        &obj.get_outline(&self.primary.map),
-                    );
+                    g.draw_polygon(self.cs.selected, &obj.get_outline(&self.primary.map));
                 }
 
                 if g.is_screencap() && sample_intersection.is_none() {

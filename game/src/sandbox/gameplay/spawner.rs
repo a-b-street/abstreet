@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::colors;
 use crate::common::{Colorer, CommonState};
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
@@ -164,10 +163,7 @@ impl State for AgentSpawner {
         self.colorer.draw(g);
 
         if let Some((_, Some(ref trace))) = self.maybe_goal {
-            g.draw_polygon(
-                app.cs.get("route"),
-                &trace.make_polygons(NORMAL_LANE_THICKNESS),
-            );
+            g.draw_polygon(app.cs.route, &trace.make_polygons(NORMAL_LANE_THICKNESS));
         }
 
         self.composite.draw(g);
@@ -493,10 +489,7 @@ impl State for SpawnManyAgents {
         self.colorer.draw(g);
 
         if let Some((_, Some(ref trace))) = self.maybe_goal {
-            g.draw_polygon(
-                app.cs.get("route"),
-                &trace.make_polygons(NORMAL_LANE_THICKNESS),
-            );
+            g.draw_polygon(app.cs.route, &trace.make_polygons(NORMAL_LANE_THICKNESS));
         }
 
         self.composite.draw(g);
@@ -536,7 +529,7 @@ fn create_swarm(app: &mut App, from: LaneID, to: LaneID, count: usize, duration:
         );
 }
 
-fn make_top_bar(ctx: &mut EventCtx, title: &str, howto: &str) -> Composite {
+fn make_top_bar(ctx: &mut EventCtx, app: &App, title: &str, howto: &str) -> Composite {
     Composite::new(
         Widget::col(vec![
             Widget::row(vec![
@@ -548,7 +541,7 @@ fn make_top_bar(ctx: &mut EventCtx, title: &str, howto: &str) -> Composite {
             howto.draw_text(ctx),
         ])
         .padding(10)
-        .bg(colors::PANEL_BG),
+        .bg(app.cs.panel_bg),
     )
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
@@ -596,7 +589,7 @@ pub fn actions(app: &App, id: ID) -> Vec<(Key, String)> {
 
 pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
     let map = &app.primary.map;
-    let color = app.cs.get("selected");
+    let color = app.cs.selected;
     let mut c = Colorer::new(Text::from(Line("spawning agent")), vec![("start", color)]);
 
     match (id, action.as_ref()) {
@@ -613,6 +606,7 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Tra
             Transition::Push(Box::new(AgentSpawner {
                 composite: make_top_bar(
                     ctx,
+                    app,
                     "Spawning a pedestrian",
                     "Pick a building or border as a destination",
                 ),
@@ -626,6 +620,7 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Tra
             Transition::Push(Box::new(AgentSpawner {
                 composite: make_top_bar(
                     ctx,
+                    app,
                     "Spawning a walking trip using a parked car",
                     "Pick a building or border as a destination",
                 ),
@@ -640,6 +635,7 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Tra
             Transition::Push(Box::new(AgentSpawner {
                 composite: make_top_bar(
                     ctx,
+                    app,
                     "Spawning a car",
                     "Pick a building or border as a destination",
                 ),
@@ -654,6 +650,7 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Tra
             Transition::Push(Box::new(AgentSpawner {
                 composite: make_top_bar(
                     ctx,
+                    app,
                     "Spawning a bike",
                     "Pick a building or border as a destination",
                 ),
@@ -667,6 +664,7 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Tra
             Transition::Push(Box::new(AgentSpawner {
                 composite: make_top_bar(
                     ctx,
+                    app,
                     "Spawning a car",
                     "Pick a building or border as a destination",
                 ),
@@ -680,6 +678,7 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Tra
             Transition::Push(Box::new(AgentSpawner {
                 composite: make_top_bar(
                     ctx,
+                    app,
                     "Spawning a pedestrian",
                     "Pick a building or border as a destination",
                 ),
@@ -689,7 +688,7 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Tra
             }))
         }
         (ID::Lane(l), "spawn many cars starting here") => {
-            let color = app.cs.get("selected");
+            let color = app.cs.selected;
             let mut c = Colorer::new(
                 Text::from(Line("spawning many agents")),
                 vec![("start", color)],
@@ -699,6 +698,7 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Tra
             Transition::Push(Box::new(SpawnManyAgents {
                 composite: make_top_bar(
                     ctx,
+                    app,
                     "Spawning many agents",
                     "Pick a driving lane as a destination",
                 ),

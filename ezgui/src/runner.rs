@@ -1,6 +1,6 @@
 use crate::assets::Assets;
 use crate::tools::screenshot::{screenshot_current, screenshot_everything};
-use crate::{Canvas, Event, EventCtx, GfxCtx, Key, Prerender, UserInput};
+use crate::{text, Canvas, Event, EventCtx, GfxCtx, Key, Prerender, UserInput};
 use geom::Duration;
 use instant::Instant;
 use std::cell::Cell;
@@ -169,7 +169,7 @@ impl Settings {
             window_title: window_title.to_string(),
             font_dir: font_dir.to_string(),
             profiling_enabled: false,
-            default_font_size: 21,
+            default_font_size: text::DEFAULT_FONT_SIZE,
             dump_raw_events: false,
             scale_factor: 1.0,
         }

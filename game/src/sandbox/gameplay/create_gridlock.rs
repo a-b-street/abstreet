@@ -13,9 +13,9 @@ pub struct CreateGridlock {
 }
 
 impl CreateGridlock {
-    pub fn new(ctx: &mut EventCtx, mode: GameplayMode) -> Box<dyn GameplayState> {
+    pub fn new(ctx: &mut EventCtx, app: &App, mode: GameplayMode) -> Box<dyn GameplayState> {
         Box::new(CreateGridlock {
-            top_center: challenge_controller(ctx, mode, "Gridlock Challenge", Vec::new()),
+            top_center: challenge_controller(ctx, app, mode, "Gridlock Challenge", Vec::new()),
         })
     }
 }
@@ -67,7 +67,11 @@ fn gridlock_panel(app: &App) -> Text {
         let a = now_per_mode[&mode].count();
         let b = baseline_per_mode[&mode].count();
         txt.add_appended(vec![
-            Line(format!("  {}: {} (", mode, prettyprint_usize(a))),
+            Line(format!(
+                "  {}: {} (",
+                mode.ongoing_verb(),
+                prettyprint_usize(a)
+            )),
             cmp_count_fewer(a, b),
             Line(")"),
         ]);

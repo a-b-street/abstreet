@@ -85,7 +85,7 @@ impl WidgetImpl for Spinner {
         // TODO Cache
         let mut batch = GeomBatch::from(vec![(
             text::BG_COLOR,
-            Polygon::rounded_rectangle(self.dims.width, self.dims.height, 5.0),
+            Polygon::rounded_rectangle(self.dims.width, self.dims.height, Some(5.0)),
         )]);
         batch.add_centered(
             Text::from(Line(self.current.to_string())).render_to_batch(g.prerender),

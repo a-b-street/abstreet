@@ -1,7 +1,8 @@
 use crate::app::App;
-use crate::helpers::{rotating_color_agents, ColorScheme, ID};
+use crate::colors::ColorScheme;
+use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable};
-use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
+use ezgui::{Drawable, GeomBatch, GfxCtx, Prerender};
 use geom::{Circle, Distance, Line, PolyLine, Polygon};
 use map_model::{Map, SIDEWALK_THICKNESS};
 use sim::{CarID, DrawCarInput};
@@ -26,9 +27,9 @@ impl DrawBike {
 
         // TODO Share constants with DrawPedestrian
         let body_radius = SIDEWALK_THICKNESS / 4.0;
-        let body_color = zoomed_color_bike(&input);
+        let body_color = cs.rotating_color_agents(input.id.0);
         draw_default.push(
-            cs.get_def("bike frame", Color::rgb(0, 128, 128)),
+            cs.bike_frame,
             input.body.make_polygons(Distance::meters(0.4)),
         );
 
@@ -36,7 +37,7 @@ impl DrawBike {
         let body_circle = Circle::new(body_pos, body_radius);
         draw_default.push(body_color, body_circle.to_polygon());
         draw_default.push(
-            cs.get("pedestrian head"),
+            cs.ped_head,
             Circle::new(body_pos, 0.5 * body_radius).to_polygon(),
         );
 
@@ -44,7 +45,7 @@ impl DrawBike {
             // Handlebars
             let (hand_pos, hand_angle) = input.body.dist_along(0.9 * input.body.length());
             draw_default.push(
-                cs.get("bike frame"),
+                cs.bike_frame,
                 Line::new(
                     hand_pos.project_away(body_radius, hand_angle.rotate_degs(90.0)),
                     hand_pos.project_away(body_radius, hand_angle.rotate_degs(-90.0)),
@@ -74,7 +75,7 @@ impl DrawBike {
         if let Some(t) = input.waiting_for_turn {
             let angle = map.get_t(t).angle();
             draw_default.push(
-                cs.get("turn arrow"),
+                cs.turn_arrow,
                 PolyLine::new(vec![
                     body_pos.project_away(body_radius / 2.0, angle.opposite()),
                     body_pos.project_away(body_radius / 2.0, angle),
@@ -110,8 +111,4 @@ impl Renderable for DrawBike {
     fn get_zorder(&self) -> isize {
         self.zorder
     }
-}
-
-fn zoomed_color_bike(input: &DrawCarInput) -> Color {
-    rotating_color_agents(input.id.0)
 }

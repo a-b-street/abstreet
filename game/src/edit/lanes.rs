@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::colors;
 use crate::common::CommonState;
 use crate::edit::apply_map_edits;
 use crate::game::{msg, State, Transition, WizardState};
@@ -96,7 +95,7 @@ impl LaneEditor {
             },
         ];
 
-        let composite = Composite::new(Widget::col(col).bg(colors::PANEL_BG).padding(10))
+        let composite = Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(10))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx);
 
@@ -177,7 +176,7 @@ impl State for LaneEditor {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.draw_polygon(
-            app.cs.get("perma selected thing"),
+            app.cs.perma_selected_object,
             &app.primary
                 .draw_map
                 .get_l(self.l)

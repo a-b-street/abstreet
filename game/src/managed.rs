@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::colors;
 use crate::game::{DrawBaselayer, State, Transition};
 use ezgui::{
     hotkey, Btn, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, MultiKey, Outcome,
@@ -61,6 +60,7 @@ impl WrappedComposite {
     // Always includes a built-in "X" quit option
     pub fn quick_menu<I: Into<String>>(
         ctx: &mut EventCtx,
+        app: &App,
         title: I,
         info: Vec<String>,
         actions: Vec<(Option<MultiKey>, &str)>,
@@ -89,7 +89,7 @@ impl WrappedComposite {
                 .flex_wrap(ctx, 60),
             ])
             .padding(10)
-            .bg(colors::PANEL_BG),
+            .bg(app.cs.panel_bg),
         )
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx)
@@ -146,7 +146,7 @@ impl State for ManagedGUIState {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         if self.fullscreen {
             // Happens to be a nice background color too ;)
-            g.clear(app.cs.get("grass"));
+            g.clear(app.cs.grass);
         } else {
             State::grey_out_map(g);
         }

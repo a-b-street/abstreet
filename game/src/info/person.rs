@@ -1,8 +1,7 @@
 use crate::app::App;
-use crate::colors;
 use crate::info::{building, header_btns, make_table, make_tabs, trip, Details, Tab};
 use crate::render::Renderable;
-use ezgui::{hotkey, Btn, Color, EventCtx, Key, Line, RewriteColor, TextExt, Widget};
+use ezgui::{hotkey, Btn, Color, EventCtx, Key, Line, RewriteColor, Text, TextExt, Widget};
 use map_model::Map;
 use maplit::btreeset;
 use sim::{
@@ -55,18 +54,24 @@ pub fn trips(
             }
             TripResult::TripDoesntExist => unreachable!(),
         };
+        let (_, _, _, trip_mode) = sim.trip_info(*t);
 
         // TODO Style wrong. Button should be the entire row.
         rows.push(
             Widget::row(vec![
-                t.to_string().draw_text(ctx),
+                Text::from_all(vec![
+                    Line(format!("{} ", t)),
+                    Line(trip_mode.ongoing_verb()).secondary(),
+                ])
+                .draw(ctx),
                 if trip_status == "ongoing" {
                     // TODO Padding doesn't work without wrapping in a row
                     Widget::row(vec![Line(trip_status)
                         .small()
                         .fg(Color::hex("#7FFA4D"))
                         .draw(ctx)])
-                    .rounder_outline(1.0, 10.0, Color::hex("#7FFA4D"))
+                    .fully_rounded()
+                    .outline(1.0, Color::hex("#7FFA4D"))
                     .bg(Color::rgba(127, 250, 77, 0.2))
                     .padding(5)
                 } else {
@@ -92,7 +97,7 @@ pub fn trips(
             ])
             .outline(2.0, Color::WHITE)
             .padding(16)
-            .bg(colors::INNER_PANEL)
+            .bg(app.cs.inner_panel)
             .margin_above(if is_first { 0 } else { 16 }),
         );
         is_first = false;
@@ -101,7 +106,7 @@ pub fn trips(
             rows.push(
                 trip::details(ctx, app, *t, details)
                     .outline(2.0, Color::WHITE)
-                    .bg(colors::INNER_PANEL)
+                    .bg(app.cs.inner_panel)
                     .padding(16),
             );
 
@@ -205,12 +210,11 @@ pub fn parked_car(ctx: &EventCtx, app: &App, details: &mut Details, id: CarID) -
     if let Some(b) = app.primary.sim.get_owner_of_car(id) {
         // TODO Mention this, with a warp tool
         details.unzoomed.push(
-            app.cs
-                .get_def("something associated with something else", Color::PURPLE),
+            app.cs.associated_object,
             app.primary.draw_map.get_b(b).get_outline(&app.primary.map),
         );
         details.zoomed.push(
-            app.cs.get("something associated with something else"),
+            app.cs.associated_object,
             app.primary.draw_map.get_b(b).get_outline(&app.primary.map),
         );
     }

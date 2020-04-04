@@ -1,20 +1,18 @@
 use crate::app::App;
-use crate::colors;
 use crate::common::{Overlays, Warping};
 use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
-use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::{GameplayMode, SandboxMode};
 use ezgui::{
-    hotkey, Btn, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, Outcome, Plot, PlotOptions, RewriteColor, Series, Slider, Text, VerticalAlignment,
-    Widget,
+    hotkey, Btn, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, PersistentSplit, Plot, PlotOptions, RewriteColor,
+    Series, Slider, Text, VerticalAlignment, Widget,
 };
 use geom::{Duration, Polygon, Time};
 use instant::Instant;
 
 pub struct SpeedControls {
-    pub composite: WrappedComposite,
+    pub composite: Composite,
 
     paused: bool,
     setting: SpeedSetting,
@@ -34,25 +32,20 @@ enum SpeedSetting {
 
 impl SpeedControls {
     // TODO Could use custom_checkbox here, but not sure it'll make things that much simpler.
-    fn make_panel(ctx: &mut EventCtx, paused: bool, setting: SpeedSetting) -> WrappedComposite {
+    fn make_panel(ctx: &mut EventCtx, app: &App, paused: bool, setting: SpeedSetting) -> Composite {
         let mut row = Vec::new();
         row.push(
             if paused {
-                Btn::svg_def("../data/system/assets/speed/triangle.svg").build(
-                    ctx,
-                    "play",
-                    hotkey(Key::Space),
-                )
+                Btn::svg_def("../data/system/assets/speed/triangle.svg")
+                    .pad(9)
+                    .build(ctx, "play", hotkey(Key::Space))
             } else {
-                Btn::svg_def("../data/system/assets/speed/pause.svg").build(
-                    ctx,
-                    "pause",
-                    hotkey(Key::Space),
-                )
+                Btn::svg_def("../data/system/assets/speed/pause.svg")
+                    .pad(9)
+                    .build(ctx, "pause", hotkey(Key::Space))
             }
-            .margin(5)
-            .centered_vert()
-            .bg(colors::SECTION_BG),
+            .bg(app.cs.section_bg)
+            .margin_right(16),
         );
 
         row.push(
@@ -75,94 +68,57 @@ impl SpeedControls {
                         } else {
                             RewriteColor::ChangeAll(Color::WHITE.alpha(0.2))
                         })
+                        .pad(3)
                         .tooltip(txt)
                         .build(ctx, label, None)
-                        .margin(5)
                 })
                 .collect(),
             )
-            .bg(colors::SECTION_BG)
-            .centered(),
+            .bg(app.cs.section_bg)
+            .centered()
+            .padding(6)
+            .margin_right(16),
         );
 
         row.push(
-            Widget::row(
+            PersistentSplit::new(
+                ctx,
+                "step forwards",
+                app.opts.time_increment,
+                hotkey(Key::M),
                 vec![
-                    Btn::custom(
-                        Text::from(Line("+1h").fg(Color::WHITE)).render_ctx(ctx),
-                        Text::from(Line("+1h").fg(colors::HOVERING)).render_ctx(ctx),
-                        {
-                            let dims = Text::from(Line("+1h")).render_ctx(ctx).get_dims();
-                            Polygon::rectangle(dims.width, dims.height)
-                        },
-                    )
-                    .build(ctx, "step forwards 1 hour", hotkey(Key::N)),
-                    Btn::custom(
-                        Text::from(Line("+0.1s").fg(Color::WHITE)).render_ctx(ctx),
-                        Text::from(Line("+0.1s").fg(colors::HOVERING)).render_ctx(ctx),
-                        {
-                            let dims = Text::from(Line("+0.1s")).render_ctx(ctx).get_dims();
-                            Polygon::rectangle(dims.width, dims.height)
-                        },
-                    )
-                    .build(ctx, "step forwards 0.1 seconds", hotkey(Key::M)),
-                    Btn::svg_def("../data/system/assets/speed/jump_to_time.svg").build(
-                        ctx,
-                        "jump to specific time",
-                        hotkey(Key::B),
-                    ),
-                    Btn::svg_def("../data/system/assets/speed/reset.svg").build(
-                        ctx,
-                        "reset to midnight",
-                        hotkey(Key::X),
-                    ),
-                ]
-                .into_iter()
-                .map(|x| x.margin(5))
-                .collect(),
+                    Choice::new("+1h", Duration::hours(1)),
+                    Choice::new("+30m", Duration::minutes(30)),
+                    Choice::new("+10m", Duration::minutes(10)),
+                    Choice::new("+0.1s", Duration::seconds(0.1)),
+                ],
             )
-            .bg(colors::SECTION_BG)
-            .centered(),
+            .bg(app.cs.section_bg)
+            .margin_right(16),
         );
 
-        WrappedComposite::new(
-            Composite::new(
-                Widget::row(row.into_iter().map(|x| x.margin(5)).collect()).bg(colors::PANEL_BG),
-            )
+        row.push(
+            Widget::row(vec![
+                Btn::svg_def("../data/system/assets/speed/jump_to_time.svg")
+                    .pad(9)
+                    .build(ctx, "jump to specific time", hotkey(Key::B)),
+                Btn::svg_def("../data/system/assets/speed/reset.svg")
+                    .pad(9)
+                    .build(ctx, "reset to midnight", hotkey(Key::X)),
+            ])
+            .bg(app.cs.section_bg),
+        );
+
+        Composite::new(Widget::row(row).bg(app.cs.panel_bg).padding(16))
             .aligned(
                 HorizontalAlignment::Center,
                 VerticalAlignment::BottomAboveOSD,
             )
-            .build(ctx),
-        )
-        .cb(
-            "step forwards 0.1 seconds",
-            Box::new(|ctx, app| {
-                app.primary
-                    .sim
-                    .normal_step(&app.primary.map, Duration::seconds(0.1));
-                if let Some(ref mut s) = app.secondary {
-                    s.sim.normal_step(&s.map, Duration::seconds(0.1));
-                }
-                app.recalculate_current_selection(ctx);
-                None
-            }),
-        )
-        .cb(
-            "step forwards 1 hour",
-            Box::new(|ctx, app| {
-                Some(Transition::Push(Box::new(TimeWarpScreen::new(
-                    ctx,
-                    app,
-                    app.primary.sim.time() + Duration::hours(1),
-                    false,
-                ))))
-            }),
-        )
+            .build(ctx)
     }
 
-    pub fn new(ctx: &mut EventCtx) -> SpeedControls {
-        let composite = SpeedControls::make_panel(ctx, false, SpeedSetting::Realtime);
+    pub fn new(ctx: &mut EventCtx, app: &App) -> SpeedControls {
+        let composite = SpeedControls::make_panel(ctx, app, false, SpeedSetting::Realtime);
         SpeedControls {
             composite,
             paused: false,
@@ -176,38 +132,35 @@ impl SpeedControls {
         app: &mut App,
         maybe_mode: Option<&GameplayMode>,
     ) -> Option<Transition> {
-        match self.composite.event(ctx, app) {
-            Some(WrappedOutcome::Transition(t)) => {
-                return Some(t);
-            }
-            Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "real-time speed" => {
                     self.setting = SpeedSetting::Realtime;
-                    self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                     return None;
                 }
                 "5x speed" => {
                     self.setting = SpeedSetting::Fast;
-                    self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                     return None;
                 }
                 "30x speed" => {
                     self.setting = SpeedSetting::Faster;
-                    self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                     return None;
                 }
                 "3600x speed" => {
                     self.setting = SpeedSetting::Fastest;
-                    self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                     return None;
                 }
                 "play" => {
                     self.paused = false;
-                    self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                     return None;
                 }
                 "pause" => {
-                    self.pause(ctx);
+                    self.pause(ctx, app);
                 }
                 "reset to midnight" => {
                     if let Some(mode) = maybe_mode {
@@ -231,25 +184,44 @@ impl SpeedControls {
                         maybe_mode.cloned(),
                     ))));
                 }
+                "step forwards" => {
+                    let dt = self.composite.persistent_split_value("step forwards");
+                    if dt == Duration::seconds(0.1) {
+                        app.primary.sim.normal_step(&app.primary.map, dt);
+                        if let Some(ref mut s) = app.secondary {
+                            s.sim.normal_step(&s.map, dt);
+                        }
+                        app.recalculate_current_selection(ctx);
+                        return None;
+                    }
+                    return Some(Transition::Push(Box::new(TimeWarpScreen::new(
+                        ctx,
+                        app,
+                        app.primary.sim.time() + dt,
+                        false,
+                    ))));
+                }
                 _ => unreachable!(),
             },
             None => {}
         }
+        // Just kind of constantly scrape this
+        app.opts.time_increment = self.composite.persistent_split_value("step forwards");
 
         if ctx.input.new_was_pressed(&hotkey(Key::LeftArrow).unwrap()) {
             match self.setting {
-                SpeedSetting::Realtime => self.pause(ctx),
+                SpeedSetting::Realtime => self.pause(ctx, app),
                 SpeedSetting::Fast => {
                     self.setting = SpeedSetting::Realtime;
-                    self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                 }
                 SpeedSetting::Faster => {
                     self.setting = SpeedSetting::Fast;
-                    self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                 }
                 SpeedSetting::Fastest => {
                     self.setting = SpeedSetting::Faster;
-                    self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                 }
             }
         }
@@ -258,19 +230,21 @@ impl SpeedControls {
                 SpeedSetting::Realtime => {
                     if self.paused {
                         self.paused = false;
-                        self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                        self.composite =
+                            SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                     } else {
                         self.setting = SpeedSetting::Fast;
-                        self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                        self.composite =
+                            SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                     }
                 }
                 SpeedSetting::Fast => {
                     self.setting = SpeedSetting::Faster;
-                    self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                 }
                 SpeedSetting::Faster => {
                     self.setting = SpeedSetting::Fastest;
-                    self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                 }
                 SpeedSetting::Fastest => {}
             }
@@ -302,18 +276,18 @@ impl SpeedControls {
         self.composite.draw(g);
     }
 
-    pub fn pause(&mut self, ctx: &mut EventCtx) {
+    pub fn pause(&mut self, ctx: &mut EventCtx, app: &App) {
         if !self.paused {
             self.paused = true;
-            self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+            self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
         }
     }
 
-    pub fn resume_realtime(&mut self, ctx: &mut EventCtx) {
+    pub fn resume_realtime(&mut self, ctx: &mut EventCtx, app: &App) {
         if self.paused || self.setting != SpeedSetting::Realtime {
             self.paused = false;
             self.setting = SpeedSetting::Realtime;
-            self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+            self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
         }
     }
 
@@ -396,7 +370,7 @@ impl JumpToTime {
                         },
                     ),
                 ])
-                .bg(colors::PANEL_BG),
+                .bg(app.cs.panel_bg),
             )
             .build(ctx),
         }
@@ -497,7 +471,7 @@ impl TimeWarpScreen {
                         .centered_horiz(),
                 ])
                 .padding(10)
-                .bg(colors::PANEL_BG),
+                .bg(app.cs.panel_bg),
             )
             .build(ctx),
         }
@@ -586,10 +560,12 @@ impl TimePanel {
             time: app.primary.sim.time(),
             composite: Composite::new(
                 Widget::col(vec![
-                    Text::from(Line(app.primary.sim.time().ampm_tostring()).big_heading_styled())
-                        .draw(ctx)
-                        .margin(10)
-                        .centered_horiz(),
+                    Text::from(
+                        Line(app.primary.sim.time().ampm_tostring_spacers()).big_heading_styled(),
+                    )
+                    .draw(ctx)
+                    .margin(10)
+                    .centered_horiz(),
                     {
                         let mut batch = GeomBatch::new();
                         // This is manually tuned
@@ -608,9 +584,9 @@ impl TimePanel {
                         if percent != 0.0 {
                             batch.push(
                                 if percent < 0.25 || percent > 0.75 {
-                                    app.cs.get_def("night time", Color::hex("#12409D"))
+                                    app.cs.night_time_slider
                                 } else {
-                                    app.cs.get_def("day time", Color::hex("#F4DA22"))
+                                    app.cs.day_time_slider
                                 },
                                 Polygon::rectangle(percent * width, height),
                             );
@@ -629,7 +605,7 @@ impl TimePanel {
                     .evenly_spaced(),
                 ])
                 .padding(10)
-                .bg(colors::PANEL_BG),
+                .bg(app.cs.panel_bg),
             )
             .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
             .build(ctx),

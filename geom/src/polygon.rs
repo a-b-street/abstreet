@@ -210,11 +210,9 @@ impl Polygon {
     }
 
     // Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
-    pub fn fully_rounded_rectangle(w: f64, h: f64) -> Polygon {
-        Polygon::rounded_rectangle(w, h, w.min(h) / 2.0)
-    }
-
-    pub fn rounded_rectangle(w: f64, h: f64, r: f64) -> Polygon {
+    // If radius is None, be as round as possible
+    pub fn rounded_rectangle(w: f64, h: f64, r: Option<f64>) -> Polygon {
+        let r = r.unwrap_or_else(|| w.min(h) / 2.0);
         assert!(2.0 * r <= w);
         assert!(2.0 * r <= h);
 
@@ -240,6 +238,9 @@ impl Polygon {
         arc(Pt2D::new(r, h - r), 270.0, 180.0);
         // Close it off
         pts.push(Pt2D::new(0.0, r));
+
+        // If the radius was maximized, then some of the edges will be zero length.
+        pts.dedup();
 
         Polygon::new(&pts)
     }

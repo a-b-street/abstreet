@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::helpers::rotating_color_map;
 use crate::info::{header_btns, make_tabs, throughput, DataOptions, Details, Tab};
 use abstutil::prettyprint_usize;
 use ezgui::{EventCtx, Line, Plot, PlotOptions, Series, Text, Widget};
@@ -120,7 +119,7 @@ fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) 
     {
         all_series.push(Series {
             label: stat.to_string(),
-            color: rotating_color_map(idx),
+            color: app.cs.rotating_color_map(idx),
             pts,
         });
     }
@@ -131,7 +130,7 @@ fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) 
         {
             all_series.push(Series {
                 label: format!("{} (baseline)", stat),
-                color: rotating_color_map(idx).alpha(0.3),
+                color: app.cs.rotating_color_map(idx).alpha(0.3),
                 pts,
             });
         }

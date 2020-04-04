@@ -117,8 +117,8 @@ impl CommonState {
 
     fn osd_for(app: &App, id: ID) -> Text {
         let map = &app.primary.map;
-        let id_color = app.cs.get_def("OSD ID color", Color::RED);
-        let name_color = app.cs.get_def("OSD name color", Color::CYAN);
+        let id_color = app.cs.bottom_bar_id;
+        let name_color = app.cs.bottom_bar_name;
         let mut osd = Text::new();
         match id {
             ID::Lane(l) => {
@@ -252,7 +252,7 @@ impl CommonState {
 
         // First the constant background
         let mut batch = GeomBatch::from(vec![(
-            crate::colors::PANEL_BG,
+            app.cs.panel_bg,
             Polygon::rectangle(g.canvas.window_width, 1.5 * g.default_line_height()),
         )]);
         batch.add_translated(osd.render_g(g), 10.0, 0.25 * g.default_line_height());

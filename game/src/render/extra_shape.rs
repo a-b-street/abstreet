@@ -1,7 +1,8 @@
 use crate::app::App;
-use crate::helpers::{ColorScheme, ID};
+use crate::colors::ColorScheme;
+use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS};
-use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
+use ezgui::{Drawable, GeomBatch, GfxCtx, Prerender};
 use geom::{Circle, FindClosest, GPSBounds, PolyLine, Polygon, Pt2D, Ring};
 use kml::ExtraShape;
 use map_model::{DirectedRoadID, Map, NORMAL_LANE_THICKNESS};
@@ -58,10 +59,7 @@ impl DrawExtraShape {
             PolyLine::new(pts).make_polygons(EXTRA_SHAPE_THICKNESS)
         };
         let mut batch = GeomBatch::new();
-        batch.push(
-            cs.get_def("extra shape", Color::RED.alpha(0.5)),
-            polygon.clone(),
-        );
+        batch.push(cs.extra_gis_shape, polygon.clone());
 
         Some(DrawExtraShape {
             id,
