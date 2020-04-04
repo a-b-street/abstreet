@@ -99,7 +99,7 @@ impl ColorerBuilder {
         self.bus_stops.insert(bs, color);
     }
 
-    pub fn build(self, ctx: &mut EventCtx, app: &App) -> Colorer {
+    pub fn build_both(self, ctx: &mut EventCtx, app: &App) -> Colorer {
         let mut zoomed = GeomBatch::new();
         let mut unzoomed = GeomBatch::new();
         let map = &app.primary.map;
@@ -155,7 +155,12 @@ impl ColorerBuilder {
     }
 
     pub fn build_zoomed(self, ctx: &mut EventCtx, app: &App) -> Drawable {
-        self.build(ctx, app).zoomed
+        self.build_both(ctx, app).zoomed
+    }
+    pub fn build_unzoomed(self, ctx: &mut EventCtx, app: &App) -> Colorer {
+        let mut c = self.build_both(ctx, app);
+        c.zoomed = GeomBatch::new().upload(ctx);
+        c
     }
 }
 

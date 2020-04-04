@@ -450,7 +450,7 @@ impl Overlays {
             colorer.add_l(l, color, &app.primary.map);
         }
 
-        Overlays::ParkingAvailability(app.primary.sim.time(), colorer.build(ctx, app))
+        Overlays::ParkingAvailability(app.primary.sim.time(), colorer.build_unzoomed(ctx, app))
     }
 
     fn worst_delay(ctx: &mut EventCtx, app: &App) -> Overlays {
@@ -489,7 +489,7 @@ impl Overlays {
             colorer.add_i(i, color);
         }
 
-        Overlays::WorstDelay(app.primary.sim.time(), colorer.build(ctx, app))
+        Overlays::WorstDelay(app.primary.sim.time(), colorer.build_unzoomed(ctx, app))
     }
 
     pub fn traffic_jams(ctx: &mut EventCtx, app: &App) -> Overlays {
@@ -518,7 +518,7 @@ impl Overlays {
             }
         }
 
-        Overlays::TrafficJams(app.primary.sim.time(), colorer.build(ctx, app))
+        Overlays::TrafficJams(app.primary.sim.time(), colorer.build_unzoomed(ctx, app))
     }
 
     fn cumulative_throughput(ctx: &mut EventCtx, app: &App) -> Overlays {
@@ -572,7 +572,7 @@ impl Overlays {
             }
         }
 
-        Overlays::CumulativeThroughput(app.primary.sim.time(), colorer.build(ctx, app))
+        Overlays::CumulativeThroughput(app.primary.sim.time(), colorer.build_unzoomed(ctx, app))
     }
 
     fn bike_network(ctx: &mut EventCtx, app: &App) -> Overlays {
@@ -586,7 +586,7 @@ impl Overlays {
                 colorer.add_l(l.id, color, &app.primary.map);
             }
         }
-        Overlays::BikeNetwork(colorer.build(ctx, app))
+        Overlays::BikeNetwork(colorer.build_unzoomed(ctx, app))
     }
 
     fn bus_network(ctx: &mut EventCtx, app: &App) -> Overlays {
@@ -605,7 +605,7 @@ impl Overlays {
             colorer.add_bs(*bs, stop);
         }
 
-        Overlays::BusNetwork(colorer.build(ctx, app))
+        Overlays::BusNetwork(colorer.build_unzoomed(ctx, app))
     }
 
     fn elevation(ctx: &mut EventCtx, app: &App) -> Overlays {
@@ -687,7 +687,7 @@ impl Overlays {
             }
         }
 
-        Overlays::Elevation(colorer.build(ctx, app), batch.upload(ctx))
+        Overlays::Elevation(colorer.build_unzoomed(ctx, app), batch.upload(ctx))
     }
 
     pub fn trips_histogram(ctx: &mut EventCtx, app: &App) -> Overlays {
@@ -810,7 +810,7 @@ impl Overlays {
             colorer.add_i(*i, changed);
         }
 
-        Overlays::Edits(colorer.build(ctx, app))
+        Overlays::Edits(colorer.build_both(ctx, app))
     }
 
     // TODO Disable drawing unzoomed agents... or alternatively, implement this by asking Sim to

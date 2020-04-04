@@ -138,7 +138,7 @@ impl ScenarioManager {
             trips_to_bldg,
             trips_from_border,
             trips_to_border,
-            bldg_colors: bldg_colors.build(ctx, app),
+            bldg_colors: bldg_colors.build_both(ctx, app),
             demand: None,
         }
     }

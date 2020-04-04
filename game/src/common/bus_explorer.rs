@@ -60,7 +60,7 @@ impl ShowBusRoute {
         }
 
         ShowBusRoute {
-            colorer: colorer.build(ctx, app),
+            colorer: colorer.build_both(ctx, app),
             labels,
             bus_locations,
         }
