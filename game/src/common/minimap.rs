@@ -341,11 +341,7 @@ fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
         .margin_below(16),
         Btn::svg_def("../data/system/assets/tools/layers.svg")
             .build(ctx, "change overlay", hotkey(Key::L))
-            .bg(if app.overlay.is_empty() {
-                app.cs.inner_panel
-            } else {
-                app.cs.hovering
-            })
+            .bg(app.cs.inner_panel)
             .margin_below(16),
         Btn::svg_def("../data/system/assets/tools/search.svg")
             .build(ctx, "search", hotkey(Key::K))

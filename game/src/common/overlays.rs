@@ -384,14 +384,20 @@ impl Overlays {
     fn parking_availability(ctx: &mut EventCtx, app: &App) -> Overlays {
         let (filled_spots, avail_spots) = app.primary.sim.get_all_parking_spots();
         let mut txt = Text::from(Line("parking availability"));
-        txt.add(Line(format!(
-            "{} spots filled",
-            prettyprint_usize(filled_spots.len())
-        )));
-        txt.add(Line(format!(
-            "{} spots available ",
-            prettyprint_usize(avail_spots.len())
-        )));
+        txt.add(
+            Line(format!(
+                "{} spots filled",
+                prettyprint_usize(filled_spots.len())
+            ))
+            .small(),
+        );
+        txt.add(
+            Line(format!(
+                "{} spots available ",
+                prettyprint_usize(avail_spots.len())
+            ))
+            .small(),
+        );
 
         let awful = Color::hex("#801F1C");
         let bad = Color::hex("#EB5757");
@@ -616,7 +622,7 @@ impl Overlays {
             max = max.max(pct);
         }
         let mut txt = Text::from(Line("elevation change"));
-        txt.add(Line(format!("Steepest road: {:.0}%", max * 100.0)));
+        txt.add(Line(format!("Steepest road: {:.0}%", max * 100.0)).small());
 
         let awful = Color::hex("#801F1C");
         let bad = Color::hex("#EB5757");
@@ -787,18 +793,15 @@ impl Overlays {
         let edits = app.primary.map.get_edits();
 
         let mut txt = Text::from(Line(format!("map edits ({})", edits.edits_name)));
-        txt.add(Line(format!(
-            "{} lane types changed",
-            edits.original_lts.len()
-        )));
-        txt.add(Line(format!(
-            "{} lanes reversed",
-            edits.reversed_lanes.len()
-        )));
-        txt.add(Line(format!(
-            "{} intersections changed",
-            edits.original_intersections.len()
-        )));
+        txt.add(Line(format!("{} lane types changed", edits.original_lts.len())).small());
+        txt.add(Line(format!("{} lanes reversed", edits.reversed_lanes.len())).small());
+        txt.add(
+            Line(format!(
+                "{} intersections changed",
+                edits.original_intersections.len()
+            ))
+            .small(),
+        );
 
         let changed = Color::CYAN;
         let mut colorer = Colorer::new(txt, vec![("modified lane/intersection", changed)]);
@@ -917,18 +920,20 @@ fn population_controls(
 
     let mut col = vec![
         Widget::row(vec![
-            // TODO Only bold the first part
-            Line(format!("Population: {}", prettyprint_usize(total_ppl)))
-                .small_heading()
-                .draw(ctx),
-            Btn::text_fg("X")
+            Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg").margin_right(10),
+            Line(format!("Population: {}", prettyprint_usize(total_ppl))).draw(ctx),
+            Btn::plaintext("X")
                 .build(ctx, "close", hotkey(Key::Escape))
                 .align_right(),
         ]),
         Widget::row(vec![
-            Widget::draw_svg(ctx, "../data/system/assets/tools/home.svg"),
-            prettyprint_usize(ppl_in_bldg).draw_text(ctx),
-            format!("Off-map: {}", prettyprint_usize(ppl_off_map)).draw_text(ctx),
+            Widget::row(vec![
+                Widget::draw_svg(ctx, "../data/system/assets/tools/home.svg"),
+                Line(prettyprint_usize(ppl_in_bldg)).small().draw(ctx),
+            ]),
+            Line(format!("Off-map: {}", prettyprint_usize(ppl_off_map)))
+                .small()
+                .draw(ctx),
         ])
         .centered(),
         if app.primary.sim.get_pandemic_model().is_some() {
@@ -979,9 +984,13 @@ fn population_controls(
         ]));
 
         // Legend for the heatmap colors
-        for (max, color) in max_per_color {
-            col.push(ColorLegend::row(ctx, color, format!("<= {}", max)));
-        }
+        col.push(ColorLegend::scale(
+            ctx,
+            max_per_color
+                .into_iter()
+                .map(|(max, c)| (c, max.to_string()))
+                .collect(),
+        ));
     }
 
     Composite::new(Widget::col(col).padding(5).bg(app.cs.panel_bg))

@@ -2,9 +2,9 @@ use crate::app::App;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use ezgui::{
     Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Outcome,
-    Text, VerticalAlignment, Widget,
+    Text, TextExt, VerticalAlignment, Widget,
 };
-use geom::{Circle, Distance, Pt2D};
+use geom::{Circle, Distance, Polygon, Pt2D};
 use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, Map, RoadID};
 use std::collections::HashMap;
 
@@ -137,13 +137,14 @@ impl ColorerBuilder {
 
         // Build the legend
         let mut col = vec![Widget::row(vec![
-            self.header.draw(ctx),
-            Btn::text_fg("X").build_def(ctx, None).align_right(),
+            Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg").margin_right(10),
+            self.header.draw(ctx).margin_right(5),
+            Btn::plaintext("X").build_def(ctx, None).align_right(),
         ])];
         for (label, color) in self.prioritized_colors {
             col.push(ColorLegend::row(ctx, color, label));
         }
-        let legend = Composite::new(Widget::col(col).bg(app.cs.panel_bg))
+        let legend = Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(16))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
             .build(ctx);
 
@@ -186,6 +187,22 @@ impl ColorLegend {
             .margin(5)
             .centered_vert(),
             txt.draw(ctx),
+        ])
+    }
+
+    pub fn scale(ctx: &mut EventCtx, entries: Vec<(Color, String)>) -> Widget {
+        let mut batch = GeomBatch::new();
+        let mut labels = Vec::new();
+        for (color, lbl) in entries {
+            batch.push(
+                color,
+                Polygon::rectangle(64.0, 32.0).translate(64.0 * (labels.len() as f64), 0.0),
+            );
+            labels.push(lbl.draw_text(ctx));
+        }
+        Widget::col(vec![
+            Widget::draw_batch(ctx, batch),
+            Widget::row(labels).evenly_spaced(),
         ])
     }
 }
