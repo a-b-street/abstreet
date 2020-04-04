@@ -33,6 +33,7 @@ impl State for NeighborhoodPicker {
             return Transition::Push(Box::new(NeighborhoodEditor {
                 composite: WrappedComposite::quick_menu(
                     ctx,
+                    app,
                     format!("Neighborhood Editor for {}", n.name),
                     vec![],
                     vec![

@@ -1,5 +1,6 @@
 use crate::app::App;
-use crate::helpers::{ColorScheme, ID};
+use crate::colors::ColorScheme;
+use crate::helpers::ID;
 use crate::render::{dashed_lines, DrawOptions, Renderable};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Angle, Distance, Polygon, Pt2D};

@@ -1,5 +1,6 @@
 use crate::app::App;
-use crate::helpers::{rotating_color_agents, ColorScheme, ID};
+use crate::colors::ColorScheme;
+use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Angle, Distance, PolyLine, Polygon, Pt2D};
@@ -171,8 +172,8 @@ fn zoomed_color_car(input: &DrawCarInput, cs: &ColorScheme) -> Color {
         cs.get_def("bus", Color::rgb(50, 133, 117))
     } else {
         match input.status {
-            CarStatus::Moving => rotating_color_agents(input.id.0),
-            CarStatus::Parked => rotating_color_agents(input.id.0).fade(1.5),
+            CarStatus::Moving => cs.rotating_color_agents(input.id.0),
+            CarStatus::Parked => cs.rotating_color_agents(input.id.0).fade(1.5),
         }
     }
 }

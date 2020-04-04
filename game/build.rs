@@ -13,7 +13,7 @@ fn main() {
     let mut mapping: BTreeMap<String, String> = BTreeMap::new();
     for entry in WalkDir::new("src") {
         let path = entry.unwrap().into_path();
-        if path.extension() == Some(OsStr::new("rs")) && path != PathBuf::from("src/helpers.rs") {
+        if path.extension() == Some(OsStr::new("rs")) && path != PathBuf::from("src/colors.rs") {
             for (k, v) in read_file(&format!("{}", path.display())) {
                 if mapping.contains_key(&k) {
                     panic!("Color {} defined twice", k);

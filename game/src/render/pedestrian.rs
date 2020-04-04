@@ -1,5 +1,6 @@
 use crate::app::App;
-use crate::helpers::{rotating_color_agents, ColorScheme, ID};
+use crate::colors::ColorScheme;
+use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Angle, Circle, Distance, PolyLine, Polygon};
@@ -155,7 +156,14 @@ impl DrawPedestrian {
         };
 
         let head_circle = Circle::new(input.pos, 0.5 * radius);
-        batch.push(zoomed_color_ped(&input, cs), body_circle.to_polygon());
+        batch.push(
+            if input.preparing_bike {
+                cs.get_def("pedestrian preparing bike", Color::rgb(255, 0, 144))
+            } else {
+                cs.rotating_color_agents(input.id.0)
+            },
+            body_circle.to_polygon(),
+        );
         batch.push(
             cs.get_def("pedestrian head", Color::rgb(139, 69, 19)),
             head_circle.to_polygon(),
@@ -259,12 +267,5 @@ impl Renderable for DrawPedCrowd {
 
     fn get_zorder(&self) -> isize {
         self.zorder
-    }
-}
-fn zoomed_color_ped(input: &DrawPedestrianInput, cs: &ColorScheme) -> Color {
-    if input.preparing_bike {
-        cs.get_def("pedestrian preparing bike", Color::rgb(255, 0, 144))
-    } else {
-        rotating_color_agents(input.id.0)
     }
 }

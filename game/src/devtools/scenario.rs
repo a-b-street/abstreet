@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::colors;
 use crate::common::{tool_panel, Colorer, CommonState, ContextualActions, Warping};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
@@ -116,6 +115,7 @@ impl ScenarioManager {
         ScenarioManager {
             composite: WrappedComposite::quick_menu(
                 ctx,
+                app,
                 format!("Scenario {}", scenario.scenario_name),
                 vec![
                     format!("{} total trips", prettyprint_usize(num_trips),),
@@ -132,7 +132,7 @@ impl ScenarioManager {
                 ],
             ),
             common: CommonState::new(),
-            tool_panel: tool_panel(ctx),
+            tool_panel: tool_panel(ctx, app),
             scenario,
             trips_from_bldg,
             trips_to_bldg,
@@ -496,7 +496,7 @@ impl DotMap {
                     Slider::horizontal(ctx, 150.0, 25.0, 0.0).named("time slider"),
                 ])
                 .padding(10)
-                .bg(colors::PANEL_BG),
+                .bg(app.cs.panel_bg),
             )
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),

@@ -32,7 +32,7 @@ impl ABTestMode {
             diff_trip: None,
             diff_all: None,
             common: CommonState::new(),
-            tool_panel: tool_panel(ctx),
+            tool_panel: tool_panel(ctx, app),
             test_name: test_name.to_string(),
             flipped: false,
         }
@@ -70,7 +70,7 @@ impl State for ABTestMode {
         }
 
         if app.opts.dev && ctx.input.new_was_pressed(&lctrl(Key::D).unwrap()) {
-            return Transition::Push(Box::new(DebugMode::new(ctx)));
+            return Transition::Push(Box::new(DebugMode::new(ctx, app)));
         }
 
         if false {

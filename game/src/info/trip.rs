@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::colors;
 use crate::helpers::ID;
 use crate::info::{make_table, Details};
 use crate::render::dashed_lines;
@@ -159,7 +158,7 @@ fn make_timeline(
         txt.add(Line(start_time.ampm_tostring()));
         Btn::svg(
             "../data/system/assets/timeline/start_pos.svg",
-            RewriteColor::Change(Color::WHITE, colors::HOVERING),
+            RewriteColor::Change(Color::WHITE, app.cs.hovering),
         )
         .tooltip(txt)
         .build(ctx, format!("jump to start of {}", trip), None)
@@ -190,7 +189,7 @@ fn make_timeline(
         }
         Btn::svg(
             "../data/system/assets/timeline/goal_pos.svg",
-            RewriteColor::Change(Color::WHITE, colors::HOVERING),
+            RewriteColor::Change(Color::WHITE, app.cs.hovering),
         )
         .tooltip(txt)
         .build(ctx, format!("jump to goal of {}", trip), None)

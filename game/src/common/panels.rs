@@ -1,4 +1,4 @@
-use crate::colors;
+use crate::app::App;
 use crate::game::Transition;
 use crate::managed::WrappedComposite;
 use crate::options;
@@ -6,7 +6,7 @@ use ezgui::{
     hotkey, Btn, Composite, EventCtx, HorizontalAlignment, Key, VerticalAlignment, Widget,
 };
 
-pub fn tool_panel(ctx: &mut EventCtx) -> WrappedComposite {
+pub fn tool_panel(ctx: &mut EventCtx, app: &App) -> WrappedComposite {
     let row = vec![
         // TODO Maybe this is confusing -- it doesn't jump to the title screen necessarily.
         // Caller has to handle this one
@@ -18,7 +18,7 @@ pub fn tool_panel(ctx: &mut EventCtx) -> WrappedComposite {
             .margin(10),
     ];
     WrappedComposite::new(
-        Composite::new(Widget::row(row).bg(colors::PANEL_BG))
+        Composite::new(Widget::row(row).bg(app.cs.panel_bg))
             .aligned(HorizontalAlignment::Left, VerticalAlignment::BottomAboveOSD)
             .build(ctx),
     )

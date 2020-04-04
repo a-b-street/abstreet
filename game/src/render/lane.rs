@@ -1,5 +1,6 @@
 use crate::app::App;
-use crate::helpers::{ColorScheme, ID};
+use crate::colors::ColorScheme;
+use crate::helpers::ID;
 use crate::render::{dashed_lines, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use abstutil::Timer;
 use ezgui::{Color, Drawable, FancyColor, GeomBatch, GfxCtx, Prerender};

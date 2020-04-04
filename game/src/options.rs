@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::colors;
 use crate::game::{State, Transition};
 use ezgui::{
     hotkey, Btn, Choice, Composite, EventCtx, GfxCtx, Key, Line, Outcome, TextExt, Widget,
@@ -131,7 +130,7 @@ impl OptionsPanel {
                         .margin(5)
                         .centered_horiz(),
                 ])
-                .bg(colors::PANEL_BG),
+                .bg(app.cs.panel_bg),
             )
             .build(ctx),
         }

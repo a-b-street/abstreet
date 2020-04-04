@@ -25,6 +25,7 @@ impl OptimizeBus {
             _route: route.id,
             top_center: challenge_controller(
                 ctx,
+                app,
                 mode,
                 &format!("Optimize {} Challenge", route_name),
                 Vec::new(),

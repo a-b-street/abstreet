@@ -3,7 +3,6 @@ mod objects;
 mod polygons;
 
 use crate::app::{App, ShowLayers, ShowObject};
-use crate::colors;
 use crate::common::{tool_panel, CommonState, ContextualActions};
 use crate::game::{msg, DrawBaselayer, State, Transition, WizardState};
 use crate::helpers::ID;
@@ -33,7 +32,7 @@ pub struct DebugMode {
 }
 
 impl DebugMode {
-    pub fn new(ctx: &mut EventCtx) -> DebugMode {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> DebugMode {
         DebugMode {
             composite: Composite::new(
                 Widget::col(vec![
@@ -68,12 +67,12 @@ impl DebugMode {
                     ),
                 ])
                 .padding(10)
-                .bg(colors::PANEL_BG),
+                .bg(app.cs.panel_bg),
             )
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
             common: CommonState::new(),
-            tool_panel: tool_panel(ctx),
+            tool_panel: tool_panel(ctx, app),
             objects: objects::ObjectDebugger::new(),
             hidden: HashSet::new(),
             layers: ShowLayers::new(),
@@ -510,6 +509,7 @@ impl ContextualActions for Actions {
                 pts_without_last.pop();
                 Transition::Push(polygons::PolygonDebugger::new(
                     ctx,
+                    app,
                     "point",
                     pts.iter().map(|pt| polygons::Item::Point(*pt)).collect(),
                     Some(Pt2D::center(&pts_without_last)),
@@ -518,6 +518,7 @@ impl ContextualActions for Actions {
             (ID::Intersection(i), "debug sidewalk corners") => {
                 Transition::Push(polygons::PolygonDebugger::new(
                     ctx,
+                    app,
                     "corner",
                     calculate_corners(
                         app.primary.map.get_i(i),
@@ -533,6 +534,7 @@ impl ContextualActions for Actions {
             (ID::Lane(l), "debug lane geometry") => {
                 Transition::Push(polygons::PolygonDebugger::new(
                     ctx,
+                    app,
                     "point",
                     app.primary
                         .map
@@ -548,6 +550,7 @@ impl ContextualActions for Actions {
             (ID::Lane(l), "debug lane triangles geometry") => {
                 Transition::Push(polygons::PolygonDebugger::new(
                     ctx,
+                    app,
                     "triangle",
                     app.primary
                         .draw_map
@@ -571,6 +574,7 @@ impl ContextualActions for Actions {
                 };
                 Transition::Push(polygons::PolygonDebugger::new(
                     ctx,
+                    app,
                     "point",
                     pts.iter().map(|pt| polygons::Item::Point(*pt)).collect(),
                     Some(center),
@@ -579,6 +583,7 @@ impl ContextualActions for Actions {
             (ID::Area(a), "debug area triangles") => {
                 Transition::Push(polygons::PolygonDebugger::new(
                     ctx,
+                    app,
                     "triangle",
                     app.primary
                         .map

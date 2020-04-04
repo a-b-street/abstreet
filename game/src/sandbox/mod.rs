@@ -5,7 +5,6 @@ mod speed;
 
 use self::misc_tools::{RoutePreview, ShowTrafficSignal, TurnExplorer};
 use crate::app::App;
-use crate::colors;
 use crate::common::{tool_panel, CommonState, ContextualActions, Minimap, Overlays};
 use crate::debug::DebugMode;
 use crate::edit::{
@@ -63,7 +62,7 @@ impl SandboxMode {
                     None
                 },
                 tool_panel: if gameplay.has_tool_panel() {
-                    Some(tool_panel(ctx))
+                    Some(tool_panel(ctx, app))
                 } else {
                     None
                 },
@@ -73,7 +72,7 @@ impl SandboxMode {
                     None
                 },
                 speed: if gameplay.has_speed() {
-                    Some(SpeedControls::new(ctx))
+                    Some(SpeedControls::new(ctx, app))
                 } else {
                     None
                 },
@@ -129,7 +128,7 @@ impl State for SandboxMode {
 
         // Order here is pretty arbitrary
         if app.opts.dev && ctx.input.new_was_pressed(&lctrl(Key::D).unwrap()) {
-            return Transition::Push(Box::new(DebugMode::new(ctx)));
+            return Transition::Push(Box::new(DebugMode::new(ctx, app)));
         }
 
         if let Some(ref mut m) = self.controls.minimap {
@@ -229,9 +228,9 @@ impl State for SandboxMode {
         self.gameplay.draw(g, app);
     }
 
-    fn on_suspend(&mut self, ctx: &mut EventCtx, _: &mut App) {
+    fn on_suspend(&mut self, ctx: &mut EventCtx, app: &mut App) {
         if let Some(ref mut s) = self.controls.speed {
-            s.pause(ctx);
+            s.pause(ctx, app);
         }
     }
 
@@ -391,7 +390,7 @@ impl AgentMeter {
             }
         }
 
-        let composite = Composite::new(Widget::col(rows).bg(colors::PANEL_BG).padding(20))
+        let composite = Composite::new(Widget::col(rows).bg(app.cs.panel_bg).padding(20))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx);
 
@@ -525,20 +524,20 @@ impl ContextualActions for Actions {
             }
             (_, "follow") => {
                 *close_panel = false;
-                Transition::KeepWithData(Box::new(|state, _, ctx| {
+                Transition::KeepWithData(Box::new(|state, app, ctx| {
                     let mode = state.downcast_mut::<SandboxMode>().unwrap();
                     let speed = mode.controls.speed.as_mut().unwrap();
                     assert!(speed.is_paused());
-                    speed.resume_realtime(ctx);
+                    speed.resume_realtime(ctx, app);
                 }))
             }
             (_, "unfollow") => {
                 *close_panel = false;
-                Transition::KeepWithData(Box::new(|state, _, ctx| {
+                Transition::KeepWithData(Box::new(|state, app, ctx| {
                     let mode = state.downcast_mut::<SandboxMode>().unwrap();
                     let speed = mode.controls.speed.as_mut().unwrap();
                     assert!(!speed.is_paused());
-                    speed.pause(ctx);
+                    speed.pause(ctx, app);
                 }))
             }
             (id, action) => self

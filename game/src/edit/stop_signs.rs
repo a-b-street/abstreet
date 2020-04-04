@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::colors;
 use crate::common::CommonState;
 use crate::edit::{apply_map_edits, close_intersection, TrafficSignalEditor};
 use crate::game::{State, Transition};
@@ -63,7 +62,7 @@ impl StopSignEditor {
                 Btn::text_fg("convert to traffic signal").build_def(ctx, None),
                 Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape)),
             ])
-            .bg(colors::PANEL_BG)
+            .bg(app.cs.panel_bg)
             .padding(10),
         )
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)

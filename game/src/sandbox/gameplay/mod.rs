@@ -11,7 +11,6 @@ pub use self::tutorial::{Tutorial, TutorialPointer, TutorialState};
 use crate::app::App;
 use crate::challenges;
 use crate::challenges::challenges_picker;
-use crate::colors;
 use crate::common::{CommonState, ContextualActions};
 use crate::edit::EditMode;
 use crate::game::{msg, State, Transition};
@@ -252,13 +251,13 @@ impl GameplayMode {
                 optimize_bus::OptimizeBus::new(ctx, app, route_name, self.clone())
             }
             GameplayMode::CreateGridlock(_) => {
-                create_gridlock::CreateGridlock::new(ctx, self.clone())
+                create_gridlock::CreateGridlock::new(ctx, app, self.clone())
             }
             GameplayMode::FasterTrips(_, trip_mode) => {
-                faster_trips::FasterTrips::new(ctx, *trip_mode, self.clone())
+                faster_trips::FasterTrips::new(ctx, app, *trip_mode, self.clone())
             }
             GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial(_) => {
-                fix_traffic_signals::FixTrafficSignals::new(ctx, self.clone())
+                fix_traffic_signals::FixTrafficSignals::new(ctx, app, self.clone())
             }
             GameplayMode::Tutorial(current) => Tutorial::new(ctx, app, *current),
         }
@@ -296,6 +295,7 @@ impl ContextualActions for GameplayMode {
 
 fn challenge_controller(
     ctx: &mut EventCtx,
+    app: &App,
     gameplay: GameplayMode,
     title: &str,
     extra_rows: Vec<Widget>,
@@ -329,7 +329,7 @@ fn challenge_controller(
     rows.extend(extra_rows);
 
     WrappedComposite::new(
-        Composite::new(Widget::col(rows).bg(colors::PANEL_BG))
+        Composite::new(Widget::col(rows).bg(app.cs.panel_bg))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
     )
@@ -359,6 +359,7 @@ struct FinalScore {
 impl FinalScore {
     fn new(
         ctx: &mut EventCtx,
+        app: &App,
         verdict: String,
         mode: GameplayMode,
         next: Option<GameplayMode>,
@@ -379,7 +380,7 @@ impl FinalScore {
         Box::new(FinalScore {
             composite: Composite::new(
                 Widget::col(vec![txt.draw(ctx), Widget::row(row).centered()])
-                    .bg(colors::PANEL_BG)
+                    .bg(app.cs.panel_bg)
                     .outline(10.0, Color::WHITE)
                     .padding(10),
             )

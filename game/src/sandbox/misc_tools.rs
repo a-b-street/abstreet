@@ -1,5 +1,4 @@
 use crate::app::{App, ShowEverything};
-use crate::colors;
 use crate::common::ColorLegend;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::render::{dashed_lines, draw_signal_phase, make_signal_diagram, DrawOptions, DrawTurn};
@@ -318,7 +317,7 @@ impl TurnExplorer {
             ));
         }
 
-        Composite::new(Widget::col(col).bg(colors::PANEL_BG))
+        Composite::new(Widget::col(col).bg(app.cs.panel_bg))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx)
     }

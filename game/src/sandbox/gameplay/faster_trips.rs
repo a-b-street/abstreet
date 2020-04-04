@@ -16,12 +16,14 @@ pub struct FasterTrips {
 impl FasterTrips {
     pub fn new(
         ctx: &mut EventCtx,
+        app: &App,
         trip_mode: TripMode,
         mode: GameplayMode,
     ) -> Box<dyn GameplayState> {
         Box::new(FasterTrips {
             top_center: challenge_controller(
                 ctx,
+                app,
                 mode,
                 &format!("Faster Trips {} Challenge", trip_mode.ongoing_verb()),
                 Vec::new(),

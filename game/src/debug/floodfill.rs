@@ -58,6 +58,7 @@ impl Floodfiller {
         Box::new(Floodfiller {
             composite: WrappedComposite::quick_menu(
                 ctx,
+                app,
                 title,
                 vec![format!("{} unreachable lanes", num_unreachable)],
                 vec![],

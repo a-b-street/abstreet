@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::colors;
 use crate::options::TrafficSignalStyle;
 use crate::render::intersection::make_crosswalk;
 use crate::render::{DrawTurnGroup, BIG_ARROW_THICKNESS};
@@ -329,7 +328,7 @@ pub fn make_signal_diagram(
         }
     }
 
-    Composite::new(Widget::col(col).bg(colors::PANEL_BG))
+    Composite::new(Widget::col(col).bg(app.cs.panel_bg))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .max_size_percent(30, 85)
         .build(ctx)

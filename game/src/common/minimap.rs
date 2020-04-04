@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::colors;
 use crate::common::{navigate, shortcuts, Overlays, Warping};
 use crate::game::Transition;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
@@ -244,9 +243,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
     if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
         return Composite::new(Widget::row(vec![
             make_tool_panel(ctx, app).align_right().margin_right(16),
-            make_vert_viz_panel(ctx, app)
-                .bg(colors::PANEL_BG)
-                .padding(7),
+            make_vert_viz_panel(ctx, app).bg(app.cs.panel_bg).padding(7),
         ]))
         .aligned(
             HorizontalAlignment::Right,
@@ -269,7 +266,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
             col.push(
                 Btn::custom(
                     GeomBatch::from(vec![(color, rect.clone())]),
-                    GeomBatch::from(vec![(colors::HOVERING, rect.clone())]),
+                    GeomBatch::from(vec![(app.cs.hovering, rect.clone())]),
                     rect,
                 )
                 .build(ctx, format!("zoom to level {}", i + 1), None)
@@ -284,7 +281,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
         // The zoom column should start below the "pan up" arrow. But if we put it on the row with
         // <, minimap, and > then it messes up the horizontal alignment of the pan up arrow.
         // Also, double column to avoid the background color stretching to the bottom of the row.
-        Widget::col(vec![Widget::col(col).bg(colors::INNER_PANEL)]).margin_above(26)
+        Widget::col(vec![Widget::col(col).bg(app.cs.inner_panel)]).margin_above(26)
     };
 
     let square_len = 0.15 * ctx.canvas.window_width;
@@ -317,7 +314,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
             make_horiz_viz_panel(ctx, app),
         ])
         .padding(7)
-        .bg(colors::PANEL_BG),
+        .bg(app.cs.panel_bg),
     ]))
     .aligned(
         HorizontalAlignment::Right,
@@ -342,26 +339,26 @@ fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
                 None,
             )
         })
-        .bg(colors::INNER_PANEL)
+        .bg(app.cs.inner_panel)
         .padding(9)
         .margin_below(16),
         Btn::svg_def("../data/system/assets/tools/layers.svg")
             .build(ctx, "change overlay", hotkey(Key::L))
             .bg(if app.overlay.is_empty() {
-                colors::INNER_PANEL
+                app.cs.inner_panel
             } else {
-                colors::HOVERING
+                app.cs.hovering
             })
             .padding(9)
             .margin_below(16),
         Btn::svg_def("../data/system/assets/tools/search.svg")
             .build(ctx, "search", hotkey(Key::K))
-            .bg(colors::INNER_PANEL)
+            .bg(app.cs.inner_panel)
             .padding(9)
             .margin_below(16),
         Btn::svg_def("../data/system/assets/tools/shortcuts.svg")
             .build(ctx, "shortcuts", hotkey(Key::SingleQuote))
-            .bg(colors::INNER_PANEL)
+            .bg(app.cs.inner_panel)
             .padding(9),
     ])
 }
@@ -377,7 +374,7 @@ fn make_horiz_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
                 Widget::draw_svg_transform(
                     ctx,
                     "../data/system/assets/tools/layers.svg",
-                    RewriteColor::ChangeAll(colors::HOVERING),
+                    RewriteColor::ChangeAll(app.cs.hovering),
                 )
                 .margin(5),
                 Line(name).small().draw(ctx),
@@ -387,7 +384,7 @@ fn make_horiz_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
 
     let mut row = Vec::new();
     for (label, color, enabled) in &app.agent_cs.rows {
-        row.push(colored_checkbox(ctx, label, *color, *enabled).margin_right(8));
+        row.push(colored_checkbox(ctx, app, label, *color, *enabled).margin_right(8));
         row.push(Line(label).draw(ctx).margin_right(24));
     }
     let last = row.pop().unwrap();
@@ -402,7 +399,7 @@ fn make_vert_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
 
     for (label, color, enabled) in &app.agent_cs.rows {
         let mut row = Vec::new();
-        row.push(colored_checkbox(ctx, label, *color, *enabled).margin_right(8));
+        row.push(colored_checkbox(ctx, app, label, *color, *enabled).margin_right(8));
         row.push(Line(label).draw(ctx));
         col.push(Widget::row(row).margin_below(7));
     }
@@ -412,14 +409,11 @@ fn make_vert_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
     Widget::col(col)
 }
 
-fn colored_checkbox(ctx: &EventCtx, label: &str, color: Color, enabled: bool) -> Widget {
+fn colored_checkbox(ctx: &EventCtx, app: &App, label: &str, color: Color, enabled: bool) -> Widget {
     if enabled {
         Btn::svg(
             "../data/system/assets/tools/checkmark.svg",
-            RewriteColor::ChangeMore(vec![
-                (Color::BLACK, color),
-                (Color::WHITE, colors::HOVERING),
-            ]),
+            RewriteColor::ChangeMore(vec![(Color::BLACK, color), (Color::WHITE, app.cs.hovering)]),
         )
         .normal_color(RewriteColor::Change(Color::BLACK, color))
         .build(ctx, format!("hide {}", label), None)

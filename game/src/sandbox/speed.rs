@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::colors;
 use crate::common::{Overlays, Warping};
 use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
@@ -34,7 +33,12 @@ enum SpeedSetting {
 
 impl SpeedControls {
     // TODO Could use custom_checkbox here, but not sure it'll make things that much simpler.
-    fn make_panel(ctx: &mut EventCtx, paused: bool, setting: SpeedSetting) -> WrappedComposite {
+    fn make_panel(
+        ctx: &mut EventCtx,
+        app: &App,
+        paused: bool,
+        setting: SpeedSetting,
+    ) -> WrappedComposite {
         let mut row = Vec::new();
         row.push(
             if paused {
@@ -52,7 +56,7 @@ impl SpeedControls {
             }
             .margin(5)
             .centered_vert()
-            .bg(colors::SECTION_BG),
+            .bg(app.cs.section_bg),
         );
 
         row.push(
@@ -81,7 +85,7 @@ impl SpeedControls {
                 })
                 .collect(),
             )
-            .bg(colors::SECTION_BG)
+            .bg(app.cs.section_bg)
             .centered(),
         );
 
@@ -90,7 +94,7 @@ impl SpeedControls {
                 vec![
                     Btn::custom(
                         Text::from(Line("+1h").fg(Color::WHITE)).render_ctx(ctx),
-                        Text::from(Line("+1h").fg(colors::HOVERING)).render_ctx(ctx),
+                        Text::from(Line("+1h").fg(app.cs.hovering)).render_ctx(ctx),
                         {
                             let dims = Text::from(Line("+1h")).render_ctx(ctx).get_dims();
                             Polygon::rectangle(dims.width, dims.height)
@@ -99,7 +103,7 @@ impl SpeedControls {
                     .build(ctx, "step forwards 1 hour", hotkey(Key::N)),
                     Btn::custom(
                         Text::from(Line("+0.1s").fg(Color::WHITE)).render_ctx(ctx),
-                        Text::from(Line("+0.1s").fg(colors::HOVERING)).render_ctx(ctx),
+                        Text::from(Line("+0.1s").fg(app.cs.hovering)).render_ctx(ctx),
                         {
                             let dims = Text::from(Line("+0.1s")).render_ctx(ctx).get_dims();
                             Polygon::rectangle(dims.width, dims.height)
@@ -121,13 +125,13 @@ impl SpeedControls {
                 .map(|x| x.margin(5))
                 .collect(),
             )
-            .bg(colors::SECTION_BG)
+            .bg(app.cs.section_bg)
             .centered(),
         );
 
         WrappedComposite::new(
             Composite::new(
-                Widget::row(row.into_iter().map(|x| x.margin(5)).collect()).bg(colors::PANEL_BG),
+                Widget::row(row.into_iter().map(|x| x.margin(5)).collect()).bg(app.cs.panel_bg),
             )
             .aligned(
                 HorizontalAlignment::Center,
@@ -161,8 +165,8 @@ impl SpeedControls {
         )
     }
 
-    pub fn new(ctx: &mut EventCtx) -> SpeedControls {
-        let composite = SpeedControls::make_panel(ctx, false, SpeedSetting::Realtime);
+    pub fn new(ctx: &mut EventCtx, app: &App) -> SpeedControls {
+        let composite = SpeedControls::make_panel(ctx, app, false, SpeedSetting::Realtime);
         SpeedControls {
             composite,
             paused: false,
@@ -183,31 +187,31 @@ impl SpeedControls {
             Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
                 "real-time speed" => {
                     self.setting = SpeedSetting::Realtime;
-                    self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                     return None;
                 }
                 "5x speed" => {
                     self.setting = SpeedSetting::Fast;
-                    self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                     return None;
                 }
                 "30x speed" => {
                     self.setting = SpeedSetting::Faster;
-                    self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                     return None;
                 }
                 "3600x speed" => {
                     self.setting = SpeedSetting::Fastest;
-                    self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                     return None;
                 }
                 "play" => {
                     self.paused = false;
-                    self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                     return None;
                 }
                 "pause" => {
-                    self.pause(ctx);
+                    self.pause(ctx, app);
                 }
                 "reset to midnight" => {
                     if let Some(mode) = maybe_mode {
@@ -238,18 +242,18 @@ impl SpeedControls {
 
         if ctx.input.new_was_pressed(&hotkey(Key::LeftArrow).unwrap()) {
             match self.setting {
-                SpeedSetting::Realtime => self.pause(ctx),
+                SpeedSetting::Realtime => self.pause(ctx, app),
                 SpeedSetting::Fast => {
                     self.setting = SpeedSetting::Realtime;
-                    self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                 }
                 SpeedSetting::Faster => {
                     self.setting = SpeedSetting::Fast;
-                    self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                 }
                 SpeedSetting::Fastest => {
                     self.setting = SpeedSetting::Faster;
-                    self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                 }
             }
         }
@@ -258,19 +262,21 @@ impl SpeedControls {
                 SpeedSetting::Realtime => {
                     if self.paused {
                         self.paused = false;
-                        self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                        self.composite =
+                            SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                     } else {
                         self.setting = SpeedSetting::Fast;
-                        self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                        self.composite =
+                            SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                     }
                 }
                 SpeedSetting::Fast => {
                     self.setting = SpeedSetting::Faster;
-                    self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                 }
                 SpeedSetting::Faster => {
                     self.setting = SpeedSetting::Fastest;
-                    self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+                    self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
                 }
                 SpeedSetting::Fastest => {}
             }
@@ -302,18 +308,18 @@ impl SpeedControls {
         self.composite.draw(g);
     }
 
-    pub fn pause(&mut self, ctx: &mut EventCtx) {
+    pub fn pause(&mut self, ctx: &mut EventCtx, app: &App) {
         if !self.paused {
             self.paused = true;
-            self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+            self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
         }
     }
 
-    pub fn resume_realtime(&mut self, ctx: &mut EventCtx) {
+    pub fn resume_realtime(&mut self, ctx: &mut EventCtx, app: &App) {
         if self.paused || self.setting != SpeedSetting::Realtime {
             self.paused = false;
             self.setting = SpeedSetting::Realtime;
-            self.composite = SpeedControls::make_panel(ctx, self.paused, self.setting);
+            self.composite = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
         }
     }
 
@@ -396,7 +402,7 @@ impl JumpToTime {
                         },
                     ),
                 ])
-                .bg(colors::PANEL_BG),
+                .bg(app.cs.panel_bg),
             )
             .build(ctx),
         }
@@ -497,7 +503,7 @@ impl TimeWarpScreen {
                         .centered_horiz(),
                 ])
                 .padding(10)
-                .bg(colors::PANEL_BG),
+                .bg(app.cs.panel_bg),
             )
             .build(ctx),
         }
@@ -629,7 +635,7 @@ impl TimePanel {
                     .evenly_spaced(),
                 ])
                 .padding(10)
-                .bg(colors::PANEL_BG),
+                .bg(app.cs.panel_bg),
             )
             .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
             .build(ctx),

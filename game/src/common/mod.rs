@@ -252,7 +252,7 @@ impl CommonState {
 
         // First the constant background
         let mut batch = GeomBatch::from(vec![(
-            crate::colors::PANEL_BG,
+            app.cs.panel_bg,
             Polygon::rectangle(g.canvas.window_width, 1.5 * g.default_line_height()),
         )]);
         batch.add_translated(osd.render_g(g), 10.0, 0.25 * g.default_line_height());

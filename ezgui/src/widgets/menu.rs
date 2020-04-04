@@ -58,7 +58,7 @@ impl<T: 'static + Clone> Menu<T> {
             }
             if choice.tooltip.is_some() {
                 // TODO Ideally unicode info symbol, but the fonts don't seem to have it
-                txt.append(Line(" �"));
+                txt.append(Line(" (!)"));
             }
 
             // TODO BG color should be on the TextSpan, so this isn't so terrible?

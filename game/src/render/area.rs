@@ -1,5 +1,6 @@
 use crate::app::App;
-use crate::helpers::{ColorScheme, ID};
+use crate::colors::ColorScheme;
+use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable};
 use ezgui::{Color, GeomBatch, GfxCtx};
 use geom::Polygon;

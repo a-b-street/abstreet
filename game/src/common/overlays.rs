@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::colors;
 use crate::common::{
     make_heatmap, ColorLegend, Colorer, HeatmapColors, HeatmapOptions, ShowBusRoute, Warping,
 };
@@ -281,7 +280,7 @@ impl Overlays {
                     Widget::row(choices.into_iter().map(|x| x.margin(5)).collect())
                         .flex_wrap(ctx, 30),
                 ])
-                .bg(colors::PANEL_BG)
+                .bg(app.cs.panel_bg)
                 .outline(10.0, Color::WHITE)
                 .padding(10),
             )
@@ -731,7 +730,7 @@ impl Overlays {
                         ctx,
                     ),
                 ])
-                .bg(colors::PANEL_BG),
+                .bg(app.cs.panel_bg),
             )
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
             .build(ctx),
@@ -782,7 +781,7 @@ impl Overlays {
             app.primary.sim.time(),
             i,
             batch.upload(ctx),
-            Composite::new(Widget::col(col).bg(colors::PANEL_BG))
+            Composite::new(Widget::col(col).bg(app.cs.panel_bg))
                 .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
                 .build(ctx),
         )
@@ -993,7 +992,7 @@ fn population_controls(
         }
     }
 
-    Composite::new(Widget::col(col).padding(5).bg(colors::PANEL_BG))
+    Composite::new(Widget::col(col).padding(5).bg(app.cs.panel_bg))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx)
 }

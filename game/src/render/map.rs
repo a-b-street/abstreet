@@ -1,5 +1,6 @@
 use crate::app::{App, Flags};
-use crate::helpers::{ColorScheme, ID};
+use crate::colors::ColorScheme;
+use crate::helpers::ID;
 use crate::render::area::DrawArea;
 use crate::render::building::DrawBuilding;
 use crate::render::bus_stop::DrawBusStop;

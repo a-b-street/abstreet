@@ -1,5 +1,6 @@
 use crate::app::App;
-use crate::helpers::{rotating_color_agents, ColorScheme, ID};
+use crate::colors::ColorScheme;
+use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
 use geom::{Circle, Distance, Line, PolyLine, Polygon};
@@ -26,7 +27,7 @@ impl DrawBike {
 
         // TODO Share constants with DrawPedestrian
         let body_radius = SIDEWALK_THICKNESS / 4.0;
-        let body_color = zoomed_color_bike(&input);
+        let body_color = cs.rotating_color_agents(input.id.0);
         draw_default.push(
             cs.get_def("bike frame", Color::rgb(0, 128, 128)),
             input.body.make_polygons(Distance::meters(0.4)),
@@ -110,8 +111,4 @@ impl Renderable for DrawBike {
     fn get_zorder(&self) -> isize {
         self.zorder
     }
-}
-
-fn zoomed_color_bike(input: &DrawCarInput) -> Color {
-    rotating_color_agents(input.id.0)
 }

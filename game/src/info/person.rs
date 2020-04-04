@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::colors;
 use crate::info::{building, header_btns, make_table, make_tabs, trip, Details, Tab};
 use crate::render::Renderable;
 use ezgui::{hotkey, Btn, Color, EventCtx, Key, Line, RewriteColor, Text, TextExt, Widget};
@@ -98,7 +97,7 @@ pub fn trips(
             ])
             .outline(2.0, Color::WHITE)
             .padding(16)
-            .bg(colors::INNER_PANEL)
+            .bg(app.cs.inner_panel)
             .margin_above(if is_first { 0 } else { 16 }),
         );
         is_first = false;
@@ -107,7 +106,7 @@ pub fn trips(
             rows.push(
                 trip::details(ctx, app, *t, details)
                     .outline(2.0, Color::WHITE)
-                    .bg(colors::INNER_PANEL)
+                    .bg(app.cs.inner_panel)
                     .padding(16),
             );
 

@@ -7,7 +7,6 @@ mod person;
 mod trip;
 
 use crate::app::App;
-use crate::colors;
 use crate::common::Warping;
 use crate::game::Transition;
 use crate::helpers::ID;
@@ -225,7 +224,7 @@ impl InfoPanel {
                     txt.append(Line(key.describe()).fg(ezgui::HOTKEY_COLOR));
                     txt.append(Line(format!(" - {}", label)));
                     col.push(
-                        Btn::text_bg(label, txt, colors::SECTION_BG, colors::HOVERING)
+                        Btn::text_bg(label, txt, app.cs.section_bg, app.cs.hovering)
                             .build_def(ctx, hotkey(key))
                             .margin(5),
                     );

@@ -13,9 +13,9 @@ pub struct CreateGridlock {
 }
 
 impl CreateGridlock {
-    pub fn new(ctx: &mut EventCtx, mode: GameplayMode) -> Box<dyn GameplayState> {
+    pub fn new(ctx: &mut EventCtx, app: &App, mode: GameplayMode) -> Box<dyn GameplayState> {
         Box::new(CreateGridlock {
-            top_center: challenge_controller(ctx, mode, "Gridlock Challenge", Vec::new()),
+            top_center: challenge_controller(ctx, app, mode, "Gridlock Challenge", Vec::new()),
         })
     }
 }

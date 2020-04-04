@@ -1,5 +1,4 @@
 use crate::app::{App, ShowEverything};
-use crate::colors;
 use crate::common::CommonState;
 use crate::edit::{apply_map_edits, close_intersection, StopSignEditor};
 use crate::game::{msg, DrawBaselayer, State, Transition, WizardState};
@@ -328,7 +327,7 @@ pub fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: b
             Widget::nothing()
         },
     ];
-    Composite::new(Widget::row(row).bg(colors::PANEL_BG))
+    Composite::new(Widget::row(row).bg(app.cs.panel_bg))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx)
 }
@@ -706,12 +705,12 @@ impl PreviewTrafficSignal {
                     "Previewing traffic signal".draw_text(ctx),
                     Btn::text_fg("back to editing").build_def(ctx, hotkey(Key::Escape)),
                 ])
-                .bg(colors::PANEL_BG)
+                .bg(app.cs.panel_bg)
                 .padding(10),
             )
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
-            speed: SpeedControls::new(ctx),
+            speed: SpeedControls::new(ctx, app),
             time_panel: TimePanel::new(ctx, app),
         }
     }

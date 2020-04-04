@@ -1,12 +1,11 @@
 use crate::app::PerMap;
 use crate::render::ExtraShapeID;
-use abstutil::{prettyprint_usize, Timer};
+use abstutil::prettyprint_usize;
 use ezgui::{Color, Line, Text, TextSpan};
 use geom::{Duration, Pt2D};
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, RoadID, TurnID};
-use serde_derive::{Deserialize, Serialize};
 use sim::{AgentID, CarID, PedestrianID};
-use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::collections::BTreeSet;
 
 // Aside from Road and Trip, everything here can actually be selected.
 #[derive(Clone, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
@@ -71,82 +70,6 @@ impl ID {
             ID::Area(id) => primary.map.maybe_get_a(id).map(|a| a.polygon.center()),
         }
     }
-}
-
-pub struct ColorScheme(HashMap<String, Color>);
-
-// Ideal for editing; values are (hex, alpha value).
-#[derive(Serialize, Deserialize)]
-struct OverrideColorScheme(BTreeMap<String, (String, f32)>);
-
-impl ColorScheme {
-    pub fn load(maybe_path: Option<String>) -> ColorScheme {
-        let mut map: HashMap<String, Color> = default_colors();
-
-        // TODO For now, regenerate this manually. If the build system could write in data/system/
-        // that'd be great, but...
-        if false {
-            let mut copy = OverrideColorScheme(BTreeMap::new());
-            for (name, c) in &map {
-                copy.0.insert(name.clone(), (c.to_hex(), c.a));
-            }
-            abstutil::write_json("../data/system/override_colors.json".to_string(), &copy);
-        }
-
-        if let Some(path) = maybe_path {
-            let overrides: OverrideColorScheme = abstutil::read_json(path, &mut Timer::throwaway());
-            for (name, (hex, a)) in overrides.0 {
-                map.insert(name, Color::hex(&hex).alpha(a));
-            }
-        }
-        ColorScheme(map)
-    }
-
-    // Get, but specify the default inline. The default is extracted before compilation by a script
-    // and used to generate default_colors().
-    pub fn get_def(&self, name: &str, _default: Color) -> Color {
-        self.0[name]
-    }
-
-    pub fn get(&self, name: &str) -> Color {
-        if let Some(c) = self.0.get(name) {
-            *c
-        } else {
-            panic!("Color {} undefined", name);
-        }
-    }
-}
-
-include!(concat!(env!("OUT_DIR"), "/init_colors.rs"));
-
-fn modulo_color(colors: Vec<Color>, idx: usize) -> Color {
-    colors[idx % colors.len()]
-}
-
-pub fn rotating_color_map(idx: usize) -> Color {
-    modulo_color(
-        vec![
-            Color::RED,
-            Color::BLUE,
-            Color::GREEN,
-            Color::PURPLE,
-            Color::BLACK,
-        ],
-        idx,
-    )
-}
-
-pub fn rotating_color_agents(idx: usize) -> Color {
-    modulo_color(
-        vec![
-            Color::hex("#5C45A0"),
-            Color::hex("#3E8BC3"),
-            Color::hex("#E1BA13"),
-            Color::hex("#96322F"),
-            Color::hex("#00A27B"),
-        ],
-        idx,
-    )
 }
 
 pub fn list_names<F: Fn(TextSpan) -> TextSpan>(txt: &mut Text, styler: F, names: BTreeSet<String>) {

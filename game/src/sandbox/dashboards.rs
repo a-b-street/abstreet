@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::colors;
 use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use crate::helpers::{cmp_count_fewer, cmp_count_more, cmp_duration_shorter};
@@ -53,8 +52,8 @@ pub fn make(ctx: &mut EventCtx, app: &App, tab: Tab) -> Box<dyn State> {
             Btn::svg_def("../data/system/assets/pregame/back.svg")
                 .build(ctx, "back", hotkey(Key::Escape))
                 .align_left(),
-            Widget::row(tabs).bg(colors::PANEL_BG),
-            content.bg(colors::PANEL_BG),
+            Widget::row(tabs).bg(app.cs.panel_bg),
+            content.bg(app.cs.panel_bg),
         ]))
         // TODO Want to use exact, but then scrolling breaks. exact_size_percent will fix the
         // jumpiness though.
@@ -149,7 +148,7 @@ fn trips_summary_prebaked(ctx: &EventCtx, app: &App) -> Widget {
 
     Widget::col(vec![
         txt.draw(ctx),
-        finished_trips_plot(ctx, app).bg(colors::SECTION_BG),
+        finished_trips_plot(ctx, app).bg(app.cs.section_bg),
         "Are trips faster or slower than the baseline?".draw_text(ctx),
         Histogram::new(
             app.primary
@@ -158,7 +157,7 @@ fn trips_summary_prebaked(ctx: &EventCtx, app: &App) -> Widget {
                 .trip_time_deltas(app.primary.sim.time(), app.prebaked()),
             ctx,
         )
-        .bg(colors::SECTION_BG),
+        .bg(app.cs.section_bg),
         Line("Active agents").small_heading().draw(ctx),
         Plot::new(
             ctx,
@@ -226,7 +225,7 @@ fn trips_summary_not_prebaked(ctx: &EventCtx, app: &App) -> Widget {
 
     Widget::col(vec![
         txt.draw(ctx),
-        finished_trips_plot(ctx, app).bg(colors::SECTION_BG),
+        finished_trips_plot(ctx, app).bg(app.cs.section_bg),
         Line("Active agents").small_heading().draw(ctx),
         Plot::new(
             ctx,
