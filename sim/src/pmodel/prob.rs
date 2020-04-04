@@ -9,6 +9,7 @@ pub fn proba_decaying_sigmoid(time: f64, rate: f64) -> f64 {
 
 // goind from -infinity to t
 // used for gaussian distribution probability from -inf to t
+#[allow(dead_code)]
 pub fn erf_distrib(t: f64, mu: f64, sigma: f64) -> f64 {
     if sigma < 0.0 {
         panic!("Error sigma must be always be positive but was {}", sigma);

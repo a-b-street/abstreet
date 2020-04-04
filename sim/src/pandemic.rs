@@ -1,4 +1,4 @@
-use crate::pmodel::{erf_distrib_bounded, proba_decaying_sigmoid};
+use crate::pmodel::{erf_distrib_bounded, proba_decaying_sigmoid, SEIR};
 use crate::{CarID, Command, Event, Person, PersonID, Scheduler, TripPhaseType};
 use geom::{Duration, Time};
 use map_model::{BuildingID, BusStopID};
@@ -75,11 +75,15 @@ impl PandemicModel {
 
         // Seed initially infected people.
         for p in population {
-            // TODO add generic number here and also seed the other compartiments
-            if self.rng.gen_bool(0.1) {
+            self.sane.insert(p.id);
+            if self.rng.gen_bool(SEIR::get_initial_ratio(SEIR::Exposed)) {
+                self.become_exposed(Time::START_OF_DAY, p.id, scheduler);
+            } else if self.rng.gen_bool(SEIR::get_initial_ratio(SEIR::Infectious)) {
+                self.sane.remove(&p.id);
                 self.become_infected(Time::START_OF_DAY, p.id, scheduler);
-            } else {
+            } else if self.rng.gen_bool(SEIR::get_initial_ratio(SEIR::Recovered)) {
                 self.sane.insert(p.id);
+                self.become_recovered(Time::START_OF_DAY, p.id, scheduler);
             }
         }
     }
@@ -193,7 +197,12 @@ impl PandemicModel {
         let inf_pers = self.infected.get(&person).map(|pers| *pers);
         if let Some((t0, last_check)) = inf_pers {
             // let dt = now - *t0;
-            if self.recovery_occurs(t0, last_check, now) {
+            if self.recovery_occurs(
+                last_check,
+                now,
+                t0 + SEIR::get_transition_time_from(SEIR::Infectious),
+                SEIR::get_transition_time_uncertainty_from(SEIR::Infectious),
+            ) {
                 self.transition_to_recovered(now, person, scheduler);
             } else {
                 // We rather store the last moment
@@ -204,7 +213,12 @@ impl PandemicModel {
         let exp_pers = self.exposed.get(&person).map(|pers| *pers);
         if let Some((t0, last_check)) = exp_pers {
             // let dt = now - *t0;
-            if self.infection_occurs(t0, last_check, now) {
+            if self.infection_occurs(
+                last_check,
+                now,
+                t0 + SEIR::get_transition_time_from(SEIR::Infectious),
+                SEIR::get_transition_time_uncertainty_from(SEIR::Infectious),
+            ) {
                 self.transition_to_infected(now, person, scheduler);
             } else {
                 // We rather store the last moment
@@ -223,48 +237,50 @@ impl PandemicModel {
     }
 
     // recovery occurs on average after some time (the probability is given between t0, t1),
-    // but we must take into accoutn the time of exposition (ti)
-    fn recovery_occurs(&mut self, ti: Time, t0: Time, t1: Time) -> bool {
-        // TODO put some variable instead of 1.0, 1.0
+    // but we must take into accoutn the avg moment of recovery and some uncertainty
+    fn recovery_occurs(&mut self, t0: Time, t1: Time, avg_time: Time, sig_time: Duration) -> bool {
         self.rng.gen_bool(erf_distrib_bounded(
             t0.inner_seconds(),
             t1.inner_seconds(),
-            ti.inner_seconds() + 1.0,
-            1.0,
+            avg_time.inner_seconds(),
+            sig_time.inner_seconds(),
         ))
     }
 
     // infection occurs on average after some time (the probability is given between t0, t1),
-    // but we must take into accoutn the time of exposition (ti)
-    fn infection_occurs(&mut self, ti: Time, t0: Time, t1: Time) -> bool {
-        // TODO put some variable instead of 1.0, 1.0
+    // but we must take into accoutn the avg moment of infection and some uncertainty
+    fn infection_occurs(&mut self, t0: Time, t1: Time, avg_time: Time, sig_time: Duration) -> bool {
         self.rng.gen_bool(erf_distrib_bounded(
             t0.inner_seconds(),
             t1.inner_seconds(),
-            ti.inner_seconds() + 1.0,
-            1.0,
+            avg_time.inner_seconds(),
+            sig_time.inner_seconds(),
         ))
     }
 
     // Infection is the transition
     fn exposition_occurs(&mut self, overlap: Duration) -> bool {
-        // TODO put some variable instead of 0.1
+        let rate = 1.0 / SEIR::get_transition_time_from(SEIR::Sane).inner_seconds();
         self.rng
-            .gen_bool(proba_decaying_sigmoid(overlap.inner_seconds(), 0.1))
+            .gen_bool(proba_decaying_sigmoid(overlap.inner_seconds(), rate))
     }
 
-    fn become_exposed(&mut self, now: Time, person: PersonID, scheduler: &mut Scheduler) {
+    fn become_exposed(&mut self, now: Time, person: PersonID, _scheduler: &mut Scheduler) {
         // TODO We might want to track that contact at some point
         // SO let's keep the scheduler here
         self.exposed.insert(person, (now, now));
         self.sane.remove(&person);
     }
 
-    fn become_infected(&mut self, now: Time, person: PersonID, scheduler: &mut Scheduler) {
+    fn become_infected(&mut self, now: Time, person: PersonID, _scheduler: &mut Scheduler) {
         self.infected.insert(person, (now, now));
     }
 
-    fn transition_to_recovered(&mut self, now: Time, person: PersonID, scheduler: &mut Scheduler) {
+    fn become_recovered(&mut self, _now: Time, person: PersonID, _scheduler: &mut Scheduler) {
+        self.recovered.insert(person);
+    }
+
+    fn transition_to_recovered(&mut self, _now: Time, person: PersonID, _scheduler: &mut Scheduler) {
         self.recovered.insert(person);
         self.infected.remove(&person);
 
@@ -276,7 +292,7 @@ impl PandemicModel {
         // }
     }
 
-    fn transition_to_infected(&mut self, now: Time, person: PersonID, scheduler: &mut Scheduler) {
+    fn transition_to_infected(&mut self, now: Time, person: PersonID, _scheduler: &mut Scheduler) {
         self.infected.insert(person, (now, now));
         self.exposed.remove(&person);
 
@@ -288,11 +304,11 @@ impl PandemicModel {
         // }
     }
 
-    fn stay_infected(&mut self, ini: Time, now: Time, person: PersonID, scheduler: &mut Scheduler) {
+    fn stay_infected(&mut self, ini: Time, now: Time, person: PersonID, _scheduler: &mut Scheduler) {
         self.infected.insert(person, (ini, now));
     }
 
-    fn stay_exposed(&mut self, ini: Time, now: Time, person: PersonID, scheduler: &mut Scheduler) {
+    fn stay_exposed(&mut self, ini: Time, now: Time, person: PersonID, _scheduler: &mut Scheduler) {
         self.exposed.insert(person, (ini, now));
     }
 
@@ -303,7 +319,7 @@ impl PandemicModel {
     //             .gen_range(low.inner_seconds(), high.inner_seconds()),
     //     )
     // }
-    }
+}
 
 #[derive(Clone)]
 struct SharedSpace<T: Ord> {
