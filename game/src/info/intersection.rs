@@ -119,7 +119,7 @@ fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) 
     {
         all_series.push(Series {
             label: stat.to_string(),
-            color: app.cs.rotating_color_map(idx),
+            color: app.cs.rotating_color_plot(idx),
             pts,
         });
     }
@@ -130,7 +130,7 @@ fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) 
         {
             all_series.push(Series {
                 label: format!("{} (baseline)", stat),
-                color: app.cs.rotating_color_map(idx).alpha(0.3),
+                color: app.cs.rotating_color_plot(idx).alpha(0.3),
                 pts,
             });
         }

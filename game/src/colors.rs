@@ -19,6 +19,7 @@ pub enum ColorSchemeChoice {
     SAMDesertDay,
     BAP,
     OSM,
+    Starcat,
 }
 
 impl ColorSchemeChoice {
@@ -30,6 +31,7 @@ impl ColorSchemeChoice {
             Choice::new("sam desert day", ColorSchemeChoice::SAMDesertDay),
             Choice::new("bap", ColorSchemeChoice::BAP),
             Choice::new("osm", ColorSchemeChoice::OSM),
+            Choice::new("starcat", ColorSchemeChoice::Starcat),
         ]
     }
 }
@@ -120,6 +122,7 @@ impl ColorScheme {
             ColorSchemeChoice::SAMDesertDay => ColorScheme::sam_desert_day(),
             ColorSchemeChoice::BAP => ColorScheme::bap(),
             ColorSchemeChoice::OSM => ColorScheme::osm(),
+            ColorSchemeChoice::Starcat => ColorScheme::starcat(),
         }
     }
 
@@ -208,7 +211,7 @@ impl ColorScheme {
         }
     }
 
-    pub fn rotating_color_map(&self, idx: usize) -> Color {
+    pub fn rotating_color_plot(&self, idx: usize) -> Color {
         modulo_color(
             &vec![
                 Color::RED,
@@ -301,6 +304,21 @@ impl ColorScheme {
         // TODO normal_intersection, driving_lane, parking_lane depends on osm rank
         cs.general_road_marking = Color::BLACK;
         cs.road_center_line = Color::rgb(202, 177, 39);
+        cs
+    }
+
+    fn starcat() -> ColorScheme {
+        let mut cs = ColorScheme::standard();
+        cs.grass = hex("#3F8C0C");
+        cs.building = hex("#8099A8"); // #5E7486
+        cs.map_background = hex("#737373");
+        cs.driving_lane = hex("#2A2A2A"); // TODO for arterial
+        cs.road_center_line = hex("#DB952E");
+        cs.general_road_marking = hex("#D6D6D6");
+        cs.sidewalk = cs.general_road_marking;
+        cs.sidewalk_lines = hex("#707070");
+        cs.bike_lane = hex("#72CE36");
+        cs.bus_lane = hex("#AD302D");
         cs
     }
 }

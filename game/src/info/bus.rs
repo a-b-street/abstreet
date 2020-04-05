@@ -129,7 +129,7 @@ fn delays_over_time(ctx: &mut EventCtx, app: &App, id: BusRouteID) -> Widget {
         };
         series.push(Series {
             label: format!("Stop {}->{}", idx1 + 1, idx2 + 1),
-            color: app.cs.rotating_color_map(idx1),
+            color: app.cs.rotating_color_plot(idx1),
             pts: delays_per_stop
                 .remove(&route.stops[idx2])
                 .unwrap_or_else(Vec::new),
