@@ -1,4 +1,6 @@
 use crate::{CarID, Command, Event, Person, PersonID, Scheduler, TripPhaseType};
+use crate::pandemic::SEIR;
+use crate::pandemic::{proba_decaying_sigmoid, erf_distrib_bounded};
 use geom::{Duration, Time};
 use map_model::{BuildingID, BusStopID};
 use rand::Rng;
@@ -12,8 +14,15 @@ use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Clone)]
 pub struct PandemicModel {
-    pub infected: BTreeSet<PersonID>,
+    pub sane: BTreeSet<PersonID>,
+    // first time is the time of exposition/infection
+    // second time is the time since the last check of
+    // transition was performed
+    pub exposed: BTreeMap<PersonID, (Time, Time)>,
+    pub infected: BTreeMap<PersonID, (Time, Time)>,
+    pub recovered: BTreeSet<PersonID>,
     hospitalized: BTreeSet<PersonID>,
+    quarantined: BTreeSet<PersonID>,
 
     bldgs: SharedSpace<BuildingID>,
     bus_stops: SharedSpace<BusStopID>,
@@ -28,6 +37,7 @@ pub struct PandemicModel {
 #[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Debug)]
 pub enum Cmd {
     BecomeHospitalized(PersonID),
+    BecomeQuarantined(PersonID),
 }
 
 // TODO Pretend handle_event and handle_cmd also take in some object that lets you do things like:
@@ -41,8 +51,12 @@ pub enum Cmd {
 impl PandemicModel {
     pub fn new(rng: XorShiftRng) -> PandemicModel {
         PandemicModel {
-            infected: BTreeSet::new(),
+            sane: BTreeSet::new(),
+            exposed: BTreeMap::new(),
+            infected: BTreeMap::new(),
             hospitalized: BTreeSet::new(),
+            quarantined: BTreeSet::new(),
+            recovered: BTreeSet::new(),
 
             bldgs: SharedSpace::new(),
             bus_stops: SharedSpace::new(),
@@ -62,10 +76,37 @@ impl PandemicModel {
 
         // Seed initially infected people.
         for p in population {
-            if self.rng.gen_bool(0.1) {
+            self.sane.insert(p.id);
+            if self.rng.gen_bool(SEIR::get_initial_ratio(SEIR::Exposed)) {
+                self.become_exposed(Time::START_OF_DAY, p.id, scheduler);
+            } else if self.rng.gen_bool(SEIR::get_initial_ratio(SEIR::Infectious)) {
+                self.sane.remove(&p.id);
                 self.become_infected(Time::START_OF_DAY, p.id, scheduler);
+            } else if self.rng.gen_bool(SEIR::get_initial_ratio(SEIR::Recovered)) {
+                self.recovered.insert(p.id);
+                self.become_recovered(Time::START_OF_DAY, p.id, scheduler);
             }
         }
+    }
+
+    pub fn count_sane(&self) -> usize {
+        self.sane.len()
+    }
+
+    pub fn count_exposed(&self) -> usize {
+        self.exposed.len()
+    }
+
+    pub fn count_infected(&self) -> usize {
+        self.infected.len()
+    }
+
+    pub fn count_recovered(&self) -> usize {
+        self.recovered.len()
+    }
+
+    pub fn count_total(&self) -> usize {
+        self.count_sane() + self.count_exposed() + self.count_infected() + self.count_recovered()
     }
 
     pub fn handle_event(&mut self, now: Time, ev: &Event, scheduler: &mut Scheduler) {
@@ -108,7 +149,9 @@ impl PandemicModel {
                             self.transmission(now, person, others, scheduler);
                         }
                     }
-                    _ => {}
+                    _ => {
+                        self.transition(now, person, scheduler);
+                    }
                 }
             }
             _ => {}
@@ -118,9 +161,14 @@ impl PandemicModel {
     pub fn handle_cmd(&mut self, _now: Time, cmd: Cmd, _scheduler: &mut Scheduler) {
         assert!(self.initialized);
 
+        // TODO Here we might enforce policies. Like severe -> become hospitalized
+        // Symptomatic -> stay quaratined, and/or track contacts to quarantine them too (or test them)
         match cmd {
             Cmd::BecomeHospitalized(person) => {
                 self.hospitalized.insert(person);
+            }
+            Cmd::BecomeQuarantined(person) => {
+                self.quarantined.insert(person);
             }
         }
     }
@@ -135,36 +183,154 @@ impl PandemicModel {
         // person has spent some duration in the same space as other people. Does transmission
         // occur?
         for (other, overlap) in other_occupants {
-            if self.infected.contains(&person) != self.infected.contains(&other) {
-                if overlap > Duration::hours(1) && self.rng.gen_bool(0.1) {
-                    if self.infected.contains(&person) {
-                        self.become_infected(now, other, scheduler);
-                    } else {
-                        self.become_infected(now, person, scheduler);
-                    }
+            if let Some(pid) = self.might_become_exposed(person, other) {
+                if self.exposition_occurs(overlap) {
+                    self.become_exposed(now, pid, scheduler);
                 }
             }
         }
     }
 
-    fn become_infected(&mut self, now: Time, person: PersonID, scheduler: &mut Scheduler) {
-        self.infected.insert(person);
+    // transition from a state to another without interaction with others
+    fn transition(&mut self, now: Time, person: PersonID, scheduler: &mut Scheduler) {
+        // person has spent some duration in the same space as other people. Does transmission
+        // occur?
+        if let Some((t0, last_check)) = self.infected.get(&person).cloned() {
+            // let dt = now - *t0;
+            if self.recovery_occurs(
+                last_check,
+                now,
+                t0 + SEIR::get_transition_time_from(SEIR::Infectious),
+                SEIR::get_transition_time_uncertainty_from(SEIR::Infectious),
+            ) {
+                self.transition_to_recovered(now, person, scheduler);
+            // TODO add an else if with hospitalized
+            } else {
+                // We rather store the last moment
+                self.stay_infected(t0, now, person, scheduler);
+            }
+        }
 
-        if self.rng.gen_bool(0.1) {
-            scheduler.push(
-                now + self.rand_duration(Duration::hours(1), Duration::hours(3)),
-                Command::Pandemic(Cmd::BecomeHospitalized(person)),
-            );
+        let exp_pers = self.exposed.get(&person).map(|pers| *pers);
+        if let Some((t0, last_check)) = exp_pers {
+            // let dt = now - *t0;
+            if self.infection_occurs(
+                last_check,
+                now,
+                t0 + SEIR::get_transition_time_from(SEIR::Exposed),
+                SEIR::get_transition_time_uncertainty_from(SEIR::Exposed),
+            ) {
+                self.transition_to_infected(now, person, scheduler);
+            } else {
+                // We rather store the last moment
+                self.stay_exposed(t0, now, person, scheduler);
+            }
         }
     }
 
-    fn rand_duration(&mut self, low: Duration, high: Duration) -> Duration {
-        assert!(high > low);
-        Duration::seconds(
-            self.rng
-                .gen_range(low.inner_seconds(), high.inner_seconds()),
-        )
+    fn might_become_exposed(&self, person: PersonID, other: PersonID) -> Option<PersonID> {
+        if self.infected.contains_key(&person) && self.sane.contains(&other) {
+            return Some(other);
+        } else if self.sane.contains(&person) && self.infected.contains_key(&other) {
+            return Some(person);
+        }
+        None
     }
+
+    // recovery occurs on average after some time (the probability is given between t0, t1),
+    // but we must take into accoutn the avg moment of recovery and some uncertainty
+    fn recovery_occurs(&mut self, t0: Time, t1: Time, avg_time: Time, sig_time: Duration) -> bool {
+        self.rng.gen_bool(erf_distrib_bounded(
+            t0.inner_seconds(),
+            t1.inner_seconds(),
+            avg_time.inner_seconds(),
+            sig_time.inner_seconds(),
+        ))
+    }
+
+    // infection occurs on average after some time (the probability is given between t0, t1),
+    // but we must take into accoutn the avg moment of infection and some uncertainty
+    fn infection_occurs(&mut self, t0: Time, t1: Time, avg_time: Time, sig_time: Duration) -> bool {
+        self.rng.gen_bool(erf_distrib_bounded(
+            t0.inner_seconds(),
+            t1.inner_seconds(),
+            avg_time.inner_seconds(),
+            sig_time.inner_seconds(),
+        ))
+    }
+
+    // Infection is the transition
+    fn exposition_occurs(&mut self, overlap: Duration) -> bool {
+        let rate = 1.0 / SEIR::get_transition_time_from(SEIR::Sane).inner_seconds();
+        self.rng
+            .gen_bool(proba_decaying_sigmoid(overlap.inner_seconds(), rate))
+    }
+
+    fn become_exposed(&mut self, now: Time, person: PersonID, _scheduler: &mut Scheduler) {
+        // TODO We might want to track that contact at some point
+        // SO let's keep the scheduler here
+        self.exposed.insert(person, (now, now));
+        self.sane.remove(&person);
+    }
+
+    fn become_infected(&mut self, now: Time, person: PersonID, _scheduler: &mut Scheduler) {
+        self.infected.insert(person, (now, now));
+    }
+
+    fn become_recovered(&mut self, _now: Time, person: PersonID, _scheduler: &mut Scheduler) {
+        self.recovered.insert(person);
+    }
+
+    fn transition_to_recovered(
+        &mut self,
+        _now: Time,
+        person: PersonID,
+        _scheduler: &mut Scheduler,
+    ) {
+        self.recovered.insert(person);
+        self.infected.remove(&person);
+
+        // if self.rng.gen_bool(0.1) {
+        //     scheduler.push(
+        //         now + self.rand_duration(Duration::hours(1), Duration::hours(3)),
+        //         Command::Pandemic(Cmd::BecomeHospitalized(person)),
+        //     );
+        // }
+    }
+
+    fn transition_to_infected(&mut self, now: Time, person: PersonID, _scheduler: &mut Scheduler) {
+        self.infected.insert(person, (now, now));
+        self.exposed.remove(&person);
+
+        // if self.rng.gen_bool(0.1) {
+        //     scheduler.push(
+        //         now + self.rand_duration(Duration::hours(1), Duration::hours(3)),
+        //         Command::Pandemic(Cmd::BecomeHospitalized(person)),
+        //     );
+        // }
+    }
+
+    fn stay_infected(
+        &mut self,
+        ini: Time,
+        now: Time,
+        person: PersonID,
+        _scheduler: &mut Scheduler,
+    ) {
+        self.infected.insert(person, (ini, now));
+    }
+
+    fn stay_exposed(&mut self, ini: Time, now: Time, person: PersonID, _scheduler: &mut Scheduler) {
+        self.exposed.insert(person, (ini, now));
+    }
+
+    // fn rand_duration(&mut self, low: Duration, high: Duration) -> Duration {
+    //     assert!(high > low);
+    //     Duration::seconds(
+    //         self.rng
+    //             .gen_range(low.inner_seconds(), high.inner_seconds()),
+    //     )
+    // }
 }
 
 #[derive(Clone)]

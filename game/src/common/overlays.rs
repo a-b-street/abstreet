@@ -831,7 +831,7 @@ impl Overlays {
         if let Some(ref model) = maybe_pandemic {
             for a in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
                 if let Some(p) = a.person {
-                    if model.infected.contains(&p) {
+                    if model.infected.contains_key(&p) {
                         pts.push(a.pos);
                     }
                 }
@@ -854,7 +854,7 @@ impl Overlays {
                 PersonState::Inside(b) => {
                     if maybe_pandemic
                         .as_ref()
-                        .map(|m| !m.infected.contains(&person.id))
+                        .map(|m| !m.infected.contains_key(&person.id))
                         .unwrap_or(false)
                     {
                         continue;
@@ -947,12 +947,19 @@ fn population_controls(
         let model = app.primary.sim.get_pandemic_model().unwrap();
         col.push(
             format!(
-                "Pandemic model: {} infected ({:.1}%)",
-                prettyprint_usize(model.infected.len()),
-                (model.infected.len() as f64) / (total_ppl as f64) * 100.0
+                "Pandemic model: {} S ({:.1}%),  {} E ({:.1}%),  {} I ({:.1}%),  {} R ({:.1}%)",
+                prettyprint_usize(model.count_sane()),
+                (model.count_sane() as f64) / (total_ppl as f64) * 100.0,
+                prettyprint_usize(model.count_exposed()),
+                (model.count_exposed() as f64) / (total_ppl as f64) * 100.0,
+                prettyprint_usize(model.count_infected()),
+                (model.count_infected() as f64) / (total_ppl as f64) * 100.0,
+                prettyprint_usize(model.count_recovered()),
+                (model.count_recovered() as f64) / (total_ppl as f64) * 100.0
             )
             .draw_text(ctx),
         );
+        assert_eq!(total_ppl, model.count_total());
     }
 
     col.push(Widget::checkbox(

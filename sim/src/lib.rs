@@ -37,7 +37,7 @@ use map_model::{
     BuildingID, BusStopID, DirectedRoadID, IntersectionID, LaneID, Map, Path, PathConstraints,
     PathRequest, Position,
 };
-pub use pandemic::PandemicModel;
+pub(crate) use self::pandemic::PandemicModel;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fmt;
