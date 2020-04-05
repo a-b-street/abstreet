@@ -25,7 +25,7 @@ impl SEIR {
             SEIR::Sane => Duration::seconds(SEIR::T_INF / SEIR::R_0),
             SEIR::Exposed => Duration::seconds(SEIR::T_INC),
             SEIR::Infectious => Duration::seconds(SEIR::T_INF),
-            SEIR::Recovered => {
+            SEIR::Recovered => unreachable!()
                 panic!("Impossible to transition from Recovered state")
             }
         }
