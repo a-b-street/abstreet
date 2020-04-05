@@ -1,4 +1,4 @@
-use ezgui::Color;
+use ezgui::{Choice, Color};
 
 // I've gone back and forth how to organize color scheme code. I was previously against having one
 // centralized place with all definitions, because careful naming or comments are needed to explain
@@ -15,6 +15,23 @@ use ezgui::Color;
 pub enum ColorSchemeChoice {
     Standard,
     NightMode,
+    SAMGreenDay,
+    SAMDesertDay,
+    BAP,
+    OSM,
+}
+
+impl ColorSchemeChoice {
+    pub fn choices() -> Vec<Choice<ColorSchemeChoice>> {
+        vec![
+            Choice::new("default", ColorSchemeChoice::Standard),
+            Choice::new("night mode", ColorSchemeChoice::NightMode),
+            Choice::new("sam green day", ColorSchemeChoice::SAMGreenDay),
+            Choice::new("sam desert day", ColorSchemeChoice::SAMDesertDay),
+            Choice::new("bap", ColorSchemeChoice::BAP),
+            Choice::new("osm", ColorSchemeChoice::OSM),
+        ]
+    }
 }
 
 pub struct ColorScheme {
@@ -77,6 +94,7 @@ pub struct ColorScheme {
     pub unzoomed_pedestrian: Color,
 
     // Agents
+    agent_colors: Vec<Color>,
     pub route: Color,
     pub turn_arrow: Color,
     pub brake_light: Color,
@@ -98,6 +116,10 @@ impl ColorScheme {
         match scheme {
             ColorSchemeChoice::Standard => ColorScheme::standard(),
             ColorSchemeChoice::NightMode => ColorScheme::night_mode(),
+            ColorSchemeChoice::SAMGreenDay => ColorScheme::sam_green_day(),
+            ColorSchemeChoice::SAMDesertDay => ColorScheme::sam_desert_day(),
+            ColorSchemeChoice::BAP => ColorScheme::bap(),
+            ColorSchemeChoice::OSM => ColorScheme::osm(),
         }
     }
 
@@ -107,9 +129,9 @@ impl ColorScheme {
             hovering: Color::ORANGE,
             panel_bg: Color::grey(0.4),
             section_bg: Color::grey(0.5),
-            inner_panel: Color::hex("#4C4C4C"),
-            day_time_slider: Color::hex("#F4DA22"),
-            night_time_slider: Color::hex("#12409D"),
+            inner_panel: hex("#4C4C4C"),
+            day_time_slider: hex("#F4DA22"),
+            night_time_slider: hex("#12409D"),
             selected: Color::RED.alpha(0.7),
             current_object: Color::WHITE,
             perma_selected_object: Color::BLUE,
@@ -137,12 +159,12 @@ impl ColorScheme {
             normal_intersection: Color::grey(0.2),
             stop_sign: Color::RED,
             stop_sign_pole: Color::grey(0.5),
-            signal_protected_turn: Color::hex("#72CE36"),
+            signal_protected_turn: hex("#72CE36"),
             signal_permitted_turn: Color::rgba(76, 167, 233, 0.3),
-            signal_permitted_turn_outline: Color::hex("#4CA7E9"),
+            signal_permitted_turn_outline: hex("#4CA7E9"),
             signal_banned_turn: Color::BLACK,
             signal_box: Color::grey(0.5),
-            signal_spinner: Color::hex("#F2994A"),
+            signal_spinner: hex("#F2994A"),
             signal_turn_block_bg: Color::grey(0.6),
 
             // Other static elements
@@ -150,21 +172,28 @@ impl ColorScheme {
             map_background: Color::grey(0.87),
             unzoomed_interesting_intersection: Color::BLACK,
             building: Color::rgb(196, 193, 188),
-            grass: Color::hex("#94C84A"),
+            grass: hex("#94C84A"),
             water: Color::rgb(164, 200, 234),
             bus_stop: Color::CYAN,
             extra_gis_shape: Color::RED.alpha(0.5),
 
             // Unzoomed dynamic elements
-            unzoomed_car: Color::hex("#A32015"),
-            unzoomed_bike: Color::hex("#5D9630"),
-            unzoomed_bus: Color::hex("#12409D"),
-            unzoomed_pedestrian: Color::hex("#DF8C3D"),
+            unzoomed_car: hex("#A32015"),
+            unzoomed_bike: hex("#5D9630"),
+            unzoomed_bus: hex("#12409D"),
+            unzoomed_pedestrian: hex("#DF8C3D"),
 
             // Agents
+            agent_colors: vec![
+                hex("#5C45A0"),
+                hex("#3E8BC3"),
+                hex("#E1BA13"),
+                hex("#96322F"),
+                hex("#00A27B"),
+            ],
             route: Color::ORANGE.alpha(0.5),
-            turn_arrow: Color::hex("#DF8C3D"),
-            brake_light: Color::hex("#FF1300"),
+            turn_arrow: hex("#DF8C3D"),
+            brake_light: hex("#FF1300"),
             bus_body: Color::rgb(50, 133, 117),
             bus_label: Color::rgb(249, 206, 24),
             ped_head: Color::rgb(139, 69, 19),
@@ -175,26 +204,13 @@ impl ColorScheme {
 
             // Misc
             associated_object: Color::PURPLE,
-            parking_trip: Color::hex("#4E30A6"),
+            parking_trip: hex("#4E30A6"),
         }
-    }
-
-    fn night_mode() -> ColorScheme {
-        let mut cs = ColorScheme::standard();
-        cs.building = Color::hex("#42208B");
-        cs.sidewalk = Color::hex("#7C55C8");
-        cs.grass = Color::hex("#063D88");
-        cs.map_background = Color::hex("#070747");
-        cs.unzoomed_arterial = Color::hex("#54247A");
-        cs.unzoomed_highway = Color::hex("#DD1F7F");
-        cs.unzoomed_residential = Color::hex("#4D51AC");
-        cs.water = Color::hex("#2A43AA");
-        cs
     }
 
     pub fn rotating_color_map(&self, idx: usize) -> Color {
         modulo_color(
-            vec![
+            &vec![
                 Color::RED,
                 Color::BLUE,
                 Color::GREEN,
@@ -206,19 +222,85 @@ impl ColorScheme {
     }
 
     pub fn rotating_color_agents(&self, idx: usize) -> Color {
-        modulo_color(
-            vec![
-                Color::hex("#5C45A0"),
-                Color::hex("#3E8BC3"),
-                Color::hex("#E1BA13"),
-                Color::hex("#96322F"),
-                Color::hex("#00A27B"),
-            ],
-            idx,
-        )
+        modulo_color(&self.agent_colors, idx)
     }
 }
 
-fn modulo_color(colors: Vec<Color>, idx: usize) -> Color {
+fn modulo_color(colors: &Vec<Color>, idx: usize) -> Color {
     colors[idx % colors.len()]
+}
+
+// Convenience
+fn hex(x: &str) -> Color {
+    Color::hex(x)
+}
+
+// Alternate, in-progress schemes
+impl ColorScheme {
+    fn night_mode() -> ColorScheme {
+        let mut cs = ColorScheme::standard();
+        cs.building = hex("#42208B");
+        cs.sidewalk = hex("#7C55C8");
+        cs.grass = hex("#063D88");
+        cs.map_background = hex("#070747");
+        cs.unzoomed_arterial = hex("#54247A");
+        cs.unzoomed_highway = hex("#DD1F7F");
+        cs.unzoomed_residential = hex("#4D51AC");
+        cs.water = hex("#2A43AA");
+        cs
+    }
+
+    fn sam_green_day() -> ColorScheme {
+        let mut cs = ColorScheme::standard();
+        cs.map_background = hex("#CFE2C4");
+        cs.water = hex("#B4D3E5");
+        cs.driving_lane = hex("#C6CDD5");
+        cs.building = hex("#CCD4BD");
+        cs.sidewalk = hex("#98A1AA");
+        cs
+    }
+
+    fn sam_desert_day() -> ColorScheme {
+        let mut cs = ColorScheme::standard();
+        cs.map_background = hex("#FEE4D7");
+        cs.grass = hex("#F6C6AF");
+        cs.driving_lane = hex("#BECBD3");
+        cs.building = hex("#DEAA95");
+        cs.sidewalk = hex("#8B9EA8");
+        cs
+    }
+
+    fn bap() -> ColorScheme {
+        let mut cs = ColorScheme::standard();
+        cs.agent_colors = vec![
+            /*hex("#DD5444"),
+            hex("#C23E46"),
+            hex("#821B38"),
+            hex("#BC3101"),*/
+            hex("#F44273"),
+            hex("#B53A7E"),
+            hex("#FF616E"),
+            hex("#FA8D37"),
+        ];
+        cs.grass = hex("#84BA3B"); // #2F8C2C
+        cs.building = hex("#367335"); // #194C18
+        cs.normal_intersection = hex("#4B5485");
+        cs.driving_lane = hex("#384173");
+        cs.parking_lane = hex("#4B5485");
+        cs.sidewalk = hex("#89ABD9");
+        cs.sidewalk_lines = hex("#4B5485");
+        cs.general_road_marking = hex("#89ABD9");
+        cs.map_background = hex("#589D54"); // #153F14
+        cs.ped_crowd = hex("#DD5444");
+        cs.road_center_line = hex("#BCFF00");
+        cs
+    }
+
+    fn osm() -> ColorScheme {
+        let mut cs = ColorScheme::standard();
+        // TODO normal_intersection, driving_lane, parking_lane depends on osm rank
+        cs.general_road_marking = Color::BLACK;
+        cs.road_center_line = Color::rgb(202, 177, 39);
+        cs
+    }
 }

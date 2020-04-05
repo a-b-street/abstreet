@@ -97,10 +97,7 @@ impl OptionsPanel {
                             ctx,
                             "Color scheme",
                             app.opts.color_scheme,
-                            vec![
-                                Choice::new("default", ColorSchemeChoice::Standard),
-                                Choice::new("night mode", ColorSchemeChoice::NightMode),
-                            ],
+                            ColorSchemeChoice::choices(),
                         ),
                     ]),
                     Widget::row(vec![
