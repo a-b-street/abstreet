@@ -86,7 +86,7 @@ impl ScenarioManager {
             }
         }
 
-        let mut bldg_colors = Colorer::new(
+        let mut bldg_colors = Colorer::scaled(
             Text::from(Line("buildings")),
             vec![
                 ("1-2 cars needed", Color::BLUE),

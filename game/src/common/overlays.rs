@@ -403,7 +403,7 @@ impl Overlays {
         let bad = Color::hex("#EB5757");
         let meh = Color::hex("#F2C94C");
         let good = Color::hex("#7FFA4D");
-        let mut colorer = Colorer::new(
+        let mut colorer = Colorer::scaled(
             txt,
             vec![
                 ("< 10%", awful),
@@ -464,7 +464,7 @@ impl Overlays {
         let moderate = Color::hex("#F4DA22");
         let fast = Color::hex("#7FFA4D");
         // TODO explain more
-        let mut colorer = Colorer::new(
+        let mut colorer = Colorer::scaled(
             Text::from(Line("delay")),
             vec![
                 ("> 5 minutes", slow),
@@ -505,7 +505,7 @@ impl Overlays {
         let others = Color::hex("#7FFA4D");
         let early = Color::hex("#F4DA22");
         let earliest = Color::hex("#EB5757");
-        let mut colorer = Colorer::new(
+        let mut colorer = Colorer::discrete(
             Text::from(Line(format!("{} traffic jams", jams.len()))),
             vec![
                 ("longest lasting", earliest),
@@ -531,7 +531,7 @@ impl Overlays {
         let light = Color::hex("#7FFA4D");
         let medium = Color::hex("#F4DA22");
         let heavy = Color::hex("#EB5757");
-        let mut colorer = Colorer::new(
+        let mut colorer = Colorer::scaled(
             Text::from(Line("Throughput")),
             vec![
                 ("< 50%ile", light),
@@ -583,7 +583,7 @@ impl Overlays {
 
     fn bike_network(ctx: &mut EventCtx, app: &App) -> Overlays {
         let color = Color::hex("#7FFA4D");
-        let mut colorer = Colorer::new(
+        let mut colorer = Colorer::discrete(
             Text::from(Line("bike networks")),
             vec![("bike lanes", color)],
         );
@@ -598,7 +598,7 @@ impl Overlays {
     fn bus_network(ctx: &mut EventCtx, app: &App) -> Overlays {
         let lane = Color::hex("#4CA7E9");
         let stop = Color::hex("#4CA7E9");
-        let mut colorer = Colorer::new(
+        let mut colorer = Colorer::discrete(
             Text::from(Line("bus networks")),
             vec![("bus lanes", lane), ("bus stops", stop)],
         );
@@ -628,7 +628,7 @@ impl Overlays {
         let bad = Color::hex("#EB5757");
         let meh = Color::hex("#F2C94C");
         let good = Color::hex("#7FFA4D");
-        let mut colorer = Colorer::new(
+        let mut colorer = Colorer::scaled(
             txt,
             vec![
                 (">= 15% (steep)", awful),
@@ -804,7 +804,7 @@ impl Overlays {
         );
 
         let changed = Color::CYAN;
-        let mut colorer = Colorer::new(txt, vec![("modified lane/intersection", changed)]);
+        let mut colorer = Colorer::discrete(txt, vec![("modified lane/intersection", changed)]);
 
         for l in edits.original_lts.keys().chain(&edits.reversed_lanes) {
             colorer.add_l(*l, changed, &app.primary.map);
@@ -928,7 +928,7 @@ fn population_controls(
         ]),
         Widget::row(vec![
             Widget::row(vec![
-                Widget::draw_svg(ctx, "../data/system/assets/tools/home.svg"),
+                Widget::draw_svg(ctx, "../data/system/assets/tools/home.svg").margin_right(10),
                 Line(prettyprint_usize(ppl_in_bldg)).small().draw(ctx),
             ]),
             Line(format!("Off-map: {}", prettyprint_usize(ppl_off_map)))
@@ -984,7 +984,7 @@ fn population_controls(
         ]));
 
         // Legend for the heatmap colors
-        col.push(ColorLegend::scale(
+        col.extend(ColorLegend::scale(
             ctx,
             max_per_color
                 .into_iter()

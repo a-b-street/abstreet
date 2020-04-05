@@ -64,8 +64,8 @@ impl State for Navigator {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
-        State::grey_out_map(g);
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        State::grey_out_map(g, app);
         self.composite.draw(g);
     }
 }
@@ -176,8 +176,8 @@ impl State for CrossStreet {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
-        State::grey_out_map(g);
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        State::grey_out_map(g, app);
         self.composite.draw(g);
     }
 }

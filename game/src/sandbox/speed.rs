@@ -437,8 +437,8 @@ impl State for JumpToTime {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
-        State::grey_out_map(g);
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        State::grey_out_map(g, app);
         self.composite.draw(g);
     }
 }
@@ -537,8 +537,8 @@ impl State for TimeWarpScreen {
         Transition::KeepWithMode(EventLoopMode::Animation)
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
-        State::grey_out_map(g);
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        State::grey_out_map(g, app);
         self.composite.draw(g);
     }
 

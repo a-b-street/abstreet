@@ -40,7 +40,7 @@ impl Floodfiller {
         let reachable_color = Color::GREEN;
         let unreachable_color = Color::RED;
 
-        let mut colorer = Colorer::new(
+        let mut colorer = Colorer::discrete(
             Text::from(Line("lane connectivity")),
             vec![
                 ("unreachable", unreachable_color),

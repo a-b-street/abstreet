@@ -30,6 +30,7 @@ pub struct ColorScheme {
     pub perma_selected_object: Color,
     pub bottom_bar_id: Color,
     pub bottom_bar_name: Color,
+    pub fade_map_dark: Color,
 
     // Roads
     pub driving_lane: Color,
@@ -114,6 +115,7 @@ impl ColorScheme {
             perma_selected_object: Color::BLUE,
             bottom_bar_id: Color::RED,
             bottom_bar_name: Color::CYAN,
+            fade_map_dark: Color::BLACK.alpha(0.6),
 
             // Roads
             driving_lane: Color::BLACK,

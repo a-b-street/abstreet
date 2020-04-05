@@ -321,7 +321,7 @@ impl GameplayState for Tutorial {
         let tut = app.session.tutorial.as_ref().unwrap();
 
         if self.msg_panel.is_some() {
-            State::grey_out_map(g);
+            State::grey_out_map(g, app);
         }
 
         self.top_center.draw(g);

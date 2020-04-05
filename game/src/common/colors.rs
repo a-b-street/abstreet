@@ -11,6 +11,7 @@ use std::collections::HashMap;
 pub struct ColorerBuilder {
     header: Text,
     prioritized_colors: Vec<(&'static str, Color)>,
+    scale_legend: bool,
     lanes: HashMap<LaneID, Color>,
     roads: HashMap<RoadID, Color>,
     intersections: HashMap<IntersectionID, Color>,
@@ -27,16 +28,26 @@ pub struct Colorer {
 impl Colorer {
     // Colors listed earlier override those listed later. This is used in unzoomed mode, when one
     // road has lanes of different colors.
-    pub fn new(header: Text, prioritized_colors: Vec<(&'static str, Color)>) -> ColorerBuilder {
+    pub fn discrete(
+        header: Text,
+        prioritized_colors: Vec<(&'static str, Color)>,
+    ) -> ColorerBuilder {
         ColorerBuilder {
             header,
             prioritized_colors,
+            scale_legend: false,
             lanes: HashMap::new(),
             roads: HashMap::new(),
             intersections: HashMap::new(),
             buildings: HashMap::new(),
             bus_stops: HashMap::new(),
         }
+    }
+
+    pub fn scaled(header: Text, prioritized_colors: Vec<(&'static str, Color)>) -> ColorerBuilder {
+        let mut c = Colorer::discrete(header, prioritized_colors);
+        c.scale_legend = true;
+        c
     }
 
     // If true, destruct this Colorer.
@@ -141,8 +152,18 @@ impl ColorerBuilder {
             self.header.draw(ctx).margin_right(5),
             Btn::plaintext("X").build_def(ctx, None).align_right(),
         ])];
-        for (label, color) in self.prioritized_colors {
-            col.push(ColorLegend::row(ctx, color, label));
+        if self.scale_legend {
+            col.extend(ColorLegend::scale(
+                ctx,
+                self.prioritized_colors
+                    .into_iter()
+                    .map(|(lbl, c)| (c, lbl.to_string()))
+                    .collect(),
+            ));
+        } else {
+            for (label, color) in self.prioritized_colors {
+                col.push(ColorLegend::row(ctx, color, label));
+            }
         }
         let legend = Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(16))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
@@ -190,7 +211,7 @@ impl ColorLegend {
         ])
     }
 
-    pub fn scale(ctx: &mut EventCtx, entries: Vec<(Color, String)>) -> Widget {
+    pub fn scale(ctx: &mut EventCtx, entries: Vec<(Color, String)>) -> Vec<Widget> {
         let mut batch = GeomBatch::new();
         let mut labels = Vec::new();
         for (color, lbl) in entries {
@@ -200,9 +221,9 @@ impl ColorLegend {
             );
             labels.push(lbl.draw_text(ctx));
         }
-        Widget::col(vec![
+        vec![
             Widget::draw_batch(ctx, batch),
             Widget::row(labels).evenly_spaced(),
-        ])
+        ]
     }
 }

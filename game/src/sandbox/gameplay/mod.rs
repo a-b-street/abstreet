@@ -423,7 +423,7 @@ impl State for FinalScore {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        State::grey_out_map(g);
+        State::grey_out_map(g, app);
 
         self.composite.draw(g);
         // Still want to show hotkeys

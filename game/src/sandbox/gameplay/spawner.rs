@@ -590,7 +590,7 @@ pub fn actions(app: &App, id: ID) -> Vec<(Key, String)> {
 pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
     let map = &app.primary.map;
     let color = app.cs.selected;
-    let mut c = Colorer::new(Text::from(Line("spawning agent")), vec![("start", color)]);
+    let mut c = Colorer::discrete(Text::from(Line("spawning agent")), vec![("start", color)]);
 
     match (id, action.as_ref()) {
         (ID::Building(id), "seed a parked car here") => {
@@ -689,7 +689,7 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Tra
         }
         (ID::Lane(l), "spawn many cars starting here") => {
             let color = app.cs.selected;
-            let mut c = Colorer::new(
+            let mut c = Colorer::discrete(
                 Text::from(Line("spawning many agents")),
                 vec![("start", color)],
             );
