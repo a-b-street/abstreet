@@ -959,7 +959,7 @@ fn population_controls(
             )
             .draw_text(ctx),
         );
-        assert!(total_ppl == model.count_total());
+        assert_eq!(total_ppl, model.count_total());
     }
 
     col.push(Widget::checkbox(
