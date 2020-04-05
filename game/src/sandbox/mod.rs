@@ -298,19 +298,20 @@ impl AgentMeter {
             "Active agents".draw_text(ctx),
             Widget::row(vec![
                 Widget::row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/meters/pedestrian.svg"),
+                    Widget::draw_svg(ctx, "../data/system/assets/meters/pedestrian.svg")
+                        .margin_right(5),
                     prettyprint_usize(by_mode[&TripMode::Walk]).draw_text(ctx),
                 ]),
                 Widget::row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/meters/bike.svg"),
+                    Widget::draw_svg(ctx, "../data/system/assets/meters/bike.svg").margin_right(5),
                     prettyprint_usize(by_mode[&TripMode::Bike]).draw_text(ctx),
                 ]),
                 Widget::row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/meters/car.svg"),
+                    Widget::draw_svg(ctx, "../data/system/assets/meters/car.svg").margin_right(5),
                     prettyprint_usize(by_mode[&TripMode::Drive]).draw_text(ctx),
                 ]),
                 Widget::row(vec![
-                    Widget::draw_svg(ctx, "../data/system/assets/meters/bus.svg"),
+                    Widget::draw_svg(ctx, "../data/system/assets/meters/bus.svg").margin_right(5),
                     prettyprint_usize(by_mode[&TripMode::Transit]).draw_text(ctx),
                 ]),
             ])

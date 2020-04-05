@@ -384,20 +384,26 @@ impl Overlays {
     fn parking_availability(ctx: &mut EventCtx, app: &App) -> Overlays {
         let (filled_spots, avail_spots) = app.primary.sim.get_all_parking_spots();
         let mut txt = Text::from(Line("parking availability"));
-        txt.add(Line(format!(
-            "{} spots filled",
-            prettyprint_usize(filled_spots.len())
-        )));
-        txt.add(Line(format!(
-            "{} spots available ",
-            prettyprint_usize(avail_spots.len())
-        )));
+        txt.add(
+            Line(format!(
+                "{} spots filled",
+                prettyprint_usize(filled_spots.len())
+            ))
+            .small(),
+        );
+        txt.add(
+            Line(format!(
+                "{} spots available ",
+                prettyprint_usize(avail_spots.len())
+            ))
+            .small(),
+        );
 
         let awful = Color::hex("#801F1C");
         let bad = Color::hex("#EB5757");
         let meh = Color::hex("#F2C94C");
         let good = Color::hex("#7FFA4D");
-        let mut colorer = Colorer::new(
+        let mut colorer = Colorer::scaled(
             txt,
             vec![
                 ("< 10%", awful),
@@ -450,7 +456,7 @@ impl Overlays {
             colorer.add_l(l, color, &app.primary.map);
         }
 
-        Overlays::ParkingAvailability(app.primary.sim.time(), colorer.build(ctx, app))
+        Overlays::ParkingAvailability(app.primary.sim.time(), colorer.build_unzoomed(ctx, app))
     }
 
     fn worst_delay(ctx: &mut EventCtx, app: &App) -> Overlays {
@@ -458,7 +464,7 @@ impl Overlays {
         let moderate = Color::hex("#F4DA22");
         let fast = Color::hex("#7FFA4D");
         // TODO explain more
-        let mut colorer = Colorer::new(
+        let mut colorer = Colorer::scaled(
             Text::from(Line("delay")),
             vec![
                 ("> 5 minutes", slow),
@@ -489,7 +495,7 @@ impl Overlays {
             colorer.add_i(i, color);
         }
 
-        Overlays::WorstDelay(app.primary.sim.time(), colorer.build(ctx, app))
+        Overlays::WorstDelay(app.primary.sim.time(), colorer.build_unzoomed(ctx, app))
     }
 
     pub fn traffic_jams(ctx: &mut EventCtx, app: &App) -> Overlays {
@@ -499,7 +505,7 @@ impl Overlays {
         let others = Color::hex("#7FFA4D");
         let early = Color::hex("#F4DA22");
         let earliest = Color::hex("#EB5757");
-        let mut colorer = Colorer::new(
+        let mut colorer = Colorer::discrete(
             Text::from(Line(format!("{} traffic jams", jams.len()))),
             vec![
                 ("longest lasting", earliest),
@@ -518,14 +524,14 @@ impl Overlays {
             }
         }
 
-        Overlays::TrafficJams(app.primary.sim.time(), colorer.build(ctx, app))
+        Overlays::TrafficJams(app.primary.sim.time(), colorer.build_unzoomed(ctx, app))
     }
 
     fn cumulative_throughput(ctx: &mut EventCtx, app: &App) -> Overlays {
         let light = Color::hex("#7FFA4D");
         let medium = Color::hex("#F4DA22");
         let heavy = Color::hex("#EB5757");
-        let mut colorer = Colorer::new(
+        let mut colorer = Colorer::scaled(
             Text::from(Line("Throughput")),
             vec![
                 ("< 50%ile", light),
@@ -572,12 +578,12 @@ impl Overlays {
             }
         }
 
-        Overlays::CumulativeThroughput(app.primary.sim.time(), colorer.build(ctx, app))
+        Overlays::CumulativeThroughput(app.primary.sim.time(), colorer.build_unzoomed(ctx, app))
     }
 
     fn bike_network(ctx: &mut EventCtx, app: &App) -> Overlays {
         let color = Color::hex("#7FFA4D");
-        let mut colorer = Colorer::new(
+        let mut colorer = Colorer::discrete(
             Text::from(Line("bike networks")),
             vec![("bike lanes", color)],
         );
@@ -586,13 +592,13 @@ impl Overlays {
                 colorer.add_l(l.id, color, &app.primary.map);
             }
         }
-        Overlays::BikeNetwork(colorer.build(ctx, app))
+        Overlays::BikeNetwork(colorer.build_unzoomed(ctx, app))
     }
 
     fn bus_network(ctx: &mut EventCtx, app: &App) -> Overlays {
         let lane = Color::hex("#4CA7E9");
         let stop = Color::hex("#4CA7E9");
-        let mut colorer = Colorer::new(
+        let mut colorer = Colorer::discrete(
             Text::from(Line("bus networks")),
             vec![("bus lanes", lane), ("bus stops", stop)],
         );
@@ -605,7 +611,7 @@ impl Overlays {
             colorer.add_bs(*bs, stop);
         }
 
-        Overlays::BusNetwork(colorer.build(ctx, app))
+        Overlays::BusNetwork(colorer.build_unzoomed(ctx, app))
     }
 
     fn elevation(ctx: &mut EventCtx, app: &App) -> Overlays {
@@ -616,13 +622,13 @@ impl Overlays {
             max = max.max(pct);
         }
         let mut txt = Text::from(Line("elevation change"));
-        txt.add(Line(format!("Steepest road: {:.0}%", max * 100.0)));
+        txt.add(Line(format!("Steepest road: {:.0}%", max * 100.0)).small());
 
         let awful = Color::hex("#801F1C");
         let bad = Color::hex("#EB5757");
         let meh = Color::hex("#F2C94C");
         let good = Color::hex("#7FFA4D");
-        let mut colorer = Colorer::new(
+        let mut colorer = Colorer::scaled(
             txt,
             vec![
                 (">= 15% (steep)", awful),
@@ -687,7 +693,7 @@ impl Overlays {
             }
         }
 
-        Overlays::Elevation(colorer.build(ctx, app), batch.upload(ctx))
+        Overlays::Elevation(colorer.build_unzoomed(ctx, app), batch.upload(ctx))
     }
 
     pub fn trips_histogram(ctx: &mut EventCtx, app: &App) -> Overlays {
@@ -787,21 +793,18 @@ impl Overlays {
         let edits = app.primary.map.get_edits();
 
         let mut txt = Text::from(Line(format!("map edits ({})", edits.edits_name)));
-        txt.add(Line(format!(
-            "{} lane types changed",
-            edits.original_lts.len()
-        )));
-        txt.add(Line(format!(
-            "{} lanes reversed",
-            edits.reversed_lanes.len()
-        )));
-        txt.add(Line(format!(
-            "{} intersections changed",
-            edits.original_intersections.len()
-        )));
+        txt.add(Line(format!("{} lane types changed", edits.original_lts.len())).small());
+        txt.add(Line(format!("{} lanes reversed", edits.reversed_lanes.len())).small());
+        txt.add(
+            Line(format!(
+                "{} intersections changed",
+                edits.original_intersections.len()
+            ))
+            .small(),
+        );
 
         let changed = Color::CYAN;
-        let mut colorer = Colorer::new(txt, vec![("modified lane/intersection", changed)]);
+        let mut colorer = Colorer::discrete(txt, vec![("modified lane/intersection", changed)]);
 
         for l in edits.original_lts.keys().chain(&edits.reversed_lanes) {
             colorer.add_l(*l, changed, &app.primary.map);
@@ -810,7 +813,7 @@ impl Overlays {
             colorer.add_i(*i, changed);
         }
 
-        Overlays::Edits(colorer.build(ctx, app))
+        Overlays::Edits(colorer.build_both(ctx, app))
     }
 
     // TODO Disable drawing unzoomed agents... or alternatively, implement this by asking Sim to
@@ -917,18 +920,20 @@ fn population_controls(
 
     let mut col = vec![
         Widget::row(vec![
-            // TODO Only bold the first part
-            Line(format!("Population: {}", prettyprint_usize(total_ppl)))
-                .small_heading()
-                .draw(ctx),
-            Btn::text_fg("X")
+            Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg").margin_right(10),
+            Line(format!("Population: {}", prettyprint_usize(total_ppl))).draw(ctx),
+            Btn::plaintext("X")
                 .build(ctx, "close", hotkey(Key::Escape))
                 .align_right(),
         ]),
         Widget::row(vec![
-            Widget::draw_svg(ctx, "../data/system/assets/tools/home.svg"),
-            prettyprint_usize(ppl_in_bldg).draw_text(ctx),
-            format!("Off-map: {}", prettyprint_usize(ppl_off_map)).draw_text(ctx),
+            Widget::row(vec![
+                Widget::draw_svg(ctx, "../data/system/assets/tools/home.svg").margin_right(10),
+                Line(prettyprint_usize(ppl_in_bldg)).small().draw(ctx),
+            ]),
+            Line(format!("Off-map: {}", prettyprint_usize(ppl_off_map)))
+                .small()
+                .draw(ctx),
         ])
         .centered(),
         if app.primary.sim.get_pandemic_model().is_some() {
@@ -986,9 +991,13 @@ fn population_controls(
         ]));
 
         // Legend for the heatmap colors
-        for (max, color) in max_per_color {
-            col.push(ColorLegend::row(ctx, color, format!("<= {}", max)));
-        }
+        col.extend(ColorLegend::scale(
+            ctx,
+            max_per_color
+                .into_iter()
+                .map(|(max, c)| (c, max.to_string()))
+                .collect(),
+        ));
     }
 
     Composite::new(Widget::col(col).padding(5).bg(app.cs.panel_bg))

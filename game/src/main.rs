@@ -46,10 +46,22 @@ fn main() {
     }
 
     if let Some(x) = args.optional("--color_scheme") {
-        // TODO Share names between the options Choice and here
-        opts.color_scheme = match x.as_ref() {
-            "night" => colors::ColorSchemeChoice::NightMode,
-            _ => panic!("Don't know --color_scheme={}. Valid values are: night", x),
+        let mut ok = false;
+        let mut options = Vec::new();
+        for c in colors::ColorSchemeChoice::choices() {
+            options.push(c.label.clone());
+            if c.label == x {
+                opts.color_scheme = c.data;
+                ok = true;
+                break;
+            }
+        }
+        if !ok {
+            panic!(
+                "Invalid --color_scheme={}. Choices: {}",
+                x,
+                options.join(", ")
+            );
         }
     }
     let mut settings = ezgui::Settings::new("A/B Street", "../data/system/fonts");
@@ -81,11 +93,7 @@ fn main() {
             }
         }
         if mode.is_none() {
-            panic!(
-                "Don't know --challenge={}. Choices: {}",
-                x,
-                aliases.join(", ")
-            );
+            panic!("Invalid --challenge={}. Choices: {}", x, aliases.join(", "));
         }
     }
     // TODO Stage only, not part

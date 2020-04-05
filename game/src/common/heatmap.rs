@@ -127,7 +127,8 @@ pub fn make_heatmap(
                 }
 
                 batch.push(
-                    color,
+                    // Don't block the map underneath
+                    color.alpha(0.6),
                     square.translate((x * opts.resolution) as f64, (y * opts.resolution) as f64),
                 );
             }

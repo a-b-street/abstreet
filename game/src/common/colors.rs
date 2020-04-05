@@ -2,15 +2,16 @@ use crate::app::App;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use ezgui::{
     Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Outcome,
-    Text, VerticalAlignment, Widget,
+    Text, TextExt, VerticalAlignment, Widget,
 };
-use geom::{Circle, Distance, Pt2D};
+use geom::{Circle, Distance, Polygon, Pt2D};
 use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, Map, RoadID};
 use std::collections::HashMap;
 
 pub struct ColorerBuilder {
     header: Text,
     prioritized_colors: Vec<(&'static str, Color)>,
+    scale_legend: bool,
     lanes: HashMap<LaneID, Color>,
     roads: HashMap<RoadID, Color>,
     intersections: HashMap<IntersectionID, Color>,
@@ -27,16 +28,26 @@ pub struct Colorer {
 impl Colorer {
     // Colors listed earlier override those listed later. This is used in unzoomed mode, when one
     // road has lanes of different colors.
-    pub fn new(header: Text, prioritized_colors: Vec<(&'static str, Color)>) -> ColorerBuilder {
+    pub fn discrete(
+        header: Text,
+        prioritized_colors: Vec<(&'static str, Color)>,
+    ) -> ColorerBuilder {
         ColorerBuilder {
             header,
             prioritized_colors,
+            scale_legend: false,
             lanes: HashMap::new(),
             roads: HashMap::new(),
             intersections: HashMap::new(),
             buildings: HashMap::new(),
             bus_stops: HashMap::new(),
         }
+    }
+
+    pub fn scaled(header: Text, prioritized_colors: Vec<(&'static str, Color)>) -> ColorerBuilder {
+        let mut c = Colorer::discrete(header, prioritized_colors);
+        c.scale_legend = true;
+        c
     }
 
     // If true, destruct this Colorer.
@@ -99,7 +110,7 @@ impl ColorerBuilder {
         self.bus_stops.insert(bs, color);
     }
 
-    pub fn build(self, ctx: &mut EventCtx, app: &App) -> Colorer {
+    pub fn build_both(self, ctx: &mut EventCtx, app: &App) -> Colorer {
         let mut zoomed = GeomBatch::new();
         let mut unzoomed = GeomBatch::new();
         let map = &app.primary.map;
@@ -137,13 +148,24 @@ impl ColorerBuilder {
 
         // Build the legend
         let mut col = vec![Widget::row(vec![
-            self.header.draw(ctx),
-            Btn::text_fg("X").build_def(ctx, None).align_right(),
+            Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg").margin_right(10),
+            self.header.draw(ctx).margin_right(5),
+            Btn::plaintext("X").build_def(ctx, None).align_right(),
         ])];
-        for (label, color) in self.prioritized_colors {
-            col.push(ColorLegend::row(ctx, color, label));
+        if self.scale_legend {
+            col.extend(ColorLegend::scale(
+                ctx,
+                self.prioritized_colors
+                    .into_iter()
+                    .map(|(lbl, c)| (c, lbl.to_string()))
+                    .collect(),
+            ));
+        } else {
+            for (label, color) in self.prioritized_colors {
+                col.push(ColorLegend::row(ctx, color, label));
+            }
         }
-        let legend = Composite::new(Widget::col(col).bg(app.cs.panel_bg))
+        let legend = Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(16))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
             .build(ctx);
 
@@ -155,7 +177,12 @@ impl ColorerBuilder {
     }
 
     pub fn build_zoomed(self, ctx: &mut EventCtx, app: &App) -> Drawable {
-        self.build(ctx, app).zoomed
+        self.build_both(ctx, app).zoomed
+    }
+    pub fn build_unzoomed(self, ctx: &mut EventCtx, app: &App) -> Colorer {
+        let mut c = self.build_both(ctx, app);
+        c.zoomed = GeomBatch::new().upload(ctx);
+        c
     }
 }
 
@@ -182,5 +209,21 @@ impl ColorLegend {
             .centered_vert(),
             txt.draw(ctx),
         ])
+    }
+
+    pub fn scale(ctx: &mut EventCtx, entries: Vec<(Color, String)>) -> Vec<Widget> {
+        let mut batch = GeomBatch::new();
+        let mut labels = Vec::new();
+        for (color, lbl) in entries {
+            batch.push(
+                color,
+                Polygon::rectangle(64.0, 32.0).translate(64.0 * (labels.len() as f64), 0.0),
+            );
+            labels.push(lbl.draw_text(ctx));
+        }
+        vec![
+            Widget::draw_batch(ctx, batch),
+            Widget::row(labels).evenly_spaced(),
+        ]
     }
 }

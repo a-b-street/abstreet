@@ -414,7 +414,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
 }
 
 pub struct Choice<T> {
-    pub(crate) label: String,
+    pub label: String,
     pub data: T,
     pub(crate) hotkey: Option<MultiKey>,
     pub(crate) active: bool,

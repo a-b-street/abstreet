@@ -590,7 +590,7 @@ pub fn actions(app: &App, id: ID) -> Vec<(Key, String)> {
 pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
     let map = &app.primary.map;
     let color = app.cs.selected;
-    let mut c = Colorer::new(Text::from(Line("spawning agent")), vec![("start", color)]);
+    let mut c = Colorer::discrete(Text::from(Line("spawning agent")), vec![("start", color)]);
 
     match (id, action.as_ref()) {
         (ID::Building(id), "seed a parked car here") => {
@@ -612,7 +612,7 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Tra
                 ),
                 from: Source::WalkFromBldg(id),
                 maybe_goal: None,
-                colorer: c.build(ctx, app),
+                colorer: c.build_both(ctx, app),
             }))
         }
         (ID::Building(id), "spawn a pedestrian here using an owned parked car") => {
@@ -626,7 +626,7 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Tra
                 ),
                 from: Source::WalkFromBldgThenMaybeUseCar(id),
                 maybe_goal: None,
-                colorer: c.build(ctx, app),
+                colorer: c.build_both(ctx, app),
             }))
         }
         (ID::Building(id), "spawn a car starting here") => {
@@ -641,7 +641,7 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Tra
                 ),
                 from: Source::Drive(pos),
                 maybe_goal: None,
-                colorer: c.build(ctx, app),
+                colorer: c.build_both(ctx, app),
             }))
         }
         (ID::Building(id), "spawn a bike starting here") => {
@@ -656,7 +656,7 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Tra
                 ),
                 from: Source::BikeFromBldg(id, pos),
                 maybe_goal: None,
-                colorer: c.build(ctx, app),
+                colorer: c.build_both(ctx, app),
             }))
         }
         (ID::Lane(id), "spawn a car starting here") => {
@@ -670,7 +670,7 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Tra
                 ),
                 from: Source::Drive(Position::new(id, map.get_l(id).length() / 2.0)),
                 maybe_goal: None,
-                colorer: c.build(ctx, app),
+                colorer: c.build_both(ctx, app),
             }))
         }
         (ID::Lane(id), "spawn a pedestrian starting here") => {
@@ -684,12 +684,12 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Tra
                 ),
                 from: Source::WalkFromSidewalk(Position::new(id, map.get_l(id).length() / 2.0)),
                 maybe_goal: None,
-                colorer: c.build(ctx, app),
+                colorer: c.build_both(ctx, app),
             }))
         }
         (ID::Lane(l), "spawn many cars starting here") => {
             let color = app.cs.selected;
-            let mut c = Colorer::new(
+            let mut c = Colorer::discrete(
                 Text::from(Line("spawning many agents")),
                 vec![("start", color)],
             );
@@ -705,7 +705,7 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Tra
                 from: l,
                 maybe_goal: None,
                 schedule: None,
-                colorer: c.build(ctx, app),
+                colorer: c.build_both(ctx, app),
             }))
         }
         (ID::Intersection(id), "spawn agents here") => {

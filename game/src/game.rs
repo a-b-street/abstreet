@@ -3,7 +3,7 @@ use crate::options::Options;
 use crate::pregame::TitleScreen;
 use crate::render::DrawOptions;
 use crate::sandbox::{GameplayMode, SandboxMode};
-use ezgui::{Canvas, Color, Drawable, EventCtx, EventLoopMode, GfxCtx, Wizard, GUI};
+use ezgui::{Canvas, Drawable, EventCtx, EventLoopMode, GfxCtx, Wizard, GUI};
 use geom::Polygon;
 
 // This is the top-level of the GUI logic. This module should just manage interactions between the
@@ -198,12 +198,12 @@ pub trait State: downcast_rs::Downcast {
 }
 
 impl dyn State {
-    pub fn grey_out_map(g: &mut GfxCtx) {
+    pub fn grey_out_map(g: &mut GfxCtx, app: &App) {
         // Make it clear the map can't be interacted with right now.
         g.fork_screenspace();
         // TODO - OSD height
         g.draw_polygon(
-            Color::BLACK.alpha(0.5),
+            app.cs.fade_map_dark,
             &Polygon::rectangle(g.canvas.window_width, g.canvas.window_height),
         );
         g.unfork();
@@ -262,14 +262,14 @@ impl State for WizardState {
         DrawBaselayer::PreviousState
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         // TODO This shouldn't get greyed out, but I think the weird z-ordering of screen-space
         // right now is messing this up.
         if let Some(ref d) = self.also_draw {
             g.redraw(d);
         }
 
-        State::grey_out_map(g);
+        State::grey_out_map(g, app);
 
         self.wizard.draw(g);
     }

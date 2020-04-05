@@ -23,7 +23,7 @@ impl ShowBusRoute {
         let mut txt = Text::from(Line(&route.name));
         txt.add(Line(format!("{} buses", bus_locations.len())));
         let color = app.cs.unzoomed_bus;
-        let mut colorer = Colorer::new(txt, vec![("route", color)]);
+        let mut colorer = Colorer::discrete(txt, vec![("route", color)]);
         for (stop1, stop2) in
             route
                 .stops
@@ -60,7 +60,7 @@ impl ShowBusRoute {
         }
 
         ShowBusRoute {
-            colorer: colorer.build(ctx, app),
+            colorer: colorer.build_both(ctx, app),
             labels,
             bus_locations,
         }

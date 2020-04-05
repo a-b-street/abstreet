@@ -148,7 +148,7 @@ impl State for ManagedGUIState {
             // Happens to be a nice background color too ;)
             g.clear(app.cs.grass);
         } else {
-            State::grey_out_map(g);
+            State::grey_out_map(g, app);
         }
 
         self.composite.draw(g);
