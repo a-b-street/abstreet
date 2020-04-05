@@ -70,7 +70,7 @@ impl Car {
                 .router
                 .head()
                 .slice(Distance::ZERO, front, map)
-                .map(|(pl, _)| pl.points().clone())
+                .map(|(pl, _)| pl.into_points())
                 .unwrap_or_else(Vec::new);
             let mut leftover = self.vehicle.length - front;
             let mut i = 0;
@@ -85,7 +85,7 @@ impl Car {
                 let start = (len - leftover).max(Distance::ZERO);
                 let piece = self.last_steps[i]
                     .slice(start, len, map)
-                    .map(|(pl, _)| pl.points().clone())
+                    .map(|(pl, _)| pl.into_points())
                     .unwrap_or_else(Vec::new);
                 result = PolyLine::append(piece, result);
                 leftover -= len;

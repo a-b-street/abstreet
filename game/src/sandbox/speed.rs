@@ -5,10 +5,10 @@ use crate::helpers::ID;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use ezgui::{
     hotkey, Btn, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, PersistentSplit, Plot, PlotOptions, RewriteColor,
-    Series, Slider, Text, VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Outcome, PersistentSplit, RewriteColor, Slider, Text,
+    VerticalAlignment, Widget,
 };
-use geom::{Duration, Polygon, Time};
+use geom::{Duration, PolyLine, Polygon, Pt2D, Time};
 use instant::Instant;
 
 pub struct SpeedControls {
@@ -320,6 +320,22 @@ impl JumpToTime {
                         txt.draw(ctx)
                     }
                     .named("target time"),
+                    if app.has_prebaked().is_some() {
+                        Widget::draw_batch(
+                            ctx,
+                            GeomBatch::from(vec![(
+                                Color::WHITE.alpha(0.7),
+                                area_under_curve(
+                                    app.prebaked().active_agents(Time::END_OF_DAY),
+                                    // TODO Auto fill width
+                                    500.0,
+                                    50.0,
+                                ),
+                            )]),
+                        )
+                    } else {
+                        Widget::nothing()
+                    },
                     // TODO Auto-fill width?
                     Slider::horizontal(
                         ctx,
@@ -329,46 +345,12 @@ impl JumpToTime {
                     )
                     .named("time slider")
                     .margin(10),
-                    Widget::row(vec![
-                        Line("00:00").small().draw(ctx),
-                        Widget::draw_svg(ctx, "../data/system/assets/speed/sunrise.svg"),
-                        Line("12:00").small().draw(ctx),
-                        Widget::draw_svg(ctx, "../data/system/assets/speed/sunset.svg"),
-                        Line("24:00").small().draw(ctx),
-                    ])
-                    .padding(10)
-                    .evenly_spaced(),
                     Widget::checkbox(ctx, "Stop when there's a traffic jam", None, false)
                         .padding(10)
                         .margin(10),
                     Btn::text_bg2("Go!")
                         .build_def(ctx, hotkey(Key::Enter))
                         .centered_horiz(),
-                    Line("Active agents").small_heading().draw(ctx),
-                    // TODO Sync the slider / plot.
-                    Plot::new(
-                        ctx,
-                        vec![if app.has_prebaked().is_some() {
-                            Series {
-                                label: "Baseline".to_string(),
-                                color: Color::BLUE,
-                                pts: app.prebaked().active_agents(Time::END_OF_DAY),
-                            }
-                        } else {
-                            Series {
-                                label: "Current simulation".to_string(),
-                                color: Color::RED,
-                                pts: app
-                                    .primary
-                                    .sim
-                                    .get_analytics()
-                                    .active_agents(app.primary.sim.time()),
-                            }
-                        }],
-                        PlotOptions {
-                            max_x: Some(Time::END_OF_DAY),
-                        },
-                    ),
                 ])
                 .bg(app.cs.panel_bg),
             )
@@ -622,4 +604,25 @@ impl TimePanel {
     pub fn draw(&self, g: &mut GfxCtx) {
         self.composite.draw(g);
     }
+}
+
+fn area_under_curve(raw: Vec<(Time, usize)>, width: f64, height: f64) -> Polygon {
+    assert!(!raw.is_empty());
+    let min_x = Time::START_OF_DAY;
+    let min_y = 0;
+    let max_x = raw.last().unwrap().0;
+    let max_y = raw.iter().max_by_key(|(_, cnt)| *cnt).unwrap().1;
+
+    let mut pts = Vec::new();
+    for (t, cnt) in raw {
+        pts.push(Pt2D::new(
+            (t - min_x) / (max_x - min_x) * width,
+            ((cnt - min_y) as f64) / ((max_y - min_y) as f64) * height,
+        ));
+    }
+
+    // TODO The smoothing should be tuned more
+    let mut final_pts = PolyLine::new_simplified(pts, 5.0).into_points();
+    final_pts.push(final_pts[0]);
+    Polygon::new(&final_pts)
 }
