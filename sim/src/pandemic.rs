@@ -82,7 +82,7 @@ impl PandemicModel {
                 self.sane.remove(&p.id);
                 self.become_infected(Time::START_OF_DAY, p.id, scheduler);
             } else if self.rng.gen_bool(SEIR::get_initial_ratio(SEIR::Recovered)) {
-                self.sane.insert(p.id);
+                self.recovered.insert(p.id);
                 self.become_recovered(Time::START_OF_DAY, p.id, scheduler);
             }
         }
