@@ -1,12 +1,13 @@
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::{Lane, LaneID, Map, Path, PathConstraints, PathRequest, PathStep, Turn, TurnID};
-use fast_paths::{FastGraph, InputGraph, PathCalculator};
+use fast_paths::{deserialize_32, serialize_32, FastGraph, InputGraph, PathCalculator};
 use serde_derive::{Deserialize, Serialize};
 use std::cell::RefCell;
 use thread_local::ThreadLocal;
 
 #[derive(Serialize, Deserialize)]
 pub struct VehiclePathfinder {
+    #[serde(serialize_with = "serialize_32", deserialize_with = "deserialize_32")]
     graph: FastGraph,
     #[serde(deserialize_with = "deserialize_nodemap")]
     nodes: NodeMap<LaneID>,
