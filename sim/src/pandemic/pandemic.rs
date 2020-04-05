@@ -1,5 +1,6 @@
-use crate::pmodel::{erf_distrib_bounded, proba_decaying_sigmoid, SEIR};
 use crate::{CarID, Command, Event, Person, PersonID, Scheduler, TripPhaseType};
+use crate::pandemic::SEIR;
+use crate::pandemic::{proba_decaying_sigmoid, erf_distrib_bounded};
 use geom::{Duration, Time};
 use map_model::{BuildingID, BusStopID};
 use rand::Rng;

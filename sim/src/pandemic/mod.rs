@@ -1,6 +1,8 @@
 mod prob;
+mod pandemic;
 
 pub use prob::{proba_decaying_sigmoid, erf_distrib_bounded};
+pub use pandemic::{PandemicModel, Cmd};
 use geom::{Duration};
 
 pub enum SEIR {

@@ -9,7 +9,6 @@ mod scheduler;
 mod sim;
 mod transit;
 mod trips;
-mod pmodel;
 
 pub use self::analytics::{Analytics, TripPhase};
 pub(crate) use self::events::Event;
@@ -38,8 +37,7 @@ use map_model::{
     BuildingID, BusStopID, DirectedRoadID, IntersectionID, LaneID, Map, Path, PathConstraints,
     PathRequest, Position,
 };
-pub use pandemic::PandemicModel;
-pub use pmodel::{proba_decaying_sigmoid, erf_distrib_bounded};
+pub(crate) use self::pandemic::PandemicModel;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fmt;
