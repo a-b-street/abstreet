@@ -194,8 +194,7 @@ impl PandemicModel {
     fn transition(&mut self, now: Time, person: PersonID, scheduler: &mut Scheduler) {
         // person has spent some duration in the same space as other people. Does transmission
         // occur?
-        let inf_pers = self.infected.get(&person).map(|pers| *pers);
-        if let Some((t0, last_check)) = inf_pers {
+        if let Some((t0, last_check)) = self.infected.get(&person).cloned() {
             // let dt = now - *t0;
             if self.recovery_occurs(
                 last_check,
