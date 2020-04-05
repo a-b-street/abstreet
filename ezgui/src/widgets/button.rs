@@ -45,7 +45,7 @@ impl Button {
             tooltip: if let Some(t) = maybe_tooltip {
                 t
             } else {
-                Text::tooltip(hotkey.clone(), tooltip)
+                Text::tooltip(ctx, hotkey.clone(), tooltip)
             },
             hotkey,
             hitbox,

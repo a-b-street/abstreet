@@ -85,7 +85,7 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
                 RewriteColor::Change(Color::WHITE, app.cs.hovering),
             )
             .tooltip({
-                let mut txt = Text::tooltip(hotkey(Key::T), "Tutorial");
+                let mut txt = Text::tooltip(ctx, hotkey(Key::T), "Tutorial");
                 txt.add(Line("Learn how to play the game").small());
                 txt
             })
@@ -95,7 +95,7 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
                 RewriteColor::Change(Color::WHITE, app.cs.hovering),
             )
             .tooltip({
-                let mut txt = Text::tooltip(hotkey(Key::S), "Sandbox");
+                let mut txt = Text::tooltip(ctx, hotkey(Key::S), "Sandbox");
                 txt.add(Line("No goals, try out any idea here").small());
                 txt
             })
@@ -105,14 +105,14 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
                 RewriteColor::Change(Color::WHITE, app.cs.hovering),
             )
             .tooltip({
-                let mut txt = Text::tooltip(hotkey(Key::C), "Challenges");
+                let mut txt = Text::tooltip(ctx, hotkey(Key::C), "Challenges");
                 txt.add(Line("Fix specific problems").small());
                 txt
             })
             .build(ctx, "Challenges", hotkey(Key::C)),
             Btn::text_bg2("Community Proposals")
                 .tooltip({
-                    let mut txt = Text::tooltip(hotkey(Key::P), "Community Proposals");
+                    let mut txt = Text::tooltip(ctx, hotkey(Key::P), "Community Proposals");
                     txt.add(Line("See existing ideas for improving traffic").small());
                     txt
                 })

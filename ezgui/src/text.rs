@@ -15,7 +15,6 @@ const DEFAULT_FG_COLOR: Color = Color::WHITE;
 
 pub const BG_COLOR: Color = Color::grey(0.3);
 pub const SELECTED_COLOR: Color = Color::grey(0.5);
-pub const HOTKEY_COLOR: Color = Color::GREEN;
 pub const INACTIVE_CHOICE_COLOR: Color = Color::grey(0.4);
 pub const SCALE_LINE_HEIGHT: f64 = 1.2;
 
@@ -146,10 +145,10 @@ impl Text {
     }
 
     // TODO Not exactly sure this is the right place for this, but better than code duplication
-    pub fn tooltip(hotkey: Option<MultiKey>, action: &str) -> Text {
+    pub fn tooltip(ctx: &EventCtx, hotkey: Option<MultiKey>, action: &str) -> Text {
         if let Some(ref key) = hotkey {
             Text::from_all(vec![
-                Line(key.describe()).fg(HOTKEY_COLOR).small(),
+                Line(key.describe()).fg(ctx.style().hotkey_color).small(),
                 Line(format!(" - {}", action)).small(),
             ])
         } else {

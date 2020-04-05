@@ -59,8 +59,8 @@ impl SpeedControls {
                 .into_iter()
                 .map(|(s, label)| {
                     let mut txt = Text::from(Line(label).small());
-                    txt.extend(Text::tooltip(hotkey(Key::LeftArrow), "slow down"));
-                    txt.extend(Text::tooltip(hotkey(Key::RightArrow), "speed up"));
+                    txt.extend(Text::tooltip(ctx, hotkey(Key::LeftArrow), "slow down"));
+                    txt.extend(Text::tooltip(ctx, hotkey(Key::RightArrow), "speed up"));
 
                     Btn::svg_def("../data/system/assets/speed/triangle.svg")
                         .normal_color(if setting >= s {

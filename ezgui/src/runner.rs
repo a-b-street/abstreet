@@ -1,6 +1,6 @@
 use crate::assets::Assets;
 use crate::tools::screenshot::{screenshot_current, screenshot_everything};
-use crate::{text, Canvas, Event, EventCtx, GfxCtx, Key, Prerender, UserInput};
+use crate::{text, Canvas, Event, EventCtx, GfxCtx, Key, Prerender, Style, UserInput};
 use geom::Duration;
 use instant::Instant;
 use std::cell::Cell;
@@ -33,6 +33,7 @@ pub enum EventLoopMode {
 pub(crate) struct State<G: GUI> {
     pub(crate) gui: G,
     pub(crate) canvas: Canvas,
+    style: Style,
 }
 
 impl<G: GUI> State<G> {
@@ -107,6 +108,7 @@ impl<G: GUI> State<G> {
                 input: input,
                 canvas: &mut self.canvas,
                 prerender,
+                style: &mut self.style,
             };
             let evloop = self.gui.event(&mut ctx);
             // TODO We should always do has_been_consumed, but various hacks prevent this from being
@@ -128,7 +130,7 @@ impl<G: GUI> State<G> {
 
     // Returns naming hint. Logically consumes the number of uploads.
     pub(crate) fn draw(&mut self, prerender: &Prerender, screenshot: bool) -> Option<String> {
-        let mut g = GfxCtx::new(prerender, &self.canvas, screenshot);
+        let mut g = GfxCtx::new(prerender, &self.canvas, &self.style, screenshot);
 
         self.canvas.start_drawing();
 
@@ -209,15 +211,17 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
         num_uploads: Cell::new(0),
         inner: prerender_innards,
     };
+    let mut style = Style::standard();
 
     let gui = make_gui(&mut EventCtx {
         fake_mouseover: true,
         input: UserInput::new(Event::NoOp, &canvas),
         canvas: &mut canvas,
         prerender: &prerender,
+        style: &mut style,
     });
 
-    let mut state = State { canvas, gui };
+    let mut state = State { canvas, gui, style };
 
     if settings.profiling_enabled {
         #[cfg(feature = "profiler")]

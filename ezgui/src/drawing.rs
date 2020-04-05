@@ -1,7 +1,8 @@
 use crate::assets::Assets;
 use crate::backend::{GfxCtxInnards, PrerenderInnards};
 use crate::{
-    Canvas, Color, Drawable, FancyColor, GeomBatch, ScreenDims, ScreenPt, ScreenRectangle, Text,
+    Canvas, Color, Drawable, FancyColor, GeomBatch, ScreenDims, ScreenPt, ScreenRectangle, Style,
+    Text,
 };
 use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
 use std::cell::Cell;
@@ -45,6 +46,7 @@ pub struct GfxCtx<'a> {
     // TODO Don't be pub. Delegate everything.
     pub canvas: &'a Canvas,
     pub prerender: &'a Prerender,
+    style: &'a Style,
 
     pub num_draw_calls: usize,
     pub num_forks: usize,
@@ -54,6 +56,7 @@ impl<'a> GfxCtx<'a> {
     pub(crate) fn new(
         prerender: &'a Prerender,
         canvas: &'a Canvas,
+        style: &'a Style,
         screencap_mode: bool,
     ) -> GfxCtx<'a> {
         let uniforms = Uniforms::new(canvas);
@@ -61,6 +64,7 @@ impl<'a> GfxCtx<'a> {
             inner: prerender.inner.draw_new_frame(),
             uniforms,
             canvas,
+            style,
             prerender,
             num_draw_calls: 0,
             num_forks: 0,
@@ -245,6 +249,10 @@ impl<'a> GfxCtx<'a> {
     // Delegation to assets
     pub fn default_line_height(&self) -> f64 {
         *self.prerender.assets.default_line_height.borrow()
+    }
+
+    pub fn style(&self) -> &Style {
+        &self.style
     }
 }
 

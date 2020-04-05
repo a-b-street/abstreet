@@ -1,4 +1,4 @@
-use ezgui::{Choice, Color};
+use ezgui::{Choice, Color, Style};
 
 // I've gone back and forth how to organize color scheme code. I was previously against having one
 // centralized place with all definitions, because careful naming or comments are needed to explain
@@ -37,7 +37,7 @@ impl ColorSchemeChoice {
 }
 
 pub struct ColorScheme {
-    // UI. TODO Share with ezgui.
+    // UI
     pub hovering: Color,
     pub panel_bg: Color,
     pub section_bg: Color,
@@ -50,6 +50,7 @@ pub struct ColorScheme {
     pub bottom_bar_id: Color,
     pub bottom_bar_name: Color,
     pub fade_map_dark: Color,
+    pub gui_style: Style,
 
     // Roads
     pub driving_lane: Color,
@@ -127,10 +128,11 @@ impl ColorScheme {
     }
 
     fn standard() -> ColorScheme {
+        let gui_style = Style::standard();
         ColorScheme {
             // UI
             hovering: Color::ORANGE,
-            panel_bg: Color::grey(0.4),
+            panel_bg: gui_style.panel_bg,
             section_bg: Color::grey(0.5),
             inner_panel: hex("#4C4C4C"),
             day_time_slider: hex("#F4DA22"),
@@ -141,6 +143,7 @@ impl ColorScheme {
             bottom_bar_id: Color::RED,
             bottom_bar_name: Color::CYAN,
             fade_map_dark: Color::BLACK.alpha(0.6),
+            gui_style,
 
             // Roads
             driving_lane: Color::BLACK,
@@ -250,6 +253,9 @@ impl ColorScheme {
         cs.unzoomed_highway = hex("#DD1F7F");
         cs.unzoomed_residential = hex("#4D51AC");
         cs.water = hex("#2A43AA");
+        // Horrible choice, but demonstrate it can be done.
+        cs.panel_bg = Color::PURPLE;
+        cs.gui_style.panel_bg = Color::PURPLE;
         cs
     }
 

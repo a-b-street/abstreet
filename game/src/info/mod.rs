@@ -221,7 +221,7 @@ impl InfoPanel {
                 for (key, label) in ctx_actions.actions(app, id) {
                     cached_actions.push(key);
                     let mut txt = Text::new();
-                    txt.append(Line(key.describe()).fg(ezgui::HOTKEY_COLOR));
+                    txt.append(Line(key.describe()).fg(ctx.style().hotkey_color));
                     txt.append(Line(format!(" - {}", label)));
                     col.push(
                         Btn::text_bg(label, txt, app.cs.section_bg, app.cs.hovering)

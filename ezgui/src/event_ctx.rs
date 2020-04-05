@@ -1,6 +1,6 @@
 use crate::{
-    svg, text, Canvas, Color, Drawable, Event, GeomBatch, GfxCtx, Line, Prerender, ScreenPt, Text,
-    UserInput,
+    svg, text, Canvas, Color, Drawable, Event, GeomBatch, GfxCtx, Line, Prerender, ScreenPt, Style,
+    Text, UserInput,
 };
 use abstutil::{elapsed_seconds, Timer, TimerSink};
 use geom::Polygon;
@@ -13,6 +13,7 @@ pub struct EventCtx<'a> {
     // TODO These two probably shouldn't be public
     pub canvas: &'a mut Canvas,
     pub prerender: &'a Prerender,
+    pub(crate) style: &'a mut Style,
 }
 
 impl<'a> EventCtx<'a> {
@@ -49,6 +50,7 @@ impl<'a> EventCtx<'a> {
             input: UserInput::new(Event::NoOp, self.canvas),
             canvas: self.canvas,
             prerender: self.prerender,
+            style: self.style,
         };
         cb(&mut tmp)
     }
@@ -106,10 +108,30 @@ impl<'a> EventCtx<'a> {
             .inner
             .set_cursor_icon(winit::window::CursorIcon::Hand);
     }
+
+    pub fn style(&self) -> &Style {
+        &self.style
+    }
+
+    pub fn set_style(&mut self, style: Style) {
+        *self.style = style;
+    }
+
+    pub fn populate_osd(&mut self, txt: &mut Text) {
+        let color = self.style().hotkey_color;
+        for (key, a) in self.input.important_actions.drain(..) {
+            txt.add_appended(vec![
+                Line("Press "),
+                Line(key.describe()).fg(color),
+                Line(format!(" to {}", a)),
+            ]);
+        }
+    }
 }
 
 pub struct LoadingScreen<'a> {
     canvas: Canvas,
+    style: Style,
     prerender: &'a Prerender,
     lines: VecDeque<String>,
     max_capacity: usize,
@@ -135,6 +157,7 @@ impl<'a> LoadingScreen<'a> {
             last_drawn: Instant::now(),
             title,
             canvas,
+            style: Style::standard(),
         }
     }
 
@@ -150,7 +173,7 @@ impl<'a> LoadingScreen<'a> {
             txt.add(Line(l));
         }
 
-        let mut g = GfxCtx::new(self.prerender, &self.canvas, false);
+        let mut g = GfxCtx::new(self.prerender, &self.canvas, &self.style, false);
         g.clear(Color::BLACK);
 
         let mut batch = GeomBatch::from(vec![(

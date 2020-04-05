@@ -229,7 +229,7 @@ impl Widget {
             Btn::text_fg(format!("[ ] {}", label)).build(ctx, label, hotkey.clone()),
             Btn::text_fg(format!("[X] {}", label)).build(ctx, label, hotkey),
         )
-        .outline(2.0, Color::WHITE)
+        .outline(ctx.style().outline_thickness, ctx.style().outline_color)
         .named(label)
     }
     // TODO Not typesafe! Gotta pass a button.
@@ -262,7 +262,7 @@ impl Widget {
             false,
         )))
         .named(label)
-        .outline(2.0, Color::WHITE)
+        .outline(ctx.style().outline_thickness, ctx.style().outline_color)
     }
 
     pub fn row(widgets: Vec<Widget>) -> Widget {

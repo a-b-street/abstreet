@@ -590,7 +590,7 @@ impl GUI for UI {
             if let Some(id) = self.model.world.get_selection() {
                 let mut txt = self.model.describe_obj(id);
                 txt.add(Line(""));
-                ctx.input.populate_osd(&mut txt);
+                ctx.populate_osd(&mut txt);
                 self.popup = Some(ctx.upload(txt.render_to_batch(ctx.prerender)));
             }
         }

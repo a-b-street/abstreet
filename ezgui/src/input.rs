@@ -1,4 +1,4 @@
-use crate::{text, Canvas, Event, Key, Line, MultiKey, ScreenPt, Text};
+use crate::{Canvas, Event, Key, MultiKey, ScreenPt};
 use geom::Duration;
 use std::collections::HashMap;
 
@@ -7,7 +7,7 @@ use std::collections::HashMap;
 pub struct UserInput {
     pub(crate) event: Event,
     pub(crate) event_consumed: bool,
-    important_actions: Vec<(Key, String)>,
+    pub(crate) important_actions: Vec<(Key, String)>,
     // If two different callers both expect the same key, there's likely an unintentional conflict.
     reserved_keys: HashMap<Key, String>,
 
@@ -177,16 +177,6 @@ impl UserInput {
     // Just for Wizard
     pub(crate) fn has_been_consumed(&self) -> bool {
         self.event_consumed
-    }
-
-    pub fn populate_osd(&mut self, txt: &mut Text) {
-        for (key, a) in self.important_actions.drain(..) {
-            txt.add_appended(vec![
-                Line("Press "),
-                Line(key.describe()).fg(text::HOTKEY_COLOR),
-                Line(format!(" to {}", a)),
-            ]);
-        }
     }
 
     fn reserve_key(&mut self, key: Key, action: &str) {

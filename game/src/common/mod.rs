@@ -108,7 +108,7 @@ impl CommonState {
                 if idx != 0 {
                     osd.append(Line(", "));
                 }
-                osd.append(Line(key.describe()).fg(ezgui::HOTKEY_COLOR));
+                osd.append(Line(key.describe()).fg(g.style().hotkey_color));
             }
         }
 
@@ -243,7 +243,7 @@ impl CommonState {
         if let Some(ref action) = app.per_obj.click_action {
             osd.append_all(vec![
                 Line("; "),
-                Line("click").fg(ezgui::HOTKEY_COLOR),
+                Line("click").fg(g.style().hotkey_color),
                 Line(format!(" to {}", action)),
             ]);
         }
