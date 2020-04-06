@@ -356,3 +356,13 @@ changes here.
 - draw people inside of a building
 - applied consistent typography everywhere
 - lots of internal refactoring
+
+0.1.35
+
+- more info panel work, particularly for trips and buses. change plot settings live.
+- prototype of a SEIR pandemic model based on time spent in shared spaces, by orestis
+- slight heatmap improvements, more coming
+- more typography changes
+- mouse cursor now changes for buttons and dragging!
+- overhaul minimap controls, make layers behavior zoomed in a little better
+- new speed panel and jump-to-time modal
