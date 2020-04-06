@@ -131,7 +131,7 @@ impl ColorScheme {
         let gui_style = Style::standard();
         ColorScheme {
             // UI
-            hovering: Color::ORANGE,
+            hovering: gui_style.hovering_color,
             panel_bg: gui_style.panel_bg,
             section_bg: Color::grey(0.5),
             inner_panel: hex("#4C4C4C"),

@@ -54,24 +54,22 @@ impl<T: Yvalue<T>> Plot<T> {
                 series[0].label.clone().draw_text(ctx),
             ])
         } else {
-            Widget::row(
-                series
-                    .iter()
-                    .map(|s| {
-                        // TODO Colored checkbox
-                        Widget::new(Box::new(
-                            Checkbox::text(ctx, &s.label, None, true)
-                                .take_checkbox()
-                                .callback_to_plot(id, &s.label),
-                        ))
-                        // TODO Messy! We have to remember to repeat what Checkbox::text does,
-                        // because we used take_checkbox
-                        .named(&s.label)
-                        .outline(ctx.style().outline_thickness, ctx.style().outline_color)
-                    })
-                    .collect(),
-            )
-            .flex_wrap(ctx, 24)
+            let mut row = Vec::new();
+            for s in &series {
+                row.push(Widget::row(vec![
+                    Widget::new(Box::new(
+                        Checkbox::colored(ctx, &s.label, s.color, true)
+                            .take_checkbox()
+                            .callback_to_plot(id, &s.label),
+                    ))
+                    // TODO Messy! We have to remember to repeat what Checkbox::text does,
+                    // because we used take_checkbox
+                    .named(&s.label)
+                    .margin_right(8),
+                    Line(&s.label).draw(ctx),
+                ]));
+            }
+            Widget::row(row).flex_wrap(ctx, 24)
         };
 
         // Assume min_x is Time::START_OF_DAY and min_y is T::zero()

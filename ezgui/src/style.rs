@@ -6,6 +6,7 @@ pub struct Style {
     pub outline_color: Color,
     pub panel_bg: Color,
     pub hotkey_color: Color,
+    pub hovering_color: Color,
 }
 
 impl Style {
@@ -15,6 +16,7 @@ impl Style {
             outline_color: Color::WHITE,
             panel_bg: Color::grey(0.4),
             hotkey_color: Color::GREEN,
+            hovering_color: Color::ORANGE,
         }
     }
 }

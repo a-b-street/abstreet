@@ -5,8 +5,7 @@ use crate::render::MIN_ZOOM_FOR_DETAIL;
 use abstutil::clamp;
 use ezgui::{
     hotkey, Btn, Checkbox, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, RewriteColor, ScreenDims, ScreenPt, VerticalAlignment,
-    Widget,
+    HorizontalAlignment, Key, Line, Outcome, ScreenDims, ScreenPt, VerticalAlignment, Widget,
 };
 use geom::{Distance, Polygon, Pt2D, Ring};
 
@@ -364,7 +363,7 @@ fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
 fn make_horiz_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
     let mut row = Vec::new();
     for (label, color, enabled) in &app.agent_cs.rows {
-        row.push(colored_checkbox(ctx, app, label, *color, *enabled).margin_right(8));
+        row.push(Checkbox::colored(ctx, label, *color, *enabled).margin_right(8));
         row.push(Line(label).draw(ctx).margin_right(24));
     }
     let last = row.pop().unwrap();
@@ -377,7 +376,7 @@ fn make_vert_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
 
     for (label, color, enabled) in &app.agent_cs.rows {
         let mut row = Vec::new();
-        row.push(colored_checkbox(ctx, app, label, *color, *enabled).margin_right(8));
+        row.push(Checkbox::colored(ctx, label, *color, *enabled).margin_right(8));
         row.push(Line(label).draw(ctx));
         col.push(Widget::row(row).margin_below(7));
     }
@@ -385,29 +384,4 @@ fn make_vert_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
     col.push(last.margin_below(0));
 
     Widget::col(col)
-}
-
-fn colored_checkbox(ctx: &EventCtx, app: &App, label: &str, color: Color, enabled: bool) -> Widget {
-    let true_btn = Btn::svg(
-        "../data/system/assets/tools/checkmark.svg",
-        RewriteColor::ChangeMore(vec![(Color::BLACK, color), (Color::WHITE, app.cs.hovering)]),
-    )
-    .normal_color(RewriteColor::Change(Color::BLACK, color))
-    .build(ctx, format!("hide {}", label), None);
-
-    // Fancy way of saying a circle ;)
-    let false_btn = Btn::svg(
-        "../data/system/assets/tools/checkmark.svg",
-        RewriteColor::ChangeMore(vec![
-            (Color::BLACK, color),
-            (Color::WHITE, Color::INVISIBLE),
-        ]),
-    )
-    .normal_color(RewriteColor::ChangeMore(vec![
-        (Color::BLACK, color.alpha(0.3)),
-        (Color::WHITE, Color::INVISIBLE),
-    ]))
-    .build(ctx, format!("show {}", label), None);
-
-    Checkbox::new(enabled, false_btn, true_btn).named(label)
 }

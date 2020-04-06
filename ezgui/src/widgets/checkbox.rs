@@ -1,6 +1,8 @@
 use crate::{
-    Btn, Button, EventCtx, GfxCtx, MultiKey, ScreenDims, ScreenPt, Widget, WidgetImpl, WidgetOutput,
+    Btn, Button, Color, EventCtx, GeomBatch, GfxCtx, MultiKey, ScreenDims, ScreenPt, Widget,
+    WidgetImpl, WidgetOutput,
 };
+use geom::{Polygon, Pt2D};
 
 pub struct Checkbox {
     pub(crate) enabled: bool,
@@ -39,6 +41,49 @@ impl Checkbox {
         )
         .outline(ctx.style().outline_thickness, ctx.style().outline_color)
         .named(label)
+    }
+
+    pub fn colored(ctx: &EventCtx, label: &str, color: Color, enabled: bool) -> Widget {
+        let vert_pad = 4.0;
+        let horiz_pad = 4.0;
+
+        let checkmark = Polygon::new(&vec![
+            Pt2D::new(11.4528, 22.1072),
+            Pt2D::new(5.89284, 16.5472),
+            Pt2D::new(3.99951, 18.4272),
+            Pt2D::new(11.4528, 25.8805),
+            Pt2D::new(27.4528, 9.88049),
+            Pt2D::new(25.5728, 8.00049),
+            Pt2D::new(11.4528, 22.1072),
+        ])
+        .translate(0.0, -4.0);
+        let bounds = checkmark.get_bounds();
+        let hitbox = Polygon::rectangle(
+            bounds.width() + 2.0 * horiz_pad,
+            bounds.height() + 2.0 * vert_pad,
+        );
+
+        let true_btn = Btn::custom(
+            GeomBatch::from(vec![
+                (color, hitbox.clone()),
+                (Color::WHITE, checkmark.clone()),
+            ]),
+            GeomBatch::from(vec![
+                (color, hitbox.clone()),
+                (ctx.style().hovering_color, checkmark),
+            ]),
+            hitbox.clone(),
+        )
+        .build(ctx, format!("hide {}", label), None);
+
+        let false_btn = Btn::custom(
+            GeomBatch::from(vec![(color.alpha(0.3), hitbox.clone())]),
+            GeomBatch::from(vec![(color, hitbox.clone())]),
+            hitbox,
+        )
+        .build(ctx, format!("show {}", label), None);
+
+        Checkbox::new(enabled, false_btn, true_btn).named(label)
     }
 
     pub(crate) fn callback_to_plot(mut self, plot_id: &str, checkbox_label: &str) -> Checkbox {
