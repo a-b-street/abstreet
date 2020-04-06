@@ -1,6 +1,6 @@
 use crate::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Outcome, ScreenDims, ScreenPt, ScreenRectangle,
-    Widget, WidgetImpl,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt, ScreenRectangle, Widget,
+    WidgetImpl, WidgetOutput,
 };
 use geom::Polygon;
 
@@ -204,12 +204,10 @@ impl WidgetImpl for Slider {
         self.top_left = top_left;
     }
 
-    fn event(&mut self, ctx: &mut EventCtx, _redo_layout: &mut bool) -> Option<Outcome> {
+    fn event(&mut self, ctx: &mut EventCtx, _output: &mut WidgetOutput) {
         if self.inner_event(ctx) {
             self.recalc(ctx);
         }
-
-        None
     }
 
     fn draw(&self, g: &mut GfxCtx) {

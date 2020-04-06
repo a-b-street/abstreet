@@ -1,4 +1,4 @@
-use crate::{EventCtx, GfxCtx, Outcome, ScreenDims, ScreenPt, Widget, WidgetImpl};
+use crate::{EventCtx, GfxCtx, ScreenDims, ScreenPt, Widget, WidgetImpl, WidgetOutput};
 
 // Doesn't do anything by itself, just used for widgetsing. Something else reaches in, asks for the
 // ScreenRectangle to use.
@@ -25,8 +25,6 @@ impl WidgetImpl for Filler {
         self.top_left = top_left;
     }
 
-    fn event(&mut self, _ctx: &mut EventCtx, _redo_layout: &mut bool) -> Option<Outcome> {
-        None
-    }
+    fn event(&mut self, _ctx: &mut EventCtx, _output: &mut WidgetOutput) {}
     fn draw(&self, _g: &mut GfxCtx) {}
 }

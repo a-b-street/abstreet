@@ -1,6 +1,6 @@
 use crate::{
-    Btn, Button, Choice, Color, Dropdown, EventCtx, GeomBatch, GfxCtx, JustDraw, MultiKey, Outcome,
-    ScreenDims, ScreenPt, Widget, WidgetImpl,
+    Btn, Button, Choice, Color, Dropdown, EventCtx, GeomBatch, GfxCtx, JustDraw, MultiKey,
+    ScreenDims, ScreenPt, Widget, WidgetImpl, WidgetOutput,
 };
 use geom::Polygon;
 
@@ -67,12 +67,13 @@ impl<T: 'static + Clone + PartialEq> WidgetImpl for PersistentSplit<T> {
         ));
     }
 
-    fn event(&mut self, ctx: &mut EventCtx, redo_layout: &mut bool) -> Option<Outcome> {
-        if let Some(o) = self.btn.event(ctx, redo_layout) {
-            return Some(o);
+    fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
+        self.btn.event(ctx, output);
+        if output.outcome.is_some() {
+            return;
         }
 
-        self.dropdown.event(ctx, redo_layout);
+        self.dropdown.event(ctx, output);
         let new_value = self.dropdown.current_value();
         if new_value != self.current_value {
             self.current_value = new_value;
@@ -81,10 +82,8 @@ impl<T: 'static + Clone + PartialEq> WidgetImpl for PersistentSplit<T> {
             self.btn = Btn::plaintext(self.dropdown.current_value_label())
                 .build(ctx, label, hotkey)
                 .take_btn();
-            *redo_layout = true;
+            output.redo_layout = true;
         }
-
-        None
     }
 
     fn draw(&self, g: &mut GfxCtx) {

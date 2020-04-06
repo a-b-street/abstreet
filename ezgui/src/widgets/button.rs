@@ -1,6 +1,6 @@
 use crate::{
     svg, Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, MultiKey, Outcome,
-    RewriteColor, ScreenDims, ScreenPt, Text, Widget, WidgetImpl,
+    RewriteColor, ScreenDims, ScreenPt, Text, Widget, WidgetImpl, WidgetOutput,
 };
 use geom::Polygon;
 
@@ -68,7 +68,7 @@ impl WidgetImpl for Button {
         self.top_left = top_left;
     }
 
-    fn event(&mut self, ctx: &mut EventCtx, _redo_layout: &mut bool) -> Option<Outcome> {
+    fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
         if ctx.redo_mouseover() {
             if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
                 self.hovering = self
@@ -81,21 +81,21 @@ impl WidgetImpl for Button {
         }
         if self.hovering && ctx.normal_left_click() {
             self.hovering = false;
-            return Some(Outcome::Clicked(self.action.clone()));
+            output.outcome = Some(Outcome::Clicked(self.action.clone()));
+            return;
         }
 
         if let Some(ref hotkey) = self.hotkey {
             if ctx.input.new_was_pressed(hotkey) {
                 self.hovering = false;
-                return Some(Outcome::Clicked(self.action.clone()));
+                output.outcome = Some(Outcome::Clicked(self.action.clone()));
+                return;
             }
         }
 
         if self.hovering {
             ctx.cursor_clickable();
         }
-
-        None
     }
 
     fn draw(&self, g: &mut GfxCtx) {

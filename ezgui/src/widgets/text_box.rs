@@ -1,6 +1,6 @@
 use crate::{
-    text, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, ScreenDims, ScreenPt,
-    ScreenRectangle, Text, WidgetImpl,
+    text, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenDims, ScreenPt, ScreenRectangle,
+    Text, WidgetImpl, WidgetOutput,
 };
 use geom::Polygon;
 
@@ -63,7 +63,7 @@ impl WidgetImpl for TextBox {
         self.top_left = top_left;
     }
 
-    fn event(&mut self, ctx: &mut EventCtx, _redo_layout: &mut bool) -> Option<Outcome> {
+    fn event(&mut self, ctx: &mut EventCtx, _output: &mut WidgetOutput) {
         if ctx.redo_mouseover() {
             if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
                 self.hovering = ScreenRectangle::top_left(self.top_left, self.dims).contains(pt);
@@ -80,7 +80,7 @@ impl WidgetImpl for TextBox {
         }
 
         if !self.has_focus && !self.autofocus {
-            return None;
+            return;
         }
         if let Some(key) = ctx.input.any_key_pressed() {
             match key {
@@ -108,8 +108,6 @@ impl WidgetImpl for TextBox {
                 }
             };
         }
-
-        None
     }
 
     fn draw(&self, g: &mut GfxCtx) {

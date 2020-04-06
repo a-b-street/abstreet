@@ -1,6 +1,6 @@
 use crate::{
-    text, Btn, Button, EventCtx, GeomBatch, GfxCtx, Line, Outcome, ScreenDims, ScreenPt, Text,
-    Widget, WidgetImpl,
+    text, Btn, Button, EventCtx, GeomBatch, GfxCtx, Line, ScreenDims, ScreenPt, Text, Widget,
+    WidgetImpl, WidgetOutput,
 };
 use geom::{Polygon, Pt2D};
 
@@ -67,18 +67,21 @@ impl WidgetImpl for Spinner {
         ));
     }
 
-    fn event(&mut self, ctx: &mut EventCtx, redo_layout: &mut bool) -> Option<Outcome> {
-        if self.up.event(ctx, redo_layout).is_some() {
+    fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
+        self.up.event(ctx, output);
+        if output.outcome.take().is_some() {
             if self.current != self.high {
                 self.current += 1;
             }
-        } else if self.down.event(ctx, redo_layout).is_some() {
+            return;
+        }
+
+        self.down.event(ctx, output);
+        if output.outcome.take().is_some() {
             if self.current != self.low {
                 self.current -= 1;
             }
         }
-
-        None
     }
 
     fn draw(&self, g: &mut GfxCtx) {

@@ -49,7 +49,7 @@ pub use crate::event::{hotkey, hotkeys, lctrl, Event, Key, MultiKey};
 pub use crate::event_ctx::EventCtx;
 pub use crate::geom::{GeomBatch, RewriteColor};
 pub use crate::input::UserInput;
-pub use crate::managed::{Composite, Outcome, Widget};
+pub use crate::managed::{Composite, Widget};
 pub use crate::runner::{run, EventLoopMode, Settings, GUI};
 pub use crate::screen_geom::{ScreenDims, ScreenPt, ScreenRectangle};
 pub use crate::style::Style;
@@ -70,7 +70,7 @@ pub use crate::widgets::plot::{Plot, PlotOptions, Series};
 pub use crate::widgets::slider::Slider;
 pub use crate::widgets::spinner::Spinner;
 pub(crate) use crate::widgets::text_box::TextBox;
-pub use crate::widgets::WidgetImpl;
+pub use crate::widgets::{Outcome, WidgetImpl, WidgetOutput};
 
 pub(crate) enum InputResult<T: Clone> {
     Canceled,

@@ -1,6 +1,6 @@
 use crate::{
-    Choice, EventCtx, GfxCtx, InputResult, Menu, Outcome, ScreenDims, ScreenPt, TextBox, Widget,
-    WidgetImpl,
+    Choice, EventCtx, GfxCtx, InputResult, Menu, ScreenDims, ScreenPt, TextBox, Widget, WidgetImpl,
+    WidgetOutput,
 };
 use simsearch::SimSearch;
 use std::collections::HashMap;
@@ -88,16 +88,16 @@ impl<T: 'static + Clone> WidgetImpl for Autocomplete<T> {
         ));
     }
 
-    fn event(&mut self, ctx: &mut EventCtx, redo_layout: &mut bool) -> Option<Outcome> {
+    fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
         assert!(self.chosen_values.is_none());
 
-        self.tb.event(ctx, redo_layout);
+        self.tb.event(ctx, output);
         if self.tb.get_line() != self.current_line {
             self.current_line = self.tb.get_line();
             self.recalc_menu(ctx);
-            *redo_layout = true;
+            output.redo_layout = true;
         } else {
-            self.menu.event(ctx, redo_layout);
+            self.menu.event(ctx, output);
             match self.menu.state {
                 InputResult::StillActive => {}
                 // Ignore this and make sure the Composite has a quit control
@@ -109,8 +109,6 @@ impl<T: 'static + Clone> WidgetImpl for Autocomplete<T> {
                 }
             }
         }
-
-        None
     }
 
     fn draw(&self, g: &mut GfxCtx) {

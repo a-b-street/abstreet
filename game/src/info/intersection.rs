@@ -136,7 +136,7 @@ fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) 
         }
     }
 
-    Plot::new(ctx, all_series, PlotOptions::new())
+    Plot::new(ctx, "delay", all_series, PlotOptions::new())
 }
 
 fn header(

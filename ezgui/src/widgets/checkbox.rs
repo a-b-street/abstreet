@@ -1,11 +1,14 @@
 use crate::{
-    Btn, Button, EventCtx, GfxCtx, MultiKey, Outcome, ScreenDims, ScreenPt, Widget, WidgetImpl,
+    Btn, Button, EventCtx, GfxCtx, MultiKey, ScreenDims, ScreenPt, Widget, WidgetImpl, WidgetOutput,
 };
 
 pub struct Checkbox {
     pub(crate) enabled: bool,
     btn: Button,
     other_btn: Button,
+
+    // TODO Biiiit of a hack. If Plot could embed a Composite, that'd actually work better.
+    cb_to_plot: Option<(String, String)>,
 }
 
 impl Checkbox {
@@ -16,12 +19,14 @@ impl Checkbox {
                 enabled,
                 btn: true_btn.take_btn(),
                 other_btn: false_btn.take_btn(),
+                cb_to_plot: None,
             }))
         } else {
             Widget::new(Box::new(Checkbox {
                 enabled,
                 btn: false_btn.take_btn(),
                 other_btn: true_btn.take_btn(),
+                cb_to_plot: None,
             }))
         }
     }
@@ -35,6 +40,11 @@ impl Checkbox {
         .outline(ctx.style().outline_thickness, ctx.style().outline_color)
         .named(label)
     }
+
+    pub(crate) fn callback_to_plot(mut self, plot_id: &str, checkbox_label: &str) -> Checkbox {
+        self.cb_to_plot = Some((plot_id.to_string(), checkbox_label.to_string()));
+        self
+    }
 }
 
 impl WidgetImpl for Checkbox {
@@ -46,15 +56,17 @@ impl WidgetImpl for Checkbox {
         self.btn.set_pos(top_left);
     }
 
-    fn event(&mut self, ctx: &mut EventCtx, redo_layout: &mut bool) -> Option<Outcome> {
-        if self.btn.event(ctx, redo_layout).is_some() {
+    fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
+        self.btn.event(ctx, output);
+        if output.outcome.take().is_some() {
             std::mem::swap(&mut self.btn, &mut self.other_btn);
             self.btn.set_pos(self.other_btn.top_left);
             self.enabled = !self.enabled;
-            *redo_layout = true;
+            output.redo_layout = true;
+            if let Some(ref pair) = self.cb_to_plot {
+                output.plot_changed.push((pair.clone(), self.enabled));
+            }
         }
-
-        None
     }
 
     fn draw(&self, g: &mut GfxCtx) {

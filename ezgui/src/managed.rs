@@ -1,8 +1,9 @@
 use crate::widgets::containers::{Container, Nothing};
 use crate::{
     Autocomplete, Button, Checkbox, Choice, Color, Drawable, Dropdown, EventCtx, Filler, GeomBatch,
-    GfxCtx, HorizontalAlignment, JustDraw, Menu, PersistentSplit, RewriteColor, ScreenDims,
-    ScreenPt, ScreenRectangle, Slider, Spinner, TextBox, VerticalAlignment, WidgetImpl,
+    GfxCtx, HorizontalAlignment, JustDraw, Menu, Outcome, PersistentSplit, RewriteColor,
+    ScreenDims, ScreenPt, ScreenRectangle, Slider, Spinner, TextBox, VerticalAlignment, WidgetImpl,
+    WidgetOutput,
 };
 use geom::{Distance, Polygon};
 use std::collections::HashSet;
@@ -425,6 +426,9 @@ impl Widget {
     pub(crate) fn take_just_draw(self) -> JustDraw {
         *self.widget.downcast::<JustDraw>().ok().unwrap()
     }
+    pub(crate) fn take_checkbox(self) -> Checkbox {
+        *self.widget.downcast::<Checkbox>().ok().unwrap()
+    }
 }
 
 enum Dims {
@@ -451,10 +455,6 @@ pub struct Composite {
     contents_dims: ScreenDims,
     container_dims: ScreenDims,
     clip_rect: Option<ScreenRectangle>,
-}
-
-pub enum Outcome {
-    Clicked(String),
 }
 
 const SCROLL_SPEED: f64 = 5.0;
@@ -586,12 +586,27 @@ impl Composite {
         }
 
         let before = self.scroll_offset();
-        let mut redo_layout = false;
-        let result = self.top_level.widget.event(ctx, &mut redo_layout);
-        if self.scroll_offset() != before || redo_layout {
+        let mut output = WidgetOutput {
+            redo_layout: false,
+            outcome: None,
+            plot_changed: Vec::new(),
+        };
+        self.top_level.widget.event(ctx, &mut output);
+        if self.scroll_offset() != before || output.redo_layout {
             self.recompute_layout(ctx, true);
         }
-        result
+
+        // TODO Fantastic hack
+        for ((plot_id, checkbox_label), enabled) in output.plot_changed {
+            // TODO Can't downcast and ignore the type param
+            self.top_level
+                .find_mut(&plot_id)
+                .unwrap()
+                .widget
+                .update_series(checkbox_label, enabled);
+        }
+
+        output.outcome
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {

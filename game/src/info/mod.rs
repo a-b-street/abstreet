@@ -472,7 +472,7 @@ fn throughput<F: Fn(&Analytics, Time) -> BTreeMap<TripMode, Vec<(Time, usize)>>>
         }
     }
 
-    Plot::new(ctx, series, PlotOptions::new())
+    Plot::new(ctx, "throughput", series, PlotOptions::new())
 }
 
 fn color_for_mode(m: TripMode, app: &App) -> Color {

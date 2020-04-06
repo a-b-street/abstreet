@@ -1,6 +1,6 @@
 use crate::{
-    Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome, ScreenDims, ScreenPt,
-    ScreenRectangle, Text, TextExt, Widget, WidgetImpl,
+    Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ScreenDims, ScreenPt,
+    ScreenRectangle, Text, TextExt, Widget, WidgetImpl, WidgetOutput,
 };
 use abstutil::prettyprint_usize;
 use geom::{Angle, Bounds, Circle, Distance, Duration, FindClosest, PolyLine, Pt2D, Time};
@@ -36,7 +36,8 @@ impl PlotOptions {
 }
 
 impl<T: Yvalue<T>> Plot<T> {
-    pub fn new(ctx: &EventCtx, series: Vec<Series<T>>, opts: PlotOptions) -> Widget {
+    // ID must be unique in a Composite
+    pub fn new(ctx: &EventCtx, id: &str, series: Vec<Series<T>>, opts: PlotOptions) -> Widget {
         let legend = if series.len() == 1 {
             let radius = 15.0;
             // Can't hide if there's just one series
@@ -58,7 +59,11 @@ impl<T: Yvalue<T>> Plot<T> {
                     .iter()
                     .map(|s| {
                         // TODO Colored checkbox
-                        Checkbox::text(ctx, &s.label, None, true)
+                        Widget::new(Box::new(
+                            Checkbox::text(ctx, &s.label, None, true)
+                                .take_checkbox()
+                                .callback_to_plot(id, &s.label),
+                        ))
                     })
                     .collect(),
             )
@@ -220,7 +225,10 @@ impl<T: Yvalue<T>> Plot<T> {
         // Don't let the x-axis fill the parent container
         Widget::row(vec![Widget::col(vec![
             legend,
-            Widget::row(vec![y_axis.evenly_spaced(), Widget::new(Box::new(plot))]),
+            Widget::row(vec![
+                y_axis.evenly_spaced(),
+                Widget::new(Box::new(plot)).named(id),
+            ]),
             x_axis.evenly_spaced(),
         ])])
     }
@@ -235,9 +243,7 @@ impl<T: Yvalue<T>> WidgetImpl for Plot<T> {
         self.top_left = top_left;
     }
 
-    fn event(&mut self, _ctx: &mut EventCtx, _redo_layout: &mut bool) -> Option<Outcome> {
-        None
-    }
+    fn event(&mut self, _ctx: &mut EventCtx, _output: &mut WidgetOutput) {}
 
     fn draw(&self, g: &mut GfxCtx) {
         g.redraw_at(self.top_left, &self.draw_grid);
@@ -277,6 +283,16 @@ impl<T: Yvalue<T>> WidgetImpl for Plot<T> {
                 }
             }
         }
+    }
+
+    fn update_series(&mut self, label: String, enabled: bool) {
+        for series in &mut self.series {
+            if series.label == label {
+                series.enabled = enabled;
+                return;
+            }
+        }
+        panic!("Plot doesn't have a series {}", label);
     }
 }
 

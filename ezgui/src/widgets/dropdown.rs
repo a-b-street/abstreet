@@ -1,6 +1,6 @@
 use crate::{
-    Btn, Button, Choice, Color, EventCtx, GeomBatch, GfxCtx, InputResult, Menu, Outcome,
-    ScreenDims, ScreenPt, ScreenRectangle, WidgetImpl,
+    Btn, Button, Choice, Color, EventCtx, GeomBatch, GfxCtx, InputResult, Menu, ScreenDims,
+    ScreenPt, ScreenRectangle, WidgetImpl, WidgetOutput,
 };
 use geom::{Distance, Polygon, Pt2D};
 
@@ -56,9 +56,9 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
         self.btn.set_pos(top_left);
     }
 
-    fn event(&mut self, ctx: &mut EventCtx, redo_layout: &mut bool) -> Option<Outcome> {
+    fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
         if let Some(ref mut m) = self.menu {
-            m.event(ctx, redo_layout);
+            m.event(ctx, output);
             match m.state {
                 InputResult::StillActive => {}
                 InputResult::Canceled => {
@@ -75,11 +75,12 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
                         self.blank_btn_label,
                     );
                     self.btn.set_pos(top_left);
-                    *redo_layout = true;
+                    output.redo_layout = true;
                 }
             }
         } else {
-            if self.btn.event(ctx, redo_layout).is_some() {
+            self.btn.event(ctx, output);
+            if output.outcome.take().is_some() {
                 // TODO set current idx in menu
                 let mut menu = Menu::new(
                     ctx,
@@ -104,8 +105,6 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
                 self.menu = Some(menu);
             }
         }
-
-        None
     }
 
     fn draw(&self, g: &mut GfxCtx) {

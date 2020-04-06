@@ -137,7 +137,7 @@ fn delays_over_time(ctx: &mut EventCtx, app: &App, id: BusRouteID) -> Widget {
     }
     Widget::col(vec![
         Line("Delays between stops").small_heading().draw(ctx),
-        Plot::new(ctx, series, PlotOptions::new()).margin(10),
+        Plot::new(ctx, "delay btwn stops", series, PlotOptions::new()).margin(10),
     ])
 }
 

@@ -1,6 +1,6 @@
 use crate::{
-    hotkey, text, Choice, EventCtx, GfxCtx, InputResult, Key, Line, Outcome, ScreenDims, ScreenPt,
-    ScreenRectangle, Text, Widget, WidgetImpl,
+    hotkey, text, Choice, EventCtx, GfxCtx, InputResult, Key, Line, ScreenDims, ScreenPt,
+    ScreenRectangle, Text, Widget, WidgetImpl, WidgetOutput,
 };
 use geom::Pt2D;
 
@@ -79,9 +79,9 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
         self.top_left = top_left;
     }
 
-    fn event(&mut self, ctx: &mut EventCtx, _redo_layout: &mut bool) -> Option<Outcome> {
+    fn event(&mut self, ctx: &mut EventCtx, _output: &mut WidgetOutput) {
         if self.choices.is_empty() {
-            return None;
+            return;
         }
 
         match self.state {
@@ -123,14 +123,14 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
                 if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
                     if rect.contains(pt) && choice.active {
                         self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
-                        return None;
+                        return;
                     }
                     // Unconsume the click, it was in screen space, but not on us.
                     ctx.input.unconsume_event();
                 } else {
                     // Clicked on the map? Cancel out
                     self.state = InputResult::Canceled;
-                    return None;
+                    return;
                 }
             }
         }
@@ -143,7 +143,7 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
             if let Some(ref hotkey) = choice.hotkey {
                 if ctx.input.new_was_pressed(hotkey) {
                     self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
-                    return None;
+                    return;
                 }
             }
         }
@@ -153,9 +153,9 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
             let choice = &self.choices[self.current_idx];
             if choice.active {
                 self.state = InputResult::Done(choice.label.clone(), choice.data.clone());
-                return None;
+                return;
             } else {
-                return None;
+                return;
             }
         } else if ctx.input.new_was_pressed(&hotkey(Key::UpArrow).unwrap()) {
             if self.current_idx > 0 {
@@ -166,8 +166,6 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
                 self.current_idx += 1;
             }
         }
-
-        None
     }
 
     fn draw(&self, g: &mut GfxCtx) {
