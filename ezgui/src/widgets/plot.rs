@@ -1,5 +1,5 @@
 use crate::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome, ScreenDims, ScreenPt,
+    Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome, ScreenDims, ScreenPt,
     ScreenRectangle, Text, TextExt, Widget, WidgetImpl,
 };
 use abstutil::prettyprint_usize;
@@ -7,7 +7,8 @@ use geom::{Angle, Bounds, Circle, Distance, Duration, FindClosest, PolyLine, Pt2
 
 // The X is always time
 pub struct Plot<T: Yvalue<T>> {
-    draw: Drawable,
+    series: Vec<SeriesState>,
+    draw_grid: Drawable,
 
     // The geometry here is in screen-space.
     max_x: Time,
@@ -16,6 +17,12 @@ pub struct Plot<T: Yvalue<T>> {
 
     top_left: ScreenPt,
     dims: ScreenDims,
+}
+
+struct SeriesState {
+    label: String,
+    enabled: bool,
+    draw: Drawable,
 }
 
 pub struct PlotOptions {
@@ -30,34 +37,33 @@ impl PlotOptions {
 
 impl<T: Yvalue<T>> Plot<T> {
     pub fn new(ctx: &EventCtx, series: Vec<Series<T>>, opts: PlotOptions) -> Widget {
-        let mut batch = GeomBatch::new();
-
-        // TODO Tuned to fit the info panel. Instead these should somehow stretch to fill their
-        // container.
-        let width = 0.25 * ctx.canvas.window_width;
-        let height = 0.2 * ctx.canvas.window_height;
-
-        let radius = 15.0;
-        let legend = Widget::row(
-            series
-                .iter()
-                .map(|s| {
-                    Widget::row(vec![
-                        Widget::draw_batch(
-                            ctx,
-                            GeomBatch::from(vec![(
-                                s.color,
-                                Circle::new(Pt2D::new(radius, radius), Distance::meters(radius))
-                                    .to_polygon(),
-                            )]),
-                        )
-                        .margin(5),
-                        s.label.clone().draw_text(ctx),
-                    ])
-                })
-                .collect(),
-        )
-        .flex_wrap(ctx, 24);
+        let legend = if series.len() == 1 {
+            let radius = 15.0;
+            // Can't hide if there's just one series
+            Widget::row(vec![
+                Widget::draw_batch(
+                    ctx,
+                    GeomBatch::from(vec![(
+                        series[0].color,
+                        Circle::new(Pt2D::new(radius, radius), Distance::meters(radius))
+                            .to_polygon(),
+                    )]),
+                )
+                .margin(5),
+                series[0].label.clone().draw_text(ctx),
+            ])
+        } else {
+            Widget::row(
+                series
+                    .iter()
+                    .map(|s| {
+                        // TODO Colored checkbox
+                        Checkbox::text(ctx, &s.label, None, true)
+                    })
+                    .collect(),
+            )
+            .flex_wrap(ctx, 24)
+        };
 
         // Assume min_x is Time::START_OF_DAY and min_y is T::zero()
         let max_x = opts.max_x.unwrap_or_else(|| {
@@ -85,6 +91,12 @@ impl<T: Yvalue<T>> Plot<T> {
             .max()
             .unwrap_or(T::zero());
 
+        // TODO Tuned to fit the info panel. Instead these should somehow stretch to fill their
+        // container.
+        let width = 0.25 * ctx.canvas.window_width;
+        let height = 0.2 * ctx.canvas.window_height;
+
+        let mut grid_batch = GeomBatch::new();
         // Grid lines for the Y scale. Draw up to 10 lines max to cover the order of magnitude of
         // the range.
         // TODO This caps correctly, but if the max is 105, then suddenly we just have 2 grid
@@ -97,7 +109,7 @@ impl<T: Yvalue<T>> Plot<T> {
                 if pct > 1.0 {
                     break;
                 }
-                batch.push(
+                grid_batch.push(
                     Color::BLACK,
                     PolyLine::new(vec![
                         Pt2D::new(0.0, (1.0 - pct) * height),
@@ -116,7 +128,7 @@ impl<T: Yvalue<T>> Plot<T> {
                 if pct > 1.0 {
                     break;
                 }
-                batch.push(
+                grid_batch.push(
                     Color::BLACK,
                     PolyLine::new(vec![
                         Pt2D::new(pct * width, 0.0),
@@ -131,10 +143,18 @@ impl<T: Yvalue<T>> Plot<T> {
             Pt2D::new(0.0, 0.0),
             Pt2D::new(width, height),
         ]));
+        let mut series_state = Vec::new();
         for s in series {
+            let mut batch = GeomBatch::new();
             if max_x == Time::START_OF_DAY {
+                series_state.push(SeriesState {
+                    label: s.label,
+                    enabled: true,
+                    draw: ctx.upload(batch),
+                });
                 continue;
             }
+
             let mut pts = Vec::new();
             for (t, y) in s.pts {
                 let percent_x = t.to_percent(max_x);
@@ -156,10 +176,16 @@ impl<T: Yvalue<T>> Plot<T> {
                         .make_polygons_with_miter_threshold(Distance::meters(5.0), 10.0),
                 );
             }
+            series_state.push(SeriesState {
+                label: s.label,
+                enabled: true,
+                draw: ctx.upload(batch),
+            });
         }
 
         let plot = Plot {
-            draw: ctx.upload(batch),
+            series: series_state,
+            draw_grid: ctx.upload(grid_batch),
             closest,
             max_x,
             max_y: max_y,
@@ -214,7 +240,12 @@ impl<T: Yvalue<T>> WidgetImpl for Plot<T> {
     }
 
     fn draw(&self, g: &mut GfxCtx) {
-        g.redraw_at(self.top_left, &self.draw);
+        g.redraw_at(self.top_left, &self.draw_grid);
+        for series in &self.series {
+            if series.enabled {
+                g.redraw_at(self.top_left, &series.draw);
+            }
+        }
 
         if let Some(cursor) = g.canvas.get_cursor_in_screen_space() {
             if ScreenRectangle::top_left(self.top_left, self.dims).contains(cursor) {
@@ -224,17 +255,19 @@ impl<T: Yvalue<T>> WidgetImpl for Plot<T> {
                     Pt2D::new(cursor.x - self.top_left.x, cursor.y - self.top_left.y),
                     radius,
                 ) {
-                    // TODO If some/all of the matches have the same t, write it once?
-                    let t = self.max_x.percent_of(pt.x() / self.dims.width);
-                    let y_percent = 1.0 - (pt.y() / self.dims.height);
+                    if self.series.iter().any(|s| s.label == label && s.enabled) {
+                        // TODO If some/all of the matches have the same t, write it once?
+                        let t = self.max_x.percent_of(pt.x() / self.dims.width);
+                        let y_percent = 1.0 - (pt.y() / self.dims.height);
 
-                    // TODO Draw this info in the ColorLegend
-                    txt.add(Line(format!(
-                        "{}: at {}, {}",
-                        label,
-                        t,
-                        self.max_y.from_percent(y_percent).prettyprint()
-                    )));
+                        // TODO Draw this info in the ColorLegend
+                        txt.add(Line(format!(
+                            "{}: at {}, {}",
+                            label,
+                            t,
+                            self.max_y.from_percent(y_percent).prettyprint()
+                        )));
+                    }
                 }
                 if !txt.is_empty() {
                     g.fork_screenspace();
