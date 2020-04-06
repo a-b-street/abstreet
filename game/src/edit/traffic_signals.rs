@@ -59,9 +59,9 @@ impl TrafficSignalEditor {
 
     fn change_phase(&mut self, idx: usize, app: &App, ctx: &mut EventCtx) {
         if self.current_phase == idx {
-            let preserve_scroll = self.composite.preserve_scroll();
-            self.composite = make_signal_diagram(ctx, app, self.i, self.current_phase, true);
-            self.composite.restore_scroll(ctx, preserve_scroll);
+            let mut new = make_signal_diagram(ctx, app, self.i, self.current_phase, true);
+            new.restore(ctx, &self.composite);
+            self.composite = new;
         } else {
             self.current_phase = idx;
             self.composite = make_signal_diagram(ctx, app, self.i, self.current_phase, true);

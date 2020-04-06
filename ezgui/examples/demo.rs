@@ -77,8 +77,9 @@ impl App {
                     Widget::col(col2).outline(3.0, Color::BLACK).margin(5),
                     Widget::col(col3).outline(3.0, Color::BLACK).margin(5),
                 ]),
-                Plot::new_usize(
+                Plot::new(
                     ctx,
+                    "timeseries",
                     vec![
                         Series {
                             label: "Linear".to_string(),
@@ -114,11 +115,10 @@ impl App {
         .aligned(HorizontalAlignment::Percent(0.6), VerticalAlignment::Center)
         .build(ctx);
 
-        // Since we're creating an entirely new panel when the time changes, it's nice to keep the
-        // scroll the same. If the new panel got shorter and the old scroll was too long, this
-        // clamps reasonably.
+        // Since we're creating an entirely new panel when the time changes, we need to preserve
+        // some internal state, like scroll and whether plot checkboxes were enabled.
         if let Some((_, ref old)) = self.timeseries_panel {
-            c.restore_scroll(ctx, old.preserve_scroll());
+            c.restore(ctx, old);
         }
         c
     }
@@ -269,8 +269,8 @@ fn make_controls(ctx: &mut EventCtx) -> Composite {
                 Btn::text_fg("Reset")
                     .build(ctx, "reset the stopwatch", None)
                     .margin(5),
-                Checkbox::new(ctx, "Draw scrollable canvas", None, true).margin(5),
-                Checkbox::new(ctx, "Show timeseries", lctrl(Key::T), false).margin(5),
+                Checkbox::text(ctx, "Draw scrollable canvas", None, true).margin(5),
+                Checkbox::text(ctx, "Show timeseries", lctrl(Key::T), false).margin(5),
             ])
             .evenly_spaced(),
             "Stopwatch: ...".draw_text(ctx).named("stopwatch"),

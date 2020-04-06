@@ -28,6 +28,16 @@ pub trait WidgetImpl: downcast_rs::Downcast {
     fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput);
     /// Draw the widget. Be sure to draw relative to the top-left specified by `set_pos`.
     fn draw(&self, g: &mut GfxCtx);
+    /// If a new Composite is being created to replace an older one, all widgets have the chance to
+    /// preserve state from the previous version.
+    fn can_restore(&self) -> bool {
+        false
+    }
+    /// Restore state from the previous version of this widget, with the same ID. Implementors must
+    /// downcast.
+    fn restore(&mut self, _ctx: &mut EventCtx, _prev: &Box<dyn WidgetImpl>) {
+        unreachable!()
+    }
 
     /// Internal hack. Don't override.
     fn update_series(&mut self, _label: String, _enabled: bool) {

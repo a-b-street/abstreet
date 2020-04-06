@@ -12,7 +12,7 @@ pub struct Checkbox {
 }
 
 impl Checkbox {
-    // TODO Not typesafe! Gotta pass a button.
+    // TODO Not typesafe! Gotta pass a button. Also, make sure to give an ID.
     pub fn new(enabled: bool, false_btn: Widget, true_btn: Widget) -> Widget {
         if enabled {
             Widget::new(Box::new(Checkbox {
@@ -71,5 +71,18 @@ impl WidgetImpl for Checkbox {
 
     fn draw(&self, g: &mut GfxCtx) {
         self.btn.draw(g);
+    }
+
+    fn can_restore(&self) -> bool {
+        // TODO I'm nervous about doing this one in general, so just do it for plot checkboxes.
+        self.cb_to_plot.is_some()
+    }
+    fn restore(&mut self, _: &mut EventCtx, prev: &Box<dyn WidgetImpl>) {
+        let prev = prev.downcast_ref::<Checkbox>().unwrap();
+        if self.enabled != prev.enabled {
+            std::mem::swap(&mut self.btn, &mut self.other_btn);
+            self.btn.set_pos(self.other_btn.top_left);
+            self.enabled = !self.enabled;
+        }
     }
 }

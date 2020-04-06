@@ -64,6 +64,10 @@ impl<T: Yvalue<T>> Plot<T> {
                                 .take_checkbox()
                                 .callback_to_plot(id, &s.label),
                         ))
+                        // TODO Messy! We have to remember to repeat what Checkbox::text does,
+                        // because we used take_checkbox
+                        .named(&s.label)
+                        .outline(ctx.style().outline_thickness, ctx.style().outline_color)
                     })
                     .collect(),
             )
@@ -293,6 +297,16 @@ impl<T: Yvalue<T>> WidgetImpl for Plot<T> {
             }
         }
         panic!("Plot doesn't have a series {}", label);
+    }
+
+    fn can_restore(&self) -> bool {
+        true
+    }
+    fn restore(&mut self, _: &mut EventCtx, prev: &Box<dyn WidgetImpl>) {
+        let prev = prev.downcast_ref::<Plot<T>>().unwrap();
+        for (s1, s2) in self.series.iter_mut().zip(prev.series.iter()) {
+            s1.enabled = s2.enabled;
+        }
     }
 }
 

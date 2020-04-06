@@ -342,9 +342,9 @@ impl InfoPanel {
 
         // Live update?
         if app.primary.sim.time() != self.time || ctx_actions.is_paused() != self.is_paused {
-            let preserve_scroll = self.composite.preserve_scroll();
-            *self = InfoPanel::new(ctx, app, self.tab.clone(), ctx_actions);
-            self.composite.restore_scroll(ctx, preserve_scroll);
+            let mut new = InfoPanel::new(ctx, app, self.tab.clone(), ctx_actions);
+            new.composite.restore(ctx, &self.composite);
+            *self = new;
             return (false, None);
         }
 

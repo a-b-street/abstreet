@@ -47,6 +47,33 @@ impl<T: 'static + PartialEq + Clone> Dropdown<T> {
     }
 }
 
+impl<T: 'static + Clone> Dropdown<T> {
+    fn open_menu(&mut self, ctx: &mut EventCtx) {
+        // TODO set current idx in menu
+        let mut menu = Menu::new(
+            ctx,
+            self.choices
+                .iter()
+                .enumerate()
+                .map(|(idx, c)| c.with_value(idx))
+                .collect(),
+        )
+        .take_menu();
+        let y1_below = self.btn.top_left.y + self.btn.dims.height + 15.0;
+
+        menu.set_pos(ScreenPt::new(
+            self.btn.top_left.x,
+            // top_left_for_corner doesn't quite work
+            if y1_below + menu.get_dims().height < ctx.canvas.window_height {
+                y1_below
+            } else {
+                self.btn.top_left.y - 15.0 - menu.get_dims().height
+            },
+        ));
+        self.menu = Some(menu);
+    }
+}
+
 impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
     fn get_dims(&self) -> ScreenDims {
         self.btn.get_dims()
@@ -81,28 +108,7 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
         } else {
             self.btn.event(ctx, output);
             if output.outcome.take().is_some() {
-                // TODO set current idx in menu
-                let mut menu = Menu::new(
-                    ctx,
-                    self.choices
-                        .iter()
-                        .enumerate()
-                        .map(|(idx, c)| c.with_value(idx))
-                        .collect(),
-                )
-                .take_menu();
-                let y1_below = self.btn.top_left.y + self.btn.dims.height + 15.0;
-
-                menu.set_pos(ScreenPt::new(
-                    self.btn.top_left.x,
-                    // top_left_for_corner doesn't quite work
-                    if y1_below + menu.get_dims().height < ctx.canvas.window_height {
-                        y1_below
-                    } else {
-                        self.btn.top_left.y - 15.0 - menu.get_dims().height
-                    },
-                ));
-                self.menu = Some(menu);
+                self.open_menu(ctx);
             }
         }
     }
@@ -135,6 +141,18 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
             // Dropdown menus often leak out of their Composite
             g.canvas
                 .mark_covered_area(ScreenRectangle::top_left(m.top_left, m.get_dims()));
+        }
+    }
+
+    fn can_restore(&self) -> bool {
+        true
+    }
+    fn restore(&mut self, ctx: &mut EventCtx, prev: &Box<dyn WidgetImpl>) {
+        let prev = prev.downcast_ref::<Dropdown<T>>().unwrap();
+        if prev.menu.is_some() {
+            self.open_menu(ctx);
+            // TODO Preserve menu hovered item. Only matters if we've moved the cursor off the
+            // menu.
         }
     }
 }

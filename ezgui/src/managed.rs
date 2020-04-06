@@ -379,6 +379,23 @@ impl Widget {
         }
     }
 
+    fn restore(&mut self, ctx: &mut EventCtx, prev: &Composite) {
+        if let Some(container) = self.widget.downcast_mut::<Container>() {
+            for w in &mut container.members {
+                w.restore(ctx, prev);
+            }
+        } else if self.widget.can_restore() {
+            self.widget.restore(
+                ctx,
+                &prev
+                    .top_level
+                    .find(self.id.as_ref().unwrap())
+                    .unwrap()
+                    .widget,
+            );
+        }
+    }
+
     pub fn is_btn(&self, name: &str) -> bool {
         self.widget
             .downcast_ref::<Button>()
@@ -658,12 +675,10 @@ impl Composite {
         actions
     }
 
-    pub fn preserve_scroll(&self) -> (f64, f64) {
-        self.scroll_offset()
-    }
+    pub fn restore(&mut self, ctx: &mut EventCtx, prev: &Composite) {
+        self.set_scroll_offset(ctx, prev.scroll_offset());
 
-    pub fn restore_scroll(&mut self, ctx: &mut EventCtx, offset: (f64, f64)) {
-        self.set_scroll_offset(ctx, offset);
+        self.top_level.restore(ctx, &prev);
 
         // Since we just moved things around, let all widgets respond to the mouse being somewhere
         ctx.no_op_event(true, |ctx| assert!(self.event(ctx).is_none()));
