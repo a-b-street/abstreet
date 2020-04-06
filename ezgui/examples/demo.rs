@@ -9,8 +9,8 @@
 // --features wasm-backend --example demo
 
 use ezgui::{
-    hotkey, lctrl, Btn, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Plot, PlotOptions, Series, Text, TextExt,
+    hotkey, lctrl, Btn, Checkbox, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch,
+    GfxCtx, HorizontalAlignment, Key, Line, Outcome, Plot, PlotOptions, Series, Text, TextExt,
     VerticalAlignment, Widget, GUI,
 };
 use geom::{Angle, Duration, Polygon, Pt2D, Time};
@@ -259,7 +259,7 @@ fn make_controls(ctx: &mut EventCtx) -> Composite {
             },
             Widget::row(vec![
                 // This just cycles between two arbitrary buttons
-                Widget::custom_checkbox(
+                Checkbox::new(
                     false,
                     Btn::text_bg1("Pause").build(ctx, "pause the stopwatch", hotkey(Key::Space)),
                     Btn::text_bg1("Resume").build(ctx, "resume the stopwatch", hotkey(Key::Space)),
@@ -269,8 +269,8 @@ fn make_controls(ctx: &mut EventCtx) -> Composite {
                 Btn::text_fg("Reset")
                     .build(ctx, "reset the stopwatch", None)
                     .margin(5),
-                Widget::checkbox(ctx, "Draw scrollable canvas", None, true).margin(5),
-                Widget::checkbox(ctx, "Show timeseries", lctrl(Key::T), false).margin(5),
+                Checkbox::new(ctx, "Draw scrollable canvas", None, true).margin(5),
+                Checkbox::new(ctx, "Show timeseries", lctrl(Key::T), false).margin(5),
             ])
             .evenly_spaced(),
             "Stopwatch: ...".draw_text(ctx).named("stopwatch"),

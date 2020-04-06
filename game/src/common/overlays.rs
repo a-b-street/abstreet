@@ -8,7 +8,7 @@ use crate::managed::{ManagedGUIState, WrappedComposite};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
-    hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Histogram,
+    hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Histogram,
     HorizontalAlignment, Key, Line, Outcome, Spinner, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Duration, PolyLine, Pt2D, Time};
@@ -937,7 +937,7 @@ fn population_controls(
         ])
         .centered(),
         if app.primary.sim.get_pandemic_model().is_some() {
-            Widget::checkbox(ctx, "Run pandemic model", None, opts.pandemic)
+            Checkbox::text(ctx, "Run pandemic model", None, opts.pandemic)
         } else {
             Widget::nothing()
         },
@@ -962,7 +962,7 @@ fn population_controls(
         assert_eq!(total_ppl, model.count_total());
     }
 
-    col.push(Widget::checkbox(
+    col.push(Checkbox::text(
         ctx,
         "Show heatmap",
         None,

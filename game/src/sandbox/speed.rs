@@ -4,7 +4,7 @@ use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use ezgui::{
-    hotkey, Btn, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
+    hotkey, Btn, Checkbox, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, PersistentSplit, RewriteColor, Slider, Text,
     VerticalAlignment, Widget,
 };
@@ -31,7 +31,7 @@ enum SpeedSetting {
 }
 
 impl SpeedControls {
-    // TODO Could use custom_checkbox here, but not sure it'll make things that much simpler.
+    // TODO Could use checkbox here, but not sure it'll make things that much simpler.
     fn make_panel(ctx: &mut EventCtx, app: &App, paused: bool, setting: SpeedSetting) -> Composite {
         let mut row = Vec::new();
         row.push(
@@ -345,7 +345,7 @@ impl JumpToTime {
                     )
                     .named("time slider")
                     .margin(10),
-                    Widget::checkbox(ctx, "Stop when there's a traffic jam", None, false)
+                    Checkbox::text(ctx, "Stop when there's a traffic jam", None, false)
                         .padding(10)
                         .margin(10),
                     Btn::text_bg2("Go!")

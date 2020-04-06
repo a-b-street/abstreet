@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::colors::ColorSchemeChoice;
 use crate::game::{State, Transition};
 use ezgui::{
-    hotkey, Btn, Choice, Composite, EventCtx, GfxCtx, Key, Line, Outcome, TextExt, Widget,
+    hotkey, Btn, Checkbox, Choice, Composite, EventCtx, GfxCtx, Key, Line, Outcome, TextExt, Widget,
 };
 use geom::Duration;
 
@@ -49,15 +49,15 @@ impl OptionsPanel {
                             .build_def(ctx, hotkey(Key::Escape))
                             .align_right(),
                     ]),
-                    Widget::checkbox(ctx, "Enable developer mode", None, app.opts.dev).margin(5),
-                    Widget::checkbox(
+                    Checkbox::text(ctx, "Enable developer mode", None, app.opts.dev).margin(5),
+                    Checkbox::text(
                         ctx,
                         "Invert direction of vertical scrolling",
                         None,
                         ctx.canvas.invert_scroll,
                     )
                     .margin(5),
-                    Widget::checkbox(
+                    Checkbox::text(
                         ctx,
                         "Use touchpad to pan and hold Control to zoom",
                         None,

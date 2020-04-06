@@ -10,8 +10,8 @@ use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::{calculate_corners, DrawOptions};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Btn, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Text, VerticalAlignment, Widget, Wizard,
+    hotkey, lctrl, Btn, Checkbox, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch,
+    GfxCtx, HorizontalAlignment, Key, Line, Outcome, Text, VerticalAlignment, Widget, Wizard,
 };
 use geom::{Duration, Pt2D};
 use map_model::{IntersectionID, NORMAL_LANE_THICKNESS};
@@ -43,13 +43,13 @@ impl DebugMode {
                             .align_right(),
                     ]),
                     Text::new().draw(ctx).named("current info"),
-                    Widget::checkbox(ctx, "show buildings", hotkey(Key::Num1), true),
-                    Widget::checkbox(ctx, "show intersections", hotkey(Key::Num2), true),
-                    Widget::checkbox(ctx, "show lanes", hotkey(Key::Num3), true),
-                    Widget::checkbox(ctx, "show areas", hotkey(Key::Num4), true),
-                    Widget::checkbox(ctx, "show extra shapes", hotkey(Key::Num5), true),
-                    Widget::checkbox(ctx, "show labels", hotkey(Key::Num6), false),
-                    Widget::checkbox(ctx, "show route for all agents", hotkey(Key::R), false),
+                    Checkbox::text(ctx, "show buildings", hotkey(Key::Num1), true),
+                    Checkbox::text(ctx, "show intersections", hotkey(Key::Num2), true),
+                    Checkbox::text(ctx, "show lanes", hotkey(Key::Num3), true),
+                    Checkbox::text(ctx, "show areas", hotkey(Key::Num4), true),
+                    Checkbox::text(ctx, "show extra shapes", hotkey(Key::Num5), true),
+                    Checkbox::text(ctx, "show labels", hotkey(Key::Num6), false),
+                    Checkbox::text(ctx, "show route for all agents", hotkey(Key::R), false),
                     Widget::col(
                         vec![
                             (lctrl(Key::H), "unhide everything"),

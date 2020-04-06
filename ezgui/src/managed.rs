@@ -1,9 +1,8 @@
 use crate::widgets::containers::{Container, Nothing};
 use crate::{
-    Autocomplete, Btn, Button, Checkbox, Choice, Color, Drawable, Dropdown, EventCtx, Filler,
-    GeomBatch, GfxCtx, HorizontalAlignment, JustDraw, Menu, MultiKey, PersistentSplit,
-    RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Slider, Spinner, TextBox,
-    VerticalAlignment, WidgetImpl,
+    Autocomplete, Button, Checkbox, Choice, Color, Drawable, Dropdown, EventCtx, Filler, GeomBatch,
+    GfxCtx, HorizontalAlignment, JustDraw, Menu, PersistentSplit, RewriteColor, ScreenDims,
+    ScreenPt, ScreenRectangle, Slider, Spinner, TextBox, VerticalAlignment, WidgetImpl,
 };
 use geom::{Distance, Polygon};
 use std::collections::HashSet;
@@ -215,30 +214,6 @@ impl Widget {
     }
     pub fn draw_svg_transform(ctx: &EventCtx, filename: &str, rewrite: RewriteColor) -> Widget {
         JustDraw::svg_transform(ctx, filename, rewrite)
-    }
-
-    // TODO Convenient constructors here, but shouldn't do it like this
-    pub fn checkbox(
-        ctx: &EventCtx,
-        label: &str,
-        hotkey: Option<MultiKey>,
-        enabled: bool,
-    ) -> Widget {
-        Widget::custom_checkbox(
-            enabled,
-            Btn::text_fg(format!("[ ] {}", label)).build(ctx, label, hotkey.clone()),
-            Btn::text_fg(format!("[X] {}", label)).build(ctx, label, hotkey),
-        )
-        .outline(ctx.style().outline_thickness, ctx.style().outline_color)
-        .named(label)
-    }
-    // TODO Not typesafe! Gotta pass a button.
-    pub fn custom_checkbox(enabled: bool, false_btn: Widget, true_btn: Widget) -> Widget {
-        Widget::new(Box::new(Checkbox::new(
-            enabled,
-            false_btn.take_btn(),
-            true_btn.take_btn(),
-        )))
     }
 
     // TODO Likewise

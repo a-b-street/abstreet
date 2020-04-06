@@ -4,8 +4,9 @@ use crate::game::Transition;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use abstutil::clamp;
 use ezgui::{
-    hotkey, Btn, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, RewriteColor, ScreenDims, ScreenPt, VerticalAlignment, Widget,
+    hotkey, Btn, Checkbox, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, RewriteColor, ScreenDims, ScreenPt, VerticalAlignment,
+    Widget,
 };
 use geom::{Distance, Polygon, Pt2D, Ring};
 
@@ -119,14 +120,21 @@ impl Minimap {
                 x if x == "change overlay" => {
                     return Overlays::change_overlays(ctx, app);
                 }
-                x => {
-                    // Handles both "show {}" and "hide {}"
-                    let key = x[5..].to_string();
-                    app.agent_cs.toggle(key);
-                    self.composite = make_minimap_panel(ctx, app, self.zoom_lvl);
-                }
+                _ => unreachable!(),
             },
             None => {}
+        }
+        // TODO an outcome for a checkbox flipping state could be useful
+        let mut toggle = None;
+        for (label, _, enabled) in &app.agent_cs.rows {
+            if *enabled != self.composite.is_checked(label) {
+                toggle = Some(label.clone());
+                break;
+            }
+        }
+        if let Some(label) = toggle {
+            app.agent_cs.toggle(label);
+            self.composite = make_minimap_panel(ctx, app, self.zoom_lvl);
         }
 
         if self.zoomed {
@@ -380,26 +388,26 @@ fn make_vert_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
 }
 
 fn colored_checkbox(ctx: &EventCtx, app: &App, label: &str, color: Color, enabled: bool) -> Widget {
-    if enabled {
-        Btn::svg(
-            "../data/system/assets/tools/checkmark.svg",
-            RewriteColor::ChangeMore(vec![(Color::BLACK, color), (Color::WHITE, app.cs.hovering)]),
-        )
-        .normal_color(RewriteColor::Change(Color::BLACK, color))
-        .build(ctx, format!("hide {}", label), None)
-    } else {
-        // Fancy way of saying a circle ;)
-        Btn::svg(
-            "../data/system/assets/tools/checkmark.svg",
-            RewriteColor::ChangeMore(vec![
-                (Color::BLACK, color),
-                (Color::WHITE, Color::INVISIBLE),
-            ]),
-        )
-        .normal_color(RewriteColor::ChangeMore(vec![
-            (Color::BLACK, color.alpha(0.3)),
+    let true_btn = Btn::svg(
+        "../data/system/assets/tools/checkmark.svg",
+        RewriteColor::ChangeMore(vec![(Color::BLACK, color), (Color::WHITE, app.cs.hovering)]),
+    )
+    .normal_color(RewriteColor::Change(Color::BLACK, color))
+    .build(ctx, format!("hide {}", label), None);
+
+    // Fancy way of saying a circle ;)
+    let false_btn = Btn::svg(
+        "../data/system/assets/tools/checkmark.svg",
+        RewriteColor::ChangeMore(vec![
+            (Color::BLACK, color),
             (Color::WHITE, Color::INVISIBLE),
-        ]))
-        .build(ctx, format!("show {}", label), None)
-    }
+        ]),
+    )
+    .normal_color(RewriteColor::ChangeMore(vec![
+        (Color::BLACK, color.alpha(0.3)),
+        (Color::WHITE, Color::INVISIBLE),
+    ]))
+    .build(ctx, format!("show {}", label), None);
+
+    Checkbox::new(enabled, false_btn, true_btn).named(label)
 }

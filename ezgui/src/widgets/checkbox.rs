@@ -1,4 +1,6 @@
-use crate::{Button, EventCtx, GfxCtx, Outcome, ScreenDims, ScreenPt, WidgetImpl};
+use crate::{
+    Btn, Button, EventCtx, GfxCtx, MultiKey, Outcome, ScreenDims, ScreenPt, Widget, WidgetImpl,
+};
 
 pub struct Checkbox {
     pub(crate) enabled: bool,
@@ -7,20 +9,31 @@ pub struct Checkbox {
 }
 
 impl Checkbox {
-    pub fn new(enabled: bool, false_btn: Button, true_btn: Button) -> Checkbox {
+    // TODO Not typesafe! Gotta pass a button.
+    pub fn new(enabled: bool, false_btn: Widget, true_btn: Widget) -> Widget {
         if enabled {
-            Checkbox {
+            Widget::new(Box::new(Checkbox {
                 enabled,
-                btn: true_btn,
-                other_btn: false_btn,
-            }
+                btn: true_btn.take_btn(),
+                other_btn: false_btn.take_btn(),
+            }))
         } else {
-            Checkbox {
+            Widget::new(Box::new(Checkbox {
                 enabled,
-                btn: false_btn,
-                other_btn: true_btn,
-            }
+                btn: false_btn.take_btn(),
+                other_btn: true_btn.take_btn(),
+            }))
         }
+    }
+
+    pub fn text(ctx: &EventCtx, label: &str, hotkey: Option<MultiKey>, enabled: bool) -> Widget {
+        Checkbox::new(
+            enabled,
+            Btn::text_fg(format!("[ ] {}", label)).build(ctx, label, hotkey.clone()),
+            Btn::text_fg(format!("[X] {}", label)).build(ctx, label, hotkey),
+        )
+        .outline(ctx.style().outline_thickness, ctx.style().outline_color)
+        .named(label)
     }
 }
 

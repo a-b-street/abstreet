@@ -12,7 +12,7 @@ use crate::game::Transition;
 use crate::helpers::ID;
 use crate::render::{ExtraShapeID, MIN_ZOOM_FOR_DETAIL};
 use ezgui::{
-    hotkey, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    hotkey, Btn, Checkbox, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Plot, PlotOptions, Series, Text, TextExt,
     VerticalAlignment, Widget,
 };
@@ -563,7 +563,7 @@ impl DataOptions {
             ]),
             if app.has_prebaked().is_some() {
                 // TODO Change the wording of this
-                Widget::checkbox(ctx, "Show baseline data", None, self.show_baseline)
+                Checkbox::text(ctx, "Show baseline data", None, self.show_baseline)
             } else {
                 Widget::nothing()
             },
