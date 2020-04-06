@@ -203,6 +203,14 @@ fn make_change_traffic(btn: ScreenRectangle) -> Box<dyn State> {
                              quiet, so you may need to fast-forward to morning rush hour. Data \
                              comes from Puget Sound Regional Council's Soundcast model.",
                         ));
+                        list.push(
+                            Choice::new("5 weekdays repeated", "5 weekdays repeated".to_string())
+                                .tooltip(
+                                    "Same as the weekday traffic pattern, but blindly repeated 5 \
+                                     times. This isn't realistic; people don't take exactly the \
+                                     same trips every day.",
+                                ),
+                        );
                     } else {
                         list.push(Choice::new(name.clone(), name));
                     }

@@ -3,7 +3,7 @@ use crate::{
     BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
 };
 use abstutil::Timer;
-use geom::{Distance, Speed, Time};
+use geom::{Distance, Duration, Speed, Time};
 use map_model::{BuildingID, BusRouteID, BusStopID, Map, Position, RoadID};
 use rand::seq::SliceRandom;
 use rand::Rng;
@@ -155,6 +155,25 @@ impl Scenario {
             Speed::meters_per_second(0.894),
             Speed::meters_per_second(1.34),
         )
+    }
+
+    pub fn repeat_days(mut self, days: usize) -> Scenario {
+        self.scenario_name = format!("{} repeated for {} days", self.scenario_name, days);
+        for person in &mut self.people {
+            let mut trips = Vec::new();
+            let mut offset = Duration::ZERO;
+            for _ in 0..days {
+                for trip in &person.trips {
+                    trips.push(IndividTrip {
+                        depart: trip.depart + offset,
+                        trip: trip.trip.clone(),
+                    });
+                }
+                offset += Duration::hours(24);
+            }
+            person.trips = trips;
+        }
+        self
     }
 }
 
