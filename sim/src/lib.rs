@@ -20,6 +20,7 @@ pub use self::make::{
 pub(crate) use self::mechanics::{
     DrivingSimState, IntersectionSimState, ParkingSimState, WalkingSimState,
 };
+pub(crate) use self::pandemic::PandemicModel;
 pub(crate) use self::router::{ActionAtEnd, Router};
 pub(crate) use self::scheduler::{Command, Scheduler};
 pub use self::sim::{AgentProperties, Sim, SimOptions};
@@ -37,7 +38,6 @@ use map_model::{
     BuildingID, BusStopID, DirectedRoadID, IntersectionID, LaneID, Map, Path, PathConstraints,
     PathRequest, Position,
 };
-pub(crate) use self::pandemic::PandemicModel;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fmt;

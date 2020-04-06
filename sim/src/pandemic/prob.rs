@@ -22,7 +22,10 @@ pub fn erf_distrib(t: f64, mu: f64, sigma: f64) -> f64 {
 // t1 >= t0
 pub fn erf_distrib_bounded(t0: f64, t1: f64, mu: f64, sigma: f64) -> f64 {
     if t1 < t0 {
-        panic!("Error t0 = {} < and t1 = {}. t1 must be larger than t0.", t0, t1);
+        panic!(
+            "Error t0 = {} < and t1 = {}. t1 must be larger than t0.",
+            t0, t1
+        );
     }
     if sigma < 0.0 {
         panic!("Error sigma must be always be positive but was {}", sigma);
@@ -31,7 +34,6 @@ pub fn erf_distrib_bounded(t0: f64, t1: f64, mu: f64, sigma: f64) -> f64 {
     0.5 * libm::erf((-t0 + mu) / (f64::sqrt(2.0) * sigma))
         - 0.5 * libm::erf((-t1 + mu) / (f64::sqrt(2.0) * sigma))
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -54,7 +56,10 @@ mod tests {
         let max = 100;
         let mut rng = rand::thread_rng();
         for _ in 0..max {
-            prob_range(proba_decaying_sigmoid(rng.gen::<f64>() * range, rng.gen::<f64>() * range));
+            prob_range(proba_decaying_sigmoid(
+                rng.gen::<f64>() * range,
+                rng.gen::<f64>() * range,
+            ));
         }
     }
 
@@ -64,10 +69,13 @@ mod tests {
         let max = 100;
         let mut rng = rand::thread_rng();
         for _ in 0..max {
-            prob_range(erf_distrib(rng.gen::<f64>() * range, rng.gen::<f64>() * range, rng.gen::<f64>() * range));
+            prob_range(erf_distrib(
+                rng.gen::<f64>() * range,
+                rng.gen::<f64>() * range,
+                rng.gen::<f64>() * range,
+            ));
         }
     }
-
 
     #[test]
     fn test_range_erf_distrib_bounded() {
@@ -77,7 +85,12 @@ mod tests {
         for _ in 0..max {
             let t0 = rng.gen::<f64>() * range;
             let t1 = t0 + 1.0;
-            prob_range(erf_distrib_bounded(t0, t1, rng.gen::<f64>() * range, rng.gen::<f64>() * range));
+            prob_range(erf_distrib_bounded(
+                t0,
+                t1,
+                rng.gen::<f64>() * range,
+                rng.gen::<f64>() * range,
+            ));
         }
     }
 
@@ -98,5 +111,4 @@ mod tests {
     fn test_sigma_erf_distrib_bounded() {
         erf_distrib_bounded(1.0, 2.0, 1.0, -1.0);
     }
-
 }

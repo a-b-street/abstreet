@@ -1,9 +1,9 @@
-mod prob;
 mod pandemic;
+mod prob;
 
-pub use prob::{proba_decaying_sigmoid, erf_distrib_bounded};
-pub use pandemic::{PandemicModel, Cmd};
-use geom::{Duration};
+use geom::Duration;
+pub use pandemic::{Cmd, PandemicModel};
+pub use prob::{erf_distrib_bounded, proba_decaying_sigmoid};
 
 pub enum SEIR {
     Sane,
@@ -38,9 +38,7 @@ impl SEIR {
             SEIR::Sane => Duration::seconds(SEIR::T_INF / SEIR::R_0 / 2.0),
             SEIR::Exposed => Duration::seconds(SEIR::T_INC / 2.0),
             SEIR::Infectious => Duration::seconds(SEIR::T_INF / 2.0),
-            SEIR::Recovered => {
-                panic!("Impossible to transition from Recovered state")
-            }
+            SEIR::Recovered => panic!("Impossible to transition from Recovered state"),
         }
     }
 

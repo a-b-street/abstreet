@@ -1,6 +1,6 @@
-use crate::{CarID, Command, Event, Person, PersonID, Scheduler, TripPhaseType};
 use crate::pandemic::SEIR;
-use crate::pandemic::{proba_decaying_sigmoid, erf_distrib_bounded};
+use crate::pandemic::{erf_distrib_bounded, proba_decaying_sigmoid};
+use crate::{CarID, Event, Person, PersonID, Scheduler, TripPhaseType};
 use geom::{Duration, Time};
 use map_model::{BuildingID, BusStopID};
 use rand::Rng;
@@ -162,7 +162,8 @@ impl PandemicModel {
         assert!(self.initialized);
 
         // TODO Here we might enforce policies. Like severe -> become hospitalized
-        // Symptomatic -> stay quaratined, and/or track contacts to quarantine them too (or test them)
+        // Symptomatic -> stay quaratined, and/or track contacts to quarantine them too (or test
+        // them)
         match cmd {
             Cmd::BecomeHospitalized(person) => {
                 self.hospitalized.insert(person);
