@@ -20,15 +20,20 @@ impl HeatmapOptions {
     }
 }
 
-// Returns the ordered list of (max value per bucket, color)
+// Returns the colors and labels for each bucket of colors
 pub fn make_heatmap(
     batch: &mut GeomBatch,
     bounds: &Bounds,
     pts: Vec<Pt2D>,
     opts: &HeatmapOptions,
-) -> Vec<(f64, Color)> {
+) -> (Vec<Color>, Vec<String>) {
+    let colors = opts.colors.colors();
+
     if pts.is_empty() {
-        return Vec::new();
+        let labels = std::iter::repeat("0".to_string())
+            .take(colors.len() + 1)
+            .collect();
+        return (colors, labels);
     }
 
     let mut grid: Grid<f64> = Grid::new(
@@ -65,7 +70,6 @@ pub fn make_heatmap(
         distrib.add(*count as usize);
     }
 
-    let colors = opts.colors.colors();
     let num_colors = colors.len();
     let max_count_per_bucket: Vec<(f64, Color)> = (1..=num_colors)
         .map(|i| {
@@ -73,7 +77,7 @@ pub fn make_heatmap(
                 .percentile(100.0 * (i as f64) / (num_colors as f64))
                 .unwrap() as f64
         })
-        .zip(colors.into_iter())
+        .zip(colors.clone().into_iter())
         .collect();
 
     // Now draw rectangles
@@ -101,7 +105,11 @@ pub fn make_heatmap(
         }
     }
 
-    max_count_per_bucket
+    let mut labels = vec!["0".to_string()];
+    for (max, _) in max_count_per_bucket {
+        labels.push(max.to_string());
+    }
+    (colors, labels)
 }
 
 struct Grid<T> {

@@ -22,6 +22,7 @@ impl ShowBusRoute {
 
         let color = app.cs.unzoomed_bus;
         let mut colorer = Colorer::discrete(
+            ctx,
             &route.name,
             vec![format!("{} buses", bus_locations.len())],
             vec![("route", color)],

@@ -11,8 +11,9 @@ use std::collections::HashMap;
 pub struct ColorerBuilder {
     title: String,
     extra_info: Vec<String>,
-    prioritized_colors: Vec<(&'static str, Color)>,
-    scale_legend: bool,
+    // First takes precedence
+    prioritized_colors: Vec<Color>,
+    legend: Vec<Widget>,
     lanes: HashMap<LaneID, Color>,
     roads: HashMap<RoadID, Color>,
     intersections: HashMap<IntersectionID, Color>,
@@ -30,15 +31,23 @@ impl Colorer {
     // Colors listed earlier override those listed later. This is used in unzoomed mode, when one
     // road has lanes of different colors.
     pub fn discrete<I: Into<String>>(
+        ctx: &mut EventCtx,
         title: I,
         extra_info: Vec<String>,
-        prioritized_colors: Vec<(&'static str, Color)>,
+        entries: Vec<(&'static str, Color)>,
     ) -> ColorerBuilder {
+        let mut legend = Vec::new();
+        let mut prioritized_colors = Vec::new();
+        for (label, color) in entries {
+            legend.push(ColorLegend::row(ctx, color, label));
+            prioritized_colors.push(color);
+        }
+
         ColorerBuilder {
             title: title.into(),
             extra_info,
             prioritized_colors,
-            scale_legend: false,
+            legend,
             lanes: HashMap::new(),
             roads: HashMap::new(),
             intersections: HashMap::new(),
@@ -48,13 +57,27 @@ impl Colorer {
     }
 
     pub fn scaled<I: Into<String>>(
+        ctx: &mut EventCtx,
         title: I,
         extra_info: Vec<String>,
-        prioritized_colors: Vec<(&'static str, Color)>,
+        colors: Vec<Color>,
+        labels: Vec<&str>,
     ) -> ColorerBuilder {
-        let mut c = Colorer::discrete(title, extra_info, prioritized_colors);
-        c.scale_legend = true;
-        c
+        let mut prioritized_colors = colors.clone();
+        prioritized_colors.reverse();
+        let legend = vec![ColorLegend::scale(ctx, colors, labels)];
+
+        ColorerBuilder {
+            title: title.into(),
+            extra_info,
+            prioritized_colors,
+            legend,
+            lanes: HashMap::new(),
+            roads: HashMap::new(),
+            intersections: HashMap::new(),
+            buildings: HashMap::new(),
+            bus_stops: HashMap::new(),
+        }
     }
 
     // If true, destruct this Colorer.
@@ -82,14 +105,8 @@ impl ColorerBuilder {
         self.lanes.insert(l, color);
         let r = map.get_parent(l).id;
         if let Some(existing) = self.roads.get(&r) {
-            if self
-                .prioritized_colors
-                .iter()
-                .position(|(_, c)| *c == color)
-                < self
-                    .prioritized_colors
-                    .iter()
-                    .position(|(_, c)| c == existing)
+            if self.prioritized_colors.iter().position(|c| *c == color)
+                < self.prioritized_colors.iter().position(|c| c == existing)
             {
                 self.roads.insert(r, color);
             }
@@ -168,19 +185,7 @@ impl ColorerBuilder {
             }
             col.push(txt.draw(ctx));
         }
-        if self.scale_legend {
-            col.push(ColorLegend::scale(
-                ctx,
-                self.prioritized_colors
-                    .into_iter()
-                    .map(|(lbl, c)| (c, lbl.to_string()))
-                    .collect(),
-            ));
-        } else {
-            for (label, color) in self.prioritized_colors {
-                col.push(ColorLegend::row(ctx, color, label));
-            }
-        }
+        col.extend(self.legend);
         let legend = Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(16))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
             .build(ctx);
@@ -227,20 +232,29 @@ impl ColorLegend {
         ])
     }
 
-    pub fn scale(ctx: &mut EventCtx, entries: Vec<(Color, String)>) -> Widget {
+    pub fn scale<I: Into<String>>(
+        ctx: &mut EventCtx,
+        colors: Vec<Color>,
+        labels: Vec<I>,
+    ) -> Widget {
+        assert_eq!(colors.len(), labels.len() - 1);
         let mut batch = GeomBatch::new();
-        let mut labels = Vec::new();
-        for (color, lbl) in entries {
-            batch.push(
-                color,
-                Polygon::rectangle(64.0, 32.0).translate(64.0 * (labels.len() as f64), 0.0),
-            );
-            labels.push(Line(lbl).small().draw(ctx));
+        let mut x = 0.0;
+        for color in colors {
+            batch.push(color, Polygon::rectangle(64.0, 32.0).translate(x, 0.0));
+            x += 64.0;
         }
         // Extra wrapping to make the labels stretch against just the scale, not everything else
+        // TODO Long labels aren't nicely lined up with the boundaries between buckets
         Widget::row(vec![Widget::col(vec![
             Widget::draw_batch(ctx, batch),
-            Widget::row(labels).evenly_spaced(),
+            Widget::row(
+                labels
+                    .into_iter()
+                    .map(|lbl| Line(lbl).small().draw(ctx))
+                    .collect(),
+            )
+            .evenly_spaced(),
         ])])
     }
 }

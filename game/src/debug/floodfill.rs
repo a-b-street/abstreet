@@ -41,6 +41,7 @@ impl Floodfiller {
         let unreachable_color = Color::RED;
 
         let mut colorer = Colorer::discrete(
+            ctx,
             "Lane connectivity",
             Vec::new(),
             vec![

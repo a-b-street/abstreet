@@ -87,13 +87,11 @@ impl ScenarioManager {
         }
 
         let mut bldg_colors = Colorer::scaled(
+            ctx,
             "Parked cars per building",
             Vec::new(),
-            vec![
-                ("1-2 cars needed", Color::BLUE),
-                ("3-4 cars needed", Color::RED),
-                (">= 5 cars needed", Color::BLACK),
-            ],
+            vec![Color::BLUE, Color::RED, Color::BLACK],
+            vec!["0", "1-2", "3-4", "..."],
         );
         let mut total_cars_needed = 0;
         for (b, count) in &scenario.parked_cars_per_bldg {

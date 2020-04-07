@@ -476,7 +476,7 @@ pub fn close_intersection(
     );
 
     let color = Color::RED;
-    let mut c = Colorer::discrete("", Vec::new(), vec![("disconnected", color)]);
+    let mut c = Colorer::discrete(ctx, "", Vec::new(), vec![("disconnected", color)]);
     for l in disconnected {
         c.add_l(l, color, &app.primary.map);
     }

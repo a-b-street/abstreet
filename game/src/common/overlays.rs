@@ -386,17 +386,14 @@ impl Overlays {
         // TODO Some kind of Scale abstraction that maps intervals of some quantity (percent,
         // duration) to these 4 colors
         let mut colorer = Colorer::scaled(
-            "Parking availability",
+            ctx,
+            "Parking spots taken per road",
             vec![
                 format!("{} spots filled", prettyprint_usize(filled_spots.len())),
                 format!("{} spots available ", prettyprint_usize(avail_spots.len())),
             ],
-            vec![
-                ("< 10%", app.cs.good_to_bad[3]),
-                ("< 30%", app.cs.good_to_bad[2]),
-                ("< 60%", app.cs.good_to_bad[1]),
-                (">= 60%", app.cs.good_to_bad[0]),
-            ],
+            app.cs.good_to_bad.to_vec(),
+            vec!["0%", "40%", "70%", "90%", "100%"],
         );
 
         let lane = |spot| match spot {
@@ -429,12 +426,12 @@ impl Overlays {
         for l in keys {
             let open = avail.get(l);
             let closed = filled.get(l);
-            let percent = (open as f64) / ((open + closed) as f64);
-            let color = if percent >= 0.6 {
+            let percent = (closed as f64) / ((open + closed) as f64);
+            let color = if percent < 0.4 {
                 app.cs.good_to_bad[0]
-            } else if percent > 0.3 {
+            } else if percent < 0.7 {
                 app.cs.good_to_bad[1]
-            } else if percent > 0.1 {
+            } else if percent < 0.9 {
                 app.cs.good_to_bad[2]
             } else {
                 app.cs.good_to_bad[3]
@@ -448,38 +445,35 @@ impl Overlays {
     fn worst_delay(ctx: &mut EventCtx, app: &App) -> Overlays {
         // TODO explain more
         let mut colorer = Colorer::scaled(
-            "Delay",
+            ctx,
+            "Delay (minutes)",
             Vec::new(),
-            vec![
-                ("> 15 minutes", app.cs.good_to_bad[3]),
-                ("> 5 minutes", app.cs.good_to_bad[2]),
-                ("1 - 5 minutes", app.cs.good_to_bad[1]),
-                ("< 60s", app.cs.good_to_bad[0]),
-            ],
+            app.cs.good_to_bad.to_vec(),
+            vec!["0", "1", "5", "15", "longer"],
         );
 
         let (per_road, per_intersection) = app.primary.sim.worst_delay(&app.primary.map);
         for (r, d) in per_road {
-            let color = if d > Duration::minutes(15) {
-                app.cs.good_to_bad[3]
-            } else if d > Duration::minutes(5) {
-                app.cs.good_to_bad[2]
-            } else if d > Duration::minutes(1) {
-                app.cs.good_to_bad[1]
-            } else {
+            let color = if d < Duration::minutes(1) {
                 app.cs.good_to_bad[0]
+            } else if d < Duration::minutes(5) {
+                app.cs.good_to_bad[1]
+            } else if d < Duration::minutes(15) {
+                app.cs.good_to_bad[2]
+            } else {
+                app.cs.good_to_bad[3]
             };
             colorer.add_r(r, color, &app.primary.map);
         }
         for (i, d) in per_intersection {
-            let color = if d > Duration::minutes(15) {
-                app.cs.good_to_bad[3]
-            } else if d > Duration::minutes(5) {
-                app.cs.good_to_bad[2]
-            } else if d > Duration::minutes(1) {
-                app.cs.good_to_bad[1]
-            } else {
+            let color = if d < Duration::minutes(1) {
                 app.cs.good_to_bad[0]
+            } else if d < Duration::minutes(5) {
+                app.cs.good_to_bad[1]
+            } else if d < Duration::minutes(15) {
+                app.cs.good_to_bad[2]
+            } else {
+                app.cs.good_to_bad[3]
             };
             colorer.add_i(i, color);
         }
@@ -495,6 +489,7 @@ impl Overlays {
         let early = Color::hex("#F4DA22");
         let earliest = Color::hex("#EB5757");
         let mut colorer = Colorer::discrete(
+            ctx,
             format!("{} traffic jams", jams.len()),
             Vec::new(),
             vec![
@@ -519,14 +514,11 @@ impl Overlays {
 
     fn cumulative_throughput(ctx: &mut EventCtx, app: &App) -> Overlays {
         let mut colorer = Colorer::scaled(
-            "Throughput",
+            ctx,
+            "Throughput (percentiles)",
             Vec::new(),
-            vec![
-                ("< 50%ile", app.cs.good_to_bad[0]),
-                ("< 90%", app.cs.good_to_bad[1]),
-                ("< 99%", app.cs.good_to_bad[2]),
-                (">= 99%", app.cs.good_to_bad[3]),
-            ],
+            app.cs.good_to_bad.to_vec(),
+            vec!["0", "50", "90", "99", "100"],
         );
 
         let stats = &app.primary.sim.get_analytics().thruput_stats;
@@ -579,6 +571,7 @@ impl Overlays {
     fn bike_network(ctx: &mut EventCtx, app: &App) -> Overlays {
         // TODO Number and total distance
         let mut colorer = Colorer::discrete(
+            ctx,
             "Bike network",
             Vec::new(),
             vec![("bike lanes", app.cs.unzoomed_bike)],
@@ -594,6 +587,7 @@ impl Overlays {
     fn bus_network(ctx: &mut EventCtx, app: &App) -> Overlays {
         // TODO Same color for both?
         let mut colorer = Colorer::discrete(
+            ctx,
             "Bus network",
             Vec::new(),
             vec![
@@ -622,14 +616,11 @@ impl Overlays {
         }
 
         let mut colorer = Colorer::scaled(
+            ctx,
             "Elevation change",
             vec![format!("Steepest road: {:.0}%", max * 100.0)],
-            vec![
-                (">= 15% (steep)", app.cs.good_to_bad[3]),
-                ("< 15%", app.cs.good_to_bad[2]),
-                ("< 5%", app.cs.good_to_bad[1]),
-                ("< 1% (flat)", app.cs.good_to_bad[0]),
-            ],
+            app.cs.good_to_bad.to_vec(),
+            vec!["flat", "1%", "5%", "15%", "steeper"],
         );
 
         let mut max = 0.0_f64;
@@ -787,6 +778,7 @@ impl Overlays {
         let edits = app.primary.map.get_edits();
 
         let mut colorer = Colorer::discrete(
+            ctx,
             format!("Map edits ({})", edits.edits_name),
             vec![
                 format!("{} lane types changed", edits.original_lts.len()),
@@ -866,18 +858,23 @@ impl Overlays {
         }
 
         let mut batch = GeomBatch::new();
-        let color_scale = if let Some(ref o) = opts.heatmap {
+        let colors_and_labels = if let Some(ref o) = opts.heatmap {
             pts.extend(repeat_pts);
-            make_heatmap(&mut batch, app.primary.map.get_bounds(), pts, o)
+            Some(make_heatmap(
+                &mut batch,
+                app.primary.map.get_bounds(),
+                pts,
+                o,
+            ))
         } else {
             // It's quite silly to produce triangles for the same circle over and over again. ;)
             let circle = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(10.0)).to_polygon();
             for pt in pts {
                 batch.push(Color::RED.alpha(0.8), circle.translate(pt.x(), pt.y()));
             }
-            Vec::new()
+            None
         };
-        let controls = population_controls(ctx, app, &opts, color_scale);
+        let controls = population_controls(ctx, app, &opts, colors_and_labels);
         Overlays::PopulationMap(app.primary.sim.time(), opts, ctx.upload(batch), controls)
     }
 }
@@ -907,7 +904,7 @@ fn population_controls(
     ctx: &mut EventCtx,
     app: &App,
     opts: &PopulationOptions,
-    max_per_color: Vec<(f64, Color)>,
+    colors_and_labels: Option<(Vec<Color>, Vec<String>)>,
 ) -> Composite {
     let (total_ppl, ppl_in_bldg, ppl_off_map) = app.primary.sim.num_ppl();
 
@@ -984,13 +981,8 @@ fn population_controls(
         ]));
 
         // Legend for the heatmap colors
-        col.push(ColorLegend::scale(
-            ctx,
-            max_per_color
-                .into_iter()
-                .map(|(max, c)| (c, max.to_string()))
-                .collect(),
-        ));
+        let (colors, labels) = colors_and_labels.unwrap();
+        col.push(ColorLegend::scale(ctx, colors, labels));
     }
 
     Composite::new(Widget::col(col).padding(5).bg(app.cs.panel_bg))
