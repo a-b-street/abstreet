@@ -247,8 +247,14 @@ impl Overlays {
     }
 
     pub fn change_overlays(ctx: &mut EventCtx, app: &App) -> Option<Transition> {
-        // TODO Icons again, after some work
-        let mut choices = vec![
+        let mut col = vec![Widget::row(vec![
+            Line("Layers").small_heading().draw(ctx),
+            Btn::plaintext("X")
+                .build(ctx, "close", hotkey(Key::Escape))
+                .align_right(),
+        ])];
+
+        col.extend(vec![
             Btn::text_fg("None").build_def(ctx, hotkey(Key::N)),
             Btn::text_fg("map edits").build_def(ctx, hotkey(Key::E)),
             Btn::text_fg("worst traffic jams").build_def(ctx, hotkey(Key::J)),
@@ -259,7 +265,7 @@ impl Overlays {
             Btn::text_fg("bike network").build_def(ctx, hotkey(Key::B)),
             Btn::text_fg("bus network").build_def(ctx, hotkey(Key::U)),
             Btn::text_fg("population map").build_def(ctx, hotkey(Key::X)),
-        ];
+        ]);
         if let Some(name) = match app.overlay {
             Overlays::Inactive => Some("None"),
             Overlays::ParkingAvailability(_, _) => Some("parking availability"),
@@ -273,9 +279,9 @@ impl Overlays {
             Overlays::PopulationMap(_, _, _, _) => Some("population map"),
             _ => None,
         } {
-            for btn in &mut choices {
+            for btn in &mut col {
                 if btn.is_btn(name) {
-                    *btn = Btn::text_fg(name).inactive(ctx).outline(2.0, Color::GREEN);
+                    *btn = Btn::text_bg2(name).inactive(ctx);
                     break;
                 }
             }
@@ -283,21 +289,12 @@ impl Overlays {
 
         let c = WrappedComposite::new(
             Composite::new(
-                Widget::col(vec![
-                    Widget::row(vec![
-                        "Heat Map Layers".draw_text(ctx),
-                        Btn::text_fg("X")
-                            .build(ctx, "close", hotkey(Key::Escape))
-                            .align_right(),
-                    ]),
-                    Widget::row(choices.into_iter().map(|x| x.margin(5)).collect())
-                        .flex_wrap(ctx, 30),
-                ])
-                .bg(app.cs.panel_bg)
-                .outline(10.0, Color::WHITE)
-                .padding(10),
+                Widget::col(col.into_iter().map(|w| w.margin_below(15)).collect())
+                    .bg(app.cs.panel_bg)
+                    .outline(2.0, Color::WHITE)
+                    .padding(10),
             )
-            .max_size_percent(35, 50)
+            .max_size_percent(35, 70)
             .build(ctx),
         )
         .cb("close", Box::new(|_, _| Some(Transition::Pop)))
@@ -385,26 +382,15 @@ impl Overlays {
 impl Overlays {
     fn parking_availability(ctx: &mut EventCtx, app: &App) -> Overlays {
         let (filled_spots, avail_spots) = app.primary.sim.get_all_parking_spots();
-        let mut txt = Text::from(Line("parking availability"));
-        txt.add(
-            Line(format!(
-                "{} spots filled",
-                prettyprint_usize(filled_spots.len())
-            ))
-            .small(),
-        );
-        txt.add(
-            Line(format!(
-                "{} spots available ",
-                prettyprint_usize(avail_spots.len())
-            ))
-            .small(),
-        );
 
         // TODO Some kind of Scale abstraction that maps intervals of some quantity (percent,
         // duration) to these 4 colors
         let mut colorer = Colorer::scaled(
-            txt,
+            "Parking availability",
+            vec![
+                format!("{} spots filled", prettyprint_usize(filled_spots.len())),
+                format!("{} spots available ", prettyprint_usize(avail_spots.len())),
+            ],
             vec![
                 ("< 10%", app.cs.good_to_bad[3]),
                 ("< 30%", app.cs.good_to_bad[2]),
@@ -462,7 +448,8 @@ impl Overlays {
     fn worst_delay(ctx: &mut EventCtx, app: &App) -> Overlays {
         // TODO explain more
         let mut colorer = Colorer::scaled(
-            Text::from(Line("delay")),
+            "Delay",
+            Vec::new(),
             vec![
                 ("> 15 minutes", app.cs.good_to_bad[3]),
                 ("> 5 minutes", app.cs.good_to_bad[2]),
@@ -508,7 +495,8 @@ impl Overlays {
         let early = Color::hex("#F4DA22");
         let earliest = Color::hex("#EB5757");
         let mut colorer = Colorer::discrete(
-            Text::from(Line(format!("{} traffic jams", jams.len()))),
+            format!("{} traffic jams", jams.len()),
+            Vec::new(),
             vec![
                 ("longest lasting", earliest),
                 ("recent problems", early),
@@ -531,7 +519,8 @@ impl Overlays {
 
     fn cumulative_throughput(ctx: &mut EventCtx, app: &App) -> Overlays {
         let mut colorer = Colorer::scaled(
-            Text::from(Line("Throughput")),
+            "Throughput",
+            Vec::new(),
             vec![
                 ("< 50%ile", app.cs.good_to_bad[0]),
                 ("< 90%", app.cs.good_to_bad[1]),
@@ -588,8 +577,10 @@ impl Overlays {
     }
 
     fn bike_network(ctx: &mut EventCtx, app: &App) -> Overlays {
+        // TODO Number and total distance
         let mut colorer = Colorer::discrete(
-            Text::from(Line("bike networks")),
+            "Bike network",
+            Vec::new(),
             vec![("bike lanes", app.cs.unzoomed_bike)],
         );
         for l in app.primary.map.all_lanes() {
@@ -603,7 +594,8 @@ impl Overlays {
     fn bus_network(ctx: &mut EventCtx, app: &App) -> Overlays {
         // TODO Same color for both?
         let mut colorer = Colorer::discrete(
-            Text::from(Line("bus networks")),
+            "Bus network",
+            Vec::new(),
             vec![
                 ("bus lanes", app.cs.bus_layer),
                 ("bus stops", app.cs.bus_layer),
@@ -628,11 +620,10 @@ impl Overlays {
             let pct = l.percent_grade(&app.primary.map).abs();
             max = max.max(pct);
         }
-        let mut txt = Text::from(Line("elevation change"));
-        txt.add(Line(format!("Steepest road: {:.0}%", max * 100.0)).small());
 
         let mut colorer = Colorer::scaled(
-            txt,
+            "Elevation change",
+            vec![format!("Steepest road: {:.0}%", max * 100.0)],
             vec![
                 (">= 15% (steep)", app.cs.good_to_bad[3]),
                 ("< 15%", app.cs.good_to_bad[2]),
@@ -795,19 +786,16 @@ impl Overlays {
     pub fn map_edits(ctx: &mut EventCtx, app: &App) -> Overlays {
         let edits = app.primary.map.get_edits();
 
-        let mut txt = Text::from(Line(format!("map edits ({})", edits.edits_name)));
-        txt.add(Line(format!("{} lane types changed", edits.original_lts.len())).small());
-        txt.add(Line(format!("{} lanes reversed", edits.reversed_lanes.len())).small());
-        txt.add(
-            Line(format!(
-                "{} intersections changed",
-                edits.original_intersections.len()
-            ))
-            .small(),
-        );
-
         let mut colorer = Colorer::discrete(
-            txt,
+            format!("Map edits ({})", edits.edits_name),
+            vec![
+                format!("{} lane types changed", edits.original_lts.len()),
+                format!("{} lanes reversed", edits.reversed_lanes.len()),
+                format!(
+                    "{} intersections changed",
+                    edits.original_intersections.len()
+                ),
+            ],
             vec![("modified lane/intersection", app.cs.edits_layer)],
         );
 
@@ -996,7 +984,7 @@ fn population_controls(
         ]));
 
         // Legend for the heatmap colors
-        col.extend(ColorLegend::scale(
+        col.push(ColorLegend::scale(
             ctx,
             max_per_color
                 .into_iter()

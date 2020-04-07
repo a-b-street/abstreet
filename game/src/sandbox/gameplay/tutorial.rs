@@ -1134,7 +1134,7 @@ impl TutorialState {
                         "- bus stops",
                         "- current parking",
                     ],
-                    arrow(minimap.composite.center_of("change overlay")),
+                    arrow(minimap.composite.center_of("change layers")),
                 )
                 .msg(
                     vec![

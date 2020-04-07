@@ -6,7 +6,7 @@ use crate::managed::{WrappedComposite, WrappedOutcome};
 use abstutil::{prettyprint_usize, Counter, MultiMap};
 use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Slider, Text, VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Outcome, Slider, VerticalAlignment, Widget,
 };
 use geom::{Distance, Line, PolyLine, Polygon};
 use map_model::{BuildingID, IntersectionID, Map};
@@ -87,7 +87,8 @@ impl ScenarioManager {
         }
 
         let mut bldg_colors = Colorer::scaled(
-            Text::from(Line("buildings")),
+            "Parked cars per building",
+            Vec::new(),
             vec![
                 ("1-2 cars needed", Color::BLUE),
                 ("3-4 cars needed", Color::RED),

@@ -116,7 +116,7 @@ impl Minimap {
                         &mut app.primary,
                     )));
                 }
-                x if x == "change overlay" => {
+                x if x == "change layers" => {
                     return Overlays::change_overlays(ctx, app);
                 }
                 _ => unreachable!(),
@@ -347,7 +347,7 @@ fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
         .bg(app.cs.inner_panel)
         .margin_below(16),
         Btn::svg_def("../data/system/assets/tools/layers.svg")
-            .build(ctx, "change overlay", hotkey(Key::L))
+            .build(ctx, "change layers", hotkey(Key::L))
             .bg(app.cs.inner_panel)
             .margin_below(16),
         Btn::svg_def("../data/system/assets/tools/search.svg")

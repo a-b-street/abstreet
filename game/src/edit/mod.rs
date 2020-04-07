@@ -16,8 +16,7 @@ use crate::sandbox::{GameplayMode, SandboxMode};
 use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, Outcome, RewriteColor, ScreenRectangle, Text, VerticalAlignment, Widget,
-    WrappedWizard,
+    Key, Line, Outcome, RewriteColor, ScreenRectangle, VerticalAlignment, Widget, WrappedWizard,
 };
 use geom::Polygon;
 use map_model::{
@@ -477,7 +476,7 @@ pub fn close_intersection(
     );
 
     let color = Color::RED;
-    let mut c = Colorer::discrete(Text::new(), vec![("disconnected", color)]);
+    let mut c = Colorer::discrete("", Vec::new(), vec![("disconnected", color)]);
     for l in disconnected {
         c.add_l(l, color, &app.primary.map);
     }

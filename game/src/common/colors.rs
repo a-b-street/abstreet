@@ -1,15 +1,16 @@
 use crate::app::App;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use ezgui::{
-    Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Outcome,
-    Text, TextExt, VerticalAlignment, Widget,
+    Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
+    Outcome, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Polygon, Pt2D};
 use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, Map, RoadID};
 use std::collections::HashMap;
 
 pub struct ColorerBuilder {
-    header: Text,
+    title: String,
+    extra_info: Vec<String>,
     prioritized_colors: Vec<(&'static str, Color)>,
     scale_legend: bool,
     lanes: HashMap<LaneID, Color>,
@@ -28,12 +29,14 @@ pub struct Colorer {
 impl Colorer {
     // Colors listed earlier override those listed later. This is used in unzoomed mode, when one
     // road has lanes of different colors.
-    pub fn discrete(
-        header: Text,
+    pub fn discrete<I: Into<String>>(
+        title: I,
+        extra_info: Vec<String>,
         prioritized_colors: Vec<(&'static str, Color)>,
     ) -> ColorerBuilder {
         ColorerBuilder {
-            header,
+            title: title.into(),
+            extra_info,
             prioritized_colors,
             scale_legend: false,
             lanes: HashMap::new(),
@@ -44,8 +47,12 @@ impl Colorer {
         }
     }
 
-    pub fn scaled(header: Text, prioritized_colors: Vec<(&'static str, Color)>) -> ColorerBuilder {
-        let mut c = Colorer::discrete(header, prioritized_colors);
+    pub fn scaled<I: Into<String>>(
+        title: I,
+        extra_info: Vec<String>,
+        prioritized_colors: Vec<(&'static str, Color)>,
+    ) -> ColorerBuilder {
+        let mut c = Colorer::discrete(title, extra_info, prioritized_colors);
         c.scale_legend = true;
         c
     }
@@ -151,11 +158,18 @@ impl ColorerBuilder {
         // Build the legend
         let mut col = vec![Widget::row(vec![
             Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg").margin_right(10),
-            self.header.draw(ctx).margin_right(5),
+            self.title.draw_text(ctx).centered_vert().margin_right(5),
             Btn::plaintext("X").build_def(ctx, None).align_right(),
         ])];
+        if !self.extra_info.is_empty() {
+            let mut txt = Text::new();
+            for line in self.extra_info {
+                txt.add(Line(line).small());
+            }
+            col.push(txt.draw(ctx));
+        }
         if self.scale_legend {
-            col.extend(ColorLegend::scale(
+            col.push(ColorLegend::scale(
                 ctx,
                 self.prioritized_colors
                     .into_iter()
@@ -213,7 +227,7 @@ impl ColorLegend {
         ])
     }
 
-    pub fn scale(ctx: &mut EventCtx, entries: Vec<(Color, String)>) -> Vec<Widget> {
+    pub fn scale(ctx: &mut EventCtx, entries: Vec<(Color, String)>) -> Widget {
         let mut batch = GeomBatch::new();
         let mut labels = Vec::new();
         for (color, lbl) in entries {
@@ -221,11 +235,12 @@ impl ColorLegend {
                 color,
                 Polygon::rectangle(64.0, 32.0).translate(64.0 * (labels.len() as f64), 0.0),
             );
-            labels.push(lbl.draw_text(ctx));
+            labels.push(Line(lbl).small().draw(ctx));
         }
-        vec![
+        // Extra wrapping to make the labels stretch against just the scale, not everything else
+        Widget::row(vec![Widget::col(vec![
             Widget::draw_batch(ctx, batch),
             Widget::row(labels).evenly_spaced(),
-        ]
+        ])])
     }
 }

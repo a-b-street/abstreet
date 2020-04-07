@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::common::Colorer;
 use crate::game::{State, Transition};
 use crate::managed::WrappedComposite;
-use ezgui::{Color, Composite, EventCtx, GfxCtx, Line, Outcome, Text};
+use ezgui::{Color, Composite, EventCtx, GfxCtx, Outcome};
 use map_model::{connectivity, LaneID, Map, PathConstraints};
 use std::collections::HashSet;
 
@@ -41,7 +41,8 @@ impl Floodfiller {
         let unreachable_color = Color::RED;
 
         let mut colorer = Colorer::discrete(
-            Text::from(Line("lane connectivity")),
+            "Lane connectivity",
+            Vec::new(),
             vec![
                 ("unreachable", unreachable_color),
                 ("reachable", reachable_color),
