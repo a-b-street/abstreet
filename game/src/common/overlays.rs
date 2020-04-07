@@ -1,7 +1,6 @@
 use crate::app::App;
-use crate::common::{
-    make_heatmap, ColorLegend, Colorer, HeatmapColors, HeatmapOptions, ShowBusRoute, Warping,
-};
+use crate::colors::HeatmapColors;
+use crate::common::{make_heatmap, ColorLegend, Colorer, HeatmapOptions, ShowBusRoute, Warping};
 use crate::game::Transition;
 use crate::helpers::ID;
 use crate::managed::{ManagedGUIState, WrappedComposite};
@@ -399,17 +398,15 @@ impl Overlays {
             .small(),
         );
 
-        let awful = Color::hex("#801F1C");
-        let bad = Color::hex("#EB5757");
-        let meh = Color::hex("#F2C94C");
-        let good = Color::hex("#7FFA4D");
+        // TODO Some kind of Scale abstraction that maps intervals of some quantity (percent,
+        // duration) to these 4 colors
         let mut colorer = Colorer::scaled(
             txt,
             vec![
-                ("< 10%", awful),
-                ("< 30%", bad),
-                ("< 60%", meh),
-                (">= 60%", good),
+                ("< 10%", app.cs.good_to_bad[3]),
+                ("< 30%", app.cs.good_to_bad[2]),
+                ("< 60%", app.cs.good_to_bad[1]),
+                (">= 60%", app.cs.good_to_bad[0]),
             ],
         );
 
@@ -445,13 +442,13 @@ impl Overlays {
             let closed = filled.get(l);
             let percent = (open as f64) / ((open + closed) as f64);
             let color = if percent >= 0.6 {
-                good
+                app.cs.good_to_bad[0]
             } else if percent > 0.3 {
-                meh
+                app.cs.good_to_bad[1]
             } else if percent > 0.1 {
-                bad
+                app.cs.good_to_bad[2]
             } else {
-                awful
+                app.cs.good_to_bad[3]
             };
             colorer.add_l(l, color, &app.primary.map);
         }
@@ -460,37 +457,39 @@ impl Overlays {
     }
 
     fn worst_delay(ctx: &mut EventCtx, app: &App) -> Overlays {
-        let slow = Color::hex("#EB5757");
-        let moderate = Color::hex("#F4DA22");
-        let fast = Color::hex("#7FFA4D");
         // TODO explain more
         let mut colorer = Colorer::scaled(
             Text::from(Line("delay")),
             vec![
-                ("> 5 minutes", slow),
-                ("1 - 5 minutes", moderate),
-                ("< 60s", fast),
+                ("> 15 minutes", app.cs.good_to_bad[3]),
+                ("> 5 minutes", app.cs.good_to_bad[2]),
+                ("1 - 5 minutes", app.cs.good_to_bad[1]),
+                ("< 60s", app.cs.good_to_bad[0]),
             ],
         );
 
         let (per_road, per_intersection) = app.primary.sim.worst_delay(&app.primary.map);
         for (r, d) in per_road {
-            let color = if d > Duration::minutes(5) {
-                slow
+            let color = if d > Duration::minutes(15) {
+                app.cs.good_to_bad[3]
+            } else if d > Duration::minutes(5) {
+                app.cs.good_to_bad[2]
             } else if d > Duration::minutes(1) {
-                moderate
+                app.cs.good_to_bad[1]
             } else {
-                fast
+                app.cs.good_to_bad[0]
             };
             colorer.add_r(r, color, &app.primary.map);
         }
         for (i, d) in per_intersection {
-            let color = if d > Duration::minutes(5) {
-                slow
+            let color = if d > Duration::minutes(15) {
+                app.cs.good_to_bad[3]
+            } else if d > Duration::minutes(5) {
+                app.cs.good_to_bad[2]
             } else if d > Duration::minutes(1) {
-                moderate
+                app.cs.good_to_bad[1]
             } else {
-                fast
+                app.cs.good_to_bad[0]
             };
             colorer.add_i(i, color);
         }
@@ -501,7 +500,7 @@ impl Overlays {
     pub fn traffic_jams(ctx: &mut EventCtx, app: &App) -> Overlays {
         let jams = app.primary.sim.delayed_intersections(Duration::minutes(5));
 
-        // TODO Silly colors
+        // TODO Silly colors. Weird way of presenting this information. Epicenter + radius?
         let others = Color::hex("#7FFA4D");
         let early = Color::hex("#F4DA22");
         let earliest = Color::hex("#EB5757");
@@ -528,15 +527,13 @@ impl Overlays {
     }
 
     fn cumulative_throughput(ctx: &mut EventCtx, app: &App) -> Overlays {
-        let light = Color::hex("#7FFA4D");
-        let medium = Color::hex("#F4DA22");
-        let heavy = Color::hex("#EB5757");
         let mut colorer = Colorer::scaled(
             Text::from(Line("Throughput")),
             vec![
-                ("< 50%ile", light),
-                ("< 90%ile", medium),
-                (">= 90%ile", heavy),
+                ("< 50%ile", app.cs.good_to_bad[0]),
+                ("< 90%", app.cs.good_to_bad[1]),
+                ("< 99%", app.cs.good_to_bad[2]),
+                (">= 99%", app.cs.good_to_bad[3]),
             ],
         );
 
@@ -550,13 +547,16 @@ impl Overlays {
             let roads = stats.count_per_road.sorted_asc();
             let p50_idx = ((roads.len() as f64) * 0.5) as usize;
             let p90_idx = ((roads.len() as f64) * 0.9) as usize;
+            let p99_idx = ((roads.len() as f64) * 0.99) as usize;
             for (idx, r) in roads.into_iter().enumerate() {
                 let color = if idx < p50_idx {
-                    light
+                    app.cs.good_to_bad[0]
                 } else if idx < p90_idx {
-                    medium
+                    app.cs.good_to_bad[1]
+                } else if idx < p99_idx {
+                    app.cs.good_to_bad[2]
                 } else {
-                    heavy
+                    app.cs.good_to_bad[3]
                 };
                 colorer.add_r(*r, color, &app.primary.map);
             }
@@ -566,13 +566,16 @@ impl Overlays {
             let intersections = stats.count_per_intersection.sorted_asc();
             let p50_idx = ((intersections.len() as f64) * 0.5) as usize;
             let p90_idx = ((intersections.len() as f64) * 0.9) as usize;
+            let p99_idx = ((intersections.len() as f64) * 0.99) as usize;
             for (idx, i) in intersections.into_iter().enumerate() {
                 let color = if idx < p50_idx {
-                    light
+                    app.cs.good_to_bad[0]
                 } else if idx < p90_idx {
-                    medium
+                    app.cs.good_to_bad[1]
+                } else if idx < p99_idx {
+                    app.cs.good_to_bad[2]
                 } else {
-                    heavy
+                    app.cs.good_to_bad[3]
                 };
                 colorer.add_i(*i, color);
             }
@@ -582,33 +585,34 @@ impl Overlays {
     }
 
     fn bike_network(ctx: &mut EventCtx, app: &App) -> Overlays {
-        let color = Color::hex("#7FFA4D");
         let mut colorer = Colorer::discrete(
             Text::from(Line("bike networks")),
-            vec![("bike lanes", color)],
+            vec![("bike lanes", app.cs.unzoomed_bike)],
         );
         for l in app.primary.map.all_lanes() {
             if l.is_biking() {
-                colorer.add_l(l.id, color, &app.primary.map);
+                colorer.add_l(l.id, app.cs.unzoomed_bike, &app.primary.map);
             }
         }
         Overlays::BikeNetwork(colorer.build_unzoomed(ctx, app))
     }
 
     fn bus_network(ctx: &mut EventCtx, app: &App) -> Overlays {
-        let lane = Color::hex("#4CA7E9");
-        let stop = Color::hex("#4CA7E9");
+        // TODO Same color for both?
         let mut colorer = Colorer::discrete(
             Text::from(Line("bus networks")),
-            vec![("bus lanes", lane), ("bus stops", stop)],
+            vec![
+                ("bus lanes", app.cs.bus_layer),
+                ("bus stops", app.cs.bus_layer),
+            ],
         );
         for l in app.primary.map.all_lanes() {
             if l.is_bus() {
-                colorer.add_l(l.id, lane, &app.primary.map);
+                colorer.add_l(l.id, app.cs.bus_layer, &app.primary.map);
             }
         }
         for bs in app.primary.map.all_bus_stops().keys() {
-            colorer.add_bs(*bs, stop);
+            colorer.add_bs(*bs, app.cs.bus_layer);
         }
 
         Overlays::BusNetwork(colorer.build_unzoomed(ctx, app))
@@ -624,17 +628,13 @@ impl Overlays {
         let mut txt = Text::from(Line("elevation change"));
         txt.add(Line(format!("Steepest road: {:.0}%", max * 100.0)).small());
 
-        let awful = Color::hex("#801F1C");
-        let bad = Color::hex("#EB5757");
-        let meh = Color::hex("#F2C94C");
-        let good = Color::hex("#7FFA4D");
         let mut colorer = Colorer::scaled(
             txt,
             vec![
-                (">= 15% (steep)", awful),
-                ("< 15%", bad),
-                ("< 5%", meh),
-                ("< 1% (flat)", good),
+                (">= 15% (steep)", app.cs.good_to_bad[3]),
+                ("< 15%", app.cs.good_to_bad[2]),
+                ("< 5%", app.cs.good_to_bad[1]),
+                ("< 1% (flat)", app.cs.good_to_bad[0]),
             ],
         );
 
@@ -644,13 +644,13 @@ impl Overlays {
             max = max.max(pct);
 
             let color = if pct < 0.01 {
-                good
+                app.cs.good_to_bad[0]
             } else if pct < 0.05 {
-                meh
+                app.cs.good_to_bad[1]
             } else if pct < 0.15 {
-                bad
+                app.cs.good_to_bad[2]
             } else {
-                awful
+                app.cs.good_to_bad[3]
             };
             colorer.add_l(l.id, color, &app.primary.map);
         }
@@ -803,14 +803,16 @@ impl Overlays {
             .small(),
         );
 
-        let changed = Color::CYAN;
-        let mut colorer = Colorer::discrete(txt, vec![("modified lane/intersection", changed)]);
+        let mut colorer = Colorer::discrete(
+            txt,
+            vec![("modified lane/intersection", app.cs.edits_layer)],
+        );
 
         for l in edits.original_lts.keys().chain(&edits.reversed_lanes) {
-            colorer.add_l(*l, changed, &app.primary.map);
+            colorer.add_l(*l, app.cs.edits_layer, &app.primary.map);
         }
         for i in edits.original_intersections.keys() {
-            colorer.add_i(*i, changed);
+            colorer.add_i(*i, app.cs.edits_layer);
         }
 
         Overlays::Edits(colorer.build_both(ctx, app))

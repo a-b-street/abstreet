@@ -1,4 +1,5 @@
-use ezgui::{Choice, Color, GeomBatch};
+use crate::colors::HeatmapColors;
+use ezgui::{Color, GeomBatch};
 use geom::{Bounds, Histogram, Polygon, Pt2D};
 
 #[derive(Clone, PartialEq)]
@@ -16,21 +17,6 @@ impl HeatmapOptions {
             radius: 3,
             colors: HeatmapColors::FullSpectral,
         }
-    }
-}
-
-#[derive(Clone, Copy, PartialEq)]
-pub enum HeatmapColors {
-    FullSpectral,
-    SingleHue,
-}
-
-impl HeatmapColors {
-    pub fn choices() -> Vec<Choice<HeatmapColors>> {
-        vec![
-            Choice::new("full spectral", HeatmapColors::FullSpectral),
-            Choice::new("single hue", HeatmapColors::SingleHue),
-        ]
     }
 }
 
@@ -79,27 +65,7 @@ pub fn make_heatmap(
         distrib.add(*count as usize);
     }
 
-    // This is in order from low density to high.
-    let colors = match opts.colors {
-        HeatmapColors::FullSpectral => vec![
-            Color::hex("#0b2c7a"),
-            Color::hex("#1e9094"),
-            Color::hex("#0ec441"),
-            Color::hex("#7bed00"),
-            Color::hex("#f7d707"),
-            Color::hex("#e68e1c"),
-            Color::hex("#c2523c"),
-        ],
-        HeatmapColors::SingleHue => vec![
-            Color::hex("#FFEBD6"),
-            Color::hex("#F5CBAE"),
-            Color::hex("#EBA988"),
-            Color::hex("#E08465"),
-            Color::hex("#D65D45"),
-            Color::hex("#CC3527"),
-            Color::hex("#C40A0A"),
-        ],
-    };
+    let colors = opts.colors.colors();
     let num_colors = colors.len();
     let max_count_per_bucket: Vec<(f64, Color)> = (1..=num_colors)
         .map(|i| {

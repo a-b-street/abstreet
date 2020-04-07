@@ -10,7 +10,7 @@ mod warp;
 
 pub use self::bus_explorer::ShowBusRoute;
 pub use self::colors::{ColorLegend, Colorer};
-pub use self::heatmap::{make_heatmap, HeatmapColors, HeatmapOptions};
+pub use self::heatmap::{make_heatmap, HeatmapOptions};
 pub use self::minimap::Minimap;
 pub use self::overlays::Overlays;
 pub use self::panels::tool_panel;

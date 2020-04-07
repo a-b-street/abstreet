@@ -109,6 +109,11 @@ pub struct ColorScheme {
     pub ped_crowd: Color,
     pub bike_frame: Color,
 
+    // Layers
+    pub good_to_bad: [Color; 4],
+    pub bus_layer: Color,
+    pub edits_layer: Color,
+
     // Misc
     pub associated_object: Color,
     pub parking_trip: Color,
@@ -207,6 +212,16 @@ impl ColorScheme {
             ped_preparing_bike_body: Color::rgb(255, 0, 144),
             ped_crowd: Color::rgb_f(0.2, 0.7, 0.7),
             bike_frame: Color::rgb(0, 128, 128),
+
+            // Layers
+            good_to_bad: [
+                hex("#7FFA4D"),
+                hex("#F2C94C"),
+                hex("#EB5757"),
+                hex("#96322F"),
+            ],
+            bus_layer: hex("#4CA7E9"),
+            edits_layer: hex("#12409D"),
 
             // Misc
             associated_object: Color::PURPLE,
@@ -326,5 +341,45 @@ impl ColorScheme {
         cs.bike_lane = hex("#72CE36");
         cs.bus_lane = hex("#AD302D");
         cs
+    }
+}
+
+// For now, this won't live in ColorScheme, since the scales are independently chooseable.
+#[derive(Clone, Copy, PartialEq)]
+pub enum HeatmapColors {
+    FullSpectral,
+    SingleHue,
+}
+
+impl HeatmapColors {
+    pub fn choices() -> Vec<Choice<HeatmapColors>> {
+        vec![
+            Choice::new("full spectral", HeatmapColors::FullSpectral),
+            Choice::new("single hue", HeatmapColors::SingleHue),
+        ]
+    }
+
+    // This is in order from low density to high.
+    pub fn colors(self) -> Vec<Color> {
+        match self {
+            HeatmapColors::FullSpectral => vec![
+                hex("#0b2c7a"),
+                hex("#1e9094"),
+                hex("#0ec441"),
+                hex("#7bed00"),
+                hex("#f7d707"),
+                hex("#e68e1c"),
+                hex("#c2523c"),
+            ],
+            HeatmapColors::SingleHue => vec![
+                hex("#FFEBD6"),
+                hex("#F5CBAE"),
+                hex("#EBA988"),
+                hex("#E08465"),
+                hex("#D65D45"),
+                hex("#CC3527"),
+                hex("#C40A0A"),
+            ],
+        }
     }
 }
