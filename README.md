@@ -8,8 +8,8 @@ a city affect the movement of drivers, cyclists, transit users, and pedestrians.
   [Windows](https://github.com/dabreegster/abstreet/releases/download/v0.1.35/abstreet_windows_v0_1_35.zip),
   [Mac](https://github.com/dabreegster/abstreet/releases/download/v0.1.35/abstreet_mac_v0_1_35.zip),
   [Linux](https://github.com/dabreegster/abstreet/releases/download/v0.1.35/abstreet_linux_v0_1_35.zip),
-  or [read all instructions](docs/INSTRUCTIONS.md)
-- [build from source](docs/dev.md)
+  or [read all instructions](docs/INSTRUCTIONS.md) (new releases every Sunday)
+- [build from source](docs/dev.md) (new changes daily)
 
 Removing dedicated left-turn phases from a traffic signal:
 
@@ -64,18 +64,13 @@ Watching the Mercer backup start at 4am:
   - Attempt a predefined challenge with particular objectives, like speeding up
     certain bus routes or designing a full bike network.
 
-### Roadmap
+### Roadmap and contributing
 
-In February 2020, user-testing and polishing before a wider announcement. After
-that:
-
-- Model more things: light rail, shared bike/walking paths, ridesharing, utility
-  functions for different groups
-- Improve map and demand data quality
-- Continue polishing the UI and improving data visualization
-- More challenges and exploring radical new ideas (like Madrid superblocks)
-- Expand to other cities
-- Implement a web version
+See the [roadmap](docs/roadmap.md) for current work, including ways to help. If
+you want to bring this to your city or if you're skilled in design, traffic
+simulation, data visualization, or civic/government outreach, please contact
+Dustin Carlino at <dabreegster@gmail.com> or post at
+[r/abstreet](https://www.reddit.com/r/abstreet/).
 
 ## Project mission
 
@@ -122,12 +117,3 @@ Street strives to set the accessibility bar high, by being a fun, engaging game.
 - Sounding boards
   - [CUGOS](https://cugos.org/)
   - [Julian Michael](http://julianmichael.org/)
-
-## Contributing
-
-Help always needed! If you want to bring this to your city or if you're skilled
-in graphic or user experience, traffic simulation, data visualization, or
-civic/government outreach, please contact Dustin Carlino at
-<dabreegster@gmail.com> or post at
-[r/abstreet](https://www.reddit.com/r/abstreet/). I also welcome any
-contributions on [Patreon](https://www.patreon.com/abstreet).
