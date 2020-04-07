@@ -71,6 +71,7 @@ Improve existing models:
 We've got a UX designer, but implementing all of the new designs takes time.
 Also:
 
+- minimap camera controls are notoriously hard to get right
 - refactor and clean up the GUI library for other Rust users
 - lots of data viz design / implementation needed
 

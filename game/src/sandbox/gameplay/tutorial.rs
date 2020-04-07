@@ -1287,7 +1287,7 @@ pub fn actions(app: &App, id: ID) -> Vec<(Key, String)> {
             vec![(Key::I, "inspect the intersection".to_string())]
         }
         (Task::LowParking, ID::Lane(_)) => {
-            vec![(Key::C, "check the parking availability".to_string())]
+            vec![(Key::C, "check the parking occupancy".to_string())]
         }
         (Task::Escort, ID::Car(_)) => vec![(Key::C, "draw WASH ME".to_string())],
         _ => Vec::new(),
@@ -1416,7 +1416,7 @@ pub fn execute(_: &mut EventCtx, _: &mut App, id: ID, action: String) -> Transit
                     )
                 }
             }
-            (ID::Lane(l), "check the parking availability") => {
+            (ID::Lane(l), "check the parking occupancy") => {
                 let lane = app.primary.map.get_l(l);
                 if lane.is_parking() {
                     let percent = (app.primary.sim.get_free_spots(l).len() as f64)
@@ -1426,8 +1426,7 @@ pub fn execute(_: &mut EventCtx, _: &mut App, id: ID, action: String) -> Transit
                             "Not quite",
                             vec![
                                 format!("This lane has {:.0}% spots free", percent * 100.0),
-                                "Try using the 'parking availability' layer from the minimap \
-                                 controls"
+                                "Try using the 'parking occupancy' layer from the minimap controls"
                                     .to_string(),
                             ],
                         )

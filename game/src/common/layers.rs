@@ -20,7 +20,7 @@ use std::collections::HashSet;
 
 pub enum Layers {
     Inactive,
-    ParkingAvailability(Time, Colorer),
+    ParkingOccupancy(Time, Colorer),
     WorstDelay(Time, Colorer),
     TrafficJams(Time, Colorer),
     CumulativeThroughput(Time, Colorer),
@@ -49,9 +49,9 @@ impl Layers {
     pub fn update(ctx: &mut EventCtx, app: &mut App, minimap: &Composite) -> Option<Transition> {
         let now = app.primary.sim.time();
         match app.layer {
-            Layers::ParkingAvailability(t, _) => {
+            Layers::ParkingOccupancy(t, _) => {
                 if now != t {
-                    app.layer = Layers::parking_availability(ctx, app);
+                    app.layer = Layers::parking_occupancy(ctx, app);
                 }
             }
             Layers::WorstDelay(t, _) => {
@@ -98,7 +98,7 @@ impl Layers {
         };
 
         match app.layer {
-            Layers::ParkingAvailability(_, ref mut c)
+            Layers::ParkingOccupancy(_, ref mut c)
             | Layers::BikeNetwork(ref mut c)
             | Layers::BusNetwork(ref mut c)
             | Layers::Elevation(ref mut c, _)
@@ -183,7 +183,7 @@ impl Layers {
     pub fn draw(&self, g: &mut GfxCtx) {
         match self {
             Layers::Inactive => {}
-            Layers::ParkingAvailability(_, ref c)
+            Layers::ParkingOccupancy(_, ref c)
             | Layers::BikeNetwork(ref c)
             | Layers::BusNetwork(ref c)
             | Layers::WorstDelay(_, ref c)
@@ -222,7 +222,7 @@ impl Layers {
     pub fn draw_minimap(&self, g: &mut GfxCtx) {
         match self {
             Layers::Inactive => {}
-            Layers::ParkingAvailability(_, ref c)
+            Layers::ParkingOccupancy(_, ref c)
             | Layers::BikeNetwork(ref c)
             | Layers::BusNetwork(ref c)
             | Layers::WorstDelay(_, ref c)
@@ -259,7 +259,7 @@ impl Layers {
             Btn::text_fg("map edits").build_def(ctx, hotkey(Key::E)),
             Btn::text_fg("worst traffic jams").build_def(ctx, hotkey(Key::J)),
             Btn::text_fg("elevation").build_def(ctx, hotkey(Key::S)),
-            Btn::text_fg("parking availability").build_def(ctx, hotkey(Key::P)),
+            Btn::text_fg("parking occupancy").build_def(ctx, hotkey(Key::P)),
             Btn::text_fg("delay").build_def(ctx, hotkey(Key::D)),
             Btn::text_fg("throughput").build_def(ctx, hotkey(Key::T)),
             Btn::text_fg("bike network").build_def(ctx, hotkey(Key::B)),
@@ -268,7 +268,7 @@ impl Layers {
         ]);
         if let Some(name) = match app.layer {
             Layers::Inactive => Some("None"),
-            Layers::ParkingAvailability(_, _) => Some("parking availability"),
+            Layers::ParkingOccupancy(_, _) => Some("parking occupancy"),
             Layers::WorstDelay(_, _) => Some("delay"),
             Layers::TrafficJams(_, _) => Some("worst traffic jams"),
             Layers::CumulativeThroughput(_, _) => Some("throughput"),
@@ -306,59 +306,59 @@ impl Layers {
             }),
         )
         .maybe_cb(
-            "parking availability",
+            "parking occupancy",
             Box::new(|ctx, app| {
-                app.layer = Layers::parking_availability(ctx, app);
-                Some(maybe_unzoom(ctx, app))
+                app.layer = Layers::parking_occupancy(ctx, app);
+                Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "delay",
             Box::new(|ctx, app| {
                 app.layer = Layers::worst_delay(ctx, app);
-                Some(maybe_unzoom(ctx, app))
+                Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "worst traffic jams",
             Box::new(|ctx, app| {
                 app.layer = Layers::traffic_jams(ctx, app);
-                Some(maybe_unzoom(ctx, app))
+                Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "throughput",
             Box::new(|ctx, app| {
                 app.layer = Layers::cumulative_throughput(ctx, app);
-                Some(maybe_unzoom(ctx, app))
+                Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "bike network",
             Box::new(|ctx, app| {
                 app.layer = Layers::bike_network(ctx, app);
-                Some(maybe_unzoom(ctx, app))
+                Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "bus network",
             Box::new(|ctx, app| {
                 app.layer = Layers::bus_network(ctx, app);
-                Some(maybe_unzoom(ctx, app))
+                Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "elevation",
             Box::new(|ctx, app| {
                 app.layer = Layers::elevation(ctx, app);
-                Some(maybe_unzoom(ctx, app))
+                Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "map edits",
             Box::new(|ctx, app| {
                 app.layer = Layers::map_edits(ctx, app);
-                Some(maybe_unzoom(ctx, app))
+                Some(Transition::Pop)
             }),
         )
         .maybe_cb(
@@ -372,7 +372,7 @@ impl Layers {
                         heatmap: Some(HeatmapOptions::new()),
                     },
                 );
-                Some(maybe_unzoom(ctx, app))
+                Some(Transition::Pop)
             }),
         );
         Some(Transition::Push(ManagedGUIState::over_map(c)))
@@ -380,14 +380,14 @@ impl Layers {
 }
 
 impl Layers {
-    fn parking_availability(ctx: &mut EventCtx, app: &App) -> Layers {
+    fn parking_occupancy(ctx: &mut EventCtx, app: &App) -> Layers {
         let (filled_spots, avail_spots) = app.primary.sim.get_all_parking_spots();
 
         // TODO Some kind of Scale abstraction that maps intervals of some quantity (percent,
         // duration) to these 4 colors
         let mut colorer = Colorer::scaled(
             ctx,
-            "Parking spots taken per road",
+            "Parking occupancy (per road)",
             vec![
                 format!("{} spots filled", prettyprint_usize(filled_spots.len())),
                 format!("{} spots available ", prettyprint_usize(avail_spots.len())),
@@ -439,7 +439,7 @@ impl Layers {
             colorer.add_l(l, color, &app.primary.map);
         }
 
-        Layers::ParkingAvailability(app.primary.sim.time(), colorer.build_unzoomed(ctx, app))
+        Layers::ParkingOccupancy(app.primary.sim.time(), colorer.build_unzoomed(ctx, app))
     }
 
     fn worst_delay(ctx: &mut EventCtx, app: &App) -> Layers {
@@ -877,19 +877,6 @@ impl Layers {
         let controls = population_controls(ctx, app, &opts, colors_and_labels);
         Layers::PopulationMap(app.primary.sim.time(), opts, ctx.upload(batch), controls)
     }
-}
-
-fn maybe_unzoom(ctx: &EventCtx, app: &mut App) -> Transition {
-    if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
-        return Transition::Pop;
-    }
-    Transition::Replace(Warping::new(
-        ctx,
-        ctx.canvas.center_to_map_pt(),
-        Some(0.99 * MIN_ZOOM_FOR_DETAIL),
-        None,
-        &mut app.primary,
-    ))
 }
 
 #[derive(Clone, PartialEq)]
