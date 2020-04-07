@@ -115,6 +115,8 @@ impl ColorerBuilder {
         let mut unzoomed = GeomBatch::new();
         let map = &app.primary.map;
 
+        unzoomed.push(app.cs.fade_map_dark, map.get_boundary_polygon().clone());
+
         for (l, color) in self.lanes {
             zoomed.push(
                 color.alpha(0.4),

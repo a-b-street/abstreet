@@ -15,6 +15,9 @@ use map_model::{BusRouteID, IntersectionID};
 use sim::{GetDrawAgents, ParkingSpot, PersonState};
 use std::collections::HashSet;
 
+// TODO Good ideas in
+// https://towardsdatascience.com/top-10-map-types-in-data-visualization-b3a80898ea70
+
 pub enum Overlays {
     Inactive,
     ParkingAvailability(Time, Colorer),
