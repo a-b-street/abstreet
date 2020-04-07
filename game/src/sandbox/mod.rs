@@ -5,7 +5,7 @@ mod speed;
 
 use self::misc_tools::{RoutePreview, ShowTrafficSignal, TurnExplorer};
 use crate::app::App;
-use crate::common::{tool_panel, CommonState, ContextualActions, Minimap, Overlays};
+use crate::common::{tool_panel, CommonState, ContextualActions, Layers, Minimap};
 use crate::debug::DebugMode;
 use crate::edit::{
     apply_map_edits, can_edit_lane, save_edits_as, EditMode, LaneEditor, StopSignEditor,
@@ -135,7 +135,7 @@ impl State for SandboxMode {
             if let Some(t) = m.event(app, ctx) {
                 return t;
             }
-            if let Some(t) = Overlays::update(ctx, app, &m.composite) {
+            if let Some(t) = Layers::update(ctx, app, &m.composite) {
                 return t;
             }
         }
@@ -199,7 +199,7 @@ impl State for SandboxMode {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        app.overlay.draw(g);
+        app.layer.draw(g);
 
         if let Some(ref c) = self.controls.common {
             c.draw(g, app);
@@ -235,7 +235,7 @@ impl State for SandboxMode {
     }
 
     fn on_destroy(&mut self, _: &mut EventCtx, app: &mut App) {
-        app.overlay = Overlays::Inactive;
+        app.layer = Layers::Inactive;
         app.agent_cs = AgentColorScheme::new(&app.cs);
     }
 }
@@ -417,7 +417,7 @@ impl AgentMeter {
                     )));
                 }
                 "compare trips to baseline" => {
-                    app.overlay = Overlays::trips_histogram(ctx, app);
+                    app.layer = Layers::trips_histogram(ctx, app);
                 }
                 _ => unreachable!(),
             },
@@ -464,8 +464,8 @@ impl ContextualActions for Actions {
                 ID::Car(c) => {
                     if c.1 == VehicleType::Bus {
                         let route = app.primary.sim.bus_route_id(c).unwrap();
-                        match app.overlay {
-                            Overlays::BusRoute(_, r, _) if r == route => {}
+                        match app.layer {
+                            Layers::BusRoute(_, r, _) if r == route => {}
                             _ => {
                                 actions.push((Key::R, "show route".to_string()));
                             }
@@ -491,7 +491,7 @@ impl ContextualActions for Actions {
                 Transition::Push(ShowTrafficSignal::new(ctx, app, i))
             }
             (ID::Intersection(i), "show current demand") => {
-                app.overlay = Overlays::intersection_demand(i, ctx, app);
+                app.layer = Layers::intersection_demand(i, ctx, app);
                 Transition::Keep
             }
             (ID::Intersection(i), "edit traffic signal") => {
@@ -519,8 +519,8 @@ impl ContextualActions for Actions {
             ),
             (ID::Car(c), "show route") => {
                 *close_panel = false;
-                app.overlay =
-                    Overlays::show_bus_route(app.primary.sim.bus_route_id(c).unwrap(), ctx, app);
+                app.layer =
+                    Layers::show_bus_route(app.primary.sim.bus_route_id(c).unwrap(), ctx, app);
                 Transition::Keep
             }
             (_, "follow") => {

@@ -1,5 +1,5 @@
 use crate::colors::ColorScheme;
-use crate::common::Overlays;
+use crate::common::Layers;
 use crate::helpers::ID;
 use crate::options::Options;
 use crate::render::{
@@ -27,7 +27,7 @@ pub struct App {
     pub opts: Options,
 
     pub per_obj: PerObjectActions,
-    pub overlay: Overlays,
+    pub layer: Layers,
 
     // Static data that lasts the entire session. Use sparingly.
     pub session: SessionState,
@@ -76,7 +76,7 @@ impl App {
             cs,
             opts,
             per_obj: PerObjectActions::new(),
-            overlay: Overlays::Inactive,
+            layer: Layers::Inactive,
             session: SessionState::empty(),
         }
     }

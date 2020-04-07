@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::common::{navigate, shortcuts, Overlays, Warping};
+use crate::common::{navigate, shortcuts, Layers, Warping};
 use crate::game::Transition;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use abstutil::clamp;
@@ -15,7 +15,7 @@ pub struct Minimap {
     pub(crate) composite: Composite,
     // Update panel when other things change
     zoomed: bool,
-    overlay: bool,
+    layer: bool,
 
     // [0, 3], with 0 meaning the most unzoomed
     zoom_lvl: usize,
@@ -35,7 +35,7 @@ impl Minimap {
             dragging: false,
             composite: make_minimap_panel(ctx, app, 0),
             zoomed: ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL,
-            overlay: app.overlay.is_empty(),
+            layer: app.layer.is_empty(),
 
             zoom_lvl: 0,
             base_zoom,
@@ -54,10 +54,10 @@ impl Minimap {
 
     pub fn event(&mut self, app: &mut App, ctx: &mut EventCtx) -> Option<Transition> {
         let zoomed = ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL;
-        let overlay = app.overlay.is_empty();
-        if zoomed != self.zoomed || overlay != self.overlay {
+        let layer = app.layer.is_empty();
+        if zoomed != self.zoomed || layer != self.layer {
             self.zoomed = zoomed;
-            self.overlay = overlay;
+            self.layer = layer;
             self.composite = make_minimap_panel(ctx, app, self.zoom_lvl);
         }
 
@@ -117,7 +117,7 @@ impl Minimap {
                     )));
                 }
                 x if x == "change layers" => {
-                    return Overlays::change_overlays(ctx, app);
+                    return Layers::change_layers(ctx, app);
                 }
                 _ => unreachable!(),
             },
@@ -196,7 +196,7 @@ impl Minimap {
         g.redraw(&app.primary.draw_map.draw_all_unzoomed_intersections);
         g.redraw(&app.primary.draw_map.draw_all_buildings);
         // Not the building paths
-        app.overlay.draw_minimap(g);
+        app.layer.draw_minimap(g);
 
         let mut cache = app.primary.draw_map.agents.borrow_mut();
         cache.draw_unzoomed_agents(

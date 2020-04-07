@@ -18,7 +18,7 @@ use std::collections::HashSet;
 // TODO Good ideas in
 // https://towardsdatascience.com/top-10-map-types-in-data-visualization-b3a80898ea70
 
-pub enum Overlays {
+pub enum Layers {
     Inactive,
     ParkingAvailability(Time, Colorer),
     WorstDelay(Time, Colorer),
@@ -37,87 +37,87 @@ pub enum Overlays {
     BusRoute(Time, BusRouteID, ShowBusRoute),
 }
 
-impl Overlays {
+impl Layers {
     pub fn is_empty(&self) -> bool {
         match self {
-            Overlays::Inactive => true,
+            Layers::Inactive => true,
             _ => false,
         }
     }
 
-    // Since Overlays is embedded in UI, we have to do this slight trick
+    // Since Layers is embedded in UI, we have to do this slight trick
     pub fn update(ctx: &mut EventCtx, app: &mut App, minimap: &Composite) -> Option<Transition> {
         let now = app.primary.sim.time();
-        match app.overlay {
-            Overlays::ParkingAvailability(t, _) => {
+        match app.layer {
+            Layers::ParkingAvailability(t, _) => {
                 if now != t {
-                    app.overlay = Overlays::parking_availability(ctx, app);
+                    app.layer = Layers::parking_availability(ctx, app);
                 }
             }
-            Overlays::WorstDelay(t, _) => {
+            Layers::WorstDelay(t, _) => {
                 if now != t {
-                    app.overlay = Overlays::worst_delay(ctx, app);
+                    app.layer = Layers::worst_delay(ctx, app);
                 }
             }
-            Overlays::TrafficJams(t, _) => {
+            Layers::TrafficJams(t, _) => {
                 if now != t {
-                    app.overlay = Overlays::traffic_jams(ctx, app);
+                    app.layer = Layers::traffic_jams(ctx, app);
                 }
             }
-            Overlays::CumulativeThroughput(t, _) => {
+            Layers::CumulativeThroughput(t, _) => {
                 if now != t {
-                    app.overlay = Overlays::cumulative_throughput(ctx, app);
+                    app.layer = Layers::cumulative_throughput(ctx, app);
                 }
             }
-            Overlays::IntersectionDemand(t, i, _, _) => {
+            Layers::IntersectionDemand(t, i, _, _) => {
                 if now != t {
-                    app.overlay = Overlays::intersection_demand(i, ctx, app);
+                    app.layer = Layers::intersection_demand(i, ctx, app);
                 }
             }
-            Overlays::TripsHistogram(t, _) => {
+            Layers::TripsHistogram(t, _) => {
                 if now != t {
-                    app.overlay = Overlays::trips_histogram(ctx, app);
+                    app.layer = Layers::trips_histogram(ctx, app);
                 }
             }
-            Overlays::BusRoute(t, id, _) => {
+            Layers::BusRoute(t, id, _) => {
                 if now != t {
-                    app.overlay = Overlays::show_bus_route(id, ctx, app);
+                    app.layer = Layers::show_bus_route(id, ctx, app);
                 }
             }
-            Overlays::PopulationMap(t, ref opts, _, _) => {
+            Layers::PopulationMap(t, ref opts, _, _) => {
                 if now != t {
-                    app.overlay = Overlays::population_map(ctx, app, opts.clone());
+                    app.layer = Layers::population_map(ctx, app, opts.clone());
                 }
             }
             // No updates needed
-            Overlays::Inactive
-            | Overlays::BikeNetwork(_)
-            | Overlays::BusNetwork(_)
-            | Overlays::Elevation(_, _)
-            | Overlays::Edits(_) => {}
+            Layers::Inactive
+            | Layers::BikeNetwork(_)
+            | Layers::BusNetwork(_)
+            | Layers::Elevation(_, _)
+            | Layers::Edits(_) => {}
         };
 
-        match app.overlay {
-            Overlays::ParkingAvailability(_, ref mut c)
-            | Overlays::BikeNetwork(ref mut c)
-            | Overlays::BusNetwork(ref mut c)
-            | Overlays::Elevation(ref mut c, _)
-            | Overlays::WorstDelay(_, ref mut c)
-            | Overlays::TrafficJams(_, ref mut c)
-            | Overlays::CumulativeThroughput(_, ref mut c)
-            | Overlays::Edits(ref mut c) => {
+        match app.layer {
+            Layers::ParkingAvailability(_, ref mut c)
+            | Layers::BikeNetwork(ref mut c)
+            | Layers::BusNetwork(ref mut c)
+            | Layers::Elevation(ref mut c, _)
+            | Layers::WorstDelay(_, ref mut c)
+            | Layers::TrafficJams(_, ref mut c)
+            | Layers::CumulativeThroughput(_, ref mut c)
+            | Layers::Edits(ref mut c) => {
                 c.legend.align_above(ctx, minimap);
                 if c.event(ctx) {
-                    app.overlay = Overlays::Inactive;
+                    app.layer = Layers::Inactive;
                 }
             }
-            Overlays::BusRoute(_, _, ref mut c) => {
+            Layers::BusRoute(_, _, ref mut c) => {
                 c.colorer.legend.align_above(ctx, minimap);
                 if c.colorer.event(ctx) {
-                    app.overlay = Overlays::Inactive;
+                    app.layer = Layers::Inactive;
                 }
             }
-            Overlays::IntersectionDemand(_, i, _, ref mut c) => {
+            Layers::IntersectionDemand(_, i, _, ref mut c) => {
                 c.align_above(ctx, minimap);
                 match c.event(ctx) {
                     Some(Outcome::Clicked(x)) => match x.as_ref() {
@@ -132,87 +132,87 @@ impl Overlays {
                             )));
                         }
                         "X" => {
-                            app.overlay = Overlays::Inactive;
+                            app.layer = Layers::Inactive;
                         }
                         _ => unreachable!(),
                     },
                     None => {}
                 }
             }
-            Overlays::TripsHistogram(_, ref mut c) => {
+            Layers::TripsHistogram(_, ref mut c) => {
                 c.align_above(ctx, minimap);
                 match c.event(ctx) {
                     Some(Outcome::Clicked(x)) => match x.as_ref() {
                         "X" => {
-                            app.overlay = Overlays::Inactive;
+                            app.layer = Layers::Inactive;
                         }
                         _ => unreachable!(),
                     },
                     None => {}
                 }
             }
-            Overlays::PopulationMap(_, ref mut opts, _, ref mut c) => {
+            Layers::PopulationMap(_, ref mut opts, _, ref mut c) => {
                 c.align_above(ctx, minimap);
                 match c.event(ctx) {
                     Some(Outcome::Clicked(x)) => match x.as_ref() {
                         "close" => {
-                            app.overlay = Overlays::Inactive;
+                            app.layer = Layers::Inactive;
                         }
                         _ => unreachable!(),
                     },
                     None => {
                         let new_opts = population_options(c);
                         if *opts != new_opts {
-                            app.overlay = Overlays::population_map(ctx, app, new_opts);
+                            app.layer = Layers::population_map(ctx, app, new_opts);
                             // Immediately fix the alignment. TODO Do this for all of them, in a
                             // more uniform way
-                            if let Overlays::PopulationMap(_, _, _, ref mut c) = app.overlay {
+                            if let Layers::PopulationMap(_, _, _, ref mut c) = app.layer {
                                 c.align_above(ctx, minimap);
                             }
                         }
                     }
                 }
             }
-            Overlays::Inactive => {}
+            Layers::Inactive => {}
         }
 
         None
     }
 
-    // Draw both controls and, if zoomed, the overlay contents
+    // Draw both controls and, if zoomed, the layer contents
     pub fn draw(&self, g: &mut GfxCtx) {
         match self {
-            Overlays::Inactive => {}
-            Overlays::ParkingAvailability(_, ref c)
-            | Overlays::BikeNetwork(ref c)
-            | Overlays::BusNetwork(ref c)
-            | Overlays::WorstDelay(_, ref c)
-            | Overlays::TrafficJams(_, ref c)
-            | Overlays::CumulativeThroughput(_, ref c)
-            | Overlays::Edits(ref c) => {
+            Layers::Inactive => {}
+            Layers::ParkingAvailability(_, ref c)
+            | Layers::BikeNetwork(ref c)
+            | Layers::BusNetwork(ref c)
+            | Layers::WorstDelay(_, ref c)
+            | Layers::TrafficJams(_, ref c)
+            | Layers::CumulativeThroughput(_, ref c)
+            | Layers::Edits(ref c) => {
                 c.draw(g);
             }
-            Overlays::Elevation(ref c, ref draw) => {
+            Layers::Elevation(ref c, ref draw) => {
                 c.draw(g);
                 if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
                     g.redraw(draw);
                 }
             }
-            Overlays::PopulationMap(_, _, ref draw, ref composite) => {
+            Layers::PopulationMap(_, _, ref draw, ref composite) => {
                 composite.draw(g);
                 if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
                     g.redraw(draw);
                 }
             }
             // All of these shouldn't care about zoom
-            Overlays::TripsHistogram(_, ref composite) => {
+            Layers::TripsHistogram(_, ref composite) => {
                 composite.draw(g);
             }
-            Overlays::IntersectionDemand(_, _, ref draw, ref legend) => {
+            Layers::IntersectionDemand(_, _, ref draw, ref legend) => {
                 g.redraw(draw);
                 legend.draw(g);
             }
-            Overlays::BusRoute(_, _, ref s) => {
+            Layers::BusRoute(_, _, ref s) => {
                 s.draw(g);
             }
         }
@@ -221,32 +221,32 @@ impl Overlays {
     // Just draw contents and do it always
     pub fn draw_minimap(&self, g: &mut GfxCtx) {
         match self {
-            Overlays::Inactive => {}
-            Overlays::ParkingAvailability(_, ref c)
-            | Overlays::BikeNetwork(ref c)
-            | Overlays::BusNetwork(ref c)
-            | Overlays::WorstDelay(_, ref c)
-            | Overlays::TrafficJams(_, ref c)
-            | Overlays::CumulativeThroughput(_, ref c)
-            | Overlays::Edits(ref c) => {
+            Layers::Inactive => {}
+            Layers::ParkingAvailability(_, ref c)
+            | Layers::BikeNetwork(ref c)
+            | Layers::BusNetwork(ref c)
+            | Layers::WorstDelay(_, ref c)
+            | Layers::TrafficJams(_, ref c)
+            | Layers::CumulativeThroughput(_, ref c)
+            | Layers::Edits(ref c) => {
                 g.redraw(&c.unzoomed);
             }
-            Overlays::Elevation(ref c, ref draw) => {
+            Layers::Elevation(ref c, ref draw) => {
                 g.redraw(&c.unzoomed);
                 g.redraw(draw);
             }
-            Overlays::PopulationMap(_, _, ref draw, _) => {
+            Layers::PopulationMap(_, _, ref draw, _) => {
                 g.redraw(draw);
             }
-            Overlays::TripsHistogram(_, _) => {}
-            Overlays::IntersectionDemand(_, _, _, _) => {}
-            Overlays::BusRoute(_, _, ref s) => {
+            Layers::TripsHistogram(_, _) => {}
+            Layers::IntersectionDemand(_, _, _, _) => {}
+            Layers::BusRoute(_, _, ref s) => {
                 s.draw(g);
             }
         }
     }
 
-    pub fn change_overlays(ctx: &mut EventCtx, app: &App) -> Option<Transition> {
+    pub fn change_layers(ctx: &mut EventCtx, app: &App) -> Option<Transition> {
         let mut col = vec![Widget::row(vec![
             Line("Layers").small_heading().draw(ctx),
             Btn::plaintext("X")
@@ -266,17 +266,17 @@ impl Overlays {
             Btn::text_fg("bus network").build_def(ctx, hotkey(Key::U)),
             Btn::text_fg("population map").build_def(ctx, hotkey(Key::X)),
         ]);
-        if let Some(name) = match app.overlay {
-            Overlays::Inactive => Some("None"),
-            Overlays::ParkingAvailability(_, _) => Some("parking availability"),
-            Overlays::WorstDelay(_, _) => Some("delay"),
-            Overlays::TrafficJams(_, _) => Some("worst traffic jams"),
-            Overlays::CumulativeThroughput(_, _) => Some("throughput"),
-            Overlays::BikeNetwork(_) => Some("bike network"),
-            Overlays::BusNetwork(_) => Some("bus network"),
-            Overlays::Elevation(_, _) => Some("elevation"),
-            Overlays::Edits(_) => Some("map edits"),
-            Overlays::PopulationMap(_, _, _, _) => Some("population map"),
+        if let Some(name) = match app.layer {
+            Layers::Inactive => Some("None"),
+            Layers::ParkingAvailability(_, _) => Some("parking availability"),
+            Layers::WorstDelay(_, _) => Some("delay"),
+            Layers::TrafficJams(_, _) => Some("worst traffic jams"),
+            Layers::CumulativeThroughput(_, _) => Some("throughput"),
+            Layers::BikeNetwork(_) => Some("bike network"),
+            Layers::BusNetwork(_) => Some("bus network"),
+            Layers::Elevation(_, _) => Some("elevation"),
+            Layers::Edits(_) => Some("map edits"),
+            Layers::PopulationMap(_, _, _, _) => Some("population map"),
             _ => None,
         } {
             for btn in &mut col {
@@ -301,70 +301,70 @@ impl Overlays {
         .maybe_cb(
             "None",
             Box::new(|_, app| {
-                app.overlay = Overlays::Inactive;
+                app.layer = Layers::Inactive;
                 Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "parking availability",
             Box::new(|ctx, app| {
-                app.overlay = Overlays::parking_availability(ctx, app);
+                app.layer = Layers::parking_availability(ctx, app);
                 Some(maybe_unzoom(ctx, app))
             }),
         )
         .maybe_cb(
             "delay",
             Box::new(|ctx, app| {
-                app.overlay = Overlays::worst_delay(ctx, app);
+                app.layer = Layers::worst_delay(ctx, app);
                 Some(maybe_unzoom(ctx, app))
             }),
         )
         .maybe_cb(
             "worst traffic jams",
             Box::new(|ctx, app| {
-                app.overlay = Overlays::traffic_jams(ctx, app);
+                app.layer = Layers::traffic_jams(ctx, app);
                 Some(maybe_unzoom(ctx, app))
             }),
         )
         .maybe_cb(
             "throughput",
             Box::new(|ctx, app| {
-                app.overlay = Overlays::cumulative_throughput(ctx, app);
+                app.layer = Layers::cumulative_throughput(ctx, app);
                 Some(maybe_unzoom(ctx, app))
             }),
         )
         .maybe_cb(
             "bike network",
             Box::new(|ctx, app| {
-                app.overlay = Overlays::bike_network(ctx, app);
+                app.layer = Layers::bike_network(ctx, app);
                 Some(maybe_unzoom(ctx, app))
             }),
         )
         .maybe_cb(
             "bus network",
             Box::new(|ctx, app| {
-                app.overlay = Overlays::bus_network(ctx, app);
+                app.layer = Layers::bus_network(ctx, app);
                 Some(maybe_unzoom(ctx, app))
             }),
         )
         .maybe_cb(
             "elevation",
             Box::new(|ctx, app| {
-                app.overlay = Overlays::elevation(ctx, app);
+                app.layer = Layers::elevation(ctx, app);
                 Some(maybe_unzoom(ctx, app))
             }),
         )
         .maybe_cb(
             "map edits",
             Box::new(|ctx, app| {
-                app.overlay = Overlays::map_edits(ctx, app);
+                app.layer = Layers::map_edits(ctx, app);
                 Some(maybe_unzoom(ctx, app))
             }),
         )
         .maybe_cb(
             "population map",
             Box::new(|ctx, app| {
-                app.overlay = Overlays::population_map(
+                app.layer = Layers::population_map(
                     ctx,
                     app,
                     PopulationOptions {
@@ -379,8 +379,8 @@ impl Overlays {
     }
 }
 
-impl Overlays {
-    fn parking_availability(ctx: &mut EventCtx, app: &App) -> Overlays {
+impl Layers {
+    fn parking_availability(ctx: &mut EventCtx, app: &App) -> Layers {
         let (filled_spots, avail_spots) = app.primary.sim.get_all_parking_spots();
 
         // TODO Some kind of Scale abstraction that maps intervals of some quantity (percent,
@@ -439,10 +439,10 @@ impl Overlays {
             colorer.add_l(l, color, &app.primary.map);
         }
 
-        Overlays::ParkingAvailability(app.primary.sim.time(), colorer.build_unzoomed(ctx, app))
+        Layers::ParkingAvailability(app.primary.sim.time(), colorer.build_unzoomed(ctx, app))
     }
 
-    fn worst_delay(ctx: &mut EventCtx, app: &App) -> Overlays {
+    fn worst_delay(ctx: &mut EventCtx, app: &App) -> Layers {
         // TODO explain more
         let mut colorer = Colorer::scaled(
             ctx,
@@ -478,10 +478,10 @@ impl Overlays {
             colorer.add_i(i, color);
         }
 
-        Overlays::WorstDelay(app.primary.sim.time(), colorer.build_unzoomed(ctx, app))
+        Layers::WorstDelay(app.primary.sim.time(), colorer.build_unzoomed(ctx, app))
     }
 
-    pub fn traffic_jams(ctx: &mut EventCtx, app: &App) -> Overlays {
+    pub fn traffic_jams(ctx: &mut EventCtx, app: &App) -> Layers {
         let jams = app.primary.sim.delayed_intersections(Duration::minutes(5));
 
         // TODO Silly colors. Weird way of presenting this information. Epicenter + radius?
@@ -509,10 +509,10 @@ impl Overlays {
             }
         }
 
-        Overlays::TrafficJams(app.primary.sim.time(), colorer.build_unzoomed(ctx, app))
+        Layers::TrafficJams(app.primary.sim.time(), colorer.build_unzoomed(ctx, app))
     }
 
-    fn cumulative_throughput(ctx: &mut EventCtx, app: &App) -> Overlays {
+    fn cumulative_throughput(ctx: &mut EventCtx, app: &App) -> Layers {
         let mut colorer = Colorer::scaled(
             ctx,
             "Throughput (percentiles)",
@@ -565,10 +565,10 @@ impl Overlays {
             }
         }
 
-        Overlays::CumulativeThroughput(app.primary.sim.time(), colorer.build_unzoomed(ctx, app))
+        Layers::CumulativeThroughput(app.primary.sim.time(), colorer.build_unzoomed(ctx, app))
     }
 
-    fn bike_network(ctx: &mut EventCtx, app: &App) -> Overlays {
+    fn bike_network(ctx: &mut EventCtx, app: &App) -> Layers {
         // TODO Number and total distance
         let mut colorer = Colorer::discrete(
             ctx,
@@ -581,10 +581,10 @@ impl Overlays {
                 colorer.add_l(l.id, app.cs.unzoomed_bike, &app.primary.map);
             }
         }
-        Overlays::BikeNetwork(colorer.build_unzoomed(ctx, app))
+        Layers::BikeNetwork(colorer.build_unzoomed(ctx, app))
     }
 
-    fn bus_network(ctx: &mut EventCtx, app: &App) -> Overlays {
+    fn bus_network(ctx: &mut EventCtx, app: &App) -> Layers {
         // TODO Same color for both?
         let mut colorer = Colorer::discrete(
             ctx,
@@ -604,10 +604,10 @@ impl Overlays {
             colorer.add_bs(*bs, app.cs.bus_layer);
         }
 
-        Overlays::BusNetwork(colorer.build_unzoomed(ctx, app))
+        Layers::BusNetwork(colorer.build_unzoomed(ctx, app))
     }
 
-    fn elevation(ctx: &mut EventCtx, app: &App) -> Overlays {
+    fn elevation(ctx: &mut EventCtx, app: &App) -> Layers {
         // TODO Two passes because we have to construct the text first :(
         let mut max = 0.0_f64;
         for l in app.primary.map.all_lanes() {
@@ -678,16 +678,16 @@ impl Overlays {
             }
         }
 
-        Overlays::Elevation(colorer.build_unzoomed(ctx, app), batch.upload(ctx))
+        Layers::Elevation(colorer.build_unzoomed(ctx, app), batch.upload(ctx))
     }
 
-    pub fn trips_histogram(ctx: &mut EventCtx, app: &App) -> Overlays {
+    pub fn trips_histogram(ctx: &mut EventCtx, app: &App) -> Layers {
         if app.has_prebaked().is_none() {
-            return Overlays::Inactive;
+            return Layers::Inactive;
         }
 
         let now = app.primary.sim.time();
-        Overlays::TripsHistogram(
+        Layers::TripsHistogram(
             now,
             Composite::new(
                 Widget::col(vec![
@@ -720,7 +720,7 @@ impl Overlays {
         )
     }
 
-    pub fn intersection_demand(i: IntersectionID, ctx: &mut EventCtx, app: &App) -> Overlays {
+    pub fn intersection_demand(i: IntersectionID, ctx: &mut EventCtx, app: &App) -> Layers {
         let mut batch = GeomBatch::new();
 
         let mut total_demand = 0;
@@ -760,7 +760,7 @@ impl Overlays {
             ColorLegend::row(ctx, Color::RED, "current demand"),
         ];
 
-        Overlays::IntersectionDemand(
+        Layers::IntersectionDemand(
             app.primary.sim.time(),
             i,
             batch.upload(ctx),
@@ -770,11 +770,11 @@ impl Overlays {
         )
     }
 
-    pub fn show_bus_route(id: BusRouteID, ctx: &mut EventCtx, app: &App) -> Overlays {
-        Overlays::BusRoute(app.primary.sim.time(), id, ShowBusRoute::new(id, ctx, app))
+    pub fn show_bus_route(id: BusRouteID, ctx: &mut EventCtx, app: &App) -> Layers {
+        Layers::BusRoute(app.primary.sim.time(), id, ShowBusRoute::new(id, ctx, app))
     }
 
-    pub fn map_edits(ctx: &mut EventCtx, app: &App) -> Overlays {
+    pub fn map_edits(ctx: &mut EventCtx, app: &App) -> Layers {
         let edits = app.primary.map.get_edits();
 
         let mut colorer = Colorer::discrete(
@@ -798,12 +798,12 @@ impl Overlays {
             colorer.add_i(*i, app.cs.edits_layer);
         }
 
-        Overlays::Edits(colorer.build_both(ctx, app))
+        Layers::Edits(colorer.build_both(ctx, app))
     }
 
     // TODO Disable drawing unzoomed agents... or alternatively, implement this by asking Sim to
     // return this kind of data instead!
-    fn population_map(ctx: &mut EventCtx, app: &App, opts: PopulationOptions) -> Overlays {
+    fn population_map(ctx: &mut EventCtx, app: &App, opts: PopulationOptions) -> Layers {
         // Only display infected people if this is enabled.
         let maybe_pandemic = if opts.pandemic {
             app.primary.sim.get_pandemic_model()
@@ -875,7 +875,7 @@ impl Overlays {
             None
         };
         let controls = population_controls(ctx, app, &opts, colors_and_labels);
-        Overlays::PopulationMap(app.primary.sim.time(), opts, ctx.upload(batch), controls)
+        Layers::PopulationMap(app.primary.sim.time(), opts, ctx.upload(batch), controls)
     }
 }
 

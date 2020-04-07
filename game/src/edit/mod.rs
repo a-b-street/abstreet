@@ -6,7 +6,7 @@ pub use self::lanes::LaneEditor;
 pub use self::stop_signs::StopSignEditor;
 pub use self::traffic_signals::TrafficSignalEditor;
 use crate::app::{App, ShowEverything};
-use crate::common::{tool_panel, Colorer, CommonState, Overlays, Warping};
+use crate::common::{tool_panel, Colorer, CommonState, Layers, Warping};
 use crate::debug::DebugMode;
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
@@ -55,7 +55,7 @@ impl EditMode {
 
     fn quit(&self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.loading_screen("apply edits", |ctx, mut timer| {
-            app.overlay = Overlays::Inactive;
+            app.layer = Layers::Inactive;
             app.primary
                 .map
                 .recalculate_pathfinding_after_edits(&mut timer);
@@ -72,11 +72,11 @@ impl EditMode {
 
 impl State for EditMode {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        // Can't do this in the constructor, because SandboxMode's on_destroy clears out Overlays
+        // Can't do this in the constructor, because SandboxMode's on_destroy clears out Layers
         if self.once {
             self.once = false;
             // apply_map_edits will do the job later
-            app.overlay = Overlays::map_edits(ctx, app);
+            app.layer = Layers::map_edits(ctx, app);
         }
         {
             let edits = app.primary.map.get_edits();
@@ -231,7 +231,7 @@ impl State for EditMode {
         // TODO Maybe this should be part of app.draw
         // TODO This has an X button, but we never call update and allow it to be changed. Should
         // just omit the button.
-        app.overlay.draw(g);
+        app.layer.draw(g);
 
         self.tool_panel.draw(g);
         self.composite.draw(g);
@@ -428,8 +428,8 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
         );
     }
 
-    if let Overlays::Edits(_) = app.overlay {
-        app.overlay = Overlays::map_edits(ctx, app);
+    if let Layers::Edits(_) = app.layer {
+        app.layer = Layers::map_edits(ctx, app);
     }
 }
 
