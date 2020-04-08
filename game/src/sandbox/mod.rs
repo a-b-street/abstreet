@@ -31,7 +31,7 @@ pub use speed::{SpeedControls, TimePanel};
 
 pub struct SandboxMode {
     gameplay: Box<dyn gameplay::GameplayState>,
-    gameplay_mode: GameplayMode,
+    pub gameplay_mode: GameplayMode,
 
     pub controls: SandboxControls,
 }

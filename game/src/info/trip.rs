@@ -89,12 +89,12 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
                     if props.total_waiting != Duration::ZERO {
                         Line(format!(
                             "{}%",
-                            (100.0 * (props.waiting_here / props.total_waiting)) as usize
+                            (100.0 * (props.total_waiting / total_trip_time)) as usize
                         ))
                     } else {
                         Line("0%")
                     },
-                    Line(format!(" of {} time", activity)).secondary(),
+                    Line(format!(" total of {} time spent waiting", activity)).secondary(),
                 ])
                 .draw(ctx),
             ]),
@@ -102,9 +102,9 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
 
         Some(props.dist_crossed / props.total_dist)
     } else {
+        // The trip is finished
         let col_width = 15;
 
-        // The trip is finished
         col.push(Widget::row(vec![
             Widget::row(vec![Line("Trip time").secondary().draw(ctx)]).force_width(ctx, col_width),
             total_trip_time.to_string().draw_text(ctx),
@@ -115,6 +115,20 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
                 .force_width(ctx, col_width),
             waiting.to_string().draw_text(ctx),
         ]));
+
+        col.push(
+            Btn::text_bg2("Watch trip")
+                .tooltip(Text::from(Line(format!(
+                    "This will reset the simulation to {}",
+                    start_time.ampm_tostring()
+                ))))
+                .build(ctx, format!("watch {}", trip), None)
+                .margin(5),
+        );
+        details
+            .time_warpers
+            .insert(format!("watch {}", trip), (trip, start_time));
+
         None
     };
 
