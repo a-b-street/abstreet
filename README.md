@@ -98,12 +98,12 @@ Street strives to set the accessibility bar high, by being a fun, engaging game.
 
 Core team:
 
-- [Dustin Carlino](dabreegster@gmail.com)
+- Dustin Carlino (<dabreegster@gmail.com>)
 - [Yuwen Li](https://www.yuwen-li.com/) (UX)
 
 Active contributors:
 
-- [Orestis Malaspinas](orestis.malaspinas@hesge.ch) (pandemic modeling)
+- Orestis Malaspinas (<orestis.malaspinas@hesge.ch>) (pandemic modeling)
 - Christopher Klein (game design)
 
 Others:
@@ -113,8 +113,8 @@ Others:
   [Daniel Huffman](https://somethingaboutmaps.wordpress.com/),
   [Brian Prince](http://thebaprince.com/)
 - Lightning-fast pathfinding thanks to
-  [fast_paths](https://github.com/easbar/fast_paths) by
-  [Andreas Barth](easbar.mail@posteo.net>)
+  [fast_paths](https://github.com/easbar/fast_paths) by Andreas Barth
+  (<easbar.mail@posteo.net>)
 - Hackathon drop-ins from [Democracy Lab](https://www.democracylab.org/) events
 - [CUGOS](https://cugos.org/) and [Julian Michael](http://julianmichael.org/)
   have been great sounding boards for ideas since the beginning
