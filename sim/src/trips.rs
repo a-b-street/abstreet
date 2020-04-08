@@ -5,7 +5,7 @@ use crate::{
     TripID, TripPhaseType, Vehicle, VehicleType, WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap, Counter};
-use geom::{Speed, Time};
+use geom::{Duration, Speed, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, PathRequest, Position,
 };
@@ -615,6 +615,10 @@ impl TripManager {
     pub fn trip_info(&self, id: TripID) -> (Time, TripEndpoint, TripEndpoint, TripMode) {
         let t = &self.trips[id.0];
         (t.spawned_at, t.start.clone(), t.end.clone(), t.mode)
+    }
+    pub fn finished_trip_time(&self, id: TripID) -> Duration {
+        let t = &self.trips[id.0];
+        t.finished_at.unwrap() - t.spawned_at
     }
 
     pub fn count_trips(&self, endpt: TripEndpoint, now: Time) -> TripCount {

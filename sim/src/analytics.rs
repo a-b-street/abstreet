@@ -218,6 +218,17 @@ impl Analytics {
         (all, num_aborted, per_mode)
     }
 
+    // Ignores the current time.
+    pub fn finished_trip_time(&self, trip: TripID) -> Option<Duration> {
+        // TODO This is so inefficient!
+        for (_, id, _, dt) in &self.finished_trips {
+            if *id == trip {
+                return Some(*dt);
+            }
+        }
+        None
+    }
+
     // Returns unsorted list of deltas, one for each trip finished or ongoing in both worlds.
     // Positive dt means faster.
     pub fn trip_time_deltas(&self, now: Time, baseline: &Analytics) -> Vec<Duration> {

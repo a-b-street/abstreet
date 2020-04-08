@@ -1,7 +1,10 @@
 use crate::app::App;
 use crate::info::{building, header_btns, make_table, make_tabs, trip, Details, Tab};
 use crate::render::Renderable;
-use ezgui::{hotkey, Btn, Color, EventCtx, Key, Line, RewriteColor, Text, TextExt, Widget};
+use ezgui::{
+    hotkey, Btn, Color, EventCtx, Key, Line, RewriteColor, Text, TextExt, TextSpan, Widget,
+};
+use geom::Duration;
 use map_model::Map;
 use maplit::btreeset;
 use sim::{
@@ -92,6 +95,7 @@ pub fn trips(
                     Line(trip_mode.ongoing_verb()).secondary(),
                 ])
                 .draw(ctx),
+                // TODO Vertical alignment is weird
                 if trip_status == "ongoing" {
                     // TODO Padding doesn't work without wrapping in a row
                     Widget::row(vec![Line(trip_status)
@@ -102,11 +106,22 @@ pub fn trips(
                     .outline(1.0, Color::hex("#7FFA4D"))
                     .bg(Color::rgba(127, 250, 77, 0.2))
                     .padding(5)
+                } else if trip_status == "finished" {
+                    if let Some(orig) = app
+                        .has_prebaked()
+                        .and_then(|_| app.prebaked().finished_trip_time(*t))
+                    {
+                        let experiment = app.primary.sim.finished_trip_time(*t);
+                        let mut txt = Text::from(Line("finished ").small());
+                        txt.append_all(cmp_duration_shorter(experiment, orig));
+                        txt.draw(ctx)
+                    } else {
+                        Line("finished").small().draw(ctx)
+                    }
                 } else {
                     Line(trip_status).small().draw(ctx)
                 }
-                .margin_horiz(15)
-                .margin_vert(5),
+                .margin_horiz(15),
                 Btn::plaintext(if open_trips.contains(t) { "▲" } else { "▼" })
                     .build(
                         ctx,
@@ -351,4 +366,29 @@ fn current_status(ctx: &EventCtx, person: &Person, map: &Map) -> Widget {
             .draw_text(ctx),
     })
     .margin_vert(16)
+}
+
+// TODO Dedupe with the version in helpers
+fn cmp_duration_shorter(experiment: Duration, baseline: Duration) -> Vec<TextSpan> {
+    if experiment.epsilon_eq(baseline) {
+        vec![Line("(no change)").small()]
+    } else if experiment < baseline {
+        vec![
+            Line("(").small(),
+            Line(format!("{} faster", baseline - experiment))
+                .small()
+                .fg(Color::GREEN),
+            Line(")").small(),
+        ]
+    } else if experiment > baseline {
+        vec![
+            Line("(").small(),
+            Line(format!("{} slower", experiment - baseline))
+                .small()
+                .fg(Color::RED),
+            Line(")").small(),
+        ]
+    } else {
+        unreachable!()
+    }
 }

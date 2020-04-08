@@ -966,6 +966,9 @@ impl Sim {
     pub fn trip_info(&self, id: TripID) -> (Time, TripEndpoint, TripEndpoint, TripMode) {
         self.trips.trip_info(id)
     }
+    pub fn finished_trip_time(&self, id: TripID) -> Duration {
+        self.trips.finished_trip_time(id)
+    }
 
     pub fn trip_to_person(&self, id: TripID) -> PersonID {
         self.trips.trip_to_person(id)
