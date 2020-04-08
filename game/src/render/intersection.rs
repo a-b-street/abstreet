@@ -5,7 +5,7 @@ use crate::render::{
     draw_signal_phase, DrawOptions, Renderable, CROSSWALK_LINE_THICKNESS, OUTLINE_THICKNESS,
 };
 use abstutil::Timer;
-use ezgui::{Drawable, FancyColor, GeomBatch, GfxCtx, Line, Prerender, Text};
+use ezgui::{Drawable, FancyColor, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, Text};
 use geom::{Angle, Distance, Line, PolyLine, Polygon, Pt2D, Time, EPSILON_DIST};
 use map_model::raw::DrivingSide;
 use map_model::{
@@ -150,6 +150,7 @@ impl Renderable for DrawIntersection {
                     app.primary.map.get_i(self.id).polygon.center(),
                     0.1,
                     Angle::ZERO,
+                    RewriteColor::NoOp,
                 );
                 *maybe_redraw = Some((app.primary.sim.time(), g.prerender.upload(batch)));
             }

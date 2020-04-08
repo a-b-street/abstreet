@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
+use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, Text};
 use geom::{Angle, Circle, Distance, PolyLine, Polygon};
 use map_model::{Map, SIDEWALK_THICKNESS};
 use sim::{DrawPedCrowdInput, DrawPedestrianInput, PedCrowdLocation, PedestrianID};
@@ -228,6 +228,7 @@ impl DrawPedCrowd {
             blob.center(),
             0.02,
             Angle::ZERO,
+            RewriteColor::NoOp,
         );
 
         DrawPedCrowd {

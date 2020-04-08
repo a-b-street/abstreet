@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
+use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, Text};
 use geom::{Angle, Distance, Line, Polygon, Pt2D};
 use map_model::{Building, BuildingID, Map, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
 
@@ -51,6 +51,7 @@ impl DrawBuilding {
                 bldg.label_center,
                 0.1,
                 Angle::ZERO,
+                RewriteColor::NoOp,
             );
         }
 
@@ -63,6 +64,7 @@ impl DrawBuilding {
                     bldg.label_center,
                     0.1,
                     Angle::ZERO,
+                    RewriteColor::NoOp,
                 );
                 prerender.upload(lbl)
             })

@@ -3,7 +3,7 @@ use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{dashed_lines, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use abstutil::Timer;
-use ezgui::{Drawable, FancyColor, GeomBatch, GfxCtx, Prerender};
+use ezgui::{Drawable, FancyColor, GeomBatch, GfxCtx, Prerender, RewriteColor};
 use geom::{Angle, Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{Lane, LaneID, LaneType, Map, Road, TurnType, PARKING_SPOT_LENGTH};
 
@@ -17,7 +17,7 @@ pub struct AlmostDrawLane {
 }
 
 impl AlmostDrawLane {
-    pub fn finish(mut self, prerender: &Prerender, lane: &Lane) -> DrawLane {
+    pub fn finish(mut self, prerender: &Prerender, _: &ColorScheme, lane: &Lane) -> DrawLane {
         // Need prerender to load the (cached) SVGs
         if lane.is_bus() {
             let buffer = Distance::meters(2.0);
@@ -35,6 +35,7 @@ impl AlmostDrawLane {
                     angle
                         .shortest_rotation_towards(Angle::new_degs(-90.0))
                         .invert_y(),
+                    RewriteColor::NoOp,
                 );
                 dist += btwn;
             }
@@ -54,6 +55,7 @@ impl AlmostDrawLane {
                     angle
                         .shortest_rotation_towards(Angle::new_degs(-90.0))
                         .invert_y(),
+                    RewriteColor::NoOp,
                 );
                 dist += btwn;
             }

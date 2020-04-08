@@ -113,24 +113,7 @@ impl GeomBatch {
     pub fn rewrite_color(&mut self, transformation: RewriteColor) {
         for (fancy, _) in self.list.iter_mut() {
             if let FancyColor::RGBA(ref mut c) = fancy {
-                match transformation {
-                    RewriteColor::NoOp => {}
-                    RewriteColor::Change(from, to) => {
-                        if *c == from {
-                            *c = to;
-                        }
-                    }
-                    RewriteColor::ChangeMore(ref list) => {
-                        for (from, to) in list {
-                            if c == from {
-                                *c = *to;
-                            }
-                        }
-                    }
-                    RewriteColor::ChangeAll(to) => {
-                        *c = to;
-                    }
-                }
+                *c = transformation.apply(*c);
             }
         }
     }
@@ -144,23 +127,37 @@ impl GeomBatch {
         center: Pt2D,
         scale: f64,
         rotate: Angle,
+        rewrite: RewriteColor,
     ) {
-        self.add_transformed(svg::load_svg(prerender, filename).0, center, scale, rotate);
+        self.add_transformed(
+            svg::load_svg(prerender, filename).0,
+            center,
+            scale,
+            rotate,
+            rewrite,
+        );
     }
 
     /// Adds geometry from another batch to the current batch, first centering it on the given
     /// point.
     pub fn add_centered(&mut self, other: GeomBatch, center: Pt2D) {
-        self.add_transformed(other, center, 1.0, Angle::ZERO);
+        self.add_transformed(other, center, 1.0, Angle::ZERO, RewriteColor::NoOp);
     }
 
     /// Adds geometry from another batch to the current batch, first transforming it. The
     /// translation centers on the given point.
-    pub fn add_transformed(&mut self, other: GeomBatch, center: Pt2D, scale: f64, rotate: Angle) {
+    pub fn add_transformed(
+        &mut self,
+        other: GeomBatch,
+        center: Pt2D,
+        scale: f64,
+        rotate: Angle,
+        rewrite: RewriteColor,
+    ) {
         let dims = other.get_dims();
         let dx = center.x() - dims.width * scale / 2.0;
         let dy = center.y() - dims.height * scale / 2.0;
-        for (color, mut poly) in other.consume() {
+        for (mut fancy_color, mut poly) in other.consume() {
             // Avoid unnecessary transformations for slight perf boost
             if scale != 1.0 {
                 poly = poly.scale(scale);
@@ -169,7 +166,10 @@ impl GeomBatch {
             if rotate != Angle::ZERO {
                 poly = poly.rotate(rotate);
             }
-            self.fancy_push(color, poly);
+            if let FancyColor::RGBA(ref mut c) = fancy_color {
+                *c = rewrite.apply(*c);
+            }
+            self.fancy_push(fancy_color, poly);
         }
     }
 
@@ -187,4 +187,28 @@ pub enum RewriteColor {
     Change(Color, Color),
     ChangeMore(Vec<(Color, Color)>),
     ChangeAll(Color),
+}
+
+impl RewriteColor {
+    fn apply(&self, c: Color) -> Color {
+        match self {
+            RewriteColor::NoOp => c,
+            RewriteColor::Change(from, to) => {
+                if c == *from {
+                    *to
+                } else {
+                    c
+                }
+            }
+            RewriteColor::ChangeMore(ref list) => {
+                for (from, to) in list {
+                    if c == *from {
+                        return *to;
+                    }
+                }
+                c
+            }
+            RewriteColor::ChangeAll(to) => *to,
+        }
+    }
 }

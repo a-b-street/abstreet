@@ -146,6 +146,7 @@ fn make_timeline(
             center,
             1.0,
             Angle::ZERO,
+            RewriteColor::NoOp,
         );
         details.zoomed.add_svg(
             ctx.prerender,
@@ -153,6 +154,7 @@ fn make_timeline(
             center,
             0.5,
             Angle::ZERO,
+            RewriteColor::NoOp,
         );
         let mut txt = Text::from(Line(name));
         txt.add(Line(start_time.ampm_tostring()));
@@ -175,6 +177,7 @@ fn make_timeline(
             center,
             1.0,
             Angle::ZERO,
+            RewriteColor::NoOp,
         );
         details.zoomed.add_svg(
             ctx.prerender,
@@ -182,6 +185,7 @@ fn make_timeline(
             center,
             0.5,
             Angle::ZERO,
+            RewriteColor::NoOp,
         );
         let mut txt = Text::from(Line(name));
         if let Some(t) = end_time {
@@ -249,6 +253,7 @@ fn make_timeline(
                     Pt2D::new(p * phase_width, 7.5),
                     1.0,
                     Angle::ZERO,
+                    RewriteColor::NoOp,
                 );
             }
         }
@@ -271,6 +276,7 @@ fn make_timeline(
             Pt2D::new(0.5 * phase_width, -20.0),
             1.0,
             Angle::ZERO,
+            RewriteColor::NoOp,
         );
 
         let mut hovered = GeomBatch::from(vec![(color.alpha(1.0), rect.clone())]);

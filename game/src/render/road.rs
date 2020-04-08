@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{dashed_lines, DrawOptions, Renderable};
-use ezgui::{Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
+use ezgui::{Drawable, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, Text};
 use geom::{Angle, Distance, Polygon, Pt2D};
 use map_model::{LaneType, Map, Road, RoadID};
 
@@ -45,6 +45,7 @@ impl DrawRoad {
                 r.center_pts.middle(),
                 0.1,
                 Angle::ZERO,
+                RewriteColor::NoOp,
             );
         }
 

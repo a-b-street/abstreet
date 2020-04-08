@@ -4,7 +4,7 @@ use crate::render::intersection::make_crosswalk;
 use crate::render::{DrawTurnGroup, BIG_ARROW_THICKNESS};
 use ezgui::{
     hotkey, Btn, Color, Composite, EventCtx, GeomBatch, HorizontalAlignment, Key, Line, Prerender,
-    Text, TextExt, VerticalAlignment, Widget,
+    RewriteColor, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Angle, Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D};
 use map_model::{IntersectionID, Phase, TurnPriority};
@@ -68,6 +68,7 @@ pub fn draw_signal_phase(
                         center,
                         0.07,
                         angle,
+                        RewriteColor::NoOp,
                     );
                     dont_walk.remove(g);
                 }
@@ -80,6 +81,7 @@ pub fn draw_signal_phase(
                     center,
                     0.07,
                     angle,
+                    RewriteColor::NoOp,
                 );
             }
         }

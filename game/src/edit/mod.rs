@@ -404,7 +404,7 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
                 &app.cs,
                 &mut timer,
             )
-            .finish(ctx.prerender, lane);
+            .finish(ctx.prerender, &app.cs, lane);
         }
     }
 
