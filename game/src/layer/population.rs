@@ -7,16 +7,35 @@ use ezgui::{
     VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Pt2D};
-use sim::{GetDrawAgents, PersonState};
+use sim::{GetDrawAgents, PersonState, TripResult};
 use std::collections::HashSet;
 
 // TODO Disable drawing unzoomed agents... or alternatively, implement this by asking Sim to
 // return this kind of data instead!
 pub fn new(ctx: &mut EventCtx, app: &App, opts: Options) -> Layers {
+    let filter = |p| {
+        if opts.with_finished_trip {
+            // TODO This is probably inefficient...
+            app.primary.sim.get_person(p).trips.iter().any(|t| {
+                if let TripResult::TripDone = app.primary.sim.trip_to_agent(*t) {
+                    true
+                } else {
+                    false
+                }
+            })
+        } else {
+            true
+        }
+    };
+
     let mut pts = Vec::new();
     // Faster to grab all agent positions than individually map trips to agent positions.
     for a in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
-        pts.push(a.pos);
+        if let Some(p) = a.person {
+            if filter(p) {
+                pts.push(a.pos);
+            }
+        }
     }
 
     // Many people are probably in the same building. If we're building a heatmap, we
@@ -29,12 +48,14 @@ pub fn new(ctx: &mut EventCtx, app: &App, opts: Options) -> Layers {
             // Already covered above
             PersonState::Trip(_) => {}
             PersonState::Inside(b) => {
-                let pt = app.primary.map.get_b(b).polygon.center();
-                if seen_bldgs.contains(&b) {
-                    repeat_pts.push(pt);
-                } else {
-                    seen_bldgs.insert(b);
-                    pts.push(pt);
+                if filter(person.id) {
+                    let pt = app.primary.map.get_b(b).polygon.center();
+                    if seen_bldgs.contains(&b) {
+                        repeat_pts.push(pt);
+                    } else {
+                        seen_bldgs.insert(b);
+                        pts.push(pt);
+                    }
                 }
             }
             PersonState::OffMap | PersonState::Limbo => {}
@@ -66,6 +87,8 @@ pub fn new(ctx: &mut EventCtx, app: &App, opts: Options) -> Layers {
 pub struct Options {
     // If None, just a dot map
     pub heatmap: Option<HeatmapOptions>,
+    // TODO More filters... Find people with finished/future trips of any/some mode
+    pub with_finished_trip: bool,
 }
 
 fn make_controls(
@@ -95,6 +118,12 @@ fn make_controls(
         ])
         .centered(),
     ];
+    col.push(Checkbox::text(
+        ctx,
+        "Filter by people with a finished trip",
+        None,
+        opts.with_finished_trip,
+    ));
 
     col.push(Checkbox::text(
         ctx,
@@ -117,5 +146,8 @@ pub fn options(c: &mut Composite) -> Options {
     } else {
         None
     };
-    Options { heatmap }
+    Options {
+        heatmap,
+        with_finished_trip: c.is_checked("Filter by people with a finished trip"),
+    }
 }

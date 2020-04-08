@@ -3,7 +3,7 @@ use crate::common::{make_heatmap, HeatmapOptions};
 use crate::layer::Layers;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, Btn, Checkbox, Color, Composite, EventCtx, GeomBatch, HorizontalAlignment, Key,
+    hotkey, Btn, Checkbox, Choice, Color, Composite, EventCtx, GeomBatch, HorizontalAlignment, Key,
     TextExt, VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Pt2D};
@@ -15,11 +15,18 @@ use std::collections::HashSet;
 pub fn new(ctx: &mut EventCtx, app: &App, opts: Options) -> Layers {
     let model = app.primary.sim.get_pandemic_model().unwrap();
 
+    let filter = |p| match opts.state {
+        SEIR::Sane => model.sane.contains(&p),
+        SEIR::Exposed => model.exposed.contains_key(&p),
+        SEIR::Infected => model.infected.contains_key(&p),
+        SEIR::Recovered => model.recovered.contains(&p),
+    };
+
     let mut pts = Vec::new();
     // Faster to grab all agent positions than individually map trips to agent positions.
     for a in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
         if let Some(p) = a.person {
-            if model.infected.contains_key(&p) {
+            if filter(p) {
                 pts.push(a.pos);
             }
         }
@@ -35,7 +42,7 @@ pub fn new(ctx: &mut EventCtx, app: &App, opts: Options) -> Layers {
             // Already covered above
             PersonState::Trip(_) => {}
             PersonState::Inside(b) => {
-                if !model.infected.contains_key(&person.id) {
+                if !filter(person.id) {
                     continue;
                 }
 
@@ -72,10 +79,20 @@ pub fn new(ctx: &mut EventCtx, app: &App, opts: Options) -> Layers {
     Layers::Pandemic(app.primary.sim.time(), opts, ctx.upload(batch), controls)
 }
 
+// TODO This should live in sim
+#[derive(Clone, Copy, PartialEq)]
+pub enum SEIR {
+    Sane,
+    Exposed,
+    Infected,
+    Recovered,
+}
+
 #[derive(Clone, PartialEq)]
 pub struct Options {
     // If None, just a dot map
     pub heatmap: Option<HeatmapOptions>,
+    pub state: SEIR,
 }
 
 fn make_controls(
@@ -85,7 +102,7 @@ fn make_controls(
     colors_and_labels: Option<(Vec<Color>, Vec<String>)>,
 ) -> Composite {
     let model = app.primary.sim.get_pandemic_model().unwrap();
-    let pct = (model.count_total() as f64) * 100.0;
+    let pct = 100.0 / (model.count_total() as f64);
 
     let mut col = vec![
         Widget::row(vec![
@@ -98,28 +115,42 @@ fn make_controls(
         format!(
             "{} Sane ({:.1}%)",
             prettyprint_usize(model.count_sane()),
-            (model.count_sane() as f64) / pct
+            (model.count_sane() as f64) * pct
         )
         .draw_text(ctx),
         format!(
             "{} Exposed ({:.1}%)",
             prettyprint_usize(model.count_exposed()),
-            (model.count_exposed() as f64) / pct
+            (model.count_exposed() as f64) * pct
         )
         .draw_text(ctx),
         format!(
             "{} Infected ({:.1}%)",
             prettyprint_usize(model.count_infected()),
-            (model.count_infected() as f64) / pct
+            (model.count_infected() as f64) * pct
         )
         .draw_text(ctx),
         format!(
             "{} Recovered ({:.1}%)",
             prettyprint_usize(model.count_recovered()),
-            (model.count_recovered() as f64) / pct
+            (model.count_recovered() as f64) * pct
         )
         .draw_text(ctx),
     ];
+    col.push(Widget::row(vec![
+        "Filter:".draw_text(ctx).margin_right(5),
+        Widget::dropdown(
+            ctx,
+            "seir",
+            opts.state,
+            vec![
+                Choice::new("sane", SEIR::Sane),
+                Choice::new("exposed", SEIR::Exposed),
+                Choice::new("infected", SEIR::Infected),
+                Choice::new("recovered", SEIR::Recovered),
+            ],
+        ),
+    ]));
 
     col.push(Checkbox::text(
         ctx,
@@ -142,5 +173,8 @@ pub fn options(c: &Composite) -> Options {
     } else {
         None
     };
-    Options { heatmap }
+    Options {
+        heatmap,
+        state: c.dropdown_value("seir"),
+    }
 }

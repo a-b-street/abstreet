@@ -414,6 +414,7 @@ impl Layers {
                     app,
                     population::Options {
                         heatmap: Some(HeatmapOptions::new()),
+                        with_finished_trip: false,
                     },
                 );
                 Some(Transition::Pop)
@@ -427,6 +428,7 @@ impl Layers {
                     app,
                     pandemic::Options {
                         heatmap: Some(HeatmapOptions::new()),
+                        state: pandemic::SEIR::Infected,
                     },
                 );
                 Some(Transition::Pop)
