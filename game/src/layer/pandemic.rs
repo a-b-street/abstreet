@@ -3,8 +3,8 @@ use crate::common::{make_heatmap, HeatmapOptions};
 use crate::layer::Layers;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, Btn, Checkbox, Color, Composite, EventCtx, GeomBatch, HorizontalAlignment, Key, Line,
-    VerticalAlignment, Widget,
+    hotkey, Btn, Checkbox, Color, Composite, EventCtx, GeomBatch, HorizontalAlignment, Key,
+    TextExt, VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Pt2D};
 use sim::{GetDrawAgents, PersonState};
@@ -13,10 +13,16 @@ use std::collections::HashSet;
 // TODO Disable drawing unzoomed agents... or alternatively, implement this by asking Sim to
 // return this kind of data instead!
 pub fn new(ctx: &mut EventCtx, app: &App, opts: Options) -> Layers {
+    let model = app.primary.sim.get_pandemic_model().unwrap();
+
     let mut pts = Vec::new();
     // Faster to grab all agent positions than individually map trips to agent positions.
     for a in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
-        pts.push(a.pos);
+        if let Some(p) = a.person {
+            if model.infected.contains_key(&p) {
+                pts.push(a.pos);
+            }
+        }
     }
 
     // Many people are probably in the same building. If we're building a heatmap, we
@@ -29,6 +35,10 @@ pub fn new(ctx: &mut EventCtx, app: &App, opts: Options) -> Layers {
             // Already covered above
             PersonState::Trip(_) => {}
             PersonState::Inside(b) => {
+                if !model.infected.contains_key(&person.id) {
+                    continue;
+                }
+
                 let pt = app.primary.map.get_b(b).polygon.center();
                 if seen_bldgs.contains(&b) {
                     repeat_pts.push(pt);
@@ -59,7 +69,7 @@ pub fn new(ctx: &mut EventCtx, app: &App, opts: Options) -> Layers {
         None
     };
     let controls = make_controls(ctx, app, &opts, colors_and_labels);
-    Layers::PopulationMap(app.primary.sim.time(), opts, ctx.upload(batch), controls)
+    Layers::Pandemic(app.primary.sim.time(), opts, ctx.upload(batch), controls)
 }
 
 #[derive(Clone, PartialEq)]
@@ -74,26 +84,41 @@ fn make_controls(
     opts: &Options,
     colors_and_labels: Option<(Vec<Color>, Vec<String>)>,
 ) -> Composite {
-    let (total_ppl, ppl_in_bldg, ppl_off_map) = app.primary.sim.num_ppl();
+    let model = app.primary.sim.get_pandemic_model().unwrap();
+    let pct = (model.count_total() as f64) * 100.0;
 
     let mut col = vec![
         Widget::row(vec![
             Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg").margin_right(10),
-            Line(format!("Population: {}", prettyprint_usize(total_ppl))).draw(ctx),
+            "Pandemic model".draw_text(ctx),
             Btn::plaintext("X")
                 .build(ctx, "close", hotkey(Key::Escape))
                 .align_right(),
         ]),
-        Widget::row(vec![
-            Widget::row(vec![
-                Widget::draw_svg(ctx, "../data/system/assets/tools/home.svg").margin_right(10),
-                Line(prettyprint_usize(ppl_in_bldg)).small().draw(ctx),
-            ]),
-            Line(format!("Off-map: {}", prettyprint_usize(ppl_off_map)))
-                .small()
-                .draw(ctx),
-        ])
-        .centered(),
+        format!(
+            "{} Sane ({:.1}%)",
+            prettyprint_usize(model.count_sane()),
+            (model.count_sane() as f64) / pct
+        )
+        .draw_text(ctx),
+        format!(
+            "{} Exposed ({:.1}%)",
+            prettyprint_usize(model.count_exposed()),
+            (model.count_exposed() as f64) / pct
+        )
+        .draw_text(ctx),
+        format!(
+            "{} Infected ({:.1}%)",
+            prettyprint_usize(model.count_infected()),
+            (model.count_infected() as f64) / pct
+        )
+        .draw_text(ctx),
+        format!(
+            "{} Recovered ({:.1}%)",
+            prettyprint_usize(model.count_recovered()),
+            (model.count_recovered() as f64) / pct
+        )
+        .draw_text(ctx),
     ];
 
     col.push(Checkbox::text(
@@ -111,7 +136,7 @@ fn make_controls(
         .build(ctx)
 }
 
-pub fn options(c: &mut Composite) -> Options {
+pub fn options(c: &Composite) -> Options {
     let heatmap = if c.is_checked("Show heatmap") {
         Some(HeatmapOptions::from_controls(c))
     } else {

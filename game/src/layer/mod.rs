@@ -1,6 +1,7 @@
 pub mod bus;
 mod elevation;
 pub mod map;
+mod pandemic;
 mod parking;
 mod population;
 pub mod traffic;
@@ -32,7 +33,8 @@ pub enum Layers {
     Elevation(Colorer, Drawable),
     Edits(Colorer),
     TripsHistogram(Time, Composite),
-    PopulationMap(Time, population::PopulationOptions, Drawable, Composite),
+    PopulationMap(Time, population::Options, Drawable, Composite),
+    Pandemic(Time, pandemic::Options, Drawable, Composite),
 
     // These aren't selectable from the main picker; they're particular to some object.
     // TODO They should become something else, like an info panel tab.
@@ -90,6 +92,11 @@ impl Layers {
             Layers::PopulationMap(t, ref opts, _, _) => {
                 if now != t {
                     app.layer = population::new(ctx, app, opts.clone());
+                }
+            }
+            Layers::Pandemic(t, ref opts, _, _) => {
+                if now != t {
+                    app.layer = pandemic::new(ctx, app, opts.clone());
                 }
             }
             // No updates needed
@@ -164,12 +171,34 @@ impl Layers {
                         _ => unreachable!(),
                     },
                     None => {
-                        let new_opts = population::population_options(c);
+                        let new_opts = population::options(c);
                         if *opts != new_opts {
                             app.layer = population::new(ctx, app, new_opts);
                             // Immediately fix the alignment. TODO Do this for all of them, in a
                             // more uniform way
                             if let Layers::PopulationMap(_, _, _, ref mut c) = app.layer {
+                                c.align_above(ctx, minimap);
+                            }
+                        }
+                    }
+                }
+            }
+            Layers::Pandemic(_, ref mut opts, _, ref mut c) => {
+                c.align_above(ctx, minimap);
+                match c.event(ctx) {
+                    Some(Outcome::Clicked(x)) => match x.as_ref() {
+                        "close" => {
+                            app.layer = Layers::Inactive;
+                        }
+                        _ => unreachable!(),
+                    },
+                    None => {
+                        let new_opts = pandemic::options(c);
+                        if *opts != new_opts {
+                            app.layer = pandemic::new(ctx, app, new_opts);
+                            // Immediately fix the alignment. TODO Do this for all of them, in a
+                            // more uniform way
+                            if let Layers::Pandemic(_, _, _, ref mut c) = app.layer {
                                 c.align_above(ctx, minimap);
                             }
                         }
@@ -202,6 +231,12 @@ impl Layers {
                 }
             }
             Layers::PopulationMap(_, _, ref draw, ref composite) => {
+                composite.draw(g);
+                if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+                    g.redraw(draw);
+                }
+            }
+            Layers::Pandemic(_, _, ref draw, ref composite) => {
                 composite.draw(g);
                 if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
                     g.redraw(draw);
@@ -241,6 +276,9 @@ impl Layers {
             Layers::PopulationMap(_, _, ref draw, _) => {
                 g.redraw(draw);
             }
+            Layers::Pandemic(_, _, ref draw, _) => {
+                g.redraw(draw);
+            }
             Layers::TripsHistogram(_, _) => {}
             Layers::IntersectionDemand(_, _, _, _) => {}
             Layers::BusRoute(_, _, ref s) => {
@@ -269,6 +307,9 @@ impl Layers {
             Btn::text_fg("bus network").build_def(ctx, hotkey(Key::U)),
             Btn::text_fg("population map").build_def(ctx, hotkey(Key::X)),
         ]);
+        if app.primary.sim.get_pandemic_model().is_some() {
+            col.push(Btn::text_fg("pandemic model").build_def(ctx, hotkey(Key::Y)));
+        }
         if let Some(name) = match app.layer {
             Layers::Inactive => Some("None"),
             Layers::ParkingOccupancy(_, _) => Some("parking occupancy"),
@@ -280,6 +321,7 @@ impl Layers {
             Layers::Elevation(_, _) => Some("elevation"),
             Layers::Edits(_) => Some("map edits"),
             Layers::PopulationMap(_, _, _, _) => Some("population map"),
+            Layers::Pandemic(_, _, _, _) => Some("pandemic model"),
             _ => None,
         } {
             for btn in &mut col {
@@ -370,8 +412,20 @@ impl Layers {
                 app.layer = population::new(
                     ctx,
                     app,
-                    population::PopulationOptions {
-                        pandemic: false,
+                    population::Options {
+                        heatmap: Some(HeatmapOptions::new()),
+                    },
+                );
+                Some(Transition::Pop)
+            }),
+        )
+        .maybe_cb(
+            "pandemic model",
+            Box::new(|ctx, app| {
+                app.layer = pandemic::new(
+                    ctx,
+                    app,
+                    pandemic::Options {
                         heatmap: Some(HeatmapOptions::new()),
                     },
                 );

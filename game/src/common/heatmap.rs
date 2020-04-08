@@ -1,5 +1,6 @@
 use crate::colors::HeatmapColors;
-use ezgui::{Color, GeomBatch};
+use crate::common::ColorLegend;
+use ezgui::{Color, Composite, EventCtx, GeomBatch, Spinner, TextExt, Widget};
 use geom::{Bounds, Histogram, Polygon, Pt2D};
 
 #[derive(Clone, PartialEq)]
@@ -16,6 +17,58 @@ impl HeatmapOptions {
             resolution: 10,
             radius: 3,
             colors: HeatmapColors::FullSpectral,
+        }
+    }
+
+    pub fn to_controls(
+        &self,
+        ctx: &mut EventCtx,
+        colors_and_labels: (Vec<Color>, Vec<String>),
+    ) -> Vec<Widget> {
+        let mut col = Vec::new();
+
+        // TODO Display the value...
+        col.push(Widget::row(vec![
+            "Resolution (meters)".draw_text(ctx).margin(5),
+            Spinner::new(ctx, (1, 100), self.resolution)
+                .named("resolution")
+                .align_right()
+                .centered_vert(),
+        ]));
+
+        col.push(Widget::row(vec![
+            "Radius (resolution multiplier)".draw_text(ctx).margin(5),
+            Spinner::new(ctx, (0, 10), self.radius)
+                .named("radius")
+                .align_right()
+                .centered_vert(),
+        ]));
+
+        col.push(Widget::row(vec![
+            "Color scheme".draw_text(ctx).margin(5),
+            Widget::dropdown(ctx, "Colors", self.colors, HeatmapColors::choices()),
+        ]));
+
+        // Legend for the heatmap colors
+        col.push(ColorLegend::scale(
+            ctx,
+            colors_and_labels.0,
+            colors_and_labels.1,
+        ));
+
+        col
+    }
+
+    pub fn from_controls(c: &Composite) -> HeatmapOptions {
+        // Did we just change?
+        if c.has_widget("resolution") {
+            HeatmapOptions {
+                resolution: c.spinner("resolution"),
+                radius: c.spinner("radius"),
+                colors: c.dropdown_value("Colors"),
+            }
+        } else {
+            HeatmapOptions::new()
         }
     }
 }
