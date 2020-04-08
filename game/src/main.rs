@@ -102,6 +102,14 @@ fn main() {
             sandbox::TutorialPointer::new(n - 1, 0),
         ));
     }
+    if mode.is_none() && flags.sim_flags.load.contains("scenarios/") {
+        // TODO regex
+        let parts = flags.sim_flags.load.split("/").collect::<Vec<_>>();
+        let map_path = abstutil::path_map(parts[4]);
+        let scenario = abstutil::basename(parts[5]);
+        flags.sim_flags.load = map_path.clone();
+        mode = Some(sandbox::GameplayMode::PlayScenario(map_path, scenario));
+    }
 
     args.done();
 
