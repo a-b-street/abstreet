@@ -26,6 +26,30 @@ pub fn trips(
         is_paused,
     );
 
+    // TODO This probably belongs on a different tab, but it's also convenient to see it up-front.
+    if let Some(p) = app.primary.sim.get_pandemic_model() {
+        let status = if p.sane.contains(&id) {
+            "Susceptible".to_string()
+        } else if let Some((t, _)) = p.exposed.get(&id) {
+            format!("Exposed at {}", t.ampm_tostring())
+        } else if let Some((t, _)) = p.infected.get(&id) {
+            format!("Infected at {}", t.ampm_tostring())
+        } else if p.recovered.contains(&id) {
+            "Recovered".to_string()
+        } else {
+            // TODO More info here? Make these public too?
+            "Other (hospitalized or quarantined)".to_string()
+        };
+        rows.push(
+            Text::from_all(vec![
+                Line("Pandemic model state: ").secondary(),
+                Line(status),
+            ])
+            .draw(ctx)
+            .margin_below(5),
+        );
+    }
+
     let map = &app.primary.map;
     let sim = &app.primary.sim;
     let person = sim.get_person(id);
@@ -322,6 +346,5 @@ fn current_status(ctx: &EventCtx, person: &Person, map: &Map) -> Widget {
                                occurred)"
             .draw_text(ctx),
     })
-    .outline(2.0, Color::WHITE)
     .margin_vert(16)
 }

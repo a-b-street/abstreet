@@ -427,7 +427,7 @@ fn make_table<I: Into<String>>(ctx: &EventCtx, rows: Vec<(I, String)>) -> Vec<Wi
     rows.into_iter()
         .map(|(k, v)| {
             Widget::row(vec![
-                Line(k).draw(ctx),
+                Line(k).secondary().draw(ctx),
                 // TODO not quite...
                 v.draw_text(ctx).centered_vert().align_right(),
             ])
