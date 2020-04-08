@@ -76,7 +76,7 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
             .align_left(),
         {
             let mut txt = Text::from(Line("A/B STREET").display_title());
-            txt.add(Line("Created by Dustin Carlino"));
+            txt.add(Line("Created by Dustin Carlino and Yuwen Li"));
             txt.draw(ctx).centered_horiz()
         },
         Widget::row(vec![
@@ -129,7 +129,7 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
             Widget::nothing()
         },
         Widget::col(vec![
-            Btn::text_bg2("About A/B Street").build_def(ctx, None),
+            Btn::text_bg2("About").build_def(ctx, None),
             built_info::time().draw(ctx),
         ])
         .centered(),
@@ -194,7 +194,7 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         Box::new(|ctx, app| Some(Transition::Push(challenges_picker(ctx, app)))),
     )
     .cb(
-        "About A/B Street",
+        "About",
         Box::new(|ctx, _| Some(Transition::Push(about(ctx)))),
     )
     .cb(
@@ -225,10 +225,6 @@ fn about(ctx: &mut EventCtx) -> Box<dyn State> {
             txt.add(Line("A/B STREET").display_title());
             txt.add(Line("Created by Dustin Carlino, UX by Yuwen Li"));
             txt.add(Line(""));
-            txt.add(Line("Contact: dabreegster@gmail.com"));
-            txt.add(Line(
-                "Project: http://github.com/dabreegster/abstreet (aliased by abstreet.org)",
-            ));
             txt.add(Line("Map data from OpenStreetMap and King County GIS"));
             // TODO Add more here
             txt.add(Line(

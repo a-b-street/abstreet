@@ -96,24 +96,33 @@ Street strives to set the accessibility bar high, by being a fun, engaging game.
 
 ## Credits
 
-- Created by Dustin Carlino (<dabreegster@gmail.com>)
-- Design
-  - UX design by [Yuwen Li](https://www.yuwen-li.com/)
-  - Logo by [Ryan Pierson](https://www.ryandpierson.com/)
-  - Art direction with help from [Starcat Games](http://starcatgames.com/)
-- Software engineering
-  - Lightning-fast pathfinding thanks to
-    [fast_paths](https://github.com/easbar/fast_paths) by Andreas Barth
-    (<easbar.mail@posteo.net>)
-  - And some
-    [contributors](https://github.com/dabreegster/abstreet/graphs/contributors)
-    found via [Democracy Lab](https://www.democracylab.org/)
-- Data
-  - Special thanks to all [OpenStreetMap](https://www.openstreetmap.org/about)
-    contributors!
-  - [King County GIS](https://www.kingcounty.gov/services/gis.aspx)
-  - [Seattle Open Data](https://data.seattle.gov/)
-  - [Puget Sound Regional Council](https://www.psrc.org/)
-- Sounding boards
-  - [CUGOS](https://cugos.org/)
-  - [Julian Michael](http://julianmichael.org/)
+Core team:
+
+- [Dustin Carlino](dabreegster@gmail.com)
+- [Yuwen Li](https://www.yuwen-li.com/) (UX)
+
+Active contributors:
+
+- [Orestis Malaspinas](orestis.malaspinas@hesge.ch) (pandemic modeling)
+- Christopher Klein (game design)
+
+Others:
+
+- Logo by [Ryan Pierson](https://www.ryandpierson.com/)
+- Graphic design advice from [Starcat Games](http://starcatgames.com/),
+  [Daniel Huffman](https://somethingaboutmaps.wordpress.com/),
+  [Brian Prince](http://thebaprince.com/)
+- Lightning-fast pathfinding thanks to
+  [fast_paths](https://github.com/easbar/fast_paths) by
+  [Andreas Barth](easbar.mail@posteo.net>)
+- Hackathon drop-ins from [Democracy Lab](https://www.democracylab.org/) events
+- [CUGOS](https://cugos.org/) and [Julian Michael](http://julianmichael.org/)
+  have been great sounding boards for ideas since the beginning
+
+Data:
+
+- Special thanks to all [OpenStreetMap](https://www.openstreetmap.org/about)
+  contributors!
+- [King County GIS](https://www.kingcounty.gov/services/gis.aspx)
+- [Seattle Open Data](https://data.seattle.gov/)
+- [Puget Sound Regional Council](https://www.psrc.org/)
