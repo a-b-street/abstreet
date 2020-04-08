@@ -4,7 +4,7 @@ use crate::layer::Layers;
 use abstutil::prettyprint_usize;
 use ezgui::{
     hotkey, Btn, Checkbox, Color, Composite, EventCtx, GeomBatch, HorizontalAlignment, Key, Line,
-    VerticalAlignment, Widget,
+    Spinner, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Pt2D};
 use sim::{GetDrawAgents, PersonState, TripResult};
@@ -14,11 +14,12 @@ use std::collections::HashSet;
 // return this kind of data instead!
 pub fn new(ctx: &mut EventCtx, app: &App, opts: Options) -> Layers {
     let filter = |p| {
-        if opts.with_finished_trip {
+        if let Some(pct) = opts.with_finished_trip_blocked_pct {
             // TODO This is probably inefficient...
             app.primary.sim.get_person(p).trips.iter().any(|t| {
                 if let TripResult::TripDone = app.primary.sim.trip_to_agent(*t) {
-                    true
+                    let (total, blocked) = app.primary.sim.finished_trip_time(*t);
+                    (100.0 * blocked / total) as usize >= pct
                 } else {
                     false
                 }
@@ -88,7 +89,7 @@ pub struct Options {
     // If None, just a dot map
     pub heatmap: Option<HeatmapOptions>,
     // TODO More filters... Find people with finished/future trips of any/some mode
-    pub with_finished_trip: bool,
+    pub with_finished_trip_blocked_pct: Option<usize>,
 }
 
 fn make_controls(
@@ -122,8 +123,17 @@ fn make_controls(
         ctx,
         "Filter by people with a finished trip",
         None,
-        opts.with_finished_trip,
+        opts.with_finished_trip_blocked_pct.is_some(),
     ));
+    if let Some(pct) = opts.with_finished_trip_blocked_pct {
+        col.push(Widget::row(vec![
+            "% of time spent waiting".draw_text(ctx).margin(5),
+            Spinner::new(ctx, (0, 100), pct)
+                .named("blocked ratio")
+                .align_right()
+                .centered_vert(),
+        ]));
+    }
 
     col.push(Checkbox::text(
         ctx,
@@ -148,6 +158,15 @@ pub fn options(c: &mut Composite) -> Options {
     };
     Options {
         heatmap,
-        with_finished_trip: c.is_checked("Filter by people with a finished trip"),
+        with_finished_trip_blocked_pct: if c.is_checked("Filter by people with a finished trip") {
+            if c.has_widget("blocked ratio") {
+                Some(c.spinner("blocked ratio"))
+            } else {
+                // Just changed, use default
+                Some(0)
+            }
+        } else {
+            None
+        },
     }
 }

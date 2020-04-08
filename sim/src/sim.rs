@@ -535,6 +535,7 @@ impl Sim {
                                 self.time,
                                 create_ped.id,
                                 ParkingSpot::Offstreet(*b2, *idx),
+                                Duration::ZERO,
                                 map,
                                 &self.parking,
                                 &mut self.scheduler,
@@ -966,7 +967,8 @@ impl Sim {
     pub fn trip_info(&self, id: TripID) -> (Time, TripEndpoint, TripEndpoint, TripMode) {
         self.trips.trip_info(id)
     }
-    pub fn finished_trip_time(&self, id: TripID) -> Duration {
+    // Only for finished trips. Returns (total time, total waiting time)
+    pub fn finished_trip_time(&self, id: TripID) -> (Duration, Duration) {
         self.trips.finished_trip_time(id)
     }
 

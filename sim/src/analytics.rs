@@ -131,8 +131,15 @@ impl Analytics {
         }
 
         // Finished trips
-        if let Event::TripFinished(id, mode, dt) = ev {
-            self.finished_trips.push((time, id, Some(mode), dt));
+        if let Event::TripFinished {
+            trip,
+            mode,
+            total_time,
+            ..
+        } = ev
+        {
+            self.finished_trips
+                .push((time, trip, Some(mode), total_time));
         } else if let Event::TripAborted(id, mode) = ev {
             self.finished_trips.push((time, id, None, Duration::ZERO));
             if !self.started_trips.contains_key(&id) {
@@ -156,9 +163,9 @@ impl Analytics {
             Event::TripAborted(id, _) => {
                 self.trip_log.push((time, id, None, TripPhaseType::Aborted));
             }
-            Event::TripFinished(id, _, _) => {
+            Event::TripFinished { trip, .. } => {
                 self.trip_log
-                    .push((time, id, None, TripPhaseType::Finished));
+                    .push((time, trip, None, TripPhaseType::Finished));
             }
             Event::PathAmended(path) => {
                 self.record_demand(&path, map);

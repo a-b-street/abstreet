@@ -111,7 +111,7 @@ pub fn trips(
                         .has_prebaked()
                         .and_then(|_| app.prebaked().finished_trip_time(*t))
                     {
-                        let experiment = app.primary.sim.finished_trip_time(*t);
+                        let (experiment, _) = app.primary.sim.finished_trip_time(*t);
                         let mut txt = Text::from(Line("finished ").small());
                         txt.append_all(cmp_duration_shorter(experiment, orig));
                         txt.draw(ctx)

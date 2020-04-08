@@ -27,7 +27,12 @@ pub enum Event {
     AgentEntersTraversable(AgentID, Traversable),
     IntersectionDelayMeasured(IntersectionID, Duration),
 
-    TripFinished(TripID, TripMode, Duration),
+    TripFinished {
+        trip: TripID,
+        mode: TripMode,
+        total_time: Duration,
+        blocked_time: Duration,
+    },
     TripAborted(TripID, TripMode),
     TripPhaseStarting(
         TripID,

@@ -451,7 +451,12 @@ impl DrivingSimState {
                 ) {
                     Some(ActionAtEnd::VanishAtBorder(i)) => {
                         car.total_blocked_time += now - blocked_since;
-                        trips.car_or_bike_reached_border(now, car.vehicle.id, i);
+                        trips.car_or_bike_reached_border(
+                            now,
+                            car.vehicle.id,
+                            i,
+                            car.total_blocked_time,
+                        );
                         false
                     }
                     Some(ActionAtEnd::AbortTrip) => {
@@ -483,7 +488,14 @@ impl DrivingSimState {
                     }
                     Some(ActionAtEnd::StopBiking(bike_rack)) => {
                         car.total_blocked_time += now - blocked_since;
-                        trips.bike_reached_end(now, car.vehicle.id, bike_rack, map, scheduler);
+                        trips.bike_reached_end(
+                            now,
+                            car.vehicle.id,
+                            bike_rack,
+                            car.total_blocked_time,
+                            map,
+                            scheduler,
+                        );
                         false
                     }
                     Some(ActionAtEnd::BusAtStop) => {
@@ -538,7 +550,15 @@ impl DrivingSimState {
                     vehicle: car.vehicle.clone(),
                     spot,
                 });
-                trips.car_reached_parking_spot(now, car.vehicle.id, spot, map, parking, scheduler);
+                trips.car_reached_parking_spot(
+                    now,
+                    car.vehicle.id,
+                    spot,
+                    car.total_blocked_time,
+                    map,
+                    parking,
+                    scheduler,
+                );
                 false
             }
         }

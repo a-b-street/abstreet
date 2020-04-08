@@ -103,6 +103,7 @@ impl TripManager {
             person,
             spawned_at,
             finished_at: None,
+            total_blocked_time: Duration::ZERO,
             aborted: false,
             mode,
             legs: VecDeque::from(legs),
@@ -156,12 +157,14 @@ impl TripManager {
         now: Time,
         car: CarID,
         spot: ParkingSpot,
+        blocked_time: Duration,
         map: &Map,
         parking: &ParkingSimState,
         scheduler: &mut Scheduler,
     ) {
         self.events.push(Event::CarReachedParkingSpot(car, spot));
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
+        trip.total_blocked_time += blocked_time;
 
         match trip.legs.pop_front() {
             Some(TripLeg::Drive(vehicle, DrivingGoal::ParkNear(_))) => assert_eq!(car, vehicle.id),
@@ -176,11 +179,12 @@ impl TripManager {
                     assert!(!trip.finished_at.is_some());
                     trip.finished_at = Some(now);
                     self.unfinished_trips -= 1;
-                    self.events.push(Event::TripFinished(
-                        trip.id,
-                        trip.mode,
-                        now - trip.spawned_at,
-                    ));
+                    self.events.push(Event::TripFinished {
+                        trip: trip.id,
+                        mode: trip.mode,
+                        total_time: now - trip.spawned_at,
+                        blocked_time: trip.total_blocked_time,
+                    });
                     self.people[trip.person.0].state = PersonState::Inside(b1);
                     self.events
                         .push(Event::PersonEntersBuilding(trip.person, b1));
@@ -206,6 +210,7 @@ impl TripManager {
         now: Time,
         ped: PedestrianID,
         spot: ParkingSpot,
+        blocked_time: Duration,
         map: &Map,
         parking: &ParkingSimState,
         scheduler: &mut Scheduler,
@@ -216,6 +221,7 @@ impl TripManager {
             .remove(&AgentID::Pedestrian(ped))
             .unwrap()
             .0];
+        trip.total_blocked_time += blocked_time;
 
         trip.assert_walking_leg(ped, SidewalkSpot::parking_spot(spot, map, parking));
         let (car, drive_to) = match trip.legs[0] {
@@ -272,6 +278,7 @@ impl TripManager {
         now: Time,
         ped: PedestrianID,
         spot: SidewalkSpot,
+        blocked_time: Duration,
         map: &Map,
         scheduler: &mut Scheduler,
     ) {
@@ -280,6 +287,7 @@ impl TripManager {
             .remove(&AgentID::Pedestrian(ped))
             .unwrap()
             .0];
+        trip.total_blocked_time += blocked_time;
 
         trip.assert_walking_leg(ped, spot.clone());
         let (vehicle, drive_to) = match trip.legs[0] {
@@ -326,6 +334,7 @@ impl TripManager {
         now: Time,
         bike: CarID,
         bike_rack: SidewalkSpot,
+        blocked_time: Duration,
         map: &Map,
         scheduler: &mut Scheduler,
     ) {
@@ -334,6 +343,7 @@ impl TripManager {
             bike_rack.sidewalk_pos.lane(),
         ));
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(bike)).unwrap().0];
+        trip.total_blocked_time += blocked_time;
 
         match trip.legs.pop_front() {
             Some(TripLeg::Drive(vehicle, DrivingGoal::ParkNear(_))) => assert_eq!(vehicle.id, bike),
@@ -350,6 +360,7 @@ impl TripManager {
         now: Time,
         ped: PedestrianID,
         bldg: BuildingID,
+        blocked_time: Duration,
         map: &Map,
     ) {
         let trip = &mut self.trips[self
@@ -357,16 +368,19 @@ impl TripManager {
             .remove(&AgentID::Pedestrian(ped))
             .unwrap()
             .0];
+        trip.total_blocked_time += blocked_time;
+
         trip.assert_walking_leg(ped, SidewalkSpot::building(bldg, map));
         assert!(trip.legs.is_empty());
         assert!(!trip.finished_at.is_some());
         trip.finished_at = Some(now);
         self.unfinished_trips -= 1;
-        self.events.push(Event::TripFinished(
-            trip.id,
-            trip.mode,
-            now - trip.spawned_at,
-        ));
+        self.events.push(Event::TripFinished {
+            trip: trip.id,
+            mode: trip.mode,
+            total_time: now - trip.spawned_at,
+            blocked_time: trip.total_blocked_time,
+        });
         self.people[trip.person.0].state = PersonState::Inside(bldg);
         self.events
             .push(Event::PersonEntersBuilding(trip.person, bldg));
@@ -378,10 +392,13 @@ impl TripManager {
         now: Time,
         ped: PedestrianID,
         stop: BusStopID,
+        blocked_time: Duration,
         map: &Map,
         transit: &mut TransitSimState,
     ) -> Option<BusRouteID> {
         let trip = &mut self.trips[self.active_trip_mode[&AgentID::Pedestrian(ped)].0];
+        trip.total_blocked_time += blocked_time;
+
         match trip.legs[0] {
             TripLeg::Walk(p, _, ref spot) => {
                 assert_eq!(p, ped);
@@ -422,15 +439,19 @@ impl TripManager {
         &mut self,
         now: Time,
         ped: PedestrianID,
+        blocked_time: Duration,
         walking: &mut WalkingSimState,
     ) -> (TripID, PersonID) {
         // TODO Make sure canonical pt is the bus while the ped is riding it
         let trip = &mut self.trips[self.active_trip_mode[&AgentID::Pedestrian(ped)].0];
+        trip.total_blocked_time += blocked_time;
+
         trip.legs.pop_front();
         walking.ped_boarded_bus(now, ped);
         (trip.id, trip.person)
     }
 
+    // TODO Need to characterize delay the bus experienced
     pub fn ped_left_bus(
         &mut self,
         now: Time,
@@ -458,6 +479,7 @@ impl TripManager {
         now: Time,
         ped: PedestrianID,
         i: IntersectionID,
+        blocked_time: Duration,
         map: &Map,
     ) {
         self.events.push(Event::PedReachedBorder(ped, i));
@@ -466,22 +488,33 @@ impl TripManager {
             .remove(&AgentID::Pedestrian(ped))
             .unwrap()
             .0];
+        trip.total_blocked_time += blocked_time;
+
         trip.assert_walking_leg(ped, SidewalkSpot::end_at_border(i, map).unwrap());
         assert!(trip.legs.is_empty());
         assert!(!trip.finished_at.is_some());
         trip.finished_at = Some(now);
         self.unfinished_trips -= 1;
-        self.events.push(Event::TripFinished(
-            trip.id,
-            trip.mode,
-            now - trip.spawned_at,
-        ));
+        self.events.push(Event::TripFinished {
+            trip: trip.id,
+            mode: trip.mode,
+            total_time: now - trip.spawned_at,
+            blocked_time: trip.total_blocked_time,
+        });
         self.people[trip.person.0].state = PersonState::OffMap;
     }
 
-    pub fn car_or_bike_reached_border(&mut self, now: Time, car: CarID, i: IntersectionID) {
+    pub fn car_or_bike_reached_border(
+        &mut self,
+        now: Time,
+        car: CarID,
+        i: IntersectionID,
+        blocked_time: Duration,
+    ) {
         self.events.push(Event::CarOrBikeReachedBorder(car, i));
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
+        trip.total_blocked_time += blocked_time;
+
         match trip.legs.pop_front().unwrap() {
             TripLeg::Drive(_, DrivingGoal::Border(int, _)) => assert_eq!(i, int),
             _ => unreachable!(),
@@ -490,11 +523,12 @@ impl TripManager {
         assert!(!trip.finished_at.is_some());
         trip.finished_at = Some(now);
         self.unfinished_trips -= 1;
-        self.events.push(Event::TripFinished(
-            trip.id,
-            trip.mode,
-            now - trip.spawned_at,
-        ));
+        self.events.push(Event::TripFinished {
+            trip: trip.id,
+            mode: trip.mode,
+            total_time: now - trip.spawned_at,
+            blocked_time: trip.total_blocked_time,
+        });
         self.people[trip.person.0].state = PersonState::OffMap;
     }
 
@@ -616,9 +650,9 @@ impl TripManager {
         let t = &self.trips[id.0];
         (t.spawned_at, t.start.clone(), t.end.clone(), t.mode)
     }
-    pub fn finished_trip_time(&self, id: TripID) -> Duration {
+    pub fn finished_trip_time(&self, id: TripID) -> (Duration, Duration) {
         let t = &self.trips[id.0];
-        t.finished_at.unwrap() - t.spawned_at
+        (t.finished_at.unwrap() - t.spawned_at, t.total_blocked_time)
     }
 
     pub fn count_trips(&self, endpt: TripEndpoint, now: Time) -> TripCount {
@@ -708,6 +742,7 @@ struct Trip {
     id: TripID,
     spawned_at: Time,
     finished_at: Option<Time>,
+    total_blocked_time: Duration,
     aborted: bool,
     legs: VecDeque<TripLeg>,
     mode: TripMode,

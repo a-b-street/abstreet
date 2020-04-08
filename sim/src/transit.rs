@@ -182,7 +182,8 @@ impl TransitSimState {
                 {
                     if bus.route == route {
                         bus.passengers.push((ped, stop2));
-                        let (trip, person) = trips.ped_boarded_bus(now, ped, walking);
+                        let (trip, person) =
+                            trips.ped_boarded_bus(now, ped, now - started_waiting, walking);
                         self.events.push(Event::TripPhaseStarting(
                             trip,
                             person,

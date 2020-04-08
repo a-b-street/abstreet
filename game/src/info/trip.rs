@@ -39,8 +39,9 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
     let total_trip_time = end_time.unwrap_or_else(|| sim.time()) - phases[0].start_time;
 
     // Describe this leg of the trip
-    let col_width = 7;
     let progress_along_path = if let Some(a) = sim.trip_to_agent(trip).ok() {
+        let col_width = 7;
+
         let props = sim.agent_properties(a);
         // This is different than the entire TripMode, and also not the current TripPhaseType.
         // Sigh.
@@ -101,10 +102,18 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
 
         Some(props.dist_crossed / props.total_dist)
     } else {
+        let col_width = 15;
+
         // The trip is finished
         col.push(Widget::row(vec![
             Widget::row(vec![Line("Trip time").secondary().draw(ctx)]).force_width(ctx, col_width),
             total_trip_time.to_string().draw_text(ctx),
+        ]));
+        let (_, waiting) = sim.finished_trip_time(trip);
+        col.push(Widget::row(vec![
+            Widget::row(vec![Line("Total waiting time").secondary().draw(ctx)])
+                .force_width(ctx, col_width),
+            waiting.to_string().draw_text(ctx),
         ]));
         None
     };
