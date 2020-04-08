@@ -1,6 +1,7 @@
 use crate::app::App;
-use crate::common::{navigate, shortcuts, Layers, Warping};
+use crate::common::{navigate, shortcuts, Warping};
 use crate::game::Transition;
+use crate::layer::Layers;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use abstutil::clamp;
 use ezgui::{

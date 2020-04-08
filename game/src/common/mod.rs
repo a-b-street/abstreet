@@ -1,17 +1,13 @@
-mod bus_explorer;
 mod colors;
 mod heatmap;
-mod layers;
 mod minimap;
 mod navigate;
 mod panels;
 mod shortcuts;
 mod warp;
 
-pub use self::bus_explorer::ShowBusRoute;
 pub use self::colors::{ColorLegend, Colorer};
 pub use self::heatmap::{make_heatmap, HeatmapOptions};
-pub use self::layers::Layers;
 pub use self::minimap::Minimap;
 pub use self::panels::tool_panel;
 pub use self::warp::Warping;

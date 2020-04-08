@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::common::Layers;
 use crate::game::Transition;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::gameplay::{challenge_controller, FinalScore, GameplayMode, GameplayState};
@@ -43,7 +42,7 @@ impl GameplayState for FixTrafficSignals {
     ) -> (Option<Transition>, bool) {
         // Once is never...
         if self.once {
-            app.layer = Layers::trips_histogram(ctx, app);
+            app.layer = crate::layer::trips::trips_histogram(ctx, app);
             self.once = false;
         }
 

@@ -6,10 +6,11 @@ pub use self::lanes::LaneEditor;
 pub use self::stop_signs::StopSignEditor;
 pub use self::traffic_signals::TrafficSignalEditor;
 use crate::app::{App, ShowEverything};
-use crate::common::{tool_panel, Colorer, CommonState, Layers, Warping};
+use crate::common::{tool_panel, Colorer, CommonState, Warping};
 use crate::debug::DebugMode;
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
+use crate::layer::Layers;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::{DrawIntersection, DrawLane, DrawRoad, MIN_ZOOM_FOR_DETAIL};
 use crate::sandbox::{GameplayMode, SandboxMode};
@@ -76,7 +77,7 @@ impl State for EditMode {
         if self.once {
             self.once = false;
             // apply_map_edits will do the job later
-            app.layer = Layers::map_edits(ctx, app);
+            app.layer = crate::layer::map::edits(ctx, app);
         }
         {
             let edits = app.primary.map.get_edits();
@@ -429,7 +430,7 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
     }
 
     if let Layers::Edits(_) = app.layer {
-        app.layer = Layers::map_edits(ctx, app);
+        app.layer = crate::layer::map::edits(ctx, app);
     }
 }
 

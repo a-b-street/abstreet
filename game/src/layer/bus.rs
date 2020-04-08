@@ -1,5 +1,6 @@
 use crate::app::App;
 use crate::common::Colorer;
+use crate::layer::Layers;
 use ezgui::{Color, EventCtx, GeomBatch, GfxCtx, Line, Text};
 use geom::{Circle, Distance, Pt2D};
 use map_model::{BusRouteID, PathConstraints, PathRequest, PathStep};
@@ -11,7 +12,7 @@ pub struct ShowBusRoute {
 }
 
 impl ShowBusRoute {
-    pub fn new(id: BusRouteID, ctx: &mut EventCtx, app: &App) -> ShowBusRoute {
+    pub fn new(ctx: &mut EventCtx, app: &App, id: BusRouteID) -> Layers {
         let map = &app.primary.map;
         let route = app.primary.map.get_br(id);
 
@@ -62,11 +63,15 @@ impl ShowBusRoute {
             ));
         }
 
-        ShowBusRoute {
-            colorer: colorer.build_both(ctx, app),
-            labels,
-            bus_locations,
-        }
+        Layers::BusRoute(
+            app.primary.sim.time(),
+            id,
+            ShowBusRoute {
+                colorer: colorer.build_both(ctx, app),
+                labels,
+                bus_locations,
+            },
+        )
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {

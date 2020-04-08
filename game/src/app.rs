@@ -1,6 +1,6 @@
 use crate::colors::ColorScheme;
-use crate::common::Layers;
 use crate::helpers::ID;
+use crate::layer::Layers;
 use crate::options::Options;
 use crate::render::{
     AgentCache, AgentColorScheme, DrawMap, DrawOptions, Renderable, MIN_ZOOM_FOR_DETAIL,

@@ -5,7 +5,7 @@ mod speed;
 
 use self::misc_tools::{RoutePreview, ShowTrafficSignal, TurnExplorer};
 use crate::app::App;
-use crate::common::{tool_panel, CommonState, ContextualActions, Layers, Minimap};
+use crate::common::{tool_panel, CommonState, ContextualActions, Minimap};
 use crate::debug::DebugMode;
 use crate::edit::{
     apply_map_edits, can_edit_lane, save_edits_as, EditMode, LaneEditor, StopSignEditor,
@@ -13,6 +13,7 @@ use crate::edit::{
 };
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::{cmp_duration_shorter, ID};
+use crate::layer::Layers;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::pregame::main_menu;
 use crate::render::AgentColorScheme;
@@ -417,7 +418,7 @@ impl AgentMeter {
                     )));
                 }
                 "compare trips to baseline" => {
-                    app.layer = Layers::trips_histogram(ctx, app);
+                    app.layer = crate::layer::trips::trips_histogram(ctx, app);
                 }
                 _ => unreachable!(),
             },
@@ -491,7 +492,7 @@ impl ContextualActions for Actions {
                 Transition::Push(ShowTrafficSignal::new(ctx, app, i))
             }
             (ID::Intersection(i), "show current demand") => {
-                app.layer = Layers::intersection_demand(i, ctx, app);
+                app.layer = crate::layer::traffic::intersection_demand(ctx, app, i);
                 Transition::Keep
             }
             (ID::Intersection(i), "edit traffic signal") => {
@@ -519,8 +520,11 @@ impl ContextualActions for Actions {
             ),
             (ID::Car(c), "show route") => {
                 *close_panel = false;
-                app.layer =
-                    Layers::show_bus_route(app.primary.sim.bus_route_id(c).unwrap(), ctx, app);
+                app.layer = crate::layer::bus::ShowBusRoute::new(
+                    ctx,
+                    app,
+                    app.primary.sim.bus_route_id(c).unwrap(),
+                );
                 Transition::Keep
             }
             (_, "follow") => {

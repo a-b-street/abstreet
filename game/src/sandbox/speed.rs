@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::common::{Layers, Warping};
+use crate::common::Warping;
 use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use crate::sandbox::{GameplayMode, SandboxMode};
@@ -470,7 +470,7 @@ impl State for TimeWarpScreen {
                 Duration::seconds(0.033),
             ) {
                 let id = ID::Intersection(problems[0].0);
-                app.layer = Layers::traffic_jams(ctx, app);
+                app.layer = crate::layer::traffic::traffic_jams(ctx, app);
                 return Transition::Replace(Warping::new(
                     ctx,
                     id.canonical_point(&app.primary).unwrap(),
