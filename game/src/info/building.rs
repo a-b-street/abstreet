@@ -78,11 +78,9 @@ pub fn debug(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingI
 
 pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID) -> Vec<Widget> {
     let mut rows = header(ctx, app, details, id, Tab::BldgPeople(id));
-    // TODO Sort/group better
-    // Show minimal info: ID, next departure time, type of that trip
-    let mut any = false;
+
+    let mut ppl: Vec<(Time, Widget)> = Vec::new();
     for p in app.primary.sim.bldg_to_people(id) {
-        any = true;
         let person = app.primary.sim.get_person(p);
 
         let mut next_trip: Option<(Time, TripMode)> = None;
@@ -105,7 +103,7 @@ pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Building
         details
             .hyperlinks
             .insert(p.to_string(), Tab::PersonTrips(p, BTreeSet::new()));
-        rows.push(Widget::col(vec![
+        let widget = Widget::col(vec![
             Btn::text_bg1(p.to_string()).build_def(ctx, None),
             if let Some((t, mode)) = next_trip {
                 format!(
@@ -117,10 +115,20 @@ pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Building
             } else {
                 "Staying inside".draw_text(ctx)
             },
-        ]));
+        ]);
+        ppl.push((
+            next_trip.map(|(t, _)| t).unwrap_or(Time::END_OF_DAY),
+            widget,
+        ));
     }
-    if !any {
+    // Sort by time to next trip
+    ppl.sort_by_key(|(t, _)| *t);
+    if ppl.is_empty() {
         rows.push("Nobody's inside right now".draw_text(ctx));
+    } else {
+        for (_, w) in ppl {
+            rows.push(w);
+        }
     }
 
     rows
