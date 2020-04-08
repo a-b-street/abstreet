@@ -151,6 +151,17 @@ impl Scheduler {
         self.queued_commands.remove(&cmd.to_type());
     }
 
+    // TODO Should panic if a command of this type isn't scheduled. But currently failing
+    // unexpectedly.
+    pub fn must_cancel_by_type(&mut self, cmd: CommandType) {
+        if self.queued_commands.remove(&cmd).is_none() {
+            println!(
+                "must_cancel_by_type({:?}) didn't find a matching command",
+                cmd
+            );
+        }
+    }
+
     // This next command might've actually been rescheduled to a later time; the caller won't know
     // that here.
     pub fn peek_next_time(&self) -> Option<Time> {

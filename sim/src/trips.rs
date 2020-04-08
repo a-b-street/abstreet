@@ -1,3 +1,4 @@
+use crate::scheduler::CommandType;
 use crate::{
     AgentID, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, Event, ParkingSimState,
     ParkingSpot, PedestrianID, PersonID, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState,
@@ -529,8 +530,11 @@ impl TripManager {
         }
         let trip = &self.trips[id.0];
 
-        if trip.finished_at.is_some() || trip.aborted {
+        if trip.finished_at.is_some() {
             return TripResult::TripDone;
+        }
+        if trip.aborted {
+            return TripResult::TripAborted;
         }
 
         let a = match &trip.legs[0] {
@@ -671,6 +675,27 @@ impl TripManager {
 
     pub fn trip_to_person(&self, id: TripID) -> PersonID {
         self.trips[id.0].person
+    }
+
+    pub fn cancel_future_trips(&mut self, now: Time, p: PersonID, scheduler: &mut Scheduler) {
+        let person = &self.people[p.0];
+        println!("Aborting trips by {} ({:?}) after {}", p, person.state, now);
+        for t in &person.trips {
+            let trip = &mut self.trips[t.0];
+            // TODO Make sure we're only cancelling unstarted trips. There's a race condition where
+            // we schedule the CancelTrips command exactly at the time a trip is supposed to start.
+            if trip.spawned_at > now {
+                println!("  Aborting trip {} at {}", trip.id, trip.spawned_at);
+                self.unfinished_trips -= 1;
+                trip.aborted = true;
+                self.events.push(Event::TripAborted(trip.id, trip.mode));
+
+                scheduler.must_cancel_by_type(match trip.legs[0] {
+                    TripLeg::Walk(ped, _, _) | TripLeg::RideBus(ped, _, _) => CommandType::Ped(ped),
+                    TripLeg::Drive(ref vehicle, _) => CommandType::Car(vehicle.id),
+                });
+            }
+        }
     }
 }
 
@@ -827,6 +852,7 @@ pub enum TripResult<T> {
     TripDone,
     TripDoesntExist,
     TripNotStarted,
+    TripAborted,
 }
 
 impl<T> TripResult<T> {
@@ -844,6 +870,7 @@ impl<T> TripResult<T> {
             TripResult::TripDone => TripResult::TripDone,
             TripResult::TripDoesntExist => TripResult::TripDoesntExist,
             TripResult::TripNotStarted => TripResult::TripNotStarted,
+            TripResult::TripAborted => TripResult::TripAborted,
         }
     }
 }

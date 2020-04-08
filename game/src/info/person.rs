@@ -76,6 +76,10 @@ pub fn trips(
                 assert!(wheres_waldo);
                 "finished"
             }
+            TripResult::TripAborted => {
+                // Aborted trips can happen anywhere in the schedule right now
+                "cancelled"
+            }
             TripResult::TripDoesntExist => unreachable!(),
         };
         let (_, _, _, trip_mode) = sim.trip_info(*t);

@@ -5,7 +5,7 @@ use crate::sandbox::SandboxMode;
 use ezgui::{EventCtx, GfxCtx, Warper, Wizard};
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, IntersectionID, LaneID, RoadID};
-use sim::{PedestrianID, TripID};
+use sim::{PedestrianID, PersonID, PersonState, TripID};
 use std::usize;
 
 const WARP_TO_CAM_ZOOM: f64 = 10.0;
@@ -104,15 +104,19 @@ fn warp_point(line: &str, primary: &PerMap) -> Option<(Option<ID>, Pt2D, f64)> {
             'b' => ID::Building(BuildingID(idx)),
             'a' => ID::Area(AreaID(idx)),
             'p' => ID::Pedestrian(PedestrianID(idx)),
+            'P' => match primary.sim.get_person(PersonID(idx)).state {
+                PersonState::Inside(b) => ID::Building(b),
+                PersonState::Trip(t) => ID::from_agent(primary.sim.trip_to_agent(t).ok()?),
+                _ => {
+                    return None;
+                }
+            },
             'c' => {
                 // This one gets more complicated. :)
                 let c = primary.sim.lookup_car_id(idx)?;
                 ID::Car(c)
             }
-            't' => {
-                let a = primary.sim.trip_to_agent(TripID(idx)).ok()?;
-                ID::from_agent(a)
-            }
+            't' => ID::from_agent(primary.sim.trip_to_agent(TripID(idx)).ok()?),
             'T' => {
                 let t = primary.map.lookup_turn_by_idx(idx)?;
                 ID::Turn(t)

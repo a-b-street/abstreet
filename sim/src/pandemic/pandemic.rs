@@ -1,6 +1,5 @@
-use crate::pandemic::SEIR;
-use crate::pandemic::{erf_distrib_bounded, proba_decaying_sigmoid};
-use crate::{CarID, Event, Person, PersonID, Scheduler, TripPhaseType};
+use crate::pandemic::{erf_distrib_bounded, proba_decaying_sigmoid, SEIR};
+use crate::{CarID, Command, Event, Person, PersonID, Scheduler, TripPhaseType};
 use geom::{Duration, Time};
 use map_model::{BuildingID, BusStopID};
 use rand::Rng;
@@ -38,6 +37,7 @@ pub struct PandemicModel {
 pub enum Cmd {
     BecomeHospitalized(PersonID),
     BecomeQuarantined(PersonID),
+    CancelFutureTrips(PersonID),
 }
 
 // TODO Pretend handle_event and handle_cmd also take in some object that lets you do things like:
@@ -171,6 +171,8 @@ impl PandemicModel {
             Cmd::BecomeQuarantined(person) => {
                 self.quarantined.insert(person);
             }
+            // This is handled by the rest of the simulation
+            Cmd::CancelFutureTrips(_) => unreachable!(),
         }
     }
 
@@ -274,8 +276,16 @@ impl PandemicModel {
         self.sane.remove(&person);
     }
 
-    fn become_infected(&mut self, now: Time, person: PersonID, _scheduler: &mut Scheduler) {
+    fn become_infected(&mut self, now: Time, person: PersonID, scheduler: &mut Scheduler) {
         self.infected.insert(person, (now, now));
+        // TODO This doesn't make sense here, but BecomeHospitalized / BecomeQuarantined aren't
+        // fired off yet. Just testing temporarily.
+        if self.rng.gen_bool(0.5) && false {
+            scheduler.push(
+                now + Duration::hours(1),
+                Command::Pandemic(Cmd::CancelFutureTrips(person)),
+            );
+        }
     }
 
     fn become_recovered(&mut self, _now: Time, person: PersonID, _scheduler: &mut Scheduler) {

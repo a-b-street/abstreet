@@ -914,7 +914,7 @@ fn population_controls(
         ])
         .centered(),
         if app.primary.sim.get_pandemic_model().is_some() {
-            Checkbox::text(ctx, "Run pandemic model", None, opts.pandemic)
+            Checkbox::text(ctx, "Show pandemic model", None, opts.pandemic)
         } else {
             Widget::nothing()
         },
@@ -993,7 +993,7 @@ fn population_options(c: &mut Composite) -> PopulationOptions {
         None
     };
     PopulationOptions {
-        pandemic: c.has_widget("Run pandemic model") && c.is_checked("Run pandemic model"),
+        pandemic: c.has_widget("Show pandemic model") && c.is_checked("Show pandemic model"),
         heatmap,
     }
 }
