@@ -461,7 +461,11 @@ impl Sim {
                 let ok = if let SidewalkPOI::DeferredParkingSpot(b, driving_goal) =
                     create_ped.goal.connection.clone()
                 {
-                    if let Some(parked_car) = self.parking.dynamically_reserve_car(b) {
+                    if let Some(parked_car) = self.parking.dynamically_reserve_car(
+                        b,
+                        create_ped.start.sidewalk_pos.pt(map),
+                        map,
+                    ) {
                         create_ped.goal =
                             SidewalkSpot::parking_spot(parked_car.spot, map, &self.parking);
                         create_ped.req = PathRequest {

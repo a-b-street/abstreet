@@ -134,15 +134,25 @@ impl ParkingSimState {
         self.parked_cars.insert(p.vehicle.id, p);
     }
 
-    pub fn dynamically_reserve_car(&mut self, b: BuildingID) -> Option<ParkedCar> {
+    pub fn dynamically_reserve_car(
+        &mut self,
+        b: BuildingID,
+        closest_to: Pt2D,
+        map: &Map,
+    ) -> Option<ParkedCar> {
+        let mut candidates = Vec::new();
         for c in self.owned_cars_per_building.get(b) {
-            if self.dynamically_reserved_cars.contains(c) {
-                continue;
+            if !self.dynamically_reserved_cars.contains(c) {
+                let pt = match self.parked_cars[c].spot {
+                    ParkingSpot::Onstreet(l, _) => map.get_l(l).lane_center_pts.middle(),
+                    ParkingSpot::Offstreet(b, _) => map.get_b(b).label_center,
+                };
+                candidates.push((*c, pt.dist_to(closest_to)));
             }
-            self.dynamically_reserved_cars.insert(*c);
-            return Some(self.parked_cars[c].clone());
         }
-        None
+        let (c, _) = candidates.into_iter().min_by_key(|(_, dist)| *dist)?;
+        self.dynamically_reserved_cars.insert(c);
+        Some(self.parked_cars[&c].clone())
     }
 
     pub fn dynamically_return_car(&mut self, p: ParkedCar) {
