@@ -650,9 +650,9 @@ impl TripManager {
         let t = &self.trips[id.0];
         (t.spawned_at, t.start.clone(), t.end.clone(), t.mode)
     }
-    pub fn finished_trip_time(&self, id: TripID) -> (Duration, Duration) {
+    pub fn finished_trip_time(&self, id: TripID) -> Option<(Duration, Duration)> {
         let t = &self.trips[id.0];
-        (t.finished_at.unwrap() - t.spawned_at, t.total_blocked_time)
+        Some((t.finished_at? - t.spawned_at, t.total_blocked_time))
     }
 
     pub fn count_trips(&self, endpt: TripEndpoint, now: Time) -> TripCount {

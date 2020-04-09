@@ -23,14 +23,27 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
         // TODO Warp buttons. make_table is showing its age.
         let (_, _, name1) = endpoint(&trip_start, map);
         let (_, _, name2) = endpoint(&trip_end, map);
-        return Widget::col(make_table(
+        let mut col = make_table(
             ctx,
             vec![
                 ("Departure", start_time.ampm_tostring()),
                 ("From", name1),
                 ("To", name2),
             ],
-        ));
+        );
+        details
+            .time_warpers
+            .insert(format!("wait for {}", trip), (trip, start_time));
+        col.push(
+            Btn::text_bg2("Wait for trip")
+                .tooltip(Text::from(Line(format!(
+                    "This will advance the simulation to {}",
+                    start_time.ampm_tostring()
+                ))))
+                .build(ctx, format!("wait for {}", trip), None)
+                .margin(5),
+        );
+        return Widget::col(col);
     }
 
     let mut col = Vec::new();
@@ -109,7 +122,7 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
             Widget::row(vec![Line("Trip time").secondary().draw(ctx)]).force_width(ctx, col_width),
             total_trip_time.to_string().draw_text(ctx),
         ]));
-        let (_, waiting) = sim.finished_trip_time(trip);
+        let (_, waiting) = sim.finished_trip_time(trip).unwrap();
         col.push(Widget::row(vec![
             Widget::row(vec![Line("Total waiting time").secondary().draw(ctx)])
                 .force_width(ctx, col_width),

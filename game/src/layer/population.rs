@@ -7,7 +7,7 @@ use ezgui::{
     Spinner, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Pt2D};
-use sim::{GetDrawAgents, PersonState, TripResult};
+use sim::{GetDrawAgents, PersonState};
 use std::collections::HashSet;
 
 // TODO Disable drawing unzoomed agents... or alternatively, implement this by asking Sim to
@@ -17,8 +17,7 @@ pub fn new(ctx: &mut EventCtx, app: &App, opts: Options) -> Layers {
         if let Some(pct) = opts.with_finished_trip_blocked_pct {
             // TODO This is probably inefficient...
             app.primary.sim.get_person(p).trips.iter().any(|t| {
-                if let TripResult::TripDone = app.primary.sim.trip_to_agent(*t) {
-                    let (total, blocked) = app.primary.sim.finished_trip_time(*t);
+                if let Some((total, blocked)) = app.primary.sim.finished_trip_time(*t) {
                     (100.0 * blocked / total) as usize >= pct
                 } else {
                     false

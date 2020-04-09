@@ -967,8 +967,8 @@ impl Sim {
     pub fn trip_info(&self, id: TripID) -> (Time, TripEndpoint, TripEndpoint, TripMode) {
         self.trips.trip_info(id)
     }
-    // Only for finished trips. Returns (total time, total waiting time)
-    pub fn finished_trip_time(&self, id: TripID) -> (Duration, Duration) {
+    // If trip is finished, returns (total time, total waiting time)
+    pub fn finished_trip_time(&self, id: TripID) -> Option<(Duration, Duration)> {
         self.trips.finished_trip_time(id)
     }
 
