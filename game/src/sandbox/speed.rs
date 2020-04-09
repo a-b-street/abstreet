@@ -194,12 +194,12 @@ impl SpeedControls {
                         app.recalculate_current_selection(ctx);
                         return None;
                     }
-                    return Some(Transition::Push(Box::new(TimeWarpScreen::new(
+                    return Some(Transition::Push(TimeWarpScreen::new(
                         ctx,
                         app,
                         app.primary.sim.time() + dt,
                         false,
-                    ))));
+                    )));
                 }
                 _ => unreachable!(),
             },
@@ -373,7 +373,7 @@ impl State for JumpToTime {
                             app.primary.clear_sim();
                             return Transition::ReplaceThenPush(
                                 Box::new(SandboxMode::new(ctx, app, mode)),
-                                Box::new(TimeWarpScreen::new(ctx, app, self.target, traffic_jams)),
+                                TimeWarpScreen::new(ctx, app, self.target, traffic_jams),
                             );
                         } else {
                             return Transition::Replace(msg(
@@ -382,12 +382,12 @@ impl State for JumpToTime {
                             ));
                         }
                     }
-                    return Transition::Replace(Box::new(TimeWarpScreen::new(
+                    return Transition::Replace(TimeWarpScreen::new(
                         ctx,
                         app,
                         self.target,
                         traffic_jams,
-                    )));
+                    ));
                 }
                 _ => unreachable!(),
             },
@@ -434,14 +434,19 @@ pub struct TimeWarpScreen {
 }
 
 impl TimeWarpScreen {
-    fn new(ctx: &mut EventCtx, app: &mut App, target: Time, traffic_jams: bool) -> TimeWarpScreen {
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &mut App,
+        target: Time,
+        traffic_jams: bool,
+    ) -> Box<dyn State> {
         if traffic_jams {
             app.primary
                 .sim
                 .set_gridlock_checker(Some(Duration::minutes(5)));
         }
 
-        TimeWarpScreen {
+        Box::new(TimeWarpScreen {
             target,
             started: Instant::now(),
             traffic_jams,
@@ -456,7 +461,7 @@ impl TimeWarpScreen {
                 .bg(app.cs.panel_bg),
             )
             .build(ctx),
-        }
+        })
     }
 }
 

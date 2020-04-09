@@ -27,6 +27,7 @@ pub use gameplay::GameplayMode;
 use geom::{Duration, Polygon, Statistic, Time};
 use map_model::MapEdits;
 use sim::{TripMode, VehicleType};
+pub use speed::TimeWarpScreen;
 pub use speed::{SpeedControls, TimePanel};
 
 pub struct SandboxMode {

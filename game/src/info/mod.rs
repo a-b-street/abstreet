@@ -11,7 +11,7 @@ use crate::common::Warping;
 use crate::game::Transition;
 use crate::helpers::ID;
 use crate::render::{ExtraShapeID, MIN_ZOOM_FOR_DETAIL};
-use crate::sandbox::SandboxMode;
+use crate::sandbox::{SandboxMode, TimeWarpScreen};
 use ezgui::{
     hotkey, Btn, Checkbox, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Plot, PlotOptions, Series, Text, TextExt,
@@ -385,39 +385,30 @@ impl InfoPanel {
                 } else if let Some((trip, time)) = self.time_warpers.get(&action) {
                     let trip = *trip;
                     let time = *time;
-                    // TODO time warp screen
+                    let person = app.primary.sim.trip_to_person(trip);
+
                     (
                         false,
                         Some(Transition::ReplaceWithData(Box::new(
                             move |state, app, ctx| {
-                                let mode = state.downcast::<SandboxMode>().ok().unwrap();
-                                ctx.loading_screen("rewind simulation", |ctx, mut timer| {
-                                    app.primary.clear_sim();
-                                    let mut new_mode =
-                                        SandboxMode::new(ctx, app, mode.gameplay_mode);
-                                    app.primary.sim.timed_step(
-                                        &app.primary.map,
-                                        time - Time::START_OF_DAY,
-                                        &mut timer,
-                                    );
+                                let mut sandbox = state.downcast::<SandboxMode>().ok().unwrap();
 
-                                    let mut actions = new_mode.contextual_actions();
-                                    new_mode
-                                        .controls
-                                        .common
-                                        .as_mut()
-                                        .unwrap()
-                                        .launch_info_panel(
-                                            ctx,
-                                            app,
-                                            Tab::PersonTrips(
-                                                app.primary.sim.trip_to_person(trip),
-                                                btreeset! { trip },
-                                            ),
-                                            &mut actions,
-                                        );
-                                    Box::new(new_mode)
-                                })
+                                if time < app.primary.sim.time() {
+                                    sandbox = ctx.loading_screen("rewind simulation", |ctx, _| {
+                                        app.primary.clear_sim();
+                                        Box::new(SandboxMode::new(ctx, app, sandbox.gameplay_mode))
+                                    });
+                                }
+
+                                let mut actions = sandbox.contextual_actions();
+                                sandbox.controls.common.as_mut().unwrap().launch_info_panel(
+                                    ctx,
+                                    app,
+                                    Tab::PersonTrips(person, btreeset! { trip }),
+                                    &mut actions,
+                                );
+
+                                vec![sandbox, TimeWarpScreen::new(ctx, app, time, false)]
                             },
                         ))),
                     )

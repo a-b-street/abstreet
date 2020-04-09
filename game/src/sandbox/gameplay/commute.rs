@@ -11,6 +11,8 @@ use sim::{PersonID, TripID};
 use std::collections::BTreeSet;
 use std::fmt::Write;
 
+// TODO A nice level to unlock: specifying your own commute, getting to work on it
+
 const GOAL: Duration = Duration::const_seconds(3.0 * 60.0);
 
 pub struct OptimizeCommute {

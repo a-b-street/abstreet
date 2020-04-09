@@ -74,8 +74,8 @@ impl GUI for Game {
             Transition::ReplaceWithData(cb) => {
                 let mut last = self.states.pop().unwrap();
                 last.on_destroy(ctx, &mut self.app);
-                let new_state = cb(last, &mut self.app, ctx);
-                self.states.push(new_state);
+                let new_states = cb(last, &mut self.app, ctx);
+                self.states.extend(new_states);
             }
             Transition::KeepWithData(cb) => {
                 cb(self.states.last_mut().unwrap(), &mut self.app, ctx);
@@ -227,7 +227,9 @@ pub enum Transition {
     PopWithData(Box<dyn FnOnce(&mut Box<dyn State>, &mut App, &mut EventCtx)>),
     KeepWithData(Box<dyn FnOnce(&mut Box<dyn State>, &mut App, &mut EventCtx)>),
     PushWithData(Box<dyn FnOnce(&mut Box<dyn State>, &mut App, &mut EventCtx) -> Box<dyn State>>),
-    ReplaceWithData(Box<dyn FnOnce(Box<dyn State>, &mut App, &mut EventCtx) -> Box<dyn State>>),
+    ReplaceWithData(
+        Box<dyn FnOnce(Box<dyn State>, &mut App, &mut EventCtx) -> Vec<Box<dyn State>>>,
+    ),
     Push(Box<dyn State>),
     Replace(Box<dyn State>),
     ReplaceThenPush(Box<dyn State>, Box<dyn State>),
