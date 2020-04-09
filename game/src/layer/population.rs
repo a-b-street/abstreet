@@ -4,7 +4,7 @@ use crate::layer::Layers;
 use abstutil::prettyprint_usize;
 use ezgui::{
     hotkey, Btn, Checkbox, Color, Composite, EventCtx, GeomBatch, HorizontalAlignment, Key, Line,
-    Spinner, TextExt, VerticalAlignment, Widget,
+    VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Pt2D};
 use sim::{GetDrawAgents, PersonState};
@@ -13,28 +13,11 @@ use std::collections::HashSet;
 // TODO Disable drawing unzoomed agents... or alternatively, implement this by asking Sim to
 // return this kind of data instead!
 pub fn new(ctx: &mut EventCtx, app: &App, opts: Options) -> Layers {
-    let filter = |p| {
-        if let Some(pct) = opts.with_finished_trip_blocked_pct {
-            // TODO This is probably inefficient...
-            app.primary.sim.get_person(p).trips.iter().any(|t| {
-                if let Some((total, blocked)) = app.primary.sim.finished_trip_time(*t) {
-                    (100.0 * blocked / total) as usize >= pct
-                } else {
-                    false
-                }
-            })
-        } else {
-            true
-        }
-    };
-
     let mut pts = Vec::new();
     // Faster to grab all agent positions than individually map trips to agent positions.
     for a in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
-        if let Some(p) = a.person {
-            if filter(p) {
-                pts.push(a.pos);
-            }
+        if a.person.is_some() {
+            pts.push(a.pos);
         }
     }
 
@@ -48,14 +31,12 @@ pub fn new(ctx: &mut EventCtx, app: &App, opts: Options) -> Layers {
             // Already covered above
             PersonState::Trip(_) => {}
             PersonState::Inside(b) => {
-                if filter(person.id) {
-                    let pt = app.primary.map.get_b(b).polygon.center();
-                    if seen_bldgs.contains(&b) {
-                        repeat_pts.push(pt);
-                    } else {
-                        seen_bldgs.insert(b);
-                        pts.push(pt);
-                    }
+                let pt = app.primary.map.get_b(b).polygon.center();
+                if seen_bldgs.contains(&b) {
+                    repeat_pts.push(pt);
+                } else {
+                    seen_bldgs.insert(b);
+                    pts.push(pt);
                 }
             }
             PersonState::OffMap | PersonState::Limbo => {}
@@ -87,8 +68,6 @@ pub fn new(ctx: &mut EventCtx, app: &App, opts: Options) -> Layers {
 pub struct Options {
     // If None, just a dot map
     pub heatmap: Option<HeatmapOptions>,
-    // TODO More filters... Find people with finished/future trips of any/some mode
-    pub with_finished_trip_blocked_pct: Option<usize>,
 }
 
 fn make_controls(
@@ -118,21 +97,6 @@ fn make_controls(
         ])
         .centered(),
     ];
-    col.push(Checkbox::text(
-        ctx,
-        "Filter by people with a finished trip",
-        None,
-        opts.with_finished_trip_blocked_pct.is_some(),
-    ));
-    if let Some(pct) = opts.with_finished_trip_blocked_pct {
-        col.push(Widget::row(vec![
-            "% of time spent waiting".draw_text(ctx).margin(5),
-            Spinner::new(ctx, (0, 100), pct)
-                .named("blocked ratio")
-                .align_right()
-                .centered_vert(),
-        ]));
-    }
 
     col.push(Checkbox::text(
         ctx,
@@ -155,17 +119,5 @@ pub fn options(c: &mut Composite) -> Options {
     } else {
         None
     };
-    Options {
-        heatmap,
-        with_finished_trip_blocked_pct: if c.is_checked("Filter by people with a finished trip") {
-            if c.has_widget("blocked ratio") {
-                Some(c.spinner("blocked ratio"))
-            } else {
-                // Just changed, use default
-                Some(0)
-            }
-        } else {
-            None
-        },
-    }
+    Options { heatmap }
 }

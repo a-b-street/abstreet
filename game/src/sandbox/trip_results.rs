@@ -4,8 +4,9 @@ use crate::helpers::cmp_duration_shorter;
 use crate::info::Tab;
 use crate::sandbox::SandboxMode;
 use ezgui::{hotkey, Btn, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Text, Widget};
+use geom::{Duration, Time};
 use maplit::btreeset;
-use sim::TripID;
+use sim::{TripID, TripMode};
 
 // TODO Hover over a trip to preview its route on the map
 
@@ -18,6 +19,7 @@ pub struct TripResults {
 enum SortBy {
     Departure,
     Duration,
+    RelativeDuration,
     PercentWaiting,
 }
 
@@ -41,6 +43,9 @@ impl State for TripResults {
                 }
                 "Duration" => {
                     self.composite = make(ctx, app, SortBy::Duration);
+                }
+                "Comparison with baseline" => {
+                    self.composite = make(ctx, app, SortBy::RelativeDuration);
                 }
                 "Percent of trip spent waiting" => {
                     self.composite = make(ctx, app, SortBy::PercentWaiting);
@@ -71,6 +76,16 @@ impl State for TripResults {
     }
 }
 
+struct Entry {
+    trip: TripID,
+    mode: TripMode,
+    departure: Time,
+    duration: Duration,
+    baseline_duration: Duration,
+    waiting: Duration,
+    percent_waiting: usize,
+}
+
 fn make(ctx: &mut EventCtx, app: &App, sort: SortBy) -> Composite {
     let mut data = Vec::new();
     let sim = &app.primary.sim;
@@ -80,29 +95,30 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy) -> Composite {
         } else {
             continue;
         };
-        let (_, blocked) = sim.finished_trip_time(*id).unwrap();
-        let (start_time, _, _, _) = sim.trip_info(*id);
-        let comparison = if app.has_prebaked().is_some() {
-            cmp_duration_shorter(*duration, app.prebaked().finished_trip_time(*id).unwrap())
+        let (_, waiting) = sim.finished_trip_time(*id).unwrap();
+        let (departure, _, _, _) = sim.trip_info(*id);
+        let baseline_duration = if app.has_prebaked().is_some() {
+            app.prebaked().finished_trip_time(*id).unwrap()
         } else {
-            vec![Line("n/a")]
+            Duration::ZERO
         };
 
-        data.push((
-            *id,
+        data.push(Entry {
+            trip: *id,
             mode,
-            start_time,
-            *duration,
-            comparison,
-            blocked,
-            (100.0 * blocked / *duration) as usize,
-        ));
+            departure,
+            duration: *duration,
+            baseline_duration,
+            waiting,
+            percent_waiting: (100.0 * waiting / *duration) as usize,
+        });
     }
 
     match sort {
-        SortBy::Departure => data.sort_by_key(|(_, _, t, _, _, _, _)| *t),
-        SortBy::Duration => data.sort_by_key(|(_, _, _, dt, _, _, _)| *dt),
-        SortBy::PercentWaiting => data.sort_by_key(|(_, _, _, _, _, _, pct)| *pct),
+        SortBy::Departure => data.sort_by_key(|x| x.departure),
+        SortBy::Duration => data.sort_by_key(|x| x.duration),
+        SortBy::RelativeDuration => data.sort_by_key(|x| x.duration - x.baseline_duration),
+        SortBy::PercentWaiting => data.sort_by_key(|x| x.percent_waiting),
     }
     // Descending...
     data.reverse();
@@ -114,20 +130,20 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy) -> Composite {
     let mut col2 = Text::new();
     let mut col3 = Text::new();
     let mut col4 = Text::new();
-    let mut col5 = Text::new();
+    let mut maybe_col5 = Text::new();
     let mut col6 = Text::new();
     let mut col7 = Text::new();
 
-    for (id, mode, departure, duration, comparison, blocked, pct_blocked) in
-        data.into_iter().take(30)
-    {
-        col1.push(Btn::plaintext(id.0.to_string()).build_def(ctx, None));
-        col2.add(Line(mode.ongoing_verb()));
-        col3.add(Line(departure.ampm_tostring()));
-        col4.add(Line(duration.to_string()));
-        col5.add_appended(comparison);
-        col6.add(Line(blocked.to_string()));
-        col7.add(Line(format!("{}%", pct_blocked)));
+    for x in data.into_iter().take(30) {
+        col1.push(Btn::plaintext(x.trip.0.to_string()).build_def(ctx, None));
+        col2.add(Line(x.mode.ongoing_verb()));
+        col3.add(Line(x.departure.ampm_tostring()));
+        col4.add(Line(x.duration.to_string()));
+        if app.has_prebaked().is_some() {
+            maybe_col5.add_appended(cmp_duration_shorter(x.duration, x.baseline_duration));
+        }
+        col6.add(Line(x.waiting.to_string()));
+        col7.add(Line(format!("{}%", x.percent_waiting)));
     }
 
     Composite::new(
@@ -144,21 +160,30 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy) -> Composite {
                 Line("Trip ID").draw(ctx).margin_right(10),
                 Line("Type").draw(ctx).margin_right(10),
                 if sort == SortBy::Departure {
-                    Btn::text_fg("Departure").inactive(ctx)
+                    Btn::text_bg2("Departure").inactive(ctx)
                 } else {
                     Btn::text_fg("Departure").build_def(ctx, None)
                 }
                 .margin_right(10),
                 if sort == SortBy::Duration {
-                    Btn::text_fg("Duration").inactive(ctx)
+                    Btn::text_bg2("Duration").inactive(ctx)
                 } else {
                     Btn::text_fg("Duration").build_def(ctx, None)
                 }
                 .margin_right(10),
-                Line("Comparison with baseline").draw(ctx).margin_right(10),
+                if app.has_prebaked().is_some() {
+                    if sort == SortBy::RelativeDuration {
+                        Btn::text_bg2("Comparison with baseline").inactive(ctx)
+                    } else {
+                        Btn::text_fg("Comparison with baseline").build_def(ctx, None)
+                    }
+                    .margin_right(10)
+                } else {
+                    Widget::nothing()
+                },
                 Line("Time spent waiting").draw(ctx).margin_right(10),
                 if sort == SortBy::PercentWaiting {
-                    Btn::text_fg("Percent of trip spent waiting").inactive(ctx)
+                    Btn::text_bg2("Percent of trip spent waiting").inactive(ctx)
                 } else {
                     Btn::text_fg("Percent of trip spent waiting").build_def(ctx, None)
                 }
@@ -169,7 +194,11 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy) -> Composite {
                 col2.draw(ctx).margin_right(10),
                 col3.draw(ctx).margin_right(10),
                 col4.draw(ctx).margin_right(10),
-                col5.draw(ctx).margin_right(10),
+                if app.has_prebaked().is_some() {
+                    maybe_col5.draw(ctx).margin_right(10)
+                } else {
+                    Widget::nothing()
+                },
                 col6.draw(ctx).margin_right(10),
                 col7.draw(ctx).margin_right(10),
             ])

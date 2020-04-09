@@ -414,7 +414,6 @@ impl Layers {
                     app,
                     population::Options {
                         heatmap: Some(HeatmapOptions::new()),
-                        with_finished_trip_blocked_pct: None,
                     },
                 );
                 Some(Transition::Pop)
