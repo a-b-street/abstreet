@@ -3,7 +3,7 @@ use crate::game::{State, Transition};
 use crate::helpers::cmp_duration_shorter;
 use crate::info::Tab;
 use crate::sandbox::SandboxMode;
-use ezgui::{hotkey, Btn, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Text, Widget};
+use ezgui::{hotkey, Btn, Checkbox, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Text, Widget};
 use geom::{Duration, Time};
 use maplit::btreeset;
 use sim::{TripID, TripMode};
@@ -12,10 +12,12 @@ use sim::{TripID, TripMode};
 
 pub struct TripResults {
     composite: Composite,
+    sort_by: SortBy,
+    descending: bool,
 }
 
 // TODO Is there a heterogenously typed table crate somewhere?
-#[derive(PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 enum SortBy {
     Departure,
     Duration,
@@ -26,8 +28,14 @@ enum SortBy {
 impl TripResults {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         Box::new(TripResults {
-            composite: make(ctx, app, SortBy::PercentWaiting),
+            composite: make(ctx, app, SortBy::PercentWaiting, true),
+            sort_by: SortBy::PercentWaiting,
+            descending: true,
         })
+    }
+
+    fn recalc(&mut self, ctx: &mut EventCtx, app: &App) {
+        self.composite = make(ctx, app, self.sort_by, self.descending);
     }
 }
 
@@ -39,16 +47,20 @@ impl State for TripResults {
                     return Transition::Pop;
                 }
                 "Departure" => {
-                    self.composite = make(ctx, app, SortBy::Departure);
+                    self.sort_by = SortBy::Departure;
+                    self.recalc(ctx, app);
                 }
                 "Duration" => {
-                    self.composite = make(ctx, app, SortBy::Duration);
+                    self.sort_by = SortBy::Duration;
+                    self.recalc(ctx, app);
                 }
                 "Comparison with baseline" => {
-                    self.composite = make(ctx, app, SortBy::RelativeDuration);
+                    self.sort_by = SortBy::RelativeDuration;
+                    self.recalc(ctx, app);
                 }
                 "Percent of trip spent waiting" => {
-                    self.composite = make(ctx, app, SortBy::PercentWaiting);
+                    self.sort_by = SortBy::PercentWaiting;
+                    self.recalc(ctx, app);
                 }
                 x => {
                     let trip = TripID(x.parse::<usize>().unwrap());
@@ -67,6 +79,12 @@ impl State for TripResults {
             },
             None => {}
         };
+        let descending = self.composite.is_checked("Descending");
+        if self.descending != descending {
+            self.descending = descending;
+            self.recalc(ctx, app);
+        }
+
         Transition::Keep
     }
 
@@ -86,7 +104,7 @@ struct Entry {
     percent_waiting: usize,
 }
 
-fn make(ctx: &mut EventCtx, app: &App, sort: SortBy) -> Composite {
+fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Composite {
     let mut data = Vec::new();
     let sim = &app.primary.sim;
     for (_, id, maybe_mode, duration) in &sim.get_analytics().finished_trips {
@@ -120,8 +138,9 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy) -> Composite {
         SortBy::RelativeDuration => data.sort_by_key(|x| x.duration - x.baseline_duration),
         SortBy::PercentWaiting => data.sort_by_key(|x| x.percent_waiting),
     }
-    // Descending...
-    data.reverse();
+    if descending {
+        data.reverse();
+    }
 
     // Cheap tabular layout
     // TODO https://stackoverflow.com/questions/48493500/can-flexbox-handle-varying-sizes-of-columns-but-consistent-row-height/48496343#48496343
@@ -155,6 +174,7 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy) -> Composite {
                     .align_right(),
             ]),
             Line("Click a column to sort by it").small().draw(ctx),
+            Checkbox::text(ctx, "Descending", None, descending).margin(10),
             // TODO The column names aren't lined up at all
             Widget::row(vec![
                 Line("Trip ID").draw(ctx).margin_right(10),

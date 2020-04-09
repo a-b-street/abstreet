@@ -181,6 +181,10 @@ impl Path {
 
     pub fn add(&mut self, step: PathStep, map: &Map) {
         self.total_length += step.as_traversable().length(map);
+        match step {
+            PathStep::Lane(_) | PathStep::ContraflowLane(_) => self.total_lanes += 1,
+            _ => {}
+        };
         self.steps.push_back(step);
     }
 
