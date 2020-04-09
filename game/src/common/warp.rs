@@ -1,13 +1,13 @@
 use crate::app::{App, PerMap};
 use crate::common::Tab;
-use crate::game::{State, Transition, WizardState};
+use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::sandbox::SandboxMode;
 use ezgui::{EventCtx, GfxCtx, Warper, Wizard};
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, IntersectionID, LaneID, RoadID};
-use sim::{PedestrianID, PersonID, PersonState, TripID};
-use std::usize;
+use sim::{PedestrianID, PersonID, TripID};
+use std::collections::BTreeSet;
 
 const WARP_TO_CAM_ZOOM: f64 = 10.0;
 
@@ -16,22 +16,6 @@ impl EnteringWarp {
     pub fn new() -> Box<dyn State> {
         WizardState::new(Box::new(warp_to))
     }
-}
-
-fn warp_to(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
-    let mut wizard = wiz.wrap(ctx);
-    let to = wizard.input_string("Warp to what?")?;
-    if let Some((id, pt, cam_zoom)) = warp_point(&to, &app.primary) {
-        return Some(Transition::Replace(Warping::new(
-            ctx,
-            pt,
-            Some(cam_zoom),
-            id,
-            &mut app.primary,
-        )));
-    }
-    wizard.acknowledge("Bad warp ID", || vec![format!("{} isn't a valid ID", to)])?;
-    Some(Transition::Pop)
 }
 
 pub struct Warping {
@@ -82,14 +66,33 @@ impl State for Warping {
     fn draw(&self, _: &mut GfxCtx, _: &App) {}
 }
 
-fn warp_point(line: &str, primary: &PerMap) -> Option<(Option<ID>, Pt2D, f64)> {
+fn warp_to(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
+    let mut wizard = wiz.wrap(ctx);
+    let to = wizard.input_string("Warp to what?")?;
+    if let Some(t) = inner_warp(ctx, app, &to) {
+        Some(t)
+    } else {
+        Some(Transition::Replace(msg(
+            "Bad warp ID",
+            vec![format!("{} isn't a valid ID", to)],
+        )))
+    }
+}
+
+fn inner_warp(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Transition> {
     if line.is_empty() {
         return None;
     }
     // TODO Weird magic shortcut to go to last spot. What should this be?
     if line == "j" {
-        if let Some((pt, zoom)) = primary.last_warped_from {
-            return Some((None, pt, zoom));
+        if let Some((pt, zoom)) = app.primary.last_warped_from {
+            return Some(Transition::Replace(Warping::new(
+                ctx,
+                pt,
+                Some(zoom),
+                None,
+                &mut app.primary,
+            )));
         }
         return None;
     }
@@ -97,7 +100,7 @@ fn warp_point(line: &str, primary: &PerMap) -> Option<(Option<ID>, Pt2D, f64)> {
     let id = match usize::from_str_radix(&line[1..line.len()], 10) {
         Ok(idx) => match line.chars().next().unwrap() {
             'r' => {
-                let r = primary.map.maybe_get_r(RoadID(idx))?;
+                let r = app.primary.map.maybe_get_r(RoadID(idx))?;
                 ID::Lane(r.children_forwards[0].0)
             }
             'l' => ID::Lane(LaneID(idx)),
@@ -105,21 +108,29 @@ fn warp_point(line: &str, primary: &PerMap) -> Option<(Option<ID>, Pt2D, f64)> {
             'b' => ID::Building(BuildingID(idx)),
             'a' => ID::Area(AreaID(idx)),
             'p' => ID::Pedestrian(PedestrianID(idx)),
-            'P' => match primary.sim.get_person(PersonID(idx)).state {
-                PersonState::Inside(b) => ID::Building(b),
-                PersonState::Trip(t) => ID::from_agent(primary.sim.trip_to_agent(t).ok()?),
-                _ => {
-                    return None;
-                }
-            },
+            'P' => {
+                let id = PersonID(idx);
+                return Some(Transition::PopWithData(Box::new(move |state, app, ctx| {
+                    // Other states pretty much don't use info panels.
+                    if let Some(ref mut s) = state.downcast_mut::<SandboxMode>() {
+                        let mut actions = s.contextual_actions();
+                        s.controls.common.as_mut().unwrap().launch_info_panel(
+                            ctx,
+                            app,
+                            Tab::PersonTrips(id, BTreeSet::new()),
+                            &mut actions,
+                        );
+                    }
+                })));
+            }
             'c' => {
                 // This one gets more complicated. :)
-                let c = primary.sim.lookup_car_id(idx)?;
+                let c = app.primary.sim.lookup_car_id(idx)?;
                 ID::Car(c)
             }
-            't' => ID::from_agent(primary.sim.trip_to_agent(TripID(idx)).ok()?),
+            't' => ID::from_agent(app.primary.sim.trip_to_agent(TripID(idx)).ok()?),
             'T' => {
-                let t = primary.map.lookup_turn_by_idx(idx)?;
+                let t = app.primary.map.lookup_turn_by_idx(idx)?;
                 ID::Turn(t)
             }
             _ => {
@@ -130,9 +141,15 @@ fn warp_point(line: &str, primary: &PerMap) -> Option<(Option<ID>, Pt2D, f64)> {
             return None;
         }
     };
-    if let Some(pt) = id.canonical_point(primary) {
+    if let Some(pt) = id.canonical_point(&app.primary) {
         println!("Warping to {:?}", id);
-        Some((Some(id), pt, WARP_TO_CAM_ZOOM))
+        Some(Transition::Replace(Warping::new(
+            ctx,
+            pt,
+            Some(WARP_TO_CAM_ZOOM),
+            Some(id),
+            &mut app.primary,
+        )))
     } else {
         None
     }
