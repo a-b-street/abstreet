@@ -1,4 +1,5 @@
 use crate::app::App;
+use crate::common::Tab;
 use crate::game::Transition;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::gameplay::{challenge_controller, FinalScore, GameplayMode, GameplayState};
@@ -6,6 +7,7 @@ use crate::sandbox::{SandboxControls, SandboxMode};
 use ezgui::{Btn, EventCtx, GfxCtx};
 use geom::{Duration, Time};
 use sim::PersonID;
+use std::collections::BTreeSet;
 
 const GOAL: Duration = Duration::const_seconds(3.0 * 60.0);
 
@@ -43,18 +45,20 @@ impl GameplayState for OptimizeCommute {
             }
             Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
                 "locate person" => {
+                    let person = self.person;
                     return (
-                        Some(Transition::KeepWithData(Box::new(|state, app, ctx| {
-                            let mode = state.downcast_mut::<SandboxMode>().unwrap();
-                            let mut actions = mode.contextual_actions();
-                            mode.controls.common.as_mut().unwrap().launch_info_panel(
-                                // TODO
-                                crate::helpers::ID::Building(map_model::BuildingID(123)),
-                                ctx,
-                                app,
-                                &mut actions,
-                            );
-                        }))),
+                        Some(Transition::KeepWithData(Box::new(
+                            move |state, app, ctx| {
+                                let mode = state.downcast_mut::<SandboxMode>().unwrap();
+                                let mut actions = mode.contextual_actions();
+                                mode.controls.common.as_mut().unwrap().launch_info_panel(
+                                    ctx,
+                                    app,
+                                    Tab::PersonTrips(person, BTreeSet::new()),
+                                    &mut actions,
+                                );
+                            },
+                        ))),
                         false,
                     );
                 }

@@ -14,8 +14,8 @@ pub use self::warp::Warping;
 use crate::app::App;
 use crate::game::Transition;
 use crate::helpers::{list_names, ID};
-pub use crate::info::ContextualActions;
 use crate::info::InfoPanel;
+pub use crate::info::{ContextualActions, Tab};
 use ezgui::{
     hotkey, lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenDims, ScreenPt,
     ScreenRectangle, Text,
@@ -55,7 +55,12 @@ impl CommonState {
         if let Some(ref id) = app.primary.current_selection {
             // TODO Also have a hotkey binding for this?
             if app.per_obj.left_click(ctx, "show info") {
-                self.info_panel = Some(InfoPanel::launch(ctx, app, id.clone(), ctx_actions));
+                self.info_panel = Some(InfoPanel::new(
+                    ctx,
+                    app,
+                    Tab::from_id(app, id.clone()),
+                    ctx_actions,
+                ));
                 return None;
             }
         }
@@ -274,12 +279,12 @@ impl CommonState {
     // Meant to be used for launching from other states
     pub fn launch_info_panel(
         &mut self,
-        id: ID,
         ctx: &mut EventCtx,
         app: &mut App,
+        tab: Tab,
         ctx_actions: &mut dyn ContextualActions,
     ) {
-        self.info_panel = Some(InfoPanel::launch(ctx, app, id, ctx_actions));
+        self.info_panel = Some(InfoPanel::new(ctx, app, tab, ctx_actions));
     }
 
     pub fn info_panel_open(&self, app: &App) -> Option<ID> {

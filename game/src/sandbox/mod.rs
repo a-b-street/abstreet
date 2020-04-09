@@ -414,7 +414,7 @@ impl AgentMeter {
                     return Some(Transition::Push(dashboards::make(
                         ctx,
                         app,
-                        dashboards::Tab::TripsSummary,
+                        dashboards::DashTab::TripsSummary,
                     )));
                 }
                 "compare trips to baseline" => {

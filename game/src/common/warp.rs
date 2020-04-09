@@ -1,4 +1,5 @@
 use crate::app::{App, PerMap};
+use crate::common::Tab;
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::sandbox::SandboxMode;
@@ -65,9 +66,9 @@ impl State for Warping {
                     if let Some(ref mut s) = state.downcast_mut::<SandboxMode>() {
                         let mut actions = s.contextual_actions();
                         s.controls.common.as_mut().unwrap().launch_info_panel(
-                            id,
                             ctx,
                             app,
+                            Tab::from_id(app, id),
                             &mut actions,
                         );
                     }

@@ -72,7 +72,7 @@ pub enum Tab {
 }
 
 impl Tab {
-    fn from_id(app: &App, id: ID) -> Tab {
+    pub fn from_id(app: &App, id: ID) -> Tab {
         match id {
             ID::Road(_) => unreachable!(),
             ID::Lane(l) => Tab::LaneInfo(l),
@@ -162,16 +162,7 @@ pub struct Details {
 }
 
 impl InfoPanel {
-    pub fn launch(
-        ctx: &mut EventCtx,
-        app: &App,
-        id: ID,
-        ctx_actions: &mut dyn ContextualActions,
-    ) -> InfoPanel {
-        InfoPanel::new(ctx, app, Tab::from_id(app, id), ctx_actions)
-    }
-
-    fn new(
+    pub fn new(
         ctx: &mut EventCtx,
         app: &App,
         tab: Tab,
@@ -409,20 +400,22 @@ impl InfoPanel {
                                         time - Time::START_OF_DAY,
                                         &mut timer,
                                     );
-                                    if let Some(id) = app.primary.sim.trip_to_agent(trip).ok() {
-                                        let mut actions = new_mode.contextual_actions();
-                                        new_mode
-                                            .controls
-                                            .common
-                                            .as_mut()
-                                            .unwrap()
-                                            .launch_info_panel(
-                                                ID::from_agent(id),
-                                                ctx,
-                                                app,
-                                                &mut actions,
-                                            );
-                                    }
+
+                                    let mut actions = new_mode.contextual_actions();
+                                    new_mode
+                                        .controls
+                                        .common
+                                        .as_mut()
+                                        .unwrap()
+                                        .launch_info_panel(
+                                            ctx,
+                                            app,
+                                            Tab::PersonTrips(
+                                                app.primary.sim.trip_to_person(trip),
+                                                btreeset! { trip },
+                                            ),
+                                            &mut actions,
+                                        );
                                     Box::new(new_mode)
                                 })
                             },

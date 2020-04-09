@@ -1,6 +1,6 @@
 use crate::app::App;
+use crate::common::Tab;
 use crate::game::{msg, State, Transition};
-use crate::helpers::ID;
 use crate::helpers::{cmp_count_fewer, cmp_count_more, cmp_duration_shorter};
 use crate::managed::{Callback, ManagedGUIState, WrappedComposite};
 use crate::sandbox::SandboxMode;
@@ -16,18 +16,18 @@ use sim::TripMode;
 use std::collections::BTreeMap;
 
 #[derive(PartialEq, Clone, Copy)]
-pub enum Tab {
+pub enum DashTab {
     TripsSummary,
     ParkingOverhead,
     ExploreBusRoute,
 }
 
 // Oh the dashboards melted, but we still had the radio
-pub fn make(ctx: &mut EventCtx, app: &App, tab: Tab) -> Box<dyn State> {
+pub fn make(ctx: &mut EventCtx, app: &App, tab: DashTab) -> Box<dyn State> {
     let tab_data = vec![
-        (Tab::TripsSummary, "Trips summary"),
-        (Tab::ParkingOverhead, "Parking overhead analysis"),
-        (Tab::ExploreBusRoute, "Explore a bus route"),
+        (DashTab::TripsSummary, "Trips summary"),
+        (DashTab::ParkingOverhead, "Parking overhead analysis"),
+        (DashTab::ExploreBusRoute, "Explore a bus route"),
     ];
 
     let tabs = tab_data
@@ -42,9 +42,9 @@ pub fn make(ctx: &mut EventCtx, app: &App, tab: Tab) -> Box<dyn State> {
         .collect::<Vec<_>>();
 
     let (content, cbs) = match tab {
-        Tab::TripsSummary => (trips_summary_prebaked(ctx, app), Vec::new()),
-        Tab::ParkingOverhead => (parking_overhead(ctx, app), Vec::new()),
-        Tab::ExploreBusRoute => pick_bus_route(ctx, app),
+        DashTab::TripsSummary => (trips_summary_prebaked(ctx, app), Vec::new()),
+        DashTab::ParkingOverhead => (parking_overhead(ctx, app), Vec::new()),
+        DashTab::ExploreBusRoute => pick_bus_route(ctx, app),
     };
 
     let mut c = WrappedComposite::new(
@@ -346,10 +346,10 @@ fn pick_bus_route(ctx: &EventCtx, app: &App) -> (Widget, Vec<(String, Callback)>
                         let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
                         let mut actions = sandbox.contextual_actions();
                         sandbox.controls.common.as_mut().unwrap().launch_info_panel(
-                            // Arbitrarily use the first one
-                            ID::Car(buses[0].0),
                             ctx,
                             app,
+                            // Arbitrarily use the first one
+                            Tab::BusStatus(buses[0].0),
                             &mut actions,
                         );
                     })))
