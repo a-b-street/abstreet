@@ -2,6 +2,7 @@ mod dashboards;
 mod gameplay;
 mod misc_tools;
 mod speed;
+mod trip_results;
 
 use self::misc_tools::{RoutePreview, ShowTrafficSignal, TurnExplorer};
 use crate::app::App;
@@ -344,7 +345,10 @@ impl AgentMeter {
             },
             {
                 Widget::row(vec![
-                    Btn::text_bg2("more data").build_def(ctx, hotkey(Key::Q)),
+                    Btn::text_bg2("more data")
+                        .build_def(ctx, None)
+                        .margin_right(10),
+                    Btn::text_bg2("finished trips").build_def(ctx, hotkey(Key::Q)),
                     if app.has_prebaked().is_some() {
                         Btn::svg_def("../data/system/assets/meters/trip_histogram.svg")
                             .build(ctx, "compare trips to baseline", None)
@@ -417,6 +421,9 @@ impl AgentMeter {
                         app,
                         dashboards::DashTab::TripsSummary,
                     )));
+                }
+                "finished trips" => {
+                    return Some(Transition::Push(trip_results::TripResults::new(ctx, app)));
                 }
                 "compare trips to baseline" => {
                     app.layer = crate::layer::trips::trips_histogram(ctx, app);

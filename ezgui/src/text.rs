@@ -193,7 +193,6 @@ impl Text {
     }
 
     pub fn add_appended(&mut self, lines: Vec<TextSpan>) {
-        assert!(lines.len() > 1);
         for (idx, l) in lines.into_iter().enumerate() {
             if idx == 0 {
                 self.add(l);
