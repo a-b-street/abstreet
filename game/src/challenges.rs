@@ -6,7 +6,7 @@ use abstutil::Timer;
 use ezgui::{hotkey, Btn, Color, Composite, EventCtx, Key, Line, Text, Widget};
 use geom::{Duration, Time};
 use map_model::Map;
-use sim::{Scenario, Sim, SimFlags, SimOptions, TripMode};
+use sim::{PersonID, Scenario, Sim, SimFlags, SimOptions};
 use std::collections::{BTreeMap, HashSet};
 
 // TODO Also have some kind of screenshot to display for each challenge
@@ -53,6 +53,16 @@ pub fn all_challenges(dev: bool) -> BTreeMap<String, Vec<Challenge>> {
             },
         ],
     );
+    tree.insert(
+        "Optimize somebody's commute".to_string(),
+        vec![Challenge {
+            title: "Part 1".to_string(),
+            description: vec!["Speed up one person's daily commute".to_string()],
+            alias: "commute/pt1".to_string(),
+            gameplay: GameplayMode::OptimizeCommute(PersonID(3434)),
+        }],
+    );
+
     if dev {
         tree.insert(
             "Speed up a bus route (WIP)".to_string(),
@@ -91,33 +101,6 @@ pub fn all_challenges(dev: bool) -> BTreeMap<String, Vec<Challenge>> {
                 alias: "gridlock".to_string(),
                 gameplay: GameplayMode::CreateGridlock(abstutil::path_map("montlake")),
             }],
-        );
-        tree.insert(
-            "Playing favorites (WIP)".to_string(),
-            vec![
-                Challenge {
-                    title: "Speed up all bike trips".to_string(),
-                    description: vec![
-                        "Reduce the 50%ile trip times of bikes by at least 1 minute".to_string()
-                    ],
-                    alias: "fave/bike".to_string(),
-                    gameplay: GameplayMode::FasterTrips(
-                        abstutil::path_map("montlake"),
-                        TripMode::Bike,
-                    ),
-                },
-                Challenge {
-                    title: "Speed up all car trips".to_string(),
-                    description: vec!["Reduce the 50%ile trip times of drivers by at least 5 \
-                                       minutes"
-                        .to_string()],
-                    alias: "fave/car".to_string(),
-                    gameplay: GameplayMode::FasterTrips(
-                        abstutil::path_map("montlake"),
-                        TripMode::Drive,
-                    ),
-                },
-            ],
         );
     }
     tree

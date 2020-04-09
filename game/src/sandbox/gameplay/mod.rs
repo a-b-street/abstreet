@@ -1,5 +1,5 @@
+mod commute;
 mod create_gridlock;
-mod faster_trips;
 mod fix_traffic_signals;
 mod freeform;
 mod optimize_bus;
@@ -26,7 +26,7 @@ use ezgui::{
 use geom::{Duration, Polygon};
 use map_model::{EditCmd, EditIntersection, Map, MapEdits};
 use rand_xorshift::XorShiftRng;
-use sim::{Analytics, Scenario, ScenarioGenerator, TripMode};
+use sim::{Analytics, PersonID, Scenario, ScenarioGenerator};
 
 #[derive(PartialEq, Clone)]
 pub enum GameplayMode {
@@ -39,12 +39,10 @@ pub enum GameplayMode {
     OptimizeBus(String, String),
     // Map path
     CreateGridlock(String),
-    // TODO Be able to filter population by more factors
-    // Map path
-    FasterTrips(String, TripMode),
     FixTrafficSignals,
     // TODO Kinda gross. What stage in the tutorial?
     FixTrafficSignalsTutorial(usize),
+    OptimizeCommute(PersonID),
 
     // current
     Tutorial(TutorialPointer),
@@ -94,11 +92,11 @@ impl GameplayMode {
             GameplayMode::PlayScenario(ref path, _) => path.to_string(),
             GameplayMode::OptimizeBus(ref path, _) => path.to_string(),
             GameplayMode::CreateGridlock(ref path) => path.to_string(),
-            GameplayMode::FasterTrips(ref path, _) => path.to_string(),
             GameplayMode::FixTrafficSignals => abstutil::path_map("montlake"),
             GameplayMode::FixTrafficSignalsTutorial(_) => {
                 abstutil::path_synthetic_map("signal_single")
             }
+            GameplayMode::OptimizeCommute(_) => abstutil::path_map("montlake"),
             GameplayMode::Tutorial(_) => abstutil::path_map("montlake"),
         }
     }
@@ -257,12 +255,10 @@ impl GameplayMode {
             GameplayMode::CreateGridlock(_) => {
                 create_gridlock::CreateGridlock::new(ctx, app, self.clone())
             }
-            GameplayMode::FasterTrips(_, trip_mode) => {
-                faster_trips::FasterTrips::new(ctx, app, *trip_mode, self.clone())
-            }
             GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial(_) => {
                 fix_traffic_signals::FixTrafficSignals::new(ctx, app, self.clone())
             }
+            GameplayMode::OptimizeCommute(p) => commute::OptimizeCommute::new(ctx, app, *p),
             GameplayMode::Tutorial(current) => Tutorial::new(ctx, app, *current),
         }
     }
