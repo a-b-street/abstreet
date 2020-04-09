@@ -51,7 +51,7 @@ pub enum SpawnTrip {
 }
 
 impl Scenario {
-    // TODO may need to fork the RNG a bit more
+    // Any case where map edits could change the calls to the RNG, we have to fork.
     pub fn instantiate(&self, sim: &mut Sim, map: &Map, rng: &mut XorShiftRng, timer: &mut Timer) {
         sim.set_name(self.scenario_name.clone());
 
@@ -73,13 +73,23 @@ impl Scenario {
         let mut spawner = sim.make_spawner();
 
         let mut parked_cars_per_bldg: Vec<(BuildingID, usize)> = Vec::new();
+        let mut total_parked_cars = 0;
         for (b, cnt) in &self.parked_cars_per_bldg {
             if *cnt != 0 {
                 parked_cars_per_bldg.push((*b, *cnt));
+                total_parked_cars += *cnt;
             }
         }
+        // parked_cars_per_bldg is stable over map edits, so don't fork.
         parked_cars_per_bldg.shuffle(rng);
-        seed_parked_cars(parked_cars_per_bldg, sim, map, rng, timer);
+        seed_parked_cars(
+            parked_cars_per_bldg,
+            total_parked_cars,
+            sim,
+            map,
+            rng,
+            timer,
+        );
 
         timer.start_iter("trips for People", self.people.len());
         for p in &self.people {
@@ -87,6 +97,7 @@ impl Scenario {
             // TODO Or spawner?
             sim.new_person(p.id);
             for t in &p.trips {
+                // The RNG call is stable over edits.
                 let spec = t.trip.clone().to_trip_spec(rng);
                 spawner.schedule_trip(p.id, t.depart, spec, map, sim);
             }
@@ -140,7 +151,7 @@ impl Scenario {
         Distance::meters(rng.gen_range(low.inner_meters(), high.inner_meters()))
     }
 
-    pub fn rand_speed(rng: &mut XorShiftRng, low: Speed, high: Speed) -> Speed {
+    fn rand_speed(rng: &mut XorShiftRng, low: Speed, high: Speed) -> Speed {
         assert!(high > low);
         Speed::meters_per_second(rng.gen_range(
             low.inner_meters_per_second(),
@@ -179,11 +190,17 @@ impl Scenario {
 
 fn seed_parked_cars(
     parked_cars_per_bldg: Vec<(BuildingID, usize)>,
+    total_parked_cars: usize,
     sim: &mut Sim,
     map: &Map,
     base_rng: &mut XorShiftRng,
     timer: &mut Timer,
 ) {
+    // We always need the same number of cars
+    let mut rand_cars: Vec<VehicleSpec> = std::iter::repeat_with(|| Scenario::rand_car(base_rng))
+        .take(total_parked_cars)
+        .collect();
+
     let mut open_spots_per_road: BTreeMap<RoadID, Vec<ParkingSpot>> = BTreeMap::new();
     for spot in sim.get_all_parking_spots().1 {
         let r = match spot {
@@ -195,8 +212,12 @@ fn seed_parked_cars(
             .or_insert_with(Vec::new)
             .push(spot);
     }
-    for spots in open_spots_per_road.values_mut() {
-        spots.shuffle(base_rng);
+    // Changing parking on one road shouldn't affect far-off roads. Fork carefully.
+    for r in map.all_roads() {
+        let mut tmp_rng = abstutil::fork_rng(base_rng);
+        if let Some(ref mut spots) = open_spots_per_road.get_mut(&r.id) {
+            spots.shuffle(&mut tmp_rng);
+        }
     }
 
     timer.start_iter("seed parked cars", parked_cars_per_bldg.len());
@@ -207,9 +228,8 @@ fn seed_parked_cars(
             continue;
         }
         for _ in 0..cnt {
-            // TODO Fork?
             if let Some(spot) = find_spot_near_building(b, &mut open_spots_per_road, map, timer) {
-                sim.seed_parked_car(Scenario::rand_car(base_rng), spot, Some(b));
+                sim.seed_parked_car(rand_cars.pop().unwrap(), spot, Some(b));
             } else {
                 timer.warn("Not enough room to seed parked cars.".to_string());
                 ok = false;
@@ -263,7 +283,7 @@ fn find_spot_near_building(
 }
 
 impl SpawnTrip {
-    pub fn to_trip_spec(self, rng: &mut XorShiftRng) -> TripSpec {
+    fn to_trip_spec(self, rng: &mut XorShiftRng) -> TripSpec {
         match self {
             SpawnTrip::CarAppearing {
                 start,
