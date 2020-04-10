@@ -174,16 +174,16 @@ impl State {
         }
     }
 
-    // pub fn get_time(&self) -> Option<AnyTime> {
-    //     match self {
-    //         Self::Sane(ev) | Self::Exposed(ev) | Self::Infectious(ev) | Self::Hospitalized(ev) => {
-    //             Some(ev.t)
-    //         }
-    //         Self::Recovered | Self::Dead => None,
-    //     }
-    // }
+    pub fn get_time(&self) -> Option<AnyTime> {
+        match self {
+            Self::Sane(ev) | Self::Exposed(ev) | Self::Infectious(ev) | Self::Hospitalized(ev) => {
+                Some(ev.t)
+            }
+            Self::Recovered | Self::Dead => None,
+        }
+    }
 
-    pub fn set_time(mut self, new_time: AnyTime) -> Self {
+    pub fn set_time(self, new_time: AnyTime) -> Self {
         match self {
             Self::Sane(Event {
                 s,
@@ -200,6 +200,7 @@ impl State {
         }
     }
 
+    // TODO: not sure if we want an option here...
     pub fn next_default(self, default: AnyTime, rng: &mut XorShiftRng) -> Option<Self> {
         // TODO: when #![feature(bindings_after_at)] reaches stable
         // rewrite this part with it
@@ -208,11 +209,12 @@ impl State {
             Self::Exposed(ev) => Some(ev.next(default, rng)),
             Self::Infectious(ev) => Some(ev.next(default, rng)),
             Self::Hospitalized(ev) => Some(ev.next(default, rng)),
-            Self::Recovered => None,
-            Self::Dead => None,
+            Self::Recovered => Some(Self::Recovered),
+            Self::Dead => Some(Self::Dead),
         }
     }
 
+    // TODO: not sure if we want an option here...
     pub fn next(self, now: AnyTime, rng: &mut XorShiftRng) -> Option<Self> {
         // TODO: when #![feature(bindings_after_at)] reaches stable
         // rewrite this part with it
@@ -245,8 +247,8 @@ impl State {
                     Some(Self::Hospitalized(ev))
                 }
             }
-            Self::Recovered => None,
-            Self::Dead => None,
+            Self::Recovered => Some(Self::Recovered),
+            Self::Dead => Some(Self::Dead),
         }
     }
 }

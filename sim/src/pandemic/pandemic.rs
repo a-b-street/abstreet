@@ -114,19 +114,35 @@ impl PandemicModel {
     }
 
     pub fn count_sane(&self) -> usize {
-        self.sane.len()
+        self.pop.iter().filter(|(_, state)| match state {
+            State::Sane(_) => true,
+            _ => false,
+        }).count()
+        // self.sane.len()
     }
 
     pub fn count_exposed(&self) -> usize {
-        self.exposed.len()
+        self.pop.iter().filter(|(_, state)| match state {
+            State::Exposed(_) => true,
+            _ => false,
+        }).count()
+        // self.exposed.len()
     }
 
     pub fn count_infected(&self) -> usize {
-        self.infected.len()
+        // self.infected.len()
+        self.pop.iter().filter(|(_, state)| match state {
+            State::Infectious(_) => true,
+            _ => false,
+        }).count()
     }
 
     pub fn count_recovered(&self) -> usize {
-        self.recovered.len()
+        self.pop.iter().filter(|(_, state)| match state {
+            State::Recovered => true,
+            _ => false,
+        }).count()
+        // self.recovered.len()
     }
 
     pub fn count_total(&self) -> usize {
@@ -216,9 +232,9 @@ impl PandemicModel {
 
     fn infectious_contact(&self, person: PersonID, other: PersonID) -> Option<PersonID> {
         if self.is_completely_sane(person) && self.is_infectious(other) {
-            return Some(other);
-        } else if self.is_infectious(person) && self.is_completely_sane(other) {
             return Some(person);
+        } else if self.is_infectious(person) && self.is_completely_sane(other) {
+            return Some(other);
         }
         None
     }
@@ -233,10 +249,9 @@ impl PandemicModel {
         // person has spent some duration in the same space as other people. Does transmission
         // occur?
         for (other, overlap) in other_occupants {
-            if (self.is_completely_sane(other) && self.is_infectious(person))
-                || (self.is_completely_sane(person) && self.is_infectious(other))
-            {
-
+            if let Some(pid) = self.infectious_contact(person, other) {
+                println!("person: {:?}, other: {:?}", self.pop.get(&person).unwrap(), self.pop.get(&other).unwrap());
+                self.become_sane_but_exposed(now, pid, scheduler);
             }
 
             if let Some(pid) = self.might_become_exposed(person, other) {
@@ -249,6 +264,10 @@ impl PandemicModel {
 
     // transition from a state to another without interaction with others
     fn transition(&mut self, now: Time, person: PersonID, scheduler: &mut Scheduler) {
+
+        let state = self.pop.remove(&person).unwrap();
+        let state = state.next(AnyTime::from(now), &mut self.rng).unwrap();
+        self.pop.insert(person, state);
         // person has spent some duration in the same space as other people. Does transmission
         // occur?
         if let Some((t0, last_check)) = self.infected.get(&person).cloned() {
@@ -327,6 +346,15 @@ impl PandemicModel {
         // SO let's keep the scheduler here
         self.exposed.insert(person, (now, now));
         self.sane.remove(&person);
+    }
+
+    fn become_sane_but_exposed(&mut self, now: Time, person: PersonID, _scheduler: &mut Scheduler) {
+        // When poeple become expose
+        let state = self.pop.remove(&person).unwrap();
+        println!("{:?}", state);
+        assert_eq!(state.get_time().unwrap().inner_seconds(), std::f64::INFINITY);
+        let state = state.set_time(AnyTime::from(now));
+        self.pop.insert(person, state);
     }
 
     fn become_infected(&mut self, now: Time, person: PersonID, scheduler: &mut Scheduler) {
