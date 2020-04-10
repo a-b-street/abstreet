@@ -1,4 +1,4 @@
-use crate::pandemic::{erf_distrib_bounded, proba_decaying_sigmoid, SEIR, State};
+use crate::pandemic::{erf_distrib_bounded, proba_decaying_sigmoid, AnyTime, State, SEIR};
 use crate::{CarID, Command, Event, Person, PersonID, Scheduler, TripPhaseType};
 use geom::{Duration, Time};
 use map_model::{BuildingID, BusStopID};
@@ -93,13 +93,15 @@ impl PandemicModel {
         }
 
         // TODO the intial time is not well set. it should start "before"
-        // the beginning of the day. Also 
+        // the beginning of the day. Also
         for p in population {
-            let state = State::new(Time::START_OF_DAY, 0.5, 0.5, &mut self.rng);
+            let state = State::new(AnyTime::from(std::f64::INFINITY), 0.5, 0.5, &mut self.rng);
             let state = if self.rng.gen_bool(SEIR::get_initial_ratio(SEIR::Exposed)) {
-                let next_state = state.next_default(Time::START_OF_DAY, &mut self.rng).unwrap();
+                let next_state = state.set_time(AnyTime::from(Time::START_OF_DAY));
                 let next_state = if self.rng.gen_bool(SEIR::get_initial_ratio(SEIR::Infectious)) {
-                    next_state.next_default(Time::START_OF_DAY, &mut self.rng).unwrap()
+                    next_state
+                        .next_default(AnyTime::from(Time::START_OF_DAY), &mut self.rng)
+                        .unwrap()
                 } else {
                     next_state
                 };
@@ -107,10 +109,8 @@ impl PandemicModel {
             } else {
                 state
             };
-            println!("{:?}", state);
             self.pop.insert(p.id, state);
         }
-        
     }
 
     pub fn count_sane(&self) -> usize {
@@ -200,6 +200,29 @@ impl PandemicModel {
         }
     }
 
+    fn is_completely_sane(&self, person: PersonID) -> bool {
+        match self.pop.get(&person) {
+            Some(state) => state.is_completely_sane(),
+            None => unreachable!(),
+        }
+    }
+
+    fn is_infectious(&self, person: PersonID) -> bool {
+        match self.pop.get(&person) {
+            Some(state) => state.is_infectious(),
+            None => unreachable!(),
+        }
+    }
+
+    fn infectious_contact(&self, person: PersonID, other: PersonID) -> Option<PersonID> {
+        if self.is_completely_sane(person) && self.is_infectious(&other) {
+            return Some(other);
+        } else if self.is_infectious(&person) && self.is_completely_sane(other) {
+            return Some(person);
+        }
+        None
+    }
+
     fn transmission(
         &mut self,
         now: Time,
@@ -210,6 +233,12 @@ impl PandemicModel {
         // person has spent some duration in the same space as other people. Does transmission
         // occur?
         for (other, overlap) in other_occupants {
+            if (self.is_completely_sane(other) && self.is_infectious(person))
+                || (self.is_completely_sane(person) && self.is_infectious(other))
+            {
+
+            }
+
             if let Some(pid) = self.might_become_exposed(person, other) {
                 if self.exposition_occurs(overlap) {
                     self.become_exposed(now, pid, scheduler);

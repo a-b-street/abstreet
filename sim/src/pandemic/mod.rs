@@ -1,12 +1,68 @@
 mod pandemic;
 mod prob;
 
-use geom::{Time, Duration};
+use geom::{Duration, Time};
 pub use pandemic::{Cmd, PandemicModel};
 pub use prob::{erf_distrib_bounded, proba_decaying_sigmoid};
 use rand::Rng;
 use rand_distr::{Distribution, Exp, Normal};
 use rand_xorshift::XorShiftRng;
+use std::ops;
+
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+pub struct AnyTime(f64);
+
+impl AnyTime {
+    fn inner_seconds(&self) -> f64 {
+        self.0
+    }
+
+    pub fn is_finite(&self) -> bool {
+        self.0.is_finite()
+    }
+}
+
+impl ops::Add<Duration> for AnyTime {
+    type Output = AnyTime;
+
+    fn add(self, other: Duration) -> AnyTime {
+        AnyTime(self.0 + other.inner_seconds())
+    }
+}
+
+impl ops::AddAssign<Duration> for AnyTime {
+    fn add_assign(&mut self, other: Duration) {
+        *self = *self + other;
+    }
+}
+
+impl ops::Sub<Duration> for AnyTime {
+    type Output = AnyTime;
+
+    fn sub(self, other: Duration) -> AnyTime {
+        AnyTime(self.0 - other.inner_seconds())
+    }
+}
+
+impl ops::Sub for AnyTime {
+    type Output = Duration;
+
+    fn sub(self, other: AnyTime) -> Duration {
+        Duration::seconds(self.0 - other.0)
+    }
+}
+
+impl From<Time> for AnyTime {
+    fn from(t: Time) -> AnyTime {
+        AnyTime(t.inner_seconds())
+    }
+}
+
+impl From<f64> for AnyTime {
+    fn from(t: f64) -> AnyTime {
+        AnyTime(t)
+    }
+}
 
 #[derive(Debug, Clone)]
 pub enum State {
@@ -32,11 +88,11 @@ pub struct Event {
     s: StateEvent,
     p_hosp: f64,  // probability of people being hospitalized after infection
     p_death: f64, // probability of dying after hospitalizaion
-    t: Time,
+    t: AnyTime,
 }
 
 impl Event {
-    fn next(&self, now: Time, rng: &mut XorShiftRng) -> State {
+    fn next(&self, now: AnyTime, rng: &mut XorShiftRng) -> State {
         match self.s {
             StateEvent::Exposition => State::Exposed(Event {
                 s: StateEvent::Incubation,
@@ -85,7 +141,7 @@ impl Event {
 }
 
 impl State {
-    fn new(t0: Time, p_hosp: f64, p_death: f64, rng: &mut XorShiftRng) -> Self {
+    fn new(t0: AnyTime, p_hosp: f64, p_death: f64, rng: &mut XorShiftRng) -> Self {
         Self::Sane(Event {
             s: StateEvent::Exposition,
             p_hosp,
@@ -104,35 +160,48 @@ impl State {
         Duration::seconds(normal.sample(rng))
     }
 
-    pub fn get_time(&self) -> Option<Time> {
+    // pub fn get_time(&self) -> Option<AnyTime> {
+    //     match self {
+    //         Self::Sane(ev) | Self::Exposed(ev) | Self::Infectious(ev) | Self::Hospitalized(ev) => {
+    //             Some(ev.t)
+    //         }
+    //         Self::Recovered | Self::Dead => None,
+    //     }
+    // }
+
+    pub fn set_time(mut self, new_time: AnyTime) -> Self {
         match self {
-            Self::Sane(ev) | Self::Exposed(ev) | Self::Infectious(ev) | Self::Hospitalized(ev) => {
-                Some(ev.t)
-            }
-            Self::Recovered | Self::Dead => None,
+            Self::Sane(Event {
+                s,
+                p_hosp,
+                p_death,
+                t: _,
+            }) => Self::Sane(Event {
+                s,
+                p_hosp,
+                p_death,
+                t: new_time,
+            }),
+            _ => unreachable!(),
         }
     }
 
-    pub fn next_default(self, default: Time, rng: &mut XorShiftRng) -> Option<Self> {
+    pub fn next_default(self, default: AnyTime, rng: &mut XorShiftRng) -> Option<Self> {
+        // TODO: when #![feature(bindings_after_at)] reaches stable
+        // rewrite this part with it
         match self {
-            Self::Sane(ev) => {
-                Some(ev.next(default, rng))
-            }
-            Self::Exposed(ev) => {
-                Some(ev.next(default, rng))
-            }
-            Self::Infectious(ev) => {
-                Some(ev.next(default, rng))
-            }
-            Self::Hospitalized(ev) => {
-                Some(ev.next(default, rng))
-            }
+            Self::Sane(ev) => Some(ev.next(default, rng)),
+            Self::Exposed(ev) => Some(ev.next(default, rng)),
+            Self::Infectious(ev) => Some(ev.next(default, rng)),
+            Self::Hospitalized(ev) => Some(ev.next(default, rng)),
             Self::Recovered => None,
             Self::Dead => None,
         }
     }
 
-    pub fn next(self, now: Time, rng: &mut XorShiftRng) -> Option<Self> {
+    pub fn next(self, now: AnyTime, rng: &mut XorShiftRng) -> Option<Self> {
+        // TODO: when #![feature(bindings_after_at)] reaches stable
+        // rewrite this part with it
         match self {
             Self::Sane(ev) => {
                 if ev.t <= now {
