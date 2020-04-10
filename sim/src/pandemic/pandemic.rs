@@ -215,9 +215,9 @@ impl PandemicModel {
     }
 
     fn infectious_contact(&self, person: PersonID, other: PersonID) -> Option<PersonID> {
-        if self.is_completely_sane(person) && self.is_infectious(&other) {
+        if self.is_completely_sane(person) && self.is_infectious(other) {
             return Some(other);
-        } else if self.is_infectious(&person) && self.is_completely_sane(other) {
+        } else if self.is_infectious(person) && self.is_completely_sane(other) {
             return Some(person);
         }
         None

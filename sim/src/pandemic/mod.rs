@@ -160,6 +160,20 @@ impl State {
         Duration::seconds(normal.sample(rng))
     }
 
+    fn is_completely_sane(&self) -> bool {
+        match self {
+            State::Sane(ev) => !ev.t.is_finite(),
+            _ => false,
+        }
+    }
+
+    fn is_infectious(&self) -> bool {
+        match self {
+            State::Infectious(_) | State::Hospitalized(_) => true,
+            _ => false,
+        }
+    }
+
     // pub fn get_time(&self) -> Option<AnyTime> {
     //     match self {
     //         Self::Sane(ev) | Self::Exposed(ev) | Self::Infectious(ev) | Self::Hospitalized(ev) => {
