@@ -7,7 +7,7 @@ use ezgui::{
 };
 use geom::{Circle, Distance, Polygon, Pt2D, Statistic, Time};
 use map_model::{BusRouteID, BusStopID};
-use sim::CarID;
+use sim::{AgentID, CarID};
 
 pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID) -> Vec<Widget> {
     let mut rows = vec![];
@@ -80,13 +80,21 @@ pub fn bus_delays(ctx: &mut EventCtx, app: &App, details: &mut Details, id: CarI
 }
 
 fn bus_header(
-    ctx: &EventCtx,
+    ctx: &mut EventCtx,
     app: &App,
     details: &mut Details,
     id: CarID,
     tab: Tab,
 ) -> Vec<Widget> {
     let route = app.primary.sim.bus_route_id(id).unwrap();
+
+    if let Some(pt) = app
+        .primary
+        .sim
+        .canonical_pt_for_agent(AgentID::Car(id), &app.primary.map)
+    {
+        ctx.canvas.center_on_map_pt(pt);
+    }
 
     let mut rows = vec![];
     rows.push(Widget::row(vec![

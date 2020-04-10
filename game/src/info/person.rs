@@ -174,7 +174,7 @@ pub fn trips(
 }
 
 pub fn bio(
-    ctx: &EventCtx,
+    ctx: &mut EventCtx,
     app: &App,
     details: &mut Details,
     id: PersonID,
@@ -266,7 +266,7 @@ pub fn parked_car(ctx: &EventCtx, app: &App, details: &mut Details, id: CarID) -
 }
 
 fn header(
-    ctx: &EventCtx,
+    ctx: &mut EventCtx,
     app: &App,
     details: &mut Details,
     id: PersonID,
@@ -277,6 +277,8 @@ fn header(
 
     let (current_trip, (descr, maybe_icon)) = match app.primary.sim.get_person(id).state {
         PersonState::Inside(b) => {
+            ctx.canvas
+                .center_on_map_pt(app.primary.map.get_b(b).label_center);
             building::draw_occupants(details, app, b, Some(id));
             (
                 None,
@@ -285,18 +287,28 @@ fn header(
         }
         PersonState::Trip(t) => (
             Some(t),
-            match app.primary.sim.trip_to_agent(t).ok() {
-                Some(AgentID::Pedestrian(_)) => (
-                    "walking",
-                    Some("../data/system/assets/meters/pedestrian.svg"),
-                ),
-                Some(AgentID::Car(c)) => match c.1 {
-                    VehicleType::Car => ("driving", Some("../data/system/assets/meters/car.svg")),
-                    VehicleType::Bike => ("biking", Some("../data/system/assets/meters/bike.svg")),
-                    VehicleType::Bus => unreachable!(),
-                },
+            if let Some(a) = app.primary.sim.trip_to_agent(t).ok() {
+                if let Some(pt) = app.primary.sim.canonical_pt_for_agent(a, &app.primary.map) {
+                    ctx.canvas.center_on_map_pt(pt);
+                }
+                match a {
+                    AgentID::Pedestrian(_) => (
+                        "walking",
+                        Some("../data/system/assets/meters/pedestrian.svg"),
+                    ),
+                    AgentID::Car(c) => match c.1 {
+                        VehicleType::Car => {
+                            ("driving", Some("../data/system/assets/meters/car.svg"))
+                        }
+                        VehicleType::Bike => {
+                            ("biking", Some("../data/system/assets/meters/bike.svg"))
+                        }
+                        VehicleType::Bus => unreachable!(),
+                    },
+                }
+            } else {
                 // TODO Really should clean up the TripModeChange issue
-                None => ("...", None),
+                ("...", None)
             },
         ),
         PersonState::OffMap => (None, ("off map", None)),
