@@ -1,4 +1,4 @@
-use crate::pandemic::{erf_distrib_bounded, proba_decaying_sigmoid, SEIR};
+use crate::pandemic::{erf_distrib_bounded, proba_decaying_sigmoid, SEIR, State};
 use crate::{CarID, Command, Event, Person, PersonID, Scheduler, TripPhaseType};
 use geom::{Duration, Time};
 use map_model::{BuildingID, BusStopID};
@@ -22,6 +22,8 @@ pub struct PandemicModel {
     pub recovered: BTreeSet<PersonID>,
     hospitalized: BTreeSet<PersonID>,
     quarantined: BTreeSet<PersonID>,
+
+    pop: BTreeMap<PersonID, State>,
 
     bldgs: SharedSpace<BuildingID>,
     bus_stops: SharedSpace<BusStopID>,
@@ -51,6 +53,8 @@ pub enum Cmd {
 impl PandemicModel {
     pub fn new(rng: XorShiftRng) -> PandemicModel {
         PandemicModel {
+            pop: BTreeMap::new(),
+
             sane: BTreeSet::new(),
             exposed: BTreeMap::new(),
             infected: BTreeMap::new(),
@@ -87,6 +91,26 @@ impl PandemicModel {
                 self.become_recovered(Time::START_OF_DAY, p.id, scheduler);
             }
         }
+
+        // TODO the intial time is not well set. it should start "before"
+        // the beginning of the day. Also 
+        for p in population {
+            let state = State::new(Time::START_OF_DAY, 0.5, 0.5, &mut self.rng);
+            let state = if self.rng.gen_bool(SEIR::get_initial_ratio(SEIR::Exposed)) {
+                let next_state = state.next_default(Time::START_OF_DAY, &mut self.rng).unwrap();
+                let next_state = if self.rng.gen_bool(SEIR::get_initial_ratio(SEIR::Infectious)) {
+                    next_state.next_default(Time::START_OF_DAY, &mut self.rng).unwrap()
+                } else {
+                    next_state
+                };
+                next_state
+            } else {
+                state
+            };
+            println!("{:?}", state);
+            self.pop.insert(p.id, state);
+        }
+        
     }
 
     pub fn count_sane(&self) -> usize {
