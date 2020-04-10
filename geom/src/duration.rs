@@ -244,3 +244,16 @@ impl ops::Rem<Duration> for Duration {
         Duration::seconds(self.0 % other.0)
     }
 }
+
+impl std::iter::Sum for Duration {
+    fn sum<I>(iter: I) -> Duration
+    where
+        I: Iterator<Item = Duration>,
+    {
+        let mut sum = Duration::ZERO;
+        for x in iter {
+            sum += x;
+        }
+        sum
+    }
+}

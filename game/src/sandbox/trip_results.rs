@@ -3,7 +3,11 @@ use crate::game::{State, Transition};
 use crate::helpers::cmp_duration_shorter;
 use crate::info::Tab;
 use crate::sandbox::SandboxMode;
-use ezgui::{hotkey, Btn, Checkbox, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Text, Widget};
+use abstutil::prettyprint_usize;
+use ezgui::{
+    hotkey, Btn, Checkbox, Color, Composite, EventCtx, GfxCtx, Histogram, Key, Line, Outcome, Text,
+    TextExt, Widget,
+};
 use geom::{Duration, Time};
 use maplit::btreeset;
 use sim::{TripID, TripMode};
@@ -173,6 +177,8 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
                     .build(ctx, "close", hotkey(Key::Escape))
                     .align_right(),
             ]),
+            summary_absolute(ctx, app).margin(20),
+            summary_normalized(ctx, app).margin(20),
             Line("Click a column to sort by it").small().draw(ctx),
             Checkbox::text(ctx, "Descending", None, descending).margin(10),
             // TODO The column names aren't lined up at all
@@ -229,4 +235,123 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
     )
     .max_size_percent(90, 90)
     .build(ctx)
+}
+
+// TODO Not sure where this should live yet. New ideas for summarizing different trips.
+fn summary_absolute(ctx: &mut EventCtx, app: &App) -> Widget {
+    if app.has_prebaked().is_none() {
+        return Widget::nothing();
+    }
+
+    let mut num_same = 0;
+    let mut faster = Vec::new();
+    let mut slower = Vec::new();
+    for (a, b) in app
+        .primary
+        .sim
+        .get_analytics()
+        .both_finished_trips(app.primary.sim.time(), app.prebaked())
+    {
+        if a == b {
+            num_same += 1;
+        } else if a < b {
+            faster.push(b - a);
+        } else {
+            slower.push(b - a);
+        }
+    }
+
+    // TODO Show average?
+    // TODO Filters for mode
+    Widget::col(vec![
+        Line("Are finished trips faster or slower?")
+            .draw(ctx)
+            .margin_below(5),
+        Widget::row(vec![
+            Widget::col(vec![
+                format!("{} trips faster", prettyprint_usize(faster.len())).draw_text(ctx),
+                format!(
+                    "{} total time saved",
+                    faster.clone().into_iter().sum::<Duration>()
+                )
+                .draw_text(ctx)
+                .margin_below(5),
+                Histogram::new(ctx, faster),
+            ])
+            .outline(2.0, Color::WHITE)
+            .padding(10),
+            Line(format!("{} trips unchanged", prettyprint_usize(num_same)))
+                .draw(ctx)
+                .centered_vert(),
+            Widget::col(vec![
+                format!("{} trips slower", prettyprint_usize(slower.len())).draw_text(ctx),
+                format!(
+                    "{} total time lost",
+                    -1.0 * slower.clone().into_iter().sum::<Duration>()
+                )
+                .draw_text(ctx)
+                .margin_below(5),
+                Histogram::new(ctx, slower),
+            ])
+            .outline(2.0, Color::WHITE)
+            .padding(10),
+        ])
+        .evenly_spaced(),
+    ])
+}
+
+fn summary_normalized(ctx: &mut EventCtx, app: &App) -> Widget {
+    if app.has_prebaked().is_none() {
+        return Widget::nothing();
+    }
+
+    let mut num_same = 0;
+    let mut faster = Vec::new();
+    let mut slower = Vec::new();
+    for (a, b) in app
+        .primary
+        .sim
+        .get_analytics()
+        .both_finished_trips(app.primary.sim.time(), app.prebaked())
+    {
+        if a == b {
+            num_same += 1;
+        } else if a < b {
+            // TODO Hack: map percentages in [0.0, 100.0] to seconds
+            faster.push(Duration::seconds((1.0 - (a / b)) * 100.0));
+        } else {
+            slower.push(Duration::seconds((1.0 - (a / b)) * 100.0));
+        }
+    }
+
+    // TODO Show average?
+    // TODO Filters for mode
+    // TODO Is summing percentages meaningful?
+    Widget::col(vec![
+        Line("Are finished trips faster or slower? (normalized to original trip time)")
+            .draw(ctx)
+            .margin_below(5),
+        Widget::row(vec![
+            Widget::col(vec![
+                format!("{} trips faster", prettyprint_usize(faster.len()))
+                    .draw_text(ctx)
+                    .margin_below(5),
+                Histogram::new(ctx, faster),
+            ])
+            .outline(2.0, Color::WHITE)
+            .padding(10),
+            Line(format!("{} trips unchanged", prettyprint_usize(num_same)))
+                .draw(ctx)
+                .centered_vert(),
+            Widget::col(vec![
+                format!("{} trips slower", prettyprint_usize(slower.len()))
+                    .draw_text(ctx)
+                    .margin_below(5),
+                Histogram::new(ctx, slower),
+            ])
+            .outline(2.0, Color::WHITE)
+            .padding(10),
+        ])
+        .evenly_spaced(),
+    ])
 }

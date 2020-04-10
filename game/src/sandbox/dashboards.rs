@@ -151,11 +151,11 @@ fn trips_summary_prebaked(ctx: &EventCtx, app: &App) -> Widget {
         finished_trips_plot(ctx, app).bg(app.cs.section_bg),
         "Are trips faster or slower than the baseline?".draw_text(ctx),
         Histogram::new(
+            ctx,
             app.primary
                 .sim
                 .get_analytics()
                 .trip_time_deltas(app.primary.sim.time(), app.prebaked()),
-            ctx,
         )
         .bg(app.cs.section_bg),
         Line("Active agents").small_heading().draw(ctx),

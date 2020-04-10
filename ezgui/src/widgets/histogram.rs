@@ -17,7 +17,7 @@ pub struct Histogram {
 }
 
 impl Histogram {
-    pub fn new(unsorted_dts: Vec<Duration>, ctx: &EventCtx) -> Widget {
+    pub fn new(ctx: &EventCtx, unsorted_dts: Vec<Duration>) -> Widget {
         let mut batch = GeomBatch::new();
         let mut rect_labels = Vec::new();
 

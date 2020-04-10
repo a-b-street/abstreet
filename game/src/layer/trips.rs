@@ -30,11 +30,11 @@ pub fn trips_histogram(ctx: &mut EventCtx, app: &App) -> Layers {
                     Btn::text_fg("X").build_def(ctx, None).align_right(),
                 ]),
                 Histogram::new(
+                    ctx,
                     app.primary
                         .sim
                         .get_analytics()
                         .trip_time_deltas(now, app.prebaked()),
-                    ctx,
                 ),
             ])
             .bg(app.cs.panel_bg),
