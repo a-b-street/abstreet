@@ -7,8 +7,8 @@ use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
 use abstutil::Counter;
 use ezgui::{
-    hotkey, Btn, Color, Composite, EventCtx, Histogram, Key, Line, Plot, PlotOptions, Series, Text,
-    TextExt, Widget,
+    hotkey, Btn, Color, Composite, EventCtx, Key, Line, Plot, PlotOptions, Series, Text, TextExt,
+    Widget,
 };
 use geom::{Statistic, Time};
 use map_model::BusRouteID;
@@ -149,15 +149,6 @@ fn trips_summary_prebaked(ctx: &EventCtx, app: &App) -> Widget {
     Widget::col(vec![
         txt.draw(ctx),
         finished_trips_plot(ctx, app).bg(app.cs.section_bg),
-        "Are trips faster or slower than the baseline?".draw_text(ctx),
-        Histogram::new(
-            ctx,
-            app.primary
-                .sim
-                .get_analytics()
-                .trip_time_deltas(app.primary.sim.time(), app.prebaked()),
-        )
-        .bg(app.cs.section_bg),
         Line("Active agents").small_heading().draw(ctx),
         Plot::new(
             ctx,

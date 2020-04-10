@@ -329,36 +329,27 @@ impl AgentMeter {
             )
             .margin(15)
             .centered_horiz(),
-            {
-                let mut txt = Text::new();
-                let pct = if unfinished == 0 {
-                    100.0
-                } else {
-                    100.0 * (finished as f64) / ((finished + unfinished) as f64)
-                };
-                txt.add(Line(format!(
-                    "Finished trips: {} ({}%)",
-                    prettyprint_usize(finished),
-                    pct as usize
-                )));
-                txt.draw(ctx)
-            },
-            {
-                Widget::row(vec![
-                    Btn::text_bg2("more data")
-                        .build_def(ctx, None)
-                        .margin_right(10),
-                    Btn::text_bg2("finished trips").build_def(ctx, hotkey(Key::Q)),
-                    if app.has_prebaked().is_some() {
-                        Btn::svg_def("../data/system/assets/meters/trip_histogram.svg")
-                            .build(ctx, "compare trips to baseline", None)
-                            .align_right()
+            Widget::row(vec![
+                {
+                    let mut txt = Text::new();
+                    let pct = if unfinished == 0 {
+                        100.0
                     } else {
-                        Widget::nothing()
-                    },
-                ])
-                .centered()
-            },
+                        100.0 * (finished as f64) / ((finished + unfinished) as f64)
+                    };
+                    txt.add(Line(format!(
+                        "Finished trips: {} ({}%)",
+                        prettyprint_usize(finished),
+                        pct as usize
+                    )));
+                    txt.draw(ctx)
+                },
+                Btn::svg_def("../data/system/assets/meters/trip_histogram.svg")
+                    .build(ctx, "finished trips", hotkey(Key::Q))
+                    .align_right(),
+            ]),
+            // TODO On it's way out
+            Btn::text_bg2("more data").build_def(ctx, None),
         ];
         // TODO Slight hack. If we're jumping right into a tutorial and don't have the prebaked
         // stuff loaded yet, just skip a tick.
@@ -424,9 +415,6 @@ impl AgentMeter {
                 }
                 "finished trips" => {
                     return Some(Transition::Push(trip_results::TripResults::new(ctx, app)));
-                }
-                "compare trips to baseline" => {
-                    app.layer = crate::layer::trips::trips_histogram(ctx, app);
                 }
                 _ => unreachable!(),
             },

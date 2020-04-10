@@ -5,7 +5,6 @@ mod pandemic;
 mod parking;
 mod population;
 pub mod traffic;
-pub mod trips;
 
 use crate::app::App;
 use crate::common::{Colorer, HeatmapOptions, Warping};
@@ -32,7 +31,6 @@ pub enum Layers {
     BusNetwork(Colorer),
     Elevation(Colorer, Drawable),
     Edits(Colorer),
-    TripsHistogram(Time, Composite),
     PopulationMap(Time, population::Options, Drawable, Composite),
     Pandemic(Time, pandemic::Options, Drawable, Composite),
 
@@ -77,11 +75,6 @@ impl Layers {
             Layers::IntersectionDemand(t, i, _, _) => {
                 if now != t {
                     app.layer = traffic::intersection_demand(ctx, app, i);
-                }
-            }
-            Layers::TripsHistogram(t, _) => {
-                if now != t {
-                    app.layer = trips::trips_histogram(ctx, app);
                 }
             }
             Layers::BusRoute(t, id, _) => {
@@ -141,18 +134,6 @@ impl Layers {
                                 &mut app.primary,
                             )));
                         }
-                        "X" => {
-                            app.layer = Layers::Inactive;
-                        }
-                        _ => unreachable!(),
-                    },
-                    None => {}
-                }
-            }
-            Layers::TripsHistogram(_, ref mut c) => {
-                c.align_above(ctx, minimap);
-                match c.event(ctx) {
-                    Some(Outcome::Clicked(x)) => match x.as_ref() {
                         "X" => {
                             app.layer = Layers::Inactive;
                         }
@@ -243,9 +224,6 @@ impl Layers {
                 }
             }
             // All of these shouldn't care about zoom
-            Layers::TripsHistogram(_, ref composite) => {
-                composite.draw(g);
-            }
             Layers::IntersectionDemand(_, _, ref draw, ref legend) => {
                 g.redraw(draw);
                 legend.draw(g);
@@ -279,7 +257,6 @@ impl Layers {
             Layers::Pandemic(_, _, ref draw, _) => {
                 g.redraw(draw);
             }
-            Layers::TripsHistogram(_, _) => {}
             Layers::IntersectionDemand(_, _, _, _) => {}
             Layers::BusRoute(_, _, ref s) => {
                 s.draw(g);

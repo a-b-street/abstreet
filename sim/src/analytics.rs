@@ -268,6 +268,7 @@ impl Analytics {
 
     // Returns unsorted list of deltas, one for each trip finished or ongoing in both worlds.
     // Positive dt means faster.
+    // TODO Now unused
     pub fn trip_time_deltas(&self, now: Time, baseline: &Analytics) -> Vec<Duration> {
         fn trip_times(a: &Analytics, now: Time) -> BTreeMap<TripID, Duration> {
             let mut ongoing = a.started_trips.clone();
