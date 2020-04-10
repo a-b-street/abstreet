@@ -131,6 +131,14 @@ impl Text {
         txt
     }
 
+    pub fn from_multiline(lines: Vec<TextSpan>) -> Text {
+        let mut txt = Text::new();
+        for l in lines {
+            txt.add(l);
+        }
+        txt
+    }
+
     // TODO Remove this
     pub fn with_bg(mut self) -> Text {
         assert!(self.bg_color.is_none());

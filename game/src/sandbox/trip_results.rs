@@ -246,6 +246,8 @@ fn summary_absolute(ctx: &mut EventCtx, app: &App) -> Widget {
     let mut num_same = 0;
     let mut faster = Vec::new();
     let mut slower = Vec::new();
+    let mut sum_faster = Duration::ZERO;
+    let mut sum_slower = Duration::ZERO;
     for (a, b) in app
         .primary
         .sim
@@ -256,12 +258,14 @@ fn summary_absolute(ctx: &mut EventCtx, app: &App) -> Widget {
             num_same += 1;
         } else if a < b {
             faster.push(b - a);
+            sum_faster += b - a;
         } else {
-            slower.push(b - a);
+            slower.push(a - b);
+            sum_slower += a - b;
         }
     }
 
-    // TODO Show average?
+    // TODO Outliers are heavy -- median instead of average?
     // TODO Filters for mode
     Widget::col(vec![
         Line("Are finished trips faster or slower?")
@@ -269,14 +273,17 @@ fn summary_absolute(ctx: &mut EventCtx, app: &App) -> Widget {
             .margin_below(5),
         Widget::row(vec![
             Widget::col(vec![
-                format!("{} trips faster", prettyprint_usize(faster.len())).draw_text(ctx),
-                format!(
-                    "{} total time saved",
-                    faster.clone().into_iter().sum::<Duration>()
-                )
-                .draw_text(ctx)
+                Text::from_multiline(vec![
+                    Line(format!("{} trips faster", prettyprint_usize(faster.len()))),
+                    Line(format!("{} total time saved", sum_faster)),
+                    Line(format!(
+                        "Average {} per faster trip",
+                        sum_faster / (faster.len() as f64)
+                    )),
+                ])
+                .draw(ctx)
                 .margin_below(5),
-                Histogram::new(ctx, faster),
+                Histogram::new(ctx, Color::GREEN, faster),
             ])
             .outline(2.0, Color::WHITE)
             .padding(10),
@@ -284,14 +291,17 @@ fn summary_absolute(ctx: &mut EventCtx, app: &App) -> Widget {
                 .draw(ctx)
                 .centered_vert(),
             Widget::col(vec![
-                format!("{} trips slower", prettyprint_usize(slower.len())).draw_text(ctx),
-                format!(
-                    "{} total time lost",
-                    -1.0 * slower.clone().into_iter().sum::<Duration>()
-                )
-                .draw_text(ctx)
+                Text::from_multiline(vec![
+                    Line(format!("{} trips slower", prettyprint_usize(slower.len()))),
+                    Line(format!("{} total time lost", sum_slower)),
+                    Line(format!(
+                        "Average {} per slower trip",
+                        sum_slower / (slower.len() as f64)
+                    )),
+                ])
+                .draw(ctx)
                 .margin_below(5),
-                Histogram::new(ctx, slower),
+                Histogram::new(ctx, Color::RED, slower),
             ])
             .outline(2.0, Color::WHITE)
             .padding(10),
@@ -320,7 +330,7 @@ fn summary_normalized(ctx: &mut EventCtx, app: &App) -> Widget {
             // TODO Hack: map percentages in [0.0, 100.0] to seconds
             faster.push(Duration::seconds((1.0 - (a / b)) * 100.0));
         } else {
-            slower.push(Duration::seconds((1.0 - (a / b)) * 100.0));
+            slower.push(Duration::seconds(((a / b) - 1.0) * 100.0));
         }
     }
 
@@ -336,7 +346,7 @@ fn summary_normalized(ctx: &mut EventCtx, app: &App) -> Widget {
                 format!("{} trips faster", prettyprint_usize(faster.len()))
                     .draw_text(ctx)
                     .margin_below(5),
-                Histogram::new(ctx, faster),
+                Histogram::new(ctx, Color::GREEN, faster),
             ])
             .outline(2.0, Color::WHITE)
             .padding(10),
@@ -347,7 +357,7 @@ fn summary_normalized(ctx: &mut EventCtx, app: &App) -> Widget {
                 format!("{} trips slower", prettyprint_usize(slower.len()))
                     .draw_text(ctx)
                     .margin_below(5),
-                Histogram::new(ctx, slower),
+                Histogram::new(ctx, Color::RED, slower),
             ])
             .outline(2.0, Color::WHITE)
             .padding(10),
