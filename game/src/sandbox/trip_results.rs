@@ -265,8 +265,6 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
                     .build(ctx, "close", hotkey(Key::Escape))
                     .align_right(),
             ]),
-            summary_absolute(ctx, app).margin(20),
-            summary_normalized(ctx, app).margin(20),
             scatter_plot(ctx, app).margin(20),
             Line("Click a column to sort by it").small().draw(ctx),
             Checkbox::text(ctx, "Descending", None, descending).margin(10),
@@ -283,6 +281,7 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
 }
 
 // TODO Not sure where this should live yet. New ideas for summarizing different trips.
+#[allow(unused)]
 fn summary_absolute(ctx: &mut EventCtx, app: &App) -> Widget {
     if app.has_prebaked().is_none() {
         return Widget::nothing();
@@ -363,6 +362,7 @@ fn summary_absolute(ctx: &mut EventCtx, app: &App) -> Widget {
     ])
 }
 
+#[allow(unused)]
 fn summary_normalized(ctx: &mut EventCtx, app: &App) -> Widget {
     if app.has_prebaked().is_none() {
         return Widget::nothing();

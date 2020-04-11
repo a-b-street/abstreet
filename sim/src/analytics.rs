@@ -523,6 +523,7 @@ impl Analytics {
         trips
     }
 
+    // TODO Unused now
     pub fn analyze_parking_phases(&self) -> Vec<String> {
         // Of all completed trips involving parking, what percentage of total time was spent as
         // "overhead" -- not the main driving part of the trip?
