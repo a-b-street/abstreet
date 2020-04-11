@@ -144,7 +144,7 @@ impl State {
     const R_0: f64 = 2.5;
     // const S_RATIO: f64 = 0.985;
     const E_RATIO: f64 = 0.01;
-    const I_RATIO: f64 = 0.25;
+    const I_RATIO: f64 = 0.05;
     // const R_RATIO: f64 = 0.0;
 
     pub fn ini_infectious_ratio() -> f64 {

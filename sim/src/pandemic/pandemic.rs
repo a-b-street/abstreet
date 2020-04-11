@@ -102,7 +102,7 @@ impl PandemicModel {
     pub fn count_infected(&self) -> usize {
         // self.infected.len()
         self.pop.iter().filter(|(_, state)| match state {
-            State::Infectious(_) => true,
+            State::Infectious(_) | State::Hospitalized(_) => true,
             _ => false,
         }).count()
     }
@@ -115,8 +115,16 @@ impl PandemicModel {
         // self.recovered.len()
     }
 
+    pub fn count_dead(&self) -> usize {
+        self.pop.iter().filter(|(_, state)| match state {
+            State::Dead => true,
+            _ => false,
+        }).count()
+        // self.recovered.len()
+    }
+
     pub fn count_total(&self) -> usize {
-        self.count_sane() + self.count_exposed() + self.count_infected() + self.count_recovered()
+        self.count_sane() + self.count_exposed() + self.count_infected() + self.count_recovered() + self.count_dead()
     }
 
     pub fn handle_event(&mut self, now: Time, ev: &Event, scheduler: &mut Scheduler) {
@@ -243,7 +251,6 @@ impl PandemicModel {
     fn become_exposed(&mut self, now: Time, overlap: Duration, person: PersonID, _scheduler: &mut Scheduler) {
         // When poeple become expose
         let state = self.pop.remove(&person).unwrap();
-        // println!("{:?}", state);
         assert_eq!(state.get_time().unwrap().inner_seconds(), std::f64::INFINITY);
         let state = state.start(AnyTime::from(now), overlap, &mut self.rng).unwrap();
         self.pop.insert(person, state);

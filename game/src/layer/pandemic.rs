@@ -136,6 +136,12 @@ fn make_controls(
             (model.count_recovered() as f64) * pct
         )
         .draw_text(ctx),
+        format!(
+            "{} Dead ({:.1}%)",
+            prettyprint_usize(model.count_dead()),
+            (model.count_dead() as f64) * pct
+        )
+        .draw_text(ctx),
     ];
     col.push(Widget::row(vec![
         "Filter:".draw_text(ctx).margin_right(5),
