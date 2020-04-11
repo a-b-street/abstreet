@@ -14,7 +14,7 @@ use crate::render::{ExtraShapeID, MIN_ZOOM_FOR_DETAIL};
 use crate::sandbox::{SandboxMode, TimeWarpScreen};
 use ezgui::{
     hotkey, Btn, Checkbox, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Plot, PlotOptions, Series, Text, TextExt,
+    HorizontalAlignment, Key, Line, LinePlot, Outcome, PlotOptions, Series, Text, TextExt,
     VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Duration, Time};
@@ -489,7 +489,7 @@ fn throughput<F: Fn(&Analytics, Time) -> BTreeMap<TripMode, Vec<(Time, usize)>>>
         }
     }
 
-    Plot::new(ctx, "throughput", series, PlotOptions::new())
+    LinePlot::new(ctx, "throughput", series, PlotOptions::new())
 }
 
 fn color_for_mode(m: TripMode, app: &App) -> Color {

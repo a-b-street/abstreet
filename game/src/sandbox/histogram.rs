@@ -1,8 +1,8 @@
-use crate::{
+use abstutil::prettyprint_usize;
+use ezgui::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ScreenDims, ScreenPt, Text, TextExt,
     Widget, WidgetImpl, WidgetOutput,
 };
-use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, Polygon, Pt2D};
 
 // The X axis is Durations

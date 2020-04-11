@@ -2,8 +2,8 @@ use crate::app::App;
 use crate::helpers::ID;
 use crate::info::{header_btns, make_table, make_tabs, Details, Tab};
 use ezgui::{
-    Btn, Color, EventCtx, GeomBatch, Line, Plot, PlotOptions, RewriteColor, Series, Text, TextExt,
-    Widget,
+    Btn, Color, EventCtx, GeomBatch, Line, LinePlot, PlotOptions, RewriteColor, Series, Text,
+    TextExt, Widget,
 };
 use geom::{Circle, Distance, Polygon, Pt2D, Statistic, Time};
 use map_model::{BusRouteID, BusStopID};
@@ -145,7 +145,7 @@ fn delays_over_time(ctx: &mut EventCtx, app: &App, id: BusRouteID) -> Widget {
     }
     Widget::col(vec![
         Line("Delays between stops").small_heading().draw(ctx),
-        Plot::new(ctx, "delay btwn stops", series, PlotOptions::new()).margin(10),
+        LinePlot::new(ctx, "delay btwn stops", series, PlotOptions::new()).margin(10),
     ])
 }
 

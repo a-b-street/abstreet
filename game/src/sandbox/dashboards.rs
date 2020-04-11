@@ -7,8 +7,8 @@ use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
 use abstutil::Counter;
 use ezgui::{
-    hotkey, Btn, Color, Composite, EventCtx, Key, Line, Plot, PlotOptions, Series, Text, TextExt,
-    Widget,
+    hotkey, Btn, Color, Composite, EventCtx, Key, Line, LinePlot, PlotOptions, Series, Text,
+    TextExt, Widget,
 };
 use geom::{Statistic, Time};
 use map_model::BusRouteID;
@@ -150,7 +150,7 @@ fn trips_summary_prebaked(ctx: &EventCtx, app: &App) -> Widget {
         txt.draw(ctx),
         finished_trips_plot(ctx, app).bg(app.cs.section_bg),
         Line("Active agents").small_heading().draw(ctx),
-        Plot::new(
+        LinePlot::new(
             ctx,
             "active agents",
             vec![
@@ -219,7 +219,7 @@ fn trips_summary_not_prebaked(ctx: &EventCtx, app: &App) -> Widget {
         txt.draw(ctx),
         finished_trips_plot(ctx, app).bg(app.cs.section_bg),
         Line("Active agents").small_heading().draw(ctx),
-        Plot::new(
+        LinePlot::new(
             ctx,
             "active agents",
             vec![Series {
@@ -282,7 +282,7 @@ fn finished_trips_plot(ctx: &EventCtx, app: &App) -> Widget {
             .push((app.primary.sim.time(), counts.get(*mode)));
     }
 
-    let plot = Plot::new(
+    let plot = LinePlot::new(
         ctx,
         "finished trips",
         lines

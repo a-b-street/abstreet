@@ -2,11 +2,12 @@ use crate::app::App;
 use crate::game::{State, Transition};
 use crate::helpers::cmp_duration_shorter;
 use crate::info::Tab;
+use crate::sandbox::histogram::Histogram;
 use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, Btn, Checkbox, Color, Composite, EventCtx, GeomBatch, GfxCtx, Histogram, Key, Line,
-    Outcome, Text, TextExt, Widget,
+    hotkey, Btn, Checkbox, Color, Composite, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Text,
+    TextExt, Widget,
 };
 use geom::{Angle, Circle, Distance, Duration, Polygon, Pt2D, Time};
 use maplit::btreeset;

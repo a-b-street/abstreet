@@ -1,7 +1,7 @@
 use crate::app::App;
 use crate::info::{header_btns, make_tabs, throughput, DataOptions, Details, Tab};
 use abstutil::prettyprint_usize;
-use ezgui::{EventCtx, Line, Plot, PlotOptions, Series, Text, Widget};
+use ezgui::{EventCtx, Line, LinePlot, PlotOptions, Series, Text, Widget};
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, IntersectionType};
 use sim::Analytics;
@@ -136,7 +136,7 @@ fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) 
         }
     }
 
-    Plot::new(ctx, "delay", all_series, PlotOptions::new())
+    LinePlot::new(ctx, "delay", all_series, PlotOptions::new())
 }
 
 fn header(

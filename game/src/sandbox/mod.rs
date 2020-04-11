@@ -1,5 +1,6 @@
 mod dashboards;
 mod gameplay;
+mod histogram;
 mod misc_tools;
 mod speed;
 mod trip_results;
