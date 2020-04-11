@@ -1,14 +1,27 @@
 use crate::colors::HeatmapColors;
 use crate::common::ColorLegend;
-use ezgui::{Color, Composite, EventCtx, GeomBatch, Spinner, TextExt, Widget};
+use ezgui::{Checkbox, Color, Composite, EventCtx, GeomBatch, Spinner, TextExt, Widget};
 use geom::{Bounds, Histogram, Polygon, Pt2D};
+
+const NEIGHBORS: [[isize; 2]; 9] = [
+    [0, 0],
+    [-1, 1],
+    [-1, 0],
+    [-1, -1],
+    [0, -1],
+    [1, -1],
+    [1, 0],
+    [1, 1],
+    [0, 1],
+];
 
 #[derive(Clone, PartialEq)]
 pub struct HeatmapOptions {
     // In meters
-    pub resolution: usize,
-    pub radius: usize,
-    pub colors: HeatmapColors,
+    resolution: usize,
+    radius: usize,
+    smoothing: bool,
+    colors: HeatmapColors,
 }
 
 impl HeatmapOptions {
@@ -16,6 +29,7 @@ impl HeatmapOptions {
         HeatmapOptions {
             resolution: 10,
             radius: 3,
+            smoothing: true,
             colors: HeatmapColors::FullSpectral,
         }
     }
@@ -44,6 +58,8 @@ impl HeatmapOptions {
                 .centered_vert(),
         ]));
 
+        col.push(Checkbox::text(ctx, "smoothing", None, self.smoothing));
+
         col.push(Widget::row(vec![
             "Color scheme".draw_text(ctx).margin(5),
             Widget::dropdown(ctx, "Colors", self.colors, HeatmapColors::choices()),
@@ -65,6 +81,7 @@ impl HeatmapOptions {
             HeatmapOptions {
                 resolution: c.spinner("resolution"),
                 radius: c.spinner("radius"),
+                smoothing: c.is_checked("smoothing"),
                 colors: c.dropdown_value("Colors"),
             }
         } else {
@@ -89,32 +106,67 @@ pub fn make_heatmap(
         return (colors, labels);
     }
 
+    // At each point, add a 2D Gaussian kernel centered at the point.
+    let mut raw_grid: Grid<f64> = Grid::new(
+        (bounds.width() / opts.resolution as f64).ceil() as usize,
+        (bounds.height() / opts.resolution as f64).ceil() as usize,
+        0.0,
+    );
+    for pt in pts {
+        let base_x = ((pt.x() - bounds.min_x) / opts.resolution as f64) as isize;
+        let base_y = ((pt.y() - bounds.min_y) / opts.resolution as f64) as isize;
+        let denom = 2.0 * (opts.radius as f64 / 2.0).powi(2);
+
+        let r = opts.radius as isize;
+        for x in base_x - r..=base_x + r {
+            for y in base_y - r..=base_y + r {
+                let loc_r2 = (x - base_x).pow(2) + (y - base_y).pow(2);
+                if x > 0
+                    && y > 0
+                    && x < (raw_grid.width as isize)
+                    && y < (raw_grid.height as isize)
+                    && loc_r2 <= r * r
+                {
+                    // https://en.wikipedia.org/wiki/Gaussian_function#Two-dimensional_Gaussian_function
+                    let value = (-(((x - base_x) as f64).powi(2) / denom
+                        + ((y - base_y) as f64).powi(2) / denom))
+                        .exp();
+                    let idx = raw_grid.idx(x as usize, y as usize);
+                    raw_grid.data[idx] += value;
+                }
+            }
+        }
+    }
+
     let mut grid: Grid<f64> = Grid::new(
         (bounds.width() / opts.resolution as f64).ceil() as usize,
         (bounds.height() / opts.resolution as f64).ceil() as usize,
         0.0,
     );
-
-    // At each point, add a 2D Gaussian kernel centered at the point.
-    for pt in pts {
-        let base_x = ((pt.x() - bounds.min_x) / opts.resolution as f64) as isize;
-        let base_y = ((pt.y() - bounds.min_y) / opts.resolution as f64) as isize;
-        let denom = 2.0 * (opts.radius as f64).powi(2);
-
-        let r = opts.radius as isize;
-        for x in base_x - r..=base_x + r {
-            for y in base_y - r..=base_y + r {
-                if x > 0 && y > 0 && x < (grid.width as isize) && y < (grid.height as isize) {
-                    // https://en.wikipedia.org/wiki/Gaussian_function#Two-dimensional_Gaussian_function
-                    // TODO Amplitude of 1 fine?
-                    let value = (-(((x - base_x) as f64).powi(2) / denom
-                        + ((y - base_y) as f64).powi(2) / denom))
-                        .exp();
-                    let idx = grid.idx(x as usize, y as usize);
-                    grid.data[idx] += value;
+    if opts.smoothing {
+        for y in 0..raw_grid.height {
+            for x in 0..raw_grid.width {
+                let mut div = 1;
+                let idx = grid.idx(x, y);
+                grid.data[idx] = raw_grid.data[idx];
+                for offset in &NEIGHBORS {
+                    let next_x = x as isize + offset[0];
+                    let next_y = y as isize + offset[1];
+                    if next_x > 0
+                        && next_y > 0
+                        && next_x < (raw_grid.width as isize)
+                        && next_y < (raw_grid.height as isize)
+                    {
+                        div += 1;
+                        let next_idx = grid.idx(next_x as usize, next_y as usize);
+                        grid.data[idx] += raw_grid.data[next_idx];
+                    }
                 }
+                grid.data[idx] /= div as f64;
             }
         }
+    } else {
+        grid = raw_grid;
     }
 
     let mut distrib = Histogram::new();
@@ -137,8 +189,7 @@ pub fn make_heatmap(
     let square = Polygon::rectangle(opts.resolution as f64, opts.resolution as f64);
     for y in 0..grid.height {
         for x in 0..grid.width {
-            let idx = grid.idx(x, y);
-            let count = grid.data[idx];
+            let count = grid.data[grid.idx(x, y)];
             if count > 0.0 {
                 let mut color = max_count_per_bucket[0].1;
                 for (max, c) in &max_count_per_bucket {
