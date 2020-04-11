@@ -40,7 +40,9 @@ impl TripResults {
     }
 
     fn recalc(&mut self, ctx: &mut EventCtx, app: &App) {
-        self.composite = make(ctx, app, self.sort_by, self.descending);
+        let mut new = make(ctx, app, self.sort_by, self.descending);
+        new.restore(ctx, &self.composite);
+        self.composite = new;
     }
 }
 
@@ -59,15 +61,15 @@ impl State for TripResults {
                     self.sort_by = SortBy::Duration;
                     self.recalc(ctx, app);
                 }
-                "Comparison with baseline" => {
+                "Comparison" => {
                     self.sort_by = SortBy::RelativeDuration;
                     self.recalc(ctx, app);
                 }
-                "Normalized comparison with baseline" => {
+                "Normalized" => {
                     self.sort_by = SortBy::PercentChangeDuration;
                     self.recalc(ctx, app);
                 }
-                "Percent of trip spent waiting" => {
+                "Percent waiting" => {
                     self.sort_by = SortBy::PercentWaiting;
                     self.recalc(ctx, app);
                 }
@@ -192,6 +194,68 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
         pct_waiting_col.add(Line(format!("{}%", x.percent_waiting)));
     }
 
+    let mut table = vec![
+        (Line("Trip ID").draw(ctx), Widget::col(id_col)),
+        (Line("Type").draw(ctx), mode_col.draw(ctx)),
+        (
+            if sort == SortBy::Departure {
+                Btn::text_bg2("Departure").inactive(ctx)
+            } else {
+                Btn::text_fg("Departure").build_def(ctx, None)
+            },
+            departure_col.draw(ctx),
+        ),
+        (
+            if sort == SortBy::Duration {
+                Btn::text_bg2("Duration").inactive(ctx)
+            } else {
+                Btn::text_fg("Duration").build_def(ctx, None)
+            },
+            duration_col.draw(ctx),
+        ),
+    ];
+    if app.has_prebaked().is_some() {
+        table.push((
+            if sort == SortBy::RelativeDuration {
+                Btn::text_bg2("Comparison").inactive(ctx)
+            } else {
+                Btn::text_fg("Comparison").build_def(ctx, None)
+            },
+            relative_duration_col.draw(ctx),
+        ));
+        table.push((
+            if sort == SortBy::PercentChangeDuration {
+                Btn::text_bg2("Normalized ").inactive(ctx)
+            } else {
+                Btn::text_fg("Normalized").build_def(ctx, None)
+            },
+            percent_change_duration_col.draw(ctx),
+        ));
+    }
+    table.push((Line("Time spent waiting").draw(ctx), waiting_col.draw(ctx)));
+    table.push((
+        if sort == SortBy::PercentWaiting {
+            Btn::text_bg2("Percent waiting").inactive(ctx)
+        } else {
+            Btn::text_fg("Percent waiting").build_def(ctx, None)
+        },
+        pct_waiting_col.draw(ctx),
+    ));
+
+    let mut header_row = Vec::new();
+    let mut values_row = Vec::new();
+    for (header, values) in table {
+        let width = header
+            .get_width_for_forcing()
+            .max(values.get_width_for_forcing());
+        header_row.push(header.force_width(width).margin_right(10));
+        values_row.push(
+            Widget::col(vec![values])
+                .force_width(width)
+                .margin_right(10),
+        );
+    }
+
     Composite::new(
         Widget::col(vec![
             Widget::row(vec![
@@ -204,93 +268,11 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
             summary_normalized(ctx, app).margin(20),
             Line("Click a column to sort by it").small().draw(ctx),
             Checkbox::text(ctx, "Descending", None, descending).margin(10),
-            // TODO The column names aren't lined up at all
-            Widget::row(vec![
-                Line("Trip ID").draw(ctx).margin_right(10),
-                Line("Type").draw(ctx).margin_right(10),
-                if sort == SortBy::Departure {
-                    Btn::text_bg2("Departure").inactive(ctx)
-                } else {
-                    Btn::text_fg("Departure").build_def(ctx, None)
-                }
-                .margin_right(10),
-                if sort == SortBy::Duration {
-                    Btn::text_bg2("Duration").inactive(ctx)
-                } else {
-                    Btn::text_fg("Duration").build_def(ctx, None)
-                }
-                .margin_right(10),
-                if app.has_prebaked().is_some() {
-                    if sort == SortBy::RelativeDuration {
-                        Btn::text_bg2("Comparison with baseline").inactive(ctx)
-                    } else {
-                        Btn::text_fg("Comparison with baseline").build_def(ctx, None)
-                    }
-                    .margin_right(10)
-                } else {
-                    Widget::nothing()
-                },
-                if app.has_prebaked().is_some() {
-                    if sort == SortBy::PercentChangeDuration {
-                        Btn::text_bg2("Normalized comparison with baseline").inactive(ctx)
-                    } else {
-                        Btn::text_fg("Normalized comparison with baseline").build_def(ctx, None)
-                    }
-                    .margin_right(10)
-                } else {
-                    Widget::nothing()
-                },
-                Line("Time spent waiting").draw(ctx).margin_right(10),
-                if sort == SortBy::PercentWaiting {
-                    Btn::text_bg2("Percent of trip spent waiting").inactive(ctx)
-                } else {
-                    Btn::text_fg("Percent of trip spent waiting").build_def(ctx, None)
-                }
-                .margin_right(10),
-            ]),
-            Widget::row(vec![
-                Widget::col(id_col)
-                    .outline(2.0, Color::WHITE)
-                    .margin_right(10),
-                mode_col
-                    .draw(ctx)
-                    .outline(2.0, Color::WHITE)
-                    .margin_right(10),
-                departure_col
-                    .draw(ctx)
-                    .outline(2.0, Color::WHITE)
-                    .margin_right(10),
-                duration_col
-                    .draw(ctx)
-                    .outline(2.0, Color::WHITE)
-                    .margin_right(10),
-                if app.has_prebaked().is_some() {
-                    relative_duration_col
-                        .draw(ctx)
-                        .outline(2.0, Color::WHITE)
-                        .margin_right(10)
-                } else {
-                    Widget::nothing()
-                },
-                if app.has_prebaked().is_some() {
-                    percent_change_duration_col
-                        .draw(ctx)
-                        .outline(2.0, Color::WHITE)
-                        .margin_right(10)
-                } else {
-                    Widget::nothing()
-                },
-                waiting_col
-                    .draw(ctx)
-                    .outline(2.0, Color::WHITE)
-                    .margin_right(10),
-                pct_waiting_col
-                    .draw(ctx)
-                    .outline(2.0, Color::WHITE)
-                    .margin_right(10),
-            ])
-            .evenly_spaced(),
+            Widget::row(header_row).evenly_spaced(),
+            Widget::row(values_row).evenly_spaced(),
         ])
+        // TODO Until exact_size_percent supports scrolling, do this hack
+        .force_width_pct(ctx, 90)
         .bg(app.cs.panel_bg)
         .padding(10),
     )
@@ -339,7 +321,11 @@ fn summary_absolute(ctx: &mut EventCtx, app: &App) -> Widget {
                     Line(format!("{} total time saved", sum_faster)),
                     Line(format!(
                         "Average {} per faster trip",
-                        sum_faster / (faster.len() as f64)
+                        if faster.is_empty() {
+                            Duration::ZERO
+                        } else {
+                            sum_faster / (faster.len() as f64)
+                        }
                     )),
                 ])
                 .draw(ctx)
@@ -357,7 +343,11 @@ fn summary_absolute(ctx: &mut EventCtx, app: &App) -> Widget {
                     Line(format!("{} total time lost", sum_slower)),
                     Line(format!(
                         "Average {} per slower trip",
-                        sum_slower / (slower.len() as f64)
+                        if slower.is_empty() {
+                            Duration::ZERO
+                        } else {
+                            sum_slower / (slower.len() as f64)
+                        }
                     )),
                 ])
                 .draw(ctx)
