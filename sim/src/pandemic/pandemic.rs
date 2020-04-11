@@ -74,7 +74,7 @@ impl PandemicModel {
 
     // Sorry, initialization order of simulations is still a bit messy. This'll be called at
     // Time::START_OF_DAY after all of the people have been created from a Scenario.
-    pub fn initialize(&mut self, population: &Vec<Person>, scheduler: &mut Scheduler) {
+    pub fn initialize(&mut self, population: &Vec<Person>, _scheduler: &mut Scheduler) {
         assert!(!self.initialized);
         self.initialized = true;
 
@@ -243,7 +243,7 @@ impl PandemicModel {
     }
 
     // transition from a state to another without interaction with others
-    fn transition(&mut self, now: Time, person: PersonID, scheduler: &mut Scheduler) {
+    fn transition(&mut self, now: Time, person: PersonID, _scheduler: &mut Scheduler) {
 
         let state = self.pop.remove(&person).unwrap();
         let state = state.next(AnyTime::from(now), &mut self.rng).unwrap();
