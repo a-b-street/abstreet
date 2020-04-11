@@ -339,7 +339,7 @@ fn scatter_plot(ctx: &mut EventCtx, app: &App) -> Widget {
     batch.autocrop_dims = false;
     batch.push(Color::BLACK, Polygon::rectangle(width, width));
 
-    let circle = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(5.0)).to_polygon();
+    let circle = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(4.0)).to_polygon();
     for (a, b) in points {
         let pt = Pt2D::new((a / max) * width, (1.0 - (b / max)) * height);
         // TODO Could color circles by mode
