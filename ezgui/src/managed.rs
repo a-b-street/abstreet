@@ -76,10 +76,19 @@ impl Widget {
         self
     }
     // Only for rows/columns. Used to force table columns to line up.
-    pub fn force_width(mut self, ctx: &EventCtx, percent_width: usize) -> Widget {
+    pub fn force_width(mut self, width: f64) -> Widget {
+        self.layout.style.size.width = Dimension::Points(width as f32);
+        self
+    }
+    pub fn force_width_pct(mut self, ctx: &EventCtx, percent_width: usize) -> Widget {
         self.layout.style.size.width =
             Dimension::Points((ctx.canvas.window_width * (percent_width as f64) / 100.0) as f32);
         self
+    }
+
+    // Needed for force_width.
+    pub fn get_width_for_forcing(&self) -> f64 {
+        self.widget.get_dims().width
     }
 
     pub fn bg(mut self, color: Color) -> Widget {

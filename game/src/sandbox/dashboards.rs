@@ -1,372 +1,398 @@
 use crate::app::App;
 use crate::common::Tab;
 use crate::game::{msg, State, Transition};
-use crate::helpers::{cmp_count_fewer, cmp_count_more, cmp_duration_shorter};
-use crate::managed::{Callback, ManagedGUIState, WrappedComposite};
+use crate::sandbox::histogram::Histogram;
+use crate::sandbox::trip_table::TripTable;
 use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
-use abstutil::Counter;
 use ezgui::{
-    hotkey, Btn, Color, Composite, EventCtx, Histogram, Key, Line, Plot, PlotOptions, Series, Text,
-    TextExt, Widget,
+    hotkey, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, Key, Line, LinePlot, Outcome,
+    PlotOptions, Series, Text, TextExt, Widget,
 };
-use geom::{Statistic, Time};
-use map_model::BusRouteID;
-use sim::TripMode;
-use std::collections::BTreeMap;
-
-#[derive(PartialEq, Clone, Copy)]
-pub enum DashTab {
-    TripsSummary,
-    ParkingOverhead,
-    ExploreBusRoute,
-}
+use geom::{Angle, Circle, Distance, Duration, Polygon, Pt2D, Time};
 
 // Oh the dashboards melted, but we still had the radio
-pub fn make(ctx: &mut EventCtx, app: &App, tab: DashTab) -> Box<dyn State> {
-    let tab_data = vec![
-        (DashTab::TripsSummary, "Trips summary"),
-        (DashTab::ParkingOverhead, "Parking overhead analysis"),
-        (DashTab::ExploreBusRoute, "Explore a bus route"),
-    ];
-
-    let tabs = tab_data
-        .iter()
-        .map(|(t, label)| {
-            if *t == tab {
-                Btn::text_bg2(*label).inactive(ctx)
-            } else {
-                Btn::text_bg2(*label).build_def(ctx, None)
-            }
-        })
-        .collect::<Vec<_>>();
-
-    let (content, cbs) = match tab {
-        DashTab::TripsSummary => (trips_summary_prebaked(ctx, app), Vec::new()),
-        DashTab::ParkingOverhead => (parking_overhead(ctx, app), Vec::new()),
-        DashTab::ExploreBusRoute => pick_bus_route(ctx, app),
-    };
-
-    let mut c = WrappedComposite::new(
-        Composite::new(Widget::col(vec![
-            Btn::svg_def("../data/system/assets/pregame/back.svg")
-                .build(ctx, "back", hotkey(Key::Escape))
-                .align_left(),
-            Widget::row(tabs).bg(app.cs.panel_bg),
-            content.bg(app.cs.panel_bg),
-        ]))
-        // TODO Want to use exact, but then scrolling breaks. exact_size_percent will fix the
-        // jumpiness though.
-        .max_size_percent(90, 80)
-        .build(ctx),
-    )
-    .cb("back", Box::new(|_, _| Some(Transition::Pop)));
-    for (t, label) in tab_data {
-        if t != tab {
-            c = c.cb(
-                label,
-                Box::new(move |ctx, app| Some(Transition::Replace(make(ctx, app, t)))),
-            );
-        }
-    }
-    for (name, cb) in cbs {
-        c = c.cb(&name, cb);
-    }
-
-    ManagedGUIState::fullscreen(c)
+#[derive(PartialEq)]
+pub enum DashTab {
+    TripTable,
+    TripSummaries,
+    BusRoutes,
 }
 
-// TODO Overhaul typography.
-fn trips_summary_prebaked(ctx: &EventCtx, app: &App) -> Widget {
-    if app.has_prebaked().is_none() {
-        return trips_summary_not_prebaked(ctx, app);
-    }
-
-    let (now_all, now_aborted, now_per_mode) = app
-        .primary
-        .sim
-        .get_analytics()
-        .trip_times(app.primary.sim.time());
-    let (baseline_all, baseline_aborted, baseline_per_mode) =
-        app.prebaked().trip_times(app.primary.sim.time());
-
-    // TODO Include unfinished count
-    let mut txt = Text::new();
-    txt.add(Line(format!(
-        "Trips as of {}",
-        app.primary.sim.time().ampm_tostring()
-    )));
-    txt.add_appended(vec![
-        Line(format!(
-            "{} aborted trips (",
-            prettyprint_usize(now_aborted)
-        )),
-        cmp_count_fewer(now_aborted, baseline_aborted),
-        Line(")"),
-    ]);
-    // TODO Refactor
-    txt.add_appended(vec![
-        Line(format!(
-            "{} total trips (",
-            prettyprint_usize(now_all.count())
-        )),
-        cmp_count_more(now_all.count(), baseline_all.count()),
-        Line(")"),
-    ]);
-    if now_all.count() > 0 && baseline_all.count() > 0 {
-        for stat in Statistic::all() {
-            // TODO Ideally we could indent
-            txt.add(Line(format!("{}: {} (", stat, now_all.select(stat))));
-            txt.append_all(cmp_duration_shorter(
-                now_all.select(stat),
-                baseline_all.select(stat),
-            ));
-            txt.append(Line(")"));
-        }
-    }
-
-    for mode in TripMode::all() {
-        let a = &now_per_mode[&mode];
-        let b = &baseline_per_mode[&mode];
-        txt.add_appended(vec![
-            Line(format!(
-                "{} trips {} (",
-                prettyprint_usize(a.count()),
-                mode.ongoing_verb()
-            )),
-            cmp_count_more(a.count(), b.count()),
-            Line(")"),
-        ]);
-        if a.count() > 0 && b.count() > 0 {
-            for stat in Statistic::all() {
-                txt.add(Line(format!("{}: {} (", stat, a.select(stat))));
-                txt.append_all(cmp_duration_shorter(a.select(stat), b.select(stat)));
-                txt.append(Line(")"));
+impl DashTab {
+    pub fn picker(self, ctx: &EventCtx) -> Widget {
+        let mut row = Vec::new();
+        for (name, tab) in vec![
+            ("trip table", DashTab::TripTable),
+            ("trip summaries", DashTab::TripSummaries),
+            ("bus routes", DashTab::BusRoutes),
+        ] {
+            if self == tab {
+                row.push(Btn::text_bg2(name).inactive(ctx));
+            } else {
+                row.push(Btn::text_bg2(name).build_def(ctx, None));
             }
         }
+        Widget::row(vec![
+            // TODO Centered, but actually, we need to set the padding of each button to divide the
+            // available space evenly. Fancy fill rules... hmmm.
+            Widget::row(row).bg(Color::WHITE).margin_vert(16),
+            Btn::plaintext("X")
+                .build(ctx, "close", hotkey(Key::Escape))
+                .align_right(),
+        ])
     }
 
-    Widget::col(vec![
-        txt.draw(ctx),
-        finished_trips_plot(ctx, app).bg(app.cs.section_bg),
-        "Are trips faster or slower than the baseline?".draw_text(ctx),
-        Histogram::new(
-            app.primary
+    pub fn transition(self, ctx: &mut EventCtx, app: &App, action: &str) -> Transition {
+        match action {
+            "close" => Transition::Pop,
+            "trip table" => Transition::Replace(TripTable::new(ctx, app)),
+            "trip summaries" => Transition::Replace(TripSummaries::new(ctx, app)),
+            "bus routes" => Transition::Replace(BusRoutes::new(ctx, app)),
+            _ => unreachable!(),
+        }
+    }
+}
+
+struct TripSummaries {
+    composite: Composite,
+}
+
+impl TripSummaries {
+    fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+        let mut active_agents = vec![Series {
+            label: "Current simulation".to_string(),
+            color: Color::RED,
+            pts: app
+                .primary
                 .sim
                 .get_analytics()
-                .trip_time_deltas(app.primary.sim.time(), app.prebaked()),
-            ctx,
-        )
-        .bg(app.cs.section_bg),
-        Line("Active agents").small_heading().draw(ctx),
-        Plot::new(
-            ctx,
-            "active agents",
-            vec![
-                Series {
-                    label: "Baseline".to_string(),
-                    color: Color::BLUE.alpha(0.5),
-                    pts: app.prebaked().active_agents(Time::END_OF_DAY),
-                },
-                Series {
-                    label: "Current simulation".to_string(),
-                    color: Color::RED,
-                    pts: app
-                        .primary
-                        .sim
-                        .get_analytics()
-                        .active_agents(app.primary.sim.time()),
-                },
-            ],
-            PlotOptions::new(),
-        ),
-    ])
+                .active_agents(app.primary.sim.time()),
+        }];
+        if app.has_prebaked().is_some() {
+            active_agents.push(Series {
+                label: "Baseline".to_string(),
+                color: Color::BLUE.alpha(0.5),
+                pts: app.prebaked().active_agents(Time::END_OF_DAY),
+            });
+        }
+
+        Box::new(TripSummaries {
+            composite: Composite::new(
+                Widget::col(vec![
+                    DashTab::TripSummaries.picker(ctx),
+                    scatter_plot(ctx, app),
+                    summary_absolute(ctx, app),
+                    summary_normalized(ctx, app),
+                    Line("Active agents").small_heading().draw(ctx),
+                    LinePlot::new(ctx, "active agents", active_agents, PlotOptions::new()),
+                ])
+                .bg(app.cs.panel_bg)
+                .padding(10),
+            )
+            .max_size_percent(90, 90)
+            .build(ctx),
+        })
+    }
 }
 
-fn trips_summary_not_prebaked(ctx: &EventCtx, app: &App) -> Widget {
-    let (all, aborted, per_mode) = app
+impl State for TripSummaries {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => DashTab::TripSummaries.transition(ctx, app, &x),
+            None => Transition::Keep,
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        State::grey_out_map(g, app);
+        self.composite.draw(g);
+    }
+}
+
+struct BusRoutes {
+    composite: Composite,
+}
+
+impl BusRoutes {
+    fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+        let mut routes: Vec<String> = app
+            .primary
+            .map
+            .get_all_bus_routes()
+            .iter()
+            .map(|r| r.name.clone())
+            .collect();
+        // TODO Sort first by length, then lexicographically
+        routes.sort();
+
+        let mut col = vec![
+            DashTab::BusRoutes.picker(ctx),
+            Line("Bus routes").small_heading().draw(ctx),
+        ];
+        for r in routes {
+            col.push(Btn::text_fg(r).build_def(ctx, None).margin(5));
+        }
+
+        Box::new(BusRoutes {
+            composite: Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(10))
+                .max_size_percent(90, 90)
+                .build(ctx),
+        })
+    }
+}
+
+impl State for BusRoutes {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => {
+                if let Some(r) = app.primary.map.get_bus_route(&x) {
+                    let buses = app.primary.sim.status_of_buses(r.id);
+                    if buses.is_empty() {
+                        Transition::Push(msg(
+                            "No buses running",
+                            vec![format!("Sorry, no buses for route {} running", r.name)],
+                        ))
+                    } else {
+                        Transition::PopWithData(Box::new(move |state, app, ctx| {
+                            let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
+                            let mut actions = sandbox.contextual_actions();
+                            sandbox.controls.common.as_mut().unwrap().launch_info_panel(
+                                ctx,
+                                app,
+                                // Arbitrarily use the first one
+                                Tab::BusStatus(buses[0].0),
+                                &mut actions,
+                            );
+                        }))
+                    }
+                } else {
+                    DashTab::BusRoutes.transition(ctx, app, &x)
+                }
+            }
+            None => Transition::Keep,
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        State::grey_out_map(g, app);
+        self.composite.draw(g);
+    }
+}
+
+fn summary_absolute(ctx: &mut EventCtx, app: &App) -> Widget {
+    if app.has_prebaked().is_none() {
+        return Widget::nothing();
+    }
+
+    let mut num_same = 0;
+    let mut faster = Vec::new();
+    let mut slower = Vec::new();
+    let mut sum_faster = Duration::ZERO;
+    let mut sum_slower = Duration::ZERO;
+    for (a, b) in app
         .primary
         .sim
         .get_analytics()
-        .trip_times(app.primary.sim.time());
-
-    // TODO Include unfinished count
-    let mut txt = Text::new();
-    txt.add(Line(format!(
-        "Trips as of {}",
-        app.primary.sim.time().ampm_tostring()
-    )));
-    txt.add(Line(format!(
-        "{} aborted trips",
-        prettyprint_usize(aborted)
-    )));
-    txt.add(Line(format!(
-        "{} total trips",
-        prettyprint_usize(all.count())
-    )));
-    if all.count() > 0 {
-        for stat in Statistic::all() {
-            txt.add(Line(format!("{}: {}", stat, all.select(stat))));
+        .both_finished_trips(app.primary.sim.time(), app.prebaked())
+    {
+        if a == b {
+            num_same += 1;
+        } else if a < b {
+            faster.push(b - a);
+            sum_faster += b - a;
+        } else {
+            slower.push(a - b);
+            sum_slower += a - b;
         }
     }
 
-    for mode in TripMode::all() {
-        let a = &per_mode[&mode];
-        txt.add(Line(format!(
-            "{} trips {}",
-            prettyprint_usize(a.count()),
-            mode.ongoing_verb()
-        )));
-        if a.count() > 0 {
-            for stat in Statistic::all() {
-                txt.add(Line(format!("{}: {}", stat, a.select(stat))));
-            }
-        }
-    }
-
+    // TODO Outliers are heavy -- median instead of average?
+    // TODO Filters for mode
     Widget::col(vec![
-        txt.draw(ctx),
-        finished_trips_plot(ctx, app).bg(app.cs.section_bg),
-        Line("Active agents").small_heading().draw(ctx),
-        Plot::new(
-            ctx,
-            "active agents",
-            vec![Series {
-                label: "Active agents".to_string(),
-                color: Color::RED,
-                pts: app
-                    .primary
-                    .sim
-                    .get_analytics()
-                    .active_agents(app.primary.sim.time()),
-            }],
-            PlotOptions::new(),
-        ),
+        Line("Are finished trips faster or slower?")
+            .draw(ctx)
+            .margin_below(5),
+        Widget::row(vec![
+            Widget::col(vec![
+                Text::from_multiline(vec![
+                    Line(format!("{} trips faster", prettyprint_usize(faster.len()))),
+                    Line(format!("{} total time saved", sum_faster)),
+                    Line(format!(
+                        "Average {} per faster trip",
+                        if faster.is_empty() {
+                            Duration::ZERO
+                        } else {
+                            sum_faster / (faster.len() as f64)
+                        }
+                    )),
+                ])
+                .draw(ctx)
+                .margin_below(5),
+                Histogram::new(ctx, Color::GREEN, faster),
+            ])
+            .outline(2.0, Color::WHITE)
+            .padding(10),
+            Line(format!("{} trips unchanged", prettyprint_usize(num_same)))
+                .draw(ctx)
+                .centered_vert(),
+            Widget::col(vec![
+                Text::from_multiline(vec![
+                    Line(format!("{} trips slower", prettyprint_usize(slower.len()))),
+                    Line(format!("{} total time lost", sum_slower)),
+                    Line(format!(
+                        "Average {} per slower trip",
+                        if slower.is_empty() {
+                            Duration::ZERO
+                        } else {
+                            sum_slower / (slower.len() as f64)
+                        }
+                    )),
+                ])
+                .draw(ctx)
+                .margin_below(5),
+                Histogram::new(ctx, Color::RED, slower),
+            ])
+            .outline(2.0, Color::WHITE)
+            .padding(10),
+        ])
+        .evenly_spaced(),
     ])
 }
 
-fn finished_trips_plot(ctx: &EventCtx, app: &App) -> Widget {
-    let mut lines: Vec<(String, Color, Option<TripMode>)> = TripMode::all()
-        .into_iter()
-        .map(|m| {
-            (
-                m.ongoing_verb().to_string(),
-                color_for_mode(m, app),
-                Some(m),
-            )
-        })
-        .collect();
-    lines.push(("aborted".to_string(), Color::PURPLE.alpha(0.5), None));
-
-    // What times do we use for interpolation?
-    let num_x_pts = 100;
-    let mut times = Vec::new();
-    for i in 0..num_x_pts {
-        let percent_x = (i as f64) / ((num_x_pts - 1) as f64);
-        let t = app.primary.sim.time().percent_of(percent_x);
-        times.push(t);
+fn summary_normalized(ctx: &mut EventCtx, app: &App) -> Widget {
+    if app.has_prebaked().is_none() {
+        return Widget::nothing();
     }
 
-    // Gather the data
-    let mut counts = Counter::new();
-    let mut pts_per_mode: BTreeMap<Option<TripMode>, Vec<(Time, usize)>> =
-        lines.iter().map(|(_, _, m)| (*m, Vec::new())).collect();
-    for (t, _, m, _) in &app.primary.sim.get_analytics().finished_trips {
-        counts.inc(*m);
-        if *t > times[0] {
-            times.remove(0);
-            for (_, _, mode) in &lines {
-                pts_per_mode
-                    .get_mut(mode)
-                    .unwrap()
-                    .push((*t, counts.get(*mode)));
-            }
+    let mut num_same = 0;
+    let mut faster = Vec::new();
+    let mut slower = Vec::new();
+    for (a, b) in app
+        .primary
+        .sim
+        .get_analytics()
+        .both_finished_trips(app.primary.sim.time(), app.prebaked())
+    {
+        if a == b {
+            num_same += 1;
+        } else if a < b {
+            // TODO Hack: map percentages in [0.0, 100.0] to seconds
+            faster.push(Duration::seconds((1.0 - (a / b)) * 100.0));
+        } else {
+            slower.push(Duration::seconds(((a / b) - 1.0) * 100.0));
         }
     }
-    // Don't forget the last batch
-    for (_, _, mode) in &lines {
-        pts_per_mode
-            .get_mut(mode)
-            .unwrap()
-            .push((app.primary.sim.time(), counts.get(*mode)));
+
+    // TODO Show average?
+    // TODO Filters for mode
+    // TODO Is summing percentages meaningful?
+    Widget::col(vec![
+        Line("Are finished trips faster or slower? (normalized to original trip time)")
+            .draw(ctx)
+            .margin_below(5),
+        Widget::row(vec![
+            Widget::col(vec![
+                format!("{} trips faster", prettyprint_usize(faster.len()))
+                    .draw_text(ctx)
+                    .margin_below(5),
+                Histogram::new(ctx, Color::GREEN, faster),
+            ])
+            .outline(2.0, Color::WHITE)
+            .padding(10),
+            Line(format!("{} trips unchanged", prettyprint_usize(num_same)))
+                .draw(ctx)
+                .centered_vert(),
+            Widget::col(vec![
+                format!("{} trips slower", prettyprint_usize(slower.len()))
+                    .draw_text(ctx)
+                    .margin_below(5),
+                Histogram::new(ctx, Color::RED, slower),
+            ])
+            .outline(2.0, Color::WHITE)
+            .padding(10),
+        ])
+        .evenly_spaced(),
+    ])
+}
+
+fn scatter_plot(ctx: &mut EventCtx, app: &App) -> Widget {
+    if app.has_prebaked().is_none() {
+        return Widget::nothing();
     }
 
-    let plot = Plot::new(
-        ctx,
-        "finished trips",
-        lines
-            .into_iter()
-            .map(|(label, color, m)| Series {
-                label,
-                color,
-                pts: pts_per_mode.remove(&m).unwrap(),
+    let points = app
+        .primary
+        .sim
+        .get_analytics()
+        .both_finished_trips(app.primary.sim.time(), app.prebaked());
+    if points.is_empty() {
+        return Widget::nothing();
+    }
+    let max = *points.iter().map(|(a, b)| a.max(b)).max().unwrap();
+
+    // We want a nice square so the scales match up. TODO Scale size somehow.
+    let width = 500.0;
+    let height = width;
+
+    let mut batch = GeomBatch::new();
+    batch.autocrop_dims = false;
+    batch.push(Color::BLACK, Polygon::rectangle(width, width));
+
+    let circle = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(5.0)).to_polygon();
+    for (a, b) in points {
+        let pt = Pt2D::new((a / max) * width, (1.0 - (b / max)) * height);
+        // TODO Could color circles by mode
+        let color = if a == b {
+            Color::YELLOW.alpha(0.5)
+        } else if a < b {
+            Color::GREEN.alpha(0.9)
+        } else {
+            Color::RED.alpha(0.9)
+        };
+        batch.push(color, circle.translate(pt.x(), pt.y()));
+    }
+    let plot = Widget::draw_batch(ctx, batch);
+
+    let num_y_labels = 5;
+    let y_axis = Widget::col(
+        (0..=num_y_labels)
+            .map(|i| {
+                let t = (1.0 - ((i as f64) / (num_y_labels as f64))) * max;
+                Line(t.to_string()).small().draw(ctx)
             })
             .collect(),
-        PlotOptions::new(),
-    );
-    Widget::col(vec!["finished trips".draw_text(ctx), plot.margin(10)])
-}
+    )
+    .evenly_spaced();
+    let y_label = {
+        let mut label = GeomBatch::new();
+        for (color, poly) in Text::from(Line("Current trip time"))
+            .render_ctx(ctx)
+            .consume()
+        {
+            label.fancy_push(color, poly.rotate(Angle::new_degs(90.0)));
+        }
+        Widget::draw_batch(ctx, label.autocrop()).centered_vert()
+    };
 
-fn parking_overhead(ctx: &EventCtx, app: &App) -> Widget {
-    let mut txt = Text::new();
-    for line in app.primary.sim.get_analytics().analyze_parking_phases() {
-        txt.add_wrapped(line, 0.9 * ctx.canvas.window_width);
-    }
-    txt.draw(ctx)
-}
+    let num_x_labels = 5;
+    let x_axis = Widget::row(
+        (0..=num_x_labels)
+            .map(|i| {
+                let t = ((i as f64) / (num_x_labels as f64)) * max;
+                Line(t.to_string()).small().draw(ctx)
+            })
+            .collect(),
+    )
+    .evenly_spaced();
+    let x_label = Line("Original trip time").draw(ctx).centered_horiz();
 
-fn pick_bus_route(ctx: &EventCtx, app: &App) -> (Widget, Vec<(String, Callback)>) {
-    let mut buttons = Vec::new();
-    let mut cbs: Vec<(String, Callback)> = Vec::new();
-
-    let mut routes: Vec<(&String, BusRouteID)> = app
-        .primary
-        .map
-        .get_all_bus_routes()
-        .iter()
-        .map(|r| (&r.name, r.id))
-        .collect();
-    // TODO Sort first by length, then lexicographically
-    routes.sort_by_key(|(name, _)| name.to_string());
-
-    for (name, id) in routes {
-        buttons.push(Btn::text_fg(name).build_def(ctx, None));
-        let route_name = name.to_string();
-        cbs.push((
-            name.to_string(),
-            Box::new(move |_, app| {
-                let buses = app.primary.sim.status_of_buses(id);
-                if buses.is_empty() {
-                    Some(Transition::Push(msg(
-                        "No buses running",
-                        vec![format!("Sorry, no buses for route {} running", route_name)],
-                    )))
-                } else {
-                    Some(Transition::PopWithData(Box::new(move |state, app, ctx| {
-                        let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
-                        let mut actions = sandbox.contextual_actions();
-                        sandbox.controls.common.as_mut().unwrap().launch_info_panel(
-                            ctx,
-                            app,
-                            // Arbitrarily use the first one
-                            Tab::BusStatus(buses[0].0),
-                            &mut actions,
-                        );
-                    })))
-                }
-            }),
-        ));
-    }
-
-    (Widget::row(buttons).flex_wrap(ctx, 80), cbs)
-}
-
-// TODO Refactor
-fn color_for_mode(m: TripMode, app: &App) -> Color {
-    match m {
-        TripMode::Walk => app.cs.unzoomed_pedestrian,
-        TripMode::Bike => app.cs.unzoomed_bike,
-        TripMode::Transit => app.cs.unzoomed_bus,
-        TripMode::Drive => app.cs.unzoomed_car,
-    }
+    // It's a bit of work to make both the x and y axis line up with the plot. :)
+    let plot_width = plot.get_width_for_forcing();
+    Widget::row(vec![Widget::col(vec![
+        Widget::row(vec![y_label, y_axis, plot]),
+        Widget::col(vec![x_axis, x_label])
+            .force_width(plot_width)
+            .align_right(),
+    ])])
 }

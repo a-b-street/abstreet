@@ -41,6 +41,7 @@ One-time setup:
     (**Control+D**) -- they're probably confusing for the normal player
     experience, so they're hidden for now.
   - `cargo run -- --tutorial=12` starts somewhere in the tutorial
+  - Adding `--edits='name of edits'` starts with edits applied to the map.
 - If you're testing anything related to prebaked results (used for comparisons
   against a baseline in challenge mode), make sure to set `--rng_seed=42`. The
   `--dev` flag does by default.

@@ -9,11 +9,10 @@
 //! * [`Checkbox`] - toggle between two buttons
 //! * [`Dropdown`] - a button that expands into a menu
 //! * [`Filler`] - just carve out space in the layout for something else
-//! * [`Histogram`] - visualize a distribution
 //! * [`JustDraw`] (argh private) - just draw text, `GeomBatch`es, SVGs
+//! * [`LinePlot`] - visualize 2 variables with a line plot
 //! * [`Menu`] - select something from a menu, with keybindings
 //! * [`PersistentSplit`] - a button with a dropdown to change its state
-//! * [`Plot`] - visualize 2 variables with a line plot
 //! * [`Slider`] - horizontal and vertical sliders
 //! * [`Spinner`] - numeric input with up/down buttons
 //! * [`TexBox`] - single line text entry
@@ -62,11 +61,10 @@ pub(crate) use crate::widgets::button::Button;
 pub use crate::widgets::checkbox::Checkbox;
 pub(crate) use crate::widgets::dropdown::Dropdown;
 pub use crate::widgets::filler::Filler;
-pub use crate::widgets::histogram::Histogram;
 pub(crate) use crate::widgets::just_draw::JustDraw;
+pub use crate::widgets::line_plot::{LinePlot, PlotOptions, Series};
 pub(crate) use crate::widgets::menu::Menu;
 pub use crate::widgets::persistent_split::PersistentSplit;
-pub use crate::widgets::plot::{Plot, PlotOptions, Series};
 pub use crate::widgets::slider::Slider;
 pub use crate::widgets::spinner::Spinner;
 pub(crate) use crate::widgets::text_box::TextBox;

@@ -1,11 +1,11 @@
-use crate::{
+use abstutil::prettyprint_usize;
+use ezgui::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ScreenDims, ScreenPt, Text, TextExt,
     Widget, WidgetImpl, WidgetOutput,
 };
-use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, Polygon, Pt2D};
 
-// The X axis is Durations, with positive meaning "faster" (considered good) and negative "slower"
+// The X axis is Durations
 pub struct Histogram {
     draw: Drawable,
 
@@ -17,7 +17,7 @@ pub struct Histogram {
 }
 
 impl Histogram {
-    pub fn new(unsorted_dts: Vec<Duration>, ctx: &EventCtx) -> Widget {
+    pub fn new(ctx: &EventCtx, color: Color, unsorted_dts: Vec<Duration>) -> Widget {
         let mut batch = GeomBatch::new();
         let mut rect_labels = Vec::new();
 
@@ -31,13 +31,6 @@ impl Histogram {
         let max_y = bars.iter().map(|(_, _, cnt)| *cnt).max().unwrap();
         let mut outlines = Vec::new();
         for (idx, (min, max, cnt)) in bars.into_iter().enumerate() {
-            let color = if min < Duration::ZERO {
-                Color::RED
-            } else if min == Duration::ZERO && max == Duration::ZERO {
-                Color::YELLOW
-            } else {
-                Color::GREEN
-            };
             let percent_x_left = (idx as f64) / (num_buckets as f64);
             let percent_x_right = ((idx + 1) as f64) / (num_buckets as f64);
             let percent_y_top = if max_y == min_y {
@@ -153,14 +146,7 @@ fn bucketize(
     let mut min = min_x;
     while min < max_x {
         let max = min + bucket_size;
-        if min < Duration::ZERO && max > Duration::ZERO {
-            bars.push((min, Duration::ZERO, 0));
-            bars.push((Duration::ZERO, Duration::ZERO, 0));
-            bars.push((Duration::ZERO, max, 0));
-        } else {
-            bars.push((min, max, 0));
-        }
-
+        bars.push((min, max, 0));
         min = max;
     }
     if bars.is_empty() {
@@ -180,7 +166,7 @@ fn bucketize(
                 break;
             }
         }
-        // Most bars represent [low, high) except the last and the [0, 0] one
+        // Most bars represent [low, high) except the last
         if !ok {
             bars.last_mut().unwrap().2 += 1;
         }

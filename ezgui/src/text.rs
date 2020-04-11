@@ -131,6 +131,14 @@ impl Text {
         txt
     }
 
+    pub fn from_multiline(lines: Vec<TextSpan>) -> Text {
+        let mut txt = Text::new();
+        for l in lines {
+            txt.add(l);
+        }
+        txt
+    }
+
     // TODO Remove this
     pub fn with_bg(mut self) -> Text {
         assert!(self.bg_color.is_none());
@@ -288,7 +296,7 @@ impl Text {
         for (color, poly) in master_batch.consume() {
             output_batch.fancy_push(color, poly);
         }
-        output_batch.dims_text = true;
+        output_batch.autocrop_dims = false;
 
         assets.cache_text(hash_key, output_batch.clone());
         output_batch
@@ -296,7 +304,7 @@ impl Text {
 
     pub fn render_to_batch(self, prerender: &Prerender) -> GeomBatch {
         let mut batch = self.render(&prerender.assets);
-        batch.dims_text = false;
+        batch.autocrop_dims = true;
         batch.autocrop()
     }
 

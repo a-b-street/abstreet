@@ -11,7 +11,6 @@ use sim::{BorderSpawnOverTime, OriginDestination, ScenarioGenerator};
 const GOAL: Duration = Duration::const_seconds(30.0);
 
 pub struct FixTrafficSignals {
-    once: bool,
     top_center: WrappedComposite,
     // TODO Keeping a copy in here seems redundant?
     mode: GameplayMode,
@@ -20,7 +19,6 @@ pub struct FixTrafficSignals {
 impl FixTrafficSignals {
     pub fn new(ctx: &mut EventCtx, app: &App, mode: GameplayMode) -> Box<dyn GameplayState> {
         Box::new(FixTrafficSignals {
-            once: true,
             top_center: challenge_controller(
                 ctx,
                 app,
@@ -40,12 +38,6 @@ impl GameplayState for FixTrafficSignals {
         app: &mut App,
         _: &mut SandboxControls,
     ) -> (Option<Transition>, bool) {
-        // Once is never...
-        if self.once {
-            app.layer = crate::layer::trips::trips_histogram(ctx, app);
-            self.once = false;
-        }
-
         match self.top_center.event(ctx, app) {
             Some(WrappedOutcome::Transition(t)) => {
                 return (Some(t), false);

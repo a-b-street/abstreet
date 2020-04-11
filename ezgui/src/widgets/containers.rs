@@ -34,7 +34,13 @@ impl Container {
 
 impl WidgetImpl for Container {
     fn get_dims(&self) -> ScreenDims {
-        unreachable!()
+        // TODO This impl isn't correct, but it works for the one use case of
+        // get_width_for_forcing.
+        let mut width: f64 = 0.0;
+        for x in &self.members {
+            width = width.max(x.get_width_for_forcing());
+        }
+        ScreenDims::new(width, 0.0)
     }
     fn set_pos(&mut self, _top_left: ScreenPt) {
         unreachable!()

@@ -111,8 +111,11 @@ fn main() {
         flags.sim_flags.load = map_path.clone();
         mode = Some(sandbox::GameplayMode::PlayScenario(map_path, scenario));
     }
+    let start_with_edits = args.optional("--edits");
 
     args.done();
 
-    ezgui::run(settings, |ctx| game::Game::new(flags, opts, mode, ctx));
+    ezgui::run(settings, |ctx| {
+        game::Game::new(flags, opts, start_with_edits, mode, ctx)
+    });
 }

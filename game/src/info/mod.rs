@@ -14,7 +14,7 @@ use crate::render::{ExtraShapeID, MIN_ZOOM_FOR_DETAIL};
 use crate::sandbox::{SandboxMode, TimeWarpScreen};
 use ezgui::{
     hotkey, Btn, Checkbox, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Plot, PlotOptions, Series, Text, TextExt,
+    HorizontalAlignment, Key, Line, LinePlot, Outcome, PlotOptions, Series, Text, TextExt,
     VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Duration, Time};
@@ -287,15 +287,6 @@ impl InfoPanel {
             }
         }
 
-        // Follow the agent. When the sim is paused, this lets the player naturally pan away,
-        // because the InfoPanel isn't being updated.
-        if let Some(pt) = maybe_id
-            .and_then(|id| id.agent_id())
-            .and_then(|a| app.primary.sim.canonical_pt_for_agent(a, &app.primary.map))
-        {
-            ctx.canvas.center_on_map_pt(pt);
-        }
-
         InfoPanel {
             tab,
             time: app.primary.sim.time(),
@@ -498,7 +489,7 @@ fn throughput<F: Fn(&Analytics, Time) -> BTreeMap<TripMode, Vec<(Time, usize)>>>
         }
     }
 
-    Plot::new(ctx, "throughput", series, PlotOptions::new())
+    LinePlot::new(ctx, "throughput", series, PlotOptions::new())
 }
 
 fn color_for_mode(m: TripMode, app: &App) -> Color {

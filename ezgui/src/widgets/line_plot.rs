@@ -6,7 +6,7 @@ use abstutil::prettyprint_usize;
 use geom::{Angle, Bounds, Circle, Distance, Duration, FindClosest, PolyLine, Pt2D, Time};
 
 // The X is always time
-pub struct Plot<T: Yvalue<T>> {
+pub struct LinePlot<T: Yvalue<T>> {
     series: Vec<SeriesState>,
     draw_grid: Drawable,
 
@@ -35,7 +35,7 @@ impl PlotOptions {
     }
 }
 
-impl<T: Yvalue<T>> Plot<T> {
+impl<T: Yvalue<T>> LinePlot<T> {
     // ID must be unique in a Composite
     pub fn new(ctx: &EventCtx, id: &str, series: Vec<Series<T>>, opts: PlotOptions) -> Widget {
         let legend = if series.len() == 1 {
@@ -190,7 +190,7 @@ impl<T: Yvalue<T>> Plot<T> {
             });
         }
 
-        let plot = Plot {
+        let plot = LinePlot {
             series: series_state,
             draw_grid: ctx.upload(grid_batch),
             closest,
@@ -236,7 +236,7 @@ impl<T: Yvalue<T>> Plot<T> {
     }
 }
 
-impl<T: Yvalue<T>> WidgetImpl for Plot<T> {
+impl<T: Yvalue<T>> WidgetImpl for LinePlot<T> {
     fn get_dims(&self) -> ScreenDims {
         self.dims
     }
@@ -294,14 +294,14 @@ impl<T: Yvalue<T>> WidgetImpl for Plot<T> {
                 return;
             }
         }
-        panic!("Plot doesn't have a series {}", label);
+        panic!("LinePlot doesn't have a series {}", label);
     }
 
     fn can_restore(&self) -> bool {
         true
     }
     fn restore(&mut self, _: &mut EventCtx, prev: &Box<dyn WidgetImpl>) {
-        let prev = prev.downcast_ref::<Plot<T>>().unwrap();
+        let prev = prev.downcast_ref::<LinePlot<T>>().unwrap();
         for (s1, s2) in self.series.iter_mut().zip(prev.series.iter()) {
             s1.enabled = s2.enabled;
         }

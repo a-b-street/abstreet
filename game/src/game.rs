@@ -18,6 +18,7 @@ impl Game {
     pub fn new(
         flags: Flags,
         opts: Options,
+        start_with_edits: Option<String>,
         maybe_mode: Option<GameplayMode>,
         ctx: &mut EventCtx,
     ) -> Game {
@@ -26,6 +27,21 @@ impl Game {
             && !flags.sim_flags.load.contains("data/system/scenarios")
             && maybe_mode.is_none();
         let mut app = App::new(flags, opts, ctx, title);
+
+        // Just apply this here, don't plumb to SimFlags or anything else. We recreate things using
+        // these flags later, but we don't want to keep applying the same edits.
+        if let Some(edits_name) = start_with_edits {
+            // TODO Maybe loading screen
+            let mut timer = abstutil::Timer::new("apply initial edits");
+            let edits =
+                map_model::MapEdits::load(app.primary.map.get_name(), &edits_name, &mut timer);
+            crate::edit::apply_map_edits(ctx, &mut app, edits);
+            app.primary
+                .map
+                .recalculate_pathfinding_after_edits(&mut timer);
+            app.primary.clear_sim();
+        }
+
         let states: Vec<Box<dyn State>> = if title {
             vec![Box::new(TitleScreen::new(ctx, &app))]
         } else {

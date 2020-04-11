@@ -3,8 +3,8 @@ use crate::helpers::ID;
 use crate::info::{make_table, Details};
 use crate::render::dashed_lines;
 use ezgui::{
-    Btn, Color, EventCtx, GeomBatch, Line, Plot, PlotOptions, RewriteColor, Series, Text, TextExt,
-    Widget,
+    Btn, Color, EventCtx, GeomBatch, Line, LinePlot, PlotOptions, RewriteColor, Series, Text,
+    TextExt, Widget,
 };
 use geom::{Angle, Distance, Duration, Polygon, Pt2D, Time};
 use map_model::{Map, Path, PathStep};
@@ -70,7 +70,8 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
         };
 
         col.push(Widget::row(vec![
-            Widget::row(vec![Line("Trip time").secondary().draw(ctx)]).force_width(ctx, col_width),
+            Widget::row(vec![Line("Trip time").secondary().draw(ctx)])
+                .force_width_pct(ctx, col_width),
             Text::from_all(vec![
                 Line(props.total_time.to_string()),
                 Line(format!(" {} / {} this trip", activity, total_trip_time)).secondary(),
@@ -79,7 +80,8 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
         ]));
 
         col.push(Widget::row(vec![
-            Widget::row(vec![Line("Distance").secondary().draw(ctx)]).force_width(ctx, col_width),
+            Widget::row(vec![Line("Distance").secondary().draw(ctx)])
+                .force_width_pct(ctx, col_width),
             Widget::col(vec![
                 Text::from_all(vec![
                     Line(props.dist_crossed.describe_rounded()),
@@ -95,7 +97,8 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
         ]));
 
         col.push(Widget::row(vec![
-            Widget::row(vec![Line("Waiting").secondary().draw(ctx)]).force_width(ctx, col_width),
+            Widget::row(vec![Line("Waiting").secondary().draw(ctx)])
+                .force_width_pct(ctx, col_width),
             Widget::col(vec![
                 format!("{} here", props.waiting_here).draw_text(ctx),
                 Text::from_all(vec![
@@ -119,13 +122,14 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
         let col_width = 15;
 
         col.push(Widget::row(vec![
-            Widget::row(vec![Line("Trip time").secondary().draw(ctx)]).force_width(ctx, col_width),
+            Widget::row(vec![Line("Trip time").secondary().draw(ctx)])
+                .force_width_pct(ctx, col_width),
             total_trip_time.to_string().draw_text(ctx),
         ]));
         let (_, waiting) = sim.finished_trip_time(trip).unwrap();
         col.push(Widget::row(vec![
             Widget::row(vec![Line("Total waiting time").secondary().draw(ctx)])
-                .force_width(ctx, col_width),
+                .force_width_pct(ctx, col_width),
             waiting.to_string().draw_text(ctx),
         ]));
 
@@ -393,7 +397,7 @@ fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map:
     }
     // TODO Plot needs to support Distance as both X and Y axis. :P
     // TODO Show roughly where we are in the trip; use distance covered by current path for this
-    Plot::new(
+    LinePlot::new(
         ctx,
         "elevation",
         vec![Series {

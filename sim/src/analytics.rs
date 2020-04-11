@@ -236,8 +236,39 @@ impl Analytics {
         None
     }
 
+    // Returns pairs of trip times for finished trips in both worlds.
+    pub fn both_finished_trips(
+        &self,
+        now: Time,
+        baseline: &Analytics,
+    ) -> Vec<(Duration, Duration)> {
+        let mut a = BTreeMap::new();
+        for (t, id, maybe_mode, dt) in &self.finished_trips {
+            if *t > now {
+                break;
+            }
+            if maybe_mode.is_some() {
+                a.insert(*id, *dt);
+            }
+        }
+
+        let mut results = Vec::new();
+        for (t, id, maybe_mode, dt) in &baseline.finished_trips {
+            if *t > now {
+                break;
+            }
+            if maybe_mode.is_some() {
+                if let Some(dt1) = a.remove(id) {
+                    results.push((dt1, *dt));
+                }
+            }
+        }
+        results
+    }
+
     // Returns unsorted list of deltas, one for each trip finished or ongoing in both worlds.
     // Positive dt means faster.
+    // TODO Now unused
     pub fn trip_time_deltas(&self, now: Time, baseline: &Analytics) -> Vec<Duration> {
         fn trip_times(a: &Analytics, now: Time) -> BTreeMap<TripID, Duration> {
             let mut ongoing = a.started_trips.clone();
@@ -492,6 +523,7 @@ impl Analytics {
         trips
     }
 
+    // TODO Unused now
     pub fn analyze_parking_phases(&self) -> Vec<String> {
         // Of all completed trips involving parking, what percentage of total time was spent as
         // "overhead" -- not the main driving part of the trip?

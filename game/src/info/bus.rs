@@ -2,12 +2,12 @@ use crate::app::App;
 use crate::helpers::ID;
 use crate::info::{header_btns, make_table, make_tabs, Details, Tab};
 use ezgui::{
-    Btn, Color, EventCtx, GeomBatch, Line, Plot, PlotOptions, RewriteColor, Series, Text, TextExt,
-    Widget,
+    Btn, Color, EventCtx, GeomBatch, Line, LinePlot, PlotOptions, RewriteColor, Series, Text,
+    TextExt, Widget,
 };
 use geom::{Circle, Distance, Polygon, Pt2D, Statistic, Time};
 use map_model::{BusRouteID, BusStopID};
-use sim::CarID;
+use sim::{AgentID, CarID};
 
 pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID) -> Vec<Widget> {
     let mut rows = vec![];
@@ -80,13 +80,21 @@ pub fn bus_delays(ctx: &mut EventCtx, app: &App, details: &mut Details, id: CarI
 }
 
 fn bus_header(
-    ctx: &EventCtx,
+    ctx: &mut EventCtx,
     app: &App,
     details: &mut Details,
     id: CarID,
     tab: Tab,
 ) -> Vec<Widget> {
     let route = app.primary.sim.bus_route_id(id).unwrap();
+
+    if let Some(pt) = app
+        .primary
+        .sim
+        .canonical_pt_for_agent(AgentID::Car(id), &app.primary.map)
+    {
+        ctx.canvas.center_on_map_pt(pt);
+    }
 
     let mut rows = vec![];
     rows.push(Widget::row(vec![
@@ -137,7 +145,7 @@ fn delays_over_time(ctx: &mut EventCtx, app: &App, id: BusRouteID) -> Widget {
     }
     Widget::col(vec![
         Line("Delays between stops").small_heading().draw(ctx),
-        Plot::new(ctx, "delay btwn stops", series, PlotOptions::new()).margin(10),
+        LinePlot::new(ctx, "delay btwn stops", series, PlotOptions::new()).margin(10),
     ])
 }
 

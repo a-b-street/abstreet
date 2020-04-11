@@ -75,6 +75,7 @@ impl State for EditMode {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         // Can't do this in the constructor, because SandboxMode's on_destroy clears out Layers
         if self.once {
+            // Once is never...
             self.once = false;
             // apply_map_edits will do the job later
             app.layer = crate::layer::map::edits(ctx, app);

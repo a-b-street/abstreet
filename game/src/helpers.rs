@@ -133,14 +133,3 @@ pub fn cmp_count_fewer(now: usize, baseline: usize) -> TextSpan {
         Line("same as baseline")
     }
 }
-
-// More is better
-pub fn cmp_count_more(now: usize, baseline: usize) -> TextSpan {
-    if now < baseline {
-        Line(format!("{} fewer", prettyprint_usize(baseline - now))).fg(Color::RED)
-    } else if now > baseline {
-        Line(format!("{} more", prettyprint_usize(now - baseline))).fg(Color::GREEN)
-    } else {
-        Line("same as baseline")
-    }
-}
