@@ -3,7 +3,6 @@ mod prob;
 
 use geom::{Duration, Time};
 pub use pandemic::{Cmd, PandemicModel};
-pub use prob::{erf_distrib_bounded, proba_decaying_sigmoid};
 use rand::Rng;
 use rand_distr::{Distribution, Exp, Normal};
 use rand_xorshift::XorShiftRng;
@@ -98,7 +97,7 @@ impl Event {
                 s: StateEvent::Incubation,
                 p_hosp: self.p_hosp,
                 p_death: self.p_death,
-                t: now + State::get_time_exp(rng),
+                t: now + State::get_time_normal(State::T_INC, State::T_INC / 2.0, rng),
             }),
             StateEvent::Incubation => {
                 if rng.gen_bool(self.p_death) {
@@ -106,14 +105,14 @@ impl Event {
                         s: StateEvent::Recovery,
                         p_hosp: self.p_hosp,
                         p_death: self.p_death,
-                        t: now + State::get_time_normal(rng),
+                        t: now + State::get_time_normal(State::T_INF, State::T_INF / 2.0, rng),
                     })
                 } else {
                     State::Infectious(Event {
                         s: StateEvent::Hospitalization,
                         p_hosp: self.p_hosp,
                         p_death: self.p_death,
-                        t: now + State::get_time_normal(rng),
+                        t: now + State::get_time_normal(State::T_INF, State::T_INF / 2.0, rng),
                     })
                 }
             }
@@ -123,14 +122,14 @@ impl Event {
                         s: StateEvent::Recovery,
                         p_hosp: self.p_hosp,
                         p_death: self.p_death,
-                        t: now + State::get_time_normal(rng),
+                        t: now + State::get_time_normal(State::T_INF, State::T_INF / 2.0, rng),
                     })
                 } else {
                     State::Hospitalized(Event {
                         s: StateEvent::Death,
                         p_hosp: self.p_hosp,
                         p_death: self.p_death,
-                        t: now + State::get_time_normal(rng),
+                        t: now + State::get_time_normal(State::T_INF, State::T_INF / 2.0, rng),
                     })
                 }
             }
@@ -141,26 +140,42 @@ impl Event {
 }
 
 impl State {
-    fn new(t0: AnyTime, p_hosp: f64, p_death: f64, rng: &mut XorShiftRng) -> Self {
+    const T_INF: f64 = 360.0 * 10.0; // TODO dummy values
+    const T_INC: f64 = 3600.0; // TODO dummy values
+    const R_0: f64 = 2.5;
+    const S_RATIO: f64 = 0.985;
+    const E_RATIO: f64 = 0.01;
+    const I_RATIO: f64 = 0.25;
+    const R_RATIO: f64 = 0.0;
+
+    pub fn ini_infectious_ratio() -> f64 {
+        Self::I_RATIO
+    }
+
+    pub fn ini_exposed_ratio() -> f64 {
+        Self::E_RATIO
+    }
+
+    fn new(p_hosp: f64, p_death: f64) -> Self {
         Self::Sane(Event {
             s: StateEvent::Exposition,
             p_hosp,
             p_death,
-            t: t0 + Self::get_time_exp(rng),
+            t: AnyTime::from(std::f64::INFINITY),
         })
     }
 
-    fn get_time_exp(rng: &mut XorShiftRng) -> geom::Duration {
-        let normal = Exp::new(1.0).unwrap();
+    fn get_time_exp(lambda: f64, rng: &mut XorShiftRng) -> geom::Duration {
+        let normal = Exp::new(lambda).unwrap();
         Duration::seconds(normal.sample(rng))
     }
 
-    fn get_time_normal(rng: &mut XorShiftRng) -> geom::Duration {
-        let normal = Normal::new(10.0, 1.0).unwrap();
+    fn get_time_normal(mu: f64, sigma: f64, rng: &mut XorShiftRng) -> geom::Duration {
+        let normal = Normal::new(mu, sigma).unwrap();
         Duration::seconds(normal.sample(rng))
     }
 
-    fn is_completely_sane(&self) -> bool {
+    fn is_sane(&self) -> bool {
         match self {
             State::Sane(ev) => !ev.t.is_finite(),
             _ => false,
@@ -183,29 +198,29 @@ impl State {
         }
     }
 
-    pub fn set_time(self, new_time: AnyTime) -> Self {
-        match self {
-            Self::Sane(Event {
-                s,
-                p_hosp,
-                p_death,
-                t: _,
-            }) => Self::Sane(Event {
-                s,
-                p_hosp,
-                p_death,
-                t: new_time,
-            }),
-            _ => unreachable!(),
-        }
-    }
+    // pub fn set_time(self, new_time: AnyTime) -> Self {
+    //     match self {
+    //         Self::Sane(Event {
+    //             s,
+    //             p_hosp,
+    //             p_death,
+    //             t: _,
+    //         }) => Self::Sane(Event {
+    //             s,
+    //             p_hosp,
+    //             p_death,
+    //             t: new_time,
+    //         }),
+    //         _ => unreachable!(),
+    //     }
+    // }
 
     // TODO: not sure if we want an option here...
     pub fn next_default(self, default: AnyTime, rng: &mut XorShiftRng) -> Option<Self> {
         // TODO: when #![feature(bindings_after_at)] reaches stable
         // rewrite this part with it
         match self {
-            Self::Sane(ev) => Some(ev.next(default, rng)),
+            Self::Sane(ev) => Some(Self::Sane(ev)),
             Self::Exposed(ev) => Some(ev.next(default, rng)),
             Self::Infectious(ev) => Some(ev.next(default, rng)),
             Self::Hospitalized(ev) => Some(ev.next(default, rng)),
@@ -219,13 +234,7 @@ impl State {
         // TODO: when #![feature(bindings_after_at)] reaches stable
         // rewrite this part with it
         match self {
-            Self::Sane(ev) => {
-                if ev.t <= now {
-                    Some(ev.next(now, rng))
-                } else {
-                    Some(Self::Sane(ev))
-                }
-            }
+            Self::Sane(ev) => Some(Self::Sane(ev)),
             Self::Exposed(ev) => {
                 if ev.t <= now {
                     Some(ev.next(now, rng))
@@ -251,51 +260,21 @@ impl State {
             Self::Dead => Some(Self::Dead),
         }
     }
-}
 
-pub enum SEIR {
-    Sane,
-    Exposed,
-    Infectious,
-    Recovered,
-}
-
-impl SEIR {
-    const T_INF: f64 = 3600.0 * 10.0; // TODO dummy values
-    const T_INC: f64 = 3600.0; // TODO dummy values
-    const R_0: f64 = 2.5;
-    const S_RATIO: f64 = 0.985;
-    const E_RATIO: f64 = 0.01;
-    const I_RATIO: f64 = 0.05;
-    const R_RATIO: f64 = 0.0;
-
-    // TODO change that name it's bad
-    pub fn get_transition_time_from(state: Self) -> Duration {
-        match state {
-            SEIR::Sane => Duration::seconds(SEIR::T_INF / SEIR::R_0),
-            SEIR::Exposed => Duration::seconds(SEIR::T_INC),
-            SEIR::Infectious => Duration::seconds(SEIR::T_INF),
-            SEIR::Recovered => unreachable!(),
-        }
-    }
-
-    // TODO ATM the sigma is simply the duration / 2. Maybe look that a bit more.
-    // TODO also change that name it's bad
-    pub fn get_transition_time_uncertainty_from(state: Self) -> Duration {
-        match state {
-            SEIR::Sane => Duration::seconds(SEIR::T_INF / SEIR::R_0 / 2.0),
-            SEIR::Exposed => Duration::seconds(SEIR::T_INC / 2.0),
-            SEIR::Infectious => Duration::seconds(SEIR::T_INF / 2.0),
-            SEIR::Recovered => panic!("Impossible to transition from Recovered state"),
-        }
-    }
-
-    pub fn get_initial_ratio(state: Self) -> f64 {
-        match state {
-            SEIR::Sane => SEIR::S_RATIO,
-            SEIR::Exposed => SEIR::E_RATIO,
-            SEIR::Infectious => SEIR::I_RATIO,
-            SEIR::Recovered => SEIR::R_RATIO,
+    // TODO: not sure if we want an option here... I guess here we want because we could have
+    pub fn start(self, now: AnyTime, overlap: Duration, rng: &mut XorShiftRng) -> Result<Self, String> {
+        // TODO: when #![feature(bindings_after_at)] reaches stable
+        // rewrite this part with it
+        match self {
+            Self::Sane(ev) => {
+                if overlap >= Self::get_time_exp(State::R_0 / State::T_INF, rng) {
+                    Ok(ev.next(now, rng))
+                } else {
+                    Ok(Self::Sane(ev))
+                }
+            }
+            _ => Err(String::from("Error: impossible to start from a non-sane situation."))
         }
     }
 }
+
