@@ -13,16 +13,6 @@ use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Clone)]
 pub struct PandemicModel {
-    pub sane: BTreeSet<PersonID>,
-    // first time is the time of exposition/infection
-    // second time is the time since the last check of
-    // transition was performed
-    pub exposed: BTreeMap<PersonID, (Time, Time)>,
-    pub infected: BTreeMap<PersonID, (Time, Time)>,
-    pub recovered: BTreeSet<PersonID>,
-    hospitalized: BTreeSet<PersonID>,
-    quarantined: BTreeSet<PersonID>,
-
     pop: BTreeMap<PersonID, State>,
 
     bldgs: SharedSpace<BuildingID>,
@@ -54,13 +44,6 @@ impl PandemicModel {
     pub fn new(rng: XorShiftRng) -> PandemicModel {
         PandemicModel {
             pop: BTreeMap::new(),
-
-            sane: BTreeSet::new(),
-            exposed: BTreeMap::new(),
-            infected: BTreeMap::new(),
-            hospitalized: BTreeSet::new(),
-            quarantined: BTreeSet::new(),
-            recovered: BTreeSet::new(),
 
             bldgs: SharedSpace::new(),
             bus_stops: SharedSpace::new(),
@@ -193,10 +176,10 @@ impl PandemicModel {
         // them)
         match cmd {
             Cmd::BecomeHospitalized(person) => {
-                self.hospitalized.insert(person);
+                // self.hospitalized.insert(person);
             }
             Cmd::BecomeQuarantined(person) => {
-                self.quarantined.insert(person);
+                // self.quarantined.insert(person);
             }
             // This is handled by the rest of the simulation
             Cmd::CancelFutureTrips(_) => unreachable!(),
