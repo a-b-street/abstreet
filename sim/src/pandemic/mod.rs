@@ -1,5 +1,4 @@
 mod pandemic;
-mod prob;
 
 use geom::{Duration, Time};
 pub use pandemic::{Cmd, PandemicModel};
