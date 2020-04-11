@@ -26,6 +26,7 @@ enum SortBy {
     Departure,
     Duration,
     RelativeDuration,
+    PercentChangeDuration,
     PercentWaiting,
 }
 
@@ -60,6 +61,10 @@ impl State for TripResults {
                 }
                 "Comparison with baseline" => {
                     self.sort_by = SortBy::RelativeDuration;
+                    self.recalc(ctx, app);
+                }
+                "Normalized comparison with baseline" => {
+                    self.sort_by = SortBy::PercentChangeDuration;
                     self.recalc(ctx, app);
                 }
                 "Percent of trip spent waiting" => {
@@ -140,6 +145,9 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
         SortBy::Departure => data.sort_by_key(|x| x.departure),
         SortBy::Duration => data.sort_by_key(|x| x.duration),
         SortBy::RelativeDuration => data.sort_by_key(|x| x.duration - x.baseline_duration),
+        SortBy::PercentChangeDuration => {
+            data.sort_by_key(|x| (100.0 * (x.duration / x.baseline_duration)) as isize)
+        }
         SortBy::PercentWaiting => data.sort_by_key(|x| x.percent_waiting),
     }
     if descending {
@@ -149,24 +157,39 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
     // Cheap tabular layout
     // TODO https://stackoverflow.com/questions/48493500/can-flexbox-handle-varying-sizes-of-columns-but-consistent-row-height/48496343#48496343
     // For now, manually tuned margins :(
-    let mut col1 = Vec::new();
-    let mut col2 = Text::new();
-    let mut col3 = Text::new();
-    let mut col4 = Text::new();
-    let mut maybe_col5 = Text::new();
-    let mut col6 = Text::new();
-    let mut col7 = Text::new();
+    let mut id_col = Vec::new();
+    let mut mode_col = Text::new();
+    let mut departure_col = Text::new();
+    let mut duration_col = Text::new();
+    let mut relative_duration_col = Text::new();
+    let mut percent_change_duration_col = Text::new();
+    let mut waiting_col = Text::new();
+    let mut pct_waiting_col = Text::new();
 
     for x in data.into_iter().take(30) {
-        col1.push(Btn::plaintext(x.trip.0.to_string()).build_def(ctx, None));
-        col2.add(Line(x.mode.ongoing_verb()));
-        col3.add(Line(x.departure.ampm_tostring()));
-        col4.add(Line(x.duration.to_string()));
+        id_col.push(Btn::plaintext(x.trip.0.to_string()).build_def(ctx, None));
+        mode_col.add(Line(x.mode.ongoing_verb()));
+        departure_col.add(Line(x.departure.ampm_tostring()));
+        duration_col.add(Line(x.duration.to_string()));
         if app.has_prebaked().is_some() {
-            maybe_col5.add_appended(cmp_duration_shorter(x.duration, x.baseline_duration));
+            relative_duration_col
+                .add_appended(cmp_duration_shorter(x.duration, x.baseline_duration));
+            if x.duration == x.baseline_duration {
+                percent_change_duration_col.add(Line("same"));
+            } else if x.duration < x.baseline_duration {
+                percent_change_duration_col.add(Line(format!(
+                    "{}% faster",
+                    (100.0 * (1.0 - (x.duration / x.baseline_duration))) as usize
+                )));
+            } else {
+                percent_change_duration_col.add(Line(format!(
+                    "{}% slower ",
+                    (100.0 * ((x.duration / x.baseline_duration) - 1.0)) as usize
+                )));
+            }
         }
-        col6.add(Line(x.waiting.to_string()));
-        col7.add(Line(format!("{}%", x.percent_waiting)));
+        waiting_col.add(Line(x.waiting.to_string()));
+        pct_waiting_col.add(Line(format!("{}%", x.percent_waiting)));
     }
 
     Composite::new(
@@ -207,6 +230,16 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
                 } else {
                     Widget::nothing()
                 },
+                if app.has_prebaked().is_some() {
+                    if sort == SortBy::PercentChangeDuration {
+                        Btn::text_bg2("Normalized comparison with baseline").inactive(ctx)
+                    } else {
+                        Btn::text_fg("Normalized comparison with baseline").build_def(ctx, None)
+                    }
+                    .margin_right(10)
+                } else {
+                    Widget::nothing()
+                },
                 Line("Time spent waiting").draw(ctx).margin_right(10),
                 if sort == SortBy::PercentWaiting {
                     Btn::text_bg2("Percent of trip spent waiting").inactive(ctx)
@@ -216,17 +249,45 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
                 .margin_right(10),
             ]),
             Widget::row(vec![
-                Widget::col(col1).margin_right(10),
-                col2.draw(ctx).margin_right(10),
-                col3.draw(ctx).margin_right(10),
-                col4.draw(ctx).margin_right(10),
+                Widget::col(id_col)
+                    .outline(2.0, Color::WHITE)
+                    .margin_right(10),
+                mode_col
+                    .draw(ctx)
+                    .outline(2.0, Color::WHITE)
+                    .margin_right(10),
+                departure_col
+                    .draw(ctx)
+                    .outline(2.0, Color::WHITE)
+                    .margin_right(10),
+                duration_col
+                    .draw(ctx)
+                    .outline(2.0, Color::WHITE)
+                    .margin_right(10),
                 if app.has_prebaked().is_some() {
-                    maybe_col5.draw(ctx).margin_right(10)
+                    relative_duration_col
+                        .draw(ctx)
+                        .outline(2.0, Color::WHITE)
+                        .margin_right(10)
                 } else {
                     Widget::nothing()
                 },
-                col6.draw(ctx).margin_right(10),
-                col7.draw(ctx).margin_right(10),
+                if app.has_prebaked().is_some() {
+                    percent_change_duration_col
+                        .draw(ctx)
+                        .outline(2.0, Color::WHITE)
+                        .margin_right(10)
+                } else {
+                    Widget::nothing()
+                },
+                waiting_col
+                    .draw(ctx)
+                    .outline(2.0, Color::WHITE)
+                    .margin_right(10),
+                pct_waiting_col
+                    .draw(ctx)
+                    .outline(2.0, Color::WHITE)
+                    .margin_right(10),
             ])
             .evenly_spaced(),
         ])
