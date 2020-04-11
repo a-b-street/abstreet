@@ -5,10 +5,10 @@ use crate::info::Tab;
 use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, Btn, Checkbox, Color, Composite, EventCtx, GfxCtx, Histogram, Key, Line, Outcome, Text,
-    TextExt, Widget,
+    hotkey, Btn, Checkbox, Color, Composite, EventCtx, GeomBatch, GfxCtx, Histogram, Key, Line,
+    Outcome, Text, TextExt, Widget,
 };
-use geom::{Duration, Time};
+use geom::{Angle, Circle, Distance, Duration, Polygon, Pt2D, Time};
 use maplit::btreeset;
 use sim::{TripID, TripMode};
 
@@ -266,6 +266,7 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
             ]),
             summary_absolute(ctx, app).margin(20),
             summary_normalized(ctx, app).margin(20),
+            scatter_plot(ctx, app).margin(20),
             Line("Click a column to sort by it").small().draw(ctx),
             Checkbox::text(ctx, "Descending", None, descending).margin(10),
             Widget::row(header_row).evenly_spaced(),
@@ -415,4 +416,85 @@ fn summary_normalized(ctx: &mut EventCtx, app: &App) -> Widget {
         ])
         .evenly_spaced(),
     ])
+}
+
+fn scatter_plot(ctx: &mut EventCtx, app: &App) -> Widget {
+    if app.has_prebaked().is_none() {
+        return Widget::nothing();
+    }
+
+    let points = app
+        .primary
+        .sim
+        .get_analytics()
+        .both_finished_trips(app.primary.sim.time(), app.prebaked());
+    if points.is_empty() {
+        return Widget::nothing();
+    }
+    let max = *points.iter().map(|(a, b)| a.max(b)).max().unwrap();
+
+    // We want a nice square so the scales match up. TODO Scale size somehow.
+    let width = 500.0;
+    let height = width;
+
+    let mut batch = GeomBatch::new();
+    batch.autocrop_dims = false;
+    batch.push(Color::BLACK, Polygon::rectangle(width, width));
+
+    let circle = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(5.0)).to_polygon();
+    for (a, b) in points {
+        let pt = Pt2D::new((a / max) * width, (1.0 - (b / max)) * height);
+        // TODO Could color circles by mode
+        let color = if a == b {
+            Color::YELLOW.alpha(0.5)
+        } else if a < b {
+            Color::GREEN.alpha(0.9)
+        } else {
+            Color::RED.alpha(0.9)
+        };
+        batch.push(color, circle.translate(pt.x(), pt.y()));
+    }
+    let plot = Widget::draw_batch(ctx, batch);
+
+    let num_y_labels = 5;
+    let y_axis = Widget::col(
+        (0..=num_y_labels)
+            .map(|i| {
+                let t = (1.0 - ((i as f64) / (num_y_labels as f64))) * max;
+                Line(t.to_string()).small().draw(ctx)
+            })
+            .collect(),
+    )
+    .evenly_spaced();
+    let y_label = {
+        let mut label = GeomBatch::new();
+        for (color, poly) in Text::from(Line("Current trip time"))
+            .render_ctx(ctx)
+            .consume()
+        {
+            label.fancy_push(color, poly.rotate(Angle::new_degs(90.0)));
+        }
+        Widget::draw_batch(ctx, label.autocrop()).centered_vert()
+    };
+
+    let num_x_labels = 5;
+    let x_axis = Widget::row(
+        (0..=num_x_labels)
+            .map(|i| {
+                let t = ((i as f64) / (num_x_labels as f64)) * max;
+                Line(t.to_string()).small().draw(ctx)
+            })
+            .collect(),
+    )
+    .evenly_spaced();
+    let x_label = Line("Original trip time").draw(ctx).centered_horiz();
+
+    // It's a bit of work to make both the x and y axis line up with the plot. :)
+    let plot_width = plot.get_width_for_forcing();
+    Widget::row(vec![Widget::col(vec![
+        Widget::row(vec![y_label, y_axis, plot]),
+        Widget::col(vec![x_axis, x_label])
+            .force_width(plot_width)
+            .align_right(),
+    ])])
 }

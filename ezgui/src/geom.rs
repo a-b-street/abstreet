@@ -5,8 +5,7 @@ use geom::{Angle, Bounds, Polygon, Pt2D};
 #[derive(Clone)]
 pub struct GeomBatch {
     pub(crate) list: Vec<(FancyColor, Polygon)>,
-    // TODO A weird hack for text.
-    pub(crate) dims_text: bool,
+    pub autocrop_dims: bool,
 }
 
 impl GeomBatch {
@@ -14,7 +13,7 @@ impl GeomBatch {
     pub fn new() -> GeomBatch {
         GeomBatch {
             list: Vec::new(),
-            dims_text: false,
+            autocrop_dims: true,
         }
     }
 
@@ -25,7 +24,7 @@ impl GeomBatch {
                 .into_iter()
                 .map(|(c, p)| (FancyColor::RGBA(c), p))
                 .collect(),
-            dims_text: false,
+            autocrop_dims: true,
         }
     }
 
@@ -72,7 +71,7 @@ impl GeomBatch {
     }
 
     /// Sets the top-left to 0, 0. Not sure exactly when this should be used.
-    pub(crate) fn autocrop(mut self) -> GeomBatch {
+    pub fn autocrop(mut self) -> GeomBatch {
         let mut bounds = Bounds::new();
         for (_, poly) in &self.list {
             bounds.union(poly.get_bounds());
@@ -102,10 +101,10 @@ impl GeomBatch {
         for (_, poly) in &self.list {
             bounds.union(poly.get_bounds());
         }
-        if self.dims_text {
-            ScreenDims::new(bounds.max_x, bounds.max_y)
-        } else {
+        if self.autocrop_dims {
             ScreenDims::new(bounds.width(), bounds.height())
+        } else {
+            ScreenDims::new(bounds.max_x, bounds.max_y)
         }
     }
 
