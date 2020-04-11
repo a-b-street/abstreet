@@ -31,14 +31,17 @@ pub fn trips(
 
     // TODO This probably belongs on a different tab, but it's also convenient to see it up-front.
     if let Some(p) = app.primary.sim.get_pandemic_model() {
-        let status = if p.sane.contains(&id) {
+        // TODO add hospitalization/quarantine probably
+        let status = if p.is_sane(id) {
             "Susceptible".to_string()
-        } else if let Some((t, _)) = p.exposed.get(&id) {
-            format!("Exposed at {}", t.ampm_tostring())
-        } else if let Some((t, _)) = p.infected.get(&id) {
-            format!("Infected at {}", t.ampm_tostring())
-        } else if p.recovered.contains(&id) {
-            "Recovered".to_string()
+        } else if p.is_exposed(id) {
+            format!("Exposed at {}", p.get_time(id).unwrap().ampm_tostring())
+        } else if p.is_infectious(id) {
+            format!("Infected at {}", p.get_time(id).unwrap().ampm_tostring())
+        } else if p.is_recovered(id) {
+            format!("Recovered at {}", p.get_time(id).unwrap().ampm_tostring())
+        } else if p.is_dead(id) {
+            format!("Dead at {}", p.get_time(id).unwrap().ampm_tostring())
         } else {
             // TODO More info here? Make these public too?
             "Other (hospitalized or quarantined)".to_string()

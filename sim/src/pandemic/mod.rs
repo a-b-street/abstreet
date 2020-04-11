@@ -56,21 +56,19 @@ impl From<Time> for AnyTime {
     }
 }
 
+impl Into<Time> for AnyTime {
+    fn into(self) -> Time {
+        Time::START_OF_DAY + Duration::seconds(self.inner_seconds())
+    }
+}
+
 impl From<f64> for AnyTime {
     fn from(t: f64) -> AnyTime {
         AnyTime(t)
     }
 }
 
-#[derive(Debug, Clone)]
-pub enum State {
-    Sane(Event),
-    Exposed(Event),
-    Infectious(Event),
-    Hospitalized(Event),
-    Recovered,
-    Dead,
-}
+
 
 #[derive(Debug, Clone)]
 pub enum StateEvent {
@@ -92,50 +90,60 @@ pub struct Event {
 impl Event {
     fn next(&self, now: AnyTime, rng: &mut XorShiftRng) -> State {
         match self.s {
-            StateEvent::Exposition => State::Exposed(Event {
+            StateEvent::Exposition => State::Exposed((Event {
                 s: StateEvent::Incubation,
                 p_hosp: self.p_hosp,
                 p_death: self.p_death,
                 t: now + State::get_time_normal(State::T_INC, State::T_INC / 2.0, rng),
-            }),
+            }, now.into()) ),
             StateEvent::Incubation => {
                 if rng.gen_bool(self.p_death) {
-                    State::Infectious(Event {
+                    State::Infectious((Event {
                         s: StateEvent::Recovery,
                         p_hosp: self.p_hosp,
                         p_death: self.p_death,
                         t: now + State::get_time_normal(State::T_INF, State::T_INF / 2.0, rng),
-                    })
+                    }, now.into()))
                 } else {
-                    State::Infectious(Event {
+                    State::Infectious((Event {
                         s: StateEvent::Hospitalization,
                         p_hosp: self.p_hosp,
                         p_death: self.p_death,
                         t: now + State::get_time_normal(State::T_INF, State::T_INF / 2.0, rng),
-                    })
+                    }, now.into()))
                 }
             }
             StateEvent::Hospitalization => {
                 if rng.gen_bool(self.p_hosp) {
-                    State::Hospitalized(Event {
+                    State::Hospitalized((Event {
                         s: StateEvent::Recovery,
                         p_hosp: self.p_hosp,
                         p_death: self.p_death,
                         t: now + State::get_time_normal(State::T_INF, State::T_INF / 2.0, rng),
-                    })
+                    }, now.into()))
                 } else {
-                    State::Hospitalized(Event {
+                    State::Hospitalized((Event {
                         s: StateEvent::Death,
                         p_hosp: self.p_hosp,
                         p_death: self.p_death,
                         t: now + State::get_time_normal(State::T_INF, State::T_INF / 2.0, rng),
-                    })
+                    }, now.into()))
                 }
             }
-            StateEvent::Death => State::Dead,
-            StateEvent::Recovery => State::Recovered,
+            StateEvent::Death => State::Dead(now.into()),
+            StateEvent::Recovery => State::Recovered(now.into()),
         }
     }
+}
+
+#[derive(Debug, Clone)]
+pub enum State {
+    Sane((Event, Time)),
+    Exposed((Event, Time)),
+    Infectious((Event, Time)),
+    Hospitalized((Event, Time)),
+    Recovered(Time),
+    Dead(Time),
 }
 
 impl State {
@@ -156,12 +164,14 @@ impl State {
     }
 
     fn new(p_hosp: f64, p_death: f64) -> Self {
-        Self::Sane(Event {
+        Self::Sane((Event {
             s: StateEvent::Exposition,
             p_hosp,
             p_death,
             t: AnyTime::from(std::f64::INFINITY),
-        })
+        },
+            Time::START_OF_DAY,
+        ))
     }
 
     fn get_time_exp(lambda: f64, rng: &mut XorShiftRng) -> geom::Duration {
@@ -176,7 +186,14 @@ impl State {
 
     fn is_sane(&self) -> bool {
         match self {
-            State::Sane(ev) => !ev.t.is_finite(),
+            State::Sane((ev,_)) => !ev.t.is_finite(),
+            _ => false,
+        }
+    }
+
+    fn is_exposed(&self) -> bool {
+        match self {
+            State::Exposed(_) => true,
             _ => false,
         }
     }
@@ -188,12 +205,35 @@ impl State {
         }
     }
 
-    pub fn get_time(&self) -> Option<AnyTime> {
+    fn is_recovered(&self) -> bool {
         match self {
-            Self::Sane(ev) | Self::Exposed(ev) | Self::Infectious(ev) | Self::Hospitalized(ev) => {
+            State::Recovered(_) => true,
+            _ => false,
+        }
+    }
+
+    fn is_dead(&self) -> bool {
+        match self {
+            State::Dead(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn get_time(&self) -> Option<Time> {
+        match self {
+            Self::Sane(_) => None,
+            Self::Recovered(t) | Self::Dead(t) | Self::Exposed((_, t)) | Self::Infectious((_, t)) | Self::Hospitalized((_, t)) => {
+                Some(*t)
+            }
+        }
+    }
+
+    pub fn get_event_time(&self) -> Option<AnyTime> {
+        match self {
+            Self::Sane((ev, _)) | Self::Exposed((ev, _)) | Self::Infectious((ev, _)) | Self::Hospitalized((ev, _)) => {
                 Some(ev.t)
             }
-            Self::Recovered | Self::Dead => None,
+            Self::Recovered(_) | Self::Dead(_) => None,
         }
     }
 
@@ -219,12 +259,12 @@ impl State {
         // TODO: when #![feature(bindings_after_at)] reaches stable
         // rewrite this part with it
         match self {
-            Self::Sane(ev) => Some(Self::Sane(ev)),
-            Self::Exposed(ev) => Some(ev.next(default, rng)),
-            Self::Infectious(ev) => Some(ev.next(default, rng)),
-            Self::Hospitalized(ev) => Some(ev.next(default, rng)),
-            Self::Recovered => Some(Self::Recovered),
-            Self::Dead => Some(Self::Dead),
+            Self::Sane((ev, _)) => Some(Self::Sane((ev, default.into()))),
+            Self::Exposed((ev, _)) => Some(ev.next(default, rng)),
+            Self::Infectious((ev, _)) => Some(ev.next(default, rng)),
+            Self::Hospitalized((ev, _)) => Some(ev.next(default, rng)),
+            Self::Recovered(_) => Some(Self::Recovered(default.into())),
+            Self::Dead(_) => Some(Self::Dead(default.into())),
         }
     }
 
@@ -233,43 +273,42 @@ impl State {
         // TODO: when #![feature(bindings_after_at)] reaches stable
         // rewrite this part with it
         match self {
-            Self::Sane(ev) => Some(Self::Sane(ev)),
-            Self::Exposed(ev) => {
+            Self::Sane((ev, t)) => Some(Self::Sane((ev, t))),
+            Self::Exposed((ev, t)) => {
                 if ev.t <= now {
                     Some(ev.next(now, rng))
                 } else {
-                    Some(Self::Exposed(ev))
+                    Some(Self::Exposed((ev, t)))
                 }
             }
-            Self::Infectious(ev) => {
+            Self::Infectious((ev, t)) => {
                 if ev.t <= now {
                     Some(ev.next(now, rng))
                 } else {
-                    Some(Self::Infectious(ev))
+                    Some(Self::Infectious((ev, t)))
                 }
             }
-            Self::Hospitalized(ev) => {
+            Self::Hospitalized((ev, t)) => {
                 if ev.t <= now {
                     Some(ev.next(now, rng))
                 } else {
-                    Some(Self::Hospitalized(ev))
+                    Some(Self::Hospitalized((ev, t)))
                 }
             }
-            Self::Recovered => Some(Self::Recovered),
-            Self::Dead => Some(Self::Dead),
+            Self::Recovered(t) => Some(Self::Recovered(t)),
+            Self::Dead(t) => Some(Self::Dead(t)),
         }
     }
 
     // TODO: not sure if we want an option here... I guess here we want because we could have
     pub fn start(self, now: AnyTime, overlap: Duration, rng: &mut XorShiftRng) -> Result<Self, String> {
-        // TODO: when #![feature(bindings_after_at)] reaches stable
         // rewrite this part with it
         match self {
-            Self::Sane(ev) => {
+            Self::Sane((ev, t)) => {
                 if overlap >= Self::get_time_exp(State::R_0 / State::T_INF, rng) {
                     Ok(ev.next(now, rng))
                 } else {
-                    Ok(Self::Sane(ev))
+                    Ok(Self::Sane((ev, t)))
                 }
             }
             _ => Err(String::from("Error: impossible to start from a non-sane situation."))

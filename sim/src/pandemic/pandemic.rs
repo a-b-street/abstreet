@@ -5,7 +5,7 @@ use map_model::{BuildingID, BusStopID};
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 use serde_derive::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 
 // TODO This does not model transmission by surfaces; only person-to-person.
 // TODO If two people are in the same shared space indefinitely and neither leaves, we don't model
@@ -109,7 +109,7 @@ impl PandemicModel {
 
     pub fn count_recovered(&self) -> usize {
         self.pop.iter().filter(|(_, state)| match state {
-            State::Recovered => true,
+            State::Recovered(_) => true,
             _ => false,
         }).count()
         // self.recovered.len()
@@ -117,7 +117,7 @@ impl PandemicModel {
 
     pub fn count_dead(&self) -> usize {
         self.pop.iter().filter(|(_, state)| match state {
-            State::Dead => true,
+            State::Dead(_) => true,
             _ => false,
         }).count()
         // self.recovered.len()
@@ -183,10 +183,10 @@ impl PandemicModel {
         // Symptomatic -> stay quaratined, and/or track contacts to quarantine them too (or test
         // them)
         match cmd {
-            Cmd::BecomeHospitalized(person) => {
+            Cmd::BecomeHospitalized(_person) => {
                 // self.hospitalized.insert(person);
             }
-            Cmd::BecomeQuarantined(person) => {
+            Cmd::BecomeQuarantined(_person) => {
                 // self.quarantined.insert(person);
             }
             // This is handled by the rest of the simulation
@@ -194,16 +194,44 @@ impl PandemicModel {
         }
     }
 
-    fn is_sane(&self, person: PersonID) -> bool {
+    pub fn get_time(&self, person: PersonID) -> Option<Time> {
+        match self.pop.get(&person) {
+            Some(state) => state.get_time(),
+            None => unreachable!(),
+        }
+    }
+
+    pub fn is_sane(&self, person: PersonID) -> bool {
         match self.pop.get(&person) {
             Some(state) => state.is_sane(),
             None => unreachable!(),
         }
     }
 
-    fn is_infectious(&self, person: PersonID) -> bool {
+    pub fn is_infectious(&self, person: PersonID) -> bool {
         match self.pop.get(&person) {
             Some(state) => state.is_infectious(),
+            None => unreachable!(),
+        }
+    }
+
+    pub fn is_exposed(&self, person: PersonID) -> bool {
+        match self.pop.get(&person) {
+            Some(state) => state.is_exposed(),
+            None => unreachable!(),
+        }
+    }
+
+    pub fn is_recovered(&self, person: PersonID) -> bool {
+        match self.pop.get(&person) {
+            Some(state) => state.is_recovered(),
+            None => unreachable!(),
+        }
+    }
+
+    pub fn is_dead(&self, person: PersonID) -> bool {
+        match self.pop.get(&person) {
+            Some(state) => state.is_dead(),
             None => unreachable!(),
         }
     }
@@ -251,7 +279,7 @@ impl PandemicModel {
     fn become_exposed(&mut self, now: Time, overlap: Duration, person: PersonID, _scheduler: &mut Scheduler) {
         // When poeple become expose
         let state = self.pop.remove(&person).unwrap();
-        assert_eq!(state.get_time().unwrap().inner_seconds(), std::f64::INFINITY);
+        assert_eq!(state.get_event_time().unwrap().inner_seconds(), std::f64::INFINITY);
         let state = state.start(AnyTime::from(now), overlap, &mut self.rng).unwrap();
         self.pop.insert(person, state);
 
