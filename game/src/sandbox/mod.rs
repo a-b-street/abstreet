@@ -3,7 +3,7 @@ mod gameplay;
 mod histogram;
 mod misc_tools;
 mod speed;
-mod trip_results;
+mod trip_table;
 
 use self::misc_tools::{RoutePreview, ShowTrafficSignal, TurnExplorer};
 use crate::app::App;
@@ -346,11 +346,9 @@ impl AgentMeter {
                     txt.draw(ctx)
                 },
                 Btn::svg_def("../data/system/assets/meters/trip_histogram.svg")
-                    .build(ctx, "finished trips", hotkey(Key::Q))
+                    .build(ctx, "more data", hotkey(Key::Q))
                     .align_right(),
             ]),
-            // TODO On it's way out
-            Btn::text_bg2("more data").build_def(ctx, None),
         ];
         // TODO Slight hack. If we're jumping right into a tutorial and don't have the prebaked
         // stuff loaded yet, just skip a tick.
@@ -408,14 +406,7 @@ impl AgentMeter {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "more data" => {
-                    return Some(Transition::Push(dashboards::make(
-                        ctx,
-                        app,
-                        dashboards::DashTab::TripsSummary,
-                    )));
-                }
-                "finished trips" => {
-                    return Some(Transition::Push(trip_results::TripResults::new(ctx, app)));
+                    return Some(Transition::Push(trip_table::TripTable::new(ctx, app)));
                 }
                 _ => unreachable!(),
             },
