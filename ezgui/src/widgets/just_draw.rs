@@ -20,8 +20,8 @@ impl JustDraw {
         }))
     }
 
-    pub(crate) fn svg(ctx: &EventCtx, filename: &str) -> Widget {
-        let (batch, bounds) = svg::load_svg(ctx.prerender, filename);
+    pub(crate) fn svg(ctx: &EventCtx, filename: String) -> Widget {
+        let (batch, bounds) = svg::load_svg(ctx.prerender, &filename);
         // TODO The dims will be wrong; it'll only look at geometry, not the padding in the image.
         Widget::new(Box::new(JustDraw {
             dims: ScreenDims::new(bounds.width(), bounds.height()),

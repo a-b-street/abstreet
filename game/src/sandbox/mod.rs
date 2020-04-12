@@ -1,5 +1,5 @@
 mod dashboards;
-mod gameplay;
+pub mod gameplay;
 mod histogram;
 mod misc_tools;
 mod speed;

@@ -3,6 +3,7 @@ mod app;
 mod challenges;
 mod colors;
 mod common;
+mod cutscene;
 mod debug;
 mod devtools;
 mod edit;

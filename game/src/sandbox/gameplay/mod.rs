@@ -1,4 +1,5 @@
-mod commute;
+// TODO pub so challenges can grab cutscenes. Weird?
+pub mod commute;
 mod create_gridlock;
 mod fix_traffic_signals;
 mod freeform;
@@ -293,6 +294,23 @@ impl ContextualActions for GameplayMode {
     }
 }
 
+fn challenge_header(ctx: &mut EventCtx, title: &str) -> Widget {
+    Widget::row(vec![
+        Line(title).small_heading().draw(ctx).margin(5),
+        Btn::svg_def("../data/system/assets/tools/info.svg")
+            .build(ctx, "instructions", None)
+            .margin(5),
+        Widget::draw_batch(
+            ctx,
+            GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
+        )
+        .margin(5),
+        Btn::svg_def("../data/system/assets/tools/edit_map.svg")
+            .build(ctx, "edit map", lctrl(Key::E))
+            .margin(5),
+    ])
+}
+
 fn challenge_controller(
     ctx: &mut EventCtx,
     app: &App,
@@ -311,21 +329,7 @@ fn challenge_controller(
         }
     }
 
-    let mut rows = vec![Widget::row(vec![
-        Line(title).small_heading().draw(ctx).margin(5),
-        Btn::svg_def("../data/system/assets/tools/info.svg")
-            .build(ctx, "instructions", None)
-            .margin(5),
-        Widget::draw_batch(
-            ctx,
-            GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
-        )
-        .margin(5),
-        Btn::svg_def("../data/system/assets/tools/edit_map.svg")
-            .build(ctx, "edit map", lctrl(Key::E))
-            .margin(5),
-    ])
-    .centered()];
+    let mut rows = vec![challenge_header(ctx, title)];
     rows.extend(extra_rows);
 
     WrappedComposite::new(

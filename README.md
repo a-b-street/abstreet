@@ -69,8 +69,10 @@ Watching the Mercer backup start at 4am:
 See the [roadmap](docs/roadmap.md) for current work, including ways to help. If
 you want to bring this to your city or if you're skilled in design, traffic
 simulation, data visualization, or civic/government outreach, please contact
-Dustin Carlino at <dabreegster@gmail.com> or post at
-[r/abstreet](https://www.reddit.com/r/abstreet/).
+Dustin Carlino at <dabreegster@gmail.com>. Follow
+[r/abstreet](https://www.reddit.com/r/abstreet/) for weekly updates or
+[@CarlinoDustin](https://twitter.com/CarlinoDustin) for occasional videos of
+recent progress.
 
 ## Project mission
 

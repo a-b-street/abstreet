@@ -219,8 +219,8 @@ impl Widget {
     pub fn draw_batch(ctx: &EventCtx, batch: GeomBatch) -> Widget {
         JustDraw::wrap(ctx, batch)
     }
-    pub fn draw_svg(ctx: &EventCtx, filename: &str) -> Widget {
-        JustDraw::svg(ctx, filename)
+    pub fn draw_svg<I: Into<String>>(ctx: &EventCtx, filename: I) -> Widget {
+        JustDraw::svg(ctx, filename.into())
     }
     pub fn draw_svg_transform(ctx: &EventCtx, filename: &str, rewrite: RewriteColor) -> Widget {
         JustDraw::svg_transform(ctx, filename, rewrite)

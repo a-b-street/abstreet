@@ -173,6 +173,8 @@ cddd0aa7a98d4d511138befe8f56a6b7  data/system/assets/tools/delete.svg
 54a0052191997bae5237b67318555307  data/system/assets/tools/home.svg
 db1bfe4e2c3331cd2a8cbea30127ddc4  data/system/assets/tools/edit_map.svg
 9186d38868a7b02d97d21c4521ad581f  data/system/assets/tools/info.svg
+4cdb2133662f1995ba50d36587acf550  data/system/assets/characters/boss.svg
+ed52d1380a29378419852d43b04d0d90  data/system/assets/characters/player.svg
 c2d2cf72d0058b898fb508c6ea175cf1  data/system/assets/map/parking.svg
 129a465d2ee86e4d6d568d1e58d8bce7  data/system/assets/map/dont_walk.svg
 c3fa1600a398928d248cf5d96f63d294  data/system/assets/map/parked_car.svg
