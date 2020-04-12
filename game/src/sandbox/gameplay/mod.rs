@@ -3,7 +3,6 @@ pub mod commute;
 mod create_gridlock;
 mod fix_traffic_signals;
 mod freeform;
-mod optimize_bus;
 mod play_scenario;
 pub mod spawner;
 mod tutorial;
@@ -36,8 +35,6 @@ pub enum GameplayMode {
     Freeform(String),
     // Map path, scenario name
     PlayScenario(String, String),
-    // Map path, Route name
-    OptimizeBus(String, String),
     // Map path
     CreateGridlock(String),
     FixTrafficSignals,
@@ -91,7 +88,6 @@ impl GameplayMode {
         match self {
             GameplayMode::Freeform(ref path) => path.to_string(),
             GameplayMode::PlayScenario(ref path, _) => path.to_string(),
-            GameplayMode::OptimizeBus(ref path, _) => path.to_string(),
             GameplayMode::CreateGridlock(ref path) => path.to_string(),
             GameplayMode::FixTrafficSignals => abstutil::path_map("montlake"),
             GameplayMode::FixTrafficSignalsTutorial(_) => {
@@ -250,9 +246,6 @@ impl GameplayMode {
             GameplayMode::PlayScenario(_, ref scenario) => {
                 play_scenario::PlayScenario::new(ctx, app, scenario, self.clone())
             }
-            GameplayMode::OptimizeBus(_, ref route_name) => {
-                optimize_bus::OptimizeBus::new(ctx, app, route_name, self.clone())
-            }
             GameplayMode::CreateGridlock(_) => {
                 create_gridlock::CreateGridlock::new(ctx, app, self.clone())
             }
@@ -296,19 +289,25 @@ impl ContextualActions for GameplayMode {
 
 fn challenge_header(ctx: &mut EventCtx, title: &str) -> Widget {
     Widget::row(vec![
-        Line(title).small_heading().draw(ctx).margin(5),
+        Line(title)
+            .small_heading()
+            .draw(ctx)
+            .centered_vert()
+            .margin_right(10),
         Btn::svg_def("../data/system/assets/tools/info.svg")
             .build(ctx, "instructions", None)
-            .margin(5),
+            .centered_vert()
+            .margin_right(10),
         Widget::draw_batch(
             ctx,
             GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
         )
-        .margin(5),
+        .margin_right(10),
         Btn::svg_def("../data/system/assets/tools/edit_map.svg")
             .build(ctx, "edit map", lctrl(Key::E))
-            .margin(5),
+            .centered_vert(),
     ])
+    .padding(5)
 }
 
 fn challenge_controller(

@@ -106,6 +106,12 @@ impl Widget {
         self
     }
 
+    // Things like padding don't work on many widgets, so just make a convenient way to wrap in a
+    // row/column first
+    pub fn container(self) -> Widget {
+        Widget::row(vec![self])
+    }
+
     // TODO Alright, this seems to not work on JustDraw's (or at least SVGs).
     pub fn padding(mut self, pixels: usize) -> Widget {
         self.layout.style.padding = Rect {

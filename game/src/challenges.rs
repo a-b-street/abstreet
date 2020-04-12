@@ -23,45 +23,10 @@ impl abstutil::Cloneable for Challenge {}
 pub fn all_challenges(dev: bool) -> BTreeMap<String, Vec<Challenge>> {
     let mut tree = BTreeMap::new();
     tree.insert(
-        "Fix traffic signals".to_string(),
-        vec![
-            Challenge {
-                title: "Tutorial 1".to_string(),
-                description: vec!["Add or remove a dedicated left phase".to_string()],
-                alias: "trafficsig/tut1".to_string(),
-                gameplay: GameplayMode::FixTrafficSignalsTutorial(0),
-                cutscene: None,
-            },
-            Challenge {
-                title: "Tutorial 2".to_string(),
-                description: vec!["Deal with heavy foot traffic".to_string()],
-                alias: "trafficsig/tut2".to_string(),
-                gameplay: GameplayMode::FixTrafficSignalsTutorial(1),
-                cutscene: None,
-            },
-            Challenge {
-                title: "The real challenge!".to_string(),
-                description: vec![
-                    "A city-wide power surge knocked out all of the traffic signals!".to_string(),
-                    "Their timing has been reset to default settings, and drivers are stuck."
-                        .to_string(),
-                    "It's up to you to repair the signals, choosing appropriate turn phases and \
-                     timing."
-                        .to_string(),
-                    "".to_string(),
-                    "Objective: Reduce the average trip time by at least 30s".to_string(),
-                ],
-                alias: "trafficsig/main".to_string(),
-                gameplay: GameplayMode::FixTrafficSignals,
-                cutscene: None,
-            },
-        ],
-    );
-    tree.insert(
         "Optimize one commute".to_string(),
         vec![Challenge {
             title: "Part 1".to_string(),
-            description: vec!["Speed up one VIP's daily commute at all costs".to_string()],
+            description: vec!["Speed up one VIP's daily commute, at any cost!".to_string()],
             alias: "commute/pt1".to_string(),
             gameplay: GameplayMode::OptimizeCommute(PersonID(3434)),
             cutscene: Some(crate::sandbox::gameplay::commute::OptimizeCommute::cutscene),
@@ -70,36 +35,42 @@ pub fn all_challenges(dev: bool) -> BTreeMap<String, Vec<Challenge>> {
 
     if dev {
         tree.insert(
-            "Speed up a bus route (WIP)".to_string(),
+            "Fix traffic signals".to_string(),
             vec![
                 Challenge {
-                    title: "Route 43 in the small Montlake area".to_string(),
-                    description: vec![
-                        "Decrease the average waiting time between all of route ".to_string(),
-                        "43's stops by at least 30s".to_string(),
-                    ],
-                    alias: "bus/43_montlake".to_string(),
-                    gameplay: GameplayMode::OptimizeBus(
-                        abstutil::path_map("montlake"),
-                        "43".to_string(),
-                    ),
+                    title: "Tutorial 1".to_string(),
+                    description: vec!["Add or remove a dedicated left phase".to_string()],
+                    alias: "trafficsig/tut1".to_string(),
+                    gameplay: GameplayMode::FixTrafficSignalsTutorial(0),
                     cutscene: None,
                 },
                 Challenge {
-                    title: "Route 43 in a larger area".to_string(),
+                    title: "Tutorial 2".to_string(),
+                    description: vec!["Deal with heavy foot traffic".to_string()],
+                    alias: "trafficsig/tut2".to_string(),
+                    gameplay: GameplayMode::FixTrafficSignalsTutorial(1),
+                    cutscene: None,
+                },
+                Challenge {
+                    title: "The real challenge!".to_string(),
                     description: vec![
-                        "Decrease the average waiting time between all of route ".to_string(),
-                        "43's stops by at least 30s".to_string(),
+                        "A city-wide power surge knocked out all of the traffic signals!"
+                            .to_string(),
+                        "Their timing has been reset to default settings, and drivers are stuck."
+                            .to_string(),
+                        "It's up to you to repair the signals, choosing appropriate turn phases \
+                         and timing."
+                            .to_string(),
+                        "".to_string(),
+                        "Objective: Reduce the average trip time by at least 30s".to_string(),
                     ],
-                    alias: "bus/43_23rd".to_string(),
-                    gameplay: GameplayMode::OptimizeBus(
-                        abstutil::path_map("23rd"),
-                        "43".to_string(),
-                    ),
+                    alias: "trafficsig/main".to_string(),
+                    gameplay: GameplayMode::FixTrafficSignals,
                     cutscene: None,
                 },
             ],
         );
+
         tree.insert(
             "Cause gridlock (WIP)".to_string(),
             vec![Challenge {

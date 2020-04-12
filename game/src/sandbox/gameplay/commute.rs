@@ -1,13 +1,14 @@
 use crate::app::App;
-use crate::common::Tab;
+use crate::common::{ContextualActions, Tab};
 use crate::cutscene::CutsceneBuilder;
 use crate::edit::EditMode;
 use crate::game::{State, Transition};
 use crate::helpers::cmp_duration_shorter;
+use crate::helpers::ID;
 use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
-use crate::sandbox::{SandboxControls, SandboxMode};
+use crate::sandbox::SandboxControls;
 use ezgui::{
-    Btn, Composite, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Text, TextExt,
+    Btn, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Text, TextExt,
     VerticalAlignment, Widget,
 };
 use geom::{Duration, Time};
@@ -26,6 +27,8 @@ pub struct OptimizeCommute {
 
     // Cache here for convenience
     trips: Vec<TripID>,
+
+    once: bool,
 }
 
 impl OptimizeCommute {
@@ -36,6 +39,7 @@ impl OptimizeCommute {
             person,
             time: Time::START_OF_DAY,
             trips,
+            once: true,
         })
     }
 
@@ -89,8 +93,20 @@ impl GameplayState for OptimizeCommute {
         &mut self,
         ctx: &mut EventCtx,
         app: &mut App,
-        _: &mut SandboxControls,
+        controls: &mut SandboxControls,
     ) -> (Option<Transition>, bool) {
+        if self.once {
+            self.once = false;
+            controls.common.as_mut().unwrap().launch_info_panel(
+                ctx,
+                app,
+                Tab::PersonTrips(self.person, BTreeSet::new()),
+                &mut Actions {
+                    paused: controls.speed.as_ref().unwrap().is_paused(),
+                },
+            );
+        }
+
         if self.time != app.primary.sim.time() {
             self.top_center = make_top_center(ctx, app, &self.trips);
             self.time = app.primary.sim.time();
@@ -114,22 +130,14 @@ impl GameplayState for OptimizeCommute {
                         false,
                     );
                 }
-                "locate person" => {
-                    let person = self.person;
-                    return (
-                        Some(Transition::KeepWithData(Box::new(
-                            move |state, app, ctx| {
-                                let mode = state.downcast_mut::<SandboxMode>().unwrap();
-                                let mut actions = mode.contextual_actions();
-                                mode.controls.common.as_mut().unwrap().launch_info_panel(
-                                    ctx,
-                                    app,
-                                    Tab::PersonTrips(person, BTreeSet::new()),
-                                    &mut actions,
-                                );
-                            },
-                        ))),
-                        false,
+                "locate VIP" => {
+                    controls.common.as_mut().unwrap().launch_info_panel(
+                        ctx,
+                        app,
+                        Tab::PersonTrips(self.person, BTreeSet::new()),
+                        &mut Actions {
+                            paused: controls.speed.as_ref().unwrap().is_paused(),
+                        },
                     );
                 }
                 _ => unreachable!(),
@@ -183,7 +191,7 @@ fn make_top_center(ctx: &mut EventCtx, app: &App, trips: &Vec<TripID>) -> Compos
             challenge_header(ctx, "Optimize the VIP's commute"),
             Widget::row(vec![
                 Btn::svg_def("../data/system/assets/tools/location.svg")
-                    .build(ctx, "locate person", None)
+                    .build(ctx, "locate VIP", None)
                     .margin_right(10),
                 format!("{}/{} trips done", done, trips.len())
                     .draw_text(ctx)
@@ -231,4 +239,28 @@ fn final_score(app: &App, trips: &Vec<TripID>) -> (String, bool) {
         verdict,
         done == trips.len() && baseline_time - experiment_time >= GOAL,
     )
+}
+
+// TODO Probably refactor this for most challenge modes, or have SandboxMode pass in Actions
+struct Actions {
+    paused: bool,
+}
+
+impl ContextualActions for Actions {
+    fn actions(&self, _: &App, _: ID) -> Vec<(Key, String)> {
+        Vec::new()
+    }
+    fn execute(
+        &mut self,
+        _: &mut EventCtx,
+        _: &mut App,
+        _: ID,
+        _: String,
+        _: &mut bool,
+    ) -> Transition {
+        unreachable!()
+    }
+    fn is_paused(&self) -> bool {
+        self.paused
+    }
 }

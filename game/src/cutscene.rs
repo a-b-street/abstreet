@@ -62,7 +62,7 @@ impl State for CutscenePlayer {
                     self.idx += 1;
                     self.composite = make_panel(ctx, app, &self.scenes, self.idx);
                 }
-                "Skip" | "Start" => {
+                "Skip cutscene" | "Start" => {
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
@@ -87,7 +87,6 @@ fn make_panel(ctx: &mut EventCtx, app: &App, scenes: &Vec<Scene>, idx: usize) ->
             RewriteColor::Change(Color::WHITE, app.cs.hovering),
         )
         .build(ctx, "back", hotkey(Key::LeftArrow))
-        .margin(5)
     } else {
         Widget::draw_svg_transform(
             ctx,
@@ -113,29 +112,44 @@ fn make_panel(ctx: &mut EventCtx, app: &App, scenes: &Vec<Scene>, idx: usize) ->
         )
     };
 
-    let mut col = vec![];
-    let msg = scenes[idx].msg.clone();
-    if let Some(ref name) = scenes[idx].avatar {
-        col.push(Widget::row(vec![
+    let mut col = vec![Widget::row(vec![
+        if let Some(ref name) = scenes[idx].avatar {
             Widget::draw_svg(
                 ctx,
                 format!("../data/system/assets/characters/{}.svg", name),
-            ),
-            msg.draw(ctx),
-        ]));
-    } else {
-        col.push(msg.draw(ctx));
-    }
+            )
+            .container()
+            .outline(10.0, Color::BLACK)
+            .padding(10)
+        } else {
+            Widget::nothing()
+        },
+        scenes[idx]
+            .msg
+            .clone()
+            .draw(ctx)
+            .container()
+            .outline(10.0, Color::BLACK)
+            .padding(10),
+    ])
+    .bg(app.cs.panel_bg)
+    .margin_below(10)];
 
-    col.push(Widget::row(vec![prev, next]));
-    if idx == scenes.len() - 1 {
-        col.push(
+    col.push(
+        Widget::row(vec![prev.margin_right(15), next])
+            .centered_horiz()
+            .margin_below(10),
+    );
+
+    col.push(
+        (if idx == scenes.len() - 1 {
             Btn::text_bg2("Start")
-                .build_def(ctx, hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter])),
-        );
-    } else {
-        col.push(Btn::text_bg2("Skip").build_def(ctx, None));
-    }
+                .build_def(ctx, hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]))
+        } else {
+            Btn::text_bg2("Skip cutscene").build_def(ctx, None)
+        })
+        .centered_horiz(),
+    );
 
     Composite::new(Widget::col(col)).build(ctx)
 }
