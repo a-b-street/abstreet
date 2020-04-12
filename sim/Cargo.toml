@@ -11,8 +11,8 @@ geom = { path = "../geom" }
 instant = "0.1.2"
 map_model = { path = "../map_model" }
 rand = "0.7.0"
-rand_xorshift = "0.2.0"
 rand_distr = "0.2.2"
+rand_xorshift = "0.2.0"
 serde = "1.0.98"
 serde_derive = "1.0.98"
 libm = "0.2.1"

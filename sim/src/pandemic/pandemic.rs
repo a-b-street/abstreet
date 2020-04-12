@@ -1,5 +1,5 @@
 use crate::pandemic::{AnyTime, State};
-use crate::{CarID, Command, Event, Person, PersonID, Scheduler, TripPhaseType};
+use crate::{CarID, Event, Person, PersonID, Scheduler, TripPhaseType};
 use geom::{Duration, Time};
 use map_model::{BuildingID, BusStopID};
 use rand::Rng;
@@ -67,7 +67,13 @@ impl PandemicModel {
         for p in population {
             let state = State::new(0.5, 0.5);
             let state = if self.rng.gen_bool(State::ini_exposed_ratio()) {
-                let next_state = state.start(AnyTime::from(Time::START_OF_DAY), Duration::seconds(std::f64::MAX), &mut self.rng).unwrap();
+                let next_state = state
+                    .start(
+                        AnyTime::from(Time::START_OF_DAY),
+                        Duration::seconds(std::f64::MAX),
+                        &mut self.rng,
+                    )
+                    .unwrap();
                 let next_state = if self.rng.gen_bool(State::ini_infectious_ratio()) {
                     next_state
                         .next_default(AnyTime::from(Time::START_OF_DAY), &mut self.rng)
@@ -84,47 +90,66 @@ impl PandemicModel {
     }
 
     pub fn count_sane(&self) -> usize {
-        self.pop.iter().filter(|(_, state)| match state {
-            State::Sane(_) => true,
-            _ => false,
-        }).count()
+        self.pop
+            .iter()
+            .filter(|(_, state)| match state {
+                State::Sane(_) => true,
+                _ => false,
+            })
+            .count()
         // self.sane.len()
     }
 
     pub fn count_exposed(&self) -> usize {
-        self.pop.iter().filter(|(_, state)| match state {
-            State::Exposed(_) => true,
-            _ => false,
-        }).count()
+        self.pop
+            .iter()
+            .filter(|(_, state)| match state {
+                State::Exposed(_) => true,
+                _ => false,
+            })
+            .count()
         // self.exposed.len()
     }
 
     pub fn count_infected(&self) -> usize {
         // self.infected.len()
-        self.pop.iter().filter(|(_, state)| match state {
-            State::Infectious(_) | State::Hospitalized(_) => true,
-            _ => false,
-        }).count()
+        self.pop
+            .iter()
+            .filter(|(_, state)| match state {
+                State::Infectious(_) | State::Hospitalized(_) => true,
+                _ => false,
+            })
+            .count()
     }
 
     pub fn count_recovered(&self) -> usize {
-        self.pop.iter().filter(|(_, state)| match state {
-            State::Recovered(_) => true,
-            _ => false,
-        }).count()
+        self.pop
+            .iter()
+            .filter(|(_, state)| match state {
+                State::Recovered(_) => true,
+                _ => false,
+            })
+            .count()
         // self.recovered.len()
     }
 
     pub fn count_dead(&self) -> usize {
-        self.pop.iter().filter(|(_, state)| match state {
-            State::Dead(_) => true,
-            _ => false,
-        }).count()
+        self.pop
+            .iter()
+            .filter(|(_, state)| match state {
+                State::Dead(_) => true,
+                _ => false,
+            })
+            .count()
         // self.recovered.len()
     }
 
     pub fn count_total(&self) -> usize {
-        self.count_sane() + self.count_exposed() + self.count_infected() + self.count_recovered() + self.count_dead()
+        self.count_sane()
+            + self.count_exposed()
+            + self.count_infected()
+            + self.count_recovered()
+            + self.count_dead()
     }
 
     pub fn handle_event(&mut self, now: Time, ev: &Event, scheduler: &mut Scheduler) {
@@ -263,7 +288,6 @@ impl PandemicModel {
 
     // transition from a state to another without interaction with others
     fn transition(&mut self, now: Time, person: PersonID, _scheduler: &mut Scheduler) {
-
         let state = self.pop.remove(&person).unwrap();
         let state = state.next(AnyTime::from(now), &mut self.rng).unwrap();
         self.pop.insert(person, state);
@@ -276,11 +300,22 @@ impl PandemicModel {
         // }
     }
 
-    fn become_exposed(&mut self, now: Time, overlap: Duration, person: PersonID, _scheduler: &mut Scheduler) {
+    fn become_exposed(
+        &mut self,
+        now: Time,
+        overlap: Duration,
+        person: PersonID,
+        _scheduler: &mut Scheduler,
+    ) {
         // When poeple become expose
         let state = self.pop.remove(&person).unwrap();
-        assert_eq!(state.get_event_time().unwrap().inner_seconds(), std::f64::INFINITY);
-        let state = state.start(AnyTime::from(now), overlap, &mut self.rng).unwrap();
+        assert_eq!(
+            state.get_event_time().unwrap().inner_seconds(),
+            std::f64::INFINITY
+        );
+        let state = state
+            .start(AnyTime::from(now), overlap, &mut self.rng)
+            .unwrap();
         self.pop.insert(person, state);
 
         // if self.rng.gen_bool(0.1) {
