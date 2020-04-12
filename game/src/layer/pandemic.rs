@@ -16,10 +16,11 @@ pub fn new(ctx: &mut EventCtx, app: &App, opts: Options) -> Layers {
     let model = app.primary.sim.get_pandemic_model().unwrap();
 
     let filter = |p| match opts.state {
-        SEIR::Sane => model.sane.contains(&p),
-        SEIR::Exposed => model.exposed.contains_key(&p),
-        SEIR::Infected => model.infected.contains_key(&p),
-        SEIR::Recovered => model.recovered.contains(&p),
+        SEIR::Sane => model.is_sane(p),
+        SEIR::Exposed => model.is_exposed(p),
+        SEIR::Infected => model.is_exposed(p),
+        SEIR::Recovered => model.is_recovered(p),
+        SEIR::Dead => model.is_dead(p),
     };
 
     let mut pts = Vec::new();
@@ -86,6 +87,7 @@ pub enum SEIR {
     Exposed,
     Infected,
     Recovered,
+    Dead,
 }
 
 #[derive(Clone, PartialEq)]
@@ -136,6 +138,12 @@ fn make_controls(
             (model.count_recovered() as f64) * pct
         )
         .draw_text(ctx),
+        format!(
+            "{} Dead ({:.1}%)",
+            prettyprint_usize(model.count_dead()),
+            (model.count_dead() as f64) * pct
+        )
+        .draw_text(ctx),
     ];
     col.push(Widget::row(vec![
         "Filter:".draw_text(ctx).margin_right(5),
@@ -148,6 +156,7 @@ fn make_controls(
                 Choice::new("exposed", SEIR::Exposed),
                 Choice::new("infected", SEIR::Infected),
                 Choice::new("recovered", SEIR::Recovered),
+                Choice::new("dead", SEIR::Dead),
             ],
         ),
     ]));

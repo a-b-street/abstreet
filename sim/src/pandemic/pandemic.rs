@@ -1,11 +1,11 @@
-use crate::pandemic::{erf_distrib_bounded, proba_decaying_sigmoid, SEIR};
+use crate::pandemic::{AnyTime, State};
 use crate::{CarID, Command, Event, Person, PersonID, Scheduler, TripPhaseType};
 use geom::{Duration, Time};
 use map_model::{BuildingID, BusStopID};
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 use serde_derive::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 
 // TODO This does not model transmission by surfaces; only person-to-person.
 // TODO If two people are in the same shared space indefinitely and neither leaves, we don't model
@@ -13,15 +13,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Clone)]
 pub struct PandemicModel {
-    pub sane: BTreeSet<PersonID>,
-    // first time is the time of exposition/infection
-    // second time is the time since the last check of
-    // transition was performed
-    pub exposed: BTreeMap<PersonID, (Time, Time)>,
-    pub infected: BTreeMap<PersonID, (Time, Time)>,
-    pub recovered: BTreeSet<PersonID>,
-    hospitalized: BTreeSet<PersonID>,
-    quarantined: BTreeSet<PersonID>,
+    pop: BTreeMap<PersonID, State>,
 
     bldgs: SharedSpace<BuildingID>,
     bus_stops: SharedSpace<BusStopID>,
@@ -51,12 +43,7 @@ pub enum Cmd {
 impl PandemicModel {
     pub fn new(rng: XorShiftRng) -> PandemicModel {
         PandemicModel {
-            sane: BTreeSet::new(),
-            exposed: BTreeMap::new(),
-            infected: BTreeMap::new(),
-            hospitalized: BTreeSet::new(),
-            quarantined: BTreeSet::new(),
-            recovered: BTreeSet::new(),
+            pop: BTreeMap::new(),
 
             bldgs: SharedSpace::new(),
             bus_stops: SharedSpace::new(),
@@ -70,43 +57,74 @@ impl PandemicModel {
 
     // Sorry, initialization order of simulations is still a bit messy. This'll be called at
     // Time::START_OF_DAY after all of the people have been created from a Scenario.
-    pub fn initialize(&mut self, population: &Vec<Person>, scheduler: &mut Scheduler) {
+    pub fn initialize(&mut self, population: &Vec<Person>, _scheduler: &mut Scheduler) {
         assert!(!self.initialized);
         self.initialized = true;
 
         // Seed initially infected people.
+        // TODO the intial time is not well set. it should start "before"
+        // the beginning of the day. Also
         for p in population {
-            self.sane.insert(p.id);
-            if self.rng.gen_bool(SEIR::get_initial_ratio(SEIR::Exposed)) {
-                self.become_exposed(Time::START_OF_DAY, p.id, scheduler);
-            } else if self.rng.gen_bool(SEIR::get_initial_ratio(SEIR::Infectious)) {
-                self.sane.remove(&p.id);
-                self.become_infected(Time::START_OF_DAY, p.id, scheduler);
-            } else if self.rng.gen_bool(SEIR::get_initial_ratio(SEIR::Recovered)) {
-                self.recovered.insert(p.id);
-                self.become_recovered(Time::START_OF_DAY, p.id, scheduler);
-            }
+            let state = State::new(0.5, 0.5);
+            let state = if self.rng.gen_bool(State::ini_exposed_ratio()) {
+                let next_state = state.start(AnyTime::from(Time::START_OF_DAY), Duration::seconds(std::f64::MAX), &mut self.rng).unwrap();
+                let next_state = if self.rng.gen_bool(State::ini_infectious_ratio()) {
+                    next_state
+                        .next_default(AnyTime::from(Time::START_OF_DAY), &mut self.rng)
+                        .unwrap()
+                } else {
+                    next_state
+                };
+                next_state
+            } else {
+                state
+            };
+            self.pop.insert(p.id, state);
         }
     }
 
     pub fn count_sane(&self) -> usize {
-        self.sane.len()
+        self.pop.iter().filter(|(_, state)| match state {
+            State::Sane(_) => true,
+            _ => false,
+        }).count()
+        // self.sane.len()
     }
 
     pub fn count_exposed(&self) -> usize {
-        self.exposed.len()
+        self.pop.iter().filter(|(_, state)| match state {
+            State::Exposed(_) => true,
+            _ => false,
+        }).count()
+        // self.exposed.len()
     }
 
     pub fn count_infected(&self) -> usize {
-        self.infected.len()
+        // self.infected.len()
+        self.pop.iter().filter(|(_, state)| match state {
+            State::Infectious(_) | State::Hospitalized(_) => true,
+            _ => false,
+        }).count()
     }
 
     pub fn count_recovered(&self) -> usize {
-        self.recovered.len()
+        self.pop.iter().filter(|(_, state)| match state {
+            State::Recovered(_) => true,
+            _ => false,
+        }).count()
+        // self.recovered.len()
+    }
+
+    pub fn count_dead(&self) -> usize {
+        self.pop.iter().filter(|(_, state)| match state {
+            State::Dead(_) => true,
+            _ => false,
+        }).count()
+        // self.recovered.len()
     }
 
     pub fn count_total(&self) -> usize {
-        self.count_sane() + self.count_exposed() + self.count_infected() + self.count_recovered()
+        self.count_sane() + self.count_exposed() + self.count_infected() + self.count_recovered() + self.count_dead()
     }
 
     pub fn handle_event(&mut self, now: Time, ev: &Event, scheduler: &mut Scheduler) {
@@ -165,15 +183,66 @@ impl PandemicModel {
         // Symptomatic -> stay quaratined, and/or track contacts to quarantine them too (or test
         // them)
         match cmd {
-            Cmd::BecomeHospitalized(person) => {
-                self.hospitalized.insert(person);
+            Cmd::BecomeHospitalized(_person) => {
+                // self.hospitalized.insert(person);
             }
-            Cmd::BecomeQuarantined(person) => {
-                self.quarantined.insert(person);
+            Cmd::BecomeQuarantined(_person) => {
+                // self.quarantined.insert(person);
             }
             // This is handled by the rest of the simulation
             Cmd::CancelFutureTrips(_) => unreachable!(),
         }
+    }
+
+    pub fn get_time(&self, person: PersonID) -> Option<Time> {
+        match self.pop.get(&person) {
+            Some(state) => state.get_time(),
+            None => unreachable!(),
+        }
+    }
+
+    pub fn is_sane(&self, person: PersonID) -> bool {
+        match self.pop.get(&person) {
+            Some(state) => state.is_sane(),
+            None => unreachable!(),
+        }
+    }
+
+    pub fn is_infectious(&self, person: PersonID) -> bool {
+        match self.pop.get(&person) {
+            Some(state) => state.is_infectious(),
+            None => unreachable!(),
+        }
+    }
+
+    pub fn is_exposed(&self, person: PersonID) -> bool {
+        match self.pop.get(&person) {
+            Some(state) => state.is_exposed(),
+            None => unreachable!(),
+        }
+    }
+
+    pub fn is_recovered(&self, person: PersonID) -> bool {
+        match self.pop.get(&person) {
+            Some(state) => state.is_recovered(),
+            None => unreachable!(),
+        }
+    }
+
+    pub fn is_dead(&self, person: PersonID) -> bool {
+        match self.pop.get(&person) {
+            Some(state) => state.is_dead(),
+            None => unreachable!(),
+        }
+    }
+
+    fn infectious_contact(&self, person: PersonID, other: PersonID) -> Option<PersonID> {
+        if self.is_sane(person) && self.is_infectious(other) {
+            return Some(person);
+        } else if self.is_infectious(person) && self.is_sane(other) {
+            return Some(other);
+        }
+        None
     }
 
     fn transmission(
@@ -186,120 +255,18 @@ impl PandemicModel {
         // person has spent some duration in the same space as other people. Does transmission
         // occur?
         for (other, overlap) in other_occupants {
-            if let Some(pid) = self.might_become_exposed(person, other) {
-                if self.exposition_occurs(overlap) {
-                    self.become_exposed(now, pid, scheduler);
-                }
+            if let Some(pid) = self.infectious_contact(person, other) {
+                self.become_exposed(now, overlap, pid, scheduler);
             }
         }
     }
 
     // transition from a state to another without interaction with others
-    fn transition(&mut self, now: Time, person: PersonID, scheduler: &mut Scheduler) {
-        // person has spent some duration in the same space as other people. Does transmission
-        // occur?
-        if let Some((t0, last_check)) = self.infected.get(&person).cloned() {
-            // let dt = now - *t0;
-            if self.recovery_occurs(
-                last_check,
-                now,
-                t0 + SEIR::get_transition_time_from(SEIR::Infectious),
-                SEIR::get_transition_time_uncertainty_from(SEIR::Infectious),
-            ) {
-                self.transition_to_recovered(now, person, scheduler);
-            // TODO add an else if with hospitalized
-            } else {
-                // We rather store the last moment
-                self.stay_infected(t0, now, person, scheduler);
-            }
-        }
+    fn transition(&mut self, now: Time, person: PersonID, _scheduler: &mut Scheduler) {
 
-        let exp_pers = self.exposed.get(&person).map(|pers| *pers);
-        if let Some((t0, last_check)) = exp_pers {
-            // let dt = now - *t0;
-            if self.infection_occurs(
-                last_check,
-                now,
-                t0 + SEIR::get_transition_time_from(SEIR::Exposed),
-                SEIR::get_transition_time_uncertainty_from(SEIR::Exposed),
-            ) {
-                self.transition_to_infected(now, person, scheduler);
-            } else {
-                // We rather store the last moment
-                self.stay_exposed(t0, now, person, scheduler);
-            }
-        }
-    }
-
-    fn might_become_exposed(&self, person: PersonID, other: PersonID) -> Option<PersonID> {
-        if self.infected.contains_key(&person) && self.sane.contains(&other) {
-            return Some(other);
-        } else if self.sane.contains(&person) && self.infected.contains_key(&other) {
-            return Some(person);
-        }
-        None
-    }
-
-    // recovery occurs on average after some time (the probability is given between t0, t1),
-    // but we must take into accoutn the avg moment of recovery and some uncertainty
-    fn recovery_occurs(&mut self, t0: Time, t1: Time, avg_time: Time, sig_time: Duration) -> bool {
-        self.rng.gen_bool(erf_distrib_bounded(
-            t0.inner_seconds(),
-            t1.inner_seconds(),
-            avg_time.inner_seconds(),
-            sig_time.inner_seconds(),
-        ))
-    }
-
-    // infection occurs on average after some time (the probability is given between t0, t1),
-    // but we must take into accoutn the avg moment of infection and some uncertainty
-    fn infection_occurs(&mut self, t0: Time, t1: Time, avg_time: Time, sig_time: Duration) -> bool {
-        self.rng.gen_bool(erf_distrib_bounded(
-            t0.inner_seconds(),
-            t1.inner_seconds(),
-            avg_time.inner_seconds(),
-            sig_time.inner_seconds(),
-        ))
-    }
-
-    // Infection is the transition
-    fn exposition_occurs(&mut self, overlap: Duration) -> bool {
-        let rate = 1.0 / SEIR::get_transition_time_from(SEIR::Sane).inner_seconds();
-        self.rng
-            .gen_bool(proba_decaying_sigmoid(overlap.inner_seconds(), rate))
-    }
-
-    fn become_exposed(&mut self, now: Time, person: PersonID, _scheduler: &mut Scheduler) {
-        // TODO We might want to track that contact at some point
-        // SO let's keep the scheduler here
-        self.exposed.insert(person, (now, now));
-        self.sane.remove(&person);
-    }
-
-    fn become_infected(&mut self, now: Time, person: PersonID, scheduler: &mut Scheduler) {
-        self.infected.insert(person, (now, now));
-        // TODO This doesn't make sense here, but BecomeHospitalized / BecomeQuarantined aren't
-        // fired off yet. Just testing temporarily.
-        if self.rng.gen_bool(0.5) && false {
-            scheduler.push(
-                now + Duration::hours(1),
-                Command::Pandemic(Cmd::CancelFutureTrips(person)),
-            );
-        }
-    }
-
-    fn become_recovered(&mut self, _now: Time, person: PersonID, _scheduler: &mut Scheduler) {
-        self.recovered.insert(person);
-    }
-
-    fn transition_to_recovered(
-        &mut self,
-        _now: Time,
-        person: PersonID,
-        _scheduler: &mut Scheduler,
-    ) {
-        self.recovered.insert(person);
-        self.infected.remove(&person);
+        let state = self.pop.remove(&person).unwrap();
+        let state = state.next(AnyTime::from(now), &mut self.rng).unwrap();
+        self.pop.insert(person, state);
 
         // if self.rng.gen_bool(0.1) {
         //     scheduler.push(
@@ -309,9 +276,12 @@ impl PandemicModel {
         // }
     }
 
-    fn transition_to_infected(&mut self, now: Time, person: PersonID, _scheduler: &mut Scheduler) {
-        self.infected.insert(person, (now, now));
-        self.exposed.remove(&person);
+    fn become_exposed(&mut self, now: Time, overlap: Duration, person: PersonID, _scheduler: &mut Scheduler) {
+        // When poeple become expose
+        let state = self.pop.remove(&person).unwrap();
+        assert_eq!(state.get_event_time().unwrap().inner_seconds(), std::f64::INFINITY);
+        let state = state.start(AnyTime::from(now), overlap, &mut self.rng).unwrap();
+        self.pop.insert(person, state);
 
         // if self.rng.gen_bool(0.1) {
         //     scheduler.push(
@@ -320,28 +290,6 @@ impl PandemicModel {
         //     );
         // }
     }
-
-    fn stay_infected(
-        &mut self,
-        ini: Time,
-        now: Time,
-        person: PersonID,
-        _scheduler: &mut Scheduler,
-    ) {
-        self.infected.insert(person, (ini, now));
-    }
-
-    fn stay_exposed(&mut self, ini: Time, now: Time, person: PersonID, _scheduler: &mut Scheduler) {
-        self.exposed.insert(person, (ini, now));
-    }
-
-    // fn rand_duration(&mut self, low: Duration, high: Duration) -> Duration {
-    //     assert!(high > low);
-    //     Duration::seconds(
-    //         self.rng
-    //             .gen_range(low.inner_seconds(), high.inner_seconds()),
-    //     )
-    // }
 }
 
 #[derive(Clone)]
