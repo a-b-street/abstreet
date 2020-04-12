@@ -3,7 +3,7 @@ use crate::{CarID, FOLLOWING_DISTANCE};
 use geom::{Distance, Time};
 use map_model::{Map, Traversable};
 use serde_derive::{Deserialize, Serialize};
-use std::collections::{BTreeMap, VecDeque};
+use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
 #[derive(Serialize, Deserialize, PartialEq, Clone)]
 pub struct Queue {
@@ -39,6 +39,16 @@ impl Queue {
         cars: &BTreeMap<CarID, Car>,
         queues: &BTreeMap<Traversable, Queue>,
     ) -> Vec<(CarID, Distance)> {
+        self.inner_get_car_positions(now, cars, queues, &mut BTreeSet::new())
+    }
+
+    fn inner_get_car_positions(
+        &self,
+        now: Time,
+        cars: &BTreeMap<CarID, Car>,
+        queues: &BTreeMap<Traversable, Queue>,
+        recursed_queues: &mut BTreeSet<Traversable>,
+    ) -> Vec<(CarID, Distance)> {
         if self.cars.is_empty() {
             return Vec::new();
         }
@@ -56,29 +66,53 @@ impl Queue {
                         //self.geom_len - cars[&id].vehicle.length - FOLLOWING_DISTANCE
 
                         // The expensive case. We need to figure out exactly where the laggy head
-                        // is on their queue. No protection against gridlock here!
+                        // is on their queue.
                         let leader = &cars[&id];
-                        let (head, head_dist) = *queues[&leader.router.head()]
-                            .get_car_positions(now, cars, queues)
-                            .last()
-                            .unwrap();
-                        assert_eq!(head, id);
 
-                        let mut dist_away_from_this_queue = head_dist;
-                        for on in &leader.last_steps {
-                            if *on == self.id {
-                                break;
-                            }
-                            dist_away_from_this_queue += queues[on].geom_len;
-                        }
-                        // They might actually be out of the way, but laggy_head hasn't been
-                        // updated yet.
-                        if dist_away_from_this_queue < leader.vehicle.length + FOLLOWING_DISTANCE {
+                        // But don't create a cycle!
+                        let recurse_to = leader.router.head();
+                        if recursed_queues.contains(&recurse_to) {
+                            // See the picture in
+                            // https://github.com/dabreegster/abstreet/issues/30. We have two
+                            // extremes to break the cycle.
+                            //
+                            // 1) Hope that the last person in this queue isn't bounded by the
+                            //    agent in front of them yet. geom_len
+                            // 2) Assume the leader has advanced minimally into the next lane.
+                            //    geom_len - laggy head's length - FOLLOWING_DISTANCE.
+                            //
+                            // For now, optimistically assume 1. If we're wrong, consequences could
+                            // be queue spillover (we're too optimistic about the number of
+                            // vehicles that can fit on a lane) or cars jumping positions slightly
+                            // while the cycle occurs.
                             self.geom_len
-                                - (cars[&id].vehicle.length - dist_away_from_this_queue)
-                                - FOLLOWING_DISTANCE
                         } else {
-                            self.geom_len
+                            recursed_queues.insert(recurse_to);
+
+                            let (head, head_dist) = *queues[&leader.router.head()]
+                                .inner_get_car_positions(now, cars, queues, recursed_queues)
+                                .last()
+                                .unwrap();
+                            assert_eq!(head, id);
+
+                            let mut dist_away_from_this_queue = head_dist;
+                            for on in &leader.last_steps {
+                                if *on == self.id {
+                                    break;
+                                }
+                                dist_away_from_this_queue += queues[on].geom_len;
+                            }
+                            // They might actually be out of the way, but laggy_head hasn't been
+                            // updated yet.
+                            if dist_away_from_this_queue
+                                < leader.vehicle.length + FOLLOWING_DISTANCE
+                            {
+                                self.geom_len
+                                    - (cars[&id].vehicle.length - dist_away_from_this_queue)
+                                    - FOLLOWING_DISTANCE
+                            } else {
+                                self.geom_len
+                            }
                         }
                     }
                     None => self.geom_len,

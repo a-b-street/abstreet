@@ -125,3 +125,7 @@ git diff upstream/master
 ## Refactoring
 
 perl -pi -e 's/WrappedComposite::text_button\(ctx, (.+?), (.+?)\)/Btn::text_fg(\1).build_def\(ctx, \2\)/' `find|grep rs|xargs`
+
+## Stack overflow
+
+rust-gdb --args ../target/release/game --dev
