@@ -4,7 +4,7 @@ use crate::helpers::cmp_duration_shorter;
 use crate::info::Tab;
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
-use ezgui::{Btn, Checkbox, Composite, EventCtx, GfxCtx, Line, Outcome, Text, Widget};
+use ezgui::{Btn, Composite, EventCtx, GfxCtx, Line, Outcome, Text, Widget};
 use geom::{Duration, Time};
 use maplit::btreeset;
 use sim::{TripID, TripMode};
@@ -36,6 +36,15 @@ impl TripTable {
         })
     }
 
+    fn change(&mut self, value: SortBy) {
+        if self.sort_by == value {
+            self.descending = !self.descending;
+        } else {
+            self.sort_by = value;
+            self.descending = true;
+        }
+    }
+
     fn recalc(&mut self, ctx: &mut EventCtx, app: &App) {
         let mut new = make(ctx, app, self.sort_by, self.descending);
         new.restore(ctx, &self.composite);
@@ -48,23 +57,23 @@ impl State for TripTable {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "Departure" => {
-                    self.sort_by = SortBy::Departure;
+                    self.change(SortBy::Departure);
                     self.recalc(ctx, app);
                 }
                 "Duration" => {
-                    self.sort_by = SortBy::Duration;
+                    self.change(SortBy::Duration);
                     self.recalc(ctx, app);
                 }
                 "Comparison" => {
-                    self.sort_by = SortBy::RelativeDuration;
+                    self.change(SortBy::RelativeDuration);
                     self.recalc(ctx, app);
                 }
                 "Normalized" => {
-                    self.sort_by = SortBy::PercentChangeDuration;
+                    self.change(SortBy::PercentChangeDuration);
                     self.recalc(ctx, app);
                 }
                 "Percent waiting" => {
-                    self.sort_by = SortBy::PercentWaiting;
+                    self.change(SortBy::PercentWaiting);
                     self.recalc(ctx, app);
                 }
                 x => {
@@ -87,11 +96,6 @@ impl State for TripTable {
             },
             None => {}
         };
-        let descending = self.composite.is_checked("Descending");
-        if self.descending != descending {
-            self.descending = descending;
-            self.recalc(ctx, app);
-        }
 
         Transition::Keep
     }
@@ -191,51 +195,34 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
         pct_waiting_col.add(Line(format!("{}%", x.percent_waiting)));
     }
 
+    let btn = |value, name| {
+        if sort == value {
+            Btn::text_bg2(format!("{} {}", name, if descending { "↓" } else { "↑" }))
+                .build(ctx, name, None)
+        } else {
+            Btn::text_bg2(name).build_def(ctx, None)
+        }
+    };
+
     let mut table = vec![
         (Line("Trip ID").draw(ctx), Widget::col(id_col)),
         (Line("Type").draw(ctx), mode_col.draw(ctx)),
-        (
-            if sort == SortBy::Departure {
-                Btn::text_bg2("Departure").inactive(ctx)
-            } else {
-                Btn::text_fg("Departure").build_def(ctx, None)
-            },
-            departure_col.draw(ctx),
-        ),
-        (
-            if sort == SortBy::Duration {
-                Btn::text_bg2("Duration").inactive(ctx)
-            } else {
-                Btn::text_fg("Duration").build_def(ctx, None)
-            },
-            duration_col.draw(ctx),
-        ),
+        (btn(SortBy::Departure, "Departure"), departure_col.draw(ctx)),
+        (btn(SortBy::Duration, "Duration"), duration_col.draw(ctx)),
     ];
     if app.has_prebaked().is_some() {
         table.push((
-            if sort == SortBy::RelativeDuration {
-                Btn::text_bg2("Comparison").inactive(ctx)
-            } else {
-                Btn::text_fg("Comparison").build_def(ctx, None)
-            },
+            btn(SortBy::RelativeDuration, "Comparison"),
             relative_duration_col.draw(ctx),
         ));
         table.push((
-            if sort == SortBy::PercentChangeDuration {
-                Btn::text_bg2("Normalized ").inactive(ctx)
-            } else {
-                Btn::text_fg("Normalized").build_def(ctx, None)
-            },
+            btn(SortBy::PercentChangeDuration, "Normalized"),
             percent_change_duration_col.draw(ctx),
         ));
     }
     table.push((Line("Time spent waiting").draw(ctx), waiting_col.draw(ctx)));
     table.push((
-        if sort == SortBy::PercentWaiting {
-            Btn::text_bg2("Percent waiting").inactive(ctx)
-        } else {
-            Btn::text_fg("Percent waiting").build_def(ctx, None)
-        },
+        btn(SortBy::PercentWaiting, "Percent waiting"),
         pct_waiting_col.draw(ctx),
     ));
 
@@ -256,8 +243,6 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
     Composite::new(
         Widget::col(vec![
             DashTab::TripTable.picker(ctx),
-            Line("Click a column to sort by it").small().draw(ctx),
-            Checkbox::text(ctx, "Descending", None, descending).margin(10),
             Widget::row(header_row).evenly_spaced(),
             Widget::row(values_row).evenly_spaced(),
         ])
