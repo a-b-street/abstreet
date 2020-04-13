@@ -13,7 +13,7 @@ use ezgui::{
 };
 use geom::{Duration, Time};
 use sim::{PersonID, TripID};
-use std::collections::BTreeSet;
+use std::collections::BTreeMap;
 use std::fmt::Write;
 
 // TODO A nice level to unlock: specifying your own commute, getting to work on it
@@ -100,7 +100,7 @@ impl GameplayState for OptimizeCommute {
             controls.common.as_mut().unwrap().launch_info_panel(
                 ctx,
                 app,
-                Tab::PersonTrips(self.person, BTreeSet::new()),
+                Tab::PersonTrips(self.person, BTreeMap::new()),
                 &mut Actions {
                     paused: controls.speed.as_ref().unwrap().is_paused(),
                 },
@@ -134,7 +134,7 @@ impl GameplayState for OptimizeCommute {
                     controls.common.as_mut().unwrap().launch_info_panel(
                         ctx,
                         app,
-                        Tab::PersonTrips(self.person, BTreeSet::new()),
+                        Tab::PersonTrips(self.person, BTreeMap::new()),
                         &mut Actions {
                             paused: controls.speed.as_ref().unwrap().is_paused(),
                         },

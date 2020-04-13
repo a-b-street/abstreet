@@ -1,6 +1,6 @@
 use crate::app::App;
 use crate::helpers::ID;
-use crate::info::{make_table, Details};
+use crate::info::{make_table, Details, Tab};
 use crate::render::dashed_lines;
 use ezgui::{
     Btn, Color, EventCtx, GeomBatch, Line, LinePlot, PlotOptions, RewriteColor, Series, Text,
@@ -8,77 +8,53 @@ use ezgui::{
 };
 use geom::{Angle, Distance, Duration, Polygon, Pt2D, Time};
 use map_model::{Map, Path, PathStep};
-use sim::{AgentID, TripEndpoint, TripID, TripPhase, TripPhaseType, VehicleType};
+use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType, VehicleType};
+use std::collections::BTreeMap;
 
-pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Details) -> Widget {
-    let map = &app.primary.map;
-    let sim = &app.primary.sim;
-    let phases = sim.get_analytics().get_trip_phases(trip, map);
-    let (start_time, trip_start, trip_end, _) = sim.trip_info(trip);
-    let end_time = phases.last().as_ref().and_then(|p| p.end_time);
+pub fn ongoing(
+    ctx: &mut EventCtx,
+    app: &App,
+    trip: TripID,
+    agent: AgentID,
+    details: &mut Details,
+) -> Widget {
+    let phases = app
+        .primary
+        .sim
+        .get_analytics()
+        .get_trip_phases(trip, &app.primary.map);
+    let (start_time, _, _, _) = app.primary.sim.trip_info(trip);
 
-    if phases.is_empty() {
-        // The trip hasn't started
-
-        // TODO Warp buttons. make_table is showing its age.
-        let (_, _, name1) = endpoint(&trip_start, map);
-        let (_, _, name2) = endpoint(&trip_end, map);
-        let mut col = make_table(
-            ctx,
-            vec![
-                ("Departure", start_time.ampm_tostring()),
-                ("From", name1),
-                ("To", name2),
-            ],
-        );
-        details
-            .time_warpers
-            .insert(format!("wait for {}", trip), (trip, start_time));
-        col.push(
-            Btn::text_bg2("Wait for trip")
-                .tooltip(Text::from(Line(format!(
-                    "This will advance the simulation to {}",
-                    start_time.ampm_tostring()
-                ))))
-                .build(ctx, format!("wait for {}", trip), None)
-                .margin(5),
-        );
-        return Widget::col(col);
-    }
+    let col_width = 7;
+    let props = app.primary.sim.agent_properties(agent);
+    // This is different than the entire TripMode, and also not the current TripPhaseType.
+    // Sigh.
+    let activity = match agent {
+        AgentID::Pedestrian(_) => "walking",
+        AgentID::Car(c) => match c.1 {
+            VehicleType::Car => "driving",
+            VehicleType::Bike => "biking",
+            // TODO And probably riding a bus is broken, I don't know how that gets mapped right
+            // now
+            VehicleType::Bus => "riding the bus",
+        },
+    };
+    let time_so_far = app.primary.sim.time() - start_time;
 
     let mut col = Vec::new();
 
-    // Describe properties of the trip
-    let total_trip_time = end_time.unwrap_or_else(|| sim.time()) - phases[0].start_time;
-
-    // Describe this leg of the trip
-    let progress_along_path = if let Some(a) = sim.trip_to_agent(trip).ok() {
-        let col_width = 7;
-
-        let props = sim.agent_properties(a);
-        // This is different than the entire TripMode, and also not the current TripPhaseType.
-        // Sigh.
-        let activity = match a {
-            AgentID::Pedestrian(_) => "walking",
-            AgentID::Car(c) => match c.1 {
-                VehicleType::Car => "driving",
-                VehicleType::Bike => "biking",
-                // TODO And probably riding a bus is broken, I don't know how that gets mapped right
-                // now
-                VehicleType::Bus => "riding the bus",
-            },
-        };
-
+    {
         col.push(Widget::row(vec![
             Widget::row(vec![Line("Trip time").secondary().draw(ctx)])
                 .force_width_pct(ctx, col_width),
             Text::from_all(vec![
                 Line(props.total_time.to_string()),
-                Line(format!(" {} / {} this trip", activity, total_trip_time)).secondary(),
+                Line(format!(" {} / {} this trip", activity, time_so_far)).secondary(),
             ])
             .draw(ctx),
         ]));
-
+    }
+    {
         col.push(Widget::row(vec![
             Widget::row(vec![Line("Distance").secondary().draw(ctx)])
                 .force_width_pct(ctx, col_width),
@@ -95,7 +71,8 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
                 .draw(ctx),
             ]),
         ]));
-
+    }
+    {
         col.push(Widget::row(vec![
             Widget::row(vec![Line("Waiting").secondary().draw(ctx)])
                 .force_width_pct(ctx, col_width),
@@ -105,7 +82,7 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
                     if props.total_waiting != Duration::ZERO {
                         Line(format!(
                             "{}%",
-                            (100.0 * (props.total_waiting / total_trip_time)) as usize
+                            (100.0 * (props.total_waiting / time_so_far)) as usize
                         ))
                     } else {
                         Line("0%")
@@ -115,39 +92,7 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
                 .draw(ctx),
             ]),
         ]));
-
-        Some(props.dist_crossed / props.total_dist)
-    } else {
-        // The trip is finished
-        let col_width = 15;
-
-        col.push(Widget::row(vec![
-            Widget::row(vec![Line("Trip time").secondary().draw(ctx)])
-                .force_width_pct(ctx, col_width),
-            total_trip_time.to_string().draw_text(ctx),
-        ]));
-        let (_, waiting) = sim.finished_trip_time(trip).unwrap();
-        col.push(Widget::row(vec![
-            Widget::row(vec![Line("Total waiting time").secondary().draw(ctx)])
-                .force_width_pct(ctx, col_width),
-            waiting.to_string().draw_text(ctx),
-        ]));
-
-        col.push(
-            Btn::text_bg2("Watch trip")
-                .tooltip(Text::from(Line(format!(
-                    "This will reset the simulation to {}",
-                    start_time.ampm_tostring()
-                ))))
-                .build(ctx, format!("watch {}", trip), None)
-                .margin(5),
-        );
-        details
-            .time_warpers
-            .insert(format!("watch {}", trip), (trip, start_time));
-
-        None
-    };
+    }
 
     col.push(make_timeline(
         ctx,
@@ -155,8 +100,118 @@ pub fn details(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Detail
         trip,
         details,
         phases,
-        progress_along_path,
+        Some(props.dist_crossed / props.total_dist),
     ));
+
+    Widget::col(col)
+}
+
+pub fn future(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Details) -> Widget {
+    let (start_time, trip_start, trip_end, _) = app.primary.sim.trip_info(trip);
+    // TODO Warp buttons. make_table is showing its age.
+    let (_, _, name1) = endpoint(&trip_start, &app.primary.map);
+    let (_, _, name2) = endpoint(&trip_end, &app.primary.map);
+    let mut col = make_table(
+        ctx,
+        vec![
+            ("Departure", start_time.ampm_tostring()),
+            ("From", name1),
+            ("To", name2),
+        ],
+    );
+
+    col.push(
+        Btn::text_bg2("Wait for trip")
+            .tooltip(Text::from(Line(format!(
+                "This will advance the simulation to {}",
+                start_time.ampm_tostring()
+            ))))
+            .build(ctx, format!("wait for {}", trip), None)
+            .margin(5),
+    );
+    details
+        .time_warpers
+        .insert(format!("wait for {}", trip), (trip, start_time));
+
+    Widget::col(col)
+}
+
+pub fn finished(
+    ctx: &mut EventCtx,
+    app: &App,
+    person: PersonID,
+    open_trips: &BTreeMap<TripID, bool>,
+    trip: TripID,
+    show_live: bool,
+    details: &mut Details,
+) -> Widget {
+    let (start_time, _, _, _) = app.primary.sim.trip_info(trip);
+    let phases = if show_live {
+        app.primary
+            .sim
+            .get_analytics()
+            .get_trip_phases(trip, &app.primary.map)
+    } else {
+        app.prebaked().get_trip_phases(trip, &app.primary.map)
+    };
+
+    let mut col = Vec::new();
+
+    col.push(
+        Widget::row(vec![
+            Btn::text_bg2("Watch trip")
+                .tooltip(Text::from(Line(format!(
+                    "This will reset the simulation to {}",
+                    start_time.ampm_tostring()
+                ))))
+                .build(ctx, format!("watch {}", trip), None),
+            if show_live && app.has_prebaked().is_some() {
+                let mut open = open_trips.clone();
+                open.insert(trip, false);
+                details.hyperlinks.insert(
+                    format!("show baseline for {}", trip),
+                    Tab::PersonTrips(person, open),
+                );
+                Btn::text_bg2("Show baseline").build(
+                    ctx,
+                    format!("show baseline for {}", trip),
+                    None,
+                )
+            } else {
+                let mut open = open_trips.clone();
+                open.insert(trip, true);
+                details.hyperlinks.insert(
+                    format!("show live for {}", trip),
+                    Tab::PersonTrips(person, open),
+                );
+                Btn::text_bg2("Show live").build(ctx, format!("show live for {}", trip), None)
+            },
+        ])
+        .evenly_spaced(),
+    );
+    details
+        .time_warpers
+        .insert(format!("watch {}", trip), (trip, start_time));
+
+    {
+        let col_width = 15;
+
+        let total_trip_time = phases.last().as_ref().and_then(|p| p.end_time).unwrap() - start_time;
+        col.push(Widget::row(vec![
+            Widget::row(vec![Line("Trip time").secondary().draw(ctx)])
+                .force_width_pct(ctx, col_width),
+            total_trip_time.to_string().draw_text(ctx),
+        ]));
+
+        let (_, waiting) = app.primary.sim.finished_trip_time(trip).unwrap();
+        col.push(Widget::row(vec![
+            Widget::row(vec![Line("Total waiting time").secondary().draw(ctx)])
+                .force_width_pct(ctx, col_width),
+            waiting.to_string().draw_text(ctx),
+        ]));
+    }
+
+    col.push(make_timeline(ctx, app, trip, details, phases, None));
 
     Widget::col(col)
 }
@@ -264,7 +319,11 @@ fn make_timeline(
         )));
         let duration = if let Some(t2) = p.end_time {
             let d = t2 - p.start_time;
-            txt.add(Line(format!("- Ended at {} (duration: {})", t2, d)));
+            txt.add(Line(format!(
+                "- Ended at {} (duration: {})",
+                t2.ampm_tostring(),
+                d
+            )));
             d
         } else {
             let d = sim.time() - p.start_time;

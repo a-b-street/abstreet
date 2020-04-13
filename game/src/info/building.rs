@@ -6,7 +6,7 @@ use ezgui::{Btn, Color, EventCtx, Line, Text, TextExt, Widget};
 use geom::{Angle, Circle, Time};
 use map_model::{BuildingID, LaneID, Traversable, SIDEWALK_THICKNESS};
 use sim::{DrawPedestrianInput, PedestrianID, PersonID, TripMode, TripResult};
-use std::collections::BTreeSet;
+use std::collections::BTreeMap;
 
 pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID) -> Vec<Widget> {
     let mut rows = header(ctx, app, details, id, Tab::BldgInfo(id));
@@ -102,7 +102,7 @@ pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Building
 
         details
             .hyperlinks
-            .insert(p.to_string(), Tab::PersonTrips(p, BTreeSet::new()));
+            .insert(p.to_string(), Tab::PersonTrips(p, BTreeMap::new()));
         let widget = Widget::col(vec![
             Btn::text_bg1(p.to_string()).build_def(ctx, None),
             if let Some((t, mode)) = next_trip {

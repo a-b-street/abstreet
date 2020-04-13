@@ -7,7 +7,7 @@ use ezgui::{EventCtx, GfxCtx, Warper, Wizard};
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, IntersectionID, LaneID, RoadID};
 use sim::{PedestrianID, PersonID, TripID};
-use std::collections::BTreeSet;
+use std::collections::BTreeMap;
 
 const WARP_TO_CAM_ZOOM: f64 = 10.0;
 
@@ -117,7 +117,7 @@ fn inner_warp(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Transitio
                         s.controls.common.as_mut().unwrap().launch_info_panel(
                             ctx,
                             app,
-                            Tab::PersonTrips(id, BTreeSet::new()),
+                            Tab::PersonTrips(id, BTreeMap::new()),
                             &mut actions,
                         );
                     }

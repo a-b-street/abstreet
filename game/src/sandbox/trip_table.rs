@@ -6,7 +6,7 @@ use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
 use ezgui::{Btn, Composite, EventCtx, GfxCtx, Line, Outcome, Text, Widget};
 use geom::{Duration, Time};
-use maplit::btreeset;
+use maplit::btreemap;
 use sim::{TripID, TripMode};
 
 // TODO Hover over a trip to preview its route on the map
@@ -86,7 +86,7 @@ impl State for TripTable {
                             sandbox.controls.common.as_mut().unwrap().launch_info_panel(
                                 ctx,
                                 app,
-                                Tab::PersonTrips(person, btreeset! { trip }),
+                                Tab::PersonTrips(person, btreemap! { trip => true }),
                                 &mut actions,
                             );
                         }));

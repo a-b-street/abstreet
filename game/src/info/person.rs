@@ -6,18 +6,18 @@ use ezgui::{
 };
 use geom::Duration;
 use map_model::Map;
-use maplit::btreeset;
+use maplit::btreemap;
 use sim::{
     AgentID, CarID, PedestrianID, Person, PersonID, PersonState, TripID, TripResult, VehicleType,
 };
-use std::collections::BTreeSet;
+use std::collections::BTreeMap;
 
 pub fn trips(
     ctx: &mut EventCtx,
     app: &App,
     details: &mut Details,
     id: PersonID,
-    open_trips: &BTreeSet<TripID>,
+    open_trips: &BTreeMap<TripID, bool>,
     is_paused: bool,
 ) -> Vec<Widget> {
     let mut rows = header(
@@ -64,27 +64,48 @@ pub fn trips(
     let mut wheres_waldo = true;
     let mut is_first = true;
     for t in &person.trips {
-        let trip_status = match sim.trip_to_agent(*t) {
+        let (trip_status, maybe_info) = match sim.trip_to_agent(*t) {
             TripResult::TripNotStarted => {
                 if wheres_waldo {
                     wheres_waldo = false;
                     rows.push(current_status(ctx, person, map));
                 }
-                "future"
+
+                (
+                    "future",
+                    open_trips
+                        .get(t)
+                        .map(|_| trip::future(ctx, app, *t, details)),
+                )
             }
-            TripResult::Ok(_) | TripResult::ModeChange => {
-                // ongoing
+            TripResult::Ok(a) => {
                 assert!(wheres_waldo);
                 wheres_waldo = false;
-                "ongoing"
+                (
+                    "ongoing",
+                    open_trips
+                        .get(t)
+                        .map(|_| trip::ongoing(ctx, app, *t, a, details)),
+                )
+            }
+            TripResult::ModeChange => {
+                // TODO No details. Weird case.
+                assert!(wheres_waldo);
+                wheres_waldo = false;
+                ("ongoing", None)
             }
             TripResult::TripDone => {
                 assert!(wheres_waldo);
-                "finished"
+                (
+                    "finished",
+                    open_trips.get(t).map(|show_live| {
+                        trip::finished(ctx, app, id, open_trips, *t, *show_live, details)
+                    }),
+                )
             }
             TripResult::TripAborted => {
                 // Aborted trips can happen anywhere in the schedule right now
-                "cancelled"
+                ("cancelled", None)
             }
             TripResult::TripDoesntExist => unreachable!(),
         };
@@ -125,21 +146,25 @@ pub fn trips(
                     Line(trip_status).small().draw(ctx)
                 }
                 .margin_horiz(15),
-                Btn::plaintext(if open_trips.contains(t) { "▲" } else { "▼" })
-                    .build(
-                        ctx,
-                        format!(
-                            "{} {}",
-                            if open_trips.contains(t) {
-                                "hide"
-                            } else {
-                                "show"
-                            },
-                            t
-                        ),
-                        None,
-                    )
-                    .align_right(),
+                Btn::plaintext(if open_trips.contains_key(t) {
+                    "▲"
+                } else {
+                    "▼"
+                })
+                .build(
+                    ctx,
+                    format!(
+                        "{} {}",
+                        if open_trips.contains_key(t) {
+                            "hide"
+                        } else {
+                            "show"
+                        },
+                        t
+                    ),
+                    None,
+                )
+                .align_right(),
             ])
             .outline(2.0, Color::WHITE)
             .padding(16)
@@ -148,10 +173,9 @@ pub fn trips(
         );
         is_first = false;
 
-        if open_trips.contains(t) {
+        if let Some(info) = maybe_info {
             rows.push(
-                trip::details(ctx, app, *t, details)
-                    .outline(2.0, Color::WHITE)
+                info.outline(2.0, Color::WHITE)
                     .bg(app.cs.inner_panel)
                     .padding(16),
             );
@@ -163,7 +187,7 @@ pub fn trips(
                 .insert(format!("hide {}", t), Tab::PersonTrips(id, new_trips));
         } else {
             let mut new_trips = open_trips.clone();
-            new_trips.insert(*t);
+            new_trips.insert(*t, true);
             details
                 .hyperlinks
                 .insert(format!("show {}", t), Tab::PersonTrips(id, new_trips));
@@ -233,7 +257,7 @@ pub fn crowd(
             person.to_string(),
             Tab::PersonTrips(
                 person,
-                btreeset! {app.primary.sim.agent_to_trip(AgentID::Pedestrian(*id)).unwrap()},
+                btreemap! {app.primary.sim.agent_to_trip(AgentID::Pedestrian(*id)).unwrap() => true},
             ),
         );
     }
@@ -351,9 +375,9 @@ fn header(
     ]));
 
     let open_trips = if let Some(t) = current_trip {
-        btreeset! {t}
+        btreemap! {t => true}
     } else {
-        BTreeSet::new()
+        BTreeMap::new()
     };
     rows.push(make_tabs(
         ctx,
