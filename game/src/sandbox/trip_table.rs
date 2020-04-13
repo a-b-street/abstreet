@@ -110,8 +110,8 @@ struct Entry {
     trip: TripID,
     mode: TripMode,
     departure: Time,
-    duration: Duration,
-    baseline_duration: Duration,
+    duration_after: Duration,
+    duration_before: Duration,
     waiting: Duration,
     percent_waiting: usize,
 }
@@ -119,7 +119,7 @@ struct Entry {
 fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Composite {
     let mut data = Vec::new();
     let sim = &app.primary.sim;
-    for (_, id, maybe_mode, duration) in &sim.get_analytics().finished_trips {
+    for (_, id, maybe_mode, duration_after) in &sim.get_analytics().finished_trips {
         let mode = if let Some(m) = maybe_mode {
             *m
         } else {
@@ -127,7 +127,7 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
         };
         let (_, waiting) = sim.finished_trip_time(*id).unwrap();
         let (departure, _, _, _) = sim.trip_info(*id);
-        let baseline_duration = if app.has_prebaked().is_some() {
+        let duration_before = if app.has_prebaked().is_some() {
             app.prebaked().finished_trip_time(*id).unwrap()
         } else {
             Duration::ZERO
@@ -137,19 +137,19 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
             trip: *id,
             mode,
             departure,
-            duration: *duration,
-            baseline_duration,
+            duration_after: *duration_after,
+            duration_before,
             waiting,
-            percent_waiting: (100.0 * waiting / *duration) as usize,
+            percent_waiting: (100.0 * waiting / *duration_after) as usize,
         });
     }
 
     match sort {
         SortBy::Departure => data.sort_by_key(|x| x.departure),
-        SortBy::Duration => data.sort_by_key(|x| x.duration),
-        SortBy::RelativeDuration => data.sort_by_key(|x| x.duration - x.baseline_duration),
+        SortBy::Duration => data.sort_by_key(|x| x.duration_after),
+        SortBy::RelativeDuration => data.sort_by_key(|x| x.duration_after - x.duration_before),
         SortBy::PercentChangeDuration => {
-            data.sort_by_key(|x| (100.0 * (x.duration / x.baseline_duration)) as isize)
+            data.sort_by_key(|x| (100.0 * (x.duration_after / x.duration_before)) as isize)
         }
         SortBy::PercentWaiting => data.sort_by_key(|x| x.percent_waiting),
     }
@@ -173,21 +173,21 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
         id_col.push(Btn::plaintext(x.trip.0.to_string()).build_def(ctx, None));
         mode_col.add(Line(x.mode.ongoing_verb()));
         departure_col.add(Line(x.departure.ampm_tostring()));
-        duration_col.add(Line(x.duration.to_string()));
+        duration_col.add(Line(x.duration_after.to_string()));
         if app.has_prebaked().is_some() {
             relative_duration_col
-                .add_appended(cmp_duration_shorter(x.duration, x.baseline_duration));
-            if x.duration == x.baseline_duration {
+                .add_appended(cmp_duration_shorter(x.duration_after, x.duration_before));
+            if x.duration_after == x.duration_before {
                 percent_change_duration_col.add(Line("same"));
-            } else if x.duration < x.baseline_duration {
+            } else if x.duration_after < x.duration_before {
                 percent_change_duration_col.add(Line(format!(
                     "{}% faster",
-                    (100.0 * (1.0 - (x.duration / x.baseline_duration))) as usize
+                    (100.0 * (1.0 - (x.duration_after / x.duration_before))) as usize
                 )));
             } else {
                 percent_change_duration_col.add(Line(format!(
                     "{}% slower ",
-                    (100.0 * ((x.duration / x.baseline_duration) - 1.0)) as usize
+                    (100.0 * ((x.duration_after / x.duration_before) - 1.0)) as usize
                 )));
             }
         }

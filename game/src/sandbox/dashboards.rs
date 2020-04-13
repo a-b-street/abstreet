@@ -61,7 +61,7 @@ struct TripSummaries {
 impl TripSummaries {
     fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         let mut active_agents = vec![Series {
-            label: "Current simulation".to_string(),
+            label: "After changes".to_string(),
             color: Color::RED,
             pts: app
                 .primary
@@ -71,7 +71,7 @@ impl TripSummaries {
         }];
         if app.has_prebaked().is_some() {
             active_agents.push(Series {
-                label: "Baseline".to_string(),
+                label: "Before changes".to_string(),
                 color: Color::BLUE.alpha(0.5),
                 pts: app.prebaked().active_agents(Time::END_OF_DAY),
             });

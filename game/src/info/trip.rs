@@ -142,11 +142,11 @@ pub fn finished(
     person: PersonID,
     open_trips: &BTreeMap<TripID, bool>,
     trip: TripID,
-    show_live: bool,
+    show_after: bool,
     details: &mut Details,
 ) -> Widget {
     let (start_time, _, _, _) = app.primary.sim.trip_info(trip);
-    let phases = if show_live {
+    let phases = if show_after {
         app.primary
             .sim
             .get_analytics()
@@ -165,26 +165,30 @@ pub fn finished(
                     start_time.ampm_tostring()
                 ))))
                 .build(ctx, format!("watch {}", trip), None),
-            if show_live && app.has_prebaked().is_some() {
+            if show_after && app.has_prebaked().is_some() {
                 let mut open = open_trips.clone();
                 open.insert(trip, false);
                 details.hyperlinks.insert(
-                    format!("show baseline for {}", trip),
+                    format!("show before changes for {}", trip),
                     Tab::PersonTrips(person, open),
                 );
-                Btn::text_bg2("Show baseline").build(
+                Btn::text_bg2("Show before changes").build(
                     ctx,
-                    format!("show baseline for {}", trip),
+                    format!("show before changes for {}", trip),
                     None,
                 )
             } else {
                 let mut open = open_trips.clone();
                 open.insert(trip, true);
                 details.hyperlinks.insert(
-                    format!("show live for {}", trip),
+                    format!("show after changes for {}", trip),
                     Tab::PersonTrips(person, open),
                 );
-                Btn::text_bg2("Show live").build(ctx, format!("show live for {}", trip), None)
+                Btn::text_bg2("Show after changes").build(
+                    ctx,
+                    format!("show after changes for {}", trip),
+                    None,
+                )
             },
         ])
         .evenly_spaced(),

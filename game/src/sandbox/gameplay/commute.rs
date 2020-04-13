@@ -172,18 +172,18 @@ impl GameplayState for OptimizeCommute {
 
 fn make_top_center(ctx: &mut EventCtx, app: &App, trips: &Vec<TripID>) -> Composite {
     let mut done = 0;
-    let mut baseline_time = Duration::ZERO;
-    let mut experiment_time = Duration::ZERO;
+    let mut before_time = Duration::ZERO;
+    let mut after_time = Duration::ZERO;
     for t in trips {
         if let Some((total, _)) = app.primary.sim.finished_trip_time(*t) {
             done += 1;
-            experiment_time += total;
-            baseline_time += app.prebaked().finished_trip_time(*t).unwrap();
+            after_time += total;
+            before_time += app.prebaked().finished_trip_time(*t).unwrap();
         }
     }
 
-    let mut txt = Text::from(Line(format!("Total trip time: {} (", experiment_time)));
-    txt.append_all(cmp_duration_shorter(experiment_time, baseline_time));
+    let mut txt = Text::from(Line(format!("Total trip time: {} (", after_time)));
+    txt.append_all(cmp_duration_shorter(after_time, before_time));
     txt.append(Line(")"));
 
     Composite::new(
@@ -209,26 +209,26 @@ fn make_top_center(ctx: &mut EventCtx, app: &App, trips: &Vec<TripID>) -> Compos
 // True if the challenge is completed
 fn final_score(app: &App, trips: &Vec<TripID>) -> (String, bool) {
     let mut done = 0;
-    let mut baseline_time = Duration::ZERO;
-    let mut experiment_time = Duration::ZERO;
+    let mut before_time = Duration::ZERO;
+    let mut after_time = Duration::ZERO;
     for t in trips {
         if let Some((total, _)) = app.primary.sim.finished_trip_time(*t) {
             done += 1;
-            experiment_time += total;
-            baseline_time += app.prebaked().finished_trip_time(*t).unwrap();
+            after_time += total;
+            before_time += app.prebaked().finished_trip_time(*t).unwrap();
         }
     }
 
     // TODO Needs work
     let mut verdict = format!(
         "Originally, total commute time was {}. Now it's {}.",
-        baseline_time, experiment_time
+        before_time, after_time
     );
     write!(
         &mut verdict,
         " The goal is {} faster. You've done {}.",
         GOAL,
-        baseline_time - experiment_time
+        before_time - after_time
     )
     .unwrap();
     if done != trips.len() {
@@ -237,7 +237,7 @@ fn final_score(app: &App, trips: &Vec<TripID>) -> (String, bool) {
 
     (
         verdict,
-        done == trips.len() && baseline_time - experiment_time >= GOAL,
+        done == trips.len() && before_time - after_time >= GOAL,
     )
 }
 

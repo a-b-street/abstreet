@@ -46,26 +46,26 @@ impl GameplayState for CreateGridlock {
 // TODO Revive this data in some form
 #[allow(unused)]
 fn gridlock_panel(app: &App) -> Text {
-    let (now_all, _, now_per_mode) = app
+    let (after_all, _, after_per_mode) = app
         .primary
         .sim
         .get_analytics()
         .trip_times(app.primary.sim.time());
-    let (baseline_all, _, baseline_per_mode) = app.prebaked().trip_times(app.primary.sim.time());
+    let (before_all, _, before_per_mode) = app.prebaked().trip_times(app.primary.sim.time());
 
     let mut txt = Text::new();
     txt.add_appended(vec![
         Line(format!(
             "{} total trips (",
-            prettyprint_usize(now_all.count())
+            prettyprint_usize(after_all.count())
         )),
-        cmp_count_fewer(now_all.count(), baseline_all.count()),
+        cmp_count_fewer(after_all.count(), before_all.count()),
         Line(")"),
     ]);
 
     for mode in TripMode::all() {
-        let a = now_per_mode[&mode].count();
-        let b = baseline_per_mode[&mode].count();
+        let a = after_per_mode[&mode].count();
+        let b = before_per_mode[&mode].count();
         txt.add_appended(vec![
             Line(format!(
                 "  {}: {} (",

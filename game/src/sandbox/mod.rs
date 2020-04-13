@@ -367,20 +367,20 @@ impl AgentMeter {
                     .centered_horiz(),
                 );
 
-                let (now, _, _) = app
+                let (after, _, _) = app
                     .primary
                     .sim
                     .get_analytics()
                     .trip_times(app.primary.sim.time());
-                let (baseline, _, _) = app.prebaked().trip_times(app.primary.sim.time());
+                let (before, _, _) = app.prebaked().trip_times(app.primary.sim.time());
                 let mut txt = Text::from(Line(format!("{} trip time: ", stat)).secondary());
-                if now.count() > 0 && baseline.count() > 0 {
+                if after.count() > 0 && before.count() > 0 {
                     txt.append_all(cmp_duration_shorter(
-                        now.select(stat),
-                        baseline.select(stat),
+                        after.select(stat),
+                        before.select(stat),
                     ));
                 } else {
-                    txt.append(Line("same as baseline"));
+                    txt.append(Line("same"));
                 }
                 txt.add(Line(format!("Goal: {} faster", goal)).secondary());
                 rows.push(txt.draw(ctx));

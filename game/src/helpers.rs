@@ -105,17 +105,17 @@ pub fn nice_map_name(name: &str) -> &str {
 }
 
 // Shorter is better
-pub fn cmp_duration_shorter(now: Duration, baseline: Duration) -> Vec<TextSpan> {
-    if now.epsilon_eq(baseline) {
-        vec![Line("same as baseline")]
-    } else if now < baseline {
+pub fn cmp_duration_shorter(after: Duration, before: Duration) -> Vec<TextSpan> {
+    if after.epsilon_eq(before) {
+        vec![Line("same")]
+    } else if after < before {
         vec![
-            Line((baseline - now).to_string()).fg(Color::GREEN),
+            Line((before - after).to_string()).fg(Color::GREEN),
             Line(" faster"),
         ]
-    } else if now > baseline {
+    } else if after > before {
         vec![
-            Line((now - baseline).to_string()).fg(Color::RED),
+            Line((after - before).to_string()).fg(Color::RED),
             Line(" slower"),
         ]
     } else {
@@ -124,12 +124,12 @@ pub fn cmp_duration_shorter(now: Duration, baseline: Duration) -> Vec<TextSpan> 
 }
 
 // Fewer is better
-pub fn cmp_count_fewer(now: usize, baseline: usize) -> TextSpan {
-    if now < baseline {
-        Line(format!("{} fewer", prettyprint_usize(baseline - now))).fg(Color::GREEN)
-    } else if now > baseline {
-        Line(format!("{} more", prettyprint_usize(now - baseline))).fg(Color::RED)
+pub fn cmp_count_fewer(after: usize, before: usize) -> TextSpan {
+    if after < before {
+        Line(format!("{} fewer", prettyprint_usize(before - after))).fg(Color::GREEN)
+    } else if after > before {
+        Line(format!("{} more", prettyprint_usize(after - before))).fg(Color::RED)
     } else {
-        Line("same as baseline")
+        Line("same")
     }
 }

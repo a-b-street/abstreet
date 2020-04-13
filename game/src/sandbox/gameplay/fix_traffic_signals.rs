@@ -92,46 +92,46 @@ impl GameplayState for FixTrafficSignals {
 // True if the challenge is completed
 fn final_score(app: &App) -> (String, bool) {
     let time = app.primary.sim.time();
-    let now = app
+    let after = app
         .primary
         .sim
         .get_analytics()
         .trip_times(time)
         .0
         .select(Statistic::Mean);
-    let baseline = app.prebaked().trip_times(time).0.select(Statistic::Mean);
+    let before = app.prebaked().trip_times(time).0.select(Statistic::Mean);
 
-    let verdict = if now < baseline - GOAL {
+    let verdict = if after < before - GOAL {
         format!(
-            "COMPLETED! Average trip time is now {}, which is {} faster than the baseline {}",
-            now,
-            baseline - now,
-            baseline
+            "COMPLETED! Average trip time is {}, which is {} faster than {}",
+            after,
+            before - after,
+            before
         )
-    } else if now < baseline {
+    } else if after < before {
         format!(
-            "Almost there! Average trip time is now {}, which is {} faster than the baseline {}. \
-             Can you reduce the average by {}?",
-            now,
-            baseline - now,
-            baseline,
+            "Almost there! Average trip time is {}, which is {} faster than {}. Can you reduce \
+             the average by {}?",
+            after,
+            before - after,
+            before,
             GOAL
         )
-    } else if now.epsilon_eq(baseline) {
+    } else if after.epsilon_eq(before) {
         format!(
-            "... Did you change anything? Average trip time is {}, same as the baseline",
-            now
+            "... Did you change anything? Average trip time is still {}",
+            after
         )
     } else {
         format!(
             "Err... how did you make things WORSE?! Average trip time is {}, which is {} slower \
-             than the baseline {}",
-            now,
-            now - baseline,
-            baseline
+             than {}",
+            after,
+            after - before,
+            before
         )
     };
-    (verdict, now < baseline - GOAL)
+    (verdict, after < before - GOAL)
 }
 
 // TODO Hacks in here, because I'm not convinced programatically specifying this is right. I think

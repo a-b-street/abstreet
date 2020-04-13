@@ -62,7 +62,7 @@ pub fn traffic(
             ctx,
             app,
             move |a, t| a.throughput_intersection(t, id, opts.bucket_size),
-            opts.show_baseline,
+            opts.show_before,
         )
         .margin(10),
     );
@@ -123,13 +123,13 @@ fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) 
             pts,
         });
     }
-    if opts.show_baseline {
+    if opts.show_before {
         for (idx, (stat, pts)) in get_data(app.prebaked(), Time::END_OF_DAY)
             .into_iter()
             .enumerate()
         {
             all_series.push(Series {
-                label: format!("{} (baseline)", stat),
+                label: format!("{} (before changes)", stat),
                 color: app.cs.rotating_color_plot(idx).alpha(0.3),
                 pts,
             });

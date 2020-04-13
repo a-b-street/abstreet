@@ -127,7 +127,7 @@ pub fn traffic(
             ctx,
             app,
             move |a, t| a.throughput_road(t, r, opts.bucket_size),
-            opts.show_baseline,
+            opts.show_before,
         )
         .margin(10),
     );

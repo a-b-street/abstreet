@@ -98,8 +98,8 @@ pub fn trips(
                 assert!(wheres_waldo);
                 (
                     "finished",
-                    open_trips.get(t).map(|show_live| {
-                        trip::finished(ctx, app, id, open_trips, *t, *show_live, details)
+                    open_trips.get(t).map(|show_after| {
+                        trip::finished(ctx, app, id, open_trips, *t, *show_after, details)
                     }),
                 )
             }
@@ -131,13 +131,13 @@ pub fn trips(
                     .bg(Color::rgba(127, 250, 77, 0.2))
                     .padding(5)
                 } else if trip_status == "finished" {
-                    if let Some(orig) = app
+                    if let Some(before) = app
                         .has_prebaked()
                         .and_then(|_| app.prebaked().finished_trip_time(*t))
                     {
-                        let (experiment, _) = app.primary.sim.finished_trip_time(*t).unwrap();
+                        let (after, _) = app.primary.sim.finished_trip_time(*t).unwrap();
                         let mut txt = Text::from(Line("finished ").small());
-                        txt.append_all(cmp_duration_shorter(experiment, orig));
+                        txt.append_all(cmp_duration_shorter(after, before));
                         txt.draw(ctx)
                     } else {
                         Line("finished").small().draw(ctx)
@@ -408,21 +408,21 @@ fn current_status(ctx: &EventCtx, person: &Person, map: &Map) -> Widget {
 }
 
 // TODO Dedupe with the version in helpers
-fn cmp_duration_shorter(experiment: Duration, baseline: Duration) -> Vec<TextSpan> {
-    if experiment.epsilon_eq(baseline) {
+fn cmp_duration_shorter(after: Duration, before: Duration) -> Vec<TextSpan> {
+    if after.epsilon_eq(before) {
         vec![Line("(no change)").small()]
-    } else if experiment < baseline {
+    } else if after < before {
         vec![
             Line("(").small(),
-            Line(format!("{} faster", baseline - experiment))
+            Line(format!("{} faster", before - after))
                 .small()
                 .fg(Color::GREEN),
             Line(")").small(),
         ]
-    } else if experiment > baseline {
+    } else if after > before {
         vec![
             Line("(").small(),
-            Line(format!("{} slower", experiment - baseline))
+            Line(format!("{} slower", after - before))
                 .small()
                 .fg(Color::RED),
             Line(")").small(),

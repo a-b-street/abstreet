@@ -233,7 +233,7 @@ impl GameplayState for Tutorial {
                     .sim
                     .get_analytics()
                     .trip_times(app.primary.sim.time());
-                let max = all.select(Statistic::Max);
+                let after = all.select(Statistic::Max);
 
                 if !tut.score_delivered {
                     tut.score_delivered = true;
@@ -250,8 +250,8 @@ impl GameplayState for Tutorial {
                         );
                     }
                     // TODO Prebake results and use the normal differential stuff
-                    let baseline = Duration::minutes(7) + Duration::seconds(15.0);
-                    if max > baseline {
+                    let before = Duration::minutes(7) + Duration::seconds(15.0);
+                    if after > before {
                         return (
                             Some(Transition::Push(msg(
                                 "All trips completed",
@@ -259,7 +259,7 @@ impl GameplayState for Tutorial {
                                     "Your changes made things worse!".to_string(),
                                     format!(
                                         "The slowest trip originally took {}, but now it took {}",
-                                        baseline, max
+                                        before, after
                                     ),
                                     "".to_string(),
                                     "Try again!".to_string(),
@@ -269,7 +269,7 @@ impl GameplayState for Tutorial {
                         );
                     }
                     // TODO Tune. The real solution doesn't work because of sim bugs.
-                    if max > Duration::minutes(6) + Duration::seconds(40.0) {
+                    if after > Duration::minutes(6) + Duration::seconds(40.0) {
                         return (
                             Some(Transition::Push(msg(
                                 "All trips completed",
@@ -277,7 +277,7 @@ impl GameplayState for Tutorial {
                                     "Nice, you helped things a bit!".to_string(),
                                     format!(
                                         "The slowest trip originally took {}, but now it took {}",
-                                        baseline, max
+                                        before, after
                                     ),
                                     "".to_string(),
                                     "See if you can do a little better though.".to_string(),
@@ -292,13 +292,13 @@ impl GameplayState for Tutorial {
                             vec![format!(
                                 "Awesome! The slowest trip originally took {}, but now it only \
                                  took {}",
-                                baseline, max
+                                before, after
                             )],
                         ))),
                         false,
                     );
                 }
-                if max <= Duration::minutes(6) + Duration::seconds(30.0) {
+                if after <= Duration::minutes(6) + Duration::seconds(30.0) {
                     tut.next();
                 }
                 return (Some(transition(ctx, app)), false);

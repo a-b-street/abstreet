@@ -400,14 +400,9 @@ impl Widget {
                 w.restore(ctx, prev);
             }
         } else if self.widget.can_restore() {
-            self.widget.restore(
-                ctx,
-                &prev
-                    .top_level
-                    .find(self.id.as_ref().unwrap())
-                    .unwrap()
-                    .widget,
-            );
+            if let Some(ref other) = prev.top_level.find(self.id.as_ref().unwrap()) {
+                self.widget.restore(ctx, &other.widget);
+            }
         }
     }
 
