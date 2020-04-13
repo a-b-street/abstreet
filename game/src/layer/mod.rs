@@ -27,7 +27,7 @@ pub enum Layers {
     WorstDelay(Time, Colorer),
     TrafficJams(Time, Colorer),
     CumulativeThroughput(Time, Colorer),
-    BikeNetwork(Colorer),
+    BikeNetwork(Colorer, Option<Colorer>),
     BusNetwork(Colorer),
     Elevation(Colorer, Drawable),
     Edits(Colorer),
@@ -94,7 +94,7 @@ impl Layers {
             }
             // No updates needed
             Layers::Inactive
-            | Layers::BikeNetwork(_)
+            | Layers::BikeNetwork(_, _)
             | Layers::BusNetwork(_)
             | Layers::Elevation(_, _)
             | Layers::Edits(_) => {}
@@ -102,7 +102,6 @@ impl Layers {
 
         match app.layer {
             Layers::ParkingOccupancy(_, ref mut c)
-            | Layers::BikeNetwork(ref mut c)
             | Layers::BusNetwork(ref mut c)
             | Layers::Elevation(ref mut c, _)
             | Layers::WorstDelay(_, ref mut c)
@@ -112,6 +111,20 @@ impl Layers {
                 c.legend.align_above(ctx, minimap);
                 if c.event(ctx) {
                     app.layer = Layers::Inactive;
+                }
+            }
+            Layers::BikeNetwork(ref mut c1, ref mut maybe_c2) => {
+                if let Some(ref mut c2) = maybe_c2 {
+                    c2.legend.align_above(ctx, minimap);
+                    c1.legend.align_above(ctx, &c2.legend);
+                    if c1.event(ctx) || c2.event(ctx) {
+                        app.layer = Layers::Inactive;
+                    }
+                } else {
+                    c1.legend.align_above(ctx, minimap);
+                    if c1.event(ctx) {
+                        app.layer = Layers::Inactive;
+                    }
                 }
             }
             Layers::BusRoute(_, _, ref mut c) => {
@@ -197,13 +210,18 @@ impl Layers {
         match self {
             Layers::Inactive => {}
             Layers::ParkingOccupancy(_, ref c)
-            | Layers::BikeNetwork(ref c)
             | Layers::BusNetwork(ref c)
             | Layers::WorstDelay(_, ref c)
             | Layers::TrafficJams(_, ref c)
             | Layers::CumulativeThroughput(_, ref c)
             | Layers::Edits(ref c) => {
                 c.draw(g);
+            }
+            Layers::BikeNetwork(ref c1, ref maybe_c2) => {
+                c1.draw(g);
+                if let Some(ref c2) = maybe_c2 {
+                    c2.draw(g);
+                }
             }
             Layers::Elevation(ref c, ref draw) => {
                 c.draw(g);
@@ -239,13 +257,18 @@ impl Layers {
         match self {
             Layers::Inactive => {}
             Layers::ParkingOccupancy(_, ref c)
-            | Layers::BikeNetwork(ref c)
             | Layers::BusNetwork(ref c)
             | Layers::WorstDelay(_, ref c)
             | Layers::TrafficJams(_, ref c)
             | Layers::CumulativeThroughput(_, ref c)
             | Layers::Edits(ref c) => {
                 g.redraw(&c.unzoomed);
+            }
+            Layers::BikeNetwork(ref c1, ref maybe_c2) => {
+                g.redraw(&c1.unzoomed);
+                if let Some(ref c2) = maybe_c2 {
+                    g.redraw(&c2.unzoomed);
+                }
             }
             Layers::Elevation(ref c, ref draw) => {
                 g.redraw(&c.unzoomed);
@@ -293,7 +316,7 @@ impl Layers {
             Layers::WorstDelay(_, _) => Some("delay"),
             Layers::TrafficJams(_, _) => Some("worst traffic jams"),
             Layers::CumulativeThroughput(_, _) => Some("throughput"),
-            Layers::BikeNetwork(_) => Some("bike network"),
+            Layers::BikeNetwork(_, _) => Some("bike network"),
             Layers::BusNetwork(_) => Some("bus network"),
             Layers::Elevation(_, _) => Some("elevation"),
             Layers::Edits(_) => Some("map edits"),

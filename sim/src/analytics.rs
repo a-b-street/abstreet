@@ -37,7 +37,7 @@ pub struct ThruputStats {
     #[serde(skip_serializing, skip_deserializing)]
     pub count_per_intersection: Counter<IntersectionID>,
 
-    raw_per_road: Vec<(Time, TripMode, RoadID)>,
+    pub raw_per_road: Vec<(Time, TripMode, RoadID)>,
     raw_per_intersection: Vec<(Time, TripMode, IntersectionID)>,
 
     // Unlike everything else in Analytics, this is just for a moment in time.

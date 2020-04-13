@@ -134,6 +134,10 @@ impl ColorerBuilder {
         self.bus_stops.insert(bs, color);
     }
 
+    pub fn set_extra_info(&mut self, extra_info: Vec<String>) {
+        self.extra_info = extra_info;
+    }
+
     pub fn build_both(self, ctx: &mut EventCtx, app: &App) -> Colorer {
         let mut zoomed = GeomBatch::new();
         let mut unzoomed = GeomBatch::new();
@@ -183,7 +187,7 @@ impl ColorerBuilder {
             for line in self.extra_info {
                 txt.add(Line(line).small());
             }
-            col.push(txt.draw(ctx));
+            col.push(txt.draw(ctx).margin_below(5));
         }
         col.extend(self.legend);
         let legend = Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(16))

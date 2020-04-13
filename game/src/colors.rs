@@ -111,6 +111,8 @@ pub struct ColorScheme {
 
     // Layers
     pub good_to_bad: [Color; 4],
+    pub good_to_bad_monochrome_red: [Color; 4],
+    pub good_to_bad_monochrome_green: [Color; 4],
     pub bus_layer: Color,
     pub edits_layer: Color,
 
@@ -219,6 +221,18 @@ impl ColorScheme {
                 hex("#F2C94C"),
                 hex("#EB5757"),
                 hex("#96322F"),
+            ],
+            good_to_bad_monochrome_red: [
+                hex("#FBE5E2"),
+                hex("#EE968C"),
+                hex("#D63220"),
+                hex("#A32015"),
+            ],
+            good_to_bad_monochrome_green: [
+                hex("#BEDB92"),
+                hex("#77C063"),
+                hex("#569358"),
+                hex("#397A4C"),
             ],
             bus_layer: hex("#4CA7E9"),
             edits_layer: hex("#12409D"),

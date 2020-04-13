@@ -14,32 +14,32 @@ pub fn delay(ctx: &mut EventCtx, app: &App) -> Layers {
         ctx,
         "Delay (minutes)",
         Vec::new(),
-        app.cs.good_to_bad.to_vec(),
+        app.cs.good_to_bad_monochrome_red.to_vec(),
         vec!["0", "1", "5", "15", "longer"],
     );
 
     let (per_road, per_intersection) = app.primary.sim.worst_delay(&app.primary.map);
     for (r, d) in per_road {
         let color = if d < Duration::minutes(1) {
-            app.cs.good_to_bad[0]
+            app.cs.good_to_bad_monochrome_red[0]
         } else if d < Duration::minutes(5) {
-            app.cs.good_to_bad[1]
+            app.cs.good_to_bad_monochrome_red[1]
         } else if d < Duration::minutes(15) {
-            app.cs.good_to_bad[2]
+            app.cs.good_to_bad_monochrome_red[2]
         } else {
-            app.cs.good_to_bad[3]
+            app.cs.good_to_bad_monochrome_red[3]
         };
         colorer.add_r(r, color, &app.primary.map);
     }
     for (i, d) in per_intersection {
         let color = if d < Duration::minutes(1) {
-            app.cs.good_to_bad[0]
+            app.cs.good_to_bad_monochrome_red[0]
         } else if d < Duration::minutes(5) {
-            app.cs.good_to_bad[1]
+            app.cs.good_to_bad_monochrome_red[1]
         } else if d < Duration::minutes(15) {
-            app.cs.good_to_bad[2]
+            app.cs.good_to_bad_monochrome_red[2]
         } else {
-            app.cs.good_to_bad[3]
+            app.cs.good_to_bad_monochrome_red[3]
         };
         colorer.add_i(i, color);
     }
