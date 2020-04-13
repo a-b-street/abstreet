@@ -366,3 +366,14 @@ changes here.
 - mouse cursor now changes for buttons and dragging!
 - overhaul minimap controls, make layers behavior zoomed in a little better
 - new speed panel and jump-to-time modal
+
+0.1.36
+
+- overhauled simulation data page, with a table to find slow trips and some initial summary visualizations
+- plots can change windowing and show/hide series
+- layers: fade map to contrast more, better scales/legends
+- show relative trip times in info panels
+- tools to rewind/ffw to watch particular trips
+- refocusing efforts on challenge modes; level 1 of a new one is pretty much ready
+- some simulation fixes around parking and a corner case of cars temporarily forming a cycle
+- orestis improved the population/pandemic heatmaps
