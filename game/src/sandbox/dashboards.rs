@@ -83,7 +83,7 @@ impl TripSummaries {
             composite: Composite::new(
                 Widget::col(vec![
                     DashTab::TripSummaries.picker(ctx),
-                    contingency_table(ctx, app),
+                    contingency_table(ctx, app, filter),
                     scatter_plot(ctx, app, filter),
                     Checkbox::text(ctx, "filter out unchanged trips", None, filter),
                     summary_absolute(ctx, app),
@@ -348,7 +348,7 @@ fn scatter_plot(ctx: &mut EventCtx, app: &App, filter: bool) -> Widget {
     )
 }
 
-fn contingency_table(ctx: &mut EventCtx, app: &App) -> Widget {
+fn contingency_table(ctx: &mut EventCtx, app: &App, filter: bool) -> Widget {
     if app.has_prebaked().is_none() {
         return Widget::nothing();
     }
@@ -356,11 +356,14 @@ fn contingency_table(ctx: &mut EventCtx, app: &App) -> Widget {
     let total_width = 0.80 * ctx.canvas.window_width;
     let total_height = 300.0;
 
-    let points = app
+    let mut points = app
         .primary
         .sim
         .get_analytics()
         .both_finished_trips(app.primary.sim.time(), app.prebaked());
+    if filter {
+        points.retain(|(a, b)| a != b);
+    }
     let num_buckets = 10;
     let (_, endpts) = points
         .iter()
@@ -370,6 +373,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App) -> Widget {
         .make_intervals_for_max(num_buckets);
 
     let mut batch = GeomBatch::new();
+    batch.autocrop_dims = false;
 
     // Draw the X axis, time before changes in buckets.
     for (idx, mins) in endpts.iter().enumerate() {
@@ -397,13 +401,16 @@ fn contingency_table(ctx: &mut EventCtx, app: &App) -> Widget {
     {
         let before_mins = b.num_minutes_rounded_up();
         let raw_idx = endpts.iter().rev().position(|x| before_mins >= *x).unwrap();
-        // TODO Careful here...
-        let idx = endpts.len() - 1 - raw_idx;
+        let mut idx = endpts.len() - 1 - raw_idx;
+        // Careful. We might be exactly the max...
+        if idx == endpts.len() {
+            idx -= 1;
+        }
 
         if a > b {
             losses_per_bucket[idx].0 += a - b;
             losses_per_bucket[idx].1 += 1;
-        } else {
+        } else if a < b {
             savings_per_bucket[idx].0 += b - a;
             savings_per_bucket[idx].1 += 1;
         }
@@ -421,6 +428,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App) -> Widget {
     let mut outlines = Vec::new();
     let mut tooltips = Vec::new();
     let mut x1 = 0.0;
+    let mut idx = 0;
     for ((total_savings, num_savings), (total_loss, num_loss)) in savings_per_bucket
         .into_iter()
         .zip(losses_per_bucket.into_iter())
@@ -434,10 +442,15 @@ fn contingency_table(ctx: &mut EventCtx, app: &App) -> Widget {
             batch.push(Color::GREEN, rect.clone());
             tooltips.push((
                 rect,
-                Text::from(Line(format!(
-                    "Total {} savings over {} trips",
-                    total_savings, num_savings
-                ))),
+                Text::from_multiline(vec![
+                    Line(format!(
+                        "{} trips between {} and {} minutes",
+                        prettyprint_usize(num_savings),
+                        endpts[idx],
+                        endpts[idx + 1]
+                    )),
+                    Line(format!("Total savings: {}", total_savings)),
+                ]),
             ));
         }
         if num_loss > 0 {
@@ -450,13 +463,19 @@ fn contingency_table(ctx: &mut EventCtx, app: &App) -> Widget {
             batch.push(Color::RED, rect.clone());
             tooltips.push((
                 rect,
-                Text::from(Line(format!(
-                    "Total {} losses over {} trips",
-                    total_loss, num_loss
-                ))),
+                Text::from_multiline(vec![
+                    Line(format!(
+                        "{} trips between {} and {} minutes",
+                        prettyprint_usize(num_loss),
+                        endpts[idx],
+                        endpts[idx + 1]
+                    )),
+                    Line(format!("Total losses: {}", total_loss)),
+                ]),
             ));
         }
         x1 += bar_width;
+        idx += 1;
     }
     batch.extend(Color::BLACK, outlines);
 
