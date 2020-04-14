@@ -144,8 +144,13 @@ impl Duration {
         }
     }
 
-    pub fn num_minutes_rounded_down(self) -> usize {
-        self.get_parts().1
+    pub fn num_minutes_rounded_up(self) -> usize {
+        let (hrs, mins, secs, rem) = self.get_parts();
+        let mut result = mins + 60 * hrs;
+        if secs != 0 || rem != 0 {
+            result += 1;
+        }
+        result
     }
 }
 

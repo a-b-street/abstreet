@@ -6,8 +6,8 @@ use crate::sandbox::trip_table::TripTable;
 use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, Btn, Color, Composite, EventCtx, GfxCtx, Key, Line, LinePlot, Outcome, PlotOptions,
-    ScatterPlot, Series, Text, TextExt, Widget,
+    hotkey, Btn, Checkbox, Color, Composite, EventCtx, GfxCtx, Key, Line, LinePlot, Outcome,
+    PlotOptions, ScatterPlot, Series, Text, TextExt, Widget,
 };
 use geom::{Duration, Time};
 
@@ -47,7 +47,7 @@ impl DashTab {
         match action {
             "close" => Transition::Pop,
             "trip table" => Transition::Replace(TripTable::new(ctx, app)),
-            "trip summaries" => Transition::Replace(TripSummaries::new(ctx, app)),
+            "trip summaries" => Transition::Replace(TripSummaries::new(ctx, app, false)),
             "bus routes" => Transition::Replace(BusRoutes::new(ctx, app)),
             _ => unreachable!(),
         }
@@ -56,10 +56,11 @@ impl DashTab {
 
 struct TripSummaries {
     composite: Composite,
+    filter: bool,
 }
 
 impl TripSummaries {
-    fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    fn new(ctx: &mut EventCtx, app: &App, filter: bool) -> Box<dyn State> {
         let mut active_agents = vec![Series {
             label: "After changes".to_string(),
             color: Color::RED,
@@ -78,10 +79,12 @@ impl TripSummaries {
         }
 
         Box::new(TripSummaries {
+            filter,
             composite: Composite::new(
                 Widget::col(vec![
                     DashTab::TripSummaries.picker(ctx),
-                    scatter_plot(ctx, app),
+                    scatter_plot(ctx, app, filter),
+                    Checkbox::text(ctx, "filter out unchanged trips", None, filter),
                     summary_absolute(ctx, app),
                     summary_normalized(ctx, app),
                     Line("Active agents").small_heading().draw(ctx),
@@ -100,7 +103,13 @@ impl State for TripSummaries {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => DashTab::TripSummaries.transition(ctx, app, &x),
-            None => Transition::Keep,
+            None => {
+                if self.composite.is_checked("filter out unchanged trips") != self.filter {
+                    Transition::Replace(TripSummaries::new(ctx, app, !self.filter))
+                } else {
+                    Transition::Keep
+                }
+            }
         }
     }
 
@@ -316,16 +325,20 @@ fn summary_normalized(ctx: &mut EventCtx, app: &App) -> Widget {
     ])
 }
 
-fn scatter_plot(ctx: &mut EventCtx, app: &App) -> Widget {
+fn scatter_plot(ctx: &mut EventCtx, app: &App, filter: bool) -> Widget {
     if app.has_prebaked().is_none() {
         return Widget::nothing();
     }
 
-    let points = app
+    let mut points = app
         .primary
         .sim
         .get_analytics()
         .both_finished_trips(app.primary.sim.time(), app.prebaked());
+    if filter {
+        points.retain(|(a, b)| a != b);
+    }
+
     ScatterPlot::new(
         ctx,
         "Trip time before changes",
