@@ -329,9 +329,11 @@ fn scatter_plot(ctx: &mut EventCtx, app: &App) -> Widget {
     if points.is_empty() {
         return Widget::nothing();
     }
-    let max = *points.iter().map(|(a, b)| a.max(b)).max().unwrap();
 
-    // We want a nice square so the scales match up. TODO Scale size somehow.
+    let actual_max = *points.iter().map(|(a, b)| a.max(b)).max().unwrap();
+    let (max, labels) = make_intervals(actual_max, 5);
+
+    // We want a nice square so the scales match up.
     let width = 500.0;
     let height = width;
 
@@ -354,19 +356,17 @@ fn scatter_plot(ctx: &mut EventCtx, app: &App) -> Widget {
     }
     let plot = Widget::draw_batch(ctx, batch);
 
-    let num_y_labels = 5;
     let y_axis = Widget::col(
-        (0..=num_y_labels)
-            .map(|i| {
-                let t = (1.0 - ((i as f64) / (num_y_labels as f64))) * max;
-                Line(t.to_string()).small().draw(ctx)
-            })
+        labels
+            .iter()
+            .rev()
+            .map(|x| Line(x.to_string()).small().draw(ctx))
             .collect(),
     )
     .evenly_spaced();
     let y_label = {
         let mut label = GeomBatch::new();
-        for (color, poly) in Text::from(Line("Current trip time"))
+        for (color, poly) in Text::from(Line("Current trip time (minutes)"))
             .render_ctx(ctx)
             .consume()
         {
@@ -375,17 +375,16 @@ fn scatter_plot(ctx: &mut EventCtx, app: &App) -> Widget {
         Widget::draw_batch(ctx, label.autocrop()).centered_vert()
     };
 
-    let num_x_labels = 5;
     let x_axis = Widget::row(
-        (0..=num_x_labels)
-            .map(|i| {
-                let t = ((i as f64) / (num_x_labels as f64)) * max;
-                Line(t.to_string()).small().draw(ctx)
-            })
+        labels
+            .iter()
+            .map(|x| Line(x.to_string()).small().draw(ctx))
             .collect(),
     )
     .evenly_spaced();
-    let x_label = Line("Original trip time").draw(ctx).centered_horiz();
+    let x_label = Line("Original trip time (minutes)")
+        .draw(ctx)
+        .centered_horiz();
 
     // It's a bit of work to make both the x and y axis line up with the plot. :)
     let plot_width = plot.get_width_for_forcing();
@@ -395,4 +394,20 @@ fn scatter_plot(ctx: &mut EventCtx, app: &App) -> Widget {
             .force_width(plot_width)
             .align_right(),
     ])])
+}
+
+// TODO Do something fancier? http://vis.stanford.edu/papers/tick-labels
+fn make_intervals(actual_max: Duration, num_labels: usize) -> (Duration, Vec<usize>) {
+    // Example: 43 minutes, max 5 labels... raw_mins_per_interval is 8.6
+    let raw_mins_per_interval =
+        (actual_max.num_minutes_rounded_down() as f64) / (num_labels as f64);
+    // So then this rounded up to 10 minutes
+    let mins_per_interval = Duration::seconds(60.0 * raw_mins_per_interval)
+        .round_up(Duration::minutes(5))
+        .num_minutes_rounded_down();
+
+    (
+        actual_max.round_up(Duration::minutes(mins_per_interval)),
+        (0..=num_labels).map(|i| i * mins_per_interval).collect(),
+    )
 }

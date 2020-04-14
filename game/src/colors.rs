@@ -223,9 +223,9 @@ impl ColorScheme {
                 hex("#96322F"),
             ],
             good_to_bad_monochrome_red: [
-                hex("#FBE5E2"),
-                hex("#EE968C"),
-                hex("#D63220"),
+                hex("#F19A93"),
+                hex("#E8574B"),
+                hex("#C7271A"),
                 hex("#A32015"),
             ],
             good_to_bad_monochrome_green: [

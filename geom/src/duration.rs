@@ -134,6 +134,19 @@ impl Duration {
     pub fn realtime_elapsed(since: Instant) -> Duration {
         Duration::seconds(elapsed_seconds(since))
     }
+
+    pub fn round_up(self, multiple: Duration) -> Duration {
+        let remainder = self % multiple;
+        if remainder == Duration::ZERO {
+            self
+        } else {
+            self + multiple - remainder
+        }
+    }
+
+    pub fn num_minutes_rounded_down(self) -> usize {
+        self.get_parts().1
+    }
 }
 
 impl std::fmt::Display for Duration {
