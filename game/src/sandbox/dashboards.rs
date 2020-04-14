@@ -6,7 +6,7 @@ use crate::sandbox::trip_table::TripTable;
 use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, Btn, Checkbox, Color, Composite, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx, Key,
+    hotkey, Btn, Choice, Color, Composite, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx, Key,
     Line, LinePlot, Outcome, PlotOptions, ScatterPlot, Series, Text, TextExt, Widget,
 };
 use geom::{Distance, Duration, Polygon, Pt2D, Time};
@@ -47,7 +47,7 @@ impl DashTab {
         match action {
             "close" => Transition::Pop,
             "trip table" => Transition::Replace(TripTable::new(ctx, app)),
-            "trip summaries" => Transition::Replace(TripSummaries::new(ctx, app, false)),
+            "trip summaries" => Transition::Replace(TripSummaries::new(ctx, app, None)),
             "bus routes" => Transition::Replace(BusRoutes::new(ctx, app)),
             _ => unreachable!(),
         }
@@ -56,11 +56,11 @@ impl DashTab {
 
 struct TripSummaries {
     composite: Composite,
-    filter: bool,
+    filter_changes_pct: Option<f64>,
 }
 
 impl TripSummaries {
-    fn new(ctx: &mut EventCtx, app: &App, filter: bool) -> Box<dyn State> {
+    fn new(ctx: &mut EventCtx, app: &App, filter_changes_pct: Option<f64>) -> Box<dyn State> {
         let mut active_agents = vec![Series {
             label: "After changes".to_string(),
             color: Color::RED,
@@ -79,13 +79,25 @@ impl TripSummaries {
         }
 
         Box::new(TripSummaries {
-            filter,
+            filter_changes_pct,
             composite: Composite::new(
                 Widget::col(vec![
                     DashTab::TripSummaries.picker(ctx),
-                    contingency_table(ctx, app, filter),
-                    scatter_plot(ctx, app, filter),
-                    Checkbox::text(ctx, "filter out unchanged trips", None, filter),
+                    Widget::row(vec![
+                        "Filter:".draw_text(ctx).margin_right(5),
+                        Widget::dropdown(
+                            ctx,
+                            "filter",
+                            filter_changes_pct,
+                            vec![
+                                Choice::new("all trips", None),
+                                Choice::new("at least 1% change", Some(0.01)),
+                                Choice::new("at least 10% change", Some(0.1)),
+                            ],
+                        ),
+                    ]),
+                    contingency_table(ctx, app, filter_changes_pct),
+                    scatter_plot(ctx, app, filter_changes_pct),
                     summary_absolute(ctx, app),
                     summary_normalized(ctx, app),
                     Line("Active agents").small_heading().draw(ctx),
@@ -105,8 +117,9 @@ impl State for TripSummaries {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => DashTab::TripSummaries.transition(ctx, app, &x),
             None => {
-                if self.composite.is_checked("filter out unchanged trips") != self.filter {
-                    Transition::Replace(TripSummaries::new(ctx, app, !self.filter))
+                let filter = self.composite.dropdown_value("filter");
+                if filter != self.filter_changes_pct {
+                    Transition::Replace(TripSummaries::new(ctx, app, filter))
                 } else {
                     Transition::Keep
                 }
@@ -326,7 +339,7 @@ fn summary_normalized(ctx: &mut EventCtx, app: &App) -> Widget {
     ])
 }
 
-fn scatter_plot(ctx: &mut EventCtx, app: &App, filter: bool) -> Widget {
+fn scatter_plot(ctx: &mut EventCtx, app: &App, filter_changes_pct: Option<f64>) -> Widget {
     if app.has_prebaked().is_none() {
         return Widget::nothing();
     }
@@ -336,8 +349,8 @@ fn scatter_plot(ctx: &mut EventCtx, app: &App, filter: bool) -> Widget {
         .sim
         .get_analytics()
         .both_finished_trips(app.primary.sim.time(), app.prebaked());
-    if filter {
-        points.retain(|(a, b)| a != b);
+    if let Some(pct) = filter_changes_pct {
+        points.retain(|(a, b)| pct_diff(*a, *b) > pct);
     }
 
     ScatterPlot::new(
@@ -348,7 +361,7 @@ fn scatter_plot(ctx: &mut EventCtx, app: &App, filter: bool) -> Widget {
     )
 }
 
-fn contingency_table(ctx: &mut EventCtx, app: &App, filter: bool) -> Widget {
+fn contingency_table(ctx: &mut EventCtx, app: &App, filter_changes_pct: Option<f64>) -> Widget {
     if app.has_prebaked().is_none() {
         return Widget::nothing();
     }
@@ -361,8 +374,8 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: bool) -> Widget {
         .sim
         .get_analytics()
         .both_finished_trips(app.primary.sim.time(), app.prebaked());
-    if filter {
-        points.retain(|(a, b)| a != b);
+    if let Some(pct) = filter_changes_pct {
+        points.retain(|(a, b)| pct_diff(*a, *b) > pct);
     }
     let num_buckets = 10;
     let (_, endpts) = points
@@ -403,7 +416,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: bool) -> Widget {
         let raw_idx = endpts.iter().rev().position(|x| before_mins >= *x).unwrap();
         let mut idx = endpts.len() - 1 - raw_idx;
         // Careful. We might be exactly the max...
-        if idx == endpts.len() {
+        if idx == endpts.len() - 1 {
             idx -= 1;
         }
 
@@ -480,4 +493,12 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: bool) -> Widget {
     batch.extend(Color::BLACK, outlines);
 
     DrawWithTooltips::new(ctx, batch, tooltips)
+}
+
+fn pct_diff(a: Duration, b: Duration) -> f64 {
+    if a >= b {
+        (a / b) - 1.0
+    } else {
+        (b / a) - 1.0
+    }
 }
