@@ -152,6 +152,41 @@ impl Duration {
         }
         result
     }
+
+    // TODO Do something fancier? http://vis.stanford.edu/papers/tick-labels
+    // TODO Unit test me
+    // Returns (rounded max, the boundaries in number of minutes)
+    pub fn make_intervals_for_max(self, num_labels: usize) -> (Duration, Vec<usize>) {
+        // Example 1: 43 minutes, max 5 labels... raw_mins_per_interval is 8.6
+        let raw_mins_per_interval = (self.num_minutes_rounded_up() as f64) / (num_labels as f64);
+        // So then this rounded up to 10 minutes
+        let mut mins_per_interval = Duration::seconds(60.0 * raw_mins_per_interval)
+            .round_up(Duration::minutes(5))
+            .num_minutes_rounded_up();
+
+        // Example 2: 8 minutes, max 5 labels... raw_mins_per_interval is 1.6
+        // If we're under 25 minutes, this is going to be weird.
+        if self < (num_labels as f64) * Duration::minutes(5) {
+            // rounded up to 5 mins? 1 min increments
+            // up to 10? 2 min increments
+            // up to 15? 3
+            // up to 20? 4
+            // then after that the normal behavior
+            mins_per_interval = (self.round_up(Duration::minutes(5)) / (num_labels as f64))
+                .num_minutes_rounded_up();
+        }
+
+        let max = (num_labels as f64) * Duration::minutes(mins_per_interval);
+        let labels = (0..=num_labels).map(|i| i * mins_per_interval).collect();
+
+        if max < self {
+            panic!(
+                "Wait max of {} with {} labels wound up with rounded max of {}",
+                self, num_labels, max
+            );
+        }
+        (max, labels)
+    }
 }
 
 impl std::fmt::Display for Duration {

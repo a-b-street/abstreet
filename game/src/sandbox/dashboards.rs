@@ -6,10 +6,10 @@ use crate::sandbox::trip_table::TripTable;
 use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, Btn, Checkbox, Color, Composite, EventCtx, GfxCtx, Key, Line, LinePlot, Outcome,
-    PlotOptions, ScatterPlot, Series, Text, TextExt, Widget,
+    hotkey, Btn, Checkbox, Color, Composite, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx, Key,
+    Line, LinePlot, Outcome, PlotOptions, ScatterPlot, Series, Text, TextExt, Widget,
 };
-use geom::{Duration, Time};
+use geom::{Distance, Duration, Polygon, Pt2D, Time};
 
 // Oh the dashboards melted, but we still had the radio
 #[derive(PartialEq)]
@@ -83,6 +83,7 @@ impl TripSummaries {
             composite: Composite::new(
                 Widget::col(vec![
                     DashTab::TripSummaries.picker(ctx),
+                    contingency_table(ctx, app),
                     scatter_plot(ctx, app, filter),
                     Checkbox::text(ctx, "filter out unchanged trips", None, filter),
                     summary_absolute(ctx, app),
@@ -345,4 +346,119 @@ fn scatter_plot(ctx: &mut EventCtx, app: &App, filter: bool) -> Widget {
         "Trip time after changes",
         points,
     )
+}
+
+fn contingency_table(ctx: &mut EventCtx, app: &App) -> Widget {
+    if app.has_prebaked().is_none() {
+        return Widget::nothing();
+    }
+
+    let total_width = 0.80 * ctx.canvas.window_width;
+    let total_height = 300.0;
+
+    let points = app
+        .primary
+        .sim
+        .get_analytics()
+        .both_finished_trips(app.primary.sim.time(), app.prebaked());
+    let num_buckets = 10;
+    let (_, endpts) = points
+        .iter()
+        .map(|(b, a)| a.max(b))
+        .max()
+        .unwrap()
+        .make_intervals_for_max(num_buckets);
+
+    let mut batch = GeomBatch::new();
+
+    // Draw the X axis, time before changes in buckets.
+    for (idx, mins) in endpts.iter().enumerate() {
+        batch.add_centered(
+            Text::from(Line(mins.to_string()).small()).render_ctx(ctx),
+            Pt2D::new(
+                (idx as f64) / (num_buckets as f64) * total_width,
+                total_height / 2.0,
+            ),
+        );
+    }
+
+    // Now measure savings and losses per bucket.
+    let mut savings_per_bucket: Vec<(Duration, usize)> = std::iter::repeat((Duration::ZERO, 0))
+        .take(num_buckets)
+        .collect();
+    let mut losses_per_bucket: Vec<(Duration, usize)> = std::iter::repeat((Duration::ZERO, 0))
+        .take(num_buckets)
+        .collect();
+    for (b, a) in app
+        .primary
+        .sim
+        .get_analytics()
+        .both_finished_trips(app.primary.sim.time(), app.prebaked())
+    {
+        let before_mins = b.num_minutes_rounded_up();
+        let raw_idx = endpts.iter().rev().position(|x| before_mins >= *x).unwrap();
+        // TODO Careful here...
+        let idx = endpts.len() - 1 - raw_idx;
+
+        if a > b {
+            losses_per_bucket[idx].0 += a - b;
+            losses_per_bucket[idx].1 += 1;
+        } else {
+            savings_per_bucket[idx].0 += b - a;
+            savings_per_bucket[idx].1 += 1;
+        }
+    }
+    let max_y = losses_per_bucket
+        .iter()
+        .max()
+        .unwrap()
+        .0
+        .max(savings_per_bucket.iter().max().unwrap().0);
+
+    // Draw the bars!
+    let bar_width = total_width / (num_buckets as f64);
+    let max_bar_height = (total_height - ctx.default_line_height()) / 2.0;
+    let mut outlines = Vec::new();
+    let mut tooltips = Vec::new();
+    let mut x1 = 0.0;
+    for ((total_savings, num_savings), (total_loss, num_loss)) in savings_per_bucket
+        .into_iter()
+        .zip(losses_per_bucket.into_iter())
+    {
+        if num_savings > 0 {
+            let height = (total_savings / max_y) * max_bar_height;
+            let rect = Polygon::rectangle(bar_width, height).translate(x1, max_bar_height - height);
+            if let Some(o) = rect.maybe_to_outline(Distance::meters(1.5)) {
+                outlines.push(o);
+            }
+            batch.push(Color::GREEN, rect.clone());
+            tooltips.push((
+                rect,
+                Text::from(Line(format!(
+                    "Total {} savings over {} trips",
+                    total_savings, num_savings
+                ))),
+            ));
+        }
+        if num_loss > 0 {
+            let height = (total_loss / max_y) * max_bar_height;
+            let rect =
+                Polygon::rectangle(bar_width, height).translate(x1, total_height - max_bar_height);
+            if let Some(o) = rect.maybe_to_outline(Distance::meters(1.5)) {
+                outlines.push(o);
+            }
+            batch.push(Color::RED, rect.clone());
+            tooltips.push((
+                rect,
+                Text::from(Line(format!(
+                    "Total {} losses over {} trips",
+                    total_loss, num_loss
+                ))),
+            ));
+        }
+        x1 += bar_width;
+    }
+    batch.extend(Color::BLACK, outlines);
+
+    DrawWithTooltips::new(ctx, batch, tooltips)
 }

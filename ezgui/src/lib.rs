@@ -7,6 +7,7 @@
 //! * [`Autocomplete`] - select predefined value by combining text entry with menus
 //! * [`Button`] - clickable buttons with keybindings and tooltips
 //! * [`Checkbox`] - toggle between two buttons
+//! * [`DrawWithTooltips`] - draw static geometry, with mouse tooltips in certain regions
 //! * [`Dropdown`] - a button that expands into a menu
 //! * [`Filler`] - just carve out space in the layout for something else
 //! * [`JustDraw`] (argh private) - just draw text, `GeomBatch`es, SVGs
@@ -62,6 +63,7 @@ pub(crate) use crate::widgets::button::Button;
 pub use crate::widgets::checkbox::Checkbox;
 pub(crate) use crate::widgets::dropdown::Dropdown;
 pub use crate::widgets::filler::Filler;
+pub use crate::widgets::just_draw::DrawWithTooltips;
 pub(crate) use crate::widgets::just_draw::JustDraw;
 pub use crate::widgets::line_plot::{LinePlot, PlotOptions, Series};
 pub(crate) use crate::widgets::menu::Menu;

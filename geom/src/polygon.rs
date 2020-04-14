@@ -277,6 +277,10 @@ impl Polygon {
     pub fn to_outline(&self, thickness: Distance) -> Polygon {
         Ring::new(self.points.clone()).make_polygons(thickness)
     }
+
+    pub fn maybe_to_outline(&self, thickness: Distance) -> Option<Polygon> {
+        Ring::maybe_new(self.points.clone()).map(|r| r.make_polygons(thickness))
+    }
 }
 
 impl fmt::Display for Polygon {

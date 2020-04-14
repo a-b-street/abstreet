@@ -36,7 +36,7 @@ impl ScatterPlot {
         let actual_max = *points.iter().map(|(b, a)| a.max(b)).max().unwrap();
         // Excluding 0
         let num_labels = 5;
-        let (max, labels) = make_intervals(actual_max, num_labels);
+        let (max, labels) = actual_max.make_intervals_for_max(num_labels);
 
         // We want a nice square so the scales match up.
         let width = 500.0;
@@ -166,38 +166,4 @@ impl WidgetImpl for ScatterPlot {
             }
         }
     }
-}
-
-// TODO Do something fancier? http://vis.stanford.edu/papers/tick-labels
-// TODO Unit test me
-fn make_intervals(actual_max: Duration, num_labels: usize) -> (Duration, Vec<usize>) {
-    // Example 1: 43 minutes, max 5 labels... raw_mins_per_interval is 8.6
-    let raw_mins_per_interval = (actual_max.num_minutes_rounded_up() as f64) / (num_labels as f64);
-    // So then this rounded up to 10 minutes
-    let mut mins_per_interval = Duration::seconds(60.0 * raw_mins_per_interval)
-        .round_up(Duration::minutes(5))
-        .num_minutes_rounded_up();
-
-    // Example 2: 8 minutes, max 5 labels... raw_mins_per_interval is 1.6
-    // If we're under 25 minutes, this is going to be weird.
-    if actual_max < (num_labels as f64) * Duration::minutes(5) {
-        // rounded up to 5 mins? 1 min increments
-        // up to 10? 2 min increments
-        // up to 15? 3
-        // up to 20? 4
-        // then after that the normal behavior
-        mins_per_interval = (actual_max.round_up(Duration::minutes(5)) / (num_labels as f64))
-            .num_minutes_rounded_up();
-    }
-
-    let max = (num_labels as f64) * Duration::minutes(mins_per_interval);
-    let labels = (0..=num_labels).map(|i| i * mins_per_interval).collect();
-
-    if max < actual_max {
-        panic!(
-            "Wait max of {} with {} labels wound up with rounded max of {}",
-            actual_max, num_labels, max
-        );
-    }
-    (max, labels)
 }

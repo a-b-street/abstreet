@@ -36,6 +36,27 @@ impl Ring {
         result
     }
 
+    pub fn maybe_new(pts: Vec<Pt2D>) -> Option<Ring> {
+        assert!(pts.len() >= 3);
+        assert_eq!(pts[0], *pts.last().unwrap());
+
+        if pts.windows(2).any(|pair| pair[0] == pair[1]) {
+            return None;
+        }
+
+        let result = Ring { pts };
+
+        let mut seen_pts = HashSet::new();
+        for pt in result.pts.iter().skip(1) {
+            seen_pts.insert(pt.to_hashable());
+        }
+        if seen_pts.len() != result.pts.len() - 1 {
+            return None;
+        }
+
+        Some(result)
+    }
+
     pub fn make_polygons(&self, thickness: Distance) -> Polygon {
         // TODO Has a weird corner. Use the polygon offset thing instead?
         PolyLine::new_for_ring(self.pts.clone()).make_polygons(thickness)
