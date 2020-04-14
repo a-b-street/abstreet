@@ -1,7 +1,6 @@
 use crate::app::App;
 use crate::common::Tab;
 use crate::game::{msg, State, Transition};
-use crate::sandbox::histogram::Histogram;
 use crate::sandbox::trip_table::TripTable;
 use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
@@ -83,6 +82,7 @@ impl TripSummaries {
             composite: Composite::new(
                 Widget::col(vec![
                     DashTab::TripSummaries.picker(ctx),
+                    summary(ctx, app).margin_below(10),
                     Widget::row(vec![
                         "Filter:".draw_text(ctx).margin_right(5),
                         Widget::dropdown(
@@ -93,13 +93,19 @@ impl TripSummaries {
                                 Choice::new("all trips", None),
                                 Choice::new("at least 1% change", Some(0.01)),
                                 Choice::new("at least 10% change", Some(0.1)),
+                                Choice::new("at least 50% change", Some(0.5)),
                             ],
                         ),
-                    ]),
-                    contingency_table(ctx, app, filter_changes_pct),
-                    scatter_plot(ctx, app, filter_changes_pct),
-                    summary_absolute(ctx, app),
-                    summary_normalized(ctx, app),
+                    ])
+                    .centered_horiz()
+                    .margin_below(10),
+                    Widget::row(vec![
+                        contingency_table(ctx, app, filter_changes_pct)
+                            .centered_vert()
+                            .margin_right(20),
+                        scatter_plot(ctx, app, filter_changes_pct),
+                    ])
+                    .evenly_spaced(),
                     Line("Active agents").small_heading().draw(ctx),
                     LinePlot::new(ctx, "active agents", active_agents, PlotOptions::new()),
                 ])
@@ -203,14 +209,14 @@ impl State for BusRoutes {
     }
 }
 
-fn summary_absolute(ctx: &mut EventCtx, app: &App) -> Widget {
+fn summary(ctx: &mut EventCtx, app: &App) -> Widget {
     if app.has_prebaked().is_none() {
         return Widget::nothing();
     }
 
     let mut num_same = 0;
-    let mut faster = Vec::new();
-    let mut slower = Vec::new();
+    let mut num_faster = 0;
+    let mut num_slower = 0;
     let mut sum_faster = Duration::ZERO;
     let mut sum_slower = Duration::ZERO;
     for (b, a) in app
@@ -222,121 +228,53 @@ fn summary_absolute(ctx: &mut EventCtx, app: &App) -> Widget {
         if a == b {
             num_same += 1;
         } else if a < b {
-            faster.push(b - a);
+            num_faster += 1;
             sum_faster += b - a;
         } else {
-            slower.push(a - b);
+            num_slower += 1;
             sum_slower += a - b;
         }
     }
 
-    // TODO Outliers are heavy -- median instead of average?
-    // TODO Filters for mode
-    Widget::col(vec![
-        Line("Are finished trips faster or slower?")
-            .draw(ctx)
-            .margin_below(5),
-        Widget::row(vec![
-            Widget::col(vec![
-                Text::from_multiline(vec![
-                    Line(format!("{} trips faster", prettyprint_usize(faster.len()))),
-                    Line(format!("{} total time saved", sum_faster)),
-                    Line(format!(
-                        "Average {} per faster trip",
-                        if faster.is_empty() {
-                            Duration::ZERO
-                        } else {
-                            sum_faster / (faster.len() as f64)
-                        }
-                    )),
-                ])
-                .draw(ctx)
-                .margin_below(5),
-                Histogram::new(ctx, Color::GREEN, faster),
-            ])
-            .outline(2.0, Color::WHITE)
-            .padding(10),
-            Line(format!("{} trips unchanged", prettyprint_usize(num_same)))
-                .draw(ctx)
-                .centered_vert(),
-            Widget::col(vec![
-                Text::from_multiline(vec![
-                    Line(format!("{} trips slower", prettyprint_usize(slower.len()))),
-                    Line(format!("{} total time lost", sum_slower)),
-                    Line(format!(
-                        "Average {} per slower trip",
-                        if slower.is_empty() {
-                            Duration::ZERO
-                        } else {
-                            sum_slower / (slower.len() as f64)
-                        }
-                    )),
-                ])
-                .draw(ctx)
-                .margin_below(5),
-                Histogram::new(ctx, Color::RED, slower),
-            ])
-            .outline(2.0, Color::WHITE)
-            .padding(10),
+    Widget::col(vec![Widget::row(vec![
+        Widget::col(vec![Text::from_multiline(vec![
+            Line(format!("{} trips faster", prettyprint_usize(num_faster))),
+            Line(format!("{} total time saved", sum_faster)),
+            Line(format!(
+                "Average {} per faster trip",
+                if num_faster == 0 {
+                    Duration::ZERO
+                } else {
+                    sum_faster / (num_faster as f64)
+                }
+            )),
         ])
-        .evenly_spaced(),
-    ])
-}
-
-fn summary_normalized(ctx: &mut EventCtx, app: &App) -> Widget {
-    if app.has_prebaked().is_none() {
-        return Widget::nothing();
-    }
-
-    let mut num_same = 0;
-    let mut faster = Vec::new();
-    let mut slower = Vec::new();
-    for (b, a) in app
-        .primary
-        .sim
-        .get_analytics()
-        .both_finished_trips(app.primary.sim.time(), app.prebaked())
-    {
-        if a == b {
-            num_same += 1;
-        } else if a < b {
-            // TODO Hack: map percentages in [0.0, 100.0] to seconds
-            faster.push(Duration::seconds((1.0 - (a / b)) * 100.0));
-        } else {
-            slower.push(Duration::seconds(((a / b) - 1.0) * 100.0));
-        }
-    }
-
-    // TODO Show average?
-    // TODO Filters for mode
-    // TODO Is summing percentages meaningful?
-    Widget::col(vec![
-        Line("Are finished trips faster or slower? (normalized to original trip time)")
+        .draw(ctx)])
+        .outline(2.0, Color::GREEN)
+        .padding(10),
+        Line(format!("{} trips unchanged", prettyprint_usize(num_same)))
             .draw(ctx)
-            .margin_below(5),
-        Widget::row(vec![
-            Widget::col(vec![
-                format!("{} trips faster", prettyprint_usize(faster.len()))
-                    .draw_text(ctx)
-                    .margin_below(5),
-                Histogram::new(ctx, Color::GREEN, faster),
-            ])
-            .outline(2.0, Color::WHITE)
+            .centered_vert()
+            .margin_horiz(5)
+            .outline(2.0, Color::YELLOW)
             .padding(10),
-            Line(format!("{} trips unchanged", prettyprint_usize(num_same)))
-                .draw(ctx)
-                .centered_vert(),
-            Widget::col(vec![
-                format!("{} trips slower", prettyprint_usize(slower.len()))
-                    .draw_text(ctx)
-                    .margin_below(5),
-                Histogram::new(ctx, Color::RED, slower),
-            ])
-            .outline(2.0, Color::WHITE)
-            .padding(10),
+        Widget::col(vec![Text::from_multiline(vec![
+            Line(format!("{} trips slower", prettyprint_usize(num_slower))),
+            Line(format!("{} total time lost", sum_slower)),
+            Line(format!(
+                "Average {} per slower trip",
+                if num_slower == 0 {
+                    Duration::ZERO
+                } else {
+                    sum_slower / (num_slower as f64)
+                }
+            )),
         ])
-        .evenly_spaced(),
+        .draw(ctx)])
+        .outline(2.0, Color::RED)
+        .padding(10),
     ])
+    .evenly_spaced()])
 }
 
 fn scatter_plot(ctx: &mut EventCtx, app: &App, filter_changes_pct: Option<f64>) -> Widget {
@@ -359,6 +297,8 @@ fn scatter_plot(ctx: &mut EventCtx, app: &App, filter_changes_pct: Option<f64>) 
         "Trip time after changes",
         points,
     )
+    .outline(2.0, Color::WHITE)
+    .padding(10)
 }
 
 fn contingency_table(ctx: &mut EventCtx, app: &App, filter_changes_pct: Option<f64>) -> Widget {
@@ -366,7 +306,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter_changes_pct: Option<f
         return Widget::nothing();
     }
 
-    let total_width = 0.80 * ctx.canvas.window_width;
+    let total_width = 500.0;
     let total_height = 300.0;
 
     let mut points = app
@@ -492,7 +432,9 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter_changes_pct: Option<f
     }
     batch.extend(Color::BLACK, outlines);
 
-    DrawWithTooltips::new(ctx, batch, tooltips)
+    Widget::row(vec![DrawWithTooltips::new(ctx, batch, tooltips)])
+        .outline(2.0, Color::WHITE)
+        .padding(10)
 }
 
 fn pct_diff(a: Duration, b: Duration) -> f64 {
