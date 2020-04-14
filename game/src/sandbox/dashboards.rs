@@ -6,10 +6,10 @@ use crate::sandbox::trip_table::TripTable;
 use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, Key, Line, LinePlot, Outcome,
-    PlotOptions, Series, Text, TextExt, Widget,
+    hotkey, Btn, Color, Composite, EventCtx, GfxCtx, Key, Line, LinePlot, Outcome, PlotOptions,
+    ScatterPlot, Series, Text, TextExt, Widget,
 };
-use geom::{Angle, Circle, Distance, Duration, Polygon, Pt2D, Time};
+use geom::{Duration, Time};
 
 // Oh the dashboards melted, but we still had the radio
 #[derive(PartialEq)]
@@ -190,7 +190,7 @@ fn summary_absolute(ctx: &mut EventCtx, app: &App) -> Widget {
     let mut slower = Vec::new();
     let mut sum_faster = Duration::ZERO;
     let mut sum_slower = Duration::ZERO;
-    for (a, b) in app
+    for (b, a) in app
         .primary
         .sim
         .get_analytics()
@@ -268,7 +268,7 @@ fn summary_normalized(ctx: &mut EventCtx, app: &App) -> Widget {
     let mut num_same = 0;
     let mut faster = Vec::new();
     let mut slower = Vec::new();
-    for (a, b) in app
+    for (b, a) in app
         .primary
         .sim
         .get_analytics()
@@ -326,88 +326,10 @@ fn scatter_plot(ctx: &mut EventCtx, app: &App) -> Widget {
         .sim
         .get_analytics()
         .both_finished_trips(app.primary.sim.time(), app.prebaked());
-    if points.is_empty() {
-        return Widget::nothing();
-    }
-
-    let actual_max = *points.iter().map(|(a, b)| a.max(b)).max().unwrap();
-    let (max, labels) = make_intervals(actual_max, 5);
-
-    // We want a nice square so the scales match up.
-    let width = 500.0;
-    let height = width;
-
-    let mut batch = GeomBatch::new();
-    batch.autocrop_dims = false;
-    batch.push(Color::BLACK, Polygon::rectangle(width, width));
-
-    let circle = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(4.0)).to_polygon();
-    for (a, b) in points {
-        let pt = Pt2D::new((a / max) * width, (1.0 - (b / max)) * height);
-        // TODO Could color circles by mode
-        let color = if a == b {
-            Color::YELLOW.alpha(0.5)
-        } else if a < b {
-            Color::GREEN.alpha(0.9)
-        } else {
-            Color::RED.alpha(0.9)
-        };
-        batch.push(color, circle.translate(pt.x(), pt.y()));
-    }
-    let plot = Widget::draw_batch(ctx, batch);
-
-    let y_axis = Widget::col(
-        labels
-            .iter()
-            .rev()
-            .map(|x| Line(x.to_string()).small().draw(ctx))
-            .collect(),
-    )
-    .evenly_spaced();
-    let y_label = {
-        let mut label = GeomBatch::new();
-        for (color, poly) in Text::from(Line("Current trip time (minutes)"))
-            .render_ctx(ctx)
-            .consume()
-        {
-            label.fancy_push(color, poly.rotate(Angle::new_degs(90.0)));
-        }
-        Widget::draw_batch(ctx, label.autocrop()).centered_vert()
-    };
-
-    let x_axis = Widget::row(
-        labels
-            .iter()
-            .map(|x| Line(x.to_string()).small().draw(ctx))
-            .collect(),
-    )
-    .evenly_spaced();
-    let x_label = Line("Original trip time (minutes)")
-        .draw(ctx)
-        .centered_horiz();
-
-    // It's a bit of work to make both the x and y axis line up with the plot. :)
-    let plot_width = plot.get_width_for_forcing();
-    Widget::row(vec![Widget::col(vec![
-        Widget::row(vec![y_label, y_axis, plot]),
-        Widget::col(vec![x_axis, x_label])
-            .force_width(plot_width)
-            .align_right(),
-    ])])
-}
-
-// TODO Do something fancier? http://vis.stanford.edu/papers/tick-labels
-fn make_intervals(actual_max: Duration, num_labels: usize) -> (Duration, Vec<usize>) {
-    // Example: 43 minutes, max 5 labels... raw_mins_per_interval is 8.6
-    let raw_mins_per_interval =
-        (actual_max.num_minutes_rounded_down() as f64) / (num_labels as f64);
-    // So then this rounded up to 10 minutes
-    let mins_per_interval = Duration::seconds(60.0 * raw_mins_per_interval)
-        .round_up(Duration::minutes(5))
-        .num_minutes_rounded_down();
-
-    (
-        actual_max.round_up(Duration::minutes(mins_per_interval)),
-        (0..=num_labels).map(|i| i * mins_per_interval).collect(),
+    ScatterPlot::new(
+        ctx,
+        "Trip time before changes",
+        "Trip time after changes",
+        points,
     )
 }

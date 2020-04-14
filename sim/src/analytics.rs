@@ -236,12 +236,8 @@ impl Analytics {
         None
     }
 
-    // Returns pairs of trip times for finished trips in both worlds.
-    pub fn both_finished_trips(
-        &self,
-        now: Time,
-        baseline: &Analytics,
-    ) -> Vec<(Duration, Duration)> {
+    // Returns pairs of trip times for finished trips in both worlds. (before, after)
+    pub fn both_finished_trips(&self, now: Time, before: &Analytics) -> Vec<(Duration, Duration)> {
         let mut a = BTreeMap::new();
         for (t, id, maybe_mode, dt) in &self.finished_trips {
             if *t > now {
@@ -253,13 +249,13 @@ impl Analytics {
         }
 
         let mut results = Vec::new();
-        for (t, id, maybe_mode, dt) in &baseline.finished_trips {
+        for (t, id, maybe_mode, dt) in &before.finished_trips {
             if *t > now {
                 break;
             }
             if maybe_mode.is_some() {
                 if let Some(dt1) = a.remove(id) {
-                    results.push((dt1, *dt));
+                    results.push((*dt, dt1));
                 }
             }
         }
@@ -269,7 +265,7 @@ impl Analytics {
     // Returns unsorted list of deltas, one for each trip finished or ongoing in both worlds.
     // Positive dt means faster.
     // TODO Now unused
-    pub fn trip_time_deltas(&self, now: Time, baseline: &Analytics) -> Vec<Duration> {
+    pub fn trip_time_deltas(&self, now: Time, before: &Analytics) -> Vec<Duration> {
         fn trip_times(a: &Analytics, now: Time) -> BTreeMap<TripID, Duration> {
             let mut ongoing = a.started_trips.clone();
             let mut trips = BTreeMap::new();
@@ -291,7 +287,7 @@ impl Analytics {
         }
 
         let a = trip_times(&self, now);
-        let b = trip_times(baseline, now);
+        let b = trip_times(before, now);
 
         // TODO Think through what missing (aborted) in one but not the other means
         a.into_iter()

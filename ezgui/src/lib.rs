@@ -13,6 +13,7 @@
 //! * [`LinePlot`] - visualize 2 variables with a line plot
 //! * [`Menu`] - select something from a menu, with keybindings
 //! * [`PersistentSplit`] - a button with a dropdown to change its state
+//! * [`ScatterPlot`] - visualize 2 variables with a scatter plot
 //! * [`Slider`] - horizontal and vertical sliders
 //! * [`Spinner`] - numeric input with up/down buttons
 //! * [`TexBox`] - single line text entry
@@ -65,6 +66,7 @@ pub(crate) use crate::widgets::just_draw::JustDraw;
 pub use crate::widgets::line_plot::{LinePlot, PlotOptions, Series};
 pub(crate) use crate::widgets::menu::Menu;
 pub use crate::widgets::persistent_split::PersistentSplit;
+pub use crate::widgets::scatter_plot::ScatterPlot;
 pub use crate::widgets::slider::Slider;
 pub use crate::widgets::spinner::Spinner;
 pub(crate) use crate::widgets::text_box::TextBox;

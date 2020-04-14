@@ -8,6 +8,7 @@ pub mod just_draw;
 pub mod line_plot;
 pub mod menu;
 pub mod persistent_split;
+pub mod scatter_plot;
 pub mod slider;
 pub mod spinner;
 pub mod text_box;

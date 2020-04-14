@@ -51,6 +51,20 @@ impl ScreenRectangle {
         pt.x >= self.x1 && pt.x <= self.x2 && pt.y >= self.y1 && pt.y <= self.y2
     }
 
+    pub fn pt_to_percent(&self, pt: ScreenPt) -> Option<(f64, f64)> {
+        if self.contains(pt) {
+            Some((
+                (pt.x - self.x1) / self.width(),
+                (pt.y - self.y1) / self.height(),
+            ))
+        } else {
+            None
+        }
+    }
+    pub fn percent_to_pt(&self, x: f64, y: f64) -> ScreenPt {
+        ScreenPt::new(self.x1 + x * self.width(), self.y1 + y * self.height())
+    }
+
     // TODO Remove these in favor of dims()
     pub fn width(&self) -> f64 {
         self.x2 - self.x1
