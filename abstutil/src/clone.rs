@@ -1,4 +1,3 @@
-use crate::WeightedUsizeChoice;
 use std::any::Any;
 
 // Trick to make a cloneable Any from
@@ -37,4 +36,3 @@ impl Cloneable for f64 {}
 impl Cloneable for String {}
 impl Cloneable for Option<String> {}
 impl Cloneable for (String, Box<dyn Cloneable>) {}
-impl Cloneable for WeightedUsizeChoice {}

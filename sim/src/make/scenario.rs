@@ -18,7 +18,6 @@ pub struct Scenario {
     pub map_name: String,
 
     pub people: Vec<PersonSpec>,
-    pub parked_cars_per_bldg: BTreeMap<BuildingID, usize>,
     // None means seed all buses. Otherwise the route name must be present here.
     pub only_seed_buses: Option<BTreeSet<String>>,
 }
@@ -27,6 +26,9 @@ pub struct Scenario {
 pub struct PersonSpec {
     pub id: PersonID,
     pub trips: Vec<IndividTrip>,
+    // 3 possibilities: no car, car appears from outside the map, or car starts at a building
+    pub has_car: bool,
+    pub car_initially_parked_at: Option<BuildingID>,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -74,10 +76,10 @@ impl Scenario {
 
         let mut parked_cars_per_bldg: Vec<(BuildingID, usize)> = Vec::new();
         let mut total_parked_cars = 0;
-        for (b, cnt) in &self.parked_cars_per_bldg {
-            if *cnt != 0 {
-                parked_cars_per_bldg.push((*b, *cnt));
-                total_parked_cars += *cnt;
+        for (b, cnt) in self.parked_cars_per_bldg() {
+            if cnt != 0 {
+                parked_cars_per_bldg.push((b, cnt));
+                total_parked_cars += cnt;
             }
         }
         // parked_cars_per_bldg is stable over map edits, so don't fork.
@@ -119,7 +121,6 @@ impl Scenario {
             scenario_name: name.to_string(),
             map_name: map.get_name().to_string(),
             people: Vec::new(),
-            parked_cars_per_bldg: BTreeMap::new(),
             only_seed_buses: Some(BTreeSet::new()),
         }
     }
@@ -185,6 +186,16 @@ impl Scenario {
             person.trips = trips;
         }
         self
+    }
+
+    pub fn parked_cars_per_bldg(&self) -> BTreeMap<BuildingID, usize> {
+        let mut per_bldg = BTreeMap::new();
+        for p in &self.people {
+            if let Some(b) = p.car_initially_parked_at {
+                *per_bldg.entry(b).or_insert(0) += 1;
+            }
+        }
+        per_bldg
     }
 }
 

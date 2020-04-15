@@ -6,7 +6,7 @@ use map_model::{BuildingID, IntersectionID, Map, PathConstraints, Position};
 use sim::{
     DrivingGoal, IndividTrip, PersonID, PersonSpec, Scenario, SidewalkSpot, SpawnTrip, TripSpec,
 };
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
 pub struct Trip {
@@ -285,8 +285,6 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
     let (trips, _) = clip_trips(map, timer);
     let orig_trips = trips.len();
 
-    let parked_cars_per_bldg = count_cars(&trips, map);
-
     let mut individ_trips: Vec<Option<IndividTrip>> = Vec::new();
     // person -> (trip seq, index into individ_trips)
     let mut trips_per_person: MultiMap<(usize, usize), ((usize, bool, usize), usize)> =
@@ -321,7 +319,32 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
         // Actually, the sequence in the Soundcast dataset crosses midnight. Don't do that; sort by
         // departure time starting with midnight.
         trips.sort_by_key(|t| t.depart);
-        people.push(PersonSpec { id, trips });
+
+        let mut car_initially_parked_at = None;
+        let mut has_car = false;
+        for trip in &trips {
+            match trip.trip {
+                SpawnTrip::CarAppearing { is_bike, .. } => {
+                    if !is_bike {
+                        has_car = true;
+                    }
+                }
+                SpawnTrip::MaybeUsingParkedCar(b, _) => {
+                    if !has_car {
+                        has_car = true;
+                        car_initially_parked_at = Some(b);
+                    }
+                }
+                _ => {}
+            }
+        }
+
+        people.push(PersonSpec {
+            id,
+            trips,
+            has_car,
+            car_initially_parked_at,
+        });
     }
     for maybe_t in individ_trips {
         if maybe_t.is_some() {
@@ -333,35 +356,6 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
         scenario_name: "weekday".to_string(),
         map_name: map.get_name().to_string(),
         people,
-        parked_cars_per_bldg,
         only_seed_buses: None,
     }
-}
-
-fn count_cars(trips: &Vec<Trip>, map: &Map) -> BTreeMap<BuildingID, usize> {
-    // How many parked cars do we need to spawn near each building?
-    // TODO This assumes trips are instantaneous. At runtime, somebody might try to use a parked
-    // car from a building, but one hasn't been delivered yet.
-    let mut parked_cars_per_bldg = BTreeMap::new();
-    let mut avail_per_bldg = BTreeMap::new();
-    for b in map.all_buildings() {
-        parked_cars_per_bldg.insert(b.id, 0);
-        avail_per_bldg.insert(b.id, 0);
-    }
-    for trip in trips {
-        if trip.mode != Mode::Drive {
-            continue;
-        }
-        if let TripEndpt::Building(b) = trip.from {
-            if avail_per_bldg[&b] > 0 {
-                *avail_per_bldg.get_mut(&b).unwrap() -= 1;
-            } else {
-                *parked_cars_per_bldg.get_mut(&b).unwrap() += 1;
-            }
-        }
-        if let TripEndpt::Building(b) = trip.to {
-            *avail_per_bldg.get_mut(&b).unwrap() += 1;
-        }
-    }
-    parked_cars_per_bldg
 }

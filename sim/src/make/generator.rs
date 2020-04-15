@@ -2,7 +2,7 @@ use crate::{
     DrivingGoal, IndividTrip, PersonID, PersonSpec, Scenario, SidewalkSpot, SpawnTrip, BIKE_LENGTH,
     MAX_CAR_LENGTH,
 };
-use abstutil::{Timer, WeightedUsizeChoice};
+use abstutil::Timer;
 use geom::{Duration, Time};
 use map_model::{
     BuildingID, DirectedRoadID, FullNeighborhoodInfo, LaneID, Map, PathConstraints, Position,
@@ -19,7 +19,6 @@ pub struct ScenarioGenerator {
     pub scenario_name: String,
 
     pub only_seed_buses: Option<BTreeSet<String>>,
-    pub seed_parked_cars: Vec<SeedParkedCars>,
     pub spawn_over_time: Vec<SpawnOverTime>,
     pub border_spawn_over_time: Vec<BorderSpawnOverTime>,
 }
@@ -53,12 +52,6 @@ pub struct BorderSpawnOverTime {
     pub goal: OriginDestination,
 }
 
-#[derive(Clone, Serialize, Deserialize, Debug)]
-pub struct SeedParkedCars {
-    pub neighborhood: String,
-    pub cars_per_building: WeightedUsizeChoice,
-}
-
 impl ScenarioGenerator {
     // TODO may need to fork the RNG a bit more
     pub fn generate(&self, map: &Map, rng: &mut XorShiftRng, timer: &mut Timer) -> Scenario {
@@ -70,17 +63,6 @@ impl ScenarioGenerator {
         timer.start("load full neighborhood info");
         let neighborhoods = FullNeighborhoodInfo::load_all(map);
         timer.stop("load full neighborhood info");
-
-        for s in &self.seed_parked_cars {
-            if !neighborhoods.contains_key(&s.neighborhood) {
-                panic!("Neighborhood {} isn't defined", s.neighborhood);
-            }
-            for b in &neighborhoods[&s.neighborhood].buildings {
-                scenario
-                    .parked_cars_per_bldg
-                    .insert(*b, s.cars_per_building.sample(rng));
-            }
-        }
 
         for s in &self.spawn_over_time {
             if !neighborhoods.contains_key(&s.start_from_neighborhood) {
@@ -110,12 +92,6 @@ impl ScenarioGenerator {
         let mut s = ScenarioGenerator {
             scenario_name: "small_run".to_string(),
             only_seed_buses: None,
-            seed_parked_cars: vec![SeedParkedCars {
-                neighborhood: "_everywhere_".to_string(),
-                cars_per_building: WeightedUsizeChoice {
-                    weights: vec![5, 5],
-                },
-            }],
             spawn_over_time: vec![SpawnOverTime {
                 num_agents: 100,
                 start_time: Time::START_OF_DAY,
@@ -162,7 +138,6 @@ impl ScenarioGenerator {
         ScenarioGenerator {
             scenario_name: name.to_string(),
             only_seed_buses: Some(BTreeSet::new()),
-            seed_parked_cars: Vec::new(),
             spawn_over_time: Vec::new(),
             border_spawn_over_time: Vec::new(),
         }
@@ -173,12 +148,6 @@ impl ScenarioGenerator {
         ScenarioGenerator {
             scenario_name: "scaled_run".to_string(),
             only_seed_buses: Some(BTreeSet::new()),
-            seed_parked_cars: vec![SeedParkedCars {
-                neighborhood: "_everywhere_".to_string(),
-                cars_per_building: WeightedUsizeChoice {
-                    weights: vec![5, 5],
-                },
-            }],
             spawn_over_time: vec![SpawnOverTime {
                 num_agents: num_agents,
                 start_time: Time::START_OF_DAY,
@@ -223,6 +192,8 @@ impl SpawnOverTime {
                         depart,
                         trip: SpawnTrip::MaybeUsingParkedCar(from_bldg, goal),
                     }],
+                    has_car: true,
+                    car_initially_parked_at: Some(from_bldg),
                 });
                 return;
             }
@@ -241,6 +212,8 @@ impl SpawnOverTime {
                         depart,
                         trip: SpawnTrip::UsingBike(start_spot, goal),
                     }],
+                    has_car: false,
+                    car_initially_parked_at: None,
                 });
                 return;
             }
@@ -264,6 +237,8 @@ impl SpawnOverTime {
                             depart,
                             trip: SpawnTrip::UsingTransit(start_spot, goal, route, stop1, stop2),
                         }],
+                        has_car: false,
+                        car_initially_parked_at: None,
                     });
                     return;
                 }
@@ -275,6 +250,8 @@ impl SpawnOverTime {
                     depart,
                     trip: SpawnTrip::JustWalking(start_spot, goal),
                 }],
+                has_car: false,
+                car_initially_parked_at: None,
             });
             return;
         }
@@ -330,6 +307,8 @@ impl BorderSpawnOverTime {
                                     stop2,
                                 ),
                             }],
+                            has_car: false,
+                            car_initially_parked_at: None,
                         });
                         continue;
                     }
@@ -341,6 +320,8 @@ impl BorderSpawnOverTime {
                         depart,
                         trip: SpawnTrip::JustWalking(start.clone(), goal),
                     }],
+                    has_car: false,
+                    car_initially_parked_at: None,
                 });
             }
         }
@@ -388,6 +369,8 @@ impl BorderSpawnOverTime {
                             is_bike: false,
                         },
                     }],
+                    has_car: true,
+                    car_initially_parked_at: None,
                 });
             }
         }
@@ -434,6 +417,8 @@ impl BorderSpawnOverTime {
                             is_bike: true,
                         },
                     }],
+                    has_car: false,
+                    car_initially_parked_at: None,
                 });
             }
         }

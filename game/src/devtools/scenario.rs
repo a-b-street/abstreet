@@ -94,18 +94,18 @@ impl ScenarioManager {
             vec!["0", "1-2", "3-4", "..."],
         );
         let mut total_cars_needed = 0;
-        for (b, count) in &scenario.parked_cars_per_bldg {
+        for (b, count) in scenario.parked_cars_per_bldg() {
             total_cars_needed += count;
-            let color = if *count == 0 {
+            let color = if count == 0 {
                 continue;
-            } else if *count == 1 || *count == 2 {
+            } else if count == 1 || count == 2 {
                 Color::BLUE
-            } else if *count == 3 || *count == 4 {
+            } else if count == 3 || count == 4 {
                 Color::RED
             } else {
                 Color::BLACK
             };
-            bldg_colors.add_b(*b, color);
+            bldg_colors.add_b(b, color);
         }
 
         let (filled_spots, free_parking_spots) = app.primary.sim.get_all_parking_spots();

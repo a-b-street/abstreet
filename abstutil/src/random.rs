@@ -10,6 +10,7 @@ pub fn fork_rng(base_rng: &mut XorShiftRng) -> XorShiftRng {
 }
 
 // Represents the probability of sampling 0, 1, 2, 3... The sum can be anything.
+// TODO Now unused
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct WeightedUsizeChoice {
     pub weights: Vec<usize>,
