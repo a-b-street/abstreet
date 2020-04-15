@@ -160,13 +160,26 @@ impl Scenario {
         )
     }
 
-    pub fn repeat_days(mut self, days: usize) -> Scenario {
+    // TODO Utter hack. Blindly repeats all trips taken by each person every day. If
+    // avoid_inbound_trips is true, then don't repeat driving trips that start outside the map and
+    // come in, because those often lead to parking spots leaking. This isn't realistic, but none
+    // of this is; even the original 1-day scenario doesn't yet guarantee continuity of people. A
+    // person might be in the middle of one trip, and they start the next one!
+    pub fn repeat_days(mut self, days: usize, avoid_inbound_trips: bool) -> Scenario {
         self.scenario_name = format!("{} repeated for {} days", self.scenario_name, days);
         for person in &mut self.people {
             let mut trips = Vec::new();
             let mut offset = Duration::ZERO;
-            for _ in 0..days {
+            for day in 0..days {
                 for trip in &person.trips {
+                    let inbound = match trip.trip {
+                        SpawnTrip::CarAppearing { is_bike, .. } => !is_bike,
+                        _ => false,
+                    };
+                    if day > 0 && inbound && avoid_inbound_trips {
+                        continue;
+                    }
+
                     trips.push(IndividTrip {
                         depart: trip.depart + offset,
                         trip: trip.trip.clone(),

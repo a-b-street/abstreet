@@ -140,7 +140,7 @@ impl GameplayMode {
         } else if name == "5 weekdays repeated" {
             let s: Scenario =
                 abstutil::read_binary(abstutil::path_scenario(map.get_name(), "weekday"), timer);
-            s.repeat_days(5)
+            s.repeat_days(5, true)
         } else {
             let path = abstutil::path_scenario(map.get_name(), &name);
             match abstutil::maybe_read_binary(path.clone(), timer) {
