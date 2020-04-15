@@ -45,7 +45,11 @@ impl DashTab {
         match action {
             "close" => Transition::Pop,
             "trip table" => Transition::Replace(TripTable::new(ctx, app)),
-            "trip summaries" => Transition::Replace(summaries::TripSummaries::new(ctx, app, None)),
+            "trip summaries" => Transition::Replace(summaries::TripSummaries::new(
+                ctx,
+                app,
+                summaries::Filter::new(),
+            )),
             "active traffic" => Transition::Replace(misc::ActiveTraffic::new(ctx, app)),
             "bus routes" => Transition::Replace(misc::BusRoutes::new(ctx, app)),
             _ => unreachable!(),

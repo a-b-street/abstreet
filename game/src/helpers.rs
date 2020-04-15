@@ -1,10 +1,10 @@
-use crate::app::PerMap;
+use crate::app::{App, PerMap};
 use crate::render::ExtraShapeID;
 use abstutil::prettyprint_usize;
 use ezgui::{Color, Line, Text, TextSpan};
 use geom::{Duration, Pt2D};
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, RoadID, TurnID};
-use sim::{AgentID, CarID, PedestrianID};
+use sim::{AgentID, CarID, PedestrianID, TripMode};
 use std::collections::BTreeSet;
 
 // Aside from Road and Trip, everything here can actually be selected.
@@ -131,5 +131,14 @@ pub fn cmp_count_fewer(after: usize, before: usize) -> TextSpan {
         Line(format!("{} more", prettyprint_usize(after - before))).fg(Color::RED)
     } else {
         Line("same")
+    }
+}
+
+pub fn color_for_mode(app: &App, m: TripMode) -> Color {
+    match m {
+        TripMode::Walk => app.cs.unzoomed_pedestrian,
+        TripMode::Bike => app.cs.unzoomed_bike,
+        TripMode::Transit => app.cs.unzoomed_bus,
+        TripMode::Drive => app.cs.unzoomed_car,
     }
 }

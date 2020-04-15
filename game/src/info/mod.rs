@@ -9,7 +9,7 @@ mod trip;
 use crate::app::App;
 use crate::common::Warping;
 use crate::game::Transition;
-use crate::helpers::ID;
+use crate::helpers::{color_for_mode, ID};
 use crate::render::{ExtraShapeID, MIN_ZOOM_FOR_DETAIL};
 use crate::sandbox::{SandboxMode, TimeWarpScreen};
 use ezgui::{
@@ -479,7 +479,7 @@ fn throughput<F: Fn(&Analytics, Time) -> BTreeMap<TripMode, Vec<(Time, usize)>>>
         .into_iter()
         .map(|(m, pts)| Series {
             label: m.ongoing_verb().to_string(),
-            color: color_for_mode(m, app),
+            color: color_for_mode(app, m),
             pts,
         })
         .collect::<Vec<_>>();
@@ -488,22 +488,13 @@ fn throughput<F: Fn(&Analytics, Time) -> BTreeMap<TripMode, Vec<(Time, usize)>>>
         for (m, pts) in get_data(app.prebaked(), Time::END_OF_DAY) {
             series.push(Series {
                 label: format!("{} (before changes)", m.ongoing_verb()),
-                color: color_for_mode(m, app).alpha(0.3),
+                color: color_for_mode(app, m).alpha(0.3),
                 pts,
             });
         }
     }
 
     LinePlot::new(ctx, "throughput", series, PlotOptions::new())
-}
-
-fn color_for_mode(m: TripMode, app: &App) -> Color {
-    match m {
-        TripMode::Walk => app.cs.unzoomed_pedestrian,
-        TripMode::Bike => app.cs.unzoomed_bike,
-        TripMode::Transit => app.cs.unzoomed_bus,
-        TripMode::Drive => app.cs.unzoomed_car,
-    }
 }
 
 fn make_tabs(

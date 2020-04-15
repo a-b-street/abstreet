@@ -1,47 +1,59 @@
 use crate::app::App;
 use crate::game::{State, Transition};
+use crate::helpers::color_for_mode;
 use crate::sandbox::dashboards::DashTab;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    Choice, Color, Composite, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx, Line, Outcome,
-    ScatterPlot, Text, TextExt, Widget,
+    Checkbox, Choice, Color, Composite, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx, Line,
+    Outcome, ScatterPlot, Text, TextExt, Widget,
 };
 use geom::{Distance, Duration, Polygon, Pt2D};
+use sim::TripMode;
+use std::collections::BTreeSet;
 
 pub struct TripSummaries {
     composite: Composite,
-    filter_changes_pct: Option<f64>,
+    filter: Filter,
 }
 
 impl TripSummaries {
-    pub fn new(ctx: &mut EventCtx, app: &App, filter_changes_pct: Option<f64>) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App, filter: Filter) -> Box<dyn State> {
+        let mut filters = vec![Widget::dropdown(
+            ctx,
+            "filter",
+            filter.changes_pct,
+            vec![
+                Choice::new("any change", None),
+                Choice::new("at least 1% change", Some(0.01)),
+                Choice::new("at least 10% change", Some(0.1)),
+                Choice::new("at least 50% change", Some(0.5)),
+            ],
+        )
+        .margin_right(10)];
+        for m in TripMode::all() {
+            filters.push(
+                Checkbox::colored(
+                    ctx,
+                    m.ongoing_verb(),
+                    color_for_mode(app, m),
+                    filter.modes.contains(&m),
+                )
+                .margin_right(5),
+            );
+            filters.push(m.ongoing_verb().draw_text(ctx).margin_right(10));
+        }
+
         Box::new(TripSummaries {
-            filter_changes_pct,
             composite: Composite::new(
                 Widget::col(vec![
                     DashTab::TripSummaries.picker(ctx),
+                    Widget::row(filters).centered_horiz().margin_below(10),
+                    summary(ctx, app, &filter).margin_below(10),
                     Widget::row(vec![
-                        "Filter:".draw_text(ctx).margin_right(5),
-                        Widget::dropdown(
-                            ctx,
-                            "filter",
-                            filter_changes_pct,
-                            vec![
-                                Choice::new("any change", None),
-                                Choice::new("at least 1% change", Some(0.01)),
-                                Choice::new("at least 10% change", Some(0.1)),
-                                Choice::new("at least 50% change", Some(0.5)),
-                            ],
-                        ),
-                    ])
-                    .centered_horiz()
-                    .margin_below(10),
-                    summary(ctx, app, filter_changes_pct).margin_below(10),
-                    Widget::row(vec![
-                        contingency_table(ctx, app, filter_changes_pct)
+                        contingency_table(ctx, app, &filter)
                             .centered_vert()
                             .margin_right(20),
-                        scatter_plot(ctx, app, filter_changes_pct),
+                        scatter_plot(ctx, app, &filter),
                     ])
                     .evenly_spaced(),
                 ])
@@ -50,6 +62,7 @@ impl TripSummaries {
             )
             .max_size_percent(90, 90)
             .build(ctx),
+            filter,
         })
     }
 }
@@ -59,8 +72,16 @@ impl State for TripSummaries {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => DashTab::TripSummaries.transition(ctx, app, &x),
             None => {
-                let filter = self.composite.dropdown_value("filter");
-                if filter != self.filter_changes_pct {
+                let mut filter = Filter {
+                    changes_pct: self.composite.dropdown_value("filter"),
+                    modes: BTreeSet::new(),
+                };
+                for m in TripMode::all() {
+                    if self.composite.is_checked(m.ongoing_verb()) {
+                        filter.modes.insert(m);
+                    }
+                }
+                if filter != self.filter {
                     Transition::Replace(TripSummaries::new(ctx, app, filter))
                 } else {
                     Transition::Keep
@@ -75,7 +96,7 @@ impl State for TripSummaries {
     }
 }
 
-fn summary(ctx: &mut EventCtx, app: &App, filter_changes_pct: Option<f64>) -> Widget {
+fn summary(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
     if app.has_prebaked().is_none() {
         return Widget::nothing();
     }
@@ -85,13 +106,16 @@ fn summary(ctx: &mut EventCtx, app: &App, filter_changes_pct: Option<f64>) -> Wi
     let mut num_slower = 0;
     let mut sum_faster = Duration::ZERO;
     let mut sum_slower = Duration::ZERO;
-    for (b, a) in app
+    for (b, a, mode) in app
         .primary
         .sim
         .get_analytics()
         .both_finished_trips(app.primary.sim.time(), app.prebaked())
     {
-        let same = if let Some(pct) = filter_changes_pct {
+        if !filter.modes.contains(&mode) {
+            continue;
+        }
+        let same = if let Some(pct) = filter.changes_pct {
             pct_diff(a, b) <= pct
         } else {
             a == b
@@ -149,19 +173,12 @@ fn summary(ctx: &mut EventCtx, app: &App, filter_changes_pct: Option<f64>) -> Wi
     .evenly_spaced()])
 }
 
-fn scatter_plot(ctx: &mut EventCtx, app: &App, filter_changes_pct: Option<f64>) -> Widget {
+fn scatter_plot(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
     if app.has_prebaked().is_none() {
         return Widget::nothing();
     }
 
-    let mut points = app
-        .primary
-        .sim
-        .get_analytics()
-        .both_finished_trips(app.primary.sim.time(), app.prebaked());
-    if let Some(pct) = filter_changes_pct {
-        points.retain(|(a, b)| pct_diff(*a, *b) > pct);
-    }
+    let points = filter.get_trips(app);
     if points.is_empty() {
         return Widget::nothing();
     }
@@ -176,7 +193,7 @@ fn scatter_plot(ctx: &mut EventCtx, app: &App, filter_changes_pct: Option<f64>) 
     .padding(10)
 }
 
-fn contingency_table(ctx: &mut EventCtx, app: &App, filter_changes_pct: Option<f64>) -> Widget {
+fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
     if app.has_prebaked().is_none() {
         return Widget::nothing();
     }
@@ -184,14 +201,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter_changes_pct: Option<f
     let total_width = 500.0;
     let total_height = 300.0;
 
-    let mut points = app
-        .primary
-        .sim
-        .get_analytics()
-        .both_finished_trips(app.primary.sim.time(), app.prebaked());
-    if let Some(pct) = filter_changes_pct {
-        points.retain(|(a, b)| pct_diff(*a, *b) > pct);
-    }
+    let points = filter.get_trips(app);
     if points.is_empty() {
         return Widget::nothing();
     }
@@ -308,6 +318,41 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter_changes_pct: Option<f
     Widget::row(vec![DrawWithTooltips::new(ctx, batch, tooltips)])
         .outline(2.0, Color::WHITE)
         .padding(10)
+}
+
+#[derive(PartialEq)]
+pub struct Filter {
+    changes_pct: Option<f64>,
+    modes: BTreeSet<TripMode>,
+}
+
+impl Filter {
+    pub fn new() -> Filter {
+        Filter {
+            changes_pct: None,
+            modes: TripMode::all().into_iter().collect(),
+        }
+    }
+
+    fn get_trips(&self, app: &App) -> Vec<(Duration, Duration)> {
+        let mut points = Vec::new();
+        for (b, a, mode) in app
+            .primary
+            .sim
+            .get_analytics()
+            .both_finished_trips(app.primary.sim.time(), app.prebaked())
+        {
+            if self.modes.contains(&mode)
+                && self
+                    .changes_pct
+                    .map(|pct| pct_diff(a, b) > pct)
+                    .unwrap_or(true)
+            {
+                points.push((b, a));
+            }
+        }
+        points
+    }
 }
 
 fn pct_diff(a: Duration, b: Duration) -> f64 {

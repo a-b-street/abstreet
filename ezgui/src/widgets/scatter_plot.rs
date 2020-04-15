@@ -15,8 +15,6 @@ pub struct ScatterPlot {
     draw: Drawable,
 
     max: Duration,
-    x_name: String,
-    y_name: String,
 
     top_left: ScreenPt,
     dims: ScreenDims,
@@ -84,8 +82,6 @@ impl ScatterPlot {
             dims: batch.get_dims(),
             draw: ctx.upload(batch),
             max,
-            x_name: x_name.to_string(),
-            y_name: y_name.to_string(),
             top_left: ScreenPt::new(0.0, 0.0),
         }));
 
@@ -163,10 +159,20 @@ impl WidgetImpl for ScatterPlot {
                 g.fork_screenspace();
                 let draw = g.upload(batch);
                 g.redraw(&draw);
-                g.draw_mouse_tooltip(Text::from_multiline(vec![
-                    Line(format!("{}: {}", self.x_name, pct_x * self.max)),
-                    Line(format!("{}: {}", self.y_name, (1.0 - pct_y) * self.max)),
-                ]));
+                // TODO Quite specialized to the one use right now
+                let before = pct_x * self.max;
+                let after = (1.0 - pct_y) * self.max;
+                if after <= before {
+                    g.draw_mouse_tooltip(Text::from_all(vec![
+                        Line(format!("{} faster", before - after)).fg(Color::GREEN),
+                        Line(format!(" than {}", before)),
+                    ]));
+                } else {
+                    g.draw_mouse_tooltip(Text::from_all(vec![
+                        Line(format!("{} slower", after - before)).fg(Color::RED),
+                        Line(format!(" than {}", before)),
+                    ]));
+                }
                 g.unfork();
             }
         }
