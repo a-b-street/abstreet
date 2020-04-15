@@ -1,9 +1,10 @@
 use crate::app::App;
 use crate::common::CommonState;
-use crate::edit::apply_map_edits;
+use crate::edit::{apply_map_edits, can_edit_lane};
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::render::Renderable;
+use crate::sandbox::GameplayMode;
 use ezgui::{
     hotkey, Btn, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome,
     RewriteColor, TextExt, VerticalAlignment, Widget,
@@ -13,11 +14,12 @@ use std::collections::BTreeSet;
 
 pub struct LaneEditor {
     l: LaneID,
+    mode: GameplayMode,
     composite: Composite,
 }
 
 impl LaneEditor {
-    pub fn new(l: LaneID, ctx: &mut EventCtx, app: &App) -> LaneEditor {
+    pub fn new(ctx: &mut EventCtx, app: &App, l: LaneID, mode: GameplayMode) -> LaneEditor {
         let mut row = Vec::new();
         let lt = app.primary.map.get_l(l).lane_type;
         for (icon, label, key, active) in vec![
@@ -99,7 +101,7 @@ impl LaneEditor {
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx);
 
-        LaneEditor { l, composite }
+        LaneEditor { l, mode, composite }
     }
 }
 
@@ -109,14 +111,22 @@ impl State for LaneEditor {
         // Restrict what can be selected.
         if ctx.redo_mouseover() {
             app.recalculate_current_selection(ctx);
-            if let Some(ID::Lane(_)) = app.primary.current_selection {
+            if let Some(ID::Lane(l)) = app.primary.current_selection {
+                if !can_edit_lane(&self.mode, l, app) {
+                    app.primary.current_selection = None;
+                }
             } else {
                 app.primary.current_selection = None;
             }
         }
         if let Some(ID::Lane(l)) = app.primary.current_selection {
             if app.per_obj.left_click(ctx, "edit this lane") {
-                return Transition::Replace(Box::new(LaneEditor::new(l, ctx, app)));
+                return Transition::Replace(Box::new(LaneEditor::new(
+                    ctx,
+                    app,
+                    l,
+                    self.mode.clone(),
+                )));
             }
         }
 
@@ -161,7 +171,12 @@ impl State for LaneEditor {
                         let mut edits = app.primary.map.get_edits().clone();
                         edits.commands.push(cmd);
                         apply_map_edits(ctx, app, edits);
-                        return Transition::Replace(Box::new(LaneEditor::new(self.l, ctx, app)));
+                        return Transition::Replace(Box::new(LaneEditor::new(
+                            ctx,
+                            app,
+                            self.l,
+                            self.mode.clone(),
+                        )));
                     }
                     Err(err) => {
                         return Transition::Push(msg("Error", vec![err]));

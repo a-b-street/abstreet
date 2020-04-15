@@ -214,7 +214,12 @@ impl State for EditMode {
             }
             if let Some(ID::Lane(l)) = app.primary.current_selection {
                 if app.per_obj.left_click(ctx, "edit lane") {
-                    return Transition::Push(Box::new(LaneEditor::new(l, ctx, app)));
+                    return Transition::Push(Box::new(LaneEditor::new(
+                        ctx,
+                        app,
+                        l,
+                        self.mode.clone(),
+                    )));
                 }
             }
         }

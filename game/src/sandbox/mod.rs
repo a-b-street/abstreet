@@ -503,7 +503,7 @@ impl ContextualActions for Actions {
             }
             (ID::Lane(l), "edit lane") => Transition::PushTwice(
                 Box::new(EditMode::new(ctx, app, self.gameplay.clone())),
-                Box::new(LaneEditor::new(l, ctx, app)),
+                Box::new(LaneEditor::new(ctx, app, l, self.gameplay.clone())),
             ),
             (ID::Car(c), "show route") => {
                 *close_panel = false;
