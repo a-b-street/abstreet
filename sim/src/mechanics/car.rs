@@ -13,6 +13,7 @@ pub struct Car {
     pub state: CarState,
     pub router: Router,
     // None for buses
+    // TODO Can we scrap person here and use vehicle owner?
     pub trip_and_person: Option<(TripID, PersonID)>,
     pub started_at: Time,
     pub total_blocked_time: Duration,

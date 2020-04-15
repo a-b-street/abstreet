@@ -6,7 +6,6 @@ use crate::sandbox::SandboxMode;
 use ezgui::{
     Btn, Color, Composite, EventCtx, GfxCtx, Line, LinePlot, Outcome, PlotOptions, Series, Widget,
 };
-use geom::Time;
 
 pub struct ActiveTraffic {
     composite: Composite,
@@ -27,7 +26,9 @@ impl ActiveTraffic {
             active_agents.push(Series {
                 label: "Before changes".to_string(),
                 color: Color::BLUE.alpha(0.5),
-                pts: app.prebaked().active_agents(Time::END_OF_DAY),
+                pts: app
+                    .prebaked()
+                    .active_agents(app.primary.sim.get_end_of_day()),
             });
         }
 

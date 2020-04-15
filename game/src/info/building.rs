@@ -109,7 +109,9 @@ pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Building
             },
         ]);
         ppl.push((
-            next_trip.map(|(t, _)| t).unwrap_or(Time::END_OF_DAY),
+            next_trip
+                .map(|(t, _)| t)
+                .unwrap_or(app.primary.sim.get_end_of_day()),
             widget,
         ));
     }

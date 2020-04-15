@@ -16,8 +16,6 @@ impl Ord for Time {
 
 impl Time {
     pub const START_OF_DAY: Time = Time(0.0);
-    // This isn't the last possible time, but for UI control purposes, it'll do.
-    pub const END_OF_DAY: Time = Time(59.9 + (59.0 * 60.0) + (23.0 * 3600.0));
 
     // No direct public constructors. Explicitly do Time::START_OF_DAY + duration.
     fn seconds_since_midnight(value: f64) -> Time {

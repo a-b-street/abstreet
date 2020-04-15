@@ -485,7 +485,7 @@ fn throughput<F: Fn(&Analytics, Time) -> BTreeMap<TripMode, Vec<(Time, usize)>>>
         .collect::<Vec<_>>();
     if show_before {
         // TODO Ahh these colors don't show up differently at all.
-        for (m, pts) in get_data(app.prebaked(), Time::END_OF_DAY) {
+        for (m, pts) in get_data(app.prebaked(), app.primary.sim.get_end_of_day()) {
             series.push(Series {
                 label: format!("{} (before changes)", m.ongoing_verb()),
                 color: color_for_mode(app, m).alpha(0.3),

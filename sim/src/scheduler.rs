@@ -87,6 +87,7 @@ pub struct Scheduler {
     queued_commands: BTreeMap<CommandType, (Command, Time)>,
 
     latest_time: Time,
+    last_time: Time,
     #[derivative(PartialEq = "ignore")]
     #[serde(skip_serializing, skip_deserializing)]
     delta_times: Histogram<Duration>,
@@ -98,6 +99,7 @@ impl Scheduler {
             items: BinaryHeap::new(),
             queued_commands: BTreeMap::new(),
             latest_time: Time::START_OF_DAY,
+            last_time: Time::START_OF_DAY,
             delta_times: Histogram::new(),
         }
     }
@@ -109,6 +111,7 @@ impl Scheduler {
                 self.latest_time, time
             );
         }
+        self.last_time = self.last_time.max(time);
         self.delta_times.add(time - self.latest_time);
 
         let cmd_type = cmd.to_type();
@@ -131,6 +134,7 @@ impl Scheduler {
                 self.latest_time, new_time
             );
         }
+        self.last_time = self.last_time.max(new_time);
 
         let cmd_type = cmd.to_type();
 
@@ -166,6 +170,10 @@ impl Scheduler {
     // that here.
     pub fn peek_next_time(&self) -> Option<Time> {
         self.items.peek().as_ref().map(|cmd| cmd.time)
+    }
+
+    pub fn get_last_time(&self) -> Time {
+        self.last_time
     }
 
     // This API is safer than handing out a batch of items at a time, because while processing one

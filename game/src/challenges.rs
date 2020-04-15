@@ -290,7 +290,7 @@ fn prebake(map: &Map, scenario: Scenario, timer: &mut Timer) {
     // Bit of an abuse of this, but just need to fix the rng seed.
     let mut rng = SimFlags::for_test("prebaked").make_rng();
     scenario.instantiate(&mut sim, &map, &mut rng, timer);
-    sim.timed_step(&map, Time::END_OF_DAY - Time::START_OF_DAY, timer);
+    sim.timed_step(&map, sim.get_end_of_day() - Time::START_OF_DAY, timer);
 
     abstutil::write_binary(
         abstutil::path_prebaked_results(&scenario.map_name, &scenario.scenario_name),

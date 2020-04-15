@@ -124,7 +124,7 @@ fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) 
         });
     }
     if opts.show_before {
-        for (idx, (stat, pts)) in get_data(app.prebaked(), Time::END_OF_DAY)
+        for (idx, (stat, pts)) in get_data(app.prebaked(), app.primary.sim.get_end_of_day())
             .into_iter()
             .enumerate()
         {

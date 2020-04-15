@@ -1140,6 +1140,13 @@ impl Sim {
     pub fn get_pandemic_model(&self) -> Option<&PandemicModel> {
         self.pandemic.as_ref()
     }
+
+    pub fn get_end_of_day(&self) -> Time {
+        // Always count at least 24 hours
+        self.scheduler
+            .get_last_time()
+            .max(Time::START_OF_DAY + Duration::hours(24))
+    }
 }
 
 // Invasive debugging
