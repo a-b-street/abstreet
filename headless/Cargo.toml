@@ -4,13 +4,10 @@ version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2018"
 
-[features]
-default = []
-profiler = ["cpuprofiler"]
-
 [dependencies]
 abstutil = { path = "../abstutil" }
-cpuprofiler = { version = "0.0.3", optional = true }
 geom = { path = "../geom" }
 map_model = { path = "../map_model" }
+rand = "0.7.0"
+rand_xorshift = "0.2.0"
 sim = { path = "../sim" }

@@ -1296,9 +1296,10 @@ name = "headless"
 version = "0.1.0"
 dependencies = [
  "abstutil 0.1.0",
- "cpuprofiler 0.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "geom 0.1.0",
  "map_model 0.1.0",
+ "rand 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rand_xorshift 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "sim 0.1.0",
 ]
 
