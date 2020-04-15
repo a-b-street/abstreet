@@ -2,7 +2,6 @@ mod dashboards;
 pub mod gameplay;
 mod misc_tools;
 mod speed;
-mod trip_table;
 
 use self::misc_tools::{RoutePreview, ShowTrafficSignal, TurnExplorer};
 use crate::app::App;
@@ -405,7 +404,7 @@ impl AgentMeter {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "more data" => {
-                    return Some(Transition::Push(trip_table::TripTable::new(ctx, app)));
+                    return Some(Transition::Push(dashboards::TripTable::new(ctx, app)));
                 }
                 _ => unreachable!(),
             },
