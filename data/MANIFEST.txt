@@ -216,16 +216,15 @@ e3634cc9018e4c30cba8a64eaec3c50d  data/system/maps/downtown.bin
 cc45f42cb24cad1cfdbf5ed7a0cb86d4  data/system/synthetic_maps/signal_double.json
 8b949cc34d9a27ace0bd8ecde55a9520  data/system/synthetic_maps/signal_single.json
 1cd7be125e1d992613ed3a41e8b25b6a  data/system/synthetic_maps/signal_fan_in.json
-6493fe47693a9785d3928a3212a982e5  data/system/scenarios/ballard/weekday.bin
-122d6b5d57bba81b5e1a188bff6c14f0  data/system/scenarios/intl_district/weekday.bin
-49d8c7d7f6bcd90847b4dc3d4d66693e  data/system/scenarios/23rd/weekday.bin
-dcf786ec9ad3284e6f70179e19795720  data/system/scenarios/downtown/weekday.bin
-370928cacb5d28ce7adb845982dd58b3  data/system/scenarios/huge_seattle/weekday.bin
-7292bd648e628e38b381e27dec613893  data/system/scenarios/caphill/weekday.bin
-c92d3580f01b37aad20dfede7270039d  data/system/scenarios/montlake/weekday.bin
-e0664f37da10ba24ca1f73a9666ffc9e  data/system/prebaked_results/23rd/weekday.bin
+dc7d7c8b8dec9c2d0375df3ed0c02d87  data/system/scenarios/ballard/weekday.bin
+ec3d36603a91a1b61a63823404ad16d6  data/system/scenarios/intl_district/weekday.bin
+34f366fc48867dc4d923fc638e804af0  data/system/scenarios/23rd/weekday.bin
+bca018492766b536680a6aae9592d397  data/system/scenarios/downtown/weekday.bin
+354a0d31dd19b31fe4599233a2057c41  data/system/scenarios/huge_seattle/weekday.bin
+60712719b44a47cc6accf97d069fac92  data/system/scenarios/caphill/weekday.bin
+8e38d4e4a93beb7080029dcb76d47563  data/system/scenarios/montlake/weekday.bin
 ad5d2c7a2c73ef5bf4a09ff11845c166  data/system/prebaked_results/signal_single/tutorial lvl1.bin
 81081122aa46e8651d8f07bb606bc77a  data/system/prebaked_results/signal_single/tutorial lvl2.bin
 e15dd2d01fccadb1f16c4ed9f732b377  data/system/prebaked_results/montlake/car vs bike contention.bin
-afc4b5a0a8a65fed97129bb9cbfa959c  data/system/prebaked_results/montlake/weekday.bin
+7c861b48afb1cfa08bb019785405aca5  data/system/prebaked_results/montlake/weekday.bin
 ba713f7f6ad0c0201f1447d77957ce75  data/system/prebaked_results/montlake/car vs bus contention.bin

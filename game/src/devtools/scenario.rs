@@ -94,7 +94,8 @@ impl ScenarioManager {
             vec!["0", "1-2", "3-4", "..."],
         );
         let mut total_cars_needed = 0;
-        for (b, count) in scenario.parked_cars_per_bldg() {
+        for (b, ppl) in scenario.parked_cars_per_bldg().consume() {
+            let count = ppl.len();
             total_cars_needed += count;
             let color = if count == 0 {
                 continue;

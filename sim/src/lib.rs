@@ -151,7 +151,7 @@ impl VehicleType {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Vehicle {
     pub id: CarID,
-    pub owner: Option<BuildingID>,
+    pub owner: Option<PersonID>,
     pub vehicle_type: VehicleType,
     pub length: Distance,
     pub max_speed: Option<Speed>,
@@ -165,7 +165,7 @@ pub struct VehicleSpec {
 }
 
 impl VehicleSpec {
-    pub fn make(self, id: CarID, owner: Option<BuildingID>) -> Vehicle {
+    pub fn make(self, id: CarID, owner: Option<PersonID>) -> Vehicle {
         Vehicle {
             id,
             owner,

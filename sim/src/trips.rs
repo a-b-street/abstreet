@@ -640,12 +640,6 @@ impl TripManager {
         std::mem::replace(&mut self.events, Vec::new())
     }
 
-    // Return trip start time too
-    pub fn find_trip_using_car(&self, id: CarID, home: BuildingID) -> Option<(TripID, Time)> {
-        let t = self.trips.iter().find(|t| t.uses_car(id, home))?;
-        Some((t.id, t.spawned_at))
-    }
-
     pub fn trip_info(&self, id: TripID) -> (Time, TripEndpoint, TripEndpoint, TripMode) {
         let t = &self.trips[id.0];
         (t.spawned_at, t.start.clone(), t.end.clone(), t.mode)
@@ -752,19 +746,6 @@ struct Trip {
 }
 
 impl Trip {
-    fn uses_car(&self, id: CarID, home: BuildingID) -> bool {
-        self.legs.iter().any(|l| match l {
-            TripLeg::Walk(_, _, ref walk_to) => match walk_to.connection {
-                SidewalkPOI::DeferredParkingSpot(b, _) => b == home,
-                _ => false,
-            },
-            // No need to look up the contents of a SidewalkPOI::ParkingSpot. If a trip uses a
-            // specific parked car, then there'll be a TripLeg::Drive with it already.
-            TripLeg::Drive(ref vehicle, _) => vehicle.id == id,
-            _ => false,
-        })
-    }
-
     // Returns true if this succeeds. If not, trip aborted.
     fn spawn_ped(
         &self,

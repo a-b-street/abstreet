@@ -39,7 +39,6 @@ enum Source {
     WalkFromBldg(BuildingID),
     // Stash the driving Position here for convenience
     BikeFromBldg(BuildingID, Position),
-    WalkFromBldgThenMaybeUseCar(BuildingID),
     WalkFromSidewalk(Position),
     Drive(Position),
 }
@@ -90,11 +89,6 @@ impl State for AgentSpawner {
                     PathConstraints::Pedestrian,
                 ),
                 Source::BikeFromBldg(_, pos) => (pos, PathConstraints::Bike),
-                // TODO Find the driving lane in this case.
-                Source::WalkFromBldgThenMaybeUseCar(b) => (
-                    Position::bldg_via_walking(b, map),
-                    PathConstraints::Pedestrian,
-                ),
                 Source::WalkFromSidewalk(pos) => (pos, PathConstraints::Pedestrian),
                 Source::Drive(pos) => (pos, PathConstraints::Car),
             };
@@ -370,19 +364,6 @@ fn schedule_trip(
                         return Some(format!("Can't make a car appear at {:?}", from));
                     }
                 }
-                Source::WalkFromBldgThenMaybeUseCar(b) => {
-                    spawner.schedule_trip(
-                        sim.random_person(),
-                        sim.time(),
-                        TripSpec::MaybeUsingParkedCar {
-                            start_bldg: *b,
-                            goal,
-                            ped_speed: Scenario::rand_ped_speed(rng),
-                        },
-                        map,
-                        sim,
-                    );
-                }
                 _ => unreachable!(),
             }
         }
@@ -553,17 +534,7 @@ pub fn actions(app: &App, id: ID) -> Vec<(Key, String)> {
 
     match id {
         ID::Building(id) => {
-            if !app.primary.sim.get_free_offstreet_spots(id).is_empty() {
-                actions.push((Key::F6, "seed a parked car here".to_string()));
-            }
             actions.push((Key::F3, "spawn a walking trip".to_string()));
-            // TODO Check if it's claimed... Haha if it is, MaybeUsingParkedCar still snags it!
-            if !app.primary.sim.get_parked_cars_by_owner(id).is_empty() {
-                actions.push((
-                    Key::F5,
-                    "spawn a pedestrian here using an owned parked car".to_string(),
-                ));
-            }
             if Position::bldg_via_driving(id, map).is_some() {
                 actions.push((Key::F4, "spawn a car starting here".to_string()));
             }
@@ -593,14 +564,6 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Tra
     let mut c = Colorer::discrete(ctx, "Spawning agent", Vec::new(), vec![("start", color)]);
 
     match (id, action.as_ref()) {
-        (ID::Building(id), "seed a parked car here") => {
-            let spots = app.primary.sim.get_free_offstreet_spots(id);
-            let mut rng = app.primary.current_flags.sim_flags.make_rng();
-            app.primary
-                .sim
-                .seed_parked_car(Scenario::rand_car(&mut rng), spots[0], Some(id));
-            Transition::Keep
-        }
         (ID::Building(id), "spawn a walking trip") => {
             c.add_b(id, color);
             Transition::Push(Box::new(AgentSpawner {
@@ -611,20 +574,6 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Tra
                     "Pick a building or border as a destination",
                 ),
                 from: Source::WalkFromBldg(id),
-                maybe_goal: None,
-                colorer: c.build_both(ctx, app),
-            }))
-        }
-        (ID::Building(id), "spawn a pedestrian here using an owned parked car") => {
-            c.add_b(id, color);
-            Transition::Push(Box::new(AgentSpawner {
-                composite: make_top_bar(
-                    ctx,
-                    app,
-                    "Spawning a walking trip using a parked car",
-                    "Pick a building or border as a destination",
-                ),
-                from: Source::WalkFromBldgThenMaybeUseCar(id),
                 maybe_goal: None,
                 colorer: c.build_both(ctx, app),
             }))

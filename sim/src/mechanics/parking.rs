@@ -1,4 +1,4 @@
-use crate::{CarID, CarStatus, DrawCarInput, ParkedCar, ParkingSpot, Vehicle};
+use crate::{CarID, CarStatus, DrawCarInput, ParkedCar, ParkingSpot, PersonID, Vehicle};
 use abstutil::{
     deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap, MultiMap,
     Timer,
@@ -22,12 +22,13 @@ pub struct ParkingSimState {
     )]
     occupants: BTreeMap<ParkingSpot, CarID>,
     reserved_spots: BTreeSet<ParkingSpot>,
+    // TODO I think we can almost get rid of this
     dynamically_reserved_cars: BTreeSet<CarID>,
     #[serde(
-        serialize_with = "serialize_multimap",
-        deserialize_with = "deserialize_multimap"
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
     )]
-    owned_cars_per_building: MultiMap<BuildingID, CarID>,
+    owner_to_car: BTreeMap<PersonID, CarID>,
 
     // On-street specific
     onstreet_lanes: BTreeMap<LaneID, ParkingLane>,
@@ -56,7 +57,7 @@ impl ParkingSimState {
             occupants: BTreeMap::new(),
             dynamically_reserved_cars: BTreeSet::new(),
             reserved_spots: BTreeSet::new(),
-            owned_cars_per_building: MultiMap::new(),
+            owner_to_car: BTreeMap::new(),
 
             onstreet_lanes: BTreeMap::new(),
             driving_to_parking_lanes: MultiMap::new(),
@@ -119,8 +120,8 @@ impl ParkingSimState {
         self.occupants
             .remove(&p.spot)
             .expect("remove_parked_car missing from occupants");
-        if let Some(b) = p.vehicle.owner {
-            self.owned_cars_per_building.remove(b, p.vehicle.id);
+        if let Some(id) = p.vehicle.owner {
+            self.owner_to_car.remove(&id);
         }
         self.dynamically_reserved_cars.remove(&p.vehicle.id);
     }
@@ -128,31 +129,27 @@ impl ParkingSimState {
     pub fn add_parked_car(&mut self, p: ParkedCar) {
         assert!(self.reserved_spots.remove(&p.spot));
         self.occupants.insert(p.spot, p.vehicle.id);
-        if let Some(b) = p.vehicle.owner {
-            self.owned_cars_per_building.insert(b, p.vehicle.id);
+        if let Some(id) = p.vehicle.owner {
+            if self.owner_to_car.contains_key(&id) {
+                // TODO This should be an assertion. But right now, the same person can go on
+                // multiple trips concurrently. ;)
+                println!(
+                    "WARNING: {} is temporarily a doppelgänger and has two parked cars",
+                    id
+                );
+            }
+            self.owner_to_car.insert(id, p.vehicle.id);
         }
         self.parked_cars.insert(p.vehicle.id, p);
     }
 
-    pub fn dynamically_reserve_car(
-        &mut self,
-        b: BuildingID,
-        closest_to: Pt2D,
-        map: &Map,
-    ) -> Option<ParkedCar> {
-        let mut candidates = Vec::new();
-        for c in self.owned_cars_per_building.get(b) {
-            if !self.dynamically_reserved_cars.contains(c) {
-                let pt = match self.parked_cars[c].spot {
-                    ParkingSpot::Onstreet(l, _) => map.get_l(l).lane_center_pts.middle(),
-                    ParkingSpot::Offstreet(b, _) => map.get_b(b).label_center,
-                };
-                candidates.push((*c, pt.dist_to(closest_to)));
-            }
+    pub fn dynamically_reserve_car(&mut self, p: PersonID) -> Option<ParkedCar> {
+        let car = self.owner_to_car.get(&p)?;
+        if self.dynamically_reserved_cars.contains(car) {
+            return None;
         }
-        let (c, _) = candidates.into_iter().min_by_key(|(_, dist)| *dist)?;
-        self.dynamically_reserved_cars.insert(c);
-        Some(self.parked_cars[&c].clone())
+        self.dynamically_reserved_cars.insert(*car);
+        Some(self.parked_cars[car].clone())
     }
 
     pub fn dynamically_return_car(&mut self, p: ParkedCar) {
@@ -307,14 +304,6 @@ impl ParkingSimState {
         }
     }
 
-    pub fn get_parked_cars_by_owner(&self, b: BuildingID) -> Vec<&ParkedCar> {
-        self.owned_cars_per_building
-            .get(b)
-            .iter()
-            .filter_map(|car| self.parked_cars.get(&car))
-            .collect()
-    }
-
     pub fn get_offstreet_parked_cars(&self, b: BuildingID) -> Vec<&ParkedCar> {
         let mut results = Vec::new();
         for idx in 0..self.num_spots_per_offstreet.get(&b).cloned().unwrap_or(0) {
@@ -325,7 +314,7 @@ impl ParkingSimState {
         results
     }
 
-    pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {
+    pub fn get_owner_of_car(&self, id: CarID) -> Option<PersonID> {
         self.parked_cars.get(&id).and_then(|p| p.vehicle.owner)
     }
 

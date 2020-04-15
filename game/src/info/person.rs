@@ -1,6 +1,5 @@
 use crate::app::App;
 use crate::info::{building, header_btns, make_table, make_tabs, trip, Details, Tab};
-use crate::render::Renderable;
 use ezgui::{
     hotkey, Btn, Color, EventCtx, Key, Line, RewriteColor, Text, TextExt, TextSpan, Widget,
 };
@@ -275,17 +274,13 @@ pub fn parked_car(ctx: &EventCtx, app: &App, details: &mut Details, id: CarID) -
         header_btns(ctx),
     ]));
 
-    // TODO Owner, how long idle, prev trips, next trips, etc
+    // TODO how long idle, prev trips, next trips, etc
 
-    if let Some(b) = app.primary.sim.get_owner_of_car(id) {
-        // TODO Mention this, with a warp tool
-        details.unzoomed.push(
-            app.cs.associated_object,
-            app.primary.draw_map.get_b(b).get_outline(&app.primary.map),
-        );
-        details.zoomed.push(
-            app.cs.associated_object,
-            app.primary.draw_map.get_b(b).get_outline(&app.primary.map),
+    if let Some(p) = app.primary.sim.get_owner_of_car(id) {
+        rows.push(Btn::text_bg2(format!("Owned by {}", p)).build_def(ctx, None));
+        details.hyperlinks.insert(
+            format!("Owned by {}", p),
+            Tab::PersonTrips(p, BTreeMap::new()),
         );
     }
 

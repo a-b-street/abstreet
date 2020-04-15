@@ -2,13 +2,13 @@ use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::Queue;
 use crate::{
     ActionAtEnd, AgentID, AgentProperties, CarID, Command, CreateCar, DistanceInterval,
-    DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSimState, Scheduler, TimeInterval,
-    TransitSimState, TripManager, TripPositions, UnzoomedAgent, WalkingSimState,
+    DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSimState, PersonID, Scheduler,
+    TimeInterval, TransitSimState, TripManager, TripPositions, UnzoomedAgent, WalkingSimState,
     FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Duration, PolyLine, Time};
-use map_model::{BuildingID, LaneID, Map, Path, PathStep, Traversable};
+use map_model::{LaneID, Map, Path, PathStep, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashSet, VecDeque};
 
@@ -949,7 +949,7 @@ impl DrivingSimState {
         self.cars[&id].router.get_path().percent_dist_crossed()
     }
 
-    pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {
+    pub fn get_owner_of_car(&self, id: CarID) -> Option<PersonID> {
         let car = self.cars.get(&id)?;
         car.vehicle.owner
     }

@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::helpers::ID;
 use crate::info::{header_btns, make_table, make_tabs, Details, Tab};
 use crate::render::DrawPedestrian;
 use ezgui::{Btn, Color, EventCtx, Line, Text, TextExt, Widget};
@@ -39,17 +38,10 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
         }
     }
 
-    let cars = app.primary.sim.get_parked_cars_by_owner(id);
+    let cars = app.primary.sim.get_offstreet_parked_cars(id);
     if !cars.is_empty() {
         txt.add(Line(""));
-        txt.add(Line(format!(
-            "{} parked cars owned by this building",
-            cars.len()
-        )));
-        // TODO Jump to it or see status
-        for p in cars {
-            txt.add(Line(format!("- {}", p.vehicle.id)));
-        }
+        txt.add(Line(format!("{} cars parked inside right now", cars.len())));
     }
 
     if !txt.is_empty() {
@@ -158,27 +150,6 @@ fn header(
             ("People", Tab::BldgPeople(id)),
         ],
     ));
-
-    // TODO On every tab?
-    for p in app.primary.sim.get_parked_cars_by_owner(id) {
-        // The car might be parked inside!
-        if let Some(shape) = app
-            .primary
-            .draw_map
-            .get_obj(
-                ID::Car(p.vehicle.id),
-                app,
-                &mut app.primary.draw_map.agents.borrow_mut(),
-                ctx.prerender,
-            )
-            .map(|obj| obj.get_outline(&app.primary.map))
-        {
-            details
-                .unzoomed
-                .push(app.cs.associated_object, shape.clone());
-            details.zoomed.push(app.cs.associated_object, shape);
-        }
-    }
 
     draw_occupants(details, app, id, None);
     // TODO Draw cars parked inside?

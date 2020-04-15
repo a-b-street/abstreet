@@ -233,7 +233,7 @@ impl State for DebugMode {
                 let mut batch = GeomBatch::new();
                 for a in app.primary.sim.get_accepted_agents(id) {
                     batch.push(
-                        app.cs.associated_object,
+                        Color::PURPLE,
                         app.primary
                             .draw_map
                             .get_obj(

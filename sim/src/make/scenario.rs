@@ -2,7 +2,7 @@ use crate::{
     DrivingGoal, ParkingSpot, PersonID, SidewalkSpot, Sim, TripSpec, VehicleSpec, VehicleType,
     BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
 };
-use abstutil::Timer;
+use abstutil::{MultiMap, Timer};
 use geom::{Distance, Duration, Speed, Time};
 use map_model::{BuildingID, BusRouteID, BusStopID, Map, Position, RoadID};
 use rand::seq::SliceRandom;
@@ -74,24 +74,15 @@ impl Scenario {
 
         let mut spawner = sim.make_spawner();
 
-        let mut parked_cars_per_bldg: Vec<(BuildingID, usize)> = Vec::new();
-        let mut total_parked_cars = 0;
-        for (b, cnt) in self.parked_cars_per_bldg() {
-            if cnt != 0 {
-                parked_cars_per_bldg.push((b, cnt));
-                total_parked_cars += cnt;
+        let mut parked_cars: Vec<(BuildingID, PersonID)> = Vec::new();
+        for (b, owners) in self.parked_cars_per_bldg().consume() {
+            for p in owners {
+                parked_cars.push((b, p));
             }
         }
-        // parked_cars_per_bldg is stable over map edits, so don't fork.
-        parked_cars_per_bldg.shuffle(rng);
-        seed_parked_cars(
-            parked_cars_per_bldg,
-            total_parked_cars,
-            sim,
-            map,
-            rng,
-            timer,
-        );
+        // parked_cars is stable over map edits, so don't fork.
+        parked_cars.shuffle(rng);
+        seed_parked_cars(parked_cars, sim, map, rng, timer);
 
         timer.start_iter("trips for People", self.people.len());
         for p in &self.people {
@@ -188,11 +179,11 @@ impl Scenario {
         self
     }
 
-    pub fn parked_cars_per_bldg(&self) -> BTreeMap<BuildingID, usize> {
-        let mut per_bldg = BTreeMap::new();
+    pub fn parked_cars_per_bldg(&self) -> MultiMap<BuildingID, PersonID> {
+        let mut per_bldg = MultiMap::new();
         for p in &self.people {
             if let Some(b) = p.car_initially_parked_at {
-                *per_bldg.entry(b).or_insert(0) += 1;
+                per_bldg.insert(b, p.id);
             }
         }
         per_bldg
@@ -200,8 +191,7 @@ impl Scenario {
 }
 
 fn seed_parked_cars(
-    parked_cars_per_bldg: Vec<(BuildingID, usize)>,
-    total_parked_cars: usize,
+    parked_cars: Vec<(BuildingID, PersonID)>,
     sim: &mut Sim,
     map: &Map,
     base_rng: &mut XorShiftRng,
@@ -209,7 +199,7 @@ fn seed_parked_cars(
 ) {
     // We always need the same number of cars
     let mut rand_cars: Vec<VehicleSpec> = std::iter::repeat_with(|| Scenario::rand_car(base_rng))
-        .take(total_parked_cars)
+        .take(parked_cars.len())
         .collect();
 
     let mut open_spots_per_road: BTreeMap<RoadID, Vec<ParkingSpot>> = BTreeMap::new();
@@ -231,21 +221,18 @@ fn seed_parked_cars(
         }
     }
 
-    timer.start_iter("seed parked cars", parked_cars_per_bldg.len());
+    timer.start_iter("seed parked cars", parked_cars.len());
     let mut ok = true;
-    for (b, cnt) in parked_cars_per_bldg {
+    for (b, owner) in parked_cars {
         timer.next();
         if !ok {
             continue;
         }
-        for _ in 0..cnt {
-            if let Some(spot) = find_spot_near_building(b, &mut open_spots_per_road, map, timer) {
-                sim.seed_parked_car(rand_cars.pop().unwrap(), spot, Some(b));
-            } else {
-                timer.warn("Not enough room to seed parked cars.".to_string());
-                ok = false;
-                break;
-            }
+        if let Some(spot) = find_spot_near_building(b, &mut open_spots_per_road, map, timer) {
+            sim.seed_parked_car(rand_cars.pop().unwrap(), spot, Some(owner));
+        } else {
+            timer.warn("Not enough room to seed parked cars.".to_string());
+            ok = false;
         }
     }
 }

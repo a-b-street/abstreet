@@ -3,7 +3,7 @@ use crate::helpers::ID;
 use crate::render::DrawMap;
 use ezgui::{EventCtx, GfxCtx, Key, Line, Text};
 use map_model::{Map, PathConstraints};
-use sim::{AgentID, CarID, Sim};
+use sim::{AgentID, Sim};
 
 pub struct ObjectDebugger {
     debug_tooltip_key_held: bool,
@@ -85,23 +85,6 @@ impl ObjectDebugger {
             }
             ID::Building(id) => {
                 println!("{}", abstutil::to_json(map.get_b(id)));
-                for (cars, descr) in vec![
-                    (
-                        sim.get_parked_cars_by_owner(id),
-                        format!("currently parked cars are owned by {}", id),
-                    ),
-                    (
-                        sim.get_offstreet_parked_cars(id),
-                        format!("cars are parked inside {}", id),
-                    ),
-                ] {
-                    println!(
-                        "{} {}: {:?}",
-                        cars.len(),
-                        descr,
-                        cars.iter().map(|p| p.vehicle.id).collect::<Vec<CarID>>()
-                    );
-                }
             }
             ID::Car(id) => {
                 sim.debug_car(id);

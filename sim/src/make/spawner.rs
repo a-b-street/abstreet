@@ -268,15 +268,7 @@ impl TripSpawner {
                     goal,
                     ped_speed,
                 } => {
-                    // Assumption: If a car is appearing at a border and driving to a building,
-                    // then it's owned by that building. Otherwise we wind up with endless waves of
-                    // parked cars that're never reused.
-                    let owner = if let DrivingGoal::ParkNear(b) = goal {
-                        Some(b)
-                    } else {
-                        None
-                    };
-                    let vehicle = vehicle_spec.make(car_id.unwrap(), owner);
+                    let vehicle = vehicle_spec.make(car_id.unwrap(), Some(person));
                     let mut legs = vec![TripLeg::Drive(vehicle.clone(), goal.clone())];
                     if let DrivingGoal::ParkNear(b) = goal {
                         legs.push(TripLeg::Walk(
@@ -313,8 +305,9 @@ impl TripSpawner {
                     ped_speed,
                 } => {
                     let vehicle = &parking.get_car_at_spot(spot).unwrap().vehicle;
-                    match start.connection {
-                        SidewalkPOI::Building(b) => assert_eq!(vehicle.owner, Some(b)),
+                    assert_eq!(vehicle.owner, Some(person));
+                    let start_bldg = match start.connection {
+                        SidewalkPOI::Building(b) => b,
                         _ => unreachable!(),
                     };
 
@@ -334,12 +327,8 @@ impl TripSpawner {
                         }
                         DrivingGoal::Border(_, _) => {}
                     }
-                    let trip = trips.new_trip(
-                        person,
-                        start_time,
-                        TripEndpoint::Bldg(vehicle.owner.unwrap()),
-                        legs,
-                    );
+                    let trip =
+                        trips.new_trip(person, start_time, TripEndpoint::Bldg(start_bldg), legs);
 
                     if let Some(path) = maybe_path {
                         scheduler.push(
