@@ -224,12 +224,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter_changes_pct: Option<f
     let mut losses_per_bucket: Vec<(Duration, usize)> = std::iter::repeat((Duration::ZERO, 0))
         .take(num_buckets)
         .collect();
-    for (b, a) in app
-        .primary
-        .sim
-        .get_analytics()
-        .both_finished_trips(app.primary.sim.time(), app.prebaked())
-    {
+    for (b, a) in points {
         let before_mins = b.num_minutes_rounded_up();
         let raw_idx = endpts.iter().rev().position(|x| before_mins >= *x).unwrap();
         let mut idx = endpts.len() - 1 - raw_idx;

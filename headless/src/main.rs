@@ -1,6 +1,6 @@
 use abstutil::{CmdArgs, Timer};
 use geom::Time;
-use sim::{GetDrawAgents, Scenario, SimFlags};
+use sim::{GetDrawAgents, ScenarioGenerator, SimFlags};
 
 fn main() {
     let mut args = CmdArgs::new();
@@ -20,10 +20,11 @@ fn main() {
         || sim_flags.load.starts_with(&abstutil::path_all_maps())
     {
         let s = if let Some(n) = num_agents {
-            Scenario::scaled_run(&map, n)
+            ScenarioGenerator::scaled_run(n)
         } else {
-            Scenario::small_run(&map)
-        };
+            ScenarioGenerator::small_run(&map)
+        }
+        .generate(&map, &mut rng, &mut timer);
         s.instantiate(&mut sim, &map, &mut rng, &mut timer);
     }
     timer.done();

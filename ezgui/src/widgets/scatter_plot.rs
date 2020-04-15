@@ -61,6 +61,11 @@ impl ScatterPlot {
                 geom::Line::new(Pt2D::new(x, 0.0), Pt2D::new(x, height)).make_polygons(thickness),
             );
         }
+        // Draw the diagonal, since we're comparing things on the same scale
+        batch.push(
+            Color::grey(0.5),
+            geom::Line::new(Pt2D::new(0.0, height), Pt2D::new(width, 0.0)).make_polygons(thickness),
+        );
 
         let circle = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(4.0)).to_polygon();
         for (b, a) in points {
