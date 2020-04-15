@@ -11,13 +11,17 @@ a city affect the movement of drivers, cyclists, transit users, and pedestrians.
   or [read all instructions](docs/INSTRUCTIONS.md) (new releases every Sunday)
 - [build from source](docs/dev.md) (new changes daily)
 
-Removing dedicated left-turn phases from a traffic signal:
-
-![fix_traffic_signal](docs/videos/fix_traffic_signal.gif)
-
-Watching the Mercer backup start at 4am:
+Find a problem:
 
 ![exploring_traffic](docs/videos/exploring_traffic.gif)
+
+Make some changes:
+
+![editing_map](docs/videos/editing_map.gif)
+
+Measure the effects:
+
+![evaluating_impacts](docs/videos/evaluating_impacts.gif)
 
 ## Documentation for developers
 
@@ -27,8 +31,10 @@ Watching the Mercer backup start at 4am:
 - [Rust implementation notes](docs/articles/rust/article.md)
 - [Running A/B Street in a new city](docs/new_city.md)
 - [Current milestones](docs/project/milestones.md)
-- Presentations (nice pictures, but may not be easy to follow without me
-  speaking ;) )
+- Presentations
+  - April 2020 Rust meetup:
+    [recording](https://www.youtube.com/watch?v=chYd5I-5oyc),
+    [slides](https://docs.google.com/presentation/d/1nUodhr42eppB2E2eMAnuTkMhIVuHnN7_6i6V6MA028c/edit?usp=sharing)
   - [Feb 2020 traffic sim](https://docs.google.com/presentation/d/181so6bWkGsPzpc-mI72CQffthMKMVzFPAkYxIyzgfAs/edit?usp=sharing)
   - [Oct 2019 Traffic sim and current challenges](https://docs.google.com/presentation/d/1PJRFoXmJAyenkqHIwo48zxqu1LSH6pc7XKSzhyC1raw/edit?usp=sharing)
   - [Oct 2019 Map construction](https://docs.google.com/presentation/d/1cF7qFtjAzkXL_r62CjxBvgQnLvuQ9I2WTE2iX_5tMCY/edit?usp=sharing)
