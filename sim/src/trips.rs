@@ -38,17 +38,18 @@ impl TripManager {
         }
     }
 
-    pub fn new_person(&mut self, id: PersonID) {
+    pub fn new_person(&mut self, id: PersonID, has_car: bool) {
         assert_eq!(id.0, self.people.len());
         self.people.push(Person {
             id,
             trips: Vec::new(),
             state: PersonState::Limbo,
+            has_car,
         });
     }
-    pub fn random_person(&mut self) -> PersonID {
+    pub fn random_person(&mut self, has_car: bool) -> PersonID {
         let id = PersonID(self.people.len());
-        self.new_person(id);
+        self.new_person(id, has_car);
         id
     }
 
@@ -951,6 +952,7 @@ pub struct Person {
     pub trips: Vec<TripID>,
     // TODO home
     pub state: PersonState,
+    pub has_car: bool,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]

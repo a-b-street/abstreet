@@ -317,6 +317,9 @@ impl ParkingSimState {
     pub fn get_owner_of_car(&self, id: CarID) -> Option<PersonID> {
         self.parked_cars.get(&id).and_then(|p| p.vehicle.owner)
     }
+    pub fn get_car_owned_by(&self, id: PersonID) -> Option<CarID> {
+        self.owner_to_car.get(&id).cloned()
+    }
 
     // (Filled, available)
     pub fn get_all_parking_spots(&self) -> (Vec<ParkingSpot>, Vec<ParkingSpot>) {

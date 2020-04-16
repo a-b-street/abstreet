@@ -88,7 +88,7 @@ impl Scenario {
         for p in &self.people {
             timer.next();
             // TODO Or spawner?
-            sim.new_person(p.id);
+            sim.new_person(p.id, p.has_car);
             for t in &p.trips {
                 // The RNG call is stable over edits.
                 let spec = t.trip.clone().to_trip_spec(rng);

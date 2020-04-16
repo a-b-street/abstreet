@@ -188,11 +188,11 @@ impl Sim {
     }
 
     // TODO Should these two be in TripSpawner?
-    pub fn new_person(&mut self, p: PersonID) {
-        self.trips.new_person(p);
+    pub fn new_person(&mut self, p: PersonID, has_car: bool) {
+        self.trips.new_person(p, has_car);
     }
-    pub fn random_person(&mut self) -> PersonID {
-        self.trips.random_person()
+    pub fn random_person(&mut self, has_car: bool) -> PersonID {
+        self.trips.random_person(has_car)
     }
     pub fn seed_parked_car(
         &mut self,
@@ -982,6 +982,10 @@ impl Sim {
         self.driving
             .get_owner_of_car(id)
             .or_else(|| self.parking.get_owner_of_car(id))
+    }
+    // Only currently parked cars
+    pub fn get_parked_car_owned_by(&self, id: PersonID) -> Option<CarID> {
+        self.parking.get_car_owned_by(id)
     }
 
     pub fn get_person(&self, id: PersonID) -> &Person {

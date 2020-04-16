@@ -28,33 +28,6 @@ pub fn trips(
         is_paused,
     );
 
-    // TODO This probably belongs on a different tab, but it's also convenient to see it up-front.
-    if let Some(p) = app.primary.sim.get_pandemic_model() {
-        // TODO add hospitalization/quarantine probably
-        let status = if p.is_sane(id) {
-            "Susceptible".to_string()
-        } else if p.is_exposed(id) {
-            format!("Exposed at {}", p.get_time(id).unwrap().ampm_tostring())
-        } else if p.is_infectious(id) {
-            format!("Infected at {}", p.get_time(id).unwrap().ampm_tostring())
-        } else if p.is_recovered(id) {
-            format!("Recovered at {}", p.get_time(id).unwrap().ampm_tostring())
-        } else if p.is_dead(id) {
-            format!("Dead at {}", p.get_time(id).unwrap().ampm_tostring())
-        } else {
-            // TODO More info here? Make these public too?
-            "Other (hospitalized or quarantined)".to_string()
-        };
-        rows.push(
-            Text::from_all(vec![
-                Line("Pandemic model state: ").secondary(),
-                Line(status),
-            ])
-            .draw(ctx)
-            .margin_below(5),
-        );
-    }
-
     let map = &app.primary.map;
     let sim = &app.primary.sim;
     let person = sim.get_person(id);
@@ -224,6 +197,39 @@ pub fn bio(
     // - Rides a fixie
     // - Has 17 pinky toe piercings (surprising, considering they're the state champ at
     // barefoot marathons)
+
+    if let Some(p) = app.primary.sim.get_pandemic_model() {
+        // TODO add hospitalization/quarantine probably
+        let status = if p.is_sane(id) {
+            "Susceptible".to_string()
+        } else if p.is_exposed(id) {
+            format!("Exposed at {}", p.get_time(id).unwrap().ampm_tostring())
+        } else if p.is_infectious(id) {
+            format!("Infected at {}", p.get_time(id).unwrap().ampm_tostring())
+        } else if p.is_recovered(id) {
+            format!("Recovered at {}", p.get_time(id).unwrap().ampm_tostring())
+        } else if p.is_dead(id) {
+            format!("Dead at {}", p.get_time(id).unwrap().ampm_tostring())
+        } else {
+            // TODO More info here? Make these public too?
+            "Other (hospitalized or quarantined)".to_string()
+        };
+        rows.push(
+            Text::from_all(vec![
+                Line("Pandemic model state: ").secondary(),
+                Line(status),
+            ])
+            .draw(ctx)
+            .margin_below(5),
+        );
+    }
+
+    if let Some(car) = app.primary.sim.get_parked_car_owned_by(id) {
+        rows.push(Btn::text_bg2(format!("Owner of {}", car)).build_def(ctx, None));
+        details
+            .hyperlinks
+            .insert(format!("Owner of {}", car), Tab::ParkedCar(car));
+    }
 
     rows
 }

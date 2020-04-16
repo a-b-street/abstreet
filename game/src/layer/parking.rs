@@ -8,6 +8,14 @@ use std::collections::HashSet;
 
 pub fn new(ctx: &mut EventCtx, app: &App) -> Layers {
     let (filled_spots, avail_spots) = app.primary.sim.get_all_parking_spots();
+    let mut total_ppl = 0;
+    let mut has_car = 0;
+    for p in app.primary.sim.get_all_people() {
+        total_ppl += 1;
+        if p.has_car {
+            has_car += 1;
+        }
+    }
 
     // TODO Some kind of Scale abstraction that maps intervals of some quantity (percent,
     // duration) to these 4 colors
@@ -15,6 +23,10 @@ pub fn new(ctx: &mut EventCtx, app: &App) -> Layers {
         ctx,
         "Parking occupancy (per road)",
         vec![
+            format!(
+                "{:.0}% of the population owns a car",
+                100.0 * (has_car as f64) / (total_ppl as f64)
+            ),
             format!("{} spots filled", prettyprint_usize(filled_spots.len())),
             format!("{} spots available ", prettyprint_usize(avail_spots.len())),
         ],
