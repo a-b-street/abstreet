@@ -48,3 +48,4 @@ Other binary data bundled in:
 
 - Overpass font (https://fonts.google.com/specimen/Overpass, Open Font License)
 - Bungee fonts (https://fonts.google.com/specimen/Bungee, Open Font License)
+- Material Design icons (https://material.io/resources/icons, Apache license)

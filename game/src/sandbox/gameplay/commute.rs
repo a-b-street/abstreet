@@ -35,7 +35,7 @@ impl OptimizeCommute {
     pub fn new(ctx: &mut EventCtx, app: &App, person: PersonID) -> Box<dyn GameplayState> {
         let trips = app.primary.sim.get_person(person).trips.clone();
         Box::new(OptimizeCommute {
-            top_center: make_top_center(ctx, app, &trips),
+            top_center: make_top_center(ctx, app, Duration::ZERO, Duration::ZERO, 0, trips.len()),
             person,
             time: Time::START_OF_DAY,
             trips,
@@ -108,8 +108,26 @@ impl GameplayState for OptimizeCommute {
         }
 
         if self.time != app.primary.sim.time() {
-            self.top_center = make_top_center(ctx, app, &self.trips);
             self.time = app.primary.sim.time();
+
+            let (before, after, done) = get_score(app, &self.trips);
+            self.top_center = make_top_center(ctx, app, before, after, done, self.trips.len());
+
+            if done == self.trips.len() {
+                let (verdict, _success) = final_score(app, &self.trips);
+                // TODO Plumb through a next stage here
+                let next = None;
+                return (
+                    Some(Transition::Push(FinalScore::new(
+                        ctx,
+                        app,
+                        verdict,
+                        GameplayMode::OptimizeCommute(self.person),
+                        next,
+                    ))),
+                    false,
+                );
+            }
         }
 
         match self.top_center.event(ctx) {
@@ -145,23 +163,6 @@ impl GameplayState for OptimizeCommute {
             None => {}
         }
 
-        // TODO After all of the person's trips are done, we can actually end then
-        if app.primary.sim.is_done() {
-            let (verdict, _success) = final_score(app, &self.trips);
-            // TODO Plumb through a next stage here
-            let next = None;
-            return (
-                Some(Transition::Push(FinalScore::new(
-                    ctx,
-                    app,
-                    verdict,
-                    GameplayMode::OptimizeCommute(self.person),
-                    next,
-                ))),
-                false,
-            );
-        }
-
         (None, false)
     }
 
@@ -170,21 +171,37 @@ impl GameplayState for OptimizeCommute {
     }
 }
 
-fn make_top_center(ctx: &mut EventCtx, app: &App, trips: &Vec<TripID>) -> Composite {
+// Returns (before, after, number of trips done)
+fn get_score(app: &App, trips: &Vec<TripID>) -> (Duration, Duration, usize) {
     let mut done = 0;
-    let mut before_time = Duration::ZERO;
-    let mut after_time = Duration::ZERO;
+    let mut before = Duration::ZERO;
+    let mut after = Duration::ZERO;
     for t in trips {
         if let Some((total, _)) = app.primary.sim.finished_trip_time(*t) {
             done += 1;
-            after_time += total;
-            before_time += app.prebaked().finished_trip_time(*t).unwrap();
+            after += total;
+            before += app.prebaked().finished_trip_time(*t).unwrap();
         }
     }
+    (before, after, done)
+}
 
-    let mut txt = Text::from(Line(format!("Total trip time: {} (", after_time)));
-    txt.append_all(cmp_duration_shorter(after_time, before_time));
+fn make_top_center(
+    ctx: &mut EventCtx,
+    app: &App,
+    before: Duration,
+    after: Duration,
+    done: usize,
+    trips: usize,
+) -> Composite {
+    let mut txt = Text::from(Line(format!("Total trip time: {} (", after)));
+    txt.append_all(cmp_duration_shorter(after, before));
     txt.append(Line(")"));
+    let sentiment = if before - after >= GOAL {
+        "../data/system/assets/tools/happy.svg"
+    } else {
+        "../data/system/assets/tools/sad.svg"
+    };
 
     Composite::new(
         Widget::col(vec![
@@ -193,14 +210,18 @@ fn make_top_center(ctx: &mut EventCtx, app: &App, trips: &Vec<TripID>) -> Compos
                 Btn::svg_def("../data/system/assets/tools/location.svg")
                     .build(ctx, "locate VIP", None)
                     .margin_right(10),
-                format!("{}/{} trips done", done, trips.len())
+                format!("{}/{} trips done", done, trips)
                     .draw_text(ctx)
                     .margin_right(20),
                 txt.draw(ctx).margin_right(20),
-                format!("Goal: {} faster", GOAL).draw_text(ctx),
+                format!("Goal: {} faster", GOAL)
+                    .draw_text(ctx)
+                    .margin_right(5),
+                Widget::draw_svg(ctx, sentiment).centered_vert(),
             ]),
         ])
-        .bg(app.cs.panel_bg),
+        .bg(app.cs.panel_bg)
+        .padding(5),
     )
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)

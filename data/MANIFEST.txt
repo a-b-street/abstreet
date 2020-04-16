@@ -166,6 +166,8 @@ fe358c0fdf48b65117f7c4970fa35d91  data/system/assets/tools/settings.svg
 1e0135f13d0aea11650460d6a61b5463  data/system/assets/tools/edit.svg
 cddd0aa7a98d4d511138befe8f56a6b7  data/system/assets/tools/delete.svg
 13c640d3aef2067470c81cc324e91a30  data/system/assets/tools/shortcuts.svg
+be78b20de5ec9311773237f58126a26d  data/system/assets/tools/sad.svg
+c072219792a6392007d9f345e636c34d  data/system/assets/tools/happy.svg
 4221e3cc98b20265d9bbbe551a018fa6  data/system/assets/tools/redo.svg
 21b36a364bee7066abfb4b9045277600  data/system/assets/tools/save.svg
 512477d8556de48901712165e905782f  data/system/assets/tools/pin.svg
