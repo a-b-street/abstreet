@@ -1,14 +1,14 @@
 use crate::app::App;
 use crate::game::{State, Transition};
-use abstutil::Counter;
+use abstutil::{Counter, MultiMap};
 use ezgui::{
     hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, VerticalAlignment, Widget,
 };
 use geom::{Distance, PolyLine, Polygon};
-use map_model::{BuildingID, LaneType};
+use map_model::{BuildingID, LaneID, TurnType};
 use sim::Scenario;
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeSet, HashMap, HashSet};
 
 // TODO Handle borders too
 
@@ -25,6 +25,7 @@ struct Block {
     id: usize,
     bldgs: HashSet<BuildingID>,
     shape: Polygon,
+    proper: bool,
 }
 
 impl BlockMap {
@@ -33,37 +34,44 @@ impl BlockMap {
         let mut blocks = Vec::new();
 
         // Really dumb assignment to start with
-        let map = &app.primary.map;
-        for r in map.all_roads() {
-            let mut bldgs = HashSet::new();
-            for (l, lt) in r
-                .children_forwards
-                .iter()
-                .chain(r.children_backwards.iter())
-            {
-                if *lt == LaneType::Sidewalk {
-                    bldgs.extend(map.get_l(*l).building_paths.clone());
+        for (bldgs, proper) in partition_sidewalk_loops(app) {
+            let block_id = blocks.len();
+            let mut polygons = Vec::new();
+            let mut lanes = HashSet::new();
+            for b in &bldgs {
+                bldg_to_block.insert(*b, block_id);
+                let bldg = app.primary.map.get_b(*b);
+                if proper {
+                    lanes.insert(bldg.sidewalk());
+                } else {
+                    polygons.push(bldg.polygon.clone());
                 }
             }
-
-            if !bldgs.is_empty() {
-                let block_id = blocks.len();
-                let mut polygons = Vec::new();
-                for b in &bldgs {
-                    bldg_to_block.insert(*b, block_id);
-                    polygons.push(map.get_b(*b).polygon.clone());
+            if proper {
+                // TODO Even better, glue the loop of sidewalks together and fill that area.
+                for l in lanes {
+                    polygons.push(app.primary.draw_map.get_l(l).polygon.clone());
                 }
-                blocks.push(Block {
-                    id: block_id,
-                    bldgs,
-                    shape: Polygon::convex_hull(polygons),
-                });
             }
+            blocks.push(Block {
+                id: block_id,
+                bldgs,
+                shape: Polygon::convex_hull(polygons),
+                proper,
+            });
         }
 
         let mut all_blocks = GeomBatch::new();
         for block in &blocks {
-            all_blocks.push(Color::YELLOW.alpha(0.5), block.shape.clone());
+            all_blocks.push(
+                if block.proper {
+                    Color::YELLOW
+                } else {
+                    Color::ORANGE
+                }
+                .alpha(0.5),
+                block.shape.clone(),
+            );
         }
 
         BlockMap {
@@ -175,4 +183,72 @@ impl State for BlockMap {
 
         self.composite.draw(g);
     }
+}
+
+// True if it's a "proper" block, false if it's a hack.
+fn partition_sidewalk_loops(app: &App) -> Vec<(HashSet<BuildingID>, bool)> {
+    let map = &app.primary.map;
+
+    let mut groups = Vec::new();
+    let mut todo_bldgs: BTreeSet<BuildingID> = map.all_buildings().iter().map(|b| b.id).collect();
+    let mut remainder = HashSet::new();
+
+    while !todo_bldgs.is_empty() {
+        let mut sidewalks = HashSet::new();
+        let mut bldgs = HashSet::new();
+        let mut current_l = map.get_b(*todo_bldgs.iter().next().unwrap()).sidewalk();
+        let mut current_i = map.get_l(current_l).src_i;
+
+        let ok = loop {
+            sidewalks.insert(current_l);
+            for b in &map.get_l(current_l).building_paths {
+                bldgs.insert(*b);
+                // TODO I wanted to assert that we haven't assigned this one yet, but...
+                todo_bldgs.remove(b);
+            }
+
+            // Chase SharedSidewalkCorners. There should be zero or one new option for corners.
+            let turns = map
+                .get_turns_from_lane(current_l)
+                .into_iter()
+                .filter(|t| {
+                    t.turn_type == TurnType::SharedSidewalkCorner && t.id.parent != current_i
+                })
+                .collect::<Vec<_>>();
+            if turns.is_empty() {
+                // TODO If we're not a loop, maybe toss this out. It's arbitrary that we didn't go
+                // look the other way.
+                break false;
+            } else if turns.len() == 1 {
+                current_l = turns[0].id.dst;
+                current_i = turns[0].id.parent;
+                if sidewalks.contains(&current_l) {
+                    // Loop closed!
+                    break true;
+                }
+            } else {
+                panic!(
+                    "Too many SharedSidewalkCorners from ({}, {})",
+                    current_l, current_i
+                );
+            };
+        };
+
+        if ok {
+            groups.push((bldgs, true));
+        } else {
+            remainder.extend(bldgs);
+        }
+    }
+
+    // For all the weird remainders, just group them based on sidewalk.
+    let mut per_sidewalk: MultiMap<LaneID, BuildingID> = MultiMap::new();
+    for b in remainder {
+        per_sidewalk.insert(map.get_b(b).sidewalk(), b);
+    }
+    for (_, bldgs) in per_sidewalk.consume() {
+        groups.push((bldgs.into_iter().collect(), false));
+    }
+
+    groups
 }
