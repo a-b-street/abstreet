@@ -36,7 +36,7 @@ pub fn trips(
     let mut wheres_waldo = true;
     let mut is_first = true;
     for t in &person.trips {
-        let (trip_status, maybe_info) = match sim.trip_to_agent(*t) {
+        let (trip_status, color, maybe_info) = match sim.trip_to_agent(*t) {
             TripResult::TripNotStarted => {
                 if wheres_waldo {
                     wheres_waldo = false;
@@ -45,6 +45,7 @@ pub fn trips(
 
                 (
                     "future",
+                    Color::hex("#4CA7E9"),
                     open_trips
                         .get(t)
                         .map(|_| trip::future(ctx, app, *t, details)),
@@ -55,6 +56,7 @@ pub fn trips(
                 wheres_waldo = false;
                 (
                     "ongoing",
+                    Color::hex("#7FFA4D"),
                     open_trips
                         .get(t)
                         .map(|_| trip::ongoing(ctx, app, *t, a, details)),
@@ -64,12 +66,13 @@ pub fn trips(
                 // TODO No details. Weird case.
                 assert!(wheres_waldo);
                 wheres_waldo = false;
-                ("ongoing", None)
+                ("ongoing", Color::hex("#7FFA4D"), None)
             }
             TripResult::TripDone => {
                 assert!(wheres_waldo);
                 (
                     "finished",
+                    Color::hex("#A3A3A3"),
                     open_trips.get(t).map(|show_after| {
                         trip::finished(ctx, app, id, open_trips, *t, *show_after, details)
                     }),
@@ -77,7 +80,7 @@ pub fn trips(
             }
             TripResult::TripAborted => {
                 // Aborted trips can happen anywhere in the schedule right now
-                ("cancelled", None)
+                ("cancelled", Color::hex("#EB3223"), None)
             }
             TripResult::TripDoesntExist => unreachable!(),
         };
@@ -90,38 +93,36 @@ pub fn trips(
                     Line(format!("{} ", t)),
                     Line(trip_mode.ongoing_verb()).secondary(),
                 ])
-                .draw(ctx),
+                .draw(ctx)
+                .margin_right(21),
                 // TODO Vertical alignment is weird
-                if trip_status == "ongoing" {
-                    // TODO Padding doesn't work without wrapping in a row
-                    Widget::row(vec![Line(trip_status)
-                        .small()
-                        .fg(Color::hex("#7FFA4D"))
-                        .draw(ctx)])
+                Line(trip_status)
+                    .small()
+                    .fg(color)
+                    .draw(ctx)
+                    .container()
                     .fully_rounded()
-                    .outline(1.0, Color::hex("#7FFA4D"))
-                    .bg(Color::rgba(127, 250, 77, 0.2))
+                    .outline(1.0, color)
+                    .bg(color.alpha(0.2))
                     .padding(5)
-                } else if trip_status == "finished" {
+                    .margin_right(21),
+                if trip_status == "finished" {
                     if let Some(before) = app
                         .has_prebaked()
                         .and_then(|_| app.prebaked().finished_trip_time(*t))
                     {
                         let (after, _) = app.primary.sim.finished_trip_time(*t).unwrap();
-                        let mut txt = Text::from(Line("finished ").small());
-                        txt.append_all(cmp_duration_shorter(after, before));
-                        txt.draw(ctx)
+                        Text::from(cmp_duration_shorter(after, before)).draw(ctx)
                     } else {
-                        Line("finished").small().draw(ctx)
+                        Widget::nothing()
                     }
                 } else {
-                    Line(trip_status).small().draw(ctx)
-                }
-                .margin_horiz(15),
+                    Widget::nothing()
+                },
                 Btn::plaintext(if open_trips.contains_key(t) {
-                    "▲"
-                } else {
                     "▼"
+                } else {
+                    "▲"
                 })
                 .build(
                     ctx,
@@ -310,7 +311,7 @@ fn header(
             building::draw_occupants(details, app, b, Some(id));
             (
                 None,
-                ("inside", Some("../data/system/assets/tools/home.svg")),
+                ("indoors", Some("../data/system/assets/tools/home.svg")),
             )
         }
         PersonState::Trip(t) => (
@@ -409,25 +410,17 @@ fn current_status(ctx: &EventCtx, person: &Person, map: &Map) -> Widget {
 }
 
 // TODO Dedupe with the version in helpers
-fn cmp_duration_shorter(after: Duration, before: Duration) -> Vec<TextSpan> {
+fn cmp_duration_shorter(after: Duration, before: Duration) -> TextSpan {
     if after.epsilon_eq(before) {
-        vec![Line("(no change)").small()]
+        Line("no change").small()
     } else if after < before {
-        vec![
-            Line("(").small(),
-            Line(format!("{} faster", before - after))
-                .small()
-                .fg(Color::GREEN),
-            Line(")").small(),
-        ]
+        Line(format!("{} faster", before - after))
+            .small()
+            .fg(Color::GREEN)
     } else if after > before {
-        vec![
-            Line("(").small(),
-            Line(format!("{} slower", after - before))
-                .small()
-                .fg(Color::RED),
-            Line(")").small(),
-        ]
+        Line(format!("{} slower", after - before))
+            .small()
+            .fg(Color::RED)
     } else {
         unreachable!()
     }
