@@ -108,17 +108,8 @@ pub fn ongoing(
 
 pub fn future(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Details) -> Widget {
     let (start_time, trip_start, trip_end, _) = app.primary.sim.trip_info(trip);
-    // TODO Warp buttons. make_table is showing its age.
-    let (_, _, name1) = endpoint(&trip_start, &app.primary.map);
-    let (_, _, name2) = endpoint(&trip_end, &app.primary.map);
-    let mut col = make_table(
-        ctx,
-        vec![
-            ("Departure", start_time.ampm_tostring()),
-            ("From", name1),
-            ("To", name2),
-        ],
-    );
+
+    let mut col = Vec::new();
 
     col.push(
         Btn::text_bg2("Wait for trip")
@@ -132,6 +123,30 @@ pub fn future(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Details
     details
         .time_warpers
         .insert(format!("wait for {}", trip), (trip, start_time));
+
+    if app.has_prebaked().is_some() {
+        let phases = app.prebaked().get_trip_phases(trip, &app.primary.map);
+        let estimated_trip_time =
+            phases.last().as_ref().and_then(|p| p.end_time).unwrap() - start_time;
+        col.extend(make_table(
+            ctx,
+            vec![("Estimated trip time", estimated_trip_time.to_string())],
+        ));
+
+        col.push(make_timeline(ctx, app, trip, details, phases, None));
+    } else {
+        // TODO Warp buttons. make_table is showing its age.
+        let (_, _, name1) = endpoint(&trip_start, &app.primary.map);
+        let (_, _, name2) = endpoint(&trip_end, &app.primary.map);
+        col.extend(make_table(
+            ctx,
+            vec![
+                ("Departure", start_time.ampm_tostring()),
+                ("From", name1),
+                ("To", name2),
+            ],
+        ));
+    }
 
     Widget::col(col)
 }
@@ -255,13 +270,11 @@ fn make_timeline(
             Angle::ZERO,
             RewriteColor::NoOp,
         );
-        let mut txt = Text::from(Line(name));
-        txt.add(Line(start_time.ampm_tostring()));
         Btn::svg(
             "../data/system/assets/timeline/start_pos.svg",
             RewriteColor::Change(Color::WHITE, app.cs.hovering),
         )
-        .tooltip(txt)
+        .tooltip(Text::from(Line(name)))
         .build(ctx, format!("jump to start of {}", trip), None)
     };
 
@@ -286,15 +299,11 @@ fn make_timeline(
             Angle::ZERO,
             RewriteColor::NoOp,
         );
-        let mut txt = Text::from(Line(name));
-        if let Some(t) = end_time {
-            txt.add(Line(t.ampm_tostring()));
-        }
         Btn::svg(
             "../data/system/assets/timeline/goal_pos.svg",
             RewriteColor::Change(Color::WHITE, app.cs.hovering),
         )
-        .tooltip(txt)
+        .tooltip(Text::from(Line(name)))
         .build(ctx, format!("jump to goal of {}", trip), None)
     };
 

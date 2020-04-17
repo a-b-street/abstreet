@@ -34,8 +34,7 @@ pub fn trips(
 
     // I'm sorry for bad variable names
     let mut wheres_waldo = true;
-    let mut is_first = true;
-    for t in &person.trips {
+    for (idx, t) in person.trips.iter().enumerate() {
         let (trip_status, color, maybe_info) = match sim.trip_to_agent(*t) {
             TripResult::TripNotStarted => {
                 if wheres_waldo {
@@ -90,7 +89,7 @@ pub fn trips(
         rows.push(
             Widget::row(vec![
                 Text::from_all(vec![
-                    Line(format!("{} ", t)),
+                    Line(format!("Trip {} ", idx + 1)),
                     Line(trip_mode.ongoing_verb()).secondary(),
                 ])
                 .draw(ctx)
@@ -142,9 +141,8 @@ pub fn trips(
             .outline(2.0, Color::WHITE)
             .padding(16)
             .bg(app.cs.inner_panel)
-            .margin_above(if is_first { 0 } else { 16 }),
+            .margin_above(if idx == 0 { 0 } else { 16 }),
         );
-        is_first = false;
 
         if let Some(info) = maybe_info {
             rows.push(
