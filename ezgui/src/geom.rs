@@ -181,7 +181,6 @@ impl GeomBatch {
     }
 }
 
-#[derive(Clone)]
 pub enum RewriteColor {
     NoOp,
     Change(Color, Color),

@@ -179,11 +179,15 @@ pub fn finished(
             format!("show before changes for {}", trip),
             Tab::PersonTrips(person, open),
         );
-        col.push(Btn::text_bg2("Show before changes").build(
-            ctx,
-            format!("show before changes for {}", trip),
-            None,
-        ));
+        col.push(
+            Btn::text_bg(
+                format!("show before changes for {}", trip),
+                Text::from_all(vec![Line("After / "), Line("Before").secondary()]),
+                app.cs.section_bg,
+                app.cs.hovering,
+            )
+            .build_def(ctx, None),
+        );
     } else if app.has_prebaked().is_some() {
         let mut open = open_trips.clone();
         open.insert(trip, true);
@@ -191,11 +195,15 @@ pub fn finished(
             format!("show after changes for {}", trip),
             Tab::PersonTrips(person, open),
         );
-        col.push(Btn::text_bg2("Show after changes").build(
-            ctx,
-            format!("show after changes for {}", trip),
-            None,
-        ));
+        col.push(
+            Btn::text_bg(
+                format!("show after changes for {}", trip),
+                Text::from_all(vec![Line("After / ").secondary(), Line("Before")]),
+                app.cs.section_bg,
+                app.cs.hovering,
+            )
+            .build_def(ctx, None),
+        );
     }
 
     {

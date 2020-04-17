@@ -192,7 +192,6 @@ impl Btn {
     }
 }
 
-#[derive(Clone)]
 pub enum BtnBuilder {
     SVG {
         path: String,
