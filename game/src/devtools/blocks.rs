@@ -25,7 +25,6 @@ struct Block {
     id: usize,
     bldgs: HashSet<BuildingID>,
     shape: Polygon,
-    proper: bool,
 }
 
 impl BlockMap {
@@ -57,21 +56,12 @@ impl BlockMap {
                 id: block_id,
                 bldgs,
                 shape: Polygon::convex_hull(polygons),
-                proper,
             });
         }
 
         let mut all_blocks = GeomBatch::new();
         for block in &blocks {
-            all_blocks.push(
-                if block.proper {
-                    Color::YELLOW
-                } else {
-                    Color::ORANGE
-                }
-                .alpha(0.5),
-                block.shape.clone(),
-            );
+            all_blocks.push(Color::YELLOW.alpha(0.5), block.shape.clone());
         }
 
         BlockMap {
@@ -83,12 +73,16 @@ impl BlockMap {
             composite: Composite::new(
                 Widget::col(vec![
                     Widget::row(vec![
-                        Line("Commute map by block").small_heading().draw(ctx),
+                        Line("Commute map by block")
+                            .small_heading()
+                            .draw(ctx)
+                            .margin_right(10),
                         Btn::text_fg("X")
                             .build_def(ctx, hotkey(Key::Escape))
                             .align_right(),
                     ]),
-                    Checkbox::text(ctx, "trips from this block", hotkey(Key::Space), true),
+                    Checkbox::text(ctx, "from / to this block", hotkey(Key::Space), true),
+                    Checkbox::text(ctx, "arrows / heatmap", hotkey(Key::H), true),
                 ])
                 .padding(10)
                 .bg(app.cs.panel_bg),
@@ -146,6 +140,7 @@ impl State for BlockMap {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.redraw(&self.draw_all_blocks);
+        self.composite.draw(g);
 
         // TODO Expensive!
         if let Some(pt) = g.get_cursor_in_map_space() {
@@ -156,32 +151,36 @@ impl State for BlockMap {
                         batch.push(Color::PURPLE, app.primary.map.get_b(*b).polygon.clone());
                     }
 
-                    let from = self.composite.is_checked("trips from this block");
+                    let from = self.composite.is_checked("from / to this block");
+                    let arrows = self.composite.is_checked("arrows / heatmap");
                     let others = self.count_per_block(block, from);
                     if !others.is_empty() {
                         let max_cnt = others.iter().map(|(_, cnt)| *cnt).max().unwrap() as f64;
                         for (other, cnt) in others {
-                            batch.push(
-                                Color::hex("#A32015").alpha(0.7),
-                                PolyLine::new(if from {
-                                    vec![block.shape.center(), other.shape.center()]
-                                } else {
-                                    vec![other.shape.center(), block.shape.center()]
-                                })
-                                .make_arrow(Distance::meters(15.0) * (cnt as f64) / max_cnt)
-                                .unwrap(),
-                            );
+                            let pct = (cnt as f64) / max_cnt;
+                            if arrows {
+                                batch.push(
+                                    Color::hex("#A32015").alpha(0.7),
+                                    PolyLine::new(if from {
+                                        vec![block.shape.center(), other.shape.center()]
+                                    } else {
+                                        vec![other.shape.center(), block.shape.center()]
+                                    })
+                                    .make_arrow(Distance::meters(15.0) * pct)
+                                    .unwrap(),
+                                );
+                            } else {
+                                batch.push(Color::RED.alpha(pct as f32), other.shape.clone());
+                            }
                         }
                     }
 
                     let draw = g.upload(batch);
                     g.redraw(&draw);
-                    break;
+                    return;
                 }
             }
         }
-
-        self.composite.draw(g);
     }
 }
 
