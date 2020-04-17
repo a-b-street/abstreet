@@ -1,3 +1,4 @@
+mod blocks;
 mod neighborhood;
 mod scenario;
 

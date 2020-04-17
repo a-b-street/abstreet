@@ -1,5 +1,6 @@
 use crate::app::App;
 use crate::common::{tool_panel, Colorer, CommonState, ContextualActions, Warping};
+use crate::devtools::blocks::BlockMap;
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
@@ -127,6 +128,7 @@ impl ScenarioManager {
                     ),
                 ],
                 vec![
+                    (hotkey(Key::B), "block map"),
                     (hotkey(Key::D), "dot map"),
                     (lctrl(Key::P), "stop showing paths"),
                 ],
@@ -153,6 +155,13 @@ impl State for ScenarioManager {
                 }
                 "dot map" => {
                     return Transition::Push(Box::new(DotMap::new(ctx, app, &self.scenario)));
+                }
+                "block map" => {
+                    return Transition::Push(Box::new(BlockMap::new(
+                        ctx,
+                        app,
+                        self.scenario.clone(),
+                    )));
                 }
                 // TODO Inactivate this sometimes
                 "stop showing paths" => {
