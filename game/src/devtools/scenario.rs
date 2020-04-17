@@ -41,48 +41,17 @@ impl ScenarioManager {
             for (idx2, trip) in person.trips.iter().enumerate() {
                 num_trips += 1;
                 let idx = (idx1, idx2);
-                // trips_from_bldg and trips_from_border
-                match &trip.trip {
-                    // TODO CarAppearing might be from a border
-                    SpawnTrip::CarAppearing { .. } => {}
-                    SpawnTrip::MaybeUsingParkedCar(b, _) => {
-                        trips_from_bldg.insert(*b, idx);
-                    }
-                    SpawnTrip::UsingBike(ref spot, _)
-                    | SpawnTrip::JustWalking(ref spot, _)
-                    | SpawnTrip::UsingTransit(ref spot, _, _, _, _) => match spot.connection {
-                        SidewalkPOI::Building(b) => {
-                            trips_from_bldg.insert(b, idx);
-                        }
-                        SidewalkPOI::Border(i) => {
-                            trips_from_border.insert(i, idx);
-                        }
-                        _ => {}
-                    },
+                if let Some(b) = trip.trip.start_from_bldg() {
+                    trips_from_bldg.insert(b, idx);
                 }
-
-                // trips_to_bldg and trips_to_border
-                match trip.trip {
-                    SpawnTrip::CarAppearing { ref goal, .. }
-                    | SpawnTrip::MaybeUsingParkedCar(_, ref goal)
-                    | SpawnTrip::UsingBike(_, ref goal) => match goal {
-                        DrivingGoal::ParkNear(b) => {
-                            trips_to_bldg.insert(*b, idx);
-                        }
-                        DrivingGoal::Border(i, _) => {
-                            trips_to_border.insert(*i, idx);
-                        }
-                    },
-                    SpawnTrip::JustWalking(_, ref spot)
-                    | SpawnTrip::UsingTransit(_, ref spot, _, _, _) => match spot.connection {
-                        SidewalkPOI::Building(b) => {
-                            trips_to_bldg.insert(b, idx);
-                        }
-                        SidewalkPOI::Border(i) => {
-                            trips_to_border.insert(i, idx);
-                        }
-                        _ => {}
-                    },
+                if let Some(i) = trip.trip.start_from_border() {
+                    trips_from_border.insert(i, idx);
+                }
+                if let Some(b) = trip.trip.end_at_bldg() {
+                    trips_to_bldg.insert(b, idx);
+                }
+                if let Some(i) = trip.trip.end_at_border() {
+                    trips_to_border.insert(i, idx);
                 }
             }
         }

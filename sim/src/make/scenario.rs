@@ -1,10 +1,10 @@
 use crate::{
-    DrivingGoal, ParkingSpot, PersonID, SidewalkSpot, Sim, TripSpec, VehicleSpec, VehicleType,
-    BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
+    DrivingGoal, ParkingSpot, PersonID, SidewalkPOI, SidewalkSpot, Sim, TripSpec, VehicleSpec,
+    VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
 };
 use abstutil::{MultiMap, Timer};
 use geom::{Distance, Duration, Speed, Time};
-use map_model::{BuildingID, BusRouteID, BusStopID, Map, Position, RoadID};
+use map_model::{BuildingID, BusRouteID, BusStopID, IntersectionID, Map, Position, RoadID};
 use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
@@ -335,6 +335,67 @@ impl SpawnTrip {
                 stop2,
                 ped_speed: Scenario::rand_ped_speed(rng),
             },
+        }
+    }
+
+    pub fn start_from_bldg(&self) -> Option<BuildingID> {
+        match self {
+            SpawnTrip::CarAppearing { .. } => None,
+            SpawnTrip::MaybeUsingParkedCar(b, _) => Some(*b),
+            SpawnTrip::UsingBike(ref spot, _)
+            | SpawnTrip::JustWalking(ref spot, _)
+            | SpawnTrip::UsingTransit(ref spot, _, _, _, _) => match spot.connection {
+                SidewalkPOI::Building(b) => Some(b),
+                _ => None,
+            },
+        }
+    }
+
+    pub fn start_from_border(&self) -> Option<IntersectionID> {
+        match self {
+            // TODO CarAppearing might be from a border
+            SpawnTrip::CarAppearing { .. } => None,
+            SpawnTrip::MaybeUsingParkedCar(_, _) => None,
+            SpawnTrip::UsingBike(ref spot, _)
+            | SpawnTrip::JustWalking(ref spot, _)
+            | SpawnTrip::UsingTransit(ref spot, _, _, _, _) => match spot.connection {
+                SidewalkPOI::Border(i) => Some(i),
+                _ => None,
+            },
+        }
+    }
+
+    pub fn end_at_bldg(&self) -> Option<BuildingID> {
+        match self {
+            SpawnTrip::CarAppearing { ref goal, .. }
+            | SpawnTrip::MaybeUsingParkedCar(_, ref goal)
+            | SpawnTrip::UsingBike(_, ref goal) => match goal {
+                DrivingGoal::ParkNear(b) => Some(*b),
+                DrivingGoal::Border(_, _) => None,
+            },
+            SpawnTrip::JustWalking(_, ref spot) | SpawnTrip::UsingTransit(_, ref spot, _, _, _) => {
+                match spot.connection {
+                    SidewalkPOI::Building(b) => Some(b),
+                    _ => None,
+                }
+            }
+        }
+    }
+
+    pub fn end_at_border(&self) -> Option<IntersectionID> {
+        match self {
+            SpawnTrip::CarAppearing { ref goal, .. }
+            | SpawnTrip::MaybeUsingParkedCar(_, ref goal)
+            | SpawnTrip::UsingBike(_, ref goal) => match goal {
+                DrivingGoal::ParkNear(_) => None,
+                DrivingGoal::Border(i, _) => Some(*i),
+            },
+            SpawnTrip::JustWalking(_, ref spot) | SpawnTrip::UsingTransit(_, ref spot, _, _, _) => {
+                match spot.connection {
+                    SidewalkPOI::Border(i) => Some(i),
+                    _ => None,
+                }
+            }
         }
     }
 }
