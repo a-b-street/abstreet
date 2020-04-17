@@ -111,19 +111,6 @@ pub fn future(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Details
 
     let mut col = Vec::new();
 
-    col.push(
-        Btn::text_bg2("Wait for trip")
-            .tooltip(Text::from(Line(format!(
-                "This will advance the simulation to {}",
-                start_time.ampm_tostring()
-            ))))
-            .build(ctx, format!("wait for {}", trip), None)
-            .margin(5),
-    );
-    details
-        .time_warpers
-        .insert(format!("wait for {}", trip), (trip, start_time));
-
     if app.has_prebaked().is_some() {
         let phases = app.prebaked().get_trip_phases(trip, &app.primary.map);
         let estimated_trip_time =
@@ -146,6 +133,19 @@ pub fn future(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Details
                 ("To", name2),
             ],
         ));
+
+        col.push(
+            Btn::text_bg2("Wait for trip")
+                .tooltip(Text::from(Line(format!(
+                    "This will advance the simulation to {}",
+                    start_time.ampm_tostring()
+                ))))
+                .build(ctx, format!("wait for {}", trip), None)
+                .margin(5),
+        );
+        details
+            .time_warpers
+            .insert(format!("wait for {}", trip), (trip, start_time));
     }
 
     Widget::col(col)
@@ -172,45 +172,31 @@ pub fn finished(
 
     let mut col = Vec::new();
 
-    col.push(
-        Widget::row(vec![
-            Btn::text_bg2("Watch trip")
-                .tooltip(Text::from(Line(format!(
-                    "This will reset the simulation to {}",
-                    start_time.ampm_tostring()
-                ))))
-                .build(ctx, format!("watch {}", trip), None),
-            if show_after && app.has_prebaked().is_some() {
-                let mut open = open_trips.clone();
-                open.insert(trip, false);
-                details.hyperlinks.insert(
-                    format!("show before changes for {}", trip),
-                    Tab::PersonTrips(person, open),
-                );
-                Btn::text_bg2("Show before changes").build(
-                    ctx,
-                    format!("show before changes for {}", trip),
-                    None,
-                )
-            } else {
-                let mut open = open_trips.clone();
-                open.insert(trip, true);
-                details.hyperlinks.insert(
-                    format!("show after changes for {}", trip),
-                    Tab::PersonTrips(person, open),
-                );
-                Btn::text_bg2("Show after changes").build(
-                    ctx,
-                    format!("show after changes for {}", trip),
-                    None,
-                )
-            },
-        ])
-        .evenly_spaced(),
-    );
-    details
-        .time_warpers
-        .insert(format!("watch {}", trip), (trip, start_time));
+    if show_after && app.has_prebaked().is_some() {
+        let mut open = open_trips.clone();
+        open.insert(trip, false);
+        details.hyperlinks.insert(
+            format!("show before changes for {}", trip),
+            Tab::PersonTrips(person, open),
+        );
+        col.push(Btn::text_bg2("Show before changes").build(
+            ctx,
+            format!("show before changes for {}", trip),
+            None,
+        ));
+    } else if app.has_prebaked().is_some() {
+        let mut open = open_trips.clone();
+        open.insert(trip, true);
+        details.hyperlinks.insert(
+            format!("show after changes for {}", trip),
+            Tab::PersonTrips(person, open),
+        );
+        col.push(Btn::text_bg2("Show after changes").build(
+            ctx,
+            format!("show after changes for {}", trip),
+            None,
+        ));
+    }
 
     {
         let col_width = 15;
@@ -440,16 +426,57 @@ fn make_timeline(
 
     timeline.insert(0, start_btn.margin(5));
     timeline.push(goal_btn.margin(5));
+
     let mut col = vec![
         Widget::row(timeline).evenly_spaced().margin_above(25),
-        if let Some(t) = end_time {
-            Widget::row(vec![
-                start_time.ampm_tostring().draw_text(ctx),
-                t.ampm_tostring().draw_text(ctx).align_right(),
-            ])
-        } else {
-            start_time.ampm_tostring().draw_text(ctx)
-        },
+        Widget::row(vec![
+            start_time.ampm_tostring().draw_text(ctx),
+            if let Some(t) = end_time {
+                t.ampm_tostring().draw_text(ctx).align_right()
+            } else {
+                Widget::nothing()
+            },
+        ]),
+        Widget::row(vec![
+            {
+                details
+                    .time_warpers
+                    .insert(format!("jump to {}", start_time), (trip, start_time));
+                Btn::svg(
+                    "../data/system/assets/speed/info_jump_to_time.svg",
+                    RewriteColor::Change(Color::WHITE, app.cs.hovering),
+                )
+                .tooltip({
+                    let mut txt = Text::from(Line("This will jump to "));
+                    txt.append(Line(start_time.ampm_tostring()).fg(Color::hex("#F9EC51")));
+                    txt.add(Line("The simulation will continue, and your score"));
+                    txt.add(Line("will be calculated at this new time."));
+                    txt
+                })
+                .build(ctx, format!("jump to {}", start_time), None)
+            },
+            if let Some(t) = end_time {
+                details
+                    .time_warpers
+                    .insert(format!("jump to {}", t), (trip, t));
+                Btn::svg(
+                    "../data/system/assets/speed/info_jump_to_time.svg",
+                    RewriteColor::Change(Color::WHITE, app.cs.hovering),
+                )
+                .tooltip({
+                    let mut txt = Text::from(Line("This will jump to "));
+                    txt.append(Line(t.ampm_tostring()).fg(Color::hex("#F9EC51")));
+                    txt.add(Line("The simulation will continue, and your score"));
+                    txt.add(Line("will be calculated at this new time."));
+                    txt
+                })
+                .build(ctx, format!("jump to {}", t), None)
+                .align_right()
+            } else {
+                Widget::nothing()
+            },
+        ])
+        .margin_above(5),
     ];
     // TODO This just needs too much more work
     if false {

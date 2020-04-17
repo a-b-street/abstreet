@@ -154,6 +154,7 @@ d4615c4cb06658959bacb474293211f8  data/system/assets/pregame/start.svg
 cc045df994fa528adafee4f7115fcc0d  data/system/assets/speed/slow_down.svg
 11b856ac818e797ef5e496f38b397cf1  data/system/assets/speed/sunrise.svg
 bc920c3406bd82b4f54b63845fede3ca  data/system/assets/speed/pause.svg
+5c6762f5323eb76a305846da6b9a482a  data/system/assets/speed/info_jump_to_time.svg
 11cdf641bcffa88cfbcb9bfa3c1542bd  data/system/assets/speed/jump_to_time.svg
 a28c5fa18d32c3325a5f7326fed876fa  data/system/assets/speed/reset.svg
 e348fda658d0fcb6bb8abdcec23d1dab  data/system/assets/speed/speed_up.svg
