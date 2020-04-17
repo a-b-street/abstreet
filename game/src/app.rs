@@ -1,3 +1,4 @@
+use crate::challenges::HighScore;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::layer::Layers;
@@ -5,13 +6,14 @@ use crate::options::Options;
 use crate::render::{
     AgentCache, AgentColorScheme, DrawMap, DrawOptions, Renderable, MIN_ZOOM_FOR_DETAIL,
 };
-use crate::sandbox::TutorialState;
+use crate::sandbox::{GameplayMode, TutorialState};
 use abstutil::{MeasureMemory, Timer};
 use ezgui::{EventCtx, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Pt2D};
 use map_model::{Map, Traversable};
 use rand::seq::SliceRandom;
 use sim::{Analytics, GetDrawAgents, Sim, SimFlags};
+use std::collections::HashMap;
 
 pub struct App {
     pub primary: PerMap,
@@ -494,13 +496,18 @@ impl PerMap {
     }
 }
 
+// TODO Serialize these, but in a very careful, future-compatible way
 pub struct SessionState {
     pub tutorial: Option<TutorialState>,
+    pub high_scores: HashMap<GameplayMode, Vec<HighScore>>,
 }
 
 impl SessionState {
     pub fn empty() -> SessionState {
-        SessionState { tutorial: None }
+        SessionState {
+            tutorial: None,
+            high_scores: HashMap::new(),
+        }
     }
 }
 

@@ -3,14 +3,13 @@ use crate::game::{State, Transition};
 use crate::managed::{Callback, ManagedGUIState, WrappedComposite};
 use crate::sandbox::{GameplayMode, SandboxMode, TutorialState};
 use abstutil::Timer;
-use ezgui::{hotkey, Btn, Color, Composite, EventCtx, Key, Line, Text, Widget};
+use ezgui::{hotkey, Btn, Color, Composite, EventCtx, Key, Line, Text, TextExt, Widget};
 use geom::{Duration, Time};
 use map_model::Map;
 use sim::{PersonID, Scenario, Sim, SimFlags, SimOptions};
 use std::collections::{BTreeMap, HashSet};
 
 // TODO Also have some kind of screenshot to display for each challenge
-#[derive(Clone)]
 pub struct Challenge {
     title: String,
     pub description: Vec<String>,
@@ -18,7 +17,13 @@ pub struct Challenge {
     pub gameplay: GameplayMode,
     cutscene: Option<fn(&mut EventCtx, &App) -> Box<dyn State>>,
 }
-impl abstutil::Cloneable for Challenge {}
+
+// TODO Assuming the measurement is always maximizing time savings from a goal.
+pub struct HighScore {
+    pub goal: Duration,
+    pub score: Duration,
+    pub edits_name: String,
+}
 
 pub fn all_challenges(dev: bool) -> BTreeMap<String, Vec<Challenge>> {
     let mut tree = BTreeMap::new();
@@ -189,17 +194,36 @@ impl Tab {
             for l in &challenge.description {
                 txt.add(Line(l));
             }
+
+            let mut inner_col = vec![
+                txt.draw(ctx),
+                Btn::text_fg("Start!")
+                    .build_def(ctx, hotkey(Key::Enter))
+                    .margin(10),
+            ];
+
+            if let Some(scores) = app.session.high_scores.get(&challenge.gameplay) {
+                let mut txt = Text::from(Line(format!("{} high scores:", scores.len())));
+                txt.add(Line(format!("Goal: {} faster", scores[0].goal)));
+                let mut idx = 1;
+                for score in scores {
+                    txt.add(Line(format!(
+                        "{}) {} faster, using edits: {}",
+                        idx, score.score, score.edits_name
+                    )));
+                    idx += 1;
+                }
+                inner_col.push(txt.draw(ctx));
+            } else {
+                inner_col.push("No attempts yet".draw_text(ctx));
+            }
+
             main_row.push(
-                Widget::col(vec![
-                    txt.draw(ctx),
-                    Btn::text_fg("Start!")
-                        .build_def(ctx, hotkey(Key::Enter))
-                        .margin(10),
-                ])
-                .bg(app.cs.panel_bg)
-                .padding(10)
-                .margin(10)
-                .outline(10.0, Color::BLACK),
+                Widget::col(inner_col)
+                    .bg(app.cs.panel_bg)
+                    .padding(10)
+                    .margin(10)
+                    .outline(10.0, Color::BLACK),
             );
             cbs.push((
                 "Start!".to_string(),

@@ -28,7 +28,7 @@ use map_model::{EditCmd, EditIntersection, Map, MapEdits};
 use rand_xorshift::XorShiftRng;
 use sim::{Analytics, PersonID, Scenario, ScenarioGenerator};
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Eq, Hash, Clone)]
 pub enum GameplayMode {
     // TODO Maybe this should be "sandbox"
     // Map path
@@ -353,6 +353,7 @@ fn challenge_controller(
     )
 }
 
+// TODO Haha, I'm already ditching this. We'll see what evolves instead.
 struct FinalScore {
     composite: Composite,
     mode: GameplayMode,

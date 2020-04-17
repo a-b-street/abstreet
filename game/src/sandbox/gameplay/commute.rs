@@ -1,20 +1,21 @@
 use crate::app::App;
+use crate::challenges::{challenges_picker, HighScore};
 use crate::common::{ContextualActions, Tab};
 use crate::cutscene::CutsceneBuilder;
 use crate::edit::EditMode;
 use crate::game::{State, Transition};
 use crate::helpers::cmp_duration_shorter;
 use crate::helpers::ID;
-use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
-use crate::sandbox::SandboxControls;
+use crate::pregame::main_menu;
+use crate::sandbox::gameplay::{challenge_header, GameplayMode, GameplayState};
+use crate::sandbox::{SandboxControls, SandboxMode};
 use ezgui::{
-    Btn, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Text, TextExt,
-    VerticalAlignment, Widget,
+    Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Text,
+    TextExt, VerticalAlignment, Widget,
 };
 use geom::{Duration, Time};
 use sim::{PersonID, TripID};
 use std::collections::BTreeMap;
-use std::fmt::Write;
 
 // TODO A nice level to unlock: specifying your own commute, getting to work on it
 
@@ -114,17 +115,14 @@ impl GameplayState for OptimizeCommute {
             self.top_center = make_top_center(ctx, app, before, after, done, self.trips.len());
 
             if done == self.trips.len() {
-                let (verdict, _success) = final_score(app, &self.trips);
-                // TODO Plumb through a next stage here
-                let next = None;
                 return (
-                    Some(Transition::Push(FinalScore::new(
+                    Some(final_score(
                         ctx,
                         app,
-                        verdict,
                         GameplayMode::OptimizeCommute(self.person),
-                        next,
-                    ))),
+                        before,
+                        after,
+                    )),
                     false,
                 );
             }
@@ -227,39 +225,84 @@ fn make_top_center(
     .build(ctx)
 }
 
-// True if the challenge is completed
-fn final_score(app: &App, trips: &Vec<TripID>) -> (String, bool) {
-    let mut done = 0;
-    let mut before_time = Duration::ZERO;
-    let mut after_time = Duration::ZERO;
-    for t in trips {
-        if let Some((total, _)) = app.primary.sim.finished_trip_time(*t) {
-            done += 1;
-            after_time += total;
-            before_time += app.prebaked().finished_trip_time(*t).unwrap();
-        }
-    }
+fn final_score(
+    ctx: &mut EventCtx,
+    app: &mut App,
+    mode: GameplayMode,
+    before: Duration,
+    after: Duration,
+) -> Transition {
+    let msg = if before == after {
+        format!(
+            "The VIP's commute still takes a total of {}. Were you asleep on the job? Try \
+             changing something!",
+            before
+        )
+    } else if after > before {
+        // TODO mad lib insults
+        format!(
+            "The VIP's commute went from {} total to {}. You utter dunce! Are you trying to screw \
+             me over?!",
+            before, after
+        )
+    } else if before - after < GOAL {
+        format!(
+            "The VIP's commute went from {} total to {}. Hmm... that's {} faster. But didn't I \
+             tell you to speed things up by {} at least?",
+            before,
+            after,
+            before - after,
+            GOAL
+        )
+    } else {
+        // Blindly record the high school
+        // TODO dedupe
+        // TODO mention placement
+        // TODO show all of em
+        let scores = app
+            .session
+            .high_scores
+            .entry(mode.clone())
+            .or_insert_with(Vec::new);
+        scores.push(HighScore {
+            goal: GOAL,
+            score: before - after,
+            edits_name: app.primary.map.get_edits().edits_name.clone(),
+        });
+        scores.sort_by_key(|s| s.score);
+        scores.reverse();
 
-    // TODO Needs work
-    let mut verdict = format!(
-        "Originally, total commute time was {}. Now it's {}.",
-        before_time, after_time
-    );
-    write!(
-        &mut verdict,
-        " The goal is {} faster. You've done {}.",
-        GOAL,
-        before_time - after_time
-    )
-    .unwrap();
-    if done != trips.len() {
-        write!(&mut verdict, " Not all trips are done yet. Wait longer.").unwrap();
-    }
+        format!(
+            "Alright, you somehow managed to shave {} down from the VIP's original commute of {}. \
+             I guess that'll do. Maybe you're not totally useless after all.",
+            before - after,
+            before
+        )
+    };
 
-    (
-        verdict,
-        done == trips.len() && before_time - after_time >= GOAL,
-    )
+    // TODO Deal with edits
+    app.primary.clear_sim();
+    Transition::Replace(Box::new(FinalScore {
+        composite: Composite::new(
+            Widget::row(vec![
+                Widget::draw_svg(ctx, "../data/system/assets/characters/boss.svg")
+                    .container()
+                    .outline(10.0, Color::BLACK)
+                    .padding(10),
+                Widget::col(vec![
+                    msg.draw_text(ctx),
+                    // TODO Adjust wording, optional continue option
+                    Btn::text_bg2("Try again").build_def(ctx, None),
+                    Btn::text_bg2("Back to challenges").build_def(ctx, None),
+                ])
+                .outline(10.0, Color::BLACK)
+                .padding(10),
+            ])
+            .bg(app.cs.panel_bg),
+        )
+        .build(ctx),
+        retry: mode,
+    }))
 }
 
 // TODO Probably refactor this for most challenge modes, or have SandboxMode pass in Actions
@@ -283,5 +326,33 @@ impl ContextualActions for Actions {
     }
     fn is_paused(&self) -> bool {
         self.paused
+    }
+}
+
+struct FinalScore {
+    composite: Composite,
+    retry: GameplayMode,
+}
+
+impl State for FinalScore {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "Try again" => {
+                    Transition::Replace(Box::new(SandboxMode::new(ctx, app, self.retry.clone())))
+                }
+                "Back to challenges" => {
+                    Transition::Clear(vec![main_menu(ctx, app), challenges_picker(ctx, app)])
+                }
+                _ => unreachable!(),
+            },
+            None => Transition::Keep,
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        // Happens to be a nice background color too ;)
+        g.clear(app.cs.grass);
+        self.composite.draw(g);
     }
 }
