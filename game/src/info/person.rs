@@ -65,7 +65,11 @@ pub fn trips(
                 // TODO No details. Weird case.
                 assert!(wheres_waldo);
                 wheres_waldo = false;
-                ("ongoing", Color::hex("#7FFA4D"), None)
+                (
+                    "ongoing",
+                    Color::hex("#7FFA4D"),
+                    open_trips.get(t).map(|_| Widget::nothing()),
+                )
             }
             TripResult::TripDone => {
                 assert!(wheres_waldo);
@@ -79,7 +83,11 @@ pub fn trips(
             }
             TripResult::TripAborted => {
                 // Aborted trips can happen anywhere in the schedule right now
-                ("cancelled", Color::hex("#EB3223"), None)
+                (
+                    "cancelled",
+                    Color::hex("#EB3223"),
+                    open_trips.get(t).map(|_| Widget::nothing()),
+                )
             }
             TripResult::TripDoesntExist => unreachable!(),
         };

@@ -988,8 +988,11 @@ impl Sim {
         self.parking.get_car_owned_by(id)
     }
 
-    pub fn get_person(&self, id: PersonID) -> &Person {
+    pub fn lookup_person(&self, id: PersonID) -> Option<&Person> {
         self.trips.get_person(id)
+    }
+    pub fn get_person(&self, id: PersonID) -> &Person {
+        self.trips.get_person(id).unwrap()
     }
     pub fn get_all_people(&self) -> &Vec<Person> {
         self.trips.get_all_people()
@@ -1059,7 +1062,7 @@ impl Sim {
         TripResult::ModeChange
     }
     pub fn get_canonical_pt_per_person(&self, p: PersonID, map: &Map) -> Option<Pt2D> {
-        match self.trips.get_person(p).state {
+        match self.trips.get_person(p)?.state {
             PersonState::Inside(b) => Some(map.get_b(b).polygon.center()),
             PersonState::Trip(t) => self.get_canonical_pt_per_trip(t, map).ok(),
             PersonState::OffMap | PersonState::Limbo => None,

@@ -111,15 +111,16 @@ pub fn future(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Details
 
     let mut col = Vec::new();
 
-    if app.has_prebaked().is_some() {
-        let phases = app.prebaked().get_trip_phases(trip, &app.primary.map);
-        let estimated_trip_time =
-            phases.last().as_ref().and_then(|p| p.end_time).unwrap() - start_time;
+    if let Some(estimated_trip_time) = app
+        .has_prebaked()
+        .and_then(|_| app.prebaked().finished_trip_time(trip))
+    {
         col.extend(make_table(
             ctx,
             vec![("Estimated trip time", estimated_trip_time.to_string())],
         ));
 
+        let phases = app.prebaked().get_trip_phases(trip, &app.primary.map);
         col.push(make_timeline(ctx, app, trip, details, phases, None));
     } else {
         // TODO Warp buttons. make_table is showing its age.

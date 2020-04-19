@@ -129,7 +129,12 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
         let (_, waiting) = sim.finished_trip_time(*id).unwrap();
         let (departure, _, _, _) = sim.trip_info(*id);
         let duration_before = if app.has_prebaked().is_some() {
-            app.prebaked().finished_trip_time(*id).unwrap()
+            if let Some(dt) = app.prebaked().finished_trip_time(*id) {
+                dt
+            } else {
+                // Aborted
+                continue;
+            }
         } else {
             Duration::ZERO
         };

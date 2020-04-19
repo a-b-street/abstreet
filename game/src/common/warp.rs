@@ -6,6 +6,7 @@ use crate::sandbox::SandboxMode;
 use ezgui::{EventCtx, GfxCtx, Warper, Wizard};
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, IntersectionID, LaneID, RoadID};
+use maplit::btreemap;
 use sim::{PedestrianID, PersonID, TripID};
 use std::collections::BTreeMap;
 
@@ -110,6 +111,7 @@ fn inner_warp(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Transitio
             'p' => ID::Pedestrian(PedestrianID(idx)),
             'P' => {
                 let id = PersonID(idx);
+                app.primary.sim.lookup_person(id)?;
                 return Some(Transition::PopWithData(Box::new(move |state, app, ctx| {
                     // Other states pretty much don't use info panels.
                     if let Some(ref mut s) = state.downcast_mut::<SandboxMode>() {
@@ -128,7 +130,22 @@ fn inner_warp(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Transitio
                 let c = app.primary.sim.lookup_car_id(idx)?;
                 ID::Car(c)
             }
-            't' => ID::from_agent(app.primary.sim.trip_to_agent(TripID(idx)).ok()?),
+            't' => {
+                let trip = TripID(idx);
+                let person = app.primary.sim.trip_to_person(trip);
+                return Some(Transition::PopWithData(Box::new(move |state, app, ctx| {
+                    // Other states pretty much don't use info panels.
+                    if let Some(ref mut s) = state.downcast_mut::<SandboxMode>() {
+                        let mut actions = s.contextual_actions();
+                        s.controls.common.as_mut().unwrap().launch_info_panel(
+                            ctx,
+                            app,
+                            Tab::PersonTrips(person, btreemap! {trip => true}),
+                            &mut actions,
+                        );
+                    }
+                })));
+            }
             'T' => {
                 let t = app.primary.map.lookup_turn_by_idx(idx)?;
                 ID::Turn(t)

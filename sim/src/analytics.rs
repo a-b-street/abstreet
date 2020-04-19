@@ -225,12 +225,16 @@ impl Analytics {
         (all, num_aborted, per_mode)
     }
 
-    // Ignores the current time.
+    // Ignores the current time. Returns None for aborted trips.
     pub fn finished_trip_time(&self, trip: TripID) -> Option<Duration> {
         // TODO This is so inefficient!
-        for (_, id, _, dt) in &self.finished_trips {
+        for (_, id, maybe_mode, dt) in &self.finished_trips {
             if *id == trip {
-                return Some(*dt);
+                if maybe_mode.is_some() {
+                    return Some(*dt);
+                } else {
+                    return None;
+                }
             }
         }
         None

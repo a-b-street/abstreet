@@ -699,8 +699,8 @@ impl TripManager {
         people
     }
 
-    pub fn get_person(&self, p: PersonID) -> &Person {
-        &self.people[p.0]
+    pub fn get_person(&self, p: PersonID) -> Option<&Person> {
+        self.people.get(p.0)
     }
     pub fn get_all_people(&self) -> &Vec<Person> {
         &self.people

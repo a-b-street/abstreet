@@ -178,6 +178,7 @@ fn get_score(app: &App, trips: &Vec<TripID>) -> (Duration, Duration, usize) {
         if let Some((total, _)) = app.primary.sim.finished_trip_time(*t) {
             done += 1;
             after += total;
+            // Assume all trips completed before changes
             before += app.prebaked().finished_trip_time(*t).unwrap();
         }
     }
