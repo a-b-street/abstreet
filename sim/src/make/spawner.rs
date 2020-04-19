@@ -1,7 +1,7 @@
 use crate::{
     CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, ParkingSimState, ParkingSpot,
     PedestrianID, PersonID, Scheduler, SidewalkPOI, SidewalkSpot, Sim, TripEndpoint, TripLeg,
-    TripManager, VehicleSpec, VehicleType, MAX_CAR_LENGTH,
+    TripManager, VehicleSpec, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH,
 };
 use abstutil::Timer;
 use geom::{Speed, Time, EPSILON_DIST};
@@ -138,13 +138,15 @@ impl TripSpawner {
             } => {
                 if start_pos.dist_along() < vehicle_spec.length {
                     panic!(
-                        "Can't spawn a car at {}; too close to the start",
+                        "Can't spawn a {:?} at {}; too close to the start",
+                        vehicle_spec.vehicle_type,
                         start_pos.dist_along()
                     );
                 }
                 if start_pos.dist_along() >= map.get_l(start_pos.lane()).length() {
                     panic!(
-                        "Can't spawn a car at {}; {} isn't that long",
+                        "Can't spawn a {:?} at {}; {} isn't that long",
+                        vehicle_spec.vehicle_type,
                         start_pos.dist_along(),
                         start_pos.lane()
                     );
@@ -154,7 +156,10 @@ impl TripSpawner {
                         if start_pos.lane() == *end_lane
                             && start_pos.dist_along() == map.get_l(*end_lane).length()
                         {
-                            panic!("Can't start a car at the edge of a border already");
+                            panic!(
+                                "Can't start a {:?} at the edge of a border already",
+                                vehicle_spec.vehicle_type
+                            );
                         }
                     }
                     DrivingGoal::ParkNear(_) => {}
@@ -534,16 +539,17 @@ impl TripSpawner {
 
 impl TripSpec {
     // If possible, fixes problems that schedule_trip would hit.
-    pub fn spawn_car_at(pos: Position, map: &Map) -> Option<Position> {
-        let len = map.get_l(pos.lane()).length();
+    pub fn spawn_vehicle_at(pos: Position, is_bike: bool, map: &Map) -> Option<Position> {
+        let lane_len = map.get_l(pos.lane()).length();
+        let vehicle_len = if is_bike { BIKE_LENGTH } else { MAX_CAR_LENGTH };
         // There's no hope.
-        if len <= MAX_CAR_LENGTH {
+        if lane_len <= vehicle_len {
             return None;
         }
 
-        if pos.dist_along() < MAX_CAR_LENGTH {
-            Some(Position::new(pos.lane(), MAX_CAR_LENGTH))
-        } else if pos.dist_along() == len {
+        if pos.dist_along() < vehicle_len {
+            Some(Position::new(pos.lane(), vehicle_len))
+        } else if pos.dist_along() == lane_len {
             Some(Position::new(pos.lane(), pos.dist_along() - EPSILON_DIST))
         } else {
             Some(pos)

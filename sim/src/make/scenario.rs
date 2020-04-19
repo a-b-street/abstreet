@@ -4,7 +4,9 @@ use crate::{
 };
 use abstutil::{MultiMap, Timer};
 use geom::{Distance, Duration, Speed, Time};
-use map_model::{BuildingID, BusRouteID, BusStopID, IntersectionID, Map, Position, RoadID};
+use map_model::{
+    BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, Position, RoadID,
+};
 use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
@@ -39,11 +41,16 @@ pub struct IndividTrip {
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub enum SpawnTrip {
+    // Only for interactive / debug trips
     CarAppearing {
-        // TODO Replace start with building|border
         start: Position,
         goal: DrivingGoal,
-        // For bikes starting at a border, use CarAppearing. UsingBike implies a walk->bike trip.
+        is_bike: bool,
+    },
+    FromBorder {
+        i: IntersectionID,
+        goal: DrivingGoal,
+        // For bikes starting at a border, use FromBorder. UsingBike implies a walk->bike trip.
         is_bike: bool,
     },
     MaybeUsingParkedCar(BuildingID, DrivingGoal),
@@ -90,9 +97,14 @@ impl Scenario {
             // TODO Or spawner?
             sim.new_person(p.id, p.has_car);
             for t in &p.trips {
-                // The RNG call is stable over edits.
-                let spec = t.trip.clone().to_trip_spec(rng);
-                spawner.schedule_trip(p.id, t.depart, spec, map, sim);
+                // The RNG call might change over edits for picking the spawning lane from a border
+                // with multiple choices for a vehicle type.
+                let mut tmp_rng = abstutil::fork_rng(rng);
+                if let Some(spec) = t.trip.clone().to_trip_spec(&mut tmp_rng, map) {
+                    spawner.schedule_trip(p.id, t.depart, spec, map, sim);
+                } else {
+                    timer.warn(format!("Couldn't turn {:?} into a trip", t.trip));
+                }
             }
         }
 
@@ -294,14 +306,14 @@ fn find_spot_near_building(
 }
 
 impl SpawnTrip {
-    fn to_trip_spec(self, rng: &mut XorShiftRng) -> TripSpec {
+    fn to_trip_spec(self, rng: &mut XorShiftRng, map: &Map) -> Option<TripSpec> {
         match self {
             SpawnTrip::CarAppearing {
                 start,
                 goal,
                 is_bike,
                 ..
-            } => TripSpec::CarAppearing {
+            } => Some(TripSpec::CarAppearing {
                 start_pos: start,
                 goal,
                 vehicle_spec: if is_bike {
@@ -310,37 +322,67 @@ impl SpawnTrip {
                     Scenario::rand_car(rng)
                 },
                 ped_speed: Scenario::rand_ped_speed(rng),
-            },
-            SpawnTrip::MaybeUsingParkedCar(start_bldg, goal) => TripSpec::MaybeUsingParkedCar {
-                start_bldg,
+            }),
+            SpawnTrip::FromBorder {
+                i, goal, is_bike, ..
+            } => Some(TripSpec::CarAppearing {
+                start_pos: {
+                    let l = *map
+                        .get_i(i)
+                        .get_outgoing_lanes(
+                            map,
+                            if is_bike {
+                                PathConstraints::Bike
+                            } else {
+                                PathConstraints::Car
+                            },
+                        )
+                        .choose(rng)?;
+                    TripSpec::spawn_vehicle_at(Position::new(l, Distance::ZERO), is_bike, map)?
+                },
                 goal,
+                vehicle_spec: if is_bike {
+                    Scenario::rand_bike(rng)
+                } else {
+                    Scenario::rand_car(rng)
+                },
                 ped_speed: Scenario::rand_ped_speed(rng),
-            },
-            SpawnTrip::UsingBike(start, goal) => TripSpec::UsingBike {
+            }),
+            SpawnTrip::MaybeUsingParkedCar(start_bldg, goal) => {
+                Some(TripSpec::MaybeUsingParkedCar {
+                    start_bldg,
+                    goal,
+                    ped_speed: Scenario::rand_ped_speed(rng),
+                })
+            }
+            SpawnTrip::UsingBike(start, goal) => Some(TripSpec::UsingBike {
                 start,
                 goal,
                 vehicle: Scenario::rand_bike(rng),
                 ped_speed: Scenario::rand_ped_speed(rng),
-            },
-            SpawnTrip::JustWalking(start, goal) => TripSpec::JustWalking {
+            }),
+            SpawnTrip::JustWalking(start, goal) => Some(TripSpec::JustWalking {
                 start,
                 goal,
                 ped_speed: Scenario::rand_ped_speed(rng),
-            },
-            SpawnTrip::UsingTransit(start, goal, route, stop1, stop2) => TripSpec::UsingTransit {
-                start,
-                goal,
-                route,
-                stop1,
-                stop2,
-                ped_speed: Scenario::rand_ped_speed(rng),
-            },
+            }),
+            SpawnTrip::UsingTransit(start, goal, route, stop1, stop2) => {
+                Some(TripSpec::UsingTransit {
+                    start,
+                    goal,
+                    route,
+                    stop1,
+                    stop2,
+                    ped_speed: Scenario::rand_ped_speed(rng),
+                })
+            }
         }
     }
 
     pub fn start_from_bldg(&self) -> Option<BuildingID> {
         match self {
             SpawnTrip::CarAppearing { .. } => None,
+            SpawnTrip::FromBorder { .. } => None,
             SpawnTrip::MaybeUsingParkedCar(b, _) => Some(*b),
             SpawnTrip::UsingBike(ref spot, _)
             | SpawnTrip::JustWalking(ref spot, _)
@@ -353,8 +395,8 @@ impl SpawnTrip {
 
     pub fn start_from_border(&self) -> Option<IntersectionID> {
         match self {
-            // TODO CarAppearing might be from a border
             SpawnTrip::CarAppearing { .. } => None,
+            SpawnTrip::FromBorder { i, .. } => Some(*i),
             SpawnTrip::MaybeUsingParkedCar(_, _) => None,
             SpawnTrip::UsingBike(ref spot, _)
             | SpawnTrip::JustWalking(ref spot, _)
@@ -368,6 +410,7 @@ impl SpawnTrip {
     pub fn end_at_bldg(&self) -> Option<BuildingID> {
         match self {
             SpawnTrip::CarAppearing { ref goal, .. }
+            | SpawnTrip::FromBorder { ref goal, .. }
             | SpawnTrip::MaybeUsingParkedCar(_, ref goal)
             | SpawnTrip::UsingBike(_, ref goal) => match goal {
                 DrivingGoal::ParkNear(b) => Some(*b),
@@ -385,6 +428,7 @@ impl SpawnTrip {
     pub fn end_at_border(&self) -> Option<IntersectionID> {
         match self {
             SpawnTrip::CarAppearing { ref goal, .. }
+            | SpawnTrip::FromBorder { ref goal, .. }
             | SpawnTrip::MaybeUsingParkedCar(_, ref goal)
             | SpawnTrip::UsingBike(_, ref goal) => match goal {
                 DrivingGoal::ParkNear(_) => None,

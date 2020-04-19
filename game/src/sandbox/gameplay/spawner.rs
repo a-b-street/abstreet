@@ -347,7 +347,7 @@ fn schedule_trip(
             };
             match src {
                 Source::Drive(from) => {
-                    if let Some(start_pos) = TripSpec::spawn_car_at(*from, map) {
+                    if let Some(start_pos) = TripSpec::spawn_vehicle_at(*from, false, map) {
                         spawner.schedule_trip(
                             sim.random_person(true),
                             sim.time(),

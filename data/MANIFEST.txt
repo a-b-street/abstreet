@@ -219,15 +219,15 @@ d02d0d103f7b00672a5f1145c5169d8c  data/system/fonts/Overpass-Bold.ttf
 cc45f42cb24cad1cfdbf5ed7a0cb86d4  data/system/synthetic_maps/signal_double.json
 8b949cc34d9a27ace0bd8ecde55a9520  data/system/synthetic_maps/signal_single.json
 1cd7be125e1d992613ed3a41e8b25b6a  data/system/synthetic_maps/signal_fan_in.json
-dc7d7c8b8dec9c2d0375df3ed0c02d87  data/system/scenarios/ballard/weekday.bin
-ec3d36603a91a1b61a63823404ad16d6  data/system/scenarios/intl_district/weekday.bin
-34f366fc48867dc4d923fc638e804af0  data/system/scenarios/23rd/weekday.bin
-bca018492766b536680a6aae9592d397  data/system/scenarios/downtown/weekday.bin
-354a0d31dd19b31fe4599233a2057c41  data/system/scenarios/huge_seattle/weekday.bin
-60712719b44a47cc6accf97d069fac92  data/system/scenarios/caphill/weekday.bin
-8e38d4e4a93beb7080029dcb76d47563  data/system/scenarios/montlake/weekday.bin
-ad5d2c7a2c73ef5bf4a09ff11845c166  data/system/prebaked_results/signal_single/tutorial lvl1.bin
-81081122aa46e8651d8f07bb606bc77a  data/system/prebaked_results/signal_single/tutorial lvl2.bin
-e15dd2d01fccadb1f16c4ed9f732b377  data/system/prebaked_results/montlake/car vs bike contention.bin
-1f1314220db40c778c18cd03e9af5d18  data/system/prebaked_results/montlake/weekday.bin
-ba713f7f6ad0c0201f1447d77957ce75  data/system/prebaked_results/montlake/car vs bus contention.bin
+1d447747aa2e493310abe5e103a1f693  data/system/scenarios/ballard/weekday.bin
+a72c52c5493d3d7eeaec296ffc7025a2  data/system/scenarios/intl_district/weekday.bin
+86603a31ee66b91ebb4a66e1146a3b17  data/system/scenarios/23rd/weekday.bin
+17a1f28e4418937ff17504e357206b8c  data/system/scenarios/downtown/weekday.bin
+afb0ab6073cd6439ccaa41addd3de68b  data/system/scenarios/huge_seattle/weekday.bin
+248f2874b28dfda11cb052e53ef51414  data/system/scenarios/caphill/weekday.bin
+bf0bef6566fb918db5c9ad3e9054731a  data/system/scenarios/montlake/weekday.bin
+3e4614071e27205513a5cc9b7fc11c90  data/system/prebaked_results/signal_single/tutorial lvl1.bin
+eb732e116af8c64cd879e9acb1b2eb1f  data/system/prebaked_results/signal_single/tutorial lvl2.bin
+9577e253b4fa810edef68f3dd8860ff0  data/system/prebaked_results/montlake/car vs bike contention.bin
+de9631bca160dea190cc23e5ac0b7139  data/system/prebaked_results/montlake/weekday.bin
+b4a1a7f94385434dce3fb71b82e403e3  data/system/prebaked_results/montlake/car vs bus contention.bin
