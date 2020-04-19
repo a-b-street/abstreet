@@ -101,7 +101,9 @@ impl WidgetImpl for Button {
     fn draw(&self, g: &mut GfxCtx) {
         if self.hovering {
             g.redraw_at(self.top_left, &self.draw_hovered);
-            g.draw_mouse_tooltip(self.tooltip.clone());
+            if !self.tooltip.is_empty() {
+                g.draw_mouse_tooltip(self.tooltip.clone());
+            }
         } else {
             g.redraw_at(self.top_left, &self.draw_normal);
         }

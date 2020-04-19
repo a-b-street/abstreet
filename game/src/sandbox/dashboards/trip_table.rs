@@ -4,8 +4,8 @@ use crate::helpers::cmp_duration_shorter;
 use crate::info::Tab;
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
-use ezgui::{Btn, Composite, EventCtx, GfxCtx, Line, Outcome, Text, Widget};
-use geom::{Duration, Time};
+use ezgui::{Btn, Composite, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Text, Widget};
+use geom::{Duration, Polygon, Time};
 use maplit::btreemap;
 use sim::{TripID, TripMode};
 
@@ -157,42 +157,44 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
         data.reverse();
     }
 
-    // Cheap tabular layout
-    // TODO https://stackoverflow.com/questions/48493500/can-flexbox-handle-varying-sizes-of-columns-but-consistent-row-height/48496343#48496343
-    // For now, manually tuned margins :(
-    let mut id_col = Vec::new();
-    let mut mode_col = Text::new();
-    let mut departure_col = Text::new();
-    let mut duration_col = Text::new();
-    let mut relative_duration_col = Text::new();
-    let mut percent_change_duration_col = Text::new();
-    let mut waiting_col = Text::new();
-    let mut pct_waiting_col = Text::new();
+    let mut rows = Vec::new();
 
     for x in data.into_iter().take(30) {
-        id_col.push(Btn::plaintext(x.trip.0.to_string()).build_def(ctx, None));
-        mode_col.add(Line(x.mode.ongoing_verb()));
-        departure_col.add(Line(x.departure.ampm_tostring()));
-        duration_col.add(Line(x.duration_after.to_string()));
+        let mut row = vec![
+            Text::from(Line(x.trip.0.to_string())).render_ctx(ctx),
+            Text::from(Line(x.mode.ongoing_verb())).render_ctx(ctx),
+            Text::from(Line(x.departure.ampm_tostring())).render_ctx(ctx),
+            Text::from(Line(x.duration_after.to_string())).render_ctx(ctx),
+        ];
         if app.has_prebaked().is_some() {
-            relative_duration_col
-                .add_appended(cmp_duration_shorter(x.duration_after, x.duration_before));
+            row.push(
+                Text::from_all(cmp_duration_shorter(x.duration_after, x.duration_before))
+                    .render_ctx(ctx),
+            );
             if x.duration_after == x.duration_before {
-                percent_change_duration_col.add(Line("same"));
+                row.push(Text::from(Line("same")).render_ctx(ctx));
             } else if x.duration_after < x.duration_before {
-                percent_change_duration_col.add(Line(format!(
-                    "{}% faster",
-                    (100.0 * (1.0 - (x.duration_after / x.duration_before))) as usize
-                )));
+                row.push(
+                    Text::from(Line(format!(
+                        "{}% faster",
+                        (100.0 * (1.0 - (x.duration_after / x.duration_before))) as usize
+                    )))
+                    .render_ctx(ctx),
+                );
             } else {
-                percent_change_duration_col.add(Line(format!(
-                    "{}% slower ",
-                    (100.0 * ((x.duration_after / x.duration_before) - 1.0)) as usize
-                )));
+                row.push(
+                    Text::from(Line(format!(
+                        "{}% slower ",
+                        (100.0 * ((x.duration_after / x.duration_before) - 1.0)) as usize
+                    )))
+                    .render_ctx(ctx),
+                );
             }
         }
-        waiting_col.add(Line(x.waiting.to_string()));
-        pct_waiting_col.add(Line(format!("{}%", x.percent_waiting)));
+        row.push(Text::from(Line(x.waiting.to_string())).render_ctx(ctx));
+        row.push(Text::from(Line(format!("{}%", x.percent_waiting))).render_ctx(ctx));
+
+        rows.push((x.trip.0.to_string(), row));
     }
 
     let btn = |value, name| {
@@ -203,54 +205,71 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
             Btn::text_bg2(name).build_def(ctx, None)
         }
     };
-
-    let mut table = vec![
-        (Line("Trip ID").draw(ctx), Widget::col(id_col)),
-        (Line("Type").draw(ctx), mode_col.draw(ctx)),
-        (btn(SortBy::Departure, "Departure"), departure_col.draw(ctx)),
-        (btn(SortBy::Duration, "Duration"), duration_col.draw(ctx)),
+    let mut headers = vec![
+        Line("Trip ID").draw(ctx),
+        Line("Type").draw(ctx),
+        btn(SortBy::Departure, "Departure"),
+        btn(SortBy::Duration, "Duration"),
     ];
     if app.has_prebaked().is_some() {
-        table.push((
-            btn(SortBy::RelativeDuration, "Comparison"),
-            relative_duration_col.draw(ctx),
-        ));
-        table.push((
-            btn(SortBy::PercentChangeDuration, "Normalized"),
-            percent_change_duration_col.draw(ctx),
-        ));
+        headers.push(btn(SortBy::RelativeDuration, "Comparison"));
+        headers.push(btn(SortBy::PercentChangeDuration, "Normalized"));
     }
-    table.push((Line("Time spent waiting").draw(ctx), waiting_col.draw(ctx)));
-    table.push((
-        btn(SortBy::PercentWaiting, "Percent waiting"),
-        pct_waiting_col.draw(ctx),
-    ));
+    headers.push(Line("Time spent waiting").draw(ctx));
+    headers.push(btn(SortBy::PercentWaiting, "Percent waiting"));
 
-    let mut header_row = Vec::new();
-    let mut values_row = Vec::new();
-    for (header, values) in table {
-        let width = header
-            .get_width_for_forcing()
-            .max(values.get_width_for_forcing());
-        header_row.push(header.force_width(width).margin_right(10));
-        values_row.push(
-            Widget::col(vec![values])
-                .force_width(width)
-                .margin_right(10),
+    let mut width_per_col: Vec<f64> = headers.iter().map(|w| w.get_width_for_forcing()).collect();
+    for (_, row) in &rows {
+        for (col, width) in row.iter().zip(width_per_col.iter_mut()) {
+            *width = width.max(col.get_dims().width);
+        }
+    }
+    let total_width = 0.88 * ctx.canvas.window_width;
+    let extra_margin = ((total_width - width_per_col.clone().into_iter().sum::<f64>())
+        / (width_per_col.len() - 1) as f64)
+        .max(0.0);
+
+    let mut col = vec![
+        DashTab::TripTable.picker(ctx),
+        Widget::row(
+            headers
+                .into_iter()
+                .enumerate()
+                .map(|(idx, w)| {
+                    let margin = extra_margin + width_per_col[idx] - w.get_width_for_forcing();
+                    if idx == width_per_col.len() - 1 {
+                        w.margin_right((margin - extra_margin) as usize)
+                    } else {
+                        w.margin_right(margin as usize)
+                    }
+                })
+                .collect(),
+        )
+        .bg(app.cs.section_bg),
+    ];
+
+    for (label, row) in rows {
+        let mut batch = GeomBatch::new();
+        batch.autocrop_dims = false;
+        let mut x1 = 0.0;
+        for (col, width) in row.into_iter().zip(width_per_col.iter()) {
+            batch.add_translated(col, x1, 0.0);
+            x1 += *width + extra_margin;
+        }
+
+        let rect = Polygon::rectangle(total_width, batch.get_dims().height);
+        let mut hovered = GeomBatch::new();
+        hovered.push(app.cs.hovering, rect.clone());
+        hovered.append(batch.clone());
+
+        col.push(
+            Btn::custom(batch, hovered, rect)
+                .tooltip(Text::new())
+                .build(ctx, label, None),
         );
     }
 
-    Composite::new(
-        Widget::col(vec![
-            DashTab::TripTable.picker(ctx),
-            Widget::row(header_row).evenly_spaced(),
-            Widget::row(values_row).evenly_spaced(),
-        ])
-        // TODO Until exact_size_percent supports scrolling, do this hack
-        .force_width_pct(ctx, 90)
-        .bg(app.cs.panel_bg)
-        .padding(10),
-    )
-    .max_size_percent(90, 90)
-    .build(ctx)
+    Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(10))
+        .max_size_percent(90, 90)
+        .build(ctx)
 }
