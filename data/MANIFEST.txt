@@ -209,9 +209,9 @@ d02d0d103f7b00672a5f1145c5169d8c  data/system/fonts/Overpass-Bold.ttf
 2a13391023ce8787887331530cac35a7  data/system/fonts/BungeeInline-Regular.ttf
 17a1468e62195d0688a6f3bd12da2e92  data/system/fonts/Overpass-SemiBold.ttf
 259d4afad7edca07e727ef80f5bbce07  data/system/fonts/Bungee-Regular.ttf
-c97768b6b014d1a9fb49f4560915ab7d  data/system/maps/huge_seattle.bin
+60752b2c8b73c0fb567930407d2da7a5  data/system/maps/huge_seattle.bin
 08d407ab1b9688eee0b83cd65e698560  data/system/maps/ballard.bin
-e3634cc9018e4c30cba8a64eaec3c50d  data/system/maps/downtown.bin
+19ae5adf392679c4264069bbca23710c  data/system/maps/downtown.bin
 511b8cd22bf463d5d26e1e23d314b376  data/system/maps/caphill.bin
 30590c4756973ceb5f2ae0142c06b1b0  data/system/maps/montlake.bin
 750b8e4f996f12d4105a771e26e83192  data/system/maps/intl_district.bin

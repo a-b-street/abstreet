@@ -269,7 +269,10 @@ impl TurnGroup {
         {
             return false;
         }
-        if self.id.to == other.id.to {
+        if self.id.to == other.id.to
+            && self.turn_type != TurnType::Crosswalk
+            && other.turn_type != TurnType::Crosswalk
+        {
             return true;
         }
         self.geom.intersection(&other.geom).is_some()

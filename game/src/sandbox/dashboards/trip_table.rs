@@ -117,6 +117,7 @@ struct Entry {
 }
 
 fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Composite {
+    // Gather raw data
     let mut data = Vec::new();
     let sim = &app.primary.sim;
     for (_, id, maybe_mode, duration_after) in &sim.get_analytics().finished_trips {
@@ -144,6 +145,7 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
         });
     }
 
+    // Sort
     match sort {
         SortBy::Departure => data.sort_by_key(|x| x.departure),
         SortBy::Duration => data.sort_by_key(|x| x.duration_after),
@@ -157,8 +159,8 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
         data.reverse();
     }
 
+    // Render data
     let mut rows = Vec::new();
-
     for x in data.into_iter().take(30) {
         let mut row = vec![
             Text::from(Line(x.trip.0.to_string())).render_ctx(ctx),
@@ -218,35 +220,53 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
     headers.push(Line("Time spent waiting").draw(ctx));
     headers.push(btn(SortBy::PercentWaiting, "Percent waiting"));
 
+    let mut col = vec![DashTab::TripTable.picker(ctx)];
+    col.extend(make_table(
+        ctx,
+        app,
+        headers,
+        rows,
+        0.88 * ctx.canvas.window_width,
+    ));
+
+    Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(10))
+        .max_size_percent(90, 90)
+        .build(ctx)
+}
+
+// TODO Figure out a nicer API to construct generic sortable tables.
+fn make_table(
+    ctx: &mut EventCtx,
+    app: &App,
+    headers: Vec<Widget>,
+    rows: Vec<(String, Vec<GeomBatch>)>,
+    total_width: f64,
+) -> Vec<Widget> {
     let mut width_per_col: Vec<f64> = headers.iter().map(|w| w.get_width_for_forcing()).collect();
     for (_, row) in &rows {
         for (col, width) in row.iter().zip(width_per_col.iter_mut()) {
             *width = width.max(col.get_dims().width);
         }
     }
-    let total_width = 0.88 * ctx.canvas.window_width;
     let extra_margin = ((total_width - width_per_col.clone().into_iter().sum::<f64>())
         / (width_per_col.len() - 1) as f64)
         .max(0.0);
 
-    let mut col = vec![
-        DashTab::TripTable.picker(ctx),
-        Widget::row(
-            headers
-                .into_iter()
-                .enumerate()
-                .map(|(idx, w)| {
-                    let margin = extra_margin + width_per_col[idx] - w.get_width_for_forcing();
-                    if idx == width_per_col.len() - 1 {
-                        w.margin_right((margin - extra_margin) as usize)
-                    } else {
-                        w.margin_right(margin as usize)
-                    }
-                })
-                .collect(),
-        )
-        .bg(app.cs.section_bg),
-    ];
+    let mut col = vec![Widget::row(
+        headers
+            .into_iter()
+            .enumerate()
+            .map(|(idx, w)| {
+                let margin = extra_margin + width_per_col[idx] - w.get_width_for_forcing();
+                if idx == width_per_col.len() - 1 {
+                    w.margin_right((margin - extra_margin) as usize)
+                } else {
+                    w.margin_right(margin as usize)
+                }
+            })
+            .collect(),
+    )
+    .bg(app.cs.section_bg)];
 
     for (label, row) in rows {
         let mut batch = GeomBatch::new();
@@ -269,7 +289,5 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
         );
     }
 
-    Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(10))
-        .max_size_percent(90, 90)
-        .build(ctx)
+    col
 }
