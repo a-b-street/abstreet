@@ -9,8 +9,7 @@ mod tutorial;
 
 pub use self::tutorial::{Tutorial, TutorialPointer, TutorialState};
 use crate::app::App;
-use crate::challenges;
-use crate::challenges::challenges_picker;
+use crate::challenges::{challenges_picker, Challenge};
 use crate::common::{CommonState, ContextualActions};
 use crate::edit::EditMode;
 use crate::game::{msg, State, Transition};
@@ -28,7 +27,7 @@ use map_model::{EditCmd, EditIntersection, Map, MapEdits};
 use rand_xorshift::XorShiftRng;
 use sim::{Analytics, PersonID, Scenario, ScenarioGenerator};
 
-#[derive(PartialEq, Eq, Hash, Clone)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub enum GameplayMode {
     // TODO Maybe this should be "sandbox"
     // Map path
@@ -40,7 +39,7 @@ pub enum GameplayMode {
     FixTrafficSignals,
     // TODO Kinda gross. What stage in the tutorial?
     FixTrafficSignalsTutorial(usize),
-    OptimizeCommute(PersonID),
+    OptimizeCommute(PersonID, Duration),
 
     // current
     Tutorial(TutorialPointer),
@@ -93,7 +92,7 @@ impl GameplayMode {
             GameplayMode::FixTrafficSignalsTutorial(_) => {
                 abstutil::path_synthetic_map("signal_single")
             }
-            GameplayMode::OptimizeCommute(_) => abstutil::path_map("montlake"),
+            GameplayMode::OptimizeCommute(_, _) => abstutil::path_map("montlake"),
             GameplayMode::Tutorial(_) => abstutil::path_map("montlake"),
         }
     }
@@ -252,7 +251,9 @@ impl GameplayMode {
             GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial(_) => {
                 fix_traffic_signals::FixTrafficSignals::new(ctx, app, self.clone())
             }
-            GameplayMode::OptimizeCommute(p) => commute::OptimizeCommute::new(ctx, app, *p),
+            GameplayMode::OptimizeCommute(p, goal) => {
+                commute::OptimizeCommute::new(ctx, app, *p, *goal)
+            }
             GameplayMode::Tutorial(current) => Tutorial::new(ctx, app, *current),
         }
     }
@@ -317,16 +318,7 @@ fn challenge_controller(
     title: &str,
     extra_rows: Vec<Widget>,
 ) -> WrappedComposite {
-    // Scrape the description
-    let mut description = Vec::new();
-    'OUTER: for (_, stages) in challenges::all_challenges(true) {
-        for challenge in stages {
-            if challenge.gameplay == gameplay {
-                description = challenge.description.clone();
-                break 'OUTER;
-            }
-        }
-    }
+    let description = Challenge::find(&gameplay).0.description;
 
     let mut rows = vec![challenge_header(ctx, title)];
     rows.extend(extra_rows);

@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::challenges::{challenges_picker, HighScore};
+use crate::challenges::{challenges_picker, Challenge, HighScore};
 use crate::common::{ContextualActions, Tab};
 use crate::cutscene::CutsceneBuilder;
 use crate::edit::EditMode;
@@ -19,11 +19,10 @@ use std::collections::BTreeMap;
 
 // TODO A nice level to unlock: specifying your own commute, getting to work on it
 
-const GOAL: Duration = Duration::const_seconds(3.0 * 60.0);
-
 pub struct OptimizeCommute {
     top_center: Composite,
     person: PersonID,
+    goal: Duration,
     time: Time,
 
     // Cache here for convenience
@@ -33,18 +32,32 @@ pub struct OptimizeCommute {
 }
 
 impl OptimizeCommute {
-    pub fn new(ctx: &mut EventCtx, app: &App, person: PersonID) -> Box<dyn GameplayState> {
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        person: PersonID,
+        goal: Duration,
+    ) -> Box<dyn GameplayState> {
         let trips = app.primary.sim.get_person(person).trips.clone();
         Box::new(OptimizeCommute {
-            top_center: make_top_center(ctx, app, Duration::ZERO, Duration::ZERO, 0, trips.len()),
+            top_center: make_top_center(
+                ctx,
+                app,
+                Duration::ZERO,
+                Duration::ZERO,
+                0,
+                trips.len(),
+                goal,
+            ),
             person,
+            goal,
             time: Time::START_OF_DAY,
             trips,
             once: true,
         })
     }
 
-    pub fn cutscene(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    pub fn cutscene_pt1(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         CutsceneBuilder::new()
             .scene("boss", "Listen up, I've got a special job for you today.")
             .scene(
@@ -70,7 +83,7 @@ impl OptimizeCommute {
             .scene(
                 "boss",
                 "That's none of your concern! I've anonymized their name, so don't even bother \
-                 digging into what happened at dinn --",
+                 digging into what happened in Ballard --",
             )
             .scene("boss", "JUST GET TO WORK, KID!")
             .narrator(
@@ -83,7 +96,40 @@ impl OptimizeCommute {
             )
             .narrator(
                 "Ignore the damage done to everyone else. Just speed up the VIP's trips by a \
-                 total of 3 minutes.",
+                 total of 2 minutes.",
+            )
+            .build(ctx, app)
+    }
+
+    pub fn cutscene_pt2(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+        CutsceneBuilder::new()
+            .scene(
+                "boss",
+                "I've got another, er, friend who's sick of this parking situation.",
+            )
+            .scene(
+                "player",
+                "Yeah, why do we dedicate so much valuable land to storing unused cars? It's \
+                 ridiculous!",
+            )
+            .scene(
+                "boss",
+                "No, I mean, they're tired of having to hunt for parking. You need to make it \
+                 easier.",
+            )
+            .scene(
+                "player",
+                "What? We're trying to encourage people to be less car-dependent. Why's this \
+                 \"friend\" more important than the city's carbon-neutral goals?",
+            )
+            .scene(
+                "boss",
+                "Everyone's calling in favors these days. Just make it happen!",
+            )
+            .narrator("Too many people have dirt on the boss. Guess we have another VIP to help.")
+            .narrator(
+                "Once again, ignore the damage to everyone else, and just speed up the VIP's \
+                 trips by a total of 5 minutes.",
             )
             .build(ctx, app)
     }
@@ -112,16 +158,18 @@ impl GameplayState for OptimizeCommute {
             self.time = app.primary.sim.time();
 
             let (before, after, done) = get_score(app, &self.trips);
-            self.top_center = make_top_center(ctx, app, before, after, done, self.trips.len());
+            self.top_center =
+                make_top_center(ctx, app, before, after, done, self.trips.len(), self.goal);
 
             if done == self.trips.len() {
                 return (
                     Some(final_score(
                         ctx,
                         app,
-                        GameplayMode::OptimizeCommute(self.person),
+                        GameplayMode::OptimizeCommute(self.person, self.goal),
                         before,
                         after,
+                        self.goal,
                     )),
                     false,
                 );
@@ -135,14 +183,21 @@ impl GameplayState for OptimizeCommute {
                         Some(Transition::Push(Box::new(EditMode::new(
                             ctx,
                             app,
-                            GameplayMode::OptimizeCommute(self.person),
+                            GameplayMode::OptimizeCommute(self.person, self.goal),
                         )))),
                         false,
                     );
                 }
                 "instructions" => {
                     return (
-                        Some(Transition::Push(OptimizeCommute::cutscene(ctx, app))),
+                        Some(Transition::Push((Challenge::find(
+                            &GameplayMode::OptimizeCommute(self.person, self.goal),
+                        )
+                        .0
+                        .cutscene
+                        .unwrap())(
+                            ctx, app
+                        ))),
                         false,
                     );
                 }
@@ -192,11 +247,12 @@ fn make_top_center(
     after: Duration,
     done: usize,
     trips: usize,
+    goal: Duration,
 ) -> Composite {
     let mut txt = Text::from(Line(format!("Total trip time: {} (", after)));
     txt.append_all(cmp_duration_shorter(after, before));
     txt.append(Line(")"));
-    let sentiment = if before - after >= GOAL {
+    let sentiment = if before - after >= goal {
         "../data/system/assets/tools/happy.svg"
     } else {
         "../data/system/assets/tools/sad.svg"
@@ -213,7 +269,7 @@ fn make_top_center(
                     .draw_text(ctx)
                     .margin_right(20),
                 txt.draw(ctx).margin_right(20),
-                format!("Goal: {} faster", GOAL)
+                format!("Goal: {} faster", goal)
                     .draw_text(ctx)
                     .margin_right(5),
                 Widget::draw_svg(ctx, sentiment).centered_vert(),
@@ -232,7 +288,10 @@ fn final_score(
     mode: GameplayMode,
     before: Duration,
     after: Duration,
+    goal: Duration,
 ) -> Transition {
+    let mut next_mode: Option<GameplayMode> = None;
+
     let msg = if before == after {
         format!(
             "The VIP's commute still takes a total of {}. Were you asleep on the job? Try \
@@ -246,14 +305,14 @@ fn final_score(
              me over?!",
             before, after
         )
-    } else if before - after < GOAL {
+    } else if before - after < goal {
         format!(
             "The VIP's commute went from {} total to {}. Hmm... that's {} faster. But didn't I \
              tell you to speed things up by {} at least?",
             before,
             after,
             before - after,
-            GOAL
+            goal
         )
     } else {
         // Blindly record the high school
@@ -266,12 +325,14 @@ fn final_score(
             .entry(mode.clone())
             .or_insert_with(Vec::new);
         scores.push(HighScore {
-            goal: GOAL,
+            goal,
             score: before - after,
             edits_name: app.primary.map.get_edits().edits_name.clone(),
         });
         scores.sort_by_key(|s| s.score);
         scores.reverse();
+
+        next_mode = Challenge::find(&mode).1.map(|c| c.gameplay);
 
         format!(
             "Alright, you somehow managed to shave {} down from the VIP's original commute of {}. \
@@ -292,8 +353,13 @@ fn final_score(
                     .padding(10),
                 Widget::col(vec![
                     msg.draw_text(ctx),
-                    // TODO Adjust wording, optional continue option
+                    // TODO Adjust wording
                     Btn::text_bg2("Try again").build_def(ctx, None),
+                    if next_mode.is_some() {
+                        Btn::text_bg2("Next challenge").build_def(ctx, None)
+                    } else {
+                        Widget::nothing()
+                    },
                     Btn::text_bg2("Back to challenges").build_def(ctx, None),
                 ])
                 .outline(10.0, Color::BLACK)
@@ -303,6 +369,7 @@ fn final_score(
         )
         .build(ctx),
         retry: mode,
+        next_mode,
     }))
 }
 
@@ -333,6 +400,7 @@ impl ContextualActions for Actions {
 struct FinalScore {
     composite: Composite,
     retry: GameplayMode,
+    next_mode: Option<GameplayMode>,
 }
 
 impl State for FinalScore {
@@ -342,6 +410,14 @@ impl State for FinalScore {
                 "Try again" => {
                     Transition::Replace(Box::new(SandboxMode::new(ctx, app, self.retry.clone())))
                 }
+                "Next challenge" => Transition::Clear(vec![
+                    main_menu(ctx, app),
+                    Box::new(SandboxMode::new(ctx, app, self.next_mode.clone().unwrap())),
+                    (Challenge::find(self.next_mode.as_ref().unwrap())
+                        .0
+                        .cutscene
+                        .unwrap())(ctx, app),
+                ]),
                 "Back to challenges" => {
                     Transition::Clear(vec![main_menu(ctx, app), challenges_picker(ctx, app)])
                 }

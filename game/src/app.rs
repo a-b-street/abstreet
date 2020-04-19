@@ -13,7 +13,7 @@ use geom::{Bounds, Circle, Distance, Pt2D};
 use map_model::{Map, Traversable};
 use rand::seq::SliceRandom;
 use sim::{Analytics, GetDrawAgents, Sim, SimFlags};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 pub struct App {
     pub primary: PerMap,
@@ -499,14 +499,14 @@ impl PerMap {
 // TODO Serialize these, but in a very careful, future-compatible way
 pub struct SessionState {
     pub tutorial: Option<TutorialState>,
-    pub high_scores: HashMap<GameplayMode, Vec<HighScore>>,
+    pub high_scores: BTreeMap<GameplayMode, Vec<HighScore>>,
 }
 
 impl SessionState {
     pub fn empty() -> SessionState {
         SessionState {
             tutorial: None,
-            high_scores: HashMap::new(),
+            high_scores: BTreeMap::new(),
         }
     }
 }

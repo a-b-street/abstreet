@@ -31,7 +31,7 @@ pub struct Tutorial {
     warped: bool,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct TutorialPointer {
     pub stage: usize,
     // Index into messages. messages.len() means the actual task.

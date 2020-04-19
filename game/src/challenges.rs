@@ -15,7 +15,7 @@ pub struct Challenge {
     pub description: Vec<String>,
     pub alias: String,
     pub gameplay: GameplayMode,
-    cutscene: Option<fn(&mut EventCtx, &App) -> Box<dyn State>>,
+    pub cutscene: Option<fn(&mut EventCtx, &App) -> Box<dyn State>>,
 }
 
 // TODO Assuming the measurement is always maximizing time savings from a goal.
@@ -25,69 +25,105 @@ pub struct HighScore {
     pub edits_name: String,
 }
 
-pub fn all_challenges(dev: bool) -> BTreeMap<String, Vec<Challenge>> {
-    let mut tree = BTreeMap::new();
-    tree.insert(
-        "Optimize one commute".to_string(),
-        vec![Challenge {
-            title: "Part 1".to_string(),
-            description: vec!["Speed up one VIP's daily commute, at any cost!".to_string()],
-            alias: "commute/pt1".to_string(),
-            gameplay: GameplayMode::OptimizeCommute(PersonID(3434)),
-            cutscene: Some(crate::sandbox::gameplay::commute::OptimizeCommute::cutscene),
-        }],
-    );
-
-    if dev {
+impl Challenge {
+    pub fn all(dev: bool) -> BTreeMap<String, Vec<Challenge>> {
+        let mut tree = BTreeMap::new();
         tree.insert(
-            "Fix traffic signals".to_string(),
+            "Optimize one commute".to_string(),
             vec![
                 Challenge {
-                    title: "Tutorial 1".to_string(),
-                    description: vec!["Add or remove a dedicated left phase".to_string()],
-                    alias: "trafficsig/tut1".to_string(),
-                    gameplay: GameplayMode::FixTrafficSignalsTutorial(0),
-                    cutscene: None,
+                    title: "Part 1".to_string(),
+                    description: vec!["Speed up one VIP's daily commute, at any cost!".to_string()],
+                    alias: "commute/pt1".to_string(),
+                    gameplay: GameplayMode::OptimizeCommute(PersonID(1163), Duration::minutes(2)),
+                    cutscene: Some(
+                        crate::sandbox::gameplay::commute::OptimizeCommute::cutscene_pt1,
+                    ),
                 },
                 Challenge {
-                    title: "Tutorial 2".to_string(),
-                    description: vec!["Deal with heavy foot traffic".to_string()],
-                    alias: "trafficsig/tut2".to_string(),
-                    gameplay: GameplayMode::FixTrafficSignalsTutorial(1),
-                    cutscene: None,
-                },
-                Challenge {
-                    title: "The real challenge!".to_string(),
-                    description: vec![
-                        "A city-wide power surge knocked out all of the traffic signals!"
-                            .to_string(),
-                        "Their timing has been reset to default settings, and drivers are stuck."
-                            .to_string(),
-                        "It's up to you to repair the signals, choosing appropriate turn phases \
-                         and timing."
-                            .to_string(),
-                        "".to_string(),
-                        "Objective: Reduce the average trip time by at least 30s".to_string(),
-                    ],
-                    alias: "trafficsig/main".to_string(),
-                    gameplay: GameplayMode::FixTrafficSignals,
-                    cutscene: None,
+                    title: "Part 2".to_string(),
+                    description: vec!["Speed up another VIP's commute".to_string()],
+                    alias: "commute/pt2".to_string(),
+                    gameplay: GameplayMode::OptimizeCommute(PersonID(3434), Duration::minutes(5)),
+                    cutscene: Some(
+                        crate::sandbox::gameplay::commute::OptimizeCommute::cutscene_pt2,
+                    ),
                 },
             ],
         );
 
-        tree.insert(
-            "Cause gridlock (WIP)".to_string(),
-            vec![Challenge {
-                title: "Gridlock all of the everything".to_string(),
-                description: vec!["Make traffic as BAD as possible!".to_string()],
-                alias: "gridlock".to_string(),
-                gameplay: GameplayMode::CreateGridlock(abstutil::path_map("montlake")),
-                cutscene: None,
-            }],
-        );
+        if dev {
+            tree.insert(
+                "Fix traffic signals".to_string(),
+                vec![
+                    Challenge {
+                        title: "Tutorial 1".to_string(),
+                        description: vec!["Add or remove a dedicated left phase".to_string()],
+                        alias: "trafficsig/tut1".to_string(),
+                        gameplay: GameplayMode::FixTrafficSignalsTutorial(0),
+                        cutscene: None,
+                    },
+                    Challenge {
+                        title: "Tutorial 2".to_string(),
+                        description: vec!["Deal with heavy foot traffic".to_string()],
+                        alias: "trafficsig/tut2".to_string(),
+                        gameplay: GameplayMode::FixTrafficSignalsTutorial(1),
+                        cutscene: None,
+                    },
+                    Challenge {
+                        title: "The real challenge!".to_string(),
+                        description: vec![
+                            "A city-wide power surge knocked out all of the traffic signals!"
+                                .to_string(),
+                            "Their timing has been reset to default settings, and drivers are \
+                             stuck."
+                                .to_string(),
+                            "It's up to you to repair the signals, choosing appropriate turn \
+                             phases and timing."
+                                .to_string(),
+                            "".to_string(),
+                            "Objective: Reduce the average trip time by at least 30s".to_string(),
+                        ],
+                        alias: "trafficsig/main".to_string(),
+                        gameplay: GameplayMode::FixTrafficSignals,
+                        cutscene: None,
+                    },
+                ],
+            );
+
+            tree.insert(
+                "Cause gridlock (WIP)".to_string(),
+                vec![Challenge {
+                    title: "Gridlock all of the everything".to_string(),
+                    description: vec!["Make traffic as BAD as possible!".to_string()],
+                    alias: "gridlock".to_string(),
+                    gameplay: GameplayMode::CreateGridlock(abstutil::path_map("montlake")),
+                    cutscene: None,
+                }],
+            );
+        }
+        tree
     }
-    tree
+
+    // Also returns the next stage, if there is one
+    pub fn find(mode: &GameplayMode) -> (Challenge, Option<Challenge>) {
+        // Find the next stage
+        for (_, stages) in Challenge::all(true) {
+            let mut current = None;
+            for challenge in stages {
+                if current.is_some() {
+                    return (current.unwrap(), Some(challenge));
+                }
+                if &challenge.gameplay == mode {
+                    current = Some(challenge);
+                }
+            }
+            if let Some(c) = current {
+                return (c, None);
+            }
+        }
+        unreachable!()
+    }
 }
 
 pub fn challenges_picker(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
@@ -117,7 +153,7 @@ impl Tab {
 
         // First list challenges
         let mut flex_row = Vec::new();
-        for (idx, (name, _)) in all_challenges(app.opts.dev).into_iter().enumerate() {
+        for (idx, (name, _)) in Challenge::all(app.opts.dev).into_iter().enumerate() {
             let current = match self {
                 Tab::NothingChosen => false,
                 Tab::ChallengeStage(ref n, _) => &name == n,
@@ -154,7 +190,7 @@ impl Tab {
         // List stages
         if let Tab::ChallengeStage(ref name, current) = self {
             let mut col = Vec::new();
-            for (idx, stage) in all_challenges(app.opts.dev)
+            for (idx, stage) in Challenge::all(app.opts.dev)
                 .remove(name)
                 .unwrap()
                 .into_iter()
@@ -186,7 +222,7 @@ impl Tab {
 
         // Describe the specific stage
         if let Tab::ChallengeStage(ref name, current) = self {
-            let challenge = all_challenges(app.opts.dev)
+            let challenge = Challenge::all(app.opts.dev)
                 .remove(name)
                 .unwrap()
                 .remove(current);
@@ -257,7 +293,7 @@ pub fn prebake_all() {
     let mut timer = Timer::new("prebake all challenge results");
 
     let mut per_map: BTreeMap<String, Vec<Challenge>> = BTreeMap::new();
-    for (_, list) in all_challenges(true) {
+    for (_, list) in Challenge::all(true) {
         for c in list {
             per_map
                 .entry(c.gameplay.map_path())
