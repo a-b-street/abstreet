@@ -1,9 +1,10 @@
-use crate::{CarID, Event, TripID, TripMode, TripPhaseType};
+use crate::{CarID, Event, ParkingSpot, TripID, TripMode, TripPhaseType};
 use abstutil::Counter;
 use derivative::Derivative;
 use geom::{Distance, Duration, Histogram, Time};
 use map_model::{
-    BusRouteID, BusStopID, IntersectionID, Map, Path, PathRequest, RoadID, Traversable, TurnGroupID,
+    BusRouteID, BusStopID, IntersectionID, LaneID, Map, Path, PathRequest, RoadID, Traversable,
+    TurnGroupID,
 };
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
@@ -23,6 +24,8 @@ pub struct Analytics {
     // TODO This subsumes finished_trips
     pub trip_log: Vec<(Time, TripID, Option<PathRequest>, TripPhaseType)>,
     pub intersection_delays: BTreeMap<IntersectionID, Vec<(Time, Duration)>>,
+    // Per parking lane, when does a spot become filled (true) or free (false)
+    parking_spot_changes: BTreeMap<LaneID, Vec<(Time, bool)>>,
 
     // After we restore from a savestate, don't record anything. This is only going to make sense
     // if savestates are only used for quickly previewing against prebaked results, where we have
@@ -61,6 +64,7 @@ impl Analytics {
             finished_trips: Vec::new(),
             trip_log: Vec::new(),
             intersection_delays: BTreeMap::new(),
+            parking_spot_changes: BTreeMap::new(),
             record_anything: true,
         }
     }
@@ -153,6 +157,24 @@ impl Analytics {
                 .entry(id)
                 .or_insert_with(Vec::new)
                 .push((time, delay));
+        }
+
+        // Parking spot changes
+        if let Event::CarReachedParkingSpot(_, spot) = ev {
+            if let ParkingSpot::Onstreet(l, _) = spot {
+                self.parking_spot_changes
+                    .entry(l)
+                    .or_insert_with(Vec::new)
+                    .push((time, true));
+            }
+        }
+        if let Event::CarLeftParkingSpot(_, spot) = ev {
+            if let ParkingSpot::Onstreet(l, _) = spot {
+                self.parking_spot_changes
+                    .entry(l)
+                    .or_insert_with(Vec::new)
+                    .push((time, false));
+            }
         }
 
         // TODO Kinda hacky, but these all consume the event, so kinda bundle em.
@@ -649,6 +671,48 @@ impl Analytics {
                 // release mode disables this check, so...
                 if cnt == 0 {
                     panic!("active_agents at {} has more ended trips than started", t);
+                }
+                cnt -= 1;
+            } else {
+                cnt += 1;
+            }
+        }
+        pts.push((last_t, cnt));
+        if last_t != now {
+            pts.push((now, cnt));
+        }
+        pts
+    }
+
+    // Returns the free spots over time
+    pub fn parking_spot_availability(
+        &self,
+        now: Time,
+        l: LaneID,
+        capacity: usize,
+    ) -> Vec<(Time, usize)> {
+        let changes = if let Some(changes) = self.parking_spot_changes.get(&l) {
+            changes
+        } else {
+            return vec![(Time::START_OF_DAY, capacity), (now, capacity)];
+        };
+
+        let mut pts = Vec::new();
+        let mut cnt = capacity;
+        let mut last_t = Time::START_OF_DAY;
+
+        for (t, filled) in changes {
+            if *t > now {
+                break;
+            }
+            if *t != last_t {
+                // Step functions. Don't interpolate.
+                pts.push((last_t, cnt));
+            }
+            last_t = *t;
+            if *filled {
+                if cnt == 0 {
+                    panic!("parking_spot_availability at {} went below 0", t);
                 }
                 cnt -= 1;
             } else {

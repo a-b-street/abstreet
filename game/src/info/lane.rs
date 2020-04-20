@@ -1,7 +1,7 @@
 use crate::app::App;
 use crate::info::{header_btns, make_table, make_tabs, throughput, DataOptions, Details, Tab};
 use abstutil::prettyprint_usize;
-use ezgui::{EventCtx, Line, Text, TextExt, Widget};
+use ezgui::{EventCtx, Line, LinePlot, PlotOptions, Series, Text, TextExt, Widget};
 use map_model::LaneID;
 
 pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec<Widget> {
@@ -28,6 +28,40 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
     kv.push(("Length", l.length().describe_rounded()));
 
     rows.extend(make_table(ctx, kv));
+
+    if l.is_parking() {
+        let capacity = l.number_parking_spots();
+        let mut series = vec![Series {
+            label: "After changes".to_string(),
+            color: app.cs.after_changes,
+            pts: app.primary.sim.get_analytics().parking_spot_availability(
+                app.primary.sim.time(),
+                l.id,
+                capacity,
+            ),
+        }];
+        if app.has_prebaked().is_some() {
+            series.push(Series {
+                label: "Before changes".to_string(),
+                color: app.cs.before_changes.alpha(0.5),
+                pts: app.prebaked().parking_spot_availability(
+                    app.primary.sim.get_end_of_day(),
+                    l.id,
+                    capacity,
+                ),
+            });
+        }
+        rows.push("Parking spots available".draw_text(ctx));
+        rows.push(LinePlot::new(
+            ctx,
+            "parking spots available",
+            series,
+            PlotOptions {
+                max_x: None,
+                max_y: Some(capacity),
+            },
+        ));
+    }
 
     rows
 }

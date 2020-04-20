@@ -290,19 +290,19 @@ impl DiffOneTrip {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         if let Some(l) = &self.line {
             g.draw_line(Color::YELLOW.alpha(0.5), NORMAL_LANE_THICKNESS, l);
         }
         if let Some(t) = &self.primary_route {
             g.draw_polygon(
-                Color::RED.alpha(0.5),
+                app.cs.after_changes.alpha(0.5),
                 &t.make_polygons(NORMAL_LANE_THICKNESS),
             );
         }
         if let Some(t) = &self.secondary_route {
             g.draw_polygon(
-                Color::BLUE.alpha(0.5),
+                app.cs.before_changes.alpha(0.5),
                 &t.make_polygons(NORMAL_LANE_THICKNESS),
             );
         }

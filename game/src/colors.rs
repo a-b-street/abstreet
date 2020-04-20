@@ -118,6 +118,8 @@ pub struct ColorScheme {
 
     // Misc
     pub parking_trip: Color,
+    pub before_changes: Color,
+    pub after_changes: Color,
 }
 
 impl ColorScheme {
@@ -238,6 +240,8 @@ impl ColorScheme {
 
             // Misc
             parking_trip: hex("#4E30A6"),
+            before_changes: Color::BLUE,
+            after_changes: Color::RED,
         }
     }
 

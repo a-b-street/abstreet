@@ -163,7 +163,6 @@ impl TripManager {
         parking: &ParkingSimState,
         scheduler: &mut Scheduler,
     ) {
-        self.events.push(Event::CarReachedParkingSpot(car, spot));
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
         trip.total_blocked_time += blocked_time;
 

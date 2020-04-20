@@ -25,19 +25,23 @@ struct SeriesState {
     draw: Drawable,
 }
 
-pub struct PlotOptions {
+pub struct PlotOptions<T: Yvalue<T>> {
     pub max_x: Option<Time>,
+    pub max_y: Option<T>,
 }
 
-impl PlotOptions {
-    pub fn new() -> PlotOptions {
-        PlotOptions { max_x: None }
+impl<T: Yvalue<T>> PlotOptions<T> {
+    pub fn new() -> PlotOptions<T> {
+        PlotOptions {
+            max_x: None,
+            max_y: None,
+        }
     }
 }
 
 impl<T: Yvalue<T>> LinePlot<T> {
     // ID must be unique in a Composite
-    pub fn new(ctx: &EventCtx, id: &str, series: Vec<Series<T>>, opts: PlotOptions) -> Widget {
+    pub fn new(ctx: &EventCtx, id: &str, series: Vec<Series<T>>, opts: PlotOptions<T>) -> Widget {
         let legend = if series.len() == 1 {
             let radius = 15.0;
             // Can't hide if there's just one series
@@ -86,17 +90,19 @@ impl<T: Yvalue<T>> LinePlot<T> {
                 .max()
                 .unwrap_or(Time::START_OF_DAY)
         });
-        let max_y = series
-            .iter()
-            .map(|s| {
-                s.pts
-                    .iter()
-                    .map(|(_, value)| *value)
-                    .max()
-                    .unwrap_or(T::zero())
-            })
-            .max()
-            .unwrap_or(T::zero());
+        let max_y = opts.max_y.unwrap_or_else(|| {
+            series
+                .iter()
+                .map(|s| {
+                    s.pts
+                        .iter()
+                        .map(|(_, value)| *value)
+                        .max()
+                        .unwrap_or(T::zero())
+                })
+                .max()
+                .unwrap_or(T::zero())
+        });
 
         // TODO Tuned to fit the info panel. Instead these should somehow stretch to fill their
         // container.

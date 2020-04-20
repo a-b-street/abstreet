@@ -661,6 +661,7 @@ impl Sim {
         events.extend(self.driving.collect_events());
         events.extend(self.walking.collect_events());
         events.extend(self.intersections.collect_events());
+        events.extend(self.parking.collect_events());
         for ev in events {
             if let Some(ref mut m) = self.pandemic {
                 m.handle_event(self.time, &ev, &mut self.scheduler);

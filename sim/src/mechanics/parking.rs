@@ -1,4 +1,4 @@
-use crate::{CarID, CarStatus, DrawCarInput, ParkedCar, ParkingSpot, PersonID, Vehicle};
+use crate::{CarID, CarStatus, DrawCarInput, Event, ParkedCar, ParkingSpot, PersonID, Vehicle};
 use abstutil::{
     deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap, MultiMap,
     Timer,
@@ -49,6 +49,8 @@ pub struct ParkingSimState {
         deserialize_with = "deserialize_multimap"
     )]
     driving_to_offstreet: MultiMap<LaneID, BuildingID>,
+
+    events: Vec<Event>,
 }
 
 impl ParkingSimState {
@@ -66,6 +68,8 @@ impl ParkingSimState {
             driving_to_parking_lanes: MultiMap::new(),
             num_spots_per_offstreet: BTreeMap::new(),
             driving_to_offstreet: MultiMap::new(),
+
+            events: Vec::new(),
         };
         for l in map.all_lanes() {
             if let Some(lane) = ParkingLane::new(l, map, timer) {
@@ -127,10 +131,14 @@ impl ParkingSimState {
             self.owner_to_car.remove(&id);
         }
         self.dynamically_reserved_cars.remove(&p.vehicle.id);
+        self.events
+            .push(Event::CarLeftParkingSpot(p.vehicle.id, p.spot));
     }
 
     pub fn add_parked_car(&mut self, p: ParkedCar) {
         assert!(self.reserved_spots.remove(&p.spot));
+        self.events
+            .push(Event::CarReachedParkingSpot(p.vehicle.id, p.spot));
         self.occupants.insert(p.spot, p.vehicle.id);
         if let Some(id) = p.vehicle.owner {
             if self.owner_to_car.contains_key(&id) {
@@ -402,6 +410,10 @@ impl ParkingSimState {
         }
 
         None
+    }
+
+    pub fn collect_events(&mut self) -> Vec<Event> {
+        std::mem::replace(&mut self.events, Vec::new())
     }
 }
 
