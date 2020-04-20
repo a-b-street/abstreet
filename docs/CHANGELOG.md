@@ -377,3 +377,15 @@ changes here.
 - refocusing efforts on challenge modes; level 1 of a new one is pretty much ready
 - some simulation fixes around parking and a corner case of cars temporarily forming a cycle
 - orestis improved the population/pandemic heatmaps
+
+0.1.37
+
+- optimize commute challenge: high score, live sentiment, second stage
+- parked cars are owned by people, not buildings
+- info panel improvements for trips
+- bike layer suggests places where bike lanes could be helpful
+- many improvements to scatter plot
+- a new histogram-ish thing for understanding faster/slower trips
+- handling scenarios longer than 24 hours better (for pandemic model)
+- prototype of commute visualization, grouping buildings by blocks
+- sim bugfixes: crosswalk / vehicle turn conflicts, start bikes in bike lanes from borders
