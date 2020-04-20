@@ -9,6 +9,7 @@ f36e72469646c1cf25ceb42ae82b2a6f  data/input/osm/23rd.osm
 79f7686dcb469a6262e13d5e61571303  data/input/osm/downtown.osm
 9315a7df9e878865ff361ea89129970b  data/input/osm/intl_district.osm
 791b47c83ef94d65c709be027061d13c  data/input/osm/caphill.osm
+a04a70a76161c802c6488d5a843ea244  data/input/osm/lakeslice.osm
 e2a3187ab5be2bf76369823853d86c14  data/input/osm/Seattle.osm
 b0294210de30fee57a204f4c7852df9d  data/input/neighborhoods/ballard/West Woodland.json
 134c34c99e93e3fdef736e7b9a1a6d90  data/input/neighborhoods/ballard/Adams.json
@@ -24,6 +25,10 @@ f2b26082d44df01339f30d1cc2eb4178  data/input/neighborhoods/x1/Portage Bay.json
 a5dca5dd4a4b78efb17e69c2d557ab1b  data/input/neighborhoods/x1/Stevens.json
 519cbc4a6c2038fab9df172f2db63085  data/input/neighborhoods/x1/Montlake.json
 a6860296e9b842be9226fc9fe1fc3cad  data/input/neighborhoods/23rd/Mann.json
+ed7dc58cf6e4fc61afd64dd973770f10  data/input/neighborhoods/lakeslice/Leschi.json
+f8c72b08495801165046fb91bc4b3138  data/input/neighborhoods/lakeslice/Harrison - Denny-Blaine.json
+64e01cf5faf709552168bc4dc30ba4a6  data/input/neighborhoods/lakeslice/Mann.json
+6d8a88b76bdc14690c959f349c30bbf9  data/input/neighborhoods/lakeslice/Madrona.json
 6da5d27cf9e113afd004667be3381527  data/input/neighborhoods/downtown/Pike-Market.json
 3d8e21ae459dd03b5c357d6a630b31d3  data/input/neighborhoods/downtown/First Hill.json
 732fd9f536d91a81e378ffec5c663f0a  data/input/neighborhoods/downtown/Central Business District.json
@@ -90,6 +95,7 @@ dc1968d1701598bccf41d1f396ae23e9  data/input/raw_maps/huge_seattle.bin
 e59204b20ae17a56e128e4d8b0c3b447  data/input/raw_maps/ballard.bin
 5474231e70e6edbf16837a0b54bdf33e  data/input/raw_maps/downtown.bin
 194e089ea73b6dd383d84ab64661c0f3  data/input/raw_maps/caphill.bin
+6ea08ee5c85c302671b569cb3113387d  data/input/raw_maps/lakeslice.bin
 dd7a37e55ccfb450d87ad3195ba614c9  data/input/raw_maps/montlake.bin
 b26a07ee49ec56a5ca80b2e01a56f1b5  data/input/raw_maps/intl_district.bin
 14eaa51e2ed5235b2423300fc41b93a3  data/input/raw_maps/23rd.bin
@@ -97,6 +103,7 @@ b26a07ee49ec56a5ca80b2e01a56f1b5  data/input/raw_maps/intl_district.bin
 946f8d43a49fb9238c15670e4e928319  data/input/popdat.bin
 428bc2e92ea02089cedbb614ce1d8f25  data/input/polygons/caphill.poly
 4f291bbe84ac32a98d7d100be79ddc4b  data/input/polygons/huge_seattle.poly
+6b221b5e68a38f16f34e46a208c7ca15  data/input/polygons/lakeslice.poly
 418bcd5b335d12a1aa8ef556367e0bad  data/input/polygons/montlake.poly
 502f3bf285833fc061099a52f2f70819  data/input/polygons/intl_district.poly
 5d48031ff3b288ecb22bd2a96809a0ab  data/input/polygons/ballard.poly
@@ -213,6 +220,7 @@ d02d0d103f7b00672a5f1145c5169d8c  data/system/fonts/Overpass-Bold.ttf
 08d407ab1b9688eee0b83cd65e698560  data/system/maps/ballard.bin
 19ae5adf392679c4264069bbca23710c  data/system/maps/downtown.bin
 2313d5a3805f07e652127d0010668c80  data/system/maps/caphill.bin
+a3b5a81b41be4c9f4b0710821c1841bb  data/system/maps/lakeslice.bin
 81057642bc7981331c3fb920147faa75  data/system/maps/montlake.bin
 750b8e4f996f12d4105a771e26e83192  data/system/maps/intl_district.bin
 e27d41c916a721b330459ce85a114dbc  data/system/maps/23rd.bin
@@ -222,6 +230,7 @@ cc45f42cb24cad1cfdbf5ed7a0cb86d4  data/system/synthetic_maps/signal_double.json
 1d447747aa2e493310abe5e103a1f693  data/system/scenarios/ballard/weekday.bin
 a72c52c5493d3d7eeaec296ffc7025a2  data/system/scenarios/intl_district/weekday.bin
 a7fa2109e19e283ab463c4a574f88616  data/system/scenarios/23rd/weekday.bin
+4278b8fba98175ab04cd4e3098442122  data/system/scenarios/lakeslice/weekday.bin
 17a1f28e4418937ff17504e357206b8c  data/system/scenarios/downtown/weekday.bin
 c5f3bd7e84a79f4324b46f629a0a40e6  data/system/scenarios/huge_seattle/weekday.bin
 0a54ede30a53ddfe0ea8baaf6df31dfa  data/system/scenarios/caphill/weekday.bin

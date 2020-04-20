@@ -945,8 +945,8 @@ fn make_half_map(
         if i.is_border() {
             if i.roads.len() != 1 {
                 panic!(
-                    "{} is a border, but is connected to >1 road: {:?}",
-                    i.id, i.roads
+                    "{} ({}) is a border, but is connected to >1 road: {:?}",
+                    i.id, i.orig_id, i.roads
                 );
             }
             continue;
