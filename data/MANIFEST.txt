@@ -86,13 +86,13 @@ d14c96851d6289b867e008432f54320d  data/input/neighborhoods/caphill/Broadway.json
 955835e85d15a2fb6c4a8586b8e5cb73  data/input/neighborhoods/caphill/Montlake.json
 19e8073a9f6c807b4492681b2c7570de  data/input/blockface.bin
 db63d7d606e8702d12f9399e87e6a00f  data/input/parcels_urbansim.txt
-b4836782c312d8d0ef1c4a7c6dca9156  data/input/raw_maps/huge_seattle.bin
-8bf93073440252e8c96fa92729375336  data/input/raw_maps/ballard.bin
+dc1968d1701598bccf41d1f396ae23e9  data/input/raw_maps/huge_seattle.bin
+e59204b20ae17a56e128e4d8b0c3b447  data/input/raw_maps/ballard.bin
 5474231e70e6edbf16837a0b54bdf33e  data/input/raw_maps/downtown.bin
-d416406c89cea6eebe28baaa4a01f6e6  data/input/raw_maps/caphill.bin
-12b51d1db5eae741eab5e5a8bd8cf298  data/input/raw_maps/montlake.bin
+194e089ea73b6dd383d84ab64661c0f3  data/input/raw_maps/caphill.bin
+dd7a37e55ccfb450d87ad3195ba614c9  data/input/raw_maps/montlake.bin
 b26a07ee49ec56a5ca80b2e01a56f1b5  data/input/raw_maps/intl_district.bin
-dba9eedaf3ae1f8bc8be3e08be179f14  data/input/raw_maps/23rd.bin
+14eaa51e2ed5235b2423300fc41b93a3  data/input/raw_maps/23rd.bin
 2bc84e4d194d7cea6007ae3b93f3b11b  data/input/neighborhoods.geojson
 946f8d43a49fb9238c15670e4e928319  data/input/popdat.bin
 428bc2e92ea02089cedbb614ce1d8f25  data/input/polygons/caphill.poly
@@ -103,25 +103,25 @@ dba9eedaf3ae1f8bc8be3e08be179f14  data/input/raw_maps/23rd.bin
 0304847f270859fcfc19c8ca122ed793  data/input/polygons/23rd.poly
 54f5f16e5ec925cb29b4d1405a89ef94  data/input/polygons/downtown.poly
 58485a3bdff2aea9769fffd207e3cf30  data/input/offstreet_parking.bin
-92778296b019f4c5b664ce153350beec  data/input/screenshots/montlake/02x05_i124.png
+139f6e0a688bd07a69a4984495b3f2e5  data/input/screenshots/montlake/02x05_i124.png
 87b182b3e4269b955fff61a41198da44  data/input/screenshots/montlake/01x06_i26.png
 1717bfb53aa375bd3359de6e7db860ff  data/input/screenshots/montlake/01x01_i19.png
-ae55752e24f5fe713494202425ce16b7  data/input/screenshots/montlake/MANIFEST
+7c3927abc1b31191c7c24efeb6e9940f  data/input/screenshots/montlake/MANIFEST
 b681d564271051e5e60cb63d0ee1d6b1  data/input/screenshots/montlake/03x06_i27.png
 89abe949e1a8184a084df873dbace415  data/input/screenshots/montlake/02x03_i1.png
 612d5c710d77ae2fcd639fc8c1716dac  data/input/screenshots/montlake/02x04_i25.png
-33b3c92b72edd8fd757e2df73eb87a52  data/input/screenshots/montlake/02x02_i289.png
 2b2fffe66932402f6885865217a13175  data/input/screenshots/montlake/03x02_i8.png
 75ea4a81b2371fa1b03d756c8fc0fa54  data/input/screenshots/montlake/01x04_i31.png
-dc10dd940c4f3b41086f7b40983ba25f  data/input/screenshots/montlake/combine.sh
+4f507c78977c8ff62f4c2a0e011329ee  data/input/screenshots/montlake/combine.sh
 301fa5745ff7c7e1c43e7300e38add50  data/input/screenshots/montlake/03x01_i0.png
 e0f2b904b21fec546372c737bc4872da  data/input/screenshots/montlake/01x03_i4.png
 482f9da940c8c9ed52aa81fcd04b34bc  data/input/screenshots/montlake/01x02_i20.png
 b1929464274d34c3bce5040821f7869d  data/input/screenshots/montlake/03x04_i112.png
+33b3c92b72edd8fd757e2df73eb87a52  data/input/screenshots/montlake/02x02_i288.png
 1028e0631bdfcc27913de602356b89e0  data/input/screenshots/montlake/03x03_i59.png
 587a29517ab20ebe69c03cc2d0eb6b9e  data/input/screenshots/montlake/02x01_i24.png
 3a92ad12d5875db4dabb7f04bc684435  data/input/screenshots/montlake/03x05_i2.png
-63859ef632ee698eae7379275f68f9a6  data/input/screenshots/montlake/02x06_i85.png
+3d3733fb494ca616e4070c9146206ebf  data/input/screenshots/montlake/02x06_i85.png
 25855b7aa895686d13bd054d3bba7051  data/input/screenshots/montlake/01x05_i40.png
 129b460f56f5eb41cab3bfd70fb5fde9  data/input/sidewalks.bin
 0db4e23e51f7680538b0bbbc72208e07  data/input/N47W122.hgt
@@ -209,25 +209,25 @@ d02d0d103f7b00672a5f1145c5169d8c  data/system/fonts/Overpass-Bold.ttf
 2a13391023ce8787887331530cac35a7  data/system/fonts/BungeeInline-Regular.ttf
 17a1468e62195d0688a6f3bd12da2e92  data/system/fonts/Overpass-SemiBold.ttf
 259d4afad7edca07e727ef80f5bbce07  data/system/fonts/Bungee-Regular.ttf
-60752b2c8b73c0fb567930407d2da7a5  data/system/maps/huge_seattle.bin
+4e0441582b7b913a89176436b5122bf2  data/system/maps/huge_seattle.bin
 08d407ab1b9688eee0b83cd65e698560  data/system/maps/ballard.bin
 19ae5adf392679c4264069bbca23710c  data/system/maps/downtown.bin
-511b8cd22bf463d5d26e1e23d314b376  data/system/maps/caphill.bin
-30590c4756973ceb5f2ae0142c06b1b0  data/system/maps/montlake.bin
+2313d5a3805f07e652127d0010668c80  data/system/maps/caphill.bin
+81057642bc7981331c3fb920147faa75  data/system/maps/montlake.bin
 750b8e4f996f12d4105a771e26e83192  data/system/maps/intl_district.bin
-7fba5112973b3a5900536435945024de  data/system/maps/23rd.bin
+e27d41c916a721b330459ce85a114dbc  data/system/maps/23rd.bin
 cc45f42cb24cad1cfdbf5ed7a0cb86d4  data/system/synthetic_maps/signal_double.json
 8b949cc34d9a27ace0bd8ecde55a9520  data/system/synthetic_maps/signal_single.json
 1cd7be125e1d992613ed3a41e8b25b6a  data/system/synthetic_maps/signal_fan_in.json
 1d447747aa2e493310abe5e103a1f693  data/system/scenarios/ballard/weekday.bin
 a72c52c5493d3d7eeaec296ffc7025a2  data/system/scenarios/intl_district/weekday.bin
-86603a31ee66b91ebb4a66e1146a3b17  data/system/scenarios/23rd/weekday.bin
+a7fa2109e19e283ab463c4a574f88616  data/system/scenarios/23rd/weekday.bin
 17a1f28e4418937ff17504e357206b8c  data/system/scenarios/downtown/weekday.bin
-afb0ab6073cd6439ccaa41addd3de68b  data/system/scenarios/huge_seattle/weekday.bin
-248f2874b28dfda11cb052e53ef51414  data/system/scenarios/caphill/weekday.bin
-bf0bef6566fb918db5c9ad3e9054731a  data/system/scenarios/montlake/weekday.bin
+c5f3bd7e84a79f4324b46f629a0a40e6  data/system/scenarios/huge_seattle/weekday.bin
+0a54ede30a53ddfe0ea8baaf6df31dfa  data/system/scenarios/caphill/weekday.bin
+9b964604a514009607a61cc4f0256d4c  data/system/scenarios/montlake/weekday.bin
 ae0946df6ab1edf0ca3b6959093e27d3  data/system/prebaked_results/signal_single/tutorial lvl1.bin
 1d0772af01ceea5d1f28e586b227597e  data/system/prebaked_results/signal_single/tutorial lvl2.bin
-a005f48efe29e2b1e2e7993b919a55fe  data/system/prebaked_results/montlake/car vs bike contention.bin
-9d66173aa0392deb154aaac15e7a55e4  data/system/prebaked_results/montlake/weekday.bin
-26e1612f9deaf77b646a8beaf0a8d0dc  data/system/prebaked_results/montlake/car vs bus contention.bin
+fcc727e48613c12ab336847b81a43bf4  data/system/prebaked_results/montlake/car vs bike contention.bin
+b3937d0809db2e08f86395f14ea5e3dc  data/system/prebaked_results/montlake/weekday.bin
+560083ca84a7367a4bc11a320655206b  data/system/prebaked_results/montlake/car vs bus contention.bin
