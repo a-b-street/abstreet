@@ -1,7 +1,7 @@
 use abstutil::{prettyprint_usize, FileWithProgress, Timer};
 use geom::{Distance, Duration, FindClosest, LonLat, Pt2D, Time};
 use map_model::Map;
-use popdat::psrc::{Endpoint, Mode, Parcel, Purpose, Trip};
+use popdat::psrc::{Endpoint, Mode, OrigTrip, Parcel, Purpose};
 use serde_derive::Deserialize;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fs::File;
@@ -24,7 +24,7 @@ fn import_trips(
     parcels_path: &str,
     trips_path: &str,
     timer: &mut Timer,
-) -> Result<(Vec<Trip>, BTreeMap<i64, Parcel>), failure::Error> {
+) -> Result<(Vec<OrigTrip>, BTreeMap<i64, Parcel>), failure::Error> {
     let (parcels, metadata, oob_parcels) = import_parcels(parcels_path, timer)?;
 
     if false {
@@ -92,7 +92,7 @@ fn import_trips(
         people.insert(person);
         let seq = (rec.tour as usize, rec.half == 2.0, rec.tseg as usize);
 
-        trips.push(Trip {
+        trips.push(OrigTrip {
             from,
             to,
             depart_at,

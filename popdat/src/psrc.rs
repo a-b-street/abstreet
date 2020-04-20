@@ -1,8 +1,8 @@
 use geom::{Distance, Duration, LonLat, Time};
 use serde_derive::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
-pub struct Trip {
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct OrigTrip {
     pub from: Endpoint,
     pub to: Endpoint,
     pub depart_at: Time,
@@ -17,7 +17,7 @@ pub struct Trip {
     pub trip_dist: Distance,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Endpoint {
     pub pos: LonLat,
     pub osm_building: Option<i64>,

@@ -27,6 +27,8 @@ pub struct Scenario {
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct PersonSpec {
     pub id: PersonID,
+    // Just used for debugging
+    pub orig_id: (usize, usize),
     pub trips: Vec<IndividTrip>,
     // 3 possibilities: no car, car appears from outside the map, or car starts at a building
     pub has_car: bool,
@@ -227,13 +229,9 @@ impl Scenario {
                     TripEndpoint::Border(_) => None,
                 };
                 if end_bldg != start_bldg {
-                    println!("{} warps between some trips:", person.id);
-                    for trip in &person.trips {
-                        println!("  - {:?}", trip);
-                    }
                     println!(
-                        "{} ends at {:?}, then starts at {:?}",
-                        person.id, end_bldg, start_bldg
+                        "{} {:?} warps between some trips, from {:?} to {:?}",
+                        person.id, person.orig_id, end_bldg, start_bldg
                     );
                 }
             }

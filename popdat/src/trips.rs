@@ -1,7 +1,7 @@
-use crate::psrc::{Endpoint, Mode, Parcel, Purpose};
+use crate::psrc::{Endpoint, Mode, OrigTrip, Parcel};
 use crate::PopDat;
 use abstutil::{prettyprint_usize, MultiMap, Timer};
-use geom::{Distance, Duration, LonLat, Pt2D, Time};
+use geom::{LonLat, Pt2D};
 use map_model::{BuildingID, IntersectionID, Map, PathConstraints};
 use sim::{DrivingGoal, IndividTrip, PersonID, PersonSpec, Scenario, SidewalkSpot, SpawnTrip};
 use std::collections::HashMap;
@@ -10,16 +10,7 @@ use std::collections::HashMap;
 pub struct Trip {
     pub from: TripEndpt,
     pub to: TripEndpt,
-    pub depart_at: Time,
-    pub purpose: (Purpose, Purpose),
-    pub mode: Mode,
-    // These are an upper bound when TripEndpt::Border is involved.
-    pub trip_time: Duration,
-    pub trip_dist: Distance,
-    // (household, person within household)
-    pub person: (usize, usize),
-    // (tour, false is to destination and true is back from dst, trip within half-tour)
-    pub seq: (usize, bool, usize),
+    pub orig: OrigTrip,
 }
 
 #[derive(Clone, Debug)]
@@ -32,7 +23,7 @@ pub enum TripEndpt {
 
 impl Trip {
     fn to_spawn_trip(&self, map: &Map) -> SpawnTrip {
-        match self.mode {
+        match self.orig.mode {
             Mode::Drive => match self.from {
                 TripEndpt::Border(i, _) => SpawnTrip::FromBorder {
                     i,
@@ -175,39 +166,29 @@ pub fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingI
         .collect();
 
     let total_trips = popdat.trips.len();
-    let maybe_results: Vec<Option<Trip>> = timer.parallelize("clip trips", popdat.trips, |trip| {
+    let maybe_results: Vec<Option<Trip>> = timer.parallelize("clip trips", popdat.trips, |orig| {
         let from = TripEndpt::new(
-            &trip.from,
+            &orig.from,
             map,
             &osm_id_to_bldg,
-            match trip.mode {
+            match orig.mode {
                 Mode::Walk | Mode::Transit => &incoming_borders_walking,
                 Mode::Drive => &incoming_borders_driving,
                 Mode::Bike => &incoming_borders_biking,
             },
         )?;
         let to = TripEndpt::new(
-            &trip.to,
+            &orig.to,
             map,
             &osm_id_to_bldg,
-            match trip.mode {
+            match orig.mode {
                 Mode::Walk | Mode::Transit => &outgoing_borders_walking,
                 Mode::Drive => &outgoing_borders_driving,
                 Mode::Bike => &outgoing_borders_biking,
             },
         )?;
 
-        let trip = Trip {
-            from,
-            to,
-            depart_at: trip.depart_at,
-            purpose: trip.purpose,
-            mode: trip.mode,
-            trip_time: trip.trip_time,
-            trip_dist: trip.trip_dist,
-            person: trip.person,
-            seq: trip.seq,
-        };
+        let trip = Trip { from, to, orig };
 
         match (&trip.from, &trip.to) {
             (TripEndpt::Border(_, _), TripEndpt::Border(_, _)) => {
@@ -253,9 +234,9 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
         timer.parallelize("turn PSRC trips into SpawnTrips", trips, |trip| {
             (
                 trip.to_spawn_trip(map),
-                trip.depart_at,
-                trip.person,
-                trip.seq,
+                trip.orig.depart_at,
+                trip.orig.person,
+                trip.orig.seq,
             )
         })
     {
@@ -271,7 +252,7 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
     ));
 
     let mut people = Vec::new();
-    for (_, seq_trips) in trips_per_person.consume() {
+    for (orig_id, seq_trips) in trips_per_person.consume() {
         let id = PersonID(people.len());
         let mut trips = Vec::new();
         for (_, idx) in seq_trips {
@@ -303,6 +284,7 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
 
         people.push(PersonSpec {
             id,
+            orig_id,
             trips,
             has_car,
             car_initially_parked_at,
