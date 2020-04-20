@@ -4,7 +4,8 @@ use crate::{
     PandemicModel, ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, Person, PersonID,
     PersonState, Router, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripCount,
     TripEndpoint, TripID, TripLeg, TripManager, TripMode, TripPhaseType, TripPositions, TripResult,
-    TripSpawner, TripSpec, UnzoomedAgent, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
+    TripSpawner, TripSpec, UnzoomedAgent, Vehicle, VehicleSpec, VehicleType, WalkingSimState,
+    BUS_LENGTH, MIN_CAR_LENGTH,
 };
 use abstutil::Timer;
 use derivative::Derivative;
@@ -12,7 +13,7 @@ use geom::{Distance, Duration, PolyLine, Pt2D, Time};
 use instant::Instant;
 use map_model::{
     BuildingID, BusRoute, BusRouteID, IntersectionID, LaneID, Map, Path, PathConstraints,
-    PathRequest, PathStep, RoadID, Traversable,
+    PathRequest, PathStep, Position, RoadID, Traversable,
 };
 use rand_xorshift::XorShiftRng;
 use serde_derive::{Deserialize, Serialize};
@@ -185,6 +186,46 @@ impl Sim {
     // (Filled, available)
     pub fn get_all_parking_spots(&self) -> (Vec<ParkingSpot>, Vec<ParkingSpot>) {
         self.parking.get_all_parking_spots()
+    }
+
+    // Also returns the start distance of the building. TODO Do that in the Path properly.
+    pub fn walking_path_to_nearest_parking_spot(
+        &self,
+        map: &Map,
+        b: BuildingID,
+    ) -> Option<(Path, Distance)> {
+        let vehicle = Vehicle {
+            id: CarID(0, VehicleType::Car),
+            owner: None,
+            vehicle_type: VehicleType::Car,
+            length: MIN_CAR_LENGTH,
+            max_speed: None,
+        };
+        let driving_lane = map.find_driving_lane_near_building(b);
+
+        // Anything on the current lane? TODO Should find the closest one to the sidewalk, but
+        // need a new method in ParkingSimState to make that easy.
+        let spot = if let Some((spot, _)) = self.parking.get_first_free_spot(
+            Position::new(driving_lane, Distance::ZERO),
+            &vehicle,
+            map,
+        ) {
+            spot
+        } else {
+            let (_, spot, _) =
+                self.parking
+                    .path_to_free_parking_spot(driving_lane, &vehicle, map)?;
+            spot
+        };
+
+        let start = SidewalkSpot::building(b, map).sidewalk_pos;
+        let end = SidewalkSpot::parking_spot(spot, map, &self.parking).sidewalk_pos;
+        let path = map.pathfind(PathRequest {
+            start,
+            end,
+            constraints: PathConstraints::Pedestrian,
+        })?;
+        Some((path, start.dist_along()))
     }
 
     // TODO Should these two be in TripSpawner?

@@ -1,8 +1,8 @@
 use crate::app::App;
 use crate::info::{header_btns, make_table, make_tabs, Details, Tab};
-use crate::render::DrawPedestrian;
+use crate::render::{dashed_lines, DrawPedestrian};
 use ezgui::{Btn, Color, EventCtx, Line, Text, TextExt, Widget};
-use geom::{Angle, Circle, Time};
+use geom::{Angle, Circle, Distance, Speed, Time};
 use map_model::{BuildingID, LaneID, Traversable, SIDEWALK_THICKNESS};
 use sim::{DrawPedestrianInput, PedestrianID, PersonID, TripMode, TripResult};
 use std::collections::BTreeMap;
@@ -29,7 +29,6 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
     let mut txt = Text::new();
 
     if !b.amenities.is_empty() {
-        txt.add(Line(""));
         if b.amenities.len() > 1 {
             txt.add(Line(format!("{} amenities:", b.amenities.len())));
         }
@@ -40,8 +39,35 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
 
     let cars = app.primary.sim.get_offstreet_parked_cars(id);
     if !cars.is_empty() {
-        txt.add(Line(""));
         txt.add(Line(format!("{} cars parked inside right now", cars.len())));
+    }
+
+    if let Some(pl) = app
+        .primary
+        .sim
+        .walking_path_to_nearest_parking_spot(&app.primary.map, id)
+        .and_then(|(path, start_dist)| path.trace(&app.primary.map, start_dist, None))
+    {
+        txt.add(Line(format!(
+            "Closest parking is ~{} by foot",
+            pl.length() / Speed::miles_per_hour(3.0)
+        )));
+
+        let color = app.cs.unzoomed_pedestrian;
+        details
+            .unzoomed
+            .push(color, pl.make_polygons(Distance::meters(10.0)));
+        details.zoomed.extend(
+            color,
+            dashed_lines(
+                &pl,
+                Distance::meters(0.75),
+                Distance::meters(1.0),
+                Distance::meters(0.4),
+            ),
+        );
+    } else {
+        txt.add(Line("No nearby parking available"))
     }
 
     if !txt.is_empty() {

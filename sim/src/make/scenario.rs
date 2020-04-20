@@ -164,12 +164,7 @@ impl Scenario {
     }
 
     pub fn rand_ped_speed(rng: &mut XorShiftRng) -> Speed {
-        // 2-3mph
-        Scenario::rand_speed(
-            rng,
-            Speed::meters_per_second(0.894),
-            Speed::meters_per_second(1.34),
-        )
+        Scenario::rand_speed(rng, Speed::miles_per_hour(2.0), Speed::miles_per_hour(3.0))
     }
 
     // TODO Utter hack. Blindly repeats all trips taken by each person every day. If

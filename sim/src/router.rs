@@ -5,11 +5,11 @@ use crate::{
 };
 use geom::Distance;
 use map_model::{
-    BuildingID, IntersectionID, LaneID, Map, Path, PathConstraints, PathRequest, PathStep,
-    Position, Traversable, TurnID,
+    BuildingID, IntersectionID, Map, Path, PathConstraints, PathRequest, PathStep, Position,
+    Traversable, TurnID,
 };
 use serde_derive::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BinaryHeap, HashMap};
+use std::collections::BTreeMap;
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Router {
@@ -218,7 +218,7 @@ impl Router {
                         *spot = Some((new_spot, new_pos.dist_along()));
                     } else {
                         if let Some((new_path_steps, new_spot, new_pos)) =
-                            path_to_free_parking_spot(current_lane, vehicle, map, parking)
+                            parking.path_to_free_parking_spot(current_lane, vehicle, map)
                         {
                             *spot = Some((new_spot, new_pos.dist_along()));
                             for step in new_path_steps {
@@ -357,58 +357,4 @@ impl Router {
     pub fn replace_path_for_serialization(&mut self, path: Path) -> Path {
         std::mem::replace(&mut self.path, path)
     }
-}
-
-// Unrealistically assumes the driver has knowledge of currently free parking spots, even if
-// they're far away. Since they don't reserve the spot in advance, somebody else can still beat
-// them there, producing some nice, realistic churn if there's too much contention.
-// The first PathStep is the turn after start, NOT PathStep::Lane(start).
-fn path_to_free_parking_spot(
-    start: LaneID,
-    vehicle: &Vehicle,
-    map: &Map,
-    parking: &ParkingSimState,
-) -> Option<(Vec<PathStep>, ParkingSpot, Position)> {
-    let mut backrefs: HashMap<LaneID, TurnID> = HashMap::new();
-    // Don't travel far.
-    // This is a max-heap, so negate all distances. Tie breaker is lane ID, arbitrary but
-    // deterministic.
-    let mut queue: BinaryHeap<(Distance, LaneID)> = BinaryHeap::new();
-    queue.push((Distance::ZERO, start));
-
-    while !queue.is_empty() {
-        let (dist_so_far, current) = queue.pop().unwrap();
-        // If the current lane has a spot open, we wouldn't be asking. This can happen if a spot
-        // opens up on the 'start' lane, but behind the car.
-        if current != start {
-            if let Some((spot, pos)) =
-                parking.get_first_free_spot(Position::new(current, Distance::ZERO), vehicle, map)
-            {
-                let mut steps = vec![PathStep::Lane(current)];
-                let mut current = current;
-                loop {
-                    if current == start {
-                        // Don't include PathStep::Lane(start)
-                        steps.pop();
-                        steps.reverse();
-                        return Some((steps, spot, pos));
-                    }
-                    let turn = backrefs[&current];
-                    steps.push(PathStep::Turn(turn));
-                    steps.push(PathStep::Lane(turn.src));
-                    current = turn.src;
-                }
-            }
-        }
-        for turn in map.get_turns_for(current, PathConstraints::Car) {
-            if !backrefs.contains_key(&turn.id.dst) {
-                let dist_this_step = turn.geom.length() + map.get_l(current).length();
-                backrefs.insert(turn.id.dst, turn.id);
-                // Remember, keep things negative
-                queue.push((dist_so_far - dist_this_step, turn.id.dst));
-            }
-        }
-    }
-
-    None
 }
