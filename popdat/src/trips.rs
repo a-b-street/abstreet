@@ -1,7 +1,7 @@
 use crate::psrc::{Endpoint, Mode, Parcel, Purpose};
 use crate::PopDat;
 use abstutil::{prettyprint_usize, MultiMap, Timer};
-use geom::{Distance, Duration, LonLat, Polygon, Pt2D, Time};
+use geom::{Distance, Duration, LonLat, Pt2D, Time};
 use map_model::{BuildingID, IntersectionID, Map, PathConstraints};
 use sim::{DrivingGoal, IndividTrip, PersonID, PersonSpec, Scenario, SidewalkSpot, SpawnTrip};
 use std::collections::HashMap;
@@ -31,10 +31,6 @@ pub enum TripEndpt {
 }
 
 impl Trip {
-    pub fn end_time(&self) -> Time {
-        self.depart_at + self.trip_time
-    }
-
     fn to_spawn_trip(&self, map: &Map) -> SpawnTrip {
         match self.mode {
             Mode::Drive => match self.from {
@@ -122,13 +118,6 @@ impl TripEndpt {
                 DrivingGoal::end_at_border(map.get_i(*i).some_incoming_road(map), constraints, map)
                     .unwrap()
             }
-        }
-    }
-
-    pub fn polygon<'a>(&self, map: &'a Map) -> &'a Polygon {
-        match self {
-            TripEndpt::Building(b) => &map.get_b(*b).polygon,
-            TripEndpt::Border(i, _) => &map.get_i(*i).polygon,
         }
     }
 }

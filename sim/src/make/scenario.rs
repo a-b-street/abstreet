@@ -217,14 +217,24 @@ impl Scenario {
             timer.next();
             // Verify that the trip start/endpoints of each person match up
             for pair in person.trips.iter().zip(person.trips.iter().skip(1)) {
-                let end = pair.0.trip.end();
-                let start = pair.1.trip.start(map);
-                if end != start {
+                // Once off-map, re-enter via any border node.
+                let end_bldg = match pair.0.trip.end() {
+                    TripEndpoint::Bldg(b) => Some(b),
+                    TripEndpoint::Border(_) => None,
+                };
+                let start_bldg = match pair.1.trip.start(map) {
+                    TripEndpoint::Bldg(b) => Some(b),
+                    TripEndpoint::Border(_) => None,
+                };
+                if end_bldg != start_bldg {
                     println!("{} warps between some trips:", person.id);
                     for trip in &person.trips {
-                        println!("- {:?}", trip);
+                        println!("  - {:?}", trip);
                     }
-                    panic!("Ends at {:?}, then starts at {:?}", end, start);
+                    println!(
+                        "{} ends at {:?}, then starts at {:?}",
+                        person.id, end_bldg, start_bldg
+                    );
                 }
             }
         }
