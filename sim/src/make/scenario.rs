@@ -1,6 +1,6 @@
 use crate::{
-    DrivingGoal, ParkingSpot, PersonID, SidewalkPOI, SidewalkSpot, Sim, TripSpec, VehicleSpec,
-    VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
+    DrivingGoal, ParkingSpot, PersonID, SidewalkPOI, SidewalkSpot, Sim, TripEndpoint, TripSpec,
+    VehicleSpec, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
 };
 use abstutil::{MultiMap, Timer};
 use geom::{Distance, Duration, Speed, Time};
@@ -65,6 +65,8 @@ impl Scenario {
         sim.set_name(self.scenario_name.clone());
 
         timer.start(format!("Instantiating {}", self.scenario_name));
+
+        self.validate(map, timer);
 
         if let Some(ref routes) = self.only_seed_buses {
             for route in map.get_all_bus_routes() {
@@ -207,6 +209,25 @@ impl Scenario {
             }
         }
         per_bldg
+    }
+
+    fn validate(&self, map: &Map, timer: &mut Timer) {
+        timer.start_iter("verifying people's trips", self.people.len());
+        for person in &self.people {
+            timer.next();
+            // Verify that the trip start/endpoints of each person match up
+            for pair in person.trips.iter().zip(person.trips.iter().skip(1)) {
+                let end = pair.0.trip.end();
+                let start = pair.1.trip.start(map);
+                if end != start {
+                    println!("{} warps between some trips:", person.id);
+                    for trip in &person.trips {
+                        println!("- {:?}", trip);
+                    }
+                    panic!("Ends at {:?}, then starts at {:?}", end, start);
+                }
+            }
+        }
     }
 }
 
@@ -374,65 +395,37 @@ impl SpawnTrip {
         }
     }
 
-    pub fn start_from_bldg(&self) -> Option<BuildingID> {
+    pub fn start(&self, map: &Map) -> TripEndpoint {
         match self {
-            SpawnTrip::CarAppearing { .. } => None,
-            SpawnTrip::FromBorder { .. } => None,
-            SpawnTrip::MaybeUsingParkedCar(b, _) => Some(*b),
-            SpawnTrip::UsingBike(ref spot, _)
-            | SpawnTrip::JustWalking(ref spot, _)
-            | SpawnTrip::UsingTransit(ref spot, _, _, _, _) => match spot.connection {
-                SidewalkPOI::Building(b) => Some(b),
-                _ => None,
-            },
-        }
-    }
-
-    pub fn start_from_border(&self) -> Option<IntersectionID> {
-        match self {
-            SpawnTrip::CarAppearing { .. } => None,
-            SpawnTrip::FromBorder { i, .. } => Some(*i),
-            SpawnTrip::MaybeUsingParkedCar(_, _) => None,
-            SpawnTrip::UsingBike(ref spot, _)
-            | SpawnTrip::JustWalking(ref spot, _)
-            | SpawnTrip::UsingTransit(ref spot, _, _, _, _) => match spot.connection {
-                SidewalkPOI::Border(i) => Some(i),
-                _ => None,
-            },
-        }
-    }
-
-    pub fn end_at_bldg(&self) -> Option<BuildingID> {
-        match self {
-            SpawnTrip::CarAppearing { ref goal, .. }
-            | SpawnTrip::FromBorder { ref goal, .. }
-            | SpawnTrip::MaybeUsingParkedCar(_, ref goal)
-            | SpawnTrip::UsingBike(_, ref goal) => match goal {
-                DrivingGoal::ParkNear(b) => Some(*b),
-                DrivingGoal::Border(_, _) => None,
-            },
-            SpawnTrip::JustWalking(_, ref spot) | SpawnTrip::UsingTransit(_, ref spot, _, _, _) => {
-                match spot.connection {
-                    SidewalkPOI::Building(b) => Some(b),
-                    _ => None,
-                }
+            SpawnTrip::CarAppearing { ref start, .. } => {
+                TripEndpoint::Border(map.get_l(start.lane()).src_i)
             }
+            SpawnTrip::FromBorder { i, .. } => TripEndpoint::Border(*i),
+            SpawnTrip::MaybeUsingParkedCar(b, _) => TripEndpoint::Bldg(*b),
+            SpawnTrip::UsingBike(ref spot, _)
+            | SpawnTrip::JustWalking(ref spot, _)
+            | SpawnTrip::UsingTransit(ref spot, _, _, _, _) => match spot.connection {
+                SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
+                SidewalkPOI::Border(i) => TripEndpoint::Border(i),
+                _ => unreachable!(),
+            },
         }
     }
 
-    pub fn end_at_border(&self) -> Option<IntersectionID> {
+    pub fn end(&self) -> TripEndpoint {
         match self {
             SpawnTrip::CarAppearing { ref goal, .. }
             | SpawnTrip::FromBorder { ref goal, .. }
             | SpawnTrip::MaybeUsingParkedCar(_, ref goal)
             | SpawnTrip::UsingBike(_, ref goal) => match goal {
-                DrivingGoal::ParkNear(_) => None,
-                DrivingGoal::Border(i, _) => Some(*i),
+                DrivingGoal::ParkNear(b) => TripEndpoint::Bldg(*b),
+                DrivingGoal::Border(i, _) => TripEndpoint::Border(*i),
             },
             SpawnTrip::JustWalking(_, ref spot) | SpawnTrip::UsingTransit(_, ref spot, _, _, _) => {
                 match spot.connection {
-                    SidewalkPOI::Border(i) => Some(i),
-                    _ => None,
+                    SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
+                    SidewalkPOI::Border(i) => TripEndpoint::Border(i),
+                    _ => unreachable!(),
                 }
             }
         }

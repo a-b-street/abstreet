@@ -11,7 +11,10 @@ use ezgui::{
 };
 use geom::{Distance, Line, PolyLine, Polygon};
 use map_model::{BuildingID, IntersectionID, Map};
-use sim::{DrivingGoal, IndividTrip, PersonSpec, Scenario, SidewalkPOI, SidewalkSpot, SpawnTrip};
+use sim::{
+    DrivingGoal, IndividTrip, PersonSpec, Scenario, SidewalkPOI, SidewalkSpot, SpawnTrip,
+    TripEndpoint,
+};
 use std::collections::BTreeSet;
 
 pub struct ScenarioManager {
@@ -41,17 +44,21 @@ impl ScenarioManager {
             for (idx2, trip) in person.trips.iter().enumerate() {
                 num_trips += 1;
                 let idx = (idx1, idx2);
-                if let Some(b) = trip.trip.start_from_bldg() {
-                    trips_from_bldg.insert(b, idx);
+                match trip.trip.start(&app.primary.map) {
+                    TripEndpoint::Bldg(b) => {
+                        trips_from_bldg.insert(b, idx);
+                    }
+                    TripEndpoint::Border(i) => {
+                        trips_from_border.insert(i, idx);
+                    }
                 }
-                if let Some(i) = trip.trip.start_from_border() {
-                    trips_from_border.insert(i, idx);
-                }
-                if let Some(b) = trip.trip.end_at_bldg() {
-                    trips_to_bldg.insert(b, idx);
-                }
-                if let Some(i) = trip.trip.end_at_border() {
-                    trips_to_border.insert(i, idx);
+                match trip.trip.end() {
+                    TripEndpoint::Bldg(b) => {
+                        trips_to_bldg.insert(b, idx);
+                    }
+                    TripEndpoint::Border(i) => {
+                        trips_to_border.insert(i, idx);
+                    }
                 }
             }
         }
