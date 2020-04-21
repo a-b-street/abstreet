@@ -374,30 +374,25 @@ impl DrivingSimState {
                     goto,
                 ));
 
-                car.last_steps.push_front(last_step);
-                // Bit unrealistic, but don't unblock shorter intermediate steps until we're all
-                // the way into a lane later.
                 // Don't mark turn_finished until our back is out of the turn.
-                // TODO Don't even bother updating laggy head (which will unblock intermediate
-                // steps and call turn_finished and such) if we're bound for a tiny lane.
-                if goto.length(map) >= car.vehicle.length + FOLLOWING_DISTANCE {
-                    // Optimistically assume we'll be out of the way ASAP.
-                    // This is update, not push, because we might've scheduled a blind retry too
-                    // late, and the car actually crosses an entire new traversable in the
-                    // meantime.
-                    scheduler.update(
-                        car.crossing_state_with_end_dist(
-                            DistanceInterval::new_driving(
-                                Distance::ZERO,
-                                car.vehicle.length + FOLLOWING_DISTANCE,
-                            ),
-                            now,
-                            map,
-                        )
-                        .get_end_time(),
-                        Command::UpdateLaggyHead(car.vehicle.id),
-                    );
-                }
+                car.last_steps.push_front(last_step);
+
+                // Optimistically assume we'll be out of the way ASAP.
+                // This is update, not push, because we might've scheduled a blind retry too
+                // late, and the car actually crosses an entire new traversable in the
+                // meantime.
+                scheduler.update(
+                    car.crossing_state_with_end_dist(
+                        DistanceInterval::new_driving(
+                            Distance::ZERO,
+                            car.vehicle.length + FOLLOWING_DISTANCE,
+                        ),
+                        now,
+                        map,
+                    )
+                    .get_end_time(),
+                    Command::UpdateLaggyHead(car.vehicle.id),
+                );
 
                 self.queues
                     .get_mut(&goto)
@@ -598,7 +593,7 @@ impl DrivingSimState {
         {
             let queue = self.queues.get_mut(&car.router.head()).unwrap();
             assert_eq!(queue.cars.remove(idx).unwrap(), car.vehicle.id);
-            // clear_last_steps doesn't actually include the current queue!
+            // trim_last_steps doesn't actually include the current queue!
             queue.free_reserved_space(car);
             let i = match queue.id {
                 Traversable::Lane(l) => map.get_l(l).src_i,
@@ -608,7 +603,14 @@ impl DrivingSimState {
         }
 
         // We might be vanishing while partly clipping into other stuff.
-        self.clear_last_steps(now, car, intersections, scheduler, map);
+        self.trim_last_steps(
+            car,
+            now,
+            car.last_steps.len(),
+            map,
+            intersections,
+            scheduler,
+        );
 
         // We might've scheduled one of those using BLIND_RETRY_TO_CREEP_FORWARDS.
         scheduler.cancel(Command::UpdateLaggyHead(car.vehicle.id));
@@ -657,72 +659,84 @@ impl DrivingSimState {
         intersections: &mut IntersectionSimState,
         scheduler: &mut Scheduler,
     ) {
-        // TODO The impl here is pretty gross; play the same trick and remove car temporarily?
-        let on = self.cars[&id].router.head();
-        let dists = self.queues[&on].get_car_positions(now, &self.cars, &self.queues);
+        let currently_on = self.cars[&id].router.head();
+        let current_dists =
+            self.queues[&currently_on].get_car_positions(now, &self.cars, &self.queues);
         // This car must be the tail.
-        {
-            let last = dists.last().unwrap().0;
-            if id != last {
+        let dist_along_last = {
+            let (last_id, dist) = current_dists.last().unwrap();
+            if id != *last_id {
                 panic!(
                     "At {} on {:?}, laggy head {} isn't the last on the lane; it's {}",
-                    now, on, id, last
+                    now, currently_on, id, last_id
+                );
+            }
+            *dist
+        };
+
+        // Trim off as many of the oldest last_steps as we've made distance.
+        let mut dist_left_to_cleanup = self.cars[&id].vehicle.length + FOLLOWING_DISTANCE;
+        dist_left_to_cleanup -= dist_along_last;
+        let mut num_to_trim = None;
+        for (idx, step) in self.cars[&id].last_steps.iter().enumerate() {
+            if dist_left_to_cleanup <= Distance::ZERO {
+                num_to_trim = Some(self.cars[&id].last_steps.len() - idx);
+                break;
+            }
+            dist_left_to_cleanup -= step.length(map);
+        }
+
+        if let Some(n) = num_to_trim {
+            let mut car = self.cars.remove(&id).unwrap();
+            self.trim_last_steps(&mut car, now, n, map, intersections, scheduler);
+            self.cars.insert(id, car);
+        }
+
+        if !self.cars[&id].last_steps.is_empty() {
+            // Might have to retry again later.
+            let retry_at = self.cars[&id]
+                .crossing_state_with_end_dist(
+                    // Update again when we've completely cleared all last_steps. We could be more
+                    // precise and do it sooner when we clear the last step, but a little delay is
+                    // fine for correctness.
+                    DistanceInterval::new_driving(
+                        dist_along_last,
+                        self.cars[&id].vehicle.length + FOLLOWING_DISTANCE,
+                    ),
+                    now,
+                    map,
+                )
+                .get_end_time();
+            // Sometimes due to rounding, retry_at will be exactly time, but we really need to
+            // wait a bit longer.
+            // TODO Smarter retry based on states and stuckness?
+            if retry_at > now {
+                scheduler.push(retry_at, Command::UpdateLaggyHead(id));
+            } else {
+                // If we look up car positions before this retry happens, weird things can
+                // happen -- the laggy head could be well clear of the old queue by then. Make
+                // sure to handle that there. Consequences of this retry being long? A follower
+                // will wait a bit before advancing.
+                scheduler.push(
+                    now + BLIND_RETRY_TO_CREEP_FORWARDS,
+                    Command::UpdateLaggyHead(id),
                 );
             }
         }
-        let our_len = self.cars[&id].vehicle.length + FOLLOWING_DISTANCE;
-
-        // Have we made it far enough yet? Unfortunately, we have some math imprecision issues...
-        {
-            let our_dist = dists.last().unwrap().1;
-            let car = &self.cars[&id];
-
-            if our_dist < our_len {
-                let retry_at = car
-                    .crossing_state_with_end_dist(
-                        DistanceInterval::new_driving(our_dist, our_len),
-                        now,
-                        map,
-                    )
-                    .get_end_time();
-                // Sometimes due to rounding, retry_at will be exactly time, but we really need to
-                // wait a bit longer.
-                // TODO Smarter retry based on states and stuckness?
-                if retry_at > now {
-                    scheduler.push(retry_at, Command::UpdateLaggyHead(car.vehicle.id));
-                } else {
-                    // If we look up car positions before this retry happens, weird things can
-                    // happen -- the laggy head could be well clear of the old queue by then. Make
-                    // sure to handle that there. Consequences of this retry being long? A follower
-                    // will wait a bit before advancing.
-                    scheduler.push(
-                        now + BLIND_RETRY_TO_CREEP_FORWARDS,
-                        Command::UpdateLaggyHead(car.vehicle.id),
-                    );
-                }
-                return;
-            }
-        }
-
-        // Argh, fight the borrow checker.
-        let mut car = self.cars.remove(&id).unwrap();
-        self.clear_last_steps(now, &mut car, intersections, scheduler, map);
-        self.cars.insert(id, car);
     }
 
-    fn clear_last_steps(
+    // Caller has to figure out how many steps to trim!
+    fn trim_last_steps(
         &mut self,
-        now: Time,
         car: &mut Car,
+        now: Time,
+        n: usize,
+        map: &Map,
         intersections: &mut IntersectionSimState,
         scheduler: &mut Scheduler,
-        map: &Map,
     ) {
-        // If we were blocking a few short lanes, should be better now. Very last one might have
-        // somebody to wake up.
-        let last_steps: Vec<Traversable> = car.last_steps.drain(..).collect();
-
-        for (idx, on) in last_steps.iter().enumerate() {
+        for i in 0..n {
+            let on = car.last_steps.pop_back().unwrap();
             let old_queue = self.queues.get_mut(&on).unwrap();
             assert_eq!(old_queue.laggy_head, Some(car.vehicle.id));
             old_queue.laggy_head = None;
@@ -731,18 +745,18 @@ impl DrivingSimState {
                     intersections.turn_finished(
                         now,
                         AgentID::Car(car.vehicle.id),
-                        *t,
+                        t,
                         scheduler,
                         map,
                     );
                 }
                 Traversable::Lane(l) => {
                     old_queue.free_reserved_space(car);
-                    intersections.space_freed(now, map.get_l(*l).src_i, scheduler, map);
+                    intersections.space_freed(now, map.get_l(l).src_i, scheduler, map);
                 }
             }
 
-            if idx == last_steps.len() - 1 {
+            if i == 0 {
                 // Wake up the follower
                 if let Some(follower_id) = old_queue.cars.front() {
                     let mut follower = self.cars.get_mut(&follower_id).unwrap();
@@ -765,9 +779,9 @@ impl DrivingSimState {
                             }
                         }
                         CarState::WaitingToAdvance { .. } => unreachable!(),
-                        // They weren't blocked. Note that there's no way the Crossing state could
-                        // jump forwards here; the leader vanished from the
-                        // end of the traversable.
+                        // They weren't blocked. Note that there's no way the Crossing state
+                        // could jump forwards here; the leader
+                        // vanished from the end of the traversable.
                         CarState::Crossing(_, _)
                         | CarState::Unparking(_, _, _)
                         | CarState::Parking(_, _, _)
@@ -775,7 +789,9 @@ impl DrivingSimState {
                     }
                 }
             } else {
-                assert!(self.queues[&on].cars.is_empty());
+                // Only the last step we cleared could possibly have cars. Any intermediates,
+                // this car was previously completely blocking them.
+                assert!(old_queue.cars.is_empty());
             }
         }
     }
