@@ -135,7 +135,6 @@ impl GUI for Game {
                     .on_suspend(ctx, &mut self.app);
                 self.states.push(s1);
                 self.states.push(s2);
-                return EventLoopMode::InputOnly;
             }
         };
         // Let the new state initialize with a fake event. Usually these just return

@@ -219,8 +219,8 @@ impl IntersectionSimState {
         let allowed = if self.use_freeform_policy_everywhere {
             state.freeform_policy(
                 &req,
-                now,
                 map,
+                &mut self.events,
                 if self.break_turn_conflict_cycles {
                     Some(&mut self.blocked_by)
                 } else {
@@ -235,6 +235,7 @@ impl IntersectionSimState {
                 now,
                 map,
                 scheduler,
+                &mut self.events,
                 if self.break_turn_conflict_cycles {
                     Some(&mut self.blocked_by)
                 } else {
@@ -248,6 +249,7 @@ impl IntersectionSimState {
                 now,
                 map,
                 scheduler,
+                &mut self.events,
                 if self.break_turn_conflict_cycles {
                     Some(&mut self.blocked_by)
                 } else {
@@ -372,8 +374,8 @@ impl State {
     fn handle_accepted_conflicts(
         &self,
         req: &Request,
-        now: Time,
         map: &Map,
+        events: &mut Vec<Event>,
         mut maybe_blocked_by: Option<&mut Vec<(AgentID, AgentID)>>,
     ) -> bool {
         let turn = map.get_t(req.turn);
@@ -393,10 +395,10 @@ impl State {
                     while !queue.is_empty() {
                         let current = queue.pop().unwrap();
                         if seen.contains(&current) {
-                            println!(
-                                "!!! At {}, gridlock near {}. Allowing {:?}!",
-                                now, req.turn.parent, req.agent
-                            );
+                            events.push(Event::Alert(
+                                req.turn.parent,
+                                format!("Turn conflict cycle involving {:?}", seen),
+                            ));
                             return true;
                         }
                         seen.insert(current);
@@ -416,12 +418,12 @@ impl State {
     fn freeform_policy(
         &self,
         req: &Request,
-        now: Time,
         map: &Map,
+        events: &mut Vec<Event>,
         maybe_blocked_by: Option<&mut Vec<(AgentID, AgentID)>>,
     ) -> bool {
         // Allow concurrent turns that don't conflict
-        self.handle_accepted_conflicts(req, now, map, maybe_blocked_by)
+        self.handle_accepted_conflicts(req, map, events, maybe_blocked_by)
     }
 
     fn stop_sign_policy(
@@ -431,9 +433,10 @@ impl State {
         now: Time,
         map: &Map,
         scheduler: &mut Scheduler,
+        events: &mut Vec<Event>,
         maybe_blocked_by: Option<&mut Vec<(AgentID, AgentID)>>,
     ) -> bool {
-        if !self.handle_accepted_conflicts(req, now, map, maybe_blocked_by) {
+        if !self.handle_accepted_conflicts(req, map, events, maybe_blocked_by) {
             return false;
         }
 
@@ -478,6 +481,7 @@ impl State {
         now: Time,
         map: &Map,
         scheduler: &mut Scheduler,
+        events: &mut Vec<Event>,
         maybe_blocked_by: Option<&mut Vec<(AgentID, AgentID)>>,
     ) -> bool {
         let turn = map.get_t(req.turn);
@@ -496,7 +500,7 @@ impl State {
         }
 
         // Somebody might already be doing a Yield turn that conflicts with this one.
-        if !self.handle_accepted_conflicts(req, now, map, maybe_blocked_by) {
+        if !self.handle_accepted_conflicts(req, map, events, maybe_blocked_by) {
             return false;
         }
 

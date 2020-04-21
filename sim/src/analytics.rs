@@ -26,6 +26,7 @@ pub struct Analytics {
     pub intersection_delays: BTreeMap<IntersectionID, Vec<(Time, Duration)>>,
     // Per parking lane, when does a spot become filled (true) or free (false)
     parking_spot_changes: BTreeMap<LaneID, Vec<(Time, bool)>>,
+    pub(crate) alerts: Vec<(Time, IntersectionID, String)>,
 
     // After we restore from a savestate, don't record anything. This is only going to make sense
     // if savestates are only used for quickly previewing against prebaked results, where we have
@@ -65,6 +66,7 @@ impl Analytics {
             trip_log: Vec::new(),
             intersection_delays: BTreeMap::new(),
             parking_spot_changes: BTreeMap::new(),
+            alerts: Vec::new(),
             record_anything: true,
         }
     }
@@ -191,6 +193,9 @@ impl Analytics {
             }
             Event::PathAmended(path) => {
                 self.record_demand(&path, map);
+            }
+            Event::Alert(i, msg) => {
+                self.alerts.push((time, i, msg));
             }
             _ => {}
         }

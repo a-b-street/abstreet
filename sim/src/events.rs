@@ -46,6 +46,8 @@ pub enum Event {
     // Just use for parking replanning. Not happy about copying the full path in here, but the way
     // to plumb info into Analytics is Event.
     PathAmended(Path),
+
+    Alert(IntersectionID, String),
 }
 
 #[derive(Debug, PartialEq, Clone, Copy, Serialize, Deserialize)]

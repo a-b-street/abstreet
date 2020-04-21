@@ -681,6 +681,9 @@ impl Sim {
 
         timer.start(format!("Advance sim to {}", end_time));
         while self.time < end_time {
+            if !self.analytics.alerts.is_empty() {
+                break;
+            }
             self.minimal_step(map, end_time - self.time);
             if Duration::realtime_elapsed(last_update) >= Duration::seconds(1.0) {
                 // TODO Not timer?
@@ -719,6 +722,9 @@ impl Sim {
         let end_time = self.time + dt;
 
         while self.time < end_time && Duration::realtime_elapsed(started_at) < real_time_limit {
+            if !self.analytics.alerts.is_empty() {
+                break;
+            }
             self.minimal_step(map, end_time - self.time);
             if let Some((ref mut t, dt)) = self.check_for_gridlock {
                 if self.time >= *t {
@@ -1217,6 +1223,10 @@ impl Sim {
         } else {
             println!("{} has no trip?!", id);
         }
+    }
+
+    pub fn clear_alerts(&mut self) -> Vec<(Time, IntersectionID, String)> {
+        std::mem::replace(&mut self.analytics.alerts, Vec::new())
     }
 }
 
