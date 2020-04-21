@@ -35,21 +35,15 @@ pub struct DrivingSimState {
     events: Vec<Event>,
 
     recalc_lanechanging: bool,
-    clear_laggy_head_early: bool,
 }
 
 impl DrivingSimState {
-    pub fn new(
-        map: &Map,
-        recalc_lanechanging: bool,
-        clear_laggy_head_early: bool,
-    ) -> DrivingSimState {
+    pub fn new(map: &Map, recalc_lanechanging: bool) -> DrivingSimState {
         let mut sim = DrivingSimState {
             cars: BTreeMap::new(),
             queues: BTreeMap::new(),
             events: Vec::new(),
             recalc_lanechanging,
-            clear_laggy_head_early,
         };
 
         for l in map.all_lanes() {
@@ -385,11 +379,8 @@ impl DrivingSimState {
                 // the way into a lane later.
                 // Don't mark turn_finished until our back is out of the turn.
                 // TODO Don't even bother updating laggy head (which will unblock intermediate
-                // steps and call turn_finished and such) if we're bound for a tiny lane. Unless
-                // we're trying the experimental clear_laggy_head_early strategy.
-                if goto.length(map) >= car.vehicle.length + FOLLOWING_DISTANCE
-                    || self.clear_laggy_head_early
-                {
+                // steps and call turn_finished and such) if we're bound for a tiny lane.
+                if goto.length(map) >= car.vehicle.length + FOLLOWING_DISTANCE {
                     // Optimistically assume we'll be out of the way ASAP.
                     // This is update, not push, because we might've scheduled a blind retry too
                     // late, and the car actually crosses an entire new traversable in the
@@ -686,12 +677,7 @@ impl DrivingSimState {
             let our_dist = dists.last().unwrap().1;
             let car = &self.cars[&id];
 
-            // TODO Not working yet -- causes something to spawn too close to short stuff.
-            let avoid_gridlock = self.clear_laggy_head_early
-                && our_dist == on.length(map)
-                && on.maybe_lane().is_some();
-
-            if our_dist < our_len && !avoid_gridlock {
+            if our_dist < our_len {
                 let retry_at = car
                     .crossing_state_with_end_dist(
                         DistanceInterval::new_driving(our_dist, our_len),

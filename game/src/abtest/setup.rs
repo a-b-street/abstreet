@@ -162,10 +162,6 @@ fn launch_test(test: &ABTest, app: &mut App, ctx: &mut EventCtx) -> ABTestMode {
                                     .sim_flags
                                     .opts
                                     .recalc_lanechanging,
-                                clear_laggy_head_early: current_flags
-                                    .sim_flags
-                                    .opts
-                                    .clear_laggy_head_early,
                                 break_turn_conflict_cycles: current_flags
                                     .sim_flags
                                     .opts
