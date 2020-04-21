@@ -1,7 +1,7 @@
 use crate::mechanics::car::Car;
 use crate::mechanics::Queue;
 use crate::{AgentID, Command, Event, Scheduler, Speed};
-use abstutil::{deserialize_btreemap, serialize_btreemap};
+use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap};
 use derivative::Derivative;
 use geom::{Duration, Time};
 use map_model::{
@@ -20,8 +20,9 @@ pub struct IntersectionSimState {
     use_freeform_policy_everywhere: bool,
     force_queue_entry: bool,
     break_turn_conflict_cycles: bool,
-    // TODO I think it's many<->many. Ew.
-    blocked_by: Vec<(AgentID, AgentID)>,
+    // (x, y) means x is blocked by y. It's a many-to-many relationship. TODO Better data
+    // structure.
+    blocked_by: BTreeSet<(AgentID, AgentID)>,
     events: Vec<Event>,
 }
 
@@ -51,7 +52,7 @@ impl IntersectionSimState {
             use_freeform_policy_everywhere,
             force_queue_entry: disable_block_the_box,
             break_turn_conflict_cycles,
-            blocked_by: Vec::new(),
+            blocked_by: BTreeSet::new(),
             events: Vec::new(),
         };
         for i in map.all_intersections() {
@@ -91,7 +92,7 @@ impl IntersectionSimState {
             self.wakeup_waiting(now, turn.parent, scheduler, map);
         }
         if self.break_turn_conflict_cycles {
-            self.blocked_by.retain(|(_, a)| *a != agent);
+            retain_btreeset(&mut self.blocked_by, |(_, a)| *a != agent);
         }
     }
 
@@ -100,8 +101,9 @@ impl IntersectionSimState {
         let state = self.state.get_mut(&turn.parent).unwrap();
         state.waiting.remove(&Request { agent, turn });
         if self.break_turn_conflict_cycles {
-            self.blocked_by
-                .retain(|(a1, a2)| *a1 != agent && *a2 != agent);
+            retain_btreeset(&mut self.blocked_by, |(a1, a2)| {
+                *a1 != agent && *a2 != agent
+            });
         }
     }
 
@@ -288,7 +290,7 @@ impl IntersectionSimState {
         }
         state.accepted.insert(req);
         if self.break_turn_conflict_cycles {
-            self.blocked_by.retain(|(a, _)| *a != agent);
+            retain_btreeset(&mut self.blocked_by, |(a, _)| *a != agent);
         }
 
         /*if debug {
@@ -376,7 +378,7 @@ impl State {
         req: &Request,
         map: &Map,
         events: &mut Vec<Event>,
-        mut maybe_blocked_by: Option<&mut Vec<(AgentID, AgentID)>>,
+        mut maybe_blocked_by: Option<&mut BTreeSet<(AgentID, AgentID)>>,
     ) -> bool {
         let turn = map.get_t(req.turn);
         let mut ok = true;
@@ -385,10 +387,7 @@ impl State {
                 ok = false;
 
                 if let Some(ref mut blocked_by) = maybe_blocked_by {
-                    // TODO Ahh dedupe
-                    blocked_by.push((req.agent, other.agent));
-                    blocked_by.sort();
-                    blocked_by.dedup();
+                    blocked_by.insert((req.agent, other.agent));
 
                     // Do we have a dependency cycle?
                     let mut queue = vec![req.agent];
@@ -396,10 +395,12 @@ impl State {
                     while !queue.is_empty() {
                         let current = queue.pop().unwrap();
                         if !seen.is_empty() && current == req.agent {
-                            events.push(Event::Alert(
-                                req.turn.parent,
-                                format!("Turn conflict cycle involving {:?}", seen),
-                            ));
+                            if false {
+                                events.push(Event::Alert(
+                                    req.turn.parent,
+                                    format!("Turn conflict cycle involving {:?}", seen),
+                                ));
+                            }
                             return true;
                         }
                         // Because the blocked-by relation is many-to-many, this might happen.
@@ -426,7 +427,7 @@ impl State {
         req: &Request,
         map: &Map,
         events: &mut Vec<Event>,
-        maybe_blocked_by: Option<&mut Vec<(AgentID, AgentID)>>,
+        maybe_blocked_by: Option<&mut BTreeSet<(AgentID, AgentID)>>,
     ) -> bool {
         // Allow concurrent turns that don't conflict
         self.handle_accepted_conflicts(req, map, events, maybe_blocked_by)
@@ -440,7 +441,7 @@ impl State {
         map: &Map,
         scheduler: &mut Scheduler,
         events: &mut Vec<Event>,
-        maybe_blocked_by: Option<&mut Vec<(AgentID, AgentID)>>,
+        maybe_blocked_by: Option<&mut BTreeSet<(AgentID, AgentID)>>,
     ) -> bool {
         if !self.handle_accepted_conflicts(req, map, events, maybe_blocked_by) {
             return false;
@@ -488,7 +489,7 @@ impl State {
         map: &Map,
         scheduler: &mut Scheduler,
         events: &mut Vec<Event>,
-        maybe_blocked_by: Option<&mut Vec<(AgentID, AgentID)>>,
+        maybe_blocked_by: Option<&mut BTreeSet<(AgentID, AgentID)>>,
     ) -> bool {
         let turn = map.get_t(req.turn);
 
