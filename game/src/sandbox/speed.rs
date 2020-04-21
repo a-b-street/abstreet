@@ -279,7 +279,13 @@ impl SpeedControls {
             return Some(Transition::PushTwice(
                 msg(
                     "Alerts",
-                    alerts.into_iter().map(|(_, _, msg)| msg).collect(),
+                    alerts
+                        .into_iter()
+                        .map(|(_, _, msg)| {
+                            println!("Alert: {}", msg);
+                            msg
+                        })
+                        .collect(),
                 ),
                 Warping::new(
                     ctx,
@@ -511,6 +517,10 @@ impl State for TimeWarpScreen {
                 ));
             }
             // TODO secondary for a/b test mode
+            // For now, don't stop for this
+            for (t, i, msg) in app.primary.sim.clear_alerts() {
+                println!("- Alert: At {}, near {}, {}", t, i, msg);
+            }
 
             // I'm covered in shame for not doing this from the start.
             let mut txt = Text::from(Line("Let's do the time warp again!").small_heading());

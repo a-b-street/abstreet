@@ -387,25 +387,31 @@ impl State {
                 if let Some(ref mut blocked_by) = maybe_blocked_by {
                     // TODO Ahh dedupe
                     blocked_by.push((req.agent, other.agent));
+                    blocked_by.sort();
+                    blocked_by.dedup();
 
-                    // TODO flag this off, maybe
                     // Do we have a dependency cycle?
                     let mut queue = vec![req.agent];
                     let mut seen = HashSet::new();
                     while !queue.is_empty() {
                         let current = queue.pop().unwrap();
-                        if seen.contains(&current) {
+                        if !seen.is_empty() && current == req.agent {
                             events.push(Event::Alert(
                                 req.turn.parent,
                                 format!("Turn conflict cycle involving {:?}", seen),
                             ));
                             return true;
                         }
-                        seen.insert(current);
+                        // Because the blocked-by relation is many-to-many, this might happen.
+                        // Might not actually be a cycle. Insist on seeing the original req.agent
+                        // again.
+                        if !seen.contains(&current) {
+                            seen.insert(current);
 
-                        for (a1, a2) in blocked_by.iter() {
-                            if *a1 == current {
-                                queue.push(*a2);
+                            for (a1, a2) in blocked_by.iter() {
+                                if *a1 == current {
+                                    queue.push(*a2);
+                                }
                             }
                         }
                     }
