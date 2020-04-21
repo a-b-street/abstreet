@@ -2,7 +2,7 @@ use crate::{
     DrivingGoal, ParkingSpot, PersonID, SidewalkPOI, SidewalkSpot, Sim, TripEndpoint, TripSpec,
     VehicleSpec, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
 };
-use abstutil::{MultiMap, Timer};
+use abstutil::{prettyprint_usize, MultiMap, Timer};
 use geom::{Distance, Duration, Speed, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, Position, RoadID,
@@ -67,8 +67,6 @@ impl Scenario {
         sim.set_name(self.scenario_name.clone());
 
         timer.start(format!("Instantiating {}", self.scenario_name));
-
-        self.validate(map, timer);
 
         if let Some(ref routes) = self.only_seed_buses {
             for route in map.get_all_bus_routes() {
@@ -213,11 +211,11 @@ impl Scenario {
         per_bldg
     }
 
-    fn validate(&self, map: &Map, timer: &mut Timer) {
-        timer.start_iter("verifying people's trips", self.people.len());
-        for person in &self.people {
-            timer.next();
+    pub fn remove_weird_schedules(mut self, map: &Map) -> Scenario {
+        let orig = self.people.len();
+        self.people.retain(|person| {
             // Verify that the trip start/endpoints of each person match up
+            let mut ok = true;
             for pair in person.trips.iter().zip(person.trips.iter().skip(1)) {
                 // Once off-map, re-enter via any border node.
                 let end_bldg = match pair.0.trip.end() {
@@ -229,13 +227,26 @@ impl Scenario {
                     TripEndpoint::Border(_) => None,
                 };
                 if end_bldg != start_bldg {
+                    ok = false;
                     println!(
-                        "{} {:?} warps between some trips, from {:?} to {:?}",
-                        person.id, person.orig_id, end_bldg, start_bldg
+                        "{:?} warps between some trips, from {:?} to {:?}",
+                        person.orig_id, end_bldg, start_bldg
                     );
+                    break;
                 }
             }
+            ok
+        });
+        println!(
+            "{} of {} people have nonsense schedules",
+            prettyprint_usize(orig - self.people.len()),
+            prettyprint_usize(orig)
+        );
+        // Fix up IDs
+        for (idx, person) in self.people.iter_mut().enumerate() {
+            person.id = PersonID(idx);
         }
+        self
     }
 }
 

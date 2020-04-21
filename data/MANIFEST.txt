@@ -227,16 +227,16 @@ e27d41c916a721b330459ce85a114dbc  data/system/maps/23rd.bin
 cc45f42cb24cad1cfdbf5ed7a0cb86d4  data/system/synthetic_maps/signal_double.json
 8b949cc34d9a27ace0bd8ecde55a9520  data/system/synthetic_maps/signal_single.json
 1cd7be125e1d992613ed3a41e8b25b6a  data/system/synthetic_maps/signal_fan_in.json
-6c9b30455f3dfd3254b3d5a475e91be2  data/system/scenarios/ballard/weekday.bin
-2dfeaa7c30c3105adf167745b3f3330b  data/system/scenarios/intl_district/weekday.bin
-6294bf8d76d961ac8077a26c1d9179bf  data/system/scenarios/23rd/weekday.bin
-046bce26acff5af88d5d9547be283be3  data/system/scenarios/lakeslice/weekday.bin
-a28e4686333d487675de552ddb844faa  data/system/scenarios/downtown/weekday.bin
-204aeee7180e706e67fa02ecd52b39de  data/system/scenarios/huge_seattle/weekday.bin
-f9131af5abeed9ae37e5ee0ca17ebf13  data/system/scenarios/caphill/weekday.bin
-584cb9b1c40dbb3cc45155669efa0c81  data/system/scenarios/montlake/weekday.bin
+e6e6a0d69e999d13914d038182a610df  data/system/scenarios/ballard/weekday.bin
+90a2f56be7381f7cb7d6fe581ccbd71c  data/system/scenarios/intl_district/weekday.bin
+06e5969553aac31397fb82a46d965218  data/system/scenarios/23rd/weekday.bin
+55e34b7ad84ba414d7a727105b2a4214  data/system/scenarios/lakeslice/weekday.bin
+c13a214eeac17fe005531e9d2b820371  data/system/scenarios/downtown/weekday.bin
+23484818ce17120fd059fc8e12590487  data/system/scenarios/huge_seattle/weekday.bin
+ce9000d9f0fb5e80f87580808641f5e0  data/system/scenarios/caphill/weekday.bin
+06552edb374a27ac8cbf84e0bde83cac  data/system/scenarios/montlake/weekday.bin
 ae0946df6ab1edf0ca3b6959093e27d3  data/system/prebaked_results/signal_single/tutorial lvl1.bin
 1d0772af01ceea5d1f28e586b227597e  data/system/prebaked_results/signal_single/tutorial lvl2.bin
 fcc727e48613c12ab336847b81a43bf4  data/system/prebaked_results/montlake/car vs bike contention.bin
-566bf2cb2d7017c069be1274140fa928  data/system/prebaked_results/montlake/weekday.bin
+a8ae974a16816f4a74b7d87d155fee83  data/system/prebaked_results/montlake/weekday.bin
 560083ca84a7367a4bc11a320655206b  data/system/prebaked_results/montlake/car vs bus contention.bin

@@ -302,4 +302,5 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
         people,
         only_seed_buses: None,
     }
+    .remove_weird_schedules(map)
 }
