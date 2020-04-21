@@ -25,7 +25,7 @@ fn import_trips(
     trips_path: &str,
     timer: &mut Timer,
 ) -> Result<(Vec<OrigTrip>, BTreeMap<i64, Parcel>), failure::Error> {
-    let (parcels, metadata, oob_parcels) = import_parcels(parcels_path, timer)?;
+    let (parcels, metadata) = import_parcels(parcels_path, timer)?;
 
     if false {
         timer.start("recording parcel IDs");
@@ -46,25 +46,12 @@ fn import_trips(
         total_records += 1;
         let rec: RawTrip = rec?;
 
-        let from = if let Some(f) = parcels.get(&(rec.opcl as usize)) {
-            f.clone()
-        } else {
-            if false {
-                println!(
-                    "skipping missing from {}",
-                    oob_parcels[&(rec.opcl as usize)]
-                );
-            }
-            continue;
-        };
-        let to = if let Some(t) = parcels.get(&(rec.dpcl as usize)) {
-            t.clone()
-        } else {
-            continue;
-        };
+        let from = parcels[&(rec.opcl as usize)].clone();
+        let to = parcels[&(rec.dpcl as usize)].clone();
 
+        // If both are None, then skip -- the trip doesn't start or end within huge_seattle.
+        // If both are the same building, also skip -- that's a redundant trip.
         if from.osm_building == to.osm_building {
-            // TODO Losing some people here.
             if from.osm_building.is_some() {
                 /*timer.warn(format!(
                     "Skipping trip from parcel {} to {}; both match OSM building {:?}",
@@ -76,13 +63,7 @@ fn import_trips(
 
         let depart_at = Time::START_OF_DAY + Duration::minutes(rec.deptm as usize);
 
-        let mode = if let Some(m) = get_mode(&rec.mode) {
-            m
-        } else {
-            // TODO Losing some people here.
-            continue;
-        };
-
+        let mode = get_mode(&rec.mode);
         let purpose = (get_purpose(&rec.opurp), get_purpose(&rec.dpurp));
 
         let trip_time = Duration::f64_minutes(rec.travtime);
@@ -119,19 +100,11 @@ fn import_trips(
 }
 
 // TODO Do we also need the zone ID, or is parcel ID globally unique?
-// Returns (parcel ID -> Endpoint), (OSM building ID -> metadata), and (parcel ID -> LonLat) of
-// filtered parcels
+// Returns (parcel ID -> Endpoint) and (OSM building ID -> metadata)
 fn import_parcels(
     path: &str,
     timer: &mut Timer,
-) -> Result<
-    (
-        HashMap<usize, Endpoint>,
-        BTreeMap<i64, Parcel>,
-        HashMap<usize, LonLat>,
-    ),
-    failure::Error,
-> {
+) -> Result<(HashMap<usize, Endpoint>, BTreeMap<i64, Parcel>), failure::Error> {
     let map = Map::new(abstutil::path_map("huge_seattle"), false, timer);
 
     // TODO I really just want to do polygon containment with a quadtree. FindClosest only does
@@ -189,8 +162,6 @@ fn import_parcels(
     let bounds = map.get_gps_bounds();
     let mut result = HashMap::new();
     let mut metadata = BTreeMap::new();
-    let mut oob = HashMap::new();
-    let orig_parcels = parcel_metadata.len();
     timer.start_iter("finalize parcel output", parcel_metadata.len());
     for ((x, y), (id, num_households, num_employees, offstreet_parking_spaces)) in x_coords
         .into_iter()
@@ -199,37 +170,33 @@ fn import_parcels(
     {
         timer.next();
         let pt = LonLat::new(x, y);
-        if bounds.contains(pt) {
-            let osm_building = closest_bldg
+        let osm_building = if bounds.contains(pt) {
+            closest_bldg
                 .closest_pt(Pt2D::forcibly_from_gps(pt, bounds), Distance::meters(30.0))
-                .map(|(b, _)| b);
-            if let Some(b) = osm_building {
-                metadata.insert(
-                    b,
-                    Parcel {
-                        num_households,
-                        num_employees,
-                        offstreet_parking_spaces,
-                    },
-                );
-            }
-            result.insert(
-                id,
-                Endpoint {
-                    pos: pt,
-                    osm_building,
+                .map(|(b, _)| b)
+        } else {
+            None
+        };
+        if let Some(b) = osm_building {
+            metadata.insert(
+                b,
+                Parcel {
+                    num_households,
+                    num_employees,
+                    offstreet_parking_spaces,
                 },
             );
-        } else {
-            oob.insert(id, pt);
         }
+        result.insert(
+            id,
+            Endpoint {
+                pos: pt,
+                osm_building,
+            },
+        );
     }
-    timer.note(format!(
-        "{} parcels. {} filtered out",
-        prettyprint_usize(result.len()),
-        prettyprint_usize(orig_parcels - result.len())
-    ));
-    Ok((result, metadata, oob))
+    timer.note(format!("{} parcels", prettyprint_usize(result.len())));
+    Ok((result, metadata))
 }
 
 // From https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv, opurp and dpurp
@@ -251,18 +218,16 @@ fn get_purpose(code: &str) -> Purpose {
 }
 
 // From https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv, mode
-fn get_mode(code: &str) -> Option<Mode> {
+fn get_mode(code: &str) -> Mode {
     match code {
-        "1.0" => Some(Mode::Walk),
-        "2.0" => Some(Mode::Bike),
-        "3.0" | "4.0" | "5.0" => Some(Mode::Drive),
-        "6.0" => Some(Mode::Transit),
-        // TODO Park-and-ride!
-        "7.0" => None,
-        // TODO School bus!
-        "8.0" => None,
-        // TODO Invalid code, what's this one mean?
-        "0.0" => None,
+        "1.0" => Mode::Walk,
+        "2.0" => Mode::Bike,
+        "3.0" | "4.0" | "5.0" => Mode::Drive,
+        // TODO Park-and-ride and school bus as walk-to-transit is a little weird.
+        "6.0" | "7.0" | "8.0" => Mode::Transit,
+        // TODO Invalid code, what's this one mean? I only see a few examples, so just default to
+        // walking.
+        "0.0" => Mode::Walk,
         _ => panic!("Unknown mode {}", code),
     }
 }
