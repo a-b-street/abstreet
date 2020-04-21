@@ -32,6 +32,7 @@ impl SimFlags {
                 disable_block_the_box: args.enabled("--disable_block_the_box"),
                 recalc_lanechanging: !args.enabled("--dont_recalc_lc"),
                 clear_laggy_head_early: args.enabled("--clear_laggy_head_early"),
+                break_turn_conflict_cycles: args.enabled("--break_turn_conflict_cycles"),
                 enable_pandemic_model: if args.enabled("--pandemic") {
                     if let Some(seed) = rng_seed {
                         Some(XorShiftRng::from_seed([seed; 16]))

@@ -73,6 +73,7 @@ pub struct SimOptions {
     pub disable_block_the_box: bool,
     pub recalc_lanechanging: bool,
     pub clear_laggy_head_early: bool,
+    pub break_turn_conflict_cycles: bool,
     pub enable_pandemic_model: Option<XorShiftRng>,
 }
 
@@ -85,6 +86,7 @@ impl SimOptions {
             disable_block_the_box: false,
             recalc_lanechanging: true,
             clear_laggy_head_early: false,
+            break_turn_conflict_cycles: false,
             enable_pandemic_model: None,
         }
     }
@@ -110,6 +112,7 @@ impl Sim {
                 &mut scheduler,
                 opts.use_freeform_policy_everywhere,
                 opts.disable_block_the_box,
+                opts.break_turn_conflict_cycles,
             ),
             transit: TransitSimState::new(),
             trips: TripManager::new(),

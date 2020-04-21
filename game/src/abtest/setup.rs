@@ -166,6 +166,10 @@ fn launch_test(test: &ABTest, app: &mut App, ctx: &mut EventCtx) -> ABTestMode {
                                     .sim_flags
                                     .opts
                                     .clear_laggy_head_early,
+                                break_turn_conflict_cycles: current_flags
+                                    .sim_flags
+                                    .opts
+                                    .break_turn_conflict_cycles,
                                 enable_pandemic_model: None,
                             },
                         },
