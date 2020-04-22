@@ -407,7 +407,7 @@ impl Sim {
                     trip_spec,
                     maybe_req,
                     maybe_path,
-                    &self.parking,
+                    &mut self.parking,
                     &mut self.scheduler,
                     map,
                 );
@@ -468,12 +468,13 @@ impl Sim {
                         "No room to spawn car for {} by {}. Not retrying!",
                         trip, person
                     );
-                    self.trips.abort_trip_failed_start(
+                    self.trips.abort_trip(
                         self.time,
                         trip,
-                        map,
-                        &self.parking,
+                        Some(create_car.vehicle),
+                        &mut self.parking,
                         &mut self.scheduler,
+                        map,
                     );
                 }
             }
@@ -503,7 +504,7 @@ impl Sim {
                             ParkingSpot::Offstreet(*b2, *idx),
                             Duration::ZERO,
                             map,
-                            &self.parking,
+                            &mut self.parking,
                             &mut self.scheduler,
                         );
                     }
@@ -545,7 +546,7 @@ impl Sim {
                     self.time,
                     map,
                     &mut self.intersections,
-                    &self.parking,
+                    &mut self.parking,
                     &mut self.scheduler,
                     &mut self.trips,
                     &mut self.transit,
@@ -1129,19 +1130,20 @@ impl Sim {
 impl Sim {
     pub fn kill_stuck_car(&mut self, id: CarID, map: &Map) {
         if let Some(trip) = self.agent_to_trip(AgentID::Car(id)) {
-            self.trips.abort_trip_failed_start(
-                self.time,
-                trip,
-                map,
-                &self.parking,
-                &mut self.scheduler,
-            );
-            self.driving.kill_stuck_car(
+            let vehicle = self.driving.kill_stuck_car(
                 id,
                 self.time,
                 map,
                 &mut self.scheduler,
                 &mut self.intersections,
+            );
+            self.trips.abort_trip(
+                self.time,
+                trip,
+                Some(vehicle),
+                &mut self.parking,
+                &mut self.scheduler,
+                map,
             );
             println!("Forcibly killed {}", id);
         } else {

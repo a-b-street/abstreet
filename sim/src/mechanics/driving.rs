@@ -3,8 +3,8 @@ use crate::mechanics::Queue;
 use crate::{
     ActionAtEnd, AgentID, AgentProperties, CarID, Command, CreateCar, DistanceInterval,
     DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSimState, PersonID, Scheduler,
-    TimeInterval, TransitSimState, TripManager, TripPositions, UnzoomedAgent, WalkingSimState,
-    FOLLOWING_DISTANCE,
+    TimeInterval, TransitSimState, TripManager, TripPositions, UnzoomedAgent, Vehicle,
+    WalkingSimState, FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Duration, PolyLine, Time};
@@ -448,15 +448,17 @@ impl DrivingSimState {
                         );
                         false
                     }
-                    Some(ActionAtEnd::GiveUpOnParkingAt(b)) => {
+                    Some(ActionAtEnd::GiveUpOnParking) => {
                         car.total_blocked_time += now - blocked_since;
-                        trips.abort_trip_impossible_parking(
+                        trips.abort_trip(
                             now,
-                            car.vehicle.id,
-                            b,
-                            map,
+                            car.trip_and_person.unwrap().0,
+                            // If we couldn't find parking normally, doesn't make sense to warp the
+                            // car to the destination. There's no parking!
+                            None,
                             parking,
                             scheduler,
+                            map,
                         );
                         false
                     }
@@ -567,7 +569,7 @@ impl DrivingSimState {
         map: &Map,
         scheduler: &mut Scheduler,
         intersections: &mut IntersectionSimState,
-    ) {
+    ) -> Vehicle {
         let dists = self.queues[&self.cars[&c].router.head()].get_car_positions(
             now,
             &self.cars,
@@ -588,6 +590,7 @@ impl DrivingSimState {
         self.delete_car(&mut car, dists, idx, now, map, scheduler, intersections);
         // delete_car cancels UpdateLaggyHead
         scheduler.cancel(Command::UpdateCar(c));
+        car.vehicle
     }
 
     fn delete_car(

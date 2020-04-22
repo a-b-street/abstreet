@@ -25,7 +25,7 @@ pub enum ActionAtEnd {
     GotoLaneEnd,
     StopBiking(SidewalkSpot),
     BusAtStop,
-    GiveUpOnParkingAt(BuildingID),
+    GiveUpOnParking,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -191,11 +191,11 @@ impl Router {
             Goal::ParkNearBuilding {
                 ref mut spot,
                 ref mut stuck_end_dist,
-                target,
+                ..
             } => {
                 if let Some(d) = stuck_end_dist {
                     if *d == front {
-                        return Some(ActionAtEnd::GiveUpOnParkingAt(target));
+                        return Some(ActionAtEnd::GiveUpOnParking);
                     } else {
                         return None;
                     }

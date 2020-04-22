@@ -1,11 +1,11 @@
 use crate::scheduler::CommandType;
 use crate::{
-    AgentID, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, Event, ParkingSimState,
-    ParkingSpot, PedestrianID, PersonID, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState,
-    TripID, TripPhaseType, TripSpec, Vehicle, VehicleType, WalkingSimState,
+    AgentID, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, Event, ParkedCar,
+    ParkingSimState, ParkingSpot, PedestrianID, PersonID, Scheduler, SidewalkPOI, SidewalkSpot,
+    TransitSimState, TripID, TripPhaseType, TripSpec, Vehicle, VehicleType, WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap, Counter};
-use geom::{Duration, Speed, Time};
+use geom::{Distance, Duration, Speed, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, Map, Path, PathConstraints, PathRequest,
     Position,
@@ -177,7 +177,7 @@ impl TripManager {
         spot: ParkingSpot,
         blocked_time: Duration,
         map: &Map,
-        parking: &ParkingSimState,
+        parking: &mut ParkingSimState,
         scheduler: &mut Scheduler,
     ) {
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
@@ -230,7 +230,7 @@ impl TripManager {
         spot: ParkingSpot,
         blocked_time: Duration,
         map: &Map,
-        parking: &ParkingSimState,
+        parking: &mut ParkingSimState,
         scheduler: &mut Scheduler,
     ) {
         self.events.push(Event::PedReachedParkingSpot(ped, spot));
@@ -246,7 +246,7 @@ impl TripManager {
             TripLeg::Drive(ref vehicle, ref to) => (vehicle.id, to.clone()),
             _ => unreachable!(),
         };
-        let parked_car = parking.get_car_at_spot(spot).unwrap();
+        let parked_car = parking.get_car_at_spot(spot).unwrap().clone();
         assert_eq!(parked_car.vehicle.id, car);
 
         let mut start = parking.spot_to_driving_pos(parked_car.spot, &parked_car.vehicle, map);
@@ -267,15 +267,10 @@ impl TripManager {
                 "Aborting {} at {} because no path for the car portion! {} to {}",
                 trip.id, now, start, end
             );
-            self.unfinished_trips -= 1;
-            trip.aborted = true;
-            self.events.push(Event::TripAborted(trip.id, trip.mode));
-            let person = trip.person;
-            self.people[person.0].state = match drive_to {
-                DrivingGoal::ParkNear(b) => PersonState::Inside(b),
-                DrivingGoal::Border(_, _) => PersonState::OffMap,
-            };
-            self.person_finished_trip(now, person, parking, scheduler, map);
+            // Move the car to the destination...
+            parking.remove_parked_car(parked_car.clone());
+            let trip = trip.id;
+            self.abort_trip(now, trip, Some(parked_car.vehicle), parking, scheduler, map);
             return;
         };
 
@@ -286,7 +281,7 @@ impl TripManager {
             now,
             Command::SpawnCar(
                 CreateCar::for_parked_car(
-                    parked_car.clone(),
+                    parked_car,
                     router,
                     req,
                     start.dist_along(),
@@ -305,7 +300,7 @@ impl TripManager {
         spot: SidewalkSpot,
         blocked_time: Duration,
         map: &Map,
-        parking: &ParkingSimState,
+        parking: &mut ParkingSimState,
         scheduler: &mut Scheduler,
     ) {
         let trip = &mut self.trips[self
@@ -355,15 +350,8 @@ impl TripManager {
                  at the end)! {} to {}",
                 trip.id, now, driving_pos, end
             );
-            self.unfinished_trips -= 1;
-            trip.aborted = true;
-            self.events.push(Event::TripAborted(trip.id, trip.mode));
-            let person = trip.person;
-            self.people[person.0].state = match drive_to {
-                DrivingGoal::ParkNear(b) => PersonState::Inside(b),
-                DrivingGoal::Border(_, _) => PersonState::OffMap,
-            };
-            self.person_finished_trip(now, person, parking, scheduler, map);
+            let trip = trip.id;
+            self.abort_trip(now, trip, None, parking, scheduler, map);
         }
     }
 
@@ -400,7 +388,7 @@ impl TripManager {
         bldg: BuildingID,
         blocked_time: Duration,
         map: &Map,
-        parking: &ParkingSimState,
+        parking: &mut ParkingSimState,
         scheduler: &mut Scheduler,
     ) {
         let trip = &mut self.trips[self
@@ -522,7 +510,7 @@ impl TripManager {
         i: IntersectionID,
         blocked_time: Duration,
         map: &Map,
-        parking: &ParkingSimState,
+        parking: &mut ParkingSimState,
         scheduler: &mut Scheduler,
     ) {
         self.events.push(Event::PedReachedBorder(ped, i));
@@ -556,7 +544,7 @@ impl TripManager {
         i: IntersectionID,
         blocked_time: Duration,
         map: &Map,
-        parking: &ParkingSimState,
+        parking: &mut ParkingSimState,
         scheduler: &mut Scheduler,
     ) {
         self.events.push(Event::CarOrBikeReachedBorder(car, i));
@@ -582,43 +570,59 @@ impl TripManager {
         self.person_finished_trip(now, person, parking, scheduler, map);
     }
 
-    pub fn abort_trip_failed_start(
+    pub fn abort_trip(
         &mut self,
         now: Time,
         id: TripID,
-        map: &Map,
-        parking: &ParkingSimState,
+        abandoned_vehicle: Option<Vehicle>,
+        parking: &mut ParkingSimState,
         scheduler: &mut Scheduler,
+        map: &Map,
     ) {
         let trip = &mut self.trips[id.0];
-        trip.aborted = true;
         self.unfinished_trips -= 1;
+        trip.aborted = true;
+        self.events.push(Event::TripAborted(trip.id, trip.mode));
         let person = trip.person;
         // Warp to the destination
         self.people[person.0].state = match trip.end {
             TripEndpoint::Bldg(b) => PersonState::Inside(b),
             TripEndpoint::Border(_) => PersonState::OffMap,
         };
-        self.events.push(Event::TripAborted(id, trip.mode));
-        self.person_finished_trip(now, person, parking, scheduler, map);
-    }
+        // Don't forget the car!
+        if let Some(vehicle) = abandoned_vehicle {
+            if vehicle.vehicle_type == VehicleType::Car {
+                if let TripEndpoint::Bldg(b) = trip.end {
+                    let driving_lane = map.find_driving_lane_near_building(b);
+                    if let Some(spot) = parking
+                        .get_first_free_spot(
+                            Position::new(driving_lane, Distance::ZERO),
+                            &vehicle,
+                            map,
+                        )
+                        .map(|(spot, _)| spot)
+                        .or_else(|| {
+                            parking
+                                .path_to_free_parking_spot(driving_lane, &vehicle, map)
+                                .map(|(_, spot, _)| spot)
+                        })
+                    {
+                        println!(
+                            "{} had a trip aborted, and their car was warped to {:?}",
+                            person, spot
+                        );
+                        parking.reserve_spot(spot);
+                        parking.add_parked_car(ParkedCar { vehicle, spot });
+                    } else {
+                        println!(
+                            "{} had a trip aborted, but nowhere to warp their car! Sucks.",
+                            person
+                        );
+                    }
+                }
+            }
+        }
 
-    pub fn abort_trip_impossible_parking(
-        &mut self,
-        now: Time,
-        car: CarID,
-        goal: BuildingID,
-        map: &Map,
-        parking: &ParkingSimState,
-        scheduler: &mut Scheduler,
-    ) {
-        let id = self.active_trip_mode.remove(&AgentID::Car(car)).unwrap();
-        let trip = &mut self.trips[id.0];
-        trip.aborted = true;
-        self.unfinished_trips -= 1;
-        self.events.push(Event::TripAborted(trip.id, trip.mode));
-        let person = trip.person;
-        self.people[person.0].state = PersonState::Inside(goal);
         self.person_finished_trip(now, person, parking, scheduler, map);
     }
 
@@ -805,7 +809,7 @@ impl TripManager {
         &mut self,
         now: Time,
         person: PersonID,
-        parking: &ParkingSimState,
+        parking: &mut ParkingSimState,
         scheduler: &mut Scheduler,
         map: &Map,
     ) {
@@ -830,7 +834,7 @@ impl TripManager {
         spec: TripSpec,
         maybe_req: Option<PathRequest>,
         maybe_path: Option<Path>,
-        parking: &ParkingSimState,
+        parking: &mut ParkingSimState,
         scheduler: &mut Scheduler,
         map: &Map,
     ) {
@@ -876,7 +880,7 @@ impl TripManager {
                          connection at the end): {}",
                         req
                     );
-                    self.abort_trip_failed_start(now, trip, map, parking, scheduler);
+                    self.abort_trip(now, trip, Some(vehicle), parking, scheduler, map);
                 }
             }
             TripSpec::UsingParkedCar {
@@ -927,7 +931,16 @@ impl TripManager {
                         );
                     } else {
                         println!("UsingParkedCar trip couldn't find the walking path {}", req);
-                        self.abort_trip_failed_start(now, trip, map, parking, scheduler);
+                        // Move the car to the destination
+                        parking.remove_parked_car(parked_car.clone());
+                        self.abort_trip(
+                            now,
+                            trip,
+                            Some(parked_car.vehicle),
+                            parking,
+                            scheduler,
+                            map,
+                        );
                     }
                 } else {
                     // This should only happen when a driving trip has been aborted and there was
@@ -936,7 +949,7 @@ impl TripManager {
                         "{} doesn't have a parked car free at {}, aborting trip {}",
                         person.id, now, trip
                     );
-                    self.abort_trip_failed_start(now, trip, map, parking, scheduler);
+                    self.abort_trip(now, trip, None, parking, scheduler, map);
                 }
             }
             TripSpec::JustWalking {
@@ -970,7 +983,7 @@ impl TripManager {
                     );
                 } else {
                     println!("JustWalking trip couldn't find the first path {}", req);
-                    self.abort_trip_failed_start(now, trip, map, parking, scheduler);
+                    self.abort_trip(now, trip, None, parking, scheduler, map);
                 }
             }
             TripSpec::UsingBike {
@@ -1004,7 +1017,7 @@ impl TripManager {
                     );
                 } else {
                     println!("UsingBike trip couldn't find the first path {}", req);
-                    self.abort_trip_failed_start(now, trip, map, parking, scheduler);
+                    self.abort_trip(now, trip, None, parking, scheduler, map);
                 }
             }
             TripSpec::UsingTransit {
@@ -1040,7 +1053,7 @@ impl TripManager {
                     );
                 } else {
                     println!("UsingTransit trip couldn't find the first path {}", req);
-                    self.abort_trip_failed_start(now, trip, map, parking, scheduler);
+                    self.abort_trip(now, trip, None, parking, scheduler, map);
                 }
             }
         }

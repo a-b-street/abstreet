@@ -111,7 +111,7 @@ impl WalkingSimState {
         now: Time,
         map: &Map,
         intersections: &mut IntersectionSimState,
-        parking: &ParkingSimState,
+        parking: &mut ParkingSimState,
         scheduler: &mut Scheduler,
         trips: &mut TripManager,
         transit: &mut TransitSimState,
