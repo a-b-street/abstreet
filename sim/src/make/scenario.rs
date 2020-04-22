@@ -105,7 +105,7 @@ impl Scenario {
         parked_cars.shuffle(rng);
         seed_parked_cars(parked_cars, sim, map, rng, timer);
 
-        sim.flush_spawner(spawner, map, timer, true);
+        sim.flush_spawner(spawner, map, timer);
         timer.stop(format!("Instantiating {}", self.scenario_name));
     }
 
@@ -352,6 +352,7 @@ impl SpawnTrip {
                     Scenario::rand_car(rng)
                 },
                 ped_speed: Scenario::rand_ped_speed(rng),
+                retry_if_no_room: true,
             }),
             SpawnTrip::FromBorder {
                 i, goal, is_bike, ..
@@ -377,6 +378,7 @@ impl SpawnTrip {
                     Scenario::rand_car(rng)
                 },
                 ped_speed: Scenario::rand_ped_speed(rng),
+                retry_if_no_room: true,
             }),
             SpawnTrip::UsingParkedCar(start_bldg, goal) => Some(TripSpec::UsingParkedCar {
                 start_bldg,

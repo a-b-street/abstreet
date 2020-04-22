@@ -131,20 +131,8 @@ impl Sim {
     pub fn make_spawner(&self) -> TripSpawner {
         TripSpawner::new()
     }
-    pub fn flush_spawner(
-        &mut self,
-        spawner: TripSpawner,
-        map: &Map,
-        timer: &mut Timer,
-        retry_if_no_room: bool,
-    ) {
-        spawner.finalize(
-            map,
-            &mut self.trips,
-            &mut self.scheduler,
-            timer,
-            retry_if_no_room,
-        );
+    pub fn flush_spawner(&mut self, spawner: TripSpawner, map: &Map, timer: &mut Timer) {
+        spawner.finalize(map, &mut self.trips, &mut self.scheduler, timer);
 
         if let Some(ref mut m) = self.pandemic {
             m.initialize(self.trips.get_all_people(), &mut self.scheduler);

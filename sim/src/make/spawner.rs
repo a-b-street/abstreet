@@ -15,6 +15,7 @@ pub enum TripSpec {
         goal: DrivingGoal,
         vehicle_spec: VehicleSpec,
         ped_speed: Speed,
+        retry_if_no_room: bool,
     },
     UsingParkedCar {
         start_bldg: BuildingID,
@@ -159,7 +160,6 @@ impl TripSpawner {
         trips: &mut TripManager,
         scheduler: &mut Scheduler,
         timer: &mut Timer,
-        _retry_if_no_room: bool,
     ) {
         let paths = timer.parallelize(
             "calculate paths",
@@ -185,6 +185,7 @@ impl TripSpawner {
                     vehicle_spec,
                     goal,
                     ped_speed,
+                    ..
                 } => {
                     let vehicle = if vehicle_spec.vehicle_type == VehicleType::Car {
                         vehicle_spec.make(person.car.unwrap(), Some(person.id))

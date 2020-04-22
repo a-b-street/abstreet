@@ -838,7 +838,10 @@ impl TripManager {
 
         match spec {
             TripSpec::CarAppearing {
-                start_pos, goal, ..
+                start_pos,
+                goal,
+                retry_if_no_room,
+                ..
             } => {
                 assert_eq!(person.state, PersonState::OffMap);
                 let vehicle = match self.trips[trip.0].legs[0] {
@@ -855,8 +858,7 @@ impl TripManager {
                             CreateCar::for_appearing(
                                 vehicle, start_pos, router, req, trip, person.id,
                             ),
-                            // TODO retry_if_no_room
-                            true,
+                            retry_if_no_room,
                         ),
                     );
                 } else {
@@ -947,6 +949,7 @@ impl TripManager {
                     match start.connection {
                         SidewalkPOI::Building(b) => PersonState::Inside(b),
                         SidewalkPOI::Border(_) => PersonState::OffMap,
+                        SidewalkPOI::SuddenlyAppear => PersonState::OffMap,
                         _ => unreachable!(),
                     }
                 );
@@ -979,6 +982,7 @@ impl TripManager {
                     match start.connection {
                         SidewalkPOI::Building(b) => PersonState::Inside(b),
                         SidewalkPOI::Border(_) => PersonState::OffMap,
+                        SidewalkPOI::SuddenlyAppear => PersonState::OffMap,
                         _ => unreachable!(),
                     }
                 );
@@ -1016,6 +1020,7 @@ impl TripManager {
                     match start.connection {
                         SidewalkPOI::Building(b) => PersonState::Inside(b),
                         SidewalkPOI::Border(_) => PersonState::OffMap,
+                        SidewalkPOI::SuddenlyAppear => PersonState::OffMap,
                         _ => unreachable!(),
                     }
                 );

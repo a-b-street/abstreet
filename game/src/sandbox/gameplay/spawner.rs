@@ -140,7 +140,7 @@ impl State for AgentSpawner {
                 &mut spawner,
                 &mut rng,
             );
-            sim.flush_spawner(spawner, map, &mut Timer::new("spawn trip"), false);
+            sim.flush_spawner(spawner, map, &mut Timer::new("spawn trip"));
             sim.normal_step(map, SMALL_DT);
             app.recalculate_current_selection(ctx);
             if let Some(e) = err {
@@ -207,6 +207,7 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                             map.all_buildings().choose(&mut rng).unwrap().id,
                         ),
                         ped_speed: Scenario::rand_ped_speed(&mut rng),
+                        retry_if_no_room: false,
                     },
                     map,
                 );
@@ -234,7 +235,7 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
         }
     }
 
-    sim.flush_spawner(spawner, map, &mut timer, false);
+    sim.flush_spawner(spawner, map, &mut timer);
     sim.normal_step(map, SMALL_DT);
 }
 
@@ -352,6 +353,7 @@ fn schedule_trip(
                                 vehicle_spec: Scenario::rand_car(rng),
                                 goal,
                                 ped_speed: Scenario::rand_ped_speed(rng),
+                                retry_if_no_room: false,
                             },
                             map,
                         );
