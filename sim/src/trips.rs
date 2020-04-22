@@ -57,7 +57,8 @@ impl TripManager {
         self.people.push(Person {
             id,
             trips: Vec::new(),
-            state: PersonState::Limbo,
+            // The first new_trip will set this properly.
+            state: PersonState::OffMap,
             ped: PedestrianID(id.0),
             car,
             bike,
@@ -277,12 +278,17 @@ impl TripManager {
             trip.aborted = true;
             self.events.push(Event::TripAborted(trip.id, trip.mode));
             let person = trip.person;
-            self.people[person.0].state = PersonState::Limbo;
+            self.people[person.0].state = match drive_to {
+                DrivingGoal::ParkNear(b) => PersonState::Inside(b),
+                DrivingGoal::Border(_, _) => PersonState::OffMap,
+            };
             self.person_finished_trip(now, person, scheduler, map);
             return;
         };
 
-        let router = drive_to.make_router(path, map, parked_car.vehicle.vehicle_type);
+        let router = drive_to
+            .make_router(path, map, parked_car.vehicle.vehicle_type)
+            .unwrap();
         scheduler.push(
             now,
             Command::SpawnCar(
@@ -331,30 +337,40 @@ impl TripManager {
             end,
             constraints: PathConstraints::Bike,
         };
-        let path = if let Some(p) = map.pathfind(req.clone()) {
-            p
+        if let Some(router) = map
+            .pathfind(req.clone())
+            .and_then(|path| drive_to.make_router(path, map, vehicle.vehicle_type))
+        {
+            scheduler.push(
+                now,
+                Command::SpawnCar(
+                    CreateCar::for_appearing(
+                        vehicle,
+                        driving_pos,
+                        router,
+                        req,
+                        trip.id,
+                        trip.person,
+                    ),
+                    true,
+                ),
+            );
         } else {
             println!(
-                "Aborting {} at {} because no path for the bike portion! {} to {}",
+                "Aborting {} at {} because no path for the bike portion (or sidewalk connection \
+                 at the end)! {} to {}",
                 trip.id, now, driving_pos, end
             );
             self.unfinished_trips -= 1;
             trip.aborted = true;
             self.events.push(Event::TripAborted(trip.id, trip.mode));
             let person = trip.person;
-            self.people[person.0].state = PersonState::Limbo;
+            self.people[person.0].state = match drive_to {
+                DrivingGoal::ParkNear(b) => PersonState::Inside(b),
+                DrivingGoal::Border(_, _) => PersonState::OffMap,
+            };
             self.person_finished_trip(now, person, scheduler, map);
-            return;
-        };
-
-        let router = drive_to.make_router(path, map, vehicle.vehicle_type);
-        scheduler.push(
-            now,
-            Command::SpawnCar(
-                CreateCar::for_appearing(vehicle, driving_pos, router, req, trip.id, trip.person),
-                true,
-            ),
-        );
+        }
     }
 
     pub fn bike_reached_end(
@@ -579,9 +595,12 @@ impl TripManager {
         let trip = &mut self.trips[id.0];
         trip.aborted = true;
         self.unfinished_trips -= 1;
-        // TODO Urgh, hack. Initialization order is now quite complicated.
         let person = trip.person;
-        self.people[person.0].state = PersonState::Limbo;
+        // Warp to the destination
+        self.people[person.0].state = match trip.end {
+            TripEndpoint::Bldg(b) => PersonState::Inside(b),
+            TripEndpoint::Border(_) => PersonState::OffMap,
+        };
         self.events.push(Event::TripAborted(id, trip.mode));
         self.person_finished_trip(now, person, scheduler, map);
     }
@@ -590,6 +609,7 @@ impl TripManager {
         &mut self,
         now: Time,
         car: CarID,
+        goal: BuildingID,
         map: &Map,
         scheduler: &mut Scheduler,
     ) {
@@ -599,7 +619,7 @@ impl TripManager {
         self.unfinished_trips -= 1;
         self.events.push(Event::TripAborted(trip.id, trip.mode));
         let person = trip.person;
-        self.people[person.0].state = PersonState::Limbo;
+        self.people[person.0].state = PersonState::Inside(goal);
         self.person_finished_trip(now, person, scheduler, map);
     }
 
@@ -679,7 +699,6 @@ impl TripManager {
                 PersonState::OffMap => {
                     ppl_off_map += 1;
                 }
-                PersonState::Limbo => {}
             }
         }
         (self.people.len(), ppl_in_bldg, ppl_off_map)
@@ -829,15 +848,15 @@ impl TripManager {
             TripSpec::CarAppearing {
                 start_pos, goal, ..
             } => {
-                // Either just starting or previously left
-                assert!(person.state == PersonState::Limbo || person.state == PersonState::OffMap);
+                assert_eq!(person.state, PersonState::OffMap);
                 let vehicle = match self.trips[trip.0].legs[0] {
                     TripLeg::Drive(ref vehicle, _) => vehicle.clone(),
                     _ => unreachable!(),
                 };
                 let req = maybe_req.unwrap();
-                if let Some(path) = maybe_path {
-                    let router = goal.make_router(path, map, vehicle.vehicle_type);
+                if let Some(router) =
+                    maybe_path.and_then(|path| goal.make_router(path, map, vehicle.vehicle_type))
+                {
                     scheduler.push(
                         now,
                         Command::SpawnCar(
@@ -849,7 +868,11 @@ impl TripManager {
                         ),
                     );
                 } else {
-                    println!("CarAppearing trip couldn't find the first path {}", req);
+                    println!(
+                        "CarAppearing trip couldn't find the first path (or no bike->sidewalk \
+                         connection at the end): {}",
+                        req
+                    );
                     self.abort_trip_failed_start(now, trip, map, scheduler);
                 }
             }
@@ -1221,6 +1244,4 @@ pub enum PersonState {
     Trip(TripID),
     Inside(BuildingID),
     OffMap,
-    // One of the trips was aborted. Silently eat them from the exposed counters. :\
-    Limbo,
 }

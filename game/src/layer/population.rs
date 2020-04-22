@@ -39,7 +39,7 @@ pub fn new(ctx: &mut EventCtx, app: &App, opts: Options) -> Layers {
                     pts.push(pt);
                 }
             }
-            PersonState::OffMap | PersonState::Limbo => {}
+            PersonState::OffMap => {}
         }
     }
 

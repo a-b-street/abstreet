@@ -461,17 +461,14 @@ impl Sim {
                         Command::SpawnCar(create_car, retry_if_no_room),
                     );
                 } else {
-                    if let Some((trip, _)) = create_car.trip_and_person {
-                        println!("No room to spawn car for {}. Not retrying!", trip);
-                        self.trips.abort_trip_failed_start(
-                            self.time,
-                            trip,
-                            map,
-                            &mut self.scheduler,
-                        );
-                    } else {
-                        println!("No room to spawn bus (no trip). Not retrying!");
-                    }
+                    // Buses don't use Command::SpawnCar, so this must exist.
+                    let (trip, person) = create_car.trip_and_person.unwrap();
+                    println!(
+                        "No room to spawn car for {} by {}. Not retrying!",
+                        trip, person
+                    );
+                    self.trips
+                        .abort_trip_failed_start(self.time, trip, map, &mut self.scheduler);
                 }
             }
             Command::SpawnPed(mut create_ped) => {
@@ -1098,7 +1095,7 @@ impl Sim {
         match self.trips.get_person(p)?.state {
             PersonState::Inside(b) => Some(map.get_b(b).polygon.center()),
             PersonState::Trip(t) => self.get_canonical_pt_per_trip(t, map).ok(),
-            PersonState::OffMap | PersonState::Limbo => None,
+            PersonState::OffMap => None,
         }
     }
 

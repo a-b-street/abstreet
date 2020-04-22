@@ -347,7 +347,6 @@ fn header(
             },
         ),
         PersonState::OffMap => (None, ("off map", None)),
-        PersonState::Limbo => (None, ("in limbo", None)),
     };
 
     rows.push(Widget::row(vec![
@@ -408,9 +407,6 @@ fn current_status(ctx: &EventCtx, person: &Person, map: &Map) -> Widget {
         }
         PersonState::Trip(_) => unreachable!(),
         PersonState::OffMap => "Currently outside the map boundaries".draw_text(ctx),
-        PersonState::Limbo => "Currently in limbo -- they broke out of the Matrix! Woops. (A bug \
-                               occurred)"
-            .draw_text(ctx),
     })
     .margin_vert(16)
 }

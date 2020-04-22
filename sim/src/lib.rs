@@ -240,20 +240,23 @@ impl DrivingGoal {
         }
     }
 
-    pub(crate) fn make_router(&self, path: Path, map: &Map, vt: VehicleType) -> Router {
+    // Only possible failure is if there's not a way to go bike->sidewalk at the end
+    pub(crate) fn make_router(&self, path: Path, map: &Map, vt: VehicleType) -> Option<Router> {
         match self {
             DrivingGoal::ParkNear(b) => {
                 if vt == VehicleType::Bike {
                     // TODO Stop closer to the building?
                     let end = path.last_step().as_lane();
-                    Router::bike_then_stop(path, map.get_l(end).length() / 2.0)
+                    Router::bike_then_stop(path, map.get_l(end).length() / 2.0, map)
                 } else {
-                    Router::park_near(path, *b)
+                    Some(Router::park_near(path, *b))
                 }
             }
-            DrivingGoal::Border(i, last_lane) => {
-                Router::end_at_border(path, map.get_l(*last_lane).length(), *i)
-            }
+            DrivingGoal::Border(i, last_lane) => Some(Router::end_at_border(
+                path,
+                map.get_l(*last_lane).length(),
+                *i,
+            )),
         }
     }
 

@@ -25,7 +25,7 @@ pub enum ActionAtEnd {
     GotoLaneEnd,
     StopBiking(SidewalkSpot),
     BusAtStop,
-    AbortTrip,
+    GiveUpOnParkingAt(BuildingID),
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -69,10 +69,20 @@ impl Router {
         }
     }
 
-    pub fn bike_then_stop(path: Path, end_dist: Distance) -> Router {
-        Router {
-            path,
-            goal: Goal::BikeThenStop { end_dist },
+    pub fn bike_then_stop(path: Path, end_dist: Distance, map: &Map) -> Option<Router> {
+        let last_lane = path.get_steps().iter().last().unwrap().as_lane();
+        if map
+            .get_parent(last_lane)
+            .bike_to_sidewalk(last_lane)
+            .is_some()
+        {
+            Some(Router {
+                path,
+                goal: Goal::BikeThenStop { end_dist },
+            })
+        } else {
+            println!("{} is the end of a bike route, with no sidewalk", last_lane);
+            None
         }
     }
 
@@ -181,11 +191,11 @@ impl Router {
             Goal::ParkNearBuilding {
                 ref mut spot,
                 ref mut stuck_end_dist,
-                ..
+                target,
             } => {
                 if let Some(d) = stuck_end_dist {
                     if *d == front {
-                        return Some(ActionAtEnd::AbortTrip);
+                        return Some(ActionAtEnd::GiveUpOnParkingAt(target));
                     } else {
                         return None;
                     }
@@ -259,18 +269,15 @@ impl Router {
             }
             Goal::BikeThenStop { end_dist } => {
                 if end_dist == front {
+                    // Checked up-front that this exists
                     let last_lane = self.head().as_lane();
-                    if let Some(sidewalk) = map.get_parent(last_lane).bike_to_sidewalk(last_lane) {
-                        Some(ActionAtEnd::StopBiking(
-                            SidewalkSpot::bike_rack(sidewalk, map).unwrap(),
-                        ))
-                    } else {
-                        println!(
-                            "WARNING: Can't BikeThenStop on {}, because there's no sidewalk",
-                            last_lane
-                        );
-                        Some(ActionAtEnd::AbortTrip)
-                    }
+                    let sidewalk = map
+                        .get_parent(last_lane)
+                        .bike_to_sidewalk(last_lane)
+                        .unwrap();
+                    Some(ActionAtEnd::StopBiking(
+                        SidewalkSpot::bike_rack(sidewalk, map).unwrap(),
+                    ))
                 } else {
                     None
                 }
