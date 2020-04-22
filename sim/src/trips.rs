@@ -25,7 +25,6 @@ pub struct TripManager {
     unfinished_trips: usize,
 
     car_id_counter: usize,
-    ped_id_counter: usize,
 
     events: Vec<Event>,
 }
@@ -38,23 +37,34 @@ impl TripManager {
             active_trip_mode: BTreeMap::new(),
             unfinished_trips: 0,
             car_id_counter: 0,
-            ped_id_counter: 0,
             events: Vec::new(),
         }
     }
 
-    pub fn new_person(&mut self, id: PersonID, has_car: bool) {
+    pub fn new_person(&mut self, id: PersonID, has_car: bool, has_bike: bool) {
         assert_eq!(id.0, self.people.len());
+        let car = if has_car {
+            Some(CarID(self.new_car_id(), VehicleType::Car))
+        } else {
+            None
+        };
+        let bike = if has_bike {
+            Some(CarID(self.new_car_id(), VehicleType::Bike))
+        } else {
+            None
+        };
         self.people.push(Person {
             id,
             trips: Vec::new(),
             state: PersonState::Limbo,
-            has_car,
+            ped: PedestrianID(id.0),
+            car,
+            bike,
         });
     }
-    pub fn random_person(&mut self, has_car: bool) -> PersonID {
+    pub fn random_person(&mut self, has_car: bool, has_bike: bool) -> PersonID {
         let id = PersonID(self.people.len());
-        self.new_person(id, has_car);
+        self.new_person(id, has_car, has_bike);
         id
     }
 
@@ -62,11 +72,6 @@ impl TripManager {
         let id = self.car_id_counter;
         self.car_id_counter += 1;
         id
-    }
-    pub fn new_ped_id(&mut self) -> PedestrianID {
-        let id = self.ped_id_counter;
-        self.ped_id_counter += 1;
-        PedestrianID(id)
     }
 
     pub fn new_trip(
@@ -967,7 +972,10 @@ pub struct Person {
     pub trips: Vec<TripID>,
     // TODO home
     pub state: PersonState,
-    pub has_car: bool,
+
+    pub ped: PedestrianID,
+    pub car: Option<CarID>,
+    pub bike: Option<CarID>,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]

@@ -12,7 +12,7 @@ pub fn new(ctx: &mut EventCtx, app: &App) -> Layers {
     let mut has_car = 0;
     for p in app.primary.sim.get_all_people() {
         total_ppl += 1;
-        if p.has_car {
+        if p.car.is_some() {
             has_car += 1;
         }
     }

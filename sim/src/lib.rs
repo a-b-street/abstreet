@@ -165,9 +165,10 @@ pub struct VehicleSpec {
 }
 
 impl VehicleSpec {
-    pub fn make(self, id: usize, owner: Option<PersonID>) -> Vehicle {
+    pub fn make(self, id: CarID, owner: Option<PersonID>) -> Vehicle {
+        assert_eq!(id.1, self.vehicle_type);
         Vehicle {
-            id: CarID(id, self.vehicle_type),
+            id,
             owner,
             vehicle_type: self.vehicle_type,
             length: self.length,

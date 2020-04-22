@@ -1,8 +1,8 @@
 use crate::{
-    DrivingGoal, ParkingSpot, PersonID, SidewalkPOI, SidewalkSpot, Sim, TripEndpoint, TripSpec,
-    VehicleSpec, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
+    CarID, DrivingGoal, ParkingSpot, PersonID, SidewalkPOI, SidewalkSpot, Sim, TripEndpoint,
+    TripSpec, VehicleSpec, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
 };
-use abstutil::{prettyprint_usize, MultiMap, Timer};
+use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{Distance, Duration, Speed, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, Position, RoadID,
@@ -30,9 +30,6 @@ pub struct PersonSpec {
     // Just used for debugging
     pub orig_id: (usize, usize),
     pub trips: Vec<IndividTrip>,
-    // 3 possibilities: no car, car appears from outside the map, or car starts at a building
-    pub has_car: bool,
-    pub car_initially_parked_at: Option<BuildingID>,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -81,23 +78,17 @@ impl Scenario {
             }
         }
 
-        let mut spawner = sim.make_spawner();
-
-        let mut parked_cars: Vec<(BuildingID, PersonID)> = Vec::new();
-        for (b, owners) in self.parked_cars_per_bldg().consume() {
-            for p in owners {
-                parked_cars.push((b, p));
-            }
-        }
-        // parked_cars is stable over map edits, so don't fork.
-        parked_cars.shuffle(rng);
-        seed_parked_cars(parked_cars, sim, map, rng, timer);
-
         timer.start_iter("trips for People", self.people.len());
+        let mut spawner = sim.make_spawner();
+        let mut parked_cars: Vec<(BuildingID, CarID, PersonID)> = Vec::new();
         for p in &self.people {
             timer.next();
-            // TODO Or spawner?
-            sim.new_person(p.id, p.has_car);
+
+            let (has_car, has_bike, car_initially_parked_at) = p.get_vehicles();
+            sim.new_person(p.id, has_car, has_bike);
+            if let Some(b) = car_initially_parked_at {
+                parked_cars.push((b, sim.get_person(p.id).car.unwrap(), p.id));
+            }
             for t in &p.trips {
                 // The RNG call might change over edits for picking the spawning lane from a border
                 // with multiple choices for a vehicle type.
@@ -109,6 +100,10 @@ impl Scenario {
                 }
             }
         }
+
+        // parked_cars is stable over map edits, so don't fork.
+        parked_cars.shuffle(rng);
+        seed_parked_cars(parked_cars, sim, map, rng, timer);
 
         sim.flush_spawner(spawner, map, timer, true);
         timer.stop(format!("Instantiating {}", self.scenario_name));
@@ -201,11 +196,11 @@ impl Scenario {
         self
     }
 
-    pub fn parked_cars_per_bldg(&self) -> MultiMap<BuildingID, PersonID> {
-        let mut per_bldg = MultiMap::new();
+    pub fn count_parked_cars_per_bldg(&self) -> Counter<BuildingID> {
+        let mut per_bldg = Counter::new();
         for p in &self.people {
-            if let Some(b) = p.car_initially_parked_at {
-                per_bldg.insert(b, p.id);
+            if let (_, _, Some(b)) = p.get_vehicles() {
+                per_bldg.inc(b);
             }
         }
         per_bldg
@@ -251,7 +246,7 @@ impl Scenario {
 }
 
 fn seed_parked_cars(
-    parked_cars: Vec<(BuildingID, PersonID)>,
+    parked_cars: Vec<(BuildingID, CarID, PersonID)>,
     sim: &mut Sim,
     map: &Map,
     base_rng: &mut XorShiftRng,
@@ -283,13 +278,13 @@ fn seed_parked_cars(
 
     timer.start_iter("seed parked cars", parked_cars.len());
     let mut ok = true;
-    for (b, owner) in parked_cars {
+    for (b, id, owner) in parked_cars {
         timer.next();
         if !ok {
             continue;
         }
         if let Some(spot) = find_spot_near_building(b, &mut open_spots_per_road, map, timer) {
-            sim.seed_parked_car(rand_cars.pop().unwrap(), spot, Some(owner));
+            sim.seed_parked_car(rand_cars.pop().unwrap().make(id, Some(owner)), spot);
         } else {
             timer.warn("Not enough room to seed parked cars.".to_string());
             ok = false;
@@ -448,5 +443,35 @@ impl SpawnTrip {
                 }
             }
         }
+    }
+}
+
+impl PersonSpec {
+    fn get_vehicles(&self) -> (bool, bool, Option<BuildingID>) {
+        let mut has_car = false;
+        let mut has_bike = false;
+        let mut car_initially_parked_at = None;
+        for trip in &self.trips {
+            match trip.trip {
+                SpawnTrip::CarAppearing { is_bike, .. } | SpawnTrip::FromBorder { is_bike, .. } => {
+                    if is_bike {
+                        has_bike = true;
+                    } else {
+                        has_car = true;
+                    }
+                }
+                SpawnTrip::MaybeUsingParkedCar(b, _) => {
+                    if !has_car {
+                        has_car = true;
+                        car_initially_parked_at = Some(b);
+                    }
+                }
+                SpawnTrip::UsingBike(_, _) => {
+                    has_bike = true;
+                }
+                _ => {}
+            }
+        }
+        (has_car, has_bike, car_initially_parked_at)
     }
 }

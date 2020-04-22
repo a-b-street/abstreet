@@ -263,32 +263,7 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
         // departure time starting with midnight.
         trips.sort_by_key(|t| t.depart);
 
-        let mut car_initially_parked_at = None;
-        let mut has_car = false;
-        for trip in &trips {
-            match trip.trip {
-                SpawnTrip::FromBorder { is_bike, .. } => {
-                    if !is_bike {
-                        has_car = true;
-                    }
-                }
-                SpawnTrip::MaybeUsingParkedCar(b, _) => {
-                    if !has_car {
-                        has_car = true;
-                        car_initially_parked_at = Some(b);
-                    }
-                }
-                _ => {}
-            }
-        }
-
-        people.push(PersonSpec {
-            id,
-            orig_id,
-            trips,
-            has_car,
-            car_initially_parked_at,
-        });
+        people.push(PersonSpec { id, orig_id, trips });
     }
     for maybe_t in individ_trips {
         if maybe_t.is_some() {

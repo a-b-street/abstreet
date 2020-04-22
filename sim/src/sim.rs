@@ -207,23 +207,15 @@ impl Sim {
     }
 
     // TODO Should these two be in TripSpawner?
-    pub fn new_person(&mut self, p: PersonID, has_car: bool) {
-        self.trips.new_person(p, has_car);
+    pub fn new_person(&mut self, p: PersonID, has_car: bool, has_bike: bool) {
+        self.trips.new_person(p, has_car, has_bike);
     }
-    pub fn random_person(&mut self, has_car: bool) -> PersonID {
-        self.trips.random_person(has_car)
+    pub fn random_person(&mut self, has_car: bool, has_bike: bool) -> PersonID {
+        self.trips.random_person(has_car, has_bike)
     }
-    pub(crate) fn seed_parked_car(
-        &mut self,
-        vehicle: VehicleSpec,
-        spot: ParkingSpot,
-        owner: Option<PersonID>,
-    ) {
+    pub(crate) fn seed_parked_car(&mut self, vehicle: Vehicle, spot: ParkingSpot) {
         self.parking.reserve_spot(spot);
-        self.parking.add_parked_car(ParkedCar {
-            vehicle: vehicle.make(self.trips.new_car_id(), owner),
-            spot,
-        });
+        self.parking.add_parked_car(ParkedCar { vehicle, spot });
     }
 
     pub fn get_offstreet_parked_cars(&self, bldg: BuildingID) -> Vec<&ParkedCar> {
@@ -245,7 +237,7 @@ impl Sim {
                 length: BUS_LENGTH,
                 max_speed: None,
             }
-            .make(self.trips.new_car_id(), None);
+            .make(CarID(self.trips.new_car_id(), VehicleType::Bus), None);
             let id = vehicle.id;
 
             loop {

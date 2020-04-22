@@ -1,6 +1,7 @@
 use crate::{
     Command, CreateCar, CreatePedestrian, DrivingGoal, PersonID, Scheduler, SidewalkPOI,
-    SidewalkSpot, TripEndpoint, TripLeg, TripManager, VehicleSpec, BIKE_LENGTH, MAX_CAR_LENGTH,
+    SidewalkSpot, TripEndpoint, TripLeg, TripManager, VehicleSpec, VehicleType, BIKE_LENGTH,
+    MAX_CAR_LENGTH,
 };
 use abstutil::Timer;
 use geom::{Speed, Time, EPSILON_DIST};
@@ -171,8 +172,11 @@ impl TripSpawner {
         );
 
         timer.start_iter("spawn trips", paths.len());
-        for ((person, start_time, spec), req, maybe_path) in paths {
+        for ((p, start_time, spec), req, maybe_path) in paths {
             timer.next();
+            // TODO clone() is super weird to do here, but we just need to make the borrow checker
+            // happy. All we're doing is grabbing IDs off this.
+            let person = trips.get_person(p).unwrap().clone();
             match spec {
                 TripSpec::CarAppearing {
                     start_pos,
@@ -180,24 +184,28 @@ impl TripSpawner {
                     goal,
                     ped_speed,
                 } => {
-                    let vehicle = vehicle_spec.make(trips.new_car_id(), Some(person));
+                    let vehicle = if vehicle_spec.vehicle_type == VehicleType::Car {
+                        vehicle_spec.make(person.car.unwrap(), Some(person.id))
+                    } else {
+                        vehicle_spec.make(person.bike.unwrap(), Some(person.id))
+                    };
                     let mut legs = vec![TripLeg::Drive(vehicle.clone(), goal.clone())];
                     if let DrivingGoal::ParkNear(b) = goal {
                         legs.push(TripLeg::Walk(
-                            trips.new_ped_id(),
+                            person.ped,
                             ped_speed,
                             SidewalkSpot::building(b, map),
                         ));
                     }
                     let trip_start = TripEndpoint::Border(map.get_l(start_pos.lane()).src_i);
-                    let trip = trips.new_trip(person, start_time, trip_start, legs);
+                    let trip = trips.new_trip(person.id, start_time, trip_start, legs);
                     if let Some(path) = maybe_path {
                         let router = goal.make_router(path, map, vehicle.vehicle_type);
                         scheduler.push(
                             start_time,
                             Command::SpawnCar(
                                 CreateCar::for_appearing(
-                                    vehicle, start_pos, router, req, trip, person,
+                                    vehicle, start_pos, router, req, trip, person.id,
                                 ),
                                 retry_if_no_room,
                             ),
@@ -218,15 +226,14 @@ impl TripSpawner {
                     let walk_to = SidewalkSpot::deferred_parking_spot(start_bldg, goal, map);
                     // Can't add TripLeg::Drive, because we don't know the vehicle yet! Plumb along
                     // the DrivingGoal, so we can expand the trip later.
-                    let id = trips.new_ped_id();
-                    let legs = vec![TripLeg::Walk(id, ped_speed, walk_to.clone())];
+                    let legs = vec![TripLeg::Walk(person.ped, ped_speed, walk_to.clone())];
                     let trip =
-                        trips.new_trip(person, start_time, TripEndpoint::Bldg(start_bldg), legs);
+                        trips.new_trip(person.id, start_time, TripEndpoint::Bldg(start_bldg), legs);
 
                     scheduler.push(
                         start_time,
                         Command::SpawnPed(CreatePedestrian {
-                            id,
+                            id: person.ped,
                             speed: ped_speed,
                             start: SidewalkSpot::building(start_bldg, map),
                             goal: walk_to,
@@ -234,7 +241,7 @@ impl TripSpawner {
                             path: maybe_path.unwrap(),
                             req,
                             trip,
-                            person,
+                            person: person.id,
                         }),
                     );
                 }
@@ -243,9 +250,8 @@ impl TripSpawner {
                     goal,
                     ped_speed,
                 } => {
-                    let id = trips.new_ped_id();
                     let trip = trips.new_trip(
-                        person,
+                        person.id,
                         start_time,
                         match start.connection {
                             SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
@@ -255,21 +261,21 @@ impl TripSpawner {
                             SidewalkPOI::Border(i) => TripEndpoint::Border(i),
                             _ => unreachable!(),
                         },
-                        vec![TripLeg::Walk(id, ped_speed, goal.clone())],
+                        vec![TripLeg::Walk(person.ped, ped_speed, goal.clone())],
                     );
 
                     if let Some(path) = maybe_path {
                         scheduler.push(
                             start_time,
                             Command::SpawnPed(CreatePedestrian {
-                                id,
+                                id: person.ped,
                                 speed: ped_speed,
                                 start,
                                 goal,
                                 path,
                                 req,
                                 trip,
-                                person,
+                                person: person.id,
                             }),
                         );
                     } else {
@@ -286,18 +292,16 @@ impl TripSpawner {
                     goal,
                     ped_speed,
                 } => {
-                    let ped_id = trips.new_ped_id();
-                    let bike_id = trips.new_car_id();
                     let walk_to =
                         SidewalkSpot::bike_from_bike_rack(start.sidewalk_pos.lane(), map).unwrap();
                     let mut legs = vec![
-                        TripLeg::Walk(ped_id, ped_speed, walk_to.clone()),
-                        TripLeg::Drive(vehicle.make(bike_id, None), goal.clone()),
+                        TripLeg::Walk(person.ped, ped_speed, walk_to.clone()),
+                        TripLeg::Drive(vehicle.make(person.bike.unwrap(), None), goal.clone()),
                     ];
                     match goal {
                         DrivingGoal::ParkNear(b) => {
                             legs.push(TripLeg::Walk(
-                                ped_id,
+                                person.ped,
                                 ped_speed,
                                 SidewalkSpot::building(b, map),
                             ));
@@ -305,7 +309,7 @@ impl TripSpawner {
                         DrivingGoal::Border(_, _) => {}
                     };
                     let trip = trips.new_trip(
-                        person,
+                        person.id,
                         start_time,
                         match start.connection {
                             SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
@@ -322,14 +326,14 @@ impl TripSpawner {
                         scheduler.push(
                             start_time,
                             Command::SpawnPed(CreatePedestrian {
-                                id: ped_id,
+                                id: person.ped,
                                 speed: ped_speed,
                                 start,
                                 goal: walk_to,
                                 path,
                                 req,
                                 trip,
-                                person,
+                                person: person.id,
                             }),
                         );
                     } else {
@@ -348,10 +352,9 @@ impl TripSpawner {
                     goal,
                     ped_speed,
                 } => {
-                    let id = trips.new_ped_id();
                     let walk_to = SidewalkSpot::bus_stop(stop1, map);
                     let trip = trips.new_trip(
-                        person,
+                        person.id,
                         start_time,
                         match start.connection {
                             SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
@@ -362,9 +365,9 @@ impl TripSpawner {
                             _ => unreachable!(),
                         },
                         vec![
-                            TripLeg::Walk(id, ped_speed, walk_to.clone()),
-                            TripLeg::RideBus(id, route, stop2),
-                            TripLeg::Walk(id, ped_speed, goal),
+                            TripLeg::Walk(person.ped, ped_speed, walk_to.clone()),
+                            TripLeg::RideBus(person.ped, route, stop2),
+                            TripLeg::Walk(person.ped, ped_speed, goal),
                         ],
                     );
 
@@ -372,14 +375,14 @@ impl TripSpawner {
                         scheduler.push(
                             start_time,
                             Command::SpawnPed(CreatePedestrian {
-                                id,
+                                id: person.ped,
                                 speed: ped_speed,
                                 start,
                                 goal: walk_to,
                                 path,
                                 req,
                                 trip,
-                                person,
+                                person: person.id,
                             }),
                         );
                     } else {

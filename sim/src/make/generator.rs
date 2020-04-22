@@ -204,8 +204,6 @@ impl SpawnOverTime {
                         depart,
                         trip: SpawnTrip::MaybeUsingParkedCar(from_bldg, goal),
                     }],
-                    has_car: true,
-                    car_initially_parked_at: Some(from_bldg),
                 });
                 return;
             }
@@ -225,8 +223,6 @@ impl SpawnOverTime {
                         depart,
                         trip: SpawnTrip::UsingBike(start_spot, goal),
                     }],
-                    has_car: false,
-                    car_initially_parked_at: None,
                 });
                 return;
             }
@@ -251,8 +247,6 @@ impl SpawnOverTime {
                             depart,
                             trip: SpawnTrip::UsingTransit(start_spot, goal, route, stop1, stop2),
                         }],
-                        has_car: false,
-                        car_initially_parked_at: None,
                     });
                     return;
                 }
@@ -265,8 +259,6 @@ impl SpawnOverTime {
                     depart,
                     trip: SpawnTrip::JustWalking(start_spot, goal),
                 }],
-                has_car: false,
-                car_initially_parked_at: None,
             });
             return;
         }
@@ -323,8 +315,6 @@ impl BorderSpawnOverTime {
                                     stop2,
                                 ),
                             }],
-                            has_car: false,
-                            car_initially_parked_at: None,
                         });
                         continue;
                     }
@@ -337,8 +327,6 @@ impl BorderSpawnOverTime {
                         depart,
                         trip: SpawnTrip::JustWalking(start.clone(), goal),
                     }],
-                    has_car: false,
-                    car_initially_parked_at: None,
                 });
             }
         }
@@ -372,8 +360,6 @@ impl BorderSpawnOverTime {
                             is_bike: constraints == PathConstraints::Bike,
                         },
                     }],
-                    has_car: constraints == PathConstraints::Car,
-                    car_initially_parked_at: None,
                 });
             }
         }
