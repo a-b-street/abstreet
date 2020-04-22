@@ -1,4 +1,6 @@
-use crate::{pandemic, AgentID, CarID, CreateCar, CreatePedestrian, PedestrianID};
+use crate::{
+    pandemic, AgentID, CarID, CreateCar, CreatePedestrian, PedestrianID, TripID, TripSpec,
+};
 use derivative::Derivative;
 use geom::{Duration, Histogram, Time};
 use map_model::{IntersectionID, Path, PathRequest};
@@ -11,6 +13,7 @@ pub enum Command {
     // If true, retry when there's no room to spawn somewhere
     SpawnCar(CreateCar, bool),
     SpawnPed(CreatePedestrian),
+    StartTrip(TripID, TripSpec, Option<PathRequest>, Option<Path>),
     UpdateCar(CarID),
     // Distinguish this from UpdateCar to avoid confusing things
     UpdateLaggyHead(CarID),
@@ -32,6 +35,7 @@ impl Command {
         match self {
             Command::SpawnCar(ref create, _) => CommandType::Car(create.vehicle.id),
             Command::SpawnPed(ref create) => CommandType::Ped(create.id),
+            Command::StartTrip(id, _, _, _) => CommandType::StartTrip(*id),
             Command::UpdateCar(id) => CommandType::Car(*id),
             Command::UpdateLaggyHead(id) => CommandType::CarLaggyHead(*id),
             Command::UpdatePed(id) => CommandType::Ped(*id),
@@ -46,6 +50,7 @@ impl Command {
 // CommandType may exist at a time.
 #[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Debug)]
 pub enum CommandType {
+    StartTrip(TripID),
     Car(CarID),
     CarLaggyHead(CarID),
     Ped(PedestrianID),

@@ -1,7 +1,6 @@
 use crate::{
-    Command, CreateCar, CreatePedestrian, DrivingGoal, PersonID, Scheduler, SidewalkPOI,
-    SidewalkSpot, TripEndpoint, TripLeg, TripManager, VehicleSpec, VehicleType, BIKE_LENGTH,
-    MAX_CAR_LENGTH,
+    Command, DrivingGoal, PersonID, Scheduler, SidewalkPOI, SidewalkSpot, TripEndpoint, TripLeg,
+    TripManager, VehicleSpec, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH,
 };
 use abstutil::Timer;
 use geom::{Speed, Time, EPSILON_DIST};
@@ -160,24 +159,27 @@ impl TripSpawner {
         trips: &mut TripManager,
         scheduler: &mut Scheduler,
         timer: &mut Timer,
-        retry_if_no_room: bool,
+        _retry_if_no_room: bool,
     ) {
         let paths = timer.parallelize(
             "calculate paths",
             std::mem::replace(&mut self.trips, Vec::new()),
             |tuple| {
                 let req = tuple.2.get_pathfinding_request(map);
-                (tuple, req.clone(), map.pathfind(req))
+                (tuple, req.clone(), req.and_then(|r| map.pathfind(r)))
             },
         );
 
         timer.start_iter("spawn trips", paths.len());
-        for ((p, start_time, spec), req, maybe_path) in paths {
+        for ((p, start_time, spec), maybe_req, maybe_path) in paths {
             timer.next();
+
             // TODO clone() is super weird to do here, but we just need to make the borrow checker
             // happy. All we're doing is grabbing IDs off this.
             let person = trips.get_person(p).unwrap().clone();
-            match spec {
+            // Just create the trip for each case.
+            // TODO Not happy about this clone()
+            let trip = match spec.clone() {
                 TripSpec::CarAppearing {
                     start_pos,
                     vehicle_spec,
@@ -198,25 +200,7 @@ impl TripSpawner {
                         ));
                     }
                     let trip_start = TripEndpoint::Border(map.get_l(start_pos.lane()).src_i);
-                    let trip = trips.new_trip(person.id, start_time, trip_start, legs);
-                    if let Some(path) = maybe_path {
-                        let router = goal.make_router(path, map, vehicle.vehicle_type);
-                        scheduler.push(
-                            start_time,
-                            Command::SpawnCar(
-                                CreateCar::for_appearing(
-                                    vehicle, start_pos, router, req, trip, person.id,
-                                ),
-                                retry_if_no_room,
-                            ),
-                        );
-                    } else {
-                        timer.warn(format!(
-                            "CarAppearing trip couldn't find the first path {}",
-                            req
-                        ));
-                        trips.abort_trip_failed_start(trip);
-                    }
+                    trips.new_trip(person.id, start_time, trip_start, legs)
                 }
                 TripSpec::MaybeUsingParkedCar {
                     start_bldg,
@@ -227,65 +211,25 @@ impl TripSpawner {
                     // Can't add TripLeg::Drive, because we don't know the vehicle yet! Plumb along
                     // the DrivingGoal, so we can expand the trip later.
                     let legs = vec![TripLeg::Walk(person.ped, ped_speed, walk_to.clone())];
-                    let trip =
-                        trips.new_trip(person.id, start_time, TripEndpoint::Bldg(start_bldg), legs);
-
-                    scheduler.push(
-                        start_time,
-                        Command::SpawnPed(CreatePedestrian {
-                            id: person.ped,
-                            speed: ped_speed,
-                            start: SidewalkSpot::building(start_bldg, map),
-                            goal: walk_to,
-                            // This is guaranteed to work, and is junk anyway.
-                            path: maybe_path.unwrap(),
-                            req,
-                            trip,
-                            person: person.id,
-                        }),
-                    );
+                    trips.new_trip(person.id, start_time, TripEndpoint::Bldg(start_bldg), legs)
                 }
                 TripSpec::JustWalking {
                     start,
                     goal,
                     ped_speed,
-                } => {
-                    let trip = trips.new_trip(
-                        person.id,
-                        start_time,
-                        match start.connection {
-                            SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
-                            SidewalkPOI::SuddenlyAppear => {
-                                TripEndpoint::Border(map.get_l(start.sidewalk_pos.lane()).src_i)
-                            }
-                            SidewalkPOI::Border(i) => TripEndpoint::Border(i),
-                            _ => unreachable!(),
-                        },
-                        vec![TripLeg::Walk(person.ped, ped_speed, goal.clone())],
-                    );
-
-                    if let Some(path) = maybe_path {
-                        scheduler.push(
-                            start_time,
-                            Command::SpawnPed(CreatePedestrian {
-                                id: person.ped,
-                                speed: ped_speed,
-                                start,
-                                goal,
-                                path,
-                                req,
-                                trip,
-                                person: person.id,
-                            }),
-                        );
-                    } else {
-                        timer.warn(format!(
-                            "JustWalking trip couldn't find the first path {}",
-                            req
-                        ));
-                        trips.abort_trip_failed_start(trip);
-                    }
-                }
+                } => trips.new_trip(
+                    person.id,
+                    start_time,
+                    match start.connection {
+                        SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
+                        SidewalkPOI::SuddenlyAppear => {
+                            TripEndpoint::Border(map.get_l(start.sidewalk_pos.lane()).src_i)
+                        }
+                        SidewalkPOI::Border(i) => TripEndpoint::Border(i),
+                        _ => unreachable!(),
+                    },
+                    vec![TripLeg::Walk(person.ped, ped_speed, goal.clone())],
+                ),
                 TripSpec::UsingBike {
                     start,
                     vehicle,
@@ -308,7 +252,7 @@ impl TripSpawner {
                         }
                         DrivingGoal::Border(_, _) => {}
                     };
-                    let trip = trips.new_trip(
+                    trips.new_trip(
                         person.id,
                         start_time,
                         match start.connection {
@@ -320,29 +264,7 @@ impl TripSpawner {
                             _ => unreachable!(),
                         },
                         legs,
-                    );
-
-                    if let Some(path) = maybe_path {
-                        scheduler.push(
-                            start_time,
-                            Command::SpawnPed(CreatePedestrian {
-                                id: person.ped,
-                                speed: ped_speed,
-                                start,
-                                goal: walk_to,
-                                path,
-                                req,
-                                trip,
-                                person: person.id,
-                            }),
-                        );
-                    } else {
-                        timer.warn(format!(
-                            "UsingBike trip couldn't find the first path {}",
-                            req
-                        ));
-                        trips.abort_trip_failed_start(trip);
-                    }
+                    )
                 }
                 TripSpec::UsingTransit {
                     start,
@@ -353,7 +275,7 @@ impl TripSpawner {
                     ped_speed,
                 } => {
                     let walk_to = SidewalkSpot::bus_stop(stop1, map);
-                    let trip = trips.new_trip(
+                    trips.new_trip(
                         person.id,
                         start_time,
                         match start.connection {
@@ -369,31 +291,13 @@ impl TripSpawner {
                             TripLeg::RideBus(person.ped, route, stop2),
                             TripLeg::Walk(person.ped, ped_speed, goal),
                         ],
-                    );
-
-                    if let Some(path) = maybe_path {
-                        scheduler.push(
-                            start_time,
-                            Command::SpawnPed(CreatePedestrian {
-                                id: person.ped,
-                                speed: ped_speed,
-                                start,
-                                goal: walk_to,
-                                path,
-                                req,
-                                trip,
-                                person: person.id,
-                            }),
-                        );
-                    } else {
-                        timer.warn(format!(
-                            "UsingTransit trip couldn't find the first path {}",
-                            req
-                        ));
-                        trips.abort_trip_failed_start(trip);
-                    }
+                    )
                 }
-            }
+            };
+            scheduler.push(
+                start_time,
+                Command::StartTrip(trip, spec, maybe_req, maybe_path),
+            );
         }
     }
 }
@@ -417,7 +321,7 @@ impl TripSpec {
         }
     }
 
-    pub(crate) fn get_pathfinding_request(&self, map: &Map) -> PathRequest {
+    pub(crate) fn get_pathfinding_request(&self, map: &Map) -> Option<PathRequest> {
         match self {
             TripSpec::CarAppearing {
                 start_pos,
@@ -426,39 +330,31 @@ impl TripSpec {
                 ..
             } => {
                 let constraints = vehicle_spec.vehicle_type.to_constraints();
-                PathRequest {
+                Some(PathRequest {
                     start: *start_pos,
                     end: goal.goal_pos(constraints, map),
                     constraints,
-                }
+                })
             }
-            // Don't know where the parked car will be, so just make a dummy path that'll never
-            // fail.
-            TripSpec::MaybeUsingParkedCar { start_bldg, .. } => {
-                let pos = map.get_b(*start_bldg).front_path.sidewalk;
-                PathRequest {
-                    start: pos,
-                    end: pos,
-                    constraints: PathConstraints::Pedestrian,
-                }
-            }
-            TripSpec::JustWalking { start, goal, .. } => PathRequest {
+            // We don't know where the parked car will be
+            TripSpec::MaybeUsingParkedCar { .. } => None,
+            TripSpec::JustWalking { start, goal, .. } => Some(PathRequest {
                 start: start.sidewalk_pos,
                 end: goal.sidewalk_pos,
                 constraints: PathConstraints::Pedestrian,
-            },
-            TripSpec::UsingBike { start, .. } => PathRequest {
+            }),
+            TripSpec::UsingBike { start, .. } => Some(PathRequest {
                 start: start.sidewalk_pos,
                 end: SidewalkSpot::bike_from_bike_rack(start.sidewalk_pos.lane(), map)
                     .unwrap()
                     .sidewalk_pos,
                 constraints: PathConstraints::Pedestrian,
-            },
-            TripSpec::UsingTransit { start, stop1, .. } => PathRequest {
+            }),
+            TripSpec::UsingTransit { start, stop1, .. } => Some(PathRequest {
                 start: start.sidewalk_pos,
                 end: SidewalkSpot::bus_stop(*stop1, map).sidewalk_pos,
                 constraints: PathConstraints::Pedestrian,
-            },
+            }),
         }
     }
 }

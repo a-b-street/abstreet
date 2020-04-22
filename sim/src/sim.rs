@@ -400,6 +400,17 @@ impl Sim {
         let mut events = Vec::new();
         let mut savestate = false;
         match cmd {
+            Command::StartTrip(id, trip_spec, maybe_req, maybe_path) => {
+                self.trips.start_trip(
+                    self.time,
+                    id,
+                    trip_spec,
+                    maybe_req,
+                    maybe_path,
+                    &mut self.scheduler,
+                    map,
+                );
+            }
             Command::SpawnCar(create_car, retry_if_no_room) => {
                 if self.driving.start_car_on_lane(
                     self.time,

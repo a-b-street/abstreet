@@ -2,12 +2,13 @@ use crate::scheduler::CommandType;
 use crate::{
     AgentID, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, Event, ParkingSimState,
     ParkingSpot, PedestrianID, PersonID, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState,
-    TripID, TripPhaseType, Vehicle, VehicleType, WalkingSimState,
+    TripID, TripPhaseType, TripSpec, Vehicle, VehicleType, WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap, Counter};
 use geom::{Duration, Speed, Time};
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, PathRequest, Position,
+    BuildingID, BusRouteID, BusStopID, IntersectionID, Map, Path, PathConstraints, PathRequest,
+    Position,
 };
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
@@ -747,6 +748,149 @@ impl TripManager {
                     TripLeg::Walk(ped, _, _) | TripLeg::RideBus(ped, _, _) => CommandType::Ped(ped),
                     TripLeg::Drive(ref vehicle, _) => CommandType::Car(vehicle.id),
                 });
+            }
+        }
+    }
+
+    pub fn start_trip(
+        &mut self,
+        now: Time,
+        trip: TripID,
+        spec: TripSpec,
+        maybe_req: Option<PathRequest>,
+        maybe_path: Option<Path>,
+        scheduler: &mut Scheduler,
+        map: &Map,
+    ) {
+        let person = self.trip_to_person(trip);
+        // TODO Prevent doppelgangers
+
+        match spec {
+            TripSpec::CarAppearing {
+                start_pos, goal, ..
+            } => {
+                let vehicle = match self.trips[trip.0].legs[0] {
+                    TripLeg::Drive(ref vehicle, _) => vehicle.clone(),
+                    _ => unreachable!(),
+                };
+                let req = maybe_req.unwrap();
+                if let Some(path) = maybe_path {
+                    let router = goal.make_router(path, map, vehicle.vehicle_type);
+                    scheduler.push(
+                        now,
+                        Command::SpawnCar(
+                            CreateCar::for_appearing(vehicle, start_pos, router, req, trip, person),
+                            // TODO retry_if_no_room
+                            true,
+                        ),
+                    );
+                } else {
+                    println!("CarAppearing trip couldn't find the first path {}", req);
+                    self.abort_trip_failed_start(trip);
+                }
+            }
+            TripSpec::MaybeUsingParkedCar {
+                start_bldg,
+                goal,
+                ped_speed,
+            } => {
+                // TODO First step: could move the handling here
+                let walk_to = SidewalkSpot::deferred_parking_spot(start_bldg, goal, map);
+                let dummy_pos = walk_to.sidewalk_pos;
+                scheduler.push(
+                    now,
+                    Command::SpawnPed(CreatePedestrian {
+                        id: self.get_person(person).unwrap().ped,
+                        speed: ped_speed,
+                        start: SidewalkSpot::building(start_bldg, map),
+                        goal: walk_to,
+                        path: Path::dummy(),
+                        req: PathRequest {
+                            start: dummy_pos,
+                            end: dummy_pos,
+                            constraints: PathConstraints::Pedestrian,
+                        },
+                        trip,
+                        person,
+                    }),
+                );
+            }
+            TripSpec::JustWalking {
+                start,
+                goal,
+                ped_speed,
+            } => {
+                let req = maybe_req.unwrap();
+                if let Some(path) = maybe_path {
+                    scheduler.push(
+                        now,
+                        Command::SpawnPed(CreatePedestrian {
+                            id: self.get_person(person).unwrap().ped,
+                            speed: ped_speed,
+                            start,
+                            goal,
+                            path,
+                            req,
+                            trip,
+                            person,
+                        }),
+                    );
+                } else {
+                    println!("JustWalking trip couldn't find the first path {}", req);
+                    self.abort_trip_failed_start(trip);
+                }
+            }
+            TripSpec::UsingBike {
+                start, ped_speed, ..
+            } => {
+                let walk_to =
+                    SidewalkSpot::bike_from_bike_rack(start.sidewalk_pos.lane(), map).unwrap();
+                let req = maybe_req.unwrap();
+                if let Some(path) = maybe_path {
+                    scheduler.push(
+                        now,
+                        Command::SpawnPed(CreatePedestrian {
+                            id: self.get_person(person).unwrap().ped,
+                            speed: ped_speed,
+                            start,
+                            goal: walk_to,
+                            path,
+                            req,
+                            trip,
+                            person,
+                        }),
+                    );
+                } else {
+                    println!("UsingBike trip couldn't find the first path {}", req);
+                    self.abort_trip_failed_start(trip);
+                }
+            }
+            TripSpec::UsingTransit {
+                start,
+                stop1,
+                ped_speed,
+                ..
+            } => {
+                let walk_to = SidewalkSpot::bus_stop(stop1, map);
+                let req = maybe_req.unwrap();
+                if let Some(path) = maybe_path {
+                    scheduler.push(
+                        now,
+                        Command::SpawnPed(CreatePedestrian {
+                            id: self.get_person(person).unwrap().ped,
+                            speed: ped_speed,
+                            start,
+                            goal: walk_to,
+                            path,
+                            req,
+                            trip,
+                            person,
+                        }),
+                    );
+                } else {
+                    println!("UsingTransit trip couldn't find the first path {}", req);
+                    self.abort_trip_failed_start(trip);
+                }
             }
         }
     }
