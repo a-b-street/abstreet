@@ -208,6 +208,7 @@ impl Scheduler {
     // TODO Why not just implement Default on Path and use skip_serializing? Because we want to
     // serialize paths inside Router for live agents. We need to defer calling make_router and just
     // store the input in CreateCar.
+    // TODO Rethink all of this; probably broken by StartTrip.
     pub fn get_requests_for_savestate(&self) -> Vec<PathRequest> {
         let mut reqs = Vec::new();
         for (cmd, _) in self.queued_commands.values() {

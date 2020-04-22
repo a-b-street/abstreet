@@ -562,15 +562,10 @@ impl Sim {
                 savestate = true;
             }
             Command::Pandemic(cmd) => {
-                if let crate::pandemic::Cmd::CancelFutureTrips(person) = cmd {
-                    self.trips
-                        .cancel_future_trips(self.time, person, &mut self.scheduler);
-                } else {
-                    self.pandemic
-                        .as_mut()
-                        .unwrap()
-                        .handle_cmd(self.time, cmd, &mut self.scheduler);
-                }
+                self.pandemic
+                    .as_mut()
+                    .unwrap()
+                    .handle_cmd(self.time, cmd, &mut self.scheduler);
             }
         }
 

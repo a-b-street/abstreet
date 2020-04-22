@@ -29,7 +29,6 @@ pub struct PandemicModel {
 pub enum Cmd {
     BecomeHospitalized(PersonID),
     BecomeQuarantined(PersonID),
-    CancelFutureTrips(PersonID),
 }
 
 // TODO Pretend handle_event and handle_cmd also take in some object that lets you do things like:
@@ -214,8 +213,6 @@ impl PandemicModel {
             Cmd::BecomeQuarantined(_person) => {
                 // self.quarantined.insert(person);
             }
-            // This is handled by the rest of the simulation
-            Cmd::CancelFutureTrips(_) => unreachable!(),
         }
     }
 
