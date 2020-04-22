@@ -583,6 +583,15 @@ impl TripManager {
         trip.aborted = true;
         self.events.push(Event::TripAborted(trip.id, trip.mode));
         let person = trip.person;
+
+        // Maintain consistentency for anyone listening to events
+        if let PersonState::Inside(b) = self.people[person.0].state {
+            self.events.push(Event::PersonLeavesBuilding(person, b));
+        }
+        if let TripEndpoint::Bldg(b) = trip.end {
+            self.events.push(Event::PersonEntersBuilding(person, b));
+        }
+
         // Warp to the destination
         self.people[person.0].state = match trip.end {
             TripEndpoint::Bldg(b) => PersonState::Inside(b),

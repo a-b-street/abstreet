@@ -162,8 +162,7 @@ impl PandemicModel {
                 if let Some(others) = self.bldgs.person_leaves_space(now, *person, *bldg) {
                     self.transmission(now, *person, others, scheduler);
                 } else {
-                    // TODO A person left a building, but they weren't inside of it? Not sure
-                    // what's happening here yet.
+                    panic!("{} left {}, but they weren't inside", person, bldg);
                 }
             }
             Event::TripPhaseStarting(_, p, _, _, tpt) => {
