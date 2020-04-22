@@ -66,10 +66,14 @@ impl DrawTurnGroup {
                 .max()
                 .unwrap() as f64;
             let (pl, width) = group.src_center_and_width(map);
-            let slice = pl.exact_slice(
-                offset * TURN_ICON_ARROW_LENGTH,
-                (offset + 1.0) * TURN_ICON_ARROW_LENGTH,
-            );
+            let slice = if pl.length() >= (offset + 1.0) * TURN_ICON_ARROW_LENGTH {
+                pl.exact_slice(
+                    offset * TURN_ICON_ARROW_LENGTH,
+                    (offset + 1.0) * TURN_ICON_ARROW_LENGTH,
+                )
+            } else {
+                pl
+            };
             let block = slice.make_polygons(width);
 
             let arrow = {
