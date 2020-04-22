@@ -826,6 +826,13 @@ impl TripManager {
             person
                 .delayed_trips
                 .push((trip, spec, maybe_req, maybe_path));
+            self.events.push(Event::TripPhaseStarting(
+                trip,
+                person.id,
+                self.trips[trip.0].mode,
+                None,
+                TripPhaseType::DelayedStart,
+            ));
             return;
         }
 

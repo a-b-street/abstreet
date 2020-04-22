@@ -41,14 +41,24 @@ pub fn trips(
                     wheres_waldo = false;
                     rows.push(current_status(ctx, person, map));
                 }
-
-                (
-                    "future",
-                    Color::hex("#4CA7E9"),
-                    open_trips
-                        .get(t)
-                        .map(|_| trip::future(ctx, app, *t, details)),
-                )
+                let start_time = sim.trip_info(*t).0;
+                if sim.time() > start_time {
+                    (
+                        "delayed start",
+                        Color::YELLOW,
+                        open_trips
+                            .get(t)
+                            .map(|_| trip::future(ctx, app, *t, details)),
+                    )
+                } else {
+                    (
+                        "future",
+                        Color::hex("#4CA7E9"),
+                        open_trips
+                            .get(t)
+                            .map(|_| trip::future(ctx, app, *t, details)),
+                    )
+                }
             }
             TripResult::Ok(a) => {
                 assert!(wheres_waldo);

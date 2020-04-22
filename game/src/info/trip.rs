@@ -111,6 +111,14 @@ pub fn future(ctx: &mut EventCtx, app: &App, trip: TripID, details: &mut Details
 
     let mut col = Vec::new();
 
+    let now = app.primary.sim.time();
+    if now > start_time {
+        col.extend(make_table(
+            ctx,
+            vec![("Start delayed", (now - start_time).to_string())],
+        ));
+    }
+
     if let Some(estimated_trip_time) = app
         .has_prebaked()
         .and_then(|_| app.prebaked().finished_trip_time(trip))
@@ -341,6 +349,7 @@ fn make_timeline(
             TripPhaseType::WaitingForBus(_, _) => app.cs.bus_stop,
             TripPhaseType::RidingBus(_, _, _) => app.cs.bus_lane,
             TripPhaseType::Aborted | TripPhaseType::Finished => unreachable!(),
+            TripPhaseType::DelayedStart => Color::YELLOW,
         }
         .alpha(0.7);
 
@@ -402,6 +411,7 @@ fn make_timeline(
                     "../data/system/assets/timeline/riding_bus.svg"
                 }
                 TripPhaseType::Aborted | TripPhaseType::Finished => unreachable!(),
+                TripPhaseType::DelayedStart => "../data/system/assets/timeline/delayed_start.svg",
             },
             // TODO Hardcoded layouting...
             Pt2D::new(0.5 * phase_width, -20.0),

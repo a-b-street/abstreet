@@ -61,6 +61,7 @@ pub enum TripPhaseType {
     RidingBus(BusRouteID, BusStopID, CarID),
     Aborted,
     Finished,
+    DelayedStart,
 }
 
 impl TripPhaseType {
@@ -74,6 +75,7 @@ impl TripPhaseType {
             TripPhaseType::RidingBus(r, _, _) => format!("riding bus {}", map.get_br(r).name),
             TripPhaseType::Aborted => "trip aborted due to some bug".to_string(),
             TripPhaseType::Finished => "trip finished".to_string(),
+            TripPhaseType::DelayedStart => "delayed by previous trip taking too long".to_string(),
         }
     }
 }
