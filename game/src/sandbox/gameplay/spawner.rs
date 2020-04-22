@@ -208,7 +208,6 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                         ped_speed: Scenario::rand_ped_speed(&mut rng),
                     },
                     map,
-                    sim,
                 );
             }
         } else if lane.is_sidewalk() {
@@ -229,7 +228,6 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                         ped_speed: Scenario::rand_ped_speed(&mut rng),
                     },
                     map,
-                    sim,
                 );
             }
         }
@@ -284,7 +282,6 @@ fn schedule_trip(
                         ped_speed,
                     },
                     map,
-                    sim,
                 );
             } else {
                 println!("Not using transit");
@@ -297,7 +294,6 @@ fn schedule_trip(
                         ped_speed,
                     },
                     map,
-                    sim,
                 );
             }
         }
@@ -326,7 +322,6 @@ fn schedule_trip(
                     ped_speed: Scenario::rand_ped_speed(rng),
                 },
                 map,
-                sim,
             );
         }
         _ => {
@@ -358,7 +353,6 @@ fn schedule_trip(
                                 ped_speed: Scenario::rand_ped_speed(rng),
                             },
                             map,
-                            sim,
                         );
                     } else {
                         return Some(format!("Can't make a car appear at {:?}", from));

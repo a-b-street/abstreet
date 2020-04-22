@@ -24,6 +24,9 @@ pub struct TripManager {
     active_trip_mode: BTreeMap<AgentID, TripID>,
     unfinished_trips: usize,
 
+    car_id_counter: usize,
+    ped_id_counter: usize,
+
     events: Vec<Event>,
 }
 
@@ -34,6 +37,8 @@ impl TripManager {
             people: Vec::new(),
             active_trip_mode: BTreeMap::new(),
             unfinished_trips: 0,
+            car_id_counter: 0,
+            ped_id_counter: 0,
             events: Vec::new(),
         }
     }
@@ -51,6 +56,17 @@ impl TripManager {
         let id = PersonID(self.people.len());
         self.new_person(id, has_car);
         id
+    }
+
+    pub fn new_car_id(&mut self) -> usize {
+        let id = self.car_id_counter;
+        self.car_id_counter += 1;
+        id
+    }
+    pub fn new_ped_id(&mut self) -> PedestrianID {
+        let id = self.ped_id_counter;
+        self.ped_id_counter += 1;
+        PedestrianID(id)
     }
 
     pub fn new_trip(

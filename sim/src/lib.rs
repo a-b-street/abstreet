@@ -165,9 +165,9 @@ pub struct VehicleSpec {
 }
 
 impl VehicleSpec {
-    pub fn make(self, id: CarID, owner: Option<PersonID>) -> Vehicle {
+    pub fn make(self, id: usize, owner: Option<PersonID>) -> Vehicle {
         Vehicle {
-            id,
+            id: CarID(id, self.vehicle_type),
             owner,
             vehicle_type: self.vehicle_type,
             length: self.length,

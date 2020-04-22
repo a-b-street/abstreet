@@ -103,7 +103,7 @@ impl Scenario {
                 // with multiple choices for a vehicle type.
                 let mut tmp_rng = abstutil::fork_rng(rng);
                 if let Some(spec) = t.trip.clone().to_trip_spec(&mut tmp_rng, map) {
-                    spawner.schedule_trip(p.id, t.depart, spec, map, sim);
+                    spawner.schedule_trip(p.id, t.depart, spec, map);
                 } else {
                     timer.warn(format!("Couldn't turn {:?} into a trip", t.trip));
                 }

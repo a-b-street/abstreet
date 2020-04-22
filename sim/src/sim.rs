@@ -37,8 +37,6 @@ pub struct Sim {
     pandemic: Option<PandemicModel>,
     scheduler: Scheduler,
     time: Time,
-    car_id_counter: usize,
-    ped_id_counter: usize,
 
     // TODO Reconsider these
     pub(crate) map_name: String,
@@ -117,8 +115,6 @@ impl Sim {
             },
             scheduler,
             time: Time::START_OF_DAY,
-            car_id_counter: 0,
-            ped_id_counter: 0,
 
             map_name: map.get_name().to_string(),
             // TODO
@@ -155,17 +151,6 @@ impl Sim {
         }
 
         self.dispatch_events(Vec::new(), map);
-    }
-    // TODO Friend method pattern :(
-    pub(crate) fn spawner_new_car_id(&mut self) -> usize {
-        let id = self.car_id_counter;
-        self.car_id_counter += 1;
-        id
-    }
-    pub(crate) fn spawner_new_ped_id(&mut self) -> usize {
-        let id = self.ped_id_counter;
-        self.ped_id_counter += 1;
-        id
     }
 
     pub fn get_free_spots(&self, l: LaneID) -> Vec<ParkingSpot> {
@@ -228,21 +213,17 @@ impl Sim {
     pub fn random_person(&mut self, has_car: bool) -> PersonID {
         self.trips.random_person(has_car)
     }
-    pub fn seed_parked_car(
+    pub(crate) fn seed_parked_car(
         &mut self,
         vehicle: VehicleSpec,
         spot: ParkingSpot,
         owner: Option<PersonID>,
-    ) -> CarID {
-        let id = CarID(self.car_id_counter, VehicleType::Car);
-        self.car_id_counter += 1;
-
+    ) {
         self.parking.reserve_spot(spot);
         self.parking.add_parked_car(ParkedCar {
-            vehicle: vehicle.make(id, owner),
+            vehicle: vehicle.make(self.trips.new_car_id(), owner),
             spot,
         });
-        id
     }
 
     pub fn get_offstreet_parked_cars(&self, bldg: BuildingID) -> Vec<&ParkedCar> {
@@ -257,9 +238,6 @@ impl Sim {
         for (next_stop_idx, req, mut path, end_dist) in
             self.transit.create_empty_route(route, map).into_iter()
         {
-            let id = CarID(self.car_id_counter, VehicleType::Bus);
-            self.car_id_counter += 1;
-
             // For now, no desire for randomness. Caller can pass in list of specs if that ever
             // changes.
             let vehicle = VehicleSpec {
@@ -267,7 +245,8 @@ impl Sim {
                 length: BUS_LENGTH,
                 max_speed: None,
             }
-            .make(id, None);
+            .make(self.trips.new_car_id(), None);
+            let id = vehicle.id;
 
             loop {
                 if path.is_last_step() {
