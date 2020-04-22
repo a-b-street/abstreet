@@ -230,6 +230,30 @@ pub fn finished(
     Widget::col(col)
 }
 
+pub fn aborted(ctx: &mut EventCtx, app: &App, trip: TripID) -> Widget {
+    let (start_time, trip_start, trip_end, _) = app.primary.sim.trip_info(trip);
+
+    let mut col = vec![Text::from_multiline(vec![
+        Line("A glitch in the simulation happened."),
+        Line("This trip, however, did not."),
+    ])
+    .draw(ctx)];
+
+    // TODO Warp buttons. make_table is showing its age.
+    let (_, _, name1) = endpoint(&trip_start, &app.primary.map);
+    let (_, _, name2) = endpoint(&trip_end, &app.primary.map);
+    col.extend(make_table(
+        ctx,
+        vec![
+            ("Departure", start_time.ampm_tostring()),
+            ("From", name1),
+            ("To", name2),
+        ],
+    ));
+
+    Widget::col(col)
+}
+
 fn make_timeline(
     ctx: &mut EventCtx,
     app: &App,

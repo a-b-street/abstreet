@@ -4,7 +4,8 @@ use crate::helpers::cmp_duration_shorter;
 use crate::info::Tab;
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
-use ezgui::{Btn, Composite, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Text, Widget};
+use abstutil::prettyprint_usize;
+use ezgui::{Btn, Composite, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Text, TextExt, Widget};
 use geom::{Duration, Polygon, Time};
 use maplit::btreemap;
 use sim::{TripID, TripMode};
@@ -120,10 +121,12 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
     // Gather raw data
     let mut data = Vec::new();
     let sim = &app.primary.sim;
+    let mut aborted = 0;
     for (_, id, maybe_mode, duration_after) in &sim.get_analytics().finished_trips {
         let mode = if let Some(m) = maybe_mode {
             *m
         } else {
+            aborted += 1;
             continue;
         };
         let (_, waiting) = sim.finished_trip_time(*id).unwrap();
@@ -133,6 +136,7 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
                 dt
             } else {
                 // Aborted
+                aborted += 1;
                 continue;
             }
         } else {
@@ -233,6 +237,17 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
         rows,
         0.88 * ctx.canvas.window_width,
     ));
+
+    if app.opts.dev {
+        col.push(
+            format!(
+                "{} trips aborted due to simulation glitch",
+                prettyprint_usize(aborted)
+            )
+            .draw_text(ctx)
+            .margin_above(10),
+        );
+    }
 
     Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(10))
         .max_size_percent(90, 90)

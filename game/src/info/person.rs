@@ -84,9 +84,9 @@ pub fn trips(
             TripResult::TripAborted => {
                 // Aborted trips can happen anywhere in the schedule right now
                 (
-                    "cancelled",
+                    "broken",
                     Color::hex("#EB3223"),
-                    open_trips.get(t).map(|_| Widget::nothing()),
+                    open_trips.get(t).map(|_| trip::aborted(ctx, app, *t)),
                 )
             }
             TripResult::TripDoesntExist => unreachable!(),
