@@ -61,6 +61,7 @@ impl TripManager {
             ped: PedestrianID(id.0),
             car,
             bike,
+            delayed_trips: Vec::new(),
         });
     }
     pub fn random_person(&mut self, has_car: bool, has_bike: bool) -> PersonID {
@@ -207,9 +208,10 @@ impl TripManager {
                         total_time: now - trip.spawned_at,
                         blocked_time: trip.total_blocked_time,
                     });
-                    self.people[trip.person.0].state = PersonState::Inside(b1);
-                    self.events
-                        .push(Event::PersonEntersBuilding(trip.person, b1));
+                    let person = trip.person;
+                    self.people[person.0].state = PersonState::Inside(b1);
+                    self.events.push(Event::PersonEntersBuilding(person, b1));
+                    self.person_finished_trip(now, person, scheduler, map);
                     return;
                 }
                 _ => {}
@@ -274,7 +276,9 @@ impl TripManager {
             self.unfinished_trips -= 1;
             trip.aborted = true;
             self.events.push(Event::TripAborted(trip.id, trip.mode));
-            self.people[trip.person.0].state = PersonState::Limbo;
+            let person = trip.person;
+            self.people[person.0].state = PersonState::Limbo;
+            self.person_finished_trip(now, person, scheduler, map);
             return;
         };
 
@@ -337,7 +341,9 @@ impl TripManager {
             self.unfinished_trips -= 1;
             trip.aborted = true;
             self.events.push(Event::TripAborted(trip.id, trip.mode));
-            self.people[trip.person.0].state = PersonState::Limbo;
+            let person = trip.person;
+            self.people[person.0].state = PersonState::Limbo;
+            self.person_finished_trip(now, person, scheduler, map);
             return;
         };
 
@@ -384,6 +390,7 @@ impl TripManager {
         bldg: BuildingID,
         blocked_time: Duration,
         map: &Map,
+        scheduler: &mut Scheduler,
     ) {
         let trip = &mut self.trips[self
             .active_trip_mode
@@ -403,9 +410,10 @@ impl TripManager {
             total_time: now - trip.spawned_at,
             blocked_time: trip.total_blocked_time,
         });
-        self.people[trip.person.0].state = PersonState::Inside(bldg);
-        self.events
-            .push(Event::PersonEntersBuilding(trip.person, bldg));
+        let person = trip.person;
+        self.people[person.0].state = PersonState::Inside(bldg);
+        self.events.push(Event::PersonEntersBuilding(person, bldg));
+        self.person_finished_trip(now, person, scheduler, map);
     }
 
     // If no route is returned, the pedestrian boarded a bus immediately.
@@ -503,6 +511,7 @@ impl TripManager {
         i: IntersectionID,
         blocked_time: Duration,
         map: &Map,
+        scheduler: &mut Scheduler,
     ) {
         self.events.push(Event::PedReachedBorder(ped, i));
         let trip = &mut self.trips[self
@@ -523,7 +532,9 @@ impl TripManager {
             total_time: now - trip.spawned_at,
             blocked_time: trip.total_blocked_time,
         });
-        self.people[trip.person.0].state = PersonState::OffMap;
+        let person = trip.person;
+        self.people[person.0].state = PersonState::OffMap;
+        self.person_finished_trip(now, person, scheduler, map);
     }
 
     pub fn car_or_bike_reached_border(
@@ -532,6 +543,8 @@ impl TripManager {
         car: CarID,
         i: IntersectionID,
         blocked_time: Duration,
+        map: &Map,
+        scheduler: &mut Scheduler,
     ) {
         self.events.push(Event::CarOrBikeReachedBorder(car, i));
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
@@ -551,25 +564,43 @@ impl TripManager {
             total_time: now - trip.spawned_at,
             blocked_time: trip.total_blocked_time,
         });
-        self.people[trip.person.0].state = PersonState::OffMap;
+        let person = trip.person;
+        self.people[person.0].state = PersonState::OffMap;
+        self.person_finished_trip(now, person, scheduler, map);
     }
 
-    pub fn abort_trip_failed_start(&mut self, id: TripID) {
+    pub fn abort_trip_failed_start(
+        &mut self,
+        now: Time,
+        id: TripID,
+        map: &Map,
+        scheduler: &mut Scheduler,
+    ) {
         let trip = &mut self.trips[id.0];
         trip.aborted = true;
         self.unfinished_trips -= 1;
         // TODO Urgh, hack. Initialization order is now quite complicated.
-        self.people[trip.person.0].state = PersonState::Limbo;
+        let person = trip.person;
+        self.people[person.0].state = PersonState::Limbo;
         self.events.push(Event::TripAborted(id, trip.mode));
+        self.person_finished_trip(now, person, scheduler, map);
     }
 
-    pub fn abort_trip_impossible_parking(&mut self, car: CarID) {
+    pub fn abort_trip_impossible_parking(
+        &mut self,
+        now: Time,
+        car: CarID,
+        map: &Map,
+        scheduler: &mut Scheduler,
+    ) {
         let id = self.active_trip_mode.remove(&AgentID::Car(car)).unwrap();
         let trip = &mut self.trips[id.0];
         trip.aborted = true;
         self.unfinished_trips -= 1;
         self.events.push(Event::TripAborted(trip.id, trip.mode));
-        self.people[trip.person.0].state = PersonState::Limbo;
+        let person = trip.person;
+        self.people[person.0].state = PersonState::Limbo;
+        self.person_finished_trip(now, person, scheduler, map);
     }
 
     pub fn active_agents(&self) -> Vec<AgentID> {
@@ -752,6 +783,25 @@ impl TripManager {
         }
     }
 
+    fn person_finished_trip(
+        &mut self,
+        now: Time,
+        person: PersonID,
+        scheduler: &mut Scheduler,
+        map: &Map,
+    ) {
+        let person = &mut self.people[person.0];
+        if person.delayed_trips.is_empty() {
+            return;
+        }
+        let (trip, spec, maybe_req, maybe_path) = person.delayed_trips.remove(0);
+        println!(
+            "At {}, {} just freed up, so starting delayed trip {}",
+            now, person.id, trip
+        );
+        self.start_trip(now, trip, spec, maybe_req, maybe_path, scheduler, map);
+    }
+
     pub fn start_trip(
         &mut self,
         now: Time,
@@ -762,13 +812,25 @@ impl TripManager {
         scheduler: &mut Scheduler,
         map: &Map,
     ) {
-        let person = self.trip_to_person(trip);
-        // TODO Prevent doppelgangers
+        let person = &mut self.people[self.trips[trip.0].person.0];
+        if let PersonState::Trip(_) = person.state {
+            // Previous trip isn't done. Defer this one!
+            println!(
+                "At {}, {} is still doing a trip, so not starting {}",
+                now, person.id, trip
+            );
+            person
+                .delayed_trips
+                .push((trip, spec, maybe_req, maybe_path));
+            return;
+        }
 
         match spec {
             TripSpec::CarAppearing {
                 start_pos, goal, ..
             } => {
+                // Either just starting or previously left
+                assert!(person.state == PersonState::Limbo || person.state == PersonState::OffMap);
                 let vehicle = match self.trips[trip.0].legs[0] {
                     TripLeg::Drive(ref vehicle, _) => vehicle.clone(),
                     _ => unreachable!(),
@@ -779,14 +841,16 @@ impl TripManager {
                     scheduler.push(
                         now,
                         Command::SpawnCar(
-                            CreateCar::for_appearing(vehicle, start_pos, router, req, trip, person),
+                            CreateCar::for_appearing(
+                                vehicle, start_pos, router, req, trip, person.id,
+                            ),
                             // TODO retry_if_no_room
                             true,
                         ),
                     );
                 } else {
                     println!("CarAppearing trip couldn't find the first path {}", req);
-                    self.abort_trip_failed_start(trip);
+                    self.abort_trip_failed_start(now, trip, map, scheduler);
                 }
             }
             TripSpec::MaybeUsingParkedCar {
@@ -794,13 +858,14 @@ impl TripManager {
                 goal,
                 ped_speed,
             } => {
+                assert_eq!(person.state, PersonState::Inside(start_bldg));
                 // TODO First step: could move the handling here
                 let walk_to = SidewalkSpot::deferred_parking_spot(start_bldg, goal, map);
                 let dummy_pos = walk_to.sidewalk_pos;
                 scheduler.push(
                     now,
                     Command::SpawnPed(CreatePedestrian {
-                        id: self.get_person(person).unwrap().ped,
+                        id: person.ped,
                         speed: ped_speed,
                         start: SidewalkSpot::building(start_bldg, map),
                         goal: walk_to,
@@ -811,7 +876,7 @@ impl TripManager {
                             constraints: PathConstraints::Pedestrian,
                         },
                         trip,
-                        person,
+                        person: person.id,
                     }),
                 );
             }
@@ -820,29 +885,47 @@ impl TripManager {
                 goal,
                 ped_speed,
             } => {
+                assert_eq!(
+                    person.state,
+                    match start.connection {
+                        SidewalkPOI::Building(b) => PersonState::Inside(b),
+                        SidewalkPOI::Border(_) => PersonState::OffMap,
+                        _ => unreachable!(),
+                    }
+                );
+
                 let req = maybe_req.unwrap();
                 if let Some(path) = maybe_path {
                     scheduler.push(
                         now,
                         Command::SpawnPed(CreatePedestrian {
-                            id: self.get_person(person).unwrap().ped,
+                            id: person.ped,
                             speed: ped_speed,
                             start,
                             goal,
                             path,
                             req,
                             trip,
-                            person,
+                            person: person.id,
                         }),
                     );
                 } else {
                     println!("JustWalking trip couldn't find the first path {}", req);
-                    self.abort_trip_failed_start(trip);
+                    self.abort_trip_failed_start(now, trip, map, scheduler);
                 }
             }
             TripSpec::UsingBike {
                 start, ped_speed, ..
             } => {
+                assert_eq!(
+                    person.state,
+                    match start.connection {
+                        SidewalkPOI::Building(b) => PersonState::Inside(b),
+                        SidewalkPOI::Border(_) => PersonState::OffMap,
+                        _ => unreachable!(),
+                    }
+                );
+
                 let walk_to =
                     SidewalkSpot::bike_from_bike_rack(start.sidewalk_pos.lane(), map).unwrap();
                 let req = maybe_req.unwrap();
@@ -850,19 +933,19 @@ impl TripManager {
                     scheduler.push(
                         now,
                         Command::SpawnPed(CreatePedestrian {
-                            id: self.get_person(person).unwrap().ped,
+                            id: person.ped,
                             speed: ped_speed,
                             start,
                             goal: walk_to,
                             path,
                             req,
                             trip,
-                            person,
+                            person: person.id,
                         }),
                     );
                 } else {
                     println!("UsingBike trip couldn't find the first path {}", req);
-                    self.abort_trip_failed_start(trip);
+                    self.abort_trip_failed_start(now, trip, map, scheduler);
                 }
             }
             TripSpec::UsingTransit {
@@ -871,25 +954,34 @@ impl TripManager {
                 ped_speed,
                 ..
             } => {
+                assert_eq!(
+                    person.state,
+                    match start.connection {
+                        SidewalkPOI::Building(b) => PersonState::Inside(b),
+                        SidewalkPOI::Border(_) => PersonState::OffMap,
+                        _ => unreachable!(),
+                    }
+                );
+
                 let walk_to = SidewalkSpot::bus_stop(stop1, map);
                 let req = maybe_req.unwrap();
                 if let Some(path) = maybe_path {
                     scheduler.push(
                         now,
                         Command::SpawnPed(CreatePedestrian {
-                            id: self.get_person(person).unwrap().ped,
+                            id: person.ped,
                             speed: ped_speed,
                             start,
                             goal: walk_to,
                             path,
                             req,
                             trip,
-                            person,
+                            person: person.id,
                         }),
                     );
                 } else {
                     println!("UsingTransit trip couldn't find the first path {}", req);
-                    self.abort_trip_failed_start(trip);
+                    self.abort_trip_failed_start(now, trip, map, scheduler);
                 }
             }
         }
@@ -1120,6 +1212,8 @@ pub struct Person {
     pub ped: PedestrianID,
     pub car: Option<CarID>,
     pub bike: Option<CarID>,
+
+    delayed_trips: Vec<(TripID, TripSpec, Option<PathRequest>, Option<Path>)>,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]

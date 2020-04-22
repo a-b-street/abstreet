@@ -463,7 +463,12 @@ impl Sim {
                 } else {
                     if let Some((trip, _)) = create_car.trip_and_person {
                         println!("No room to spawn car for {}. Not retrying!", trip);
-                        self.trips.abort_trip_failed_start(trip);
+                        self.trips.abort_trip_failed_start(
+                            self.time,
+                            trip,
+                            map,
+                            &mut self.scheduler,
+                        );
                     } else {
                         println!("No room to spawn bus (no trip). Not retrying!");
                     }
@@ -565,7 +570,12 @@ impl Sim {
                         }
                     }
                 } else {
-                    self.trips.abort_trip_failed_start(create_ped.trip);
+                    self.trips.abort_trip_failed_start(
+                        self.time,
+                        create_ped.trip,
+                        map,
+                        &mut self.scheduler,
+                    );
                 }
             }
             Command::UpdateCar(car) => {
@@ -1179,7 +1189,8 @@ impl Sim {
 impl Sim {
     pub fn kill_stuck_car(&mut self, id: CarID, map: &Map) {
         if let Some(trip) = self.agent_to_trip(AgentID::Car(id)) {
-            self.trips.abort_trip_failed_start(trip);
+            self.trips
+                .abort_trip_failed_start(self.time, trip, map, &mut self.scheduler);
             self.driving.kill_stuck_car(
                 id,
                 self.time,

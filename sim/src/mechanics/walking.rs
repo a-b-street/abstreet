@@ -164,7 +164,14 @@ impl WalkingSimState {
                         SidewalkPOI::Border(i) => {
                             self.peds_per_traversable
                                 .remove(ped.path.current_step().as_traversable(), ped.id);
-                            trips.ped_reached_border(now, ped.id, i, ped.total_blocked_time, map);
+                            trips.ped_reached_border(
+                                now,
+                                ped.id,
+                                i,
+                                ped.total_blocked_time,
+                                map,
+                                scheduler,
+                            );
                             self.peds.remove(&id);
                         }
                         SidewalkPOI::BikeRack(driving_pos) => {
@@ -228,7 +235,14 @@ impl WalkingSimState {
             PedState::EnteringBuilding(bldg, _) => {
                 self.peds_per_traversable
                     .remove(ped.path.current_step().as_traversable(), ped.id);
-                trips.ped_reached_building(now, ped.id, bldg, ped.total_blocked_time, map);
+                trips.ped_reached_building(
+                    now,
+                    ped.id,
+                    bldg,
+                    ped.total_blocked_time,
+                    map,
+                    scheduler,
+                );
                 self.peds.remove(&id);
             }
             PedState::StartingToBike(ref spot, _, _) => {
