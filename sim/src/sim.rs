@@ -4,8 +4,8 @@ use crate::{
     PandemicModel, ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, Person, PersonID,
     PersonState, Router, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripCount,
     TripEndpoint, TripID, TripLeg, TripManager, TripMode, TripPhaseType, TripPositions, TripResult,
-    TripSpawner, TripSpec, UnzoomedAgent, Vehicle, VehicleSpec, VehicleType, WalkingSimState,
-    BUS_LENGTH, MIN_CAR_LENGTH,
+    TripSpawner, UnzoomedAgent, Vehicle, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
+    MIN_CAR_LENGTH,
 };
 use abstutil::Timer;
 use derivative::Derivative;
@@ -146,7 +146,6 @@ impl Sim {
             map,
             &mut self.trips,
             &mut self.scheduler,
-            &self.parking,
             timer,
             retry_if_no_room,
         );
@@ -158,9 +157,6 @@ impl Sim {
         self.dispatch_events(Vec::new(), map);
     }
     // TODO Friend method pattern :(
-    pub(crate) fn spawner_parking(&self) -> &ParkingSimState {
-        &self.parking
-    }
     pub(crate) fn spawner_new_car_id(&mut self) -> usize {
         let id = self.car_id_counter;
         self.car_id_counter += 1;
@@ -1169,10 +1165,6 @@ impl Sim {
     // waiting. Sorted by earliest waiting (likely the root cause of gridlock).
     pub fn delayed_intersections(&self, threshold: Duration) -> Vec<(IntersectionID, Time)> {
         self.intersections.find_gridlock(self.time, threshold)
-    }
-
-    pub fn trip_spec_to_path_req(&self, spec: &TripSpec, map: &Map) -> PathRequest {
-        spec.get_pathfinding_request(map, &self.parking)
     }
 
     pub fn bldg_to_people(&self, b: BuildingID) -> Vec<PersonID> {

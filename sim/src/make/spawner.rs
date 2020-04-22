@@ -1,13 +1,12 @@
 use crate::{
-    CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, ParkingSimState, ParkingSpot,
-    PedestrianID, PersonID, Scheduler, SidewalkPOI, SidewalkSpot, Sim, TripEndpoint, TripLeg,
-    TripManager, VehicleSpec, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH,
+    CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, PedestrianID, PersonID, Scheduler,
+    SidewalkPOI, SidewalkSpot, Sim, TripEndpoint, TripLeg, TripManager, VehicleSpec, VehicleType,
+    BIKE_LENGTH, MAX_CAR_LENGTH,
 };
 use abstutil::Timer;
 use geom::{Speed, Time, EPSILON_DIST};
 use map_model::{BuildingID, BusRouteID, BusStopID, Map, PathConstraints, PathRequest, Position};
 use serde_derive::{Deserialize, Serialize};
-use std::collections::BTreeSet;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub enum TripSpec {
@@ -16,12 +15,6 @@ pub enum TripSpec {
         start_pos: Position,
         goal: DrivingGoal,
         vehicle_spec: VehicleSpec,
-        ped_speed: Speed,
-    },
-    UsingParkedCar {
-        start: SidewalkSpot,
-        spot: ParkingSpot,
-        goal: DrivingGoal,
         ped_speed: Speed,
     },
     MaybeUsingParkedCar {
@@ -56,7 +49,6 @@ pub enum TripSpec {
 // (except the interactive spawner would have to mem::replace with a blank Sim?), or just queueing
 // up commands and doing them at the end while holding onto &Sim.
 pub struct TripSpawner {
-    parked_cars_claimed: BTreeSet<CarID>,
     trips: Vec<(
         PersonID,
         Time,
@@ -68,10 +60,7 @@ pub struct TripSpawner {
 
 impl TripSpawner {
     pub fn new() -> TripSpawner {
-        TripSpawner {
-            parked_cars_claimed: BTreeSet::new(),
-            trips: Vec::new(),
-        }
+        TripSpawner { trips: Vec::new() }
     }
 
     pub fn schedule_trip(
@@ -98,8 +87,7 @@ impl TripSpawner {
                 };
                 (ped, Some(car))
             }
-            TripSpec::UsingParkedCar { .. }
-            | TripSpec::MaybeUsingParkedCar { .. }
+            TripSpec::MaybeUsingParkedCar { .. }
             | TripSpec::JustWalking { .. }
             | TripSpec::UsingTransit { .. } => {
                 let id = PedestrianID(sim.spawner_new_ped_id());
@@ -112,7 +100,7 @@ impl TripSpawner {
             }
         };
 
-        self.inner_schedule_trip(person, start_time, ped_id, car_id, spec, map, sim);
+        self.inner_schedule_trip(person, start_time, ped_id, car_id, spec, map);
 
         (ped_id, car_id)
     }
@@ -126,7 +114,6 @@ impl TripSpawner {
         car_id: Option<CarID>,
         spec: TripSpec,
         map: &Map,
-        sim: &Sim,
     ) {
         // TODO We'll want to repeat this validation when we spawn stuff later for a second leg...
         match &spec {
@@ -164,21 +151,6 @@ impl TripSpawner {
                     }
                     DrivingGoal::ParkNear(_) => {}
                 }
-            }
-            TripSpec::UsingParkedCar { spot, .. } => {
-                let car_id = sim
-                    .spawner_parking()
-                    .get_car_at_spot(*spot)
-                    .unwrap()
-                    .vehicle
-                    .id;
-                if self.parked_cars_claimed.contains(&car_id) {
-                    panic!(
-                        "A TripSpec wants to use {}, which is already claimed",
-                        car_id
-                    );
-                }
-                self.parked_cars_claimed.insert(car_id);
             }
             TripSpec::MaybeUsingParkedCar { .. } => {}
             TripSpec::JustWalking { start, goal, .. } => {
@@ -250,7 +222,6 @@ impl TripSpawner {
         map: &Map,
         trips: &mut TripManager,
         scheduler: &mut Scheduler,
-        parking: &ParkingSimState,
         timer: &mut Timer,
         retry_if_no_room: bool,
     ) {
@@ -258,7 +229,7 @@ impl TripSpawner {
             "calculate paths",
             std::mem::replace(&mut self.trips, Vec::new()),
             |tuple| {
-                let req = tuple.4.get_pathfinding_request(map, parking);
+                let req = tuple.4.get_pathfinding_request(map);
                 (tuple, req.clone(), map.pathfind(req))
             },
         );
@@ -298,60 +269,6 @@ impl TripSpawner {
                     } else {
                         timer.warn(format!(
                             "CarAppearing trip couldn't find the first path {}",
-                            req
-                        ));
-                        trips.abort_trip_failed_start(trip);
-                    }
-                }
-                TripSpec::UsingParkedCar {
-                    start,
-                    spot,
-                    goal,
-                    ped_speed,
-                } => {
-                    let vehicle = &parking.get_car_at_spot(spot).unwrap().vehicle;
-                    assert_eq!(vehicle.owner, Some(person));
-                    let start_bldg = match start.connection {
-                        SidewalkPOI::Building(b) => b,
-                        _ => unreachable!(),
-                    };
-
-                    let parking_spot = SidewalkSpot::parking_spot(spot, map, parking);
-
-                    let mut legs = vec![
-                        TripLeg::Walk(ped_id.unwrap(), ped_speed, parking_spot.clone()),
-                        TripLeg::Drive(vehicle.clone(), goal.clone()),
-                    ];
-                    match goal {
-                        DrivingGoal::ParkNear(b) => {
-                            legs.push(TripLeg::Walk(
-                                ped_id.unwrap(),
-                                ped_speed,
-                                SidewalkSpot::building(b, map),
-                            ));
-                        }
-                        DrivingGoal::Border(_, _) => {}
-                    }
-                    let trip =
-                        trips.new_trip(person, start_time, TripEndpoint::Bldg(start_bldg), legs);
-
-                    if let Some(path) = maybe_path {
-                        scheduler.push(
-                            start_time,
-                            Command::SpawnPed(CreatePedestrian {
-                                id: ped_id.unwrap(),
-                                speed: ped_speed,
-                                start,
-                                goal: parking_spot,
-                                path,
-                                req,
-                                trip,
-                                person,
-                            }),
-                        );
-                    } else {
-                        timer.warn(format!(
-                            "UsingParkedCar trip couldn't find the first path {}",
                             req
                         ));
                         trips.abort_trip_failed_start(trip);
@@ -556,11 +473,7 @@ impl TripSpec {
         }
     }
 
-    pub(crate) fn get_pathfinding_request(
-        &self,
-        map: &Map,
-        parking: &ParkingSimState,
-    ) -> PathRequest {
+    pub(crate) fn get_pathfinding_request(&self, map: &Map) -> PathRequest {
         match self {
             TripSpec::CarAppearing {
                 start_pos,
@@ -575,11 +488,6 @@ impl TripSpec {
                     constraints,
                 }
             }
-            TripSpec::UsingParkedCar { start, spot, .. } => PathRequest {
-                start: start.sidewalk_pos,
-                end: SidewalkSpot::parking_spot(*spot, map, parking).sidewalk_pos,
-                constraints: PathConstraints::Pedestrian,
-            },
             // Don't know where the parked car will be, so just make a dummy path that'll never
             // fail.
             TripSpec::MaybeUsingParkedCar { start_bldg, .. } => {
