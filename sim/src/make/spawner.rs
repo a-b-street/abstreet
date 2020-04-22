@@ -16,7 +16,7 @@ pub enum TripSpec {
         vehicle_spec: VehicleSpec,
         ped_speed: Speed,
     },
-    MaybeUsingParkedCar {
+    UsingParkedCar {
         start_bldg: BuildingID,
         goal: DrivingGoal,
         ped_speed: Speed,
@@ -90,7 +90,7 @@ impl TripSpawner {
                     DrivingGoal::ParkNear(_) => {}
                 }
             }
-            TripSpec::MaybeUsingParkedCar { .. } => {}
+            TripSpec::UsingParkedCar { .. } => {}
             TripSpec::JustWalking { start, goal, .. } => {
                 if start == goal {
                     panic!(
@@ -202,7 +202,7 @@ impl TripSpawner {
                     let trip_start = TripEndpoint::Border(map.get_l(start_pos.lane()).src_i);
                     trips.new_trip(person.id, start_time, trip_start, legs)
                 }
-                TripSpec::MaybeUsingParkedCar {
+                TripSpec::UsingParkedCar {
                     start_bldg,
                     goal,
                     ped_speed,
@@ -337,7 +337,7 @@ impl TripSpec {
                 })
             }
             // We don't know where the parked car will be
-            TripSpec::MaybeUsingParkedCar { .. } => None,
+            TripSpec::UsingParkedCar { .. } => None,
             TripSpec::JustWalking { start, goal, .. } => Some(PathRequest {
                 start: start.sidewalk_pos,
                 end: goal.sidewalk_pos,

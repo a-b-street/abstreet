@@ -170,6 +170,7 @@ impl WalkingSimState {
                                 i,
                                 ped.total_blocked_time,
                                 map,
+                                parking,
                                 scheduler,
                             );
                             self.peds.remove(&id);
@@ -241,6 +242,7 @@ impl WalkingSimState {
                     bldg,
                     ped.total_blocked_time,
                     map,
+                    parking,
                     scheduler,
                 );
                 self.peds.remove(&id);
@@ -254,6 +256,7 @@ impl WalkingSimState {
                     spot.clone(),
                     ped.total_blocked_time,
                     map,
+                    parking,
                     scheduler,
                 );
                 self.peds.remove(&id);

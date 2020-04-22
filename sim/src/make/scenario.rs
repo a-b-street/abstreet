@@ -52,7 +52,7 @@ pub enum SpawnTrip {
         // For bikes starting at a border, use FromBorder. UsingBike implies a walk->bike trip.
         is_bike: bool,
     },
-    MaybeUsingParkedCar(BuildingID, DrivingGoal),
+    UsingParkedCar(BuildingID, DrivingGoal),
     UsingBike(SidewalkSpot, DrivingGoal),
     JustWalking(SidewalkSpot, SidewalkSpot),
     UsingTransit(SidewalkSpot, SidewalkSpot, BusRouteID, BusStopID, BusStopID),
@@ -378,13 +378,11 @@ impl SpawnTrip {
                 },
                 ped_speed: Scenario::rand_ped_speed(rng),
             }),
-            SpawnTrip::MaybeUsingParkedCar(start_bldg, goal) => {
-                Some(TripSpec::MaybeUsingParkedCar {
-                    start_bldg,
-                    goal,
-                    ped_speed: Scenario::rand_ped_speed(rng),
-                })
-            }
+            SpawnTrip::UsingParkedCar(start_bldg, goal) => Some(TripSpec::UsingParkedCar {
+                start_bldg,
+                goal,
+                ped_speed: Scenario::rand_ped_speed(rng),
+            }),
             SpawnTrip::UsingBike(start, goal) => Some(TripSpec::UsingBike {
                 start,
                 goal,
@@ -415,7 +413,7 @@ impl SpawnTrip {
                 TripEndpoint::Border(map.get_l(start.lane()).src_i)
             }
             SpawnTrip::FromBorder { i, .. } => TripEndpoint::Border(*i),
-            SpawnTrip::MaybeUsingParkedCar(b, _) => TripEndpoint::Bldg(*b),
+            SpawnTrip::UsingParkedCar(b, _) => TripEndpoint::Bldg(*b),
             SpawnTrip::UsingBike(ref spot, _)
             | SpawnTrip::JustWalking(ref spot, _)
             | SpawnTrip::UsingTransit(ref spot, _, _, _, _) => match spot.connection {
@@ -430,7 +428,7 @@ impl SpawnTrip {
         match self {
             SpawnTrip::CarAppearing { ref goal, .. }
             | SpawnTrip::FromBorder { ref goal, .. }
-            | SpawnTrip::MaybeUsingParkedCar(_, ref goal)
+            | SpawnTrip::UsingParkedCar(_, ref goal)
             | SpawnTrip::UsingBike(_, ref goal) => match goal {
                 DrivingGoal::ParkNear(b) => TripEndpoint::Bldg(*b),
                 DrivingGoal::Border(i, _) => TripEndpoint::Border(*i),
@@ -460,7 +458,7 @@ impl PersonSpec {
                         has_car = true;
                     }
                 }
-                SpawnTrip::MaybeUsingParkedCar(b, _) => {
+                SpawnTrip::UsingParkedCar(b, _) => {
                     if !has_car {
                         has_car = true;
                         car_initially_parked_at = Some(b);

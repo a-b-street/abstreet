@@ -202,7 +202,7 @@ impl SpawnOverTime {
                     orig_id: (0, 0),
                     trips: vec![IndividTrip {
                         depart,
-                        trip: SpawnTrip::MaybeUsingParkedCar(from_bldg, goal),
+                        trip: SpawnTrip::UsingParkedCar(from_bldg, goal),
                     }],
                 });
                 return;

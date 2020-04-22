@@ -294,8 +294,8 @@ fn describe(person: &PersonSpec, trip: &IndividTrip, home: OD) -> String {
             i,
             driving_goal(goal)
         ),
-        SpawnTrip::MaybeUsingParkedCar(start_bldg, goal) => format!(
-            "{} at {}: try to drive from {} to {}",
+        SpawnTrip::UsingParkedCar(start_bldg, goal) => format!(
+            "{} at {}: drive from {} to {}",
             person.id,
             trip.depart,
             if OD::Bldg(*start_bldg) == home {
@@ -347,7 +347,7 @@ fn other_endpt(trip: &IndividTrip, home: OD, map: &Map) -> ID {
             driving_goal(goal),
         ),
         SpawnTrip::FromBorder { i, goal, .. } => (ID::Intersection(*i), driving_goal(goal)),
-        SpawnTrip::MaybeUsingParkedCar(start_bldg, goal) => {
+        SpawnTrip::UsingParkedCar(start_bldg, goal) => {
             (ID::Building(*start_bldg), driving_goal(goal))
         }
         SpawnTrip::UsingBike(start, goal) => (sidewalk_spot(start), driving_goal(goal)),
@@ -463,7 +463,7 @@ impl DotMap {
                         SpawnTrip::FromBorder { i, goal, .. } => {
                             (map.get_i(*i).polygon.center(), goal.pt(map))
                         }
-                        SpawnTrip::MaybeUsingParkedCar(b, goal) => {
+                        SpawnTrip::UsingParkedCar(b, goal) => {
                             (map.get_b(*b).polygon.center(), goal.pt(map))
                         }
                         SpawnTrip::UsingBike(start, goal) => {

@@ -443,13 +443,21 @@ impl DrivingSimState {
                             i,
                             car.total_blocked_time,
                             map,
+                            parking,
                             scheduler,
                         );
                         false
                     }
                     Some(ActionAtEnd::GiveUpOnParkingAt(b)) => {
                         car.total_blocked_time += now - blocked_since;
-                        trips.abort_trip_impossible_parking(now, car.vehicle.id, b, map, scheduler);
+                        trips.abort_trip_impossible_parking(
+                            now,
+                            car.vehicle.id,
+                            b,
+                            map,
+                            parking,
+                            scheduler,
+                        );
                         false
                     }
                     Some(ActionAtEnd::StartParking(spot)) => {

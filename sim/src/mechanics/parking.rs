@@ -25,8 +25,6 @@ pub struct ParkingSimState {
     )]
     occupants: BTreeMap<ParkingSpot, CarID>,
     reserved_spots: BTreeSet<ParkingSpot>,
-    // TODO I think we can almost get rid of this
-    dynamically_reserved_cars: BTreeSet<CarID>,
     #[serde(
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
@@ -60,7 +58,6 @@ impl ParkingSimState {
         let mut sim = ParkingSimState {
             parked_cars: BTreeMap::new(),
             occupants: BTreeMap::new(),
-            dynamically_reserved_cars: BTreeSet::new(),
             reserved_spots: BTreeSet::new(),
             owner_to_car: BTreeMap::new(),
 
@@ -130,7 +127,6 @@ impl ParkingSimState {
         if let Some(id) = p.vehicle.owner {
             self.owner_to_car.remove(&id);
         }
-        self.dynamically_reserved_cars.remove(&p.vehicle.id);
         self.events
             .push(Event::CarLeftParkingSpot(p.vehicle.id, p.spot));
     }
@@ -152,19 +148,6 @@ impl ParkingSimState {
             self.owner_to_car.insert(id, p.vehicle.id);
         }
         self.parked_cars.insert(p.vehicle.id, p);
-    }
-
-    pub fn dynamically_reserve_car(&mut self, p: PersonID) -> Option<ParkedCar> {
-        let car = self.owner_to_car.get(&p)?;
-        if self.dynamically_reserved_cars.contains(car) {
-            return None;
-        }
-        self.dynamically_reserved_cars.insert(*car);
-        Some(self.parked_cars[car].clone())
-    }
-
-    pub fn dynamically_return_car(&mut self, p: ParkedCar) {
-        self.dynamically_reserved_cars.remove(&p.vehicle.id);
     }
 
     pub fn get_draw_cars(&self, id: LaneID, map: &Map) -> Vec<DrawCarInput> {
@@ -328,8 +311,9 @@ impl ParkingSimState {
     pub fn get_owner_of_car(&self, id: CarID) -> Option<PersonID> {
         self.parked_cars.get(&id).and_then(|p| p.vehicle.owner)
     }
-    pub fn get_car_owned_by(&self, id: PersonID) -> Option<CarID> {
-        self.owner_to_car.get(&id).cloned()
+    pub fn get_parked_car_owned_by(&self, id: PersonID) -> Option<ParkedCar> {
+        let car = self.owner_to_car.get(&id)?;
+        Some(self.parked_cars[car].clone())
     }
 
     // (Filled, available)

@@ -30,10 +30,9 @@ impl Trip {
                     goal: self.to.driving_goal(PathConstraints::Car, map),
                     is_bike: false,
                 },
-                TripEndpt::Building(b) => SpawnTrip::MaybeUsingParkedCar(
-                    b,
-                    self.to.driving_goal(PathConstraints::Car, map),
-                ),
+                TripEndpt::Building(b) => {
+                    SpawnTrip::UsingParkedCar(b, self.to.driving_goal(PathConstraints::Car, map))
+                }
             },
             Mode::Bike => match self.from {
                 TripEndpt::Building(b) => SpawnTrip::UsingBike(

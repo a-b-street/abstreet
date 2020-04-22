@@ -1,9 +1,9 @@
 use crate::{
     AgentID, Analytics, CarID, Command, CreateCar, DrawCarInput, DrawPedCrowdInput,
-    DrawPedestrianInput, DrivingGoal, DrivingSimState, Event, GetDrawAgents, IntersectionSimState,
+    DrawPedestrianInput, DrivingSimState, Event, GetDrawAgents, IntersectionSimState,
     PandemicModel, ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, Person, PersonID,
     PersonState, Router, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripCount,
-    TripEndpoint, TripID, TripLeg, TripManager, TripMode, TripPhaseType, TripPositions, TripResult,
+    TripEndpoint, TripID, TripManager, TripMode, TripPhaseType, TripPositions, TripResult,
     TripSpawner, UnzoomedAgent, Vehicle, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
     MIN_CAR_LENGTH,
 };
@@ -407,6 +407,7 @@ impl Sim {
                     trip_spec,
                     maybe_req,
                     maybe_path,
+                    &self.parking,
                     &mut self.scheduler,
                     map,
                 );
@@ -467,112 +468,53 @@ impl Sim {
                         "No room to spawn car for {} by {}. Not retrying!",
                         trip, person
                     );
-                    self.trips
-                        .abort_trip_failed_start(self.time, trip, map, &mut self.scheduler);
-                }
-            }
-            Command::SpawnPed(mut create_ped) => {
-                let ok = if let SidewalkPOI::DeferredParkingSpot(b, driving_goal) =
-                    create_ped.goal.connection.clone()
-                {
-                    if let Some(parked_car) =
-                        self.parking.dynamically_reserve_car(create_ped.person)
-                    {
-                        create_ped.goal =
-                            SidewalkSpot::parking_spot(parked_car.spot, map, &self.parking);
-                        create_ped.req = PathRequest {
-                            start: create_ped.start.sidewalk_pos,
-                            end: create_ped.goal.sidewalk_pos,
-                            constraints: PathConstraints::Pedestrian,
-                        };
-                        if let Some(path) = map.pathfind(create_ped.req.clone()) {
-                            create_ped.path = path;
-                            let mut legs = vec![
-                                TripLeg::Walk(
-                                    create_ped.id,
-                                    create_ped.speed,
-                                    create_ped.goal.clone(),
-                                ),
-                                TripLeg::Drive(parked_car.vehicle.clone(), driving_goal.clone()),
-                            ];
-                            match driving_goal {
-                                DrivingGoal::ParkNear(b) => {
-                                    legs.push(TripLeg::Walk(
-                                        create_ped.id,
-                                        create_ped.speed,
-                                        SidewalkSpot::building(b, map),
-                                    ));
-                                }
-                                DrivingGoal::Border(_, _) => {}
-                            }
-                            self.trips.dynamically_override_legs(create_ped.trip, legs);
-                            true
-                        } else {
-                            println!(
-                                "WARNING: At {}, {} giving up because no path from {} to {:?}",
-                                self.time, create_ped.id, b, create_ped.goal.connection
-                            );
-                            self.parking.dynamically_return_car(parked_car);
-                            false
-                        }
-                    } else {
-                        println!(
-                            "WARNING: At {}, no free car for {} spawning at {}",
-                            self.time, create_ped.id, b
-                        );
-                        false
-                    }
-                } else {
-                    true
-                };
-                if ok {
-                    // Do the order a bit backwards so we don't have to clone the
-                    // CreatePedestrian. spawn_ped can't fail.
-                    self.trips.agent_starting_trip_leg(
-                        AgentID::Pedestrian(create_ped.id),
-                        create_ped.trip,
-                    );
-                    events.push(Event::TripPhaseStarting(
-                        create_ped.trip,
-                        create_ped.person,
-                        TripMode::Walk,
-                        Some(create_ped.req.clone()),
-                        TripPhaseType::Walking,
-                    ));
-                    self.analytics.record_demand(&create_ped.path, map);
-
-                    // Maybe there's actually no work to do!
-                    match (&create_ped.start.connection, &create_ped.goal.connection) {
-                        (
-                            SidewalkPOI::Building(b1),
-                            SidewalkPOI::ParkingSpot(ParkingSpot::Offstreet(b2, idx)),
-                        ) if b1 == b2 => {
-                            self.trips.ped_reached_parking_spot(
-                                self.time,
-                                create_ped.id,
-                                ParkingSpot::Offstreet(*b2, *idx),
-                                Duration::ZERO,
-                                map,
-                                &self.parking,
-                                &mut self.scheduler,
-                            );
-                        }
-                        _ => {
-                            if let SidewalkPOI::Building(b) = &create_ped.start.connection {
-                                events.push(Event::PersonLeavesBuilding(create_ped.person, *b));
-                            }
-
-                            self.walking
-                                .spawn_ped(self.time, create_ped, map, &mut self.scheduler);
-                        }
-                    }
-                } else {
                     self.trips.abort_trip_failed_start(
                         self.time,
-                        create_ped.trip,
+                        trip,
                         map,
+                        &self.parking,
                         &mut self.scheduler,
                     );
+                }
+            }
+            Command::SpawnPed(create_ped) => {
+                // Do the order a bit backwards so we don't have to clone the
+                // CreatePedestrian. spawn_ped can't fail.
+                self.trips
+                    .agent_starting_trip_leg(AgentID::Pedestrian(create_ped.id), create_ped.trip);
+                events.push(Event::TripPhaseStarting(
+                    create_ped.trip,
+                    create_ped.person,
+                    TripMode::Walk,
+                    Some(create_ped.req.clone()),
+                    TripPhaseType::Walking,
+                ));
+                self.analytics.record_demand(&create_ped.path, map);
+
+                // Maybe there's actually no work to do!
+                match (&create_ped.start.connection, &create_ped.goal.connection) {
+                    (
+                        SidewalkPOI::Building(b1),
+                        SidewalkPOI::ParkingSpot(ParkingSpot::Offstreet(b2, idx)),
+                    ) if b1 == b2 => {
+                        self.trips.ped_reached_parking_spot(
+                            self.time,
+                            create_ped.id,
+                            ParkingSpot::Offstreet(*b2, *idx),
+                            Duration::ZERO,
+                            map,
+                            &self.parking,
+                            &mut self.scheduler,
+                        );
+                    }
+                    _ => {
+                        if let SidewalkPOI::Building(b) = &create_ped.start.connection {
+                            events.push(Event::PersonLeavesBuilding(create_ped.person, *b));
+                        }
+
+                        self.walking
+                            .spawn_ped(self.time, create_ped, map, &mut self.scheduler);
+                    }
                 }
             }
             Command::UpdateCar(car) => {
@@ -1015,7 +957,8 @@ impl Sim {
     }
     // Only currently parked cars
     pub fn get_parked_car_owned_by(&self, id: PersonID) -> Option<CarID> {
-        self.parking.get_car_owned_by(id)
+        let p = self.parking.get_parked_car_owned_by(id)?;
+        Some(p.vehicle.id)
     }
 
     pub fn lookup_person(&self, id: PersonID) -> Option<&Person> {
@@ -1186,8 +1129,13 @@ impl Sim {
 impl Sim {
     pub fn kill_stuck_car(&mut self, id: CarID, map: &Map) {
         if let Some(trip) = self.agent_to_trip(AgentID::Car(id)) {
-            self.trips
-                .abort_trip_failed_start(self.time, trip, map, &mut self.scheduler);
+            self.trips.abort_trip_failed_start(
+                self.time,
+                trip,
+                map,
+                &self.parking,
+                &mut self.scheduler,
+            );
             self.driving.kill_stuck_car(
                 id,
                 self.time,
