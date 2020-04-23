@@ -241,13 +241,44 @@ pub fn bio(
         );
     }
 
-    // TODO fix
-    /*if let Some(car) = app.primary.sim.get_parked_car_owned_by(id) {
-        rows.push(Btn::text_bg2(format!("Owner of {}", car)).build_def(ctx, None));
-        details
-            .hyperlinks
-            .insert(format!("Owner of {}", car), Tab::ParkedCar(car));
-    }*/
+    let person = app.primary.sim.get_person(id);
+    let mut has_bike = false;
+    let mut num_cars = 0;
+    let mut parked_cars = Vec::new();
+    for v in &person.vehicles {
+        if v.vehicle_type == VehicleType::Bike {
+            has_bike = true;
+        } else {
+            num_cars += 1;
+            if app.primary.sim.lookup_parked_car(v.id).is_some() {
+                parked_cars.push(
+                    Btn::text_bg2(format!("Owner of {} (parked)", v.id)).build_def(ctx, None),
+                );
+                details
+                    .hyperlinks
+                    .insert(format!("Owner of {} (parked)", v.id), Tab::ParkedCar(v.id));
+            }
+        }
+    }
+    // TODO Could simplify this, but different phrasing seems nice
+    if has_bike {
+        if num_cars == 0 {
+            rows.push("Owns a bike".draw_text(ctx));
+        } else if num_cars == 1 {
+            rows.push("Owns a car and a bike".draw_text(ctx));
+        } else {
+            rows.push(format!("Owns {} cars and a bike", num_cars).draw_text(ctx));
+        }
+    } else {
+        if num_cars == 1 {
+            rows.push("Owns a car".draw_text(ctx));
+        } else if num_cars > 1 {
+            rows.push(format!("Owns {} cars", num_cars).draw_text(ctx));
+        }
+    }
+    // TODO Above text seems redundant. Ideally, describe each asset they own, with optional button
+    // to jump to it if that makes sense
+    rows.extend(parked_cars);
 
     rows
 }
