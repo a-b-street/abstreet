@@ -23,9 +23,8 @@ fn main() {
         abstutil::path_scenario(map.get_name(), "weekday"),
         &mut timer,
     );
-    // TODO Hack: avoid leaking parking spots
     base_scenario
-        .repeat_days(num_days, true)
+        .repeat_days(num_days)
         .instantiate(&mut sim, &map, &mut rng, &mut timer);
     timer.done();
 

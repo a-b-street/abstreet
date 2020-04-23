@@ -170,26 +170,21 @@ impl Scenario {
         Scenario::rand_speed(rng, Speed::miles_per_hour(2.0), Speed::miles_per_hour(3.0))
     }
 
-    // TODO Utter hack. Blindly repeats all trips taken by each person every day. If
-    // avoid_inbound_trips is true, then don't repeat driving trips that start outside the map and
-    // come in, because those often lead to parking spots leaking. This isn't realistic, but none
-    // of this is; even the original 1-day scenario doesn't yet guarantee continuity of people. A
-    // person might be in the middle of one trip, and they start the next one!
-    pub fn repeat_days(mut self, days: usize, avoid_inbound_trips: bool) -> Scenario {
+    // Utter hack. Blindly repeats all trips taken by each person every day.
+    //
+    // What happens if the last place a person winds up in a day isn't the same as where their
+    // first trip the next starts? Will crash at runtime, because start_trip() will enforce this.
+    // Right now we're fine. Could call remove_weird_schedules() to detect this.
+    //
+    // The bigger problem is that any people that seem to require multiple cars... will wind up
+    // needing LOTS of cars.
+    pub fn repeat_days(mut self, days: usize) -> Scenario {
         self.scenario_name = format!("{} repeated for {} days", self.scenario_name, days);
         for person in &mut self.people {
             let mut trips = Vec::new();
             let mut offset = Duration::ZERO;
-            for day in 0..days {
+            for _ in 0..days {
                 for trip in &person.trips {
-                    let inbound = match trip.trip {
-                        SpawnTrip::VehicleAppearing { is_bike, .. } => !is_bike,
-                        _ => false,
-                    };
-                    if day > 0 && inbound && avoid_inbound_trips {
-                        continue;
-                    }
-
                     trips.push(IndividTrip {
                         depart: trip.depart + offset,
                         trip: trip.trip.clone(),
@@ -534,6 +529,17 @@ impl PersonSpec {
                 SpawnTrip::JustWalking(_, _) | SpawnTrip::UsingTransit(_, _, _, _, _) => None,
             };
             vehicle_foreach_trip.push(use_for_trip);
+        }
+
+        // For debugging
+        if false {
+            let mut n = vehicle_specs.len();
+            if bike_idx.is_some() {
+                n -= 1;
+            }
+            if n > 1 {
+                println!("{} needs {} cars", self.id, n);
+            }
         }
 
         (
