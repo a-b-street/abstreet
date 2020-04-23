@@ -3,7 +3,7 @@ use crate::{
     TripManager, VehicleSpec, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH,
 };
 use abstutil::Timer;
-use geom::{Speed, Time, EPSILON_DIST};
+use geom::{Time, EPSILON_DIST};
 use map_model::{BuildingID, BusRouteID, BusStopID, Map, PathConstraints, PathRequest, Position};
 use serde_derive::{Deserialize, Serialize};
 
@@ -14,24 +14,20 @@ pub enum TripSpec {
         start_pos: Position,
         goal: DrivingGoal,
         vehicle_spec: VehicleSpec,
-        ped_speed: Speed,
         retry_if_no_room: bool,
     },
     UsingParkedCar {
         start_bldg: BuildingID,
         goal: DrivingGoal,
-        ped_speed: Speed,
     },
     JustWalking {
         start: SidewalkSpot,
         goal: SidewalkSpot,
-        ped_speed: Speed,
     },
     UsingBike {
         start: SidewalkSpot,
         goal: DrivingGoal,
         vehicle: VehicleSpec,
-        ped_speed: Speed,
     },
     UsingTransit {
         start: SidewalkSpot,
@@ -39,7 +35,6 @@ pub enum TripSpec {
         route: BusRouteID,
         stop1: BusStopID,
         stop2: BusStopID,
-        ped_speed: Speed,
     },
 }
 
@@ -100,12 +95,7 @@ impl TripSpawner {
                     );
                 }
             }
-            TripSpec::UsingBike {
-                start,
-                goal,
-                ped_speed,
-                ..
-            } => {
+            TripSpec::UsingBike { start, goal, .. } => {
                 // TODO These trips are just silently erased; they don't even show up as aborted
                 // trips! Really need to fix the underlying problem.
                 if SidewalkSpot::bike_from_bike_rack(start.sidewalk_pos.lane(), map).is_none() {
@@ -141,7 +131,6 @@ impl TripSpawner {
                             TripSpec::JustWalking {
                                 start: start.clone(),
                                 goal: SidewalkSpot::building(*b, map),
-                                ped_speed: *ped_speed,
                             },
                         ));
                         return;
@@ -184,7 +173,6 @@ impl TripSpawner {
                     start_pos,
                     vehicle_spec,
                     goal,
-                    ped_speed,
                     ..
                 } => {
                     let vehicle = if vehicle_spec.vehicle_type == VehicleType::Car {
@@ -194,31 +182,19 @@ impl TripSpawner {
                     };
                     let mut legs = vec![TripLeg::Drive(vehicle.clone(), goal.clone())];
                     if let DrivingGoal::ParkNear(b) = goal {
-                        legs.push(TripLeg::Walk(
-                            person.ped,
-                            ped_speed,
-                            SidewalkSpot::building(b, map),
-                        ));
+                        legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
                     }
                     let trip_start = TripEndpoint::Border(map.get_l(start_pos.lane()).src_i);
                     trips.new_trip(person.id, start_time, trip_start, legs)
                 }
-                TripSpec::UsingParkedCar {
-                    start_bldg,
-                    goal,
-                    ped_speed,
-                } => {
+                TripSpec::UsingParkedCar { start_bldg, goal } => {
                     let walk_to = SidewalkSpot::deferred_parking_spot(start_bldg, goal, map);
-                    // Can't add TripLeg::Drive, because we don't know the vehicle yet! Plumb along
-                    // the DrivingGoal, so we can expand the trip later.
-                    let legs = vec![TripLeg::Walk(person.ped, ped_speed, walk_to.clone())];
+                    // TODO Can't add TripLeg::Drive, because we don't know the vehicle yet! Plumb
+                    // along the DrivingGoal, so we can expand the trip later.
+                    let legs = vec![TripLeg::Walk(walk_to.clone())];
                     trips.new_trip(person.id, start_time, TripEndpoint::Bldg(start_bldg), legs)
                 }
-                TripSpec::JustWalking {
-                    start,
-                    goal,
-                    ped_speed,
-                } => trips.new_trip(
+                TripSpec::JustWalking { start, goal } => trips.new_trip(
                     person.id,
                     start_time,
                     match start.connection {
@@ -229,27 +205,22 @@ impl TripSpawner {
                         SidewalkPOI::Border(i) => TripEndpoint::Border(i),
                         _ => unreachable!(),
                     },
-                    vec![TripLeg::Walk(person.ped, ped_speed, goal.clone())],
+                    vec![TripLeg::Walk(goal.clone())],
                 ),
                 TripSpec::UsingBike {
                     start,
                     vehicle,
                     goal,
-                    ped_speed,
                 } => {
                     let walk_to =
                         SidewalkSpot::bike_from_bike_rack(start.sidewalk_pos.lane(), map).unwrap();
                     let mut legs = vec![
-                        TripLeg::Walk(person.ped, ped_speed, walk_to.clone()),
+                        TripLeg::Walk(walk_to.clone()),
                         TripLeg::Drive(vehicle.make(person.bike.unwrap(), None), goal.clone()),
                     ];
                     match goal {
                         DrivingGoal::ParkNear(b) => {
-                            legs.push(TripLeg::Walk(
-                                person.ped,
-                                ped_speed,
-                                SidewalkSpot::building(b, map),
-                            ));
+                            legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
                         }
                         DrivingGoal::Border(_, _) => {}
                     };
@@ -273,7 +244,6 @@ impl TripSpawner {
                     stop1,
                     stop2,
                     goal,
-                    ped_speed,
                 } => {
                     let walk_to = SidewalkSpot::bus_stop(stop1, map);
                     trips.new_trip(
@@ -288,9 +258,9 @@ impl TripSpawner {
                             _ => unreachable!(),
                         },
                         vec![
-                            TripLeg::Walk(person.ped, ped_speed, walk_to.clone()),
-                            TripLeg::RideBus(person.ped, route, stop2),
-                            TripLeg::Walk(person.ped, ped_speed, goal),
+                            TripLeg::Walk(walk_to.clone()),
+                            TripLeg::RideBus(route, stop2),
+                            TripLeg::Walk(goal),
                         ],
                     )
                 }

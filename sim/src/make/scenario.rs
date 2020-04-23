@@ -85,7 +85,7 @@ impl Scenario {
             timer.next();
 
             let (has_car, has_bike, car_initially_parked_at) = p.get_vehicles();
-            sim.new_person(p.id, has_car, has_bike);
+            sim.new_person(p.id, Scenario::rand_ped_speed(rng), has_car, has_bike);
             if let Some(b) = car_initially_parked_at {
                 parked_cars.push((b, sim.get_person(p.id).car.unwrap(), p.id));
             }
@@ -351,7 +351,6 @@ impl SpawnTrip {
                 } else {
                     Scenario::rand_car(rng)
                 },
-                ped_speed: Scenario::rand_ped_speed(rng),
                 retry_if_no_room: true,
             }),
             SpawnTrip::FromBorder {
@@ -377,25 +376,17 @@ impl SpawnTrip {
                 } else {
                     Scenario::rand_car(rng)
                 },
-                ped_speed: Scenario::rand_ped_speed(rng),
                 retry_if_no_room: true,
             }),
-            SpawnTrip::UsingParkedCar(start_bldg, goal) => Some(TripSpec::UsingParkedCar {
-                start_bldg,
-                goal,
-                ped_speed: Scenario::rand_ped_speed(rng),
-            }),
+            SpawnTrip::UsingParkedCar(start_bldg, goal) => {
+                Some(TripSpec::UsingParkedCar { start_bldg, goal })
+            }
             SpawnTrip::UsingBike(start, goal) => Some(TripSpec::UsingBike {
                 start,
                 goal,
                 vehicle: Scenario::rand_bike(rng),
-                ped_speed: Scenario::rand_ped_speed(rng),
             }),
-            SpawnTrip::JustWalking(start, goal) => Some(TripSpec::JustWalking {
-                start,
-                goal,
-                ped_speed: Scenario::rand_ped_speed(rng),
-            }),
+            SpawnTrip::JustWalking(start, goal) => Some(TripSpec::JustWalking { start, goal }),
             SpawnTrip::UsingTransit(start, goal, route, stop1, stop2) => {
                 Some(TripSpec::UsingTransit {
                     start,
@@ -403,7 +394,6 @@ impl SpawnTrip {
                     route,
                     stop1,
                     stop2,
-                    ped_speed: Scenario::rand_ped_speed(rng),
                 })
             }
         }

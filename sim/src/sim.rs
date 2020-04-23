@@ -9,7 +9,7 @@ use crate::{
 };
 use abstutil::Timer;
 use derivative::Derivative;
-use geom::{Distance, Duration, PolyLine, Pt2D, Time};
+use geom::{Distance, Duration, PolyLine, Pt2D, Speed, Time};
 use instant::Instant;
 use map_model::{
     BuildingID, BusRoute, BusRouteID, IntersectionID, LaneID, Map, Path, PathConstraints,
@@ -195,11 +195,11 @@ impl Sim {
     }
 
     // TODO Should these two be in TripSpawner?
-    pub fn new_person(&mut self, p: PersonID, has_car: bool, has_bike: bool) {
-        self.trips.new_person(p, has_car, has_bike);
+    pub fn new_person(&mut self, p: PersonID, ped_speed: Speed, has_car: bool, has_bike: bool) {
+        self.trips.new_person(p, ped_speed, has_car, has_bike);
     }
-    pub fn random_person(&mut self, has_car: bool, has_bike: bool) -> PersonID {
-        self.trips.random_person(has_car, has_bike)
+    pub fn random_person(&mut self, ped_speed: Speed, has_car: bool, has_bike: bool) -> PersonID {
+        self.trips.random_person(ped_speed, has_car, has_bike)
     }
     pub(crate) fn seed_parked_car(&mut self, vehicle: Vehicle, spot: ParkingSpot) {
         self.parking.reserve_spot(spot);

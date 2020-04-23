@@ -195,7 +195,7 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                 }
                 let is_car = vehicle_spec.vehicle_type == VehicleType::Car;
                 spawner.schedule_trip(
-                    sim.random_person(is_car, !is_car),
+                    sim.random_person(Scenario::rand_ped_speed(&mut rng), is_car, !is_car),
                     sim.time(),
                     TripSpec::CarAppearing {
                         start_pos: Position::new(
@@ -206,7 +206,6 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                         goal: DrivingGoal::ParkNear(
                             map.all_buildings().choose(&mut rng).unwrap().id,
                         ),
-                        ped_speed: Scenario::rand_ped_speed(&mut rng),
                         retry_if_no_room: false,
                     },
                     map,
@@ -215,7 +214,7 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
         } else if lane.is_sidewalk() {
             for _ in 0..5 {
                 spawner.schedule_trip(
-                    sim.random_person(false, false),
+                    sim.random_person(Scenario::rand_ped_speed(&mut rng), false, false),
                     sim.time(),
                     TripSpec::JustWalking {
                         start: SidewalkSpot::suddenly_appear(
@@ -227,7 +226,6 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                             map.all_buildings().choose(&mut rng).unwrap().id,
                             map,
                         ),
-                        ped_speed: Scenario::rand_ped_speed(&mut rng),
                     },
                     map,
                 );
@@ -267,13 +265,12 @@ fn schedule_trip(
                     }
                 }
             };
-            let ped_speed = Scenario::rand_ped_speed(rng);
             if let Some((stop1, stop2, route)) =
                 map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos)
             {
                 println!("Using {} from {} to {}", route, stop1, stop2);
                 spawner.schedule_trip(
-                    sim.random_person(false, false),
+                    sim.random_person(Scenario::rand_ped_speed(rng), false, false),
                     sim.time(),
                     TripSpec::UsingTransit {
                         start,
@@ -281,20 +278,15 @@ fn schedule_trip(
                         route,
                         stop1,
                         stop2,
-                        ped_speed,
                     },
                     map,
                 );
             } else {
                 println!("Not using transit");
                 spawner.schedule_trip(
-                    sim.random_person(false, false),
+                    sim.random_person(Scenario::rand_ped_speed(rng), false, false),
                     sim.time(),
-                    TripSpec::JustWalking {
-                        start,
-                        goal,
-                        ped_speed,
-                    },
+                    TripSpec::JustWalking { start, goal },
                     map,
                 );
             }
@@ -315,13 +307,12 @@ fn schedule_trip(
                 }
             };
             spawner.schedule_trip(
-                sim.random_person(false, true),
+                sim.random_person(Scenario::rand_ped_speed(rng), false, true),
                 sim.time(),
                 TripSpec::UsingBike {
                     start: SidewalkSpot::building(*b, map),
                     vehicle: Scenario::rand_bike(rng),
                     goal,
-                    ped_speed: Scenario::rand_ped_speed(rng),
                 },
                 map,
             );
@@ -346,13 +337,12 @@ fn schedule_trip(
                 Source::Drive(from) => {
                     if let Some(start_pos) = TripSpec::spawn_vehicle_at(*from, false, map) {
                         spawner.schedule_trip(
-                            sim.random_person(true, false),
+                            sim.random_person(Scenario::rand_ped_speed(rng), true, false),
                             sim.time(),
                             TripSpec::CarAppearing {
                                 start_pos,
                                 vehicle_spec: Scenario::rand_car(rng),
                                 goal,
-                                ped_speed: Scenario::rand_ped_speed(rng),
                                 retry_if_no_room: false,
                             },
                             map,
