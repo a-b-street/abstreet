@@ -276,15 +276,11 @@ pub struct SidewalkSpot {
 
 impl SidewalkSpot {
     // Pretty hacky case
-    pub fn deferred_parking_spot(
-        start_bldg: BuildingID,
-        goal: DrivingGoal,
-        map: &Map,
-    ) -> SidewalkSpot {
+    pub fn deferred_parking_spot() -> SidewalkSpot {
         SidewalkSpot {
-            connection: SidewalkPOI::DeferredParkingSpot(start_bldg, goal),
+            connection: SidewalkPOI::DeferredParkingSpot,
             // Dummy value
-            sidewalk_pos: map.get_b(start_bldg).front_path.sidewalk,
+            sidewalk_pos: Position::new(LaneID(0), Distance::ZERO),
         }
     }
 
@@ -403,7 +399,7 @@ pub enum SidewalkPOI {
     // Note that for offstreet parking, the path will be the same as the building's front path.
     ParkingSpot(ParkingSpot),
     // Don't actually know where this goes yet!
-    DeferredParkingSpot(BuildingID, DrivingGoal),
+    DeferredParkingSpot,
     Building(BuildingID),
     BusStop(BusStopID),
     Border(IntersectionID),

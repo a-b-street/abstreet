@@ -195,11 +195,22 @@ impl Sim {
     }
 
     // TODO Should these two be in TripSpawner?
-    pub fn new_person(&mut self, p: PersonID, ped_speed: Speed, has_car: bool, has_bike: bool) {
-        self.trips.new_person(p, ped_speed, has_car, has_bike);
+    pub fn new_person(
+        &mut self,
+        p: PersonID,
+        ped_speed: Speed,
+        car_spec: Option<VehicleSpec>,
+        bike_spec: Option<VehicleSpec>,
+    ) {
+        self.trips.new_person(p, ped_speed, car_spec, bike_spec);
     }
-    pub fn random_person(&mut self, ped_speed: Speed, has_car: bool, has_bike: bool) -> PersonID {
-        self.trips.random_person(ped_speed, has_car, has_bike)
+    pub fn random_person(
+        &mut self,
+        ped_speed: Speed,
+        car_spec: Option<VehicleSpec>,
+        bike_spec: Option<VehicleSpec>,
+    ) -> &Person {
+        self.trips.random_person(ped_speed, car_spec, bike_spec)
     }
     pub(crate) fn seed_parked_car(&mut self, vehicle: Vehicle, spot: ParkingSpot) {
         self.parking.reserve_spot(spot);

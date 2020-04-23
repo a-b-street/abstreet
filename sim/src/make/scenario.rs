@@ -1,6 +1,6 @@
 use crate::{
-    CarID, DrivingGoal, ParkingSpot, PersonID, SidewalkPOI, SidewalkSpot, Sim, TripEndpoint,
-    TripSpec, VehicleSpec, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
+    DrivingGoal, ParkingSpot, PersonID, SidewalkPOI, SidewalkSpot, Sim, TripEndpoint, TripSpec,
+    VehicleSpec, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
 };
 use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{Distance, Duration, Speed, Time};
@@ -41,7 +41,7 @@ pub struct IndividTrip {
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub enum SpawnTrip {
     // Only for interactive / debug trips
-    CarAppearing {
+    VehicleAppearing {
         start: Position,
         goal: DrivingGoal,
         is_bike: bool,
@@ -80,21 +80,34 @@ impl Scenario {
 
         timer.start_iter("trips for People", self.people.len());
         let mut spawner = sim.make_spawner();
-        let mut parked_cars: Vec<(BuildingID, CarID, PersonID)> = Vec::new();
+        let mut parked_cars: Vec<(BuildingID, PersonID)> = Vec::new();
         for p in &self.people {
             timer.next();
 
             let (has_car, has_bike, car_initially_parked_at) = p.get_vehicles();
-            sim.new_person(p.id, Scenario::rand_ped_speed(rng), has_car, has_bike);
+            sim.new_person(
+                p.id,
+                Scenario::rand_ped_speed(rng),
+                if has_car {
+                    Some(Scenario::rand_car(rng))
+                } else {
+                    None
+                },
+                if has_bike {
+                    Some(Scenario::rand_bike(rng))
+                } else {
+                    None
+                },
+            );
             if let Some(b) = car_initially_parked_at {
-                parked_cars.push((b, sim.get_person(p.id).car.unwrap(), p.id));
+                parked_cars.push((b, p.id));
             }
             for t in &p.trips {
                 // The RNG call might change over edits for picking the spawning lane from a border
                 // with multiple choices for a vehicle type.
                 let mut tmp_rng = abstutil::fork_rng(rng);
                 if let Some(spec) = t.trip.clone().to_trip_spec(&mut tmp_rng, map) {
-                    spawner.schedule_trip(p.id, t.depart, spec, map);
+                    spawner.schedule_trip(sim.get_person(p.id), t.depart, spec, map);
                 } else {
                     timer.warn(format!("Couldn't turn {:?} into a trip", t.trip));
                 }
@@ -177,7 +190,7 @@ impl Scenario {
             for day in 0..days {
                 for trip in &person.trips {
                     let inbound = match trip.trip {
-                        SpawnTrip::CarAppearing { is_bike, .. } => !is_bike,
+                        SpawnTrip::VehicleAppearing { is_bike, .. } => !is_bike,
                         _ => false,
                     };
                     if day > 0 && inbound && avoid_inbound_trips {
@@ -246,17 +259,12 @@ impl Scenario {
 }
 
 fn seed_parked_cars(
-    parked_cars: Vec<(BuildingID, CarID, PersonID)>,
+    parked_cars: Vec<(BuildingID, PersonID)>,
     sim: &mut Sim,
     map: &Map,
     base_rng: &mut XorShiftRng,
     timer: &mut Timer,
 ) {
-    // We always need the same number of cars
-    let mut rand_cars: Vec<VehicleSpec> = std::iter::repeat_with(|| Scenario::rand_car(base_rng))
-        .take(parked_cars.len())
-        .collect();
-
     let mut open_spots_per_road: BTreeMap<RoadID, Vec<ParkingSpot>> = BTreeMap::new();
     for spot in sim.get_all_parking_spots().1 {
         let r = match spot {
@@ -278,13 +286,13 @@ fn seed_parked_cars(
 
     timer.start_iter("seed parked cars", parked_cars.len());
     let mut ok = true;
-    for (b, id, owner) in parked_cars {
+    for (b, owner) in parked_cars {
         timer.next();
         if !ok {
             continue;
         }
         if let Some(spot) = find_spot_near_building(b, &mut open_spots_per_road, map, timer) {
-            sim.seed_parked_car(rand_cars.pop().unwrap().make(id, Some(owner)), spot);
+            sim.seed_parked_car(sim.get_person(owner).car.clone().unwrap(), spot);
         } else {
             timer.warn("Not enough room to seed parked cars.".to_string());
             ok = false;
@@ -338,24 +346,19 @@ fn find_spot_near_building(
 impl SpawnTrip {
     fn to_trip_spec(self, rng: &mut XorShiftRng, map: &Map) -> Option<TripSpec> {
         match self {
-            SpawnTrip::CarAppearing {
+            SpawnTrip::VehicleAppearing {
                 start,
                 goal,
                 is_bike,
-                ..
-            } => Some(TripSpec::CarAppearing {
+            } => Some(TripSpec::VehicleAppearing {
                 start_pos: start,
                 goal,
-                vehicle_spec: if is_bike {
-                    Scenario::rand_bike(rng)
-                } else {
-                    Scenario::rand_car(rng)
-                },
+                is_bike,
                 retry_if_no_room: true,
             }),
             SpawnTrip::FromBorder {
                 i, goal, is_bike, ..
-            } => Some(TripSpec::CarAppearing {
+            } => Some(TripSpec::VehicleAppearing {
                 start_pos: {
                     let l = *map
                         .get_i(i)
@@ -371,21 +374,13 @@ impl SpawnTrip {
                     TripSpec::spawn_vehicle_at(Position::new(l, Distance::ZERO), is_bike, map)?
                 },
                 goal,
-                vehicle_spec: if is_bike {
-                    Scenario::rand_bike(rng)
-                } else {
-                    Scenario::rand_car(rng)
-                },
+                is_bike,
                 retry_if_no_room: true,
             }),
             SpawnTrip::UsingParkedCar(start_bldg, goal) => {
                 Some(TripSpec::UsingParkedCar { start_bldg, goal })
             }
-            SpawnTrip::UsingBike(start, goal) => Some(TripSpec::UsingBike {
-                start,
-                goal,
-                vehicle: Scenario::rand_bike(rng),
-            }),
+            SpawnTrip::UsingBike(start, goal) => Some(TripSpec::UsingBike { start, goal }),
             SpawnTrip::JustWalking(start, goal) => Some(TripSpec::JustWalking { start, goal }),
             SpawnTrip::UsingTransit(start, goal, route, stop1, stop2) => {
                 Some(TripSpec::UsingTransit {
@@ -401,7 +396,7 @@ impl SpawnTrip {
 
     pub fn start(&self, map: &Map) -> TripEndpoint {
         match self {
-            SpawnTrip::CarAppearing { ref start, .. } => {
+            SpawnTrip::VehicleAppearing { ref start, .. } => {
                 TripEndpoint::Border(map.get_l(start.lane()).src_i)
             }
             SpawnTrip::FromBorder { i, .. } => TripEndpoint::Border(*i),
@@ -418,7 +413,7 @@ impl SpawnTrip {
 
     pub fn end(&self) -> TripEndpoint {
         match self {
-            SpawnTrip::CarAppearing { ref goal, .. }
+            SpawnTrip::VehicleAppearing { ref goal, .. }
             | SpawnTrip::FromBorder { ref goal, .. }
             | SpawnTrip::UsingParkedCar(_, ref goal)
             | SpawnTrip::UsingBike(_, ref goal) => match goal {
@@ -443,7 +438,8 @@ impl PersonSpec {
         let mut car_initially_parked_at = None;
         for trip in &self.trips {
             match trip.trip {
-                SpawnTrip::CarAppearing { is_bike, .. } | SpawnTrip::FromBorder { is_bike, .. } => {
+                SpawnTrip::VehicleAppearing { is_bike, .. }
+                | SpawnTrip::FromBorder { is_bike, .. } => {
                     if is_bike {
                         has_bike = true;
                     } else {

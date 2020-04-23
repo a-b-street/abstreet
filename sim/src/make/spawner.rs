@@ -1,6 +1,6 @@
 use crate::{
-    Command, DrivingGoal, PersonID, Scheduler, SidewalkPOI, SidewalkSpot, TripEndpoint, TripLeg,
-    TripManager, VehicleSpec, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH,
+    Command, DrivingGoal, Person, PersonID, Scheduler, SidewalkPOI, SidewalkSpot, TripEndpoint,
+    TripLeg, TripManager, TripMode, BIKE_LENGTH, MAX_CAR_LENGTH,
 };
 use abstutil::Timer;
 use geom::{Time, EPSILON_DIST};
@@ -10,10 +10,10 @@ use serde_derive::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub enum TripSpec {
     // Can be used to spawn from a border or anywhere for interactive debugging.
-    CarAppearing {
+    VehicleAppearing {
         start_pos: Position,
         goal: DrivingGoal,
-        vehicle_spec: VehicleSpec,
+        is_bike: bool,
         retry_if_no_room: bool,
     },
     UsingParkedCar {
@@ -27,7 +27,6 @@ pub enum TripSpec {
     UsingBike {
         start: SidewalkSpot,
         goal: DrivingGoal,
-        vehicle: VehicleSpec,
     },
     UsingTransit {
         start: SidewalkSpot,
@@ -48,15 +47,20 @@ impl TripSpawner {
         TripSpawner { trips: Vec::new() }
     }
 
-    pub fn schedule_trip(&mut self, person: PersonID, start_time: Time, spec: TripSpec, map: &Map) {
+    pub fn schedule_trip(&mut self, person: &Person, start_time: Time, spec: TripSpec, map: &Map) {
         // TODO We'll want to repeat this validation when we spawn stuff later for a second leg...
         match &spec {
-            TripSpec::CarAppearing {
+            TripSpec::VehicleAppearing {
                 start_pos,
-                vehicle_spec,
                 goal,
+                is_bike,
                 ..
             } => {
+                let vehicle_spec = if *is_bike {
+                    person.bike.as_ref().unwrap()
+                } else {
+                    person.car.as_ref().unwrap()
+                };
                 if start_pos.dist_along() < vehicle_spec.length {
                     panic!(
                         "Can't spawn a {:?} at {}; too close to the start",
@@ -126,7 +130,7 @@ impl TripSpawner {
                             start, goal
                         );
                         self.trips.push((
-                            person,
+                            person.id,
                             start_time,
                             TripSpec::JustWalking {
                                 start: start.clone(),
@@ -140,7 +144,7 @@ impl TripSpawner {
             TripSpec::UsingTransit { .. } => {}
         };
 
-        self.trips.push((person, start_time, spec));
+        self.trips.push((person.id, start_time, spec));
     }
 
     pub fn finalize(
@@ -169,30 +173,47 @@ impl TripSpawner {
             // Just create the trip for each case.
             // TODO Not happy about this clone()
             let trip = match spec.clone() {
-                TripSpec::CarAppearing {
+                TripSpec::VehicleAppearing {
                     start_pos,
-                    vehicle_spec,
                     goal,
+                    is_bike,
                     ..
                 } => {
-                    let vehicle = if vehicle_spec.vehicle_type == VehicleType::Car {
-                        vehicle_spec.make(person.car.unwrap(), Some(person.id))
-                    } else {
-                        vehicle_spec.make(person.bike.unwrap(), Some(person.id))
-                    };
-                    let mut legs = vec![TripLeg::Drive(vehicle.clone(), goal.clone())];
+                    let mut legs = vec![TripLeg::Drive(goal.clone())];
                     if let DrivingGoal::ParkNear(b) = goal {
                         legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
                     }
                     let trip_start = TripEndpoint::Border(map.get_l(start_pos.lane()).src_i);
-                    trips.new_trip(person.id, start_time, trip_start, legs)
+                    trips.new_trip(
+                        person.id,
+                        start_time,
+                        trip_start,
+                        if is_bike {
+                            TripMode::Bike
+                        } else {
+                            TripMode::Drive
+                        },
+                        legs,
+                    )
                 }
                 TripSpec::UsingParkedCar { start_bldg, goal } => {
-                    let walk_to = SidewalkSpot::deferred_parking_spot(start_bldg, goal, map);
-                    // TODO Can't add TripLeg::Drive, because we don't know the vehicle yet! Plumb
-                    // along the DrivingGoal, so we can expand the trip later.
-                    let legs = vec![TripLeg::Walk(walk_to.clone())];
-                    trips.new_trip(person.id, start_time, TripEndpoint::Bldg(start_bldg), legs)
+                    let mut legs = vec![
+                        TripLeg::Walk(SidewalkSpot::deferred_parking_spot()),
+                        TripLeg::Drive(goal.clone()),
+                    ];
+                    match goal {
+                        DrivingGoal::ParkNear(b) => {
+                            legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
+                        }
+                        DrivingGoal::Border(_, _) => {}
+                    }
+                    trips.new_trip(
+                        person.id,
+                        start_time,
+                        TripEndpoint::Bldg(start_bldg),
+                        TripMode::Drive,
+                        legs,
+                    )
                 }
                 TripSpec::JustWalking { start, goal } => trips.new_trip(
                     person.id,
@@ -205,19 +226,14 @@ impl TripSpawner {
                         SidewalkPOI::Border(i) => TripEndpoint::Border(i),
                         _ => unreachable!(),
                     },
+                    TripMode::Walk,
                     vec![TripLeg::Walk(goal.clone())],
                 ),
-                TripSpec::UsingBike {
-                    start,
-                    vehicle,
-                    goal,
-                } => {
+                TripSpec::UsingBike { start, goal } => {
                     let walk_to =
                         SidewalkSpot::bike_from_bike_rack(start.sidewalk_pos.lane(), map).unwrap();
-                    let mut legs = vec![
-                        TripLeg::Walk(walk_to.clone()),
-                        TripLeg::Drive(vehicle.make(person.bike.unwrap(), None), goal.clone()),
-                    ];
+                    let mut legs =
+                        vec![TripLeg::Walk(walk_to.clone()), TripLeg::Drive(goal.clone())];
                     match goal {
                         DrivingGoal::ParkNear(b) => {
                             legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
@@ -235,6 +251,7 @@ impl TripSpawner {
                             SidewalkPOI::Border(i) => TripEndpoint::Border(i),
                             _ => unreachable!(),
                         },
+                        TripMode::Bike,
                         legs,
                     )
                 }
@@ -257,6 +274,7 @@ impl TripSpawner {
                             SidewalkPOI::Border(i) => TripEndpoint::Border(i),
                             _ => unreachable!(),
                         },
+                        TripMode::Transit,
                         vec![
                             TripLeg::Walk(walk_to.clone()),
                             TripLeg::RideBus(route, stop2),
@@ -294,13 +312,17 @@ impl TripSpec {
 
     pub(crate) fn get_pathfinding_request(&self, map: &Map) -> Option<PathRequest> {
         match self {
-            TripSpec::CarAppearing {
+            TripSpec::VehicleAppearing {
                 start_pos,
-                vehicle_spec,
                 goal,
+                is_bike,
                 ..
             } => {
-                let constraints = vehicle_spec.vehicle_type.to_constraints();
+                let constraints = if *is_bike {
+                    PathConstraints::Bike
+                } else {
+                    PathConstraints::Car
+                };
                 Some(PathRequest {
                     start: *start_pos,
                     end: goal.goal_pos(constraints, map),

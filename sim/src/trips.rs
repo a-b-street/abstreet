@@ -1,7 +1,8 @@
 use crate::{
     AgentID, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, Event, ParkedCar,
     ParkingSimState, ParkingSpot, PedestrianID, PersonID, Scheduler, SidewalkPOI, SidewalkSpot,
-    TransitSimState, TripID, TripPhaseType, TripSpec, Vehicle, VehicleType, WalkingSimState,
+    TransitSimState, TripID, TripPhaseType, TripSpec, Vehicle, VehicleSpec, VehicleType,
+    WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap, Counter};
 use geom::{Distance, Duration, Speed, Time};
@@ -41,15 +42,24 @@ impl TripManager {
         }
     }
 
-    pub fn new_person(&mut self, id: PersonID, ped_speed: Speed, has_car: bool, has_bike: bool) {
+    // TODO assert the specs are correct yo
+    pub fn new_person(
+        &mut self,
+        id: PersonID,
+        ped_speed: Speed,
+        car_spec: Option<VehicleSpec>,
+        bike_spec: Option<VehicleSpec>,
+    ) {
         assert_eq!(id.0, self.people.len());
-        let car = if has_car {
-            Some(CarID(self.new_car_id(), VehicleType::Car))
+        let car = if let Some(v) = car_spec {
+            assert_eq!(v.vehicle_type, VehicleType::Car);
+            Some(v.make(CarID(self.new_car_id(), VehicleType::Car), Some(id)))
         } else {
             None
         };
-        let bike = if has_bike {
-            Some(CarID(self.new_car_id(), VehicleType::Bike))
+        let bike = if let Some(v) = bike_spec {
+            assert_eq!(v.vehicle_type, VehicleType::Bike);
+            Some(v.make(CarID(self.new_car_id(), VehicleType::Bike), Some(id)))
         } else {
             None
         };
@@ -65,10 +75,15 @@ impl TripManager {
             delayed_trips: Vec::new(),
         });
     }
-    pub fn random_person(&mut self, ped_speed: Speed, has_car: bool, has_bike: bool) -> PersonID {
+    pub fn random_person(
+        &mut self,
+        ped_speed: Speed,
+        car_spec: Option<VehicleSpec>,
+        bike_spec: Option<VehicleSpec>,
+    ) -> &Person {
         let id = PersonID(self.people.len());
-        self.new_person(id, ped_speed, has_car, has_bike);
-        id
+        self.new_person(id, ped_speed, car_spec, bike_spec);
+        self.get_person(id).unwrap()
     }
 
     pub fn new_car_id(&mut self) -> usize {
@@ -82,42 +97,20 @@ impl TripManager {
         person: PersonID,
         spawned_at: Time,
         start: TripEndpoint,
+        mode: TripMode,
         legs: Vec<TripLeg>,
     ) -> TripID {
         assert!(!legs.is_empty());
         // TODO Make sure the legs constitute a valid state machine.
 
         let id = TripID(self.trips.len());
-        let mut mode = TripMode::Walk;
-        for l in &legs {
-            match l {
-                TripLeg::Walk(ref spot) => {
-                    if let SidewalkPOI::DeferredParkingSpot(_, _) = spot.connection {
-                        mode = TripMode::Drive;
-                    }
-                }
-                TripLeg::Drive(ref vehicle, _) => {
-                    mode = TripMode::Drive;
-                    if vehicle.vehicle_type == VehicleType::Bike {
-                        mode = TripMode::Bike;
-                    }
-                }
-                TripLeg::RideBus(_, _) => {
-                    mode = TripMode::Transit;
-                }
-            }
-        }
         let end = match legs.last() {
             Some(TripLeg::Walk(ref spot)) => match spot.connection {
                 SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
                 SidewalkPOI::Border(i) => TripEndpoint::Border(i),
-                SidewalkPOI::DeferredParkingSpot(_, ref goal) => match goal {
-                    DrivingGoal::ParkNear(b) => TripEndpoint::Bldg(*b),
-                    DrivingGoal::Border(i, _) => TripEndpoint::Border(*i),
-                },
                 _ => unreachable!(),
             },
-            Some(TripLeg::Drive(_, ref goal)) => match goal {
+            Some(TripLeg::Drive(ref goal)) => match goal {
                 DrivingGoal::ParkNear(b) => TripEndpoint::Bldg(*b),
                 DrivingGoal::Border(i, _) => TripEndpoint::Border(*i),
             },
@@ -184,7 +177,7 @@ impl TripManager {
         trip.total_blocked_time += blocked_time;
 
         match trip.legs.pop_front() {
-            Some(TripLeg::Drive(vehicle, DrivingGoal::ParkNear(_))) => assert_eq!(car, vehicle.id),
+            Some(TripLeg::Drive(DrivingGoal::ParkNear(_))) => {}
             _ => unreachable!(),
         };
 
@@ -242,13 +235,12 @@ impl TripManager {
             .0];
         trip.total_blocked_time += blocked_time;
 
-        trip.assert_walking_leg(SidewalkSpot::parking_spot(spot, map, parking));
-        let (car, drive_to) = match trip.legs[0] {
-            TripLeg::Drive(ref vehicle, ref to) => (vehicle.id, to.clone()),
+        trip.assert_walking_leg(SidewalkSpot::deferred_parking_spot());
+        let drive_to = match trip.legs[0] {
+            TripLeg::Drive(ref to) => to.clone(),
             _ => unreachable!(),
         };
         let parked_car = parking.get_car_at_spot(spot).unwrap().clone();
-        assert_eq!(parked_car.vehicle.id, car);
 
         let mut start = parking.spot_to_driving_pos(parked_car.spot, &parked_car.vehicle, map);
         if let ParkingSpot::Offstreet(_, _) = spot {
@@ -312,8 +304,8 @@ impl TripManager {
         trip.total_blocked_time += blocked_time;
 
         trip.assert_walking_leg(spot.clone());
-        let (vehicle, drive_to) = match trip.legs[0] {
-            TripLeg::Drive(ref vehicle, ref to) => (vehicle.clone(), to.clone()),
+        let drive_to = match trip.legs[0] {
+            TripLeg::Drive(ref to) => to.clone(),
             _ => unreachable!(),
         };
         let driving_pos = match spot.connection {
@@ -329,13 +321,13 @@ impl TripManager {
         };
         if let Some(router) = map
             .pathfind(req.clone())
-            .and_then(|path| drive_to.make_router(path, map, vehicle.vehicle_type))
+            .and_then(|path| drive_to.make_router(path, map, VehicleType::Bike))
         {
             scheduler.push(
                 now,
                 Command::SpawnCar(
                     CreateCar::for_appearing(
-                        vehicle,
+                        self.people[trip.person.0].bike.clone().unwrap(),
                         driving_pos,
                         router,
                         req,
@@ -373,7 +365,7 @@ impl TripManager {
         trip.total_blocked_time += blocked_time;
 
         match trip.legs.pop_front() {
-            Some(TripLeg::Drive(vehicle, DrivingGoal::ParkNear(_))) => assert_eq!(vehicle.id, bike),
+            Some(TripLeg::Drive(DrivingGoal::ParkNear(_))) => {}
             _ => unreachable!(),
         };
 
@@ -552,7 +544,7 @@ impl TripManager {
         trip.total_blocked_time += blocked_time;
 
         match trip.legs.pop_front().unwrap() {
-            TripLeg::Drive(_, DrivingGoal::Border(int, _)) => assert_eq!(i, int),
+            TripLeg::Drive(DrivingGoal::Border(int, _)) => assert_eq!(i, int),
             _ => unreachable!(),
         };
         assert!(trip.legs.is_empty());
@@ -659,7 +651,13 @@ impl TripManager {
         let person = &self.people[trip.person.0];
         let a = match &trip.legs[0] {
             TripLeg::Walk(_) => AgentID::Pedestrian(person.ped),
-            TripLeg::Drive(vehicle, _) => AgentID::Car(vehicle.id),
+            TripLeg::Drive(_) => {
+                if trip.mode == TripMode::Drive {
+                    AgentID::Car(person.car.as_ref().unwrap().id)
+                } else {
+                    AgentID::Car(person.bike.as_ref().unwrap().id)
+                }
+            }
             // TODO Should be the bus, but apparently transit sim tracks differently?
             TripLeg::RideBus(_, _) => AgentID::Pedestrian(person.ped),
         };
@@ -848,16 +846,17 @@ impl TripManager {
         }
 
         match spec {
-            TripSpec::CarAppearing {
+            TripSpec::VehicleAppearing {
                 start_pos,
                 goal,
                 retry_if_no_room,
-                ..
+                is_bike,
             } => {
                 assert_eq!(person.state, PersonState::OffMap);
-                let vehicle = match self.trips[trip.0].legs[0] {
-                    TripLeg::Drive(ref vehicle, _) => vehicle.clone(),
-                    _ => unreachable!(),
+                let vehicle = if is_bike {
+                    person.bike.clone().unwrap()
+                } else {
+                    person.car.clone().unwrap()
                 };
                 let req = maybe_req.unwrap();
                 if let Some(router) =
@@ -874,14 +873,14 @@ impl TripManager {
                     );
                 } else {
                     println!(
-                        "CarAppearing trip couldn't find the first path (or no bike->sidewalk \
+                        "VehicleAppearing trip couldn't find the first path (or no bike->sidewalk \
                          connection at the end): {}",
                         req
                     );
                     self.abort_trip(now, trip, Some(vehicle), parking, scheduler, map);
                 }
             }
-            TripSpec::UsingParkedCar { start_bldg, goal } => {
+            TripSpec::UsingParkedCar { start_bldg, .. } => {
                 assert_eq!(person.state, PersonState::Inside(start_bldg));
 
                 if let Some(parked_car) = parking.get_parked_car_owned_by(person.id) {
@@ -893,19 +892,6 @@ impl TripManager {
                         constraints: PathConstraints::Pedestrian,
                     };
                     if let Some(path) = map.pathfind(req.clone()) {
-                        // TODO Can get rid of this once VehicleSpec is tied to a Person
-                        let mut legs = vec![
-                            TripLeg::Walk(walking_goal.clone()),
-                            TripLeg::Drive(parked_car.vehicle.clone(), goal.clone()),
-                        ];
-                        match goal {
-                            DrivingGoal::ParkNear(b) => {
-                                legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
-                            }
-                            DrivingGoal::Border(_, _) => {}
-                        }
-                        self.trips[trip.0].legs = VecDeque::from(legs);
-
                         scheduler.push(
                             now,
                             Command::SpawnPed(CreatePedestrian {
@@ -1117,7 +1103,7 @@ impl Trip {
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub enum TripLeg {
     Walk(SidewalkSpot),
-    Drive(Vehicle, DrivingGoal),
+    Drive(DrivingGoal),
     RideBus(BusRouteID, BusStopID),
 }
 
@@ -1265,8 +1251,8 @@ pub struct Person {
 
     pub ped: PedestrianID,
     pub ped_speed: Speed,
-    pub car: Option<CarID>,
-    pub bike: Option<CarID>,
+    pub car: Option<Vehicle>,
+    pub bike: Option<Vehicle>,
 
     delayed_trips: Vec<(TripID, TripSpec, Option<PathRequest>, Option<Path>)>,
 }

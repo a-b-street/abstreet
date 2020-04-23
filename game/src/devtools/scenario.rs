@@ -274,7 +274,7 @@ fn describe(person: &PersonSpec, trip: &IndividTrip, home: OD) -> String {
     };
 
     match &trip.trip {
-        SpawnTrip::CarAppearing {
+        SpawnTrip::VehicleAppearing {
             start,
             goal,
             is_bike,
@@ -342,7 +342,7 @@ fn other_endpt(trip: &IndividTrip, home: OD, map: &Map) -> ID {
     };
 
     let (from, to) = match &trip.trip {
-        SpawnTrip::CarAppearing { start, goal, .. } => (
+        SpawnTrip::VehicleAppearing { start, goal, .. } => (
             ID::Intersection(map.get_l(start.lane()).src_i),
             driving_goal(goal),
         ),
@@ -457,7 +457,7 @@ impl DotMap {
             .flat_map(|p| {
                 p.trips.iter().filter_map(|trip| {
                     let (start, end) = match &trip.trip {
-                        SpawnTrip::CarAppearing { start, goal, .. } => {
+                        SpawnTrip::VehicleAppearing { start, goal, .. } => {
                             (start.pt(map), goal.pt(map))
                         }
                         SpawnTrip::FromBorder { i, goal, .. } => {
