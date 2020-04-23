@@ -3,7 +3,7 @@ use crate::common::Colorer;
 use crate::layer::Layers;
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::EventCtx;
-use sim::ParkingSpot;
+use sim::{ParkingSpot, VehicleType};
 use std::collections::HashSet;
 
 pub fn new(ctx: &mut EventCtx, app: &App) -> Layers {
@@ -12,7 +12,10 @@ pub fn new(ctx: &mut EventCtx, app: &App) -> Layers {
     let mut has_car = 0;
     for p in app.primary.sim.get_all_people() {
         total_ppl += 1;
-        if p.car.is_some() {
+        if p.vehicles
+            .iter()
+            .any(|v| v.vehicle_type == VehicleType::Car)
+        {
             has_car += 1;
         }
     }

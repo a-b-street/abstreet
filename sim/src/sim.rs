@@ -195,22 +195,11 @@ impl Sim {
     }
 
     // TODO Should these two be in TripSpawner?
-    pub fn new_person(
-        &mut self,
-        p: PersonID,
-        ped_speed: Speed,
-        car_spec: Option<VehicleSpec>,
-        bike_spec: Option<VehicleSpec>,
-    ) {
-        self.trips.new_person(p, ped_speed, car_spec, bike_spec);
+    pub fn new_person(&mut self, p: PersonID, ped_speed: Speed, vehicle_specs: Vec<VehicleSpec>) {
+        self.trips.new_person(p, ped_speed, vehicle_specs);
     }
-    pub fn random_person(
-        &mut self,
-        ped_speed: Speed,
-        car_spec: Option<VehicleSpec>,
-        bike_spec: Option<VehicleSpec>,
-    ) -> &Person {
-        self.trips.random_person(ped_speed, car_spec, bike_spec)
+    pub fn random_person(&mut self, ped_speed: Speed, vehicle_specs: Vec<VehicleSpec>) -> &Person {
+        self.trips.random_person(ped_speed, vehicle_specs)
     }
     pub(crate) fn seed_parked_car(&mut self, vehicle: Vehicle, spot: ParkingSpot) {
         self.parking.reserve_spot(spot);
@@ -950,10 +939,8 @@ impl Sim {
             .get_owner_of_car(id)
             .or_else(|| self.parking.get_owner_of_car(id))
     }
-    // Only currently parked cars
-    pub fn get_parked_car_owned_by(&self, id: PersonID) -> Option<CarID> {
-        let p = self.parking.get_parked_car_owned_by(id)?;
-        Some(p.vehicle.id)
+    pub fn lookup_parked_car(&self, id: CarID) -> Option<&ParkedCar> {
+        self.parking.lookup_parked_car(id)
     }
 
     pub fn lookup_person(&self, id: PersonID) -> Option<&Person> {
@@ -976,7 +963,7 @@ impl Sim {
 
         let id = CarID(idx, VehicleType::Car);
         // Only cars can be parked.
-        if self.parking.does_car_exist(id) {
+        if self.parking.lookup_parked_car(id).is_some() {
             return Some(id);
         }
 
@@ -1039,7 +1026,9 @@ impl Sim {
 
     pub fn does_agent_exist(&self, id: AgentID) -> bool {
         match id {
-            AgentID::Car(id) => self.parking.does_car_exist(id) || self.driving.does_car_exist(id),
+            AgentID::Car(id) => {
+                self.parking.lookup_parked_car(id).is_some() || self.driving.does_car_exist(id)
+            }
             AgentID::Pedestrian(id) => self.walking.does_ped_exist(id),
         }
     }

@@ -25,11 +25,6 @@ pub struct ParkingSimState {
     )]
     occupants: BTreeMap<ParkingSpot, CarID>,
     reserved_spots: BTreeSet<ParkingSpot>,
-    #[serde(
-        serialize_with = "serialize_btreemap",
-        deserialize_with = "deserialize_btreemap"
-    )]
-    owner_to_car: BTreeMap<PersonID, CarID>,
 
     // On-street specific
     onstreet_lanes: BTreeMap<LaneID, ParkingLane>,
@@ -59,7 +54,6 @@ impl ParkingSimState {
             parked_cars: BTreeMap::new(),
             occupants: BTreeMap::new(),
             reserved_spots: BTreeSet::new(),
-            owner_to_car: BTreeMap::new(),
 
             onstreet_lanes: BTreeMap::new(),
             driving_to_parking_lanes: MultiMap::new(),
@@ -124,34 +118,20 @@ impl ParkingSimState {
         self.occupants
             .remove(&p.spot)
             .expect("remove_parked_car missing from occupants");
-        // All parked cars have owners
-        self.owner_to_car
-            .remove(&p.vehicle.owner.unwrap())
-            .expect("remove_parked_car missing from owner_to_car");
         self.events
             .push(Event::CarLeftParkingSpot(p.vehicle.id, p.spot));
     }
 
     pub fn add_parked_car(&mut self, p: ParkedCar) {
-        assert!(self.reserved_spots.remove(&p.spot));
         self.events
             .push(Event::CarReachedParkingSpot(p.vehicle.id, p.spot));
+
+        assert!(self.reserved_spots.remove(&p.spot));
+
         assert!(!self.occupants.contains_key(&p.spot));
         self.occupants.insert(p.spot, p.vehicle.id);
-        // All parked cars have owners
-        let owner = p.vehicle.owner.unwrap();
-        if let Some(car) = self.owner_to_car.get(&owner) {
-            // TODO Doppel-cars! Some people apparently need multiple cars. Until then, don't leak
-            // spots and have doubles of the same car.
-            assert_eq!(*car, p.vehicle.id);
-            println!(
-                "{} has is trying to park a doppel-car. Warping {}.",
-                owner, car
-            );
-            let other = self.parked_cars[car].clone();
-            self.remove_parked_car(other);
-        }
-        self.owner_to_car.insert(owner, p.vehicle.id);
+
+        assert!(!self.parked_cars.contains_key(&p.vehicle.id));
         self.parked_cars.insert(p.vehicle.id, p);
     }
 
@@ -187,10 +167,6 @@ impl ParkingSimState {
             }
             ParkingSpot::Offstreet(_, _) => None,
         }
-    }
-
-    pub fn does_car_exist(&self, id: CarID) -> bool {
-        self.parked_cars.contains_key(&id)
     }
 
     // There's no DrawCarInput for cars parked offstreet, so we need this.
@@ -316,9 +292,8 @@ impl ParkingSimState {
     pub fn get_owner_of_car(&self, id: CarID) -> Option<PersonID> {
         self.parked_cars.get(&id).and_then(|p| p.vehicle.owner)
     }
-    pub fn get_parked_car_owned_by(&self, id: PersonID) -> Option<ParkedCar> {
-        let car = self.owner_to_car.get(&id)?;
-        Some(self.parked_cars[car].clone())
+    pub fn lookup_parked_car(&self, id: CarID) -> Option<&ParkedCar> {
+        self.parked_cars.get(&id)
     }
 
     // (Filled, available)

@@ -1,6 +1,6 @@
 use crate::{
-    Command, DrivingGoal, Person, PersonID, Scheduler, SidewalkPOI, SidewalkSpot, TripEndpoint,
-    TripLeg, TripManager, TripMode, BIKE_LENGTH, MAX_CAR_LENGTH,
+    CarID, Command, DrivingGoal, Person, PersonID, Scheduler, SidewalkPOI, SidewalkSpot,
+    TripEndpoint, TripLeg, TripManager, TripMode, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH,
 };
 use abstutil::Timer;
 use geom::{Time, EPSILON_DIST};
@@ -13,10 +13,13 @@ pub enum TripSpec {
     VehicleAppearing {
         start_pos: Position,
         goal: DrivingGoal,
-        is_bike: bool,
+        // This must be a currently off-map vehicle owned by the person.
+        use_vehicle: CarID,
         retry_if_no_room: bool,
     },
     UsingParkedCar {
+        // This must be a currently parked vehicle owned by the person.
+        car: CarID,
         start_bldg: BuildingID,
         goal: DrivingGoal,
     },
@@ -25,6 +28,7 @@ pub enum TripSpec {
         goal: SidewalkSpot,
     },
     UsingBike {
+        bike: CarID,
         start: SidewalkSpot,
         goal: DrivingGoal,
     },
@@ -53,25 +57,21 @@ impl TripSpawner {
             TripSpec::VehicleAppearing {
                 start_pos,
                 goal,
-                is_bike,
+                use_vehicle,
                 ..
             } => {
-                let vehicle_spec = if *is_bike {
-                    person.bike.as_ref().unwrap()
-                } else {
-                    person.car.as_ref().unwrap()
-                };
-                if start_pos.dist_along() < vehicle_spec.length {
+                let vehicle = person.get_vehicle(*use_vehicle);
+                if start_pos.dist_along() < vehicle.length {
                     panic!(
                         "Can't spawn a {:?} at {}; too close to the start",
-                        vehicle_spec.vehicle_type,
+                        vehicle.vehicle_type,
                         start_pos.dist_along()
                     );
                 }
                 if start_pos.dist_along() >= map.get_l(start_pos.lane()).length() {
                     panic!(
                         "Can't spawn a {:?} at {}; {} isn't that long",
-                        vehicle_spec.vehicle_type,
+                        vehicle.vehicle_type,
                         start_pos.dist_along(),
                         start_pos.lane()
                     );
@@ -83,7 +83,7 @@ impl TripSpawner {
                         {
                             panic!(
                                 "Can't start a {:?} at the edge of a border already",
-                                vehicle_spec.vehicle_type
+                                vehicle.vehicle_type
                             );
                         }
                     }
@@ -176,10 +176,10 @@ impl TripSpawner {
                 TripSpec::VehicleAppearing {
                     start_pos,
                     goal,
-                    is_bike,
+                    use_vehicle,
                     ..
                 } => {
-                    let mut legs = vec![TripLeg::Drive(goal.clone())];
+                    let mut legs = vec![TripLeg::Drive(use_vehicle, goal.clone())];
                     if let DrivingGoal::ParkNear(b) = goal {
                         legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
                     }
@@ -188,7 +188,7 @@ impl TripSpawner {
                         person.id,
                         start_time,
                         trip_start,
-                        if is_bike {
+                        if use_vehicle.1 == VehicleType::Bike {
                             TripMode::Bike
                         } else {
                             TripMode::Drive
@@ -196,10 +196,14 @@ impl TripSpawner {
                         legs,
                     )
                 }
-                TripSpec::UsingParkedCar { start_bldg, goal } => {
+                TripSpec::UsingParkedCar {
+                    car,
+                    start_bldg,
+                    goal,
+                } => {
                     let mut legs = vec![
                         TripLeg::Walk(SidewalkSpot::deferred_parking_spot()),
-                        TripLeg::Drive(goal.clone()),
+                        TripLeg::Drive(car, goal.clone()),
                     ];
                     match goal {
                         DrivingGoal::ParkNear(b) => {
@@ -229,11 +233,13 @@ impl TripSpawner {
                     TripMode::Walk,
                     vec![TripLeg::Walk(goal.clone())],
                 ),
-                TripSpec::UsingBike { start, goal } => {
+                TripSpec::UsingBike { bike, start, goal } => {
                     let walk_to =
                         SidewalkSpot::bike_from_bike_rack(start.sidewalk_pos.lane(), map).unwrap();
-                    let mut legs =
-                        vec![TripLeg::Walk(walk_to.clone()), TripLeg::Drive(goal.clone())];
+                    let mut legs = vec![
+                        TripLeg::Walk(walk_to.clone()),
+                        TripLeg::Drive(bike, goal.clone()),
+                    ];
                     match goal {
                         DrivingGoal::ParkNear(b) => {
                             legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
@@ -315,10 +321,10 @@ impl TripSpec {
             TripSpec::VehicleAppearing {
                 start_pos,
                 goal,
-                is_bike,
+                use_vehicle,
                 ..
             } => {
-                let constraints = if *is_bike {
+                let constraints = if use_vehicle.1 == VehicleType::Bike {
                     PathConstraints::Bike
                 } else {
                     PathConstraints::Car

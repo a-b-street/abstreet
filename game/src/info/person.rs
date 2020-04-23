@@ -241,12 +241,13 @@ pub fn bio(
         );
     }
 
-    if let Some(car) = app.primary.sim.get_parked_car_owned_by(id) {
+    // TODO fix
+    /*if let Some(car) = app.primary.sim.get_parked_car_owned_by(id) {
         rows.push(Btn::text_bg2(format!("Owner of {}", car)).build_def(ctx, None));
         details
             .hyperlinks
             .insert(format!("Owner of {}", car), Tab::ParkedCar(car));
-    }
+    }*/
 
     rows
 }
