@@ -156,11 +156,7 @@ impl TripManager {
 
     pub fn agent_starting_trip_leg(&mut self, agent: AgentID, t: TripID) {
         assert!(!self.active_trip_mode.contains_key(&agent));
-        // TODO ensure a trip only has one active agent (aka, not walking and driving at the same
-        // time)
         self.active_trip_mode.insert(agent, t);
-        let trip = &self.trips[t.0];
-        self.people[trip.person.0].state = PersonState::Trip(t);
     }
 
     pub fn car_reached_parking_spot(
@@ -853,6 +849,8 @@ impl TripManager {
                 is_bike,
             } => {
                 assert_eq!(person.state, PersonState::OffMap);
+                person.state = PersonState::Trip(trip);
+
                 let vehicle = if is_bike {
                     person.bike.clone().unwrap()
                 } else {
@@ -882,6 +880,7 @@ impl TripManager {
             }
             TripSpec::UsingParkedCar { start_bldg, .. } => {
                 assert_eq!(person.state, PersonState::Inside(start_bldg));
+                person.state = PersonState::Trip(trip);
 
                 if let Some(parked_car) = parking.get_parked_car_owned_by(person.id) {
                     let start = SidewalkSpot::building(start_bldg, map);
@@ -938,6 +937,7 @@ impl TripManager {
                         _ => unreachable!(),
                     }
                 );
+                person.state = PersonState::Trip(trip);
 
                 let req = maybe_req.unwrap();
                 if let Some(path) = maybe_path {
@@ -969,6 +969,7 @@ impl TripManager {
                         _ => unreachable!(),
                     }
                 );
+                person.state = PersonState::Trip(trip);
 
                 let walk_to =
                     SidewalkSpot::bike_from_bike_rack(start.sidewalk_pos.lane(), map).unwrap();
@@ -1002,6 +1003,7 @@ impl TripManager {
                         _ => unreachable!(),
                     }
                 );
+                person.state = PersonState::Trip(trip);
 
                 let walk_to = SidewalkSpot::bus_stop(stop1, map);
                 let req = maybe_req.unwrap();

@@ -124,9 +124,10 @@ impl ParkingSimState {
         self.occupants
             .remove(&p.spot)
             .expect("remove_parked_car missing from occupants");
-        if let Some(id) = p.vehicle.owner {
-            self.owner_to_car.remove(&id);
-        }
+        // All parked cars have owners
+        self.owner_to_car
+            .remove(&p.vehicle.owner.unwrap())
+            .expect("remove_parked_car missing from owner_to_car");
         self.events
             .push(Event::CarLeftParkingSpot(p.vehicle.id, p.spot));
     }
@@ -135,18 +136,22 @@ impl ParkingSimState {
         assert!(self.reserved_spots.remove(&p.spot));
         self.events
             .push(Event::CarReachedParkingSpot(p.vehicle.id, p.spot));
+        assert!(!self.occupants.contains_key(&p.spot));
         self.occupants.insert(p.spot, p.vehicle.id);
-        if let Some(id) = p.vehicle.owner {
-            if self.owner_to_car.contains_key(&id) {
-                // TODO This should be an assertion. But right now, the same person can go on
-                // multiple trips concurrently. ;)
-                println!(
-                    "WARNING: {} is temporarily a doppelgänger and has two parked cars",
-                    id
-                );
-            }
-            self.owner_to_car.insert(id, p.vehicle.id);
+        // All parked cars have owners
+        let owner = p.vehicle.owner.unwrap();
+        if let Some(car) = self.owner_to_car.get(&owner) {
+            // TODO Doppel-cars! Some people apparently need multiple cars. Until then, don't leak
+            // spots and have doubles of the same car.
+            assert_eq!(*car, p.vehicle.id);
+            println!(
+                "{} has is trying to park a doppel-car. Warping {}.",
+                owner, car
+            );
+            let other = self.parked_cars[car].clone();
+            self.remove_parked_car(other);
         }
+        self.owner_to_car.insert(owner, p.vehicle.id);
         self.parked_cars.insert(p.vehicle.id, p);
     }
 
