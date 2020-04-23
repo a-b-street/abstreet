@@ -6,7 +6,7 @@ use crate::render::DrawMap;
 use ezgui::{Choice, EventCtx, GfxCtx, Wizard, WrappedWizard};
 use geom::Duration;
 use map_model::MapEdits;
-use sim::{ABTest, Scenario, SimFlags, SimOptions};
+use sim::{ABTest, AlertHandler, Scenario, SimFlags, SimOptions};
 
 pub struct PickABTest;
 impl PickABTest {
@@ -167,6 +167,7 @@ fn launch_test(test: &ABTest, app: &mut App, ctx: &mut EventCtx) -> ABTestMode {
                                     .opts
                                     .break_turn_conflict_cycles,
                                 enable_pandemic_model: None,
+                                alerts: AlertHandler::Print,
                             },
                         },
                         ..current_flags.clone()

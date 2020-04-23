@@ -195,6 +195,7 @@ impl TripManager {
             &self.people[trip.person.0],
             map,
             scheduler,
+            &mut self.events,
         ) {
             self.unfinished_trips -= 1;
         }
@@ -242,10 +243,13 @@ impl TripManager {
         let path = if let Some(p) = map.pathfind(req.clone()) {
             p
         } else {
-            println!(
-                "Aborting {} at {} because no path for the car portion! {} to {}",
-                trip.id, now, start, end
-            );
+            self.events.push(Event::Alert(
+                None,
+                format!(
+                    "Aborting {} because no path for the car portion! {} to {}",
+                    trip.id, start, end
+                ),
+            ));
             // Move the car to the destination...
             parking.remove_parked_car(parked_car.clone());
             let trip = trip.id;
@@ -324,11 +328,14 @@ impl TripManager {
                 ),
             );
         } else {
-            println!(
-                "Aborting {} at {} because no path for the bike portion (or sidewalk connection \
-                 at the end)! {} to {}",
-                trip.id, now, driving_pos, end
-            );
+            self.events.push(Event::Alert(
+                None,
+                format!(
+                    "Aborting {} because no path for the bike portion (or sidewalk connection at \
+                     the end)! {} to {}",
+                    trip.id, driving_pos, end
+                ),
+            ));
             let trip = trip.id;
             self.abort_trip(now, trip, None, parking, scheduler, map);
         }
@@ -357,7 +364,14 @@ impl TripManager {
             _ => unreachable!(),
         };
 
-        if !trip.spawn_ped(now, bike_rack, &self.people[trip.person.0], map, scheduler) {
+        if !trip.spawn_ped(
+            now,
+            bike_rack,
+            &self.people[trip.person.0],
+            map,
+            scheduler,
+            &mut self.events,
+        ) {
             self.unfinished_trips -= 1;
         }
     }
@@ -478,7 +492,14 @@ impl TripManager {
             _ => unreachable!(),
         };
 
-        if !trip.spawn_ped(now, start, &self.people[trip.person.0], map, scheduler) {
+        if !trip.spawn_ped(
+            now,
+            start,
+            &self.people[trip.person.0],
+            map,
+            scheduler,
+            &mut self.events,
+        ) {
             self.unfinished_trips -= 1;
         }
     }
@@ -599,17 +620,23 @@ impl TripManager {
                                 .map(|(_, spot, _)| spot)
                         })
                     {
-                        println!(
-                            "{} had a trip aborted, and their car was warped to {:?}",
-                            person, spot
-                        );
+                        self.events.push(Event::Alert(
+                            None,
+                            format!(
+                                "{} had a trip aborted, and their car was warped to {:?}",
+                                person, spot
+                            ),
+                        ));
                         parking.reserve_spot(spot);
                         parking.add_parked_car(ParkedCar { vehicle, spot });
                     } else {
-                        println!(
-                            "{} had a trip aborted, but nowhere to warp their car! Sucks.",
-                            person
-                        );
+                        self.events.push(Event::Alert(
+                            None,
+                            format!(
+                                "{} had a trip aborted, but nowhere to warp their car! Sucks.",
+                                person
+                            ),
+                        ));
                     }
                 }
             }
@@ -798,10 +825,13 @@ impl TripManager {
             return;
         }
         let (trip, spec, maybe_req, maybe_path) = person.delayed_trips.remove(0);
-        println!(
-            "At {}, {} just freed up, so starting delayed trip {}",
-            now, person.id, trip
-        );
+        self.events.push(Event::Alert(
+            None,
+            format!(
+                "{} just freed up, so starting delayed trip {}",
+                person.id, trip
+            ),
+        ));
         self.start_trip(
             now, trip, spec, maybe_req, maybe_path, parking, scheduler, map,
         );
@@ -821,10 +851,13 @@ impl TripManager {
         let person = &mut self.people[self.trips[trip.0].person.0];
         if let PersonState::Trip(_) = person.state {
             // Previous trip isn't done. Defer this one!
-            println!(
-                "At {}, {} is still doing a trip, so not starting {}",
-                now, person.id, trip
-            );
+            self.events.push(Event::Alert(
+                None,
+                format!(
+                    "{} is still doing a trip, so not starting {}",
+                    person.id, trip
+                ),
+            ));
             person
                 .delayed_trips
                 .push((trip, spec, maybe_req, maybe_path));
@@ -864,19 +897,25 @@ impl TripManager {
                         ),
                     );
                 } else {
-                    println!(
-                        "VehicleAppearing trip couldn't find the first path (or no bike->sidewalk \
-                         connection at the end): {}",
-                        req
-                    );
+                    self.events.push(Event::Alert(
+                        None,
+                        format!(
+                            "VehicleAppearing trip couldn't find the first path (or no \
+                             bike->sidewalk connection at the end): {}",
+                            req
+                        ),
+                    ));
                     self.abort_trip(now, trip, Some(vehicle), parking, scheduler, map);
                 }
             }
             TripSpec::NoRoomToSpawn { i, use_vehicle, .. } => {
-                println!(
-                    "{} couldn't spawn at border {}, just aborting",
-                    person.id, i
-                );
+                self.events.push(Event::Alert(
+                    Some(i),
+                    format!(
+                        "{} couldn't spawn at border {}, just aborting",
+                        person.id, i
+                    ),
+                ));
                 let vehicle = person.get_vehicle(use_vehicle);
                 self.abort_trip(now, trip, Some(vehicle), parking, scheduler, map);
             }
@@ -912,7 +951,10 @@ impl TripManager {
                             }),
                         );
                     } else {
-                        println!("UsingParkedCar trip couldn't find the walking path {}", req);
+                        self.events.push(Event::Alert(
+                            None,
+                            format!("UsingParkedCar trip couldn't find the walking path {}", req),
+                        ));
                         // Move the car to the destination
                         parking.remove_parked_car(parked_car.clone());
                         self.abort_trip(
@@ -927,11 +969,14 @@ impl TripManager {
                 } else {
                     // This should only happen when a driving trip has been aborted and there was
                     // absolutely no room to warp the car.
-                    println!(
-                        "At {}, {} should have {} parked somewhere, but it's unavailable, so \
-                         aborting {}",
-                        now, person.id, car, trip
-                    );
+                    self.events.push(Event::Alert(
+                        None,
+                        format!(
+                            "{} should have {} parked somewhere, but it's unavailable, so \
+                             aborting {}",
+                            person.id, car, trip
+                        ),
+                    ));
                     self.abort_trip(now, trip, None, parking, scheduler, map);
                 }
             }
@@ -963,7 +1008,10 @@ impl TripManager {
                         }),
                     );
                 } else {
-                    println!("JustWalking trip couldn't find the first path {}", req);
+                    self.events.push(Event::Alert(
+                        None,
+                        format!("JustWalking trip couldn't find the first path {}", req),
+                    ));
                     self.abort_trip(now, trip, None, parking, scheduler, map);
                 }
             }
@@ -997,7 +1045,10 @@ impl TripManager {
                         }),
                     );
                 } else {
-                    println!("UsingBike trip couldn't find the first path {}", req);
+                    self.events.push(Event::Alert(
+                        None,
+                        format!("UsingBike trip couldn't find the first path {}", req),
+                    ));
                     self.abort_trip(now, trip, None, parking, scheduler, map);
                 }
             }
@@ -1030,7 +1081,10 @@ impl TripManager {
                         }),
                     );
                 } else {
-                    println!("UsingTransit trip couldn't find the first path {}", req);
+                    self.events.push(Event::Alert(
+                        None,
+                        format!("UsingTransit trip couldn't find the first path {}", req),
+                    ));
                     self.abort_trip(now, trip, None, parking, scheduler, map);
                 }
             }
@@ -1061,6 +1115,7 @@ impl Trip {
         person: &Person,
         map: &Map,
         scheduler: &mut Scheduler,
+        events: &mut Vec<Event>,
     ) -> bool {
         let walk_to = match self.legs[0] {
             TripLeg::Walk(ref to) => to.clone(),
@@ -1075,10 +1130,13 @@ impl Trip {
         let path = if let Some(p) = map.pathfind(req.clone()) {
             p
         } else {
-            println!(
-                "Aborting {} at {} because no path for the walking portion! {:?} to {:?}",
-                self.id, now, start, walk_to
-            );
+            events.push(Event::Alert(
+                None,
+                format!(
+                    "Aborting {} because no path for the walking portion! {:?} to {:?}",
+                    self.id, start, walk_to
+                ),
+            ));
             return false;
         };
 

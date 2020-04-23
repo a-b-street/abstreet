@@ -26,7 +26,7 @@ pub struct Analytics {
     pub intersection_delays: BTreeMap<IntersectionID, Vec<(Time, Duration)>>,
     // Per parking lane, when does a spot become filled (true) or free (false)
     parking_spot_changes: BTreeMap<LaneID, Vec<(Time, bool)>>,
-    pub(crate) alerts: Vec<(Time, IntersectionID, String)>,
+    pub(crate) alerts: Vec<(Time, Option<IntersectionID>, String)>,
 
     // After we restore from a savestate, don't record anything. This is only going to make sense
     // if savestates are only used for quickly previewing against prebaked results, where we have

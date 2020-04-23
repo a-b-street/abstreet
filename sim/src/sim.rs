@@ -61,6 +61,10 @@ pub struct Sim {
     #[derivative(PartialEq = "ignore")]
     #[serde(skip_serializing, skip_deserializing)]
     check_for_gridlock: Option<(Time, Duration)>,
+
+    #[derivative(PartialEq = "ignore")]
+    #[serde(skip_serializing, skip_deserializing)]
+    alerts: AlertHandler,
 }
 
 #[derive(Clone)]
@@ -72,6 +76,23 @@ pub struct SimOptions {
     pub recalc_lanechanging: bool,
     pub break_turn_conflict_cycles: bool,
     pub enable_pandemic_model: Option<XorShiftRng>,
+    pub alerts: AlertHandler,
+}
+
+#[derive(Clone)]
+pub enum AlertHandler {
+    // Just print the alert to STDOUT
+    Print,
+    // Print the alert to STDOUT and don't proceed until the UI calls clear_alerts()
+    Block,
+    // Don't do anything
+    Silence,
+}
+
+impl std::default::Default for AlertHandler {
+    fn default() -> AlertHandler {
+        AlertHandler::Print
+    }
 }
 
 impl SimOptions {
@@ -84,6 +105,7 @@ impl SimOptions {
             recalc_lanechanging: true,
             break_turn_conflict_cycles: false,
             enable_pandemic_model: None,
+            alerts: AlertHandler::Print,
         }
     }
 }
@@ -123,6 +145,7 @@ impl Sim {
             step_count: 0,
             trip_positions: None,
             check_for_gridlock: None,
+            alerts: opts.alerts,
 
             analytics: Analytics::new(),
         }
@@ -586,10 +609,25 @@ impl Sim {
 
         timer.start(format!("Advance sim to {}", end_time));
         while self.time < end_time {
-            if !self.analytics.alerts.is_empty() {
-                break;
-            }
             self.minimal_step(map, end_time - self.time);
+            if !self.analytics.alerts.is_empty() {
+                match self.alerts {
+                    AlertHandler::Print => {
+                        for (t, _, msg) in self.analytics.alerts.drain(..) {
+                            println!("Alert at {}: {}", t, msg);
+                        }
+                    }
+                    AlertHandler::Block => {
+                        for (t, _, msg) in &self.analytics.alerts {
+                            println!("Alert at {}: {}", t, msg);
+                        }
+                        break;
+                    }
+                    AlertHandler::Silence => {
+                        self.analytics.alerts.clear();
+                    }
+                }
+            }
             if Duration::realtime_elapsed(last_update) >= Duration::seconds(1.0) {
                 // TODO Not timer?
                 println!(
@@ -627,10 +665,25 @@ impl Sim {
         let end_time = self.time + dt;
 
         while self.time < end_time && Duration::realtime_elapsed(started_at) < real_time_limit {
-            if !self.analytics.alerts.is_empty() {
-                break;
-            }
             self.minimal_step(map, end_time - self.time);
+            if !self.analytics.alerts.is_empty() {
+                match self.alerts {
+                    AlertHandler::Print => {
+                        for (t, _, msg) in self.analytics.alerts.drain(..) {
+                            println!("Alert at {}: {}", t, msg);
+                        }
+                    }
+                    AlertHandler::Block => {
+                        for (t, _, msg) in &self.analytics.alerts {
+                            println!("Alert at {}: {}", t, msg);
+                        }
+                        break;
+                    }
+                    AlertHandler::Silence => {
+                        self.analytics.alerts.clear();
+                    }
+                }
+            }
             if let Some((ref mut t, dt)) = self.check_for_gridlock {
                 if self.time >= *t {
                     *t += dt;
@@ -1134,7 +1187,7 @@ impl Sim {
         }
     }
 
-    pub fn clear_alerts(&mut self) -> Vec<(Time, IntersectionID, String)> {
+    pub fn clear_alerts(&mut self) -> Vec<(Time, Option<IntersectionID>, String)> {
         std::mem::replace(&mut self.analytics.alerts, Vec::new())
     }
 }

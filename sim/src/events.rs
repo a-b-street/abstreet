@@ -47,7 +47,8 @@ pub enum Event {
     // to plumb info into Analytics is Event.
     PathAmended(Path),
 
-    Alert(IntersectionID, String),
+    // TODO Also buildings
+    Alert(Option<IntersectionID>, String),
 }
 
 #[derive(Debug, PartialEq, Clone, Copy, Serialize, Deserialize)]

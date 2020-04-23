@@ -395,12 +395,10 @@ impl State {
                     while !queue.is_empty() {
                         let current = queue.pop().unwrap();
                         if !seen.is_empty() && current == req.agent {
-                            if false {
-                                events.push(Event::Alert(
-                                    req.turn.parent,
-                                    format!("Turn conflict cycle involving {:?}", seen),
-                                ));
-                            }
+                            events.push(Event::Alert(
+                                Some(req.turn.parent),
+                                format!("Turn conflict cycle involving {:?}", seen),
+                            ));
                             return true;
                         }
                         // Because the blocked-by relation is many-to-many, this might happen.
@@ -539,11 +537,13 @@ impl State {
         if time_to_cross > remaining_phase_time {
             // Actually, we might have bigger problems...
             if time_to_cross > phase.duration {
-                println!(
-                    "OYYY! {:?} is impossible to fit into phase duration of {}. Allowing, but fix \
-                     the policy!",
-                    req, phase.duration
-                );
+                events.push(Event::Alert(
+                    Some(req.turn.parent),
+                    format!(
+                        "{:?} is impossible to fit into phase duration of {}",
+                        req, phase.duration
+                    ),
+                ));
             } else {
                 return false;
             }

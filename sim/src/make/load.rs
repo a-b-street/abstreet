@@ -1,4 +1,4 @@
-use crate::{Scenario, Sim, SimOptions};
+use crate::{AlertHandler, Scenario, Sim, SimOptions};
 use abstutil::CmdArgs;
 use geom::Duration;
 use map_model::{Map, MapEdits};
@@ -41,6 +41,15 @@ impl SimFlags {
                 } else {
                     None
                 },
+                alerts: args
+                    .optional("--alerts")
+                    .map(|x| match x.as_ref() {
+                        "print" => AlertHandler::Print,
+                        "block" => AlertHandler::Block,
+                        "silence" => AlertHandler::Silence,
+                        _ => panic!("Bad --alerts={}. Must be print|block|silence", x),
+                    })
+                    .unwrap_or(AlertHandler::Print),
             },
         }
     }
