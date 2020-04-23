@@ -138,7 +138,9 @@ impl TripManager {
     }
 
     pub fn agent_starting_trip_leg(&mut self, agent: AgentID, t: TripID) {
-        assert!(!self.active_trip_mode.contains_key(&agent));
+        if let Some(other) = self.active_trip_mode.get(&agent) {
+            panic!("{} is doing both {} and {}?", agent, t, other);
+        }
         self.active_trip_mode.insert(agent, t);
     }
 
@@ -609,6 +611,14 @@ impl TripManager {
                             person
                         );
                     }
+                }
+            }
+        } else {
+            // If the trip was aborted because we'e totally out of parking, don't forget to clean
+            // this up.
+            if let TripLeg::Drive(c, _) = &trip.legs[0] {
+                if let Some(t) = self.active_trip_mode.remove(&AgentID::Car(*c)) {
+                    assert_eq!(t, trip.id);
                 }
             }
         }
