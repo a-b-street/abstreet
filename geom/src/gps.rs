@@ -1,7 +1,6 @@
 use crate::Distance;
 use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
-use std::f64;
 use std::fmt;
 
 // longitude is x, latitude is y

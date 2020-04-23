@@ -1,6 +1,4 @@
 use serde_derive::{Deserialize, Serialize};
-use std;
-use std::f64;
 use std::fmt;
 
 // Stores in radians
@@ -20,11 +18,11 @@ impl Angle {
     }
 
     pub fn opposite(self) -> Angle {
-        Angle::new(self.0 + f64::consts::PI)
+        Angle::new(self.0 + std::f64::consts::PI)
     }
 
     pub fn invert_y(self) -> Angle {
-        Angle::new(2.0 * f64::consts::PI - self.0)
+        Angle::new(2.0 * std::f64::consts::PI - self.0)
     }
 
     pub fn rotate_degs(self, degrees: f64) -> Angle {
@@ -33,7 +31,7 @@ impl Angle {
 
     pub fn normalized_radians(self) -> f64 {
         if self.0 < 0.0 {
-            self.0 + (2.0 * f64::consts::PI)
+            self.0 + (2.0 * std::f64::consts::PI)
         } else {
             self.0
         }

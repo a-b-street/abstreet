@@ -8,7 +8,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: hecrj/setup-rust-action@v1
         with:
-          rust-version: 1.42.0
+          rust-version: 1.43.0
       - name: Run build
         run: cargo build --release --bin game
       - name: Package release
@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: hecrj/setup-rust-action@v1
         with:
-          rust-version: 1.42.0
+          rust-version: 1.43.0
       - name: Run build
         run: cargo build --release --bin game
       - name: Package release
@@ -42,7 +42,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: hecrj/setup-rust-action@v1
         with:
-          rust-version: 1.42.0
+          rust-version: 1.43.0
       - name: Run build
         run: cargo build --release --bin game
       - name: Package release
