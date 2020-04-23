@@ -255,7 +255,6 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
         let id = PersonID(people.len());
         let mut trips = Vec::new();
         for (_, idx) in seq_trips {
-            // TODO Track when there are gaps in the sequence, to explain the person warping.
             trips.push(individ_trips[idx].take().unwrap());
         }
         // Actually, the sequence in the Soundcast dataset crosses midnight. Don't do that; sort by

@@ -228,16 +228,16 @@ e27d41c916a721b330459ce85a114dbc  data/system/maps/23rd.bin
 cc45f42cb24cad1cfdbf5ed7a0cb86d4  data/system/synthetic_maps/signal_double.json
 8b949cc34d9a27ace0bd8ecde55a9520  data/system/synthetic_maps/signal_single.json
 1cd7be125e1d992613ed3a41e8b25b6a  data/system/synthetic_maps/signal_fan_in.json
-3395f869c843e975a865ec6abdfd73a6  data/system/scenarios/ballard/weekday.bin
-5808fa3463d40ebdc11df740af957e27  data/system/scenarios/intl_district/weekday.bin
-ba178b246461b66a0b888fae82392be6  data/system/scenarios/23rd/weekday.bin
-8dae2cd0dd23a72d9b225a218b203c13  data/system/scenarios/lakeslice/weekday.bin
-e26238b69d0ce1c00948221d9a089445  data/system/scenarios/downtown/weekday.bin
-7fa74272f3b443f985c8e2c9f2eb6175  data/system/scenarios/huge_seattle/weekday.bin
-dfe4f16099b828e06cedea0eaa1531d9  data/system/scenarios/caphill/weekday.bin
+9f8ab17e0a0c1cf4a0d5964f7e36658e  data/system/scenarios/ballard/weekday.bin
+70b59885920616c1b1677818f6f89d82  data/system/scenarios/intl_district/weekday.bin
+ccb9e7763427b2d8b4fb6b44b2c4e599  data/system/scenarios/23rd/weekday.bin
+160825412e11206e8e856cc20920fbf0  data/system/scenarios/lakeslice/weekday.bin
+a23157b6bc180c457f93430c0683ff69  data/system/scenarios/downtown/weekday.bin
+1ea056fc3afff56db11be283bb23b6fd  data/system/scenarios/huge_seattle/weekday.bin
+1e9409a0a789de6b22157e3f28ce30bd  data/system/scenarios/caphill/weekday.bin
 f180a68083c44e0e21b65e3e63be8068  data/system/scenarios/montlake/weekday.bin
 80cb748e090072b559b08bdd4bc8c30c  data/system/prebaked_results/signal_single/tutorial lvl1.bin
 ec841305a2dbc37649045f31afce09bd  data/system/prebaked_results/signal_single/tutorial lvl2.bin
-fa40da194855f37c9f831f7391c6013e  data/system/prebaked_results/montlake/car vs bike contention.bin
+4e26a658e0a9e95859d82d35123b33d5  data/system/prebaked_results/montlake/car vs bike contention.bin
 25d1542a7cb3bde030a4e10e542e48df  data/system/prebaked_results/montlake/weekday.bin
 02ae8e1b35219ab4934969c07187842b  data/system/prebaked_results/montlake/car vs bus contention.bin

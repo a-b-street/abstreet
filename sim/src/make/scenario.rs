@@ -84,6 +84,10 @@ impl Scenario {
         for p in &self.people {
             timer.next();
 
+            if let Err(err) = p.check_schedule(map) {
+                panic!("{}", err);
+            }
+
             let (vehicle_specs, cars_initially_parked_at, vehicle_foreach_trip) =
                 p.get_vehicles(rng);
             sim.new_person(p.id, Scenario::rand_ped_speed(rng), vehicle_specs);
@@ -95,15 +99,12 @@ impl Scenario {
                 // The RNG call might change over edits for picking the spawning lane from a border
                 // with multiple choices for a vehicle type.
                 let mut tmp_rng = abstutil::fork_rng(rng);
-                if let Some(spec) = t.trip.clone().to_trip_spec(
+                let spec = t.trip.clone().to_trip_spec(
                     maybe_idx.map(|idx| person.vehicles[idx].id),
                     &mut tmp_rng,
                     map,
-                ) {
-                    spawner.schedule_trip(person, t.depart, spec, map);
-                } else {
-                    timer.warn(format!("Couldn't turn {:?} into a trip", t.trip));
-                }
+                );
+                spawner.schedule_trip(person, t.depart, spec, map);
             }
         }
 
@@ -173,8 +174,8 @@ impl Scenario {
     // Utter hack. Blindly repeats all trips taken by each person every day.
     //
     // What happens if the last place a person winds up in a day isn't the same as where their
-    // first trip the next starts? Will crash at runtime, because start_trip() will enforce this.
-    // Right now we're fine. Could call remove_weird_schedules() to detect this.
+    // first trip the next starts? Will crash as soon as the scenario is instantiated, through
+    // check_schedule().
     //
     // The bigger problem is that any people that seem to require multiple cars... will wind up
     // needing LOTS of cars.
@@ -212,30 +213,14 @@ impl Scenario {
 
     pub fn remove_weird_schedules(mut self, map: &Map) -> Scenario {
         let orig = self.people.len();
-        self.people.retain(|person| {
-            // Verify that the trip start/endpoints of each person match up
-            let mut ok = true;
-            for pair in person.trips.iter().zip(person.trips.iter().skip(1)) {
-                // Once off-map, re-enter via any border node.
-                let end_bldg = match pair.0.trip.end() {
-                    TripEndpoint::Bldg(b) => Some(b),
-                    TripEndpoint::Border(_) => None,
-                };
-                let start_bldg = match pair.1.trip.start(map) {
-                    TripEndpoint::Bldg(b) => Some(b),
-                    TripEndpoint::Border(_) => None,
-                };
-                if end_bldg != start_bldg {
-                    ok = false;
-                    println!(
-                        "{:?} warps between some trips, from {:?} to {:?}",
-                        person.orig_id, end_bldg, start_bldg
-                    );
-                    break;
+        self.people
+            .retain(|person| match person.check_schedule(map) {
+                Ok(()) => true,
+                Err(err) => {
+                    println!("{}", err);
+                    false
                 }
-            }
-            ok
-        });
+            });
         println!(
             "{} of {} people have nonsense schedules",
             prettyprint_usize(orig - self.people.len()),
@@ -340,56 +325,65 @@ impl SpawnTrip {
         use_vehicle: Option<CarID>,
         rng: &mut XorShiftRng,
         map: &Map,
-    ) -> Option<TripSpec> {
+    ) -> TripSpec {
         match self {
-            SpawnTrip::VehicleAppearing { start, goal, .. } => Some(TripSpec::VehicleAppearing {
+            SpawnTrip::VehicleAppearing { start, goal, .. } => TripSpec::VehicleAppearing {
                 start_pos: start,
                 goal,
                 use_vehicle: use_vehicle.unwrap(),
                 retry_if_no_room: true,
-            }),
+            },
             SpawnTrip::FromBorder {
                 i, goal, is_bike, ..
-            } => Some(TripSpec::VehicleAppearing {
-                start_pos: {
-                    let l = *map
-                        .get_i(i)
-                        .get_outgoing_lanes(
-                            map,
-                            if is_bike {
-                                PathConstraints::Bike
-                            } else {
-                                PathConstraints::Car
-                            },
-                        )
-                        .choose(rng)?;
+            } => {
+                if let Some(start_pos) = map
+                    .get_i(i)
+                    .get_outgoing_lanes(
+                        map,
+                        if is_bike {
+                            PathConstraints::Bike
+                        } else {
+                            PathConstraints::Car
+                        },
+                    )
+                    .choose(rng)
                     // TODO We could be more precise and say exactly what vehicle will be used here
-                    TripSpec::spawn_vehicle_at(Position::new(l, Distance::ZERO), is_bike, map)?
-                },
-                goal,
-                use_vehicle: use_vehicle.unwrap(),
-                retry_if_no_room: true,
-            }),
-            SpawnTrip::UsingParkedCar(start_bldg, goal) => Some(TripSpec::UsingParkedCar {
+                    .and_then(|l| {
+                        TripSpec::spawn_vehicle_at(Position::new(*l, Distance::ZERO), is_bike, map)
+                    })
+                {
+                    TripSpec::VehicleAppearing {
+                        start_pos,
+                        goal,
+                        use_vehicle: use_vehicle.unwrap(),
+                        retry_if_no_room: true,
+                    }
+                } else {
+                    TripSpec::NoRoomToSpawn {
+                        i,
+                        goal,
+                        use_vehicle: use_vehicle.unwrap(),
+                    }
+                }
+            }
+            SpawnTrip::UsingParkedCar(start_bldg, goal) => TripSpec::UsingParkedCar {
                 start_bldg,
                 goal,
                 car: use_vehicle.unwrap(),
-            }),
-            SpawnTrip::UsingBike(start, goal) => Some(TripSpec::UsingBike {
+            },
+            SpawnTrip::UsingBike(start, goal) => TripSpec::UsingBike {
                 bike: use_vehicle.unwrap(),
                 start,
                 goal,
-            }),
-            SpawnTrip::JustWalking(start, goal) => Some(TripSpec::JustWalking { start, goal }),
-            SpawnTrip::UsingTransit(start, goal, route, stop1, stop2) => {
-                Some(TripSpec::UsingTransit {
-                    start,
-                    goal,
-                    route,
-                    stop1,
-                    stop2,
-                })
-            }
+            },
+            SpawnTrip::JustWalking(start, goal) => TripSpec::JustWalking { start, goal },
+            SpawnTrip::UsingTransit(start, goal, route, stop1, stop2) => TripSpec::UsingTransit {
+                start,
+                goal,
+                route,
+                stop1,
+                stop2,
+            },
         }
     }
 
@@ -431,6 +425,36 @@ impl SpawnTrip {
 }
 
 impl PersonSpec {
+    // Verify that the trip start/endpoints of the person match up
+    fn check_schedule(&self, map: &Map) -> Result<(), String> {
+        for pair in self.trips.iter().zip(self.trips.iter().skip(1)) {
+            if pair.0.depart >= pair.1.depart {
+                return Err(format!(
+                    "{} {:?} starts two trips in the wrong order: {} then {}",
+                    self.id, self.orig_id, pair.0.depart, pair.1.depart
+                ));
+            }
+
+            // Once off-map, re-enter via any border node.
+            let end_bldg = match pair.0.trip.end() {
+                TripEndpoint::Bldg(b) => Some(b),
+                TripEndpoint::Border(_) => None,
+            };
+            let start_bldg = match pair.1.trip.start(map) {
+                TripEndpoint::Bldg(b) => Some(b),
+                TripEndpoint::Border(_) => None,
+            };
+
+            if end_bldg != start_bldg {
+                return Err(format!(
+                    "At {}, {} {:?} warps between some trips, from {:?} to {:?}",
+                    pair.1.depart, self.id, self.orig_id, end_bldg, start_bldg
+                ));
+            }
+        }
+        Ok(())
+    }
+
     fn get_vehicles(
         &self,
         rng: &mut XorShiftRng,

@@ -862,6 +862,14 @@ impl TripManager {
                     self.abort_trip(now, trip, Some(vehicle), parking, scheduler, map);
                 }
             }
+            TripSpec::NoRoomToSpawn { i, use_vehicle, .. } => {
+                println!(
+                    "{} couldn't spawn at border {}, just aborting",
+                    person.id, i
+                );
+                let vehicle = person.get_vehicle(use_vehicle);
+                self.abort_trip(now, trip, Some(vehicle), parking, scheduler, map);
+            }
             TripSpec::UsingParkedCar {
                 car, start_bldg, ..
             } => {
