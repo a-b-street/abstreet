@@ -73,7 +73,7 @@ impl ParkingSimState {
                 if map.get_l(p.driving_pos.lane()).parking_blackhole.is_some() {
                     continue;
                 }
-                sim.num_spots_per_offstreet.insert(b.id, p.num_stalls);
+                sim.num_spots_per_offstreet.insert(b.id, p.num_spots);
                 sim.driving_to_offstreet.insert(p.driving_pos.lane(), b.id);
             }
         }

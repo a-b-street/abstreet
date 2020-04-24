@@ -200,8 +200,8 @@ impl App {
                 match obj.get_id() {
                     ID::Building(_) => {
                         if !drawn_all_buildings {
-                            g.redraw(&self.primary.draw_map.draw_all_buildings);
                             g.redraw(&self.primary.draw_map.draw_all_building_paths);
+                            g.redraw(&self.primary.draw_map.draw_all_buildings);
                             drawn_all_buildings = true;
                         }
                     }

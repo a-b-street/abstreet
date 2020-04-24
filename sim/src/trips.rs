@@ -230,7 +230,9 @@ impl TripManager {
         };
 
         let mut start = parking.spot_to_driving_pos(parked_car.spot, &parked_car.vehicle, map);
-        if let ParkingSpot::Offstreet(_, _) = spot {
+        if let ParkingSpot::Offstreet(b, _) = spot {
+            self.events
+                .push(Event::PersonEntersBuilding(trip.person, b));
             // Actually, to unpark, the car's front should be where it'll wind up at the end.
             start = Position::new(start.lane(), start.dist_along() + parked_car.vehicle.length);
         }

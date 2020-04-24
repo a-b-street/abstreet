@@ -3,7 +3,7 @@ use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, Text};
-use geom::{Angle, Distance, Line, Polygon, Pt2D};
+use geom::{Angle, Line, Polygon, Pt2D};
 use map_model::{Building, BuildingID, Map, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
 
 pub struct DrawBuilding {
@@ -30,20 +30,19 @@ impl DrawBuilding {
                 front_path_line.dist_along(len - trim_back),
             );
         }
-        let front_path = front_path_line.make_polygons(Distance::meters(1.0));
 
         bldg_batch.push(cs.building, bldg.polygon.clone());
-        paths_batch.push(cs.sidewalk, front_path);
+        paths_batch.push(
+            cs.sidewalk,
+            front_path_line.make_polygons(NORMAL_LANE_THICKNESS),
+        );
 
-        // TODO Do similar trim_back for driveway
-        if let Some(ref p) = bldg.parking {
-            paths_batch.push(
-                cs.driving_lane,
-                p.driveway_line.make_polygons(NORMAL_LANE_THICKNESS),
-            );
-        }
-
-        if bldg.parking.is_some() {
+        if bldg
+            .parking
+            .as_ref()
+            .map(|p| p.public_garage_name.is_some())
+            .unwrap_or(false)
+        {
             // Might need to scale down more for some buildings, but so far, this works everywhere.
             bldg_batch.add_svg(
                 prerender,

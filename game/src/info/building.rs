@@ -19,7 +19,15 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
     }
 
     if let Some(ref p) = b.parking {
-        kv.push(("Parking", format!("{} spots via {}", p.num_stalls, p.name)));
+        if let Some(ref n) = p.public_garage_name {
+            kv.push(("Parking", format!("{} public spots via {}", p.num_spots, n)));
+        } else {
+            if p.num_spots == 1 {
+                kv.push(("Parking", format!("{} private spot", p.num_spots)));
+            } else {
+                kv.push(("Parking", format!("{} private spots", p.num_spots)));
+            }
+        }
     } else {
         kv.push(("Parking", "None".to_string()));
     }

@@ -192,12 +192,6 @@ impl Map {
         m.pathfinder = Some(pathfinder);
         timer.stop("setup rest of Pathfinder (walking with transit)");
 
-        timer.start("find parking blackholes");
-        for (l, redirect) in connectivity::redirect_parking_blackholes(&m, timer) {
-            m.lanes[l.0].parking_blackhole = Some(redirect);
-        }
-        timer.stop("find parking blackholes");
-
         let (_, disconnected) = connectivity::find_scc(&m, PathConstraints::Pedestrian);
         if !disconnected.is_empty() {
             timer.warn(format!(
@@ -975,14 +969,13 @@ fn make_half_map(
         }
     }
 
-    make::make_all_buildings(
-        &mut map.buildings,
-        &raw.buildings,
-        &map.bounds,
-        &map.lanes,
-        &map.roads,
-        timer,
-    );
+    timer.start("find parking blackholes");
+    for (l, redirect) in connectivity::redirect_parking_blackholes(&map, timer) {
+        map.lanes[l.0].parking_blackhole = Some(redirect);
+    }
+    timer.stop("find parking blackholes");
+
+    map.buildings = make::make_all_buildings(&raw.buildings, &map, timer);
     for b in &map.buildings {
         let lane = b.sidewalk();
 

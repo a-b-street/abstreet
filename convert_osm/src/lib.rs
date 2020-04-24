@@ -5,10 +5,10 @@ mod split_ways;
 mod srtm;
 
 use abstutil::Timer;
-use geom::{Distance, FindClosest, Line, PolyLine, Pt2D};
+use geom::{Distance, FindClosest, PolyLine, Pt2D};
 use kml::ExtraShapes;
+use map_model::osm;
 use map_model::raw::{DrivingSide, OriginalBuilding, OriginalRoad, RawMap};
-use map_model::{osm, LaneID, OffstreetParking, Position};
 
 // Just used for matching hints to different sides of a road.
 const DIRECTED_ROAD_THICKNESS: Distance = Distance::const_meters(2.5);
@@ -194,21 +194,21 @@ fn use_offstreet_parking(map: &mut RawMap, path: String, timer: &mut Timer) {
         if num_stalls == 0 {
             return None;
         }
-        // TODO Update the existing one instead
-        if let Some(ref existing) = map.buildings[&id].parking {
+
+        let bldg = map.buildings.get_mut(&id).unwrap();
+        if bldg.num_parking_spots > 0 {
             // TODO Can't use timer inside this closure
+            let old_name = bldg.public_garage_name.take().unwrap();
             println!(
                 "Two offstreet parking hints apply to {}: {} @ {}, and {} @ {}",
-                id, existing.num_stalls, existing.name, num_stalls, name
+                id, bldg.num_parking_spots, old_name, num_stalls, name
             );
+            bldg.public_garage_name = Some(format!("{} and {}", old_name, name));
+            bldg.num_parking_spots += num_stalls;
+        } else {
+            bldg.public_garage_name = Some(name);
+            bldg.num_parking_spots = num_stalls;
         }
-        map.buildings.get_mut(&id).unwrap().parking = Some(OffstreetParking {
-            name,
-            num_stalls,
-            // Temporary values, populate later
-            driveway_line: Line::new(Pt2D::new(0.0, 0.0), Pt2D::new(1.0, 1.0)),
-            driving_pos: Position::new(LaneID(0), Distance::ZERO),
-        });
         None
     });
 

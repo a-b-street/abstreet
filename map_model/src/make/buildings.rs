@@ -1,63 +1,51 @@
 use crate::make::sidewalk_finder::find_sidewalk_points;
 use crate::raw::{OriginalBuilding, RawBuilding};
-use crate::{osm, Building, BuildingID, FrontPath, Lane, LaneID, OffstreetParking, Position, Road};
+use crate::{Building, BuildingID, FrontPath, LaneType, Map, OffstreetParking};
 use abstutil::Timer;
-use geom::{Bounds, Distance, FindClosest, HashablePt2D, Line, Polygon, Pt2D};
+use geom::{Distance, HashablePt2D, Line, Polygon};
 use std::collections::{BTreeMap, HashSet};
 
 pub fn make_all_buildings(
-    results: &mut Vec<Building>,
     input: &BTreeMap<OriginalBuilding, RawBuilding>,
-    bounds: &Bounds,
-    lanes: &Vec<Lane>,
-    roads: &Vec<Road>,
+    map: &Map,
     timer: &mut Timer,
-) {
+) -> Vec<Building> {
     timer.start("convert buildings");
     let mut center_per_bldg: BTreeMap<OriginalBuilding, HashablePt2D> = BTreeMap::new();
     let mut query: HashSet<HashablePt2D> = HashSet::new();
     timer.start_iter("get building center points", input.len());
     for (id, b) in input {
         timer.next();
-        // TODO Use the polylabel? Want to have visually distinct lines for front path and
-        // driveway; using two different "centers" is a lazy way for now.
         let center = b.polygon.center().to_hashable();
         center_per_bldg.insert(*id, center);
         query.insert(center);
     }
 
-    let mut closest_driving: FindClosest<LaneID> = FindClosest::new(bounds);
-    for l in lanes {
-        // TODO And is the rightmost driving lane...
-        if !l.is_driving() {
-            continue;
-        }
-        let tags = &roads[l.parent.0].osm_tags;
-        if tags.get(osm::HIGHWAY) == Some(&"motorway".to_string())
-            || tags.get("tunnel") == Some(&"yes".to_string())
-        {
-            continue;
-        }
-
-        closest_driving.add(l.id, l.lane_center_pts.points());
-    }
-
     // Skip buildings that're too far away from their sidewalk
-    let sidewalk_pts = find_sidewalk_points(bounds, query, lanes, Distance::meters(100.0), timer);
+    let sidewalk_pts = find_sidewalk_points(
+        map.get_bounds(),
+        query,
+        map.all_lanes(),
+        Distance::meters(100.0),
+        timer,
+    );
 
+    let mut results = Vec::new();
     timer.start_iter("create building front paths", center_per_bldg.len());
     for (orig_id, bldg_center) in center_per_bldg {
         timer.next();
         if let Some(sidewalk_pos) = sidewalk_pts.get(&bldg_center) {
-            let sidewalk_pt = lanes[sidewalk_pos.lane().0]
-                .dist_along(sidewalk_pos.dist_along())
-                .0;
+            let sidewalk_pt = sidewalk_pos.pt(map);
             if sidewalk_pt == bldg_center.to_pt2d() {
-                timer.warn("Skipping a building because front path has 0 length".to_string());
+                timer.warn(format!(
+                    "Skipping building {} because front path has 0 length",
+                    orig_id
+                ));
                 continue;
             }
             let b = &input[&orig_id];
-            let line = trim_path(&b.polygon, Line::new(bldg_center.to_pt2d(), sidewalk_pt));
+            let sidewalk_line =
+                trim_path(&b.polygon, Line::new(bldg_center.to_pt2d(), sidewalk_pt));
 
             let id = BuildingID(results.len());
             let mut bldg = Building {
@@ -67,63 +55,52 @@ pub fn make_all_buildings(
                 osm_way_id: orig_id.osm_way_id,
                 front_path: FrontPath {
                     sidewalk: *sidewalk_pos,
-                    line,
+                    line: sidewalk_line,
                 },
                 amenities: b.amenities.clone(),
-                parking: b.parking.clone(),
+                parking: None,
                 label_center: b.polygon.polylabel(),
             };
-            // TODO Experimenting.
-            if bldg.parking.is_none() && false {
-                bldg.parking = Some(OffstreetParking {
-                    name: "private".to_string(),
-                    num_stalls: 1,
-                    // Temporary values, populate later
-                    driveway_line: Line::new(Pt2D::new(0.0, 0.0), Pt2D::new(1.0, 1.0)),
-                    driving_pos: Position::new(LaneID(0), Distance::ZERO),
-                });
-            }
 
-            // Make a driveway from the parking icon to the nearest road.
-            if let Some(ref mut p) = bldg.parking {
-                if let Some((driving_lane, driving_pt)) =
-                    closest_driving.closest_pt(bldg.label_center, Distance::meters(100.0))
-                {
-                    let dist_along = lanes[driving_lane.0]
-                        .dist_along_of_point(driving_pt)
-                        .expect("Can't find dist_along_of_point for driveway");
-                    p.driveway_line =
-                        trim_path(&bldg.polygon, Line::new(bldg.label_center, driving_pt));
-                    if p.driveway_line.length() < Distance::meters(1.0) {
-                        timer.warn(format!(
-                            "Driveway of {} is very short: {}",
-                            bldg.id,
-                            p.driveway_line.length()
-                        ));
+            // Can this building have a driveway? If it's not next to a driving lane part of the
+            // main connectivity graph, then no.
+            let sidewalk_lane = sidewalk_pos.lane();
+            if let Ok(driving_lane) = map
+                .get_parent(sidewalk_lane)
+                .find_closest_lane(sidewalk_lane, vec![LaneType::Driving])
+            {
+                if map.get_l(driving_lane).parking_blackhole.is_none() {
+                    let driving_pos = sidewalk_pos.equiv_pos(driving_lane, Distance::ZERO, map);
+
+                    let buffer = Distance::meters(7.0);
+                    if driving_pos.dist_along() > buffer
+                        && map.get_l(driving_lane).length() - driving_pos.dist_along() > buffer
+                    {
+                        let driveway_line = trim_path(
+                            &b.polygon,
+                            Line::new(bldg_center.to_pt2d(), driving_pos.pt(map)),
+                        );
+                        bldg.parking = Some(OffstreetParking {
+                            public_garage_name: b.public_garage_name.clone(),
+                            num_spots: b.num_parking_spots,
+                            driveway_line,
+                            driving_pos,
+                        });
                     }
-                    p.driving_pos = Position::new(driving_lane, dist_along);
-                    if lanes[driving_lane.0].length() - dist_along < Distance::meters(7.0) {
-                        timer.warn(format!(
-                            "Skipping driveway of {}, too close to the end of the road. \
-                             Forfeiting {} stalls!",
-                            bldg.id, p.num_stalls
-                        ));
-                        bldg.parking = None;
-                    } else if dist_along < Distance::meters(1.0) {
-                        timer.warn(format!(
-                            "Skipping driveway of {}, too close to the start of the road. \
-                             Forfeiting {} stalls!",
-                            bldg.id, p.num_stalls
-                        ));
-                        bldg.parking = None;
-                    }
-                } else {
-                    timer.warn(format!(
-                        "Can't find driveway for {}, forfeiting {} stalls",
-                        bldg.id, p.num_stalls
-                    ));
-                    bldg.parking = None;
                 }
+            }
+            if let Some(ref mut p) = bldg.parking {
+                if p.public_garage_name.is_none() {
+                    // TODO Optionally do this!
+                    assert_eq!(p.num_spots, 0);
+                    p.num_spots = 1;
+                }
+            } else {
+                timer.warn(format!(
+                    "{} can't have a driveway. Forfeiting {} public parking spots, maybe some \
+                     private spots",
+                    bldg.id, b.num_parking_spots
+                ));
             }
 
             results.push(bldg);
@@ -138,6 +115,8 @@ pub fn make_all_buildings(
         ));
     }
     timer.stop("convert buildings");
+
+    results
 }
 
 // Adjust the path to start on the building's border, not center

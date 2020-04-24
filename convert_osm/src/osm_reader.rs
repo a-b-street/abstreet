@@ -145,7 +145,8 @@ pub fn extract_osm(
                 RawBuilding {
                     polygon: Polygon::new(&deduped),
                     osm_tags: tags,
-                    parking: None,
+                    public_garage_name: None,
+                    num_parking_spots: 0,
                     amenities: BTreeSet::new(),
                 },
             );

@@ -139,12 +139,6 @@ impl CommonState {
                 }
                 let bldg = map.get_b(b);
                 osd.append(Line(bldg.get_name(map)).fg(name_color));
-                if let Some(ref p) = bldg.parking {
-                    osd.append(Line(format!(
-                        " ({} parking spots via {})",
-                        p.num_stalls, p.name
-                    )));
-                }
             }
             ID::Turn(t) => {
                 // Only selectable in dev mode anyway

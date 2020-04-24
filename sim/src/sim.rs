@@ -617,13 +617,13 @@ impl Sim {
             if !self.analytics.alerts.is_empty() {
                 match self.alerts {
                     AlertHandler::Print => {
-                        for (t, _, msg) in self.analytics.alerts.drain(..) {
-                            println!("Alert at {}: {}", t, msg);
+                        for (t, loc, msg) in self.analytics.alerts.drain(..) {
+                            println!("Alert at {} ({:?}): {}", t, loc, msg);
                         }
                     }
                     AlertHandler::Block => {
-                        for (t, _, msg) in &self.analytics.alerts {
-                            println!("Alert at {}: {}", t, msg);
+                        for (t, loc, msg) in &self.analytics.alerts {
+                            println!("Alert at {} ({:?}): {}", t, loc, msg);
                         }
                         break;
                     }
@@ -673,13 +673,13 @@ impl Sim {
             if !self.analytics.alerts.is_empty() {
                 match self.alerts {
                     AlertHandler::Print => {
-                        for (t, _, msg) in self.analytics.alerts.drain(..) {
-                            println!("Alert at {}: {}", t, msg);
+                        for (t, loc, msg) in self.analytics.alerts.drain(..) {
+                            println!("Alert at {} ({:?}): {}", t, loc, msg);
                         }
                     }
                     AlertHandler::Block => {
-                        for (t, _, msg) in &self.analytics.alerts {
-                            println!("Alert at {}: {}", t, msg);
+                        for (t, loc, msg) in &self.analytics.alerts {
+                            println!("Alert at {} ({:?}): {}", t, loc, msg);
                         }
                         break;
                     }

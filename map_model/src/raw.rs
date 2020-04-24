@@ -1,5 +1,5 @@
 use crate::make::get_lane_types;
-use crate::{osm, AreaType, IntersectionType, OffstreetParking, RoadSpec};
+use crate::{osm, AreaType, IntersectionType, RoadSpec};
 use abstutil::{deserialize_btreemap, retain_btreemap, serialize_btreemap, Error, Timer, Warn};
 use geom::{Angle, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
 use gtfs::Route;
@@ -559,7 +559,8 @@ pub struct RawIntersection {
 pub struct RawBuilding {
     pub polygon: Polygon,
     pub osm_tags: BTreeMap<String, String>,
-    pub parking: Option<OffstreetParking>,
+    pub public_garage_name: Option<String>,
+    pub num_parking_spots: usize,
     // (Name, amenity type)
     pub amenities: BTreeSet<(String, String)>,
 }
