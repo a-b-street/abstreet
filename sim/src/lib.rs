@@ -12,7 +12,7 @@ mod trips;
 
 pub use self::analytics::{Analytics, TripPhase};
 pub(crate) use self::events::Event;
-pub use self::events::TripPhaseType;
+pub use self::events::{AlertLocation, TripPhaseType};
 pub use self::make::{
     ABTest, BorderSpawnOverTime, IndividTrip, OriginDestination, PersonSpec, Scenario,
     ScenarioGenerator, SimFlags, SpawnOverTime, SpawnTrip, TripSpawner, TripSpec,

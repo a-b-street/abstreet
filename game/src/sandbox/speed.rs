@@ -10,6 +10,7 @@ use ezgui::{
 };
 use geom::{Duration, PolyLine, Polygon, Pt2D, Time};
 use instant::Instant;
+use sim::AlertLocation;
 
 pub struct SpeedControls {
     pub composite: Composite,
@@ -275,13 +276,19 @@ impl SpeedControls {
             self.pause(ctx, app);
 
             let popup = msg("Alerts", alerts.iter().map(|(_, _, msg)| msg).collect());
-            if let Some(i) = alerts[0].1 {
+            if let Some(id) = match alerts[0].1 {
+                AlertLocation::Nil => None,
+                AlertLocation::Intersection(i) => Some(ID::Intersection(i)),
+                // TODO Open info panel and warp to them
+                AlertLocation::Person(_) => None,
+                AlertLocation::Building(b) => Some(ID::Building(b)),
+            } {
                 // Just go to the first one, but print all messages
                 return Some(Transition::PushTwice(
                     popup,
                     Warping::new(
                         ctx,
-                        ID::Intersection(i).canonical_point(&app.primary).unwrap(),
+                        id.canonical_point(&app.primary).unwrap(),
                         Some(10.0),
                         None,
                         &mut app.primary,

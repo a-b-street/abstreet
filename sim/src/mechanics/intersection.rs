@@ -1,6 +1,6 @@
 use crate::mechanics::car::Car;
 use crate::mechanics::Queue;
-use crate::{AgentID, Command, Event, Scheduler, Speed};
+use crate::{AgentID, AlertLocation, Command, Event, Scheduler, Speed};
 use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap};
 use derivative::Derivative;
 use geom::{Duration, Time};
@@ -396,7 +396,7 @@ impl State {
                         let current = queue.pop().unwrap();
                         if !seen.is_empty() && current == req.agent {
                             events.push(Event::Alert(
-                                Some(req.turn.parent),
+                                AlertLocation::Intersection(req.turn.parent),
                                 format!("Turn conflict cycle involving {:?}", seen),
                             ));
                             return true;
@@ -538,7 +538,7 @@ impl State {
             // Actually, we might have bigger problems...
             if time_to_cross > phase.duration {
                 events.push(Event::Alert(
-                    Some(req.turn.parent),
+                    AlertLocation::Intersection(req.turn.parent),
                     format!(
                         "{:?} is impossible to fit into phase duration of {}",
                         req, phase.duration

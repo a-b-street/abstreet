@@ -1,4 +1,4 @@
-use crate::{CarID, Event, ParkingSpot, TripID, TripMode, TripPhaseType};
+use crate::{AlertLocation, CarID, Event, ParkingSpot, TripID, TripMode, TripPhaseType};
 use abstutil::Counter;
 use derivative::Derivative;
 use geom::{Distance, Duration, Histogram, Time};
@@ -26,7 +26,7 @@ pub struct Analytics {
     pub intersection_delays: BTreeMap<IntersectionID, Vec<(Time, Duration)>>,
     // Per parking lane, when does a spot become filled (true) or free (false)
     parking_spot_changes: BTreeMap<LaneID, Vec<(Time, bool)>>,
-    pub(crate) alerts: Vec<(Time, Option<IntersectionID>, String)>,
+    pub(crate) alerts: Vec<(Time, AlertLocation, String)>,
 
     // After we restore from a savestate, don't record anything. This is only going to make sense
     // if savestates are only used for quickly previewing against prebaked results, where we have
@@ -194,8 +194,8 @@ impl Analytics {
             Event::PathAmended(path) => {
                 self.record_demand(&path, map);
             }
-            Event::Alert(i, msg) => {
-                self.alerts.push((time, i, msg));
+            Event::Alert(loc, msg) => {
+                self.alerts.push((time, loc, msg));
             }
             _ => {}
         }

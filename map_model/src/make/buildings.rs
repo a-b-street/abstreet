@@ -1,8 +1,8 @@
 use crate::make::sidewalk_finder::find_sidewalk_points;
 use crate::raw::{OriginalBuilding, RawBuilding};
-use crate::{osm, Building, BuildingID, FrontPath, Lane, LaneID, Position, Road};
+use crate::{osm, Building, BuildingID, FrontPath, Lane, LaneID, OffstreetParking, Position, Road};
 use abstutil::Timer;
-use geom::{Bounds, Distance, FindClosest, HashablePt2D, Line, Polygon};
+use geom::{Bounds, Distance, FindClosest, HashablePt2D, Line, Polygon, Pt2D};
 use std::collections::{BTreeMap, HashSet};
 
 pub fn make_all_buildings(
@@ -73,6 +73,16 @@ pub fn make_all_buildings(
                 parking: b.parking.clone(),
                 label_center: b.polygon.polylabel(),
             };
+            // TODO Experimenting.
+            if bldg.parking.is_none() && false {
+                bldg.parking = Some(OffstreetParking {
+                    name: "private".to_string(),
+                    num_stalls: 1,
+                    // Temporary values, populate later
+                    driveway_line: Line::new(Pt2D::new(0.0, 0.0), Pt2D::new(1.0, 1.0)),
+                    driving_pos: Position::new(LaneID(0), Distance::ZERO),
+                });
+            }
 
             // Make a driveway from the parking icon to the nearest road.
             if let Some(ref mut p) = bldg.parking {

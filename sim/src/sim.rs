@@ -1,5 +1,5 @@
 use crate::{
-    AgentID, Analytics, CarID, Command, CreateCar, DrawCarInput, DrawPedCrowdInput,
+    AgentID, AlertLocation, Analytics, CarID, Command, CreateCar, DrawCarInput, DrawPedCrowdInput,
     DrawPedestrianInput, DrivingSimState, Event, GetDrawAgents, IntersectionSimState,
     PandemicModel, ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, Person, PersonID,
     PersonState, Router, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripCount,
@@ -509,6 +509,10 @@ impl Sim {
                         SidewalkPOI::Building(b1),
                         SidewalkPOI::ParkingSpot(ParkingSpot::Offstreet(b2, idx)),
                     ) if b1 == b2 => {
+                        events.push(Event::Alert(
+                            AlertLocation::Building(*b1),
+                            format!("car leaving bldg"),
+                        ));
                         self.trips.ped_reached_parking_spot(
                             self.time,
                             create_ped.id,
@@ -1187,7 +1191,7 @@ impl Sim {
         }
     }
 
-    pub fn clear_alerts(&mut self) -> Vec<(Time, Option<IntersectionID>, String)> {
+    pub fn clear_alerts(&mut self) -> Vec<(Time, AlertLocation, String)> {
         std::mem::replace(&mut self.analytics.alerts, Vec::new())
     }
 }

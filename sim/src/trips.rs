@@ -1,8 +1,8 @@
 use crate::{
-    AgentID, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, Event, ParkedCar,
-    ParkingSimState, ParkingSpot, PedestrianID, PersonID, Scheduler, SidewalkPOI, SidewalkSpot,
-    TransitSimState, TripID, TripPhaseType, TripSpec, Vehicle, VehicleSpec, VehicleType,
-    WalkingSimState,
+    AgentID, AlertLocation, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, Event,
+    ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, PersonID, Scheduler, SidewalkPOI,
+    SidewalkSpot, TransitSimState, TripID, TripPhaseType, TripSpec, Vehicle, VehicleSpec,
+    VehicleType, WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap, Counter};
 use geom::{Distance, Duration, Speed, Time};
@@ -244,7 +244,7 @@ impl TripManager {
             p
         } else {
             self.events.push(Event::Alert(
-                None,
+                AlertLocation::Person(trip.person),
                 format!(
                     "Aborting {} because no path for the car portion! {} to {}",
                     trip.id, start, end
@@ -329,7 +329,7 @@ impl TripManager {
             );
         } else {
             self.events.push(Event::Alert(
-                None,
+                AlertLocation::Person(trip.person),
                 format!(
                     "Aborting {} because no path for the bike portion (or sidewalk connection at \
                      the end)! {} to {}",
@@ -621,7 +621,7 @@ impl TripManager {
                         })
                     {
                         self.events.push(Event::Alert(
-                            None,
+                            AlertLocation::Person(person),
                             format!(
                                 "{} had a trip aborted, and their car was warped to {:?}",
                                 person, spot
@@ -631,7 +631,7 @@ impl TripManager {
                         parking.add_parked_car(ParkedCar { vehicle, spot });
                     } else {
                         self.events.push(Event::Alert(
-                            None,
+                            AlertLocation::Person(person),
                             format!(
                                 "{} had a trip aborted, but nowhere to warp their car! Sucks.",
                                 person
@@ -826,7 +826,7 @@ impl TripManager {
         }
         let (trip, spec, maybe_req, maybe_path) = person.delayed_trips.remove(0);
         self.events.push(Event::Alert(
-            None,
+            AlertLocation::Person(person.id),
             format!(
                 "{} just freed up, so starting delayed trip {}",
                 person.id, trip
@@ -852,7 +852,7 @@ impl TripManager {
         if let PersonState::Trip(_) = person.state {
             // Previous trip isn't done. Defer this one!
             self.events.push(Event::Alert(
-                None,
+                AlertLocation::Person(person.id),
                 format!(
                     "{} is still doing a trip, so not starting {}",
                     person.id, trip
@@ -898,7 +898,7 @@ impl TripManager {
                     );
                 } else {
                     self.events.push(Event::Alert(
-                        None,
+                        AlertLocation::Person(person.id),
                         format!(
                             "VehicleAppearing trip couldn't find the first path (or no \
                              bike->sidewalk connection at the end): {}",
@@ -910,7 +910,7 @@ impl TripManager {
             }
             TripSpec::NoRoomToSpawn { i, use_vehicle, .. } => {
                 self.events.push(Event::Alert(
-                    Some(i),
+                    AlertLocation::Intersection(i),
                     format!(
                         "{} couldn't spawn at border {}, just aborting",
                         person.id, i
@@ -952,7 +952,7 @@ impl TripManager {
                         );
                     } else {
                         self.events.push(Event::Alert(
-                            None,
+                            AlertLocation::Person(person.id),
                             format!("UsingParkedCar trip couldn't find the walking path {}", req),
                         ));
                         // Move the car to the destination
@@ -970,7 +970,7 @@ impl TripManager {
                     // This should only happen when a driving trip has been aborted and there was
                     // absolutely no room to warp the car.
                     self.events.push(Event::Alert(
-                        None,
+                        AlertLocation::Person(person.id),
                         format!(
                             "{} should have {} parked somewhere, but it's unavailable, so \
                              aborting {}",
@@ -1009,7 +1009,7 @@ impl TripManager {
                     );
                 } else {
                     self.events.push(Event::Alert(
-                        None,
+                        AlertLocation::Person(person.id),
                         format!("JustWalking trip couldn't find the first path {}", req),
                     ));
                     self.abort_trip(now, trip, None, parking, scheduler, map);
@@ -1046,7 +1046,7 @@ impl TripManager {
                     );
                 } else {
                     self.events.push(Event::Alert(
-                        None,
+                        AlertLocation::Person(person.id),
                         format!("UsingBike trip couldn't find the first path {}", req),
                     ));
                     self.abort_trip(now, trip, None, parking, scheduler, map);
@@ -1082,7 +1082,7 @@ impl TripManager {
                     );
                 } else {
                     self.events.push(Event::Alert(
-                        None,
+                        AlertLocation::Person(person.id),
                         format!("UsingTransit trip couldn't find the first path {}", req),
                     ));
                     self.abort_trip(now, trip, None, parking, scheduler, map);
@@ -1131,7 +1131,7 @@ impl Trip {
             p
         } else {
             events.push(Event::Alert(
-                None,
+                AlertLocation::Person(self.person),
                 format!(
                     "Aborting {} because no path for the walking portion! {:?} to {:?}",
                     self.id, start, walk_to
