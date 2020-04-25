@@ -1,6 +1,7 @@
 use crate::{
-    CarID, Command, DrivingGoal, Person, PersonID, Scheduler, SidewalkPOI, SidewalkSpot,
-    TripEndpoint, TripLeg, TripManager, TripMode, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH,
+    CarID, Command, DrivingGoal, OffMapLocation, Person, PersonID, Scheduler, SidewalkPOI,
+    SidewalkSpot, TripEndpoint, TripLeg, TripManager, TripMode, VehicleType, BIKE_LENGTH,
+    MAX_CAR_LENGTH,
 };
 use abstutil::Timer;
 use geom::{Time, EPSILON_DIST};
@@ -18,6 +19,7 @@ pub enum TripSpec {
         // This must be a currently off-map vehicle owned by the person.
         use_vehicle: CarID,
         retry_if_no_room: bool,
+        origin: Option<OffMapLocation>,
     },
     // A VehicleAppearing that failed to even pick a start_pos, because of a bug with badly chosen
     // borders.
@@ -25,6 +27,7 @@ pub enum TripSpec {
         i: IntersectionID,
         goal: DrivingGoal,
         use_vehicle: CarID,
+        origin: Option<OffMapLocation>,
     },
     UsingParkedCar {
         // This must be a currently parked vehicle owned by the person.
@@ -187,13 +190,15 @@ impl TripSpawner {
                     start_pos,
                     goal,
                     use_vehicle,
+                    origin,
                     ..
                 } => {
                     let mut legs = vec![TripLeg::Drive(use_vehicle, goal.clone())];
                     if let DrivingGoal::ParkNear(b) = goal {
                         legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
                     }
-                    let trip_start = TripEndpoint::Border(map.get_l(start_pos.lane()).src_i);
+                    let trip_start =
+                        TripEndpoint::Border(map.get_l(start_pos.lane()).src_i, origin);
                     trips.new_trip(
                         person.id,
                         start_time,
@@ -210,12 +215,13 @@ impl TripSpawner {
                     i,
                     goal,
                     use_vehicle,
+                    origin,
                 } => {
                     let mut legs = vec![TripLeg::Drive(use_vehicle, goal.clone())];
                     if let DrivingGoal::ParkNear(b) = goal {
                         legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
                     }
-                    let trip_start = TripEndpoint::Border(i);
+                    let trip_start = TripEndpoint::Border(i, origin);
                     trips.new_trip(
                         person.id,
                         start_time,
@@ -257,9 +263,9 @@ impl TripSpawner {
                     match start.connection {
                         SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
                         SidewalkPOI::SuddenlyAppear => {
-                            TripEndpoint::Border(map.get_l(start.sidewalk_pos.lane()).src_i)
+                            TripEndpoint::Border(map.get_l(start.sidewalk_pos.lane()).src_i, None)
                         }
-                        SidewalkPOI::Border(i, _) => TripEndpoint::Border(i),
+                        SidewalkPOI::Border(i, loc) => TripEndpoint::Border(i, loc),
                         _ => unreachable!(),
                     },
                     TripMode::Walk,
@@ -283,10 +289,11 @@ impl TripSpawner {
                         start_time,
                         match start.connection {
                             SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
-                            SidewalkPOI::SuddenlyAppear => {
-                                TripEndpoint::Border(map.get_l(start.sidewalk_pos.lane()).src_i)
-                            }
-                            SidewalkPOI::Border(i, _) => TripEndpoint::Border(i),
+                            SidewalkPOI::SuddenlyAppear => TripEndpoint::Border(
+                                map.get_l(start.sidewalk_pos.lane()).src_i,
+                                None,
+                            ),
+                            SidewalkPOI::Border(i, loc) => TripEndpoint::Border(i, loc),
                             _ => unreachable!(),
                         },
                         TripMode::Bike,
@@ -306,10 +313,11 @@ impl TripSpawner {
                         start_time,
                         match start.connection {
                             SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
-                            SidewalkPOI::SuddenlyAppear => {
-                                TripEndpoint::Border(map.get_l(start.sidewalk_pos.lane()).src_i)
-                            }
-                            SidewalkPOI::Border(i, _) => TripEndpoint::Border(i),
+                            SidewalkPOI::SuddenlyAppear => TripEndpoint::Border(
+                                map.get_l(start.sidewalk_pos.lane()).src_i,
+                                None,
+                            ),
+                            SidewalkPOI::Border(i, loc) => TripEndpoint::Border(i, loc),
                             _ => unreachable!(),
                         },
                         TripMode::Transit,

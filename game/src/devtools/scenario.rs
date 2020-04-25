@@ -48,7 +48,7 @@ impl ScenarioManager {
                     TripEndpoint::Bldg(b) => {
                         trips_from_bldg.insert(b, idx);
                     }
-                    TripEndpoint::Border(i) => {
+                    TripEndpoint::Border(i, _) => {
                         trips_from_border.insert(i, idx);
                     }
                 }
@@ -56,7 +56,7 @@ impl ScenarioManager {
                     TripEndpoint::Bldg(b) => {
                         trips_to_bldg.insert(b, idx);
                     }
-                    TripEndpoint::Border(i) => {
+                    TripEndpoint::Border(i, _) => {
                         trips_to_border.insert(i, idx);
                     }
                 }

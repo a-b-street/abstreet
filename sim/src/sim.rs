@@ -2,10 +2,9 @@ use crate::{
     AgentID, AlertLocation, Analytics, CarID, Command, CreateCar, DrawCarInput, DrawPedCrowdInput,
     DrawPedestrianInput, DrivingSimState, Event, GetDrawAgents, IntersectionSimState,
     PandemicModel, ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, Person, PersonID,
-    PersonState, Router, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripCount,
-    TripEndpoint, TripID, TripManager, TripMode, TripPhaseType, TripPositions, TripResult,
-    TripSpawner, UnzoomedAgent, Vehicle, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
-    MIN_CAR_LENGTH,
+    PersonState, Router, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripEndpoint,
+    TripID, TripManager, TripMode, TripPhaseType, TripPositions, TripResult, TripSpawner,
+    UnzoomedAgent, Vehicle, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH, MIN_CAR_LENGTH,
 };
 use abstutil::Timer;
 use derivative::Derivative;
@@ -910,10 +909,6 @@ impl Sim {
     // (total number of people, just in buildings, just off map)
     pub fn num_ppl(&self) -> (usize, usize, usize) {
         self.trips.num_ppl()
-    }
-
-    pub fn count_trips(&self, endpt: TripEndpoint) -> TripCount {
-        self.trips.count_trips(endpt, self.time)
     }
 
     pub fn debug_ped(&self, id: PedestrianID) {

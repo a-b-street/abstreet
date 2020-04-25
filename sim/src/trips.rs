@@ -1,8 +1,8 @@
 use crate::{
     AgentID, AlertLocation, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, Event,
-    ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, PersonID, Scheduler, SidewalkPOI,
-    SidewalkSpot, TransitSimState, TripID, TripPhaseType, TripSpec, Vehicle, VehicleSpec,
-    VehicleType, WalkingSimState,
+    OffMapLocation, ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, PersonID, Scheduler,
+    SidewalkPOI, SidewalkSpot, TransitSimState, TripID, TripPhaseType, TripSpec, Vehicle,
+    VehicleSpec, VehicleType, WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap, Counter};
 use geom::{Distance, Duration, Speed, Time};
@@ -90,12 +90,12 @@ impl TripManager {
         let end = match legs.last() {
             Some(TripLeg::Walk(ref spot)) => match spot.connection {
                 SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
-                SidewalkPOI::Border(i, _) => TripEndpoint::Border(i),
+                SidewalkPOI::Border(i, ref loc) => TripEndpoint::Border(i, loc.clone()),
                 _ => unreachable!(),
             },
             Some(TripLeg::Drive(_, ref goal)) => match goal {
                 DrivingGoal::ParkNear(b) => TripEndpoint::Bldg(*b),
-                DrivingGoal::Border(i, _, _) => TripEndpoint::Border(*i),
+                DrivingGoal::Border(i, _, loc) => TripEndpoint::Border(*i, loc.clone()),
             },
             _ => unreachable!(),
         };
@@ -120,7 +120,7 @@ impl TripManager {
                         .push(Event::PersonEntersBuilding(trip.person, b));
                     PersonState::Inside(b)
                 }
-                TripEndpoint::Border(_) => PersonState::OffMap,
+                TripEndpoint::Border(_, _) => PersonState::OffMap,
             };
         }
         if let Some(t) = person.trips.last() {
@@ -608,7 +608,7 @@ impl TripManager {
         // Warp to the destination
         self.people[person.0].state = match trip.end {
             TripEndpoint::Bldg(b) => PersonState::Inside(b),
-            TripEndpoint::Border(_) => PersonState::OffMap,
+            TripEndpoint::Border(_, _) => PersonState::OffMap,
         };
         // Don't forget the car!
         if let Some(vehicle) = abandoned_vehicle {
@@ -760,45 +760,6 @@ impl TripManager {
         Some((t.finished_at? - t.spawned_at, t.total_blocked_time))
     }
 
-    pub fn count_trips(&self, endpt: TripEndpoint, now: Time) -> TripCount {
-        let mut cnt = TripCount {
-            from_aborted: Vec::new(),
-            from_in_progress: Vec::new(),
-            from_completed: Vec::new(),
-            from_unstarted: Vec::new(),
-            to_aborted: Vec::new(),
-            to_in_progress: Vec::new(),
-            to_completed: Vec::new(),
-            to_unstarted: Vec::new(),
-        };
-        for trip in &self.trips {
-            if trip.start == endpt {
-                if trip.aborted {
-                    cnt.from_aborted.push(trip.id);
-                } else if trip.finished_at.is_some() {
-                    cnt.from_completed.push(trip.id);
-                } else if now >= trip.spawned_at {
-                    cnt.from_in_progress.push(trip.id);
-                } else {
-                    cnt.from_unstarted.push(trip.id);
-                }
-            }
-            // One trip might could towards both!
-            if trip.end == endpt {
-                if trip.aborted {
-                    cnt.to_aborted.push(trip.id);
-                } else if trip.finished_at.is_some() {
-                    cnt.to_completed.push(trip.id);
-                } else if now >= trip.spawned_at {
-                    cnt.to_in_progress.push(trip.id);
-                } else {
-                    cnt.to_unstarted.push(trip.id);
-                }
-            }
-        }
-        cnt
-    }
-
     pub fn bldg_to_people(&self, b: BuildingID) -> Vec<PersonID> {
         let mut people = Vec::new();
         for p in &self.people {
@@ -885,6 +846,7 @@ impl TripManager {
                 goal,
                 retry_if_no_room,
                 use_vehicle,
+                ..
             } => {
                 assert_eq!(person.state, PersonState::OffMap);
                 person.state = PersonState::Trip(trip);
@@ -1237,7 +1199,7 @@ impl TripMode {
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub enum TripEndpoint {
     Bldg(BuildingID),
-    Border(IntersectionID),
+    Border(IntersectionID, Option<OffMapLocation>),
 }
 
 pub enum TripResult<T> {
@@ -1268,56 +1230,6 @@ impl<T> TripResult<T> {
         }
     }
 }
-
-// TODO Misnomer now
-pub struct TripCount {
-    pub from_aborted: Vec<TripID>,
-    pub from_in_progress: Vec<TripID>,
-    pub from_completed: Vec<TripID>,
-    pub from_unstarted: Vec<TripID>,
-    pub to_aborted: Vec<TripID>,
-    pub to_in_progress: Vec<TripID>,
-    pub to_completed: Vec<TripID>,
-    pub to_unstarted: Vec<TripID>,
-}
-
-impl TripCount {
-    pub fn describe(&self) -> Vec<String> {
-        let mut lines = Vec::new();
-        if !self.from_completed.is_empty() || !self.to_completed.is_empty() {
-            lines.push(format!(
-                "Finished trips: {} from here, {} to here",
-                self.from_completed.len(),
-                self.to_completed.len()
-            ));
-        }
-        if !self.from_in_progress.is_empty() || !self.to_in_progress.is_empty() {
-            lines.push(format!(
-                "In-progress trips: {} from here, {} to here",
-                self.from_in_progress.len(),
-                self.to_in_progress.len()
-            ));
-        }
-        if !self.from_unstarted.is_empty() || !self.to_unstarted.is_empty() {
-            lines.push(format!(
-                "Future trips: {} from here, {} to here",
-                self.from_unstarted.len(),
-                self.to_unstarted.len()
-            ));
-        }
-        if !self.from_aborted.is_empty() || !self.to_aborted.is_empty() {
-            lines.push(format!(
-                "Aborted trips: {} from here, {} to here",
-                self.from_aborted.len(),
-                self.to_aborted.len()
-            ));
-        }
-        lines
-    }
-}
-
-// TODO General weirdness right now: we operate based on trips, and the people are side-effects. So
-// one "person" might start their second trip before finishing their first.
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct Person {

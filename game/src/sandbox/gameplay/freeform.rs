@@ -1,18 +1,17 @@
 use crate::app::App;
 use crate::edit::EditMode;
 use crate::game::{State, Transition, WizardState};
-use crate::helpers::{nice_map_name, ID};
+use crate::helpers::nice_map_name;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::SandboxControls;
 use crate::sandbox::SandboxMode;
 use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, ScreenRectangle, Text, TextExt, VerticalAlignment, Widget,
+    Key, Line, ScreenRectangle, TextExt, VerticalAlignment, Widget,
 };
 use geom::Polygon;
 use map_model::IntersectionID;
-use sim::TripEndpoint;
 use std::collections::BTreeSet;
 
 // TODO Maybe remember what things were spawned, offer to replay this later
@@ -52,23 +51,6 @@ impl GameplayState for Freeform {
         // TODO Overriding draw options would be ideal, but...
         for i in &self.spawn_pts {
             g.draw_polygon(Color::GREEN.alpha(0.8), &app.primary.map.get_i(*i).polygon);
-        }
-
-        if let Some(ID::Intersection(i)) = app.primary.current_selection {
-            if self.spawn_pts.contains(&i) {
-                let mut txt = Text::new();
-                for line in app
-                    .primary
-                    .sim
-                    .count_trips(TripEndpoint::Border(i))
-                    .describe()
-                {
-                    txt.add(Line(line));
-                }
-                if !txt.is_empty() {
-                    g.draw_mouse_tooltip(txt);
-                }
-            }
         }
     }
 }

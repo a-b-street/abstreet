@@ -339,9 +339,13 @@ impl SpawnTrip {
                 goal,
                 use_vehicle: use_vehicle.unwrap(),
                 retry_if_no_room: true,
+                origin: None,
             },
             SpawnTrip::FromBorder {
-                i, goal, is_bike, ..
+                i,
+                goal,
+                is_bike,
+                origin,
             } => {
                 if let Some(start_pos) = map
                     .get_i(i)
@@ -364,12 +368,14 @@ impl SpawnTrip {
                         goal,
                         use_vehicle: use_vehicle.unwrap(),
                         retry_if_no_room: true,
+                        origin,
                     }
                 } else {
                     TripSpec::NoRoomToSpawn {
                         i,
                         goal,
                         use_vehicle: use_vehicle.unwrap(),
+                        origin,
                     }
                 }
             }
@@ -397,15 +403,15 @@ impl SpawnTrip {
     pub fn start(&self, map: &Map) -> TripEndpoint {
         match self {
             SpawnTrip::VehicleAppearing { ref start, .. } => {
-                TripEndpoint::Border(map.get_l(start.lane()).src_i)
+                TripEndpoint::Border(map.get_l(start.lane()).src_i, None)
             }
-            SpawnTrip::FromBorder { i, .. } => TripEndpoint::Border(*i),
+            SpawnTrip::FromBorder { i, ref origin, .. } => TripEndpoint::Border(*i, origin.clone()),
             SpawnTrip::UsingParkedCar(b, _) => TripEndpoint::Bldg(*b),
             SpawnTrip::UsingBike(ref spot, _)
             | SpawnTrip::JustWalking(ref spot, _)
             | SpawnTrip::UsingTransit(ref spot, _, _, _, _) => match spot.connection {
                 SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
-                SidewalkPOI::Border(i, _) => TripEndpoint::Border(i),
+                SidewalkPOI::Border(i, ref loc) => TripEndpoint::Border(i, loc.clone()),
                 _ => unreachable!(),
             },
         }
@@ -418,12 +424,12 @@ impl SpawnTrip {
             | SpawnTrip::UsingParkedCar(_, ref goal)
             | SpawnTrip::UsingBike(_, ref goal) => match goal {
                 DrivingGoal::ParkNear(b) => TripEndpoint::Bldg(*b),
-                DrivingGoal::Border(i, _, _) => TripEndpoint::Border(*i),
+                DrivingGoal::Border(i, _, ref loc) => TripEndpoint::Border(*i, loc.clone()),
             },
             SpawnTrip::JustWalking(_, ref spot) | SpawnTrip::UsingTransit(_, ref spot, _, _, _) => {
                 match spot.connection {
                     SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
-                    SidewalkPOI::Border(i, _) => TripEndpoint::Border(i),
+                    SidewalkPOI::Border(i, ref loc) => TripEndpoint::Border(i, loc.clone()),
                     _ => unreachable!(),
                 }
             }
@@ -445,11 +451,11 @@ impl PersonSpec {
             // Once off-map, re-enter via any border node.
             let end_bldg = match pair.0.trip.end() {
                 TripEndpoint::Bldg(b) => Some(b),
-                TripEndpoint::Border(_) => None,
+                TripEndpoint::Border(_, _) => None,
             };
             let start_bldg = match pair.1.trip.start(map) {
                 TripEndpoint::Bldg(b) => Some(b),
-                TripEndpoint::Border(_) => None,
+                TripEndpoint::Border(_, _) => None,
             };
 
             if end_bldg != start_bldg {

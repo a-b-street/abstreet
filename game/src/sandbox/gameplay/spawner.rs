@@ -212,6 +212,7 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                         ),
                         use_vehicle: person.vehicles[0].id,
                         retry_if_no_room: false,
+                        origin: None,
                     },
                     map,
                 );
@@ -360,6 +361,7 @@ fn schedule_trip(
                                 goal,
                                 retry_if_no_room: false,
                                 use_vehicle: person.vehicles[0].id,
+                                origin: None,
                             },
                             map,
                         );
