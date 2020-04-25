@@ -12,7 +12,6 @@ members = [
   "kml",
   "map_editor",
   "map_model",
-  "popdat",
   "sim",
 ]
 

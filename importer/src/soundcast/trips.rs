@@ -1,5 +1,4 @@
-use crate::psrc::{Endpoint, Mode, OrigTrip, Parcel};
-use crate::PopDat;
+use crate::soundcast::popdat::{Endpoint, Mode, OrigTrip, Parcel, PopDat};
 use abstutil::{prettyprint_usize, MultiMap, Timer};
 use geom::LonLat;
 use map_model::{BuildingID, IntersectionID, Map, PathConstraints};
@@ -10,14 +9,14 @@ use sim::{
 use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
-pub struct Trip {
-    pub from: TripEndpt,
-    pub to: TripEndpt,
-    pub orig: OrigTrip,
+struct Trip {
+    from: TripEndpt,
+    to: TripEndpt,
+    orig: OrigTrip,
 }
 
 #[derive(Clone, Debug)]
-pub enum TripEndpt {
+enum TripEndpt {
     Building(BuildingID),
     Border(IntersectionID, OffMapLocation),
 }
@@ -124,7 +123,7 @@ impl TripEndpt {
     }
 }
 
-pub fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingID, Parcel>) {
+fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingID, Parcel>) {
     let popdat: PopDat = abstutil::read_binary(abstutil::path_popdat(), timer);
 
     let mut osm_id_to_bldg = HashMap::new();
@@ -240,7 +239,7 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
     let mut trips_per_person: MultiMap<(usize, usize), ((usize, bool, usize), usize)> =
         MultiMap::new();
     for (trip, depart, person, seq) in
-        timer.parallelize("turn PSRC trips into SpawnTrips", trips, |trip| {
+        timer.parallelize("turn Soundcast trips into SpawnTrips", trips, |trip| {
             (
                 trip.to_spawn_trip(map),
                 trip.orig.depart_at,

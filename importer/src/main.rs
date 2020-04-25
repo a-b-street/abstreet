@@ -1,5 +1,5 @@
-mod psrc;
 mod seattle;
+mod soundcast;
 mod utils;
 
 struct Job {
@@ -55,7 +55,7 @@ fn main() {
 
             let mut timer = abstutil::Timer::new(format!("Scenario for {}", name));
             let map = map_model::Map::new(abstutil::path_map(&name), job.use_fixes, &mut timer);
-            popdat::trips_to_scenario(&map, &mut timer).save();
+            soundcast::trips_to_scenario(&map, &mut timer).save();
         }
     }
 }

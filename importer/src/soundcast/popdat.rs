@@ -1,14 +1,19 @@
 use abstutil::{prettyprint_usize, FileWithProgress, Timer};
 use geom::{Distance, Duration, FindClosest, LonLat, Pt2D, Time};
 use map_model::Map;
-use popdat::psrc::{Endpoint, Mode, OrigTrip, Parcel, Purpose};
-use serde_derive::Deserialize;
+use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fs::File;
 use std::io::Write;
 
+#[derive(Serialize, Deserialize)]
+pub struct PopDat {
+    pub trips: Vec<OrigTrip>,
+    pub parcels: BTreeMap<i64, Parcel>,
+}
+
 // Extract trip demand data from PSRC's Soundcast outputs.
-pub fn import_psrc_data() {
+pub fn import_data() {
     let mut timer = abstutil::Timer::new("creating popdat");
     let (trips, parcels) = import_trips(
         "../data/input/parcels_urbansim.txt",
@@ -16,7 +21,7 @@ pub fn import_psrc_data() {
         &mut timer,
     )
     .unwrap();
-    let popdat = popdat::PopDat { trips, parcels };
+    let popdat = PopDat { trips, parcels };
     abstutil::write_binary(abstutil::path_popdat(), &popdat);
 }
 
@@ -261,4 +266,57 @@ struct RawParcel {
     parkhr_p: usize,
     xcoord_p: f64,
     ycoord_p: f64,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct OrigTrip {
+    pub from: Endpoint,
+    pub to: Endpoint,
+    pub depart_at: Time,
+    pub mode: Mode,
+
+    // (household, person within household)
+    pub person: (usize, usize),
+    // (tour, false is to destination and true is back from dst, trip within half-tour)
+    pub seq: (usize, bool, usize),
+    pub purpose: (Purpose, Purpose),
+    pub trip_time: Duration,
+    pub trip_dist: Distance,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Endpoint {
+    pub pos: LonLat,
+    pub osm_building: Option<i64>,
+    pub parcel_id: usize,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Parcel {
+    pub num_households: usize,
+    pub num_employees: usize,
+    pub offstreet_parking_spaces: usize,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq)]
+pub enum Mode {
+    Walk,
+    Bike,
+    Drive,
+    Transit,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+pub enum Purpose {
+    Home,
+    Work,
+    School,
+    Escort,
+    PersonalBusiness,
+    Shopping,
+    Meal,
+    Social,
+    Recreation,
+    Medical,
+    ParkAndRideTransfer,
 }

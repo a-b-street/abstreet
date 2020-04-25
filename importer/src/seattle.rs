@@ -16,7 +16,7 @@ fn seattle_input() {
         "../data/input/osm/Seattle.osm",
         "http://download.bbbike.org/osm/bbbike/Seattle/Seattle.osm.gz",
     );
-    // PSRC data comes from https://github.com/psrc/soundcast/releases
+    // Soundcast data comes from https://github.com/psrc/soundcast/releases
     download(
         "../data/input/parcels_urbansim.txt",
         "https://www.dropbox.com/s/t9oug9lwhdwfc04/psrc_2014.zip?dl=0",
@@ -84,5 +84,5 @@ pub fn ensure_popdat_exists(use_fixes: bool) {
         crate::utils::raw_to_map("huge_seattle", use_fixes);
     }
 
-    crate::psrc::import_psrc_data();
+    crate::soundcast::import_data();
 }

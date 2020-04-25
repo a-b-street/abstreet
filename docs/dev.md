@@ -94,8 +94,6 @@ Constructing the map:
 - `kml`: extract shapes from KML shapefiles
 - `map_model`: the final representation of the map, also conversion from the
   intermediate map format into the final format
-- `popdat`: importing daily trips from PSRC's Soundcast model, specific to
-  Seattle
 - `map_editor`: GUI for modifying geometry of maps and creating maps from
   scratch
 - `importer`: tool to run the entire import pipeline
