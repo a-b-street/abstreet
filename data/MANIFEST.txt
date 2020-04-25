@@ -235,6 +235,7 @@ cc45f42cb24cad1cfdbf5ed7a0cb86d4  data/system/synthetic_maps/signal_double.json
 aad8ff309a1b38dc85a5d8a4b37f3c87  data/system/scenarios/downtown/weekday.bin
 53baae7739ada8cb7276804c0d480618  data/system/scenarios/huge_seattle/weekday.bin
 112a8e8a1f8e41f566a03ab83d14fe22  data/system/scenarios/caphill/weekday.bin
+ed70b75a583159eae263076736a2d3bc  data/system/scenarios/montlake/everyone_weekday.bin
 fa8391c0e45db61fabdd466ad81b83fa  data/system/scenarios/montlake/weekday.bin
 80cb748e090072b559b08bdd4bc8c30c  data/system/prebaked_results/signal_single/tutorial lvl1.bin
 ec841305a2dbc37649045f31afce09bd  data/system/prebaked_results/signal_single/tutorial lvl2.bin

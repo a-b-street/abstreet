@@ -581,6 +581,15 @@ impl Sim {
                     .unwrap()
                     .handle_cmd(self.time, cmd, &mut self.scheduler);
             }
+            Command::FinishRemoteTrip(trip) => {
+                self.trips.remote_trip_finished(
+                    self.time,
+                    trip,
+                    map,
+                    &mut self.parking,
+                    &mut self.scheduler,
+                );
+            }
         }
 
         // Record events at precisely the time they occur.

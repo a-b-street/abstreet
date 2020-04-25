@@ -97,7 +97,7 @@ impl BlockMap {
         for p in &self.scenario.people {
             for trip in &p.trips {
                 if let (TripEndpoint::Bldg(b1), TripEndpoint::Bldg(b2)) =
-                    (trip.trip.start(map), trip.trip.end())
+                    (trip.trip.start(map), trip.trip.end(map))
                 {
                     let block1 = self.bldg_to_block[&b1];
                     let block2 = self.bldg_to_block[&b2];

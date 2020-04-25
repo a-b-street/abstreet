@@ -21,6 +21,7 @@ pub enum Command {
     UpdateIntersection(IntersectionID),
     Savestate(Duration),
     Pandemic(pandemic::Cmd),
+    FinishRemoteTrip(TripID),
 }
 
 impl Command {
@@ -42,6 +43,7 @@ impl Command {
             Command::UpdateIntersection(id) => CommandType::Intersection(*id),
             Command::Savestate(_) => CommandType::Savestate,
             Command::Pandemic(ref p) => CommandType::Pandemic(p.clone()),
+            Command::FinishRemoteTrip(t) => CommandType::FinishRemoteTrip(*t),
         }
     }
 }
@@ -57,6 +59,7 @@ pub enum CommandType {
     Intersection(IntersectionID),
     Savestate,
     Pandemic(pandemic::Cmd),
+    FinishRemoteTrip(TripID),
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Clone)]

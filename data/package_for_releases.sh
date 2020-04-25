@@ -12,6 +12,7 @@ mkdir release_data
 cp -Rv data/system release_data
 # Not worth blowing up the download size yet
 rm -rfv release_data/system/maps/huge_seattle.bin release_data/system/scenarios/huge_seattle
+rm -rfv release_data/system/scenarios/montlake/everyone_weekday.bin
 
 zip -r release_data release_data
 rm -rf release_data

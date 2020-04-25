@@ -6,6 +6,7 @@ struct Job {
     osm_to_raw: bool,
     raw_to_map: bool,
     scenario: bool,
+    scenario_everyone: bool,
 
     use_fixes: bool,
     only_map: Option<String>,
@@ -20,6 +21,8 @@ fn main() {
         raw_to_map: args.enabled("--map"),
         // Download trip demand data, then produce the typical weekday scenario.
         scenario: args.enabled("--scenario"),
+        // Produce a variation of the weekday scenario including off-map trips.
+        scenario_everyone: args.enabled("--scenario_everyone"),
 
         // By default, use geometry fixes from map_editor.
         use_fixes: !args.enabled("--nofixes"),
@@ -28,8 +31,10 @@ fn main() {
         only_map: args.optional_free(),
     };
     args.done();
-    if !job.osm_to_raw && !job.raw_to_map && !job.scenario {
-        println!("Nothing to do! Pass some combination of --raw, --map, --scenario");
+    if !job.osm_to_raw && !job.raw_to_map && !job.scenario && !job.scenario_everyone {
+        println!(
+            "Nothing to do! Pass some combination of --raw, --map, --scenario, --scenario_everyone"
+        );
         std::process::exit(1);
     }
 
@@ -55,7 +60,15 @@ fn main() {
 
             let mut timer = abstutil::Timer::new(format!("Scenario for {}", name));
             let map = map_model::Map::new(abstutil::path_map(&name), job.use_fixes, &mut timer);
-            soundcast::trips_to_scenario(&map, &mut timer).save();
+            soundcast::make_weekday_scenario(&map, &mut timer).save();
+        }
+
+        if job.scenario_everyone {
+            seattle::ensure_popdat_exists(job.use_fixes);
+
+            let mut timer = abstutil::Timer::new(format!("Scenario for {}", name));
+            let map = map_model::Map::new(abstutil::path_map(&name), job.use_fixes, &mut timer);
+            soundcast::make_weekday_scenario_with_everyone(&map, &mut timer).save();
         }
     }
 }

@@ -1,10 +1,10 @@
-use crate::soundcast::popdat::{Endpoint, Mode, OrigTrip, Parcel, PopDat};
+use crate::soundcast::popdat::{Endpoint, OrigTrip, PopDat};
 use abstutil::{prettyprint_usize, MultiMap, Timer};
 use geom::LonLat;
 use map_model::{BuildingID, IntersectionID, Map, PathConstraints};
 use sim::{
     DrivingGoal, IndividTrip, OffMapLocation, PersonID, PersonSpec, Scenario, SidewalkSpot,
-    SpawnTrip,
+    SpawnTrip, TripMode,
 };
 use std::collections::HashMap;
 
@@ -24,7 +24,7 @@ enum TripEndpt {
 impl Trip {
     fn to_spawn_trip(&self, map: &Map) -> SpawnTrip {
         match self.orig.mode {
-            Mode::Drive => match self.from {
+            TripMode::Drive => match self.from {
                 TripEndpt::Border(i, ref origin) => SpawnTrip::FromBorder {
                     i,
                     goal: self.to.driving_goal(PathConstraints::Car, map),
@@ -35,7 +35,7 @@ impl Trip {
                     SpawnTrip::UsingParkedCar(b, self.to.driving_goal(PathConstraints::Car, map))
                 }
             },
-            Mode::Bike => match self.from {
+            TripMode::Bike => match self.from {
                 TripEndpt::Building(b) => SpawnTrip::UsingBike(
                     SidewalkSpot::building(b, map),
                     self.to.driving_goal(PathConstraints::Bike, map),
@@ -47,11 +47,11 @@ impl Trip {
                     origin: Some(origin.clone()),
                 },
             },
-            Mode::Walk => SpawnTrip::JustWalking(
+            TripMode::Walk => SpawnTrip::JustWalking(
                 self.from.start_sidewalk_spot(map),
                 self.to.end_sidewalk_spot(map),
             ),
-            Mode::Transit => {
+            TripMode::Transit => {
                 let start = self.from.start_sidewalk_spot(map);
                 let goal = self.to.end_sidewalk_spot(map);
                 if let Some((stop1, stop2, route)) =
@@ -123,7 +123,7 @@ impl TripEndpt {
     }
 }
 
-fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingID, Parcel>) {
+fn clip_trips(map: &Map, timer: &mut Timer) -> Vec<Trip> {
     let popdat: PopDat = abstutil::read_binary(abstutil::path_popdat(), timer);
 
     let mut osm_id_to_bldg = HashMap::new();
@@ -181,18 +181,18 @@ fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingID, P
             &orig.from,
             &osm_id_to_bldg,
             match orig.mode {
-                Mode::Walk | Mode::Transit => &incoming_borders_walking,
-                Mode::Drive => &incoming_borders_driving,
-                Mode::Bike => &incoming_borders_biking,
+                TripMode::Walk | TripMode::Transit => &incoming_borders_walking,
+                TripMode::Drive => &incoming_borders_driving,
+                TripMode::Bike => &incoming_borders_biking,
             },
         )?;
         let to = TripEndpt::new(
             &orig.to,
             &osm_id_to_bldg,
             match orig.mode {
-                Mode::Walk | Mode::Transit => &outgoing_borders_walking,
-                Mode::Drive => &outgoing_borders_driving,
-                Mode::Bike => &outgoing_borders_biking,
+                TripMode::Walk | TripMode::Transit => &outgoing_borders_walking,
+                TripMode::Drive => &outgoing_borders_driving,
+                TripMode::Bike => &outgoing_borders_biking,
             },
         )?;
 
@@ -221,17 +221,11 @@ fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingID, P
         prettyprint_usize(trips.len())
     ));
 
-    let mut bldgs = HashMap::new();
-    for (osm_id, metadata) in popdat.parcels {
-        if let Some(b) = osm_id_to_bldg.get(&osm_id) {
-            bldgs.insert(*b, metadata);
-        }
-    }
-    (trips, bldgs)
+    trips
 }
 
-pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
-    let (trips, _) = clip_trips(map, timer);
+pub fn make_weekday_scenario(map: &Map, timer: &mut Timer) -> Scenario {
+    let trips = clip_trips(map, timer);
     let orig_trips = trips.len();
 
     let mut individ_trips: Vec<Option<IndividTrip>> = Vec::new();
@@ -280,6 +274,70 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
 
     Scenario {
         scenario_name: "weekday".to_string(),
+        map_name: map.get_name().to_string(),
+        people,
+        only_seed_buses: None,
+    }
+    .remove_weird_schedules(map)
+}
+
+pub fn make_weekday_scenario_with_everyone(map: &Map, timer: &mut Timer) -> Scenario {
+    let popdat: PopDat = abstutil::read_binary(abstutil::path_popdat(), timer);
+
+    let mut individ_trips: Vec<Option<IndividTrip>> = Vec::new();
+    // person -> (trip seq, index into individ_trips)
+    let mut trips_per_person: MultiMap<(usize, usize), ((usize, bool, usize), usize)> =
+        MultiMap::new();
+    timer.start_iter("turn Soundcast trips into SpawnTrips", popdat.trips.len());
+    for orig_trip in popdat.trips {
+        timer.next();
+        let trip = SpawnTrip::Remote {
+            from: OffMapLocation {
+                gps: orig_trip.from.pos,
+                parcel_id: orig_trip.from.parcel_id,
+            },
+            to: OffMapLocation {
+                gps: orig_trip.to.pos,
+                parcel_id: orig_trip.to.parcel_id,
+            },
+            trip_time: orig_trip.trip_time,
+            mode: orig_trip.mode,
+        };
+        let idx = individ_trips.len();
+        individ_trips.push(Some(IndividTrip {
+            depart: orig_trip.depart_at,
+            trip,
+        }));
+        trips_per_person.insert(orig_trip.person, (orig_trip.seq, idx));
+    }
+
+    timer.note(format!(
+        "{} trips over {} people",
+        prettyprint_usize(individ_trips.len()),
+        prettyprint_usize(trips_per_person.len())
+    ));
+
+    let mut people = Vec::new();
+    for (orig_id, seq_trips) in trips_per_person.consume() {
+        let id = PersonID(people.len());
+        let mut trips = Vec::new();
+        for (_, idx) in seq_trips {
+            trips.push(individ_trips[idx].take().unwrap());
+        }
+        // Actually, the sequence in the Soundcast dataset crosses midnight. Don't do that; sort by
+        // departure time starting with midnight.
+        trips.sort_by_key(|t| t.depart);
+
+        people.push(PersonSpec { id, orig_id, trips });
+    }
+    for maybe_t in individ_trips {
+        if maybe_t.is_some() {
+            panic!("Some IndividTrip wasn't associated with a Person?!");
+        }
+    }
+
+    Scenario {
+        scenario_name: "everyone_weekday".to_string(),
         map_name: map.get_name().to_string(),
         people,
         only_seed_buses: None,

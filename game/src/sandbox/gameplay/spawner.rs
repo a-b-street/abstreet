@@ -19,7 +19,7 @@ use rand::Rng;
 use rand_xorshift::XorShiftRng;
 use sim::{
     BorderSpawnOverTime, DrivingGoal, OriginDestination, Scenario, ScenarioGenerator, SidewalkSpot,
-    Sim, TripSpawner, TripSpec,
+    Sim, TripEndpoint, TripSpawner, TripSpec,
 };
 
 const SMALL_DT: Duration = Duration::const_seconds(0.1);
@@ -214,6 +214,7 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                         retry_if_no_room: false,
                         origin: None,
                     },
+                    TripEndpoint::Border(lane.src_i, None),
                     map,
                 );
             }
@@ -233,6 +234,7 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                             map,
                         ),
                     },
+                    TripEndpoint::Border(lane.src_i, None),
                     map,
                 );
             }
@@ -255,11 +257,14 @@ fn schedule_trip(
     let now = sim.time();
     match src {
         Source::WalkFromBldg(_) | Source::WalkFromSidewalk(_) => {
-            let start = match src {
-                Source::WalkFromBldg(b) => SidewalkSpot::building(*b, map),
-                Source::WalkFromSidewalk(pos) => {
-                    SidewalkSpot::suddenly_appear(pos.lane(), pos.dist_along(), map)
+            let (start, trip_start) = match src {
+                Source::WalkFromBldg(b) => {
+                    (SidewalkSpot::building(*b, map), TripEndpoint::Bldg(*b))
                 }
+                Source::WalkFromSidewalk(pos) => (
+                    SidewalkSpot::suddenly_appear(pos.lane(), pos.dist_along(), map),
+                    TripEndpoint::Border(map.get_l(pos.lane()).src_i, None),
+                ),
                 _ => unreachable!(),
             };
             let goal = match raw_goal {
@@ -286,6 +291,7 @@ fn schedule_trip(
                         stop1,
                         stop2,
                     },
+                    trip_start,
                     map,
                 );
             } else {
@@ -294,6 +300,7 @@ fn schedule_trip(
                     sim.random_person(Scenario::rand_ped_speed(rng), Vec::new()),
                     now,
                     TripSpec::JustWalking { start, goal },
+                    trip_start,
                     map,
                 );
             }
@@ -326,6 +333,7 @@ fn schedule_trip(
                     start: SidewalkSpot::building(*b, map),
                     goal,
                 },
+                TripEndpoint::Bldg(*b),
                 map,
             );
         }
@@ -363,6 +371,7 @@ fn schedule_trip(
                                 use_vehicle: person.vehicles[0].id,
                                 origin: None,
                             },
+                            TripEndpoint::Border(map.get_l(from.lane()).src_i, None),
                             map,
                         );
                     } else {

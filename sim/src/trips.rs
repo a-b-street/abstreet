@@ -82,6 +82,7 @@ impl TripManager {
         start: TripEndpoint,
         mode: TripMode,
         legs: Vec<TripLeg>,
+        map: &Map,
     ) -> TripID {
         assert!(!legs.is_empty());
         // TODO Make sure the legs constitute a valid state machine.
@@ -97,6 +98,9 @@ impl TripManager {
                 DrivingGoal::ParkNear(b) => TripEndpoint::Bldg(*b),
                 DrivingGoal::Border(i, _, loc) => TripEndpoint::Border(*i, loc.clone()),
             },
+            Some(TripLeg::Remote(ref to)) => {
+                TripEndpoint::Border(map.all_incoming_borders()[0].id, Some(to.clone()))
+            }
             _ => unreachable!(),
         };
         let trip = Trip {
@@ -588,6 +592,36 @@ impl TripManager {
         self.person_finished_trip(now, person, parking, scheduler, map);
     }
 
+    pub fn remote_trip_finished(
+        &mut self,
+        now: Time,
+        id: TripID,
+        map: &Map,
+        parking: &mut ParkingSimState,
+        scheduler: &mut Scheduler,
+    ) {
+        let trip = &mut self.trips[id.0];
+
+        let to = match trip.legs.pop_front() {
+            Some(TripLeg::Remote(to)) => to,
+            _ => unreachable!(),
+        };
+        assert!(trip.legs.is_empty());
+        assert!(!trip.finished_at.is_some());
+        trip.finished_at = Some(now);
+        self.unfinished_trips -= 1;
+        self.events.push(Event::TripFinished {
+            trip: trip.id,
+            mode: trip.mode,
+            total_time: now - trip.spawned_at,
+            blocked_time: trip.total_blocked_time,
+        });
+        let person = trip.person;
+        // TODO enter the destination bldg
+        self.people[person.0].state = PersonState::OffMap;
+        self.person_finished_trip(now, person, parking, scheduler, map);
+    }
+
     pub fn abort_trip(
         &mut self,
         now: Time,
@@ -700,6 +734,10 @@ impl TripManager {
             TripLeg::Drive(c, _) => AgentID::Car(*c),
             // TODO Should be the bus, but apparently transit sim tracks differently?
             TripLeg::RideBus(_, _) => AgentID::Pedestrian(person.ped),
+            // TODO Ehhh not true
+            TripLeg::Remote(_) => {
+                return TripResult::ModeChange;
+            }
         };
         if self.active_trip_mode.get(&a) == Some(&id) {
             TripResult::Ok(a)
@@ -1114,6 +1152,12 @@ impl TripManager {
                     self.abort_trip(now, trip, None, parking, scheduler, map);
                 }
             }
+            TripSpec::Remote { trip_time, .. } => {
+                assert_eq!(person.state, PersonState::OffMap);
+                person.state = PersonState::Trip(trip);
+                // TODO Push some event for leaving the building
+                scheduler.push(now + trip_time, Command::FinishRemoteTrip(trip));
+            }
         }
     }
 }
@@ -1200,6 +1244,7 @@ pub enum TripLeg {
     // A person may own many vehicles, so specify which they use
     Drive(CarID, DrivingGoal),
     RideBus(BusRouteID, BusStopID),
+    Remote(OffMapLocation),
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone, Copy, PartialOrd, Ord)]

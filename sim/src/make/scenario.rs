@@ -1,6 +1,7 @@
 use crate::{
     CarID, DrivingGoal, ParkingSpot, PersonID, SidewalkPOI, SidewalkSpot, Sim, TripEndpoint,
-    TripSpec, Vehicle, VehicleSpec, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
+    TripMode, TripSpec, Vehicle, VehicleSpec, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH,
+    MIN_CAR_LENGTH,
 };
 use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{Distance, Duration, LonLat, Speed, Time};
@@ -57,6 +58,13 @@ pub enum SpawnTrip {
     UsingBike(SidewalkSpot, DrivingGoal),
     JustWalking(SidewalkSpot, SidewalkSpot),
     UsingTransit(SidewalkSpot, SidewalkSpot, BusRouteID, BusStopID, BusStopID),
+    // Completely off-map trip. Don't really simulate much of it.
+    Remote {
+        from: OffMapLocation,
+        to: OffMapLocation,
+        trip_time: Duration,
+        mode: TripMode,
+    },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -111,7 +119,7 @@ impl Scenario {
                     &mut tmp_rng,
                     map,
                 );
-                spawner.schedule_trip(person, t.depart, spec, map);
+                spawner.schedule_trip(person, t.depart, spec, t.trip.start(map), map);
             }
         }
 
@@ -397,6 +405,17 @@ impl SpawnTrip {
                 stop1,
                 stop2,
             },
+            SpawnTrip::Remote {
+                from,
+                to,
+                trip_time,
+                mode,
+            } => TripSpec::Remote {
+                from,
+                to,
+                trip_time,
+                mode,
+            },
         }
     }
 
@@ -412,12 +431,19 @@ impl SpawnTrip {
             | SpawnTrip::UsingTransit(ref spot, _, _, _, _) => match spot.connection {
                 SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
                 SidewalkPOI::Border(i, ref loc) => TripEndpoint::Border(i, loc.clone()),
+                SidewalkPOI::SuddenlyAppear => {
+                    TripEndpoint::Border(map.get_l(spot.sidewalk_pos.lane()).src_i, None)
+                }
                 _ => unreachable!(),
             },
+            // Pick an arbitrary border
+            SpawnTrip::Remote { ref from, .. } => {
+                TripEndpoint::Border(map.all_outgoing_borders()[0].id, Some(from.clone()))
+            }
         }
     }
 
-    pub fn end(&self) -> TripEndpoint {
+    pub fn end(&self, map: &Map) -> TripEndpoint {
         match self {
             SpawnTrip::VehicleAppearing { ref goal, .. }
             | SpawnTrip::FromBorder { ref goal, .. }
@@ -432,6 +458,10 @@ impl SpawnTrip {
                     SidewalkPOI::Border(i, ref loc) => TripEndpoint::Border(i, loc.clone()),
                     _ => unreachable!(),
                 }
+            }
+            // Pick an arbitrary border
+            SpawnTrip::Remote { ref to, .. } => {
+                TripEndpoint::Border(map.all_incoming_borders()[0].id, Some(to.clone()))
             }
         }
     }
@@ -449,7 +479,7 @@ impl PersonSpec {
             }
 
             // Once off-map, re-enter via any border node.
-            let end_bldg = match pair.0.trip.end() {
+            let end_bldg = match pair.0.trip.end(map) {
                 TripEndpoint::Bldg(b) => Some(b),
                 TripEndpoint::Border(_, _) => None,
             };
@@ -564,6 +594,7 @@ impl PersonSpec {
                     bike_idx
                 }
                 SpawnTrip::JustWalking(_, _) | SpawnTrip::UsingTransit(_, _, _, _, _) => None,
+                SpawnTrip::Remote { .. } => None,
             };
             vehicle_foreach_trip.push(use_for_trip);
         }

@@ -52,7 +52,7 @@ impl ScenarioManager {
                         trips_from_border.insert(i, idx);
                     }
                 }
-                match trip.trip.end() {
+                match trip.trip.end(&app.primary.map) {
                     TripEndpoint::Bldg(b) => {
                         trips_to_bldg.insert(b, idx);
                     }
@@ -329,6 +329,10 @@ fn describe(person: &PersonSpec, trip: &IndividTrip, home: OD) -> String {
             sidewalk_spot(goal),
             route
         ),
+        SpawnTrip::Remote { from, to, .. } => format!(
+            "{} at {}: remote trip from {:?} to {:?}",
+            person.id, trip.depart, from, to
+        ),
     }
 }
 
@@ -357,6 +361,7 @@ fn other_endpt(trip: &IndividTrip, home: OD, map: &Map) -> ID {
         SpawnTrip::UsingTransit(start, goal, _, _, _) => {
             (sidewalk_spot(start), sidewalk_spot(goal))
         }
+        SpawnTrip::Remote { .. } => unimplemented!(),
     };
     let home_id = match home {
         OD::Bldg(b) => ID::Building(b),
@@ -477,6 +482,7 @@ impl DotMap {
                         SpawnTrip::UsingTransit(start, goal, _, _, _) => {
                             (start.sidewalk_pos.pt(map), goal.sidewalk_pos.pt(map))
                         }
+                        SpawnTrip::Remote { .. } => unimplemented!(),
                     };
                     Line::maybe_new(start, end)
                 })

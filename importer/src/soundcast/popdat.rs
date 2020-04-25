@@ -2,6 +2,7 @@ use abstutil::{prettyprint_usize, FileWithProgress, Timer};
 use geom::{Distance, Duration, FindClosest, LonLat, Pt2D, Time};
 use map_model::Map;
 use serde_derive::{Deserialize, Serialize};
+use sim::TripMode;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fs::File;
 use std::io::Write;
@@ -224,16 +225,16 @@ fn get_purpose(code: &str) -> Purpose {
 }
 
 // From https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv, mode
-fn get_mode(code: &str) -> Mode {
+fn get_mode(code: &str) -> TripMode {
     match code {
-        "1.0" => Mode::Walk,
-        "2.0" => Mode::Bike,
-        "3.0" | "4.0" | "5.0" => Mode::Drive,
+        "1.0" => TripMode::Walk,
+        "2.0" => TripMode::Bike,
+        "3.0" | "4.0" | "5.0" => TripMode::Drive,
         // TODO Park-and-ride and school bus as walk-to-transit is a little weird.
-        "6.0" | "7.0" | "8.0" => Mode::Transit,
+        "6.0" | "7.0" | "8.0" => TripMode::Transit,
         // TODO Invalid code, what's this one mean? I only see a few examples, so just default to
         // walking.
-        "0.0" => Mode::Walk,
+        "0.0" => TripMode::Walk,
         _ => panic!("Unknown mode {}", code),
     }
 }
@@ -273,7 +274,7 @@ pub struct OrigTrip {
     pub from: Endpoint,
     pub to: Endpoint,
     pub depart_at: Time,
-    pub mode: Mode,
+    pub mode: TripMode,
 
     // (household, person within household)
     pub person: (usize, usize),
@@ -296,14 +297,6 @@ pub struct Parcel {
     pub num_households: usize,
     pub num_employees: usize,
     pub offstreet_parking_spaces: usize,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq)]
-pub enum Mode {
-    Walk,
-    Bike,
-    Drive,
-    Transit,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
