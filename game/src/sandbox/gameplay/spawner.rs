@@ -104,6 +104,7 @@ impl State for AgentSpawner {
                     if let Some(g) = DrivingGoal::end_at_border(
                         map.get_i(to).some_incoming_road(map),
                         constraints,
+                        None,
                         map,
                     ) {
                         g.goal_pos(constraints, map)
@@ -263,7 +264,7 @@ fn schedule_trip(
             let goal = match raw_goal {
                 Goal::Building(to) => SidewalkSpot::building(to, map),
                 Goal::Border(to) => {
-                    if let Some(goal) = SidewalkSpot::end_at_border(to, map) {
+                    if let Some(goal) = SidewalkSpot::end_at_border(to, None, map) {
                         goal
                     } else {
                         return Some(format!("Can't end a walking trip at {}; no sidewalks", to));
@@ -303,6 +304,7 @@ fn schedule_trip(
                     if let Some(g) = DrivingGoal::end_at_border(
                         map.get_i(to).some_incoming_road(map),
                         PathConstraints::Bike,
+                        None,
                         map,
                     ) {
                         g
@@ -334,6 +336,7 @@ fn schedule_trip(
                     if let Some(g) = DrivingGoal::end_at_border(
                         map.get_i(to).some_incoming_road(map),
                         PathConstraints::Car,
+                        None,
                         map,
                     ) {
                         g

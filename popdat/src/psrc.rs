@@ -21,6 +21,7 @@ pub struct OrigTrip {
 pub struct Endpoint {
     pub pos: LonLat,
     pub osm_building: Option<i64>,
+    pub parcel_id: usize,
 }
 
 #[derive(Serialize, Deserialize)]

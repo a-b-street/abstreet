@@ -3,7 +3,7 @@ use crate::{
     TripSpec, Vehicle, VehicleSpec, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
 };
 use abstutil::{prettyprint_usize, Counter, Timer};
-use geom::{Distance, Duration, Speed, Time};
+use geom::{Distance, Duration, LonLat, Speed, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, Position, RoadID,
 };
@@ -38,7 +38,7 @@ pub struct IndividTrip {
     pub trip: SpawnTrip,
 }
 
-#[derive(Clone, Serialize, Deserialize, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum SpawnTrip {
     // Only for interactive / debug trips
     VehicleAppearing {
@@ -51,11 +51,18 @@ pub enum SpawnTrip {
         goal: DrivingGoal,
         // For bikes starting at a border, use FromBorder. UsingBike implies a walk->bike trip.
         is_bike: bool,
+        origin: Option<OffMapLocation>,
     },
     UsingParkedCar(BuildingID, DrivingGoal),
     UsingBike(SidewalkSpot, DrivingGoal),
     JustWalking(SidewalkSpot, SidewalkSpot),
     UsingTransit(SidewalkSpot, SidewalkSpot, BusRouteID, BusStopID, BusStopID),
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct OffMapLocation {
+    pub parcel_id: usize,
+    pub gps: LonLat,
 }
 
 impl Scenario {
@@ -398,7 +405,7 @@ impl SpawnTrip {
             | SpawnTrip::JustWalking(ref spot, _)
             | SpawnTrip::UsingTransit(ref spot, _, _, _, _) => match spot.connection {
                 SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
-                SidewalkPOI::Border(i) => TripEndpoint::Border(i),
+                SidewalkPOI::Border(i, _) => TripEndpoint::Border(i),
                 _ => unreachable!(),
             },
         }
@@ -411,12 +418,12 @@ impl SpawnTrip {
             | SpawnTrip::UsingParkedCar(_, ref goal)
             | SpawnTrip::UsingBike(_, ref goal) => match goal {
                 DrivingGoal::ParkNear(b) => TripEndpoint::Bldg(*b),
-                DrivingGoal::Border(i, _) => TripEndpoint::Border(*i),
+                DrivingGoal::Border(i, _, _) => TripEndpoint::Border(*i),
             },
             SpawnTrip::JustWalking(_, ref spot) | SpawnTrip::UsingTransit(_, ref spot, _, _, _) => {
                 match spot.connection {
                     SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
-                    SidewalkPOI::Border(i) => TripEndpoint::Border(i),
+                    SidewalkPOI::Border(i, _) => TripEndpoint::Border(i),
                     _ => unreachable!(),
                 }
             }
@@ -506,7 +513,7 @@ impl PersonSpec {
                             DrivingGoal::ParkNear(b) => {
                                 car_locations.push((idx, Some(*b)));
                             }
-                            DrivingGoal::Border(_, _) => {
+                            DrivingGoal::Border(_, _, _) => {
                                 car_locations.push((idx, None));
                             }
                         }
@@ -536,7 +543,7 @@ impl PersonSpec {
                         DrivingGoal::ParkNear(b) => {
                             car_locations.push((idx, Some(*b)));
                         }
-                        DrivingGoal::Border(_, _) => {
+                        DrivingGoal::Border(_, _, _) => {
                             car_locations.push((idx, None));
                         }
                     }

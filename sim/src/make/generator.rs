@@ -281,7 +281,7 @@ impl BorderSpawnOverTime {
         }
 
         let start = if let Some(s) =
-            SidewalkSpot::start_at_border(self.start_from_border.src_i(map), map)
+            SidewalkSpot::start_at_border(self.start_from_border.src_i(map), None, map)
         {
             s
         } else {
@@ -358,6 +358,7 @@ impl BorderSpawnOverTime {
                             i: self.start_from_border.src_i(map),
                             goal,
                             is_bike: constraints == PathConstraints::Bike,
+                            origin: None,
                         },
                     }],
                 });
@@ -388,7 +389,7 @@ impl OriginDestination {
             )),
             OriginDestination::GotoBldg(b) => Some(DrivingGoal::ParkNear(*b)),
             OriginDestination::EndOfRoad(dr) => {
-                let goal = DrivingGoal::end_at_border(*dr, constraints, map);
+                let goal = DrivingGoal::end_at_border(*dr, constraints, None, map);
                 if goal.is_none() {
                     timer.warn(format!(
                         "Can't spawn a {:?} ending at border {}; no appropriate lanes there",
@@ -413,7 +414,7 @@ impl OriginDestination {
                 map,
             )),
             OriginDestination::EndOfRoad(dr) => {
-                let goal = SidewalkSpot::end_at_border(dr.dst_i(map), map);
+                let goal = SidewalkSpot::end_at_border(dr.dst_i(map), None, map);
                 if goal.is_none() {
                     timer.warn(format!("Can't end_at_border for {} without a sidewalk", dr));
                 }

@@ -86,7 +86,7 @@ impl TripSpawner {
                     );
                 }
                 match goal {
-                    DrivingGoal::Border(_, end_lane) => {
+                    DrivingGoal::Border(_, end_lane, _) => {
                         if start_pos.lane() == *end_lane
                             && start_pos.dist_along() == map.get_l(*end_lane).length()
                         {
@@ -241,7 +241,7 @@ impl TripSpawner {
                         DrivingGoal::ParkNear(b) => {
                             legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
                         }
-                        DrivingGoal::Border(_, _) => {}
+                        DrivingGoal::Border(_, _, _) => {}
                     }
                     trips.new_trip(
                         person.id,
@@ -259,7 +259,7 @@ impl TripSpawner {
                         SidewalkPOI::SuddenlyAppear => {
                             TripEndpoint::Border(map.get_l(start.sidewalk_pos.lane()).src_i)
                         }
-                        SidewalkPOI::Border(i) => TripEndpoint::Border(i),
+                        SidewalkPOI::Border(i, _) => TripEndpoint::Border(i),
                         _ => unreachable!(),
                     },
                     TripMode::Walk,
@@ -276,7 +276,7 @@ impl TripSpawner {
                         DrivingGoal::ParkNear(b) => {
                             legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
                         }
-                        DrivingGoal::Border(_, _) => {}
+                        DrivingGoal::Border(_, _, _) => {}
                     };
                     trips.new_trip(
                         person.id,
@@ -286,7 +286,7 @@ impl TripSpawner {
                             SidewalkPOI::SuddenlyAppear => {
                                 TripEndpoint::Border(map.get_l(start.sidewalk_pos.lane()).src_i)
                             }
-                            SidewalkPOI::Border(i) => TripEndpoint::Border(i),
+                            SidewalkPOI::Border(i, _) => TripEndpoint::Border(i),
                             _ => unreachable!(),
                         },
                         TripMode::Bike,
@@ -309,7 +309,7 @@ impl TripSpawner {
                             SidewalkPOI::SuddenlyAppear => {
                                 TripEndpoint::Border(map.get_l(start.sidewalk_pos.lane()).src_i)
                             }
-                            SidewalkPOI::Border(i) => TripEndpoint::Border(i),
+                            SidewalkPOI::Border(i, _) => TripEndpoint::Border(i),
                             _ => unreachable!(),
                         },
                         TripMode::Transit,

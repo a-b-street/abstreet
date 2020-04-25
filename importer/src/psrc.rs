@@ -192,6 +192,7 @@ fn import_parcels(
             Endpoint {
                 pos: pt,
                 osm_building,
+                parcel_id: id,
             },
         );
     }

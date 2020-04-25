@@ -90,12 +90,12 @@ impl TripManager {
         let end = match legs.last() {
             Some(TripLeg::Walk(ref spot)) => match spot.connection {
                 SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
-                SidewalkPOI::Border(i) => TripEndpoint::Border(i),
+                SidewalkPOI::Border(i, _) => TripEndpoint::Border(i),
                 _ => unreachable!(),
             },
             Some(TripLeg::Drive(_, ref goal)) => match goal {
                 DrivingGoal::ParkNear(b) => TripEndpoint::Bldg(*b),
-                DrivingGoal::Border(i, _) => TripEndpoint::Border(*i),
+                DrivingGoal::Border(i, _, _) => TripEndpoint::Border(*i),
             },
             _ => unreachable!(),
         };
@@ -524,7 +524,13 @@ impl TripManager {
             .0];
         trip.total_blocked_time += blocked_time;
 
-        trip.assert_walking_leg(SidewalkSpot::end_at_border(i, map).unwrap());
+        match trip.legs.pop_front() {
+            Some(TripLeg::Walk(spot)) => match spot.connection {
+                SidewalkPOI::Border(i2, _) => assert_eq!(i, i2),
+                _ => unreachable!(),
+            },
+            _ => unreachable!(),
+        }
         assert!(trip.legs.is_empty());
         assert!(!trip.finished_at.is_some());
         trip.finished_at = Some(now);
@@ -555,7 +561,7 @@ impl TripManager {
         trip.total_blocked_time += blocked_time;
 
         match trip.legs.pop_front().unwrap() {
-            TripLeg::Drive(c, DrivingGoal::Border(int, _)) => {
+            TripLeg::Drive(c, DrivingGoal::Border(int, _, _)) => {
                 assert_eq!(car, c);
                 assert_eq!(i, int);
             }
@@ -987,7 +993,7 @@ impl TripManager {
                     person.state,
                     match start.connection {
                         SidewalkPOI::Building(b) => PersonState::Inside(b),
-                        SidewalkPOI::Border(_) => PersonState::OffMap,
+                        SidewalkPOI::Border(_, _) => PersonState::OffMap,
                         SidewalkPOI::SuddenlyAppear => PersonState::OffMap,
                         _ => unreachable!(),
                     }
@@ -1022,7 +1028,7 @@ impl TripManager {
                     person.state,
                     match start.connection {
                         SidewalkPOI::Building(b) => PersonState::Inside(b),
-                        SidewalkPOI::Border(_) => PersonState::OffMap,
+                        SidewalkPOI::Border(_, _) => PersonState::OffMap,
                         SidewalkPOI::SuddenlyAppear => PersonState::OffMap,
                         _ => unreachable!(),
                     }
@@ -1059,7 +1065,7 @@ impl TripManager {
                     person.state,
                     match start.connection {
                         SidewalkPOI::Building(b) => PersonState::Inside(b),
-                        SidewalkPOI::Border(_) => PersonState::OffMap,
+                        SidewalkPOI::Border(_, _) => PersonState::OffMap,
                         SidewalkPOI::SuddenlyAppear => PersonState::OffMap,
                         _ => unreachable!(),
                     }

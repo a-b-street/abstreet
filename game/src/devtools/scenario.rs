@@ -247,7 +247,7 @@ fn describe(person: &PersonSpec, trip: &IndividTrip, home: OD) -> String {
                 b.to_string()
             }
         }
-        DrivingGoal::Border(i, _) => {
+        DrivingGoal::Border(i, _, _) => {
             if OD::Border(*i) == home {
                 "HERE".to_string()
             } else {
@@ -263,7 +263,7 @@ fn describe(person: &PersonSpec, trip: &IndividTrip, home: OD) -> String {
                 b.to_string()
             }
         }
-        SidewalkPOI::Border(i) => {
+        SidewalkPOI::Border(i, _) => {
             if OD::Border(*i) == home {
                 "HERE".to_string()
             } else {
@@ -286,7 +286,9 @@ fn describe(person: &PersonSpec, trip: &IndividTrip, home: OD) -> String {
             start.lane(),
             driving_goal(goal)
         ),
-        SpawnTrip::FromBorder { i, goal, is_bike } => format!(
+        SpawnTrip::FromBorder {
+            i, goal, is_bike, ..
+        } => format!(
             "{} at {}: {} appears at {}, goes to {}",
             person.id,
             trip.depart,
@@ -333,11 +335,11 @@ fn describe(person: &PersonSpec, trip: &IndividTrip, home: OD) -> String {
 fn other_endpt(trip: &IndividTrip, home: OD, map: &Map) -> ID {
     let driving_goal = |goal: &DrivingGoal| match goal {
         DrivingGoal::ParkNear(b) => ID::Building(*b),
-        DrivingGoal::Border(i, _) => ID::Intersection(*i),
+        DrivingGoal::Border(i, _, _) => ID::Intersection(*i),
     };
     let sidewalk_spot = |spot: &SidewalkSpot| match &spot.connection {
         SidewalkPOI::Building(b) => ID::Building(*b),
-        SidewalkPOI::Border(i) => ID::Intersection(*i),
+        SidewalkPOI::Border(i, _) => ID::Intersection(*i),
         x => panic!("other_endpt for {:?}?", x),
     };
 

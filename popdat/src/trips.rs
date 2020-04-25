@@ -1,9 +1,12 @@
 use crate::psrc::{Endpoint, Mode, OrigTrip, Parcel};
 use crate::PopDat;
 use abstutil::{prettyprint_usize, MultiMap, Timer};
-use geom::{LonLat, Pt2D};
+use geom::LonLat;
 use map_model::{BuildingID, IntersectionID, Map, PathConstraints};
-use sim::{DrivingGoal, IndividTrip, PersonID, PersonSpec, Scenario, SidewalkSpot, SpawnTrip};
+use sim::{
+    DrivingGoal, IndividTrip, OffMapLocation, PersonID, PersonSpec, Scenario, SidewalkSpot,
+    SpawnTrip,
+};
 use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
@@ -16,19 +19,18 @@ pub struct Trip {
 #[derive(Clone, Debug)]
 pub enum TripEndpt {
     Building(BuildingID),
-    // The Pt2D is the original point. It'll be outside the map and likely out-of-bounds entirely,
-    // maybe even negative.
-    Border(IntersectionID, Pt2D),
+    Border(IntersectionID, OffMapLocation),
 }
 
 impl Trip {
     fn to_spawn_trip(&self, map: &Map) -> SpawnTrip {
         match self.orig.mode {
             Mode::Drive => match self.from {
-                TripEndpt::Border(i, _) => SpawnTrip::FromBorder {
+                TripEndpt::Border(i, ref origin) => SpawnTrip::FromBorder {
                     i,
                     goal: self.to.driving_goal(PathConstraints::Car, map),
                     is_bike: false,
+                    origin: Some(origin.clone()),
                 },
                 TripEndpt::Building(b) => {
                     SpawnTrip::UsingParkedCar(b, self.to.driving_goal(PathConstraints::Car, map))
@@ -39,10 +41,11 @@ impl Trip {
                     SidewalkSpot::building(b, map),
                     self.to.driving_goal(PathConstraints::Bike, map),
                 ),
-                TripEndpt::Border(i, _) => SpawnTrip::FromBorder {
+                TripEndpt::Border(i, ref origin) => SpawnTrip::FromBorder {
                     i,
                     goal: self.to.driving_goal(PathConstraints::Bike, map),
                     is_bike: true,
+                    origin: Some(origin.clone()),
                 },
             },
             Mode::Walk => SpawnTrip::JustWalking(
@@ -69,7 +72,6 @@ impl Trip {
 impl TripEndpt {
     fn new(
         endpt: &Endpoint,
-        map: &Map,
         osm_id_to_bldg: &HashMap<i64, BuildingID>,
         borders: &Vec<(IntersectionID, LonLat)>,
     ) -> Option<TripEndpt> {
@@ -82,7 +84,10 @@ impl TripEndpt {
             .map(|(id, _)| {
                 TripEndpt::Border(
                     *id,
-                    Pt2D::forcibly_from_gps(endpt.pos, map.get_gps_bounds()),
+                    OffMapLocation {
+                        gps: endpt.pos,
+                        parcel_id: endpt.parcel_id,
+                    },
                 )
             })
     }
@@ -90,24 +95,31 @@ impl TripEndpt {
     fn start_sidewalk_spot(&self, map: &Map) -> SidewalkSpot {
         match self {
             TripEndpt::Building(b) => SidewalkSpot::building(*b, map),
-            TripEndpt::Border(i, _) => SidewalkSpot::start_at_border(*i, map).unwrap(),
+            TripEndpt::Border(i, origin) => {
+                SidewalkSpot::start_at_border(*i, Some(origin.clone()), map).unwrap()
+            }
         }
     }
 
     fn end_sidewalk_spot(&self, map: &Map) -> SidewalkSpot {
         match self {
             TripEndpt::Building(b) => SidewalkSpot::building(*b, map),
-            TripEndpt::Border(i, _) => SidewalkSpot::end_at_border(*i, map).unwrap(),
+            TripEndpt::Border(i, destination) => {
+                SidewalkSpot::end_at_border(*i, Some(destination.clone()), map).unwrap()
+            }
         }
     }
 
     fn driving_goal(&self, constraints: PathConstraints, map: &Map) -> DrivingGoal {
         match self {
             TripEndpt::Building(b) => DrivingGoal::ParkNear(*b),
-            TripEndpt::Border(i, _) => {
-                DrivingGoal::end_at_border(map.get_i(*i).some_incoming_road(map), constraints, map)
-                    .unwrap()
-            }
+            TripEndpt::Border(i, destination) => DrivingGoal::end_at_border(
+                map.get_i(*i).some_incoming_road(map),
+                constraints,
+                Some(destination.clone()),
+                map,
+            )
+            .unwrap(),
         }
     }
 }
@@ -168,7 +180,6 @@ pub fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingI
     let maybe_results: Vec<Option<Trip>> = timer.parallelize("clip trips", popdat.trips, |orig| {
         let from = TripEndpt::new(
             &orig.from,
-            map,
             &osm_id_to_bldg,
             match orig.mode {
                 Mode::Walk | Mode::Transit => &incoming_borders_walking,
@@ -178,7 +189,6 @@ pub fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingI
         )?;
         let to = TripEndpt::new(
             &orig.to,
-            map,
             &osm_id_to_bldg,
             match orig.mode {
                 Mode::Walk | Mode::Transit => &outgoing_borders_walking,
