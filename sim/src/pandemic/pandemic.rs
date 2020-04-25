@@ -1,5 +1,5 @@
 use crate::pandemic::{AnyTime, State};
-use crate::{CarID, Event, Person, PersonID, Scheduler, TripPhaseType};
+use crate::{CarID, Event, OffMapLocation, Person, PersonID, Scheduler, TripPhaseType};
 use geom::{Duration, Time};
 use map_model::{BuildingID, BusStopID};
 use rand::Rng;
@@ -16,6 +16,7 @@ pub struct PandemicModel {
     pop: BTreeMap<PersonID, State>,
 
     bldgs: SharedSpace<BuildingID>,
+    remote_bldgs: SharedSpace<OffMapLocation>,
     bus_stops: SharedSpace<BusStopID>,
     buses: SharedSpace<CarID>,
     person_to_bus: BTreeMap<PersonID, CarID>,
@@ -45,6 +46,7 @@ impl PandemicModel {
             pop: BTreeMap::new(),
 
             bldgs: SharedSpace::new(),
+            remote_bldgs: SharedSpace::new(),
             bus_stops: SharedSpace::new(),
             buses: SharedSpace::new(),
             person_to_bus: BTreeMap::new(),
@@ -163,6 +165,20 @@ impl PandemicModel {
                     self.transmission(now, *person, others, scheduler);
                 } else {
                     panic!("{} left {}, but they weren't inside", person, bldg);
+                }
+            }
+            Event::PersonEntersRemoteBuilding(person, loc) => {
+                self.remote_bldgs
+                    .person_enters_space(now, *person, loc.clone());
+            }
+            Event::PersonLeavesRemoteBuilding(person, loc) => {
+                if let Some(others) =
+                    self.remote_bldgs
+                        .person_leaves_space(now, *person, loc.clone())
+                {
+                    self.transmission(now, *person, others, scheduler);
+                } else {
+                    panic!("{} left {:?}, but they weren't inside", person, loc);
                 }
             }
             Event::TripPhaseStarting(_, p, _, _, tpt) => {

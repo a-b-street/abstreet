@@ -22,6 +22,8 @@ pub enum Event {
     PersonLeavesBuilding(PersonID, BuildingID),
     PersonLeavesMap(PersonID, IntersectionID, Option<OffMapLocation>),
     PersonEntersMap(PersonID, IntersectionID, Option<OffMapLocation>),
+    PersonEntersRemoteBuilding(PersonID, OffMapLocation),
+    PersonLeavesRemoteBuilding(PersonID, OffMapLocation),
 
     PedReachedParkingSpot(PedestrianID, ParkingSpot),
 
@@ -72,6 +74,7 @@ pub enum TripPhaseType {
     Aborted,
     Finished,
     DelayedStart,
+    Remote,
 }
 
 impl TripPhaseType {
@@ -86,6 +89,7 @@ impl TripPhaseType {
             TripPhaseType::Aborted => "trip aborted due to some bug".to_string(),
             TripPhaseType::Finished => "trip finished".to_string(),
             TripPhaseType::DelayedStart => "delayed by previous trip taking too long".to_string(),
+            TripPhaseType::Remote => "remote trip outside the map boundaries".to_string(),
         }
     }
 }

@@ -78,7 +78,7 @@ impl TripManager {
     pub fn new_trip(
         &mut self,
         person: PersonID,
-        spawned_at: Time,
+        departure: Time,
         start: TripEndpoint,
         mode: TripMode,
         legs: Vec<TripLeg>,
@@ -106,7 +106,8 @@ impl TripManager {
         let trip = Trip {
             id,
             person,
-            spawned_at,
+            departure,
+            started: false,
             finished_at: None,
             total_blocked_time: Duration::ZERO,
             aborted: false,
@@ -124,15 +125,21 @@ impl TripManager {
                         .push(Event::PersonEntersBuilding(trip.person, b));
                     PersonState::Inside(b)
                 }
-                TripEndpoint::Border(_, _) => PersonState::OffMap,
+                TripEndpoint::Border(_, ref loc) => {
+                    if let Some(loc) = loc {
+                        self.events
+                            .push(Event::PersonEntersRemoteBuilding(trip.person, loc.clone()));
+                    }
+                    PersonState::OffMap
+                }
             };
         }
         if let Some(t) = person.trips.last() {
             // TODO If it's exactly ==, what?! See the ID.
-            if self.trips[t.0].spawned_at > trip.spawned_at {
+            if self.trips[t.0].departure > trip.departure {
                 panic!(
                     "{} has a trip starting at {}, then one at {}",
-                    person.id, self.trips[t.0].spawned_at, trip.spawned_at
+                    person.id, self.trips[t.0].departure, trip.departure
                 );
             }
         }
@@ -179,7 +186,7 @@ impl TripManager {
                     self.events.push(Event::TripFinished {
                         trip: trip.id,
                         mode: trip.mode,
-                        total_time: now - trip.spawned_at,
+                        total_time: now - trip.departure,
                         blocked_time: trip.total_blocked_time,
                     });
                     let person = trip.person;
@@ -407,7 +414,7 @@ impl TripManager {
         self.events.push(Event::TripFinished {
             trip: trip.id,
             mode: trip.mode,
-            total_time: now - trip.spawned_at,
+            total_time: now - trip.departure,
             blocked_time: trip.total_blocked_time,
         });
         let person = trip.person;
@@ -541,7 +548,7 @@ impl TripManager {
         self.events.push(Event::TripFinished {
             trip: trip.id,
             mode: trip.mode,
-            total_time: now - trip.spawned_at,
+            total_time: now - trip.departure,
             blocked_time: trip.total_blocked_time,
         });
         let person = trip.person;
@@ -580,7 +587,7 @@ impl TripManager {
         self.events.push(Event::TripFinished {
             trip: trip.id,
             mode: trip.mode,
-            total_time: now - trip.spawned_at,
+            total_time: now - trip.departure,
             blocked_time: trip.total_blocked_time,
         });
         let person = trip.person;
@@ -613,11 +620,12 @@ impl TripManager {
         self.events.push(Event::TripFinished {
             trip: trip.id,
             mode: trip.mode,
-            total_time: now - trip.spawned_at,
+            total_time: now - trip.departure,
             blocked_time: trip.total_blocked_time,
         });
         let person = trip.person;
-        // TODO enter the destination bldg
+        self.events
+            .push(Event::PersonEntersRemoteBuilding(person, to));
         self.people[person.0].state = PersonState::OffMap;
         self.person_finished_trip(now, person, parking, scheduler, map);
     }
@@ -727,6 +735,9 @@ impl TripManager {
         if trip.aborted {
             return TripResult::TripAborted;
         }
+        if !trip.started {
+            return TripResult::TripNotStarted;
+        }
 
         let person = &self.people[trip.person.0];
         let a = match &trip.legs[0] {
@@ -734,15 +745,14 @@ impl TripManager {
             TripLeg::Drive(c, _) => AgentID::Car(*c),
             // TODO Should be the bus, but apparently transit sim tracks differently?
             TripLeg::RideBus(_, _) => AgentID::Pedestrian(person.ped),
-            // TODO Ehhh not true
             TripLeg::Remote(_) => {
-                return TripResult::ModeChange;
+                return TripResult::RemoteTrip;
             }
         };
         if self.active_trip_mode.get(&a) == Some(&id) {
             TripResult::Ok(a)
         } else {
-            TripResult::TripNotStarted
+            panic!("{} should be ongoing, but no agent in active_trip_mode", id);
         }
     }
 
@@ -803,11 +813,11 @@ impl TripManager {
 
     pub fn trip_info(&self, id: TripID) -> (Time, TripEndpoint, TripEndpoint, TripMode) {
         let t = &self.trips[id.0];
-        (t.spawned_at, t.start.clone(), t.end.clone(), t.mode)
+        (t.departure, t.start.clone(), t.end.clone(), t.mode)
     }
     pub fn finished_trip_time(&self, id: TripID) -> Option<(Duration, Duration)> {
         let t = &self.trips[id.0];
-        Some((t.finished_at? - t.spawned_at, t.total_blocked_time))
+        Some((t.finished_at? - t.departure, t.total_blocked_time))
     }
 
     pub fn bldg_to_people(&self, b: BuildingID) -> Vec<PersonID> {
@@ -889,6 +899,7 @@ impl TripManager {
             ));
             return;
         }
+        self.trips[trip.0].started = true;
 
         match spec {
             TripSpec::VehicleAppearing {
@@ -1152,11 +1163,21 @@ impl TripManager {
                     self.abort_trip(now, trip, None, parking, scheduler, map);
                 }
             }
-            TripSpec::Remote { trip_time, .. } => {
+            TripSpec::Remote {
+                trip_time, from, ..
+            } => {
                 assert_eq!(person.state, PersonState::OffMap);
                 person.state = PersonState::Trip(trip);
-                // TODO Push some event for leaving the building
+                self.events
+                    .push(Event::PersonLeavesRemoteBuilding(person.id, from));
                 scheduler.push(now + trip_time, Command::FinishRemoteTrip(trip));
+                self.events.push(Event::TripPhaseStarting(
+                    trip,
+                    person.id,
+                    self.trips[trip.0].mode,
+                    None,
+                    TripPhaseType::Remote,
+                ));
             }
         }
     }
@@ -1165,7 +1186,8 @@ impl TripManager {
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 struct Trip {
     id: TripID,
-    spawned_at: Time,
+    departure: Time,
+    started: bool,
     finished_at: Option<Time>,
     total_blocked_time: Duration,
     aborted: bool,
@@ -1310,6 +1332,7 @@ pub enum TripResult<T> {
     TripDoesntExist,
     TripNotStarted,
     TripAborted,
+    RemoteTrip,
 }
 
 impl<T> TripResult<T> {
@@ -1328,6 +1351,7 @@ impl<T> TripResult<T> {
             TripResult::TripDoesntExist => TripResult::TripDoesntExist,
             TripResult::TripNotStarted => TripResult::TripNotStarted,
             TripResult::TripAborted => TripResult::TripAborted,
+            TripResult::RemoteTrip => TripResult::RemoteTrip,
         }
     }
 }

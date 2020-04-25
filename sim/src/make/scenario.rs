@@ -67,7 +67,7 @@ pub enum SpawnTrip {
     },
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct OffMapLocation {
     pub parcel_id: usize,
     pub gps: LonLat,
@@ -493,6 +493,18 @@ impl PersonSpec {
                     "At {}, {} {:?} warps between some trips, from {:?} to {:?}",
                     pair.1.depart, self.id, self.orig_id, end_bldg, start_bldg
                 ));
+            }
+
+            // But actually, make sure pairs of remote trips match up.
+            if let (SpawnTrip::Remote { ref to, .. }, SpawnTrip::Remote { ref from, .. }) =
+                (&pair.0.trip, &pair.1.trip)
+            {
+                if to != from {
+                    return Err(format!(
+                        "At {}, {} {:?} warps between some trips, from {:?} to {:?}",
+                        pair.1.depart, self.id, self.orig_id, to, from
+                    ));
+                }
             }
         }
         Ok(())

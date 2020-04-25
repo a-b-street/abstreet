@@ -378,6 +378,7 @@ fn make_timeline(
             TripPhaseType::RidingBus(_, _, _) => app.cs.bus_lane,
             TripPhaseType::Aborted | TripPhaseType::Finished => unreachable!(),
             TripPhaseType::DelayedStart => Color::YELLOW,
+            TripPhaseType::Remote => Color::PINK,
         }
         .alpha(0.7);
 
@@ -440,6 +441,8 @@ fn make_timeline(
                 }
                 TripPhaseType::Aborted | TripPhaseType::Finished => unreachable!(),
                 TripPhaseType::DelayedStart => "../data/system/assets/timeline/delayed_start.svg",
+                // TODO What icon should represent this?
+                TripPhaseType::Remote => "../data/system/assets/timeline/delayed_start.svg",
             },
             // TODO Hardcoded layouting...
             Pt2D::new(0.5 * phase_width, -20.0),

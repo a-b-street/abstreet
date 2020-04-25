@@ -72,6 +72,16 @@ pub fn trips(
                         .map(|_| trip::ongoing(ctx, app, *t, a, details)),
                 )
             }
+            TripResult::RemoteTrip => {
+                assert!(wheres_waldo);
+                wheres_waldo = false;
+                (
+                    "ongoing (off-map)",
+                    Color::hex("#7FFA4D"),
+                    // TODO Details about an ongoing remote trip?
+                    None,
+                )
+            }
             TripResult::ModeChange => {
                 // TODO No details. Weird case.
                 assert!(wheres_waldo);

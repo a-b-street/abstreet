@@ -4,7 +4,7 @@ use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
 // longitude is x, latitude is y
-#[derive(Copy, Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Serialize, Deserialize)]
 pub struct LonLat {
     longitude: NotNan<f64>,
     latitude: NotNan<f64>,
