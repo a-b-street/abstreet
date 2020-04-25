@@ -516,7 +516,6 @@ impl TripManager {
         parking: &mut ParkingSimState,
         scheduler: &mut Scheduler,
     ) {
-        self.events.push(Event::PedReachedBorder(ped, i));
         let trip = &mut self.trips[self
             .active_trip_mode
             .remove(&AgentID::Pedestrian(ped))
@@ -542,6 +541,10 @@ impl TripManager {
             blocked_time: trip.total_blocked_time,
         });
         let person = trip.person;
+        if let TripEndpoint::Border(_, ref loc) = trip.end {
+            self.events
+                .push(Event::PersonLeavesMap(person, i, loc.clone()));
+        }
         self.people[person.0].state = PersonState::OffMap;
         self.person_finished_trip(now, person, parking, scheduler, map);
     }
@@ -556,7 +559,6 @@ impl TripManager {
         parking: &mut ParkingSimState,
         scheduler: &mut Scheduler,
     ) {
-        self.events.push(Event::CarOrBikeReachedBorder(car, i));
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
         trip.total_blocked_time += blocked_time;
 
@@ -579,6 +581,10 @@ impl TripManager {
         });
         let person = trip.person;
         self.people[person.0].state = PersonState::OffMap;
+        if let TripEndpoint::Border(_, ref loc) = trip.end {
+            self.events
+                .push(Event::PersonLeavesMap(person, i, loc.clone()));
+        }
         self.person_finished_trip(now, person, parking, scheduler, map);
     }
 
@@ -601,8 +607,14 @@ impl TripManager {
         if let PersonState::Inside(b) = self.people[person.0].state {
             self.events.push(Event::PersonLeavesBuilding(person, b));
         }
-        if let TripEndpoint::Bldg(b) = trip.end {
-            self.events.push(Event::PersonEntersBuilding(person, b));
+        match trip.end {
+            TripEndpoint::Bldg(b) => {
+                self.events.push(Event::PersonEntersBuilding(person, b));
+            }
+            TripEndpoint::Border(i, ref loc) => {
+                self.events
+                    .push(Event::PersonLeavesMap(person, i, loc.clone()));
+            }
         }
 
         // Warp to the destination
@@ -846,9 +858,14 @@ impl TripManager {
                 goal,
                 retry_if_no_room,
                 use_vehicle,
-                ..
+                origin,
             } => {
                 assert_eq!(person.state, PersonState::OffMap);
+                self.events.push(Event::PersonEntersMap(
+                    person.id,
+                    map.get_l(start_pos.lane()).src_i,
+                    origin,
+                ));
                 person.state = PersonState::Trip(trip);
 
                 let vehicle = person.get_vehicle(use_vehicle);
@@ -955,8 +972,21 @@ impl TripManager {
                     person.state,
                     match start.connection {
                         SidewalkPOI::Building(b) => PersonState::Inside(b),
-                        SidewalkPOI::Border(_, _) => PersonState::OffMap,
-                        SidewalkPOI::SuddenlyAppear => PersonState::OffMap,
+                        SidewalkPOI::Border(i, ref loc) => {
+                            self.events
+                                .push(Event::PersonEntersMap(person.id, i, loc.clone()));
+                            PersonState::OffMap
+                        }
+                        SidewalkPOI::SuddenlyAppear => {
+                            // Unclear which end of the sidewalk this person should be associated
+                            // with. For interactively spawned people, doesn't really matter.
+                            self.events.push(Event::PersonEntersMap(
+                                person.id,
+                                map.get_l(start.sidewalk_pos.lane()).src_i,
+                                None,
+                            ));
+                            PersonState::OffMap
+                        }
                         _ => unreachable!(),
                     }
                 );
@@ -990,8 +1020,21 @@ impl TripManager {
                     person.state,
                     match start.connection {
                         SidewalkPOI::Building(b) => PersonState::Inside(b),
-                        SidewalkPOI::Border(_, _) => PersonState::OffMap,
-                        SidewalkPOI::SuddenlyAppear => PersonState::OffMap,
+                        SidewalkPOI::Border(i, ref loc) => {
+                            self.events
+                                .push(Event::PersonEntersMap(person.id, i, loc.clone()));
+                            PersonState::OffMap
+                        }
+                        SidewalkPOI::SuddenlyAppear => {
+                            // Unclear which end of the sidewalk this person should be associated
+                            // with. For interactively spawned people, doesn't really matter.
+                            self.events.push(Event::PersonEntersMap(
+                                person.id,
+                                map.get_l(start.sidewalk_pos.lane()).src_i,
+                                None,
+                            ));
+                            PersonState::OffMap
+                        }
                         _ => unreachable!(),
                     }
                 );
@@ -1027,8 +1070,21 @@ impl TripManager {
                     person.state,
                     match start.connection {
                         SidewalkPOI::Building(b) => PersonState::Inside(b),
-                        SidewalkPOI::Border(_, _) => PersonState::OffMap,
-                        SidewalkPOI::SuddenlyAppear => PersonState::OffMap,
+                        SidewalkPOI::Border(i, ref loc) => {
+                            self.events
+                                .push(Event::PersonEntersMap(person.id, i, loc.clone()));
+                            PersonState::OffMap
+                        }
+                        SidewalkPOI::SuddenlyAppear => {
+                            // Unclear which end of the sidewalk this person should be associated
+                            // with. For interactively spawned people, doesn't really matter.
+                            self.events.push(Event::PersonEntersMap(
+                                person.id,
+                                map.get_l(start.sidewalk_pos.lane()).src_i,
+                                None,
+                            ));
+                            PersonState::OffMap
+                        }
                         _ => unreachable!(),
                     }
                 );

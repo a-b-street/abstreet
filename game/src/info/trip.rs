@@ -281,6 +281,19 @@ fn make_timeline(
         details
             .warpers
             .insert(format!("jump to start of {}", trip), id);
+        if let TripEndpoint::Border(_, ref loc) = trip_start {
+            if let Some(loc) = loc {
+                let arrow = PolyLine::new(vec![
+                    Pt2D::forcibly_from_gps(loc.gps, map.get_gps_bounds()),
+                    center,
+                ])
+                .make_arrow(Distance::meters(5.0))
+                .unwrap();
+                details.unzoomed.push(Color::GREEN, arrow.clone());
+                details.zoomed.push(Color::GREEN, arrow.clone());
+            }
+        }
+
         details.unzoomed.add_svg(
             ctx.prerender,
             "../data/system/assets/timeline/start_pos.svg",
@@ -297,19 +310,6 @@ fn make_timeline(
             Angle::ZERO,
             RewriteColor::NoOp,
         );
-
-        if let TripEndpoint::Border(_, ref loc) = trip_start {
-            if let Some(loc) = loc {
-                let arrow = PolyLine::new(vec![
-                    Pt2D::forcibly_from_gps(loc.gps, map.get_gps_bounds()),
-                    center,
-                ])
-                .make_arrow(Distance::meters(5.0))
-                .unwrap();
-                details.unzoomed.push(Color::GREEN, arrow.clone());
-                details.zoomed.push(Color::GREEN, arrow.clone());
-            }
-        }
 
         Btn::svg(
             "../data/system/assets/timeline/start_pos.svg",
@@ -324,6 +324,19 @@ fn make_timeline(
         details
             .warpers
             .insert(format!("jump to goal of {}", trip), id);
+        if let TripEndpoint::Border(_, ref loc) = trip_end {
+            if let Some(loc) = loc {
+                let arrow = PolyLine::new(vec![
+                    center,
+                    Pt2D::forcibly_from_gps(loc.gps, map.get_gps_bounds()),
+                ])
+                .make_arrow(Distance::meters(5.0))
+                .unwrap();
+                details.unzoomed.push(Color::GREEN, arrow.clone());
+                details.zoomed.push(Color::GREEN, arrow.clone());
+            }
+        }
+
         details.unzoomed.add_svg(
             ctx.prerender,
             "../data/system/assets/timeline/goal_pos.svg",
@@ -340,19 +353,6 @@ fn make_timeline(
             Angle::ZERO,
             RewriteColor::NoOp,
         );
-
-        if let TripEndpoint::Border(_, ref loc) = trip_end {
-            if let Some(loc) = loc {
-                let arrow = PolyLine::new(vec![
-                    center,
-                    Pt2D::forcibly_from_gps(loc.gps, map.get_gps_bounds()),
-                ])
-                .make_arrow(Distance::meters(5.0))
-                .unwrap();
-                details.unzoomed.push(Color::GREEN, arrow.clone());
-                details.zoomed.push(Color::GREEN, arrow.clone());
-            }
-        }
 
         Btn::svg(
             "../data/system/assets/timeline/goal_pos.svg",

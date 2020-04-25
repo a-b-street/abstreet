@@ -195,6 +195,19 @@ impl PandemicModel {
                     }
                 }
             }
+            Event::PersonLeavesMap(_person, _, loc) => {
+                if let Some(_loc) = loc {
+                    // TODO Could make a SharedSpace for loc.parcel_id, representing buildings
+                    // off-map.
+                }
+            }
+            Event::PersonEntersMap(_person, _, loc) => {
+                if let Some(_loc) = loc {
+                    // TODO But we don't know how long the person spent at these parcels. They
+                    // could've taken tons of trips to other off-map parcels in between
+                    // PersonLeavesMap and PersonEntersMap.
+                }
+            }
             _ => {}
         }
     }

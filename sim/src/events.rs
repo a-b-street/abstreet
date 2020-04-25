@@ -1,4 +1,6 @@
-use crate::{AgentID, CarID, ParkingSpot, PedestrianID, PersonID, TripID, TripMode};
+use crate::{
+    AgentID, CarID, OffMapLocation, ParkingSpot, PedestrianID, PersonID, TripID, TripMode,
+};
 use geom::Duration;
 use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, Map, Path, PathRequest, Traversable,
@@ -12,16 +14,16 @@ use serde_derive::{Deserialize, Serialize};
 pub enum Event {
     CarReachedParkingSpot(CarID, ParkingSpot),
     CarLeftParkingSpot(CarID, ParkingSpot),
-    CarOrBikeReachedBorder(CarID, IntersectionID),
 
     BusArrivedAtStop(CarID, BusRouteID, BusStopID),
     BusDepartedFromStop(CarID, BusRouteID, BusStopID),
 
     PersonEntersBuilding(PersonID, BuildingID),
     PersonLeavesBuilding(PersonID, BuildingID),
+    PersonLeavesMap(PersonID, IntersectionID, Option<OffMapLocation>),
+    PersonEntersMap(PersonID, IntersectionID, Option<OffMapLocation>),
 
     PedReachedParkingSpot(PedestrianID, ParkingSpot),
-    PedReachedBorder(PedestrianID, IntersectionID),
 
     BikeStoppedAtSidewalk(CarID, LaneID),
 
