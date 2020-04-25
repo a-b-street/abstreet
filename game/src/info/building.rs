@@ -51,11 +51,6 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
         }
     }
 
-    let cars = app.primary.sim.get_offstreet_parked_cars(id);
-    if !cars.is_empty() {
-        txt.add(Line(format!("{} cars parked inside right now", cars.len())));
-    }
-
     if let Some(pl) = app
         .primary
         .sim

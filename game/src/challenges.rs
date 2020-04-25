@@ -6,7 +6,7 @@ use abstutil::Timer;
 use ezgui::{hotkey, Btn, Color, Composite, EventCtx, Key, Line, Text, TextExt, Widget};
 use geom::{Duration, Time};
 use map_model::Map;
-use sim::{PersonID, Scenario, Sim, SimFlags, SimOptions};
+use sim::{AlertHandler, PersonID, Scenario, Sim, SimFlags, SimOptions};
 use std::collections::{BTreeMap, HashSet};
 
 // TODO Also have some kind of screenshot to display for each challenge
@@ -345,6 +345,7 @@ fn prebake(map: &Map, scenario: Scenario, timer: &mut Timer) {
     ));
 
     let mut opts = SimOptions::new("prebaked");
+    opts.alerts = AlertHandler::Silence;
     opts.savestate_every = Some(Duration::hours(1));
     let mut sim = Sim::new(&map, opts, timer);
     // Bit of an abuse of this, but just need to fix the rng seed.

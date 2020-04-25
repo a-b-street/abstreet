@@ -185,16 +185,6 @@ pub enum ParkingSpot {
     Offstreet(BuildingID, usize),
 }
 
-impl ParkingSpot {
-    pub fn onstreet(lane: LaneID, idx: usize) -> ParkingSpot {
-        ParkingSpot::Onstreet(lane, idx)
-    }
-
-    pub fn offstreet(bldg: BuildingID, idx: usize) -> ParkingSpot {
-        ParkingSpot::Offstreet(bldg, idx)
-    }
-}
-
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct ParkedCar {
     pub vehicle: Vehicle,

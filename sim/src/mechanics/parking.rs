@@ -70,9 +70,8 @@ impl ParkingSimState {
         }
         for b in map.all_buildings() {
             if let Some(ref p) = b.parking {
-                if map.get_l(p.driving_pos.lane()).parking_blackhole.is_some() {
-                    continue;
-                }
+                // Map construction is supposed to enforce this
+                assert!(map.get_l(p.driving_pos.lane()).parking_blackhole.is_none());
                 sim.num_spots_per_offstreet.insert(b.id, p.num_spots);
                 sim.driving_to_offstreet.insert(p.driving_pos.lane(), b.id);
             }
@@ -95,7 +94,7 @@ impl ParkingSimState {
     pub fn get_free_offstreet_spots(&self, b: BuildingID) -> Vec<ParkingSpot> {
         let mut spots: Vec<ParkingSpot> = Vec::new();
         for idx in 0..self.num_spots_per_offstreet.get(&b).cloned().unwrap_or(0) {
-            let spot = ParkingSpot::offstreet(b, idx);
+            let spot = ParkingSpot::Offstreet(b, idx);
             if self.is_free(spot) {
                 spots.push(spot);
             }
@@ -106,6 +105,16 @@ impl ParkingSimState {
     pub fn reserve_spot(&mut self, spot: ParkingSpot) {
         assert!(self.is_free(spot));
         self.reserved_spots.insert(spot);
+
+        // Sanity check the spot exists
+        match spot {
+            ParkingSpot::Onstreet(l, idx) => {
+                assert!(idx < self.onstreet_lanes[&l].spot_dist_along.len());
+            }
+            ParkingSpot::Offstreet(b, idx) => {
+                assert!(idx < self.num_spots_per_offstreet[&b]);
+            }
+        }
     }
 
     pub fn remove_parked_car(&mut self, p: ParkedCar) {
@@ -235,7 +244,7 @@ impl ParkingSimState {
             }
 
             for idx in 0..self.num_spots_per_offstreet[&b] {
-                let spot = ParkingSpot::offstreet(*b, idx);
+                let spot = ParkingSpot::Offstreet(*b, idx);
                 if self.is_free(spot) {
                     maybe_spot = Some(spot);
                     break;
@@ -279,7 +288,7 @@ impl ParkingSimState {
     pub fn get_offstreet_parked_cars(&self, b: BuildingID) -> Vec<&ParkedCar> {
         let mut results = Vec::new();
         for idx in 0..self.num_spots_per_offstreet.get(&b).cloned().unwrap_or(0) {
-            if let Some(car) = self.occupants.get(&ParkingSpot::offstreet(b, idx)) {
+            if let Some(car) = self.occupants.get(&ParkingSpot::Offstreet(b, idx)) {
                 results.push(&self.parked_cars[&car]);
             }
         }
@@ -307,12 +316,14 @@ impl ParkingSimState {
                 }
             }
         }
-        for (b, idx) in &self.num_spots_per_offstreet {
-            let spot = ParkingSpot::Offstreet(*b, *idx);
-            if self.is_free(spot) {
-                available.push(spot);
-            } else {
-                filled.push(spot);
+        for (b, num_spots) in &self.num_spots_per_offstreet {
+            for idx in 0..*num_spots {
+                let spot = ParkingSpot::Offstreet(*b, idx);
+                if self.is_free(spot) {
+                    available.push(spot);
+                } else {
+                    filled.push(spot);
+                }
             }
         }
 
@@ -427,7 +438,7 @@ impl ParkingLane {
     fn spots(&self) -> Vec<ParkingSpot> {
         let mut spots = Vec::new();
         for idx in 0..self.spot_dist_along.len() {
-            spots.push(ParkingSpot::onstreet(self.parking_lane, idx));
+            spots.push(ParkingSpot::Onstreet(self.parking_lane, idx));
         }
         spots
     }
