@@ -1419,7 +1419,7 @@ pub fn execute(_: &mut EventCtx, _: &mut App, id: ID, action: String) -> Transit
             (ID::Lane(l), "check the parking occupancy") => {
                 let lane = app.primary.map.get_l(l);
                 if lane.is_parking() {
-                    let percent = (app.primary.sim.get_free_spots(l).len() as f64)
+                    let percent = (app.primary.sim.get_free_onstreet_spots(l).len() as f64)
                         / (lane.number_parking_spots() as f64);
                     if percent > 0.1 {
                         msg(

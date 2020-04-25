@@ -19,7 +19,11 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
     if l.is_parking() {
         kv.push((
             "Parking",
-            format!("{} spots, parallel parking", l.number_parking_spots()),
+            format!(
+                "{} / {} spots available",
+                app.primary.sim.get_free_onstreet_spots(l.id).len(),
+                l.number_parking_spots()
+            ),
         ));
     } else {
         kv.push(("Speed limit", r.get_speed_limit().to_string()));
@@ -51,7 +55,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
                 ),
             });
         }
-        rows.push("Parking spots available".draw_text(ctx));
+        rows.push("Parking spots available".draw_text(ctx).margin_above(10));
         rows.push(LinePlot::new(
             ctx,
             "parking spots available",

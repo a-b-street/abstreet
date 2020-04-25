@@ -80,7 +80,7 @@ impl ParkingSimState {
         sim
     }
 
-    pub fn get_free_spots(&self, l: LaneID) -> Vec<ParkingSpot> {
+    pub fn get_free_onstreet_spots(&self, l: LaneID) -> Vec<ParkingSpot> {
         let mut spots: Vec<ParkingSpot> = Vec::new();
         if let Some(lane) = self.onstreet_lanes.get(&l) {
             for spot in lane.spots() {
@@ -88,9 +88,6 @@ impl ParkingSimState {
                     spots.push(spot);
                 }
             }
-        }
-        for b in self.driving_to_offstreet.get(l) {
-            spots.extend(self.get_free_offstreet_spots(*b));
         }
         spots
     }

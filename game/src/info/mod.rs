@@ -21,7 +21,8 @@ use geom::{Circle, Distance, Duration, Time};
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID};
 use maplit::btreemap;
 use sim::{
-    AgentID, Analytics, CarID, PedestrianID, PersonID, PersonState, TripID, TripMode, VehicleType,
+    AgentID, Analytics, CarID, ParkingSpot, PedestrianID, PersonID, PersonState, TripID, TripMode,
+    VehicleType,
 };
 use std::collections::{BTreeMap, HashMap};
 
@@ -126,7 +127,12 @@ impl Tab {
             }
             Tab::BusStatus(c) | Tab::BusDelays(c) => Some(ID::Car(c)),
             Tab::BusStop(bs) => Some(ID::BusStop(bs)),
-            Tab::ParkedCar(c) => Some(ID::Car(c)),
+            // TODO If a parked car becomes in use while the panel is open, should update the panel
+            // better.
+            Tab::ParkedCar(c) => match app.primary.sim.lookup_parked_car(c)?.spot {
+                ParkingSpot::Onstreet(_, _) => Some(ID::Car(c)),
+                ParkingSpot::Offstreet(b, _) => Some(ID::Building(b)),
+            },
             Tab::BldgInfo(b) | Tab::BldgDebug(b) | Tab::BldgPeople(b) => Some(ID::Building(b)),
             Tab::Crowd(members) => Some(ID::PedCrowd(members)),
             Tab::Area(a) => Some(ID::Area(a)),
@@ -192,7 +198,10 @@ impl InfoPanel {
             Tab::BusStatus(c) => (bus::bus_status(ctx, app, &mut details, c), true),
             Tab::BusDelays(c) => (bus::bus_delays(ctx, app, &mut details, c), true),
             Tab::BusStop(bs) => (bus::stop(ctx, app, &mut details, bs), true),
-            Tab::ParkedCar(c) => (person::parked_car(ctx, app, &mut details, c), true),
+            Tab::ParkedCar(c) => (
+                person::parked_car(ctx, app, &mut details, c, ctx_actions.is_paused()),
+                true,
+            ),
             Tab::BldgInfo(b) => (building::info(ctx, app, &mut details, b), true),
             Tab::BldgDebug(b) => (building::debug(ctx, app, &mut details, b), false),
             Tab::BldgPeople(b) => (building::people(ctx, app, &mut details, b), false),

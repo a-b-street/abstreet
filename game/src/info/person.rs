@@ -7,7 +7,8 @@ use geom::Duration;
 use map_model::Map;
 use maplit::btreemap;
 use sim::{
-    AgentID, CarID, PedestrianID, Person, PersonID, PersonState, TripID, TripResult, VehicleType,
+    AgentID, CarID, ParkingSpot, PedestrianID, Person, PersonID, PersonState, TripID, TripResult,
+    VehicleType,
 };
 use std::collections::BTreeMap;
 
@@ -243,42 +244,34 @@ pub fn bio(
 
     let person = app.primary.sim.get_person(id);
     let mut has_bike = false;
-    let mut num_cars = 0;
-    let mut parked_cars = Vec::new();
     for v in &person.vehicles {
         if v.vehicle_type == VehicleType::Bike {
             has_bike = true;
         } else {
-            num_cars += 1;
             if app.primary.sim.lookup_parked_car(v.id).is_some() {
-                parked_cars.push(
+                rows.push(
                     Btn::text_bg2(format!("Owner of {} (parked)", v.id)).build_def(ctx, None),
                 );
                 details
                     .hyperlinks
                     .insert(format!("Owner of {} (parked)", v.id), Tab::ParkedCar(v.id));
+            } else if let PersonState::Trip(t) = person.state {
+                match app.primary.sim.trip_to_agent(t) {
+                    TripResult::Ok(AgentID::Car(x)) if x == v.id => {
+                        rows.push(format!("Owner of {} (currently driving)", v.id).draw_text(ctx));
+                    }
+                    _ => {
+                        rows.push(format!("Owner of {} (off-map)", v.id).draw_text(ctx));
+                    }
+                }
+            } else {
+                rows.push(format!("Owner of {} (off-map)", v.id).draw_text(ctx));
             }
         }
     }
-    // TODO Could simplify this, but different phrasing seems nice
     if has_bike {
-        if num_cars == 0 {
-            rows.push("Owns a bike".draw_text(ctx));
-        } else if num_cars == 1 {
-            rows.push("Owns a car and a bike".draw_text(ctx));
-        } else {
-            rows.push(format!("Owns {} cars and a bike", num_cars).draw_text(ctx));
-        }
-    } else {
-        if num_cars == 1 {
-            rows.push("Owns a car".draw_text(ctx));
-        } else if num_cars > 1 {
-            rows.push(format!("Owns {} cars", num_cars).draw_text(ctx));
-        }
+        rows.push("Owns a bike".draw_text(ctx));
     }
-    // TODO Above text seems redundant. Ideally, describe each asset they own, with optional button
-    // to jump to it if that makes sense
-    rows.extend(parked_cars);
 
     rows
 }
@@ -319,24 +312,71 @@ pub fn crowd(
     rows
 }
 
-pub fn parked_car(ctx: &EventCtx, app: &App, details: &mut Details, id: CarID) -> Vec<Widget> {
+pub fn parked_car(
+    ctx: &mut EventCtx,
+    app: &App,
+    details: &mut Details,
+    id: CarID,
+    is_paused: bool,
+) -> Vec<Widget> {
     let mut rows = vec![];
 
     rows.push(Widget::row(vec![
         Line(format!("Parked car #{}", id.0))
             .small_heading()
             .draw(ctx),
-        header_btns(ctx),
+        Widget::row(vec![
+            // Little indirect, but the handler of this action is actually the ContextualActions
+            // for SandboxMode.
+            if is_paused {
+                Btn::svg_def("../data/system/assets/tools/location.svg")
+                    .build(ctx, "follow", hotkey(Key::F))
+                    .margin(5)
+            } else {
+                // TODO Blink
+                Btn::svg_def("../data/system/assets/tools/location.svg")
+                    .normal_color(RewriteColor::ChangeAll(Color::hex("#7FFA4D")))
+                    .build(ctx, "unfollow", hotkey(Key::F))
+                    .margin(5)
+            },
+            Btn::plaintext("X").build(ctx, "close info", hotkey(Key::Escape)),
+        ])
+        .align_right(),
     ]));
 
     // TODO how long idle, prev trips, next trips, etc
 
-    if let Some(p) = app.primary.sim.get_owner_of_car(id) {
-        rows.push(Btn::text_bg2(format!("Owned by {}", p)).build_def(ctx, None));
-        details.hyperlinks.insert(
-            format!("Owned by {}", p),
-            Tab::PersonTrips(p, BTreeMap::new()),
-        );
+    let p = app.primary.sim.get_owner_of_car(id).unwrap();
+    rows.push(Btn::text_bg2(format!("Owned by {}", p)).build_def(ctx, None));
+    details.hyperlinks.insert(
+        format!("Owned by {}", p),
+        Tab::PersonTrips(p, BTreeMap::new()),
+    );
+
+    if let Some(p) = app.primary.sim.lookup_parked_car(id) {
+        match p.spot {
+            ParkingSpot::Onstreet(_, _) => {
+                ctx.canvas.center_on_map_pt(
+                    app.primary
+                        .sim
+                        .canonical_pt_for_agent(AgentID::Car(id), &app.primary.map)
+                        .unwrap(),
+                );
+            }
+            ParkingSpot::Offstreet(b, _) => {
+                ctx.canvas
+                    .center_on_map_pt(app.primary.map.get_b(b).polygon.center());
+                rows.push(
+                    format!(
+                        "Parked inside {}",
+                        app.primary.map.get_b(b).get_name(&app.primary.map)
+                    )
+                    .draw_text(ctx),
+                );
+            }
+        }
+    } else {
+        rows.push("No longer parked".draw_text(ctx));
     }
 
     rows

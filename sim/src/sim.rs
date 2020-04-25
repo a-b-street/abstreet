@@ -163,8 +163,8 @@ impl Sim {
         self.dispatch_events(Vec::new(), map);
     }
 
-    pub fn get_free_spots(&self, l: LaneID) -> Vec<ParkingSpot> {
-        self.parking.get_free_spots(l)
+    pub fn get_free_onstreet_spots(&self, l: LaneID) -> Vec<ParkingSpot> {
+        self.parking.get_free_onstreet_spots(l)
     }
 
     pub fn get_free_offstreet_spots(&self, b: BuildingID) -> Vec<ParkingSpot> {
