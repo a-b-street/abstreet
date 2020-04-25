@@ -13,10 +13,11 @@ use map_model::raw::{DrivingSide, OriginalBuilding, OriginalRoad, RawMap};
 // Just used for matching hints to different sides of a road.
 const DIRECTED_ROAD_THICKNESS: Distance = Distance::const_meters(2.5);
 
-pub struct Flags {
+pub struct Options {
     pub osm: String,
     pub parking_shapes: Option<String>,
-    pub offstreet_parking: Option<String>,
+    pub public_offstreet_parking: Option<String>,
+    pub private_offstreet_parking: PrivateOffstreetParking,
     pub sidewalks: Option<String>,
     pub gtfs: Option<String>,
     pub neighborhoods: Option<String>,
@@ -26,13 +27,19 @@ pub struct Flags {
     pub output: String,
 }
 
-pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> RawMap {
-    let (mut map, amenities) = split_ways::split_up_roads(
-        osm_reader::extract_osm(&flags.osm, &flags.clip, timer),
-        timer,
-    );
+// If a building doesn't have anything from public_offstreet_parking, how many private spots should
+// it have?
+pub enum PrivateOffstreetParking {
+    ZeroPerBldg,
+    OnePerBldg,
+    // TODO Based on the number of residents?
+}
+
+pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
+    let (mut map, amenities) =
+        split_ways::split_up_roads(osm_reader::extract_osm(&opts.osm, &opts.clip, timer), timer);
     clip::clip_map(&mut map, timer);
-    map.driving_side = if flags.drive_on_right {
+    map.driving_side = if opts.drive_on_right {
         DrivingSide::Right
     } else {
         DrivingSide::Left
@@ -44,25 +51,26 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> RawMap {
 
     use_amenities(&mut map, amenities, timer);
 
-    if let Some(ref path) = flags.parking_shapes {
+    if let Some(ref path) = opts.parking_shapes {
         use_parking_hints(&mut map, path.clone(), timer);
     }
-    if let Some(ref path) = flags.offstreet_parking {
+    if let Some(ref path) = opts.public_offstreet_parking {
         use_offstreet_parking(&mut map, path.clone(), timer);
     }
-    if let Some(ref path) = flags.sidewalks {
+    apply_private_offstreet_parking(&mut map, opts.private_offstreet_parking);
+    if let Some(ref path) = opts.sidewalks {
         use_sidewalk_hints(&mut map, path.clone(), timer);
     }
-    if let Some(ref path) = flags.gtfs {
+    if let Some(ref path) = opts.gtfs {
         timer.start("load GTFS");
         map.bus_routes = gtfs::load(path);
         timer.stop("load GTFS");
     }
-    if let Some(ref path) = flags.elevation {
+    if let Some(ref path) = opts.elevation {
         use_elevation(&mut map, path, timer);
     }
 
-    if let Some(ref path) = flags.neighborhoods {
+    if let Some(ref path) = opts.neighborhoods {
         timer.start("convert neighborhood polygons");
         neighborhoods::convert(path.clone(), map.name.clone(), &map.gps_bounds);
         timer.stop("convert neighborhood polygons");
@@ -216,6 +224,20 @@ fn use_offstreet_parking(map: &mut RawMap, path: String, timer: &mut Timer) {
         handle_shape(s);
     }
     timer.stop("match offstreet parking points");
+}
+
+fn apply_private_offstreet_parking(map: &mut RawMap, policy: PrivateOffstreetParking) {
+    match policy {
+        PrivateOffstreetParking::ZeroPerBldg => {}
+        PrivateOffstreetParking::OnePerBldg => {
+            for b in map.buildings.values_mut() {
+                if b.public_garage_name.is_none() {
+                    assert_eq!(b.num_parking_spots, 0);
+                    b.num_parking_spots = 1;
+                }
+            }
+        }
+    }
 }
 
 fn use_sidewalk_hints(map: &mut RawMap, path: String, timer: &mut Timer) {

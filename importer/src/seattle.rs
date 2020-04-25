@@ -50,10 +50,11 @@ pub fn osm_to_raw(name: &str) {
     println!("- Running convert_osm");
     let output = format!("../data/input/raw_maps/{}.bin", name);
     let map = convert_osm::convert(
-        &convert_osm::Flags {
+        convert_osm::Options {
             osm: format!("../data/input/osm/{}.osm", name),
             parking_shapes: Some("../data/input/blockface.bin".to_string()),
-            offstreet_parking: Some("../data/input/offstreet_parking.bin".to_string()),
+            public_offstreet_parking: Some("../data/input/offstreet_parking.bin".to_string()),
+            private_offstreet_parking: convert_osm::PrivateOffstreetParking::OnePerBldg,
             // TODO These're buggy.
             sidewalks: None,
             gtfs: Some("../data/input/google_transit".to_string()),

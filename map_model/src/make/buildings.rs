@@ -89,16 +89,9 @@ pub fn make_all_buildings(
                     }
                 }
             }
-            if let Some(ref mut p) = bldg.parking {
-                if p.public_garage_name.is_none() {
-                    // TODO Optionally do this!
-                    assert_eq!(p.num_spots, 0);
-                    p.num_spots = 1;
-                }
-            } else {
+            if bldg.parking.is_none() {
                 timer.warn(format!(
-                    "{} can't have a driveway. Forfeiting {} public parking spots, maybe some \
-                     private spots",
+                    "{} can't have a driveway. Forfeiting {} parking spots",
                     bldg.id, b.num_parking_spots
                 ));
             }
