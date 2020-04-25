@@ -12,7 +12,7 @@ geo-booleanop = "0.2.0"
 geo-offset = "0.1.0"
 histogram = "0.6.9"
 instant = "0.1.2"
-ordered-float = "1.0.1"
+ordered-float = { version = "1.0.1", features=["serde"] }
 polylabel = { git = "https://github.com/urschrei/polylabel-rs" }
 serde = "1.0.98"
 serde_derive = "1.0.98"

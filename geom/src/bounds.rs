@@ -101,17 +101,17 @@ impl GPSBounds {
     }
 
     pub fn update(&mut self, pt: LonLat) {
-        self.min_lon = self.min_lon.min(pt.longitude);
-        self.max_lon = self.max_lon.max(pt.longitude);
-        self.min_lat = self.min_lat.min(pt.latitude);
-        self.max_lat = self.max_lat.max(pt.latitude);
+        self.min_lon = self.min_lon.min(pt.x());
+        self.max_lon = self.max_lon.max(pt.x());
+        self.min_lat = self.min_lat.min(pt.y());
+        self.max_lat = self.max_lat.max(pt.y());
     }
 
     pub fn contains(&self, pt: LonLat) -> bool {
-        pt.longitude >= self.min_lon
-            && pt.longitude <= self.max_lon
-            && pt.latitude >= self.min_lat
-            && pt.latitude <= self.max_lat
+        pt.x() >= self.min_lon
+            && pt.x() <= self.max_lon
+            && pt.y() >= self.min_lat
+            && pt.y() <= self.max_lat
     }
 
     // TODO cache this

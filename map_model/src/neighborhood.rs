@@ -49,15 +49,11 @@ impl NeighborhoodBuilder {
         writeln!(f, "{}", self.name)?;
         writeln!(f, "1")?;
         for gps in &self.points {
-            writeln!(f, "     {}    {}", gps.longitude, gps.latitude)?;
+            writeln!(f, "     {}    {}", gps.x(), gps.y())?;
         }
         // Have to repeat the first point
         {
-            writeln!(
-                f,
-                "     {}    {}",
-                self.points[0].longitude, self.points[0].latitude
-            )?;
+            writeln!(f, "     {}    {}", self.points[0].x(), self.points[0].y())?;
         }
         writeln!(f, "END")?;
         writeln!(f, "END")?;

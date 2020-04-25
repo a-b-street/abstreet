@@ -39,8 +39,8 @@ impl Elevation {
         // TODO assert the (lon, lat) match the offsets
         // TODO not tons of confidence in any of this.
         // TODO interpolate from the 4 matching tiles?
-        let x = ((pt.longitude - self.lon_offset).abs() * (GRID_DIM as f64)) as usize;
-        let y = ((pt.latitude - self.lat_offset).abs() * (GRID_DIM as f64)) as usize;
+        let x = ((pt.x() - self.lon_offset).abs() * (GRID_DIM as f64)) as usize;
+        let y = ((pt.y() - self.lat_offset).abs() * (GRID_DIM as f64)) as usize;
         let i = x + (y * GRID_DIM);
         Distance::meters(f64::from(self.data[i]))
     }
