@@ -26,7 +26,7 @@ impl Trip {
         match self.orig.mode {
             TripMode::Drive => match self.from {
                 TripEndpt::Border(i, ref origin) => SpawnTrip::FromBorder {
-                    i,
+                    dr: map.get_i(i).some_outgoing_road(map),
                     goal: self.to.driving_goal(PathConstraints::Car, map),
                     is_bike: false,
                     origin: Some(origin.clone()),
@@ -41,7 +41,7 @@ impl Trip {
                     self.to.driving_goal(PathConstraints::Bike, map),
                 ),
                 TripEndpt::Border(i, ref origin) => SpawnTrip::FromBorder {
-                    i,
+                    dr: map.get_i(i).some_outgoing_road(map),
                     goal: self.to.driving_goal(PathConstraints::Bike, map),
                     is_bike: true,
                     origin: Some(origin.clone()),

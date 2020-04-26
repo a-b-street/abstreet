@@ -355,7 +355,7 @@ impl BorderSpawnOverTime {
                     trips: vec![IndividTrip {
                         depart,
                         trip: SpawnTrip::FromBorder {
-                            i: self.start_from_border.src_i(map),
+                            dr: self.start_from_border,
                             goal,
                             is_bike: constraints == PathConstraints::Bike,
                             origin: None,

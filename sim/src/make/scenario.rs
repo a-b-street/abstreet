@@ -6,7 +6,7 @@ use crate::{
 use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{Distance, Duration, LonLat, Speed, Time};
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, Position, RoadID,
+    BuildingID, BusRouteID, BusStopID, DirectedRoadID, Map, PathConstraints, Position, RoadID,
 };
 use rand::seq::SliceRandom;
 use rand::{Rng, SeedableRng};
@@ -48,7 +48,7 @@ pub enum SpawnTrip {
         is_bike: bool,
     },
     FromBorder {
-        i: IntersectionID,
+        dr: DirectedRoadID,
         goal: DrivingGoal,
         // For bikes starting at a border, use FromBorder. UsingBike implies a walk->bike trip.
         is_bike: bool,
@@ -350,20 +350,19 @@ impl SpawnTrip {
                 origin: None,
             },
             SpawnTrip::FromBorder {
-                i,
+                dr,
                 goal,
                 is_bike,
                 origin,
             } => {
-                if let Some(start_pos) = map
-                    .get_i(i)
-                    .get_outgoing_lanes(
-                        map,
+                if let Some(start_pos) = dr
+                    .lanes(
                         if is_bike {
                             PathConstraints::Bike
                         } else {
                             PathConstraints::Car
                         },
+                        map,
                     )
                     .choose(rng)
                     // TODO We could be more precise and say exactly what vehicle will be used here
@@ -380,7 +379,7 @@ impl SpawnTrip {
                     }
                 } else {
                     TripSpec::NoRoomToSpawn {
-                        i,
+                        i: dr.src_i(map),
                         goal,
                         use_vehicle: use_vehicle.unwrap(),
                         origin,
@@ -424,7 +423,9 @@ impl SpawnTrip {
             SpawnTrip::VehicleAppearing { ref start, .. } => {
                 TripEndpoint::Border(map.get_l(start.lane()).src_i, None)
             }
-            SpawnTrip::FromBorder { i, ref origin, .. } => TripEndpoint::Border(*i, origin.clone()),
+            SpawnTrip::FromBorder { dr, ref origin, .. } => {
+                TripEndpoint::Border(dr.src_i(map), origin.clone())
+            }
             SpawnTrip::UsingParkedCar(b, _) => TripEndpoint::Bldg(*b),
             SpawnTrip::UsingBike(ref spot, _)
             | SpawnTrip::JustWalking(ref spot, _)

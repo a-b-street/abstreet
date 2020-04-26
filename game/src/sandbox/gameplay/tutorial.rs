@@ -22,6 +22,8 @@ use sim::{
     VehicleType,
 };
 
+const CAR_BIKE_CONTENTION_GOAL: Duration = Duration::const_seconds(3.0 * 60.0);
+
 pub struct Tutorial {
     top_center: Composite,
     last_finished_task: Task,
@@ -230,8 +232,6 @@ impl Tutorial {
                     .into_iter()
                     .max_by_key(|(b, _, _)| *b)
                     .unwrap();
-                // TODO Tune. The real solution doesn't work because of sim bugs.
-                let goal = Duration::minutes(1);
                 if !tut.score_delivered {
                     tut.score_delivered = true;
                     if before == after {
@@ -263,7 +263,7 @@ impl Tutorial {
                             false,
                         );
                     }
-                    if before - after < goal {
+                    if before - after < CAR_BIKE_CONTENTION_GOAL {
                         return (
                             Some(Transition::Push(msg(
                                 "All trips completed",
@@ -292,7 +292,7 @@ impl Tutorial {
                         false,
                     );
                 }
-                if before - after >= goal {
+                if before - after >= CAR_BIKE_CONTENTION_GOAL {
                     tut.next();
                 }
                 return (Some(transition(ctx, app, tut)), false);
@@ -467,7 +467,12 @@ impl Task {
             }
             Task::LowParking => "Find a road with almost no parking spots available",
             Task::WatchBikes => "Simulate 2 minutes",
-            Task::FixBikes => "Speed up the slowest trip by 45s",
+            Task::FixBikes => {
+                return Text::from(Line(format!(
+                    "[ ] Speed up the slowest trip by {}",
+                    CAR_BIKE_CONTENTION_GOAL
+                )));
+            }
             Task::WatchBuses => "Simulate 5 minutes and watch the buses",
             Task::FixBuses => "Speed up bus 43 and 48",
             Task::Done => "Tutorial complete!",
@@ -497,10 +502,7 @@ impl Task {
 }
 
 struct Stage {
-    messages: Vec<(
-        Vec<&'static str>,
-        Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>>,
-    )>,
+    messages: Vec<(Vec<String>, Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>>)>,
     task: Task,
     warp_to: Option<(ID, f64)>,
     spawn: Option<Box<dyn Fn(&mut App)>>,
@@ -520,12 +522,13 @@ impl Stage {
         }
     }
 
-    fn msg(
+    fn msg<I: Into<String>>(
         mut self,
-        lines: Vec<&'static str>,
+        lines: Vec<I>,
         point_to: Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>>,
     ) -> Stage {
-        self.messages.push((lines, point_to));
+        self.messages
+            .push((lines.into_iter().map(|l| l.into()).collect(), point_to));
         self
     }
 
@@ -685,12 +688,7 @@ impl TutorialState {
             Task::Nil
         }
     }
-    fn lines(
-        &self,
-    ) -> Option<&(
-        Vec<&'static str>,
-        Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>>,
-    )> {
+    fn lines(&self) -> Option<&(Vec<String>, Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>>)> {
         let stage = self.stage();
         if self.current.part == stage.messages.len() {
             None
@@ -814,7 +812,7 @@ impl TutorialState {
                         txt.add(Line(""));
 
                         for l in lines {
-                            txt.add(Line(*l));
+                            txt.add(Line(l));
                         }
                         txt.draw(ctx)
                     },
@@ -1202,8 +1200,11 @@ impl TutorialState {
                 )
                 .msg(
                     vec![
-                        "So adjust lanes and speed up the slowest trip by at least 45s.",
-                        "When all trips are done, you'll get your final score.",
+                        format!(
+                            "So adjust lanes and speed up the slowest trip by at least {}.",
+                            CAR_BIKE_CONTENTION_GOAL
+                        ),
+                        "When all trips are done, you'll get your final score.".to_string(),
                     ],
                     arrow(agent_meter.composite.center_of_panel()),
                 ),

@@ -287,13 +287,13 @@ fn describe(person: &PersonSpec, trip: &IndividTrip, home: OD) -> String {
             driving_goal(goal)
         ),
         SpawnTrip::FromBorder {
-            i, goal, is_bike, ..
+            dr, goal, is_bike, ..
         } => format!(
             "{} at {}: {} appears at {}, goes to {}",
             person.id,
             trip.depart,
             if *is_bike { "bike" } else { "car" },
-            i,
+            dr,
             driving_goal(goal)
         ),
         SpawnTrip::UsingParkedCar(start_bldg, goal) => format!(
@@ -352,7 +352,9 @@ fn other_endpt(trip: &IndividTrip, home: OD, map: &Map) -> ID {
             ID::Intersection(map.get_l(start.lane()).src_i),
             driving_goal(goal),
         ),
-        SpawnTrip::FromBorder { i, goal, .. } => (ID::Intersection(*i), driving_goal(goal)),
+        SpawnTrip::FromBorder { dr, goal, .. } => {
+            (ID::Intersection(dr.src_i(map)), driving_goal(goal))
+        }
         SpawnTrip::UsingParkedCar(start_bldg, goal) => {
             (ID::Building(*start_bldg), driving_goal(goal))
         }
@@ -467,8 +469,8 @@ impl DotMap {
                         SpawnTrip::VehicleAppearing { start, goal, .. } => {
                             (start.pt(map), goal.pt(map))
                         }
-                        SpawnTrip::FromBorder { i, goal, .. } => {
-                            (map.get_i(*i).polygon.center(), goal.pt(map))
+                        SpawnTrip::FromBorder { dr, goal, .. } => {
+                            (map.get_i(dr.src_i(map)).polygon.center(), goal.pt(map))
                         }
                         SpawnTrip::UsingParkedCar(b, goal) => {
                             (map.get_b(*b).polygon.center(), goal.pt(map))
