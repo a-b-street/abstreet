@@ -12,7 +12,7 @@ use crate::edit::{
     TrafficSignalEditor,
 };
 use crate::game::{State, Transition, WizardState};
-use crate::helpers::{cmp_duration_shorter, ID};
+use crate::helpers::ID;
 use crate::layer::Layers;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::pregame::main_menu;
@@ -24,7 +24,7 @@ use ezgui::{
 };
 pub use gameplay::spawner::spawn_agents_around;
 pub use gameplay::GameplayMode;
-use geom::{Duration, Polygon, Statistic, Time};
+use geom::{Polygon, Time};
 use map_model::MapEdits;
 use sim::{TripMode, VehicleType};
 pub use speed::TimeWarpScreen;
@@ -78,8 +78,8 @@ impl SandboxMode {
                 } else {
                     None
                 },
-                agent_meter: if let Some(show_score) = gameplay.get_agent_meter_params() {
-                    Some(AgentMeter::new(ctx, app, show_score))
+                agent_meter: if gameplay.has_agent_meter() {
+                    Some(AgentMeter::new(ctx, app))
                 } else {
                     None
                 },
@@ -278,25 +278,18 @@ fn exit_sandbox(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<T
     Some(Transition::Clear(vec![main_menu(ctx, app)]))
 }
 
-#[derive(Clone, Copy)]
-pub struct ScoreCard {
-    pub stat: Statistic,
-    pub goal: Duration,
-}
-
 pub struct AgentMeter {
     time: Time,
     pub composite: Composite,
-    pub show_score: Option<ScoreCard>,
 }
 
 impl AgentMeter {
-    pub fn new(ctx: &mut EventCtx, app: &App, show_score: Option<ScoreCard>) -> AgentMeter {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> AgentMeter {
         use abstutil::prettyprint_usize;
 
         let (finished, unfinished, by_mode) = app.primary.sim.num_trips();
 
-        let mut rows = vec![
+        let rows = vec![
             "Active agents".draw_text(ctx),
             Widget::row(vec![
                 Widget::row(vec![
@@ -348,42 +341,6 @@ impl AgentMeter {
                     .align_right(),
             ]),
         ];
-        // TODO Slight hack. If we're jumping right into a tutorial and don't have the prebaked
-        // stuff loaded yet, just skip a tick.
-        if app.has_prebaked().is_some() {
-            if let Some(ScoreCard { stat, goal }) = show_score {
-                // Separator
-                rows.push(
-                    Widget::draw_batch(
-                        ctx,
-                        GeomBatch::from(vec![(
-                            Color::WHITE,
-                            Polygon::rectangle(0.2 * ctx.canvas.window_width, 2.0),
-                        )]),
-                    )
-                    .margin(15)
-                    .centered_horiz(),
-                );
-
-                let (after, _, _) = app
-                    .primary
-                    .sim
-                    .get_analytics()
-                    .trip_times(app.primary.sim.time());
-                let (before, _, _) = app.prebaked().trip_times(app.primary.sim.time());
-                let mut txt = Text::from(Line(format!("{} trip time: ", stat)).secondary());
-                if after.count() > 0 && before.count() > 0 {
-                    txt.append_all(cmp_duration_shorter(
-                        after.select(stat),
-                        before.select(stat),
-                    ));
-                } else {
-                    txt.append(Line("same"));
-                }
-                txt.add(Line(format!("Goal: {} faster", goal)).secondary());
-                rows.push(txt.draw(ctx));
-            }
-        }
 
         let composite = Composite::new(Widget::col(rows).bg(app.cs.panel_bg).padding(20))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
@@ -392,13 +349,12 @@ impl AgentMeter {
         AgentMeter {
             time: app.primary.sim.time(),
             composite,
-            show_score,
         }
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
         if self.time != app.primary.sim.time() {
-            *self = AgentMeter::new(ctx, app, self.show_score);
+            *self = AgentMeter::new(ctx, app);
             return self.event(ctx, app);
         }
         match self.composite.event(ctx) {

@@ -214,44 +214,6 @@ impl Analytics {
     // TODO If these ever need to be speeded up, just cache the histogram and index in the events
     // list.
 
-    // Returns (all trips except aborted, number of aborted trips, trips by mode). For completed
-    // and ongoing trips as of now.
-    pub fn trip_times(
-        &self,
-        now: Time,
-    ) -> (
-        Histogram<Duration>,
-        usize,
-        BTreeMap<TripMode, Histogram<Duration>>,
-    ) {
-        let mut ongoing = self.started_trips.clone();
-        let mut per_mode = TripMode::all()
-            .into_iter()
-            .map(|m| (m, Histogram::new()))
-            .collect::<BTreeMap<_, _>>();
-        let mut all = Histogram::new();
-        let mut num_aborted = 0;
-        for (t, id, m, dt) in &self.finished_trips {
-            if *t > now {
-                break;
-            }
-            ongoing.remove(id);
-            if let Some(mode) = *m {
-                all.add(*dt);
-                per_mode.get_mut(&mode).unwrap().add(*dt);
-            } else {
-                num_aborted += 1;
-            }
-        }
-        for (_, (start, m)) in ongoing {
-            if start < now {
-                all.add(now - start);
-                per_mode.get_mut(&m).unwrap().add(now - start);
-            }
-        }
-        (all, num_aborted, per_mode)
-    }
-
     // Ignores the current time. Returns None for aborted trips.
     pub fn finished_trip_time(&self, trip: TripID) -> Option<Duration> {
         // TODO This is so inefficient!
@@ -295,39 +257,6 @@ impl Analytics {
             }
         }
         results
-    }
-
-    // Returns unsorted list of deltas, one for each trip finished or ongoing in both worlds.
-    // Positive dt means faster.
-    // TODO Now unused
-    pub fn trip_time_deltas(&self, now: Time, before: &Analytics) -> Vec<Duration> {
-        fn trip_times(a: &Analytics, now: Time) -> BTreeMap<TripID, Duration> {
-            let mut ongoing = a.started_trips.clone();
-            let mut trips = BTreeMap::new();
-            for (t, id, m, dt) in &a.finished_trips {
-                if *t > now {
-                    break;
-                }
-                ongoing.remove(id);
-                if m.is_some() {
-                    trips.insert(*id, *dt);
-                }
-            }
-            for (trip, (start, _)) in ongoing {
-                if start < now {
-                    trips.insert(trip, now - start);
-                }
-            }
-            trips
-        }
-
-        let a = trip_times(&self, now);
-        let b = trip_times(before, now);
-
-        // TODO Think through what missing (aborted) in one but not the other means
-        a.into_iter()
-            .filter_map(|(id, dt1)| b.get(&id).map(|dt2| *dt2 - dt1))
-            .collect()
     }
 
     pub fn bus_arrivals(

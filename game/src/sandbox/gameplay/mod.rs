@@ -9,18 +9,17 @@ mod tutorial;
 
 pub use self::tutorial::{Tutorial, TutorialPointer, TutorialState};
 use crate::app::App;
-use crate::challenges::{challenges_picker, Challenge};
-use crate::common::{CommonState, ContextualActions};
+use crate::challenges::Challenge;
+use crate::common::ContextualActions;
 use crate::edit::EditMode;
-use crate::game::{msg, State, Transition};
+use crate::game::{msg, Transition};
 use crate::helpers::ID;
 use crate::managed::WrappedComposite;
-use crate::pregame::main_menu;
-use crate::sandbox::{SandboxControls, SandboxMode, ScoreCard};
+use crate::sandbox::SandboxControls;
 use abstutil::Timer;
 use ezgui::{
     lctrl, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Text, VerticalAlignment, Widget,
+    VerticalAlignment, Widget,
 };
 use geom::{Duration, Polygon};
 use map_model::{EditCmd, EditIntersection, Map, MapEdits};
@@ -73,8 +72,8 @@ pub trait GameplayState: downcast_rs::Downcast {
     fn has_speed(&self) -> bool {
         true
     }
-    fn get_agent_meter_params(&self) -> Option<Option<ScoreCard>> {
-        Some(None)
+    fn has_agent_meter(&self) -> bool {
+        true
     }
     fn has_minimap(&self) -> bool {
         true
@@ -343,86 +342,4 @@ fn challenge_controller(
         "instructions",
         Box::new(move |_, _| Some(Transition::Push(msg("Challenge", description.clone())))),
     )
-}
-
-// TODO Haha, I'm already ditching this. We'll see what evolves instead.
-struct FinalScore {
-    composite: Composite,
-    mode: GameplayMode,
-    next: Option<GameplayMode>,
-}
-
-impl FinalScore {
-    fn new(
-        ctx: &mut EventCtx,
-        app: &App,
-        verdict: String,
-        mode: GameplayMode,
-        next: Option<GameplayMode>,
-    ) -> Box<dyn State> {
-        let mut txt = Text::from(Line("Final score").small_heading());
-        txt.add(Line(verdict));
-
-        let row = vec![
-            if next.is_some() {
-                Btn::text_fg("next challenge").build_def(ctx, None)
-            } else {
-                Widget::nothing()
-            },
-            Btn::text_fg("try again").build_def(ctx, None),
-            Btn::text_fg("back to challenges").build_def(ctx, None),
-        ];
-
-        Box::new(FinalScore {
-            composite: Composite::new(
-                Widget::col(vec![txt.draw(ctx), Widget::row(row).centered()])
-                    .bg(app.cs.panel_bg)
-                    .outline(10.0, Color::WHITE)
-                    .padding(10),
-            )
-            .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)
-            .build(ctx),
-            mode,
-            next,
-        })
-    }
-}
-
-impl State for FinalScore {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "next challenge" => {
-                    app.primary.clear_sim();
-                    Transition::PopThenReplace(Box::new(SandboxMode::new(
-                        ctx,
-                        app,
-                        self.next.clone().unwrap(),
-                    )))
-                }
-                "try again" => {
-                    app.primary.clear_sim();
-                    Transition::PopThenReplace(Box::new(SandboxMode::new(
-                        ctx,
-                        app,
-                        self.mode.clone(),
-                    )))
-                }
-                "back to challenges" => {
-                    app.primary.clear_sim();
-                    Transition::Clear(vec![main_menu(ctx, app), challenges_picker(ctx, app)])
-                }
-                _ => unreachable!(),
-            },
-            None => Transition::Keep,
-        }
-    }
-
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        State::grey_out_map(g, app);
-
-        self.composite.draw(g);
-        // Still want to show hotkeys
-        CommonState::draw_osd(g, app, &None);
-    }
 }

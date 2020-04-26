@@ -1,19 +1,15 @@
 use crate::app::App;
 use crate::game::Transition;
 use crate::managed::{WrappedComposite, WrappedOutcome};
-use crate::sandbox::gameplay::{challenge_controller, FinalScore, GameplayMode, GameplayState};
-use crate::sandbox::{SandboxControls, ScoreCard};
+use crate::sandbox::gameplay::{challenge_controller, GameplayMode, GameplayState};
+use crate::sandbox::SandboxControls;
 use ezgui::{EventCtx, GfxCtx};
-use geom::{Duration, Statistic, Time};
+use geom::{Duration, Time};
 use map_model::{IntersectionID, Map};
 use sim::{BorderSpawnOverTime, OriginDestination, ScenarioGenerator};
 
-const GOAL: Duration = Duration::const_seconds(30.0);
-
 pub struct FixTrafficSignals {
     top_center: WrappedComposite,
-    // TODO Keeping a copy in here seems redundant?
-    mode: GameplayMode,
 }
 
 impl FixTrafficSignals {
@@ -22,11 +18,10 @@ impl FixTrafficSignals {
             top_center: challenge_controller(
                 ctx,
                 app,
-                mode.clone(),
+                mode,
                 "Traffic Signals Challenge",
                 Vec::new(),
             ),
-            mode,
         })
     }
 }
@@ -47,31 +42,7 @@ impl GameplayState for FixTrafficSignals {
         }
 
         if app.primary.sim.is_done() {
-            let (verdict, success) = final_score(app);
-            let next = if success {
-                match self.mode {
-                    GameplayMode::FixTrafficSignalsTutorial(0) => {
-                        Some(GameplayMode::FixTrafficSignalsTutorial(1))
-                    }
-                    GameplayMode::FixTrafficSignalsTutorial(1) => {
-                        Some(GameplayMode::FixTrafficSignals)
-                    }
-                    GameplayMode::FixTrafficSignals => None,
-                    _ => unreachable!(),
-                }
-            } else {
-                None
-            };
-            return (
-                Some(Transition::Push(FinalScore::new(
-                    ctx,
-                    app,
-                    verdict,
-                    self.mode.clone(),
-                    next,
-                ))),
-                false,
-            );
+            // TODO Deliver some kind of final score
         }
 
         (None, false)
@@ -80,58 +51,6 @@ impl GameplayState for FixTrafficSignals {
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.top_center.draw(g);
     }
-
-    fn get_agent_meter_params(&self) -> Option<Option<ScoreCard>> {
-        Some(Some(ScoreCard {
-            stat: Statistic::Mean,
-            goal: GOAL,
-        }))
-    }
-}
-
-// True if the challenge is completed
-fn final_score(app: &App) -> (String, bool) {
-    let time = app.primary.sim.time();
-    let after = app
-        .primary
-        .sim
-        .get_analytics()
-        .trip_times(time)
-        .0
-        .select(Statistic::Mean);
-    let before = app.prebaked().trip_times(time).0.select(Statistic::Mean);
-
-    let verdict = if after < before - GOAL {
-        format!(
-            "COMPLETED! Average trip time is {}, which is {} faster than {}",
-            after,
-            before - after,
-            before
-        )
-    } else if after < before {
-        format!(
-            "Almost there! Average trip time is {}, which is {} faster than {}. Can you reduce \
-             the average by {}?",
-            after,
-            before - after,
-            before,
-            GOAL
-        )
-    } else if after.epsilon_eq(before) {
-        format!(
-            "... Did you change anything? Average trip time is still {}",
-            after
-        )
-    } else {
-        format!(
-            "Err... how did you make things WORSE?! Average trip time is {}, which is {} slower \
-             than {}",
-            after,
-            after - before,
-            before
-        )
-    };
-    (verdict, after < before - GOAL)
 }
 
 // TODO Hacks in here, because I'm not convinced programatically specifying this is right. I think

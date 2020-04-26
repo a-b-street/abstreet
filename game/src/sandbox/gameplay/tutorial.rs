@@ -6,8 +6,7 @@ use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{
-    spawn_agents_around, AgentMeter, SandboxControls, SandboxMode, ScoreCard, SpeedControls,
-    TimePanel,
+    spawn_agents_around, AgentMeter, SandboxControls, SandboxMode, SpeedControls, TimePanel,
 };
 use abstutil::Timer;
 use ezgui::{
@@ -15,7 +14,7 @@ use ezgui::{
     HorizontalAlignment, Key, Line, Outcome, RewriteColor, ScreenPt, Text, TextExt,
     VerticalAlignment, Widget,
 };
-use geom::{Distance, Duration, PolyLine, Polygon, Pt2D, Statistic, Time};
+use geom::{Distance, Duration, PolyLine, Polygon, Pt2D, Time};
 use map_model::{BuildingID, IntersectionID, IntersectionType, LaneType, RoadID};
 use maplit::btreeset;
 use sim::{
@@ -70,25 +69,14 @@ impl Tutorial {
         app.session.tutorial = Some(tut);
         state
     }
-}
 
-impl GameplayState for Tutorial {
-    fn event(
+    fn inner_event(
         &mut self,
         ctx: &mut EventCtx,
         app: &mut App,
         controls: &mut SandboxControls,
+        tut: &mut TutorialState,
     ) -> (Option<Transition>, bool) {
-        // TODO Hack. We have to do this before grabbing the tutorial session.
-        let target = CarID(30, VehicleType::Car);
-        let following_car = controls
-            .common
-            .as_ref()
-            .map(|c| c.info_panel_open(app) == Some(ID::Car(target)))
-            .unwrap_or(false);
-
-        let mut tut = app.session.tutorial.as_mut().unwrap();
-
         // First of all, might need to initiate warping
         if !self.warped {
             if let Some((ref id, zoom)) = tut.stage().warp_to {
@@ -113,15 +101,15 @@ impl GameplayState for Tutorial {
                 }
                 "previous tutorial" => {
                     tut.current = TutorialPointer::new(tut.current.stage - 1, 0);
-                    return (Some(transition(ctx, app)), false);
+                    return (Some(transition(ctx, app, tut)), false);
                 }
                 "next tutorial" => {
                     tut.current = TutorialPointer::new(tut.current.stage + 1, 0);
-                    return (Some(transition(ctx, app)), false);
+                    return (Some(transition(ctx, app, tut)), false);
                 }
                 "instructions" => {
                     tut.current = TutorialPointer::new(tut.current.stage, 0);
-                    return (Some(transition(ctx, app)), false);
+                    return (Some(transition(ctx, app, tut)), false);
                 }
                 "edit map" => {
                     // TODO Ideally this would be an inactive button in message states
@@ -143,11 +131,11 @@ impl GameplayState for Tutorial {
                 Some(Outcome::Clicked(x)) => match x.as_ref() {
                     "previous message" => {
                         tut.prev();
-                        return (Some(transition(ctx, app)), false);
+                        return (Some(transition(ctx, app, tut)), false);
                     }
                     "next message" | "Try it" => {
                         tut.next();
-                        return (Some(transition(ctx, app)), false);
+                        return (Some(transition(ctx, app, tut)), false);
                     }
                     _ => unreachable!(),
                 },
@@ -164,7 +152,7 @@ impl GameplayState for Tutorial {
                 && app.per_obj.left_click(ctx, "put out the... fire?")
             {
                 tut.next();
-                return (Some(transition(ctx, app)), false);
+                return (Some(transition(ctx, app, tut)), false);
             }
         } else if tut.interaction() == Task::InspectObjects {
             if tut.inspected_lane
@@ -173,12 +161,12 @@ impl GameplayState for Tutorial {
                 && tut.inspected_border
             {
                 tut.next();
-                return (Some(transition(ctx, app)), false);
+                return (Some(transition(ctx, app, tut)), false);
             }
         } else if tut.interaction() == Task::TimeControls {
             if app.primary.sim.time() >= Time::START_OF_DAY + Duration::hours(17) {
                 tut.next();
-                return (Some(transition(ctx, app)), false);
+                return (Some(transition(ctx, app, tut)), false);
             }
         } else if tut.interaction() == Task::PauseResume {
             let is_paused = controls.speed.as_ref().unwrap().is_paused();
@@ -192,9 +180,15 @@ impl GameplayState for Tutorial {
             }
             if tut.num_pauses == 3 {
                 tut.next();
-                return (Some(transition(ctx, app)), false);
+                return (Some(transition(ctx, app, tut)), false);
             }
         } else if tut.interaction() == Task::Escort {
+            let target = CarID(30, VehicleType::Car);
+            let following_car = controls
+                .common
+                .as_ref()
+                .map(|c| c.info_panel_open(app) == Some(ID::Car(target)))
+                .unwrap_or(false);
             let is_parked = app
                 .primary
                 .sim
@@ -214,43 +208,44 @@ impl GameplayState for Tutorial {
 
             if tut.prank_done {
                 tut.next();
-                return (Some(transition(ctx, app)), false);
+                return (Some(transition(ctx, app, tut)), false);
             }
         } else if tut.interaction() == Task::LowParking {
             if tut.parking_found {
                 tut.next();
-                return (Some(transition(ctx, app)), false);
+                return (Some(transition(ctx, app, tut)), false);
             }
         } else if tut.interaction() == Task::WatchBikes {
             if app.primary.sim.time() >= Time::START_OF_DAY + Duration::minutes(2) {
                 tut.next();
-                return (Some(transition(ctx, app)), false);
+                return (Some(transition(ctx, app, tut)), false);
             }
         } else if tut.interaction() == Task::FixBikes {
             if app.primary.sim.is_done() {
-                let (all, _, _) = app
+                let (before, after, _) = app
                     .primary
                     .sim
                     .get_analytics()
-                    .trip_times(app.primary.sim.time());
-                let after = all.select(Statistic::Max);
-
+                    .both_finished_trips(app.primary.sim.time(), app.prebaked())
+                    .into_iter()
+                    .max_by_key(|(b, _, _)| *b)
+                    .unwrap();
+                // TODO Tune. The real solution doesn't work because of sim bugs.
+                let goal = Duration::minutes(1);
                 if !tut.score_delivered {
                     tut.score_delivered = true;
-                    if app.primary.map.get_edits().commands.is_empty() {
+                    if before == after {
                         return (
                             Some(Transition::Push(msg(
                                 "All trips completed",
                                 vec![
-                                    "You didn't change anything!",
+                                    "Your changes didn't affect anything!",
                                     "Try editing the map to create some bike lanes.",
                                 ],
                             ))),
                             false,
                         );
                     }
-                    // TODO Prebake results and use the normal differential stuff
-                    let before = Duration::minutes(7) + Duration::seconds(15.0);
                     if after > before {
                         return (
                             Some(Transition::Push(msg(
@@ -268,8 +263,7 @@ impl GameplayState for Tutorial {
                             false,
                         );
                     }
-                    // TODO Tune. The real solution doesn't work because of sim bugs.
-                    if after > Duration::minutes(6) + Duration::seconds(40.0) {
+                    if before - after < goal {
                         return (
                             Some(Transition::Push(msg(
                                 "All trips completed",
@@ -298,15 +292,15 @@ impl GameplayState for Tutorial {
                         false,
                     );
                 }
-                if after <= Duration::minutes(6) + Duration::seconds(30.0) {
+                if before - after >= goal {
                     tut.next();
                 }
-                return (Some(transition(ctx, app)), false);
+                return (Some(transition(ctx, app, tut)), false);
             }
         } else if tut.interaction() == Task::WatchBuses {
             if app.primary.sim.time() >= Time::START_OF_DAY + Duration::minutes(5) {
                 tut.next();
-                return (Some(transition(ctx, app)), false);
+                return (Some(transition(ctx, app, tut)), false);
             }
         } else if tut.interaction() == Task::Done {
             // If the player chooses to stay here, at least go back to the message panel.
@@ -315,6 +309,21 @@ impl GameplayState for Tutorial {
         }
 
         (None, false)
+    }
+}
+
+impl GameplayState for Tutorial {
+    fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        controls: &mut SandboxControls,
+    ) -> (Option<Transition>, bool) {
+        // Dance around borrow-checker issues
+        let mut tut = app.session.tutorial.take().unwrap();
+        let result = self.inner_event(ctx, app, controls, &mut tut);
+        app.session.tutorial = Some(tut);
+        result
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
@@ -377,19 +386,8 @@ impl GameplayState for Tutorial {
     fn has_speed(&self) -> bool {
         self.last_finished_task >= Task::InspectObjects
     }
-    fn get_agent_meter_params(&self) -> Option<Option<ScoreCard>> {
-        if self.last_finished_task >= Task::PauseResume {
-            if self.last_finished_task == Task::WatchBikes {
-                Some(Some(ScoreCard {
-                    stat: Statistic::Max,
-                    goal: Duration::seconds(45.0),
-                }))
-            } else {
-                Some(None)
-            }
-        } else {
-            None
-        }
+    fn has_agent_meter(&self) -> bool {
+        self.last_finished_task >= Task::PauseResume
     }
     fn has_minimap(&self) -> bool {
         self.last_finished_task >= Task::Escort
@@ -652,8 +650,7 @@ fn make_bus_lane_scenario() -> ScenarioGenerator {
     s
 }
 
-fn transition(ctx: &mut EventCtx, app: &mut App) -> Transition {
-    let tut = app.session.tutorial.as_mut().unwrap();
+fn transition(ctx: &mut EventCtx, app: &mut App, tut: &mut TutorialState) -> Transition {
     tut.reset_state();
     let mode = GameplayMode::Tutorial(tut.current);
     Transition::Replace(Box::new(SandboxMode::new(ctx, app, mode)))
@@ -910,7 +907,7 @@ impl TutorialState {
         let tool_panel = tool_panel(ctx, app);
         let time = TimePanel::new(ctx, app);
         let speed = SpeedControls::new(ctx, app);
-        let agent_meter = AgentMeter::new(ctx, app, None);
+        let agent_meter = AgentMeter::new(ctx, app);
         // The minimap is hidden at low zoom levels
         let orig_zoom = ctx.canvas.cam_zoom;
         ctx.canvas.cam_zoom = 100.0;
