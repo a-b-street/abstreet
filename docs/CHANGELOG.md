@@ -389,3 +389,10 @@ changes here.
 - handling scenarios longer than 24 hours better (for pandemic model)
 - prototype of commute visualization, grouping buildings by blocks
 - sim bugfixes: crosswalk / vehicle turn conflicts, start bikes in bike lanes from borders
+
+0.1.38
+
+- major internal changes to ensure people's schedules don't have impossible gaps, to associate fixed bikes/cars to a eprson, handle delayed starts to trips
+- parking changes: show path to closest free spot, utilization of a lane over time, every building includes at least 1 offstreet spot by default
+- progress on removing unrealistic gridlock: detect turn conflict cycles and temporarily allow conflicts, trim last steps of a laggy head
+- internal sim alert system. speeds up debugging, could be used for player-facing "traffic jam!" alerts
