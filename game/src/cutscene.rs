@@ -19,7 +19,7 @@ impl CutsceneBuilder {
         CutsceneBuilder { scenes: Vec::new() }
     }
 
-    pub fn scene(mut self, avatar: &str, msg: &str) -> CutsceneBuilder {
+    pub fn scene<I: Into<String>>(mut self, avatar: &str, msg: I) -> CutsceneBuilder {
         self.scenes.push(Scene {
             avatar: Some(avatar.to_string()),
             msg: Text::from(Line(msg)),
@@ -27,7 +27,7 @@ impl CutsceneBuilder {
         self
     }
 
-    pub fn narrator(mut self, msg: &str) -> CutsceneBuilder {
+    pub fn narrator<I: Into<String>>(mut self, msg: I) -> CutsceneBuilder {
         self.scenes.push(Scene {
             avatar: None,
             msg: Text::from(Line(msg)),

@@ -751,7 +751,8 @@ impl TripManager {
         if self.active_trip_mode.get(&a) == Some(&id) {
             TripResult::Ok(a)
         } else {
-            panic!("{} should be ongoing, but no agent in active_trip_mode", id);
+            //panic!("{} should be ongoing, but no agent in active_trip_mode", id);
+            TripResult::ModeChange
         }
     }
 

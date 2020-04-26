@@ -15,7 +15,7 @@ pub struct Challenge {
     pub description: Vec<String>,
     pub alias: String,
     pub gameplay: GameplayMode,
-    pub cutscene: Option<fn(&mut EventCtx, &App) -> Box<dyn State>>,
+    pub cutscene: Option<fn(&mut EventCtx, &App, &GameplayMode) -> Box<dyn State>>,
 }
 
 // TODO Assuming the measurement is always maximizing time savings from a goal.
@@ -35,7 +35,7 @@ impl Challenge {
                     title: "Part 1".to_string(),
                     description: vec!["Speed up one VIP's daily commute, at any cost!".to_string()],
                     alias: "commute/pt1".to_string(),
-                    gameplay: GameplayMode::OptimizeCommute(PersonID(1163), Duration::minutes(2)),
+                    gameplay: GameplayMode::OptimizeCommute(PersonID(8819), Duration::minutes(2)),
                     cutscene: Some(
                         crate::sandbox::gameplay::commute::OptimizeCommute::cutscene_pt1,
                     ),
@@ -44,7 +44,10 @@ impl Challenge {
                     title: "Part 2".to_string(),
                     description: vec!["Speed up another VIP's commute".to_string()],
                     alias: "commute/pt2".to_string(),
-                    gameplay: GameplayMode::OptimizeCommute(PersonID(3434), Duration::minutes(5)),
+                    gameplay: GameplayMode::OptimizeCommute(
+                        PersonID(13121),
+                        Duration::seconds(90.0),
+                    ),
                     cutscene: Some(
                         crate::sandbox::gameplay::commute::OptimizeCommute::cutscene_pt2,
                     ),
@@ -266,7 +269,10 @@ impl Tab {
                 Box::new(move |ctx, app| {
                     let sandbox = Box::new(SandboxMode::new(ctx, app, challenge.gameplay.clone()));
                     if let Some(cutscene) = challenge.cutscene {
-                        Some(Transition::ReplaceThenPush(sandbox, cutscene(ctx, app)))
+                        Some(Transition::ReplaceThenPush(
+                            sandbox,
+                            cutscene(ctx, app, &challenge.gameplay),
+                        ))
                     } else {
                         Some(Transition::Replace(sandbox))
                     }

@@ -57,7 +57,11 @@ impl OptimizeCommute {
         })
     }
 
-    pub fn cutscene_pt1(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    pub fn cutscene_pt1(ctx: &mut EventCtx, app: &App, mode: &GameplayMode) -> Box<dyn State> {
+        let goal = match mode {
+            GameplayMode::OptimizeCommute(_, d) => *d,
+            _ => unreachable!(),
+        };
         CutsceneBuilder::new()
             .scene("boss", "Listen up, I've got a special job for you today.")
             .scene(
@@ -94,14 +98,20 @@ impl OptimizeCommute {
                 "The drone has been programmed to find the anonymous VIP. Watch their daily \
                  route, figure out what's wrong, and fix it.",
             )
-            .narrator(
+            .narrator(format!(
                 "Ignore the damage done to everyone else. Just speed up the VIP's trips by a \
-                 total of 2 minutes.",
-            )
+                 total of {}.",
+                goal
+            ))
             .build(ctx, app)
     }
 
-    pub fn cutscene_pt2(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    pub fn cutscene_pt2(ctx: &mut EventCtx, app: &App, mode: &GameplayMode) -> Box<dyn State> {
+        let goal = match mode {
+            GameplayMode::OptimizeCommute(_, d) => *d,
+            _ => unreachable!(),
+        };
+        // TODO The person chosen for this currently has more of an issue needing PBLs, actually.
         CutsceneBuilder::new()
             .scene(
                 "boss",
@@ -127,10 +137,11 @@ impl OptimizeCommute {
                 "Everyone's calling in favors these days. Just make it happen!",
             )
             .narrator("Too many people have dirt on the boss. Guess we have another VIP to help.")
-            .narrator(
+            .narrator(format!(
                 "Once again, ignore the damage to everyone else, and just speed up the VIP's \
-                 trips by a total of 5 minutes.",
-            )
+                 trips by a total of {}.",
+                goal
+            ))
             .build(ctx, app)
     }
 }
@@ -196,7 +207,9 @@ impl GameplayState for OptimizeCommute {
                         .0
                         .cutscene
                         .unwrap())(
-                            ctx, app
+                            ctx,
+                            app,
+                            &GameplayMode::OptimizeCommute(self.person, self.goal),
                         ))),
                         false,
                     );
@@ -416,7 +429,7 @@ impl State for FinalScore {
                     (Challenge::find(self.next_mode.as_ref().unwrap())
                         .0
                         .cutscene
-                        .unwrap())(ctx, app),
+                        .unwrap())(ctx, app, self.next_mode.as_ref().unwrap()),
                 ]),
                 "Back to challenges" => {
                     Transition::Clear(vec![main_menu(ctx, app), challenges_picker(ctx, app)])
