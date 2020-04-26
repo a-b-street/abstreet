@@ -22,7 +22,7 @@ use sim::{
     VehicleType,
 };
 
-const CAR_BIKE_CONTENTION_GOAL: Duration = Duration::const_seconds(3.0 * 60.0);
+const CAR_BIKE_CONTENTION_GOAL: Duration = Duration::const_seconds(60.0);
 
 pub struct Tutorial {
     top_center: Composite,
@@ -224,14 +224,17 @@ impl Tutorial {
             }
         } else if tut.interaction() == Task::FixBikes {
             if app.primary.sim.is_done() {
-                let (before, after, _) = app
+                let mut before = Duration::ZERO;
+                let mut after = Duration::ZERO;
+                for (b, a, _) in app
                     .primary
                     .sim
                     .get_analytics()
-                    .both_finished_trips(app.primary.sim.time(), app.prebaked())
-                    .into_iter()
-                    .max_by_key(|(b, _, _)| *b)
-                    .unwrap();
+                    .both_finished_trips(app.primary.sim.get_end_of_day(), app.prebaked())
+                {
+                    before = before.max(b);
+                    after = after.max(a);
+                }
                 if !tut.score_delivered {
                     tut.score_delivered = true;
                     if before == after {
@@ -253,7 +256,7 @@ impl Tutorial {
                                 vec![
                                     "Your changes made things worse!".to_string(),
                                     format!(
-                                        "The slowest trip originally took {}, but now it took {}",
+                                        "All trips originally finished in {}, but now they took {}",
                                         before, after
                                     ),
                                     "".to_string(),
@@ -270,7 +273,7 @@ impl Tutorial {
                                 vec![
                                     "Nice, you helped things a bit!".to_string(),
                                     format!(
-                                        "The slowest trip originally took {}, but now it took {}",
+                                        "All trips originally took {}, but now they took {}",
                                         before, after
                                     ),
                                     "".to_string(),
@@ -284,8 +287,7 @@ impl Tutorial {
                         Some(Transition::Push(msg(
                             "All trips completed",
                             vec![format!(
-                                "Awesome! The slowest trip originally took {}, but now it only \
-                                 took {}",
+                                "Awesome! All trips originally took {}, but now they only took {}",
                                 before, after
                             )],
                         ))),
@@ -469,7 +471,7 @@ impl Task {
             Task::WatchBikes => "Simulate 2 minutes",
             Task::FixBikes => {
                 return Text::from(Line(format!(
-                    "[ ] Speed up the slowest trip by {}",
+                    "[ ] Complete all trips {} faster",
                     CAR_BIKE_CONTENTION_GOAL
                 )));
             }
@@ -1201,7 +1203,7 @@ impl TutorialState {
                 .msg(
                     vec![
                         format!(
-                            "So adjust lanes and speed up the slowest trip by at least {}.",
+                            "So adjust lanes and complete all trips at least {} faster.",
                             CAR_BIKE_CONTENTION_GOAL
                         ),
                         "When all trips are done, you'll get your final score.".to_string(),
