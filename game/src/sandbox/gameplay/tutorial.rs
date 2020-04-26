@@ -949,7 +949,10 @@ impl TutorialState {
                     None,
                 )
                 .msg(
-                    vec!["(Hint: Look around for an unusually red building)"],
+                    vec![
+                        "Hint: Look around for an unusually red building",
+                        "Hint: You have to zoom in to interact with anything on the map.",
+                    ],
                     None,
                 ),
         );
