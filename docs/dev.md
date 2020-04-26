@@ -42,9 +42,6 @@ One-time setup:
     experience, so they're hidden for now.
   - `cargo run -- --tutorial=12` starts somewhere in the tutorial
   - Adding `--edits='name of edits'` starts with edits applied to the map.
-- If you're testing anything related to prebaked results (used for comparisons
-  against a baseline in challenge mode), make sure to set `--rng_seed=42`. The
-  `--dev` flag does by default.
 - All code is automatically formatted using
   https://github.com/rust-lang/rustfmt; please run `cargo +nightly fmt` before
   sending a PR. (You have to install the nightly toolchain just for fmt)

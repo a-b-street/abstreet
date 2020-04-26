@@ -36,16 +36,7 @@ fn main() {
         num_agents: args.optional_parse("--num_agents", |s| s.parse()),
     };
     let mut opts = options::Options::default();
-    if args.enabled("--dev") {
-        opts.dev = true;
-        flags.sim_flags.rng_seed = Some(42);
-    }
-
-    // No random in wasm
-    #[cfg(target_arch = "wasm32")]
-    {
-        flags.sim_flags.rng_seed = Some(42);
-    }
+    opts.dev = args.enabled("--dev");
 
     if let Some(x) = args.optional("--color_scheme") {
         let mut ok = false;

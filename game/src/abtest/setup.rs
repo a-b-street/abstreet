@@ -111,9 +111,6 @@ fn launch_test(test: &ABTest, app: &mut App, ctx: &mut EventCtx) -> ABTestMode {
 
             {
                 timer.start("load primary");
-                if app.primary.current_flags.sim_flags.rng_seed.is_none() {
-                    app.primary.current_flags.sim_flags.rng_seed = Some(42);
-                }
                 app.primary.current_flags.sim_flags.opts.run_name =
                     format!("{} with {}", test.test_name, test.edits1_name);
                 app.primary.current_flags.sim_flags.opts.savestate_every = None;

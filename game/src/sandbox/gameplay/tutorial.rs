@@ -790,10 +790,7 @@ impl TutorialState {
         // TODO Should some of this always happen?
         app.primary.clear_sim();
         if let Some(ref cb) = self.stage().spawn {
-            let old = app.primary.current_flags.sim_flags.rng_seed;
-            app.primary.current_flags.sim_flags.rng_seed = Some(42);
             (cb)(app);
-            app.primary.current_flags.sim_flags.rng_seed = old;
             app.primary
                 .sim
                 .normal_step(&app.primary.map, Duration::seconds(0.1));
