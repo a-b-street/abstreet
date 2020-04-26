@@ -22,6 +22,7 @@ use sim::{
     VehicleType,
 };
 
+const ESCORT: CarID = CarID(34, VehicleType::Car);
 const CAR_BIKE_CONTENTION_GOAL: Duration = Duration::const_seconds(60.0);
 
 pub struct Tutorial {
@@ -185,16 +186,15 @@ impl Tutorial {
                 return (Some(transition(ctx, app, tut)), false);
             }
         } else if tut.interaction() == Task::Escort {
-            let target = CarID(30, VehicleType::Car);
             let following_car = controls
                 .common
                 .as_ref()
-                .map(|c| c.info_panel_open(app) == Some(ID::Car(target)))
+                .map(|c| c.info_panel_open(app) == Some(ID::Car(ESCORT)))
                 .unwrap_or(false);
             let is_parked = app
                 .primary
                 .sim
-                .agent_to_trip(AgentID::Car(target))
+                .agent_to_trip(AgentID::Car(ESCORT))
                 .is_none();
             if !tut.car_parked && is_parked && tut.following_car {
                 tut.car_parked = true;
@@ -552,7 +552,7 @@ impl Stage {
 
     fn spawn_randomly(self) -> Stage {
         self.spawn(Box::new(|app| {
-            ScenarioGenerator::small_run(&app.primary.map)
+            ScenarioGenerator::scaled_run(10_000)
                 .generate(
                     &app.primary.map,
                     &mut app.primary.current_flags.sim_flags.make_rng(),
@@ -1085,10 +1085,7 @@ impl TutorialState {
                             .map_to_screen(
                                 app.primary
                                     .sim
-                                    .canonical_pt_for_agent(
-                                        AgentID::Car(CarID(30, VehicleType::Car)),
-                                        &app.primary.map,
-                                    )
+                                    .canonical_pt_for_agent(AgentID::Car(ESCORT), &app.primary.map)
                                     .unwrap(),
                             )
                             .to_pt()
@@ -1105,6 +1102,7 @@ impl TutorialState {
 
         state.stages.push(
             Stage::new(Task::LowParking)
+                // TODO Actually, we ideally just want a bunch of parked cars, not all these trips
                 .spawn_randomly()
                 .msg(
                     vec![
@@ -1371,13 +1369,12 @@ pub fn execute(_: &mut EventCtx, _: &mut App, id: ID, action: String) -> Transit
                 }
             }
             (ID::Car(c), "draw WASH ME") => {
-                let target = CarID(30, VehicleType::Car);
                 let is_parked = app
                     .primary
                     .sim
-                    .agent_to_trip(AgentID::Car(target))
+                    .agent_to_trip(AgentID::Car(ESCORT))
                     .is_none();
-                if c == target {
+                if c == ESCORT {
                     if is_parked {
                         tut.prank_done = true;
                         msg(
@@ -1432,7 +1429,7 @@ pub fn execute(_: &mut EventCtx, _: &mut App, id: ID, action: String) -> Transit
                         )
                     } else {
                         tut.parking_found = true;
-                        msg("Noice", vec!["Yup, paralell parking would be tough here!"])
+                        msg("Noice", vec!["Yup, parallel parking would be tough here!"])
                     }
                 } else {
                     msg("Uhh..", vec!["That's not even a parking lane"])
