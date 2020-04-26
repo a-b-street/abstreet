@@ -38,14 +38,8 @@ pub enum Event {
         total_time: Duration,
         blocked_time: Duration,
     },
-    TripAborted(TripID, TripMode),
-    TripPhaseStarting(
-        TripID,
-        PersonID,
-        TripMode,
-        Option<PathRequest>,
-        TripPhaseType,
-    ),
+    TripAborted(TripID),
+    TripPhaseStarting(TripID, PersonID, Option<PathRequest>, TripPhaseType),
 
     // Just use for parking replanning. Not happy about copying the full path in here, but the way
     // to plumb info into Analytics is Event.

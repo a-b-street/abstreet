@@ -1,6 +1,6 @@
 use crate::{
-    CarID, Event, PedestrianID, PersonID, Router, Scheduler, TripID, TripManager, TripMode,
-    TripPhaseType, WalkingSimState,
+    CarID, Event, PedestrianID, PersonID, Router, Scheduler, TripID, TripManager, TripPhaseType,
+    WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Time};
@@ -187,7 +187,6 @@ impl TransitSimState {
                         self.events.push(Event::TripPhaseStarting(
                             trip,
                             person,
-                            TripMode::Transit,
                             Some(PathRequest {
                                 start: map.get_bs(stop1).driving_pos,
                                 end: map.get_bs(stop2).driving_pos,
@@ -249,7 +248,6 @@ impl TransitSimState {
                         self.events.push(Event::TripPhaseStarting(
                             trip,
                             person,
-                            TripMode::Transit,
                             Some(PathRequest {
                                 start: map.get_bs(stop1).driving_pos,
                                 end: map.get_bs(stop2).driving_pos,

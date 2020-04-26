@@ -16,8 +16,7 @@ pub struct Analytics {
     pub(crate) test_expectations: VecDeque<Event>,
     pub bus_arrivals: Vec<(Time, CarID, BusRouteID, BusStopID)>,
     pub bus_passengers_waiting: Vec<(Time, BusStopID, BusRouteID)>,
-    // TODO Scraping TripMode from TripPhaseStarting is frustrating.
-    pub started_trips: BTreeMap<TripID, (Time, TripMode)>,
+    pub started_trips: BTreeMap<TripID, Time>,
     // TODO Hack: No TripMode means aborted
     // Finish time, ID, mode (or None as aborted), trip duration
     pub finished_trips: Vec<(Time, TripID, Option<TripMode>, Duration)>,
@@ -117,23 +116,15 @@ impl Analytics {
         }
 
         // Bus passengers
-        if let Event::TripPhaseStarting(_, _, _, _, ref tpt) = ev {
+        if let Event::TripPhaseStarting(_, _, _, ref tpt) = ev {
             if let TripPhaseType::WaitingForBus(route, stop) = tpt {
                 self.bus_passengers_waiting.push((time, *stop, *route));
             }
         }
 
         // Started trips
-        if let Event::TripPhaseStarting(id, _, mode, _, _) = ev {
-            // TODO More efficiently
-            if !self.started_trips.contains_key(&id)
-                && !self
-                    .finished_trips
-                    .iter()
-                    .any(|(_, trip, _, _)| *trip == id)
-            {
-                self.started_trips.insert(id, (time, mode));
-            }
+        if let Event::TripPhaseStarting(id, _, _, _) = ev {
+            self.started_trips.entry(id).or_insert(time);
         }
 
         // Finished trips
@@ -146,11 +137,9 @@ impl Analytics {
         {
             self.finished_trips
                 .push((time, trip, Some(mode), total_time));
-        } else if let Event::TripAborted(id, mode) = ev {
+        } else if let Event::TripAborted(id) = ev {
+            self.started_trips.entry(id).or_insert(time);
             self.finished_trips.push((time, id, None, Duration::ZERO));
-            if !self.started_trips.contains_key(&id) {
-                self.started_trips.insert(id, (time, mode));
-            }
         }
 
         // Intersection delays
@@ -181,10 +170,10 @@ impl Analytics {
 
         // TODO Kinda hacky, but these all consume the event, so kinda bundle em.
         match ev {
-            Event::TripPhaseStarting(id, _, _, maybe_req, phase_type) => {
+            Event::TripPhaseStarting(id, _, maybe_req, phase_type) => {
                 self.trip_log.push((time, id, maybe_req, phase_type));
             }
-            Event::TripAborted(id, _) => {
+            Event::TripAborted(id) => {
                 self.trip_log.push((time, id, None, TripPhaseType::Aborted));
             }
             Event::TripFinished { trip, .. } => {
@@ -578,7 +567,7 @@ impl Analytics {
 
     pub fn active_agents(&self, now: Time) -> Vec<(Time, usize)> {
         let mut starts_stops: Vec<(Time, bool)> = Vec::new();
-        for (_, (t, _)) in &self.started_trips {
+        for t in self.started_trips.values() {
             if *t <= now {
                 starts_stops.push((*t, false));
             }

@@ -449,12 +449,6 @@ impl Sim {
                         events.push(Event::TripPhaseStarting(
                             trip,
                             person,
-                            // TODO sketchy...
-                            if create_car.vehicle.id.1 == VehicleType::Car {
-                                TripMode::Drive
-                            } else {
-                                TripMode::Bike
-                            },
                             Some(create_car.req.clone()),
                             if create_car.vehicle.id.1 == VehicleType::Car {
                                 TripPhaseType::Driving
@@ -496,7 +490,6 @@ impl Sim {
                 events.push(Event::TripPhaseStarting(
                     create_ped.trip,
                     create_ped.person,
-                    TripMode::Walk,
                     Some(create_ped.req.clone()),
                     TripPhaseType::Walking,
                 ));

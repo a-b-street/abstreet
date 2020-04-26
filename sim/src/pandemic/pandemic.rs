@@ -181,7 +181,7 @@ impl PandemicModel {
                     panic!("{} left {:?}, but they weren't inside", person, loc);
                 }
             }
-            Event::TripPhaseStarting(_, p, _, _, tpt) => {
+            Event::TripPhaseStarting(_, p, _, tpt) => {
                 let person = *p;
                 match tpt {
                     TripPhaseType::WaitingForBus(_, stop) => {

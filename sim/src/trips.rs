@@ -447,7 +447,6 @@ impl TripManager {
                 self.events.push(Event::TripPhaseStarting(
                     trip.id,
                     trip.person,
-                    trip.mode,
                     None,
                     TripPhaseType::WaitingForBus(route, stop),
                 ));
@@ -642,7 +641,7 @@ impl TripManager {
         let trip = &mut self.trips[id.0];
         self.unfinished_trips -= 1;
         trip.aborted = true;
-        self.events.push(Event::TripAborted(trip.id, trip.mode));
+        self.events.push(Event::TripAborted(trip.id));
         let person = trip.person;
 
         // Maintain consistentency for anyone listening to events
@@ -893,7 +892,6 @@ impl TripManager {
             self.events.push(Event::TripPhaseStarting(
                 trip,
                 person.id,
-                self.trips[trip.0].mode,
                 None,
                 TripPhaseType::DelayedStart,
             ));
@@ -1174,7 +1172,6 @@ impl TripManager {
                 self.events.push(Event::TripPhaseStarting(
                     trip,
                     person.id,
-                    self.trips[trip.0].mode,
                     None,
                     TripPhaseType::Remote,
                 ));
