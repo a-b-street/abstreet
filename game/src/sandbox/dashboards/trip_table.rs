@@ -1,14 +1,19 @@
 use crate::app::App;
 use crate::game::{State, Transition};
-use crate::helpers::cmp_duration_shorter;
+use crate::helpers::{cmp_duration_shorter, color_for_mode};
 use crate::info::Tab;
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
-use ezgui::{Btn, Composite, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Text, TextExt, Widget};
+use ezgui::{
+    Btn, Checkbox, Composite, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Text, TextExt, Widget,
+};
 use geom::{Duration, Polygon, Time};
 use maplit::btreemap;
 use sim::{TripID, TripMode};
+use std::collections::BTreeSet;
+
+const ROWS: usize = 20;
 
 // TODO Hover over a trip to preview its route on the map
 
@@ -16,6 +21,8 @@ pub struct TripTable {
     composite: Composite,
     sort_by: SortBy,
     descending: bool,
+    modes: BTreeSet<TripMode>,
+    skip: usize,
 }
 
 // TODO Is there a heterogenously typed table crate somewhere?
@@ -25,19 +32,27 @@ enum SortBy {
     Duration,
     RelativeDuration,
     PercentChangeDuration,
+    Waiting,
     PercentWaiting,
 }
 
 impl TripTable {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+        let sort_by = SortBy::PercentWaiting;
+        let descending = true;
+        let modes = TripMode::all().into_iter().collect();
+        let skip = 0;
         Box::new(TripTable {
-            composite: make(ctx, app, SortBy::PercentWaiting, true),
-            sort_by: SortBy::PercentWaiting,
-            descending: true,
+            composite: make(ctx, app, sort_by, descending, &modes, skip),
+            sort_by,
+            descending,
+            modes,
+            skip,
         })
     }
 
     fn change(&mut self, value: SortBy) {
+        self.skip = 0;
         if self.sort_by == value {
             self.descending = !self.descending;
         } else {
@@ -47,7 +62,14 @@ impl TripTable {
     }
 
     fn recalc(&mut self, ctx: &mut EventCtx, app: &App) {
-        let mut new = make(ctx, app, self.sort_by, self.descending);
+        let mut new = make(
+            ctx,
+            app,
+            self.sort_by,
+            self.descending,
+            &self.modes,
+            self.skip,
+        );
         new.restore(ctx, &self.composite);
         self.composite = new;
     }
@@ -73,8 +95,20 @@ impl State for TripTable {
                     self.change(SortBy::PercentChangeDuration);
                     self.recalc(ctx, app);
                 }
+                "Time spent waiting" => {
+                    self.change(SortBy::Waiting);
+                    self.recalc(ctx, app);
+                }
                 "Percent waiting" => {
                     self.change(SortBy::PercentWaiting);
+                    self.recalc(ctx, app);
+                }
+                "previous trips" => {
+                    self.skip -= ROWS;
+                    self.recalc(ctx, app);
+                }
+                "next trips" => {
+                    self.skip += ROWS;
                     self.recalc(ctx, app);
                 }
                 x => {
@@ -95,7 +129,19 @@ impl State for TripTable {
                     return DashTab::TripTable.transition(ctx, app, x);
                 }
             },
-            None => {}
+            None => {
+                let mut modes = BTreeSet::new();
+                for m in TripMode::all() {
+                    if self.composite.is_checked(m.ongoing_verb()) {
+                        modes.insert(m);
+                    }
+                }
+                if modes != self.modes {
+                    self.skip = 0;
+                    self.modes = modes;
+                    self.recalc(ctx, app);
+                }
+            }
         };
 
         Transition::Keep
@@ -117,13 +163,23 @@ struct Entry {
     percent_waiting: usize,
 }
 
-fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Composite {
+fn make(
+    ctx: &mut EventCtx,
+    app: &App,
+    sort: SortBy,
+    descending: bool,
+    modes: &BTreeSet<TripMode>,
+    skip: usize,
+) -> Composite {
     // Gather raw data
     let mut data = Vec::new();
     let sim = &app.primary.sim;
     let mut aborted = 0;
     for (_, id, maybe_mode, duration_after) in &sim.get_analytics().finished_trips {
         let mode = if let Some(m) = maybe_mode {
+            if !modes.contains(m) {
+                continue;
+            }
             *m
         } else {
             aborted += 1;
@@ -162,18 +218,20 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
         SortBy::PercentChangeDuration => {
             data.sort_by_key(|x| (100.0 * (x.duration_after / x.duration_before)) as isize)
         }
+        SortBy::Waiting => data.sort_by_key(|x| x.waiting),
         SortBy::PercentWaiting => data.sort_by_key(|x| x.percent_waiting),
     }
     if descending {
         data.reverse();
     }
+    let total_rows = data.len();
 
     // Render data
     let mut rows = Vec::new();
-    for x in data.into_iter().take(30) {
+    for x in data.into_iter().skip(skip).take(ROWS) {
         let mut row = vec![
             Text::from(Line(x.trip.0.to_string())).render_ctx(ctx),
-            Text::from(Line(x.mode.ongoing_verb())).render_ctx(ctx),
+            Text::from(Line(x.mode.ongoing_verb()).fg(color_for_mode(app, x.mode))).render_ctx(ctx),
             Text::from(Line(x.departure.ampm_tostring())).render_ctx(ctx),
             Text::from(Line(x.duration_after.to_string())).render_ctx(ctx),
         ];
@@ -226,10 +284,61 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
         headers.push(btn(SortBy::RelativeDuration, "Comparison"));
         headers.push(btn(SortBy::PercentChangeDuration, "Normalized"));
     }
-    headers.push(Line("Time spent waiting").draw(ctx));
+    headers.push(btn(SortBy::Waiting, "Time spent waiting"));
     headers.push(btn(SortBy::PercentWaiting, "Percent waiting"));
 
     let mut col = vec![DashTab::TripTable.picker(ctx)];
+    let mut filters = Vec::new();
+    for m in TripMode::all() {
+        filters.push(
+            Checkbox::colored(
+                ctx,
+                m.ongoing_verb(),
+                color_for_mode(app, m),
+                modes.contains(&m),
+            )
+            .margin_right(5),
+        );
+        filters.push(m.ongoing_verb().draw_text(ctx).margin_right(10));
+    }
+    col.push(Widget::row(filters).margin_below(5));
+    col.push(
+        format!(
+            "{} trips aborted due to simulation glitch",
+            prettyprint_usize(aborted)
+        )
+        .draw_text(ctx)
+        .margin_below(5),
+    );
+    col.push(
+        Widget::row(vec![
+            if skip > 0 {
+                Btn::text_fg("<").build(ctx, "previous trips", None)
+            } else {
+                Btn::text_fg("<").inactive(ctx)
+            }
+            .margin_right(10),
+            format!(
+                "{}-{} of {}",
+                if total_rows > 0 {
+                    prettyprint_usize(skip + 1)
+                } else {
+                    "0".to_string()
+                },
+                prettyprint_usize((skip + 1 + ROWS).min(total_rows)),
+                prettyprint_usize(total_rows)
+            )
+            .draw_text(ctx)
+            .margin_right(10),
+            if skip + 1 + ROWS < total_rows {
+                Btn::text_fg(">").build(ctx, "next trips", None)
+            } else {
+                Btn::text_fg(">").inactive(ctx)
+            },
+        ])
+        .margin_below(5),
+    );
+
     col.extend(make_table(
         ctx,
         app,
@@ -237,17 +346,6 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool) -> Compos
         rows,
         0.88 * ctx.canvas.window_width,
     ));
-
-    if app.opts.dev {
-        col.push(
-            format!(
-                "{} trips aborted due to simulation glitch",
-                prettyprint_usize(aborted)
-            )
-            .draw_text(ctx)
-            .margin_above(10),
-        );
-    }
 
     Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(10))
         .max_size_percent(90, 90)

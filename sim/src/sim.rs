@@ -1134,7 +1134,8 @@ impl Sim {
     // For intersections with an agent waiting beyond some threshold, return when they started
     // waiting. Sorted by earliest waiting (likely the root cause of gridlock).
     pub fn delayed_intersections(&self, threshold: Duration) -> Vec<(IntersectionID, Time)> {
-        self.intersections.find_gridlock(self.time, threshold)
+        self.intersections
+            .delayed_intersections(self.time, threshold)
     }
 
     pub fn bldg_to_people(&self, b: BuildingID) -> Vec<PersonID> {
