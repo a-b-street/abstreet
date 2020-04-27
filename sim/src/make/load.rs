@@ -33,9 +33,9 @@ impl SimFlags {
                     .unwrap_or_else(|| "unnamed".to_string()),
                 savestate_every: args.optional_parse("--savestate_every", Duration::parse),
                 use_freeform_policy_everywhere: args.enabled("--freeform_policy"),
-                disable_block_the_box: args.enabled("--disable_block_the_box"),
-                recalc_lanechanging: !args.enabled("--dont_recalc_lc"),
-                break_turn_conflict_cycles: args.enabled("--break_turn_conflict_cycles"),
+                dont_block_the_box: !args.enabled("--disable_block_the_box"),
+                recalc_lanechanging: !args.enabled("--disable_recalc_lc"),
+                break_turn_conflict_cycles: !args.enabled("--disable_break_turn_conflict_cycles"),
                 enable_pandemic_model: if args.enabled("--pandemic") {
                     Some(XorShiftRng::from_seed([rng_seed; 16]))
                 } else {

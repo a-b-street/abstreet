@@ -18,7 +18,7 @@ const WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL: Duration = Duration::const_seconds(0.
 pub struct IntersectionSimState {
     state: BTreeMap<IntersectionID, State>,
     use_freeform_policy_everywhere: bool,
-    force_queue_entry: bool,
+    dont_block_the_box: bool,
     break_turn_conflict_cycles: bool,
     // (x, y) means x is blocked by y. It's a many-to-many relationship. TODO Better data
     // structure.
@@ -44,13 +44,13 @@ impl IntersectionSimState {
         map: &Map,
         scheduler: &mut Scheduler,
         use_freeform_policy_everywhere: bool,
-        disable_block_the_box: bool,
+        dont_block_the_box: bool,
         break_turn_conflict_cycles: bool,
     ) -> IntersectionSimState {
         let mut sim = IntersectionSimState {
             state: BTreeMap::new(),
             use_freeform_policy_everywhere,
-            force_queue_entry: disable_block_the_box,
+            dont_block_the_box,
             break_turn_conflict_cycles,
             blocked_by: BTreeSet::new(),
             events: Vec::new(),
@@ -270,7 +270,7 @@ impl IntersectionSimState {
 
         // Don't block the box
         if let Some((queue, car)) = maybe_car_and_target_queue {
-            if !queue.try_to_reserve_entry(car, self.force_queue_entry) {
+            if !queue.try_to_reserve_entry(car, !self.dont_block_the_box) {
                 /*if debug {
                     println!("{}: {} can't block box", now, agent)
                 };*/

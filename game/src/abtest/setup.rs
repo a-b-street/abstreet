@@ -151,10 +151,7 @@ fn launch_test(test: &ABTest, app: &mut App, ctx: &mut EventCtx) -> ABTestMode {
                                     .sim_flags
                                     .opts
                                     .use_freeform_policy_everywhere,
-                                disable_block_the_box: current_flags
-                                    .sim_flags
-                                    .opts
-                                    .disable_block_the_box,
+                                dont_block_the_box: current_flags.sim_flags.opts.dont_block_the_box,
                                 recalc_lanechanging: current_flags
                                     .sim_flags
                                     .opts
