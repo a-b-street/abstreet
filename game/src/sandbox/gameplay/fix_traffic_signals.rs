@@ -1,5 +1,6 @@
 use crate::app::App;
-use crate::game::Transition;
+use crate::cutscene::CutsceneBuilder;
+use crate::game::{State, Transition};
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::gameplay::{challenge_controller, GameplayMode, GameplayState};
 use crate::sandbox::SandboxControls;
@@ -23,6 +24,44 @@ impl FixTrafficSignals {
                 Vec::new(),
             ),
         })
+    }
+
+    pub fn cutscene_pt1(ctx: &mut EventCtx, app: &App, _: &GameplayMode) -> Box<dyn State> {
+        CutsceneBuilder::new()
+            .boss("I hope you've had your coffee. There's a huge mess downtown.")
+            .player("Did two buses get tangled together again?")
+            .boss("Worse. SCOOT along Mercer is going haywire.")
+            .player("SCOOT?")
+            .boss(
+                "You know, Split Cycle Offset Optimization Technique, the traffic signal \
+                 coordination system? Did you sleep through college or what?",
+            )
+            .boss(
+                "It's offline. All the traffic signals look like they've been reset to industry \
+                 defaults.",
+            )
+            .player("Uh oh. Too much scooter traffic overwhelm it? Eh? EHH?")
+            .boss("...")
+            .boss("You know, not every problem you will face in life is caused by a pun.")
+            .boss(
+                "Most, in fact, will be caused by me ruining your life because you won't take \
+                 your job seriously.",
+            )
+            .player("Sorry, boss.")
+            .boss(
+                "Oh no... reports are coming in, ALL of the traffic signals downtown are screwed \
+                 up!",
+            )
+            .boss(
+                "You need to go fix all of them. But listen, you haven't got much time. Focus on \
+                 the worst problems first.",
+            )
+            .player("Sigh... it's going to be a long day.")
+            .narrator(
+                "Don't let the delay for anybody to get through one traffic signal exceed 10 \
+                 minutes.",
+            )
+            .build(ctx, app)
     }
 }
 

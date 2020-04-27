@@ -19,9 +19,17 @@ impl CutsceneBuilder {
         CutsceneBuilder { scenes: Vec::new() }
     }
 
-    pub fn scene<I: Into<String>>(mut self, avatar: &str, msg: I) -> CutsceneBuilder {
+    pub fn player<I: Into<String>>(mut self, msg: I) -> CutsceneBuilder {
         self.scenes.push(Scene {
-            avatar: Some(avatar.to_string()),
+            avatar: Some("player".to_string()),
+            msg: Text::from(Line(msg)),
+        });
+        self
+    }
+
+    pub fn boss<I: Into<String>>(mut self, msg: I) -> CutsceneBuilder {
+        self.scenes.push(Scene {
+            avatar: Some("boss".to_string()),
             msg: Text::from(Line(msg)),
         });
         self

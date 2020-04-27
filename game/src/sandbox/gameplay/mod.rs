@@ -1,7 +1,7 @@
 // TODO pub so challenges can grab cutscenes. Weird?
 pub mod commute;
 mod create_gridlock;
-mod fix_traffic_signals;
+pub mod fix_traffic_signals;
 mod freeform;
 mod play_scenario;
 pub mod spawner;
@@ -37,6 +37,7 @@ pub enum GameplayMode {
     CreateGridlock(String),
     FixTrafficSignals,
     // TODO Kinda gross. What stage in the tutorial?
+    #[allow(unused)]
     FixTrafficSignalsTutorial(usize),
     OptimizeCommute(PersonID, Duration),
 
@@ -87,7 +88,7 @@ impl GameplayMode {
             GameplayMode::Freeform(ref path) => path.to_string(),
             GameplayMode::PlayScenario(ref path, _) => path.to_string(),
             GameplayMode::CreateGridlock(ref path) => path.to_string(),
-            GameplayMode::FixTrafficSignals => abstutil::path_map("montlake"),
+            GameplayMode::FixTrafficSignals => abstutil::path_map("downtown"),
             GameplayMode::FixTrafficSignalsTutorial(_) => {
                 abstutil::path_synthetic_map("signal_single")
             }

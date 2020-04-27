@@ -54,46 +54,36 @@ impl Challenge {
                 },
             ],
         );
+        tree.insert(
+            "Fix traffic signals".to_string(),
+            vec![
+                /*Challenge {
+                    title: "Tutorial 1".to_string(),
+                    description: vec!["Add or remove a dedicated left phase".to_string()],
+                    alias: "trafficsig/tut1".to_string(),
+                    gameplay: GameplayMode::FixTrafficSignalsTutorial(0),
+                    cutscene: None,
+                },
+                Challenge {
+                    title: "Tutorial 2".to_string(),
+                    description: vec!["Deal with heavy foot traffic".to_string()],
+                    alias: "trafficsig/tut2".to_string(),
+                    gameplay: GameplayMode::FixTrafficSignalsTutorial(1),
+                    cutscene: None,
+                },*/
+                Challenge {
+                    title: "Repair traffic signals".to_string(),
+                    description: vec!["Fix traffic signal timing and unblock vehicles".to_string()],
+                    alias: "trafficsig/pt1".to_string(),
+                    gameplay: GameplayMode::FixTrafficSignals,
+                    cutscene: Some(
+                        crate::sandbox::gameplay::fix_traffic_signals::FixTrafficSignals::cutscene_pt1,
+                    ),
+                },
+            ],
+        );
 
         if dev {
-            tree.insert(
-                "Fix traffic signals".to_string(),
-                vec![
-                    Challenge {
-                        title: "Tutorial 1".to_string(),
-                        description: vec!["Add or remove a dedicated left phase".to_string()],
-                        alias: "trafficsig/tut1".to_string(),
-                        gameplay: GameplayMode::FixTrafficSignalsTutorial(0),
-                        cutscene: None,
-                    },
-                    Challenge {
-                        title: "Tutorial 2".to_string(),
-                        description: vec!["Deal with heavy foot traffic".to_string()],
-                        alias: "trafficsig/tut2".to_string(),
-                        gameplay: GameplayMode::FixTrafficSignalsTutorial(1),
-                        cutscene: None,
-                    },
-                    Challenge {
-                        title: "The real challenge!".to_string(),
-                        description: vec![
-                            "A city-wide power surge knocked out all of the traffic signals!"
-                                .to_string(),
-                            "Their timing has been reset to default settings, and drivers are \
-                             stuck."
-                                .to_string(),
-                            "It's up to you to repair the signals, choosing appropriate turn \
-                             phases and timing."
-                                .to_string(),
-                            "".to_string(),
-                            "Objective: Reduce the average trip time by at least 30s".to_string(),
-                        ],
-                        alias: "trafficsig/main".to_string(),
-                        gameplay: GameplayMode::FixTrafficSignals,
-                        cutscene: None,
-                    },
-                ],
-            );
-
             tree.insert(
                 "Cause gridlock (WIP)".to_string(),
                 vec![Challenge {

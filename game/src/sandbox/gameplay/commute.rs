@@ -63,33 +63,24 @@ impl OptimizeCommute {
             _ => unreachable!(),
         };
         CutsceneBuilder::new()
-            .scene("boss", "Listen up, I've got a special job for you today.")
-            .scene(
-                "player",
-                "What is it? The scooter coalition back with demands for more valet parking?",
-            )
-            .scene(
-                "boss",
-                "No, all the tax-funded valets are still busy the kayakers.",
-            )
-            .scene(
-                "boss",
+            .boss("Listen up, I've got a special job for you today.")
+            .player("What is it? The scooter coalition back with demands for more valet parking?")
+            .boss("No, all the tax-funded valets are still busy the kayakers.")
+            .boss(
                 "I've got a... friend who's tired of getting stuck in traffic on Broadway. You've \
                  got to make their commute as fast as possible.",
             )
-            .scene(
-                "player",
+            .player(
                 "Ah, it's about time we finally put in those new bike lanes along Broadway! I'll \
                  get right on --",
             )
-            .scene("boss", "No! Just smooth things out for this one person.")
-            .scene("player", "Uh, what's so special about them?")
-            .scene(
-                "boss",
+            .boss("No! Just smooth things out for this one person.")
+            .player("Uh, what's so special about them?")
+            .boss(
                 "That's none of your concern! I've anonymized their name, so don't even bother \
                  digging into what happened in Ballard --",
             )
-            .scene("boss", "JUST GET TO WORK, KID!")
+            .boss("JUST GET TO WORK, KID!")
             .narrator(
                 "Somebody's blackmailing the boss. Guess it's time to help this VIP (very \
                  impatient person).",
@@ -113,29 +104,20 @@ impl OptimizeCommute {
         };
         // TODO The person chosen for this currently has more of an issue needing PBLs, actually.
         CutsceneBuilder::new()
-            .scene(
-                "boss",
-                "I've got another, er, friend who's sick of this parking situation.",
-            )
-            .scene(
-                "player",
+            .boss("I've got another, er, friend who's sick of this parking situation.")
+            .player(
                 "Yeah, why do we dedicate so much valuable land to storing unused cars? It's \
                  ridiculous!",
             )
-            .scene(
-                "boss",
+            .boss(
                 "No, I mean, they're tired of having to hunt for parking. You need to make it \
                  easier.",
             )
-            .scene(
-                "player",
+            .player(
                 "What? We're trying to encourage people to be less car-dependent. Why's this \
                  \"friend\" more important than the city's carbon-neutral goals?",
             )
-            .scene(
-                "boss",
-                "Everyone's calling in favors these days. Just make it happen!",
-            )
+            .boss("Everyone's calling in favors these days. Just make it happen!")
             .narrator("Too many people have dirt on the boss. Guess we have another VIP to help.")
             .narrator(format!(
                 "Once again, ignore the damage to everyone else, and just speed up the VIP's \
