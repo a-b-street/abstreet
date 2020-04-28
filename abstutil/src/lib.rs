@@ -145,30 +145,31 @@ pub fn path_all_shortcuts() -> String {
 
 // Input data (For developers to build maps, not needed at runtime)
 
-pub fn path_fixes(name: &str) -> String {
-    format!("../data/input/fixes/{}.json", name)
+pub fn path_fixes(city: &str, map: &str) -> String {
+    format!("../data/input/{}/fixes/{}.json", city, map)
 }
 
-pub fn path_neighborhood(map_name: &str, neighborhood: &str) -> String {
+pub fn path_neighborhood(city_name: &str, map_name: &str, neighborhood: &str) -> String {
     format!(
-        "../data/input/neighborhoods/{}/{}.json",
-        map_name, neighborhood
+        "../data/input/{}/neighborhoods/{}/{}.json",
+        city_name, map_name, neighborhood
     )
 }
-pub fn path_all_neighborhoods(map_name: &str) -> String {
-    format!("../data/input/neighborhoods/{}", map_name)
+pub fn path_all_neighborhoods(city_name: &str, map_name: &str) -> String {
+    format!("../data/input/{}/neighborhoods/{}", city_name, map_name)
 }
 
 pub fn path_pending_screenshots(map_name: &str) -> String {
     format!("../data/input/screenshots/pending_{}", map_name)
 }
 
-pub fn path_polygon(polygon_name: &str) -> String {
-    format!("../data/input/polygons/{}.poly", polygon_name)
+// TODO Few callers, and importer just manually builds this path anyway
+pub fn path_polygon(city: &str, polygon_name: &str) -> String {
+    format!("../data/input/{}/polygons/{}.poly", city, polygon_name)
 }
 
 pub fn path_popdat() -> String {
-    format!("../data/input/popdat.bin")
+    format!("../data/input/seattle/popdat.bin")
 }
 
 pub fn path_raw_map(map_name: &str) -> String {

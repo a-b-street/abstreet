@@ -3,7 +3,7 @@ use geojson::{GeoJson, PolygonType, Value};
 use geom::{GPSBounds, LonLat};
 use map_model::NeighborhoodBuilder;
 
-pub fn convert(geojson_path: String, map_name: String, gps_bounds: &GPSBounds) {
+pub fn convert(geojson_path: String, city_name: String, map_name: String, gps_bounds: &GPSBounds) {
     println!("Extracting neighborhoods from {}...", geojson_path);
     let document: GeoJson = abstutil::read_json(geojson_path, &mut Timer::throwaway());
     match document {
@@ -12,13 +12,14 @@ pub fn convert(geojson_path: String, map_name: String, gps_bounds: &GPSBounds) {
                 let name = f.properties.unwrap()["name"].as_str().unwrap().to_string();
                 match f.geometry.unwrap().value {
                     Value::Polygon(p) => {
-                        convert_polygon(p, name, map_name.clone(), gps_bounds);
+                        convert_polygon(p, name, city_name.clone(), map_name.clone(), gps_bounds);
                     }
                     Value::MultiPolygon(polygons) => {
                         for (idx, p) in polygons.into_iter().enumerate() {
                             convert_polygon(
                                 p,
                                 format!("{} portion #{}", name, idx + 1),
+                                city_name.clone(),
                                 map_name.clone(),
                                 gps_bounds,
                             );
@@ -32,7 +33,13 @@ pub fn convert(geojson_path: String, map_name: String, gps_bounds: &GPSBounds) {
     }
 }
 
-fn convert_polygon(input: PolygonType, name: String, map_name: String, gps_bounds: &GPSBounds) {
+fn convert_polygon(
+    input: PolygonType,
+    name: String,
+    city_name: String,
+    map_name: String,
+    gps_bounds: &GPSBounds,
+) {
     if input.len() > 1 {
         println!("{} has a polygon with an inner ring, skipping", name);
         return;
@@ -53,6 +60,7 @@ fn convert_polygon(input: PolygonType, name: String, map_name: String, gps_bound
         }
     }
     NeighborhoodBuilder {
+        city_name,
         map_name,
         name,
         points,

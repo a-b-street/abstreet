@@ -10,6 +10,8 @@ use std::io::{BufRead, BufReader};
 pub fn extract_osm(
     osm_path: &str,
     maybe_clip_path: &Option<String>,
+    city_name: &str,
+    map_name: &str,
     timer: &mut Timer,
 ) -> (
     RawMap,
@@ -35,9 +37,9 @@ pub fn extract_osm(
     done(timer);
 
     let mut map = if let Some(ref path) = maybe_clip_path {
-        read_osmosis_polygon(path)
+        read_osmosis_polygon(path, city_name, map_name)
     } else {
-        let mut m = RawMap::blank(abstutil::basename(osm_path));
+        let mut m = RawMap::blank(city_name, map_name);
         for node in doc.nodes.values() {
             m.gps_bounds.update(LonLat::new(node.lon, node.lat));
         }
@@ -456,7 +458,7 @@ fn glue_to_boundary(result_pl: PolyLine, boundary: &Ring) -> Option<Polygon> {
     Some(Polygon::new(&trimmed_pts))
 }
 
-fn read_osmosis_polygon(path: &str) -> RawMap {
+fn read_osmosis_polygon(path: &str, city_name: &str, map_name: &str) -> RawMap {
     let mut pts: Vec<LonLat> = Vec::new();
     let mut gps_bounds = GPSBounds::new();
     for (idx, maybe_line) in BufReader::new(File::open(path).unwrap())
@@ -480,7 +482,7 @@ fn read_osmosis_polygon(path: &str) -> RawMap {
         gps_bounds.update(pt);
     }
 
-    let mut map = RawMap::blank(abstutil::basename(path));
+    let mut map = RawMap::blank(city_name, map_name);
     map.boundary_polygon = Polygon::new(&gps_bounds.must_convert(&pts));
     map.gps_bounds = gps_bounds;
     map

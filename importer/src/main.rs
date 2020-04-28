@@ -30,7 +30,7 @@ fn main() {
         // By default, use geometry fixes from map_editor.
         use_fixes: !args.enabled("--nofixes"),
         // Only process one map. If not specified, process all maps defined by clipping polygons in
-        // data/input/polygons/.
+        // data/input/$city/polygons/.
         only_map: args.optional_free(),
     };
     args.done();
@@ -46,7 +46,7 @@ fn main() {
         vec![n]
     } else {
         println!("- Working on all {} maps", job.city);
-        abstutil::list_all_objects("../data/input/polygons".to_string())
+        abstutil::list_all_objects(format!("../data/input/{}/polygons", job.city))
     };
 
     for name in names {

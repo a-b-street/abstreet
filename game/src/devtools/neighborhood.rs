@@ -205,6 +205,7 @@ fn pick_neighborhood(map: &Map, mut wizard: WrappedWizard) -> Option<Neighborhoo
     } else {
         let name = wizard.input_string("Name the neighborhood")?;
         Some(NeighborhoodBuilder {
+            city_name: map.get_city_name().to_string(),
             name,
             map_name: map.get_name().to_string(),
             points: Vec::new(),
@@ -220,7 +221,7 @@ fn load_neighborhood_builder(
     wizard
         .choose(query, || {
             Choice::from(abstutil::load_all_objects(
-                abstutil::path_all_neighborhoods(&map.get_name()),
+                abstutil::path_all_neighborhoods(map.get_city_name(), map.get_name()),
             ))
         })
         .map(|(_, n)| n)

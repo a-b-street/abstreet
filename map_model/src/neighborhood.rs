@@ -10,6 +10,7 @@ use std::io::{Error, Write};
 // more compatible with slight changes to the bounding box of a map over time.
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct NeighborhoodBuilder {
+    pub city_name: String,
     pub map_name: String,
     pub name: String,
     pub points: Vec<LonLat>,
@@ -19,6 +20,7 @@ impl NeighborhoodBuilder {
     pub fn finalize(&self, gps_bounds: &GPSBounds) -> Neighborhood {
         assert!(self.points.len() >= 3);
         Neighborhood {
+            city_name: self.city_name.clone(),
             map_name: self.map_name.clone(),
             name: self.name.clone(),
             polygon: Polygon::new(
@@ -36,14 +38,14 @@ impl NeighborhoodBuilder {
 
     pub fn save(&self) {
         abstutil::write_json(
-            abstutil::path_neighborhood(&self.map_name, &self.name),
+            abstutil::path_neighborhood(&self.city_name, &self.map_name, &self.name),
             self,
         );
     }
 
     // https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format
     pub fn save_as_osmosis(&self) -> Result<(), Error> {
-        let path = abstutil::path_polygon(&self.name);
+        let path = abstutil::path_polygon(&self.city_name, &self.name);
         let mut f = File::create(&path)?;
 
         writeln!(f, "{}", self.name)?;
@@ -65,15 +67,20 @@ impl NeighborhoodBuilder {
 
 #[derive(Clone, Debug)]
 pub struct Neighborhood {
+    pub city_name: String,
     pub map_name: String,
     pub name: String,
     pub polygon: Polygon,
 }
 
 impl Neighborhood {
-    pub fn load_all(map_name: &str, gps_bounds: &GPSBounds) -> Vec<(String, Neighborhood)> {
+    pub fn load_all(
+        city_name: &str,
+        map_name: &str,
+        gps_bounds: &GPSBounds,
+    ) -> Vec<(String, Neighborhood)> {
         abstutil::load_all_objects::<NeighborhoodBuilder>(abstutil::path_all_neighborhoods(
-            map_name,
+            city_name, map_name,
         ))
         .into_iter()
         .map(|(name, builder)| (name, builder.finalize(gps_bounds)))
@@ -82,6 +89,7 @@ impl Neighborhood {
 
     fn make_everywhere(map: &Map) -> Neighborhood {
         Neighborhood {
+            city_name: map.get_city_name().to_string(),
             map_name: map.get_name().to_string(),
             name: "_everywhere_".to_string(),
             polygon: map.get_bounds().get_rectangle(),
@@ -97,7 +105,8 @@ pub struct FullNeighborhoodInfo {
 
 impl FullNeighborhoodInfo {
     pub fn load_all(map: &Map) -> HashMap<String, FullNeighborhoodInfo> {
-        let mut neighborhoods = Neighborhood::load_all(map.get_name(), map.get_gps_bounds());
+        let mut neighborhoods =
+            Neighborhood::load_all(map.get_city_name(), map.get_name(), map.get_gps_bounds());
         neighborhoods.push((
             "_everywhere_".to_string(),
             Neighborhood::make_everywhere(map),

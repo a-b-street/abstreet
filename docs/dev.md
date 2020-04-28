@@ -119,17 +119,17 @@ code. This is a nice, hefty starter project to understand how everything works.
 For now, this is just an initial list of considerations -- I haven't designed or
 implemented this yet.
 
-Poking around the .osm extracts in `data/input/osm/`, you'll see a promising
-relation with `route = light_rail`. The relation points to individual points
-(nodes) as stops, and segments of the track (ways). These need to be represented
-in the initial version of the map, `RawMap`, and the final version, `Map`.
-Stations probably coincide with existing buildings, and tracks could probably be
-modeled as a special type of road. To remember the order of stations and group
-everything, there's already a notion of bus route from the `gtfs` crate that
-probably works. The `convert_osm` crate is the place to extract this new data
-from OSM. It might be worth thinking about how the light rail line gets clipped,
-since most maps won't include all of the stations -- should those maps just
-terminate trains at the stations, or should trains go to and from the map
+Poking around the .osm extracts in `data/input/seattle/osm/`, you'll see a
+promising relation with `route = light_rail`. The relation points to individual
+points (nodes) as stops, and segments of the track (ways). These need to be
+represented in the initial version of the map, `RawMap`, and the final version,
+`Map`. Stations probably coincide with existing buildings, and tracks could
+probably be modeled as a special type of road. To remember the order of stations
+and group everything, there's already a notion of bus route from the `gtfs`
+crate that probably works. The `convert_osm` crate is the place to extract this
+new data from OSM. It might be worth thinking about how the light rail line gets
+clipped, since most maps won't include all of the stations -- should those maps
+just terminate trains at the stations, or should trains go to and from the map
 border?
 
 Then there are some rendering questions. How should special buildings that act

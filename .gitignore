@@ -1,20 +1,23 @@
 /target/
 *.swp
 
-data/input/blockface.bin
-data/input/google_transit
-data/input/neighborhoods
-data/input/neighborhoods.geojson
-data/input/N47W122.hgt
-data/input/offstreet_parking.bin
-data/input/osm
-data/input/parcels_urbansim.txt
-data/input/popdat.bin
+data/input/seattle/blockface.bin
+data/input/seattle/google_transit
+data/input/seattle/neighborhoods
+data/input/seattle/neighborhoods.geojson
+data/input/seattle/N47W122.hgt
+data/input/seattle/offstreet_parking.bin
+data/input/seattle/osm
+data/input/seattle/parcels_urbansim.txt
+data/input/seattle/popdat.bin
+data/input/seattle/sidewalks.bin
+data/input/seattle/trips_2014.csv
+
+data/input/austin/osm
+
 data/input/raw_maps
 data/input/screenshots/*/*.png
 data/input/screenshots/*/combine.sh
-data/input/sidewalks.bin
-data/input/trips_2014.csv
 
 data/player
 

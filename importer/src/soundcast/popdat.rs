@@ -17,8 +17,8 @@ pub struct PopDat {
 pub fn import_data() {
     let mut timer = abstutil::Timer::new("creating popdat");
     let (trips, parcels) = import_trips(
-        "../data/input/parcels_urbansim.txt",
-        "../data/input/trips_2014.csv",
+        "../data/input/seattle/parcels_urbansim.txt",
+        "../data/input/seattle/trips_2014.csv",
         &mut timer,
     )
     .unwrap();

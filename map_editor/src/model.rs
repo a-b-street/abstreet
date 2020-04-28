@@ -130,7 +130,7 @@ impl Model {
 
     pub fn save_fixes(&mut self) {
         abstutil::write_json(
-            abstutil::path_fixes(&self.map.name),
+            abstutil::path_fixes(&self.map.city, &self.map.name),
             &self
                 .map
                 .generate_fixes(&mut Timer::new("calculate MapFixes")),

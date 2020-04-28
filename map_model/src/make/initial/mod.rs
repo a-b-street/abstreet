@@ -12,7 +12,6 @@ pub struct InitialMap {
     pub roads: BTreeMap<OriginalRoad, Road>,
     pub intersections: BTreeMap<OriginalIntersection, Intersection>,
 
-    pub name: String,
     pub bounds: Bounds,
 }
 
@@ -70,11 +69,10 @@ pub struct Intersection {
 }
 
 impl InitialMap {
-    pub fn new(name: String, raw: &RawMap, bounds: &Bounds, timer: &mut Timer) -> InitialMap {
+    pub fn new(raw: &RawMap, bounds: &Bounds, timer: &mut Timer) -> InitialMap {
         let mut m = InitialMap {
             roads: BTreeMap::new(),
             intersections: BTreeMap::new(),
-            name,
             bounds: bounds.clone(),
         };
 
