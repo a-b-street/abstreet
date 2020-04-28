@@ -4,8 +4,11 @@
 d4a8e733045b28c0385fb81359d6df03  data/input/trips_2014.csv
 e4546fa3a8778d73d4dbae5bf5e6072d  data/input/osm/montlake.osm
 b5f64e800ea1e70b2326792aee494e9a  data/input/osm/huge_seattle.osm
+a30b0f460a481598e494f16a9d07a822  data/input/osm/downtown_atx.osm
 c2f29dfce01a727671b9c67772ee3ed5  data/input/osm/ballard.osm
+7c8d72cf97072af34cee665006b1e9e6  data/input/osm/Austin.osm
 f36e72469646c1cf25ceb42ae82b2a6f  data/input/osm/23rd.osm
+fb166029fc8006bd20dc959fbbbde3b6  data/input/osm/huge_austin.osm
 79f7686dcb469a6262e13d5e61571303  data/input/osm/downtown.osm
 9315a7df9e878865ff361ea89129970b  data/input/osm/intl_district.osm
 791b47c83ef94d65c709be027061d13c  data/input/osm/caphill.osm
@@ -96,6 +99,8 @@ db63d7d606e8702d12f9399e87e6a00f  data/input/parcels_urbansim.txt
 93553e321c5efac4b700ab9c2569eacb  data/input/raw_maps/downtown.bin
 6f15b586cb9a610f95b815fd12442dd7  data/input/raw_maps/caphill.bin
 534b0bbf56981aee23d83338365dde7a  data/input/raw_maps/lakeslice.bin
+1e264a737cd4c4eed887c057a7b4eccf  data/input/raw_maps/huge_austin.bin
+4ff7768c4ad52eeb2d02f425d8294847  data/input/raw_maps/downtown_atx.bin
 01cee37af1e49b295448933a89de9192  data/input/raw_maps/montlake.bin
 0452d8d5998d782474256a083c6d8be3  data/input/raw_maps/intl_district.bin
 558c575a44a072909e3ee1d9a50386bb  data/input/raw_maps/23rd.bin
@@ -105,8 +110,10 @@ db63d7d606e8702d12f9399e87e6a00f  data/input/parcels_urbansim.txt
 4f291bbe84ac32a98d7d100be79ddc4b  data/input/polygons/huge_seattle.poly
 6b221b5e68a38f16f34e46a208c7ca15  data/input/polygons/lakeslice.poly
 418bcd5b335d12a1aa8ef556367e0bad  data/input/polygons/montlake.poly
+8c6570b3bad2a362e0e6f4bb6f4a8fda  data/input/polygons/huge_austin.poly
 502f3bf285833fc061099a52f2f70819  data/input/polygons/intl_district.poly
 5d48031ff3b288ecb22bd2a96809a0ab  data/input/polygons/ballard.poly
+dc9a8a05f8f2e508af7a9841866f8cd3  data/input/polygons/downtown_atx.poly
 0304847f270859fcfc19c8ca122ed793  data/input/polygons/23rd.poly
 54f5f16e5ec925cb29b4d1405a89ef94  data/input/polygons/downtown.poly
 58485a3bdff2aea9769fffd207e3cf30  data/input/offstreet_parking.bin
@@ -222,6 +229,8 @@ d02d0d103f7b00672a5f1145c5169d8c  data/system/fonts/Overpass-Bold.ttf
 8b31c23a7f0b985894a39683159c7918  data/system/maps/downtown.bin
 1727e93afe6d1ddc07b5f6ed008658be  data/system/maps/caphill.bin
 35e398d0dce3e4ade875c91245f88423  data/system/maps/lakeslice.bin
+f258d23f81e16c5d884972853fcbb376  data/system/maps/huge_austin.bin
+38ef21a636e63ce54ba319834191c8fd  data/system/maps/downtown_atx.bin
 f37497dbcca236b261b7205d8dd01aa4  data/system/maps/montlake.bin
 6aec1579e6e6125c559212ee17c1d79f  data/system/maps/intl_district.bin
 608b5d2eaaa094ef6a0f1de2f97b28ac  data/system/maps/23rd.bin

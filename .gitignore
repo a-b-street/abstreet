@@ -7,8 +7,10 @@ data/input/neighborhoods
 data/input/neighborhoods.geojson
 data/input/N47W122.hgt
 data/input/offstreet_parking.bin
+data/input/osm
 data/input/parcels_urbansim.txt
 data/input/popdat.bin
+data/input/raw_maps
 data/input/screenshots/*/*.png
 data/input/screenshots/*/combine.sh
 data/input/sidewalks.bin
@@ -16,7 +18,6 @@ data/input/trips_2014.csv
 
 data/player
 
-# Some data/system/ and data/input subdirectories have their own .gitignore
-# whitelists. Some tempporaryish exceptions:
-data/input/osm/Seattle.osm
-data/system/prebaked_results/signal_single
+data/system/maps
+data/system/prebaked_results
+data/system/scenarios

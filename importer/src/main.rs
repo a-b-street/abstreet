@@ -1,8 +1,10 @@
+mod austin;
 mod seattle;
 mod soundcast;
 mod utils;
 
 struct Job {
+    city: String,
     osm_to_raw: bool,
     raw_to_map: bool,
     scenario: bool,
@@ -15,6 +17,7 @@ struct Job {
 fn main() {
     let mut args = abstutil::CmdArgs::new();
     let job = Job {
+        city: args.optional("--city").unwrap_or("seattle".to_string()),
         // Download all raw input files, then convert OSM to the intermediate RawMap.
         osm_to_raw: args.enabled("--raw"),
         // Convert the RawMap to the final Map format.
@@ -42,13 +45,17 @@ fn main() {
         println!("- Just working on {}", n);
         vec![n]
     } else {
-        println!("- Working on all Seattle maps");
+        println!("- Working on all {} maps", job.city);
         abstutil::list_all_objects("../data/input/polygons".to_string())
     };
 
     for name in names {
         if job.osm_to_raw {
-            seattle::osm_to_raw(&name);
+            match job.city.as_ref() {
+                "seattle" => seattle::osm_to_raw(&name),
+                "austin" => austin::osm_to_raw(&name),
+                x => panic!("Unknown city {}", x),
+            }
         }
 
         if job.raw_to_map {
@@ -56,6 +63,7 @@ fn main() {
         }
 
         if job.scenario {
+            assert_eq!(job.city, "seattle");
             seattle::ensure_popdat_exists(job.use_fixes);
 
             let mut timer = abstutil::Timer::new(format!("Scenario for {}", name));
@@ -64,6 +72,7 @@ fn main() {
         }
 
         if job.scenario_everyone {
+            assert_eq!(job.city, "seattle");
             seattle::ensure_popdat_exists(job.use_fixes);
 
             let mut timer = abstutil::Timer::new(format!("Scenario for {}", name));

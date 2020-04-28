@@ -1,7 +1,6 @@
 use crate::utils::{download, osmconvert, rm};
 
-// Grab all raw input files for Seattle.
-fn seattle_input() {
+fn input() {
     download(
         "../data/input/google_transit/",
         "https://metro.kingcounty.gov/GTFS/google_transit.zip",
@@ -36,9 +35,8 @@ fn seattle_input() {
     download("../data/input/offstreet_parking.bin", "http://data-seattlecitygis.opendata.arcgis.com/datasets/8e52dfde6d5d45948f7a90654c8d50cd_0.kml");
 }
 
-// Raw input -> RawMap for Seattle
 pub fn osm_to_raw(name: &str) {
-    seattle_input();
+    input();
     osmconvert(
         "../data/input/osm/Seattle.osm",
         format!("../data/input/polygons/{}.poly", name),
