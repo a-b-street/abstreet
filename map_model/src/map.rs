@@ -673,6 +673,18 @@ impl Map {
     pub fn get_driving_side(&self) -> DrivingSide {
         self.driving_side
     }
+
+    // TODO Sort of a temporary hack
+    pub fn hack_override_offstreet_spots(&mut self, spots_per_bldg: usize) {
+        for b in &mut self.buildings {
+            if let Some(ref mut p) = b.parking {
+                // Leave the parking garages alone
+                if p.num_spots == 1 {
+                    p.num_spots = spots_per_bldg;
+                }
+            }
+        }
+    }
 }
 
 impl Map {
