@@ -125,7 +125,11 @@ b50223a417508afb924252ae3ecd24ad  data/input/raw_maps/huge_austin.bin
 d4f6ece8ef35c594c794928d651c5916  data/input/raw_maps/downtown_atx.bin
 c7a0ec6f43daff30af58cd223d9771b8  data/input/raw_maps/montlake.bin
 27e559028ac7e2339ff7969ad6d5e37d  data/input/raw_maps/intl_district.bin
+f7ea2e3cfcd688e0effae80ec9440af0  data/input/raw_maps/downtown_la.bin
 22fbf319194f1ad011b53794640ef156  data/input/raw_maps/23rd.bin
+9b2c4729d3031553a477bb2e1134a6bf  data/input/los_angeles/osm/downtown_la.osm
+1dd1b7d3a6d38829a8266b0b6ea60b85  data/input/los_angeles/osm/socal.osm.pbf
+97672583e0e9bc2e3d076645a1ccb8f5  data/input/los_angeles/polygons/downtown_la.poly
 a30b0f460a481598e494f16a9d07a822  data/input/austin/osm/downtown_atx.osm
 7c8d72cf97072af34cee665006b1e9e6  data/input/austin/osm/Austin.osm
 fb166029fc8006bd20dc959fbbbde3b6  data/input/austin/osm/huge_austin.osm
@@ -232,6 +236,7 @@ a088ac86bd2fbbde9d0be53535f44670  data/system/maps/caphill.bin
 94d44bfd4c5e2431c7f8555943e70709  data/system/maps/downtown_atx.bin
 29eca63f2c687160f78f7f8dbb85981f  data/system/maps/montlake.bin
 973a782a7d4dd1de4dc0cc7521ee9e1a  data/system/maps/intl_district.bin
+2857ce1b2e3b233323a04d459d533024  data/system/maps/downtown_la.bin
 b8c50322ebcbd970c9eb40d7b177b477  data/system/maps/23rd.bin
 cc45f42cb24cad1cfdbf5ed7a0cb86d4  data/system/synthetic_maps/signal_double.json
 8b949cc34d9a27ace0bd8ecde55a9520  data/system/synthetic_maps/signal_single.json

@@ -594,18 +594,20 @@ pub enum RestrictionType {
 pub struct TurnRestriction(pub OriginalRoad, pub RestrictionType, pub OriginalRoad);
 
 impl RestrictionType {
-    pub fn new(restriction: &str) -> RestrictionType {
+    pub fn new(restriction: &str) -> Option<RestrictionType> {
         // Ignore the TurnType. Between two roads, there's only one category of TurnType (treating
         // Straight/LaneChangeLeft/LaneChangeRight as the same).
         //
         // Strip off time restrictions (like " @ (Mo-Fr 06:00-09:00, 15:00-18:30)")
         match restriction.split(" @ ").next().unwrap() {
             "no_left_turn" | "no_right_turn" | "no_straight_on" | "no_u_turn" | "no_anything" => {
-                RestrictionType::BanTurns
+                Some(RestrictionType::BanTurns)
             }
             "only_left_turn" | "only_right_turn" | "only_straight_on" => {
-                RestrictionType::OnlyAllowTurns
+                Some(RestrictionType::OnlyAllowTurns)
             }
+            // TODO Support this
+            "no_right_turn_on_red" => None,
             _ => panic!("Unknown turn restriction {}", restriction),
         }
     }

@@ -9,6 +9,10 @@ pub fn download(output: &str, url: &str) {
         println!("- {} already exists", output);
         return;
     }
+    // Create the directory
+    std::fs::create_dir_all(Path::new(output).parent().unwrap())
+        .expect("Creating parent dir failed");
+
     println!("- Missing {}, so downloading {}", output, url);
     let tmp = "tmp_output";
     run(Command::new("curl")

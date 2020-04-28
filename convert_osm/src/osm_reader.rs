@@ -240,12 +240,9 @@ pub fn extract_osm(
                 (from_way_id, via_node_id, to_way_id)
             {
                 if let Some(restriction) = tags.get("restriction") {
-                    turn_restrictions.push((
-                        RestrictionType::new(restriction),
-                        from_way_id,
-                        via_node_id,
-                        to_way_id,
-                    ));
+                    if let Some(rt) = RestrictionType::new(restriction) {
+                        turn_restrictions.push((rt, from_way_id, via_node_id, to_way_id));
+                    }
                 }
             }
         }

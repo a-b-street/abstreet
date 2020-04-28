@@ -1,4 +1,5 @@
 mod austin;
+mod los_angeles;
 mod seattle;
 mod soundcast;
 mod utils;
@@ -52,8 +53,9 @@ fn main() {
     for name in names {
         if job.osm_to_raw {
             match job.city.as_ref() {
-                "seattle" => seattle::osm_to_raw(&name),
                 "austin" => austin::osm_to_raw(&name),
+                "los_angeles" => los_angeles::osm_to_raw(&name),
+                "seattle" => seattle::osm_to_raw(&name),
                 x => panic!("Unknown city {}", x),
             }
         }
