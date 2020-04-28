@@ -120,7 +120,6 @@ dc9a8a05f8f2e508af7a9841866f8cd3  data/input/polygons/downtown_atx.poly
 7dbf9830b6a37f6e58d3effc54363de7  data/input/screenshots/montlake/02x05_i124.png
 244fe61defcf394590775582ef438f17  data/input/screenshots/montlake/01x06_i26.png
 e6e912d845568358261fd74576b57f87  data/input/screenshots/montlake/01x01_i19.png
-d0720059c524ec65637eb8184a1a41c8  data/input/screenshots/montlake/MANIFEST
 d66611b36bd11a567f1b8da95420fc9f  data/input/screenshots/montlake/03x06_i27.png
 4fdfb67049a6208f6b929154cea457d3  data/input/screenshots/montlake/02x03_i1.png
 a84ce197439197750399b91522158c81  data/input/screenshots/montlake/02x04_i25.png

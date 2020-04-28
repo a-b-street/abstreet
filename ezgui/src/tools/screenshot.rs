@@ -72,32 +72,15 @@ fn screencap(filename: &str) -> bool {
 }
 
 fn finish(dir_path: &str, filenames: Vec<String>, num_tiles_x: usize, num_tiles_y: usize) {
-    {
-        let mut args = filenames.clone();
-        args.push("-mode".to_string());
-        args.push("Concatenate".to_string());
-        args.push("-tile".to_string());
-        args.push(format!("{}x{}", num_tiles_x, num_tiles_y));
-        args.push("full.png".to_string());
+    let mut args = filenames;
+    args.push("-mode".to_string());
+    args.push("Concatenate".to_string());
+    args.push("-tile".to_string());
+    args.push(format!("{}x{}", num_tiles_x, num_tiles_y));
+    args.push("full.png".to_string());
 
-        let mut file = fs::File::create(format!("{}/combine.sh", dir_path)).unwrap();
-        writeln!(file, "#!/bin/bash\n").unwrap();
-        writeln!(file, "montage {}", args.join(" ")).unwrap();
-        writeln!(file, "rm -f combine.sh").unwrap();
-    }
-
-    {
-        let output = process::Command::new("md5sum")
-            .args(
-                &filenames
-                    .into_iter()
-                    .map(|f| format!("{}/{}", dir_path, f))
-                    .collect::<Vec<String>>(),
-            )
-            .output()
-            .unwrap();
-        assert!(output.status.success());
-        let mut file = fs::File::create(format!("{}/MANIFEST", dir_path)).unwrap();
-        file.write_all(&output.stdout).unwrap();
-    }
+    let mut file = fs::File::create(format!("{}/combine.sh", dir_path)).unwrap();
+    writeln!(file, "#!/bin/bash\n").unwrap();
+    writeln!(file, "montage {}", args.join(" ")).unwrap();
+    writeln!(file, "rm -f combine.sh").unwrap();
 }
