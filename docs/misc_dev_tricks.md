@@ -129,3 +129,7 @@ perl -pi -e 's/WrappedComposite::text_button\(ctx, (.+?), (.+?)\)/Btn::text_fg(\
 ## Stack overflow
 
 rust-gdb --args ../target/release/game --dev
+
+## Drawing diagrams
+
+draw.io

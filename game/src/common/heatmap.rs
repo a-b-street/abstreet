@@ -1,6 +1,5 @@
-use crate::colors::HeatmapColors;
 use crate::common::ColorLegend;
-use ezgui::{Checkbox, Color, Composite, EventCtx, GeomBatch, Spinner, TextExt, Widget};
+use ezgui::{Checkbox, Choice, Color, Composite, EventCtx, GeomBatch, Spinner, TextExt, Widget};
 use geom::{Bounds, Histogram, Polygon, Pt2D};
 
 const NEIGHBORS: [[isize; 2]; 9] = [
@@ -21,7 +20,7 @@ pub struct HeatmapOptions {
     resolution: usize,
     radius: usize,
     smoothing: bool,
-    colors: HeatmapColors,
+    color_scheme: String,
 }
 
 impl HeatmapOptions {
@@ -30,7 +29,7 @@ impl HeatmapOptions {
             resolution: 10,
             radius: 3,
             smoothing: true,
-            colors: HeatmapColors::FullSpectral,
+            color_scheme: "Turbo".to_string(),
         }
     }
 
@@ -62,7 +61,15 @@ impl HeatmapOptions {
 
         col.push(Widget::row(vec![
             "Color scheme".draw_text(ctx).margin(5),
-            Widget::dropdown(ctx, "Colors", self.colors, HeatmapColors::choices()),
+            Widget::dropdown(
+                ctx,
+                "Color scheme",
+                self.color_scheme.clone(),
+                vec!["Turbo", "Inferno", "Warm", "Cool", "Oranges", "Spectral"]
+                    .into_iter()
+                    .map(|x| Choice::string(x))
+                    .collect(),
+            ),
         ]));
 
         // Legend for the heatmap colors
@@ -82,7 +89,7 @@ impl HeatmapOptions {
                 resolution: c.spinner("resolution"),
                 radius: c.spinner("radius"),
                 smoothing: c.is_checked("smoothing"),
-                colors: c.dropdown_value("Colors"),
+                color_scheme: c.dropdown_value("Color scheme"),
             }
         } else {
             HeatmapOptions::new()
@@ -97,11 +104,27 @@ pub fn make_heatmap(
     pts: Vec<Pt2D>,
     opts: &HeatmapOptions,
 ) -> (Vec<Color>, Vec<String>) {
-    let colors = opts.colors.colors();
+    // 7 colors, 8 labels
+    let num_colors = 7;
+    let gradient = match opts.color_scheme.as_ref() {
+        "Turbo" => colorous::TURBO,
+        "Inferno" => colorous::INFERNO,
+        "Warm" => colorous::WARM,
+        "Cool" => colorous::COOL,
+        "Oranges" => colorous::ORANGES,
+        "Spectral" => colorous::SPECTRAL,
+        _ => unreachable!(),
+    };
+    let colors: Vec<Color> = (0..num_colors)
+        .map(|i| {
+            let c = gradient.eval_rational(i, num_colors);
+            Color::rgb(c.r as usize, c.g as usize, c.b as usize)
+        })
+        .collect();
 
     if pts.is_empty() {
         let labels = std::iter::repeat("0".to_string())
-            .take(colors.len() + 1)
+            .take(num_colors + 1)
             .collect();
         return (colors, labels);
     }
@@ -175,7 +198,6 @@ pub fn make_heatmap(
         distrib.add(*count as usize);
     }
 
-    let num_colors = colors.len();
     let max_count_per_bucket: Vec<(f64, Color)> = (1..=num_colors)
         .map(|i| {
             distrib
