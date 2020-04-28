@@ -501,10 +501,6 @@ impl Sim {
                         SidewalkPOI::Building(b1),
                         SidewalkPOI::ParkingSpot(ParkingSpot::Offstreet(b2, idx)),
                     ) if b1 == b2 => {
-                        events.push(Event::Alert(
-                            AlertLocation::Building(*b1),
-                            format!("car leaving bldg"),
-                        ));
                         self.trips.ped_reached_parking_spot(
                             self.time,
                             create_ped.id,

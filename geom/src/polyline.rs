@@ -269,12 +269,13 @@ impl PolyLine {
         let (pl, leftover) = self
             .slice(start, end)
             .unwrap_or_else(|| panic!("exact_slice({}, {}) yielded empty slice", start, end));
-        if leftover != Distance::ZERO {
+        if leftover > EPSILON_DIST {
             panic!(
-                "exact_slice({}, {}) on a PL of length {} yielded leftover distance",
+                "exact_slice({}, {}) on a PL of length {} yielded leftover distance of {}",
                 start,
                 end,
-                self.length()
+                self.length(),
+                leftover
             );
         }
         pl

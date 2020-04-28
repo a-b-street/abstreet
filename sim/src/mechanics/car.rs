@@ -123,9 +123,9 @@ impl Car {
                         // Append the car's polyline on the street with the driveway
                         let driveway = &map.get_b(*b).parking.as_ref().unwrap().driveway_line;
                         let full_piece = if is_parking {
-                            raw_body.extend(driveway.reverse().to_polyline())
+                            raw_body.extend(driveway.reversed())
                         } else {
-                            driveway.to_polyline().extend(raw_body).reversed()
+                            driveway.clone().extend(raw_body).reversed()
                         };
                         // Then make the car creep along the added length of the driveway (which
                         // could be really short)
@@ -133,7 +133,13 @@ impl Car {
                         // TODO Ideally the car would slowly (dis)appear into the building, but
                         // some stuff downstream needs to understand that the windows and such will
                         // get cut off. :)
-                        full_piece.exact_slice(creep_along, creep_along + self.vehicle.length)
+                        let sliced =
+                            full_piece.exact_slice(creep_along, creep_along + self.vehicle.length);
+                        if is_parking {
+                            sliced
+                        } else {
+                            sliced.reversed()
+                        }
                     }
                 }
             }

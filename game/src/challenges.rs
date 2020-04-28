@@ -298,6 +298,10 @@ pub fn prebake_all() {
         }
     }
     for (map_path, list) in per_map {
+        // TODO Oops can't do this yet.
+        if map_path == abstutil::path_map("downtown") {
+            continue;
+        }
         timer.start(format!("prebake for {}", map_path));
         let map = map_model::Map::new(map_path.clone(), false, &mut timer);
 

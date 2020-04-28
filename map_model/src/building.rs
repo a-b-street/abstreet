@@ -1,5 +1,5 @@
 use crate::{osm, LaneID, Map, Position};
-use geom::{Line, Polygon, Pt2D};
+use geom::{Line, PolyLine, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
@@ -28,7 +28,7 @@ pub struct OffstreetParking {
     pub public_garage_name: Option<String>,
     pub num_spots: usize,
     // Goes from the building to the driving lane
-    pub driveway_line: Line,
+    pub driveway_line: PolyLine,
     // Guaranteed to be at least 7m (MAX_CAR_LENGTH + a little buffer) away from both ends of the
     // lane, to prevent various headaches
     pub driving_pos: Position,

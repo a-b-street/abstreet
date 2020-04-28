@@ -273,16 +273,20 @@ impl SpeedControls {
         // TODO Need to do this anywhere that steps the sim, like TimeWarpScreen.
         let alerts = app.primary.sim.clear_alerts();
         if !alerts.is_empty() {
-            self.pause(ctx, app);
-
             let popup = msg("Alerts", alerts.iter().map(|(_, _, msg)| msg).collect());
-            if let Some(id) = match alerts[0].1 {
+            let maybe_id = match alerts[0].1 {
                 AlertLocation::Nil => None,
                 AlertLocation::Intersection(i) => Some(ID::Intersection(i)),
                 // TODO Open info panel and warp to them
                 AlertLocation::Person(_) => None,
                 AlertLocation::Building(b) => Some(ID::Building(b)),
-            } {
+            };
+            // TODO Can filter for alerts at particular places like this:
+            /*if maybe_id != Some(ID::Building(map_model::BuildingID(91))) {
+                return None;
+            }*/
+            self.pause(ctx, app);
+            if let Some(id) = maybe_id {
                 // Just go to the first one, but print all messages
                 return Some(Transition::PushTwice(
                     popup,

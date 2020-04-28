@@ -45,7 +45,7 @@ impl DrawCar {
             draw_default.add_svg(
                 prerender,
                 "../data/system/assets/map/parked_car.svg",
-                body_polygon.center(),
+                input.body.middle(),
                 0.01,
                 Angle::ZERO,
                 RewriteColor::NoOp,

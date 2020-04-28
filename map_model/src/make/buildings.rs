@@ -2,7 +2,7 @@ use crate::make::sidewalk_finder::find_sidewalk_points;
 use crate::raw::{OriginalBuilding, RawBuilding};
 use crate::{Building, BuildingID, FrontPath, LaneType, Map, OffstreetParking};
 use abstutil::Timer;
-use geom::{Distance, HashablePt2D, Line, Polygon};
+use geom::{Distance, HashablePt2D, Line, PolyLine, Polygon};
 use std::collections::{BTreeMap, HashSet};
 
 pub fn make_all_buildings(
@@ -55,7 +55,7 @@ pub fn make_all_buildings(
                 osm_way_id: orig_id.osm_way_id,
                 front_path: FrontPath {
                     sidewalk: *sidewalk_pos,
-                    line: sidewalk_line,
+                    line: sidewalk_line.clone(),
                 },
                 amenities: b.amenities.clone(),
                 parking: None,
@@ -76,10 +76,11 @@ pub fn make_all_buildings(
                     if driving_pos.dist_along() > buffer
                         && map.get_l(driving_lane).length() - driving_pos.dist_along() > buffer
                     {
-                        let driveway_line = trim_path(
-                            &b.polygon,
-                            Line::new(bldg_center.to_pt2d(), driving_pos.pt(map)),
-                        );
+                        let driveway_line = PolyLine::new(vec![
+                            sidewalk_line.pt1(),
+                            sidewalk_line.pt2(),
+                            driving_pos.pt(map),
+                        ]);
                         bldg.parking = Some(OffstreetParking {
                             public_garage_name: b.public_garage_name.clone(),
                             num_spots: b.num_parking_spots,
