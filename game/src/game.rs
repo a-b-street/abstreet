@@ -183,10 +183,6 @@ impl GUI for Game {
         );
         println!("UI broke! Primary sim:");
         self.app.primary.sim.dump_before_abort();
-        if let Some(ref s) = self.app.secondary {
-            println!("Secondary sim:");
-            s.sim.dump_before_abort();
-        }
         canvas.save_camera_state(self.app.primary.map.get_name());
     }
 

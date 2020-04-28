@@ -1,4 +1,3 @@
-use crate::abtest::setup::PickABTest;
 use crate::app::App;
 use crate::challenges::challenges_picker;
 use crate::devtools::DevToolsMode;
@@ -110,6 +109,9 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
                 txt
             })
             .build(ctx, "Challenges", hotkey(Key::C)),
+        ])
+        .centered(),
+        Widget::row(vec![
             Btn::text_bg2("Community Proposals")
                 .tooltip({
                     let mut txt = Text::tooltip(ctx, hotkey(Key::P), "Community Proposals");
@@ -117,17 +119,13 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
                     txt
                 })
                 .build_def(ctx, hotkey(Key::P)),
+            if app.opts.dev {
+                Btn::text_bg2("Internal Dev Tools").build_def(ctx, hotkey(Key::M))
+            } else {
+                Widget::nothing()
+            },
         ])
         .centered(),
-        if app.opts.dev {
-            Widget::row(vec![
-                Btn::text_bg2("Internal Dev Tools").build_def(ctx, hotkey(Key::M)),
-                Btn::text_bg2("Internal A/B Test Mode").build_def(ctx, hotkey(Key::A)),
-            ])
-            .centered()
-        } else {
-            Widget::nothing()
-        },
         Widget::col(vec![
             Btn::text_bg2("About").build_def(ctx, None),
             built_info::time().draw(ctx),
@@ -202,15 +200,10 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         Box::new(|ctx, app| Some(Transition::Push(proposals_picker(ctx, app)))),
     );
     if app.opts.dev {
-        c = c
-            .cb(
-                "Internal Dev Tools",
-                Box::new(|ctx, app| Some(Transition::Push(DevToolsMode::new(ctx, app)))),
-            )
-            .cb(
-                "Internal A/B Test Mode",
-                Box::new(|_, _| Some(Transition::Push(PickABTest::new()))),
-            );
+        c = c.cb(
+            "Internal Dev Tools",
+            Box::new(|ctx, app| Some(Transition::Push(DevToolsMode::new(ctx, app)))),
+        );
     }
     ManagedGUIState::fullscreen(c)
 }

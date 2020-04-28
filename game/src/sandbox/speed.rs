@@ -189,9 +189,6 @@ impl SpeedControls {
                     let dt = self.composite.persistent_split_value("step forwards");
                     if dt == Duration::seconds(0.1) {
                         app.primary.sim.normal_step(&app.primary.map, dt);
-                        if let Some(ref mut s) = app.secondary {
-                            s.sim.normal_step(&s.map, dt);
-                        }
                         app.recalculate_current_selection(ctx);
                         return None;
                     }
@@ -522,7 +519,6 @@ impl State for TimeWarpScreen {
                     &mut app.primary,
                 ));
             }
-            // TODO secondary for a/b test mode
 
             for (t, maybe_i, alert) in app.primary.sim.clear_alerts() {
                 // TODO Just the first :(

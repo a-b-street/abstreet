@@ -16,9 +16,9 @@ use sim::{Analytics, GetDrawAgents, Sim, SimFlags};
 use std::collections::BTreeMap;
 
 pub struct App {
+    // Naming is from older days when there was an A/B test, "side-by-side" mode. Keeping this
+    // naming, because that mode will return someday.
     pub primary: PerMap,
-    // Invariant: This is Some(...) iff we're in A/B test mode or a sub-state.
-    pub secondary: Option<PerMap>,
     // Only exists in some gameplay modes. Must be carefully reset otherwise. Has the map and
     // scenario name too. TODO Embed that in Analytics directly instead.
     prebaked: Option<(String, String, Analytics)>,
@@ -72,7 +72,6 @@ impl App {
 
         App {
             primary,
-            secondary: None,
             prebaked: None,
             agent_cs: AgentColorScheme::new(&cs),
             cs,

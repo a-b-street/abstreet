@@ -14,8 +14,8 @@ pub use self::analytics::{Analytics, TripPhase};
 pub(crate) use self::events::Event;
 pub use self::events::{AlertLocation, TripPhaseType};
 pub use self::make::{
-    ABTest, BorderSpawnOverTime, IndividTrip, OffMapLocation, OriginDestination, PersonSpec,
-    Scenario, ScenarioGenerator, SimFlags, SpawnOverTime, SpawnTrip, TripSpawner, TripSpec,
+    BorderSpawnOverTime, IndividTrip, OffMapLocation, OriginDestination, PersonSpec, Scenario,
+    ScenarioGenerator, SimFlags, SpawnOverTime, SpawnTrip, TripSpawner, TripSpec,
 };
 pub(crate) use self::mechanics::{
     DrivingSimState, IntersectionSimState, ParkingSimState, WalkingSimState,
@@ -549,7 +549,6 @@ impl TripPositions {
 
 // We have to do this in the crate where these types are defined. Bit annoying, since it's really
 // kind of an ezgui concept.
-impl Cloneable for ABTest {}
 impl Cloneable for CarID {}
 impl Cloneable for Scenario {}
 impl Cloneable for TripID {}
