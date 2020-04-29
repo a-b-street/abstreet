@@ -340,7 +340,7 @@ impl DrivingSimState {
                         now,
                         map,
                         scheduler,
-                        Some((&car, &mut self.queues)),
+                        Some((&car, &self.cars, &mut self.queues)),
                     ) {
                         // Don't schedule a retry here.
                         return false;
@@ -611,6 +611,8 @@ impl DrivingSimState {
             };
             intersections.space_freed(now, i, scheduler, map);
         }
+
+        intersections.vehicle_gone(car.vehicle.id);
 
         // We might be vanishing while partly clipping into other stuff.
         self.trim_last_steps(
