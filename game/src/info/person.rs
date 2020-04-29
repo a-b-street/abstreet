@@ -7,8 +7,8 @@ use geom::Duration;
 use map_model::Map;
 use maplit::btreemap;
 use sim::{
-    AgentID, CarID, ParkingSpot, PedestrianID, Person, PersonID, PersonState, TripID, TripResult,
-    VehicleType,
+    AgentID, CarID, ParkingSpot, PedestrianID, Person, PersonID, PersonState, TripID, TripMode,
+    TripResult, VehicleType,
 };
 use std::collections::BTreeMap;
 
@@ -117,23 +117,26 @@ pub fn trips(
         // TODO Style wrong. Button should be the entire row.
         rows.push(
             Widget::row(vec![
-                Text::from_all(vec![
-                    Line(format!("Trip {} ", idx + 1)),
-                    Line(trip_mode.ongoing_verb()).secondary(),
+                format!("Trip {} ", idx + 1).draw_text(ctx).margin_right(21),
+                Widget::row(vec![
+                    Widget::draw_svg_transform(
+                        ctx,
+                        match trip_mode {
+                            TripMode::Walk => "../data/system/assets/meters/pedestrian.svg",
+                            TripMode::Bike => "../data/system/assets/meters/bike.svg",
+                            TripMode::Drive => "../data/system/assets/meters/car.svg",
+                            TripMode::Transit => "../data/system/assets/meters/bus.svg",
+                        },
+                        RewriteColor::ChangeAll(color),
+                    )
+                    .margin_right(10),
+                    Line(trip_status).small().fg(color).draw(ctx),
                 ])
-                .draw(ctx)
+                .fully_rounded()
+                .outline(1.0, color)
+                .bg(color.alpha(0.2))
+                .padding(5)
                 .margin_right(21),
-                // TODO Vertical alignment is weird
-                Line(trip_status)
-                    .small()
-                    .fg(color)
-                    .draw(ctx)
-                    .container()
-                    .fully_rounded()
-                    .outline(1.0, color)
-                    .bg(color.alpha(0.2))
-                    .padding(5)
-                    .margin_right(21),
                 if trip_status == "finished" {
                     if let Some(before) = app
                         .has_prebaked()
