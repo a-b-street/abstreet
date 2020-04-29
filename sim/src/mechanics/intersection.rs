@@ -4,8 +4,8 @@ use crate::{AgentID, AlertLocation, CarID, Command, Event, Scheduler, Speed};
 use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap};
 use geom::{Duration, Time};
 use map_model::{
-    ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, Map, RoadID, TurnID,
-    TurnPriority, TurnType,
+    ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, Map, RoadID, Traversable,
+    TurnID, TurnPriority, TurnType,
 };
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet};
@@ -217,7 +217,7 @@ impl IntersectionSimState {
         now: Time,
         map: &Map,
         scheduler: &mut Scheduler,
-        maybe_car_and_target_queue: Option<(&mut Queue, &Car)>,
+        maybe_car_and_queues: Option<(&Car, &mut BTreeMap<Traversable, Queue>)>,
     ) -> bool {
         let req = Request { agent, turn };
         self.state
@@ -241,7 +241,9 @@ impl IntersectionSimState {
         }
 
         // Don't block the box
-        if let Some((queue, car)) = maybe_car_and_target_queue {
+        if let Some((car, queues)) = maybe_car_and_queues {
+            assert_eq!(agent, AgentID::Car(car.vehicle.id));
+            let queue = queues.get_mut(&Traversable::Lane(turn.dst)).unwrap();
             // TODO Disable this policy for a particular intersection where a traffic signal is
             // surrounded by a tiny lane with almost no capacity. Generalization later, make
             // progress for now.
@@ -249,6 +251,28 @@ impl IntersectionSimState {
                 car,
                 !self.dont_block_the_box || map.get_i(turn.parent).orig_id.osm_node_id == 53211694,
             ) {
+                if self.break_turn_conflict_cycles {
+                    // TODO Should we run the detector here?
+                    if let Some(c) = queue.laggy_head {
+                        self.blocked_by.insert((car.vehicle.id, c));
+                    } else if let Some(c) = queue.cars.get(0) {
+                        self.blocked_by.insert((car.vehicle.id, *c));
+                    } else {
+                        // Nobody's in the target lane, but there's somebody already in the
+                        // intersection headed there, taking up all of the space.
+                        self.blocked_by.insert((
+                            car.vehicle.id,
+                            self.state[&turn.parent]
+                                .accepted
+                                .iter()
+                                .find(|r| r.turn.dst == turn.dst)
+                                .unwrap()
+                                .agent
+                                .as_car(),
+                        ));
+                    }
+                }
+
                 return false;
             }
         }

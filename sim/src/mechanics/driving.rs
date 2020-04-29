@@ -340,10 +340,7 @@ impl DrivingSimState {
                         now,
                         map,
                         scheduler,
-                        Some((
-                            self.queues.get_mut(&Traversable::Lane(t.dst)).unwrap(),
-                            &car,
-                        )),
+                        Some((&car, &mut self.queues)),
                     ) {
                         // Don't schedule a retry here.
                         return false;
