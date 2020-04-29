@@ -667,25 +667,33 @@ impl ControlTrafficSignal {
         id: IntersectionID,
         map: &Map,
     ) -> Option<ControlTrafficSignal> {
+        let mut phases = Vec::new();
+        for p in raw.phases {
+            let num_protected = p.protected_turns.len();
+            let num_permitted = p.permitted_turns.len();
+            let protected_groups = p
+                .protected_turns
+                .into_iter()
+                .filter_map(|t| import_turn_group(t, map))
+                .collect::<BTreeSet<_>>();
+            let yield_groups = p
+                .permitted_turns
+                .into_iter()
+                .filter_map(|t| import_turn_group(t, map))
+                .collect::<BTreeSet<_>>();
+            if protected_groups.len() == num_protected && yield_groups.len() == num_permitted {
+                phases.push(Phase {
+                    protected_groups,
+                    yield_groups,
+                    duration: Duration::seconds(p.duration_seconds as f64),
+                });
+            } else {
+                return None;
+            }
+        }
         ControlTrafficSignal {
             id,
-            phases: raw
-                .phases
-                .into_iter()
-                .map(|p| Phase {
-                    protected_groups: p
-                        .protected_turns
-                        .into_iter()
-                        .map(|t| import_turn_group(t, map))
-                        .collect(),
-                    yield_groups: p
-                        .permitted_turns
-                        .into_iter()
-                        .map(|t| import_turn_group(t, map))
-                        .collect(),
-                    duration: Duration::seconds(p.duration_seconds as f64),
-                })
-                .collect(),
+            phases,
             offset: Duration::ZERO,
             turn_groups: TurnGroup::for_i(id, map),
         }
@@ -716,19 +724,19 @@ fn export_turn_group(id: &TurnGroupID, map: &Map) -> seattle_traffic_signals::Tu
     }
 }
 
-fn import_turn_group(id: seattle_traffic_signals::Turn, map: &Map) -> TurnGroupID {
-    TurnGroupID {
-        from: find_r(id.from, map),
-        to: find_r(id.to, map),
+fn import_turn_group(id: seattle_traffic_signals::Turn, map: &Map) -> Option<TurnGroupID> {
+    Some(TurnGroupID {
+        from: find_r(id.from, map)?,
+        to: find_r(id.to, map)?,
         parent: map.find_i(OriginalIntersection {
             osm_node_id: id.intersection_osm_node_id,
-        }),
+        })?,
         crosswalk: id.is_crosswalk,
-    }
+    })
 }
 
-fn find_r(id: seattle_traffic_signals::DirectedRoad, map: &Map) -> DirectedRoadID {
-    DirectedRoadID {
+fn find_r(id: seattle_traffic_signals::DirectedRoad, map: &Map) -> Option<DirectedRoadID> {
+    Some(DirectedRoadID {
         id: map.find_r(OriginalRoad {
             osm_way_id: id.osm_way_id,
             i1: OriginalIntersection {
@@ -737,7 +745,7 @@ fn find_r(id: seattle_traffic_signals::DirectedRoad, map: &Map) -> DirectedRoadI
             i2: OriginalIntersection {
                 osm_node_id: id.osm_node2,
             },
-        }),
+        })?,
         forwards: id.is_forwards,
-    }
+    })
 }

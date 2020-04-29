@@ -640,24 +640,24 @@ impl Map {
         None
     }
 
-    pub fn find_r(&self, id: OriginalRoad) -> RoadID {
+    pub(crate) fn find_r(&self, id: OriginalRoad) -> Option<RoadID> {
         // TODO Speed up with a mapping?
         for r in self.all_roads() {
             if r.orig_id == id {
-                return r.id;
+                return Some(r.id);
             }
         }
-        panic!("Can't find {:?}", id);
+        None
     }
 
-    pub fn find_i(&self, id: OriginalIntersection) -> IntersectionID {
+    pub(crate) fn find_i(&self, id: OriginalIntersection) -> Option<IntersectionID> {
         // TODO Speed up with a mapping?
         for i in self.all_intersections() {
             if i.orig_id == id {
-                return i.id;
+                return Some(i.id);
             }
         }
-        panic!("Can't find {:?}", id);
+        None
     }
 
     pub fn right_shift(&self, pl: PolyLine, width: Distance) -> Warn<PolyLine> {

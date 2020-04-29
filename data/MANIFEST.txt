@@ -227,17 +227,17 @@ d02d0d103f7b00672a5f1145c5169d8c  data/system/fonts/Overpass-Bold.ttf
 2a13391023ce8787887331530cac35a7  data/system/fonts/BungeeInline-Regular.ttf
 17a1468e62195d0688a6f3bd12da2e92  data/system/fonts/Overpass-SemiBold.ttf
 259d4afad7edca07e727ef80f5bbce07  data/system/fonts/Bungee-Regular.ttf
-e4ef975bd5ca2a761f2af6aa79ddbfa7  data/system/maps/huge_seattle.bin
+c55340dc3995e32952b8fc624b02fd4d  data/system/maps/huge_seattle.bin
 2ce839572159c8819b17ca87502fd063  data/system/maps/ballard.bin
 20c561149888a0732a3c2d5ccad41f5f  data/system/maps/downtown.bin
-a088ac86bd2fbbde9d0be53535f44670  data/system/maps/caphill.bin
-1851f79a44f0ccde301a3f16edfaa852  data/system/maps/lakeslice.bin
+1758395b40afff3606e2109c099175b5  data/system/maps/caphill.bin
+d2c74c3ba79fab0cf7d59a1d1816e364  data/system/maps/lakeslice.bin
 4961886805fc8a5576a37cffc6adc9be  data/system/maps/huge_austin.bin
 94d44bfd4c5e2431c7f8555943e70709  data/system/maps/downtown_atx.bin
-29eca63f2c687160f78f7f8dbb85981f  data/system/maps/montlake.bin
+42009dd1d35c7528607824aeaed07723  data/system/maps/montlake.bin
 973a782a7d4dd1de4dc0cc7521ee9e1a  data/system/maps/intl_district.bin
 2857ce1b2e3b233323a04d459d533024  data/system/maps/downtown_la.bin
-b8c50322ebcbd970c9eb40d7b177b477  data/system/maps/23rd.bin
+d1e2aed33d5b7cae360d41ee84c54f52  data/system/maps/23rd.bin
 cc45f42cb24cad1cfdbf5ed7a0cb86d4  data/system/synthetic_maps/signal_double.json
 8b949cc34d9a27ace0bd8ecde55a9520  data/system/synthetic_maps/signal_single.json
 1cd7be125e1d992613ed3a41e8b25b6a  data/system/synthetic_maps/signal_fan_in.json
@@ -253,5 +253,5 @@ de5cafb1fcd40fd792a1b58686c73962  data/system/scenarios/montlake/weekday.bin
 f9c2c0d6b2beb8260ee35e0e3ec23a3e  data/system/prebaked_results/signal_single/tutorial lvl1.bin
 ff80c3565b243cdbf7a0f0c3fa0f559a  data/system/prebaked_results/signal_single/tutorial lvl2.bin
 39d1c1cd682f589bea61c2875c87238d  data/system/prebaked_results/montlake/car vs bike contention.bin
-c1c86e9b5c9e846b7b44572c65838dc9  data/system/prebaked_results/montlake/weekday.bin
-eaf5a0012dd731bb847c41339e47e85c  data/system/prebaked_results/montlake/car vs bus contention.bin
+d81cc0a029585109269a47d75e12514a  data/system/prebaked_results/montlake/weekday.bin
+cde373b434090989d2fcf64ced328ff7  data/system/prebaked_results/montlake/car vs bus contention.bin
