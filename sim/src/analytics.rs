@@ -1,6 +1,5 @@
 use crate::{AlertLocation, CarID, Event, ParkingSpot, TripID, TripMode, TripPhaseType};
 use abstutil::Counter;
-use derivative::Derivative;
 use geom::{Distance, Duration, Histogram, Time};
 use map_model::{
     BusRouteID, BusStopID, IntersectionID, LaneID, Map, Path, PathRequest, RoadID, Traversable,
@@ -9,7 +8,7 @@ use map_model::{
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
 
-#[derive(Clone, Serialize, Deserialize, Derivative)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Analytics {
     pub thruput_stats: ThruputStats,
     #[serde(skip_serializing, skip_deserializing)]
@@ -33,7 +32,7 @@ pub struct Analytics {
     record_anything: bool,
 }
 
-#[derive(Clone, Serialize, Deserialize, Derivative)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ThruputStats {
     #[serde(skip_serializing, skip_deserializing)]
     pub count_per_road: Counter<RoadID>,

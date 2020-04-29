@@ -31,7 +31,7 @@ pub struct Model {
 impl Model {
     pub fn blank() -> Model {
         Model {
-            map: RawMap::blank(String::new()),
+            map: RawMap::blank("", ""),
             showing_pts: None,
 
             include_bldgs: false,
@@ -130,7 +130,7 @@ impl Model {
 
     pub fn save_fixes(&mut self) {
         abstutil::write_json(
-            abstutil::path_fixes(&self.map.city, &self.map.name),
+            abstutil::path_fixes(&self.map.city_name, &self.map.name),
             &self
                 .map
                 .generate_fixes(&mut Timer::new("calculate MapFixes")),
@@ -877,7 +877,8 @@ impl Model {
             RawBuilding {
                 polygon: Polygon::rectangle_centered(center, BUILDING_LENGTH, BUILDING_LENGTH),
                 osm_tags: BTreeMap::new(),
-                parking: None,
+                public_garage_name: None,
+                num_parking_spots: 0,
                 amenities: BTreeSet::new(),
             },
         );

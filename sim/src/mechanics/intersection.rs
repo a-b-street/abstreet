@@ -2,7 +2,6 @@ use crate::mechanics::car::Car;
 use crate::mechanics::Queue;
 use crate::{AgentID, AlertLocation, Command, Event, Scheduler, Speed};
 use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap};
-use derivative::Derivative;
 use geom::{Duration, Time};
 use map_model::{
     ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, Map, RoadID, TurnID,
@@ -26,8 +25,7 @@ pub struct IntersectionSimState {
     events: Vec<Event>,
 }
 
-#[derive(Clone, Serialize, Deserialize, Derivative)]
-#[derivative(PartialEq)]
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
 struct State {
     id: IntersectionID,
     accepted: BTreeSet<Request>,
@@ -213,7 +211,6 @@ impl IntersectionSimState {
         scheduler: &mut Scheduler,
         maybe_car_and_target_queue: Option<(&mut Queue, &Car)>,
     ) -> bool {
-        //let debug = turn.parent == IntersectionID(64);
         let req = Request { agent, turn };
         let state = self.state.get_mut(&turn.parent).unwrap();
         state.waiting.entry(req.clone()).or_insert(now);
@@ -262,18 +259,18 @@ impl IntersectionSimState {
             unreachable!()
         };
         if !allowed {
-            /*if debug {
-                println!("{}: {} can't go yet", now, agent)
-            };*/
             return false;
         }
 
         // Don't block the box
         if let Some((queue, car)) = maybe_car_and_target_queue {
-            if !queue.try_to_reserve_entry(car, !self.dont_block_the_box) {
-                /*if debug {
-                    println!("{}: {} can't block box", now, agent)
-                };*/
+            // TODO Disable this policy for a particular intersection where a traffic signal is
+            // surrounded by a tiny lane with almost no capacity. Generalization later, make
+            // progress for now.
+            if !queue.try_to_reserve_entry(
+                car,
+                !self.dont_block_the_box || map.get_i(turn.parent).orig_id.osm_node_id == 53211694,
+            ) {
                 return false;
             }
         }
@@ -293,9 +290,6 @@ impl IntersectionSimState {
             retain_btreeset(&mut self.blocked_by, |(a, _)| *a != agent);
         }
 
-        /*if debug {
-            println!("{}: {} going!", now, agent)
-        };*/
         true
     }
 

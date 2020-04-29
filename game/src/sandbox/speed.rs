@@ -278,7 +278,10 @@ impl SpeedControls {
                 AlertLocation::Person(_) => None,
                 AlertLocation::Building(b) => Some(ID::Building(b)),
             };
-            // TODO Can filter for alerts at particular places like this:
+            // TODO Can filter for particular alerts places like this:
+            /*if !alerts[0].2.contains("Turn conflict cycle") {
+                return None;
+            }*/
             /*if maybe_id != Some(ID::Building(map_model::BuildingID(91))) {
                 return None;
             }*/
