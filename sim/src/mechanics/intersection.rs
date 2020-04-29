@@ -509,23 +509,31 @@ impl IntersectionSimState {
     // If true, the request can go.
     fn handle_accepted_conflicts(&mut self, req: &Request, map: &Map) -> bool {
         let turn = map.get_t(req.turn);
+        let mut cycle_detected = false;
         let mut ok = true;
         for other in &self.state[&req.turn.parent].accepted {
+            // Never short-circuit; always record all of the dependencies; it might help someone
+            // else unstick things.
             if map.get_t(other.turn).conflicts_with(turn) {
-                ok = false;
-
                 if self.break_turn_conflict_cycles {
                     if let (AgentID::Car(c1), AgentID::Car(c2)) = (req.agent, other.agent) {
                         self.blocked_by.insert((c1, c2));
                     }
-                    if let Some(cycle) = self.detect_conflict_cycle(req) {
-                        // Allow the conflicting turn!
-                        self.events.push(Event::Alert(
-                            AlertLocation::Intersection(req.turn.parent),
-                            format!("Turn conflict cycle involving {:?}", cycle),
-                        ));
-                        return true;
+                    if !cycle_detected {
+                        if let Some(cycle) = self.detect_conflict_cycle(req) {
+                            // Allow the conflicting turn!
+                            self.events.push(Event::Alert(
+                                AlertLocation::Intersection(req.turn.parent),
+                                format!("Turn conflict cycle involving {:?}", cycle),
+                            ));
+                            cycle_detected = true;
+                        }
                     }
+                }
+
+                // Gridlock or not, it's never safe for two vehicles to go for the same lane.
+                if !cycle_detected || turn.id.dst == other.turn.dst {
+                    ok = false;
                 }
             }
         }

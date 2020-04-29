@@ -346,7 +346,6 @@ fn prebake(map: &Map, scenario: Scenario, timer: &mut Timer) {
 
     let mut opts = SimOptions::new("prebaked");
     opts.alerts = AlertHandler::Silence;
-    opts.savestate_every = Some(Duration::hours(1));
     let mut sim = Sim::new(&map, opts, timer);
     // Bit of an abuse of this, but just need to fix the rng seed.
     let mut rng = SimFlags::for_test("prebaked").make_rng();
