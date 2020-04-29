@@ -1,6 +1,6 @@
 use crate::mechanics::car::Car;
 use crate::mechanics::Queue;
-use crate::{AgentID, AlertLocation, Command, Event, Scheduler, Speed};
+use crate::{AgentID, AlertLocation, CarID, Command, Event, Scheduler, Speed};
 use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap};
 use geom::{Duration, Time};
 use map_model::{
@@ -21,7 +21,7 @@ pub struct IntersectionSimState {
     break_turn_conflict_cycles: bool,
     // (x, y) means x is blocked by y. It's a many-to-many relationship. TODO Better data
     // structure.
-    blocked_by: BTreeSet<(AgentID, AgentID)>,
+    blocked_by: BTreeSet<(CarID, CarID)>,
     events: Vec<Event>,
 }
 
@@ -96,7 +96,9 @@ impl IntersectionSimState {
             self.wakeup_waiting(now, turn.parent, scheduler, map);
         }
         if self.break_turn_conflict_cycles {
-            retain_btreeset(&mut self.blocked_by, |(_, a)| *a != agent);
+            if let AgentID::Car(car) = agent {
+                retain_btreeset(&mut self.blocked_by, |(_, c)| *c != car);
+            }
         }
     }
 
@@ -105,9 +107,9 @@ impl IntersectionSimState {
         let state = self.state.get_mut(&turn.parent).unwrap();
         state.waiting.remove(&Request { agent, turn });
         if self.break_turn_conflict_cycles {
-            retain_btreeset(&mut self.blocked_by, |(a1, a2)| {
-                *a1 != agent && *a2 != agent
-            });
+            if let AgentID::Car(car) = agent {
+                retain_btreeset(&mut self.blocked_by, |(c1, c2)| *c1 != car && *c2 != car);
+            }
         }
     }
 
@@ -261,7 +263,9 @@ impl IntersectionSimState {
         }
         state.accepted.insert(req);
         if self.break_turn_conflict_cycles {
-            retain_btreeset(&mut self.blocked_by, |(a, _)| *a != agent);
+            if let AgentID::Car(car) = agent {
+                retain_btreeset(&mut self.blocked_by, |(c, _)| *c != car);
+            }
         }
 
         true
@@ -475,36 +479,46 @@ impl IntersectionSimState {
                 ok = false;
 
                 if self.break_turn_conflict_cycles {
-                    self.blocked_by.insert((req.agent, other.agent));
-
-                    // Do we have a dependency cycle?
-                    let mut queue = vec![req.agent];
-                    let mut seen = HashSet::new();
-                    while !queue.is_empty() {
-                        let current = queue.pop().unwrap();
-                        if !seen.is_empty() && current == req.agent {
-                            self.events.push(Event::Alert(
-                                AlertLocation::Intersection(req.turn.parent),
-                                format!("Turn conflict cycle involving {:?}", seen),
-                            ));
-                            return true;
-                        }
-                        // Because the blocked-by relation is many-to-many, this might happen.
-                        // Might not actually be a cycle. Insist on seeing the original req.agent
-                        // again.
-                        if !seen.contains(&current) {
-                            seen.insert(current);
-
-                            for (a1, a2) in &self.blocked_by {
-                                if *a1 == current {
-                                    queue.push(*a2);
-                                }
-                            }
-                        }
+                    if let (AgentID::Car(c1), AgentID::Car(c2)) = (req.agent, other.agent) {
+                        self.blocked_by.insert((c1, c2));
+                    }
+                    if let Some(cycle) = self.detect_conflict_cycle(req) {
+                        // Allow the conflicting turn!
+                        self.events.push(Event::Alert(
+                            AlertLocation::Intersection(req.turn.parent),
+                            format!("Turn conflict cycle involving {:?}", cycle),
+                        ));
+                        return true;
                     }
                 }
             }
         }
         ok
+    }
+
+    fn detect_conflict_cycle(&self, req: &Request) -> Option<HashSet<CarID>> {
+        if let AgentID::Car(car) = req.agent {
+            let mut queue = vec![car];
+            let mut seen = HashSet::new();
+            while !queue.is_empty() {
+                let current = queue.pop().unwrap();
+                if !seen.is_empty() && current == car {
+                    return Some(seen);
+                }
+                // Because the blocked-by relation is many-to-many, this might happen.
+                // Might not actually be a cycle. Insist on seeing the original req.agent
+                // again.
+                if !seen.contains(&current) {
+                    seen.insert(current);
+
+                    for (c1, c2) in &self.blocked_by {
+                        if *c1 == current {
+                            queue.push(*c2);
+                        }
+                    }
+                }
+            }
+        }
+        None
     }
 }
