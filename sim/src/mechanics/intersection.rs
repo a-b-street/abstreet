@@ -290,6 +290,18 @@ impl IntersectionSimState {
             .collect()
     }
 
+    pub fn get_blocked_by(&self, a: AgentID) -> HashSet<AgentID> {
+        let mut blocked_by = HashSet::new();
+        if let AgentID::Car(c) = a {
+            for (c1, c2) in &self.blocked_by {
+                if *c1 == c {
+                    blocked_by.insert(AgentID::Car(*c2));
+                }
+            }
+        }
+        blocked_by
+    }
+
     pub fn collect_events(&mut self) -> Vec<Event> {
         std::mem::replace(&mut self.events, Vec::new())
     }

@@ -14,8 +14,8 @@ use ezgui::{
     GfxCtx, HorizontalAlignment, Key, Line, Outcome, Text, VerticalAlignment, Widget, Wizard,
 };
 use geom::{Duration, Pt2D};
-use map_model::{IntersectionID, NORMAL_LANE_THICKNESS};
-use sim::{Sim, TripID};
+use map_model::NORMAL_LANE_THICKNESS;
+use sim::{AgentID, Sim, TripID};
 use std::collections::HashSet;
 
 pub struct DebugMode {
@@ -28,7 +28,7 @@ pub struct DebugMode {
     search_results: Option<SearchResults>,
     all_routes: Option<(usize, Drawable)>,
 
-    highlighted_agents: Option<(IntersectionID, Drawable)>,
+    highlighted_agents: Option<(ID, Drawable)>,
 }
 
 impl DebugMode {
@@ -223,33 +223,42 @@ impl State for DebugMode {
             }
         }
 
-        if let Some(ID::Intersection(id)) = app.primary.current_selection {
-            if self
-                .highlighted_agents
-                .as_ref()
-                .map(|(i, _)| id != *i)
-                .unwrap_or(true)
-            {
-                let mut batch = GeomBatch::new();
-                for a in app.primary.sim.get_accepted_agents(id) {
-                    batch.push(
-                        Color::PURPLE,
-                        app.primary
-                            .draw_map
-                            .get_obj(
-                                ID::from_agent(a),
-                                app,
-                                &mut app.primary.draw_map.agents.borrow_mut(),
-                                ctx.prerender,
-                            )
-                            .unwrap()
-                            .get_outline(&app.primary.map),
-                    );
+        match app.primary.current_selection {
+            Some(ID::Intersection(_)) | Some(ID::Car(_)) => {
+                let id = app.primary.current_selection.clone().unwrap();
+                if self
+                    .highlighted_agents
+                    .as_ref()
+                    .map(|(x, _)| *x != id)
+                    .unwrap_or(true)
+                {
+                    let mut batch = GeomBatch::new();
+                    let agents = match id {
+                        ID::Intersection(i) => app.primary.sim.get_accepted_agents(i),
+                        ID::Car(c) => app.primary.sim.get_blocked_by(AgentID::Car(c)),
+                        _ => unreachable!(),
+                    };
+                    for a in agents {
+                        batch.push(
+                            Color::PURPLE,
+                            app.primary
+                                .draw_map
+                                .get_obj(
+                                    ID::from_agent(a),
+                                    app,
+                                    &mut app.primary.draw_map.agents.borrow_mut(),
+                                    ctx.prerender,
+                                )
+                                .unwrap()
+                                .get_outline(&app.primary.map),
+                        );
+                    }
+                    self.highlighted_agents = Some((id, ctx.upload(batch)));
                 }
-                self.highlighted_agents = Some((id, ctx.upload(batch)));
             }
-        } else {
-            self.highlighted_agents = None;
+            _ => {
+                self.highlighted_agents = None;
+            }
         }
 
         self.objects.event(ctx);

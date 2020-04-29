@@ -1096,6 +1096,9 @@ impl Sim {
     pub fn get_accepted_agents(&self, id: IntersectionID) -> HashSet<AgentID> {
         self.intersections.get_accepted_agents(id)
     }
+    pub fn get_blocked_by(&self, a: AgentID) -> HashSet<AgentID> {
+        self.intersections.get_blocked_by(a)
+    }
 
     pub fn location_of_buses(&self, route: BusRouteID, map: &Map) -> Vec<(CarID, Pt2D)> {
         let mut results = Vec::new();
