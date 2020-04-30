@@ -6,6 +6,7 @@ use geom::{Duration, Histogram, Time};
 use map_model::{IntersectionID, Path, PathRequest};
 use serde_derive::{Deserialize, Serialize};
 use std::cmp::Ordering;
+use std::collections::btree_map::Entry;
 use std::collections::{BTreeMap, BinaryHeap};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
@@ -124,15 +125,19 @@ impl Scheduler {
 
         let cmd_type = cmd.to_type();
 
-        // TODO Combo with entry API
-        if let Some((existing_cmd, existing_time)) = self.queued_commands.get(&cmd_type) {
-            panic!(
-                "Can't push({}, {:?}) because ({}, {:?}) already queued",
-                time, cmd, existing_time, existing_cmd
-            );
+        match self.queued_commands.entry(cmd_type.clone()) {
+            Entry::Vacant(vacant) => {
+                vacant.insert((cmd, time));
+                self.items.push(Item { time, cmd_type });
+            }
+            Entry::Occupied(occupied) => {
+                let (existing_cmd, existing_time) = occupied.get();
+                panic!(
+                    "Can't push({}, {:?}) because ({}, {:?}) already queued",
+                    time, cmd, existing_time, existing_cmd
+                );
+            }
         }
-        self.queued_commands.insert(cmd_type.clone(), (cmd, time));
-        self.items.push(Item { time, cmd_type });
     }
 
     pub fn update(&mut self, new_time: Time, cmd: Command) {
@@ -193,13 +198,19 @@ impl Scheduler {
     pub fn get_next(&mut self) -> Option<Command> {
         let item = self.items.pop().unwrap();
         self.latest_time = item.time;
-        let (_, cmd_time) = self.queued_commands.get(&item.cmd_type)?;
-        // Command was re-scheduled for later.
-        if *cmd_time > item.time {
-            return None;
+        match self.queued_commands.entry(item.cmd_type) {
+            Entry::Vacant(_) => {
+                // Command was cancelled
+                return None;
+            }
+            Entry::Occupied(occupied) => {
+                // Command was re-scheduled for later.
+                if occupied.get().1 > item.time {
+                    return None;
+                }
+                Some(occupied.remove().0)
+            }
         }
-        let (cmd, _) = self.queued_commands.remove(&item.cmd_type)?;
-        Some(cmd)
     }
 
     pub fn describe_stats(&self) -> String {
