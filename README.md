@@ -30,7 +30,6 @@ Measure the effects:
 - [Traffic simulation](docs/articles/trafficsim/article.md)
 - [Rust implementation notes](docs/articles/rust/article.md)
 - [Running A/B Street in a new city](docs/new_city.md)
-- [Current milestones](docs/project/milestones.md)
 - Presentations
   - April 2020 Rust meetup:
     [recording](https://www.youtube.com/watch?v=chYd5I-5oyc),

@@ -135,7 +135,7 @@ fn make_load_map(btn: ScreenRectangle, gameplay: GameplayMode) -> Box<dyn State>
                     .map(|n| {
                         let c = Choice::new(nice_map_name(&n), n.clone());
                         // Hardcoded list for now.
-                        if n == "montlake" || n == "23rd" {
+                        if n == "montlake" || n == "23rd" || n == "lakeslice" {
                             c
                         } else {
                             c.tooltip(

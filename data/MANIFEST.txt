@@ -119,7 +119,7 @@ ca5a7569e1af41e0046fe5e8865cf733  data/input/seattle/google_transit/fare_attribu
 9902835baa19d6b2b3e64f87f24e50d8  data/input/raw_maps/huge_seattle.bin
 7883d9cd9c5120d475d7880cc14b4e20  data/input/raw_maps/ballard.bin
 f802aff8d8c1d5d8ec1caa295ccf8040  data/input/raw_maps/downtown.bin
-f1a4f5663df3c6a488f1b0663ab8f61f  data/input/raw_maps/caphill.bin
+0f7c5268662e572f07a6d17515ed72ba  data/input/raw_maps/caphill.bin
 f9332885794360ecbf8e484698ac1666  data/input/raw_maps/lakeslice.bin
 b50223a417508afb924252ae3ecd24ad  data/input/raw_maps/huge_austin.bin
 d4f6ece8ef35c594c794928d651c5916  data/input/raw_maps/downtown_atx.bin
@@ -228,9 +228,9 @@ d02d0d103f7b00672a5f1145c5169d8c  data/system/fonts/Overpass-Bold.ttf
 17a1468e62195d0688a6f3bd12da2e92  data/system/fonts/Overpass-SemiBold.ttf
 259d4afad7edca07e727ef80f5bbce07  data/system/fonts/Bungee-Regular.ttf
 c55340dc3995e32952b8fc624b02fd4d  data/system/maps/huge_seattle.bin
-2ce839572159c8819b17ca87502fd063  data/system/maps/ballard.bin
+5885a616d63e58d98acb0c06a97a0650  data/system/maps/ballard.bin
 20c561149888a0732a3c2d5ccad41f5f  data/system/maps/downtown.bin
-1758395b40afff3606e2109c099175b5  data/system/maps/caphill.bin
+c287d665b254a8db7e47e2342ebc28b6  data/system/maps/caphill.bin
 239adc0d35437d443cbc742a80934bfe  data/system/maps/lakeslice.bin
 4961886805fc8a5576a37cffc6adc9be  data/system/maps/huge_austin.bin
 94d44bfd4c5e2431c7f8555943e70709  data/system/maps/downtown_atx.bin

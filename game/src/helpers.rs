@@ -100,6 +100,10 @@ pub fn nice_map_name(name: &str) -> &str {
         "intl_district" => "International District and I90",
         "lakeslice" => "Lake Washington corridor",
         "montlake" => "Montlake and Eastlake",
+        // Outside Seattle
+        "downtown_atx" => "Downtown Austin",
+        "downtown_la" => "Los Angeles",
+        "huge_austin" => "Austin (entire area)",
         _ => name,
     }
 }
