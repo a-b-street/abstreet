@@ -105,8 +105,8 @@ impl RawMap {
     }
 
     pub fn apply_all_fixes(&mut self, timer: &mut Timer) {
-        // TODO Seattle-specific right now
-        if self.city_name != "seattle" {
+        // TODO Not using fixes anywhere right now. Maybe delete all of this code.
+        if true {
             return;
         }
 
