@@ -559,9 +559,24 @@ impl IntersectionSimState {
                     }
                 }
 
-                // Gridlock or not, it's never safe for two vehicles to go for the same lane.
-                if !cycle_detected || turn.id.dst == other.turn.dst {
+                // TODO Various problems (bad geometry, multi-intersection turn restrictions) cause
+                // vehicles to unrealistically block each other here. Make progress.
+                let osm_node_id = map.get_i(req.turn.parent).orig_id.osm_node_id;
+                let allow_conflict = osm_node_id == 29449863
+                    || osm_node_id == 29464223
+                    || osm_node_id == 3391701882
+                    || osm_node_id == 3391701883
+                    || osm_node_id == 3978753095
+                    || osm_node_id == 1709141982
+                    || osm_node_id == 1709142313
+                    || osm_node_id == 1709142595;
+                if !cycle_detected && !allow_conflict {
                     ok = false;
+                }
+
+                // It's never safe for two vehicles to go for the same lane.
+                if turn.id.dst == other.turn.dst {
+                    return false;
                 }
             }
         }
