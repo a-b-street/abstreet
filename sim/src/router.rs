@@ -190,7 +190,7 @@ impl Router {
             Goal::ParkNearBuilding {
                 ref mut spot,
                 ref mut stuck_end_dist,
-                ..
+                target,
             } => {
                 if let Some(d) = stuck_end_dist {
                     if *d == front {
@@ -206,11 +206,31 @@ impl Router {
                 };
                 if need_new_spot {
                     let current_lane = self.path.current_step().as_lane();
-                    if let Some((new_spot, new_pos)) = parking.get_first_free_spot(
+                    let candidates = parking.get_all_free_spots(
                         Position::new(current_lane, front),
                         vehicle,
                         map,
-                    ) {
+                    );
+                    let best = if let Some(ref p) = map.get_b(target).parking {
+                        if p.driving_pos.lane() == current_lane {
+                            let target_dist = p.driving_pos.dist_along();
+                            // Closest to the building
+                            candidates
+                                .into_iter()
+                                .min_by_key(|(_, pos)| (pos.dist_along() - target_dist).abs())
+                        } else {
+                            // Closest to the road endpoint, I guess
+                            candidates
+                                .into_iter()
+                                .min_by_key(|(_, pos)| pos.dist_along())
+                        }
+                    } else {
+                        // Closest to the road endpoint, I guess
+                        candidates
+                            .into_iter()
+                            .min_by_key(|(_, pos)| pos.dist_along())
+                    };
+                    if let Some((new_spot, new_pos)) = best {
                         if let Some((t, p)) = trip_and_person {
                             events.push(Event::TripPhaseStarting(
                                 t,

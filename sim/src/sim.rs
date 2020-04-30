@@ -193,12 +193,13 @@ impl Sim {
 
         // Anything on the current lane? TODO Should find the closest one to the sidewalk, but
         // need a new method in ParkingSimState to make that easy.
-        let spot = if let Some((spot, _)) = self.parking.get_first_free_spot(
-            Position::new(driving_lane, Distance::ZERO),
-            &vehicle,
-            map,
-        ) {
-            spot
+        // TODO Refactor the logic in router
+        let spot = if let Some((spot, _)) = self
+            .parking
+            .get_all_free_spots(Position::new(driving_lane, Distance::ZERO), &vehicle, map)
+            .get(0)
+        {
+            spot.clone()
         } else {
             let (_, spot, _) =
                 self.parking

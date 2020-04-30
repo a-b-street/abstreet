@@ -669,12 +669,14 @@ impl TripManager {
                 if let TripEndpoint::Bldg(b) = trip.end {
                     let driving_lane = map.find_driving_lane_near_building(b);
                     if let Some(spot) = parking
-                        .get_first_free_spot(
+                        .get_all_free_spots(
                             Position::new(driving_lane, Distance::ZERO),
                             &vehicle,
                             map,
                         )
-                        .map(|(spot, _)| spot)
+                        // TODO Could pick something closer, but meh, aborted trips are bugs anyway
+                        .get(0)
+                        .map(|(spot, _)| spot.clone())
                         .or_else(|| {
                             parking
                                 .path_to_free_parking_spot(driving_lane, &vehicle, map)
