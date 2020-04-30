@@ -353,7 +353,7 @@ fn make(
 }
 
 // TODO Figure out a nicer API to construct generic sortable tables.
-fn make_table(
+pub fn make_table(
     ctx: &mut EventCtx,
     app: &App,
     headers: Vec<Widget>,

@@ -445,7 +445,7 @@ impl Analytics {
         phases
     }
 
-    fn get_all_trip_phases(&self) -> BTreeMap<TripID, Vec<TripPhase>> {
+    pub fn get_all_trip_phases(&self) -> BTreeMap<TripID, Vec<TripPhase>> {
         let mut trips = BTreeMap::new();
         for (t, id, _, phase_type) in &self.trip_log {
             let phases: &mut Vec<TripPhase> = trips.entry(*id).or_insert_with(Vec::new);
@@ -469,51 +469,6 @@ impl Analytics {
             })
         }
         trips
-    }
-
-    // TODO Unused now
-    pub fn analyze_parking_phases(&self) -> Vec<String> {
-        // Of all completed trips involving parking, what percentage of total time was spent as
-        // "overhead" -- not the main driving part of the trip?
-        // TODO This is misleading for border trips -- the driving lasts longer.
-        let mut distrib: Histogram<u16> = Histogram::new();
-        for (_, phases) in self.get_all_trip_phases() {
-            if phases.last().as_ref().unwrap().end_time.is_none() {
-                continue;
-            }
-            let mut driving_time = Duration::ZERO;
-            let mut overhead = Duration::ZERO;
-            for p in phases {
-                let dt = p.end_time.unwrap() - p.start_time;
-                match p.phase_type {
-                    TripPhaseType::Driving => {
-                        driving_time += dt;
-                    }
-                    TripPhaseType::Parking | TripPhaseType::Walking => {
-                        overhead += dt;
-                    }
-                    _ => {}
-                }
-            }
-            // Only interested in trips with both
-            if driving_time == Duration::ZERO || overhead == Duration::ZERO {
-                continue;
-            }
-            let pct = (overhead / (driving_time + overhead) * 100.0) as u16;
-            distrib.add(pct);
-        }
-        vec![
-            format!("Consider all trips with both a walking and driving portion"),
-            format!(
-                "The portion of the trip spent walking to the parked car, looking for parking, \
-                 and walking from the parking space to the final destination are all overhead."
-            ),
-            format!(
-                "So what's the distribution of overhead percentages look like? 0% is ideal -- the \
-                 entire trip is spent just driving between the original source and destination."
-            ),
-            distrib.describe(),
-        ]
     }
 
     pub fn intersection_delays(

@@ -1,4 +1,5 @@
 mod misc;
+mod parking_overhead;
 mod summaries;
 mod trip_table;
 
@@ -12,6 +13,7 @@ pub use trip_table::TripTable;
 pub enum DashTab {
     TripTable,
     TripSummaries,
+    ParkingOverhead,
     ActiveTraffic,
     BusRoutes,
 }
@@ -22,6 +24,7 @@ impl DashTab {
         for (name, tab) in vec![
             ("trip table", DashTab::TripTable),
             ("trip summaries", DashTab::TripSummaries),
+            ("parking overhead", DashTab::ParkingOverhead),
             ("active traffic", DashTab::ActiveTraffic),
             ("bus routes", DashTab::BusRoutes),
         ] {
@@ -50,6 +53,9 @@ impl DashTab {
                 app,
                 summaries::Filter::new(),
             )),
+            "parking overhead" => {
+                Transition::Replace(parking_overhead::ParkingOverhead::new(ctx, app))
+            }
             "active traffic" => Transition::Replace(misc::ActiveTraffic::new(ctx, app)),
             "bus routes" => Transition::Replace(misc::BusRoutes::new(ctx, app)),
             _ => unreachable!(),
