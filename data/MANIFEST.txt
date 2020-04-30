@@ -123,7 +123,7 @@ f802aff8d8c1d5d8ec1caa295ccf8040  data/input/raw_maps/downtown.bin
 f9332885794360ecbf8e484698ac1666  data/input/raw_maps/lakeslice.bin
 b50223a417508afb924252ae3ecd24ad  data/input/raw_maps/huge_austin.bin
 d4f6ece8ef35c594c794928d651c5916  data/input/raw_maps/downtown_atx.bin
-c7a0ec6f43daff30af58cd223d9771b8  data/input/raw_maps/montlake.bin
+5c501bd06e38476e9fc83d366f4131dc  data/input/raw_maps/montlake.bin
 27e559028ac7e2339ff7969ad6d5e37d  data/input/raw_maps/intl_district.bin
 f7ea2e3cfcd688e0effae80ec9440af0  data/input/raw_maps/downtown_la.bin
 6e27904ba51ad2d2678ce03e5b52c714  data/input/raw_maps/23rd.bin

@@ -104,7 +104,8 @@ fn make_input_graph(
                 input_graph.add_edge(
                     from,
                     nodes.get(turn.id.dst),
-                    cost(l, turn, constraints, map),
+                    // Round up! 0 cost edges are ignored
+                    cost(l, turn, constraints, map).max(1),
                 );
             }
         }

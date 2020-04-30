@@ -128,6 +128,13 @@ pub fn extract_osm(
                 }
             }
 
+            // TODO Hardcoding these overrides. OSM is correct, these don't have
+            // sidewalks; there's a crosswalk mapped. But until we can snap sidewalks properly, do
+            // this to prevent the sidewalks from being disconnected.
+            if way.id == 332060260 || way.id == 332060236 {
+                tags.insert(osm::SIDEWALK.to_string(), "right".to_string());
+            }
+
             roads.push((
                 way.id,
                 RawRoad {
