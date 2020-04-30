@@ -258,9 +258,10 @@ impl IntersectionSimState {
             // TODO Disable this policy for a particular intersection where a traffic signal is
             // surrounded by a tiny lane with almost no capacity. Generalization later, make
             // progress for now.
+            let osm_node_id = map.get_i(turn.parent).orig_id.osm_node_id;
             if !queue.try_to_reserve_entry(
                 car,
-                !self.dont_block_the_box || map.get_i(turn.parent).orig_id.osm_node_id == 53211694,
+                !self.dont_block_the_box || osm_node_id == 53211694 || osm_node_id == 53211693,
             ) {
                 if self.break_turn_conflict_cycles {
                     // TODO Should we run the detector here?
