@@ -261,6 +261,9 @@ pub fn extract_osm(
         });
     }
 
+    // TODO Upstream this
+    turn_restrictions.push((RestrictionType::BanTurns, 92170540, 53211693, 243334881));
+
     (
         map,
         roads,
