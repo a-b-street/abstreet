@@ -1,11 +1,12 @@
 use crate::app::App;
 use crate::common::{ColorLegend, Colorer};
 use crate::layer::Layers;
+use abstutil::prettyprint_usize;
 use ezgui::{
-    Btn, Color, Composite, EventCtx, GeomBatch, HorizontalAlignment, TextExt, VerticalAlignment,
-    Widget,
+    Btn, Color, Composite, EventCtx, GeomBatch, HorizontalAlignment, Line, RewriteColor, Text,
+    TextExt, VerticalAlignment, Widget,
 };
-use geom::{Distance, Duration, PolyLine};
+use geom::{Angle, Distance, Duration, PolyLine};
 use map_model::IntersectionID;
 
 pub fn delay(ctx: &mut EventCtx, app: &App) -> Layers {
@@ -160,6 +161,13 @@ pub fn intersection_demand(ctx: &mut EventCtx, app: &App, i: IntersectionID) -> 
         batch.push(
             Color::RED,
             pl.make_arrow(percent * Distance::meters(5.0)).unwrap(),
+        );
+        batch.add_transformed(
+            Text::from(Line(prettyprint_usize(demand))).render_ctx(ctx),
+            pl.middle(),
+            0.08,
+            Angle::ZERO,
+            RewriteColor::NoOp,
         );
     }
 
