@@ -336,6 +336,14 @@ pub fn prebake_all() {
 
         timer.stop(format!("prebake for {}", map_path));
     }
+
+    // TODO No challenge here yet, but still want the data
+    {
+        let map = map_model::Map::new(abstutil::path_map("lakeslice"), false, &mut timer);
+        let scenario: Scenario =
+            abstutil::read_binary(abstutil::path_scenario("lakeslice", "weekday"), &mut timer);
+        prebake(&map, scenario, &mut timer);
+    }
 }
 
 fn prebake(map: &Map, scenario: Scenario, timer: &mut Timer) {

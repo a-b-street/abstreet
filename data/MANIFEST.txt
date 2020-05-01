@@ -247,6 +247,7 @@ a1c5b7960601538f45999ec23ed3b92b  data/system/scenarios/huge_seattle/weekday.bin
 b8ffcf98035eb2d8500aec856625f57d  data/system/scenarios/caphill/weekday.bin
 f00632dd14c9a48958141e60c7df7d05  data/system/scenarios/montlake/everyone_weekday.bin
 f3ac3d4d7297fb50aea4d857d6f996e9  data/system/scenarios/montlake/weekday.bin
+ab47c8c782acf46c5b8a1dae093e2360  data/system/prebaked_results/lakeslice/weekday.bin
 f9c2c0d6b2beb8260ee35e0e3ec23a3e  data/system/prebaked_results/signal_single/tutorial lvl1.bin
 ff80c3565b243cdbf7a0f0c3fa0f559a  data/system/prebaked_results/signal_single/tutorial lvl2.bin
 a3353a2687bb1f5dc40ffaed78f54c66  data/system/prebaked_results/montlake/car vs bike contention.bin
