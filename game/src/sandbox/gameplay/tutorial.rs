@@ -22,6 +22,7 @@ use sim::{
 };
 
 // TODO Unfortunately this has to be tuned when major map / simulation changes happen.
+// TODO Aaand this broke, because all the cars seemingly park inside now. :P
 const ESCORT: CarID = CarID(34, VehicleType::Car);
 const CAR_BIKE_CONTENTION_GOAL: Duration = Duration::const_seconds(60.0);
 
@@ -979,7 +980,7 @@ impl TutorialState {
             Stage::new(Task::TimeControls)
                 .warp_to(
                     ID::Intersection(map.find_i_by_osm_id(53096945).unwrap()),
-                    None,
+                    Some(6.5),
                 )
                 .msg(
                     vec![

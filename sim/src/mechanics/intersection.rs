@@ -255,13 +255,10 @@ impl IntersectionSimState {
         if let Some((car, _, queues)) = maybe_cars_and_queues {
             assert_eq!(agent, AgentID::Car(car.vehicle.id));
             let queue = queues.get_mut(&Traversable::Lane(turn.dst)).unwrap();
-            // TODO Disable this policy for a particular intersection where a traffic signal is
-            // surrounded by a tiny lane with almost no capacity. Generalization later, make
-            // progress for now.
-            let osm_node_id = map.get_i(turn.parent).orig_id.osm_node_id;
             if !queue.try_to_reserve_entry(
                 car,
-                !self.dont_block_the_box || osm_node_id == 53211694 || osm_node_id == 53211693,
+                !self.dont_block_the_box
+                    || allow_block_the_box(map.get_i(turn.parent).orig_id.osm_node_id),
             ) {
                 if self.break_turn_conflict_cycles {
                     // TODO Should we run the detector here?
@@ -559,18 +556,9 @@ impl IntersectionSimState {
                     }
                 }
 
-                // TODO Various problems (bad geometry, multi-intersection turn restrictions) cause
-                // vehicles to unrealistically block each other here. Make progress.
-                let osm_node_id = map.get_i(req.turn.parent).orig_id.osm_node_id;
-                let allow_conflict = osm_node_id == 29449863
-                    || osm_node_id == 29464223
-                    || osm_node_id == 3391701882
-                    || osm_node_id == 3391701883
-                    || osm_node_id == 3978753095
-                    || osm_node_id == 1709141982
-                    || osm_node_id == 1709142313
-                    || osm_node_id == 1709142595;
-                if !cycle_detected && !allow_conflict {
+                if !cycle_detected
+                    && !allow_conflicting_turns(map.get_i(req.turn.parent).orig_id.osm_node_id)
+                {
                     ok = false;
                 }
 
@@ -626,4 +614,26 @@ impl IntersectionSimState {
         }
         None
     }
+}
+
+// TODO Sometimes a traffic signal is surrounded by tiny lanes with almost no capacity. Workaround
+// for now.
+fn allow_block_the_box(osm_node_id: i64) -> bool {
+    // 23rd and Madison
+    osm_node_id == 53211694 || osm_node_id == 53211693
+}
+
+// TODO Various problems (bad geometry, multi-intersection turn restrictions) cause
+// vehicles to unrealistically block each other.
+#[rustfmt::skip]
+fn allow_conflicting_turns(osm_node_id: i64) -> bool {
+    vec![
+        // Montlake and 520
+        29449863, 29464223, 3391701882, 3391701883,
+        // Boyer and Lynn
+        3978753095,
+        // Boyer and 26th
+        1709141982, 1709142313, 1709142595,
+    ]
+    .contains(&osm_node_id)
 }
