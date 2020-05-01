@@ -1,12 +1,12 @@
 use crate::{DrivingGoal, IndividTrip, PersonID, PersonSpec, Scenario, SidewalkSpot, SpawnTrip};
 use abstutil::Timer;
 use geom::{Duration, Time};
-use map_model::{BuildingID, DirectedRoadID, FullNeighborhoodInfo, Map, PathConstraints};
+use map_model::{BuildingID, DirectedRoadID, Map, PathConstraints};
 use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 use serde_derive::{Deserialize, Serialize};
-use std::collections::{BTreeSet, HashMap};
+use std::collections::BTreeSet;
 
 // A way to generate Scenarios
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -27,7 +27,6 @@ pub struct SpawnOverTime {
     // TODO use https://docs.rs/rand/0.5.5/rand/distributions/struct.Normal.html
     pub start_time: Time,
     pub stop_time: Time,
-    pub start_from_neighborhood: String,
     pub goal: OriginDestination,
     pub percent_driving: f64,
     pub percent_biking: f64,
@@ -55,32 +54,23 @@ impl ScenarioGenerator {
 
         timer.start(format!("Generating scenario {}", self.scenario_name));
 
-        timer.start("load full neighborhood info");
-        let neighborhoods = FullNeighborhoodInfo::load_all(map);
-        timer.stop("load full neighborhood info");
-
         for s in &self.spawn_over_time {
-            if !neighborhoods.contains_key(&s.start_from_neighborhood) {
-                panic!("Neighborhood {} isn't defined", s.start_from_neighborhood);
-            }
-
             timer.start_iter("SpawnOverTime each agent", s.num_agents);
             for _ in 0..s.num_agents {
                 timer.next();
-                s.spawn_agent(rng, &mut scenario, &neighborhoods, map, timer);
+                s.spawn_agent(rng, &mut scenario, map, timer);
             }
         }
 
         timer.start_iter("BorderSpawnOverTime", self.border_spawn_over_time.len());
         for s in &self.border_spawn_over_time {
             timer.next();
-            s.spawn_peds(rng, &mut scenario, &neighborhoods, map, timer);
+            s.spawn_peds(rng, &mut scenario, map, timer);
             s.spawn_vehicles(
                 s.num_cars,
                 PathConstraints::Car,
                 rng,
                 &mut scenario,
-                &neighborhoods,
                 map,
                 timer,
             );
@@ -89,7 +79,6 @@ impl ScenarioGenerator {
                 PathConstraints::Bike,
                 rng,
                 &mut scenario,
-                &neighborhoods,
                 map,
                 timer,
             );
@@ -107,8 +96,7 @@ impl ScenarioGenerator {
                 num_agents: 100,
                 start_time: Time::START_OF_DAY,
                 stop_time: Time::START_OF_DAY + Duration::seconds(5.0),
-                start_from_neighborhood: "_everywhere_".to_string(),
-                goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
+                goal: OriginDestination::Anywhere,
                 percent_driving: 0.5,
                 percent_biking: 0.5,
                 percent_use_transit: 0.5,
@@ -125,7 +113,7 @@ impl ScenarioGenerator {
                     start_time: Time::START_OF_DAY,
                     stop_time: Time::START_OF_DAY + Duration::seconds(5.0),
                     start_from_border: i.some_outgoing_road(map),
-                    goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
+                    goal: OriginDestination::Anywhere,
                     percent_use_transit: 0.5,
                 })
                 .collect(),
@@ -135,7 +123,6 @@ impl ScenarioGenerator {
                 num_agents: 10,
                 start_time: Time::START_OF_DAY,
                 stop_time: Time::START_OF_DAY + Duration::seconds(5.0),
-                start_from_neighborhood: "_everywhere_".to_string(),
                 goal: OriginDestination::EndOfRoad(i.some_incoming_road(map)),
                 percent_driving: 0.5,
                 percent_biking: 0.5,
@@ -163,8 +150,7 @@ impl ScenarioGenerator {
                 num_agents: num_agents,
                 start_time: Time::START_OF_DAY,
                 stop_time: Time::START_OF_DAY + Duration::seconds(5.0),
-                start_from_neighborhood: "_everywhere_".to_string(),
-                goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
+                goal: OriginDestination::Anywhere,
                 percent_driving: 0.5,
                 percent_biking: 0.5,
                 percent_use_transit: 0.5,
@@ -179,23 +165,19 @@ impl SpawnOverTime {
         &self,
         rng: &mut XorShiftRng,
         scenario: &mut Scenario,
-        neighborhoods: &HashMap<String, FullNeighborhoodInfo>,
         map: &Map,
         timer: &mut Timer,
     ) {
         let depart = rand_time(rng, self.start_time, self.stop_time);
         // Note that it's fine for agents to start/end at the same building. Later we might
         // want a better assignment of people per household, or workers per office building.
-        let from_bldg = *neighborhoods[&self.start_from_neighborhood]
-            .buildings
-            .choose(rng)
-            .unwrap();
+        let from_bldg = map.all_buildings().choose(rng).unwrap().id;
         let id = PersonID(scenario.people.len());
 
         if rng.gen_bool(self.percent_driving) {
-            if let Some(goal) =
-                self.goal
-                    .pick_driving_goal(PathConstraints::Car, map, &neighborhoods, rng, timer)
+            if let Some(goal) = self
+                .goal
+                .pick_driving_goal(PathConstraints::Car, map, rng, timer)
             {
                 scenario.people.push(PersonSpec {
                     id,
@@ -212,9 +194,9 @@ impl SpawnOverTime {
         let start_spot = SidewalkSpot::building(from_bldg, map);
 
         if rng.gen_bool(self.percent_biking) {
-            if let Some(goal) =
-                self.goal
-                    .pick_driving_goal(PathConstraints::Bike, map, &neighborhoods, rng, timer)
+            if let Some(goal) = self
+                .goal
+                .pick_driving_goal(PathConstraints::Bike, map, rng, timer)
             {
                 scenario.people.push(PersonSpec {
                     id,
@@ -228,7 +210,7 @@ impl SpawnOverTime {
             }
         }
 
-        if let Some(goal) = self.goal.pick_walking_goal(map, &neighborhoods, rng, timer) {
+        if let Some(goal) = self.goal.pick_walking_goal(map, rng, timer) {
             if start_spot == goal {
                 timer.warn("Skipping walking trip between same two buildings".to_string());
                 return;
@@ -272,7 +254,6 @@ impl BorderSpawnOverTime {
         &self,
         rng: &mut XorShiftRng,
         scenario: &mut Scenario,
-        neighborhoods: &HashMap<String, FullNeighborhoodInfo>,
         map: &Map,
         timer: &mut Timer,
     ) {
@@ -295,7 +276,7 @@ impl BorderSpawnOverTime {
         for _ in 0..self.num_peds {
             let depart = rand_time(rng, self.start_time, self.stop_time);
             let id = PersonID(scenario.people.len());
-            if let Some(goal) = self.goal.pick_walking_goal(map, &neighborhoods, rng, timer) {
+            if let Some(goal) = self.goal.pick_walking_goal(map, rng, timer) {
                 if rng.gen_bool(self.percent_use_transit) {
                     // TODO This throws away some work. It also sequentially does expensive
                     // work right here.
@@ -338,16 +319,12 @@ impl BorderSpawnOverTime {
         constraints: PathConstraints,
         rng: &mut XorShiftRng,
         scenario: &mut Scenario,
-        neighborhoods: &HashMap<String, FullNeighborhoodInfo>,
         map: &Map,
         timer: &mut Timer,
     ) {
         for _ in 0..num {
             let depart = rand_time(rng, self.start_time, self.stop_time);
-            if let Some(goal) =
-                self.goal
-                    .pick_driving_goal(constraints, map, &neighborhoods, rng, timer)
-            {
+            if let Some(goal) = self.goal.pick_driving_goal(constraints, map, rng, timer) {
                 let id = PersonID(scenario.people.len());
                 scenario.people.push(PersonSpec {
                     id,
@@ -369,7 +346,7 @@ impl BorderSpawnOverTime {
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub enum OriginDestination {
-    Neighborhood(String),
+    Anywhere,
     EndOfRoad(DirectedRoadID),
     GotoBldg(BuildingID),
 }
@@ -379,13 +356,12 @@ impl OriginDestination {
         &self,
         constraints: PathConstraints,
         map: &Map,
-        neighborhoods: &HashMap<String, FullNeighborhoodInfo>,
         rng: &mut XorShiftRng,
         timer: &mut Timer,
     ) -> Option<DrivingGoal> {
         match self {
-            OriginDestination::Neighborhood(ref n) => Some(DrivingGoal::ParkNear(
-                *neighborhoods[n].buildings.choose(rng).unwrap(),
+            OriginDestination::Anywhere => Some(DrivingGoal::ParkNear(
+                map.all_buildings().choose(rng).unwrap().id,
             )),
             OriginDestination::GotoBldg(b) => Some(DrivingGoal::ParkNear(*b)),
             OriginDestination::EndOfRoad(dr) => {
@@ -404,13 +380,12 @@ impl OriginDestination {
     fn pick_walking_goal(
         &self,
         map: &Map,
-        neighborhoods: &HashMap<String, FullNeighborhoodInfo>,
         rng: &mut XorShiftRng,
         timer: &mut Timer,
     ) -> Option<SidewalkSpot> {
         match self {
-            OriginDestination::Neighborhood(ref n) => Some(SidewalkSpot::building(
-                *neighborhoods[n].buildings.choose(rng).unwrap(),
+            OriginDestination::Anywhere => Some(SidewalkSpot::building(
+                map.all_buildings().choose(rng).unwrap().id,
                 map,
             )),
             OriginDestination::EndOfRoad(dr) => {

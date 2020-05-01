@@ -7,7 +7,6 @@ mod intersection;
 mod lane;
 mod make;
 mod map;
-mod neighborhood;
 pub mod osm;
 mod pathfind;
 pub mod raw;
@@ -25,7 +24,6 @@ pub use crate::intersection::{Intersection, IntersectionID, IntersectionType};
 pub use crate::lane::{Lane, LaneID, LaneType, PARKING_SPOT_LENGTH};
 pub use crate::make::RoadSpec;
 pub use crate::map::Map;
-pub use crate::neighborhood::{FullNeighborhoodInfo, Neighborhood, NeighborhoodBuilder};
 pub use crate::pathfind::{Path, PathConstraints, PathRequest, PathStep};
 pub use crate::road::{DirectedRoadID, Road, RoadID};
 pub use crate::stop_signs::{ControlStopSign, RoadWithStopSign};
@@ -44,6 +42,4 @@ impl Cloneable for ControlTrafficSignal {}
 impl Cloneable for IntersectionID {}
 impl Cloneable for LaneType {}
 impl Cloneable for MapEdits {}
-impl Cloneable for Neighborhood {}
-impl Cloneable for NeighborhoodBuilder {}
 impl Cloneable for raw::RestrictionType {}

@@ -8,87 +8,8 @@ ab122e013e18d9bfe923162ad27deb54  data/input/seattle/osm/ballard.osm
 f17e480bd803309c92d58c96bebb0ca1  data/input/seattle/osm/caphill.osm
 c3198bbcdf00c4cdcc429d4679d68202  data/input/seattle/osm/lakeslice.osm
 0052ec465666b0c49ef1d1221c9e3a53  data/input/seattle/osm/Seattle.osm
-46d8ebc909717b5ddfe921cf487f975d  data/input/seattle/neighborhoods/ballard/West Woodland.json
-ba915a6237156522eac2f380e978bb25  data/input/seattle/neighborhoods/ballard/Adams.json
-ae6e3c5801460075cebe736e56d98b01  data/input/seattle/neighborhoods/ballard/Phinney Ridge.json
-886cff1b9508af1917d76d746336c961  data/input/seattle/neighborhoods/ballard/Fremont.json
-ae8a868fe3eac6c67340f174dc24866a  data/input/seattle/neighborhoods/ballard/Lawton Park.json
-1e2ff5d0083b0e5aab885d38be992ad7  data/input/seattle/neighborhoods/intl_district/International District.json
-721155dd7662b9aaaf68b222aa731560  data/input/seattle/neighborhoods/x1/Harrison - Denny-Blaine.json
-2e9dbd878640b904307dcadc1fd7334f  data/input/seattle/neighborhoods/x1/Madison Park.json
-f2b26082d44df01339f30d1cc2eb4178  data/input/seattle/neighborhoods/x1/Portage Bay.json
-197ecdfed33e300e6f64275a896b2905  data/input/seattle/neighborhoods/x1/Eastlake.json
-33128005e7f6caaab5d321558965f125  data/input/seattle/neighborhoods/x1/Broadway.json
-a5dca5dd4a4b78efb17e69c2d557ab1b  data/input/seattle/neighborhoods/x1/Stevens.json
-519cbc4a6c2038fab9df172f2db63085  data/input/seattle/neighborhoods/x1/Montlake.json
-ae65aaa3a0ddb7bb990972c9832369b6  data/input/seattle/neighborhoods/23rd/Mann.json
-d9e0bc911a52aa15f51cb49956d2aef5  data/input/seattle/neighborhoods/lakeslice/Leschi.json
-1ac65f96b8f4a2b2d365949032966402  data/input/seattle/neighborhoods/lakeslice/Harrison - Denny-Blaine.json
-7b5a6df2a313b997e1ac575f6cec03d6  data/input/seattle/neighborhoods/lakeslice/Mann.json
-eb073e33d652161805fd42c982856703  data/input/seattle/neighborhoods/lakeslice/Madrona.json
-e62769afe799c43dbbe73e164e6bd620  data/input/seattle/neighborhoods/downtown/Pike-Market.json
-d02cb65749922832091b18ad45a4400e  data/input/seattle/neighborhoods/downtown/First Hill.json
-64073270987303abf1532e6abaaa2676  data/input/seattle/neighborhoods/downtown/Central Business District.json
-2374dd1b296f7bffa436e14ff2ddcd36  data/input/seattle/neighborhoods/downtown/Belltown.json
-796f5d8eb1a5f1bfe85b2945239e14de  data/input/seattle/neighborhoods/huge_seattle/West Woodland.json
-8f586abbc7c18ee104493f7f83d88b20  data/input/seattle/neighborhoods/huge_seattle/Westlake.json
-778beb76a0f0f2c4e5f71e56f6a37076  data/input/seattle/neighborhoods/huge_seattle/North College Park.json
-21376d86306c45e82ddbbc4acd62a3ce  data/input/seattle/neighborhoods/huge_seattle/Lower Queen Anne.json
-90e78679efe05bb5c51c095bd56df8db  data/input/seattle/neighborhoods/huge_seattle/Adams.json
-7d2570e9728af1313c0af70b35ff7c12  data/input/seattle/neighborhoods/huge_seattle/Leschi.json
-02e25d6d76d0a9b8823e8783d01d499b  data/input/seattle/neighborhoods/huge_seattle/University District.json
-4c9c0bbd2c4d30166cc82b6c9291de78  data/input/seattle/neighborhoods/huge_seattle/Pike-Market.json
-2ff1b7b76f126ed69227923d40ecdaa3  data/input/seattle/neighborhoods/huge_seattle/Harrison - Denny-Blaine.json
-a65a48ca68f15635fd86e7fdd06ddaea  data/input/seattle/neighborhoods/huge_seattle/Roosevelt.json
-57103a4893df8c1667674d8de47bee0b  data/input/seattle/neighborhoods/huge_seattle/Whittier Heights.json
-9cb7a0ef7a3bcdb634681e21d2f6fea3  data/input/seattle/neighborhoods/huge_seattle/Laurelhurst.json
-cb93fd55d3b42979a96dc45e5571f5ac  data/input/seattle/neighborhoods/huge_seattle/International District.json
-9f04e6fa311b2274a42ee4b29f11d4e8  data/input/seattle/neighborhoods/huge_seattle/Maple Leaf.json
-a8d1df39941171daa16195cc98692907  data/input/seattle/neighborhoods/huge_seattle/First Hill.json
-b7fcb8b06ce4f571849fd33a277d21af  data/input/seattle/neighborhoods/huge_seattle/Madison Park.json
-c45186b872050db02e053afcf4a7424e  data/input/seattle/neighborhoods/huge_seattle/Portage Bay.json
-b4f6a4f24dab7eed34347069748ed6ce  data/input/seattle/neighborhoods/huge_seattle/Central Business District.json
-ffcca5e408c97cb81d1f739816809e01  data/input/seattle/neighborhoods/huge_seattle/South Lake Union.json
-db4b1be3343681f5bcd8115181f95f08  data/input/seattle/neighborhoods/huge_seattle/Greenwood.json
-6d50b3ae6f11de62b44e6109a435d002  data/input/seattle/neighborhoods/huge_seattle/Eastlake.json
-b809cb0eb9a77a138c447d92d2a036ad  data/input/seattle/neighborhoods/huge_seattle/Sunset Hill.json
-1c27ea07ae9f046e79bdd79a0dbc4863  data/input/seattle/neighborhoods/huge_seattle/Broadway.json
-a205318630171b21d3d8172c44a973d1  data/input/seattle/neighborhoods/huge_seattle/Phinney Ridge.json
-02c097d984b9e039b7b9912f03ddf717  data/input/seattle/neighborhoods/huge_seattle/Ravenna.json
-fc6dc3658c5d9cb01d778db3026731c6  data/input/seattle/neighborhoods/huge_seattle/Fremont.json
-14b37651f6259ba8ed8f7dc04a93245b  data/input/seattle/neighborhoods/huge_seattle/Yesler Terrace.json
-a3b74ad210d5ae94c8fb8a23ffd7b521  data/input/seattle/neighborhoods/huge_seattle/Wedgwood.json
-f60c9d7699b39ed6d99109ff0a4b7ee9  data/input/seattle/neighborhoods/huge_seattle/Sand Point.json
-7957979d53d4a6364b9020a119c1f9e9  data/input/seattle/neighborhoods/huge_seattle/Wallingford.json
-c642b472850a444e1d436a3dc8de5c57  data/input/seattle/neighborhoods/huge_seattle/Interbay.json
-b19598d61c1301e4573edd927fb4ba38  data/input/seattle/neighborhoods/huge_seattle/West Queen Anne.json
-331b23ca4b2d94d6e38026dfd7dfc386  data/input/seattle/neighborhoods/huge_seattle/Southeast Magnolia.json
-b89543b001bc1e6f7ec5afda712a9532  data/input/seattle/neighborhoods/huge_seattle/North Beach - Blue Ridge.json
-0f8511e1759b3150d77752aa9608ddd5  data/input/seattle/neighborhoods/huge_seattle/Windermere.json
-c9fe0cec21b4506b9449f8e286707f62  data/input/seattle/neighborhoods/huge_seattle/Stevens.json
-8f1b6913ee7ddee6c3ad6762077e1940  data/input/seattle/neighborhoods/huge_seattle/East Queen Anne.json
-3f1e1d2473fcd9909ed48885156d8ad9  data/input/seattle/neighborhoods/huge_seattle/Belltown.json
-7148acd286b453d20db96ad3a8461727  data/input/seattle/neighborhoods/huge_seattle/Loyal Heights.json
-14c4caa74a3aab96b3270c9add7c8019  data/input/seattle/neighborhoods/huge_seattle/Mann.json
-af28f6e4b3ef367fed0d828a47e5208d  data/input/seattle/neighborhoods/huge_seattle/View Ridge.json
-05ca8b996e144d45ae49961638e37135  data/input/seattle/neighborhoods/huge_seattle/Minor.json
-4b0347aeed2ad2e3cf3b71a07efba3e0  data/input/seattle/neighborhoods/huge_seattle/Madrona.json
-baa4ebb40bc293c6176a3239620e7183  data/input/seattle/neighborhoods/huge_seattle/Lawton Park.json
-78b4d30d5bb4e7e8a40c7728124fd890  data/input/seattle/neighborhoods/huge_seattle/Montlake.json
-271892c6453b6e0d512f948d9b7de62a  data/input/seattle/neighborhoods/huge_seattle/Briarcliff.json
-92d4c74df6478e29cdb0281ba4ff7894  data/input/seattle/neighborhoods/huge_seattle/North Queen Anne.json
-9666b4689a2927797fe865becd6f61b7  data/input/seattle/neighborhoods/huge_seattle/Pioneer Square.json
-18ae58793ddede2c087dbc7f9876266a  data/input/seattle/neighborhoods/huge_seattle/Crown Hill.json
-d729d8ef4f797d51dbb53096a4aac233  data/input/seattle/neighborhoods/huge_seattle/Green Lake.json
-4be236f94749a0325f9696d0ed051e85  data/input/seattle/neighborhoods/huge_seattle/Bryant.json
-1e608dafe6199b70929bb6bae84ead30  data/input/seattle/neighborhoods/caphill/Portage Bay.json
-82c31490f1c0b5f7ab2e75766c8a9e04  data/input/seattle/neighborhoods/caphill/Eastlake.json
-790ca481f2ea517acd63c97cc58b4d10  data/input/seattle/neighborhoods/caphill/Broadway.json
-2b5fe53d1566708e1484181f026a77db  data/input/seattle/neighborhoods/caphill/Stevens.json
-96794d4b0d55abbacc48ff2df9941230  data/input/seattle/neighborhoods/caphill/Montlake.json
 19e8073a9f6c807b4492681b2c7570de  data/input/seattle/blockface.bin
 db63d7d606e8702d12f9399e87e6a00f  data/input/seattle/parcels_urbansim.txt
-2bc84e4d194d7cea6007ae3b93f3b11b  data/input/seattle/neighborhoods.geojson
 7cbf604cb6d080292a5e69fdf0caf3b3  data/input/seattle/popdat.bin
 428bc2e92ea02089cedbb614ce1d8f25  data/input/seattle/polygons/caphill.poly
 4f291bbe84ac32a98d7d100be79ddc4b  data/input/seattle/polygons/huge_seattle.poly

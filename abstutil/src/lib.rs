@@ -149,16 +149,6 @@ pub fn path_fixes(city: &str, map: &str) -> String {
     format!("../data/input/{}/fixes/{}.json", city, map)
 }
 
-pub fn path_neighborhood(city_name: &str, map_name: &str, neighborhood: &str) -> String {
-    format!(
-        "../data/input/{}/neighborhoods/{}/{}.json",
-        city_name, map_name, neighborhood
-    )
-}
-pub fn path_all_neighborhoods(city_name: &str, map_name: &str) -> String {
-    format!("../data/input/{}/neighborhoods/{}", city_name, map_name)
-}
-
 pub fn path_pending_screenshots(map_name: &str) -> String {
     format!("../data/input/screenshots/pending_{}", map_name)
 }

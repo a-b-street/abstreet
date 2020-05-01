@@ -1,5 +1,5 @@
 mod blocks;
-mod neighborhood;
+mod polygon;
 mod scenario;
 
 use crate::app::App;
@@ -19,18 +19,14 @@ impl DevToolsMode {
                 "Internal dev tools",
                 vec![],
                 vec![
-                    (hotkey(Key::N), "manage neighborhoods"),
+                    (hotkey(Key::P), "draw a polygon"),
                     (hotkey(Key::W), "load scenario"),
                 ],
             ))
             .cb("X", Box::new(|_, _| Some(Transition::Pop)))
             .cb(
-                "manage neighborhoods",
-                Box::new(|_, _| {
-                    Some(Transition::Push(Box::new(
-                        neighborhood::NeighborhoodPicker::new(),
-                    )))
-                }),
+                "draw a polygon",
+                Box::new(|ctx, app| Some(Transition::Push(polygon::PolygonEditor::new(ctx, app)))),
             )
             .cb(
                 "load scenario",

@@ -30,7 +30,6 @@ pub fn osm_to_raw(name: &str) {
             private_offstreet_parking: convert_osm::PrivateOffstreetParking::OnePerBldg,
             sidewalks: None,
             gtfs: None,
-            neighborhoods: None,
             elevation: None,
             clip: Some(format!("../data/input/los_angeles/polygons/{}.poly", name)),
             drive_on_right: true,

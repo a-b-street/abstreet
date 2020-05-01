@@ -5,8 +5,6 @@ fn input() {
         "../data/input/seattle/google_transit/",
         "https://metro.kingcounty.gov/GTFS/google_transit.zip",
     );
-    // Like https://data.seattle.gov/dataset/Neighborhoods/2mbt-aqqx, but in GeoJSON, not SHP
-    download("../data/input/seattle/neighborhoods.geojson", "https://github.com/seattleio/seattle-boundaries-data/raw/master/data/neighborhoods.geojson");
     download(
         "../data/input/seattle/N47W122.hgt",
         "https://dds.cr.usgs.gov/srtm/version2_1/SRTM1/Region_01/N47W122.hgt.zip",
@@ -42,7 +40,6 @@ pub fn osm_to_raw(name: &str) {
         format!("../data/input/seattle/polygons/{}.poly", name),
         format!("../data/input/seattle/osm/{}.osm", name),
     );
-    rm(format!("../data/input/seattle/neighborhoods/{}", name));
     rm(format!("../data/system/maps/{}.bin", name));
 
     println!("- Running convert_osm");
@@ -62,7 +59,6 @@ pub fn osm_to_raw(name: &str) {
             // TODO These're buggy.
             sidewalks: None,
             gtfs: Some("../data/input/seattle/google_transit".to_string()),
-            neighborhoods: Some("../data/input/seattle/neighborhoods.geojson".to_string()),
             elevation: Some("../data/input/seattle/N47W122.hgt".to_string()),
             clip: Some(format!("../data/input/seattle/polygons/{}.poly", name)),
             drive_on_right: true,

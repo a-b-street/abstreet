@@ -7,7 +7,6 @@ edition = "2018"
 [dependencies]
 abstutil = { path = "../abstutil" }
 byteorder = "1.3.4"
-geojson = "0.17.0"
 geom = { path = "../geom" }
 gtfs = { path = "../gtfs" }
 kml = { path = "../kml" }

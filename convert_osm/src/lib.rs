@@ -1,5 +1,4 @@
 mod clip;
-mod neighborhoods;
 mod osm_reader;
 mod split_ways;
 mod srtm;
@@ -24,7 +23,6 @@ pub struct Options {
     pub private_offstreet_parking: PrivateOffstreetParking,
     pub sidewalks: Option<String>,
     pub gtfs: Option<String>,
-    pub neighborhoods: Option<String>,
     pub elevation: Option<String>,
     pub clip: Option<String>,
     pub drive_on_right: bool,
@@ -79,17 +77,6 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
     }
     if let Some(ref path) = opts.elevation {
         use_elevation(&mut map, path, timer);
-    }
-
-    if let Some(ref path) = opts.neighborhoods {
-        timer.start("convert neighborhood polygons");
-        neighborhoods::convert(
-            path.clone(),
-            map.city_name.clone(),
-            map.name.clone(),
-            &map.gps_bounds,
-        );
-        timer.stop("convert neighborhood polygons");
     }
 
     map
