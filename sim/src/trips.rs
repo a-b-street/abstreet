@@ -1,8 +1,8 @@
 use crate::{
     AgentID, AlertLocation, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, Event,
-    OffMapLocation, ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, PersonID, Scheduler,
-    SidewalkPOI, SidewalkSpot, TransitSimState, TripID, TripPhaseType, TripSpec, Vehicle,
-    VehicleSpec, VehicleType, WalkingSimState,
+    OffMapLocation, OrigPersonID, ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, PersonID,
+    Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripID, TripPhaseType, TripSpec,
+    Vehicle, VehicleSpec, VehicleType, WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap, Counter};
 use geom::{Distance, Duration, Speed, Time};
@@ -43,7 +43,13 @@ impl TripManager {
     }
 
     // TODO assert the specs are correct yo
-    pub fn new_person(&mut self, id: PersonID, ped_speed: Speed, vehicle_specs: Vec<VehicleSpec>) {
+    pub fn new_person(
+        &mut self,
+        id: PersonID,
+        orig_id: Option<OrigPersonID>,
+        ped_speed: Speed,
+        vehicle_specs: Vec<VehicleSpec>,
+    ) {
         assert_eq!(id.0, self.people.len());
         let vehicles = vehicle_specs
             .into_iter()
@@ -54,6 +60,7 @@ impl TripManager {
             .collect();
         self.people.push(Person {
             id,
+            orig_id,
             trips: Vec::new(),
             // The first new_trip will set this properly.
             state: PersonState::OffMap,
@@ -65,7 +72,7 @@ impl TripManager {
     }
     pub fn random_person(&mut self, ped_speed: Speed, vehicle_specs: Vec<VehicleSpec>) -> &Person {
         let id = PersonID(self.people.len());
-        self.new_person(id, ped_speed, vehicle_specs);
+        self.new_person(id, None, ped_speed, vehicle_specs);
         self.get_person(id).unwrap()
     }
 
@@ -1359,6 +1366,7 @@ impl<T> TripResult<T> {
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct Person {
     pub id: PersonID,
+    pub orig_id: Option<OrigPersonID>,
     pub trips: Vec<TripID>,
     // TODO home
     pub state: PersonState,

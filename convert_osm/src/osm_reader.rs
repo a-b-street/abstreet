@@ -268,9 +268,6 @@ pub fn extract_osm(
         });
     }
 
-    // TODO This is upstreamed, but we can't grab fresh OSM until fixing the sidewalk disconnection
-    turn_restrictions.push((RestrictionType::BanTurns, 92170540, 53211693, 243334881));
-
     (
         map,
         roads,

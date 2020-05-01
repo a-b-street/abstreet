@@ -24,7 +24,7 @@ use ezgui::{
 use geom::{Duration, Polygon};
 use map_model::{EditCmd, EditIntersection, Map, MapEdits};
 use rand_xorshift::XorShiftRng;
-use sim::{Analytics, PersonID, Scenario, ScenarioGenerator};
+use sim::{Analytics, OrigPersonID, Scenario, ScenarioGenerator};
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub enum GameplayMode {
@@ -39,7 +39,7 @@ pub enum GameplayMode {
     // TODO Kinda gross. What stage in the tutorial?
     #[allow(unused)]
     FixTrafficSignalsTutorial(usize),
-    OptimizeCommute(PersonID, Duration),
+    OptimizeCommute(OrigPersonID, Duration),
 
     // current
     Tutorial(TutorialPointer),

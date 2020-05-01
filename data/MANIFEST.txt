@@ -89,7 +89,7 @@ d729d8ef4f797d51dbb53096a4aac233  data/input/seattle/neighborhoods/huge_seattle/
 19e8073a9f6c807b4492681b2c7570de  data/input/seattle/blockface.bin
 db63d7d606e8702d12f9399e87e6a00f  data/input/seattle/parcels_urbansim.txt
 2bc84e4d194d7cea6007ae3b93f3b11b  data/input/seattle/neighborhoods.geojson
-c32993ec1be884c04985740e9e345f5c  data/input/seattle/popdat.bin
+7cbf604cb6d080292a5e69fdf0caf3b3  data/input/seattle/popdat.bin
 428bc2e92ea02089cedbb614ce1d8f25  data/input/seattle/polygons/caphill.poly
 4f291bbe84ac32a98d7d100be79ddc4b  data/input/seattle/polygons/huge_seattle.poly
 6b221b5e68a38f16f34e46a208c7ca15  data/input/seattle/polygons/lakeslice.poly
@@ -113,17 +113,17 @@ b66cb4c0a24b2d038427aa6e1aa1954a  data/input/seattle/google_transit/block.txt
 ca5a7569e1af41e0046fe5e8865cf733  data/input/seattle/google_transit/fare_attributes.txt
 8610cdc491d036eee88c9b7ae24d692d  data/input/seattle/google_transit/stops.txt
 75f564fcc06b1950b7b33acf9d61f696  data/input/seattle/google_transit/agency.txt
-bd3448b36bf07603e78a3a4a65707dd9  data/input/raw_maps/huge_seattle.bin
+55a13d6252de8273153fce7f3d43864b  data/input/raw_maps/huge_seattle.bin
 9ff05ead40b54f842ea99c97c274f2f9  data/input/raw_maps/ballard.bin
 34aea57a80555addd96406917e472357  data/input/raw_maps/downtown.bin
-9c8ddb01846b4d8c304246cf798efb89  data/input/raw_maps/caphill.bin
-49ff57346957ac5008d72e02ce007baa  data/input/raw_maps/lakeslice.bin
+e6972c81efaa95e891660a3e565a4760  data/input/raw_maps/caphill.bin
+8926263ac28d92fe264f977fb851a99e  data/input/raw_maps/lakeslice.bin
 b50223a417508afb924252ae3ecd24ad  data/input/raw_maps/huge_austin.bin
 d4f6ece8ef35c594c794928d651c5916  data/input/raw_maps/downtown_atx.bin
 530521311e09da554127fd08bb43c34b  data/input/raw_maps/montlake.bin
 984e24fd958aedf7f9dcf030ecbd0b42  data/input/raw_maps/intl_district.bin
 f7ea2e3cfcd688e0effae80ec9440af0  data/input/raw_maps/downtown_la.bin
-9516b66d8965a7e9ef1ab110eb36e261  data/input/raw_maps/23rd.bin
+9bfd89ddbc346a4e74fd8e64d6c6a0c0  data/input/raw_maps/23rd.bin
 9b2c4729d3031553a477bb2e1134a6bf  data/input/los_angeles/osm/downtown_la.osm
 1dd1b7d3a6d38829a8266b0b6ea60b85  data/input/los_angeles/osm/socal.osm.pbf
 97672583e0e9bc2e3d076645a1ccb8f5  data/input/los_angeles/polygons/downtown_la.poly
@@ -224,31 +224,28 @@ d02d0d103f7b00672a5f1145c5169d8c  data/system/fonts/Overpass-Bold.ttf
 2a13391023ce8787887331530cac35a7  data/system/fonts/BungeeInline-Regular.ttf
 17a1468e62195d0688a6f3bd12da2e92  data/system/fonts/Overpass-SemiBold.ttf
 259d4afad7edca07e727ef80f5bbce07  data/system/fonts/Bungee-Regular.ttf
-e1585fa67c5ccf56d69df0cd7252f70c  data/system/maps/huge_seattle.bin
+81c2d11a033555efb78d8ec07ccecf80  data/system/maps/huge_seattle.bin
 32585d4a4d10b56e5d03b7bfd997e270  data/system/maps/ballard.bin
 32204ce12eecd28829f4951c1b77ae16  data/system/maps/downtown.bin
-db73a6ac20c03401d1c83b6a6160d17e  data/system/maps/caphill.bin
-14de88f522280473353f06a246cfe921  data/system/maps/lakeslice.bin
+987b161dc0dbf9f791f4c602d285d369  data/system/maps/caphill.bin
+eca90c51326fedc60cbd4f4e9481ddc0  data/system/maps/lakeslice.bin
 4961886805fc8a5576a37cffc6adc9be  data/system/maps/huge_austin.bin
 94d44bfd4c5e2431c7f8555943e70709  data/system/maps/downtown_atx.bin
 930d7b8add199635e19a8b701a3d3d8a  data/system/maps/montlake.bin
 a5252a956553ea999b1969a89b2d5cf7  data/system/maps/intl_district.bin
 2857ce1b2e3b233323a04d459d533024  data/system/maps/downtown_la.bin
-0f59c67185e49cc28e27f3fb1eaab9c7  data/system/maps/23rd.bin
+a9aaaaea906cc620f1710be5dc316a80  data/system/maps/23rd.bin
 cc45f42cb24cad1cfdbf5ed7a0cb86d4  data/system/synthetic_maps/signal_double.json
 8b949cc34d9a27ace0bd8ecde55a9520  data/system/synthetic_maps/signal_single.json
 1cd7be125e1d992613ed3a41e8b25b6a  data/system/synthetic_maps/signal_fan_in.json
-f57d3277ff6902034920d91d570584f2  data/system/scenarios/ballard/weekday.bin
-55ef7fecaf48daa1ecc95891efd9f943  data/system/scenarios/intl_district/weekday.bin
-57c8d6aaf2b9d7ca834cc73a0868a05b  data/system/scenarios/23rd/weekday.bin
-acc1339ee4625f16b8316f4e440f51b3  data/system/scenarios/lakeslice/weekday.bin
-b395c98920656f24bf7bec600410caf4  data/system/scenarios/downtown/weekday.bin
-eedbca7c08fdeb028d37dc2e385ccfa7  data/system/scenarios/huge_seattle/weekday.bin
-503244891a7e60c696e8312a302abd22  data/system/scenarios/caphill/weekday.bin
-9e96140d4b49a6abbbdcdda0b3eddd7c  data/system/scenarios/montlake/everyone_weekday.bin
-53e7061fd3ba0f03c8a00e2c09feb060  data/system/scenarios/montlake/weekday.bin
-f9c2c0d6b2beb8260ee35e0e3ec23a3e  data/system/prebaked_results/signal_single/tutorial lvl1.bin
-ff80c3565b243cdbf7a0f0c3fa0f559a  data/system/prebaked_results/signal_single/tutorial lvl2.bin
-859ec1f6cbe4db9e321e00435e4298d5  data/system/prebaked_results/montlake/car vs bike contention.bin
+624326d36bb63f5ffe57acd8c03eda4f  data/system/scenarios/ballard/weekday.bin
+737dfc33af6400225405f02c4ae576bb  data/system/scenarios/intl_district/weekday.bin
+d23f322d55424bdc3da93452d71a1683  data/system/scenarios/23rd/weekday.bin
+a8240a7c953291ed4e0e479f3b29fab5  data/system/scenarios/lakeslice/weekday.bin
+f1b22bc7c5cbcf78b91476a33fc469f8  data/system/scenarios/downtown/weekday.bin
+fc2f434254ed22862a163bb9d05383bb  data/system/scenarios/huge_seattle/weekday.bin
+101b5d430d55fdc81748298b7f44e16d  data/system/scenarios/caphill/weekday.bin
+8eab93be03f8807d154cb27948da5b20  data/system/scenarios/montlake/everyone_weekday.bin
+b6c27dd92bc9c978d1dfe49048ccfc19  data/system/scenarios/montlake/weekday.bin
+84bf817c20e62c03465be72bea25b320  data/system/prebaked_results/montlake/car vs bike contention.bin
 18272ae5ec70de3a61826a7497174bf0  data/system/prebaked_results/montlake/weekday.bin
-cde373b434090989d2fcf64ced328ff7  data/system/prebaked_results/montlake/car vs bus contention.bin

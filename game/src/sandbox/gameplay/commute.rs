@@ -14,7 +14,7 @@ use ezgui::{
     TextExt, VerticalAlignment, Widget,
 };
 use geom::{Duration, Time};
-use sim::{PersonID, TripID};
+use sim::{OrigPersonID, PersonID, TripID};
 use std::collections::BTreeMap;
 
 // TODO A nice level to unlock: specifying your own commute, getting to work on it
@@ -22,6 +22,7 @@ use std::collections::BTreeMap;
 pub struct OptimizeCommute {
     top_center: Composite,
     person: PersonID,
+    mode: GameplayMode,
     goal: Duration,
     time: Time,
 
@@ -35,9 +36,10 @@ impl OptimizeCommute {
     pub fn new(
         ctx: &mut EventCtx,
         app: &App,
-        person: PersonID,
+        orig_person: OrigPersonID,
         goal: Duration,
     ) -> Box<dyn GameplayState> {
+        let person = app.primary.sim.find_person_by_orig_id(orig_person).unwrap();
         let trips = app.primary.sim.get_person(person).trips.clone();
         Box::new(OptimizeCommute {
             top_center: make_top_center(
@@ -50,6 +52,7 @@ impl OptimizeCommute {
                 goal,
             ),
             person,
+            mode: GameplayMode::OptimizeCommute(orig_person, goal),
             goal,
             time: Time::START_OF_DAY,
             trips,
@@ -159,7 +162,7 @@ impl GameplayState for OptimizeCommute {
                     Some(final_score(
                         ctx,
                         app,
-                        GameplayMode::OptimizeCommute(self.person, self.goal),
+                        self.mode.clone(),
                         before,
                         after,
                         self.goal,
@@ -176,22 +179,18 @@ impl GameplayState for OptimizeCommute {
                         Some(Transition::Push(Box::new(EditMode::new(
                             ctx,
                             app,
-                            GameplayMode::OptimizeCommute(self.person, self.goal),
+                            self.mode.clone(),
                         )))),
                         false,
                     );
                 }
                 "instructions" => {
                     return (
-                        Some(Transition::Push((Challenge::find(
-                            &GameplayMode::OptimizeCommute(self.person, self.goal),
-                        )
-                        .0
-                        .cutscene
-                        .unwrap())(
-                            ctx,
-                            app,
-                            &GameplayMode::OptimizeCommute(self.person, self.goal),
+                        Some(Transition::Push((Challenge::find(&self.mode)
+                            .0
+                            .cutscene
+                            .unwrap())(
+                            ctx, app, &self.mode
                         ))),
                         false,
                     );

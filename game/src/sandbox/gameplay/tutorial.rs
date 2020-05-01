@@ -15,13 +15,13 @@ use ezgui::{
     VerticalAlignment, Widget,
 };
 use geom::{Distance, Duration, PolyLine, Polygon, Pt2D, Time};
-use map_model::{BuildingID, IntersectionID, IntersectionType, LaneType, RoadID};
-use maplit::btreeset;
+use map_model::{BuildingID, IntersectionID, IntersectionType, LaneType, Map};
 use sim::{
     AgentID, Analytics, BorderSpawnOverTime, CarID, OriginDestination, ScenarioGenerator,
     VehicleType,
 };
 
+// TODO Unfortunately this has to be tuned when major map / simulation changes happen.
 const ESCORT: CarID = CarID(34, VehicleType::Car);
 const CAR_BIKE_CONTENTION_GOAL: Duration = Duration::const_seconds(60.0);
 
@@ -151,7 +151,7 @@ impl Tutorial {
 
         // Interaction things
         if tut.interaction() == Task::Camera {
-            if app.primary.current_selection == Some(ID::Building(BuildingID(9)))
+            if app.primary.current_selection == Some(ID::Building(tut.montlake_market))
                 && app.per_obj.left_click(ctx, "put out the... fire?")
             {
                 tut.next();
@@ -299,11 +299,6 @@ impl Tutorial {
                 }
                 return (Some(transition(ctx, app, tut)), false);
             }
-        } else if tut.interaction() == Task::WatchBuses {
-            if app.primary.sim.time() >= Time::START_OF_DAY + Duration::minutes(5) {
-                tut.next();
-                return (Some(transition(ctx, app, tut)), false);
-            }
         } else if tut.interaction() == Task::Done {
             // If the player chooses to stay here, at least go back to the message panel.
             tut.prev();
@@ -365,7 +360,7 @@ impl GameplayState for Tutorial {
         if tut.interaction() == Task::Camera {
             g.draw_polygon(
                 Color::hex("#e25822"),
-                &app.primary.map.get_b(BuildingID(9)).polygon,
+                &app.primary.map.get_b(tut.montlake_market).polygon,
             );
         }
     }
@@ -407,8 +402,6 @@ enum Task {
     LowParking,
     WatchBikes,
     FixBikes,
-    WatchBuses,
-    FixBuses,
     Done,
 }
 
@@ -475,8 +468,6 @@ impl Task {
                     CAR_BIKE_CONTENTION_GOAL
                 )));
             }
-            Task::WatchBuses => "Simulate 5 minutes and watch the buses",
-            Task::FixBuses => "Speed up bus 43 and 48",
             Task::Done => "Tutorial complete!",
         };
 
@@ -496,8 +487,6 @@ impl Task {
             Task::LowParking => "Using extra data layers",
             Task::WatchBikes => "Observing a problem",
             Task::FixBikes => "Editing lanes",
-            Task::WatchBuses => "Observing buses",
-            Task::FixBuses => "Speeding up buses",
             Task::Done => "Tutorial complete!",
         }
     }
@@ -616,9 +605,11 @@ pub struct TutorialState {
     parking_found: bool,
 
     score_delivered: bool,
+
+    montlake_market: BuildingID,
 }
 
-fn make_bike_lane_scenario() -> ScenarioGenerator {
+fn make_bike_lane_scenario(map: &Map) -> ScenarioGenerator {
     let mut s = ScenarioGenerator::empty("car vs bike contention");
     s.border_spawn_over_time.push(BorderSpawnOverTime {
         num_peds: 0,
@@ -627,31 +618,12 @@ fn make_bike_lane_scenario() -> ScenarioGenerator {
         percent_use_transit: 0.0,
         start_time: Time::START_OF_DAY,
         stop_time: Time::START_OF_DAY + Duration::seconds(10.0),
-        start_from_border: RoadID(303).backwards(),
-        goal: OriginDestination::GotoBldg(BuildingID(3)),
+        start_from_border: map
+            .find_r_by_osm_id(263665925, (2499826475, 53096959))
+            .unwrap()
+            .backwards(),
+        goal: OriginDestination::GotoBldg(map.find_b_by_osm_id(40833037).unwrap()),
     });
-    s
-}
-
-fn make_bus_lane_scenario() -> ScenarioGenerator {
-    let mut s = ScenarioGenerator::empty("car vs bus contention");
-    s.only_seed_buses = Some(btreeset! {"43".to_string(), "48".to_string()});
-    for src in vec![
-        RoadID(61).backwards(),
-        RoadID(240).forwards(),
-        RoadID(56).forwards(),
-    ] {
-        s.border_spawn_over_time.push(BorderSpawnOverTime {
-            num_peds: 100,
-            num_cars: 100,
-            num_bikes: 0,
-            percent_use_transit: 1.0,
-            start_time: Time::START_OF_DAY,
-            stop_time: Time::START_OF_DAY + Duration::seconds(10.0),
-            start_from_border: src,
-            goal: OriginDestination::EndOfRoad(RoadID(0).forwards()),
-        });
-    }
     s
 }
 
@@ -899,6 +871,8 @@ impl TutorialState {
             prank_done: false,
             parking_found: false,
             score_delivered: false,
+
+            montlake_market: app.primary.map.find_b_by_osm_id(97430815).unwrap(),
         };
 
         let tool_panel = tool_panel(ctx, app);
@@ -916,10 +890,15 @@ impl TutorialState {
             0.97 * ctx.canvas.window_height,
         );
 
+        let map = &app.primary.map;
+
         state.stages.push(
             Stage::new(Task::Camera)
                 // TODO Call these by orig_id to be robust to changes
-                .warp_to(ID::Intersection(IntersectionID(141)), None)
+                .warp_to(
+                    ID::Intersection(map.find_i_by_osm_id(53149407).unwrap()),
+                    None,
+                )
                 .msg(
                     vec![
                         "Welcome to your first day as a contract traffic engineer --",
@@ -998,7 +977,10 @@ impl TutorialState {
 
         state.stages.push(
             Stage::new(Task::TimeControls)
-                .warp_to(ID::Intersection(IntersectionID(64)), None)
+                .warp_to(
+                    ID::Intersection(map.find_i_by_osm_id(53096945).unwrap()),
+                    None,
+                )
                 .msg(
                     vec![
                         "Inspection complete!",
@@ -1059,8 +1041,11 @@ impl TutorialState {
         state.stages.push(
             Stage::new(Task::Escort)
                 // Don't center on where the agents are, be a little offset
-                .warp_to(ID::Building(BuildingID(813)), Some(10.0))
-                .spawn_around(IntersectionID(247))
+                .warp_to(
+                    ID::Building(map.find_b_by_osm_id(217699780).unwrap()),
+                    Some(10.0),
+                )
+                .spawn_around(map.find_i_by_osm_id(1709145066).unwrap())
                 .msg(
                     vec!["Alright alright, no need to wear out your spacebar."],
                     None,
@@ -1142,11 +1127,12 @@ impl TutorialState {
                 ),
         );
 
-        let bike_lane_scenario = make_bike_lane_scenario();
+        let bike_lane_scenario = make_bike_lane_scenario(map);
+        let bike_lane_focus_pt = map.find_b_by_osm_id(217699496).unwrap();
 
         state.stages.push(
             Stage::new(Task::WatchBikes)
-                .warp_to(ID::Building(BuildingID(543)), None)
+                .warp_to(ID::Building(bike_lane_focus_pt), None)
                 .spawn_scenario(bike_lane_scenario.clone())
                 .msg(
                     vec![
@@ -1163,7 +1149,7 @@ impl TutorialState {
         state.stages.push(
             Stage::new(Task::FixBikes)
                 .spawn_scenario(bike_lane_scenario)
-                .warp_to(ID::Building(BuildingID(543)), None)
+                .warp_to(ID::Building(bike_lane_focus_pt), None)
                 .msg(
                     vec![
                         "Looks like lots of cars and bikes trying to go to the playfield.",
@@ -1211,36 +1197,6 @@ impl TutorialState {
                 ),
         );
 
-        if false {
-            let bus_lane_scenario = make_bus_lane_scenario();
-            // TODO There's no clear measurement for how well the buses are doing.
-            // TODO Probably want a steady stream of the cars appearing
-
-            state.stages.push(
-                Stage::new(Task::WatchBuses)
-                    .warp_to(ID::Building(BuildingID(1979)), Some(0.5))
-                    .spawn_scenario(bus_lane_scenario.clone())
-                    .msg(
-                        vec![
-                            "Alright, now it's a game day at the University of Washington.",
-                            "Everyone's heading north across the bridge.",
-                            "Watch what happens to the bus 43 and 48.",
-                        ],
-                        None,
-                    ),
-            );
-
-            state.stages.push(
-                Stage::new(Task::FixBuses)
-                    .warp_to(ID::Building(BuildingID(1979)), Some(0.5))
-                    .spawn_scenario(bus_lane_scenario.clone())
-                    .msg(
-                        vec!["Let's speed up the poor bus! Why not dedicate some bus lanes to it?"],
-                        None,
-                    ),
-            );
-        }
-
         state.stages.push(Stage::new(Task::Done).msg(
             vec![
                 "Training complete!",
@@ -1270,9 +1226,8 @@ impl TutorialState {
         // work.
     }
 
-    // TODO Weird hack to prebake.
-    pub fn scenarios_to_prebake() -> Vec<ScenarioGenerator> {
-        vec![make_bike_lane_scenario(), make_bus_lane_scenario()]
+    pub fn scenarios_to_prebake(map: &Map) -> Vec<ScenarioGenerator> {
+        vec![make_bike_lane_scenario(map)]
     }
 }
 

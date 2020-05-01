@@ -1,4 +1,3 @@
-use crate::raw::{OriginalIntersection, OriginalRoad};
 use crate::{
     DirectedRoadID, IntersectionID, Map, RoadID, TurnGroup, TurnGroupID, TurnID, TurnPriority,
     TurnType,
@@ -51,6 +50,11 @@ impl ControlTrafficSignal {
         {
             if let Some(ts) = ControlTrafficSignal::import(raw, id, map) {
                 results.push(("hand-mapped current real settings".to_string(), ts));
+            } else {
+                panic!(
+                    "seattle_traffic_signals data for {} out of date, go update it",
+                    map.get_i(id).orig_id.osm_node_id
+                );
             }
         }
 
@@ -728,24 +732,14 @@ fn import_turn_group(id: seattle_traffic_signals::Turn, map: &Map) -> Option<Tur
     Some(TurnGroupID {
         from: find_r(id.from, map)?,
         to: find_r(id.to, map)?,
-        parent: map.find_i(OriginalIntersection {
-            osm_node_id: id.intersection_osm_node_id,
-        })?,
+        parent: map.find_i_by_osm_id(id.intersection_osm_node_id)?,
         crosswalk: id.is_crosswalk,
     })
 }
 
 fn find_r(id: seattle_traffic_signals::DirectedRoad, map: &Map) -> Option<DirectedRoadID> {
     Some(DirectedRoadID {
-        id: map.find_r(OriginalRoad {
-            osm_way_id: id.osm_way_id,
-            i1: OriginalIntersection {
-                osm_node_id: id.osm_node1,
-            },
-            i2: OriginalIntersection {
-                osm_node_id: id.osm_node2,
-            },
-        })?,
+        id: map.find_r_by_osm_id(id.osm_way_id, (id.osm_node1, id.osm_node2))?,
         forwards: id.is_forwards,
     })
 }

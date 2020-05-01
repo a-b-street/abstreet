@@ -121,6 +121,9 @@ impl fmt::Display for PersonID {
     }
 }
 
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+pub struct OrigPersonID(pub usize, pub usize);
+
 #[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug, Hash, PartialOrd, Ord)]
 pub enum VehicleType {
     Car,

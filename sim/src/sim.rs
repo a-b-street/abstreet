@@ -1,6 +1,6 @@
 use crate::{
     AgentID, AlertLocation, Analytics, CarID, Command, CreateCar, DrawCarInput, DrawPedCrowdInput,
-    DrawPedestrianInput, DrivingSimState, Event, GetDrawAgents, IntersectionSimState,
+    DrawPedestrianInput, DrivingSimState, Event, GetDrawAgents, IntersectionSimState, OrigPersonID,
     PandemicModel, ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, Person, PersonID,
     PersonState, Router, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripEndpoint,
     TripID, TripManager, TripMode, TripPhaseType, TripPositions, TripResult, TripSpawner,
@@ -218,8 +218,14 @@ impl Sim {
     }
 
     // TODO Should these two be in TripSpawner?
-    pub fn new_person(&mut self, p: PersonID, ped_speed: Speed, vehicle_specs: Vec<VehicleSpec>) {
-        self.trips.new_person(p, ped_speed, vehicle_specs);
+    pub(crate) fn new_person(
+        &mut self,
+        p: PersonID,
+        orig_id: Option<OrigPersonID>,
+        ped_speed: Speed,
+        vehicle_specs: Vec<VehicleSpec>,
+    ) {
+        self.trips.new_person(p, orig_id, ped_speed, vehicle_specs);
     }
     pub fn random_person(&mut self, ped_speed: Speed, vehicle_specs: Vec<VehicleSpec>) -> &Person {
         self.trips.random_person(ped_speed, vehicle_specs)
@@ -999,6 +1005,14 @@ impl Sim {
     }
     pub fn get_person(&self, id: PersonID) -> &Person {
         self.trips.get_person(id).unwrap()
+    }
+    pub fn find_person_by_orig_id(&self, id: OrigPersonID) -> Option<PersonID> {
+        for p in self.get_all_people() {
+            if p.orig_id == Some(id) {
+                return Some(p.id);
+            }
+        }
+        None
     }
     pub fn get_all_people(&self) -> &Vec<Person> {
         self.trips.get_all_people()

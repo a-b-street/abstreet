@@ -640,21 +640,31 @@ impl Map {
         None
     }
 
-    pub(crate) fn find_r(&self, id: OriginalRoad) -> Option<RoadID> {
-        // TODO Speed up with a mapping?
+    pub fn find_r_by_osm_id(&self, osm_way_id: i64, osm_node_ids: (i64, i64)) -> Option<RoadID> {
         for r in self.all_roads() {
-            if r.orig_id == id {
+            if r.orig_id.osm_way_id == osm_way_id
+                && r.orig_id.i1.osm_node_id == osm_node_ids.0
+                && r.orig_id.i2.osm_node_id == osm_node_ids.1
+            {
                 return Some(r.id);
             }
         }
         None
     }
 
-    pub(crate) fn find_i(&self, id: OriginalIntersection) -> Option<IntersectionID> {
-        // TODO Speed up with a mapping?
+    pub fn find_i_by_osm_id(&self, osm_node_id: i64) -> Option<IntersectionID> {
         for i in self.all_intersections() {
-            if i.orig_id == id {
+            if i.orig_id.osm_node_id == osm_node_id {
                 return Some(i.id);
+            }
+        }
+        None
+    }
+
+    pub fn find_b_by_osm_id(&self, osm_way_id: i64) -> Option<BuildingID> {
+        for b in self.all_buildings() {
+            if b.osm_way_id == osm_way_id {
+                return Some(b.id);
             }
         }
         None

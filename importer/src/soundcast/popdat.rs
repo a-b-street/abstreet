@@ -2,7 +2,7 @@ use abstutil::{prettyprint_usize, FileWithProgress, Timer};
 use geom::{Distance, Duration, FindClosest, LonLat, Pt2D, Time};
 use map_model::Map;
 use serde_derive::{Deserialize, Serialize};
-use sim::TripMode;
+use sim::{OrigPersonID, TripMode};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fs::File;
 use std::io::Write;
@@ -46,7 +46,7 @@ fn import_trips(
     let mut trips = Vec::new();
     let (reader, done) = FileWithProgress::new(trips_path)?;
     let mut total_records = 0;
-    let mut people: HashSet<(usize, usize)> = HashSet::new();
+    let mut people: HashSet<OrigPersonID> = HashSet::new();
 
     for rec in csv::Reader::from_reader(reader).deserialize() {
         total_records += 1;
@@ -75,7 +75,7 @@ fn import_trips(
         let trip_time = Duration::f64_minutes(rec.travtime);
         let trip_dist = Distance::miles(rec.travdist);
 
-        let person = (rec.hhno as usize, rec.pno as usize);
+        let person = OrigPersonID(rec.hhno as usize, rec.pno as usize);
         people.insert(person);
         let seq = (rec.tour as usize, rec.half == 2.0, rec.tseg as usize);
 
@@ -277,7 +277,7 @@ pub struct OrigTrip {
     pub mode: TripMode,
 
     // (household, person within household)
-    pub person: (usize, usize),
+    pub person: OrigPersonID,
     // (tour, false is to destination and true is back from dst, trip within half-tour)
     pub seq: (usize, bool, usize),
     pub purpose: (Purpose, Purpose),

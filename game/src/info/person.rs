@@ -211,6 +211,7 @@ pub fn bio(
     is_paused: bool,
 ) -> Vec<Widget> {
     let mut rows = header(ctx, app, details, id, Tab::PersonBio(id), is_paused);
+    let person = app.primary.sim.get_person(id);
 
     // TODO A little picture
     rows.extend(make_table(
@@ -219,6 +220,7 @@ pub fn bio(
             ("Name", "Somebody".to_string()),
             ("Age", "42".to_string()),
             ("Occupation", "classified".to_string()),
+            ("Debug ID", format!("{:?}", person.orig_id)),
         ],
     ));
     // TODO Mad libs!
@@ -255,7 +257,6 @@ pub fn bio(
         );
     }
 
-    let person = app.primary.sim.get_person(id);
     let mut has_bike = false;
     for v in &person.vehicles {
         if v.vehicle_type == VehicleType::Bike {

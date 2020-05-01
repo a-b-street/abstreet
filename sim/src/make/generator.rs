@@ -199,7 +199,7 @@ impl SpawnOverTime {
             {
                 scenario.people.push(PersonSpec {
                     id,
-                    orig_id: (0, 0),
+                    orig_id: None,
                     trips: vec![IndividTrip {
                         depart,
                         trip: SpawnTrip::UsingParkedCar(from_bldg, goal),
@@ -218,7 +218,7 @@ impl SpawnOverTime {
             {
                 scenario.people.push(PersonSpec {
                     id,
-                    orig_id: (0, 0),
+                    orig_id: None,
                     trips: vec![IndividTrip {
                         depart,
                         trip: SpawnTrip::UsingBike(start_spot, goal),
@@ -242,7 +242,7 @@ impl SpawnOverTime {
                 {
                     scenario.people.push(PersonSpec {
                         id,
-                        orig_id: (0, 0),
+                        orig_id: None,
                         trips: vec![IndividTrip {
                             depart,
                             trip: SpawnTrip::UsingTransit(start_spot, goal, route, stop1, stop2),
@@ -254,7 +254,7 @@ impl SpawnOverTime {
 
             scenario.people.push(PersonSpec {
                 id,
-                orig_id: (0, 0),
+                orig_id: None,
                 trips: vec![IndividTrip {
                     depart,
                     trip: SpawnTrip::JustWalking(start_spot, goal),
@@ -304,7 +304,7 @@ impl BorderSpawnOverTime {
                     {
                         scenario.people.push(PersonSpec {
                             id,
-                            orig_id: (0, 0),
+                            orig_id: None,
                             trips: vec![IndividTrip {
                                 depart,
                                 trip: SpawnTrip::UsingTransit(
@@ -322,7 +322,7 @@ impl BorderSpawnOverTime {
 
                 scenario.people.push(PersonSpec {
                     id,
-                    orig_id: (0, 0),
+                    orig_id: None,
                     trips: vec![IndividTrip {
                         depart,
                         trip: SpawnTrip::JustWalking(start.clone(), goal),
@@ -351,7 +351,7 @@ impl BorderSpawnOverTime {
                 let id = PersonID(scenario.people.len());
                 scenario.people.push(PersonSpec {
                     id,
-                    orig_id: (0, 0),
+                    orig_id: None,
                     trips: vec![IndividTrip {
                         depart,
                         trip: SpawnTrip::FromBorder {

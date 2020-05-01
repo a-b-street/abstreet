@@ -1,7 +1,7 @@
 use crate::{
-    CarID, DrivingGoal, ParkingSpot, PersonID, SidewalkPOI, SidewalkSpot, Sim, TripEndpoint,
-    TripMode, TripSpec, Vehicle, VehicleSpec, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH,
-    MIN_CAR_LENGTH,
+    CarID, DrivingGoal, OrigPersonID, ParkingSpot, PersonID, SidewalkPOI, SidewalkSpot, Sim,
+    TripEndpoint, TripMode, TripSpec, Vehicle, VehicleSpec, VehicleType, BIKE_LENGTH,
+    MAX_CAR_LENGTH, MIN_CAR_LENGTH,
 };
 use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{Distance, Duration, LonLat, Speed, Time};
@@ -29,7 +29,7 @@ pub struct Scenario {
 pub struct PersonSpec {
     pub id: PersonID,
     // Just used for debugging
-    pub orig_id: (usize, usize),
+    pub orig_id: Option<OrigPersonID>,
     pub trips: Vec<IndividTrip>,
 }
 
@@ -105,7 +105,12 @@ impl Scenario {
 
             let (vehicle_specs, cars_initially_parked_at, vehicle_foreach_trip) =
                 p.get_vehicles(rng);
-            sim.new_person(p.id, Scenario::rand_ped_speed(rng), vehicle_specs);
+            sim.new_person(
+                p.id,
+                p.orig_id,
+                Scenario::rand_ped_speed(rng),
+                vehicle_specs,
+            );
             let person = sim.get_person(p.id);
             for (idx, b) in cars_initially_parked_at {
                 parked_cars.push((person.vehicles[idx].clone(), b));

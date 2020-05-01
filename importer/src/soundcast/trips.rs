@@ -3,8 +3,8 @@ use abstutil::{prettyprint_usize, MultiMap, Timer};
 use geom::LonLat;
 use map_model::{BuildingID, IntersectionID, Map, PathConstraints};
 use sim::{
-    DrivingGoal, IndividTrip, OffMapLocation, PersonID, PersonSpec, Scenario, SidewalkSpot,
-    SpawnTrip, TripMode,
+    DrivingGoal, IndividTrip, OffMapLocation, OrigPersonID, PersonID, PersonSpec, Scenario,
+    SidewalkSpot, SpawnTrip, TripMode,
 };
 use std::collections::HashMap;
 
@@ -230,7 +230,7 @@ pub fn make_weekday_scenario(map: &Map, timer: &mut Timer) -> Scenario {
 
     let mut individ_trips: Vec<Option<IndividTrip>> = Vec::new();
     // person -> (trip seq, index into individ_trips)
-    let mut trips_per_person: MultiMap<(usize, usize), ((usize, bool, usize), usize)> =
+    let mut trips_per_person: MultiMap<OrigPersonID, ((usize, bool, usize), usize)> =
         MultiMap::new();
     for (trip, depart, person, seq) in
         timer.parallelize("turn Soundcast trips into SpawnTrips", trips, |trip| {
@@ -264,7 +264,11 @@ pub fn make_weekday_scenario(map: &Map, timer: &mut Timer) -> Scenario {
         // departure time starting with midnight.
         trips.sort_by_key(|t| t.depart);
 
-        people.push(PersonSpec { id, orig_id, trips });
+        people.push(PersonSpec {
+            id,
+            orig_id: Some(orig_id),
+            trips,
+        });
     }
     for maybe_t in individ_trips {
         if maybe_t.is_some() {
@@ -286,7 +290,7 @@ pub fn make_weekday_scenario_with_everyone(map: &Map, timer: &mut Timer) -> Scen
 
     let mut individ_trips: Vec<Option<IndividTrip>> = Vec::new();
     // person -> (trip seq, index into individ_trips)
-    let mut trips_per_person: MultiMap<(usize, usize), ((usize, bool, usize), usize)> =
+    let mut trips_per_person: MultiMap<OrigPersonID, ((usize, bool, usize), usize)> =
         MultiMap::new();
     timer.start_iter("turn Soundcast trips into SpawnTrips", popdat.trips.len());
     for orig_trip in popdat.trips {
@@ -328,7 +332,11 @@ pub fn make_weekday_scenario_with_everyone(map: &Map, timer: &mut Timer) -> Scen
         // departure time starting with midnight.
         trips.sort_by_key(|t| t.depart);
 
-        people.push(PersonSpec { id, orig_id, trips });
+        people.push(PersonSpec {
+            id,
+            orig_id: Some(orig_id),
+            trips,
+        });
     }
     for maybe_t in individ_trips {
         if maybe_t.is_some() {
