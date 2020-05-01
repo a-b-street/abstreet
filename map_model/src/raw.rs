@@ -600,9 +600,12 @@ impl RestrictionType {
         //
         // Strip off time restrictions (like " @ (Mo-Fr 06:00-09:00, 15:00-18:30)")
         match restriction.split(" @ ").next().unwrap() {
-            "no_left_turn" | "no_right_turn" | "no_straight_on" | "no_u_turn" | "no_anything" => {
-                Some(RestrictionType::BanTurns)
-            }
+            "no_left_turn"
+            | "no_right_turn"
+            | "no_straight_on"
+            | "no_u_turn"
+            | "no_anything"
+            | "conditional=no_left_turn" => Some(RestrictionType::BanTurns),
             "only_left_turn" | "only_right_turn" | "only_straight_on" => {
                 Some(RestrictionType::OnlyAllowTurns)
             }

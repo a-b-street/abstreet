@@ -9,5 +9,3 @@ unzip release_data.zip
 mv release_data/* data
 rmdir release_data
 rm -f release_data.zip
-# The zip clobbers the .gitignore symlinks; just let git take care of it
-git checkout data/system
