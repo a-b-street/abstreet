@@ -38,7 +38,9 @@ impl Ring {
 
     pub fn maybe_new(pts: Vec<Pt2D>) -> Option<Ring> {
         assert!(pts.len() >= 3);
-        assert_eq!(pts[0], *pts.last().unwrap());
+        if pts[0] != *pts.last().unwrap() {
+            return None;
+        }
 
         if pts.windows(2).any(|pair| pair[0] == pair[1]) {
             return None;

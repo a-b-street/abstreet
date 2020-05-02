@@ -34,9 +34,11 @@ clipping polygon. No code changes.
 6.  Update `importer/src/main.rs` to reference your new module, following
     `austin` as an example.
 
-7.  Run it: `./import.sh --city=your_city --raw --map`
+7.  Update `map_belongs_to_city` in `updater/src/main.rs`
 
-8.  Update `.gitignore`, following `austin` as an example.
+8.  Run it: `./import.sh --city=your_city --raw --map`
+
+9.  Update `.gitignore`, following `austin` as an example.
 
 Send a PR with your changes! I'll update the giant .zip files so most people
 don't have to build everything from scratch.

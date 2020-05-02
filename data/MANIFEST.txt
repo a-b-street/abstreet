@@ -1,10 +1,13 @@
 data/input/austin/osm/Austin.osm,7c8d72cf97072af34cee665006b1e9e6,https://www.dropbox.com/s/4f3lu8ii5d2lf4c/Austin.osm.zip?dl=0
 data/input/austin/osm/downtown_atx.osm,a30b0f460a481598e494f16a9d07a822,https://www.dropbox.com/s/8qodpqdn1pedzva/downtown_atx.osm.zip?dl=0
 data/input/austin/osm/huge_austin.osm,fb166029fc8006bd20dc959fbbbde3b6,https://www.dropbox.com/s/4bbsfpsg48dctje/huge_austin.osm.zip?dl=0
+data/input/barranquilla/osm/barranquilla.osm,ff0f301a84d21f20c87ee7fa3ae3518f,https://www.dropbox.com/s/ag8owpwnegkf2z8/barranquilla.osm.zip?dl=0
+data/input/barranquilla/osm/colombia.osm.pbf,31c7abfcc1ec4625e6e4fbee9e89bfd3,Couldn't get shared link: Unknown Error
 data/input/los_angeles/osm/downtown_la.osm,9b2c4729d3031553a477bb2e1134a6bf,https://www.dropbox.com/s/235jahht1xyulkx/downtown_la.osm.zip?dl=0
 data/input/los_angeles/osm/socal.osm.pbf,1dd1b7d3a6d38829a8266b0b6ea60b85,https://www.dropbox.com/s/gdd7lth4fmy0fby/socal.osm.pbf.zip?dl=0
 data/input/raw_maps/23rd.bin,9bfd89ddbc346a4e74fd8e64d6c6a0c0,https://www.dropbox.com/s/9g5589k9swdln9y/23rd.bin.zip?dl=0
 data/input/raw_maps/ballard.bin,9ff05ead40b54f842ea99c97c274f2f9,https://www.dropbox.com/s/wus0ufcnjyvcsuy/ballard.bin.zip?dl=0
+data/input/raw_maps/barranquilla.bin,160c3e6ba29afb1ca0981c8619b4b4f8,https://www.dropbox.com/s/5z890kpowgeftk4/barranquilla.bin.zip?dl=0
 data/input/raw_maps/caphill.bin,e6972c81efaa95e891660a3e565a4760,https://www.dropbox.com/s/vybo4owf8pzuita/caphill.bin.zip?dl=0
 data/input/raw_maps/downtown.bin,34aea57a80555addd96406917e472357,https://www.dropbox.com/s/ntqzttf25037fty/downtown.bin.zip?dl=0
 data/input/raw_maps/downtown_atx.bin,d4f6ece8ef35c594c794928d651c5916,https://www.dropbox.com/s/0cs55y1jcmm2alk/downtown_atx.bin.zip?dl=0
@@ -63,6 +66,7 @@ data/input/seattle/sidewalks.bin,129b460f56f5eb41cab3bfd70fb5fde9,https://www.dr
 data/input/seattle/trips_2014.csv,d4a8e733045b28c0385fb81359d6df03,https://www.dropbox.com/s/5ppravwmk6bf20d/trips_2014.csv.zip?dl=0
 data/system/maps/23rd.bin,a9aaaaea906cc620f1710be5dc316a80,https://www.dropbox.com/s/wjl45codk6rqfg4/23rd.bin.zip?dl=0
 data/system/maps/ballard.bin,32585d4a4d10b56e5d03b7bfd997e270,https://www.dropbox.com/s/u4rvz50she3yrk0/ballard.bin.zip?dl=0
+data/system/maps/barranquilla.bin,2d62709cf5df6b4b0a51f1d10cf0d14f,https://www.dropbox.com/s/iuvggdfr16u6luw/barranquilla.bin.zip?dl=0
 data/system/maps/caphill.bin,868672d2b73b55c945730528b058022e,https://www.dropbox.com/s/bh20pn3wxygetw8/caphill.bin.zip?dl=0
 data/system/maps/downtown.bin,32204ce12eecd28829f4951c1b77ae16,https://www.dropbox.com/s/4do5cg4vc17lafo/downtown.bin.zip?dl=0
 data/system/maps/downtown_atx.bin,94d44bfd4c5e2431c7f8555943e70709,https://www.dropbox.com/s/5avnbkd4oxby2hs/downtown_atx.bin.zip?dl=0

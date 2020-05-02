@@ -101,6 +101,7 @@ pub fn nice_map_name(name: &str) -> &str {
         "lakeslice" => "Lake Washington corridor",
         "montlake" => "Montlake and Eastlake",
         // Outside Seattle
+        "barranquilla" => "Barranquilla, Colombia",
         "downtown_atx" => "Downtown Austin",
         "downtown_la" => "Los Angeles",
         "huge_austin" => "Austin (entire area)",

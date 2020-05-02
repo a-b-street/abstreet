@@ -99,7 +99,12 @@ impl Renderable for DrawBuilding {
     }
 
     fn get_outline(&self, map: &Map) -> Polygon {
-        map.get_b(self.id).polygon.to_outline(OUTLINE_THICKNESS)
+        let b = map.get_b(self.id);
+        if let Some(p) = b.polygon.maybe_to_outline(OUTLINE_THICKNESS) {
+            p
+        } else {
+            b.polygon.clone()
+        }
     }
 
     fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {

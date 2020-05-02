@@ -4,6 +4,7 @@
 data/config
 
 data/input/austin/osm
+data/input/barranquilla/osm
 data/input/los_angeles/osm
 
 data/input/seattle/blockface.bin
