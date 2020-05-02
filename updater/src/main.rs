@@ -22,8 +22,11 @@ fn main() {
 }
 
 fn download() {
+    let cities = Cities::load_or_create();
     let local = Manifest::generate();
-    let truth = Manifest::load("data/MANIFEST.txt".to_string()).unwrap();
+    let truth = Manifest::load("data/MANIFEST.txt".to_string())
+        .unwrap()
+        .filter(cities);
 
     // Anything local need deleting?
     for path in local.0.keys() {
@@ -155,6 +158,136 @@ impl Manifest {
             );
         }
         Ok(Manifest(kv))
+    }
+
+    fn filter(mut self, cities: Cities) -> Manifest {
+        // TODO Temporary hack until directories are organized better
+        fn map_belongs_to_city(map: &str, city: &str) -> bool {
+            match city {
+                "seattle" => {
+                    map == "23rd"
+                        || map == "ballard"
+                        || map == "caphill"
+                        || map == "downtown"
+                        || map == "intl_district"
+                        || map == "lakeslice"
+                        || map == "montlake"
+                }
+                "huge_seattle" => map == "huge_seattle",
+                "austin" => map == "downtown_atx" || map == "huge_austin",
+                "los_angeles" => map == "downtown_la",
+                _ => panic!("Unknown city {}", city),
+            }
+        }
+
+        let mut remove = Vec::new();
+        for (path, entry) in &self.0 {
+            // TODO One hardcoded weird exception
+            if path == "data/system/scenarios/montlake/everyone_weekday.bin"
+                && !cities.runtime.contains(&"huge_seattle".to_string())
+            {
+                remove.push(path.clone());
+                continue;
+            }
+
+            let parts = path.split("/").collect::<Vec<_>>();
+            if parts[1] == "input" {
+                if parts[2] == "screenshots" {
+                    continue;
+                }
+                if parts[2] == "raw_maps" {
+                    let map = parts[3].trim_end_matches(".bin");
+                    if cities
+                        .input
+                        .iter()
+                        .any(|city| map_belongs_to_city(map, city))
+                    {
+                        continue;
+                    }
+                }
+                if cities.input.contains(&parts[2].to_string()) {
+                    continue;
+                }
+            } else if parts[1] == "system" {
+                if parts[2] == "maps" {
+                    let map = parts[3].trim_end_matches(".bin");
+                    if cities
+                        .runtime
+                        .iter()
+                        .any(|city| map_belongs_to_city(map, city))
+                    {
+                        continue;
+                    }
+                } else {
+                    let map = &parts[3];
+                    if cities
+                        .runtime
+                        .iter()
+                        .any(|city| map_belongs_to_city(map, city))
+                    {
+                        continue;
+                    }
+                }
+            } else {
+                panic!("Wait what's {}", path);
+            }
+            remove.push(path.clone());
+        }
+        for path in remove {
+            self.0.remove(&path).unwrap();
+        }
+        self
+    }
+}
+
+// What data to download?
+struct Cities {
+    runtime: Vec<String>,
+    input: Vec<String>,
+}
+
+impl Cities {
+    fn load_or_create() -> Cities {
+        let path = "data/config";
+        if let Ok(f) = File::open(path) {
+            let mut cities = Cities {
+                runtime: Vec::new(),
+                input: Vec::new(),
+            };
+            for line in BufReader::new(f).lines() {
+                let line = line.unwrap();
+                let parts = line.split(": ").collect::<Vec<_>>();
+                assert_eq!(parts.len(), 2);
+                let list = parts[1]
+                    .split(",")
+                    .map(|x| x.to_string())
+                    .filter(|x| !x.is_empty())
+                    .collect::<Vec<_>>();
+                if parts[0] == "runtime" {
+                    cities.runtime = list;
+                } else if parts[0] == "input" {
+                    cities.input = list;
+                } else {
+                    panic!("{} is corrupted, what's {}", path, parts[0]);
+                }
+            }
+            if !cities.runtime.contains(&"seattle".to_string()) {
+                panic!(
+                    "{}: runtime must contain seattle; the game breaks without this",
+                    path
+                );
+            }
+            cities
+        } else {
+            let mut f = File::create(&path).unwrap();
+            writeln!(f, "runtime: seattle").unwrap();
+            writeln!(f, "input: ").unwrap();
+            println!("- Wrote {}", path);
+            Cities {
+                runtime: vec!["seattle".to_string()],
+                input: vec![],
+            }
+        }
     }
 }
 

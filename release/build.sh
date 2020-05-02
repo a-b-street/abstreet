@@ -7,7 +7,7 @@ output=$1;
 runner=$2;
 binary=$3;
 
-./data/grab_minimal_seed_data.sh
+cargo run --bin updater
 
 mkdir $output
 
