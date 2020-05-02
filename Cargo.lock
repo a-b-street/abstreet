@@ -3391,6 +3391,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "updater"
+version = "0.1.0"
+dependencies = [
+ "walkdir 2.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "url"
 version = "1.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"

@@ -94,6 +94,7 @@ Constructing the map:
 - `map_editor`: GUI for modifying geometry of maps and creating maps from
   scratch
 - `importer`: tool to run the entire import pipeline
+- `updater`: tool to download/upload large files used in the import pipeline
 
 Traffic simulation:
 

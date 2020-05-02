@@ -13,6 +13,7 @@ members = [
   "map_editor",
   "map_model",
   "sim",
+  "updater",
 ]
 
 # See https://doc.rust-lang.org/cargo/reference/profiles.html#overrides. This
