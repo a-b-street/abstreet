@@ -4,7 +4,7 @@
 
 You will first need:
 
-- Standard dependencies: `bash`, `curl`, `unzip`, `gunzip`
+- Standard Unix dependencies: `curl`, `unzip`, `gunzip`, `md5sum` (`md5` on Mac)
 - Rust, at least 1.43. https://www.rust-lang.org/tools/install
 
 One-time setup:
@@ -12,8 +12,7 @@ One-time setup:
 1.  Download the repository:
     `git clone https://github.com/dabreegster/abstreet.git`
 
-2.  Grab the minimal amount of data to get started:
-    `./data/grab_minimal_seed_data.sh`.
+2.  Grab the minimal amount of data to get started: `cargo run --bin updater`.
 
 3.  Run the game: `cd game; cargo run --release`
 
@@ -47,17 +46,35 @@ One-time setup:
   sending a PR. (You have to install the nightly toolchain just for fmt)
 - More random notes [here](/docs/misc_dev_tricks.md)
 
+## Downloading more cities
+
+As data formats change over time, things in the `data/` directory not under
+version control will get out of date. At any time, you can run
+`cargo run --bin updater` from the main repository directory to update only the
+files that have changed.
+
+You can also opt into downloading updates for more cities by editing
+`data/config`. Opting into everything looks like this:
+
+```
+runtime: seattle,huge_seattle,austin,barranquilla,los_angeles
+input: seattle,huge_seattle,austin,barranquilla,los_angeles
+```
+
+`runtime` downloads new maps and scenarios in `data/system/`. `input` is used
+for building those maps -- see below.
+
 ## Building map data
 
 You can skip this section if you're just touching code in `game`, `ezgui`, and
 `sim`.
 
-You have two options: you can seed some of the intermediate data by running
-`./data/grab_all_seed_data.sh` (downloads ~1GB, expands to ~5GB), or you can
-build everything totally from scratch by running
-`./import.sh --raw --map --scenario`. This takes a while.
+The first stage of the importer, `--raw`, will download input files from OSM,
+King County GIS, and so on. If the mirrors are slow or the files vanish, you
+could fill out `data/config` and use the `updater` described above to grab the
+latest input.
 
-You'll need some extra dependencies:
+To run all pieces of the importer, you'll need some extra dependencies:
 
 - `osmconvert`: See https://wiki.openstreetmap.org/wiki/Osmconvert#Download
 - `libgdal-dev`: See https://gdal.org/ if your OS package manager doesn't have
@@ -71,6 +88,8 @@ You can rerun specific stages of the importer:
   just need `./import.sh --map`.
 - By default, all maps are regenerated. You can also specify a single map:
   `./import.sh --map downtown`.
+- By default, Seattle is assumed as the city. You have to specify otherwise:
+  `./import.sh --city=los_angeles --map downtown_la`.
 
 ## Understanding stuff
 

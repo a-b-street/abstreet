@@ -40,8 +40,8 @@ clipping polygon. No code changes.
 
 9.  Update `.gitignore`, following `austin` as an example.
 
-Send a PR with your changes! I'll update the giant .zip files so most people
-don't have to build everything from scratch.
+Send a PR with your changes! I'll generate everything and make it work with
+`updater`, so most people don't have to build everything from scratch.
 
 ## Next steps
 
