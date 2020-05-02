@@ -109,10 +109,16 @@ impl Manifest {
             if path.contains("system/assets/")
                 || path.contains("system/fonts")
                 || path.contains("system/synthetic_maps")
+                || path.contains("/polygons/")
             {
                 continue;
             }
-            let checksum = run(Command::new("md5sum").arg(&path))
+            let md5sum = if cfg!(target_os = "macos") {
+                "md5"
+            } else {
+                "md5sum"
+            };
+            let checksum = run(Command::new(md5sum).arg(&path))
                 .split(" ")
                 .next()
                 .unwrap()
@@ -181,7 +187,7 @@ impl Manifest {
         }
 
         let mut remove = Vec::new();
-        for (path, entry) in &self.0 {
+        for path in self.0.keys() {
             // TODO One hardcoded weird exception
             if path == "data/system/scenarios/montlake/everyone_weekday.bin"
                 && !cities.runtime.contains(&"huge_seattle".to_string())
@@ -193,7 +199,13 @@ impl Manifest {
             let parts = path.split("/").collect::<Vec<_>>();
             if parts[1] == "input" {
                 if parts[2] == "screenshots" {
-                    continue;
+                    if cities
+                        .input
+                        .iter()
+                        .any(|city| map_belongs_to_city(&parts[3], city))
+                    {
+                        continue;
+                    }
                 }
                 if parts[2] == "raw_maps" {
                     let map = parts[3].trim_end_matches(".bin");
