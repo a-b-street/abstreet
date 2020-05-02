@@ -1,99 +1,96 @@
-7c8d72cf97072af34cee665006b1e9e6 data/input/austin/osm/Austin.osm
-a30b0f460a481598e494f16a9d07a822 data/input/austin/osm/downtown_atx.osm
-fb166029fc8006bd20dc959fbbbde3b6 data/input/austin/osm/huge_austin.osm
-dc9a8a05f8f2e508af7a9841866f8cd3 data/input/austin/polygons/downtown_atx.poly
-8c6570b3bad2a362e0e6f4bb6f4a8fda data/input/austin/polygons/huge_austin.poly
-9b2c4729d3031553a477bb2e1134a6bf data/input/los_angeles/osm/downtown_la.osm
-1dd1b7d3a6d38829a8266b0b6ea60b85 data/input/los_angeles/osm/socal.osm.pbf
-97672583e0e9bc2e3d076645a1ccb8f5 data/input/los_angeles/polygons/downtown_la.poly
-9bfd89ddbc346a4e74fd8e64d6c6a0c0 data/input/raw_maps/23rd.bin
-9ff05ead40b54f842ea99c97c274f2f9 data/input/raw_maps/ballard.bin
-e6972c81efaa95e891660a3e565a4760 data/input/raw_maps/caphill.bin
-34aea57a80555addd96406917e472357 data/input/raw_maps/downtown.bin
-d4f6ece8ef35c594c794928d651c5916 data/input/raw_maps/downtown_atx.bin
-f7ea2e3cfcd688e0effae80ec9440af0 data/input/raw_maps/downtown_la.bin
-b50223a417508afb924252ae3ecd24ad data/input/raw_maps/huge_austin.bin
-55a13d6252de8273153fce7f3d43864b data/input/raw_maps/huge_seattle.bin
-984e24fd958aedf7f9dcf030ecbd0b42 data/input/raw_maps/intl_district.bin
-8926263ac28d92fe264f977fb851a99e data/input/raw_maps/lakeslice.bin
-530521311e09da554127fd08bb43c34b data/input/raw_maps/montlake.bin
-7f7ceac82ca1aa8cecd36e20e93a0f08 data/input/screenshots/montlake/01x01_i17.png
-e53a43b1c55f8ebf447667c441e95f94 data/input/screenshots/montlake/01x02_i18.png
-3aafac45d70f8a4b76868f07346678b2 data/input/screenshots/montlake/01x03_i0.png
-5ac6d6f513b09836e422e9afa61cc64d data/input/screenshots/montlake/01x04_i31.png
-b10bf7ed68c9e3676612cf7533358591 data/input/screenshots/montlake/01x05_i41.png
-72822c593f3869b97e81f0db14e17a60 data/input/screenshots/montlake/01x06_i25.png
-036315e7de82b51cd6176e67cd96a653 data/input/screenshots/montlake/02x01_i13.png
-5fd363876de44ea94768955170aa37f7 data/input/screenshots/montlake/02x02_i332.png
-b16089fac3b725fe0809b6cb3f7e689b data/input/screenshots/montlake/02x03_i57.png
-4b4114d46218f1790e4f9db0353b1cd2 data/input/screenshots/montlake/02x04_i24.png
-a860db64de9c731379db997323efa400 data/input/screenshots/montlake/02x05_i132.png
-2212596ff8eff3b518a4b283491a15e0 data/input/screenshots/montlake/02x06_i90.png
-17616e1cf2d66780e58ef05c8f6dfc2b data/input/screenshots/montlake/03x01_i13.png
-7c1baa4f4551c1a12becc4a88766ea8a data/input/screenshots/montlake/03x02_i3.png
-e44c453fe4699b72f57a3b41ccc5ee25 data/input/screenshots/montlake/03x03_i61.png
-425748451b0cf5bf476b4c5d1d67c9e2 data/input/screenshots/montlake/03x04_i69.png
-ff62fdb76cfe795fbc82953d8be51511 data/input/screenshots/montlake/03x05_i65.png
-50bbba4cfde0e2b6f3672a52ffb11e15 data/input/screenshots/montlake/03x06_i27.png
-728f455f1ecbb42bbda3773c918eee5b data/input/screenshots/montlake/combine.sh
-0db4e23e51f7680538b0bbbc72208e07 data/input/seattle/N47W122.hgt
-19e8073a9f6c807b4492681b2c7570de data/input/seattle/blockface.bin
-75f564fcc06b1950b7b33acf9d61f696 data/input/seattle/google_transit/agency.txt
-b66cb4c0a24b2d038427aa6e1aa1954a data/input/seattle/google_transit/block.txt
-9502d1a6e03a21c7e6987c036d5aea6f data/input/seattle/google_transit/block_trip.txt
-7211c370ecf3d8839ea0eb6651ed18e9 data/input/seattle/google_transit/calendar.txt
-9d3deb093076d7eaf748114829802292 data/input/seattle/google_transit/calendar_dates.txt
-ca5a7569e1af41e0046fe5e8865cf733 data/input/seattle/google_transit/fare_attributes.txt
-1800e4da804a8d9809d8b636742b9d00 data/input/seattle/google_transit/fare_rules.txt
-308c4e4ab385b7e8c1a1f75c4dc96e3f data/input/seattle/google_transit/routes.txt
-33f4f1264b3c982f0d6922ce7fb45e73 data/input/seattle/google_transit/shapes.txt
-51dbf7a263fe5f0ea24e43c3aad3fec2 data/input/seattle/google_transit/stop_times.txt
-8610cdc491d036eee88c9b7ae24d692d data/input/seattle/google_transit/stops.txt
-8a4fbb3846249777afae319d64e6241e data/input/seattle/google_transit/trips.txt
-58485a3bdff2aea9769fffd207e3cf30 data/input/seattle/offstreet_parking.bin
-58d9ebb924a3571178f4f16cade0edec data/input/seattle/osm/23rd.osm
-0052ec465666b0c49ef1d1221c9e3a53 data/input/seattle/osm/Seattle.osm
-ab122e013e18d9bfe923162ad27deb54 data/input/seattle/osm/ballard.osm
-f17e480bd803309c92d58c96bebb0ca1 data/input/seattle/osm/caphill.osm
-67b25efb8cc3c566e7b37b8d5761a3ae data/input/seattle/osm/downtown.osm
-6b3ea17f3a23039dba45c5904128321d data/input/seattle/osm/huge_seattle.osm
-02c3ac59dc92ffd846318c9be9378d5c data/input/seattle/osm/intl_district.osm
-c3198bbcdf00c4cdcc429d4679d68202 data/input/seattle/osm/lakeslice.osm
-8c3d6c9b28efa6922c71912c36af8eae data/input/seattle/osm/montlake.osm
-db63d7d606e8702d12f9399e87e6a00f data/input/seattle/parcels_urbansim.txt
-0304847f270859fcfc19c8ca122ed793 data/input/seattle/polygons/23rd.poly
-5d48031ff3b288ecb22bd2a96809a0ab data/input/seattle/polygons/ballard.poly
-428bc2e92ea02089cedbb614ce1d8f25 data/input/seattle/polygons/caphill.poly
-54f5f16e5ec925cb29b4d1405a89ef94 data/input/seattle/polygons/downtown.poly
-4f291bbe84ac32a98d7d100be79ddc4b data/input/seattle/polygons/huge_seattle.poly
-502f3bf285833fc061099a52f2f70819 data/input/seattle/polygons/intl_district.poly
-6b221b5e68a38f16f34e46a208c7ca15 data/input/seattle/polygons/lakeslice.poly
-418bcd5b335d12a1aa8ef556367e0bad data/input/seattle/polygons/montlake.poly
-7cbf604cb6d080292a5e69fdf0caf3b3 data/input/seattle/popdat.bin
-129b460f56f5eb41cab3bfd70fb5fde9 data/input/seattle/sidewalks.bin
-d4a8e733045b28c0385fb81359d6df03 data/input/seattle/trips_2014.csv
-a9aaaaea906cc620f1710be5dc316a80 data/system/maps/23rd.bin
-32585d4a4d10b56e5d03b7bfd997e270 data/system/maps/ballard.bin
-868672d2b73b55c945730528b058022e data/system/maps/caphill.bin
-32204ce12eecd28829f4951c1b77ae16 data/system/maps/downtown.bin
-94d44bfd4c5e2431c7f8555943e70709 data/system/maps/downtown_atx.bin
-2857ce1b2e3b233323a04d459d533024 data/system/maps/downtown_la.bin
-4961886805fc8a5576a37cffc6adc9be data/system/maps/huge_austin.bin
-e40060350ec5dcfc1049f00d3c73691c data/system/maps/huge_seattle.bin
-919e9d01d680ffa731b771890ba8de26 data/system/maps/intl_district.bin
-d92351e6246bf8052baffd4b30ab8959 data/system/maps/lakeslice.bin
-930d7b8add199635e19a8b701a3d3d8a data/system/maps/montlake.bin
-84bf817c20e62c03465be72bea25b320 data/system/prebaked_results/montlake/car vs bike contention.bin
-18272ae5ec70de3a61826a7497174bf0 data/system/prebaked_results/montlake/weekday.bin
-d23f322d55424bdc3da93452d71a1683 data/system/scenarios/23rd/weekday.bin
-624326d36bb63f5ffe57acd8c03eda4f data/system/scenarios/ballard/weekday.bin
-101b5d430d55fdc81748298b7f44e16d data/system/scenarios/caphill/weekday.bin
-f1b22bc7c5cbcf78b91476a33fc469f8 data/system/scenarios/downtown/weekday.bin
-fc2f434254ed22862a163bb9d05383bb data/system/scenarios/huge_seattle/weekday.bin
-737dfc33af6400225405f02c4ae576bb data/system/scenarios/intl_district/weekday.bin
-a8240a7c953291ed4e0e479f3b29fab5 data/system/scenarios/lakeslice/weekday.bin
-8eab93be03f8807d154cb27948da5b20 data/system/scenarios/montlake/everyone_weekday.bin
-b6c27dd92bc9c978d1dfe49048ccfc19 data/system/scenarios/montlake/weekday.bin
-cc45f42cb24cad1cfdbf5ed7a0cb86d4 data/system/synthetic_maps/signal_double.json
-1cd7be125e1d992613ed3a41e8b25b6a data/system/synthetic_maps/signal_fan_in.json
-8b949cc34d9a27ace0bd8ecde55a9520 data/system/synthetic_maps/signal_single.json
+data/input/austin/osm/Austin.osm,7c8d72cf97072af34cee665006b1e9e6,https://www.dropbox.com/s/4f3lu8ii5d2lf4c/Austin.osm.zip?dl=0
+data/input/austin/osm/downtown_atx.osm,a30b0f460a481598e494f16a9d07a822,https://www.dropbox.com/s/8qodpqdn1pedzva/downtown_atx.osm.zip?dl=0
+data/input/austin/osm/huge_austin.osm,fb166029fc8006bd20dc959fbbbde3b6,https://www.dropbox.com/s/4bbsfpsg48dctje/huge_austin.osm.zip?dl=0
+data/input/austin/polygons/downtown_atx.poly,dc9a8a05f8f2e508af7a9841866f8cd3,https://www.dropbox.com/s/ldnz2wuroll7427/downtown_atx.poly.zip?dl=0
+data/input/austin/polygons/huge_austin.poly,8c6570b3bad2a362e0e6f4bb6f4a8fda,https://www.dropbox.com/s/totc0q0swg5g873/huge_austin.poly.zip?dl=0
+data/input/los_angeles/osm/downtown_la.osm,9b2c4729d3031553a477bb2e1134a6bf,https://www.dropbox.com/s/235jahht1xyulkx/downtown_la.osm.zip?dl=0
+data/input/los_angeles/osm/socal.osm.pbf,1dd1b7d3a6d38829a8266b0b6ea60b85,https://www.dropbox.com/s/gdd7lth4fmy0fby/socal.osm.pbf.zip?dl=0
+data/input/los_angeles/polygons/downtown_la.poly,97672583e0e9bc2e3d076645a1ccb8f5,https://www.dropbox.com/s/z7wz9vgp7zpykfn/downtown_la.poly.zip?dl=0
+data/input/raw_maps/23rd.bin,9bfd89ddbc346a4e74fd8e64d6c6a0c0,https://www.dropbox.com/s/9g5589k9swdln9y/23rd.bin.zip?dl=0
+data/input/raw_maps/ballard.bin,9ff05ead40b54f842ea99c97c274f2f9,https://www.dropbox.com/s/wus0ufcnjyvcsuy/ballard.bin.zip?dl=0
+data/input/raw_maps/caphill.bin,e6972c81efaa95e891660a3e565a4760,https://www.dropbox.com/s/vybo4owf8pzuita/caphill.bin.zip?dl=0
+data/input/raw_maps/downtown.bin,34aea57a80555addd96406917e472357,https://www.dropbox.com/s/ntqzttf25037fty/downtown.bin.zip?dl=0
+data/input/raw_maps/downtown_atx.bin,d4f6ece8ef35c594c794928d651c5916,https://www.dropbox.com/s/0cs55y1jcmm2alk/downtown_atx.bin.zip?dl=0
+data/input/raw_maps/downtown_la.bin,f7ea2e3cfcd688e0effae80ec9440af0,https://www.dropbox.com/s/ca7eoxem5t9y99g/downtown_la.bin.zip?dl=0
+data/input/raw_maps/huge_austin.bin,b50223a417508afb924252ae3ecd24ad,https://www.dropbox.com/s/we0765ym7dlcsl1/huge_austin.bin.zip?dl=0
+data/input/raw_maps/huge_seattle.bin,55a13d6252de8273153fce7f3d43864b,https://www.dropbox.com/s/jcssts861uaovva/huge_seattle.bin.zip?dl=0
+data/input/raw_maps/intl_district.bin,984e24fd958aedf7f9dcf030ecbd0b42,https://www.dropbox.com/s/yopzq58r9t4y93v/intl_district.bin.zip?dl=0
+data/input/raw_maps/lakeslice.bin,8926263ac28d92fe264f977fb851a99e,https://www.dropbox.com/s/4nmdtw0mgqe7tyg/lakeslice.bin.zip?dl=0
+data/input/raw_maps/montlake.bin,530521311e09da554127fd08bb43c34b,https://www.dropbox.com/s/qk8rhwr6vdm79vz/montlake.bin.zip?dl=0
+data/input/screenshots/montlake/01x01_i17.png,7f7ceac82ca1aa8cecd36e20e93a0f08,https://www.dropbox.com/s/ns0pqt6phuprtwj/01x01_i17.png.zip?dl=0
+data/input/screenshots/montlake/01x02_i18.png,e53a43b1c55f8ebf447667c441e95f94,https://www.dropbox.com/s/5f2ydu07fi4a964/01x02_i18.png.zip?dl=0
+data/input/screenshots/montlake/01x03_i0.png,3aafac45d70f8a4b76868f07346678b2,https://www.dropbox.com/s/t91g49sy4xj82lr/01x03_i0.png.zip?dl=0
+data/input/screenshots/montlake/01x04_i31.png,5ac6d6f513b09836e422e9afa61cc64d,https://www.dropbox.com/s/sgg0qes69v8y6lb/01x04_i31.png.zip?dl=0
+data/input/screenshots/montlake/01x05_i41.png,b10bf7ed68c9e3676612cf7533358591,https://www.dropbox.com/s/luxkwxbbkc4q8th/01x05_i41.png.zip?dl=0
+data/input/screenshots/montlake/01x06_i25.png,72822c593f3869b97e81f0db14e17a60,https://www.dropbox.com/s/v7zlbi8lh59hg5a/01x06_i25.png.zip?dl=0
+data/input/screenshots/montlake/02x01_i13.png,036315e7de82b51cd6176e67cd96a653,https://www.dropbox.com/s/f2gsw4fblmjwmab/02x01_i13.png.zip?dl=0
+data/input/screenshots/montlake/02x02_i332.png,5fd363876de44ea94768955170aa37f7,https://www.dropbox.com/s/62rdgb986ymrwvg/02x02_i332.png.zip?dl=0
+data/input/screenshots/montlake/02x03_i57.png,b16089fac3b725fe0809b6cb3f7e689b,https://www.dropbox.com/s/n7lkqogzm6krev2/02x03_i57.png.zip?dl=0
+data/input/screenshots/montlake/02x04_i24.png,4b4114d46218f1790e4f9db0353b1cd2,https://www.dropbox.com/s/ifkesra84vtofyl/02x04_i24.png.zip?dl=0
+data/input/screenshots/montlake/02x05_i132.png,a860db64de9c731379db997323efa400,https://www.dropbox.com/s/shx6qmumbh4hxwq/02x05_i132.png.zip?dl=0
+data/input/screenshots/montlake/02x06_i90.png,2212596ff8eff3b518a4b283491a15e0,https://www.dropbox.com/s/m0q7u38oi538iip/02x06_i90.png.zip?dl=0
+data/input/screenshots/montlake/03x01_i13.png,17616e1cf2d66780e58ef05c8f6dfc2b,https://www.dropbox.com/s/v3ptsf83ypiuwt6/03x01_i13.png.zip?dl=0
+data/input/screenshots/montlake/03x02_i3.png,7c1baa4f4551c1a12becc4a88766ea8a,https://www.dropbox.com/s/sc6ggot16t0c4gz/03x02_i3.png.zip?dl=0
+data/input/screenshots/montlake/03x03_i61.png,e44c453fe4699b72f57a3b41ccc5ee25,https://www.dropbox.com/s/5pxmipiyfzhsds8/03x03_i61.png.zip?dl=0
+data/input/screenshots/montlake/03x04_i69.png,425748451b0cf5bf476b4c5d1d67c9e2,https://www.dropbox.com/s/xy6auqg17on5pim/03x04_i69.png.zip?dl=0
+data/input/screenshots/montlake/03x05_i65.png,ff62fdb76cfe795fbc82953d8be51511,https://www.dropbox.com/s/u2q1w6u0agtc4w3/03x05_i65.png.zip?dl=0
+data/input/screenshots/montlake/03x06_i27.png,50bbba4cfde0e2b6f3672a52ffb11e15,https://www.dropbox.com/s/3a1gcukuef85l0f/03x06_i27.png.zip?dl=0
+data/input/screenshots/montlake/combine.sh,728f455f1ecbb42bbda3773c918eee5b,https://www.dropbox.com/s/odbawy1k6nfll1r/combine.sh.zip?dl=0
+data/input/seattle/N47W122.hgt,0db4e23e51f7680538b0bbbc72208e07,https://www.dropbox.com/s/mmb4mgutwotijdw/N47W122.hgt.zip?dl=0
+data/input/seattle/blockface.bin,19e8073a9f6c807b4492681b2c7570de,https://www.dropbox.com/s/rxd2care60tbe75/blockface.bin.zip?dl=0
+data/input/seattle/google_transit/agency.txt,75f564fcc06b1950b7b33acf9d61f696,https://www.dropbox.com/s/7k1ii8kswd6a9ul/agency.txt.zip?dl=0
+data/input/seattle/google_transit/block.txt,b66cb4c0a24b2d038427aa6e1aa1954a,https://www.dropbox.com/s/zs5j2k8n7dvu3lo/block.txt.zip?dl=0
+data/input/seattle/google_transit/block_trip.txt,9502d1a6e03a21c7e6987c036d5aea6f,https://www.dropbox.com/s/59rt9gfpseu4kwx/block_trip.txt.zip?dl=0
+data/input/seattle/google_transit/calendar.txt,7211c370ecf3d8839ea0eb6651ed18e9,https://www.dropbox.com/s/jkecyztwks0x5t6/calendar.txt.zip?dl=0
+data/input/seattle/google_transit/calendar_dates.txt,9d3deb093076d7eaf748114829802292,https://www.dropbox.com/s/7jejm1rz7zlzdcv/calendar_dates.txt.zip?dl=0
+data/input/seattle/google_transit/fare_attributes.txt,ca5a7569e1af41e0046fe5e8865cf733,https://www.dropbox.com/s/z6tzowetcr4d47h/fare_attributes.txt.zip?dl=0
+data/input/seattle/google_transit/fare_rules.txt,1800e4da804a8d9809d8b636742b9d00,https://www.dropbox.com/s/j6pawqjs1azvp0g/fare_rules.txt.zip?dl=0
+data/input/seattle/google_transit/routes.txt,308c4e4ab385b7e8c1a1f75c4dc96e3f,https://www.dropbox.com/s/dm7mgrtya4nrt0t/routes.txt.zip?dl=0
+data/input/seattle/google_transit/shapes.txt,33f4f1264b3c982f0d6922ce7fb45e73,https://www.dropbox.com/s/n78i0dj78m1ux6e/shapes.txt.zip?dl=0
+data/input/seattle/google_transit/stop_times.txt,51dbf7a263fe5f0ea24e43c3aad3fec2,https://www.dropbox.com/s/p3yqw529ddz0z9m/stop_times.txt.zip?dl=0
+data/input/seattle/google_transit/stops.txt,8610cdc491d036eee88c9b7ae24d692d,https://www.dropbox.com/s/v1ayguqtkv1x0cx/stops.txt.zip?dl=0
+data/input/seattle/google_transit/trips.txt,8a4fbb3846249777afae319d64e6241e,https://www.dropbox.com/s/vpphfu9s5owan61/trips.txt.zip?dl=0
+data/input/seattle/offstreet_parking.bin,58485a3bdff2aea9769fffd207e3cf30,https://www.dropbox.com/s/7j2gwb18685kd5u/offstreet_parking.bin.zip?dl=0
+data/input/seattle/osm/23rd.osm,58d9ebb924a3571178f4f16cade0edec,https://www.dropbox.com/s/ytavrx6ovporxbx/23rd.osm.zip?dl=0
+data/input/seattle/osm/Seattle.osm,0052ec465666b0c49ef1d1221c9e3a53,https://www.dropbox.com/s/mmsec67ea2t4dlq/Seattle.osm.zip?dl=0
+data/input/seattle/osm/ballard.osm,ab122e013e18d9bfe923162ad27deb54,https://www.dropbox.com/s/7981y9qbxuztc5b/ballard.osm.zip?dl=0
+data/input/seattle/osm/caphill.osm,f17e480bd803309c92d58c96bebb0ca1,https://www.dropbox.com/s/rvwjr3735tc4gio/caphill.osm.zip?dl=0
+data/input/seattle/osm/downtown.osm,67b25efb8cc3c566e7b37b8d5761a3ae,https://www.dropbox.com/s/kpn8hfhoskj9pxz/downtown.osm.zip?dl=0
+data/input/seattle/osm/huge_seattle.osm,6b3ea17f3a23039dba45c5904128321d,https://www.dropbox.com/s/xhe35pj632ow6fl/huge_seattle.osm.zip?dl=0
+data/input/seattle/osm/intl_district.osm,02c3ac59dc92ffd846318c9be9378d5c,https://www.dropbox.com/s/fny0hr1fyiic9ih/intl_district.osm.zip?dl=0
+data/input/seattle/osm/lakeslice.osm,c3198bbcdf00c4cdcc429d4679d68202,https://www.dropbox.com/s/vv90x69xvxx7o3s/lakeslice.osm.zip?dl=0
+data/input/seattle/osm/montlake.osm,8c3d6c9b28efa6922c71912c36af8eae,https://www.dropbox.com/s/qh1jiav783m60g1/montlake.osm.zip?dl=0
+data/input/seattle/parcels_urbansim.txt,db63d7d606e8702d12f9399e87e6a00f,https://www.dropbox.com/s/6g8rbsf200dssj3/parcels_urbansim.txt.zip?dl=0
+data/input/seattle/polygons/23rd.poly,0304847f270859fcfc19c8ca122ed793,https://www.dropbox.com/s/s4bm26ika8dcqip/23rd.poly.zip?dl=0
+data/input/seattle/polygons/ballard.poly,5d48031ff3b288ecb22bd2a96809a0ab,https://www.dropbox.com/s/j418ry13pl0iaq9/ballard.poly.zip?dl=0
+data/input/seattle/polygons/caphill.poly,428bc2e92ea02089cedbb614ce1d8f25,https://www.dropbox.com/s/t7ygrxasgcc86n9/caphill.poly.zip?dl=0
+data/input/seattle/polygons/downtown.poly,54f5f16e5ec925cb29b4d1405a89ef94,https://www.dropbox.com/s/n08e2a4937yw63o/downtown.poly.zip?dl=0
+data/input/seattle/polygons/huge_seattle.poly,4f291bbe84ac32a98d7d100be79ddc4b,https://www.dropbox.com/s/jwsk3w47dgfocie/huge_seattle.poly.zip?dl=0
+data/input/seattle/polygons/intl_district.poly,502f3bf285833fc061099a52f2f70819,https://www.dropbox.com/s/zdh16xigbhq2hzy/intl_district.poly.zip?dl=0
+data/input/seattle/polygons/lakeslice.poly,6b221b5e68a38f16f34e46a208c7ca15,https://www.dropbox.com/s/rh5nnmw2g5xhn5s/lakeslice.poly.zip?dl=0
+data/input/seattle/polygons/montlake.poly,418bcd5b335d12a1aa8ef556367e0bad,https://www.dropbox.com/s/jtisbbsroxsp08q/montlake.poly.zip?dl=0
+data/input/seattle/popdat.bin,7cbf604cb6d080292a5e69fdf0caf3b3,https://www.dropbox.com/s/wrpji7e14rdwszs/popdat.bin.zip?dl=0
+data/input/seattle/sidewalks.bin,129b460f56f5eb41cab3bfd70fb5fde9,https://www.dropbox.com/s/ma9bmisijc7v7xa/sidewalks.bin.zip?dl=0
+data/input/seattle/trips_2014.csv,d4a8e733045b28c0385fb81359d6df03,https://www.dropbox.com/s/5ppravwmk6bf20d/trips_2014.csv.zip?dl=0
+data/system/maps/23rd.bin,a9aaaaea906cc620f1710be5dc316a80,https://www.dropbox.com/s/wjl45codk6rqfg4/23rd.bin.zip?dl=0
+data/system/maps/ballard.bin,32585d4a4d10b56e5d03b7bfd997e270,https://www.dropbox.com/s/u4rvz50she3yrk0/ballard.bin.zip?dl=0
+data/system/maps/caphill.bin,868672d2b73b55c945730528b058022e,https://www.dropbox.com/s/bh20pn3wxygetw8/caphill.bin.zip?dl=0
+data/system/maps/downtown.bin,32204ce12eecd28829f4951c1b77ae16,https://www.dropbox.com/s/4do5cg4vc17lafo/downtown.bin.zip?dl=0
+data/system/maps/downtown_atx.bin,94d44bfd4c5e2431c7f8555943e70709,https://www.dropbox.com/s/5avnbkd4oxby2hs/downtown_atx.bin.zip?dl=0
+data/system/maps/downtown_la.bin,2857ce1b2e3b233323a04d459d533024,https://www.dropbox.com/s/gkcl982cj6kxvrz/downtown_la.bin.zip?dl=0
+data/system/maps/huge_austin.bin,4961886805fc8a5576a37cffc6adc9be,https://www.dropbox.com/s/khy0m6v9yt0gjnt/huge_austin.bin.zip?dl=0
+data/system/maps/huge_seattle.bin,e40060350ec5dcfc1049f00d3c73691c,https://www.dropbox.com/s/btvr3qajshnivhb/huge_seattle.bin.zip?dl=0
+data/system/maps/intl_district.bin,919e9d01d680ffa731b771890ba8de26,https://www.dropbox.com/s/fohppni52ekc5l3/intl_district.bin.zip?dl=0
+data/system/maps/lakeslice.bin,d92351e6246bf8052baffd4b30ab8959,https://www.dropbox.com/s/99zi0gcbyvqrkud/lakeslice.bin.zip?dl=0
+data/system/maps/montlake.bin,930d7b8add199635e19a8b701a3d3d8a,https://www.dropbox.com/s/zvhm2j5lavixxcr/montlake.bin.zip?dl=0
+data/system/prebaked_results/montlake/car vs bike contention.bin,84bf817c20e62c03465be72bea25b320,https://www.dropbox.com/s/jefg0ikjy9dsrdd/car%20vs%20bike%20contention.bin.zip?dl=0
+data/system/prebaked_results/montlake/weekday.bin,18272ae5ec70de3a61826a7497174bf0,https://www.dropbox.com/s/1aq7n9ow8tfqb5d/weekday.bin.zip?dl=0
+data/system/scenarios/23rd/weekday.bin,d23f322d55424bdc3da93452d71a1683,https://www.dropbox.com/s/tgo7gztfodbljyi/weekday.bin.zip?dl=0
+data/system/scenarios/ballard/weekday.bin,624326d36bb63f5ffe57acd8c03eda4f,https://www.dropbox.com/s/67hys1v7m7oe979/weekday.bin.zip?dl=0
+data/system/scenarios/caphill/weekday.bin,101b5d430d55fdc81748298b7f44e16d,https://www.dropbox.com/s/9ifg7ogd6p5f1qg/weekday.bin.zip?dl=0
+data/system/scenarios/downtown/weekday.bin,f1b22bc7c5cbcf78b91476a33fc469f8,https://www.dropbox.com/s/pstvu4p7xj3gaoi/weekday.bin.zip?dl=0
+data/system/scenarios/huge_seattle/weekday.bin,fc2f434254ed22862a163bb9d05383bb,https://www.dropbox.com/s/u3pmsshwnf13g83/weekday.bin.zip?dl=0
+data/system/scenarios/intl_district/weekday.bin,737dfc33af6400225405f02c4ae576bb,https://www.dropbox.com/s/sgag53d9tul9rcl/weekday.bin.zip?dl=0
+data/system/scenarios/lakeslice/weekday.bin,a8240a7c953291ed4e0e479f3b29fab5,https://www.dropbox.com/s/858wxml3z0qlhxd/weekday.bin.zip?dl=0
+data/system/scenarios/montlake/everyone_weekday.bin,8eab93be03f8807d154cb27948da5b20,https://www.dropbox.com/s/44s818fimpu53v1/everyone_weekday.bin.zip?dl=0
+data/system/scenarios/montlake/weekday.bin,b6c27dd92bc9c978d1dfe49048ccfc19,https://www.dropbox.com/s/yntrxxgv3yx75gd/weekday.bin.zip?dl=0
