@@ -10,7 +10,7 @@ use ezgui::{
 };
 use geom::{Duration, Polygon, Time};
 use maplit::btreemap;
-use sim::{TripID, TripMode};
+use sim::{TripEndpoint, TripID, TripMode};
 use std::collections::BTreeSet;
 
 const ROWS: usize = 20;
@@ -19,10 +19,28 @@ const ROWS: usize = 20;
 
 pub struct TripTable {
     composite: Composite,
+    opts: Options,
+}
+
+struct Options {
     sort_by: SortBy,
     descending: bool,
     modes: BTreeSet<TripMode>,
+    off_map_starts: bool,
+    off_map_ends: bool,
     skip: usize,
+}
+
+impl Options {
+    fn change(&mut self, value: SortBy) {
+        self.skip = 0;
+        if self.sort_by == value {
+            self.descending = !self.descending;
+        } else {
+            self.sort_by = value;
+            self.descending = true;
+        }
+    }
 }
 
 // TODO Is there a heterogenously typed table crate somewhere?
@@ -38,38 +56,22 @@ enum SortBy {
 
 impl TripTable {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
-        let sort_by = SortBy::PercentWaiting;
-        let descending = true;
-        let modes = TripMode::all().into_iter().collect();
-        let skip = 0;
+        let opts = Options {
+            sort_by: SortBy::PercentWaiting,
+            descending: true,
+            modes: TripMode::all().into_iter().collect(),
+            off_map_starts: true,
+            off_map_ends: true,
+            skip: 0,
+        };
         Box::new(TripTable {
-            composite: make(ctx, app, sort_by, descending, &modes, skip),
-            sort_by,
-            descending,
-            modes,
-            skip,
+            composite: make(ctx, app, &opts),
+            opts,
         })
     }
 
-    fn change(&mut self, value: SortBy) {
-        self.skip = 0;
-        if self.sort_by == value {
-            self.descending = !self.descending;
-        } else {
-            self.sort_by = value;
-            self.descending = true;
-        }
-    }
-
     fn recalc(&mut self, ctx: &mut EventCtx, app: &App) {
-        let mut new = make(
-            ctx,
-            app,
-            self.sort_by,
-            self.descending,
-            &self.modes,
-            self.skip,
-        );
+        let mut new = make(ctx, app, &self.opts);
         new.restore(ctx, &self.composite);
         self.composite = new;
     }
@@ -80,35 +82,35 @@ impl State for TripTable {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "Departure" => {
-                    self.change(SortBy::Departure);
+                    self.opts.change(SortBy::Departure);
                     self.recalc(ctx, app);
                 }
                 "Duration" => {
-                    self.change(SortBy::Duration);
+                    self.opts.change(SortBy::Duration);
                     self.recalc(ctx, app);
                 }
                 "Comparison" => {
-                    self.change(SortBy::RelativeDuration);
+                    self.opts.change(SortBy::RelativeDuration);
                     self.recalc(ctx, app);
                 }
                 "Normalized" => {
-                    self.change(SortBy::PercentChangeDuration);
+                    self.opts.change(SortBy::PercentChangeDuration);
                     self.recalc(ctx, app);
                 }
                 "Time spent waiting" => {
-                    self.change(SortBy::Waiting);
+                    self.opts.change(SortBy::Waiting);
                     self.recalc(ctx, app);
                 }
                 "Percent waiting" => {
-                    self.change(SortBy::PercentWaiting);
+                    self.opts.change(SortBy::PercentWaiting);
                     self.recalc(ctx, app);
                 }
                 "previous trips" => {
-                    self.skip -= ROWS;
+                    self.opts.skip -= ROWS;
                     self.recalc(ctx, app);
                 }
                 "next trips" => {
-                    self.skip += ROWS;
+                    self.opts.skip += ROWS;
                     self.recalc(ctx, app);
                 }
                 x => {
@@ -136,9 +138,19 @@ impl State for TripTable {
                         modes.insert(m);
                     }
                 }
-                if modes != self.modes {
-                    self.skip = 0;
-                    self.modes = modes;
+                if modes != self.opts.modes {
+                    self.opts.skip = 0;
+                    self.opts.modes = modes;
+                    self.recalc(ctx, app);
+                }
+                let off_map_starts = self.composite.is_checked("starting off-map");
+                let off_map_ends = self.composite.is_checked("ending off-map");
+                if self.opts.off_map_starts != off_map_starts
+                    || self.opts.off_map_ends != off_map_ends
+                {
+                    self.opts.off_map_starts = off_map_starts;
+                    self.opts.off_map_ends = off_map_ends;
+                    self.opts.skip = 0;
                     self.recalc(ctx, app);
                 }
             }
@@ -163,21 +175,14 @@ struct Entry {
     percent_waiting: usize,
 }
 
-fn make(
-    ctx: &mut EventCtx,
-    app: &App,
-    sort: SortBy,
-    descending: bool,
-    modes: &BTreeSet<TripMode>,
-    skip: usize,
-) -> Composite {
+fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
     // Gather raw data
     let mut data = Vec::new();
     let sim = &app.primary.sim;
     let mut aborted = 0;
     for (_, id, maybe_mode, duration_after) in &sim.get_analytics().finished_trips {
         let mode = if let Some(m) = maybe_mode {
-            if !modes.contains(m) {
+            if !opts.modes.contains(m) {
                 continue;
             }
             *m
@@ -185,6 +190,18 @@ fn make(
             aborted += 1;
             continue;
         };
+        let (_, start, end, _) = sim.trip_info(*id);
+        if !opts.off_map_starts {
+            if let TripEndpoint::Border(_, _) = start {
+                continue;
+            }
+        }
+        if !opts.off_map_ends {
+            if let TripEndpoint::Border(_, _) = end {
+                continue;
+            }
+        }
+
         let (_, waiting) = sim.finished_trip_time(*id).unwrap();
         let (departure, _, _, _) = sim.trip_info(*id);
         let duration_before = if app.has_prebaked().is_some() {
@@ -211,7 +228,7 @@ fn make(
     }
 
     // Sort
-    match sort {
+    match opts.sort_by {
         SortBy::Departure => data.sort_by_key(|x| x.departure),
         SortBy::Duration => data.sort_by_key(|x| x.duration_after),
         SortBy::RelativeDuration => data.sort_by_key(|x| x.duration_after - x.duration_before),
@@ -221,14 +238,14 @@ fn make(
         SortBy::Waiting => data.sort_by_key(|x| x.waiting),
         SortBy::PercentWaiting => data.sort_by_key(|x| x.percent_waiting),
     }
-    if descending {
+    if opts.descending {
         data.reverse();
     }
     let total_rows = data.len();
 
     // Render data
     let mut rows = Vec::new();
-    for x in data.into_iter().skip(skip).take(ROWS) {
+    for x in data.into_iter().skip(opts.skip).take(ROWS) {
         let mut row = vec![
             Text::from(Line(x.trip.0.to_string())).render_ctx(ctx),
             Text::from(Line(x.mode.ongoing_verb()).fg(color_for_mode(app, x.mode))).render_ctx(ctx),
@@ -267,9 +284,13 @@ fn make(
     }
 
     let btn = |value, name| {
-        if sort == value {
-            Btn::text_bg2(format!("{} {}", name, if descending { "↓" } else { "↑" }))
-                .build(ctx, name, None)
+        if opts.sort_by == value {
+            Btn::text_bg2(format!(
+                "{} {}",
+                name,
+                if opts.descending { "↓" } else { "↑" }
+            ))
+            .build(ctx, name, None)
         } else {
             Btn::text_bg2(name).build_def(ctx, None)
         }
@@ -295,13 +316,20 @@ fn make(
                 ctx,
                 m.ongoing_verb(),
                 color_for_mode(app, m),
-                modes.contains(&m),
+                opts.modes.contains(&m),
             )
             .margin_right(5),
         );
         filters.push(m.ongoing_verb().draw_text(ctx).margin_right(10));
     }
     col.push(Widget::row(filters).margin_below(5));
+    col.push(
+        Widget::row(vec![
+            Checkbox::text(ctx, "starting off-map", None, opts.off_map_starts).margin_right(10),
+            Checkbox::text(ctx, "ending off-map", None, opts.off_map_ends),
+        ])
+        .margin_below(5),
+    );
     col.push(
         format!(
             "{} trips aborted due to simulation glitch",
@@ -312,7 +340,7 @@ fn make(
     );
     col.push(
         Widget::row(vec![
-            if skip > 0 {
+            if opts.skip > 0 {
                 Btn::text_fg("<").build(ctx, "previous trips", None)
             } else {
                 Btn::text_fg("<").inactive(ctx)
@@ -321,16 +349,16 @@ fn make(
             format!(
                 "{}-{} of {}",
                 if total_rows > 0 {
-                    prettyprint_usize(skip + 1)
+                    prettyprint_usize(opts.skip + 1)
                 } else {
                     "0".to_string()
                 },
-                prettyprint_usize((skip + 1 + ROWS).min(total_rows)),
+                prettyprint_usize((opts.skip + 1 + ROWS).min(total_rows)),
                 prettyprint_usize(total_rows)
             )
             .draw_text(ctx)
             .margin_right(10),
-            if skip + 1 + ROWS < total_rows {
+            if opts.skip + 1 + ROWS < total_rows {
                 Btn::text_fg(">").build(ctx, "next trips", None)
             } else {
                 Btn::text_fg(">").inactive(ctx)

@@ -5,10 +5,10 @@ use crate::sandbox::dashboards::trip_table::make_table;
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
-use ezgui::{Btn, Composite, EventCtx, GfxCtx, Line, Outcome, Text, TextExt, Widget};
+use ezgui::{Btn, Checkbox, Composite, EventCtx, GfxCtx, Line, Outcome, Text, TextExt, Widget};
 use geom::Duration;
 use maplit::btreemap;
-use sim::{TripID, TripPhaseType};
+use sim::{TripEndpoint, TripID, TripPhaseType};
 
 const ROWS: usize = 20;
 
@@ -18,9 +18,27 @@ const ROWS: usize = 20;
 
 pub struct ParkingOverhead {
     composite: Composite,
+    opts: Options,
+}
+
+struct Options {
     sort_by: SortBy,
     descending: bool,
+    off_map_starts: bool,
+    off_map_ends: bool,
     skip: usize,
+}
+
+impl Options {
+    fn change(&mut self, value: SortBy) {
+        self.skip = 0;
+        if self.sort_by == value {
+            self.descending = !self.descending;
+        } else {
+            self.sort_by = value;
+            self.descending = true;
+        }
+    }
 }
 
 #[derive(Clone, Copy, PartialEq)]
@@ -34,29 +52,21 @@ enum SortBy {
 
 impl ParkingOverhead {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
-        let sort_by = SortBy::PercentOverhead;
-        let descending = true;
-        let skip = 0;
+        let opts = Options {
+            sort_by: SortBy::PercentOverhead,
+            descending: true,
+            off_map_starts: true,
+            off_map_ends: true,
+            skip: 0,
+        };
         Box::new(ParkingOverhead {
-            composite: make(ctx, app, sort_by, descending, skip),
-            sort_by,
-            descending,
-            skip,
+            composite: make(ctx, app, &opts),
+            opts,
         })
     }
 
-    fn change(&mut self, value: SortBy) {
-        self.skip = 0;
-        if self.sort_by == value {
-            self.descending = !self.descending;
-        } else {
-            self.sort_by = value;
-            self.descending = true;
-        }
-    }
-
     fn recalc(&mut self, ctx: &mut EventCtx, app: &App) {
-        let mut new = make(ctx, app, self.sort_by, self.descending, self.skip);
+        let mut new = make(ctx, app, &self.opts);
         new.restore(ctx, &self.composite);
         self.composite = new;
     }
@@ -67,31 +77,31 @@ impl State for ParkingOverhead {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "Total duration" => {
-                    self.change(SortBy::TotalDuration);
+                    self.opts.change(SortBy::TotalDuration);
                     self.recalc(ctx, app);
                 }
                 "Driving duration" => {
-                    self.change(SortBy::DrivingDuration);
+                    self.opts.change(SortBy::DrivingDuration);
                     self.recalc(ctx, app);
                 }
                 "Parking duration" => {
-                    self.change(SortBy::ParkingDuration);
+                    self.opts.change(SortBy::ParkingDuration);
                     self.recalc(ctx, app);
                 }
                 "Walking duration" => {
-                    self.change(SortBy::WalkingDuration);
+                    self.opts.change(SortBy::WalkingDuration);
                     self.recalc(ctx, app);
                 }
                 "Percent overhead" => {
-                    self.change(SortBy::PercentOverhead);
+                    self.opts.change(SortBy::PercentOverhead);
                     self.recalc(ctx, app);
                 }
                 "previous trips" => {
-                    self.skip -= ROWS;
+                    self.opts.skip -= ROWS;
                     self.recalc(ctx, app);
                 }
                 "next trips" => {
-                    self.skip += ROWS;
+                    self.opts.skip += ROWS;
                     self.recalc(ctx, app);
                 }
                 x => {
@@ -112,7 +122,18 @@ impl State for ParkingOverhead {
                     return DashTab::ParkingOverhead.transition(ctx, app, x);
                 }
             },
-            None => {}
+            None => {
+                let off_map_starts = self.composite.is_checked("starting off-map");
+                let off_map_ends = self.composite.is_checked("ending off-map");
+                if self.opts.off_map_starts != off_map_starts
+                    || self.opts.off_map_ends != off_map_ends
+                {
+                    self.opts.off_map_starts = off_map_starts;
+                    self.opts.off_map_ends = off_map_ends;
+                    self.opts.skip = 0;
+                    self.recalc(ctx, app);
+                }
+            }
         };
 
         Transition::Keep
@@ -133,10 +154,22 @@ struct Entry {
     percent_overhead: usize,
 }
 
-fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool, skip: usize) -> Composite {
+fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
     // Gather raw data
     let mut data = Vec::new();
     for (id, phases) in app.primary.sim.get_analytics().get_all_trip_phases() {
+        let (_, start, end, _) = app.primary.sim.trip_info(id);
+        if !opts.off_map_starts {
+            if let TripEndpoint::Border(_, _) = start {
+                continue;
+            }
+        }
+        if !opts.off_map_ends {
+            if let TripEndpoint::Border(_, _) = end {
+                continue;
+            }
+        }
+
         let mut total_duration = Duration::ZERO;
         let mut driving_duration = Duration::ZERO;
         let mut parking_duration = Duration::ZERO;
@@ -178,21 +211,21 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool, skip: usi
     }
 
     // Sort
-    match sort {
+    match opts.sort_by {
         SortBy::TotalDuration => data.sort_by_key(|x| x.total_duration),
         SortBy::DrivingDuration => data.sort_by_key(|x| x.driving_duration),
         SortBy::ParkingDuration => data.sort_by_key(|x| x.parking_duration),
         SortBy::WalkingDuration => data.sort_by_key(|x| x.walking_duration),
         SortBy::PercentOverhead => data.sort_by_key(|x| x.percent_overhead),
     }
-    if descending {
+    if opts.descending {
         data.reverse();
     }
     let total_rows = data.len();
 
     // Render data
     let mut rows = Vec::new();
-    for x in data.into_iter().skip(skip).take(ROWS) {
+    for x in data.into_iter().skip(opts.skip).take(ROWS) {
         rows.push((
             x.trip.0.to_string(),
             vec![
@@ -207,9 +240,13 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool, skip: usi
     }
 
     let btn = |value, name| {
-        if sort == value {
-            Btn::text_bg2(format!("{} {}", name, if descending { "↓" } else { "↑" }))
-                .build(ctx, name, None)
+        if opts.sort_by == value {
+            Btn::text_bg2(format!(
+                "{} {}",
+                name,
+                if opts.descending { "↓" } else { "↑" }
+            ))
+            .build(ctx, name, None)
         } else {
             Btn::text_bg2(name).build_def(ctx, None)
         }
@@ -246,7 +283,14 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool, skip: usi
     );
     col.push(
         Widget::row(vec![
-            if skip > 0 {
+            Checkbox::text(ctx, "starting off-map", None, opts.off_map_starts).margin_right(10),
+            Checkbox::text(ctx, "ending off-map", None, opts.off_map_ends),
+        ])
+        .margin_below(5),
+    );
+    col.push(
+        Widget::row(vec![
+            if opts.skip > 0 {
                 Btn::text_fg("<").build(ctx, "previous trips", None)
             } else {
                 Btn::text_fg("<").inactive(ctx)
@@ -255,16 +299,16 @@ fn make(ctx: &mut EventCtx, app: &App, sort: SortBy, descending: bool, skip: usi
             format!(
                 "{}-{} of {}",
                 if total_rows > 0 {
-                    prettyprint_usize(skip + 1)
+                    prettyprint_usize(opts.skip + 1)
                 } else {
                     "0".to_string()
                 },
-                prettyprint_usize((skip + 1 + ROWS).min(total_rows)),
+                prettyprint_usize((opts.skip + 1 + ROWS).min(total_rows)),
                 prettyprint_usize(total_rows)
             )
             .draw_text(ctx)
             .margin_right(10),
-            if skip + 1 + ROWS < total_rows {
+            if opts.skip + 1 + ROWS < total_rows {
                 Btn::text_fg(">").build(ctx, "next trips", None)
             } else {
                 Btn::text_fg(">").inactive(ctx)

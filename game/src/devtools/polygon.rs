@@ -66,7 +66,7 @@ impl State for PolygonEditor {
                 }
                 "export as an Osmosis polygon filter" => {
                     if self.points.len() >= 3 {
-                        save_as_osmosis(&self.points);
+                        save_as_osmosis(&self.points).unwrap();
                     }
                 }
                 _ => unreachable!(),
