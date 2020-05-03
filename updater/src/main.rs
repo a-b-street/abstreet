@@ -10,6 +10,9 @@ fn main() {
             "--upload" => {
                 upload();
             }
+            "--dry" => {
+                just_compare();
+            }
             x => {
                 println!("Unknown argument {}", x);
                 std::process::exit(1);
@@ -49,6 +52,28 @@ fn download() {
             run(Command::new("rm").arg(&path));
             run(Command::new("unzip").arg("tmp_download.zip").arg(path));
             run(Command::new("rm").arg("tmp_download.zip"));
+        }
+    }
+}
+
+fn just_compare() {
+    let cities = Cities::load_or_create();
+    let local = Manifest::generate();
+    let truth = Manifest::load("data/MANIFEST.txt".to_string())
+        .unwrap()
+        .filter(cities);
+
+    // Anything local need deleting?
+    for path in local.0.keys() {
+        if !truth.0.contains_key(path) {
+            println!("- Remove {}", path);
+        }
+    }
+
+    // Anything missing or needing updating?
+    for (path, entry) in truth.0 {
+        if local.0.get(&path).map(|x| &x.checksum) != Some(&entry.checksum) {
+            println!("- Update {}", path);
         }
     }
 }

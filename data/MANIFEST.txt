@@ -5,18 +5,18 @@ data/input/barranquilla/osm/barranquilla.osm,ff0f301a84d21f20c87ee7fa3ae3518f,ht
 data/input/barranquilla/osm/colombia.osm.pbf,31c7abfcc1ec4625e6e4fbee9e89bfd3,Couldn't get shared link: Unknown Error
 data/input/los_angeles/osm/downtown_la.osm,9b2c4729d3031553a477bb2e1134a6bf,https://www.dropbox.com/s/235jahht1xyulkx/downtown_la.osm.zip?dl=0
 data/input/los_angeles/osm/socal.osm.pbf,1dd1b7d3a6d38829a8266b0b6ea60b85,https://www.dropbox.com/s/gdd7lth4fmy0fby/socal.osm.pbf.zip?dl=0
-data/input/raw_maps/23rd.bin,9bfd89ddbc346a4e74fd8e64d6c6a0c0,https://www.dropbox.com/s/9g5589k9swdln9y/23rd.bin.zip?dl=0
-data/input/raw_maps/ballard.bin,9ff05ead40b54f842ea99c97c274f2f9,https://www.dropbox.com/s/wus0ufcnjyvcsuy/ballard.bin.zip?dl=0
+data/input/raw_maps/23rd.bin,3fcdd5da74ed97515058174011a63bd2,https://www.dropbox.com/s/9g5589k9swdln9y/23rd.bin.zip?dl=0
+data/input/raw_maps/ballard.bin,14876451715fc09af7ad412830702452,https://www.dropbox.com/s/wus0ufcnjyvcsuy/ballard.bin.zip?dl=0
 data/input/raw_maps/barranquilla.bin,160c3e6ba29afb1ca0981c8619b4b4f8,https://www.dropbox.com/s/5z890kpowgeftk4/barranquilla.bin.zip?dl=0
-data/input/raw_maps/caphill.bin,e6972c81efaa95e891660a3e565a4760,https://www.dropbox.com/s/vybo4owf8pzuita/caphill.bin.zip?dl=0
-data/input/raw_maps/downtown.bin,34aea57a80555addd96406917e472357,https://www.dropbox.com/s/ntqzttf25037fty/downtown.bin.zip?dl=0
+data/input/raw_maps/caphill.bin,39203345538e171af64bd4715df17b6e,https://www.dropbox.com/s/vybo4owf8pzuita/caphill.bin.zip?dl=0
+data/input/raw_maps/downtown.bin,6de1dcd371c88a3356c91008ae2bd76a,https://www.dropbox.com/s/ntqzttf25037fty/downtown.bin.zip?dl=0
 data/input/raw_maps/downtown_atx.bin,d4f6ece8ef35c594c794928d651c5916,https://www.dropbox.com/s/0cs55y1jcmm2alk/downtown_atx.bin.zip?dl=0
 data/input/raw_maps/downtown_la.bin,f7ea2e3cfcd688e0effae80ec9440af0,https://www.dropbox.com/s/ca7eoxem5t9y99g/downtown_la.bin.zip?dl=0
 data/input/raw_maps/huge_austin.bin,b50223a417508afb924252ae3ecd24ad,https://www.dropbox.com/s/we0765ym7dlcsl1/huge_austin.bin.zip?dl=0
-data/input/raw_maps/huge_seattle.bin,55a13d6252de8273153fce7f3d43864b,https://www.dropbox.com/s/jcssts861uaovva/huge_seattle.bin.zip?dl=0
-data/input/raw_maps/intl_district.bin,984e24fd958aedf7f9dcf030ecbd0b42,https://www.dropbox.com/s/yopzq58r9t4y93v/intl_district.bin.zip?dl=0
-data/input/raw_maps/lakeslice.bin,8926263ac28d92fe264f977fb851a99e,https://www.dropbox.com/s/4nmdtw0mgqe7tyg/lakeslice.bin.zip?dl=0
-data/input/raw_maps/montlake.bin,530521311e09da554127fd08bb43c34b,https://www.dropbox.com/s/qk8rhwr6vdm79vz/montlake.bin.zip?dl=0
+data/input/raw_maps/huge_seattle.bin,15f300c8e5b0f72a1f9bf517ed438614,https://www.dropbox.com/s/jcssts861uaovva/huge_seattle.bin.zip?dl=0
+data/input/raw_maps/intl_district.bin,cb3878b8911e90f6a8da72817a0ba673,https://www.dropbox.com/s/yopzq58r9t4y93v/intl_district.bin.zip?dl=0
+data/input/raw_maps/lakeslice.bin,93734afc9a8a8b0528983e249aabe915,https://www.dropbox.com/s/4nmdtw0mgqe7tyg/lakeslice.bin.zip?dl=0
+data/input/raw_maps/montlake.bin,65524b250c114e9445274b488111ed19,https://www.dropbox.com/s/qk8rhwr6vdm79vz/montlake.bin.zip?dl=0
 data/input/screenshots/lakeslice/01x01_i328.gif,40b1e76bb29e46823fa52186c891578b,https://www.dropbox.com/s/64ycqgm8dvta506/01x01_i328.gif.zip?dl=0
 data/input/screenshots/lakeslice/01x02_i163.gif,b5eee977fcd6e0c96654bcd18628f6b0,https://www.dropbox.com/s/6zebcdhbeirab49/01x02_i163.gif.zip?dl=0
 data/input/screenshots/lakeslice/01x03_i1.gif,3a161351c6d270dd9e109b620eb476f6,https://www.dropbox.com/s/qn65mm834k8w1jr/01x03_i1.gif.zip?dl=0

@@ -7,11 +7,20 @@ use map_model::{osm, IntersectionType};
 use std::collections::{HashMap, HashSet};
 
 pub fn split_up_roads(
-    (mut map, roads, traffic_signals, osm_node_ids, turn_restrictions, amenities): (
+    (
+        mut map,
+        roads,
+        traffic_signals,
+        osm_node_ids,
+        simple_turn_restrictions,
+        complicated_turn_restrictions,
+        amenities,
+    ): (
         RawMap,
         Vec<(i64, RawRoad)>,
         HashSet<HashablePt2D>,
         HashMap<HashablePt2D, i64>,
+        Vec<(RestrictionType, i64, i64, i64)>,
         Vec<(RestrictionType, i64, i64, i64)>,
         Vec<(Pt2D, String, String)>,
     ),
@@ -97,35 +106,25 @@ pub fn split_up_roads(
         assert!(pts.len() == 1);
     }
 
-    // Resolve turn restrictions
+    // Resolve simple turn restrictions (via a node)
     let mut restrictions = Vec::new();
-    for (restriction, from_osm, via_osm, to_osm) in turn_restrictions {
-        // TODO Brute less force.
-        let mut found = false;
-        'OUTER: for r in map.roads.keys() {
-            if r.osm_way_id != from_osm {
-                continue;
+    for (restriction, from_osm, via_osm, to_osm) in simple_turn_restrictions {
+        let roads = map.roads_per_intersection(OriginalIntersection {
+            osm_node_id: via_osm,
+        });
+        match (
+            roads.iter().find(|r| r.osm_way_id == from_osm),
+            roads.iter().find(|r| r.osm_way_id == to_osm),
+        ) {
+            (Some(from), Some(to)) => {
+                restrictions.push((*from, restriction, *to));
             }
-            let i = if r.i1.osm_node_id == via_osm {
-                r.i1
-            } else if r.i2.osm_node_id == via_osm {
-                r.i2
-            } else {
-                continue;
-            };
-            for r_to in map.roads_per_intersection(i) {
-                if r_to.osm_way_id == to_osm {
-                    restrictions.push((*r, restriction, r_to));
-                    found = true;
-                    break 'OUTER;
-                }
+            _ => {
+                timer.warn(format!(
+                    "Couldn't resolve {:?} from {} to {} via node {}",
+                    restriction, from_osm, to_osm, via_osm
+                ));
             }
-        }
-        if !found {
-            timer.warn(format!(
-                "Couldn't resolve {:?} from {} to {} via node {}",
-                restriction, from_osm, to_osm, via_osm
-            ));
         }
     }
     for (from, rt, to) in restrictions {
@@ -134,6 +133,48 @@ pub fn split_up_roads(
             .unwrap()
             .turn_restrictions
             .push((rt, to));
+    }
+
+    // Resolve complicated turn restrictions (via a way). TODO Only handle via ways immediately
+    // connected to both roads, for now
+    for (restriction, from_osm, via_osm, to_osm) in complicated_turn_restrictions {
+        let via_candidates: Vec<OriginalRoad> = map
+            .roads
+            .keys()
+            .filter(|r| r.osm_way_id == via_osm)
+            .cloned()
+            .collect();
+        if via_candidates.len() != 1 {
+            timer.warn(format!(
+                "Couldn't resolve {:?} from {} to {} via way {}. Candidate roads for via: {:?}",
+                restriction, from_osm, to_osm, via_osm, via_candidates
+            ));
+            continue;
+        }
+        let via = via_candidates[0];
+
+        let maybe_from = map
+            .roads_per_intersection(via.i1)
+            .into_iter()
+            .chain(map.roads_per_intersection(via.i2).into_iter())
+            .find(|r| r.osm_way_id == from_osm);
+        let maybe_to = map
+            .roads_per_intersection(via.i1)
+            .into_iter()
+            .chain(map.roads_per_intersection(via.i2).into_iter())
+            .find(|r| r.osm_way_id == to_osm);
+        match (maybe_from, maybe_to) {
+            (Some(from), Some(to)) => {
+                map.complicated_turn_restrictions
+                    .push((from, via, to, restriction));
+            }
+            _ => {
+                timer.warn(format!(
+                    "Couldn't resolve {:?} from {} to {} via {:?}",
+                    restriction, from_osm, to_osm, via
+                ));
+            }
+        }
     }
 
     timer.stop("splitting up roads");

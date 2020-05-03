@@ -21,7 +21,9 @@ pub fn extract_osm(
     HashSet<HashablePt2D>,
     // OSM Node IDs
     HashMap<HashablePt2D, i64>,
-    // Turn restrictions: (restriction type, from way ID, via node ID, to way ID)
+    // Simple turn restrictions: (restriction type, from way ID, via node ID, to way ID)
+    Vec<(RestrictionType, i64, i64, i64)>,
+    // Complicated turn restrictions: (restriction type, from way ID, via way ID, to way ID)
     Vec<(RestrictionType, i64, i64, i64)>,
     // Amenities (location, name, amenity type)
     Vec<(Pt2D, String, String)>,
@@ -179,7 +181,8 @@ pub fn extract_osm(
 
     let boundary = Ring::new(map.boundary_polygon.points().clone());
 
-    let mut turn_restrictions = Vec::new();
+    let mut simple_turn_restrictions = Vec::new();
+    let mut complicated_turn_restrictions = Vec::new();
     timer.start_iter("processing OSM relations", doc.relations.len());
     for rel in doc.relations.values() {
         timer.next();
@@ -224,6 +227,7 @@ pub fn extract_osm(
         } else if tags.get("type") == Some(&"restriction".to_string()) {
             let mut from_way_id: Option<i64> = None;
             let mut via_node_id: Option<i64> = None;
+            let mut via_way_id: Option<i64> = None;
             let mut to_way_id: Option<i64> = None;
             for member in &rel.members {
                 match member {
@@ -232,8 +236,9 @@ pub fn extract_osm(
                             from_way_id = Some(*id);
                         } else if role == "to" {
                             to_way_id = Some(*id);
+                        } else if role == "via" {
+                            via_way_id = Some(*id);
                         }
-                        // TODO Handle 'via' ways
                     }
                     osm_xml::Member::Node(osm_xml::UnresolvedReference::Node(id), ref role) => {
                         if role == "via" {
@@ -243,12 +248,15 @@ pub fn extract_osm(
                     _ => unreachable!(),
                 }
             }
-            if let (Some(from_way_id), Some(via_node_id), Some(to_way_id)) =
-                (from_way_id, via_node_id, to_way_id)
-            {
-                if let Some(restriction) = tags.get("restriction") {
-                    if let Some(rt) = RestrictionType::new(restriction) {
-                        turn_restrictions.push((rt, from_way_id, via_node_id, to_way_id));
+            if let Some(restriction) = tags.get("restriction") {
+                if let Some(rt) = RestrictionType::new(restriction) {
+                    if let (Some(from), Some(via), Some(to)) = (from_way_id, via_node_id, to_way_id)
+                    {
+                        simple_turn_restrictions.push((rt, from, via, to));
+                    } else if let (Some(from), Some(via), Some(to)) =
+                        (from_way_id, via_way_id, to_way_id)
+                    {
+                        complicated_turn_restrictions.push((rt, from, via, to));
                     }
                 }
             }
@@ -273,7 +281,8 @@ pub fn extract_osm(
         roads,
         traffic_signals,
         osm_node_ids,
-        turn_restrictions,
+        simple_turn_restrictions,
+        complicated_turn_restrictions,
         amenities,
     )
 }

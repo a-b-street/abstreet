@@ -1,4 +1,4 @@
-use crate::utils::{download, osmconvert, rm};
+use crate::utils::{download, osmconvert};
 
 fn input() {
     download(
@@ -14,7 +14,6 @@ pub fn osm_to_raw(name: &str) {
         format!("../data/input/los_angeles/polygons/{}.poly", name),
         format!("../data/input/los_angeles/osm/{}.osm", name),
     );
-    rm(format!("../data/system/maps/{}.bin", name));
 
     println!("- Running convert_osm");
     let output = format!("../data/input/raw_maps/{}.bin", name);

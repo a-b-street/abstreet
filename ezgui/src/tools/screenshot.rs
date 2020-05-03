@@ -87,7 +87,10 @@ fn screencap(filename: &str) -> bool {
         );
         return false;
     }
-    process::Command::new("rm").arg("screenshot.png").status().unwrap();
+    process::Command::new("rm")
+        .arg("screenshot.png")
+        .status()
+        .unwrap();
 
     true
 }
