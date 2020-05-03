@@ -45,6 +45,8 @@ fn download() {
                 .arg("-o")
                 .arg("tmp_download.zip")
                 .arg(entry.dropbox_url.unwrap()));
+            // unzip won't overwrite
+            run(Command::new("rm").arg(&path));
             run(Command::new("unzip").arg("tmp_download.zip").arg(path));
             run(Command::new("rm").arg("tmp_download.zip"));
         }
