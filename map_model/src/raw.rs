@@ -28,9 +28,6 @@ pub struct RawMap {
     pub buildings: BTreeMap<OriginalBuilding, RawBuilding>,
     pub bus_routes: Vec<Route>,
     pub areas: Vec<RawArea>,
-    // (from, via, to, type). For turn restrictions where 'via' is an entire road.
-    pub complicated_turn_restrictions:
-        Vec<(OriginalRoad, OriginalRoad, OriginalRoad, RestrictionType)>,
 
     pub boundary_polygon: Polygon,
     pub gps_bounds: GPSBounds,
@@ -100,7 +97,6 @@ impl RawMap {
             buildings: BTreeMap::new(),
             bus_routes: Vec::new(),
             areas: Vec::new(),
-            complicated_turn_restrictions: Vec::new(),
             // Some nonsense thing
             boundary_polygon: Polygon::rectangle(1.0, 1.0),
             gps_bounds: GPSBounds::new(),
@@ -548,6 +544,8 @@ pub struct RawRoad {
     pub center_points: Vec<Pt2D>,
     pub osm_tags: BTreeMap<String, String>,
     pub turn_restrictions: Vec<(RestrictionType, OriginalRoad)>,
+    // (via, to). For turn restrictions where 'via' is an entire road. Only BanTurns.
+    pub complicated_turn_restrictions: Vec<(OriginalRoad, OriginalRoad)>,
 }
 
 impl RawRoad {

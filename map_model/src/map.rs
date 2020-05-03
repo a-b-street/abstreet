@@ -893,12 +893,29 @@ fn make_half_map(
                 .turn_restrictions
                 .iter()
                 .filter_map(|(rt, to)| {
-                    if let Some(t) = road_id_mapping.get(to) {
-                        Some((*rt, *t))
+                    if let Some(to) = road_id_mapping.get(to) {
+                        Some((*rt, *to))
                     } else {
                         timer.warn(format!(
                             "Turn restriction from {} points to invalid dst {}",
                             r.id, to
+                        ));
+                        None
+                    }
+                })
+                .collect(),
+            complicated_turn_restrictions: raw.roads[&r.id]
+                .complicated_turn_restrictions
+                .iter()
+                .filter_map(|(via, to)| {
+                    if let (Some(via), Some(to)) =
+                        (road_id_mapping.get(via), road_id_mapping.get(to))
+                    {
+                        Some((*via, *to))
+                    } else {
+                        timer.warn(format!(
+                            "Complicated turn restriction from {} has invalid via {} or dst {}",
+                            r.id, via, to
                         ));
                         None
                     }

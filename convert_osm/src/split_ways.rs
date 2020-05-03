@@ -21,7 +21,7 @@ pub fn split_up_roads(
         HashSet<HashablePt2D>,
         HashMap<HashablePt2D, i64>,
         Vec<(RestrictionType, i64, i64, i64)>,
-        Vec<(RestrictionType, i64, i64, i64)>,
+        Vec<(i64, i64, i64)>,
         Vec<(Pt2D, String, String)>,
     ),
     timer: &mut Timer,
@@ -137,7 +137,8 @@ pub fn split_up_roads(
 
     // Resolve complicated turn restrictions (via a way). TODO Only handle via ways immediately
     // connected to both roads, for now
-    for (restriction, from_osm, via_osm, to_osm) in complicated_turn_restrictions {
+    let mut complicated_restrictions = Vec::new();
+    for (from_osm, via_osm, to_osm) in complicated_turn_restrictions {
         let via_candidates: Vec<OriginalRoad> = map
             .roads
             .keys()
@@ -146,8 +147,9 @@ pub fn split_up_roads(
             .collect();
         if via_candidates.len() != 1 {
             timer.warn(format!(
-                "Couldn't resolve {:?} from {} to {} via way {}. Candidate roads for via: {:?}",
-                restriction, from_osm, to_osm, via_osm, via_candidates
+                "Couldn't resolve turn restriction from {} to {} via way {}. Candidate roads for \
+                 via: {:?}",
+                from_osm, to_osm, via_osm, via_candidates
             ));
             continue;
         }
@@ -165,16 +167,22 @@ pub fn split_up_roads(
             .find(|r| r.osm_way_id == to_osm);
         match (maybe_from, maybe_to) {
             (Some(from), Some(to)) => {
-                map.complicated_turn_restrictions
-                    .push((from, via, to, restriction));
+                complicated_restrictions.push((from, via, to));
             }
             _ => {
                 timer.warn(format!(
-                    "Couldn't resolve {:?} from {} to {} via {:?}",
-                    restriction, from_osm, to_osm, via
+                    "Couldn't resolve turn restriction from {} to {} via {:?}",
+                    from_osm, to_osm, via
                 ));
             }
         }
+    }
+    for (from, via, to) in complicated_restrictions {
+        map.roads
+            .get_mut(&from)
+            .unwrap()
+            .complicated_turn_restrictions
+            .push((via, to));
     }
 
     timer.stop("splitting up roads");

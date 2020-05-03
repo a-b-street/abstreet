@@ -94,6 +94,8 @@ pub struct Road {
     pub osm_tags: BTreeMap<String, String>,
     // self is 'from'
     pub turn_restrictions: Vec<(RestrictionType, RoadID)>,
+    // self is 'from'. (via, to). Only BanTurns.
+    pub complicated_turn_restrictions: Vec<(RoadID, RoadID)>,
     pub orig_id: OriginalRoad,
 
     // Invariant: A road must contain at least one child

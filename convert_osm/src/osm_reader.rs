@@ -23,8 +23,8 @@ pub fn extract_osm(
     HashMap<HashablePt2D, i64>,
     // Simple turn restrictions: (restriction type, from way ID, via node ID, to way ID)
     Vec<(RestrictionType, i64, i64, i64)>,
-    // Complicated turn restrictions: (restriction type, from way ID, via way ID, to way ID)
-    Vec<(RestrictionType, i64, i64, i64)>,
+    // Complicated turn restrictions: (from way ID, via way ID, to way ID)
+    Vec<(i64, i64, i64)>,
     // Amenities (location, name, amenity type)
     Vec<(Pt2D, String, String)>,
 ) {
@@ -143,6 +143,7 @@ pub fn extract_osm(
                     center_points: pts,
                     osm_tags: tags,
                     turn_restrictions: Vec::new(),
+                    complicated_turn_restrictions: Vec::new(),
                 },
             ));
         } else if is_bldg(&tags) {
@@ -256,7 +257,14 @@ pub fn extract_osm(
                     } else if let (Some(from), Some(via), Some(to)) =
                         (from_way_id, via_way_id, to_way_id)
                     {
-                        complicated_turn_restrictions.push((rt, from, via, to));
+                        if rt == RestrictionType::BanTurns {
+                            complicated_turn_restrictions.push((from, via, to));
+                        } else {
+                            timer.warn(format!(
+                                "Weird complicated turn restriction from {} to {} via {}: {}",
+                                from, to, via, restriction
+                            ));
+                        }
                     }
                 }
             }
