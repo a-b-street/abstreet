@@ -941,6 +941,12 @@ impl DrivingSimState {
         let car = self.cars.get(&id)?;
         Some(car.router.get_path())
     }
+    pub fn get_all_driving_paths(&self) -> Vec<&Path> {
+        self.cars
+            .values()
+            .map(|car| car.router.get_path())
+            .collect()
+    }
 
     pub fn trace_route(
         &self,

@@ -27,6 +27,7 @@ pub enum Layers {
     WorstDelay(Time, Colorer),
     TrafficJams(Time, Colorer),
     CumulativeThroughput(Time, Colorer),
+    Backpressure(Time, Colorer),
     BikeNetwork(Colorer, Option<Colorer>),
     BusNetwork(Colorer),
     Elevation(Colorer, Drawable),
@@ -72,6 +73,11 @@ impl Layers {
                     app.layer = traffic::throughput(ctx, app);
                 }
             }
+            Layers::Backpressure(t, _) => {
+                if now != t {
+                    app.layer = traffic::backpressure(ctx, app);
+                }
+            }
             Layers::IntersectionDemand(t, i, _, _) => {
                 if now != t {
                     app.layer = traffic::intersection_demand(ctx, app, i);
@@ -107,6 +113,7 @@ impl Layers {
             | Layers::WorstDelay(_, ref mut c)
             | Layers::TrafficJams(_, ref mut c)
             | Layers::CumulativeThroughput(_, ref mut c)
+            | Layers::Backpressure(_, ref mut c)
             | Layers::Edits(ref mut c) => {
                 c.legend.align_above(ctx, minimap);
                 if c.event(ctx) {
@@ -214,6 +221,7 @@ impl Layers {
             | Layers::WorstDelay(_, ref c)
             | Layers::TrafficJams(_, ref c)
             | Layers::CumulativeThroughput(_, ref c)
+            | Layers::Backpressure(_, ref c)
             | Layers::Edits(ref c) => {
                 c.draw(g);
             }
@@ -261,6 +269,7 @@ impl Layers {
             | Layers::WorstDelay(_, ref c)
             | Layers::TrafficJams(_, ref c)
             | Layers::CumulativeThroughput(_, ref c)
+            | Layers::Backpressure(_, ref c)
             | Layers::Edits(ref c) => {
                 g.redraw(&c.unzoomed);
             }
@@ -303,6 +312,7 @@ impl Layers {
             Btn::text_fg("parking occupancy").build_def(ctx, hotkey(Key::P)),
             Btn::text_fg("delay").build_def(ctx, hotkey(Key::D)),
             Btn::text_fg("throughput").build_def(ctx, hotkey(Key::T)),
+            Btn::text_fg("backpressure").build_def(ctx, hotkey(Key::Z)),
             Btn::text_fg("bike network").build_def(ctx, hotkey(Key::B)),
             Btn::text_fg("bus network").build_def(ctx, hotkey(Key::U)),
             Btn::text_fg("population map").build_def(ctx, hotkey(Key::X)),
@@ -316,6 +326,7 @@ impl Layers {
             Layers::WorstDelay(_, _) => Some("delay"),
             Layers::TrafficJams(_, _) => Some("worst traffic jams"),
             Layers::CumulativeThroughput(_, _) => Some("throughput"),
+            Layers::Backpressure(_, _) => Some("backpressure"),
             Layers::BikeNetwork(_, _) => Some("bike network"),
             Layers::BusNetwork(_) => Some("bus network"),
             Layers::Elevation(_, _) => Some("elevation"),
@@ -375,6 +386,13 @@ impl Layers {
             "throughput",
             Box::new(|ctx, app| {
                 app.layer = traffic::throughput(ctx, app);
+                Some(Transition::Pop)
+            }),
+        )
+        .maybe_cb(
+            "backpressure",
+            Box::new(|ctx, app| {
+                app.layer = traffic::backpressure(ctx, app);
                 Some(Transition::Pop)
             }),
         )

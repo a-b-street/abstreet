@@ -1041,6 +1041,9 @@ impl Sim {
             AgentID::Pedestrian(ped) => self.walking.get_path(ped),
         }
     }
+    pub fn get_all_driving_paths(&self) -> Vec<&Path> {
+        self.driving.get_all_driving_paths()
+    }
 
     pub fn trace_route(
         &self,

@@ -1,13 +1,13 @@
 use crate::app::App;
 use crate::common::{ColorLegend, Colorer};
 use crate::layer::Layers;
-use abstutil::prettyprint_usize;
+use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
     Btn, Color, Composite, EventCtx, GeomBatch, HorizontalAlignment, Line, RewriteColor, Text,
     TextExt, VerticalAlignment, Widget,
 };
 use geom::{Angle, Distance, Duration, PolyLine};
-use map_model::IntersectionID;
+use map_model::{IntersectionID, Traversable};
 
 pub fn delay(ctx: &mut EventCtx, app: &App) -> Layers {
     // TODO explain more
@@ -133,6 +133,74 @@ pub fn throughput(ctx: &mut EventCtx, app: &App) -> Layers {
     }
 
     Layers::CumulativeThroughput(app.primary.sim.time(), colorer.build_unzoomed(ctx, app))
+}
+
+pub fn backpressure(ctx: &mut EventCtx, app: &App) -> Layers {
+    // TODO Explain more. Vehicle traffic only!
+    // TODO Same caveats as throughput()
+    let mut colorer = Colorer::scaled(
+        ctx,
+        "Backpressure (percentiles)",
+        Vec::new(),
+        app.cs.good_to_bad.to_vec(),
+        vec!["0", "50", "90", "99", "100"],
+    );
+
+    let mut cnt_per_r = Counter::new();
+    let mut cnt_per_i = Counter::new();
+
+    for path in app.primary.sim.get_all_driving_paths() {
+        for step in path.get_steps() {
+            match step.as_traversable() {
+                Traversable::Lane(l) => {
+                    cnt_per_r.inc(app.primary.map.get_l(l).parent);
+                }
+                Traversable::Turn(t) => {
+                    cnt_per_i.inc(t.parent);
+                }
+            }
+        }
+    }
+
+    // TODO dedupe with throughput
+    {
+        let roads = cnt_per_r.sorted_asc();
+        let p50_idx = ((roads.len() as f64) * 0.5) as usize;
+        let p90_idx = ((roads.len() as f64) * 0.9) as usize;
+        let p99_idx = ((roads.len() as f64) * 0.99) as usize;
+        for (idx, r) in roads.into_iter().enumerate() {
+            let color = if idx < p50_idx {
+                app.cs.good_to_bad[0]
+            } else if idx < p90_idx {
+                app.cs.good_to_bad[1]
+            } else if idx < p99_idx {
+                app.cs.good_to_bad[2]
+            } else {
+                app.cs.good_to_bad[3]
+            };
+            colorer.add_r(*r, color, &app.primary.map);
+        }
+    }
+    {
+        let intersections = cnt_per_i.sorted_asc();
+        let p50_idx = ((intersections.len() as f64) * 0.5) as usize;
+        let p90_idx = ((intersections.len() as f64) * 0.9) as usize;
+        let p99_idx = ((intersections.len() as f64) * 0.99) as usize;
+        for (idx, i) in intersections.into_iter().enumerate() {
+            let color = if idx < p50_idx {
+                app.cs.good_to_bad[0]
+            } else if idx < p90_idx {
+                app.cs.good_to_bad[1]
+            } else if idx < p99_idx {
+                app.cs.good_to_bad[2]
+            } else {
+                app.cs.good_to_bad[3]
+            };
+            colorer.add_i(*i, color);
+        }
+    }
+
+    Layers::Backpressure(app.primary.sim.time(), colorer.build_unzoomed(ctx, app))
 }
 
 pub fn intersection_demand(ctx: &mut EventCtx, app: &App, i: IntersectionID) -> Layers {

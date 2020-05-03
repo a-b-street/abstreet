@@ -1,6 +1,6 @@
 use crate::{AlertLocation, CarID, Event, ParkingSpot, TripID, TripMode, TripPhaseType};
 use abstutil::Counter;
-use geom::{Distance, Duration, Histogram, Time};
+use geom::{Distance, Duration, Histogram, Statistic, Time};
 use map_model::{
     BusRouteID, BusStopID, IntersectionID, LaneID, Map, Path, PathRequest, RoadID, Traversable,
     TurnGroupID,
@@ -471,26 +471,17 @@ impl Analytics {
         trips
     }
 
-    pub fn intersection_delays(
-        &self,
-        i: IntersectionID,
-        t1: Time,
-        t2: Time,
-    ) -> Histogram<Duration> {
-        let mut delays = Histogram::new();
-        // TODO Binary search
-        if let Some(list) = self.intersection_delays.get(&i) {
-            for (t, dt) in list {
-                if *t < t1 {
-                    continue;
-                }
-                if *t > t2 {
-                    break;
-                }
-                delays.add(*dt);
+    // TODO Unused right now!
+    pub fn intersection_delays_all_day(&self, stat: Statistic) -> Vec<(IntersectionID, Duration)> {
+        let mut results = Vec::new();
+        for (i, delays) in &self.intersection_delays {
+            let mut hgram = Histogram::new();
+            for (_, dt) in delays {
+                hgram.add(*dt);
             }
+            results.push((*i, hgram.select(stat)));
         }
-        delays
+        results
     }
 
     pub fn intersection_delays_bucketized(
