@@ -396,3 +396,12 @@ changes here.
 - parking changes: show path to closest free spot, utilization of a lane over time, every building includes at least 1 offstreet spot by default
 - progress on removing unrealistic gridlock: detect turn conflict cycles and temporarily allow conflicts, trim last steps of a laggy head
 - internal sim alert system. speeds up debugging, could be used for player-facing "traffic jam!" alerts
+
+0.1.39
+
+- switched to proper OSM-based maps; no more brittle, manual geometry fixes
+- more sorting and filtering options in trip table and parking overhead tables
+- improve offstreet parking rendering. park closer to destination buildings
+- easier process for importing new cities. introducing Los Angeles, Austin, Barranquilla.
+- new data updater tool so people can opt-in to new cities
+- many internal fixes to prevent gridlock. smarter cycle detection, manual OSM fixes and traffic signal timings
