@@ -1,6 +1,6 @@
 use crate::app::App;
 use crate::common::CommonState;
-use crate::edit::{apply_map_edits, can_edit_lane, check_parking_blackholes};
+use crate::edit::{apply_map_edits, can_edit_lane};
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::render::Renderable;
@@ -170,12 +170,7 @@ impl State for LaneEditor {
                     Ok(cmd) => {
                         let mut edits = app.primary.map.get_edits().clone();
                         edits.commands.push(cmd);
-
-                        // Not so fast!
-                        if let Some(err_state) = check_parking_blackholes(ctx, app, edits) {
-                            return Transition::Push(err_state);
-                        }
-
+                        apply_map_edits(ctx, app, edits);
                         return Transition::Replace(Box::new(LaneEditor::new(
                             ctx,
                             app,

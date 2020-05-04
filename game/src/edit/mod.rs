@@ -496,6 +496,7 @@ pub fn close_intersection(
     }
 }
 
+#[allow(unused)]
 pub fn check_parking_blackholes(
     ctx: &mut EventCtx,
     app: &mut App,

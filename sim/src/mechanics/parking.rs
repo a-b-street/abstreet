@@ -70,10 +70,10 @@ impl ParkingSimState {
         }
         for b in map.all_buildings() {
             if let Some(ref p) = b.parking {
-                // Map construction is supposed to enforce this
-                assert!(map.get_l(p.driving_pos.lane()).parking_blackhole.is_none());
-                sim.num_spots_per_offstreet.insert(b.id, p.num_spots);
-                sim.driving_to_offstreet.insert(p.driving_pos.lane(), b.id);
+                if map.get_l(p.driving_pos.lane()).parking_blackhole.is_none() {
+                    sim.num_spots_per_offstreet.insert(b.id, p.num_spots);
+                    sim.driving_to_offstreet.insert(p.driving_pos.lane(), b.id);
+                }
             }
         }
         sim
