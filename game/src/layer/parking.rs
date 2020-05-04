@@ -1,13 +1,25 @@
 use crate::app::App;
-use crate::common::Colorer;
+use crate::common::{ColorLegend, Colorer};
 use crate::layer::Layers;
 use abstutil::{prettyprint_usize, Counter};
-use ezgui::EventCtx;
+use ezgui::{
+    hotkey, Btn, Checkbox, Composite, EventCtx, HorizontalAlignment, Key, Line, Text, TextExt,
+    VerticalAlignment, Widget,
+};
 use sim::{ParkingSpot, VehicleType};
 use std::collections::HashSet;
 
-pub fn new(ctx: &mut EventCtx, app: &App) -> Layers {
-    let (filled_spots, avail_spots) = app.primary.sim.get_all_parking_spots();
+pub fn new(ctx: &mut EventCtx, app: &App, onstreet: bool, offstreet: bool) -> Layers {
+    let (mut filled_spots, mut avail_spots) = app.primary.sim.get_all_parking_spots();
+    filled_spots.retain(|spot| match spot {
+        ParkingSpot::Onstreet(_, _) => onstreet,
+        ParkingSpot::Offstreet(_, _) => offstreet,
+    });
+    avail_spots.retain(|spot| match spot {
+        ParkingSpot::Onstreet(_, _) => onstreet,
+        ParkingSpot::Offstreet(_, _) => offstreet,
+    });
+
     let mut total_ppl = 0;
     let mut has_car = 0;
     for p in app.primary.sim.get_all_people() {
@@ -20,19 +32,53 @@ pub fn new(ctx: &mut EventCtx, app: &App) -> Layers {
         }
     }
 
+    let composite = Composite::new(
+        Widget::col(vec![
+            Widget::row(vec![
+                Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg").margin_right(10),
+                "Parking occupancy (per road)".draw_text(ctx),
+                Btn::plaintext("X")
+                    .build(ctx, "close", hotkey(Key::Escape))
+                    .align_right(),
+            ]),
+            Text::from_multiline(vec![
+                Line(format!(
+                    "{:.0}% of the population owns a car",
+                    100.0 * (has_car as f64) / (total_ppl as f64)
+                )),
+                Line(format!(
+                    "{} spots filled",
+                    prettyprint_usize(filled_spots.len())
+                )),
+                Line(format!(
+                    "{} spots available ",
+                    prettyprint_usize(avail_spots.len())
+                )),
+            ])
+            .draw(ctx),
+            Widget::row(vec![
+                Checkbox::text(ctx, "On-street spots", None, onstreet),
+                Checkbox::text(ctx, "Off-street spots", None, offstreet),
+            ])
+            .evenly_spaced(),
+            ColorLegend::scale(
+                ctx,
+                app.cs.good_to_bad.to_vec(),
+                vec!["0%", "40%", "70%", "90%", "100%"],
+            ),
+        ])
+        .padding(5)
+        .bg(app.cs.panel_bg),
+    )
+    .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+    .build(ctx);
+
     // TODO Some kind of Scale abstraction that maps intervals of some quantity (percent,
     // duration) to these 4 colors
     let mut colorer = Colorer::scaled(
         ctx,
-        "Parking occupancy (per road)",
-        vec![
-            format!(
-                "{:.0}% of the population owns a car",
-                100.0 * (has_car as f64) / (total_ppl as f64)
-            ),
-            format!("{} spots filled", prettyprint_usize(filled_spots.len())),
-            format!("{} spots available ", prettyprint_usize(avail_spots.len())),
-        ],
+        "",
+        Vec::new(),
         app.cs.good_to_bad.to_vec(),
         vec!["0%", "40%", "70%", "90%", "100%"],
     );
@@ -80,5 +126,11 @@ pub fn new(ctx: &mut EventCtx, app: &App) -> Layers {
         colorer.add_l(l, color, &app.primary.map);
     }
 
-    Layers::ParkingOccupancy(app.primary.sim.time(), colorer.build_unzoomed(ctx, app))
+    Layers::ParkingOccupancy {
+        time: app.primary.sim.time(),
+        onstreet,
+        offstreet,
+        unzoomed: colorer.build_both(ctx, app).unzoomed,
+        composite,
+    }
 }

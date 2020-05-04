@@ -23,7 +23,13 @@ use map_model::{BusRouteID, IntersectionID};
 
 pub enum Layers {
     Inactive,
-    ParkingOccupancy(Time, Colorer),
+    ParkingOccupancy {
+        time: Time,
+        onstreet: bool,
+        offstreet: bool,
+        unzoomed: Drawable,
+        composite: Composite,
+    },
     WorstDelay(Time, Colorer),
     TrafficJams(Time, Colorer),
     CumulativeThroughput(Time, Colorer),
@@ -53,9 +59,14 @@ impl Layers {
     pub fn update(ctx: &mut EventCtx, app: &mut App, minimap: &Composite) -> Option<Transition> {
         let now = app.primary.sim.time();
         match app.layer {
-            Layers::ParkingOccupancy(t, _) => {
-                if now != t {
-                    app.layer = parking::new(ctx, app);
+            Layers::ParkingOccupancy {
+                time,
+                onstreet,
+                offstreet,
+                ..
+            } => {
+                if now != time {
+                    app.layer = parking::new(ctx, app, onstreet, offstreet);
                 }
             }
             Layers::WorstDelay(t, _) => {
@@ -107,8 +118,7 @@ impl Layers {
         };
 
         match app.layer {
-            Layers::ParkingOccupancy(_, ref mut c)
-            | Layers::BusNetwork(ref mut c)
+            Layers::BusNetwork(ref mut c)
             | Layers::Elevation(ref mut c, _)
             | Layers::WorstDelay(_, ref mut c)
             | Layers::TrafficJams(_, ref mut c)
@@ -118,6 +128,37 @@ impl Layers {
                 c.legend.align_above(ctx, minimap);
                 if c.event(ctx) {
                     app.layer = Layers::Inactive;
+                }
+            }
+            Layers::ParkingOccupancy {
+                ref mut composite,
+                onstreet,
+                offstreet,
+                ..
+            } => {
+                composite.align_above(ctx, minimap);
+                match composite.event(ctx) {
+                    Some(Outcome::Clicked(x)) => match x.as_ref() {
+                        "close" => {
+                            app.layer = Layers::Inactive;
+                        }
+                        _ => unreachable!(),
+                    },
+                    None => {
+                        let new_onstreet = composite.is_checked("On-street spots");
+                        let new_offstreet = composite.is_checked("Off-street spots");
+                        if onstreet != new_onstreet || offstreet != new_offstreet {
+                            app.layer = parking::new(ctx, app, new_onstreet, new_offstreet);
+                            // Immediately fix the alignment. TODO Do this for all of them, in a
+                            // more uniform way
+                            if let Layers::ParkingOccupancy {
+                                ref mut composite, ..
+                            } = app.layer
+                            {
+                                composite.align_above(ctx, minimap);
+                            }
+                        }
+                    }
                 }
             }
             Layers::BikeNetwork(ref mut c1, ref mut maybe_c2) => {
@@ -216,8 +257,7 @@ impl Layers {
     pub fn draw(&self, g: &mut GfxCtx) {
         match self {
             Layers::Inactive => {}
-            Layers::ParkingOccupancy(_, ref c)
-            | Layers::BusNetwork(ref c)
+            Layers::BusNetwork(ref c)
             | Layers::WorstDelay(_, ref c)
             | Layers::TrafficJams(_, ref c)
             | Layers::CumulativeThroughput(_, ref c)
@@ -235,6 +275,16 @@ impl Layers {
                 c.draw(g);
                 if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
                     g.redraw(draw);
+                }
+            }
+            Layers::ParkingOccupancy {
+                ref unzoomed,
+                ref composite,
+                ..
+            } => {
+                composite.draw(g);
+                if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+                    g.redraw(unzoomed);
                 }
             }
             Layers::PopulationMap(_, _, ref draw, ref composite) => {
@@ -264,14 +314,16 @@ impl Layers {
     pub fn draw_minimap(&self, g: &mut GfxCtx) {
         match self {
             Layers::Inactive => {}
-            Layers::ParkingOccupancy(_, ref c)
-            | Layers::BusNetwork(ref c)
+            Layers::BusNetwork(ref c)
             | Layers::WorstDelay(_, ref c)
             | Layers::TrafficJams(_, ref c)
             | Layers::CumulativeThroughput(_, ref c)
             | Layers::Backpressure(_, ref c)
             | Layers::Edits(ref c) => {
                 g.redraw(&c.unzoomed);
+            }
+            Layers::ParkingOccupancy { ref unzoomed, .. } => {
+                g.redraw(unzoomed);
             }
             Layers::BikeNetwork(ref c1, ref maybe_c2) => {
                 g.redraw(&c1.unzoomed);
@@ -322,7 +374,7 @@ impl Layers {
         }
         if let Some(name) = match app.layer {
             Layers::Inactive => Some("None"),
-            Layers::ParkingOccupancy(_, _) => Some("parking occupancy"),
+            Layers::ParkingOccupancy { .. } => Some("parking occupancy"),
             Layers::WorstDelay(_, _) => Some("delay"),
             Layers::TrafficJams(_, _) => Some("worst traffic jams"),
             Layers::CumulativeThroughput(_, _) => Some("throughput"),
@@ -364,7 +416,7 @@ impl Layers {
         .maybe_cb(
             "parking occupancy",
             Box::new(|ctx, app| {
-                app.layer = parking::new(ctx, app);
+                app.layer = parking::new(ctx, app, true, true);
                 Some(Transition::Pop)
             }),
         )
