@@ -43,7 +43,7 @@ pub fn find_scc(map: &Map, constraints: PathConstraints) -> (HashSet<LaneID>, Ha
 //
 // It's a bit weird to never attempt parking on roads not part of the largest SCC of the graph.
 // This is acceptable, because there shouldn't be too many roads outside of that SCC anyway.
-pub(crate) fn redirect_parking_blackholes(map: &Map, timer: &mut Timer) -> Vec<(LaneID, LaneID)> {
+pub fn redirect_parking_blackholes(map: &Map, timer: &mut Timer) -> Vec<(LaneID, LaneID)> {
     let (largest_group, disconnected) = find_scc(map, PathConstraints::Car);
 
     let mut redirects = Vec::new();

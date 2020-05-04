@@ -495,3 +495,42 @@ pub fn close_intersection(
         Transition::Replace(err_state)
     }
 }
+
+pub fn check_parking_blackholes(
+    ctx: &mut EventCtx,
+    app: &mut App,
+    edits: MapEdits,
+) -> Option<Box<dyn State>> {
+    let orig_edits = app.primary.map.get_edits().clone();
+    let mut ok_originally = BTreeSet::new();
+    for l in app.primary.map.all_lanes() {
+        if l.parking_blackhole.is_none() {
+            ok_originally.insert(l.id);
+            // TODO Only matters if there's any parking here anyways
+        }
+    }
+
+    apply_map_edits(ctx, app, edits);
+    let color = Color::RED;
+    let mut num_problems = 0;
+    let mut c = Colorer::discrete(ctx, "", Vec::new(), vec![("parking disconnected", color)]);
+    for (l, _) in
+        connectivity::redirect_parking_blackholes(&app.primary.map, &mut Timer::throwaway())
+    {
+        if ok_originally.contains(&l) {
+            num_problems += 1;
+            c.add_l(l, color, &app.primary.map);
+        }
+    }
+    if num_problems == 0 {
+        None
+    } else {
+        apply_map_edits(ctx, app, orig_edits);
+        let mut err_state = msg(
+            "Error",
+            vec![format!("{} lanes have parking disconnected", num_problems)],
+        );
+        err_state.downcast_mut::<WizardState>().unwrap().also_draw = Some(c.build_zoomed(ctx, app));
+        Some(err_state)
+    }
+}

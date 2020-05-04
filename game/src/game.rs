@@ -270,6 +270,10 @@ impl WizardState {
 
 impl State for WizardState {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        if self.also_draw.is_some() {
+            // TODO This should really be a separate option
+            ctx.canvas_movement();
+        }
         if let Some(t) = (self.cb)(&mut self.wizard, ctx, app) {
             return t;
         } else if self.wizard.aborted() {
@@ -283,13 +287,11 @@ impl State for WizardState {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        // TODO This shouldn't get greyed out, but I think the weird z-ordering of screen-space
-        // right now is messing this up.
         if let Some(ref d) = self.also_draw {
             g.redraw(d);
+        } else {
+            State::grey_out_map(g, app);
         }
-
-        State::grey_out_map(g, app);
 
         self.wizard.draw(g);
     }
