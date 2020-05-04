@@ -10,8 +10,8 @@ fn input() {
         "https://dds.cr.usgs.gov/srtm/version2_1/SRTM1/Region_01/N47W122.hgt.zip",
     );
     download(
-        "../data/input/seattle/osm/Seattle.osm",
-        "http://download.bbbike.org/osm/bbbike/Seattle/Seattle.osm.gz",
+        "../data/input/seattle/osm/washington-latest.osm.pbf",
+        "http://download.geofabrik.de/north-america/us/washington-latest.osm.pbf",
     );
     // Soundcast data comes from https://github.com/psrc/soundcast/releases
     download(
@@ -36,7 +36,7 @@ fn input() {
 pub fn osm_to_raw(name: &str) {
     input();
     osmconvert(
-        "../data/input/seattle/osm/Seattle.osm",
+        "../data/input/seattle/osm/washington-latest.osm.pbf",
         format!("../data/input/seattle/polygons/{}.poly", name),
         format!("../data/input/seattle/osm/{}.osm", name),
     );

@@ -151,9 +151,13 @@ fn make_load_map(btn: ScreenRectangle, gameplay: GameplayMode) -> Box<dyn State>
                 app,
                 match gameplay {
                     GameplayMode::Freeform(_) => GameplayMode::Freeform(abstutil::path_map(&name)),
-                    // Assume a scenario with the same name exists.
+                    // Try to load a scenario with the same name exists
                     GameplayMode::PlayScenario(_, ref scenario) => {
-                        GameplayMode::PlayScenario(abstutil::path_map(&name), scenario.clone())
+                        if abstutil::file_exists(abstutil::path_scenario(&name, scenario)) {
+                            GameplayMode::PlayScenario(abstutil::path_map(&name), scenario.clone())
+                        } else {
+                            GameplayMode::Freeform(abstutil::path_map(&name))
+                        }
                     }
                     _ => unreachable!(),
                 },
