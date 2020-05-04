@@ -55,6 +55,7 @@ impl Map {
         if path.starts_with(&abstutil::path_all_maps()) {
             match abstutil::maybe_read_binary(path.clone(), timer) {
                 Ok(map) => {
+                    crate::pathfind::uber_turns::find(&map);
                     return map;
                 }
                 Err(err) => {
