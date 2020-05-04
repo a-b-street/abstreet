@@ -74,10 +74,15 @@ impl DrawIntersection {
             IntersectionType::TrafficSignal => {}
         }
 
+        let zorder = i.get_zorder(map);
+        if zorder < 0 {
+            default_geom.rewrite_color(RewriteColor::ChangeAlpha(0.5));
+        }
+
         DrawIntersection {
             id: i.id,
             intersection_type: i.intersection_type,
-            zorder: i.get_zorder(map),
+            zorder,
             draw_default: prerender.upload(default_geom),
             draw_traffic_signal: RefCell::new(None),
         }

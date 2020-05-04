@@ -186,6 +186,7 @@ pub enum RewriteColor {
     Change(Color, Color),
     ChangeMore(Vec<(Color, Color)>),
     ChangeAll(Color),
+    ChangeAlpha(f32),
 }
 
 impl RewriteColor {
@@ -208,6 +209,7 @@ impl RewriteColor {
                 c
             }
             RewriteColor::ChangeAll(to) => *to,
+            RewriteColor::ChangeAlpha(alpha) => c.alpha(*alpha),
         }
     }
 }

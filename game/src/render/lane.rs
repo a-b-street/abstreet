@@ -61,6 +61,11 @@ impl AlmostDrawLane {
             }
         }
 
+        if self.zorder < 0 {
+            self.draw_default
+                .rewrite_color(RewriteColor::ChangeAlpha(0.5));
+        }
+
         DrawLane {
             id: self.id,
             polygon: self.polygon,
