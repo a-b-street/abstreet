@@ -93,6 +93,19 @@ impl<T: Ord + PartialEq + Clone> Counter<T> {
         list.into_iter().map(|(t, _)| t).collect()
     }
 
+    pub fn compare(mut self, mut other: Counter<T>) -> Vec<(T, usize, usize)> {
+        for key in self.map.keys() {
+            other.map.entry(key.clone()).or_insert(0);
+        }
+        for key in other.map.keys() {
+            self.map.entry(key.clone()).or_insert(0);
+        }
+        self.map
+            .into_iter()
+            .map(|(k, cnt)| (k.clone(), cnt, other.map[&k]))
+            .collect()
+    }
+
     pub fn consume(self) -> BTreeMap<T, usize> {
         self.map
     }

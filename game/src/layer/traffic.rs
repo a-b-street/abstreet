@@ -7,8 +7,7 @@ use ezgui::{
     RewriteColor, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Angle, Distance, Duration, PolyLine};
-use map_model::{IntersectionID, RoadID, Traversable};
-use std::collections::HashMap;
+use map_model::{IntersectionID, Traversable};
 
 pub fn delay(ctx: &mut EventCtx, app: &App) -> Layers {
     // TODO explain more
@@ -176,38 +175,32 @@ fn compare_throughput(ctx: &mut EventCtx, app: &App) -> Layers {
     let after = &app.primary.sim.get_analytics().thruput_stats;
     let before = &app.prebaked().thruput_stats;
 
-    let mut per_road: HashMap<RoadID, isize> = HashMap::new();
+    let mut after_road = Counter::new();
+    let mut before_road = Counter::new();
     {
         for (_, _, r) in &after.raw_per_road {
-            *per_road.entry(*r).or_insert(0) += 1;
+            after_road.inc(*r);
         }
         for (t, _, r) in &before.raw_per_road {
             if *t > now {
                 break;
             }
-            *per_road.entry(*r).or_insert(0) -= 1;
+            before_road.inc(*r);
         }
     }
-    let mut per_intersection: HashMap<IntersectionID, isize> = HashMap::new();
+    let mut after_intersection = Counter::new();
+    let mut before_intersection = Counter::new();
     {
         for (_, _, i) in &after.raw_per_intersection {
-            *per_intersection.entry(*i).or_insert(0) += 1;
+            after_intersection.inc(*i);
         }
         for (t, _, i) in &before.raw_per_intersection {
             if *t > now {
                 break;
             }
-            *per_intersection.entry(*i).or_insert(0) -= 1;
+            before_intersection.inc(*i);
         }
     }
-    let (max_increase, max_decrease) = if per_road.is_empty() || per_intersection.is_empty() {
-        (0, 0)
-    } else {
-        (
-            (*per_road.values().max().unwrap()).max(*per_intersection.values().max().unwrap()),
-            (*per_road.values().min().unwrap()).min(*per_intersection.values().min().unwrap()),
-        )
-    };
 
     // Diverging
     let gradient = colorous::RED_YELLOW_GREEN;
@@ -229,28 +222,32 @@ fn compare_throughput(ctx: &mut EventCtx, app: &App) -> Layers {
         vec!["", "", "", "", ""],
     );
 
-    for (r, delta) in per_road {
-        let color = if delta < max_decrease / 2 {
+    for (r, before, after) in before_road.compare(after_road) {
+        let pct_change = (after as f64) / (before as f64);
+        let color = if pct_change < 0.5 {
             colors[0]
-        } else if delta < 0 {
+        } else if pct_change < 0.1 {
             colors[1]
-        } else if delta == 0 {
+        } else if pct_change < 1.1 {
+            // Just filter it out
             continue;
-        } else if delta < max_increase / 2 {
+        } else if pct_change < 1.5 {
             colors[2]
         } else {
             colors[3]
         };
         colorer.add_r(r, color, &app.primary.map);
     }
-    for (i, delta) in per_intersection {
-        let color = if delta < max_decrease / 2 {
+    for (i, before, after) in before_intersection.compare(after_intersection) {
+        let pct_change = (after as f64) / (before as f64);
+        let color = if pct_change < 0.5 {
             colors[0]
-        } else if delta < 0 {
+        } else if pct_change < 0.1 {
             colors[1]
-        } else if delta == 0 {
+        } else if pct_change < 1.1 {
+            // Just filter it out
             continue;
-        } else if delta < max_increase / 2 {
+        } else if pct_change < 1.5 {
             colors[2]
         } else {
             colors[3]
@@ -262,23 +259,13 @@ fn compare_throughput(ctx: &mut EventCtx, app: &App) -> Layers {
         Widget::col(vec![
             Widget::row(vec![
                 Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg").margin_right(10),
-                "Throughput (percentiles)".draw_text(ctx),
+                "Throughput (percent change)".draw_text(ctx),
                 Btn::plaintext("X")
                     .build(ctx, "close", hotkey(Key::Escape))
                     .align_right(),
             ]),
             Checkbox::text(ctx, "Compare before edits", None, true).margin_below(5),
-            ColorLegend::scale(
-                ctx,
-                colors,
-                vec![
-                    max_decrease.to_string(),
-                    (max_decrease / 2).to_string(),
-                    "0".to_string(),
-                    (max_increase / 2).to_string(),
-                    max_increase.to_string(),
-                ],
-            ),
+            ColorLegend::scale(ctx, colors, vec!["less", "-50%", "0%", "50%", "more"]),
         ])
         .padding(5)
         .bg(app.cs.panel_bg),
