@@ -4,6 +4,7 @@ mod los_angeles;
 mod seattle;
 mod soundcast;
 mod utils;
+use std::thread;
 
 struct Job {
     city: String,
@@ -51,6 +52,7 @@ fn main() {
         abstutil::list_all_objects(format!("../data/input/{}/polygons", job.city))
     };
 
+    let mut handles = vec![];
     for name in names {
         if job.osm_to_raw {
             match job.city.as_ref() {
@@ -63,7 +65,13 @@ fn main() {
         }
 
         if job.raw_to_map {
-            utils::raw_to_map(&name, job.use_fixes);
+            let thread_name = name.clone();
+            //Fetch use_fixes after already loading into job in order to avoid move compile error
+            let use_fixes = job.use_fixes;
+            let handle = thread::spawn(move || {
+                utils::raw_to_map(&thread_name, use_fixes);
+            });
+            handles.push(handle);
         }
 
         if job.scenario {
@@ -83,5 +91,8 @@ fn main() {
             let map = map_model::Map::new(abstutil::path_map(&name), job.use_fixes, &mut timer);
             soundcast::make_weekday_scenario_with_everyone(&map, &mut timer).save();
         }
+    }
+    for handle in handles {
+        handle.join().unwrap();
     }
 }
