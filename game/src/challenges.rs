@@ -292,6 +292,35 @@ impl Tab {
 pub fn prebake_all() {
     let mut timer = Timer::new("prebake all challenge results");
 
+    {
+        let map = map_model::Map::new(abstutil::path_map("montlake"), false, &mut timer);
+        let scenario: Scenario =
+            abstutil::read_binary(abstutil::path_scenario("montlake", "weekday"), &mut timer);
+        prebake(&map, scenario, None, &mut timer);
+
+        for generator in TutorialState::scenarios_to_prebake(&map) {
+            let scenario = generator.generate(
+                &map,
+                &mut SimFlags::for_test("prebaked").make_rng(),
+                &mut timer,
+            );
+            prebake(&map, scenario, None, &mut timer);
+        }
+    }
+
+    {
+        let map = map_model::Map::new(abstutil::path_map("lakeslice"), false, &mut timer);
+        let scenario: Scenario =
+            abstutil::read_binary(abstutil::path_scenario("lakeslice", "weekday"), &mut timer);
+        prebake(&map, scenario, Some(Duration::hours(12)), &mut timer);
+    }
+}
+
+// TODO This variant will be more useful when all scenarios tend to actually complete. ;)
+#[allow(unused)]
+pub fn generic_prebake_all() {
+    let mut timer = Timer::new("prebake all challenge results");
+
     let mut per_map: BTreeMap<String, Vec<Challenge>> = BTreeMap::new();
     for (_, list) in Challenge::all(true) {
         for c in list {
@@ -302,10 +331,6 @@ pub fn prebake_all() {
         }
     }
     for (map_path, list) in per_map {
-        // TODO Oops can't do this yet.
-        if map_path == abstutil::path_map("downtown") {
-            continue;
-        }
         timer.start(format!("prebake for {}", map_path));
         let map = map_model::Map::new(map_path.clone(), false, &mut timer);
 
@@ -323,7 +348,7 @@ pub fn prebake_all() {
                 }
                 done_scenarios.insert(scenario.scenario_name.clone());
 
-                prebake(&map, scenario, &mut timer);
+                prebake(&map, scenario, None, &mut timer);
             }
         }
         // TODO A weird hack to glue up tutorial scenarios.
@@ -334,23 +359,15 @@ pub fn prebake_all() {
                     &mut SimFlags::for_test("prebaked").make_rng(),
                     &mut timer,
                 );
-                prebake(&map, scenario, &mut timer);
+                prebake(&map, scenario, None, &mut timer);
             }
         }
 
         timer.stop(format!("prebake for {}", map_path));
     }
-
-    // TODO No challenge here yet, but still want the data
-    {
-        let map = map_model::Map::new(abstutil::path_map("lakeslice"), false, &mut timer);
-        let scenario: Scenario =
-            abstutil::read_binary(abstutil::path_scenario("lakeslice", "weekday"), &mut timer);
-        prebake(&map, scenario, &mut timer);
-    }
 }
 
-fn prebake(map: &Map, scenario: Scenario, timer: &mut Timer) {
+fn prebake(map: &Map, scenario: Scenario, time_limit: Option<Duration>, timer: &mut Timer) {
     timer.start(format!(
         "prebake for {} / {}",
         scenario.map_name, scenario.scenario_name
@@ -362,7 +379,11 @@ fn prebake(map: &Map, scenario: Scenario, timer: &mut Timer) {
     // Bit of an abuse of this, but just need to fix the rng seed.
     let mut rng = SimFlags::for_test("prebaked").make_rng();
     scenario.instantiate(&mut sim, &map, &mut rng, timer);
-    sim.timed_step(&map, sim.get_end_of_day() - Time::START_OF_DAY, timer);
+    if let Some(dt) = time_limit {
+        sim.timed_step(&map, dt, timer);
+    } else {
+        sim.timed_step(&map, sim.get_end_of_day() - Time::START_OF_DAY, timer);
+    }
 
     abstutil::write_binary(
         abstutil::path_prebaked_results(&scenario.map_name, &scenario.scenario_name),

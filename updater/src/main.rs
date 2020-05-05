@@ -216,9 +216,10 @@ impl Manifest {
 
         let mut remove = Vec::new();
         for path in self.0.keys() {
-            // TODO One hardcoded weird exception
-            if path == "data/system/scenarios/montlake/everyone_weekday.bin"
-                && !cities.runtime.contains(&"huge_seattle".to_string())
+            // TODO Some hardcoded weird exceptions
+            if !cities.runtime.contains(&"huge_seattle".to_string())
+                && (path == "data/system/scenarios/montlake/everyone_weekday.bin"
+                    || path == "data/system/prebaked_results/lakeslice/weekday.bin")
             {
                 remove.push(path.clone());
                 continue;
