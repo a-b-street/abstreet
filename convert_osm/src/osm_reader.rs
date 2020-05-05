@@ -317,6 +317,9 @@ fn is_road(tags: &BTreeMap<String, String>) -> bool {
     if tags.get("access") == Some(&"private".to_string()) {
         return false;
     }
+    if tags.get("access") == Some(&"no".to_string()) {
+        return false;
+    }
 
     // https://github.com/Project-OSRM/osrm-backend/blob/master/profiles/car.lua is another
     // potential reference

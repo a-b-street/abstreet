@@ -230,7 +230,7 @@ impl Lane {
                         TurnType::LaneChangeRight,
                         TurnType::Right,
                     ],
-                    "slight_left" | "slight left" | "merge_to_left" => {
+                    "slight_left" | "slight left" | "merge_to_left" | "sharp_left" => {
                         vec![TurnType::Straight, TurnType::LaneChangeLeft, TurnType::Left]
                     }
                     "reverse" => {
