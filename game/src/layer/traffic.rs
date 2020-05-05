@@ -3,11 +3,12 @@ use crate::common::{ColorLegend, Colorer};
 use crate::layer::Layers;
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
-    Btn, Color, Composite, EventCtx, GeomBatch, HorizontalAlignment, Line, RewriteColor, Text,
-    TextExt, VerticalAlignment, Widget,
+    hotkey, Btn, Checkbox, Color, Composite, EventCtx, GeomBatch, HorizontalAlignment, Key, Line,
+    RewriteColor, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Angle, Distance, Duration, PolyLine};
-use map_model::{IntersectionID, Traversable};
+use map_model::{IntersectionID, RoadID, Traversable};
+use std::collections::HashMap;
 
 pub fn delay(ctx: &mut EventCtx, app: &App) -> Layers {
     // TODO explain more
@@ -79,10 +80,40 @@ pub fn traffic_jams(ctx: &mut EventCtx, app: &App) -> Layers {
     Layers::TrafficJams(app.primary.sim.time(), colorer.build_unzoomed(ctx, app))
 }
 
-pub fn throughput(ctx: &mut EventCtx, app: &App) -> Layers {
+// TODO Filter by mode
+pub fn throughput(ctx: &mut EventCtx, app: &App, compare: bool) -> Layers {
+    if compare {
+        return compare_throughput(ctx, app);
+    }
+    let composite = Composite::new(
+        Widget::col(vec![
+            Widget::row(vec![
+                Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg").margin_right(10),
+                "Throughput (percentiles)".draw_text(ctx),
+                Btn::plaintext("X")
+                    .build(ctx, "close", hotkey(Key::Escape))
+                    .align_right(),
+            ]),
+            if app.has_prebaked().is_some() {
+                Checkbox::text(ctx, "Compare before edits", None, false).margin_below(5)
+            } else {
+                Widget::nothing()
+            },
+            ColorLegend::scale(
+                ctx,
+                app.cs.good_to_bad.to_vec(),
+                vec!["0%", "40%", "70%", "90%", "100%"],
+            ),
+        ])
+        .padding(5)
+        .bg(app.cs.panel_bg),
+    )
+    .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+    .build(ctx);
+
     let mut colorer = Colorer::scaled(
         ctx,
-        "Throughput (percentiles)",
+        "",
         Vec::new(),
         app.cs.good_to_bad.to_vec(),
         vec!["0", "50", "90", "99", "100"],
@@ -132,7 +163,135 @@ pub fn throughput(ctx: &mut EventCtx, app: &App) -> Layers {
         }
     }
 
-    Layers::CumulativeThroughput(app.primary.sim.time(), colorer.build_unzoomed(ctx, app))
+    Layers::CumulativeThroughput {
+        time: app.primary.sim.time(),
+        compare: false,
+        unzoomed: colorer.build_both(ctx, app).unzoomed,
+        composite,
+    }
+}
+
+fn compare_throughput(ctx: &mut EventCtx, app: &App) -> Layers {
+    let now = app.primary.sim.time();
+    let after = &app.primary.sim.get_analytics().thruput_stats;
+    let before = &app.prebaked().thruput_stats;
+
+    let mut per_road: HashMap<RoadID, isize> = HashMap::new();
+    {
+        for (_, _, r) in &after.raw_per_road {
+            *per_road.entry(*r).or_insert(0) += 1;
+        }
+        for (t, _, r) in &before.raw_per_road {
+            if *t > now {
+                break;
+            }
+            *per_road.entry(*r).or_insert(0) -= 1;
+        }
+    }
+    let mut per_intersection: HashMap<IntersectionID, isize> = HashMap::new();
+    {
+        for (_, _, i) in &after.raw_per_intersection {
+            *per_intersection.entry(*i).or_insert(0) += 1;
+        }
+        for (t, _, i) in &before.raw_per_intersection {
+            if *t > now {
+                break;
+            }
+            *per_intersection.entry(*i).or_insert(0) -= 1;
+        }
+    }
+    let (max_increase, max_decrease) = if per_road.is_empty() || per_intersection.is_empty() {
+        (0, 0)
+    } else {
+        (
+            (*per_road.values().max().unwrap()).max(*per_intersection.values().max().unwrap()),
+            (*per_road.values().min().unwrap()).min(*per_intersection.values().min().unwrap()),
+        )
+    };
+
+    // Diverging
+    let gradient = colorous::RED_YELLOW_GREEN;
+    let num_colors = 4;
+    let mut colors: Vec<Color> = (0..num_colors)
+        .map(|i| {
+            let c = gradient.eval_rational(i, num_colors);
+            Color::rgb(c.r as usize, c.g as usize, c.b as usize)
+        })
+        .collect();
+    colors.reverse();
+    // TODO But the yellow is confusing. Two greens, two reds
+    colors[2] = Color::hex("#F27245");
+    let mut colorer = Colorer::scaled(
+        ctx,
+        "",
+        Vec::new(),
+        colors.clone(),
+        vec!["", "", "", "", ""],
+    );
+
+    for (r, delta) in per_road {
+        let color = if delta < max_decrease / 2 {
+            colors[0]
+        } else if delta < 0 {
+            colors[1]
+        } else if delta == 0 {
+            continue;
+        } else if delta < max_increase / 2 {
+            colors[2]
+        } else {
+            colors[3]
+        };
+        colorer.add_r(r, color, &app.primary.map);
+    }
+    for (i, delta) in per_intersection {
+        let color = if delta < max_decrease / 2 {
+            colors[0]
+        } else if delta < 0 {
+            colors[1]
+        } else if delta == 0 {
+            continue;
+        } else if delta < max_increase / 2 {
+            colors[2]
+        } else {
+            colors[3]
+        };
+        colorer.add_i(i, color);
+    }
+
+    let composite = Composite::new(
+        Widget::col(vec![
+            Widget::row(vec![
+                Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg").margin_right(10),
+                "Throughput (percentiles)".draw_text(ctx),
+                Btn::plaintext("X")
+                    .build(ctx, "close", hotkey(Key::Escape))
+                    .align_right(),
+            ]),
+            Checkbox::text(ctx, "Compare before edits", None, true).margin_below(5),
+            ColorLegend::scale(
+                ctx,
+                colors,
+                vec![
+                    max_decrease.to_string(),
+                    (max_decrease / 2).to_string(),
+                    "0".to_string(),
+                    (max_increase / 2).to_string(),
+                    max_increase.to_string(),
+                ],
+            ),
+        ])
+        .padding(5)
+        .bg(app.cs.panel_bg),
+    )
+    .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+    .build(ctx);
+
+    Layers::CumulativeThroughput {
+        time: app.primary.sim.time(),
+        compare: true,
+        unzoomed: colorer.build_both(ctx, app).unzoomed,
+        composite,
+    }
 }
 
 pub fn backpressure(ctx: &mut EventCtx, app: &App) -> Layers {

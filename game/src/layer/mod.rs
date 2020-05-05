@@ -30,9 +30,14 @@ pub enum Layers {
         unzoomed: Drawable,
         composite: Composite,
     },
+    CumulativeThroughput {
+        time: Time,
+        compare: bool,
+        unzoomed: Drawable,
+        composite: Composite,
+    },
     WorstDelay(Time, Colorer),
     TrafficJams(Time, Colorer),
-    CumulativeThroughput(Time, Colorer),
     Backpressure(Time, Colorer),
     BikeNetwork(Colorer, Option<Colorer>),
     BusNetwork(Colorer),
@@ -79,9 +84,9 @@ impl Layers {
                     app.layer = traffic::traffic_jams(ctx, app);
                 }
             }
-            Layers::CumulativeThroughput(t, _) => {
-                if now != t {
-                    app.layer = traffic::throughput(ctx, app);
+            Layers::CumulativeThroughput { time, compare, .. } => {
+                if now != time {
+                    app.layer = traffic::throughput(ctx, app, compare);
                 }
             }
             Layers::Backpressure(t, _) => {
@@ -122,7 +127,6 @@ impl Layers {
             | Layers::Elevation(ref mut c, _)
             | Layers::WorstDelay(_, ref mut c)
             | Layers::TrafficJams(_, ref mut c)
-            | Layers::CumulativeThroughput(_, ref mut c)
             | Layers::Backpressure(_, ref mut c)
             | Layers::Edits(ref mut c) => {
                 c.legend.align_above(ctx, minimap);
@@ -152,6 +156,36 @@ impl Layers {
                             // Immediately fix the alignment. TODO Do this for all of them, in a
                             // more uniform way
                             if let Layers::ParkingOccupancy {
+                                ref mut composite, ..
+                            } = app.layer
+                            {
+                                composite.align_above(ctx, minimap);
+                            }
+                        }
+                    }
+                }
+            }
+            Layers::CumulativeThroughput {
+                ref mut composite,
+                compare,
+                ..
+            } => {
+                composite.align_above(ctx, minimap);
+                match composite.event(ctx) {
+                    Some(Outcome::Clicked(x)) => match x.as_ref() {
+                        "close" => {
+                            app.layer = Layers::Inactive;
+                        }
+                        _ => unreachable!(),
+                    },
+                    None => {
+                        let new_compare = composite.has_widget("Compare before edits")
+                            && composite.is_checked("Compare before edits");
+                        if new_compare != compare {
+                            app.layer = traffic::throughput(ctx, app, new_compare);
+                            // Immediately fix the alignment. TODO Do this for all of them, in a
+                            // more uniform way
+                            if let Layers::CumulativeThroughput {
                                 ref mut composite, ..
                             } = app.layer
                             {
@@ -260,7 +294,6 @@ impl Layers {
             Layers::BusNetwork(ref c)
             | Layers::WorstDelay(_, ref c)
             | Layers::TrafficJams(_, ref c)
-            | Layers::CumulativeThroughput(_, ref c)
             | Layers::Backpressure(_, ref c)
             | Layers::Edits(ref c) => {
                 c.draw(g);
@@ -278,6 +311,16 @@ impl Layers {
                 }
             }
             Layers::ParkingOccupancy {
+                ref unzoomed,
+                ref composite,
+                ..
+            } => {
+                composite.draw(g);
+                if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+                    g.redraw(unzoomed);
+                }
+            }
+            Layers::CumulativeThroughput {
                 ref unzoomed,
                 ref composite,
                 ..
@@ -317,12 +360,14 @@ impl Layers {
             Layers::BusNetwork(ref c)
             | Layers::WorstDelay(_, ref c)
             | Layers::TrafficJams(_, ref c)
-            | Layers::CumulativeThroughput(_, ref c)
             | Layers::Backpressure(_, ref c)
             | Layers::Edits(ref c) => {
                 g.redraw(&c.unzoomed);
             }
             Layers::ParkingOccupancy { ref unzoomed, .. } => {
+                g.redraw(unzoomed);
+            }
+            Layers::CumulativeThroughput { ref unzoomed, .. } => {
                 g.redraw(unzoomed);
             }
             Layers::BikeNetwork(ref c1, ref maybe_c2) => {
@@ -377,7 +422,7 @@ impl Layers {
             Layers::ParkingOccupancy { .. } => Some("parking occupancy"),
             Layers::WorstDelay(_, _) => Some("delay"),
             Layers::TrafficJams(_, _) => Some("worst traffic jams"),
-            Layers::CumulativeThroughput(_, _) => Some("throughput"),
+            Layers::CumulativeThroughput { .. } => Some("throughput"),
             Layers::Backpressure(_, _) => Some("backpressure"),
             Layers::BikeNetwork(_, _) => Some("bike network"),
             Layers::BusNetwork(_) => Some("bus network"),
@@ -437,7 +482,7 @@ impl Layers {
         .maybe_cb(
             "throughput",
             Box::new(|ctx, app| {
-                app.layer = traffic::throughput(ctx, app);
+                app.layer = traffic::throughput(ctx, app, false);
                 Some(Transition::Pop)
             }),
         )

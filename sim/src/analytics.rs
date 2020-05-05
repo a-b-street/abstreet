@@ -40,7 +40,7 @@ pub struct ThruputStats {
     pub count_per_intersection: Counter<IntersectionID>,
 
     pub raw_per_road: Vec<(Time, TripMode, RoadID)>,
-    raw_per_intersection: Vec<(Time, TripMode, IntersectionID)>,
+    pub raw_per_intersection: Vec<(Time, TripMode, IntersectionID)>,
 
     // Unlike everything else in Analytics, this is just for a moment in time.
     pub demand: BTreeMap<TurnGroupID, usize>,
@@ -436,9 +436,11 @@ impl Analytics {
                 start_time: *t,
                 end_time: None,
                 // Unwrap should be safe, because this is the request that was actually done...
-                path: maybe_req
-                    .as_ref()
-                    .map(|req| (req.start.dist_along(), map.pathfind(req.clone()).unwrap())),
+                // TODO Not if this is prebaked data and we've made edits. Woops.
+                path: maybe_req.as_ref().and_then(|req| {
+                    map.pathfind(req.clone())
+                        .map(|path| (req.start.dist_along(), path))
+                }),
                 phase_type: *phase_type,
             })
         }
