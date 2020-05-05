@@ -24,7 +24,8 @@ clipping polygon. No code changes.
     [polygon filter file](https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format)
     in that directory using the coordinates from geojson.io. It's easiest to
     start with an existing file from another directory; I recommend
-    `data/input/austin/polygons/downtown_atx.poly` as a guide.
+    `data/input/austin/polygons/downtown_atx.poly` as a guide. You can use
+    `data/geojson_to_osmosis.py` to help format the coordinates.
 
 5.  Create a new module in `importer/src/` for your city, copying
     `importer/src/austin.rs` as a guide. Edit that file in the obvious way. The
