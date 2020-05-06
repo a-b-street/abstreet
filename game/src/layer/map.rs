@@ -158,6 +158,9 @@ pub fn edits(ctx: &mut EventCtx, app: &App) -> Layers {
     for i in edits.original_intersections.keys() {
         colorer.add_i(*i, app.cs.edits_layer);
     }
+    for r in &edits.changed_speed_limits {
+        colorer.add_r(*r, app.cs.edits_layer, &app.primary.map);
+    }
 
     Layers::Edits(colorer.build_both(ctx, app))
 }
