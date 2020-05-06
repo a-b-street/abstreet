@@ -85,15 +85,6 @@ impl MapEdits {
             abstutil::path_edits(map.get_name(), &self.edits_name),
             &PermanentMapEdits::to_permanent(self, map),
         );
-
-        // TODO Temporary round-trip sanity checks
-        let perma = PermanentMapEdits::to_permanent(self, map);
-        let before = abstutil::to_json(&perma);
-        let after = abstutil::to_json(&PermanentMapEdits::to_permanent(
-            &PermanentMapEdits::from_permanent(perma, map).unwrap(),
-            map,
-        ));
-        assert_eq!(before, after);
     }
 
     // Original lane types, reversed lanes, and all changed intersections
@@ -201,17 +192,27 @@ enum PermanentEditIntersection {
     Closed,
 }
 
+// Enough data to notice when lanes along a road have changed
+#[derive(Serialize, Deserialize, Clone, Debug)]
+struct OriginalLane {
+    parent: OriginalRoad,
+    num_fwd: usize,
+    num_back: usize,
+    fwd: bool,
+    idx: usize,
+}
+
 #[derive(Serialize, Deserialize)]
 enum PermanentEditCmd {
     ChangeLaneType {
-        id: LaneID,
+        id: OriginalLane,
         lt: LaneType,
         orig_lt: LaneType,
     },
     ReverseLane {
-        l: LaneID,
+        l: OriginalLane,
         // New intended dst_i
-        dst_i: IntersectionID,
+        dst_i: OriginalIntersection,
     },
     ChangeIntersection {
         i: OriginalIntersection,
@@ -231,14 +232,14 @@ impl PermanentMapEdits {
                 .map(|cmd| match cmd {
                     EditCmd::ChangeLaneType { id, lt, orig_lt } => {
                         PermanentEditCmd::ChangeLaneType {
-                            id: *id,
+                            id: OriginalLane::to_permanent(*id, map),
                             lt: *lt,
                             orig_lt: *orig_lt,
                         }
                     }
                     EditCmd::ReverseLane { l, dst_i } => PermanentEditCmd::ReverseLane {
-                        l: *l,
-                        dst_i: *dst_i,
+                        l: OriginalLane::to_permanent(*l, map),
+                        dst_i: map.get_i(*dst_i).orig_id,
                     },
                     EditCmd::ChangeIntersection { i, new, old } => {
                         PermanentEditCmd::ChangeIntersection {
@@ -261,9 +262,15 @@ impl PermanentMapEdits {
                 .into_iter()
                 .map(|cmd| match cmd {
                     PermanentEditCmd::ChangeLaneType { id, lt, orig_lt } => {
-                        Ok(EditCmd::ChangeLaneType { id, lt, orig_lt })
+                        let l = id.clone().from_permanent(map)?;
+                        if map.get_l(l).lane_type != orig_lt {
+                            return Err(format!("basemap lanetype of {:?} has changed", id));
+                        }
+                        Ok(EditCmd::ChangeLaneType { id: l, lt, orig_lt })
                     }
                     PermanentEditCmd::ReverseLane { l, dst_i } => {
+                        let l = l.from_permanent(map)?;
+                        let dst_i = map.find_i_by_osm_id(dst_i.osm_node_id)?;
                         Ok(EditCmd::ReverseLane { l, dst_i })
                     }
                     PermanentEditCmd::ChangeIntersection { i, new, old } => {
@@ -335,6 +342,39 @@ impl PermanentEditIntersection {
                 ControlTrafficSignal::import(ts, i, map)?,
             )),
             PermanentEditIntersection::Closed => Some(EditIntersection::Closed),
+        }
+    }
+}
+
+impl OriginalLane {
+    fn to_permanent(l: LaneID, map: &Map) -> OriginalLane {
+        let r = map.get_parent(l);
+        let (fwd, idx) = r.dir_and_offset(l);
+        OriginalLane {
+            parent: r.orig_id,
+            num_fwd: r.children_forwards.len(),
+            num_back: r.children_backwards.len(),
+            fwd,
+            idx,
+        }
+    }
+
+    fn from_permanent(self, map: &Map) -> Result<LaneID, String> {
+        let r = map.get_r(
+            map.find_r_by_osm_id(
+                self.parent.osm_way_id,
+                (self.parent.i1.osm_node_id, self.parent.i2.osm_node_id),
+            )
+            .ok_or_else(|| format!("can't find {:?}", self))?,
+        );
+        if r.children_forwards.len() != self.num_fwd || r.children_backwards.len() != self.num_back
+        {
+            return Err(format!("number of lanes has changed in {:?}", self));
+        }
+        if self.fwd {
+            Ok(r.children_forwards[self.idx].0)
+        } else {
+            Ok(r.children_backwards[self.idx].0)
         }
     }
 }
