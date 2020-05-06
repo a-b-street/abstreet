@@ -5,7 +5,7 @@ data/input/barranquilla/osm/barranquilla.osm,ff0f301a84d21f20c87ee7fa3ae3518f,ht
 data/input/barranquilla/osm/colombia.osm.pbf,31c7abfcc1ec4625e6e4fbee9e89bfd3,Couldn't get shared link: Unknown Error
 data/input/los_angeles/osm/downtown_la.osm,9b2c4729d3031553a477bb2e1134a6bf,https://www.dropbox.com/s/235jahht1xyulkx/downtown_la.osm.zip?dl=0
 data/input/los_angeles/osm/socal.osm.pbf,1dd1b7d3a6d38829a8266b0b6ea60b85,https://www.dropbox.com/s/gdd7lth4fmy0fby/socal.osm.pbf.zip?dl=0
-data/input/raw_maps/23rd.bin,82a211760d9419f5edc32c2801c41aaf,https://www.dropbox.com/s/9g5589k9swdln9y/23rd.bin.zip?dl=0
+data/input/raw_maps/23rd.bin,262611adbf6f8b0fbdd9cf863b12082c,https://www.dropbox.com/s/9g5589k9swdln9y/23rd.bin.zip?dl=0
 data/input/raw_maps/ballard.bin,3f892d77cf04282c93fa5b5e8d2fb5e5,https://www.dropbox.com/s/wus0ufcnjyvcsuy/ballard.bin.zip?dl=0
 data/input/raw_maps/barranquilla.bin,ebbefc90883a56cc3090c294a245bf22,https://www.dropbox.com/s/5z890kpowgeftk4/barranquilla.bin.zip?dl=0
 data/input/raw_maps/caphill.bin,f3e9f2bb6d1a42b69cc9cdc27c903367,https://www.dropbox.com/s/vybo4owf8pzuita/caphill.bin.zip?dl=0
@@ -13,11 +13,11 @@ data/input/raw_maps/downtown.bin,99c998921e407e7e7f204a582a085c8b,https://www.dr
 data/input/raw_maps/downtown_atx.bin,b8bf1101d55440ccdaf6b4755a5d5701,https://www.dropbox.com/s/0cs55y1jcmm2alk/downtown_atx.bin.zip?dl=0
 data/input/raw_maps/downtown_la.bin,b6cd5f18c2e942413b0833476e5b4c85,https://www.dropbox.com/s/ca7eoxem5t9y99g/downtown_la.bin.zip?dl=0
 data/input/raw_maps/huge_austin.bin,5dbd9efb15a39432b28dc6fe9003cea4,https://www.dropbox.com/s/we0765ym7dlcsl1/huge_austin.bin.zip?dl=0
-data/input/raw_maps/huge_seattle.bin,746b2a628911fcc5491692fe2626dd67,https://www.dropbox.com/s/jcssts861uaovva/huge_seattle.bin.zip?dl=0
-data/input/raw_maps/intl_district.bin,abfe82118eb473fc5459138b9ebafef9,https://www.dropbox.com/s/yopzq58r9t4y93v/intl_district.bin.zip?dl=0
-data/input/raw_maps/lakeslice.bin,b37dcb114000c4da4a252c021d570dba,https://www.dropbox.com/s/4nmdtw0mgqe7tyg/lakeslice.bin.zip?dl=0
+data/input/raw_maps/huge_seattle.bin,09fb2c2a47f22bb62b4fe3826539adf7,https://www.dropbox.com/s/jcssts861uaovva/huge_seattle.bin.zip?dl=0
+data/input/raw_maps/intl_district.bin,9842a009cb2ecdd1af9e62f524afe6fb,https://www.dropbox.com/s/yopzq58r9t4y93v/intl_district.bin.zip?dl=0
+data/input/raw_maps/lakeslice.bin,26daf1494f38daeca7ca537d0ad9ef3e,https://www.dropbox.com/s/4nmdtw0mgqe7tyg/lakeslice.bin.zip?dl=0
 data/input/raw_maps/montlake.bin,6bf187d7365da3a4174f54961f76574e,https://www.dropbox.com/s/qk8rhwr6vdm79vz/montlake.bin.zip?dl=0
-data/input/raw_maps/west_seattle.bin,47ee90ea2397c175098abfd1da088da5,https://www.dropbox.com/s/112ym2cwg643c9n/west_seattle.bin.zip?dl=0
+data/input/raw_maps/west_seattle.bin,9e0646e43220084a1ac8bbcb4782b28f,https://www.dropbox.com/s/112ym2cwg643c9n/west_seattle.bin.zip?dl=0
 data/input/screenshots/lakeslice/01x01_i328.gif,40b1e76bb29e46823fa52186c891578b,https://www.dropbox.com/s/64ycqgm8dvta506/01x01_i328.gif.zip?dl=0
 data/input/screenshots/lakeslice/01x02_i163.gif,bbe0f33acd8fa1cf8fe5028bea8cc9a2,https://www.dropbox.com/s/6zebcdhbeirab49/01x02_i163.gif.zip?dl=0
 data/input/screenshots/lakeslice/01x03_i1.gif,7f29ff99e19905709bc3e94123c7959f,https://www.dropbox.com/s/qn65mm834k8w1jr/01x03_i1.gif.zip?dl=0
@@ -36,10 +36,10 @@ data/input/screenshots/lakeslice/01x15_i350.gif,bc8dd66ba2ba6031c2dadbb0cc0a0f77
 data/input/screenshots/lakeslice/01x16_i216.gif,db06075e944903edb8809d8dce8c2bf9,https://www.dropbox.com/s/xt79nsu31ghrda2/01x16_i216.gif.zip?dl=0
 data/input/screenshots/lakeslice/01x17_i215.gif,c4769d5760e83e621b282fa3909446cf,https://www.dropbox.com/s/otwkb2v2byd8u5w/01x17_i215.gif.zip?dl=0
 data/input/screenshots/lakeslice/01x18_i0.gif,224fa8b280d5fc16e4d30ef06a08d614,https://www.dropbox.com/s/44lcmk7ydhwzhsx/01x18_i0.gif.zip?dl=0
-data/input/screenshots/lakeslice/01x19_i5.gif,1dbe16d4c4ce2130d1ea41ac1a3a3f0f,https://www.dropbox.com/s/box9tzmwaa1cjhs/01x19_i5.gif.zip?dl=0
-data/input/screenshots/lakeslice/01x20_i20.gif,54594ce38b6a81abe219ee95faa6653e,Couldn't get shared link: Unknown Error
-data/input/screenshots/lakeslice/01x21_i452.gif,bab1a1d5c01223f8e1a31a6107fd453b,Couldn't get shared link: Unknown Error
-data/input/screenshots/lakeslice/01x22_i455.gif,df94449c587b0dcc7c9a0963e75f267e,Couldn't get shared link: Unknown Error
+data/input/screenshots/lakeslice/01x19_i5.gif,a80aa661d8be07cab5d21b106e4a92b8,https://www.dropbox.com/s/box9tzmwaa1cjhs/01x19_i5.gif.zip?dl=0
+data/input/screenshots/lakeslice/01x20_i20.gif,6d848c6475829701c7644fbd131b0cab,Couldn't get shared link: Unknown Error
+data/input/screenshots/lakeslice/01x21_i452.gif,836e57bbfde645807e80455a7ca5c6de,Couldn't get shared link: Unknown Error
+data/input/screenshots/lakeslice/01x22_i455.gif,9a7c7e2bb527760f5993d97cfb7c417d,Couldn't get shared link: Unknown Error
 data/input/screenshots/lakeslice/01x23_i253.gif,926dc8102ac4660979404fbc8b3ad435,Couldn't get shared link: Unknown Error
 data/input/screenshots/lakeslice/02x01_i331.gif,a00cfe48a998eb68de4704cf7bbdcc0c,Couldn't get shared link: Unknown Error
 data/input/screenshots/lakeslice/02x02_i166.gif,1732b1aa8486b5261478682ca1d642a0,Couldn't get shared link: Unknown Error
@@ -49,7 +49,7 @@ data/input/screenshots/lakeslice/02x05_i65.gif,41eecdc40d022d5c90f5b8e6faec6a42,
 data/input/screenshots/lakeslice/02x06_i713.gif,54ecd500d635336a7b9619d66e4c1067,Couldn't get shared link: Unknown Error
 data/input/screenshots/lakeslice/02x07_i123.gif,fd5e0e94254cb5f008161536aa8d8bd5,Couldn't get shared link: Unknown Error
 data/input/screenshots/lakeslice/02x08_i202.gif,bf27d9845c4bd0eba2c7655b09b7b5db,Couldn't get shared link: Unknown Error
-data/input/screenshots/lakeslice/02x09_i210.gif,be8bac882e6c51cebbcae2d00aee4cfc,Couldn't get shared link: Unknown Error
+data/input/screenshots/lakeslice/02x09_i210.gif,ea425612a2f9daf4ccd6105caad6d62a,Couldn't get shared link: Unknown Error
 data/input/screenshots/lakeslice/02x10_i79.gif,ac48608a8b02db31026e0dd4fcf9db1c,Couldn't get shared link: Unknown Error
 data/input/screenshots/lakeslice/02x11_i318.gif,a879c0ccbf66cc9c6d99cd9c7b56be94,Couldn't get shared link: Unknown Error
 data/input/screenshots/lakeslice/02x12_i316.gif,3c6caf4b05e0643590a039718daa267a,Couldn't get shared link: Unknown Error
@@ -61,14 +61,14 @@ data/input/screenshots/lakeslice/02x17_i236.gif,30d06c1df8c94dc806a543759ec2c165
 data/input/screenshots/lakeslice/02x18_i237.gif,6b349b07ae7f96704aa04644ce147329,Couldn't get shared link: Unknown Error
 data/input/screenshots/lakeslice/02x19_i12.gif,1e4c0608f08fe09e4d1dc8f1d2387335,Couldn't get shared link: Unknown Error
 data/input/screenshots/lakeslice/02x20_i191.gif,cb34d8142bd807698c52b710569849f7,Couldn't get shared link: Unknown Error
-data/input/screenshots/lakeslice/02x21_i230.gif,87b2c21646680ec875b455b1cd2dfd0c,Couldn't get shared link: Unknown Error
-data/input/screenshots/lakeslice/02x22_i32.gif,ccd617152cd179c4a36bfee6332c8497,Couldn't get shared link: Unknown Error
+data/input/screenshots/lakeslice/02x21_i230.gif,0d9f6aadb103704430fb7b2d30bc1bd4,Couldn't get shared link: Unknown Error
+data/input/screenshots/lakeslice/02x22_i32.gif,6dca194d00bea0d609b228a4be59671a,Couldn't get shared link: Unknown Error
 data/input/screenshots/lakeslice/02x23_i34.gif,3b4cc8f4e18ca6b96d244bccbadcc234,Couldn't get shared link: Unknown Error
 data/input/screenshots/lakeslice/03x01.gif,61d8983398a68bc7e36a60f4f388c49d,Couldn't get shared link: Unknown Error
 data/input/screenshots/lakeslice/03x02_i596.gif,d99c764ebbf0dd897a20ec5aa1f12b2d,Couldn't get shared link: Unknown Error
 data/input/screenshots/lakeslice/03x03.gif,d0ca43ab1523db59474f2b8ce1230b14,Couldn't get shared link: Unknown Error
 data/input/screenshots/lakeslice/03x04.gif,68112f3f177f855a757205d03ac8a580,Couldn't get shared link: Unknown Error
-data/input/screenshots/lakeslice/03x05_i1259.gif,bbf12a3dbff40e4d0189aba193dc1b7c,Couldn't get shared link: Unknown Error
+data/input/screenshots/lakeslice/03x05_i1260.gif,bbf12a3dbff40e4d0189aba193dc1b7c,https://www.dropbox.com/s/yxt5rzi0vywcxup/03x05_i1260.gif.zip?dl=0
 data/input/screenshots/lakeslice/03x06_i369.gif,b56e804029e0ff1d37f38f6d8715b0b7,Couldn't get shared link: Unknown Error
 data/input/screenshots/lakeslice/03x07_i120.gif,3d2786ef9c627ade704fa8baa8ba6b30,Couldn't get shared link: Unknown Error
 data/input/screenshots/lakeslice/03x08_i67.gif,63b02546c4272be8f7315b9bea7de18e,Couldn't get shared link: Unknown Error
@@ -79,9 +79,9 @@ data/input/screenshots/lakeslice/03x12_i152.gif,24c1ddfbf624b5556a1f7989fb4e7383
 data/input/screenshots/lakeslice/03x13_i31.gif,1e36761d72c6626655368a82a4c8fac9,https://www.dropbox.com/s/k9bi6kqjea3wtrn/03x13_i31.gif.zip?dl=0
 data/input/screenshots/lakeslice/03x14_i149.gif,5e6fee105703dc75553f4d2885851900,https://www.dropbox.com/s/783xl664nlsg4op/03x14_i149.gif.zip?dl=0
 data/input/screenshots/lakeslice/03x15_i170.gif,74614e97c298d5c083a5f354bc06fb49,https://www.dropbox.com/s/j8ryjgdib7tzo6q/03x15_i170.gif.zip?dl=0
-data/input/screenshots/lakeslice/03x16_i28.gif,18370442343a2a00ebca7c40366fcf70,https://www.dropbox.com/s/l9wg5qhhpbtqv1v/03x16_i28.gif.zip?dl=0
-data/input/screenshots/lakeslice/03x17_i28.gif,23a37f9a6d42dae6e68bc397abf29133,https://www.dropbox.com/s/84fw8kokt77ovmx/03x17_i28.gif.zip?dl=0
-data/input/screenshots/lakeslice/03x18_i282.gif,bfeef7d0d699c3afe7f8796f6c9d46ee,https://www.dropbox.com/s/3fbof6oyj0v6ojg/03x18_i282.gif.zip?dl=0
+data/input/screenshots/lakeslice/03x16_i28.gif,7b99af3265b3b36d5f2f10543bdc2b77,https://www.dropbox.com/s/l9wg5qhhpbtqv1v/03x16_i28.gif.zip?dl=0
+data/input/screenshots/lakeslice/03x17_i28.gif,36311199f448a7aa435ce0771b77a192,https://www.dropbox.com/s/84fw8kokt77ovmx/03x17_i28.gif.zip?dl=0
+data/input/screenshots/lakeslice/03x18_i282.gif,6adf22ae7c7c64b6e2291b40a15226cc,https://www.dropbox.com/s/3fbof6oyj0v6ojg/03x18_i282.gif.zip?dl=0
 data/input/screenshots/lakeslice/03x19_i13.gif,f60c0ddf37e4c057bd9f446f73c2a13a,https://www.dropbox.com/s/xi6jd42mu9npdg1/03x19_i13.gif.zip?dl=0
 data/input/screenshots/lakeslice/03x20_i71.gif,7fd30682dfd25d97cd5a43227801ad4a,https://www.dropbox.com/s/yi4iuel381y9e1u/03x20_i71.gif.zip?dl=0
 data/input/screenshots/lakeslice/03x21_i272.gif,e16ec5cc6c2c19eb43cb573793f3b85f,https://www.dropbox.com/s/o2ynjlhoi1ja0q5/03x21_i272.gif.zip?dl=0
@@ -102,11 +102,11 @@ data/input/screenshots/lakeslice/04x12_i463.gif,41f04231e023bbb36f569bd45b9ac664
 data/input/screenshots/lakeslice/04x13_i128.gif,cc299ade7c955039ed25713d58807cbb,Dropbox isn't responding!
 data/input/screenshots/lakeslice/04x14_i173.gif,04c73963f24709c5098c179ba680f907,Dropbox isn't responding!
 data/input/screenshots/lakeslice/04x15_i172.gif,fab19c8616afae464c7be369a9a0ae43,Dropbox isn't responding!
-data/input/screenshots/lakeslice/04x16_i1309.gif,ecd31d21c4ad1cb0d7962045427b04d1,https://www.dropbox.com/s/9274oir8d0o2pgg/04x16_i1309.gif.zip?dl=0
+data/input/screenshots/lakeslice/04x16_i1310.gif,ecd31d21c4ad1cb0d7962045427b04d1,https://www.dropbox.com/s/bdf61b633fb70vy/04x16_i1310.gif.zip?dl=0
 data/input/screenshots/lakeslice/04x17.gif,4ea0f0ef834cb0f76c40ce0f35dde59d,Dropbox isn't responding!
 data/input/screenshots/lakeslice/04x18.gif,8575dd74ab01f1b16eb57d731c16e3c8,https://www.dropbox.com/s/yh63ydv2tzxo9is/04x18.gif.zip?dl=0
 data/input/screenshots/lakeslice/04x19_i14.gif,5528db8506e067bb380ab9a4542dbb03,https://www.dropbox.com/s/0bexsapt2k0ugkw/04x19_i14.gif.zip?dl=0
-data/input/screenshots/lakeslice/04x20_i1057.gif,71d21212361cd9198c0ef825938fe16b,https://www.dropbox.com/s/npol4x6iwxeilkr/04x20_i1057.gif.zip?dl=0
+data/input/screenshots/lakeslice/04x20_i1058.gif,71d21212361cd9198c0ef825938fe16b,https://www.dropbox.com/s/jd3cjm2y2ljigf0/04x20_i1058.gif.zip?dl=0
 data/input/screenshots/lakeslice/04x21.gif,2ed164470986df08ede7a2de0243ec7e,https://www.dropbox.com/s/neynw9s07o4q1m2/04x21.gif.zip?dl=0
 data/input/screenshots/lakeslice/04x22.gif,c8648676591250eaf55438d4b8aebbfe,https://www.dropbox.com/s/6j3q52n5tzrs7nk/04x22.gif.zip?dl=0
 data/input/screenshots/lakeslice/04x23_i3.gif,5f842cea5cf483885e649e09be18e258,https://www.dropbox.com/s/v03keik2ktei5i2/04x23_i3.gif.zip?dl=0
@@ -133,7 +133,7 @@ data/input/screenshots/lakeslice/05x20.gif,8eb32ff700be3a4ded979bb464a47a44,Drop
 data/input/screenshots/lakeslice/05x21.gif,8eb32ff700be3a4ded979bb464a47a44,Dropbox isn't responding!
 data/input/screenshots/lakeslice/05x22.gif,8eb32ff700be3a4ded979bb464a47a44,Dropbox isn't responding!
 data/input/screenshots/lakeslice/05x23.gif,8eb32ff700be3a4ded979bb464a47a44,Dropbox isn't responding!
-data/input/screenshots/lakeslice/combine.sh,363c70e2b7bac5345fa9d5f8d230c927,Dropbox isn't responding!
+data/input/screenshots/lakeslice/combine.sh,06d45fe08ba34f8149897cb33c0b20d2,Dropbox isn't responding!
 data/input/screenshots/montlake/01x01_i17.gif,351482f0be7e8affc17fe252719bfef4,Dropbox isn't responding!
 data/input/screenshots/montlake/01x02_i18.gif,1491ba7a29a092499fa5094528a663fb,https://www.dropbox.com/s/jw70srh0l2q49a3/01x02_i18.gif.zip?dl=0
 data/input/screenshots/montlake/01x03_i0.gif,4b8a04ed4dc7f05cd296d10d5e2dad0d,https://www.dropbox.com/s/uux7jwmhmbztf68/01x03_i0.gif.zip?dl=0
@@ -168,43 +168,43 @@ data/input/seattle/google_transit/stop_times.txt,51dbf7a263fe5f0ea24e43c3aad3fec
 data/input/seattle/google_transit/stops.txt,8610cdc491d036eee88c9b7ae24d692d,https://www.dropbox.com/s/v1ayguqtkv1x0cx/stops.txt.zip?dl=0
 data/input/seattle/google_transit/trips.txt,8a4fbb3846249777afae319d64e6241e,https://www.dropbox.com/s/vpphfu9s5owan61/trips.txt.zip?dl=0
 data/input/seattle/offstreet_parking.bin,58485a3bdff2aea9769fffd207e3cf30,https://www.dropbox.com/s/7j2gwb18685kd5u/offstreet_parking.bin.zip?dl=0
-data/input/seattle/osm/23rd.osm,72512bec12aafcb68e357e6b95d99580,https://www.dropbox.com/s/ytavrx6ovporxbx/23rd.osm.zip?dl=0
-data/input/seattle/osm/ballard.osm,ac69b4535601e255f7139a4fe0bdec95,https://www.dropbox.com/s/7981y9qbxuztc5b/ballard.osm.zip?dl=0
-data/input/seattle/osm/caphill.osm,c51254d21971b340db8fe8fc3eaa5154,https://www.dropbox.com/s/rvwjr3735tc4gio/caphill.osm.zip?dl=0
-data/input/seattle/osm/downtown.osm,1361a1f6bde6526eb55455d58752d93a,https://www.dropbox.com/s/kpn8hfhoskj9pxz/downtown.osm.zip?dl=0
-data/input/seattle/osm/huge_seattle.osm,c89189d5b83d38c1cd4870cf99b61039,https://www.dropbox.com/s/xhe35pj632ow6fl/huge_seattle.osm.zip?dl=0
-data/input/seattle/osm/intl_district.osm,ebc3b66c4a4e9dd352872a632025c428,https://www.dropbox.com/s/fny0hr1fyiic9ih/intl_district.osm.zip?dl=0
-data/input/seattle/osm/lakeslice.osm,40ca969f937579f53282270c49576570,https://www.dropbox.com/s/vv90x69xvxx7o3s/lakeslice.osm.zip?dl=0
-data/input/seattle/osm/montlake.osm,9055b28a3bc950e44c374b7d3dd39601,https://www.dropbox.com/s/qh1jiav783m60g1/montlake.osm.zip?dl=0
-data/input/seattle/osm/washington-latest.osm.pbf,bf861a203b5a11ce58307fc7b068dc57,https://www.dropbox.com/s/xha9cx696czbzlf/washington-latest.osm.pbf.zip?dl=0
-data/input/seattle/osm/west_seattle.osm,dfa5f23eb51673ca387f8e7968c6ee49,https://www.dropbox.com/s/8m0vmvwg5zz3uod/west_seattle.osm.zip?dl=0
+data/input/seattle/osm/23rd.osm,9d70a34dfa3ed6152970115038d85b9c,https://www.dropbox.com/s/ytavrx6ovporxbx/23rd.osm.zip?dl=0
+data/input/seattle/osm/ballard.osm,ea270b45801fcf6c10ace558538e4142,https://www.dropbox.com/s/7981y9qbxuztc5b/ballard.osm.zip?dl=0
+data/input/seattle/osm/caphill.osm,6c16dbf34a67fe2c3830db6d822bb16f,https://www.dropbox.com/s/rvwjr3735tc4gio/caphill.osm.zip?dl=0
+data/input/seattle/osm/downtown.osm,0369141ed242fb382bf0883f1b78d9cc,https://www.dropbox.com/s/kpn8hfhoskj9pxz/downtown.osm.zip?dl=0
+data/input/seattle/osm/huge_seattle.osm,41dbb971141a6965bc0a9b41d4a27ea9,https://www.dropbox.com/s/xhe35pj632ow6fl/huge_seattle.osm.zip?dl=0
+data/input/seattle/osm/intl_district.osm,159d15ccfa1e33decd5c90185b07d301,https://www.dropbox.com/s/fny0hr1fyiic9ih/intl_district.osm.zip?dl=0
+data/input/seattle/osm/lakeslice.osm,7c47a2375c0b8bfbfcd3f80bcf91e135,https://www.dropbox.com/s/vv90x69xvxx7o3s/lakeslice.osm.zip?dl=0
+data/input/seattle/osm/montlake.osm,7241c8919f8fcd09c33b4d51681fbbe0,https://www.dropbox.com/s/qh1jiav783m60g1/montlake.osm.zip?dl=0
+data/input/seattle/osm/washington-latest.osm.pbf,869066ee104016c8e1d218934059d16e,https://www.dropbox.com/s/xha9cx696czbzlf/washington-latest.osm.pbf.zip?dl=0
+data/input/seattle/osm/west_seattle.osm,69e53ee0743532f7ce3626dca7ff3006,https://www.dropbox.com/s/8m0vmvwg5zz3uod/west_seattle.osm.zip?dl=0
 data/input/seattle/parcels_urbansim.txt,db63d7d606e8702d12f9399e87e6a00f,https://www.dropbox.com/s/6g8rbsf200dssj3/parcels_urbansim.txt.zip?dl=0
 data/input/seattle/popdat.bin,793dd4075de7a4cf5ea8005cd68a06c8,https://www.dropbox.com/s/wrpji7e14rdwszs/popdat.bin.zip?dl=0
 data/input/seattle/sidewalks.bin,129b460f56f5eb41cab3bfd70fb5fde9,https://www.dropbox.com/s/ma9bmisijc7v7xa/sidewalks.bin.zip?dl=0
 data/input/seattle/trips_2014.csv,d4a8e733045b28c0385fb81359d6df03,https://www.dropbox.com/s/5ppravwmk6bf20d/trips_2014.csv.zip?dl=0
-data/system/maps/23rd.bin,3e182d66049c5b3b71a6091dc5be1489,https://www.dropbox.com/s/wjl45codk6rqfg4/23rd.bin.zip?dl=0
+data/system/maps/23rd.bin,1af6d1ab507d06459eac0209303e1e1c,https://www.dropbox.com/s/wjl45codk6rqfg4/23rd.bin.zip?dl=0
 data/system/maps/ballard.bin,157c94c73754be0dad2ceaa7ddf939df,https://www.dropbox.com/s/u4rvz50she3yrk0/ballard.bin.zip?dl=0
 data/system/maps/barranquilla.bin,d693b8e99c3214cb577b4efe00db78ad,https://www.dropbox.com/s/iuvggdfr16u6luw/barranquilla.bin.zip?dl=0
-data/system/maps/caphill.bin,fcfc543ca2599fa038354c621e89675e,https://www.dropbox.com/s/bh20pn3wxygetw8/caphill.bin.zip?dl=0
+data/system/maps/caphill.bin,b72536c57914747ee6d52923a379df3c,https://www.dropbox.com/s/bh20pn3wxygetw8/caphill.bin.zip?dl=0
 data/system/maps/downtown.bin,e3b63d0aefe5ee7553ecbdb29dd9fb52,https://www.dropbox.com/s/4do5cg4vc17lafo/downtown.bin.zip?dl=0
 data/system/maps/downtown_atx.bin,50f3436f195cd6f1ffc2c39f238710a7,https://www.dropbox.com/s/5avnbkd4oxby2hs/downtown_atx.bin.zip?dl=0
 data/system/maps/downtown_la.bin,129344da195a001ae1861c6f1396a060,https://www.dropbox.com/s/gkcl982cj6kxvrz/downtown_la.bin.zip?dl=0
 data/system/maps/huge_austin.bin,7c02daac468a094bd49a9f62f88ca5e2,https://www.dropbox.com/s/khy0m6v9yt0gjnt/huge_austin.bin.zip?dl=0
-data/system/maps/huge_seattle.bin,00ce355ead44dc95b39b88834a3238a1,https://www.dropbox.com/s/btvr3qajshnivhb/huge_seattle.bin.zip?dl=0
-data/system/maps/intl_district.bin,34c5066b283097d566b0bb9353eb46e0,https://www.dropbox.com/s/fohppni52ekc5l3/intl_district.bin.zip?dl=0
-data/system/maps/lakeslice.bin,9e62897dbba17bc02e06ea58f678511e,https://www.dropbox.com/s/99zi0gcbyvqrkud/lakeslice.bin.zip?dl=0
+data/system/maps/huge_seattle.bin,ae22c7a6c5c6f0eb2364c1007e6c50e8,https://www.dropbox.com/s/btvr3qajshnivhb/huge_seattle.bin.zip?dl=0
+data/system/maps/intl_district.bin,3ca1d3d3bded183c3295da15e0b5708c,https://www.dropbox.com/s/fohppni52ekc5l3/intl_district.bin.zip?dl=0
+data/system/maps/lakeslice.bin,b416e0a205b558ce8e59012fa2bb3a6c,https://www.dropbox.com/s/99zi0gcbyvqrkud/lakeslice.bin.zip?dl=0
 data/system/maps/montlake.bin,79d0baf716f3310aea2e4ac5663f3f7e,https://www.dropbox.com/s/zvhm2j5lavixxcr/montlake.bin.zip?dl=0
-data/system/maps/west_seattle.bin,b44ecbf25220713524d7e76f3c67ba92,https://www.dropbox.com/s/5pp1ik9l40yj3wh/west_seattle.bin.zip?dl=0
-data/system/prebaked_results/lakeslice/weekday.bin,e6ae8e6cce4f485e20c4333001c2f0bf,https://www.dropbox.com/s/1c1sohvy50263wg/weekday.bin.zip?dl=0
+data/system/maps/west_seattle.bin,82c9af86d35e25d376e8dec633cbea8b,https://www.dropbox.com/s/5pp1ik9l40yj3wh/west_seattle.bin.zip?dl=0
+data/system/prebaked_results/lakeslice/weekday.bin,0c79f3a94e49a5a00337b83d62e33b5f,https://www.dropbox.com/s/1c1sohvy50263wg/weekday.bin.zip?dl=0
 data/system/prebaked_results/montlake/car vs bike contention.bin,1031311cb5f27dcda4a92083cc0c214f,https://www.dropbox.com/s/jefg0ikjy9dsrdd/car%20vs%20bike%20contention.bin.zip?dl=0
 data/system/prebaked_results/montlake/weekday.bin,30033ba544b2bd9810aa7278ee380ec2,https://www.dropbox.com/s/1aq7n9ow8tfqb5d/weekday.bin.zip?dl=0
-data/system/scenarios/23rd/weekday.bin,54f584d2116a7d388db6aff41770167f,https://www.dropbox.com/s/tgo7gztfodbljyi/weekday.bin.zip?dl=0
+data/system/scenarios/23rd/weekday.bin,a94835a2f5f3bef278415cc9b7915c28,https://www.dropbox.com/s/tgo7gztfodbljyi/weekday.bin.zip?dl=0
 data/system/scenarios/ballard/weekday.bin,b751b2eedbf2d70eecb8c7801557ab66,https://www.dropbox.com/s/67hys1v7m7oe979/weekday.bin.zip?dl=0
 data/system/scenarios/caphill/weekday.bin,dd4e5c78ecba624c98d5153a1428abbe,https://www.dropbox.com/s/9ifg7ogd6p5f1qg/weekday.bin.zip?dl=0
 data/system/scenarios/downtown/weekday.bin,cbc22b96cbccd9ea08addadde02ebb02,https://www.dropbox.com/s/pstvu4p7xj3gaoi/weekday.bin.zip?dl=0
-data/system/scenarios/huge_seattle/weekday.bin,d5a265e3abaefa733b6992c190384bfe,https://www.dropbox.com/s/u3pmsshwnf13g83/weekday.bin.zip?dl=0
-data/system/scenarios/intl_district/weekday.bin,8f40195da7b1def438a1a4b85fb8119b,https://www.dropbox.com/s/sgag53d9tul9rcl/weekday.bin.zip?dl=0
-data/system/scenarios/lakeslice/weekday.bin,9a9532b1a426adf83ad61ee80c22b514,https://www.dropbox.com/s/858wxml3z0qlhxd/weekday.bin.zip?dl=0
+data/system/scenarios/huge_seattle/weekday.bin,792c85262dd0ac103325f8b3e4772299,https://www.dropbox.com/s/u3pmsshwnf13g83/weekday.bin.zip?dl=0
+data/system/scenarios/intl_district/weekday.bin,a91c5342529a800ff2d304895c41aba0,https://www.dropbox.com/s/sgag53d9tul9rcl/weekday.bin.zip?dl=0
+data/system/scenarios/lakeslice/weekday.bin,c19dcc0a7c3e19117047a62aee407437,https://www.dropbox.com/s/858wxml3z0qlhxd/weekday.bin.zip?dl=0
 data/system/scenarios/montlake/everyone_weekday.bin,71a4539819128ed9b97ecab013f2f60e,https://www.dropbox.com/s/44s818fimpu53v1/everyone_weekday.bin.zip?dl=0
 data/system/scenarios/montlake/weekday.bin,7263076a9e28e4569be219b534901d92,https://www.dropbox.com/s/yntrxxgv3yx75gd/weekday.bin.zip?dl=0
-data/system/scenarios/west_seattle/weekday.bin,cf45b3357cf3ae5060545278ed5685f2,https://www.dropbox.com/s/n8ertmxn05yn0kj/weekday.bin.zip?dl=0
+data/system/scenarios/west_seattle/weekday.bin,a137dd6342ea76cc7364100b9ff34ba6,https://www.dropbox.com/s/n8ertmxn05yn0kj/weekday.bin.zip?dl=0
