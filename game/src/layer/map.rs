@@ -143,6 +143,7 @@ pub fn edits(ctx: &mut EventCtx, app: &App) -> Layers {
         vec![
             format!("{} lane types changed", edits.original_lts.len()),
             format!("{} lanes reversed", edits.reversed_lanes.len()),
+            format!("{} speed limits changed", edits.changed_speed_limits.len()),
             format!(
                 "{} intersections changed",
                 edits.original_intersections.len()

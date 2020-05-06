@@ -734,7 +734,9 @@ fn import_turn_group(id: seattle_traffic_signals::Turn, map: &Map) -> Option<Tur
 
 fn find_r(id: seattle_traffic_signals::DirectedRoad, map: &Map) -> Option<DirectedRoadID> {
     Some(DirectedRoadID {
-        id: map.find_r_by_osm_id(id.osm_way_id, (id.osm_node1, id.osm_node2))?,
+        id: map
+            .find_r_by_osm_id(id.osm_way_id, (id.osm_node1, id.osm_node2))
+            .ok()?,
         forwards: id.is_forwards,
     })
 }

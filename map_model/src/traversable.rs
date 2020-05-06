@@ -167,8 +167,8 @@ impl Traversable {
 
     pub fn speed_limit(&self, map: &Map) -> Speed {
         match *self {
-            Traversable::Lane(id) => map.get_parent(id).get_speed_limit(),
-            Traversable::Turn(id) => map.get_parent(id.dst).get_speed_limit(),
+            Traversable::Lane(id) => map.get_parent(id).speed_limit,
+            Traversable::Turn(id) => map.get_parent(id.dst).speed_limit,
         }
     }
 

@@ -8,7 +8,7 @@ use crate::{
     NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer, Warn};
-use geom::{Angle, Bounds, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
+use geom::{Angle, Bounds, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D, Speed};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 
@@ -643,16 +643,23 @@ impl Map {
         None
     }
 
-    pub fn find_r_by_osm_id(&self, osm_way_id: i64, osm_node_ids: (i64, i64)) -> Option<RoadID> {
+    pub fn find_r_by_osm_id(
+        &self,
+        osm_way_id: i64,
+        osm_node_ids: (i64, i64),
+    ) -> Result<RoadID, String> {
         for r in self.all_roads() {
             if r.orig_id.osm_way_id == osm_way_id
                 && r.orig_id.i1.osm_node_id == osm_node_ids.0
                 && r.orig_id.i2.osm_node_id == osm_node_ids.1
             {
-                return Some(r.id);
+                return Ok(r.id);
             }
         }
-        None
+        Err(format!(
+            "Can't find osm_way_id {} between nodes {} and {}",
+            osm_way_id, osm_node_ids.0, osm_node_ids.1
+        ))
     }
 
     pub fn find_i_by_osm_id(&self, osm_node_id: i64) -> Result<IntersectionID, String> {
@@ -933,7 +940,9 @@ fn make_half_map(
             center_pts: r.trimmed_center_pts.clone(),
             src_i: i1,
             dst_i: i2,
+            speed_limit: Speed::ZERO,
         };
+        road.speed_limit = road.speed_limit_from_osm();
 
         for lane in &r.lane_specs {
             let id = LaneID(map.lanes.len());
@@ -1150,6 +1159,15 @@ impl EditCmd {
                 recalculate_turns(dst_i, map, effects, timer);
                 true
             }
+            EditCmd::ChangeSpeedLimit { id, new, .. } => {
+                if map.roads[id.0].speed_limit != *new {
+                    map.roads[id.0].speed_limit = *new;
+                    effects.changed_roads.insert(*id);
+                    true
+                } else {
+                    false
+                }
+            }
             EditCmd::ChangeIntersection {
                 i,
                 ref new,
@@ -1205,6 +1223,15 @@ impl EditCmd {
                     dst_i: other_i,
                 }
                 .apply(effects, map, timer)
+            }
+            EditCmd::ChangeSpeedLimit { id, old, .. } => {
+                if map.roads[id.0].speed_limit != *old {
+                    map.roads[id.0].speed_limit = *old;
+                    effects.changed_roads.insert(*id);
+                    true
+                } else {
+                    false
+                }
             }
             EditCmd::ChangeIntersection {
                 i,

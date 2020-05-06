@@ -97,6 +97,7 @@ pub struct Road {
     // self is 'from'. (via, to). Only BanTurns.
     pub complicated_turn_restrictions: Vec<(RoadID, RoadID)>,
     pub orig_id: OriginalRoad,
+    pub speed_limit: Speed,
 
     // Invariant: A road must contain at least one child
     // These are ordered from closest to center lane (left-most when driving on the right) to
@@ -205,8 +206,7 @@ impl Road {
         }
     }
 
-    pub fn get_speed_limit(&self) -> Speed {
-        // TODO Should probably cache this
+    pub(crate) fn speed_limit_from_osm(&self) -> Speed {
         if let Some(limit) = self.osm_tags.get(osm::MAXSPEED) {
             // TODO handle other units
             if limit.ends_with(" mph") {

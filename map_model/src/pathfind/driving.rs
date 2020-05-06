@@ -128,8 +128,8 @@ pub fn cost(lane: &Lane, turn: &Turn, constraints: PathConstraints, map: &Map) -
     match constraints {
         PathConstraints::Car => {
             // Prefer slightly longer route on faster roads
-            let t1 = lane.length() / map.get_r(lane.parent).get_speed_limit();
-            let t2 = turn.geom.length() / map.get_parent(turn.id.dst).get_speed_limit();
+            let t1 = lane.length() / map.get_r(lane.parent).speed_limit;
+            let t2 = turn.geom.length() / map.get_parent(turn.id.dst).speed_limit;
             (t1 + t2).inner_seconds().round() as usize
         }
         PathConstraints::Bike => {
@@ -155,8 +155,8 @@ pub fn cost(lane: &Lane, turn: &Turn, constraints: PathConstraints, map: &Map) -
         }
         PathConstraints::Bus => {
             // Like Car, but prefer bus lanes.
-            let t1 = lane.length() / map.get_r(lane.parent).get_speed_limit();
-            let t2 = turn.geom.length() / map.get_parent(turn.id.dst).get_speed_limit();
+            let t1 = lane.length() / map.get_r(lane.parent).speed_limit;
+            let t2 = turn.geom.length() / map.get_parent(turn.id.dst).speed_limit;
             let lt_penalty = if lane.is_bus() {
                 1.0
             } else {

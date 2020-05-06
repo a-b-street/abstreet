@@ -2,7 +2,8 @@ use crate::raw::{OriginalIntersection, OriginalRoad};
 use crate::{
     ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, LaneType, Map, RoadID, TurnID,
 };
-use abstutil::{deserialize_btreemap, retain_btreemap, serialize_btreemap, Timer};
+use abstutil::{deserialize_btreemap, retain_btreemap, retain_btreeset, serialize_btreemap, Timer};
+use geom::Speed;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -15,6 +16,7 @@ pub struct MapEdits {
     pub original_lts: BTreeMap<LaneID, LaneType>,
     pub reversed_lanes: BTreeSet<LaneID>,
     pub original_intersections: BTreeMap<IntersectionID, EditIntersection>,
+    pub changed_speed_limits: BTreeSet<RoadID>,
 
     // Edits without these are player generated.
     pub proposal_description: Vec<String>,
@@ -38,6 +40,11 @@ pub enum EditCmd {
         l: LaneID,
         // New intended dst_i
         dst_i: IntersectionID,
+    },
+    ChangeSpeedLimit {
+        id: RoadID,
+        new: Speed,
+        old: Speed,
     },
     ChangeIntersection {
         i: IntersectionID,
@@ -64,6 +71,7 @@ impl MapEdits {
             original_lts: BTreeMap::new(),
             reversed_lanes: BTreeSet::new(),
             original_intersections: BTreeMap::new(),
+            changed_speed_limits: BTreeSet::new(),
         }
     }
 
@@ -87,11 +95,11 @@ impl MapEdits {
         );
     }
 
-    // Original lane types, reversed lanes, and all changed intersections
     pub(crate) fn update_derived(&mut self, map: &Map) {
         let mut orig_lts = BTreeMap::new();
         let mut reversed_lanes = BTreeSet::new();
         let mut orig_intersections: BTreeMap<IntersectionID, EditIntersection> = BTreeMap::new();
+        let mut changed_speed_limits = BTreeSet::new();
 
         for cmd in &self.commands {
             match cmd {
@@ -107,6 +115,9 @@ impl MapEdits {
                         reversed_lanes.insert(*l);
                     }
                 }
+                EditCmd::ChangeSpeedLimit { id, .. } => {
+                    changed_speed_limits.insert(*id);
+                }
                 EditCmd::ChangeIntersection { i, ref old, .. } => {
                     if !orig_intersections.contains_key(i) {
                         orig_intersections.insert(*i, old.clone());
@@ -119,10 +130,14 @@ impl MapEdits {
         retain_btreemap(&mut orig_intersections, |i, orig| {
             map.get_i_edit(*i) != orig.clone()
         });
+        retain_btreeset(&mut changed_speed_limits, |r| {
+            map.get_r(*r).speed_limit != map.get_r(*r).speed_limit_from_osm()
+        });
 
         self.original_lts = orig_lts;
         self.reversed_lanes = reversed_lanes;
         self.original_intersections = orig_intersections;
+        self.changed_speed_limits = changed_speed_limits;
     }
 
     // Assumes update_derived has been called.
@@ -145,6 +160,13 @@ impl MapEdits {
                 i: *i,
                 old: old.clone(),
                 new: map.get_i_edit(*i),
+            });
+        }
+        for r in &self.changed_speed_limits {
+            self.commands.push(EditCmd::ChangeSpeedLimit {
+                id: *r,
+                new: map.get_r(*r).speed_limit,
+                old: map.get_r(*r).speed_limit_from_osm(),
             });
         }
     }
@@ -214,6 +236,11 @@ enum PermanentEditCmd {
         // New intended dst_i
         dst_i: OriginalIntersection,
     },
+    ChangeSpeedLimit {
+        id: OriginalRoad,
+        new: Speed,
+        old: Speed,
+    },
     ChangeIntersection {
         i: OriginalIntersection,
         new: PermanentEditIntersection,
@@ -241,6 +268,13 @@ impl PermanentMapEdits {
                         l: OriginalLane::to_permanent(*l, map),
                         dst_i: map.get_i(*dst_i).orig_id,
                     },
+                    EditCmd::ChangeSpeedLimit { id, new, old } => {
+                        PermanentEditCmd::ChangeSpeedLimit {
+                            id: map.get_r(*id).orig_id,
+                            new: *new,
+                            old: *old,
+                        }
+                    }
                     EditCmd::ChangeIntersection { i, new, old } => {
                         PermanentEditCmd::ChangeIntersection {
                             i: map.get_i(*i).orig_id,
@@ -273,6 +307,13 @@ impl PermanentMapEdits {
                         let dst_i = map.find_i_by_osm_id(dst_i.osm_node_id)?;
                         Ok(EditCmd::ReverseLane { l, dst_i })
                     }
+                    PermanentEditCmd::ChangeSpeedLimit { id, new, old } => {
+                        let id = map.find_r_by_osm_id(
+                            id.osm_way_id,
+                            (id.i1.osm_node_id, id.i2.osm_node_id),
+                        )?;
+                        Ok(EditCmd::ChangeSpeedLimit { id, new, old })
+                    }
                     PermanentEditCmd::ChangeIntersection { i, new, old } => {
                         let id = map.find_i_by_osm_id(i.osm_node_id)?;
                         Ok(EditCmd::ChangeIntersection {
@@ -291,6 +332,7 @@ impl PermanentMapEdits {
             original_lts: BTreeMap::new(),
             reversed_lanes: BTreeSet::new(),
             original_intersections: BTreeMap::new(),
+            changed_speed_limits: BTreeSet::new(),
         };
         edits.update_derived(map);
         Ok(edits)
@@ -322,7 +364,8 @@ impl PermanentEditIntersection {
                 let mut translated_must_stop = BTreeMap::new();
                 for (r, stop) in must_stop {
                     translated_must_stop.insert(
-                        map.find_r_by_osm_id(r.osm_way_id, (r.i1.osm_node_id, r.i2.osm_node_id))?,
+                        map.find_r_by_osm_id(r.osm_way_id, (r.i1.osm_node_id, r.i2.osm_node_id))
+                            .ok()?,
                         stop,
                     );
                 }
@@ -360,13 +403,10 @@ impl OriginalLane {
     }
 
     fn from_permanent(self, map: &Map) -> Result<LaneID, String> {
-        let r = map.get_r(
-            map.find_r_by_osm_id(
-                self.parent.osm_way_id,
-                (self.parent.i1.osm_node_id, self.parent.i2.osm_node_id),
-            )
-            .ok_or_else(|| format!("can't find {:?}", self))?,
-        );
+        let r = map.get_r(map.find_r_by_osm_id(
+            self.parent.osm_way_id,
+            (self.parent.i1.osm_node_id, self.parent.i2.osm_node_id),
+        )?);
         if r.children_forwards.len() != self.num_fwd || r.children_backwards.len() != self.num_back
         {
             return Err(format!("number of lanes has changed in {:?}", self));

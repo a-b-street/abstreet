@@ -26,7 +26,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
             ),
         ));
     } else {
-        kv.push(("Speed limit", r.get_speed_limit().to_string()));
+        kv.push(("Speed limit", r.speed_limit.to_string()));
     }
 
     kv.push(("Length", l.length().describe_rounded()));

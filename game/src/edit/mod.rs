@@ -147,6 +147,7 @@ impl State for EditMode {
                     let id = match edits.commands.pop().unwrap() {
                         EditCmd::ChangeLaneType { id, .. } => ID::Lane(id),
                         EditCmd::ReverseLane { l, .. } => ID::Lane(l),
+                        EditCmd::ChangeSpeedLimit { id, .. } => ID::Road(id),
                         EditCmd::ChangeIntersection { i, .. } => ID::Intersection(i),
                     };
                     apply_map_edits(ctx, app, edits);
