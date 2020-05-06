@@ -368,6 +368,7 @@ fn make_timeline(
     let mut timeline = Vec::new();
     let num_phases = phases.len();
     let mut elevation = Vec::new();
+    let mut path_impossible = false;
     for (idx, p) in phases.into_iter().enumerate() {
         let color = match p.phase_type {
             TripPhaseType::Driving => app.cs.unzoomed_car,
@@ -495,6 +496,8 @@ fn make_timeline(
                     ),
                 );
             }
+        } else if p.has_path_req {
+            path_impossible = true;
         }
     }
 
@@ -552,6 +555,9 @@ fn make_timeline(
         ])
         .margin_above(5),
     ];
+    if path_impossible {
+        col.push("Map edits have disconnected the path taken before".draw_text(ctx));
+    }
     // TODO This just needs too much more work
     if false {
         col.extend(elevation);

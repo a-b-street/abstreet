@@ -441,6 +441,7 @@ impl Analytics {
                     map.pathfind(req.clone())
                         .map(|path| (req.start.dist_along(), path))
                 }),
+                has_path_req: maybe_req.is_some(),
                 phase_type: *phase_type,
             })
         }
@@ -449,7 +450,7 @@ impl Analytics {
 
     pub fn get_all_trip_phases(&self) -> BTreeMap<TripID, Vec<TripPhase>> {
         let mut trips = BTreeMap::new();
-        for (t, id, _, phase_type) in &self.trip_log {
+        for (t, id, maybe_req, phase_type) in &self.trip_log {
             let phases: &mut Vec<TripPhase> = trips.entry(*id).or_insert_with(Vec::new);
             if let Some(ref mut last) = phases.last_mut() {
                 last.end_time = Some(*t);
@@ -467,6 +468,7 @@ impl Analytics {
                 end_time: None,
                 // Don't compute any paths
                 path: None,
+                has_path_req: maybe_req.is_some(),
                 phase_type: *phase_type,
             })
         }
@@ -611,6 +613,7 @@ pub struct TripPhase {
     pub end_time: Option<Time>,
     // Plumb along start distance
     pub path: Option<(Distance, Path)>,
+    pub has_path_req: bool,
     pub phase_type: TripPhaseType,
 }
 

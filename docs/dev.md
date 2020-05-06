@@ -91,6 +91,8 @@ You can rerun specific stages of the importer:
 - By default, Seattle is assumed as the city. You have to specify otherwise:
   `./import.sh --city=los_angeles --map downtown_la`.
 
+You can also make the importer [import a new city](new_city.md).
+
 ## Understanding stuff
 
 The docs listed at
