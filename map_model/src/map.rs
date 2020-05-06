@@ -725,6 +725,7 @@ impl Map {
 
     pub fn save_edits(&mut self) {
         let mut edits = self.edits.clone();
+        edits.commands.clear();
         edits.compress(self);
         self.edits = edits;
 

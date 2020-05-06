@@ -1,8 +1,8 @@
-use crate::raw::OriginalIntersection;
+use crate::raw::{OriginalIntersection, OriginalRoad};
 use crate::{
     ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, LaneType, Map, RoadID, TurnID,
 };
-use abstutil::{retain_btreemap, Timer};
+use abstutil::{deserialize_btreemap, retain_btreemap, serialize_btreemap, Timer};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -190,7 +190,13 @@ pub struct PermanentMapEdits {
 
 #[derive(Serialize, Deserialize)]
 enum PermanentEditIntersection {
-    StopSign(ControlStopSign),
+    StopSign {
+        #[serde(
+            serialize_with = "serialize_btreemap",
+            deserialize_with = "deserialize_btreemap"
+        )]
+        must_stop: BTreeMap<OriginalRoad, bool>,
+    },
     TrafficSignal(seattle_traffic_signals::TrafficSignal),
     Closed,
 }
@@ -287,7 +293,13 @@ impl PermanentMapEdits {
 impl EditIntersection {
     fn to_permanent(&self, map: &Map) -> PermanentEditIntersection {
         match self {
-            EditIntersection::StopSign(ref ss) => PermanentEditIntersection::StopSign(ss.clone()),
+            EditIntersection::StopSign(ref ss) => PermanentEditIntersection::StopSign {
+                must_stop: ss
+                    .roads
+                    .iter()
+                    .map(|(r, val)| (map.get_r(*r).orig_id, val.must_stop))
+                    .collect(),
+            },
             EditIntersection::TrafficSignal(ref ts) => {
                 PermanentEditIntersection::TrafficSignal(ts.export(map))
             }
@@ -299,7 +311,26 @@ impl EditIntersection {
 impl PermanentEditIntersection {
     fn from_permanent(self, i: IntersectionID, map: &Map) -> Option<EditIntersection> {
         match self {
-            PermanentEditIntersection::StopSign(ss) => Some(EditIntersection::StopSign(ss)),
+            PermanentEditIntersection::StopSign { must_stop } => {
+                let mut translated_must_stop = BTreeMap::new();
+                for (r, stop) in must_stop {
+                    translated_must_stop.insert(
+                        map.find_r_by_osm_id(r.osm_way_id, (r.i1.osm_node_id, r.i2.osm_node_id))?,
+                        stop,
+                    );
+                }
+
+                // Make sure the roads exactly match up
+                let mut ss = ControlStopSign::new(map, i);
+                if translated_must_stop.len() != ss.roads.len() {
+                    return None;
+                }
+                for (r, stop) in translated_must_stop {
+                    ss.roads.get_mut(&r)?.must_stop = stop;
+                }
+
+                Some(EditIntersection::StopSign(ss))
+            }
             PermanentEditIntersection::TrafficSignal(ts) => Some(EditIntersection::TrafficSignal(
                 ControlTrafficSignal::import(ts, i, map)?,
             )),
