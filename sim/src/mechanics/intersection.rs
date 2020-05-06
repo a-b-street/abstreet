@@ -620,7 +620,7 @@ impl IntersectionSimState {
 // for now.
 fn allow_block_the_box(osm_node_id: i64) -> bool {
     // 23rd and Madison
-    osm_node_id == 53211694 || osm_node_id == 53211693
+    osm_node_id == 53211694 || osm_node_id == 53211693 || osm_node_id == 53045512
 }
 
 // TODO Various problems (bad geometry, multi-intersection turn restrictions) cause

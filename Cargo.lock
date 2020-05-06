@@ -2643,7 +2643,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "seattle_traffic_signals"
 version = "0.1.0"
-source = "git+https://github.com/dabreegster/seattle_traffic_signals#892c6888c8115691c95ca0db3c71d3815d93384e"
+source = "git+https://github.com/dabreegster/seattle_traffic_signals#8a360bfc429a54fdd080956ca198537c191033dc"
 dependencies = [
  "include_dir 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.106 (registry+https://github.com/rust-lang/crates.io-index)",

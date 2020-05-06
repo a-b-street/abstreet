@@ -312,7 +312,7 @@ pub fn prebake_all() {
         let map = map_model::Map::new(abstutil::path_map("lakeslice"), false, &mut timer);
         let scenario: Scenario =
             abstutil::read_binary(abstutil::path_scenario("lakeslice", "weekday"), &mut timer);
-        prebake(&map, scenario, Some(Duration::hours(12)), &mut timer);
+        prebake(&map, scenario, None, &mut timer);
     }
 }
 
