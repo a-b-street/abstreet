@@ -1,7 +1,8 @@
 use crate::app::App;
 use crate::challenges::challenges_picker;
 use crate::devtools::DevToolsMode;
-use crate::game::{State, Transition};
+use crate::edit::apply_map_edits;
+use crate::game::{msg, State, Transition};
 use crate::managed::{Callback, ManagedGUIState, WrappedComposite, WrappedOutcome};
 use crate::sandbox::{GameplayMode, SandboxMode, TutorialPointer};
 use ezgui::{
@@ -264,34 +265,55 @@ fn about(ctx: &mut EventCtx) -> Box<dyn State> {
 fn proposals_picker(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
     let mut cbs: Vec<(String, Callback)> = Vec::new();
     let mut buttons: Vec<Widget> = Vec::new();
-    for map_name in abstutil::list_all_objects(abstutil::path_all_maps()) {
-        for (_, edits) in
-            abstutil::load_all_objects::<PermanentMapEdits>(abstutil::path_all_edits(&map_name))
-        {
-            if !edits.proposal_description.is_empty() {
-                let mut txt = Text::new();
-                for l in &edits.proposal_description {
-                    txt.add(Line(l));
-                }
-                let path = abstutil::path_edits(&map_name, &edits.edits_name);
-                buttons.push(Btn::custom_text_fg(txt).build(ctx, &path, None));
-                let map_name = map_name.clone();
-                cbs.push((
-                    path,
-                    Box::new(move |ctx, app| {
-                        // TODO apply edits
-                        Some(Transition::Push(Box::new(SandboxMode::new(
-                            ctx,
-                            app,
-                            GameplayMode::PlayScenario(
-                                abstutil::path_map(&map_name),
-                                "weekday".to_string(),
-                            ),
-                        ))))
-                    }),
-                ));
-            }
+    for (name, edits) in
+        abstutil::load_all_objects::<PermanentMapEdits>("../data/system/proposals".to_string())
+    {
+        let mut txt = Text::new();
+        txt.add(Line(&edits.proposal_description[0]));
+        for l in edits.proposal_description.iter().skip(1) {
+            txt.add(Line(l).secondary());
         }
+        let path = format!("../data/system/proposals/{}.json", name);
+        buttons.push(
+            Btn::text_bg(&path, txt, app.cs.section_bg, app.cs.hovering)
+                .tooltip(Text::new())
+                .build_def(ctx, None),
+        );
+        cbs.push((
+            path,
+            Box::new(move |ctx, app| {
+                // Apply edits before setting up the sandbox, for simplicity
+                let map_name = edits.map_name.clone();
+                let edits = edits.clone();
+                let maybe_err = ctx.loading_screen("apply edits", |ctx, mut timer| {
+                    if &edits.map_name != app.primary.map.get_name() {
+                        app.switch_map(ctx, abstutil::path_map(&edits.map_name));
+                    }
+                    match PermanentMapEdits::from_permanent(edits, &app.primary.map) {
+                        Ok(edits) => {
+                            apply_map_edits(ctx, app, edits);
+                            app.primary
+                                .map
+                                .recalculate_pathfinding_after_edits(&mut timer);
+                            None
+                        }
+                        Err(err) => Some(err),
+                    }
+                });
+                if let Some(err) = maybe_err {
+                    Some(Transition::Push(msg("Can't load proposal", vec![err])))
+                } else {
+                    Some(Transition::Push(Box::new(SandboxMode::new(
+                        ctx,
+                        app,
+                        GameplayMode::PlayScenario(
+                            abstutil::path_map(&map_name),
+                            "weekday".to_string(),
+                        ),
+                    ))))
+                }
+            }),
+        ));
     }
 
     let mut c = WrappedComposite::new(

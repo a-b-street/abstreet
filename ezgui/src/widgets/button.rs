@@ -141,9 +141,6 @@ impl Btn {
         let label = label.into();
         BtnBuilder::TextFG(label.clone(), Text::from(Line(label)), None)
     }
-    pub fn custom_text_fg(normal: Text) -> BtnBuilder {
-        BtnBuilder::TextFG(String::new(), normal, None)
-    }
 
     pub fn text_bg<I: Into<String>>(
         label: I,
@@ -429,7 +426,7 @@ impl BtnBuilder {
     pub fn inactive(mut self, ctx: &EventCtx) -> Widget {
         match self {
             BtnBuilder::TextFG(_, txt, _) => {
-                let btn = Btn::custom_text_fg(txt.change_fg(Color::grey(0.5)))
+                let btn = BtnBuilder::TextFG(String::new(), txt.change_fg(Color::grey(0.5)), None)
                     .build(ctx, "dummy", None)
                     .take_btn();
                 Widget::new(Box::new(JustDraw {

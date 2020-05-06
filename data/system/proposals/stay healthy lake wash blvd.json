@@ -1,0 +1,304 @@
+{
+  "map_name": "lakeslice",
+  "edits_name": "stay healthy lake wash blvd",
+  "commands": [
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 332355469,
+            "i1": {
+              "osm_node_id": 1726088131
+            },
+            "i2": {
+              "osm_node_id": 53217949
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 2,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 332355469,
+            "i1": {
+              "osm_node_id": 1726088131
+            },
+            "i2": {
+              "osm_node_id": 53217949
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 2,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 337741610,
+            "i1": {
+              "osm_node_id": 491939945
+            },
+            "i2": {
+              "osm_node_id": 3448001552
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 2,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 337741610,
+            "i1": {
+              "osm_node_id": 491939945
+            },
+            "i2": {
+              "osm_node_id": 3448001552
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 2,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 337741611,
+            "i1": {
+              "osm_node_id": 3448001552
+            },
+            "i2": {
+              "osm_node_id": 53143682
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 2,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 337741611,
+            "i1": {
+              "osm_node_id": 3448001552
+            },
+            "i2": {
+              "osm_node_id": 53143682
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 2,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 404136301,
+            "i1": {
+              "osm_node_id": 1724731506
+            },
+            "i2": {
+              "osm_node_id": 4064101356
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 2,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 404136301,
+            "i1": {
+              "osm_node_id": 1724731506
+            },
+            "i2": {
+              "osm_node_id": 4064101356
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 2,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 404136302,
+            "i1": {
+              "osm_node_id": 4064101356
+            },
+            "i2": {
+              "osm_node_id": 491939945
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 2,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 404136302,
+            "i1": {
+              "osm_node_id": 4064101356
+            },
+            "i2": {
+              "osm_node_id": 491939945
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 2,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 537681170,
+            "i1": {
+              "osm_node_id": 53096936
+            },
+            "i2": {
+              "osm_node_id": 1724731506
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 2,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 537681170,
+            "i1": {
+              "osm_node_id": 53096936
+            },
+            "i2": {
+              "osm_node_id": 1724731506
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 2,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 537681170,
+            "i1": {
+              "osm_node_id": 53217949
+            },
+            "i2": {
+              "osm_node_id": 53096936
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 2,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 537681170,
+            "i1": {
+              "osm_node_id": 53217949
+            },
+            "i2": {
+              "osm_node_id": 53096936
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 2,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    }
+  ],
+  "proposal_description": [
+    "Convert Lake Washington Blvd to a Stay Healthy Street",
+    "No vehicle access north of Madison"
+  ]
+}

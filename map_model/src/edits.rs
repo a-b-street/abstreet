@@ -192,8 +192,9 @@ impl EditEffects {
 // These mirror the above, except they use permanent IDs that have a better chance of surviving
 // basemap updates over time.
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct PermanentMapEdits {
+    pub map_name: String,
     pub edits_name: String,
     commands: Vec<PermanentEditCmd>,
 
@@ -201,7 +202,7 @@ pub struct PermanentMapEdits {
     pub proposal_description: Vec<String>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 enum PermanentEditIntersection {
     StopSign {
         #[serde(
@@ -224,7 +225,7 @@ struct OriginalLane {
     idx: usize,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 enum PermanentEditCmd {
     ChangeLaneType {
         id: OriginalLane,
@@ -251,6 +252,7 @@ enum PermanentEditCmd {
 impl PermanentMapEdits {
     fn to_permanent(edits: &MapEdits, map: &Map) -> PermanentMapEdits {
         PermanentMapEdits {
+            map_name: map.get_name().to_string(),
             edits_name: edits.edits_name.clone(),
             proposal_description: edits.proposal_description.clone(),
             commands: edits
