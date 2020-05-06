@@ -1,3 +1,4 @@
+use crate::raw::OriginalIntersection;
 use crate::{
     ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, LaneType, Map, RoadID, TurnID,
 };
@@ -5,9 +6,8 @@ use abstutil::{retain_btreemap, Timer};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub struct MapEdits {
-    pub map_name: String,
     pub edits_name: String,
     pub commands: Vec<EditCmd>,
 
@@ -20,14 +20,14 @@ pub struct MapEdits {
     pub proposal_description: Vec<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum EditIntersection {
     StopSign(ControlStopSign),
     TrafficSignal(ControlTrafficSignal),
     Closed,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub enum EditCmd {
     ChangeLaneType {
         id: LaneID,
@@ -54,9 +54,8 @@ pub struct EditEffects {
 }
 
 impl MapEdits {
-    pub fn new(map_name: &str) -> MapEdits {
+    pub fn new() -> MapEdits {
         MapEdits {
-            map_name: map_name.to_string(),
             // Something has to fill this out later
             edits_name: "untitled edits".to_string(),
             proposal_description: Vec::new(),
@@ -68,19 +67,33 @@ impl MapEdits {
         }
     }
 
-    pub fn load(map_name: &str, edits_name: &str, timer: &mut Timer) -> MapEdits {
+    pub fn load(map: &Map, edits_name: &str, timer: &mut Timer) -> Result<MapEdits, String> {
         if edits_name == "untitled edits" {
-            return MapEdits::new(map_name);
+            return Ok(MapEdits::new());
         }
-        abstutil::read_json(abstutil::path_edits(map_name, edits_name), timer)
+        PermanentMapEdits::from_permanent(
+            abstutil::read_json(abstutil::path_edits(map.get_name(), edits_name), timer),
+            map,
+        )
     }
 
     // TODO Version these? Or it's unnecessary, since we have a command stack.
-    pub(crate) fn save(&mut self, map: &Map) {
-        self.compress(map);
-
+    pub(crate) fn save(&self, map: &Map) {
         assert_ne!(self.edits_name, "untitled edits");
-        abstutil::write_json(abstutil::path_edits(&self.map_name, &self.edits_name), self);
+
+        abstutil::write_json(
+            abstutil::path_edits(map.get_name(), &self.edits_name),
+            &PermanentMapEdits::to_permanent(self, map),
+        );
+
+        // TODO Temporary round-trip sanity checks
+        let perma = PermanentMapEdits::to_permanent(self, map);
+        let before = abstutil::to_json(&perma);
+        let after = abstutil::to_json(&PermanentMapEdits::to_permanent(
+            &PermanentMapEdits::from_permanent(perma, map).unwrap(),
+            map,
+        ));
+        assert_eq!(before, after);
     }
 
     // Original lane types, reversed lanes, and all changed intersections
@@ -146,6 +159,12 @@ impl MapEdits {
     }
 }
 
+impl std::default::Default for MapEdits {
+    fn default() -> MapEdits {
+        MapEdits::new()
+    }
+}
+
 impl EditEffects {
     pub fn new() -> EditEffects {
         EditEffects {
@@ -153,6 +172,138 @@ impl EditEffects {
             changed_intersections: BTreeSet::new(),
             added_turns: BTreeSet::new(),
             deleted_turns: BTreeSet::new(),
+        }
+    }
+}
+
+// These mirror the above, except they use permanent IDs that have a better chance of surviving
+// basemap updates over time.
+
+#[derive(Serialize, Deserialize)]
+pub struct PermanentMapEdits {
+    pub edits_name: String,
+    commands: Vec<PermanentEditCmd>,
+
+    // Edits without these are player generated.
+    pub proposal_description: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize)]
+enum PermanentEditIntersection {
+    StopSign(ControlStopSign),
+    TrafficSignal(seattle_traffic_signals::TrafficSignal),
+    Closed,
+}
+
+#[derive(Serialize, Deserialize)]
+enum PermanentEditCmd {
+    ChangeLaneType {
+        id: LaneID,
+        lt: LaneType,
+        orig_lt: LaneType,
+    },
+    ReverseLane {
+        l: LaneID,
+        // New intended dst_i
+        dst_i: IntersectionID,
+    },
+    ChangeIntersection {
+        i: OriginalIntersection,
+        new: PermanentEditIntersection,
+        old: PermanentEditIntersection,
+    },
+}
+
+impl PermanentMapEdits {
+    fn to_permanent(edits: &MapEdits, map: &Map) -> PermanentMapEdits {
+        PermanentMapEdits {
+            edits_name: edits.edits_name.clone(),
+            proposal_description: edits.proposal_description.clone(),
+            commands: edits
+                .commands
+                .iter()
+                .map(|cmd| match cmd {
+                    EditCmd::ChangeLaneType { id, lt, orig_lt } => {
+                        PermanentEditCmd::ChangeLaneType {
+                            id: *id,
+                            lt: *lt,
+                            orig_lt: *orig_lt,
+                        }
+                    }
+                    EditCmd::ReverseLane { l, dst_i } => PermanentEditCmd::ReverseLane {
+                        l: *l,
+                        dst_i: *dst_i,
+                    },
+                    EditCmd::ChangeIntersection { i, new, old } => {
+                        PermanentEditCmd::ChangeIntersection {
+                            i: map.get_i(*i).orig_id,
+                            new: new.to_permanent(map),
+                            old: old.to_permanent(map),
+                        }
+                    }
+                })
+                .collect(),
+        }
+    }
+
+    pub fn from_permanent(perma: PermanentMapEdits, map: &Map) -> Result<MapEdits, String> {
+        let mut edits = MapEdits {
+            edits_name: perma.edits_name,
+            proposal_description: perma.proposal_description,
+            commands: perma
+                .commands
+                .into_iter()
+                .map(|cmd| match cmd {
+                    PermanentEditCmd::ChangeLaneType { id, lt, orig_lt } => {
+                        Ok(EditCmd::ChangeLaneType { id, lt, orig_lt })
+                    }
+                    PermanentEditCmd::ReverseLane { l, dst_i } => {
+                        Ok(EditCmd::ReverseLane { l, dst_i })
+                    }
+                    PermanentEditCmd::ChangeIntersection { i, new, old } => {
+                        let id = map.find_i_by_osm_id(i.osm_node_id)?;
+                        Ok(EditCmd::ChangeIntersection {
+                            i: id,
+                            new: new
+                                .from_permanent(id, map)
+                                .ok_or(format!("new ChangeIntersection of {} invalid", i))?,
+                            old: old
+                                .from_permanent(id, map)
+                                .ok_or(format!("old ChangeIntersection of {} invalid", i))?,
+                        })
+                    }
+                })
+                .collect::<Result<Vec<EditCmd>, String>>()?,
+
+            original_lts: BTreeMap::new(),
+            reversed_lanes: BTreeSet::new(),
+            original_intersections: BTreeMap::new(),
+        };
+        edits.update_derived(map);
+        Ok(edits)
+    }
+}
+
+impl EditIntersection {
+    fn to_permanent(&self, map: &Map) -> PermanentEditIntersection {
+        match self {
+            EditIntersection::StopSign(ref ss) => PermanentEditIntersection::StopSign(ss.clone()),
+            EditIntersection::TrafficSignal(ref ts) => {
+                PermanentEditIntersection::TrafficSignal(ts.export(map))
+            }
+            EditIntersection::Closed => PermanentEditIntersection::Closed,
+        }
+    }
+}
+
+impl PermanentEditIntersection {
+    fn from_permanent(self, i: IntersectionID, map: &Map) -> Option<EditIntersection> {
+        match self {
+            PermanentEditIntersection::StopSign(ss) => Some(EditIntersection::StopSign(ss)),
+            PermanentEditIntersection::TrafficSignal(ts) => Some(EditIntersection::TrafficSignal(
+                ControlTrafficSignal::import(ts, i, map)?,
+            )),
+            PermanentEditIntersection::Closed => Some(EditIntersection::Closed),
         }
     }
 }

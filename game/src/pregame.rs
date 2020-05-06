@@ -10,7 +10,7 @@ use ezgui::{
 };
 use geom::{Duration, Line, Pt2D, Speed};
 use instant::Instant;
-use map_model::{Map, MapEdits};
+use map_model::{Map, PermanentMapEdits};
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 
@@ -266,15 +266,16 @@ fn proposals_picker(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
     let mut buttons: Vec<Widget> = Vec::new();
     for map_name in abstutil::list_all_objects(abstutil::path_all_maps()) {
         for (_, edits) in
-            abstutil::load_all_objects::<MapEdits>(abstutil::path_all_edits(&map_name))
+            abstutil::load_all_objects::<PermanentMapEdits>(abstutil::path_all_edits(&map_name))
         {
             if !edits.proposal_description.is_empty() {
                 let mut txt = Text::new();
                 for l in &edits.proposal_description {
                     txt.add(Line(l));
                 }
-                let path = abstutil::path_edits(&edits.map_name, &edits.edits_name);
+                let path = abstutil::path_edits(&map_name, &edits.edits_name);
                 buttons.push(Btn::custom_text_fg(txt).build(ctx, &path, None));
+                let map_name = map_name.clone();
                 cbs.push((
                     path,
                     Box::new(move |ctx, app| {
@@ -283,7 +284,7 @@ fn proposals_picker(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
                             ctx,
                             app,
                             GameplayMode::PlayScenario(
-                                abstutil::path_map(&edits.map_name),
+                                abstutil::path_map(&map_name),
                                 "weekday".to_string(),
                             ),
                         ))))

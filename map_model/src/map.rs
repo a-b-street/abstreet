@@ -47,6 +47,7 @@ pub struct Map {
 
     city_name: String,
     name: String,
+    #[serde(skip_serializing, skip_deserializing)]
     edits: MapEdits,
 }
 
@@ -107,7 +108,7 @@ impl Map {
             pathfinder_dirty: false,
             city_name: "blank city".to_string(),
             name: "blank".to_string(),
-            edits: MapEdits::new("blank"),
+            edits: MapEdits::new(),
         }
     }
 
@@ -499,6 +500,7 @@ impl Map {
 
     pub fn save(&self) {
         assert_eq!(self.edits.edits_name, "untitled edits");
+        assert!(self.edits.commands.is_empty());
         assert!(!self.pathfinder_dirty);
         abstutil::write_binary(abstutil::path_map(&self.name), self);
     }
@@ -653,13 +655,13 @@ impl Map {
         None
     }
 
-    pub fn find_i_by_osm_id(&self, osm_node_id: i64) -> Option<IntersectionID> {
+    pub fn find_i_by_osm_id(&self, osm_node_id: i64) -> Result<IntersectionID, String> {
         for i in self.all_intersections() {
             if i.orig_id.osm_node_id == osm_node_id {
-                return Some(i.id);
+                return Ok(i.id);
             }
         }
-        None
+        Err(format!("Can't find osm_node_id {}", osm_node_id))
     }
 
     pub fn find_b_by_osm_id(&self, osm_way_id: i64) -> Option<BuildingID> {
@@ -722,9 +724,11 @@ impl Map {
     }
 
     pub fn save_edits(&mut self) {
-        let mut edits = std::mem::replace(&mut self.edits, MapEdits::new(&self.name));
-        edits.save(self);
+        let mut edits = self.edits.clone();
+        edits.compress(self);
         self.edits = edits;
+
+        self.edits.save(self);
     }
 
     // new_edits assumed to be valid. Returns roads changed, turns deleted, turns added,
@@ -849,7 +853,7 @@ fn make_half_map(
         pathfinder_dirty: false,
         city_name: raw.city_name.clone(),
         name: raw.name.clone(),
-        edits: MapEdits::new(&raw.name),
+        edits: MapEdits::new(),
     };
 
     let road_id_mapping: BTreeMap<OriginalRoad, RoadID> = initial_map

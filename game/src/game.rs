@@ -34,7 +34,7 @@ impl Game {
             // TODO Maybe loading screen
             let mut timer = abstutil::Timer::new("apply initial edits");
             let edits =
-                map_model::MapEdits::load(app.primary.map.get_name(), &edits_name, &mut timer);
+                map_model::MapEdits::load(&app.primary.map, &edits_name, &mut timer).unwrap();
             crate::edit::apply_map_edits(ctx, &mut app, edits);
             app.primary
                 .map

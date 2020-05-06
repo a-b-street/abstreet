@@ -258,7 +258,6 @@ fn exit_sandbox(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<T
     if resp == "keep playing" {
         return Some(Transition::Pop);
     }
-    let map_name = app.primary.map.get_name().clone();
     if resp == "save edits and quit" {
         save_edits_as(&mut wizard, app)?;
     }
@@ -266,7 +265,7 @@ fn exit_sandbox(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<T
         if app.primary.map.get_edits().edits_name != "untitled edits"
             || !app.primary.map.get_edits().commands.is_empty()
         {
-            apply_map_edits(ctx, app, MapEdits::new(&map_name));
+            apply_map_edits(ctx, app, MapEdits::new());
             app.primary
                 .map
                 .recalculate_pathfinding_after_edits(&mut timer);
@@ -274,7 +273,7 @@ fn exit_sandbox(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<T
         app.primary.clear_sim();
         app.set_prebaked(None);
     });
-    ctx.canvas.save_camera_state(&map_name);
+    ctx.canvas.save_camera_state(app.primary.map.get_name());
     Some(Transition::Clear(vec![main_menu(ctx, app)]))
 }
 

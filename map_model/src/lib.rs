@@ -19,7 +19,7 @@ mod turn;
 pub use crate::area::{Area, AreaID, AreaType};
 pub use crate::building::{Building, BuildingID, FrontPath, OffstreetParking};
 pub use crate::bus_stop::{BusRoute, BusRouteID, BusStop, BusStopID};
-pub use crate::edits::{EditCmd, EditEffects, EditIntersection, MapEdits};
+pub use crate::edits::{EditCmd, EditEffects, EditIntersection, MapEdits, PermanentMapEdits};
 pub use crate::intersection::{Intersection, IntersectionID, IntersectionType};
 pub use crate::lane::{Lane, LaneID, LaneType, PARKING_SPOT_LENGTH};
 pub use crate::make::RoadSpec;

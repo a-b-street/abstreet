@@ -177,7 +177,11 @@ impl State for TrafficSignalEditor {
                     );
                 }
                 "Export" => {
-                    orig_signal.export(&app.primary.map);
+                    let ts = orig_signal.export(&app.primary.map);
+                    abstutil::write_json(
+                        format!("traffic_signal_data/{}.json", ts.intersection_osm_node_id),
+                        &ts,
+                    );
                 }
                 "Preview" => {
                     // Might have to do this first!

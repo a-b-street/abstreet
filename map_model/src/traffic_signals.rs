@@ -638,8 +638,8 @@ fn make_phases(
 }
 
 impl ControlTrafficSignal {
-    pub fn export(&self, map: &Map) {
-        let ts = seattle_traffic_signals::TrafficSignal {
+    pub fn export(&self, map: &Map) -> seattle_traffic_signals::TrafficSignal {
+        seattle_traffic_signals::TrafficSignal {
             intersection_osm_node_id: map.get_i(self.id).orig_id.osm_node_id,
             phases: self
                 .phases
@@ -658,15 +658,10 @@ impl ControlTrafficSignal {
                     duration_seconds: p.duration.inner_seconds() as usize,
                 })
                 .collect(),
-        };
-
-        abstutil::write_json(
-            format!("traffic_signal_data/{}.json", ts.intersection_osm_node_id),
-            &ts,
-        );
+        }
     }
 
-    fn import(
+    pub fn import(
         raw: seattle_traffic_signals::TrafficSignal,
         id: IntersectionID,
         map: &Map,
@@ -732,7 +727,7 @@ fn import_turn_group(id: seattle_traffic_signals::Turn, map: &Map) -> Option<Tur
     Some(TurnGroupID {
         from: find_r(id.from, map)?,
         to: find_r(id.to, map)?,
-        parent: map.find_i_by_osm_id(id.intersection_osm_node_id)?,
+        parent: map.find_i_by_osm_id(id.intersection_osm_node_id).ok()?,
         crosswalk: id.is_crosswalk,
     })
 }

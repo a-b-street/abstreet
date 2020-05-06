@@ -22,7 +22,7 @@ use ezgui::{
 use geom::Polygon;
 use map_model::{
     connectivity, EditCmd, EditIntersection, IntersectionID, LaneID, LaneType, MapEdits,
-    PathConstraints,
+    PathConstraints, PermanentMapEdits,
 };
 use sim::{DontDrawAgents, Sim};
 use std::collections::BTreeSet;
@@ -140,7 +140,7 @@ impl State for EditMode {
                         // Autosave, then cut over to blank edits.
                         app.primary.map.save_edits();
                     }
-                    apply_map_edits(ctx, app, MapEdits::new(app.primary.map.get_name()));
+                    apply_map_edits(ctx, app, MapEdits::new());
                 }
                 "undo" => {
                     let mut edits = app.primary.map.get_edits().clone();
@@ -311,7 +311,6 @@ fn make_load_edits(btn: ScreenRectangle, mode: GameplayMode) -> Box<dyn State> {
 
         // TODO Exclude current
         let current_edits_name = app.primary.map.get_edits().edits_name.clone();
-        let map_name = app.primary.map.get_name();
         let (_, new_edits) = wizard.choose_exact(
             (
                 HorizontalAlignment::Centered(btn.center().x),
@@ -320,17 +319,21 @@ fn make_load_edits(btn: ScreenRectangle, mode: GameplayMode) -> Box<dyn State> {
             None,
             || {
                 let mut list = Choice::from(
-                    abstutil::load_all_objects(abstutil::path_all_edits(&map_name))
-                        .into_iter()
-                        .filter(|(_, edits)| {
-                            mode.allows(edits) && edits.edits_name != current_edits_name
-                        })
-                        .collect(),
+                    abstutil::load_all_objects(abstutil::path_all_edits(
+                        app.primary.map.get_name(),
+                    ))
+                    .into_iter()
+                    .filter_map(|(path, perma)| {
+                        PermanentMapEdits::from_permanent(perma, &app.primary.map)
+                            .map(|edits| (path, edits))
+                            .ok()
+                    })
+                    .filter(|(_, edits)| {
+                        mode.allows(edits) && edits.edits_name != current_edits_name
+                    })
+                    .collect(),
                 );
-                list.push(Choice::new(
-                    "start over with blank edits",
-                    MapEdits::new(map_name),
-                ));
+                list.push(Choice::new("start over with blank edits", MapEdits::new()));
                 list
             },
         )?;
