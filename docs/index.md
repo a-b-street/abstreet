@@ -1,7 +1,8 @@
 # A/B Street
 
-I'm figuring out Jekyll, don't mind me.
+See [the main page](https://github.com/dabreegster/abstreet/) for now. I'll
+probably organize everything here eventually.
 
 Proposals:
 
-- [Stay Healthy Streets: Lake Washington Blvd](lake_wash.md)
+- [Stay Healthy Streets: Lake Washington Blvd](lake_wash/proposal.md)
