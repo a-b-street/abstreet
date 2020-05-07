@@ -1,28 +1,32 @@
 use crate::app::App;
+use crate::challenges::Challenge;
 use crate::cutscene::CutsceneBuilder;
+use crate::edit::EditMode;
 use crate::game::{State, Transition};
-use crate::managed::{WrappedComposite, WrappedOutcome};
-use crate::sandbox::gameplay::{challenge_controller, GameplayMode, GameplayState};
-use crate::sandbox::SandboxControls;
-use ezgui::{EventCtx, GfxCtx};
+use crate::sandbox::gameplay::{challenge_header, GameplayMode, GameplayState};
+use crate::sandbox::{SandboxControls, SandboxMode};
+use ezgui::{
+    Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, TextExt,
+    VerticalAlignment, Widget,
+};
 use geom::{Duration, Time};
-use map_model::{IntersectionID, Map};
-use sim::{BorderSpawnOverTime, OriginDestination, ScenarioGenerator};
+
+const THRESHOLD: Duration = Duration::const_seconds(30.0);
 
 pub struct FixTrafficSignals {
-    top_center: WrappedComposite,
+    top_center: Composite,
+    time: Time,
+    failed_at: Option<Time>,
+    mode: GameplayMode,
 }
 
 impl FixTrafficSignals {
-    pub fn new(ctx: &mut EventCtx, app: &App, mode: GameplayMode) -> Box<dyn GameplayState> {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn GameplayState> {
         Box::new(FixTrafficSignals {
-            top_center: challenge_controller(
-                ctx,
-                app,
-                mode,
-                "Traffic Signals Challenge",
-                Vec::new(),
-            ),
+            top_center: make_top_center(ctx, app, None),
+            time: Time::START_OF_DAY,
+            failed_at: None,
+            mode: GameplayMode::FixTrafficSignals,
         })
     }
 
@@ -57,10 +61,10 @@ impl FixTrafficSignals {
                  the worst problems first.",
             )
             .player("Sigh... it's going to be a long day.")
-            .narrator(
-                "Don't let the delay for anybody to get through one traffic signal exceed 10 \
-                 minutes.",
-            )
+            .narrator(format!(
+                "Don't let the delay for anybody to get through one traffic signal exceed {}",
+                THRESHOLD
+            ))
             .build(ctx, app)
     }
 }
@@ -72,16 +76,61 @@ impl GameplayState for FixTrafficSignals {
         app: &mut App,
         _: &mut SandboxControls,
     ) -> (Option<Transition>, bool) {
-        match self.top_center.event(ctx, app) {
-            Some(WrappedOutcome::Transition(t)) => {
-                return (Some(t), false);
+        if self.time != app.primary.sim.time() {
+            self.time = app.primary.sim.time();
+            if self.failed_at.is_none() {
+                // TODO We need to check every 5 minutes or force a blocking alert or something.
+                let problems = app.primary.sim.delayed_intersections(THRESHOLD);
+                if !problems.is_empty() {
+                    self.failed_at = Some(app.primary.sim.time());
+                    self.top_center = make_top_center(ctx, app, self.failed_at);
+                    // TODO warp to problem
+                    // TODO popup
+                }
             }
-            Some(WrappedOutcome::Clicked(_)) => unreachable!(),
-            None => {}
+
+            if app.primary.sim.is_done() {
+                // TODO win condition
+            }
         }
 
-        if app.primary.sim.is_done() {
-            // TODO Deliver some kind of final score
+        match self.top_center.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "edit map" => {
+                    return (
+                        Some(Transition::Push(Box::new(EditMode::new(
+                            ctx,
+                            app,
+                            self.mode.clone(),
+                        )))),
+                        false,
+                    );
+                }
+                "instructions" => {
+                    return (
+                        Some(Transition::Push((Challenge::find(&self.mode)
+                            .0
+                            .cutscene
+                            .unwrap())(
+                            ctx, app, &self.mode
+                        ))),
+                        false,
+                    );
+                }
+                "try again" => {
+                    app.primary.clear_sim();
+                    return (
+                        Some(Transition::Replace(Box::new(SandboxMode::new(
+                            ctx,
+                            app,
+                            self.mode.clone(),
+                        )))),
+                        false,
+                    );
+                }
+                _ => unreachable!(),
+            },
+            None => {}
         }
 
         (None, false)
@@ -92,110 +141,26 @@ impl GameplayState for FixTrafficSignals {
     }
 }
 
-// TODO Hacks in here, because I'm not convinced programatically specifying this is right. I think
-// the Scenario abstractions and UI need to change to make this convenient to express in JSON / the
-// UI.
-
-// Motivate a separate left turn phase for north/south, but not left/right
-pub fn tutorial_scenario_lvl1(map: &Map) -> ScenarioGenerator {
-    // TODO In lieu of the deleted labels
-    let north = IntersectionID(2);
-    let south = IntersectionID(3);
-    // Hush, east/west is more cognitive overhead for me. >_<
-    let left = IntersectionID(1);
-    let right = IntersectionID(0);
-
-    let mut s = ScenarioGenerator::empty("tutorial lvl1");
-
-    // What's the essence of what I've specified below? Don't care about the time distribution,
-    // exact number of agents, different modes. It's just an OD matrix with relative weights.
-    //
-    //        north  south  left  right
-    // north   0      3      1     2
-    // south   3      ... and so on
-    // left
-    // right
-    //
-    // The table isn't super easy to grok. But it motivates the UI for entering this info:
-    //
-    // 1) Select all of the sources
-    // 2) Select all of the sinks (option to use the same set)
-    // 3) For each (src, sink) pair, ask (none, light, medium, heavy)
-
-    // Arterial straight
-    heavy(&mut s, map, south, north);
-    heavy(&mut s, map, north, south);
-    // Arterial left turns
-    medium(&mut s, map, south, left);
-    medium(&mut s, map, north, right);
-    // Arterial right turns
-    light(&mut s, map, south, right);
-    light(&mut s, map, north, left);
-
-    // Secondary straight
-    medium(&mut s, map, left, right);
-    medium(&mut s, map, right, left);
-    // Secondary right turns
-    medium(&mut s, map, left, south);
-    medium(&mut s, map, right, north);
-    // Secondary left turns
-    light(&mut s, map, left, north);
-    light(&mut s, map, right, south);
-
-    s
-}
-
-// Motivate a pedestrian scramble cycle
-pub fn tutorial_scenario_lvl2(map: &Map) -> ScenarioGenerator {
-    let north = IntersectionID(3);
-    let south = IntersectionID(3);
-    let left = IntersectionID(1);
-    let right = IntersectionID(0);
-
-    let mut s = tutorial_scenario_lvl1(map);
-    s.scenario_name = "tutorial lvl2".to_string();
-
-    // TODO The first few phases aren't affected, because the peds walk slowly from the border.
-    // Start them from a building instead?
-    // TODO All the peds get through in a single wave; spawn them continuously?
-    // TODO The metrics shown are just for driving trips...
-    heavy_peds(&mut s, map, south, north);
-    heavy_peds(&mut s, map, north, south);
-    heavy_peds(&mut s, map, left, right);
-    heavy_peds(&mut s, map, right, left);
-
-    s
-}
-
-fn heavy(s: &mut ScenarioGenerator, map: &Map, from: IntersectionID, to: IntersectionID) {
-    spawn(s, map, from, to, 100, 0);
-}
-fn heavy_peds(s: &mut ScenarioGenerator, map: &Map, from: IntersectionID, to: IntersectionID) {
-    spawn(s, map, from, to, 0, 100);
-}
-fn medium(s: &mut ScenarioGenerator, map: &Map, from: IntersectionID, to: IntersectionID) {
-    spawn(s, map, from, to, 100, 0);
-}
-fn light(s: &mut ScenarioGenerator, map: &Map, from: IntersectionID, to: IntersectionID) {
-    spawn(s, map, from, to, 100, 0);
-}
-
-fn spawn(
-    s: &mut ScenarioGenerator,
-    map: &Map,
-    from: IntersectionID,
-    to: IntersectionID,
-    num_cars: usize,
-    num_peds: usize,
-) {
-    s.border_spawn_over_time.push(BorderSpawnOverTime {
-        num_peds,
-        num_cars,
-        num_bikes: 0,
-        percent_use_transit: 0.0,
-        start_time: Time::START_OF_DAY,
-        stop_time: Time::START_OF_DAY + Duration::minutes(5),
-        start_from_border: map.get_i(from).some_outgoing_road(map),
-        goal: OriginDestination::EndOfRoad(map.get_i(to).some_incoming_road(map)),
-    });
+fn make_top_center(ctx: &mut EventCtx, app: &App, failed_at: Option<Time>) -> Composite {
+    Composite::new(
+        Widget::col(vec![
+            challenge_header(ctx, "Fix traffic signals"),
+            if let Some(t) = failed_at {
+                Widget::row(vec![
+                    Line(format!("Delay exceeded {} at {}", THRESHOLD, t))
+                        .fg(Color::RED)
+                        .draw(ctx)
+                        .centered_vert()
+                        .margin_right(10),
+                    Btn::text_fg("try again").build_def(ctx, None),
+                ])
+            } else {
+                format!("Keep delay under {} ... so far, so good", THRESHOLD).draw_text(ctx)
+            },
+        ])
+        .bg(app.cs.panel_bg)
+        .padding(5),
+    )
+    .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+    .build(ctx)
 }

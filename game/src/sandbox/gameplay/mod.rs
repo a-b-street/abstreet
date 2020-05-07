@@ -9,18 +9,12 @@ mod tutorial;
 
 pub use self::tutorial::{Tutorial, TutorialPointer, TutorialState};
 use crate::app::App;
-use crate::challenges::Challenge;
 use crate::common::ContextualActions;
-use crate::edit::EditMode;
-use crate::game::{msg, Transition};
+use crate::game::Transition;
 use crate::helpers::ID;
-use crate::managed::WrappedComposite;
 use crate::sandbox::SandboxControls;
 use abstutil::Timer;
-use ezgui::{
-    lctrl, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    VerticalAlignment, Widget,
-};
+use ezgui::{lctrl, Btn, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Widget};
 use geom::{Duration, Polygon};
 use map_model::{EditCmd, EditIntersection, Map, MapEdits};
 use rand_xorshift::XorShiftRng;
@@ -36,9 +30,6 @@ pub enum GameplayMode {
     // Map path
     CreateGridlock(String),
     FixTrafficSignals,
-    // TODO Kinda gross. What stage in the tutorial?
-    #[allow(unused)]
-    FixTrafficSignalsTutorial(usize),
     OptimizeCommute(OrigPersonID, Duration),
 
     // current
@@ -88,10 +79,8 @@ impl GameplayMode {
             GameplayMode::Freeform(ref path) => path.to_string(),
             GameplayMode::PlayScenario(ref path, _) => path.to_string(),
             GameplayMode::CreateGridlock(ref path) => path.to_string(),
-            GameplayMode::FixTrafficSignals => abstutil::path_map("downtown"),
-            GameplayMode::FixTrafficSignalsTutorial(_) => {
-                abstutil::path_synthetic_map("signal_single")
-            }
+            // TODO tmp
+            GameplayMode::FixTrafficSignals => abstutil::path_map("montlake"),
             GameplayMode::OptimizeCommute(_, _) => abstutil::path_map("montlake"),
             GameplayMode::Tutorial(_) => abstutil::path_map("montlake"),
         }
@@ -109,16 +98,6 @@ impl GameplayMode {
                 return None;
             }
             GameplayMode::PlayScenario(_, ref scenario) => scenario.to_string(),
-            GameplayMode::FixTrafficSignalsTutorial(stage) => {
-                let generator = if *stage == 0 {
-                    fix_traffic_signals::tutorial_scenario_lvl1(map)
-                } else if *stage == 1 {
-                    fix_traffic_signals::tutorial_scenario_lvl2(map)
-                } else {
-                    unreachable!()
-                };
-                return Some(generator.generate(map, &mut rng, timer));
-            }
             // TODO Some of these WILL have scenarios!
             GameplayMode::Tutorial(_) => {
                 return None;
@@ -155,14 +134,14 @@ impl GameplayMode {
 
     pub fn can_edit_lanes(&self) -> bool {
         match self {
-            GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial(_) => false,
+            GameplayMode::FixTrafficSignals => false,
             _ => true,
         }
     }
 
     pub fn can_edit_stop_signs(&self) -> bool {
         match self {
-            GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial(_) => false,
+            GameplayMode::FixTrafficSignals => false,
             _ => true,
         }
     }
@@ -250,8 +229,8 @@ impl GameplayMode {
             GameplayMode::CreateGridlock(_) => {
                 create_gridlock::CreateGridlock::new(ctx, app, self.clone())
             }
-            GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial(_) => {
-                fix_traffic_signals::FixTrafficSignals::new(ctx, app, self.clone())
+            GameplayMode::FixTrafficSignals => {
+                fix_traffic_signals::FixTrafficSignals::new(ctx, app)
             }
             GameplayMode::OptimizeCommute(p, goal) => {
                 commute::OptimizeCommute::new(ctx, app, *p, *goal)
@@ -311,38 +290,4 @@ fn challenge_header(ctx: &mut EventCtx, title: &str) -> Widget {
             .centered_vert(),
     ])
     .padding(5)
-}
-
-fn challenge_controller(
-    ctx: &mut EventCtx,
-    app: &App,
-    gameplay: GameplayMode,
-    title: &str,
-    extra_rows: Vec<Widget>,
-) -> WrappedComposite {
-    let description = Challenge::find(&gameplay).0.description;
-
-    let mut rows = vec![challenge_header(ctx, title)];
-    rows.extend(extra_rows);
-
-    WrappedComposite::new(
-        Composite::new(Widget::col(rows).bg(app.cs.panel_bg))
-            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-            .build(ctx),
-    )
-    .cb(
-        "edit map",
-        Box::new(move |ctx, app| {
-            Some(Transition::Push(Box::new(EditMode::new(
-                ctx,
-                app,
-                gameplay.clone(),
-            ))))
-        }),
-    )
-    // TODO msg() is silly, it's hard to plumb the title. Also, show the challenge splash screen.
-    .cb(
-        "instructions",
-        Box::new(move |_, _| Some(Transition::Push(msg("Challenge", description.clone())))),
-    )
 }
