@@ -116,12 +116,8 @@ impl State for SandboxMode {
             ctx.canvas_movement();
         }
 
-        let (maybe_t, exit) = self.gameplay.event(ctx, app, &mut self.controls);
-        if let Some(t) = maybe_t {
+        if let Some(t) = self.gameplay.event(ctx, app, &mut self.controls) {
             return t;
-        }
-        if exit {
-            return Transition::Push(WizardState::new(Box::new(exit_sandbox)));
         }
 
         if ctx.redo_mouseover() {
@@ -174,7 +170,7 @@ impl State for SandboxMode {
                 }
                 Some(WrappedOutcome::Clicked(x)) => match x.as_ref() {
                     "back" => {
-                        return Transition::Push(WizardState::new(Box::new(exit_sandbox)));
+                        return maybe_exit_sandbox();
                     }
                     _ => unreachable!(),
                 },
@@ -242,6 +238,10 @@ impl State for SandboxMode {
     }
 }
 
+pub fn maybe_exit_sandbox() -> Transition {
+    Transition::Push(WizardState::new(Box::new(exit_sandbox)))
+}
+
 fn exit_sandbox(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
     let mut wizard = wiz.wrap(ctx);
     let unsaved = app.primary.map.get_edits().edits_name == "untitled edits"
@@ -258,7 +258,7 @@ fn exit_sandbox(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<T
     if resp == "keep playing" {
         return Some(Transition::Pop);
     }
-    if resp == "save edits and quit" {
+    if resp == "save edits first" {
         save_edits_as(&mut wizard, app)?;
     }
     ctx.loading_screen("reset map and sim", |ctx, mut timer| {

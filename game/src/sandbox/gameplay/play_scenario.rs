@@ -29,16 +29,14 @@ impl GameplayState for PlayScenario {
         ctx: &mut EventCtx,
         app: &mut App,
         _: &mut SandboxControls,
-    ) -> (Option<Transition>, bool) {
+    ) -> Option<Transition> {
         match self.top_center.event(ctx, app) {
             Some(WrappedOutcome::Transition(t)) => {
-                return (Some(t), false);
+                return Some(t);
             }
             Some(WrappedOutcome::Clicked(_)) => unreachable!(),
-            None => {}
+            None => None,
         }
-
-        (None, false)
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {

@@ -137,7 +137,7 @@ impl GameplayState for OptimizeCommute {
         ctx: &mut EventCtx,
         app: &mut App,
         controls: &mut SandboxControls,
-    ) -> (Option<Transition>, bool) {
+    ) -> Option<Transition> {
         if self.once {
             self.once = false;
             controls.common.as_mut().unwrap().launch_info_panel(
@@ -158,42 +158,33 @@ impl GameplayState for OptimizeCommute {
                 make_top_center(ctx, app, before, after, done, self.trips.len(), self.goal);
 
             if done == self.trips.len() {
-                return (
-                    Some(final_score(
-                        ctx,
-                        app,
-                        self.mode.clone(),
-                        before,
-                        after,
-                        self.goal,
-                    )),
-                    false,
-                );
+                return Some(final_score(
+                    ctx,
+                    app,
+                    self.mode.clone(),
+                    before,
+                    after,
+                    self.goal,
+                ));
             }
         }
 
         match self.top_center.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "edit map" => {
-                    return (
-                        Some(Transition::Push(Box::new(EditMode::new(
-                            ctx,
-                            app,
-                            self.mode.clone(),
-                        )))),
-                        false,
-                    );
+                    return Some(Transition::Push(Box::new(EditMode::new(
+                        ctx,
+                        app,
+                        self.mode.clone(),
+                    ))));
                 }
                 "instructions" => {
-                    return (
-                        Some(Transition::Push((Challenge::find(&self.mode)
-                            .0
-                            .cutscene
-                            .unwrap())(
-                            ctx, app, &self.mode
-                        ))),
-                        false,
-                    );
+                    return Some(Transition::Push((Challenge::find(&self.mode)
+                        .0
+                        .cutscene
+                        .unwrap())(
+                        ctx, app, &self.mode
+                    )));
                 }
                 "locate VIP" => {
                     controls.common.as_mut().unwrap().launch_info_panel(
@@ -210,7 +201,7 @@ impl GameplayState for OptimizeCommute {
             None => {}
         }
 
-        (None, false)
+        None
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {

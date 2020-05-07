@@ -6,7 +6,8 @@ use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{
-    spawn_agents_around, AgentMeter, SandboxControls, SandboxMode, SpeedControls, TimePanel,
+    maybe_exit_sandbox, spawn_agents_around, AgentMeter, SandboxControls, SandboxMode,
+    SpeedControls, TimePanel,
 };
 use abstutil::Timer;
 use ezgui::{
@@ -80,49 +81,43 @@ impl Tutorial {
         app: &mut App,
         controls: &mut SandboxControls,
         tut: &mut TutorialState,
-    ) -> (Option<Transition>, bool) {
+    ) -> Option<Transition> {
         // First of all, might need to initiate warping
         if !self.warped {
             if let Some((ref id, zoom)) = tut.stage().warp_to {
                 self.warped = true;
-                return (
-                    Some(Transition::Push(Warping::new(
-                        ctx,
-                        id.canonical_point(&app.primary).unwrap(),
-                        Some(zoom),
-                        None,
-                        &mut app.primary,
-                    ))),
-                    false,
-                );
+                return Some(Transition::Push(Warping::new(
+                    ctx,
+                    id.canonical_point(&app.primary).unwrap(),
+                    Some(zoom),
+                    None,
+                    &mut app.primary,
+                )));
             }
         }
 
         match self.top_center.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "Quit" => {
-                    return (None, true);
+                    return Some(maybe_exit_sandbox());
                 }
                 "previous tutorial" => {
                     tut.current = TutorialPointer::new(tut.current.stage - 1, 0);
-                    return (Some(transition(ctx, app, tut)), false);
+                    return Some(transition(ctx, app, tut));
                 }
                 "next tutorial" => {
                     tut.current = TutorialPointer::new(tut.current.stage + 1, 0);
-                    return (Some(transition(ctx, app, tut)), false);
+                    return Some(transition(ctx, app, tut));
                 }
                 "instructions" => {
                     tut.current = TutorialPointer::new(tut.current.stage, 0);
-                    return (Some(transition(ctx, app, tut)), false);
+                    return Some(transition(ctx, app, tut));
                 }
                 "edit map" => {
                     // TODO Ideally this would be an inactive button in message states
                     if self.msg_panel.is_none() {
                         let mode = GameplayMode::Tutorial(tut.current);
-                        return (
-                            Some(Transition::Push(Box::new(EditMode::new(ctx, app, mode)))),
-                            false,
-                        );
+                        return Some(Transition::Push(Box::new(EditMode::new(ctx, app, mode))));
                     }
                 }
                 _ => unreachable!(),
@@ -135,17 +130,17 @@ impl Tutorial {
                 Some(Outcome::Clicked(x)) => match x.as_ref() {
                     "previous message" => {
                         tut.prev();
-                        return (Some(transition(ctx, app, tut)), false);
+                        return Some(transition(ctx, app, tut));
                     }
                     "next message" | "Try it" => {
                         tut.next();
-                        return (Some(transition(ctx, app, tut)), false);
+                        return Some(transition(ctx, app, tut));
                     }
                     _ => unreachable!(),
                 },
                 None => {
                     // Don't allow other interactions
-                    return (Some(Transition::Keep), false);
+                    return Some(Transition::Keep);
                 }
             }
         }
@@ -156,7 +151,7 @@ impl Tutorial {
                 && app.per_obj.left_click(ctx, "put out the... fire?")
             {
                 tut.next();
-                return (Some(transition(ctx, app, tut)), false);
+                return Some(transition(ctx, app, tut));
             }
         } else if tut.interaction() == Task::InspectObjects {
             if tut.inspected_lane
@@ -165,12 +160,12 @@ impl Tutorial {
                 && tut.inspected_border
             {
                 tut.next();
-                return (Some(transition(ctx, app, tut)), false);
+                return Some(transition(ctx, app, tut));
             }
         } else if tut.interaction() == Task::TimeControls {
             if app.primary.sim.time() >= Time::START_OF_DAY + Duration::hours(17) {
                 tut.next();
-                return (Some(transition(ctx, app, tut)), false);
+                return Some(transition(ctx, app, tut));
             }
         } else if tut.interaction() == Task::PauseResume {
             let is_paused = controls.speed.as_ref().unwrap().is_paused();
@@ -184,7 +179,7 @@ impl Tutorial {
             }
             if tut.num_pauses == 3 {
                 tut.next();
-                return (Some(transition(ctx, app, tut)), false);
+                return Some(transition(ctx, app, tut));
             }
         } else if tut.interaction() == Task::Escort {
             let following_car = controls
@@ -211,17 +206,17 @@ impl Tutorial {
 
             if tut.prank_done {
                 tut.next();
-                return (Some(transition(ctx, app, tut)), false);
+                return Some(transition(ctx, app, tut));
             }
         } else if tut.interaction() == Task::LowParking {
             if tut.parking_found {
                 tut.next();
-                return (Some(transition(ctx, app, tut)), false);
+                return Some(transition(ctx, app, tut));
             }
         } else if tut.interaction() == Task::WatchBikes {
             if app.primary.sim.time() >= Time::START_OF_DAY + Duration::minutes(2) {
                 tut.next();
-                return (Some(transition(ctx, app, tut)), false);
+                return Some(transition(ctx, app, tut));
             }
         } else if tut.interaction() == Task::FixBikes {
             if app.primary.sim.is_done() {
@@ -239,74 +234,62 @@ impl Tutorial {
                 if !tut.score_delivered {
                     tut.score_delivered = true;
                     if before == after {
-                        return (
-                            Some(Transition::Push(msg(
-                                "All trips completed",
-                                vec![
-                                    "Your changes didn't affect anything!",
-                                    "Try editing the map to create some bike lanes.",
-                                ],
-                            ))),
-                            false,
-                        );
+                        return Some(Transition::Push(msg(
+                            "All trips completed",
+                            vec![
+                                "Your changes didn't affect anything!",
+                                "Try editing the map to create some bike lanes.",
+                            ],
+                        )));
                     }
                     if after > before {
-                        return (
-                            Some(Transition::Push(msg(
-                                "All trips completed",
-                                vec![
-                                    "Your changes made things worse!".to_string(),
-                                    format!(
-                                        "All trips originally finished in {}, but now they took {}",
-                                        before, after
-                                    ),
-                                    "".to_string(),
-                                    "Try again!".to_string(),
-                                ],
-                            ))),
-                            false,
-                        );
+                        return Some(Transition::Push(msg(
+                            "All trips completed",
+                            vec![
+                                "Your changes made things worse!".to_string(),
+                                format!(
+                                    "All trips originally finished in {}, but now they took {}",
+                                    before, after
+                                ),
+                                "".to_string(),
+                                "Try again!".to_string(),
+                            ],
+                        )));
                     }
                     if before - after < CAR_BIKE_CONTENTION_GOAL {
-                        return (
-                            Some(Transition::Push(msg(
-                                "All trips completed",
-                                vec![
-                                    "Nice, you helped things a bit!".to_string(),
-                                    format!(
-                                        "All trips originally took {}, but now they took {}",
-                                        before, after
-                                    ),
-                                    "".to_string(),
-                                    "See if you can do a little better though.".to_string(),
-                                ],
-                            ))),
-                            false,
-                        );
-                    }
-                    return (
-                        Some(Transition::Push(msg(
+                        return Some(Transition::Push(msg(
                             "All trips completed",
-                            vec![format!(
-                                "Awesome! All trips originally took {}, but now they only took {}",
-                                before, after
-                            )],
-                        ))),
-                        false,
-                    );
+                            vec![
+                                "Nice, you helped things a bit!".to_string(),
+                                format!(
+                                    "All trips originally took {}, but now they took {}",
+                                    before, after
+                                ),
+                                "".to_string(),
+                                "See if you can do a little better though.".to_string(),
+                            ],
+                        )));
+                    }
+                    return Some(Transition::Push(msg(
+                        "All trips completed",
+                        vec![format!(
+                            "Awesome! All trips originally took {}, but now they only took {}",
+                            before, after
+                        )],
+                    )));
                 }
                 if before - after >= CAR_BIKE_CONTENTION_GOAL {
                     tut.next();
                 }
-                return (Some(transition(ctx, app, tut)), false);
+                return Some(transition(ctx, app, tut));
             }
         } else if tut.interaction() == Task::Done {
             // If the player chooses to stay here, at least go back to the message panel.
             tut.prev();
-            return (None, true);
+            return Some(maybe_exit_sandbox());
         }
 
-        (None, false)
+        None
     }
 }
 
@@ -316,7 +299,7 @@ impl GameplayState for Tutorial {
         ctx: &mut EventCtx,
         app: &mut App,
         controls: &mut SandboxControls,
-    ) -> (Option<Transition>, bool) {
+    ) -> Option<Transition> {
         // Dance around borrow-checker issues
         let mut tut = app.session.tutorial.take().unwrap();
         let result = self.inner_event(ctx, app, controls, &mut tut);

@@ -37,13 +37,12 @@ pub enum GameplayMode {
 }
 
 pub trait GameplayState: downcast_rs::Downcast {
-    // True if we should exit the sandbox mode.
     fn event(
         &mut self,
         ctx: &mut EventCtx,
         app: &mut App,
         controls: &mut SandboxControls,
-    ) -> (Option<Transition>, bool);
+    ) -> Option<Transition>;
     fn draw(&self, g: &mut GfxCtx, app: &App);
 
     fn can_move_canvas(&self) -> bool {
