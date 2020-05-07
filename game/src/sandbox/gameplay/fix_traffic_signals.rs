@@ -1,9 +1,11 @@
 use crate::app::App;
-use crate::challenges::Challenge;
+use crate::challenges::{Challenge, HighScore};
+use crate::common::Warping;
 use crate::cutscene::CutsceneBuilder;
 use crate::edit::EditMode;
 use crate::game::{State, Transition};
-use crate::sandbox::gameplay::{challenge_header, GameplayMode, GameplayState};
+use crate::helpers::ID;
+use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
 use crate::sandbox::{SandboxControls, SandboxMode};
 use ezgui::{
     Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, TextExt,
@@ -16,7 +18,7 @@ const THRESHOLD: Duration = Duration::const_seconds(30.0);
 pub struct FixTrafficSignals {
     top_center: Composite,
     time: Time,
-    failed_at: Option<Time>,
+    done: bool,
     mode: GameplayMode,
 }
 
@@ -25,7 +27,7 @@ impl FixTrafficSignals {
         Box::new(FixTrafficSignals {
             top_center: make_top_center(ctx, app, None),
             time: Time::START_OF_DAY,
-            failed_at: None,
+            done: false,
             mode: GameplayMode::FixTrafficSignals,
         })
     }
@@ -76,21 +78,36 @@ impl GameplayState for FixTrafficSignals {
         app: &mut App,
         _: &mut SandboxControls,
     ) -> Option<Transition> {
-        if self.time != app.primary.sim.time() {
+        if self.time != app.primary.sim.time() && !self.done {
             self.time = app.primary.sim.time();
-            if self.failed_at.is_none() {
-                // TODO We need to check every 5 minutes or force a blocking alert or something.
-                let problems = app.primary.sim.delayed_intersections(THRESHOLD);
-                if !problems.is_empty() {
-                    self.failed_at = Some(app.primary.sim.time());
-                    self.top_center = make_top_center(ctx, app, self.failed_at);
-                    // TODO warp to problem
-                    // TODO popup
-                }
+
+            // TODO We need to check every 5 minutes or force a blocking alert or something.
+            let problems = app.primary.sim.delayed_intersections(THRESHOLD);
+            if !problems.is_empty() {
+                self.done = true;
+                self.top_center = make_top_center(ctx, app, Some(app.primary.sim.time()));
+                return Some(Transition::PushTwice(
+                    final_score(ctx, app, self.mode.clone(), true),
+                    Warping::new(
+                        ctx,
+                        ID::Intersection(problems[0].0)
+                            .canonical_point(&app.primary)
+                            .unwrap(),
+                        Some(10.0),
+                        None,
+                        &mut app.primary,
+                    ),
+                ));
             }
 
             if app.primary.sim.is_done() {
-                // TODO win condition
+                self.done = true;
+                return Some(Transition::Push(final_score(
+                    ctx,
+                    app,
+                    self.mode.clone(),
+                    false,
+                )));
             }
         }
 
@@ -154,4 +171,33 @@ fn make_top_center(ctx: &mut EventCtx, app: &App, failed_at: Option<Time>) -> Co
     )
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
+}
+
+fn final_score(
+    ctx: &mut EventCtx,
+    app: &mut App,
+    mode: GameplayMode,
+    failed: bool,
+) -> Box<dyn State> {
+    let score = app.primary.sim.time() - Time::START_OF_DAY;
+    HighScore {
+        goal: format!(
+            "make it {} without delay exceeding {}",
+            app.primary.sim.get_end_of_day() - Time::START_OF_DAY,
+            THRESHOLD
+        ),
+        score,
+        edits_name: app.primary.map.get_edits().edits_name.clone(),
+    }
+    .record(app, mode.clone());
+
+    let msg = if failed {
+        format!(
+            "You only made it {} before the traffic signals caused a jam. Lame!",
+            score
+        )
+    } else {
+        "Wow, you managed to fix the signals. Great job!".to_string()
+    };
+    FinalScore::new(ctx, app, msg, mode, None)
 }

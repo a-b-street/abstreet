@@ -18,11 +18,24 @@ pub struct Challenge {
     pub cutscene: Option<fn(&mut EventCtx, &App, &GameplayMode) -> Box<dyn State>>,
 }
 
-// TODO Assuming the measurement is always maximizing time savings from a goal.
 pub struct HighScore {
-    pub goal: Duration,
+    // TODO This should be tied to the GameplayMode
+    pub goal: String,
+    // TODO Assuming we always want to maximize the score
     pub score: Duration,
     pub edits_name: String,
+}
+
+impl HighScore {
+    pub fn record(self, app: &mut App, mode: GameplayMode) {
+        // TODO dedupe
+        // TODO mention placement
+        // TODO show all of em
+        let scores = app.session.high_scores.entry(mode).or_insert_with(Vec::new);
+        scores.push(self);
+        scores.sort_by_key(|s| s.score);
+        scores.reverse();
+    }
 }
 
 impl Challenge {
@@ -221,11 +234,11 @@ impl Tab {
 
             if let Some(scores) = app.session.high_scores.get(&challenge.gameplay) {
                 let mut txt = Text::from(Line(format!("{} high scores:", scores.len())));
-                txt.add(Line(format!("Goal: {} faster", scores[0].goal)));
+                txt.add(Line(format!("Goal: {}", scores[0].goal)));
                 let mut idx = 1;
                 for score in scores {
                     txt.add(Line(format!(
-                        "{}) {} faster, using edits: {}",
+                        "{}) {}, using edits: {}",
                         idx, score.score, score.edits_name
                     )));
                     idx += 1;

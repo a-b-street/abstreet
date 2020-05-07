@@ -1,17 +1,16 @@
 use crate::app::App;
-use crate::challenges::{challenges_picker, Challenge, HighScore};
+use crate::challenges::{Challenge, HighScore};
 use crate::common::{ContextualActions, Tab};
 use crate::cutscene::CutsceneBuilder;
 use crate::edit::EditMode;
 use crate::game::{State, Transition};
 use crate::helpers::cmp_duration_shorter;
 use crate::helpers::ID;
-use crate::pregame::main_menu;
-use crate::sandbox::gameplay::{challenge_header, GameplayMode, GameplayState};
-use crate::sandbox::{SandboxControls, SandboxMode};
+use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
+use crate::sandbox::SandboxControls;
 use ezgui::{
-    Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Text,
-    TextExt, VerticalAlignment, Widget,
+    Btn, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Text, TextExt,
+    VerticalAlignment, Widget,
 };
 use geom::{Duration, Time};
 use sim::{OrigPersonID, PersonID, TripID};
@@ -158,14 +157,14 @@ impl GameplayState for OptimizeCommute {
                 make_top_center(ctx, app, before, after, done, self.trips.len(), self.goal);
 
             if done == self.trips.len() {
-                return Some(final_score(
+                return Some(Transition::Replace(final_score(
                     ctx,
                     app,
                     self.mode.clone(),
                     before,
                     after,
                     self.goal,
-                ));
+                )));
             }
         }
 
@@ -274,7 +273,7 @@ fn final_score(
     before: Duration,
     after: Duration,
     goal: Duration,
-) -> Transition {
+) -> Box<dyn State> {
     let mut next_mode: Option<GameplayMode> = None;
 
     let msg = if before == after {
@@ -300,22 +299,12 @@ fn final_score(
             goal
         )
     } else {
-        // Blindly record the high school
-        // TODO dedupe
-        // TODO mention placement
-        // TODO show all of em
-        let scores = app
-            .session
-            .high_scores
-            .entry(mode.clone())
-            .or_insert_with(Vec::new);
-        scores.push(HighScore {
-            goal,
+        HighScore {
+            goal: format!("make VIP's commute at least {} faster", goal),
             score: before - after,
             edits_name: app.primary.map.get_edits().edits_name.clone(),
-        });
-        scores.sort_by_key(|s| s.score);
-        scores.reverse();
+        }
+        .record(app, mode.clone());
 
         next_mode = Challenge::find(&mode).1.map(|c| c.gameplay);
 
@@ -329,33 +318,7 @@ fn final_score(
 
     // TODO Deal with edits
     app.primary.clear_sim();
-    Transition::Replace(Box::new(FinalScore {
-        composite: Composite::new(
-            Widget::row(vec![
-                Widget::draw_svg(ctx, "../data/system/assets/characters/boss.svg")
-                    .container()
-                    .outline(10.0, Color::BLACK)
-                    .padding(10),
-                Widget::col(vec![
-                    msg.draw_text(ctx),
-                    // TODO Adjust wording
-                    Btn::text_bg2("Try again").build_def(ctx, None),
-                    if next_mode.is_some() {
-                        Btn::text_bg2("Next challenge").build_def(ctx, None)
-                    } else {
-                        Widget::nothing()
-                    },
-                    Btn::text_bg2("Back to challenges").build_def(ctx, None),
-                ])
-                .outline(10.0, Color::BLACK)
-                .padding(10),
-            ])
-            .bg(app.cs.panel_bg),
-        )
-        .build(ctx),
-        retry: mode,
-        next_mode,
-    }))
+    FinalScore::new(ctx, app, msg, mode, next_mode)
 }
 
 // TODO Probably refactor this for most challenge modes, or have SandboxMode pass in Actions
@@ -379,42 +342,5 @@ impl ContextualActions for Actions {
     }
     fn is_paused(&self) -> bool {
         self.paused
-    }
-}
-
-struct FinalScore {
-    composite: Composite,
-    retry: GameplayMode,
-    next_mode: Option<GameplayMode>,
-}
-
-impl State for FinalScore {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "Try again" => {
-                    Transition::Replace(Box::new(SandboxMode::new(ctx, app, self.retry.clone())))
-                }
-                "Next challenge" => Transition::Clear(vec![
-                    main_menu(ctx, app),
-                    Box::new(SandboxMode::new(ctx, app, self.next_mode.clone().unwrap())),
-                    (Challenge::find(self.next_mode.as_ref().unwrap())
-                        .0
-                        .cutscene
-                        .unwrap())(ctx, app, self.next_mode.as_ref().unwrap()),
-                ]),
-                "Back to challenges" => {
-                    Transition::Clear(vec![main_menu(ctx, app), challenges_picker(ctx, app)])
-                }
-                _ => unreachable!(),
-            },
-            None => Transition::Keep,
-        }
-    }
-
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        // Happens to be a nice background color too ;)
-        g.clear(app.cs.grass);
-        self.composite.draw(g);
     }
 }

@@ -9,12 +9,16 @@ mod tutorial;
 
 pub use self::tutorial::{Tutorial, TutorialPointer, TutorialState};
 use crate::app::App;
+use crate::challenges::{challenges_picker, Challenge};
 use crate::common::ContextualActions;
-use crate::game::Transition;
+use crate::game::{State, Transition};
 use crate::helpers::ID;
-use crate::sandbox::SandboxControls;
+use crate::pregame::main_menu;
+use crate::sandbox::{SandboxControls, SandboxMode};
 use abstutil::Timer;
-use ezgui::{lctrl, Btn, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Widget};
+use ezgui::{
+    lctrl, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, TextExt, Widget,
+};
 use geom::{Duration, Polygon};
 use map_model::{EditCmd, EditIntersection, Map, MapEdits};
 use rand_xorshift::XorShiftRng;
@@ -289,4 +293,79 @@ fn challenge_header(ctx: &mut EventCtx, title: &str) -> Widget {
             .centered_vert(),
     ])
     .padding(5)
+}
+
+pub struct FinalScore {
+    composite: Composite,
+    retry: GameplayMode,
+    next_mode: Option<GameplayMode>,
+}
+
+impl FinalScore {
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        msg: String,
+        mode: GameplayMode,
+        next_mode: Option<GameplayMode>,
+    ) -> Box<dyn State> {
+        Box::new(FinalScore {
+            composite: Composite::new(
+                Widget::row(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/characters/boss.svg")
+                        .container()
+                        .outline(10.0, Color::BLACK)
+                        .padding(10),
+                    Widget::col(vec![
+                        msg.draw_text(ctx),
+                        // TODO Adjust wording
+                        Btn::text_bg2("Try again").build_def(ctx, None),
+                        if next_mode.is_some() {
+                            Btn::text_bg2("Next challenge").build_def(ctx, None)
+                        } else {
+                            Widget::nothing()
+                        },
+                        Btn::text_bg2("Back to challenges").build_def(ctx, None),
+                    ])
+                    .outline(10.0, Color::BLACK)
+                    .padding(10),
+                ])
+                .bg(app.cs.panel_bg),
+            )
+            .build(ctx),
+            retry: mode,
+            next_mode,
+        })
+    }
+}
+
+impl State for FinalScore {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "Try again" => {
+                    Transition::Replace(Box::new(SandboxMode::new(ctx, app, self.retry.clone())))
+                }
+                "Next challenge" => Transition::Clear(vec![
+                    main_menu(ctx, app),
+                    Box::new(SandboxMode::new(ctx, app, self.next_mode.clone().unwrap())),
+                    (Challenge::find(self.next_mode.as_ref().unwrap())
+                        .0
+                        .cutscene
+                        .unwrap())(ctx, app, self.next_mode.as_ref().unwrap()),
+                ]),
+                "Back to challenges" => {
+                    Transition::Clear(vec![main_menu(ctx, app), challenges_picker(ctx, app)])
+                }
+                _ => unreachable!(),
+            },
+            None => Transition::Keep,
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        // Happens to be a nice background color too ;)
+        g.clear(app.cs.grass);
+        self.composite.draw(g);
+    }
 }
