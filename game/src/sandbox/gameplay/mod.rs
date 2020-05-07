@@ -11,13 +11,15 @@ pub use self::tutorial::{Tutorial, TutorialPointer, TutorialState};
 use crate::app::App;
 use crate::challenges::{challenges_picker, Challenge};
 use crate::common::ContextualActions;
-use crate::game::{State, Transition};
+use crate::edit::{apply_map_edits, save_edits_as};
+use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::pregame::main_menu;
 use crate::sandbox::{SandboxControls, SandboxMode};
 use abstutil::Timer;
 use ezgui::{
-    lctrl, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, TextExt, Widget,
+    lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, TextExt,
+    Widget, Wizard,
 };
 use geom::{Duration, Polygon};
 use map_model::{EditCmd, EditIntersection, Map, MapEdits};
@@ -82,8 +84,7 @@ impl GameplayMode {
             GameplayMode::Freeform(ref path) => path.to_string(),
             GameplayMode::PlayScenario(ref path, _) => path.to_string(),
             GameplayMode::CreateGridlock(ref path) => path.to_string(),
-            // TODO tmp
-            GameplayMode::FixTrafficSignals => abstutil::path_map("montlake"),
+            GameplayMode::FixTrafficSignals => abstutil::path_map("downtown"),
             GameplayMode::OptimizeCommute(_, _) => abstutil::path_map("montlake"),
             GameplayMode::Tutorial(_) => abstutil::path_map("montlake"),
         }
@@ -348,16 +349,28 @@ impl State for FinalScore {
                 "Try again" => {
                     Transition::Replace(Box::new(SandboxMode::new(ctx, app, self.retry.clone())))
                 }
-                "Next challenge" => Transition::Clear(vec![
-                    main_menu(ctx, app),
-                    Box::new(SandboxMode::new(ctx, app, self.next_mode.clone().unwrap())),
-                    (Challenge::find(self.next_mode.as_ref().unwrap())
-                        .0
-                        .cutscene
-                        .unwrap())(ctx, app, self.next_mode.as_ref().unwrap()),
-                ]),
+                "Next challenge" => {
+                    if app.primary.map.unsaved_edits() {
+                        Transition::Push(WizardState::new(Box::new(maybe_save_first)))
+                    } else {
+                        Transition::Clear(vec![
+                            main_menu(ctx, app),
+                            Box::new(SandboxMode::new(ctx, app, self.next_mode.clone().unwrap())),
+                            (Challenge::find(self.next_mode.as_ref().unwrap())
+                                .0
+                                .cutscene
+                                .unwrap())(
+                                ctx, app, self.next_mode.as_ref().unwrap()
+                            ),
+                        ])
+                    }
+                }
                 "Back to challenges" => {
-                    Transition::Clear(vec![main_menu(ctx, app), challenges_picker(ctx, app)])
+                    if app.primary.map.unsaved_edits() {
+                        Transition::Push(WizardState::new(Box::new(maybe_save_first)))
+                    } else {
+                        Transition::Clear(vec![main_menu(ctx, app), challenges_picker(ctx, app)])
+                    }
                 }
                 _ => unreachable!(),
             },
@@ -370,4 +383,25 @@ impl State for FinalScore {
         g.clear(app.cs.grass);
         self.composite.draw(g);
     }
+}
+
+fn maybe_save_first(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
+    let mut wizard = wiz.wrap(ctx);
+    let (resp, _) = wizard.choose("Wait, do you want to save your map edits first?", || {
+        vec![Choice::new("save", ()), Choice::new("discard", ())]
+    })?;
+    if resp == "save" {
+        save_edits_as(&mut wizard, app)?;
+    }
+    ctx.loading_screen("reset map and sim", |ctx, mut timer| {
+        // Either they chose discard, or bailed out of the save menu
+        if app.primary.map.unsaved_edits() {
+            apply_map_edits(ctx, app, MapEdits::new());
+            app.primary
+                .map
+                .recalculate_pathfinding_after_edits(&mut timer);
+        }
+    });
+    // TODO Don't make the player pick the FinalScore thing again :(
+    Some(Transition::Pop)
 }

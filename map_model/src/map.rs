@@ -498,6 +498,10 @@ impl Map {
         result
     }
 
+    pub fn unsaved_edits(&self) -> bool {
+        self.edits.edits_name == "untitled edits" && !self.edits.commands.is_empty()
+    }
+
     pub fn save(&self) {
         assert_eq!(self.edits.edits_name, "untitled edits");
         assert!(self.edits.commands.is_empty());

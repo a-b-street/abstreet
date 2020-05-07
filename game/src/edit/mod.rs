@@ -295,9 +295,7 @@ fn make_load_edits(btn: ScreenRectangle, mode: GameplayMode) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, app| {
         let mut wizard = wiz.wrap(ctx);
 
-        if app.primary.map.get_edits().edits_name == "untitled edits"
-            && !app.primary.map.get_edits().commands.is_empty()
-        {
+        if app.primary.map.unsaved_edits() {
             let save = "save edits";
             let discard = "discard";
             if wizard

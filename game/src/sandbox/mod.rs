@@ -245,8 +245,7 @@ pub fn maybe_exit_sandbox() -> Transition {
 
 fn exit_sandbox(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
     let mut wizard = wiz.wrap(ctx);
-    let unsaved = app.primary.map.get_edits().edits_name == "untitled edits"
-        && !app.primary.map.get_edits().commands.is_empty();
+    let unsaved = app.primary.map.unsaved_edits();
     let (resp, _) = wizard.choose("Are you ready to leave this mode?", || {
         let mut choices = Vec::new();
         choices.push(Choice::new("keep playing", ()));
@@ -263,9 +262,7 @@ fn exit_sandbox(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<T
         save_edits_as(&mut wizard, app)?;
     }
     ctx.loading_screen("reset map and sim", |ctx, mut timer| {
-        if app.primary.map.get_edits().edits_name != "untitled edits"
-            || !app.primary.map.get_edits().commands.is_empty()
-        {
+        if !app.primary.map.get_edits().commands.is_empty() {
             apply_map_edits(ctx, app, MapEdits::new());
             app.primary
                 .map
