@@ -409,7 +409,6 @@ impl InfoPanel {
 
                                 if time < app.primary.sim.time() {
                                     sandbox = ctx.loading_screen("rewind simulation", |ctx, _| {
-                                        app.primary.clear_sim();
                                         Box::new(SandboxMode::new(ctx, app, sandbox.gameplay_mode))
                                     });
                                 }

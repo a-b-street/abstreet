@@ -215,7 +215,6 @@ fn make_change_traffic(btn: ScreenRectangle) -> Box<dyn State> {
                 list
             },
         )?;
-        app.primary.clear_sim();
         let map_path = abstutil::path_map(app.primary.map.get_name());
         Some(Transition::PopThenReplace(Box::new(SandboxMode::new(
             ctx,

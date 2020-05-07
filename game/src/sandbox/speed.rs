@@ -165,7 +165,6 @@ impl SpeedControls {
                 }
                 "reset to midnight" => {
                     if let Some(mode) = maybe_mode {
-                        app.primary.clear_sim();
                         return Some(Transition::Replace(Box::new(SandboxMode::new(
                             ctx,
                             app,
@@ -405,7 +404,6 @@ impl State for JumpToTime {
                     let traffic_jams = self.composite.is_checked("Stop when there's a traffic jam");
                     if self.target < app.primary.sim.time() {
                         if let Some(mode) = self.maybe_mode.take() {
-                            app.primary.clear_sim();
                             return Transition::ReplaceThenPush(
                                 Box::new(SandboxMode::new(ctx, app, mode)),
                                 TimeWarpScreen::new(ctx, app, self.target, traffic_jams),

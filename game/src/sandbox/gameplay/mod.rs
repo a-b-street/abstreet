@@ -319,6 +319,7 @@ impl FinalScore {
                     Widget::col(vec![
                         msg.draw_text(ctx),
                         // TODO Adjust wording
+                        Btn::text_bg2("Keep simulating").build_def(ctx, None),
                         Btn::text_bg2("Try again").build_def(ctx, None),
                         if next_mode.is_some() {
                             Btn::text_bg2("Next challenge").build_def(ctx, None)
@@ -343,6 +344,7 @@ impl State for FinalScore {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "Keep simulating" => Transition::Pop,
                 "Try again" => {
                     Transition::Replace(Box::new(SandboxMode::new(ctx, app, self.retry.clone())))
                 }

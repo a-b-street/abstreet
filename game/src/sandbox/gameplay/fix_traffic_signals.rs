@@ -129,7 +129,6 @@ impl GameplayState for FixTrafficSignals {
                     )));
                 }
                 "try again" => {
-                    app.primary.clear_sim();
                     return Some(Transition::Replace(Box::new(SandboxMode::new(
                         ctx,
                         app,

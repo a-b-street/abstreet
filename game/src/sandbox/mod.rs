@@ -49,6 +49,7 @@ pub struct SandboxControls {
 
 impl SandboxMode {
     pub fn new(ctx: &mut EventCtx, app: &mut App, mode: GameplayMode) -> SandboxMode {
+        app.primary.clear_sim();
         let gameplay = mode.initialize(app, ctx);
 
         SandboxMode {

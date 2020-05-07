@@ -157,7 +157,7 @@ impl GameplayState for OptimizeCommute {
                 make_top_center(ctx, app, before, after, done, self.trips.len(), self.goal);
 
             if done == self.trips.len() {
-                return Some(Transition::Replace(final_score(
+                return Some(Transition::Push(final_score(
                     ctx,
                     app,
                     self.mode.clone(),
@@ -316,8 +316,6 @@ fn final_score(
         )
     };
 
-    // TODO Deal with edits
-    app.primary.clear_sim();
     FinalScore::new(ctx, app, msg, mode, next_mode)
 }
 

@@ -743,8 +743,6 @@ impl TutorialState {
             app.primary.current_selection = None;
         }
 
-        // TODO Should some of this always happen?
-        app.primary.clear_sim();
         if let Some(ref cb) = self.stage().spawn {
             (cb)(app);
             app.primary
