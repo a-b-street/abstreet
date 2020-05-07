@@ -295,6 +295,771 @@
         "lt": "Biking",
         "orig_lt": "Driving"
       }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6345330,
+          "i1": {
+            "osm_node_id": 53074016
+          },
+          "i2": {
+            "osm_node_id": 53074017
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6345330,
+          "i1": {
+            "osm_node_id": 53074017
+          },
+          "i2": {
+            "osm_node_id": 53074019
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6345330,
+          "i1": {
+            "osm_node_id": 53074019
+          },
+          "i2": {
+            "osm_node_id": 53074020
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6345330,
+          "i1": {
+            "osm_node_id": 53074020
+          },
+          "i2": {
+            "osm_node_id": 53074021
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6349125,
+          "i1": {
+            "osm_node_id": 53074021
+          },
+          "i2": {
+            "osm_node_id": 53086795
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6349125,
+          "i1": {
+            "osm_node_id": 53086793
+          },
+          "i2": {
+            "osm_node_id": 53074021
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6349126,
+          "i1": {
+            "osm_node_id": 53086798
+          },
+          "i2": {
+            "osm_node_id": 53086800
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6356667,
+          "i1": {
+            "osm_node_id": 53077627
+          },
+          "i2": {
+            "osm_node_id": 53096145
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6356667,
+          "i1": {
+            "osm_node_id": 53096142
+          },
+          "i2": {
+            "osm_node_id": 53077627
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6428558,
+          "i1": {
+            "osm_node_id": 53184260
+          },
+          "i2": {
+            "osm_node_id": 140554482
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6448612,
+          "i1": {
+            "osm_node_id": 53129475
+          },
+          "i2": {
+            "osm_node_id": 53077624
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6459736,
+          "i1": {
+            "osm_node_id": 53201886
+          },
+          "i2": {
+            "osm_node_id": 53211435
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6459736,
+          "i1": {
+            "osm_node_id": 53204306
+          },
+          "i2": {
+            "osm_node_id": 53201886
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6459736,
+          "i1": {
+            "osm_node_id": 53211435
+          },
+          "i2": {
+            "osm_node_id": 53211436
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6495798,
+          "i1": {
+            "osm_node_id": 53074019
+          },
+          "i2": {
+            "osm_node_id": 53238763
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6495798,
+          "i1": {
+            "osm_node_id": 53077625
+          },
+          "i2": {
+            "osm_node_id": 53110501
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6495798,
+          "i1": {
+            "osm_node_id": 53110501
+          },
+          "i2": {
+            "osm_node_id": 53074019
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6495798,
+          "i1": {
+            "osm_node_id": 53223862
+          },
+          "i2": {
+            "osm_node_id": 53077625
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6495798,
+          "i1": {
+            "osm_node_id": 53238763
+          },
+          "i2": {
+            "osm_node_id": 53238764
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6495798,
+          "i1": {
+            "osm_node_id": 53238764
+          },
+          "i2": {
+            "osm_node_id": 53211435
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6522860,
+          "i1": {
+            "osm_node_id": 53201885
+          },
+          "i2": {
+            "osm_node_id": 53238764
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6522860,
+          "i1": {
+            "osm_node_id": 53231628
+          },
+          "i2": {
+            "osm_node_id": 53201885
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6522860,
+          "i1": {
+            "osm_node_id": 53233036
+          },
+          "i2": {
+            "osm_node_id": 53086795
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6522860,
+          "i1": {
+            "osm_node_id": 53238764
+          },
+          "i2": {
+            "osm_node_id": 53233036
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6522860,
+          "i1": {
+            "osm_node_id": 6885426223
+          },
+          "i2": {
+            "osm_node_id": 53231628
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6523125,
+          "i1": {
+            "osm_node_id": 53211697
+          },
+          "i2": {
+            "osm_node_id": 53231627
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6523125,
+          "i1": {
+            "osm_node_id": 53231627
+          },
+          "i2": {
+            "osm_node_id": 53238763
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6523125,
+          "i1": {
+            "osm_node_id": 53233035
+          },
+          "i2": {
+            "osm_node_id": 53086795
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 6523125,
+          "i1": {
+            "osm_node_id": 53238763
+          },
+          "i2": {
+            "osm_node_id": 53233035
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 65588097,
+          "i1": {
+            "osm_node_id": 53215158
+          },
+          "i2": {
+            "osm_node_id": 53077622
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 159937059,
+          "i1": {
+            "osm_node_id": 53103991
+          },
+          "i2": {
+            "osm_node_id": 53229345
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 159937059,
+          "i1": {
+            "osm_node_id": 53229345
+          },
+          "i2": {
+            "osm_node_id": 53233983
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 159937059,
+          "i1": {
+            "osm_node_id": 53233983
+          },
+          "i2": {
+            "osm_node_id": 53184260
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 170683231,
+          "i1": {
+            "osm_node_id": 53077622
+          },
+          "i2": {
+            "osm_node_id": 53077620
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 170683231,
+          "i1": {
+            "osm_node_id": 53077624
+          },
+          "i2": {
+            "osm_node_id": 53077622
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 170683231,
+          "i1": {
+            "osm_node_id": 53077625
+          },
+          "i2": {
+            "osm_node_id": 53077624
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 170683231,
+          "i1": {
+            "osm_node_id": 53077627
+          },
+          "i2": {
+            "osm_node_id": 53077625
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 170683231,
+          "i1": {
+            "osm_node_id": 53077630
+          },
+          "i2": {
+            "osm_node_id": 53077627
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 170683288,
+          "i1": {
+            "osm_node_id": 53074020
+          },
+          "i2": {
+            "osm_node_id": 53233035
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 170683288,
+          "i1": {
+            "osm_node_id": 53077630
+          },
+          "i2": {
+            "osm_node_id": 53110503
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 170683288,
+          "i1": {
+            "osm_node_id": 53110503
+          },
+          "i2": {
+            "osm_node_id": 53074020
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 170683288,
+          "i1": {
+            "osm_node_id": 53211436
+          },
+          "i2": {
+            "osm_node_id": 140554482
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 170683288,
+          "i1": {
+            "osm_node_id": 53233035
+          },
+          "i2": {
+            "osm_node_id": 53233036
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 170683288,
+          "i1": {
+            "osm_node_id": 53233036
+          },
+          "i2": {
+            "osm_node_id": 53211436
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 170683288,
+          "i1": {
+            "osm_node_id": 196717735
+          },
+          "i2": {
+            "osm_node_id": 53077630
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 476409332,
+          "i1": {
+            "osm_node_id": 53096145
+          },
+          "i2": {
+            "osm_node_id": 53110503
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 476409332,
+          "i1": {
+            "osm_node_id": 53110496
+          },
+          "i2": {
+            "osm_node_id": 53110497
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 476409332,
+          "i1": {
+            "osm_node_id": 53110497
+          },
+          "i2": {
+            "osm_node_id": 53110499
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 476409332,
+          "i1": {
+            "osm_node_id": 53110499
+          },
+          "i2": {
+            "osm_node_id": 53110501
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 476409332,
+          "i1": {
+            "osm_node_id": 53110501
+          },
+          "i2": {
+            "osm_node_id": 53096145
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
+    },
+    {
+      "ChangeSpeedLimit": {
+        "id": {
+          "osm_way_id": 476409332,
+          "i1": {
+            "osm_node_id": 53110503
+          },
+          "i2": {
+            "osm_node_id": 53086800
+          }
+        },
+        "new": 6.7056,
+        "old": 11.176
+      }
     }
   ],
   "proposal_description": [
