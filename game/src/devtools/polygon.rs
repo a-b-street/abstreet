@@ -5,7 +5,7 @@ use crate::managed::WrappedComposite;
 use ezgui::{hotkey, Color, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Text};
 use geom::{Circle, Distance, LonLat, Polygon, Pt2D};
 use std::fs::File;
-use std::io::{Error, Write};
+use std::io::{BufRead, BufReader, Error, ErrorKind, Write};
 
 const POINT_RADIUS: Distance = Distance::const_meters(10.0);
 // Localized and internal, so don't put in ColorScheme.
@@ -22,7 +22,7 @@ pub struct PolygonEditor {
 }
 
 impl PolygonEditor {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App, points: Vec<LonLat>) -> Box<dyn State> {
         Box::new(PolygonEditor {
             composite: WrappedComposite::quick_menu(
                 ctx,
@@ -31,7 +31,7 @@ impl PolygonEditor {
                 vec![],
                 vec![(hotkey(Key::X), "export as an Osmosis polygon filter")],
             ),
-            points: Vec::new(),
+            points,
             mouseover_pt: None,
             moving_pt: false,
         })
@@ -162,4 +162,29 @@ fn save_as_osmosis(pts: &Vec<LonLat>) -> Result<(), Error> {
 
     println!("Exported {}", path);
     Ok(())
+}
+
+pub fn read_from_osmosis(path: String) -> Result<Vec<LonLat>, Error> {
+    let f = File::open(&path)?;
+    let mut pts = Vec::new();
+    for (idx, line) in BufReader::new(f).lines().enumerate() {
+        if idx < 2 {
+            continue;
+        }
+        let line = line?;
+        if line == "END" {
+            break;
+        }
+        let parts = line.trim().split("    ").collect::<Vec<_>>();
+        pts.push(LonLat::new(
+            parts[0]
+                .parse::<f64>()
+                .map_err(|err| Error::new(ErrorKind::Other, err))?,
+            parts[1]
+                .parse::<f64>()
+                .map_err(|err| Error::new(ErrorKind::Other, err))?,
+        ));
+    }
+    pts.pop();
+    Ok(pts)
 }

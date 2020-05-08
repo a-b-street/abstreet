@@ -12,21 +12,32 @@ pub struct DevToolsMode;
 
 impl DevToolsMode {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
-        ManagedGUIState::over_map(
+        ManagedGUIState::fullscreen(
             WrappedComposite::new(WrappedComposite::quick_menu(
                 ctx,
                 app,
                 "Internal dev tools",
                 vec![],
                 vec![
+                    (hotkey(Key::E), "edit a polygon"),
                     (hotkey(Key::P), "draw a polygon"),
                     (hotkey(Key::W), "load scenario"),
                 ],
             ))
             .cb("X", Box::new(|_, _| Some(Transition::Pop)))
             .cb(
+                "edit a polygon",
+                Box::new(|_, _| Some(Transition::Push(WizardState::new(Box::new(choose_polygon))))),
+            )
+            .cb(
                 "draw a polygon",
-                Box::new(|ctx, app| Some(Transition::Push(polygon::PolygonEditor::new(ctx, app)))),
+                Box::new(|ctx, app| {
+                    Some(Transition::Push(polygon::PolygonEditor::new(
+                        ctx,
+                        app,
+                        Vec::new(),
+                    )))
+                }),
             )
             .cb(
                 "load scenario",
@@ -48,4 +59,18 @@ fn load_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<
     Some(Transition::Replace(Box::new(
         scenario::ScenarioManager::new(scenario, ctx, app),
     )))
+}
+
+fn choose_polygon(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
+    // TODO Sorry, Seattle only right now
+    let name = wiz.wrap(ctx).choose_string("Edit which polygon?", || {
+        abstutil::list_all_objects("../data/input/seattle/polygons/".to_string())
+    })?;
+    match polygon::read_from_osmosis(format!("../data/input/seattle/polygons/{}.poly", name)) {
+        Ok(pts) => Some(Transition::Push(polygon::PolygonEditor::new(ctx, app, pts))),
+        Err(err) => {
+            println!("Bad polygon {}: {}", name, err);
+            Some(Transition::Pop)
+        }
+    }
 }

@@ -153,11 +153,6 @@ pub fn path_pending_screenshots(map_name: &str) -> String {
     format!("../data/input/screenshots/pending_{}", map_name)
 }
 
-// TODO Few callers, and importer just manually builds this path anyway
-pub fn path_polygon(city: &str, polygon_name: &str) -> String {
-    format!("../data/input/{}/polygons/{}.poly", city, polygon_name)
-}
-
 pub fn path_popdat() -> String {
     format!("../data/input/seattle/popdat.bin")
 }
