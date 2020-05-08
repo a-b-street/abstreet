@@ -31,8 +31,7 @@ pub struct Options {
 // If a building doesn't have anything from public_offstreet_parking, how many private spots should
 // it have?
 pub enum PrivateOffstreetParking {
-    ZeroPerBldg,
-    OnePerBldg,
+    FixedPerBldg(usize),
     // TODO Based on the number of residents?
 }
 
@@ -231,12 +230,11 @@ fn use_offstreet_parking(map: &mut RawMap, path: String, timer: &mut Timer) {
 
 fn apply_private_offstreet_parking(map: &mut RawMap, policy: PrivateOffstreetParking) {
     match policy {
-        PrivateOffstreetParking::ZeroPerBldg => {}
-        PrivateOffstreetParking::OnePerBldg => {
+        PrivateOffstreetParking::FixedPerBldg(n) => {
             for b in map.buildings.values_mut() {
                 if b.public_garage_name.is_none() {
                     assert_eq!(b.num_parking_spots, 0);
-                    b.num_parking_spots = 1;
+                    b.num_parking_spots = n;
                 }
             }
         }

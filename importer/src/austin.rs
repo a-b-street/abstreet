@@ -26,7 +26,7 @@ pub fn osm_to_raw(name: &str) {
 
             parking_shapes: None,
             public_offstreet_parking: None,
-            private_offstreet_parking: convert_osm::PrivateOffstreetParking::OnePerBldg,
+            private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(1),
             sidewalks: None,
             gtfs: None,
             elevation: None,

@@ -156,8 +156,8 @@ impl GPSBounds {
     // TODO don't hardcode
     pub fn seattle_bounds() -> GPSBounds {
         let mut b = GPSBounds::new();
-        b.update(LonLat::new(-122.4416, 47.5793));
-        b.update(LonLat::new(-122.2421, 47.7155));
+        b.update(LonLat::new(-122.453224, 47.723277));
+        b.update(LonLat::new(-122.240505, 47.495342));
         b
     }
 
