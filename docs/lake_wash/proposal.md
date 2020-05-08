@@ -23,7 +23,7 @@ software to explore the impacts of changes like this on different modes of
 transportation. So, let's try implementing part of the proposed network and see
 what happens!
 
-> **_NOTE:_** You might want to read [how A/B Street works](/how_it_works.md)
+> **_NOTE:_** You might want to read [how A/B Street works](../how_it_works.md)
 > first.
 
 ## Lake Washington Blvd
