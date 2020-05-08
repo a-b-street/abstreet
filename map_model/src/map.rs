@@ -56,7 +56,44 @@ impl Map {
         if path.starts_with(&abstutil::path_all_maps()) {
             match abstutil::maybe_read_binary(path.clone(), timer) {
                 Ok(map) => {
-                    crate::pathfind::uber_turns::find(&map);
+                    let map: Map = map;
+
+                    if false {
+                        use abstutil::{prettyprint_usize, serialized_size_bytes};
+                        println!(
+                            "- roads: {} bytes",
+                            prettyprint_usize(serialized_size_bytes(&map.roads))
+                        );
+                        println!(
+                            "- lanes: {} bytes",
+                            prettyprint_usize(serialized_size_bytes(&map.lanes))
+                        );
+                        println!(
+                            "- intersections: {} bytes",
+                            prettyprint_usize(serialized_size_bytes(&map.intersections))
+                        );
+                        println!(
+                            "- turns: {} bytes",
+                            prettyprint_usize(serialized_size_bytes(&map.turns))
+                        );
+                        println!(
+                            "- buildings: {} bytes",
+                            prettyprint_usize(serialized_size_bytes(&map.buildings))
+                        );
+                        println!(
+                            "- areas: {} bytes",
+                            prettyprint_usize(serialized_size_bytes(&map.areas))
+                        );
+                        println!(
+                            "- pathfinder: {} bytes",
+                            prettyprint_usize(serialized_size_bytes(&map.pathfinder))
+                        );
+                    }
+
+                    if false {
+                        crate::pathfind::uber_turns::find(&map);
+                    }
+
                     return map;
                 }
                 Err(err) => {

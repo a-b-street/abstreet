@@ -59,7 +59,6 @@ pub enum Tab {
     ParkedCar(CarID),
 
     BldgInfo(BuildingID),
-    BldgDebug(BuildingID),
     BldgPeople(BuildingID),
 
     Crowd(Vec<PedestrianID>),
@@ -133,7 +132,7 @@ impl Tab {
                 ParkingSpot::Onstreet(_, _) => Some(ID::Car(c)),
                 ParkingSpot::Offstreet(b, _) => Some(ID::Building(b)),
             },
-            Tab::BldgInfo(b) | Tab::BldgDebug(b) | Tab::BldgPeople(b) => Some(ID::Building(b)),
+            Tab::BldgInfo(b) | Tab::BldgPeople(b) => Some(ID::Building(b)),
             Tab::Crowd(members) => Some(ID::PedCrowd(members)),
             Tab::Area(a) => Some(ID::Area(a)),
             Tab::ExtraShape(es) => Some(ID::ExtraShape(es)),
@@ -203,7 +202,6 @@ impl InfoPanel {
                 true,
             ),
             Tab::BldgInfo(b) => (building::info(ctx, app, &mut details, b), true),
-            Tab::BldgDebug(b) => (building::debug(ctx, app, &mut details, b), false),
             Tab::BldgPeople(b) => (building::people(ctx, app, &mut details, b), false),
             Tab::Crowd(ref members) => (person::crowd(ctx, app, &mut details, members), true),
             Tab::Area(a) => (debug::area(ctx, app, &mut details, a), true),

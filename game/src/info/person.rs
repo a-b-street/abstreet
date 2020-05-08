@@ -381,11 +381,7 @@ pub fn parked_car(
                 ctx.canvas
                     .center_on_map_pt(app.primary.map.get_b(b).polygon.center());
                 rows.push(
-                    format!(
-                        "Parked inside {}",
-                        app.primary.map.get_b(b).get_name(&app.primary.map)
-                    )
-                    .draw_text(ctx),
+                    format!("Parked inside {}", app.primary.map.get_b(b).address).draw_text(ctx),
                 );
             }
         }
@@ -499,7 +495,7 @@ fn current_status(ctx: &EventCtx, person: &Person, map: &Map) -> Widget {
     (match person.state {
         PersonState::Inside(b) => {
             // TODO hyperlink
-            format!("Currently inside {}", map.get_b(b).just_address(map)).draw_text(ctx)
+            format!("Currently inside {}", map.get_b(b).address).draw_text(ctx)
         }
         PersonState::Trip(_) => unreachable!(),
         PersonState::OffMap => "Currently outside the map boundaries".draw_text(ctx),

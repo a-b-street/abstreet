@@ -138,7 +138,7 @@ impl CommonState {
                     osd.append(Line(" is "));
                 }
                 let bldg = map.get_b(b);
-                osd.append(Line(bldg.get_name(map)).fg(name_color));
+                osd.append(Line(&bldg.address).fg(name_color));
             }
             ID::Turn(t) => {
                 // Only selectable in dev mode anyway

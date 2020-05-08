@@ -13,9 +13,9 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
 
     let mut kv = Vec::new();
 
-    kv.push(("Address", b.just_address(&app.primary.map)));
-    if let Some(name) = b.just_name() {
-        kv.push(("Name", name.to_string()));
+    kv.push(("Address", b.address.clone()));
+    if let Some(ref name) = b.name {
+        kv.push(("Name", name.clone()));
     }
 
     if let Some(ref p) = b.parking {
@@ -82,23 +82,6 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
     if !txt.is_empty() {
         rows.push(txt.draw(ctx))
     }
-
-    rows
-}
-
-pub fn debug(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID) -> Vec<Widget> {
-    let mut rows = header(ctx, app, details, id, Tab::BldgDebug(id));
-    let b = app.primary.map.get_b(id);
-
-    rows.extend(make_table(
-        ctx,
-        vec![(
-            "Dist along sidewalk",
-            b.front_path.sidewalk.dist_along().to_string(),
-        )],
-    ));
-    rows.push("Raw OpenStreetMap data".draw_text(ctx));
-    rows.extend(make_table(ctx, b.osm_tags.clone().into_iter().collect()));
 
     rows
 }
@@ -181,11 +164,7 @@ fn header(
         ctx,
         &mut details.hyperlinks,
         tab,
-        vec![
-            ("Info", Tab::BldgInfo(id)),
-            ("Debug", Tab::BldgDebug(id)),
-            ("People", Tab::BldgPeople(id)),
-        ],
+        vec![("Info", Tab::BldgInfo(id)), ("People", Tab::BldgPeople(id))],
     ));
 
     draw_occupants(details, app, id, None);

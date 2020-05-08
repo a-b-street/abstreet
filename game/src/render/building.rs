@@ -56,7 +56,7 @@ impl DrawBuilding {
 
         // TODO Uh oh, this is lots of work upfront. Disable by default. :(
         let label = if false {
-            bldg.osm_tags.get("addr:housenumber").map(|num| {
+            bldg.house_number().map(|num| {
                 let mut lbl = GeomBatch::new();
                 lbl.add_transformed(
                     Text::from(Line(num.to_string()).fg(Color::BLACK)).render_to_batch(prerender),

@@ -344,18 +344,6 @@ fn search_osm(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Tra
             batch.push(color, r.get_thick_polygon(map).unwrap());
         }
     }
-    for b in map.all_buildings() {
-        if b.osm_tags
-            .iter()
-            .any(|(k, v)| format!("{} = {}", k, v).contains(&filter))
-            || b.amenities
-                .iter()
-                .any(|(n, a)| n.contains(&filter) || a.contains(&filter))
-        {
-            num_matches += 1;
-            batch.push(color, b.polygon.clone());
-        }
-    }
     for a in map.all_areas() {
         if a.osm_tags
             .iter()

@@ -1,7 +1,7 @@
-use crate::{osm, LaneID, Map, Position};
+use crate::{LaneID, Position};
 use geom::{Line, PolyLine, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeSet;
 use std::fmt;
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
@@ -38,7 +38,8 @@ pub struct OffstreetParking {
 pub struct Building {
     pub id: BuildingID,
     pub polygon: Polygon,
-    pub osm_tags: BTreeMap<String, String>,
+    pub address: String,
+    pub name: Option<String>,
     pub osm_way_id: i64,
     // Where a text label should be centered to have the best chances of being contained within the
     // polygon.
@@ -57,28 +58,12 @@ impl Building {
         self.front_path.sidewalk.lane()
     }
 
-    pub fn just_address(&self, map: &Map) -> String {
-        match (
-            self.osm_tags.get("addr:housenumber"),
-            self.osm_tags.get("addr:street"),
-        ) {
-            (Some(num), Some(st)) => format!("{} {}", num, st),
-            (None, Some(st)) => format!("??? {}", st),
-            _ => format!("??? {}", map.get_parent(self.sidewalk()).get_name()),
-        }
-    }
-
-    pub fn just_name(&self) -> Option<&String> {
-        self.osm_tags.get(osm::NAME)
-    }
-
-    // TODO I think this one only has one caller
-    pub fn get_name(&self, map: &Map) -> String {
-        let address = self.just_address(map);
-        if let Some(name) = self.just_name() {
-            format!("{} (at {})", name, address)
+    pub fn house_number(&self) -> Option<String> {
+        let num = self.address.split(" ").next().unwrap();
+        if num != "???" {
+            Some(num.to_string())
         } else {
-            address
+            None
         }
     }
 }

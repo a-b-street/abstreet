@@ -1,6 +1,6 @@
 use crate::make::sidewalk_finder::find_sidewalk_points;
 use crate::raw::{OriginalBuilding, RawBuilding};
-use crate::{Building, BuildingID, FrontPath, LaneType, Map, OffstreetParking};
+use crate::{osm, Building, BuildingID, FrontPath, LaneID, LaneType, Map, OffstreetParking};
 use abstutil::Timer;
 use geom::{Distance, HashablePt2D, Line, PolyLine, Polygon};
 use std::collections::{BTreeMap, HashSet};
@@ -51,7 +51,8 @@ pub fn make_all_buildings(
             let mut bldg = Building {
                 id,
                 polygon: b.polygon.clone(),
-                osm_tags: b.osm_tags.clone(),
+                address: get_address(&b.osm_tags, sidewalk_pos.lane(), map),
+                name: b.osm_tags.get(osm::NAME).cloned(),
                 osm_way_id: orig_id.osm_way_id,
                 front_path: FrontPath {
                     sidewalk: *sidewalk_pos,
@@ -122,4 +123,12 @@ fn trim_path(poly: &Polygon, path: Line) -> Line {
     }
     // Just give up
     path
+}
+
+fn get_address(tags: &BTreeMap<String, String>, sidewalk: LaneID, map: &Map) -> String {
+    match (tags.get("addr:housenumber"), tags.get("addr:street")) {
+        (Some(num), Some(st)) => format!("{} {}", num, st),
+        (None, Some(st)) => format!("??? {}", st),
+        _ => format!("??? {}", map.get_parent(sidewalk).get_name()),
+    }
 }

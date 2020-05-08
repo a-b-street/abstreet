@@ -606,7 +606,7 @@ fn endpoint(endpt: &TripEndpoint, map: &Map) -> (ID, Pt2D, String) {
     match endpt {
         TripEndpoint::Bldg(b) => {
             let bldg = map.get_b(*b);
-            (ID::Building(*b), bldg.label_center, bldg.just_address(map))
+            (ID::Building(*b), bldg.label_center, bldg.address.clone())
         }
         TripEndpoint::Border(i, _) => {
             let i = map.get_i(*i);
