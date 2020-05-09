@@ -5,12 +5,13 @@ use crate::game::{State, Transition};
 use crate::helpers::ID;
 use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, TextExt, VerticalAlignment, Widget,
+    Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Distance, Speed};
 use map_model::{EditCmd, IntersectionID, Map, RoadID};
 use petgraph::graphmap::UnGraphMap;
 use sim::DontDrawAgents;
+use std::collections::BTreeSet;
 
 // TODO For now, individual turns can't be manipulated. Banning turns could be useful, but I'm not
 // sure what to do about the player orphaning a section of the map.
@@ -30,9 +31,11 @@ impl BulkSelect {
                     "Click one intersection to start"
                         .draw_text(ctx)
                         .named("instructions"),
-                    Btn::text_fg("Quit")
-                        .build_def(ctx, hotkey(Key::Escape))
-                        .margin_above(10),
+                    Btn::text_fg("Select roads free-hand / paint mode")
+                        .build_def(ctx, hotkey(Key::P))
+                        .margin_above(10)
+                        .margin_below(5),
+                    Btn::text_fg("Quit").build_def(ctx, hotkey(Key::Escape)),
                 ])
                 .bg(app.cs.panel_bg)
                 .padding(10),
@@ -119,6 +122,9 @@ impl State for BulkSelect {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "Quit" => {
                     return Transition::Pop;
+                }
+                "Select roads free-hand / paint mode" => {
+                    return Transition::Replace(PaintSelect::new(ctx, app));
                 }
                 _ => unreachable!(),
             },
@@ -224,5 +230,140 @@ impl State for BulkEdit {
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.composite.draw(g);
         g.redraw(&self.preview);
+    }
+}
+
+struct PaintSelect {
+    composite: Composite,
+    roads: BTreeSet<RoadID>,
+    preview: Option<Drawable>,
+
+    select_key_held: bool,
+    deselect_key_held: bool,
+}
+
+impl PaintSelect {
+    pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
+        Box::new(PaintSelect {
+            composite: Composite::new(
+                Widget::col(vec![
+                    Text::from_multiline(vec![
+                        Line("Edit many roads").small_heading(),
+                        Line("Hold the left shift key and move your mouse over a road to select"),
+                        Line("or hold left control to deselect roads"),
+                    ])
+                    .draw(ctx)
+                    .margin_below(5),
+                    Btn::text_fg("Edit these roads").build_def(ctx, None),
+                    Btn::text_fg("Quit").build_def(ctx, hotkey(Key::Escape)),
+                ])
+                .bg(app.cs.panel_bg)
+                .padding(10),
+            )
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .build(ctx),
+            roads: BTreeSet::new(),
+            preview: None,
+            select_key_held: false,
+            deselect_key_held: false,
+        })
+    }
+}
+
+impl State for PaintSelect {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        // TODO Changing cursor could be cool
+        if self.select_key_held {
+            self.select_key_held = !ctx.input.key_released(Key::LeftShift);
+        } else {
+            self.select_key_held = ctx
+                .input
+                .unimportant_key_pressed(Key::LeftShift, "hold to select roads");
+        }
+        if self.deselect_key_held {
+            self.deselect_key_held = !ctx.input.key_released(Key::LeftControl);
+        } else {
+            self.deselect_key_held = ctx
+                .input
+                .unimportant_key_pressed(Key::LeftControl, "hold to deselect roads");
+        }
+
+        ctx.canvas_movement();
+        if ctx.redo_mouseover() {
+            app.primary.current_selection = app.calculate_current_selection(
+                ctx,
+                &DontDrawAgents {},
+                &ShowEverything::new(),
+                false,
+                true,
+            );
+            if let Some(ID::Road(_)) = app.primary.current_selection {
+            } else {
+                app.primary.current_selection = None;
+            }
+        }
+
+        if let Some(ID::Road(r)) = app.primary.current_selection {
+            let change = if self.select_key_held {
+                if self.roads.contains(&r) {
+                    false
+                } else {
+                    self.roads.insert(r);
+                    true
+                }
+            } else if self.deselect_key_held {
+                if self.roads.contains(&r) {
+                    self.roads.remove(&r);
+                    true
+                } else {
+                    false
+                }
+            } else {
+                false
+            };
+            if change {
+                let mut batch = GeomBatch::new();
+                for r in &self.roads {
+                    batch.push(
+                        Color::BLUE,
+                        app.primary
+                            .map
+                            .get_r(*r)
+                            .get_thick_polygon(&app.primary.map)
+                            .unwrap(),
+                    );
+                }
+                self.preview = Some(ctx.upload(batch));
+            }
+        }
+
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "Quit" => {
+                    return Transition::Pop;
+                }
+                "Edit these roads" => {
+                    if self.roads.is_empty() {
+                        return Transition::Pop;
+                    }
+                    return Transition::Replace(BulkEdit::new(
+                        ctx,
+                        app,
+                        self.roads.iter().cloned().collect(),
+                        self.preview.take().unwrap(),
+                    ));
+                }
+                _ => unreachable!(),
+            },
+            None => {}
+        }
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
+        self.composite.draw(g);
+        if let Some(ref p) = self.preview {
+            g.redraw(p);
+        }
     }
 }
