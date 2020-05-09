@@ -214,7 +214,7 @@ impl ColorScheme {
             ped_foot: Color::BLACK,
             ped_preparing_bike_body: Color::rgb(255, 0, 144),
             ped_crowd: Color::rgb_f(0.2, 0.7, 0.7),
-            bike_frame: Color::rgb(0, 128, 128),
+            bike_frame: Color::hex("#AAA9AD"),
 
             // Layers
             good_to_bad: [
