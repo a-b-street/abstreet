@@ -1,3 +1,4 @@
+mod bulk;
 mod lanes;
 mod stop_signs;
 mod traffic_signals;
@@ -125,6 +126,9 @@ impl State for EditMode {
                         self.composite.rect_of("load edits").clone(),
                         self.mode.clone(),
                     ));
+                }
+                "bulk edit" => {
+                    return Transition::Push(bulk::BulkSelect::new(ctx, app));
                 }
                 "finish editing" => {
                     return self.quit(ctx, app);
@@ -373,18 +377,22 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Composite {
                     )
                 })
                 .margin(15),
+            ])
+            .centered(),
+            Widget::row(vec![
                 if !app.primary.map.get_edits().commands.is_empty() {
                     Btn::text_fg("reset edits").build_def(ctx, None)
                 } else {
                     Btn::text_fg("reset edits").inactive(ctx)
                 }
-                .margin(5),
-            ])
-            .centered(),
-            Btn::text_fg("finish editing")
-                .build_def(ctx, hotkey(Key::Escape))
-                .centered_horiz(),
+                .margin_right(15),
+                Btn::text_fg("bulk edit")
+                    .build_def(ctx, hotkey(Key::B))
+                    .margin_right(15),
+                Btn::text_bg1("finish editing").build_def(ctx, hotkey(Key::Escape)),
+            ]),
         ])
+        .padding(5)
         .bg(app.cs.panel_bg),
     )
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
