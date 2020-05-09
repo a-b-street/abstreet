@@ -1,13 +1,14 @@
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
+use crate::edit::{apply_map_edits, change_speed_limit};
 use crate::game::{State, Transition};
 use crate::helpers::ID;
 use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Outcome, TextExt, VerticalAlignment, Widget,
 };
-use geom::Distance;
-use map_model::{IntersectionID, Map, RoadID};
+use geom::{Distance, Speed};
+use map_model::{EditCmd, IntersectionID, Map, RoadID};
 use petgraph::graphmap::UnGraphMap;
 use sim::DontDrawAgents;
 
@@ -106,7 +107,8 @@ impl State for BulkSelect {
                     .unwrap_or(false)
                     && app.per_obj.left_click(ctx, "end here")
                 {
-                    println!("do it");
+                    let (_, roads, preview) = self.preview_path.take().unwrap();
+                    return Transition::Replace(BulkEdit::new(ctx, app, roads, preview));
                 }
             } else {
                 self.preview_path = None;
@@ -155,4 +157,72 @@ fn pathfind(map: &Map, i1: IntersectionID, i2: IntersectionID) -> Option<Vec<Roa
             .map(|pair| *graph.edge_weight(pair[0], pair[1]).unwrap())
             .collect(),
     )
+}
+
+struct BulkEdit {
+    composite: Composite,
+    roads: Vec<RoadID>,
+    preview: Drawable,
+}
+
+impl BulkEdit {
+    fn new(ctx: &mut EventCtx, app: &App, roads: Vec<RoadID>, preview: Drawable) -> Box<dyn State> {
+        Box::new(BulkEdit {
+            composite: Composite::new(
+                Widget::col(vec![
+                    Line(format!("Editing {} roads", roads.len()))
+                        .small_heading()
+                        .draw(ctx),
+                    change_speed_limit(ctx, Speed::miles_per_hour(25.0)).margin_below(5),
+                    Widget::row(vec![
+                        Btn::text_fg("Cancel").build_def(ctx, None),
+                        Btn::text_fg("Confirm change").build_def(ctx, None),
+                    ])
+                    .centered(),
+                ])
+                .bg(app.cs.panel_bg)
+                .padding(10),
+            )
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .build(ctx),
+            roads,
+            preview,
+        })
+    }
+}
+
+impl State for BulkEdit {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        ctx.canvas_movement();
+
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "Cancel" => {
+                    return Transition::Pop;
+                }
+                "Confirm change" => {
+                    let speed = self.composite.dropdown_value("speed limit");
+                    let mut edits = app.primary.map.get_edits().clone();
+                    for r in &self.roads {
+                        edits.commands.push(EditCmd::ChangeSpeedLimit {
+                            id: *r,
+                            new: speed,
+                            old: app.primary.map.get_r(*r).speed_limit,
+                        });
+                    }
+                    apply_map_edits(ctx, app, edits);
+                    return Transition::Pop;
+                }
+                _ => unreachable!(),
+            },
+            None => {}
+        }
+
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
+        self.composite.draw(g);
+        g.redraw(&self.preview);
+    }
 }

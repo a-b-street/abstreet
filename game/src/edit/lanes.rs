@@ -1,6 +1,6 @@
 use crate::app::App;
 use crate::common::CommonState;
-use crate::edit::{apply_map_edits, can_edit_lane};
+use crate::edit::{apply_map_edits, can_edit_lane, change_speed_limit};
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::render::Renderable;
@@ -9,7 +9,6 @@ use ezgui::{
     hotkey, Btn, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome,
     RewriteColor, TextExt, VerticalAlignment, Widget,
 };
-use geom::Speed;
 use map_model::{EditCmd, LaneID, LaneType, Map, RoadID};
 use std::collections::BTreeSet;
 
@@ -80,30 +79,7 @@ impl LaneEditor {
                 .draw_text(ctx)
                 .centered_horiz(),
             Widget::row(row).centered().margin_below(5),
-            Widget::row(vec![
-                "Change speed limit:".draw_text(ctx).margin_right(5),
-                Widget::dropdown(
-                    ctx,
-                    "speed limit",
-                    parent.speed_limit,
-                    vec![
-                        Choice::new("10 mph", Speed::miles_per_hour(10.0)),
-                        Choice::new("15 mph", Speed::miles_per_hour(15.0)),
-                        Choice::new("20 mph", Speed::miles_per_hour(20.0)),
-                        Choice::new("25 mph", Speed::miles_per_hour(25.0)),
-                        Choice::new("30 mph", Speed::miles_per_hour(30.0)),
-                        Choice::new("35 mph", Speed::miles_per_hour(35.0)),
-                        Choice::new("40 mph", Speed::miles_per_hour(40.0)),
-                        Choice::new("45 mph", Speed::miles_per_hour(45.0)),
-                        Choice::new("50 mph", Speed::miles_per_hour(50.0)),
-                        Choice::new("55 mph", Speed::miles_per_hour(55.0)),
-                        Choice::new("60 mph", Speed::miles_per_hour(60.0)),
-                        Choice::new("65 mph", Speed::miles_per_hour(65.0)),
-                        Choice::new("70 mph", Speed::miles_per_hour(70.0)),
-                    ],
-                ),
-            ])
-            .margin_below(5),
+            change_speed_limit(ctx, parent.speed_limit).margin_below(5),
             Widget::row(vec![
                 Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape)),
                 // TODO Not ready for general use
