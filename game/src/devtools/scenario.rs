@@ -7,7 +7,7 @@ use crate::managed::{WrappedComposite, WrappedOutcome};
 use abstutil::{prettyprint_usize, Counter, MultiMap};
 use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Slider, VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Outcome, Slider, Text, VerticalAlignment, Widget,
 };
 use geom::{Distance, Line, PolyLine, Polygon};
 use map_model::{BuildingID, IntersectionID, Map};
@@ -181,6 +181,21 @@ impl State for ScenarioManager {
         self.bldg_colors.draw(g);
         if let Some(ref p) = self.demand {
             g.redraw(p);
+        }
+
+        if let Some(ID::Intersection(i)) = app.primary.current_selection {
+            if app.primary.map.get_i(i).is_border() {
+                let mut txt = Text::new();
+                txt.add(Line(format!(
+                    "{} trips start here",
+                    prettyprint_usize(self.trips_from_border.get(i).len())
+                )));
+                txt.add(Line(format!(
+                    "{} trips end here",
+                    prettyprint_usize(self.trips_to_border.get(i).len())
+                )));
+                g.draw_mouse_tooltip(txt);
+            }
         }
 
         self.composite.draw(g);
