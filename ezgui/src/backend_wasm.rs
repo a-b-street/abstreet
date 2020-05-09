@@ -325,6 +325,10 @@ impl PrerenderInnards {
         }
     }
 
+    pub fn set_window_icon(&self, icon: winit::window::Icon) {
+        self.window.set_window_icon(Some(icon));
+    }
+
     pub fn monitor_scale_factor(&self) -> f64 {
         self.window.scale_factor()
     }

@@ -57,6 +57,7 @@ fn main() {
         }
     }
     let mut settings = ezgui::Settings::new("A/B Street", "../data/system/fonts");
+    settings.window_icon("../data/system/assets/pregame/icon.png");
     if args.enabled("--enable_profiler") {
         settings.enable_profiling();
     }

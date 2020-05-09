@@ -2,9 +2,11 @@ use crate::assets::Assets;
 use crate::tools::screenshot::{screenshot_current, screenshot_everything};
 use crate::{text, Canvas, Event, EventCtx, GfxCtx, Key, Prerender, Style, UserInput};
 use geom::Duration;
+use image::{GenericImageView, Pixel};
 use instant::Instant;
 use std::cell::Cell;
 use std::panic;
+use winit::window::Icon;
 
 const UPDATE_FREQUENCY: std::time::Duration = std::time::Duration::from_millis(1000 / 30);
 
@@ -163,6 +165,7 @@ pub struct Settings {
     default_font_size: usize,
     dump_raw_events: bool,
     scale_factor: f64,
+    window_icon: Option<String>,
 }
 
 impl Settings {
@@ -174,6 +177,7 @@ impl Settings {
             default_font_size: text::DEFAULT_FONT_SIZE,
             dump_raw_events: false,
             scale_factor: 1.0,
+            window_icon: None,
         }
     }
 
@@ -194,6 +198,10 @@ impl Settings {
     pub fn scale_factor(&mut self, scale_factor: f64) {
         self.scale_factor = scale_factor;
     }
+
+    pub fn window_icon(&mut self, path: &str) {
+        self.window_icon = Some(path.to_string());
+    }
 }
 
 pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: F) -> ! {
@@ -202,6 +210,16 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
 
     let mut canvas = Canvas::new(window_size.width, window_size.height);
     prerender_innards.window_resized(canvas.window_width, canvas.window_height);
+    if let Some(ref path) = settings.window_icon {
+        let image = image::open(path).unwrap();
+        let (width, height) = image.dimensions();
+        let mut rgba = Vec::with_capacity((width * height) as usize * 4);
+        for (_, _, pixel) in image.pixels() {
+            rgba.extend_from_slice(&pixel.to_rgba().0);
+        }
+        let icon = Icon::from_rgba(rgba, width, height).unwrap();
+        prerender_innards.set_window_icon(icon);
+    }
     let prerender = Prerender {
         assets: Assets::new(
             settings.default_font_size,
