@@ -168,3 +168,9 @@ impl std::iter::Sum for Distance {
         sum
     }
 }
+
+impl Default for Distance {
+    fn default() -> Distance {
+        Distance::ZERO
+    }
+}
