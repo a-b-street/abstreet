@@ -65,11 +65,10 @@ fn main() {
         }
 
         if job.raw_to_map {
-            let thread_name = name.clone();
-            //Fetch use_fixes after already loading into job in order to avoid move compile error
+            let name = name.clone();
             let use_fixes = job.use_fixes;
             let handle = thread::spawn(move || {
-                utils::raw_to_map(&thread_name, use_fixes);
+                utils::raw_to_map(&name, use_fixes);
             });
             handles.push(handle);
         }

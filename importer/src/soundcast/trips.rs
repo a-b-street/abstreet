@@ -160,8 +160,7 @@ impl TripEndpt {
                             }
                         }
                     }
-                    // TODO: Disabled until more validation. found_border
-                    None
+                    found_border
                 } else {
                     None
                 }
