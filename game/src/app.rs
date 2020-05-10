@@ -88,6 +88,48 @@ impl App {
     }
     pub fn set_prebaked(&mut self, prebaked: Option<(String, String, Analytics)>) {
         self.prebaked = prebaked;
+
+        if false {
+            if let Some((_, _, ref a)) = self.prebaked {
+                use abstutil::{prettyprint_usize, serialized_size_bytes};
+                println!(
+                    "- raw_per_road: {} bytes",
+                    prettyprint_usize(serialized_size_bytes(&a.thruput_stats.raw_per_road))
+                );
+                println!(
+                    "- raw_per_intersection: {} bytes",
+                    prettyprint_usize(serialized_size_bytes(&a.thruput_stats.raw_per_intersection))
+                );
+                println!(
+                    "- bus_arrivals : {} bytes",
+                    prettyprint_usize(serialized_size_bytes(&a.bus_arrivals))
+                );
+                println!(
+                    "- bus_passengers_waiting: {} bytes",
+                    prettyprint_usize(serialized_size_bytes(&a.bus_passengers_waiting))
+                );
+                println!(
+                    "- started_trips: {} bytes",
+                    prettyprint_usize(serialized_size_bytes(&a.started_trips))
+                );
+                println!(
+                    "- finished_trips: {} bytes",
+                    prettyprint_usize(serialized_size_bytes(&a.finished_trips))
+                );
+                println!(
+                    "- trip_log: {} bytes",
+                    prettyprint_usize(serialized_size_bytes(&a.trip_log))
+                );
+                println!(
+                    "- intersection_delays: {} bytes",
+                    prettyprint_usize(serialized_size_bytes(&a.intersection_delays))
+                );
+                println!(
+                    "- parking_spot_changes: {} bytes",
+                    prettyprint_usize(serialized_size_bytes(&a.parking_spot_changes))
+                );
+            }
+        }
     }
 
     pub fn switch_map(&mut self, ctx: &mut EventCtx, load: String) {

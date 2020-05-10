@@ -23,7 +23,7 @@ pub struct Analytics {
     pub trip_log: Vec<(Time, TripID, Option<PathRequest>, TripPhaseType)>,
     pub intersection_delays: BTreeMap<IntersectionID, Vec<(Time, Duration)>>,
     // Per parking lane, when does a spot become filled (true) or free (false)
-    parking_spot_changes: BTreeMap<LaneID, Vec<(Time, bool)>>,
+    pub parking_spot_changes: BTreeMap<LaneID, Vec<(Time, bool)>>,
     pub(crate) alerts: Vec<(Time, AlertLocation, String)>,
 
     // After we restore from a savestate, don't record anything. This is only going to make sense
