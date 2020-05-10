@@ -405,3 +405,14 @@ changes here.
 - easier process for importing new cities. introducing Los Angeles, Austin, Barranquilla.
 - new data updater tool so people can opt-in to new cities
 - many internal fixes to prevent gridlock. smarter cycle detection, manual OSM fixes and traffic signal timings
+
+0.1.40
+
+- differential throughput layer to understand routing diversions
+- map edits now reference longer-lasting OSM IDs, can work cross-map
+- basemap updates: new areas for west seattle, mt baker, lots of upstreamed fixes in OSM and traffic signals, smarter border matching
+- parking: optionally filter on/off-street spots in the layer, allow disconnecting spots via edits
+- render some tunnels with lower opacity
+- new feature to change speed limits and bulk road selection tools
+- first write-up of a real use case (closing lake wash through arboretum)
+- make the traffic signal challenge act like a game, with a failure/win state and scoring
