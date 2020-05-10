@@ -1,4 +1,5 @@
 {
+  "city_name": "synthetic",
   "name": "signal_fan_in",
   "roads": [
     [
@@ -32,7 +33,8 @@
           "maxspeed": "25 mph",
           "name": "Streety McStreetFace"
         },
-        "turn_restrictions": []
+        "turn_restrictions": [],
+        "complicated_turn_restrictions": []
       }
     ],
     [
@@ -66,7 +68,8 @@
           "maxspeed": "25 mph",
           "name": "Streety McStreetFace"
         },
-        "turn_restrictions": []
+        "turn_restrictions": [],
+        "complicated_turn_restrictions": []
       }
     ],
     [
@@ -100,7 +103,8 @@
           "maxspeed": "25 mph",
           "name": "Streety McStreetFace"
         },
-        "turn_restrictions": []
+        "turn_restrictions": [],
+        "complicated_turn_restrictions": []
       }
     ],
     [
@@ -134,7 +138,8 @@
           "maxspeed": "25 mph",
           "name": "Streety McStreetFace"
         },
-        "turn_restrictions": []
+        "turn_restrictions": [],
+        "complicated_turn_restrictions": []
       }
     ],
     [
@@ -168,7 +173,8 @@
           "maxspeed": "25 mph",
           "name": "Streety McStreetFace"
         },
-        "turn_restrictions": []
+        "turn_restrictions": [],
+        "complicated_turn_restrictions": []
       }
     ],
     [
@@ -206,7 +212,8 @@
           "maxspeed": "25 mph",
           "name": "Streety McStreetFace"
         },
-        "turn_restrictions": []
+        "turn_restrictions": [],
+        "complicated_turn_restrictions": []
       }
     ],
     [
@@ -244,7 +251,8 @@
           "maxspeed": "25 mph",
           "name": "Streety McStreetFace"
         },
-        "turn_restrictions": []
+        "turn_restrictions": [],
+        "complicated_turn_restrictions": []
       }
     ],
     [
@@ -278,7 +286,8 @@
           "maxspeed": "25 mph",
           "name": "Streety McStreetFace"
         },
-        "turn_restrictions": []
+        "turn_restrictions": [],
+        "complicated_turn_restrictions": []
       }
     ],
     [
@@ -316,7 +325,8 @@
           "maxspeed": "25 mph",
           "name": "Streety McStreetFace"
         },
-        "turn_restrictions": []
+        "turn_restrictions": [],
+        "complicated_turn_restrictions": []
       }
     ],
     [
@@ -350,7 +360,8 @@
           "maxspeed": "25 mph",
           "name": "Streety McStreetFace"
         },
-        "turn_restrictions": []
+        "turn_restrictions": [],
+        "complicated_turn_restrictions": []
       }
     ],
     [
@@ -388,7 +399,8 @@
           "maxspeed": "25 mph",
           "name": "Streety McStreetFace"
         },
-        "turn_restrictions": []
+        "turn_restrictions": [],
+        "complicated_turn_restrictions": []
       }
     ]
   ],

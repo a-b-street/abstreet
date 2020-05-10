@@ -145,10 +145,6 @@ pub fn path_all_shortcuts() -> String {
 
 // Input data (For developers to build maps, not needed at runtime)
 
-pub fn path_fixes(city: &str, map: &str) -> String {
-    format!("../data/input/{}/fixes/{}.json", city, map)
-}
-
 pub fn path_pending_screenshots(map_name: &str) -> String {
     format!("../data/input/screenshots/pending_{}", map_name)
 }

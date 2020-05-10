@@ -13,7 +13,6 @@ struct Job {
     scenario: bool,
     scenario_everyone: bool,
 
-    use_fixes: bool,
     only_map: Option<String>,
 }
 
@@ -30,8 +29,6 @@ fn main() {
         // Produce a variation of the weekday scenario including off-map trips.
         scenario_everyone: args.enabled("--scenario_everyone"),
 
-        // By default, use geometry fixes from map_editor.
-        use_fixes: !args.enabled("--nofixes"),
         // Only process one map. If not specified, process all maps defined by clipping polygons in
         // data/input/$city/polygons/.
         only_map: args.optional_free(),
@@ -66,28 +63,27 @@ fn main() {
 
         if job.raw_to_map {
             let name = name.clone();
-            let use_fixes = job.use_fixes;
             let handle = thread::spawn(move || {
-                utils::raw_to_map(&name, use_fixes);
+                utils::raw_to_map(&name);
             });
             handles.push(handle);
         }
 
         if job.scenario {
             assert_eq!(job.city, "seattle");
-            seattle::ensure_popdat_exists(job.use_fixes);
+            seattle::ensure_popdat_exists();
 
             let mut timer = abstutil::Timer::new(format!("Scenario for {}", name));
-            let map = map_model::Map::new(abstutil::path_map(&name), job.use_fixes, &mut timer);
+            let map = map_model::Map::new(abstutil::path_map(&name), &mut timer);
             soundcast::make_weekday_scenario(&map, &mut timer).save();
         }
 
         if job.scenario_everyone {
             assert_eq!(job.city, "seattle");
-            seattle::ensure_popdat_exists(job.use_fixes);
+            seattle::ensure_popdat_exists();
 
             let mut timer = abstutil::Timer::new(format!("Scenario for {}", name));
-            let map = map_model::Map::new(abstutil::path_map(&name), job.use_fixes, &mut timer);
+            let map = map_model::Map::new(abstutil::path_map(&name), &mut timer);
             soundcast::make_weekday_scenario_with_everyone(&map, &mut timer).save();
         }
     }

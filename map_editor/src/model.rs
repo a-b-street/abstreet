@@ -44,7 +44,6 @@ impl Model {
         path: String,
         include_bldgs: bool,
         intersection_geom: bool,
-        mut no_fixes: bool,
         prerender: &Prerender,
     ) -> Model {
         let mut timer = Timer::new("import map");
@@ -55,13 +54,8 @@ impl Model {
         } else {
             // Synthetic map!
             model.map = abstutil::read_json(path, &mut timer);
-            no_fixes = true;
         }
         model.intersection_geom = intersection_geom;
-
-        if !no_fixes {
-            model.map.apply_all_fixes(&mut timer);
-        }
 
         if model.include_bldgs {
             for id in model.map.buildings.keys().cloned().collect::<Vec<_>>() {
@@ -126,15 +120,6 @@ impl Model {
         );
 
         abstutil::write_json(abstutil::path_synthetic_map(&self.map.name), &self.map);
-    }
-
-    pub fn save_fixes(&mut self) {
-        abstutil::write_json(
-            abstutil::path_fixes(&self.map.city_name, &self.map.name),
-            &self
-                .map
-                .generate_fixes(&mut Timer::new("calculate MapFixes")),
-        );
     }
 
     fn compute_bounds(&self) -> Bounds {
@@ -393,6 +378,7 @@ impl Model {
                 ],
                 osm_tags,
                 turn_restrictions: Vec::new(),
+                complicated_turn_restrictions: Vec::new(),
             },
         );
         self.road_added(id, prerender);
@@ -793,35 +779,6 @@ impl Model {
         self.intersection_added(id.i1, prerender);
         self.intersection_added(id.i2, prerender);
         self.show_r_points(id, prerender);
-    }
-
-    // TODO Need to show_r_points of the thing we wind up selecting after this.
-    pub fn merge_r(&mut self, id: OriginalRoad, prerender: &Prerender) {
-        if let Err(e) = self.map.can_merge_short_road(id) {
-            println!("Can't merge this road: {}", e);
-            return;
-        }
-
-        self.stop_showing_pts(id);
-
-        let (retained_i, deleted_i, deleted_roads, created_roads, deleted_trs) =
-            self.map.merge_short_road(id).unwrap();
-        for tr in deleted_trs {
-            self.world.delete(ID::TurnRestriction(tr));
-        }
-
-        self.world.delete(ID::Intersection(retained_i));
-        self.intersection_added(retained_i, prerender);
-
-        self.world.delete(ID::Intersection(deleted_i));
-
-        for r in deleted_roads {
-            // This is safe, can_merge_short_road checks for turn restrictions.
-            self.world.delete(ID::Road(r));
-        }
-        for r in created_roads {
-            self.road_added(r, prerender);
-        }
     }
 
     pub fn get_r_center(&self, id: OriginalRoad) -> Pt2D {

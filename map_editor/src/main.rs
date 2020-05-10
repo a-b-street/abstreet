@@ -57,17 +57,10 @@ impl UI {
         let load = args.optional_free();
         let include_bldgs = args.enabled("--bldgs");
         let intersection_geom = args.enabled("--geom");
-        let no_fixes = args.enabled("--nofixes");
         args.done();
 
         let model = if let Some(path) = load {
-            Model::import(
-                path,
-                include_bldgs,
-                intersection_geom,
-                no_fixes,
-                ctx.prerender,
-            )
+            Model::import(path, include_bldgs, intersection_geom, ctx.prerender)
         } else {
             Model::blank()
         };
@@ -87,7 +80,6 @@ impl UI {
                         vec![
                             (hotkey(Key::Escape), "quit"),
                             (None, "save raw map"),
-                            (hotkey(Key::F), "save map fixes"),
                             (hotkey(Key::J), "warp to something"),
                             (None, "produce OSM parking+sidewalk diff"),
                             (hotkey(Key::G), "preview all intersections"),
@@ -231,9 +223,6 @@ impl GUI for UI {
                         } else if could_swap && ctx.input.key_pressed(Key::S, "swap lanes") {
                             self.model.swap_lanes(r, ctx.prerender);
                             self.model.world.handle_mouseover(ctx);
-                        } else if ctx.input.key_pressed(Key::M, "merge road") {
-                            self.model.merge_r(r, ctx.prerender);
-                            self.model.world.handle_mouseover(ctx);
                         } else if ctx.input.key_pressed(Key::T, "toggle parking") {
                             self.model.toggle_r_parking(r, ctx.prerender);
                             self.model.world.handle_mouseover(ctx);
@@ -309,9 +298,6 @@ impl GUI for UI {
                                     } else {
                                         self.state = State::SavingModel(Wizard::new());
                                     }
-                                }
-                                "save map fixes" => {
-                                    self.model.save_fixes();
                                 }
                                 "warp to something" => {
                                     self.state = State::EnteringWarp(Wizard::new());

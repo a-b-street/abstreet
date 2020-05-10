@@ -10,7 +10,6 @@ const RNG_SEED: u8 = 42;
 #[derive(Clone)]
 pub struct SimFlags {
     pub load: String,
-    pub use_map_fixes: bool,
     pub rng_seed: u8,
     pub opts: SimOptions,
 }
@@ -25,7 +24,6 @@ impl SimFlags {
             load: args
                 .optional_free()
                 .unwrap_or_else(|| "../data/system/maps/montlake.bin".to_string()),
-            use_map_fixes: !args.enabled("--nofixes"),
             rng_seed,
             opts: SimOptions {
                 run_name: args
@@ -62,7 +60,6 @@ impl SimFlags {
     pub fn synthetic_test(map: &str, run_name: &str) -> SimFlags {
         SimFlags {
             load: abstutil::path_map(map),
-            use_map_fixes: true,
             rng_seed: RNG_SEED,
             opts: SimOptions::new(run_name),
         }
@@ -83,7 +80,7 @@ impl SimFlags {
 
             let mut sim: Sim = abstutil::read_binary(self.load.clone(), timer);
 
-            let mut map = Map::new(abstutil::path_map(&sim.map_name), false, timer);
+            let mut map = Map::new(abstutil::path_map(&sim.map_name), timer);
             if sim.edits_name != "untitled edits" {
                 map.apply_edits(MapEdits::load(&map, &sim.edits_name, timer).unwrap(), timer);
                 map.recalculate_pathfinding_after_edits(timer);
@@ -99,7 +96,7 @@ impl SimFlags {
 
             let scenario: Scenario = abstutil::read_binary(self.load.clone(), timer);
 
-            let map = Map::new(abstutil::path_map(&scenario.map_name), false, timer);
+            let map = Map::new(abstutil::path_map(&scenario.map_name), timer);
 
             if opts.run_name == "unnamed" {
                 opts.run_name = scenario.scenario_name.clone();
@@ -114,7 +111,7 @@ impl SimFlags {
         {
             timer.note(format!("Loading map {}", self.load));
 
-            let map = Map::new(self.load.clone(), self.use_map_fixes, timer);
+            let map = Map::new(self.load.clone(), timer);
 
             timer.start("create sim");
             let sim = Sim::new(&map, opts, timer);

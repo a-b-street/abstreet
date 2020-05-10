@@ -290,7 +290,7 @@ pub fn prebake_all() {
     let mut timer = Timer::new("prebake all challenge results");
 
     {
-        let map = map_model::Map::new(abstutil::path_map("montlake"), false, &mut timer);
+        let map = map_model::Map::new(abstutil::path_map("montlake"), &mut timer);
         let scenario: Scenario =
             abstutil::read_binary(abstutil::path_scenario("montlake", "weekday"), &mut timer);
         prebake(&map, scenario, None, &mut timer);
@@ -306,7 +306,7 @@ pub fn prebake_all() {
     }
 
     {
-        let map = map_model::Map::new(abstutil::path_map("lakeslice"), false, &mut timer);
+        let map = map_model::Map::new(abstutil::path_map("lakeslice"), &mut timer);
         let scenario: Scenario =
             abstutil::read_binary(abstutil::path_scenario("lakeslice", "weekday"), &mut timer);
         prebake(&map, scenario, None, &mut timer);
@@ -329,7 +329,7 @@ pub fn generic_prebake_all() {
     }
     for (map_path, list) in per_map {
         timer.start(format!("prebake for {}", map_path));
-        let map = map_model::Map::new(map_path.clone(), false, &mut timer);
+        let map = map_model::Map::new(map_path.clone(), &mut timer);
 
         let mut done_scenarios = HashSet::new();
         for challenge in list {

@@ -91,9 +91,9 @@ fn run(cmd: &mut Command) {
 }
 
 // Converts a RawMap to a Map.
-pub fn raw_to_map(name: &str, use_fixes: bool) {
+pub fn raw_to_map(name: &str) {
     let mut timer = abstutil::Timer::new(format!("Raw->Map for {}", name));
-    let map = map_model::Map::new(abstutil::path_raw_map(name), use_fixes, &mut timer);
+    let map = map_model::Map::new(abstutil::path_raw_map(name), &mut timer);
     timer.start("save map");
     map.save();
     timer.stop("save map");

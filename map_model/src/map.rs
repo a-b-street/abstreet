@@ -52,7 +52,7 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn new(path: String, mut use_map_fixes: bool, timer: &mut Timer) -> Map {
+    pub fn new(path: String, timer: &mut Timer) -> Map {
         if path.starts_with(&abstutil::path_all_maps()) {
             match abstutil::maybe_read_binary(path.clone(), timer) {
                 Ok(map) => {
@@ -108,13 +108,9 @@ impl Map {
             abstutil::read_binary(path, timer)
         } else {
             // Synthetic
-            use_map_fixes = false;
             abstutil::read_json(path, timer)
         };
-        if use_map_fixes {
-            raw.apply_all_fixes(timer);
-        }
-        // Do this after applying fixes, which might split off pieces of the map.
+        // Better to defer this and see RawMaps with more debug info in map_editor
         make::remove_disconnected_roads(&mut raw, timer);
         Map::create_from_raw(raw, timer)
     }

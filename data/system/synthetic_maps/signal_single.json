@@ -1,4 +1,5 @@
 {
+  "city_name": "synthetic",
   "name": "signal_single",
   "roads": [
     [
@@ -31,7 +32,8 @@
           "maxspeed": "25 mph",
           "name": "Streety McStreetFace"
         },
-        "turn_restrictions": []
+        "turn_restrictions": [],
+        "complicated_turn_restrictions": []
       }
     ],
     [
@@ -64,7 +66,8 @@
           "maxspeed": "25 mph",
           "name": "Streety McStreetFace"
         },
-        "turn_restrictions": []
+        "turn_restrictions": [],
+        "complicated_turn_restrictions": []
       }
     ],
     [
@@ -97,7 +100,8 @@
           "maxspeed": "25 mph",
           "name": "Streety McStreetFace"
         },
-        "turn_restrictions": []
+        "turn_restrictions": [],
+        "complicated_turn_restrictions": []
       }
     ],
     [
@@ -130,7 +134,8 @@
           "maxspeed": "25 mph",
           "name": "Streety McStreetFace"
         },
-        "turn_restrictions": []
+        "turn_restrictions": [],
+        "complicated_turn_restrictions": []
       }
     ],
     [
@@ -165,7 +170,8 @@
           "name": "Streety McStreetFace",
           "turn:lanes:backward": "left|through;right"
         },
-        "turn_restrictions": []
+        "turn_restrictions": [],
+        "complicated_turn_restrictions": []
       }
     ],
     [
@@ -199,7 +205,8 @@
           "name": "Streety McStreetFace",
           "turn:lanes:backward": "left|through;right"
         },
-        "turn_restrictions": []
+        "turn_restrictions": [],
+        "complicated_turn_restrictions": []
       }
     ],
     [
@@ -234,7 +241,8 @@
           "name": "Streety McStreetFace",
           "turn:lanes:backward": "left|through;right"
         },
-        "turn_restrictions": []
+        "turn_restrictions": [],
+        "complicated_turn_restrictions": []
       }
     ],
     [
@@ -269,7 +277,8 @@
           "name": "Streety McStreetFace",
           "turn:lanes:backward": "left|through;right"
         },
-        "turn_restrictions": []
+        "turn_restrictions": [],
+        "complicated_turn_restrictions": []
       }
     ]
   ],

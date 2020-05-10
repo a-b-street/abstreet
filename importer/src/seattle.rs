@@ -69,7 +69,7 @@ pub fn osm_to_raw(name: &str) {
 }
 
 // Download and pre-process data needed to generate Seattle scenarios.
-pub fn ensure_popdat_exists(use_fixes: bool) {
+pub fn ensure_popdat_exists() {
     if abstutil::file_exists(abstutil::path_popdat()) {
         println!("- {} exists, not regenerating it", abstutil::path_popdat());
         return;
@@ -79,7 +79,7 @@ pub fn ensure_popdat_exists(use_fixes: bool) {
         osm_to_raw("huge_seattle");
     }
     if !abstutil::file_exists(abstutil::path_map("huge_seattle")) {
-        crate::utils::raw_to_map("huge_seattle", use_fixes);
+        crate::utils::raw_to_map("huge_seattle");
     }
 
     crate::soundcast::import_data();

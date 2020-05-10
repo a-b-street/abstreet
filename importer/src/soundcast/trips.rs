@@ -228,7 +228,7 @@ fn clip_trips(map: &Map, timer: &mut Timer) -> Vec<Trip> {
     let maybe_huge_map = if map.get_name() == "huge_seattle" {
         None
     } else {
-        let huge_map = Map::new(abstutil::path_map("huge_seattle"), false, timer);
+        let huge_map = Map::new(abstutil::path_map("huge_seattle"), timer);
 
         let mut huge_osm_id_to_bldg = HashMap::new();
         for b in huge_map.all_buildings() {
