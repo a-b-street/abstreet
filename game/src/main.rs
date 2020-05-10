@@ -36,6 +36,9 @@ fn main() {
     };
     let mut opts = options::Options::default();
     opts.dev = args.enabled("--dev");
+    if args.enabled("--lowzoom") {
+        opts.min_zoom_for_detail = 1.0;
+    }
 
     if let Some(x) = args.optional("--color_scheme") {
         let mut ok = false;

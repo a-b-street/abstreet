@@ -20,6 +20,9 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID
         // TODO The spacing is ignored, so use -
         txt.add(Line(format!("- {}", r)));
     }
+    if app.opts.dev {
+        txt.add(Line(format!("OSM node ID: {}", i.orig_id.osm_node_id)).secondary());
+    }
     rows.push(txt.draw(ctx));
 
     rows

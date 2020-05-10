@@ -67,6 +67,7 @@ fn main() {
                 utils::raw_to_map(&name);
             });
             handles.push(handle);
+            // TODO Bug: if regenerating map and scenario at the same time, this doesn't work.
         }
 
         if job.scenario {
