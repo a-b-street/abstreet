@@ -178,7 +178,7 @@ impl State for ScenarioManager {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         // TODO Let common contribute draw_options...
-        self.bldg_colors.draw(g);
+        self.bldg_colors.draw(g, app);
         if let Some(ref p) = self.demand {
             g.redraw(p);
         }

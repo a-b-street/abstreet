@@ -155,7 +155,7 @@ impl State for AgentSpawner {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.colorer.draw(g);
+        self.colorer.draw(g, app);
 
         if let Some((_, Some(ref trace))) = self.maybe_goal {
             g.draw_polygon(app.cs.route, &trace.make_polygons(NORMAL_LANE_THICKNESS));
@@ -481,7 +481,7 @@ impl State for SpawnManyAgents {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.colorer.draw(g);
+        self.colorer.draw(g, app);
 
         if let Some((_, Some(ref trace))) = self.maybe_goal {
             g.draw_polygon(app.cs.route, &trace.make_polygons(NORMAL_LANE_THICKNESS));

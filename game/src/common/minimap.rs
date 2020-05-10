@@ -2,7 +2,6 @@ use crate::app::App;
 use crate::common::{navigate, shortcuts, Warping};
 use crate::game::Transition;
 use crate::layer::Layers;
-use crate::render::MIN_ZOOM_FOR_DETAIL;
 use abstutil::clamp;
 use ezgui::{
     hotkey, Btn, Checkbox, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx,
@@ -35,7 +34,7 @@ impl Minimap {
         Minimap {
             dragging: false,
             composite: make_minimap_panel(ctx, app, 0),
-            zoomed: ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL,
+            zoomed: ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail,
             layer: app.layer.is_empty(),
 
             zoom_lvl: 0,
@@ -53,8 +52,8 @@ impl Minimap {
         self.composite = make_minimap_panel(ctx, app, self.zoom_lvl);
     }
 
-    pub fn event(&mut self, app: &mut App, ctx: &mut EventCtx) -> Option<Transition> {
-        let zoomed = ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL;
+    pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
+        let zoomed = ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail;
         let layer = app.layer.is_empty();
         if zoomed != self.zoomed || layer != self.layer {
             self.zoomed = zoomed;
@@ -197,7 +196,7 @@ impl Minimap {
         g.redraw(&app.primary.draw_map.draw_all_unzoomed_intersections);
         g.redraw(&app.primary.draw_map.draw_all_buildings);
         // Not the building paths
-        app.layer.draw_minimap(g);
+        app.layer.draw_minimap(g, app);
 
         let mut cache = app.primary.draw_map.agents.borrow_mut();
         cache.draw_unzoomed_agents(
@@ -246,7 +245,7 @@ impl Minimap {
 }
 
 fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composite {
-    if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+    if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
         return Composite::new(Widget::row(vec![
             make_tool_panel(ctx, app).align_right().margin_right(16),
             make_vert_viz_panel(ctx, app).bg(app.cs.panel_bg).padding(7),
@@ -332,7 +331,7 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
 fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
     // TODO Apply something to everything in the column
     Widget::col(vec![
-        (if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL {
+        (if ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail {
             Btn::svg_def("../data/system/assets/minimap/zoom_out_fully.svg").build(
                 ctx,
                 "zoom out fully",

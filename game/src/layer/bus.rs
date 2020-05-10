@@ -74,8 +74,8 @@ impl ShowBusRoute {
         )
     }
 
-    pub fn draw(&self, g: &mut GfxCtx) {
-        self.colorer.draw(g);
+    pub fn draw(&self, g: &mut GfxCtx, app: &App) {
+        self.colorer.draw(g, app);
 
         let mut screen_batch = GeomBatch::new();
         for (label, pt) in &self.labels {

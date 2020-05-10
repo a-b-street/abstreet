@@ -13,6 +13,7 @@ pub struct Options {
     pub color_scheme: ColorSchemeChoice,
     pub dev: bool,
     pub time_increment: Duration,
+    pub min_zoom_for_detail: f64,
 }
 
 impl Options {
@@ -22,6 +23,7 @@ impl Options {
             color_scheme: ColorSchemeChoice::Standard,
             dev: false,
             time_increment: Duration::minutes(10),
+            min_zoom_for_detail: 6.0,
         }
     }
 }
@@ -119,6 +121,24 @@ impl OptionsPanel {
                             ],
                         ),
                     ]),
+                    Widget::row(vec![
+                        "Camera zoom to switch to unzoomed view"
+                            .draw_text(ctx)
+                            .margin(5),
+                        Widget::dropdown(
+                            ctx,
+                            "min zoom",
+                            app.opts.min_zoom_for_detail,
+                            vec![
+                                Choice::new("1.0", 1.0),
+                                Choice::new("2.0", 2.0),
+                                Choice::new("3.0", 3.0),
+                                Choice::new("4.0", 4.0),
+                                Choice::new("5.0", 5.0),
+                                Choice::new("6.0", 6.0),
+                            ],
+                        ),
+                    ]),
                     Btn::text_bg2("Apply")
                         .build_def(ctx, hotkey(Key::Enter))
                         .margin(5)
@@ -166,6 +186,8 @@ impl State for OptionsPanel {
                     if ctx.get_scale_factor() != factor {
                         ctx.set_scale_factor(factor);
                     }
+
+                    app.opts.min_zoom_for_detail = self.composite.dropdown_value("min zoom");
 
                     return Transition::Pop;
                 }

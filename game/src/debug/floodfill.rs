@@ -91,8 +91,8 @@ impl State for Floodfiller {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
-        self.colorer.draw(g);
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        self.colorer.draw(g, app);
         self.composite.draw(g);
     }
 }

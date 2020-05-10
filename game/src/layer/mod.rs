@@ -11,7 +11,6 @@ use crate::common::{Colorer, HeatmapOptions, Warping};
 use crate::game::Transition;
 use crate::helpers::ID;
 use crate::managed::{ManagedGUIState, WrappedComposite};
-use crate::render::MIN_ZOOM_FOR_DETAIL;
 use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GfxCtx, Key, Line, Outcome, Widget,
 };
@@ -288,7 +287,7 @@ impl Layers {
     }
 
     // Draw both controls and, if zoomed, the layer contents
-    pub fn draw(&self, g: &mut GfxCtx) {
+    pub fn draw(&self, g: &mut GfxCtx, app: &App) {
         match self {
             Layers::Inactive => {}
             Layers::BusNetwork(ref c)
@@ -296,17 +295,17 @@ impl Layers {
             | Layers::TrafficJams(_, ref c)
             | Layers::Backpressure(_, ref c)
             | Layers::Edits(ref c) => {
-                c.draw(g);
+                c.draw(g, app);
             }
             Layers::BikeNetwork(ref c1, ref maybe_c2) => {
-                c1.draw(g);
+                c1.draw(g, app);
                 if let Some(ref c2) = maybe_c2 {
-                    c2.draw(g);
+                    c2.draw(g, app);
                 }
             }
             Layers::Elevation(ref c, ref draw) => {
-                c.draw(g);
-                if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+                c.draw(g, app);
+                if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
                     g.redraw(draw);
                 }
             }
@@ -316,7 +315,7 @@ impl Layers {
                 ..
             } => {
                 composite.draw(g);
-                if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+                if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
                     g.redraw(unzoomed);
                 }
             }
@@ -326,19 +325,19 @@ impl Layers {
                 ..
             } => {
                 composite.draw(g);
-                if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+                if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
                     g.redraw(unzoomed);
                 }
             }
             Layers::PopulationMap(_, _, ref draw, ref composite) => {
                 composite.draw(g);
-                if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+                if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
                     g.redraw(draw);
                 }
             }
             Layers::Pandemic(_, _, ref draw, ref composite) => {
                 composite.draw(g);
-                if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+                if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
                     g.redraw(draw);
                 }
             }
@@ -348,13 +347,13 @@ impl Layers {
                 legend.draw(g);
             }
             Layers::BusRoute(_, _, ref s) => {
-                s.draw(g);
+                s.draw(g, app);
             }
         }
     }
 
     // Just draw contents and do it always
-    pub fn draw_minimap(&self, g: &mut GfxCtx) {
+    pub fn draw_minimap(&self, g: &mut GfxCtx, app: &App) {
         match self {
             Layers::Inactive => {}
             Layers::BusNetwork(ref c)
@@ -388,7 +387,7 @@ impl Layers {
             }
             Layers::IntersectionDemand(_, _, _, _) => {}
             Layers::BusRoute(_, _, ref s) => {
-                s.draw(g);
+                s.draw(g, app);
             }
         }
     }

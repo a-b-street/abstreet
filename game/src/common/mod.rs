@@ -93,7 +93,7 @@ impl CommonState {
 
     pub fn draw(&self, g: &mut GfxCtx, app: &App) {
         let keys = if let Some(ref info) = self.info_panel {
-            info.draw(g);
+            info.draw(g, app);
             info.active_keys()
         } else {
             &self.cached_actions

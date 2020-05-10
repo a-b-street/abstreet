@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::render::MIN_ZOOM_FOR_DETAIL;
 use ezgui::{
     Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
     Outcome, Text, TextExt, VerticalAlignment, Widget,
@@ -89,8 +88,8 @@ impl Colorer {
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx) {
-        if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+    pub fn draw(&self, g: &mut GfxCtx, app: &App) {
+        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             g.redraw(&self.unzoomed);
         } else {
             g.redraw(&self.zoomed);

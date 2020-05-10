@@ -13,7 +13,7 @@ use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::layer::Layers;
 use crate::managed::{WrappedComposite, WrappedOutcome};
-use crate::render::{DrawIntersection, DrawLane, DrawRoad, MIN_ZOOM_FOR_DETAIL};
+use crate::render::{DrawIntersection, DrawLane, DrawRoad};
 use crate::sandbox::{GameplayMode, SandboxMode};
 use abstutil::Timer;
 use ezgui::{
@@ -169,7 +169,7 @@ impl State for EditMode {
             None => {}
         }
 
-        if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+        if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             if let Some(id) = &app.primary.current_selection {
                 if app.per_obj.left_click(ctx, "edit this") {
                     return Transition::Push(Warping::new(
@@ -244,7 +244,7 @@ impl State for EditMode {
         // TODO Maybe this should be part of app.draw
         // TODO This has an X button, but we never call update and allow it to be changed. Should
         // just omit the button.
-        app.layer.draw(g);
+        app.layer.draw(g, app);
 
         self.tool_panel.draw(g);
         self.composite.draw(g);

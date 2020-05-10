@@ -10,7 +10,7 @@ use crate::app::App;
 use crate::common::Warping;
 use crate::game::Transition;
 use crate::helpers::{color_for_mode, ID};
-use crate::render::{ExtraShapeID, MIN_ZOOM_FOR_DETAIL};
+use crate::render::ExtraShapeID;
 use crate::sandbox::{SandboxMode, TimeWarpScreen};
 use ezgui::{
     hotkey, Btn, Checkbox, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
@@ -444,9 +444,9 @@ impl InfoPanel {
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx) {
+    pub fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.composite.draw(g);
-        if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             g.redraw(&self.unzoomed);
         } else {
             g.redraw(&self.zoomed);

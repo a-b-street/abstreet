@@ -131,7 +131,7 @@ impl State for SandboxMode {
         }
 
         if let Some(ref mut m) = self.controls.minimap {
-            if let Some(t) = m.event(app, ctx) {
+            if let Some(t) = m.event(ctx, app) {
                 return t;
             }
             if let Some(t) = Layers::update(ctx, app, &m.composite) {
@@ -198,7 +198,7 @@ impl State for SandboxMode {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        app.layer.draw(g);
+        app.layer.draw(g, app);
 
         if let Some(ref c) = self.controls.common {
             c.draw(g, app);

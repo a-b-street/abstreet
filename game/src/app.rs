@@ -3,9 +3,7 @@ use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::layer::Layers;
 use crate::options::Options;
-use crate::render::{
-    AgentCache, AgentColorScheme, DrawMap, DrawOptions, Renderable, MIN_ZOOM_FOR_DETAIL,
-};
+use crate::render::{AgentCache, AgentColorScheme, DrawMap, DrawOptions, Renderable};
 use crate::sandbox::{GameplayMode, TutorialState};
 use abstutil::{MeasureMemory, Timer};
 use ezgui::{EventCtx, GfxCtx, Prerender};
@@ -113,7 +111,7 @@ impl App {
         g.clear(self.cs.void_background);
         g.redraw(&self.primary.draw_map.boundary_polygon);
 
-        if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL && !g.is_screencap() {
+        if g.canvas.cam_zoom < self.opts.min_zoom_for_detail && !g.is_screencap() {
             // Unzoomed mode
             let layers = show_objs.layers();
             if layers.show_areas {
@@ -253,7 +251,7 @@ impl App {
         unzoomed_roads_and_intersections: bool,
     ) -> Option<ID> {
         // Unzoomed mode. Ignore when debugging areas and extra shapes.
-        if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL
+        if ctx.canvas.cam_zoom < self.opts.min_zoom_for_detail
             && !(debug_mode || unzoomed_roads_and_intersections)
         {
             return None;
@@ -280,20 +278,20 @@ impl App {
                 }
                 ID::Road(_) => {
                     if !unzoomed_roads_and_intersections
-                        || ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL
+                        || ctx.canvas.cam_zoom >= self.opts.min_zoom_for_detail
                     {
                         continue;
                     }
                 }
                 ID::Intersection(_) => {
-                    if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL
+                    if ctx.canvas.cam_zoom < self.opts.min_zoom_for_detail
                         && !unzoomed_roads_and_intersections
                     {
                         continue;
                     }
                 }
                 _ => {
-                    if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+                    if ctx.canvas.cam_zoom < self.opts.min_zoom_for_detail {
                         continue;
                     }
                 }
