@@ -2,7 +2,7 @@ data/input/austin/osm/Austin.osm,7c8d72cf97072af34cee665006b1e9e6,https://www.dr
 data/input/austin/osm/downtown_atx.osm,a30b0f460a481598e494f16a9d07a822,https://www.dropbox.com/s/8qodpqdn1pedzva/downtown_atx.osm.zip?dl=0
 data/input/austin/osm/huge_austin.osm,fb166029fc8006bd20dc959fbbbde3b6,https://www.dropbox.com/s/4bbsfpsg48dctje/huge_austin.osm.zip?dl=0
 data/input/barranquilla/osm/barranquilla.osm,ff0f301a84d21f20c87ee7fa3ae3518f,https://www.dropbox.com/s/ag8owpwnegkf2z8/barranquilla.osm.zip?dl=0
-data/input/barranquilla/osm/colombia.osm.pbf,31c7abfcc1ec4625e6e4fbee9e89bfd3,Couldn't get shared link: Unknown Error
+data/input/barranquilla/osm/colombia.osm.pbf,31c7abfcc1ec4625e6e4fbee9e89bfd3,https://www.dropbox.com/s/tq9c8jws9nngtrf/colombia.osm.pbf.zip?dl=0
 data/input/los_angeles/osm/downtown_la.osm,9b2c4729d3031553a477bb2e1134a6bf,https://www.dropbox.com/s/235jahht1xyulkx/downtown_la.osm.zip?dl=0
 data/input/los_angeles/osm/socal.osm.pbf,1dd1b7d3a6d38829a8266b0b6ea60b85,https://www.dropbox.com/s/gdd7lth4fmy0fby/socal.osm.pbf.zip?dl=0
 data/input/raw_maps/23rd.bin,e63f4aa9a5412a315ceb9220824a3815,https://www.dropbox.com/s/9g5589k9swdln9y/23rd.bin.zip?dl=0
@@ -38,45 +38,40 @@ data/input/screenshots/lakeslice/01x16_i215.gif,1e2a570df3faba832453f55e4803adb9
 data/input/screenshots/lakeslice/01x17_i214.gif,c4769d5760e83e621b282fa3909446cf,https://www.dropbox.com/s/r6pirzyk82596mq/01x17_i214.gif.zip?dl=0
 data/input/screenshots/lakeslice/01x18_i0.gif,b481d27f5c2b0db6bf91e093935f6477,https://www.dropbox.com/s/44lcmk7ydhwzhsx/01x18_i0.gif.zip?dl=0
 data/input/screenshots/lakeslice/01x19_i5.gif,a80aa661d8be07cab5d21b106e4a92b8,https://www.dropbox.com/s/box9tzmwaa1cjhs/01x19_i5.gif.zip?dl=0
-data/input/screenshots/lakeslice/01x20_i20.gif,79233605a4c9485eed12c88dcb460c91,Couldn't get shared link: Unknown Error
 data/input/screenshots/lakeslice/01x21_i447.gif,6cc089e2c5b4291f10a66b9bb137221f,https://www.dropbox.com/s/90oarua69yil7z5/01x21_i447.gif.zip?dl=0
 data/input/screenshots/lakeslice/01x22_i450.gif,6188d16ec882bbbaa126ebad9fba4fc3,https://www.dropbox.com/s/trzvhwejbn8rk2s/01x22_i450.gif.zip?dl=0
 data/input/screenshots/lakeslice/01x23_i251.gif,8cf244c758690c7b09979a2e255a79b8,https://www.dropbox.com/s/s1x0viujannxe3q/01x23_i251.gif.zip?dl=0
 data/input/screenshots/lakeslice/02x01_i328.gif,a00cfe48a998eb68de4704cf7bbdcc0c,https://www.dropbox.com/s/3fuoe5s5i76oiw2/02x01_i328.gif.zip?dl=0
-data/input/screenshots/lakeslice/02x02_i166.gif,1732b1aa8486b5261478682ca1d642a0,Couldn't get shared link: Unknown Error
+data/input/screenshots/lakeslice/02x02_i166.gif,1732b1aa8486b5261478682ca1d642a0,https://www.dropbox.com/s/r0b6emakg1hvpyq/02x02_i166.gif.zip?dl=0
 data/input/screenshots/lakeslice/02x03_i300.gif,c96454632cf2e0ff152454e87f852b2a,https://www.dropbox.com/s/9medvi8uwbxw8m8/02x03_i300.gif.zip?dl=0
 data/input/screenshots/lakeslice/02x04_i296.gif,424c175f0012fcb819447e5c6fd0b9c4,https://www.dropbox.com/s/96qzvb3mkap55p9/02x04_i296.gif.zip?dl=0
-data/input/screenshots/lakeslice/02x05_i65.gif,41eecdc40d022d5c90f5b8e6faec6a42,Couldn't get shared link: Unknown Error
+data/input/screenshots/lakeslice/02x05_i65.gif,41eecdc40d022d5c90f5b8e6faec6a42,https://www.dropbox.com/s/q3mwamgwfgncvls/02x05_i65.gif.zip?dl=0
 data/input/screenshots/lakeslice/02x06_i704.gif,54ecd500d635336a7b9619d66e4c1067,https://www.dropbox.com/s/2ie0tmk8qsrmiap/02x06_i704.gif.zip?dl=0
-data/input/screenshots/lakeslice/02x07_i123.gif,fd5e0e94254cb5f008161536aa8d8bd5,Couldn't get shared link: Unknown Error
+data/input/screenshots/lakeslice/02x07_i123.gif,fd5e0e94254cb5f008161536aa8d8bd5,https://www.dropbox.com/s/o793j4va7kjv7l7/02x07_i123.gif.zip?dl=0
 data/input/screenshots/lakeslice/02x08_i201.gif,bf27d9845c4bd0eba2c7655b09b7b5db,https://www.dropbox.com/s/mqadacrqi1z6ses/02x08_i201.gif.zip?dl=0
 data/input/screenshots/lakeslice/02x09_i209.gif,ea425612a2f9daf4ccd6105caad6d62a,https://www.dropbox.com/s/5mtyj9v3ne6fjkk/02x09_i209.gif.zip?dl=0
-data/input/screenshots/lakeslice/02x10_i79.gif,03e1a8b4d031613bb833e2c7125bb934,Couldn't get shared link: Unknown Error
 data/input/screenshots/lakeslice/02x11_i315.gif,6262e676932666c54156ca67abc1271f,https://www.dropbox.com/s/ylh0w6jneg88230/02x11_i315.gif.zip?dl=0
 data/input/screenshots/lakeslice/02x12_i313.gif,55573c5c3936c1179c81be952f25a202,https://www.dropbox.com/s/hi43otif30d8ine/02x12_i313.gif.zip?dl=0
-data/input/screenshots/lakeslice/02x13_i45.gif,90e1acc4e8fd7caaa74e650f5e4d977f,Couldn't get shared link: Unknown Error
 data/input/screenshots/lakeslice/02x14_i312.gif,5dc4faab3956767b9bfcba913d438657,https://www.dropbox.com/s/h1tuhg27aavmxob/02x14_i312.gif.zip?dl=0
 data/input/screenshots/lakeslice/02x15_i239.gif,84b117a3c6b0d572ea065df9ac7ea0c8,https://www.dropbox.com/s/n1vnxon9c4ppxk0/02x15_i239.gif.zip?dl=0
 data/input/screenshots/lakeslice/02x16_i221.gif,5dc3a1a9b8ffb609cbf928b5f4b559a0,https://www.dropbox.com/s/cssek1c3edv23uz/02x16_i221.gif.zip?dl=0
 data/input/screenshots/lakeslice/02x17_i235.gif,f38ff5e4d6eee2d5df94cebe291e850a,https://www.dropbox.com/s/k6gn5qzksle118c/02x17_i235.gif.zip?dl=0
 data/input/screenshots/lakeslice/02x18_i236.gif,1ab9f0c4f3662536e0c5a1122c732ee0,https://www.dropbox.com/s/ghgtdjrgcpot8s7/02x18_i236.gif.zip?dl=0
-data/input/screenshots/lakeslice/02x19_i12.gif,1e4c0608f08fe09e4d1dc8f1d2387335,Couldn't get shared link: Unknown Error
+data/input/screenshots/lakeslice/02x19_i12.gif,1e4c0608f08fe09e4d1dc8f1d2387335,https://www.dropbox.com/s/wd6b7w5uj9j46ss/02x19_i12.gif.zip?dl=0
 data/input/screenshots/lakeslice/02x20_i190.gif,cb34d8142bd807698c52b710569849f7,https://www.dropbox.com/s/2wphy2v7s2wl0f2/02x20_i190.gif.zip?dl=0
 data/input/screenshots/lakeslice/02x21_i229.gif,f4305a1d60d2e807e97b71111480297a,https://www.dropbox.com/s/7jt78sq50vxgakw/02x21_i229.gif.zip?dl=0
-data/input/screenshots/lakeslice/02x22_i32.gif,6dca194d00bea0d609b228a4be59671a,Couldn't get shared link: Unknown Error
-data/input/screenshots/lakeslice/02x23_i34.gif,3b4cc8f4e18ca6b96d244bccbadcc234,Couldn't get shared link: Unknown Error
-data/input/screenshots/lakeslice/03x01.gif,61d8983398a68bc7e36a60f4f388c49d,Couldn't get shared link: Unknown Error
+data/input/screenshots/lakeslice/02x22_i32.gif,6dca194d00bea0d609b228a4be59671a,https://www.dropbox.com/s/35jpo6yh985u61d/02x22_i32.gif.zip?dl=0
+data/input/screenshots/lakeslice/02x23_i34.gif,3b4cc8f4e18ca6b96d244bccbadcc234,https://www.dropbox.com/s/k5sfa3x2kcwe6ed/02x23_i34.gif.zip?dl=0
+data/input/screenshots/lakeslice/03x01.gif,61d8983398a68bc7e36a60f4f388c49d,https://www.dropbox.com/s/5ijnumye9627six/03x01.gif.zip?dl=0
 data/input/screenshots/lakeslice/03x02_i590.gif,d99c764ebbf0dd897a20ec5aa1f12b2d,https://www.dropbox.com/s/xp2mn4x1off8uwl/03x02_i590.gif.zip?dl=0
-data/input/screenshots/lakeslice/03x03.gif,d0ca43ab1523db59474f2b8ce1230b14,Couldn't get shared link: Unknown Error
-data/input/screenshots/lakeslice/03x04.gif,68112f3f177f855a757205d03ac8a580,Couldn't get shared link: Unknown Error
+data/input/screenshots/lakeslice/03x03.gif,d0ca43ab1523db59474f2b8ce1230b14,https://www.dropbox.com/s/woxrbkp6r88p748/03x03.gif.zip?dl=0
+data/input/screenshots/lakeslice/03x04.gif,68112f3f177f855a757205d03ac8a580,https://www.dropbox.com/s/e5yvkwsbok7rmdn/03x04.gif.zip?dl=0
 data/input/screenshots/lakeslice/03x05_i1246.gif,bbf12a3dbff40e4d0189aba193dc1b7c,https://www.dropbox.com/s/89tdesmg78gj7mg/03x05_i1246.gif.zip?dl=0
 data/input/screenshots/lakeslice/03x06_i366.gif,b56e804029e0ff1d37f38f6d8715b0b7,https://www.dropbox.com/s/15hedvq1ekndpm1/03x06_i366.gif.zip?dl=0
-data/input/screenshots/lakeslice/03x07_i120.gif,24c22ec1832c06bc39dcd6bd1e2c0662,Couldn't get shared link: Unknown Error
-data/input/screenshots/lakeslice/03x08_i67.gif,aeb2a5d69f1d800fa3a646910afdb4a1,Couldn't get shared link: Unknown Error
-data/input/screenshots/lakeslice/03x09_i68.gif,78f44052ba8615d7febf505b4365f5c8,Couldn't get shared link: Unknown Error
-data/input/screenshots/lakeslice/03x10_i86.gif,2436fdae9733bd23fd286a9bd491666b,Couldn't get shared link: Unknown Error
-data/input/screenshots/lakeslice/03x11_i154.gif,72a70222c2bdfad5ce79538bb0cb6680,Couldn't get shared link: Unknown Error
-data/input/screenshots/lakeslice/03x12_i152.gif,24c1ddfbf624b5556a1f7989fb4e7383,Couldn't get shared link: Unknown Error
+data/input/screenshots/lakeslice/03x09_i68.gif,78f44052ba8615d7febf505b4365f5c8,https://www.dropbox.com/s/vbvmvzl3kfi4j6i/03x09_i68.gif.zip?dl=0
+data/input/screenshots/lakeslice/03x10_i86.gif,2436fdae9733bd23fd286a9bd491666b,https://www.dropbox.com/s/0iw0md14jl4fwzn/03x10_i86.gif.zip?dl=0
+data/input/screenshots/lakeslice/03x11_i154.gif,72a70222c2bdfad5ce79538bb0cb6680,https://www.dropbox.com/s/3hlbip5lkxakjuz/03x11_i154.gif.zip?dl=0
+data/input/screenshots/lakeslice/03x12_i152.gif,24c1ddfbf624b5556a1f7989fb4e7383,https://www.dropbox.com/s/fupw68cay04hc33/03x12_i152.gif.zip?dl=0
 data/input/screenshots/lakeslice/03x13_i31.gif,922053937a3214ae114ce47698a11b53,https://www.dropbox.com/s/k9bi6kqjea3wtrn/03x13_i31.gif.zip?dl=0
 data/input/screenshots/lakeslice/03x14_i149.gif,5e6fee105703dc75553f4d2885851900,https://www.dropbox.com/s/783xl664nlsg4op/03x14_i149.gif.zip?dl=0
 data/input/screenshots/lakeslice/03x15_i170.gif,74614e97c298d5c083a5f354bc06fb49,https://www.dropbox.com/s/j8ryjgdib7tzo6q/03x15_i170.gif.zip?dl=0
@@ -98,13 +93,13 @@ data/input/screenshots/lakeslice/04x07_i24.gif,26ed351ffb00b804c438e3f6d5e648be,
 data/input/screenshots/lakeslice/04x08_i26.gif,179a7a717c69999f6e9c1564ae40ba96,https://www.dropbox.com/s/is3ss43t09bdm4t/04x08_i26.gif.zip?dl=0
 data/input/screenshots/lakeslice/04x09_i64.gif,1fbf281791adb06e274803b04423acca,https://www.dropbox.com/s/4ezx9o7q8jyhjpr/04x09_i64.gif.zip?dl=0
 data/input/screenshots/lakeslice/04x10_i63.gif,18ba79917dcb53b0a142ab0ef6bc0a9b,https://www.dropbox.com/s/g59izyo8nkvzl7x/04x10_i63.gif.zip?dl=0
-data/input/screenshots/lakeslice/04x11_i119.gif,e224d6c4c83317f3265e83f2148ec9de,Dropbox isn't responding!
+data/input/screenshots/lakeslice/04x11_i119.gif,e224d6c4c83317f3265e83f2148ec9de,https://www.dropbox.com/s/3bo8olnl0jwgg7x/04x11_i119.gif.zip?dl=0
 data/input/screenshots/lakeslice/04x12_i458.gif,4759c74cd63dc3b3cd403b71c28b025a,https://www.dropbox.com/s/dg363rovi4h1vtq/04x12_i458.gif.zip?dl=0
-data/input/screenshots/lakeslice/04x13_i128.gif,7c9fdbe8abb45a65cc25d9b86fe51faa,Dropbox isn't responding!
-data/input/screenshots/lakeslice/04x14_i173.gif,3e6003e9cde5f599fd0cfd17a174779d,Dropbox isn't responding!
-data/input/screenshots/lakeslice/04x15_i172.gif,fab19c8616afae464c7be369a9a0ae43,Dropbox isn't responding!
+data/input/screenshots/lakeslice/04x13_i128.gif,7c9fdbe8abb45a65cc25d9b86fe51faa,https://www.dropbox.com/s/kpils4nk7fc2x8c/04x13_i128.gif.zip?dl=0
+data/input/screenshots/lakeslice/04x14_i173.gif,3e6003e9cde5f599fd0cfd17a174779d,https://www.dropbox.com/s/e92962pedyrg2aq/04x14_i173.gif.zip?dl=0
+data/input/screenshots/lakeslice/04x15_i172.gif,fab19c8616afae464c7be369a9a0ae43,https://www.dropbox.com/s/vgcuaklgp3pdog0/04x15_i172.gif.zip?dl=0
 data/input/screenshots/lakeslice/04x16_i1296.gif,ecd31d21c4ad1cb0d7962045427b04d1,https://www.dropbox.com/s/92z7lebnfvyplxr/04x16_i1296.gif.zip?dl=0
-data/input/screenshots/lakeslice/04x17.gif,4ea0f0ef834cb0f76c40ce0f35dde59d,Dropbox isn't responding!
+data/input/screenshots/lakeslice/04x17.gif,4ea0f0ef834cb0f76c40ce0f35dde59d,https://www.dropbox.com/s/tnxoukvvijytzel/04x17.gif.zip?dl=0
 data/input/screenshots/lakeslice/04x18.gif,8575dd74ab01f1b16eb57d731c16e3c8,https://www.dropbox.com/s/yh63ydv2tzxo9is/04x18.gif.zip?dl=0
 data/input/screenshots/lakeslice/04x19_i14.gif,5528db8506e067bb380ab9a4542dbb03,https://www.dropbox.com/s/0bexsapt2k0ugkw/04x19_i14.gif.zip?dl=0
 data/input/screenshots/lakeslice/04x20_i1049.gif,71d21212361cd9198c0ef825938fe16b,https://www.dropbox.com/s/5trx45kj8mcsh8s/04x20_i1049.gif.zip?dl=0
@@ -128,14 +123,13 @@ data/input/screenshots/lakeslice/05x14.gif,8eb32ff700be3a4ded979bb464a47a44,http
 data/input/screenshots/lakeslice/05x15.gif,8eb32ff700be3a4ded979bb464a47a44,https://www.dropbox.com/s/twl9w011oo6pblj/05x15.gif.zip?dl=0
 data/input/screenshots/lakeslice/05x16.gif,8eb32ff700be3a4ded979bb464a47a44,https://www.dropbox.com/s/t0dokxxa01o4tlk/05x16.gif.zip?dl=0
 data/input/screenshots/lakeslice/05x17.gif,8eb32ff700be3a4ded979bb464a47a44,https://www.dropbox.com/s/17hpjghvw5qbqmr/05x17.gif.zip?dl=0
-data/input/screenshots/lakeslice/05x18.gif,8eb32ff700be3a4ded979bb464a47a44,Dropbox isn't responding!
-data/input/screenshots/lakeslice/05x19.gif,8eb32ff700be3a4ded979bb464a47a44,Dropbox isn't responding!
-data/input/screenshots/lakeslice/05x20.gif,8eb32ff700be3a4ded979bb464a47a44,Dropbox isn't responding!
-data/input/screenshots/lakeslice/05x21.gif,8eb32ff700be3a4ded979bb464a47a44,Dropbox isn't responding!
-data/input/screenshots/lakeslice/05x22.gif,8eb32ff700be3a4ded979bb464a47a44,Dropbox isn't responding!
-data/input/screenshots/lakeslice/05x23.gif,8eb32ff700be3a4ded979bb464a47a44,Dropbox isn't responding!
-data/input/screenshots/lakeslice/combine.sh,b168895960ce0469dce74eaac28890a8,Dropbox isn't responding!
-data/input/screenshots/montlake/01x01_i17.gif,351482f0be7e8affc17fe252719bfef4,Dropbox isn't responding!
+data/input/screenshots/lakeslice/05x18.gif,8eb32ff700be3a4ded979bb464a47a44,https://www.dropbox.com/s/qozejjofyucxqg6/05x18.gif.zip?dl=0
+data/input/screenshots/lakeslice/05x19.gif,8eb32ff700be3a4ded979bb464a47a44,https://www.dropbox.com/s/b2zwgel97odst4r/05x19.gif.zip?dl=0
+data/input/screenshots/lakeslice/05x20.gif,8eb32ff700be3a4ded979bb464a47a44,https://www.dropbox.com/s/sgv5w7kitjh063j/05x20.gif.zip?dl=0
+data/input/screenshots/lakeslice/05x21.gif,8eb32ff700be3a4ded979bb464a47a44,https://www.dropbox.com/s/qaj31so7m67niy7/05x21.gif.zip?dl=0
+data/input/screenshots/lakeslice/05x22.gif,8eb32ff700be3a4ded979bb464a47a44,https://www.dropbox.com/s/8dpa1hz7a9na31p/05x22.gif.zip?dl=0
+data/input/screenshots/lakeslice/05x23.gif,8eb32ff700be3a4ded979bb464a47a44,https://www.dropbox.com/s/1cu70j4e5xv1vif/05x23.gif.zip?dl=0
+data/input/screenshots/montlake/01x01_i17.gif,351482f0be7e8affc17fe252719bfef4,https://www.dropbox.com/s/2j53dspggwi2kd8/01x01_i17.gif.zip?dl=0
 data/input/screenshots/montlake/01x02_i18.gif,30173f9556ca4e7d37ac7436d89e9c72,https://www.dropbox.com/s/jw70srh0l2q49a3/01x02_i18.gif.zip?dl=0
 data/input/screenshots/montlake/01x03_i0.gif,a8faed2051210f9345a28aee24dd7cf4,https://www.dropbox.com/s/uux7jwmhmbztf68/01x03_i0.gif.zip?dl=0
 data/input/screenshots/montlake/01x04_i31.gif,3e2b1b04239a917b703d40b628f9a635,https://www.dropbox.com/s/w80vq51ck4jzyo7/01x04_i31.gif.zip?dl=0

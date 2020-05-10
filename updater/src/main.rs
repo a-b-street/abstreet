@@ -102,11 +102,13 @@ fn upload() {
         // The sharelink shouldn't change
         entry.dropbox_url = remote.0.get(path).map(|x| x.dropbox_url.clone().unwrap());
         if entry.dropbox_url.is_none() {
-            entry.dropbox_url = Some(
-                run(Command::new("dropbox").arg("sharelink").arg(remote_path))
-                    .trim()
-                    .to_string(),
-            );
+            let url = run(Command::new("dropbox").arg("sharelink").arg(remote_path))
+                .trim()
+                .to_string();
+            if !url.contains("dropbox.com") {
+                panic!("dropbox daemon is sad, slow down");
+            }
+            entry.dropbox_url = Some(url);
         }
     }
 
