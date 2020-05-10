@@ -20,8 +20,8 @@ pub enum Event {
 
     PersonEntersBuilding(PersonID, BuildingID),
     PersonLeavesBuilding(PersonID, BuildingID),
-    PersonLeavesMap(PersonID, IntersectionID, Option<OffMapLocation>),
-    PersonEntersMap(PersonID, IntersectionID, Option<OffMapLocation>),
+    PersonLeavesMap(PersonID, TripMode, IntersectionID, Option<OffMapLocation>),
+    PersonEntersMap(PersonID, TripMode, IntersectionID, Option<OffMapLocation>),
     PersonEntersRemoteBuilding(PersonID, OffMapLocation),
     PersonLeavesRemoteBuilding(PersonID, OffMapLocation),
 

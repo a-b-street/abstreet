@@ -102,6 +102,14 @@ impl Analytics {
                 }
             };
         }
+        match ev {
+            Event::PersonLeavesMap(_, mode, i, _) | Event::PersonEntersMap(_, mode, i, _) => {
+                self.thruput_stats
+                    .raw_per_intersection
+                    .push((time, mode, i));
+            }
+            _ => {}
+        }
 
         // Test expectations
         if !self.test_expectations.is_empty() && &ev == self.test_expectations.front().unwrap() {
