@@ -1,5 +1,4 @@
 mod model;
-mod upstream;
 mod world;
 
 use abstutil::{CmdArgs, Timer};
@@ -81,7 +80,6 @@ impl UI {
                             (hotkey(Key::Escape), "quit"),
                             (None, "save raw map"),
                             (hotkey(Key::J), "warp to something"),
-                            (None, "produce OSM parking+sidewalk diff"),
                             (hotkey(Key::G), "preview all intersections"),
                             (None, "find overlapping intersections"),
                             (hotkey(Key::Z), "find/clear short roads"),
@@ -271,9 +269,6 @@ impl GUI for UI {
                                 }
                                 "warp to something" => {
                                     self.state = State::EnteringWarp(Wizard::new());
-                                }
-                                "produce OSM parking+sidewalk diff" => {
-                                    upstream::find_diffs(&self.model.map);
                                 }
                                 "preview all intersections" => {
                                     if !self.model.intersection_geom {

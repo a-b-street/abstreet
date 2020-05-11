@@ -8,6 +8,7 @@ use crate::game::{State, Transition, WizardState};
 use crate::managed::{ManagedGUIState, WrappedComposite};
 use abstutil::Timer;
 use ezgui::{hotkey, EventCtx, Key, Wizard};
+use std::collections::BTreeMap;
 
 pub struct DevToolsMode;
 
@@ -49,7 +50,10 @@ impl DevToolsMode {
                 "OSM mapping",
                 Box::new(|ctx, app| {
                     Some(Transition::Push(mapping::ParkingMapper::new(
-                        ctx, app, true,
+                        ctx,
+                        app,
+                        true,
+                        BTreeMap::new(),
                     )))
                 }),
             ),
