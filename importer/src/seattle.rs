@@ -54,7 +54,9 @@ pub fn osm_to_raw(name: &str) {
             public_offstreet_parking: Some(
                 "../data/input/seattle/offstreet_parking.bin".to_string(),
             ),
-            private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(1),
+            private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(
+                if name == "udistrict" { 3 } else { 1 },
+            ),
             // TODO These're buggy.
             sidewalks: None,
             gtfs: Some("../data/input/seattle/google_transit".to_string()),
