@@ -432,76 +432,6 @@ impl Model {
         self.road_added(id, prerender);
     }
 
-    pub fn toggle_r_parking(&mut self, some_id: OriginalRoad, prerender: &Prerender) {
-        // Update every road belonging to the way.
-        let osm_id = self.map.roads[&some_id].osm_tags[osm::OSM_WAY_ID].clone();
-        let matching_roads = self
-            .map
-            .roads
-            .iter()
-            .filter_map(|(k, v)| {
-                if v.osm_tags[osm::OSM_WAY_ID] == osm_id {
-                    Some(*k)
-                } else {
-                    None
-                }
-            })
-            .collect::<Vec<_>>();
-
-        // Verify every road has the same parking tags. Blockface hints might've applied to just
-        // some parts. If this is really true, then the way has to be split. Example is McGraw St.
-        let both = self.map.roads[&some_id]
-            .osm_tags
-            .get(osm::PARKING_BOTH)
-            .cloned();
-        let left = self.map.roads[&some_id]
-            .osm_tags
-            .get(osm::PARKING_LEFT)
-            .cloned();
-        let right = self.map.roads[&some_id]
-            .osm_tags
-            .get(osm::PARKING_RIGHT)
-            .cloned();
-        for r in &matching_roads {
-            let tags = &self.map.roads[r].osm_tags;
-            if tags.get(osm::PARKING_BOTH) != both.as_ref()
-                || tags.get(osm::PARKING_LEFT) != left.as_ref()
-                || tags.get(osm::PARKING_RIGHT) != right.as_ref()
-            {
-                println!(
-                    "WARNING: {} and {} belong to same way, but have different parking tags!",
-                    some_id, r
-                );
-            }
-        }
-
-        for id in matching_roads {
-            self.road_deleted(id);
-
-            let osm_tags = &mut self.map.roads.get_mut(&id).unwrap().osm_tags;
-            osm_tags.remove(osm::INFERRED_PARKING);
-            let yes = "parallel".to_string();
-            let no = "no_parking".to_string();
-            if both.as_ref() == Some(&yes) {
-                osm_tags.insert(osm::PARKING_BOTH.to_string(), no);
-            } else if both.as_ref() == Some(&no) {
-                osm_tags.remove(osm::PARKING_BOTH);
-                osm_tags.insert(osm::PARKING_LEFT.to_string(), yes);
-                osm_tags.insert(osm::PARKING_RIGHT.to_string(), no);
-            } else if left.as_ref() == Some(&yes) {
-                osm_tags.insert(osm::PARKING_LEFT.to_string(), no);
-                osm_tags.insert(osm::PARKING_RIGHT.to_string(), yes);
-            } else if right.as_ref() == Some(&yes) {
-                osm_tags.remove(osm::PARKING_LEFT);
-                osm_tags.remove(osm::PARKING_RIGHT);
-                osm_tags.insert(osm::PARKING_BOTH.to_string(), yes);
-            }
-
-            self.road_added(id, prerender);
-        }
-    }
-
-    // TODO Refactor with toggle_r_parking?
     pub fn toggle_r_sidewalks(&mut self, some_id: OriginalRoad, prerender: &Prerender) {
         // Update every road belonging to the way.
         let osm_id = self.map.roads[&some_id].osm_tags[osm::OSM_WAY_ID].clone();
@@ -527,7 +457,7 @@ impl Model {
         for r in &matching_roads {
             if self.map.roads[r].osm_tags.get(osm::SIDEWALK) != value.as_ref() {
                 println!(
-                    "WARNING: {} and {} belong to same way, but have different parking tags!",
+                    "WARNING: {} and {} belong to same way, but have different sidewalk tags!",
                     some_id, r
                 );
             }
@@ -567,8 +497,7 @@ impl Model {
         let r = &self.map.roads[&id];
         let unset =
             r.synthetic() && r.osm_tags.get(osm::NAME) == Some(&"Streety McStreetFace".to_string());
-        let lanes_unknown = r.osm_tags.contains_key(osm::INFERRED_PARKING)
-            || r.osm_tags.contains_key(osm::INFERRED_SIDEWALKS);
+        let lanes_unknown = r.osm_tags.contains_key(osm::INFERRED_SIDEWALKS);
         let spec = r.get_spec();
         let center_pts = PolyLine::new(r.center_points.clone());
 

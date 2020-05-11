@@ -69,7 +69,7 @@ impl UI {
         }
         let bounds = model.map.gps_bounds.to_bounds();
         ctx.canvas.map_dims = (bounds.width(), bounds.height());
-        let mut ui = UI {
+        UI {
             model,
             state: State::viewing(),
             composite: Composite::new(
@@ -100,33 +100,7 @@ impl UI {
             info_key_held: false,
 
             last_id: None,
-        };
-        ui.recount_parking_tags(ctx);
-        ui
-    }
-
-    fn recount_parking_tags(&mut self, ctx: &mut EventCtx) {
-        let mut ways_audited = HashSet::new();
-        let mut ways_missing = HashSet::new();
-        for r in self.model.map.roads.values() {
-            if r.synthetic() {
-                continue;
-            }
-            if r.osm_tags.contains_key(osm::INFERRED_PARKING) {
-                ways_missing.insert(r.osm_tags[osm::OSM_WAY_ID].clone());
-            } else {
-                ways_audited.insert(r.osm_tags[osm::OSM_WAY_ID].clone());
-            }
         }
-
-        let mut txt = Text::from(Line(format!(
-            "Parking data audited: {} / {} ways",
-            abstutil::prettyprint_usize(ways_audited.len()),
-            abstutil::prettyprint_usize(ways_audited.len() + ways_missing.len())
-        )));
-        txt.add(Line("Hold right Control to show info about objects"));
-        self.composite
-            .replace(ctx, "current info", txt.draw(ctx).named("current info"));
     }
 }
 
@@ -223,10 +197,6 @@ impl GUI for UI {
                         } else if could_swap && ctx.input.key_pressed(Key::S, "swap lanes") {
                             self.model.swap_lanes(r, ctx.prerender);
                             self.model.world.handle_mouseover(ctx);
-                        } else if ctx.input.key_pressed(Key::T, "toggle parking") {
-                            self.model.toggle_r_parking(r, ctx.prerender);
-                            self.model.world.handle_mouseover(ctx);
-                            self.recount_parking_tags(ctx);
                         } else if ctx.input.key_pressed(Key::F, "toggle sidewalks") {
                             self.model.toggle_r_sidewalks(r, ctx.prerender);
                             self.model.world.handle_mouseover(ctx);

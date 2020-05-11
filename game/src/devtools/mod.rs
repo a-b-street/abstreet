@@ -1,4 +1,5 @@
 mod blocks;
+mod mapping;
 mod polygon;
 mod scenario;
 
@@ -22,6 +23,7 @@ impl DevToolsMode {
                     (hotkey(Key::E), "edit a polygon"),
                     (hotkey(Key::P), "draw a polygon"),
                     (hotkey(Key::W), "load scenario"),
+                    (hotkey(Key::M), "OSM mapping"),
                 ],
             ))
             .cb("X", Box::new(|_, _| Some(Transition::Pop)))
@@ -42,6 +44,14 @@ impl DevToolsMode {
             .cb(
                 "load scenario",
                 Box::new(|_, _| Some(Transition::Push(WizardState::new(Box::new(load_scenario))))),
+            )
+            .cb(
+                "OSM mapping",
+                Box::new(|ctx, app| {
+                    Some(Transition::Push(mapping::ParkingMapper::new(
+                        ctx, app, true,
+                    )))
+                }),
             ),
         )
     }
