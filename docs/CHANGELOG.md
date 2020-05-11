@@ -416,3 +416,7 @@ changes here.
 - new feature to change speed limits and bulk road selection tools
 - first write-up of a real use case (closing lake wash through arboretum)
 - make the traffic signal challenge act like a game, with a failure/win state and scoring
+
+0.1.40a
+
+- added a mode to map parking

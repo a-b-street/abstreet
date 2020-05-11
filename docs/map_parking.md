@@ -1,6 +1,6 @@
 # Help map out on-street parking
 
-pic
+![parking_mapper](parking_mapper.gif)
 
 This guide assumes you've edited OSM before. Contact <dabreegster@gmail.com> if
 you have any trouble. Also give me a heads up when you make some edits, so I can
@@ -8,11 +8,12 @@ regenerate the maps!
 
 1.  [Install A/B Street](https://github.com/dabreegster/abstreet/blob/master/docs/INSTRUCTIONS.md)
 2.  Choose **Contribute parking data** on the main screen
-3.  Click a road with unknown parking
-4.  Select what kind of on-street parking the road has
-5.  Repeat
-6.  Click **Generate OsmChange file**
-7.  Upload the diff.osc file by adding a layer in JOSM
+3.  Change the map if you'd like to focus somewhere in particular
+4.  Click a road with unknown parking
+5.  Select what kind of on-street parking the road has
+6.  Repeat
+7.  Click **Generate OsmChange file**
+8.  Upload the game/diff.osc file by adding a layer in JOSM
 
 Like all edits to OSM, to figure out ground-truth, you can survey in-person or
 use
@@ -28,7 +29,7 @@ then use it to strengthen proposals for
 [pedestrianized streets](https://dabreegster.github.io/abstreet/lake_wash/proposal.html),
 [improving the bike network](https://www.glwstreets.org/45th-st-bridge-overview),
 and
-[mitigate the West Seattle bridge closure](https://www.westsideseattle.com/robinson-papers/2020/05/04/highland-park-action-coalition-calls-seattle-officials-traffic).
+[mitigating the West Seattle bridge closure](https://www.westsideseattle.com/robinson-papers/2020/05/04/highland-park-action-coalition-calls-seattle-officials-traffic).
 A/B Street is only as good as its data, and parking is one of the biggest gaps.
 Missing data means unrealistic traffic as vehicles contend for few parking
 spots, and roads that look much wider than they are in reality.
@@ -61,9 +62,9 @@ data.
 
 ### Why use this tool?
 
-You don't have to; https://zlant.github.io/parking-lanes/ or ID or JOSM all
-work. But the UI is clunky for this specific purpose. Also, if you find this
-tool clunky in any way, let me know and I'll fix it.
+You don't have to; [this tool](https://zlant.github.io/parking-lanes/) or ID or
+JOSM all work. But the UI is clunky for this specific purpose. (Also, if you
+find this tool clunky in any way, let me know and I'll fix it.)
 
 ### What about parking restrictions?
 
@@ -94,3 +95,8 @@ Welcome to my world. ;) If the number of lanes seems wrong, select the road and
 check the OSM tags. I'm inferring lanes from that. Feel free to make manual OSM
 edits to fix any problems you see. (I'd like to extend this tool to make that
 easier; let me know if you have ideas how to do this.)
+
+### I want to map an area, but there's no option for it
+
+To keep the release size small, I'm not including all maps yet. Let me know what
+you'd like to see included.
