@@ -1,5 +1,5 @@
 mod blocks;
-mod mapping;
+pub mod mapping;
 mod polygon;
 mod scenario;
 
@@ -8,7 +8,6 @@ use crate::game::{State, Transition, WizardState};
 use crate::managed::{ManagedGUIState, WrappedComposite};
 use abstutil::Timer;
 use ezgui::{hotkey, EventCtx, Key, Wizard};
-use std::collections::BTreeMap;
 
 pub struct DevToolsMode;
 
@@ -24,7 +23,6 @@ impl DevToolsMode {
                     (hotkey(Key::E), "edit a polygon"),
                     (hotkey(Key::P), "draw a polygon"),
                     (hotkey(Key::W), "load scenario"),
-                    (hotkey(Key::M), "OSM mapping"),
                 ],
             ))
             .cb("X", Box::new(|_, _| Some(Transition::Pop)))
@@ -45,17 +43,6 @@ impl DevToolsMode {
             .cb(
                 "load scenario",
                 Box::new(|_, _| Some(Transition::Push(WizardState::new(Box::new(load_scenario))))),
-            )
-            .cb(
-                "OSM mapping",
-                Box::new(|ctx, app| {
-                    Some(Transition::Push(mapping::ParkingMapper::new(
-                        ctx,
-                        app,
-                        true,
-                        BTreeMap::new(),
-                    )))
-                }),
             ),
         )
     }

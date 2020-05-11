@@ -14,6 +14,7 @@ use instant::Instant;
 use map_model::{Map, PermanentMapEdits};
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
+use std::collections::BTreeMap;
 
 pub struct TitleScreen {
     composite: WrappedComposite,
@@ -120,6 +121,17 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
                     txt
                 })
                 .build_def(ctx, hotkey(Key::P)),
+            Btn::text_bg2("Contribute parking data to OpenStreetMap")
+                .tooltip({
+                    let mut txt = Text::tooltip(
+                        ctx,
+                        hotkey(Key::M),
+                        "Contribute parking data to OpenStreetMap",
+                    );
+                    txt.add(Line("Improve parking data in OpenStreetMap").small());
+                    txt
+                })
+                .build_def(ctx, hotkey(Key::M)),
             if app.opts.dev {
                 Btn::text_bg2("Internal Dev Tools").build_def(ctx, hotkey(Key::M))
             } else {
@@ -199,6 +211,14 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
     .cb(
         "Community Proposals",
         Box::new(|ctx, app| Some(Transition::Push(proposals_picker(ctx, app)))),
+    )
+    .cb(
+        "Contribute parking data to OpenStreetMap",
+        Box::new(|ctx, app| {
+            Some(Transition::Push(
+                crate::devtools::mapping::ParkingMapper::new(ctx, app, true, BTreeMap::new()),
+            ))
+        }),
     );
     if app.opts.dev {
         c = c.cb(

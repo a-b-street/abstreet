@@ -1,11 +1,11 @@
 use crate::app::{App, ShowEverything};
 use crate::common::ColorLegend;
 use crate::game::{msg, State, Transition, WizardState};
-use crate::helpers::ID;
+use crate::helpers::{nice_map_name, ID};
 use abstutil::{prettyprint_usize, Timer};
 use ezgui::{
     hotkey, Btn, Checkbox, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget, Wizard,
 };
 use geom::Distance;
 use map_model::{osm, RoadID};
@@ -37,10 +37,12 @@ impl abstutil::Cloneable for Value {}
 impl ParkingMapper {
     pub fn new(
         ctx: &mut EventCtx,
-        app: &App,
+        app: &mut App,
         show_todo: bool,
         data: BTreeMap<i64, Value>,
     ) -> Box<dyn State> {
+        app.opts.min_zoom_for_detail = 2.0;
+
         let map = &app.primary.map;
 
         let color = if show_todo {
@@ -92,6 +94,12 @@ impl ParkingMapper {
                         Btn::text_fg("X")
                             .build_def(ctx, hotkey(Key::Escape))
                             .align_right(),
+                    ])
+                    .margin_below(5),
+                    Widget::row(vec![
+                        "Change map:".draw_text(ctx).margin_right(10),
+                        Btn::text_fg(format!("{} ▼", nice_map_name(app.primary.map.get_name())))
+                            .build(ctx, "change map", None),
                     ]),
                     format!(
                         "{} / {} ways done (you've mapped {})",
@@ -99,12 +107,14 @@ impl ParkingMapper {
                         prettyprint_usize(done.len() + todo.len()),
                         data.len()
                     )
-                    .draw_text(ctx),
+                    .draw_text(ctx)
+                    .margin_below(5),
                     Widget::row(vec![
                         Checkbox::text(ctx, "show ways with missing tags", None, show_todo)
                             .margin_right(15),
                         ColorLegend::row(ctx, color, if show_todo { "TODO" } else { "done" }),
-                    ]),
+                    ])
+                    .margin_below(5),
                     Btn::text_fg("Generate OsmChange file")
                         .build_def(ctx, None)
                         .margin_below(30),
@@ -121,7 +131,7 @@ impl ParkingMapper {
         })
     }
 
-    fn make_wizard(&self, ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    fn make_wizard(&self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
         let show_todo = self.show_todo;
         let osm_way_id = app
             .primary
@@ -160,6 +170,9 @@ impl ParkingMapper {
                 ctx, app, show_todo, new_data,
             )))
         }));
+        state.downcast_mut::<WizardState>().unwrap().custom_pop = Some(Transition::PopThenReplace(
+            ParkingMapper::new(ctx, app, self.show_todo, self.data.clone()),
+        ));
 
         let mut batch = GeomBatch::new();
         let map = &app.primary.map;
@@ -257,6 +270,8 @@ impl State for ParkingMapper {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "X" => {
+                    app.opts.min_zoom_for_detail =
+                        crate::options::Options::default().min_zoom_for_detail;
                     return Transition::Pop;
                 }
                 "Generate OsmChange file" => {
@@ -273,6 +288,9 @@ impl State for ParkingMapper {
                         "Diff generated",
                         vec!["diff.osc created. Load it in JOSM, verify, and upload!"],
                     ));
+                }
+                "change map" => {
+                    return Transition::Push(WizardState::new(Box::new(load_map)));
                 }
                 _ => unreachable!(),
             },
@@ -384,4 +402,22 @@ fn generate_osmc(data: &BTreeMap<i64, Value>, timer: &mut Timer) {
     }
     writeln!(f, "</modify></osmChange>").unwrap();
     timer.note(format!("Wrote {}", path));
+}
+
+fn load_map(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
+    let (_, name) = wiz.wrap(ctx).choose("Load map", || {
+        let current_map = app.primary.map.get_name();
+        abstutil::list_all_objects(abstutil::path_all_maps())
+            .into_iter()
+            .filter(|n| n != current_map)
+            .map(|n| Choice::new(nice_map_name(&n), n.clone()))
+            .collect()
+    })?;
+    app.switch_map(ctx, abstutil::path_map(&name));
+    Some(Transition::PopThenReplace(ParkingMapper::new(
+        ctx,
+        app,
+        true,
+        BTreeMap::new(),
+    )))
 }

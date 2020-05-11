@@ -254,6 +254,7 @@ pub struct WizardState {
     // Returning None means stay in this WizardState
     cb: Box<dyn Fn(&mut Wizard, &mut EventCtx, &mut App) -> Option<Transition>>,
     pub also_draw: Option<Drawable>,
+    pub custom_pop: Option<Transition>,
 }
 
 impl WizardState {
@@ -264,6 +265,7 @@ impl WizardState {
             wizard: Wizard::new(),
             cb,
             also_draw: None,
+            custom_pop: None,
         })
     }
 }
@@ -277,6 +279,9 @@ impl State for WizardState {
         if let Some(t) = (self.cb)(&mut self.wizard, ctx, app) {
             return t;
         } else if self.wizard.aborted() {
+            if let Some(t) = self.custom_pop.take() {
+                return t;
+            }
             return Transition::Pop;
         }
         Transition::Keep
