@@ -100,6 +100,7 @@ impl State for EditMode {
                 &ShowEverything::new(),
                 false,
                 true,
+                false,
             );
             if let Some(ID::Lane(l)) = app.primary.current_selection {
                 if !can_edit_lane(&self.mode, l, app) {

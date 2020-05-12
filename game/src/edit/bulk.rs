@@ -58,6 +58,7 @@ impl State for BulkSelect {
                 &ShowEverything::new(),
                 false,
                 true,
+                false,
             );
             if let Some(ID::Intersection(_)) = app.primary.current_selection {
             } else {
@@ -296,6 +297,7 @@ impl State for PaintSelect {
                 &ShowEverything::new(),
                 false,
                 true,
+                false,
             );
             if let Some(ID::Road(_)) = app.primary.current_selection {
             } else {

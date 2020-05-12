@@ -210,6 +210,7 @@ impl State for ParkingMapper {
                 &ShowEverything::new(),
                 false,
                 true,
+                false,
             ) {
                 Some(ID::Road(r)) => Some(r),
                 Some(ID::Lane(l)) => Some(map.get_l(l).parent),

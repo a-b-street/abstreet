@@ -132,11 +132,7 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
                     txt
                 })
                 .build_def(ctx, hotkey(Key::M)),
-            if app.opts.dev {
-                Btn::text_bg2("Internal Dev Tools").build_def(ctx, hotkey(Key::D))
-            } else {
-                Widget::nothing()
-            },
+            Btn::text_bg2("Internal Dev Tools").build_def(ctx, hotkey(Key::D)),
         ])
         .centered(),
         Widget::col(vec![
@@ -146,7 +142,7 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         .centered(),
     ];
 
-    let mut c = WrappedComposite::new(
+    let c = WrappedComposite::new(
         Composite::new(Widget::col(col).evenly_spaced())
             .exact_size_percent(90, 85)
             .build(ctx),
@@ -219,13 +215,11 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
                 crate::devtools::mapping::ParkingMapper::new(ctx, app, true, BTreeMap::new()),
             ))
         }),
+    )
+    .cb(
+        "Internal Dev Tools",
+        Box::new(|ctx, app| Some(Transition::Push(DevToolsMode::new(ctx, app)))),
     );
-    if app.opts.dev {
-        c = c.cb(
-            "Internal Dev Tools",
-            Box::new(|ctx, app| Some(Transition::Push(DevToolsMode::new(ctx, app)))),
-        );
-    }
     ManagedGUIState::fullscreen(c)
 }
 

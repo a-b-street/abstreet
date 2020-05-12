@@ -110,7 +110,7 @@ impl State for DebugMode {
 
         if ctx.redo_mouseover() {
             app.primary.current_selection =
-                app.calculate_current_selection(ctx, &app.primary.sim, self, true, false);
+                app.calculate_current_selection(ctx, &app.primary.sim, self, true, false, false);
         }
 
         match self.composite.event(ctx) {
@@ -179,8 +179,14 @@ impl State for DebugMode {
                 }
                 "unhide everything" => {
                     self.hidden.clear();
-                    app.primary.current_selection =
-                        app.calculate_current_selection(ctx, &app.primary.sim, self, true, false);
+                    app.primary.current_selection = app.calculate_current_selection(
+                        ctx,
+                        &app.primary.sim,
+                        self,
+                        true,
+                        false,
+                        false,
+                    );
                     self.reset_info(ctx);
                 }
                 "search OSM metadata" => {

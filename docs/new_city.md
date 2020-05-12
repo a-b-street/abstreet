@@ -21,8 +21,8 @@ first make sure your .osm has been clipped:
     [the instructions](dev.md#building-map-data). You'll need Rust, osmconvert,
     gdal, etc.
 
-2.  Use http://geojson.io/ to draw a polygon around the region you want to
-    simulate.
+2.  Use [geojson.io](http://geojson.io/) to draw a polygon around the region you
+    want to simulate.
 
 3.  Create a new directory: `mkdir -p data/input/your_city/polygons`
 

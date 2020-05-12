@@ -47,7 +47,7 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
             txt.add(Line(format!("{} amenities:", b.amenities.len())));
         }
         for (name, amenity) in &b.amenities {
-            txt.add(Line(format!("- {} (a {})", name, amenity)));
+            txt.add(Line(format!("- {} ({})", name, amenity)));
         }
     }
 

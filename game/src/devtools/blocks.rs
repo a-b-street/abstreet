@@ -28,7 +28,7 @@ struct Block {
 }
 
 impl BlockMap {
-    pub fn new(ctx: &mut EventCtx, app: &App, scenario: Scenario) -> BlockMap {
+    pub fn new(ctx: &mut EventCtx, app: &App, scenario: Scenario) -> Box<dyn State> {
         let mut bldg_to_block = HashMap::new();
         let mut blocks = Vec::new();
 
@@ -64,7 +64,7 @@ impl BlockMap {
             all_blocks.push(Color::YELLOW.alpha(0.5), block.shape.clone());
         }
 
-        BlockMap {
+        Box::new(BlockMap {
             bldg_to_block,
             blocks,
             scenario,
@@ -89,7 +89,7 @@ impl BlockMap {
             )
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
-        }
+        })
     }
 
     fn count_per_block(&self, base: &Block, from: bool, map: &Map) -> Vec<(&Block, usize)> {

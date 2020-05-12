@@ -1,4 +1,5 @@
 mod blocks;
+mod destinations;
 pub mod mapping;
 mod polygon;
 mod scenario;

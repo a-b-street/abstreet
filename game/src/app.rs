@@ -278,6 +278,7 @@ impl App {
             &ShowEverything::new(),
             false,
             false,
+            false,
         );
     }
 
@@ -291,10 +292,11 @@ impl App {
         show_objs: &dyn ShowObject,
         debug_mode: bool,
         unzoomed_roads_and_intersections: bool,
+        unzoomed_buildings: bool,
     ) -> Option<ID> {
         // Unzoomed mode. Ignore when debugging areas and extra shapes.
         if ctx.canvas.cam_zoom < self.opts.min_zoom_for_detail
-            && !(debug_mode || unzoomed_roads_and_intersections)
+            && !(debug_mode || unzoomed_roads_and_intersections || unzoomed_buildings)
         {
             return None;
         }
@@ -329,6 +331,11 @@ impl App {
                     if ctx.canvas.cam_zoom < self.opts.min_zoom_for_detail
                         && !unzoomed_roads_and_intersections
                     {
+                        continue;
+                    }
+                }
+                ID::Building(_) => {
+                    if ctx.canvas.cam_zoom < self.opts.min_zoom_for_detail && !unzoomed_buildings {
                         continue;
                     }
                 }

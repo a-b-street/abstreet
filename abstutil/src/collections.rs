@@ -93,6 +93,10 @@ impl<T: Ord + PartialEq + Clone> Counter<T> {
         list.into_iter().map(|(t, _)| t).collect()
     }
 
+    pub fn max(&self) -> usize {
+        *self.map.values().max().unwrap()
+    }
+
     pub fn compare(mut self, mut other: Counter<T>) -> Vec<(T, usize, usize)> {
         for key in self.map.keys() {
             other.map.entry(key.clone()).or_insert(0);
@@ -106,6 +110,9 @@ impl<T: Ord + PartialEq + Clone> Counter<T> {
             .collect()
     }
 
+    pub fn borrow(&self) -> &BTreeMap<T, usize> {
+        &self.map
+    }
     pub fn consume(self) -> BTreeMap<T, usize> {
         self.map
     }
