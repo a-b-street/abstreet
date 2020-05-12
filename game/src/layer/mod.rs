@@ -42,6 +42,7 @@ pub enum Layers {
     BusNetwork(Colorer),
     Elevation(Colorer, Drawable),
     Edits(Colorer),
+    Amenities(Colorer),
     PopulationMap(Time, population::Options, Drawable, Composite),
     Pandemic(Time, pandemic::Options, Drawable, Composite),
 
@@ -118,7 +119,8 @@ impl Layers {
             | Layers::BikeNetwork(_, _)
             | Layers::BusNetwork(_)
             | Layers::Elevation(_, _)
-            | Layers::Edits(_) => {}
+            | Layers::Edits(_)
+            | Layers::Amenities(_) => {}
         };
 
         match app.layer {
@@ -127,7 +129,8 @@ impl Layers {
             | Layers::WorstDelay(_, ref mut c)
             | Layers::TrafficJams(_, ref mut c)
             | Layers::Backpressure(_, ref mut c)
-            | Layers::Edits(ref mut c) => {
+            | Layers::Edits(ref mut c)
+            | Layers::Amenities(ref mut c) => {
                 c.legend.align_above(ctx, minimap);
                 if c.event(ctx) {
                     app.layer = Layers::Inactive;
@@ -294,7 +297,8 @@ impl Layers {
             | Layers::WorstDelay(_, ref c)
             | Layers::TrafficJams(_, ref c)
             | Layers::Backpressure(_, ref c)
-            | Layers::Edits(ref c) => {
+            | Layers::Edits(ref c)
+            | Layers::Amenities(ref c) => {
                 c.draw(g, app);
             }
             Layers::BikeNetwork(ref c1, ref maybe_c2) => {
@@ -360,7 +364,8 @@ impl Layers {
             | Layers::WorstDelay(_, ref c)
             | Layers::TrafficJams(_, ref c)
             | Layers::Backpressure(_, ref c)
-            | Layers::Edits(ref c) => {
+            | Layers::Edits(ref c)
+            | Layers::Amenities(ref c) => {
                 g.redraw(&c.unzoomed);
             }
             Layers::ParkingOccupancy { ref unzoomed, .. } => {
@@ -412,6 +417,7 @@ impl Layers {
             Btn::text_fg("bike network").build_def(ctx, hotkey(Key::B)),
             Btn::text_fg("bus network").build_def(ctx, hotkey(Key::U)),
             Btn::text_fg("population map").build_def(ctx, hotkey(Key::X)),
+            Btn::text_fg("amenities").build_def(ctx, hotkey(Key::A)),
         ]);
         if app.primary.sim.get_pandemic_model().is_some() {
             col.push(Btn::text_fg("pandemic model").build_def(ctx, hotkey(Key::Y)));
@@ -427,6 +433,7 @@ impl Layers {
             Layers::BusNetwork(_) => Some("bus network"),
             Layers::Elevation(_, _) => Some("elevation"),
             Layers::Edits(_) => Some("map edits"),
+            Layers::Amenities(_) => Some("amenities"),
             Layers::PopulationMap(_, _, _, _) => Some("population map"),
             Layers::Pandemic(_, _, _, _) => Some("pandemic model"),
             _ => None,
@@ -514,9 +521,9 @@ impl Layers {
             }),
         )
         .maybe_cb(
-            "map edits",
+            "amenities",
             Box::new(|ctx, app| {
-                app.layer = map::edits(ctx, app);
+                app.layer = map::amenities(ctx, app);
                 Some(Transition::Pop)
             }),
         )

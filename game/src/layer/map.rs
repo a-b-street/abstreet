@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::common::Colorer;
 use crate::layer::Layers;
 use abstutil::Counter;
-use ezgui::EventCtx;
+use ezgui::{Color, EventCtx};
 use geom::Distance;
 use map_model::LaneType;
 use sim::TripMode;
@@ -163,4 +163,63 @@ pub fn edits(ctx: &mut EventCtx, app: &App) -> Layers {
     }
 
     Layers::Edits(colorer.build_both(ctx, app))
+}
+
+pub fn amenities(ctx: &mut EventCtx, app: &App) -> Layers {
+    let mut colorer = Colorer::discrete(
+        ctx,
+        "Amenities",
+        Vec::new(),
+        vec![
+            ("food", Color::RED),
+            ("bar", Color::BLUE),
+            ("medical", Color::PURPLE),
+            ("church/temple", Color::GREEN),
+            ("education", Color::CYAN),
+            ("bank / post office", Color::YELLOW),
+            ("media", Color::PINK),
+            ("childcare", Color::ORANGE),
+        ],
+    );
+
+    for b in app.primary.map.all_buildings() {
+        for (_, a) in &b.amenities {
+            if a == "restaurant"
+                || a == "cafe"
+                || a == "fast_food"
+                || a == "food_court"
+                || a == "ice_cream"
+            {
+                colorer.add_b(b.id, Color::RED);
+            } else if a == "pub" || a == "bar" || a == "nightclub" || a == "lounge" {
+                colorer.add_b(b.id, Color::BLUE);
+            } else if a == "doctors"
+                || a == "dentist"
+                || a == "clinic"
+                || a == "pharmacy"
+                || a == "chiropractor"
+            {
+                colorer.add_b(b.id, Color::PURPLE);
+            } else if a == "place_of_worship" {
+                colorer.add_b(b.id, Color::GREEN);
+            } else if a == "college" || a == "school" || a == "kindergarten" || a == "university" {
+                colorer.add_b(b.id, Color::CYAN);
+            } else if a == "bank" || a == "post_office" || a == "atm" {
+                colorer.add_b(b.id, Color::YELLOW);
+            } else if a == "theatre"
+                || a == "arts_centre"
+                || a == "library"
+                || a == "cinema"
+                || a == "art_gallery"
+            {
+                colorer.add_b(b.id, Color::PINK);
+            } else if a == "childcare" {
+                colorer.add_b(b.id, Color::ORANGE);
+            } else {
+                println!("{}", a);
+            }
+        }
+    }
+
+    Layers::Amenities(colorer.build_both(ctx, app))
 }
