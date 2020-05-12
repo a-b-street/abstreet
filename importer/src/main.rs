@@ -15,6 +15,7 @@ struct Job {
     only_map: Option<String>,
 
     oneshot: Option<String>,
+    oneshot_clip: Option<String>,
 }
 
 fn main() {
@@ -36,6 +37,7 @@ fn main() {
 
         // Ignore other arguments and just convert the given .osm file to a Map.
         oneshot: args.optional("--oneshot"),
+        oneshot_clip: args.optional("--oneshot_clip"),
     };
     args.done();
     if !job.osm_to_raw
@@ -52,7 +54,7 @@ fn main() {
     }
 
     if let Some(path) = job.oneshot {
-        oneshot(path);
+        oneshot(path, job.oneshot_clip);
         return;
     }
 
@@ -106,7 +108,7 @@ fn main() {
     }
 }
 
-fn oneshot(osm_path: String) {
+fn oneshot(osm_path: String, clip: Option<String>) {
     let mut timer = abstutil::Timer::new("oneshot");
     println!("- Running convert_osm on {}", osm_path);
     let name = abstutil::basename(&osm_path);
@@ -122,7 +124,7 @@ fn oneshot(osm_path: String) {
             sidewalks: None,
             gtfs: None,
             elevation: None,
-            clip: None,
+            clip,
             drive_on_right: true,
         },
         &mut timer,

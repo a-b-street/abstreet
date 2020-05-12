@@ -9,10 +9,12 @@ jobs:
       - uses: hecrj/setup-rust-action@v1
         with:
           rust-version: 1.43.0
-      - name: Run build
+      - name: Build game
         run: cargo build --release --bin game
+      - name: Build importer
+        run: cargo build --release --bin importer
       - name: Package release
-        run: ./release/build.sh abst_windows play_abstreet.bat target/release/game.exe
+        run: ./release/build.sh abst_windows play_abstreet.bat target/release/game.exe target/release/importer.exe
       - name: Upload binary
         uses: actions/upload-artifact@v1
         with:
@@ -26,10 +28,12 @@ jobs:
       - uses: hecrj/setup-rust-action@v1
         with:
           rust-version: 1.43.0
-      - name: Run build
+      - name: Build game
         run: cargo build --release --bin game
+      - name: Build importer
+        run: cargo build --release --bin importer
       - name: Package release
-        run: ./release/build.sh abst_mac play_abstreet.sh target/release/game
+        run: ./release/build.sh abst_mac play_abstreet.sh target/release/game target/release/importer
       - name: Upload release
         uses: actions/upload-artifact@v1
         with:
@@ -43,10 +47,12 @@ jobs:
       - uses: hecrj/setup-rust-action@v1
         with:
           rust-version: 1.43.0
-      - name: Run build
+      - name: Build game
         run: cargo build --release --bin game
+      - name: Build importer
+        run: cargo build --release --bin importer
       - name: Package release
-        run: ./release/build.sh abst_linux play_abstreet.sh target/release/game
+        run: ./release/build.sh abst_linux play_abstreet.sh target/release/game target/release/importer
       - name: Upload release
         uses: actions/upload-artifact@v1
         with:

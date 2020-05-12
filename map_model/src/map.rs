@@ -104,14 +104,12 @@ impl Map {
             }
         }
 
-        let mut raw: RawMap = if path.starts_with(&abstutil::path_all_raw_maps()) {
+        let raw: RawMap = if path.starts_with(&abstutil::path_all_raw_maps()) {
             abstutil::read_binary(path, timer)
         } else {
             // Synthetic
             abstutil::read_json(path, timer)
         };
-        // Better to defer this and see RawMaps with more debug info in map_editor
-        make::remove_disconnected_roads(&mut raw, timer);
         Map::create_from_raw(raw, timer)
     }
 
@@ -145,7 +143,10 @@ impl Map {
         }
     }
 
-    pub fn create_from_raw(raw: RawMap, timer: &mut Timer) -> Map {
+    pub fn create_from_raw(mut raw: RawMap, timer: &mut Timer) -> Map {
+        // Better to defer this and see RawMaps with more debug info in map_editor
+        make::remove_disconnected_roads(&mut raw, timer);
+
         timer.start("raw_map to InitialMap");
         let gps_bounds = raw.gps_bounds.clone();
         let bounds = gps_bounds.to_bounds();
