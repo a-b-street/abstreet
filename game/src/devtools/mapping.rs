@@ -11,6 +11,7 @@ use geom::Distance;
 use map_model::{osm, RoadID};
 use sim::DontDrawAgents;
 use std::collections::{BTreeMap, HashSet};
+use std::error::Error;
 use std::fs::File;
 use std::io::Write;
 
@@ -281,13 +282,15 @@ impl State for ParkingMapper {
                             vec!["Map some parking first"],
                         ));
                     }
-                    ctx.loading_screen("generate OsmChange file", |_, timer| {
+                    return match ctx.loading_screen("generate OsmChange file", |_, timer| {
                         generate_osmc(&self.data, timer)
-                    });
-                    return Transition::Push(msg(
-                        "Diff generated",
-                        vec!["diff.osc created. Load it in JOSM, verify, and upload!"],
-                    ));
+                    }) {
+                        Ok(()) => Transition::Push(msg(
+                            "Diff generated",
+                            vec!["diff.osc created. Load it in JOSM, verify, and upload!"],
+                        )),
+                        Err(err) => Transition::Push(msg("Error", vec![format!("{}", err)])),
+                    };
                 }
                 "change map" => {
                     return Transition::Push(WizardState::new(Box::new(load_map)));
@@ -320,10 +323,12 @@ impl State for ParkingMapper {
 }
 
 #[cfg(target_arch = "wasm32")]
-fn generate_osmc(data: &BTreeMap<i64, Value>, timer: &mut Timer) {}
+fn generate_osmc(data: &BTreeMap<i64, Value>, timer: &mut Timer) -> Result<(), Box<dyn Error>> {
+    Err("Woops, mapping mode isn't supported on the web yet".to_string())
+}
 
 #[cfg(not(target_arch = "wasm32"))]
-fn generate_osmc(data: &BTreeMap<i64, Value>, timer: &mut Timer) {
+fn generate_osmc(data: &BTreeMap<i64, Value>, timer: &mut Timer) -> Result<(), Box<dyn Error>> {
     let mut modified_ways = Vec::new();
     timer.start_iter("fetch latest OSM data per modified way", data.len());
     for (way, value) in data {
@@ -334,9 +339,8 @@ fn generate_osmc(data: &BTreeMap<i64, Value>, timer: &mut Timer) {
 
         let url = format!("https://api.openstreetmap.org/api/0.6/way/{}", way);
         timer.note(format!("Fetching {}", url));
-        let resp = reqwest::blocking::get(&url).unwrap().text().unwrap();
-        let mut tree = xmltree::Element::parse(resp.as_bytes())
-            .unwrap()
+        let resp = reqwest::blocking::get(&url)?.text()?;
+        let mut tree = xmltree::Element::parse(resp.as_bytes())?
             .take_child("way")
             .unwrap();
         let mut osm_tags = BTreeMap::new();
@@ -388,20 +392,21 @@ fn generate_osmc(data: &BTreeMap<i64, Value>, timer: &mut Timer) {
         tree.attributes.remove("visible");
 
         let mut bytes: Vec<u8> = Vec::new();
-        tree.write(&mut bytes).unwrap();
-        let out = String::from_utf8(bytes).unwrap();
+        tree.write(&mut bytes)?;
+        let out = String::from_utf8(bytes)?;
         let stripped = out.trim_start_matches("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         modified_ways.push(stripped.to_string());
     }
 
-    let path = "diff.osc";
-    let mut f = File::create(path).unwrap();
-    writeln!(f, "<osmChange version=\"0.6\" generator=\"abst\"><modify>").unwrap();
+    let path = "../diff.osc";
+    let mut f = File::create(path)?;
+    writeln!(f, "<osmChange version=\"0.6\" generator=\"abst\"><modify>")?;
     for w in modified_ways {
-        writeln!(f, "  {}", w).unwrap();
+        writeln!(f, "  {}", w)?;
     }
-    writeln!(f, "</modify></osmChange>").unwrap();
+    writeln!(f, "</modify></osmChange>")?;
     timer.note(format!("Wrote {}", path));
+    Ok(())
 }
 
 fn load_map(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {

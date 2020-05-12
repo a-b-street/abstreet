@@ -13,7 +13,7 @@ regenerate the maps!
 5.  Select what kind of on-street parking the road has
 6.  Repeat
 7.  Click **Generate OsmChange file**
-8.  Upload the game/diff.osc file by adding a layer in JOSM
+8.  Upload the diff.osc file by adding a layer in JOSM
 
 Like all edits to OSM, to figure out ground-truth, you can survey in-person or
 use

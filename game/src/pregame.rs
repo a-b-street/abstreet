@@ -133,7 +133,7 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
                 })
                 .build_def(ctx, hotkey(Key::M)),
             if app.opts.dev {
-                Btn::text_bg2("Internal Dev Tools").build_def(ctx, hotkey(Key::M))
+                Btn::text_bg2("Internal Dev Tools").build_def(ctx, hotkey(Key::D))
             } else {
                 Widget::nothing()
             },
