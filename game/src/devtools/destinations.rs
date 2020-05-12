@@ -1,7 +1,7 @@
 use crate::app::{App, ShowEverything};
 use crate::common::{make_heatmap, HeatmapOptions};
 use crate::game::{State, Transition};
-use crate::helpers::ID;
+use crate::helpers::{amenity_type, ID};
 use abstutil::Counter;
 use ezgui::{
     hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
@@ -61,6 +61,32 @@ impl PopularDestinations {
             Widget::nothing()
         };
 
+        let mut by_type = Counter::new();
+        for (b, cnt) in per_bldg.borrow() {
+            let mut other = true;
+            for (_, amenity) in &map.get_b(*b).amenities {
+                if let Some(t) = amenity_type(amenity) {
+                    by_type.add(t, *cnt);
+                    other = false;
+                }
+            }
+            if other {
+                by_type.add("other", *cnt);
+            }
+        }
+        let mut breakdown = Text::from(Line("Breakdown by type"));
+        let mut list = by_type.consume().into_iter().collect::<Vec<_>>();
+        list.sort_by_key(|(_, cnt)| *cnt);
+        list.reverse();
+        let sum = per_bldg.sum() as f64;
+        for (category, cnt) in list {
+            breakdown.add(Line(format!(
+                "{}: {}%",
+                category,
+                ((cnt as f64) / sum * 100.0) as usize
+            )));
+        }
+
         Box::new(PopularDestinations {
             per_bldg,
             draw: ctx.upload(batch),
@@ -77,6 +103,7 @@ impl PopularDestinations {
                     ]),
                     Checkbox::text(ctx, "Show heatmap", None, opts.is_some()),
                     controls,
+                    breakdown.draw(ctx),
                 ])
                 .padding(10)
                 .bg(app.cs.panel_bg),

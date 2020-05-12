@@ -137,3 +137,51 @@ pub fn color_for_mode(app: &App, m: TripMode) -> Color {
         TripMode::Drive => app.cs.unzoomed_car,
     }
 }
+
+pub fn amenity_type(a: &str) -> Option<&str> {
+    if a == "supermarket" || a == "convenience" {
+        Some("groceries")
+    } else if a == "restaurant"
+        || a == "cafe"
+        || a == "fast_food"
+        || a == "food_court"
+        || a == "ice_cream"
+        || a == "pastry"
+        || a == "deli"
+    {
+        Some("food")
+    } else if a == "pub" || a == "bar" || a == "nightclub" || a == "lounge" {
+        Some("bar")
+    } else if a == "doctors"
+        || a == "dentist"
+        || a == "clinic"
+        || a == "pharmacy"
+        || a == "chiropractor"
+    {
+        Some("medical")
+    } else if a == "place_of_worship" {
+        Some("church / temple")
+    } else if a == "college" || a == "school" || a == "kindergarten" || a == "university" {
+        Some("education")
+    } else if a == "bank" || a == "post_office" || a == "atm" {
+        Some("bank / post office")
+    } else if a == "theatre"
+        || a == "arts_centre"
+        || a == "library"
+        || a == "cinema"
+        || a == "art_gallery"
+    {
+        Some("media")
+    } else if a == "childcare" {
+        Some("childcare")
+    } else if a == "second_hand"
+        || a == "clothes"
+        || a == "furniture"
+        || a == "shoes"
+        || a == "department_store"
+    {
+        Some("shopping")
+    } else {
+        None
+    }
+}

@@ -1,5 +1,6 @@
 use crate::app::App;
 use crate::common::Colorer;
+use crate::helpers::amenity_type;
 use crate::layer::Layers;
 use abstutil::Counter;
 use ezgui::{Color, EventCtx};
@@ -175,7 +176,7 @@ pub fn amenities(ctx: &mut EventCtx, app: &App) -> Layers {
             ("food", Color::RED),
             ("bar", Color::BLUE),
             ("medical", Color::PURPLE),
-            ("church/temple", Color::GREEN),
+            ("church / temple", Color::GREEN),
             ("education", Color::CYAN),
             ("bank / post office", Color::YELLOW),
             ("media", Color::PINK),
@@ -186,48 +187,23 @@ pub fn amenities(ctx: &mut EventCtx, app: &App) -> Layers {
 
     for b in app.primary.map.all_buildings() {
         for (_, a) in &b.amenities {
-            if a == "supermarket" || a == "convenience" {
-                colorer.add_b(b.id, Color::BLACK);
-            } else if a == "restaurant"
-                || a == "cafe"
-                || a == "fast_food"
-                || a == "food_court"
-                || a == "ice_cream"
-                || a == "pastry"
-                || a == "deli"
-            {
-                colorer.add_b(b.id, Color::RED);
-            } else if a == "pub" || a == "bar" || a == "nightclub" || a == "lounge" {
-                colorer.add_b(b.id, Color::BLUE);
-            } else if a == "doctors"
-                || a == "dentist"
-                || a == "clinic"
-                || a == "pharmacy"
-                || a == "chiropractor"
-            {
-                colorer.add_b(b.id, Color::PURPLE);
-            } else if a == "place_of_worship" {
-                colorer.add_b(b.id, Color::GREEN);
-            } else if a == "college" || a == "school" || a == "kindergarten" || a == "university" {
-                colorer.add_b(b.id, Color::CYAN);
-            } else if a == "bank" || a == "post_office" || a == "atm" {
-                colorer.add_b(b.id, Color::YELLOW);
-            } else if a == "theatre"
-                || a == "arts_centre"
-                || a == "library"
-                || a == "cinema"
-                || a == "art_gallery"
-            {
-                colorer.add_b(b.id, Color::PINK);
-            } else if a == "childcare" {
-                colorer.add_b(b.id, Color::ORANGE);
-            } else if a == "second_hand"
-                || a == "clothes"
-                || a == "furniture"
-                || a == "shoes"
-                || a == "department_store"
-            {
-                colorer.add_b(b.id, Color::WHITE);
+            if let Some(t) = amenity_type(a) {
+                colorer.add_b(
+                    b.id,
+                    match t {
+                        "groceries" => Color::BLACK,
+                        "food" => Color::RED,
+                        "bar" => Color::BLUE,
+                        "medical" => Color::PURPLE,
+                        "church / temple" => Color::GREEN,
+                        "education" => Color::CYAN,
+                        "bank / post office" => Color::YELLOW,
+                        "media" => Color::PINK,
+                        "childcare" => Color::ORANGE,
+                        "shopping" => Color::WHITE,
+                        _ => unreachable!(),
+                    },
+                );
             } else {
                 println!("{}", a);
             }
