@@ -6,8 +6,14 @@ hit problems. I'd really appreciate help and PRs to improve this.
 
 ## Quick start
 
-TODO. Ideally, you just run the importer with a local .osm file and an optional
-clipping polygon. No code changes.
+If you have a `.osm` file, you can just run
+`./import.sh --oneshot=/absolute/path/to/map.osm`. This tool will generate a new
+file in `data/system/maps` that you can then load in the game.
+
+If you have an Osmosis polygon filter (see below), you can also pass
+`--oneshot_clip=/absolute/path/to/clip.poly` to improve the result. You should
+first make sure your .osm has been clipped:
+`osmconvert large_map.osm -B=clipping.poly --complete-ways -o=smaller_map.osm`.
 
 ## Including the city by default
 

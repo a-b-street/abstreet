@@ -100,3 +100,5 @@ easier; let me know if you have ideas how to do this.)
 
 To keep the release size small, I'm not including all maps yet. Let me know what
 you'd like to see included.
+
+Or if you have a `.osm` file, try the [quick start guide](new_city.md).

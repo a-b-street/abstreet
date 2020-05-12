@@ -5,8 +5,7 @@ set -e
 
 output=$1;
 runner=$2;
-game_binary=$3;
-importer_binary=$4;
+binary=$3;
 
 cargo run --bin updater
 
@@ -15,9 +14,7 @@ mkdir $output
 cp docs/INSTRUCTIONS.md $output
 cp release/$runner $output
 mkdir $output/game
-cp $game_binary $output/game
-mkdir $output/importer
-cp $importer_binary $output/importer
+cp $binary $output/game
 mkdir $output/data
 cp -Rv data/system $output/data/system
 
