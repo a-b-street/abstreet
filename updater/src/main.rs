@@ -209,6 +209,7 @@ impl Manifest {
                         || map == "lakeslice"
                         || map == "montlake"
                         || map == "mt_baker"
+                        || map == "udistrict"
                 }
                 "huge_seattle" => map == "huge_seattle" || map == "west_seattle",
                 "austin" => map == "downtown_atx" || map == "huge_austin",

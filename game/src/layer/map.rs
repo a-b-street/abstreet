@@ -171,6 +171,7 @@ pub fn amenities(ctx: &mut EventCtx, app: &App) -> Layers {
         "Amenities",
         Vec::new(),
         vec![
+            ("groceries", Color::BLACK),
             ("food", Color::RED),
             ("bar", Color::BLUE),
             ("medical", Color::PURPLE),
@@ -179,16 +180,21 @@ pub fn amenities(ctx: &mut EventCtx, app: &App) -> Layers {
             ("bank / post office", Color::YELLOW),
             ("media", Color::PINK),
             ("childcare", Color::ORANGE),
+            ("shopping", Color::WHITE),
         ],
     );
 
     for b in app.primary.map.all_buildings() {
         for (_, a) in &b.amenities {
-            if a == "restaurant"
+            if a == "supermarket" || a == "convenience" {
+                colorer.add_b(b.id, Color::BLACK);
+            } else if a == "restaurant"
                 || a == "cafe"
                 || a == "fast_food"
                 || a == "food_court"
                 || a == "ice_cream"
+                || a == "pastry"
+                || a == "deli"
             {
                 colorer.add_b(b.id, Color::RED);
             } else if a == "pub" || a == "bar" || a == "nightclub" || a == "lounge" {
@@ -215,6 +221,13 @@ pub fn amenities(ctx: &mut EventCtx, app: &App) -> Layers {
                 colorer.add_b(b.id, Color::PINK);
             } else if a == "childcare" {
                 colorer.add_b(b.id, Color::ORANGE);
+            } else if a == "second_hand"
+                || a == "clothes"
+                || a == "furniture"
+                || a == "shoes"
+                || a == "department_store"
+            {
+                colorer.add_b(b.id, Color::WHITE);
             } else {
                 println!("{}", a);
             }

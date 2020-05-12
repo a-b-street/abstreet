@@ -66,9 +66,22 @@ pub fn extract_osm(
             traffic_signals.insert(pt.to_hashable());
         }
         if let Some(amenity) = tags.get("amenity") {
-            if let Some(name) = tags.get("name") {
-                amenities.push((pt, name.clone(), amenity.clone()));
-            }
+            amenities.push((
+                pt,
+                tags.get("name")
+                    .cloned()
+                    .unwrap_or_else(|| "unnamed".to_string()),
+                amenity.clone(),
+            ));
+        }
+        if let Some(shop) = tags.get("shop") {
+            amenities.push((
+                pt,
+                tags.get("name")
+                    .cloned()
+                    .unwrap_or_else(|| "unnamed".to_string()),
+                shop.clone(),
+            ));
         }
     }
 
