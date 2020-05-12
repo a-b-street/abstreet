@@ -145,7 +145,7 @@ impl Map {
         }
     }
 
-    fn create_from_raw(raw: RawMap, timer: &mut Timer) -> Map {
+    pub fn create_from_raw(raw: RawMap, timer: &mut Timer) -> Map {
         timer.start("raw_map to InitialMap");
         let gps_bounds = raw.gps_bounds.clone();
         let bounds = gps_bounds.to_bounds();

@@ -1,9 +1,8 @@
 mod austin;
-mod barranquilla;
-mod los_angeles;
 mod seattle;
 mod soundcast;
 mod utils;
+
 use std::thread;
 
 struct Job {
@@ -14,6 +13,8 @@ struct Job {
     scenario_everyone: bool,
 
     only_map: Option<String>,
+
+    oneshot: Option<String>,
 }
 
 fn main() {
@@ -32,13 +33,27 @@ fn main() {
         // Only process one map. If not specified, process all maps defined by clipping polygons in
         // data/input/$city/polygons/.
         only_map: args.optional_free(),
+
+        // Ignore other arguments and just convert the given .osm file to a Map.
+        oneshot: args.optional("--oneshot"),
     };
     args.done();
-    if !job.osm_to_raw && !job.raw_to_map && !job.scenario && !job.scenario_everyone {
+    if !job.osm_to_raw
+        && !job.raw_to_map
+        && !job.scenario
+        && !job.scenario_everyone
+        && job.oneshot.is_none()
+    {
         println!(
-            "Nothing to do! Pass some combination of --raw, --map, --scenario, --scenario_everyone"
+            "Nothing to do! Pass some combination of --raw, --map, --scenario, \
+             --scenario_everyone or --oneshot"
         );
         std::process::exit(1);
+    }
+
+    if let Some(path) = job.oneshot {
+        oneshot(path);
+        return;
     }
 
     let names = if let Some(n) = job.only_map {
@@ -54,8 +69,6 @@ fn main() {
         if job.osm_to_raw {
             match job.city.as_ref() {
                 "austin" => austin::osm_to_raw(&name),
-                "barranquilla" => barranquilla::osm_to_raw(&name),
-                "los_angeles" => los_angeles::osm_to_raw(&name),
                 "seattle" => seattle::osm_to_raw(&name),
                 x => panic!("Unknown city {}", x),
             }
@@ -91,4 +104,32 @@ fn main() {
     for handle in handles {
         handle.join().unwrap();
     }
+}
+
+fn oneshot(osm_path: String) {
+    let mut timer = abstutil::Timer::new("oneshot");
+    println!("- Running convert_osm on {}", osm_path);
+    let name = abstutil::basename(&osm_path);
+    let raw = convert_osm::convert(
+        convert_osm::Options {
+            osm_input: osm_path,
+            city_name: "oneshot".to_string(),
+            name: name.clone(),
+
+            parking_shapes: None,
+            public_offstreet_parking: None,
+            private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(1),
+            sidewalks: None,
+            gtfs: None,
+            elevation: None,
+            clip: None,
+            drive_on_right: true,
+        },
+        &mut timer,
+    );
+    let map = map_model::Map::create_from_raw(raw, &mut timer);
+    timer.start("save map");
+    map.save();
+    timer.stop("save map");
+    println!("{} has been created", abstutil::path_map(&name));
 }

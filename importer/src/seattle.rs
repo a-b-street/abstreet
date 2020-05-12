@@ -42,11 +42,9 @@ pub fn osm_to_raw(name: &str) {
     );
 
     println!("- Running convert_osm");
-    let output = format!("../data/input/raw_maps/{}.bin", name);
     let map = convert_osm::convert(
         convert_osm::Options {
             osm_input: format!("../data/input/seattle/osm/{}.osm", name),
-            output: output.clone(),
             city_name: "seattle".to_string(),
             name: name.to_string(),
 
@@ -66,6 +64,7 @@ pub fn osm_to_raw(name: &str) {
         },
         &mut abstutil::Timer::throwaway(),
     );
+    let output = format!("../data/input/raw_maps/{}.bin", name);
     println!("- Saving {}", output);
     abstutil::write_binary(output, &map);
 }

@@ -4,8 +4,6 @@
 data/config
 
 data/input/austin/osm
-data/input/barranquilla/osm
-data/input/los_angeles/osm
 
 data/input/seattle/blockface.bin
 data/input/seattle/google_transit

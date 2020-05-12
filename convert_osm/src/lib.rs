@@ -14,7 +14,6 @@ const DIRECTED_ROAD_THICKNESS: Distance = Distance::const_meters(2.5);
 
 pub struct Options {
     pub osm_input: String,
-    pub output: String,
     pub city_name: String,
     pub name: String,
 
