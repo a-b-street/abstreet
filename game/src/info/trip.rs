@@ -267,7 +267,7 @@ fn make_timeline(
     trip: TripID,
     details: &mut Details,
     phases: Vec<TripPhase>,
-    progress_along_path: Option<f64>,
+    progress_along_path: Option<f32>,
 ) -> Widget {
     let map = &app.primary.map;
     let sim = &app.primary.sim;

@@ -7,7 +7,7 @@ use std::collections::HashMap;
 
 pub struct FindClosest<K> {
     // TODO maybe any type of geo:: thing
-    geometries: HashMap<K, geo::LineString<f64>>,
+    geometries: HashMap<K, geo::LineString<f32>>,
     quadtree: QuadTree<K>,
 }
 
@@ -74,8 +74,8 @@ where
     }
 }
 
-fn pts_to_line_string(raw_pts: &Vec<Pt2D>) -> geo::LineString<f64> {
-    let pts: Vec<geo::Point<f64>> = raw_pts
+fn pts_to_line_string(raw_pts: &Vec<Pt2D>) -> geo::LineString<f32> {
+    let pts: Vec<geo::Point<f32>> = raw_pts
         .iter()
         .map(|pt| geo::Point::new(pt.x(), pt.y()))
         .collect();

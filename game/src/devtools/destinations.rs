@@ -78,12 +78,12 @@ impl PopularDestinations {
         let mut list = by_type.consume().into_iter().collect::<Vec<_>>();
         list.sort_by_key(|(_, cnt)| *cnt);
         list.reverse();
-        let sum = per_bldg.sum() as f64;
+        let sum = per_bldg.sum() as f32;
         for (category, cnt) in list {
             breakdown.add(Line(format!(
                 "{}: {}%",
                 category,
-                ((cnt as f64) / sum * 100.0) as usize
+                ((cnt as f32) / sum * 100.0) as usize
             )));
         }
 

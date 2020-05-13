@@ -115,9 +115,9 @@ impl<T: Yvalue<T>> LinePlot<T> {
         // TODO This caps correctly, but if the max is 105, then suddenly we just have 2 grid
         // lines.
         {
-            let order_of_mag = 10.0_f64.powf(max_y.to_f64().log10().ceil());
+            let order_of_mag = 10.0_f32.powf(max_y.to_f32().log10().ceil());
             for i in 0..10 {
-                let y = max_y.from_f64(order_of_mag / 10.0 * (i as f64));
+                let y = max_y.from_f32(order_of_mag / 10.0 * (i as f32));
                 let pct = y.to_percent(max_y);
                 if pct > 1.0 {
                     break;
@@ -134,9 +134,9 @@ impl<T: Yvalue<T>> LinePlot<T> {
         }
         // X axis grid
         if max_x != Time::START_OF_DAY {
-            let order_of_mag = 10.0_f64.powf(max_x.inner_seconds().log10().ceil());
+            let order_of_mag = 10.0_f32.powf(max_x.inner_seconds().log10().ceil());
             for i in 0..10 {
-                let x = Time::START_OF_DAY + Duration::seconds(order_of_mag / 10.0 * (i as f64));
+                let x = Time::START_OF_DAY + Duration::seconds(order_of_mag / 10.0 * (i as f32));
                 let pct = x.to_percent(max_x);
                 if pct > 1.0 {
                     break;
@@ -210,7 +210,7 @@ impl<T: Yvalue<T>> LinePlot<T> {
         let num_x_labels = 3;
         let mut row = Vec::new();
         for i in 0..num_x_labels {
-            let percent_x = (i as f64) / ((num_x_labels - 1) as f64);
+            let percent_x = (i as f32) / ((num_x_labels - 1) as f32);
             let t = max_x.percent_of(percent_x);
             // TODO Need ticks now to actually see where this goes
             let mut batch = GeomBatch::new();
@@ -224,7 +224,7 @@ impl<T: Yvalue<T>> LinePlot<T> {
         let num_y_labels = 4;
         let mut col = Vec::new();
         for i in 0..num_y_labels {
-            let percent_y = (i as f64) / ((num_y_labels - 1) as f64);
+            let percent_y = (i as f32) / ((num_y_labels - 1) as f32);
             col.push(max_y.from_percent(percent_y).prettyprint().draw_text(ctx));
         }
         col.reverse();
@@ -316,33 +316,33 @@ impl<T: Yvalue<T>> WidgetImpl for LinePlot<T> {
 
 pub trait Yvalue<T>: 'static + Copy + std::cmp::Ord {
     // percent is [0.0, 1.0]
-    fn from_percent(&self, percent: f64) -> T;
-    fn to_percent(self, max: T) -> f64;
+    fn from_percent(&self, percent: f32) -> T;
+    fn to_percent(self, max: T) -> f32;
     fn prettyprint(self) -> String;
     // For order of magnitude calculations
-    fn to_f64(self) -> f64;
-    fn from_f64(&self, x: f64) -> T;
+    fn to_f32(self) -> f32;
+    fn from_f32(&self, x: f32) -> T;
     fn zero() -> T;
 }
 
 impl Yvalue<usize> for usize {
-    fn from_percent(&self, percent: f64) -> usize {
-        ((*self as f64) * percent) as usize
+    fn from_percent(&self, percent: f32) -> usize {
+        ((*self as f32) * percent) as usize
     }
-    fn to_percent(self, max: usize) -> f64 {
+    fn to_percent(self, max: usize) -> f32 {
         if max == 0 {
             0.0
         } else {
-            (self as f64) / (max as f64)
+            (self as f32) / (max as f32)
         }
     }
     fn prettyprint(self) -> String {
         prettyprint_usize(self)
     }
-    fn to_f64(self) -> f64 {
-        self as f64
+    fn to_f32(self) -> f32 {
+        self as f32
     }
-    fn from_f64(&self, x: f64) -> usize {
+    fn from_f32(&self, x: f32) -> usize {
         x as usize
     }
     fn zero() -> usize {
@@ -350,10 +350,10 @@ impl Yvalue<usize> for usize {
     }
 }
 impl Yvalue<Duration> for Duration {
-    fn from_percent(&self, percent: f64) -> Duration {
+    fn from_percent(&self, percent: f32) -> Duration {
         *self * percent
     }
-    fn to_percent(self, max: Duration) -> f64 {
+    fn to_percent(self, max: Duration) -> f32 {
         if max == Duration::ZERO {
             0.0
         } else {
@@ -363,11 +363,11 @@ impl Yvalue<Duration> for Duration {
     fn prettyprint(self) -> String {
         self.to_string()
     }
-    fn to_f64(self) -> f64 {
-        self.inner_seconds() as f64
+    fn to_f32(self) -> f32 {
+        self.inner_seconds() as f32
     }
-    fn from_f64(&self, x: f64) -> Duration {
-        Duration::seconds(x as f64)
+    fn from_f32(&self, x: f32) -> Duration {
+        Duration::seconds(x as f32)
     }
     fn zero() -> Duration {
         Duration::ZERO

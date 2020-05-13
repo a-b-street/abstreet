@@ -130,9 +130,9 @@ pub fn throughput(ctx: &mut EventCtx, app: &App, compare: bool) -> Layers {
     // TODO Dump the data in debug mode
     {
         let roads = stats.count_per_road.sorted_asc();
-        let p50_idx = ((roads.len() as f64) * 0.5) as usize;
-        let p90_idx = ((roads.len() as f64) * 0.9) as usize;
-        let p99_idx = ((roads.len() as f64) * 0.99) as usize;
+        let p50_idx = ((roads.len() as f32) * 0.5) as usize;
+        let p90_idx = ((roads.len() as f32) * 0.9) as usize;
+        let p99_idx = ((roads.len() as f32) * 0.99) as usize;
         for (idx, r) in roads.into_iter().enumerate() {
             let color = if idx < p50_idx {
                 app.cs.good_to_bad[0]
@@ -149,9 +149,9 @@ pub fn throughput(ctx: &mut EventCtx, app: &App, compare: bool) -> Layers {
     // TODO dedupe
     {
         let intersections = stats.count_per_intersection.sorted_asc();
-        let p50_idx = ((intersections.len() as f64) * 0.5) as usize;
-        let p90_idx = ((intersections.len() as f64) * 0.9) as usize;
-        let p99_idx = ((intersections.len() as f64) * 0.99) as usize;
+        let p50_idx = ((intersections.len() as f32) * 0.5) as usize;
+        let p90_idx = ((intersections.len() as f32) * 0.9) as usize;
+        let p99_idx = ((intersections.len() as f32) * 0.99) as usize;
         for (idx, i) in intersections.into_iter().enumerate() {
             let color = if idx < p50_idx {
                 app.cs.good_to_bad[0]
@@ -227,7 +227,7 @@ fn compare_throughput(ctx: &mut EventCtx, app: &App) -> Layers {
     );
 
     for (r, before, after) in before_road.compare(after_road) {
-        let pct_change = (after as f64) / (before as f64);
+        let pct_change = (after as f32) / (before as f32);
         let color = if pct_change < 0.5 {
             colors[0]
         } else if pct_change < 0.1 {
@@ -243,7 +243,7 @@ fn compare_throughput(ctx: &mut EventCtx, app: &App) -> Layers {
         colorer.add_r(r, color, &app.primary.map);
     }
     for (i, before, after) in before_intersection.compare(after_intersection) {
-        let pct_change = (after as f64) / (before as f64);
+        let pct_change = (after as f32) / (before as f32);
         let color = if pct_change < 0.5 {
             colors[0]
         } else if pct_change < 0.1 {
@@ -315,9 +315,9 @@ pub fn backpressure(ctx: &mut EventCtx, app: &App) -> Layers {
     // TODO dedupe with throughput
     {
         let roads = cnt_per_r.sorted_asc();
-        let p50_idx = ((roads.len() as f64) * 0.5) as usize;
-        let p90_idx = ((roads.len() as f64) * 0.9) as usize;
-        let p99_idx = ((roads.len() as f64) * 0.99) as usize;
+        let p50_idx = ((roads.len() as f32) * 0.5) as usize;
+        let p90_idx = ((roads.len() as f32) * 0.9) as usize;
+        let p99_idx = ((roads.len() as f32) * 0.99) as usize;
         for (idx, r) in roads.into_iter().enumerate() {
             let color = if idx < p50_idx {
                 app.cs.good_to_bad[0]
@@ -333,9 +333,9 @@ pub fn backpressure(ctx: &mut EventCtx, app: &App) -> Layers {
     }
     {
         let intersections = cnt_per_i.sorted_asc();
-        let p50_idx = ((intersections.len() as f64) * 0.5) as usize;
-        let p90_idx = ((intersections.len() as f64) * 0.9) as usize;
-        let p99_idx = ((intersections.len() as f64) * 0.99) as usize;
+        let p50_idx = ((intersections.len() as f32) * 0.5) as usize;
+        let p90_idx = ((intersections.len() as f32) * 0.9) as usize;
+        let p99_idx = ((intersections.len() as f32) * 0.99) as usize;
         for (idx, i) in intersections.into_iter().enumerate() {
             let color = if idx < p50_idx {
                 app.cs.good_to_bad[0]
@@ -375,7 +375,7 @@ pub fn intersection_demand(ctx: &mut EventCtx, app: &App, i: IntersectionID) -> 
     }
 
     for (pl, demand) in demand_per_group {
-        let percent = (demand as f64) / (total_demand as f64);
+        let percent = (demand as f32) / (total_demand as f32);
         batch.push(
             Color::RED,
             pl.make_arrow(percent * Distance::meters(5.0), ArrowCap::Triangle)

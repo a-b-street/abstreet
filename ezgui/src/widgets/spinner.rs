@@ -5,7 +5,7 @@ use crate::{
 use geom::{Polygon, Pt2D};
 
 // TODO MAX_CHAR_WIDTH is a hardcoded nonsense value
-const TEXT_WIDTH: f64 = 2.0 * text::MAX_CHAR_WIDTH;
+const TEXT_WIDTH: f32 = 2.0 * text::MAX_CHAR_WIDTH;
 
 // TODO Allow text entry
 // TODO Allow click and hold

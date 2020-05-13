@@ -1,4 +1,4 @@
-use crate::{trim_f64, Angle, Distance, GPSBounds, LonLat, EPSILON_DIST};
+use crate::{trim_f32, Angle, Distance, GPSBounds, LonLat, EPSILON_DIST};
 use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
@@ -6,8 +6,8 @@ use std::fmt;
 // This represents world-space in meters.
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct Pt2D {
-    inner_x: f64,
-    inner_y: f64,
+    inner_x: f32,
+    inner_y: f32,
 }
 
 impl std::cmp::PartialEq for Pt2D {
@@ -17,7 +17,7 @@ impl std::cmp::PartialEq for Pt2D {
 }
 
 impl Pt2D {
-    pub fn new(x: f64, y: f64) -> Pt2D {
+    pub fn new(x: f32, y: f32) -> Pt2D {
         if !x.is_finite() || !y.is_finite() {
             panic!("Bad Pt2D {}, {}", x, y);
         }
@@ -25,8 +25,8 @@ impl Pt2D {
         // TODO enforce >=0
 
         Pt2D {
-            inner_x: trim_f64(x),
-            inner_y: trim_f64(y),
+            inner_x: trim_f32(x),
+            inner_y: trim_f32(y),
         }
     }
 
@@ -83,11 +83,11 @@ impl Pt2D {
         Some(LonLat::new(lon, lat))
     }
 
-    pub fn x(self) -> f64 {
+    pub fn x(self) -> f32 {
         self.inner_x
     }
 
-    pub fn y(self) -> f64 {
+    pub fn y(self) -> f32 {
         self.inner_y
     }
 
@@ -105,7 +105,7 @@ impl Pt2D {
 
     // TODO valid to do euclidean distance on world-space points that're formed from
     // Haversine?
-    pub(crate) fn raw_dist_to(self, to: Pt2D) -> f64 {
+    pub(crate) fn raw_dist_to(self, to: Pt2D) -> f32 {
         ((self.x() - to.x()).powi(2) + (self.y() - to.y()).powi(2)).sqrt()
     }
 
@@ -118,7 +118,7 @@ impl Pt2D {
         Angle::new((to.y() - self.y()).atan2(to.x() - self.x()))
     }
 
-    pub fn offset(self, dx: f64, dy: f64) -> Pt2D {
+    pub fn offset(self, dx: f32, dy: f32) -> Pt2D {
         Pt2D::new(self.x() + dx, self.y() + dy)
     }
 
@@ -132,7 +132,7 @@ impl Pt2D {
             x += pt.x();
             y += pt.y();
         }
-        let len = pts.len() as f64;
+        let len = pts.len() as f32;
         Pt2D::new(x / len, y / len)
     }
 
@@ -203,8 +203,8 @@ impl fmt::Display for Pt2D {
 // TODO So rename it HashablePair or something
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct HashablePt2D {
-    x_nan: NotNan<f64>,
-    y_nan: NotNan<f64>,
+    x_nan: NotNan<f32>,
+    y_nan: NotNan<f32>,
 }
 
 impl HashablePt2D {

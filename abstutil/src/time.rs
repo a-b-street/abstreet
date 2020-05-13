@@ -4,9 +4,9 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::{stdout, BufReader, Error, ErrorKind, Read, Write};
 
-pub fn elapsed_seconds(since: Instant) -> f64 {
+pub fn elapsed_seconds(since: Instant) -> f32 {
     let dt = since.elapsed();
-    (dt.as_secs() as f64) + (f64::from(dt.subsec_nanos()) * 1e-9)
+    (dt.as_secs() as f32) + (f32::from(dt.subsec_nanos()) * 1e-9)
 }
 
 struct Progress {
@@ -34,7 +34,7 @@ impl Progress {
     fn next<'a>(
         &mut self,
         maybe_sink: &mut Option<Box<dyn TimerSink + 'a>>,
-    ) -> Option<(f64, String)> {
+    ) -> Option<(f32, String)> {
         self.processed_items += 1;
         if self.processed_items > self.total_items {
             panic!(
@@ -116,7 +116,7 @@ struct TimerSpan {
     name: String,
     started_at: Instant,
     nested_results: Vec<String>,
-    nested_time: f64,
+    nested_time: f32,
 }
 
 impl<'a> Timer<'a> {
@@ -291,7 +291,7 @@ impl<'a> Timer<'a> {
         }
     }
 
-    pub(crate) fn add_result(&mut self, elapsed: f64, line: String) {
+    pub(crate) fn add_result(&mut self, elapsed: f32, line: String) {
         let padding = "  ".repeat(self.stack.len());
         match self.stack.last_mut() {
             Some(StackEntry::TimerSpan(ref mut s)) => {
@@ -434,7 +434,7 @@ pub struct Profiler {
 
 struct ProfilerEntry {
     name: String,
-    total_seconds: f64,
+    total_seconds: f32,
     rounds: usize,
 }
 
@@ -488,7 +488,7 @@ impl Profiler {
         println!("Profiler results so far:");
         for entry in &self.entries {
             // Suppress things that don't take any time.
-            let time_per_round = entry.total_seconds / (entry.rounds as f64);
+            let time_per_round = entry.total_seconds / (entry.rounds as f32);
             if time_per_round < 0.0001 {
                 // TODO Actually, the granularity of the rounds might differ. Don't do this.
                 //continue;
@@ -519,7 +519,7 @@ pub fn prettyprint_usize(x: usize) -> String {
     result
 }
 
-pub fn prettyprint_time(seconds: f64) -> String {
+pub fn prettyprint_time(seconds: f32) -> String {
     format!("{:.4}s", seconds)
 }
 

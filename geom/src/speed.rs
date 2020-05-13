@@ -1,10 +1,10 @@
-use crate::{trim_f64, Distance, Duration, EPSILON_DIST};
+use crate::{trim_f32, Distance, Duration, EPSILON_DIST};
 use serde_derive::{Deserialize, Serialize};
-use std::{f64, fmt, ops};
+use std::{f32, fmt, ops};
 
 // In meters per second. Can be negative.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
-pub struct Speed(f64);
+pub struct Speed(f32);
 
 impl Speed {
     pub const ZERO: Speed = Speed::const_meters_per_second(0.0);
@@ -15,19 +15,19 @@ impl Speed {
         self * timestep <= EPSILON_DIST
     }
 
-    pub fn meters_per_second(value: f64) -> Speed {
+    pub fn meters_per_second(value: f32) -> Speed {
         if !value.is_finite() {
             panic!("Bad Speed {}", value);
         }
 
-        Speed(trim_f64(value))
+        Speed(trim_f32(value))
     }
 
-    pub const fn const_meters_per_second(value: f64) -> Speed {
+    pub const fn const_meters_per_second(value: f32) -> Speed {
         Speed(value)
     }
 
-    pub fn miles_per_hour(value: f64) -> Speed {
+    pub fn miles_per_hour(value: f32) -> Speed {
         Speed::meters_per_second(0.44704 * value)
     }
 
@@ -36,7 +36,7 @@ impl Speed {
     }
 
     // TODO Remove if possible.
-    pub fn inner_meters_per_second(self) -> f64 {
+    pub fn inner_meters_per_second(self) -> f32 {
         self.0
     }
 
@@ -81,15 +81,15 @@ impl ops::Neg for Speed {
     }
 }
 
-impl ops::Mul<f64> for Speed {
+impl ops::Mul<f32> for Speed {
     type Output = Speed;
 
-    fn mul(self, scalar: f64) -> Speed {
+    fn mul(self, scalar: f32) -> Speed {
         Speed::meters_per_second(self.0 * scalar)
     }
 }
 
-impl ops::Mul<Speed> for f64 {
+impl ops::Mul<Speed> for f32 {
     type Output = Speed;
 
     fn mul(self, other: Speed) -> Speed {

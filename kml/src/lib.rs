@@ -108,7 +108,7 @@ fn parse_pt(input: &str, gps_bounds: &GPSBounds) -> Option<LonLat> {
     if coords.len() != 2 {
         return None;
     }
-    let pt = match (coords[0].parse::<f64>(), coords[1].parse::<f64>()) {
+    let pt = match (coords[0].parse::<f32>(), coords[1].parse::<f32>()) {
         (Ok(lon), Ok(lat)) => Some(LonLat::new(lon, lat)),
         _ => None,
     }?;

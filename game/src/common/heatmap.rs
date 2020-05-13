@@ -130,15 +130,15 @@ pub fn make_heatmap(
     }
 
     // At each point, add a 2D Gaussian kernel centered at the point.
-    let mut raw_grid: Grid<f64> = Grid::new(
-        (bounds.width() / opts.resolution as f64).ceil() as usize,
-        (bounds.height() / opts.resolution as f64).ceil() as usize,
+    let mut raw_grid: Grid<f32> = Grid::new(
+        (bounds.width() / opts.resolution as f32).ceil() as usize,
+        (bounds.height() / opts.resolution as f32).ceil() as usize,
         0.0,
     );
     for pt in pts {
-        let base_x = ((pt.x() - bounds.min_x) / opts.resolution as f64) as isize;
-        let base_y = ((pt.y() - bounds.min_y) / opts.resolution as f64) as isize;
-        let denom = 2.0 * (opts.radius as f64 / 2.0).powi(2);
+        let base_x = ((pt.x() - bounds.min_x) / opts.resolution as f32) as isize;
+        let base_y = ((pt.y() - bounds.min_y) / opts.resolution as f32) as isize;
+        let denom = 2.0 * (opts.radius as f32 / 2.0).powi(2);
 
         let r = opts.radius as isize;
         for x in base_x - r..=base_x + r {
@@ -151,8 +151,8 @@ pub fn make_heatmap(
                     && loc_r2 <= r * r
                 {
                     // https://en.wikipedia.org/wiki/Gaussian_function#Two-dimensional_Gaussian_function
-                    let value = (-(((x - base_x) as f64).powi(2) / denom
-                        + ((y - base_y) as f64).powi(2) / denom))
+                    let value = (-(((x - base_x) as f32).powi(2) / denom
+                        + ((y - base_y) as f32).powi(2) / denom))
                         .exp();
                     let idx = raw_grid.idx(x as usize, y as usize);
                     raw_grid.data[idx] += value;
@@ -161,9 +161,9 @@ pub fn make_heatmap(
         }
     }
 
-    let mut grid: Grid<f64> = Grid::new(
-        (bounds.width() / opts.resolution as f64).ceil() as usize,
-        (bounds.height() / opts.resolution as f64).ceil() as usize,
+    let mut grid: Grid<f32> = Grid::new(
+        (bounds.width() / opts.resolution as f32).ceil() as usize,
+        (bounds.height() / opts.resolution as f32).ceil() as usize,
         0.0,
     );
     if opts.smoothing {
@@ -185,7 +185,7 @@ pub fn make_heatmap(
                         grid.data[idx] += raw_grid.data[next_idx];
                     }
                 }
-                grid.data[idx] /= div as f64;
+                grid.data[idx] /= div as f32;
             }
         }
     } else {
@@ -198,17 +198,17 @@ pub fn make_heatmap(
         distrib.add(*count as usize);
     }
 
-    let max_count_per_bucket: Vec<(f64, Color)> = (1..=num_colors)
+    let max_count_per_bucket: Vec<(f32, Color)> = (1..=num_colors)
         .map(|i| {
             distrib
-                .percentile(100.0 * (i as f64) / (num_colors as f64))
-                .unwrap() as f64
+                .percentile(100.0 * (i as f32) / (num_colors as f32))
+                .unwrap() as f32
         })
         .zip(colors.clone().into_iter())
         .collect();
 
     // Now draw rectangles
-    let square = Polygon::rectangle(opts.resolution as f64, opts.resolution as f64);
+    let square = Polygon::rectangle(opts.resolution as f32, opts.resolution as f32);
     for y in 0..grid.height {
         for x in 0..grid.width {
             let count = grid.data[grid.idx(x, y)];
@@ -225,7 +225,7 @@ pub fn make_heatmap(
                 batch.push(
                     // Don't block the map underneath
                     color.alpha(0.6),
-                    square.translate((x * opts.resolution) as f64, (y * opts.resolution) as f64),
+                    square.translate((x * opts.resolution) as f32, (y * opts.resolution) as f32),
                 );
             }
         }

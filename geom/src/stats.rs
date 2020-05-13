@@ -134,7 +134,7 @@ impl<T: HgramValue<T>> Histogram<T> {
     }
 
     // None if empty
-    pub fn percentile(&self, p: f64) -> Option<T> {
+    pub fn percentile(&self, p: f32) -> Option<T> {
         if self.count == 0 {
             return None;
         }

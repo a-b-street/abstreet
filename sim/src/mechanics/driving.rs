@@ -965,7 +965,7 @@ impl DrivingSimState {
         car.router.get_path().trace(map, front, dist_ahead)
     }
 
-    pub fn percent_along_route(&self, id: CarID) -> f64 {
+    pub fn percent_along_route(&self, id: CarID) -> f32 {
         self.cars[&id].router.get_path().percent_dist_crossed()
     }
 

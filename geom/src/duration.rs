@@ -1,15 +1,15 @@
-use crate::{trim_f64, Distance, Speed};
+use crate::{trim_f32, Distance, Speed};
 use abstutil::elapsed_seconds;
 use instant::Instant;
 use serde_derive::{Deserialize, Serialize};
-use std::{cmp, f64, ops};
+use std::{cmp, f32, ops};
 
 // In seconds. Can be negative.
 // TODO Naming is awkward. Can represent a moment in time or a duration.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
-pub struct Duration(f64);
+pub struct Duration(f32);
 
-// By construction, Duration is a finite f64 with trimmed precision.
+// By construction, Duration is a finite f32 with trimmed precision.
 impl Eq for Duration {}
 impl Ord for Duration {
     fn cmp(&self, other: &Duration) -> cmp::Ordering {
@@ -21,27 +21,27 @@ impl Duration {
     pub const ZERO: Duration = Duration::const_seconds(0.0);
     const EPSILON: Duration = Duration::const_seconds(0.0001);
 
-    pub fn seconds(value: f64) -> Duration {
+    pub fn seconds(value: f32) -> Duration {
         if !value.is_finite() {
             panic!("Bad Duration {}", value);
         }
 
-        Duration(trim_f64(value))
+        Duration(trim_f32(value))
     }
 
     pub fn minutes(mins: usize) -> Duration {
-        Duration::seconds((mins as f64) * 60.0)
+        Duration::seconds((mins as f32) * 60.0)
     }
 
     pub fn hours(hours: usize) -> Duration {
-        Duration::seconds((hours as f64) * 3600.0)
+        Duration::seconds((hours as f32) * 3600.0)
     }
 
-    pub fn f64_minutes(mins: f64) -> Duration {
+    pub fn f32_minutes(mins: f32) -> Duration {
         Duration::seconds(mins * 60.0)
     }
 
-    pub const fn const_seconds(value: f64) -> Duration {
+    pub const fn const_seconds(value: f32) -> Duration {
         Duration(value)
     }
 
@@ -50,11 +50,11 @@ impl Duration {
     }
 
     pub(crate) fn from_u64(x: u64) -> Duration {
-        (x as f64) * Duration::EPSILON
+        (x as f32) * Duration::EPSILON
     }
 
     // TODO Remove if possible.
-    pub fn inner_seconds(self) -> f64 {
+    pub fn inner_seconds(self) -> f32 {
         self.0
     }
 
@@ -86,7 +86,7 @@ impl Duration {
             return Err(abstutil::Error::new(format!("Duration {}: no :'s", string)));
         }
 
-        let mut seconds: f64 = 0.0;
+        let mut seconds: f32 = 0.0;
         if parts.last().unwrap().contains('.') {
             let last_parts: Vec<&str> = parts.last().unwrap().split('.').collect();
             if last_parts.len() != 2 {
@@ -95,21 +95,21 @@ impl Duration {
                     string
                 )));
             }
-            seconds += last_parts[1].parse::<f64>()? / 10.0;
-            seconds += last_parts[0].parse::<f64>()?;
+            seconds += last_parts[1].parse::<f32>()? / 10.0;
+            seconds += last_parts[0].parse::<f32>()?;
         } else {
-            seconds += parts.last().unwrap().parse::<f64>()?;
+            seconds += parts.last().unwrap().parse::<f32>()?;
         }
 
         match parts.len() {
             1 => Ok(Duration::seconds(seconds)),
             2 => {
-                seconds += 60.0 * parts[0].parse::<f64>()?;
+                seconds += 60.0 * parts[0].parse::<f32>()?;
                 Ok(Duration::seconds(seconds))
             }
             3 => {
-                seconds += 60.0 * parts[1].parse::<f64>()?;
-                seconds += 3600.0 * parts[0].parse::<f64>()?;
+                seconds += 60.0 * parts[1].parse::<f32>()?;
+                seconds += 3600.0 * parts[0].parse::<f32>()?;
                 Ok(Duration::seconds(seconds))
             }
             _ => Err(abstutil::Error::new(format!(
@@ -158,7 +158,7 @@ impl Duration {
     // Returns (rounded max, the boundaries in number of minutes)
     pub fn make_intervals_for_max(self, num_labels: usize) -> (Duration, Vec<usize>) {
         // Example 1: 43 minutes, max 5 labels... raw_mins_per_interval is 8.6
-        let raw_mins_per_interval = (self.num_minutes_rounded_up() as f64) / (num_labels as f64);
+        let raw_mins_per_interval = (self.num_minutes_rounded_up() as f32) / (num_labels as f32);
         // So then this rounded up to 10 minutes
         let mut mins_per_interval = Duration::seconds(60.0 * raw_mins_per_interval)
             .round_up(Duration::minutes(5))
@@ -166,17 +166,17 @@ impl Duration {
 
         // Example 2: 8 minutes, max 5 labels... raw_mins_per_interval is 1.6
         // If we're under 25 minutes, this is going to be weird.
-        if self < (num_labels as f64) * Duration::minutes(5) {
+        if self < (num_labels as f32) * Duration::minutes(5) {
             // rounded up to 5 mins? 1 min increments
             // up to 10? 2 min increments
             // up to 15? 3
             // up to 20? 4
             // then after that the normal behavior
-            mins_per_interval = (self.round_up(Duration::minutes(5)) / (num_labels as f64))
+            mins_per_interval = (self.round_up(Duration::minutes(5)) / (num_labels as f32))
                 .num_minutes_rounded_up();
         }
 
-        let max = (num_labels as f64) * Duration::minutes(mins_per_interval);
+        let max = (num_labels as f32) * Duration::minutes(mins_per_interval);
         let labels = (0..=num_labels).map(|i| i * mins_per_interval).collect();
 
         if max < self {
@@ -242,17 +242,17 @@ impl ops::Sub for Duration {
     }
 }
 
-impl ops::Mul<f64> for Duration {
+impl ops::Mul<f32> for Duration {
     type Output = Duration;
 
-    fn mul(self, other: f64) -> Duration {
+    fn mul(self, other: f32) -> Duration {
         Duration::seconds(self.0 * other)
     }
 }
 
 // TODO Both of these work. Use a macro or crate to define both, so we don't have to worry about
 // order for commutative things like multiplication. :P
-impl ops::Mul<Duration> for f64 {
+impl ops::Mul<Duration> for f32 {
     type Output = Duration;
 
     fn mul(self, other: Duration) -> Duration {
@@ -269,9 +269,9 @@ impl ops::Mul<Speed> for Duration {
 }
 
 impl ops::Div<Duration> for Duration {
-    type Output = f64;
+    type Output = f32;
 
-    fn div(self, other: Duration) -> f64 {
+    fn div(self, other: Duration) -> f32 {
         if other.0 == 0.0 {
             panic!("Can't divide {} / {}", self, other);
         }
@@ -279,10 +279,10 @@ impl ops::Div<Duration> for Duration {
     }
 }
 
-impl ops::Div<f64> for Duration {
+impl ops::Div<f32> for Duration {
     type Output = Duration;
 
-    fn div(self, other: f64) -> Duration {
+    fn div(self, other: f32) -> Duration {
         if other == 0.0 {
             panic!("Can't divide {} / {}", self, other);
         }

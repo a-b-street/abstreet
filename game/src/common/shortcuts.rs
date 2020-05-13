@@ -10,7 +10,7 @@ use serde_derive::{Deserialize, Serialize};
 struct Shortcut {
     name: String,
     center: LonLat,
-    cam_zoom: f64,
+    cam_zoom: f32,
 }
 
 impl Cloneable for Shortcut {}

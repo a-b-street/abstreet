@@ -1,12 +1,12 @@
-use crate::{trim_f64, Duration};
+use crate::{trim_f32, Duration};
 use serde_derive::{Deserialize, Serialize};
 use std::{cmp, ops};
 
 // In seconds since midnight. Can't be negative.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
-pub struct Time(f64);
+pub struct Time(f32);
 
-// By construction, Time is a finite f64 with trimmed precision.
+// By construction, Time is a finite f32 with trimmed precision.
 impl Eq for Time {}
 impl Ord for Time {
     fn cmp(&self, other: &Time) -> cmp::Ordering {
@@ -18,12 +18,12 @@ impl Time {
     pub const START_OF_DAY: Time = Time(0.0);
 
     // No direct public constructors. Explicitly do Time::START_OF_DAY + duration.
-    fn seconds_since_midnight(value: f64) -> Time {
+    fn seconds_since_midnight(value: f32) -> Time {
         if !value.is_finite() || value < 0.0 {
             panic!("Bad Time {}", value);
         }
 
-        Time(trim_f64(value))
+        Time(trim_f32(value))
     }
 
     // (hours, minutes, seconds, centiseconds)
@@ -108,7 +108,7 @@ impl Time {
             return Err(abstutil::Error::new(format!("Time {}: no :'s", string)));
         }
 
-        let mut seconds: f64 = 0.0;
+        let mut seconds: f32 = 0.0;
         if parts.last().unwrap().contains('.') {
             let last_parts: Vec<&str> = parts.last().unwrap().split('.').collect();
             if last_parts.len() != 2 {
@@ -117,21 +117,21 @@ impl Time {
                     string
                 )));
             }
-            seconds += last_parts[1].parse::<f64>()? / 10.0;
-            seconds += last_parts[0].parse::<f64>()?;
+            seconds += last_parts[1].parse::<f32>()? / 10.0;
+            seconds += last_parts[0].parse::<f32>()?;
         } else {
-            seconds += parts.last().unwrap().parse::<f64>()?;
+            seconds += parts.last().unwrap().parse::<f32>()?;
         }
 
         match parts.len() {
             1 => Ok(Time::seconds_since_midnight(seconds)),
             2 => {
-                seconds += 60.0 * parts[0].parse::<f64>()?;
+                seconds += 60.0 * parts[0].parse::<f32>()?;
                 Ok(Time::seconds_since_midnight(seconds))
             }
             3 => {
-                seconds += 60.0 * parts[1].parse::<f64>()?;
-                seconds += 3600.0 * parts[0].parse::<f64>()?;
+                seconds += 60.0 * parts[1].parse::<f32>()?;
+                seconds += 3600.0 * parts[0].parse::<f32>()?;
                 Ok(Time::seconds_since_midnight(seconds))
             }
             _ => Err(abstutil::Error::new(format!(
@@ -159,17 +159,17 @@ impl Time {
     }
 
     // TODO These are a little weird, so don't operator overload yet
-    pub fn percent_of(self, p: f64) -> Time {
+    pub fn percent_of(self, p: f32) -> Time {
         assert!(p >= 0.0 && p <= 1.0);
         Time::seconds_since_midnight(self.0 * p)
     }
 
-    pub fn to_percent(self, other: Time) -> f64 {
+    pub fn to_percent(self, other: Time) -> f32 {
         self.0 / other.0
     }
 
     // For RNG range generation. Don't abuse.
-    pub fn inner_seconds(self) -> f64 {
+    pub fn inner_seconds(self) -> f32 {
         self.0
     }
 

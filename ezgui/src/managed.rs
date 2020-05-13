@@ -26,9 +26,9 @@ pub struct Widget {
 struct LayoutStyle {
     bg_color: Option<Color>,
     // (thickness, color)
-    outline: Option<(f64, Color)>,
+    outline: Option<(f32, Color)>,
     // If None, as round as possible
-    rounded_radius: Option<f64>,
+    rounded_radius: Option<f32>,
     style: Style,
 }
 
@@ -66,7 +66,7 @@ impl Widget {
     // Only makes sense for rows/columns.
     pub fn flex_wrap(mut self, ctx: &EventCtx, percent_width: usize) -> Widget {
         self.layout.style.size = Size {
-            width: Dimension::Points(ctx.canvas.window_width * (percent_width as f64) / 100.0),
+            width: Dimension::Points(ctx.canvas.window_width * (percent_width as f32) / 100.0),
             height: Dimension::Undefined,
         };
         self.layout.style.flex_wrap = FlexWrap::Wrap;
@@ -74,18 +74,18 @@ impl Widget {
         self
     }
     // Only for rows/columns. Used to force table columns to line up.
-    pub fn force_width(mut self, width: f64) -> Widget {
+    pub fn force_width(mut self, width: f32) -> Widget {
         self.layout.style.size.width = Dimension::Points(width);
         self
     }
     pub fn force_width_pct(mut self, ctx: &EventCtx, percent_width: usize) -> Widget {
         self.layout.style.size.width =
-            Dimension::Points(ctx.canvas.window_width * (percent_width as f64) / 100.0);
+            Dimension::Points(ctx.canvas.window_width * (percent_width as f32) / 100.0);
         self
     }
 
     // Needed for force_width.
-    pub fn get_width_for_forcing(&self) -> f64 {
+    pub fn get_width_for_forcing(&self) -> f32 {
         self.widget.get_dims().width
     }
 
@@ -95,7 +95,7 @@ impl Widget {
     }
 
     // Callers have to adjust padding too, probably
-    pub fn outline(mut self, thickness: f64, color: Color) -> Widget {
+    pub fn outline(mut self, thickness: f32, color: Color) -> Widget {
         self.layout.outline = Some((thickness, color));
         self
     }
@@ -181,7 +181,7 @@ impl Widget {
         self
     }
 
-    fn abs(mut self, x: f64, y: f64) -> Widget {
+    fn abs(mut self, x: f32, y: f32) -> Widget {
         self.layout.style.position_type = PositionType::Absolute;
         self.layout.style.position = Rect {
             start: Dimension::Points(x),
@@ -316,17 +316,17 @@ impl Widget {
         &mut self,
         stretch: &Stretch,
         nodes: &mut Vec<Node>,
-        dx: f64,
-        dy: f64,
-        scroll_offset: (f64, f64),
+        dx: f32,
+        dy: f32,
+        scroll_offset: (f32, f32),
         ctx: &EventCtx,
         recompute_layout: bool,
     ) {
         let result = stretch.layout(nodes.pop().unwrap()).unwrap();
-        let x: f64 = result.location.x.into();
-        let y: f64 = result.location.y.into();
-        let width: f64 = result.size.width.into();
-        let height: f64 = result.size.height.into();
+        let x: f32 = result.location.x.into();
+        let y: f32 = result.location.y.into();
+        let width: f32 = result.size.width.into();
+        let height: f32 = result.size.height.into();
         // Don't scroll the scrollbars
         let top_left = if self.id == Some("horiz scrollbar".to_string())
             || self.id == Some("vert scrollbar".to_string())
@@ -457,8 +457,8 @@ impl Widget {
 }
 
 enum Dims {
-    MaxPercent(f64, f64),
-    ExactPercent(f64, f64),
+    MaxPercent(f32, f32),
+    ExactPercent(f32, f32),
 }
 
 pub struct CompositeBuilder {
@@ -482,7 +482,7 @@ pub struct Composite {
     clip_rect: Option<ScreenRectangle>,
 }
 
-const SCROLL_SPEED: f64 = 5.0;
+const SCROLL_SPEED: f32 = 5.0;
 
 impl Composite {
     pub fn new(top_level: Widget) -> CompositeBuilder {
@@ -540,7 +540,7 @@ impl Composite {
         assert!(nodes.is_empty());
     }
 
-    fn scroll_offset(&self) -> (f64, f64) {
+    fn scroll_offset(&self) -> (f32, f32) {
         let x = if self.scrollable_x {
             self.slider("horiz scrollbar").get_percent()
                 * (self.contents_dims.width - self.container_dims.width).max(0.0)
@@ -556,7 +556,7 @@ impl Composite {
         (x, y)
     }
 
-    fn set_scroll_offset(&mut self, ctx: &EventCtx, offset: (f64, f64)) {
+    fn set_scroll_offset(&mut self, ctx: &EventCtx, offset: (f32, f32)) {
         let mut changed = false;
         if self.scrollable_x {
             changed = true;
@@ -898,12 +898,12 @@ impl CompositeBuilder {
         if pct_width == 100 && pct_height == 100 {
             panic!("By default, Composites are capped at 100% of the screen. This is redundant.");
         }
-        self.dims = Dims::MaxPercent((pct_width as f64) / 100.0, (pct_height as f64) / 100.0);
+        self.dims = Dims::MaxPercent((pct_width as f32) / 100.0, (pct_height as f32) / 100.0);
         self
     }
 
     pub fn exact_size_percent(mut self, pct_width: usize, pct_height: usize) -> CompositeBuilder {
-        self.dims = Dims::ExactPercent((pct_width as f64) / 100.0, (pct_height as f64) / 100.0);
+        self.dims = Dims::ExactPercent((pct_width as f32) / 100.0, (pct_height as f32) / 100.0);
         self
     }
 

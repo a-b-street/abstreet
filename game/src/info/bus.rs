@@ -183,7 +183,7 @@ fn passenger_delay(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Bus
             .insert(format!("Stop {}", idx + 1), ID::BusStop(route.stops[idx]));
     }
 
-    let y_len = ctx.default_line_height() * (route.stops.len() as f64);
+    let y_len = ctx.default_line_height() * (route.stops.len() as f32);
     let mut batch = GeomBatch::new();
     batch.push(
         Color::CYAN,
@@ -195,7 +195,7 @@ fn passenger_delay(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Bus
         let base_percent_y = if stop_idx == route.stops.len() - 1 {
             0.0
         } else {
-            (stop_idx as f64) / ((route.stops.len() - 1) as f64)
+            (stop_idx as f32) / ((route.stops.len() - 1) as f32)
         };
         batch.push(
             Color::BLUE,

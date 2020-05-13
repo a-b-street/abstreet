@@ -425,7 +425,7 @@ impl TimeInterval {
         TimeInterval { start, end }
     }
 
-    pub fn percent(&self, t: Time) -> f64 {
+    pub fn percent(&self, t: Time) -> f32 {
         if self.start == self.end {
             return 1.0;
         }
@@ -435,7 +435,7 @@ impl TimeInterval {
         x
     }
 
-    pub fn percent_clamp_end(&self, t: Time) -> f64 {
+    pub fn percent_clamp_end(&self, t: Time) -> f32 {
         if t > self.end {
             return 1.0;
         }
@@ -463,7 +463,7 @@ impl DistanceInterval {
         DistanceInterval { start, end }
     }
 
-    pub fn lerp(&self, x: f64) -> Distance {
+    pub fn lerp(&self, x: f32) -> Distance {
         assert!(x >= 0.0 && x <= 1.0);
         self.start + x * (self.end - self.start)
     }

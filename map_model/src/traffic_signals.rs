@@ -684,7 +684,7 @@ impl ControlTrafficSignal {
                 phases.push(Phase {
                     protected_groups,
                     yield_groups,
-                    duration: Duration::seconds(p.duration_seconds as f64),
+                    duration: Duration::seconds(p.duration_seconds as f32),
                 });
             } else {
                 return None;

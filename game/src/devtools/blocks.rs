@@ -156,9 +156,9 @@ impl State for BlockMap {
                     let arrows = self.composite.is_checked("arrows / heatmap");
                     let others = self.count_per_block(block, from, &app.primary.map);
                     if !others.is_empty() {
-                        let max_cnt = others.iter().map(|(_, cnt)| *cnt).max().unwrap() as f64;
+                        let max_cnt = others.iter().map(|(_, cnt)| *cnt).max().unwrap() as f32;
                         for (other, cnt) in others {
-                            let pct = (cnt as f64) / max_cnt;
+                            let pct = (cnt as f32) / max_cnt;
                             if arrows {
                                 batch.push(
                                     Color::hex("#A32015").alpha(0.7),

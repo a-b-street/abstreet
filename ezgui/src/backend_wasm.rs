@@ -310,7 +310,7 @@ impl PrerenderInnards {
         }
     }
 
-    pub fn window_resized(&self, width: f64, height: f64) {
+    pub fn window_resized(&self, width: f32, height: f32) {
         unsafe {
             self.gl.viewport(0, 0, width as i32, height as i32);
             // I think it's safe to assume there's not a clip right now.
@@ -322,7 +322,7 @@ impl PrerenderInnards {
         self.window.set_window_icon(Some(icon));
     }
 
-    pub fn monitor_scale_factor(&self) -> f64 {
+    pub fn monitor_scale_factor(&self) -> f32 {
         self.window.scale_factor()
     }
 }

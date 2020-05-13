@@ -5,13 +5,13 @@ use crate::{
 use geom::Polygon;
 
 pub struct Slider {
-    current_percent: f64,
+    current_percent: f32,
     mouse_on_slider: bool,
     dragging: bool,
 
     horiz: bool,
-    main_bg_len: f64,
-    dragger_len: f64,
+    main_bg_len: f32,
+    dragger_len: f32,
 
     draw: Drawable,
 
@@ -19,14 +19,14 @@ pub struct Slider {
     dims: ScreenDims,
 }
 
-const BG_CROSS_AXIS_LEN: f64 = 20.0;
+const BG_CROSS_AXIS_LEN: f32 = 20.0;
 
 impl Slider {
     pub fn horizontal(
         ctx: &EventCtx,
-        width: f64,
-        dragger_len: f64,
-        current_percent: f64,
+        width: f32,
+        dragger_len: f32,
+        current_percent: f32,
     ) -> Widget {
         let mut s = Slider {
             current_percent,
@@ -46,7 +46,7 @@ impl Slider {
         Widget::new(Box::new(s))
     }
 
-    pub fn vertical(ctx: &EventCtx, height: f64, dragger_len: f64, current_percent: f64) -> Widget {
+    pub fn vertical(ctx: &EventCtx, height: f32, dragger_len: f32, current_percent: f32) -> Widget {
         let mut s = Slider {
             current_percent,
             mouse_on_slider: false,
@@ -109,15 +109,15 @@ impl Slider {
         }
     }
 
-    pub fn get_percent(&self) -> f64 {
+    pub fn get_percent(&self) -> f32 {
         self.current_percent
     }
 
     pub fn get_value(&self, num_items: usize) -> usize {
-        (self.current_percent * (num_items as f64 - 1.0)) as usize
+        (self.current_percent * (num_items as f32 - 1.0)) as usize
     }
 
-    pub fn set_percent(&mut self, ctx: &EventCtx, percent: f64) {
+    pub fn set_percent(&mut self, ctx: &EventCtx, percent: f32) {
         assert!(percent >= 0.0 && percent <= 1.0);
         self.current_percent = percent;
         self.recalc(ctx);

@@ -6,23 +6,23 @@ use std::fmt;
 // longitude is x, latitude is y
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Serialize, Deserialize)]
 pub struct LonLat {
-    longitude: NotNan<f64>,
-    latitude: NotNan<f64>,
+    longitude: NotNan<f32>,
+    latitude: NotNan<f32>,
 }
 
 impl LonLat {
-    pub fn new(lon: f64, lat: f64) -> LonLat {
+    pub fn new(lon: f32, lat: f32) -> LonLat {
         LonLat {
             longitude: NotNan::new(lon).unwrap(),
             latitude: NotNan::new(lat).unwrap(),
         }
     }
 
-    pub fn x(self) -> f64 {
+    pub fn x(self) -> f32 {
         self.longitude.into_inner()
     }
 
-    pub fn y(self) -> f64 {
+    pub fn y(self) -> f32 {
         self.latitude.into_inner()
     }
 
@@ -44,7 +44,7 @@ impl LonLat {
     }
 
     // Pretty meaningless units, for comparing distances very roughly
-    pub fn fast_dist(self, other: LonLat) -> NotNan<f64> {
+    pub fn fast_dist(self, other: LonLat) -> NotNan<f32> {
         NotNan::new((self.x() - other.x()).powi(2) + (self.y() - other.y()).powi(2)).unwrap()
     }
 

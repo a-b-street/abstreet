@@ -9,7 +9,7 @@ use std::collections::HashSet;
 use std::fmt;
 
 // TODO How to tune this?
-const MITER_THRESHOLD: f64 = 500.0;
+const MITER_THRESHOLD: f32 = 500.0;
 
 pub enum ArrowCap {
     Triangle,
@@ -375,7 +375,7 @@ impl PolyLine {
         check_angles(self, fixed)
     }
 
-    fn shift_with_sharp_angles(&self, width: Distance, miter_threshold: f64) -> Vec<Pt2D> {
+    fn shift_with_sharp_angles(&self, width: Distance, miter_threshold: f32) -> Vec<Pt2D> {
         if self.pts.len() == 2 {
             let l = Line::new(self.pts[0], self.pts[1]).shift_either_direction(width);
             return vec![l.pt1(), l.pt2()];
@@ -432,7 +432,7 @@ impl PolyLine {
     pub fn make_polygons_with_miter_threshold(
         &self,
         width: Distance,
-        miter_threshold: f64,
+        miter_threshold: f32,
     ) -> Polygon {
         // TODO Don't use the angle corrections yet -- they seem to do weird things.
         let side1 = self.shift_with_sharp_angles(width / 2.0, miter_threshold);
@@ -498,7 +498,7 @@ impl PolyLine {
 
     pub fn make_arrow(&self, thickness: Distance, cap: ArrowCap) -> Warn<Polygon> {
         let head_size = thickness * 2.0;
-        let triangle_height = head_size / 2.0_f64.sqrt();
+        let triangle_height = head_size / 2.0_f32.sqrt();
 
         if self.length() < triangle_height + EPSILON_DIST {
             return Warn::warn(
@@ -536,7 +536,7 @@ impl PolyLine {
         outline_thickness: Distance,
     ) -> Warn<Vec<Polygon>> {
         let head_size = arrow_thickness * 2.0;
-        let triangle_height = head_size / 2.0_f64.sqrt();
+        let triangle_height = head_size / 2.0_f32.sqrt();
 
         if self.length() < triangle_height {
             return Warn::warn(
@@ -718,7 +718,7 @@ impl PolyLine {
         crossings == 2
     }
 
-    pub fn new_simplified(pts: Vec<Pt2D>, epsilon: f64) -> PolyLine {
+    pub fn new_simplified(pts: Vec<Pt2D>, epsilon: f32) -> PolyLine {
         // Why does this invert Y?
         let max_y = pts
             .iter()
@@ -815,8 +815,8 @@ fn to_set(pts: &[Pt2D]) -> (HashSet<HashablePt2D>, HashSet<HashablePt2D>) {
 }
 
 // TODO Share
-fn pts_to_line_string(raw_pts: Vec<Pt2D>) -> geo::LineString<f64> {
-    let pts: Vec<geo::Point<f64>> = raw_pts
+fn pts_to_line_string(raw_pts: Vec<Pt2D>) -> geo::LineString<f32> {
+    let pts: Vec<geo::Point<f32>> = raw_pts
         .into_iter()
         .map(|pt| geo::Point::new(pt.x(), pt.y()))
         .collect();

@@ -113,7 +113,7 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
             if ctx.normal_left_click() {
                 // Did we actually click the entry?
                 let mut top_left = self.top_left;
-                top_left.y += ctx.default_line_height() * (self.current_idx as f64);
+                top_left.y += ctx.default_line_height() * (self.current_idx as f32);
                 let rect = ScreenRectangle {
                     x1: top_left.x,
                     y1: top_left.y,
@@ -182,7 +182,7 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
         if let Some(ref info) = self.choices[self.current_idx].tooltip {
             // Hold on, are we actually hovering on that entry right now?
             let mut top_left = self.top_left;
-            top_left.y += g.default_line_height() * (self.current_idx as f64);
+            top_left.y += g.default_line_height() * (self.current_idx as f32);
             let rect = ScreenRectangle {
                 x1: top_left.x,
                 y1: top_left.y,

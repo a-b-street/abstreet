@@ -1131,7 +1131,7 @@ impl Sim {
     }
 
     // (bus, stop index it's coming from, percent to next stop)
-    pub fn status_of_buses(&self, route: BusRouteID) -> Vec<(CarID, usize, f64)> {
+    pub fn status_of_buses(&self, route: BusRouteID) -> Vec<(CarID, usize, f32)> {
         let mut results = Vec::new();
         for (bus, stop_idx) in self.transit.buses_for_route(route) {
             results.push((bus, stop_idx, self.driving.percent_along_route(bus)));

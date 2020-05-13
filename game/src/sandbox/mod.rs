@@ -324,7 +324,7 @@ impl AgentMeter {
                     let pct = if unfinished == 0 {
                         100.0
                     } else {
-                        100.0 * (finished as f64) / ((finished + unfinished) as f64)
+                        100.0 * (finished as f32) / ((finished + unfinished) as f32)
                     };
                     txt.add(Line(format!(
                         "Finished trips: {} ({}%)",

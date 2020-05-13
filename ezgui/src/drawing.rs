@@ -72,7 +72,7 @@ impl<'a> GfxCtx<'a> {
         &mut self,
         top_left_map: Pt2D,
         top_left_screen: ScreenPt,
-        zoom: f64,
+        zoom: f32,
         z: Option<f32>,
     ) {
         // map_to_screen of top_left_map should be top_left_screen
@@ -245,7 +245,7 @@ impl<'a> GfxCtx<'a> {
     }
 
     // Delegation to assets
-    pub fn default_line_height(&self) -> f64 {
+    pub fn default_line_height(&self) -> f32 {
         *self.prerender.assets.default_line_height.borrow()
     }
 

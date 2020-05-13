@@ -47,20 +47,20 @@ impl State for PolygonDebugger {
                 }
                 "previous" => {
                     let idx = (self.composite.slider("slider").get_percent()
-                        * (self.items.len() - 1) as f64) as usize;
+                        * (self.items.len() - 1) as f32) as usize;
                     if idx != 0 {
                         self.composite
                             .slider_mut("slider")
-                            .set_percent(ctx, (idx - 1) as f64 / (self.items.len() - 1) as f64);
+                            .set_percent(ctx, (idx - 1) as f32 / (self.items.len() - 1) as f32);
                     }
                 }
                 "next" => {
                     let idx = (self.composite.slider("slider").get_percent()
-                        * (self.items.len() - 1) as f64) as usize;
+                        * (self.items.len() - 1) as f32) as usize;
                     if idx != self.items.len() - 1 {
                         self.composite
                             .slider_mut("slider")
-                            .set_percent(ctx, (idx + 1) as f64 / (self.items.len() - 1) as f64);
+                            .set_percent(ctx, (idx + 1) as f32 / (self.items.len() - 1) as f32);
                     }
                 }
                 _ => unreachable!(),
@@ -68,7 +68,7 @@ impl State for PolygonDebugger {
             None => {}
         }
         // TODO Could be more efficient here
-        let idx = (self.composite.slider("slider").get_percent() * (self.items.len() - 1) as f64)
+        let idx = (self.composite.slider("slider").get_percent() * (self.items.len() - 1) as f32)
             as usize;
         self.composite.replace(
             ctx,
@@ -85,7 +85,7 @@ impl State for PolygonDebugger {
         // This is drawn in screen-space, so zooming doesn't affect the text size
         let mut batch = GeomBatch::new();
 
-        let idx = (self.composite.slider("slider").get_percent() * (self.items.len() - 1) as f64)
+        let idx = (self.composite.slider("slider").get_percent() * (self.items.len() - 1) as f32)
             as usize;
         match &self.items[idx] {
             Item::Point(pt) => {

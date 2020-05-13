@@ -694,7 +694,7 @@ fn make_vehicle_turn(
             .map(|i| {
                 from_pt(
                     curve
-                        .interp(1.0 / f64::from(pieces) * f64::from(i))
+                        .interp(1.0 / f32::from(pieces) * f32::from(i))
                         .unwrap(),
                 )
             })
@@ -712,11 +712,11 @@ fn make_vehicle_turn(
     })
 }
 
-fn to_pt(pt: Pt2D) -> Point2d<f64> {
+fn to_pt(pt: Pt2D) -> Point2d<f32> {
     Point2d::new(pt.x(), pt.y())
 }
 
-fn from_pt(pt: Point2d<f64>) -> Pt2D {
+fn from_pt(pt: Point2d<f32>) -> Pt2D {
     Pt2D::new(pt.x, pt.y)
 }
 

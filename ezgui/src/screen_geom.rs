@@ -1,15 +1,15 @@
 use crate::Canvas;
-use geom::{trim_f64, Polygon, Pt2D};
+use geom::{trim_f32, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ScreenPt {
-    pub x: f64,
-    pub y: f64,
+    pub x: f32,
+    pub y: f32,
 }
 
 impl ScreenPt {
-    pub fn new(x: f64, y: f64) -> ScreenPt {
+    pub fn new(x: f32, y: f32) -> ScreenPt {
         ScreenPt { x, y }
     }
 
@@ -22,10 +22,10 @@ impl ScreenPt {
 
 #[derive(Clone, Debug)]
 pub struct ScreenRectangle {
-    pub x1: f64,
-    pub y1: f64,
-    pub x2: f64,
-    pub y2: f64,
+    pub x1: f32,
+    pub y1: f32,
+    pub x2: f32,
+    pub y2: f32,
 }
 
 impl ScreenRectangle {
@@ -51,7 +51,7 @@ impl ScreenRectangle {
         pt.x >= self.x1 && pt.x <= self.x2 && pt.y >= self.y1 && pt.y <= self.y2
     }
 
-    pub fn pt_to_percent(&self, pt: ScreenPt) -> Option<(f64, f64)> {
+    pub fn pt_to_percent(&self, pt: ScreenPt) -> Option<(f32, f32)> {
         if self.contains(pt) {
             Some((
                 (pt.x - self.x1) / self.width(),
@@ -61,16 +61,16 @@ impl ScreenRectangle {
             None
         }
     }
-    pub fn percent_to_pt(&self, x: f64, y: f64) -> ScreenPt {
+    pub fn percent_to_pt(&self, x: f32, y: f32) -> ScreenPt {
         ScreenPt::new(self.x1 + x * self.width(), self.y1 + y * self.height())
     }
 
     // TODO Remove these in favor of dims()
-    pub fn width(&self) -> f64 {
+    pub fn width(&self) -> f32 {
         self.x2 - self.x1
     }
 
-    pub fn height(&self) -> f64 {
+    pub fn height(&self) -> f32 {
         self.y2 - self.y1
     }
 
@@ -90,15 +90,15 @@ impl ScreenRectangle {
 // TODO Everything screen-space should probably just be usize, can't have fractional pixels?
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct ScreenDims {
-    pub width: f64,
-    pub height: f64,
+    pub width: f32,
+    pub height: f32,
 }
 
 impl ScreenDims {
-    pub fn new(width: f64, height: f64) -> ScreenDims {
+    pub fn new(width: f32, height: f32) -> ScreenDims {
         ScreenDims {
-            width: trim_f64(width),
-            height: trim_f64(height),
+            width: trim_f32(width),
+            height: trim_f32(height),
         }
     }
 

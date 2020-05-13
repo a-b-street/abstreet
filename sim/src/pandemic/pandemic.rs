@@ -71,7 +71,7 @@ impl PandemicModel {
                 let next_state = state
                     .start(
                         AnyTime::from(Time::START_OF_DAY),
-                        Duration::seconds(std::f64::MAX),
+                        Duration::seconds(std::f32::MAX),
                         &mut self.rng,
                     )
                     .unwrap();
@@ -336,7 +336,7 @@ impl PandemicModel {
         let state = self.pop.remove(&person).unwrap();
         assert_eq!(
             state.get_event_time().unwrap().inner_seconds(),
-            std::f64::INFINITY
+            std::f32::INFINITY
         );
         let state = state
             .start(AnyTime::from(now), overlap, &mut self.rng)

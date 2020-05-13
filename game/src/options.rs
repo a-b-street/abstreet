@@ -13,7 +13,7 @@ pub struct Options {
     pub color_scheme: ColorSchemeChoice,
     pub dev: bool,
     pub time_increment: Duration,
-    pub min_zoom_for_detail: f64,
+    pub min_zoom_for_detail: f32,
 }
 
 impl Options {

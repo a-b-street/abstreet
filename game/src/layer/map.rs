@@ -53,9 +53,9 @@ pub fn bike_network(ctx: &mut EventCtx, app: &App) -> Layers {
             ),
         ] {
             let roads = counter.sorted_asc();
-            let p50_idx = ((roads.len() as f64) * 0.5) as usize;
-            let p90_idx = ((roads.len() as f64) * 0.9) as usize;
-            let p99_idx = ((roads.len() as f64) * 0.99) as usize;
+            let p50_idx = ((roads.len() as f32) * 0.5) as usize;
+            let p90_idx = ((roads.len() as f32) * 0.9) as usize;
+            let p99_idx = ((roads.len() as f32) * 0.99) as usize;
             for (idx, r) in roads.into_iter().enumerate() {
                 let color = if idx < p50_idx {
                     scale[0]

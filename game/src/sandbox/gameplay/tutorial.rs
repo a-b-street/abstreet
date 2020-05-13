@@ -479,7 +479,7 @@ impl Task {
 struct Stage {
     messages: Vec<(Vec<String>, Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>>)>,
     task: Task,
-    warp_to: Option<(ID, f64)>,
+    warp_to: Option<(ID, f32)>,
     spawn: Option<Box<dyn Fn(&mut App)>>,
 }
 
@@ -507,7 +507,7 @@ impl Stage {
         self
     }
 
-    fn warp_to(mut self, id: ID, zoom: Option<f64>) -> Stage {
+    fn warp_to(mut self, id: ID, zoom: Option<f32>) -> Stage {
         assert!(self.warp_to.is_none());
         self.warp_to = Some((id, zoom.unwrap_or(4.0)));
         self
@@ -1354,8 +1354,8 @@ pub fn execute(_: &mut EventCtx, _: &mut App, id: ID, action: String) -> Transit
             (ID::Lane(l), "check the parking occupancy") => {
                 let lane = app.primary.map.get_l(l);
                 if lane.is_parking() {
-                    let percent = (app.primary.sim.get_free_onstreet_spots(l).len() as f64)
-                        / (lane.number_parking_spots() as f64);
+                    let percent = (app.primary.sim.get_free_onstreet_spots(l).len() as f32)
+                        / (lane.number_parking_spots() as f32);
                     if percent > 0.1 {
                         msg(
                             "Not quite",

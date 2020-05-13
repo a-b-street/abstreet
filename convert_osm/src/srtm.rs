@@ -12,8 +12,8 @@ use std::io;
 const GRID_DIM: usize = 1201;
 
 pub struct Elevation {
-    lon_offset: f64,
-    lat_offset: f64,
+    lon_offset: f32,
+    lat_offset: f32,
     data: Vec<i16>,
 }
 
@@ -39,9 +39,9 @@ impl Elevation {
         // TODO assert the (lon, lat) match the offsets
         // TODO not tons of confidence in any of this.
         // TODO interpolate from the 4 matching tiles?
-        let x = ((pt.x() - self.lon_offset).abs() * (GRID_DIM as f64)) as usize;
-        let y = ((pt.y() - self.lat_offset).abs() * (GRID_DIM as f64)) as usize;
+        let x = ((pt.x() - self.lon_offset).abs() * (GRID_DIM as f32)) as usize;
+        let y = ((pt.y() - self.lat_offset).abs() * (GRID_DIM as f32)) as usize;
         let i = x + (y * GRID_DIM);
-        Distance::meters(f64::from(self.data[i]))
+        Distance::meters(f32::from(self.data[i]))
     }
 }

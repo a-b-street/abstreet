@@ -34,13 +34,13 @@ impl Circle {
         self.to_partial_polygon(1.0)
     }
 
-    pub fn to_partial_polygon(&self, percent_full: f64) -> Polygon {
+    pub fn to_partial_polygon(&self, percent_full: f32) -> Polygon {
         let mut pts = vec![self.center];
         let mut indices = Vec::new();
         for i in 0..TRIANGLES_PER_CIRCLE {
             pts.push(self.center.project_away(
                 self.radius,
-                Angle::new_degs((i as f64) / (TRIANGLES_PER_CIRCLE as f64) * percent_full * 360.0),
+                Angle::new_degs((i as f32) / (TRIANGLES_PER_CIRCLE as f32) * percent_full * 360.0),
             ));
             indices.push(0);
             indices.push(i + 1);

@@ -2,7 +2,7 @@ use crate::Color;
 
 #[derive(Clone)]
 pub struct Style {
-    pub outline_thickness: f64,
+    pub outline_thickness: f32,
     pub outline_color: Color,
     pub panel_bg: Color,
     pub hotkey_color: Color,

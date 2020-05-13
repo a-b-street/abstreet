@@ -93,7 +93,7 @@ impl DrawIntersection {
     pub fn stop_sign_geom(ss: &RoadWithStopSign, map: &Map) -> Option<(Polygon, Polygon)> {
         let trim_back = Distance::meters(0.1);
         let rightmost = map.get_l(ss.rightmost_lane);
-        // TODO The dream of trimming f64's was to isolate epsilon checks like this...
+        // TODO The dream of trimming f32's was to isolate epsilon checks like this...
         if rightmost.length() - trim_back <= EPSILON_DIST {
             // TODO warn
             return None;
@@ -312,7 +312,7 @@ fn calculate_border_arrows(
 fn make_octagon(center: Pt2D, radius: Distance, facing: Angle) -> Polygon {
     Polygon::new(
         &(0..8)
-            .map(|i| center.project_away(radius, facing.rotate_degs(22.5 + f64::from(i * 360 / 8))))
+            .map(|i| center.project_away(radius, facing.rotate_degs(22.5 + f32::from(i * 360 / 8))))
             .collect(),
     )
 }
@@ -333,7 +333,7 @@ pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorS
     if available_length > Distance::ZERO {
         let num_markings = (available_length / tile_every).floor() as usize;
         let mut dist_along =
-            boundary + (available_length - tile_every * (num_markings as f64)) / 2.0;
+            boundary + (available_length - tile_every * (num_markings as f32)) / 2.0;
         // TODO Seems to be an off-by-one sometimes. Not enough of these.
         for _ in 0..=num_markings {
             let pt1 = line.dist_along(dist_along);

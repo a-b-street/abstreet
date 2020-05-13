@@ -222,7 +222,7 @@ fn calculate_parking_lines(map: &Map, lane: &Lane) -> Vec<Polygon> {
     let num_spots = lane.number_parking_spots();
     if num_spots > 0 {
         for idx in 0..=num_spots {
-            let (pt, lane_angle) = lane.dist_along(PARKING_SPOT_LENGTH * (1.0 + idx as f64));
+            let (pt, lane_angle) = lane.dist_along(PARKING_SPOT_LENGTH * (1.0 + idx as f32));
             let perp_angle = map.driving_side_angle(lane_angle.rotate_degs(270.0));
             // Find the outside of the lane. Actually, shift inside a little bit, since the line
             // will have thickness, but shouldn't really intersect the adjacent line

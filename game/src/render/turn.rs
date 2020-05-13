@@ -22,7 +22,7 @@ impl DrawTurnGroup {
                 .iter()
                 .map(|t| *offset_per_lane.entry(t.src).or_insert(0))
                 .max()
-                .unwrap() as f64;
+                .unwrap() as f32;
             let (pl, width) = group.src_center_and_width(map);
             let slice = if pl.length() >= (offset + 1.0) * TURN_ICON_ARROW_LENGTH {
                 pl.exact_slice(

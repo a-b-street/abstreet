@@ -25,9 +25,9 @@ pub enum EventLoopMode {
     InputOnly,
     ScreenCaptureEverything {
         dir: String,
-        zoom: f64,
-        max_x: f64,
-        max_y: f64,
+        zoom: f32,
+        max_x: f32,
+        max_y: f32,
     },
     ScreenCaptureCurrentShot,
 }
@@ -164,7 +164,7 @@ pub struct Settings {
     profiling_enabled: bool,
     default_font_size: usize,
     dump_raw_events: bool,
-    scale_factor: f64,
+    scale_factor: f32,
     window_icon: Option<String>,
 }
 
@@ -195,7 +195,7 @@ impl Settings {
         self.default_font_size = size;
     }
 
-    pub fn scale_factor(&mut self, scale_factor: f64) {
+    pub fn scale_factor(&mut self, scale_factor: f32) {
         self.scale_factor = scale_factor;
     }
 

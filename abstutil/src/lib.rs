@@ -28,9 +28,9 @@ pub use crate::time::{
 use std::collections::BTreeSet;
 use std::fmt::Write;
 
-const PROGRESS_FREQUENCY_SECONDS: f64 = 0.2;
+const PROGRESS_FREQUENCY_SECONDS: f32 = 0.2;
 
-pub fn clamp(x: f64, min: f64, max: f64) -> f64 {
+pub fn clamp(x: f32, min: f32, max: f32) -> f32 {
     if x < min {
         min
     } else if x > max {

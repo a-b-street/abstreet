@@ -61,7 +61,7 @@ impl<ID: ObjectID> World<ID> {
             quadtree: QuadTree::default(
                 Bounds::from(&vec![
                     Pt2D::new(0.0, 0.0),
-                    Pt2D::new(std::f64::MAX, std::f64::MAX),
+                    Pt2D::new(std::f32::MAX, std::f32::MAX),
                 ])
                 .as_bbox(),
             ),

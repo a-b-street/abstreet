@@ -177,12 +177,12 @@ pub fn draw_occupants(details: &mut Details, app: &App, id: BuildingID, focus: O
     // to have people "realistically" move around. Draw little floor plans.
 
     let mut ppl = app.primary.sim.bldg_to_people(id);
-    let num_rows_cols = (ppl.len() as f64).sqrt().ceil() as usize;
+    let num_rows_cols = (ppl.len() as f32).sqrt().ceil() as usize;
 
     let ped_len = SIDEWALK_THICKNESS.inner_meters() / 2.0;
     let separation = ped_len * 1.5;
 
-    let total_width_height = (num_rows_cols as f64) * (ped_len + separation);
+    let total_width_height = (num_rows_cols as f32) * (ped_len + separation);
     let top_left = app
         .primary
         .map
@@ -200,8 +200,8 @@ pub fn draw_occupants(details: &mut Details, app: &App, id: BuildingID, focus: O
                 break 'OUTER;
             };
             let pos = top_left.offset(
-                (x as f64) * (ped_len + separation),
-                (y as f64) * (ped_len + separation),
+                (x as f32) * (ped_len + separation),
+                (y as f32) * (ped_len + separation),
             );
 
             if Some(person) == focus {

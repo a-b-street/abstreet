@@ -36,7 +36,7 @@ impl WidgetImpl for Container {
     fn get_dims(&self) -> ScreenDims {
         // TODO This impl isn't correct, but it works for the one use case of
         // get_width_for_forcing.
-        let mut width: f64 = 0.0;
+        let mut width: f32 = 0.0;
         for x in &self.members {
             width = width.max(x.get_width_for_forcing());
         }

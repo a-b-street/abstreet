@@ -10,7 +10,7 @@ use maplit::btreemap;
 use sim::{PedestrianID, PersonID, TripID};
 use std::collections::BTreeMap;
 
-const WARP_TO_CAM_ZOOM: f64 = 10.0;
+const WARP_TO_CAM_ZOOM: f32 = 10.0;
 
 pub struct EnteringWarp;
 impl EnteringWarp {
@@ -28,7 +28,7 @@ impl Warping {
     pub fn new(
         ctx: &EventCtx,
         pt: Pt2D,
-        target_cam_zoom: Option<f64>,
+        target_cam_zoom: Option<f32>,
         id: Option<ID>,
         primary: &mut PerMap,
     ) -> Box<dyn State> {

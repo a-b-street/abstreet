@@ -445,7 +445,7 @@ fn edit_entire_signal(app: &App, i: IntersectionID, suspended_sim: Sim) -> Box<d
                     editor.command_stack.push(signal.clone());
                     editor.redo_stack.clear();
                     editor.top_panel = make_top_panel(ctx, app, true, false);
-                    signal.offset = Duration::seconds(new_duration as f64);
+                    signal.offset = Duration::seconds(new_duration as f32);
                     change_traffic_signal(signal, app, ctx);
                     editor.change_phase(editor.current_phase, app, ctx);
                 })))
@@ -515,7 +515,7 @@ fn edit_phase(app: &App, i: IntersectionID, idx: usize) -> Box<dyn State> {
                     let orig_signal = app.primary.map.get_traffic_signal(editor.i);
 
                     let mut new_signal = orig_signal.clone();
-                    new_signal.phases[idx].duration = Duration::seconds(new_duration as f64);
+                    new_signal.phases[idx].duration = Duration::seconds(new_duration as f32);
                     editor.command_stack.push(orig_signal.clone());
                     editor.redo_stack.clear();
                     editor.top_panel = make_top_panel(ctx, app, true, false);

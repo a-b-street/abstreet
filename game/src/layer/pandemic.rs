@@ -104,7 +104,7 @@ fn make_controls(
     colors_and_labels: Option<(Vec<Color>, Vec<String>)>,
 ) -> Composite {
     let model = app.primary.sim.get_pandemic_model().unwrap();
-    let pct = 100.0 / (model.count_total() as f64);
+    let pct = 100.0 / (model.count_total() as f32);
 
     let mut col = vec![
         Widget::row(vec![
@@ -117,31 +117,31 @@ fn make_controls(
         format!(
             "{} Sane ({:.1}%)",
             prettyprint_usize(model.count_sane()),
-            (model.count_sane() as f64) * pct
+            (model.count_sane() as f32) * pct
         )
         .draw_text(ctx),
         format!(
             "{} Exposed ({:.1}%)",
             prettyprint_usize(model.count_exposed()),
-            (model.count_exposed() as f64) * pct
+            (model.count_exposed() as f32) * pct
         )
         .draw_text(ctx),
         format!(
             "{} Infected ({:.1}%)",
             prettyprint_usize(model.count_infected()),
-            (model.count_infected() as f64) * pct
+            (model.count_infected() as f32) * pct
         )
         .draw_text(ctx),
         format!(
             "{} Recovered ({:.1}%)",
             prettyprint_usize(model.count_recovered()),
-            (model.count_recovered() as f64) * pct
+            (model.count_recovered() as f32) * pct
         )
         .draw_text(ctx),
         format!(
             "{} Dead ({:.1}%)",
             prettyprint_usize(model.count_dead()),
-            (model.count_dead() as f64) * pct
+            (model.count_dead() as f32) * pct
         )
         .draw_text(ctx),
     ];

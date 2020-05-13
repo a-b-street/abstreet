@@ -293,7 +293,7 @@ impl PrerenderInnards {
         }
     }
 
-    pub fn window_resized(&self, width: f64, height: f64) {
+    pub fn window_resized(&self, width: f32, height: f32) {
         self.windowed_context
             .resize(winit::dpi::PhysicalSize::new(width as u32, height as u32));
         unsafe {
@@ -307,7 +307,7 @@ impl PrerenderInnards {
         self.windowed_context.window().set_window_icon(Some(icon));
     }
 
-    pub fn monitor_scale_factor(&self) -> f64 {
+    pub fn monitor_scale_factor(&self) -> f32 {
         self.windowed_context.window().scale_factor()
     }
 }

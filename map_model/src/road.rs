@@ -210,7 +210,7 @@ impl Road {
         if let Some(limit) = self.osm_tags.get(osm::MAXSPEED) {
             // TODO handle other units
             if limit.ends_with(" mph") {
-                if let Ok(mph) = limit[0..limit.len() - 4].parse::<f64>() {
+                if let Ok(mph) = limit[0..limit.len() - 4].parse::<f32>() {
                     return Speed::miles_per_hour(mph);
                 }
             }

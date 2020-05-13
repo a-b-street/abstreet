@@ -46,8 +46,8 @@ impl ScatterPlot {
         // Grid lines
         let thickness = Distance::meters(2.0);
         for i in 1..num_labels {
-            let x = (i as f64) / (num_labels as f64) * width;
-            let y = (i as f64) / (num_labels as f64) * height;
+            let x = (i as f32) / (num_labels as f32) * width;
+            let y = (i as f32) / (num_labels as f32) * height;
             // Horizontal
             batch.push(
                 Color::grey(0.5),

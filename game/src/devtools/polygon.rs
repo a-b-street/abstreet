@@ -178,10 +178,10 @@ pub fn read_from_osmosis(path: String) -> Result<Vec<LonLat>, Error> {
         let parts = line.trim().split("    ").collect::<Vec<_>>();
         pts.push(LonLat::new(
             parts[0]
-                .parse::<f64>()
+                .parse::<f32>()
                 .map_err(|err| Error::new(ErrorKind::Other, err))?,
             parts[1]
-                .parse::<f64>()
+                .parse::<f32>()
                 .map_err(|err| Error::new(ErrorKind::Other, err))?,
         ));
     }

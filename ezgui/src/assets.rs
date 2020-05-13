@@ -8,17 +8,17 @@ use usvg::Options;
 
 // TODO We don't need refcell maybe? Can we take &mut Assets?
 pub struct Assets {
-    pub default_line_height: RefCell<f64>,
+    pub default_line_height: RefCell<f32>,
     pub default_font_size: RefCell<usize>,
-    pub scale_factor: RefCell<f64>,
+    pub scale_factor: RefCell<f32>,
     text_cache: RefCell<LruCache<String, GeomBatch>>,
-    line_height_cache: RefCell<HashMap<(Font, usize), f64>>,
+    line_height_cache: RefCell<HashMap<(Font, usize), f32>>,
     svg_cache: RefCell<HashMap<String, (GeomBatch, Bounds)>>,
     pub text_opts: Options,
 }
 
 impl Assets {
-    pub fn new(default_font_size: usize, font_dir: String, scale_factor: f64) -> Assets {
+    pub fn new(default_font_size: usize, font_dir: String, scale_factor: f32) -> Assets {
         let mut a = Assets {
             default_line_height: RefCell::new(0.0),
             default_font_size: RefCell::new(default_font_size),
@@ -35,7 +35,7 @@ impl Assets {
     }
 
     #[cfg(not(target_arch = "wasm32"))]
-    pub fn line_height(&self, font: Font, font_size: usize) -> f64 {
+    pub fn line_height(&self, font: Font, font_size: usize) -> f32 {
         let key = (font, font_size);
         if let Some(height) = self.line_height_cache.borrow().get(&key) {
             return *height;
@@ -55,7 +55,7 @@ impl Assets {
                 Font::OverpassSemiBold => 4,
             })
             .unwrap()
-            .height(font_size as f64);
+            .height(font_size as f32);
 
         self.line_height_cache.borrow_mut().insert(key, height);
         height
@@ -63,7 +63,7 @@ impl Assets {
 
     // TODO No text in wasm yet
     #[cfg(target_arch = "wasm32")]
-    pub fn line_height(&self, font: Font, font_size: usize) -> f64 {
+    pub fn line_height(&self, font: Font, font_size: usize) -> f32 {
         let key = (font, font_size);
         if let Some(height) = self.line_height_cache.borrow().get(&key) {
             return *height;
@@ -86,7 +86,7 @@ impl Assets {
         self.svg_cache.borrow_mut().insert(key, (geom, bounds));
     }
 
-    pub fn set_scale_factor(&self, scale_factor: f64) {
+    pub fn set_scale_factor(&self, scale_factor: f32) {
         *self.scale_factor.borrow_mut() = scale_factor;
         self.text_cache.borrow_mut().clear();
         self.line_height_cache.borrow_mut().clear();

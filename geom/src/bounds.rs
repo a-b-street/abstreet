@@ -4,19 +4,19 @@ use serde_derive::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Bounds {
-    pub min_x: f64,
-    pub min_y: f64,
-    pub max_x: f64,
-    pub max_y: f64,
+    pub min_x: f32,
+    pub min_y: f32,
+    pub max_x: f32,
+    pub max_y: f32,
 }
 
 impl Bounds {
     pub fn new() -> Bounds {
         Bounds {
-            min_x: f64::MAX,
-            min_y: f64::MAX,
-            max_x: f64::MIN,
-            max_y: f64::MIN,
+            min_x: f32::MAX,
+            min_y: f32::MAX,
+            max_x: f32::MIN,
+            max_y: f32::MIN,
         }
     }
 
@@ -68,10 +68,10 @@ impl Bounds {
     }
 
     // TODO Really should be Distance
-    pub fn width(&self) -> f64 {
+    pub fn width(&self) -> f32 {
         self.max_x - self.min_x
     }
-    pub fn height(&self) -> f64 {
+    pub fn height(&self) -> f32 {
         self.max_y - self.min_y
     }
     pub fn center(&self) -> Pt2D {
@@ -84,19 +84,19 @@ impl Bounds {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct GPSBounds {
-    pub(crate) min_lon: f64,
-    pub(crate) min_lat: f64,
-    pub(crate) max_lon: f64,
-    pub(crate) max_lat: f64,
+    pub(crate) min_lon: f32,
+    pub(crate) min_lat: f32,
+    pub(crate) max_lon: f32,
+    pub(crate) max_lat: f32,
 }
 
 impl GPSBounds {
     pub fn new() -> GPSBounds {
         GPSBounds {
-            min_lon: f64::MAX,
-            min_lat: f64::MAX,
-            max_lon: f64::MIN,
-            max_lat: f64::MIN,
+            min_lon: f32::MAX,
+            min_lat: f32::MAX,
+            max_lon: f32::MIN,
+            max_lat: f32::MIN,
         }
     }
 

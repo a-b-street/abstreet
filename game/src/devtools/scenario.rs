@@ -421,7 +421,7 @@ fn show_demand(
     let from_count = from_ids.consume();
     let mut to_count = to_ids.consume();
     let max_count =
-        (*from_count.values().max().unwrap()).max(*to_count.values().max().unwrap()) as f64;
+        (*from_count.values().max().unwrap()).max(*to_count.values().max().unwrap()) as f32;
 
     let mut batch = GeomBatch::new();
     let home_pt = match home {
@@ -433,14 +433,14 @@ fn show_demand(
         // Bidirectional?
         if let Some(other_cnt) = to_count.remove(&id) {
             let width = Distance::meters(1.0)
-                + ((cnt.max(other_cnt) as f64) / max_count) * Distance::meters(2.0);
+                + ((cnt.max(other_cnt) as f32) / max_count) * Distance::meters(2.0);
             batch.push(
                 Color::PURPLE.alpha(0.8),
                 PolyLine::new(vec![home_pt, id.canonical_point(&app.primary).unwrap()])
                     .make_polygons(width),
             );
         } else {
-            let width = Distance::meters(1.0) + ((cnt as f64) / max_count) * Distance::meters(2.0);
+            let width = Distance::meters(1.0) + ((cnt as f32) / max_count) * Distance::meters(2.0);
             batch.push(
                 Color::RED.alpha(0.8),
                 PolyLine::new(vec![home_pt, id.canonical_point(&app.primary).unwrap()])
@@ -450,7 +450,7 @@ fn show_demand(
         }
     }
     for (id, cnt) in to_count {
-        let width = Distance::meters(1.0) + ((cnt as f64) / max_count) * Distance::meters(2.0);
+        let width = Distance::meters(1.0) + ((cnt as f32) / max_count) * Distance::meters(2.0);
         batch.push(
             Color::BLUE.alpha(0.8),
             PolyLine::new(vec![id.canonical_point(&app.primary).unwrap(), home_pt])

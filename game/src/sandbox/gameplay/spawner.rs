@@ -465,7 +465,7 @@ impl State for SpawnManyAgents {
                 let duration = Duration::seconds(wizard.input_usize_prefilled(
                     "How many seconds to spawn them over?",
                     "90".to_string(),
-                )? as f64);
+                )? as f32);
                 // TODO Or call create_swarm here and pop twice. Nice to play with two patterns
                 // though.
                 // TODO Another alt is to extend the wizard pattern and have a sort of

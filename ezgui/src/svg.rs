@@ -47,7 +47,7 @@ pub fn add_svg_inner(
     batch: &mut GeomBatch,
     svg_tree: usvg::Tree,
     tolerance: f32,
-    scale: f64,
+    scale: f32,
 ) -> Result<Bounds, String> {
     let mut fill_tess = tessellation::FillTessellator::new();
     let mut stroke_tess = tessellation::StrokeTessellator::new();
@@ -89,7 +89,7 @@ pub fn add_svg_inner(
             Polygon::precomputed(
                 mesh.vertices
                     .into_iter()
-                    .map(|v| Pt2D::new(scale * f64::from(v.x), scale * f64::from(v.y)))
+                    .map(|v| Pt2D::new(scale * f32::from(v.x), scale * f32::from(v.y)))
                     .collect(),
                 mesh.indices.into_iter().map(|idx| idx as usize).collect(),
             ),
@@ -102,7 +102,7 @@ pub fn add_svg_inner(
     ]))
 }
 
-fn point(x: &f64, y: &f64) -> Point {
+fn point(x: &f32, y: &f32) -> Point {
     Point::new((*x) as f32, (*y) as f32)
 }
 
@@ -230,7 +230,7 @@ fn convert_stroke(
     (color, opt)
 }
 
-fn convert_color(paint: &usvg::Paint, opacity: f64, tree: &usvg::Tree) -> FancyColor {
+fn convert_color(paint: &usvg::Paint, opacity: f32, tree: &usvg::Tree) -> FancyColor {
     match paint {
         usvg::Paint::Color(c) => FancyColor::RGBA(Color::rgba(
             c.red as usize,

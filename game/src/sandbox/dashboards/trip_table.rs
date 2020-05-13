@@ -386,16 +386,16 @@ pub fn make_table(
     app: &App,
     headers: Vec<Widget>,
     rows: Vec<(String, Vec<GeomBatch>)>,
-    total_width: f64,
+    total_width: f32,
 ) -> Vec<Widget> {
-    let mut width_per_col: Vec<f64> = headers.iter().map(|w| w.get_width_for_forcing()).collect();
+    let mut width_per_col: Vec<f32> = headers.iter().map(|w| w.get_width_for_forcing()).collect();
     for (_, row) in &rows {
         for (col, width) in row.iter().zip(width_per_col.iter_mut()) {
             *width = width.max(col.get_dims().width);
         }
     }
-    let extra_margin = ((total_width - width_per_col.clone().into_iter().sum::<f64>())
-        / (width_per_col.len() - 1) as f64)
+    let extra_margin = ((total_width - width_per_col.clone().into_iter().sum::<f32>())
+        / (width_per_col.len() - 1) as f32)
         .max(0.0);
 
     let mut col = vec![Widget::row(

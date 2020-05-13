@@ -8,10 +8,10 @@ use rand_xorshift::XorShiftRng;
 use std::ops;
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
-pub struct AnyTime(f64);
+pub struct AnyTime(f32);
 
 impl AnyTime {
-    fn inner_seconds(&self) -> f64 {
+    fn inner_seconds(&self) -> f32 {
         self.0
     }
 
@@ -62,8 +62,8 @@ impl Into<Time> for AnyTime {
     }
 }
 
-impl From<f64> for AnyTime {
-    fn from(t: f64) -> AnyTime {
+impl From<f32> for AnyTime {
+    fn from(t: f32) -> AnyTime {
         AnyTime(t)
     }
 }
@@ -80,8 +80,8 @@ pub enum StateEvent {
 #[derive(Debug, Clone)]
 pub struct Event {
     s: StateEvent,
-    p_hosp: f64,  // probability of people being hospitalized after infection
-    p_death: f64, // probability of dying after hospitalizaion
+    p_hosp: f32,  // probability of people being hospitalized after infection
+    p_death: f32, // probability of dying after hospitalizaion
     t: AnyTime,
 }
 
@@ -160,40 +160,40 @@ pub enum State {
 }
 
 impl State {
-    const T_INF: f64 = 360.0 * 10.0; // TODO dummy values
-    const T_INC: f64 = 3600.0; // TODO dummy values
-    const R_0: f64 = 2.5;
-    // const S_RATIO: f64 = 0.985;
-    const E_RATIO: f64 = 0.01;
-    const I_RATIO: f64 = 0.05;
-    // const R_RATIO: f64 = 0.0;
+    const T_INF: f32 = 360.0 * 10.0; // TODO dummy values
+    const T_INC: f32 = 3600.0; // TODO dummy values
+    const R_0: f32 = 2.5;
+    // const S_RATIO: f32 = 0.985;
+    const E_RATIO: f32 = 0.01;
+    const I_RATIO: f32 = 0.05;
+    // const R_RATIO: f32 = 0.0;
 
-    pub fn ini_infectious_ratio() -> f64 {
+    pub fn ini_infectious_ratio() -> f32 {
         Self::I_RATIO
     }
 
-    pub fn ini_exposed_ratio() -> f64 {
+    pub fn ini_exposed_ratio() -> f32 {
         Self::E_RATIO
     }
 
-    fn new(p_hosp: f64, p_death: f64) -> Self {
+    fn new(p_hosp: f32, p_death: f32) -> Self {
         Self::Sane((
             Event {
                 s: StateEvent::Exposition,
                 p_hosp,
                 p_death,
-                t: AnyTime::from(std::f64::INFINITY),
+                t: AnyTime::from(std::f32::INFINITY),
             },
             Time::START_OF_DAY,
         ))
     }
 
-    fn get_time_exp(lambda: f64, rng: &mut XorShiftRng) -> geom::Duration {
+    fn get_time_exp(lambda: f32, rng: &mut XorShiftRng) -> geom::Duration {
         let normal = Exp::new(lambda).unwrap();
         Duration::seconds(normal.sample(rng))
     }
 
-    fn get_time_normal(mu: f64, sigma: f64, rng: &mut XorShiftRng) -> geom::Duration {
+    fn get_time_normal(mu: f32, sigma: f32, rng: &mut XorShiftRng) -> geom::Duration {
         let normal = Normal::new(mu, sigma).unwrap();
         Duration::seconds(normal.sample(rng))
     }

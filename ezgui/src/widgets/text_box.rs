@@ -28,7 +28,7 @@ impl TextBox {
 
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(
-                (max_chars as f64) * text::MAX_CHAR_WIDTH,
+                (max_chars as f32) * text::MAX_CHAR_WIDTH,
                 ctx.default_line_height(),
             ),
         }

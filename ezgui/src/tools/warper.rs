@@ -5,11 +5,11 @@ use instant::Instant;
 pub struct Warper {
     started: Instant,
     line: Option<Line>,
-    cam_zoom: (f64, f64),
+    cam_zoom: (f32, f32),
 }
 
 impl Warper {
-    pub fn new(ctx: &EventCtx, pt: Pt2D, target_cam_zoom: Option<f64>) -> Warper {
+    pub fn new(ctx: &EventCtx, pt: Pt2D, target_cam_zoom: Option<f32>) -> Warper {
         let z = ctx.canvas.cam_zoom;
         Warper {
             started: Instant::now(),
@@ -31,8 +31,8 @@ impl Warper {
         }
         ctx.input.use_update_event();
 
-        const MAX_ANIMATION_TIME_S: f64 = 0.5;
-        const ANIMATION_SPEED: f64 = 200.0;
+        const MAX_ANIMATION_TIME_S: f32 = 0.5;
+        const ANIMATION_SPEED: f32 = 200.0;
         let total_time = if let Some(ref line) = self.line {
             (line.length().inner_meters() / ANIMATION_SPEED).min(MAX_ANIMATION_TIME_S)
         } else {

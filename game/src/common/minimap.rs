@@ -19,10 +19,10 @@ pub struct Minimap {
 
     // [0, 3], with 0 meaning the most unzoomed
     zoom_lvl: usize,
-    base_zoom: f64,
-    zoom: f64,
-    offset_x: f64,
-    offset_y: f64,
+    base_zoom: f32,
+    zoom: f32,
+    offset_x: f32,
+    offset_y: f32,
 }
 
 impl Minimap {
@@ -46,7 +46,7 @@ impl Minimap {
     }
 
     fn set_zoom(&mut self, ctx: &mut EventCtx, app: &App, zoom_lvl: usize) {
-        let zoom_speed: f64 = 2.0;
+        let zoom_speed: f32 = 2.0;
         self.zoom_lvl = zoom_lvl;
         self.zoom = self.base_zoom * zoom_speed.powi(self.zoom_lvl as i32);
         self.composite = make_minimap_panel(ctx, app, self.zoom_lvl);
@@ -204,7 +204,7 @@ impl Minimap {
             &app.primary.map,
             &app.agent_cs,
             g,
-            Distance::meters(2.0 + (self.zoom_lvl as f64)) / self.zoom,
+            Distance::meters(2.0 + (self.zoom_lvl as f32)) / self.zoom,
         );
 
         // The cursor

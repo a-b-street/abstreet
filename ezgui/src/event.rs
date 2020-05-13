@@ -23,8 +23,8 @@ pub enum Event {
     MouseMovedTo(ScreenPt),
     WindowLostCursor,
     WindowGainedCursor,
-    MouseWheelScroll(f64, f64),
-    WindowResized(f64, f64),
+    MouseWheelScroll(f32, f32),
+    WindowResized(f32, f32),
 }
 
 impl Event {
@@ -58,8 +58,8 @@ impl Event {
                     } else {
                         // TODO Also x?
                         Some(Event::MouseWheelScroll(
-                            f64::from(dx),
-                            scroll_wheel_multiplier() * f64::from(dy),
+                            f32::from(dx),
+                            scroll_wheel_multiplier() * f32::from(dy),
                         ))
                     }
                 }
@@ -85,12 +85,12 @@ impl Event {
 
 // For some reason, Y is inverted in the browser
 #[cfg(feature = "wasm-backend")]
-fn scroll_wheel_multiplier() -> f64 {
+fn scroll_wheel_multiplier() -> f32 {
     -1.0
 }
 
 #[cfg(not(feature = "wasm-backend"))]
-fn scroll_wheel_multiplier() -> f64 {
+fn scroll_wheel_multiplier() -> f32 {
     1.0
 }
 

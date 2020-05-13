@@ -124,7 +124,7 @@ impl GeomBatch {
         prerender: &Prerender,
         filename: &str,
         center: Pt2D,
-        scale: f64,
+        scale: f32,
         rotate: Angle,
         rewrite: RewriteColor,
     ) {
@@ -149,7 +149,7 @@ impl GeomBatch {
         &mut self,
         other: GeomBatch,
         center: Pt2D,
-        scale: f64,
+        scale: f32,
         rotate: Angle,
         rewrite: RewriteColor,
     ) {
@@ -174,7 +174,7 @@ impl GeomBatch {
 
     // TODO Weird API
     /// Adds geometry from another batch to the current batch, first translating it.
-    pub fn add_translated(&mut self, other: GeomBatch, dx: f64, dy: f64) {
+    pub fn add_translated(&mut self, other: GeomBatch, dx: f32, dy: f32) {
         for (color, poly) in other.consume() {
             self.fancy_push(color, poly.translate(dx, dy));
         }

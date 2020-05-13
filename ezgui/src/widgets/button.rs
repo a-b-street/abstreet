@@ -278,7 +278,7 @@ impl BtnBuilder {
                 pad,
             } => {
                 let (orig, bounds) = svg::load_svg(ctx.prerender, &path);
-                let pad = pad as f64;
+                let pad = pad as f32;
                 let geom =
                     Polygon::rectangle(bounds.width() + 2.0 * pad, bounds.height() + 2.0 * pad);
 
@@ -369,8 +369,8 @@ impl BtnBuilder {
                 selected_bg_color,
                 ..
             } => {
-                const HORIZ_PADDING: f64 = 30.0;
-                const VERT_PADDING: f64 = 10.0;
+                const HORIZ_PADDING: f32 = 30.0;
+                const VERT_PADDING: f32 = 10.0;
 
                 let txt_batch = text.render_ctx(ctx);
                 let dims = txt_batch.get_dims();

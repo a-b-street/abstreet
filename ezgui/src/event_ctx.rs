@@ -82,7 +82,7 @@ impl<'a> EventCtx<'a> {
     }
 
     // Delegation to assets
-    pub fn default_line_height(&self) -> f64 {
+    pub fn default_line_height(&self) -> f32 {
         *self.prerender.assets.default_line_height.borrow()
     }
 
@@ -91,15 +91,15 @@ impl<'a> EventCtx<'a> {
         self.prerender.upload(batch)
     }
 
-    pub fn set_scale_factor(&self, scale: f64) {
+    pub fn set_scale_factor(&self, scale: f32) {
         self.prerender.assets.set_scale_factor(scale)
     }
 
-    pub fn get_scale_factor(&self) -> f64 {
+    pub fn get_scale_factor(&self) -> f32 {
         *self.prerender.assets.scale_factor.borrow()
     }
 
-    pub fn monitor_scale_factor(&self) -> f64 {
+    pub fn monitor_scale_factor(&self) -> f32 {
         self.prerender.inner.monitor_scale_factor()
     }
 
@@ -142,8 +142,8 @@ pub struct LoadingScreen<'a> {
 impl<'a> LoadingScreen<'a> {
     pub fn new(
         prerender: &'a Prerender,
-        initial_width: f64,
-        initial_height: f64,
+        initial_width: f32,
+        initial_height: f32,
         title: String,
     ) -> LoadingScreen<'a> {
         let canvas = Canvas::new(initial_width, initial_height);

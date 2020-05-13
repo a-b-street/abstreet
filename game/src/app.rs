@@ -505,7 +505,7 @@ pub struct PerMap {
 
     pub current_selection: Option<ID>,
     pub current_flags: Flags,
-    pub last_warped_from: Option<(Pt2D, f64)>,
+    pub last_warped_from: Option<(Pt2D, f32)>,
 }
 
 impl PerMap {

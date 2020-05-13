@@ -3,41 +3,41 @@ use std::fmt;
 
 // Stores in radians
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq)]
-pub struct Angle(f64);
+pub struct Angle(f32);
 
 impl Angle {
     pub const ZERO: Angle = Angle(0.0);
 
-    pub(crate) fn new(rads: f64) -> Angle {
+    pub(crate) fn new(rads: f32) -> Angle {
         // Retain more precision for angles...
         Angle((rads * 10_000_000.0).round() / 10_000_000.0)
     }
 
-    pub fn new_degs(degs: f64) -> Angle {
+    pub fn new_degs(degs: f32) -> Angle {
         Angle::new(degs.to_radians())
     }
 
     pub fn opposite(self) -> Angle {
-        Angle::new(self.0 + std::f64::consts::PI)
+        Angle::new(self.0 + std::f32::consts::PI)
     }
 
     pub fn invert_y(self) -> Angle {
-        Angle::new(2.0 * std::f64::consts::PI - self.0)
+        Angle::new(2.0 * std::f32::consts::PI - self.0)
     }
 
-    pub fn rotate_degs(self, degrees: f64) -> Angle {
+    pub fn rotate_degs(self, degrees: f32) -> Angle {
         Angle::new(self.0 + degrees.to_radians())
     }
 
-    pub fn normalized_radians(self) -> f64 {
+    pub fn normalized_radians(self) -> f32 {
         if self.0 < 0.0 {
-            self.0 + (2.0 * std::f64::consts::PI)
+            self.0 + (2.0 * std::f32::consts::PI)
         } else {
             self.0
         }
     }
 
-    pub fn normalized_degrees(self) -> f64 {
+    pub fn normalized_degrees(self) -> f32 {
         self.normalized_radians().to_degrees()
     }
 
@@ -50,7 +50,7 @@ impl Angle {
         )
     }
 
-    pub fn approx_eq(self, other: Angle, within_degrees: f64) -> bool {
+    pub fn approx_eq(self, other: Angle, within_degrees: f32) -> bool {
         // https://math.stackexchange.com/questions/110080/shortest-way-to-achieve-target-angle
         // This yields [-180, 180]
         let rotation =

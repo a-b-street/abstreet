@@ -7,31 +7,31 @@ use std::cell::RefCell;
 
 // Click and release counts as a normal click, not a drag, if the distance between click and
 // release is less than this.
-const DRAG_THRESHOLD: f64 = 5.0;
+const DRAG_THRESHOLD: f32 = 5.0;
 
-const PAN_SPEED: f64 = 15.0;
+const PAN_SPEED: f32 = 15.0;
 
 pub struct Canvas {
-    // All of these f64's are in screen-space, so do NOT use Pt2D.
+    // All of these f32's are in screen-space, so do NOT use Pt2D.
     // Public for saving/loading... should probably do better
-    pub cam_x: f64,
-    pub cam_y: f64,
-    pub cam_zoom: f64,
+    pub cam_x: f32,
+    pub cam_y: f32,
+    pub cam_zoom: f32,
 
     // TODO We probably shouldn't even track screen-space cursor when we don't have the cursor.
-    pub(crate) cursor_x: f64,
-    pub(crate) cursor_y: f64,
+    pub(crate) cursor_x: f32,
+    pub(crate) cursor_y: f32,
     pub(crate) window_has_cursor: bool,
 
     // Only for drags starting on the map. Only used to pan the map. (Last event, original)
     pub(crate) drag_canvas_from: Option<(ScreenPt, ScreenPt)>,
     pub(crate) drag_just_ended: bool,
 
-    pub window_width: f64,
-    pub window_height: f64,
+    pub window_width: f32,
+    pub window_height: f32,
 
     // TODO Proper API for setting these
-    pub map_dims: (f64, f64),
+    pub map_dims: (f32, f32),
     pub invert_scroll: bool,
     pub touchpad_to_move: bool,
 
@@ -44,7 +44,7 @@ pub struct Canvas {
 }
 
 impl Canvas {
-    pub(crate) fn new(initial_width: f64, initial_height: f64) -> Canvas {
+    pub(crate) fn new(initial_width: f32, initial_height: f32) -> Canvas {
         Canvas {
             cam_x: 0.0,
             cam_y: 0.0,
@@ -71,7 +71,7 @@ impl Canvas {
         }
     }
 
-    pub fn min_zoom(&self) -> f64 {
+    pub fn min_zoom(&self) -> f32 {
         let percent_window = 0.8;
         (percent_window * self.window_width / self.map_dims.0)
             .min(percent_window * self.window_height / self.map_dims.1)
@@ -85,7 +85,7 @@ impl Canvas {
                     if self.lctrl_held {
                         let old_zoom = self.cam_zoom;
                         // By popular request, some limits ;)
-                        self.cam_zoom = 1.1_f64
+                        self.cam_zoom = 1.1_f32
                             .powf(old_zoom.log(1.1) + scroll_y)
                             .max(self.min_zoom())
                             .min(150.0);
@@ -110,7 +110,7 @@ impl Canvas {
                 if let Some((_, scroll)) = input.get_mouse_scroll() {
                     let old_zoom = self.cam_zoom;
                     // By popular request, some limits ;)
-                    self.cam_zoom = 1.1_f64
+                    self.cam_zoom = 1.1_f32
                         .powf(old_zoom.log(1.1) + scroll)
                         .max(self.min_zoom())
                         .min(150.0);
@@ -276,8 +276,8 @@ pub enum HorizontalAlignment {
     Left,
     Center,
     Right,
-    Percent(f64),
-    Centered(f64),
+    Percent(f32),
+    Centered(f32),
 }
 
 #[derive(Clone, Copy)]
@@ -286,14 +286,14 @@ pub enum VerticalAlignment {
     Center,
     Bottom,
     BottomAboveOSD,
-    Percent(f64),
-    Above(f64),
-    Below(f64),
+    Percent(f32),
+    Above(f32),
+    Below(f32),
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CameraState {
-    cam_x: f64,
-    cam_y: f64,
-    cam_zoom: f64,
+    cam_x: f32,
+    cam_y: f32,
+    cam_zoom: f32,
 }

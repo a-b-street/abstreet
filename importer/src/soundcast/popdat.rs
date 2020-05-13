@@ -72,7 +72,7 @@ fn import_trips(
         let mode = get_mode(&rec.mode);
         let purpose = (get_purpose(&rec.opurp), get_purpose(&rec.dpurp));
 
-        let trip_time = Duration::f64_minutes(rec.travtime);
+        let trip_time = Duration::f32_minutes(rec.travtime);
         let trip_dist = Distance::miles(rec.travdist);
 
         let person = OrigPersonID(rec.hhno as usize, rec.pno as usize);
@@ -120,10 +120,10 @@ fn import_parcels(
         closest_bldg.add(b.osm_way_id, b.polygon.points());
     }
 
-    let mut x_coords: Vec<f64> = Vec::new();
-    let mut y_coords: Vec<f64> = Vec::new();
+    let mut x_coords: Vec<f32> = Vec::new();
+    let mut y_coords: Vec<f32> = Vec::new();
     // Dummy values
-    let mut z_coords: Vec<f64> = Vec::new();
+    let mut z_coords: Vec<f32> = Vec::new();
     // (parcel ID, number of households, number of employees, number of parking spots)
     let mut parcel_metadata = Vec::new();
 
@@ -242,19 +242,19 @@ fn get_mode(code: &str) -> TripMode {
 // See https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv
 #[derive(Debug, Deserialize)]
 struct RawTrip {
-    opcl: f64,
-    dpcl: f64,
-    deptm: f64,
+    opcl: f32,
+    dpcl: f32,
+    deptm: f32,
     mode: String,
     opurp: String,
     dpurp: String,
-    travtime: f64,
-    travdist: f64,
-    hhno: f64,
-    pno: f64,
-    tour: f64,
-    half: f64,
-    tseg: f64,
+    travtime: f32,
+    travdist: f32,
+    hhno: f32,
+    pno: f32,
+    tour: f32,
+    half: f32,
+    tseg: f32,
 }
 
 // See https://github.com/psrc/soundcast/wiki/Outputs#buffered-parcel-file-buffered_parcelsdat
@@ -265,8 +265,8 @@ struct RawParcel {
     emptot_p: usize,
     parkdy_p: usize,
     parkhr_p: usize,
-    xcoord_p: f64,
-    ycoord_p: f64,
+    xcoord_p: f32,
+    ycoord_p: f32,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

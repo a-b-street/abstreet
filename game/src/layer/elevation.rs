@@ -6,7 +6,7 @@ use geom::{ArrowCap, Distance, PolyLine};
 
 pub fn new(ctx: &mut EventCtx, app: &App) -> Layers {
     // TODO Two passes because we have to construct the text first :(
-    let mut max = 0.0_f64;
+    let mut max = 0.0_f32;
     for l in app.primary.map.all_lanes() {
         let pct = l.percent_grade(&app.primary.map).abs();
         max = max.max(pct);
@@ -20,7 +20,7 @@ pub fn new(ctx: &mut EventCtx, app: &App) -> Layers {
         vec!["flat", "1%", "5%", "15%", "steeper"],
     );
 
-    let mut max = 0.0_f64;
+    let mut max = 0.0_f32;
     for l in app.primary.map.all_lanes() {
         let pct = l.percent_grade(&app.primary.map).abs();
         max = max.max(pct);

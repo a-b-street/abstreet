@@ -44,7 +44,7 @@ pub fn new(ctx: &mut EventCtx, app: &App, onstreet: bool, offstreet: bool) -> La
             Text::from_multiline(vec![
                 Line(format!(
                     "{:.0}% of the population owns a car",
-                    100.0 * (has_car as f64) / (total_ppl as f64)
+                    100.0 * (has_car as f32) / (total_ppl as f32)
                 )),
                 Line(format!(
                     "{} spots filled",
@@ -113,7 +113,7 @@ pub fn new(ctx: &mut EventCtx, app: &App, onstreet: bool, offstreet: bool) -> La
     for l in keys {
         let open = avail.get(l);
         let closed = filled.get(l);
-        let percent = (closed as f64) / ((open + closed) as f64);
+        let percent = (closed as f32) / ((open + closed) as f32);
         let color = if percent < 0.4 {
             app.cs.good_to_bad[0]
         } else if percent < 0.7 {

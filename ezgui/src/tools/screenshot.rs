@@ -8,9 +8,9 @@ pub(crate) fn screenshot_everything<G: GUI>(
     state: &mut State<G>,
     dir_path: &str,
     prerender: &Prerender,
-    zoom: f64,
-    max_x: f64,
-    max_y: f64,
+    zoom: f32,
+    max_x: f32,
+    max_y: f32,
 ) {
     let mut timer = Timer::new("capturing screen");
     let num_tiles_x = (max_x * zoom / state.canvas.window_width).ceil() as usize;
@@ -27,8 +27,8 @@ pub(crate) fn screenshot_everything<G: GUI>(
     for tile_y in 0..num_tiles_y {
         for tile_x in 0..num_tiles_x {
             timer.next();
-            state.canvas.cam_x = (tile_x as f64) * state.canvas.window_width;
-            state.canvas.cam_y = (tile_y as f64) * state.canvas.window_height;
+            state.canvas.cam_x = (tile_x as f32) * state.canvas.window_width;
+            state.canvas.cam_y = (tile_y as f32) * state.canvas.window_height;
 
             let suffix = state.draw(prerender, true).unwrap_or_else(String::new);
             let filename = format!("{:02}x{:02}{}.gif", tile_x + 1, tile_y + 1, suffix);

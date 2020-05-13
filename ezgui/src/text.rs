@@ -16,10 +16,10 @@ const DEFAULT_FG_COLOR: Color = Color::WHITE;
 pub const BG_COLOR: Color = Color::grey(0.3);
 pub const SELECTED_COLOR: Color = Color::grey(0.5);
 pub const INACTIVE_CHOICE_COLOR: Color = Color::grey(0.4);
-pub const SCALE_LINE_HEIGHT: f64 = 1.2;
+pub const SCALE_LINE_HEIGHT: f32 = 1.2;
 
 // TODO Don't do this!
-pub const MAX_CHAR_WIDTH: f64 = 25.0;
+pub const MAX_CHAR_WIDTH: f32 = 25.0;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Font {
@@ -217,7 +217,7 @@ impl Text {
     }
 
     // TODO Not at all correct!
-    pub fn add_wrapped(&mut self, line: String, width: f64) {
+    pub fn add_wrapped(&mut self, line: String, width: f32) {
         let wrap_to = width / MAX_CHAR_WIDTH;
         for l in textwrap::wrap(&line, wrap_to as usize).into_iter() {
             self.add(Line(l));
@@ -257,7 +257,7 @@ impl Text {
         let mut master_batch = GeomBatch::new();
 
         let mut y = 0.0;
-        let mut max_width = 0.0_f64;
+        let mut max_width = 0.0_f32;
         for (line_color, line) in self.lines {
             // Assume size doesn't change mid-line. Always use this fixed line height per font
             // size.

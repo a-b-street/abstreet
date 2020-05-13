@@ -48,7 +48,7 @@ impl App {
         let mut col3 = vec![Line("Quadratic").draw(ctx)];
         for s in 0..(self.elapsed.inner_seconds() as usize) {
             col1.push(
-                Line(Duration::seconds(s as f64).to_string())
+                Line(Duration::seconds(s as f32).to_string())
                     .secondary()
                     .draw(ctx),
             );
@@ -86,7 +86,7 @@ impl App {
                             color: Color::GREEN,
                             // These points are (x axis = Time, y axis = usize)
                             pts: (0..(self.elapsed.inner_seconds() as usize))
-                                .map(|s| (Time::START_OF_DAY + Duration::seconds(s as f64), s))
+                                .map(|s| (Time::START_OF_DAY + Duration::seconds(s as f32), s))
                                 .collect(),
                         },
                         Series {
@@ -94,7 +94,7 @@ impl App {
                             color: Color::BLUE,
                             pts: (0..(self.elapsed.inner_seconds() as usize))
                                 .map(|s| {
-                                    (Time::START_OF_DAY + Duration::seconds(s as f64), s.pow(2))
+                                    (Time::START_OF_DAY + Duration::seconds(s as f32), s.pow(2))
                                 })
                                 .collect(),
                         },

@@ -117,14 +117,14 @@ impl Polygon {
         Bounds::from(&self.points)
     }
 
-    pub fn translate(&self, dx: f64, dy: f64) -> Polygon {
+    pub fn translate(&self, dx: f32, dy: f32) -> Polygon {
         Polygon {
             points: self.points.iter().map(|pt| pt.offset(dx, dy)).collect(),
             indices: self.indices.clone(),
         }
     }
 
-    pub fn scale(&self, factor: f64) -> Polygon {
+    pub fn scale(&self, factor: f32) -> Polygon {
         Polygon {
             points: self
                 .points
@@ -170,7 +170,7 @@ impl Polygon {
     }
 
     // Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
-    pub fn rectangle(width: f64, height: f64) -> Polygon {
+    pub fn rectangle(width: f32, height: f32) -> Polygon {
         Polygon {
             points: vec![
                 Pt2D::new(0.0, 0.0),
@@ -212,7 +212,7 @@ impl Polygon {
 
     // Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
     // If radius is None, be as round as possible
-    pub fn rounded_rectangle(w: f64, h: f64, r: Option<f64>) -> Polygon {
+    pub fn rounded_rectangle(w: f32, h: f32, r: Option<f32>) -> Polygon {
         let r = r.unwrap_or_else(|| w.min(h) / 2.0);
         assert!(2.0 * r <= w);
         assert!(2.0 * r <= h);
@@ -220,10 +220,10 @@ impl Polygon {
         let mut pts = vec![];
 
         const RESOLUTION: usize = 5;
-        let mut arc = |center: Pt2D, angle1_degs: f64, angle2_degs: f64| {
+        let mut arc = |center: Pt2D, angle1_degs: f32, angle2_degs: f32| {
             for i in 0..=RESOLUTION {
                 let angle = Angle::new_degs(
-                    angle1_degs + (angle2_degs - angle1_degs) * ((i as f64) / (RESOLUTION as f64)),
+                    angle1_degs + (angle2_degs - angle1_degs) * ((i as f32) / (RESOLUTION as f32)),
                 );
                 pts.push(center.project_away(Distance::meters(r), angle.invert_y()));
             }
@@ -265,7 +265,7 @@ impl Polygon {
     }
 
     pub fn convex_hull(list: Vec<Polygon>) -> Polygon {
-        let mp: geo::MultiPolygon<f64> = list.into_iter().map(|p| to_geo(p.points())).collect();
+        let mp: geo::MultiPolygon<f32> = list.into_iter().map(|p| to_geo(p.points())).collect();
         from_geo(mp.convex_hull())
     }
 
@@ -274,7 +274,7 @@ impl Polygon {
         Pt2D::new(pt.x(), pt.y())
     }
 
-    pub fn shrink(&self, distance: f64) -> Vec<Polygon> {
+    pub fn shrink(&self, distance: f32) -> Vec<Polygon> {
         from_multi(to_geo(self.points()).offset(distance).unwrap())
     }
 
@@ -369,7 +369,7 @@ fn is_clockwise_polygon(pts: &Vec<Pt2D>) -> bool {
     sum > 0.0
 }
 
-fn to_geo(pts: &Vec<Pt2D>) -> geo::Polygon<f64> {
+fn to_geo(pts: &Vec<Pt2D>) -> geo::Polygon<f32> {
     geo::Polygon::new(
         geo::LineString::from(
             pts.iter()
@@ -380,7 +380,7 @@ fn to_geo(pts: &Vec<Pt2D>) -> geo::Polygon<f64> {
     )
 }
 
-fn from_geo(p: geo::Polygon<f64>) -> Polygon {
+fn from_geo(p: geo::Polygon<f32>) -> Polygon {
     Polygon::new(
         &p.into_inner()
             .0
@@ -391,6 +391,6 @@ fn from_geo(p: geo::Polygon<f64>) -> Polygon {
     )
 }
 
-fn from_multi(multi: geo::MultiPolygon<f64>) -> Vec<Polygon> {
+fn from_multi(multi: geo::MultiPolygon<f32>) -> Vec<Polygon> {
     multi.into_iter().map(from_geo).collect()
 }

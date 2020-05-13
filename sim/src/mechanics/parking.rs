@@ -420,7 +420,7 @@ impl ParkingLane {
             driving_lane,
             sidewalk,
             spot_dist_along: (0..lane.number_parking_spots())
-                .map(|idx| map_model::PARKING_SPOT_LENGTH * (2.0 + idx as f64))
+                .map(|idx| map_model::PARKING_SPOT_LENGTH * (2.0 + idx as f32))
                 .collect(),
         })
     }

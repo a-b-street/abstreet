@@ -116,7 +116,7 @@ impl Color {
 #[derive(Clone, PartialEq)]
 pub struct LinearGradient {
     line: Line,
-    stops: Vec<(f64, Color)>,
+    stops: Vec<(f32, Color)>,
 }
 
 impl LinearGradient {
@@ -156,7 +156,7 @@ impl LinearGradient {
     }
 }
 
-fn to_pct(value: f64, (low, high): (f64, f64)) -> f64 {
+fn to_pct(value: f32, (low, high): (f32, f32)) -> f32 {
     assert!(low <= high);
     assert!(value >= low);
     assert!(value <= high);

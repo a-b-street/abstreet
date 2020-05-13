@@ -659,7 +659,7 @@ impl TimePanel {
     }
 }
 
-fn area_under_curve(raw: Vec<(Time, usize)>, width: f64, height: f64) -> Polygon {
+fn area_under_curve(raw: Vec<(Time, usize)>, width: f32, height: f32) -> Polygon {
     assert!(!raw.is_empty());
     let min_x = Time::START_OF_DAY;
     let min_y = 0;
@@ -670,7 +670,7 @@ fn area_under_curve(raw: Vec<(Time, usize)>, width: f64, height: f64) -> Polygon
     for (t, cnt) in raw {
         pts.push(Pt2D::new(
             (t - min_x) / (max_x - min_x) * width,
-            ((cnt - min_y) as f64) / ((max_y - min_y) as f64) * height,
+            ((cnt - min_y) as f32) / ((max_y - min_y) as f32) * height,
         ));
     }
 

@@ -1,12 +1,12 @@
-use crate::{trim_f64, Duration, Speed};
+use crate::{trim_f32, Duration, Speed};
 use serde_derive::{Deserialize, Serialize};
-use std::{cmp, f64, fmt, ops};
+use std::{cmp, f32, fmt, ops};
 
 // In meters. Can be negative.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
-pub struct Distance(f64);
+pub struct Distance(f32);
 
-// By construction, Distance is a finite f64 with trimmed precision.
+// By construction, Distance is a finite f32 with trimmed precision.
 impl Eq for Distance {}
 impl Ord for Distance {
     fn cmp(&self, other: &Distance) -> cmp::Ordering {
@@ -17,29 +17,29 @@ impl Ord for Distance {
 impl Distance {
     pub const ZERO: Distance = Distance::const_meters(0.0);
 
-    pub fn meters(value: f64) -> Distance {
+    pub fn meters(value: f32) -> Distance {
         if !value.is_finite() {
             panic!("Bad Distance {}", value);
         }
 
-        Distance(trim_f64(value))
+        Distance(trim_f32(value))
     }
 
     // TODO Can't panic inside a const fn, seemingly. Don't pass in anything bad!
-    pub const fn const_meters(value: f64) -> Distance {
+    pub const fn const_meters(value: f32) -> Distance {
         Distance(value)
     }
 
-    pub fn inches(value: f64) -> Distance {
+    pub fn inches(value: f32) -> Distance {
         Distance::meters(0.0254 * value)
     }
 
-    pub fn miles(value: f64) -> Distance {
+    pub fn miles(value: f32) -> Distance {
         Distance::meters(1609.34 * value)
     }
 
     pub fn centimeters(value: usize) -> Distance {
-        Distance::meters((value as f64) / 100.0)
+        Distance::meters((value as f32) / 100.0)
     }
 
     pub fn abs(self) -> Distance {
@@ -55,7 +55,7 @@ impl Distance {
     }
 
     // TODO Remove if possible.
-    pub fn inner_meters(self) -> f64 {
+    pub fn inner_meters(self) -> f32 {
         self.0
     }
 
@@ -107,15 +107,15 @@ impl ops::SubAssign for Distance {
     }
 }
 
-impl ops::Mul<f64> for Distance {
+impl ops::Mul<f32> for Distance {
     type Output = Distance;
 
-    fn mul(self, scalar: f64) -> Distance {
+    fn mul(self, scalar: f32) -> Distance {
         Distance::meters(self.0 * scalar)
     }
 }
 
-impl ops::Mul<Distance> for f64 {
+impl ops::Mul<Distance> for f32 {
     type Output = Distance;
 
     fn mul(self, other: Distance) -> Distance {
@@ -124,9 +124,9 @@ impl ops::Mul<Distance> for f64 {
 }
 
 impl ops::Div<Distance> for Distance {
-    type Output = f64;
+    type Output = f32;
 
-    fn div(self, other: Distance) -> f64 {
+    fn div(self, other: Distance) -> f32 {
         if other == Distance::ZERO {
             panic!("Can't divide {} / {}", self, other);
         }
@@ -134,10 +134,10 @@ impl ops::Div<Distance> for Distance {
     }
 }
 
-impl ops::Div<f64> for Distance {
+impl ops::Div<f32> for Distance {
     type Output = Distance;
 
-    fn div(self, scalar: f64) -> Distance {
+    fn div(self, scalar: f32) -> Distance {
         if scalar == 0.0 {
             panic!("Can't divide {} / {}", self, scalar);
         }

@@ -530,8 +530,8 @@ fn read_osmosis_polygon(path: &str, city_name: &str, map_name: &str) -> RawMap {
         let parts: Vec<&str> = line.trim_start().split("    ").collect();
         assert!(parts.len() == 2);
         let pt = LonLat::new(
-            parts[0].parse::<f64>().unwrap(),
-            parts[1].parse::<f64>().unwrap(),
+            parts[0].parse::<f32>().unwrap(),
+            parts[1].parse::<f32>().unwrap(),
         );
         pts.push(pt);
         gps_bounds.update(pt);

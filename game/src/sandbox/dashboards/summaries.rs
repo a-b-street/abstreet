@@ -141,7 +141,7 @@ fn summary(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
                 if num_faster == 0 {
                     Duration::ZERO
                 } else {
-                    sum_faster / (num_faster as f64)
+                    sum_faster / (num_faster as f32)
                 }
             )),
         ])
@@ -162,7 +162,7 @@ fn summary(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
                 if num_slower == 0 {
                     Duration::ZERO
                 } else {
-                    sum_slower / (num_slower as f64)
+                    sum_slower / (num_slower as f32)
                 }
             )),
         ])
@@ -221,7 +221,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         batch.add_centered(
             Text::from(Line(mins.to_string()).small()).render_ctx(ctx),
             Pt2D::new(
-                (idx as f64) / (num_buckets as f64) * total_width,
+                (idx as f32) / (num_buckets as f32) * total_width,
                 total_height / 2.0,
             ),
         );
@@ -259,7 +259,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         .max(savings_per_bucket.iter().max().unwrap().0);
 
     // Draw the bars!
-    let bar_width = total_width / (num_buckets as f64);
+    let bar_width = total_width / (num_buckets as f32);
     let max_bar_height = (total_height - ctx.default_line_height()) / 2.0;
     let mut outlines = Vec::new();
     let mut tooltips = Vec::new();
@@ -322,7 +322,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
 
 #[derive(PartialEq)]
 pub struct Filter {
-    changes_pct: Option<f64>,
+    changes_pct: Option<f32>,
     modes: BTreeSet<TripMode>,
 }
 
@@ -355,7 +355,7 @@ impl Filter {
     }
 }
 
-fn pct_diff(a: Duration, b: Duration) -> f64 {
+fn pct_diff(a: Duration, b: Duration) -> f32 {
     if a >= b {
         (a / b) - 1.0
     } else {

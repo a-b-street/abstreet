@@ -28,9 +28,9 @@ pub struct SpawnOverTime {
     pub start_time: Time,
     pub stop_time: Time,
     pub goal: OriginDestination,
-    pub percent_driving: f64,
-    pub percent_biking: f64,
-    pub percent_use_transit: f64,
+    pub percent_driving: f32,
+    pub percent_biking: f32,
+    pub percent_use_transit: f32,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -38,7 +38,7 @@ pub struct BorderSpawnOverTime {
     pub num_peds: usize,
     pub num_cars: usize,
     pub num_bikes: usize,
-    pub percent_use_transit: f64,
+    pub percent_use_transit: f32,
     // TODO use https://docs.rs/rand/0.5.5/rand/distributions/struct.Normal.html
     pub start_time: Time,
     pub stop_time: Time,

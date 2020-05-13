@@ -162,7 +162,7 @@ impl Path {
         self.total_length
     }
 
-    pub fn percent_dist_crossed(&self) -> f64 {
+    pub fn percent_dist_crossed(&self) -> f32 {
         // Sometimes this happens
         if self.total_length == Distance::ZERO {
             return 1.0;

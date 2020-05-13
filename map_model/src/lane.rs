@@ -258,7 +258,7 @@ impl Lane {
 
     // Returns [-1.0, 1.0]. 0 is flat, positive is uphill, negative is downhill.
     // TODO Or do we care about the total up/down along the possibly long road?
-    pub fn percent_grade(&self, map: &Map) -> f64 {
+    pub fn percent_grade(&self, map: &Map) -> f32 {
         let rise = map.get_i(self.dst_i).elevation - map.get_i(self.src_i).elevation;
         let run = self.length();
         let grade = rise / run;
