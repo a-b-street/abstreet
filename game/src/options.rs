@@ -19,7 +19,7 @@ pub struct Options {
 impl Options {
     pub fn default() -> Options {
         Options {
-            traffic_signal_style: TrafficSignalStyle::GroupArrows,
+            traffic_signal_style: TrafficSignalStyle::BAP,
             color_scheme: ColorSchemeChoice::Standard,
             dev: false,
             time_increment: Duration::minutes(10),
@@ -30,6 +30,7 @@ impl Options {
 
 #[derive(Clone, PartialEq)]
 pub enum TrafficSignalStyle {
+    BAP,
     GroupArrows,
     Sidewalks,
     Icons,
@@ -73,6 +74,11 @@ impl OptionsPanel {
                             "Traffic signal rendering",
                             app.opts.traffic_signal_style.clone(),
                             vec![
+                                Choice::new(
+                                    "Brian's variation of arrows showing the protected and \
+                                     permitted movements",
+                                    TrafficSignalStyle::BAP,
+                                ),
                                 Choice::new(
                                     "arrows showing the protected and permitted movements",
                                     TrafficSignalStyle::GroupArrows,

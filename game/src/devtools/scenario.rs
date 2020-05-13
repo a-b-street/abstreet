@@ -10,7 +10,7 @@ use ezgui::{
     hotkey, lctrl, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line,
     Outcome, Text,
 };
-use geom::{Distance, PolyLine};
+use geom::{ArrowCap, Distance, PolyLine};
 use map_model::{BuildingID, IntersectionID, Map};
 use sim::{
     DrivingGoal, IndividTrip, PersonSpec, Scenario, SidewalkPOI, SidewalkSpot, SpawnTrip,
@@ -444,7 +444,7 @@ fn show_demand(
             batch.push(
                 Color::RED.alpha(0.8),
                 PolyLine::new(vec![home_pt, id.canonical_point(&app.primary).unwrap()])
-                    .make_arrow(width)
+                    .make_arrow(width, ArrowCap::Triangle)
                     .unwrap(),
             );
         }
@@ -454,7 +454,7 @@ fn show_demand(
         batch.push(
             Color::BLUE.alpha(0.8),
             PolyLine::new(vec![id.canonical_point(&app.primary).unwrap(), home_pt])
-                .make_arrow(width)
+                .make_arrow(width, ArrowCap::Triangle)
                 .unwrap(),
         );
     }

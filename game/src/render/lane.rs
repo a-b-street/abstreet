@@ -4,7 +4,7 @@ use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use abstutil::Timer;
 use ezgui::{Drawable, FancyColor, GeomBatch, GfxCtx, Prerender, RewriteColor};
-use geom::{Angle, Distance, Line, PolyLine, Polygon, Pt2D};
+use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{Lane, LaneID, LaneType, Map, Road, TurnType, PARKING_SPOT_LENGTH};
 
 // Split into two phases like this, because AlmostDrawLane can be created in parallel, but GPU
@@ -299,7 +299,7 @@ fn calculate_turn_markings(map: &Map, lane: &Lane, timer: &mut Timer) -> Vec<Pol
                     .last_pt()
                     .project_away(lane.width / 2.0, turn.angle()),
             ])
-            .make_arrow(thickness)
+            .make_arrow(thickness, ArrowCap::Triangle)
             .with_context(timer, format!("turn_markings for {}", turn.id)),
         );
     }
@@ -335,7 +335,7 @@ fn calculate_one_way_markings(lane: &Lane, parent: &Road) -> Vec<Polygon> {
                 pt.project_away(arrow_len / 2.0, angle.opposite()),
                 pt.project_away(arrow_len / 2.0, angle),
             ])
-            .make_arrow(thickness)
+            .make_arrow(thickness, ArrowCap::Triangle)
             .unwrap(),
         );
         dist += btwn;

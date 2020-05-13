@@ -23,7 +23,7 @@ pub use crate::find_closest::FindClosest;
 pub use crate::gps::LonLat;
 pub use crate::line::{InfiniteLine, Line};
 pub use crate::polygon::{Polygon, Triangle};
-pub use crate::polyline::PolyLine;
+pub use crate::polyline::{ArrowCap, PolyLine};
 pub use crate::pt::{HashablePt2D, Pt2D};
 pub use crate::ring::Ring;
 pub use crate::speed::Speed;

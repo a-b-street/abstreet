@@ -6,8 +6,8 @@ use ezgui::{
     hotkey, Btn, Color, Composite, EventCtx, GeomBatch, HorizontalAlignment, Key, Line, Prerender,
     RewriteColor, Text, TextExt, VerticalAlignment, Widget,
 };
-use geom::{Angle, Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D};
-use map_model::{IntersectionID, Phase, TurnPriority};
+use geom::{Angle, ArrowCap, Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D};
+use map_model::{IntersectionID, Phase, TurnPriority, SIDEWALK_THICKNESS};
 use std::collections::BTreeSet;
 
 // Only draws a box when time_left is present
@@ -27,6 +27,79 @@ pub fn draw_signal_phase(
     let signal = app.primary.map.get_traffic_signal(i);
 
     match signal_style {
+        TrafficSignalStyle::BAP => {
+            // TODO Don't trim ends unless there's a crosswalk?
+            let mut dont_walk = BTreeSet::new();
+            for g in signal.turn_groups.keys() {
+                if g.crosswalk {
+                    dont_walk.insert(g);
+                }
+            }
+            for g in &phase.protected_groups {
+                if !g.crosswalk {
+                    let pl = &signal.turn_groups[g].geom;
+                    batch.push(
+                        protected_color,
+                        pl.exact_slice(SIDEWALK_THICKNESS, pl.length() - SIDEWALK_THICKNESS)
+                            .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle)
+                            .unwrap(),
+                    );
+                } else {
+                    let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
+                    batch.add_svg(
+                        prerender,
+                        "../data/system/assets/map/walk.svg",
+                        center,
+                        0.07,
+                        angle,
+                        RewriteColor::NoOp,
+                    );
+                    dont_walk.remove(g);
+                }
+            }
+            for g in dont_walk {
+                let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
+                batch.add_svg(
+                    prerender,
+                    "../data/system/assets/map/dont_walk.svg",
+                    center,
+                    0.07,
+                    angle,
+                    RewriteColor::NoOp,
+                );
+            }
+            for g in &phase.yield_groups {
+                assert!(!g.crosswalk);
+                let pl = &signal.turn_groups[g].geom;
+                batch.extend(
+                    //app.cs.normal_intersection,
+                    Color::BLACK,
+                    pl.exact_slice(
+                        SIDEWALK_THICKNESS - Distance::meters(0.1),
+                        pl.length() - SIDEWALK_THICKNESS + Distance::meters(0.1),
+                    )
+                    .dashed_arrow(
+                        BIG_ARROW_THICKNESS,
+                        Distance::meters(1.2),
+                        Distance::meters(0.3),
+                        ArrowCap::Triangle,
+                    ),
+                );
+                batch.extend(
+                    protected_color,
+                    pl.exact_slice(SIDEWALK_THICKNESS, pl.length() - SIDEWALK_THICKNESS)
+                        .dashed_arrow(
+                            BIG_ARROW_THICKNESS / 2.0,
+                            Distance::meters(1.0),
+                            Distance::meters(0.5),
+                            ArrowCap::Triangle,
+                        ),
+                );
+            }
+
+            // No time_left box
+            return;
+        }
         TrafficSignalStyle::GroupArrows => {
             for g in &phase.yield_groups {
                 assert!(!g.crosswalk);
@@ -34,7 +107,7 @@ pub fn draw_signal_phase(
                     yield_bg_color,
                     signal.turn_groups[g]
                         .geom
-                        .make_arrow(BIG_ARROW_THICKNESS * 2.0)
+                        .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle)
                         .unwrap(),
                 );
                 batch.extend(
@@ -57,7 +130,7 @@ pub fn draw_signal_phase(
                         protected_color,
                         signal.turn_groups[g]
                             .geom
-                            .make_arrow(BIG_ARROW_THICKNESS * 2.0)
+                            .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle)
                             .unwrap(),
                     );
                 } else {
@@ -92,7 +165,7 @@ pub fn draw_signal_phase(
                     yield_bg_color,
                     signal.turn_groups[g]
                         .geom
-                        .make_arrow(BIG_ARROW_THICKNESS * 2.0)
+                        .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle)
                         .unwrap(),
                 );
                 batch.extend(
@@ -116,7 +189,7 @@ pub fn draw_signal_phase(
                         protected_color,
                         signal.turn_groups[g]
                             .geom
-                            .make_arrow(BIG_ARROW_THICKNESS * 2.0)
+                            .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle)
                             .unwrap(),
                     );
                 }
@@ -142,7 +215,9 @@ pub fn draw_signal_phase(
                     TurnPriority::Protected => {
                         batch.push(
                             protected_color,
-                            turn.geom.make_arrow(BIG_ARROW_THICKNESS * 2.0).unwrap(),
+                            turn.geom
+                                .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle)
+                                .unwrap(),
                         );
                     }
                     TurnPriority::Yield => {

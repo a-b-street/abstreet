@@ -11,6 +11,11 @@ use std::fmt;
 // TODO How to tune this?
 const MITER_THRESHOLD: f64 = 500.0;
 
+pub enum ArrowCap {
+    Triangle,
+    Lines,
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PolyLine {
     pts: Vec<Pt2D>,
@@ -491,7 +496,7 @@ impl PolyLine {
             .exact_dashed_polygons(width, dash_len, dash_separation)
     }
 
-    pub fn make_arrow(&self, thickness: Distance) -> Warn<Polygon> {
+    pub fn make_arrow(&self, thickness: Distance, cap: ArrowCap) -> Warn<Polygon> {
         let head_size = thickness * 2.0;
         let triangle_height = head_size / 2.0_f64.sqrt();
 
@@ -502,15 +507,26 @@ impl PolyLine {
             );
         }
         let slice = self.exact_slice(Distance::ZERO, self.length() - triangle_height);
-
         let angle = slice.last_pt().angle_to(self.last_pt());
-        Warn::ok(slice.make_polygons(thickness).union(Polygon::new(&vec![
-                self.last_pt(),
-                self.last_pt()
-                    .project_away(head_size, angle.rotate_degs(-135.0)),
-                self.last_pt()
-                    .project_away(head_size, angle.rotate_degs(135.0)),
-            ])))
+        let corner1 = self
+            .last_pt()
+            .project_away(head_size, angle.rotate_degs(-135.0));
+        let corner2 = self
+            .last_pt()
+            .project_away(head_size, angle.rotate_degs(135.0));
+
+        match cap {
+            ArrowCap::Triangle => {
+                Warn::ok(slice.make_polygons(thickness).union(Polygon::new(&vec![
+                    self.last_pt(),
+                    corner1,
+                    corner2,
+                ])))
+            }
+            ArrowCap::Lines => Warn::ok(self.make_polygons(thickness).union(
+                PolyLine::new(vec![corner1, self.last_pt(), corner2]).make_polygons(thickness),
+            )),
+        }
     }
 
     // TODO Refactor
@@ -563,6 +579,7 @@ impl PolyLine {
         width: Distance,
         dash_len: Distance,
         dash_separation: Distance,
+        cap: ArrowCap,
     ) -> Vec<Polygon> {
         let mut polygons = self.exact_dashed_polygons(width, dash_len, dash_separation);
         // And a cap on the arrow. In case the last line is long, trim it to be the dash
@@ -574,7 +591,7 @@ impl PolyLine {
         } else {
             Line::new(last_line.dist_along(last_len - dash_len), last_line.pt2())
         };
-        polygons.push(arrow_line.to_polyline().make_arrow(width).unwrap());
+        polygons.push(arrow_line.to_polyline().make_arrow(width, cap).unwrap());
         polygons
     }
 

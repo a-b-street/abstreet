@@ -3,7 +3,7 @@ use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, Text};
-use geom::{Angle, Distance, PolyLine, Polygon, Pt2D};
+use geom::{Angle, ArrowCap, Distance, PolyLine, Polygon, Pt2D};
 use map_model::{Map, TurnType};
 use sim::{CarID, CarStatus, DrawCarInput, VehicleType};
 
@@ -69,7 +69,7 @@ impl DrawCar {
                                 pos.project_away(arrow_len / 2.0, angle.rotate_degs(90.0)),
                                 pos.project_away(arrow_len / 2.0, angle.rotate_degs(-90.0)),
                             ])
-                            .make_arrow(arrow_thickness)
+                            .make_arrow(arrow_thickness, ArrowCap::Triangle)
                             .unwrap(),
                         );
                     }
@@ -84,7 +84,7 @@ impl DrawCar {
                                 pos.project_away(arrow_len / 2.0, angle.rotate_degs(-90.0)),
                                 pos.project_away(arrow_len / 2.0, angle.rotate_degs(90.0)),
                             ])
-                            .make_arrow(arrow_thickness)
+                            .make_arrow(arrow_thickness, ArrowCap::Triangle)
                             .unwrap(),
                         );
                     }

@@ -6,7 +6,7 @@ use ezgui::{
     hotkey, Btn, Checkbox, Color, Composite, EventCtx, GeomBatch, HorizontalAlignment, Key, Line,
     RewriteColor, Text, TextExt, VerticalAlignment, Widget,
 };
-use geom::{Angle, Distance, Duration, PolyLine};
+use geom::{Angle, ArrowCap, Distance, Duration, PolyLine};
 use map_model::{IntersectionID, Traversable};
 
 pub fn delay(ctx: &mut EventCtx, app: &App) -> Layers {
@@ -378,7 +378,8 @@ pub fn intersection_demand(ctx: &mut EventCtx, app: &App, i: IntersectionID) -> 
         let percent = (demand as f64) / (total_demand as f64);
         batch.push(
             Color::RED,
-            pl.make_arrow(percent * Distance::meters(5.0)).unwrap(),
+            pl.make_arrow(percent * Distance::meters(5.0), ArrowCap::Triangle)
+                .unwrap(),
         );
         batch.add_transformed(
             Text::from(Line(prettyprint_usize(demand))).render_ctx(ctx),

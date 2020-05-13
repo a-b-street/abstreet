@@ -6,7 +6,7 @@ use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Outcome, Text, VerticalAlignment, Widget,
 };
-use geom::{Distance, Polygon, Time};
+use geom::{ArrowCap, Distance, Polygon, Time};
 use map_model::{IntersectionID, LaneID, TurnType};
 use sim::{AgentID, DontDrawAgents};
 
@@ -209,7 +209,10 @@ impl State for TurnExplorer {
             for turn in &app.primary.map.get_turns_from_lane(self.l) {
                 g.draw_polygon(
                     color_turn_type(turn.turn_type).alpha(0.5),
-                    &turn.geom.make_arrow(BIG_ARROW_THICKNESS).unwrap(),
+                    &turn
+                        .geom
+                        .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle)
+                        .unwrap(),
                 );
             }
         } else {
@@ -224,13 +227,17 @@ impl State for TurnExplorer {
                             BIG_ARROW_THICKNESS,
                             Distance::meters(1.0),
                             Distance::meters(0.5),
+                            ArrowCap::Triangle,
                         ),
                     );
                 }
             }
             batch.push(
                 CURRENT_TURN,
-                current.geom.make_arrow(BIG_ARROW_THICKNESS).unwrap(),
+                current
+                    .geom
+                    .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle)
+                    .unwrap(),
             );
             batch.draw(g);
         }

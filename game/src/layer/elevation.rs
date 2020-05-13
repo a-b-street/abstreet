@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::common::Colorer;
 use crate::layer::Layers;
 use ezgui::{Color, EventCtx, GeomBatch};
-use geom::{Distance, PolyLine};
+use geom::{ArrowCap, Distance, PolyLine};
 
 pub fn new(ctx: &mut EventCtx, app: &App) -> Layers {
     // TODO Two passes because we have to construct the text first :(
@@ -68,7 +68,7 @@ pub fn new(ctx: &mut EventCtx, app: &App) -> Layers {
                     pt.project_away(arrow_len / 2.0, angle.opposite()),
                     pt.project_away(arrow_len / 2.0, angle),
                 ])
-                .make_arrow(thickness)
+                .make_arrow(thickness, ArrowCap::Triangle)
                 .unwrap(),
             );
             dist += btwn;

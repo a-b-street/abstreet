@@ -15,7 +15,7 @@ use ezgui::{
     HorizontalAlignment, Key, Line, Outcome, RewriteColor, ScreenPt, Text, TextExt,
     VerticalAlignment, Widget,
 };
-use geom::{Distance, Duration, PolyLine, Polygon, Pt2D, Time};
+use geom::{ArrowCap, Distance, Duration, PolyLine, Polygon, Pt2D, Time};
 use map_model::{BuildingID, IntersectionID, IntersectionType, LaneType, Map};
 use sim::{
     AgentID, Analytics, BorderSpawnOverTime, CarID, OriginDestination, ScenarioGenerator,
@@ -331,7 +331,7 @@ impl GameplayState for Tutorial {
                             .to_pt(),
                         pt,
                     ])
-                    .make_arrow(Distance::meters(20.0))
+                    .make_arrow(Distance::meters(20.0), ArrowCap::Triangle)
                     .unwrap(),
                 );
                 g.unfork();

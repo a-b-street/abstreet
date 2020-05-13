@@ -5,7 +5,7 @@ use ezgui::{
     hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, VerticalAlignment, Widget,
 };
-use geom::{Distance, PolyLine, Polygon};
+use geom::{ArrowCap, Distance, PolyLine, Polygon};
 use map_model::{BuildingID, LaneID, Map, TurnType};
 use sim::{Scenario, TripEndpoint};
 use std::collections::{BTreeSet, HashMap, HashSet};
@@ -167,7 +167,7 @@ impl State for BlockMap {
                                     } else {
                                         vec![other.shape.center(), block.shape.center()]
                                     })
-                                    .make_arrow(Distance::meters(15.0) * pct)
+                                    .make_arrow(Distance::meters(15.0) * pct, ArrowCap::Triangle)
                                     .unwrap(),
                                 );
                             } else {

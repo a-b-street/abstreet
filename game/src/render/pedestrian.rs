@@ -3,7 +3,7 @@ use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, Text};
-use geom::{Angle, Circle, Distance, PolyLine, Polygon};
+use geom::{Angle, ArrowCap, Circle, Distance, PolyLine, Polygon};
 use map_model::{Map, SIDEWALK_THICKNESS};
 use sim::{DrawPedCrowdInput, DrawPedestrianInput, PedCrowdLocation, PedestrianID};
 
@@ -38,7 +38,7 @@ impl DrawPedestrian {
                     input.pos.project_away(radius / 2.0, angle.opposite()),
                     input.pos.project_away(radius / 2.0, angle),
                 ])
-                .make_arrow(Distance::meters(0.15))
+                .make_arrow(Distance::meters(0.15), ArrowCap::Triangle)
                 .unwrap(),
             );
         }

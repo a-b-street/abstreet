@@ -4,7 +4,7 @@ use crate::{
     Canvas, Color, Drawable, FancyColor, GeomBatch, ScreenDims, ScreenPt, ScreenRectangle, Style,
     Text,
 };
-use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
+use geom::{ArrowCap, Bounds, Circle, Distance, Line, Polygon, Pt2D};
 use std::cell::Cell;
 
 // Lower is more on top
@@ -131,7 +131,13 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_arrow(&mut self, color: Color, thickness: Distance, line: &Line) {
-        self.draw_polygon(color, &line.to_polyline().make_arrow(thickness).unwrap());
+        self.draw_polygon(
+            color,
+            &line
+                .to_polyline()
+                .make_arrow(thickness, ArrowCap::Triangle)
+                .unwrap(),
+        );
     }
 
     pub fn draw_circle(&mut self, color: Color, circle: &Circle) {

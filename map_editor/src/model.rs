@@ -1,7 +1,7 @@
 use crate::world::{Object, ObjectID, World};
 use abstutil::Timer;
 use ezgui::{Color, Line, Prerender, Text};
-use geom::{Bounds, Circle, Distance, FindClosest, GPSBounds, PolyLine, Polygon, Pt2D};
+use geom::{ArrowCap, Bounds, Circle, Distance, FindClosest, GPSBounds, PolyLine, Polygon, Pt2D};
 use map_model::raw::{
     OriginalBuilding, OriginalIntersection, OriginalRoad, RawBuilding, RawIntersection, RawMap,
     RawRoad, RestrictionType, TurnRestriction,
@@ -560,7 +560,7 @@ impl Model {
                     continue;
                 }
                 PolyLine::new(vec![self.get_r_center(id), self.get_r_center(*to)])
-                    .make_arrow(NORMAL_LANE_THICKNESS)
+                    .make_arrow(NORMAL_LANE_THICKNESS, ArrowCap::Triangle)
                     .unwrap()
             };
 

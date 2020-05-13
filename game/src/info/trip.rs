@@ -5,7 +5,7 @@ use ezgui::{
     Btn, Color, EventCtx, GeomBatch, Line, LinePlot, PlotOptions, RewriteColor, Series, Text,
     TextExt, Widget,
 };
-use geom::{Angle, Distance, Duration, PolyLine, Polygon, Pt2D, Time};
+use geom::{Angle, ArrowCap, Distance, Duration, PolyLine, Polygon, Pt2D, Time};
 use map_model::{Map, Path, PathStep};
 use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType, VehicleType};
 use std::collections::BTreeMap;
@@ -286,7 +286,7 @@ fn make_timeline(
                     Pt2D::forcibly_from_gps(loc.gps, map.get_gps_bounds()),
                     center,
                 ])
-                .make_arrow(Distance::meters(5.0))
+                .make_arrow(Distance::meters(5.0), ArrowCap::Triangle)
                 .unwrap();
                 details.unzoomed.push(Color::GREEN, arrow.clone());
                 details.zoomed.push(Color::GREEN, arrow.clone());
@@ -329,7 +329,7 @@ fn make_timeline(
                     center,
                     Pt2D::forcibly_from_gps(loc.gps, map.get_gps_bounds()),
                 ])
-                .make_arrow(Distance::meters(5.0))
+                .make_arrow(Distance::meters(5.0), ArrowCap::Triangle)
                 .unwrap();
                 details.unzoomed.push(Color::GREEN, arrow.clone());
                 details.zoomed.push(Color::GREEN, arrow.clone());

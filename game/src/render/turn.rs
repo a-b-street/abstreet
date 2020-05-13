@@ -1,4 +1,4 @@
-use geom::{Distance, PolyLine, Polygon};
+use geom::{ArrowCap, Distance, PolyLine, Polygon};
 use map_model::{IntersectionID, LaneID, Map, TurnGroupID};
 use std::collections::{HashMap, HashSet};
 
@@ -40,7 +40,7 @@ impl DrawTurnGroup {
                     center.project_away(TURN_ICON_ARROW_LENGTH / 2.0, group.angle.opposite()),
                     center.project_away(TURN_ICON_ARROW_LENGTH / 2.0, group.angle),
                 ])
-                .make_arrow(Distance::meters(0.5))
+                .make_arrow(Distance::meters(0.5), ArrowCap::Triangle)
                 .unwrap()
             };
 

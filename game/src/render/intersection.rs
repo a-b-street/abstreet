@@ -1,12 +1,13 @@
 use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
+use crate::options::TrafficSignalStyle;
 use crate::render::{
     draw_signal_phase, DrawOptions, Renderable, CROSSWALK_LINE_THICKNESS, OUTLINE_THICKNESS,
 };
 use abstutil::Timer;
 use ezgui::{Drawable, FancyColor, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, Text};
-use geom::{Angle, Distance, Line, PolyLine, Polygon, Pt2D, Time, EPSILON_DIST};
+use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D, Time, EPSILON_DIST};
 use map_model::raw::DrivingSide;
 use map_model::{
     Intersection, IntersectionID, IntersectionType, Map, Road, RoadWithStopSign, Turn, TurnType,
@@ -150,13 +151,15 @@ impl Renderable for DrawIntersection {
                     app,
                     app.opts.traffic_signal_style.clone(),
                 );
-                batch.add_transformed(
-                    Text::from(Line(format!("{}", idx + 1))).render_to_batch(g.prerender),
-                    app.primary.map.get_i(self.id).polygon.center(),
-                    0.1,
-                    Angle::ZERO,
-                    RewriteColor::NoOp,
-                );
+                if app.opts.traffic_signal_style != TrafficSignalStyle::BAP {
+                    batch.add_transformed(
+                        Text::from(Line(format!("{}", idx + 1))).render_to_batch(g.prerender),
+                        app.primary.map.get_i(self.id).polygon.center(),
+                        0.1,
+                        Angle::ZERO,
+                        RewriteColor::NoOp,
+                    );
+                }
                 *maybe_redraw = Some((app.primary.sim.time(), g.prerender.upload(batch)));
             }
             let (_, batch) = maybe_redraw.as_ref().unwrap();
@@ -272,7 +275,7 @@ fn calculate_border_arrows(
                 line.unbounded_dist_along(Distance::meters(-9.5)),
                 line.unbounded_dist_along(Distance::meters(-0.5)),
             ])
-            .make_arrow(width / 3.0)
+            .make_arrow(width / 3.0, ArrowCap::Triangle)
             .with_context(timer, format!("outgoing border arrows for {}", r.id)),
         );
     }
@@ -298,7 +301,7 @@ fn calculate_border_arrows(
                 line.unbounded_dist_along(Distance::meters(-0.5)),
                 line.unbounded_dist_along(Distance::meters(-9.5)),
             ])
-            .make_arrow(width / 3.0)
+            .make_arrow(width / 3.0, ArrowCap::Triangle)
             .with_context(timer, format!("incoming border arrows for {}", r.id)),
         );
     }

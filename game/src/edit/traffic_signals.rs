@@ -12,7 +12,7 @@ use ezgui::{
     HorizontalAlignment, Key, Line, Outcome, RewriteColor, Text, TextExt, VerticalAlignment,
     Widget,
 };
-use geom::Duration;
+use geom::{ArrowCap, Duration};
 use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Phase,
     TurnGroupID, TurnPriority,
@@ -250,7 +250,7 @@ impl State for TrafficSignalEditor {
                     app.cs.selected,
                     signal.turn_groups[&g.id]
                         .geom
-                        .make_arrow(BIG_ARROW_THICKNESS)
+                        .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle)
                         .unwrap(),
                 );
             } else {
