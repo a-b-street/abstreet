@@ -1,50 +1,8 @@
-use crate::render::BIG_ARROW_THICKNESS;
-use ezgui::{Color, GeomBatch, GfxCtx};
-use geom::{Distance, Line, PolyLine, Polygon};
-use map_model::{IntersectionID, LaneID, Map, Turn, TurnGroupID};
+use geom::{Distance, PolyLine, Polygon};
+use map_model::{IntersectionID, LaneID, Map, TurnGroupID};
 use std::collections::{HashMap, HashSet};
 
 const TURN_ICON_ARROW_LENGTH: Distance = Distance::const_meters(1.5);
-
-pub struct DrawTurn {}
-
-impl DrawTurn {
-    pub fn draw_full(t: &Turn, g: &mut GfxCtx, color: Color) {
-        g.draw_polygon(
-            color,
-            &t.geom
-                .make_arrow(BIG_ARROW_THICKNESS)
-                .expect(format!("draw_full {}", t.id)),
-        );
-    }
-
-    // TODO make a polyline.dashed or something
-    // TODO get rid of all these weird DrawTurn things generally
-    pub fn draw_dashed(turn: &Turn, batch: &mut GeomBatch, color: Color) {
-        let dash_len = Distance::meters(1.0);
-        batch.extend(
-            color,
-            turn.geom
-                .dashed_polygons(BIG_ARROW_THICKNESS, dash_len, Distance::meters(0.5)),
-        );
-        // And a cap on the arrow. In case the last line is long, trim it to be the dash
-        // length.
-        let last_line = turn.geom.last_line();
-        let last_len = last_line.length();
-        let arrow_line = if last_len <= dash_len {
-            last_line
-        } else {
-            Line::new(last_line.dist_along(last_len - dash_len), last_line.pt2())
-        };
-        batch.push(
-            color,
-            arrow_line
-                .to_polyline()
-                .make_arrow(BIG_ARROW_THICKNESS)
-                .unwrap(),
-        );
-    }
-}
 
 pub struct DrawTurnGroup {
     pub id: TurnGroupID,

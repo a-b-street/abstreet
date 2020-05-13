@@ -451,7 +451,7 @@ impl PolyLine {
         Polygon::precomputed(points, indices)
     }
 
-    pub fn dashed_polygons(
+    pub fn exact_dashed_polygons(
         &self,
         width: Distance,
         dash_len: Distance,
@@ -475,6 +475,20 @@ impl PolyLine {
         }
 
         polygons
+    }
+
+    // Don't draw the dashes too close to the ends.
+    pub fn dashed_lines(
+        &self,
+        width: Distance,
+        dash_len: Distance,
+        dash_separation: Distance,
+    ) -> Vec<Polygon> {
+        if self.length() < dash_separation * 2.0 + EPSILON_DIST {
+            return vec![self.make_polygons(width)];
+        }
+        self.exact_slice(dash_separation, self.length() - dash_separation)
+            .exact_dashed_polygons(width, dash_len, dash_separation)
     }
 
     pub fn make_arrow(&self, thickness: Distance) -> Warn<Polygon> {
@@ -542,6 +556,26 @@ impl PolyLine {
                 ),
             )
         }
+    }
+
+    pub fn dashed_arrow(
+        &self,
+        width: Distance,
+        dash_len: Distance,
+        dash_separation: Distance,
+    ) -> Vec<Polygon> {
+        let mut polygons = self.exact_dashed_polygons(width, dash_len, dash_separation);
+        // And a cap on the arrow. In case the last line is long, trim it to be the dash
+        // length.
+        let last_line = self.last_line();
+        let last_len = last_line.length();
+        let arrow_line = if last_len <= dash_len {
+            last_line
+        } else {
+            Line::new(last_line.dist_along(last_len - dash_len), last_line.pt2())
+        };
+        polygons.push(arrow_line.to_polyline().make_arrow(width).unwrap());
+        polygons
     }
 
     // Also return the angle of the line where the hit was found

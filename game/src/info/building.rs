@@ -1,6 +1,6 @@
 use crate::app::App;
 use crate::info::{header_btns, make_table, make_tabs, Details, Tab};
-use crate::render::{dashed_lines, DrawPedestrian};
+use crate::render::DrawPedestrian;
 use ezgui::{Btn, Color, EventCtx, Line, Text, TextExt, Widget};
 use geom::{Angle, Circle, Distance, Speed, Time};
 use map_model::{BuildingID, LaneID, Traversable, SIDEWALK_THICKNESS};
@@ -68,8 +68,7 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
             .push(color, pl.make_polygons(Distance::meters(10.0)));
         details.zoomed.extend(
             color,
-            dashed_lines(
-                &pl,
+            pl.dashed_lines(
                 Distance::meters(0.75),
                 Distance::meters(1.0),
                 Distance::meters(0.4),

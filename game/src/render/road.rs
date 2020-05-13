@@ -1,7 +1,7 @@
 use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
-use crate::render::{dashed_lines, DrawOptions, Renderable};
+use crate::render::{DrawOptions, Renderable};
 use ezgui::{Drawable, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, Text};
 use geom::{Angle, Distance, Polygon, Pt2D};
 use map_model::{LaneType, Map, Road, RoadID};
@@ -31,7 +31,7 @@ impl DrawRoad {
         {
             draw.extend(
                 cs.road_center_line,
-                dashed_lines(&center, width, Distance::meters(2.0), Distance::meters(1.0)),
+                center.dashed_lines(width, Distance::meters(2.0), Distance::meters(1.0)),
             );
         }
 

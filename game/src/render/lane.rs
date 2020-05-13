@@ -1,7 +1,7 @@
 use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
-use crate::render::{dashed_lines, DrawOptions, Renderable, OUTLINE_THICKNESS};
+use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use abstutil::Timer;
 use ezgui::{Drawable, FancyColor, GeomBatch, GfxCtx, Prerender, RewriteColor};
 use geom::{Angle, Distance, Line, PolyLine, Polygon, Pt2D};
@@ -257,8 +257,7 @@ fn calculate_driving_lines(
     let lane_edge_pts = map
         .left_shift(lane.lane_center_pts.clone(), lane.width / 2.0)
         .get(timer);
-    dashed_lines(
-        &lane_edge_pts,
+    lane_edge_pts.dashed_lines(
         Distance::meters(0.25),
         Distance::meters(1.0),
         Distance::meters(1.5),

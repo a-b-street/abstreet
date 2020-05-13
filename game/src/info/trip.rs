@@ -1,7 +1,6 @@
 use crate::app::App;
 use crate::helpers::ID;
 use crate::info::{make_table, Details, Tab};
-use crate::render::dashed_lines;
 use ezgui::{
     Btn, Color, EventCtx, GeomBatch, Line, LinePlot, PlotOptions, RewriteColor, Series, Text,
     TextExt, Widget,
@@ -488,8 +487,7 @@ fn make_timeline(
                     .push(color, trace.make_polygons(Distance::meters(10.0)));
                 details.zoomed.extend(
                     color,
-                    dashed_lines(
-                        &trace,
+                    trace.dashed_lines(
                         Distance::meters(0.75),
                         Distance::meters(1.0),
                         Distance::meters(0.4),

@@ -24,9 +24,9 @@ pub use crate::render::map::{AgentCache, AgentColorScheme, DrawMap};
 pub use crate::render::pedestrian::{DrawPedCrowd, DrawPedestrian};
 pub use crate::render::road::DrawRoad;
 pub use crate::render::traffic_signal::{draw_signal_phase, make_signal_diagram};
-pub use crate::render::turn::{DrawTurn, DrawTurnGroup};
+pub use crate::render::turn::DrawTurnGroup;
 use ezgui::{GfxCtx, Prerender};
-use geom::{Distance, PolyLine, Polygon, Pt2D, EPSILON_DIST};
+use geom::{Distance, Polygon, Pt2D};
 use map_model::{IntersectionID, Map};
 use sim::{DrawCarInput, VehicleType};
 
@@ -70,20 +70,6 @@ fn draw_vehicle(
     } else {
         Box::new(DrawCar::new(input, map, prerender, cs))
     }
-}
-
-pub fn dashed_lines(
-    pl: &PolyLine,
-    width: Distance,
-    dash_len: Distance,
-    dash_separation: Distance,
-) -> Vec<Polygon> {
-    if pl.length() < dash_separation * 2.0 + EPSILON_DIST {
-        return vec![pl.make_polygons(width)];
-    }
-    // Don't draw the dashes too close to the ends.
-    pl.exact_slice(dash_separation, pl.length() - dash_separation)
-        .dashed_polygons(width, dash_len, dash_separation)
 }
 
 // TODO Borrow, don't clone, and fix up lots of places storing indirect things to populate
