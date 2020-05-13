@@ -53,7 +53,7 @@ pub fn extract_osm(
     let mut roads: Vec<(i64, RawRoad)> = Vec::new();
     let mut traffic_signals: HashSet<HashablePt2D> = HashSet::new();
     let mut osm_node_ids = HashMap::new();
-    let mut amenities = Vec::new();
+    let mut node_amenities = Vec::new();
 
     timer.start_iter("processing OSM nodes", doc.nodes.len());
     for node in doc.nodes.values() {
@@ -66,7 +66,7 @@ pub fn extract_osm(
             traffic_signals.insert(pt.to_hashable());
         }
         if let Some(amenity) = tags.get("amenity") {
-            amenities.push((
+            node_amenities.push((
                 pt,
                 tags.get("name")
                     .cloned()
@@ -75,7 +75,7 @@ pub fn extract_osm(
             ));
         }
         if let Some(shop) = tags.get("shop") {
-            amenities.push((
+            node_amenities.push((
                 pt,
                 tags.get("name")
                     .cloned()
@@ -165,6 +165,24 @@ pub fn extract_osm(
             if deduped.len() < 3 {
                 continue;
             }
+
+            let mut amenities = BTreeSet::new();
+            if let Some(amenity) = tags.get("amenity") {
+                amenities.insert((
+                    tags.get("name")
+                        .cloned()
+                        .unwrap_or_else(|| "unnamed".to_string()),
+                    amenity.clone(),
+                ));
+            }
+            if let Some(shop) = tags.get("shop") {
+                amenities.insert((
+                    tags.get("name")
+                        .cloned()
+                        .unwrap_or_else(|| "unnamed".to_string()),
+                    shop.clone(),
+                ));
+            }
             map.buildings.insert(
                 OriginalBuilding { osm_way_id: way.id },
                 RawBuilding {
@@ -172,7 +190,7 @@ pub fn extract_osm(
                     osm_tags: tags,
                     public_garage_name: None,
                     num_parking_spots: 0,
-                    amenities: BTreeSet::new(),
+                    amenities,
                 },
             );
         } else if let Some(at) = get_area_type(&tags) {
@@ -304,7 +322,7 @@ pub fn extract_osm(
         osm_node_ids,
         simple_turn_restrictions,
         complicated_turn_restrictions,
-        amenities,
+        node_amenities,
     )
 }
 

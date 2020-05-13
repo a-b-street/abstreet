@@ -20,6 +20,9 @@ void main() {
             discard;
 	}
     } else {
+        // https://en.wikipedia.org/wiki/Grayscale#Luma_coding_in_video_systems
+        //float gray = dot(pass_style.rgb, vec3(0.299, 0.587, 0.114));
+        //f_color = vec4(vec3(gray), pass_style.a);
         f_color = pass_style;
     }
 }

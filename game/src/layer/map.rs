@@ -182,10 +182,12 @@ pub fn amenities(ctx: &mut EventCtx, app: &App) -> Layers {
             ("media", Color::PINK),
             ("childcare", Color::ORANGE),
             ("shopping", Color::WHITE),
+            ("other", Color::hex("#96322F")),
         ],
     );
 
     for b in app.primary.map.all_buildings() {
+        let mut other = false;
         for (_, a) in &b.amenities {
             if let Some(t) = amenity_type(a) {
                 colorer.add_b(
@@ -205,8 +207,12 @@ pub fn amenities(ctx: &mut EventCtx, app: &App) -> Layers {
                     },
                 );
             } else {
+                other = true;
                 println!("{}", a);
             }
+        }
+        if other {
+            colorer.add_b(b.id, Color::hex("#96322F"));
         }
     }
 
