@@ -36,12 +36,12 @@ where
         let query_geom = geo::Point::new(query_pt.x(), query_pt.y());
         let query_bbox = Rect {
             top_left: Point {
-                x: (query_pt.x() - max_dist_away.inner_meters()) as f32,
-                y: (query_pt.y() - max_dist_away.inner_meters()) as f32,
+                x: query_pt.x() - max_dist_away.inner_meters(),
+                y: query_pt.y() - max_dist_away.inner_meters(),
             },
             bottom_right: Point {
-                x: (query_pt.x() + max_dist_away.inner_meters()) as f32,
-                y: (query_pt.y() + max_dist_away.inner_meters()) as f32,
+                x: query_pt.x() + max_dist_away.inner_meters(),
+                y: query_pt.y() + max_dist_away.inner_meters(),
             },
         };
 

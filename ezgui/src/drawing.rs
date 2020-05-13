@@ -22,16 +22,8 @@ pub struct Uniforms {
 impl Uniforms {
     pub fn new(canvas: &Canvas) -> Uniforms {
         Uniforms {
-            transform: [
-                canvas.cam_x as f32,
-                canvas.cam_y as f32,
-                canvas.cam_zoom as f32,
-            ],
-            window: [
-                canvas.window_width as f32,
-                canvas.window_height as f32,
-                MAPSPACE_Z,
-            ],
+            transform: [canvas.cam_x, canvas.cam_y, canvas.cam_zoom],
+            window: [canvas.window_width, canvas.window_height, MAPSPACE_Z],
         }
     }
 }
@@ -87,10 +79,10 @@ impl<'a> GfxCtx<'a> {
         let cam_x = (top_left_map.x() * zoom) - top_left_screen.x;
         let cam_y = (top_left_map.y() * zoom) - top_left_screen.y;
 
-        self.uniforms.transform = [cam_x as f32, cam_y as f32, zoom as f32];
+        self.uniforms.transform = [cam_x, cam_y, zoom];
         self.uniforms.window = [
-            self.canvas.window_width as f32,
-            self.canvas.window_height as f32,
+            self.canvas.window_width,
+            self.canvas.window_height,
             z.unwrap_or(SCREENSPACE_Z),
         ];
         self.num_forks += 1;
@@ -99,8 +91,8 @@ impl<'a> GfxCtx<'a> {
     pub fn fork_screenspace(&mut self) {
         self.uniforms.transform = [0.0, 0.0, 1.0];
         self.uniforms.window = [
-            self.canvas.window_width as f32,
-            self.canvas.window_height as f32,
+            self.canvas.window_width,
+            self.canvas.window_height,
             SCREENSPACE_Z,
         ];
         self.num_forks += 1;
@@ -210,8 +202,8 @@ impl<'a> GfxCtx<'a> {
         // fork_screenspace, but with an even more prominent Z
         self.uniforms.transform = [0.0, 0.0, 1.0];
         self.uniforms.window = [
-            self.canvas.window_width as f32,
-            self.canvas.window_height as f32,
+            self.canvas.window_width,
+            self.canvas.window_height,
             TOOLTIP_Z,
         ];
         self.num_forks += 1;

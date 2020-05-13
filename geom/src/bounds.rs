@@ -47,12 +47,12 @@ impl Bounds {
     pub fn as_bbox(&self) -> Rect {
         Rect {
             top_left: Point {
-                x: self.min_x as f32,
-                y: self.min_y as f32,
+                x: self.min_x,
+                y: self.min_y,
             },
             bottom_right: Point {
-                x: self.max_x as f32,
-                y: self.max_y as f32,
+                x: self.max_x,
+                y: self.max_y,
             },
         }
     }

@@ -185,7 +185,7 @@ impl PrerenderInnards {
             let (pts, raw_indices) = poly.raw_for_rendering();
             for pt in pts {
                 vertices.push(Vertex {
-                    position: [pt.x() as f32, pt.y() as f32],
+                    position: [pt.x(), pt.y()],
                     style: color.style(*pt),
                 });
             }

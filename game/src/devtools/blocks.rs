@@ -171,7 +171,7 @@ impl State for BlockMap {
                                     .unwrap(),
                                 );
                             } else {
-                                batch.push(Color::RED.alpha(pct as f32), other.shape.clone());
+                                batch.push(Color::RED.alpha(pct), other.shape.clone());
                             }
                         }
                     }

@@ -66,9 +66,7 @@ impl Widget {
     // Only makes sense for rows/columns.
     pub fn flex_wrap(mut self, ctx: &EventCtx, percent_width: usize) -> Widget {
         self.layout.style.size = Size {
-            width: Dimension::Points(
-                (ctx.canvas.window_width * (percent_width as f64) / 100.0) as f32,
-            ),
+            width: Dimension::Points(ctx.canvas.window_width * (percent_width as f64) / 100.0),
             height: Dimension::Undefined,
         };
         self.layout.style.flex_wrap = FlexWrap::Wrap;
@@ -77,12 +75,12 @@ impl Widget {
     }
     // Only for rows/columns. Used to force table columns to line up.
     pub fn force_width(mut self, width: f64) -> Widget {
-        self.layout.style.size.width = Dimension::Points(width as f32);
+        self.layout.style.size.width = Dimension::Points(width);
         self
     }
     pub fn force_width_pct(mut self, ctx: &EventCtx, percent_width: usize) -> Widget {
         self.layout.style.size.width =
-            Dimension::Points((ctx.canvas.window_width * (percent_width as f64) / 100.0) as f32);
+            Dimension::Points(ctx.canvas.window_width * (percent_width as f64) / 100.0);
         self
     }
 
@@ -186,9 +184,9 @@ impl Widget {
     fn abs(mut self, x: f64, y: f64) -> Widget {
         self.layout.style.position_type = PositionType::Absolute;
         self.layout.style.position = Rect {
-            start: Dimension::Points(x as f32),
+            start: Dimension::Points(x),
             end: Dimension::Undefined,
-            top: Dimension::Points(y as f32),
+            top: Dimension::Points(y),
             bottom: Dimension::Undefined,
         };
         self
@@ -305,8 +303,8 @@ impl Widget {
         } else {
             let mut style = self.layout.style.clone();
             style.size = Size {
-                width: Dimension::Points(self.widget.get_dims().width as f32),
-                height: Dimension::Points(self.widget.get_dims().height as f32),
+                width: Dimension::Points(self.widget.get_dims().width),
+                height: Dimension::Points(self.widget.get_dims().height),
             };
             let node = stretch.new_node(style, Vec::new()).unwrap();
             stretch.add_child(parent, node).unwrap();
@@ -823,8 +821,8 @@ impl CompositeBuilder {
         };
         if let Dims::ExactPercent(w, h) = c.dims {
             c.top_level.layout.style.size = Size {
-                width: Dimension::Points((w * ctx.canvas.window_width) as f32),
-                height: Dimension::Points((h * ctx.canvas.window_height) as f32),
+                width: Dimension::Points(w * ctx.canvas.window_width),
+                height: Dimension::Points(h * ctx.canvas.window_height),
             };
         }
         c.recompute_layout(ctx, false);

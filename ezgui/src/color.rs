@@ -149,7 +149,7 @@ impl LinearGradient {
         // In between two
         for ((pct1, c1), (pct2, c2)) in self.stops.iter().zip(self.stops.iter().skip(1)) {
             if pct >= *pct1 && pct <= *pct2 {
-                return c1.lerp(*c2, to_pct(pct, (*pct1, *pct2)) as f32);
+                return c1.lerp(*c2, to_pct(pct, (*pct1, *pct2)));
             }
         }
         unreachable!()
