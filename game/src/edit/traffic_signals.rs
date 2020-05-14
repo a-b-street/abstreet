@@ -90,6 +90,22 @@ impl State for TrafficSignalEditor {
                     let idx = x["edit phase ".len()..].parse::<usize>().unwrap() - 1;
                     return Transition::Push(edit_phase(app, self.i, idx));
                 }
+                x if x.starts_with("delete phase ") => {
+                    let idx = x["delete phase ".len()..].parse::<usize>().unwrap() - 1;
+
+                    let mut new_signal = orig_signal.clone();
+                    new_signal.phases.remove(idx);
+                    let num_phases = new_signal.phases.len();
+                    self.command_stack.push(orig_signal.clone());
+                    self.redo_stack.clear();
+                    self.top_panel = make_top_panel(ctx, app, true, false);
+                    change_traffic_signal(new_signal, app, ctx);
+                    // Don't use change_phase; it tries to preserve scroll
+                    self.current_phase = if idx == num_phases { idx - 1 } else { idx };
+                    self.composite =
+                        make_signal_diagram(ctx, app, self.i, self.current_phase, true);
+                    return Transition::Keep;
+                }
                 x if x.starts_with("phase ") => {
                     let idx = x["phase ".len()..].parse::<usize>().unwrap() - 1;
                     self.change_phase(idx, app, ctx);
@@ -464,7 +480,6 @@ fn edit_phase(app: &App, i: IntersectionID, idx: usize) -> Box<dyn State> {
         let new_after = "add new phase after";
         let move_up = "move this phase up";
         let move_down = "move this phase down";
-        let delete = "delete this phase";
 
         let mut choices = vec![change_duration, new_before, new_after];
         if idx != 0 {
@@ -472,9 +487,6 @@ fn edit_phase(app: &App, i: IntersectionID, idx: usize) -> Box<dyn State> {
         }
         if idx != num_phases - 1 {
             choices.push(move_down);
-        }
-        if num_phases > 1 {
-            choices.push(delete);
         }
 
         // TODO Refactor these
@@ -555,24 +567,6 @@ fn edit_phase(app: &App, i: IntersectionID, idx: usize) -> Box<dyn State> {
                     editor.top_panel = make_top_panel(ctx, app, true, false);
                     change_traffic_signal(new_signal, app, ctx);
                     editor.change_phase(idx + 1, app, ctx);
-                })))
-            }
-            x if x == delete => {
-                Some(Transition::PopWithData(Box::new(move |state, app, ctx| {
-                    let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-                    let orig_signal = app.primary.map.get_traffic_signal(editor.i);
-
-                    let mut new_signal = orig_signal.clone();
-                    new_signal.phases.remove(idx);
-                    let num_phases = new_signal.phases.len();
-                    editor.command_stack.push(orig_signal.clone());
-                    editor.redo_stack.clear();
-                    editor.top_panel = make_top_panel(ctx, app, true, false);
-                    change_traffic_signal(new_signal, app, ctx);
-                    // Don't use change_phase; it tries to preserve scroll
-                    editor.current_phase = if idx == num_phases { idx - 1 } else { idx };
-                    editor.composite =
-                        make_signal_diagram(ctx, app, editor.i, editor.current_phase, true);
                 })))
             }
             _ => unreachable!(),

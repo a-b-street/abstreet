@@ -331,12 +331,44 @@ pub fn make_signal_diagram(
             .centered_horiz(),
         );
 
-        let mut phase_rows = Vec::new();
+        let phase_btn = {
+            let mut orig_batch = GeomBatch::new();
+            draw_signal_phase(
+                ctx.prerender,
+                phase,
+                i,
+                None,
+                &mut orig_batch,
+                app,
+                TrafficSignalStyle::Sidewalks,
+            );
 
-        if edit_mode {
-            phase_rows.push(
-                Widget::row(vec![
+            let mut normal = GeomBatch::new();
+            normal.push(Color::BLACK, bbox.clone());
+            // Move to the origin and apply zoom
+            for (color, poly) in orig_batch.consume() {
+                normal.fancy_push(
+                    color,
+                    poly.translate(-bounds.min_x, -bounds.min_y).scale(zoom),
+                );
+            }
+
+            let mut hovered = GeomBatch::new();
+            hovered.append(normal.clone());
+            hovered.push(Color::RED, bbox.to_outline(Distance::meters(5.0)));
+
+            Btn::custom(normal, hovered, bbox.clone())
+                .build(ctx, format!("phase {}", idx + 1), None)
+                .margin(5)
+        };
+
+        let phase_col = if edit_mode {
+            Widget::row(vec![
+                Widget::col(vec![
                     format!("Phase {}: {}", idx + 1, phase.duration).draw_text(ctx),
+                    phase_btn,
+                ]),
+                Widget::col(vec![
                     Btn::svg_def("../data/system/assets/tools/edit.svg")
                         .build(
                             ctx,
@@ -347,50 +379,31 @@ pub fn make_signal_diagram(
                                 None
                             },
                         )
-                        .align_right(),
+                        .margin_below(10),
+                    if signal.phases.len() > 1 {
+                        Btn::svg_def("../data/system/assets/tools/delete.svg").build(
+                            ctx,
+                            format!("delete phase {}", idx + 1),
+                            None,
+                        )
+                    } else {
+                        Widget::nothing()
+                    },
                 ])
-                .margin(5)
-                .centered(),
-            );
+                .align_right(),
+            ])
         } else {
-            phase_rows.push(format!("Phase {}: {}", idx + 1, phase.duration).draw_text(ctx));
+            Widget::col(vec![
+                format!("Phase {}: {}", idx + 1, phase.duration).draw_text(ctx),
+                phase_btn,
+            ])
         }
-
-        let mut orig_batch = GeomBatch::new();
-        draw_signal_phase(
-            ctx.prerender,
-            phase,
-            i,
-            None,
-            &mut orig_batch,
-            app,
-            TrafficSignalStyle::Sidewalks,
-        );
-
-        let mut normal = GeomBatch::new();
-        normal.push(Color::BLACK, bbox.clone());
-        // Move to the origin and apply zoom
-        for (color, poly) in orig_batch.consume() {
-            normal.fancy_push(
-                color,
-                poly.translate(-bounds.min_x, -bounds.min_y).scale(zoom),
-            );
-        }
-
-        let mut hovered = GeomBatch::new();
-        hovered.append(normal.clone());
-        hovered.push(Color::RED, bbox.to_outline(Distance::meters(5.0)));
-
-        phase_rows.push(
-            Btn::custom(normal, hovered, bbox.clone())
-                .build(ctx, format!("phase {}", idx + 1), None)
-                .margin(5),
-        );
+        .padding(10);
 
         if idx == selected {
-            col.push(Widget::col(phase_rows).bg(Color::hex("#2A2A2A")));
+            col.push(phase_col.bg(Color::hex("#2A2A2A")));
         } else {
-            col.extend(phase_rows);
+            col.push(phase_col);
         }
     }
 
