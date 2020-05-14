@@ -312,7 +312,7 @@ fn calculate_border_arrows(
 fn make_octagon(center: Pt2D, radius: Distance, facing: Angle) -> Polygon {
     Polygon::new(
         &(0..8)
-            .map(|i| center.project_away(radius, facing.rotate_degs(22.5 + f32::from(i * 360 / 8))))
+            .map(|i| center.project_away(radius, facing.rotate_degs(22.5 + ((i * 360 / 8) as f32))))
             .collect(),
     )
 }

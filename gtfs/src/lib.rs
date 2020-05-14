@@ -26,7 +26,10 @@ pub fn load(dir_path: &str) -> Vec<Route> {
         GTFSIterator::<_, transitfeed::Stop>::from_path(&format!("{}/stops.txt", dir_path)).unwrap()
     {
         let rec = rec.unwrap();
-        stop_id_to_pt.insert(rec.stop_id.clone(), LonLat::new(rec.stop_lon, rec.stop_lat));
+        stop_id_to_pt.insert(
+            rec.stop_id.clone(),
+            LonLat::new(rec.stop_lon as f32, rec.stop_lat as f32),
+        );
     }
 
     let mut trip_id_to_route_id_and_direction: HashMap<String, (String, bool)> = HashMap::new();

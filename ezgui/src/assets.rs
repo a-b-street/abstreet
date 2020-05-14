@@ -47,15 +47,16 @@ impl Assets {
         // This seems to be missing line_gap, and line_gap is 0, so manually adjust here.
         let height = text::SCALE_LINE_HEIGHT
             * *self.scale_factor.borrow()
-            * db.load_font_idx(match font {
-                Font::BungeeInlineRegular => 0,
-                Font::BungeeRegular => 1,
-                Font::OverpassBold => 2,
-                Font::OverpassRegular => 3,
-                Font::OverpassSemiBold => 4,
-            })
-            .unwrap()
-            .height(font_size as f32);
+            * (db
+                .load_font_idx(match font {
+                    Font::BungeeInlineRegular => 0,
+                    Font::BungeeRegular => 1,
+                    Font::OverpassBold => 2,
+                    Font::OverpassRegular => 3,
+                    Font::OverpassSemiBold => 4,
+                })
+                .unwrap()
+                .height(font_size as f64) as f32);
 
         self.line_height_cache.borrow_mut().insert(key, height);
         height

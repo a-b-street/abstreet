@@ -138,7 +138,7 @@ impl<T: HgramValue<T>> Histogram<T> {
         if self.count == 0 {
             return None;
         }
-        Some(T::from_u64(self.histogram.percentile(p).unwrap()))
+        Some(T::from_u64(self.histogram.percentile(p.into()).unwrap()))
     }
 
     pub fn select(&self, stat: Statistic) -> T {

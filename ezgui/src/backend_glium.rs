@@ -76,7 +76,7 @@ pub fn setup(
             total_bytes_uploaded: Cell::new(0),
         },
         event_loop,
-        ScreenDims::new(window_size.width.into(), window_size.height.into()),
+        ScreenDims::new(window_size.width as f32, window_size.height as f32),
     )
 }
 
@@ -262,6 +262,6 @@ impl PrerenderInnards {
     }
 
     pub fn monitor_scale_factor(&self) -> f32 {
-        self.display.gl_window().window().scale_factor()
+        self.display.gl_window().window().scale_factor() as f32
     }
 }

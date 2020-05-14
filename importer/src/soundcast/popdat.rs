@@ -120,10 +120,10 @@ fn import_parcels(
         closest_bldg.add(b.osm_way_id, b.polygon.points());
     }
 
-    let mut x_coords: Vec<f32> = Vec::new();
-    let mut y_coords: Vec<f32> = Vec::new();
+    let mut x_coords: Vec<f64> = Vec::new();
+    let mut y_coords: Vec<f64> = Vec::new();
     // Dummy values
-    let mut z_coords: Vec<f32> = Vec::new();
+    let mut z_coords: Vec<f64> = Vec::new();
     // (parcel ID, number of households, number of employees, number of parking spots)
     let mut parcel_metadata = Vec::new();
 
@@ -141,8 +141,8 @@ fn import_parcels(
             rec.emptot_p,
             rec.parkdy_p + rec.parkhr_p,
         ));
-        x_coords.push(rec.xcoord_p);
-        y_coords.push(rec.ycoord_p);
+        x_coords.push(rec.xcoord_p.into());
+        y_coords.push(rec.ycoord_p.into());
         z_coords.push(0.0);
     }
     done(timer);
@@ -175,7 +175,7 @@ fn import_parcels(
         .zip(parcel_metadata.into_iter())
     {
         timer.next();
-        let pt = LonLat::new(x, y);
+        let pt = LonLat::new(x as f32, y as f32);
         let osm_building = if bounds.contains(pt) {
             closest_bldg
                 .closest_pt(Pt2D::forcibly_from_gps(pt, bounds), Distance::meters(30.0))

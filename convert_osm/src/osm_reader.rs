@@ -43,7 +43,8 @@ pub fn extract_osm(
     } else {
         let mut m = RawMap::blank(city_name, map_name);
         for node in doc.nodes.values() {
-            m.gps_bounds.update(LonLat::new(node.lon, node.lat));
+            m.gps_bounds
+                .update(LonLat::new(node.lon as f32, node.lat as f32));
         }
         m.boundary_polygon = m.gps_bounds.to_bounds().get_rectangle();
         m
@@ -58,7 +59,10 @@ pub fn extract_osm(
     timer.start_iter("processing OSM nodes", doc.nodes.len());
     for node in doc.nodes.values() {
         timer.next();
-        let pt = Pt2D::forcibly_from_gps(LonLat::new(node.lon, node.lat), &map.gps_bounds);
+        let pt = Pt2D::forcibly_from_gps(
+            LonLat::new(node.lon as f32, node.lat as f32),
+            &map.gps_bounds,
+        );
         osm_node_ids.insert(pt.to_hashable(), node.id);
 
         let tags = tags_to_map(&node.tags);
@@ -95,7 +99,7 @@ pub fn extract_osm(
         for node_ref in &way.nodes {
             match doc.resolve_reference(node_ref) {
                 osm_xml::Reference::Node(node) => {
-                    gps_pts.push(LonLat::new(node.lon, node.lat));
+                    gps_pts.push(LonLat::new(node.lon as f32, node.lat as f32));
                 }
                 // Don't handle nested ways/relations yet
                 _ => {

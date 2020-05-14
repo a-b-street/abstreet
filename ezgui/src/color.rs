@@ -121,7 +121,10 @@ pub struct LinearGradient {
 
 impl LinearGradient {
     pub(crate) fn new(lg: &usvg::LinearGradient) -> FancyColor {
-        let line = Line::new(Pt2D::new(lg.x1, lg.y1), Pt2D::new(lg.x2, lg.y2));
+        let line = Line::new(
+            Pt2D::new(lg.x1 as f32, lg.y1 as f32),
+            Pt2D::new(lg.x2 as f32, lg.y2 as f32),
+        );
         let mut stops = Vec::new();
         for stop in &lg.stops {
             let color = Color::rgba(
@@ -130,7 +133,7 @@ impl LinearGradient {
                 stop.color.blue as usize,
                 stop.opacity.value() as f32,
             );
-            stops.push((stop.offset.value(), color));
+            stops.push((stop.offset.value() as f32, color));
         }
         FancyColor::LinearGradient(LinearGradient { line, stops })
     }

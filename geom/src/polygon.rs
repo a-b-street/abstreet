@@ -265,17 +265,17 @@ impl Polygon {
     }
 
     pub fn convex_hull(list: Vec<Polygon>) -> Polygon {
-        let mp: geo::MultiPolygon<f32> = list.into_iter().map(|p| to_geo(p.points())).collect();
+        let mp: geo::MultiPolygon<f64> = list.into_iter().map(|p| to_geo(p.points())).collect();
         from_geo(mp.convex_hull())
     }
 
     pub fn polylabel(&self) -> Pt2D {
         let pt = polylabel::polylabel(&to_geo(&self.points()), &1.0).unwrap();
-        Pt2D::new(pt.x(), pt.y())
+        Pt2D::new(pt.x() as f32, pt.y() as f32)
     }
 
     pub fn shrink(&self, distance: f32) -> Vec<Polygon> {
-        from_multi(to_geo(self.points()).offset(distance).unwrap())
+        from_multi(to_geo(self.points()).offset(distance.into()).unwrap())
     }
 
     // Only works for polygons that're formed from rings. Those made from PolyLines won't work, for
@@ -369,28 +369,28 @@ fn is_clockwise_polygon(pts: &Vec<Pt2D>) -> bool {
     sum > 0.0
 }
 
-fn to_geo(pts: &Vec<Pt2D>) -> geo::Polygon<f32> {
+fn to_geo(pts: &Vec<Pt2D>) -> geo::Polygon<f64> {
     geo::Polygon::new(
         geo::LineString::from(
             pts.iter()
-                .map(|pt| geo::Point::new(pt.x(), pt.y()))
+                .map(|pt| geo::Point::new(pt.x().into(), pt.y().into()))
                 .collect::<Vec<_>>(),
         ),
         Vec::new(),
     )
 }
 
-fn from_geo(p: geo::Polygon<f32>) -> Polygon {
+fn from_geo(p: geo::Polygon<f64>) -> Polygon {
     Polygon::new(
         &p.into_inner()
             .0
             .into_points()
             .into_iter()
-            .map(|pt| Pt2D::new(pt.x(), pt.y()))
+            .map(|pt| Pt2D::new(pt.x() as f32, pt.y() as f32))
             .collect(),
     )
 }
 
-fn from_multi(multi: geo::MultiPolygon<f32>) -> Vec<Polygon> {
+fn from_multi(multi: geo::MultiPolygon<f64>) -> Vec<Polygon> {
     multi.into_iter().map(from_geo).collect()
 }

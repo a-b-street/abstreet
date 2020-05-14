@@ -6,7 +6,7 @@ use std::io::{stdout, BufReader, Error, ErrorKind, Read, Write};
 
 pub fn elapsed_seconds(since: Instant) -> f32 {
     let dt = since.elapsed();
-    (dt.as_secs() as f32) + (f32::from(dt.subsec_nanos()) * 1e-9)
+    (dt.as_secs() as f32) + (dt.subsec_nanos() as f32) * 1e-9
 }
 
 struct Progress {

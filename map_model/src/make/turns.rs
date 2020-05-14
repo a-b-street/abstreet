@@ -691,13 +691,7 @@ fn make_vehicle_turn(
         );
         let pieces = 5;
         let mut curve: Vec<Pt2D> = (0..=pieces)
-            .map(|i| {
-                from_pt(
-                    curve
-                        .interp(1.0 / f32::from(pieces) * f32::from(i))
-                        .unwrap(),
-                )
-            })
+            .map(|i| from_pt(curve.interp(1.0 / (pieces as f32) * (i as f32)).unwrap()))
             .collect();
         curve.dedup();
         PolyLine::new(curve)

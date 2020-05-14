@@ -98,11 +98,14 @@ pub fn add_svg_inner(
     let size = svg_tree.svg_node().size;
     Ok(Bounds::from(&vec![
         Pt2D::new(0.0, 0.0),
-        Pt2D::new(scale * size.width(), scale * size.height()),
+        Pt2D::new(
+            scale * (size.width() as f32),
+            scale * (size.height() as f32),
+        ),
     ]))
 }
 
-fn point(x: &f32, y: &f32) -> Point {
+fn point(x: &f64, y: &f64) -> Point {
     Point::new((*x) as f32, (*y) as f32)
 }
 
@@ -230,7 +233,7 @@ fn convert_stroke(
     (color, opt)
 }
 
-fn convert_color(paint: &usvg::Paint, opacity: f32, tree: &usvg::Tree) -> FancyColor {
+fn convert_color(paint: &usvg::Paint, opacity: f64, tree: &usvg::Tree) -> FancyColor {
     match paint {
         usvg::Paint::Color(c) => FancyColor::RGBA(Color::rgba(
             c.red as usize,
