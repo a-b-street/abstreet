@@ -6,3 +6,4 @@ probably organize everything here eventually.
 Proposals:
 
 - [Stay Healthy Streets: Lake Washington Blvd](lake_wash/proposal.md)
+- [West Seattle mitigations](west_seattle/proposal.md)
