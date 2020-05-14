@@ -64,6 +64,13 @@ impl OptionsPanel {
                     .margin(5),
                     Checkbox::text(
                         ctx,
+                        "Enable panning map when cursor is at edge of screen",
+                        None,
+                        ctx.canvas.edge_auto_panning,
+                    )
+                    .named("disable pan"),
+                    Checkbox::text(
+                        ctx,
                         "Use touchpad to pan and hold Control to zoom",
                         None,
                         ctx.canvas.touchpad_to_move,
@@ -180,6 +187,7 @@ impl State for OptionsPanel {
                     ctx.canvas.touchpad_to_move = self
                         .composite
                         .is_checked("Use touchpad to pan and hold Control to zoom");
+                    ctx.canvas.edge_auto_panning = self.composite.is_checked("disable pan");
                     app.opts.dev = self.composite.is_checked("Enable developer mode");
 
                     let style = self.composite.dropdown_value("Traffic signal rendering");

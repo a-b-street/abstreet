@@ -195,7 +195,6 @@ impl Widget {
     }
 
     pub fn named<I: Into<String>>(mut self, id: I) -> Widget {
-        assert!(self.id.is_none());
         self.id = Some(id.into());
         self
     }
