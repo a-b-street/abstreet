@@ -139,8 +139,8 @@ impl Line {
         )
     }
     pub fn percent_along(&self, percent: f32) -> Pt2D {
-        assert!(percent >= 0.0 && percent <= 1.0);
-        self.unbounded_percent_along(percent)
+        // TODO Intervention for --raw
+        self.unbounded_percent_along(percent.min(1.0).max(0.0))
     }
 
     pub fn unbounded_dist_along(&self, dist: Distance) -> Pt2D {
