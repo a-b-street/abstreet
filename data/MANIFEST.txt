@@ -13,7 +13,7 @@ data/input/raw_maps/lakeslice.bin,f2c18735bdec05e32af4d420bcc91b31,https://www.d
 data/input/raw_maps/montlake.bin,e8a42be882a9dbbf4b06c5d7d47e62d5,https://www.dropbox.com/s/qk8rhwr6vdm79vz/montlake.bin.zip?dl=0
 data/input/raw_maps/mt_baker.bin,dc0185fd8e335fc103ccd1eb9dc2e66e,https://www.dropbox.com/s/nr18iu83lrcyg8e/mt_baker.bin.zip?dl=0
 data/input/raw_maps/udistrict.bin,2ab86343fec0846ab3e4eb3518cbf04a,https://www.dropbox.com/s/o1gtavxtw8n3bhy/udistrict.bin.zip?dl=0
-data/input/raw_maps/west_seattle.bin,60e133d121e042f80646869ee5df0c0e,https://www.dropbox.com/s/112ym2cwg643c9n/west_seattle.bin.zip?dl=0
+data/input/raw_maps/west_seattle.bin,63deafa83bfe1aab247927c1f4064b44,https://www.dropbox.com/s/112ym2cwg643c9n/west_seattle.bin.zip?dl=0
 data/input/screenshots/lakeslice/01x01_i325.gif,40b1e76bb29e46823fa52186c891578b,https://www.dropbox.com/s/uiodmxawv8sheb1/01x01_i325.gif.zip?dl=0
 data/input/screenshots/lakeslice/01x02_i163.gif,bbe0f33acd8fa1cf8fe5028bea8cc9a2,https://www.dropbox.com/s/6zebcdhbeirab49/01x02_i163.gif.zip?dl=0
 data/input/screenshots/lakeslice/01x03_i1.gif,7f29ff99e19905709bc3e94123c7959f,https://www.dropbox.com/s/qn65mm834k8w1jr/01x03_i1.gif.zip?dl=0
@@ -177,7 +177,7 @@ data/input/seattle/osm/montlake.osm,a3b8299d9c2c5f8d142c52f730d5ea15,https://www
 data/input/seattle/osm/mt_baker.osm,ca7b12c8bc2450d9b13e476b708f10f9,https://www.dropbox.com/s/2tibw8w3q99u0f4/mt_baker.osm.zip?dl=0
 data/input/seattle/osm/udistrict.osm,85b8ad49405accc449c765d27ae16293,https://www.dropbox.com/s/h66cidmzcq15pbo/udistrict.osm.zip?dl=0
 data/input/seattle/osm/washington-latest.osm.pbf,bb3ae7eda2924b78d213c0ced1771818,https://www.dropbox.com/s/xha9cx696czbzlf/washington-latest.osm.pbf.zip?dl=0
-data/input/seattle/osm/west_seattle.osm,f308d0ec05a801184322b4936f12f790,https://www.dropbox.com/s/8m0vmvwg5zz3uod/west_seattle.osm.zip?dl=0
+data/input/seattle/osm/west_seattle.osm,f4f7848204542abf31b299ed61ff0924,https://www.dropbox.com/s/8m0vmvwg5zz3uod/west_seattle.osm.zip?dl=0
 data/input/seattle/parcels_urbansim.txt,db63d7d606e8702d12f9399e87e6a00f,https://www.dropbox.com/s/6g8rbsf200dssj3/parcels_urbansim.txt.zip?dl=0
 data/input/seattle/popdat.bin,977996fa2f2457dc399cfc76539df318,https://www.dropbox.com/s/wrpji7e14rdwszs/popdat.bin.zip?dl=0
 data/input/seattle/sidewalks.bin,034dd47ab77902dbc81c0107f13d8965,https://www.dropbox.com/s/ma9bmisijc7v7xa/sidewalks.bin.zip?dl=0
@@ -189,13 +189,13 @@ data/system/maps/caphill.bin,99f08acb29427dd7f2e6cdf106dcb3f6,https://www.dropbo
 data/system/maps/downtown.bin,c0050c54a12d4b1402e412d4e42483d6,https://www.dropbox.com/s/4do5cg4vc17lafo/downtown.bin.zip?dl=0
 data/system/maps/downtown_atx.bin,b2d634b8aa1244261d3a5e3a6e8b8ab7,https://www.dropbox.com/s/5avnbkd4oxby2hs/downtown_atx.bin.zip?dl=0
 data/system/maps/huge_austin.bin,1993956d19e43b1d27d8417435820f23,https://www.dropbox.com/s/khy0m6v9yt0gjnt/huge_austin.bin.zip?dl=0
-data/system/maps/huge_seattle.bin,d9189f24c1a791b0b5f4d81e3cb75a59,https://www.dropbox.com/s/btvr3qajshnivhb/huge_seattle.bin.zip?dl=0
+data/system/maps/huge_seattle.bin,5d7e19609bf8d55058b8218c2b48c4a0,https://www.dropbox.com/s/btvr3qajshnivhb/huge_seattle.bin.zip?dl=0
 data/system/maps/intl_district.bin,6a69f040ff8e8f767ad2d9582bb2b80b,https://www.dropbox.com/s/fohppni52ekc5l3/intl_district.bin.zip?dl=0
 data/system/maps/lakeslice.bin,89a8d89d0ac59c6472130f5777e6dd11,https://www.dropbox.com/s/99zi0gcbyvqrkud/lakeslice.bin.zip?dl=0
 data/system/maps/montlake.bin,9c98456991458bc92394e4cc89b325e7,https://www.dropbox.com/s/zvhm2j5lavixxcr/montlake.bin.zip?dl=0
 data/system/maps/mt_baker.bin,adf0a19a0ab9732333b30c3af8de273c,https://www.dropbox.com/s/cetje663p04cbgp/mt_baker.bin.zip?dl=0
 data/system/maps/udistrict.bin,fc01bce2955ffbe00d692e76cbcffdd8,https://www.dropbox.com/s/zqt2je8fadssz5j/udistrict.bin.zip?dl=0
-data/system/maps/west_seattle.bin,545430a37de018b39e23095ad596ac42,https://www.dropbox.com/s/5pp1ik9l40yj3wh/west_seattle.bin.zip?dl=0
+data/system/maps/west_seattle.bin,0c0af0fd2ad3ba86ca3e7c508238f9b5,https://www.dropbox.com/s/5pp1ik9l40yj3wh/west_seattle.bin.zip?dl=0
 data/system/prebaked_results/lakeslice/weekday.bin,1b189183b68dd997601fc14a1b96f907,https://www.dropbox.com/s/1c1sohvy50263wg/weekday.bin.zip?dl=0
 data/system/prebaked_results/montlake/car vs bike contention.bin,5243eb9a2d3e523728e5db7a3db2ef4e,https://www.dropbox.com/s/jefg0ikjy9dsrdd/car%20vs%20bike%20contention.bin.zip?dl=0
 data/system/prebaked_results/montlake/weekday.bin,5e32cf340f1e30b09329a21a118c2e97,https://www.dropbox.com/s/1aq7n9ow8tfqb5d/weekday.bin.zip?dl=0
@@ -210,4 +210,4 @@ data/system/scenarios/montlake/everyone_weekday.bin,47f5646a66eb787f7b87c03dfb20
 data/system/scenarios/montlake/weekday.bin,f97303f58e12864872f29aa0c138c692,https://www.dropbox.com/s/yntrxxgv3yx75gd/weekday.bin.zip?dl=0
 data/system/scenarios/mt_baker/weekday.bin,570675946de2ce07621746e8133574d0,https://www.dropbox.com/s/5e36iyuha2ltyo8/weekday.bin.zip?dl=0
 data/system/scenarios/udistrict/weekday.bin,48a774696624bd88ff715835e560861d,https://www.dropbox.com/s/gz5h3pgckjn9bbj/weekday.bin.zip?dl=0
-data/system/scenarios/west_seattle/weekday.bin,4f6fc8168f11ae1cc2f3c142cc807be4,https://www.dropbox.com/s/n8ertmxn05yn0kj/weekday.bin.zip?dl=0
+data/system/scenarios/west_seattle/weekday.bin,27998caa0624d0cf3cb7ea1f89dd1eee,https://www.dropbox.com/s/n8ertmxn05yn0kj/weekday.bin.zip?dl=0

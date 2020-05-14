@@ -13,14 +13,20 @@ pub fn download(output: &str, url: &str) {
     std::fs::create_dir_all(Path::new(output).parent().unwrap())
         .expect("Creating parent dir failed");
 
-    println!("- Missing {}, so downloading {}", output, url);
     let tmp = "tmp_output";
-    run(Command::new("curl")
-        .arg("--fail")
-        .arg("-L")
-        .arg("-o")
-        .arg(tmp)
-        .arg(url));
+    if url.ends_with(".kml") && Path::new(&output.replace(".bin", ".kml")).exists() {
+        run(Command::new("cp")
+            .arg(output.replace(".bin", ".kml"))
+            .arg(tmp));
+    } else {
+        println!("- Missing {}, so downloading {}", output, url);
+        run(Command::new("curl")
+            .arg("--fail")
+            .arg("-L")
+            .arg("-o")
+            .arg(tmp)
+            .arg(url));
+    }
 
     // Argh the Dropbox URL is .zip?dl=0
     if url.contains(".zip") {

@@ -11,6 +11,7 @@ struct Job {
     raw_to_map: bool,
     scenario: bool,
     scenario_everyone: bool,
+    seq: bool,
 
     only_map: Option<String>,
 
@@ -30,6 +31,8 @@ fn main() {
         scenario: args.enabled("--scenario"),
         // Produce a variation of the weekday scenario including off-map trips.
         scenario_everyone: args.enabled("--scenario_everyone"),
+        // Don't use multiple threads for conversion. Useful when needing to see errors.
+        seq: args.enabled("--seq"),
 
         // Only process one map. If not specified, process all maps defined by clipping polygons in
         // data/input/$city/polygons/.
@@ -78,7 +81,7 @@ fn main() {
 
         if job.raw_to_map {
             // TODO Bug: if regenerating map and scenario at the same time, this doesn't work.
-            if job.scenario {
+            if job.scenario || job.seq {
                 utils::raw_to_map(&name);
             } else {
                 let name = name.clone();

@@ -37,6 +37,7 @@ impl DevToolsMode {
                     Some(Transition::Push(polygon::PolygonEditor::new(
                         ctx,
                         app,
+                        "name goes here".to_string(),
                         Vec::new(),
                     )))
                 }),
@@ -69,7 +70,9 @@ fn choose_polygon(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option
         abstutil::list_all_objects("../data/input/seattle/polygons/".to_string())
     })?;
     match polygon::read_from_osmosis(format!("../data/input/seattle/polygons/{}.poly", name)) {
-        Ok(pts) => Some(Transition::Push(polygon::PolygonEditor::new(ctx, app, pts))),
+        Ok(pts) => Some(Transition::Push(polygon::PolygonEditor::new(
+            ctx, app, name, pts,
+        ))),
         Err(err) => {
             println!("Bad polygon {}: {}", name, err);
             Some(Transition::Pop)

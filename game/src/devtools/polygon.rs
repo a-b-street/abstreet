@@ -16,13 +16,14 @@ const LAST_PLACED_POINT: Color = Color::GREEN;
 
 pub struct PolygonEditor {
     composite: Composite,
+    name: String,
     points: Vec<LonLat>,
     mouseover_pt: Option<usize>,
     moving_pt: bool,
 }
 
 impl PolygonEditor {
-    pub fn new(ctx: &mut EventCtx, app: &App, points: Vec<LonLat>) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App, name: String, points: Vec<LonLat>) -> Box<dyn State> {
         Box::new(PolygonEditor {
             composite: WrappedComposite::quick_menu(
                 ctx,
@@ -31,6 +32,7 @@ impl PolygonEditor {
                 vec![],
                 vec![(hotkey(Key::X), "export as an Osmosis polygon filter")],
             ),
+            name,
             points,
             mouseover_pt: None,
             moving_pt: false,
@@ -66,7 +68,7 @@ impl State for PolygonEditor {
                 }
                 "export as an Osmosis polygon filter" => {
                     if self.points.len() >= 3 {
-                        save_as_osmosis(&self.points).unwrap();
+                        save_as_osmosis(&self.name, &self.points).unwrap();
                     }
                 }
                 _ => unreachable!(),
@@ -144,11 +146,11 @@ impl State for PolygonEditor {
 }
 
 // https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format
-fn save_as_osmosis(pts: &Vec<LonLat>) -> Result<(), Error> {
+fn save_as_osmosis(name: &str, pts: &Vec<LonLat>) -> Result<(), Error> {
     let path = "bounding_boy.poly";
     let mut f = File::create(&path)?;
 
-    writeln!(f, "name goes here")?;
+    writeln!(f, "{}", name)?;
     writeln!(f, "1")?;
     for gps in pts {
         writeln!(f, "     {}    {}", gps.x(), gps.y())?;

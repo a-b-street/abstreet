@@ -626,7 +626,9 @@ fn allow_block_the_box(osm_node_id: i64) -> bool {
     // 23rd and Rainier
     osm_node_id == 53212741 || osm_node_id == 3496255252 ||
     // Rainier and Dearborn
-    osm_node_id == 4607162574
+    osm_node_id == 4607162574 ||
+    // WA 509 and WA 99
+    osm_node_id == 31327525
 }
 
 // TODO Various problems (bad geometry, multi-intersection turn restrictions) cause
@@ -638,6 +640,8 @@ fn allow_conflicting_turns(osm_node_id: i64) -> bool {
         29449863, 29464223, 3391701882, 3391701883,
         // Boyer and Lynn
         3978753095,
+        // WA 509 and WA 99
+        31253092
     ]
     .contains(&osm_node_id)
 }
