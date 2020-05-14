@@ -26,7 +26,7 @@ use map_model::{
     connectivity, EditCmd, EditIntersection, IntersectionID, LaneID, LaneType, MapEdits,
     PathConstraints, PermanentMapEdits,
 };
-use sim::{DontDrawAgents, Sim};
+use sim::DontDrawAgents;
 use std::collections::BTreeSet;
 
 pub struct EditMode {
@@ -35,7 +35,6 @@ pub struct EditMode {
 
     // Retained state from the SandboxMode that spawned us
     mode: GameplayMode,
-    pub suspended_sim: Sim,
 
     // edits name, number of commands
     top_panel_key: (String, usize),
@@ -44,19 +43,22 @@ pub struct EditMode {
 
 impl EditMode {
     pub fn new(ctx: &mut EventCtx, app: &mut App, mode: GameplayMode) -> EditMode {
-        let suspended_sim = app.primary.clear_sim();
+        assert!(app.suspended_sim.is_none());
+        app.suspended_sim = Some(app.primary.clear_sim());
         let edits = app.primary.map.get_edits();
         EditMode {
             tool_panel: tool_panel(ctx, app),
             composite: make_topcenter(ctx, app),
             mode,
-            suspended_sim,
             top_panel_key: (edits.edits_name.clone(), edits.commands.len()),
             once: true,
         }
     }
 
     fn quit(&self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        assert!(app.suspended_sim.is_some());
+        app.suspended_sim = None;
+
         ctx.loading_screen("apply edits", |ctx, mut timer| {
             app.layer = Layers::Inactive;
             app.primary
@@ -188,22 +190,12 @@ impl State for EditMode {
                     && self.mode.can_edit_stop_signs()
                     && app.per_obj.left_click(ctx, "edit stop signs")
                 {
-                    return Transition::Push(Box::new(StopSignEditor::new(
-                        id,
-                        ctx,
-                        app,
-                        self.suspended_sim.clone(),
-                    )));
+                    return Transition::Push(Box::new(StopSignEditor::new(id, ctx, app)));
                 }
                 if app.primary.map.maybe_get_traffic_signal(id).is_some()
                     && app.per_obj.left_click(ctx, "edit traffic signal")
                 {
-                    return Transition::Push(Box::new(TrafficSignalEditor::new(
-                        id,
-                        ctx,
-                        app,
-                        self.suspended_sim.clone(),
-                    )));
+                    return Transition::Push(Box::new(TrafficSignalEditor::new(id, ctx, app)));
                 }
                 if app.primary.map.get_i(id).is_closed()
                     && app.per_obj.left_click(ctx, "re-open closed intersection")

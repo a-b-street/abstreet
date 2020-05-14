@@ -17,7 +17,6 @@ use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Phase,
     TurnGroupID, TurnPriority,
 };
-use sim::Sim;
 use std::collections::BTreeSet;
 
 // TODO Warn if there are empty phases or if some turn is completely absent from the signal.
@@ -30,19 +29,13 @@ pub struct TrafficSignalEditor {
     groups: Vec<DrawTurnGroup>,
     group_selected: Option<TurnGroupID>,
 
-    suspended_sim: Sim,
     // The first ControlTrafficSignal is the original
     pub command_stack: Vec<ControlTrafficSignal>,
     pub redo_stack: Vec<ControlTrafficSignal>,
 }
 
 impl TrafficSignalEditor {
-    pub fn new(
-        id: IntersectionID,
-        ctx: &mut EventCtx,
-        app: &mut App,
-        suspended_sim: Sim,
-    ) -> TrafficSignalEditor {
+    pub fn new(id: IntersectionID, ctx: &mut EventCtx, app: &mut App) -> TrafficSignalEditor {
         app.primary.current_selection = None;
         TrafficSignalEditor {
             i: id,
@@ -51,7 +44,6 @@ impl TrafficSignalEditor {
             top_panel: make_top_panel(ctx, app, false, false),
             groups: DrawTurnGroup::for_i(id, &app.primary.map),
             group_selected: None,
-            suspended_sim,
             command_stack: Vec::new(),
             redo_stack: Vec::new(),
         }
@@ -92,11 +84,7 @@ impl State for TrafficSignalEditor {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x {
                 x if x == "Edit entire signal" => {
-                    return Transition::Push(edit_entire_signal(
-                        app,
-                        self.i,
-                        self.suspended_sim.clone(),
-                    ));
+                    return Transition::Push(edit_entire_signal(app, self.i));
                 }
                 x if x.starts_with("edit phase ") => {
                     let idx = x["edit phase ".len()..].parse::<usize>().unwrap() - 1;
@@ -189,12 +177,7 @@ impl State for TrafficSignalEditor {
                         .map
                         .recalculate_pathfinding_after_edits(&mut Timer::throwaway());
 
-                    // TODO These're expensive clones :(
-                    return Transition::Push(make_previewer(
-                        self.i,
-                        self.current_phase,
-                        self.suspended_sim.clone(),
-                    ));
+                    return Transition::Push(make_previewer(self.i, self.current_phase));
                 }
                 "undo" => {
                     self.redo_stack.push(orig_signal.clone());
@@ -361,7 +344,7 @@ pub fn change_traffic_signal(signal: ControlTrafficSignal, app: &mut App, ctx: &
     apply_map_edits(ctx, app, edits);
 }
 
-fn edit_entire_signal(app: &App, i: IntersectionID, suspended_sim: Sim) -> Box<dyn State> {
+fn edit_entire_signal(app: &App, i: IntersectionID) -> Box<dyn State> {
     let has_sidewalks = app
         .primary
         .map
@@ -427,10 +410,7 @@ fn edit_entire_signal(app: &App, i: IntersectionID, suspended_sim: Sim) -> Box<d
                 });
                 apply_map_edits(ctx, app, edits);
                 Some(Transition::PopThenReplace(Box::new(StopSignEditor::new(
-                    i,
-                    ctx,
-                    app,
-                    suspended_sim.clone(),
+                    i, ctx, app,
                 ))))
             }
             x if x == close => Some(close_intersection(ctx, app, i, false)),
@@ -649,10 +629,13 @@ fn check_for_missing_groups(
 }
 
 // TODO I guess it's valid to preview without all turns possible. Some agents are just sad.
-fn make_previewer(i: IntersectionID, phase: usize, suspended_sim: Sim) -> Box<dyn State> {
+fn make_previewer(i: IntersectionID, phase: usize) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, app| {
         let random = "random agents around just this intersection".to_string();
-        let right_now = format!("change the traffic signal live at {}", suspended_sim.time());
+        let right_now = format!(
+            "change the traffic signal live at {}",
+            app.suspended_sim.as_ref().unwrap().time()
+        );
         match wiz
             .wrap(ctx)
             .choose_string(
@@ -674,7 +657,7 @@ fn make_previewer(i: IntersectionID, phase: usize, suspended_sim: Sim) -> Box<dy
                 spawn_agents_around(i, app);
             }
             x if x == right_now => {
-                app.primary.sim = suspended_sim.clone();
+                app.primary.sim = app.suspended_sim.as_ref().unwrap().clone();
             }
             _ => unreachable!(),
         };

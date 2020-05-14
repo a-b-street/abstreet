@@ -12,7 +12,6 @@ use geom::Polygon;
 use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, RoadID,
 };
-use sim::Sim;
 use std::collections::HashMap;
 
 // TODO For now, individual turns can't be manipulated. Banning turns could be useful, but I'm not
@@ -23,17 +22,10 @@ pub struct StopSignEditor {
     // (octagon, pole)
     geom: HashMap<RoadID, (Polygon, Polygon)>,
     selected_sign: Option<RoadID>,
-
-    suspended_sim: Sim,
 }
 
 impl StopSignEditor {
-    pub fn new(
-        id: IntersectionID,
-        ctx: &mut EventCtx,
-        app: &mut App,
-        suspended_sim: Sim,
-    ) -> StopSignEditor {
+    pub fn new(id: IntersectionID, ctx: &mut EventCtx, app: &mut App) -> StopSignEditor {
         app.primary.current_selection = None;
         let geom = app
             .primary
@@ -73,7 +65,6 @@ impl StopSignEditor {
             id,
             geom,
             selected_sign: None,
-            suspended_sim,
         }
     }
 }
@@ -111,12 +102,7 @@ impl State for StopSignEditor {
                     new: EditIntersection::StopSign(sign),
                 });
                 apply_map_edits(ctx, app, edits);
-                return Transition::Replace(Box::new(StopSignEditor::new(
-                    self.id,
-                    ctx,
-                    app,
-                    self.suspended_sim.clone(),
-                )));
+                return Transition::Replace(Box::new(StopSignEditor::new(self.id, ctx, app)));
             }
         }
 
@@ -136,12 +122,7 @@ impl State for StopSignEditor {
                         )),
                     });
                     apply_map_edits(ctx, app, edits);
-                    return Transition::Replace(Box::new(StopSignEditor::new(
-                        self.id,
-                        ctx,
-                        app,
-                        self.suspended_sim.clone(),
-                    )));
+                    return Transition::Replace(Box::new(StopSignEditor::new(self.id, ctx, app)));
                 }
                 "close intersection for construction" => {
                     return close_intersection(ctx, app, self.id, true);
@@ -159,10 +140,7 @@ impl State for StopSignEditor {
                     });
                     apply_map_edits(ctx, app, edits);
                     return Transition::Replace(Box::new(TrafficSignalEditor::new(
-                        self.id,
-                        ctx,
-                        app,
-                        self.suspended_sim.clone(),
+                        self.id, ctx, app,
                     )));
                 }
                 _ => unreachable!(),

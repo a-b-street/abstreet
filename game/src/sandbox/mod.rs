@@ -434,22 +434,14 @@ impl ContextualActions for Actions {
                 app.layer = crate::layer::traffic::intersection_demand(ctx, app, i);
                 Transition::Keep
             }
-            (ID::Intersection(i), "edit traffic signal") => {
-                let edit = EditMode::new(ctx, app, self.gameplay.clone());
-                let sim_copy = edit.suspended_sim.clone();
-                Transition::PushTwice(
-                    Box::new(edit),
-                    Box::new(TrafficSignalEditor::new(i, ctx, app, sim_copy)),
-                )
-            }
-            (ID::Intersection(i), "edit stop sign") => {
-                let edit = EditMode::new(ctx, app, self.gameplay.clone());
-                let sim_copy = edit.suspended_sim.clone();
-                Transition::PushTwice(
-                    Box::new(edit),
-                    Box::new(StopSignEditor::new(i, ctx, app, sim_copy)),
-                )
-            }
+            (ID::Intersection(i), "edit traffic signal") => Transition::PushTwice(
+                Box::new(EditMode::new(ctx, app, self.gameplay.clone())),
+                Box::new(TrafficSignalEditor::new(i, ctx, app)),
+            ),
+            (ID::Intersection(i), "edit stop sign") => Transition::PushTwice(
+                Box::new(EditMode::new(ctx, app, self.gameplay.clone())),
+                Box::new(StopSignEditor::new(i, ctx, app)),
+            ),
             (ID::Lane(l), "explore turns from this lane") => {
                 Transition::Push(TurnExplorer::new(ctx, app, l))
             }

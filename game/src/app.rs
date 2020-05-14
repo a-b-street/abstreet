@@ -31,6 +31,9 @@ pub struct App {
 
     // Static data that lasts the entire session. Use sparingly.
     pub session: SessionState,
+
+    // Only filled out in edit mode. Stored here once to avoid lots of clones. Used for preview.
+    pub suspended_sim: Option<Sim>,
 }
 
 impl App {
@@ -77,6 +80,7 @@ impl App {
             per_obj: PerObjectActions::new(),
             layer: Layers::Inactive,
             session: SessionState::empty(),
+            suspended_sim: None,
         }
     }
 
