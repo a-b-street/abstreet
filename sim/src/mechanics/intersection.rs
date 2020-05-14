@@ -638,8 +638,6 @@ fn allow_conflicting_turns(osm_node_id: i64) -> bool {
         29449863, 29464223, 3391701882, 3391701883,
         // Boyer and Lynn
         3978753095,
-        // Boyer and 26th
-        1709141982, 1709142313, 1709142595,
     ]
     .contains(&osm_node_id)
 }

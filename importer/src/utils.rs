@@ -46,7 +46,11 @@ pub fn download(output: &str, url: &str) {
         )
         .unwrap();
         abstutil::write_binary(output.to_string(), &shapes);
-        rm(tmp);
+        // Keep the intermediate file; otherwise we inadvertently grab new upstream data when
+        // changing some binary formats
+        run(Command::new("mv")
+            .arg(tmp)
+            .arg(output.replace(".bin", ".kml")));
     } else {
         run(Command::new("mv").arg(tmp).arg(output));
     }
