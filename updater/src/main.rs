@@ -210,8 +210,9 @@ impl Manifest {
                         || map == "montlake"
                         || map == "mt_baker"
                         || map == "udistrict"
+                        || map == "west_seattle"
                 }
-                "huge_seattle" => map == "huge_seattle" || map == "west_seattle",
+                "huge_seattle" => map == "huge_seattle",
                 "austin" => map == "downtown_atx" || map == "huge_austin",
                 _ => panic!("Unknown city {}", city),
             }

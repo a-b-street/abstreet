@@ -137,7 +137,7 @@ impl Wizard {
 // prior results.
 pub struct WrappedWizard<'a, 'b> {
     wizard: &'a mut Wizard,
-    ctx: &'a mut EventCtx<'b>,
+    pub ctx: &'a mut EventCtx<'b>,
 
     // The downcasts are safe iff the queries made to the wizard are deterministic.
     ready_results: VecDeque<Box<dyn Cloneable>>,

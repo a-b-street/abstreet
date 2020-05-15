@@ -127,6 +127,7 @@ impl State for EditMode {
                         app.primary.map.save_edits();
                     }
                     return Transition::Push(make_load_edits(
+                        app,
                         self.composite.rect_of("load edits").clone(),
                         self.mode.clone(),
                     ));
@@ -289,7 +290,11 @@ pub fn save_edits_as(wizard: &mut WrappedWizard, app: &mut App) -> Option<()> {
     Some(())
 }
 
-fn make_load_edits(btn: ScreenRectangle, mode: GameplayMode) -> Box<dyn State> {
+fn make_load_edits(app: &App, btn: ScreenRectangle, mode: GameplayMode) -> Box<dyn State> {
+    let current_edits_name = app.primary.map.get_edits().edits_name.clone();
+
+    // TODO Weird behavior: if we cancel out of this, the current edits remain blanked out. Woops?
+
     WizardState::new(Box::new(move |wiz, ctx, app| {
         let mut wizard = wiz.wrap(ctx);
 
@@ -306,8 +311,9 @@ fn make_load_edits(btn: ScreenRectangle, mode: GameplayMode) -> Box<dyn State> {
             }
         }
 
-        // TODO Exclude current
-        let current_edits_name = app.primary.map.get_edits().edits_name.clone();
+        // We need to clear out the current edits first, or from_permanent won't work.
+        apply_map_edits(wizard.ctx, app, MapEdits::new());
+
         let (_, new_edits) = wizard.choose_exact(
             (
                 HorizontalAlignment::Centered(btn.center().x),
