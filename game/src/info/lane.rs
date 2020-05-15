@@ -146,14 +146,7 @@ pub fn traffic(
     let mut txt = Text::from(Line("Traffic over entire road, not just this lane"));
     txt.add(Line(format!(
         "Since midnight: {} agents crossed",
-        prettyprint_usize(
-            app.primary
-                .sim
-                .get_analytics()
-                .thruput_stats
-                .count_per_road
-                .get(r.id)
-        )
+        prettyprint_usize(app.primary.sim.get_analytics().road_thruput.total_for(r.id))
     )));
     rows.push(txt.draw(ctx));
 
@@ -164,7 +157,7 @@ pub fn traffic(
         throughput(
             ctx,
             app,
-            move |a, t| a.throughput_road(t, r, opts.bucket_size),
+            move |a, t| a.throughput_road(t, r),
             opts.show_before,
         )
         .margin(10),

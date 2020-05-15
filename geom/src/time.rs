@@ -27,7 +27,7 @@ impl Time {
     }
 
     // (hours, minutes, seconds, centiseconds)
-    fn get_parts(self) -> (usize, usize, usize, usize) {
+    pub fn get_parts(self) -> (usize, usize, usize, usize) {
         let mut remainder = self.0;
         let hours = (remainder / 3600.0).floor();
         remainder -= hours * 3600.0;

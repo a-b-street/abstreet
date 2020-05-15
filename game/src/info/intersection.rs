@@ -51,9 +51,8 @@ pub fn traffic(
             app.primary
                 .sim
                 .get_analytics()
-                .thruput_stats
-                .count_per_intersection
-                .get(id)
+                .intersection_thruput
+                .total_for(id)
         )
     )));
     rows.push(txt.draw(ctx));
@@ -64,7 +63,7 @@ pub fn traffic(
         throughput(
             ctx,
             app,
-            move |a, t| a.throughput_intersection(t, id, opts.bucket_size),
+            move |a, t| a.throughput_intersection(t, id),
             opts.show_before,
         )
         .margin(10),
@@ -103,7 +102,7 @@ fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) 
             .into_iter()
             .map(|stat| (stat, Vec::new()))
             .collect();
-        for (t, distrib) in a.intersection_delays_bucketized(t, i, opts.bucket_size) {
+        for (t, distrib) in a.intersection_delays_bucketized(t, i, Duration::hours(1)) {
             for (stat, pts) in series.iter_mut() {
                 if distrib.count() == 0 {
                     pts.push((t, Duration::ZERO));

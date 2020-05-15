@@ -13,7 +13,7 @@ regenerate the maps!
 5.  Select what kind of on-street parking the road has
 6.  Repeat
 7.  Click **Generate OsmChange file**
-8.  Upload the diff.osc file by adding a layer in JOSM
+8.  Upload the diff.osc file by adding a layer in JOSM (or send it to me)
 
 Like all edits to OSM, to figure out ground-truth, you can survey in-person or
 use
@@ -29,7 +29,7 @@ then use it to strengthen proposals for
 [pedestrianized streets](https://dabreegster.github.io/abstreet/lake_wash/proposal.html),
 [improving the bike network](https://www.glwstreets.org/45th-st-bridge-overview),
 and
-[mitigating the West Seattle bridge closure](https://www.westsideseattle.com/robinson-papers/2020/05/04/highland-park-action-coalition-calls-seattle-officials-traffic).
+[mitigating the West Seattle bridge closure](https://dabreegster.github.io/abstreet/west_seattle/proposal.html).
 A/B Street is only as good as its data, and parking is one of the biggest gaps.
 Missing data means unrealistic traffic as vehicles contend for few parking
 spots, and roads that look much wider than they are in reality.

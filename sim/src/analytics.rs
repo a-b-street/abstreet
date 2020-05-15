@@ -10,7 +10,13 @@ use std::collections::{BTreeMap, VecDeque};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Analytics {
+    // TODO rm this
     pub thruput_stats: ThruputStats,
+    pub road_thruput: TimeSeriesCount<RoadID>,
+    pub intersection_thruput: TimeSeriesCount<IntersectionID>,
+
+    // Unlike everything else in Analytics, this is just for a moment in time.
+    pub demand: BTreeMap<TurnGroupID, usize>,
     #[serde(skip_serializing, skip_deserializing)]
     pub(crate) test_expectations: VecDeque<Event>,
     pub bus_arrivals: Vec<(Time, CarID, BusRouteID, BusStopID)>,
@@ -34,28 +40,20 @@ pub struct Analytics {
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ThruputStats {
-    #[serde(skip_serializing, skip_deserializing)]
-    pub count_per_road: Counter<RoadID>,
-    #[serde(skip_serializing, skip_deserializing)]
-    pub count_per_intersection: Counter<IntersectionID>,
-
     pub raw_per_road: Vec<(Time, TripMode, RoadID)>,
     pub raw_per_intersection: Vec<(Time, TripMode, IntersectionID)>,
-
-    // Unlike everything else in Analytics, this is just for a moment in time.
-    pub demand: BTreeMap<TurnGroupID, usize>,
 }
 
 impl Analytics {
     pub fn new() -> Analytics {
         Analytics {
             thruput_stats: ThruputStats {
-                count_per_road: Counter::new(),
-                count_per_intersection: Counter::new(),
                 raw_per_road: Vec::new(),
                 raw_per_intersection: Vec::new(),
-                demand: BTreeMap::new(),
             },
+            road_thruput: TimeSeriesCount::new(),
+            intersection_thruput: TimeSeriesCount::new(),
+            demand: BTreeMap::new(),
             test_expectations: VecDeque::new(),
             bus_arrivals: Vec::new(),
             bus_passengers_waiting: Vec::new(),
@@ -74,30 +72,23 @@ impl Analytics {
             return;
         }
 
-        // TODO Plumb a flag
-        let raw_thruput = true;
-
         // Throughput
         if let Event::AgentEntersTraversable(a, to) = ev {
             let mode = TripMode::from_agent(a);
             match to {
                 Traversable::Lane(l) => {
                     let r = map.get_l(l).parent;
-                    self.thruput_stats.count_per_road.inc(r);
-                    if raw_thruput {
-                        self.thruput_stats.raw_per_road.push((time, mode, r));
-                    }
+                    self.thruput_stats.raw_per_road.push((time, mode, r));
+                    self.road_thruput.record(time, r, mode);
                 }
                 Traversable::Turn(t) => {
-                    self.thruput_stats.count_per_intersection.inc(t.parent);
-                    if raw_thruput {
-                        self.thruput_stats
-                            .raw_per_intersection
-                            .push((time, mode, t.parent));
-                    }
+                    self.thruput_stats
+                        .raw_per_intersection
+                        .push((time, mode, t.parent));
+                    self.intersection_thruput.record(time, t.parent, mode);
 
                     if let Some(id) = map.get_turn_group(t) {
-                        *self.thruput_stats.demand.entry(id).or_insert(0) -= 1;
+                        *self.demand.entry(id).or_insert(0) -= 1;
                     }
                 }
             };
@@ -201,7 +192,7 @@ impl Analytics {
         for step in path.get_steps() {
             if let Traversable::Turn(t) = step.as_traversable() {
                 if let Some(id) = map.get_turn_group(t) {
-                    *self.thruput_stats.demand.entry(id).or_insert(0) += 1;
+                    *self.demand.entry(id).or_insert(0) += 1;
                 }
             }
         }
@@ -361,37 +352,29 @@ impl Analytics {
             .collect()
     }
 
-    // Slightly misleading -- TripMode::Transit means buses, not pedestrians taking transit
     pub fn throughput_road(
         &self,
         now: Time,
         road: RoadID,
-        window_size: Duration,
     ) -> BTreeMap<TripMode, Vec<(Time, usize)>> {
-        self.throughput(now, road, window_size, &self.thruput_stats.raw_per_road)
+        self.throughput(now, road, &self.thruput_stats.raw_per_road)
     }
 
     pub fn throughput_intersection(
         &self,
         now: Time,
         intersection: IntersectionID,
-        window_size: Duration,
     ) -> BTreeMap<TripMode, Vec<(Time, usize)>> {
-        self.throughput(
-            now,
-            intersection,
-            window_size,
-            &self.thruput_stats.raw_per_intersection,
-        )
+        self.throughput(now, intersection, &self.thruput_stats.raw_per_intersection)
     }
 
     fn throughput<X: PartialEq>(
         &self,
         now: Time,
         obj: X,
-        window_size: Duration,
         data: &Vec<(Time, TripMode, X)>,
     ) -> BTreeMap<TripMode, Vec<(Time, usize)>> {
+        let window_size = Duration::hours(1);
         let mut pts_per_mode: BTreeMap<TripMode, Vec<(Time, usize)>> = BTreeMap::new();
         let mut windows_per_mode: BTreeMap<TripMode, Window> = BTreeMap::new();
         for mode in TripMode::all() {
@@ -650,5 +633,48 @@ impl Window {
             self.times.pop_front();
         }
         self.times.len()
+    }
+}
+
+// Slightly misleading -- TripMode::Transit means buses, not pedestrians taking transit
+#[derive(Clone, Serialize, Deserialize)]
+pub struct TimeSeriesCount<X: Ord + Clone> {
+    // (Road or intersection, mode, hour block) -> count for that hour
+    counts: BTreeMap<(X, TripMode, usize), usize>,
+}
+
+impl<X: Ord + Clone> TimeSeriesCount<X> {
+    fn new() -> TimeSeriesCount<X> {
+        TimeSeriesCount {
+            counts: BTreeMap::new(),
+        }
+    }
+
+    fn record(&mut self, time: Time, id: X, mode: TripMode) {
+        let hour = time.get_parts().0;
+        *self.counts.entry((id, mode, hour)).or_insert(0) += 1;
+    }
+
+    pub fn total_for(&self, id: X) -> usize {
+        let mut cnt = 0;
+        for mode in TripMode::all() {
+            // TODO Hmm
+            for hour in 0..24 {
+                cnt += self
+                    .counts
+                    .get(&(id.clone(), mode, hour))
+                    .cloned()
+                    .unwrap_or(0);
+            }
+        }
+        cnt
+    }
+
+    pub fn all_total_counts(&self) -> Counter<X> {
+        let mut cnt = Counter::new();
+        for ((id, _, _), value) in &self.counts {
+            cnt.add(id.clone(), *value);
+        }
+        cnt
     }
 }

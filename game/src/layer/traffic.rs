@@ -122,14 +122,15 @@ pub fn throughput(ctx: &mut EventCtx, app: &App, compare: bool) -> Layers {
         vec!["0", "50", "90", "99", "100"],
     );
 
-    let stats = &app.primary.sim.get_analytics().thruput_stats;
+    let stats = &app.primary.sim.get_analytics();
 
     // TODO If there are many duplicate counts, arbitrarily some will look heavier! Find the
     // disribution of counts instead.
     // TODO Actually display the counts at these percentiles
     // TODO Dump the data in debug mode
     {
-        let roads = stats.count_per_road.sorted_asc();
+        let cnt = stats.road_thruput.all_total_counts();
+        let roads = cnt.sorted_asc();
         let p50_idx = ((roads.len() as f64) * 0.5) as usize;
         let p90_idx = ((roads.len() as f64) * 0.9) as usize;
         let p99_idx = ((roads.len() as f64) * 0.99) as usize;
@@ -148,7 +149,8 @@ pub fn throughput(ctx: &mut EventCtx, app: &App, compare: bool) -> Layers {
     }
     // TODO dedupe
     {
-        let intersections = stats.count_per_intersection.sorted_asc();
+        let cnt = stats.intersection_thruput.all_total_counts();
+        let intersections = cnt.sorted_asc();
         let p50_idx = ((intersections.len() as f64) * 0.5) as usize;
         let p90_idx = ((intersections.len() as f64) * 0.9) as usize;
         let p99_idx = ((intersections.len() as f64) * 0.99) as usize;
@@ -363,7 +365,6 @@ pub fn intersection_demand(ctx: &mut EventCtx, app: &App, i: IntersectionID) -> 
             .primary
             .sim
             .get_analytics()
-            .thruput_stats
             .demand
             .get(&g.id)
             .cloned()

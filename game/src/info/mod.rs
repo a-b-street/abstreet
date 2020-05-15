@@ -563,46 +563,26 @@ pub trait ContextualActions {
 #[derive(Clone, PartialEq)]
 pub struct DataOptions {
     pub show_before: bool,
-    pub bucket_size: Duration,
 }
 
 impl DataOptions {
     pub fn new(app: &App) -> DataOptions {
         DataOptions {
             show_before: app.has_prebaked().is_some(),
-            bucket_size: Duration::minutes(20),
         }
     }
 
     pub fn to_controls(&self, ctx: &mut EventCtx, app: &App) -> Widget {
-        Widget::col(vec![
-            Widget::row(vec![
-                "In".draw_text(ctx),
-                Widget::dropdown(
-                    ctx,
-                    "bucket size",
-                    self.bucket_size,
-                    vec![
-                        Choice::new("20 minute", Duration::minutes(20)),
-                        Choice::new("1 hour", Duration::hours(1)),
-                        Choice::new("6 hour", Duration::hours(6)),
-                    ],
-                )
-                .margin(3),
-                "buckets".draw_text(ctx),
-            ]),
-            if app.has_prebaked().is_some() {
-                Checkbox::text(ctx, "Show before changes", None, self.show_before)
-            } else {
-                Widget::nothing()
-            },
-        ])
+        Widget::col(vec![if app.has_prebaked().is_some() {
+            Checkbox::text(ctx, "Show before changes", None, self.show_before)
+        } else {
+            Widget::nothing()
+        }])
     }
 
     pub fn from_controls(c: &Composite) -> DataOptions {
         DataOptions {
             show_before: c.has_widget("Show before changes") && c.is_checked("Show before changes"),
-            bucket_size: c.dropdown_value("bucket size"),
         }
     }
 }
