@@ -10,8 +10,6 @@ use std::collections::{BTreeMap, VecDeque};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Analytics {
-    // TODO rm this
-    pub thruput_stats: ThruputStats,
     pub road_thruput: TimeSeriesCount<RoadID>,
     pub intersection_thruput: TimeSeriesCount<IntersectionID>,
 
@@ -38,19 +36,9 @@ pub struct Analytics {
     record_anything: bool,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
-pub struct ThruputStats {
-    pub raw_per_road: Vec<(Time, TripMode, RoadID)>,
-    pub raw_per_intersection: Vec<(Time, TripMode, IntersectionID)>,
-}
-
 impl Analytics {
     pub fn new() -> Analytics {
         Analytics {
-            thruput_stats: ThruputStats {
-                raw_per_road: Vec::new(),
-                raw_per_intersection: Vec::new(),
-            },
             road_thruput: TimeSeriesCount::new(),
             intersection_thruput: TimeSeriesCount::new(),
             demand: BTreeMap::new(),
@@ -77,14 +65,9 @@ impl Analytics {
             let mode = TripMode::from_agent(a);
             match to {
                 Traversable::Lane(l) => {
-                    let r = map.get_l(l).parent;
-                    self.thruput_stats.raw_per_road.push((time, mode, r));
-                    self.road_thruput.record(time, r, mode);
+                    self.road_thruput.record(time, map.get_l(l).parent, mode);
                 }
                 Traversable::Turn(t) => {
-                    self.thruput_stats
-                        .raw_per_intersection
-                        .push((time, mode, t.parent));
                     self.intersection_thruput.record(time, t.parent, mode);
 
                     if let Some(id) = map.get_turn_group(t) {
@@ -95,9 +78,7 @@ impl Analytics {
         }
         match ev {
             Event::PersonLeavesMap(_, mode, i, _) | Event::PersonEntersMap(_, mode, i, _) => {
-                self.thruput_stats
-                    .raw_per_intersection
-                    .push((time, mode, i));
+                self.intersection_thruput.record(time, i, mode);
             }
             _ => {}
         }
@@ -352,65 +333,6 @@ impl Analytics {
             .collect()
     }
 
-    pub fn throughput_road(
-        &self,
-        now: Time,
-        road: RoadID,
-    ) -> BTreeMap<TripMode, Vec<(Time, usize)>> {
-        self.throughput(now, road, &self.thruput_stats.raw_per_road)
-    }
-
-    pub fn throughput_intersection(
-        &self,
-        now: Time,
-        intersection: IntersectionID,
-    ) -> BTreeMap<TripMode, Vec<(Time, usize)>> {
-        self.throughput(now, intersection, &self.thruput_stats.raw_per_intersection)
-    }
-
-    fn throughput<X: PartialEq>(
-        &self,
-        now: Time,
-        obj: X,
-        data: &Vec<(Time, TripMode, X)>,
-    ) -> BTreeMap<TripMode, Vec<(Time, usize)>> {
-        let window_size = Duration::hours(1);
-        let mut pts_per_mode: BTreeMap<TripMode, Vec<(Time, usize)>> = BTreeMap::new();
-        let mut windows_per_mode: BTreeMap<TripMode, Window> = BTreeMap::new();
-        for mode in TripMode::all() {
-            pts_per_mode.insert(mode, vec![(Time::START_OF_DAY, 0)]);
-            windows_per_mode.insert(mode, Window::new(window_size));
-        }
-
-        for (t, m, x) in data {
-            if *x != obj {
-                continue;
-            }
-            if *t > now {
-                break;
-            }
-
-            let count = windows_per_mode.get_mut(m).unwrap().add(*t);
-            pts_per_mode.get_mut(m).unwrap().push((*t, count));
-        }
-
-        for (m, pts) in pts_per_mode.iter_mut() {
-            let mut window = windows_per_mode.remove(m).unwrap();
-
-            // Add a drop-off after window_size (+ a little epsilon!)
-            let t = (pts.last().unwrap().0 + window_size + Duration::seconds(0.1)).min(now);
-            if pts.last().unwrap().0 != t {
-                pts.push((t, window.count(t)));
-            }
-
-            if pts.last().unwrap().0 != now {
-                pts.push((now, window.count(now)));
-            }
-        }
-
-        pts_per_mode
-    }
-
     pub fn get_trip_phases(&self, trip: TripID, map: &Map) -> Vec<TripPhase> {
         let mut phases: Vec<TripPhase> = Vec::new();
         for (t, id, maybe_req, phase_type) in &self.trip_log {
@@ -608,39 +530,11 @@ pub struct TripPhase {
     pub phase_type: TripPhaseType,
 }
 
-struct Window {
-    times: VecDeque<Time>,
-    window_size: Duration,
-}
-
-impl Window {
-    fn new(window_size: Duration) -> Window {
-        Window {
-            times: VecDeque::new(),
-            window_size,
-        }
-    }
-
-    // Returns the count at time
-    fn add(&mut self, time: Time) -> usize {
-        self.times.push_back(time);
-        self.count(time)
-    }
-
-    // Grab the count at this time, but don't add a new time
-    fn count(&mut self, end: Time) -> usize {
-        while !self.times.is_empty() && end - *self.times.front().unwrap() > self.window_size {
-            self.times.pop_front();
-        }
-        self.times.len()
-    }
-}
-
 // Slightly misleading -- TripMode::Transit means buses, not pedestrians taking transit
 #[derive(Clone, Serialize, Deserialize)]
 pub struct TimeSeriesCount<X: Ord + Clone> {
     // (Road or intersection, mode, hour block) -> count for that hour
-    counts: BTreeMap<(X, TripMode, usize), usize>,
+    pub counts: BTreeMap<(X, TripMode, usize), usize>,
 }
 
 impl<X: Ord + Clone> TimeSeriesCount<X> {
@@ -676,5 +570,24 @@ impl<X: Ord + Clone> TimeSeriesCount<X> {
             cnt.add(id.clone(), *value);
         }
         cnt
+    }
+
+    pub fn count_per_hour(&self, id: X) -> Vec<(TripMode, Vec<(Time, usize)>)> {
+        let mut results = Vec::new();
+        for mode in TripMode::all() {
+            let mut pts = Vec::new();
+            // TODO Hmm
+            for hour in 0..24 {
+                let cnt = self
+                    .counts
+                    .get(&(id.clone(), mode, hour))
+                    .cloned()
+                    .unwrap_or(0);
+                pts.push((Time::START_OF_DAY + Duration::hours(hour), cnt));
+                pts.push((Time::START_OF_DAY + Duration::hours(hour + 1), cnt));
+            }
+            results.push((mode, pts));
+        }
+        results
     }
 }

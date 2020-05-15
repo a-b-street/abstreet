@@ -63,7 +63,7 @@ pub fn traffic(
         throughput(
             ctx,
             app,
-            move |a, t| a.throughput_intersection(t, id),
+            move |a| a.intersection_thruput.count_per_hour(id),
             opts.show_before,
         )
         .margin(10),

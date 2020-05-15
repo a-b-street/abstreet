@@ -222,8 +222,7 @@ impl Manifest {
         for path in self.0.keys() {
             // TODO Some hardcoded weird exceptions
             if !cities.runtime.contains(&"huge_seattle".to_string())
-                && (path == "data/system/scenarios/montlake/everyone_weekday.bin"
-                    || path == "data/system/prebaked_results/lakeslice/weekday.bin")
+                && path == "data/system/scenarios/montlake/everyone_weekday.bin"
             {
                 remove.push(path.clone());
                 continue;

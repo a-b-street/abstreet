@@ -97,12 +97,12 @@ impl App {
             if let Some((_, _, ref a)) = self.prebaked {
                 use abstutil::{prettyprint_usize, serialized_size_bytes};
                 println!(
-                    "- raw_per_road: {} bytes",
-                    prettyprint_usize(serialized_size_bytes(&a.thruput_stats.raw_per_road))
+                    "- road_thruput: {} bytes",
+                    prettyprint_usize(serialized_size_bytes(&a.road_thruput))
                 );
                 println!(
-                    "- raw_per_intersection: {} bytes",
-                    prettyprint_usize(serialized_size_bytes(&a.thruput_stats.raw_per_intersection))
+                    "- intersection_thruput: {} bytes",
+                    prettyprint_usize(serialized_size_bytes(&a.intersection_thruput))
                 );
                 println!(
                     "- bus_arrivals : {} bytes",

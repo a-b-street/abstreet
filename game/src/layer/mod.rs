@@ -38,7 +38,7 @@ pub enum Layers {
     WorstDelay(Time, Colorer),
     TrafficJams(Time, Colorer),
     Backpressure(Time, Colorer),
-    BikeNetwork(Colorer, Option<Colorer>),
+    BikeNetwork(Time, Colorer, Option<Colorer>),
     BusNetwork(Colorer),
     Elevation(Colorer, Drawable),
     Edits(Colorer),
@@ -114,9 +114,13 @@ impl Layers {
                     app.layer = pandemic::new(ctx, app, opts.clone());
                 }
             }
+            Layers::BikeNetwork(t, _, _) => {
+                if now != t {
+                    app.layer = map::bike_network(ctx, app);
+                }
+            }
             // No updates needed
             Layers::Inactive
-            | Layers::BikeNetwork(_, _)
             | Layers::BusNetwork(_)
             | Layers::Elevation(_, _)
             | Layers::Edits(_)
@@ -197,7 +201,7 @@ impl Layers {
                     }
                 }
             }
-            Layers::BikeNetwork(ref mut c1, ref mut maybe_c2) => {
+            Layers::BikeNetwork(_, ref mut c1, ref mut maybe_c2) => {
                 if let Some(ref mut c2) = maybe_c2 {
                     c2.legend.align_above(ctx, minimap);
                     c1.legend.align_above(ctx, &c2.legend);
@@ -301,7 +305,7 @@ impl Layers {
             | Layers::Amenities(ref c) => {
                 c.draw(g, app);
             }
-            Layers::BikeNetwork(ref c1, ref maybe_c2) => {
+            Layers::BikeNetwork(_, ref c1, ref maybe_c2) => {
                 c1.draw(g, app);
                 if let Some(ref c2) = maybe_c2 {
                     c2.draw(g, app);
@@ -374,7 +378,7 @@ impl Layers {
             Layers::CumulativeThroughput { ref unzoomed, .. } => {
                 g.redraw(unzoomed);
             }
-            Layers::BikeNetwork(ref c1, ref maybe_c2) => {
+            Layers::BikeNetwork(_, ref c1, ref maybe_c2) => {
                 g.redraw(&c1.unzoomed);
                 if let Some(ref c2) = maybe_c2 {
                     g.redraw(&c2.unzoomed);
@@ -429,7 +433,7 @@ impl Layers {
             Layers::TrafficJams(_, _) => Some("worst traffic jams"),
             Layers::CumulativeThroughput { .. } => Some("throughput"),
             Layers::Backpressure(_, _) => Some("backpressure"),
-            Layers::BikeNetwork(_, _) => Some("bike network"),
+            Layers::BikeNetwork(_, _, _) => Some("bike network"),
             Layers::BusNetwork(_) => Some("bus network"),
             Layers::Elevation(_, _) => Some("elevation"),
             Layers::Edits(_) => Some("map edits"),

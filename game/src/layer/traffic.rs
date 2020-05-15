@@ -177,34 +177,34 @@ pub fn throughput(ctx: &mut EventCtx, app: &App, compare: bool) -> Layers {
 }
 
 fn compare_throughput(ctx: &mut EventCtx, app: &App) -> Layers {
-    let now = app.primary.sim.time();
-    let after = &app.primary.sim.get_analytics().thruput_stats;
-    let before = &app.prebaked().thruput_stats;
+    let after = app.primary.sim.get_analytics();
+    let before = app.prebaked();
+    let hour = app.primary.sim.time().get_parts().0;
 
     let mut after_road = Counter::new();
     let mut before_road = Counter::new();
     {
-        for (_, _, r) in &after.raw_per_road {
-            after_road.inc(*r);
+        for ((r, _, _), count) in &after.road_thruput.counts {
+            after_road.add(*r, *count);
         }
-        for (t, _, r) in &before.raw_per_road {
-            if *t > now {
-                break;
+        // TODO ew. lerp?
+        for ((r, _, hr), count) in &before.road_thruput.counts {
+            if *hr <= hour {
+                before_road.add(*r, *count);
             }
-            before_road.inc(*r);
         }
     }
     let mut after_intersection = Counter::new();
     let mut before_intersection = Counter::new();
     {
-        for (_, _, i) in &after.raw_per_intersection {
-            after_intersection.inc(*i);
+        for ((i, _, _), count) in &after.intersection_thruput.counts {
+            after_intersection.add(*i, *count);
         }
-        for (t, _, i) in &before.raw_per_intersection {
-            if *t > now {
-                break;
+        // TODO ew. lerp?
+        for ((i, _, hr), count) in &before.intersection_thruput.counts {
+            if *hr <= hour {
+                before_intersection.add(*i, *count);
             }
-            before_intersection.inc(*i);
         }
     }
 

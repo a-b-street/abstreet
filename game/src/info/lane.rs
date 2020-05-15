@@ -157,7 +157,7 @@ pub fn traffic(
         throughput(
             ctx,
             app,
-            move |a, t| a.throughput_road(t, r),
+            move |a| a.road_thruput.count_per_hour(r),
             opts.show_before,
         )
         .margin(10),

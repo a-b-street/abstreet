@@ -13,11 +13,11 @@ use crate::helpers::{color_for_mode, ID};
 use crate::render::ExtraShapeID;
 use crate::sandbox::{SandboxMode, TimeWarpScreen};
 use ezgui::{
-    hotkey, Btn, Checkbox, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, LinePlot, Outcome, PlotOptions, Series, Text, TextExt,
     VerticalAlignment, Widget,
 };
-use geom::{Circle, Distance, Duration, Time};
+use geom::{Circle, Distance, Time};
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID};
 use maplit::btreemap;
 use sim::{
@@ -486,13 +486,13 @@ fn make_table<I: Into<String>>(ctx: &EventCtx, rows: Vec<(I, String)>) -> Vec<Wi
     ])]*/
 }
 
-fn throughput<F: Fn(&Analytics, Time) -> BTreeMap<TripMode, Vec<(Time, usize)>>>(
+fn throughput<F: Fn(&Analytics) -> Vec<(TripMode, Vec<(Time, usize)>)>>(
     ctx: &EventCtx,
     app: &App,
     get_data: F,
     show_before: bool,
 ) -> Widget {
-    let mut series = get_data(app.primary.sim.get_analytics(), app.primary.sim.time())
+    let mut series = get_data(app.primary.sim.get_analytics())
         .into_iter()
         .map(|(m, pts)| Series {
             label: m.ongoing_verb().to_string(),
@@ -502,7 +502,7 @@ fn throughput<F: Fn(&Analytics, Time) -> BTreeMap<TripMode, Vec<(Time, usize)>>>
         .collect::<Vec<_>>();
     if show_before {
         // TODO Ahh these colors don't show up differently at all.
-        for (m, pts) in get_data(app.prebaked(), app.primary.sim.get_end_of_day()) {
+        for (m, pts) in get_data(app.prebaked()) {
             series.push(Series {
                 label: format!("{} (before changes)", m.ongoing_verb()),
                 color: color_for_mode(app, m).alpha(0.3),
