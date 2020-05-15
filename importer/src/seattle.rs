@@ -80,7 +80,7 @@ pub fn ensure_popdat_exists() {
         osm_to_raw("huge_seattle");
     }
     if !abstutil::file_exists(abstutil::path_map("huge_seattle")) {
-        crate::utils::raw_to_map("huge_seattle");
+        crate::utils::raw_to_map("huge_seattle", true);
     }
 
     crate::soundcast::import_data();

@@ -110,7 +110,7 @@ impl Map {
             // Synthetic
             abstutil::read_json(path, timer)
         };
-        Map::create_from_raw(raw, timer)
+        Map::create_from_raw(raw, true, timer)
     }
 
     // Just for temporary std::mem::replace tricks.
@@ -143,7 +143,7 @@ impl Map {
         }
     }
 
-    pub fn create_from_raw(mut raw: RawMap, timer: &mut Timer) -> Map {
+    pub fn create_from_raw(mut raw: RawMap, build_ch: bool, timer: &mut Timer) -> Map {
         // Better to defer this and see RawMaps with more debug info in map_editor
         make::remove_disconnected_roads(&mut raw, timer);
 
@@ -182,53 +182,55 @@ impl Map {
         // Here's a fun one: we can't set up walking_using_transit yet, because we haven't
         // finalized bus stops and routes. We need the bus graph in place for that. So setup
         // pathfinding in two stages.
-        timer.start("setup (most of) Pathfinder");
-        m.pathfinder = Some(Pathfinder::new_without_transit(&m, timer));
-        timer.stop("setup (most of) Pathfinder");
+        if build_ch {
+            timer.start("setup (most of) Pathfinder");
+            m.pathfinder = Some(Pathfinder::new_without_transit(&m, timer));
+            timer.stop("setup (most of) Pathfinder");
 
-        {
-            let (stops, routes) =
-                make::make_bus_stops(&m, &raw.bus_routes, &m.gps_bounds, &m.bounds, timer);
-            m.bus_stops = stops;
-            // The IDs are sorted in the BTreeMap, so this order winds up correct.
-            for id in m.bus_stops.keys() {
-                m.lanes[id.sidewalk.0].bus_stops.push(*id);
+            {
+                let (stops, routes) =
+                    make::make_bus_stops(&m, &raw.bus_routes, &m.gps_bounds, &m.bounds, timer);
+                m.bus_stops = stops;
+                // The IDs are sorted in the BTreeMap, so this order winds up correct.
+                for id in m.bus_stops.keys() {
+                    m.lanes[id.sidewalk.0].bus_stops.push(*id);
+                }
+
+                timer.start_iter("verify bus routes are connected", routes.len());
+                for mut r in routes {
+                    timer.next();
+                    if r.stops.is_empty() {
+                        continue;
+                    }
+                    if make::fix_bus_route(&m, &mut r) {
+                        r.id = BusRouteID(m.bus_routes.len());
+                        m.bus_routes.push(r);
+                    } else {
+                        timer.warn(format!("Skipping route {}", r.name));
+                    }
+                }
+
+                // Remove orphaned bus stops
+                let mut remove_stops = HashSet::new();
+                for id in m.bus_stops.keys() {
+                    if m.get_routes_serving_stop(*id).is_empty() {
+                        remove_stops.insert(*id);
+                    }
+                }
+                for id in &remove_stops {
+                    m.bus_stops.remove(id);
+                    m.lanes[id.sidewalk.0]
+                        .bus_stops
+                        .retain(|stop| !remove_stops.contains(stop))
+                }
             }
 
-            timer.start_iter("verify bus routes are connected", routes.len());
-            for mut r in routes {
-                timer.next();
-                if r.stops.is_empty() {
-                    continue;
-                }
-                if make::fix_bus_route(&m, &mut r) {
-                    r.id = BusRouteID(m.bus_routes.len());
-                    m.bus_routes.push(r);
-                } else {
-                    timer.warn(format!("Skipping route {}", r.name));
-                }
-            }
-
-            // Remove orphaned bus stops
-            let mut remove_stops = HashSet::new();
-            for id in m.bus_stops.keys() {
-                if m.get_routes_serving_stop(*id).is_empty() {
-                    remove_stops.insert(*id);
-                }
-            }
-            for id in &remove_stops {
-                m.bus_stops.remove(id);
-                m.lanes[id.sidewalk.0]
-                    .bus_stops
-                    .retain(|stop| !remove_stops.contains(stop))
-            }
+            timer.start("setup rest of Pathfinder (walking with transit)");
+            let mut pathfinder = m.pathfinder.take().unwrap();
+            pathfinder.setup_walking_with_transit(&m);
+            m.pathfinder = Some(pathfinder);
+            timer.stop("setup rest of Pathfinder (walking with transit)");
         }
-
-        timer.start("setup rest of Pathfinder (walking with transit)");
-        let mut pathfinder = m.pathfinder.take().unwrap();
-        pathfinder.setup_walking_with_transit(&m);
-        m.pathfinder = Some(pathfinder);
-        timer.stop("setup rest of Pathfinder (walking with transit)");
 
         let (_, disconnected) = connectivity::find_scc(&m, PathConstraints::Pedestrian);
         if !disconnected.is_empty() {

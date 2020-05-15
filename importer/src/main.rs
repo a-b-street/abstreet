@@ -11,7 +11,9 @@ struct Job {
     raw_to_map: bool,
     scenario: bool,
     scenario_everyone: bool,
+
     seq: bool,
+    skip_ch: bool,
 
     only_map: Option<String>,
 
@@ -33,6 +35,9 @@ fn main() {
         scenario_everyone: args.enabled("--scenario_everyone"),
         // Don't use multiple threads for conversion. Useful when needing to see errors.
         seq: args.enabled("--seq"),
+        // Skip the most expensive step of --map, building contraction hierarchies. The resulting
+        // map won't be usable for simulation; as soon as you try to pathfind, it'll crash.
+        skip_ch: args.enabled("--skip_ch"),
 
         // Only process one map. If not specified, process all maps defined by clipping polygons in
         // data/input/$city/polygons/.
@@ -82,11 +87,12 @@ fn main() {
         if job.raw_to_map {
             // TODO Bug: if regenerating map and scenario at the same time, this doesn't work.
             if job.scenario || job.seq {
-                utils::raw_to_map(&name);
+                utils::raw_to_map(&name, !job.skip_ch);
             } else {
                 let name = name.clone();
+                let build_ch = !job.skip_ch;
                 handles.push(thread::spawn(move || {
-                    utils::raw_to_map(&name);
+                    utils::raw_to_map(&name, build_ch);
                 }));
             }
         }
@@ -135,7 +141,7 @@ fn oneshot(osm_path: String, clip: Option<String>) {
         },
         &mut timer,
     );
-    let map = map_model::Map::create_from_raw(raw, &mut timer);
+    let map = map_model::Map::create_from_raw(raw, true, &mut timer);
     timer.start("save map");
     map.save();
     timer.stop("save map");
