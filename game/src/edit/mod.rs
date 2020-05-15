@@ -132,7 +132,7 @@ impl State for EditMode {
                     ));
                 }
                 "bulk edit" => {
-                    return Transition::Push(bulk::BulkSelect::new(ctx, app));
+                    return Transition::Push(bulk::PaintSelect::new(ctx, app));
                 }
                 "finish editing" => {
                     return self.quit(ctx, app);
@@ -542,7 +542,10 @@ pub fn check_parking_blackholes(
 
 pub fn change_speed_limit(ctx: &mut EventCtx, default: Speed) -> Widget {
     Widget::row(vec![
-        "Change speed limit:".draw_text(ctx).margin_right(5),
+        "Change speed limit:"
+            .draw_text(ctx)
+            .centered_vert()
+            .margin_right(5),
         Widget::dropdown(
             ctx,
             "speed limit",

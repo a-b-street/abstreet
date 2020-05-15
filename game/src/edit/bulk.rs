@@ -1,30 +1,29 @@
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
+use crate::edit::lanes::try_change_lane_type;
 use crate::edit::{apply_map_edits, change_speed_limit};
-use crate::game::{State, Transition};
+use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use ezgui::{
-    hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
+    hotkey, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Distance, Speed};
-use map_model::{EditCmd, IntersectionID, Map, RoadID};
+use map_model::{EditCmd, IntersectionID, LaneType, Map, RoadID};
 use petgraph::graphmap::UnGraphMap;
 use sim::DontDrawAgents;
 use std::collections::BTreeSet;
 
-// TODO For now, individual turns can't be manipulated. Banning turns could be useful, but I'm not
-// sure what to do about the player orphaning a section of the map.
-pub struct BulkSelect {
+struct RouteSelect {
     composite: Composite,
     i1: Option<IntersectionID>,
     preview_path: Option<(IntersectionID, Vec<RoadID>, Drawable)>,
 }
 
-impl BulkSelect {
-    pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
+impl RouteSelect {
+    fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
         app.primary.current_selection = None;
-        Box::new(BulkSelect {
+        Box::new(RouteSelect {
             composite: Composite::new(
                 Widget::col(vec![
                     Line("Edit many roads").small_heading().draw(ctx),
@@ -48,7 +47,7 @@ impl BulkSelect {
     }
 }
 
-impl State for BulkSelect {
+impl State for RouteSelect {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
@@ -180,12 +179,47 @@ impl BulkEdit {
                     Line(format!("Editing {} roads", roads.len()))
                         .small_heading()
                         .draw(ctx),
-                    change_speed_limit(ctx, Speed::miles_per_hour(25.0)).margin_below(5),
                     Widget::row(vec![
-                        Btn::text_fg("Cancel").build_def(ctx, None),
-                        Btn::text_fg("Confirm change").build_def(ctx, None),
+                        change_speed_limit(ctx, Speed::miles_per_hour(25.0)),
+                        Btn::text_fg("Confirm")
+                            .build(ctx, "confirm speed limit", None)
+                            .align_right(),
                     ])
-                    .centered(),
+                    .margin_below(5),
+                    Widget::row(vec![
+                        "Change all".draw_text(ctx).centered_vert().margin_right(5),
+                        Widget::dropdown(
+                            ctx,
+                            "from lt",
+                            LaneType::Driving,
+                            vec![
+                                Choice::new("driving", LaneType::Driving),
+                                Choice::new("parking", LaneType::Parking),
+                                Choice::new("bike", LaneType::Biking),
+                                Choice::new("bus", LaneType::Bus),
+                                Choice::new("construction", LaneType::Construction),
+                            ],
+                        )
+                        .margin_right(5),
+                        "lanes to".draw_text(ctx).centered_vert().margin_right(5),
+                        Widget::dropdown(
+                            ctx,
+                            "to lt",
+                            LaneType::Bus,
+                            vec![
+                                Choice::new("driving", LaneType::Driving),
+                                Choice::new("parking", LaneType::Parking),
+                                Choice::new("bike", LaneType::Biking),
+                                Choice::new("bus", LaneType::Bus),
+                                Choice::new("construction", LaneType::Construction),
+                            ],
+                        ),
+                        Btn::text_fg("Confirm")
+                            .build(ctx, "confirm lanes", None)
+                            .align_right(),
+                    ])
+                    .margin_below(5),
+                    Btn::text_fg("Quit").build_def(ctx, None),
                 ])
                 .bg(app.cs.panel_bg)
                 .padding(10),
@@ -204,10 +238,10 @@ impl State for BulkEdit {
 
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "Cancel" => {
+                "Quit" => {
                     return Transition::Pop;
                 }
-                "Confirm change" => {
+                "confirm speed limit" => {
                     let speed = self.composite.dropdown_value("speed limit");
                     let mut edits = app.primary.map.get_edits().clone();
                     for r in &self.roads {
@@ -218,7 +252,19 @@ impl State for BulkEdit {
                         });
                     }
                     apply_map_edits(ctx, app, edits);
-                    return Transition::Pop;
+                    return Transition::Keep;
+                }
+                "confirm lanes" => {
+                    return Transition::Push(msg(
+                        "Edited lane types",
+                        change_lane_types(
+                            ctx,
+                            app,
+                            &self.roads,
+                            self.composite.dropdown_value("from lt"),
+                            self.composite.dropdown_value("to lt"),
+                        ),
+                    ));
                 }
                 _ => unreachable!(),
             },
@@ -234,7 +280,7 @@ impl State for BulkEdit {
     }
 }
 
-struct PaintSelect {
+pub struct PaintSelect {
     composite: Composite,
     roads: BTreeSet<RoadID>,
     preview: Option<Drawable>,
@@ -256,6 +302,7 @@ impl PaintSelect {
                     .draw(ctx)
                     .margin_below(5),
                     Btn::text_fg("Edit these roads").build_def(ctx, None),
+                    Btn::text_fg("Select roads along a route").build_def(ctx, None),
                     Btn::text_fg("Quit").build_def(ctx, hotkey(Key::Escape)),
                 ])
                 .bg(app.cs.panel_bg)
@@ -344,6 +391,9 @@ impl State for PaintSelect {
                 "Quit" => {
                     return Transition::Pop;
                 }
+                "Select roads along a route" => {
+                    return Transition::Replace(RouteSelect::new(ctx, app));
+                }
                 "Edit these roads" => {
                     if self.roads.is_empty() {
                         return Transition::Pop;
@@ -368,4 +418,48 @@ impl State for PaintSelect {
             g.redraw(p);
         }
     }
+}
+
+fn change_lane_types(
+    ctx: &mut EventCtx,
+    app: &mut App,
+    roads: &Vec<RoadID>,
+    from: LaneType,
+    to: LaneType,
+) -> Vec<String> {
+    let mut changes = 0;
+    let mut errors = Vec::new();
+    ctx.loading_screen("change lane types", |ctx, _| {
+        for r in roads {
+            for l in app.primary.map.get_r(*r).all_lanes() {
+                if app.primary.map.get_l(l).lane_type == from {
+                    match try_change_lane_type(l, to, &app.primary.map) {
+                        Ok(cmd) => {
+                            let mut edits = app.primary.map.get_edits().clone();
+                            edits.commands.push(cmd);
+                            // Do this immediately, so the next lane we consider sees the true state
+                            // of the world.
+                            apply_map_edits(ctx, app, edits);
+                            changes += 1;
+                        }
+                        Err(err) => {
+                            errors.push(err);
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    errors.insert(
+        0,
+        format!(
+            "Changed {} {:?} lanes to {:?} lanes. {} errors",
+            changes,
+            from,
+            to,
+            errors.len()
+        ),
+    );
+    errors
 }
