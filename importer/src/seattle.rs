@@ -53,7 +53,7 @@ pub fn osm_to_raw(name: &str) {
                 "../data/input/seattle/offstreet_parking.bin".to_string(),
             ),
             private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(
-                if name == "udistrict" { 3 } else { 1 },
+                if name == "udistrict" { 5 } else { 1 },
             ),
             // TODO These're buggy.
             sidewalks: None,

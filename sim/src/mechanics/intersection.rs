@@ -628,7 +628,11 @@ fn allow_block_the_box(osm_node_id: i64) -> bool {
     // Rainier and Dearborn
     osm_node_id == 4607162574 ||
     // WA 509 and WA 99
-    osm_node_id == 31327525
+    osm_node_id == 31327525 ||
+    // 45th and Union Bay
+    osm_node_id == 31192107 || osm_node_id == 4272330879 || osm_node_id == 53120147 ||
+    // 45th and Montlake
+    osm_node_id ==  31430639 || osm_node_id == 29977895 || osm_node_id == 3391705317 || osm_node_id == 29977897
 }
 
 // TODO Various problems (bad geometry, multi-intersection turn restrictions) cause

@@ -1,6 +1,6 @@
 use crate::common::ColorLegend;
 use ezgui::{Checkbox, Choice, Color, Composite, EventCtx, GeomBatch, Spinner, TextExt, Widget};
-use geom::{Bounds, Histogram, Polygon, Pt2D};
+use geom::{Bounds, Histogram, Polygon, Pt2D, Statistic};
 
 const NEIGHBORS: [[isize; 2]; 9] = [
     [0, 0],
@@ -20,6 +20,7 @@ pub struct HeatmapOptions {
     resolution: usize,
     radius: usize,
     smoothing: bool,
+    outliers: bool,
     color_scheme: String,
 }
 
@@ -29,6 +30,7 @@ impl HeatmapOptions {
             resolution: 10,
             radius: 3,
             smoothing: true,
+            outliers: true,
             color_scheme: "Turbo".to_string(),
         }
     }
@@ -58,6 +60,7 @@ impl HeatmapOptions {
         ]));
 
         col.push(Checkbox::text(ctx, "smoothing", None, self.smoothing));
+        col.push(Checkbox::text(ctx, "handle outliers", None, self.outliers));
 
         col.push(Widget::row(vec![
             "Color scheme".draw_text(ctx).margin(5),
@@ -89,6 +92,7 @@ impl HeatmapOptions {
                 resolution: c.spinner("resolution"),
                 radius: c.spinner("radius"),
                 smoothing: c.is_checked("smoothing"),
+                outliers: c.is_checked("handle outliers"),
                 color_scheme: c.dropdown_value("Color scheme"),
             }
         } else {
@@ -200,9 +204,12 @@ pub fn make_heatmap(
 
     let max_count_per_bucket: Vec<(f64, Color)> = (1..=num_colors)
         .map(|i| {
-            distrib
-                .percentile(100.0 * (i as f64) / (num_colors as f64))
-                .unwrap() as f64
+            let pct = (i as f64) / (num_colors as f64);
+            if opts.outliers {
+                distrib.percentile(100.0 * pct).unwrap() as f64
+            } else {
+                (pct * (distrib.select(Statistic::Max) as f64)).round()
+            }
         })
         .zip(colors.clone().into_iter())
         .collect();
