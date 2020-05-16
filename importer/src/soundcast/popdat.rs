@@ -21,7 +21,7 @@ pub fn import_data() {
 }
 
 fn import_trips(
-    parcels_lookup: HashMap<usize, Endpoint>,
+    parcels: HashMap<usize, Endpoint>,
     trips_path: &str,
     timer: &mut Timer,
 ) -> Vec<OrigTrip> {
@@ -34,8 +34,8 @@ fn import_trips(
         total_records += 1;
         let rec: RawTrip = rec.unwrap();
 
-        let from = parcels_lookup[&(rec.opcl as usize)].clone();
-        let to = parcels_lookup[&(rec.dpcl as usize)].clone();
+        let from = parcels[&(rec.opcl as usize)].clone();
+        let to = parcels[&(rec.dpcl as usize)].clone();
 
         // If both are None, then skip -- the trip doesn't start or end within huge_seattle.
         // If both are the same building, also skip -- that's a redundant trip.
@@ -153,17 +153,6 @@ fn import_parcels(path: &str, timer: &mut Timer) -> HashMap<usize, Endpoint> {
         let gps = LonLat::new(x, y);
         let pt = Pt2D::forcibly_from_gps(gps, bounds);
         let osm_building = if bounds.contains(gps) {
-            if boundary.contains_pt(pt) {
-                let mut attributes = BTreeMap::new();
-                attributes.insert("id".to_string(), id.to_string());
-                attributes.insert("households".to_string(), num_households.to_string());
-                attributes.insert("parking".to_string(), offstreet_parking_spaces.to_string());
-                shapes.push(ExtraShape {
-                    points: vec![gps],
-                    attributes,
-                });
-            }
-
             closest_bldg
                 .closest_pt(pt, Distance::meters(30.0))
                 .map(|(b, _)| b)
@@ -178,6 +167,20 @@ fn import_parcels(path: &str, timer: &mut Timer) -> HashMap<usize, Endpoint> {
                 parcel_id: id,
             },
         );
+
+        if boundary.contains_pt(pt) {
+            let mut attributes = BTreeMap::new();
+            attributes.insert("id".to_string(), id.to_string());
+            attributes.insert("households".to_string(), num_households.to_string());
+            attributes.insert("parking".to_string(), offstreet_parking_spaces.to_string());
+            if let Some(b) = osm_building {
+                attributes.insert("osm_bldg".to_string(), b.to_string());
+            }
+            shapes.push(ExtraShape {
+                points: vec![gps],
+                attributes,
+            });
+        }
     }
     timer.note(format!("{} parcels", prettyprint_usize(result.len())));
 
