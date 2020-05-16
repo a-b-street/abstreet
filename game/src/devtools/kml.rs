@@ -99,6 +99,7 @@ impl ViewKML {
                             "Query:".draw_text(ctx).margin_right(10),
                             Widget::dropdown(ctx, "query", "None".to_string(), choices),
                         ]),
+                        "Query matches 0 objects".draw_text(ctx).named("matches"),
                     ])
                     .padding(10)
                     .bg(app.cs.panel_bg),
@@ -146,8 +147,16 @@ impl State for ViewKML {
 
         let query: String = self.composite.dropdown_value("query");
         if query != self.query {
-            self.draw_query = ctx.upload(make_query(app, &self.objects, &query));
+            let (batch, cnt) = make_query(app, &self.objects, &query);
+            self.draw_query = ctx.upload(batch);
             self.query = query;
+            self.composite.replace(
+                ctx,
+                "matches",
+                format!("Query matches {} objects", cnt)
+                    .draw_text(ctx)
+                    .named("matches"),
+            );
         }
 
         Transition::Keep
@@ -210,14 +219,16 @@ fn make_object(
     }
 }
 
-fn make_query(app: &App, objects: &Vec<Object>, query: &str) -> GeomBatch {
+fn make_query(app: &App, objects: &Vec<Object>, query: &str) -> (GeomBatch, usize) {
     let mut batch = GeomBatch::new();
+    let mut cnt = 0;
     let color = Color::BLUE.alpha(0.8);
     match query {
         "None" => {}
         "parcels without buildings" => {
             for obj in objects {
                 if obj.osm_bldg.is_none() {
+                    cnt += 1;
                     batch.push(color, obj.polygon.clone());
                 }
             }
@@ -228,6 +239,7 @@ fn make_query(app: &App, objects: &Vec<Object>, query: &str) -> GeomBatch {
                     && (obj.attribs.contains_key("households")
                         || obj.attribs.contains_key("parking"))
                 {
+                    cnt += 1;
                     batch.push(color, obj.polygon.clone());
                 }
             }
@@ -237,6 +249,7 @@ fn make_query(app: &App, objects: &Vec<Object>, query: &str) -> GeomBatch {
             for obj in objects {
                 if let Some(b) = obj.osm_bldg {
                     if seen.contains(&b) {
+                        cnt += 1;
                         batch.push(color, app.primary.map.get_b(b).polygon.clone());
                     } else {
                         seen.insert(b);
@@ -248,6 +261,7 @@ fn make_query(app: &App, objects: &Vec<Object>, query: &str) -> GeomBatch {
             for obj in objects {
                 if let Some(hh) = obj.attribs.get("households") {
                     if hh != "1" {
+                        cnt += 1;
                         batch.push(color, obj.polygon.clone());
                     }
                 }
@@ -256,11 +270,12 @@ fn make_query(app: &App, objects: &Vec<Object>, query: &str) -> GeomBatch {
         "parcels with parking" => {
             for obj in objects {
                 if obj.attribs.contains_key("parking") {
+                    cnt += 1;
                     batch.push(color, obj.polygon.clone());
                 }
             }
         }
         _ => unreachable!(),
     }
-    batch
+    (batch, cnt)
 }
