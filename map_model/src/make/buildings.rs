@@ -99,13 +99,10 @@ pub fn make_all_buildings(
         }
     }
 
-    let discarded = input.len() - results.len();
-    if discarded > 0 {
-        timer.note(format!(
-            "Discarded {} buildings that weren't close enough to a sidewalk",
-            discarded
-        ));
-    }
+    timer.note(format!(
+        "Discarded {} buildings that weren't close enough to a sidewalk",
+        input.len() - results.len()
+    ));
     timer.stop("convert buildings");
 
     results

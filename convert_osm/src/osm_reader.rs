@@ -299,6 +299,52 @@ pub fn extract_osm(
                     }
                 }
             }
+        } else if is_bldg(&tags) {
+            if let Some(pts) = rel
+                .members
+                .iter()
+                .filter_map(|x| match x {
+                    osm_xml::Member::Way(osm_xml::UnresolvedReference::Way(id), ref role) => {
+                        if role == "outer" {
+                            Some(*id)
+                        } else {
+                            None
+                        }
+                    }
+                    _ => None,
+                })
+                .next()
+                .and_then(|id| id_to_way.get(&id))
+            {
+                // TODO Dedupe code
+                let mut amenities = BTreeSet::new();
+                if let Some(amenity) = tags.get("amenity") {
+                    amenities.insert((
+                        tags.get("name")
+                            .cloned()
+                            .unwrap_or_else(|| "unnamed".to_string()),
+                        amenity.clone(),
+                    ));
+                }
+                if let Some(shop) = tags.get("shop") {
+                    amenities.insert((
+                        tags.get("name")
+                            .cloned()
+                            .unwrap_or_else(|| "unnamed".to_string()),
+                        shop.clone(),
+                    ));
+                }
+                map.buildings.insert(
+                    OriginalBuilding { osm_way_id: rel.id },
+                    RawBuilding {
+                        polygon: Polygon::new(pts),
+                        osm_tags: tags,
+                        public_garage_name: None,
+                        num_parking_spots: 0,
+                        amenities,
+                    },
+                );
+            }
         }
     }
 
