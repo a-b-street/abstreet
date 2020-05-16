@@ -472,7 +472,6 @@ impl ShowObject for ShowEverything {
 #[derive(Clone)]
 pub struct Flags {
     pub sim_flags: SimFlags,
-    pub kml: Option<String>,
     pub draw_lane_markings: bool,
     // Number of agents to generate when requested. If unspecified, trips to/from borders will be
     // included.

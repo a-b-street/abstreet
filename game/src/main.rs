@@ -30,7 +30,6 @@ fn main() {
 
     let mut flags = Flags {
         sim_flags: SimFlags::from_args(&mut args),
-        kml: args.optional("--kml"),
         draw_lane_markings: !args.enabled("--dont_draw_lane_markings"),
         num_agents: args.optional_parse("--num_agents", |s| s.parse()),
     };

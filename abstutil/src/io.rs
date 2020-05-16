@@ -388,7 +388,7 @@ pub fn find_next_file(orig: String) -> Option<String> {
     files.into_iter().find(|f| *f > orig)
 }
 
-fn list_dir(dir: &std::path::Path) -> Vec<String> {
+pub fn list_dir(dir: &std::path::Path) -> Vec<String> {
     let mut files: Vec<String> = Vec::new();
     match std::fs::read_dir(dir) {
         Ok(iter) => {

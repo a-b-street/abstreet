@@ -18,8 +18,8 @@ pub struct ViewKML {
 
     selected: Option<usize>,
     quadtree: QuadTree<usize>,
-    analysis: String,
-    draw_analysis: Drawable,
+    query: String,
+    draw_query: Drawable,
 }
 
 struct Object {
@@ -33,16 +33,16 @@ const RADIUS: Distance = Distance::const_meters(5.0);
 const THICKNESS: Distance = Distance::const_meters(2.0);
 
 impl ViewKML {
-    pub fn new(ctx: &mut EventCtx, app: &App, path: &str) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App, path: String) -> Box<dyn State> {
         ctx.loading_screen("load kml", |ctx, mut timer| {
             let raw_shapes = if path.ends_with(".kml") {
-                kml::load(path, &app.primary.map.get_gps_bounds(), &mut timer).unwrap()
+                kml::load(&path, &app.primary.map.get_gps_bounds(), &mut timer).unwrap()
             } else {
-                abstutil::read_binary::<ExtraShapes>(path.to_string(), &mut timer)
+                abstutil::read_binary::<ExtraShapes>(path.clone(), &mut timer)
             };
             let bounds = app.primary.map.get_gps_bounds();
 
-            let dataset_name = abstutil::basename(path);
+            let dataset_name = abstutil::basename(&path);
 
             let mut batch = GeomBatch::new();
             let mut objects = Vec::new();
@@ -68,7 +68,12 @@ impl ViewKML {
             let mut choices = vec![Choice::string("None")];
             if dataset_name == "parcels" {
                 choices.push(Choice::string("parcels without buildings"));
+                choices.push(Choice::string(
+                    "parcels without buildings and trips or parking",
+                ));
                 choices.push(Choice::string("parcels with multiple buildings"));
+                choices.push(Choice::string("parcels with >1 households"));
+                choices.push(Choice::string("parcels with parking"));
             }
 
             Box::new(ViewKML {
@@ -91,20 +96,20 @@ impl ViewKML {
                         )
                         .draw_text(ctx),
                         Widget::row(vec![
-                            "Analysis:".draw_text(ctx).margin_right(10),
-                            Widget::dropdown(ctx, "analysis", "None".to_string(), choices),
+                            "Query:".draw_text(ctx).margin_right(10),
+                            Widget::dropdown(ctx, "query", "None".to_string(), choices),
                         ]),
                     ])
                     .padding(10)
                     .bg(app.cs.panel_bg),
                 )
-                .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
+                .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
                 .build(ctx),
                 objects,
                 quadtree,
                 selected: None,
-                analysis: "None".to_string(),
-                draw_analysis: ctx.upload(GeomBatch::new()),
+                query: "None".to_string(),
+                draw_query: ctx.upload(GeomBatch::new()),
             })
         })
     }
@@ -139,10 +144,10 @@ impl State for ViewKML {
             None => {}
         }
 
-        let analysis: String = self.composite.dropdown_value("analysis");
-        if analysis != self.analysis {
-            self.draw_analysis = ctx.upload(make_analysis(app, &self.objects, &analysis));
-            self.analysis = analysis;
+        let query: String = self.composite.dropdown_value("query");
+        if query != self.query {
+            self.draw_query = ctx.upload(make_query(app, &self.objects, &query));
+            self.query = query;
         }
 
         Transition::Keep
@@ -150,7 +155,7 @@ impl State for ViewKML {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.redraw(&self.draw);
-        g.redraw(&self.draw_analysis);
+        g.redraw(&self.draw_query);
         self.composite.draw(g);
 
         if let Some(idx) = self.selected {
@@ -205,14 +210,25 @@ fn make_object(
     }
 }
 
-fn make_analysis(app: &App, objects: &Vec<Object>, analysis: &str) -> GeomBatch {
+fn make_query(app: &App, objects: &Vec<Object>, query: &str) -> GeomBatch {
     let mut batch = GeomBatch::new();
-    match analysis {
+    let color = Color::BLUE.alpha(0.8);
+    match query {
         "None" => {}
         "parcels without buildings" => {
             for obj in objects {
                 if obj.osm_bldg.is_none() {
-                    batch.push(Color::BLUE, obj.polygon.clone());
+                    batch.push(color, obj.polygon.clone());
+                }
+            }
+        }
+        "parcels without buildings and trips or parking" => {
+            for obj in objects {
+                if obj.osm_bldg.is_none()
+                    && (obj.attribs.contains_key("households")
+                        || obj.attribs.contains_key("parking"))
+                {
+                    batch.push(color, obj.polygon.clone());
                 }
             }
         }
@@ -221,10 +237,26 @@ fn make_analysis(app: &App, objects: &Vec<Object>, analysis: &str) -> GeomBatch 
             for obj in objects {
                 if let Some(b) = obj.osm_bldg {
                     if seen.contains(&b) {
-                        batch.push(Color::BLUE, app.primary.map.get_b(b).polygon.clone());
+                        batch.push(color, app.primary.map.get_b(b).polygon.clone());
                     } else {
                         seen.insert(b);
                     }
+                }
+            }
+        }
+        "parcels with >1 households" => {
+            for obj in objects {
+                if let Some(hh) = obj.attribs.get("households") {
+                    if hh != "1" {
+                        batch.push(color, obj.polygon.clone());
+                    }
+                }
+            }
+        }
+        "parcels with parking" => {
+            for obj in objects {
+                if obj.attribs.contains_key("parking") {
+                    batch.push(color, obj.polygon.clone());
                 }
             }
         }

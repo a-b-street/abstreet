@@ -15,22 +15,18 @@ pub struct DevToolsMode;
 
 impl DevToolsMode {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
-        let mut actions = vec![
-            (hotkey(Key::E), "edit a polygon"),
-            (hotkey(Key::P), "draw a polygon"),
-            (hotkey(Key::W), "load scenario"),
-        ];
-        if app.primary.current_flags.kml.is_some() {
-            actions.push((hotkey(Key::K), "view KML"));
-        }
-
         ManagedGUIState::fullscreen(
             WrappedComposite::new(WrappedComposite::quick_menu(
                 ctx,
                 app,
                 "Internal dev tools",
                 vec![],
-                actions,
+                vec![
+                    (hotkey(Key::E), "edit a polygon"),
+                    (hotkey(Key::P), "draw a polygon"),
+                    (hotkey(Key::W), "load scenario"),
+                    (hotkey(Key::K), "view KML"),
+                ],
             ))
             .cb("X", Box::new(|_, _| Some(Transition::Pop)))
             .cb(
@@ -52,15 +48,9 @@ impl DevToolsMode {
                 "load scenario",
                 Box::new(|_, _| Some(Transition::Push(WizardState::new(Box::new(load_scenario))))),
             )
-            .maybe_cb(
+            .cb(
                 "view KML",
-                Box::new(|ctx, app| {
-                    Some(Transition::Push(kml::ViewKML::new(
-                        ctx,
-                        app,
-                        app.primary.current_flags.kml.as_ref().unwrap(),
-                    )))
-                }),
+                Box::new(|_, _| Some(Transition::Push(WizardState::new(Box::new(choose_kml))))),
             ),
         )
     }
@@ -86,7 +76,7 @@ fn choose_polygon(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option
         abstutil::list_all_objects("../data/input/seattle/polygons/".to_string())
     })?;
     match polygon::read_from_osmosis(format!("../data/input/seattle/polygons/{}.poly", name)) {
-        Ok(pts) => Some(Transition::Push(polygon::PolygonEditor::new(
+        Ok(pts) => Some(Transition::Replace(polygon::PolygonEditor::new(
             ctx, app, name, pts,
         ))),
         Err(err) => {
@@ -94,4 +84,15 @@ fn choose_polygon(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option
             Some(Transition::Pop)
         }
     }
+}
+
+fn choose_kml(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
+    // TODO Sorry, Seattle only right now
+    let path = wiz.wrap(ctx).choose_string("View what KML dataset?", || {
+        abstutil::list_dir(std::path::Path::new("../data/input/seattle/"))
+            .into_iter()
+            .filter(|x| x.ends_with(".bin") && !x.ends_with("popdat.bin"))
+            .collect()
+    })?;
+    Some(Transition::Replace(kml::ViewKML::new(ctx, app, path)))
 }

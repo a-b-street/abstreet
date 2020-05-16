@@ -1,4 +1,4 @@
-use abstutil::{prettyprint_usize, FileWithProgress, Timer};
+use abstutil::{prettyprint_usize, Counter, FileWithProgress, Timer};
 use geom::{Distance, Duration, FindClosest, LonLat, Pt2D, Time};
 use kml::{ExtraShape, ExtraShapes};
 use map_model::Map;
@@ -14,21 +14,20 @@ pub struct PopDat {
 // Extract trip demand data from PSRC's Soundcast outputs.
 pub fn import_data() {
     let mut timer = abstutil::Timer::new("creating popdat");
-    let parcels = import_parcels("../data/input/seattle/parcels_urbansim.txt", &mut timer);
-    let trips = import_trips(parcels, "../data/input/seattle/trips_2014.csv", &mut timer);
+    let trips = import_trips(&mut timer);
     let popdat = PopDat { trips };
     abstutil::write_binary(abstutil::path_popdat(), &popdat);
 }
 
-fn import_trips(
-    parcels: HashMap<usize, Endpoint>,
-    trips_path: &str,
-    timer: &mut Timer,
-) -> Vec<OrigTrip> {
+fn import_trips(timer: &mut Timer) -> Vec<OrigTrip> {
+    let (parcels, mut keyed_shapes) = import_parcels(timer);
+
     let mut trips = Vec::new();
-    let (reader, done) = FileWithProgress::new(trips_path).unwrap();
+    let (reader, done) = FileWithProgress::new("../data/input/seattle/trips_2014.csv").unwrap();
     let mut total_records = 0;
     let mut people: HashSet<OrigPersonID> = HashSet::new();
+    let mut trips_from_parcel: Counter<usize> = Counter::new();
+    let mut trips_to_parcel: Counter<usize> = Counter::new();
 
     for rec in csv::Reader::from_reader(reader).deserialize() {
         total_records += 1;
@@ -36,6 +35,8 @@ fn import_trips(
 
         let from = parcels[&(rec.opcl as usize)].clone();
         let to = parcels[&(rec.dpcl as usize)].clone();
+        trips_from_parcel.inc(from.parcel_id);
+        trips_to_parcel.inc(to.parcel_id);
 
         // If both are None, then skip -- the trip doesn't start or end within huge_seattle.
         // If both are the same building, also skip -- that's a redundant trip.
@@ -84,12 +85,31 @@ fn import_trips(
 
     trips.sort_by_key(|t| t.depart_at);
 
+    // Dump debug info about parcels. ALL trips are counted here, but parcels are filtered.
+    for (id, cnt) in trips_from_parcel.consume() {
+        if let Some(ref mut es) = keyed_shapes.get_mut(&id) {
+            es.attributes
+                .insert("trips_from".to_string(), cnt.to_string());
+        }
+    }
+    for (id, cnt) in trips_to_parcel.consume() {
+        if let Some(ref mut es) = keyed_shapes.get_mut(&id) {
+            es.attributes
+                .insert("trips_to".to_string(), cnt.to_string());
+        }
+    }
+    let shapes: Vec<ExtraShape> = keyed_shapes.into_iter().map(|(_, v)| v).collect();
+    abstutil::write_binary(
+        "../data/input/seattle/parcels.bin".to_string(),
+        &ExtraShapes { shapes },
+    );
+
     trips
 }
 
 // TODO Do we also need the zone ID, or is parcel ID globally unique?
-// Returns parcel ID -> Endpoint
-fn import_parcels(path: &str, timer: &mut Timer) -> HashMap<usize, Endpoint> {
+// Keyed by parcel ID
+fn import_parcels(timer: &mut Timer) -> (HashMap<usize, Endpoint>, HashMap<usize, ExtraShape>) {
     let map = Map::new(abstutil::path_map("huge_seattle"), timer);
 
     // TODO I really just want to do polygon containment with a quadtree. FindClosest only does
@@ -106,7 +126,8 @@ fn import_parcels(path: &str, timer: &mut Timer) -> HashMap<usize, Endpoint> {
     // (parcel ID, number of households, number of parking spots)
     let mut parcel_metadata = Vec::new();
 
-    let (reader, done) = FileWithProgress::new(path).unwrap();
+    let (reader, done) =
+        FileWithProgress::new("../data/input/seattle/parcels_urbansim.txt").unwrap();
     for rec in csv::ReaderBuilder::new()
         .delimiter(b' ')
         .from_reader(reader)
@@ -142,7 +163,7 @@ fn import_parcels(path: &str, timer: &mut Timer) -> HashMap<usize, Endpoint> {
     let bounds = map.get_gps_bounds();
     let boundary = map.get_boundary_polygon();
     let mut result = HashMap::new();
-    let mut shapes = Vec::new();
+    let mut shapes = HashMap::new();
     timer.start_iter("finalize parcel output", parcel_metadata.len());
     for ((x, y), (id, num_households, offstreet_parking_spaces)) in x_coords
         .into_iter()
@@ -171,25 +192,27 @@ fn import_parcels(path: &str, timer: &mut Timer) -> HashMap<usize, Endpoint> {
         if boundary.contains_pt(pt) {
             let mut attributes = BTreeMap::new();
             attributes.insert("id".to_string(), id.to_string());
-            attributes.insert("households".to_string(), num_households.to_string());
-            attributes.insert("parking".to_string(), offstreet_parking_spaces.to_string());
+            if num_households > 0 {
+                attributes.insert("households".to_string(), num_households.to_string());
+            }
+            if offstreet_parking_spaces > 0 {
+                attributes.insert("parking".to_string(), offstreet_parking_spaces.to_string());
+            }
             if let Some(b) = osm_building {
                 attributes.insert("osm_bldg".to_string(), b.to_string());
             }
-            shapes.push(ExtraShape {
-                points: vec![gps],
-                attributes,
-            });
+            shapes.insert(
+                id,
+                ExtraShape {
+                    points: vec![gps],
+                    attributes,
+                },
+            );
         }
     }
     timer.note(format!("{} parcels", prettyprint_usize(result.len())));
 
-    abstutil::write_binary(
-        "../data/input/seattle/parcels.bin".to_string(),
-        &ExtraShapes { shapes },
-    );
-
-    result
+    (result, shapes)
 }
 
 // From https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv, opurp and dpurp
