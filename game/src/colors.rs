@@ -88,7 +88,6 @@ pub struct ColorScheme {
     pub grass: Color,
     pub water: Color,
     pub bus_stop: Color,
-    pub extra_gis_shape: Color,
 
     // Unzoomed dynamic elements
     pub unzoomed_car: Color,
@@ -189,7 +188,6 @@ impl ColorScheme {
             grass: hex("#94C84A"),
             water: Color::rgb(164, 200, 234),
             bus_stop: Color::CYAN,
-            extra_gis_shape: Color::RED.alpha(0.5),
 
             // Unzoomed dynamic elements
             unzoomed_car: hex("#A32015"),

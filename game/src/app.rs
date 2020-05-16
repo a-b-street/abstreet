@@ -174,14 +174,6 @@ impl App {
                 // Not the building paths
             }
 
-            if layers.show_extra_shapes {
-                for es in &self.primary.draw_map.extra_shapes {
-                    if show_objs.show(&es.get_id()) {
-                        es.draw(g, self, &opts);
-                    }
-                }
-            }
-
             // Still show some shape selection when zoomed out.
             // TODO Refactor! Ideally use get_obj
             if let Some(ID::Area(id)) = self.primary.current_selection {
@@ -191,15 +183,6 @@ impl App {
                         .primary
                         .draw_map
                         .get_a(id)
-                        .get_outline(&self.primary.map),
-                );
-            } else if let Some(ID::ExtraShape(id)) = self.primary.current_selection {
-                g.draw_polygon(
-                    self.cs.selected,
-                    &self
-                        .primary
-                        .draw_map
-                        .get_es(id)
                         .get_outline(&self.primary.map),
                 );
             } else if let Some(ID::Road(id)) = self.primary.current_selection {
@@ -298,7 +281,7 @@ impl App {
         unzoomed_roads_and_intersections: bool,
         unzoomed_buildings: bool,
     ) -> Option<ID> {
-        // Unzoomed mode. Ignore when debugging areas and extra shapes.
+        // Unzoomed mode. Ignore when debugging areas.
         if ctx.canvas.cam_zoom < self.opts.min_zoom_for_detail
             && !(debug_mode || unzoomed_roads_and_intersections || unzoomed_buildings)
         {
@@ -319,7 +302,7 @@ impl App {
 
         for obj in objects {
             match obj.get_id() {
-                ID::Area(_) | ID::ExtraShape(_) => {
+                ID::Area(_) => {
                     if !debug_mode {
                         continue;
                     }
@@ -374,7 +357,6 @@ impl App {
         let mut roads: Vec<&dyn Renderable> = Vec::new();
         let mut intersections: Vec<&dyn Renderable> = Vec::new();
         let mut buildings: Vec<&dyn Renderable> = Vec::new();
-        let mut extra_shapes: Vec<&dyn Renderable> = Vec::new();
         let mut bus_stops: Vec<&dyn Renderable> = Vec::new();
         let mut agents_on: Vec<Traversable> = Vec::new();
 
@@ -404,7 +386,6 @@ impl App {
                 // probably just need to make them go around other buildings instead of having
                 // two passes through buildings.
                 ID::Building(id) => buildings.push(draw_map.get_b(id)),
-                ID::ExtraShape(id) => extra_shapes.push(draw_map.get_es(id)),
 
                 ID::BusStop(_) | ID::Turn(_) | ID::Car(_) | ID::Pedestrian(_) | ID::PedCrowd(_) => {
                     panic!("{:?} shouldn't be in the quadtree", id)
@@ -419,7 +400,6 @@ impl App {
         borrows.extend(roads);
         borrows.extend(intersections);
         borrows.extend(buildings);
-        borrows.extend(extra_shapes);
         borrows.extend(bus_stops);
 
         // Expand all of the Traversables into agents, populating the cache if needed.
@@ -447,7 +427,6 @@ pub struct ShowLayers {
     pub show_intersections: bool,
     pub show_lanes: bool,
     pub show_areas: bool,
-    pub show_extra_shapes: bool,
     pub show_labels: bool,
 }
 
@@ -458,7 +437,6 @@ impl ShowLayers {
             show_intersections: true,
             show_lanes: true,
             show_areas: true,
-            show_extra_shapes: true,
             show_labels: false,
         }
     }

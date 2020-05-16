@@ -47,8 +47,7 @@ impl DebugMode {
                     Checkbox::text(ctx, "show intersections", hotkey(Key::Num2), true),
                     Checkbox::text(ctx, "show lanes", hotkey(Key::Num3), true),
                     Checkbox::text(ctx, "show areas", hotkey(Key::Num4), true),
-                    Checkbox::text(ctx, "show extra shapes", hotkey(Key::Num5), true),
-                    Checkbox::text(ctx, "show labels", hotkey(Key::Num6), false),
+                    Checkbox::text(ctx, "show labels", hotkey(Key::Num5), false),
                     Checkbox::text(ctx, "show route for all agents", hotkey(Key::R), false),
                     Widget::col(
                         vec![
@@ -215,7 +214,6 @@ impl State for DebugMode {
         self.layers.show_intersections = self.composite.is_checked("show intersections");
         self.layers.show_lanes = self.composite.is_checked("show lanes");
         self.layers.show_areas = self.composite.is_checked("show areas");
-        self.layers.show_extra_shapes = self.composite.is_checked("show extra shapes");
         self.layers.show_labels = self.composite.is_checked("show labels");
         if self.composite.is_checked("show route for all agents") {
             if self.all_routes.is_none() {
@@ -322,7 +320,6 @@ impl ShowObject for DebugMode {
             ID::Road(_) | ID::Lane(_) => self.layers.show_lanes,
             ID::Building(_) => self.layers.show_buildings,
             ID::Intersection(_) => self.layers.show_intersections,
-            ID::ExtraShape(_) => self.layers.show_extra_shapes,
             ID::Area(_) => self.layers.show_areas,
             _ => true,
         }
@@ -442,9 +439,6 @@ impl ContextualActions for Actions {
                 actions.push((Key::X, "debug intersection geometry".to_string()));
                 actions.push((Key::F2, "debug sidewalk corners".to_string()));
             }
-            ID::ExtraShape(_) => {
-                actions.push((Key::H, "hide this".to_string()));
-            }
             ID::Car(_) => {
                 actions.push((Key::Backspace, "forcibly kill this car".to_string()));
                 actions.push((Key::G, "find front of blockage".to_string()));
@@ -476,12 +470,7 @@ impl ContextualActions for Actions {
             })),
             (id, "debug") => {
                 *close_info = false;
-                objects::ObjectDebugger::dump_debug(
-                    id,
-                    &app.primary.map,
-                    &app.primary.sim,
-                    &app.primary.draw_map,
-                );
+                objects::ObjectDebugger::dump_debug(id, &app.primary.map, &app.primary.sim);
                 Transition::Keep
             }
             (ID::Car(c), "forcibly kill this car") => {

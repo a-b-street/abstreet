@@ -3,7 +3,6 @@ mod bike;
 mod building;
 mod bus_stop;
 mod car;
-mod extra_shape;
 mod intersection;
 mod lane;
 mod map;
@@ -17,7 +16,6 @@ use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::bike::DrawBike;
 use crate::render::car::DrawCar;
-pub use crate::render::extra_shape::ExtraShapeID;
 pub use crate::render::intersection::{calculate_corners, DrawIntersection};
 pub use crate::render::lane::DrawLane;
 pub use crate::render::map::{AgentCache, AgentColorScheme, DrawMap};
@@ -29,9 +27,6 @@ use ezgui::{GfxCtx, Prerender};
 use geom::{Distance, Polygon, Pt2D};
 use map_model::{IntersectionID, Map};
 use sim::{DrawCarInput, VehicleType};
-
-const EXTRA_SHAPE_THICKNESS: Distance = Distance::const_meters(1.0);
-const EXTRA_SHAPE_POINT_RADIUS: Distance = Distance::const_meters(10.0);
 
 pub const BIG_ARROW_THICKNESS: Distance = Distance::const_meters(0.5);
 

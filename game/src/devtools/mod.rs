@@ -1,5 +1,6 @@
 mod blocks;
 mod destinations;
+mod kml;
 pub mod mapping;
 mod polygon;
 mod scenario;
@@ -14,17 +15,22 @@ pub struct DevToolsMode;
 
 impl DevToolsMode {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+        let mut actions = vec![
+            (hotkey(Key::E), "edit a polygon"),
+            (hotkey(Key::P), "draw a polygon"),
+            (hotkey(Key::W), "load scenario"),
+        ];
+        if app.primary.current_flags.kml.is_some() {
+            actions.push((hotkey(Key::K), "view KML"));
+        }
+
         ManagedGUIState::fullscreen(
             WrappedComposite::new(WrappedComposite::quick_menu(
                 ctx,
                 app,
                 "Internal dev tools",
                 vec![],
-                vec![
-                    (hotkey(Key::E), "edit a polygon"),
-                    (hotkey(Key::P), "draw a polygon"),
-                    (hotkey(Key::W), "load scenario"),
-                ],
+                actions,
             ))
             .cb("X", Box::new(|_, _| Some(Transition::Pop)))
             .cb(
@@ -45,6 +51,16 @@ impl DevToolsMode {
             .cb(
                 "load scenario",
                 Box::new(|_, _| Some(Transition::Push(WizardState::new(Box::new(load_scenario))))),
+            )
+            .maybe_cb(
+                "view KML",
+                Box::new(|ctx, app| {
+                    Some(Transition::Push(kml::ViewKML::new(
+                        ctx,
+                        app,
+                        app.primary.current_flags.kml.as_ref().unwrap(),
+                    )))
+                }),
             ),
         )
     }

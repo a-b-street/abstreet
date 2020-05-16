@@ -4,7 +4,6 @@ use crate::helpers::ID;
 use crate::render::area::DrawArea;
 use crate::render::building::DrawBuilding;
 use crate::render::bus_stop::DrawBusStop;
-use crate::render::extra_shape::{DrawExtraShape, ExtraShapeID};
 use crate::render::intersection::DrawIntersection;
 use crate::render::lane::DrawLane;
 use crate::render::road::DrawRoad;
@@ -12,10 +11,10 @@ use crate::render::{draw_vehicle, DrawPedCrowd, DrawPedestrian, Renderable};
 use aabb_quadtree::QuadTree;
 use abstutil::Timer;
 use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender};
-use geom::{Bounds, Circle, Distance, FindClosest, Pt2D, Time};
+use geom::{Bounds, Circle, Distance, Pt2D, Time};
 use map_model::{
-    AreaID, BuildingID, BusStopID, DirectedRoadID, Intersection, IntersectionID, LaneID, Map, Road,
-    RoadID, Traversable, NORMAL_LANE_THICKNESS,
+    AreaID, BuildingID, BusStopID, Intersection, IntersectionID, LaneID, Map, Road, RoadID,
+    Traversable,
 };
 use sim::{GetDrawAgents, UnzoomedAgent, VehicleType};
 use std::borrow::Borrow;
@@ -27,7 +26,6 @@ pub struct DrawMap {
     pub lanes: Vec<DrawLane>,
     pub intersections: Vec<DrawIntersection>,
     pub buildings: Vec<DrawBuilding>,
-    pub extra_shapes: Vec<DrawExtraShape>,
     pub bus_stops: HashMap<BusStopID, DrawBusStop>,
     pub areas: Vec<DrawArea>,
 
@@ -146,48 +144,6 @@ impl DrawMap {
         let draw_all_building_paths = all_building_paths.upload(ctx);
         timer.stop("upload all buildings");
 
-        let mut extra_shapes: Vec<DrawExtraShape> = Vec::new();
-        if let Some(ref path) = flags.kml {
-            let raw_shapes = if path.ends_with(".kml") {
-                kml::load(&path, &map.get_gps_bounds(), timer)
-                    .expect("Couldn't load extra KML shapes")
-                    .shapes
-            } else {
-                let shapes: kml::ExtraShapes = abstutil::read_binary(path.clone(), timer);
-                shapes.shapes
-            };
-
-            let mut closest: FindClosest<DirectedRoadID> = FindClosest::new(&map.get_bounds());
-            for r in map.all_roads().iter() {
-                closest.add(
-                    r.id.forwards(),
-                    map.right_shift(r.center_pts.clone(), NORMAL_LANE_THICKNESS)
-                        .get(timer)
-                        .points(),
-                );
-                closest.add(
-                    r.id.backwards(),
-                    map.left_shift(r.center_pts.clone(), NORMAL_LANE_THICKNESS)
-                        .get(timer)
-                        .points(),
-                );
-            }
-
-            let gps_bounds = map.get_gps_bounds();
-            for s in raw_shapes.into_iter() {
-                if let Some(es) = DrawExtraShape::new(
-                    ExtraShapeID(extra_shapes.len()),
-                    s,
-                    gps_bounds,
-                    &closest,
-                    ctx.prerender,
-                    cs,
-                ) {
-                    extra_shapes.push(es);
-                }
-            }
-        }
-
         timer.start_iter("make DrawBusStop", map.all_bus_stops().len());
         let mut bus_stops: HashMap<BusStopID, DrawBusStop> = HashMap::new();
         for s in map.all_bus_stops().values() {
@@ -226,9 +182,6 @@ impl DrawMap {
         for obj in &buildings {
             quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
         }
-        for obj in &extra_shapes {
-            quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
-        }
         // Don't put BusStops in the quadtree
         for obj in &areas {
             quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
@@ -245,7 +198,6 @@ impl DrawMap {
             lanes,
             intersections,
             buildings,
-            extra_shapes,
             bus_stops,
             areas,
             boundary_polygon,
@@ -280,10 +232,6 @@ impl DrawMap {
 
     pub fn get_b(&self, id: BuildingID) -> &DrawBuilding {
         &self.buildings[id.0]
-    }
-
-    pub fn get_es(&self, id: ExtraShapeID) -> &DrawExtraShape {
-        &self.extra_shapes[id.0]
     }
 
     pub fn get_bs(&self, id: BusStopID) -> &DrawBusStop {
@@ -332,9 +280,6 @@ impl DrawMap {
                     .sim
                     .get_draw_ped(members[0], &app.primary.map)?
                     .on
-            }
-            ID::ExtraShape(id) => {
-                return Some(self.get_es(id));
             }
             ID::BusStop(id) => {
                 return Some(self.get_bs(id));

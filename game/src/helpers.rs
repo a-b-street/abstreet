@@ -1,5 +1,4 @@
 use crate::app::{App, PerMap};
-use crate::render::ExtraShapeID;
 use ezgui::{Color, Line, Text, TextSpan};
 use geom::{Duration, Pt2D};
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, RoadID, TurnID};
@@ -17,7 +16,6 @@ pub enum ID {
     Car(CarID),
     Pedestrian(PedestrianID),
     PedCrowd(Vec<PedestrianID>),
-    ExtraShape(ExtraShapeID),
     BusStop(BusStopID),
     Area(AreaID),
 }
@@ -60,8 +58,6 @@ impl ID {
             ID::PedCrowd(ref members) => primary
                 .sim
                 .canonical_pt_for_agent(AgentID::Pedestrian(members[0]), &primary.map),
-            // TODO maybe_get_es
-            ID::ExtraShape(id) => Some(primary.draw_map.get_es(id).center()),
             ID::BusStop(id) => primary
                 .map
                 .maybe_get_bs(id)

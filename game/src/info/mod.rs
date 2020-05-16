@@ -10,7 +10,6 @@ use crate::app::App;
 use crate::common::Warping;
 use crate::game::Transition;
 use crate::helpers::{color_for_mode, ID};
-use crate::render::ExtraShapeID;
 use crate::sandbox::{SandboxMode, TimeWarpScreen};
 use ezgui::{
     hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
@@ -64,7 +63,6 @@ pub enum Tab {
     Crowd(Vec<PedestrianID>),
 
     Area(AreaID),
-    ExtraShape(ExtraShapeID),
 
     IntersectionInfo(IntersectionID),
     IntersectionTraffic(IntersectionID, DataOptions),
@@ -103,7 +101,6 @@ impl Tab {
                 btreemap! {app.primary.sim.agent_to_trip(AgentID::Pedestrian(p)).unwrap() => true},
             ),
             ID::PedCrowd(members) => Tab::Crowd(members),
-            ID::ExtraShape(es) => Tab::ExtraShape(es),
             ID::BusStop(bs) => Tab::BusStop(bs),
             ID::Area(a) => Tab::Area(a),
         }
@@ -135,7 +132,6 @@ impl Tab {
             Tab::BldgInfo(b) | Tab::BldgPeople(b) => Some(ID::Building(b)),
             Tab::Crowd(members) => Some(ID::PedCrowd(members)),
             Tab::Area(a) => Some(ID::Area(a)),
-            Tab::ExtraShape(es) => Some(ID::ExtraShape(es)),
             Tab::IntersectionInfo(i)
             | Tab::IntersectionTraffic(i, _)
             | Tab::IntersectionDelay(i, _) => Some(ID::Intersection(i)),
@@ -205,7 +201,6 @@ impl InfoPanel {
             Tab::BldgPeople(b) => (building::people(ctx, app, &mut details, b), false),
             Tab::Crowd(ref members) => (person::crowd(ctx, app, &mut details, members), true),
             Tab::Area(a) => (debug::area(ctx, app, &mut details, a), true),
-            Tab::ExtraShape(es) => (debug::extra_shape(ctx, app, &mut details, es), true),
             Tab::IntersectionInfo(i) => (intersection::info(ctx, app, &mut details, i), true),
             Tab::IntersectionTraffic(i, ref opts) => (
                 intersection::traffic(ctx, app, &mut details, i, opts),

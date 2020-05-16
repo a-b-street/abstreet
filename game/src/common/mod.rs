@@ -206,10 +206,6 @@ impl CommonState {
                     .collect();
                 list_names(&mut osd, |l| l.fg(name_color), routes);
             }
-            ID::ExtraShape(es) => {
-                // Only selectable in dev mode anyway
-                osd.append(Line(es.to_string()).fg(id_color));
-            }
             ID::Area(a) => {
                 // Only selectable in dev mode anyway
                 osd.append(Line(a.to_string()).fg(id_color));

@@ -1,6 +1,5 @@
 use crate::app::App;
 use crate::helpers::ID;
-use crate::render::DrawMap;
 use ezgui::{EventCtx, GfxCtx, Key, Line, Text};
 use map_model::{Map, PathConstraints};
 use sim::{AgentID, Sim};
@@ -41,7 +40,7 @@ impl ObjectDebugger {
         }
     }
 
-    pub fn dump_debug(id: ID, map: &Map, sim: &Sim, draw_map: &DrawMap) {
+    pub fn dump_debug(id: ID, map: &Map, sim: &Sim) {
         match id {
             ID::Lane(id) => {
                 let l = map.get_l(id);
@@ -109,13 +108,6 @@ impl ObjectDebugger {
                 for p in members {
                     sim.debug_ped(p);
                 }
-            }
-            ID::ExtraShape(id) => {
-                let es = draw_map.get_es(id);
-                for (k, v) in &es.attributes {
-                    println!("{} = {}", k, v);
-                }
-                println!("associated road: {:?}", es.road);
             }
             ID::BusStop(id) => {
                 println!("{}", abstutil::to_json(map.get_bs(id)));
