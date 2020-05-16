@@ -178,8 +178,9 @@ data/input/seattle/osm/mt_baker.osm,2cd7ba808d94318975bd73e9ced01c51,https://www
 data/input/seattle/osm/udistrict.osm,e5b0d978d1c74ae5c555a4ebd3ad9d70,https://www.dropbox.com/s/h66cidmzcq15pbo/udistrict.osm.zip?dl=0
 data/input/seattle/osm/washington-latest.osm.pbf,363e061c2bf9aa49b48fa12ec56d0ed1,https://www.dropbox.com/s/xha9cx696czbzlf/washington-latest.osm.pbf.zip?dl=0
 data/input/seattle/osm/west_seattle.osm,8f893f5a3302b3cf5a614b1d52e49b5f,https://www.dropbox.com/s/8m0vmvwg5zz3uod/west_seattle.osm.zip?dl=0
+data/input/seattle/parcels.bin,dc3eee0a4ba74a4a6ee626f2c55d5e51,https://www.dropbox.com/s/39bymqayph3easc/parcels.bin.zip?dl=0
 data/input/seattle/parcels_urbansim.txt,db63d7d606e8702d12f9399e87e6a00f,https://www.dropbox.com/s/6g8rbsf200dssj3/parcels_urbansim.txt.zip?dl=0
-data/input/seattle/popdat.bin,977996fa2f2457dc399cfc76539df318,https://www.dropbox.com/s/wrpji7e14rdwszs/popdat.bin.zip?dl=0
+data/input/seattle/popdat.bin,d1fe506c5f4a65447646f0100e3e3a5a,https://www.dropbox.com/s/wrpji7e14rdwszs/popdat.bin.zip?dl=0
 data/input/seattle/sidewalks.bin,034dd47ab77902dbc81c0107f13d8965,https://www.dropbox.com/s/ma9bmisijc7v7xa/sidewalks.bin.zip?dl=0
 data/input/seattle/sidewalks.kml,94d385ba03ef1b57a5ba10965913ec6c,https://www.dropbox.com/s/vn8amar9xi6vbvh/sidewalks.kml.zip?dl=0
 data/input/seattle/trips_2014.csv,d4a8e733045b28c0385fb81359d6df03,https://www.dropbox.com/s/5ppravwmk6bf20d/trips_2014.csv.zip?dl=0

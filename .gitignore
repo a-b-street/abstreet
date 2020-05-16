@@ -14,6 +14,7 @@ data/input/seattle/N47W122.hgt
 data/input/seattle/offstreet_parking.bin
 data/input/seattle/offstreet_parking.kml
 data/input/seattle/osm
+data/input/seattle/parcels.bin
 data/input/seattle/parcels_urbansim.txt
 data/input/seattle/popdat.bin
 data/input/seattle/sidewalks.bin
