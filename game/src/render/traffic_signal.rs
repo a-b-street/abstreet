@@ -53,6 +53,7 @@ pub fn draw_signal_phase(
                         0.07,
                         angle,
                         RewriteColor::NoOp,
+                        true,
                     );
                     dont_walk.remove(g);
                 }
@@ -66,6 +67,7 @@ pub fn draw_signal_phase(
                     0.07,
                     angle,
                     RewriteColor::NoOp,
+                    true,
                 );
             }
             for g in &phase.yield_groups {
@@ -142,6 +144,7 @@ pub fn draw_signal_phase(
                         0.07,
                         angle,
                         RewriteColor::NoOp,
+                        true,
                     );
                     dont_walk.remove(g);
                 }
@@ -155,6 +158,7 @@ pub fn draw_signal_phase(
                     0.07,
                     angle,
                     RewriteColor::NoOp,
+                    true,
                 );
             }
         }

@@ -300,6 +300,7 @@ fn make_timeline(
             1.0,
             Angle::ZERO,
             RewriteColor::NoOp,
+            true,
         );
         details.zoomed.add_svg(
             ctx.prerender,
@@ -308,6 +309,7 @@ fn make_timeline(
             0.5,
             Angle::ZERO,
             RewriteColor::NoOp,
+            true,
         );
 
         Btn::svg(
@@ -343,6 +345,7 @@ fn make_timeline(
             1.0,
             Angle::ZERO,
             RewriteColor::NoOp,
+            true,
         );
         details.zoomed.add_svg(
             ctx.prerender,
@@ -351,6 +354,7 @@ fn make_timeline(
             0.5,
             Angle::ZERO,
             RewriteColor::NoOp,
+            true,
         );
 
         Btn::svg(
@@ -423,6 +427,7 @@ fn make_timeline(
                     1.0,
                     Angle::ZERO,
                     RewriteColor::NoOp,
+                    false,
                 );
             }
         }
@@ -449,6 +454,7 @@ fn make_timeline(
             1.0,
             Angle::ZERO,
             RewriteColor::NoOp,
+            false,
         );
 
         let mut hovered = GeomBatch::from(vec![(color.alpha(1.0), rect.clone())]);

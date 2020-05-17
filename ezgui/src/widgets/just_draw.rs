@@ -22,7 +22,11 @@ impl JustDraw {
     }
 
     pub(crate) fn svg(ctx: &EventCtx, filename: String) -> Widget {
-        let (batch, bounds) = svg::load_svg(ctx.prerender, &filename);
+        let (batch, bounds) = svg::load_svg(
+            ctx.prerender,
+            &filename,
+            *ctx.prerender.assets.scale_factor.borrow(),
+        );
         // TODO The dims will be wrong; it'll only look at geometry, not the padding in the image.
         Widget::new(Box::new(JustDraw {
             dims: ScreenDims::new(bounds.width(), bounds.height()),
@@ -31,7 +35,11 @@ impl JustDraw {
         }))
     }
     pub(crate) fn svg_transform(ctx: &EventCtx, filename: &str, rewrite: RewriteColor) -> Widget {
-        let (mut batch, bounds) = svg::load_svg(ctx.prerender, filename);
+        let (mut batch, bounds) = svg::load_svg(
+            ctx.prerender,
+            filename,
+            *ctx.prerender.assets.scale_factor.borrow(),
+        );
         batch.rewrite_color(rewrite);
         // TODO The dims will be wrong; it'll only look at geometry, not the padding in the image.
         Widget::new(Box::new(JustDraw {

@@ -12,8 +12,8 @@ pub const LOW_QUALITY: f32 = 1.0;
 // Code here adapted from
 // https://github.com/nical/lyon/blob/0d0ee771180fb317b986d9cf30266722e0773e01/examples/wgpu_svg/src/main.rs
 
-pub fn load_svg(prerender: &Prerender, filename: &str) -> (GeomBatch, Bounds) {
-    if let Some(pair) = prerender.assets.get_cached_svg(filename) {
+pub fn load_svg(prerender: &Prerender, filename: &str, scale_factor: f64) -> (GeomBatch, Bounds) {
+    if let Some(pair) = prerender.assets.get_cached_svg(filename, scale_factor) {
         return pair;
     }
 
@@ -24,16 +24,14 @@ pub fn load_svg(prerender: &Prerender, filename: &str) -> (GeomBatch, Bounds) {
     };
     let svg_tree = usvg::Tree::from_data(&raw, &usvg::Options::default()).unwrap();
     let mut batch = GeomBatch::new();
-    match add_svg_inner(
-        &mut batch,
-        svg_tree,
-        HIGH_QUALITY,
-        *prerender.assets.scale_factor.borrow(),
-    ) {
+    match add_svg_inner(&mut batch, svg_tree, HIGH_QUALITY, scale_factor) {
         Ok(bounds) => {
-            prerender
-                .assets
-                .cache_svg(filename.to_string(), batch.clone(), bounds.clone());
+            prerender.assets.cache_svg(
+                filename.to_string(),
+                scale_factor,
+                batch.clone(),
+                bounds.clone(),
+            );
             (batch, bounds)
         }
         Err(err) => panic!("{}: {}", filename, err),

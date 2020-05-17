@@ -13,7 +13,9 @@ pub struct Assets {
     pub scale_factor: RefCell<f64>,
     text_cache: RefCell<LruCache<String, GeomBatch>>,
     line_height_cache: RefCell<HashMap<(Font, usize), f64>>,
-    svg_cache: RefCell<HashMap<String, (GeomBatch, Bounds)>>,
+    // Keyed by filename, then scale factor mangled into a hashable form. Tuple doesn't work
+    // because of borrowing.
+    svg_cache: RefCell<HashMap<String, HashMap<usize, (GeomBatch, Bounds)>>>,
     pub text_opts: Options,
 }
 
@@ -79,19 +81,29 @@ impl Assets {
         self.text_cache.borrow_mut().put(key, geom);
     }
 
-    pub fn get_cached_svg(&self, key: &str) -> Option<(GeomBatch, Bounds)> {
-        self.svg_cache.borrow().get(key).cloned()
+    pub fn get_cached_svg(&self, key: &str, scale_factor: f64) -> Option<(GeomBatch, Bounds)> {
+        self.svg_cache
+            .borrow()
+            .get(key)
+            .and_then(|m| m.get(&key_scale_factor(scale_factor)).cloned())
     }
-    pub fn cache_svg(&self, key: String, geom: GeomBatch, bounds: Bounds) {
-        self.svg_cache.borrow_mut().insert(key, (geom, bounds));
+    pub fn cache_svg(&self, key: String, scale_factor: f64, geom: GeomBatch, bounds: Bounds) {
+        self.svg_cache
+            .borrow_mut()
+            .entry(key)
+            .or_insert_with(HashMap::new)
+            .insert(key_scale_factor(scale_factor), (geom, bounds));
     }
 
     pub fn set_scale_factor(&self, scale_factor: f64) {
         *self.scale_factor.borrow_mut() = scale_factor;
         self.text_cache.borrow_mut().clear();
         self.line_height_cache.borrow_mut().clear();
-        self.svg_cache.borrow_mut().clear();
         *self.default_line_height.borrow_mut() =
             self.line_height(text::DEFAULT_FONT, *self.default_font_size.borrow());
     }
+}
+
+fn key_scale_factor(x: f64) -> usize {
+    (x * 100.0) as usize
 }

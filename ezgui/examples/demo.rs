@@ -230,6 +230,8 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
         1.0,
         // Rotate
         Angle::ZERO,
+        // Map-space (don't scale for high DPI monitors)
+        true,
     );
     // Text rendering also goes through lyon and usvg.
     batch.add_transformed(

@@ -277,7 +277,11 @@ impl BtnBuilder {
                 maybe_tooltip,
                 pad,
             } => {
-                let (orig, bounds) = svg::load_svg(ctx.prerender, &path);
+                let (orig, bounds) = svg::load_svg(
+                    ctx.prerender,
+                    &path,
+                    *ctx.prerender.assets.scale_factor.borrow(),
+                );
                 let pad = pad as f64;
                 let geom =
                     Polygon::rectangle(bounds.width() + 2.0 * pad, bounds.height() + 2.0 * pad);

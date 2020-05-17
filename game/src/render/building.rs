@@ -51,6 +51,7 @@ impl DrawBuilding {
                 0.1,
                 Angle::ZERO,
                 RewriteColor::NoOp,
+                true,
             );
         }
 

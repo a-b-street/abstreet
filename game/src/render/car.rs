@@ -49,6 +49,7 @@ impl DrawCar {
                 0.01,
                 Angle::ZERO,
                 RewriteColor::NoOp,
+                true,
             );
         }
 

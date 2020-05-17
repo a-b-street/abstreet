@@ -127,9 +127,19 @@ impl GeomBatch {
         scale: f64,
         rotate: Angle,
         rewrite: RewriteColor,
+        map_space: bool,
     ) {
         self.add_transformed(
-            svg::load_svg(prerender, filename).0,
+            svg::load_svg(
+                prerender,
+                filename,
+                if map_space {
+                    1.0
+                } else {
+                    *prerender.assets.scale_factor.borrow()
+                },
+            )
+            .0,
             center,
             scale,
             rotate,

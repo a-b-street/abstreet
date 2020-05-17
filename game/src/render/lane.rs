@@ -36,6 +36,7 @@ impl AlmostDrawLane {
                         .shortest_rotation_towards(Angle::new_degs(-90.0))
                         .invert_y(),
                     RewriteColor::NoOp,
+                    true,
                 );
                 dist += btwn;
             }
@@ -56,6 +57,7 @@ impl AlmostDrawLane {
                         .shortest_rotation_towards(Angle::new_degs(-90.0))
                         .invert_y(),
                     RewriteColor::NoOp,
+                    true,
                 );
                 dist += btwn;
             }
