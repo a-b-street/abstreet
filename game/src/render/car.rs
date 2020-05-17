@@ -58,7 +58,7 @@ impl DrawCar {
 
             if let Some(t) = input.waiting_for_turn {
                 match map.get_t(t).turn_type {
-                    TurnType::Left | TurnType::LaneChangeLeft => {
+                    TurnType::Left => {
                         let (pos, angle) = input
                             .body
                             .dist_along(input.body.length() - Distance::meters(2.5));
@@ -73,7 +73,7 @@ impl DrawCar {
                             .unwrap(),
                         );
                     }
-                    TurnType::Right | TurnType::LaneChangeRight => {
+                    TurnType::Right => {
                         let (pos, angle) = input
                             .body
                             .dist_along(input.body.length() - Distance::meters(2.5));
@@ -88,7 +88,7 @@ impl DrawCar {
                             .unwrap(),
                         );
                     }
-                    TurnType::Straight => {}
+                    TurnType::Straight | TurnType::LaneChangeLeft | TurnType::LaneChangeRight => {}
                     TurnType::Crosswalk | TurnType::SharedSidewalkCorner => unreachable!(),
                 }
 
