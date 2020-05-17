@@ -4,8 +4,6 @@ use map_model::raw::{OriginalBuilding, RawArea, RawBuilding, RawMap, RawRoad, Re
 use map_model::{osm, AreaType};
 use osm_xml;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
-use std::fs::File;
-use std::io::{BufRead, BufReader};
 
 pub fn extract_osm(
     osm_path: &str,
@@ -38,8 +36,17 @@ pub fn extract_osm(
     );
     done(timer);
 
-    let mut map = if let Some(ref path) = maybe_clip_path {
-        read_osmosis_polygon(path, city_name, map_name)
+    let mut map = if let Some(path) = maybe_clip_path {
+        let pts = LonLat::read_osmosis_polygon(path.to_string()).unwrap();
+        let mut gps_bounds = GPSBounds::new();
+        for pt in &pts {
+            gps_bounds.update(*pt);
+        }
+
+        let mut map = RawMap::blank(city_name, map_name);
+        map.boundary_polygon = Polygon::new(&gps_bounds.must_convert(&pts));
+        map.gps_bounds = gps_bounds;
+        map
     } else {
         let mut m = RawMap::blank(city_name, map_name);
         for node in doc.nodes.values() {
@@ -557,34 +564,4 @@ fn glue_to_boundary(result_pl: PolyLine, boundary: &Ring) -> Option<Polygon> {
     }
     assert_eq!(trimmed_pts[0], *trimmed_pts.last().unwrap());
     Some(Polygon::new(&trimmed_pts))
-}
-
-fn read_osmosis_polygon(path: &str, city_name: &str, map_name: &str) -> RawMap {
-    let mut pts: Vec<LonLat> = Vec::new();
-    let mut gps_bounds = GPSBounds::new();
-    for (idx, maybe_line) in BufReader::new(File::open(path).unwrap())
-        .lines()
-        .enumerate()
-    {
-        if idx == 0 || idx == 1 {
-            continue;
-        }
-        let line = maybe_line.unwrap();
-        if line == "END" {
-            break;
-        }
-        let parts: Vec<&str> = line.trim_start().split("    ").collect();
-        assert!(parts.len() == 2);
-        let pt = LonLat::new(
-            parts[0].parse::<f64>().unwrap(),
-            parts[1].parse::<f64>().unwrap(),
-        );
-        pts.push(pt);
-        gps_bounds.update(pt);
-    }
-
-    let mut map = RawMap::blank(city_name, map_name);
-    map.boundary_polygon = Polygon::new(&gps_bounds.must_convert(&pts));
-    map.gps_bounds = gps_bounds;
-    map
 }

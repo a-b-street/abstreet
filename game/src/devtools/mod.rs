@@ -13,6 +13,7 @@ use ezgui::{
     hotkey, Btn, Choice, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
     TextExt, VerticalAlignment, Widget, Wizard,
 };
+use geom::LonLat;
 
 pub struct DevToolsMode {
     composite: Composite,
@@ -119,7 +120,7 @@ fn choose_polygon(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option
     let name = wiz.wrap(ctx).choose_string("Edit which polygon?", || {
         abstutil::list_all_objects("../data/input/seattle/polygons/".to_string())
     })?;
-    match polygon::read_from_osmosis(format!("../data/input/seattle/polygons/{}.poly", name)) {
+    match LonLat::read_osmosis_polygon(format!("../data/input/seattle/polygons/{}.poly", name)) {
         Ok(pts) => Some(Transition::Replace(polygon::PolygonEditor::new(
             ctx, app, name, pts,
         ))),

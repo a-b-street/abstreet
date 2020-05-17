@@ -2,6 +2,8 @@ use crate::Distance;
 use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
+use std::fs::File;
+use std::io::{BufRead, BufReader, Error, ErrorKind};
 
 // longitude is x, latitude is y
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Serialize, Deserialize)]
@@ -51,6 +53,31 @@ impl LonLat {
     pub(crate) fn approx_eq(self, other: LonLat) -> bool {
         let epsilon = 1e-8;
         (self.x() - other.x()).abs() < epsilon && (self.y() - other.y()).abs() < epsilon
+    }
+
+    pub fn read_osmosis_polygon(path: String) -> Result<Vec<LonLat>, Error> {
+        let f = File::open(&path)?;
+        let mut pts = Vec::new();
+        for (idx, line) in BufReader::new(f).lines().enumerate() {
+            if idx < 2 {
+                continue;
+            }
+            let line = line?;
+            if line == "END" {
+                break;
+            }
+            let parts = line.trim().split("    ").collect::<Vec<_>>();
+            pts.push(LonLat::new(
+                parts[0]
+                    .parse::<f64>()
+                    .map_err(|err| Error::new(ErrorKind::Other, err))?,
+                parts[1]
+                    .parse::<f64>()
+                    .map_err(|err| Error::new(ErrorKind::Other, err))?,
+            ));
+        }
+        pts.pop();
+        Ok(pts)
     }
 }
 
