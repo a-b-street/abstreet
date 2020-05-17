@@ -80,10 +80,6 @@ impl GUI for Game {
                 cb(self.states.last_mut().unwrap(), &mut self.app, ctx);
             }
             Transition::PushWithData(cb) => {
-                self.states
-                    .last_mut()
-                    .unwrap()
-                    .on_suspend(ctx, &mut self.app);
                 let new_state = cb(self.states.last_mut().unwrap(), &mut self.app, ctx);
                 self.states.push(new_state);
             }
@@ -101,10 +97,6 @@ impl GUI for Game {
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
             }
             Transition::Push(state) => {
-                self.states
-                    .last_mut()
-                    .unwrap()
-                    .on_suspend(ctx, &mut self.app);
                 self.states.push(state);
             }
             Transition::Replace(state) => {
@@ -129,10 +121,6 @@ impl GUI for Game {
                 self.states.extend(states);
             }
             Transition::PushTwice(s1, s2) => {
-                self.states
-                    .last_mut()
-                    .unwrap()
-                    .on_suspend(ctx, &mut self.app);
                 self.states.push(s1);
                 self.states.push(s2);
             }
@@ -207,8 +195,6 @@ pub trait State: downcast_rs::Downcast {
         DrawBaselayer::DefaultMap
     }
 
-    // Before we push a new state on top of this one, call this.
-    fn on_suspend(&mut self, _: &mut EventCtx, _: &mut App) {}
     // Before this state is popped or replaced, call this.
     fn on_destroy(&mut self, _: &mut EventCtx, _: &mut App) {}
     // We don't need an on_enter -- the constructor for the state can just do it.

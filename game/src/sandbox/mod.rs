@@ -227,12 +227,6 @@ impl State for SandboxMode {
         self.gameplay.draw(g, app);
     }
 
-    fn on_suspend(&mut self, ctx: &mut EventCtx, app: &mut App) {
-        if let Some(ref mut s) = self.controls.speed {
-            s.pause(ctx, app);
-        }
-    }
-
     fn on_destroy(&mut self, _: &mut EventCtx, app: &mut App) {
         app.layer = Layers::Inactive;
         app.agent_cs = AgentColorScheme::new(&app.cs);

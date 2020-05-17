@@ -525,6 +525,13 @@ impl Layers {
             }),
         )
         .maybe_cb(
+            "map edits",
+            Box::new(|ctx, app| {
+                app.layer = map::edits(ctx, app);
+                Some(Transition::Pop)
+            }),
+        )
+        .maybe_cb(
             "amenities",
             Box::new(|ctx, app| {
                 app.layer = map::amenities(ctx, app);
