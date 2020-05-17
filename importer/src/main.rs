@@ -1,5 +1,6 @@
 mod austin;
 mod seattle;
+#[cfg(feature = "scenarios")]
 mod soundcast;
 mod utils;
 
@@ -97,6 +98,7 @@ fn main() {
             }
         }
 
+        #[cfg(feature = "scenarios")]
         if job.scenario {
             assert_eq!(job.city, "seattle");
             seattle::ensure_popdat_exists();
@@ -106,6 +108,7 @@ fn main() {
             soundcast::make_weekday_scenario(&map, &mut timer).save();
         }
 
+        #[cfg(feature = "scenarios")]
         if job.scenario_everyone {
             assert_eq!(job.city, "seattle");
             seattle::ensure_popdat_exists();

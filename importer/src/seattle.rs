@@ -70,6 +70,7 @@ pub fn osm_to_raw(name: &str) {
 }
 
 // Download and pre-process data needed to generate Seattle scenarios.
+#[cfg(feature = "scenarios")]
 pub fn ensure_popdat_exists() {
     if abstutil::file_exists(abstutil::path_popdat()) {
         println!("- {} exists, not regenerating it", abstutil::path_popdat());

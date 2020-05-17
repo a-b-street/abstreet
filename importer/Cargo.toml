@@ -4,12 +4,16 @@ version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2018"
 
+[features]
+default = []
+scenarios = ["gdal"]
+
 [dependencies]
 abstutil = { path = "../abstutil" }
 convert_osm = { path = "../convert_osm" }
 csv = "1.0.1"
 geom = { path = "../geom" }
-gdal = "0.6.0"
+gdal = { version = "0.6.0", optional = true }
 kml = { path = "../kml" }
 map_model = { path = "../map_model" }
 serde = "1.0.98"

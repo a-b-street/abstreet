@@ -27,6 +27,8 @@ cd game
 rm -f game
 unzip ~/Downloads/game_exe.zip
 rm -f ~/Downloads/game_exe.zip
+rm -f ../importer/importer
+mv importer.exe ../importer
 cd ../..
 
 zip -r abstreet_linux_$VERSION abstreet_linux_$VERSION
