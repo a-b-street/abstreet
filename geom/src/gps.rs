@@ -76,7 +76,6 @@ impl LonLat {
                     .map_err(|err| Error::new(ErrorKind::Other, err))?,
             ));
         }
-        pts.pop();
         Ok(pts)
     }
 }

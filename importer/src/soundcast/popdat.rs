@@ -12,15 +12,16 @@ pub struct PopDat {
 }
 
 // Extract trip demand data from PSRC's Soundcast outputs.
-pub fn import_data() {
+pub fn import_data(huge_map: &Map) -> PopDat {
     let mut timer = abstutil::Timer::new("creating popdat");
-    let trips = import_trips(&mut timer);
+    let trips = import_trips(huge_map, &mut timer);
     let popdat = PopDat { trips };
     abstutil::write_binary(abstutil::path_popdat(), &popdat);
+    popdat
 }
 
-fn import_trips(timer: &mut Timer) -> Vec<OrigTrip> {
-    let (parcels, mut keyed_shapes) = import_parcels(timer);
+fn import_trips(huge_map: &Map, timer: &mut Timer) -> Vec<OrigTrip> {
+    let (parcels, mut keyed_shapes) = import_parcels(huge_map, timer);
 
     let mut trips = Vec::new();
     let (reader, done) = FileWithProgress::new("../data/input/seattle/trips_2014.csv").unwrap();
@@ -109,13 +110,14 @@ fn import_trips(timer: &mut Timer) -> Vec<OrigTrip> {
 
 // TODO Do we also need the zone ID, or is parcel ID globally unique?
 // Keyed by parcel ID
-fn import_parcels(timer: &mut Timer) -> (HashMap<usize, Endpoint>, HashMap<usize, ExtraShape>) {
-    let map = Map::new(abstutil::path_map("huge_seattle"), timer);
-
+fn import_parcels(
+    huge_map: &Map,
+    timer: &mut Timer,
+) -> (HashMap<usize, Endpoint>, HashMap<usize, ExtraShape>) {
     // TODO I really just want to do polygon containment with a quadtree. FindClosest only does
     // line-string stuff right now, which'll be weird for the last->first pt line and stuff.
-    let mut closest_bldg: FindClosest<i64> = FindClosest::new(map.get_bounds());
-    for b in map.all_buildings() {
+    let mut closest_bldg: FindClosest<i64> = FindClosest::new(huge_map.get_bounds());
+    for b in huge_map.all_buildings() {
         closest_bldg.add(b.osm_way_id, b.polygon.points());
     }
 
@@ -160,8 +162,8 @@ fn import_parcels(timer: &mut Timer) -> (HashMap<usize, Endpoint>, HashMap<usize
 
     timer.stop(format!("transform {} points", parcel_metadata.len()));
 
-    let bounds = map.get_gps_bounds();
-    let boundary = map.get_boundary_polygon();
+    let bounds = huge_map.get_gps_bounds();
+    let boundary = huge_map.get_boundary_polygon();
     let mut result = HashMap::new();
     let mut shapes = HashMap::new();
     timer.start_iter("finalize parcel output", parcel_metadata.len());

@@ -4,7 +4,7 @@ mod seattle;
 mod soundcast;
 mod utils;
 
-use std::thread;
+// TODO Might be cleaner to express as a dependency graph?
 
 struct Job {
     city: String,
@@ -13,7 +13,6 @@ struct Job {
     scenario: bool,
     scenario_everyone: bool,
 
-    seq: bool,
     skip_ch: bool,
 
     only_map: Option<String>,
@@ -34,8 +33,6 @@ fn main() {
         scenario: args.enabled("--scenario"),
         // Produce a variation of the weekday scenario including off-map trips.
         scenario_everyone: args.enabled("--scenario_everyone"),
-        // Don't use multiple threads for conversion. Useful when needing to see errors.
-        seq: args.enabled("--seq"),
         // Skip the most expensive step of --map, building contraction hierarchies. The resulting
         // map won't be usable for simulation; as soon as you try to pathfind, it'll crash.
         skip_ch: args.enabled("--skip_ch"),
@@ -75,7 +72,30 @@ fn main() {
         abstutil::list_all_objects(format!("../data/input/{}/polygons", job.city))
     };
 
-    let mut handles = vec![];
+    let mut timer = abstutil::Timer::new("import map data");
+
+    let (maybe_popdat, maybe_huge_map) = if job.scenario || job.scenario_everyone {
+        assert_eq!(job.city, "seattle");
+
+        #[cfg(feature = "scenarios")]
+        {
+            let (popdat, huge_map) = seattle::ensure_popdat_exists(&mut timer);
+            (Some(popdat), Some(huge_map))
+        }
+
+        #[cfg(not(feature = "scenarios"))]
+        {
+            panic!(
+                "Can't do --scenario or --scenario_everyone without the scenarios feature \
+                 compiled in"
+            );
+            // Nonsense to make the type-checker work
+            (Some(true), Some(true))
+        }
+    } else {
+        (None, None)
+    };
+
     for name in names {
         if job.osm_to_raw {
             match job.city.as_ref() {
@@ -85,41 +105,38 @@ fn main() {
             }
         }
 
-        if job.raw_to_map {
-            // TODO Bug: if regenerating map and scenario at the same time, this doesn't work.
-            if job.scenario || job.seq {
-                utils::raw_to_map(&name, !job.skip_ch);
-            } else {
-                let name = name.clone();
-                let build_ch = !job.skip_ch;
-                handles.push(thread::spawn(move || {
-                    utils::raw_to_map(&name, build_ch);
-                }));
-            }
-        }
+        let maybe_map = if job.raw_to_map {
+            Some(utils::raw_to_map(&name, !job.skip_ch, &mut timer))
+        } else if job.scenario || job.scenario_everyone {
+            Some(map_model::Map::new(abstutil::path_map(&name), &mut timer))
+        } else {
+            None
+        };
 
         #[cfg(feature = "scenarios")]
         if job.scenario {
-            assert_eq!(job.city, "seattle");
-            seattle::ensure_popdat_exists();
-
-            let mut timer = abstutil::Timer::new(format!("Scenario for {}", name));
-            let map = map_model::Map::new(abstutil::path_map(&name), &mut timer);
-            soundcast::make_weekday_scenario(&map, &mut timer).save();
+            timer.start(format!("scenario for {}", name));
+            soundcast::make_weekday_scenario(
+                maybe_map.as_ref().unwrap(),
+                maybe_popdat.as_ref().unwrap(),
+                maybe_huge_map.as_ref().unwrap(),
+                &mut timer,
+            )
+            .save();
+            timer.stop(format!("scenario for {}", name));
         }
 
         #[cfg(feature = "scenarios")]
         if job.scenario_everyone {
-            assert_eq!(job.city, "seattle");
-            seattle::ensure_popdat_exists();
-
-            let mut timer = abstutil::Timer::new(format!("Scenario for {}", name));
-            let map = map_model::Map::new(abstutil::path_map(&name), &mut timer);
-            soundcast::make_weekday_scenario_with_everyone(&map, &mut timer).save();
+            timer.start(format!("scenario_everyone for {}", name));
+            soundcast::make_weekday_scenario_with_everyone(
+                maybe_map.as_ref().unwrap(),
+                maybe_popdat.as_ref().unwrap(),
+                &mut timer,
+            )
+            .save();
+            timer.stop(format!("scenario_everyone for {}", name));
         }
-    }
-    for handle in handles {
-        handle.join().unwrap();
     }
 }
 

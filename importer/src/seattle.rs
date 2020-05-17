@@ -71,18 +71,25 @@ pub fn osm_to_raw(name: &str) {
 
 // Download and pre-process data needed to generate Seattle scenarios.
 #[cfg(feature = "scenarios")]
-pub fn ensure_popdat_exists() {
+pub fn ensure_popdat_exists(
+    timer: &mut abstutil::Timer,
+) -> (crate::soundcast::PopDat, map_model::Map) {
     if abstutil::file_exists(abstutil::path_popdat()) {
         println!("- {} exists, not regenerating it", abstutil::path_popdat());
-        return;
+        return (
+            abstutil::read_binary(abstutil::path_popdat(), timer),
+            map_model::Map::new(abstutil::path_map("huge_seattle"), timer),
+        );
     }
 
     if !abstutil::file_exists(abstutil::path_raw_map("huge_seattle")) {
         osm_to_raw("huge_seattle");
     }
-    if !abstutil::file_exists(abstutil::path_map("huge_seattle")) {
-        crate::utils::raw_to_map("huge_seattle", true);
-    }
+    let huge_map = if abstutil::file_exists(abstutil::path_map("huge_seattle")) {
+        map_model::Map::new(abstutil::path_map("huge_seattle"), timer)
+    } else {
+        crate::utils::raw_to_map("huge_seattle", true, timer)
+    };
 
-    crate::soundcast::import_data();
+    (crate::soundcast::import_data(&huge_map), huge_map)
 }

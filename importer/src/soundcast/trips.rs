@@ -80,7 +80,7 @@ impl TripEndpt {
             &Vec<(IntersectionID, LonLat)>,
         ),
         constraints: PathConstraints,
-        maybe_huge_map: Option<&(Map, HashMap<i64, BuildingID>)>,
+        maybe_huge_map: Option<&(&Map, HashMap<i64, BuildingID>)>,
     ) -> Option<(TripEndpt, TripEndpt)> {
         let from_bldg = from
             .osm_building
@@ -223,13 +223,10 @@ impl TripEndpt {
     }
 }
 
-fn clip_trips(map: &Map, timer: &mut Timer) -> Vec<Trip> {
-    let popdat: PopDat = abstutil::read_binary(abstutil::path_popdat(), timer);
+fn clip_trips(map: &Map, popdat: &PopDat, huge_map: &Map, timer: &mut Timer) -> Vec<Trip> {
     let maybe_huge_map = if map.get_name() == "huge_seattle" {
         None
     } else {
-        let huge_map = Map::new(abstutil::path_map("huge_seattle"), timer);
-
         let mut huge_osm_id_to_bldg = HashMap::new();
         for b in huge_map.all_buildings() {
             huge_osm_id_to_bldg.insert(b.osm_way_id, b.id);
@@ -287,28 +284,33 @@ fn clip_trips(map: &Map, timer: &mut Timer) -> Vec<Trip> {
         .collect();
 
     let total_trips = popdat.trips.len();
-    let maybe_results: Vec<Option<Trip>> = timer.parallelize("clip trips", popdat.trips, |orig| {
-        let (from, to) = TripEndpt::new(
-            &orig.from,
-            &orig.to,
-            map,
-            &osm_id_to_bldg,
-            match orig.mode {
-                TripMode::Walk | TripMode::Transit => {
-                    (&incoming_borders_walking, &outgoing_borders_walking)
-                }
-                TripMode::Drive => (&incoming_borders_driving, &outgoing_borders_driving),
-                TripMode::Bike => (&incoming_borders_biking, &outgoing_borders_biking),
-            },
-            match orig.mode {
-                TripMode::Walk | TripMode::Transit => PathConstraints::Pedestrian,
-                TripMode::Drive => PathConstraints::Car,
-                TripMode::Bike => PathConstraints::Bike,
-            },
-            maybe_huge_map.as_ref(),
-        )?;
-        Some(Trip { from, to, orig })
-    });
+    let maybe_results: Vec<Option<Trip>> =
+        timer.parallelize("clip trips", popdat.trips.iter().collect(), |orig| {
+            let (from, to) = TripEndpt::new(
+                &orig.from,
+                &orig.to,
+                map,
+                &osm_id_to_bldg,
+                match orig.mode {
+                    TripMode::Walk | TripMode::Transit => {
+                        (&incoming_borders_walking, &outgoing_borders_walking)
+                    }
+                    TripMode::Drive => (&incoming_borders_driving, &outgoing_borders_driving),
+                    TripMode::Bike => (&incoming_borders_biking, &outgoing_borders_biking),
+                },
+                match orig.mode {
+                    TripMode::Walk | TripMode::Transit => PathConstraints::Pedestrian,
+                    TripMode::Drive => PathConstraints::Car,
+                    TripMode::Bike => PathConstraints::Bike,
+                },
+                maybe_huge_map.as_ref(),
+            )?;
+            Some(Trip {
+                from,
+                to,
+                orig: orig.clone(),
+            })
+        });
     let trips: Vec<Trip> = maybe_results.into_iter().flatten().collect();
 
     timer.note(format!(
@@ -320,8 +322,13 @@ fn clip_trips(map: &Map, timer: &mut Timer) -> Vec<Trip> {
     trips
 }
 
-pub fn make_weekday_scenario(map: &Map, timer: &mut Timer) -> Scenario {
-    let trips = clip_trips(map, timer);
+pub fn make_weekday_scenario(
+    map: &Map,
+    popdat: &PopDat,
+    huge_map: &Map,
+    timer: &mut Timer,
+) -> Scenario {
+    let trips = clip_trips(map, popdat, huge_map, timer);
     let orig_trips = trips.len();
 
     let mut individ_trips: Vec<Option<IndividTrip>> = Vec::new();
@@ -381,15 +388,17 @@ pub fn make_weekday_scenario(map: &Map, timer: &mut Timer) -> Scenario {
     .remove_weird_schedules(map)
 }
 
-pub fn make_weekday_scenario_with_everyone(map: &Map, timer: &mut Timer) -> Scenario {
-    let popdat: PopDat = abstutil::read_binary(abstutil::path_popdat(), timer);
-
+pub fn make_weekday_scenario_with_everyone(
+    map: &Map,
+    popdat: &PopDat,
+    timer: &mut Timer,
+) -> Scenario {
     let mut individ_trips: Vec<Option<IndividTrip>> = Vec::new();
     // person -> (trip seq, index into individ_trips)
     let mut trips_per_person: MultiMap<OrigPersonID, ((usize, bool, usize), usize)> =
         MultiMap::new();
     timer.start_iter("turn Soundcast trips into SpawnTrips", popdat.trips.len());
-    for orig_trip in popdat.trips {
+    for orig_trip in &popdat.trips {
         timer.next();
         let trip = SpawnTrip::Remote {
             from: OffMapLocation {

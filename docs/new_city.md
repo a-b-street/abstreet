@@ -10,6 +10,10 @@ If you have a `.osm` file, you can just run
 `./import.sh --oneshot=/absolute/path/to/map.osm`. This tool will generate a new
 file in `data/system/maps` that you can then load in the game.
 
+If you're using a binary release, you have to be sure to run the tool from the
+`importer/` directory, so that `../data/` exists:
+`cd importer; ./importer --oneshot=/absolute/path/to/file.osm`
+
 If you have an Osmosis polygon filter (see below), you can also pass
 `--oneshot_clip=/absolute/path/to/clip.poly` to improve the result. You should
 first make sure your .osm has been clipped:

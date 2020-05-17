@@ -1,3 +1,4 @@
+use abstutil::Timer;
 use std::path::Path;
 use std::process::Command;
 
@@ -101,12 +102,13 @@ fn run(cmd: &mut Command) {
 }
 
 // Converts a RawMap to a Map.
-pub fn raw_to_map(name: &str, build_ch: bool) {
-    let mut timer = abstutil::Timer::new(format!("Raw->Map for {}", name));
-    let raw: map_model::raw::RawMap =
-        abstutil::read_binary(abstutil::path_raw_map(name), &mut timer);
-    let map = map_model::Map::create_from_raw(raw, build_ch, &mut timer);
+pub fn raw_to_map(name: &str, build_ch: bool, timer: &mut Timer) -> map_model::Map {
+    timer.start(format!("Raw->Map for {}", name));
+    let raw: map_model::raw::RawMap = abstutil::read_binary(abstutil::path_raw_map(name), timer);
+    let map = map_model::Map::create_from_raw(raw, build_ch, timer);
     timer.start("save map");
     map.save();
     timer.stop("save map");
+    timer.stop(format!("Raw->Map for {}", name));
+    map
 }
