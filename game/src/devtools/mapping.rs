@@ -239,6 +239,11 @@ impl State for ParkingMapper {
 
                     let mut txt = Text::new();
                     txt.add(Line(format!("Click to map parking for OSM way {}", way)));
+                    txt.add_appended(vec![
+                        Line("Shortcut: press "),
+                        Line(Key::N.describe()).fg(ctx.style().hotkey_color),
+                        Line(" to indicate no parking"),
+                    ]);
                     for (k, v) in &road.osm_tags {
                         if k.starts_with("abst:") {
                             continue;
@@ -267,6 +272,17 @@ impl State for ParkingMapper {
         if self.selected.is_some() && app.per_obj.left_click(ctx, "map parking") {
             self.hide_layer = true;
             return Transition::Push(self.make_wizard(ctx, app));
+        }
+        if self.selected.is_some() && ctx.input.new_was_pressed(&hotkey(Key::N).unwrap()) {
+            let osm_way_id = app
+                .primary
+                .map
+                .get_r(*self.selected.as_ref().unwrap().0.iter().next().unwrap())
+                .orig_id
+                .osm_way_id;
+            let mut new_data = self.data.clone();
+            new_data.insert(osm_way_id, Value::NoParking);
+            return Transition::Replace(ParkingMapper::new(ctx, app, self.show_todo, new_data));
         }
 
         match self.composite.event(ctx) {
