@@ -341,6 +341,9 @@ pub fn extract_osm(
                         shop.clone(),
                     ));
                 }
+                if pts.len() < 3 {
+                    continue;
+                }
                 map.buildings.insert(
                     OriginalBuilding { osm_way_id: rel.id },
                     RawBuilding {

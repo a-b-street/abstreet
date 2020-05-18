@@ -216,7 +216,7 @@ impl Lane {
         Some(
             part.split(';')
                 .flat_map(|s| match s {
-                    "left" => vec![TurnType::Left],
+                    "left" | "left\\left" => vec![TurnType::Left],
                     "right" => vec![TurnType::Right],
                     // TODO What is blank supposed to mean? From few observed cases, same as through
                     "through" | "" => vec![

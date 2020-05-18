@@ -50,5 +50,9 @@ coordinates = [
     47.718885924932174
   ]
 ]
+print('map_name')
+print('1')
 for (x, y) in coordinates:
   print('     {}    {}'.format(x, y))
+print('END')
+print('END')
