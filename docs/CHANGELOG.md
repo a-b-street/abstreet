@@ -420,3 +420,16 @@ changes here.
 0.1.40a
 
 - added a mode to map parking
+
+0.1.41
+
+- new parking mapper tool
+- include a one-shot .osm importer in the release
+- new layer to find different types of amenities / businesses
+- adjust traffic signal rendering style
+- bulk lane editor for changing speed limits and lane types
+- including west seattle and udistrict maps
+- include some OSM buildings that were being skipped
+- dont pause after opening something from sandbox mode
+- adjust turn signals for lane-changing cars
+- lots of fixes for monitors with different DPIs, enabled by default
