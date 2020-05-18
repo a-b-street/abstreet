@@ -8,9 +8,8 @@ pub mod traffic;
 
 use crate::app::App;
 use crate::common::{Colorer, HeatmapOptions, Warping};
-use crate::game::Transition;
+use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::ID;
-use crate::managed::{ManagedGUIState, WrappedComposite};
 use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GfxCtx, Key, Line, Outcome, Widget,
 };
@@ -392,7 +391,7 @@ impl Layers {
         }
     }
 
-    pub fn change_layers(ctx: &mut EventCtx, app: &App) -> Option<Transition> {
+    pub fn change_layers(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         let mut col = vec![Widget::row(vec![
             Line("Layers").small_heading().draw(ctx),
             Btn::plaintext("X")
@@ -441,8 +440,8 @@ impl Layers {
             }
         }
 
-        let c = WrappedComposite::new(
-            Composite::new(
+        Box::new(PickLayer {
+            composite: Composite::new(
                 Widget::col(col.into_iter().map(|w| w.margin_below(15)).collect())
                     .bg(app.cs.panel_bg)
                     .outline(2.0, Color::WHITE)
@@ -450,112 +449,89 @@ impl Layers {
             )
             .max_size_percent(35, 70)
             .build(ctx),
-        )
-        .cb("close", Box::new(|_, _| Some(Transition::Pop)))
-        .maybe_cb(
-            "None",
-            Box::new(|_, app| {
-                app.layer = None;
-                Some(Transition::Pop)
-            }),
-        )
-        .maybe_cb(
-            "parking occupancy",
-            Box::new(|ctx, app| {
-                app.layer = Some(parking::new(ctx, app, true, true));
-                Some(Transition::Pop)
-            }),
-        )
-        .maybe_cb(
-            "delay",
-            Box::new(|ctx, app| {
-                app.layer = Some(traffic::delay(ctx, app));
-                Some(Transition::Pop)
-            }),
-        )
-        .maybe_cb(
-            "worst traffic jams",
-            Box::new(|ctx, app| {
-                app.layer = Some(traffic::traffic_jams(ctx, app));
-                Some(Transition::Pop)
-            }),
-        )
-        .maybe_cb(
-            "throughput",
-            Box::new(|ctx, app| {
-                app.layer = Some(traffic::throughput(ctx, app, false));
-                Some(Transition::Pop)
-            }),
-        )
-        .maybe_cb(
-            "backpressure",
-            Box::new(|ctx, app| {
-                app.layer = Some(traffic::backpressure(ctx, app));
-                Some(Transition::Pop)
-            }),
-        )
-        .maybe_cb(
-            "bike network",
-            Box::new(|ctx, app| {
-                app.layer = Some(map::bike_network(ctx, app));
-                Some(Transition::Pop)
-            }),
-        )
-        .maybe_cb(
-            "bus network",
-            Box::new(|ctx, app| {
-                app.layer = Some(map::bus_network(ctx, app));
-                Some(Transition::Pop)
-            }),
-        )
-        .maybe_cb(
-            "elevation",
-            Box::new(|ctx, app| {
-                app.layer = Some(elevation::new(ctx, app));
-                Some(Transition::Pop)
-            }),
-        )
-        .maybe_cb(
-            "map edits",
-            Box::new(|ctx, app| {
-                app.layer = Some(map::edits(ctx, app));
-                Some(Transition::Pop)
-            }),
-        )
-        .maybe_cb(
-            "amenities",
-            Box::new(|ctx, app| {
-                app.layer = Some(map::amenities(ctx, app));
-                Some(Transition::Pop)
-            }),
-        )
-        .maybe_cb(
-            "population map",
-            Box::new(|ctx, app| {
-                app.layer = Some(population::new(
-                    ctx,
-                    app,
-                    population::Options {
-                        heatmap: Some(HeatmapOptions::new()),
-                    },
-                ));
-                Some(Transition::Pop)
-            }),
-        )
-        .maybe_cb(
-            "pandemic model",
-            Box::new(|ctx, app| {
-                app.layer = Some(pandemic::new(
-                    ctx,
-                    app,
-                    pandemic::Options {
-                        heatmap: Some(HeatmapOptions::new()),
-                        state: pandemic::SEIR::Infected,
-                    },
-                ));
-                Some(Transition::Pop)
-            }),
-        );
-        Some(Transition::Push(ManagedGUIState::over_map(c)))
+        })
+    }
+}
+
+pub struct PickLayer {
+    composite: Composite,
+}
+
+impl State for PickLayer {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "close" => {}
+                "None" => {
+                    app.layer = None;
+                }
+                "parking occupancy" => {
+                    app.layer = Some(parking::new(ctx, app, true, true));
+                }
+                "delay" => {
+                    app.layer = Some(traffic::delay(ctx, app));
+                }
+                "worst traffic jams" => {
+                    app.layer = Some(traffic::traffic_jams(ctx, app));
+                }
+                "throughput" => {
+                    app.layer = Some(traffic::throughput(ctx, app, false));
+                }
+                "backpressure" => {
+                    app.layer = Some(traffic::backpressure(ctx, app));
+                }
+                "bike network" => {
+                    app.layer = Some(map::bike_network(ctx, app));
+                }
+                "bus network" => {
+                    app.layer = Some(map::bus_network(ctx, app));
+                }
+                "elevation" => {
+                    app.layer = Some(elevation::new(ctx, app));
+                }
+                "map edits" => {
+                    app.layer = Some(map::edits(ctx, app));
+                }
+                "amenities" => {
+                    app.layer = Some(map::amenities(ctx, app));
+                }
+                "population map" => {
+                    app.layer = Some(population::new(
+                        ctx,
+                        app,
+                        population::Options {
+                            heatmap: Some(HeatmapOptions::new()),
+                        },
+                    ));
+                }
+                "pandemic model" => {
+                    app.layer = Some(pandemic::new(
+                        ctx,
+                        app,
+                        pandemic::Options {
+                            heatmap: Some(HeatmapOptions::new()),
+                            state: pandemic::SEIR::Infected,
+                        },
+                    ));
+                }
+                _ => unreachable!(),
+            },
+            None => {
+                if self.composite.clicked_outside(ctx) {
+                    return Transition::Pop;
+                }
+                return Transition::Keep;
+            }
+        }
+        Transition::Pop
+    }
+
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::PreviousState
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        State::grey_out_map(g, app);
+        self.composite.draw(g);
     }
 }

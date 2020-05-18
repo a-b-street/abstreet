@@ -129,7 +129,7 @@ impl Minimap {
                     )));
                 }
                 x if x == "change layers" => {
-                    return Layers::change_layers(ctx, app);
+                    return Some(Transition::Push(Layers::change_layers(ctx, app)));
                 }
                 _ => unreachable!(),
             },

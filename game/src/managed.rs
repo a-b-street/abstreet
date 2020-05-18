@@ -98,22 +98,11 @@ impl WrappedComposite {
 
 pub struct ManagedGUIState {
     composite: WrappedComposite,
-    fullscreen: bool,
 }
 
 impl ManagedGUIState {
     pub fn fullscreen(composite: WrappedComposite) -> Box<dyn State> {
-        Box::new(ManagedGUIState {
-            composite,
-            fullscreen: true,
-        })
-    }
-
-    pub fn over_map(composite: WrappedComposite) -> Box<dyn State> {
-        Box::new(ManagedGUIState {
-            composite,
-            fullscreen: false,
-        })
+        Box::new(ManagedGUIState { composite })
     }
 }
 
@@ -129,28 +118,16 @@ impl State for ManagedGUIState {
             ),
             None => {}
         }
-        if !self.fullscreen && self.composite.inner.clicked_outside(ctx) {
-            return Transition::Pop;
-        }
         Transition::Keep
     }
 
     fn draw_baselayer(&self) -> DrawBaselayer {
-        if self.fullscreen {
-            DrawBaselayer::Custom
-        } else {
-            DrawBaselayer::PreviousState
-        }
+        DrawBaselayer::Custom
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        if self.fullscreen {
-            // Happens to be a nice background color too ;)
-            g.clear(app.cs.grass);
-        } else {
-            State::grey_out_map(g, app);
-        }
-
+        // Happens to be a nice background color too ;)
+        g.clear(app.cs.grass);
         self.composite.draw(g);
     }
 }
