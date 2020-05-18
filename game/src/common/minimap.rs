@@ -64,10 +64,22 @@ impl Minimap {
         let pan_speed = 100.0;
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x {
-                x if x == "pan up" => self.offset_y -= pan_speed * self.zoom,
-                x if x == "pan down" => self.offset_y += pan_speed * self.zoom,
-                x if x == "pan left" => self.offset_x -= pan_speed * self.zoom,
-                x if x == "pan right" => self.offset_x += pan_speed * self.zoom,
+                x if x == "pan up" => {
+                    self.offset_y -= pan_speed * self.zoom;
+                    return Some(Transition::KeepWithMouseover);
+                }
+                x if x == "pan down" => {
+                    self.offset_y += pan_speed * self.zoom;
+                    return Some(Transition::KeepWithMouseover);
+                }
+                x if x == "pan left" => {
+                    self.offset_x -= pan_speed * self.zoom;
+                    return Some(Transition::KeepWithMouseover);
+                }
+                x if x == "pan right" => {
+                    self.offset_x += pan_speed * self.zoom;
+                    return Some(Transition::KeepWithMouseover);
+                }
                 // TODO Make the center of the cursor still point to the same thing. Same math as
                 // Canvas.
                 x if x == "zoom in" => {

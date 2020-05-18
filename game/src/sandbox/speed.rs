@@ -189,7 +189,7 @@ impl SpeedControls {
                     if dt == Duration::seconds(0.1) {
                         app.primary.sim.normal_step(&app.primary.map, dt);
                         app.recalculate_current_selection(ctx);
-                        return None;
+                        return Some(Transition::KeepWithMouseover);
                     }
                     return Some(Transition::Push(TimeWarpScreen::new(
                         ctx,

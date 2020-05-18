@@ -68,6 +68,7 @@ impl GUI for Game {
             Transition::KeepWithMode(evmode) => {
                 return evmode;
             }
+            Transition::KeepWithMouseover => {}
             Transition::Pop => {
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
                 if self.states.is_empty() {
@@ -218,6 +219,7 @@ downcast_rs::impl_downcast!(State);
 pub enum Transition {
     Keep,
     KeepWithMode(EventLoopMode),
+    KeepWithMouseover,
     Pop,
     PopTwice,
     // If a state needs to pass data back to the parent, use this. Sadly, runtime type casting.

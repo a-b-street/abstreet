@@ -101,7 +101,9 @@ impl<T: 'static + Clone> WidgetImpl for Autocomplete<T> {
             match self.menu.state {
                 InputResult::StillActive => {}
                 // Ignore this and make sure the Composite has a quit control
-                InputResult::Canceled => {}
+                InputResult::Canceled => {
+                    self.menu.state = InputResult::StillActive;
+                }
                 InputResult::Done(ref name, _) => {
                     // Mutating choices is fine, because we're supposed to be consumed by the
                     // caller immediately after this.
