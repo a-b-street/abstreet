@@ -7,13 +7,9 @@ mod population;
 pub mod traffic;
 
 use crate::app::App;
-use crate::common::{Colorer, HeatmapOptions};
+use crate::common::HeatmapOptions;
 use crate::game::{DrawBaselayer, State, Transition};
-use ezgui::{
-    hotkey, Btn, Color, Composite, Drawable, EventCtx, GfxCtx, Key, Line, Outcome, Widget,
-};
-use geom::Time;
-use map_model::BusRouteID;
+use ezgui::{hotkey, Btn, Color, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Widget};
 
 // TODO Good ideas in
 // https://towardsdatascience.com/top-10-map-types-in-data-visualization-b3a80898ea70
@@ -39,13 +35,6 @@ pub enum LayerOutcome {
 
 pub enum Layers {
     Generic(Box<dyn Layer>),
-    Elevation(Colorer, Drawable),
-    PopulationMap(Time, population::Options, Drawable, Composite),
-    Pandemic(Time, pandemic::Options, Drawable, Composite),
-
-    // These aren't selectable from the main picker; they're particular to some object.
-    // TODO They should become something else, like an info panel tab.
-    BusRoute(Time, BusRouteID, bus::ShowBusRoute),
 }
 
 impl Layers {
@@ -57,23 +46,6 @@ impl Layers {
         let now = app.primary.sim.time();
         match app.layer.as_ref().unwrap() {
             Layers::Generic(_) => {}
-            Layers::BusRoute(t, id, _) => {
-                if now != *t {
-                    app.layer = Some(bus::ShowBusRoute::new(ctx, app, *id));
-                }
-            }
-            Layers::PopulationMap(t, opts, _, _) => {
-                if now != *t {
-                    app.layer = Some(population::new(ctx, app, opts.clone()));
-                }
-            }
-            Layers::Pandemic(t, opts, _, _) => {
-                if now != *t {
-                    app.layer = Some(pandemic::new(ctx, app, opts.clone()));
-                }
-            }
-            // No updates needed
-            Layers::Elevation(_, _) => {}
         };
 
         // TODO Since Layers is embedded in UI, we have to do this slight trick
@@ -95,62 +67,6 @@ impl Layers {
 
         match app.layer.as_mut().unwrap() {
             Layers::Generic(_) => {}
-            Layers::Elevation(ref mut c, _) => {
-                c.legend.align_above(ctx, minimap);
-                if c.event(ctx) {
-                    app.layer = None;
-                }
-            }
-            Layers::BusRoute(_, _, ref mut c) => {
-                c.colorer.legend.align_above(ctx, minimap);
-                if c.colorer.event(ctx) {
-                    app.layer = None;
-                }
-            }
-            Layers::PopulationMap(_, ref mut opts, _, ref mut c) => {
-                c.align_above(ctx, minimap);
-                match c.event(ctx) {
-                    Some(Outcome::Clicked(x)) => match x.as_ref() {
-                        "close" => {
-                            app.layer = None;
-                        }
-                        _ => unreachable!(),
-                    },
-                    None => {
-                        let new_opts = population::options(c);
-                        if *opts != new_opts {
-                            app.layer = Some(population::new(ctx, app, new_opts));
-                            // Immediately fix the alignment. TODO Do this for all of them, in a
-                            // more uniform way
-                            if let Some(Layers::PopulationMap(_, _, _, ref mut c)) = app.layer {
-                                c.align_above(ctx, minimap);
-                            }
-                        }
-                    }
-                }
-            }
-            Layers::Pandemic(_, ref mut opts, _, ref mut c) => {
-                c.align_above(ctx, minimap);
-                match c.event(ctx) {
-                    Some(Outcome::Clicked(x)) => match x.as_ref() {
-                        "close" => {
-                            app.layer = None;
-                        }
-                        _ => unreachable!(),
-                    },
-                    None => {
-                        let new_opts = pandemic::options(c);
-                        if *opts != new_opts {
-                            app.layer = Some(pandemic::new(ctx, app, new_opts));
-                            // Immediately fix the alignment. TODO Do this for all of them, in a
-                            // more uniform way
-                            if let Some(Layers::Pandemic(_, _, _, ref mut c)) = app.layer {
-                                c.align_above(ctx, minimap);
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         None
@@ -162,28 +78,6 @@ impl Layers {
             Layers::Generic(ref l) => {
                 l.draw(g, app);
             }
-            Layers::Elevation(ref c, ref draw) => {
-                c.draw(g, app);
-                if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-                    g.redraw(draw);
-                }
-            }
-            Layers::PopulationMap(_, _, ref draw, ref composite) => {
-                composite.draw(g);
-                if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-                    g.redraw(draw);
-                }
-            }
-            Layers::Pandemic(_, _, ref draw, ref composite) => {
-                composite.draw(g);
-                if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-                    g.redraw(draw);
-                }
-            }
-            // All of these shouldn't care about zoom
-            Layers::BusRoute(_, _, ref s) => {
-                s.draw(g, app);
-            }
         }
     }
 
@@ -192,19 +86,6 @@ impl Layers {
         match self {
             Layers::Generic(ref l) => {
                 l.draw_minimap(g);
-            }
-            Layers::Elevation(ref c, ref draw) => {
-                g.redraw(&c.unzoomed);
-                g.redraw(draw);
-            }
-            Layers::PopulationMap(_, _, ref draw, _) => {
-                g.redraw(draw);
-            }
-            Layers::Pandemic(_, _, ref draw, _) => {
-                g.redraw(draw);
-            }
-            Layers::BusRoute(_, _, ref s) => {
-                s.draw(g, app);
             }
         }
     }
@@ -237,10 +118,6 @@ impl Layers {
         if let Some(name) = match app.layer {
             None => Some("None"),
             Some(Layers::Generic(ref l)) => l.name(),
-            Some(Layers::Elevation(_, _)) => Some("elevation"),
-            Some(Layers::PopulationMap(_, _, _, _)) => Some("population map"),
-            Some(Layers::Pandemic(_, _, _, _)) => Some("pandemic model"),
-            Some(Layers::BusRoute(_, _, _)) => None,
         } {
             for btn in &mut col {
                 if btn.is_btn(name) {
@@ -307,7 +184,9 @@ impl State for PickLayer {
                     ))));
                 }
                 "elevation" => {
-                    app.layer = Some(elevation::new(ctx, app));
+                    app.layer = Some(Layers::Generic(Box::new(elevation::Elevation::new(
+                        ctx, app,
+                    ))));
                 }
                 "map edits" => {
                     app.layer = Some(Layers::Generic(Box::new(map::Static::edits(ctx, app))));
@@ -316,23 +195,23 @@ impl State for PickLayer {
                     app.layer = Some(Layers::Generic(Box::new(map::Static::amenities(ctx, app))));
                 }
                 "population map" => {
-                    app.layer = Some(population::new(
+                    app.layer = Some(Layers::Generic(Box::new(population::PopulationMap::new(
                         ctx,
                         app,
                         population::Options {
                             heatmap: Some(HeatmapOptions::new()),
                         },
-                    ));
+                    ))));
                 }
                 "pandemic model" => {
-                    app.layer = Some(pandemic::new(
+                    app.layer = Some(Layers::Generic(Box::new(pandemic::Pandemic::new(
                         ctx,
                         app,
                         pandemic::Options {
                             heatmap: Some(HeatmapOptions::new()),
                             state: pandemic::SEIR::Infected,
                         },
-                    ));
+                    ))));
                 }
                 _ => unreachable!(),
             },

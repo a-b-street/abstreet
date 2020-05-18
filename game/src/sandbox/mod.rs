@@ -399,13 +399,8 @@ impl ContextualActions for Actions {
                 }
                 ID::Car(c) => {
                     if c.1 == VehicleType::Bus {
-                        let route = app.primary.sim.bus_route_id(c).unwrap();
-                        match app.layer {
-                            Some(Layers::BusRoute(_, r, _)) if r == route => {}
-                            _ => {
-                                actions.push((Key::R, "show route".to_string()));
-                            }
-                        }
+                        // TODO Hide the button if the layer is open
+                        actions.push((Key::R, "show route".to_string()));
                     }
                 }
                 _ => {}
@@ -449,11 +444,13 @@ impl ContextualActions for Actions {
             ),
             (ID::Car(c), "show route") => {
                 *close_panel = false;
-                app.layer = Some(crate::layer::bus::ShowBusRoute::new(
-                    ctx,
-                    app,
-                    app.primary.sim.bus_route_id(c).unwrap(),
-                ));
+                app.layer = Some(Layers::Generic(Box::new(
+                    crate::layer::bus::ShowBusRoute::new(
+                        ctx,
+                        app,
+                        app.primary.sim.bus_route_id(c).unwrap(),
+                    ),
+                )));
                 Transition::Keep
             }
             (_, "follow") => {
