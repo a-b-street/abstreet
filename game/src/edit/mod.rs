@@ -82,7 +82,9 @@ impl State for EditMode {
             // Once is never...
             self.once = false;
             // apply_map_edits will do the job later
-            app.layer = Some(Layers::Generic(crate::layer::map::Static::edits(ctx, app)));
+            app.layer = Some(Layers::Generic(Box::new(crate::layer::map::Static::edits(
+                ctx, app,
+            ))));
         }
         {
             let edits = app.primary.map.get_edits();
@@ -449,7 +451,9 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
 
     if let Some(Layers::Generic(ref l)) = app.layer {
         if l.name() == Some("map edits") {
-            app.layer = Some(Layers::Generic(crate::layer::map::Static::edits(ctx, app)));
+            app.layer = Some(Layers::Generic(Box::new(crate::layer::map::Static::edits(
+                ctx, app,
+            ))));
         }
     }
 }

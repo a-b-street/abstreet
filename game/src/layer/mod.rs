@@ -7,21 +7,19 @@ mod population;
 pub mod traffic;
 
 use crate::app::App;
-use crate::common::{Colorer, HeatmapOptions, Warping};
+use crate::common::{Colorer, HeatmapOptions};
 use crate::game::{DrawBaselayer, State, Transition};
-use crate::helpers::ID;
 use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GfxCtx, Key, Line, Outcome, Widget,
 };
 use geom::Time;
-use map_model::{BusRouteID, IntersectionID};
+use map_model::BusRouteID;
 
 // TODO Good ideas in
 // https://towardsdatascience.com/top-10-map-types-in-data-visualization-b3a80898ea70
 
 pub trait Layer {
     fn name(&self) -> Option<&'static str>;
-    fn update(&self, ctx: &mut EventCtx, app: &App) -> Option<Box<dyn Layer>>;
     fn event(
         &mut self,
         ctx: &mut EventCtx,
@@ -41,29 +39,12 @@ pub enum LayerOutcome {
 
 pub enum Layers {
     Generic(Box<dyn Layer>),
-    ParkingOccupancy {
-        time: Time,
-        onstreet: bool,
-        offstreet: bool,
-        unzoomed: Drawable,
-        composite: Composite,
-    },
-    CumulativeThroughput {
-        time: Time,
-        compare: bool,
-        unzoomed: Drawable,
-        composite: Composite,
-    },
-    WorstDelay(Time, Colorer),
-    TrafficJams(Time, Colorer),
-    Backpressure(Time, Colorer),
     Elevation(Colorer, Drawable),
     PopulationMap(Time, population::Options, Drawable, Composite),
     Pandemic(Time, pandemic::Options, Drawable, Composite),
 
     // These aren't selectable from the main picker; they're particular to some object.
     // TODO They should become something else, like an info panel tab.
-    IntersectionDemand(Time, IntersectionID, Drawable, Composite),
     BusRoute(Time, BusRouteID, bus::ShowBusRoute),
 }
 
@@ -75,46 +56,7 @@ impl Layers {
         }
         let now = app.primary.sim.time();
         match app.layer.as_ref().unwrap() {
-            Layers::Generic(ref l) => {
-                if let Some(new) = l.update(ctx, app) {
-                    app.layer = Some(Layers::Generic(new));
-                }
-            }
-            Layers::ParkingOccupancy {
-                time,
-                onstreet,
-                offstreet,
-                ..
-            } => {
-                if now != *time {
-                    app.layer = Some(parking::new(ctx, app, *onstreet, *offstreet));
-                }
-            }
-            Layers::WorstDelay(t, _) => {
-                if now != *t {
-                    app.layer = Some(traffic::delay(ctx, app));
-                }
-            }
-            Layers::TrafficJams(t, _) => {
-                if now != *t {
-                    app.layer = Some(traffic::traffic_jams(ctx, app));
-                }
-            }
-            Layers::CumulativeThroughput { time, compare, .. } => {
-                if now != *time {
-                    app.layer = Some(traffic::throughput(ctx, app, *compare));
-                }
-            }
-            Layers::Backpressure(t, _) => {
-                if now != *t {
-                    app.layer = Some(traffic::backpressure(ctx, app));
-                }
-            }
-            Layers::IntersectionDemand(t, i, _, _) => {
-                if now != *t {
-                    app.layer = Some(traffic::intersection_demand(ctx, app, *i));
-                }
-            }
+            Layers::Generic(_) => {}
             Layers::BusRoute(t, id, _) => {
                 if now != *t {
                     app.layer = Some(bus::ShowBusRoute::new(ctx, app, *id));
@@ -153,102 +95,16 @@ impl Layers {
 
         match app.layer.as_mut().unwrap() {
             Layers::Generic(_) => {}
-            Layers::Elevation(ref mut c, _)
-            | Layers::WorstDelay(_, ref mut c)
-            | Layers::TrafficJams(_, ref mut c)
-            | Layers::Backpressure(_, ref mut c) => {
+            Layers::Elevation(ref mut c, _) => {
                 c.legend.align_above(ctx, minimap);
                 if c.event(ctx) {
                     app.layer = None;
-                }
-            }
-            Layers::ParkingOccupancy {
-                ref mut composite,
-                onstreet,
-                offstreet,
-                ..
-            } => {
-                composite.align_above(ctx, minimap);
-                match composite.event(ctx) {
-                    Some(Outcome::Clicked(x)) => match x.as_ref() {
-                        "close" => {
-                            app.layer = None;
-                        }
-                        _ => unreachable!(),
-                    },
-                    None => {
-                        let new_onstreet = composite.is_checked("On-street spots");
-                        let new_offstreet = composite.is_checked("Off-street spots");
-                        if *onstreet != new_onstreet || *offstreet != new_offstreet {
-                            app.layer = Some(parking::new(ctx, app, new_onstreet, new_offstreet));
-                            // Immediately fix the alignment. TODO Do this for all of them, in a
-                            // more uniform way
-                            if let Some(Layers::ParkingOccupancy {
-                                ref mut composite, ..
-                            }) = app.layer
-                            {
-                                composite.align_above(ctx, minimap);
-                            }
-                        }
-                    }
-                }
-            }
-            Layers::CumulativeThroughput {
-                ref mut composite,
-                compare,
-                ..
-            } => {
-                composite.align_above(ctx, minimap);
-                match composite.event(ctx) {
-                    Some(Outcome::Clicked(x)) => match x.as_ref() {
-                        "close" => {
-                            app.layer = None;
-                        }
-                        _ => unreachable!(),
-                    },
-                    None => {
-                        let new_compare = composite.has_widget("Compare before edits")
-                            && composite.is_checked("Compare before edits");
-                        if new_compare != *compare {
-                            app.layer = Some(traffic::throughput(ctx, app, new_compare));
-                            // Immediately fix the alignment. TODO Do this for all of them, in a
-                            // more uniform way
-                            if let Some(Layers::CumulativeThroughput {
-                                ref mut composite, ..
-                            }) = app.layer
-                            {
-                                composite.align_above(ctx, minimap);
-                            }
-                        }
-                    }
                 }
             }
             Layers::BusRoute(_, _, ref mut c) => {
                 c.colorer.legend.align_above(ctx, minimap);
                 if c.colorer.event(ctx) {
                     app.layer = None;
-                }
-            }
-            Layers::IntersectionDemand(_, i, _, ref mut c) => {
-                c.align_above(ctx, minimap);
-                match c.event(ctx) {
-                    Some(Outcome::Clicked(x)) => match x.as_ref() {
-                        "intersection demand" => {
-                            let id = ID::Intersection(*i);
-                            return Some(Transition::Push(Warping::new(
-                                ctx,
-                                id.canonical_point(&app.primary).unwrap(),
-                                Some(10.0),
-                                Some(id.clone()),
-                                &mut app.primary,
-                            )));
-                        }
-                        "X" => {
-                            app.layer = None;
-                        }
-                        _ => unreachable!(),
-                    },
-                    None => {}
                 }
             }
             Layers::PopulationMap(_, ref mut opts, _, ref mut c) => {
@@ -306,35 +162,10 @@ impl Layers {
             Layers::Generic(ref l) => {
                 l.draw(g, app);
             }
-            Layers::WorstDelay(_, ref c)
-            | Layers::TrafficJams(_, ref c)
-            | Layers::Backpressure(_, ref c) => {
-                c.draw(g, app);
-            }
             Layers::Elevation(ref c, ref draw) => {
                 c.draw(g, app);
                 if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
                     g.redraw(draw);
-                }
-            }
-            Layers::ParkingOccupancy {
-                ref unzoomed,
-                ref composite,
-                ..
-            } => {
-                composite.draw(g);
-                if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-                    g.redraw(unzoomed);
-                }
-            }
-            Layers::CumulativeThroughput {
-                ref unzoomed,
-                ref composite,
-                ..
-            } => {
-                composite.draw(g);
-                if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-                    g.redraw(unzoomed);
                 }
             }
             Layers::PopulationMap(_, _, ref draw, ref composite) => {
@@ -350,10 +181,6 @@ impl Layers {
                 }
             }
             // All of these shouldn't care about zoom
-            Layers::IntersectionDemand(_, _, ref draw, ref legend) => {
-                g.redraw(draw);
-                legend.draw(g);
-            }
             Layers::BusRoute(_, _, ref s) => {
                 s.draw(g, app);
             }
@@ -366,17 +193,6 @@ impl Layers {
             Layers::Generic(ref l) => {
                 l.draw_minimap(g);
             }
-            Layers::WorstDelay(_, ref c)
-            | Layers::TrafficJams(_, ref c)
-            | Layers::Backpressure(_, ref c) => {
-                g.redraw(&c.unzoomed);
-            }
-            Layers::ParkingOccupancy { ref unzoomed, .. } => {
-                g.redraw(unzoomed);
-            }
-            Layers::CumulativeThroughput { ref unzoomed, .. } => {
-                g.redraw(unzoomed);
-            }
             Layers::Elevation(ref c, ref draw) => {
                 g.redraw(&c.unzoomed);
                 g.redraw(draw);
@@ -387,7 +203,6 @@ impl Layers {
             Layers::Pandemic(_, _, ref draw, _) => {
                 g.redraw(draw);
             }
-            Layers::IntersectionDemand(_, _, _, _) => {}
             Layers::BusRoute(_, _, ref s) => {
                 s.draw(g, app);
             }
@@ -422,15 +237,9 @@ impl Layers {
         if let Some(name) = match app.layer {
             None => Some("None"),
             Some(Layers::Generic(ref l)) => l.name(),
-            Some(Layers::ParkingOccupancy { .. }) => Some("parking occupancy"),
-            Some(Layers::WorstDelay(_, _)) => Some("delay"),
-            Some(Layers::TrafficJams(_, _)) => Some("worst traffic jams"),
-            Some(Layers::CumulativeThroughput { .. }) => Some("throughput"),
-            Some(Layers::Backpressure(_, _)) => Some("backpressure"),
             Some(Layers::Elevation(_, _)) => Some("elevation"),
             Some(Layers::PopulationMap(_, _, _, _)) => Some("population map"),
             Some(Layers::Pandemic(_, _, _, _)) => Some("pandemic model"),
-            Some(Layers::IntersectionDemand(_, _, _, _)) => None,
             Some(Layers::BusRoute(_, _, _)) => None,
         } {
             for btn in &mut col {
@@ -467,34 +276,44 @@ impl State for PickLayer {
                     app.layer = None;
                 }
                 "parking occupancy" => {
-                    app.layer = Some(parking::new(ctx, app, true, true));
+                    app.layer = Some(Layers::Generic(Box::new(parking::Occupancy::new(
+                        ctx, app, true, true,
+                    ))));
                 }
                 "delay" => {
-                    app.layer = Some(traffic::delay(ctx, app));
+                    app.layer = Some(Layers::Generic(Box::new(traffic::Dynamic::delay(ctx, app))));
                 }
                 "worst traffic jams" => {
-                    app.layer = Some(traffic::traffic_jams(ctx, app));
+                    app.layer = Some(Layers::Generic(Box::new(traffic::Dynamic::traffic_jams(
+                        ctx, app,
+                    ))));
                 }
                 "throughput" => {
-                    app.layer = Some(traffic::throughput(ctx, app, false));
+                    app.layer = Some(Layers::Generic(Box::new(traffic::Throughput::new(
+                        ctx, app, false,
+                    ))));
                 }
                 "backpressure" => {
-                    app.layer = Some(traffic::backpressure(ctx, app));
+                    app.layer = Some(Layers::Generic(Box::new(traffic::Dynamic::backpressure(
+                        ctx, app,
+                    ))));
                 }
                 "bike network" => {
-                    app.layer = Some(Layers::Generic(map::BikeNetwork::new(ctx, app)));
+                    app.layer = Some(Layers::Generic(Box::new(map::BikeNetwork::new(ctx, app))));
                 }
                 "bus network" => {
-                    app.layer = Some(Layers::Generic(map::Static::bus_network(ctx, app)));
+                    app.layer = Some(Layers::Generic(Box::new(map::Static::bus_network(
+                        ctx, app,
+                    ))));
                 }
                 "elevation" => {
                     app.layer = Some(elevation::new(ctx, app));
                 }
                 "map edits" => {
-                    app.layer = Some(Layers::Generic(map::Static::edits(ctx, app)));
+                    app.layer = Some(Layers::Generic(Box::new(map::Static::edits(ctx, app))));
                 }
                 "amenities" => {
-                    app.layer = Some(Layers::Generic(map::Static::amenities(ctx, app)));
+                    app.layer = Some(Layers::Generic(Box::new(map::Static::amenities(ctx, app))));
                 }
                 "population map" => {
                     app.layer = Some(population::new(

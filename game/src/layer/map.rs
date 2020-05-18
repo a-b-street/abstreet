@@ -18,19 +18,16 @@ impl Layer for BikeNetwork {
     fn name(&self) -> Option<&'static str> {
         Some("bike network")
     }
-    fn update(&self, ctx: &mut EventCtx, app: &App) -> Option<Box<dyn Layer>> {
-        if app.primary.sim.time() != self.time {
-            Some(BikeNetwork::new(ctx, app))
-        } else {
-            None
-        }
-    }
     fn event(
         &mut self,
         ctx: &mut EventCtx,
-        _: &mut App,
+        app: &mut App,
         minimap: &Composite,
     ) -> Option<LayerOutcome> {
+        if app.primary.sim.time() != self.time {
+            *self = BikeNetwork::new(ctx, app);
+        }
+
         self.off_colorer.legend.align_above(ctx, minimap);
         self.on_colorer
             .legend
@@ -51,7 +48,7 @@ impl Layer for BikeNetwork {
 }
 
 impl BikeNetwork {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn Layer> {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> BikeNetwork {
         // Show throughput, broken down by bike lanes or not
         let mut on_bike_lanes = Counter::new();
         let mut off_bike_lanes = Counter::new();
@@ -126,11 +123,11 @@ impl BikeNetwork {
             format!("total distance of {}", total_dist),
         ]);
 
-        Box::new(BikeNetwork {
+        BikeNetwork {
             time: app.primary.sim.time(),
             on_colorer: on_colorer.build_unzoomed(ctx, app),
             off_colorer: off_colorer.build_unzoomed(ctx, app),
-        })
+        }
     }
 }
 
@@ -142,9 +139,6 @@ pub struct Static {
 impl Layer for Static {
     fn name(&self) -> Option<&'static str> {
         Some(self.name)
-    }
-    fn update(&self, _: &mut EventCtx, _: &App) -> Option<Box<dyn Layer>> {
-        None
     }
     fn event(
         &mut self,
@@ -167,7 +161,7 @@ impl Layer for Static {
 }
 
 impl Static {
-    pub fn bus_network(ctx: &mut EventCtx, app: &App) -> Box<dyn Layer> {
+    pub fn bus_network(ctx: &mut EventCtx, app: &App) -> Static {
         // TODO Same color for both?
         let mut colorer = Colorer::discrete(
             ctx,
@@ -187,13 +181,13 @@ impl Static {
             colorer.add_bs(*bs, app.cs.bus_layer);
         }
 
-        Box::new(Static {
+        Static {
             colorer: colorer.build_unzoomed(ctx, app),
             name: "bus network",
-        })
+        }
     }
 
-    pub fn edits(ctx: &mut EventCtx, app: &App) -> Box<dyn Layer> {
+    pub fn edits(ctx: &mut EventCtx, app: &App) -> Static {
         let edits = app.primary.map.get_edits();
 
         let mut colorer = Colorer::discrete(
@@ -221,13 +215,13 @@ impl Static {
             colorer.add_r(*r, app.cs.edits_layer, &app.primary.map);
         }
 
-        Box::new(Static {
+        Static {
             colorer: colorer.build_both(ctx, app),
             name: "map edits",
-        })
+        }
     }
 
-    pub fn amenities(ctx: &mut EventCtx, app: &App) -> Box<dyn Layer> {
+    pub fn amenities(ctx: &mut EventCtx, app: &App) -> Static {
         let mut colorer = Colorer::discrete(
             ctx,
             "Amenities",
@@ -277,9 +271,9 @@ impl Static {
             }
         }
 
-        Box::new(Static {
+        Static {
             colorer: colorer.build_both(ctx, app),
             name: "amenities",
-        })
+        }
     }
 }

@@ -427,7 +427,9 @@ impl ContextualActions for Actions {
                 Transition::Push(ShowTrafficSignal::new(ctx, app, i))
             }
             (ID::Intersection(i), "show current demand") => {
-                app.layer = Some(crate::layer::traffic::intersection_demand(ctx, app, i));
+                app.layer = Some(Layers::Generic(Box::new(
+                    crate::layer::traffic::IntersectionDemand::new(ctx, app, i),
+                )));
                 Transition::Keep
             }
             (ID::Intersection(i), "edit traffic signal") => Transition::PushTwice(
