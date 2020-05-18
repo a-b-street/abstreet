@@ -1,7 +1,7 @@
 use crate::challenges::HighScore;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
-use crate::layer::Layers;
+use crate::layer::Layer;
 use crate::options::Options;
 use crate::render::{AgentCache, AgentColorScheme, DrawMap, DrawOptions, Renderable};
 use crate::sandbox::{GameplayMode, TutorialState};
@@ -27,7 +27,7 @@ pub struct App {
     pub opts: Options,
 
     pub per_obj: PerObjectActions,
-    pub layer: Option<Layers>,
+    pub layer: Option<Box<dyn Layer>>,
 
     // Static data that lasts the entire session. Use sparingly.
     pub session: SessionState,

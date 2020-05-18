@@ -11,7 +11,6 @@ use crate::common::{tool_panel, Colorer, CommonState, Warping};
 use crate::debug::DebugMode;
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
-use crate::layer::Layers;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::{DrawIntersection, DrawLane, DrawRoad};
 use crate::sandbox::{GameplayMode, SandboxMode};
@@ -77,14 +76,12 @@ impl EditMode {
 
 impl State for EditMode {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        // Can't do this in the constructor, because SandboxMode's on_destroy clears out Layers
+        // Can't do this in the constructor, because SandboxMode's on_destroy clears out the layer
         if self.once {
             // Once is never...
             self.once = false;
             // apply_map_edits will do the job later
-            app.layer = Some(Layers::Generic(Box::new(crate::layer::map::Static::edits(
-                ctx, app,
-            ))));
+            app.layer = Some(Box::new(crate::layer::map::Static::edits(ctx, app)));
         }
         {
             let edits = app.primary.map.get_edits();
@@ -449,12 +446,8 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
         );
     }
 
-    if let Some(Layers::Generic(ref l)) = app.layer {
-        if l.name() == Some("map edits") {
-            app.layer = Some(Layers::Generic(Box::new(crate::layer::map::Static::edits(
-                ctx, app,
-            ))));
-        }
+    if app.layer.as_ref().and_then(|l| l.name()) == Some("map edits") {
+        app.layer = Some(Box::new(crate::layer::map::Static::edits(ctx, app)));
     }
 }
 

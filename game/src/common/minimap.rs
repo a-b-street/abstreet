@@ -1,7 +1,7 @@
 use crate::app::App;
 use crate::common::{navigate, shortcuts, Warping};
 use crate::game::Transition;
-use crate::layer::Layers;
+use crate::layer::PickLayer;
 use abstutil::clamp;
 use ezgui::{
     hotkey, Btn, Checkbox, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx,
@@ -129,7 +129,7 @@ impl Minimap {
                     )));
                 }
                 x if x == "change layers" => {
-                    return Some(Transition::Push(Layers::change_layers(ctx, app)));
+                    return Some(Transition::Push(PickLayer::pick(ctx, app)));
                 }
                 _ => unreachable!(),
             },
@@ -209,7 +209,7 @@ impl Minimap {
         g.redraw(&app.primary.draw_map.draw_all_buildings);
         // Not the building paths
         if let Some(ref l) = app.layer {
-            l.draw_minimap(g, app);
+            l.draw_minimap(g);
         }
 
         let mut cache = app.primary.draw_map.agents.borrow_mut();

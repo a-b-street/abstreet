@@ -33,64 +33,35 @@ pub enum LayerOutcome {
     Transition(Transition),
 }
 
-pub enum Layers {
-    Generic(Box<dyn Layer>),
+pub struct PickLayer {
+    composite: Composite,
 }
 
-impl Layers {
-    // Since Layers is embedded in UI, we have to do this slight trick
+impl PickLayer {
     pub fn update(ctx: &mut EventCtx, app: &mut App, minimap: &Composite) -> Option<Transition> {
         if app.layer.is_none() {
             return None;
         }
-        let now = app.primary.sim.time();
-        match app.layer.as_ref().unwrap() {
-            Layers::Generic(_) => {}
-        };
 
-        // TODO Since Layers is embedded in UI, we have to do this slight trick
+        // TODO Since the Layer is embedded in UI, we have to do this slight trick
         let mut layer = app.layer.take().unwrap();
-        if let Layers::Generic(ref mut l) = layer {
-            match l.event(ctx, app, minimap) {
-                Some(LayerOutcome::Close) => {
-                    app.layer = None;
-                    return None;
-                }
-                Some(LayerOutcome::Transition(t)) => {
-                    app.layer = Some(layer);
-                    return Some(t);
-                }
-                None => {}
+        match layer.event(ctx, app, minimap) {
+            Some(LayerOutcome::Close) => {
+                app.layer = None;
+                return None;
             }
+            Some(LayerOutcome::Transition(t)) => {
+                app.layer = Some(layer);
+                return Some(t);
+            }
+            None => {}
         }
         app.layer = Some(layer);
-
-        match app.layer.as_mut().unwrap() {
-            Layers::Generic(_) => {}
-        }
 
         None
     }
 
-    // Draw both controls and, if zoomed, the layer contents
-    pub fn draw(&self, g: &mut GfxCtx, app: &App) {
-        match self {
-            Layers::Generic(ref l) => {
-                l.draw(g, app);
-            }
-        }
-    }
-
-    // Just draw contents and do it always
-    pub fn draw_minimap(&self, g: &mut GfxCtx, app: &App) {
-        match self {
-            Layers::Generic(ref l) => {
-                l.draw_minimap(g);
-            }
-        }
-    }
-
-    pub fn change_layers(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    pub fn pick(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         let mut col = vec![Widget::row(vec![
             Line("Layers").small_heading().draw(ctx),
             Btn::plaintext("X")
@@ -117,7 +88,7 @@ impl Layers {
         }
         if let Some(name) = match app.layer {
             None => Some("None"),
-            Some(Layers::Generic(ref l)) => l.name(),
+            Some(ref l) => l.name(),
         } {
             for btn in &mut col {
                 if btn.is_btn(name) {
@@ -140,10 +111,6 @@ impl Layers {
     }
 }
 
-pub struct PickLayer {
-    composite: Composite,
-}
-
 impl State for PickLayer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
@@ -153,65 +120,53 @@ impl State for PickLayer {
                     app.layer = None;
                 }
                 "parking occupancy" => {
-                    app.layer = Some(Layers::Generic(Box::new(parking::Occupancy::new(
-                        ctx, app, true, true,
-                    ))));
+                    app.layer = Some(Box::new(parking::Occupancy::new(ctx, app, true, true)));
                 }
                 "delay" => {
-                    app.layer = Some(Layers::Generic(Box::new(traffic::Dynamic::delay(ctx, app))));
+                    app.layer = Some(Box::new(traffic::Dynamic::delay(ctx, app)));
                 }
                 "worst traffic jams" => {
-                    app.layer = Some(Layers::Generic(Box::new(traffic::Dynamic::traffic_jams(
-                        ctx, app,
-                    ))));
+                    app.layer = Some(Box::new(traffic::Dynamic::traffic_jams(ctx, app)));
                 }
                 "throughput" => {
-                    app.layer = Some(Layers::Generic(Box::new(traffic::Throughput::new(
-                        ctx, app, false,
-                    ))));
+                    app.layer = Some(Box::new(traffic::Throughput::new(ctx, app, false)));
                 }
                 "backpressure" => {
-                    app.layer = Some(Layers::Generic(Box::new(traffic::Dynamic::backpressure(
-                        ctx, app,
-                    ))));
+                    app.layer = Some(Box::new(traffic::Dynamic::backpressure(ctx, app)));
                 }
                 "bike network" => {
-                    app.layer = Some(Layers::Generic(Box::new(map::BikeNetwork::new(ctx, app))));
+                    app.layer = Some(Box::new(map::BikeNetwork::new(ctx, app)));
                 }
                 "bus network" => {
-                    app.layer = Some(Layers::Generic(Box::new(map::Static::bus_network(
-                        ctx, app,
-                    ))));
+                    app.layer = Some(Box::new(map::Static::bus_network(ctx, app)));
                 }
                 "elevation" => {
-                    app.layer = Some(Layers::Generic(Box::new(elevation::Elevation::new(
-                        ctx, app,
-                    ))));
+                    app.layer = Some(Box::new(elevation::Elevation::new(ctx, app)));
                 }
                 "map edits" => {
-                    app.layer = Some(Layers::Generic(Box::new(map::Static::edits(ctx, app))));
+                    app.layer = Some(Box::new(map::Static::edits(ctx, app)));
                 }
                 "amenities" => {
-                    app.layer = Some(Layers::Generic(Box::new(map::Static::amenities(ctx, app))));
+                    app.layer = Some(Box::new(map::Static::amenities(ctx, app)));
                 }
                 "population map" => {
-                    app.layer = Some(Layers::Generic(Box::new(population::PopulationMap::new(
+                    app.layer = Some(Box::new(population::PopulationMap::new(
                         ctx,
                         app,
                         population::Options {
                             heatmap: Some(HeatmapOptions::new()),
                         },
-                    ))));
+                    )));
                 }
                 "pandemic model" => {
-                    app.layer = Some(Layers::Generic(Box::new(pandemic::Pandemic::new(
+                    app.layer = Some(Box::new(pandemic::Pandemic::new(
                         ctx,
                         app,
                         pandemic::Options {
                             heatmap: Some(HeatmapOptions::new()),
                             state: pandemic::SEIR::Infected,
                         },
-                    ))));
+                    )));
                 }
                 _ => unreachable!(),
             },

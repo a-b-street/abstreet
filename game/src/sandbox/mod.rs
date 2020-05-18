@@ -13,7 +13,7 @@ use crate::edit::{
 };
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
-use crate::layer::Layers;
+use crate::layer::PickLayer;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::pregame::main_menu;
 use crate::render::AgentColorScheme;
@@ -134,7 +134,7 @@ impl State for SandboxMode {
             if let Some(t) = m.event(ctx, app) {
                 return t;
             }
-            if let Some(t) = Layers::update(ctx, app, &m.composite) {
+            if let Some(t) = PickLayer::update(ctx, app, &m.composite) {
                 return t;
             }
         }
@@ -422,8 +422,8 @@ impl ContextualActions for Actions {
                 Transition::Push(ShowTrafficSignal::new(ctx, app, i))
             }
             (ID::Intersection(i), "show current demand") => {
-                app.layer = Some(Layers::Generic(Box::new(
-                    crate::layer::traffic::IntersectionDemand::new(ctx, app, i),
+                app.layer = Some(Box::new(crate::layer::traffic::IntersectionDemand::new(
+                    ctx, app, i,
                 )));
                 Transition::Keep
             }
@@ -444,12 +444,10 @@ impl ContextualActions for Actions {
             ),
             (ID::Car(c), "show route") => {
                 *close_panel = false;
-                app.layer = Some(Layers::Generic(Box::new(
-                    crate::layer::bus::ShowBusRoute::new(
-                        ctx,
-                        app,
-                        app.primary.sim.bus_route_id(c).unwrap(),
-                    ),
+                app.layer = Some(Box::new(crate::layer::bus::ShowBusRoute::new(
+                    ctx,
+                    app,
+                    app.primary.sim.bus_route_id(c).unwrap(),
                 )));
                 Transition::Keep
             }
