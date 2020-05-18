@@ -60,7 +60,7 @@ impl EditMode {
         app.suspended_sim = None;
 
         ctx.loading_screen("apply edits", |ctx, mut timer| {
-            app.layer = Layers::Inactive;
+            app.layer = None;
             app.primary
                 .map
                 .recalculate_pathfinding_after_edits(&mut timer);
@@ -82,7 +82,7 @@ impl State for EditMode {
             // Once is never...
             self.once = false;
             // apply_map_edits will do the job later
-            app.layer = crate::layer::map::edits(ctx, app);
+            app.layer = Some(crate::layer::map::edits(ctx, app));
         }
         {
             let edits = app.primary.map.get_edits();
@@ -238,7 +238,9 @@ impl State for EditMode {
         // TODO Maybe this should be part of app.draw
         // TODO This has an X button, but we never call update and allow it to be changed. Should
         // just omit the button.
-        app.layer.draw(g, app);
+        if let Some(ref l) = app.layer {
+            l.draw(g, app);
+        }
 
         self.tool_panel.draw(g);
         self.composite.draw(g);
@@ -445,8 +447,8 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
         );
     }
 
-    if let Layers::Edits(_) = app.layer {
-        app.layer = crate::layer::map::edits(ctx, app);
+    if let Some(Layers::Edits(_)) = app.layer {
+        app.layer = Some(crate::layer::map::edits(ctx, app));
     }
 }
 

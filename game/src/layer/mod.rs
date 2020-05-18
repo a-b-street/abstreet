@@ -21,7 +21,6 @@ use map_model::{BusRouteID, IntersectionID};
 // https://towardsdatascience.com/top-10-map-types-in-data-visualization-b3a80898ea70
 
 pub enum Layers {
-    Inactive,
     ParkingOccupancy {
         time: Time,
         onstreet: bool,
@@ -53,81 +52,76 @@ pub enum Layers {
 }
 
 impl Layers {
-    pub fn is_empty(&self) -> bool {
-        match self {
-            Layers::Inactive => true,
-            _ => false,
-        }
-    }
-
     // Since Layers is embedded in UI, we have to do this slight trick
     pub fn update(ctx: &mut EventCtx, app: &mut App, minimap: &Composite) -> Option<Transition> {
+        if app.layer.is_none() {
+            return None;
+        }
         let now = app.primary.sim.time();
-        match app.layer {
+        match app.layer.as_ref().unwrap() {
             Layers::ParkingOccupancy {
                 time,
                 onstreet,
                 offstreet,
                 ..
             } => {
-                if now != time {
-                    app.layer = parking::new(ctx, app, onstreet, offstreet);
+                if now != *time {
+                    app.layer = Some(parking::new(ctx, app, *onstreet, *offstreet));
                 }
             }
             Layers::WorstDelay(t, _) => {
-                if now != t {
-                    app.layer = traffic::delay(ctx, app);
+                if now != *t {
+                    app.layer = Some(traffic::delay(ctx, app));
                 }
             }
             Layers::TrafficJams(t, _) => {
-                if now != t {
-                    app.layer = traffic::traffic_jams(ctx, app);
+                if now != *t {
+                    app.layer = Some(traffic::traffic_jams(ctx, app));
                 }
             }
             Layers::CumulativeThroughput { time, compare, .. } => {
-                if now != time {
-                    app.layer = traffic::throughput(ctx, app, compare);
+                if now != *time {
+                    app.layer = Some(traffic::throughput(ctx, app, *compare));
                 }
             }
             Layers::Backpressure(t, _) => {
-                if now != t {
-                    app.layer = traffic::backpressure(ctx, app);
+                if now != *t {
+                    app.layer = Some(traffic::backpressure(ctx, app));
                 }
             }
             Layers::IntersectionDemand(t, i, _, _) => {
-                if now != t {
-                    app.layer = traffic::intersection_demand(ctx, app, i);
+                if now != *t {
+                    app.layer = Some(traffic::intersection_demand(ctx, app, *i));
                 }
             }
             Layers::BusRoute(t, id, _) => {
-                if now != t {
-                    app.layer = bus::ShowBusRoute::new(ctx, app, id);
+                if now != *t {
+                    app.layer = Some(bus::ShowBusRoute::new(ctx, app, *id));
                 }
             }
-            Layers::PopulationMap(t, ref opts, _, _) => {
-                if now != t {
-                    app.layer = population::new(ctx, app, opts.clone());
+            Layers::PopulationMap(t, opts, _, _) => {
+                if now != *t {
+                    app.layer = Some(population::new(ctx, app, opts.clone()));
                 }
             }
-            Layers::Pandemic(t, ref opts, _, _) => {
-                if now != t {
-                    app.layer = pandemic::new(ctx, app, opts.clone());
+            Layers::Pandemic(t, opts, _, _) => {
+                if now != *t {
+                    app.layer = Some(pandemic::new(ctx, app, opts.clone()));
                 }
             }
             Layers::BikeNetwork(t, _, _) => {
-                if now != t {
-                    app.layer = map::bike_network(ctx, app);
+                if now != *t {
+                    app.layer = Some(map::bike_network(ctx, app));
                 }
             }
             // No updates needed
-            Layers::Inactive
-            | Layers::BusNetwork(_)
+            Layers::BusNetwork(_)
             | Layers::Elevation(_, _)
             | Layers::Edits(_)
             | Layers::Amenities(_) => {}
         };
 
-        match app.layer {
+        match app.layer.as_mut().unwrap() {
             Layers::BusNetwork(ref mut c)
             | Layers::Elevation(ref mut c, _)
             | Layers::WorstDelay(_, ref mut c)
@@ -137,7 +131,7 @@ impl Layers {
             | Layers::Amenities(ref mut c) => {
                 c.legend.align_above(ctx, minimap);
                 if c.event(ctx) {
-                    app.layer = Layers::Inactive;
+                    app.layer = None;
                 }
             }
             Layers::ParkingOccupancy {
@@ -150,20 +144,20 @@ impl Layers {
                 match composite.event(ctx) {
                     Some(Outcome::Clicked(x)) => match x.as_ref() {
                         "close" => {
-                            app.layer = Layers::Inactive;
+                            app.layer = None;
                         }
                         _ => unreachable!(),
                     },
                     None => {
                         let new_onstreet = composite.is_checked("On-street spots");
                         let new_offstreet = composite.is_checked("Off-street spots");
-                        if onstreet != new_onstreet || offstreet != new_offstreet {
-                            app.layer = parking::new(ctx, app, new_onstreet, new_offstreet);
+                        if *onstreet != new_onstreet || *offstreet != new_offstreet {
+                            app.layer = Some(parking::new(ctx, app, new_onstreet, new_offstreet));
                             // Immediately fix the alignment. TODO Do this for all of them, in a
                             // more uniform way
-                            if let Layers::ParkingOccupancy {
+                            if let Some(Layers::ParkingOccupancy {
                                 ref mut composite, ..
-                            } = app.layer
+                            }) = app.layer
                             {
                                 composite.align_above(ctx, minimap);
                             }
@@ -180,20 +174,20 @@ impl Layers {
                 match composite.event(ctx) {
                     Some(Outcome::Clicked(x)) => match x.as_ref() {
                         "close" => {
-                            app.layer = Layers::Inactive;
+                            app.layer = None;
                         }
                         _ => unreachable!(),
                     },
                     None => {
                         let new_compare = composite.has_widget("Compare before edits")
                             && composite.is_checked("Compare before edits");
-                        if new_compare != compare {
-                            app.layer = traffic::throughput(ctx, app, new_compare);
+                        if new_compare != *compare {
+                            app.layer = Some(traffic::throughput(ctx, app, new_compare));
                             // Immediately fix the alignment. TODO Do this for all of them, in a
                             // more uniform way
-                            if let Layers::CumulativeThroughput {
+                            if let Some(Layers::CumulativeThroughput {
                                 ref mut composite, ..
-                            } = app.layer
+                            }) = app.layer
                             {
                                 composite.align_above(ctx, minimap);
                             }
@@ -206,19 +200,19 @@ impl Layers {
                     c2.legend.align_above(ctx, minimap);
                     c1.legend.align_above(ctx, &c2.legend);
                     if c1.event(ctx) || c2.event(ctx) {
-                        app.layer = Layers::Inactive;
+                        app.layer = None;
                     }
                 } else {
                     c1.legend.align_above(ctx, minimap);
                     if c1.event(ctx) {
-                        app.layer = Layers::Inactive;
+                        app.layer = None;
                     }
                 }
             }
             Layers::BusRoute(_, _, ref mut c) => {
                 c.colorer.legend.align_above(ctx, minimap);
                 if c.colorer.event(ctx) {
-                    app.layer = Layers::Inactive;
+                    app.layer = None;
                 }
             }
             Layers::IntersectionDemand(_, i, _, ref mut c) => {
@@ -226,7 +220,7 @@ impl Layers {
                 match c.event(ctx) {
                     Some(Outcome::Clicked(x)) => match x.as_ref() {
                         "intersection demand" => {
-                            let id = ID::Intersection(i);
+                            let id = ID::Intersection(*i);
                             return Some(Transition::Push(Warping::new(
                                 ctx,
                                 id.canonical_point(&app.primary).unwrap(),
@@ -236,7 +230,7 @@ impl Layers {
                             )));
                         }
                         "X" => {
-                            app.layer = Layers::Inactive;
+                            app.layer = None;
                         }
                         _ => unreachable!(),
                     },
@@ -248,17 +242,17 @@ impl Layers {
                 match c.event(ctx) {
                     Some(Outcome::Clicked(x)) => match x.as_ref() {
                         "close" => {
-                            app.layer = Layers::Inactive;
+                            app.layer = None;
                         }
                         _ => unreachable!(),
                     },
                     None => {
                         let new_opts = population::options(c);
                         if *opts != new_opts {
-                            app.layer = population::new(ctx, app, new_opts);
+                            app.layer = Some(population::new(ctx, app, new_opts));
                             // Immediately fix the alignment. TODO Do this for all of them, in a
                             // more uniform way
-                            if let Layers::PopulationMap(_, _, _, ref mut c) = app.layer {
+                            if let Some(Layers::PopulationMap(_, _, _, ref mut c)) = app.layer {
                                 c.align_above(ctx, minimap);
                             }
                         }
@@ -270,24 +264,23 @@ impl Layers {
                 match c.event(ctx) {
                     Some(Outcome::Clicked(x)) => match x.as_ref() {
                         "close" => {
-                            app.layer = Layers::Inactive;
+                            app.layer = None;
                         }
                         _ => unreachable!(),
                     },
                     None => {
                         let new_opts = pandemic::options(c);
                         if *opts != new_opts {
-                            app.layer = pandemic::new(ctx, app, new_opts);
+                            app.layer = Some(pandemic::new(ctx, app, new_opts));
                             // Immediately fix the alignment. TODO Do this for all of them, in a
                             // more uniform way
-                            if let Layers::Pandemic(_, _, _, ref mut c) = app.layer {
+                            if let Some(Layers::Pandemic(_, _, _, ref mut c)) = app.layer {
                                 c.align_above(ctx, minimap);
                             }
                         }
                     }
                 }
             }
-            Layers::Inactive => {}
         }
 
         None
@@ -296,7 +289,6 @@ impl Layers {
     // Draw both controls and, if zoomed, the layer contents
     pub fn draw(&self, g: &mut GfxCtx, app: &App) {
         match self {
-            Layers::Inactive => {}
             Layers::BusNetwork(ref c)
             | Layers::WorstDelay(_, ref c)
             | Layers::TrafficJams(_, ref c)
@@ -363,7 +355,6 @@ impl Layers {
     // Just draw contents and do it always
     pub fn draw_minimap(&self, g: &mut GfxCtx, app: &App) {
         match self {
-            Layers::Inactive => {}
             Layers::BusNetwork(ref c)
             | Layers::WorstDelay(_, ref c)
             | Layers::TrafficJams(_, ref c)
@@ -427,19 +418,19 @@ impl Layers {
             col.push(Btn::text_fg("pandemic model").build_def(ctx, hotkey(Key::Y)));
         }
         if let Some(name) = match app.layer {
-            Layers::Inactive => Some("None"),
-            Layers::ParkingOccupancy { .. } => Some("parking occupancy"),
-            Layers::WorstDelay(_, _) => Some("delay"),
-            Layers::TrafficJams(_, _) => Some("worst traffic jams"),
-            Layers::CumulativeThroughput { .. } => Some("throughput"),
-            Layers::Backpressure(_, _) => Some("backpressure"),
-            Layers::BikeNetwork(_, _, _) => Some("bike network"),
-            Layers::BusNetwork(_) => Some("bus network"),
-            Layers::Elevation(_, _) => Some("elevation"),
-            Layers::Edits(_) => Some("map edits"),
-            Layers::Amenities(_) => Some("amenities"),
-            Layers::PopulationMap(_, _, _, _) => Some("population map"),
-            Layers::Pandemic(_, _, _, _) => Some("pandemic model"),
+            None => Some("None"),
+            Some(Layers::ParkingOccupancy { .. }) => Some("parking occupancy"),
+            Some(Layers::WorstDelay(_, _)) => Some("delay"),
+            Some(Layers::TrafficJams(_, _)) => Some("worst traffic jams"),
+            Some(Layers::CumulativeThroughput { .. }) => Some("throughput"),
+            Some(Layers::Backpressure(_, _)) => Some("backpressure"),
+            Some(Layers::BikeNetwork(_, _, _)) => Some("bike network"),
+            Some(Layers::BusNetwork(_)) => Some("bus network"),
+            Some(Layers::Elevation(_, _)) => Some("elevation"),
+            Some(Layers::Edits(_)) => Some("map edits"),
+            Some(Layers::Amenities(_)) => Some("amenities"),
+            Some(Layers::PopulationMap(_, _, _, _)) => Some("population map"),
+            Some(Layers::Pandemic(_, _, _, _)) => Some("pandemic model"),
             _ => None,
         } {
             for btn in &mut col {
@@ -464,104 +455,104 @@ impl Layers {
         .maybe_cb(
             "None",
             Box::new(|_, app| {
-                app.layer = Layers::Inactive;
+                app.layer = None;
                 Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "parking occupancy",
             Box::new(|ctx, app| {
-                app.layer = parking::new(ctx, app, true, true);
+                app.layer = Some(parking::new(ctx, app, true, true));
                 Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "delay",
             Box::new(|ctx, app| {
-                app.layer = traffic::delay(ctx, app);
+                app.layer = Some(traffic::delay(ctx, app));
                 Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "worst traffic jams",
             Box::new(|ctx, app| {
-                app.layer = traffic::traffic_jams(ctx, app);
+                app.layer = Some(traffic::traffic_jams(ctx, app));
                 Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "throughput",
             Box::new(|ctx, app| {
-                app.layer = traffic::throughput(ctx, app, false);
+                app.layer = Some(traffic::throughput(ctx, app, false));
                 Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "backpressure",
             Box::new(|ctx, app| {
-                app.layer = traffic::backpressure(ctx, app);
+                app.layer = Some(traffic::backpressure(ctx, app));
                 Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "bike network",
             Box::new(|ctx, app| {
-                app.layer = map::bike_network(ctx, app);
+                app.layer = Some(map::bike_network(ctx, app));
                 Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "bus network",
             Box::new(|ctx, app| {
-                app.layer = map::bus_network(ctx, app);
+                app.layer = Some(map::bus_network(ctx, app));
                 Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "elevation",
             Box::new(|ctx, app| {
-                app.layer = elevation::new(ctx, app);
+                app.layer = Some(elevation::new(ctx, app));
                 Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "map edits",
             Box::new(|ctx, app| {
-                app.layer = map::edits(ctx, app);
+                app.layer = Some(map::edits(ctx, app));
                 Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "amenities",
             Box::new(|ctx, app| {
-                app.layer = map::amenities(ctx, app);
+                app.layer = Some(map::amenities(ctx, app));
                 Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "population map",
             Box::new(|ctx, app| {
-                app.layer = population::new(
+                app.layer = Some(population::new(
                     ctx,
                     app,
                     population::Options {
                         heatmap: Some(HeatmapOptions::new()),
                     },
-                );
+                ));
                 Some(Transition::Pop)
             }),
         )
         .maybe_cb(
             "pandemic model",
             Box::new(|ctx, app| {
-                app.layer = pandemic::new(
+                app.layer = Some(pandemic::new(
                     ctx,
                     app,
                     pandemic::Options {
                         heatmap: Some(HeatmapOptions::new()),
                         state: pandemic::SEIR::Infected,
                     },
-                );
+                ));
                 Some(Transition::Pop)
             }),
         );

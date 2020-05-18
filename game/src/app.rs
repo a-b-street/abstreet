@@ -27,7 +27,7 @@ pub struct App {
     pub opts: Options,
 
     pub per_obj: PerObjectActions,
-    pub layer: Layers,
+    pub layer: Option<Layers>,
 
     // Static data that lasts the entire session. Use sparingly.
     pub session: SessionState,
@@ -78,7 +78,7 @@ impl App {
             cs,
             opts,
             per_obj: PerObjectActions::new(),
-            layer: Layers::Inactive,
+            layer: None,
             session: SessionState::empty(),
             suspended_sim: None,
         }

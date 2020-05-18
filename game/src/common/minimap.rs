@@ -35,7 +35,7 @@ impl Minimap {
             dragging: false,
             composite: make_minimap_panel(ctx, app, 0),
             zoomed: ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail,
-            layer: app.layer.is_empty(),
+            layer: app.layer.is_none(),
 
             zoom_lvl: 0,
             base_zoom,
@@ -54,7 +54,7 @@ impl Minimap {
 
     pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
         let zoomed = ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail;
-        let layer = app.layer.is_empty();
+        let layer = app.layer.is_none();
         if zoomed != self.zoomed || layer != self.layer {
             self.zoomed = zoomed;
             self.layer = layer;
@@ -208,7 +208,9 @@ impl Minimap {
         g.redraw(&app.primary.draw_map.draw_all_unzoomed_intersections);
         g.redraw(&app.primary.draw_map.draw_all_buildings);
         // Not the building paths
-        app.layer.draw_minimap(g, app);
+        if let Some(ref l) = app.layer {
+            l.draw_minimap(g, app);
+        }
 
         let mut cache = app.primary.draw_map.agents.borrow_mut();
         cache.draw_unzoomed_agents(
