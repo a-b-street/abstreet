@@ -423,7 +423,7 @@ fn make_timeline(
                 normal.add_svg(
                     ctx.prerender,
                     "../data/system/assets/timeline/current_pos.svg",
-                    Pt2D::new(p * phase_width, 7.5),
+                    Pt2D::new(p * phase_width, 7.5 * ctx.get_scale_factor()),
                     1.0,
                     Angle::ZERO,
                     RewriteColor::NoOp,
@@ -450,7 +450,7 @@ fn make_timeline(
                 TripPhaseType::Remote => "../data/system/assets/timeline/delayed_start.svg",
             },
             // TODO Hardcoded layouting...
-            Pt2D::new(0.5 * phase_width, -20.0),
+            Pt2D::new(0.5 * phase_width, -20.0 * ctx.get_scale_factor()),
             1.0,
             Angle::ZERO,
             RewriteColor::NoOp,

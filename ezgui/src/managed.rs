@@ -223,7 +223,12 @@ impl Widget {
     // TODO These are literally just convenient APIs to avoid importing JustDraw. Do we want this
     // or not?
     pub fn draw_batch(ctx: &EventCtx, batch: GeomBatch) -> Widget {
-        JustDraw::wrap(ctx, batch)
+        let scale = ctx.get_scale_factor();
+        if scale == 1.0 {
+            JustDraw::wrap(ctx, batch)
+        } else {
+            JustDraw::wrap(ctx, batch.scale(scale))
+        }
     }
     pub fn draw_svg<I: Into<String>>(ctx: &EventCtx, filename: I) -> Widget {
         JustDraw::svg(ctx, filename.into())
@@ -287,7 +292,13 @@ impl Widget {
     }
 
     // Populate a flattened list of Nodes, matching the traversal order
-    fn get_flexbox(&self, parent: Node, stretch: &mut Stretch, nodes: &mut Vec<Node>) {
+    fn get_flexbox(
+        &self,
+        parent: Node,
+        scale_factor: f32,
+        stretch: &mut Stretch,
+        nodes: &mut Vec<Node>,
+    ) {
         if let Some(container) = self.widget.downcast_ref::<Container>() {
             let mut style = self.layout.style.clone();
             style.flex_direction = if container.is_row {
@@ -298,7 +309,7 @@ impl Widget {
             let node = stretch.new_node(style, Vec::new()).unwrap();
             nodes.push(node);
             for widget in &container.members {
-                widget.get_flexbox(node, stretch, nodes);
+                widget.get_flexbox(node, scale_factor, stretch, nodes);
             }
             stretch.add_child(parent, node).unwrap();
             return;
@@ -308,6 +319,32 @@ impl Widget {
                 width: Dimension::Points(self.widget.get_dims().width as f32),
                 height: Dimension::Points(self.widget.get_dims().height as f32),
             };
+            if scale_factor != 1.0 {
+                if let Dimension::Points(ref mut px) = style.padding.start {
+                    *px *= scale_factor;
+                }
+                if let Dimension::Points(ref mut px) = style.padding.end {
+                    *px *= scale_factor;
+                }
+                if let Dimension::Points(ref mut px) = style.padding.top {
+                    *px *= scale_factor;
+                }
+                if let Dimension::Points(ref mut px) = style.padding.bottom {
+                    *px *= scale_factor;
+                }
+                if let Dimension::Points(ref mut px) = style.margin.start {
+                    *px *= scale_factor;
+                }
+                if let Dimension::Points(ref mut px) = style.margin.end {
+                    *px *= scale_factor;
+                }
+                if let Dimension::Points(ref mut px) = style.margin.top {
+                    *px *= scale_factor;
+                }
+                if let Dimension::Points(ref mut px) = style.margin.bottom {
+                    *px *= scale_factor;
+                }
+            }
             let node = stretch.new_node(style, Vec::new()).unwrap();
             stretch.add_child(parent, node).unwrap();
             nodes.push(node);
@@ -509,7 +546,12 @@ impl Composite {
             .unwrap();
 
         let mut nodes = vec![];
-        self.top_level.get_flexbox(root, &mut stretch, &mut nodes);
+        self.top_level.get_flexbox(
+            root,
+            ctx.get_scale_factor() as f32,
+            &mut stretch,
+            &mut nodes,
+        );
         nodes.reverse();
 
         // TODO Express more simply. Constraining this seems useless.

@@ -402,12 +402,12 @@ impl BtnBuilder {
             }
             BtnBuilder::Custom(normal, hovered, hitbox, maybe_t) => Button::new(
                 ctx,
-                normal,
-                hovered,
+                normal.scale(ctx.get_scale_factor()),
+                hovered.scale(ctx.get_scale_factor()),
                 key,
                 &action_tooltip.into(),
                 maybe_t,
-                hitbox,
+                hitbox.scale(ctx.get_scale_factor()),
             ),
         }
     }

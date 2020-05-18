@@ -164,7 +164,7 @@ pub struct Settings {
     profiling_enabled: bool,
     default_font_size: usize,
     dump_raw_events: bool,
-    scale_factor: f64,
+    scale_factor: Option<f64>,
     window_icon: Option<String>,
 }
 
@@ -176,7 +176,7 @@ impl Settings {
             profiling_enabled: false,
             default_font_size: text::DEFAULT_FONT_SIZE,
             dump_raw_events: false,
-            scale_factor: 1.0,
+            scale_factor: None,
             window_icon: None,
         }
     }
@@ -196,7 +196,7 @@ impl Settings {
     }
 
     pub fn scale_factor(&mut self, scale_factor: f64) {
-        self.scale_factor = scale_factor;
+        self.scale_factor = Some(scale_factor);
     }
 
     pub fn window_icon(&mut self, path: &str) {
@@ -224,7 +224,9 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
         assets: Assets::new(
             settings.default_font_size,
             settings.font_dir,
-            settings.scale_factor,
+            settings
+                .scale_factor
+                .unwrap_or_else(|| prerender_innards.monitor_scale_factor()),
         ),
         num_uploads: Cell::new(0),
         inner: prerender_innards,

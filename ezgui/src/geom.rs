@@ -189,6 +189,14 @@ impl GeomBatch {
             self.fancy_push(color, poly.translate(dx, dy));
         }
     }
+
+    /// Scales the batch by some factor.
+    pub fn scale(mut self, factor: f64) -> GeomBatch {
+        for (_, poly) in &mut self.list {
+            *poly = poly.scale(factor);
+        }
+        self
+    }
 }
 
 pub enum RewriteColor {
