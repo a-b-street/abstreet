@@ -385,11 +385,11 @@ impl ContextualActions for Actions {
                         actions.push((Key::F, "explore traffic signal details".to_string()));
                         actions.push((Key::C, "show current demand".to_string()));
                         actions.push((Key::E, "edit traffic signal".to_string()));
-                        actions.push((Key::U, "explore uber-turns".to_string()));
                     }
                     if app.primary.map.get_i(i).is_stop_sign() {
                         actions.push((Key::E, "edit stop sign".to_string()));
                     }
+                    actions.push((Key::U, "explore uber-turns".to_string()));
                 }
                 ID::Lane(l) => {
                     if !app.primary.map.get_turns_from_lane(l).is_empty() {

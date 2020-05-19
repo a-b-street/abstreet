@@ -4,8 +4,8 @@ use crate::game::{msg, DrawBaselayer, State, Transition};
 use crate::helpers::ID;
 use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
 use ezgui::{
-    hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Text, VerticalAlignment, Widget,
+    hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Text, VerticalAlignment, Widget,
 };
 use geom::{ArrowCap, Polygon};
 use map_model::{IntersectionCluster, IntersectionID};
@@ -75,8 +75,9 @@ impl State for UberTurnPicker {
                     return Transition::Replace(UberTurnViewer::new(
                         ctx,
                         app,
-                        IntersectionCluster::new(self.members.clone(), &app.primary.map),
+                        self.members.clone(),
                         0,
+                        true,
                     ));
                 }
                 _ => unreachable!(),
@@ -108,16 +109,21 @@ struct UberTurnViewer {
     draw: Drawable,
     ic: IntersectionCluster,
     idx: usize,
+    legal_turns: bool,
 }
 
 impl UberTurnViewer {
     pub fn new(
         ctx: &mut EventCtx,
         app: &mut App,
-        ic: IntersectionCluster,
+        members: HashSet<IntersectionID>,
         idx: usize,
+        legal_turns: bool,
     ) -> Box<dyn State> {
         app.primary.current_selection = None;
+
+        let (ic1, ic2) = IntersectionCluster::new(members, &app.primary.map);
+        let ic = if legal_turns { ic1 } else { ic2 };
 
         let mut batch = GeomBatch::new();
         for i in &ic.members {
@@ -126,42 +132,51 @@ impl UberTurnViewer {
                 app.primary.map.get_i(*i).polygon.clone(),
             );
         }
-        batch.push(
-            Color::RED,
-            ic.uber_turns[idx]
-                .geom(&app.primary.map)
-                .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle)
-                .unwrap(),
-        );
+        if !ic.uber_turns.is_empty() {
+            batch.push(
+                Color::RED,
+                ic.uber_turns[idx]
+                    .geom(&app.primary.map)
+                    .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle)
+                    .unwrap(),
+            );
+        }
 
         Box::new(UberTurnViewer {
             draw: ctx.upload(batch),
             composite: Composite::new(
-                Widget::col(vec![Widget::row(vec![
-                    Line("Uber-turn viewer").small_heading().draw(ctx).margin(5),
-                    Widget::draw_batch(
-                        ctx,
-                        GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
-                    )
-                    .margin(5),
-                    if idx == 0 {
-                        Btn::text_fg("<").inactive(ctx)
-                    } else {
-                        Btn::text_fg("<").build(ctx, "previous uber-turn", hotkey(Key::LeftArrow))
-                    }
-                    .margin(5),
-                    Text::from(Line(format!("{}/{}", idx, ic.uber_turns.len())).secondary())
-                        .draw(ctx)
-                        .margin(5)
-                        .centered_vert(),
-                    if idx == ic.uber_turns.len() - 1 {
-                        Btn::text_fg(">").inactive(ctx)
-                    } else {
-                        Btn::text_fg(">").build(ctx, "next uber-turn", hotkey(Key::RightArrow))
-                    }
-                    .margin(5),
-                    Btn::text_fg("X").build_def(ctx, hotkey(Key::Escape)),
-                ])])
+                Widget::col(vec![
+                    Widget::row(vec![
+                        Line("Uber-turn viewer").small_heading().draw(ctx).margin(5),
+                        Widget::draw_batch(
+                            ctx,
+                            GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
+                        )
+                        .margin(5),
+                        if idx == 0 {
+                            Btn::text_fg("<").inactive(ctx)
+                        } else {
+                            Btn::text_fg("<").build(
+                                ctx,
+                                "previous uber-turn",
+                                hotkey(Key::LeftArrow),
+                            )
+                        }
+                        .margin(5),
+                        Text::from(Line(format!("{}/{}", idx, ic.uber_turns.len())).secondary())
+                            .draw(ctx)
+                            .margin(5)
+                            .centered_vert(),
+                        if ic.uber_turns.is_empty() || idx == ic.uber_turns.len() - 1 {
+                            Btn::text_fg(">").inactive(ctx)
+                        } else {
+                            Btn::text_fg(">").build(ctx, "next uber-turn", hotkey(Key::RightArrow))
+                        }
+                        .margin(5),
+                        Btn::text_fg("X").build_def(ctx, hotkey(Key::Escape)),
+                    ]),
+                    Checkbox::text(ctx, "legal / illegal movements", None, legal_turns),
+                ])
                 .padding(10)
                 .bg(app.cs.panel_bg),
             )
@@ -169,6 +184,7 @@ impl UberTurnViewer {
             .build(ctx),
             ic,
             idx,
+            legal_turns,
         })
     }
 }
@@ -186,21 +202,33 @@ impl State for UberTurnViewer {
                     return Transition::Replace(UberTurnViewer::new(
                         ctx,
                         app,
-                        self.ic.clone(),
+                        self.ic.members.clone(),
                         self.idx - 1,
+                        self.legal_turns,
                     ));
                 }
                 "next uber-turn" => {
                     return Transition::Replace(UberTurnViewer::new(
                         ctx,
                         app,
-                        self.ic.clone(),
+                        self.ic.members.clone(),
                         self.idx + 1,
+                        self.legal_turns,
                     ));
                 }
                 _ => unreachable!(),
             },
-            None => {}
+            None => {
+                if self.composite.is_checked("legal / illegal movements") != self.legal_turns {
+                    return Transition::Replace(UberTurnViewer::new(
+                        ctx,
+                        app,
+                        self.ic.members.clone(),
+                        0,
+                        !self.legal_turns,
+                    ));
+                }
+            }
         }
 
         Transition::Keep
