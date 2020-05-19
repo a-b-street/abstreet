@@ -28,9 +28,9 @@ pub trait Layer {
     fn draw_minimap(&self, g: &mut GfxCtx);
 }
 
+// TODO Just return a bool for closed? Less readable...
 pub enum LayerOutcome {
     Close,
-    Transition(Transition),
 }
 
 pub struct PickLayer {
@@ -49,10 +49,6 @@ impl PickLayer {
             Some(LayerOutcome::Close) => {
                 app.layer = None;
                 return None;
-            }
-            Some(LayerOutcome::Transition(t)) => {
-                app.layer = Some(layer);
-                return Some(t);
             }
             None => {}
         }

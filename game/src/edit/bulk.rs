@@ -88,7 +88,7 @@ impl State for RouteSelect {
                     let roads = if let Some(roads) = pathfind(&app.primary.map, i1, i2) {
                         for r in &roads {
                             batch.push(
-                                Color::RED,
+                                Color::RED.alpha(0.5),
                                 app.primary
                                     .map
                                     .get_r(*r)
@@ -219,7 +219,7 @@ impl BulkEdit {
                             .align_right(),
                     ])
                     .margin_below(5),
-                    Btn::text_fg("Quit").build_def(ctx, None),
+                    Btn::text_fg("Quit").build_def(ctx, hotkey(Key::Escape)),
                 ])
                 .bg(app.cs.panel_bg)
                 .padding(10),
@@ -374,7 +374,7 @@ impl State for PaintSelect {
                 let mut batch = GeomBatch::new();
                 for r in &self.roads {
                     batch.push(
-                        Color::BLUE,
+                        Color::BLUE.alpha(0.5),
                         app.primary
                             .map
                             .get_r(*r)

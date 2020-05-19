@@ -383,7 +383,6 @@ impl ContextualActions for Actions {
                 ID::Intersection(i) => {
                     if app.primary.map.get_i(i).is_traffic_signal() {
                         actions.push((Key::F, "explore traffic signal details".to_string()));
-                        actions.push((Key::C, "show current demand".to_string()));
                         actions.push((Key::E, "edit traffic signal".to_string()));
                     }
                     if app.primary.map.get_i(i).is_stop_sign() {
@@ -422,12 +421,6 @@ impl ContextualActions for Actions {
         match (id, action.as_ref()) {
             (ID::Intersection(i), "explore traffic signal details") => {
                 Transition::Push(ShowTrafficSignal::new(ctx, app, i))
-            }
-            (ID::Intersection(i), "show current demand") => {
-                app.layer = Some(Box::new(crate::layer::traffic::IntersectionDemand::new(
-                    ctx, app, i,
-                )));
-                Transition::Keep
             }
             (ID::Intersection(i), "edit traffic signal") => Transition::PushTwice(
                 Box::new(EditMode::new(ctx, app, self.gameplay.clone())),

@@ -67,6 +67,7 @@ pub enum Tab {
     IntersectionInfo(IntersectionID),
     IntersectionTraffic(IntersectionID, DataOptions),
     IntersectionDelay(IntersectionID, DataOptions),
+    IntersectionDemand(IntersectionID),
 
     LaneInfo(LaneID),
     LaneDebug(LaneID),
@@ -134,7 +135,8 @@ impl Tab {
             Tab::Area(a) => Some(ID::Area(a)),
             Tab::IntersectionInfo(i)
             | Tab::IntersectionTraffic(i, _)
-            | Tab::IntersectionDelay(i, _) => Some(ID::Intersection(i)),
+            | Tab::IntersectionDelay(i, _)
+            | Tab::IntersectionDemand(i) => Some(ID::Intersection(i)),
             Tab::LaneInfo(l) | Tab::LaneDebug(l) | Tab::LaneTraffic(l, _) => Some(ID::Lane(l)),
         }
     }
@@ -209,6 +211,10 @@ impl InfoPanel {
             Tab::IntersectionDelay(i, ref opts) => {
                 (intersection::delay(ctx, app, &mut details, i, opts), false)
             }
+            Tab::IntersectionDemand(i) => (
+                intersection::current_demand(ctx, app, &mut details, i),
+                false,
+            ),
             Tab::LaneInfo(l) => (lane::info(ctx, app, &mut details, l), true),
             Tab::LaneDebug(l) => (lane::debug(ctx, app, &mut details, l), false),
             Tab::LaneTraffic(l, ref opts) => {

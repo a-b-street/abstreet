@@ -1,7 +1,10 @@
 use crate::app::App;
 use crate::info::{header_btns, make_tabs, throughput, DataOptions, Details, Tab};
 use abstutil::prettyprint_usize;
-use ezgui::{EventCtx, Line, LinePlot, PlotOptions, Series, Text, Widget};
+use ezgui::{
+    Color, EventCtx, GeomBatch, Line, LinePlot, PlotOptions, RewriteColor, Series, Text, Widget,
+};
+use geom::{Angle, ArrowCap, Distance, PolyLine};
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, IntersectionType};
 use sim::Analytics;
@@ -96,6 +99,71 @@ pub fn delay(
     rows
 }
 
+pub fn current_demand(
+    ctx: &mut EventCtx,
+    app: &App,
+    details: &mut Details,
+    id: IntersectionID,
+) -> Vec<Widget> {
+    let mut rows = header(ctx, app, details, id, Tab::IntersectionDemand(id));
+
+    let mut total_demand = 0;
+    let mut demand_per_group: Vec<(&PolyLine, usize)> = Vec::new();
+    for g in app.primary.map.get_traffic_signal(id).turn_groups.values() {
+        let demand = app
+            .primary
+            .sim
+            .get_analytics()
+            .demand
+            .get(&g.id)
+            .cloned()
+            .unwrap_or(0);
+        if demand > 0 {
+            total_demand += demand;
+            demand_per_group.push((&g.geom, demand));
+        }
+    }
+
+    let mut batch = GeomBatch::new();
+    let polygon = app.primary.map.get_i(id).polygon.clone();
+    let bounds = polygon.get_bounds();
+    // Pick a zoom so that we fit a fixed width in pixels
+    let zoom = 300.0 / bounds.width();
+    batch.push(app.cs.normal_intersection, polygon);
+
+    for (pl, demand) in demand_per_group {
+        let percent = (demand as f64) / (total_demand as f64);
+        batch.push(
+            Color::RED,
+            pl.make_arrow(percent * Distance::meters(3.0), ArrowCap::Triangle)
+                .unwrap(),
+        );
+        batch.add_transformed(
+            Text::from(Line(prettyprint_usize(demand))).render_ctx(ctx),
+            pl.middle(),
+            0.15,
+            Angle::ZERO,
+            RewriteColor::NoOp,
+        );
+    }
+    let mut transformed_batch = GeomBatch::new();
+    for (color, poly) in batch.consume() {
+        transformed_batch.fancy_push(
+            color,
+            poly.translate(-bounds.min_x, -bounds.min_y).scale(zoom),
+        );
+    }
+
+    let mut txt = Text::from(Line(format!(
+        "How many active trips will cross this intersection?"
+    )));
+    txt.add(Line(format!("Total: {}", prettyprint_usize(total_demand))).secondary());
+    rows.push(txt.draw(ctx));
+    rows.push(Widget::draw_batch(ctx, transformed_batch));
+
+    rows
+}
+
 fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) -> Widget {
     let get_data = |a: &Analytics, t: Time| {
         let mut series: Vec<(Statistic, Vec<(Time, Duration)>)> = Statistic::all()
@@ -173,6 +241,7 @@ fn header(
         ];
         if i.is_traffic_signal() {
             tabs.push(("Delay", Tab::IntersectionDelay(id, DataOptions::new(app))));
+            tabs.push(("Current demand", Tab::IntersectionDemand(id)));
         }
         tabs
     }));

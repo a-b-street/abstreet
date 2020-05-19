@@ -1,16 +1,13 @@
 use crate::app::App;
-use crate::common::{ColorLegend, Colorer, Warping};
-use crate::game::Transition;
-use crate::helpers::ID;
+use crate::common::{ColorLegend, Colorer};
 use crate::layer::{Layer, LayerOutcome};
-use abstutil::{prettyprint_usize, Counter};
+use abstutil::Counter;
 use ezgui::{
-    hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, RewriteColor, Text, TextExt, VerticalAlignment,
-    Widget,
+    hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key,
+    Outcome, TextExt, VerticalAlignment, Widget,
 };
-use geom::{Angle, ArrowCap, Distance, Duration, PolyLine, Time};
-use map_model::{IntersectionID, Traversable};
+use geom::{Duration, Time};
+use map_model::Traversable;
 
 pub struct Dynamic {
     time: Time,
@@ -462,116 +459,6 @@ impl Throughput {
             compare: true,
             unzoomed: colorer.build_both(ctx, app).unzoomed,
             composite,
-        }
-    }
-}
-
-// TODO Does this make sense as a layer? Should it be an info panel tab?
-pub struct IntersectionDemand {
-    time: Time,
-    i: IntersectionID,
-    draw: Drawable,
-    composite: Composite,
-}
-
-impl Layer for IntersectionDemand {
-    fn name(&self) -> Option<&'static str> {
-        None
-    }
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        app: &mut App,
-        minimap: &Composite,
-    ) -> Option<LayerOutcome> {
-        if app.primary.sim.time() != self.time {
-            *self = IntersectionDemand::new(ctx, app, self.i);
-        }
-
-        self.composite.align_above(ctx, minimap);
-        match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "intersection demand" => {
-                    let id = ID::Intersection(self.i);
-                    return Some(LayerOutcome::Transition(Transition::Push(Warping::new(
-                        ctx,
-                        id.canonical_point(&app.primary).unwrap(),
-                        Some(10.0),
-                        Some(id.clone()),
-                        &mut app.primary,
-                    ))));
-                }
-                "X" => {
-                    return Some(LayerOutcome::Close);
-                }
-                _ => unreachable!(),
-            },
-            None => {}
-        }
-        None
-    }
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
-        self.composite.draw(g);
-        g.redraw(&self.draw);
-    }
-    fn draw_minimap(&self, _: &mut GfxCtx) {}
-}
-
-impl IntersectionDemand {
-    pub fn new(ctx: &mut EventCtx, app: &App, i: IntersectionID) -> IntersectionDemand {
-        let mut batch = GeomBatch::new();
-
-        let mut total_demand = 0;
-        let mut demand_per_group: Vec<(&PolyLine, usize)> = Vec::new();
-        for g in app.primary.map.get_traffic_signal(i).turn_groups.values() {
-            let demand = app
-                .primary
-                .sim
-                .get_analytics()
-                .demand
-                .get(&g.id)
-                .cloned()
-                .unwrap_or(0);
-            if demand > 0 {
-                total_demand += demand;
-                demand_per_group.push((&g.geom, demand));
-            }
-        }
-
-        for (pl, demand) in demand_per_group {
-            let percent = (demand as f64) / (total_demand as f64);
-            batch.push(
-                Color::RED,
-                pl.make_arrow(percent * Distance::meters(5.0), ArrowCap::Triangle)
-                    .unwrap(),
-            );
-            batch.add_transformed(
-                Text::from(Line(prettyprint_usize(demand))).render_ctx(ctx),
-                pl.middle(),
-                0.08,
-                Angle::ZERO,
-                RewriteColor::NoOp,
-            );
-        }
-
-        let col = vec![
-            Widget::row(vec![
-                "intersection demand".draw_text(ctx),
-                Btn::svg_def("../data/system/assets/tools/location.svg")
-                    .build(ctx, "intersection demand", None)
-                    .margin(5),
-                Btn::text_fg("X").build_def(ctx, None).align_right(),
-            ]),
-            ColorLegend::row(ctx, Color::RED, "current demand"),
-        ];
-
-        IntersectionDemand {
-            time: app.primary.sim.time(),
-            i,
-            draw: batch.upload(ctx),
-            composite: Composite::new(Widget::col(col).bg(app.cs.panel_bg))
-                .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
-                .build(ctx),
         }
     }
 }
