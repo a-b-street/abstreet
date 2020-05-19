@@ -1,50 +1,52 @@
 use crate::{IntersectionID, Map, TurnID};
 use geom::PolyLine;
 use petgraph::graphmap::UnGraphMap;
-use std::collections::{HashMap, HashSet};
+use serde_derive::{Deserialize, Serialize};
+use std::collections::{BTreeMap, BTreeSet};
 
 // This only applies to VehiclePathfinder; walking through these intersections is nothing special.
 // TODO I haven't seen any cases yet with "interior" intersections. Some stuff might break.
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct IntersectionCluster {
-    pub members: HashSet<IntersectionID>,
+    pub members: BTreeSet<IntersectionID>,
     pub uber_turns: Vec<UberTurn>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct UberTurn {
     pub path: Vec<TurnID>,
 }
 
-pub fn find(map: &Map) -> Vec<IntersectionCluster> {
-    let mut clusters = Vec::new();
-    let mut graph: UnGraphMap<IntersectionID, ()> = UnGraphMap::new();
-    for from in map.all_roads() {
-        for (via, _) in &from.complicated_turn_restrictions {
-            // Each of these tells us 2 intersections to group together
-            let r = map.get_r(*via);
-            graph.add_edge(r.src_i, r.dst_i, ());
-        }
-    }
-    for intersections in petgraph::algo::kosaraju_scc(&graph) {
-        let members: HashSet<IntersectionID> = intersections.iter().cloned().collect();
-        // Discard the illegal movements
-        let (ic, _) = IntersectionCluster::new(members, map);
-        clusters.push(ic);
-    }
-
-    clusters
-}
-
 impl IntersectionCluster {
+    // Based on turn restrictions
+    pub fn find_all(map: &Map) -> Vec<IntersectionCluster> {
+        let mut clusters = Vec::new();
+        let mut graph: UnGraphMap<IntersectionID, ()> = UnGraphMap::new();
+        for from in map.all_roads() {
+            for (via, _) in &from.complicated_turn_restrictions {
+                // Each of these tells us 2 intersections to group together
+                let r = map.get_r(*via);
+                graph.add_edge(r.src_i, r.dst_i, ());
+            }
+        }
+        for intersections in petgraph::algo::kosaraju_scc(&graph) {
+            let members: BTreeSet<IntersectionID> = intersections.iter().cloned().collect();
+            // Discard the illegal movements
+            let (ic, _) = IntersectionCluster::new(members, map);
+            clusters.push(ic);
+        }
+
+        clusters
+    }
+
     // (legal, illegal)
     pub fn new(
-        members: HashSet<IntersectionID>,
+        members: BTreeSet<IntersectionID>,
         map: &Map,
     ) -> (IntersectionCluster, IntersectionCluster) {
         // Find all entrances and exits through this group of intersections
         let mut entrances = Vec::new();
-        let mut exits = HashSet::new();
+        let mut exits = BTreeSet::new();
         for i in &members {
             for turn in map.get_turns_in_intersection(*i) {
                 if turn.between_sidewalks() {
@@ -108,13 +110,13 @@ impl IntersectionCluster {
     }
 }
 
-fn flood(start: TurnID, map: &Map, exits: &HashSet<TurnID>) -> Vec<UberTurn> {
+fn flood(start: TurnID, map: &Map, exits: &BTreeSet<TurnID>) -> Vec<UberTurn> {
     if exits.contains(&start) {
         return vec![UberTurn { path: vec![start] }];
     }
 
     let mut results = Vec::new();
-    let mut preds: HashMap<TurnID, TurnID> = HashMap::new();
+    let mut preds: BTreeMap<TurnID, TurnID> = BTreeMap::new();
     let mut queue = vec![start];
 
     while !queue.is_empty() {
@@ -137,7 +139,7 @@ fn flood(start: TurnID, map: &Map, exits: &HashSet<TurnID>) -> Vec<UberTurn> {
     results
 }
 
-fn trace_back(end: TurnID, preds: &HashMap<TurnID, TurnID>) -> Vec<TurnID> {
+fn trace_back(end: TurnID, preds: &BTreeMap<TurnID, TurnID>) -> Vec<TurnID> {
     let mut path = vec![end];
     let mut current = end;
     loop {

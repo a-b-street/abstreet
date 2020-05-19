@@ -11,7 +11,7 @@ use crate::{
     osm, BusRouteID, BusStopID, Lane, LaneID, LaneType, Map, Position, Traversable, TurnID,
 };
 use abstutil::Timer;
-use geom::{Distance, PolyLine};
+use geom::{Distance, PolyLine, EPSILON_DIST};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::VecDeque;
 use std::fmt;
@@ -420,7 +420,7 @@ fn validate_continuity(map: &Map, steps: &Vec<PathStep>) {
             PathStep::Turn(id) => map.get_t(id).geom.first_pt(),
         };
         let len = from.dist_to(to);
-        if len > Distance::ZERO {
+        if len > EPSILON_DIST {
             println!("All steps in invalid path:");
             for s in steps {
                 match s {

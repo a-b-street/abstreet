@@ -90,10 +90,6 @@ impl Map {
                         );
                     }
 
-                    if false {
-                        crate::pathfind::uber_turns::find(&map);
-                    }
-
                     return map;
                 }
                 Err(err) => {

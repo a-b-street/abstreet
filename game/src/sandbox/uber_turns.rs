@@ -10,16 +10,16 @@ use ezgui::{
 use geom::{ArrowCap, Polygon};
 use map_model::{IntersectionCluster, IntersectionID};
 use sim::DontDrawAgents;
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 
 pub struct UberTurnPicker {
-    members: HashSet<IntersectionID>,
+    members: BTreeSet<IntersectionID>,
     composite: Composite,
 }
 
 impl UberTurnPicker {
     pub fn new(ctx: &mut EventCtx, app: &App, i: IntersectionID) -> Box<dyn State> {
-        let mut members = HashSet::new();
+        let mut members = BTreeSet::new();
         members.insert(i);
         Box::new(UberTurnPicker {
             members,
@@ -116,7 +116,7 @@ impl UberTurnViewer {
     pub fn new(
         ctx: &mut EventCtx,
         app: &mut App,
-        members: HashSet<IntersectionID>,
+        members: BTreeSet<IntersectionID>,
         idx: usize,
         legal_turns: bool,
     ) -> Box<dyn State> {
