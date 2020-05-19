@@ -4,7 +4,7 @@ use crate::{
 };
 use geom::{Distance, Duration, PolyLine, Time};
 use map_model::{Map, Traversable};
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]

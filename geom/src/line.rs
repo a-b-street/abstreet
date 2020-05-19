@@ -1,6 +1,6 @@
 use crate::{Angle, Distance, PolyLine, Polygon, Pt2D, EPSILON_DIST};
 use geo::prelude::ClosestPoint;
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 // Segment, technically. Should rename.

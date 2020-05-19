@@ -7,7 +7,7 @@ use map_model::{
     ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, Map, RoadID, Traversable,
     TurnID, TurnPriority, TurnType,
 };
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 const WAIT_AT_STOP_SIGN: Duration = Duration::const_seconds(0.5);

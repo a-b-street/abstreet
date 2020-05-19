@@ -4,7 +4,7 @@ use crate::{
     TurnType,
 };
 use geom::{Angle, Distance, Line, PolyLine, Pt2D};
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 use std::fmt;
 

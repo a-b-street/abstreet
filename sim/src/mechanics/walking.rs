@@ -7,7 +7,7 @@ use crate::{
 use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
 use geom::{Distance, Duration, Line, PolyLine, Speed, Time};
 use map_model::{BuildingID, BusRouteID, Map, Path, PathStep, Traversable, SIDEWALK_THICKNESS};
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
 const TIME_TO_START_BIKING: Duration = Duration::const_seconds(30.0);

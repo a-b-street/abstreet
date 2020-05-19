@@ -7,7 +7,7 @@ use map_model::{
     BuildingID, IntersectionID, Map, Path, PathConstraints, PathRequest, PathStep, Position,
     Traversable, TurnID,
 };
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]

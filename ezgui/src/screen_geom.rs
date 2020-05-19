@@ -1,6 +1,6 @@
 use crate::Canvas;
 use geom::{trim_f64, Polygon, Pt2D};
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ScreenPt {

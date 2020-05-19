@@ -15,7 +15,7 @@ use map_model::{
     PathRequest, PathStep, Position, RoadID, Traversable,
 };
 use rand_xorshift::XorShiftRng;
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashSet};
 use std::panic;
 

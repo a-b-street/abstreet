@@ -9,7 +9,7 @@ use crate::{
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer, Warn};
 use geom::{Angle, Bounds, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D, Speed};
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 
 #[derive(Serialize, Deserialize)]

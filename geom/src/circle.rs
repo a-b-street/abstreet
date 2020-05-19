@@ -1,5 +1,5 @@
 use crate::{Angle, Bounds, Distance, Polygon, Pt2D, Ring};
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 const TRIANGLES_PER_CIRCLE: usize = 60;

@@ -2,7 +2,7 @@ use crate::assets::Assets;
 use crate::{ScreenDims, ScreenPt, ScreenRectangle, UserInput};
 use abstutil::Timer;
 use geom::{Bounds, Pt2D};
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 
 // Click and release counts as a normal click, not a drag, if the distance between click and

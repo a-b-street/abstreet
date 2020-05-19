@@ -12,7 +12,7 @@ use crate::{
 };
 use abstutil::Timer;
 use geom::{Distance, PolyLine, EPSILON_DIST};
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
 use std::fmt;
 

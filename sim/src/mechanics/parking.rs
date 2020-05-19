@@ -9,7 +9,7 @@ use map_model::{
     BuildingID, Lane, LaneID, LaneType, Map, PathConstraints, PathStep, Position, Traversable,
     TurnID,
 };
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, BinaryHeap, HashMap};
 
 #[derive(Serialize, Deserialize, PartialEq, Clone)]

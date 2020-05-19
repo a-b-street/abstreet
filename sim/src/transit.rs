@@ -7,7 +7,7 @@ use geom::{Distance, Time};
 use map_model::{
     BusRoute, BusRouteID, BusStopID, Map, Path, PathConstraints, PathRequest, Position,
 };
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
 // These index stops along a route, not stops along a single sidewalk.

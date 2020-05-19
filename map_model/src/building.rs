@@ -1,6 +1,6 @@
 use crate::{LaneID, Position};
 use geom::{Line, PolyLine, Polygon, Pt2D};
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 use std::fmt;
 

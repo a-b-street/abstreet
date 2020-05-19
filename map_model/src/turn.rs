@@ -1,7 +1,7 @@
 use crate::{DirectedRoadID, IntersectionID, LaneID, Map};
 use abstutil::MultiMap;
 use geom::{Angle, Distance, PolyLine, Pt2D};
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 

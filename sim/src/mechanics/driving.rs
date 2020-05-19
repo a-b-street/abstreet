@@ -9,7 +9,7 @@ use crate::{
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Duration, PolyLine, Time};
 use map_model::{LaneID, Map, Path, PathStep, Traversable};
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashSet, VecDeque};
 
 const TIME_TO_UNPARK: Duration = Duration::const_seconds(10.0);

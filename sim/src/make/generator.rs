@@ -5,7 +5,7 @@ use map_model::{BuildingID, DirectedRoadID, Map, PathConstraints};
 use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 
 // A way to generate Scenarios

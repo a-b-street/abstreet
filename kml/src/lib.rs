@@ -2,7 +2,7 @@ use abstutil::{prettyprint_usize, FileWithProgress, Timer};
 use geom::{GPSBounds, LonLat};
 use quick_xml::events::Event;
 use quick_xml::Reader;
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
 #[derive(Serialize, Deserialize)]

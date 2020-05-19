@@ -4,7 +4,7 @@ use crate::game::{State, Transition, WizardState};
 use abstutil::{Cloneable, Timer};
 use ezgui::{Choice, EventCtx, Key, Wizard};
 use geom::{LonLat, Pt2D};
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Serialize, Deserialize)]
 struct Shortcut {

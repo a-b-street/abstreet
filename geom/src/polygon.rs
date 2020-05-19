@@ -2,7 +2,7 @@ use crate::{Angle, Bounds, Distance, HashablePt2D, Pt2D, Ring};
 use geo::algorithm::convexhull::ConvexHull;
 use geo_booleanop::boolean::BooleanOp;
 use geo_offset::Offset;
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

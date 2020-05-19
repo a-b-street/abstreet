@@ -5,7 +5,7 @@ use geom::Duration;
 use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, Map, Path, PathRequest, Traversable,
 };
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 // Many of these were created for a test framework that's been abandoned. They could be removed or
 // have their API adjusted, but it's not urgent; publishing an event that's not used by Analytics

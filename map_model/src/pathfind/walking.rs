@@ -5,7 +5,7 @@ use crate::{
 };
 use fast_paths::{deserialize_32, serialize_32, FastGraph, InputGraph, PathCalculator};
 use geom::{Distance, Speed};
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use thread_local::ThreadLocal;
 

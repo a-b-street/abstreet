@@ -4,7 +4,7 @@ use crate::{
 use derivative::Derivative;
 use geom::{Duration, Histogram, Time};
 use map_model::{IntersectionID, Path, PathRequest};
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::collections::btree_map::Entry;
 use std::collections::{BTreeMap, BinaryHeap};

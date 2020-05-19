@@ -2,7 +2,7 @@ use crate::raw::{OriginalRoad, RestrictionType};
 use crate::{osm, BusStopID, IntersectionID, LaneID, LaneType, Map, PathConstraints};
 use abstutil::{Error, Warn};
 use geom::{Distance, PolyLine, Polygon, Speed};
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashSet};
 use std::fmt;
 

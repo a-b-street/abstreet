@@ -1,6 +1,6 @@
 use crate::Distance;
 use ordered_float::NotNan;
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Error, ErrorKind};

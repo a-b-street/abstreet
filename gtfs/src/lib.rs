@@ -1,6 +1,6 @@
 use geom::LonLat;
 use itertools::Itertools;
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::{BTreeSet, HashMap};
 use transitfeed::GTFSIterator;
 

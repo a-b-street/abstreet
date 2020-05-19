@@ -1,5 +1,5 @@
 use crate::{trim_f64, Duration, Speed};
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::{cmp, f64, fmt, ops};
 
 // In meters. Can be negative.

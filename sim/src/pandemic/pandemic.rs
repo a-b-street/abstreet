@@ -4,7 +4,7 @@ use geom::{Duration, Time};
 use map_model::{BuildingID, BusStopID};
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
 // TODO This does not model transmission by surfaces; only person-to-person.

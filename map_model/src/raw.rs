@@ -3,7 +3,7 @@ use crate::{osm, AreaType, IntersectionType, RoadSpec};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Timer, Warn};
 use geom::{Angle, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
 use gtfs::Route;
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 

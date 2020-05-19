@@ -1,6 +1,6 @@
 use crate::{LonLat, Polygon, Pt2D};
 use aabb_quadtree::geom::{Point, Rect};
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Bounds {

@@ -1,5 +1,5 @@
 use crate::{Distance, Line, PolyLine, Polygon, Pt2D};
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::fmt;
 

@@ -4,7 +4,7 @@ use crate::{
 use abstutil::Warn;
 use geo::algorithm::simplify::Simplify;
 use ordered_float::NotNan;
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::fmt;
 

@@ -10,7 +10,7 @@ use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, Map, Path, PathConstraints, PathRequest,
     Position,
 };
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]

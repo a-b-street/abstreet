@@ -2,7 +2,7 @@ use crate::mechanics::car::{Car, CarState};
 use crate::{CarID, FOLLOWING_DISTANCE};
 use geom::{Distance, Time};
 use map_model::{Map, Traversable};
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
 #[derive(Serialize, Deserialize, PartialEq, Clone)]

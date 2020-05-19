@@ -1,7 +1,7 @@
 use crate::raw::OriginalIntersection;
 use crate::{DirectedRoadID, LaneID, Map, PathConstraints, Road, RoadID, TurnID};
 use geom::{Distance, Polygon};
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 use std::fmt;
 

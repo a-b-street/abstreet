@@ -16,6 +16,5 @@ geom = { path = "../geom" }
 gdal = { version = "0.6.0", optional = true }
 kml = { path = "../kml" }
 map_model = { path = "../map_model" }
-serde = "1.0.98"
-serde_derive = "1.0.98"
+serde = "1.0.110"
 sim = { path = "../sim" }

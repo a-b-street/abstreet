@@ -1,7 +1,7 @@
 use crate::{IntersectionID, Map, TurnID};
 use geom::PolyLine;
 use petgraph::graphmap::UnGraphMap;
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
 // This only applies to VehiclePathfinder; walking through these intersections is nothing special.

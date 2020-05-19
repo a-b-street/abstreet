@@ -1,5 +1,5 @@
 use crate::{trim_f64, Duration};
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::{cmp, ops};
 
 // In seconds since midnight. Can't be negative.

@@ -1,6 +1,6 @@
 use crate::{BuildingID, LaneID, LaneType, Map, TurnID};
 use geom::{Angle, Distance, PolyLine, Pt2D, Speed};
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
