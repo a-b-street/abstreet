@@ -1,14 +1,17 @@
 use crate::{IntersectionID, Map, TurnID};
+use geom::PolyLine;
 use petgraph::graphmap::UnGraphMap;
 use std::collections::{HashMap, HashSet};
 
 // This only applies to VehiclePathfinder; walking through these intersections is nothing special.
 // TODO I haven't seen any cases yet with "interior" intersections. Some stuff might break.
+#[derive(Clone)]
 pub struct IntersectionCluster {
     pub members: HashSet<IntersectionID>,
     pub uber_turns: Vec<UberTurn>,
 }
 
+#[derive(Clone)]
 pub struct UberTurn {
     pub path: Vec<TurnID>,
 }
@@ -27,11 +30,43 @@ pub fn find(map: &Map) -> Vec<IntersectionCluster> {
     }
     for intersections in petgraph::algo::kosaraju_scc(&graph) {
         let members: HashSet<IntersectionID> = intersections.iter().cloned().collect();
+        let mut ic = IntersectionCluster::new(members, map);
 
+        // Filter out the restricted ones!
+        // TODO Could be more efficient, but eh
+        let orig_num = ic.uber_turns.len();
+        ic.uber_turns.retain(|ut| {
+            let mut ok = true;
+            for pair in ut.path.windows(2) {
+                let r1 = map.get_l(pair[0].src).parent;
+                let r2 = map.get_l(pair[0].dst).parent;
+                let r3 = map.get_l(pair[1].dst).parent;
+                if all_restrictions.contains(&(r1, r2, r3)) {
+                    ok = false;
+                    break;
+                }
+            }
+            ok
+        });
+        println!(
+            "Cluster {:?} has {} uber-turns ({} filtered out):",
+            intersections,
+            ic.uber_turns.len(),
+            orig_num - ic.uber_turns.len()
+        );
+
+        clusters.push(ic);
+    }
+
+    clusters
+}
+
+impl IntersectionCluster {
+    pub fn new(members: HashSet<IntersectionID>, map: &Map) -> IntersectionCluster {
         // Find all entrances and exits through this group of intersections
         let mut entrances = Vec::new();
         let mut exits = HashSet::new();
-        for i in &intersections {
+        for i in &members {
             for turn in map.get_turns_in_intersection(*i) {
                 if turn.between_sidewalks() {
                     continue;
@@ -50,30 +85,6 @@ pub fn find(map: &Map) -> Vec<IntersectionCluster> {
         for entrance in entrances {
             uber_turns.extend(flood(entrance, map, &exits));
         }
-        let orig_num = uber_turns.len();
-
-        // Filter out the restricted ones!
-        // TODO Could be more efficient, but eh
-        uber_turns.retain(|ut| {
-            let mut ok = true;
-            for pair in ut.path.windows(2) {
-                let r1 = map.get_l(pair[0].src).parent;
-                let r2 = map.get_l(pair[0].dst).parent;
-                let r3 = map.get_l(pair[1].dst).parent;
-                if all_restrictions.contains(&(r1, r2, r3)) {
-                    ok = false;
-                    break;
-                }
-            }
-            ok
-        });
-
-        println!(
-            "Cluster {:?} has {} uber-turns ({} filtered out):",
-            members,
-            uber_turns.len(),
-            orig_num - uber_turns.len()
-        );
         /*for ut in &uber_turns {
             print!("- {}", ut.path[0].src);
             for t in &ut.path {
@@ -82,13 +93,11 @@ pub fn find(map: &Map) -> Vec<IntersectionCluster> {
             println!("");
         }*/
 
-        clusters.push(IntersectionCluster {
+        IntersectionCluster {
             members,
             uber_turns,
-        });
+        }
     }
-
-    clusters
 }
 
 fn flood(start: TurnID, map: &Map, exits: &HashSet<TurnID>) -> Vec<UberTurn> {
@@ -131,5 +140,21 @@ fn trace_back(end: TurnID, preds: &HashMap<TurnID, TurnID>) -> Vec<TurnID> {
             path.reverse();
             return path;
         }
+    }
+}
+
+impl UberTurn {
+    pub fn geom(&self, map: &Map) -> PolyLine {
+        let mut pl = map.get_t(self.path[0]).geom.clone();
+        let mut first = true;
+        for pair in self.path.windows(2) {
+            if !first {
+                pl = pl.extend(map.get_t(pair[0]).geom.clone());
+                first = false;
+            }
+            pl = pl.extend(map.get_l(pair[0].dst).lane_center_pts.clone());
+            pl = pl.extend(map.get_t(pair[1]).geom.clone());
+        }
+        pl
     }
 }

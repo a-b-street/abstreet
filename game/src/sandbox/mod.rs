@@ -2,6 +2,7 @@ mod dashboards;
 pub mod gameplay;
 mod misc_tools;
 mod speed;
+mod uber_turns;
 
 use self::misc_tools::{RoutePreview, ShowTrafficSignal, TurnExplorer};
 use crate::app::App;
@@ -384,6 +385,7 @@ impl ContextualActions for Actions {
                         actions.push((Key::F, "explore traffic signal details".to_string()));
                         actions.push((Key::C, "show current demand".to_string()));
                         actions.push((Key::E, "edit traffic signal".to_string()));
+                        actions.push((Key::U, "explore uber-turns".to_string()));
                     }
                     if app.primary.map.get_i(i).is_stop_sign() {
                         actions.push((Key::E, "edit stop sign".to_string()));
@@ -435,6 +437,9 @@ impl ContextualActions for Actions {
                 Box::new(EditMode::new(ctx, app, self.gameplay.clone())),
                 Box::new(StopSignEditor::new(i, ctx, app)),
             ),
+            (ID::Intersection(i), "explore uber-turns") => {
+                Transition::Push(uber_turns::UberTurnPicker::new(ctx, app, i))
+            }
             (ID::Lane(l), "explore turns from this lane") => {
                 Transition::Push(TurnExplorer::new(ctx, app, l))
             }

@@ -173,16 +173,12 @@ impl State for TurnExplorer {
                     return Transition::Pop;
                 }
                 "previous turn" => {
-                    if self.idx != 0 {
-                        self.idx -= 1;
-                        self.composite = TurnExplorer::make_panel(ctx, app, self.l, self.idx);
-                    }
+                    self.idx -= 1;
+                    self.composite = TurnExplorer::make_panel(ctx, app, self.l, self.idx);
                 }
                 "next turn" => {
-                    if self.idx != app.primary.map.get_turns_from_lane(self.l).len() {
-                        self.idx += 1;
-                        self.composite = TurnExplorer::make_panel(ctx, app, self.l, self.idx);
-                    }
+                    self.idx += 1;
+                    self.composite = TurnExplorer::make_panel(ctx, app, self.l, self.idx);
                 }
                 _ => unreachable!(),
             },
