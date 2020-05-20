@@ -1,5 +1,6 @@
-use crate::{IntersectionID, Map, TurnID};
-use geom::PolyLine;
+use crate::{IntersectionID, LaneID, Map, TurnID};
+use abstutil::MultiMap;
+use geom::{Distance, PolyLine, Pt2D};
 use petgraph::graphmap::UnGraphMap;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -154,6 +155,13 @@ fn trace_back(end: TurnID, preds: &BTreeMap<TurnID, TurnID>) -> Vec<TurnID> {
 }
 
 impl UberTurn {
+    pub fn entry(&self) -> LaneID {
+        self.path[0].src
+    }
+    pub fn exit(&self) -> LaneID {
+        self.path.last().unwrap().dst
+    }
+
     pub fn geom(&self, map: &Map) -> PolyLine {
         let mut pl = map.get_t(self.path[0]).geom.clone();
         let mut first = true;
@@ -167,4 +175,87 @@ impl UberTurn {
         }
         pl
     }
+}
+
+pub struct UberTurnGroup {
+    pub members: Vec<UberTurn>,
+    pub geom: PolyLine,
+}
+
+impl IntersectionCluster {
+    pub fn uber_turn_groups(&self, map: &Map) -> Vec<UberTurnGroup> {
+        let mut groups: MultiMap<(LaneID, LaneID), usize> = MultiMap::new();
+        for (idx, ut) in self.uber_turns.iter().enumerate() {
+            groups.insert((ut.entry(), ut.exit()), idx);
+        }
+
+        let mut result = Vec::new();
+        for (_, member_indices) in groups.consume() {
+            let mut members = Vec::new();
+            let mut polylines = Vec::new();
+            for idx in member_indices {
+                polylines.push(self.uber_turns[idx].geom(map));
+                members.push(self.uber_turns[idx].clone());
+            }
+            result.push(UberTurnGroup {
+                members,
+                geom: group_geom(polylines),
+            });
+        }
+        result
+    }
+}
+
+impl UberTurnGroup {
+    // TODO Share code with TurnGroup
+    // Polyline points FROM intersection
+    pub fn src_center_and_width(&self, map: &Map) -> (PolyLine, Distance) {
+        let sample_entry = self.members[0].entry();
+        let r = map.get_parent(sample_entry);
+        let dir = r.is_forwards(sample_entry);
+        // Points towards the intersection
+        let pl = if dir {
+            r.get_current_center(map)
+        } else {
+            r.get_current_center(map).reversed()
+        };
+
+        // TODO Poorly expressed. We just want the first leftmost value, and the last rightmost.
+        let mut leftmost = Distance::meters(99999.0);
+        let mut rightmost = Distance::ZERO;
+        let mut left = Distance::ZERO;
+        let mut right = Distance::ZERO;
+
+        for l in r.lanes_on_side(dir) {
+            right += map.get_l(l).width;
+
+            if self.members.iter().any(|ut| ut.entry() == l) {
+                leftmost = leftmost.min(left);
+                rightmost = rightmost.max(right);
+            }
+
+            left += map.get_l(l).width;
+        }
+
+        let pl = map.right_shift(pl, (leftmost + rightmost) / 2.0).unwrap();
+        // Flip direction, so we point away from the intersection
+        (pl.reversed(), rightmost - leftmost)
+    }
+}
+
+fn group_geom(mut polylines: Vec<PolyLine>) -> PolyLine {
+    let num_pts = polylines[0].points().len();
+    for pl in &polylines {
+        if num_pts != pl.points().len() {
+            return polylines.remove(0);
+        }
+    }
+
+    let mut pts = Vec::new();
+    for idx in 0..num_pts {
+        pts.push(Pt2D::center(
+            &polylines.iter().map(|pl| pl.points()[idx]).collect(),
+        ));
+    }
+    PolyLine::new(pts)
 }

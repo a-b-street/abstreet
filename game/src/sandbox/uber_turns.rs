@@ -1,5 +1,6 @@
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
+use crate::edit::ClusterTrafficSignalEditor;
 use crate::game::{msg, DrawBaselayer, State, Transition};
 use crate::helpers::ID;
 use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
@@ -176,6 +177,7 @@ impl UberTurnViewer {
                         Btn::text_fg("X").build_def(ctx, hotkey(Key::Escape)),
                     ]),
                     Checkbox::text(ctx, "legal / illegal movements", None, legal_turns),
+                    Btn::text_fg("Edit").build_def(ctx, None),
                 ])
                 .padding(10)
                 .bg(app.cs.panel_bg),
@@ -197,6 +199,11 @@ impl State for UberTurnViewer {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "X" => {
                     return Transition::Pop;
+                }
+                "Edit" => {
+                    return Transition::Replace(ClusterTrafficSignalEditor::new(
+                        ctx, app, &self.ic,
+                    ));
                 }
                 "previous uber-turn" => {
                     return Transition::Replace(UberTurnViewer::new(

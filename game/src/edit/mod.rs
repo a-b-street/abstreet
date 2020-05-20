@@ -1,8 +1,10 @@
 mod bulk;
+mod cluster_traffic_signals;
 mod lanes;
 mod stop_signs;
 mod traffic_signals;
 
+pub use self::cluster_traffic_signals::ClusterTrafficSignalEditor;
 pub use self::lanes::LaneEditor;
 pub use self::stop_signs::StopSignEditor;
 pub use self::traffic_signals::TrafficSignalEditor;

@@ -144,7 +144,7 @@ fn make_input_graph(
             .iter()
             .all(|t| constraints.can_use(map.get_l(t.dst), map))
         {
-            uber_turn_entrances.insert(ut.path[0].src, idx);
+            uber_turn_entrances.insert(ut.entry(), idx);
         } else {
             // Similar to the hack below for unused lanes
             if idx == uber_turns.len() - 1 {
@@ -185,7 +185,7 @@ fn make_input_graph(
                     input_graph.add_edge(from, nodes.get(Node::UberTurn(*idx)), sum_cost.max(1));
                     input_graph.add_edge(
                         nodes.get(Node::UberTurn(*idx)),
-                        nodes.get(Node::Lane(ut.path.last().unwrap().dst)),
+                        nodes.get(Node::Lane(ut.exit())),
                         // The cost is already captured for entering the uber-turn
                         1,
                     );
