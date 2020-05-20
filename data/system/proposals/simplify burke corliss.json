@@ -1,0 +1,54 @@
+{
+  "map_name": "udistrict",
+  "edits_name": "simplify where Corliss, Pacific, and the Burke cross",
+  "commands": [
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 8026175,
+            "i1": {
+              "osm_node_id": 30101211
+            },
+            "i2": {
+              "osm_node_id": 1752970097
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Construction",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 8111823,
+            "i1": {
+              "osm_node_id": 1752970095
+            },
+            "i2": {
+              "osm_node_id": 53155632
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Construction",
+        "orig_lt": "Driving"
+      }
+    }
+  ],
+  "proposal_description": [
+    "Disconnect Pacific St from Northlake Way by the Burke Gilman",
+    "I've seen many near-accidents between drivers and cyclists at the intersection of Pacific St, N 36th, and Corliss Ave.",
+    "Removing the one-way shortcuts to Northlake way would make this intersection less stressful.",
+    "This proposal can be used to explore the detours."
+  ]
+}
