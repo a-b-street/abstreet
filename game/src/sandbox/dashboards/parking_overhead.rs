@@ -1,11 +1,14 @@
 use crate::app::App;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::info::Tab;
-use crate::sandbox::dashboards::trip_table::make_table;
+use crate::sandbox::dashboards::trip_table::{make_table, preview_trip};
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
-use ezgui::{Btn, Checkbox, Composite, EventCtx, GfxCtx, Line, Outcome, Text, TextExt, Widget};
+use ezgui::{
+    Btn, Checkbox, Composite, EventCtx, Filler, GfxCtx, Line, Outcome, ScreenDims, Text, TextExt,
+    Widget,
+};
 use geom::Duration;
 use maplit::btreemap;
 use sim::{TripEndpoint, TripID, TripPhaseType};
@@ -146,6 +149,7 @@ impl State for ParkingOverhead {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.clear(app.cs.grass);
         self.composite.draw(g);
+        preview_trip(g, app, &self.composite);
     }
 }
 
@@ -266,23 +270,34 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
 
     let mut col = vec![DashTab::ParkingOverhead.picker(ctx)];
     col.push(
-        Text::from_multiline(vec![
-            Line(
-                "Trips taken by car also include time to walk between the building and parking \
-                 spot, as well as the time to find parking.",
-            ),
-            Line("Overhead is 1 - driving time / total time"),
-            Line("Ideally, overhead is 0% -- the entire trip is just spent driving."),
-            Line(""),
-            Line("High overhead could mean:"),
-            Line("- the car burned more resources and caused more traffic looking for parking"),
-            Line("- somebody with impaired movement had to walk far to reach their vehicle"),
-            Line("- the person was inconvenienced"),
-            Line(""),
-            Line("Note: Trips beginning/ending outside the map have an artifically high overhead,"),
-            Line("since the time spent driving off-map isn't shown here."),
+        Widget::row(vec![
+            Text::from_multiline(vec![
+                Line(
+                    "Trips taken by car also include time to walk between the building and \
+                     parking spot, as well as the time to find parking.",
+                ),
+                Line("Overhead is 1 - driving time / total time"),
+                Line("Ideally, overhead is 0% -- the entire trip is just spent driving."),
+                Line(""),
+                Line("High overhead could mean:"),
+                Line("- the car burned more resources and caused more traffic looking for parking"),
+                Line("- somebody with impaired movement had to walk far to reach their vehicle"),
+                Line("- the person was inconvenienced"),
+                Line(""),
+                Line(
+                    "Note: Trips beginning/ending outside the map have an artifically high \
+                     overhead,",
+                ),
+                Line("since the time spent driving off-map isn't shown here."),
+            ])
+            .draw(ctx),
+            Filler::new(ScreenDims::new(
+                0.15 * ctx.canvas.window_width,
+                0.15 * ctx.canvas.window_width,
+            ))
+            .named("preview"),
         ])
-        .draw(ctx)
+        .evenly_spaced()
         .margin_below(10),
     );
     col.push(

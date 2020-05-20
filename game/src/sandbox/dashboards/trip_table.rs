@@ -6,10 +6,10 @@ use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    Btn, Checkbox, Composite, EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome, ScreenDims,
-    ScreenPt, Text, TextExt, Widget,
+    Btn, Checkbox, Composite, EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome, RewriteColor,
+    ScreenDims, ScreenPt, Text, TextExt, Widget,
 };
-use geom::{Distance, Duration, Polygon, Pt2D, Time};
+use geom::{Angle, Distance, Duration, Polygon, Pt2D, Time};
 use maplit::btreemap;
 use sim::{TripEndpoint, TripID, TripMode};
 use std::collections::BTreeSet;
@@ -167,38 +167,7 @@ impl State for TripTable {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.clear(app.cs.grass);
         self.composite.draw(g);
-
-        let inner_rect = self.composite.filler_rect("preview");
-        let mut map_bounds = app.primary.map.get_bounds().clone();
-        let zoom = 0.15 * g.canvas.window_width / map_bounds.width().max(map_bounds.height());
-        // TODO need to do this?
-        map_bounds.min_x /= zoom;
-        map_bounds.min_y /= zoom;
-        map_bounds.max_x /= zoom;
-        map_bounds.max_y /= zoom;
-
-        g.fork(
-            Pt2D::new(map_bounds.min_x, map_bounds.min_y),
-            ScreenPt::new(inner_rect.x1, inner_rect.y1),
-            zoom,
-            None,
-        );
-        g.enable_clipping(inner_rect);
-        g.redraw(&app.primary.draw_map.boundary_polygon);
-        g.redraw(&app.primary.draw_map.draw_all_areas);
-        g.redraw(&app.primary.draw_map.draw_all_thick_roads);
-        g.redraw(&app.primary.draw_map.draw_all_unzoomed_intersections);
-        //g.redraw(&app.primary.draw_map.draw_all_buildings);
-
-        if let Some(x) = self.composite.currently_hovering() {
-            if let Ok(idx) = x.parse::<usize>() {
-                let trip = TripID(idx);
-                preview_route(app, trip).draw(g);
-            }
-        }
-
-        g.disable_clipping();
-        g.unfork();
+        preview_trip(g, app, &self.composite);
     }
 }
 
@@ -483,7 +452,35 @@ pub fn make_table(
     col
 }
 
-fn preview_route(app: &App, trip: TripID) -> GeomBatch {
+pub fn preview_trip(g: &mut GfxCtx, app: &App, composite: &Composite) {
+    let inner_rect = composite.filler_rect("preview");
+    let map_bounds = app.primary.map.get_bounds().clone();
+    let zoom = 0.15 * g.canvas.window_width / map_bounds.width().max(map_bounds.height());
+    g.fork(
+        Pt2D::new(map_bounds.min_x, map_bounds.min_y),
+        ScreenPt::new(inner_rect.x1, inner_rect.y1),
+        zoom,
+        None,
+    );
+    g.enable_clipping(inner_rect);
+
+    g.redraw(&app.primary.draw_map.boundary_polygon);
+    g.redraw(&app.primary.draw_map.draw_all_areas);
+    g.redraw(&app.primary.draw_map.draw_all_thick_roads);
+    g.redraw(&app.primary.draw_map.draw_all_unzoomed_intersections);
+
+    if let Some(x) = composite.currently_hovering() {
+        if let Ok(idx) = x.parse::<usize>() {
+            let trip = TripID(idx);
+            preview_route(g, app, trip).draw(g);
+        }
+    }
+
+    g.disable_clipping();
+    g.unfork();
+}
+
+fn preview_route(g: &mut GfxCtx, app: &App, trip: TripID) -> GeomBatch {
     let mut batch = GeomBatch::new();
     for p in app
         .primary
@@ -500,5 +497,32 @@ fn preview_route(app: &App, trip: TripID) -> GeomBatch {
             }
         }
     }
+
+    let (_, start, end, _) = app.primary.sim.trip_info(trip);
+    batch.add_svg(
+        g.prerender,
+        "../data/system/assets/timeline/start_pos.svg",
+        match start {
+            TripEndpoint::Bldg(b) => app.primary.map.get_b(b).label_center,
+            TripEndpoint::Border(i, _) => app.primary.map.get_i(i).polygon.center(),
+        },
+        10.0,
+        Angle::ZERO,
+        RewriteColor::NoOp,
+        true,
+    );
+    batch.add_svg(
+        g.prerender,
+        "../data/system/assets/timeline/goal_pos.svg",
+        match end {
+            TripEndpoint::Bldg(b) => app.primary.map.get_b(b).label_center,
+            TripEndpoint::Border(i, _) => app.primary.map.get_i(i).polygon.center(),
+        },
+        10.0,
+        Angle::ZERO,
+        RewriteColor::NoOp,
+        true,
+    );
+
     batch
 }
