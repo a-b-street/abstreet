@@ -28,7 +28,7 @@ pub struct ParkingMapper {
 #[derive(PartialEq, Clone)]
 pub enum Value {
     BothSides,
-    NoParking,
+    NoStopping,
     RightOnly,
     LeftOnly,
     Complicated,
@@ -146,7 +146,7 @@ impl ParkingMapper {
             let mut wizard = wiz.wrap(ctx);
             let (_, value) = wizard.choose("What kind of parking does this road have?", || {
                 vec![
-                    Choice::new("none", Value::NoParking),
+                    Choice::new("none -- no stopping or parking", Value::NoStopping),
                     Choice::new("both sides", Value::BothSides),
                     Choice::new("just on the green side", Value::RightOnly),
                     Choice::new("just on the blue side", Value::LeftOnly),
@@ -154,13 +154,14 @@ impl ParkingMapper {
                         "it changes at some point along the road",
                         Value::Complicated,
                     ),
+                    Choice::new("loading zone on one or both sides", Value::Complicated),
                 ]
             })?;
             if value == Value::Complicated {
                 wizard.acknowledge("Complicated road", || {
                     vec![
-                        "You'll have to split the way in ID or JOSM and apply the parking tags to \
-                         each section.",
+                        "You'll have to manually split the way in ID or JOSM and apply the \
+                         appropriate parking tags to each section.",
                     ]
                 })?;
             }
@@ -281,7 +282,7 @@ impl State for ParkingMapper {
                 .orig_id
                 .osm_way_id;
             let mut new_data = self.data.clone();
-            new_data.insert(osm_way_id, Value::NoParking);
+            new_data.insert(osm_way_id, Value::NoStopping);
             return Transition::Replace(ParkingMapper::new(ctx, app, self.show_todo, new_data));
         }
 
@@ -380,16 +381,16 @@ fn generate_osmc(data: &BTreeMap<i64, Value>, timer: &mut Timer) -> Result<(), B
             Value::BothSides => {
                 osm_tags.insert(osm::PARKING_BOTH.to_string(), "parallel".to_string());
             }
-            Value::NoParking => {
-                osm_tags.insert(osm::PARKING_BOTH.to_string(), "no_parking".to_string());
+            Value::NoStopping => {
+                osm_tags.insert(osm::PARKING_BOTH.to_string(), "no_stopping".to_string());
             }
             Value::RightOnly => {
                 osm_tags.insert(osm::PARKING_RIGHT.to_string(), "parallel".to_string());
-                osm_tags.insert(osm::PARKING_LEFT.to_string(), "no_parking".to_string());
+                osm_tags.insert(osm::PARKING_LEFT.to_string(), "no_stopping".to_string());
             }
             Value::LeftOnly => {
                 osm_tags.insert(osm::PARKING_LEFT.to_string(), "parallel".to_string());
-                osm_tags.insert(osm::PARKING_RIGHT.to_string(), "no_parking".to_string());
+                osm_tags.insert(osm::PARKING_RIGHT.to_string(), "no_stopping".to_string());
             }
             Value::Complicated => unreachable!(),
         }
