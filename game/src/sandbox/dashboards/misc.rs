@@ -1,6 +1,6 @@
 use crate::app::App;
 use crate::common::Tab;
-use crate::game::{msg, State, Transition};
+use crate::game::{msg, DrawBaselayer, State, Transition};
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
 use ezgui::{
@@ -55,8 +55,12 @@ impl State for ActiveTraffic {
         }
     }
 
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::Custom
+    }
+
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        State::grey_out_map(g, app);
+        g.clear(app.cs.grass);
         self.composite.draw(g);
     }
 }
@@ -125,8 +129,12 @@ impl State for BusRoutes {
         }
     }
 
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::Custom
+    }
+
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        State::grey_out_map(g, app);
+        g.clear(app.cs.grass);
         self.composite.draw(g);
     }
 }

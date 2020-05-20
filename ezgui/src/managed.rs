@@ -431,6 +431,21 @@ impl Widget {
         }
     }
 
+    fn currently_hovering(&self) -> Option<&String> {
+        if let Some(btn) = self.widget.downcast_ref::<Button>() {
+            if btn.hovering {
+                return Some(&btn.action);
+            }
+        } else if let Some(container) = self.widget.downcast_ref::<Container>() {
+            for w in &container.members {
+                if let Some(a) = w.currently_hovering() {
+                    return Some(a);
+                }
+            }
+        }
+        None
+    }
+
     fn restore(&mut self, ctx: &mut EventCtx, prev: &Composite) {
         if let Some(container) = self.widget.downcast_mut::<Container>() {
             for w in &mut container.members {
@@ -845,6 +860,10 @@ impl Composite {
     pub fn clicked_outside(&self, ctx: &mut EventCtx) -> bool {
         // TODO No great way to populate OSD from here with "click to cancel"
         !self.top_level.rect.contains(ctx.canvas.get_cursor()) && ctx.normal_left_click()
+    }
+
+    pub fn currently_hovering(&self) -> Option<&String> {
+        self.top_level.currently_hovering()
     }
 }
 

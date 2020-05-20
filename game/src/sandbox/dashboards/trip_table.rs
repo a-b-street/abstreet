@@ -1,19 +1,20 @@
 use crate::app::App;
-use crate::game::{State, Transition};
-use crate::helpers::{cmp_duration_shorter, color_for_mode};
+use crate::game::{DrawBaselayer, State, Transition};
+use crate::helpers::{cmp_duration_shorter, color_for_mode, color_for_trip_phase};
 use crate::info::Tab;
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    Btn, Checkbox, Composite, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Text, TextExt, Widget,
+    Btn, Checkbox, Composite, EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome, ScreenDims,
+    ScreenPt, Text, TextExt, Widget,
 };
-use geom::{Duration, Polygon, Time};
+use geom::{Distance, Duration, Polygon, Pt2D, Time};
 use maplit::btreemap;
 use sim::{TripEndpoint, TripID, TripMode};
 use std::collections::BTreeSet;
 
-const ROWS: usize = 20;
+const ROWS: usize = 10;
 
 // TODO Hover over a trip to preview its route on the map
 
@@ -159,9 +160,45 @@ impl State for TripTable {
         Transition::Keep
     }
 
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::Custom
+    }
+
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        State::grey_out_map(g, app);
+        g.clear(app.cs.grass);
         self.composite.draw(g);
+
+        let inner_rect = self.composite.filler_rect("preview");
+        let mut map_bounds = app.primary.map.get_bounds().clone();
+        let zoom = 0.15 * g.canvas.window_width / map_bounds.width().max(map_bounds.height());
+        // TODO need to do this?
+        map_bounds.min_x /= zoom;
+        map_bounds.min_y /= zoom;
+        map_bounds.max_x /= zoom;
+        map_bounds.max_y /= zoom;
+
+        g.fork(
+            Pt2D::new(map_bounds.min_x, map_bounds.min_y),
+            ScreenPt::new(inner_rect.x1, inner_rect.y1),
+            zoom,
+            None,
+        );
+        g.enable_clipping(inner_rect);
+        g.redraw(&app.primary.draw_map.boundary_polygon);
+        g.redraw(&app.primary.draw_map.draw_all_areas);
+        g.redraw(&app.primary.draw_map.draw_all_thick_roads);
+        g.redraw(&app.primary.draw_map.draw_all_unzoomed_intersections);
+        //g.redraw(&app.primary.draw_map.draw_all_buildings);
+
+        if let Some(x) = self.composite.currently_hovering() {
+            if let Ok(idx) = x.parse::<usize>() {
+                let trip = TripID(idx);
+                preview_route(app, trip).draw(g);
+            }
+        }
+
+        g.disable_clipping();
+        g.unfork();
     }
 }
 
@@ -374,6 +411,14 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
         rows,
         0.88 * ctx.canvas.window_width,
     ));
+    col.push(
+        Filler::new(ScreenDims::new(
+            0.15 * ctx.canvas.window_width,
+            0.15 * ctx.canvas.window_width,
+        ))
+        .named("preview")
+        .centered_horiz(),
+    );
 
     Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(10))
         .max_size_percent(90, 90)
@@ -436,4 +481,24 @@ pub fn make_table(
     }
 
     col
+}
+
+fn preview_route(app: &App, trip: TripID) -> GeomBatch {
+    let mut batch = GeomBatch::new();
+    for p in app
+        .primary
+        .sim
+        .get_analytics()
+        .get_trip_phases(trip, &app.primary.map)
+    {
+        if let Some((dist, ref path)) = p.path {
+            if let Some(trace) = path.trace(&app.primary.map, dist, None) {
+                batch.push(
+                    color_for_trip_phase(app, p.phase_type),
+                    trace.make_polygons(Distance::meters(20.0)),
+                );
+            }
+        }
+    }
+    batch
 }

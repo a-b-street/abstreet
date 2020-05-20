@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::game::{State, Transition};
+use crate::game::{DrawBaselayer, State, Transition};
 use crate::info::Tab;
 use crate::sandbox::dashboards::trip_table::make_table;
 use crate::sandbox::dashboards::DashTab;
@@ -139,8 +139,12 @@ impl State for ParkingOverhead {
         Transition::Keep
     }
 
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::Custom
+    }
+
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        State::grey_out_map(g, app);
+        g.clear(app.cs.grass);
         self.composite.draw(g);
     }
 }
@@ -276,7 +280,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
             Line("- the person was inconvenienced"),
             Line(""),
             Line("Note: Trips beginning/ending outside the map have an artifically high overhead,"),
-            Line("since the time spent driving off-map are not shown here."),
+            Line("since the time spent driving off-map isn't shown here."),
         ])
         .draw(ctx)
         .margin_below(10),

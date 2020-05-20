@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::game::{State, Transition};
+use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::color_for_mode;
 use crate::sandbox::dashboards::DashTab;
 use abstutil::prettyprint_usize;
@@ -90,8 +90,12 @@ impl State for TripSummaries {
         }
     }
 
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::Custom
+    }
+
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        State::grey_out_map(g, app);
+        g.clear(app.cs.grass);
         self.composite.draw(g);
     }
 }

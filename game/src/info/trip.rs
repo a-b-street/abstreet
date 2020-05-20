@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::helpers::ID;
+use crate::helpers::{color_for_trip_phase, ID};
 use crate::info::{make_table, Details, Tab};
 use ezgui::{
     Btn, Color, EventCtx, GeomBatch, Line, LinePlot, PlotOptions, RewriteColor, Series, Text,
@@ -373,18 +373,7 @@ fn make_timeline(
     let mut elevation = Vec::new();
     let mut path_impossible = false;
     for (idx, p) in phases.into_iter().enumerate() {
-        let color = match p.phase_type {
-            TripPhaseType::Driving => app.cs.unzoomed_car,
-            TripPhaseType::Walking => app.cs.unzoomed_pedestrian,
-            TripPhaseType::Biking => app.cs.bike_lane,
-            TripPhaseType::Parking => app.cs.parking_trip,
-            TripPhaseType::WaitingForBus(_, _) => app.cs.bus_stop,
-            TripPhaseType::RidingBus(_, _, _) => app.cs.bus_lane,
-            TripPhaseType::Aborted | TripPhaseType::Finished => unreachable!(),
-            TripPhaseType::DelayedStart => Color::YELLOW,
-            TripPhaseType::Remote => Color::PINK,
-        }
-        .alpha(0.7);
+        let color = color_for_trip_phase(app, p.phase_type).alpha(0.7);
 
         let mut txt = Text::from(Line(&p.phase_type.describe(map)));
         txt.add(Line(format!(

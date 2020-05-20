@@ -2,7 +2,7 @@ use crate::app::{App, PerMap};
 use ezgui::{Color, Line, Text, TextSpan};
 use geom::{Duration, Pt2D};
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, RoadID, TurnID};
-use sim::{AgentID, CarID, PedestrianID, TripMode};
+use sim::{AgentID, CarID, PedestrianID, TripMode, TripPhaseType};
 use std::collections::BTreeSet;
 
 // Aside from Road and Trip, everything here can actually be selected.
@@ -131,6 +131,20 @@ pub fn color_for_mode(app: &App, m: TripMode) -> Color {
         TripMode::Bike => app.cs.unzoomed_bike,
         TripMode::Transit => app.cs.unzoomed_bus,
         TripMode::Drive => app.cs.unzoomed_car,
+    }
+}
+
+pub fn color_for_trip_phase(app: &App, tpt: TripPhaseType) -> Color {
+    match tpt {
+        TripPhaseType::Driving => app.cs.unzoomed_car,
+        TripPhaseType::Walking => app.cs.unzoomed_pedestrian,
+        TripPhaseType::Biking => app.cs.bike_lane,
+        TripPhaseType::Parking => app.cs.parking_trip,
+        TripPhaseType::WaitingForBus(_, _) => app.cs.bus_stop,
+        TripPhaseType::RidingBus(_, _, _) => app.cs.bus_lane,
+        TripPhaseType::Aborted | TripPhaseType::Finished => unreachable!(),
+        TripPhaseType::DelayedStart => Color::YELLOW,
+        TripPhaseType::Remote => Color::PINK,
     }
 }
 

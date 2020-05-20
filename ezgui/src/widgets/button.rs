@@ -17,7 +17,7 @@ pub struct Button {
     // Screenspace, top-left always at the origin. Also, probably not a box. :P
     hitbox: Polygon,
 
-    hovering: bool,
+    pub(crate) hovering: bool,
 
     pub(crate) top_left: ScreenPt,
     pub(crate) dims: ScreenDims,
