@@ -14,6 +14,7 @@ pub struct Options {
     pub dev: bool,
     pub time_increment: Duration,
     pub min_zoom_for_detail: f64,
+    pub large_unzoomed_agents: bool,
 }
 
 impl Options {
@@ -24,6 +25,7 @@ impl Options {
             dev: false,
             time_increment: Duration::minutes(10),
             min_zoom_for_detail: 6.0,
+            large_unzoomed_agents: false,
         }
     }
 }
@@ -145,6 +147,13 @@ impl OptionsPanel {
                             ],
                         ),
                     ]),
+                    Checkbox::text(
+                        ctx,
+                        "Draw enlarged unzoomed agents",
+                        None,
+                        app.opts.large_unzoomed_agents,
+                    )
+                    .margin(5),
                     Btn::text_bg2("Apply")
                         .build_def(ctx, hotkey(Key::Enter))
                         .margin(5)
@@ -194,6 +203,8 @@ impl State for OptionsPanel {
                     }
 
                     app.opts.min_zoom_for_detail = self.composite.dropdown_value("min zoom");
+                    app.opts.large_unzoomed_agents =
+                        self.composite.is_checked("Draw enlarged unzoomed agents");
 
                     return Transition::Pop;
                 }

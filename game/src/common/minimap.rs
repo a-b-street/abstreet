@@ -218,7 +218,11 @@ impl Minimap {
             &app.primary.map,
             &app.agent_cs,
             g,
-            Distance::meters(2.0 + (self.zoom_lvl as f64)) / self.zoom,
+            if app.opts.large_unzoomed_agents {
+                Some(Distance::meters(2.0 + (self.zoom_lvl as f64)) / self.zoom)
+            } else {
+                None
+            },
         );
 
         // The cursor

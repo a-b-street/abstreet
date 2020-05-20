@@ -14,7 +14,7 @@ use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Pt2D, Time};
 use map_model::{
     AreaID, BuildingID, BusStopID, Intersection, IntersectionID, LaneID, Map, Road, RoadID,
-    Traversable,
+    Traversable, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
 };
 use sim::{GetDrawAgents, UnzoomedAgent, VehicleType};
 use std::borrow::Borrow;
@@ -311,7 +311,7 @@ pub struct AgentCache {
     time: Option<Time>,
     agents_per_on: HashMap<Traversable, Vec<Box<dyn Renderable>>>,
     // agent radius also matters
-    unzoomed: Option<(Time, Distance, AgentColorScheme, Drawable)>,
+    unzoomed: Option<(Time, Option<Distance>, AgentColorScheme, Drawable)>,
 }
 
 impl AgentCache {
@@ -366,28 +366,46 @@ impl AgentCache {
         map: &Map,
         acs: &AgentColorScheme,
         g: &mut GfxCtx,
-        radius: Distance,
+        maybe_radius: Option<Distance>,
     ) {
         let now = source.time();
         if let Some((time, r, ref orig_acs, ref draw)) = self.unzoomed {
-            if now == time && radius == r && acs == orig_acs {
+            if now == time && maybe_radius == r && acs == orig_acs {
                 g.redraw(draw);
                 return;
             }
         }
 
-        // It's quite silly to produce triangles for the same circle over and over again. ;)
-        let circle = Circle::new(Pt2D::new(0.0, 0.0), radius).to_polygon();
         let mut batch = GeomBatch::new();
-        for agent in source.get_unzoomed_agents(map) {
-            if let Some(color) = acs.color(&agent) {
-                batch.push(color, circle.translate(agent.pos.x(), agent.pos.y()));
+        // It's quite silly to produce triangles for the same circle over and over again. ;)
+        if let Some(r) = maybe_radius {
+            let circle = Circle::new(Pt2D::new(0.0, 0.0), r).to_polygon();
+            for agent in source.get_unzoomed_agents(map) {
+                if let Some(color) = acs.color(&agent) {
+                    batch.push(color, circle.translate(agent.pos.x(), agent.pos.y()));
+                }
+            }
+        } else {
+            // Lane thickness is a little hard to see, so double it. Most of the time, the circles
+            // don't leak out of the road too much.
+            let car_circle =
+                Circle::new(Pt2D::new(0.0, 0.0), 4.0 * NORMAL_LANE_THICKNESS).to_polygon();
+            let ped_circle =
+                Circle::new(Pt2D::new(0.0, 0.0), 4.0 * SIDEWALK_THICKNESS).to_polygon();
+            for agent in source.get_unzoomed_agents(map) {
+                if let Some(color) = acs.color(&agent) {
+                    if agent.vehicle_type.is_some() {
+                        batch.push(color, car_circle.translate(agent.pos.x(), agent.pos.y()));
+                    } else {
+                        batch.push(color, ped_circle.translate(agent.pos.x(), agent.pos.y()));
+                    }
+                }
             }
         }
 
         let draw = g.upload(batch);
         g.redraw(&draw);
-        self.unzoomed = Some((now, radius, acs.clone(), draw));
+        self.unzoomed = Some((now, maybe_radius, acs.clone(), draw));
     }
 }
 

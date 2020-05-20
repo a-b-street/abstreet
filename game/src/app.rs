@@ -205,7 +205,11 @@ impl App {
                 &self.primary.map,
                 &self.agent_cs,
                 g,
-                Distance::meters(10.0) / g.canvas.cam_zoom,
+                if self.opts.large_unzoomed_agents {
+                    Some(Distance::meters(10.0) / g.canvas.cam_zoom)
+                } else {
+                    None
+                },
             );
         } else {
             let mut cache = self.primary.draw_map.agents.borrow_mut();
