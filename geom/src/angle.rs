@@ -64,3 +64,11 @@ impl fmt::Display for Angle {
         write!(f, "Angle({} degrees)", self.normalized_degrees())
     }
 }
+
+impl std::ops::Neg for Angle {
+    type Output = Angle;
+
+    fn neg(self) -> Angle {
+        Angle::new(-self.0)
+    }
+}

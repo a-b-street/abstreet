@@ -80,7 +80,6 @@ impl State for ClusterTrafficSignalEditor {
         for (idx, g) in self.groups.iter().enumerate() {
             if Some(idx) == self.group_selected {
                 batch.push(app.cs.selected, g.block.clone());
-                // Overwrite the original thing
                 batch.push(
                     app.cs.selected,
                     g.group
