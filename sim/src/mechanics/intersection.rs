@@ -639,7 +639,9 @@ fn allow_block_the_box(osm_node_id: i64) -> bool {
     // Rainier and Letitia
     osm_node_id == 1729797719 || osm_node_id == 4272388873 || osm_node_id == 53194882 ||
     // Rainier and MLK
-    osm_node_id == 53131428
+    osm_node_id == 53131428 ||
+    // Montlake and 520
+    osm_node_id == 53128053
 }
 
 // TODO Various problems (bad geometry, multi-intersection turn restrictions) cause

@@ -305,10 +305,10 @@ pub fn prebake_all() {
         }
     }
 
-    {
-        let map = map_model::Map::new(abstutil::path_map("lakeslice"), &mut timer);
+    for name in vec!["23rd", "lakeslice"] {
+        let map = map_model::Map::new(abstutil::path_map(name), &mut timer);
         let scenario: Scenario =
-            abstutil::read_binary(abstutil::path_scenario("lakeslice", "weekday"), &mut timer);
+            abstutil::read_binary(abstutil::path_scenario(name, "weekday"), &mut timer);
         prebake(&map, scenario, None, &mut timer);
     }
 }
