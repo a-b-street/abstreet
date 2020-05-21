@@ -22,7 +22,7 @@ pub use crate::bus_stop::{BusRoute, BusRouteID, BusStop, BusStopID};
 pub use crate::edits::{EditCmd, EditEffects, EditIntersection, MapEdits, PermanentMapEdits};
 pub use crate::intersection::{Intersection, IntersectionID, IntersectionType};
 pub use crate::lane::{Lane, LaneID, LaneType, PARKING_SPOT_LENGTH};
-pub use crate::make::RoadSpec;
+pub use crate::make::initial::lane_specs::RoadSpec;
 pub use crate::map::Map;
 pub use crate::pathfind::uber_turns::{IntersectionCluster, UberTurn, UberTurnGroup};
 pub use crate::pathfind::{Path, PathConstraints, PathRequest, PathStep};

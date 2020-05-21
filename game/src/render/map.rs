@@ -59,7 +59,7 @@ impl DrawMap {
 
         timer.start("generate thick roads");
         let mut road_refs: Vec<&Road> = map.all_roads().iter().collect();
-        road_refs.sort_by_key(|r| r.get_zorder());
+        road_refs.sort_by_key(|r| r.zorder);
         let mut all_roads = GeomBatch::new();
         for r in road_refs {
             all_roads.push(

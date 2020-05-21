@@ -174,7 +174,7 @@ impl Traversable {
 
     pub fn get_zorder(&self, map: &Map) -> isize {
         match *self {
-            Traversable::Lane(id) => map.get_parent(id).get_zorder(),
+            Traversable::Lane(id) => map.get_parent(id).zorder,
             Traversable::Turn(id) => map.get_i(id.parent).get_zorder(map),
         }
     }

@@ -141,7 +141,7 @@ impl Map {
 
     pub fn create_from_raw(mut raw: RawMap, build_ch: bool, timer: &mut Timer) -> Map {
         // Better to defer this and see RawMaps with more debug info in map_editor
-        make::remove_disconnected_roads(&mut raw, timer);
+        make::remove_disconnected::remove_disconnected_roads(&mut raw, timer);
 
         timer.start("raw_map to InitialMap");
         let gps_bounds = raw.gps_bounds.clone();
@@ -184,8 +184,13 @@ impl Map {
             timer.stop("setup (most of) Pathfinder");
 
             {
-                let (stops, routes) =
-                    make::make_bus_stops(&m, &raw.bus_routes, &m.gps_bounds, &m.bounds, timer);
+                let (stops, routes) = make::bus_stops::make_bus_stops(
+                    &m,
+                    &raw.bus_routes,
+                    &m.gps_bounds,
+                    &m.bounds,
+                    timer,
+                );
                 m.bus_stops = stops;
                 // The IDs are sorted in the BTreeMap, so this order winds up correct.
                 for id in m.bus_stops.keys() {
@@ -198,7 +203,7 @@ impl Map {
                     if r.stops.is_empty() {
                         continue;
                     }
-                    if make::fix_bus_route(&m, &mut r) {
+                    if make::bus_stops::fix_bus_route(&m, &mut r) {
                         r.id = BusRouteID(m.bus_routes.len());
                         m.bus_routes.push(r);
                     } else {
@@ -977,6 +982,11 @@ fn make_half_map(
             src_i: i1,
             dst_i: i2,
             speed_limit: Speed::ZERO,
+            zorder: if let Some(layer) = raw.roads[&r.id].osm_tags.get("layer") {
+                layer.parse::<isize>().unwrap()
+            } else {
+                0
+            },
         };
         road.speed_limit = road.speed_limit_from_osm();
 
@@ -1051,7 +1061,7 @@ fn make_half_map(
             continue;
         }
 
-        for t in make::make_all_turns(map.driving_side, i, &map.roads, &map.lanes, timer) {
+        for t in make::turns::make_all_turns(map.driving_side, i, &map.roads, &map.lanes, timer) {
             assert!(!map.turns.contains_key(&t.id));
             i.turns.insert(t.id);
             map.turns.insert(t.id, t);
@@ -1072,7 +1082,7 @@ fn make_half_map(
     }
     timer.stop("find parking blackholes");
 
-    map.buildings = make::make_all_buildings(&raw.buildings, &map, timer);
+    map.buildings = make::buildings::make_all_buildings(&raw.buildings, &map, timer);
     for b in &map.buildings {
         let lane = b.sidewalk();
 
@@ -1092,6 +1102,8 @@ fn make_half_map(
             osm_id: a.osm_id,
         });
     }
+
+    make::bridges::find_bridges(&mut map.roads, &map.bounds, timer);
 
     map
 }
@@ -1309,7 +1321,7 @@ fn recalculate_turns(
         return;
     }
 
-    for t in make::make_all_turns(map.driving_side, i, &map.roads, &map.lanes, timer) {
+    for t in make::turns::make_all_turns(map.driving_side, i, &map.roads, &map.lanes, timer) {
         effects.added_turns.insert(t.id);
         i.turns.insert(t.id);
         if let Some(_existing_t) = old_turns.iter().find(|turn| turn.id == t.id) {

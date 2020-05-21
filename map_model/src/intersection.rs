@@ -78,7 +78,7 @@ impl Intersection {
         // a -1 and a 1... need to see it to know what to do.
         self.roads
             .iter()
-            .map(|r| map.get_r(*r).get_zorder())
+            .map(|r| map.get_r(*r).zorder)
             .min()
             .unwrap()
     }

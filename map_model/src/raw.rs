@@ -1,4 +1,4 @@
-use crate::make::get_lane_types;
+use crate::make::initial::lane_specs::get_lane_types;
 use crate::{osm, AreaType, IntersectionType, RoadSpec};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Timer, Warn};
 use geom::{Angle, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};

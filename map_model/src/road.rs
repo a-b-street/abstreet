@@ -98,6 +98,7 @@ pub struct Road {
     pub complicated_turn_restrictions: Vec<(RoadID, RoadID)>,
     pub orig_id: OriginalRoad,
     pub speed_limit: Speed,
+    pub zorder: isize,
 
     // Invariant: A road must contain at least one child
     // These are ordered from closest to center lane (left-most when driving on the right) to
@@ -222,15 +223,6 @@ impl Road {
             return Speed::miles_per_hour(40.0);
         }
         Speed::miles_per_hour(20.0)
-    }
-
-    pub fn get_zorder(&self) -> isize {
-        // TODO Should probably cache this
-        if let Some(layer) = self.osm_tags.get("layer") {
-            layer.parse::<isize>().unwrap()
-        } else {
-            0
-        }
     }
 
     pub fn incoming_lanes(&self, i: IntersectionID) -> &Vec<(LaneID, LaneType)> {

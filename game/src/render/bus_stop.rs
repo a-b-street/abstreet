@@ -53,7 +53,7 @@ impl DrawBusStop {
             id: stop.id,
             polyline,
             polygon,
-            zorder: map.get_parent(lane.id).get_zorder(),
+            zorder: map.get_parent(lane.id).zorder,
             draw_default,
         }
     }

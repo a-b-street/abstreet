@@ -51,7 +51,7 @@ impl DrawRoad {
 
         DrawRoad {
             id: r.id,
-            zorder: r.get_zorder(),
+            zorder: r.zorder,
             draw_center_line: prerender.upload(draw),
             label: prerender.upload(lbl),
         }

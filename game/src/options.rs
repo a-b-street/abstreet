@@ -24,7 +24,7 @@ impl Options {
             color_scheme: ColorSchemeChoice::Standard,
             dev: false,
             time_increment: Duration::minutes(10),
-            min_zoom_for_detail: 6.0,
+            min_zoom_for_detail: 4.0,
             large_unzoomed_agents: false,
         }
     }

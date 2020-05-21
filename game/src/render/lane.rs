@@ -158,7 +158,7 @@ impl DrawLane {
         AlmostDrawLane {
             id: lane.id,
             polygon,
-            zorder: road.get_zorder(),
+            zorder: road.zorder,
             draw_default: draw,
         }
     }
