@@ -21,7 +21,12 @@ pub struct UberTurnPicker {
 impl UberTurnPicker {
     pub fn new(ctx: &mut EventCtx, app: &App, i: IntersectionID) -> Box<dyn State> {
         let mut members = BTreeSet::new();
-        members.insert(i);
+        if let Some(list) = IntersectionCluster::autodetect(i, &app.primary.map) {
+            members.extend(list);
+        } else {
+            members.insert(i);
+        }
+
         Box::new(UberTurnPicker {
             members,
             composite: Composite::new(
@@ -35,6 +40,7 @@ impl UberTurnPicker {
                             .align_right(),
                     ]),
                     Btn::text_fg("View uber-turns").build_def(ctx, None),
+                    Btn::text_fg("Edit").build_def(ctx, None),
                 ])
                 .padding(10)
                 .bg(app.cs.panel_bg),
@@ -79,6 +85,19 @@ impl State for UberTurnPicker {
                         self.members.clone(),
                         0,
                         true,
+                    ));
+                }
+                "Edit" => {
+                    if self.members.len() < 2 {
+                        return Transition::Push(msg(
+                            "Error",
+                            vec!["Select at least two intersections"],
+                        ));
+                    }
+                    return Transition::Replace(ClusterTrafficSignalEditor::new(
+                        ctx,
+                        app,
+                        &IntersectionCluster::new(self.members.clone(), &app.primary.map).0,
                     ));
                 }
                 _ => unreachable!(),
@@ -177,7 +196,6 @@ impl UberTurnViewer {
                         Btn::text_fg("X").build_def(ctx, hotkey(Key::Escape)),
                     ]),
                     Checkbox::text(ctx, "legal / illegal movements", None, legal_turns),
-                    Btn::text_fg("Edit").build_def(ctx, None),
                 ])
                 .padding(10)
                 .bg(app.cs.panel_bg),
@@ -199,11 +217,6 @@ impl State for UberTurnViewer {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "X" => {
                     return Transition::Pop;
-                }
-                "Edit" => {
-                    return Transition::Replace(ClusterTrafficSignalEditor::new(
-                        ctx, app, &self.ic,
-                    ));
                 }
                 "previous uber-turn" => {
                     return Transition::Replace(UberTurnViewer::new(

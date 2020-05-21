@@ -1,5 +1,5 @@
 use crate::{DirectedRoadID, IntersectionID, LaneID, Map, TurnID};
-use abstutil::MultiMap;
+use abstutil::{retain_btreeset, MultiMap};
 use geom::{Distance, PolyLine, Pt2D};
 use petgraph::graphmap::UnGraphMap;
 use serde::{Deserialize, Serialize};
@@ -108,6 +108,37 @@ impl IntersectionCluster {
                 uber_turns: illegal,
             },
         )
+    }
+
+    // Find all other traffic signals "close" to one
+    // TODO I haven't found a case with interior nodes yet
+    pub fn autodetect(from: IntersectionID, map: &Map) -> Option<BTreeSet<IntersectionID>> {
+        let threshold = Distance::meters(25.0);
+
+        let mut found = BTreeSet::new();
+        let mut queue = vec![from];
+
+        while !queue.is_empty() {
+            let i = map.get_i(queue.pop().unwrap());
+            if found.contains(&i.id) {
+                continue;
+            }
+            found.insert(i.id);
+            for r in &i.roads {
+                let r = map.get_r(*r);
+                if r.center_pts.length() > threshold {
+                    continue;
+                }
+                let other = if r.src_i == i.id { r.dst_i } else { r.src_i };
+                queue.push(other);
+            }
+        }
+        retain_btreeset(&mut found, |i| map.get_i(*i).is_traffic_signal());
+        if found.len() > 1 {
+            Some(found)
+        } else {
+            None
+        }
     }
 }
 
