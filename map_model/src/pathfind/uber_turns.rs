@@ -1,4 +1,4 @@
-use crate::{IntersectionID, LaneID, Map, TurnID};
+use crate::{DirectedRoadID, IntersectionID, LaneID, Map, TurnID};
 use abstutil::MultiMap;
 use geom::{Distance, PolyLine, Pt2D};
 use petgraph::graphmap::UnGraphMap;
@@ -178,19 +178,29 @@ impl UberTurn {
 }
 
 pub struct UberTurnGroup {
+    pub from: DirectedRoadID,
+    pub to: DirectedRoadID,
     pub members: Vec<UberTurn>,
     pub geom: PolyLine,
 }
 
 impl IntersectionCluster {
     pub fn uber_turn_groups(&self, map: &Map) -> Vec<UberTurnGroup> {
-        let mut groups: MultiMap<(LaneID, LaneID), usize> = MultiMap::new();
+        // TODO LaneType should also be part of the grouping... the entry? exit? everything in
+        // between? What about mixes?
+        let mut groups: MultiMap<(DirectedRoadID, DirectedRoadID), usize> = MultiMap::new();
         for (idx, ut) in self.uber_turns.iter().enumerate() {
-            groups.insert((ut.entry(), ut.exit()), idx);
+            groups.insert(
+                (
+                    map.get_l(ut.entry()).get_directed_parent(map),
+                    map.get_l(ut.exit()).get_directed_parent(map),
+                ),
+                idx,
+            );
         }
 
         let mut result = Vec::new();
-        for (_, member_indices) in groups.consume() {
+        for ((from, to), member_indices) in groups.consume() {
             let mut members = Vec::new();
             let mut polylines = Vec::new();
             for idx in member_indices {
@@ -198,6 +208,8 @@ impl IntersectionCluster {
                 members.push(self.uber_turns[idx].clone());
             }
             result.push(UberTurnGroup {
+                from,
+                to,
                 members,
                 geom: group_geom(polylines),
             });
@@ -210,9 +222,8 @@ impl UberTurnGroup {
     // TODO Share code with TurnGroup
     // Polyline points FROM intersection
     pub fn src_center_and_width(&self, map: &Map) -> (PolyLine, Distance) {
-        let sample_entry = self.members[0].entry();
-        let r = map.get_parent(sample_entry);
-        let dir = r.is_forwards(sample_entry);
+        let r = map.get_r(self.from.id);
+        let dir = self.from.forwards;
         // Points towards the intersection
         let pl = if dir {
             r.get_current_center(map)
