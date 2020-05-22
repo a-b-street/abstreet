@@ -404,7 +404,8 @@ fn is_road(tags: &BTreeMap<String, String>) -> bool {
     if tags.get("access") == Some(&"private".to_string()) {
         return false;
     }
-    if tags.get("access") == Some(&"no".to_string()) {
+    if tags.get("access") == Some(&"no".to_string()) && tags.get("bus") != Some(&"yes".to_string())
+    {
         return false;
     }
 
