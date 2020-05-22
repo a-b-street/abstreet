@@ -136,7 +136,10 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         ])
         .centered(),
         Widget::col(vec![
-            Btn::text_bg2("About").build_def(ctx, None),
+            Widget::row(vec![
+                Btn::text_bg2("About").build_def(ctx, None).margin_right(20),
+                Btn::text_bg2("Feedback").build_def(ctx, None),
+            ]),
             built_info::time().draw(ctx),
         ])
         .centered(),
@@ -205,6 +208,13 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         Box::new(|ctx, _| Some(Transition::Push(about(ctx)))),
     )
     .cb(
+        "Feedback",
+        Box::new(|_, _| {
+            let _ = webbrowser::open("https://forms.gle/ocvbek1bTaZUr3k49");
+            None
+        }),
+    )
+    .cb(
         "Community Proposals",
         Box::new(|ctx, app| Some(Transition::Push(proposals_picker(ctx, app)))),
     )
@@ -234,10 +244,6 @@ fn about(ctx: &mut EventCtx) -> Box<dyn State> {
             txt.add(Line("Created by Dustin Carlino, UX by Yuwen Li"));
             txt.add(Line(""));
             txt.add(Line("Map data from OpenStreetMap and King County GIS"));
-            // TODO Add more here
-            txt.add(Line(
-                "See full credits at https://github.com/dabreegster/abstreet#credits",
-            ));
             txt.add(Line(""));
             // TODO Word wrapping please?
             txt.add(Line(
@@ -264,6 +270,9 @@ fn about(ctx: &mut EventCtx) -> Box<dyn State> {
             txt.add(Line("Have the appropriate amount of fun."));
             txt.draw(ctx).centered_horiz().align_vert_center()
         },
+        Btn::text_bg2("See full credits")
+            .build_def(ctx, None)
+            .centered_horiz(),
     ];
 
     ManagedGUIState::fullscreen(
@@ -272,7 +281,14 @@ fn about(ctx: &mut EventCtx) -> Box<dyn State> {
                 .exact_size_percent(90, 85)
                 .build(ctx),
         )
-        .cb("back", Box::new(|_, _| Some(Transition::Pop))),
+        .cb("back", Box::new(|_, _| Some(Transition::Pop)))
+        .cb(
+            "See full credits",
+            Box::new(|_, _| {
+                let _ = webbrowser::open("https://github.com/dabreegster/abstreet#credits");
+                None
+            }),
+        ),
     )
 }
 

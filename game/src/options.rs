@@ -159,6 +159,7 @@ impl OptionsPanel {
                         .margin(5)
                         .centered_horiz(),
                 ])
+                .padding(10)
                 .bg(app.cs.panel_bg),
             )
             .build(ctx),

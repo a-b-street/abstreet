@@ -29,6 +29,7 @@ rand_xorshift = "0.2.0"
 reqwest = { version = "0.10.4", optional = true, default-features=false, features=["blocking", "default-tls"] }
 serde = "1.0.110"
 sim = { path = "../sim" }
+webbrowser = "0.5.2"
 xmltree = "0.10.0"
 
 [build-dependencies]
