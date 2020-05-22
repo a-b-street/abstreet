@@ -363,12 +363,16 @@ pub fn extract_osm(
     for polygon in glue_multipolygon(-1, coastline_groups, &boundary) {
         let mut osm_tags = BTreeMap::new();
         osm_tags.insert("water".to_string(), "ocean".to_string());
-        map.areas.push(RawArea {
-            area_type: AreaType::Water,
-            osm_id: -1,
-            polygon,
-            osm_tags,
-        });
+        // Put it at the beginning, so that it's naturally beneath island areas
+        map.areas.insert(
+            0,
+            RawArea {
+                area_type: AreaType::Water,
+                osm_id: -1,
+                polygon,
+                osm_tags,
+            },
+        );
     }
 
     (
@@ -463,6 +467,9 @@ fn get_area_type(tags: &BTreeMap<String, String>) -> Option<AreaType> {
     }
     if tags.get("natural") == Some(&"water".to_string()) {
         return Some(AreaType::Water);
+    }
+    if tags.get("place") == Some(&"island".to_string()) {
+        return Some(AreaType::Island);
     }
     // TODO These just cover up poorly inferred road geometry now. Figure out how to use these.
     if false {

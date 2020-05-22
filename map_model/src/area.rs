@@ -18,6 +18,7 @@ pub enum AreaType {
     Park,
     Water,
     PedestrianIsland,
+    Island,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

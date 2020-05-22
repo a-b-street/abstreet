@@ -16,6 +16,7 @@ impl DrawArea {
             AreaType::Park => cs.grass,
             AreaType::Water => cs.water,
             AreaType::PedestrianIsland => Color::grey(0.3),
+            AreaType::Island => cs.map_background,
         };
         all_areas.push(color, area.polygon.clone());
         DrawArea { id: area.id }
