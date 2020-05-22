@@ -6,9 +6,9 @@ use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use ezgui::{
     hotkey, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Outcome, RewriteColor, TextExt, VerticalAlignment, Widget,
 };
-use geom::{Distance, Speed};
+use geom::{Angle, Distance, Speed};
 use map_model::{EditCmd, IntersectionID, LaneType, Map, RoadID};
 use petgraph::graphmap::UnGraphMap;
 use sim::DontDrawAgents;
@@ -280,64 +280,37 @@ impl State for BulkEdit {
     }
 }
 
+#[derive(Clone, Copy, PartialEq)]
+pub enum Mode {
+    Pan,
+    Paint,
+    Erase,
+}
+
 pub struct PaintSelect {
     composite: Composite,
     roads: BTreeSet<RoadID>,
     preview: Option<Drawable>,
-
-    select_key_held: bool,
-    deselect_key_held: bool,
+    mode: Mode,
+    dragging: bool,
 }
 
 impl PaintSelect {
     pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
+        app.primary.current_selection = None;
         Box::new(PaintSelect {
-            composite: Composite::new(
-                Widget::col(vec![
-                    Text::from_multiline(vec![
-                        Line("Edit many roads").small_heading(),
-                        Line("Hold the left shift key and move your mouse over a road to select"),
-                        Line("or hold left control to deselect roads"),
-                    ])
-                    .draw(ctx)
-                    .margin_below(5),
-                    Btn::text_fg("Edit these roads").build_def(ctx, None),
-                    Btn::text_fg("Select roads along a route").build_def(ctx, None),
-                    Btn::text_fg("Quit").build_def(ctx, hotkey(Key::Escape)),
-                ])
-                .bg(app.cs.panel_bg)
-                .padding(10),
-            )
-            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-            .build(ctx),
+            composite: make_paint_composite(ctx, app, Mode::Pan, &BTreeSet::new()),
             roads: BTreeSet::new(),
             preview: None,
-            select_key_held: false,
-            deselect_key_held: false,
+            mode: Mode::Pan,
+            dragging: false,
         })
     }
 }
 
 impl State for PaintSelect {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        // TODO Changing cursor could be cool
-        if self.select_key_held {
-            self.select_key_held = !ctx.input.key_released(Key::LeftShift);
-        } else {
-            self.select_key_held = ctx
-                .input
-                .unimportant_key_pressed(Key::LeftShift, "hold to select roads");
-        }
-        if self.deselect_key_held {
-            self.deselect_key_held = !ctx.input.key_released(Key::LeftControl);
-        } else {
-            self.deselect_key_held = ctx
-                .input
-                .unimportant_key_pressed(Key::LeftControl, "hold to deselect roads");
-        }
-
-        ctx.canvas_movement();
-        if ctx.redo_mouseover() {
+        if self.mode != Mode::Pan && ctx.redo_mouseover() {
             app.primary.current_selection = app.calculate_current_selection(
                 ctx,
                 &DontDrawAgents {},
@@ -352,52 +325,80 @@ impl State for PaintSelect {
             }
         }
 
-        if let Some(ID::Road(r)) = app.primary.current_selection {
-            let change = if self.select_key_held {
-                if self.roads.contains(&r) {
-                    false
-                } else {
-                    self.roads.insert(r);
-                    true
+        if self.mode == Mode::Pan {
+            ctx.canvas_movement();
+        } else {
+            if self.dragging && ctx.input.left_mouse_button_released() {
+                self.dragging = false;
+            } else if !self.dragging && ctx.input.left_mouse_button_pressed() {
+                self.dragging = true;
+            }
+        }
+
+        if self.dragging {
+            if let Some(ID::Road(r)) = app.primary.current_selection {
+                let change = match self.mode {
+                    Mode::Paint => {
+                        if self.roads.contains(&r) {
+                            false
+                        } else {
+                            self.roads.insert(r);
+                            true
+                        }
+                    }
+                    Mode::Erase => {
+                        if self.roads.contains(&r) {
+                            self.roads.remove(&r);
+                            true
+                        } else {
+                            false
+                        }
+                    }
+                    Mode::Pan => unreachable!(),
+                };
+                if change {
+                    let mut batch = GeomBatch::new();
+                    for r in &self.roads {
+                        batch.push(
+                            Color::BLUE.alpha(0.5),
+                            app.primary
+                                .map
+                                .get_r(*r)
+                                .get_thick_polygon(&app.primary.map)
+                                .unwrap(),
+                        );
+                    }
+                    self.preview = Some(ctx.upload(batch));
+                    self.composite = make_paint_composite(ctx, app, self.mode, &self.roads);
                 }
-            } else if self.deselect_key_held {
-                if self.roads.contains(&r) {
-                    self.roads.remove(&r);
-                    true
-                } else {
-                    false
-                }
-            } else {
-                false
-            };
-            if change {
-                let mut batch = GeomBatch::new();
-                for r in &self.roads {
-                    batch.push(
-                        Color::BLUE.alpha(0.5),
-                        app.primary
-                            .map
-                            .get_r(*r)
-                            .get_thick_polygon(&app.primary.map)
-                            .unwrap(),
-                    );
-                }
-                self.preview = Some(ctx.upload(batch));
             }
         }
 
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "Quit" => {
+                "paint" => {
+                    self.dragging = false;
+                    self.mode = Mode::Paint;
+                    self.composite = make_paint_composite(ctx, app, self.mode, &self.roads);
+                }
+                "erase" => {
+                    self.dragging = false;
+                    self.mode = Mode::Erase;
+                    self.composite = make_paint_composite(ctx, app, self.mode, &self.roads);
+                }
+                "pan" => {
+                    app.primary.current_selection = None;
+                    self.dragging = false;
+                    self.mode = Mode::Pan;
+                    self.composite = make_paint_composite(ctx, app, self.mode, &self.roads);
+                }
+                "Cancel" => {
                     return Transition::Pop;
                 }
                 "Select roads along a route" => {
                     return Transition::Replace(RouteSelect::new(ctx, app));
                 }
-                "Edit these roads" => {
-                    if self.roads.is_empty() {
-                        return Transition::Pop;
-                    }
+                "edit roads" => {
                     return Transition::Replace(BulkEdit::new(
                         ctx,
                         app,
@@ -416,6 +417,25 @@ impl State for PaintSelect {
         self.composite.draw(g);
         if let Some(ref p) = self.preview {
             g.redraw(p);
+        }
+        if self.mode != Mode::Pan && g.canvas.get_cursor_in_map_space().is_some() {
+            let mut batch = GeomBatch::new();
+            batch.add_svg(
+                g.prerender,
+                if self.mode == Mode::Paint {
+                    "../data/system/assets/tools/pencil.svg"
+                } else {
+                    "../data/system/assets/tools/eraser.svg"
+                },
+                g.canvas.get_cursor().to_pt(),
+                1.0,
+                Angle::ZERO,
+                RewriteColor::ChangeAll(Color::GREEN),
+                false,
+            );
+            g.fork_screenspace();
+            batch.draw(g);
+            g.unfork();
         }
     }
 }
@@ -462,4 +482,80 @@ fn change_lane_types(
         ),
     );
     errors
+}
+
+fn make_paint_composite(
+    ctx: &mut EventCtx,
+    app: &App,
+    mode: Mode,
+    roads: &BTreeSet<RoadID>,
+) -> Composite {
+    Composite::new(
+        Widget::col(vec![
+            Line("Edit many roads")
+                .small_heading()
+                .draw(ctx)
+                .margin_below(5),
+            Widget::row(vec![
+                if mode == Mode::Paint {
+                    Widget::draw_svg_transform(
+                        ctx,
+                        "../data/system/assets/tools/pencil.svg",
+                        RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
+                    )
+                } else {
+                    Btn::svg_def("../data/system/assets/tools/pencil.svg").build(
+                        ctx,
+                        "paint",
+                        hotkey(Key::P),
+                    )
+                },
+                if mode == Mode::Erase {
+                    Widget::draw_svg_transform(
+                        ctx,
+                        "../data/system/assets/tools/eraser.svg",
+                        RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
+                    )
+                } else {
+                    Btn::svg_def("../data/system/assets/tools/eraser.svg").build(
+                        ctx,
+                        "erase",
+                        hotkey(Key::Backspace),
+                    )
+                },
+                if mode == Mode::Pan {
+                    Widget::draw_svg_transform(
+                        ctx,
+                        "../data/system/assets/tools/pan.svg",
+                        RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
+                    )
+                } else {
+                    Btn::svg_def("../data/system/assets/tools/pan.svg").build(
+                        ctx,
+                        "pan",
+                        hotkey(Key::Escape),
+                    )
+                },
+            ])
+            .evenly_spaced(),
+            Btn::text_fg("Select roads along a route").build_def(ctx, None),
+            Widget::row(vec![
+                if roads.is_empty() {
+                    Btn::text_fg("Edit 0 roads").inactive(ctx)
+                } else {
+                    Btn::text_fg(format!("Edit {} roads", roads.len())).build(
+                        ctx,
+                        "edit roads",
+                        None,
+                    )
+                },
+                Btn::text_fg("Cancel").build_def(ctx, None),
+            ])
+            .evenly_spaced(),
+        ])
+        .bg(app.cs.panel_bg)
+        .padding(10),
+    )
+    .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+    .build(ctx)
 }
