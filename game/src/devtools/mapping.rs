@@ -116,6 +116,7 @@ impl ParkingMapper {
                         ColorLegend::row(ctx, color, if show_todo { "TODO" } else { "done" }),
                     ])
                     .margin_below(5),
+                    Checkbox::text(ctx, "max 3 days parking (default in Seattle)", None, false),
                     Btn::text_fg("Generate OsmChange file")
                         .build_def(ctx, None)
                         .margin_below(30),
@@ -301,7 +302,12 @@ impl State for ParkingMapper {
                         ));
                     }
                     return match ctx.loading_screen("generate OsmChange file", |_, timer| {
-                        generate_osmc(&self.data, timer)
+                        generate_osmc(
+                            &self.data,
+                            self.composite
+                                .is_checked("max 3 days parking (default in Seattle)"),
+                            timer,
+                        )
                     }) {
                         Ok(()) => Transition::Push(msg(
                             "Diff generated",
@@ -346,7 +352,11 @@ fn generate_osmc(data: &BTreeMap<i64, Value>, timer: &mut Timer) -> Result<(), B
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-fn generate_osmc(data: &BTreeMap<i64, Value>, timer: &mut Timer) -> Result<(), Box<dyn Error>> {
+fn generate_osmc(
+    data: &BTreeMap<i64, Value>,
+    in_seattle: bool,
+    timer: &mut Timer,
+) -> Result<(), Box<dyn Error>> {
     let mut modified_ways = Vec::new();
     timer.start_iter("fetch latest OSM data per modified way", data.len());
     for (way, value) in data {
@@ -380,6 +390,12 @@ fn generate_osmc(data: &BTreeMap<i64, Value>, timer: &mut Timer) -> Result<(), B
         match value {
             Value::BothSides => {
                 osm_tags.insert(osm::PARKING_BOTH.to_string(), "parallel".to_string());
+                if in_seattle {
+                    osm_tags.insert(
+                        "parking:condition:both:maxstay".to_string(),
+                        "3 days".to_string(),
+                    );
+                }
             }
             Value::NoStopping => {
                 osm_tags.insert(osm::PARKING_BOTH.to_string(), "no_stopping".to_string());
@@ -387,10 +403,22 @@ fn generate_osmc(data: &BTreeMap<i64, Value>, timer: &mut Timer) -> Result<(), B
             Value::RightOnly => {
                 osm_tags.insert(osm::PARKING_RIGHT.to_string(), "parallel".to_string());
                 osm_tags.insert(osm::PARKING_LEFT.to_string(), "no_stopping".to_string());
+                if in_seattle {
+                    osm_tags.insert(
+                        "parking:condition:right:maxstay".to_string(),
+                        "3 days".to_string(),
+                    );
+                }
             }
             Value::LeftOnly => {
                 osm_tags.insert(osm::PARKING_LEFT.to_string(), "parallel".to_string());
                 osm_tags.insert(osm::PARKING_RIGHT.to_string(), "no_stopping".to_string());
+                if in_seattle {
+                    osm_tags.insert(
+                        "parking:condition:left:maxstay".to_string(),
+                        "3 days".to_string(),
+                    );
+                }
             }
             Value::Complicated => unreachable!(),
         }
