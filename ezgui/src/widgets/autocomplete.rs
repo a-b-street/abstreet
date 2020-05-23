@@ -60,16 +60,16 @@ impl<T: 'static + Clone> Autocomplete<T> {
         if indices.is_empty() {
             indices = (0..NUM_SEARCH_RESULTS.min(self.search_map.len())).collect();
         }
-
-        self.menu = Menu::new(
-            ctx,
-            indices
-                .into_iter()
-                .take(NUM_SEARCH_RESULTS)
-                .map(|idx| Choice::new(&self.search_map[idx], ()))
-                .collect(),
-        )
-        .take_menu();
+        let mut choices = indices
+            .into_iter()
+            .take(NUM_SEARCH_RESULTS)
+            .map(|idx| Choice::new(&self.search_map[idx], ()))
+            .collect::<Vec<_>>();
+        choices.insert(
+            0,
+            Choice::new(format!("anything matching \"{}\"", self.current_line), ()),
+        );
+        self.menu = Menu::new(ctx, choices).take_menu();
     }
 }
 
@@ -107,7 +107,20 @@ impl<T: 'static + Clone> WidgetImpl for Autocomplete<T> {
                 InputResult::Done(ref name, _) => {
                     // Mutating choices is fine, because we're supposed to be consumed by the
                     // caller immediately after this.
-                    self.chosen_values = Some(self.choices.remove(name).unwrap());
+                    if name.starts_with("anything matching") {
+                        let mut matches = Vec::new();
+                        for (name, choices) in self.choices.drain() {
+                            if name
+                                .to_ascii_lowercase()
+                                .contains(&self.current_line.to_ascii_lowercase())
+                            {
+                                matches.extend(choices);
+                            }
+                        }
+                        self.chosen_values = Some(matches);
+                    } else {
+                        self.chosen_values = Some(self.choices.remove(name).unwrap());
+                    }
                 }
             }
         }

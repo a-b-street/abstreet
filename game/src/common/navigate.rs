@@ -3,7 +3,8 @@ use crate::common::Warping;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
 use ezgui::{
-    hotkey, Autocomplete, Btn, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Text, Widget,
+    hotkey, Autocomplete, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line,
+    Outcome, Text, Widget,
 };
 use map_model::RoadID;
 use std::collections::HashSet;
@@ -54,6 +55,9 @@ impl State for Navigator {
             None => {}
         }
         if let Some(roads) = self.composite.autocomplete_done("street") {
+            if roads.is_empty() {
+                return Transition::Pop;
+            }
             return Transition::Replace(CrossStreet::new(ctx, app, roads));
         }
 
@@ -71,16 +75,22 @@ impl State for Navigator {
 }
 
 struct CrossStreet {
-    first: RoadID,
+    first: Vec<RoadID>,
     composite: Composite,
+    draw: Drawable,
 }
 
 impl CrossStreet {
     fn new(ctx: &mut EventCtx, app: &App, first: Vec<RoadID>) -> Box<dyn State> {
         let map = &app.primary.map;
         let mut cross_streets = HashSet::new();
+        let mut batch = GeomBatch::new();
         for r in &first {
             let road = map.get_r(*r);
+            batch.push(
+                Color::RED,
+                road.get_thick_polygon(&app.primary.map).unwrap(),
+            );
             for i in &[road.src_i, road.dst_i] {
                 for cross in &map.get_i(*i).roads {
                     cross_streets.insert(*cross);
@@ -93,7 +103,6 @@ impl CrossStreet {
         }
 
         Box::new(CrossStreet {
-            first: first[0],
             composite: Composite::new(
                 Widget::col(vec![
                     Widget::row(vec![
@@ -122,6 +131,8 @@ impl CrossStreet {
                 .bg(app.cs.panel_bg),
             )
             .build(ctx),
+            first,
+            draw: ctx.upload(batch),
         })
     }
 }
@@ -134,13 +145,12 @@ impl State for CrossStreet {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "X" => {
                     // Just warp to somewhere on the first road
-                    let road = map.get_r(self.first);
-                    println!("Warping to {}", road.get_name());
+                    let road = map.get_r(self.first[0]);
                     return Transition::Replace(Warping::new(
                         ctx,
-                        road.center_pts.dist_along(road.center_pts.length() / 2.0).0,
+                        road.center_pts.middle(),
+                        Some(app.opts.min_zoom_for_detail),
                         None,
-                        Some(ID::Lane(road.all_lanes()[0])),
                         &mut app.primary,
                     ));
                 }
@@ -149,24 +159,28 @@ impl State for CrossStreet {
             None => {}
         }
         if let Some(roads) = self.composite.autocomplete_done("street") {
-            let road = map.get_r(roads[0]);
-            println!(
-                "Warping to {} and {}",
-                map.get_r(self.first).get_name(),
-                road.get_name()
-            );
-            let pt = if map.get_i(road.src_i).roads.contains(&self.first) {
-                map.get_i(road.src_i).polygon.center()
+            // Find the best match
+            let mut found = None;
+            'OUTER: for r1 in &self.first {
+                let r1 = map.get_r(*r1);
+                for i in vec![r1.src_i, r1.dst_i] {
+                    if map.get_i(i).roads.iter().any(|r2| roads.contains(r2)) {
+                        found = Some(i);
+                        break 'OUTER;
+                    }
+                }
+            }
+            if let Some(i) = found {
+                return Transition::Replace(Warping::new(
+                    ctx,
+                    map.get_i(i).polygon.center(),
+                    Some(app.opts.min_zoom_for_detail),
+                    Some(ID::Intersection(i)),
+                    &mut app.primary,
+                ));
             } else {
-                map.get_i(road.dst_i).polygon.center()
-            };
-            return Transition::Replace(Warping::new(
-                ctx,
-                pt,
-                None,
-                Some(ID::Lane(road.all_lanes()[0])),
-                &mut app.primary,
-            ));
+                return Transition::Pop;
+            }
         }
 
         if self.composite.clicked_outside(ctx) {
@@ -177,6 +191,7 @@ impl State for CrossStreet {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
+        g.redraw(&self.draw);
         State::grey_out_map(g, app);
         self.composite.draw(g);
     }

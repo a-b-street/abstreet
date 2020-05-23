@@ -1,6 +1,6 @@
 use crate::{
-    text, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenDims, ScreenPt, ScreenRectangle,
-    Text, WidgetImpl, WidgetOutput,
+    text, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenDims, ScreenPt, ScreenRectangle, Text,
+    WidgetImpl, WidgetOutput,
 };
 use geom::Polygon;
 
@@ -113,13 +113,7 @@ impl WidgetImpl for TextBox {
     fn draw(&self, g: &mut GfxCtx) {
         // TODO Cache
         let mut batch = GeomBatch::from(vec![(
-            if self.has_focus || self.autofocus {
-                Color::ORANGE
-            } else if self.hovering {
-                Color::ORANGE.alpha(0.5)
-            } else {
-                text::BG_COLOR
-            },
+            text::BG_COLOR,
             Polygon::rectangle(self.dims.width, self.dims.height),
         )]);
         batch.append(self.calculate_text().render_to_batch(g.prerender));
