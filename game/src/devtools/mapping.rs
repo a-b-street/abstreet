@@ -246,6 +246,11 @@ impl State for ParkingMapper {
                         Line(Key::N.describe()).fg(ctx.style().hotkey_color),
                         Line(" to indicate no parking"),
                     ]);
+                    txt.add_appended(vec![
+                        Line("Press "),
+                        Line(Key::S.describe()).fg(ctx.style().hotkey_color),
+                        Line(" to open Bing StreetSide here"),
+                    ]);
                     for (k, v) in &road.osm_tags {
                         if k.starts_with("abst:") {
                             continue;
@@ -285,6 +290,17 @@ impl State for ParkingMapper {
             let mut new_data = self.data.clone();
             new_data.insert(osm_way_id, Value::NoStopping);
             return Transition::Replace(ParkingMapper::new(ctx, app, self.show_todo, new_data));
+        }
+        if self.selected.is_some() && ctx.input.new_was_pressed(&hotkey(Key::S).unwrap()) {
+            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+                if let Some(gps) = pt.to_gps(app.primary.map.get_gps_bounds()) {
+                    let _ = webbrowser::open(&format!(
+                        "https://www.bing.com/maps?cp={}~{}&style=x",
+                        gps.y(),
+                        gps.x()
+                    ));
+                }
+            }
         }
 
         match self.composite.event(ctx) {
