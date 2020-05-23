@@ -16,10 +16,7 @@ use crate::game::Transition;
 use crate::helpers::{list_names, ID};
 use crate::info::InfoPanel;
 pub use crate::info::{ContextualActions, Tab};
-use ezgui::{
-    hotkey, lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenDims, ScreenPt,
-    ScreenRectangle, Text,
-};
+use ezgui::{hotkey, lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenPt, Text};
 use geom::Polygon;
 use std::collections::BTreeSet;
 

@@ -52,12 +52,6 @@ pub(crate) fn screenshot_everything<G: GUI>(
     finish(dir_path, filenames, num_tiles_x, num_tiles_y);
 }
 
-pub(crate) fn screenshot_current<G: GUI>(state: &mut State<G>, prerender: &Prerender) {
-    state.draw(prerender, true);
-    thread::sleep(time::Duration::from_millis(100));
-    screencap("../screenshot.gif");
-}
-
 fn screencap(filename: &str) -> bool {
     if !process::Command::new("scrot")
         .args(&[
