@@ -43,12 +43,14 @@ impl DebugMode {
                             .align_right(),
                     ]),
                     Text::new().draw(ctx).named("current info"),
-                    Checkbox::text(ctx, "show buildings", hotkey(Key::Num1), true),
-                    Checkbox::text(ctx, "show intersections", hotkey(Key::Num2), true),
-                    Checkbox::text(ctx, "show lanes", hotkey(Key::Num3), true),
-                    Checkbox::text(ctx, "show areas", hotkey(Key::Num4), true),
-                    Checkbox::text(ctx, "show labels", hotkey(Key::Num5), false),
-                    Checkbox::text(ctx, "show route for all agents", hotkey(Key::R), false),
+                    Checkbox::text(ctx, "show buildings", hotkey(Key::Num1), true).margin_below(5),
+                    Checkbox::text(ctx, "show intersections", hotkey(Key::Num2), true)
+                        .margin_below(5),
+                    Checkbox::text(ctx, "show lanes", hotkey(Key::Num3), true).margin_below(5),
+                    Checkbox::text(ctx, "show areas", hotkey(Key::Num4), true).margin_below(5),
+                    Checkbox::text(ctx, "show labels", hotkey(Key::Num5), false).margin_below(5),
+                    Checkbox::text(ctx, "show route for all agents", hotkey(Key::R), false)
+                        .margin_below(5),
                     Widget::col(
                         vec![
                             (lctrl(Key::H), "unhide everything"),
@@ -61,7 +63,9 @@ impl DebugMode {
                             (None, "pick a savestate to load"),
                         ]
                         .into_iter()
-                        .map(|(key, action)| Btn::text_fg(action).build_def(ctx, key))
+                        .map(|(key, action)| {
+                            Btn::text_fg(action).build_def(ctx, key).margin_below(5)
+                        })
                         .collect(),
                     ),
                 ])

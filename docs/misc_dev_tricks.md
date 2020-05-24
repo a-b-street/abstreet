@@ -133,3 +133,7 @@ rust-gdb --args ../target/release/game --dev
 ## Drawing diagrams
 
 draw.io
+
+## Mapping
+
+xodo on Android for annotating maps in the field
