@@ -433,3 +433,11 @@ changes here.
 - dont pause after opening something from sandbox mode
 - adjust turn signals for lane-changing cars
 - lots of fixes for monitors with different DPIs, enabled by default
+
+0.1.42
+
+- many misc UI bugfixes, especially for high-DPI screens
+- managing turns across multiple nearby intersections: tool to visualize, handling multi-way OSM turn restrictions, using this to ban illegal movements at the pathfinding layer, starting a traffic signal editor variant to edit these
+- rendering improvements: unzoomed agent size, visualizing routes on trip table, transparent roads beneath bridges, draw harbor island
+- overhauled street/address finder
+- parking mapper: shortcut to open bing
