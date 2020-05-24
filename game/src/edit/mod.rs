@@ -262,6 +262,7 @@ pub fn save_edits_as(wizard: &mut WrappedWizard, app: &mut App) -> Option<()> {
             "Name the new copy of these edits",
             Some(new_default_name.clone()),
             Box::new(|l| {
+                let l = l.trim().to_string();
                 if l.contains("/") || l == "untitled edits" || l == "" {
                     None
                 } else {

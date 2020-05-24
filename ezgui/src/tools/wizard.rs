@@ -91,6 +91,7 @@ impl Wizard {
                                 .margin(5)
                                 .align_right(),
                         ]),
+                        Text::new().draw(ctx).named("error"),
                         Widget::text_entry(ctx, prefilled.unwrap_or_else(String::new), true)
                             .named("input"),
                         Btn::text_bg2("Done").build(ctx, "done", hotkey(Key::Enter)),
@@ -118,11 +119,19 @@ impl Wizard {
                     return None;
                 }
                 "done" => {
-                    let line = self.tb_comp.take().unwrap().text_box("input");
+                    let line = self.tb_comp.as_ref().unwrap().text_box("input");
                     if let Some(result) = parser(line.clone()) {
+                        self.tb_comp = None;
                         Some(result)
                     } else {
-                        println!("Invalid input {}", line);
+                        self.tb_comp.as_mut().unwrap().replace(
+                            ctx,
+                            "error",
+                            Line(format!("Invalid input: {}", line))
+                                .fg(Color::RED)
+                                .draw(ctx)
+                                .named("error"),
+                        );
                         None
                     }
                 }

@@ -95,23 +95,6 @@ pub fn path_all_synthetic_maps() -> String {
 
 // Player data (Players edit this)
 
-pub fn path_ab_test(map_name: &str, test_name: &str) -> String {
-    format!("../data/player/ab_tests/{}/{}.json", map_name, test_name)
-}
-pub fn path_all_ab_tests(map_name: &str) -> String {
-    format!("../data/player/ab_tests/{}", map_name)
-}
-
-pub fn path_ab_test_save(map_name: &str, test_name: &str, time: String) -> String {
-    format!(
-        "../data/player/ab_test_saves/{}/{}/{}.bin",
-        map_name, test_name, time
-    )
-}
-pub fn path_all_ab_test_saves(map_name: &str, test_name: &str) -> String {
-    format!("../data/player/ab_test_saves/{}/{}", map_name, test_name)
-}
-
 pub fn path_camera_state(map_name: &str) -> String {
     format!("../data/player/camera_state/{}.json", map_name)
 }
