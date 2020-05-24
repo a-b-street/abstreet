@@ -76,7 +76,7 @@ fn main() {
     let mut mode = None;
     if let Some(x) = args.optional("--challenge") {
         let mut aliases = Vec::new();
-        'OUTER: for (_, stages) in challenges::Challenge::all(true) {
+        'OUTER: for (_, stages) in challenges::Challenge::all() {
             for challenge in stages {
                 if challenge.alias == x {
                     flags.sim_flags.load = challenge.gameplay.map_path();

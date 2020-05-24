@@ -257,7 +257,7 @@ impl SpeedControls {
                     SpeedSetting::Fastest => 3600.0,
                 };
                 let dt = multiplier * real_dt;
-                // TODO This should match the update frequency in ezgapp. Plumb along the deadline
+                // TODO This should match the update frequency in ezgui. Plumb along the deadline
                 // or frequency to here.
                 app.primary
                     .sim

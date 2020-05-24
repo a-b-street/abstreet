@@ -1,6 +1,5 @@
 // TODO pub so challenges can grab cutscenes. Weird?
 pub mod commute;
-mod create_gridlock;
 pub mod fix_traffic_signals;
 mod freeform;
 mod play_scenario;
@@ -33,8 +32,6 @@ pub enum GameplayMode {
     Freeform(String),
     // Map path, scenario name
     PlayScenario(String, String),
-    // Map path
-    CreateGridlock(String),
     FixTrafficSignals,
     OptimizeCommute(OrigPersonID, Duration),
 
@@ -83,7 +80,6 @@ impl GameplayMode {
         match self {
             GameplayMode::Freeform(ref path) => path.to_string(),
             GameplayMode::PlayScenario(ref path, _) => path.to_string(),
-            GameplayMode::CreateGridlock(ref path) => path.to_string(),
             GameplayMode::FixTrafficSignals => abstutil::path_map("downtown"),
             GameplayMode::OptimizeCommute(_, _) => abstutil::path_map("montlake"),
             GameplayMode::Tutorial(_) => abstutil::path_map("montlake"),
@@ -229,9 +225,6 @@ impl GameplayMode {
             GameplayMode::Freeform(_) => freeform::Freeform::new(ctx, app, self.clone()),
             GameplayMode::PlayScenario(_, ref scenario) => {
                 play_scenario::PlayScenario::new(ctx, app, scenario, self.clone())
-            }
-            GameplayMode::CreateGridlock(_) => {
-                create_gridlock::CreateGridlock::new(ctx, app, self.clone())
             }
             GameplayMode::FixTrafficSignals => {
                 fix_traffic_signals::FixTrafficSignals::new(ctx, app)

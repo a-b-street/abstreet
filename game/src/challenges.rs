@@ -39,7 +39,7 @@ impl HighScore {
 }
 
 impl Challenge {
-    pub fn all(dev: bool) -> BTreeMap<String, Vec<Challenge>> {
+    pub fn all() -> BTreeMap<String, Vec<Challenge>> {
         let mut tree = BTreeMap::new();
         tree.insert(
             "Optimize one commute".to_string(),
@@ -84,25 +84,13 @@ impl Challenge {
             }],
         );
 
-        if dev {
-            tree.insert(
-                "Cause gridlock (WIP)".to_string(),
-                vec![Challenge {
-                    title: "Gridlock all of the everything".to_string(),
-                    description: vec!["Make traffic as BAD as possible!".to_string()],
-                    alias: "gridlock".to_string(),
-                    gameplay: GameplayMode::CreateGridlock(abstutil::path_map("montlake")),
-                    cutscene: None,
-                }],
-            );
-        }
         tree
     }
 
     // Also returns the next stage, if there is one
     pub fn find(mode: &GameplayMode) -> (Challenge, Option<Challenge>) {
         // Find the next stage
-        for (_, stages) in Challenge::all(true) {
+        for (_, stages) in Challenge::all() {
             let mut current = None;
             for challenge in stages {
                 if current.is_some() {
@@ -147,7 +135,7 @@ impl Tab {
 
         // First list challenges
         let mut flex_row = Vec::new();
-        for (idx, (name, _)) in Challenge::all(app.opts.dev).into_iter().enumerate() {
+        for (idx, (name, _)) in Challenge::all().into_iter().enumerate() {
             let current = match self {
                 Tab::NothingChosen => false,
                 Tab::ChallengeStage(ref n, _) => &name == n,
@@ -184,7 +172,7 @@ impl Tab {
         // List stages
         if let Tab::ChallengeStage(ref name, current) = self {
             let mut col = Vec::new();
-            for (idx, stage) in Challenge::all(app.opts.dev)
+            for (idx, stage) in Challenge::all()
                 .remove(name)
                 .unwrap()
                 .into_iter()
@@ -216,10 +204,7 @@ impl Tab {
 
         // Describe the specific stage
         if let Tab::ChallengeStage(ref name, current) = self {
-            let challenge = Challenge::all(app.opts.dev)
-                .remove(name)
-                .unwrap()
-                .remove(current);
+            let challenge = Challenge::all().remove(name).unwrap().remove(current);
             let mut txt = Text::new();
             for l in &challenge.description {
                 txt.add(Line(l));
@@ -319,7 +304,7 @@ pub fn generic_prebake_all() {
     let mut timer = Timer::new("prebake all challenge results");
 
     let mut per_map: BTreeMap<String, Vec<Challenge>> = BTreeMap::new();
-    for (_, list) in Challenge::all(true) {
+    for (_, list) in Challenge::all() {
         for c in list {
             per_map
                 .entry(c.gameplay.map_path())
