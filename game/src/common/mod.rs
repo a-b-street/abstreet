@@ -3,7 +3,6 @@ mod heatmap;
 mod minimap;
 mod navigate;
 mod panels;
-mod shortcuts;
 mod warp;
 
 pub use self::colors::{ColorLegend, Colorer};

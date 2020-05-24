@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::common::{navigate, shortcuts, Warping};
+use crate::common::{navigate, Warping};
 use crate::game::Transition;
 use crate::layer::PickLayer;
 use abstutil::clamp;
@@ -106,9 +106,6 @@ impl Minimap {
                 }
                 x if x == "search" => {
                     return Some(Transition::Push(navigate::Navigator::new(ctx, app)));
-                }
-                x if x == "shortcuts" => {
-                    return Some(Transition::Push(shortcuts::ChoosingShortcut::new()));
                 }
                 x if x == "zoom out fully" => {
                     return Some(Transition::Push(Warping::new(
@@ -372,9 +369,6 @@ fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
             .build(ctx, "search", hotkey(Key::K))
             .bg(app.cs.inner_panel)
             .margin_below(16),
-        Btn::svg_def("../data/system/assets/tools/shortcuts.svg")
-            .build(ctx, "shortcuts", hotkey(Key::SingleQuote))
-            .bg(app.cs.inner_panel),
     ])
 }
 

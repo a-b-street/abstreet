@@ -136,13 +136,6 @@ pub fn path_all_saves(map_name: &str, edits_name: &str, run_name: &str) -> Strin
     )
 }
 
-pub fn path_shortcut(name: &str) -> String {
-    format!("../data/player/shortcuts/{}.json", name)
-}
-pub fn path_all_shortcuts() -> String {
-    format!("../data/player/shortcuts")
-}
-
 // Input data (For developers to build maps, not needed at runtime)
 
 pub fn path_pending_screenshots(map_name: &str) -> String {

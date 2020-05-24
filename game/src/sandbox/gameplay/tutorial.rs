@@ -1087,10 +1087,6 @@ impl TutorialState {
                     arrow(minimap.composite.center_of("search")),
                 )
                 .msg(
-                    vec!["Set up shortcuts to favorite areas"],
-                    arrow(minimap.composite.center_of("shortcuts")),
-                )
-                .msg(
                     vec![
                         "Apply different layers to the map, to find data such as:",
                         "- roads with high traffic",
