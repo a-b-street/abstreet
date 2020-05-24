@@ -183,7 +183,10 @@ impl State for TrafficSignalEditor {
                 "Export" => {
                     let ts = orig_signal.export(&app.primary.map);
                     abstutil::write_json(
-                        format!("traffic_signal_data/{}.json", ts.intersection_osm_node_id),
+                        format!(
+                            "../traffic_signal_data/{}.json",
+                            ts.intersection_osm_node_id
+                        ),
                         &ts,
                     );
                 }
@@ -288,7 +291,9 @@ impl State for TrafficSignalEditor {
 
 pub fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool) -> Composite {
     let row = vec![
-        Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape)),
+        Btn::text_fg("Finish")
+            .build_def(ctx, hotkey(Key::Escape))
+            .margin_right(5),
         Btn::text_fg("Preview").build_def(ctx, lctrl(Key::P)),
         (if can_undo {
             Btn::svg_def("../data/system/assets/tools/undo.svg").build(ctx, "undo", lctrl(Key::Z))
@@ -316,12 +321,21 @@ pub fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: b
         })
         .margin(15),
         if app.opts.dev {
-            Btn::text_fg("Export").build_def(ctx, None)
+            Btn::text_fg("Export")
+                .tooltip(Text::from_multiline(vec![
+                    Line("This will create a JSON file in traffic_signal_data/.").small(),
+                    Line(
+                        "Contribute this to map how this traffic signal is currently timed in \
+                         real life.",
+                    )
+                    .small(),
+                ]))
+                .build_def(ctx, None)
         } else {
             Widget::nothing()
         },
     ];
-    Composite::new(Widget::row(row).bg(app.cs.panel_bg))
+    Composite::new(Widget::row(row).bg(app.cs.panel_bg).padding(5))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx)
 }

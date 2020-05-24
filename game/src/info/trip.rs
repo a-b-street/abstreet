@@ -367,7 +367,7 @@ fn make_timeline(
 
     let total_duration_so_far = end_time.unwrap_or_else(|| sim.time()) - phases[0].start_time;
 
-    let total_width = 0.22 * ctx.canvas.window_width;
+    let total_width = 0.22 * ctx.canvas.window_width / ctx.get_scale_factor();
     let mut timeline = Vec::new();
     let num_phases = phases.len();
     let mut elevation = Vec::new();

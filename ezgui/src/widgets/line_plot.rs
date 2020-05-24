@@ -1,5 +1,5 @@
 use crate::{
-    Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ScreenDims, ScreenPt,
+    Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, ScreenDims, ScreenPt,
     ScreenRectangle, Text, TextExt, Widget, WidgetImpl, WidgetOutput,
 };
 use abstutil::prettyprint_usize;
@@ -217,7 +217,8 @@ impl<T: Yvalue<T>> LinePlot<T> {
             for (color, poly) in Text::from(Line(t.to_string())).render_ctx(ctx).consume() {
                 batch.fancy_push(color, poly.rotate(Angle::new_degs(-15.0)));
             }
-            row.push(Widget::draw_batch(ctx, batch.autocrop()));
+            // The text is already scaled; don't use Widget::draw_batch and scale it again.
+            row.push(JustDraw::wrap(ctx, batch.autocrop()));
         }
         let x_axis = Widget::row(row).padding(10);
 

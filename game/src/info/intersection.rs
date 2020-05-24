@@ -131,6 +131,7 @@ pub fn current_demand(
     let zoom = 300.0 / bounds.width();
     batch.push(app.cs.normal_intersection, polygon);
 
+    let mut txt_batch = GeomBatch::new();
     for (pl, demand) in demand_per_group {
         let percent = (demand as f64) / (total_demand as f64);
         batch.push(
@@ -138,14 +139,15 @@ pub fn current_demand(
             pl.make_arrow(percent * Distance::meters(3.0), ArrowCap::Triangle)
                 .unwrap(),
         );
-        batch.add_transformed(
+        txt_batch.add_transformed(
             Text::from(Line(prettyprint_usize(demand))).render_ctx(ctx),
             pl.middle(),
-            0.15,
+            0.15 / ctx.get_scale_factor(),
             Angle::ZERO,
             RewriteColor::NoOp,
         );
     }
+    batch.append(txt_batch);
     let mut transformed_batch = GeomBatch::new();
     for (color, poly) in batch.consume() {
         transformed_batch.fancy_push(

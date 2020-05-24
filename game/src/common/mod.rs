@@ -15,7 +15,10 @@ use crate::game::Transition;
 use crate::helpers::{list_names, ID};
 use crate::info::InfoPanel;
 pub use crate::info::{ContextualActions, Tab};
-use ezgui::{hotkey, lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenPt, Text};
+use ezgui::{
+    hotkey, lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenDims, ScreenPt,
+    ScreenRectangle, Text,
+};
 use geom::Polygon;
 use std::collections::BTreeSet;
 
@@ -256,6 +259,10 @@ impl CommonState {
         let draw = g.upload(batch);
         let top_left = ScreenPt::new(0.0, g.canvas.window_height - 1.5 * g.default_line_height());
         g.redraw_at(top_left, &draw);
+        g.canvas.mark_covered_area(ScreenRectangle::top_left(
+            top_left,
+            ScreenDims::new(g.canvas.window_width, 1.5 * g.default_line_height()),
+        ));
     }
 
     // Meant to be used for launching from other states

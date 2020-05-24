@@ -328,7 +328,7 @@ pub fn make_signal_diagram(
                 ctx,
                 GeomBatch::from(vec![(
                     Color::WHITE,
-                    Polygon::rectangle(0.2 * ctx.canvas.window_width, 2.0),
+                    Polygon::rectangle(0.2 * ctx.canvas.window_width / ctx.get_scale_factor(), 2.0),
                 )]),
             )
             .margin(15)
@@ -411,7 +411,7 @@ pub fn make_signal_diagram(
         }
     }
 
-    Composite::new(Widget::col(col).bg(app.cs.panel_bg))
+    Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(10))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .max_size_percent(30, 85)
         .build(ctx)
