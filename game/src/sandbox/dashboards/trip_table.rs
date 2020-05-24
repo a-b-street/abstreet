@@ -314,7 +314,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
     headers.push(btn(SortBy::Waiting, "Time spent waiting"));
     headers.push(btn(SortBy::PercentWaiting, "Percent waiting"));
 
-    let mut col = vec![DashTab::TripTable.picker(ctx)];
+    let mut col = vec![DashTab::TripTable.picker(ctx, app)];
     let mut filters = Vec::new();
     for m in TripMode::all() {
         filters.push(
@@ -402,10 +402,14 @@ pub fn make_table(
     rows: Vec<(String, Vec<GeomBatch>)>,
     total_width: f64,
 ) -> Vec<Widget> {
-    let mut width_per_col: Vec<f64> = headers.iter().map(|w| w.get_width_for_forcing()).collect();
+    let total_width = total_width / ctx.get_scale_factor();
+    let mut width_per_col: Vec<f64> = headers
+        .iter()
+        .map(|w| w.get_width_for_forcing() / ctx.get_scale_factor())
+        .collect();
     for (_, row) in &rows {
         for (col, width) in row.iter().zip(width_per_col.iter_mut()) {
-            *width = width.max(col.get_dims().width);
+            *width = width.max(col.get_dims().width / ctx.get_scale_factor());
         }
     }
     let extra_margin = ((total_width - width_per_col.clone().into_iter().sum::<f64>())
@@ -417,7 +421,8 @@ pub fn make_table(
             .into_iter()
             .enumerate()
             .map(|(idx, w)| {
-                let margin = extra_margin + width_per_col[idx] - w.get_width_for_forcing();
+                let margin = extra_margin + width_per_col[idx]
+                    - (w.get_width_for_forcing() / ctx.get_scale_factor());
                 if idx == width_per_col.len() - 1 {
                     w.margin_right((margin - extra_margin) as usize)
                 } else {
@@ -433,7 +438,7 @@ pub fn make_table(
         batch.autocrop_dims = false;
         let mut x1 = 0.0;
         for (col, width) in row.into_iter().zip(width_per_col.iter()) {
-            batch.add_translated(col, x1, 0.0);
+            batch.add_translated(col.scale(1.0 / ctx.get_scale_factor()), x1, 0.0);
             x1 += *width + extra_margin;
         }
 

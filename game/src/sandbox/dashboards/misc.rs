@@ -35,7 +35,7 @@ impl ActiveTraffic {
         Box::new(ActiveTraffic {
             composite: Composite::new(
                 Widget::col(vec![
-                    DashTab::ActiveTraffic.picker(ctx),
+                    DashTab::ActiveTraffic.picker(ctx, app),
                     LinePlot::new(ctx, "active agents", active_agents, PlotOptions::new()),
                 ])
                 .bg(app.cs.panel_bg)
@@ -82,7 +82,7 @@ impl BusRoutes {
         routes.sort();
 
         let mut col = vec![
-            DashTab::BusRoutes.picker(ctx),
+            DashTab::BusRoutes.picker(ctx, app),
             Line("Bus routes").small_heading().draw(ctx),
         ];
         for r in routes {

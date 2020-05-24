@@ -1,6 +1,6 @@
 use crate::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ScreenDims, ScreenPt, ScreenRectangle,
-    Text, TextExt, Widget, WidgetImpl, WidgetOutput,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, ScreenDims, ScreenPt,
+    ScreenRectangle, Text, TextExt, Widget, WidgetImpl, WidgetOutput,
 };
 use geom::{Angle, Circle, Distance, Duration, Pt2D};
 
@@ -101,7 +101,8 @@ impl ScatterPlot {
             {
                 label.fancy_push(color, poly.rotate(Angle::new_degs(90.0)));
             }
-            Widget::draw_batch(ctx, label.autocrop()).centered_vert()
+            // The text is already scaled; don't use Widget::draw_batch and scale it again.
+            JustDraw::wrap(ctx, label.autocrop()).centered_vert()
         };
 
         let x_axis = Widget::row(

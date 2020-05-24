@@ -46,7 +46,7 @@ impl TripSummaries {
         Box::new(TripSummaries {
             composite: Composite::new(
                 Widget::col(vec![
-                    DashTab::TripSummaries.picker(ctx),
+                    DashTab::TripSummaries.picker(ctx, app),
                     Widget::row(filters).centered_horiz().margin_below(10),
                     summary(ctx, app, &filter).margin_below(10),
                     Widget::row(vec![

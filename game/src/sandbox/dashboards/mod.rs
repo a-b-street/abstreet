@@ -19,7 +19,7 @@ pub enum DashTab {
 }
 
 impl DashTab {
-    pub fn picker(self, ctx: &EventCtx) -> Widget {
+    pub fn picker(self, ctx: &EventCtx, app: &App) -> Widget {
         let mut row = Vec::new();
         for (name, tab) in vec![
             ("trip table", DashTab::TripTable),
@@ -28,6 +28,9 @@ impl DashTab {
             ("active traffic", DashTab::ActiveTraffic),
             ("bus routes", DashTab::BusRoutes),
         ] {
+            if tab == DashTab::TripSummaries && app.has_prebaked().is_none() {
+                continue;
+            }
             if self == tab {
                 row.push(Btn::text_bg2(name).inactive(ctx));
             } else {

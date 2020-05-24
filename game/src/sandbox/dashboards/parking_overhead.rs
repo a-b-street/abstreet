@@ -268,7 +268,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
         btn(SortBy::PercentOverhead, "Percent overhead"),
     ];
 
-    let mut col = vec![DashTab::ParkingOverhead.picker(ctx)];
+    let mut col = vec![DashTab::ParkingOverhead.picker(ctx, app)];
     col.push(
         Widget::row(vec![
             Text::from_multiline(vec![
