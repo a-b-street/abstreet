@@ -43,6 +43,7 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
     let mut txt = Text::new();
 
     if !b.amenities.is_empty() {
+        txt.add(Line(""));
         if b.amenities.len() > 1 {
             txt.add(Line(format!("{} amenities:", b.amenities.len())));
         }
@@ -51,18 +52,21 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
         }
     }
 
+    txt.add(Line(""));
     if let Some(pl) = app
         .primary
         .sim
         .walking_path_to_nearest_parking_spot(&app.primary.map, id)
         .and_then(|(path, start_dist)| path.trace(&app.primary.map, start_dist, None))
     {
-        txt.add(Line(format!(
-            "Closest parking is ~{} by foot",
+        let color = app.cs.parking_trip;
+        // TODO But this color doesn't show up well against the info panel...
+        txt.add(Line("Nearest parking").fg(color));
+        txt.append(Line(format!(
+            " is ~{} away by foot",
             pl.length() / Speed::miles_per_hour(3.0)
         )));
 
-        let color = app.cs.unzoomed_pedestrian;
         details
             .unzoomed
             .push(color, pl.make_polygons(Distance::meters(10.0)));

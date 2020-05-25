@@ -263,7 +263,6 @@ impl Static {
                     );
                 } else {
                     other = true;
-                    println!("{}", a);
                 }
             }
             if other {

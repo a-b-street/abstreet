@@ -279,7 +279,7 @@ impl<T: Yvalue<T>> WidgetImpl for LinePlot<T> {
                         txt.add(Line(format!(
                             "{}: at {}, {}",
                             label,
-                            t,
+                            t.ampm_tostring(),
                             self.max_y.from_percent(y_percent).prettyprint()
                         )));
                     }
