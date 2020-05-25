@@ -45,7 +45,7 @@ data/input/screenshots/lakeslice/02x05_i909.gif,0d8b2be5b9b0577af576a1cd661cbb14
 data/input/screenshots/lakeslice/02x06_i704.gif,6d836672d7cce8e51d02cbe20e10ac60,https://www.dropbox.com/s/2ie0tmk8qsrmiap/02x06_i704.gif.zip?dl=0
 data/input/screenshots/lakeslice/02x07_i123.gif,d8793d020d3cfc907e6db5159910102b,https://www.dropbox.com/s/o793j4va7kjv7l7/02x07_i123.gif.zip?dl=0
 data/input/screenshots/lakeslice/02x08_i201.gif,c44c8babc725ac86e2f55f25e66ce9da,https://www.dropbox.com/s/mqadacrqi1z6ses/02x08_i201.gif.zip?dl=0
-data/input/screenshots/lakeslice/02x09_i209.gif,e8caab8fd61341a597e3cf33469b9dfe,https://www.dropbox.com/s/5mtyj9v3ne6fjkk/02x09_i209.gif.zip?dl=0
+data/input/screenshots/lakeslice/02x09_i209.gif,ed80ea91214791266b0acd1ad7ca108a,https://www.dropbox.com/s/5mtyj9v3ne6fjkk/02x09_i209.gif.zip?dl=0
 data/input/screenshots/lakeslice/02x10_i79.gif,585d247d663043502e532083e0df49b7,https://www.dropbox.com/s/dv3rwsfw05a76yc/02x10_i79.gif.zip?dl=0
 data/input/screenshots/lakeslice/02x11_i315.gif,1cbc9f6a981fbab85af708dbd046ba55,https://www.dropbox.com/s/ylh0w6jneg88230/02x11_i315.gif.zip?dl=0
 data/input/screenshots/lakeslice/02x12_i313.gif,87bb1866aade397e7f7d3ed730ec203e,https://www.dropbox.com/s/hi43otif30d8ine/02x12_i313.gif.zip?dl=0
@@ -136,14 +136,14 @@ data/input/screenshots/montlake/01x03_i29.gif,2c64595bd63268b2cad46c19bf7833c6,h
 data/input/screenshots/montlake/01x04_i31.gif,c9a6528cf1f0cfe4ecfe7914fdaea80b,https://www.dropbox.com/s/w80vq51ck4jzyo7/01x04_i31.gif.zip?dl=0
 data/input/screenshots/montlake/01x05_i41.gif,7c9472dbfdede4c9a84b2e1dda73e1d8,https://www.dropbox.com/s/fv917idzzwzhl3h/01x05_i41.gif.zip?dl=0
 data/input/screenshots/montlake/01x06_i25.gif,697e32519bd8d7340e93a1a8f51278ae,https://www.dropbox.com/s/9ykaz7exciz87j5/01x06_i25.gif.zip?dl=0
-data/input/screenshots/montlake/02x01_i13.gif,789517904486a866750f2b2b982e0c66,https://www.dropbox.com/s/ft32tu18eudkk9d/02x01_i13.gif.zip?dl=0
+data/input/screenshots/montlake/02x01_i13.gif,44ed80136229f8f1e6b9480f301461a7,https://www.dropbox.com/s/ft32tu18eudkk9d/02x01_i13.gif.zip?dl=0
 data/input/screenshots/montlake/02x02_i328.gif,039b087e14473541b69d8187ff9e2e8f,https://www.dropbox.com/s/hth2yl1w6vp4nwp/02x02_i328.gif.zip?dl=0
 data/input/screenshots/montlake/02x03_i57.gif,1eb75eb1011687466a63a65bb366ceb7,https://www.dropbox.com/s/n4eofvg2vou3kwp/02x03_i57.gif.zip?dl=0
 data/input/screenshots/montlake/02x04_i24.gif,453c759d634733685aa0e67560e9a99f,https://www.dropbox.com/s/k2qz2zyr1ssgdml/02x04_i24.gif.zip?dl=0
 data/input/screenshots/montlake/02x05_i132.gif,203ba8fd01fed532ca45251183326216,https://www.dropbox.com/s/psstsip2u3dsu4d/02x05_i132.gif.zip?dl=0
 data/input/screenshots/montlake/02x06_i90.gif,b3ab4d5de279448714f559a12f55795e,https://www.dropbox.com/s/0kc9gnp81co31tk/02x06_i90.gif.zip?dl=0
-data/input/screenshots/montlake/03x01_i258.gif,76b603dc454d6ee1029ecec260deef6e,https://www.dropbox.com/s/o9qcgbwxeocp3t1/03x01_i258.gif.zip?dl=0
-data/input/screenshots/montlake/03x02_i3.gif,376da62cb3d0bf06fe805d398addfbfd,https://www.dropbox.com/s/uma107u3axw9hbq/03x02_i3.gif.zip?dl=0
+data/input/screenshots/montlake/03x01_i258.gif,45ba26d31bfacc4ea128e32d88f87885,https://www.dropbox.com/s/o9qcgbwxeocp3t1/03x01_i258.gif.zip?dl=0
+data/input/screenshots/montlake/03x02_i3.gif,77bfdec0735f578b051225ef101acf6e,https://www.dropbox.com/s/uma107u3axw9hbq/03x02_i3.gif.zip?dl=0
 data/input/screenshots/montlake/03x03_i61.gif,93bf8cf27c12c3947c976f4a6cbf44eb,https://www.dropbox.com/s/ptx2owcjxrmrfod/03x03_i61.gif.zip?dl=0
 data/input/screenshots/montlake/03x04_i69.gif,9380542a0c17a466684828dea1c66f6f,https://www.dropbox.com/s/kl6g4owm9lm35oy/03x04_i69.gif.zip?dl=0
 data/input/screenshots/montlake/03x05_i262.gif,01e859853ee6b87732815fe5cc1ed7e5,https://www.dropbox.com/s/5nw44bb6a1xph5l/03x05_i262.gif.zip?dl=0

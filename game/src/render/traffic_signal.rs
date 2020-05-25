@@ -39,6 +39,12 @@ pub fn draw_signal_phase(
                     crossed_roads.insert((g.to.id, g.parent));
                 }
             }
+
+            let percent = if let Some(t) = time_left {
+                (t / phase.duration) as f32
+            } else {
+                1.0
+            };
             for g in &phase.protected_groups {
                 if !g.crosswalk {
                     let slice_start = if crossed_roads.contains(&(g.from.id, g.parent)) {
@@ -54,7 +60,7 @@ pub fn draw_signal_phase(
 
                     let pl = &signal.turn_groups[g].geom;
                     batch.push(
-                        protected_color,
+                        protected_color.alpha(percent),
                         pl.exact_slice(slice_start, pl.length() - slice_end)
                             .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle)
                             .unwrap(),
@@ -67,7 +73,7 @@ pub fn draw_signal_phase(
                         center,
                         0.07,
                         angle,
-                        RewriteColor::NoOp,
+                        RewriteColor::ChangeAlpha(percent),
                         true,
                     );
                     dont_walk.remove(g);
@@ -81,7 +87,7 @@ pub fn draw_signal_phase(
                     center,
                     0.07,
                     angle,
-                    RewriteColor::NoOp,
+                    RewriteColor::ChangeAlpha(percent),
                     true,
                 );
             }
@@ -89,8 +95,7 @@ pub fn draw_signal_phase(
                 assert!(!g.crosswalk);
                 let pl = &signal.turn_groups[g].geom;
                 batch.extend(
-                    //app.cs.normal_intersection,
-                    Color::BLACK,
+                    Color::BLACK.alpha(percent),
                     pl.exact_slice(
                         SIDEWALK_THICKNESS - Distance::meters(0.1),
                         pl.length() - SIDEWALK_THICKNESS + Distance::meters(0.1),
@@ -103,7 +108,7 @@ pub fn draw_signal_phase(
                     ),
                 );
                 batch.extend(
-                    protected_color,
+                    protected_color.alpha(percent),
                     pl.exact_slice(SIDEWALK_THICKNESS, pl.length() - SIDEWALK_THICKNESS)
                         .dashed_arrow(
                             BIG_ARROW_THICKNESS / 2.0,
