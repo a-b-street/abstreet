@@ -1,5 +1,5 @@
 use crate::app::{App, PerMap};
-use ezgui::{Color, Line, Text, TextSpan};
+use ezgui::{hotkey, Btn, Color, EventCtx, Key, Line, Text, TextSpan, Widget};
 use geom::{Duration, Pt2D};
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, RoadID, TurnID};
 use sim::{AgentID, CarID, PedestrianID, TripMode, TripPhaseType};
@@ -194,4 +194,13 @@ pub fn amenity_type(a: &str) -> Option<&str> {
     } else {
         None
     }
+}
+
+// TODO Well, there goes the nice consolidation of stuff in BtnBuilder. :\
+pub fn hotkey_btn<I: Into<String>>(ctx: &EventCtx, app: &App, label: I, key: Key) -> Widget {
+    let label = label.into();
+    let mut txt = Text::new();
+    txt.append(Line(key.describe()).fg(ctx.style().hotkey_color));
+    txt.append(Line(format!(" - {}", label)));
+    Btn::text_bg(label, txt, app.cs.section_bg, app.cs.hovering).build_def(ctx, hotkey(key))
 }

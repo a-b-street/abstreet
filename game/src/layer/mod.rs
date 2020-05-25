@@ -9,6 +9,7 @@ pub mod traffic;
 use crate::app::App;
 use crate::common::HeatmapOptions;
 use crate::game::{DrawBaselayer, State, Transition};
+use crate::helpers::hotkey_btn;
 use ezgui::{hotkey, Btn, Color, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Widget};
 
 // TODO Good ideas in
@@ -66,21 +67,21 @@ impl PickLayer {
         ])];
 
         col.extend(vec![
-            Btn::text_fg("None").build_def(ctx, hotkey(Key::N)),
-            Btn::text_fg("map edits").build_def(ctx, hotkey(Key::E)),
-            Btn::text_fg("worst traffic jams").build_def(ctx, hotkey(Key::J)),
-            Btn::text_fg("elevation").build_def(ctx, hotkey(Key::S)),
-            Btn::text_fg("parking occupancy").build_def(ctx, hotkey(Key::P)),
-            Btn::text_fg("delay").build_def(ctx, hotkey(Key::D)),
-            Btn::text_fg("throughput").build_def(ctx, hotkey(Key::T)),
-            Btn::text_fg("backpressure").build_def(ctx, hotkey(Key::Z)),
-            Btn::text_fg("bike network").build_def(ctx, hotkey(Key::B)),
-            Btn::text_fg("bus network").build_def(ctx, hotkey(Key::U)),
-            Btn::text_fg("population map").build_def(ctx, hotkey(Key::X)),
-            Btn::text_fg("amenities").build_def(ctx, hotkey(Key::A)),
+            hotkey_btn(ctx, app, "None", Key::N),
+            hotkey_btn(ctx, app, "map edits", Key::E),
+            hotkey_btn(ctx, app, "worst traffic jams", Key::J),
+            hotkey_btn(ctx, app, "elevation", Key::S),
+            hotkey_btn(ctx, app, "parking occupancy", Key::P),
+            hotkey_btn(ctx, app, "delay", Key::D),
+            hotkey_btn(ctx, app, "throughput", Key::T),
+            hotkey_btn(ctx, app, "backpressure", Key::Z),
+            hotkey_btn(ctx, app, "bike network", Key::B),
+            hotkey_btn(ctx, app, "bus network", Key::U),
+            hotkey_btn(ctx, app, "population map", Key::X),
+            hotkey_btn(ctx, app, "amenities", Key::A),
         ]);
         if app.primary.sim.get_pandemic_model().is_some() {
-            col.push(Btn::text_fg("pandemic model").build_def(ctx, hotkey(Key::Y)));
+            col.push(hotkey_btn(ctx, app, "pandemic model", Key::Y));
         }
         if let Some(name) = match app.layer {
             None => Some("None"),

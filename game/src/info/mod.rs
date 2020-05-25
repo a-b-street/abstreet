@@ -9,11 +9,11 @@ mod trip;
 use crate::app::App;
 use crate::common::Warping;
 use crate::game::Transition;
-use crate::helpers::{color_for_mode, ID};
+use crate::helpers::{color_for_mode, hotkey_btn, ID};
 use crate::sandbox::{SandboxMode, TimeWarpScreen};
 use ezgui::{
     hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, LinePlot, Outcome, PlotOptions, Series, Text, TextExt,
+    HorizontalAlignment, Key, Line, LinePlot, Outcome, PlotOptions, Series, TextExt,
     VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Time};
@@ -227,14 +227,7 @@ impl InfoPanel {
             if let Some(id) = maybe_id.clone() {
                 for (key, label) in ctx_actions.actions(app, id) {
                     cached_actions.push(key);
-                    let mut txt = Text::new();
-                    txt.append(Line(key.describe()).fg(ctx.style().hotkey_color));
-                    txt.append(Line(format!(" - {}", label)));
-                    col.push(
-                        Btn::text_bg(label, txt, app.cs.section_bg, app.cs.hovering)
-                            .build_def(ctx, hotkey(key))
-                            .margin(5),
-                    );
+                    col.push(hotkey_btn(ctx, app, label, key).margin(5));
                 }
             }
         }
