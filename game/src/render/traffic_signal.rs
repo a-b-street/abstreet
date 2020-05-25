@@ -28,19 +28,34 @@ pub fn draw_signal_phase(
 
     match signal_style {
         TrafficSignalStyle::BAP => {
-            // TODO Don't trim ends unless there's a crosswalk?
             let mut dont_walk = BTreeSet::new();
+            let mut crossed_roads = BTreeSet::new();
             for g in signal.turn_groups.keys() {
                 if g.crosswalk {
                     dont_walk.insert(g);
+                    // TODO This is incorrect; some crosswalks hop over intermediate roads. How do
+                    // we detect or plumb that?
+                    crossed_roads.insert((g.from.id, g.parent));
+                    crossed_roads.insert((g.to.id, g.parent));
                 }
             }
             for g in &phase.protected_groups {
                 if !g.crosswalk {
+                    let slice_start = if crossed_roads.contains(&(g.from.id, g.parent)) {
+                        SIDEWALK_THICKNESS
+                    } else {
+                        Distance::ZERO
+                    };
+                    let slice_end = if crossed_roads.contains(&(g.to.id, g.parent)) {
+                        SIDEWALK_THICKNESS
+                    } else {
+                        Distance::ZERO
+                    };
+
                     let pl = &signal.turn_groups[g].geom;
                     batch.push(
                         protected_color,
-                        pl.exact_slice(SIDEWALK_THICKNESS, pl.length() - SIDEWALK_THICKNESS)
+                        pl.exact_slice(slice_start, pl.length() - slice_end)
                             .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle)
                             .unwrap(),
                     );
