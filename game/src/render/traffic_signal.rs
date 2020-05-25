@@ -372,27 +372,46 @@ pub fn make_signal_diagram(
                     format!("Phase {}: {}", idx + 1, phase.duration).draw_text(ctx),
                     phase_btn,
                 ]),
-                Widget::col(vec![
-                    Btn::svg_def("../data/system/assets/tools/edit.svg")
-                        .build(
-                            ctx,
-                            format!("edit phase {}", idx + 1),
-                            if selected == idx {
-                                hotkey(Key::X)
-                            } else {
-                                None
-                            },
-                        )
-                        .margin_below(10),
-                    if signal.phases.len() > 1 {
-                        Btn::svg_def("../data/system/assets/tools/delete.svg").build(
-                            ctx,
-                            format!("delete phase {}", idx + 1),
-                            None,
-                        )
-                    } else {
-                        Widget::nothing()
-                    },
+                Widget::row(vec![
+                    Widget::col(vec![
+                        if idx == 0 {
+                            Btn::text_fg("↑").inactive(ctx)
+                        } else {
+                            Btn::text_fg("↑").build(ctx, format!("move up phase {}", idx + 1), None)
+                        },
+                        if idx == signal.phases.len() - 1 {
+                            Btn::text_fg("↓").inactive(ctx)
+                        } else {
+                            Btn::text_fg("↓").build(
+                                ctx,
+                                format!("move down phase {}", idx + 1),
+                                None,
+                            )
+                        },
+                    ])
+                    .margin_right(15),
+                    Widget::col(vec![
+                        Btn::svg_def("../data/system/assets/tools/edit.svg")
+                            .build(
+                                ctx,
+                                format!("change duration of phase {}", idx + 1),
+                                if selected == idx {
+                                    hotkey(Key::X)
+                                } else {
+                                    None
+                                },
+                            )
+                            .margin_below(10),
+                        if signal.phases.len() > 1 {
+                            Btn::svg_def("../data/system/assets/tools/delete.svg").build(
+                                ctx,
+                                format!("delete phase {}", idx + 1),
+                                None,
+                            )
+                        } else {
+                            Widget::nothing()
+                        },
+                    ]),
                 ])
                 .align_right(),
             ])
@@ -409,6 +428,23 @@ pub fn make_signal_diagram(
         } else {
             col.push(phase_col);
         }
+    }
+
+    if edit_mode {
+        // Separator
+        col.push(
+            Widget::draw_batch(
+                ctx,
+                GeomBatch::from(vec![(
+                    Color::WHITE,
+                    Polygon::rectangle(0.2 * ctx.canvas.window_width / ctx.get_scale_factor(), 2.0),
+                )]),
+            )
+            .margin(15)
+            .centered_horiz(),
+        );
+
+        col.push(Btn::text_fg("Add new phase").build_def(ctx, None));
     }
 
     Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(10))

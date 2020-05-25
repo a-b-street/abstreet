@@ -75,11 +75,6 @@ impl Wizard {
     ) -> Option<R> {
         assert!(self.alive);
 
-        // Otherwise, we try to use one event for two inputs potentially
-        if ctx.input.has_been_consumed() {
-            return None;
-        }
-
         if self.tb_comp.is_none() {
             self.tb_comp = Some(
                 Composite::new(
