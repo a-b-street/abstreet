@@ -3,7 +3,7 @@ use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, Text};
-use geom::{Angle, Line, Polygon, Pt2D};
+use geom::{Angle, Distance, Line, Polygon, Pt2D};
 use map_model::{Building, BuildingID, Map, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
 
 pub struct DrawBuilding {
@@ -17,6 +17,7 @@ impl DrawBuilding {
         cs: &ColorScheme,
         bldg_batch: &mut GeomBatch,
         paths_batch: &mut GeomBatch,
+        outlines_batch: &mut GeomBatch,
         prerender: &Prerender,
     ) -> DrawBuilding {
         // Trim the front path line away from the sidewalk's center line, so that it doesn't
@@ -36,6 +37,9 @@ impl DrawBuilding {
             cs.sidewalk,
             front_path_line.make_polygons(NORMAL_LANE_THICKNESS),
         );
+        if let Some(p) = bldg.polygon.maybe_to_outline(Distance::meters(0.1)) {
+            outlines_batch.push(cs.building_outline, p);
+        }
 
         if bldg
             .parking
