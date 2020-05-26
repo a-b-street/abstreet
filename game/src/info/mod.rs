@@ -272,10 +272,6 @@ impl InfoPanel {
                         Circle::outline(bounds.center(), radius, Distance::meters(0.3)),
                     );
                     details.zoomed.push(
-                        app.cs.current_object.alpha(0.5),
-                        Circle::new(bounds.center(), radius).to_polygon(),
-                    );
-                    details.zoomed.push(
                         app.cs.current_object,
                         Circle::outline(bounds.center(), radius, Distance::meters(0.3)),
                     );

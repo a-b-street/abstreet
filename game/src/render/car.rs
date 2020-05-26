@@ -21,6 +21,25 @@ pub struct DrawCar {
 impl DrawCar {
     pub fn new(input: DrawCarInput, map: &Map, prerender: &Prerender, cs: &ColorScheme) -> DrawCar {
         let mut draw_default = GeomBatch::new();
+
+        // Wheels
+        for side in vec![
+            input.body.shift_right(CAR_WIDTH / 2.0).unwrap(),
+            input.body.shift_left(CAR_WIDTH / 2.0).unwrap(),
+        ] {
+            let len = side.length();
+            draw_default.push(
+                cs.bike_frame,
+                side.exact_slice(Distance::meters(0.5), Distance::meters(1.0))
+                    .make_polygons(OUTLINE_THICKNESS / 2.0),
+            );
+            draw_default.push(
+                cs.bike_frame,
+                side.exact_slice(len - Distance::meters(2.0), len - Distance::meters(1.5))
+                    .make_polygons(OUTLINE_THICKNESS / 2.0),
+            );
+        }
+
         let body_polygon = {
             let len = input.body.length();
             let front_corner = len - Distance::meters(1.0);

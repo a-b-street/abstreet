@@ -217,12 +217,7 @@ pub fn bio(
     let person = app.primary.sim.get_person(id);
 
     let mut svg_data = Vec::new();
-    // TODO Convert a usize to a seed better than this!
-    svg_face::generate_face(
-        &mut svg_data,
-        &mut XorShiftRng::from_seed([(id.0 % 255) as u8; 16]),
-    )
-    .unwrap();
+    svg_face::generate_face(&mut svg_data, &mut XorShiftRng::seed_from_u64(id.0 as u64)).unwrap();
     let mut batch = GeomBatch::new();
     batch.add_svg_contents(svg_data);
     batch = batch.autocrop();
