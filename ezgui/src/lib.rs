@@ -68,7 +68,7 @@ pub(crate) use crate::widgets::just_draw::JustDraw;
 pub use crate::widgets::line_plot::{LinePlot, PlotOptions, Series};
 pub(crate) use crate::widgets::menu::Menu;
 pub use crate::widgets::persistent_split::PersistentSplit;
-pub use crate::widgets::scatter_plot::ScatterPlot;
+pub use crate::widgets::scatter_plot::{ScatterPlot, ScatterPlotV2};
 pub use crate::widgets::slider::Slider;
 pub use crate::widgets::spinner::Spinner;
 pub(crate) use crate::widgets::text_box::TextBox;

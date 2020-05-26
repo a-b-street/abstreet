@@ -106,7 +106,7 @@ impl<T: Yvalue<T>> LinePlot<T> {
 
         // TODO Tuned to fit the info panel. Instead these should somehow stretch to fill their
         // container.
-        let width = 0.25 * ctx.canvas.window_width;
+        let width = 0.23 * ctx.canvas.window_width;
         let height = 0.2 * ctx.canvas.window_height;
 
         let mut grid_batch = GeomBatch::new();
@@ -201,7 +201,7 @@ impl<T: Yvalue<T>> LinePlot<T> {
             draw_grid: ctx.upload(grid_batch),
             closest,
             max_x,
-            max_y: max_y,
+            max_y,
 
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(width, height),

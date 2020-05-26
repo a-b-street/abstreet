@@ -2,12 +2,11 @@ use crate::app::App;
 use crate::info::{header_btns, make_tabs, throughput, DataOptions, Details, Tab};
 use abstutil::prettyprint_usize;
 use ezgui::{
-    Color, EventCtx, GeomBatch, Line, LinePlot, PlotOptions, RewriteColor, Series, Text, Widget,
+    Color, EventCtx, GeomBatch, Line, PlotOptions, RewriteColor, ScatterPlotV2, Series, Text,
+    Widget,
 };
 use geom::{Angle, ArrowCap, Distance, PolyLine};
-use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, IntersectionType};
-use sim::Analytics;
 use std::collections::BTreeSet;
 
 pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID) -> Vec<Widget> {
@@ -166,49 +165,35 @@ pub fn current_demand(
     rows
 }
 
+// TODO a fan chart might be nicer
 fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) -> Widget {
-    let get_data = |a: &Analytics, t: Time| {
-        let mut series: Vec<(Statistic, Vec<(Time, Duration)>)> = Statistic::all()
-            .into_iter()
-            .map(|stat| (stat, Vec::new()))
-            .collect();
-        for (t, distrib) in a.intersection_delays_bucketized(t, i, Duration::hours(1)) {
-            for (stat, pts) in series.iter_mut() {
-                if distrib.count() == 0 {
-                    pts.push((t, Duration::ZERO));
-                } else {
-                    pts.push((t, distrib.select(*stat)));
-                }
-            }
+    let series = if opts.show_before {
+        Series {
+            label: "Delay through intersection (before changes)".to_string(),
+            color: Color::BLUE.alpha(0.9),
+            pts: app
+                .prebaked()
+                .intersection_delays
+                .get(&i)
+                .cloned()
+                .unwrap_or_else(Vec::new),
         }
-        series
+    } else {
+        Series {
+            label: "Delay through intersection (after changes)".to_string(),
+            color: Color::RED.alpha(0.9),
+            pts: app
+                .primary
+                .sim
+                .get_analytics()
+                .intersection_delays
+                .get(&i)
+                .cloned()
+                .unwrap_or_else(Vec::new),
+        }
     };
 
-    let mut all_series = Vec::new();
-    for (idx, (stat, pts)) in get_data(app.primary.sim.get_analytics(), app.primary.sim.time())
-        .into_iter()
-        .enumerate()
-    {
-        all_series.push(Series {
-            label: stat.to_string(),
-            color: app.cs.rotating_color_plot(idx),
-            pts,
-        });
-    }
-    if opts.show_before {
-        for (idx, (stat, pts)) in get_data(app.prebaked(), app.primary.sim.get_end_of_day())
-            .into_iter()
-            .enumerate()
-        {
-            all_series.push(Series {
-                label: format!("{} (before changes)", stat),
-                color: app.cs.rotating_color_plot(idx).alpha(0.3),
-                pts,
-            });
-        }
-    }
-
-    LinePlot::new(ctx, "delay", all_series, PlotOptions::new())
+    ScatterPlotV2::new(ctx, series, PlotOptions::new())
 }
 
 fn header(
@@ -242,7 +227,10 @@ fn header(
             ),
         ];
         if i.is_traffic_signal() {
-            tabs.push(("Delay", Tab::IntersectionDelay(id, DataOptions::new(app))));
+            tabs.push((
+                "Delay",
+                Tab::IntersectionDelay(id, DataOptions { show_before: false }),
+            ));
             tabs.push(("Current demand", Tab::IntersectionDemand(id)));
         }
         tabs
