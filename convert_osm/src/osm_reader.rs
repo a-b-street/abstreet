@@ -92,7 +92,7 @@ pub fn extract_osm(
         }
     }
 
-    let mut coastline_groups: Vec<Vec<Pt2D>> = Vec::new();
+    let mut coastline_groups: Vec<(i64, Vec<Pt2D>)> = Vec::new();
     timer.start_iter("processing OSM ways", doc.ways.len());
     for way in doc.ways.values() {
         timer.next();
@@ -211,7 +211,7 @@ pub fn extract_osm(
                 osm_tags: tags,
             });
         } else if tags.get("natural") == Some(&"coastline".to_string()) {
-            coastline_groups.push(pts);
+            coastline_groups.push((way.id, pts));
         } else {
             // The way might be part of a relation later.
             id_to_way.insert(way.id, pts);
@@ -230,14 +230,14 @@ pub fn extract_osm(
         if let Some(at) = get_area_type(&tags) {
             if tags.get("type") == Some(&"multipolygon".to_string()) {
                 let mut ok = true;
-                let mut pts_per_way: Vec<Vec<Pt2D>> = Vec::new();
+                let mut pts_per_way: Vec<(i64, Vec<Pt2D>)> = Vec::new();
                 for member in &rel.members {
                     match member {
                         osm_xml::Member::Way(osm_xml::UnresolvedReference::Way(id), ref role) => {
                             // If the way is clipped out, that's fine
                             if let Some(pts) = id_to_way.get(id) {
                                 if role == "outer" {
-                                    pts_per_way.push(pts.to_vec());
+                                    pts_per_way.push((*id, pts.to_vec()));
                                 } else {
                                     println!(
                                         "Relation {} has unhandled member role {}, ignoring it",
@@ -465,7 +465,9 @@ fn get_area_type(tags: &BTreeMap<String, String>) -> Option<AreaType> {
     if tags.get("landuse") == Some(&"cemetery".to_string()) {
         return Some(AreaType::Park);
     }
-    if tags.get("natural") == Some(&"water".to_string()) {
+    if tags.get("natural") == Some(&"water".to_string())
+        || tags.get("waterway") == Some(&"riverbank".to_string())
+    {
         return Some(AreaType::Water);
     }
     if tags.get("place") == Some(&"island".to_string()) {
@@ -488,12 +490,12 @@ fn get_area_type(tags: &BTreeMap<String, String>) -> Option<AreaType> {
 // The result could be more than one disjoint polygon.
 fn glue_multipolygon(
     rel_id: i64,
-    mut pts_per_way: Vec<Vec<Pt2D>>,
+    mut pts_per_way: Vec<(i64, Vec<Pt2D>)>,
     boundary: &Ring,
 ) -> Vec<Polygon> {
     // First deal with all of the closed loops.
     let mut polygons: Vec<Polygon> = Vec::new();
-    pts_per_way.retain(|pts| {
+    pts_per_way.retain(|(_, pts)| {
         if pts[0] == *pts.last().unwrap() {
             polygons.push(Polygon::new(pts));
             false
@@ -506,15 +508,15 @@ fn glue_multipolygon(
     }
 
     // The main polygon
-    let mut result = pts_per_way.pop().unwrap();
+    let (_, mut result) = pts_per_way.pop().unwrap();
     let mut reversed = false;
     while !pts_per_way.is_empty() {
         let glue_pt = *result.last().unwrap();
         if let Some(idx) = pts_per_way
             .iter()
-            .position(|pts| pts[0] == glue_pt || *pts.last().unwrap() == glue_pt)
+            .position(|(_, pts)| pts[0] == glue_pt || *pts.last().unwrap() == glue_pt)
         {
-            let mut append = pts_per_way.remove(idx);
+            let (_, mut append) = pts_per_way.remove(idx);
             if append[0] != glue_pt {
                 append.reverse();
             }
@@ -525,9 +527,10 @@ fn glue_multipolygon(
                 // TODO Investigate what's going on here. At the very least, take what we have so
                 // far and try to glue it up.
                 println!(
-                    "Throwing away {} chunks from relation {}",
+                    "Throwing away {} chunks from relation {}: ways {:?}",
                     pts_per_way.len(),
-                    rel_id
+                    rel_id,
+                    pts_per_way.iter().map(|(id, _)| *id).collect::<Vec<i64>>()
                 );
                 break;
             } else {
