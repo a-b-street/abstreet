@@ -18,12 +18,12 @@ use ezgui::{
 };
 use geom::{Circle, Distance, Time};
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID};
-use maplit::btreemap;
 use sim::{
     AgentID, Analytics, CarID, ParkingSpot, PedestrianID, PersonID, PersonState, TripID, TripMode,
     VehicleType,
 };
 use std::collections::{BTreeMap, HashMap};
+pub use trip::OpenTrip;
 
 pub struct InfoPanel {
     tab: Tab,
@@ -48,7 +48,7 @@ pub struct InfoPanel {
 pub enum Tab {
     // What trips are open? For finished trips, show the timeline in the current simulation if
     // true, prebaked if false.
-    PersonTrips(PersonID, BTreeMap<TripID, bool>),
+    PersonTrips(PersonID, BTreeMap<TripID, OpenTrip>),
     PersonBio(PersonID),
 
     BusStatus(CarID),
@@ -86,7 +86,7 @@ impl Tab {
                 if let Some(p) = app.primary.sim.agent_to_person(AgentID::Car(c)) {
                     Tab::PersonTrips(
                         p,
-                        btreemap! {app.primary.sim.agent_to_trip(AgentID::Car(c)).unwrap() => true},
+                        OpenTrip::single(app.primary.sim.agent_to_trip(AgentID::Car(c)).unwrap()),
                     )
                 } else if c.1 == VehicleType::Bus {
                     Tab::BusStatus(c)
@@ -99,7 +99,12 @@ impl Tab {
                     .sim
                     .agent_to_person(AgentID::Pedestrian(p))
                     .unwrap(),
-                btreemap! {app.primary.sim.agent_to_trip(AgentID::Pedestrian(p)).unwrap() => true},
+                OpenTrip::single(
+                    app.primary
+                        .sim
+                        .agent_to_trip(AgentID::Pedestrian(p))
+                        .unwrap(),
+                ),
             ),
             ID::PedCrowd(members) => Tab::Crowd(members),
             ID::BusStop(bs) => Tab::BusStop(bs),
@@ -108,10 +113,10 @@ impl Tab {
     }
 
     // TODO Temporary hack until object actions go away.
-    fn to_id(self, app: &App) -> Option<ID> {
+    fn to_id(&self, app: &App) -> Option<ID> {
         match self {
             Tab::PersonTrips(p, _) | Tab::PersonBio(p) => {
-                match app.primary.sim.get_person(p).state {
+                match app.primary.sim.get_person(*p).state {
                     PersonState::Inside(b) => Some(ID::Building(b)),
                     PersonState::Trip(t) => app
                         .primary
@@ -122,26 +127,36 @@ impl Tab {
                     _ => None,
                 }
             }
-            Tab::BusStatus(c) | Tab::BusDelays(c) => Some(ID::Car(c)),
-            Tab::BusStop(bs) => Some(ID::BusStop(bs)),
+            Tab::BusStatus(c) | Tab::BusDelays(c) => Some(ID::Car(*c)),
+            Tab::BusStop(bs) => Some(ID::BusStop(*bs)),
             // TODO If a parked car becomes in use while the panel is open, should update the panel
             // better.
-            Tab::ParkedCar(c) => match app.primary.sim.lookup_parked_car(c)?.spot {
-                ParkingSpot::Onstreet(_, _) => Some(ID::Car(c)),
+            Tab::ParkedCar(c) => match app.primary.sim.lookup_parked_car(*c)?.spot {
+                ParkingSpot::Onstreet(_, _) => Some(ID::Car(*c)),
                 ParkingSpot::Offstreet(b, _) => Some(ID::Building(b)),
             },
-            Tab::BldgInfo(b) | Tab::BldgPeople(b) => Some(ID::Building(b)),
-            Tab::Crowd(members) => Some(ID::PedCrowd(members)),
-            Tab::Area(a) => Some(ID::Area(a)),
+            Tab::BldgInfo(b) | Tab::BldgPeople(b) => Some(ID::Building(*b)),
+            Tab::Crowd(members) => Some(ID::PedCrowd(members.clone())),
+            Tab::Area(a) => Some(ID::Area(*a)),
             Tab::IntersectionInfo(i)
             | Tab::IntersectionTraffic(i, _)
             | Tab::IntersectionDelay(i, _)
-            | Tab::IntersectionDemand(i) => Some(ID::Intersection(i)),
-            Tab::LaneInfo(l) | Tab::LaneDebug(l) | Tab::LaneTraffic(l, _) => Some(ID::Lane(l)),
+            | Tab::IntersectionDemand(i) => Some(ID::Intersection(*i)),
+            Tab::LaneInfo(l) | Tab::LaneDebug(l) | Tab::LaneTraffic(l, _) => Some(ID::Lane(*l)),
         }
     }
 
     fn changed_settings(&self, c: &Composite) -> Option<Tab> {
+        // Avoid an occasionally expensive clone.
+        match self {
+            Tab::IntersectionTraffic(_, _)
+            | Tab::IntersectionDelay(_, _)
+            | Tab::LaneTraffic(_, _) => {}
+            _ => {
+                return None;
+            }
+        }
+
         let mut new_tab = self.clone();
         match new_tab {
             Tab::IntersectionTraffic(_, ref mut opts)
@@ -149,7 +164,7 @@ impl Tab {
             | Tab::LaneTraffic(_, ref mut opts) => {
                 *opts = DataOptions::from_controls(c);
             }
-            _ => {}
+            _ => unreachable!(),
         }
         if &new_tab == self {
             None
@@ -172,7 +187,7 @@ impl InfoPanel {
     pub fn new(
         ctx: &mut EventCtx,
         app: &App,
-        tab: Tab,
+        mut tab: Tab,
         ctx_actions: &mut dyn ContextualActions,
     ) -> InfoPanel {
         let mut details = Details {
@@ -184,7 +199,7 @@ impl InfoPanel {
         };
 
         let (mut col, main_tab) = match tab {
-            Tab::PersonTrips(p, ref open) => (
+            Tab::PersonTrips(p, ref mut open) => (
                 person::trips(ctx, app, &mut details, p, open, ctx_actions.is_paused()),
                 true,
             ),
@@ -221,7 +236,7 @@ impl InfoPanel {
                 (lane::traffic(ctx, app, &mut details, l, opts), false)
             }
         };
-        let maybe_id = tab.clone().to_id(app);
+        let maybe_id = tab.to_id(app);
         let mut cached_actions = Vec::new();
         if main_tab {
             if let Some(id) = maybe_id.clone() {
@@ -336,7 +351,7 @@ impl InfoPanel {
             return (false, None);
         }
 
-        let maybe_id = self.tab.clone().to_id(app);
+        let maybe_id = self.tab.to_id(app);
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(action)) => {
                 if let Some(new_tab) = self.hyperlinks.get(&action).cloned() {
@@ -356,7 +371,7 @@ impl InfoPanel {
                     (true, None)
                 } else if action == "jump to object" {
                     // TODO Messy way of doing this
-                    if let Some(id) = self.tab.clone().to_id(app) {
+                    if let Some(id) = self.tab.to_id(app) {
                         return (
                             false,
                             Some(Transition::Push(Warping::new(
@@ -405,7 +420,7 @@ impl InfoPanel {
                                 sandbox.controls.common.as_mut().unwrap().launch_info_panel(
                                     ctx,
                                     app,
-                                    Tab::PersonTrips(person, btreemap! { trip => true }),
+                                    Tab::PersonTrips(person, OpenTrip::single(trip)),
                                     &mut actions,
                                 );
 
@@ -448,7 +463,7 @@ impl InfoPanel {
     }
 
     pub fn active_id(&self, app: &App) -> Option<ID> {
-        self.tab.clone().to_id(app)
+        self.tab.to_id(app)
     }
 }
 

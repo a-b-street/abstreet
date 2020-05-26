@@ -1,7 +1,7 @@
 use crate::app::App;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::{cmp_duration_shorter, color_for_mode, color_for_trip_phase};
-use crate::info::Tab;
+use crate::info::{OpenTrip, Tab};
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
@@ -10,7 +10,6 @@ use ezgui::{
     ScreenDims, ScreenPt, Text, TextExt, Widget,
 };
 use geom::{Angle, Distance, Duration, Polygon, Pt2D, Time};
-use maplit::btreemap;
 use sim::{TripEndpoint, TripID, TripMode};
 use std::collections::BTreeSet;
 
@@ -124,7 +123,7 @@ impl State for TripTable {
                             sandbox.controls.common.as_mut().unwrap().launch_info_panel(
                                 ctx,
                                 app,
-                                Tab::PersonTrips(person, btreemap! { trip => true }),
+                                Tab::PersonTrips(person, OpenTrip::single(trip)),
                                 &mut actions,
                             );
                         }));

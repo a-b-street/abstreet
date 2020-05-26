@@ -1,6 +1,6 @@
 use crate::app::App;
 use crate::game::{DrawBaselayer, State, Transition};
-use crate::info::Tab;
+use crate::info::{OpenTrip, Tab};
 use crate::sandbox::dashboards::trip_table::{make_table, preview_trip};
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
@@ -10,7 +10,6 @@ use ezgui::{
     Widget,
 };
 use geom::Duration;
-use maplit::btreemap;
 use sim::{TripEndpoint, TripID, TripPhaseType};
 
 const ROWS: usize = 20;
@@ -117,7 +116,7 @@ impl State for ParkingOverhead {
                             sandbox.controls.common.as_mut().unwrap().launch_info_panel(
                                 ctx,
                                 app,
-                                Tab::PersonTrips(person, btreemap! { trip => true }),
+                                Tab::PersonTrips(person, OpenTrip::single(trip)),
                                 &mut actions,
                             );
                         }));

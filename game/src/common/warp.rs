@@ -2,11 +2,11 @@ use crate::app::{App, PerMap};
 use crate::common::Tab;
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
+use crate::info::OpenTrip;
 use crate::sandbox::SandboxMode;
 use ezgui::{EventCtx, GfxCtx, Warper, Wizard};
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, IntersectionID, LaneID, RoadID};
-use maplit::btreemap;
 use sim::{PedestrianID, PersonID, TripID};
 use std::collections::BTreeMap;
 
@@ -140,7 +140,7 @@ fn inner_warp(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Transitio
                         s.controls.common.as_mut().unwrap().launch_info_panel(
                             ctx,
                             app,
-                            Tab::PersonTrips(person, btreemap! {trip => true}),
+                            Tab::PersonTrips(person, OpenTrip::single(trip)),
                             &mut actions,
                         );
                     }

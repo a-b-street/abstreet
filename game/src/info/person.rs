@@ -1,12 +1,11 @@
 use crate::app::App;
-use crate::info::{building, header_btns, make_table, make_tabs, trip, Details, Tab};
+use crate::info::{building, header_btns, make_table, make_tabs, trip, Details, OpenTrip, Tab};
 use ezgui::{
     hotkey, Btn, Color, EventCtx, GeomBatch, Key, Line, RewriteColor, Text, TextExt, TextSpan,
     Widget,
 };
 use geom::Duration;
 use map_model::Map;
-use maplit::btreemap;
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use sim::{
@@ -20,7 +19,7 @@ pub fn trips(
     app: &App,
     details: &mut Details,
     id: PersonID,
-    open_trips: &BTreeMap<TripID, bool>,
+    open_trips: &mut BTreeMap<TripID, OpenTrip>,
     is_paused: bool,
 ) -> Vec<Widget> {
     let mut rows = header(
@@ -51,16 +50,16 @@ pub fn trips(
                         "delayed start",
                         Color::YELLOW,
                         open_trips
-                            .get(t)
-                            .map(|_| trip::future(ctx, app, *t, details)),
+                            .get_mut(t)
+                            .map(|open_trip| trip::future(ctx, app, *t, open_trip, details)),
                     )
                 } else {
                     (
                         "future",
                         Color::hex("#4CA7E9"),
                         open_trips
-                            .get(t)
-                            .map(|_| trip::future(ctx, app, *t, details)),
+                            .get_mut(t)
+                            .map(|open_trip| trip::future(ctx, app, *t, open_trip, details)),
                     )
                 }
             }
@@ -71,8 +70,8 @@ pub fn trips(
                     "ongoing",
                     Color::hex("#7FFA4D"),
                     open_trips
-                        .get(t)
-                        .map(|_| trip::ongoing(ctx, app, *t, a, details)),
+                        .get_mut(t)
+                        .map(|open_trip| trip::ongoing(ctx, app, *t, a, open_trip, details)),
                 )
             }
             TripResult::RemoteTrip => {
@@ -100,9 +99,11 @@ pub fn trips(
                 (
                     "finished",
                     Color::hex("#A3A3A3"),
-                    open_trips.get(t).map(|show_after| {
-                        trip::finished(ctx, app, id, open_trips, *t, *show_after, details)
-                    }),
+                    if open_trips.contains_key(t) {
+                        Some(trip::finished(ctx, app, id, open_trips, *t, details))
+                    } else {
+                        None
+                    },
                 )
             }
             TripResult::TripAborted => {
@@ -193,7 +194,7 @@ pub fn trips(
                 .insert(format!("hide {}", t), Tab::PersonTrips(id, new_trips));
         } else {
             let mut new_trips = open_trips.clone();
-            new_trips.insert(*t, true);
+            new_trips.insert(*t, OpenTrip::new());
             details
                 .hyperlinks
                 .insert(format!("show {}", t), Tab::PersonTrips(id, new_trips));
@@ -334,7 +335,12 @@ pub fn crowd(
             person.to_string(),
             Tab::PersonTrips(
                 person,
-                btreemap! {app.primary.sim.agent_to_trip(AgentID::Pedestrian(*id)).unwrap() => true},
+                OpenTrip::single(
+                    app.primary
+                        .sim
+                        .agent_to_trip(AgentID::Pedestrian(*id))
+                        .unwrap(),
+                ),
             ),
         );
     }
@@ -490,7 +496,7 @@ fn header(
     ]));
 
     let open_trips = if let Some(t) = current_trip {
-        btreemap! {t => true}
+        OpenTrip::single(t)
     } else {
         BTreeMap::new()
     };
