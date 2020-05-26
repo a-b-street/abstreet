@@ -1,11 +1,14 @@
 use crate::app::App;
 use crate::info::{building, header_btns, make_table, make_tabs, trip, Details, Tab};
 use ezgui::{
-    hotkey, Btn, Color, EventCtx, Key, Line, RewriteColor, Text, TextExt, TextSpan, Widget,
+    hotkey, Btn, Color, EventCtx, GeomBatch, Key, Line, RewriteColor, Text, TextExt, TextSpan,
+    Widget,
 };
 use geom::Duration;
 use map_model::Map;
 use maplit::btreemap;
+use rand::SeedableRng;
+use rand_xorshift::XorShiftRng;
 use sim::{
     AgentID, CarID, ParkingSpot, PedestrianID, Person, PersonID, PersonState, TripID, TripMode,
     TripResult, VehicleType,
@@ -213,7 +216,25 @@ pub fn bio(
     let mut rows = header(ctx, app, details, id, Tab::PersonBio(id), is_paused);
     let person = app.primary.sim.get_person(id);
 
-    // TODO A little picture
+    let mut svg_data = Vec::new();
+    // TODO Convert a usize to a seed better than this!
+    svg_face::generate_face(
+        &mut svg_data,
+        &mut XorShiftRng::from_seed([(id.0 % 255) as u8; 16]),
+    )
+    .unwrap();
+    let mut batch = GeomBatch::new();
+    batch.add_svg_contents(svg_data);
+    batch = batch.autocrop();
+    let dims = batch.get_dims();
+    batch = batch.scale((200.0 / dims.width).min(200.0 / dims.height));
+    rows.push(
+        Widget::draw_batch(ctx, batch)
+            .centered_horiz()
+            .padding(10)
+            .outline(5.0, Color::WHITE),
+    );
+
     rows.extend(make_table(
         ctx,
         vec![

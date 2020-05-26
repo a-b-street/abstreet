@@ -147,6 +147,12 @@ impl GeomBatch {
         );
     }
 
+    /// Parse an SVG string and add it to the batch.
+    pub fn add_svg_contents(&mut self, raw: Vec<u8>) {
+        let svg_tree = usvg::Tree::from_data(&raw, &usvg::Options::default()).unwrap();
+        svg::add_svg_inner(self, svg_tree, svg::HIGH_QUALITY, 1.0).unwrap();
+    }
+
     /// Adds geometry from another batch to the current batch, first centering it on the given
     /// point.
     pub fn add_centered(&mut self, other: GeomBatch, center: Pt2D) {

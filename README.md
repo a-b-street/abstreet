@@ -125,6 +125,8 @@ Others:
 - Hackathon drop-ins from [Democracy Lab](https://www.democracylab.org/) events
 - [CUGOS](https://cugos.org/) and [Julian Michael](http://julianmichael.org/)
   have been great sounding boards for ideas since the beginning
+- In-game character faces adapted from
+  [Anokhee Jandhyala](https://github.com/anokhee/visual-synthesizer)
 
 Data:
 
