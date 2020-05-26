@@ -14,7 +14,6 @@ use instant::Instant;
 use map_model::{Map, PermanentMapEdits};
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
-use std::collections::BTreeMap;
 
 pub struct TitleScreen {
     composite: WrappedComposite,
@@ -222,7 +221,7 @@ pub fn main_menu(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         "Contribute parking data to OpenStreetMap",
         Box::new(|ctx, app| {
             Some(Transition::Push(
-                crate::devtools::mapping::ParkingMapper::new(ctx, app, true, BTreeMap::new()),
+                crate::devtools::mapping::ParkingMapper::new(ctx, app),
             ))
         }),
     )

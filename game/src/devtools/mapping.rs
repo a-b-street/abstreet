@@ -7,7 +7,7 @@ use ezgui::{
     hotkey, Btn, Checkbox, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget, Wizard,
 };
-use geom::Distance;
+use geom::{Distance, FindClosest, PolyLine};
 use map_model::{osm, RoadID};
 use sim::DontDrawAgents;
 use std::collections::{BTreeMap, HashSet};
@@ -18,11 +18,18 @@ use std::io::Write;
 pub struct ParkingMapper {
     composite: Composite,
     draw_layer: Drawable,
-    show_todo: bool,
+    show: Show,
     selected: Option<(HashSet<RoadID>, Drawable)>,
     hide_layer: bool,
 
     data: BTreeMap<i64, Value>,
+}
+
+#[derive(Clone, Copy, PartialEq)]
+enum Show {
+    TODO,
+    Done,
+    DividedHighways,
 }
 
 #[derive(PartialEq, Clone)]
@@ -36,21 +43,26 @@ pub enum Value {
 impl abstutil::Cloneable for Value {}
 
 impl ParkingMapper {
-    pub fn new(
+    pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
+        ParkingMapper::make(ctx, app, Show::TODO, BTreeMap::new())
+    }
+
+    fn make(
         ctx: &mut EventCtx,
         app: &mut App,
-        show_todo: bool,
+        show: Show,
         data: BTreeMap<i64, Value>,
     ) -> Box<dyn State> {
         app.opts.min_zoom_for_detail = 2.0;
 
         let map = &app.primary.map;
 
-        let color = if show_todo {
-            Color::RED.alpha(0.5)
-        } else {
-            Color::BLUE.alpha(0.5)
-        };
+        let color = match show {
+            Show::TODO => Color::RED,
+            Show::Done => Color::BLUE,
+            Show::DividedHighways => Color::RED,
+        }
+        .alpha(0.5);
         let mut batch = GeomBatch::new();
         let mut done = HashSet::new();
         let mut todo = HashSet::new();
@@ -59,14 +71,19 @@ impl ParkingMapper {
                 && !data.contains_key(&r.orig_id.osm_way_id)
             {
                 todo.insert(r.orig_id.osm_way_id);
-                if show_todo {
+                if show == Show::TODO {
                     batch.push(color, map.get_r(r.id).get_thick_polygon(map).unwrap());
                 }
             } else {
                 done.insert(r.orig_id.osm_way_id);
-                if !show_todo {
+                if show == Show::Done {
                     batch.push(color, map.get_r(r.id).get_thick_polygon(map).unwrap());
                 }
+            }
+        }
+        if show == Show::DividedHighways {
+            for r in find_divided_highways(app) {
+                batch.push(color, map.get_r(r).get_thick_polygon(map).unwrap());
             }
         }
 
@@ -77,14 +94,18 @@ impl ParkingMapper {
                 r.osm_tags.contains_key(osm::INFERRED_PARKING)
                     && !data.contains_key(&r.orig_id.osm_way_id)
             });
-            if show_todo == is_todo {
+            if match (show, is_todo) {
+                (Show::TODO, true) => true,
+                (Show::Done, false) => true,
+                _ => false,
+            } {
                 batch.push(color, i.polygon.clone());
             }
         }
 
         Box::new(ParkingMapper {
             draw_layer: ctx.upload(batch),
-            show_todo,
+            show,
             composite: Composite::new(
                 Widget::col(vec![
                     Widget::row(vec![
@@ -111,9 +132,29 @@ impl ParkingMapper {
                     .draw_text(ctx)
                     .margin_below(5),
                     Widget::row(vec![
-                        Checkbox::text(ctx, "show ways with missing tags", None, show_todo)
-                            .margin_right(15),
-                        ColorLegend::row(ctx, color, if show_todo { "TODO" } else { "done" }),
+                        Widget::dropdown(
+                            ctx,
+                            "Show",
+                            show,
+                            vec![
+                                Choice::new("missing tags", Show::TODO),
+                                Choice::new("already mapped", Show::Done),
+                                Choice::new("divided highways", Show::DividedHighways).tooltip(
+                                    "Roads divided in OSM often have the wrong number of lanes \
+                                     tagged",
+                                ),
+                            ],
+                        )
+                        .margin_right(15),
+                        ColorLegend::row(
+                            ctx,
+                            color,
+                            match show {
+                                Show::TODO => "TODO",
+                                Show::Done => "done",
+                                Show::DividedHighways => "divided highways",
+                            },
+                        ),
                     ])
                     .margin_below(5),
                     Checkbox::text(ctx, "max 3 days parking (default in Seattle)", None, false),
@@ -134,7 +175,7 @@ impl ParkingMapper {
     }
 
     fn make_wizard(&self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
-        let show_todo = self.show_todo;
+        let show = self.show;
         let osm_way_id = app
             .primary
             .map
@@ -169,12 +210,12 @@ impl ParkingMapper {
 
             let mut new_data = data.clone();
             new_data.insert(osm_way_id, value);
-            Some(Transition::PopThenReplace(ParkingMapper::new(
-                ctx, app, show_todo, new_data,
+            Some(Transition::PopThenReplace(ParkingMapper::make(
+                ctx, app, show, new_data,
             )))
         }));
         state.downcast_mut::<WizardState>().unwrap().custom_pop = Some(Transition::PopThenReplace(
-            ParkingMapper::new(ctx, app, self.show_todo, self.data.clone()),
+            ParkingMapper::make(ctx, app, self.show, self.data.clone()),
         ));
 
         let mut batch = GeomBatch::new();
@@ -289,7 +330,7 @@ impl State for ParkingMapper {
                 .osm_way_id;
             let mut new_data = self.data.clone();
             new_data.insert(osm_way_id, Value::NoStopping);
-            return Transition::Replace(ParkingMapper::new(ctx, app, self.show_todo, new_data));
+            return Transition::Replace(ParkingMapper::make(ctx, app, self.show, new_data));
         }
         if self.selected.is_some() && ctx.input.new_was_pressed(&hotkey(Key::S).unwrap()) {
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
@@ -339,13 +380,9 @@ impl State for ParkingMapper {
             },
             None => {}
         }
-        if self.composite.is_checked("show ways with missing tags") != self.show_todo {
-            return Transition::Replace(ParkingMapper::new(
-                ctx,
-                app,
-                !self.show_todo,
-                self.data.clone(),
-            ));
+        let show = self.composite.dropdown_value("Show");
+        if show != self.show {
+            return Transition::Replace(ParkingMapper::make(ctx, app, show, self.data.clone()));
         }
 
         Transition::Keep
@@ -481,10 +518,46 @@ fn load_map(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Trans
             .collect()
     })?;
     app.switch_map(ctx, abstutil::path_map(&name));
-    Some(Transition::PopThenReplace(ParkingMapper::new(
+    Some(Transition::PopThenReplace(ParkingMapper::make(
         ctx,
         app,
-        true,
+        Show::TODO,
         BTreeMap::new(),
     )))
+}
+
+fn find_divided_highways(app: &App) -> HashSet<RoadID> {
+    let map = &app.primary.map;
+    let mut closest: FindClosest<RoadID> = FindClosest::new(map.get_bounds());
+    let mut oneways = Vec::new();
+    for r in map.all_roads() {
+        if r.osm_tags.contains_key("oneway") {
+            closest.add(r.id, r.center_pts.points());
+            oneways.push(r.id);
+        }
+    }
+
+    let mut found = HashSet::new();
+    for r1 in oneways {
+        let r1 = map.get_r(r1);
+        let (middle, angle) = r1
+            .center_pts
+            .safe_dist_along(r1.center_pts.length() / 2.0)
+            .unwrap();
+        for (r2, _, _) in closest.all_close_pts(middle, Distance::meters(250.0)) {
+            if r1.id != r2
+                && PolyLine::new(vec![
+                    middle.project_away(Distance::meters(100.0), angle.rotate_degs(90.0)),
+                    middle.project_away(Distance::meters(100.0), angle.rotate_degs(-90.0)),
+                ])
+                .intersection(&map.get_r(r2).center_pts)
+                .is_some()
+                && r1.get_name() == map.get_r(r2).get_name()
+            {
+                found.insert(r1.id);
+                found.insert(r2);
+            }
+        }
+    }
+    found
 }
