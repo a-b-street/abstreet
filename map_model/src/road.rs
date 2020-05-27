@@ -392,6 +392,8 @@ impl Road {
             match highway.as_ref() {
                 "motorway" => 20,
                 "motorway_link" => 19,
+                // TODO Probably not true in general. For the West Seattle bridge.
+                "construction" => 18,
 
                 "trunk" => 17,
                 "trunk_link" => 16,

@@ -57,5 +57,5 @@ and aggregate groups.
 
 ## Next steps
 
-It'd be useful to first get this map running with the high bridge restored, to
-establish a better baseline.
+It'd be useful to first get a baseline with the high bridge restored. Should now
+be possible using edits.

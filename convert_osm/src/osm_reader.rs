@@ -408,7 +408,9 @@ fn is_road(tags: &BTreeMap<String, String>) -> bool {
     if tags.get("access") == Some(&"private".to_string()) {
         return false;
     }
-    if tags.get("access") == Some(&"no".to_string()) && tags.get("bus") != Some(&"yes".to_string())
+    if tags.get("access") == Some(&"no".to_string())
+        && tags.get("bus") != Some(&"yes".to_string())
+        && tags.get("highway") != Some(&"construction".to_string())
     {
         return false;
     }
@@ -430,7 +432,6 @@ fn is_road(tags: &BTreeMap<String, String>) -> bool {
         "path",
         "cycleway",
         "proposed",
-        "construction",
         // This one's debatable. Includes alleys.
         "service",
         // more discovered manually

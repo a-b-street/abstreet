@@ -73,11 +73,13 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
         }
     };
 
-    // Sup Spokane Bridge
+    // Sup West Seattle
     let driving_lane = if osm_tags.get("access") == Some(&"no".to_string())
         && osm_tags.get("bus") == Some(&"yes".to_string())
     {
         LaneType::Bus
+    } else if osm_tags.get("highway") == Some(&"construction".to_string()) {
+        LaneType::Construction
     } else {
         LaneType::Driving
     };
@@ -89,6 +91,10 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
         || osm_tags.get("centre_turn_lane") == Some(&"yes".to_string())
     {
         fwd_side.insert(0, LaneType::SharedLeftTurn);
+    }
+
+    if driving_lane == LaneType::Construction {
+        return (fwd_side, back_side);
     }
 
     // TODO Handle bus lanes properly.
