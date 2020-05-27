@@ -21,6 +21,7 @@ ezgui = { path = "../ezgui", default-features=false }
 geom = { path = "../geom" }
 instant = "0.1.2"
 kml = { path = "../kml" }
+lttb = { git = "https://github.com/dabreegster/lttb-rs", branch = "patch-1" }
 maplit = "1.0.2"
 map_model = { path = "../map_model" }
 petgraph = "0.5.0"

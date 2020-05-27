@@ -8,7 +8,7 @@ use ezgui::{
     HorizontalAlignment, Key, Line, Outcome, PersistentSplit, RewriteColor, Slider, Text,
     VerticalAlignment, Widget,
 };
-use geom::{Duration, PolyLine, Polygon, Pt2D, Time};
+use geom::{Duration, Polygon, Pt2D, Time};
 use instant::Instant;
 use sim::AlertLocation;
 
@@ -670,14 +670,15 @@ fn area_under_curve(raw: Vec<(Time, usize)>, width: f64, height: f64) -> Polygon
 
     let mut pts = Vec::new();
     for (t, cnt) in raw {
-        pts.push(Pt2D::new(
-            (t - min_x) / (max_x - min_x) * width,
-            ((cnt - min_y) as f64) / ((max_y - min_y) as f64) * height,
+        pts.push(lttb::DataPoint::new(
+            width * (t - min_x) / (max_x - min_x),
+            height * (1.0 - (((cnt - min_y) as f64) / ((max_y - min_y) as f64))),
         ));
     }
-
-    // TODO The smoothing should be tuned more
-    let mut final_pts = PolyLine::new_simplified(pts, 5.0).into_points();
-    final_pts.push(final_pts[0]);
-    Polygon::new(&final_pts)
+    let mut downsampled = Vec::new();
+    for pt in lttb::lttb(pts, 100) {
+        downsampled.push(Pt2D::new(pt.x, pt.y));
+    }
+    downsampled.push(downsampled[0]);
+    Polygon::new(&downsampled)
 }

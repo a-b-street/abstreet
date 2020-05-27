@@ -2,8 +2,6 @@ use crate::{
     Angle, Bounds, Distance, HashablePt2D, InfiniteLine, Line, Polygon, Pt2D, Ring, EPSILON_DIST,
 };
 use abstutil::Warn;
-use geo::algorithm::simplify::Simplify;
-use ordered_float::NotNan;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::fmt;
@@ -717,23 +715,6 @@ impl PolyLine {
         }
         crossings == 2
     }
-
-    pub fn new_simplified(pts: Vec<Pt2D>, epsilon: f64) -> PolyLine {
-        // Why does this invert Y?
-        let max_y = pts
-            .iter()
-            .max_by_key(|pt| NotNan::new(pt.y()).unwrap())
-            .unwrap()
-            .y();
-        // Could use SimplifyVW, but I haven't noticed much of a difference yet
-        PolyLine::new(
-            pts_to_line_string(pts)
-                .simplify(&epsilon)
-                .into_iter()
-                .map(|coord| Pt2D::new(coord.x, max_y - coord.y))
-                .collect(),
-        )
-    }
 }
 
 impl fmt::Display for PolyLine {
@@ -812,13 +793,4 @@ fn to_set(pts: &[Pt2D]) -> (HashSet<HashablePt2D>, HashSet<HashablePt2D>) {
         }
     }
     (deduped, dupes)
-}
-
-// TODO Share
-fn pts_to_line_string(raw_pts: Vec<Pt2D>) -> geo::LineString<f64> {
-    let pts: Vec<geo::Point<f64>> = raw_pts
-        .into_iter()
-        .map(|pt| geo::Point::new(pt.x(), pt.y()))
-        .collect();
-    pts.into()
 }
