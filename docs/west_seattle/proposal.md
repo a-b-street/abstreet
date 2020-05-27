@@ -54,3 +54,8 @@ Once the simulation is running smoothly, A/B Street can be used to make changes
 -- like lowering speed limits, adding a protected left turn phase, or converting
 part of the road into a bus lane -- and evaluate the effects on individual trips
 and aggregate groups.
+
+## Next steps
+
+It'd be useful to first get this map running with the high bridge restored, to
+establish a better baseline.
