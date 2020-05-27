@@ -519,7 +519,6 @@ pub struct CompositeBuilder {
     horiz: HorizontalAlignment,
     vert: VerticalAlignment,
     dims: Dims,
-    allow_duplicate_buttons: bool,
 }
 
 pub struct Composite {
@@ -544,7 +543,6 @@ impl Composite {
             horiz: HorizontalAlignment::Center,
             vert: VerticalAlignment::Center,
             dims: Dims::MaxPercent(1.0, 1.0),
-            allow_duplicate_buttons: false,
         }
     }
 
@@ -882,7 +880,9 @@ impl CompositeBuilder {
             clip_rect: None,
         };
         if let Dims::ExactPercent(w, h) = c.dims {
-            c.top_level.layout.style.size = Size {
+            // Don't set size, because then scrolling breaks -- the actual size has to be based on
+            // the contents.
+            c.top_level.layout.style.min_size = Size {
                 width: Dimension::Points((w * ctx.canvas.window_width) as f32),
                 height: Dimension::Points((h * ctx.canvas.window_height) as f32),
             };
@@ -937,10 +937,8 @@ impl CompositeBuilder {
             c.clip_rect = Some(ScreenRectangle::top_left(top_left, c.container_dims));
         }
 
-        if !self.allow_duplicate_buttons {
-            // Just trigger error if a button is double-defined
-            c.get_all_click_actions();
-        }
+        // Just trigger error if a button is double-defined
+        c.get_all_click_actions();
         // Let all widgets initially respond to the mouse being somewhere
         ctx.no_op_event(true, |ctx| assert!(c.event(ctx).is_none()));
         c
@@ -966,11 +964,6 @@ impl CompositeBuilder {
 
     pub fn exact_size_percent(mut self, pct_width: usize, pct_height: usize) -> CompositeBuilder {
         self.dims = Dims::ExactPercent((pct_width as f64) / 100.0, (pct_height as f64) / 100.0);
-        self
-    }
-
-    pub fn allow_duplicate_buttons(mut self) -> CompositeBuilder {
-        self.allow_duplicate_buttons = true;
         self
     }
 }

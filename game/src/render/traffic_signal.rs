@@ -478,6 +478,6 @@ pub fn make_signal_diagram(
 
     Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(10))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-        .max_size_percent(30, 85)
+        .exact_size_percent(30, 85)
         .build(ctx)
 }

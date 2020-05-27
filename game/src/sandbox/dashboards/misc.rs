@@ -41,7 +41,7 @@ impl ActiveTraffic {
                 .bg(app.cs.panel_bg)
                 .padding(10),
             )
-            .max_size_percent(90, 90)
+            .exact_size_percent(90, 90)
             .build(ctx),
         })
     }
@@ -91,7 +91,7 @@ impl BusRoutes {
 
         Box::new(BusRoutes {
             composite: Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(10))
-                .max_size_percent(90, 90)
+                .exact_size_percent(90, 90)
                 .build(ctx),
         })
     }

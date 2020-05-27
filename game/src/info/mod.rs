@@ -313,11 +313,7 @@ impl InfoPanel {
                     VerticalAlignment::Percent(0.2),
                 )
                 // TODO Some headings are too wide.. Intersection #xyz (Traffic signals)
-                // TODO Want exact_size_percent, but this mess up scrolling! Argh
-                .max_size_percent(30, 60)
-                // trip::details endpoints...
-                // TODO I think we can remove this now
-                .allow_duplicate_buttons()
+                .exact_size_percent(30, 60)
                 .build(ctx),
             unzoomed: details.unzoomed.upload(ctx),
             zoomed: details.zoomed.upload(ctx),

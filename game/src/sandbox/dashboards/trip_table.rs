@@ -389,7 +389,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
     );
 
     Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(10))
-        .max_size_percent(90, 90)
+        .exact_size_percent(90, 90)
         .build(ctx)
 }
 

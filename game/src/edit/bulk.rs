@@ -299,10 +299,10 @@ impl PaintSelect {
     pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
         app.primary.current_selection = None;
         Box::new(PaintSelect {
-            composite: make_paint_composite(ctx, app, Mode::Pan, &BTreeSet::new()),
+            composite: make_paint_composite(ctx, app, Mode::Paint, &BTreeSet::new()),
             roads: BTreeSet::new(),
             preview: None,
-            mode: Mode::Pan,
+            mode: Mode::Paint,
             dragging: false,
         })
     }
@@ -546,10 +546,10 @@ fn make_paint_composite(
                     Btn::text_fg(format!("Edit {} roads", roads.len())).build(
                         ctx,
                         "edit roads",
-                        None,
+                        hotkey(Key::E),
                     )
                 },
-                Btn::text_fg("Cancel").build_def(ctx, None),
+                Btn::text_fg("Cancel").build_def(ctx, hotkey(Key::Escape)),
             ])
             .evenly_spaced(),
         ])

@@ -60,7 +60,7 @@ impl TripSummaries {
                 .bg(app.cs.panel_bg)
                 .padding(10),
             )
-            .max_size_percent(90, 90)
+            .exact_size_percent(90, 90)
             .build(ctx),
             filter,
         })
