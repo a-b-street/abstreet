@@ -12,7 +12,7 @@
 - fences / bushes / features in houses or triangulation on a block with buildings
 - buildings as rooms in a hotel
 - silent hill soundtrack
-= deformed buildings pulsing on front path springs
+- deformed buildings pulsing on front path springs
 - lighting?
 - fog effects
 - in 3D, what if roads are sunken rivers and buildings giant skyscrapers?

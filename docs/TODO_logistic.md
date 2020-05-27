@@ -27,8 +27,3 @@
 
 - useful unit tests
 	- for a given intersection with lanes, check all the turns generated
-
-## Code to release
-
-- (from before august 2019) tmp_gfx as a 2D-with-camera glium sample
-- ezgui

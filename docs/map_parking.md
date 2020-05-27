@@ -64,7 +64,9 @@ data.
 
 You don't have to; [this tool](https://zlant.github.io/parking-lanes/) or ID or
 JOSM all work. But the UI is clunky for this specific purpose. (Also, if you
-find this tool clunky in any way, let me know and I'll fix it.)
+find this tool clunky in any way, let me know and I'll fix it.) There's also a
+proposed
+[StreetComplete quest](https://github.com/westnordost/StreetComplete/issues/771).
 
 ### What about parking restrictions?
 

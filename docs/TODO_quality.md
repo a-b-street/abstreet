@@ -12,13 +12,6 @@
 	- make polygons use the corrections too?
 	- bad polyline shifting causes jagged lane endings in generalized_trim_back
 
-- handle small roads again somehow?
-	- reduce degenerate min trim. the disabled fix doesn't look great.
-	- I40, I25, I0 cut corners when merged. disabled fix works, but breaks other things.
-	- try it bigger
-	- deal with loop roads?
-	- model U-turns
-
 - car turns often clip sidewalk corners now
 - draw SharedSidewalkCorners just around the ped path, not arbitrarily thick
 	- dont forget to draw the notches
@@ -85,14 +78,6 @@
 - parking/unparking on offside of oneway
 
 ## Discrete-event sim model
-
-- cleanup after the cutover
-	- proper intersection policies, by seeing full view
-	- time travel mode can be very smart
-	- dupe code for initially spawning vs spawning when a trip leg starts.
-		- validation (just do it in spawn and return an error?)
-		- getting the path
-		- converting goal into router and such
 
 - perf
 	- dig into individual events, still too many?

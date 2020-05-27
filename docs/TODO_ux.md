@@ -8,33 +8,21 @@
 
 - click cycle diagram to edit duration
 
-- toggle rewind mode
 - yellow or flashing red/yellow for yields
 - text box entry: highlight char looks like replace mode; draw it btwn chars
 
-- navigator
-	- show options on map
-	- stop jumping text size
-
 ## General ezgui stuff
 
-- optionally limit canvas scrolling/zooming to some map bounds
-- start context menu when left click releases and we're not dragging
-- move context menus out of ezgui
-	- simplify/remove UserInput.
-	- maybe separate impls for context, wizard, modal menu make sense.
 - arbitrary viewports?!
 - tiling wm
 
 ## New features
 
 - collapse smaller roads/neighborhoods and just show aggregate stats about them (in/out flow, moving/blocked within)
-- undo support for edits
 
 ## Better rendering
 
 - depict residential bldg occupany size somehow
-- render cars with textures?
 - rooftops
 	- https://thumbs.dreamstime.com/b/top-view-city-street-asphalt-transport-people-walking-down-sidewalk-intersecting-road-pedestrian-81034411.jpg
 	- https://thumbs.dreamstime.com/z/top-view-city-seamless-pattern-streets-roads-houses-cars-68652655.jpg
@@ -72,31 +60,3 @@
 - criteria
 	- at low zoom, easily pinpoint where things are moving and stuck
 	- include all agents
-
-## Mission Edit Mode
-
-- neighborhood
-	- display some instructions in the modal thing ("move a point by grabbing it")
-	- warp to neighborhood center and zoom out when loading one (or even hovering in the menu?)
-	- display all and click to edit
-		- draw text in map-space, or be able to scale it
-	- renaming
-- scenario
-	- visualize should just be the default thing
-	- summarize in the modal menu, dont display the ugly text
-	- almost feels like a list of 3 'command' types, each of which can be visualized:
-		- seed cars
-		- spawn agents
-		- spawn agents from border
-	- kind of need to CRUD this list
-	- time input is very unclear, put help text in there
-	- combine the spawn and border spawn... choose neighborhood OR border
-		- choose in a menu list, or click on the map
-			- draw the border nodes loudly
-	- visualize better
-		- draw separate arrows src/dst, on each side of text
-			- draw text at a fixed size, not in screenspace, specify the font size.
-			- associate font size with Text, probably
-		- highlight a region, draw counts to/from it in some meaningful way
-		- timer slider (except timeslices arent neatly in hour blocks, though they maybe should be)
-		- a table (with color-coded entries) is actually perfect
