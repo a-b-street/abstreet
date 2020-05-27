@@ -2,14 +2,15 @@ use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use ezgui::{Drawable, GeomBatch, GfxCtx, Prerender};
-use geom::{Distance, PolyLine, Polygon, Pt2D};
+use ezgui::{Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor};
+use geom::{Angle, Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{BusStop, BusStopID, Map};
+
+const RADIUS: Distance = Distance::const_meters(1.0);
 
 pub struct DrawBusStop {
     pub id: BusStopID,
-    polyline: PolyLine,
-    polygon: Polygon,
+    center: Pt2D,
     zorder: isize,
 
     draw_default: Drawable,
@@ -17,44 +18,43 @@ pub struct DrawBusStop {
 
 impl DrawBusStop {
     pub fn new(stop: &BusStop, map: &Map, cs: &ColorScheme, prerender: &Prerender) -> DrawBusStop {
-        let radius = Distance::meters(2.0);
-        // Kinda sad that bus stops might be very close to the start of the lane, but it's
-        // happening.
-        let lane = map.get_l(stop.id.sidewalk);
-        let main_pl = map
-            .right_shift(
-                lane.lane_center_pts.exact_slice(
-                    Distance::ZERO.max(stop.sidewalk_pos.dist_along() - radius),
-                    lane.length().min(stop.sidewalk_pos.dist_along() + radius),
-                ),
-                lane.width * 0.3,
-            )
-            .unwrap();
-        let polyline = PolyLine::new(vec![
-            main_pl.first_pt().project_away(
-                lane.width * 0.5,
-                main_pl.first_line().angle().rotate_degs(-90.0),
-            ),
-            main_pl.first_pt(),
-        ])
-        .extend(main_pl.clone())
-        .extend(PolyLine::new(vec![
-            main_pl.last_pt(),
-            main_pl.last_pt().project_away(
-                lane.width * 0.5,
-                main_pl.last_line().angle().rotate_degs(-90.0),
-            ),
-        ]));
+        let (pt, angle) = stop.sidewalk_pos.pt_and_angle(map);
+        let center = pt.project_away(
+            map.get_l(stop.sidewalk_pos.lane()).width / 2.0,
+            angle.rotate_degs(90.0),
+        );
 
-        let polygon = polyline.make_polygons(lane.width * 0.25);
-        let draw_default = prerender.upload(GeomBatch::from(vec![(cs.bus_stop, polygon.clone())]));
+        let mut icon = GeomBatch::new();
+        icon.add_svg(
+            prerender,
+            "../data/system/assets/meters/bus.svg",
+            center,
+            0.05,
+            // TODO Rotation seems broken
+            Angle::ZERO,
+            RewriteColor::NoOp,
+            true,
+        );
+        let mut batch = GeomBatch::new();
+        batch.push(
+            cs.bus_layer.alpha(0.8),
+            Circle::new(center, RADIUS).to_polygon(),
+        );
+        batch.add_centered(icon.autocrop(), center);
+        batch.push(
+            cs.stop_sign_pole,
+            Line::new(
+                center.project_away(RADIUS, Angle::new_degs(90.0)),
+                center.project_away(1.5 * RADIUS, Angle::new_degs(90.0)),
+            )
+            .make_polygons(Distance::meters(0.3)),
+        );
 
         DrawBusStop {
             id: stop.id,
-            polyline,
-            polygon,
-            zorder: map.get_parent(lane.id).zorder,
-            draw_default,
+            center,
+            zorder: map.get_parent(stop.sidewalk_pos.lane()).zorder,
+            draw_default: prerender.upload(batch),
         }
     }
 }
@@ -68,15 +68,12 @@ impl Renderable for DrawBusStop {
         g.redraw(&self.draw_default);
     }
 
-    fn get_outline(&self, map: &Map) -> Polygon {
-        let lane = map.get_l(self.id.sidewalk);
-        self.polyline
-            .to_thick_boundary(lane.width * 0.25, OUTLINE_THICKNESS / 2.0)
-            .unwrap_or_else(|| self.polygon.clone())
+    fn get_outline(&self, _: &Map) -> Polygon {
+        Circle::outline(self.center, RADIUS, OUTLINE_THICKNESS)
     }
 
     fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
-        self.polygon.contains_pt(pt)
+        Circle::new(self.center, RADIUS).contains_pt(pt)
     }
 
     fn get_zorder(&self) -> isize {

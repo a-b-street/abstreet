@@ -140,7 +140,7 @@ pub fn color_for_trip_phase(app: &App, tpt: TripPhaseType) -> Color {
         TripPhaseType::Walking => app.cs.unzoomed_pedestrian,
         TripPhaseType::Biking => app.cs.bike_lane,
         TripPhaseType::Parking => app.cs.parking_trip,
-        TripPhaseType::WaitingForBus(_, _) => app.cs.bus_stop,
+        TripPhaseType::WaitingForBus(_, _) => app.cs.bus_layer,
         TripPhaseType::RidingBus(_, _, _) => app.cs.bus_lane,
         TripPhaseType::Aborted | TripPhaseType::Finished => unreachable!(),
         TripPhaseType::DelayedStart => Color::YELLOW,
