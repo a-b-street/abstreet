@@ -1,6 +1,6 @@
 use crate::{DirectedRoadID, IntersectionID, LaneID, Map, TurnID};
 use abstutil::{retain_btreeset, MultiMap};
-use geom::{Distance, PolyLine, Pt2D};
+use geom::{Angle, Distance, PolyLine, Pt2D};
 use petgraph::graphmap::UnGraphMap;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -282,6 +282,10 @@ impl UberTurnGroup {
         let pl = map.right_shift(pl, (leftmost + rightmost) / 2.0).unwrap();
         // Flip direction, so we point away from the intersection
         (pl.reversed(), rightmost - leftmost)
+    }
+
+    pub fn angle(&self) -> Angle {
+        self.geom.first_pt().angle_to(self.geom.last_pt())
     }
 }
 

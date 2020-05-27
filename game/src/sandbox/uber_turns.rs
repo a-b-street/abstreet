@@ -39,8 +39,8 @@ impl UberTurnPicker {
                             .build_def(ctx, hotkey(Key::Escape))
                             .align_right(),
                     ]),
-                    Btn::text_fg("View uber-turns").build_def(ctx, None),
-                    Btn::text_fg("Edit").build_def(ctx, None),
+                    Btn::text_fg("View uber-turns").build_def(ctx, hotkey(Key::Enter)),
+                    Btn::text_fg("Edit").build_def(ctx, hotkey(Key::E)),
                 ])
                 .padding(10)
                 .bg(app.cs.panel_bg),
