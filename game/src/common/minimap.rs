@@ -146,7 +146,7 @@ impl Minimap {
         }
 
         if self.zoomed {
-            let inner_rect = self.composite.filler_rect("minimap");
+            let inner_rect = self.composite.rect_of("minimap");
 
             // TODO Not happy about reaching in like this. The minimap logic should be an ezgui
             // Widget eventually, a generalization of Canvas.
@@ -183,7 +183,7 @@ impl Minimap {
             return;
         }
 
-        let inner_rect = self.composite.filler_rect("minimap");
+        let inner_rect = self.composite.rect_of("minimap").clone();
 
         let mut map_bounds = app.primary.map.get_bounds().clone();
         // Adjust bounds to account for the current pan and zoom

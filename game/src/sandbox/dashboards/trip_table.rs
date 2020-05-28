@@ -457,7 +457,7 @@ pub fn make_table(
 }
 
 pub fn preview_trip(g: &mut GfxCtx, app: &App, composite: &Composite) {
-    let inner_rect = composite.filler_rect("preview");
+    let inner_rect = composite.rect_of("preview").clone();
     let map_bounds = app.primary.map.get_bounds().clone();
     let zoom = 0.15 * g.canvas.window_width / map_bounds.width().max(map_bounds.height());
     g.fork(

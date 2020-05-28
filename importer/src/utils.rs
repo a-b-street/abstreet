@@ -110,5 +110,16 @@ pub fn raw_to_map(name: &str, build_ch: bool, timer: &mut Timer) -> map_model::M
     map.save();
     timer.stop("save map");
     timer.stop(format!("Raw->Map for {}", name));
+
+    // TODO Just sticking this here for now
+    if map.get_name() == "huge_seattle" {
+        timer.start("generating city manifest");
+        abstutil::write_binary(
+            format!("../data/system/cities/{}.bin", map.get_city_name()),
+            &map_model::City::new(&map),
+        );
+        timer.stop("generating city manifest");
+    }
+
     map
 }

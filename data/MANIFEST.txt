@@ -184,6 +184,7 @@ data/input/seattle/popdat.bin,b1af9c0a3b0d6b6df36972bc2fd64fae,https://www.dropb
 data/input/seattle/sidewalks.bin,034dd47ab77902dbc81c0107f13d8965,https://www.dropbox.com/s/ma9bmisijc7v7xa/sidewalks.bin.zip?dl=0
 data/input/seattle/sidewalks.kml,94d385ba03ef1b57a5ba10965913ec6c,https://www.dropbox.com/s/vn8amar9xi6vbvh/sidewalks.kml.zip?dl=0
 data/input/seattle/trips_2014.csv,d4a8e733045b28c0385fb81359d6df03,https://www.dropbox.com/s/5ppravwmk6bf20d/trips_2014.csv.zip?dl=0
+data/system/cities/seattle.bin,405ff551719b359eb5a1e5cf2f0951a0,https://www.dropbox.com/s/eupzog6iw7wtaas/seattle.bin.zip?dl=0
 data/system/maps/23rd.bin,0e05d1935223cbe87a16055d9d6c62c7,https://www.dropbox.com/s/wjl45codk6rqfg4/23rd.bin.zip?dl=0
 data/system/maps/ballard.bin,587efc544f2358077794fc5f59cdf38a,https://www.dropbox.com/s/u4rvz50she3yrk0/ballard.bin.zip?dl=0
 data/system/maps/caphill.bin,e8525ef09fc0ae7185991015ce7ec513,https://www.dropbox.com/s/bh20pn3wxygetw8/caphill.bin.zip?dl=0

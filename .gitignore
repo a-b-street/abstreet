@@ -27,6 +27,7 @@ data/input/screenshots/*/combine.sh
 
 data/player
 
+data/system/cities
 data/system/maps
 data/system/prebaked_results
 data/system/scenarios

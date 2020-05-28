@@ -1,8 +1,8 @@
 use crate::widgets::containers::{Container, Nothing};
 use crate::{
-    Autocomplete, Button, Checkbox, Choice, Color, Drawable, Dropdown, EventCtx, Filler, GeomBatch,
-    GfxCtx, HorizontalAlignment, JustDraw, Menu, Outcome, PersistentSplit, RewriteColor,
-    ScreenDims, ScreenPt, ScreenRectangle, Slider, Spinner, TextBox, VerticalAlignment, WidgetImpl,
+    Autocomplete, Button, Checkbox, Choice, Color, Drawable, Dropdown, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, JustDraw, Menu, Outcome, PersistentSplit, RewriteColor, ScreenDims,
+    ScreenPt, ScreenRectangle, Slider, Spinner, TextBox, VerticalAlignment, WidgetImpl,
     WidgetOutput,
 };
 use geom::{Distance, Polygon};
@@ -793,15 +793,6 @@ impl Composite {
 
     pub fn autocomplete_done<T: 'static + Clone>(&self, name: &str) -> Option<Vec<T>> {
         self.find::<Autocomplete<T>>(name).final_value()
-    }
-
-    pub fn filler_rect(&self, name: &str) -> ScreenRectangle {
-        if let Some(w) = self.top_level.find(name) {
-            if w.widget.is::<Filler>() {
-                return w.rect.clone();
-            }
-        }
-        panic!("{} isn't a filler", name);
     }
 
     pub fn find<T: WidgetImpl>(&self, name: &str) -> &T {

@@ -1,3 +1,4 @@
+mod city_picker;
 mod colors;
 mod heatmap;
 mod minimap;
@@ -5,6 +6,7 @@ mod navigate;
 mod panels;
 mod warp;
 
+pub use self::city_picker::CityPicker;
 pub use self::colors::{ColorLegend, Colorer};
 pub use self::heatmap::{make_heatmap, HeatmapOptions};
 pub use self::minimap::Minimap;
