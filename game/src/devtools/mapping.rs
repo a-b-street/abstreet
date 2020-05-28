@@ -8,7 +8,7 @@ use ezgui::{
     HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget, Wizard,
 };
 use geom::{Distance, FindClosest, PolyLine};
-use map_model::{osm, RoadID};
+use map_model::{osm, BuildingID, RoadID};
 use sim::DontDrawAgents;
 use std::collections::{BTreeMap, HashSet};
 use std::error::Error;
@@ -30,6 +30,7 @@ enum Show {
     TODO,
     Done,
     DividedHighways,
+    OverlappingBuildings,
 }
 
 #[derive(PartialEq, Clone)]
@@ -61,6 +62,7 @@ impl ParkingMapper {
             Show::TODO => Color::RED,
             Show::Done => Color::BLUE,
             Show::DividedHighways => Color::RED,
+            Show::OverlappingBuildings => Color::RED,
         }
         .alpha(0.5);
         let mut batch = GeomBatch::new();
@@ -85,6 +87,13 @@ impl ParkingMapper {
             for r in find_divided_highways(app) {
                 batch.push(color, map.get_r(r).get_thick_polygon(map).unwrap());
             }
+        }
+        if show == Show::OverlappingBuildings {
+            ctx.loading_screen("find buildings overlapping roads", |_, mut timer| {
+                for b in find_overlapping_buildings(app, &mut timer) {
+                    batch.push(color, map.get_b(b).polygon.clone());
+                }
+            });
         }
 
         // Nicer display
@@ -143,6 +152,11 @@ impl ParkingMapper {
                                     "Roads divided in OSM often have the wrong number of lanes \
                                      tagged",
                                 ),
+                                Choice::new(
+                                    "buildings overlapping roads",
+                                    Show::OverlappingBuildings,
+                                )
+                                .tooltip("Roads often have the wrong number of lanes tagged"),
                             ],
                         )
                         .margin_right(15),
@@ -153,6 +167,7 @@ impl ParkingMapper {
                                 Show::TODO => "TODO",
                                 Show::Done => "done",
                                 Show::DividedHighways => "divided highways",
+                                Show::OverlappingBuildings => "buildings overlapping roads",
                             },
                         ),
                     ])
@@ -292,6 +307,11 @@ impl State for ParkingMapper {
                         Line(Key::S.describe()).fg(ctx.style().hotkey_color),
                         Line(" to open Bing StreetSide here"),
                     ]);
+                    txt.add_appended(vec![
+                        Line("Press "),
+                        Line(Key::O.describe()).fg(ctx.style().hotkey_color),
+                        Line(" to open OpenStreetMap for this way"),
+                    ]);
                     for (k, v) in &road.osm_tags {
                         if k.starts_with("abst:") {
                             continue;
@@ -341,6 +361,18 @@ impl State for ParkingMapper {
                         gps.x()
                     ));
                 }
+            }
+        }
+        if let Some((ref roads, _)) = self.selected {
+            if ctx.input.new_was_pressed(&hotkey(Key::O).unwrap()) {
+                let _ = webbrowser::open(&format!(
+                    "https://www.openstreetmap.org/way/{}",
+                    app.primary
+                        .map
+                        .get_r(*roads.iter().next().unwrap())
+                        .orig_id
+                        .osm_way_id
+                ));
             }
         }
 
@@ -556,6 +588,34 @@ fn find_divided_highways(app: &App) -> HashSet<RoadID> {
             {
                 found.insert(r1.id);
                 found.insert(r2);
+            }
+        }
+    }
+    found
+}
+
+// TODO Lots of false positives here... why?
+fn find_overlapping_buildings(app: &App, timer: &mut Timer) -> Vec<BuildingID> {
+    let map = &app.primary.map;
+    let mut closest: FindClosest<RoadID> = FindClosest::new(map.get_bounds());
+    for r in map.all_roads() {
+        if r.osm_tags.contains_key("tunnel") {
+            continue;
+        }
+        closest.add(r.id, r.center_pts.points());
+    }
+
+    let mut found = Vec::new();
+    timer.start_iter("check buildings", map.all_buildings().len());
+    for b in map.all_buildings() {
+        timer.next();
+        for (r, _, _) in closest.all_close_pts(b.label_center, Distance::meters(500.0)) {
+            if !b
+                .polygon
+                .intersection(&map.get_r(r).get_thick_polygon(map).unwrap())
+                .is_empty()
+            {
+                found.push(b.id);
             }
         }
     }
