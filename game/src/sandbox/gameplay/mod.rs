@@ -13,7 +13,7 @@ use crate::common::ContextualActions;
 use crate::edit::{apply_map_edits, save_edits_as};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
-use crate::pregame::main_menu;
+use crate::pregame::MainMenu;
 use crate::sandbox::{SandboxControls, SandboxMode};
 use abstutil::Timer;
 use ezgui::{
@@ -347,7 +347,7 @@ impl State for FinalScore {
                         Transition::Push(WizardState::new(Box::new(maybe_save_first)))
                     } else {
                         Transition::Clear(vec![
-                            main_menu(ctx, app),
+                            MainMenu::new(ctx, app),
                             Box::new(SandboxMode::new(ctx, app, self.next_mode.clone().unwrap())),
                             (Challenge::find(self.next_mode.as_ref().unwrap())
                                 .0
@@ -362,7 +362,10 @@ impl State for FinalScore {
                     if app.primary.map.unsaved_edits() {
                         Transition::Push(WizardState::new(Box::new(maybe_save_first)))
                     } else {
-                        Transition::Clear(vec![main_menu(ctx, app), challenges_picker(ctx, app)])
+                        Transition::Clear(vec![
+                            MainMenu::new(ctx, app),
+                            challenges_picker(ctx, app),
+                        ])
                     }
                 }
                 _ => unreachable!(),

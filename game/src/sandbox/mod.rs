@@ -16,7 +16,7 @@ use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::layer::PickLayer;
 use crate::managed::{WrappedComposite, WrappedOutcome};
-use crate::pregame::main_menu;
+use crate::pregame::MainMenu;
 use crate::render::AgentColorScheme;
 pub use crate::sandbox::gameplay::{TutorialPointer, TutorialState};
 use ezgui::{
@@ -269,7 +269,7 @@ fn exit_sandbox(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<T
         app.set_prebaked(None);
     });
     ctx.canvas.save_camera_state(app.primary.map.get_name());
-    Some(Transition::Clear(vec![main_menu(ctx, app)]))
+    Some(Transition::Clear(vec![MainMenu::new(ctx, app)]))
 }
 
 pub struct AgentMeter {
