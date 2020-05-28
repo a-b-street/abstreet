@@ -1,11 +1,11 @@
 use crate::app::{App, ShowEverything};
-use crate::common::ColorLegend;
+use crate::common::{CityPicker, ColorLegend};
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::{nice_map_name, ID};
 use abstutil::{prettyprint_usize, Timer};
 use ezgui::{
     hotkey, Btn, Checkbox, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget, Wizard,
+    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Distance, FindClosest, PolyLine};
 use map_model::{osm, BuildingID, RoadID};
@@ -406,7 +406,18 @@ impl State for ParkingMapper {
                     };
                 }
                 "change map" => {
-                    return Transition::Push(WizardState::new(Box::new(load_map)));
+                    return Transition::Push(CityPicker::new(
+                        ctx,
+                        app,
+                        Box::new(|ctx, app| {
+                            Transition::PopThenReplace(ParkingMapper::make(
+                                ctx,
+                                app,
+                                Show::TODO,
+                                BTreeMap::new(),
+                            ))
+                        }),
+                    ));
                 }
                 _ => unreachable!(),
             },
@@ -538,24 +549,6 @@ fn generate_osmc(
     writeln!(f, "</modify></osmChange>")?;
     timer.note(format!("Wrote {}", path));
     Ok(())
-}
-
-fn load_map(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
-    let (_, name) = wiz.wrap(ctx).choose("Load map", || {
-        let current_map = app.primary.map.get_name();
-        abstutil::list_all_objects(abstutil::path_all_maps())
-            .into_iter()
-            .filter(|n| n != current_map)
-            .map(|n| Choice::new(nice_map_name(&n), n.clone()))
-            .collect()
-    })?;
-    app.switch_map(ctx, abstutil::path_map(&name));
-    Some(Transition::PopThenReplace(ParkingMapper::make(
-        ctx,
-        app,
-        Show::TODO,
-        BTreeMap::new(),
-    )))
 }
 
 fn find_divided_highways(app: &App) -> HashSet<RoadID> {

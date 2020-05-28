@@ -6,12 +6,13 @@ mod polygon;
 mod scenario;
 
 use crate::app::App;
+use crate::common::CityPicker;
 use crate::game::{DrawBaselayer, State, Transition, WizardState};
 use crate::helpers::nice_map_name;
 use abstutil::Timer;
 use ezgui::{
-    hotkey, Btn, Choice, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    TextExt, VerticalAlignment, Widget, Wizard,
+    hotkey, Btn, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, TextExt,
+    VerticalAlignment, Widget, Wizard,
 };
 use geom::LonLat;
 
@@ -81,7 +82,13 @@ impl State for DevToolsMode {
                     return Transition::Push(WizardState::new(Box::new(choose_kml)));
                 }
                 "change map" => {
-                    return Transition::Push(WizardState::new(Box::new(load_map)));
+                    return Transition::Push(CityPicker::new(
+                        ctx,
+                        app,
+                        Box::new(|ctx, app| {
+                            Transition::PopThenReplace(DevToolsMode::new(ctx, app))
+                        }),
+                    ));
                 }
                 _ => unreachable!(),
             },
@@ -140,17 +147,4 @@ fn choose_kml(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Tra
             .collect()
     })?;
     Some(Transition::Replace(kml::ViewKML::new(ctx, app, path)))
-}
-
-fn load_map(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
-    let (_, name) = wiz.wrap(ctx).choose("Load map", || {
-        let current_map = app.primary.map.get_name();
-        abstutil::list_all_objects(abstutil::path_all_maps())
-            .into_iter()
-            .filter(|n| n != current_map)
-            .map(|n| Choice::new(nice_map_name(&n), n.clone()))
-            .collect()
-    })?;
-    app.switch_map(ctx, abstutil::path_map(&name));
-    Some(Transition::PopThenReplace(DevToolsMode::new(ctx, app)))
 }

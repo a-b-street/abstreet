@@ -1,4 +1,5 @@
 use crate::app::App;
+use crate::common::CityPicker;
 use crate::edit::EditMode;
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::nice_map_name;
@@ -86,16 +87,39 @@ pub fn freeform_controller(
     )
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx);
-    let map_picker = c.rect_of("change map").clone();
     let traffic_picker = c.rect_of("change traffic").clone();
 
     WrappedComposite::new(c)
         .cb("change map", {
             let gameplay = gameplay.clone();
-            Box::new(move |_, _| {
-                Some(Transition::Push(make_load_map(
-                    map_picker.clone(),
-                    gameplay.clone(),
+            Box::new(move |ctx, app| {
+                let gameplay = gameplay.clone();
+                Some(Transition::Push(CityPicker::new(
+                    ctx,
+                    app,
+                    Box::new(move |ctx, app| {
+                        // The map will be switched before this callback happens.
+                        let path = abstutil::path_map(app.primary.map.get_name());
+                        Transition::PopThenReplace(Box::new(SandboxMode::new(
+                            ctx,
+                            app,
+                            match gameplay {
+                                GameplayMode::Freeform(_) => GameplayMode::Freeform(path),
+                                // Try to load a scenario with the same name exists
+                                GameplayMode::PlayScenario(_, ref scenario) => {
+                                    if abstutil::file_exists(abstutil::path_scenario(
+                                        app.primary.map.get_name(),
+                                        scenario,
+                                    )) {
+                                        GameplayMode::PlayScenario(path, scenario.clone())
+                                    } else {
+                                        GameplayMode::Freeform(path)
+                                    }
+                                }
+                                _ => unreachable!(),
+                            },
+                        )))
+                    }),
                 )))
             })
         })
@@ -117,57 +141,6 @@ pub fn freeform_controller(
                 ))))
             }),
         )
-}
-
-fn make_load_map(btn: ScreenRectangle, gameplay: GameplayMode) -> Box<dyn State> {
-    WizardState::new(Box::new(move |wiz, ctx, app| {
-        if let Some((_, name)) = wiz.wrap(ctx).choose_exact(
-            (
-                HorizontalAlignment::Centered(btn.center().x),
-                VerticalAlignment::Below(btn.y2 + 15.0),
-            ),
-            None,
-            || {
-                let current_map = app.primary.map.get_name();
-                abstutil::list_all_objects(abstutil::path_all_maps())
-                    .into_iter()
-                    .filter(|n| n != current_map)
-                    .map(|n| {
-                        let c = Choice::new(nice_map_name(&n), n.clone());
-                        // Hardcoded list for now.
-                        if n == "montlake" || n == "23rd" || n == "lakeslice" {
-                            c
-                        } else {
-                            c.tooltip(
-                                "This map currently has bugs causing unrealistic traffic jams.",
-                            )
-                        }
-                    })
-                    .collect()
-            },
-        ) {
-            Some(Transition::PopThenReplace(Box::new(SandboxMode::new(
-                ctx,
-                app,
-                match gameplay {
-                    GameplayMode::Freeform(_) => GameplayMode::Freeform(abstutil::path_map(&name)),
-                    // Try to load a scenario with the same name exists
-                    GameplayMode::PlayScenario(_, ref scenario) => {
-                        if abstutil::file_exists(abstutil::path_scenario(&name, scenario)) {
-                            GameplayMode::PlayScenario(abstutil::path_map(&name), scenario.clone())
-                        } else {
-                            GameplayMode::Freeform(abstutil::path_map(&name))
-                        }
-                    }
-                    _ => unreachable!(),
-                },
-            ))))
-        } else if wiz.aborted() {
-            Some(Transition::Pop)
-        } else {
-            None
-        }
-    }))
 }
 
 fn make_change_traffic(btn: ScreenRectangle) -> Box<dyn State> {

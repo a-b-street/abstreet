@@ -15,10 +15,15 @@ pub struct CityPicker {
     // In untranslated screen-space
     regions: Vec<(String, Color, Polygon)>,
     selected: Option<usize>,
+    on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
 }
 
 impl CityPicker {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
+    ) -> Box<dyn State> {
         // TODO Handle if the city doesn't exist
         let city: City = abstutil::read_binary(
             format!(
@@ -55,6 +60,7 @@ impl CityPicker {
         Box::new(CityPicker {
             regions,
             selected: None,
+            on_load,
             composite: Composite::new(
                 Widget::col(vec![
                     Widget::row(vec![
@@ -75,7 +81,7 @@ impl CityPicker {
 }
 
 impl State for CityPicker {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "close" => {
@@ -99,6 +105,18 @@ impl State for CityPicker {
                         }
                     }
                 }
+            }
+        }
+        if let Some(idx) = self.selected {
+            let name = &self.regions[idx].0;
+            if app
+                .per_obj
+                .left_click(ctx, format!("switch to {}", nice_map_name(name)))
+            {
+                return ctx.loading_screen("switch map", |ctx, _| {
+                    app.switch_map(ctx, abstutil::path_map(name));
+                    (self.on_load)(ctx, app)
+                });
             }
         }
 
