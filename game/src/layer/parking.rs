@@ -99,7 +99,11 @@ impl Occupancy {
                 Text::from_multiline(vec![
                     Line(format!(
                         "{:.0}% of the population owns a car",
-                        100.0 * (has_car as f64) / (total_ppl as f64)
+                        if total_ppl == 0 {
+                            0.0
+                        } else {
+                            100.0 * (has_car as f64) / (total_ppl as f64)
+                        }
                     )),
                     Line(format!(
                         "{} spots filled",
@@ -110,12 +114,14 @@ impl Occupancy {
                         prettyprint_usize(avail_spots.len())
                     )),
                 ])
-                .draw(ctx),
+                .draw(ctx)
+                .margin_below(10),
                 Widget::row(vec![
                     Checkbox::text(ctx, "On-street spots", None, onstreet),
                     Checkbox::text(ctx, "Off-street spots", None, offstreet),
                 ])
-                .evenly_spaced(),
+                .evenly_spaced()
+                .margin_below(10),
                 ColorLegend::scale(
                     ctx,
                     app.cs.good_to_bad.to_vec(),
@@ -180,6 +186,8 @@ impl Occupancy {
             };
             colorer.add_l(l, color, &app.primary.map);
         }
+
+        colorer.intersections_from_roads(&app.primary.map);
 
         Occupancy {
             time: app.primary.sim.time(),

@@ -133,8 +133,21 @@ impl ColorerBuilder {
         self.bus_stops.insert(bs, color);
     }
 
-    pub fn set_extra_info(&mut self, extra_info: Vec<String>) {
-        self.extra_info = extra_info;
+    pub fn intersections_from_roads(&mut self, map: &Map) {
+        for i in map.all_intersections() {
+            if let Some(idx) = i
+                .roads
+                .iter()
+                .filter_map(|r| {
+                    self.roads
+                        .get(r)
+                        .and_then(|color| self.prioritized_colors.iter().position(|c| c == color))
+                })
+                .min()
+            {
+                self.add_i(i.id, self.prioritized_colors[idx]);
+            }
+        }
     }
 
     pub fn build_both(self, ctx: &mut EventCtx, app: &App) -> Colorer {

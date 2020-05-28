@@ -1,17 +1,20 @@
 use crate::app::App;
-use crate::common::Colorer;
+use crate::common::{ColorLegend, Colorer};
 use crate::helpers::amenity_type;
 use crate::layer::{Layer, LayerOutcome};
 use abstutil::Counter;
-use ezgui::{Color, Composite, EventCtx, GfxCtx};
+use ezgui::{
+    hotkey, Btn, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Text, TextExt, VerticalAlignment, Widget,
+};
 use geom::{Distance, Time};
 use map_model::LaneType;
 use sim::TripMode;
 
 pub struct BikeNetwork {
+    composite: Composite,
     time: Time,
-    on_colorer: Colorer,
-    off_colorer: Colorer,
+    unzoomed: Drawable,
 }
 
 impl Layer for BikeNetwork {
@@ -28,22 +31,26 @@ impl Layer for BikeNetwork {
             *self = BikeNetwork::new(ctx, app);
         }
 
-        self.off_colorer.legend.align_above(ctx, minimap);
-        self.on_colorer
-            .legend
-            .align_above(ctx, &self.off_colorer.legend);
-        if self.on_colorer.event(ctx) || self.off_colorer.event(ctx) {
-            return Some(LayerOutcome::Close);
+        self.composite.align_above(ctx, minimap);
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "close" => {
+                    return Some(LayerOutcome::Close);
+                }
+                _ => unreachable!(),
+            },
+            None => {}
         }
         None
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.on_colorer.draw(g, app);
-        self.off_colorer.draw(g, app);
+        self.composite.draw(g);
+        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+            g.redraw(&self.unzoomed);
+        }
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
-        g.redraw(&self.on_colorer.unzoomed);
-        g.redraw(&self.off_colorer.unzoomed);
+        g.redraw(&self.unzoomed);
     }
 }
 
@@ -63,33 +70,21 @@ impl BikeNetwork {
             }
         }
 
-        let mut on_colorer = Colorer::scaled(
+        // TODO Weird combo colorer with two scales?!
+        let mut colors = app.cs.good_to_bad_monochrome_green.to_vec();
+        colors.extend(app.cs.good_to_bad_monochrome_red.to_vec());
+        let mut colorer = Colorer::scaled(
             ctx,
-            "Bike throughput on bike lanes",
+            "Bike throughput",
             Vec::new(),
-            app.cs.good_to_bad_monochrome_green.to_vec(),
-            vec!["0", "50", "90", "99", "100"],
-        );
-        let mut off_colorer = Colorer::scaled(
-            ctx,
-            "Unprotected road",
-            Vec::new(),
-            app.cs.good_to_bad_monochrome_red.to_vec(),
-            vec!["0", "50", "90", "99", "100"],
+            colors,
+            // Dummy
+            vec!["0", "50", "90", "99", "100", "50", "90", "99", "100"],
         );
 
-        // TODO Dedupe!
-        for (counter, colorer, scale) in vec![
-            (
-                on_bike_lanes,
-                &mut on_colorer,
-                &app.cs.good_to_bad_monochrome_green,
-            ),
-            (
-                off_bike_lanes,
-                &mut off_colorer,
-                &app.cs.good_to_bad_monochrome_red,
-            ),
+        for (counter, scale) in vec![
+            (on_bike_lanes, &app.cs.good_to_bad_monochrome_green),
+            (off_bike_lanes, &app.cs.good_to_bad_monochrome_red),
         ] {
             let roads = counter.sorted_asc();
             let p50_idx = ((roads.len() as f64) * 0.5) as usize;
@@ -108,6 +103,7 @@ impl BikeNetwork {
                 colorer.add_r(*r, color, &app.primary.map);
             }
         }
+        colorer.intersections_from_roads(&app.primary.map);
 
         let mut num_lanes = 0;
         let mut total_dist = Distance::ZERO;
@@ -117,16 +113,47 @@ impl BikeNetwork {
                 total_dist += l.length();
             }
         }
-        on_colorer.set_extra_info(vec![
-            "percentiles, before changes".to_string(),
-            format!("{} lanes", num_lanes),
-            format!("total distance of {}", total_dist),
-        ]);
+
+        let composite = Composite::new(
+            Widget::col(vec![
+                Widget::row(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg")
+                        .margin_right(10),
+                    "Bike network".draw_text(ctx),
+                    Btn::plaintext("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                Text::from_multiline(vec![
+                    Line(format!("{} lanes", num_lanes)),
+                    Line(format!("total distance of {}", total_dist)),
+                ])
+                .draw(ctx)
+                .margin_below(10),
+                Line("Throughput on bike lanes (percentiles)").draw(ctx),
+                ColorLegend::scale(
+                    ctx,
+                    app.cs.good_to_bad_monochrome_green.to_vec(),
+                    vec!["0%", "40%", "70%", "90%", "100%"],
+                )
+                .margin_below(10),
+                Line("Throughput on unprotected roads (percentiles)").draw(ctx),
+                ColorLegend::scale(
+                    ctx,
+                    app.cs.good_to_bad_monochrome_red.to_vec(),
+                    vec!["0%", "40%", "70%", "90%", "100%"],
+                ),
+            ])
+            .padding(5)
+            .bg(app.cs.panel_bg),
+        )
+        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+        .build(ctx);
 
         BikeNetwork {
+            composite,
             time: app.primary.sim.time(),
-            on_colorer: on_colorer.build_unzoomed(ctx, app),
-            off_colorer: off_colorer.build_unzoomed(ctx, app),
+            unzoomed: colorer.build_both(ctx, app).unzoomed,
         }
     }
 }
@@ -177,6 +204,7 @@ impl Static {
                 colorer.add_l(l.id, app.cs.bus_layer, &app.primary.map);
             }
         }
+        colorer.intersections_from_roads(&app.primary.map);
         for bs in app.primary.map.all_bus_stops().keys() {
             colorer.add_bs(*bs, app.cs.bus_layer);
         }
