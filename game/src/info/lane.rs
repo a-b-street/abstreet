@@ -182,16 +182,14 @@ fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID, tab: Tab
     ]));
     rows.push(format!("@ {}", r.get_name()).draw_text(ctx));
 
-    rows.push(make_tabs(
-        ctx,
-        &mut details.hyperlinks,
-        tab,
-        vec![
-            ("Info", Tab::LaneInfo(id)),
-            ("Traffic", Tab::LaneTraffic(id, DataOptions::new(app))),
-            ("Debug", Tab::LaneDebug(id)),
-        ],
-    ));
+    let mut tabs = vec![
+        ("Info", Tab::LaneInfo(id)),
+        ("Traffic", Tab::LaneTraffic(id, DataOptions::new(app))),
+    ];
+    if app.opts.dev {
+        tabs.push(("Debug", Tab::LaneDebug(id)));
+    }
+    rows.push(make_tabs(ctx, &mut details.hyperlinks, tab, tabs));
 
     rows
 }

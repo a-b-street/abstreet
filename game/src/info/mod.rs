@@ -50,6 +50,7 @@ pub enum Tab {
     // true, prebaked if false.
     PersonTrips(PersonID, BTreeMap<TripID, OpenTrip>),
     PersonBio(PersonID),
+    PersonSchedule(PersonID),
 
     BusStatus(CarID),
     BusDelays(CarID),
@@ -115,7 +116,7 @@ impl Tab {
     // TODO Temporary hack until object actions go away.
     fn to_id(&self, app: &App) -> Option<ID> {
         match self {
-            Tab::PersonTrips(p, _) | Tab::PersonBio(p) => {
+            Tab::PersonTrips(p, _) | Tab::PersonBio(p) | Tab::PersonSchedule(p) => {
                 match app.primary.sim.get_person(*p).state {
                     PersonState::Inside(b) => Some(ID::Building(b)),
                     PersonState::Trip(t) => app
@@ -205,6 +206,10 @@ impl InfoPanel {
             ),
             Tab::PersonBio(p) => (
                 person::bio(ctx, app, &mut details, p, ctx_actions.is_paused()),
+                false,
+            ),
+            Tab::PersonSchedule(p) => (
+                person::schedule(ctx, app, &mut details, p, ctx_actions.is_paused()),
                 false,
             ),
             Tab::BusStatus(c) => (bus::bus_status(ctx, app, &mut details, c), true),

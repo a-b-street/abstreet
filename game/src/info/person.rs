@@ -4,13 +4,14 @@ use ezgui::{
     hotkey, Btn, Color, EventCtx, GeomBatch, Key, Line, RewriteColor, Text, TextExt, TextSpan,
     Widget,
 };
-use geom::Duration;
+use geom::{Duration, Time};
 use map_model::Map;
+use rand::seq::SliceRandom;
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 use sim::{
-    AgentID, CarID, ParkingSpot, PedestrianID, Person, PersonID, PersonState, TripID, TripMode,
-    TripResult, VehicleType,
+    AgentID, CarID, ParkingSpot, PedestrianID, Person, PersonID, PersonState, TripEndpoint, TripID,
+    TripMode, TripResult, VehicleType,
 };
 use std::collections::BTreeMap;
 
@@ -306,6 +307,65 @@ pub fn bio(
     rows
 }
 
+pub fn schedule(
+    ctx: &mut EventCtx,
+    app: &App,
+    details: &mut Details,
+    id: PersonID,
+    is_paused: bool,
+) -> Vec<Widget> {
+    let mut rows = header(ctx, app, details, id, Tab::PersonSchedule(id), is_paused);
+    let person = app.primary.sim.get_person(id);
+    let mut rng = XorShiftRng::seed_from_u64(id.0 as u64);
+
+    // TODO Proportional 24-hour timeline would be easier to understand
+    let mut last_t = Time::START_OF_DAY;
+    for t in &person.trips {
+        let (start_time, from, _, _) = app.primary.sim.trip_info(*t);
+        let at = match from {
+            TripEndpoint::Bldg(b) => {
+                let b = app.primary.map.get_b(b);
+                if b.amenities.is_empty() {
+                    b.address.clone()
+                } else {
+                    let list = b.amenities.iter().map(|(n, _)| n).collect::<Vec<_>>();
+                    format!("{} (at {})", list.choose(&mut rng).unwrap(), b.address)
+                }
+            }
+            TripEndpoint::Border(_, _) => "off-map".to_string(),
+        };
+        rows.push(
+            Text::from(Line(format!("- Spends {} at {}", start_time - last_t, at))).draw(ctx),
+        );
+        // TODO Ideally end time if we know
+        last_t = start_time;
+    }
+    // Where do they spend the night?
+    let (start_time, _, to, _) = app.primary.sim.trip_info(*person.trips.last().unwrap());
+    let at = match to {
+        TripEndpoint::Bldg(b) => {
+            let b = app.primary.map.get_b(b);
+            if b.amenities.is_empty() {
+                b.address.clone()
+            } else {
+                let list = b.amenities.iter().map(|(n, _)| n).collect::<Vec<_>>();
+                format!("{} (at {})", list.choose(&mut rng).unwrap(), b.address)
+            }
+        }
+        TripEndpoint::Border(_, _) => "off-map".to_string(),
+    };
+    rows.push(
+        Text::from(Line(format!(
+            "- Spends {} at {}",
+            app.primary.sim.get_end_of_day() - start_time,
+            at
+        )))
+        .draw(ctx),
+    );
+
+    rows
+}
+
 pub fn crowd(
     ctx: &EventCtx,
     app: &App,
@@ -499,15 +559,14 @@ fn header(
     } else {
         BTreeMap::new()
     };
-    rows.push(make_tabs(
-        ctx,
-        &mut details.hyperlinks,
-        tab,
-        vec![
-            ("Trips", Tab::PersonTrips(id, open_trips)),
-            ("Bio", Tab::PersonBio(id)),
-        ],
-    ));
+    let mut tabs = vec![
+        ("Trips", Tab::PersonTrips(id, open_trips)),
+        ("Bio", Tab::PersonBio(id)),
+    ];
+    if app.opts.dev {
+        tabs.push(("Schedule", Tab::PersonSchedule(id)));
+    }
+    rows.push(make_tabs(ctx, &mut details.hyperlinks, tab, tabs));
 
     rows
 }

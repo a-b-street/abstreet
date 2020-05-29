@@ -212,7 +212,7 @@ impl ScatterPlotV2 {
 
         // TODO Tuned to fit the info panel. Instead these should somehow stretch to fill their
         // container.
-        let width = 0.23 * ctx.canvas.window_width;
+        let width = 0.22 * ctx.canvas.window_width;
         let height = 0.2 * ctx.canvas.window_height;
 
         let mut grid_batch = GeomBatch::new();
