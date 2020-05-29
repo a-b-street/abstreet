@@ -6,7 +6,7 @@ use ezgui::{
 };
 use geom::Duration;
 use map_model::Map;
-use rand::SeedableRng;
+use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 use sim::{
     AgentID, CarID, ParkingSpot, PedestrianID, Person, PersonID, PersonState, TripID, TripMode,
@@ -216,9 +216,10 @@ pub fn bio(
 ) -> Vec<Widget> {
     let mut rows = header(ctx, app, details, id, Tab::PersonBio(id), is_paused);
     let person = app.primary.sim.get_person(id);
+    let mut rng = XorShiftRng::seed_from_u64(id.0 as u64);
 
     let mut svg_data = Vec::new();
-    svg_face::generate_face(&mut svg_data, &mut XorShiftRng::seed_from_u64(id.0 as u64)).unwrap();
+    svg_face::generate_face(&mut svg_data, &mut rng).unwrap();
     let mut batch = GeomBatch::new();
     batch.add_svg_contents(svg_data);
     batch = batch.autocrop();
@@ -227,16 +228,17 @@ pub fn bio(
     rows.push(
         Widget::draw_batch(ctx, batch)
             .centered_horiz()
-            .padding(10)
-            .outline(5.0, Color::WHITE),
+            .margin_below(10),
     );
+
+    let nickname = petname::Petnames::default().generate(&mut rng, 2, " ");
+    let age = rng.gen_range(5, 100);
 
     rows.extend(make_table(
         ctx,
         vec![
-            ("Name", "Somebody".to_string()),
-            ("Age", "42".to_string()),
-            ("Occupation", "classified".to_string()),
+            ("Nickname", nickname),
+            ("Age", age.to_string()),
             ("Debug ID", format!("{:?}", person.orig_id)),
         ],
     ));
