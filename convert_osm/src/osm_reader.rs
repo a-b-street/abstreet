@@ -375,6 +375,11 @@ pub fn extract_osm(
         );
     }
 
+    // Hack to fix z-ordering for Green Lake (and probably other places). Put water last. I think
+    // the more proper fix is interpreting "inner" roles in relations.
+    map.areas
+        .sort_by_key(|a| if a.area_type == AreaType::Water { 1 } else { 0 });
+
     (
         map,
         roads,
