@@ -163,11 +163,12 @@ impl App {
             if layers.show_areas {
                 g.redraw(&self.primary.draw_map.draw_all_areas);
             }
-            if layers.show_lanes {
-                g.redraw(&self.primary.draw_map.draw_all_thick_roads);
-            }
+            // Render bridges over intersections in the correct order
             if layers.show_intersections {
                 g.redraw(&self.primary.draw_map.draw_all_unzoomed_intersections);
+            }
+            if layers.show_lanes {
+                g.redraw(&self.primary.draw_map.draw_all_thick_roads);
             }
             if layers.show_buildings {
                 g.redraw(&self.primary.draw_map.draw_all_buildings);
