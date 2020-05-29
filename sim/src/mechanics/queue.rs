@@ -124,7 +124,8 @@ impl Queue {
                 dump_cars(&result, cars, self.id, now);
                 panic!(
                     "Queue has spillover on {} at {} -- can't draw {}, bound is {}. Laggy head is \
-                     {:?}",
+                     {:?}. This is usually a geometry bug; check for duplicate roads going \
+                     between the same intersections.",
                     self.id, now, id, bound, self.laggy_head
                 );
             }

@@ -102,6 +102,8 @@ fn upload() {
         // The sharelink shouldn't change
         entry.dropbox_url = remote.0.get(path).map(|x| x.dropbox_url.clone().unwrap());
         if entry.dropbox_url.is_none() {
+            // Dropbox crashes when trying to upload lots of tiny screenshots. :D
+            std::thread::sleep(std::time::Duration::from_millis(1000));
             let url = run(Command::new("dropbox").arg("sharelink").arg(remote_path))
                 .trim()
                 .to_string();
