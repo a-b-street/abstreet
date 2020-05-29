@@ -290,7 +290,7 @@ pub fn prebake_all() {
         }
     }
 
-    for name in vec!["23rd", "lakeslice"] {
+    for name in vec!["lakeslice"] {
         let map = map_model::Map::new(abstutil::path_map(name), &mut timer);
         let scenario: Scenario =
             abstutil::read_binary(abstutil::path_scenario(name, "weekday"), &mut timer);

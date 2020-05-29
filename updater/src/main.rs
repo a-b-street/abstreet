@@ -201,8 +201,7 @@ impl Manifest {
         fn map_belongs_to_city(map: &str, city: &str) -> bool {
             match city {
                 "seattle" => {
-                    map == "23rd"
-                        || map == "ballard"
+                    map == "ballard"
                         || map == "caphill"
                         || map == "downtown"
                         || map == "intl_district"

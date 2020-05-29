@@ -23,7 +23,13 @@ pub struct PolygonEditor {
 }
 
 impl PolygonEditor {
-    pub fn new(ctx: &mut EventCtx, app: &App, name: String, points: Vec<LonLat>) -> Box<dyn State> {
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        name: String,
+        mut points: Vec<LonLat>,
+    ) -> Box<dyn State> {
+        points.pop();
         Box::new(PolygonEditor {
             composite: WrappedComposite::quick_menu(
                 ctx,
