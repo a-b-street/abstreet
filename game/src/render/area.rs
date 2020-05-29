@@ -12,14 +12,17 @@ pub struct DrawArea {
 
 impl DrawArea {
     pub fn new(area: &Area, cs: &ColorScheme, all_areas: &mut GeomBatch) -> DrawArea {
-        let color = match area.area_type {
+        all_areas.push(DrawArea::color(area.area_type, cs), area.polygon.clone());
+        DrawArea { id: area.id }
+    }
+
+    pub fn color(area_type: AreaType, cs: &ColorScheme) -> Color {
+        match area_type {
             AreaType::Park => cs.grass,
             AreaType::Water => cs.water,
             AreaType::PedestrianIsland => Color::grey(0.3),
             AreaType::Island => cs.map_background,
-        };
-        all_areas.push(color, area.polygon.clone());
-        DrawArea { id: area.id }
+        }
     }
 }
 

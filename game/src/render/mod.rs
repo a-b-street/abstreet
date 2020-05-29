@@ -14,6 +14,7 @@ mod turn;
 use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
+pub use crate::render::area::DrawArea;
 use crate::render::bike::DrawBike;
 use crate::render::car::DrawCar;
 pub use crate::render::intersection::{calculate_corners, DrawIntersection};

@@ -1,15 +1,14 @@
 use crate::app::App;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::nice_map_name;
+use crate::render::DrawArea;
 use ezgui::{
     hotkey, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, ScreenPt, Text,
     Widget,
 };
 use geom::{Distance, Polygon, Pt2D};
-use map_model::{AreaType, City};
+use map_model::City;
 
-// TODO Also include text buttons
-// TODO Handle other cities
 pub struct CityPicker {
     composite: Composite,
     // In untranslated screen-space
@@ -21,40 +20,64 @@ pub struct CityPicker {
 impl CityPicker {
     pub fn new(
         ctx: &mut EventCtx,
-        app: &App,
+        app: &mut App,
         on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
     ) -> Box<dyn State> {
-        // TODO Handle if the city doesn't exist
-        let city: City = abstutil::read_binary(
+        app.primary.current_selection = None;
+
+        let mut batch = GeomBatch::new();
+        let mut regions = Vec::new();
+
+        if let Ok(city) = abstutil::maybe_read_binary::<City>(
             format!(
                 "../data/system/cities/{}.bin",
                 app.primary.map.get_city_name()
             ),
             &mut abstutil::Timer::throwaway(),
-        );
+        ) {
+            let bounds = city.boundary.get_bounds();
+            let zoom = (0.8 * ctx.canvas.window_width / bounds.width())
+                .min(0.8 * ctx.canvas.window_height / bounds.height());
 
-        let bounds = city.boundary.get_bounds();
-        let zoom = (0.8 * ctx.canvas.window_width / bounds.width())
-            .min(0.8 * ctx.canvas.window_height / bounds.height());
+            batch.push(app.cs.map_background, city.boundary);
+            for (area_type, polygon) in city.areas {
+                batch.push(DrawArea::color(area_type, &app.cs), polygon);
+            }
 
-        let mut batch = GeomBatch::new();
-        batch.push(app.cs.map_background, city.boundary);
-        for (area_type, polygon) in city.areas {
-            // TODO Refactor
-            let color = match area_type {
-                AreaType::Park => app.cs.grass,
-                AreaType::Water => app.cs.water,
-                AreaType::PedestrianIsland => Color::grey(0.3),
-                AreaType::Island => app.cs.map_background,
-            };
-            batch.push(color, polygon);
+            for (name, polygon) in city.regions {
+                let color = app.cs.rotating_color_agents(regions.len());
+                if &name == app.primary.map.get_name() {
+                    batch.push(color.alpha(0.5), polygon.clone());
+                } else {
+                    batch.push(color, polygon.to_outline(Distance::meters(200.0)));
+                }
+                regions.push((name, color, polygon.scale(zoom)));
+            }
+            batch = batch.scale(zoom);
         }
 
-        let mut regions = Vec::new();
-        for (name, polygon) in city.regions {
-            let color = app.cs.rotating_color_agents(regions.len());
-            batch.push(color, polygon.to_outline(Distance::meters(200.0)));
-            regions.push((name, color, polygon.scale(zoom)));
+        let mut other_cities = vec![Line("Other cities").draw(ctx).margin_below(10)];
+        let mut this_city = vec![];
+        for name in abstutil::list_all_objects(abstutil::path_all_maps()) {
+            if let Some((_, color, _)) = regions.iter().find(|(n, _, _)| &name == n) {
+                let btn = Btn::text_fg_line(&name, Line(nice_map_name(&name)).fg(*color))
+                    .tooltip(Text::new());
+                this_city.push(
+                    if &name == app.primary.map.get_name() {
+                        btn.inactive(ctx)
+                    } else {
+                        btn.build_def(ctx, None)
+                    }
+                    .margin_below(5),
+                );
+            } else {
+                other_cities.push(
+                    Btn::text_fg(nice_map_name(&name))
+                        .tooltip(Text::new())
+                        .build(ctx, name, None)
+                        .margin_below(5),
+                );
+            }
         }
 
         Box::new(CityPicker {
@@ -64,12 +87,16 @@ impl CityPicker {
             composite: Composite::new(
                 Widget::col(vec![
                     Widget::row(vec![
-                        Line("Click a region").small_heading().draw(ctx),
+                        Line("Select a region").small_heading().draw(ctx),
                         Btn::plaintext("X")
                             .build(ctx, "close", hotkey(Key::Escape))
                             .align_right(),
                     ]),
-                    Widget::draw_batch(ctx, batch.scale(zoom)).named("picker"),
+                    Widget::row(vec![
+                        Widget::col(other_cities).centered_vert(),
+                        Widget::draw_batch(ctx, batch).named("picker"),
+                        Widget::col(this_city).centered_vert(),
+                    ]),
                 ])
                 .bg(app.cs.panel_bg)
                 .outline(2.0, Color::WHITE)
@@ -87,7 +114,12 @@ impl State for CityPicker {
                 "close" => {
                     return Transition::Pop;
                 }
-                _ => unreachable!(),
+                name => {
+                    return ctx.loading_screen("switch map", |ctx, _| {
+                        app.switch_map(ctx, abstutil::path_map(name));
+                        (self.on_load)(ctx, app)
+                    });
+                }
             },
             None => {}
         }
@@ -98,8 +130,15 @@ impl State for CityPicker {
                 let rect = self.composite.rect_of("picker");
                 if rect.contains(cursor) {
                     let pt = Pt2D::new(cursor.x - rect.x1, cursor.y - rect.y1);
-                    for (idx, (_, _, poly)) in self.regions.iter().enumerate() {
-                        if poly.contains_pt(pt) {
+                    for (idx, (name, _, poly)) in self.regions.iter().enumerate() {
+                        if name != app.primary.map.get_name() && poly.contains_pt(pt) {
+                            self.selected = Some(idx);
+                            break;
+                        }
+                    }
+                } else if let Some(btn) = self.composite.currently_hovering() {
+                    for (idx, (name, _, _)) in self.regions.iter().enumerate() {
+                        if name != app.primary.map.get_name() && name == btn {
                             self.selected = Some(idx);
                             break;
                         }

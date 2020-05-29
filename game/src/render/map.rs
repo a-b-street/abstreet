@@ -1,13 +1,12 @@
 use crate::app::{App, Flags};
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
-use crate::render::area::DrawArea;
 use crate::render::building::DrawBuilding;
 use crate::render::bus_stop::DrawBusStop;
 use crate::render::intersection::DrawIntersection;
 use crate::render::lane::DrawLane;
 use crate::render::road::DrawRoad;
-use crate::render::{draw_vehicle, DrawPedCrowd, DrawPedestrian, Renderable};
+use crate::render::{draw_vehicle, DrawArea, DrawPedCrowd, DrawPedestrian, Renderable};
 use aabb_quadtree::QuadTree;
 use abstutil::Timer;
 use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender};
