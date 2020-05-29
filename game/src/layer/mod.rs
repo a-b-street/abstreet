@@ -70,16 +70,19 @@ impl PickLayer {
             hotkey_btn(ctx, app, "None", Key::N),
             hotkey_btn(ctx, app, "map edits", Key::E),
             hotkey_btn(ctx, app, "worst traffic jams", Key::J),
-            hotkey_btn(ctx, app, "elevation", Key::S),
             hotkey_btn(ctx, app, "parking occupancy", Key::P),
             hotkey_btn(ctx, app, "delay", Key::D),
             hotkey_btn(ctx, app, "throughput", Key::T),
-            hotkey_btn(ctx, app, "backpressure", Key::Z),
             hotkey_btn(ctx, app, "bike network", Key::B),
             hotkey_btn(ctx, app, "bus network", Key::U),
             hotkey_btn(ctx, app, "population map", Key::X),
             hotkey_btn(ctx, app, "amenities", Key::A),
         ]);
+        if app.opts.dev {
+            // These need some work.
+            col.push(hotkey_btn(ctx, app, "backpressure", Key::Z));
+            col.push(hotkey_btn(ctx, app, "elevation", Key::S));
+        }
         if app.primary.sim.get_pandemic_model().is_some() {
             col.push(hotkey_btn(ctx, app, "pandemic model", Key::Y));
         }

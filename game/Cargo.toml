@@ -30,7 +30,7 @@ rand = "0.7.0"
 rand_xorshift = "0.2.0"
 reqwest = { version = "0.10.4", optional = true, default-features=false, features=["blocking", "default-tls"] }
 serde = "1.0.110"
-svg_face = { git = "https://github.com/dabreegster/svg_face" }
+svg_face = "0.1.2"
 sim = { path = "../sim" }
 webbrowser = "0.5.2"
 xmltree = "0.10.0"

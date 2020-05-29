@@ -234,14 +234,11 @@ pub fn bio(
     let nickname = petname::Petnames::default().generate(&mut rng, 2, " ");
     let age = rng.gen_range(5, 100);
 
-    rows.extend(make_table(
-        ctx,
-        vec![
-            ("Nickname", nickname),
-            ("Age", age.to_string()),
-            ("Debug ID", format!("{:?}", person.orig_id)),
-        ],
-    ));
+    let mut table = vec![("Nickname", nickname), ("Age", age.to_string())];
+    if app.opts.dev {
+        table.push(("Debug ID", format!("{:?}", person.orig_id)));
+    }
+    rows.extend(make_table(ctx, table));
     // TODO Mad libs!
     // - Keeps a collection of ___ at all times
     // - Origin story: accidentally fell into a vat of cheese curds
