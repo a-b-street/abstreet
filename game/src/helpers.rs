@@ -89,10 +89,8 @@ pub fn list_names<F: Fn(TextSpan) -> TextSpan>(txt: &mut Text, styler: F, names:
 pub fn nice_map_name(name: &str) -> &str {
     match name {
         "ballard" => "Ballard",
-        "caphill" => "Capitol Hill",
         "downtown" => "Downtown Seattle",
         "huge_seattle" => "Seattle (entire area)",
-        "intl_district" => "International District and I90",
         "lakeslice" => "Lake Washington corridor",
         "montlake" => "Montlake and Eastlake",
         "mt_baker" => "Mt Baker",

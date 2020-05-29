@@ -202,9 +202,7 @@ impl Manifest {
             match city {
                 "seattle" => {
                     map == "ballard"
-                        || map == "caphill"
                         || map == "downtown"
-                        || map == "intl_district"
                         || map == "lakeslice"
                         || map == "montlake"
                         || map == "mt_baker"

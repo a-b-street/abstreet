@@ -13,7 +13,7 @@ use ezgui::{
 };
 use geom::{Duration, Time};
 
-const THRESHOLD: Duration = Duration::const_seconds(30.0);
+const THRESHOLD: Duration = Duration::const_seconds(10.0 * 60.0);
 
 pub struct FixTrafficSignals {
     top_center: Composite,
