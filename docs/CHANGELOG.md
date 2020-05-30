@@ -441,3 +441,11 @@ changes here.
 - rendering improvements: unzoomed agent size, visualizing routes on trip table, transparent roads beneath bridges, draw harbor island
 - overhauled street/address finder
 - parking mapper: shortcut to open bing
+
+0.1.43
+
+- new map picker!
+- UI polish: traffic signal editor, layers, bus stops, delay plots
+- generate more interesting biographies for people
+- tuned all the map boundaries
+- fleshing out lots of docs in preparation for the alpha release...

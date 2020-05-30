@@ -56,9 +56,16 @@ impl Layer for BikeNetwork {
 
 impl BikeNetwork {
     pub fn new(ctx: &mut EventCtx, app: &App) -> BikeNetwork {
-        // Show throughput, broken down by bike lanes or not
         let mut on_bike_lanes = Counter::new();
         let mut off_bike_lanes = Counter::new();
+        // Make sure all bikes lanes show up no matter what
+        for l in app.primary.map.all_lanes() {
+            if l.is_biking() {
+                on_bike_lanes.add(l.parent, 0);
+            }
+        }
+
+        // Show throughput, broken down by bike lanes or not
         for ((r, mode, _), count) in &app.primary.sim.get_analytics().road_thruput.counts {
             if *mode == TripMode::Bike {
                 let (fwd, back) = app.primary.map.get_r(*r).get_lane_types();
@@ -86,6 +93,7 @@ impl BikeNetwork {
             (on_bike_lanes, &app.cs.good_to_bad_monochrome_green),
             (off_bike_lanes, &app.cs.good_to_bad_monochrome_red),
         ] {
+            // TODO This is nonsense, bin based on percentiles of values. Dupe values now.
             let roads = counter.sorted_asc();
             let p50_idx = ((roads.len() as f64) * 0.5) as usize;
             let p90_idx = ((roads.len() as f64) * 0.9) as usize;

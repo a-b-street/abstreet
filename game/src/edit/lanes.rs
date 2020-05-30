@@ -82,6 +82,7 @@ impl LaneEditor {
             change_speed_limit(ctx, parent.speed_limit).margin_below(5),
             Widget::row(vec![
                 Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape)),
+                // TODO Handle reverting speed limit too...
                 if app.primary.map.get_edits().original_lts.contains_key(&l)
                     || app.primary.map.get_edits().reversed_lanes.contains(&l)
                 {

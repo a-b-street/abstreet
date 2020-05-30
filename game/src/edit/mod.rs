@@ -555,7 +555,7 @@ pub fn change_speed_limit(ctx: &mut EventCtx, default: Speed) -> Widget {
         "Change speed limit:"
             .draw_text(ctx)
             .centered_vert()
-            .margin_right(5),
+            .margin_right(15),
         Widget::dropdown(
             ctx,
             "speed limit",
