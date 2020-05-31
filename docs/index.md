@@ -46,6 +46,8 @@ TODO:
 - Bike Master Plan
   - Prototype the
     [planned network](https://www.seattle.gov/transportation/document-library/citywide-plans/modal-plans/bicycle-master-plan)
+- Downtown one-way snake
+  - An old crazy idea I've always wanted to try
 - Unsorted ideas
   - [Parking](https://www.reddit.com/r/SeattleWA/comments/cr1r1l/why_the_fuck_does_the_right_lane_convert_to/)
   - [Bus lanes](https://seattletransitblog.com/2018/10/05/seven-places-to-add-bus-lanes-now/)

@@ -21,8 +21,6 @@ I originally wanted to tell a much longer story here of how I came to work on
 A/B Street, but I'm not sure this is the right time yet. So consider this the
 quick version.
 
-![Impatience is a virtue](cloud_florida.jpg)
-
 I grew up in Baton Rouge, where driving is effectively the only mode of
 transport. (I've gone back and made a point of taking long walks to confirm how
 antagonistically the city is designed towards other modes.) Very early on, I
@@ -38,7 +36,7 @@ it. I remember being stuck at the intersection of
 first wondering if the pathfinding algorithms could help with traffic. Can you
 see where this is going?
 
-![Hand-mapping UT Austin](ut_map.png)
+![Impatience is a virtue](cloud_florida.jpg)
 
 I moved to Austin for college. One of the first days of class, I shuffled down
 the stairs of Gearing Hall past a crackly old speaker apocalyptically announcing
@@ -53,7 +51,7 @@ the shortest path between their classes. The feedback I got on this assignment
 included something along the lines of, "I was really pretty impressed first that
 you would be so stupid as to actually try to do this..."
 
-![Approximately Orchestrated Routing and Transportation Analyzer](aorta.gif)
+![Hand-mapping UT Austin](ut_map.png)
 
 But I did, and that led me to discovering OpenStreetMap, which it turns out was
 pretty pivotal. (The first version of my campus map was seeded vaguely off an
@@ -70,7 +68,7 @@ mechanisms would be incredibly unfair to people without the spare cash to back
 up their high value-of-time, but I brushed this off by saying the currency could
 be based on carpooling, EVs, etc.
 
-![Manhattan took walkability seriously](manhattan.jpg)
+![Approximately Orchestrated Routing and Transportation Analyzer](aorta.gif)
 
 It was great to try research in college; I learned I _really_ dislike munging
 data and compressing my work into 6 pages of conference paper LaTeX. So I moved
@@ -84,6 +82,8 @@ commuting by bike, but the joy of it was gone. I started noticing how many cars
 were parked on narrow arterials and wondering why that was a fair use of space.
 I started paying attention to the public discourse around bike infrastructure in
 Seattle and feeling like the conversation was... chaotic.
+
+![Manhattan took walkability seriously](manhattan.jpg)
 
 Fast forward to late 2017. This is where I'll omit chunks of the story. Lots of
 things were crumbling at this point. I visited London, my first experience with
@@ -176,3 +176,7 @@ What poor judgments have cost me the most time?
   is more important than nice appearance.
 - Geometry primitives: I sunk too much time into the polyline problem and f64
   precision.
+
+## Trivia
+
+The name was almost "Unstreet" or "Superban" (superb urban)
