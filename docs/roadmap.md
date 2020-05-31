@@ -3,14 +3,16 @@
 A/B Street has been under active development since June 2018. That's a long time
 -- what work is happening now and how can you contribute?
 
-## Current blockers before a "playable" release
+## Next steps, summer 2020
 
-- The traffic model handles complex map geometry poorly. Permanent traffic jams
-  unrealistically form, preventing a full day's worth of traffic from running on
-  many maps.
-- Better scoring, so people understand how their changes affect different agents
-- Challenge/story modes structured like a game. We have ideas, but need game
-  design help to flesh these out.
+Afer the alpha launch in June, I plan to focus on:
+
+- shared biking/walking trails like the Burke Gilman
+- light rail
+- more score functions besides trip time, like safety/comfort
+- changing trip mode choice (if you make a bus route more desirable, switch some
+  trips)
+- web support (so people can try out proposals without installing anything)
 
 ## Ongoing work
 
@@ -23,7 +25,6 @@ just ideas of related tasks.
 Support more cities:
 
 - generalize the import pipeline (mostly done)
-- manage if everybody downloads all cities or not
 - write docs/tools to help people add new cities without programming experience
 - add support for non-OpenStreetMap input: GeoJSON for parking in Perth, other
   trip demand sources, etc
@@ -32,7 +33,7 @@ Support more cities:
 Improve the quality of map geometry derived from OpenStreetMap:
 
 - try new algorithms to generate intersection polygons
-- make the map editor easy to use and handle evolving OSM data
+- make tools for easily improving relevant data in OSM
 - use ML and lidar/satellite data to get extremely accurate curb / planter /
   sidewalk geometry
 
@@ -84,10 +85,9 @@ Also:
 ### Web
 
 A/B Street runs on the web via WASM and WebGL; just waiting on vector text
-support. That unlocks:
+support. Besides that:
 
 - Share community proposals online, discuss them, vote, etc
-- All of the infrastructure to do this
 
 ## Contributing for non-programmers
 
@@ -95,16 +95,14 @@ I've heard many people want to help with something other than programming or
 design. The best ideas are to start mapping, especially since most work is
 directly through OpenStreetMap:
 
-- sidewalks, crosswalks, on-street parking
+- sidewalks, crosswalks,
+  [on-street parking](https://dabreegster.github.io/abstreet/map_parking.html)
 - traffic signal timing (needs more planning / tooling)
 - fixing geometry problems with the map editor (needs tooling)
 
 Playtesting by attempting to implement real proposals would also be helpful, to
 expose where it's awkward for A/B Street to edit the map and to write up
 problems encountered.
-
-I'd like to give more specific guidance / tooling, but that in itself takes time
-to organize.
 
 ## Long-term vision
 
