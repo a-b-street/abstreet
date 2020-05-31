@@ -262,7 +262,7 @@ impl Manifest {
                         continue;
                     }
                 } else if parts[2] == "cities" {
-                    if cities.runtime.contains(&parts[3].to_string()) {
+                    if cities.runtime.contains(&basename(parts[3])) {
                         continue;
                     }
                 } else {
@@ -336,6 +336,15 @@ impl Cities {
             }
         }
     }
+}
+
+fn basename(path: &str) -> String {
+    std::path::Path::new(path)
+        .file_stem()
+        .unwrap()
+        .to_os_string()
+        .into_string()
+        .unwrap()
 }
 
 fn run(cmd: &mut Command) -> String {
