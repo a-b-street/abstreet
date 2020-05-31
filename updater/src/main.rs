@@ -261,6 +261,10 @@ impl Manifest {
                     {
                         continue;
                     }
+                } else if parts[2] == "cities" {
+                    if cities.runtime.contains(&parts[3].to_string()) {
+                        continue;
+                    }
                 } else {
                     let map = &parts[3];
                     if cities
