@@ -1,25 +1,25 @@
 use crate::app::App;
-use crate::common::CityPicker;
+use crate::common::{CityPicker, CommonState};
 use crate::edit::EditMode;
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::nice_map_name;
-use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::SandboxControls;
 use crate::sandbox::SandboxMode;
 use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, ScreenRectangle, TextExt, VerticalAlignment, Widget,
+    Key, Line, Outcome, ScreenRectangle, TextExt, VerticalAlignment, Widget,
 };
 use geom::Polygon;
 use map_model::IntersectionID;
+use sim::{TripEndpoint, TripMode};
 use std::collections::BTreeSet;
 
 // TODO Maybe remember what things were spawned, offer to replay this later
 pub struct Freeform {
     // TODO Clean these up later when done?
     pub spawn_pts: BTreeSet<IntersectionID>,
-    top_center: WrappedComposite,
+    top_center: Composite,
 }
 
 impl Freeform {
@@ -38,11 +38,34 @@ impl GameplayState for Freeform {
         app: &mut App,
         _: &mut SandboxControls,
     ) -> Option<Transition> {
-        match self.top_center.event(ctx, app) {
-            Some(WrappedOutcome::Transition(t)) => {
-                return Some(t);
-            }
-            Some(WrappedOutcome::Clicked(_)) => unreachable!(),
+        match self.top_center.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "change map" => {
+                    Some(Transition::Push(CityPicker::new(
+                        ctx,
+                        app,
+                        Box::new(|ctx, app| {
+                            // The map will be switched before this callback happens.
+                            let path = abstutil::path_map(app.primary.map.get_name());
+                            Transition::PopThenReplace(Box::new(SandboxMode::new(
+                                ctx,
+                                app,
+                                GameplayMode::Freeform(path),
+                            )))
+                        }),
+                    )))
+                }
+                "change traffic" => Some(Transition::Push(make_change_traffic(
+                    self.top_center.rect_of("change traffic").clone(),
+                ))),
+                "edit map" => Some(Transition::Push(Box::new(EditMode::new(
+                    ctx,
+                    app,
+                    GameplayMode::Freeform(abstutil::path_map(app.primary.map.get_name())),
+                )))),
+                "Start a new trip" => Some(Transition::Push(AgentSpawner::new(ctx, app))),
+                _ => unreachable!(),
+            },
             None => None,
         }
     }
@@ -61,89 +84,41 @@ pub fn freeform_controller(
     app: &App,
     gameplay: GameplayMode,
     scenario_name: &str,
-) -> WrappedComposite {
-    let c = Composite::new(
-        Widget::row(vec![
-            Line("Sandbox").small_heading().draw(ctx).margin(5),
-            Widget::draw_batch(
-                ctx,
-                GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
-            )
+) -> Composite {
+    let mut rows = vec![Widget::row(vec![
+        Line("Sandbox").small_heading().draw(ctx).margin(5),
+        Widget::draw_batch(
+            ctx,
+            GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
+        )
+        .margin(5),
+        "Map:".draw_text(ctx).margin(5),
+        Btn::text_fg(format!("{} ▼", nice_map_name(app.primary.map.get_name())))
+            .build(ctx, "change map", lctrl(Key::L))
             .margin(5),
-            "Map:".draw_text(ctx).margin(5),
-            Btn::text_fg(format!("{} ▼", nice_map_name(app.primary.map.get_name())))
-                .build(ctx, "change map", lctrl(Key::L))
-                .margin(5),
-            "Traffic:".draw_text(ctx).margin(5),
-            Btn::text_fg(format!("{} ▼", scenario_name))
-                .build(ctx, "change traffic", hotkey(Key::S))
-                .margin(5),
-            Btn::svg_def("../data/system/assets/tools/edit_map.svg")
-                .build(ctx, "edit map", lctrl(Key::E))
-                .margin(5),
-        ])
-        .centered()
-        .bg(app.cs.panel_bg),
-    )
-    .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-    .build(ctx);
-    let traffic_picker = c.rect_of("change traffic").clone();
+        "Traffic:".draw_text(ctx).margin(5),
+        Btn::text_fg(format!("{} ▼", scenario_name))
+            .build(ctx, "change traffic", hotkey(Key::S))
+            .margin(5),
+        Btn::svg_def("../data/system/assets/tools/edit_map.svg")
+            .build(ctx, "edit map", lctrl(Key::E))
+            .margin(5),
+    ])
+    .centered()];
+    if let GameplayMode::Freeform(_) = gameplay {
+        rows.push(
+            Btn::text_fg("Start a new trip")
+                .build_def(ctx, None)
+                .centered_horiz(),
+        );
+    }
 
-    WrappedComposite::new(c)
-        .cb("change map", {
-            let gameplay = gameplay.clone();
-            Box::new(move |ctx, app| {
-                let gameplay = gameplay.clone();
-                Some(Transition::Push(CityPicker::new(
-                    ctx,
-                    app,
-                    Box::new(move |ctx, app| {
-                        // The map will be switched before this callback happens.
-                        let path = abstutil::path_map(app.primary.map.get_name());
-                        Transition::PopThenReplace(Box::new(SandboxMode::new(
-                            ctx,
-                            app,
-                            match gameplay {
-                                GameplayMode::Freeform(_) => GameplayMode::Freeform(path),
-                                // Try to load a scenario with the same name exists
-                                GameplayMode::PlayScenario(_, ref scenario) => {
-                                    if abstutil::file_exists(abstutil::path_scenario(
-                                        app.primary.map.get_name(),
-                                        scenario,
-                                    )) {
-                                        GameplayMode::PlayScenario(path, scenario.clone())
-                                    } else {
-                                        GameplayMode::Freeform(path)
-                                    }
-                                }
-                                _ => unreachable!(),
-                            },
-                        )))
-                    }),
-                )))
-            })
-        })
-        .cb(
-            "change traffic",
-            Box::new(move |_, _| {
-                Some(Transition::Push(make_change_traffic(
-                    traffic_picker.clone(),
-                )))
-            }),
-        )
-        .cb(
-            "edit map",
-            Box::new(move |ctx, app| {
-                Some(Transition::Push(Box::new(EditMode::new(
-                    ctx,
-                    app,
-                    gameplay.clone(),
-                ))))
-            }),
-        )
+    Composite::new(Widget::col(rows).bg(app.cs.panel_bg).padding(10))
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        .build(ctx)
 }
 
-fn make_change_traffic(btn: ScreenRectangle) -> Box<dyn State> {
+pub fn make_change_traffic(btn: ScreenRectangle) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, app| {
         let (_, scenario_name) = wiz.wrap(ctx).choose_exact(
             (
@@ -199,4 +174,72 @@ fn make_change_traffic(btn: ScreenRectangle) -> Box<dyn State> {
             },
         ))))
     }))
+}
+
+struct AgentSpawner {
+    composite: Composite,
+    _source: Option<TripEndpoint>,
+}
+
+impl AgentSpawner {
+    fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+        Box::new(AgentSpawner {
+            _source: None,
+            composite: Composite::new(
+                Widget::col(vec![
+                    Widget::row(vec![
+                        Line("New trip").small_heading().draw(ctx),
+                        Btn::plaintext("X")
+                            .build(ctx, "close", hotkey(Key::Escape))
+                            .align_right(),
+                    ]),
+                    "Click a building or border to specify start"
+                        .draw_text(ctx)
+                        .named("instructions"),
+                    Widget::row(vec![
+                        "Type of trip:".draw_text(ctx).margin_right(10),
+                        Widget::dropdown(
+                            ctx,
+                            "mode",
+                            TripMode::Drive,
+                            TripMode::all()
+                                .into_iter()
+                                .map(|m| Choice::new(m.ongoing_verb(), m))
+                                .collect(),
+                        ),
+                    ]),
+                ])
+                .bg(app.cs.panel_bg)
+                .padding(10),
+            )
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
+            .build(ctx),
+        })
+    }
+}
+
+impl State for AgentSpawner {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "close" => {
+                    return Transition::Pop;
+                }
+                _ => unreachable!(),
+            },
+            None => {}
+        }
+
+        ctx.canvas_movement();
+        if ctx.redo_mouseover() {
+            app.recalculate_current_selection(ctx);
+        }
+
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        self.composite.draw(g);
+        CommonState::draw_osd(g, app, &app.primary.current_selection);
+    }
 }
