@@ -28,6 +28,7 @@ pub struct RawMap {
     pub buildings: BTreeMap<OriginalBuilding, RawBuilding>,
     pub bus_routes: Vec<Route>,
     pub areas: Vec<RawArea>,
+    pub parking_lots: Vec<RawParkingLot>,
 
     pub boundary_polygon: Polygon,
     pub gps_bounds: GPSBounds,
@@ -93,6 +94,7 @@ impl RawMap {
             buildings: BTreeMap::new(),
             bus_routes: Vec::new(),
             areas: Vec::new(),
+            parking_lots: Vec::new(),
             // Some nonsense thing
             boundary_polygon: Polygon::rectangle(1.0, 1.0),
             gps_bounds: GPSBounds::new(),
@@ -136,6 +138,7 @@ impl RawMap {
             if self.roads.keys().any(|r| r.osm_way_id == osm_way_id)
                 || self.buildings.keys().any(|b| b.osm_way_id == osm_way_id)
                 || self.areas.iter().any(|a| a.osm_id == osm_way_id)
+                || self.parking_lots.iter().any(|a| a.osm_id == osm_way_id)
             {
                 osm_way_id -= 1;
             } else {
@@ -325,6 +328,13 @@ pub struct RawArea {
     pub area_type: AreaType,
     pub polygon: Polygon,
     pub osm_tags: BTreeMap<String, String>,
+    pub osm_id: i64,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct RawParkingLot {
+    pub polygon: Polygon,
+    pub capacity: Option<usize>,
     pub osm_id: i64,
 }
 

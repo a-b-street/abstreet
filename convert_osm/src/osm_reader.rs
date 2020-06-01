@@ -1,6 +1,8 @@
 use abstutil::{FileWithProgress, Timer};
 use geom::{GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D, Ring};
-use map_model::raw::{OriginalBuilding, RawArea, RawBuilding, RawMap, RawRoad, RestrictionType};
+use map_model::raw::{
+    OriginalBuilding, RawArea, RawBuilding, RawMap, RawParkingLot, RawRoad, RestrictionType,
+};
 use map_model::{osm, AreaType};
 use osm_xml;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
@@ -212,6 +214,13 @@ pub fn extract_osm(
             });
         } else if tags.get("natural") == Some(&"coastline".to_string()) {
             coastline_groups.push((way.id, pts));
+        } else if tags.get("amenity") == Some(&"parking".to_string()) {
+            // TODO Verify parking = surface or handle other cases?
+            map.parking_lots.push(RawParkingLot {
+                polygon: Polygon::new(&pts),
+                capacity: tags.get("capacity").and_then(|x| x.parse::<usize>().ok()),
+                osm_id: way.id,
+            });
         } else {
             // The way might be part of a relation later.
             id_to_way.insert(way.id, pts);

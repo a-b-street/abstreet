@@ -163,6 +163,10 @@ impl App {
             if layers.show_areas {
                 g.redraw(&self.primary.draw_map.draw_all_areas);
             }
+            if layers.show_parking_lots {
+                g.redraw(&self.primary.draw_map.draw_all_parking_lots);
+                // Not the paths
+            }
             // Render bridges over intersections in the correct order
             if layers.show_intersections {
                 g.redraw(&self.primary.draw_map.draw_all_unzoomed_intersections);
@@ -223,6 +227,7 @@ impl App {
             );
 
             let mut drawn_all_buildings = false;
+            let mut drawn_all_parking_lots = false;
             let mut drawn_all_areas = false;
 
             for obj in objects {
@@ -235,6 +240,13 @@ impl App {
                             g.redraw(&self.primary.draw_map.draw_all_buildings);
                             g.redraw(&self.primary.draw_map.draw_all_building_outlines);
                             drawn_all_buildings = true;
+                        }
+                    }
+                    ID::ParkingLot(_) => {
+                        if !drawn_all_parking_lots {
+                            g.redraw(&self.primary.draw_map.draw_all_parking_lot_paths);
+                            g.redraw(&self.primary.draw_map.draw_all_parking_lots);
+                            drawn_all_parking_lots = true;
                         }
                     }
                     ID::Area(_) => {
@@ -359,6 +371,7 @@ impl App {
         let draw_map = &self.primary.draw_map;
 
         let mut areas: Vec<&dyn Renderable> = Vec::new();
+        let mut parking_lots: Vec<&dyn Renderable> = Vec::new();
         let mut lanes: Vec<&dyn Renderable> = Vec::new();
         let mut roads: Vec<&dyn Renderable> = Vec::new();
         let mut intersections: Vec<&dyn Renderable> = Vec::new();
@@ -388,10 +401,8 @@ impl App {
                         agents_on.push(Traversable::Turn(*t));
                     }
                 }
-                // TODO front paths will get drawn over buildings, depending on quadtree order.
-                // probably just need to make them go around other buildings instead of having
-                // two passes through buildings.
                 ID::Building(id) => buildings.push(draw_map.get_b(id)),
+                ID::ParkingLot(id) => parking_lots.push(draw_map.get_pl(id)),
 
                 ID::BusStop(_) | ID::Turn(_) | ID::Car(_) | ID::Pedestrian(_) | ID::PedCrowd(_) => {
                     panic!("{:?} shouldn't be in the quadtree", id)
@@ -402,6 +413,7 @@ impl App {
         // From background to foreground Z-order
         let mut borrows: Vec<&dyn Renderable> = Vec::new();
         borrows.extend(areas);
+        borrows.extend(parking_lots);
         borrows.extend(lanes);
         borrows.extend(roads);
         borrows.extend(intersections);
@@ -430,6 +442,7 @@ impl App {
 
 pub struct ShowLayers {
     pub show_buildings: bool,
+    pub show_parking_lots: bool,
     pub show_intersections: bool,
     pub show_lanes: bool,
     pub show_areas: bool,
@@ -440,6 +453,7 @@ impl ShowLayers {
     pub fn new() -> ShowLayers {
         ShowLayers {
             show_buildings: true,
+            show_parking_lots: true,
             show_intersections: true,
             show_lanes: true,
             show_areas: true,

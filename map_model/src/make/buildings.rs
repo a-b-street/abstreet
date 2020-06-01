@@ -1,6 +1,9 @@
 use crate::make::sidewalk_finder::find_sidewalk_points;
-use crate::raw::{OriginalBuilding, RawBuilding};
-use crate::{osm, Building, BuildingID, FrontPath, LaneID, LaneType, Map, OffstreetParking};
+use crate::raw::{OriginalBuilding, RawBuilding, RawParkingLot};
+use crate::{
+    osm, Building, BuildingID, FrontPath, LaneID, LaneType, Map, OffstreetParking, ParkingLot,
+    ParkingLotID, Position,
+};
 use abstutil::Timer;
 use geom::{Distance, HashablePt2D, Line, PolyLine, Polygon};
 use std::collections::{BTreeMap, HashSet};
@@ -104,6 +107,103 @@ pub fn make_all_buildings(
         input.len() - results.len()
     ));
     timer.stop("convert buildings");
+
+    results
+}
+
+pub fn make_all_parking_lots(
+    input: &Vec<RawParkingLot>,
+    map: &Map,
+    timer: &mut Timer,
+) -> Vec<ParkingLot> {
+    timer.start("convert parking lots");
+    let mut center_per_lot: Vec<HashablePt2D> = Vec::new();
+    let mut query: HashSet<HashablePt2D> = HashSet::new();
+    for lot in input {
+        let center = lot.polygon.center().to_hashable();
+        center_per_lot.push(center);
+        query.insert(center);
+    }
+
+    let sidewalk_pts = find_sidewalk_points(
+        map.get_bounds(),
+        query,
+        map.all_lanes(),
+        Distance::meters(500.0),
+        timer,
+    );
+
+    let mut results = Vec::new();
+    timer.start_iter("create parking lot driveways", center_per_lot.len());
+    for (lot_center, orig) in center_per_lot.into_iter().zip(input.iter()) {
+        timer.next();
+        // TODO Refactor this
+        if let Some(sidewalk_pos) = sidewalk_pts.get(&lot_center) {
+            let sidewalk_pt = sidewalk_pos.pt(map);
+            if sidewalk_pt == lot_center.to_pt2d() {
+                timer.warn(format!(
+                    "Skipping parking lot {} because driveway has 0 length",
+                    orig.osm_id
+                ));
+                continue;
+            }
+            let sidewalk_line =
+                trim_path(&orig.polygon, Line::new(lot_center.to_pt2d(), sidewalk_pt));
+
+            // Can this lot have a driveway? If it's not next to a driving lane, then no.
+            let mut driveway: Option<(PolyLine, Position)> = None;
+            let sidewalk_lane = sidewalk_pos.lane();
+            if let Ok(driving_lane) = map
+                .get_parent(sidewalk_lane)
+                .find_closest_lane(sidewalk_lane, vec![LaneType::Driving])
+            {
+                let driving_pos = sidewalk_pos.equiv_pos(driving_lane, Distance::ZERO, map);
+
+                let buffer = Distance::meters(7.0);
+                if driving_pos.dist_along() > buffer
+                    && map.get_l(driving_lane).length() - driving_pos.dist_along() > buffer
+                {
+                    driveway = Some((
+                        PolyLine::new(vec![
+                            sidewalk_line.pt1(),
+                            sidewalk_line.pt2(),
+                            driving_pos.pt(map),
+                        ]),
+                        driving_pos,
+                    ));
+                }
+            }
+            if let Some((driveway_line, driving_pos)) = driveway {
+                let id = ParkingLotID(results.len());
+                results.push(ParkingLot {
+                    id,
+                    polygon: orig.polygon.clone(),
+                    // TODO Rethink this approach. 250 square feet is around 23 square meters
+                    capacity: orig
+                        .capacity
+                        .unwrap_or_else(|| (orig.polygon.area() / 23.0) as usize),
+                    osm_id: orig.osm_id,
+
+                    driveway_line,
+                    driving_pos,
+                    sidewalk_line,
+                    sidewalk_pos: *sidewalk_pos,
+                });
+            } else {
+                timer.warn(format!(
+                    "Parking lot from OSM way {} can't have a driveway. Forfeiting {:?} parking \
+                     spots",
+                    orig.osm_id, orig.capacity
+                ));
+            }
+        }
+    }
+
+    timer.note(format!(
+        "Discarded {} parking lots that weren't close enough to a sidewalk",
+        input.len() - results.len()
+    ));
+    timer.stop("convert parking lots");
 
     results
 }

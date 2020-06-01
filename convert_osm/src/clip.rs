@@ -125,6 +125,9 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
     }
     map.areas = result_areas;
 
+    // TODO Don't touch parking lots. It'll be visually obvious if a clip intersects one of these.
+    // The boundary should be manually adjusted.
+
     if map.roads.is_empty() {
         panic!("There are no roads inside the clipping polygon");
     }

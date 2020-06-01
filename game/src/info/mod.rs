@@ -3,6 +3,7 @@ mod bus;
 mod debug;
 mod intersection;
 mod lane;
+mod parking_lot;
 mod person;
 mod trip;
 
@@ -17,7 +18,7 @@ use ezgui::{
     VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Time};
-use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID};
+use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, ParkingLotID};
 use sim::{
     AgentID, Analytics, CarID, ParkingSpot, PedestrianID, PersonID, PersonState, TripID, TripMode,
     VehicleType,
@@ -61,6 +62,8 @@ pub enum Tab {
     BldgInfo(BuildingID),
     BldgPeople(BuildingID),
 
+    ParkingLot(ParkingLotID),
+
     Crowd(Vec<PedestrianID>),
 
     Area(AreaID),
@@ -83,6 +86,7 @@ impl Tab {
             ID::Intersection(i) => Tab::IntersectionInfo(i),
             ID::Turn(_) => unreachable!(),
             ID::Building(b) => Tab::BldgInfo(b),
+            ID::ParkingLot(b) => Tab::ParkingLot(b),
             ID::Car(c) => {
                 if let Some(p) = app.primary.sim.agent_to_person(AgentID::Car(c)) {
                     Tab::PersonTrips(
@@ -137,6 +141,7 @@ impl Tab {
                 ParkingSpot::Offstreet(b, _) => Some(ID::Building(b)),
             },
             Tab::BldgInfo(b) | Tab::BldgPeople(b) => Some(ID::Building(*b)),
+            Tab::ParkingLot(pl) => Some(ID::ParkingLot(*pl)),
             Tab::Crowd(members) => Some(ID::PedCrowd(members.clone())),
             Tab::Area(a) => Some(ID::Area(*a)),
             Tab::IntersectionInfo(i)
@@ -221,6 +226,7 @@ impl InfoPanel {
             ),
             Tab::BldgInfo(b) => (building::info(ctx, app, &mut details, b), true),
             Tab::BldgPeople(b) => (building::people(ctx, app, &mut details, b), false),
+            Tab::ParkingLot(pl) => (parking_lot::info(ctx, app, &mut details, pl), true),
             Tab::Crowd(ref members) => (person::crowd(ctx, app, &mut details, members), true),
             Tab::Area(a) => (debug::area(ctx, app, &mut details, a), true),
             Tab::IntersectionInfo(i) => (intersection::info(ctx, app, &mut details, i), true),

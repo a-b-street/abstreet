@@ -1,7 +1,9 @@
 use crate::app::{App, PerMap};
 use ezgui::{hotkey, Btn, Color, EventCtx, Key, Line, Text, TextSpan, Widget};
 use geom::{Duration, Pt2D};
-use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, RoadID, TurnID};
+use map_model::{
+    AreaID, BuildingID, BusStopID, IntersectionID, LaneID, ParkingLotID, RoadID, TurnID,
+};
 use sim::{AgentID, CarID, PedestrianID, TripMode, TripPhaseType};
 use std::collections::BTreeSet;
 
@@ -13,6 +15,7 @@ pub enum ID {
     Intersection(IntersectionID),
     Turn(TurnID),
     Building(BuildingID),
+    ParkingLot(ParkingLotID),
     Car(CarID),
     Pedestrian(PedestrianID),
     PedCrowd(Vec<PedestrianID>),
@@ -49,6 +52,7 @@ impl ID {
                 .maybe_get_i(id.parent)
                 .map(|i| i.polygon.center()),
             ID::Building(id) => primary.map.maybe_get_b(id).map(|b| b.polygon.center()),
+            ID::ParkingLot(id) => primary.map.maybe_get_pl(id).map(|pl| pl.polygon.center()),
             ID::Car(id) => primary
                 .sim
                 .canonical_pt_for_agent(AgentID::Car(id), &primary.map),

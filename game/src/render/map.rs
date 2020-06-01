@@ -5,6 +5,7 @@ use crate::render::building::DrawBuilding;
 use crate::render::bus_stop::DrawBusStop;
 use crate::render::intersection::DrawIntersection;
 use crate::render::lane::DrawLane;
+use crate::render::parking_lot::DrawParkingLot;
 use crate::render::road::DrawRoad;
 use crate::render::{draw_vehicle, DrawArea, DrawPedCrowd, DrawPedestrian, Renderable};
 use aabb_quadtree::QuadTree;
@@ -12,8 +13,8 @@ use abstutil::Timer;
 use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Pt2D, Time};
 use map_model::{
-    AreaID, BuildingID, BusStopID, Intersection, IntersectionID, LaneID, Map, Road, RoadID,
-    Traversable, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
+    AreaID, BuildingID, BusStopID, Intersection, IntersectionID, LaneID, Map, ParkingLotID, Road,
+    RoadID, Traversable, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
 };
 use sim::{GetDrawAgents, UnzoomedAgent, VehicleType};
 use std::borrow::Borrow;
@@ -25,6 +26,7 @@ pub struct DrawMap {
     pub lanes: Vec<DrawLane>,
     pub intersections: Vec<DrawIntersection>,
     pub buildings: Vec<DrawBuilding>,
+    pub parking_lots: Vec<DrawParkingLot>,
     pub bus_stops: HashMap<BusStopID, DrawBusStop>,
     pub areas: Vec<DrawArea>,
 
@@ -37,6 +39,8 @@ pub struct DrawMap {
     pub draw_all_buildings: Drawable,
     pub draw_all_building_paths: Drawable,
     pub draw_all_building_outlines: Drawable,
+    pub draw_all_parking_lots: Drawable,
+    pub draw_all_parking_lot_paths: Drawable,
     pub draw_all_areas: Drawable,
 
     quadtree: QuadTree<ID>,
@@ -147,6 +151,23 @@ impl DrawMap {
         let draw_all_building_outlines = all_building_outlines.upload(ctx);
         timer.stop("upload all buildings");
 
+        timer.start("make DrawParkingLot");
+        let mut parking_lots: Vec<DrawParkingLot> = Vec::new();
+        let mut all_parking_lots = GeomBatch::new();
+        let mut all_parking_lot_paths = GeomBatch::new();
+        for pl in map.all_parking_lots() {
+            parking_lots.push(DrawParkingLot::new(
+                pl,
+                cs,
+                &mut all_parking_lots,
+                &mut all_parking_lot_paths,
+                ctx.prerender,
+            ));
+        }
+        let draw_all_parking_lots = all_parking_lots.upload(ctx);
+        let draw_all_parking_lot_paths = all_parking_lot_paths.upload(ctx);
+        timer.stop("make DrawParkingLot");
+
         timer.start_iter("make DrawBusStop", map.all_bus_stops().len());
         let mut bus_stops: HashMap<BusStopID, DrawBusStop> = HashMap::new();
         for s in map.all_bus_stops().values() {
@@ -185,6 +206,9 @@ impl DrawMap {
         for obj in &buildings {
             quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
         }
+        for obj in &parking_lots {
+            quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
+        }
         // Don't put BusStops in the quadtree
         for obj in &areas {
             quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
@@ -201,6 +225,7 @@ impl DrawMap {
             lanes,
             intersections,
             buildings,
+            parking_lots,
             bus_stops,
             areas,
             boundary_polygon,
@@ -209,6 +234,8 @@ impl DrawMap {
             draw_all_buildings,
             draw_all_building_paths,
             draw_all_building_outlines,
+            draw_all_parking_lots,
+            draw_all_parking_lot_paths,
             draw_all_areas,
 
             agents: RefCell::new(AgentCache {
@@ -236,6 +263,10 @@ impl DrawMap {
 
     pub fn get_b(&self, id: BuildingID) -> &DrawBuilding {
         &self.buildings[id.0]
+    }
+
+    pub fn get_pl(&self, id: ParkingLotID) -> &DrawParkingLot {
+        &self.parking_lots[id.0]
     }
 
     pub fn get_bs(&self, id: BusStopID) -> &DrawBusStop {
@@ -266,6 +297,9 @@ impl DrawMap {
             ID::Turn(_) => unreachable!(),
             ID::Building(id) => {
                 return Some(self.get_b(id));
+            }
+            ID::ParkingLot(id) => {
+                return Some(self.get_pl(id));
             }
             ID::Car(id) => {
                 // Cars might be parked in a garage!

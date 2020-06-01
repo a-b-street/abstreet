@@ -86,6 +86,7 @@ pub struct ColorScheme {
     pub unzoomed_interesting_intersection: Color,
     pub building: Color,
     pub building_outline: Color,
+    pub parking_lot: Color,
     pub grass: Color,
     pub water: Color,
 
@@ -186,6 +187,7 @@ impl ColorScheme {
             unzoomed_interesting_intersection: Color::BLACK,
             building: Color::rgb(196, 193, 188),
             building_outline: Color::hex("#938E85"),
+            parking_lot: Color::grey(0.7),
             grass: hex("#94C84A"),
             water: Color::rgb(164, 200, 234),
 

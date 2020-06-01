@@ -1,4 +1,5 @@
 use crate::{Angle, Bounds, Distance, HashablePt2D, Pt2D, Ring};
+use geo::algorithm::area::Area;
 use geo::algorithm::convexhull::ConvexHull;
 use geo_booleanop::boolean::BooleanOp;
 use serde::{Deserialize, Serialize};
@@ -281,6 +282,11 @@ impl Polygon {
 
     pub fn maybe_to_outline(&self, thickness: Distance) -> Option<Polygon> {
         Ring::maybe_new(self.points.clone()).map(|r| r.make_polygons(thickness))
+    }
+
+    // Usually m^2, unless the polygon is in screen-space
+    pub fn area(&self) -> f64 {
+        to_geo(&self.points()).area()
     }
 }
 

@@ -6,6 +6,7 @@ mod car;
 mod intersection;
 mod lane;
 mod map;
+mod parking_lot;
 mod pedestrian;
 mod road;
 mod traffic_signal;

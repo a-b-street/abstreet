@@ -85,6 +85,9 @@ impl ObjectDebugger {
             ID::Building(id) => {
                 println!("{}", abstutil::to_json(map.get_b(id)));
             }
+            ID::ParkingLot(id) => {
+                println!("{}", abstutil::to_json(map.get_pl(id)));
+            }
             ID::Car(id) => {
                 sim.debug_car(id);
                 if let Some(t) = sim.agent_to_trip(AgentID::Car(id)) {
