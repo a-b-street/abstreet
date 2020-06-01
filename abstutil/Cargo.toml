@@ -7,6 +7,7 @@ edition = "2018"
 [dependencies]
 bincode = "1.1.2"
 instant = "0.1.2"
+itertools = "0.9.0"
 num_cpus = "1.10.0"
 rand = "0.7.0"
 rand_xorshift = "0.2.0"

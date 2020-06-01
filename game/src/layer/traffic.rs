@@ -164,7 +164,7 @@ impl Dynamic {
             let p50_idx = ((roads.len() as f64) * 0.5) as usize;
             let p90_idx = ((roads.len() as f64) * 0.9) as usize;
             let p99_idx = ((roads.len() as f64) * 0.99) as usize;
-            for (idx, r) in roads.into_iter().enumerate() {
+            for (idx, list) in roads.into_iter().enumerate() {
                 let color = if idx < p50_idx {
                     app.cs.good_to_bad[0]
                 } else if idx < p90_idx {
@@ -174,7 +174,9 @@ impl Dynamic {
                 } else {
                     app.cs.good_to_bad[3]
                 };
-                colorer.add_r(*r, color, &app.primary.map);
+                for r in list {
+                    colorer.add_r(r, color, &app.primary.map);
+                }
             }
         }
         {
@@ -182,7 +184,7 @@ impl Dynamic {
             let p50_idx = ((intersections.len() as f64) * 0.5) as usize;
             let p90_idx = ((intersections.len() as f64) * 0.9) as usize;
             let p99_idx = ((intersections.len() as f64) * 0.99) as usize;
-            for (idx, i) in intersections.into_iter().enumerate() {
+            for (idx, list) in intersections.into_iter().enumerate() {
                 let color = if idx < p50_idx {
                     app.cs.good_to_bad[0]
                 } else if idx < p90_idx {
@@ -192,7 +194,9 @@ impl Dynamic {
                 } else {
                     app.cs.good_to_bad[3]
                 };
-                colorer.add_i(*i, color);
+                for i in list {
+                    colorer.add_i(i, color);
+                }
             }
         }
 
@@ -298,17 +302,14 @@ impl Throughput {
 
         let stats = &app.primary.sim.get_analytics();
 
-        // TODO If there are many duplicate counts, arbitrarily some will look heavier! Find the
-        // disribution of counts instead.
         // TODO Actually display the counts at these percentiles
-        // TODO Dump the data in debug mode
         {
             let cnt = stats.road_thruput.all_total_counts();
             let roads = cnt.sorted_asc();
             let p50_idx = ((roads.len() as f64) * 0.5) as usize;
             let p90_idx = ((roads.len() as f64) * 0.9) as usize;
             let p99_idx = ((roads.len() as f64) * 0.99) as usize;
-            for (idx, r) in roads.into_iter().enumerate() {
+            for (idx, list) in roads.into_iter().enumerate() {
                 let color = if idx < p50_idx {
                     app.cs.good_to_bad[0]
                 } else if idx < p90_idx {
@@ -318,7 +319,9 @@ impl Throughput {
                 } else {
                     app.cs.good_to_bad[3]
                 };
-                colorer.add_r(*r, color, &app.primary.map);
+                for r in list {
+                    colorer.add_r(r, color, &app.primary.map);
+                }
             }
         }
         // TODO dedupe
@@ -328,7 +331,7 @@ impl Throughput {
             let p50_idx = ((intersections.len() as f64) * 0.5) as usize;
             let p90_idx = ((intersections.len() as f64) * 0.9) as usize;
             let p99_idx = ((intersections.len() as f64) * 0.99) as usize;
-            for (idx, i) in intersections.into_iter().enumerate() {
+            for (idx, list) in intersections.into_iter().enumerate() {
                 let color = if idx < p50_idx {
                     app.cs.good_to_bad[0]
                 } else if idx < p90_idx {
@@ -338,7 +341,9 @@ impl Throughput {
                 } else {
                     app.cs.good_to_bad[3]
                 };
-                colorer.add_i(*i, color);
+                for i in list {
+                    colorer.add_i(i, color);
+                }
             }
         }
 

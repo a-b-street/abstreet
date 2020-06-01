@@ -93,12 +93,11 @@ impl BikeNetwork {
             (on_bike_lanes, &app.cs.good_to_bad_monochrome_green),
             (off_bike_lanes, &app.cs.good_to_bad_monochrome_red),
         ] {
-            // TODO This is nonsense, bin based on percentiles of values. Dupe values now.
             let roads = counter.sorted_asc();
             let p50_idx = ((roads.len() as f64) * 0.5) as usize;
             let p90_idx = ((roads.len() as f64) * 0.9) as usize;
             let p99_idx = ((roads.len() as f64) * 0.99) as usize;
-            for (idx, r) in roads.into_iter().enumerate() {
+            for (idx, list) in roads.into_iter().enumerate() {
                 let color = if idx < p50_idx {
                     scale[0]
                 } else if idx < p90_idx {
@@ -108,7 +107,9 @@ impl BikeNetwork {
                 } else {
                     scale[3]
                 };
-                colorer.add_r(*r, color, &app.primary.map);
+                for r in list {
+                    colorer.add_r(r, color, &app.primary.map);
+                }
             }
         }
         colorer.intersections_from_roads(&app.primary.map);

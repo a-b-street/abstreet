@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use std::cmp::Ord;
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -93,10 +94,15 @@ impl<T: Ord + PartialEq + Clone> Counter<T> {
         self.map.get(&val).cloned().unwrap_or(0)
     }
 
-    pub fn sorted_asc(&self) -> Vec<&T> {
+    // Values with the same count are grouped together
+    pub fn sorted_asc(&self) -> Vec<Vec<T>> {
         let mut list = self.map.iter().collect::<Vec<_>>();
         list.sort_by_key(|(_, cnt)| *cnt);
-        list.into_iter().map(|(t, _)| t).collect()
+        list.into_iter()
+            .group_by(|(_, cnt)| *cnt)
+            .into_iter()
+            .map(|(_, group)| group.into_iter().map(|(val, _)| val.clone()).collect())
+            .collect()
     }
 
     pub fn max(&self) -> usize {
