@@ -17,9 +17,9 @@ abstutil = { path = "../abstutil" }
 cpuprofiler = { version = "0.0.3", optional = true }
 downcast-rs = "1.1.1"
 geom = { path = "../geom" }
-glium = { version = "0.26.0", optional = true }
+glium = { version = "0.27.0", optional = true }
 glow = { version = "0.4.0", optional = true, default-features=false }
-glutin = { git = "https://github.com/dabreegster/glutin", optional = true }
+glutin = { version = "0.24.1", optional = true }
 htmlescape = "0.3.1"
 image = { version = "0.23.4", default-features = false, features=["png"] }
 instant = "0.1.2"
@@ -32,4 +32,4 @@ stretch = "0.3.2"
 textwrap = "0.11"
 usvg = { git = "https://github.com/dabreegster/resvg", default-features=false }
 webgl_stdweb = { version = "0.3", optional = true }
-winit = "0.21.0"
+winit = "0.22.2"

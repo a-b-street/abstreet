@@ -76,11 +76,6 @@ impl DrawBuilding {
             None
         };
 
-        // TODO Slow and looks silly, but it's a nice experiment.
-        /*for poly in bldg.polygon.shrink(-3.0) {
-            bldg_batch.push(color, poly);
-        }*/
-
         DrawBuilding { id: bldg.id, label }
     }
 }

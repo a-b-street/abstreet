@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 abstutil = { path = "../abstutil" }
-derivative = "1.0.0"
+derivative = "2.1.1"
 geom = { path = "../geom" }
 instant = "0.1.2"
 libm = "0.2.1"

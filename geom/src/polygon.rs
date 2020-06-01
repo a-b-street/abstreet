@@ -1,7 +1,6 @@
 use crate::{Angle, Bounds, Distance, HashablePt2D, Pt2D, Ring};
 use geo::algorithm::convexhull::ConvexHull;
 use geo_booleanop::boolean::BooleanOp;
-use geo_offset::Offset;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -272,10 +271,6 @@ impl Polygon {
     pub fn polylabel(&self) -> Pt2D {
         let pt = polylabel::polylabel(&to_geo(&self.points()), &1.0).unwrap();
         Pt2D::new(pt.x(), pt.y())
-    }
-
-    pub fn shrink(&self, distance: f64) -> Vec<Polygon> {
-        from_multi(to_geo(self.points()).offset(distance).unwrap())
     }
 
     // Only works for polygons that're formed from rings. Those made from PolyLines won't work, for

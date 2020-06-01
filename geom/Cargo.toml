@@ -7,11 +7,10 @@ edition = "2018"
 [dependencies]
 aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
-geo = "0.12.0"
-geo-booleanop = "0.2.0"
-geo-offset = "0.1.0"
+geo = "0.13.0"
+geo-booleanop = "0.3.0"
 histogram = "0.6.9"
 instant = "0.1.2"
 ordered-float = { version = "1.0.1", features=["serde"] }
-polylabel = { git = "https://github.com/urschrei/polylabel-rs" }
+polylabel = "2.2.0"
 serde = "1.0.110"
