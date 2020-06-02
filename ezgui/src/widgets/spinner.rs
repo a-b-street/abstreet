@@ -73,6 +73,7 @@ impl WidgetImpl for Spinner {
             if self.current != self.high {
                 self.current += 1;
             }
+            ctx.no_op_event(true, |ctx| self.up.event(ctx, output));
             return;
         }
 
@@ -81,6 +82,7 @@ impl WidgetImpl for Spinner {
             if self.current != self.low {
                 self.current -= 1;
             }
+            ctx.no_op_event(true, |ctx| self.down.event(ctx, output));
         }
     }
 
