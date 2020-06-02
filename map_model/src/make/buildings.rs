@@ -5,7 +5,7 @@ use crate::{
     ParkingLotID, Position,
 };
 use abstutil::Timer;
-use geom::{Distance, HashablePt2D, Line, PolyLine, Polygon};
+use geom::{Distance, HashablePt2D, Line, PolyLine, Polygon, Pt2D};
 use std::collections::{BTreeMap, HashSet};
 
 pub fn make_all_buildings(
@@ -113,6 +113,7 @@ pub fn make_all_buildings(
 
 pub fn make_all_parking_lots(
     input: &Vec<RawParkingLot>,
+    aisles: &Vec<Vec<Pt2D>>,
     map: &Map,
     timer: &mut Timer,
 ) -> Vec<ParkingLot> {
@@ -178,6 +179,7 @@ pub fn make_all_parking_lots(
                 results.push(ParkingLot {
                     id,
                     polygon: orig.polygon.clone(),
+                    aisles: Vec::new(),
                     // TODO Rethink this approach. 250 square feet is around 23 square meters
                     capacity: orig
                         .capacity
@@ -198,11 +200,23 @@ pub fn make_all_parking_lots(
             }
         }
     }
-
     timer.note(format!(
         "Discarded {} parking lots that weren't close enough to a sidewalk",
         input.len() - results.len()
     ));
+
+    // Brute force for now
+    timer.start_iter("match parking aisles", aisles.len());
+    for pts in aisles {
+        timer.next();
+        for lot in results.iter_mut() {
+            if pts.iter().any(|pt| lot.polygon.contains_pt(*pt)) {
+                lot.aisles.push(pts.clone());
+                break;
+            }
+        }
+    }
+
     timer.stop("convert parking lots");
 
     results

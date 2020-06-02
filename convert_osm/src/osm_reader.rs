@@ -221,6 +221,8 @@ pub fn extract_osm(
                 capacity: tags.get("capacity").and_then(|x| x.parse::<usize>().ok()),
                 osm_id: way.id,
             });
+        } else if tags.get("highway") == Some(&"service".to_string()) {
+            map.parking_aisles.push(pts);
         } else {
             // The way might be part of a relation later.
             id_to_way.insert(way.id, pts);

@@ -1,5 +1,5 @@
 use crate::Position;
-use geom::{Line, PolyLine, Polygon};
+use geom::{Line, PolyLine, Polygon, Pt2D};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -19,6 +19,7 @@ impl fmt::Display for ParkingLotID {
 pub struct ParkingLot {
     pub id: ParkingLotID,
     pub polygon: Polygon,
+    pub aisles: Vec<Vec<Pt2D>>,
     pub capacity: usize,
     pub osm_id: i64,
 

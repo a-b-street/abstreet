@@ -29,6 +29,7 @@ pub struct RawMap {
     pub bus_routes: Vec<Route>,
     pub areas: Vec<RawArea>,
     pub parking_lots: Vec<RawParkingLot>,
+    pub parking_aisles: Vec<Vec<Pt2D>>,
 
     pub boundary_polygon: Polygon,
     pub gps_bounds: GPSBounds,
@@ -95,6 +96,7 @@ impl RawMap {
             bus_routes: Vec::new(),
             areas: Vec::new(),
             parking_lots: Vec::new(),
+            parking_aisles: Vec::new(),
             // Some nonsense thing
             boundary_polygon: Polygon::rectangle(1.0, 1.0),
             gps_bounds: GPSBounds::new(),

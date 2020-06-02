@@ -1112,7 +1112,8 @@ fn make_half_map(
         map.lanes[lane.0].building_paths = bldgs;
     }
 
-    map.parking_lots = make::buildings::make_all_parking_lots(&raw.parking_lots, &map, timer);
+    map.parking_lots =
+        make::buildings::make_all_parking_lots(&raw.parking_lots, &raw.parking_aisles, &map, timer);
 
     for (idx, a) in raw.areas.iter().enumerate() {
         map.areas.push(Area {

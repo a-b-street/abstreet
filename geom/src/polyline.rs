@@ -89,14 +89,6 @@ impl PolyLine {
         PolyLine { pts, length }
     }
 
-    // Only to be called by Ring.
-    pub(crate) fn new_for_ring(pts: Vec<Pt2D>) -> PolyLine {
-        let length = pts.windows(2).fold(Distance::ZERO, |so_far, pair| {
-            so_far + pair[0].dist_to(pair[1])
-        });
-        PolyLine { pts, length }
-    }
-
     pub fn to_thick_boundary(
         &self,
         self_width: Distance,

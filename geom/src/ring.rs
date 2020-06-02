@@ -61,7 +61,7 @@ impl Ring {
 
     pub fn make_polygons(&self, thickness: Distance) -> Polygon {
         // TODO Has a weird corner. Use the polygon offset thing instead?
-        PolyLine::new_for_ring(self.pts.clone()).make_polygons(thickness)
+        PolyLine::unchecked_new(self.pts.clone()).make_polygons(thickness)
     }
 
     // Searches other in order
@@ -78,7 +78,7 @@ impl Ring {
 
     pub fn get_shorter_slice_btwn(&self, pt1: Pt2D, pt2: Pt2D) -> PolyLine {
         assert!(pt1 != pt2);
-        let pl = PolyLine::new_for_ring(self.pts.clone());
+        let pl = PolyLine::unchecked_new(self.pts.clone());
 
         let mut dist1 = pl.dist_along_of_point(pt1).unwrap().0;
         let mut dist2 = pl.dist_along_of_point(pt2).unwrap().0;

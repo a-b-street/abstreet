@@ -3,8 +3,10 @@ use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{GeomBatch, GfxCtx, Prerender, RewriteColor};
-use geom::{Angle, Line, Polygon, Pt2D};
-use map_model::{Map, ParkingLot, ParkingLotID, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
+use geom::{Angle, Distance, Line, PolyLine, Polygon, Pt2D};
+use map_model::{
+    Map, ParkingLot, ParkingLotID, NORMAL_LANE_THICKNESS, PARKING_SPOT_LENGTH, SIDEWALK_THICKNESS,
+};
 
 pub struct DrawParkingLot {
     pub id: ParkingLotID,
@@ -40,6 +42,55 @@ impl DrawParkingLot {
             RewriteColor::NoOp,
             true,
         );
+
+        let mut lines = Vec::new();
+        for aisle in &lot.aisles {
+            let aisle_thickness = NORMAL_LANE_THICKNESS / 2.0;
+            let pl = PolyLine::unchecked_new(aisle.clone());
+            all_lots.push(cs.parking_lane, pl.make_polygons(aisle_thickness));
+
+            let mut start = Distance::ZERO;
+            while start < pl.length() {
+                let (pt, angle) = pl.dist_along(start);
+                for rotate in vec![90.0, -90.0] {
+                    let theta = angle.rotate_degs(rotate);
+                    let line = Line::new(
+                        pt.project_away(aisle_thickness / 2.0, theta),
+                        // The full PARKING_SPOT_LENGTH used for on-street is looking too
+                        // conservative for some manually audited cases in Seattle
+                        pt.project_away(aisle_thickness / 2.0 + 0.8 * PARKING_SPOT_LENGTH, theta),
+                    );
+
+                    // Don't leak out of the parking lot
+                    // TODO Entire line
+                    if !lot.polygon.contains_pt(line.pt1()) || !lot.polygon.contains_pt(line.pt2())
+                    {
+                        continue;
+                    }
+
+                    // Don't let this line hit another line
+                    if lines.iter().any(|other| line.intersection(other).is_some()) {
+                        continue;
+                    }
+
+                    // Don't hit an aisle
+                    if lot.aisles.iter().any(|pts| {
+                        PolyLine::unchecked_new(pts.clone())
+                            .intersection(&line.to_polyline())
+                            .is_some()
+                    }) {
+                        continue;
+                    }
+
+                    all_lots.push(
+                        cs.general_road_marking,
+                        line.make_polygons(Distance::meters(0.25)),
+                    );
+                    lines.push(line);
+                }
+                start += NORMAL_LANE_THICKNESS;
+            }
+        }
 
         paths_batch.push(
             cs.sidewalk,
