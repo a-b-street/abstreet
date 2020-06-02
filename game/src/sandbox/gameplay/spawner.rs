@@ -1,6 +1,6 @@
 use crate::app::App;
 use crate::common::{Colorer, CommonState};
-use crate::game::{msg, State, Transition, WizardState};
+use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::sandbox::gameplay::freeform::Freeform;
 use crate::sandbox::SandboxMode;
@@ -11,160 +11,16 @@ use ezgui::{
 };
 use geom::{Distance, Duration, PolyLine};
 use map_model::{
-    BuildingID, IntersectionID, LaneID, Map, PathConstraints, PathRequest, Position,
-    NORMAL_LANE_THICKNESS,
+    IntersectionID, LaneID, PathConstraints, PathRequest, Position, NORMAL_LANE_THICKNESS,
 };
 use rand::seq::SliceRandom;
 use rand::Rng;
-use rand_xorshift::XorShiftRng;
 use sim::{
     BorderSpawnOverTime, DrivingGoal, OriginDestination, Scenario, ScenarioGenerator, SidewalkSpot,
-    Sim, TripEndpoint, TripSpawner, TripSpec,
+    TripEndpoint, TripSpec,
 };
 
 const SMALL_DT: Duration = Duration::const_seconds(0.1);
-
-// TODO So many problems here. One is using schedule_trip directly. But using a Scenario is weird
-// because we need to keep amending it and re-instantiating it, and because picking specific
-// starting positions for vehicles depends on randomized vehicle lengths...
-
-struct AgentSpawner {
-    composite: Composite,
-    from: Source,
-    maybe_goal: Option<(Goal, Option<PolyLine>)>,
-    colorer: Colorer,
-}
-
-enum Source {
-    WalkFromBldg(BuildingID),
-    // Stash the driving Position here for convenience
-    BikeFromBldg(BuildingID, Position),
-    WalkFromSidewalk(Position),
-    Drive(Position),
-}
-
-#[derive(PartialEq)]
-enum Goal {
-    Building(BuildingID),
-    Border(IntersectionID),
-}
-
-impl State for AgentSpawner {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "X" => {
-                    return Transition::Pop;
-                }
-                _ => unreachable!(),
-            },
-            None => {}
-        }
-
-        ctx.canvas_movement();
-        if ctx.redo_mouseover() {
-            app.recalculate_current_selection(ctx);
-        }
-
-        let map = &app.primary.map;
-
-        let new_goal = match app.primary.current_selection {
-            Some(ID::Building(b)) => Goal::Building(b),
-            Some(ID::Intersection(i)) if map.get_i(i).is_border() => Goal::Border(i),
-            _ => {
-                self.maybe_goal = None;
-                return Transition::Keep;
-            }
-        };
-
-        let recalculate = match self.maybe_goal {
-            Some((ref g, _)) => *g == new_goal,
-            None => true,
-        };
-
-        if recalculate {
-            let (start, constraints) = match self.from {
-                Source::WalkFromBldg(b) => (
-                    Position::bldg_via_walking(b, map),
-                    PathConstraints::Pedestrian,
-                ),
-                Source::BikeFromBldg(_, pos) => (pos, PathConstraints::Bike),
-                Source::WalkFromSidewalk(pos) => (pos, PathConstraints::Pedestrian),
-                Source::Drive(pos) => (pos, PathConstraints::Car),
-            };
-            let end = match new_goal {
-                Goal::Building(to) => {
-                    if constraints == PathConstraints::Pedestrian {
-                        Position::bldg_via_walking(to, map)
-                    } else {
-                        DrivingGoal::ParkNear(to).goal_pos(constraints, map)
-                    }
-                }
-                Goal::Border(to) => {
-                    if let Some(g) = DrivingGoal::end_at_border(
-                        map.get_i(to).some_incoming_road(map),
-                        constraints,
-                        None,
-                        map,
-                    ) {
-                        g.goal_pos(constraints, map)
-                    } else {
-                        self.maybe_goal = None;
-                        return Transition::Keep;
-                    }
-                }
-            };
-            if start == end {
-                self.maybe_goal = None;
-            } else {
-                if let Some(path) = map.pathfind(PathRequest {
-                    start,
-                    end,
-                    constraints,
-                }) {
-                    self.maybe_goal = Some((new_goal, path.trace(map, start.dist_along(), None)));
-                } else {
-                    self.maybe_goal = None;
-                }
-            }
-        }
-
-        if self.maybe_goal.is_some() && app.per_obj.left_click(ctx, "end the agent here") {
-            let mut rng = app.primary.current_flags.sim_flags.make_rng();
-            let sim = &mut app.primary.sim;
-            let mut spawner = sim.make_spawner();
-            let err = schedule_trip(
-                &self.from,
-                self.maybe_goal.take().unwrap().0,
-                map,
-                sim,
-                &mut spawner,
-                &mut rng,
-            );
-            sim.flush_spawner(spawner, map, &mut Timer::new("spawn trip"));
-            sim.normal_step(map, SMALL_DT);
-            app.recalculate_current_selection(ctx);
-            if let Some(e) = err {
-                return Transition::Replace(msg("Spawning error", vec![e]));
-            } else {
-                return Transition::Pop;
-            }
-        }
-
-        Transition::Keep
-    }
-
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.colorer.draw(g, app);
-
-        if let Some((_, Some(ref trace))) = self.maybe_goal {
-            g.draw_polygon(app.cs.route, &trace.make_polygons(NORMAL_LANE_THICKNESS));
-        }
-
-        self.composite.draw(g);
-        CommonState::draw_osd(g, app, &app.primary.current_selection);
-    }
-}
 
 pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
     let map = &app.primary.map;
@@ -243,146 +99,6 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
 
     sim.flush_spawner(spawner, map, &mut timer);
     sim.normal_step(map, SMALL_DT);
-}
-
-// Returns optional error message
-fn schedule_trip(
-    src: &Source,
-    raw_goal: Goal,
-    map: &Map,
-    sim: &mut Sim,
-    spawner: &mut TripSpawner,
-    rng: &mut XorShiftRng,
-) -> Option<String> {
-    let now = sim.time();
-    match src {
-        Source::WalkFromBldg(_) | Source::WalkFromSidewalk(_) => {
-            let (start, trip_start) = match src {
-                Source::WalkFromBldg(b) => {
-                    (SidewalkSpot::building(*b, map), TripEndpoint::Bldg(*b))
-                }
-                Source::WalkFromSidewalk(pos) => (
-                    SidewalkSpot::suddenly_appear(pos.lane(), pos.dist_along(), map),
-                    TripEndpoint::Border(map.get_l(pos.lane()).src_i, None),
-                ),
-                _ => unreachable!(),
-            };
-            let goal = match raw_goal {
-                Goal::Building(to) => SidewalkSpot::building(to, map),
-                Goal::Border(to) => {
-                    if let Some(goal) = SidewalkSpot::end_at_border(to, None, map) {
-                        goal
-                    } else {
-                        return Some(format!("Can't end a walking trip at {}; no sidewalks", to));
-                    }
-                }
-            };
-            if let Some((stop1, stop2, route)) =
-                map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos)
-            {
-                println!("Using {} from {} to {}", route, stop1, stop2);
-                spawner.schedule_trip(
-                    sim.random_person(Scenario::rand_ped_speed(rng), Vec::new()),
-                    now,
-                    TripSpec::UsingTransit {
-                        start,
-                        goal,
-                        route,
-                        stop1,
-                        stop2,
-                    },
-                    trip_start,
-                    map,
-                );
-            } else {
-                println!("Not using transit");
-                spawner.schedule_trip(
-                    sim.random_person(Scenario::rand_ped_speed(rng), Vec::new()),
-                    now,
-                    TripSpec::JustWalking { start, goal },
-                    trip_start,
-                    map,
-                );
-            }
-        }
-        Source::BikeFromBldg(b, _) => {
-            let goal = match raw_goal {
-                Goal::Building(to) => DrivingGoal::ParkNear(to),
-                Goal::Border(to) => {
-                    if let Some(g) = DrivingGoal::end_at_border(
-                        map.get_i(to).some_incoming_road(map),
-                        PathConstraints::Bike,
-                        None,
-                        map,
-                    ) {
-                        g
-                    } else {
-                        return Some(format!("Can't end a bike trip at {}", to));
-                    }
-                }
-            };
-            let person = sim.random_person(
-                Scenario::rand_ped_speed(rng),
-                vec![Scenario::rand_bike(rng)],
-            );
-            spawner.schedule_trip(
-                person,
-                now,
-                TripSpec::UsingBike {
-                    bike: person.vehicles[0].id,
-                    start: SidewalkSpot::building(*b, map),
-                    goal,
-                },
-                TripEndpoint::Bldg(*b),
-                map,
-            );
-        }
-        _ => {
-            // Driving
-            let goal = match raw_goal {
-                Goal::Building(to) => DrivingGoal::ParkNear(to),
-                Goal::Border(to) => {
-                    if let Some(g) = DrivingGoal::end_at_border(
-                        map.get_i(to).some_incoming_road(map),
-                        PathConstraints::Car,
-                        None,
-                        map,
-                    ) {
-                        g
-                    } else {
-                        return Some(format!("Can't end a car trip at {}", to));
-                    }
-                }
-            };
-            match src {
-                Source::Drive(from) => {
-                    if let Some(start_pos) = TripSpec::spawn_vehicle_at(*from, false, map) {
-                        let person = sim.random_person(
-                            Scenario::rand_ped_speed(rng),
-                            vec![Scenario::rand_car(rng)],
-                        );
-                        spawner.schedule_trip(
-                            person,
-                            now,
-                            TripSpec::VehicleAppearing {
-                                start_pos,
-                                goal,
-                                retry_if_no_room: false,
-                                use_vehicle: person.vehicles[0].id,
-                                origin: None,
-                            },
-                            TripEndpoint::Border(map.get_l(from.lane()).src_i, None),
-                            map,
-                        );
-                    } else {
-                        return Some(format!("Can't make a car appear at {:?}", from));
-                    }
-                }
-                _ => unreachable!(),
-            }
-        }
-    }
-    None
 }
 
 // New experiment, stop squeezing in all these options into one thing, specialize.
@@ -547,21 +263,9 @@ pub fn actions(app: &App, id: ID) -> Vec<(Key, String)> {
     let map = &app.primary.map;
 
     match id {
-        ID::Building(id) => {
-            actions.push((Key::F3, "spawn a walking trip".to_string()));
-            if Position::bldg_via_driving(id, map).is_some() {
-                actions.push((Key::F4, "spawn a car starting here".to_string()));
-            }
-            if Position::bldg_via_biking(id, map).is_some() {
-                actions.push((Key::F7, "spawn a bike starting here".to_string()));
-            }
-        }
         ID::Lane(id) => {
             if map.get_l(id).is_driving() {
-                actions.push((Key::F3, "spawn a car starting here".to_string()));
                 actions.push((Key::F2, "spawn many cars starting here".to_string()));
-            } else if map.get_l(id).is_sidewalk() {
-                actions.push((Key::F3, "spawn a pedestrian starting here".to_string()));
             }
         }
         ID::Intersection(_) => {
@@ -573,83 +277,7 @@ pub fn actions(app: &App, id: ID) -> Vec<(Key, String)> {
 }
 
 pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
-    let map = &app.primary.map;
-    let color = app.cs.selected;
-    let mut c = Colorer::discrete(ctx, "Spawning agent", Vec::new(), vec![("start", color)]);
-
     match (id, action.as_ref()) {
-        (ID::Building(id), "spawn a walking trip") => {
-            c.add_b(id, color);
-            Transition::Push(Box::new(AgentSpawner {
-                composite: make_top_bar(
-                    ctx,
-                    app,
-                    "Spawning a pedestrian",
-                    "Pick a building or border as a destination",
-                ),
-                from: Source::WalkFromBldg(id),
-                maybe_goal: None,
-                colorer: c.build_both(ctx, app),
-            }))
-        }
-        (ID::Building(id), "spawn a car starting here") => {
-            c.add_b(id, color);
-            let pos = Position::bldg_via_driving(id, map).unwrap();
-            Transition::Push(Box::new(AgentSpawner {
-                composite: make_top_bar(
-                    ctx,
-                    app,
-                    "Spawning a car",
-                    "Pick a building or border as a destination",
-                ),
-                from: Source::Drive(pos),
-                maybe_goal: None,
-                colorer: c.build_both(ctx, app),
-            }))
-        }
-        (ID::Building(id), "spawn a bike starting here") => {
-            c.add_b(id, color);
-            let pos = Position::bldg_via_biking(id, map).unwrap();
-            Transition::Push(Box::new(AgentSpawner {
-                composite: make_top_bar(
-                    ctx,
-                    app,
-                    "Spawning a bike",
-                    "Pick a building or border as a destination",
-                ),
-                from: Source::BikeFromBldg(id, pos),
-                maybe_goal: None,
-                colorer: c.build_both(ctx, app),
-            }))
-        }
-        (ID::Lane(id), "spawn a car starting here") => {
-            c.add_l(id, color, map);
-            Transition::Push(Box::new(AgentSpawner {
-                composite: make_top_bar(
-                    ctx,
-                    app,
-                    "Spawning a car",
-                    "Pick a building or border as a destination",
-                ),
-                from: Source::Drive(Position::new(id, map.get_l(id).length() / 2.0)),
-                maybe_goal: None,
-                colorer: c.build_both(ctx, app),
-            }))
-        }
-        (ID::Lane(id), "spawn a pedestrian starting here") => {
-            c.add_l(id, color, map);
-            Transition::Push(Box::new(AgentSpawner {
-                composite: make_top_bar(
-                    ctx,
-                    app,
-                    "Spawning a pedestrian",
-                    "Pick a building or border as a destination",
-                ),
-                from: Source::WalkFromSidewalk(Position::new(id, map.get_l(id).length() / 2.0)),
-                maybe_goal: None,
-                colorer: c.build_both(ctx, app),
-            }))
-        }
         (ID::Lane(l), "spawn many cars starting here") => {
             let color = app.cs.selected;
             let mut c = Colorer::discrete(
