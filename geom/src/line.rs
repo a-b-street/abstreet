@@ -75,6 +75,18 @@ impl Line {
         }
     }
 
+    // An intersection that isn't just two endpoints touching
+    pub fn crosses(&self, other: &Line) -> bool {
+        if self.pt1() == other.pt1()
+            || self.pt1() == other.pt2()
+            || self.pt2() == other.pt1()
+            || self.pt2() == other.pt2()
+        {
+            return false;
+        }
+        self.intersection(other).is_some()
+    }
+
     // TODO Also return the distance along self
     pub fn intersection_infinite(&self, other: &InfiniteLine) -> Option<Pt2D> {
         let hit = self.infinite().intersection(other)?;

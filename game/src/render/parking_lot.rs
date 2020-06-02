@@ -10,6 +10,7 @@ use map_model::{
 
 pub struct DrawParkingLot {
     pub id: ParkingLotID,
+    pub inferred_spots: usize,
 }
 
 impl DrawParkingLot {
@@ -42,62 +43,17 @@ impl DrawParkingLot {
             RewriteColor::NoOp,
             true,
         );
-
-        let mut lines = Vec::new();
-        for aisle in &lot.aisles {
-            let aisle_thickness = NORMAL_LANE_THICKNESS / 2.0;
-            let pl = PolyLine::unchecked_new(aisle.clone());
-            all_lots.push(cs.parking_lane, pl.make_polygons(aisle_thickness));
-
-            let mut start = Distance::ZERO;
-            while start < pl.length() {
-                let (pt, angle) = pl.dist_along(start);
-                for rotate in vec![90.0, -90.0] {
-                    let theta = angle.rotate_degs(rotate);
-                    let line = Line::new(
-                        pt.project_away(aisle_thickness / 2.0, theta),
-                        // The full PARKING_SPOT_LENGTH used for on-street is looking too
-                        // conservative for some manually audited cases in Seattle
-                        pt.project_away(aisle_thickness / 2.0 + 0.8 * PARKING_SPOT_LENGTH, theta),
-                    );
-
-                    // Don't leak out of the parking lot
-                    // TODO Entire line
-                    if !lot.polygon.contains_pt(line.pt1()) || !lot.polygon.contains_pt(line.pt2())
-                    {
-                        continue;
-                    }
-
-                    // Don't let this line hit another line
-                    if lines.iter().any(|other| line.intersection(other).is_some()) {
-                        continue;
-                    }
-
-                    // Don't hit an aisle
-                    if lot.aisles.iter().any(|pts| {
-                        PolyLine::unchecked_new(pts.clone())
-                            .intersection(&line.to_polyline())
-                            .is_some()
-                    }) {
-                        continue;
-                    }
-
-                    all_lots.push(
-                        cs.general_road_marking,
-                        line.make_polygons(Distance::meters(0.25)),
-                    );
-                    lines.push(line);
-                }
-                start += NORMAL_LANE_THICKNESS;
-            }
-        }
+        let inferred_spots = infer_spots(cs, lot, all_lots);
 
         paths_batch.push(
             cs.sidewalk,
             front_path_line.make_polygons(NORMAL_LANE_THICKNESS),
         );
 
-        DrawParkingLot { id: lot.id }
+        DrawParkingLot {
+            id: lot.id,
+            inferred_spots,
+        }
     }
 }
 
@@ -124,4 +80,90 @@ impl Renderable for DrawParkingLot {
     fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {
         map.get_pl(self.id).polygon.contains_pt(pt)
     }
+}
+
+fn line_valid(lot: &ParkingLot, line: &Line, finalized_lines: &Vec<Line>) -> bool {
+    // Don't leak out of the parking lot
+    // TODO Entire line
+    if !lot.polygon.contains_pt(line.pt1()) || !lot.polygon.contains_pt(line.pt2()) {
+        return false;
+    }
+
+    // Don't let this line hit another line
+    if finalized_lines.iter().any(|other| line.crosses(other)) {
+        return false;
+    }
+
+    // Don't hit an aisle
+    if lot.aisles.iter().any(|pts| {
+        PolyLine::unchecked_new(pts.clone())
+            .intersection(&line.to_polyline())
+            .is_some()
+    }) {
+        return false;
+    }
+
+    true
+}
+
+// Returns the number of spots
+fn infer_spots(cs: &ColorScheme, lot: &ParkingLot, batch: &mut GeomBatch) -> usize {
+    let mut total_spots = 0;
+    let mut finalized_lines = Vec::new();
+
+    for aisle in &lot.aisles {
+        let aisle_thickness = NORMAL_LANE_THICKNESS / 2.0;
+        let pl = PolyLine::unchecked_new(aisle.clone());
+        batch.push(cs.parking_lane, pl.make_polygons(aisle_thickness));
+
+        for rotate in vec![90.0, -90.0] {
+            // Blindly generate all of the lines
+            let lines = {
+                let mut lines = Vec::new();
+                let mut start = Distance::ZERO;
+                while start + NORMAL_LANE_THICKNESS < pl.length() {
+                    let (pt, angle) = pl.dist_along(start);
+                    start += NORMAL_LANE_THICKNESS;
+                    let theta = angle.rotate_degs(rotate);
+                    lines.push(Line::new(
+                        pt.project_away(aisle_thickness / 2.0, theta),
+                        // The full PARKING_SPOT_LENGTH used for on-street is looking too
+                        // conservative for some manually audited cases in Seattle
+                        pt.project_away(aisle_thickness / 2.0 + 0.8 * PARKING_SPOT_LENGTH, theta),
+                    ));
+                }
+                lines
+            };
+
+            for pair in lines.windows(2) {
+                let l1 = &pair[0];
+                let l2 = &pair[1];
+                let back = Line::new(l1.pt2(), l2.pt2());
+                if l1.intersection(&l2).is_none()
+                    && l1.angle().approx_eq(l2.angle(), 5.0)
+                    && line_valid(lot, l1, &finalized_lines)
+                    && line_valid(lot, l2, &finalized_lines)
+                    && line_valid(lot, &back, &finalized_lines)
+                {
+                    total_spots += 1;
+                    batch.push(
+                        cs.general_road_marking,
+                        l1.make_polygons(Distance::meters(0.25)),
+                    );
+                    batch.push(
+                        cs.general_road_marking,
+                        l2.make_polygons(Distance::meters(0.25)),
+                    );
+                    batch.push(
+                        ezgui::Color::RED,
+                        back.make_polygons(Distance::meters(0.25)),
+                    );
+                    finalized_lines.push(l1.clone());
+                    finalized_lines.push(l2.clone());
+                    finalized_lines.push(back);
+                }
+            }
+        }
+    }
+    total_spots
 }
