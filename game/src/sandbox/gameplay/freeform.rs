@@ -1,18 +1,22 @@
-use crate::app::App;
+use crate::app::{App, ShowEverything};
 use crate::common::{CityPicker, CommonState};
 use crate::edit::EditMode;
-use crate::game::{State, Transition, WizardState};
-use crate::helpers::nice_map_name;
+use crate::game::{msg, State, Transition, WizardState};
+use crate::helpers::{nice_map_name, ID};
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::SandboxControls;
 use crate::sandbox::SandboxMode;
+use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
     Key, Line, Outcome, ScreenRectangle, TextExt, VerticalAlignment, Widget,
 };
-use geom::Polygon;
-use map_model::IntersectionID;
-use sim::{TripEndpoint, TripMode};
+use geom::{Distance, Duration, Polygon};
+use map_model::{
+    IntersectionID, Map, PathConstraints, PathRequest, Position, NORMAL_LANE_THICKNESS,
+};
+use rand_xorshift::XorShiftRng;
+use sim::{DontDrawAgents, SidewalkSpot, Sim, TripEndpoint, TripMode, TripSpawner, TripSpec};
 use std::collections::BTreeSet;
 
 // TODO Maybe remember what things were spawned, offer to replay this later
@@ -176,15 +180,21 @@ pub fn make_change_traffic(btn: ScreenRectangle) -> Box<dyn State> {
     }))
 }
 
+// TODO Maybe move all this to the other module
+
+const SMALL_DT: Duration = Duration::const_seconds(0.1);
+
 struct AgentSpawner {
     composite: Composite,
-    _source: Option<TripEndpoint>,
+    source: Option<TripEndpoint>,
+    goal: Option<(TripEndpoint, Option<Polygon>)>,
 }
 
 impl AgentSpawner {
     fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         Box::new(AgentSpawner {
-            _source: None,
+            source: None,
+            goal: None,
             composite: Composite::new(
                 Widget::col(vec![
                     Widget::row(vec![
@@ -220,6 +230,7 @@ impl AgentSpawner {
 
 impl State for AgentSpawner {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        let old_mode: TripMode = self.composite.dropdown_value("mode");
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "close" => {
@@ -229,10 +240,93 @@ impl State for AgentSpawner {
             },
             None => {}
         }
+        if old_mode != self.composite.dropdown_value("mode") {
+            self.goal = None;
+        }
 
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
-            app.recalculate_current_selection(ctx);
+            app.primary.current_selection = app.calculate_current_selection(
+                ctx,
+                &DontDrawAgents {},
+                &ShowEverything::new(),
+                false,
+                true,
+                true,
+            );
+            if let Some(ID::Intersection(i)) = app.primary.current_selection {
+                if !app.primary.map.get_i(i).is_border() {
+                    app.primary.current_selection = None;
+                }
+            } else if let Some(ID::Building(_)) = app.primary.current_selection {
+            } else {
+                app.primary.current_selection = None;
+            }
+        }
+        if let Some(hovering) = match app.primary.current_selection {
+            Some(ID::Intersection(i)) => Some(TripEndpoint::Border(i, None)),
+            Some(ID::Building(b)) => Some(TripEndpoint::Bldg(b)),
+            None => None,
+            _ => unreachable!(),
+        } {
+            if self.source.is_none() && app.per_obj.left_click(ctx, "start here") {
+                self.source = Some(hovering);
+                self.composite.replace(
+                    ctx,
+                    "instructions",
+                    "Click a building or border to specify end"
+                        .draw_text(ctx)
+                        .named("instructions"),
+                );
+            } else if self.source.is_some() && self.source != Some(hovering.clone()) {
+                if self
+                    .goal
+                    .as_ref()
+                    .map(|(to, _)| to != &hovering)
+                    .unwrap_or(true)
+                {
+                    if let Some(path) = path_request(
+                        self.source.clone().unwrap(),
+                        hovering.clone(),
+                        self.composite.dropdown_value("mode"),
+                        &app.primary.map,
+                    )
+                    .and_then(|req| app.primary.map.pathfind(req))
+                    {
+                        self.goal = Some((
+                            hovering,
+                            path.trace(&app.primary.map, Distance::ZERO, None)
+                                .map(|pl| pl.make_polygons(NORMAL_LANE_THICKNESS)),
+                        ));
+                    } else {
+                        self.goal = None;
+                    }
+                }
+
+                if self.goal.is_some() && app.per_obj.left_click(ctx, "end here") {
+                    let mut rng = app.primary.current_flags.sim_flags.make_rng();
+                    let map = &app.primary.map;
+                    let sim = &mut app.primary.sim;
+                    let mut spawner = sim.make_spawner();
+                    let err = schedule_trip(
+                        self.source.take().unwrap(),
+                        self.goal.take().unwrap().0,
+                        self.composite.dropdown_value("mode"),
+                        map,
+                        sim,
+                        &mut spawner,
+                        &mut rng,
+                    );
+                    sim.flush_spawner(spawner, map, &mut Timer::new("spawn trip"));
+                    sim.normal_step(map, SMALL_DT);
+                    app.recalculate_current_selection(ctx);
+                    if let Some(e) = err {
+                        return Transition::Replace(msg("Spawning error", vec![e]));
+                    } else {
+                        return Transition::Pop;
+                    }
+                }
+            }
         }
 
         Transition::Keep
@@ -241,5 +335,80 @@ impl State for AgentSpawner {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.composite.draw(g);
         CommonState::draw_osd(g, app, &app.primary.current_selection);
+
+        if let Some(ref endpt) = self.source {
+            g.draw_polygon(
+                Color::BLUE.alpha(0.8),
+                match endpt {
+                    TripEndpoint::Border(i, _) => &app.primary.map.get_i(*i).polygon,
+                    TripEndpoint::Bldg(b) => &app.primary.map.get_b(*b).polygon,
+                },
+            );
+        }
+        if let Some((ref endpt, ref poly)) = self.goal {
+            g.draw_polygon(
+                Color::GREEN.alpha(0.8),
+                match endpt {
+                    TripEndpoint::Border(i, _) => &app.primary.map.get_i(*i).polygon,
+                    TripEndpoint::Bldg(b) => &app.primary.map.get_b(*b).polygon,
+                },
+            );
+            if let Some(p) = poly {
+                g.draw_polygon(Color::PURPLE, p);
+            }
+        }
     }
+}
+
+// TODO This exists in a few other places, in less clear forms...
+fn path_request(
+    from: TripEndpoint,
+    to: TripEndpoint,
+    mode: TripMode,
+    map: &Map,
+) -> Option<PathRequest> {
+    Some(PathRequest {
+        start: pos(from, mode, true, map)?,
+        end: pos(to, mode, false, map)?,
+        constraints: match mode {
+            TripMode::Walk | TripMode::Transit => PathConstraints::Pedestrian,
+            TripMode::Drive => PathConstraints::Car,
+            TripMode::Bike => PathConstraints::Bike,
+        },
+    })
+}
+
+// TODO Bugs!
+fn pos(endpt: TripEndpoint, mode: TripMode, from: bool, map: &Map) -> Option<Position> {
+    match endpt {
+        TripEndpoint::Bldg(b) => match mode {
+            TripMode::Walk | TripMode::Transit => Some(map.get_b(b).front_path.sidewalk),
+            // TODO nope! use parking blckhole
+            TripMode::Bike | TripMode::Drive => Position::bldg_via_driving(b, map),
+        },
+        TripEndpoint::Border(i, _) => match mode {
+            TripMode::Walk | TripMode::Transit => if from {
+                SidewalkSpot::start_at_border(i, None, map)
+            } else {
+                SidewalkSpot::end_at_border(i, None, map)
+            }
+            .map(|spot| spot.sidewalk_pos),
+            // TODO
+            TripMode::Bike | TripMode::Drive => None,
+        },
+    }
+}
+
+// Returns optional error message
+fn schedule_trip(
+    from: TripEndpoint,
+    to: TripEndpoint,
+    mode: TripMode,
+    map: &Map,
+    sim: &mut Sim,
+    spawner: &mut TripSpawner,
+    rng: &mut XorShiftRng,
+) -> Option<String> {
+    // TODO
+    None
 }

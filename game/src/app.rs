@@ -202,6 +202,8 @@ impl App {
             } else if let Some(ID::Intersection(id)) = self.primary.current_selection {
                 // Actually, don't use get_outline here! Full polygon is easier to see.
                 g.draw_polygon(self.cs.selected, &self.primary.map.get_i(id).polygon);
+            } else if let Some(ID::Building(id)) = self.primary.current_selection {
+                g.draw_polygon(self.cs.selected, &self.primary.map.get_b(id).polygon);
             }
 
             let mut cache = self.primary.draw_map.agents.borrow_mut();
