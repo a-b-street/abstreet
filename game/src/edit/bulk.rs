@@ -320,6 +320,8 @@ impl State for PaintSelect {
                 false,
             );
             if let Some(ID::Road(_)) = app.primary.current_selection {
+            } else if let Some(ID::Lane(l)) = app.primary.current_selection {
+                app.primary.current_selection = Some(ID::Road(app.primary.map.get_l(l).parent));
             } else {
                 app.primary.current_selection = None;
             }
