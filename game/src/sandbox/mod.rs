@@ -19,8 +19,9 @@ use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::pregame::MainMenu;
 use crate::render::AgentColorScheme;
 use ezgui::{
-    hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
+    hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget, Wizard,
+    UpdateType
 };
 pub use gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
 use geom::{Polygon, Time};
@@ -192,7 +193,8 @@ impl State for SandboxMode {
         {
             Transition::Keep
         } else {
-            Transition::KeepWithMode(EventLoopMode::Animation)
+            ctx.request_update(UpdateType::Game);
+            Transition::Keep
         }
     }
 

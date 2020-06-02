@@ -103,7 +103,7 @@ impl UI {
 }
 
 impl GUI for UI {
-    fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
+    fn event(&mut self, ctx: &mut EventCtx) {
         if self.info_key_held {
             self.info_key_held = !ctx.input.key_released(Key::LeftAlt);
         } else {
@@ -547,8 +547,6 @@ impl GUI for UI {
         }
 
         self.last_id = self.model.world.get_selection();
-
-        EventLoopMode::InputOnly
     }
 
     fn draw(&self, g: &mut GfxCtx) {

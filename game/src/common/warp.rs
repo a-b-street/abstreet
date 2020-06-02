@@ -42,8 +42,8 @@ impl Warping {
 
 impl State for Warping {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
-        if let Some(evmode) = self.warper.event(ctx) {
-            Transition::KeepWithMode(evmode)
+        if self.warper.event(ctx) {
+            Transition::Keep
         } else {
             if let Some(id) = self.id.clone() {
                 Transition::PopWithData(Box::new(move |state, ctx, app| {

@@ -1,6 +1,6 @@
 use crate::assets::Assets;
 use crate::tools::screenshot::screenshot_everything;
-use crate::{text, Canvas, Event, EventCtx, GfxCtx, Key, Prerender, Style, UserInput};
+use crate::{text, Canvas, Event, EventCtx, GfxCtx, Key, Prerender, Style, UserInput, UpdateType};
 use geom::Duration;
 use image::{GenericImageView, Pixel};
 use instant::Instant;
@@ -11,7 +11,7 @@ use winit::window::Icon;
 const UPDATE_FREQUENCY: std::time::Duration = std::time::Duration::from_millis(1000 / 30);
 
 pub trait GUI {
-    fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode;
+    fn event(&mut self, ctx: &mut EventCtx);
     fn draw(&self, g: &mut GfxCtx);
     // Will be called if event or draw panics.
     fn dump_before_abort(&self, _canvas: &Canvas) {}
@@ -21,7 +21,7 @@ pub trait GUI {
 
 #[derive(Clone, PartialEq)]
 pub enum EventLoopMode {
-    Animation,
+    Animation(String),
     InputOnly,
     ScreenCaptureEverything {
         dir: String,
@@ -39,7 +39,7 @@ pub(crate) struct State<G: GUI> {
 
 impl<G: GUI> State<G> {
     // The bool indicates if the input was actually used.
-    fn event(&mut self, mut ev: Event, prerender: &Prerender) -> (EventLoopMode, bool) {
+    fn event(&mut self, mut ev: Event, prerender: &Prerender) -> (Vec<UpdateType>, bool) {
         if let Event::MouseWheelScroll(dx, dy) = ev {
             if self.canvas.invert_scroll {
                 ev = Event::MouseWheelScroll(-dx, -dy);
@@ -65,7 +65,7 @@ impl<G: GUI> State<G> {
                 });
         }
 
-        // It's impossible / very unlikey we'll grab the cursor in map space before the very first
+        // It's impossible / very unlikely we'll grab the cursor in map space before the very first
         // start_drawing call.
         let input = UserInput::new(ev, &self.canvas);
 
@@ -122,8 +122,9 @@ impl<G: GUI> State<G> {
                 canvas: &mut self.canvas,
                 prerender,
                 style: &mut self.style,
+                updates_requested: vec![]
             };
-            let evloop = self.gui.event(&mut ctx);
+            self.gui.event(&mut ctx);
             // TODO We should always do has_been_consumed, but various hacks prevent this from being
             // true. For now, just avoid the specific annoying redraw case when a KeyRelease event
             // is unused.
@@ -131,7 +132,7 @@ impl<G: GUI> State<G> {
                 Event::KeyRelease(_) => ctx.input.has_been_consumed(),
                 _ => true,
             };
-            (evloop, input_used)
+            (ctx.updates_requested, input_used)
         })) {
             Ok(pair) => pair,
             Err(err) => {
@@ -250,6 +251,7 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
         canvas: &mut canvas,
         prerender: &prerender,
         style: &mut style,
+        updates_requested: vec![]
     });
 
     let mut state = State { canvas, gui, style };
@@ -315,34 +317,41 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
                 winit::event_loop::ControlFlow::WaitUntil(Instant::now() + UPDATE_FREQUENCY);
         }
 
-        let (mode, input_used) = state.event(ev, &prerender);
+        let (updates, input_used) = state.event(ev, &prerender);
+
         if input_used {
             prerender.request_redraw();
         }
 
-        match mode {
-            EventLoopMode::InputOnly => {
-                running = false;
-                *control_flow = winit::event_loop::ControlFlow::Wait;
-            }
-            EventLoopMode::Animation => {
-                // If we just unpaused, then don't act as if lots of time has passed.
-                if !running {
-                    last_update = Instant::now();
-                    *control_flow = winit::event_loop::ControlFlow::WaitUntil(
-                        Instant::now() + UPDATE_FREQUENCY,
-                    );
-                }
 
-                running = true;
-            }
-            EventLoopMode::ScreenCaptureEverything {
-                dir,
-                zoom,
-                max_x,
-                max_y,
-            } => {
-                screenshot_everything(&mut state, &dir, &prerender, zoom, max_x, max_y);
+        for update in updates {
+            match update {
+                UpdateType::InputOnly => {
+                    running = false;
+                    *control_flow = winit::event_loop::ControlFlow::Wait;
+                },
+                UpdateType::Game => {
+                    // If we just unpaused, then don't act as if lots of time has passed.
+                    if !running {
+                        last_update = Instant::now();
+                        *control_flow = winit::event_loop::ControlFlow::WaitUntil(
+                            Instant::now() + UPDATE_FREQUENCY,
+                        );
+                    }
+
+                    running = true;
+                },
+                UpdateType::Pan => {
+
+                },
+                UpdateType::ScreenCaptureEverything{
+                    dir,
+                    zoom,
+                    max_x,
+                    max_y
+                } => {
+                    screenshot_everything(&mut state, &dir, &prerender, zoom, max_x, max_y);
+                }
             }
         }
     });

@@ -49,7 +49,7 @@ pub use crate::canvas::{Canvas, HorizontalAlignment, VerticalAlignment};
 pub use crate::color::{Color, FancyColor, LinearGradient};
 pub use crate::drawing::{GfxCtx, Prerender};
 pub use crate::event::{hotkey, hotkeys, lctrl, Event, Key, MultiKey};
-pub use crate::event_ctx::EventCtx;
+pub use crate::event_ctx::{EventCtx,UpdateType};
 pub use crate::geom::{GeomBatch, RewriteColor};
 pub use crate::input::UserInput;
 pub use crate::managed::{Composite, Widget};

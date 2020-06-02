@@ -6,8 +6,8 @@ use crate::game::{msg, DrawBaselayer, State, Transition};
 use crate::sandbox::gameplay::Tutorial;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use ezgui::{
-    hotkey, hotkeys, Btn, Color, Composite, EventCtx, EventLoopMode, GfxCtx, Key, Line, Outcome,
-    RewriteColor, Text, Widget,
+    hotkey, hotkeys, Btn, Color, Composite, EventCtx, GfxCtx, Key, Line, Outcome,
+    RewriteColor, Text, Widget, UpdateType
 };
 use geom::{Duration, Line, Pt2D, Speed};
 use instant::Instant;
@@ -60,7 +60,8 @@ impl State for TitleScreen {
 
         self.screensaver
             .update(&mut self.rng, ctx, &app.primary.map);
-        Transition::KeepWithMode(EventLoopMode::Animation)
+        ctx.request_update(UpdateType::Game);
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {

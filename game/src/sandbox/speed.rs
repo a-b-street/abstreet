@@ -4,9 +4,9 @@ use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use ezgui::{
-    hotkey, AreaSlider, Btn, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
+    hotkey, AreaSlider, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, PersistentSplit, RewriteColor, Text,
-    VerticalAlignment, Widget,
+    VerticalAlignment, Widget,UpdateType
 };
 use geom::{Duration, Polygon, Pt2D, Time};
 use instant::Instant;
@@ -588,7 +588,8 @@ impl State for TimeWarpScreen {
             return Transition::Pop;
         }
 
-        Transition::KeepWithMode(EventLoopMode::Animation)
+        ctx.request_update(UpdateType::Game);
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {

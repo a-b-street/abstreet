@@ -1,5 +1,9 @@
-use crate::{EventCtx, EventLoopMode};
+use crate::{EventCtx, UpdateType};
+
 use geom::{Line, Pt2D};
+
+
+
 use instant::Instant;
 
 pub struct Warper {
@@ -19,15 +23,16 @@ impl Warper {
     }
 
     // None means done
-    pub fn event(&self, ctx: &mut EventCtx) -> Option<EventLoopMode> {
+    pub fn event(&self, ctx: &mut EventCtx) -> bool {
         // Actually nothing for us to do
         if self.line.is_none() && self.cam_zoom.0 == self.cam_zoom.1 {
-            return None;
+            return false;
         }
 
         // Weird to do stuff for any event?
         if ctx.input.nonblocking_is_update_event().is_none() {
-            return Some(EventLoopMode::Animation);
+            ctx.request_update(UpdateType::Game);
+            return true;
         }
         ctx.input.use_update_event();
 
@@ -48,7 +53,7 @@ impl Warper {
             } else {
                 ctx.canvas.center_on_map_pt(orig_center);
             }
-            None
+            false
         } else {
             ctx.canvas.cam_zoom = self.cam_zoom.0 + percent * (self.cam_zoom.1 - self.cam_zoom.0);
             if let Some(ref line) = self.line {
@@ -57,7 +62,8 @@ impl Warper {
             } else {
                 ctx.canvas.center_on_map_pt(orig_center);
             }
-            Some(EventLoopMode::Animation)
+            ctx.request_update(UpdateType::Game);
+            true
         }
     }
 }
