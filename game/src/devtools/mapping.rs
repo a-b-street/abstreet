@@ -7,8 +7,8 @@ use ezgui::{
     hotkey, Btn, Checkbox, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
 };
-use geom::{Distance, FindClosest, PolyLine};
-use map_model::{osm, BuildingID, RoadID};
+use geom::{Distance, FindClosest, PolyLine, Polygon};
+use map_model::{osm, RoadID};
 use sim::DontDrawAgents;
 use std::collections::{BTreeMap, HashSet};
 use std::error::Error;
@@ -30,7 +30,7 @@ enum Show {
     TODO,
     Done,
     DividedHighways,
-    OverlappingBuildings,
+    OverlappingStuff,
 }
 
 #[derive(PartialEq, Clone)]
@@ -62,7 +62,7 @@ impl ParkingMapper {
             Show::TODO => Color::RED,
             Show::Done => Color::BLUE,
             Show::DividedHighways => Color::RED,
-            Show::OverlappingBuildings => Color::RED,
+            Show::OverlappingStuff => Color::RED,
         }
         .alpha(0.5);
         let mut batch = GeomBatch::new();
@@ -88,12 +88,15 @@ impl ParkingMapper {
                 batch.push(color, map.get_r(r).get_thick_polygon(map).unwrap());
             }
         }
-        if show == Show::OverlappingBuildings {
-            ctx.loading_screen("find buildings overlapping roads", |_, mut timer| {
-                for b in find_overlapping_buildings(app, &mut timer) {
-                    batch.push(color, map.get_b(b).polygon.clone());
-                }
-            });
+        if show == Show::OverlappingStuff {
+            ctx.loading_screen(
+                "find buildings and parking lots overlapping roads",
+                |_, mut timer| {
+                    for poly in find_overlapping_stuff(app, &mut timer) {
+                        batch.push(color, poly);
+                    }
+                },
+            );
         }
 
         // Nicer display
@@ -153,8 +156,8 @@ impl ParkingMapper {
                                      tagged",
                                 ),
                                 Choice::new(
-                                    "buildings overlapping roads",
-                                    Show::OverlappingBuildings,
+                                    "buildings and parking lots overlapping roads",
+                                    Show::OverlappingStuff,
                                 )
                                 .tooltip("Roads often have the wrong number of lanes tagged"),
                             ],
@@ -167,7 +170,9 @@ impl ParkingMapper {
                                 Show::TODO => "TODO",
                                 Show::Done => "done",
                                 Show::DividedHighways => "divided highways",
-                                Show::OverlappingBuildings => "buildings overlapping roads",
+                                Show::OverlappingStuff => {
+                                    "buildings and parking lots overlapping roads"
+                                }
                             },
                         ),
                     ])
@@ -588,7 +593,7 @@ fn find_divided_highways(app: &App) -> HashSet<RoadID> {
 }
 
 // TODO Lots of false positives here... why?
-fn find_overlapping_buildings(app: &App, timer: &mut Timer) -> Vec<BuildingID> {
+fn find_overlapping_stuff(app: &App, timer: &mut Timer) -> Vec<Polygon> {
     let map = &app.primary.map;
     let mut closest: FindClosest<RoadID> = FindClosest::new(map.get_bounds());
     for r in map.all_roads() {
@@ -598,7 +603,8 @@ fn find_overlapping_buildings(app: &App, timer: &mut Timer) -> Vec<BuildingID> {
         closest.add(r.id, r.center_pts.points());
     }
 
-    let mut found = Vec::new();
+    let mut polygons = Vec::new();
+
     timer.start_iter("check buildings", map.all_buildings().len());
     for b in map.all_buildings() {
         timer.next();
@@ -608,9 +614,24 @@ fn find_overlapping_buildings(app: &App, timer: &mut Timer) -> Vec<BuildingID> {
                 .intersection(&map.get_r(r).get_thick_polygon(map).unwrap())
                 .is_empty()
             {
-                found.push(b.id);
+                polygons.push(b.polygon.clone());
             }
         }
     }
-    found
+
+    timer.start_iter("check parking lots", map.all_parking_lots().len());
+    for pl in map.all_parking_lots() {
+        timer.next();
+        for (r, _, _) in closest.all_close_pts(pl.polygon.center(), Distance::meters(500.0)) {
+            if !pl
+                .polygon
+                .intersection(&map.get_r(r).get_thick_polygon(map).unwrap())
+                .is_empty()
+            {
+                polygons.push(pl.polygon.clone());
+            }
+        }
+    }
+
+    polygons
 }
