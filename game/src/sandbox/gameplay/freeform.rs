@@ -9,29 +9,23 @@ use crate::sandbox::SandboxMode;
 use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, Outcome, ScreenRectangle, TextExt, VerticalAlignment, Widget,
+    Key, Line, Outcome, ScreenRectangle, Spinner, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Distance, Duration, Polygon};
-use map_model::{
-    IntersectionID, Map, PathConstraints, PathRequest, Position, NORMAL_LANE_THICKNESS,
-};
+use map_model::{Map, PathConstraints, PathRequest, Position, NORMAL_LANE_THICKNESS};
 use sim::{
     DontDrawAgents, IndividTrip, PersonID, PersonSpec, Scenario, SidewalkSpot, SpawnTrip,
     TripEndpoint, TripMode,
 };
-use std::collections::BTreeSet;
 
 // TODO Maybe remember what things were spawned, offer to replay this later
 pub struct Freeform {
-    // TODO Clean these up later when done?
-    pub spawn_pts: BTreeSet<IntersectionID>,
     top_center: Composite,
 }
 
 impl Freeform {
     pub fn new(ctx: &mut EventCtx, app: &App, mode: GameplayMode) -> Box<dyn GameplayState> {
         Box::new(Freeform {
-            spawn_pts: BTreeSet::new(),
             top_center: freeform_controller(ctx, app, mode, "none"),
         })
     }
@@ -76,12 +70,8 @@ impl GameplayState for Freeform {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.top_center.draw(g);
-        // TODO Overriding draw options would be ideal, but...
-        for i in &self.spawn_pts {
-            g.draw_polygon(Color::GREEN.alpha(0.8), &app.primary.map.get_i(*i).polygon);
-        }
     }
 }
 
@@ -220,6 +210,10 @@ impl AgentSpawner {
                                 .collect(),
                         ),
                     ]),
+                    Widget::row(vec![
+                        "Number of trips:".draw_text(ctx).margin_right(10),
+                        Spinner::new(ctx, (1, 1000), 1).named("number"),
+                    ]),
                 ])
                 .bg(app.cs.panel_bg)
                 .padding(10),
@@ -308,19 +302,23 @@ impl State for AgentSpawner {
                 if self.goal.is_some() && app.per_obj.left_click(ctx, "end here") {
                     let map = &app.primary.map;
                     let mut scenario = Scenario::empty(map, "one-shot");
-                    scenario.people.push(PersonSpec {
-                        id: PersonID(app.primary.sim.get_all_people().len()),
-                        orig_id: None,
-                        trips: vec![IndividTrip {
-                            depart: app.primary.sim.time(),
-                            trip: SpawnTrip::new(
-                                self.source.take().unwrap(),
-                                self.goal.take().unwrap().0,
-                                self.composite.dropdown_value("mode"),
-                                map,
-                            ),
-                        }],
-                    });
+                    let from = self.source.take().unwrap();
+                    let to = self.goal.take().unwrap().0;
+                    for i in 0..self.composite.spinner("number") {
+                        scenario.people.push(PersonSpec {
+                            id: PersonID(app.primary.sim.get_all_people().len() + i),
+                            orig_id: None,
+                            trips: vec![IndividTrip {
+                                depart: app.primary.sim.time(),
+                                trip: SpawnTrip::new(
+                                    from.clone(),
+                                    to.clone(),
+                                    self.composite.dropdown_value("mode"),
+                                    map,
+                                ),
+                            }],
+                        });
+                    }
                     let mut rng = app.primary.current_flags.sim_flags.make_rng();
                     scenario.instantiate(
                         &mut app.primary.sim,
