@@ -1,7 +1,7 @@
 use crate::app::{App, ShowEverything};
 use crate::common::{CityPicker, CommonState};
 use crate::edit::EditMode;
-use crate::game::{msg, State, Transition, WizardState};
+use crate::game::{State, Transition, WizardState};
 use crate::helpers::{nice_map_name, ID};
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::SandboxControls;
@@ -15,8 +15,10 @@ use geom::{Distance, Duration, Polygon};
 use map_model::{
     IntersectionID, Map, PathConstraints, PathRequest, Position, NORMAL_LANE_THICKNESS,
 };
-use rand_xorshift::XorShiftRng;
-use sim::{DontDrawAgents, SidewalkSpot, Sim, TripEndpoint, TripMode, TripSpawner, TripSpec};
+use sim::{
+    DontDrawAgents, IndividTrip, PersonID, PersonSpec, Scenario, SidewalkSpot, SpawnTrip,
+    TripEndpoint, TripMode,
+};
 use std::collections::BTreeSet;
 
 // TODO Maybe remember what things were spawned, offer to replay this later
@@ -304,27 +306,31 @@ impl State for AgentSpawner {
                 }
 
                 if self.goal.is_some() && app.per_obj.left_click(ctx, "end here") {
-                    let mut rng = app.primary.current_flags.sim_flags.make_rng();
                     let map = &app.primary.map;
-                    let sim = &mut app.primary.sim;
-                    let mut spawner = sim.make_spawner();
-                    let err = schedule_trip(
-                        self.source.take().unwrap(),
-                        self.goal.take().unwrap().0,
-                        self.composite.dropdown_value("mode"),
+                    let mut scenario = Scenario::empty(map, "one-shot");
+                    scenario.people.push(PersonSpec {
+                        id: PersonID(app.primary.sim.get_all_people().len()),
+                        orig_id: None,
+                        trips: vec![IndividTrip {
+                            depart: app.primary.sim.time(),
+                            trip: SpawnTrip::new(
+                                self.source.take().unwrap(),
+                                self.goal.take().unwrap().0,
+                                self.composite.dropdown_value("mode"),
+                                map,
+                            ),
+                        }],
+                    });
+                    let mut rng = app.primary.current_flags.sim_flags.make_rng();
+                    scenario.instantiate(
+                        &mut app.primary.sim,
                         map,
-                        sim,
-                        &mut spawner,
                         &mut rng,
+                        &mut Timer::new("spawn trip"),
                     );
-                    sim.flush_spawner(spawner, map, &mut Timer::new("spawn trip"));
-                    sim.normal_step(map, SMALL_DT);
+                    app.primary.sim.normal_step(map, SMALL_DT);
                     app.recalculate_current_selection(ctx);
-                    if let Some(e) = err {
-                        return Transition::Replace(msg("Spawning error", vec![e]));
-                    } else {
-                        return Transition::Pop;
-                    }
+                    return Transition::Pop;
                 }
             }
         }
@@ -397,18 +403,4 @@ fn pos(endpt: TripEndpoint, mode: TripMode, from: bool, map: &Map) -> Option<Pos
             TripMode::Bike | TripMode::Drive => None,
         },
     }
-}
-
-// Returns optional error message
-fn schedule_trip(
-    from: TripEndpoint,
-    to: TripEndpoint,
-    mode: TripMode,
-    map: &Map,
-    sim: &mut Sim,
-    spawner: &mut TripSpawner,
-    rng: &mut XorShiftRng,
-) -> Option<String> {
-    // TODO
-    None
 }

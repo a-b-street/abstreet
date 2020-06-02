@@ -471,6 +471,50 @@ impl SpawnTrip {
             }
         }
     }
+
+    pub fn new(from: TripEndpoint, to: TripEndpoint, mode: TripMode, map: &Map) -> SpawnTrip {
+        match mode {
+            TripMode::Drive => match from {
+                TripEndpoint::Bldg(b) => {
+                    SpawnTrip::UsingParkedCar(b, to.driving_goal(PathConstraints::Car, map))
+                }
+                TripEndpoint::Border(i, ref origin) => SpawnTrip::FromBorder {
+                    dr: map.get_i(i).some_outgoing_road(map),
+                    goal: to.driving_goal(PathConstraints::Car, map),
+                    is_bike: false,
+                    origin: origin.clone(),
+                },
+            },
+            TripMode::Bike => match from {
+                TripEndpoint::Bldg(b) => SpawnTrip::UsingBike(
+                    SidewalkSpot::building(b, map),
+                    to.driving_goal(PathConstraints::Bike, map),
+                ),
+                TripEndpoint::Border(i, ref origin) => SpawnTrip::FromBorder {
+                    dr: map.get_i(i).some_outgoing_road(map),
+                    goal: to.driving_goal(PathConstraints::Bike, map),
+                    is_bike: true,
+                    origin: origin.clone(),
+                },
+            },
+            TripMode::Walk => {
+                SpawnTrip::JustWalking(from.start_sidewalk_spot(map), to.end_sidewalk_spot(map))
+            }
+            TripMode::Transit => {
+                let start = from.start_sidewalk_spot(map);
+                let goal = to.end_sidewalk_spot(map);
+                if let Some((stop1, stop2, route)) =
+                    map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos)
+                {
+                    SpawnTrip::UsingTransit(start, goal, route, stop1, stop2)
+                } else {
+                    //timer.warn(format!("{:?} not actually using transit, because pathfinding
+                    // didn't find any useful route", trip));
+                    SpawnTrip::JustWalking(start, goal)
+                }
+            }
+        }
+    }
 }
 
 impl PersonSpec {
