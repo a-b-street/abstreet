@@ -180,6 +180,7 @@ struct AgentSpawner {
     composite: Composite,
     source: Option<TripEndpoint>,
     goal: Option<(TripEndpoint, Option<Polygon>)>,
+    confirmed: bool,
 }
 
 impl AgentSpawner {
@@ -187,6 +188,7 @@ impl AgentSpawner {
         Box::new(AgentSpawner {
             source: None,
             goal: None,
+            confirmed: false,
             composite: Composite::new(
                 Widget::col(vec![
                     Widget::row(vec![
@@ -214,6 +216,7 @@ impl AgentSpawner {
                         "Number of trips:".draw_text(ctx).margin_right(10),
                         Spinner::new(ctx, (1, 1000), 1).named("number"),
                     ]),
+                    Btn::text_fg("Confirm").inactive(ctx).named("Confirm"),
                 ])
                 .bg(app.cs.panel_bg)
                 .padding(10),
@@ -226,21 +229,55 @@ impl AgentSpawner {
 
 impl State for AgentSpawner {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        let old_mode: TripMode = self.composite.dropdown_value("mode");
+        // Arguably we should invalidate the goal when mode changes, since the path could change,
+        // but meh.
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "close" => {
+                    return Transition::Pop;
+                }
+                "Confirm" => {
+                    let map = &app.primary.map;
+                    let mut scenario = Scenario::empty(map, "one-shot");
+                    let from = self.source.take().unwrap();
+                    let to = self.goal.take().unwrap().0;
+                    for i in 0..self.composite.spinner("number") {
+                        scenario.people.push(PersonSpec {
+                            id: PersonID(app.primary.sim.get_all_people().len() + i),
+                            orig_id: None,
+                            trips: vec![IndividTrip {
+                                depart: app.primary.sim.time(),
+                                trip: SpawnTrip::new(
+                                    from.clone(),
+                                    to.clone(),
+                                    self.composite.dropdown_value("mode"),
+                                    map,
+                                ),
+                            }],
+                        });
+                    }
+                    let mut rng = app.primary.current_flags.sim_flags.make_rng();
+                    scenario.instantiate(
+                        &mut app.primary.sim,
+                        map,
+                        &mut rng,
+                        &mut Timer::new("spawn trip"),
+                    );
+                    app.primary.sim.normal_step(map, SMALL_DT);
+                    app.recalculate_current_selection(ctx);
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
             },
             None => {}
         }
-        if old_mode != self.composite.dropdown_value("mode") {
-            self.goal = None;
-        }
 
         ctx.canvas_movement();
+
+        if self.confirmed {
+            return Transition::Keep;
+        }
+
         if ctx.redo_mouseover() {
             app.primary.current_selection = app.calculate_current_selection(
                 ctx,
@@ -300,37 +337,24 @@ impl State for AgentSpawner {
                 }
 
                 if self.goal.is_some() && app.per_obj.left_click(ctx, "end here") {
-                    let map = &app.primary.map;
-                    let mut scenario = Scenario::empty(map, "one-shot");
-                    let from = self.source.take().unwrap();
-                    let to = self.goal.take().unwrap().0;
-                    for i in 0..self.composite.spinner("number") {
-                        scenario.people.push(PersonSpec {
-                            id: PersonID(app.primary.sim.get_all_people().len() + i),
-                            orig_id: None,
-                            trips: vec![IndividTrip {
-                                depart: app.primary.sim.time(),
-                                trip: SpawnTrip::new(
-                                    from.clone(),
-                                    to.clone(),
-                                    self.composite.dropdown_value("mode"),
-                                    map,
-                                ),
-                            }],
-                        });
-                    }
-                    let mut rng = app.primary.current_flags.sim_flags.make_rng();
-                    scenario.instantiate(
-                        &mut app.primary.sim,
-                        map,
-                        &mut rng,
-                        &mut Timer::new("spawn trip"),
+                    app.primary.current_selection = None;
+                    self.confirmed = true;
+                    self.composite.replace(
+                        ctx,
+                        "instructions",
+                        "Confirm the trip settings"
+                            .draw_text(ctx)
+                            .named("instructions"),
                     );
-                    app.primary.sim.normal_step(map, SMALL_DT);
-                    app.recalculate_current_selection(ctx);
-                    return Transition::Pop;
+                    self.composite.replace(
+                        ctx,
+                        "Confirm",
+                        Btn::text_fg("Confirm").build_def(ctx, hotkey(Key::Enter)),
+                    );
                 }
             }
+        } else {
+            self.goal = None;
         }
 
         Transition::Keep
