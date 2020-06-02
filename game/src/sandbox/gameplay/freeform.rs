@@ -13,7 +13,7 @@ use ezgui::{
 };
 use geom::{Distance, Duration, Polygon};
 use map_model::{
-    IntersectionID, Map, PathConstraints, PathRequest, Position, NORMAL_LANE_THICKNESS,
+    BuildingID, IntersectionID, Map, PathConstraints, PathRequest, Position, NORMAL_LANE_THICKNESS,
 };
 use rand::seq::SliceRandom;
 use rand::Rng;
@@ -67,7 +67,7 @@ impl GameplayState for Freeform {
                     app,
                     GameplayMode::Freeform(abstutil::path_map(app.primary.map.get_name())),
                 )))),
-                "Start a new trip" => Some(Transition::Push(AgentSpawner::new(ctx, app))),
+                "Start a new trip" => Some(Transition::Push(AgentSpawner::new(ctx, app, None))),
                 _ => unreachable!(),
             },
             None => None,
@@ -194,8 +194,8 @@ struct AgentSpawner {
 }
 
 impl AgentSpawner {
-    fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
-        Box::new(AgentSpawner {
+    fn new(ctx: &mut EventCtx, app: &App, start: Option<BuildingID>) -> Box<dyn State> {
+        let mut spawner = AgentSpawner {
             source: None,
             goal: None,
             confirmed: false,
@@ -233,7 +233,18 @@ impl AgentSpawner {
             )
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
-        })
+        };
+        if let Some(b) = start {
+            spawner.source = Some(TripEndpoint::Bldg(b));
+            spawner.composite.replace(
+                ctx,
+                "instructions",
+                "Click a building or border to specify end"
+                    .draw_text(ctx)
+                    .named("instructions"),
+            );
+        }
+        Box::new(spawner)
     }
 }
 
@@ -518,13 +529,17 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
 
 pub fn actions(_: &App, id: ID) -> Vec<(Key, String)> {
     match id {
+        ID::Building(_) => vec![(Key::Z, "start a trip here".to_string())],
         ID::Intersection(_) => vec![(Key::Z, "spawn agents here".to_string())],
         _ => Vec::new(),
     }
 }
 
-pub fn execute(_: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
+pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
     match (id, action.as_ref()) {
+        (ID::Building(b), "start a trip here") => {
+            Transition::Push(AgentSpawner::new(ctx, app, Some(b)))
+        }
         (ID::Intersection(id), "spawn agents here") => {
             spawn_agents_around(id, app);
             Transition::Keep
