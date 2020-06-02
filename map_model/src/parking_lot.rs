@@ -20,7 +20,7 @@ pub struct ParkingLot {
     pub id: ParkingLotID,
     pub polygon: Polygon,
     pub aisles: Vec<Vec<Pt2D>>,
-    pub capacity: usize,
+    pub capacity: Option<usize>,
     pub osm_id: i64,
 
     // Goes from the lot to the driving lane

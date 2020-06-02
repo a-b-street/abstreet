@@ -181,9 +181,7 @@ pub fn make_all_parking_lots(
                     polygon: orig.polygon.clone(),
                     aisles: Vec::new(),
                     // TODO Rethink this approach. 250 square feet is around 23 square meters
-                    capacity: orig
-                        .capacity
-                        .unwrap_or_else(|| (orig.polygon.area() / 23.0) as usize),
+                    capacity: orig.capacity,
                     osm_id: orig.osm_id,
 
                     driveway_line,

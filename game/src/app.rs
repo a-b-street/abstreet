@@ -164,8 +164,7 @@ impl App {
                 g.redraw(&self.primary.draw_map.draw_all_areas);
             }
             if layers.show_parking_lots {
-                g.redraw(&self.primary.draw_map.draw_all_parking_lots);
-                // Not the paths
+                g.redraw(&self.primary.draw_map.draw_all_unzoomed_parking_lots);
             }
             // Render bridges over intersections in the correct order
             if layers.show_intersections {
@@ -229,7 +228,6 @@ impl App {
             );
 
             let mut drawn_all_buildings = false;
-            let mut drawn_all_parking_lots = false;
             let mut drawn_all_areas = false;
 
             for obj in objects {
@@ -242,13 +240,6 @@ impl App {
                             g.redraw(&self.primary.draw_map.draw_all_buildings);
                             g.redraw(&self.primary.draw_map.draw_all_building_outlines);
                             drawn_all_buildings = true;
-                        }
-                    }
-                    ID::ParkingLot(_) => {
-                        if !drawn_all_parking_lots {
-                            g.redraw(&self.primary.draw_map.draw_all_parking_lot_paths);
-                            g.redraw(&self.primary.draw_map.draw_all_parking_lots);
-                            drawn_all_parking_lots = true;
                         }
                     }
                     ID::Area(_) => {

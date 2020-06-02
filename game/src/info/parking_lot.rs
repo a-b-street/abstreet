@@ -7,7 +7,13 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: ParkingLot
     let mut rows = header(ctx, details, id, Tab::ParkingLot(id));
     let pl = app.primary.map.get_pl(id);
 
-    rows.push(format!("{} spots (from OSM or inferred from area)", pl.capacity).draw_text(ctx));
+    if let Some(n) = pl.capacity {
+        rows.push(format!("{} spots (from OSM)", n).draw_text(ctx));
+    }
+
+    // 250 square feet is around 23 square meters
+    rows.push(format!("{} spots (from area)", (pl.polygon.area() / 23.0) as usize).draw_text(ctx));
+
     rows.push(
         format!(
             "{} spots (from geometry)",

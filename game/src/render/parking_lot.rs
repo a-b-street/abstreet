@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use ezgui::{GeomBatch, GfxCtx, Prerender, RewriteColor};
+use ezgui::{Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor};
 use geom::{Angle, Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{
     Map, ParkingLot, ParkingLotID, NORMAL_LANE_THICKNESS, PARKING_SPOT_LENGTH, SIDEWALK_THICKNESS,
@@ -11,16 +11,34 @@ use map_model::{
 pub struct DrawParkingLot {
     pub id: ParkingLotID,
     pub inferred_spots: usize,
+    draw: Drawable,
 }
 
 impl DrawParkingLot {
     pub fn new(
         lot: &ParkingLot,
         cs: &ColorScheme,
-        all_lots: &mut GeomBatch,
-        paths_batch: &mut GeomBatch,
+        unzoomed_batch: &mut GeomBatch,
         prerender: &Prerender,
     ) -> DrawParkingLot {
+        unzoomed_batch.push(cs.parking_lot, lot.polygon.clone());
+        for aisle in &lot.aisles {
+            let aisle_thickness = NORMAL_LANE_THICKNESS / 2.0;
+            unzoomed_batch.push(
+                cs.unzoomed_residential,
+                PolyLine::unchecked_new(aisle.clone()).make_polygons(aisle_thickness),
+            );
+        }
+        unzoomed_batch.add_svg(
+            prerender,
+            "../data/system/assets/map/parking.svg",
+            lot.polygon.polylabel(),
+            0.05,
+            Angle::ZERO,
+            RewriteColor::NoOp,
+            true,
+        );
+
         // Trim the front path line away from the sidewalk's center line, so that it doesn't
         // overlap. For now, this cleanup is visual; it doesn't belong in the map_model layer.
         let mut front_path_line = lot.sidewalk_line.clone();
@@ -33,19 +51,10 @@ impl DrawParkingLot {
             );
         }
 
-        all_lots.push(cs.parking_lot, lot.polygon.clone());
-        all_lots.add_svg(
-            prerender,
-            "../data/system/assets/map/parking.svg",
-            lot.polygon.polylabel(),
-            0.05,
-            Angle::ZERO,
-            RewriteColor::NoOp,
-            true,
-        );
-        let inferred_spots = infer_spots(cs, lot, all_lots);
-
-        paths_batch.push(
+        let mut batch = GeomBatch::new();
+        batch.push(cs.parking_lot, lot.polygon.clone());
+        let inferred_spots = infer_spots(cs, lot, &mut batch);
+        batch.push(
             cs.sidewalk,
             front_path_line.make_polygons(NORMAL_LANE_THICKNESS),
         );
@@ -53,6 +62,7 @@ impl DrawParkingLot {
         DrawParkingLot {
             id: lot.id,
             inferred_spots,
+            draw: prerender.upload(batch),
         }
     }
 }
@@ -62,7 +72,9 @@ impl Renderable for DrawParkingLot {
         ID::ParkingLot(self.id)
     }
 
-    fn draw(&self, _: &mut GfxCtx, _: &App, _: &DrawOptions) {}
+    fn draw(&self, g: &mut GfxCtx, _: &App, _: &DrawOptions) {
+        g.redraw(&self.draw);
+    }
 
     fn get_zorder(&self) -> isize {
         0
@@ -114,7 +126,7 @@ fn infer_spots(cs: &ColorScheme, lot: &ParkingLot, batch: &mut GeomBatch) -> usi
     for aisle in &lot.aisles {
         let aisle_thickness = NORMAL_LANE_THICKNESS / 2.0;
         let pl = PolyLine::unchecked_new(aisle.clone());
-        batch.push(cs.parking_lane, pl.make_polygons(aisle_thickness));
+        batch.push(cs.driving_lane, pl.make_polygons(aisle_thickness));
 
         for rotate in vec![90.0, -90.0] {
             // Blindly generate all of the lines
@@ -155,7 +167,7 @@ fn infer_spots(cs: &ColorScheme, lot: &ParkingLot, batch: &mut GeomBatch) -> usi
                         l2.make_polygons(Distance::meters(0.25)),
                     );
                     batch.push(
-                        ezgui::Color::RED,
+                        cs.general_road_marking,
                         back.make_polygons(Distance::meters(0.25)),
                     );
                     finalized_lines.push(l1.clone());

@@ -201,7 +201,7 @@ impl Minimap {
         g.enable_clipping(inner_rect);
         g.redraw(&app.primary.draw_map.boundary_polygon);
         g.redraw(&app.primary.draw_map.draw_all_areas);
-        g.redraw(&app.primary.draw_map.draw_all_parking_lots);
+        g.redraw(&app.primary.draw_map.draw_all_unzoomed_parking_lots);
         g.redraw(&app.primary.draw_map.draw_all_unzoomed_intersections);
         g.redraw(&app.primary.draw_map.draw_all_thick_roads);
         g.redraw(&app.primary.draw_map.draw_all_buildings);

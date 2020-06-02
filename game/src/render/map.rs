@@ -39,8 +39,7 @@ pub struct DrawMap {
     pub draw_all_buildings: Drawable,
     pub draw_all_building_paths: Drawable,
     pub draw_all_building_outlines: Drawable,
-    pub draw_all_parking_lots: Drawable,
-    pub draw_all_parking_lot_paths: Drawable,
+    pub draw_all_unzoomed_parking_lots: Drawable,
     pub draw_all_areas: Drawable,
 
     quadtree: QuadTree<ID>,
@@ -153,19 +152,16 @@ impl DrawMap {
 
         timer.start("make DrawParkingLot");
         let mut parking_lots: Vec<DrawParkingLot> = Vec::new();
-        let mut all_parking_lots = GeomBatch::new();
-        let mut all_parking_lot_paths = GeomBatch::new();
+        let mut all_unzoomed_parking_lots = GeomBatch::new();
         for pl in map.all_parking_lots() {
             parking_lots.push(DrawParkingLot::new(
                 pl,
                 cs,
-                &mut all_parking_lots,
-                &mut all_parking_lot_paths,
+                &mut all_unzoomed_parking_lots,
                 ctx.prerender,
             ));
         }
-        let draw_all_parking_lots = all_parking_lots.upload(ctx);
-        let draw_all_parking_lot_paths = all_parking_lot_paths.upload(ctx);
+        let draw_all_unzoomed_parking_lots = all_unzoomed_parking_lots.upload(ctx);
         timer.stop("make DrawParkingLot");
 
         timer.start_iter("make DrawBusStop", map.all_bus_stops().len());
@@ -234,8 +230,7 @@ impl DrawMap {
             draw_all_buildings,
             draw_all_building_paths,
             draw_all_building_outlines,
-            draw_all_parking_lots,
-            draw_all_parking_lot_paths,
+            draw_all_unzoomed_parking_lots,
             draw_all_areas,
 
             agents: RefCell::new(AgentCache {
