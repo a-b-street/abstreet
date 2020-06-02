@@ -3,9 +3,9 @@ pub mod commute;
 pub mod fix_traffic_signals;
 mod freeform;
 mod play_scenario;
-pub mod spawner;
 mod tutorial;
 
+pub use self::freeform::spawn_agents_around;
 pub use self::tutorial::{Tutorial, TutorialPointer, TutorialState};
 use crate::app::App;
 use crate::challenges::{challenges_picker, Challenge};
@@ -240,7 +240,7 @@ impl GameplayMode {
 impl ContextualActions for GameplayMode {
     fn actions(&self, app: &App, id: ID) -> Vec<(Key, String)> {
         match self {
-            GameplayMode::Freeform(_) => spawner::actions(app, id),
+            GameplayMode::Freeform(_) => freeform::actions(app, id),
             GameplayMode::Tutorial(_) => tutorial::actions(app, id),
             _ => Vec::new(),
         }
@@ -255,7 +255,7 @@ impl ContextualActions for GameplayMode {
         _: &mut bool,
     ) -> Transition {
         match self {
-            GameplayMode::Freeform(_) => spawner::execute(ctx, app, id, action),
+            GameplayMode::Freeform(_) => freeform::execute(ctx, app, id, action),
             GameplayMode::Tutorial(_) => tutorial::execute(ctx, app, id, action),
             _ => unreachable!(),
         }

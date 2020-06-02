@@ -18,13 +18,11 @@ use crate::layer::PickLayer;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::pregame::MainMenu;
 use crate::render::AgentColorScheme;
-pub use crate::sandbox::gameplay::{TutorialPointer, TutorialState};
 use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget, Wizard,
 };
-pub use gameplay::spawner::spawn_agents_around;
-pub use gameplay::GameplayMode;
+pub use gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
 use geom::{Polygon, Time};
 use map_model::MapEdits;
 use sim::{TripMode, VehicleType};
