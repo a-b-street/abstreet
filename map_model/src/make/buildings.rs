@@ -207,16 +207,21 @@ pub fn make_all_parking_lots(
     timer.start_iter("match parking aisles", aisles.len());
     for pts in aisles {
         timer.next();
-        for lot in results.iter_mut() {
-            let ring = Ring::new(lot.polygon.points().clone());
-            if pts.iter().any(|pt| lot.polygon.contains_pt(*pt))
-                || pts.windows(2).any(|pair| {
-                    ring.first_intersection(&PolyLine::new(vec![pair[0], pair[1]]))
-                        .is_some()
-                })
-            {
-                lot.aisles.push(pts.clone());
-                break;
+        let (polylines, rings) = Ring::split_points(pts);
+        'PL: for pl in polylines {
+            for lot in results.iter_mut() {
+                for segment in lot.polygon.clip_polyline(&pl) {
+                    lot.aisles.push(segment);
+                    continue 'PL;
+                }
+            }
+        }
+        'RING: for ring in rings {
+            for lot in results.iter_mut() {
+                for segment in lot.polygon.clip_ring(&ring) {
+                    lot.aisles.push(segment);
+                    continue 'RING;
+                }
             }
         }
     }

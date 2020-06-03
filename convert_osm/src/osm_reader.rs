@@ -578,14 +578,13 @@ fn glue_multipolygon(
 
 fn glue_to_boundary(result_pl: PolyLine, boundary: &Ring) -> Option<Polygon> {
     // Some ways of the multipolygon must be clipped out. First try to trace along the boundary.
-    let hit1 = boundary.first_intersection(&result_pl)?;
-    let hit2 = boundary.first_intersection(&result_pl.reversed())?;
-    if hit1 == hit2 {
+    let hits = boundary.all_intersections(&result_pl);
+    if hits.len() != 2 {
         return None;
     }
 
-    let trimmed_result = result_pl.trim_to_endpts(hit1, hit2);
-    let boundary_glue = boundary.get_shorter_slice_btwn(hit1, hit2);
+    let trimmed_result = result_pl.trim_to_endpts(hits[0], hits[1]);
+    let boundary_glue = boundary.get_shorter_slice_btwn(hits[0], hits[1]);
 
     let mut trimmed_pts = trimmed_result.points().clone();
     if trimmed_result.last_pt() == boundary_glue.first_pt() {

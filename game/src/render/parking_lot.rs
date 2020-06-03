@@ -52,12 +52,14 @@ impl DrawParkingLot {
         }
 
         let mut batch = GeomBatch::new();
-        batch.push(cs.parking_lot, lot.polygon.clone());
-        let inferred_spots = infer_spots(cs, lot, &mut batch);
+        // TODO This isn't getting clipped to the parking lot boundary properly, so just stick this
+        // on the lowest order for now.
         batch.push(
             cs.sidewalk,
             front_path_line.make_polygons(NORMAL_LANE_THICKNESS),
         );
+        batch.push(cs.parking_lot, lot.polygon.clone());
+        let inferred_spots = infer_spots(cs, lot, &mut batch);
 
         DrawParkingLot {
             id: lot.id,

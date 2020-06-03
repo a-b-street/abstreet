@@ -653,7 +653,9 @@ impl PolyLine {
         if let Some(idx) = self.lines().iter().position(|l| l.contains_pt(pt)) {
             let mut pts = self.pts.clone();
             pts = pts.split_off(idx + 1);
-            pts.insert(0, pt);
+            if pt != pts[0] {
+                pts.insert(0, pt);
+            }
             Some(PolyLine::new(pts))
         } else {
             panic!(

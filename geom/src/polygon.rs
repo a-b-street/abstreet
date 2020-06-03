@@ -1,4 +1,4 @@
-use crate::{Angle, Bounds, Distance, HashablePt2D, Pt2D, Ring};
+use crate::{Angle, Bounds, Distance, HashablePt2D, PolyLine, Pt2D, Ring};
 use geo::algorithm::area::Area;
 use geo::algorithm::convexhull::ConvexHull;
 use geo_booleanop::boolean::BooleanOp;
@@ -287,6 +287,47 @@ impl Polygon {
     // Usually m^2, unless the polygon is in screen-space
     pub fn area(&self) -> f64 {
         to_geo(&self.points()).area()
+    }
+
+    // Doesn't handle multiple crossings in and out.
+    pub fn clip_polyline(&self, input: &PolyLine) -> Option<Vec<Pt2D>> {
+        let ring = Ring::new(self.points.clone());
+        let hits = ring.all_intersections(input);
+
+        if hits.len() == 0 {
+            // All the points must be inside, or none
+            if self.contains_pt(input.first_pt()) {
+                Some(input.points().clone())
+            } else {
+                None
+            }
+        } else if hits.len() == 1 {
+            // Which end?
+            if self.contains_pt(input.first_pt()) {
+                input
+                    .get_slice_ending_at(hits[0])
+                    .map(|pl| pl.into_points())
+            } else {
+                input
+                    .get_slice_starting_at(hits[0])
+                    .map(|pl| pl.into_points())
+            }
+        } else if hits.len() == 2 {
+            Some(input.trim_to_endpts(hits[0], hits[1]).into_points())
+        } else {
+            // TODO Not handled
+            None
+        }
+    }
+
+    // TODO Doesn't really handle anything but the simplest case right now
+    pub fn clip_ring(&self, input: &Ring) -> Option<Vec<Pt2D>> {
+        for pt in input.points() {
+            if !self.contains_pt(*pt) {
+                return None;
+            }
+        }
+        Some(input.points().clone())
     }
 }
 

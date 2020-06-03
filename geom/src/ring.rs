@@ -64,16 +64,25 @@ impl Ring {
         PolyLine::unchecked_new(self.pts.clone()).make_polygons(thickness)
     }
 
-    // Searches other in order
-    pub fn first_intersection(&self, other: &PolyLine) -> Option<Pt2D> {
+    pub fn points(&self) -> &Vec<Pt2D> {
+        &self.pts
+    }
+
+    // The order of results isn't meaningful. Dedupes.
+    pub fn all_intersections(&self, other: &PolyLine) -> Vec<Pt2D> {
+        let mut hits = Vec::new();
+        let mut seen = HashSet::new();
         for l1 in other.lines() {
             for l2 in self.pts.windows(2).map(|pair| Line::new(pair[0], pair[1])) {
                 if let Some(pt) = l1.intersection(&l2) {
-                    return Some(pt);
+                    if !seen.contains(&pt.to_hashable()) {
+                        hits.push(pt);
+                        seen.insert(pt.to_hashable());
+                    }
                 }
             }
         }
-        None
+        hits
     }
 
     pub fn get_shorter_slice_btwn(&self, pt1: Pt2D, pt2: Pt2D) -> PolyLine {
@@ -95,6 +104,38 @@ impl Ring {
         } else {
             candidate2
         }
+    }
+
+    // Extract all PolyLines and Rings. Doesn't handle crazy double loops and stuff.
+    pub fn split_points(pts: &Vec<Pt2D>) -> (Vec<PolyLine>, Vec<Ring>) {
+        let mut seen = HashSet::new();
+        let mut intersections = HashSet::new();
+        for pt in pts {
+            let pt = pt.to_hashable();
+            if seen.contains(&pt) {
+                intersections.insert(pt);
+            } else {
+                seen.insert(pt);
+            }
+        }
+        intersections.insert(pts[0].to_hashable());
+        intersections.insert(pts.last().unwrap().to_hashable());
+
+        let mut polylines = Vec::new();
+        let mut rings = Vec::new();
+        let mut current = Vec::new();
+        for pt in pts.iter().cloned() {
+            current.push(pt);
+            if intersections.contains(&pt.to_hashable()) && current.len() > 1 {
+                if current[0] == pt {
+                    rings.push(Ring::new(current.drain(..).collect()));
+                } else {
+                    polylines.push(PolyLine::new(current.drain(..).collect()));
+                }
+                current.push(pt);
+            }
+        }
+        (polylines, rings)
     }
 }
 
