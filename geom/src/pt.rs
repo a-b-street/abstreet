@@ -115,7 +115,7 @@ impl Pt2D {
 
     pub fn angle_to(self, to: Pt2D) -> Angle {
         // DON'T invert y here
-        Angle::new((to.y() - self.y()).atan2(to.x() - self.x()))
+        Angle::new_rads((to.y() - self.y()).atan2(to.x() - self.x()))
     }
 
     pub fn offset(self, dx: f64, dy: f64) -> Pt2D {

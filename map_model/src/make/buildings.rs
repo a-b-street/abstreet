@@ -2,10 +2,10 @@ use crate::make::sidewalk_finder::find_sidewalk_points;
 use crate::raw::{OriginalBuilding, RawBuilding, RawParkingLot};
 use crate::{
     osm, Building, BuildingID, FrontPath, LaneID, LaneType, Map, OffstreetParking, ParkingLot,
-    ParkingLotID, Position,
+    ParkingLotID, Position, NORMAL_LANE_THICKNESS, PARKING_SPOT_LENGTH,
 };
 use abstutil::Timer;
-use geom::{Distance, HashablePt2D, Line, PolyLine, Polygon, Pt2D, Ring};
+use geom::{Angle, Distance, HashablePt2D, Line, PolyLine, Polygon, Pt2D, Ring};
 use std::collections::{BTreeMap, HashSet};
 
 pub fn make_all_buildings(
@@ -183,6 +183,7 @@ pub fn make_all_parking_lots(
                     // TODO Rethink this approach. 250 square feet is around 23 square meters
                     capacity: orig.capacity,
                     osm_id: orig.osm_id,
+                    spots: Vec::new(),
 
                     driveway_line,
                     driving_pos,
@@ -226,6 +227,12 @@ pub fn make_all_parking_lots(
         }
     }
 
+    timer.start_iter("generate parking lot spots", results.len());
+    for lot in results.iter_mut() {
+        timer.next();
+        lot.spots = infer_spots(&lot.polygon, &lot.aisles);
+    }
+
     timer.stop("convert parking lots");
 
     results
@@ -251,4 +258,82 @@ fn get_address(tags: &BTreeMap<String, String>, sidewalk: LaneID, map: &Map) -> 
         (None, Some(st)) => format!("??? {}", st),
         _ => format!("??? {}", map.get_parent(sidewalk).get_name()),
     }
+}
+
+fn infer_spots(lot_polygon: &Polygon, aisles: &Vec<Vec<Pt2D>>) -> Vec<(Pt2D, Angle)> {
+    let mut spots = Vec::new();
+    let mut finalized_lines = Vec::new();
+
+    for aisle in aisles {
+        let aisle_thickness = NORMAL_LANE_THICKNESS / 2.0;
+        let pl = PolyLine::unchecked_new(aisle.clone());
+
+        for rotate in vec![90.0, -90.0] {
+            // Blindly generate all of the lines
+            let lines = {
+                let mut lines = Vec::new();
+                let mut start = Distance::ZERO;
+                while start + NORMAL_LANE_THICKNESS < pl.length() {
+                    let (pt, angle) = pl.dist_along(start);
+                    start += NORMAL_LANE_THICKNESS;
+                    let theta = angle.rotate_degs(rotate);
+                    lines.push(Line::new(
+                        pt.project_away(aisle_thickness / 2.0, theta),
+                        // The full PARKING_SPOT_LENGTH used for on-street is looking too
+                        // conservative for some manually audited cases in Seattle
+                        pt.project_away(aisle_thickness / 2.0 + 0.8 * PARKING_SPOT_LENGTH, theta),
+                    ));
+                }
+                lines
+            };
+
+            for pair in lines.windows(2) {
+                let l1 = &pair[0];
+                let l2 = &pair[1];
+                let back = Line::new(l1.pt2(), l2.pt2());
+                if l1.intersection(&l2).is_none()
+                    && l1.angle().approx_eq(l2.angle(), 5.0)
+                    && line_valid(lot_polygon, aisles, l1, &finalized_lines)
+                    && line_valid(lot_polygon, aisles, l2, &finalized_lines)
+                    && line_valid(lot_polygon, aisles, &back, &finalized_lines)
+                {
+                    let avg_angle = (l1.angle() + l2.angle()) / 2.0;
+                    spots.push((back.middle(), avg_angle.opposite()));
+                    finalized_lines.push(l1.clone());
+                    finalized_lines.push(l2.clone());
+                    finalized_lines.push(back);
+                }
+            }
+        }
+    }
+    spots
+}
+
+fn line_valid(
+    lot_polygon: &Polygon,
+    aisles: &Vec<Vec<Pt2D>>,
+    line: &Line,
+    finalized_lines: &Vec<Line>,
+) -> bool {
+    // Don't leak out of the parking lot
+    // TODO Entire line
+    if !lot_polygon.contains_pt(line.pt1()) || !lot_polygon.contains_pt(line.pt2()) {
+        return false;
+    }
+
+    // Don't let this line hit another line
+    if finalized_lines.iter().any(|other| line.crosses(other)) {
+        return false;
+    }
+
+    // Don't hit an aisle
+    if aisles.iter().any(|pts| {
+        PolyLine::unchecked_new(pts.clone())
+            .intersection(&line.to_polyline())
+            .is_some()
+    }) {
+        return false;
+    }
+
+    true
 }

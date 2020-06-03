@@ -144,6 +144,10 @@ impl Line {
         self.percent_along(dist / len)
     }
 
+    pub fn middle(&self) -> Pt2D {
+        self.dist_along(self.length() / 2.0)
+    }
+
     pub fn unbounded_percent_along(&self, percent: f64) -> Pt2D {
         Pt2D::new(
             self.pt1().x() + percent * (self.pt2().x() - self.pt1().x()),

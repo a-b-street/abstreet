@@ -8,25 +8,25 @@ pub struct Angle(f64);
 impl Angle {
     pub const ZERO: Angle = Angle(0.0);
 
-    pub(crate) fn new(rads: f64) -> Angle {
+    pub(crate) fn new_rads(rads: f64) -> Angle {
         // Retain more precision for angles...
         Angle((rads * 10_000_000.0).round() / 10_000_000.0)
     }
 
     pub fn new_degs(degs: f64) -> Angle {
-        Angle::new(degs.to_radians())
+        Angle::new_rads(degs.to_radians())
     }
 
     pub fn opposite(self) -> Angle {
-        Angle::new(self.0 + std::f64::consts::PI)
+        Angle::new_rads(self.0 + std::f64::consts::PI)
     }
 
     pub fn invert_y(self) -> Angle {
-        Angle::new(2.0 * std::f64::consts::PI - self.0)
+        Angle::new_rads(2.0 * std::f64::consts::PI - self.0)
     }
 
     pub fn rotate_degs(self, degrees: f64) -> Angle {
-        Angle::new(self.0 + degrees.to_radians())
+        Angle::new_rads(self.0 + degrees.to_radians())
     }
 
     pub fn normalized_radians(self) -> f64 {
@@ -65,10 +65,29 @@ impl fmt::Display for Angle {
     }
 }
 
+impl std::ops::Add for Angle {
+    type Output = Angle;
+
+    fn add(self, other: Angle) -> Angle {
+        Angle::new_rads(self.0 + other.0)
+    }
+}
+
 impl std::ops::Neg for Angle {
     type Output = Angle;
 
     fn neg(self) -> Angle {
-        Angle::new(-self.0)
+        Angle::new_rads(-self.0)
+    }
+}
+
+impl std::ops::Div<f64> for Angle {
+    type Output = Angle;
+
+    fn div(self, scalar: f64) -> Angle {
+        if scalar == 0.0 {
+            panic!("Can't divide {} / {}", self, scalar);
+        }
+        Angle::new_rads(self.0 / scalar)
     }
 }

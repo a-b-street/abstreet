@@ -1,5 +1,5 @@
 use crate::Position;
-use geom::{Line, PolyLine, Polygon, Pt2D};
+use geom::{Angle, Line, PolyLine, Polygon, Pt2D};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -22,6 +22,8 @@ pub struct ParkingLot {
     pub aisles: Vec<Vec<Pt2D>>,
     pub capacity: Option<usize>,
     pub osm_id: i64,
+    // The middle of the "T", pointing towards the parking aisle
+    pub spots: Vec<(Pt2D, Angle)>,
 
     // Goes from the lot to the driving lane
     pub driveway_line: PolyLine,
