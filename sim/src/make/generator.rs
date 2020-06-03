@@ -112,7 +112,7 @@ impl ScenarioGenerator {
                     num_bikes: 10,
                     start_time: Time::START_OF_DAY,
                     stop_time: Time::START_OF_DAY + Duration::seconds(5.0),
-                    start_from_border: i.some_outgoing_road(map),
+                    start_from_border: i.some_outgoing_road(map).unwrap(),
                     goal: OriginDestination::Anywhere,
                     percent_use_transit: 0.5,
                 })
@@ -123,7 +123,7 @@ impl ScenarioGenerator {
                 num_agents: 10,
                 start_time: Time::START_OF_DAY,
                 stop_time: Time::START_OF_DAY + Duration::seconds(5.0),
-                goal: OriginDestination::EndOfRoad(i.some_incoming_road(map)),
+                goal: OriginDestination::EndOfRoad(i.some_incoming_road(map).unwrap()),
                 percent_driving: 0.5,
                 percent_biking: 0.5,
                 percent_use_transit: 0.5,

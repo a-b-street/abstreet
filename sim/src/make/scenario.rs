@@ -479,7 +479,7 @@ impl SpawnTrip {
                     SpawnTrip::UsingParkedCar(b, to.driving_goal(PathConstraints::Car, map))
                 }
                 TripEndpoint::Border(i, ref origin) => SpawnTrip::FromBorder {
-                    dr: map.get_i(i).some_outgoing_road(map),
+                    dr: map.get_i(i).some_outgoing_road(map).unwrap(),
                     goal: to.driving_goal(PathConstraints::Car, map),
                     is_bike: false,
                     origin: origin.clone(),
@@ -491,7 +491,7 @@ impl SpawnTrip {
                     to.driving_goal(PathConstraints::Bike, map),
                 ),
                 TripEndpoint::Border(i, ref origin) => SpawnTrip::FromBorder {
-                    dr: map.get_i(i).some_outgoing_road(map),
+                    dr: map.get_i(i).some_outgoing_road(map).unwrap(),
                     goal: to.driving_goal(PathConstraints::Bike, map),
                     is_bike: true,
                     origin: origin.clone(),

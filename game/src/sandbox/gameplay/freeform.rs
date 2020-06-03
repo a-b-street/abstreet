@@ -259,8 +259,7 @@ impl AgentSpawner {
 
 impl State for AgentSpawner {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        // Arguably we should invalidate the goal when mode changes, since the path could change,
-        // but meh.
+        let old_mode: TripMode = self.composite.dropdown_value("mode");
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "close" => {
@@ -300,6 +299,35 @@ impl State for AgentSpawner {
                 _ => unreachable!(),
             },
             None => {}
+        }
+        // We need to recalculate the path to see if this is sane. Otherwise we could trick a
+        // pedestrian into wandering on/off a highway border.
+        if old_mode != self.composite.dropdown_value("mode") && self.goal.is_some() {
+            let to = self.goal.as_ref().unwrap().0.clone();
+            if let Some(path) = path_request(
+                self.source.clone().unwrap(),
+                to.clone(),
+                self.composite.dropdown_value("mode"),
+                &app.primary.map,
+            )
+            .and_then(|req| app.primary.map.pathfind(req))
+            {
+                self.goal = Some((
+                    to,
+                    path.trace(&app.primary.map, Distance::ZERO, None)
+                        .map(|pl| pl.make_polygons(NORMAL_LANE_THICKNESS)),
+                ));
+            } else {
+                self.goal = None;
+                self.confirmed = false;
+                self.composite.replace(
+                    ctx,
+                    "instructions",
+                    "Click a building or border to specify end"
+                        .draw_text(ctx)
+                        .named("instructions"),
+                );
+            }
         }
 
         ctx.canvas_movement();
@@ -436,7 +464,6 @@ fn path_request(
     })
 }
 
-// TODO Bugs!
 fn pos(endpt: TripEndpoint, mode: TripMode, from: bool, map: &Map) -> Option<Position> {
     match endpt {
         TripEndpoint::Bldg(b) => match mode {
@@ -451,8 +478,23 @@ fn pos(endpt: TripEndpoint, mode: TripMode, from: bool, map: &Map) -> Option<Pos
                 SidewalkSpot::end_at_border(i, None, map)
             }
             .map(|spot| spot.sidewalk_pos),
-            // TODO
-            TripMode::Bike | TripMode::Drive => None,
+            TripMode::Bike | TripMode::Drive => (if from {
+                map.get_i(i).some_outgoing_road(map)
+            } else {
+                map.get_i(i).some_incoming_road(map)
+            })
+            .and_then(|dr| {
+                dr.lanes(
+                    if mode == TripMode::Bike {
+                        PathConstraints::Bike
+                    } else {
+                        PathConstraints::Car
+                    },
+                    map,
+                )
+                .get(0)
+                .map(|l| Position::new(*l, Distance::ZERO))
+            }),
         },
     }
 }

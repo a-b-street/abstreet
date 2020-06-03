@@ -1439,7 +1439,7 @@ impl TripEndpoint {
         match self {
             TripEndpoint::Bldg(b) => DrivingGoal::ParkNear(*b),
             TripEndpoint::Border(i, destination) => DrivingGoal::end_at_border(
-                map.get_i(*i).some_incoming_road(map),
+                map.get_i(*i).some_incoming_road(map).unwrap(),
                 constraints,
                 destination.clone(),
                 map,
