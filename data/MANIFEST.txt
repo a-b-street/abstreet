@@ -3,8 +3,8 @@ data/input/austin/osm/downtown_atx.osm,a30b0f460a481598e494f16a9d07a822,https://
 data/input/austin/osm/huge_austin.osm,fb166029fc8006bd20dc959fbbbde3b6,https://www.dropbox.com/s/4bbsfpsg48dctje/huge_austin.osm.zip?dl=0
 data/input/raw_maps/ballard.bin,085fed58e8bb146eef9dc43a65c59f82,https://www.dropbox.com/s/wus0ufcnjyvcsuy/ballard.bin.zip?dl=0
 data/input/raw_maps/downtown.bin,9693a91878be7a141664d28d2cb134c3,https://www.dropbox.com/s/ntqzttf25037fty/downtown.bin.zip?dl=0
-data/input/raw_maps/downtown_atx.bin,c2564782f1c84b288b03cd2cdfdb9f29,https://www.dropbox.com/s/0cs55y1jcmm2alk/downtown_atx.bin.zip?dl=0
-data/input/raw_maps/huge_austin.bin,1f6acc02f700b30c2eb424c32bf29be9,https://www.dropbox.com/s/we0765ym7dlcsl1/huge_austin.bin.zip?dl=0
+data/input/raw_maps/downtown_atx.bin,aaa00df13e00a6b63dd4fc618527dc45,https://www.dropbox.com/s/0cs55y1jcmm2alk/downtown_atx.bin.zip?dl=0
+data/input/raw_maps/huge_austin.bin,435f6c0218c4f2f5de500d594e913b21,https://www.dropbox.com/s/we0765ym7dlcsl1/huge_austin.bin.zip?dl=0
 data/input/raw_maps/huge_seattle.bin,2cbd03989e76e63cb3f0603fe9a3d382,https://www.dropbox.com/s/jcssts861uaovva/huge_seattle.bin.zip?dl=0
 data/input/raw_maps/lakeslice.bin,13f21d57edd8bfc067f612dfab4ebac4,https://www.dropbox.com/s/4nmdtw0mgqe7tyg/lakeslice.bin.zip?dl=0
 data/input/raw_maps/montlake.bin,7f4b46974756c036a3417e42ce991867,https://www.dropbox.com/s/qk8rhwr6vdm79vz/montlake.bin.zip?dl=0
@@ -366,8 +366,8 @@ data/input/seattle/trips_2014.csv,d4a8e733045b28c0385fb81359d6df03,https://www.d
 data/system/cities/seattle.bin,018968486daedf1b69a1b3be5a3749bf,https://www.dropbox.com/s/eupzog6iw7wtaas/seattle.bin.zip?dl=0
 data/system/maps/ballard.bin,78198be4e5a03a59c63cdd61846efc60,https://www.dropbox.com/s/u4rvz50she3yrk0/ballard.bin.zip?dl=0
 data/system/maps/downtown.bin,3555b5dea0a14c15e313026dc28f00ea,https://www.dropbox.com/s/4do5cg4vc17lafo/downtown.bin.zip?dl=0
-data/system/maps/downtown_atx.bin,0902409dad2c3f933027ae3651936254,https://www.dropbox.com/s/5avnbkd4oxby2hs/downtown_atx.bin.zip?dl=0
-data/system/maps/huge_austin.bin,6a891b6a7597fd7f44e0229dd002773a,https://www.dropbox.com/s/khy0m6v9yt0gjnt/huge_austin.bin.zip?dl=0
+data/system/maps/downtown_atx.bin,dbcb84727ee433d1df94cad9b49c512c,https://www.dropbox.com/s/5avnbkd4oxby2hs/downtown_atx.bin.zip?dl=0
+data/system/maps/huge_austin.bin,91335d6d27c8df103d4963eefeae20bc,https://www.dropbox.com/s/khy0m6v9yt0gjnt/huge_austin.bin.zip?dl=0
 data/system/maps/huge_seattle.bin,80e2d8068ada8624b9d8129c8728e74a,https://www.dropbox.com/s/btvr3qajshnivhb/huge_seattle.bin.zip?dl=0
 data/system/maps/lakeslice.bin,061a9c3e377bac0ae5db460c67c3eea9,https://www.dropbox.com/s/99zi0gcbyvqrkud/lakeslice.bin.zip?dl=0
 data/system/maps/montlake.bin,d58d14b9fbae8cfdf6c547fe140ff3fe,https://www.dropbox.com/s/zvhm2j5lavixxcr/montlake.bin.zip?dl=0

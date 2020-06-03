@@ -1,7 +1,7 @@
 use crate::pathfind::Pathfinder;
 use crate::raw::{DrivingSide, OriginalIntersection, OriginalRoad, RawMap};
 use crate::{
-    connectivity, make, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop,
+    connectivity, make, osm, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop,
     BusStopID, ControlStopSign, ControlTrafficSignal, EditCmd, EditEffects, EditIntersection,
     Intersection, IntersectionID, IntersectionType, Lane, LaneID, LaneType, MapEdits, ParkingLot,
     ParkingLotID, Path, PathConstraints, PathRequest, Position, Road, RoadID, Turn, TurnGroupID,
@@ -1073,6 +1073,18 @@ fn make_half_map(
         }
         if i.is_closed() {
             continue;
+        }
+        if i.intersection_type == IntersectionType::TrafficSignal {
+            let mut ok = false;
+            for r in &i.roads {
+                if map.roads[r.0].osm_tags.get(osm::HIGHWAY) != Some(&"construction".to_string()) {
+                    ok = true;
+                    break;
+                }
+            }
+            if !ok {
+                i.intersection_type = IntersectionType::StopSign;
+            }
         }
 
         if i.incoming_lanes.is_empty() || i.outgoing_lanes.is_empty() {

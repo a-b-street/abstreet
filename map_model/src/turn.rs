@@ -210,7 +210,7 @@ impl TurnGroup {
             );
         }
         if results.is_empty() {
-            panic!("{} has no TurnGroups!", i);
+            panic!("{} has no TurnGroups!", map.get_i(i).orig_id);
         }
         results
     }
