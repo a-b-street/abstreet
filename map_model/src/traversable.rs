@@ -1,4 +1,4 @@
-use crate::{BuildingID, LaneID, LaneType, Map, TurnID};
+use crate::{LaneID, Map, TurnID};
 use geom::{Angle, Distance, PolyLine, Pt2D, Speed};
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -55,35 +55,6 @@ impl Position {
                     .min(len),
             )
         }
-    }
-
-    pub fn bldg_via_walking(b: BuildingID, map: &Map) -> Position {
-        map.get_b(b).front_path.sidewalk
-    }
-
-    pub fn bldg_via_driving(b: BuildingID, map: &Map) -> Option<Position> {
-        let bldg = map.get_b(b);
-        let driving_lane = map
-            .find_closest_lane(bldg.sidewalk(), vec![LaneType::Driving])
-            .ok()?;
-        Some(
-            bldg.front_path
-                .sidewalk
-                .equiv_pos(driving_lane, Distance::ZERO, map),
-        )
-    }
-
-    pub fn bldg_via_biking(b: BuildingID, map: &Map) -> Option<Position> {
-        let bldg = map.get_b(b);
-        let driving_lane = map
-            .find_closest_lane(bldg.sidewalk(), vec![LaneType::Biking])
-            .or_else(|_| map.find_closest_lane(bldg.sidewalk(), vec![LaneType::Driving]))
-            .ok()?;
-        Some(
-            bldg.front_path
-                .sidewalk
-                .equiv_pos(driving_lane, Distance::ZERO, map),
-        )
     }
 }
 
