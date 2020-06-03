@@ -61,6 +61,7 @@ impl GameplayState for Freeform {
                 }
                 "change traffic" => Some(Transition::Push(make_change_traffic(
                     self.top_center.rect_of("change traffic").clone(),
+                    "none".to_string(),
                 ))),
                 "edit map" => Some(Transition::Push(Box::new(EditMode::new(
                     ctx,
@@ -126,7 +127,8 @@ pub fn freeform_controller(
         .build(ctx)
 }
 
-pub fn make_change_traffic(btn: ScreenRectangle) -> Box<dyn State> {
+pub fn make_change_traffic(btn: ScreenRectangle, current: String) -> Box<dyn State> {
+    let current = current.to_string();
     WizardState::new(Box::new(move |wiz, ctx, app| {
         let (_, scenario_name) = wiz.wrap(ctx).choose_exact(
             (
@@ -163,19 +165,26 @@ pub fn make_change_traffic(btn: ScreenRectangle) -> Box<dyn State> {
                          the day.",
                     ),
                 );
-                list.push(Choice::new("just buses", "just buses".to_string()));
                 list.push(Choice::new(
-                    "none (you manually spawn traffic)",
-                    "empty".to_string(),
+                    "none, except for buses -- you manually spawn traffic",
+                    "none".to_string(),
                 ));
-                list
+                list.into_iter()
+                    .map(|c| {
+                        if c.data == current {
+                            c.active(false)
+                        } else {
+                            c
+                        }
+                    })
+                    .collect()
             },
         )?;
         let map_path = abstutil::path_map(app.primary.map.get_name());
         Some(Transition::PopThenReplace(Box::new(SandboxMode::new(
             ctx,
             app,
-            if scenario_name == "empty" {
+            if scenario_name == "none" {
                 GameplayMode::Freeform(map_path)
             } else {
                 GameplayMode::PlayScenario(map_path, scenario_name)

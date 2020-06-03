@@ -15,7 +15,7 @@ const DEFAULT_FG_COLOR: Color = Color::WHITE;
 
 pub const BG_COLOR: Color = Color::grey(0.3);
 pub const SELECTED_COLOR: Color = Color::grey(0.5);
-pub const INACTIVE_CHOICE_COLOR: Color = Color::grey(0.4);
+pub const INACTIVE_CHOICE_COLOR: Color = Color::grey(0.8);
 pub const SCALE_LINE_HEIGHT: f64 = 1.2;
 
 // TODO Don't do this!

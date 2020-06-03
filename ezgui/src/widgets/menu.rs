@@ -100,7 +100,7 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
                         x2: top_left.x + self.dims.width,
                         y2: top_left.y + ctx.default_line_height(),
                     };
-                    if rect.contains(cursor) {
+                    if rect.contains(cursor) && self.choices[idx].active {
                         self.current_idx = idx;
                         break;
                     }

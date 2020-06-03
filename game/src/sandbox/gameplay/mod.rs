@@ -95,7 +95,9 @@ impl GameplayMode {
     ) -> Option<Scenario> {
         let name = match self {
             GameplayMode::Freeform(_) => {
-                return None;
+                let mut s = Scenario::empty(map, "empty");
+                s.only_seed_buses = None;
+                return Some(s);
             }
             GameplayMode::PlayScenario(_, ref scenario) => scenario.to_string(),
             // TODO Some of these WILL have scenarios!
@@ -111,10 +113,6 @@ impl GameplayMode {
                 ScenarioGenerator::small_run(map)
             })
             .generate(map, &mut rng, &mut Timer::new("generate scenario"))
-        } else if name == "just buses" {
-            let mut s = Scenario::empty(map, "just buses");
-            s.only_seed_buses = None;
-            s
         } else if name == "5 weekdays repeated" {
             let s: Scenario =
                 abstutil::read_binary(abstutil::path_scenario(map.get_name(), "weekday"), timer);
