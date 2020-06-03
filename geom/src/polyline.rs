@@ -688,25 +688,6 @@ impl PolyLine {
     pub fn get_bounds(&self) -> Bounds {
         Bounds::from(&self.pts)
     }
-
-    // In one side and out another.
-    pub fn crosses_polygon(&self, pts: &Vec<Pt2D>) -> bool {
-        let mut crossings = 0;
-        for l1 in self.lines() {
-            for pair in pts.windows(2) {
-                if l1.intersection(&Line::new(pair[0], pair[1])).is_some() {
-                    crossings += 1;
-                }
-            }
-        }
-        if crossings > 2 {
-            panic!(
-                "{} crosses polygon more than two times! What happened?",
-                self
-            );
-        }
-        crossings == 2
-    }
 }
 
 impl fmt::Display for PolyLine {

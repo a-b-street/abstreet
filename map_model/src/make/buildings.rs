@@ -5,7 +5,7 @@ use crate::{
     ParkingLotID, Position,
 };
 use abstutil::Timer;
-use geom::{Distance, HashablePt2D, Line, PolyLine, Polygon, Pt2D};
+use geom::{Distance, HashablePt2D, Line, PolyLine, Polygon, Pt2D, Ring};
 use std::collections::{BTreeMap, HashSet};
 
 pub fn make_all_buildings(
@@ -208,7 +208,13 @@ pub fn make_all_parking_lots(
     for pts in aisles {
         timer.next();
         for lot in results.iter_mut() {
-            if pts.iter().any(|pt| lot.polygon.contains_pt(*pt)) {
+            let ring = Ring::new(lot.polygon.points().clone());
+            if pts.iter().any(|pt| lot.polygon.contains_pt(*pt))
+                || pts.windows(2).any(|pair| {
+                    ring.first_intersection(&PolyLine::new(vec![pair[0], pair[1]]))
+                        .is_some()
+                })
+            {
                 lot.aisles.push(pts.clone());
                 break;
             }
