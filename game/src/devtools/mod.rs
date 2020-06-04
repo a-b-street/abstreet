@@ -85,11 +85,7 @@ impl State for DevToolsMode {
                     return Transition::Push(WizardState::new(Box::new(choose_kml)));
                 }
                 "story maps" => {
-                    return Transition::Push(story::StoryMapEditor::new(
-                        ctx,
-                        app,
-                        story::StoryMap::empty(),
-                    ));
+                    return Transition::Push(story::StoryMapEditor::new(ctx, app));
                 }
                 "change map" => {
                     return Transition::Push(CityPicker::new(

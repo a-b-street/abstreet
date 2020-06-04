@@ -85,6 +85,15 @@ impl GeomBatch {
         self
     }
 
+    /// Builds a single polygon covering everything in this batch. Use to create a hitbox.
+    pub fn unioned_polygon(&self) -> Polygon {
+        let mut result = self.list[0].1.clone();
+        for (_, p) in &self.list[1..] {
+            result = result.union(p.clone());
+        }
+        result
+    }
+
     /// True when the batch is empty.
     pub(crate) fn is_empty(&self) -> bool {
         self.list.is_empty()

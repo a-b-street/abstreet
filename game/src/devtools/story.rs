@@ -2,11 +2,14 @@ use crate::app::App;
 use crate::common::CommonState;
 use crate::game::{State, Transition, WizardState};
 use ezgui::{
-    hotkey, lctrl, Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, RewriteColor, Text, VerticalAlignment, Widget,
+    hotkey, lctrl, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, RewriteColor, Text, VerticalAlignment, Widget,
 };
 use geom::{Angle, LonLat, Polygon, Pt2D};
 use serde::{Deserialize, Serialize};
+
+// TODO This is a really great example of things that ezgui ought to make easier. Maybe a radio
+// button-ish thing to start?
 
 // Good inspiration: http://sfo-assess.dha.io/
 
@@ -14,6 +17,11 @@ pub struct StoryMapEditor {
     composite: Composite,
     story: StoryMap,
     mode: Mode,
+    dirty: bool,
+
+    // Index into story.markers
+    // TODO Stick in Mode::View?
+    hovering: Option<usize>,
 }
 
 #[derive(Clone, Copy, PartialEq)]
@@ -23,12 +31,16 @@ enum Mode {
 }
 
 impl StoryMapEditor {
-    pub fn new(ctx: &mut EventCtx, app: &App, story: StoryMap) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+        let story = StoryMap::new();
         let mode = Mode::View;
+        let dirty = false;
         Box::new(StoryMapEditor {
-            composite: make_panel(ctx, app, &story, mode),
+            composite: make_panel(ctx, app, &story, mode, dirty),
             story,
             mode,
+            dirty,
+            hovering: None,
         })
     }
 }
@@ -38,22 +50,34 @@ impl State for StoryMapEditor {
         ctx.canvas_movement();
 
         match self.mode {
-            Mode::View => {}
+            Mode::View => {
+                if ctx.redo_mouseover() {
+                    self.hovering = None;
+                    if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+                        self.hovering = self
+                            .story
+                            .markers
+                            .iter()
+                            .position(|m| m.hitbox.contains_pt(pt));
+                    }
+                }
+            }
             Mode::Marker => {
-                if let Some(gps) = ctx
-                    .canvas
-                    .get_cursor_in_map_space()
-                    .and_then(|pt| pt.to_gps(app.primary.map.get_gps_bounds()))
-                {
-                    if app.per_obj.left_click(ctx, "place a marker here") {
+                if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+                    if app.primary.map.get_boundary_polygon().contains_pt(pt)
+                        && app.per_obj.left_click(ctx, "place a marker here")
+                    {
                         self.mode = Mode::View;
-                        self.composite = make_panel(ctx, app, &self.story, self.mode);
+                        self.composite = make_panel(ctx, app, &self.story, self.mode, true);
 
                         return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, _| {
                             let event = wiz.wrap(ctx).input_string("What happened here?")?;
-                            Some(Transition::PopWithData(Box::new(move |state, _, _| {
+                            Some(Transition::PopWithData(Box::new(move |state, ctx, app| {
                                 let editor = state.downcast_mut::<StoryMapEditor>().unwrap();
-                                editor.story.markers.push((gps, event));
+                                editor.story.markers.push(Marker::new(ctx, pt, event));
+                                editor.dirty = true;
+                                editor.composite =
+                                    make_panel(ctx, app, &editor.story, editor.mode, editor.dirty);
                             })))
                         })));
                     }
@@ -64,15 +88,89 @@ impl State for StoryMapEditor {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "close" => {
+                    // TODO autosave
                     return Transition::Pop;
                 }
+                "save" => {
+                    if self.story.name == "new story" {
+                        return Transition::Push(WizardState::new(Box::new(|wiz, ctx, _| {
+                            let name = wiz.wrap(ctx).input_string("Name this story map")?;
+                            Some(Transition::PopWithData(Box::new(move |state, ctx, app| {
+                                let editor = state.downcast_mut::<StoryMapEditor>().unwrap();
+                                editor.story.name = name;
+                                editor.story.save(app);
+                                editor.dirty = false;
+                                editor.composite =
+                                    make_panel(ctx, app, &editor.story, editor.mode, editor.dirty);
+                            })))
+                        })));
+                    } else {
+                        self.story.save(app);
+                        self.dirty = false;
+                        self.composite = make_panel(ctx, app, &self.story, self.mode, self.dirty);
+                    }
+                }
+                "load" => {
+                    // TODO autosave
+                    let current = self.story.name.clone();
+                    let btn = self.composite.rect_of("load").clone();
+                    return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, app| {
+                        let (_, raw) = wiz.wrap(ctx).choose_exact(
+                            (
+                                HorizontalAlignment::Centered(btn.center().x),
+                                VerticalAlignment::Below(btn.y2 + 15.0),
+                            ),
+                            None,
+                            || {
+                                let mut list = Vec::new();
+                                for (name, story) in abstutil::load_all_objects::<RecordedStoryMap>(
+                                    "../data/player/stories".to_string(),
+                                ) {
+                                    if story.name == current {
+                                        continue;
+                                    }
+                                    // TODO Argh, we can't make StoryMap cloneable, so redo some
+                                    // work
+                                    if app
+                                        .primary
+                                        .map
+                                        .get_gps_bounds()
+                                        .try_convert(
+                                            &story.markers.iter().map(|(gps, _)| *gps).collect(),
+                                        )
+                                        .is_some()
+                                    {
+                                        list.push(Choice::new(name, story));
+                                    }
+                                }
+                                list.push(Choice::new(
+                                    "new story",
+                                    RecordedStoryMap {
+                                        name: "new story".to_string(),
+                                        markers: Vec::new(),
+                                    },
+                                ));
+                                list
+                            },
+                        )?;
+                        let story = StoryMap::load(ctx, app, raw).unwrap();
+                        Some(Transition::PopWithData(Box::new(move |state, ctx, app| {
+                            let editor = state.downcast_mut::<StoryMapEditor>().unwrap();
+                            editor.story = story;
+                            editor.dirty = false;
+                            editor.composite =
+                                make_panel(ctx, app, &editor.story, editor.mode, editor.dirty);
+                        })))
+                    })));
+                }
                 "new marker" => {
+                    self.hovering = None;
                     self.mode = Mode::Marker;
-                    self.composite = make_panel(ctx, app, &self.story, self.mode);
+                    self.composite = make_panel(ctx, app, &self.story, self.mode, self.dirty);
                 }
                 "pan" => {
                     self.mode = Mode::View;
-                    self.composite = make_panel(ctx, app, &self.story, self.mode);
+                    self.composite = make_panel(ctx, app, &self.story, self.mode, self.dirty);
                 }
                 _ => unreachable!(),
             },
@@ -99,55 +197,26 @@ impl State for StoryMapEditor {
             g.unfork();
         }
 
-        self.story.render(g, app).draw(g);
+        for (idx, m) in self.story.markers.iter().enumerate() {
+            if self.hovering == Some(idx) {
+                m.draw_hovered(g, app);
+            } else {
+                g.redraw(&m.draw);
+            }
+        }
 
         self.composite.draw(g);
         CommonState::draw_osd(g, app, &None);
     }
 }
 
-#[derive(Serialize, Deserialize)]
-pub struct StoryMap {
-    name: String,
-    markers: Vec<(LonLat, String)>,
-}
-
-impl StoryMap {
-    pub fn empty() -> StoryMap {
-        StoryMap {
-            name: "new story".to_string(),
-            markers: Vec::new(),
-        }
-    }
-
-    fn render(&self, g: &mut GfxCtx, app: &App) -> GeomBatch {
-        let mut batch = GeomBatch::new();
-        for (gps, event) in &self.markers {
-            let pt = Pt2D::from_gps(*gps, app.primary.map.get_gps_bounds()).unwrap();
-            batch.add_svg(
-                g.prerender,
-                "../data/system/assets/timeline/goal_pos.svg",
-                pt,
-                1.0,
-                Angle::ZERO,
-                RewriteColor::NoOp,
-                false,
-            );
-            batch.add_transformed(
-                Text::from(Line(event))
-                    .with_bg()
-                    .render_to_batch(g.prerender),
-                pt,
-                0.1,
-                Angle::ZERO,
-                RewriteColor::NoOp,
-            );
-        }
-        batch
-    }
-}
-
-fn make_panel(ctx: &mut EventCtx, app: &App, story: &StoryMap, mode: Mode) -> Composite {
+fn make_panel(
+    ctx: &mut EventCtx,
+    app: &App,
+    story: &StoryMap,
+    mode: Mode,
+    dirty: bool,
+) -> Composite {
     Composite::new(
         Widget::col(vec![
             Widget::row(vec![
@@ -161,11 +230,22 @@ fn make_panel(ctx: &mut EventCtx, app: &App, story: &StoryMap, mode: Mode) -> Co
                 )
                 .margin_right(5),
                 Btn::text_fg(format!("{} ▼", story.name))
-                    .build(ctx, "load story map", lctrl(Key::L))
+                    .build(ctx, "load", lctrl(Key::L))
                     .margin_right(5),
-                Btn::svg_def("../data/system/assets/tools/save.svg")
-                    .build(ctx, "save", lctrl(Key::S))
-                    .margin_right(5),
+                if dirty {
+                    Btn::svg_def("../data/system/assets/tools/save.svg").build(
+                        ctx,
+                        "save",
+                        lctrl(Key::S),
+                    )
+                } else {
+                    Widget::draw_svg_transform(
+                        ctx,
+                        "../data/system/assets/tools/save.svg",
+                        RewriteColor::ChangeAlpha(0.5),
+                    )
+                }
+                .margin_right(5),
                 Btn::plaintext("X")
                     .build(ctx, "close", hotkey(Key::Escape))
                     .align_right(),
@@ -205,4 +285,117 @@ fn make_panel(ctx: &mut EventCtx, app: &App, story: &StoryMap, mode: Mode) -> Co
     )
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+struct RecordedStoryMap {
+    name: String,
+    markers: Vec<(LonLat, String)>,
+}
+impl abstutil::Cloneable for RecordedStoryMap {}
+
+struct StoryMap {
+    name: String,
+    markers: Vec<Marker>,
+}
+
+struct Marker {
+    pt: Pt2D,
+    event: String,
+    hitbox: Polygon,
+    draw: Drawable,
+}
+
+impl StoryMap {
+    fn new() -> StoryMap {
+        StoryMap {
+            name: "new story".to_string(),
+            markers: Vec::new(),
+        }
+    }
+
+    fn load(ctx: &mut EventCtx, app: &App, story: RecordedStoryMap) -> Option<StoryMap> {
+        let mut markers = Vec::new();
+        for (gps, event) in story.markers {
+            let pt = Pt2D::from_gps(gps, app.primary.map.get_gps_bounds())?;
+            markers.push(Marker::new(ctx, pt, event));
+        }
+        Some(StoryMap {
+            name: story.name,
+            markers,
+        })
+    }
+
+    fn save(&self, app: &App) {
+        let story = RecordedStoryMap {
+            name: self.name.clone(),
+            markers: self
+                .markers
+                .iter()
+                .map(|m| {
+                    (
+                        m.pt.to_gps(app.primary.map.get_gps_bounds()).unwrap(),
+                        m.event.clone(),
+                    )
+                })
+                .collect(),
+        };
+        abstutil::write_json(
+            format!("../data/player/stories/{}.json", story.name),
+            &story,
+        );
+    }
+}
+
+impl Marker {
+    fn new(ctx: &mut EventCtx, pt: Pt2D, event: String) -> Marker {
+        let mut batch = GeomBatch::new();
+        batch.add_svg(
+            ctx.prerender,
+            "../data/system/assets/timeline/goal_pos.svg",
+            pt,
+            1.0,
+            Angle::ZERO,
+            RewriteColor::NoOp,
+            false,
+        );
+        batch.add_transformed(
+            Text::from(Line(&event))
+                .with_bg()
+                .render_to_batch(ctx.prerender),
+            pt,
+            0.1,
+            Angle::ZERO,
+            RewriteColor::NoOp,
+        );
+        Marker {
+            pt,
+            event,
+            hitbox: batch.unioned_polygon(),
+            draw: ctx.upload(batch),
+        }
+    }
+
+    fn draw_hovered(&self, g: &mut GfxCtx, app: &App) {
+        let mut batch = GeomBatch::new();
+        batch.add_svg(
+            g.prerender,
+            "../data/system/assets/timeline/goal_pos.svg",
+            self.pt,
+            1.0,
+            Angle::ZERO,
+            RewriteColor::ChangeAll(app.cs.hovering),
+            false,
+        );
+        batch.add_transformed(
+            Text::from(Line(&self.event))
+                .with_bg()
+                .render_to_batch(g.prerender),
+            self.pt,
+            0.1,
+            Angle::ZERO,
+            RewriteColor::NoOp,
+        );
+        batch.draw(g);
+    }
 }
