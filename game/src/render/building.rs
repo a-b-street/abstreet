@@ -5,10 +5,11 @@ use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, Text};
 use geom::{Angle, Distance, Line, Polygon, Pt2D};
 use map_model::{Building, BuildingID, Map, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
+use std::cell::RefCell;
 
 pub struct DrawBuilding {
     pub id: BuildingID,
-    label: Option<Drawable>,
+    label: RefCell<Option<Drawable>>,
 }
 
 impl DrawBuilding {
@@ -59,24 +60,10 @@ impl DrawBuilding {
             );
         }
 
-        // TODO Uh oh, this is lots of work upfront. Disable by default. :(
-        let label = if false {
-            bldg.house_number().map(|num| {
-                let mut lbl = GeomBatch::new();
-                lbl.add_transformed(
-                    Text::from(Line(num.to_string()).fg(Color::BLACK)).render_to_batch(prerender),
-                    bldg.label_center,
-                    0.1,
-                    Angle::ZERO,
-                    RewriteColor::NoOp,
-                );
-                prerender.upload(lbl)
-            })
-        } else {
-            None
-        };
-
-        DrawBuilding { id: bldg.id, label }
+        DrawBuilding {
+            id: bldg.id,
+            label: RefCell::new(None),
+        }
     }
 }
 
@@ -85,11 +72,30 @@ impl Renderable for DrawBuilding {
         ID::Building(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App, opts: &DrawOptions) {
+    fn draw(&self, g: &mut GfxCtx, app: &App, opts: &DrawOptions) {
         if opts.label_buildings {
-            if let Some(ref lbl) = self.label {
-                g.redraw(lbl);
+            // Labels are expensive to compute up-front, so do it lazily, since we don't really
+            // zoom in on all buildings in a single session anyway
+            let mut label = self.label.borrow_mut();
+            if label.is_none() {
+                let mut batch = GeomBatch::new();
+                let b = app.primary.map.get_b(self.id);
+                if let Some((name, _)) = b.amenities.iter().next() {
+                    let mut txt = Text::from(Line(name).fg(Color::BLACK));
+                    if b.amenities.len() > 1 {
+                        txt.append(Line(format!(" (+{})", b.amenities.len() - 1)).fg(Color::BLACK));
+                    }
+                    batch.add_transformed(
+                        txt.render_to_batch(g.prerender),
+                        b.label_center,
+                        0.1,
+                        Angle::ZERO,
+                        RewriteColor::NoOp,
+                    );
+                }
+                *label = Some(g.prerender.upload(batch));
             }
+            g.redraw(label.as_ref().unwrap());
         }
     }
 

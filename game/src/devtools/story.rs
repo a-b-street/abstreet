@@ -1,6 +1,7 @@
-use crate::app::App;
+use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
-use crate::game::{State, Transition, WizardState};
+use crate::game::{DrawBaselayer, State, Transition, WizardState};
+use crate::render::DrawOptions;
 use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, RewriteColor, Text, VerticalAlignment, Widget,
@@ -236,7 +237,15 @@ impl State for StoryMapEditor {
         Transition::Keep
     }
 
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::Custom
+    }
+
     fn draw(&self, g: &mut GfxCtx, app: &App) {
+        let mut opts = DrawOptions::new();
+        opts.label_buildings = true;
+        app.draw(g, opts, &app.primary.sim, &ShowEverything::new());
+
         match self.mode {
             Mode::Placing => {
                 if g.canvas.get_cursor_in_map_space().is_some() {
