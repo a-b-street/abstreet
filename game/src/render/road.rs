@@ -5,13 +5,14 @@ use crate::render::{DrawOptions, Renderable};
 use ezgui::{Drawable, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, Text};
 use geom::{Angle, Distance, Polygon, Pt2D};
 use map_model::{LaneType, Map, Road, RoadID};
+use std::cell::RefCell;
 
 pub struct DrawRoad {
     pub id: RoadID,
     zorder: isize,
 
     draw_center_line: Drawable,
-    label: Drawable,
+    label: RefCell<Option<Drawable>>,
 }
 
 impl DrawRoad {
@@ -35,25 +36,11 @@ impl DrawRoad {
             );
         }
 
-        let mut txt = Text::new().with_bg();
-        txt.add(Line(r.get_name()));
-        let mut lbl = GeomBatch::new();
-        // TODO Disabled because it's slow up-front cost
-        if false {
-            lbl.add_transformed(
-                txt.render_to_batch(prerender),
-                r.center_pts.middle(),
-                0.1,
-                Angle::ZERO,
-                RewriteColor::NoOp,
-            );
-        }
-
         DrawRoad {
             id: r.id,
             zorder: r.zorder,
             draw_center_line: prerender.upload(draw),
-            label: prerender.upload(lbl),
+            label: RefCell::new(None),
         }
     }
 }
@@ -63,10 +50,29 @@ impl Renderable for DrawRoad {
         ID::Road(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App, opts: &DrawOptions) {
+    fn draw(&self, g: &mut GfxCtx, app: &App, opts: &DrawOptions) {
         g.redraw(&self.draw_center_line);
+
         if opts.label_roads {
-            g.redraw(&self.label);
+            // Lazily calculate
+            let mut label = self.label.borrow_mut();
+            if label.is_none() {
+                let mut batch = GeomBatch::new();
+                let r = app.primary.map.get_r(self.id);
+
+                let mut txt = Text::new().with_bg();
+                txt.add(Line(r.get_name()));
+                batch.add_transformed(
+                    txt.render_to_batch(g.prerender),
+                    r.center_pts.middle(),
+                    0.1,
+                    Angle::ZERO,
+                    RewriteColor::NoOp,
+                );
+                *label = Some(g.prerender.upload(batch));
+            }
+            // TODO Covered up sometimes. We could fork and force a different z value...
+            g.redraw(label.as_ref().unwrap());
         }
     }
 

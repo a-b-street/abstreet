@@ -8,6 +8,7 @@ use ezgui::{
 };
 use geom::{Angle, LonLat, Polygon, Pt2D};
 use serde::{Deserialize, Serialize};
+use sim::DontDrawAgents;
 
 // TODO This is a really great example of things that ezgui ought to make easier. Maybe a radio
 // button-ish thing to start?
@@ -244,7 +245,8 @@ impl State for StoryMapEditor {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         let mut opts = DrawOptions::new();
         opts.label_buildings = true;
-        app.draw(g, opts, &app.primary.sim, &ShowEverything::new());
+        opts.label_roads = true;
+        app.draw(g, opts, &DontDrawAgents {}, &ShowEverything::new());
 
         match self.mode {
             Mode::Placing => {
