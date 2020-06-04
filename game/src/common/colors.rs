@@ -82,7 +82,7 @@ impl Colorer {
     // If true, destruct this Colorer.
     pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
         match self.legend.event(ctx) {
-            Some(Outcome::Clicked(x)) if x == "X" => true,
+            Some(Outcome::Clicked(x)) if x == "close" => true,
             Some(Outcome::Clicked(_)) => unreachable!(),
             None => false,
         }
@@ -192,7 +192,7 @@ impl ColorerBuilder {
         let mut col = vec![Widget::row(vec![
             Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg").margin_right(10),
             self.title.draw_text(ctx).centered_vert().margin_right(5),
-            Btn::plaintext("X").build_def(ctx, None).align_right(),
+            Btn::plaintext("X").build(ctx, "close", None).align_right(),
         ])];
         if !self.extra_info.is_empty() {
             let mut txt = Text::new();

@@ -447,7 +447,7 @@ impl ContextualActions for Actions {
                 )));
                 Transition::Keep
             }
-            (_, "follow") => {
+            (_, "follow (run the simulation)") => {
                 *close_panel = false;
                 Transition::KeepWithData(Box::new(|state, app, ctx| {
                     let mode = state.downcast_mut::<SandboxMode>().unwrap();
@@ -456,7 +456,7 @@ impl ContextualActions for Actions {
                     speed.resume_realtime(ctx, app);
                 }))
             }
-            (_, "unfollow") => {
+            (_, "unfollow (pause the simulation)") => {
                 *close_panel = false;
                 Transition::KeepWithData(Box::new(|state, app, ctx| {
                     let mode = state.downcast_mut::<SandboxMode>().unwrap();

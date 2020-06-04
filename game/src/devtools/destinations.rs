@@ -98,7 +98,7 @@ impl PopularDestinations {
                             .draw(ctx)
                             .margin_right(10),
                         Btn::text_fg("X")
-                            .build_def(ctx, hotkey(Key::Escape))
+                            .build(ctx, "close", hotkey(Key::Escape))
                             .align_right(),
                     ]),
                     Checkbox::text(ctx, "Show heatmap", None, opts.is_some()),
@@ -135,7 +135,7 @@ impl State for PopularDestinations {
 
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "X" => {
+                "close" => {
                     return Transition::Pop;
                 }
                 _ => unreachable!(),

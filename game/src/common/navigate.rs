@@ -22,7 +22,7 @@ impl Navigator {
                     Widget::row(vec![
                         Line("Enter a street name").small_heading().draw(ctx),
                         Btn::text_fg("X")
-                            .build_def(ctx, hotkey(Key::Escape))
+                            .build(ctx, "close", hotkey(Key::Escape))
                             .align_right(),
                     ]),
                     Autocomplete::new(
@@ -47,7 +47,7 @@ impl State for Navigator {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "X" => {
+                "close" => {
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
@@ -116,7 +116,7 @@ impl CrossStreet {
                             txt.draw(ctx)
                         },
                         Btn::text_fg("X")
-                            .build_def(ctx, hotkey(Key::Escape))
+                            .build(ctx, "close", hotkey(Key::Escape))
                             .align_right(),
                     ]),
                     Autocomplete::new(
@@ -143,7 +143,7 @@ impl State for CrossStreet {
 
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "X" => {
+                "close" => {
                     // Just warp to somewhere on the first road
                     let road = map.get_r(self.first[0]);
                     return Transition::Replace(Warping::new(

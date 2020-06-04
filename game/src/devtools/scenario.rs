@@ -126,7 +126,7 @@ impl State for ScenarioManager {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "X" => {
+                "close" => {
                     return Transition::Pop;
                 }
                 "block map" => {

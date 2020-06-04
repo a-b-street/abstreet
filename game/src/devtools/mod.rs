@@ -4,6 +4,7 @@ mod kml;
 pub mod mapping;
 mod polygon;
 mod scenario;
+mod story;
 
 use crate::app::App;
 use crate::common::CityPicker;
@@ -31,7 +32,7 @@ impl DevToolsMode {
                             .draw(ctx)
                             .margin_right(10),
                         Btn::text_fg("X")
-                            .build_def(ctx, hotkey(Key::Escape))
+                            .build(ctx, "close", hotkey(Key::Escape))
                             .align_right(),
                     ])
                     .margin_below(5),
@@ -39,12 +40,14 @@ impl DevToolsMode {
                         "Change map:".draw_text(ctx).margin_right(10),
                         Btn::text_fg(format!("{} ▼", nice_map_name(app.primary.map.get_name())))
                             .build(ctx, "change map", None),
-                    ]),
+                    ])
+                    .margin_below(5),
                     Widget::row(vec![
                         Btn::text_fg("edit a polygon").build_def(ctx, hotkey(Key::E)),
                         Btn::text_fg("draw a polygon").build_def(ctx, hotkey(Key::P)),
                         Btn::text_fg("load scenario").build_def(ctx, hotkey(Key::W)),
                         Btn::text_fg("view KML").build_def(ctx, hotkey(Key::K)),
+                        Btn::text_fg("story maps").build_def(ctx, hotkey(Key::S)),
                     ])
                     .flex_wrap(ctx, 60),
                 ])
@@ -61,7 +64,7 @@ impl State for DevToolsMode {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "X" => {
+                "close" => {
                     return Transition::Pop;
                 }
                 "edit a polygon" => {
@@ -80,6 +83,13 @@ impl State for DevToolsMode {
                 }
                 "view KML" => {
                     return Transition::Push(WizardState::new(Box::new(choose_kml)));
+                }
+                "story maps" => {
+                    return Transition::Push(story::StoryMapEditor::new(
+                        ctx,
+                        app,
+                        story::StoryMap::empty(),
+                    ));
                 }
                 "change map" => {
                     return Transition::Push(CityPicker::new(

@@ -39,7 +39,7 @@ impl DebugMode {
                     Widget::row(vec![
                         Line("Debug Mode").small_heading().draw(ctx),
                         Btn::text_fg("X")
-                            .build_def(ctx, hotkey(Key::Escape))
+                            .build(ctx, "close", hotkey(Key::Escape))
                             .align_right(),
                     ]),
                     Text::new().draw(ctx).named("current info"),
@@ -118,7 +118,7 @@ impl State for DebugMode {
 
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "X" => {
+                "close" => {
                     return Transition::Pop;
                 }
                 "save sim state" => {

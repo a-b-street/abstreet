@@ -425,13 +425,13 @@ pub fn parked_car(
             // for SandboxMode.
             if is_paused {
                 Btn::svg_def("../data/system/assets/tools/location.svg")
-                    .build(ctx, "follow", hotkey(Key::F))
+                    .build(ctx, "follow (run the simulation)", hotkey(Key::F))
                     .margin(5)
             } else {
                 // TODO Blink
                 Btn::svg_def("../data/system/assets/tools/location.svg")
                     .normal_color(RewriteColor::ChangeAll(Color::hex("#7FFA4D")))
-                    .build(ctx, "unfollow", hotkey(Key::F))
+                    .build(ctx, "unfollow (pause the simulation)", hotkey(Key::F))
                     .margin(5)
             },
             Btn::plaintext("X").build(ctx, "close info", hotkey(Key::Escape)),
@@ -540,13 +540,13 @@ fn header(
             // for SandboxMode.
             if is_paused {
                 Btn::svg_def("../data/system/assets/tools/location.svg")
-                    .build(ctx, "follow", hotkey(Key::F))
+                    .build(ctx, "follow (run the simulation)", hotkey(Key::F))
                     .margin(5)
             } else {
                 // TODO Blink
                 Btn::svg_def("../data/system/assets/tools/location.svg")
                     .normal_color(RewriteColor::ChangeAll(Color::hex("#7FFA4D")))
-                    .build(ctx, "unfollow", hotkey(Key::F))
+                    .build(ctx, "unfollow (pause the simulation)", hotkey(Key::F))
                     .margin(5)
             },
             Btn::plaintext("X").build(ctx, "close info", hotkey(Key::Escape)),

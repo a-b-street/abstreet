@@ -86,7 +86,7 @@ impl ViewKML {
                                 .draw(ctx)
                                 .margin_right(10),
                             Btn::text_fg("X")
-                                .build_def(ctx, hotkey(Key::Escape))
+                                .build(ctx, "close", hotkey(Key::Escape))
                                 .align_right(),
                         ]),
                         format!(
@@ -137,7 +137,7 @@ impl State for ViewKML {
 
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "X" => {
+                "close" => {
                     return Transition::Pop;
                 }
                 _ => unreachable!(),

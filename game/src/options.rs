@@ -51,7 +51,7 @@ impl OptionsPanel {
                     Widget::row(vec![
                         Line("Settings").small_heading().draw(ctx),
                         Btn::text_fg("X")
-                            .build_def(ctx, hotkey(Key::Escape))
+                            .build(ctx, "close", hotkey(Key::Escape))
                             .align_right(),
                     ]),
                     Checkbox::text(ctx, "Enable developer mode", None, app.opts.dev).margin(5),
@@ -178,7 +178,7 @@ impl State for OptionsPanel {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "X" => {
+                "close" => {
                     return Transition::Pop;
                 }
                 "Apply" => {

@@ -126,7 +126,7 @@ impl ParkingMapper {
                             .draw(ctx)
                             .margin_right(10),
                         Btn::text_fg("X")
-                            .build_def(ctx, hotkey(Key::Escape))
+                            .build(ctx, "close", hotkey(Key::Escape))
                             .align_right(),
                     ])
                     .margin_below(5),
@@ -383,7 +383,7 @@ impl State for ParkingMapper {
 
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "X" => {
+                "close" => {
                     app.opts.min_zoom_for_detail =
                         crate::options::Options::default().min_zoom_for_detail;
                     return Transition::Pop;

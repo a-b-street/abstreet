@@ -80,7 +80,7 @@ impl State for Floodfiller {
 
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "X" => {
+                "close" => {
                     return Transition::Pop;
                 }
                 _ => unreachable!(),

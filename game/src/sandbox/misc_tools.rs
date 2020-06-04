@@ -109,7 +109,7 @@ impl State for ShowTrafficSignal {
 
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "X" => {
+                "close" => {
                     return Transition::Pop;
                 }
                 _ => {
@@ -169,7 +169,7 @@ impl State for TurnExplorer {
 
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "X" => {
+                "close" => {
                     return Transition::Pop;
                 }
                 "previous turn" => {
@@ -277,7 +277,7 @@ impl TurnExplorer {
                 Btn::text_fg(">").build(ctx, "next turn", hotkey(Key::RightArrow))
             }
             .margin(5),
-            Btn::text_fg("X").build_def(ctx, hotkey(Key::Escape)),
+            Btn::text_fg("X").build(ctx, "close", hotkey(Key::Escape)),
         ])];
         if idx == 0 {
             if app.primary.map.get_l(l).is_sidewalk() {

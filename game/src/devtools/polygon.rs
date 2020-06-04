@@ -69,7 +69,7 @@ impl State for PolygonEditor {
 
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "X" => {
+                "close" => {
                     return Transition::Pop;
                 }
                 "export as an Osmosis polygon filter" => {

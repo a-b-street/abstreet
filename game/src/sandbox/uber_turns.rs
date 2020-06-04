@@ -36,7 +36,7 @@ impl UberTurnPicker {
                             .small_heading()
                             .draw(ctx),
                         Btn::text_fg("X")
-                            .build_def(ctx, hotkey(Key::Escape))
+                            .build(ctx, "close", hotkey(Key::Escape))
                             .align_right(),
                     ]),
                     Btn::text_fg("View uber-turns").build_def(ctx, hotkey(Key::Enter)),
@@ -69,7 +69,7 @@ impl State for UberTurnPicker {
 
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "X" => {
+                "close" => {
                     return Transition::Pop;
                 }
                 "View uber-turns" => {
@@ -193,7 +193,7 @@ impl UberTurnViewer {
                             Btn::text_fg(">").build(ctx, "next uber-turn", hotkey(Key::RightArrow))
                         }
                         .margin(5),
-                        Btn::text_fg("X").build_def(ctx, hotkey(Key::Escape)),
+                        Btn::text_fg("X").build(ctx, "close", hotkey(Key::Escape)),
                     ]),
                     Checkbox::text(ctx, "legal / illegal movements", None, legal_turns),
                 ])
@@ -215,7 +215,7 @@ impl State for UberTurnViewer {
 
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "X" => {
+                "close" => {
                     return Transition::Pop;
                 }
                 "previous uber-turn" => {

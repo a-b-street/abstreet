@@ -346,7 +346,7 @@ impl JumpToTime {
             composite: Composite::new(
                 Widget::col(vec![
                     Btn::text_fg("X")
-                        .build_def(ctx, hotkey(Key::Escape))
+                        .build(ctx, "close", hotkey(Key::Escape))
                         .align_right(),
                     {
                         let mut txt = Text::from(Line("Jump to what time?").small_heading());
@@ -397,7 +397,7 @@ impl State for JumpToTime {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "X" => {
+                "close" => {
                     return Transition::Pop;
                 }
                 "Go!" => {
