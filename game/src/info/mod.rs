@@ -414,7 +414,7 @@ impl InfoPanel {
                     (
                         false,
                         Some(Transition::ReplaceWithData(Box::new(
-                            move |state, app, ctx| {
+                            move |state, ctx, app| {
                                 let mut sandbox = state.downcast::<SandboxMode>().ok().unwrap();
 
                                 if time < app.primary.sim.time() {

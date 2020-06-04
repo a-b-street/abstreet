@@ -49,7 +49,7 @@ pub struct SandboxControls {
 impl SandboxMode {
     pub fn new(ctx: &mut EventCtx, app: &mut App, mode: GameplayMode) -> SandboxMode {
         app.primary.clear_sim();
-        let gameplay = mode.initialize(app, ctx);
+        let gameplay = mode.initialize(ctx, app);
 
         SandboxMode {
             controls: SandboxControls {
@@ -449,7 +449,7 @@ impl ContextualActions for Actions {
             }
             (_, "follow (run the simulation)") => {
                 *close_panel = false;
-                Transition::KeepWithData(Box::new(|state, app, ctx| {
+                Transition::KeepWithData(Box::new(|state, ctx, app| {
                     let mode = state.downcast_mut::<SandboxMode>().unwrap();
                     let speed = mode.controls.speed.as_mut().unwrap();
                     assert!(speed.is_paused());
@@ -458,7 +458,7 @@ impl ContextualActions for Actions {
             }
             (_, "unfollow (pause the simulation)") => {
                 *close_panel = false;
-                Transition::KeepWithData(Box::new(|state, app, ctx| {
+                Transition::KeepWithData(Box::new(|state, ctx, app| {
                     let mode = state.downcast_mut::<SandboxMode>().unwrap();
                     let speed = mode.controls.speed.as_mut().unwrap();
                     assert!(!speed.is_paused());

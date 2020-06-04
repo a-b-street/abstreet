@@ -167,7 +167,7 @@ impl GameplayMode {
         true
     }
 
-    pub fn initialize(&self, app: &mut App, ctx: &mut EventCtx) -> Box<dyn GameplayState> {
+    pub fn initialize(&self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn GameplayState> {
         ctx.loading_screen("setup challenge", |ctx, timer| {
             if &abstutil::basename(&self.map_path()) != app.primary.map.get_name() {
                 app.switch_map(ctx, self.map_path());

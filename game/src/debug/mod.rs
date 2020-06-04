@@ -367,7 +367,7 @@ fn search_osm(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option<Tra
         draw: batch.upload(ctx),
     };
 
-    Some(Transition::PopWithData(Box::new(|state, _, ctx| {
+    Some(Transition::PopWithData(Box::new(|state, ctx, _| {
         let mut mode = state.downcast_mut::<DebugMode>().unwrap();
         mode.search_results = Some(results);
         mode.reset_info(ctx);
@@ -465,7 +465,7 @@ impl ContextualActions for Actions {
         close_info: &mut bool,
     ) -> Transition {
         match (id, action.as_ref()) {
-            (id, "hide this") => Transition::KeepWithData(Box::new(|state, app, ctx| {
+            (id, "hide this") => Transition::KeepWithData(Box::new(|state, ctx, app| {
                 let mode = state.downcast_mut::<DebugMode>().unwrap();
                 println!("Hiding {:?}", id);
                 app.primary.current_selection = None;

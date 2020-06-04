@@ -110,7 +110,7 @@ impl State for ParkingOverhead {
                     if let Ok(idx) = x.parse::<usize>() {
                         let trip = TripID(idx);
                         let person = app.primary.sim.trip_to_person(trip);
-                        return Transition::PopWithData(Box::new(move |state, app, ctx| {
+                        return Transition::PopWithData(Box::new(move |state, ctx, app| {
                             let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
                             let mut actions = sandbox.contextual_actions();
                             sandbox.controls.common.as_mut().unwrap().launch_info_panel(

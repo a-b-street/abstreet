@@ -78,16 +78,16 @@ impl GUI for Game {
             }
             Transition::PopWithData(cb) => {
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
-                cb(self.states.last_mut().unwrap(), &mut self.app, ctx);
+                cb(self.states.last_mut().unwrap(), ctx, &mut self.app);
             }
             Transition::ReplaceWithData(cb) => {
                 let mut last = self.states.pop().unwrap();
                 last.on_destroy(ctx, &mut self.app);
-                let new_states = cb(last, &mut self.app, ctx);
+                let new_states = cb(last, ctx, &mut self.app);
                 self.states.extend(new_states);
             }
             Transition::KeepWithData(cb) => {
-                cb(self.states.last_mut().unwrap(), &mut self.app, ctx);
+                cb(self.states.last_mut().unwrap(), ctx, &mut self.app);
             }
             Transition::PopTwice => {
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
@@ -219,10 +219,10 @@ pub enum Transition {
     Pop,
     PopTwice,
     // If a state needs to pass data back to the parent, use this. Sadly, runtime type casting.
-    PopWithData(Box<dyn FnOnce(&mut Box<dyn State>, &mut App, &mut EventCtx)>),
-    KeepWithData(Box<dyn FnOnce(&mut Box<dyn State>, &mut App, &mut EventCtx)>),
+    PopWithData(Box<dyn FnOnce(&mut Box<dyn State>, &mut EventCtx, &mut App)>),
+    KeepWithData(Box<dyn FnOnce(&mut Box<dyn State>, &mut EventCtx, &mut App)>),
     ReplaceWithData(
-        Box<dyn FnOnce(Box<dyn State>, &mut App, &mut EventCtx) -> Vec<Box<dyn State>>>,
+        Box<dyn FnOnce(Box<dyn State>, &mut EventCtx, &mut App) -> Vec<Box<dyn State>>>,
     ),
     Push(Box<dyn State>),
     Replace(Box<dyn State>),

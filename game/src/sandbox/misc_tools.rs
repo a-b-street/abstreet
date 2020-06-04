@@ -82,7 +82,7 @@ impl ShowTrafficSignal {
         });
     }
 
-    fn change_phase(&mut self, idx: usize, app: &App, ctx: &mut EventCtx) {
+    fn change_phase(&mut self, idx: usize, ctx: &mut EventCtx, app: &App) {
         if self.current_phase != idx {
             self.current_phase = idx;
             self.composite = make_signal_diagram(ctx, app, self.i, self.current_phase, false);
@@ -98,13 +98,13 @@ impl State for ShowTrafficSignal {
 
         // TODO Buttons for these...
         if self.current_phase != 0 && ctx.input.new_was_pressed(&hotkey(Key::UpArrow).unwrap()) {
-            self.change_phase(self.current_phase - 1, app, ctx);
+            self.change_phase(self.current_phase - 1, ctx, app);
         }
 
         if self.current_phase != app.primary.map.get_traffic_signal(self.i).phases.len() - 1
             && ctx.input.new_was_pressed(&hotkey(Key::DownArrow).unwrap())
         {
-            self.change_phase(self.current_phase + 1, app, ctx);
+            self.change_phase(self.current_phase + 1, ctx, app);
         }
 
         match self.composite.event(ctx) {
@@ -113,7 +113,7 @@ impl State for ShowTrafficSignal {
                     return Transition::Pop;
                 }
                 _ => {
-                    self.change_phase(x["phase ".len()..].parse::<usize>().unwrap() - 1, app, ctx);
+                    self.change_phase(x["phase ".len()..].parse::<usize>().unwrap() - 1, ctx, app);
                 }
             },
             None => {}

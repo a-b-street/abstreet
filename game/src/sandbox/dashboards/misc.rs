@@ -109,7 +109,7 @@ impl State for BusRoutes {
                             vec![format!("Sorry, no buses for route {} running", r.name)],
                         ))
                     } else {
-                        Transition::PopWithData(Box::new(move |state, app, ctx| {
+                        Transition::PopWithData(Box::new(move |state, ctx, app| {
                             let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
                             let mut actions = sandbox.contextual_actions();
                             sandbox.controls.common.as_mut().unwrap().launch_info_panel(

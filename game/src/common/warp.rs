@@ -46,7 +46,7 @@ impl State for Warping {
             Transition::KeepWithMode(evmode)
         } else {
             if let Some(id) = self.id.clone() {
-                Transition::PopWithData(Box::new(move |state, app, ctx| {
+                Transition::PopWithData(Box::new(move |state, ctx, app| {
                     // Other states pretty much don't use info panels.
                     if let Some(ref mut s) = state.downcast_mut::<SandboxMode>() {
                         let mut actions = s.contextual_actions();
@@ -112,7 +112,7 @@ fn inner_warp(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Transitio
             'P' => {
                 let id = PersonID(idx);
                 app.primary.sim.lookup_person(id)?;
-                return Some(Transition::PopWithData(Box::new(move |state, app, ctx| {
+                return Some(Transition::PopWithData(Box::new(move |state, ctx, app| {
                     // Other states pretty much don't use info panels.
                     if let Some(ref mut s) = state.downcast_mut::<SandboxMode>() {
                         let mut actions = s.contextual_actions();
@@ -133,7 +133,7 @@ fn inner_warp(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Transitio
             't' => {
                 let trip = TripID(idx);
                 let person = app.primary.sim.trip_to_person(trip);
-                return Some(Transition::PopWithData(Box::new(move |state, app, ctx| {
+                return Some(Transition::PopWithData(Box::new(move |state, ctx, app| {
                     // Other states pretty much don't use info panels.
                     if let Some(ref mut s) = state.downcast_mut::<SandboxMode>() {
                         let mut actions = s.contextual_actions();
