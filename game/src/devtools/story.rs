@@ -11,7 +11,8 @@ use serde::{Deserialize, Serialize};
 // TODO This is a really great example of things that ezgui ought to make easier. Maybe a radio
 // button-ish thing to start?
 
-// Good inspiration: http://sfo-assess.dha.io/
+// Good inspiration: http://sfo-assess.dha.io/, https://github.com/mapbox/storytelling,
+// https://storymap.knightlab.com/
 
 pub struct StoryMapEditor {
     composite: Composite,
@@ -24,10 +25,11 @@ pub struct StoryMapEditor {
     hovering: Option<usize>,
 }
 
-#[derive(Clone, Copy, PartialEq)]
 enum Mode {
     View,
-    Marker,
+    Placing,
+    Dragging(usize),
+    Editing(usize, Composite),
 }
 
 impl StoryMapEditor {
@@ -36,21 +38,25 @@ impl StoryMapEditor {
         let mode = Mode::View;
         let dirty = false;
         Box::new(StoryMapEditor {
-            composite: make_panel(ctx, app, &story, mode, dirty),
+            composite: make_panel(ctx, app, &story, &mode, dirty),
             story,
             mode,
             dirty,
             hovering: None,
         })
     }
+
+    fn redo_panel(&mut self, ctx: &mut EventCtx, app: &App) {
+        self.composite = make_panel(ctx, app, &self.story, &self.mode, self.dirty);
+    }
 }
 
 impl State for StoryMapEditor {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        ctx.canvas_movement();
-
         match self.mode {
             Mode::View => {
+                ctx.canvas_movement();
+
                 if ctx.redo_mouseover() {
                     self.hovering = None;
                     if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
@@ -61,26 +67,78 @@ impl State for StoryMapEditor {
                             .position(|m| m.hitbox.contains_pt(pt));
                     }
                 }
+                if let Some(idx) = self.hovering {
+                    if ctx
+                        .input
+                        .key_pressed(Key::LeftControl, "hold to move this marker")
+                    {
+                        self.mode = Mode::Dragging(idx);
+                    } else if app.per_obj.left_click(ctx, "edit marker") {
+                        self.mode =
+                            Mode::Editing(idx, self.story.markers[idx].make_editor(ctx, app));
+                    }
+                }
             }
-            Mode::Marker => {
+            Mode::Placing => {
+                ctx.canvas_movement();
+
                 if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
                     if app.primary.map.get_boundary_polygon().contains_pt(pt)
                         && app.per_obj.left_click(ctx, "place a marker here")
                     {
-                        self.mode = Mode::View;
-                        self.composite = make_panel(ctx, app, &self.story, self.mode, true);
-
-                        return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, _| {
-                            let event = wiz.wrap(ctx).input_string("What happened here?")?;
-                            Some(Transition::PopWithData(Box::new(move |state, ctx, app| {
-                                let editor = state.downcast_mut::<StoryMapEditor>().unwrap();
-                                editor.story.markers.push(Marker::new(ctx, pt, event));
-                                editor.dirty = true;
-                                editor.composite =
-                                    make_panel(ctx, app, &editor.story, editor.mode, editor.dirty);
-                            })))
-                        })));
+                        let idx = self.story.markers.len();
+                        self.story.markers.push(Marker::new(ctx, pt, String::new()));
+                        self.dirty = true;
+                        self.redo_panel(ctx, app);
+                        self.mode =
+                            Mode::Editing(idx, self.story.markers[idx].make_editor(ctx, app));
                     }
+                }
+            }
+            Mode::Dragging(idx) => {
+                if ctx.redo_mouseover() {
+                    if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+                        if app.primary.map.get_boundary_polygon().contains_pt(pt) {
+                            self.story.markers[idx] =
+                                Marker::new(ctx, pt, self.story.markers[idx].event.clone());
+                            self.dirty = true;
+                            self.redo_panel(ctx, app);
+                        }
+                    }
+                }
+
+                if ctx.input.key_released(Key::LeftControl) {
+                    self.mode = Mode::View;
+                }
+            }
+            Mode::Editing(idx, ref mut composite) => {
+                ctx.canvas_movement();
+                match composite.event(ctx) {
+                    Some(Outcome::Clicked(x)) => match x.as_ref() {
+                        "close" => {
+                            self.mode = Mode::View;
+                            self.redo_panel(ctx, app);
+                        }
+                        "confirm" => {
+                            self.story.markers[idx] = Marker::new(
+                                ctx,
+                                self.story.markers[idx].pt,
+                                composite.text_box("event"),
+                            );
+                            self.dirty = true;
+                            self.mode = Mode::View;
+                            self.redo_panel(ctx, app);
+                        }
+                        "delete" => {
+                            self.mode = Mode::View;
+                            self.hovering = None;
+                            self.story.markers.remove(idx);
+                            self.dirty = true;
+                            self.redo_panel(ctx, app);
+                        }
+                        _ => unreachable!(),
+                    },
+                    None => {}
                 }
             }
         }
@@ -100,14 +158,13 @@ impl State for StoryMapEditor {
                                 editor.story.name = name;
                                 editor.story.save(app);
                                 editor.dirty = false;
-                                editor.composite =
-                                    make_panel(ctx, app, &editor.story, editor.mode, editor.dirty);
+                                editor.redo_panel(ctx, app);
                             })))
                         })));
                     } else {
                         self.story.save(app);
                         self.dirty = false;
-                        self.composite = make_panel(ctx, app, &self.story, self.mode, self.dirty);
+                        self.redo_panel(ctx, app);
                     }
                 }
                 "load" => {
@@ -158,19 +215,18 @@ impl State for StoryMapEditor {
                             let editor = state.downcast_mut::<StoryMapEditor>().unwrap();
                             editor.story = story;
                             editor.dirty = false;
-                            editor.composite =
-                                make_panel(ctx, app, &editor.story, editor.mode, editor.dirty);
+                            editor.redo_panel(ctx, app);
                         })))
                     })));
                 }
                 "new marker" => {
                     self.hovering = None;
-                    self.mode = Mode::Marker;
-                    self.composite = make_panel(ctx, app, &self.story, self.mode, self.dirty);
+                    self.mode = Mode::Placing;
+                    self.redo_panel(ctx, app);
                 }
                 "pan" => {
                     self.mode = Mode::View;
-                    self.composite = make_panel(ctx, app, &self.story, self.mode, self.dirty);
+                    self.redo_panel(ctx, app);
                 }
                 _ => unreachable!(),
             },
@@ -181,20 +237,28 @@ impl State for StoryMapEditor {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        if self.mode == Mode::Marker && g.canvas.get_cursor_in_map_space().is_some() {
-            let mut batch = GeomBatch::new();
-            batch.add_svg(
-                g.prerender,
-                "../data/system/assets/timeline/goal_pos.svg",
-                g.canvas.get_cursor().to_pt(),
-                1.0,
-                Angle::ZERO,
-                RewriteColor::ChangeAll(Color::GREEN),
-                false,
-            );
-            g.fork_screenspace();
-            batch.draw(g);
-            g.unfork();
+        match self.mode {
+            Mode::Placing => {
+                if g.canvas.get_cursor_in_map_space().is_some() {
+                    let mut batch = GeomBatch::new();
+                    batch.add_svg(
+                        g.prerender,
+                        "../data/system/assets/timeline/goal_pos.svg",
+                        g.canvas.get_cursor().to_pt(),
+                        1.0,
+                        Angle::ZERO,
+                        RewriteColor::Change(Color::hex("#5B5B5B"), Color::GREEN),
+                        false,
+                    );
+                    g.fork_screenspace();
+                    batch.draw(g);
+                    g.unfork();
+                }
+            }
+            Mode::Editing(_, ref composite) => {
+                composite.draw(g);
+            }
+            _ => {}
         }
 
         for (idx, m) in self.story.markers.iter().enumerate() {
@@ -214,7 +278,7 @@ fn make_panel(
     ctx: &mut EventCtx,
     app: &App,
     story: &StoryMap,
-    mode: Mode,
+    mode: &Mode,
     dirty: bool,
 ) -> Composite {
     Composite::new(
@@ -251,11 +315,11 @@ fn make_panel(
                     .align_right(),
             ]),
             Widget::row(vec![
-                if mode == Mode::Marker {
+                if let Mode::Placing = mode {
                     Widget::draw_svg_transform(
                         ctx,
                         "../data/system/assets/timeline/goal_pos.svg",
-                        RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
+                        RewriteColor::Change(Color::hex("#5B5B5B"), Color::hex("#4CA7E9")),
                     )
                 } else {
                     Btn::svg_def("../data/system/assets/timeline/goal_pos.svg").build(
@@ -264,7 +328,7 @@ fn make_panel(
                         hotkey(Key::M),
                     )
                 },
-                if mode == Mode::View {
+                if let Mode::View = mode {
                     Widget::draw_svg_transform(
                         ctx,
                         "../data/system/assets/tools/pan.svg",
@@ -354,9 +418,9 @@ impl Marker {
             ctx.prerender,
             "../data/system/assets/timeline/goal_pos.svg",
             pt,
-            1.0,
+            2.0,
             Angle::ZERO,
-            RewriteColor::NoOp,
+            RewriteColor::Change(Color::hex("#5B5B5B"), Color::hex("#FE3D00")),
             false,
         );
         batch.add_transformed(
@@ -364,7 +428,7 @@ impl Marker {
                 .with_bg()
                 .render_to_batch(ctx.prerender),
             pt,
-            0.1,
+            0.5,
             Angle::ZERO,
             RewriteColor::NoOp,
         );
@@ -382,9 +446,9 @@ impl Marker {
             g.prerender,
             "../data/system/assets/timeline/goal_pos.svg",
             self.pt,
-            1.0,
+            2.0,
             Angle::ZERO,
-            RewriteColor::ChangeAll(app.cs.hovering),
+            RewriteColor::Change(Color::hex("#5B5B5B"), app.cs.hovering),
             false,
         );
         batch.add_transformed(
@@ -392,10 +456,29 @@ impl Marker {
                 .with_bg()
                 .render_to_batch(g.prerender),
             self.pt,
-            0.1,
+            0.75,
             Angle::ZERO,
             RewriteColor::NoOp,
         );
         batch.draw(g);
+    }
+
+    fn make_editor(&self, ctx: &mut EventCtx, app: &App) -> Composite {
+        Composite::new(
+            Widget::col(vec![
+                Widget::row(vec![
+                    Line("Editing marker").small_heading().draw(ctx),
+                    Btn::plaintext("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                Btn::text_fg("delete").build_def(ctx, None),
+                Widget::text_entry(ctx, self.event.clone(), true).named("event"),
+                Btn::text_fg("confirm").build_def(ctx, hotkey(Key::Enter)),
+            ])
+            .padding(16)
+            .bg(app.cs.panel_bg),
+        )
+        .build(ctx)
     }
 }
