@@ -172,6 +172,15 @@ impl Widget {
         };
         self
     }
+    pub fn align_bottom(mut self) -> Widget {
+        self.layout.style.margin = Rect {
+            start: Dimension::Undefined,
+            end: Dimension::Undefined,
+            top: Dimension::Auto,
+            bottom: Dimension::Undefined,
+        };
+        self
+    }
     // This doesn't count against the entire container
     pub fn align_vert_center(mut self) -> Widget {
         self.layout.style.margin = Rect {

@@ -17,6 +17,9 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
     if let Some(ref name) = b.name {
         kv.push(("Name", name.clone()));
     }
+    if app.opts.dev {
+        kv.push(("OSM ID", format!("{}", b.osm_way_id)));
+    }
 
     if let Some(ref p) = b.parking {
         let free = app.primary.sim.get_free_offstreet_spots(b.id).len();

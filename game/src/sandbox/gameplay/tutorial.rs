@@ -16,7 +16,7 @@ use ezgui::{
     VerticalAlignment, Widget,
 };
 use geom::{ArrowCap, Distance, Duration, PolyLine, Polygon, Pt2D, Time};
-use map_model::{BuildingID, IntersectionID, IntersectionType, LaneType, Map};
+use map_model::{BuildingID, IntersectionID, Map};
 use sim::{
     AgentID, Analytics, BorderSpawnOverTime, CarID, OriginDestination, ScenarioGenerator,
     VehicleType,
@@ -147,13 +147,41 @@ impl Tutorial {
 
         // Interaction things
         if tut.interaction() == Task::Camera {
-            if app.primary.current_selection == Some(ID::Building(tut.montlake_market))
+            if app.primary.current_selection == Some(ID::Building(tut.fire_station))
                 && app.per_obj.left_click(ctx, "put out the... fire?")
             {
                 tut.next();
                 return Some(transition(ctx, app, tut));
             }
         } else if tut.interaction() == Task::InspectObjects {
+            // TODO Have to wiggle the mouse or something after opening the panel, because of the
+            // order in SandboxMode.
+            match controls.common.as_ref().unwrap().info_panel_open(app) {
+                Some(ID::Lane(_)) => {
+                    if !tut.inspected_lane {
+                        tut.inspected_lane = true;
+                        self.top_center = tut.make_top_center(ctx, &app.cs, false);
+                    }
+                }
+                Some(ID::Building(_)) => {
+                    if !tut.inspected_building {
+                        tut.inspected_building = true;
+                        self.top_center = tut.make_top_center(ctx, &app.cs, false);
+                    }
+                }
+                Some(ID::Intersection(i)) => {
+                    let i = app.primary.map.get_i(i);
+                    if i.is_stop_sign() && !tut.inspected_stop_sign {
+                        tut.inspected_stop_sign = true;
+                        self.top_center = tut.make_top_center(ctx, &app.cs, false);
+                    }
+                    if i.is_border() && !tut.inspected_border {
+                        tut.inspected_border = true;
+                        self.top_center = tut.make_top_center(ctx, &app.cs, false);
+                    }
+                }
+                _ => {}
+            }
             if tut.inspected_lane
                 && tut.inspected_building
                 && tut.inspected_stop_sign
@@ -182,11 +210,8 @@ impl Tutorial {
                 return Some(transition(ctx, app, tut));
             }
         } else if tut.interaction() == Task::Escort {
-            let following_car = controls
-                .common
-                .as_ref()
-                .map(|c| c.info_panel_open(app) == Some(ID::Car(ESCORT)))
-                .unwrap_or(false);
+            let following_car =
+                controls.common.as_ref().unwrap().info_panel_open(app) == Some(ID::Car(ESCORT));
             let is_parked = app
                 .primary
                 .sim
@@ -302,6 +327,14 @@ impl GameplayState for Tutorial {
     ) -> Option<Transition> {
         // Dance around borrow-checker issues
         let mut tut = app.session.tutorial.take().unwrap();
+
+        // The arrows get screwy when window size changes.
+        let window_dims = (ctx.canvas.window_width, ctx.canvas.window_height);
+        if window_dims != tut.window_dims {
+            tut.stages = TutorialState::new(ctx, app).stages;
+            tut.window_dims = window_dims;
+        }
+
         let result = self.inner_event(ctx, app, controls, &mut tut);
         app.session.tutorial = Some(tut);
         result
@@ -344,7 +377,7 @@ impl GameplayState for Tutorial {
         if tut.interaction() == Task::Camera {
             g.draw_polygon(
                 Color::hex("#e25822"),
-                &app.primary.map.get_b(tut.montlake_market).polygon,
+                &app.primary.map.get_b(tut.fire_station).polygon,
             );
         }
     }
@@ -393,28 +426,20 @@ impl Task {
     fn top_txt(self, ctx: &EventCtx, state: &TutorialState) -> Text {
         let simple = match self {
             Task::Nil => unreachable!(),
-            Task::Camera => "Put out the fire at the Montlake Market",
+            Task::Camera => "Put out the fire at the fire station",
             Task::InspectObjects => {
-                let mut txt = Text::from(Line("Click and inspect one of each:"));
-                if state.inspected_lane {
-                    txt.add(Line("[X] lane").fg(Color::GREEN));
-                } else {
-                    txt.add(Line("[ ] lane"));
-                }
-                if state.inspected_building {
-                    txt.add(Line("[X] building").fg(Color::GREEN));
-                } else {
-                    txt.add(Line("[ ] building"));
-                }
-                if state.inspected_stop_sign {
-                    txt.add(Line("[X] intersection with stop sign").fg(Color::GREEN));
-                } else {
-                    txt.add(Line("[ ] intersection with stop sign"));
-                }
-                if state.inspected_border {
-                    txt.add(Line("[X] intersection on the map border").fg(Color::GREEN));
-                } else {
-                    txt.add(Line("[ ] intersection on the map border"));
+                let mut txt = Text::from(Line("Find one of each:"));
+                for (name, done) in vec![
+                    ("lane", state.inspected_lane),
+                    ("building", state.inspected_building),
+                    ("intersection with stop sign", state.inspected_stop_sign),
+                    ("intersection on the map border", state.inspected_border),
+                ] {
+                    if done {
+                        txt.add(Line(format!("[X] {}", name)).fg(Color::GREEN));
+                    } else {
+                        txt.add(Line(format!("[ ] {}", name)));
+                    }
                 }
                 return txt;
             }
@@ -437,7 +462,7 @@ impl Task {
                 } else {
                     txt.add(Line("[ ] wait for them to park"));
                 }
-                if state.inspected_building {
+                if state.prank_done {
                     txt.add(Line("[X] draw WASH ME on the window").fg(Color::GREEN));
                 } else {
                     txt.add(Line("[ ] draw WASH ME on the window"));
@@ -573,6 +598,8 @@ pub struct TutorialState {
     latest: TutorialPointer,
     pub current: TutorialPointer,
 
+    window_dims: (f64, f64),
+
     // Goofy state for just some stages.
     inspected_lane: bool,
     inspected_building: bool,
@@ -590,7 +617,7 @@ pub struct TutorialState {
 
     score_delivered: bool,
 
-    montlake_market: BuildingID,
+    fire_station: BuildingID,
 }
 
 fn make_bike_lane_scenario(map: &Map) -> ScenarioGenerator {
@@ -714,7 +741,8 @@ impl TutorialState {
                         ))
                         .small_heading(),
                     )
-                    .draw(ctx),
+                    .draw(ctx)
+                    .margin_right(15),
                     // TODO also text saying "instructions"... can we layout two things easily to
                     // make a button?
                     Btn::svg_def("../data/system/assets/tools/info.svg")
@@ -733,7 +761,7 @@ impl TutorialState {
             );
         }
 
-        Composite::new(Widget::col(col).bg(cs.panel_bg))
+        Composite::new(Widget::col(col).bg(cs.panel_bg).padding(16))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx)
     }
@@ -761,72 +789,75 @@ impl TutorialState {
             last_finished_task,
 
             msg_panel: if let Some((ref lines, _)) = self.lines() {
-                let mut col = vec![
-                    {
-                        let mut txt = Text::new();
-                        txt.add(Line(self.stage().task.label()).small_heading());
-                        txt.add(Line(""));
+                let mut col = vec![{
+                    let mut txt = Text::new();
+                    txt.add(Line(self.stage().task.label()).small_heading());
+                    txt.add(Line(""));
 
-                        for l in lines {
-                            txt.add(Line(l));
-                        }
-                        txt.draw(ctx)
+                    for l in lines {
+                        txt.add(Line(l));
+                    }
+                    txt.draw(ctx)
+                }];
+                let mut controls = vec![Widget::row(vec![
+                    if self.current.part > 0 {
+                        Btn::svg(
+                            "../data/system/assets/tools/prev.svg",
+                            RewriteColor::Change(Color::WHITE, app.cs.hovering),
+                        )
+                        .build(
+                            ctx,
+                            "previous message",
+                            hotkey(Key::LeftArrow),
+                        )
+                    } else {
+                        Widget::draw_svg_transform(
+                            ctx,
+                            "../data/system/assets/tools/prev.svg",
+                            RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
+                        )
+                    }
+                    .margin_right(15),
+                    format!("{}/{}", self.current.part + 1, self.stage().messages.len())
+                        .draw_text(ctx)
+                        .centered_vert()
+                        .margin_right(15),
+                    if self.current.part == self.stage().messages.len() - 1 {
+                        Widget::draw_svg_transform(
+                            ctx,
+                            "../data/system/assets/tools/next.svg",
+                            RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
+                        )
+                        .named("next message")
+                    } else {
+                        Btn::svg(
+                            "../data/system/assets/tools/next.svg",
+                            RewriteColor::Change(Color::WHITE, app.cs.hovering),
+                        )
+                        .build(
+                            ctx,
+                            "next message",
+                            hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]),
+                        )
                     },
-                    Widget::row(vec![
-                        if self.current.part > 0 {
-                            Btn::svg(
-                                "../data/system/assets/tools/prev.svg",
-                                RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                            )
-                            .build(ctx, "previous message", hotkey(Key::LeftArrow))
-                            .margin(5)
-                        } else {
-                            Widget::draw_svg_transform(
-                                ctx,
-                                "../data/system/assets/tools/prev.svg",
-                                RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
-                            )
-                        },
-                        format!("{}/{}", self.current.part + 1, self.stage().messages.len())
-                            .draw_text(ctx)
-                            .centered_vert()
-                            .margin(5),
-                        if self.current.part == self.stage().messages.len() - 1 {
-                            Widget::draw_svg_transform(
-                                ctx,
-                                "../data/system/assets/tools/next.svg",
-                                RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
-                            )
-                            .named("next message")
-                        } else {
-                            Btn::svg(
-                                "../data/system/assets/tools/next.svg",
-                                RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                            )
-                            .build(
-                                ctx,
-                                "next message",
-                                hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]),
-                            )
-                        }
-                        .margin(5),
-                    ]),
-                ];
+                ])];
                 if self.current.part == self.stage().messages.len() - 1 {
-                    col.push(
+                    controls.push(
                         Btn::text_bg2("Try it")
-                            .build_def(ctx, hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter])),
+                            .build_def(ctx, hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]))
+                            .margin_above(10),
                     );
                 }
+                col.push(Widget::col(controls).align_bottom());
 
                 Some(
                     Composite::new(
                         Widget::col(col)
-                            .centered()
                             .bg(app.cs.panel_bg)
                             .outline(5.0, Color::WHITE)
-                            .padding(5),
+                            .padding(16),
                     )
+                    .exact_size_percent(50, 30)
                     .build(ctx),
                 )
             } else {
@@ -836,11 +867,12 @@ impl TutorialState {
         })
     }
 
-    fn new(ctx: &mut EventCtx, app: &mut App) -> TutorialState {
+    fn new(ctx: &mut EventCtx, app: &App) -> TutorialState {
         let mut state = TutorialState {
             stages: Vec::new(),
             latest: TutorialPointer::new(0, 0),
             current: TutorialPointer::new(0, 0),
+            window_dims: (ctx.canvas.window_width, ctx.canvas.window_height),
 
             inspected_lane: false,
             inspected_building: false,
@@ -854,7 +886,7 @@ impl TutorialState {
             parking_found: false,
             score_delivered: false,
 
-            montlake_market: app.primary.map.find_b_by_osm_id(97430815).unwrap(),
+            fire_station: app.primary.map.find_b_by_osm_id(731238736).unwrap(),
         };
 
         let tool_panel = tool_panel(ctx, app);
@@ -867,18 +899,12 @@ impl TutorialState {
         let minimap = Minimap::new(ctx, app);
         ctx.canvas.cam_zoom = orig_zoom;
 
-        let osd = ScreenPt::new(
-            0.1 * ctx.canvas.window_width,
-            0.97 * ctx.canvas.window_height,
-        );
-
         let map = &app.primary.map;
 
         state.stages.push(
             Stage::new(Task::Camera)
-                // TODO Call these by orig_id to be robust to changes
                 .warp_to(
-                    ID::Intersection(map.find_i_by_osm_id(53149407).unwrap()),
+                    ID::Intersection(map.find_i_by_osm_id(53096945).unwrap()),
                     None,
                 )
                 .msg(
@@ -902,7 +928,7 @@ impl TutorialState {
                 .msg(
                     vec![
                         "Let's try that ou--",
-                        "WHOA THE MONTLAKE MARKET IS ON FIRE!",
+                        "WHOA THERE'S A FIRE STATION ON FIRE!",
                         "GO CLICK ON IT, QUICK!",
                     ],
                     None,
@@ -937,21 +963,6 @@ impl TutorialState {
                     vec![
                         "Now, let's learn how to inspect and interact with objects in the map.",
                         "Select something with your mouse, then click on it.",
-                    ],
-                    None,
-                )
-                .msg(
-                    vec![
-                        "(By the way, the bottom of the screen shows keyboard shortcuts",
-                        "for whatever you're selecting; you don't have to click an object first.)",
-                    ],
-                    arrow(osd),
-                )
-                .msg(
-                    vec![
-                        "I wonder what kind of information is available for different objects?",
-                        "Let's find out! Click each object to open more details, then use the \
-                         inspect action.",
                     ],
                     None,
                 ),
@@ -1005,14 +1016,6 @@ impl TutorialState {
                         "But you'll be pausing/resuming time VERY frequently",
                     ],
                     arrow(speed.composite.center_of("pause")),
-                )
-                .msg(
-                    vec![
-                        "Again, most controls have a key binding shown at the bottom of the \
-                         screen.",
-                        "Press SPACE to pause/resume time.",
-                    ],
-                    arrow(osd),
                 )
                 .msg(
                     vec!["Just reassure me and pause/resume time a few times, alright?"],
@@ -1211,13 +1214,6 @@ impl TutorialState {
 
 pub fn actions(app: &App, id: ID) -> Vec<(Key, String)> {
     match (app.session.tutorial.as_ref().unwrap().interaction(), id) {
-        (Task::InspectObjects, ID::Lane(_)) => vec![(Key::I, "inspect the lane".to_string())],
-        (Task::InspectObjects, ID::Building(_)) => {
-            vec![(Key::I, "inspect the building".to_string())]
-        }
-        (Task::InspectObjects, ID::Intersection(_)) => {
-            vec![(Key::I, "inspect the intersection".to_string())]
-        }
         (Task::LowParking, ID::Lane(_)) => {
             vec![(Key::C, "check the parking occupancy".to_string())]
         }
@@ -1226,150 +1222,76 @@ pub fn actions(app: &App, id: ID) -> Vec<(Key, String)> {
     }
 }
 
-pub fn execute(_: &mut EventCtx, _: &mut App, id: ID, action: String) -> Transition {
-    Transition::PushWithData(Box::new(move |state, app, ctx| {
-        let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
-        let tutorial = sandbox.gameplay.downcast_mut::<Tutorial>().unwrap();
-        let mut tut = app.session.tutorial.as_mut().unwrap();
-
-        match (id, action.as_ref()) {
-            (ID::Lane(l), "inspect the lane") => {
-                tut.inspected_lane = true;
-                tutorial.top_center = tut.make_top_center(ctx, &app.cs, false);
-                msg(
-                    "Inspection",
-                    match app.primary.map.get_l(l).lane_type {
-                        LaneType::Driving => vec![
-                            "This is a regular lane for driving.",
-                            "Cars, bikes, and buses all share it.",
+pub fn execute(_: &mut EventCtx, app: &mut App, id: ID, action: String) -> Transition {
+    let mut tut = app.session.tutorial.as_mut().unwrap();
+    let response = match (id, action.as_ref()) {
+        (ID::Car(c), "draw WASH ME") => {
+            let is_parked = app
+                .primary
+                .sim
+                .agent_to_trip(AgentID::Car(ESCORT))
+                .is_none();
+            if c == ESCORT {
+                if is_parked {
+                    tut.prank_done = true;
+                    msg(
+                        "Prank in progress",
+                        vec!["You quickly scribble on the window..."],
+                    )
+                } else {
+                    msg(
+                        "Not yet!",
+                        vec![
+                            "You're going to run up to an occupied car and draw on their windows?",
+                            "Sounds like we should be friends.",
+                            "But, er, wait for the car to park. (You can speed up time!)",
                         ],
-                        LaneType::Parking => vec!["This is an on-street parking lane."],
-                        LaneType::Sidewalk => {
-                            vec!["This is a sidewalk. Only pedestrians can use it."]
-                        }
-                        LaneType::Biking => vec!["This is a bike-only lane."],
-                        LaneType::Bus => vec!["This is a bus lane. Bikes may also use it."],
-                        LaneType::SharedLeftTurn => {
-                            vec!["This is a lane where either direction of traffic can turn left."]
-                        }
-                        LaneType::Construction => {
-                            vec!["This lane is currently closed for construction."]
-                        }
-                    },
-                )
-            }
-            (ID::Building(_), "inspect the building") => {
-                tut.inspected_building = true;
-                tutorial.top_center = tut.make_top_center(ctx, &app.cs, false);
+                    )
+                }
+            } else if c.1 == VehicleType::Bike {
                 msg(
-                    "Inspection",
+                    "That's a bike",
                     vec![
-                        "Knock knock, anyone home?",
-                        "Did you know: most trips begin and end at a building.",
+                        "Achievement unlocked: You attempted to draw WASH ME on a cyclist.",
+                        "This game is PG-13 or something, so I can't really describe what happens \
+                         next.",
+                        "But uh, don't try this at home.",
+                    ],
+                )
+            } else {
+                msg(
+                    "Wrong car",
+                    vec![
+                        "You're looking at the wrong car.",
+                        "Use the 'reset to midnight' (key binding 'X') to start over, if you lost \
+                         the car to follow.",
                     ],
                 )
             }
-            (ID::Intersection(i), "inspect the intersection") => {
-                match app.primary.map.get_i(i).intersection_type {
-                    IntersectionType::StopSign => {
-                        tut.inspected_stop_sign = true;
-                        tutorial.top_center = tut.make_top_center(ctx, &app.cs, false);
-                        msg(
-                            "Inspection",
-                            vec!["Most intersections are regulated by stop signs."],
-                        )
-                    }
-                    IntersectionType::TrafficSignal => msg(
-                        "Inspection",
-                        vec![
-                            "This intersection is controlled by a traffic signal. You'll learn \
-                             more about these soon.",
-                        ],
-                    ),
-                    IntersectionType::Border => {
-                        tut.inspected_border = true;
-                        tutorial.top_center = tut.make_top_center(ctx, &app.cs, false);
-                        msg(
-                            "Inspection",
-                            vec![
-                                "This is a border of the map. Vehicles appear and disappear here.",
-                            ],
-                        )
-                    }
-                    IntersectionType::Construction => msg(
-                        "Inspection",
-                        vec!["This intersection is currently closed for construction."],
-                    ),
-                }
-            }
-            (ID::Car(c), "draw WASH ME") => {
-                let is_parked = app
-                    .primary
-                    .sim
-                    .agent_to_trip(AgentID::Car(ESCORT))
-                    .is_none();
-                if c == ESCORT {
-                    if is_parked {
-                        tut.prank_done = true;
-                        msg(
-                            "Prank in progress",
-                            vec!["You quickly scribble on the window..."],
-                        )
-                    } else {
-                        msg(
-                            "Not yet!",
-                            vec![
-                                "You're going to run up to an occupied car and draw on their \
-                                 windows?",
-                                "Sounds like we should be friends.",
-                                "But, er, wait for the car to park. (You can speed up time!)",
-                            ],
-                        )
-                    }
-                } else if c.1 == VehicleType::Bike {
-                    msg(
-                        "That's a bike",
-                        vec![
-                            "Achievement unlocked: You attempted to draw WASH ME on a cyclist.",
-                            "This game is PG-13 or something, so I can't really describe what \
-                             happens next.",
-                            "But uh, don't try this at home.",
-                        ],
-                    )
-                } else {
-                    msg(
-                        "Wrong car",
-                        vec![
-                            "You're looking at the wrong car.",
-                            "Use the 'reset to midnight' (key binding 'X') to start over, if you \
-                             lost the car to follow.",
-                        ],
-                    )
-                }
-            }
-            (ID::Lane(l), "check the parking occupancy") => {
-                let lane = app.primary.map.get_l(l);
-                if lane.is_parking() {
-                    let percent = (app.primary.sim.get_free_onstreet_spots(l).len() as f64)
-                        / (lane.number_parking_spots() as f64);
-                    if percent > 0.1 {
-                        msg(
-                            "Not quite",
-                            vec![
-                                format!("This lane has {:.0}% spots free", percent * 100.0),
-                                "Try using the 'parking occupancy' layer from the minimap controls"
-                                    .to_string(),
-                            ],
-                        )
-                    } else {
-                        tut.parking_found = true;
-                        msg("Noice", vec!["Yup, parallel parking would be tough here!"])
-                    }
-                } else {
-                    msg("Uhh..", vec!["That's not even a parking lane"])
-                }
-            }
-            _ => unreachable!(),
         }
-    }))
+        (ID::Lane(l), "check the parking occupancy") => {
+            let lane = app.primary.map.get_l(l);
+            if lane.is_parking() {
+                let percent = (app.primary.sim.get_free_onstreet_spots(l).len() as f64)
+                    / (lane.number_parking_spots() as f64);
+                if percent > 0.1 {
+                    msg(
+                        "Not quite",
+                        vec![
+                            format!("This lane has {:.0}% spots free", percent * 100.0),
+                            "Try using the 'parking occupancy' layer from the minimap controls"
+                                .to_string(),
+                        ],
+                    )
+                } else {
+                    tut.parking_found = true;
+                    msg("Noice", vec!["Yup, parallel parking would be tough here!"])
+                }
+            } else {
+                msg("Uhh..", vec!["That's not even a parking lane"])
+            }
+        }
+        _ => unreachable!(),
+    };
+    Transition::Push(response)
 }
