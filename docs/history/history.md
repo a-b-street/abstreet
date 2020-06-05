@@ -85,13 +85,13 @@ Seattle and feeling like the conversation was... chaotic.
 
 ![Manhattan took walkability seriously](manhattan.jpg)
 
-Fast forward to late 2017. This is where I'll omit chunks of the story. Lots of
-things were crumbling at this point. I visited London, my first experience with
-a city that took public transit seriously. When I returned, lots of latent ideas
-stopped fermenting and started exploding. I threw together a prototype of A/B
-Street and started the arduous process at work of open-sourcing it and applying
-to a program to let me work it on for a few quarters. A few months later, I
-wound up quitting instead, and began to work on A/B Street in earnest.
+Fast forward to late 2017. This is where I'll omit chunks of the story. I
+visited London, my first experience with a city that took public transit
+seriously. When I returned, lots of latent ideas stopped fermenting and started
+exploding. I threw together a prototype of A/B Street and started the arduous
+process at work of open-sourcing it and applying to a program to let me work it
+on for a few quarters. A few months later, I wound up quitting instead, and
+began to work on A/B Street in earnest.
 
 ## Year 1 (June 2018-2019)
 

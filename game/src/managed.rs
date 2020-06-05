@@ -70,7 +70,7 @@ impl WrappedComposite {
                 Widget::row(vec![
                     Line(title.into()).small_heading().draw(ctx),
                     Btn::text_fg("X")
-                        .build_def(ctx, hotkey(Key::Escape))
+                        .build(ctx, "close", hotkey(Key::Escape))
                         .align_right(),
                 ]),
                 {

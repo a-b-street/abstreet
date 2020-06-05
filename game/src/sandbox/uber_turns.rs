@@ -110,7 +110,7 @@ impl State for UberTurnPicker {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.composite.draw(g);
-        CommonState::draw_osd(g, app, &app.primary.current_selection);
+        CommonState::draw_osd(g, app);
 
         let mut batch = GeomBatch::new();
         for i in &self.members {

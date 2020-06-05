@@ -245,7 +245,7 @@ impl State for EditMode {
 
         self.tool_panel.draw(g);
         self.composite.draw(g);
-        CommonState::draw_osd(g, app, &app.primary.current_selection);
+        CommonState::draw_osd(g, app);
     }
 }
 

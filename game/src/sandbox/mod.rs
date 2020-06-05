@@ -204,7 +204,7 @@ impl State for SandboxMode {
         if let Some(ref c) = self.controls.common {
             c.draw(g, app);
         } else {
-            CommonState::draw_osd(g, app, &None);
+            CommonState::draw_osd(g, app);
         }
         if let Some(ref tp) = self.controls.tool_panel {
             tp.draw(g);

@@ -146,7 +146,7 @@ impl State for PolygonEditor {
                 Text::from(Line("hold left Control to move point")),
             );
         } else {
-            CommonState::draw_osd(g, app, &None);
+            CommonState::draw_osd(g, app);
         }
     }
 }

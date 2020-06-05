@@ -420,7 +420,7 @@ impl State for AgentSpawner {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.composite.draw(g);
-        CommonState::draw_osd(g, app, &app.primary.current_selection);
+        CommonState::draw_osd(g, app);
 
         if let Some(ref endpt) = self.source {
             g.draw_polygon(

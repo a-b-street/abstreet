@@ -318,7 +318,7 @@ impl State for StoryMapEditor {
         }
 
         self.composite.draw(g);
-        CommonState::draw_osd(g, app, &None);
+        CommonState::draw_osd(g, app);
     }
 }
 

@@ -86,14 +86,20 @@ impl State for RouteSelect {
                 {
                     let mut batch = GeomBatch::new();
                     let roads = if let Some(roads) = pathfind(&app.primary.map, i1, i2) {
+                        let mut intersections = BTreeSet::new();
                         for r in &roads {
+                            let r = app.primary.map.get_r(*r);
                             batch.push(
                                 Color::RED.alpha(0.5),
-                                app.primary
-                                    .map
-                                    .get_r(*r)
-                                    .get_thick_polygon(&app.primary.map)
-                                    .unwrap(),
+                                r.get_thick_polygon(&app.primary.map).unwrap(),
+                            );
+                            intersections.insert(r.src_i);
+                            intersections.insert(r.dst_i);
+                        }
+                        for i in intersections {
+                            batch.push(
+                                Color::RED.alpha(0.5),
+                                app.primary.map.get_i(i).polygon.clone(),
                             );
                         }
                         roads
@@ -141,7 +147,7 @@ impl State for RouteSelect {
         if let Some((_, _, ref p)) = self.preview_path {
             g.redraw(p);
         }
-        CommonState::draw_osd(g, app, &None);
+        CommonState::draw_osd(g, app);
     }
 }
 
@@ -370,6 +376,12 @@ impl State for PaintSelect {
                                 .unwrap(),
                         );
                     }
+                    for i in intersections_from_roads(&self.roads, &app.primary.map) {
+                        batch.push(
+                            Color::BLUE.alpha(0.5),
+                            app.primary.map.get_i(i).polygon.clone(),
+                        );
+                    }
                     self.preview = Some(ctx.upload(batch));
                     self.composite = make_paint_composite(ctx, app, self.mode, &self.roads);
                 }
@@ -415,7 +427,7 @@ impl State for PaintSelect {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.composite.draw(g);
         if let Some(ref p) = self.preview {
             g.redraw(p);
@@ -439,6 +451,7 @@ impl State for PaintSelect {
             batch.draw(g);
             g.unfork();
         }
+        CommonState::draw_osd(g, app);
     }
 }
 
@@ -560,4 +573,20 @@ fn make_paint_composite(
     )
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
+}
+
+fn intersections_from_roads(roads: &BTreeSet<RoadID>, map: &Map) -> BTreeSet<IntersectionID> {
+    let mut results = BTreeSet::new();
+    for r in roads {
+        let r = map.get_r(*r);
+        for i in vec![r.src_i, r.dst_i] {
+            if results.contains(&i) {
+                continue;
+            }
+            if map.get_i(i).roads.iter().all(|r| roads.contains(r)) {
+                results.insert(i);
+            }
+        }
+    }
+    results
 }

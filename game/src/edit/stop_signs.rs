@@ -180,7 +180,7 @@ impl State for StopSignEditor {
             ]);
             CommonState::draw_custom_osd(g, app, osd);
         } else {
-            CommonState::draw_osd(g, app, &None);
+            CommonState::draw_osd(g, app);
         }
     }
 }

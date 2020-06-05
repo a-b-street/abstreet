@@ -99,7 +99,7 @@ impl CommonState {
         } else {
             &self.cached_actions
         };
-        let mut osd = if let Some(id) = &app.primary.current_selection {
+        let mut osd = if let Some(ref id) = app.primary.current_selection {
             CommonState::osd_for(app, id.clone())
         } else {
             Text::from(Line("..."))
@@ -225,8 +225,8 @@ impl CommonState {
         osd
     }
 
-    pub fn draw_osd(g: &mut GfxCtx, app: &App, id: &Option<ID>) {
-        let osd = if let Some(id) = id {
+    pub fn draw_osd(g: &mut GfxCtx, app: &App) {
+        let osd = if let Some(ref id) = app.primary.current_selection {
             CommonState::osd_for(app, id.clone())
         } else {
             Text::from(Line("..."))

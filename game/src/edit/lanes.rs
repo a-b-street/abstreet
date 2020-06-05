@@ -211,7 +211,7 @@ impl State for LaneEditor {
                 .get_outline(&app.primary.map),
         );
         self.composite.draw(g);
-        CommonState::draw_osd(g, app, &None);
+        CommonState::draw_osd(g, app);
     }
 }
 
