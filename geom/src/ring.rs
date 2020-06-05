@@ -67,6 +67,9 @@ impl Ring {
     pub fn points(&self) -> &Vec<Pt2D> {
         &self.pts
     }
+    pub fn into_points(self) -> Vec<Pt2D> {
+        self.pts
+    }
 
     // The order of results isn't meaningful. Dedupes.
     pub fn all_intersections(&self, other: &PolyLine) -> Vec<Pt2D> {

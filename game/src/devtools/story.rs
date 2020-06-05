@@ -6,7 +6,7 @@ use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, RewriteColor, Text, VerticalAlignment, Widget,
 };
-use geom::{Angle, LonLat, Polygon, Pt2D};
+use geom::{Angle, Distance, LonLat, PolyLine, Polygon, Pt2D, Ring};
 use serde::{Deserialize, Serialize};
 use sim::DontDrawAgents;
 
@@ -29,9 +29,10 @@ pub struct StoryMapEditor {
 
 enum Mode {
     View,
-    Placing,
-    Dragging(usize),
+    PlacingMarker,
+    Dragging(Pt2D, usize),
     Editing(usize, Composite),
+    Freehand(Option<Lasso>),
 }
 
 impl StoryMapEditor {
@@ -74,14 +75,15 @@ impl State for StoryMapEditor {
                         .input
                         .key_pressed(Key::LeftControl, "hold to move this marker")
                     {
-                        self.mode = Mode::Dragging(idx);
+                        self.mode =
+                            Mode::Dragging(ctx.canvas.get_cursor_in_map_space().unwrap(), idx);
                     } else if app.per_obj.left_click(ctx, "edit marker") {
                         self.mode =
                             Mode::Editing(idx, self.story.markers[idx].make_editor(ctx, app));
                     }
                 }
             }
-            Mode::Placing => {
+            Mode::PlacingMarker => {
                 ctx.canvas_movement();
 
                 if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
@@ -89,7 +91,9 @@ impl State for StoryMapEditor {
                         && app.per_obj.left_click(ctx, "place a marker here")
                     {
                         let idx = self.story.markers.len();
-                        self.story.markers.push(Marker::new(ctx, pt, String::new()));
+                        self.story
+                            .markers
+                            .push(Marker::new(ctx, vec![pt], String::new()));
                         self.dirty = true;
                         self.redo_panel(ctx, app);
                         self.mode =
@@ -97,12 +101,22 @@ impl State for StoryMapEditor {
                     }
                 }
             }
-            Mode::Dragging(idx) => {
+            Mode::Dragging(ref mut last_pt, idx) => {
                 if ctx.redo_mouseover() {
                     if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
                         if app.primary.map.get_boundary_polygon().contains_pt(pt) {
-                            self.story.markers[idx] =
-                                Marker::new(ctx, pt, self.story.markers[idx].event.clone());
+                            let dx = pt.x() - last_pt.x();
+                            let dy = pt.y() - last_pt.y();
+                            *last_pt = pt;
+                            self.story.markers[idx] = Marker::new(
+                                ctx,
+                                self.story.markers[idx]
+                                    .pts
+                                    .iter()
+                                    .map(|pt| pt.offset(dx, dy))
+                                    .collect(),
+                                self.story.markers[idx].event.clone(),
+                            );
                             self.dirty = true;
                             self.redo_panel(ctx, app);
                         }
@@ -124,7 +138,7 @@ impl State for StoryMapEditor {
                         "confirm" => {
                             self.story.markers[idx] = Marker::new(
                                 ctx,
-                                self.story.markers[idx].pt,
+                                self.story.markers[idx].pts.clone(),
                                 composite.text_box("event"),
                             );
                             self.dirty = true;
@@ -141,6 +155,24 @@ impl State for StoryMapEditor {
                         _ => unreachable!(),
                     },
                     None => {}
+                }
+            }
+            Mode::Freehand(None) => {
+                if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+                    if ctx.input.left_mouse_button_pressed() {
+                        self.mode = Mode::Freehand(Some(Lasso::new(pt)));
+                    }
+                }
+            }
+            Mode::Freehand(Some(ref mut lasso)) => {
+                if let Some(result) = lasso.event(ctx) {
+                    let idx = self.story.markers.len();
+                    self.story
+                        .markers
+                        .push(Marker::new(ctx, result.into_points(), String::new()));
+                    self.dirty = true;
+                    self.redo_panel(ctx, app);
+                    self.mode = Mode::Editing(idx, self.story.markers[idx].make_editor(ctx, app));
                 }
             }
         }
@@ -190,14 +222,11 @@ impl State for StoryMapEditor {
                                     }
                                     // TODO Argh, we can't make StoryMap cloneable, so redo some
                                     // work
-                                    if app
-                                        .primary
-                                        .map
-                                        .get_gps_bounds()
-                                        .try_convert(
-                                            &story.markers.iter().map(|(gps, _)| *gps).collect(),
-                                        )
-                                        .is_some()
+                                    let gps_bounds = app.primary.map.get_gps_bounds();
+                                    if story
+                                        .markers
+                                        .iter()
+                                        .all(|(pts, _)| gps_bounds.try_convert(pts).is_some())
                                     {
                                         list.push(Choice::new(name, story));
                                     }
@@ -223,7 +252,12 @@ impl State for StoryMapEditor {
                 }
                 "new marker" => {
                     self.hovering = None;
-                    self.mode = Mode::Placing;
+                    self.mode = Mode::PlacingMarker;
+                    self.redo_panel(ctx, app);
+                }
+                "draw freehand" => {
+                    self.hovering = None;
+                    self.mode = Mode::Freehand(None);
                     self.redo_panel(ctx, app);
                 }
                 "pan" => {
@@ -249,7 +283,7 @@ impl State for StoryMapEditor {
         app.draw(g, opts, &DontDrawAgents {}, &ShowEverything::new());
 
         match self.mode {
-            Mode::Placing => {
+            Mode::PlacingMarker => {
                 if g.canvas.get_cursor_in_map_space().is_some() {
                     let mut batch = GeomBatch::new();
                     batch.add_svg(
@@ -268,6 +302,9 @@ impl State for StoryMapEditor {
             }
             Mode::Editing(_, ref composite) => {
                 composite.draw(g);
+            }
+            Mode::Freehand(Some(ref lasso)) => {
+                lasso.draw(g);
             }
             _ => {}
         }
@@ -326,7 +363,7 @@ fn make_panel(
                     .align_right(),
             ]),
             Widget::row(vec![
-                if let Mode::Placing = mode {
+                if let Mode::PlacingMarker = mode {
                     Widget::draw_svg_transform(
                         ctx,
                         "../data/system/assets/timeline/goal_pos.svg",
@@ -352,6 +389,18 @@ fn make_panel(
                         hotkey(Key::Escape),
                     )
                 },
+                match mode {
+                    Mode::Freehand(_) => Widget::draw_svg_transform(
+                        ctx,
+                        "../data/system/assets/tools/select.svg",
+                        RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
+                    ),
+                    _ => Btn::svg_def("../data/system/assets/tools/select.svg").build(
+                        ctx,
+                        "draw freehand",
+                        hotkey(Key::P),
+                    ),
+                },
             ])
             .evenly_spaced(),
         ])
@@ -365,7 +414,7 @@ fn make_panel(
 #[derive(Clone, Serialize, Deserialize)]
 struct RecordedStoryMap {
     name: String,
-    markers: Vec<(LonLat, String)>,
+    markers: Vec<(Vec<LonLat>, String)>,
 }
 impl abstutil::Cloneable for RecordedStoryMap {}
 
@@ -375,7 +424,7 @@ struct StoryMap {
 }
 
 struct Marker {
-    pt: Pt2D,
+    pts: Vec<Pt2D>,
     event: String,
     hitbox: Polygon,
     draw: Drawable,
@@ -391,9 +440,9 @@ impl StoryMap {
 
     fn load(ctx: &mut EventCtx, app: &App, story: RecordedStoryMap) -> Option<StoryMap> {
         let mut markers = Vec::new();
-        for (gps, event) in story.markers {
-            let pt = Pt2D::from_gps(gps, app.primary.map.get_gps_bounds())?;
-            markers.push(Marker::new(ctx, pt, event));
+        for (gps_pts, event) in story.markers {
+            let pts = app.primary.map.get_gps_bounds().try_convert(&gps_pts)?;
+            markers.push(Marker::new(ctx, pts, event));
         }
         Some(StoryMap {
             name: story.name,
@@ -409,7 +458,7 @@ impl StoryMap {
                 .iter()
                 .map(|m| {
                     (
-                        m.pt.to_gps(app.primary.map.get_gps_bounds()).unwrap(),
+                        app.primary.map.get_gps_bounds().must_convert_back(&m.pts),
                         m.event.clone(),
                     )
                 })
@@ -423,54 +472,89 @@ impl StoryMap {
 }
 
 impl Marker {
-    fn new(ctx: &mut EventCtx, pt: Pt2D, event: String) -> Marker {
+    fn new(ctx: &mut EventCtx, pts: Vec<Pt2D>, event: String) -> Marker {
         let mut batch = GeomBatch::new();
-        batch.add_svg(
-            ctx.prerender,
-            "../data/system/assets/timeline/goal_pos.svg",
-            pt,
-            2.0,
-            Angle::ZERO,
-            RewriteColor::Change(Color::hex("#5B5B5B"), Color::hex("#FE3D00")),
-            false,
-        );
-        batch.add_transformed(
-            Text::from(Line(&event))
-                .with_bg()
-                .render_to_batch(ctx.prerender),
-            pt,
-            0.5,
-            Angle::ZERO,
-            RewriteColor::NoOp,
-        );
+
+        let hitbox = if pts.len() == 1 {
+            batch.add_svg(
+                ctx.prerender,
+                "../data/system/assets/timeline/goal_pos.svg",
+                pts[0],
+                2.0,
+                Angle::ZERO,
+                RewriteColor::Change(Color::hex("#5B5B5B"), Color::hex("#FE3D00")),
+                false,
+            );
+            batch.add_transformed(
+                Text::from(Line(&event))
+                    .with_bg()
+                    .render_to_batch(ctx.prerender),
+                pts[0],
+                0.5,
+                Angle::ZERO,
+                RewriteColor::NoOp,
+            );
+            batch.unioned_polygon()
+        } else {
+            let poly = Polygon::new(&pts);
+            batch.push(Color::RED.alpha(0.8), poly.clone());
+            if let Some(o) = poly.maybe_to_outline(Distance::meters(1.0)) {
+                batch.push(Color::RED, o);
+            }
+            // TODO Refactor
+            batch.add_transformed(
+                Text::from(Line(&event))
+                    .with_bg()
+                    .render_to_batch(ctx.prerender),
+                poly.polylabel(),
+                0.5,
+                Angle::ZERO,
+                RewriteColor::NoOp,
+            );
+            poly
+        };
         Marker {
-            pt,
+            pts,
             event,
-            hitbox: batch.unioned_polygon(),
+            hitbox,
             draw: ctx.upload(batch),
         }
     }
 
     fn draw_hovered(&self, g: &mut GfxCtx, app: &App) {
         let mut batch = GeomBatch::new();
-        batch.add_svg(
-            g.prerender,
-            "../data/system/assets/timeline/goal_pos.svg",
-            self.pt,
-            2.0,
-            Angle::ZERO,
-            RewriteColor::Change(Color::hex("#5B5B5B"), app.cs.hovering),
-            false,
-        );
-        batch.add_transformed(
-            Text::from(Line(&self.event))
-                .with_bg()
-                .render_to_batch(g.prerender),
-            self.pt,
-            0.75,
-            Angle::ZERO,
-            RewriteColor::NoOp,
-        );
+        if self.pts.len() == 1 {
+            batch.add_svg(
+                g.prerender,
+                "../data/system/assets/timeline/goal_pos.svg",
+                self.pts[0],
+                2.0,
+                Angle::ZERO,
+                RewriteColor::Change(Color::hex("#5B5B5B"), app.cs.hovering),
+                false,
+            );
+            batch.add_transformed(
+                Text::from(Line(&self.event))
+                    .with_bg()
+                    .render_to_batch(g.prerender),
+                self.pts[0],
+                0.75,
+                Angle::ZERO,
+                RewriteColor::NoOp,
+            );
+        } else {
+            batch.push(app.cs.hovering, Polygon::new(&self.pts));
+            // TODO Refactor plz
+            batch.add_transformed(
+                Text::from(Line(&self.event))
+                    .with_bg()
+                    .render_to_batch(g.prerender),
+                self.hitbox.polylabel(),
+                0.75,
+                Angle::ZERO,
+                RewriteColor::NoOp,
+            );
+        }
         batch.draw(g);
     }
 
@@ -491,5 +575,73 @@ impl Marker {
             .bg(app.cs.panel_bg),
         )
         .build(ctx)
+    }
+}
+
+// TODO This should totally be an ezgui tool
+// TODO Simplify points
+struct Lasso {
+    pl: PolyLine,
+}
+
+impl Lasso {
+    fn new(pt: Pt2D) -> Lasso {
+        Lasso {
+            pl: PolyLine::new(vec![pt, pt.offset(0.1, 0.0)]),
+        }
+    }
+
+    fn event(&mut self, ctx: &mut EventCtx) -> Option<Ring> {
+        if ctx.input.left_mouse_button_released() {
+            return Some(simplify(self.pl.points().clone()));
+        }
+        if ctx.redo_mouseover() {
+            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+                if pt != self.pl.last_pt() {
+                    // Did we make a crossing?
+                    if let Some((hit, _)) = self
+                        .pl
+                        .intersection(&PolyLine::new(vec![self.pl.last_pt(), pt]))
+                    {
+                        if let Some(slice) = self.pl.get_slice_starting_at(hit) {
+                            return Some(simplify(slice.into_points()));
+                        }
+                    }
+
+                    let mut pts = self.pl.points().clone();
+                    pts.push(pt);
+                    self.pl = PolyLine::new(pts);
+                }
+            }
+        }
+        None
+    }
+
+    fn draw(&self, g: &mut GfxCtx) {
+        g.draw_polygon(
+            Color::RED.alpha(0.8),
+            &self
+                .pl
+                .make_polygons(Distance::meters(5.0) / g.canvas.cam_zoom),
+        );
+    }
+}
+
+fn simplify(mut raw: Vec<Pt2D>) -> Ring {
+    // TODO This is eating some of the shapes entirely. Wasn't meant for this.
+    if false {
+        let pts = raw
+            .into_iter()
+            .map(|pt| lttb::DataPoint::new(pt.x(), pt.y()))
+            .collect();
+        let mut downsampled = Vec::new();
+        for pt in lttb::lttb(pts, 50) {
+            downsampled.push(Pt2D::new(pt.x, pt.y));
+        }
+        downsampled.push(downsampled[0]);
+        Ring::new(downsampled)
+    } else {
+        raw.push(raw[0]);
+        Ring::new(raw)
     }
 }
