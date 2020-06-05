@@ -135,12 +135,11 @@ impl DrawCar {
         if let Some(line) = input.label {
             // TODO Would rotation make any sense? Or at least adjust position/size while turning.
             // Buses are a constant length, so hardcoding this is fine.
-            draw_default.add_transformed(
-                Text::from(Line(line).fg(cs.bus_label)).render_to_batch(prerender),
-                input.body.dist_along(Distance::meters(9.0)).0,
-                0.07,
-                Angle::ZERO,
-                RewriteColor::NoOp,
+            draw_default.append(
+                Text::from(Line(line).fg(cs.bus_label))
+                    .render_to_batch(prerender)
+                    .scale(0.07)
+                    .centered_on(input.body.dist_along(Distance::meters(9.0)).0),
             );
         }
 

@@ -291,13 +291,8 @@ impl BtnBuilder {
                 let geom =
                     Polygon::rectangle(bounds.width() + 2.0 * pad, bounds.height() + 2.0 * pad);
 
-                let mut normal = GeomBatch::new();
-                normal.add_translated(orig.clone(), pad, pad);
-                normal.rewrite_color(rewrite_normal);
-
-                let mut hovered = GeomBatch::new();
-                hovered.add_translated(orig, pad, pad);
-                hovered.rewrite_color(rewrite_hover);
+                let normal = orig.clone().translate(pad, pad).color(rewrite_normal);
+                let hovered = orig.translate(pad, pad).color(rewrite_hover);
 
                 Button::new(
                     ctx,
@@ -325,9 +320,9 @@ impl BtnBuilder {
                 );
 
                 let mut normal = GeomBatch::new();
-                normal.add_translated(unselected_batch, horiz_padding, vert_padding);
+                normal.append(unselected_batch.translate(horiz_padding, vert_padding));
                 let mut hovered = GeomBatch::new();
-                hovered.add_translated(selected_batch, horiz_padding, vert_padding);
+                hovered.append(selected_batch.translate(horiz_padding, vert_padding));
 
                 Button::new(
                     ctx,
@@ -357,9 +352,9 @@ impl BtnBuilder {
                 );
 
                 let mut normal = GeomBatch::new();
-                normal.add_translated(unselected_batch, horiz_padding, vert_padding);
+                normal.append(unselected_batch.translate(horiz_padding, vert_padding));
                 let mut hovered = GeomBatch::new();
-                hovered.add_translated(selected_batch, horiz_padding, vert_padding);
+                hovered.append(selected_batch.translate(horiz_padding, vert_padding));
 
                 Button::new(
                     ctx,
@@ -390,10 +385,10 @@ impl BtnBuilder {
                 );
 
                 let mut normal = GeomBatch::from(vec![(unselected_bg_color, geom.clone())]);
-                normal.add_translated(txt_batch.clone(), HORIZ_PADDING, VERT_PADDING);
+                normal.append(txt_batch.clone().translate(HORIZ_PADDING, VERT_PADDING));
 
                 let mut hovered = GeomBatch::from(vec![(selected_bg_color, geom.clone())]);
-                hovered.add_translated(txt_batch.clone(), HORIZ_PADDING, VERT_PADDING);
+                hovered.append(txt_batch.translate(HORIZ_PADDING, VERT_PADDING));
 
                 Button::new(
                     ctx,

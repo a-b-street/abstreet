@@ -4,10 +4,10 @@ mod world;
 use abstutil::{CmdArgs, Timer};
 use ezgui::{
     hotkey, Btn, Canvas, Choice, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch,
-    GfxCtx, HorizontalAlignment, Key, Line, Outcome, RewriteColor, ScreenPt, Text,
-    VerticalAlignment, Widget, Wizard, GUI,
+    GfxCtx, HorizontalAlignment, Key, Line, Outcome, ScreenPt, Text, VerticalAlignment, Widget,
+    Wizard, GUI,
 };
-use geom::{Angle, Distance, Line, Polygon, Pt2D};
+use geom::{Distance, Line, Polygon, Pt2D};
 use map_model::raw::{OriginalBuilding, OriginalIntersection, OriginalRoad, RestrictionType};
 use map_model::{osm, NORMAL_LANE_THICKNESS};
 use model::{Model, ID};
@@ -657,14 +657,12 @@ fn preview_intersection(i: OriginalIntersection, model: &Model, ctx: &EventCtx) 
     for (label, poly) in debug {
         let center = poly.center();
         batch.push(Color::RED.alpha(0.5), poly);
-        batch.add_transformed(
+        batch.append(
             Text::from(Line(label))
                 .with_bg()
-                .render_to_batch(ctx.prerender),
-            center,
-            0.1,
-            Angle::ZERO,
-            RewriteColor::NoOp,
+                .render_to_batch(ctx.prerender)
+                .scale(0.1)
+                .centered_on(center),
         );
     }
     batch.upload(ctx)

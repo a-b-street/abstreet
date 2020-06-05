@@ -85,12 +85,10 @@ impl Renderable for DrawBuilding {
                     if b.amenities.len() > 1 {
                         txt.append(Line(format!(" (+{})", b.amenities.len() - 1)).fg(Color::BLACK));
                     }
-                    batch.add_transformed(
-                        txt.render_to_batch(g.prerender),
-                        b.label_center,
-                        0.1,
-                        Angle::ZERO,
-                        RewriteColor::NoOp,
+                    batch.append(
+                        txt.render_to_batch(g.prerender)
+                            .scale(0.1)
+                            .centered_on(b.label_center),
                     );
                 }
                 *label = Some(g.prerender.upload(batch));

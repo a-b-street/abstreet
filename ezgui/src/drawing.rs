@@ -205,7 +205,7 @@ impl<'a> GfxCtx<'a> {
             Color::BLACK,
             Polygon::rectangle(dims.width, dims.height).translate(pt.x, pt.y),
         );
-        batch.add_translated(txt_batch, pt.x + pad, pt.y + pad);
+        batch.append(txt_batch.translate(pt.x + pad, pt.y + pad));
 
         // fork_screenspace, but with an even more prominent Z
         self.uniforms.transform = [0.0, 0.0, 1.0];

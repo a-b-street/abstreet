@@ -250,16 +250,18 @@ impl CommonState {
             app.cs.panel_bg,
             Polygon::rectangle(g.canvas.window_width, 1.5 * g.default_line_height()),
         )]);
-        batch.add_translated(osd.render_g(g), 10.0, 0.25 * g.default_line_height());
+        batch.append(
+            osd.render_g(g)
+                .translate(10.0, 0.25 * g.default_line_height()),
+        );
 
         if app.opts.dev && !g.is_screencap() {
             let dev_batch = Text::from(Line("DEV")).bg(Color::RED).render_g(g);
             let dims = dev_batch.get_dims();
-            batch.add_translated(
-                dev_batch,
+            batch.append(dev_batch.translate(
                 g.canvas.window_width - dims.width - 10.0,
                 0.25 * g.default_line_height(),
-            );
+            ));
         }
         let draw = g.upload(batch);
         let top_left = ScreenPt::new(0.0, g.canvas.window_height - 1.5 * g.default_line_height());

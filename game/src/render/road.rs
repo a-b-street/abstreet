@@ -2,8 +2,8 @@ use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable};
-use ezgui::{Drawable, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, Text};
-use geom::{Angle, Distance, Polygon, Pt2D};
+use ezgui::{Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
+use geom::{Distance, Polygon, Pt2D};
 use map_model::{LaneType, Map, Road, RoadID};
 use std::cell::RefCell;
 
@@ -62,12 +62,10 @@ impl Renderable for DrawRoad {
 
                 let mut txt = Text::new().with_bg();
                 txt.add(Line(r.get_name()));
-                batch.add_transformed(
-                    txt.render_to_batch(g.prerender),
-                    r.center_pts.middle(),
-                    0.1,
-                    Angle::ZERO,
-                    RewriteColor::NoOp,
+                batch.append(
+                    txt.render_to_batch(g.prerender)
+                        .scale(0.1)
+                        .centered_on(r.center_pts.middle()),
                 );
                 *label = Some(g.prerender.upload(batch));
             }

@@ -180,11 +180,7 @@ impl<'a> LoadingScreen<'a> {
             text::BG_COLOR,
             Polygon::rectangle(0.8 * g.canvas.window_width, 0.8 * g.canvas.window_height),
         )]);
-        batch.add_translated(
-            txt.inner_render(&g.prerender.assets, svg::LOW_QUALITY),
-            0.0,
-            0.0,
-        );
+        batch.append(txt.inner_render(&g.prerender.assets, svg::LOW_QUALITY));
         let draw = g.upload(batch);
         g.redraw_at(
             ScreenPt::new(0.1 * g.canvas.window_width, 0.1 * g.canvas.window_height),

@@ -10,7 +10,7 @@
 
 use ezgui::{
     hotkey, lctrl, Btn, Checkbox, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch,
-    GfxCtx, HorizontalAlignment, Key, Line, Outcome, Plot, PlotOptions, Series, Text, TextExt,
+    GfxCtx, HorizontalAlignment, Key, Line, LinePlot, Outcome, PlotOptions, Series, Text, TextExt,
     VerticalAlignment, Widget, GUI,
 };
 use geom::{Angle, Duration, Polygon, Pt2D, Time};
@@ -77,7 +77,7 @@ impl App {
                     Widget::col(col2).outline(3.0, Color::BLACK).margin(5),
                     Widget::col(col3).outline(3.0, Color::BLACK).margin(5),
                 ]),
-                Plot::new(
+                LinePlot::new(
                     ctx,
                     "timeseries",
                     vec![
@@ -103,6 +103,7 @@ impl App {
                         // Without this, the plot doesn't stretch to cover times in between whole
                         // seconds.
                         max_x: Some(Time::START_OF_DAY + self.elapsed),
+                        max_y: None,
                     },
                 ),
             ])
@@ -230,19 +231,17 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
         1.0,
         // Rotate
         Angle::ZERO,
+        ezgui::RewriteColor::NoOp,
         // Map-space (don't scale for high DPI monitors)
         true,
     );
     // Text rendering also goes through lyon and usvg.
-    batch.add_transformed(
+    batch.append(
         Text::from(Line("Awesome vector text thanks to usvg and lyon").fg(Color::hex("#DF8C3D")))
-            .render_to_batch(&ctx.prerender),
-        // Translate
-        Pt2D::new(600.0, 500.0),
-        // Scale
-        2.0,
-        // Rotate
-        Angle::new_degs(30.0),
+            .render_to_batch(&ctx.prerender)
+            .scale(2.0)
+            .centered_on(Pt2D::new(600.0, 500.0))
+            .rotate(Angle::new_degs(30.0)),
     );
     // This is a bit of a hack; it's needed so that zooming in/out has reasonable limits.
     ctx.canvas.map_dims = (5000.0, 5000.0);

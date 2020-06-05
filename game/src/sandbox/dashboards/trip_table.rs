@@ -437,7 +437,7 @@ pub fn make_table(
         batch.autocrop_dims = false;
         let mut x1 = 0.0;
         for (col, width) in row.into_iter().zip(width_per_col.iter()) {
-            batch.add_translated(col.scale(1.0 / ctx.get_scale_factor()), x1, 0.0);
+            batch.append(col.scale(1.0 / ctx.get_scale_factor()).translate(x1, 0.0));
             x1 += *width + extra_margin;
         }
 

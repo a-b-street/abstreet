@@ -485,14 +485,12 @@ impl Marker {
                 RewriteColor::Change(Color::hex("#5B5B5B"), Color::hex("#FE3D00")),
                 false,
             );
-            batch.add_transformed(
+            batch.append(
                 Text::from(Line(&event))
                     .with_bg()
-                    .render_to_batch(ctx.prerender),
-                pts[0],
-                0.5,
-                Angle::ZERO,
-                RewriteColor::NoOp,
+                    .render_to_batch(ctx.prerender)
+                    .scale(0.5)
+                    .centered_on(pts[0]),
             );
             batch.unioned_polygon()
         } else {
@@ -502,14 +500,12 @@ impl Marker {
                 batch.push(Color::RED, o);
             }
             // TODO Refactor
-            batch.add_transformed(
+            batch.append(
                 Text::from(Line(&event))
                     .with_bg()
-                    .render_to_batch(ctx.prerender),
-                poly.polylabel(),
-                0.5,
-                Angle::ZERO,
-                RewriteColor::NoOp,
+                    .render_to_batch(ctx.prerender)
+                    .scale(0.5)
+                    .centered_on(poly.polylabel()),
             );
             poly
         };
@@ -533,26 +529,22 @@ impl Marker {
                 RewriteColor::Change(Color::hex("#5B5B5B"), app.cs.hovering),
                 false,
             );
-            batch.add_transformed(
+            batch.append(
                 Text::from(Line(&self.event))
                     .with_bg()
-                    .render_to_batch(g.prerender),
-                self.pts[0],
-                0.75,
-                Angle::ZERO,
-                RewriteColor::NoOp,
+                    .render_to_batch(g.prerender)
+                    .scale(0.75)
+                    .centered_on(self.pts[0]),
             );
         } else {
             batch.push(app.cs.hovering, Polygon::new(&self.pts));
             // TODO Refactor plz
-            batch.add_transformed(
+            batch.append(
                 Text::from(Line(&self.event))
                     .with_bg()
-                    .render_to_batch(g.prerender),
-                self.hitbox.polylabel(),
-                0.75,
-                Angle::ZERO,
-                RewriteColor::NoOp,
+                    .render_to_batch(g.prerender)
+                    .scale(0.75)
+                    .centered_on(self.hitbox.polylabel()),
             );
         }
         batch.draw(g);

@@ -77,7 +77,7 @@ impl DrawIntersection {
 
         let zorder = i.get_zorder(map);
         if zorder < 0 {
-            default_geom.rewrite_color(RewriteColor::ChangeAlpha(0.5));
+            default_geom = default_geom.color(RewriteColor::ChangeAlpha(0.5));
         }
 
         DrawIntersection {
@@ -152,12 +152,11 @@ impl Renderable for DrawIntersection {
                     app.opts.traffic_signal_style.clone(),
                 );
                 if app.opts.traffic_signal_style != TrafficSignalStyle::BAP {
-                    batch.add_transformed(
-                        Text::from(Line(format!("{}", idx + 1))).render_to_batch(g.prerender),
-                        app.primary.map.get_i(self.id).polygon.center(),
-                        0.1,
-                        Angle::ZERO,
-                        RewriteColor::NoOp,
+                    batch.append(
+                        Text::from(Line(format!("{}", idx + 1)))
+                            .render_to_batch(g.prerender)
+                            .scale(0.1)
+                            .centered_on(app.primary.map.get_i(self.id).polygon.center()),
                     );
                 }
                 *maybe_redraw = Some((app.primary.sim.time(), g.prerender.upload(batch)));

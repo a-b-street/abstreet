@@ -1,11 +1,8 @@
 use crate::app::App;
 use crate::info::{header_btns, make_tabs, throughput, DataOptions, Details, Tab};
 use abstutil::prettyprint_usize;
-use ezgui::{
-    Color, EventCtx, GeomBatch, Line, PlotOptions, RewriteColor, ScatterPlotV2, Series, Text,
-    Widget,
-};
-use geom::{Angle, ArrowCap, Distance, PolyLine};
+use ezgui::{Color, EventCtx, GeomBatch, Line, PlotOptions, ScatterPlotV2, Series, Text, Widget};
+use geom::{ArrowCap, Distance, PolyLine};
 use map_model::{IntersectionID, IntersectionType};
 use std::collections::BTreeSet;
 
@@ -138,12 +135,11 @@ pub fn current_demand(
             pl.make_arrow(percent * Distance::meters(3.0), ArrowCap::Triangle)
                 .unwrap(),
         );
-        txt_batch.add_transformed(
-            Text::from(Line(prettyprint_usize(demand))).render_ctx(ctx),
-            pl.middle(),
-            0.15 / ctx.get_scale_factor(),
-            Angle::ZERO,
-            RewriteColor::NoOp,
+        txt_batch.append(
+            Text::from(Line(prettyprint_usize(demand)))
+                .render_ctx(ctx)
+                .scale(0.15 / ctx.get_scale_factor())
+                .centered_on(pl.middle()),
         );
     }
     batch.append(txt_batch);

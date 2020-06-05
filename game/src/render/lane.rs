@@ -64,8 +64,7 @@ impl AlmostDrawLane {
         }
 
         if self.zorder < 0 {
-            self.draw_default
-                .rewrite_color(RewriteColor::ChangeAlpha(0.5));
+            self.draw_default = self.draw_default.color(RewriteColor::ChangeAlpha(0.5));
         }
 
         DrawLane {

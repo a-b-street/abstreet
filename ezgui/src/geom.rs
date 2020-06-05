@@ -32,6 +32,7 @@ impl GeomBatch {
     pub fn push(&mut self, color: Color, p: Polygon) {
         self.list.push((FancyColor::RGBA(color), p));
     }
+    // TODO Weird API too
     pub fn fancy_push(&mut self, color: FancyColor, p: Polygon) {
         self.list.push((color, p));
     }
@@ -117,15 +118,6 @@ impl GeomBatch {
         }
     }
 
-    /// Transforms all colors in a batch.
-    pub fn rewrite_color(&mut self, transformation: RewriteColor) {
-        for (fancy, _) in self.list.iter_mut() {
-            if let FancyColor::RGBA(ref mut c) = fancy {
-                *c = transformation.apply(*c);
-            }
-        }
-    }
-
     // TODO Weird API.
     /// Adds an SVG image to the current batch, applying the transformations first.
     pub fn add_svg(
@@ -138,7 +130,7 @@ impl GeomBatch {
         rewrite: RewriteColor,
         map_space: bool,
     ) {
-        self.add_transformed(
+        self.append(
             svg::load_svg(
                 prerender,
                 filename,
@@ -148,61 +140,60 @@ impl GeomBatch {
                     *prerender.assets.scale_factor.borrow()
                 },
             )
-            .0,
-            center,
-            scale,
-            rotate,
-            rewrite,
+            .0
+            .scale(scale)
+            .centered_on(center)
+            .rotate(rotate)
+            .color(rewrite),
         );
     }
 
+    // TODO Weird API
     /// Parse an SVG string and add it to the batch.
     pub fn add_svg_contents(&mut self, raw: Vec<u8>) {
         let svg_tree = usvg::Tree::from_data(&raw, &usvg::Options::default()).unwrap();
         svg::add_svg_inner(self, svg_tree, svg::HIGH_QUALITY, 1.0).unwrap();
     }
 
+    // TODO Weird API
     /// Adds geometry from another batch to the current batch, first centering it on the given
     /// point.
     pub fn add_centered(&mut self, other: GeomBatch, center: Pt2D) {
-        self.add_transformed(other, center, 1.0, Angle::ZERO, RewriteColor::NoOp);
+        self.append(other.centered_on(center));
     }
 
-    /// Adds geometry from another batch to the current batch, first transforming it. The
-    /// translation centers on the given point.
-    pub fn add_transformed(
-        &mut self,
-        other: GeomBatch,
-        center: Pt2D,
-        scale: f64,
-        rotate: Angle,
-        rewrite: RewriteColor,
-    ) {
-        let dims = other.get_dims();
-        let dx = center.x() - dims.width * scale / 2.0;
-        let dy = center.y() - dims.height * scale / 2.0;
-        for (mut fancy_color, mut poly) in other.consume() {
-            // Avoid unnecessary transformations for slight perf boost
-            if scale != 1.0 {
-                poly = poly.scale(scale);
+    /// Transforms all colors in a batch.
+    pub fn color(mut self, transformation: RewriteColor) -> GeomBatch {
+        for (fancy, _) in &mut self.list {
+            if let FancyColor::RGBA(ref mut c) = fancy {
+                *c = transformation.apply(*c);
             }
-            poly = poly.translate(dx, dy);
-            if rotate != Angle::ZERO {
-                poly = poly.rotate(rotate);
-            }
-            if let FancyColor::RGBA(ref mut c) = fancy_color {
-                *c = rewrite.apply(*c);
-            }
-            self.fancy_push(fancy_color, poly);
         }
+        self
     }
 
-    // TODO Weird API
-    /// Adds geometry from another batch to the current batch, first translating it.
-    pub fn add_translated(&mut self, other: GeomBatch, dx: f64, dy: f64) {
-        for (color, poly) in other.consume() {
-            self.fancy_push(color, poly.translate(dx, dy));
+    /// Translates the batch to be centered on some point.
+    pub fn centered_on(self, center: Pt2D) -> GeomBatch {
+        let dims = self.get_dims();
+        let dx = center.x() - dims.width / 2.0;
+        let dy = center.y() - dims.height / 2.0;
+        self.translate(dx, dy)
+    }
+
+    /// Translates the batch by some offset.
+    pub fn translate(mut self, dx: f64, dy: f64) -> GeomBatch {
+        for (_, poly) in &mut self.list {
+            *poly = poly.translate(dx, dy);
         }
+        self
+    }
+
+    /// Rotates each polygon in the batch relative to the center of that polygon.
+    pub fn rotate(mut self, angle: Angle) -> GeomBatch {
+        for (_, poly) in &mut self.list {
+            *poly = poly.rotate(angle);
+        }
+        self
     }
 
     /// Scales the batch by some factor.
