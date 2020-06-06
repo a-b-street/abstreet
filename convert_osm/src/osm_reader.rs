@@ -218,7 +218,6 @@ pub fn extract_osm(
             // TODO Verify parking = surface or handle other cases?
             map.parking_lots.push(RawParkingLot {
                 polygon: Polygon::new(&pts),
-                capacity: tags.get("capacity").and_then(|x| x.parse::<usize>().ok()),
                 osm_id: way.id,
             });
         } else if tags.get("highway") == Some(&"service".to_string()) {

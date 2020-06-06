@@ -336,7 +336,6 @@ pub struct RawArea {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct RawParkingLot {
     pub polygon: Polygon,
-    pub capacity: Option<usize>,
     pub osm_id: i64,
 }
 

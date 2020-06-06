@@ -180,8 +180,6 @@ pub fn make_all_parking_lots(
                     id,
                     polygon: orig.polygon.clone(),
                     aisles: Vec::new(),
-                    // TODO Rethink this approach. 250 square feet is around 23 square meters
-                    capacity: orig.capacity,
                     osm_id: orig.osm_id,
                     spots: Vec::new(),
 
@@ -192,9 +190,8 @@ pub fn make_all_parking_lots(
                 });
             } else {
                 timer.warn(format!(
-                    "Parking lot from OSM way {} can't have a driveway. Forfeiting {:?} parking \
-                     spots",
-                    orig.osm_id, orig.capacity
+                    "Parking lot from OSM way {} can't have a driveway.",
+                    orig.osm_id
                 ));
             }
         }

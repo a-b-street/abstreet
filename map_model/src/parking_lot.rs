@@ -26,8 +26,6 @@ pub struct ParkingLot {
     pub id: ParkingLotID,
     pub polygon: Polygon,
     pub aisles: Vec<Vec<Pt2D>>,
-    // TODO Rename this
-    pub capacity: Option<usize>,
     pub osm_id: i64,
     // The middle of the "T", pointing towards the parking aisle
     pub spots: Vec<(Pt2D, Angle)>,
