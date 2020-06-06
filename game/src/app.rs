@@ -129,8 +129,12 @@ impl App {
                     prettyprint_usize(serialized_size_bytes(&a.intersection_delays))
                 );
                 println!(
-                    "- parking_spot_changes: {} bytes",
-                    prettyprint_usize(serialized_size_bytes(&a.parking_spot_changes))
+                    "- parking_lane_changes: {} bytes",
+                    prettyprint_usize(serialized_size_bytes(&a.parking_lane_changes))
+                );
+                println!(
+                    "- parking_lot_changes: {} bytes",
+                    prettyprint_usize(serialized_size_bytes(&a.parking_lot_changes))
                 );
             }
         }

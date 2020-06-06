@@ -2,8 +2,8 @@ use crate::{AlertLocation, CarID, Event, ParkingSpot, TripID, TripMode, TripPhas
 use abstutil::Counter;
 use geom::{Distance, Duration, Histogram, Statistic, Time};
 use map_model::{
-    BusRouteID, BusStopID, IntersectionID, LaneID, Map, Path, PathRequest, RoadID, Traversable,
-    TurnGroupID,
+    BusRouteID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, Path, PathRequest, RoadID,
+    Traversable, TurnGroupID,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
@@ -26,8 +26,9 @@ pub struct Analytics {
     // TODO This subsumes finished_trips
     pub trip_log: Vec<(Time, TripID, Option<PathRequest>, TripPhaseType)>,
     pub intersection_delays: BTreeMap<IntersectionID, Vec<(Time, Duration)>>,
-    // Per parking lane, when does a spot become filled (true) or free (false)
-    pub parking_spot_changes: BTreeMap<LaneID, Vec<(Time, bool)>>,
+    // Per parking lane or lot, when does a spot become filled (true) or free (false)
+    pub parking_lane_changes: BTreeMap<LaneID, Vec<(Time, bool)>>,
+    pub parking_lot_changes: BTreeMap<ParkingLotID, Vec<(Time, bool)>>,
     pub(crate) alerts: Vec<(Time, AlertLocation, String)>,
 
     // After we restore from a savestate, don't record anything. This is only going to make sense
@@ -49,7 +50,8 @@ impl Analytics {
             finished_trips: Vec::new(),
             trip_log: Vec::new(),
             intersection_delays: BTreeMap::new(),
-            parking_spot_changes: BTreeMap::new(),
+            parking_lane_changes: BTreeMap::new(),
+            parking_lot_changes: BTreeMap::new(),
             alerts: Vec::new(),
             record_anything: true,
         }
@@ -132,16 +134,26 @@ impl Analytics {
         // Parking spot changes
         if let Event::CarReachedParkingSpot(_, spot) = ev {
             if let ParkingSpot::Onstreet(l, _) = spot {
-                self.parking_spot_changes
+                self.parking_lane_changes
                     .entry(l)
+                    .or_insert_with(Vec::new)
+                    .push((time, true));
+            } else if let ParkingSpot::Lot(pl, _) = spot {
+                self.parking_lot_changes
+                    .entry(pl)
                     .or_insert_with(Vec::new)
                     .push((time, true));
             }
         }
         if let Event::CarLeftParkingSpot(_, spot) = ev {
             if let ParkingSpot::Onstreet(l, _) = spot {
-                self.parking_spot_changes
+                self.parking_lane_changes
                     .entry(l)
+                    .or_insert_with(Vec::new)
+                    .push((time, false));
+            } else if let ParkingSpot::Lot(pl, _) = spot {
+                self.parking_lot_changes
+                    .entry(pl)
                     .or_insert_with(Vec::new)
                     .push((time, false));
             }
@@ -470,18 +482,36 @@ impl Analytics {
     }
 
     // Returns the free spots over time
-    pub fn parking_spot_availability(
+    pub fn parking_lane_availability(
         &self,
         now: Time,
         l: LaneID,
         capacity: usize,
     ) -> Vec<(Time, usize)> {
-        let changes = if let Some(changes) = self.parking_spot_changes.get(&l) {
-            changes
+        if let Some(changes) = self.parking_lane_changes.get(&l) {
+            Analytics::parking_spot_availability(now, changes, capacity)
         } else {
-            return vec![(Time::START_OF_DAY, capacity), (now, capacity)];
-        };
+            vec![(Time::START_OF_DAY, capacity), (now, capacity)]
+        }
+    }
+    pub fn parking_lot_availability(
+        &self,
+        now: Time,
+        pl: ParkingLotID,
+        capacity: usize,
+    ) -> Vec<(Time, usize)> {
+        if let Some(changes) = self.parking_lot_changes.get(&pl) {
+            Analytics::parking_spot_availability(now, changes, capacity)
+        } else {
+            vec![(Time::START_OF_DAY, capacity), (now, capacity)]
+        }
+    }
 
+    fn parking_spot_availability(
+        now: Time,
+        changes: &Vec<(Time, bool)>,
+        capacity: usize,
+    ) -> Vec<(Time, usize)> {
         let mut pts = Vec::new();
         let mut cnt = capacity;
         let mut last_t = Time::START_OF_DAY;

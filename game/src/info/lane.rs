@@ -38,7 +38,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
         let mut series = vec![Series {
             label: "After changes".to_string(),
             color: app.cs.after_changes,
-            pts: app.primary.sim.get_analytics().parking_spot_availability(
+            pts: app.primary.sim.get_analytics().parking_lane_availability(
                 app.primary.sim.time(),
                 l.id,
                 capacity,
@@ -48,7 +48,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
             series.push(Series {
                 label: "Before changes".to_string(),
                 color: app.cs.before_changes.alpha(0.5),
-                pts: app.prebaked().parking_spot_availability(
+                pts: app.prebaked().parking_lane_availability(
                     app.primary.sim.get_end_of_day(),
                     l.id,
                     capacity,

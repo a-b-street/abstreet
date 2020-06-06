@@ -11,8 +11,8 @@ use derivative::Derivative;
 use geom::{Distance, Duration, PolyLine, Pt2D, Speed, Time};
 use instant::Instant;
 use map_model::{
-    BuildingID, BusRoute, BusRouteID, IntersectionID, LaneID, Map, Path, PathConstraints,
-    PathRequest, PathStep, Position, RoadID, Traversable,
+    BuildingID, BusRoute, BusRouteID, IntersectionID, LaneID, Map, ParkingLotID, Path,
+    PathConstraints, PathRequest, PathStep, Position, RoadID, Traversable,
 };
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
@@ -169,6 +169,10 @@ impl Sim {
 
     pub fn get_free_offstreet_spots(&self, b: BuildingID) -> Vec<ParkingSpot> {
         self.parking.get_free_offstreet_spots(b)
+    }
+
+    pub fn get_free_lot_spots(&self, pl: ParkingLotID) -> Vec<ParkingSpot> {
+        self.parking.get_free_lot_spots(pl)
     }
 
     // (Filled, available)

@@ -1,33 +1,53 @@
 use crate::app::App;
 use crate::info::{header_btns, make_tabs, Details, Tab};
 use abstutil::prettyprint_usize;
-use ezgui::{EventCtx, Line, TextExt, Widget};
+use ezgui::{EventCtx, Line, LinePlot, PlotOptions, Series, TextExt, Widget};
 use map_model::ParkingLotID;
 
 pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: ParkingLotID) -> Vec<Widget> {
     let mut rows = header(ctx, details, id, Tab::ParkingLot(id));
     let pl = app.primary.map.get_pl(id);
+    let capacity = pl.spots.len();
 
-    if let Some(n) = pl.capacity {
-        rows.push(format!("{} spots (from OSM)", prettyprint_usize(n)).draw_text(ctx));
+    rows.push(
+        format!(
+            "{} / {} spots available",
+            prettyprint_usize(app.primary.sim.get_free_lot_spots(pl.id).len()),
+            prettyprint_usize(capacity)
+        )
+        .draw_text(ctx),
+    );
+
+    let mut series = vec![Series {
+        label: "After changes".to_string(),
+        color: app.cs.after_changes,
+        pts: app.primary.sim.get_analytics().parking_lot_availability(
+            app.primary.sim.time(),
+            pl.id,
+            capacity,
+        ),
+    }];
+    if app.has_prebaked().is_some() {
+        series.push(Series {
+            label: "Before changes".to_string(),
+            color: app.cs.before_changes.alpha(0.5),
+            pts: app.prebaked().parking_lot_availability(
+                app.primary.sim.get_end_of_day(),
+                pl.id,
+                capacity,
+            ),
+        });
     }
-
-    // 250 square feet is around 23 square meters
-    rows.push(
-        format!(
-            "{} spots (from area)",
-            prettyprint_usize((pl.polygon.area() / 23.0) as usize)
-        )
-        .draw_text(ctx),
-    );
-
-    rows.push(
-        format!(
-            "{} spots (from geometry)",
-            prettyprint_usize(pl.spots.len())
-        )
-        .draw_text(ctx),
-    );
+    rows.push("Parking spots available".draw_text(ctx).margin_above(10));
+    rows.push(LinePlot::new(
+        ctx,
+        "parking spots available",
+        series,
+        PlotOptions {
+            max_x: None,
+            max_y: Some(capacity),
+        },
+    ));
 
     rows
 }
