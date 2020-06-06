@@ -2,7 +2,7 @@ use crate::make::sidewalk_finder::find_sidewalk_points;
 use crate::raw::{OriginalBuilding, RawBuilding, RawParkingLot};
 use crate::{
     osm, Building, BuildingID, FrontPath, LaneID, LaneType, Map, OffstreetParking, ParkingLot,
-    ParkingLotID, Position, NORMAL_LANE_THICKNESS, PARKING_SPOT_LENGTH,
+    ParkingLotID, Position, NORMAL_LANE_THICKNESS, PARKING_LOT_SPOT_LENGTH,
 };
 use abstutil::Timer;
 use geom::{Angle, Distance, HashablePt2D, Line, PolyLine, Polygon, Pt2D, Ring};
@@ -279,9 +279,7 @@ fn infer_spots(lot_polygon: &Polygon, aisles: &Vec<Vec<Pt2D>>) -> Vec<(Pt2D, Ang
                     let theta = angle.rotate_degs(rotate);
                     lines.push(Line::new(
                         pt.project_away(aisle_thickness / 2.0, theta),
-                        // The full PARKING_SPOT_LENGTH used for on-street is looking too
-                        // conservative for some manually audited cases in Seattle
-                        pt.project_away(aisle_thickness / 2.0 + 0.8 * PARKING_SPOT_LENGTH, theta),
+                        pt.project_away(aisle_thickness / 2.0 + PARKING_LOT_SPOT_LENGTH, theta),
                     ));
                 }
                 lines

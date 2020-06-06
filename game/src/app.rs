@@ -395,7 +395,11 @@ impl App {
                     }
                 }
                 ID::Building(id) => buildings.push(draw_map.get_b(id)),
-                ID::ParkingLot(id) => parking_lots.push(draw_map.get_pl(id)),
+                ID::ParkingLot(id) => {
+                    parking_lots.push(draw_map.get_pl(id));
+                    // Slight hack
+                    agents_on.push(Traversable::Lane(map.get_pl(id).driving_pos.lane()));
+                }
 
                 ID::BusStop(_) | ID::Turn(_) | ID::Car(_) | ID::Pedestrian(_) | ID::PedCrowd(_) => {
                     panic!("{:?} shouldn't be in the quadtree", id)

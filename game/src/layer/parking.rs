@@ -14,6 +14,7 @@ pub struct Occupancy {
     time: Time,
     onstreet: bool,
     offstreet: bool,
+    lots: bool,
     unzoomed: Drawable,
     composite: Composite,
 }
@@ -29,7 +30,7 @@ impl Layer for Occupancy {
         minimap: &Composite,
     ) -> Option<LayerOutcome> {
         if app.primary.sim.time() != self.time {
-            *self = Occupancy::new(ctx, app, self.onstreet, self.offstreet);
+            *self = Occupancy::new(ctx, app, self.onstreet, self.offstreet, self.lots);
         }
 
         self.composite.align_above(ctx, minimap);
@@ -43,8 +44,12 @@ impl Layer for Occupancy {
             None => {
                 let new_onstreet = self.composite.is_checked("On-street spots");
                 let new_offstreet = self.composite.is_checked("Off-street spots");
-                if self.onstreet != new_onstreet || self.offstreet != new_offstreet {
-                    *self = Occupancy::new(ctx, app, new_onstreet, new_offstreet);
+                let new_lots = self.composite.is_checked("Parking lots");
+                if self.onstreet != new_onstreet
+                    || self.offstreet != new_offstreet
+                    || self.lots != new_lots
+                {
+                    *self = Occupancy::new(ctx, app, new_onstreet, new_offstreet, new_lots);
                     self.composite.align_above(ctx, minimap);
                 }
             }
@@ -63,15 +68,23 @@ impl Layer for Occupancy {
 }
 
 impl Occupancy {
-    pub fn new(ctx: &mut EventCtx, app: &App, onstreet: bool, offstreet: bool) -> Occupancy {
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        onstreet: bool,
+        offstreet: bool,
+        lots: bool,
+    ) -> Occupancy {
         let (mut filled_spots, mut avail_spots) = app.primary.sim.get_all_parking_spots();
         filled_spots.retain(|spot| match spot {
             ParkingSpot::Onstreet(_, _) => onstreet,
             ParkingSpot::Offstreet(_, _) => offstreet,
+            ParkingSpot::Lot(_, _) => lots,
         });
         avail_spots.retain(|spot| match spot {
             ParkingSpot::Onstreet(_, _) => onstreet,
             ParkingSpot::Offstreet(_, _) => offstreet,
+            ParkingSpot::Lot(_, _) => lots,
         });
 
         let mut total_ppl = 0;
@@ -116,12 +129,9 @@ impl Occupancy {
                 ])
                 .draw(ctx)
                 .margin_below(10),
-                Widget::row(vec![
-                    Checkbox::text(ctx, "On-street spots", None, onstreet),
-                    Checkbox::text(ctx, "Off-street spots", None, offstreet),
-                ])
-                .evenly_spaced()
-                .margin_below(10),
+                Checkbox::text(ctx, "On-street spots", None, onstreet).margin_below(5),
+                Checkbox::text(ctx, "Off-street spots", None, offstreet).margin_below(5),
+                Checkbox::text(ctx, "Parking lots", None, lots).margin_below(10),
                 ColorLegend::scale(
                     ctx,
                     app.cs.good_to_bad.to_vec(),
@@ -155,6 +165,7 @@ impl Occupancy {
                 .unwrap()
                 .driving_pos
                 .lane(),
+            ParkingSpot::Lot(pl, _) => app.primary.map.get_pl(pl).driving_pos.lane(),
         };
 
         let mut filled = Counter::new();
@@ -193,6 +204,7 @@ impl Occupancy {
             time: app.primary.sim.time(),
             onstreet,
             offstreet,
+            lots,
             unzoomed: colorer.build_both(ctx, app).unzoomed,
             composite,
         }

@@ -266,6 +266,7 @@ fn seed_parked_cars(
         let r = match spot {
             ParkingSpot::Onstreet(l, _) => map.get_l(l).parent,
             ParkingSpot::Offstreet(b, _) => map.get_l(map.get_b(b).sidewalk()).parent,
+            ParkingSpot::Lot(pl, _) => map.get_l(map.get_pl(pl).driving_pos.lane()).parent,
         };
         open_spots_per_road
             .entry(r)

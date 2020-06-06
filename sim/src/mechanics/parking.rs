@@ -3,11 +3,10 @@ use abstutil::{
     deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap, MultiMap,
     Timer,
 };
-use geom::{Distance, Pt2D};
-use map_model;
+use geom::{Distance, PolyLine, Pt2D};
 use map_model::{
-    BuildingID, Lane, LaneID, LaneType, Map, PathConstraints, PathStep, Position, Traversable,
-    TurnID,
+    BuildingID, Lane, LaneID, LaneType, Map, ParkingLotID, PathConstraints, PathStep, Position,
+    Traversable, TurnID,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, BinaryHeap, HashMap};
@@ -26,7 +25,7 @@ pub struct ParkingSimState {
     occupants: BTreeMap<ParkingSpot, CarID>,
     reserved_spots: BTreeSet<ParkingSpot>,
 
-    // On-street specific
+    // On-street
     onstreet_lanes: BTreeMap<LaneID, ParkingLane>,
     // TODO Really this could be 0, 1, or 2 lanes. Full MultiMap is overkill.
     #[serde(
@@ -35,13 +34,21 @@ pub struct ParkingSimState {
     )]
     driving_to_parking_lanes: MultiMap<LaneID, LaneID>,
 
-    // Off-street specific
+    // Off-street
     num_spots_per_offstreet: BTreeMap<BuildingID, usize>,
     #[serde(
         serialize_with = "serialize_multimap",
         deserialize_with = "deserialize_multimap"
     )]
     driving_to_offstreet: MultiMap<LaneID, BuildingID>,
+
+    // Parking lots
+    num_spots_per_lot: BTreeMap<ParkingLotID, usize>,
+    #[serde(
+        serialize_with = "serialize_multimap",
+        deserialize_with = "deserialize_multimap"
+    )]
+    driving_to_lots: MultiMap<LaneID, ParkingLotID>,
 
     events: Vec<Event>,
 }
@@ -59,6 +66,8 @@ impl ParkingSimState {
             driving_to_parking_lanes: MultiMap::new(),
             num_spots_per_offstreet: BTreeMap::new(),
             driving_to_offstreet: MultiMap::new(),
+            num_spots_per_lot: BTreeMap::new(),
+            driving_to_lots: MultiMap::new(),
 
             events: Vec::new(),
         };
@@ -74,6 +83,16 @@ impl ParkingSimState {
                     sim.num_spots_per_offstreet.insert(b.id, p.num_spots);
                     sim.driving_to_offstreet.insert(p.driving_pos.lane(), b.id);
                 }
+            }
+        }
+        for pl in map.all_parking_lots() {
+            // TODO Parking lots without any spots shouldn't be possible
+            if pl.spots.is_empty() {
+                continue;
+            }
+            if map.get_l(pl.driving_pos.lane()).parking_blackhole.is_none() {
+                sim.num_spots_per_lot.insert(pl.id, pl.spots.len());
+                sim.driving_to_lots.insert(pl.driving_pos.lane(), pl.id);
             }
         }
         sim
@@ -102,6 +121,17 @@ impl ParkingSimState {
         spots
     }
 
+    pub fn get_free_lot_spots(&self, pl: ParkingLotID) -> Vec<ParkingSpot> {
+        let mut spots: Vec<ParkingSpot> = Vec::new();
+        for idx in 0..self.num_spots_per_lot.get(&pl).cloned().unwrap_or(0) {
+            let spot = ParkingSpot::Lot(pl, idx);
+            if self.is_free(spot) {
+                spots.push(spot);
+            }
+        }
+        spots
+    }
+
     pub fn reserve_spot(&mut self, spot: ParkingSpot) {
         assert!(self.is_free(spot));
         self.reserved_spots.insert(spot);
@@ -113,6 +143,9 @@ impl ParkingSimState {
             }
             ParkingSpot::Offstreet(b, idx) => {
                 assert!(idx < self.num_spots_per_offstreet[&b]);
+            }
+            ParkingSpot::Lot(pl, idx) => {
+                assert!(idx < self.num_spots_per_lot[&pl]);
             }
         }
     }
@@ -153,6 +186,18 @@ impl ParkingSimState {
         cars
     }
 
+    pub fn get_draw_cars_in_lots(&self, id: LaneID, map: &Map) -> Vec<DrawCarInput> {
+        let mut cars = Vec::new();
+        for pl in self.driving_to_lots.get(id) {
+            for idx in 0..self.num_spots_per_lot[&pl] {
+                if let Some(car) = self.occupants.get(&ParkingSpot::Lot(*pl, idx)) {
+                    cars.push(self.get_draw_car(*car, map).unwrap());
+                }
+            }
+        }
+        cars
+    }
+
     pub fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput> {
         let p = self.parked_cars.get(&id)?;
         match p.spot {
@@ -172,6 +217,24 @@ impl ParkingSimState {
                 })
             }
             ParkingSpot::Offstreet(_, _) => None,
+            ParkingSpot::Lot(pl, idx) => {
+                let pl = map.get_pl(pl);
+                let (pt, angle) = pl.spots[idx];
+                let buffer = Distance::meters(0.5);
+                Some(DrawCarInput {
+                    id: p.vehicle.id,
+                    waiting_for_turn: None,
+                    status: CarStatus::Parked,
+                    // Just used for z-order
+                    on: Traversable::Lane(pl.driving_pos.lane()),
+                    label: None,
+
+                    body: PolyLine::new(vec![
+                        pt.project_away(buffer, angle),
+                        pt.project_away(map_model::PARKING_LOT_SPOT_LENGTH - buffer, angle),
+                    ]),
+                })
+            }
         }
     }
 
@@ -179,7 +242,9 @@ impl ParkingSimState {
     pub fn canonical_pt(&self, id: CarID, map: &Map) -> Option<Pt2D> {
         let p = self.parked_cars.get(&id)?;
         match p.spot {
-            ParkingSpot::Onstreet(_, _) => self.get_draw_car(id, map).map(|c| c.body.last_pt()),
+            ParkingSpot::Onstreet(_, _) | ParkingSpot::Lot(_, _) => {
+                self.get_draw_car(id, map).map(|c| c.body.last_pt())
+            }
             ParkingSpot::Offstreet(b, _) => Some(map.get_b(b).label_center),
         }
     }
@@ -241,6 +306,18 @@ impl ParkingSimState {
             }
         }
 
+        for pl in self.driving_to_lots.get(driving_pos.lane()) {
+            let lot_dist = map.get_pl(*pl).driving_pos.dist_along();
+            if driving_pos.dist_along() < lot_dist {
+                for idx in 0..self.num_spots_per_lot[&pl] {
+                    let spot = ParkingSpot::Lot(*pl, idx);
+                    if self.is_free(spot) {
+                        candidates.push(spot);
+                    }
+                }
+            }
+        }
+
         candidates
             .into_iter()
             .map(|spot| (spot, self.spot_to_driving_pos(spot, vehicle, map)))
@@ -258,6 +335,7 @@ impl ParkingSimState {
                 )
             }
             ParkingSpot::Offstreet(b, _) => map.get_b(b).parking.as_ref().unwrap().driving_pos,
+            ParkingSpot::Lot(pl, _) => map.get_pl(pl).driving_pos,
         }
     }
 
@@ -273,17 +351,8 @@ impl ParkingSimState {
                 .equiv_pos(lane.sidewalk, Distance::ZERO, map)
             }
             ParkingSpot::Offstreet(b, _) => map.get_b(b).front_path.sidewalk,
+            ParkingSpot::Lot(pl, _) => map.get_pl(pl).sidewalk_pos,
         }
-    }
-
-    pub fn get_offstreet_parked_cars(&self, b: BuildingID) -> Vec<&ParkedCar> {
-        let mut results = Vec::new();
-        for idx in 0..self.num_spots_per_offstreet.get(&b).cloned().unwrap_or(0) {
-            if let Some(car) = self.occupants.get(&ParkingSpot::Offstreet(b, idx)) {
-                results.push(&self.parked_cars[&car]);
-            }
-        }
-        results
     }
 
     pub fn get_owner_of_car(&self, id: CarID) -> Option<PersonID> {
@@ -295,29 +364,30 @@ impl ParkingSimState {
 
     // (Filled, available)
     pub fn get_all_parking_spots(&self) -> (Vec<ParkingSpot>, Vec<ParkingSpot>) {
-        let mut filled = Vec::new();
-        let mut available = Vec::new();
-
+        let mut spots = Vec::new();
         for lane in self.onstreet_lanes.values() {
-            for spot in lane.spots() {
-                if self.is_free(spot) {
-                    available.push(spot);
-                } else {
-                    filled.push(spot);
-                }
-            }
+            spots.extend(lane.spots());
         }
         for (b, num_spots) in &self.num_spots_per_offstreet {
             for idx in 0..*num_spots {
-                let spot = ParkingSpot::Offstreet(*b, idx);
-                if self.is_free(spot) {
-                    available.push(spot);
-                } else {
-                    filled.push(spot);
-                }
+                spots.push(ParkingSpot::Offstreet(*b, idx));
+            }
+        }
+        for (pl, num_spots) in &self.num_spots_per_lot {
+            for idx in 0..*num_spots {
+                spots.push(ParkingSpot::Lot(*pl, idx));
             }
         }
 
+        let mut filled = Vec::new();
+        let mut available = Vec::new();
+        for spot in spots {
+            if self.is_free(spot) {
+                available.push(spot);
+            } else {
+                filled.push(spot);
+            }
+        }
         (filled, available)
     }
 

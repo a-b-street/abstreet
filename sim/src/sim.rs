@@ -235,10 +235,6 @@ impl Sim {
         self.parking.add_parked_car(ParkedCar { vehicle, spot });
     }
 
-    pub fn get_offstreet_parked_cars(&self, bldg: BuildingID) -> Vec<&ParkedCar> {
-        self.parking.get_offstreet_parked_cars(bldg)
-    }
-
     pub fn seed_bus_route(&mut self, route: &BusRoute, map: &Map, timer: &mut Timer) -> Vec<CarID> {
         let mut results: Vec<CarID> = Vec::new();
 
@@ -337,13 +333,18 @@ impl GetDrawAgents for Sim {
     }
 
     fn get_draw_cars(&self, on: Traversable, map: &Map) -> Vec<DrawCarInput> {
+        let mut results = Vec::new();
         if let Traversable::Lane(l) = on {
             if map.get_l(l).is_parking() {
                 return self.parking.get_draw_cars(l, map);
             }
+            results.extend(self.parking.get_draw_cars_in_lots(l, map));
         }
-        self.driving
-            .get_draw_cars_on(self.time, on, map, &self.transit)
+        results.extend(
+            self.driving
+                .get_draw_cars_on(self.time, on, map, &self.transit),
+        );
+        results
     }
 
     fn get_draw_peds(

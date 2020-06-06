@@ -120,7 +120,9 @@ impl State for PickLayer {
                     app.layer = None;
                 }
                 "parking occupancy" => {
-                    app.layer = Some(Box::new(parking::Occupancy::new(ctx, app, true, true)));
+                    app.layer = Some(Box::new(parking::Occupancy::new(
+                        ctx, app, true, true, true,
+                    )));
                 }
                 "delay" => {
                     app.layer = Some(Box::new(traffic::Dynamic::delay(ctx, app)));

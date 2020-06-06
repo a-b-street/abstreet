@@ -35,8 +35,8 @@ pub use crate::render::{
 use abstutil::Cloneable;
 use geom::{Distance, Pt2D, Speed, Time};
 use map_model::{
-    BuildingID, BusStopID, DirectedRoadID, IntersectionID, LaneID, Map, Path, PathConstraints,
-    PathRequest, Position,
+    BuildingID, BusStopID, DirectedRoadID, IntersectionID, LaneID, Map, ParkingLotID, Path,
+    PathConstraints, PathRequest, Position,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -186,6 +186,7 @@ pub enum ParkingSpot {
     Onstreet(LaneID, usize),
     // Building and idx (pretty meaningless)
     Offstreet(BuildingID, usize),
+    Lot(ParkingLotID, usize),
 }
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
@@ -266,6 +267,21 @@ impl DrivingGoal {
 pub struct SidewalkSpot {
     pub connection: SidewalkPOI,
     pub sidewalk_pos: Position,
+}
+
+// Point of interest, that is
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum SidewalkPOI {
+    // Note that for offstreet parking, the path will be the same as the building's front path.
+    ParkingSpot(ParkingSpot),
+    // Don't actually know where this goes yet!
+    DeferredParkingSpot,
+    Building(BuildingID),
+    BusStop(BusStopID),
+    Border(IntersectionID, Option<OffMapLocation>),
+    // The equivalent position on the nearest driving/bike lane
+    BikeRack(Position),
+    SuddenlyAppear,
 }
 
 impl SidewalkSpot {
@@ -393,21 +409,6 @@ impl SidewalkSpot {
             connection: SidewalkPOI::SuddenlyAppear,
         }
     }
-}
-
-// Point of interest, that is
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub enum SidewalkPOI {
-    // Note that for offstreet parking, the path will be the same as the building's front path.
-    ParkingSpot(ParkingSpot),
-    // Don't actually know where this goes yet!
-    DeferredParkingSpot,
-    Building(BuildingID),
-    BusStop(BusStopID),
-    Border(IntersectionID, Option<OffMapLocation>),
-    // The equivalent position on the nearest driving/bike lane
-    BikeRack(Position),
-    SuddenlyAppear,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]

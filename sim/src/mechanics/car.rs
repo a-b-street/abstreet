@@ -119,9 +119,16 @@ impl Car {
                         };
                         raw_body.shift_right(shift).unwrap()
                     }
-                    ParkingSpot::Offstreet(b, _) => {
+                    _ => {
+                        let driveway = match spot {
+                            ParkingSpot::Offstreet(b, _) => {
+                                &map.get_b(*b).parking.as_ref().unwrap().driveway_line
+                            }
+                            ParkingSpot::Lot(pl, _) => &map.get_pl(*pl).driveway_line,
+                            _ => unreachable!(),
+                        };
+
                         // Append the car's polyline on the street with the driveway
-                        let driveway = &map.get_b(*b).parking.as_ref().unwrap().driveway_line;
                         let full_piece = if is_parking {
                             raw_body.extend(driveway.reversed())
                         } else {

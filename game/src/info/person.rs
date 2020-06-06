@@ -448,7 +448,7 @@ pub fn parked_car(
 
     if let Some(p) = app.primary.sim.lookup_parked_car(id) {
         match p.spot {
-            ParkingSpot::Onstreet(_, _) => {
+            ParkingSpot::Onstreet(_, _) | ParkingSpot::Lot(_, _) => {
                 ctx.canvas.center_on_map_pt(
                     app.primary
                         .sim

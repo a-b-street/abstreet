@@ -10,6 +10,9 @@ use std::fmt;
 
 // Bit longer than the longest car.
 pub const PARKING_SPOT_LENGTH: Distance = Distance::const_meters(8.0);
+// The full PARKING_SPOT_LENGTH used for on-street is looking too conservative for some manually
+// audited cases in Seattle. This is 0.8 of above
+pub const PARKING_LOT_SPOT_LENGTH: Distance = Distance::const_meters(6.4);
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]

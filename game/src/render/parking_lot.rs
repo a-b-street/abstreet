@@ -5,7 +5,8 @@ use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Drawable, GeomBatch, GfxCtx, Prerender};
 use geom::{Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{
-    Map, ParkingLot, ParkingLotID, NORMAL_LANE_THICKNESS, PARKING_SPOT_LENGTH, SIDEWALK_THICKNESS,
+    Map, ParkingLot, ParkingLotID, NORMAL_LANE_THICKNESS, PARKING_LOT_SPOT_LENGTH,
+    SIDEWALK_THICKNESS,
 };
 
 pub struct DrawParkingLot {
@@ -62,7 +63,7 @@ impl DrawParkingLot {
             );
         }
         let width = NORMAL_LANE_THICKNESS;
-        let height = 0.8 * PARKING_SPOT_LENGTH;
+        let height = PARKING_LOT_SPOT_LENGTH;
         for (pt, angle) in &lot.spots {
             let left = pt.project_away(width / 2.0, angle.rotate_degs(90.0));
             let right = pt.project_away(width / 2.0, angle.rotate_degs(-90.0));

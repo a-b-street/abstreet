@@ -139,6 +139,7 @@ impl Tab {
             Tab::ParkedCar(c) => match app.primary.sim.lookup_parked_car(*c)?.spot {
                 ParkingSpot::Onstreet(_, _) => Some(ID::Car(*c)),
                 ParkingSpot::Offstreet(b, _) => Some(ID::Building(b)),
+                ParkingSpot::Lot(_, _) => Some(ID::Car(*c)),
             },
             Tab::BldgInfo(b) | Tab::BldgPeople(b) => Some(ID::Building(*b)),
             Tab::ParkingLot(pl) => Some(ID::ParkingLot(*pl)),
