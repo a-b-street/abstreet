@@ -6,7 +6,9 @@ use crate::{
 };
 use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
 use geom::{Distance, Duration, Line, PolyLine, Speed, Time};
-use map_model::{BuildingID, BusRouteID, Map, Path, PathStep, Traversable, SIDEWALK_THICKNESS};
+use map_model::{
+    BuildingID, BusRouteID, Map, ParkingLotID, Path, PathStep, Traversable, SIDEWALK_THICKNESS,
+};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
@@ -73,6 +75,10 @@ impl WalkingSimState {
                     TimeInterval::new(now, now + map.get_b(b).front_path.line.length() / ped.speed),
                 )
             }
+            SidewalkPOI::ParkingSpot(ParkingSpot::Lot(pl, _)) => PedState::LeavingParkingLot(
+                pl,
+                TimeInterval::new(now, now + map.get_pl(pl).sidewalk_line.length() / ped.speed),
+            ),
             SidewalkPOI::BikeRack(driving_pos) => PedState::FinishingBiking(
                 params.start.clone(),
                 Line::new(driving_pos.pt(map), params.start.sidewalk_pos.pt(map)),
@@ -122,18 +128,30 @@ impl WalkingSimState {
                 if ped.path.is_last_step() {
                     match ped.goal.connection {
                         SidewalkPOI::ParkingSpot(spot) => {
-                            self.peds_per_traversable
-                                .remove(ped.path.current_step().as_traversable(), ped.id);
-                            trips.ped_reached_parking_spot(
-                                now,
-                                ped.id,
-                                spot,
-                                ped.total_blocked_time,
-                                map,
-                                parking,
-                                scheduler,
-                            );
-                            self.peds.remove(&id);
+                            if let ParkingSpot::Lot(pl, _) = spot {
+                                ped.state = PedState::EnteringParkingLot(
+                                    pl,
+                                    TimeInterval::new(
+                                        now,
+                                        now + map.get_pl(pl).sidewalk_line.length() / ped.speed,
+                                    ),
+                                );
+                                scheduler
+                                    .push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
+                            } else {
+                                self.peds_per_traversable
+                                    .remove(ped.path.current_step().as_traversable(), ped.id);
+                                trips.ped_reached_parking_spot(
+                                    now,
+                                    ped.id,
+                                    spot,
+                                    ped.total_blocked_time,
+                                    map,
+                                    parking,
+                                    scheduler,
+                                );
+                                self.peds.remove(&id);
+                            }
                         }
                         SidewalkPOI::Building(b) => {
                             ped.state = PedState::EnteringBuilding(
@@ -240,6 +258,27 @@ impl WalkingSimState {
                     now,
                     ped.id,
                     bldg,
+                    ped.total_blocked_time,
+                    map,
+                    parking,
+                    scheduler,
+                );
+                self.peds.remove(&id);
+            }
+            PedState::LeavingParkingLot(pl, _) => {
+                ped.state = ped.crossing_state(map.get_pl(pl).sidewalk_pos.dist_along(), now, map);
+                scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
+            }
+            PedState::EnteringParkingLot(_, _) => {
+                self.peds_per_traversable
+                    .remove(ped.path.current_step().as_traversable(), ped.id);
+                trips.ped_reached_parking_spot(
+                    now,
+                    ped.id,
+                    match ped.goal.connection {
+                        SidewalkPOI::ParkingSpot(spot) => spot,
+                        _ => unreachable!(),
+                    },
                     ped.total_blocked_time,
                     map,
                     parking,
@@ -364,10 +403,11 @@ impl WalkingSimState {
         on: Traversable,
         map: &Map,
     ) -> (Vec<DrawPedestrianInput>, Vec<DrawPedCrowdInput>) {
-        // Classify into direction-based groups or by building front path.
+        // Classify into direction-based groups or by building/parking lot front path.
         let mut forwards: Vec<(PedestrianID, Distance)> = Vec::new();
         let mut backwards: Vec<(PedestrianID, Distance)> = Vec::new();
-        let mut front_path: MultiMap<BuildingID, (PedestrianID, Distance)> = MultiMap::new();
+        let mut bldg_front_path: MultiMap<BuildingID, (PedestrianID, Distance)> = MultiMap::new();
+        let mut lot_front_path: MultiMap<ParkingLotID, (PedestrianID, Distance)> = MultiMap::new();
 
         for id in self.peds_per_traversable.get(on) {
             let ped = &self.peds[id];
@@ -390,11 +430,19 @@ impl WalkingSimState {
                 }
                 PedState::LeavingBuilding(b, ref int) => {
                     let len = map.get_b(b).front_path.line.length();
-                    front_path.insert(b, (*id, int.percent(now) * len));
+                    bldg_front_path.insert(b, (*id, int.percent(now) * len));
                 }
                 PedState::EnteringBuilding(b, ref int) => {
                     let len = map.get_b(b).front_path.line.length();
-                    front_path.insert(b, (*id, (1.0 - int.percent(now)) * len));
+                    bldg_front_path.insert(b, (*id, (1.0 - int.percent(now)) * len));
+                }
+                PedState::LeavingParkingLot(pl, ref int) => {
+                    let len = map.get_pl(pl).sidewalk_line.length();
+                    lot_front_path.insert(pl, (*id, int.percent(now) * len));
+                }
+                PedState::EnteringParkingLot(pl, ref int) => {
+                    let len = map.get_pl(pl).sidewalk_line.length();
+                    lot_front_path.insert(pl, (*id, (1.0 - int.percent(now)) * len));
                 }
                 PedState::StartingToBike(_, _, _)
                 | PedState::FinishingBiking(_, _, _)
@@ -422,11 +470,18 @@ impl WalkingSimState {
             ),
         ]
         .into_iter()
-        .chain(front_path.consume().into_iter().map(|(b, set)| {
+        .chain(bldg_front_path.consume().into_iter().map(|(b, set)| {
             (
                 set.into_iter().collect::<Vec<_>>(),
-                PedCrowdLocation::FrontPath(b),
+                PedCrowdLocation::BldgFrontPath(b),
                 map.get_b(b).front_path.line.length(),
+            )
+        }))
+        .chain(lot_front_path.consume().into_iter().map(|(pl, set)| {
+            (
+                set.into_iter().collect::<Vec<_>>(),
+                PedCrowdLocation::LotFrontPath(pl),
+                map.get_pl(pl).sidewalk_line.length(),
             )
         })) {
             if group.is_empty() {
@@ -493,8 +548,12 @@ impl Pedestrian {
         match self.state {
             PedState::Crossing(ref dist_int, ref time_int) => dist_int.lerp(time_int.percent(now)),
             PedState::WaitingToTurn(dist, _) => dist,
-            PedState::LeavingBuilding(b, _) => map.get_b(b).front_path.sidewalk.dist_along(),
-            PedState::EnteringBuilding(b, _) => map.get_b(b).front_path.sidewalk.dist_along(),
+            PedState::LeavingBuilding(b, _) | PedState::EnteringBuilding(b, _) => {
+                map.get_b(b).front_path.sidewalk.dist_along()
+            }
+            PedState::LeavingParkingLot(pl, _) | PedState::EnteringParkingLot(pl, _) => {
+                map.get_pl(pl).sidewalk_pos.dist_along()
+            }
             PedState::StartingToBike(ref spot, _, _) => spot.sidewalk_pos.dist_along(),
             PedState::FinishingBiking(ref spot, _, _) => spot.sidewalk_pos.dist_along(),
             PedState::WaitingForBus(_, _) => self.goal.sidewalk_pos.dist_along(),
@@ -540,22 +599,33 @@ impl Pedestrian {
                 )
             }
             PedState::LeavingBuilding(b, ref time_int) => {
-                let front_path = &map.get_b(b).front_path;
+                let line = &map.get_b(b).front_path.line;
                 (
-                    front_path
-                        .line
-                        .dist_along(time_int.percent(now) * front_path.line.length()),
-                    front_path.line.angle(),
+                    line.dist_along(time_int.percent(now) * line.length()),
+                    line.angle(),
                 )
             }
             PedState::EnteringBuilding(b, ref time_int) => {
-                let front_path = &map.get_b(b).front_path;
+                let line = &map.get_b(b).front_path.line;
                 (
-                    front_path
-                        .line
-                        .reverse()
-                        .dist_along(time_int.percent(now) * front_path.line.length()),
-                    front_path.line.angle().opposite(),
+                    line.reverse()
+                        .dist_along(time_int.percent(now) * line.length()),
+                    line.angle().opposite(),
+                )
+            }
+            PedState::LeavingParkingLot(pl, ref time_int) => {
+                let line = &map.get_pl(pl).sidewalk_line;
+                (
+                    line.dist_along(time_int.percent(now) * line.length()),
+                    line.angle(),
+                )
+            }
+            PedState::EnteringParkingLot(pl, ref time_int) => {
+                let line = &map.get_pl(pl).sidewalk_line;
+                (
+                    line.reverse()
+                        .dist_along(time_int.percent(now) * line.length()),
+                    line.angle().opposite(),
                 )
             }
             PedState::StartingToBike(_, ref line, ref time_int) => {
@@ -639,6 +709,8 @@ enum PedState {
     WaitingToTurn(Distance, Time),
     LeavingBuilding(BuildingID, TimeInterval),
     EnteringBuilding(BuildingID, TimeInterval),
+    LeavingParkingLot(ParkingLotID, TimeInterval),
+    EnteringParkingLot(ParkingLotID, TimeInterval),
     StartingToBike(SidewalkSpot, Line, TimeInterval),
     FinishingBiking(SidewalkSpot, Line, TimeInterval),
     WaitingForBus(BusRouteID, Time),
@@ -651,6 +723,8 @@ impl PedState {
             PedState::WaitingToTurn(_, _) => unreachable!(),
             PedState::LeavingBuilding(_, ref time_int) => time_int.end,
             PedState::EnteringBuilding(_, ref time_int) => time_int.end,
+            PedState::LeavingParkingLot(_, ref time_int) => time_int.end,
+            PedState::EnteringParkingLot(_, ref time_int) => time_int.end,
             PedState::StartingToBike(_, _, ref time_int) => time_int.end,
             PedState::FinishingBiking(_, _, ref time_int) => time_int.end,
             PedState::WaitingForBus(_, _) => unreachable!(),

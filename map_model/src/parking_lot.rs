@@ -6,6 +6,12 @@ use std::fmt;
 // TODO For now, ignore the mapped roads linking things and just use the same driveway approach
 // that buildings use.
 
+// TODO Nits:
+// - handle relations with individual slots, like https://www.openstreetmap.org/relation/2580595?
+// - Northlake: onstreet or a lot?
+// - E1 at UW filtered out
+// - aisle clipping isnt perfect (23rd and rainier, pepsi)
+
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct ParkingLotID(pub usize);
 

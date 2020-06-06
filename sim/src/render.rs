@@ -1,6 +1,6 @@
 use crate::{CarID, PedestrianID, PersonID, VehicleType};
 use geom::{Angle, Distance, PolyLine, Pt2D, Time};
-use map_model::{BuildingID, Map, Traversable, TurnID};
+use map_model::{BuildingID, Map, ParkingLotID, Traversable, TurnID};
 
 // Intermediate structures so that sim and game crates don't have a cyclic dependency.
 #[derive(Clone)]
@@ -25,7 +25,8 @@ pub struct DrawPedCrowdInput {
 pub enum PedCrowdLocation {
     // bool is contraflow
     Sidewalk(Traversable, bool),
-    FrontPath(BuildingID),
+    BldgFrontPath(BuildingID),
+    LotFrontPath(ParkingLotID),
 }
 
 #[derive(Clone)]
