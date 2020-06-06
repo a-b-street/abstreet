@@ -92,9 +92,10 @@ impl WidgetImpl for Spinner {
             text::BG_COLOR,
             Polygon::rounded_rectangle(self.dims.width, self.dims.height, Some(5.0)),
         )]);
-        batch.add_centered(
-            Text::from(Line(self.current.to_string())).render_to_batch(g.prerender),
-            Pt2D::new(TEXT_WIDTH / 2.0, self.dims.height / 2.0),
+        batch.append(
+            Text::from(Line(self.current.to_string()))
+                .render_to_batch(g.prerender)
+                .centered_on(Pt2D::new(TEXT_WIDTH / 2.0, self.dims.height / 2.0)),
         );
         let draw = g.upload(batch);
         g.redraw_at(self.top_left, &draw);

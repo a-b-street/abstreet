@@ -143,20 +143,14 @@ pub fn current_demand(
         );
     }
     batch.append(txt_batch);
-    let mut transformed_batch = GeomBatch::new();
-    for (color, poly) in batch.consume() {
-        transformed_batch.fancy_push(
-            color,
-            poly.translate(-bounds.min_x, -bounds.min_y).scale(zoom),
-        );
-    }
+    let batch = batch.translate(-bounds.min_x, -bounds.min_y).scale(zoom);
 
     let mut txt = Text::from(Line(format!(
         "How many active trips will cross this intersection?"
     )));
     txt.add(Line(format!("Total: {}", prettyprint_usize(total_demand))).secondary());
     rows.push(txt.draw(ctx));
-    rows.push(Widget::draw_batch(ctx, transformed_batch));
+    rows.push(Widget::draw_batch(ctx, batch));
 
     rows
 }

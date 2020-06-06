@@ -27,16 +27,15 @@ impl AlmostDrawLane {
             let mut dist = buffer;
             while dist + buffer <= len {
                 let (pt, angle) = lane.lane_center_pts.dist_along(dist);
-                self.draw_default.add_svg(
-                    prerender,
-                    "../data/system/assets/map/bus_only.svg",
-                    pt,
-                    0.06,
-                    angle
-                        .shortest_rotation_towards(Angle::new_degs(-90.0))
-                        .invert_y(),
-                    RewriteColor::NoOp,
-                    true,
+                self.draw_default.append(
+                    GeomBatch::mapspace_svg(prerender, "../data/system/assets/map/bus_only.svg")
+                        .scale(0.06)
+                        .centered_on(pt)
+                        .rotate(
+                            angle
+                                .shortest_rotation_towards(Angle::new_degs(-90.0))
+                                .invert_y(),
+                        ),
                 );
                 dist += btwn;
             }
@@ -48,16 +47,15 @@ impl AlmostDrawLane {
             let mut dist = buffer;
             while dist + buffer <= len {
                 let (pt, angle) = lane.lane_center_pts.dist_along(dist);
-                self.draw_default.add_svg(
-                    prerender,
-                    "../data/system/assets/meters/bike.svg",
-                    pt,
-                    0.06,
-                    angle
-                        .shortest_rotation_towards(Angle::new_degs(-90.0))
-                        .invert_y(),
-                    RewriteColor::NoOp,
-                    true,
+                self.draw_default.append(
+                    GeomBatch::mapspace_svg(prerender, "../data/system/assets/meters/bike.svg")
+                        .scale(0.06)
+                        .centered_on(pt)
+                        .rotate(
+                            angle
+                                .shortest_rotation_towards(Angle::new_degs(-90.0))
+                                .invert_y(),
+                        ),
                 );
                 dist += btwn;
             }

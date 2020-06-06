@@ -2,8 +2,8 @@ use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use ezgui::{Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor};
-use geom::{Angle, Distance, Line, PolyLine, Polygon, Pt2D};
+use ezgui::{Drawable, GeomBatch, GfxCtx, Prerender};
+use geom::{Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{
     Map, ParkingLot, ParkingLotID, NORMAL_LANE_THICKNESS, PARKING_SPOT_LENGTH, SIDEWALK_THICKNESS,
 };
@@ -28,14 +28,10 @@ impl DrawParkingLot {
                 PolyLine::unchecked_new(aisle.clone()).make_polygons(aisle_thickness),
             );
         }
-        unzoomed_batch.add_svg(
-            prerender,
-            "../data/system/assets/map/parking.svg",
-            lot.polygon.polylabel(),
-            0.05,
-            Angle::ZERO,
-            RewriteColor::NoOp,
-            true,
+        unzoomed_batch.append(
+            GeomBatch::mapspace_svg(prerender, "../data/system/assets/map/parking.svg")
+                .scale(0.05)
+                .centered_on(lot.polygon.polylabel()),
         );
 
         // Trim the front path line away from the sidewalk's center line, so that it doesn't

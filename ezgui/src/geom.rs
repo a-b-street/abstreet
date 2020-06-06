@@ -32,7 +32,7 @@ impl GeomBatch {
     pub fn push(&mut self, color: Color, p: Polygon) {
         self.list.push((FancyColor::RGBA(color), p));
     }
-    // TODO Weird API too
+    // TODO Not sure about this
     pub fn fancy_push(&mut self, color: FancyColor, p: Polygon) {
         self.list.push((color, p));
     }
@@ -118,48 +118,22 @@ impl GeomBatch {
         }
     }
 
-    // TODO Weird API.
-    /// Adds an SVG image to the current batch, applying the transformations first.
-    pub fn add_svg(
-        &mut self,
-        prerender: &Prerender,
-        filename: &str,
-        center: Pt2D,
-        scale: f64,
-        rotate: Angle,
-        rewrite: RewriteColor,
-        map_space: bool,
-    ) {
-        self.append(
-            svg::load_svg(
-                prerender,
-                filename,
-                if map_space {
-                    1.0
-                } else {
-                    *prerender.assets.scale_factor.borrow()
-                },
-            )
-            .0
-            .scale(scale)
-            .centered_on(center)
-            .rotate(rotate)
-            .color(rewrite),
-        );
-    }
-
-    // TODO Weird API
-    /// Parse an SVG string and add it to the batch.
-    pub fn add_svg_contents(&mut self, raw: Vec<u8>) {
+    /// Returns a batch containing a parsed SVG string.
+    pub fn from_svg_contents(raw: Vec<u8>) -> GeomBatch {
+        let mut batch = GeomBatch::new();
         let svg_tree = usvg::Tree::from_data(&raw, &usvg::Options::default()).unwrap();
-        svg::add_svg_inner(self, svg_tree, svg::HIGH_QUALITY, 1.0).unwrap();
+        svg::add_svg_inner(&mut batch, svg_tree, svg::HIGH_QUALITY, 1.0).unwrap();
+        batch
     }
 
-    // TODO Weird API
-    /// Adds geometry from another batch to the current batch, first centering it on the given
-    /// point.
-    pub fn add_centered(&mut self, other: GeomBatch, center: Pt2D) {
-        self.append(other.centered_on(center));
+    /// Returns a batch containing an SVG from a file.
+    pub fn mapspace_svg(prerender: &Prerender, filename: &str) -> GeomBatch {
+        svg::load_svg(prerender, filename, 1.0).0
+    }
+
+    /// Returns a batch containing an SVG from a file. Uses the current screen's scale factor.
+    pub fn screenspace_svg(prerender: &Prerender, filename: &str) -> GeomBatch {
+        svg::load_svg(prerender, filename, *prerender.assets.scale_factor.borrow()).0
     }
 
     /// Transforms all colors in a batch.

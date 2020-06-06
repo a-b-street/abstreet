@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use ezgui::{Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor};
+use ezgui::{Drawable, GeomBatch, GfxCtx, Prerender};
 use geom::{Angle, Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{BusStop, BusStopID, Map};
 
@@ -25,22 +25,17 @@ impl DrawBusStop {
         );
 
         let mut icon = GeomBatch::new();
-        icon.add_svg(
-            prerender,
-            "../data/system/assets/meters/bus.svg",
-            center,
-            0.05,
-            // TODO Rotation seems broken
-            Angle::ZERO,
-            RewriteColor::NoOp,
-            true,
+        icon.append(
+            GeomBatch::mapspace_svg(prerender, "../data/system/assets/meters/bus.svg")
+                .scale(0.05)
+                .centered_on(center),
         );
         let mut batch = GeomBatch::new();
         batch.push(
             cs.bus_layer.alpha(0.8),
             Circle::new(center, RADIUS).to_polygon(),
         );
-        batch.add_centered(icon.autocrop(), center);
+        batch.append(icon.autocrop().centered_on(center));
         batch.push(
             cs.stop_sign_pole,
             Line::new(

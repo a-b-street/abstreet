@@ -221,11 +221,9 @@ pub fn bio(
 
     let mut svg_data = Vec::new();
     svg_face::generate_face(&mut svg_data, &mut rng).unwrap();
-    let mut batch = GeomBatch::new();
-    batch.add_svg_contents(svg_data);
-    batch = batch.autocrop();
+    let batch = GeomBatch::from_svg_contents(svg_data).autocrop();
     let dims = batch.get_dims();
-    batch = batch.scale((200.0 / dims.width).min(200.0 / dims.height));
+    let batch = batch.scale((200.0 / dims.width).min(200.0 / dims.height));
     rows.push(
         Widget::draw_batch(ctx, batch)
             .centered_horiz()

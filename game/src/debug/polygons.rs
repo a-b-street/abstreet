@@ -89,38 +89,40 @@ impl State for PolygonDebugger {
             as usize;
         match &self.items[idx] {
             Item::Point(pt) => {
-                batch.add_centered(
+                batch.append(
                     Text::from(Line(idx.to_string()))
                         .bg(app.cs.panel_bg)
-                        .render_g(g),
-                    g.canvas.map_to_screen(*pt).to_pt(),
+                        .render_g(g)
+                        .centered_on(g.canvas.map_to_screen(*pt).to_pt()),
                 );
             }
             Item::Triangle(ref tri) => {
                 for pt in &[tri.pt1, tri.pt2, tri.pt3] {
-                    batch.add_centered(
+                    batch.append(
                         Text::from(Line(idx.to_string()))
                             .bg(app.cs.panel_bg)
-                            .render_g(g),
-                        g.canvas.map_to_screen(*pt).to_pt(),
+                            .render_g(g)
+                            .centered_on(g.canvas.map_to_screen(*pt).to_pt()),
                     );
                 }
                 g.draw_polygon(app.cs.selected, &Polygon::from_triangle(tri));
             }
             Item::Polygon(ref poly) => {
                 g.draw_polygon(app.cs.selected, poly);
-                batch.add_centered(
+                batch.append(
                     Text::from(Line(idx.to_string()))
                         .bg(app.cs.panel_bg)
-                        .render_g(g),
-                    g.canvas.map_to_screen(poly.center()).to_pt(),
+                        .render_g(g)
+                        .centered_on(g.canvas.map_to_screen(poly.center()).to_pt()),
                 );
             }
         }
         if let Some(pt) = self.center {
-            batch.add_centered(
-                Text::from(Line("c")).bg(app.cs.panel_bg).render_g(g),
-                g.canvas.map_to_screen(pt).to_pt(),
+            batch.append(
+                Text::from(Line("c"))
+                    .bg(app.cs.panel_bg)
+                    .render_g(g)
+                    .centered_on(g.canvas.map_to_screen(pt).to_pt()),
             );
         }
 

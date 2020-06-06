@@ -6,7 +6,7 @@ use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, RewriteColor, Text, VerticalAlignment, Widget,
 };
-use geom::{Angle, Distance, LonLat, PolyLine, Polygon, Pt2D, Ring};
+use geom::{Distance, LonLat, PolyLine, Polygon, Pt2D, Ring};
 use serde::{Deserialize, Serialize};
 use sim::DontDrawAgents;
 
@@ -285,16 +285,12 @@ impl State for StoryMapEditor {
         match self.mode {
             Mode::PlacingMarker => {
                 if g.canvas.get_cursor_in_map_space().is_some() {
-                    let mut batch = GeomBatch::new();
-                    batch.add_svg(
+                    let batch = GeomBatch::screenspace_svg(
                         g.prerender,
                         "../data/system/assets/timeline/goal_pos.svg",
-                        g.canvas.get_cursor().to_pt(),
-                        1.0,
-                        Angle::ZERO,
-                        RewriteColor::Change(Color::hex("#5B5B5B"), Color::GREEN),
-                        false,
-                    );
+                    )
+                    .centered_on(g.canvas.get_cursor().to_pt())
+                    .color(RewriteColor::Change(Color::hex("#5B5B5B"), Color::GREEN));
                     g.fork_screenspace();
                     batch.draw(g);
                     g.unfork();
@@ -476,14 +472,17 @@ impl Marker {
         let mut batch = GeomBatch::new();
 
         let hitbox = if pts.len() == 1 {
-            batch.add_svg(
-                ctx.prerender,
-                "../data/system/assets/timeline/goal_pos.svg",
-                pts[0],
-                2.0,
-                Angle::ZERO,
-                RewriteColor::Change(Color::hex("#5B5B5B"), Color::hex("#FE3D00")),
-                false,
+            batch.append(
+                GeomBatch::screenspace_svg(
+                    ctx.prerender,
+                    "../data/system/assets/timeline/goal_pos.svg",
+                )
+                .scale(2.0)
+                .centered_on(pts[0])
+                .color(RewriteColor::Change(
+                    Color::hex("#5B5B5B"),
+                    Color::hex("#FE3D00"),
+                )),
             );
             batch.append(
                 Text::from(Line(&event))
@@ -520,14 +519,14 @@ impl Marker {
     fn draw_hovered(&self, g: &mut GfxCtx, app: &App) {
         let mut batch = GeomBatch::new();
         if self.pts.len() == 1 {
-            batch.add_svg(
-                g.prerender,
-                "../data/system/assets/timeline/goal_pos.svg",
-                self.pts[0],
-                2.0,
-                Angle::ZERO,
-                RewriteColor::Change(Color::hex("#5B5B5B"), app.cs.hovering),
-                false,
+            batch.append(
+                GeomBatch::screenspace_svg(
+                    g.prerender,
+                    "../data/system/assets/timeline/goal_pos.svg",
+                )
+                .scale(2.0)
+                .centered_on(self.pts[0])
+                .color(RewriteColor::Change(Color::hex("#5B5B5B"), app.cs.hovering)),
             );
             batch.append(
                 Text::from(Line(&self.event))

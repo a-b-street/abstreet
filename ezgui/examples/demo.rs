@@ -221,19 +221,10 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
         Color::hex("#4E30A6"),
         Polygon::rounded_rectangle(5000.0, 5000.0, Some(25.0)),
     );
-    // SVG support using lyon and usvg.
-    batch.add_svg(
-        &ctx.prerender,
-        "../data/system/assets/pregame/logo.svg",
-        // Translate
-        Pt2D::new(300.0, 300.0),
-        // Scale
-        1.0,
-        // Rotate
-        Angle::ZERO,
-        ezgui::RewriteColor::NoOp,
-        // Map-space (don't scale for high DPI monitors)
-        true,
+    // SVG support using lyon and usvg. Map-space means don't scale for high DPI monitors.
+    batch.append(
+        GeomBatch::mapspace_svg(&ctx.prerender, "../data/system/assets/pregame/logo.svg")
+            .translate(300.0, 300.0),
     );
     // Text rendering also goes through lyon and usvg.
     batch.append(

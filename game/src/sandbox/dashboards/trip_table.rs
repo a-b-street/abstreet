@@ -6,10 +6,10 @@ use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    Btn, Checkbox, Composite, EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome, RewriteColor,
-    ScreenDims, ScreenPt, Text, TextExt, Widget,
+    Btn, Checkbox, Composite, EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome, ScreenDims,
+    ScreenPt, Text, TextExt, Widget,
 };
-use geom::{Angle, Distance, Duration, Polygon, Pt2D, Time};
+use geom::{Distance, Duration, Polygon, Pt2D, Time};
 use sim::{TripEndpoint, TripID, TripMode};
 use std::collections::BTreeSet;
 
@@ -503,29 +503,21 @@ fn preview_route(g: &mut GfxCtx, app: &App, trip: TripID) -> GeomBatch {
     }
 
     let (_, start, end, _) = app.primary.sim.trip_info(trip);
-    batch.add_svg(
-        g.prerender,
-        "../data/system/assets/timeline/start_pos.svg",
-        match start {
-            TripEndpoint::Bldg(b) => app.primary.map.get_b(b).label_center,
-            TripEndpoint::Border(i, _) => app.primary.map.get_i(i).polygon.center(),
-        },
-        10.0,
-        Angle::ZERO,
-        RewriteColor::NoOp,
-        true,
+    batch.append(
+        GeomBatch::mapspace_svg(g.prerender, "../data/system/assets/timeline/start_pos.svg")
+            .scale(10.0)
+            .centered_on(match start {
+                TripEndpoint::Bldg(b) => app.primary.map.get_b(b).label_center,
+                TripEndpoint::Border(i, _) => app.primary.map.get_i(i).polygon.center(),
+            }),
     );
-    batch.add_svg(
-        g.prerender,
-        "../data/system/assets/timeline/goal_pos.svg",
-        match end {
-            TripEndpoint::Bldg(b) => app.primary.map.get_b(b).label_center,
-            TripEndpoint::Border(i, _) => app.primary.map.get_i(i).polygon.center(),
-        },
-        10.0,
-        Angle::ZERO,
-        RewriteColor::NoOp,
-        true,
+    batch.append(
+        GeomBatch::mapspace_svg(g.prerender, "../data/system/assets/timeline/goal_pos.svg")
+            .scale(10.0)
+            .centered_on(match end {
+                TripEndpoint::Bldg(b) => app.primary.map.get_b(b).label_center,
+                TripEndpoint::Border(i, _) => app.primary.map.get_i(i).polygon.center(),
+            }),
     );
 
     batch

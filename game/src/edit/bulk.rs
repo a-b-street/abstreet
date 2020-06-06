@@ -8,7 +8,7 @@ use ezgui::{
     hotkey, Btn, Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, RewriteColor, TextExt, VerticalAlignment, Widget,
 };
-use geom::{Angle, Distance, Speed};
+use geom::{Distance, Speed};
 use map_model::{EditCmd, IntersectionID, LaneType, Map, RoadID};
 use petgraph::graphmap::UnGraphMap;
 use sim::DontDrawAgents;
@@ -434,18 +434,17 @@ impl State for PaintSelect {
         }
         if self.mode != Mode::Pan && g.canvas.get_cursor_in_map_space().is_some() {
             let mut batch = GeomBatch::new();
-            batch.add_svg(
-                g.prerender,
-                if self.mode == Mode::Paint {
-                    "../data/system/assets/tools/pencil.svg"
-                } else {
-                    "../data/system/assets/tools/eraser.svg"
-                },
-                g.canvas.get_cursor().to_pt(),
-                1.0,
-                Angle::ZERO,
-                RewriteColor::ChangeAll(Color::GREEN),
-                false,
+            batch.append(
+                GeomBatch::screenspace_svg(
+                    g.prerender,
+                    if self.mode == Mode::Paint {
+                        "../data/system/assets/tools/pencil.svg"
+                    } else {
+                        "../data/system/assets/tools/eraser.svg"
+                    },
+                )
+                .centered_on(g.canvas.get_cursor().to_pt())
+                .color(RewriteColor::ChangeAll(Color::GREEN)),
             );
             g.fork_screenspace();
             batch.draw(g);

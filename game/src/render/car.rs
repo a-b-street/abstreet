@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, Text};
+use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Angle, ArrowCap, Distance, PolyLine, Polygon, Pt2D};
 use map_model::{Map, TurnType};
 use sim::{CarID, CarStatus, DrawCarInput, VehicleType};
@@ -61,14 +61,10 @@ impl DrawCar {
 
         draw_default.push(zoomed_color_car(&input, cs), body_polygon.clone());
         if input.status == CarStatus::Parked {
-            draw_default.add_svg(
-                prerender,
-                "../data/system/assets/map/parked_car.svg",
-                input.body.middle(),
-                0.01,
-                Angle::ZERO,
-                RewriteColor::NoOp,
-                true,
+            draw_default.append(
+                GeomBatch::mapspace_svg(prerender, "../data/system/assets/map/parked_car.svg")
+                    .scale(0.01)
+                    .centered_on(input.body.middle()),
             );
         }
 

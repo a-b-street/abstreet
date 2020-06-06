@@ -2,8 +2,8 @@ use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, Text};
-use geom::{Angle, Distance, Line, Polygon, Pt2D};
+use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
+use geom::{Distance, Line, Polygon, Pt2D};
 use map_model::{Building, BuildingID, Map, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
 use std::cell::RefCell;
 
@@ -49,14 +49,10 @@ impl DrawBuilding {
             .unwrap_or(false)
         {
             // Might need to scale down more for some buildings, but so far, this works everywhere.
-            bldg_batch.add_svg(
-                prerender,
-                "../data/system/assets/map/parking.svg",
-                bldg.label_center,
-                0.1,
-                Angle::ZERO,
-                RewriteColor::NoOp,
-                true,
+            bldg_batch.append(
+                GeomBatch::mapspace_svg(prerender, "../data/system/assets/map/parking.svg")
+                    .scale(0.1)
+                    .centered_on(bldg.label_center),
             );
         }
 

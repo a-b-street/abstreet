@@ -72,28 +72,23 @@ pub fn draw_signal_phase(
                     );
                 } else {
                     let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
-                    batch.add_svg(
-                        prerender,
-                        "../data/system/assets/map/walk.svg",
-                        center,
-                        0.07,
-                        angle,
-                        RewriteColor::ChangeAlpha(percent),
-                        true,
+                    batch.append(
+                        GeomBatch::mapspace_svg(prerender, "../data/system/assets/map/walk.svg")
+                            .scale(0.07)
+                            .centered_on(center)
+                            .rotate(angle)
+                            .color(RewriteColor::ChangeAlpha(percent)),
                     );
                     dont_walk.remove(g);
                 }
             }
             for g in dont_walk {
                 let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
-                batch.add_svg(
-                    prerender,
-                    "../data/system/assets/map/dont_walk.svg",
-                    center,
-                    0.07,
-                    angle,
-                    RewriteColor::NoOp,
-                    true,
+                batch.append(
+                    GeomBatch::mapspace_svg(prerender, "../data/system/assets/map/dont_walk.svg")
+                        .scale(0.07)
+                        .centered_on(center)
+                        .rotate(angle),
                 );
             }
             for g in &phase.yield_groups {
@@ -166,28 +161,22 @@ pub fn draw_signal_phase(
                     );
                 } else {
                     let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
-                    batch.add_svg(
-                        prerender,
-                        "../data/system/assets/map/walk.svg",
-                        center,
-                        0.07,
-                        angle,
-                        RewriteColor::NoOp,
-                        true,
+                    batch.append(
+                        GeomBatch::mapspace_svg(prerender, "../data/system/assets/map/walk.svg")
+                            .scale(0.07)
+                            .centered_on(center)
+                            .rotate(angle),
                     );
                     dont_walk.remove(g);
                 }
             }
             for g in dont_walk {
                 let (center, angle) = crosswalk_icon(&signal.turn_groups[g].geom);
-                batch.add_svg(
-                    prerender,
-                    "../data/system/assets/map/dont_walk.svg",
-                    center,
-                    0.07,
-                    angle,
-                    RewriteColor::NoOp,
-                    true,
+                batch.append(
+                    GeomBatch::mapspace_svg(prerender, "../data/system/assets/map/dont_walk.svg")
+                        .scale(0.07)
+                        .centered_on(center)
+                        .rotate(angle),
                 );
             }
         }
@@ -378,13 +367,11 @@ pub fn make_signal_diagram(
 
             let mut normal = GeomBatch::new();
             normal.push(Color::BLACK, bbox.clone());
-            // Move to the origin and apply zoom
-            for (color, poly) in orig_batch.consume() {
-                normal.fancy_push(
-                    color,
-                    poly.translate(-bounds.min_x, -bounds.min_y).scale(zoom),
-                );
-            }
+            normal.append(
+                orig_batch
+                    .translate(-bounds.min_x, -bounds.min_y)
+                    .scale(zoom),
+            );
 
             let mut hovered = GeomBatch::new();
             hovered.append(normal.clone());

@@ -222,12 +222,13 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
 
     // Draw the X axis, time before changes in buckets.
     for (idx, mins) in endpts.iter().enumerate() {
-        batch.add_centered(
-            Text::from(Line(mins.to_string()).small()).render_ctx(ctx),
-            Pt2D::new(
-                (idx as f64) / (num_buckets as f64) * total_width,
-                total_height / 2.0,
-            ),
+        batch.append(
+            Text::from(Line(mins.to_string()).small())
+                .render_ctx(ctx)
+                .centered_on(Pt2D::new(
+                    (idx as f64) / (num_buckets as f64) * total_width,
+                    total_height / 2.0,
+                )),
         );
     }
 

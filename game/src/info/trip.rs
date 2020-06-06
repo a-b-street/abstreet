@@ -5,7 +5,7 @@ use ezgui::{
     Btn, Color, EventCtx, GeomBatch, Line, LinePlot, PlotOptions, RewriteColor, Series, Text,
     TextExt, Widget,
 };
-use geom::{Angle, ArrowCap, Distance, Duration, PolyLine, Polygon, Pt2D, Time};
+use geom::{ArrowCap, Distance, Duration, PolyLine, Polygon, Pt2D, Time};
 use map_model::{Map, Path, PathStep};
 use maplit::btreemap;
 use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType, VehicleType};
@@ -344,23 +344,20 @@ fn make_timeline(
             }
         }
 
-        details.unzoomed.add_svg(
-            ctx.prerender,
-            "../data/system/assets/timeline/start_pos.svg",
-            center,
-            1.0,
-            Angle::ZERO,
-            RewriteColor::NoOp,
-            true,
+        details.unzoomed.append(
+            GeomBatch::mapspace_svg(
+                ctx.prerender,
+                "../data/system/assets/timeline/start_pos.svg",
+            )
+            .centered_on(center),
         );
-        details.zoomed.add_svg(
-            ctx.prerender,
-            "../data/system/assets/timeline/start_pos.svg",
-            center,
-            0.5,
-            Angle::ZERO,
-            RewriteColor::NoOp,
-            true,
+        details.zoomed.append(
+            GeomBatch::mapspace_svg(
+                ctx.prerender,
+                "../data/system/assets/timeline/start_pos.svg",
+            )
+            .scale(0.5)
+            .centered_on(center),
         );
 
         Btn::svg(
@@ -389,23 +386,14 @@ fn make_timeline(
             }
         }
 
-        details.unzoomed.add_svg(
-            ctx.prerender,
-            "../data/system/assets/timeline/goal_pos.svg",
-            center,
-            1.0,
-            Angle::ZERO,
-            RewriteColor::NoOp,
-            true,
+        details.unzoomed.append(
+            GeomBatch::mapspace_svg(ctx.prerender, "../data/system/assets/timeline/goal_pos.svg")
+                .centered_on(center),
         );
-        details.zoomed.add_svg(
-            ctx.prerender,
-            "../data/system/assets/timeline/goal_pos.svg",
-            center,
-            0.5,
-            Angle::ZERO,
-            RewriteColor::NoOp,
-            true,
+        details.zoomed.append(
+            GeomBatch::mapspace_svg(ctx.prerender, "../data/system/assets/timeline/goal_pos.svg")
+                .scale(0.5)
+                .centered_on(center),
         );
 
         Btn::svg(
@@ -460,41 +448,41 @@ fn make_timeline(
         let mut normal = GeomBatch::from(vec![(color, rect.clone())]);
         if idx == num_phases - 1 {
             if let Some(p) = progress_along_path {
-                normal.add_svg(
-                    ctx.prerender,
-                    "../data/system/assets/timeline/current_pos.svg",
-                    Pt2D::new(p * phase_width, 7.5 * ctx.get_scale_factor()),
-                    1.0,
-                    Angle::ZERO,
-                    RewriteColor::NoOp,
-                    false,
+                normal.append(
+                    GeomBatch::screenspace_svg(
+                        ctx.prerender,
+                        "../data/system/assets/timeline/current_pos.svg",
+                    )
+                    .centered_on(Pt2D::new(p * phase_width, 7.5 * ctx.get_scale_factor())),
                 );
             }
         }
-        normal.add_svg(
-            ctx.prerender,
-            match p.phase_type {
-                TripPhaseType::Driving => "../data/system/assets/timeline/driving.svg",
-                TripPhaseType::Walking => "../data/system/assets/timeline/walking.svg",
-                TripPhaseType::Biking => "../data/system/assets/timeline/biking.svg",
-                TripPhaseType::Parking => "../data/system/assets/timeline/parking.svg",
-                TripPhaseType::WaitingForBus(_, _) => {
-                    "../data/system/assets/timeline/waiting_for_bus.svg"
-                }
-                TripPhaseType::RidingBus(_, _, _) => {
-                    "../data/system/assets/timeline/riding_bus.svg"
-                }
-                TripPhaseType::Aborted | TripPhaseType::Finished => unreachable!(),
-                TripPhaseType::DelayedStart => "../data/system/assets/timeline/delayed_start.svg",
-                // TODO What icon should represent this?
-                TripPhaseType::Remote => "../data/system/assets/timeline/delayed_start.svg",
-            },
-            // TODO Hardcoded layouting...
-            Pt2D::new(0.5 * phase_width, -20.0 * ctx.get_scale_factor()),
-            1.0,
-            Angle::ZERO,
-            RewriteColor::NoOp,
-            false,
+        normal.append(
+            GeomBatch::screenspace_svg(
+                ctx.prerender,
+                match p.phase_type {
+                    TripPhaseType::Driving => "../data/system/assets/timeline/driving.svg",
+                    TripPhaseType::Walking => "../data/system/assets/timeline/walking.svg",
+                    TripPhaseType::Biking => "../data/system/assets/timeline/biking.svg",
+                    TripPhaseType::Parking => "../data/system/assets/timeline/parking.svg",
+                    TripPhaseType::WaitingForBus(_, _) => {
+                        "../data/system/assets/timeline/waiting_for_bus.svg"
+                    }
+                    TripPhaseType::RidingBus(_, _, _) => {
+                        "../data/system/assets/timeline/riding_bus.svg"
+                    }
+                    TripPhaseType::Aborted | TripPhaseType::Finished => unreachable!(),
+                    TripPhaseType::DelayedStart => {
+                        "../data/system/assets/timeline/delayed_start.svg"
+                    }
+                    // TODO What icon should represent this?
+                    TripPhaseType::Remote => "../data/system/assets/timeline/delayed_start.svg",
+                },
+            )
+            .centered_on(
+                // TODO Hardcoded layouting...
+                Pt2D::new(0.5 * phase_width, -20.0 * ctx.get_scale_factor()),
+            ),
         );
 
         let mut hovered = GeomBatch::from(vec![(color.alpha(1.0), rect.clone())]);

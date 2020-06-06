@@ -40,9 +40,11 @@ impl Layer for ShowBusRoute {
 
         let mut screen_batch = GeomBatch::new();
         for (label, pt) in &self.labels {
-            screen_batch.add_centered(
-                label.clone().render_g(g),
-                g.canvas.map_to_screen(*pt).to_pt(),
+            screen_batch.append(
+                label
+                    .clone()
+                    .render_g(g)
+                    .centered_on(g.canvas.map_to_screen(*pt).to_pt()),
             );
         }
         let draw = g.upload(screen_batch);

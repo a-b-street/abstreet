@@ -95,15 +95,12 @@ impl ScatterPlot {
         )
         .evenly_spaced();
         let y_label = {
-            let mut label = GeomBatch::new();
-            for (color, poly) in Text::from(Line(format!("{} (minutes)", y_name)))
+            let label = Text::from(Line(format!("{} (minutes)", y_name)))
                 .render_ctx(ctx)
-                .consume()
-            {
-                label.fancy_push(color, poly.rotate(Angle::new_degs(90.0)));
-            }
+                .rotate(Angle::new_degs(90.0))
+                .autocrop();
             // The text is already scaled; don't use Widget::draw_batch and scale it again.
-            JustDraw::wrap(ctx, label.autocrop()).centered_vert()
+            JustDraw::wrap(ctx, label).centered_vert()
         };
 
         let x_axis = Widget::row(
@@ -284,12 +281,12 @@ impl ScatterPlotV2 {
             let percent_x = (i as f64) / ((num_x_labels - 1) as f64);
             let t = max_x.percent_of(percent_x);
             // TODO Need ticks now to actually see where this goes
-            let mut batch = GeomBatch::new();
-            for (color, poly) in Text::from(Line(t.to_string())).render_ctx(ctx).consume() {
-                batch.fancy_push(color, poly.rotate(Angle::new_degs(-15.0)));
-            }
+            let batch = Text::from(Line(t.to_string()))
+                .render_ctx(ctx)
+                .rotate(Angle::new_degs(-15.0))
+                .autocrop();
             // The text is already scaled; don't use Widget::draw_batch and scale it again.
-            row.push(JustDraw::wrap(ctx, batch.autocrop()));
+            row.push(JustDraw::wrap(ctx, batch));
         }
         let x_axis = Widget::row(row).padding(10);
 
