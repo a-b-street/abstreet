@@ -28,6 +28,9 @@ impl DrawCar {
             input.body.shift_left(CAR_WIDTH / 2.0).unwrap(),
         ] {
             let len = side.length();
+            if len <= Distance::meters(2.0) {
+                panic!("{} is only {}, that's way too short!", input.id, len);
+            }
             draw_default.push(
                 cs.bike_frame,
                 side.exact_slice(Distance::meters(0.5), Distance::meters(1.0))

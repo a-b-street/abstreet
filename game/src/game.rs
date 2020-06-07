@@ -28,6 +28,20 @@ impl Game {
             && maybe_mode.is_none();
         let mut app = App::new(flags, opts, ctx, title);
 
+        // Handle savestates
+        let savestate = if app
+            .primary
+            .current_flags
+            .sim_flags
+            .load
+            .starts_with("../data/player/saves/")
+        {
+            assert!(maybe_mode.is_none());
+            Some(app.primary.clear_sim())
+        } else {
+            None
+        };
+
         // Just apply this here, don't plumb to SimFlags or anything else. We recreate things using
         // these flags later, but we don't want to keep applying the same edits.
         if let Some(edits_name) = start_with_edits {
@@ -51,6 +65,11 @@ impl Game {
             });
             vec![Box::new(SandboxMode::new(ctx, &mut app, mode))]
         };
+        if let Some(ss) = savestate {
+            // TODO This is weird, we're left in Freeform mode with the wrong UI. Can't instantiate
+            // PlayScenario without clobbering.
+            app.primary.sim = ss;
+        }
         Game { states, app }
     }
 }
