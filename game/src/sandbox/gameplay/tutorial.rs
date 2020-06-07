@@ -20,8 +20,9 @@ use map_model::raw::{OriginalIntersection, OriginalRoad};
 use map_model::{BuildingID, Map, OriginalLane, Position};
 use sim::{
     AgentID, Analytics, BorderSpawnOverTime, CarID, DrivingGoal, IndividTrip, OriginDestination,
-    PersonID, PersonSpec, Scenario, ScenarioGenerator, SpawnTrip, VehicleType,
+    PersonID, PersonSpec, Scenario, ScenarioGenerator, SpawnOverTime, SpawnTrip, VehicleType,
 };
+use std::collections::BTreeSet;
 
 const ESCORT: CarID = CarID(0, VehicleType::Car);
 const CAR_BIKE_CONTENTION_GOAL: Duration = Duration::const_seconds(60.0);
@@ -543,23 +544,6 @@ impl Stage {
         self
     }
 
-    fn spawn_randomly(self) -> Stage {
-        self.spawn(Box::new(|app| {
-            ScenarioGenerator::scaled_run(10_000)
-                .generate(
-                    &app.primary.map,
-                    &mut app.primary.current_flags.sim_flags.make_rng(),
-                    &mut Timer::throwaway(),
-                )
-                .instantiate(
-                    &mut app.primary.sim,
-                    &app.primary.map,
-                    &mut app.primary.current_flags.sim_flags.make_rng(),
-                    &mut Timer::throwaway(),
-                )
-        }))
-    }
-
     fn spawn_scenario(self, generator: ScenarioGenerator) -> Stage {
         self.spawn(Box::new(move |app| {
             let mut timer = Timer::new("spawn scenario with prebaked results");
@@ -628,7 +612,7 @@ fn make_bike_lane_scenario(map: &Map) -> ScenarioGenerator {
             .find_r_by_osm_id(263665925, (2499826475, 53096959))
             .unwrap()
             .backwards(),
-        goal: OriginDestination::GotoBldg(map.find_b_by_osm_id(40833037).unwrap()),
+        goal: OriginDestination::GotoBldg(map.find_b_by_osm_id(217699501).unwrap()),
     });
     s
 }
@@ -1154,7 +1138,33 @@ impl TutorialState {
         state.stages.push(
             Stage::new(Task::LowParking)
                 // TODO Actually, we ideally just want a bunch of parked cars, not all these trips
-                .spawn_randomly()
+                .spawn(Box::new(|app| {
+                    ScenarioGenerator {
+                        scenario_name: "low parking".to_string(),
+                        only_seed_buses: Some(BTreeSet::new()),
+                        spawn_over_time: vec![SpawnOverTime {
+                            num_agents: 1000,
+                            start_time: Time::START_OF_DAY,
+                            stop_time: Time::START_OF_DAY + Duration::hours(3),
+                            goal: OriginDestination::Anywhere,
+                            percent_driving: 1.0,
+                            percent_biking: 0.0,
+                            percent_use_transit: 0.0,
+                        }],
+                        border_spawn_over_time: Vec::new(),
+                    }
+                    .generate(
+                        &app.primary.map,
+                        &mut app.primary.current_flags.sim_flags.make_rng(),
+                        &mut Timer::throwaway(),
+                    )
+                    .instantiate(
+                        &mut app.primary.sim,
+                        &app.primary.map,
+                        &mut app.primary.current_flags.sim_flags.make_rng(),
+                        &mut Timer::throwaway(),
+                    )
+                }))
                 .msg(
                     vec![
                         "What an immature prank. You should re-evaluate your life decisions.",
@@ -1213,7 +1223,8 @@ impl TutorialState {
                 .warp_to(ID::Building(bike_lane_focus_pt), None)
                 .msg(
                     vec![
-                        "Looks like lots of cars and bikes trying to go to the playfield.",
+                        "Looks like lots of cars and bikes trying to go to a house by the \
+                         playfield.",
                         "When lots of cars and bikes share the same lane,",
                         "cars are delayed (assuming there's no room to pass) and",
                         "the cyclist probably feels unsafe too.",
