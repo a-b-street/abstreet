@@ -4,7 +4,7 @@ use ezgui::{
     Outcome, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Polygon, Pt2D};
-use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, Map, RoadID};
+use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID};
 use std::collections::HashMap;
 
 pub struct ColorerBuilder {
@@ -18,6 +18,7 @@ pub struct ColorerBuilder {
     intersections: HashMap<IntersectionID, Color>,
     buildings: HashMap<BuildingID, Color>,
     bus_stops: HashMap<BusStopID, Color>,
+    parking_lots: HashMap<ParkingLotID, Color>,
 }
 
 pub struct Colorer {
@@ -52,6 +53,7 @@ impl Colorer {
             intersections: HashMap::new(),
             buildings: HashMap::new(),
             bus_stops: HashMap::new(),
+            parking_lots: HashMap::new(),
         }
     }
 
@@ -76,6 +78,7 @@ impl Colorer {
             intersections: HashMap::new(),
             buildings: HashMap::new(),
             bus_stops: HashMap::new(),
+            parking_lots: HashMap::new(),
         }
     }
 
@@ -133,6 +136,10 @@ impl ColorerBuilder {
         self.bus_stops.insert(bs, color);
     }
 
+    pub fn add_pl(&mut self, pl: ParkingLotID, color: Color) {
+        self.parking_lots.insert(pl, color);
+    }
+
     pub fn intersections_from_roads(&mut self, map: &Map) {
         for i in map.all_intersections() {
             if let Some(idx) = i
@@ -186,6 +193,11 @@ impl ColorerBuilder {
                 Circle::new(pt, Distance::meters(5.0)).to_polygon(),
             );
             unzoomed.push(color, Circle::new(pt, Distance::meters(15.0)).to_polygon());
+        }
+
+        for (pl, color) in self.parking_lots {
+            zoomed.push(color.alpha(0.4), map.get_pl(pl).polygon.clone());
+            unzoomed.push(color, map.get_pl(pl).polygon.clone());
         }
 
         // Build the legend
