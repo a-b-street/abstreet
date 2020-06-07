@@ -693,6 +693,7 @@ impl TripManager {
                         .get_all_free_spots(
                             Position::new(driving_lane, Distance::ZERO),
                             &vehicle,
+                            b,
                             map,
                         )
                         // TODO Could pick something closer, but meh, aborted trips are bugs anyway
@@ -700,7 +701,7 @@ impl TripManager {
                         .map(|(spot, _)| spot.clone())
                         .or_else(|| {
                             parking
-                                .path_to_free_parking_spot(driving_lane, &vehicle, map)
+                                .path_to_free_parking_spot(driving_lane, &vehicle, b, map)
                                 .map(|(_, spot, _)| spot)
                         })
                     {

@@ -271,6 +271,9 @@ impl ParkingSimState {
         &self,
         driving_pos: Position,
         vehicle: &Vehicle,
+        // Either the building where a seeded car starts or the target of a trip. For filtering
+        // private spots.
+        target: BuildingID,
         map: &Map,
     ) -> Vec<(ParkingSpot, Position)> {
         let mut candidates = Vec::new();
@@ -289,15 +292,13 @@ impl ParkingSimState {
         }
 
         for b in self.driving_to_offstreet.get(driving_pos.lane()) {
-            let bldg_dist = map
-                .get_b(*b)
-                .parking
-                .as_ref()
-                .unwrap()
-                .driving_pos
-                .dist_along();
+            let parking = map.get_b(*b).parking.as_ref().unwrap();
+            if parking.public_garage_name.is_none() && target != *b {
+                continue;
+            }
+            let bldg_dist = parking.driving_pos.dist_along();
             if driving_pos.dist_along() < bldg_dist {
-                for idx in 0..self.num_spots_per_offstreet[&b] {
+                for idx in 0..self.num_spots_per_offstreet[b] {
                     let spot = ParkingSpot::Offstreet(*b, idx);
                     if self.is_free(spot) {
                         candidates.push(spot);
@@ -399,6 +400,7 @@ impl ParkingSimState {
         &self,
         start: LaneID,
         vehicle: &Vehicle,
+        target: BuildingID,
         map: &Map,
     ) -> Option<(Vec<PathStep>, ParkingSpot, Position)> {
         let mut backrefs: HashMap<LaneID, TurnID> = HashMap::new();
@@ -416,7 +418,12 @@ impl ParkingSimState {
                 // Pick the closest to the start of the lane, since that's closest to where we came
                 // from
                 if let Some((spot, pos)) = self
-                    .get_all_free_spots(Position::new(current, Distance::ZERO), vehicle, map)
+                    .get_all_free_spots(
+                        Position::new(current, Distance::ZERO),
+                        vehicle,
+                        target,
+                        map,
+                    )
                     .into_iter()
                     .min_by_key(|(_, pos)| pos.dist_along())
                 {

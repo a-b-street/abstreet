@@ -261,17 +261,32 @@ fn seed_parked_cars(
     base_rng: &mut XorShiftRng,
     timer: &mut Timer,
 ) {
-    let mut open_spots_per_road: BTreeMap<RoadID, Vec<ParkingSpot>> = BTreeMap::new();
+    let mut open_spots_per_road: BTreeMap<RoadID, Vec<(ParkingSpot, Option<BuildingID>)>> =
+        BTreeMap::new();
     for spot in sim.get_all_parking_spots().1 {
-        let r = match spot {
-            ParkingSpot::Onstreet(l, _) => map.get_l(l).parent,
-            ParkingSpot::Offstreet(b, _) => map.get_l(map.get_b(b).sidewalk()).parent,
-            ParkingSpot::Lot(pl, _) => map.get_l(map.get_pl(pl).driving_pos.lane()).parent,
+        let (r, restriction) = match spot {
+            ParkingSpot::Onstreet(l, _) => (map.get_l(l).parent, None),
+            ParkingSpot::Offstreet(b, _) => (
+                map.get_l(map.get_b(b).sidewalk()).parent,
+                if map
+                    .get_b(b)
+                    .parking
+                    .as_ref()
+                    .unwrap()
+                    .public_garage_name
+                    .is_some()
+                {
+                    None
+                } else {
+                    Some(b)
+                },
+            ),
+            ParkingSpot::Lot(pl, _) => (map.get_l(map.get_pl(pl).driving_pos.lane()).parent, None),
         };
         open_spots_per_road
             .entry(r)
             .or_insert_with(Vec::new)
-            .push(spot);
+            .push((spot, restriction));
     }
     // Changing parking on one road shouldn't affect far-off roads. Fork carefully.
     for r in map.all_roads() {
@@ -302,7 +317,7 @@ fn seed_parked_cars(
 // spot.
 fn find_spot_near_building(
     b: BuildingID,
-    open_spots_per_road: &mut BTreeMap<RoadID, Vec<ParkingSpot>>,
+    open_spots_per_road: &mut BTreeMap<RoadID, Vec<(ParkingSpot, Option<BuildingID>)>>,
     map: &Map,
     timer: &mut Timer,
 ) -> Option<ParkingSpot> {
@@ -326,8 +341,11 @@ fn find_spot_near_building(
         let r = roads_queue.pop_front()?;
         if let Some(spots) = open_spots_per_road.get_mut(&r) {
             // TODO With some probability, skip this available spot and park farther away
-            if !spots.is_empty() {
-                return spots.pop();
+            if let Some(idx) = spots
+                .iter()
+                .position(|(_, restriction)| restriction.map(|only_b| only_b == b).unwrap_or(true))
+            {
+                return Some(spots.remove(idx).0);
             }
         }
 

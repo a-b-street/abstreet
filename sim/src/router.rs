@@ -209,6 +209,7 @@ impl Router {
                     let candidates = parking.get_all_free_spots(
                         Position::new(current_lane, front),
                         vehicle,
+                        target,
                         map,
                     );
                     let best = if let Some(ref p) = map.get_b(target).parking {
@@ -246,7 +247,7 @@ impl Router {
                         *spot = Some((new_spot, new_pos.dist_along()));
                     } else {
                         if let Some((new_path_steps, new_spot, new_pos)) =
-                            parking.path_to_free_parking_spot(current_lane, vehicle, map)
+                            parking.path_to_free_parking_spot(current_lane, vehicle, target, map)
                         {
                             *spot = Some((new_spot, new_pos.dist_along()));
                             for step in new_path_steps {

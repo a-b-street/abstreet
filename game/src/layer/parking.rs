@@ -153,6 +153,7 @@ impl Occupancy {
                             100.0 * (has_car as f64) / (total_ppl as f64)
                         }
                     )),
+                    Line(""),
                     Line(format!(
                         "{} public spots filled",
                         prettyprint_usize(filled_spots.len())
@@ -161,6 +162,7 @@ impl Occupancy {
                         "{} public spots available ",
                         prettyprint_usize(avail_spots.len())
                     )),
+                    Line(""),
                     Line(format!(
                         "{} private spots filled",
                         prettyprint_usize(filled_private_spots)
