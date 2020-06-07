@@ -24,7 +24,7 @@ use sim::{
 
 // TODO Unfortunately this has to be tuned when major map / simulation changes happen.
 // TODO Aaand this broke, because all the cars seemingly park inside now. :P
-const ESCORT: CarID = CarID(34, VehicleType::Car);
+const ESCORT: CarID = CarID(36, VehicleType::Car);
 const CAR_BIKE_CONTENTION_GOAL: Duration = Duration::const_seconds(60.0);
 
 pub struct Tutorial {
