@@ -29,7 +29,10 @@ impl DrawCar {
         ] {
             let len = side.length();
             if len <= Distance::meters(2.0) {
-                panic!("{} is only {}, that's way too short!", input.id, len);
+                // The original body may be fine, but sometimes shifting drastically shortens the
+                // length due to miter threshold chopping. Just give up on wheels in that case
+                // instead of crashing.
+                continue;
             }
             draw_default.push(
                 cs.bike_frame,
