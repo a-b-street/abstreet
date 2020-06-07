@@ -206,7 +206,11 @@ impl State for MainMenu {
                     return Transition::Push(About::new(ctx));
                 }
                 "Feedback" => {
-                    let _ = webbrowser::open("https://forms.gle/ocvbek1bTaZUr3k49");
+                    // cargo fmt tries to remove this
+                    #[cfg(not(target_arch = "wasm32"))]
+                    {
+                        let _ = webbrowser::open("https://forms.gle/ocvbek1bTaZUr3k49");
+                    }
                 }
                 "Community Proposals" => {
                     return Transition::Push(Proposals::new(ctx, app));
@@ -300,7 +304,11 @@ impl State for About {
                     return Transition::Pop;
                 }
                 "See full credits" => {
-                    let _ = webbrowser::open("https://github.com/dabreegster/abstreet#credits");
+                    // cargo fmt tries to remove this
+                    #[cfg(not(target_arch = "wasm32"))]
+                    {
+                        let _ = webbrowser::open("https://github.com/dabreegster/abstreet#credits");
+                    }
                 }
                 _ => unreachable!(),
             },

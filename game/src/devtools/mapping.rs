@@ -360,24 +360,30 @@ impl State for ParkingMapper {
         if self.selected.is_some() && ctx.input.new_was_pressed(&hotkey(Key::S).unwrap()) {
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
                 if let Some(gps) = pt.to_gps(app.primary.map.get_gps_bounds()) {
-                    let _ = webbrowser::open(&format!(
-                        "https://www.bing.com/maps?cp={}~{}&style=x",
-                        gps.y(),
-                        gps.x()
-                    ));
+                    #[cfg(not(target_arch = "wasm32"))]
+                    {
+                        let _ = webbrowser::open(&format!(
+                            "https://www.bing.com/maps?cp={}~{}&style=x",
+                            gps.y(),
+                            gps.x()
+                        ));
+                    }
                 }
             }
         }
         if let Some((ref roads, _)) = self.selected {
             if ctx.input.new_was_pressed(&hotkey(Key::O).unwrap()) {
-                let _ = webbrowser::open(&format!(
-                    "https://www.openstreetmap.org/way/{}",
-                    app.primary
-                        .map
-                        .get_r(*roads.iter().next().unwrap())
-                        .orig_id
-                        .osm_way_id
-                ));
+                #[cfg(not(target_arch = "wasm32"))]
+                {
+                    let _ = webbrowser::open(&format!(
+                        "https://www.openstreetmap.org/way/{}",
+                        app.primary
+                            .map
+                            .get_r(*roads.iter().next().unwrap())
+                            .orig_id
+                            .osm_way_id
+                    ));
+                }
             }
         }
 
@@ -448,8 +454,10 @@ impl State for ParkingMapper {
 }
 
 #[cfg(target_arch = "wasm32")]
-fn generate_osmc(data: &BTreeMap<i64, Value>, timer: &mut Timer) -> Result<(), Box<dyn Error>> {
-    Err("Woops, mapping mode isn't supported on the web yet".to_string())
+fn generate_osmc(_: &BTreeMap<i64, Value>, _: bool, _: &mut Timer) -> Result<(), Box<dyn Error>> {
+    Err("Woops, mapping mode isn't supported on the web yet"
+        .to_string()
+        .into())
 }
 
 #[cfg(not(target_arch = "wasm32"))]

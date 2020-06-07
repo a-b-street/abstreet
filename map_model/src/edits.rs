@@ -392,7 +392,7 @@ impl PermanentEditIntersection {
 }
 
 impl OriginalLane {
-    fn to_permanent(l: LaneID, map: &Map) -> OriginalLane {
+    pub fn to_permanent(l: LaneID, map: &Map) -> OriginalLane {
         let r = map.get_parent(l);
         let (fwd, idx) = r.dir_and_offset(l);
         OriginalLane {

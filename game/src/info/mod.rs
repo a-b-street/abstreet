@@ -436,6 +436,16 @@ impl InfoPanel {
                             },
                         ))),
                     )
+                } else if action == "copy OriginalLane" {
+                    // TODO Not happy about this :(
+                    lane::copy_orig_lane(
+                        app,
+                        match maybe_id {
+                            Some(ID::Lane(l)) => l,
+                            _ => unreachable!(),
+                        },
+                    );
+                    return (false, None);
                 } else {
                     let mut close_panel = true;
                     let t =

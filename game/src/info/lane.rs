@@ -1,8 +1,8 @@
 use crate::app::App;
 use crate::info::{header_btns, make_table, make_tabs, throughput, DataOptions, Details, Tab};
 use abstutil::prettyprint_usize;
-use ezgui::{EventCtx, Line, LinePlot, PlotOptions, Series, Text, TextExt, Widget};
-use map_model::LaneID;
+use ezgui::{Btn, EventCtx, Line, LinePlot, PlotOptions, Series, Text, TextExt, Widget};
+use map_model::{LaneID, OriginalLane};
 
 pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec<Widget> {
     let mut rows = header(ctx, app, details, id, Tab::LaneInfo(id));
@@ -121,6 +121,17 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
 
     rows.extend(make_table(ctx, kv));
 
+    rows.push(Widget::row(vec![
+        "Copy OriginalLane to clipboard: "
+            .draw_text(ctx)
+            .margin_right(15),
+        Btn::svg_def("../data/system/assets/tools/clipboard.svg").build(
+            ctx,
+            "copy OriginalLane",
+            None,
+        ),
+    ]));
+
     let mut txt = Text::from(Line(""));
     txt.add(Line("Raw OpenStreetMap data"));
     rows.push(txt.draw(ctx));
@@ -128,6 +139,20 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
     rows.extend(make_table(ctx, r.osm_tags.clone().into_iter().collect()));
 
     rows
+}
+
+pub fn copy_orig_lane(app: &App, id: LaneID) {
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        use clipboard::{ClipboardContext, ClipboardProvider};
+
+        let mut cb: ClipboardContext = ClipboardProvider::new().unwrap();
+        cb.set_contents(format!(
+            "{:?}",
+            OriginalLane::to_permanent(id, &app.primary.map)
+        ))
+        .unwrap();
+    }
 }
 
 pub fn traffic(
