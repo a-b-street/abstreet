@@ -1,6 +1,6 @@
 use crate::{
-    text, Btn, Button, EventCtx, GeomBatch, GfxCtx, Line, ScreenDims, ScreenPt, Text, Widget,
-    WidgetImpl, WidgetOutput,
+    text, Btn, Button, EventCtx, GeomBatch, GfxCtx, Line, ScreenDims, ScreenPt, ScreenRectangle,
+    Text, Widget, WidgetImpl, WidgetOutput,
 };
 use geom::{Polygon, Pt2D};
 
@@ -83,6 +83,19 @@ impl WidgetImpl for Spinner {
                 self.current -= 1;
             }
             ctx.no_op_event(true, |ctx| self.down.event(ctx, output));
+        }
+
+        if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
+            if ScreenRectangle::top_left(self.top_left, self.dims).contains(pt) {
+                if let Some((_, dy)) = ctx.input.get_mouse_scroll() {
+                    if dy > 0.0 && self.current != self.high {
+                        self.current += 1;
+                    }
+                    if dy < 0.0 && self.current != self.low {
+                        self.current -= 1;
+                    }
+                }
+            }
         }
     }
 
