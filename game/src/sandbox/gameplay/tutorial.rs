@@ -16,15 +16,14 @@ use ezgui::{
     VerticalAlignment, Widget,
 };
 use geom::{ArrowCap, Distance, Duration, PolyLine, Polygon, Pt2D, Time};
-use map_model::{BuildingID, IntersectionID, Map};
+use map_model::raw::{OriginalIntersection, OriginalRoad};
+use map_model::{BuildingID, Map, OriginalLane, Position};
 use sim::{
-    AgentID, Analytics, BorderSpawnOverTime, CarID, OriginDestination, ScenarioGenerator,
-    VehicleType,
+    AgentID, Analytics, BorderSpawnOverTime, CarID, DrivingGoal, IndividTrip, OriginDestination,
+    PersonID, PersonSpec, Scenario, ScenarioGenerator, SpawnTrip, VehicleType,
 };
 
-// TODO Unfortunately this has to be tuned when major map / simulation changes happen.
-// TODO Aaand this broke, because all the cars seemingly park inside now. :P
-const ESCORT: CarID = CarID(36, VehicleType::Car);
+const ESCORT: CarID = CarID(0, VehicleType::Car);
 const CAR_BIKE_CONTENTION_GOAL: Duration = Duration::const_seconds(60.0);
 
 pub struct Tutorial {
@@ -157,9 +156,9 @@ impl Tutorial {
             // TODO Have to wiggle the mouse or something after opening the panel, because of the
             // order in SandboxMode.
             match controls.common.as_ref().unwrap().info_panel_open(app) {
-                Some(ID::Lane(_)) => {
-                    if !tut.inspected_lane {
-                        tut.inspected_lane = true;
+                Some(ID::Lane(l)) => {
+                    if app.primary.map.get_l(l).is_biking() && !tut.inspected_bike_lane {
+                        tut.inspected_bike_lane = true;
                         self.top_center = tut.make_top_center(ctx, &app.cs, false);
                     }
                 }
@@ -182,7 +181,7 @@ impl Tutorial {
                 }
                 _ => {}
             }
-            if tut.inspected_lane
+            if tut.inspected_bike_lane
                 && tut.inspected_building
                 && tut.inspected_stop_sign
                 && tut.inspected_border
@@ -430,7 +429,7 @@ impl Task {
             Task::InspectObjects => {
                 let mut txt = Text::from(Line("Find one of each:"));
                 for (name, done) in vec![
-                    ("lane", state.inspected_lane),
+                    ("bike lane", state.inspected_bike_lane),
                     ("building", state.inspected_building),
                     ("intersection with stop sign", state.inspected_stop_sign),
                     ("intersection on the map border", state.inspected_border),
@@ -544,10 +543,6 @@ impl Stage {
         self
     }
 
-    fn spawn_around(self, i: IntersectionID) -> Stage {
-        self.spawn(Box::new(move |app| spawn_agents_around(i, app)))
-    }
-
     fn spawn_randomly(self) -> Stage {
         self.spawn(Box::new(|app| {
             ScenarioGenerator::scaled_run(10_000)
@@ -601,7 +596,7 @@ pub struct TutorialState {
     window_dims: (f64, f64),
 
     // Goofy state for just some stages.
-    inspected_lane: bool,
+    inspected_bike_lane: bool,
     inspected_building: bool,
     inspected_stop_sign: bool,
     inspected_border: bool,
@@ -648,7 +643,7 @@ impl TutorialState {
     // These're mutex to each state, but still important to reset. Otherwise if you go back to a
     // previous interaction stage, it'll just be automatically marked done.
     fn reset_state(&mut self) {
-        self.inspected_lane = false;
+        self.inspected_bike_lane = false;
         self.inspected_building = false;
         self.inspected_stop_sign = false;
         self.inspected_border = false;
@@ -874,7 +869,7 @@ impl TutorialState {
             current: TutorialPointer::new(0, 0),
             window_dims: (ctx.canvas.window_width, ctx.canvas.window_height),
 
-            inspected_lane: false,
+            inspected_bike_lane: false,
             inspected_building: false,
             inspected_stop_sign: false,
             inspected_border: false,
@@ -1030,7 +1025,92 @@ impl TutorialState {
                     ID::Building(map.find_b_by_osm_id(217699780).unwrap()),
                     Some(10.0),
                 )
-                .spawn_around(map.find_i_by_osm_id(1709145066).unwrap())
+                .spawn(Box::new(move |app| {
+                    // Seed a specific target car, and fill up the target building's private
+                    // parking to force the target to park on-street.
+                    let map = &app.primary.map;
+                    let goal_bldg = map.find_b_by_osm_id(217701875).unwrap();
+                    let start_lane = OriginalLane {
+                        parent: OriginalRoad {
+                            osm_way_id: 158782224,
+                            i1: OriginalIntersection {
+                                osm_node_id: 1709145066,
+                            },
+                            i2: OriginalIntersection {
+                                osm_node_id: 53128052,
+                            },
+                        },
+                        num_fwd: 3,
+                        num_back: 3,
+                        fwd: false,
+                        idx: 0,
+                    }
+                    .from_permanent(map)
+                    .unwrap();
+                    let lane_near_bldg = OriginalLane {
+                        parent: OriginalRoad {
+                            osm_way_id: 6484869,
+                            i1: OriginalIntersection {
+                                osm_node_id: 53163501,
+                            },
+                            i2: OriginalIntersection {
+                                osm_node_id: 53069236,
+                            },
+                        },
+                        num_fwd: 3,
+                        num_back: 3,
+                        fwd: true,
+                        idx: 0,
+                    }
+                    .from_permanent(map)
+                    .unwrap();
+
+                    let mut scenario = Scenario::empty(map, "prank");
+                    scenario.people.push(PersonSpec {
+                        id: PersonID(0),
+                        orig_id: None,
+                        trips: vec![IndividTrip {
+                            depart: Time::START_OF_DAY,
+                            trip: SpawnTrip::VehicleAppearing {
+                                start: Position::new(
+                                    start_lane,
+                                    map.get_l(start_lane).length() * 0.8,
+                                ),
+                                goal: DrivingGoal::ParkNear(goal_bldg),
+                                is_bike: false,
+                            },
+                        }],
+                    });
+                    // Will definitely get there first
+                    for i in 0..map.get_b(goal_bldg).parking.as_ref().unwrap().num_spots {
+                        scenario.people.push(PersonSpec {
+                            id: PersonID(i + 1),
+                            orig_id: None,
+                            trips: vec![IndividTrip {
+                                depart: Time::START_OF_DAY,
+                                trip: SpawnTrip::VehicleAppearing {
+                                    start: Position::new(
+                                        lane_near_bldg,
+                                        map.get_l(lane_near_bldg).length() / 2.0,
+                                    ),
+                                    goal: DrivingGoal::ParkNear(goal_bldg),
+                                    is_bike: false,
+                                },
+                            }],
+                        });
+                    }
+                    let mut rng = app.primary.current_flags.sim_flags.make_rng();
+                    scenario.instantiate(
+                        &mut app.primary.sim,
+                        map,
+                        &mut rng,
+                        &mut Timer::new("spawn trip"),
+                    );
+                    app.primary.sim.normal_step(map, Duration::seconds(0.1));
+
+                    // And add some noise
+                    spawn_agents_around(app.primary.map.find_i_by_osm_id(1709145066).unwrap(), app);
+                }))
                 .msg(
                     vec!["Alright alright, no need to wear out your spacebar."],
                     None,

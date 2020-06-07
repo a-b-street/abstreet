@@ -217,12 +217,12 @@ enum PermanentEditIntersection {
 
 // Enough data to notice when lanes along a road have changed
 #[derive(Serialize, Deserialize, Clone, Debug)]
-struct OriginalLane {
-    parent: OriginalRoad,
-    num_fwd: usize,
-    num_back: usize,
-    fwd: bool,
-    idx: usize,
+pub struct OriginalLane {
+    pub parent: OriginalRoad,
+    pub num_fwd: usize,
+    pub num_back: usize,
+    pub fwd: bool,
+    pub idx: usize,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -404,7 +404,7 @@ impl OriginalLane {
         }
     }
 
-    fn from_permanent(self, map: &Map) -> Result<LaneID, String> {
+    pub fn from_permanent(self, map: &Map) -> Result<LaneID, String> {
         let r = map.get_r(map.find_r_by_osm_id(
             self.parent.osm_way_id,
             (self.parent.i1.osm_node_id, self.parent.i2.osm_node_id),
