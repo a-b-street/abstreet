@@ -64,7 +64,7 @@ impl OptimizeCommute {
             GameplayMode::OptimizeCommute(_, d) => *d,
             _ => unreachable!(),
         };
-        CutsceneBuilder::new()
+        CutsceneBuilder::new("Optimize one commute: part 1")
             .boss("Listen up, I've got a special job for you today.")
             .player("What is it? The scooter coalition back with demands for more valet parking?")
             .boss("No, all the tax-funded valets are still busy the kayakers.")
@@ -105,7 +105,7 @@ impl OptimizeCommute {
             _ => unreachable!(),
         };
         // TODO The person chosen for this currently has more of an issue needing PBLs, actually.
-        CutsceneBuilder::new()
+        CutsceneBuilder::new("Optimize one commute: part 2")
             .boss("I've got another, er, friend who's sick of this parking situation.")
             .player(
                 "Yeah, why do we dedicate so much valuable land to storing unused cars? It's \

@@ -61,6 +61,11 @@ impl Widget {
         self
     }
 
+    pub fn fill_height(mut self) -> Widget {
+        self.layout.style.size.height = Dimension::Percent(1.0);
+        self
+    }
+
     // This one is really weird. percent_width should be LESS than the max_size_percent given to
     // the overall Composite, otherwise weird things happen.
     // Only makes sense for rows/columns.

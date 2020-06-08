@@ -33,7 +33,7 @@ impl FixTrafficSignals {
     }
 
     pub fn cutscene_pt1(ctx: &mut EventCtx, app: &App, _: &GameplayMode) -> Box<dyn State> {
-        CutsceneBuilder::new()
+        CutsceneBuilder::new("Traffic signal survivor")
             .boss("I hope you've had your coffee. There's a huge mess downtown.")
             .player("Did two buses get tangled together again?")
             .boss("Worse. SCOOT along Mercer is going haywire.")
@@ -151,7 +151,7 @@ impl GameplayState for FixTrafficSignals {
 fn make_top_center(ctx: &mut EventCtx, app: &App, failed_at: Option<Time>) -> Composite {
     Composite::new(
         Widget::col(vec![
-            challenge_header(ctx, "Fix traffic signals"),
+            challenge_header(ctx, "Traffic signal survivor"),
             if let Some(t) = failed_at {
                 Widget::row(vec![
                     Line(format!("Delay exceeded {} at {}", THRESHOLD, t))

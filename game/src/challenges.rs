@@ -72,9 +72,9 @@ impl Challenge {
             ],
         );
         tree.insert(
-            "Fix traffic signals".to_string(),
+            "Traffic signal survivor".to_string(),
             vec![Challenge {
-                title: "Repair traffic signals".to_string(),
+                title: "Traffic signal survivor".to_string(),
                 description: vec!["Fix traffic signal timing and unblock vehicles".to_string()],
                 alias: "trafficsig/pt1".to_string(),
                 gameplay: GameplayMode::FixTrafficSignals,

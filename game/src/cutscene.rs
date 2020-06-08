@@ -6,46 +6,53 @@ use ezgui::{
 };
 
 pub struct CutsceneBuilder {
+    name: String,
     scenes: Vec<Scene>,
 }
 
 struct Scene {
-    avatar: Option<String>,
+    // TODO else boss. Simple till we have a 3-person scene.
+    player: bool,
     msg: Text,
 }
 
 impl CutsceneBuilder {
-    pub fn new() -> CutsceneBuilder {
-        CutsceneBuilder { scenes: Vec::new() }
+    pub fn new(name: &str) -> CutsceneBuilder {
+        CutsceneBuilder {
+            name: name.to_string(),
+            scenes: Vec::new(),
+        }
     }
 
     pub fn player<I: Into<String>>(mut self, msg: I) -> CutsceneBuilder {
         self.scenes.push(Scene {
-            avatar: Some("player".to_string()),
-            msg: Text::from(Line(msg)),
+            player: true,
+            msg: Text::from(Line(msg).fg(Color::BLACK)),
         });
         self
     }
 
     pub fn boss<I: Into<String>>(mut self, msg: I) -> CutsceneBuilder {
         self.scenes.push(Scene {
-            avatar: Some("boss".to_string()),
-            msg: Text::from(Line(msg)),
+            player: false,
+            msg: Text::from(Line(msg).fg(Color::BLACK)),
         });
         self
     }
 
     pub fn narrator<I: Into<String>>(mut self, msg: I) -> CutsceneBuilder {
         self.scenes.push(Scene {
-            avatar: None,
-            msg: Text::from(Line(msg)),
+            // TODO
+            player: true,
+            msg: Text::from(Line(msg).fg(Color::BLACK)),
         });
         self
     }
 
     pub fn build(self, ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         Box::new(CutscenePlayer {
-            composite: make_panel(ctx, app, &self.scenes, 0),
+            composite: make_panel(ctx, app, &self.name, &self.scenes, 0),
+            name: self.name,
             scenes: self.scenes,
             idx: 0,
         })
@@ -53,6 +60,7 @@ impl CutsceneBuilder {
 }
 
 struct CutscenePlayer {
+    name: String,
     scenes: Vec<Scene>,
     idx: usize,
     composite: Composite,
@@ -62,13 +70,16 @@ impl State for CutscenePlayer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "quit" => {
+                    return Transition::Pop;
+                }
                 "back" => {
                     self.idx -= 1;
-                    self.composite = make_panel(ctx, app, &self.scenes, self.idx);
+                    self.composite = make_panel(ctx, app, &self.name, &self.scenes, self.idx);
                 }
                 "next" => {
                     self.idx += 1;
-                    self.composite = make_panel(ctx, app, &self.scenes, self.idx);
+                    self.composite = make_panel(ctx, app, &self.name, &self.scenes, self.idx);
                 }
                 "Skip cutscene" | "Start" => {
                     return Transition::Pop;
@@ -88,7 +99,13 @@ impl State for CutscenePlayer {
     }
 }
 
-fn make_panel(ctx: &mut EventCtx, app: &App, scenes: &Vec<Scene>, idx: usize) -> Composite {
+fn make_panel(
+    ctx: &mut EventCtx,
+    app: &App,
+    name: &str,
+    scenes: &Vec<Scene>,
+    idx: usize,
+) -> Composite {
     let prev = if idx > 0 {
         Btn::svg(
             "../data/system/assets/tools/prev.svg",
@@ -99,14 +116,14 @@ fn make_panel(ctx: &mut EventCtx, app: &App, scenes: &Vec<Scene>, idx: usize) ->
         Widget::draw_svg_transform(
             ctx,
             "../data/system/assets/tools/prev.svg",
-            RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
+            RewriteColor::ChangeAlpha(0.3),
         )
     };
     let next = if idx == scenes.len() - 1 {
         Widget::draw_svg_transform(
             ctx,
             "../data/system/assets/tools/next.svg",
-            RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
+            RewriteColor::ChangeAlpha(0.3),
         )
     } else {
         Btn::svg(
@@ -120,44 +137,57 @@ fn make_panel(ctx: &mut EventCtx, app: &App, scenes: &Vec<Scene>, idx: usize) ->
         )
     };
 
-    let mut col = vec![Widget::row(vec![
-        if let Some(ref name) = scenes[idx].avatar {
-            Widget::draw_svg(
-                ctx,
-                format!("../data/system/assets/characters/{}.svg", name),
-            )
-            .container()
-            .outline(10.0, Color::BLACK)
-            .padding(10)
-        } else {
-            Widget::nothing()
-        },
-        scenes[idx]
-            .msg
-            .clone()
-            .draw(ctx)
-            .container()
-            .outline(10.0, Color::BLACK)
-            .padding(10),
-    ])
-    .bg(app.cs.panel_bg)
-    .margin_below(10)];
+    let col = vec![
+        // TODO Can't get this to alignment to work
+        Widget::row(vec![
+            Btn::svg_def("../data/system/assets/pregame/back.svg")
+                .build(ctx, "quit", None)
+                .margin_right(100),
+            Line(name).big_heading_styled().draw(ctx),
+        ])
+        .margin_below(50),
+        Widget::col(vec![
+            // TODO Can't get this centered better
+            if scenes[idx].player {
+                Widget::row(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/characters/boss.svg"),
+                    Widget::row(vec![
+                        scenes[idx].msg.clone().draw(ctx),
+                        Widget::draw_svg(ctx, "../data/system/assets/characters/player.svg"),
+                    ])
+                    .align_right(),
+                ])
+            } else {
+                Widget::row(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/characters/boss.svg"),
+                    scenes[idx].msg.clone().draw(ctx),
+                    Widget::draw_svg(ctx, "../data/system/assets/characters/player.svg")
+                        .align_right(),
+                ])
+            }
+            .margin_above(100),
+            Widget::col(vec![
+                Widget::row(vec![prev.margin_right(15), next])
+                    .centered_horiz()
+                    .margin_below(10),
+                (if idx == scenes.len() - 1 {
+                    Btn::text_fg_line("Start", Line("Start").fg(Color::BLACK))
+                        .build_def(ctx, hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]))
+                } else {
+                    Btn::text_fg_line("Skip cutscene", Line("Skip cutscene").fg(Color::BLACK))
+                        .build_def(ctx, None)
+                })
+                .centered_horiz(),
+            ])
+            .align_bottom(),
+        ])
+        .fill_height()
+        .padding(42)
+        .bg(Color::WHITE)
+        .outline(2.0, Color::BLACK),
+    ];
 
-    col.push(
-        Widget::row(vec![prev.margin_right(15), next])
-            .centered_horiz()
-            .margin_below(10),
-    );
-
-    col.push(
-        (if idx == scenes.len() - 1 {
-            Btn::text_bg2("Start")
-                .build_def(ctx, hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]))
-        } else {
-            Btn::text_bg2("Skip cutscene").build_def(ctx, None)
-        })
-        .centered_horiz(),
-    );
-
-    Composite::new(Widget::col(col)).build(ctx)
+    Composite::new(Widget::col(col))
+        .exact_size_percent(80, 80)
+        .build(ctx)
 }
