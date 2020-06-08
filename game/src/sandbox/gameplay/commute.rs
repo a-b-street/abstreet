@@ -1,7 +1,7 @@
 use crate::app::App;
 use crate::challenges::{Challenge, HighScore};
 use crate::common::{ContextualActions, Tab};
-use crate::cutscene::CutsceneBuilder;
+use crate::cutscene::{CutsceneBuilder, FYI};
 use crate::edit::EditMode;
 use crate::game::{State, Transition};
 use crate::helpers::cmp_duration_shorter;
@@ -96,7 +96,12 @@ impl OptimizeCommute {
                  total of {}.",
                 goal
             ))
-            .build(ctx, app)
+            .build(ctx, app, OptimizeCommute::cutscene_pt1_task)
+    }
+
+    fn cutscene_pt1_task(ctx: &mut EventCtx) -> Widget {
+        // TODO Improve
+        Line("Speed up the VIP's trips").draw(ctx)
     }
 
     pub fn cutscene_pt2(ctx: &mut EventCtx, app: &App, mode: &GameplayMode) -> Box<dyn State> {
@@ -126,7 +131,12 @@ impl OptimizeCommute {
                  trips by a total of {}.",
                 goal
             ))
-            .build(ctx, app)
+            .build(ctx, app, OptimizeCommute::cutscene_pt2_task)
+    }
+
+    fn cutscene_pt2_task(ctx: &mut EventCtx) -> Widget {
+        // TODO Improve
+        Line("Speed up the VIP's trips").draw(ctx)
     }
 }
 
@@ -178,12 +188,9 @@ impl GameplayState for OptimizeCommute {
                     ))));
                 }
                 "instructions" => {
-                    return Some(Transition::Push((Challenge::find(&self.mode)
-                        .0
-                        .cutscene
-                        .unwrap())(
-                        ctx, app, &self.mode
-                    )));
+                    // TODO pt1 or pt2?
+                    let contents = OptimizeCommute::cutscene_pt1_task(ctx);
+                    return Some(Transition::Push(FYI::new(ctx, contents)));
                 }
                 "locate VIP" => {
                     controls.common.as_mut().unwrap().launch_info_panel(

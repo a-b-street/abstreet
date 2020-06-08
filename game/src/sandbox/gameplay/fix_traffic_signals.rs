@@ -1,15 +1,15 @@
 use crate::app::App;
-use crate::challenges::{Challenge, HighScore};
+use crate::challenges::HighScore;
 use crate::common::Warping;
-use crate::cutscene::CutsceneBuilder;
+use crate::cutscene::{CutsceneBuilder, FYI};
 use crate::edit::EditMode;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
 use crate::sandbox::{SandboxControls, SandboxMode};
 use ezgui::{
-    Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, TextExt,
-    VerticalAlignment, Widget,
+    Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, RewriteColor,
+    Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Duration, Time};
 
@@ -63,11 +63,62 @@ impl FixTrafficSignals {
                  the worst problems first.",
             )
             .player("Sigh... it's going to be a long day.")
-            .narrator(format!(
-                "Don't let the delay for anybody to get through one traffic signal exceed {}",
-                THRESHOLD
-            ))
-            .build(ctx, app)
+            .build(ctx, app, FixTrafficSignals::cutscene_pt1_task)
+    }
+
+    // TODO Can we automatically transform text and SVG colors?
+    fn cutscene_pt1_task(ctx: &mut EventCtx) -> Widget {
+        // TODO Use THRESHOLD
+        Widget::col(vec![
+            Text::from_multiline(vec![
+                Line("Don't let anyone be delayed by one traffic signal more than 10 minutes!")
+                    .fg(Color::BLACK),
+                Line("Survive as long as possible through 24 hours of a busy weekday.")
+                    .fg(Color::BLACK),
+            ])
+            .draw(ctx)
+            .margin_below(30),
+            Widget::row(vec![
+                Widget::col(vec![
+                    Line("Time").fg(Color::BLACK).draw(ctx),
+                    Widget::draw_svg_transform(
+                        ctx,
+                        "../data/system/assets/tools/time.svg",
+                        RewriteColor::ChangeAll(Color::BLACK),
+                    )
+                    .margin_below(5)
+                    .margin_above(5),
+                    Line("24 hours").fg(Color::BLACK).draw(ctx),
+                ]),
+                Widget::col(vec![
+                    Line("Goal").fg(Color::BLACK).draw(ctx),
+                    Widget::draw_svg_transform(
+                        ctx,
+                        "../data/system/assets/tools/location.svg",
+                        RewriteColor::ChangeAll(Color::BLACK),
+                    )
+                    .margin_below(5)
+                    .margin_above(5),
+                    Text::from_multiline(vec![
+                        Line("Keep delay at all intersections").fg(Color::BLACK),
+                        Line("under 10 mins").fg(Color::BLACK),
+                    ])
+                    .draw(ctx),
+                ]),
+                Widget::col(vec![
+                    Line("Score").fg(Color::BLACK).draw(ctx),
+                    Widget::draw_svg_transform(
+                        ctx,
+                        "../data/system/assets/tools/star.svg",
+                        RewriteColor::ChangeAll(Color::BLACK),
+                    )
+                    .margin_below(5)
+                    .margin_above(5),
+                    Line("How long you survive").fg(Color::BLACK).draw(ctx),
+                ]),
+            ])
+            .evenly_spaced(),
+        ])
     }
 }
 
@@ -121,12 +172,8 @@ impl GameplayState for FixTrafficSignals {
                     ))));
                 }
                 "instructions" => {
-                    return Some(Transition::Push((Challenge::find(&self.mode)
-                        .0
-                        .cutscene
-                        .unwrap())(
-                        ctx, app, &self.mode
-                    )));
+                    let contents = FixTrafficSignals::cutscene_pt1_task(ctx);
+                    return Some(Transition::Push(FYI::new(ctx, contents)));
                 }
                 "try again" => {
                     return Some(Transition::Replace(Box::new(SandboxMode::new(
@@ -162,7 +209,7 @@ fn make_top_center(ctx: &mut EventCtx, app: &App, failed_at: Option<Time>) -> Co
                     Btn::text_fg("try again").build_def(ctx, None),
                 ])
             } else {
-                format!("Keep delay under {} ... so far, so good", THRESHOLD).draw_text(ctx)
+                format!("Keep delay under {}", THRESHOLD).draw_text(ctx)
             },
         ])
         .bg(app.cs.panel_bg)
