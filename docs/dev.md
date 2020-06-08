@@ -6,8 +6,8 @@ You will first need:
 
 - Standard Unix dependencies: `curl`, `unzip`, `gunzip`, `md5sum` (`md5` on Mac)
 - Rust, at least 1.43. https://www.rust-lang.org/tools/install
-- On Linux, `sudo apt-get install xorg-dev libxcb-shape0-dev` or the equivalent
-  for your distro
+- On Linux, `sudo apt-get install xorg-dev libxcb-shape0-dev libxcb-xfixes0-dev`
+  or the equivalent for your distro
 
 One-time setup:
 

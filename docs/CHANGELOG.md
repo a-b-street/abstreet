@@ -449,3 +449,10 @@ changes here.
 - generate more interesting biographies for people
 - tuned all the map boundaries
 - fleshing out lots of docs in preparation for the alpha release...
+
+0.1.44
+
+- spawner UI revamped
+- model parking lots! and finally model public/private parking
+- fix up tutorial
+- starting a story map mode

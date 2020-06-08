@@ -164,6 +164,7 @@ calling out milestones. "UI churn" is pretty much constantly happening.
   maybe vanquished the HiDPI bugs, multi-step turn restrictions, random bios for
   people, and docs like this to prep for launch ;)
   - **milestone**: relying on pure OSM, no more `MapFixes`
+- June: parking lots
 
 ## Retrospective
 
