@@ -233,7 +233,7 @@ pub struct FYI {
 }
 
 impl FYI {
-    pub fn new(ctx: &mut EventCtx, contents: Widget) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, contents: Widget, bg: Color) -> Box<dyn State> {
         Box::new(FYI {
             composite: Composite::new(
                 Widget::col(vec![
@@ -244,7 +244,7 @@ impl FYI {
                         .align_bottom(),
                 ])
                 .padding(16)
-                .bg(Color::WHITE),
+                .bg(bg),
             )
             .build(ctx),
         })

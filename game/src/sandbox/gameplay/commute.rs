@@ -9,8 +9,8 @@ use crate::helpers::ID;
 use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
 use crate::sandbox::SandboxControls;
 use ezgui::{
-    Btn, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Text, TextExt,
-    VerticalAlignment, Widget,
+    Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Text,
+    TextExt, VerticalAlignment, Widget,
 };
 use geom::{Duration, Time};
 use sim::{OrigPersonID, PersonID, TripID};
@@ -190,7 +190,7 @@ impl GameplayState for OptimizeCommute {
                 "instructions" => {
                     // TODO pt1 or pt2?
                     let contents = OptimizeCommute::cutscene_pt1_task(ctx);
-                    return Some(Transition::Push(FYI::new(ctx, contents)));
+                    return Some(Transition::Push(FYI::new(ctx, contents, Color::WHITE)));
                 }
                 "locate VIP" => {
                     controls.common.as_mut().unwrap().launch_info_panel(

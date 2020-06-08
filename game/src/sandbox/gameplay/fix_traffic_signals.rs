@@ -8,7 +8,7 @@ use crate::helpers::ID;
 use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
 use crate::sandbox::{SandboxControls, SandboxMode};
 use ezgui::{
-    Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, RewriteColor,
+    Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, RewriteColor,
     Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Duration, Time};
@@ -173,7 +173,23 @@ impl GameplayState for FixTrafficSignals {
                 }
                 "instructions" => {
                     let contents = FixTrafficSignals::cutscene_pt1_task(ctx);
-                    return Some(Transition::Push(FYI::new(ctx, contents)));
+                    return Some(Transition::Push(FYI::new(ctx, contents, Color::WHITE)));
+                }
+                "hint" => {
+                    // TODO Multiple hints. Point to layers.
+                    let mut txt = Text::from(Line("Hint"));
+                    txt.add(Line(""));
+                    txt.add_appended(vec![
+                        Line("Press "),
+                        Line(Key::L.describe()).fg(ctx.style().hotkey_color),
+                        Line(" to open layers. Try "),
+                        Line(Key::D.describe()).fg(ctx.style().hotkey_color),
+                        Line("elay or worst traffic "),
+                        Line(Key::J.describe()).fg(ctx.style().hotkey_color),
+                        Line("ams"),
+                    ]);
+                    let contents = txt.draw(ctx);
+                    return Some(Transition::Push(FYI::new(ctx, contents, app.cs.panel_bg)));
                 }
                 "try again" => {
                     return Some(Transition::Replace(Box::new(SandboxMode::new(
@@ -209,7 +225,15 @@ fn make_top_center(ctx: &mut EventCtx, app: &App, failed_at: Option<Time>) -> Co
                     Btn::text_fg("try again").build_def(ctx, None),
                 ])
             } else {
-                format!("Keep delay under {}", THRESHOLD).draw_text(ctx)
+                Widget::row(vec![
+                    format!("Keep delay under {}", THRESHOLD).draw_text(ctx),
+                    Btn::svg(
+                        "../data/system/assets/tools/hint.svg",
+                        RewriteColor::Change(Color::WHITE, app.cs.hovering),
+                    )
+                    .build(ctx, "hint", None)
+                    .align_right(),
+                ])
             },
         ])
         .bg(app.cs.panel_bg)
