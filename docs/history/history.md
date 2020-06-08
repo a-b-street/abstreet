@@ -11,8 +11,10 @@ has been festering since I was about 16.
       * [Year 1 (June 2018-2019)](#year-1-june-2018-2019)
       * [Year 2 (June 2019-2020)](#year-2-june-2019-2020)
       * [Retrospective](#retrospective)
+      * [Trivia](#trivia)
 
-<!-- Added by: dabreegster, at: Sat May 30 15:43:02 PDT 2020 -->
+<!-- Added by: dabreegster, at: Mon Jun  8 12:16:39 PDT 2020 -->
+
 <!--te-->
 
 ## Backstory
@@ -23,12 +25,12 @@ quick version.
 
 I grew up in Baton Rouge, where driving is effectively the only mode of
 transport. (I've gone back and made a point of taking long walks to confirm how
-antagonistically the city is designed towards other modes.) Very early on, I
-fell in love with a Nintendo 64 game called Banjo Kazooie, which led me to the
-online fan communities of the early 2000's. I wanted to create games too, so I
-started learning programming via library books and lots of questions on IRC.
-Because I never had any confidence in art, I wound up working on roguelikes,
-which led to a fervent interest in pathfinding algorithms and
+antagonistically the city is designed towards walking.) Very early on, I fell in
+love with a Nintendo 64 game called Banjo Kazooie, which led me to the online
+fan communities of the early 2000's. I wanted to create games too, so I started
+learning programming via library books and lots of questions on IRC. Because I
+never had any confidence in art, I wound up working on roguelikes, which led to
+a fervent interest in pathfinding algorithms and
 [collaborative diffusion](http://www.cs.colorado.edu/~ralex/papers/PDF/OOPSLA06antiobjects.pdf).
 When I started driving in high school, I quickly realized how bad people were at
 it. I remember being stuck at the intersection of
@@ -111,6 +113,7 @@ calling out milestones. "UI churn" is pretty much constantly happening.
   test runner framework
 - December: bezier curves for turns, traffic signal editor, a first attempt at
   merging intersections, right-click menus, a top menu, modal menus
+
   - the grand colorscheme refactor: a python script scraped `cs.get_def` calls
     at build-time
 
@@ -139,6 +142,7 @@ calling out milestones. "UI churn" is pretty much constantly happening.
 - September: offstreet parking, associating parked cars with buildings using
   Soundcast (before that, anybody could use any car!), implemented texture
   support for some reason, doing manual `MapFixes` at scale to fix OSM bugs
+
   - **milestone**: got the smallest montlake map to run without gridlock
 
 - October: parking sim fixes, opportunistic lane-changing, starting challenge
@@ -148,6 +152,7 @@ calling out milestones. "UI churn" is pretty much constantly happening.
   - **milestone**: Yuwen joins project
 - December: the UI reform begins (flexbox, minimap, trip timelines, cutting over
   to SVGs, info panels, scrolling), started naming releases sensibly
+
   - Project leaked to [HN](https://news.ycombinator.com/item?id=21763636), woops
 
 - January: UI reform continues, the modern tutorial mode appears
@@ -180,4 +185,6 @@ What poor judgments have cost me the most time?
 
 ## Trivia
 
-The name was almost "Unstreet" or "Superban" (superb urban)
+- The name was almost "Unstreet" or "Superban" (superb urban)
+- I hope you enjoy and/or are baffled by the
+  [release names](https://github.com/dabreegster/abstreet/releases)

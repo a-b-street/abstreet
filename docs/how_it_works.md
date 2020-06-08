@@ -1,56 +1,146 @@
 # How A/B Street works
 
-The big caveat: I'm a software engineer with no background in civil engineering.
-A/B Street absolutely shouldn't replace other planning or analysis. It's just
-meant to be an additional tool to quickly prototype ideas without expensive
-software and formal training.
+The overview:
 
-This page gives a non-technical overview. See
-[here](https://github.com/dabreegster/abstreet/#documentation-for-developers)
-for details.
+1.  A detailed map of Seattle is built from
+    [OpenStreetMap (OSM)](https://www.openstreetmap.org/about)
+2.  A realistic set of daily trips by car, bike, foot, and bus are simulated
+3.  You make small changes to roads and intersections
+4.  You explore how these changes affect the trips
 
-## The map of Seattle
+Details below. Many limitations are mentioned; improvements are ongoing. I'll
+add pictures to explain better when I get time.
 
-The map in A/B Street is built from
-[OpenStreetMap](https://www.openstreetmap.org/about). You will notice many
-places where the number of lanes is wrong; let me know about these, and we can
-contribute the fix to OpenStreetMap. Many sidewalks and crosswalks are also
-incorrectly placed.
+<!--ts-->
+   * [How A/B Street works](#how-ab-street-works)
+      * [Driving](#driving)
+      * [Parking](#parking)
+      * [Biking](#biking)
+   * [Walking](#walking)
+      * [Transit](#transit)
+      * [Intersections](#intersections)
+      * [People and trips](#people-and-trips)
+      * [Map edits](#map-edits)
 
-People in A/B Street have to park their cars somewhere. I can't find good data
-about either public or private parking. For now, I'm using a Seattle
-[GeoData blockface dataset](http://data-seattlecitygis.opendata.arcgis.com/datasets/blockface)
-to guess on-street parking, but this is frequently wrong. I'm assigning every
-building one offstreet spot. This is wildly unrealistic, but I have nothing
-better yet.
+<!-- Added by: dabreegster, at: Mon Jun  8 12:17:13 PDT 2020 -->
 
-There's also no public data about how traffic signals in Seattle are timed. I'm
-making automatic guesses, and attempting to manually survey as many signals
-in-person as I can. I could really use help here!
+<!--te-->
 
-## The traffic
+## Driving
 
-Vehicles in A/B Street instantly accelerate and brake. They change lanes only at
-intersections, and they can't over-take slower vehicles in the middle of a lane.
-People walking on sidewalks can "ghost" through one another, or walk together in
-a crowd -- before COVID-19, this was a reasonable model in most areas. Despite
-these limits, I hope you'll find the large-scale traffic patterns that emerge
-from the simulation to be at least a little familiar from your real-world
-experiences.
+- Movement: no acceleration, go the full speed limit of the road unless there's
+  a slower vehicle in front
+- Lanes
+  - No over-taking or lane-changing in the middle of a road, only at
+    intersections
+  - Strange choice of lanes -- the least full at the time of arrival
+  - Narrow two-way neighborhood roads where, in practice, only one car at a time
+    can go are currently full two-way roads
+- Routing is based on fastest time assuming no traffic
+  - No rerouting if the driver encounters a traffic jam
 
-People in A/B Street follow a specific schedule, taking trips between buildings
-throughout the day. The trips come from
-[PSRC's Soundcast model](https://www.psrc.org/activity-based-travel-model-soundcast),
-which uses census, land-use, and vehicle count data to generate a "synthetic
-population" roughly matching reality. The trip data is from 2014, which is quite
-old.
+## Parking
 
-When you make changes to the map in A/B Street, exactly the people still take
-exactly the same trips, making the same decision whether to drive, walk, bike,
-or take transit. Currently, your changes only influence their route and
-experience along it.
+- Types
+  - On-street: parallel parking lanes from
+    [GeoData blockface dataset](http://data-seattlecitygis.opendata.arcgis.com/datasets/blockface)
+    and
+    [manually mapped](https://dabreegster.github.io/abstreet/map_parking.html)
+  - Off-street: most buildings have at least a few parking spots in a driveway
+    or carport
+  - Parking lots: the number of spots is inferred
+- Restrictions
+  - All spots are public except for the few spots associated with each building
+  - No time restrictions or modeling of payment
+- How cars park
+  - Drivers won't look for parking until they first reach their destination
+    building. Then they'll drive to the nearest open parking spot (magically
+    knowing what spots are open, even if they're a few blocks away). If somebody
+    else has taken the spot when they arrive, they'll try again.
+  - Once a driver finds an open spot, they'll take 10-15 seconds to park. They
+    block the road behind them in the meantime. There are no conflicts between
+    pedestrians and cars when using a driveway. Cars won't make left turns into
+    or out of driveways.
+- Some parking along the boundary of the map is "blackholed", meaning it's
+  impossible to actually reach it. Nobody will use these spots.
 
-## Missing things
+## Biking
 
-Light rail, shared biking/walking trails like the Burke Gilman, and ridesharing
-are some of the notable things missing right now.
+- Choice of lane
+  - Multi-use trails like the Burke Gilman and separated cycle-tracks like the
+    one along Broadway are currently missing
+  - Cyclists won't use an empty parking lane
+  - On roads without a bike lane, cyclists currently won't stick to the
+    rightmost lane
+  - No over-taking yet, so cars can get stuck behind a bike even if there's a
+    passing lane
+- Elevation change isn't factored into route choice or speed yet; pretend
+  everybody has an e-bike
+- Beginning or ending a cycling trip takes 30-45 seconds. Locking up at bike
+  racks with limited capacity isn't modeled; in practice, it's always easy in
+  Seattle to find a place to lock up.
+
+# Walking
+
+- Not using sidewalk and crosswalk data from OSM yet
+- No jay-walking, even on empty residential streets
+- Pedestrians can't use roads without sidewalks at all
+  - When a road only has a sidewalk on one side, driveways will cross the road
+- Pedestrians can "ghost" through each other; crowds of people can grow to any
+  size
+
+## Transit
+
+- The modeling of buses is extremely simple and buggy; I'll work on this soon
+- No light rail yet
+
+## Intersections
+
+- Conflicting movements are coarse: a second vehicle won't start a conflicting
+  turn, even if the first vehicle is physically out of the way but still
+  partially in the intersection
+- Most of the time, vehicles won't "block the box" -- if there's no room in the
+  target lane, a vehicle won't start turning and risk getting stuck in the
+  intersection
+- Traffic signals
+  - Only fixed timers; no actuated signals or
+    [centralized control](https://www.seattle.gov/transportation/projects-and-programs/programs/technology-program/mercer-scoot)
+    yet
+  - The timing and phases are automatically guessed, except some intersections
+    are
+    [manually mapped](https://docs.google.com/document/d/1Od_7WvBVYsvpY4etRI0sKmYmZnwXMAXcJxVmm8Iwdcg/edit?usp=sharing)
+  - No pedestrian beg buttons; walk signals always come on
+  - The signal doesn't change for rush hour or weekday/weekend traffic; there's
+    one pattern all day
+- Turn restrictions from OSM are applied
+  - Per lane (left turn only from leftmost lane), entire roads, multiple
+    intersections
+
+## People and trips
+
+- A "synthetic population" of ~700,000 people come from
+  [PSRC's Soundcast model](https://www.psrc.org/activity-based-travel-model-soundcast)
+  - Soundcast uses census, land-use, vehicle counts, and commuter surveys. The
+    current data is from 2014.
+  - All driving trips are currently single-occupancy; no car-pooling or
+    ridesharing
+  - Parked cars are initially placed at midnight based on the number of trips
+    between buildings
+- Each person's schedule never changes
+  - Your changes to the map won't yet convince somebody to take a bus or walk
+    instead of drive
+
+## Map edits
+
+- Types of edits
+  - Change types of lanes. Sometimes this is unrealistic based on actual road
+    width, but data for this is unavailable.
+  - Reversing direction of lanes
+  - Changing stop signs
+  - Changing traffic signal timing
+  - Closing roads and intersections for construction, forcing rerouting
+- Disconnecting the map
+  - Generally you can't close sidewalks or make changes to make buildings
+    unreachable
+  - You shouldn't be able to make bus stops unreachable, but currently this is
+    buggy

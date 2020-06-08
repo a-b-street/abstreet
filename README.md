@@ -23,13 +23,14 @@ Measure the effects:
 
 ![evaluating_impacts](docs/videos/evaluating_impacts.gif)
 
-## Documentation for developers
+## Documentation
 
-- [Developer guide](docs/dev.md)
-- [Map model](docs/articles/map/article.md)
-- [Traffic simulation](docs/articles/trafficsim/article.md)
-- [Rust implementation notes](docs/articles/rust/article.md)
-- [Running A/B Street in a new city](docs/new_city.md)
+- [How A/B Street works](docs/how_it_works.md)
+- Technical
+  - [Developer guide](docs/dev.md)
+  - [Map model](docs/articles/map/article.md)
+  - [Traffic simulation](docs/articles/trafficsim/article.md)
+  - [Running A/B Street in a new city](docs/new_city.md)
 - Presentations
   - April 2020 Rust meetup:
     [recording](https://www.youtube.com/watch?v=chYd5I-5oyc),
@@ -37,39 +38,12 @@ Measure the effects:
   - [Feb 2020 traffic sim](https://docs.google.com/presentation/d/181so6bWkGsPzpc-mI72CQffthMKMVzFPAkYxIyzgfAs/edit?usp=sharing)
   - [Oct 2019 Traffic sim and current challenges](https://docs.google.com/presentation/d/1PJRFoXmJAyenkqHIwo48zxqu1LSH6pc7XKSzhyC1raw/edit?usp=sharing)
   - [Oct 2019 Map construction](https://docs.google.com/presentation/d/1cF7qFtjAzkXL_r62CjxBvgQnLvuQ9I2WTE2iX_5tMCY/edit?usp=sharing)
+- Project
+  - [Roadmap](docs/roadmap.md)
+  - [Motivations](docs/motivations.md)
+  - [History](docs/history/history.md)
 
-## Features
-
-- The map
-  - A detailed rendering of Seattle from OpenStreetMap and King County GIS data,
-    including sidewalks, on-street parking, bike lanes, bus-only lanes, turn
-    lanes, buildings, and bus stops.
-  - Intersections governed by stop signs and traffic signals, with default
-    signal timings heuristically inferred. Hand-tuned geometry to reasonably
-    model Seattle's strangest intersections.
-  - You can adjust lane types, stop signs, and traffic signals, and reverse
-    lanes.
-- The traffic
-  - Individual cars, buses, bikes, and pedestrians move through the map.
-  - Most trips are multi-modal -- for example, a pedestrian exits a building,
-    walks a few blocks over to their parked car, drives somewhere, looks for
-    parking, and walks to their final destination.
-  - A realistic set of trips -- how many people go from building 1 to building 2
-    at some time using some form of transport -- based on
-    [PSRC's Soundcast](https://www.psrc.org/activity-based-travel-model-soundcast)
-    model.
-- The gameplay
-  - Start in sandbox mode, exploring the map, watching traffic patterns,
-    following individual agents, looking for problems.
-  - Jump to edit mode, where you can convert some on-street parking to bus lanes
-    and adjust traffic signals to try to fix some problem.
-  - Try your change in A/B test mode, running two traffic simulations
-    side-by-side. Explore how individual agents finish their trips faster or
-    slower, and compare aggregate results about different groups of traffic.
-  - Attempt a predefined challenge with particular objectives, like speeding up
-    certain bus routes or designing a full bike network.
-
-### Roadmap and contributing
+## Roadmap and contributing
 
 See the [roadmap](docs/roadmap.md) for current work, including ways to help. If
 you want to bring this to your city or if you're skilled in design, traffic
@@ -100,6 +74,7 @@ writes:
 
 Existing urban planning software is either proprietary or hard to use. A/B
 Street strives to set the accessibility bar high, by being a fun, engaging game.
+See [here](docs/motivations.md) for more guiding principles.
 
 ## Credits
 
@@ -107,11 +82,6 @@ Core team:
 
 - Dustin Carlino (<dabreegster@gmail.com>)
 - [Yuwen Li](https://www.yuwen-li.com/) (UX)
-
-Active contributors:
-
-- Orestis Malaspinas (<orestis.malaspinas@hesge.ch>) (pandemic modeling)
-- Christopher Klein (game design)
 
 Others:
 
@@ -127,6 +97,8 @@ Others:
   have been great sounding boards for ideas since the beginning
 - In-game character faces adapted from
   [Anokhee Jandhyala](https://github.com/anokhee/visual-synthesizer)
+- Pandemic modeling by Orestis Malaspinas (<orestis.malaspinas@hesge.ch>)
+- Game design advice from Christopher Klein
 
 Data:
 
