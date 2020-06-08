@@ -327,7 +327,7 @@ pub fn make_signal_diagram(
     };
     let mut col = if edit_mode {
         vec![
-            txt_widget,
+            txt_widget.margin_below(10),
             Btn::text_bg2("Edit entire signal").build_def(ctx, hotkey(Key::E)),
         ]
     } else {
@@ -383,18 +383,39 @@ pub fn make_signal_diagram(
         };
 
         let phase_col = if edit_mode {
-            Widget::row(vec![
-                Widget::col(vec![
-                    format!("Phase {}: {}", idx + 1, phase.duration).draw_text(ctx),
-                    phase_btn,
-                ]),
+            Widget::col(vec![
                 Widget::row(vec![
+                    Line(format!("Phase {}: {}", idx + 1, phase.duration))
+                        .small_heading()
+                        .draw(ctx)
+                        .margin_right(10),
+                    Btn::svg_def("../data/system/assets/tools/edit.svg").build(
+                        ctx,
+                        format!("change duration of phase {}", idx + 1),
+                        if selected == idx {
+                            hotkey(Key::X)
+                        } else {
+                            None
+                        },
+                    ),
+                    if signal.phases.len() > 1 {
+                        Btn::svg_def("../data/system/assets/tools/delete.svg")
+                            .build(ctx, format!("delete phase {}", idx + 1), None)
+                            .align_right()
+                    } else {
+                        Widget::nothing()
+                    },
+                ])
+                .margin_below(10),
+                Widget::row(vec![
+                    phase_btn,
                     Widget::col(vec![
                         if idx == 0 {
                             Btn::text_fg("↑").inactive(ctx)
                         } else {
                             Btn::text_fg("↑").build(ctx, format!("move up phase {}", idx + 1), None)
-                        },
+                        }
+                        .margin_below(5),
                         if idx == signal.phases.len() - 1 {
                             Btn::text_fg("↓").inactive(ctx)
                         } else {
@@ -405,31 +426,9 @@ pub fn make_signal_diagram(
                             )
                         },
                     ])
-                    .margin_right(15),
-                    Widget::col(vec![
-                        Btn::svg_def("../data/system/assets/tools/edit.svg")
-                            .build(
-                                ctx,
-                                format!("change duration of phase {}", idx + 1),
-                                if selected == idx {
-                                    hotkey(Key::X)
-                                } else {
-                                    None
-                                },
-                            )
-                            .margin_below(10),
-                        if signal.phases.len() > 1 {
-                            Btn::svg_def("../data/system/assets/tools/delete.svg").build(
-                                ctx,
-                                format!("delete phase {}", idx + 1),
-                                None,
-                            )
-                        } else {
-                            Widget::nothing()
-                        },
-                    ]),
-                ])
-                .align_right(),
+                    .centered_vert()
+                    .align_right(),
+                ]),
             ])
         } else {
             Widget::col(vec![

@@ -373,7 +373,7 @@ pub fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: b
             Widget::nothing()
         },
     ];
-    Composite::new(Widget::row(row).bg(app.cs.panel_bg).padding(5))
+    Composite::new(Widget::row(row).bg(app.cs.panel_bg).padding(16))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx)
 }

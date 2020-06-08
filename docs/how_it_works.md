@@ -16,7 +16,7 @@ add pictures to explain better when I get time.
       * [Driving](#driving)
       * [Parking](#parking)
       * [Biking](#biking)
-   * [Walking](#walking)
+      * [Walking](#walking)
       * [Transit](#transit)
       * [Intersections](#intersections)
       * [People and trips](#people-and-trips)
@@ -80,7 +80,7 @@ add pictures to explain better when I get time.
   racks with limited capacity isn't modeled; in practice, it's always easy in
   Seattle to find a place to lock up.
 
-# Walking
+## Walking
 
 - Not using sidewalk and crosswalk data from OSM yet
 - No jay-walking, even on empty residential streets

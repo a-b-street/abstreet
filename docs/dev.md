@@ -97,9 +97,8 @@ You can also make the importer [import a new city](new_city.md).
 
 ## Understanding stuff
 
-The docs listed at
-https://github.com/dabreegster/abstreet#documentation-for-developers explain
-things like map importing and how the traffic simulation works.
+The docs listed at https://github.com/dabreegster/abstreet#documentation
+explain things like map importing and how the traffic simulation works.
 
 ### Code organization
 
