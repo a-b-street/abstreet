@@ -2852,6 +2852,7 @@ version = "0.1.0"
 dependencies = [
  "abstutil 0.1.0",
  "derivative 2.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "downcast-rs 1.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "geom 0.1.0",
  "instant 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "libm 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",

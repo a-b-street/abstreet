@@ -7,10 +7,10 @@ use crate::render::{AgentCache, AgentColorScheme, DrawMap, DrawOptions, Renderab
 use crate::sandbox::{GameplayMode, TutorialState};
 use abstutil::{MeasureMemory, Timer};
 use ezgui::{EventCtx, GfxCtx, Prerender};
-use geom::{Bounds, Circle, Distance, Pt2D};
-use map_model::{Map, Traversable};
+use geom::{Bounds, Circle, Distance, Duration, Pt2D, Time};
+use map_model::{IntersectionID, Map, Traversable};
 use rand::seq::SliceRandom;
-use sim::{Analytics, GetDrawAgents, Sim, SimFlags};
+use sim::{Analytics, GetDrawAgents, Sim, SimCallback, SimFlags};
 use std::collections::BTreeMap;
 
 pub struct App {
@@ -508,6 +508,7 @@ pub struct PerMap {
     pub current_selection: Option<ID>,
     pub current_flags: Flags,
     pub last_warped_from: Option<(Pt2D, f64)>,
+    pub sim_cb: Option<Box<dyn SimCallback>>,
 }
 
 impl PerMap {
@@ -528,6 +529,7 @@ impl PerMap {
             current_selection: None,
             current_flags: flags.clone(),
             last_warped_from: None,
+            sim_cb: None,
         }
     }
 
@@ -577,5 +579,23 @@ impl PerObjectActions {
         assert!(self.click_action.is_none());
         self.click_action = Some(label.into());
         ctx.normal_left_click()
+    }
+}
+
+pub struct FindDelayedIntersections {
+    pub halt_limit: Duration,
+    pub report_limit: Duration,
+
+    pub currently_delayed: Vec<(IntersectionID, Time)>,
+}
+
+impl SimCallback for FindDelayedIntersections {
+    fn run(&mut self, sim: &Sim, _: &Map) -> bool {
+        self.currently_delayed = sim.delayed_intersections(self.report_limit);
+        if let Some((_, t)) = self.currently_delayed.get(0) {
+            sim.time() - *t >= self.halt_limit
+        } else {
+            false
+        }
     }
 }

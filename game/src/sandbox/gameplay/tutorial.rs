@@ -752,7 +752,9 @@ impl TutorialState {
 
         if let Some(ref cb) = self.stage().spawn {
             (cb)(app);
-            app.primary.sim.tiny_step(&app.primary.map);
+            app.primary
+                .sim
+                .tiny_step(&app.primary.map, &mut app.primary.sim_cb);
         }
 
         let last_finished_task = if self.current.stage == 0 {
@@ -1088,7 +1090,7 @@ impl TutorialState {
                         &mut rng,
                         &mut Timer::new("spawn trip"),
                     );
-                    app.primary.sim.tiny_step(map);
+                    app.primary.sim.tiny_step(map, &mut app.primary.sim_cb);
 
                     // And add some noise
                     spawn_agents_around(app.primary.map.find_i_by_osm_id(1709145066).unwrap(), app);

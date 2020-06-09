@@ -1,6 +1,5 @@
 use crate::{AlertHandler, Scenario, Sim, SimOptions};
 use abstutil::CmdArgs;
-use geom::Duration;
 use map_model::{Map, MapEdits};
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
@@ -29,7 +28,6 @@ impl SimFlags {
                 run_name: args
                     .optional("--run_name")
                     .unwrap_or_else(|| "unnamed".to_string()),
-                savestate_every: args.optional_parse("--savestate_every", Duration::parse),
                 use_freeform_policy_everywhere: args.enabled("--freeform_policy"),
                 dont_block_the_box: !args.enabled("--disable_block_the_box"),
                 recalc_lanechanging: !args.enabled("--disable_recalc_lc"),

@@ -1,4 +1,4 @@
-use crate::app::App;
+use crate::app::{App, FindDelayedIntersections};
 use crate::common::Warping;
 use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
@@ -187,7 +187,9 @@ impl SpeedControls {
                 "step forwards" => {
                     let dt = self.composite.persistent_split_value("step forwards");
                     if dt == Duration::seconds(0.1) {
-                        app.primary.sim.tiny_step(&app.primary.map);
+                        app.primary
+                            .sim
+                            .tiny_step(&app.primary.map, &mut app.primary.sim_cb);
                         app.recalculate_current_selection(ctx);
                         return Some(Transition::KeepWithMouseover);
                     }
@@ -259,9 +261,12 @@ impl SpeedControls {
                 let dt = multiplier * real_dt;
                 // TODO This should match the update frequency in ezgui. Plumb along the deadline
                 // or frequency to here.
-                app.primary
-                    .sim
-                    .time_limited_step(&app.primary.map, dt, Duration::seconds(0.033));
+                app.primary.sim.time_limited_step(
+                    &app.primary.map,
+                    dt,
+                    Duration::seconds(0.033),
+                    &mut app.primary.sim_cb,
+                );
                 app.recalculate_current_selection(ctx);
             }
         }
@@ -476,12 +481,20 @@ impl TimeWarpScreen {
         ctx: &mut EventCtx,
         app: &mut App,
         target: Time,
-        traffic_jams: bool,
+        mut traffic_jams: bool,
     ) -> Box<dyn State> {
         if traffic_jams {
-            app.primary
-                .sim
-                .set_gridlock_checker(Some(Duration::minutes(5)));
+            if app.primary.sim_cb.is_none() {
+                app.primary.sim_cb = Some(Box::new(FindDelayedIntersections {
+                    halt_limit: Duration::minutes(5),
+                    report_limit: Duration::minutes(5),
+                    currently_delayed: Vec::new(),
+                }));
+                // TODO Can we get away with less frequently? Not sure about all the edge cases
+                app.primary.sim.set_periodic_callback(Duration::minutes(1));
+            } else {
+                traffic_jams = false;
+            }
         }
 
         Box::new(TimeWarpScreen {
@@ -507,30 +520,34 @@ impl State for TimeWarpScreen {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if ctx.input.nonblocking_is_update_event().is_some() {
             ctx.input.use_update_event();
-            if let Some(problems) = app.primary.sim.time_limited_step(
+            app.primary.sim.time_limited_step(
                 &app.primary.map,
                 self.target - app.primary.sim.time(),
                 Duration::seconds(0.033),
-            ) {
-                let id = ID::Intersection(problems[0].0);
-                app.layer = Some(Box::new(crate::layer::traffic::Dynamic::traffic_jams(
-                    ctx, app,
-                )));
-                return Transition::Replace(Warping::new(
-                    ctx,
-                    id.canonical_point(&app.primary).unwrap(),
-                    Some(10.0),
-                    Some(id),
-                    &mut app.primary,
-                ));
-            }
-
+                &mut app.primary.sim_cb,
+            );
             for (t, maybe_i, alert) in app.primary.sim.clear_alerts() {
                 // TODO Just the first :(
                 return Transition::Replace(msg(
                     "Alert",
                     vec![format!("At {}, near {:?}, {}", t, maybe_i, alert)],
                 ));
+            }
+            if let Some(ref mut cb) = app.primary.sim_cb {
+                let di = cb.downcast_mut::<FindDelayedIntersections>().unwrap();
+                if let Some((i, _)) = di.currently_delayed.get(0) {
+                    let id = ID::Intersection(*i);
+                    app.layer = Some(Box::new(crate::layer::traffic::Dynamic::traffic_jams(
+                        ctx, app,
+                    )));
+                    return Transition::Replace(Warping::new(
+                        ctx,
+                        id.canonical_point(&app.primary).unwrap(),
+                        Some(10.0),
+                        Some(id),
+                        &mut app.primary,
+                    ));
+                }
             }
 
             // I'm covered in shame for not doing this from the start.
@@ -578,7 +595,7 @@ impl State for TimeWarpScreen {
 
     fn on_destroy(&mut self, _: &mut EventCtx, app: &mut App) {
         if self.traffic_jams {
-            app.primary.sim.set_gridlock_checker(None);
+            app.primary.sim.unset_periodic_callback();
         }
     }
 }

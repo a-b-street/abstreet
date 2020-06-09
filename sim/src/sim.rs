@@ -59,17 +59,12 @@ pub struct Sim {
 
     #[derivative(PartialEq = "ignore")]
     #[serde(skip_serializing, skip_deserializing)]
-    check_for_gridlock: Option<(Time, Duration)>,
-
-    #[derivative(PartialEq = "ignore")]
-    #[serde(skip_serializing, skip_deserializing)]
     alerts: AlertHandler,
 }
 
 #[derive(Clone)]
 pub struct SimOptions {
     pub run_name: String,
-    pub savestate_every: Option<Duration>,
     pub use_freeform_policy_everywhere: bool,
     pub dont_block_the_box: bool,
     pub recalc_lanechanging: bool,
@@ -98,7 +93,6 @@ impl SimOptions {
     pub fn new(run_name: &str) -> SimOptions {
         SimOptions {
             run_name: run_name.to_string(),
-            savestate_every: None,
             use_freeform_policy_everywhere: false,
             dont_block_the_box: true,
             recalc_lanechanging: true,
@@ -113,9 +107,6 @@ impl SimOptions {
 impl Sim {
     pub fn new(map: &Map, opts: SimOptions, timer: &mut Timer) -> Sim {
         let mut scheduler = Scheduler::new();
-        if let Some(d) = opts.savestate_every {
-            scheduler.push(Time::START_OF_DAY + d, Command::Savestate(d));
-        }
         Sim {
             driving: DrivingSimState::new(map, opts.recalc_lanechanging),
             parking: ParkingSimState::new(map, timer),
@@ -143,7 +134,6 @@ impl Sim {
             run_name: opts.run_name,
             step_count: 0,
             trip_positions: None,
-            check_for_gridlock: None,
             alerts: opts.alerts,
 
             analytics: Analytics::new(),
@@ -385,47 +375,57 @@ impl GetDrawAgents for Sim {
 
 // Running
 impl Sim {
-    // Advances time as minimally as possible, also limited by max_dt.
-    fn minimal_step(&mut self, map: &Map, max_dt: Duration) {
+    // Advances time as minimally as possible, also limited by max_dt. Returns true if the callback
+    // said to halt the sim.
+    fn minimal_step(
+        &mut self,
+        map: &Map,
+        max_dt: Duration,
+        maybe_cb: &mut Option<Box<dyn SimCallback>>,
+    ) -> bool {
         self.step_count += 1;
 
         let max_time = if let Some(t) = self.scheduler.peek_next_time() {
             if t > self.time + max_dt {
                 // Next event is after when we want to stop.
                 self.time += max_dt;
-                return;
+                return false;
             }
             t
         } else {
             // No events left at all
             self.time += max_dt;
-            return;
+            return false;
         };
 
-        let mut savestate = false;
+        let mut halt = false;
         while let Some(time) = self.scheduler.peek_next_time() {
             if time > max_time {
-                return;
+                return false;
             }
             if let Some(cmd) = self.scheduler.get_next() {
-                if self.do_step(map, time, cmd) {
-                    savestate = true;
+                if self.do_step(map, time, cmd, maybe_cb) {
+                    halt = true;
+                    break;
                 }
             }
         }
 
         self.trip_positions = None;
-
-        if savestate {
-            self.save();
-        }
+        halt
     }
 
-    // If true, savestate was requested.
-    fn do_step(&mut self, map: &Map, time: Time, cmd: Command) -> bool {
+    // If true, halt simulation because the callback said so.
+    fn do_step(
+        &mut self,
+        map: &Map,
+        time: Time,
+        cmd: Command,
+        maybe_cb: &mut Option<Box<dyn SimCallback>>,
+    ) -> bool {
         self.time = time;
         let mut events = Vec::new();
-        let mut savestate = false;
+        let mut halt = false;
         match cmd {
             Command::StartTrip(id, trip_spec, maybe_req, maybe_path) => {
                 self.trips.start_trip(
@@ -576,10 +576,12 @@ impl Sim {
                 self.intersections
                     .update_intersection(self.time, i, map, &mut self.scheduler);
             }
-            Command::Savestate(frequency) => {
+            Command::Callback(frequency) => {
                 self.scheduler
-                    .push(self.time + frequency, Command::Savestate(frequency));
-                savestate = true;
+                    .push(self.time + frequency, Command::Callback(frequency));
+                if maybe_cb.as_mut().unwrap().run(self, map) {
+                    halt = true;
+                }
             }
             Command::Pandemic(cmd) => {
                 self.pandemic
@@ -601,7 +603,7 @@ impl Sim {
         // Record events at precisely the time they occur.
         self.dispatch_events(events, map);
 
-        savestate
+        halt
     }
 
     fn dispatch_events(&mut self, mut events: Vec<Event>, map: &Map) {
@@ -620,14 +622,22 @@ impl Sim {
         }
     }
 
-    pub fn timed_step(&mut self, map: &Map, dt: Duration, timer: &mut Timer) {
+    pub fn timed_step(
+        &mut self,
+        map: &Map,
+        dt: Duration,
+        maybe_cb: &mut Option<Box<dyn SimCallback>>,
+        timer: &mut Timer,
+    ) {
         let end_time = self.time + dt;
         let start = Instant::now();
         let mut last_update = Instant::now();
 
         timer.start(format!("Advance sim to {}", end_time));
         while self.time < end_time {
-            self.minimal_step(map, end_time - self.time);
+            if self.minimal_step(map, end_time - self.time, maybe_cb) {
+                break;
+            }
             if !self.analytics.alerts.is_empty() {
                 match self.alerts {
                     AlertHandler::Print => {
@@ -658,32 +668,29 @@ impl Sim {
         }
         timer.stop(format!("Advance sim to {}", end_time));
     }
-    pub fn tiny_step(&mut self, map: &Map) {
-        self.timed_step(map, Duration::seconds(0.1), &mut Timer::throwaway());
+    pub fn tiny_step(&mut self, map: &Map, maybe_cb: &mut Option<Box<dyn SimCallback>>) {
+        self.timed_step(
+            map,
+            Duration::seconds(0.1),
+            maybe_cb,
+            &mut Timer::throwaway(),
+        );
     }
 
-    // TODO Do this like periodic savestating instead?
-    pub fn set_gridlock_checker(&mut self, freq: Option<Duration>) {
-        if let Some(dt) = freq {
-            assert!(self.check_for_gridlock.is_none());
-            self.check_for_gridlock = Some((self.time + dt, dt));
-        } else {
-            assert!(self.check_for_gridlock.is_some());
-            self.check_for_gridlock = None;
-        }
-    }
-    // This will return delayed intersections if that's why it stops early.
     pub fn time_limited_step(
         &mut self,
         map: &Map,
         dt: Duration,
         real_time_limit: Duration,
-    ) -> Option<Vec<(IntersectionID, Time)>> {
+        maybe_cb: &mut Option<Box<dyn SimCallback>>,
+    ) {
         let started_at = Instant::now();
         let end_time = self.time + dt;
 
         while self.time < end_time && Duration::realtime_elapsed(started_at) < real_time_limit {
-            self.minimal_step(map, end_time - self.time);
+            if self.minimal_step(map, end_time - self.time, maybe_cb) {
+                break;
+            }
             if !self.analytics.alerts.is_empty() {
                 match self.alerts {
                     AlertHandler::Print => {
@@ -702,18 +709,7 @@ impl Sim {
                     }
                 }
             }
-            if let Some((ref mut t, dt)) = self.check_for_gridlock {
-                if self.time >= *t {
-                    *t += dt;
-                    let gridlock = self.delayed_intersections(dt);
-                    if !gridlock.is_empty() {
-                        return Some(gridlock);
-                    }
-                }
-            }
         }
-
-        None
     }
 
     pub fn dump_before_abort(&self) {
@@ -745,7 +741,7 @@ impl Sim {
             let dt = time_limit.unwrap_or_else(|| Duration::seconds(30.0));
 
             match panic::catch_unwind(panic::AssertUnwindSafe(|| {
-                self.timed_step(map, dt, &mut Timer::throwaway());
+                self.timed_step(map, dt, &mut None, &mut Timer::throwaway());
             })) {
                 Ok(()) => {}
                 Err(err) => {
@@ -1194,6 +1190,27 @@ impl Sim {
 
     pub fn clear_alerts(&mut self) -> Vec<(Time, AlertLocation, String)> {
         std::mem::replace(&mut self.analytics.alerts, Vec::new())
+    }
+}
+
+// Callbacks
+pub trait SimCallback: downcast_rs::Downcast {
+    // Run at some scheduled time. If this returns true, halt simulation.
+    fn run(&mut self, sim: &Sim, map: &Map) -> bool;
+}
+downcast_rs::impl_downcast!(SimCallback);
+
+impl Sim {
+    // Only one at a time supported.
+    pub fn set_periodic_callback(&mut self, frequency: Duration) {
+        // TODO Round up time nicely?
+        self.scheduler
+            .push(self.time + frequency, Command::Callback(frequency));
+    }
+    pub fn unset_periodic_callback(&mut self) {
+        // Frequency doesn't matter
+        self.scheduler
+            .cancel(Command::Callback(Duration::seconds(1.0)));
     }
 }
 

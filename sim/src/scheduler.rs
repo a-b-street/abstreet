@@ -20,7 +20,7 @@ pub enum Command {
     UpdateLaggyHead(CarID),
     UpdatePed(PedestrianID),
     UpdateIntersection(IntersectionID),
-    Savestate(Duration),
+    Callback(Duration),
     Pandemic(pandemic::Cmd),
     FinishRemoteTrip(TripID),
 }
@@ -42,7 +42,7 @@ impl Command {
             Command::UpdateLaggyHead(id) => CommandType::CarLaggyHead(*id),
             Command::UpdatePed(id) => CommandType::Ped(*id),
             Command::UpdateIntersection(id) => CommandType::Intersection(*id),
-            Command::Savestate(_) => CommandType::Savestate,
+            Command::Callback(_) => CommandType::Callback,
             Command::Pandemic(ref p) => CommandType::Pandemic(p.clone()),
             Command::FinishRemoteTrip(t) => CommandType::FinishRemoteTrip(*t),
         }
@@ -58,7 +58,7 @@ pub enum CommandType {
     CarLaggyHead(CarID),
     Ped(PedestrianID),
     Intersection(IntersectionID),
-    Savestate,
+    Callback,
     Pandemic(pandemic::Cmd),
     FinishRemoteTrip(TripID),
 }

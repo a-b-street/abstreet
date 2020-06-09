@@ -362,9 +362,14 @@ fn prebake(map: &Map, scenario: Scenario, time_limit: Option<Duration>, timer: &
     let mut rng = SimFlags::for_test("prebaked").make_rng();
     scenario.instantiate(&mut sim, &map, &mut rng, timer);
     if let Some(dt) = time_limit {
-        sim.timed_step(&map, dt, timer);
+        sim.timed_step(&map, dt, &mut None, timer);
     } else {
-        sim.timed_step(&map, sim.get_end_of_day() - Time::START_OF_DAY, timer);
+        sim.timed_step(
+            &map,
+            sim.get_end_of_day() - Time::START_OF_DAY,
+            &mut None,
+            timer,
+        );
     }
 
     abstutil::write_binary(

@@ -290,7 +290,7 @@ impl State for AgentSpawner {
                         &mut rng,
                         &mut Timer::new("spawn trip"),
                     );
-                    app.primary.sim.tiny_step(map);
+                    app.primary.sim.tiny_step(map, &mut app.primary.sim_cb);
                     app.recalculate_current_selection(ctx);
                     return Transition::Pop;
                 }
@@ -573,7 +573,7 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
     }
 
     sim.flush_spawner(spawner, map, &mut timer);
-    sim.tiny_step(map);
+    sim.tiny_step(map, &mut app.primary.sim_cb);
 }
 
 pub fn actions(_: &App, id: ID) -> Vec<(Key, String)> {
