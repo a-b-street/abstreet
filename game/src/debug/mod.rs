@@ -13,7 +13,7 @@ use ezgui::{
     hotkey, lctrl, Btn, Checkbox, Color, Composite, Drawable, EventCtx, EventLoopMode, GeomBatch,
     GfxCtx, HorizontalAlignment, Key, Line, Outcome, Text, VerticalAlignment, Widget, Wizard,
 };
-use geom::{Duration, Pt2D};
+use geom::Pt2D;
 use map_model::NORMAL_LANE_THICKNESS;
 use sim::{AgentID, Sim, TripID};
 use std::collections::HashSet;
@@ -479,9 +479,7 @@ impl ContextualActions for Actions {
             }
             (ID::Car(c), "forcibly kill this car") => {
                 app.primary.sim.kill_stuck_car(c, &app.primary.map);
-                app.primary
-                    .sim
-                    .normal_step(&app.primary.map, Duration::seconds(0.1));
+                app.primary.sim.tiny_step(&app.primary.map);
                 app.primary.current_selection = None;
                 Transition::Keep
             }

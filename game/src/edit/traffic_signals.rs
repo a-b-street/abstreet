@@ -621,7 +621,9 @@ fn make_previewer(i: IntersectionID, phase: usize) -> Box<dyn State> {
                 for idx in 0..phase {
                     step += signal.phases[idx].duration;
                 }
-                app.primary.sim.normal_step(&app.primary.map, step);
+                app.primary
+                    .sim
+                    .timed_step(&app.primary.map, step, &mut Timer::throwaway());
 
                 spawn_agents_around(i, app);
             }

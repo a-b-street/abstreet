@@ -11,7 +11,7 @@ use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
     Key, Line, Outcome, ScreenRectangle, Spinner, Text, TextExt, VerticalAlignment, Widget,
 };
-use geom::{Distance, Duration, Polygon};
+use geom::{Distance, Polygon};
 use map_model::{
     BuildingID, IntersectionID, Map, PathConstraints, PathRequest, Position, NORMAL_LANE_THICKNESS,
 };
@@ -193,8 +193,6 @@ pub fn make_change_traffic(btn: ScreenRectangle, current: String) -> Box<dyn Sta
     }))
 }
 
-const SMALL_DT: Duration = Duration::const_seconds(0.1);
-
 struct AgentSpawner {
     composite: Composite,
     source: Option<TripEndpoint>,
@@ -292,7 +290,7 @@ impl State for AgentSpawner {
                         &mut rng,
                         &mut Timer::new("spawn trip"),
                     );
-                    app.primary.sim.normal_step(map, SMALL_DT);
+                    app.primary.sim.tiny_step(map);
                     app.recalculate_current_selection(ctx);
                     return Transition::Pop;
                 }
@@ -575,7 +573,7 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
     }
 
     sim.flush_spawner(spawner, map, &mut timer);
-    sim.normal_step(map, SMALL_DT);
+    sim.tiny_step(map);
 }
 
 pub fn actions(_: &App, id: ID) -> Vec<(Key, String)> {

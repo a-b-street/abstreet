@@ -185,9 +185,7 @@ impl GameplayMode {
                     &mut app.primary.current_flags.sim_flags.make_rng(),
                     timer,
                 );
-                app.primary
-                    .sim
-                    .normal_step(&app.primary.map, Duration::seconds(0.1));
+                app.primary.sim.tiny_step(&app.primary.map);
 
                 // Maybe we've already got prebaked data for this map+scenario.
                 if !app

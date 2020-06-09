@@ -187,7 +187,7 @@ impl SpeedControls {
                 "step forwards" => {
                     let dt = self.composite.persistent_split_value("step forwards");
                     if dt == Duration::seconds(0.1) {
-                        app.primary.sim.normal_step(&app.primary.map, dt);
+                        app.primary.sim.tiny_step(&app.primary.map);
                         app.recalculate_current_selection(ctx);
                         return Some(Transition::KeepWithMouseover);
                     }

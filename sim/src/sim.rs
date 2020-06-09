@@ -658,8 +658,8 @@ impl Sim {
         }
         timer.stop(format!("Advance sim to {}", end_time));
     }
-    pub fn normal_step(&mut self, map: &Map, dt: Duration) {
-        self.timed_step(map, dt, &mut Timer::throwaway());
+    pub fn tiny_step(&mut self, map: &Map) {
+        self.timed_step(map, Duration::seconds(0.1), &mut Timer::throwaway());
     }
 
     // TODO Do this like periodic savestating instead?
@@ -730,10 +730,6 @@ impl Sim {
 // Helpers to run the sim
 // TODO Old and gunky
 impl Sim {
-    pub fn just_run_until_done(&mut self, map: &Map, time_limit: Option<Duration>) {
-        self.run_until_done(map, |_, _| {}, time_limit);
-    }
-
     pub fn run_until_done<F: Fn(&mut Sim, &Map)>(
         &mut self,
         map: &Map,
@@ -749,7 +745,7 @@ impl Sim {
             let dt = time_limit.unwrap_or_else(|| Duration::seconds(30.0));
 
             match panic::catch_unwind(panic::AssertUnwindSafe(|| {
-                self.normal_step(&map, dt);
+                self.timed_step(map, dt, &mut Timer::throwaway());
             })) {
                 Ok(()) => {}
                 Err(err) => {
@@ -792,26 +788,6 @@ impl Sim {
                 panic!("Time limit {} hit", lim);
             }
         }
-    }
-
-    pub fn run_until_expectations_met(
-        &mut self,
-        map: &Map,
-        all_expectations: Vec<Event>,
-        // Interpreted as a relative time
-        time_limit: Duration,
-    ) {
-        // TODO No benchmark printing at all this way.
-        // TODO Doesn't stop early once all expectations are met.
-        self.analytics.test_expectations.extend(all_expectations);
-        self.normal_step(&map, time_limit);
-        if self.analytics.test_expectations.is_empty() {
-            return;
-        }
-        panic!(
-            "Time limit {} hit, but some expectations never met: {:?}",
-            time_limit, self.analytics.test_expectations
-        );
     }
 }
 

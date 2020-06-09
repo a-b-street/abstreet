@@ -6,7 +6,7 @@ use map_model::{
     Traversable, TurnGroupID,
 };
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, VecDeque};
+use std::collections::BTreeMap;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Analytics {
@@ -15,8 +15,6 @@ pub struct Analytics {
 
     // Unlike everything else in Analytics, this is just for a moment in time.
     pub demand: BTreeMap<TurnGroupID, usize>,
-    #[serde(skip_serializing, skip_deserializing)]
-    pub(crate) test_expectations: VecDeque<Event>,
     pub bus_arrivals: Vec<(Time, CarID, BusRouteID, BusStopID)>,
     pub bus_passengers_waiting: Vec<(Time, BusStopID, BusRouteID)>,
     pub started_trips: BTreeMap<TripID, Time>,
@@ -43,7 +41,6 @@ impl Analytics {
             road_thruput: TimeSeriesCount::new(),
             intersection_thruput: TimeSeriesCount::new(),
             demand: BTreeMap::new(),
-            test_expectations: VecDeque::new(),
             bus_arrivals: Vec::new(),
             bus_passengers_waiting: Vec::new(),
             started_trips: BTreeMap::new(),
@@ -83,12 +80,6 @@ impl Analytics {
                 self.intersection_thruput.record(time, i, mode);
             }
             _ => {}
-        }
-
-        // Test expectations
-        if !self.test_expectations.is_empty() && &ev == self.test_expectations.front().unwrap() {
-            println!("At {}, met expectation {:?}", time, ev);
-            self.test_expectations.pop_front();
         }
 
         // Bus arrivals
