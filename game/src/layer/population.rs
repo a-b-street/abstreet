@@ -30,7 +30,9 @@ impl Layer for PopulationMap {
         minimap: &Composite,
     ) -> Option<LayerOutcome> {
         if app.primary.sim.time() != self.time {
-            *self = PopulationMap::new(ctx, app, self.opts.clone());
+            let mut new = PopulationMap::new(ctx, app, self.opts.clone());
+            new.composite.restore(ctx, &self.composite);
+            *self = new;
         }
 
         self.composite.align_above(ctx, minimap);

@@ -23,6 +23,7 @@ TODO:
 - Close Broadway and Pine to through-traffic
   - proposed
     [here](https://old.reddit.com/r/SeattleWA/comments/gr4dsi/its_time_for_mayor_durkan_to_bring_stay_healthy/)
+  - partly [happening already](https://www.openstreetmap.org/way/814244753)
 - Traffic signal timing at Montlake/520 and Montlake/Pacific
   - Walking around here is frustrating, and pre-COVID, vehicle traffic got
     fairly stuck
