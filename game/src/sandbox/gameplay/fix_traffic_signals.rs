@@ -9,11 +9,12 @@ use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, Gamep
 use crate::sandbox::{SandboxControls, SandboxMode};
 use ezgui::{
     Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, RewriteColor,
-    Text, TextExt, VerticalAlignment, Widget,
+    Text, VerticalAlignment, Widget,
 };
 use geom::{Duration, Time};
+use map_model::IntersectionID;
 
-const THRESHOLD: Duration = Duration::const_seconds(10.0 * 60.0);
+const THRESHOLD: Duration = Duration::const_seconds(20.0 * 60.0);
 
 pub struct FixTrafficSignals {
     top_center: Composite,
@@ -26,7 +27,7 @@ pub struct FixTrafficSignals {
 impl FixTrafficSignals {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn GameplayState> {
         Box::new(FixTrafficSignals {
-            top_center: make_top_center(ctx, app, None),
+            top_center: make_top_center(ctx, app, None, None),
             time: Time::START_OF_DAY,
             once: true,
             done: false,
@@ -101,9 +102,11 @@ impl GameplayState for FixTrafficSignals {
                 .get(0)
                 .cloned()
             {
-                if app.primary.sim.time() - t >= THRESHOLD {
+                let dt = app.primary.sim.time() - t;
+                if dt >= THRESHOLD {
                     self.done = true;
-                    self.top_center = make_top_center(ctx, app, Some(app.primary.sim.time()));
+                    self.top_center =
+                        make_top_center(ctx, app, Some((i, dt)), Some(app.primary.sim.time()));
                     return Some(Transition::PushTwice(
                         final_score(ctx, app, self.mode.clone(), true),
                         Warping::new(
@@ -114,14 +117,16 @@ impl GameplayState for FixTrafficSignals {
                             &mut app.primary,
                         ),
                     ));
+                } else {
+                    self.top_center = make_top_center(ctx, app, Some((i, dt)), None);
                 }
+            } else {
+                self.top_center = make_top_center(ctx, app, None, None);
             }
 
             if app.primary.sim.is_done() {
                 self.done = true;
-                // TODO The score should reflect exactly when the problem is detected. I haven't
-                // thought through all the cases here, but I think it should be within
-                // report_limit.
+                // TODO The score is up to 1 min (report_limit) off.
                 return Some(Transition::Push(final_score(
                     ctx,
                     app,
@@ -167,6 +172,24 @@ impl GameplayState for FixTrafficSignals {
                         self.mode.clone(),
                     ))));
                 }
+                "go to slowest intersection" => {
+                    let i = app
+                        .primary
+                        .sim_cb
+                        .as_ref()
+                        .unwrap()
+                        .downcast_ref::<FindDelayedIntersections>()
+                        .unwrap()
+                        .currently_delayed[0]
+                        .0;
+                    return Some(Transition::Push(Warping::new(
+                        ctx,
+                        ID::Intersection(i).canonical_point(&app.primary).unwrap(),
+                        Some(10.0),
+                        None,
+                        &mut app.primary,
+                    )));
+                }
                 _ => unreachable!(),
             },
             None => {}
@@ -186,10 +209,44 @@ impl GameplayState for FixTrafficSignals {
     }
 }
 
-fn make_top_center(ctx: &mut EventCtx, app: &App, failed_at: Option<Time>) -> Composite {
+fn make_top_center(
+    ctx: &mut EventCtx,
+    app: &App,
+    worst: Option<(IntersectionID, Duration)>,
+    failed_at: Option<Time>,
+) -> Composite {
     Composite::new(
         Widget::col(vec![
             challenge_header(ctx, "Traffic signal survivor"),
+            if let Some((_, delay)) = worst {
+                Widget::row(vec![
+                    Text::from_all(vec![
+                        Line("Worst delay: "),
+                        Line(delay.to_string()).fg(if delay < Duration::minutes(5) {
+                            Color::hex("#F9EC51")
+                        } else if delay < Duration::minutes(15) {
+                            Color::hex("#EE702E")
+                        } else {
+                            Color::hex("#EB3223")
+                        }),
+                    ])
+                    .draw(ctx),
+                    Btn::svg_def("../data/system/assets/tools/location.svg")
+                        .build(ctx, "go to slowest intersection", None)
+                        .align_right(),
+                ])
+            } else {
+                Widget::row(vec![
+                    Text::from_all(vec![Line("Worst delay: "), Line("none!").secondary()])
+                        .draw(ctx),
+                    Widget::draw_svg_transform(
+                        ctx,
+                        "../data/system/assets/tools/location.svg",
+                        RewriteColor::ChangeAlpha(0.5),
+                    )
+                    .align_right(),
+                ])
+            },
             if let Some(t) = failed_at {
                 Widget::row(vec![
                     Line(format!("Delay exceeded {} at {}", THRESHOLD, t))
@@ -201,7 +258,9 @@ fn make_top_center(ctx: &mut EventCtx, app: &App, failed_at: Option<Time>) -> Co
                 ])
             } else {
                 Widget::row(vec![
-                    format!("Keep delay under {}", THRESHOLD).draw_text(ctx),
+                    Line(format!("Keep delay under {}", THRESHOLD))
+                        .secondary()
+                        .draw(ctx),
                     Btn::svg(
                         "../data/system/assets/tools/hint.svg",
                         RewriteColor::Change(Color::WHITE, app.cs.hovering),
@@ -249,11 +308,13 @@ fn final_score(
 
 // TODO Can we automatically transform text and SVG colors?
 fn cutscene_pt1_task(ctx: &mut EventCtx) -> Widget {
-    // TODO Use THRESHOLD
     Widget::col(vec![
         Text::from_multiline(vec![
-            Line("Don't let anyone be delayed by one traffic signal more than 10 minutes!")
-                .fg(Color::BLACK),
+            Line(format!(
+                "Don't let anyone be delayed by one traffic signal more than {}!",
+                THRESHOLD
+            ))
+            .fg(Color::BLACK),
             Line("Survive as long as possible through 24 hours of a busy weekday.")
                 .fg(Color::BLACK),
         ])
@@ -282,7 +343,7 @@ fn cutscene_pt1_task(ctx: &mut EventCtx) -> Widget {
                 .margin_above(5),
                 Text::from_multiline(vec![
                     Line("Keep delay at all intersections").fg(Color::BLACK),
-                    Line("under 10 mins").fg(Color::BLACK),
+                    Line(format!("under {}", THRESHOLD)).fg(Color::BLACK),
                 ])
                 .draw(ctx),
             ]),
