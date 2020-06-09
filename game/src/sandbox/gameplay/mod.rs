@@ -309,12 +309,18 @@ impl FinalScore {
                         .outline(10.0, Color::BLACK)
                         .padding(10),
                     Widget::col(vec![
-                        msg.draw_text(ctx),
+                        msg.draw_text(ctx).margin_below(5),
                         // TODO Adjust wording
-                        Btn::text_bg2("Keep simulating").build_def(ctx, None),
-                        Btn::text_bg2("Try again").build_def(ctx, None),
+                        Btn::text_bg2("Keep simulating")
+                            .build_def(ctx, None)
+                            .margin_below(5),
+                        Btn::text_bg2("Try again")
+                            .build_def(ctx, None)
+                            .margin_below(5),
                         if next_mode.is_some() {
-                            Btn::text_bg2("Next challenge").build_def(ctx, None)
+                            Btn::text_bg2("Next challenge")
+                                .build_def(ctx, None)
+                                .margin_below(5)
                         } else {
                             Widget::nothing()
                         },

@@ -9,8 +9,8 @@ use crate::helpers::ID;
 use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
 use crate::sandbox::SandboxControls;
 use ezgui::{
-    Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Text,
-    TextExt, VerticalAlignment, Widget,
+    Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, RewriteColor,
+    Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Duration, Time};
 use sim::{OrigPersonID, PersonID, TripID};
@@ -24,6 +24,7 @@ pub struct OptimizeCommute {
     mode: GameplayMode,
     goal: Duration,
     time: Time,
+    done: bool,
 
     // Cache here for convenience
     trips: Vec<TripID>,
@@ -54,16 +55,13 @@ impl OptimizeCommute {
             mode: GameplayMode::OptimizeCommute(orig_person, goal),
             goal,
             time: Time::START_OF_DAY,
+            done: false,
             trips,
             once: true,
         })
     }
 
     pub fn cutscene_pt1(ctx: &mut EventCtx, app: &App, mode: &GameplayMode) -> Box<dyn State> {
-        let goal = match mode {
-            GameplayMode::OptimizeCommute(_, d) => *d,
-            _ => unreachable!(),
-        };
         CutsceneBuilder::new("Optimize one commute: part 1")
             .boss("Listen up, I've got a special job for you today.")
             .player("What is it? The scooter coalition back with demands for more valet parking?")
@@ -83,32 +81,14 @@ impl OptimizeCommute {
                  digging into what happened in Ballard --",
             )
             .boss("JUST GET TO WORK, KID!")
-            .narrator(
+            .player(
                 "Somebody's blackmailing the boss. Guess it's time to help this VIP (very \
                  impatient person).",
             )
-            .narrator(
-                "The drone has been programmed to find the anonymous VIP. Watch their daily \
-                 route, figure out what's wrong, and fix it.",
-            )
-            .narrator(format!(
-                "Ignore the damage done to everyone else. Just speed up the VIP's trips by a \
-                 total of {}.",
-                goal
-            ))
-            .build(ctx, app, OptimizeCommute::cutscene_pt1_task)
-    }
-
-    fn cutscene_pt1_task(ctx: &mut EventCtx) -> Widget {
-        // TODO Improve
-        Line("Speed up the VIP's trips").draw(ctx)
+            .build(ctx, app, cutscene_task(mode))
     }
 
     pub fn cutscene_pt2(ctx: &mut EventCtx, app: &App, mode: &GameplayMode) -> Box<dyn State> {
-        let goal = match mode {
-            GameplayMode::OptimizeCommute(_, d) => *d,
-            _ => unreachable!(),
-        };
         // TODO The person chosen for this currently has more of an issue needing PBLs, actually.
         CutsceneBuilder::new("Optimize one commute: part 2")
             .boss("I've got another, er, friend who's sick of this parking situation.")
@@ -125,18 +105,8 @@ impl OptimizeCommute {
                  \"friend\" more important than the city's carbon-neutral goals?",
             )
             .boss("Everyone's calling in favors these days. Just make it happen!")
-            .narrator("Too many people have dirt on the boss. Guess we have another VIP to help.")
-            .narrator(format!(
-                "Once again, ignore the damage to everyone else, and just speed up the VIP's \
-                 trips by a total of {}.",
-                goal
-            ))
-            .build(ctx, app, OptimizeCommute::cutscene_pt2_task)
-    }
-
-    fn cutscene_pt2_task(ctx: &mut EventCtx) -> Widget {
-        // TODO Improve
-        Line("Speed up the VIP's trips").draw(ctx)
+            .player("Too many people have dirt on the boss. Guess we have another VIP to help.")
+            .build(ctx, app, cutscene_task(mode))
     }
 }
 
@@ -159,7 +129,7 @@ impl GameplayState for OptimizeCommute {
             );
         }
 
-        if self.time != app.primary.sim.time() {
+        if self.time != app.primary.sim.time() && !self.done {
             self.time = app.primary.sim.time();
 
             let (before, after, done) = get_score(app, &self.trips);
@@ -167,6 +137,7 @@ impl GameplayState for OptimizeCommute {
                 make_top_center(ctx, app, before, after, done, self.trips.len(), self.goal);
 
             if done == self.trips.len() {
+                self.done = true;
                 return Some(Transition::Push(final_score(
                     ctx,
                     app,
@@ -188,9 +159,18 @@ impl GameplayState for OptimizeCommute {
                     ))));
                 }
                 "instructions" => {
-                    // TODO pt1 or pt2?
-                    let contents = OptimizeCommute::cutscene_pt1_task(ctx);
+                    let contents = (cutscene_task(&self.mode))(ctx);
                     return Some(Transition::Push(FYI::new(ctx, contents, Color::WHITE)));
+                }
+                "hint" => {
+                    // TODO Multiple hints. Point to follow button.
+                    let mut txt = Text::from(Line("Hints"));
+                    txt.add(Line(""));
+                    txt.add(Line("Use the locator at the top to find the VIP."));
+                    txt.add(Line("You can wait for one of their trips to begin or end."));
+                    txt.add(Line("Focus on trips spent mostly waiting"));
+                    let contents = txt.draw(ctx);
+                    return Some(Transition::Push(FYI::new(ctx, contents, app.cs.panel_bg)));
                 }
                 "locate VIP" => {
                     controls.common.as_mut().unwrap().launch_info_panel(
@@ -259,15 +239,24 @@ fn make_top_center(
                 format!("{}/{} trips done", done, trips)
                     .draw_text(ctx)
                     .margin_right(20),
-                txt.draw(ctx).margin_right(20),
+                txt.draw(ctx),
+            ]),
+            Widget::row(vec![
                 format!("Goal: {} faster", goal)
                     .draw_text(ctx)
+                    .centered_vert()
                     .margin_right(5),
                 Widget::draw_svg(ctx, sentiment).centered_vert(),
+                Btn::svg(
+                    "../data/system/assets/tools/hint.svg",
+                    RewriteColor::Change(Color::WHITE, app.cs.hovering),
+                )
+                .build(ctx, "hint", None)
+                .align_right(),
             ]),
         ])
         .bg(app.cs.panel_bg)
-        .padding(5),
+        .padding(16),
     )
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
@@ -348,4 +337,70 @@ impl ContextualActions for Actions {
     fn is_paused(&self) -> bool {
         self.paused
     }
+}
+
+fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {
+    let goal = match mode {
+        GameplayMode::OptimizeCommute(_, d) => *d,
+        _ => unreachable!(),
+    };
+
+    Box::new(move |ctx| {
+        Widget::col(vec![
+            Text::from_multiline(vec![
+                Line(format!("Speed up the VIP's trips by a total of {}", goal)).fg(Color::BLACK),
+                Line("Ignore the damage done to everyone else.").fg(Color::BLACK),
+            ])
+            .draw(ctx)
+            .margin_below(30),
+            Widget::row(vec![
+                Widget::col(vec![
+                    Line("Time").fg(Color::BLACK).draw(ctx),
+                    Widget::draw_svg_transform(
+                        ctx,
+                        "../data/system/assets/tools/time.svg",
+                        RewriteColor::ChangeAll(Color::BLACK),
+                    )
+                    .margin_below(5)
+                    .margin_above(5),
+                    Text::from_multiline(vec![
+                        Line("Until the VIP's").fg(Color::BLACK),
+                        Line("last trip is done").fg(Color::BLACK),
+                    ])
+                    .draw(ctx),
+                ]),
+                Widget::col(vec![
+                    Line("Goal").fg(Color::BLACK).draw(ctx),
+                    Widget::draw_svg_transform(
+                        ctx,
+                        "../data/system/assets/tools/location.svg",
+                        RewriteColor::ChangeAll(Color::BLACK),
+                    )
+                    .margin_below(5)
+                    .margin_above(5),
+                    Text::from_multiline(vec![
+                        Line("Speed up the VIP's trips").fg(Color::BLACK),
+                        Line(format!("by at least {}", goal)).fg(Color::BLACK),
+                    ])
+                    .draw(ctx),
+                ]),
+                Widget::col(vec![
+                    Line("Score").fg(Color::BLACK).draw(ctx),
+                    Widget::draw_svg_transform(
+                        ctx,
+                        "../data/system/assets/tools/star.svg",
+                        RewriteColor::ChangeAll(Color::BLACK),
+                    )
+                    .margin_below(5)
+                    .margin_above(5),
+                    Text::from_multiline(vec![
+                        Line("How much time").fg(Color::BLACK),
+                        Line("the VIP saves").fg(Color::BLACK),
+                    ])
+                    .draw(ctx),
+                ]),
+            ])
+            .evenly_spaced(),
+        ])
+    })
 }

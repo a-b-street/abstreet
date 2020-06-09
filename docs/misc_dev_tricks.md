@@ -141,3 +141,10 @@ java -jar ~/Downloads/josm-tested.jar ~/abstreet/map_editor/diff.osc
 
 JOSM: Press (and release T), then click to pan. Download a relevant layer,
 select the .osc, merge, then upload.
+
+## Release checklist
+
+What things are sensitive to changes in map data and simulation rules?
+
+- tutorial
+- optimize commute challenges

@@ -63,62 +63,7 @@ impl FixTrafficSignals {
                  the worst problems first.",
             )
             .player("Sigh... it's going to be a long day.")
-            .build(ctx, app, FixTrafficSignals::cutscene_pt1_task)
-    }
-
-    // TODO Can we automatically transform text and SVG colors?
-    fn cutscene_pt1_task(ctx: &mut EventCtx) -> Widget {
-        // TODO Use THRESHOLD
-        Widget::col(vec![
-            Text::from_multiline(vec![
-                Line("Don't let anyone be delayed by one traffic signal more than 10 minutes!")
-                    .fg(Color::BLACK),
-                Line("Survive as long as possible through 24 hours of a busy weekday.")
-                    .fg(Color::BLACK),
-            ])
-            .draw(ctx)
-            .margin_below(30),
-            Widget::row(vec![
-                Widget::col(vec![
-                    Line("Time").fg(Color::BLACK).draw(ctx),
-                    Widget::draw_svg_transform(
-                        ctx,
-                        "../data/system/assets/tools/time.svg",
-                        RewriteColor::ChangeAll(Color::BLACK),
-                    )
-                    .margin_below(5)
-                    .margin_above(5),
-                    Line("24 hours").fg(Color::BLACK).draw(ctx),
-                ]),
-                Widget::col(vec![
-                    Line("Goal").fg(Color::BLACK).draw(ctx),
-                    Widget::draw_svg_transform(
-                        ctx,
-                        "../data/system/assets/tools/location.svg",
-                        RewriteColor::ChangeAll(Color::BLACK),
-                    )
-                    .margin_below(5)
-                    .margin_above(5),
-                    Text::from_multiline(vec![
-                        Line("Keep delay at all intersections").fg(Color::BLACK),
-                        Line("under 10 mins").fg(Color::BLACK),
-                    ])
-                    .draw(ctx),
-                ]),
-                Widget::col(vec![
-                    Line("Score").fg(Color::BLACK).draw(ctx),
-                    Widget::draw_svg_transform(
-                        ctx,
-                        "../data/system/assets/tools/star.svg",
-                        RewriteColor::ChangeAll(Color::BLACK),
-                    )
-                    .margin_below(5)
-                    .margin_above(5),
-                    Line("How long you survive").fg(Color::BLACK).draw(ctx),
-                ]),
-            ])
-            .evenly_spaced(),
-        ])
+            .build(ctx, app, Box::new(cutscene_pt1_task))
     }
 }
 
@@ -172,7 +117,7 @@ impl GameplayState for FixTrafficSignals {
                     ))));
                 }
                 "instructions" => {
-                    let contents = FixTrafficSignals::cutscene_pt1_task(ctx);
+                    let contents = cutscene_pt1_task(ctx);
                     return Some(Transition::Push(FYI::new(ctx, contents, Color::WHITE)));
                 }
                 "hint" => {
@@ -237,7 +182,7 @@ fn make_top_center(ctx: &mut EventCtx, app: &App, failed_at: Option<Time>) -> Co
             },
         ])
         .bg(app.cs.panel_bg)
-        .padding(5),
+        .padding(16),
     )
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
@@ -270,4 +215,59 @@ fn final_score(
         "Wow, you managed to fix the signals. Great job!".to_string()
     };
     FinalScore::new(ctx, app, msg, mode, None)
+}
+
+// TODO Can we automatically transform text and SVG colors?
+fn cutscene_pt1_task(ctx: &mut EventCtx) -> Widget {
+    // TODO Use THRESHOLD
+    Widget::col(vec![
+        Text::from_multiline(vec![
+            Line("Don't let anyone be delayed by one traffic signal more than 10 minutes!")
+                .fg(Color::BLACK),
+            Line("Survive as long as possible through 24 hours of a busy weekday.")
+                .fg(Color::BLACK),
+        ])
+        .draw(ctx)
+        .margin_below(30),
+        Widget::row(vec![
+            Widget::col(vec![
+                Line("Time").fg(Color::BLACK).draw(ctx),
+                Widget::draw_svg_transform(
+                    ctx,
+                    "../data/system/assets/tools/time.svg",
+                    RewriteColor::ChangeAll(Color::BLACK),
+                )
+                .margin_below(5)
+                .margin_above(5),
+                Line("24 hours").fg(Color::BLACK).draw(ctx),
+            ]),
+            Widget::col(vec![
+                Line("Goal").fg(Color::BLACK).draw(ctx),
+                Widget::draw_svg_transform(
+                    ctx,
+                    "../data/system/assets/tools/location.svg",
+                    RewriteColor::ChangeAll(Color::BLACK),
+                )
+                .margin_below(5)
+                .margin_above(5),
+                Text::from_multiline(vec![
+                    Line("Keep delay at all intersections").fg(Color::BLACK),
+                    Line("under 10 mins").fg(Color::BLACK),
+                ])
+                .draw(ctx),
+            ]),
+            Widget::col(vec![
+                Line("Score").fg(Color::BLACK).draw(ctx),
+                Widget::draw_svg_transform(
+                    ctx,
+                    "../data/system/assets/tools/star.svg",
+                    RewriteColor::ChangeAll(Color::BLACK),
+                )
+                .margin_below(5)
+                .margin_above(5),
+                Line("How long you survive").fg(Color::BLACK).draw(ctx),
+            ]),
+        ])
+        .evenly_spaced(),
+    ])
 }

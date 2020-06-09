@@ -50,8 +50,8 @@ impl Challenge {
                     description: vec!["Speed up one VIP's daily commute, at any cost!".to_string()],
                     alias: "commute/pt1".to_string(),
                     gameplay: GameplayMode::OptimizeCommute(
-                        OrigPersonID(140030, 1),
-                        Duration::minutes(2),
+                        OrigPersonID(140824, 2),
+                        Duration::minutes(2) + Duration::seconds(30.0),
                     ),
                     cutscene: Some(
                         crate::sandbox::gameplay::commute::OptimizeCommute::cutscene_pt1,
@@ -62,8 +62,8 @@ impl Challenge {
                     description: vec!["Speed up another VIP's commute".to_string()],
                     alias: "commute/pt2".to_string(),
                     gameplay: GameplayMode::OptimizeCommute(
-                        OrigPersonID(140288, 3),
-                        Duration::seconds(90.0),
+                        OrigPersonID(141039, 2),
+                        Duration::minutes(5),
                     ),
                     cutscene: Some(
                         crate::sandbox::gameplay::commute::OptimizeCommute::cutscene_pt2,

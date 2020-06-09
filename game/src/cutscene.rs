@@ -40,20 +40,11 @@ impl CutsceneBuilder {
         self
     }
 
-    // TODO Remove
-    pub fn narrator<I: Into<String>>(mut self, msg: I) -> CutsceneBuilder {
-        self.scenes.push(Scene {
-            player: true,
-            msg: Text::from(Line(msg).fg(Color::BLACK)),
-        });
-        self
-    }
-
     pub fn build(
         self,
         ctx: &mut EventCtx,
         app: &App,
-        make_task: fn(&mut EventCtx) -> Widget,
+        make_task: Box<dyn Fn(&mut EventCtx) -> Widget>,
     ) -> Box<dyn State> {
         Box::new(CutscenePlayer {
             composite: make_panel(ctx, app, &self.name, &self.scenes, &make_task, 0),
@@ -70,7 +61,7 @@ struct CutscenePlayer {
     scenes: Vec<Scene>,
     idx: usize,
     composite: Composite,
-    make_task: fn(&mut EventCtx) -> Widget,
+    make_task: Box<dyn Fn(&mut EventCtx) -> Widget>,
 }
 
 impl State for CutscenePlayer {
@@ -140,7 +131,7 @@ fn make_panel(
     app: &App,
     name: &str,
     scenes: &Vec<Scene>,
-    make_task: &fn(&mut EventCtx) -> Widget,
+    make_task: &Box<dyn Fn(&mut EventCtx) -> Widget>,
     idx: usize,
 ) -> Composite {
     let prev = if idx > 0 {
@@ -246,6 +237,7 @@ impl FYI {
                 .padding(16)
                 .bg(bg),
             )
+            .exact_size_percent(50, 50)
             .build(ctx),
         })
     }
