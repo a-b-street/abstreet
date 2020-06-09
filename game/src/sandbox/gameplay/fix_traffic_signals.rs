@@ -1,4 +1,4 @@
-use crate::app::App;
+use crate::app::{App, FindDelayedIntersections};
 use crate::challenges::HighScore;
 use crate::common::Warping;
 use crate::cutscene::{CutsceneBuilder, FYI};
@@ -18,6 +18,7 @@ const THRESHOLD: Duration = Duration::const_seconds(10.0 * 60.0);
 pub struct FixTrafficSignals {
     top_center: Composite,
     time: Time,
+    once: bool,
     done: bool,
     mode: GameplayMode,
 }
@@ -27,6 +28,7 @@ impl FixTrafficSignals {
         Box::new(FixTrafficSignals {
             top_center: make_top_center(ctx, app, None),
             time: Time::START_OF_DAY,
+            once: true,
             done: false,
             mode: GameplayMode::FixTrafficSignals,
         })
@@ -74,30 +76,52 @@ impl GameplayState for FixTrafficSignals {
         app: &mut App,
         _: &mut SandboxControls,
     ) -> Option<Transition> {
+        if self.once {
+            self.once = false;
+            assert!(app.primary.sim_cb.is_none());
+            app.primary.sim_cb = Some(Box::new(FindDelayedIntersections {
+                halt_limit: THRESHOLD,
+                report_limit: Duration::minutes(1),
+                currently_delayed: Vec::new(),
+            }));
+            app.primary.sim.set_periodic_callback(Duration::minutes(1));
+        }
+
         if self.time != app.primary.sim.time() && !self.done {
             self.time = app.primary.sim.time();
 
-            // TODO We need to check every 5 minutes or force a blocking alert or something.
-            let problems = app.primary.sim.delayed_intersections(THRESHOLD);
-            if !problems.is_empty() {
-                self.done = true;
-                self.top_center = make_top_center(ctx, app, Some(app.primary.sim.time()));
-                return Some(Transition::PushTwice(
-                    final_score(ctx, app, self.mode.clone(), true),
-                    Warping::new(
-                        ctx,
-                        ID::Intersection(problems[0].0)
-                            .canonical_point(&app.primary)
-                            .unwrap(),
-                        Some(10.0),
-                        None,
-                        &mut app.primary,
-                    ),
-                ));
+            if let Some((i, t)) = app
+                .primary
+                .sim_cb
+                .as_mut()
+                .unwrap()
+                .downcast_mut::<FindDelayedIntersections>()
+                .unwrap()
+                .currently_delayed
+                .get(0)
+                .cloned()
+            {
+                if app.primary.sim.time() - t >= THRESHOLD {
+                    self.done = true;
+                    self.top_center = make_top_center(ctx, app, Some(app.primary.sim.time()));
+                    return Some(Transition::PushTwice(
+                        final_score(ctx, app, self.mode.clone(), true),
+                        Warping::new(
+                            ctx,
+                            ID::Intersection(i).canonical_point(&app.primary).unwrap(),
+                            Some(10.0),
+                            None,
+                            &mut app.primary,
+                        ),
+                    ));
+                }
             }
 
             if app.primary.sim.is_done() {
                 self.done = true;
+                // TODO The score should reflect exactly when the problem is detected. I haven't
+                // thought through all the cases here, but I think it should be within
+                // report_limit.
                 return Some(Transition::Push(final_score(
                     ctx,
                     app,
@@ -153,6 +177,12 @@ impl GameplayState for FixTrafficSignals {
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.top_center.draw(g);
+    }
+
+    fn on_destroy(&self, app: &mut App) {
+        assert!(app.primary.sim_cb.is_some());
+        app.primary.sim_cb = None;
+        app.primary.sim.unset_periodic_callback();
     }
 }
 

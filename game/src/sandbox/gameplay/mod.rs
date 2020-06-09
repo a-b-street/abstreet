@@ -47,6 +47,7 @@ pub trait GameplayState: downcast_rs::Downcast {
         controls: &mut SandboxControls,
     ) -> Option<Transition>;
     fn draw(&self, g: &mut GfxCtx, app: &App);
+    fn on_destroy(&self, _: &mut App) {}
 
     fn can_move_canvas(&self) -> bool {
         true
@@ -343,9 +344,11 @@ impl State for FinalScore {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "Keep simulating" => Transition::Pop,
-                "Try again" => {
-                    Transition::Replace(Box::new(SandboxMode::new(ctx, app, self.retry.clone())))
-                }
+                "Try again" => Transition::PopThenReplace(Box::new(SandboxMode::new(
+                    ctx,
+                    app,
+                    self.retry.clone(),
+                ))),
                 "Next challenge" => {
                     if app.primary.map.unsaved_edits() {
                         Transition::Push(WizardState::new(Box::new(maybe_save_first)))

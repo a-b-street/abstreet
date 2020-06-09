@@ -535,18 +535,20 @@ impl State for TimeWarpScreen {
             }
             if let Some(ref mut cb) = app.primary.sim_cb {
                 let di = cb.downcast_mut::<FindDelayedIntersections>().unwrap();
-                if let Some((i, _)) = di.currently_delayed.get(0) {
-                    let id = ID::Intersection(*i);
-                    app.layer = Some(Box::new(crate::layer::traffic::Dynamic::traffic_jams(
-                        ctx, app,
-                    )));
-                    return Transition::Replace(Warping::new(
-                        ctx,
-                        id.canonical_point(&app.primary).unwrap(),
-                        Some(10.0),
-                        Some(id),
-                        &mut app.primary,
-                    ));
+                if let Some((i, t)) = di.currently_delayed.get(0) {
+                    if app.primary.sim.time() - *t > di.halt_limit {
+                        let id = ID::Intersection(*i);
+                        app.layer = Some(Box::new(crate::layer::traffic::Dynamic::traffic_jams(
+                            ctx, app,
+                        )));
+                        return Transition::Replace(Warping::new(
+                            ctx,
+                            id.canonical_point(&app.primary).unwrap(),
+                            Some(10.0),
+                            Some(id),
+                            &mut app.primary,
+                        ));
+                    }
                 }
             }
 
@@ -595,6 +597,8 @@ impl State for TimeWarpScreen {
 
     fn on_destroy(&mut self, _: &mut EventCtx, app: &mut App) {
         if self.traffic_jams {
+            assert!(app.primary.sim_cb.is_some());
+            app.primary.sim_cb = None;
             app.primary.sim.unset_periodic_callback();
         }
     }

@@ -231,6 +231,7 @@ impl State for SandboxMode {
     fn on_destroy(&mut self, _: &mut EventCtx, app: &mut App) {
         app.layer = None;
         app.agent_cs = AgentColorScheme::new(&app.cs);
+        self.gameplay.on_destroy(app);
     }
 }
 
