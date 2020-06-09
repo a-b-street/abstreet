@@ -2,7 +2,7 @@ use crate::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt, ScreenRectangle, Widget,
     WidgetImpl, WidgetOutput,
 };
-use geom::Polygon;
+use geom::{Circle, Distance, Polygon, Pt2D};
 
 pub struct Slider {
     current_percent: f64,
@@ -216,5 +216,168 @@ impl WidgetImpl for Slider {
         // this stays for now.
         g.canvas
             .mark_covered_area(ScreenRectangle::top_left(self.top_left, self.dims));
+    }
+}
+
+// TODO Try to dedupe code maybe
+pub struct AreaSlider {
+    current_percent: f64,
+    mouse_on_slider: bool,
+    dragging: bool,
+
+    width: f64,
+    draw: Drawable,
+
+    top_left: ScreenPt,
+    dims: ScreenDims,
+}
+
+impl AreaSlider {
+    pub fn new(ctx: &EventCtx, width: f64, current_percent: f64) -> Widget {
+        let mut s = AreaSlider {
+            current_percent,
+            mouse_on_slider: false,
+            dragging: false,
+
+            width,
+            draw: ctx.upload(GeomBatch::new()),
+
+            top_left: ScreenPt::new(0.0, 0.0),
+            dims: ScreenDims::new(0.0, 0.0),
+        };
+        s.recalc(ctx);
+        Widget::new(Box::new(s))
+    }
+
+    fn recalc(&mut self, ctx: &EventCtx) {
+        // Full dims
+        self.dims = ScreenDims::new(self.width, BG_CROSS_AXIS_LEN);
+
+        let mut batch = GeomBatch::new();
+
+        // The background
+        batch.push(
+            Color::hex("#F2F2F2"),
+            Polygon::rounded_rectangle(self.dims.width, self.dims.height, None),
+        );
+        // So far
+        batch.push(
+            Color::hex("#F4DF4D"),
+            Polygon::rounded_rectangle(
+                self.current_percent * self.dims.width,
+                self.dims.height,
+                None,
+            ),
+        );
+
+        // The circle dragger
+        batch.push(
+            if self.mouse_on_slider {
+                Color::WHITE.alpha(0.7)
+            } else {
+                Color::WHITE
+            },
+            self.slider_geom(),
+        );
+
+        self.draw = ctx.upload(batch);
+    }
+
+    // Doesn't touch self.top_left
+    fn slider_geom(&self) -> Polygon {
+        Circle::new(
+            Pt2D::new(self.current_percent * self.width, BG_CROSS_AXIS_LEN / 2.0),
+            Distance::meters(BG_CROSS_AXIS_LEN),
+        )
+        .to_polygon()
+    }
+
+    pub fn get_percent(&self) -> f64 {
+        self.current_percent
+    }
+
+    pub fn set_percent(&mut self, ctx: &EventCtx, percent: f64) {
+        assert!(percent >= 0.0 && percent <= 1.0);
+        self.current_percent = percent;
+        self.recalc(ctx);
+        // Just reset dragging, to prevent chaos
+        self.dragging = false;
+        if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
+            self.mouse_on_slider = self
+                .slider_geom()
+                .translate(self.top_left.x, self.top_left.y)
+                .contains_pt(pt.to_pt());
+        } else {
+            self.mouse_on_slider = false;
+        }
+    }
+
+    fn inner_event(&mut self, ctx: &mut EventCtx) -> bool {
+        if self.dragging {
+            if ctx.input.get_moved_mouse().is_some() {
+                let percent = (ctx.canvas.get_cursor().x - self.top_left.x) / self.width;
+                self.current_percent = percent.min(1.0).max(0.0);
+                return true;
+            }
+            if ctx.input.left_mouse_button_released() {
+                self.dragging = false;
+                return true;
+            }
+            return false;
+        }
+
+        if ctx.redo_mouseover() {
+            let old = self.mouse_on_slider;
+            if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
+                self.mouse_on_slider = self
+                    .slider_geom()
+                    .translate(self.top_left.x, self.top_left.y)
+                    .contains_pt(pt.to_pt());
+            } else {
+                self.mouse_on_slider = false;
+            }
+            return self.mouse_on_slider != old;
+        }
+        if ctx.input.left_mouse_button_pressed() {
+            if self.mouse_on_slider {
+                self.dragging = true;
+                return true;
+            }
+
+            // Did we click somewhere else on the bar?
+            if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
+                if Polygon::rectangle(self.dims.width, self.dims.height)
+                    .translate(self.top_left.x, self.top_left.y)
+                    .contains_pt(pt.to_pt())
+                {
+                    let percent = (pt.x - self.top_left.x) / self.width;
+                    self.current_percent = percent.min(1.0).max(0.0);
+                    self.mouse_on_slider = true;
+                    self.dragging = true;
+                    return true;
+                }
+            }
+        }
+        false
+    }
+}
+
+impl WidgetImpl for AreaSlider {
+    fn get_dims(&self) -> ScreenDims {
+        self.dims
+    }
+
+    fn set_pos(&mut self, top_left: ScreenPt) {
+        self.top_left = top_left;
+    }
+
+    fn event(&mut self, ctx: &mut EventCtx, _output: &mut WidgetOutput) {
+        if self.inner_event(ctx) {
+            self.recalc(ctx);
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx) {
+        g.redraw_at(self.top_left, &self.draw);
     }
 }

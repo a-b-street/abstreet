@@ -1,8 +1,8 @@
 use crate::widgets::containers::{Container, Nothing};
 use crate::{
-    Autocomplete, Button, Checkbox, Choice, Color, Drawable, Dropdown, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, JustDraw, Menu, Outcome, PersistentSplit, RewriteColor, ScreenDims,
-    ScreenPt, ScreenRectangle, Slider, Spinner, TextBox, VerticalAlignment, WidgetImpl,
+    AreaSlider, Autocomplete, Button, Checkbox, Choice, Color, Drawable, Dropdown, EventCtx,
+    GeomBatch, GfxCtx, HorizontalAlignment, JustDraw, Menu, Outcome, PersistentSplit, RewriteColor,
+    ScreenDims, ScreenPt, ScreenRectangle, Slider, Spinner, TextBox, VerticalAlignment, WidgetImpl,
     WidgetOutput,
 };
 use geom::{Distance, Polygon};
@@ -780,6 +780,9 @@ impl Composite {
     }
     pub fn slider_mut(&mut self, name: &str) -> &mut Slider {
         self.find_mut(name)
+    }
+    pub fn area_slider(&self, name: &str) -> &AreaSlider {
+        self.find(name)
     }
 
     pub fn menu<T: 'static + Clone>(&self, name: &str) -> &Menu<T> {

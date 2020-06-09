@@ -4,9 +4,9 @@ use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use ezgui::{
-    hotkey, Btn, Checkbox, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, PersistentSplit, RewriteColor, Slider, Text,
-    VerticalAlignment, Widget,
+    hotkey, AreaSlider, Btn, Checkbox, Choice, Color, Composite, EventCtx, EventLoopMode,
+    GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, PersistentSplit, RewriteColor,
+    Text, VerticalAlignment, Widget,
 };
 use geom::{Duration, Polygon, Pt2D, Time};
 use instant::Instant;
@@ -345,15 +345,18 @@ impl JumpToTime {
             maybe_mode,
             composite: Composite::new(
                 Widget::col(vec![
-                    Btn::text_fg("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
-                        .align_right(),
-                    {
-                        let mut txt = Text::from(Line("Jump to what time?").small_heading());
-                        txt.add(Line(target.ampm_tostring()));
-                        txt.draw(ctx)
-                    }
-                    .named("target time"),
+                    Widget::row(vec![
+                        {
+                            let mut txt = Text::from(Line("Jump to what time?").small_heading());
+                            txt.add(Line(target.ampm_tostring()));
+                            txt.draw(ctx)
+                        }
+                        .named("target time"),
+                        Btn::plaintext("X")
+                            .build(ctx, "close", hotkey(Key::Escape))
+                            .align_right(),
+                    ])
+                    .margin_below(15),
                     if app.has_prebaked().is_some() {
                         Widget::draw_batch(
                             ctx,
@@ -371,22 +374,21 @@ impl JumpToTime {
                         Widget::nothing()
                     },
                     // TODO Auto-fill width?
-                    Slider::horizontal(
+                    AreaSlider::new(
                         ctx,
                         0.25 * ctx.canvas.window_width,
-                        25.0,
                         target.to_percent(end_of_day).min(1.0),
                     )
                     .named("time slider")
-                    .margin(10),
+                    .margin_below(15),
                     Checkbox::text(ctx, "Stop when there's a traffic jam", None, false)
-                        .padding(10)
-                        .margin(10),
+                        .margin_below(10),
                     Btn::text_bg2("Go!")
                         .build_def(ctx, hotkey(Key::Enter))
                         .centered_horiz(),
                 ])
-                .bg(app.cs.panel_bg),
+                .bg(app.cs.panel_bg)
+                .padding(16),
             )
             .build(ctx),
         }
@@ -430,7 +432,7 @@ impl State for JumpToTime {
             .primary
             .sim
             .get_end_of_day()
-            .percent_of(self.composite.slider("time slider").get_percent());
+            .percent_of(self.composite.area_slider("time slider").get_percent());
         if target != self.target {
             self.target = target;
             self.composite.replace(
