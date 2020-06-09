@@ -4,9 +4,9 @@ use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use ezgui::{
-    hotkey, AreaSlider, Btn, Checkbox, Choice, Color, Composite, EventCtx, EventLoopMode,
-    GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, PersistentSplit, RewriteColor,
-    Text, VerticalAlignment, Widget,
+    hotkey, AreaSlider, Btn, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, PersistentSplit, RewriteColor, Text,
+    VerticalAlignment, Widget,
 };
 use geom::{Duration, Polygon, Pt2D, Time};
 use instant::Instant;
@@ -351,12 +351,7 @@ impl JumpToTime {
             composite: Composite::new(
                 Widget::col(vec![
                     Widget::row(vec![
-                        {
-                            let mut txt = Text::from(Line("Jump to what time?").small_heading());
-                            txt.add(Line(target.ampm_tostring()));
-                            txt.draw(ctx)
-                        }
-                        .named("target time"),
+                        Line("Jump to what time?").small_heading().draw(ctx),
                         Btn::plaintext("X")
                             .build(ctx, "close", hotkey(Key::Escape))
                             .align_right(),
@@ -386,10 +381,21 @@ impl JumpToTime {
                     )
                     .named("time slider")
                     .margin_below(15),
-                    Checkbox::text(ctx, "Stop when there's a traffic jam", None, false)
-                        .margin_below(10),
-                    Btn::text_bg2("Go!")
-                        .build_def(ctx, hotkey(Key::Enter))
+                    Btn::text_bg2(format!("Jump to {}", target.ampm_tostring()))
+                        .build(ctx, "jump to time", hotkey(Key::Enter))
+                        .centered_horiz()
+                        .named("jump to time"),
+                    Widget::draw_batch(
+                        ctx,
+                        GeomBatch::from(vec![(
+                            Color::WHITE,
+                            Polygon::rectangle(0.25 * ctx.canvas.window_width, 2.0),
+                        )]),
+                    )
+                    .margin_above(20)
+                    .margin_below(20),
+                    Btn::text_bg2("Wait for any delay over 5 minutes")
+                        .build_def(ctx, None)
                         .centered_horiz(),
                 ])
                 .bg(app.cs.panel_bg)
@@ -407,13 +413,12 @@ impl State for JumpToTime {
                 "close" => {
                     return Transition::Pop;
                 }
-                "Go!" => {
-                    let traffic_jams = self.composite.is_checked("Stop when there's a traffic jam");
+                "jump to time" => {
                     if self.target < app.primary.sim.time() {
                         if let Some(mode) = self.maybe_mode.take() {
                             return Transition::ReplaceThenPush(
                                 Box::new(SandboxMode::new(ctx, app, mode)),
-                                TimeWarpScreen::new(ctx, app, self.target, traffic_jams),
+                                TimeWarpScreen::new(ctx, app, self.target, false),
                             );
                         } else {
                             return Transition::Replace(msg(
@@ -422,11 +427,14 @@ impl State for JumpToTime {
                             ));
                         }
                     }
+                    return Transition::Replace(TimeWarpScreen::new(ctx, app, self.target, false));
+                }
+                "Wait for any delay over 5 minutes" => {
                     return Transition::Replace(TimeWarpScreen::new(
                         ctx,
                         app,
-                        self.target,
-                        traffic_jams,
+                        app.primary.sim.get_end_of_day(),
+                        true,
                     ));
                 }
                 _ => unreachable!(),
@@ -442,17 +450,11 @@ impl State for JumpToTime {
             self.target = target;
             self.composite.replace(
                 ctx,
-                "target time",
-                {
-                    let mut txt = Text::from(Line("Jump to what time?").small_heading());
-                    txt.add(Line(target.ampm_tostring()));
-                    // TODO The panel jumps too much and the slider position changes place.
-                    /*if target < app.primary.sim.time() {
-                        txt.add(Line("(Going back in time will reset to midnight, then simulate forwards)"));
-                    }*/
-                    txt.draw(ctx)
-                }
-                .named("target time"),
+                "jump to time",
+                Btn::text_bg2(format!("Jump to {}", target.ampm_tostring()))
+                    .build(ctx, "jump to time", hotkey(Key::Enter))
+                    .centered_horiz()
+                    .named("jump to time"),
             );
         }
         if self.composite.clicked_outside(ctx) {

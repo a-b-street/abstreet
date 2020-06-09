@@ -1,6 +1,6 @@
 use crate::{AlertLocation, CarID, Event, ParkingSpot, TripID, TripMode, TripPhaseType};
 use abstutil::Counter;
-use geom::{Distance, Duration, Histogram, Statistic, Time};
+use geom::{Distance, Duration, Histogram, Time};
 use map_model::{
     BusRouteID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, Path, PathRequest, RoadID,
     Traversable, TurnGroupID,
@@ -389,45 +389,6 @@ impl Analytics {
             })
         }
         trips
-    }
-
-    // TODO Unused right now!
-    pub fn intersection_delays_all_day(&self, stat: Statistic) -> Vec<(IntersectionID, Duration)> {
-        let mut results = Vec::new();
-        for (i, delays) in &self.intersection_delays {
-            let mut hgram = Histogram::new();
-            for (_, dt) in delays {
-                hgram.add(*dt);
-            }
-            results.push((*i, hgram.select(stat)));
-        }
-        results
-    }
-
-    pub fn intersection_delays_bucketized(
-        &self,
-        now: Time,
-        i: IntersectionID,
-        bucket: Duration,
-    ) -> Vec<(Time, Histogram<Duration>)> {
-        let mut max_this_bucket = now.min(Time::START_OF_DAY + bucket);
-        let mut results = vec![
-            (Time::START_OF_DAY, Histogram::new()),
-            (max_this_bucket, Histogram::new()),
-        ];
-        if let Some(list) = self.intersection_delays.get(&i) {
-            for (t, dt) in list {
-                if *t > now {
-                    break;
-                }
-                if *t > max_this_bucket {
-                    max_this_bucket = now.min(max_this_bucket + bucket);
-                    results.push((max_this_bucket, Histogram::new()));
-                }
-                results.last_mut().unwrap().1.add(*dt);
-            }
-        }
-        results
     }
 
     pub fn active_agents(&self, now: Time) -> Vec<(Time, usize)> {
