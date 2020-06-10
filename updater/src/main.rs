@@ -1,10 +1,20 @@
 use std::collections::BTreeMap;
-use std::fs::File;
-use std::io::{BufRead, BufReader, Error, Write};
+use std::fs::{create_dir_all, remove_file, set_permissions, File, Permissions};
+use std::io::{copy, BufRead, BufReader, Write};
+use std::io::Error as ioError;
 use std::process::Command;
+
 use walkdir::WalkDir;
 
-fn main() {
+const TMP_DOWNLOAD_NAME: &str = "tmp_download.zip";
+
+#[derive(Debug)]
+struct Error {
+    message: String
+}
+
+#[tokio::main]
+async fn main() -> Result<(), Error> {
     match std::env::args().skip(1).next() {
         Some(x) => match x.as_ref() {
             "--upload" => {
@@ -19,12 +29,13 @@ fn main() {
             }
         },
         None => {
-            download();
+            download().await;
         }
     }
+    Ok(())
 }
 
-fn download() {
+async fn download() {
     let cities = Cities::load_or_create();
     let local = Manifest::generate();
     let truth = Manifest::load("data/MANIFEST.txt".to_string())
@@ -34,7 +45,7 @@ fn download() {
     // Anything local need deleting?
     for path in local.0.keys() {
         if !truth.0.contains_key(path) {
-            run(Command::new("rm").arg(path));
+            rm(&path);
         }
     }
 
@@ -42,16 +53,16 @@ fn download() {
     for (path, entry) in truth.0 {
         if local.0.get(&path).map(|x| &x.checksum) != Some(&entry.checksum) {
             std::fs::create_dir_all(std::path::Path::new(&path).parent().unwrap()).unwrap();
-            run(Command::new("curl")
-                .arg("--fail")
-                .arg("-L")
-                .arg("-o")
-                .arg("tmp_download.zip")
-                .arg(entry.dropbox_url.unwrap()));
-            // unzip won't overwrite
-            run(Command::new("rm").arg(&path));
-            run(Command::new("unzip").arg("tmp_download.zip").arg(path));
-            run(Command::new("rm").arg("tmp_download.zip"));
+            match curl(entry).await {
+                Ok(()) => {
+                    unzip(&path);
+                },
+                Err(e) => {
+                    println!("{}, continuing", e.message);
+                }
+            };
+            // whether or not download failed, still try to clean up tmp file
+            rm(TMP_DOWNLOAD_NAME);
         }
     }
 }
@@ -88,7 +99,7 @@ fn upload() {
     // Anything remote need deleting?
     for path in remote.0.keys() {
         if !local.0.contains_key(path) {
-            run(Command::new("rm").arg(format!("{}/{}.zip", remote_base, path)));
+            rm(&format!("{}/{}.zip", remote_base, path));
         }
     }
 
@@ -145,16 +156,9 @@ impl Manifest {
             {
                 continue;
             }
-            let md5sum = if cfg!(target_os = "macos") {
-                "md5"
-            } else {
-                "md5sum"
-            };
-            let checksum = run(Command::new(md5sum).arg(&path))
-                .split(" ")
-                .next()
-                .unwrap()
-                .to_string();
+
+            let data = std::fs::read(&path).unwrap();
+            let checksum = format!("{:x}", md5::compute(data));
             kv.insert(
                 path,
                 Entry {
@@ -181,7 +185,7 @@ impl Manifest {
         println!("- Wrote {}", path);
     }
 
-    fn load(path: String) -> Result<Manifest, Error> {
+    fn load(path: String) -> Result<Manifest, ioError> {
         let mut kv = BTreeMap::new();
         for line in BufReader::new(File::open(path)?).lines() {
             let line = line?;
@@ -350,4 +354,108 @@ fn basename(path: &str) -> String {
 fn run(cmd: &mut Command) -> String {
     println!("> {:?}", cmd);
     String::from_utf8(cmd.output().unwrap().stdout).unwrap()
+}
+
+fn rm(path: &str) {
+    println!("> rm {}", path);
+    match remove_file(path) {
+        Ok(_) => {}
+        Err(e) => match e.kind() {
+            std::io::ErrorKind::NotFound => {
+                println!("file {} does not exist, continuing", &path);
+            }
+            other_error => {
+                panic!("problem removing file: {:?}", other_error);
+            }
+        },
+    }
+}
+
+async fn curl(entry: Entry) -> Result<(), Error> {
+    let src = entry.dropbox_url.unwrap();
+    // the ?dl=0 param at the end of each URL takes you to an interactive page
+    // for viewing the folder in the browser for some reason, curl and wget can
+    // both get around this to download the file but I can't figure out how to
+    // make reqwest do it so this switches it to ?dl=1 which redirects to a
+    // direct download link
+    let src = &format!("{}{}", &src[..src.len() - 1], "1");
+
+    println!("> download {} to {}", src, TMP_DOWNLOAD_NAME);
+
+    let mut output =
+        File::create(TMP_DOWNLOAD_NAME).expect(&format!("unable to create {}", TMP_DOWNLOAD_NAME));
+
+    let client = reqwest::ClientBuilder::new()
+        .build()
+        .unwrap();
+    let request = client.get(src);
+
+    let mut resp = request.send().await.unwrap();
+
+    match resp.error_for_status_ref() {
+        Ok(_) => {}
+        Err(err) => {
+            let err = Error {
+                message: format!("error getting {}: {}", src, err),
+            };
+            return Err(err);
+        }
+    };
+    while let Some(chunk) = resp.chunk().await.unwrap() {
+        output.write_all(&chunk).unwrap();
+    }
+
+    Ok(())
+}
+
+fn unzip(path: &str) {
+    println!("> unzip {} {}", TMP_DOWNLOAD_NAME, path);
+
+    let file =
+        File::open(TMP_DOWNLOAD_NAME).expect(&format!("unable to open {}", TMP_DOWNLOAD_NAME));
+    let mut archive = zip::ZipArchive::new(file).unwrap();
+
+    for i in 0..archive.len() {
+        let mut file = archive.by_index(i).unwrap();
+        let outpath = file.sanitized_name();
+
+        {
+            let comment = file.comment();
+            if !comment.is_empty() {
+                println!(">  file {} comment: {}", i, comment);
+            }
+        }
+
+        if (&*file.name()).ends_with('/') {
+            println!(
+                ">   file {} extracted to \"{}\"",
+                i,
+                outpath.as_path().display()
+            );
+            create_dir_all(&outpath).unwrap();
+        } else {
+            println!(
+                ">   file {} extracted to \"{}\"",
+                i,
+                outpath.as_path().display(),
+            );
+            if let Some(p) = outpath.parent() {
+                if !p.exists() {
+                    create_dir_all(&p).unwrap();
+                }
+            }
+            let mut outfile = File::create(&outpath).unwrap();
+            copy(&mut file, &mut outfile).unwrap();
+        }
+
+        // Get and Set permissions
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+
+            if let Some(mode) = file.unix_mode() {
+                set_permissions(&outpath, Permissions::from_mode(mode)).unwrap();
+            }
+        }
+    }
 }
