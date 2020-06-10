@@ -16,6 +16,7 @@ pub struct Occupancy {
     onstreet: bool,
     garages: bool,
     lots: bool,
+    private_bldgs: bool,
     unzoomed: Drawable,
     composite: Composite,
 }
@@ -31,7 +32,14 @@ impl Layer for Occupancy {
         minimap: &Composite,
     ) -> Option<LayerOutcome> {
         if app.primary.sim.time() != self.time {
-            *self = Occupancy::new(ctx, app, self.onstreet, self.garages, self.lots);
+            *self = Occupancy::new(
+                ctx,
+                app,
+                self.onstreet,
+                self.garages,
+                self.lots,
+                self.private_bldgs,
+            );
         }
 
         self.composite.align_above(ctx, minimap);
@@ -46,11 +54,20 @@ impl Layer for Occupancy {
                 let new_onstreet = self.composite.is_checked("On-street spots");
                 let new_garages = self.composite.is_checked("Public garages");
                 let new_lots = self.composite.is_checked("Parking lots");
+                let new_private_bldgs = self.composite.is_checked("Private buildings");
                 if self.onstreet != new_onstreet
                     || self.garages != new_garages
                     || self.lots != new_lots
+                    || self.private_bldgs != new_private_bldgs
                 {
-                    *self = Occupancy::new(ctx, app, new_onstreet, new_garages, new_lots);
+                    *self = Occupancy::new(
+                        ctx,
+                        app,
+                        new_onstreet,
+                        new_garages,
+                        new_lots,
+                        new_private_bldgs,
+                    );
                     self.composite.align_above(ctx, minimap);
                 }
             }
@@ -75,6 +92,7 @@ impl Occupancy {
         onstreet: bool,
         garages: bool,
         lots: bool,
+        private_bldgs: bool,
     ) -> Occupancy {
         let (mut filled_spots, mut avail_spots) = app.primary.sim.get_all_parking_spots();
         let mut filled_private_spots = 0;
@@ -95,7 +113,7 @@ impl Occupancy {
                     garages
                 } else {
                     filled_private_spots += 1;
-                    false
+                    private_bldgs
                 }
             }
             ParkingSpot::Lot(_, _) => lots,
@@ -116,7 +134,7 @@ impl Occupancy {
                     garages
                 } else {
                     avail_private_spots += 1;
-                    false
+                    private_bldgs
                 }
             }
             ParkingSpot::Lot(_, _) => lots,
@@ -177,6 +195,7 @@ impl Occupancy {
                 Checkbox::text(ctx, "On-street spots", None, onstreet).margin_below(5),
                 Checkbox::text(ctx, "Public garages", None, garages).margin_below(5),
                 Checkbox::text(ctx, "Parking lots", None, lots).margin_below(10),
+                Checkbox::text(ctx, "Private buildings", None, private_bldgs).margin_below(10),
                 ColorLegend::scale(
                     ctx,
                     app.cs.good_to_bad.to_vec(),
@@ -240,6 +259,7 @@ impl Occupancy {
             onstreet,
             garages,
             lots,
+            private_bldgs,
             unzoomed: colorer.build_both(ctx, app).unzoomed,
             composite,
         }

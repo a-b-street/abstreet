@@ -121,7 +121,7 @@ impl State for PickLayer {
                 }
                 "parking occupancy" => {
                     app.layer = Some(Box::new(parking::Occupancy::new(
-                        ctx, app, true, true, true,
+                        ctx, app, true, true, true, false,
                     )));
                 }
                 "delay" => {
