@@ -100,7 +100,7 @@ impl Color {
         )
     }
 
-    fn lerp(self, other: Color, pct: f32) -> Color {
+    pub fn lerp(self, other: Color, pct: f32) -> Color {
         Color::rgba_f(
             lerp(pct, (self.r, other.r)),
             lerp(pct, (self.g, other.g)),
@@ -115,8 +115,8 @@ impl Color {
 // https://www.w3.org/TR/SVG11/pservers.html
 #[derive(Clone, PartialEq)]
 pub struct LinearGradient {
-    line: Line,
-    stops: Vec<(f64, Color)>,
+    pub line: Line,
+    pub stops: Vec<(f64, Color)>,
 }
 
 impl LinearGradient {

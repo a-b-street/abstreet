@@ -1,9 +1,9 @@
 use crate::app::App;
 use ezgui::{
-    Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
-    Outcome, Text, TextExt, VerticalAlignment, Widget,
+    Btn, Color, Composite, Drawable, EventCtx, FancyColor, GeomBatch, GfxCtx, HorizontalAlignment,
+    Line, LinearGradient, Outcome, Text, TextExt, VerticalAlignment, Widget,
 };
-use geom::{Circle, Distance, Polygon, Pt2D};
+use geom::{Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID};
 use std::collections::HashMap;
 
@@ -171,10 +171,7 @@ impl ColorerBuilder {
             );
         }
         for (r, color) in self.roads {
-            unzoomed.push(
-                color,
-                map.get_r(r).get_thick_polygon(&app.primary.map).unwrap(),
-            );
+            unzoomed.push(color, map.get_r(r).get_thick_polygon(&map).unwrap());
         }
 
         for (i, color) in self.intersections {
@@ -272,6 +269,36 @@ impl ColorLegend {
             batch.push(color, Polygon::rectangle(64.0, 32.0).translate(x, 0.0));
             x += 64.0;
         }
+        // Extra wrapping to make the labels stretch against just the scale, not everything else
+        // TODO Long labels aren't nicely lined up with the boundaries between buckets
+        Widget::row(vec![Widget::col(vec![
+            Widget::draw_batch(ctx, batch),
+            Widget::row(
+                labels
+                    .into_iter()
+                    .map(|lbl| Line(lbl).small().draw(ctx))
+                    .collect(),
+            )
+            .evenly_spaced(),
+        ])])
+    }
+
+    pub fn gradient_3<I: Into<String>>(
+        ctx: &mut EventCtx,
+        low: Color,
+        mid: Color,
+        high: Color,
+        labels: Vec<I>,
+    ) -> Widget {
+        let mut batch = GeomBatch::new();
+        batch.fancy_push(
+            FancyColor::LinearGradient(LinearGradient {
+                line: Line::new(Pt2D::new(0.0, 0.0), Pt2D::new(300.0, 0.0)),
+                stops: vec![(0.0, low), (0.5, mid), (1.0, high)],
+            }),
+            Polygon::rectangle(150.0, 32.0)
+                .union(Polygon::rectangle(150.0, 32.0).translate(150.0, 0.0)),
+        );
         // Extra wrapping to make the labels stretch against just the scale, not everything else
         // TODO Long labels aren't nicely lined up with the boundaries between buckets
         Widget::row(vec![Widget::col(vec![

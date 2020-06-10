@@ -3,8 +3,8 @@ use crate::common::{ColorLegend, Colorer};
 use crate::layer::{Layer, LayerOutcome};
 use abstutil::Counter;
 use ezgui::{
-    hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key,
-    Outcome, TextExt, VerticalAlignment, Widget,
+    hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Outcome, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Duration, Time};
 use map_model::Traversable;
@@ -356,6 +356,7 @@ impl Throughput {
     }
 
     fn compare_throughput(ctx: &mut EventCtx, app: &App) -> Throughput {
+        let map = &app.primary.map;
         let after = app.primary.sim.get_analytics();
         let before = app.prebaked();
         let hour = app.primary.sim.time().get_parts().0;
@@ -387,57 +388,37 @@ impl Throughput {
             }
         }
 
-        // Diverging
-        let gradient = colorous::RED_YELLOW_GREEN;
-        let num_colors = 4;
-        let mut colors: Vec<Color> = (0..num_colors)
-            .map(|i| {
-                let c = gradient.eval_rational(i, num_colors);
-                Color::rgb(c.r as usize, c.g as usize, c.b as usize)
-            })
-            .collect();
-        colors.reverse();
-        // TODO But the yellow is confusing. Two greens, two reds
-        colors[2] = Color::hex("#F27245");
-        let mut colorer = Colorer::scaled(
-            ctx,
-            "",
-            Vec::new(),
-            colors.clone(),
-            vec!["", "", "", "", ""],
-        );
+        let mut batch = GeomBatch::new();
+        batch.push(app.cs.fade_map_dark, map.get_boundary_polygon().clone());
+
+        let red = Color::hex("#A32015");
+        let green = Color::hex("#5D9630");
 
         for (r, before, after) in before_road.compare(after_road) {
-            let pct_change = (after as f64) / (before as f64);
-            let color = if pct_change < 0.5 {
-                colors[0]
-            } else if pct_change < 0.1 {
-                colors[1]
-            } else if pct_change < 1.1 {
-                // Just filter it out
+            let pct_change = (after as f32) / (before as f32);
+            // Filter out unchanged values
+            if pct_change >= 0.9 && pct_change <= 1.1 {
                 continue;
-            } else if pct_change < 1.5 {
-                colors[2]
+            }
+            let color = if pct_change < 1.0 {
+                green.lerp(Color::WHITE, pct_change)
             } else {
-                colors[3]
+                Color::WHITE.lerp(red, (pct_change - 1.0).min(1.0))
             };
-            colorer.add_r(r, color, &app.primary.map);
+            batch.push(color, map.get_r(r).get_thick_polygon(map).unwrap());
         }
         for (i, before, after) in before_intersection.compare(after_intersection) {
-            let pct_change = (after as f64) / (before as f64);
-            let color = if pct_change < 0.5 {
-                colors[0]
-            } else if pct_change < 0.1 {
-                colors[1]
-            } else if pct_change < 1.1 {
-                // Just filter it out
+            let pct_change = (after as f32) / (before as f32);
+            // Filter out unchanged values
+            if pct_change >= 0.9 && pct_change <= 1.1 {
                 continue;
-            } else if pct_change < 1.5 {
-                colors[2]
+            }
+            let color = if pct_change < 1.0 {
+                green.lerp(Color::WHITE, pct_change)
             } else {
-                colors[3]
+                Color::WHITE.lerp(red, (pct_change - 1.0).min(1.0))
             };
-            colorer.add_i(i, color);
+            batch.push(color, map.get_i(i).polygon.clone());
         }
 
         let composite = Composite::new(
@@ -451,7 +432,13 @@ impl Throughput {
                         .align_right(),
                 ]),
                 Checkbox::text(ctx, "Compare before edits", None, true).margin_below(5),
-                ColorLegend::scale(ctx, colors, vec!["less", "-50%", "0%", "50%", "more"]),
+                ColorLegend::gradient_3(
+                    ctx,
+                    green,
+                    Color::WHITE,
+                    red,
+                    vec!["less", "-50%", "0%", "50%", "more"],
+                ),
             ])
             .padding(5)
             .bg(app.cs.panel_bg),
@@ -462,7 +449,7 @@ impl Throughput {
         Throughput {
             time: app.primary.sim.time(),
             compare: true,
-            unzoomed: colorer.build_both(ctx, app).unzoomed,
+            unzoomed: ctx.upload(batch),
             composite,
         }
     }
