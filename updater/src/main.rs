@@ -374,10 +374,10 @@ fn rm(path: &str) {
 async fn curl(entry: Entry) -> Result<(), Error> {
     let src = entry.dropbox_url.unwrap();
     // the ?dl=0 param at the end of each URL takes you to an interactive page
-    // for viewing the folder in the browser for some reason, curl and wget can
-    // both get around this to download the file but I can't figure out how to
-    // make reqwest do it so this switches it to ?dl=1 which redirects to a
-    // direct download link
+    // for viewing the folder in the browser. For some reason, curl and wget can
+    // both get around this to download the file with no extra flags needed but
+    // I can't figure out how to make reqwest do that so this switches it to ?dl=1
+    // which redirects to a direct download link
     let src = &format!("{}{}", &src[..src.len() - 1], "1");
 
     println!("> download {} to {}", src, TMP_DOWNLOAD_NAME);
