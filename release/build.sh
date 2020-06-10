@@ -21,7 +21,10 @@ cp $importer_binary $output/importer
 mkdir $output/data
 cp -Rv data/system $output/data/system
 
-# TODO Github will double-zip this, but if we just pass the directory, then the
-# chmod +x bits get lost
-zip -r $output $output
-rm -rf release_data.zip $output
+# Windows doesn't have zip?!
+if [[ "$output" != "abst_windows" ]]; then
+	# TODO Github will double-zip this, but if we just pass the directory, then the
+	# chmod +x bits get lost
+	zip -r $output $output
+	rm -rf release_data.zip $output
+fi

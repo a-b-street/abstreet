@@ -1,9 +1,8 @@
 use std::collections::BTreeMap;
+use std::error::Error;
 use std::fs::{create_dir_all, remove_file, set_permissions, File, Permissions};
-use std::io::Error as ioError;
 use std::io::{copy, BufRead, BufReader, Read, Write};
 use std::process::Command;
-
 use walkdir::WalkDir;
 
 const MD5_BUF_READ_SIZE: usize = 4096;
@@ -56,7 +55,7 @@ async fn download() {
                     println!("{}, continuing", e);
                 }
             };
-            // whether or not download failed, still try to clean up tmp file
+            // Whether or not download failed, still try to clean up tmp file
             rm(TMP_DOWNLOAD_NAME);
         }
     }
@@ -191,7 +190,7 @@ impl Manifest {
         println!("- Wrote {}", path);
     }
 
-    fn load(path: String) -> Result<Manifest, ioError> {
+    fn load(path: String) -> Result<Manifest, Box<dyn Error>> {
         let mut kv = BTreeMap::new();
         for line in BufReader::new(File::open(path)?).lines() {
             let line = line?;
@@ -377,7 +376,7 @@ fn rm(path: &str) {
     }
 }
 
-async fn curl(entry: Entry) -> Result<(), Box<dyn std::error::Error>> {
+async fn curl(entry: Entry) -> Result<(), Box<dyn Error>> {
     let src = entry.dropbox_url.unwrap();
     // the ?dl=0 param at the end of each URL takes you to an interactive page
     // for viewing the folder in the browser. For some reason, curl and wget can

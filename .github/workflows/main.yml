@@ -13,16 +13,14 @@ jobs:
         run: cargo build --release --bin game
       - name: Build importer
         run: cargo build --release --bin importer
-      - name: Upload game
+      - name: Package release
+        run: ./release/build.sh abst_windows play_abstreet.bat target/release/game.exe target/release/importer.exe
+        shell: bash
+      - name: Upload release
         uses: actions/upload-artifact@v2
         with:
-          name: windows_exe
-          path: target/release/game.exe
-      - name: Upload importer
-        uses: actions/upload-artifact@v2
-        with:
-          name: windows_exe
-          path: target/release/importer.exe
+          name: abst_windows
+          path: abst_windows
   build-macos:
     runs-on: macos-latest
     if: "contains(github.event.head_commit.message, '[rebuild]')"
