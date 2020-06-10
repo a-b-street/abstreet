@@ -4,8 +4,12 @@ version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2018"
 
+[features]
+profiler = ["cpuprofiler"]
+
 [dependencies]
 bincode = "1.1.2"
+cpuprofiler = { version = "0.0.3", optional = true }
 instant = "0.1.2"
 itertools = "0.9.0"
 num_cpus = "1.10.0"

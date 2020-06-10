@@ -243,14 +243,7 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
     let mut state = State { canvas, gui, style };
 
     if settings.profiling_enabled {
-        #[cfg(feature = "profiler")]
-        {
-            cpuprofiler::PROFILER
-                .lock()
-                .unwrap()
-                .start("./profile")
-                .unwrap();
-        }
+        abstutil::start_profiler();
     }
 
     let profiling_enabled = settings.profiling_enabled;
@@ -271,10 +264,7 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
                 // GPU stuff is dropped. Better to just abort violently and let the OS clean
                 // up.
                 if profiling_enabled {
-                    #[cfg(feature = "profiler")]
-                    {
-                        cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
-                    }
+                    abstutil::stop_profiler();
                 }
                 state.gui.before_quit(&state.canvas);
                 std::process::exit(0);

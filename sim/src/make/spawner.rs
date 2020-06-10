@@ -183,6 +183,10 @@ impl TripSpawner {
         scheduler: &mut Scheduler,
         timer: &mut Timer,
     ) {
+        let profile = false;
+        if profile {
+            abstutil::start_profiler();
+        }
         let paths = timer.parallelize(
             "calculate paths",
             std::mem::replace(&mut self.trips, Vec::new()),
@@ -191,6 +195,9 @@ impl TripSpawner {
                 (tuple, req.clone(), req.and_then(|r| map.pathfind(r)))
             },
         );
+        if profile {
+            abstutil::stop_profiler();
+        }
 
         timer.start_iter("spawn trips", paths.len());
         for ((p, start_time, spec, trip_start), maybe_req, maybe_path) in paths {

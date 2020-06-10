@@ -678,3 +678,27 @@ impl<'a> Read for Timer<'a> {
         Ok(bytes)
     }
 }
+
+#[cfg(feature = "profiler")]
+pub fn start_profiler() {
+    cpuprofiler::PROFILER
+        .lock()
+        .unwrap()
+        .start("./profile")
+        .unwrap();
+}
+
+#[cfg(not(feature = "profiler"))]
+pub fn start_profiler() {
+    panic!("abstutil/profiler feature not enabled in Cargo.toml");
+}
+
+#[cfg(feature = "profiler")]
+pub fn stop_profiler() {
+    cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
+}
+
+#[cfg(not(feature = "profiler"))]
+pub fn stop_profiler() {
+    panic!("abstutil/profiler feature not enabled in Cargo.toml");
+}

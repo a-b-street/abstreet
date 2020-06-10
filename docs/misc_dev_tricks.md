@@ -29,14 +29,17 @@ Actually, https://github.com/flamegraph-rs/flamegraph is pretty cool too.
 
 Follow Usage from https://crates.io/crates/cpuprofiler
 
-Modify `game/Cargo.toml` to include the `profiler` feature on `ezgui`. Then
-run game or headless with `--enable_profiler`
+Modify `game/Cargo.toml` to include the `abstutil/profiler` feature. Then run
+game or headless with `--enable_profiler`
 
 ```
 google-pprof --no_strip_temp ../target/debug/game profile
 google-pprof --no_strip_temp ../target/release/headless profile
 top30 --cum
 ```
+
+Why aren't the columns labelled?
+https://groups.google.com/d/msg/golang-nuts/qkDWqFKj8og/tWfYAaWRYqkJ
 
 ## Building releases
 

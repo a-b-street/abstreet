@@ -23,7 +23,8 @@ pub use crate::io::{
 pub use crate::logs::Warn;
 pub use crate::random::{fork_rng, WeightedUsizeChoice};
 pub use crate::time::{
-    elapsed_seconds, prettyprint_usize, MeasureMemory, Profiler, Timer, TimerSink,
+    elapsed_seconds, prettyprint_usize, start_profiler, stop_profiler, MeasureMemory, Profiler,
+    Timer, TimerSink,
 };
 use std::collections::BTreeSet;
 use std::fmt::Write;
