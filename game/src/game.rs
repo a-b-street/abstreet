@@ -130,6 +130,13 @@ impl GUI for Game {
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
                 self.states.push(state);
             }
+            Transition::PopThenReplaceThenPush(state1, state2) => {
+                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
+                assert!(!self.states.is_empty());
+                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
+                self.states.push(state1);
+                self.states.push(state2);
+            }
             Transition::Clear(states) => {
                 while !self.states.is_empty() {
                     self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
@@ -247,6 +254,7 @@ pub enum Transition {
     Replace(Box<dyn State>),
     ReplaceThenPush(Box<dyn State>, Box<dyn State>),
     PopThenReplace(Box<dyn State>),
+    PopThenReplaceThenPush(Box<dyn State>, Box<dyn State>),
     Clear(Vec<Box<dyn State>>),
     PushTwice(Box<dyn State>, Box<dyn State>),
 }

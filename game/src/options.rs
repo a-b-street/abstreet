@@ -13,6 +13,7 @@ pub struct Options {
     pub color_scheme: ColorSchemeChoice,
     pub dev: bool,
     pub time_increment: Duration,
+    pub resume_after_edit: bool,
     pub min_zoom_for_detail: f64,
     pub large_unzoomed_agents: bool,
 }
@@ -24,6 +25,7 @@ impl Options {
             color_scheme: ColorSchemeChoice::Standard,
             dev: false,
             time_increment: Duration::minutes(10),
+            resume_after_edit: true,
             min_zoom_for_detail: 4.0,
             large_unzoomed_agents: false,
         }

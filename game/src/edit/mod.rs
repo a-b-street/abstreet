@@ -15,12 +15,12 @@ use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::managed::{WrappedComposite, WrappedOutcome};
 use crate::render::{DrawIntersection, DrawLane, DrawRoad};
-use crate::sandbox::{GameplayMode, SandboxMode};
+use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, Outcome, RewriteColor, ScreenRectangle, TextExt, VerticalAlignment, Widget,
-    WrappedWizard,
+    Key, Line, Outcome, PersistentSplit, RewriteColor, ScreenRectangle, TextExt, VerticalAlignment,
+    Widget, WrappedWizard,
 };
 use geom::{Polygon, Speed};
 use map_model::{
@@ -57,8 +57,7 @@ impl EditMode {
     }
 
     fn quit(&self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        assert!(app.suspended_sim.is_some());
-        app.suspended_sim = None;
+        let time = app.suspended_sim.take().unwrap().time();
 
         ctx.loading_screen("apply edits", |ctx, mut timer| {
             app.layer = None;
@@ -71,7 +70,14 @@ impl EditMode {
             if app.primary.map.get_edits().edits_name != "untitled edits" {
                 app.primary.map.save_edits();
             }
-            Transition::PopThenReplace(Box::new(SandboxMode::new(ctx, app, self.mode.clone())))
+            if app.opts.resume_after_edit {
+                Transition::PopThenReplaceThenPush(
+                    Box::new(SandboxMode::new(ctx, app, self.mode.clone())),
+                    TimeWarpScreen::new(ctx, app, time, false),
+                )
+            } else {
+                Transition::PopThenReplace(Box::new(SandboxMode::new(ctx, app, self.mode.clone())))
+            }
         })
     }
 }
@@ -173,6 +179,8 @@ impl State for EditMode {
             },
             None => {}
         }
+        // Just kind of constantly scrape this
+        app.opts.resume_after_edit = self.composite.persistent_split_value("finish editing");
 
         if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             if let Some(id) = &app.primary.current_selection {
@@ -355,18 +363,21 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Composite {
     Composite::new(
         Widget::col(vec![
             Widget::row(vec![
-                Line("Editing map").small_heading().draw(ctx).margin(5),
+                Line("Editing map")
+                    .small_heading()
+                    .draw(ctx)
+                    .margin_right(5),
                 Widget::draw_batch(
                     ctx,
                     GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 30.0))]),
                 )
-                .margin(5),
+                .margin_right(5),
                 Btn::text_fg(format!("{} ▼", &app.primary.map.get_edits().edits_name))
                     .build(ctx, "load edits", lctrl(Key::L))
-                    .margin(5),
+                    .margin_right(5),
                 Btn::svg_def("../data/system/assets/tools/save.svg")
                     .build(ctx, "save edits as", lctrl(Key::S))
-                    .margin(5),
+                    .margin_right(5),
                 (if !app.primary.map.get_edits().commands.is_empty() {
                     Btn::svg_def("../data/system/assets/tools/undo.svg").build(
                         ctx,
@@ -379,10 +390,10 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Composite {
                         "../data/system/assets/tools/undo.svg",
                         RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
                     )
-                })
-                .margin(15),
+                }),
             ])
-            .centered(),
+            .centered()
+            .margin_below(10),
             Widget::row(vec![
                 if !app.primary.map.get_edits().commands.is_empty() {
                     Btn::text_fg("reset edits").build_def(ctx, None)
@@ -393,10 +404,26 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Composite {
                 Btn::text_fg("bulk edit")
                     .build_def(ctx, hotkey(Key::B))
                     .margin_right(15),
-                Btn::text_bg1("finish editing").build_def(ctx, hotkey(Key::Escape)),
+                PersistentSplit::new(
+                    ctx,
+                    "finish editing",
+                    app.opts.resume_after_edit,
+                    hotkey(Key::Escape),
+                    vec![
+                        Choice::new(
+                            format!(
+                                "Finish & resume from {}",
+                                app.suspended_sim.as_ref().unwrap().time().ampm_tostring()
+                            ),
+                            true,
+                        ),
+                        Choice::new("Finish & restart from midnight", false),
+                    ],
+                )
+                .bg(app.cs.section_bg),
             ]),
         ])
-        .padding(5)
+        .padding(16)
         .bg(app.cs.panel_bg),
     )
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
