@@ -67,8 +67,6 @@ pub struct ColorScheme {
     pub unzoomed_residential: Color,
 
     // Intersections
-    pub border_intersection: Color,
-    pub border_arrow: Color,
     pub normal_intersection: Color,
     pub stop_sign: Color,
     pub stop_sign_pole: Color,
@@ -168,8 +166,6 @@ impl ColorScheme {
             unzoomed_residential: Color::WHITE,
 
             // Intersections
-            border_intersection: Color::rgb(50, 205, 50),
-            border_arrow: Color::PURPLE,
             normal_intersection: Color::grey(0.2),
             stop_sign: Color::RED,
             stop_sign_pole: Color::grey(0.5),

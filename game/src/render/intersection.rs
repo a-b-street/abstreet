@@ -34,9 +34,7 @@ impl DrawIntersection {
         // Order matters... main polygon first, then sidewalk corners.
         let mut default_geom = GeomBatch::new();
         default_geom.push(
-            if i.is_border() {
-                cs.border_intersection
-            } else if i.is_closed() {
+            if i.is_closed() {
                 cs.under_construction
             } else {
                 cs.normal_intersection
@@ -57,7 +55,10 @@ impl DrawIntersection {
         match i.intersection_type {
             IntersectionType::Border => {
                 let r = map.get_r(*i.roads.iter().next().unwrap());
-                default_geom.extend(cs.border_arrow, calculate_border_arrows(i, r, map, timer));
+                default_geom.extend(
+                    cs.road_center_line,
+                    calculate_border_arrows(i, r, map, timer),
+                );
             }
             IntersectionType::StopSign => {
                 for ss in map.get_stop_sign(i.id).roads.values() {
