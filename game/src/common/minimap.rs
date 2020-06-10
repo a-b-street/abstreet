@@ -52,6 +52,15 @@ impl Minimap {
         self.composite = make_minimap_panel(ctx, app, self.zoom_lvl);
     }
 
+    fn recenter(&mut self, ctx: &EventCtx) {
+        // Recenter the minimap on the screen bounds
+        let map_center = ctx.canvas.center_to_map_pt();
+        let rect = self.composite.rect_of("minimap");
+        self.offset_x = map_center.x() * self.zoom - rect.width() / 2.0;
+        self.offset_y = map_center.y() * self.zoom - rect.height() / 2.0;
+        // TODO Adjust to not go out of the map boundary
+    }
+
     pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
         let zoomed = ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail;
         let layer = app.layer.is_none();
@@ -59,6 +68,10 @@ impl Minimap {
             self.zoomed = zoomed;
             self.layer = layer;
             self.composite = make_minimap_panel(ctx, app, self.zoom_lvl);
+        }
+        // TODO Makes the pan buttons useless. Is this better?
+        if self.zoomed {
+            self.recenter(ctx);
         }
 
         let pan_speed = 100.0;
@@ -226,19 +239,13 @@ impl Minimap {
         // The cursor
         let (x1, y1) = {
             let pt = g.canvas.screen_to_map(ScreenPt::new(0.0, 0.0));
-            (
-                clamp(pt.x(), map_bounds.min_x, map_bounds.max_x),
-                clamp(pt.y(), map_bounds.min_y, map_bounds.max_y),
-            )
+            (pt.x(), pt.y())
         };
         let (x2, y2) = {
             let pt = g
                 .canvas
                 .screen_to_map(ScreenPt::new(g.canvas.window_width, g.canvas.window_height));
-            (
-                clamp(pt.x(), map_bounds.min_x, map_bounds.max_x),
-                clamp(pt.y(), map_bounds.min_y, map_bounds.max_y),
-            )
+            (pt.x(), pt.y())
         };
         if x1 != x2 && y1 != y2 {
             g.draw_polygon(
