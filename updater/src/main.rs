@@ -385,12 +385,7 @@ async fn curl(entry: Entry) -> Result<(), Error> {
     let mut output =
         File::create(TMP_DOWNLOAD_NAME).expect(&format!("unable to create {}", TMP_DOWNLOAD_NAME));
 
-    let client = reqwest::ClientBuilder::new()
-        .build()
-        .unwrap();
-    let request = client.get(src);
-
-    let mut resp = request.send().await.unwrap();
+    let mut resp = reqwest::get(src).await.unwrap();
 
     match resp.error_for_status_ref() {
         Ok(_) => {}
