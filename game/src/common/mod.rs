@@ -24,7 +24,7 @@ use ezgui::{
 use geom::Polygon;
 use std::collections::BTreeSet;
 
-// TODO Weird name.
+// TODO This is now just used in two modes...
 pub struct CommonState {
     // TODO Better to express these as mutex
     info_panel: Option<InfoPanel>,
