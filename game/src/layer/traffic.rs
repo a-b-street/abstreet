@@ -27,7 +27,6 @@ impl Layer for Dynamic {
     ) -> Option<LayerOutcome> {
         if app.primary.sim.time() != self.time {
             *self = match self.name {
-                "delay" => Dynamic::delay(ctx, app),
                 "worst traffic jams" => Dynamic::traffic_jams(ctx, app),
                 "backpressure" => Dynamic::backpressure(ctx, app),
                 _ => unreachable!(),
@@ -49,53 +48,6 @@ impl Layer for Dynamic {
 }
 
 impl Dynamic {
-    pub fn delay(ctx: &mut EventCtx, app: &App) -> Dynamic {
-        // TODO explain more
-        let mut colorer = Colorer::scaled(
-            ctx,
-            "Delay (minutes)",
-            Vec::new(),
-            app.cs.good_to_bad_monochrome_red.to_vec(),
-            vec!["0.5", "1", "5", "15", "longer"],
-        );
-
-        let (per_road, per_intersection) = app.primary.sim.worst_delay(&app.primary.map);
-        for (r, d) in per_road {
-            let color = if d < Duration::seconds(30.0) {
-                continue;
-            } else if d < Duration::minutes(1) {
-                app.cs.good_to_bad_monochrome_red[0]
-            } else if d < Duration::minutes(5) {
-                app.cs.good_to_bad_monochrome_red[1]
-            } else if d < Duration::minutes(15) {
-                app.cs.good_to_bad_monochrome_red[2]
-            } else {
-                app.cs.good_to_bad_monochrome_red[3]
-            };
-            colorer.add_r(r, color, &app.primary.map);
-        }
-        for (i, d) in per_intersection {
-            let color = if d < Duration::seconds(30.0) {
-                continue;
-            } else if d < Duration::minutes(1) {
-                app.cs.good_to_bad_monochrome_red[0]
-            } else if d < Duration::minutes(5) {
-                app.cs.good_to_bad_monochrome_red[1]
-            } else if d < Duration::minutes(15) {
-                app.cs.good_to_bad_monochrome_red[2]
-            } else {
-                app.cs.good_to_bad_monochrome_red[3]
-            };
-            colorer.add_i(i, color);
-        }
-
-        Dynamic {
-            time: app.primary.sim.time(),
-            colorer: colorer.build_unzoomed(ctx, app),
-            name: "delay",
-        }
-    }
-
     pub fn traffic_jams(ctx: &mut EventCtx, app: &App) -> Dynamic {
         let jams = app.primary.sim.delayed_intersections(Duration::minutes(5));
 
@@ -447,6 +399,198 @@ impl Throughput {
         .build(ctx);
 
         Throughput {
+            time: app.primary.sim.time(),
+            compare: true,
+            unzoomed: ctx.upload(batch),
+            composite,
+        }
+    }
+}
+
+pub struct Delay {
+    time: Time,
+    compare: bool,
+    unzoomed: Drawable,
+    composite: Composite,
+}
+
+impl Layer for Delay {
+    fn name(&self) -> Option<&'static str> {
+        Some("delay")
+    }
+    fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        minimap: &Composite,
+    ) -> Option<LayerOutcome> {
+        if app.primary.sim.time() != self.time {
+            *self = Delay::new(ctx, app, self.compare);
+        }
+
+        self.composite.align_above(ctx, minimap);
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "close" => {
+                    return Some(LayerOutcome::Close);
+                }
+                _ => unreachable!(),
+            },
+            None => {
+                let new_compare = self.composite.has_widget("Compare before edits")
+                    && self.composite.is_checked("Compare before edits");
+                if new_compare != self.compare {
+                    *self = Delay::new(ctx, app, new_compare);
+                    self.composite.align_above(ctx, minimap);
+                }
+            }
+        }
+        None
+    }
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        self.composite.draw(g);
+        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+            g.redraw(&self.unzoomed);
+        }
+    }
+    fn draw_minimap(&self, g: &mut GfxCtx) {
+        g.redraw(&self.unzoomed);
+    }
+}
+
+impl Delay {
+    pub fn new(ctx: &mut EventCtx, app: &App, compare: bool) -> Delay {
+        if compare {
+            return Delay::compare_delay(ctx, app);
+        }
+
+        // TODO explain more
+        let mut colorer = Colorer::scaled(
+            ctx,
+            "Delay (minutes)",
+            Vec::new(),
+            app.cs.good_to_bad_monochrome_red.to_vec(),
+            vec!["0.5", "1", "5", "15", "longer"],
+        );
+
+        let (per_road, per_intersection) = app.primary.sim.worst_delay(&app.primary.map);
+        for (r, d) in per_road {
+            let color = if d < Duration::seconds(30.0) {
+                continue;
+            } else if d < Duration::minutes(1) {
+                app.cs.good_to_bad_monochrome_red[0]
+            } else if d < Duration::minutes(5) {
+                app.cs.good_to_bad_monochrome_red[1]
+            } else if d < Duration::minutes(15) {
+                app.cs.good_to_bad_monochrome_red[2]
+            } else {
+                app.cs.good_to_bad_monochrome_red[3]
+            };
+            colorer.add_r(r, color, &app.primary.map);
+        }
+        for (i, d) in per_intersection {
+            let color = if d < Duration::seconds(30.0) {
+                continue;
+            } else if d < Duration::minutes(1) {
+                app.cs.good_to_bad_monochrome_red[0]
+            } else if d < Duration::minutes(5) {
+                app.cs.good_to_bad_monochrome_red[1]
+            } else if d < Duration::minutes(15) {
+                app.cs.good_to_bad_monochrome_red[2]
+            } else {
+                app.cs.good_to_bad_monochrome_red[3]
+            };
+            colorer.add_i(i, color);
+        }
+
+        let composite = Composite::new(
+            Widget::col(vec![
+                Widget::row(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg")
+                        .margin_right(10),
+                    "Delay (minutes)".draw_text(ctx),
+                    Btn::plaintext("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                if app.has_prebaked().is_some() {
+                    Checkbox::text(ctx, "Compare before edits", None, false).margin_below(5)
+                } else {
+                    Widget::nothing()
+                },
+                ColorLegend::scale(
+                    ctx,
+                    app.cs.good_to_bad_monochrome_red.to_vec(),
+                    vec!["0.5", "1", "5", "15", "longer"],
+                ),
+            ])
+            .padding(5)
+            .bg(app.cs.panel_bg),
+        )
+        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+        .build(ctx);
+
+        Delay {
+            time: app.primary.sim.time(),
+            compare: false,
+            unzoomed: colorer.build_both(ctx, app).unzoomed,
+            composite,
+        }
+    }
+
+    // TODO Needs work.
+    fn compare_delay(ctx: &mut EventCtx, app: &App) -> Delay {
+        let map = &app.primary.map;
+        let mut batch = GeomBatch::new();
+        batch.push(app.cs.fade_map_dark, map.get_boundary_polygon().clone());
+        let red = Color::hex("#A32015");
+        let green = Color::hex("#5D9630");
+
+        let results = app
+            .primary
+            .sim
+            .get_analytics()
+            .compare_delay(app.primary.sim.time(), app.prebaked());
+        if !results.is_empty() {
+            let fastest = results.iter().min_by_key(|(_, dt)| *dt).unwrap().1;
+            let slowest = results.iter().max_by_key(|(_, dt)| *dt).unwrap().1;
+
+            for (i, dt) in results {
+                let color = if dt < Duration::ZERO {
+                    green.lerp(Color::WHITE, (1.0 - (dt / fastest)) as f32)
+                } else {
+                    Color::WHITE.lerp(red, (dt / slowest) as f32)
+                };
+                batch.push(color, map.get_i(i).polygon.clone());
+            }
+        }
+
+        let composite = Composite::new(
+            Widget::col(vec![
+                Widget::row(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg")
+                        .margin_right(10),
+                    "Delay".draw_text(ctx),
+                    Btn::plaintext("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                Checkbox::text(ctx, "Compare before edits", None, true).margin_below(5),
+                ColorLegend::gradient_3(
+                    ctx,
+                    green,
+                    Color::WHITE,
+                    red,
+                    vec!["faster", "same", "slower"],
+                ),
+            ])
+            .padding(5)
+            .bg(app.cs.panel_bg),
+        )
+        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+        .build(ctx);
+
+        Delay {
             time: app.primary.sim.time(),
             compare: true,
             unzoomed: ctx.upload(batch),

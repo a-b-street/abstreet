@@ -24,6 +24,7 @@ TODO:
   - proposed
     [here](https://old.reddit.com/r/SeattleWA/comments/gr4dsi/its_time_for_mayor_durkan_to_bring_stay_healthy/)
   - partly [happening already](https://www.openstreetmap.org/way/814244753)
+  - another [proposal](https://twitter.com/pushtheneedle/status/1270757771802103809/photo/1)
 - Traffic signal timing at Montlake/520 and Montlake/Pacific
   - Walking around here is frustrating, and pre-COVID, vehicle traffic got
     fairly stuck

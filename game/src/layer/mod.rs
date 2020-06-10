@@ -125,7 +125,7 @@ impl State for PickLayer {
                     )));
                 }
                 "delay" => {
-                    app.layer = Some(Box::new(traffic::Dynamic::delay(ctx, app)));
+                    app.layer = Some(Box::new(traffic::Delay::new(ctx, app, false)));
                 }
                 "worst traffic jams" => {
                     app.layer = Some(Box::new(traffic::Dynamic::traffic_jams(ctx, app)));
