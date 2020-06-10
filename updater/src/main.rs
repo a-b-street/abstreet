@@ -156,9 +156,9 @@ impl Manifest {
 
             // since these files can be very large, computes the md5 hash in chunks
             let mut file = File::open(&path).unwrap();
-            let mut buffer: Vec<u8> = Vec::with_capacity(MD5_BUF_READ_SIZE);
+            let mut buffer = [0 as u8; MD5_BUF_READ_SIZE];
             let mut context = md5::Context::new();
-            while let Ok(n) = file.read(&mut buffer) {
+            while let Ok(n) = file.read(&mut buffer[..]) {
                 if n == 0 {
                     break;
                 }
