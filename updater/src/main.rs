@@ -14,7 +14,7 @@ struct Error {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Error> {
+async fn main() {
     match std::env::args().skip(1).next() {
         Some(x) => match x.as_ref() {
             "--upload" => {
@@ -32,7 +32,6 @@ async fn main() -> Result<(), Error> {
             download().await;
         }
     }
-    Ok(())
 }
 
 async fn download() {
