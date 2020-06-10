@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 use std::fs::{create_dir_all, remove_file, set_permissions, File, Permissions};
-use std::io::{copy, BufRead, BufReader, Write, Read};
 use std::io::Error as ioError;
+use std::io::{copy, BufRead, BufReader, Read, Write};
 use std::process::Command;
 
 use walkdir::WalkDir;
@@ -51,7 +51,7 @@ async fn download() {
             match curl(entry).await {
                 Ok(()) => {
                     unzip(&path);
-                },
+                }
                 Err(e) => {
                     println!("{}, continuing", e);
                 }

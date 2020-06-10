@@ -69,32 +69,12 @@ impl Minimap {
             self.layer = layer;
             self.composite = make_minimap_panel(ctx, app, self.zoom_lvl);
         }
-        // TODO Makes the pan buttons useless. Is this better?
-        if self.zoomed {
+        if self.zoomed && !self.dragging {
             self.recenter(ctx);
         }
 
-        let pan_speed = 100.0;
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x {
-                x if x == "pan up" => {
-                    self.offset_y -= pan_speed * self.zoom;
-                    return Some(Transition::KeepWithMouseover);
-                }
-                x if x == "pan down" => {
-                    self.offset_y += pan_speed * self.zoom;
-                    return Some(Transition::KeepWithMouseover);
-                }
-                x if x == "pan left" => {
-                    self.offset_x -= pan_speed * self.zoom;
-                    return Some(Transition::KeepWithMouseover);
-                }
-                x if x == "pan right" => {
-                    self.offset_x += pan_speed * self.zoom;
-                    return Some(Transition::KeepWithMouseover);
-                }
-                // TODO Make the center of the cursor still point to the same thing. Same math as
-                // Canvas.
                 x if x == "zoom in" => {
                     if self.zoom_lvl != 3 {
                         self.set_zoom(ctx, app, self.zoom_lvl + 1);
@@ -306,34 +286,12 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
                 .build(ctx, "zoom out", None)
                 .margin(12),
         );
-        // The zoom column should start below the "pan up" arrow. But if we put it on the row with
-        // <, minimap, and > then it messes up the horizontal alignment of the pan up arrow.
-        // Also, double column to avoid the background color stretching to the bottom of the row.
+        // double column to avoid the background color stretching to the bottom of the row.
         Widget::col(vec![Widget::col(col).bg(app.cs.inner_panel)]).margin_above(26)
     };
 
     let square_len = 0.15 * ctx.canvas.window_width;
-    let minimap_controls = Widget::col(vec![
-        Btn::svg_def("../data/system/assets/minimap/up.svg")
-            .build(ctx, "pan up", None)
-            .margin(5)
-            .centered_horiz(),
-        Widget::row(vec![
-            Btn::svg_def("../data/system/assets/minimap/left.svg")
-                .build(ctx, "pan left", None)
-                .margin(5)
-                .centered_vert(),
-            Filler::new(ScreenDims::new(square_len, square_len)).named("minimap"),
-            Btn::svg_def("../data/system/assets/minimap/right.svg")
-                .build(ctx, "pan right", None)
-                .margin(5)
-                .centered_vert(),
-        ]),
-        Btn::svg_def("../data/system/assets/minimap/down.svg")
-            .build(ctx, "pan down", None)
-            .margin(5)
-            .centered_horiz(),
-    ]);
+    let minimap_controls = Filler::new(ScreenDims::new(square_len, square_len)).named("minimap");
 
     Composite::new(Widget::row(vec![
         make_tool_panel(ctx, app).margin_right(16),
