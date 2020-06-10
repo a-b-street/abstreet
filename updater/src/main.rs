@@ -1,17 +1,13 @@
 use std::collections::BTreeMap;
 use std::fs::{create_dir_all, remove_file, set_permissions, File, Permissions};
-use std::io::{copy, BufRead, BufReader, Write};
+use std::io::{copy, BufRead, BufReader, Write, Read};
 use std::io::Error as ioError;
 use std::process::Command;
 
 use walkdir::WalkDir;
 
+const MD5_BUF_READ_SIZE: usize = 4096;
 const TMP_DOWNLOAD_NAME: &str = "tmp_download.zip";
-
-#[derive(Debug)]
-struct Error {
-    message: String
-}
 
 #[tokio::main]
 async fn main() {
@@ -57,7 +53,7 @@ async fn download() {
                     unzip(&path);
                 },
                 Err(e) => {
-                    println!("{}, continuing", e.message);
+                    println!("{}, continuing", e);
                 }
             };
             // whether or not download failed, still try to clean up tmp file
@@ -156,8 +152,19 @@ impl Manifest {
                 continue;
             }
 
-            let data = std::fs::read(&path).unwrap();
-            let checksum = format!("{:x}", md5::compute(data));
+            println!("> compute md5sum of {}", path);
+
+            // since these files can be very large, computes the md5 hash in chunks
+            let mut file = File::open(&path).unwrap();
+            let mut buffer: Vec<u8> = Vec::with_capacity(MD5_BUF_READ_SIZE);
+            let mut context = md5::Context::new();
+            while let Ok(n) = file.read(&mut buffer) {
+                if n == 0 {
+                    break;
+                }
+                context.consume(&buffer[..n]);
+            }
+            let checksum = format!("{:x}", context.compute());
             kv.insert(
                 path,
                 Entry {
@@ -370,7 +377,7 @@ fn rm(path: &str) {
     }
 }
 
-async fn curl(entry: Entry) -> Result<(), Error> {
+async fn curl(entry: Entry) -> Result<(), Box<dyn std::error::Error>> {
     let src = entry.dropbox_url.unwrap();
     // the ?dl=0 param at the end of each URL takes you to an interactive page
     // for viewing the folder in the browser. For some reason, curl and wget can
@@ -389,10 +396,8 @@ async fn curl(entry: Entry) -> Result<(), Error> {
     match resp.error_for_status_ref() {
         Ok(_) => {}
         Err(err) => {
-            let err = Error {
-                message: format!("error getting {}: {}", src, err),
-            };
-            return Err(err);
+            let err = format!("error getting {}: {}", src, err);
+            return Err(err.into());
         }
     };
     while let Some(chunk) = resp.chunk().await.unwrap() {
