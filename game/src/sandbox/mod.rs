@@ -384,7 +384,9 @@ impl ContextualActions for Actions {
                         actions.push((Key::F, "explore traffic signal details".to_string()));
                         actions.push((Key::E, "edit traffic signal".to_string()));
                     }
-                    if app.primary.map.get_i(i).is_stop_sign() {
+                    if app.primary.map.get_i(i).is_stop_sign()
+                        && self.gameplay.can_edit_stop_signs()
+                    {
                         actions.push((Key::E, "edit stop sign".to_string()));
                     }
                     actions.push((Key::U, "explore uber-turns".to_string()));
@@ -423,11 +425,11 @@ impl ContextualActions for Actions {
             }
             (ID::Intersection(i), "edit traffic signal") => Transition::PushTwice(
                 Box::new(EditMode::new(ctx, app, self.gameplay.clone())),
-                Box::new(TrafficSignalEditor::new(i, ctx, app)),
+                Box::new(TrafficSignalEditor::new(ctx, app, i, self.gameplay.clone())),
             ),
             (ID::Intersection(i), "edit stop sign") => Transition::PushTwice(
                 Box::new(EditMode::new(ctx, app, self.gameplay.clone())),
-                Box::new(StopSignEditor::new(i, ctx, app)),
+                Box::new(StopSignEditor::new(ctx, app, i, self.gameplay.clone())),
             ),
             (ID::Intersection(i), "explore uber-turns") => {
                 Transition::Push(uber_turns::UberTurnPicker::new(ctx, app, i))

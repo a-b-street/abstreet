@@ -49,7 +49,7 @@ impl EditMode {
         let edits = app.primary.map.get_edits();
         EditMode {
             tool_panel: tool_panel(ctx, app),
-            composite: make_topcenter(ctx, app),
+            composite: make_topcenter(ctx, app, &mode),
             mode,
             top_panel_key: (edits.edits_name.clone(), edits.commands.len()),
             once: true,
@@ -96,7 +96,7 @@ impl State for EditMode {
             let top_panel_key = (edits.edits_name.clone(), edits.commands.len());
             if self.top_panel_key != top_panel_key {
                 self.top_panel_key = top_panel_key;
-                self.composite = make_topcenter(ctx, app);
+                self.composite = make_topcenter(ctx, app, &self.mode);
             }
         }
 
@@ -115,7 +115,12 @@ impl State for EditMode {
                 if !can_edit_lane(&self.mode, l, app) {
                     app.primary.current_selection = None;
                 }
-            } else if let Some(ID::Intersection(_)) = app.primary.current_selection {
+            } else if let Some(ID::Intersection(i)) = app.primary.current_selection {
+                if app.primary.map.maybe_get_stop_sign(i).is_some()
+                    && !self.mode.can_edit_stop_signs()
+                {
+                    app.primary.current_selection = None;
+                }
             } else if let Some(ID::Road(_)) = app.primary.current_selection {
             } else {
                 app.primary.current_selection = None;
@@ -200,12 +205,22 @@ impl State for EditMode {
                     && self.mode.can_edit_stop_signs()
                     && app.per_obj.left_click(ctx, "edit stop signs")
                 {
-                    return Transition::Push(Box::new(StopSignEditor::new(id, ctx, app)));
+                    return Transition::Push(Box::new(StopSignEditor::new(
+                        ctx,
+                        app,
+                        id,
+                        self.mode.clone(),
+                    )));
                 }
                 if app.primary.map.maybe_get_traffic_signal(id).is_some()
                     && app.per_obj.left_click(ctx, "edit traffic signal")
                 {
-                    return Transition::Push(Box::new(TrafficSignalEditor::new(id, ctx, app)));
+                    return Transition::Push(Box::new(TrafficSignalEditor::new(
+                        ctx,
+                        app,
+                        id,
+                        self.mode.clone(),
+                    )));
                 }
                 if app.primary.map.get_i(id).is_closed()
                     && app.per_obj.left_click(ctx, "re-open closed intersection")
@@ -357,7 +372,7 @@ fn make_load_edits(app: &App, btn: ScreenRectangle, mode: GameplayMode) -> Box<d
     }))
 }
 
-fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Composite {
+fn make_topcenter(ctx: &mut EventCtx, app: &App, mode: &GameplayMode) -> Composite {
     // TODO Support redo. Bit harder here to reset the redo_stack when the edits
     // change, because nested other places modify it too.
     Composite::new(
@@ -401,9 +416,12 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Composite {
                     Btn::text_fg("reset edits").inactive(ctx)
                 }
                 .margin_right(15),
-                Btn::text_fg("bulk edit")
-                    .build_def(ctx, hotkey(Key::B))
-                    .margin_right(15),
+                if mode.can_edit_lanes() {
+                    Btn::text_fg("bulk edit").build_def(ctx, hotkey(Key::B))
+                } else {
+                    Btn::text_fg("bulk edit").inactive(ctx)
+                }
+                .margin_right(15),
                 PersistentSplit::new(
                     ctx,
                     "finish editing",

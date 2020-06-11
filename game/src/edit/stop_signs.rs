@@ -3,6 +3,7 @@ use crate::common::CommonState;
 use crate::edit::{apply_map_edits, close_intersection, TrafficSignalEditor};
 use crate::game::{State, Transition};
 use crate::render::DrawIntersection;
+use crate::sandbox::GameplayMode;
 use abstutil::Timer;
 use ezgui::{
     hotkey, Btn, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
@@ -19,13 +20,19 @@ use std::collections::HashMap;
 pub struct StopSignEditor {
     composite: Composite,
     id: IntersectionID,
+    mode: GameplayMode,
     // (octagon, pole)
     geom: HashMap<RoadID, (Polygon, Polygon)>,
     selected_sign: Option<RoadID>,
 }
 
 impl StopSignEditor {
-    pub fn new(id: IntersectionID, ctx: &mut EventCtx, app: &mut App) -> StopSignEditor {
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &mut App,
+        id: IntersectionID,
+        mode: GameplayMode,
+    ) -> StopSignEditor {
         app.primary.current_selection = None;
         let geom = app
             .primary
@@ -63,6 +70,7 @@ impl StopSignEditor {
         StopSignEditor {
             composite,
             id,
+            mode,
             geom,
             selected_sign: None,
         }
@@ -102,7 +110,12 @@ impl State for StopSignEditor {
                     new: EditIntersection::StopSign(sign),
                 });
                 apply_map_edits(ctx, app, edits);
-                return Transition::Replace(Box::new(StopSignEditor::new(self.id, ctx, app)));
+                return Transition::Replace(Box::new(StopSignEditor::new(
+                    ctx,
+                    app,
+                    self.id,
+                    self.mode.clone(),
+                )));
             }
         }
 
@@ -122,7 +135,12 @@ impl State for StopSignEditor {
                         )),
                     });
                     apply_map_edits(ctx, app, edits);
-                    return Transition::Replace(Box::new(StopSignEditor::new(self.id, ctx, app)));
+                    return Transition::Replace(Box::new(StopSignEditor::new(
+                        ctx,
+                        app,
+                        self.id,
+                        self.mode.clone(),
+                    )));
                 }
                 "close intersection for construction" => {
                     return close_intersection(ctx, app, self.id, true);
@@ -140,7 +158,10 @@ impl State for StopSignEditor {
                     });
                     apply_map_edits(ctx, app, edits);
                     return Transition::Replace(Box::new(TrafficSignalEditor::new(
-                        self.id, ctx, app,
+                        ctx,
+                        app,
+                        self.id,
+                        self.mode.clone(),
                     )));
                 }
                 _ => unreachable!(),

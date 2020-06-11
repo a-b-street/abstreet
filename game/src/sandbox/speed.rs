@@ -394,7 +394,7 @@ impl JumpToTime {
                     )
                     .margin_above(20)
                     .margin_below(20),
-                    Btn::text_bg2("Wait for any delay over 5 minutes")
+                    Btn::text_bg2("Jump to the next delay over 5 minutes")
                         .build_def(ctx, None)
                         .centered_horiz(),
                 ])
@@ -429,7 +429,7 @@ impl State for JumpToTime {
                     }
                     return Transition::Replace(TimeWarpScreen::new(ctx, app, self.target, false));
                 }
-                "Wait for any delay over 5 minutes" => {
+                "Jump to the next delay over 5 minutes" => {
                     return Transition::Replace(TimeWarpScreen::new(
                         ctx,
                         app,

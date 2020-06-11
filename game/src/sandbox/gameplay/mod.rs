@@ -156,7 +156,8 @@ impl GameplayMode {
                     }
                 }
                 EditCmd::ChangeIntersection { ref new, .. } => match new {
-                    EditIntersection::StopSign(_) => {
+                    // TODO Conflating construction
+                    EditIntersection::StopSign(_) | EditIntersection::Closed => {
                         if !self.can_edit_stop_signs() {
                             return false;
                         }

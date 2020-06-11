@@ -5,7 +5,7 @@ use crate::game::{msg, DrawBaselayer, State, Transition, WizardState};
 use crate::render::{
     draw_signal_phase, make_signal_diagram, DrawOptions, DrawTurnGroup, BIG_ARROW_THICKNESS,
 };
-use crate::sandbox::{spawn_agents_around, SpeedControls, TimePanel};
+use crate::sandbox::{spawn_agents_around, GameplayMode, SpeedControls, TimePanel};
 use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
@@ -25,6 +25,7 @@ pub struct TrafficSignalEditor {
     current_phase: usize,
     composite: Composite,
     pub top_panel: Composite,
+    mode: GameplayMode,
 
     groups: Vec<DrawTurnGroup>,
     group_selected: Option<TurnGroupID>,
@@ -35,13 +36,19 @@ pub struct TrafficSignalEditor {
 }
 
 impl TrafficSignalEditor {
-    pub fn new(id: IntersectionID, ctx: &mut EventCtx, app: &mut App) -> TrafficSignalEditor {
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &mut App,
+        id: IntersectionID,
+        mode: GameplayMode,
+    ) -> TrafficSignalEditor {
         app.primary.current_selection = None;
         TrafficSignalEditor {
             i: id,
             current_phase: 0,
             composite: make_signal_diagram(ctx, app, id, 0, true),
             top_panel: make_top_panel(ctx, app, false, false),
+            mode,
             groups: DrawTurnGroup::for_i(id, &app.primary.map),
             group_selected: None,
             command_stack: Vec::new(),
@@ -84,7 +91,7 @@ impl State for TrafficSignalEditor {
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x {
                 x if x == "Edit entire signal" => {
-                    return Transition::Push(edit_entire_signal(app, self.i));
+                    return Transition::Push(edit_entire_signal(app, self.i, self.mode.clone()));
                 }
                 x if x.starts_with("change duration of phase ") => {
                     let idx = x["change duration of phase ".len()..]
@@ -412,7 +419,7 @@ pub fn change_traffic_signal(signal: ControlTrafficSignal, ctx: &mut EventCtx, a
     apply_map_edits(ctx, app, edits);
 }
 
-fn edit_entire_signal(app: &App, i: IntersectionID) -> Box<dyn State> {
+fn edit_entire_signal(app: &App, i: IntersectionID, mode: GameplayMode) -> Box<dyn State> {
     let has_sidewalks = app
         .primary
         .map
@@ -429,10 +436,17 @@ fn edit_entire_signal(app: &App, i: IntersectionID) -> Box<dyn State> {
         let offset = "edit signal offset";
         let reset = "reset to default";
 
-        let mut choices = vec![use_template, all_walk, stop_sign, close, offset, reset];
-        if !has_sidewalks {
-            choices.remove(1);
+        let mut choices = vec![use_template];
+        if has_sidewalks {
+            choices.push(all_walk);
         }
+        // TODO Conflating stop signs and construction here
+        if mode.can_edit_stop_signs() {
+            choices.push(stop_sign);
+            choices.push(close);
+        }
+        choices.push(offset);
+        choices.push(reset);
 
         let mut wizard = wiz.wrap(ctx);
         match wizard.choose_string("", move || choices.clone())?.as_str() {
@@ -478,7 +492,10 @@ fn edit_entire_signal(app: &App, i: IntersectionID) -> Box<dyn State> {
                 });
                 apply_map_edits(ctx, app, edits);
                 Some(Transition::PopThenReplace(Box::new(StopSignEditor::new(
-                    i, ctx, app,
+                    ctx,
+                    app,
+                    i,
+                    mode.clone(),
                 ))))
             }
             x if x == close => Some(close_intersection(ctx, app, i, false)),
