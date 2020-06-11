@@ -334,7 +334,7 @@ pub fn make_signal_diagram(
         vec![Widget::row(vec![
             txt_widget,
             Btn::text_fg("X")
-                .build_def(ctx, hotkey(Key::Escape))
+                .build(ctx, "close", hotkey(Key::Escape))
                 .align_right(),
         ])]
     };

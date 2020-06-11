@@ -27,11 +27,11 @@ pub struct Minimap {
 
 impl Minimap {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Minimap {
-        // Initially pick a zoom to fit the entire map's width in the minimap. Arbitrary and
-        // probably pretty weird.
+        // Initially pick a zoom to fit the smaller of the entire map's width or height in the
+        // minimap. Arbitrary and probably pretty weird.
         let bounds = app.primary.map.get_bounds();
-        let base_zoom = 0.15 * ctx.canvas.window_width / bounds.width();
-        Minimap {
+        let base_zoom = 0.15 * ctx.canvas.window_width / bounds.width().min(bounds.height());
+        let mut m = Minimap {
             dragging: false,
             composite: make_minimap_panel(ctx, app, 0),
             zoomed: ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail,
@@ -42,14 +42,31 @@ impl Minimap {
             zoom: base_zoom,
             offset_x: 0.0,
             offset_y: 0.0,
-        }
+        };
+        m.recenter(ctx);
+        m
     }
 
     fn set_zoom(&mut self, ctx: &mut EventCtx, app: &App, zoom_lvl: usize) {
+        // Make the frame wind up in the same relative position on the minimap
+        let (pct_x, pct_y) = {
+            let map_center = ctx.canvas.center_to_map_pt();
+            let inner_rect = self.composite.rect_of("minimap");
+            let pct_x = (map_center.x() * self.zoom - self.offset_x) / inner_rect.width();
+            let pct_y = (map_center.y() * self.zoom - self.offset_y) / inner_rect.height();
+            (pct_x, pct_y)
+        };
+
         let zoom_speed: f64 = 2.0;
         self.zoom_lvl = zoom_lvl;
         self.zoom = self.base_zoom * zoom_speed.powi(self.zoom_lvl as i32);
         self.composite = make_minimap_panel(ctx, app, self.zoom_lvl);
+
+        // Find the new offset
+        let map_center = ctx.canvas.center_to_map_pt();
+        let inner_rect = self.composite.rect_of("minimap");
+        self.offset_x = map_center.x() * self.zoom - pct_x * inner_rect.width();
+        self.offset_y = map_center.y() * self.zoom - pct_y * inner_rect.height();
     }
 
     fn recenter(&mut self, ctx: &EventCtx) {
@@ -65,16 +82,38 @@ impl Minimap {
         let zoomed = ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail;
         let layer = app.layer.is_none();
         if zoomed != self.zoomed || layer != self.layer {
+            let just_zoomed_in = zoomed && !self.zoomed;
+
             self.zoomed = zoomed;
             self.layer = layer;
             self.composite = make_minimap_panel(ctx, app, self.zoom_lvl);
-        }
-        if self.zoomed && !self.dragging {
-            self.recenter(ctx);
+
+            if just_zoomed_in {
+                self.recenter(ctx);
+            }
         }
 
+        let pan_speed = 100.0;
         match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x {
+                x if x == "pan up" => {
+                    self.offset_y -= pan_speed * self.zoom;
+                    return Some(Transition::KeepWithMouseover);
+                }
+                x if x == "pan down" => {
+                    self.offset_y += pan_speed * self.zoom;
+                    return Some(Transition::KeepWithMouseover);
+                }
+                x if x == "pan left" => {
+                    self.offset_x -= pan_speed * self.zoom;
+                    return Some(Transition::KeepWithMouseover);
+                }
+                x if x == "pan right" => {
+                    self.offset_x += pan_speed * self.zoom;
+                    return Some(Transition::KeepWithMouseover);
+                }
+                // TODO Make the center of the cursor still point to the same thing. Same math as
+                // Canvas.
                 x if x == "zoom in" => {
                     if self.zoom_lvl != 3 {
                         self.set_zoom(ctx, app, self.zoom_lvl + 1);
@@ -227,21 +266,17 @@ impl Minimap {
                 .screen_to_map(ScreenPt::new(g.canvas.window_width, g.canvas.window_height));
             (pt.x(), pt.y())
         };
-        if x1 != x2 && y1 != y2 {
-            g.draw_polygon(
-                Color::BLACK,
-                &Ring::new(vec![
-                    Pt2D::new(x1, y1),
-                    Pt2D::new(x2, y1),
-                    Pt2D::new(x2, y2),
-                    Pt2D::new(x1, y2),
-                    Pt2D::new(x1, y1),
-                ])
-                .make_polygons(Distance::meters(20.0)),
-            );
-        } else {
-            // TODO Happens when we're quite out-of-bounds. Maybe stop allowing this at all?
-        }
+        g.draw_polygon(
+            Color::BLACK,
+            &Ring::new(vec![
+                Pt2D::new(x1, y1),
+                Pt2D::new(x2, y1),
+                Pt2D::new(x2, y2),
+                Pt2D::new(x1, y2),
+                Pt2D::new(x1, y1),
+            ])
+            .make_polygons(Distance::meters(20.0)),
+        );
         g.disable_clipping();
         g.unfork();
     }
@@ -286,12 +321,34 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Composi
                 .build(ctx, "zoom out", None)
                 .margin(12),
         );
-        // double column to avoid the background color stretching to the bottom of the row.
+        // The zoom column should start below the "pan up" arrow. But if we put it on the row with
+        // <, minimap, and > then it messes up the horizontal alignment of the pan up arrow.
+        // Also, double column to avoid the background color stretching to the bottom of the row.
         Widget::col(vec![Widget::col(col).bg(app.cs.inner_panel)]).margin_above(26)
     };
 
     let square_len = 0.15 * ctx.canvas.window_width;
-    let minimap_controls = Filler::new(ScreenDims::new(square_len, square_len)).named("minimap");
+    let minimap_controls = Widget::col(vec![
+        Btn::svg_def("../data/system/assets/minimap/up.svg")
+            .build(ctx, "pan up", None)
+            .margin(5)
+            .centered_horiz(),
+        Widget::row(vec![
+            Btn::svg_def("../data/system/assets/minimap/left.svg")
+                .build(ctx, "pan left", None)
+                .margin(5)
+                .centered_vert(),
+            Filler::new(ScreenDims::new(square_len, square_len)).named("minimap"),
+            Btn::svg_def("../data/system/assets/minimap/right.svg")
+                .build(ctx, "pan right", None)
+                .margin(5)
+                .centered_vert(),
+        ]),
+        Btn::svg_def("../data/system/assets/minimap/down.svg")
+            .build(ctx, "pan down", None)
+            .margin(5)
+            .centered_horiz(),
+    ]);
 
     Composite::new(Widget::row(vec![
         make_tool_panel(ctx, app).margin_right(16),
