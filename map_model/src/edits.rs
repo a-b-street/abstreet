@@ -7,7 +7,7 @@ use geom::Speed;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct MapEdits {
     pub edits_name: String,
     pub commands: Vec<EditCmd>,
@@ -29,7 +29,7 @@ pub enum EditIntersection {
     Closed,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum EditCmd {
     ChangeLaneType {
         id: LaneID,

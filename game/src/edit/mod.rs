@@ -33,6 +33,8 @@ use std::collections::BTreeSet;
 pub struct EditMode {
     tool_panel: WrappedComposite,
     composite: Composite,
+    orig_edits: MapEdits,
+    orig_dirty: bool,
 
     // Retained state from the SandboxMode that spawned us
     mode: GameplayMode,
@@ -44,12 +46,15 @@ pub struct EditMode {
 
 impl EditMode {
     pub fn new(ctx: &mut EventCtx, app: &mut App, mode: GameplayMode) -> EditMode {
+        let orig_dirty = app.primary.dirty_from_edits;
         assert!(app.suspended_sim.is_none());
         app.suspended_sim = Some(app.primary.clear_sim());
         let edits = app.primary.map.get_edits();
         EditMode {
             tool_panel: tool_panel(ctx, app),
             composite: make_topcenter(ctx, app, &mode),
+            orig_edits: edits.clone(),
+            orig_dirty,
             mode,
             top_panel_key: (edits.edits_name.clone(), edits.commands.len()),
             once: true,
@@ -57,10 +62,17 @@ impl EditMode {
     }
 
     fn quit(&self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        let time = app.suspended_sim.take().unwrap().time();
+        let old_sim = app.suspended_sim.take().unwrap();
+        app.layer = None;
 
-        ctx.loading_screen("apply edits", |ctx, mut timer| {
-            app.layer = None;
+        // If nothing changed, short-circuit
+        if app.primary.map.get_edits() == &self.orig_edits {
+            app.primary.sim = old_sim;
+            app.primary.dirty_from_edits = self.orig_dirty;
+            return Transition::Pop;
+        }
+
+        ctx.loading_screen("apply edits", move |ctx, mut timer| {
             app.primary
                 .map
                 .recalculate_pathfinding_after_edits(&mut timer);
@@ -71,10 +83,16 @@ impl EditMode {
                 app.primary.map.save_edits();
             }
             if app.opts.resume_after_edit {
-                Transition::PopThenReplaceThenPush(
-                    Box::new(SandboxMode::new(ctx, app, self.mode.clone())),
-                    TimeWarpScreen::new(ctx, app, time, false),
-                )
+                if self.mode.reset_after_edits() {
+                    Transition::PopThenReplaceThenPush(
+                        Box::new(SandboxMode::new(ctx, app, self.mode.clone())),
+                        TimeWarpScreen::new(ctx, app, old_sim.time(), false),
+                    )
+                } else {
+                    app.primary.sim = old_sim;
+                    app.primary.dirty_from_edits = true;
+                    Transition::Pop
+                }
             } else {
                 Transition::PopThenReplace(Box::new(SandboxMode::new(ctx, app, self.mode.clone())))
             }

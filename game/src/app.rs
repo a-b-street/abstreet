@@ -509,6 +509,8 @@ pub struct PerMap {
     pub current_flags: Flags,
     pub last_warped_from: Option<(Pt2D, f64)>,
     pub sim_cb: Option<Box<dyn SimCallback>>,
+    // If we ever left edit mode and resumed without restarting from midnight, this is true.
+    pub dirty_from_edits: bool,
 }
 
 impl PerMap {
@@ -530,11 +532,13 @@ impl PerMap {
             current_flags: flags.clone(),
             last_warped_from: None,
             sim_cb: None,
+            dirty_from_edits: false,
         }
     }
 
     // Returns whatever was there
     pub fn clear_sim(&mut self) -> Sim {
+        self.dirty_from_edits = false;
         std::mem::replace(
             &mut self.sim,
             Sim::new(

@@ -145,6 +145,13 @@ impl GameplayMode {
         }
     }
 
+    pub fn reset_after_edits(&self) -> bool {
+        match self {
+            GameplayMode::FixTrafficSignals => false,
+            _ => true,
+        }
+    }
+
     pub fn allows(&self, edits: &MapEdits) -> bool {
         for cmd in &edits.commands {
             match cmd {

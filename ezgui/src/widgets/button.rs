@@ -134,7 +134,12 @@ impl Btn {
 
     pub fn plaintext<I: Into<String>>(label: I) -> BtnBuilder {
         let label = label.into();
-        BtnBuilder::PlainText(label.clone(), Text::from(Line(label)), None)
+        BtnBuilder::PlainText {
+            label: label.clone(),
+            txt: Text::from(Line(label)),
+            maybe_tooltip: None,
+            pad: (15.0, 8.0),
+        }
     }
 
     pub fn text_fg<I: Into<String>>(label: I) -> BtnBuilder {
@@ -205,7 +210,12 @@ pub enum BtnBuilder {
         pad: usize,
     },
     TextFG(String, Text, Option<Text>),
-    PlainText(String, Text, Option<Text>),
+    PlainText {
+        label: String,
+        txt: Text,
+        maybe_tooltip: Option<Text>,
+        pad: (f64, f64),
+    },
     TextBG {
         label: String,
         maybe_tooltip: Option<Text>,
@@ -220,11 +230,14 @@ pub enum BtnBuilder {
 impl BtnBuilder {
     pub fn tooltip(mut self, tooltip: Text) -> BtnBuilder {
         match self {
-            BtnBuilder::TextFG(_, _, ref mut t)
-            | BtnBuilder::PlainText(_, _, ref mut t)
-            | BtnBuilder::Custom(_, _, _, ref mut t) => {
-                assert!(t.is_none());
-                *t = Some(tooltip);
+            BtnBuilder::TextFG(_, _, ref mut maybe_tooltip)
+            | BtnBuilder::PlainText {
+                ref mut maybe_tooltip,
+                ..
+            }
+            | BtnBuilder::Custom(_, _, _, ref mut maybe_tooltip) => {
+                assert!(maybe_tooltip.is_none());
+                *maybe_tooltip = Some(tooltip);
             }
             BtnBuilder::SVG {
                 ref mut maybe_tooltip,
@@ -262,6 +275,10 @@ impl BtnBuilder {
         match self {
             BtnBuilder::SVG { ref mut pad, .. } => {
                 *pad = new_pad;
+                self
+            }
+            BtnBuilder::PlainText { ref mut pad, .. } => {
+                *pad = (new_pad as f64, new_pad as f64);
                 self
             }
             _ => unreachable!(),
@@ -336,25 +353,24 @@ impl BtnBuilder {
                 .outline(2.0, Color::WHITE)
             }
             // Same as TextFG without the outline
-            BtnBuilder::PlainText(_, normal_txt, maybe_t) => {
-                // TODO Padding here is unfortunate, but I don't understand when the flexbox padding
-                // actually works.
-                let horiz_padding = 15.0;
-                let vert_padding = 8.0;
+            BtnBuilder::PlainText {
+                txt,
+                maybe_tooltip,
+                pad,
+                ..
+            } => {
+                let normal_txt = txt;
 
                 let unselected_batch = normal_txt.clone().render_ctx(ctx);
                 let dims = unselected_batch.get_dims();
                 let selected_batch = normal_txt.change_fg(Color::ORANGE).render_ctx(ctx);
                 assert_eq!(dims, selected_batch.get_dims());
-                let geom = Polygon::rectangle(
-                    dims.width + 2.0 * horiz_padding,
-                    dims.height + 2.0 * vert_padding,
-                );
+                let geom = Polygon::rectangle(dims.width + 2.0 * pad.0, dims.height + 2.0 * pad.1);
 
                 let mut normal = GeomBatch::new();
-                normal.append(unselected_batch.translate(horiz_padding, vert_padding));
+                normal.append(unselected_batch.translate(pad.0, pad.1));
                 let mut hovered = GeomBatch::new();
-                hovered.append(selected_batch.translate(horiz_padding, vert_padding));
+                hovered.append(selected_batch.translate(pad.0, pad.1));
 
                 Button::new(
                     ctx,
@@ -362,7 +378,7 @@ impl BtnBuilder {
                     hovered,
                     key,
                     &action_tooltip.into(),
-                    maybe_t,
+                    maybe_tooltip,
                     geom,
                 )
             }
@@ -418,7 +434,7 @@ impl BtnBuilder {
             BtnBuilder::SVG { .. } => panic!("Can't use build_def on an SVG button"),
             BtnBuilder::Custom(_, _, _, _) => panic!("Can't use build_def on a custom button"),
             BtnBuilder::TextFG(ref label, _, _)
-            | BtnBuilder::PlainText(ref label, _, _)
+            | BtnBuilder::PlainText { ref label, .. }
             | BtnBuilder::TextBG { ref label, .. } => {
                 assert!(!label.is_empty());
                 let copy = label.clone();

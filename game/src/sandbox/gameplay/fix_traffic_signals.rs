@@ -22,7 +22,6 @@ pub struct FixTrafficSignals {
     top_center: Composite,
     meter: Composite,
     time: Time,
-    once: bool,
     done: bool,
     mode: GameplayMode,
 }
@@ -55,7 +54,6 @@ impl FixTrafficSignals {
             .build(ctx),
             meter: make_meter(ctx, app, None),
             time: Time::START_OF_DAY,
-            once: true,
             done: false,
             mode: GameplayMode::FixTrafficSignals,
         })
@@ -109,9 +107,9 @@ impl GameplayState for FixTrafficSignals {
             METER_HACK,
         );
 
-        if self.once {
-            self.once = false;
-            assert!(app.primary.sim_cb.is_none());
+        // Normally we just do this once at the beginning, but because there are other paths to
+        // reseting (like jump-to-time), it's safest just to do this.
+        if app.primary.sim_cb.is_none() {
             app.primary.sim_cb = Some(Box::new(FindDelayedIntersections {
                 halt_limit: THRESHOLD,
                 report_limit: Duration::minutes(1),
@@ -252,6 +250,22 @@ impl GameplayState for FixTrafficSignals {
                         &mut app.primary,
                     )));
                 }
+                "explain score" => {
+                    // TODO Adjust wording
+                    return Some(Transition::Push(FYI::new(
+                        ctx,
+                        Text::from_multiline(vec![
+                            Line("You changed some traffic signals in the middle of the day."),
+                            Line(
+                                "First see if you can survive for a full day, making changes \
+                                 along the way.",
+                            ),
+                            Line("Then you should check if your changes work from midnight."),
+                        ])
+                        .draw(ctx),
+                        app.cs.panel_bg,
+                    )));
+                }
                 _ => unreachable!(),
             },
             None => {}
@@ -308,6 +322,14 @@ fn make_meter(
                 ])
             } else {
                 Widget::row(vec![
+                    if app.primary.dirty_from_edits {
+                        Btn::plaintext("(!)")
+                            .pad(0)
+                            .build(ctx, "explain score", None)
+                            .margin_right(10)
+                    } else {
+                        Widget::nothing()
+                    },
                     Text::from_all(vec![Line("Worst delay: "), Line("none!").secondary()])
                         .draw(ctx),
                     Widget::draw_svg_transform(
