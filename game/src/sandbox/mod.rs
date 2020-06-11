@@ -42,7 +42,7 @@ pub struct SandboxControls {
     tool_panel: Option<WrappedComposite>,
     time_panel: Option<TimePanel>,
     speed: Option<SpeedControls>,
-    agent_meter: Option<AgentMeter>,
+    pub agent_meter: Option<AgentMeter>,
     minimap: Option<Minimap>,
 }
 

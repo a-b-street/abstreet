@@ -9,17 +9,21 @@ use crate::helpers::ID;
 use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
 use crate::sandbox::SandboxControls;
 use ezgui::{
-    Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, RewriteColor,
-    Text, TextExt, VerticalAlignment, Widget,
+    Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    RewriteColor, Text, TextExt, VerticalAlignment, Widget,
 };
-use geom::{Duration, Time};
+use geom::{Duration, Polygon, Time};
 use sim::{OrigPersonID, PersonID, TripID};
 use std::collections::BTreeMap;
+
+// TODO Avoid hack entirely, or tune appearance
+const METER_HACK: f64 = -15.0;
 
 // TODO A nice level to unlock: specifying your own commute, getting to work on it
 
 pub struct OptimizeCommute {
     top_center: Composite,
+    meter: Composite,
     person: PersonID,
     mode: GameplayMode,
     goal: Duration,
@@ -42,15 +46,27 @@ impl OptimizeCommute {
         let person = app.primary.sim.find_person_by_orig_id(orig_person).unwrap();
         let trips = app.primary.sim.get_person(person).trips.clone();
         Box::new(OptimizeCommute {
-            top_center: make_top_center(
-                ctx,
-                app,
-                Duration::ZERO,
-                Duration::ZERO,
-                0,
-                trips.len(),
-                goal,
-            ),
+            top_center: Composite::new(
+                Widget::col(vec![
+                    challenge_header(ctx, "Optimize the VIP's commute"),
+                    Widget::row(vec![
+                        format!("Speed up the VIP's trips by {}", goal)
+                            .draw_text(ctx)
+                            .centered_vert(),
+                        Btn::svg(
+                            "../data/system/assets/tools/hint.svg",
+                            RewriteColor::Change(Color::WHITE, app.cs.hovering),
+                        )
+                        .build(ctx, "hint", None)
+                        .align_right(),
+                    ]),
+                ])
+                .bg(app.cs.panel_bg)
+                .padding(16),
+            )
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .build(ctx),
+            meter: make_meter(ctx, app, Duration::ZERO, Duration::ZERO, 0, trips.len()),
             person,
             mode: GameplayMode::OptimizeCommute(orig_person, goal),
             goal,
@@ -129,12 +145,22 @@ impl GameplayState for OptimizeCommute {
             );
         }
 
+        self.meter.align_below(
+            ctx,
+            &controls.agent_meter.as_ref().unwrap().composite,
+            METER_HACK,
+        );
+
         if self.time != app.primary.sim.time() && !self.done {
             self.time = app.primary.sim.time();
 
             let (before, after, done) = get_score(app, &self.trips);
-            self.top_center =
-                make_top_center(ctx, app, before, after, done, self.trips.len(), self.goal);
+            self.meter = make_meter(ctx, app, before, after, done, self.trips.len());
+            self.meter.align_below(
+                ctx,
+                &controls.agent_meter.as_ref().unwrap().composite,
+                METER_HACK,
+            );
 
             if done == self.trips.len() {
                 self.done = true;
@@ -172,6 +198,12 @@ impl GameplayState for OptimizeCommute {
                     let contents = txt.draw(ctx);
                     return Some(Transition::Push(FYI::new(ctx, contents, app.cs.panel_bg)));
                 }
+                _ => unreachable!(),
+            },
+            None => {}
+        }
+        match self.meter.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "locate VIP" => {
                     controls.common.as_mut().unwrap().launch_info_panel(
                         ctx,
@@ -192,6 +224,7 @@ impl GameplayState for OptimizeCommute {
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.top_center.draw(g);
+        self.meter.draw(g);
     }
 }
 
@@ -211,27 +244,30 @@ fn get_score(app: &App, trips: &Vec<TripID>) -> (Duration, Duration, usize) {
     (before, after, done)
 }
 
-fn make_top_center(
+fn make_meter(
     ctx: &mut EventCtx,
     app: &App,
     before: Duration,
     after: Duration,
     done: usize,
     trips: usize,
-    goal: Duration,
 ) -> Composite {
-    let mut txt = Text::from(Line(format!("Total trip time: {} (", after)));
+    let mut txt = Text::from(Line(format!("Total time: {} (", after)));
     txt.append_all(cmp_duration_shorter(after, before));
     txt.append(Line(")"));
-    let sentiment = if before - after >= goal {
-        "../data/system/assets/tools/happy.svg"
-    } else {
-        "../data/system/assets/tools/sad.svg"
-    };
 
     Composite::new(
         Widget::col(vec![
-            challenge_header(ctx, "Optimize the VIP's commute"),
+            // Separator
+            Widget::draw_batch(
+                ctx,
+                GeomBatch::from(vec![(
+                    Color::WHITE,
+                    Polygon::rectangle(0.2 * ctx.canvas.window_width / ctx.get_scale_factor(), 2.0),
+                )]),
+            )
+            .margin(15)
+            .centered_horiz(),
             Widget::row(vec![
                 Btn::svg_def("../data/system/assets/tools/location.svg")
                     .build(ctx, "locate VIP", None)
@@ -241,24 +277,11 @@ fn make_top_center(
                     .margin_right(20),
                 txt.draw(ctx),
             ]),
-            Widget::row(vec![
-                format!("Goal: {} faster", goal)
-                    .draw_text(ctx)
-                    .centered_vert()
-                    .margin_right(5),
-                Widget::draw_svg(ctx, sentiment).centered_vert(),
-                Btn::svg(
-                    "../data/system/assets/tools/hint.svg",
-                    RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                )
-                .build(ctx, "hint", None)
-                .align_right(),
-            ]),
         ])
         .bg(app.cs.panel_bg)
-        .padding(16),
+        .padding(20),
     )
-    .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+    .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
     .build(ctx)
 }
 

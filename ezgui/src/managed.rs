@@ -854,6 +854,13 @@ impl Composite {
         // Since we just moved things around, let all widgets respond to the mouse being somewhere
         ctx.no_op_event(true, |ctx| assert!(self.event(ctx).is_none()));
     }
+    pub fn align_below(&mut self, ctx: &mut EventCtx, other: &Composite, pad: f64) {
+        self.vert = VerticalAlignment::Below(other.top_level.rect.y2 + pad);
+        self.recompute_layout(ctx, false);
+
+        // Since we just moved things around, let all widgets respond to the mouse being somewhere
+        ctx.no_op_event(true, |ctx| assert!(self.event(ctx).is_none()));
+    }
 
     pub fn replace(&mut self, ctx: &mut EventCtx, id: &str, new: Widget) {
         *self.top_level.find_mut(id).unwrap() = new;

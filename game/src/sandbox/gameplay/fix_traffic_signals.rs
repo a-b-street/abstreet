@@ -8,16 +8,19 @@ use crate::helpers::ID;
 use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
 use crate::sandbox::{SandboxControls, SandboxMode};
 use ezgui::{
-    Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, RewriteColor,
-    Text, VerticalAlignment, Widget,
+    Btn, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    RewriteColor, Text, VerticalAlignment, Widget,
 };
-use geom::{Duration, Time};
+use geom::{Duration, Polygon, Time};
 use map_model::IntersectionID;
 
 const THRESHOLD: Duration = Duration::const_seconds(20.0 * 60.0);
+// TODO Avoid hack entirely, or tune appearance
+const METER_HACK: f64 = -15.0;
 
 pub struct FixTrafficSignals {
     top_center: Composite,
+    meter: Composite,
     time: Time,
     once: bool,
     done: bool,
@@ -27,7 +30,30 @@ pub struct FixTrafficSignals {
 impl FixTrafficSignals {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn GameplayState> {
         Box::new(FixTrafficSignals {
-            top_center: make_top_center(ctx, app, None, None),
+            top_center: Composite::new(
+                Widget::col(vec![
+                    challenge_header(ctx, "Traffic signal survivor"),
+                    Widget::row(vec![
+                        Line(format!(
+                            "Keep delay at all intersections under {}",
+                            THRESHOLD
+                        ))
+                        .draw(ctx)
+                        .margin_right(16),
+                        Btn::svg(
+                            "../data/system/assets/tools/hint.svg",
+                            RewriteColor::Change(Color::WHITE, app.cs.hovering),
+                        )
+                        .build(ctx, "hint", None)
+                        .align_right(),
+                    ]),
+                ])
+                .bg(app.cs.panel_bg)
+                .padding(16),
+            )
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .build(ctx),
+            meter: make_meter(ctx, app, None),
             time: Time::START_OF_DAY,
             once: true,
             done: false,
@@ -75,8 +101,14 @@ impl GameplayState for FixTrafficSignals {
         &mut self,
         ctx: &mut EventCtx,
         app: &mut App,
-        _: &mut SandboxControls,
+        controls: &mut SandboxControls,
     ) -> Option<Transition> {
+        self.meter.align_below(
+            ctx,
+            &controls.agent_meter.as_ref().unwrap().composite,
+            METER_HACK,
+        );
+
         if self.once {
             self.once = false;
             assert!(app.primary.sim_cb.is_none());
@@ -103,10 +135,31 @@ impl GameplayState for FixTrafficSignals {
                 .cloned()
             {
                 let dt = app.primary.sim.time() - t;
+                self.meter = make_meter(ctx, app, Some((i, dt)));
                 if dt >= THRESHOLD {
                     self.done = true;
-                    self.top_center =
-                        make_top_center(ctx, app, Some((i, dt)), Some(app.primary.sim.time()));
+                    self.top_center = Composite::new(
+                        Widget::col(vec![
+                            challenge_header(ctx, "Traffic signal survivor"),
+                            Widget::row(vec![
+                                Line(format!(
+                                    "Delay exceeded {} at {}",
+                                    THRESHOLD,
+                                    app.primary.sim.time()
+                                ))
+                                .fg(Color::RED)
+                                .draw(ctx)
+                                .centered_vert()
+                                .margin_right(10),
+                                Btn::text_fg("try again").build_def(ctx, None),
+                            ]),
+                        ])
+                        .bg(app.cs.panel_bg)
+                        .padding(16),
+                    )
+                    .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+                    .build(ctx);
+
                     return Some(Transition::PushTwice(
                         final_score(ctx, app, self.mode.clone(), true),
                         Warping::new(
@@ -117,12 +170,15 @@ impl GameplayState for FixTrafficSignals {
                             &mut app.primary,
                         ),
                     ));
-                } else {
-                    self.top_center = make_top_center(ctx, app, Some((i, dt)), None);
                 }
             } else {
-                self.top_center = make_top_center(ctx, app, None, None);
+                self.meter = make_meter(ctx, app, None);
             }
+            self.meter.align_below(
+                ctx,
+                &controls.agent_meter.as_ref().unwrap().composite,
+                METER_HACK,
+            );
 
             if app.primary.sim.is_done() {
                 self.done = true;
@@ -172,6 +228,12 @@ impl GameplayState for FixTrafficSignals {
                         self.mode.clone(),
                     ))));
                 }
+                _ => unreachable!(),
+            },
+            None => {}
+        }
+        match self.meter.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "go to slowest intersection" => {
                     let i = app
                         .primary
@@ -200,6 +262,7 @@ impl GameplayState for FixTrafficSignals {
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.top_center.draw(g);
+        self.meter.draw(g);
     }
 
     fn on_destroy(&self, app: &mut App) {
@@ -209,15 +272,23 @@ impl GameplayState for FixTrafficSignals {
     }
 }
 
-fn make_top_center(
+fn make_meter(
     ctx: &mut EventCtx,
     app: &App,
     worst: Option<(IntersectionID, Duration)>,
-    failed_at: Option<Time>,
 ) -> Composite {
     Composite::new(
         Widget::col(vec![
-            challenge_header(ctx, "Traffic signal survivor"),
+            // Separator
+            Widget::draw_batch(
+                ctx,
+                GeomBatch::from(vec![(
+                    Color::WHITE,
+                    Polygon::rectangle(0.2 * ctx.canvas.window_width / ctx.get_scale_factor(), 2.0),
+                )]),
+            )
+            .margin(15)
+            .centered_horiz(),
             if let Some((_, delay)) = worst {
                 Widget::row(vec![
                     Text::from_all(vec![
@@ -247,33 +318,11 @@ fn make_top_center(
                     .align_right(),
                 ])
             },
-            if let Some(t) = failed_at {
-                Widget::row(vec![
-                    Line(format!("Delay exceeded {} at {}", THRESHOLD, t))
-                        .fg(Color::RED)
-                        .draw(ctx)
-                        .centered_vert()
-                        .margin_right(10),
-                    Btn::text_fg("try again").build_def(ctx, None),
-                ])
-            } else {
-                Widget::row(vec![
-                    Line(format!("Keep delay under {}", THRESHOLD))
-                        .secondary()
-                        .draw(ctx),
-                    Btn::svg(
-                        "../data/system/assets/tools/hint.svg",
-                        RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                    )
-                    .build(ctx, "hint", None)
-                    .align_right(),
-                ])
-            },
         ])
         .bg(app.cs.panel_bg)
-        .padding(16),
+        .padding(20),
     )
-    .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+    .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
     .build(ctx)
 }
 
