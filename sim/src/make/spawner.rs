@@ -183,6 +183,7 @@ impl TripSpawner {
         scheduler: &mut Scheduler,
         timer: &mut Timer,
     ) {
+        let pathfinding_upfront = trips.pathfinding_upfront;
         let profile = false;
         if profile {
             abstutil::start_profiler();
@@ -192,7 +193,15 @@ impl TripSpawner {
             std::mem::replace(&mut self.trips, Vec::new()),
             |tuple| {
                 let req = tuple.2.get_pathfinding_request(map);
-                (tuple, req.clone(), req.and_then(|r| map.pathfind(r)))
+                (
+                    tuple,
+                    req.clone(),
+                    if pathfinding_upfront {
+                        req.and_then(|r| map.pathfind(r))
+                    } else {
+                        None
+                    },
+                )
             },
         );
         if profile {

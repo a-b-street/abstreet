@@ -46,6 +46,7 @@ impl SimFlags {
                         _ => panic!("Bad --alerts={}. Must be print|block|silence", x),
                     })
                     .unwrap_or(AlertHandler::Print),
+                pathfinding_upfront: args.enabled("--pathfinding_upfront"),
             },
         }
     }

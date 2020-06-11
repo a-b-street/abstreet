@@ -71,6 +71,7 @@ pub struct SimOptions {
     pub break_turn_conflict_cycles: bool,
     pub enable_pandemic_model: Option<XorShiftRng>,
     pub alerts: AlertHandler,
+    pub pathfinding_upfront: bool,
 }
 
 #[derive(Clone)]
@@ -99,6 +100,7 @@ impl SimOptions {
             break_turn_conflict_cycles: true,
             enable_pandemic_model: None,
             alerts: AlertHandler::Print,
+            pathfinding_upfront: false,
         }
     }
 }
@@ -119,7 +121,7 @@ impl Sim {
                 opts.break_turn_conflict_cycles,
             ),
             transit: TransitSimState::new(),
-            trips: TripManager::new(),
+            trips: TripManager::new(opts.pathfinding_upfront),
             pandemic: if let Some(rng) = opts.enable_pandemic_model {
                 Some(PandemicModel::new(rng))
             } else {

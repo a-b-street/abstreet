@@ -24,6 +24,7 @@ pub struct TripManager {
     )]
     active_trip_mode: BTreeMap<AgentID, TripID>,
     unfinished_trips: usize,
+    pub pathfinding_upfront: bool,
 
     car_id_counter: usize,
 
@@ -31,7 +32,7 @@ pub struct TripManager {
 }
 
 impl TripManager {
-    pub fn new() -> TripManager {
+    pub fn new(pathfinding_upfront: bool) -> TripManager {
         TripManager {
             trips: Vec::new(),
             people: Vec::new(),
@@ -39,6 +40,7 @@ impl TripManager {
             unfinished_trips: 0,
             car_id_counter: 0,
             events: Vec::new(),
+            pathfinding_upfront,
         }
     }
 
@@ -896,11 +898,15 @@ impl TripManager {
         trip: TripID,
         spec: TripSpec,
         maybe_req: Option<PathRequest>,
-        maybe_path: Option<Path>,
+        mut maybe_path: Option<Path>,
         parking: &mut ParkingSimState,
         scheduler: &mut Scheduler,
         map: &Map,
     ) {
+        if !self.pathfinding_upfront && maybe_path.is_none() && maybe_req.is_some() {
+            maybe_path = map.pathfind(maybe_req.clone().unwrap());
+        }
+
         let person = &mut self.people[self.trips[trip.0].person.0];
         if let PersonState::Trip(_) = person.state {
             // Previous trip isn't done. Defer this one!

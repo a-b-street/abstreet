@@ -43,7 +43,9 @@ impl Minimap {
             offset_x: 0.0,
             offset_y: 0.0,
         };
-        m.recenter(ctx);
+        if m.zoomed {
+            m.recenter(ctx);
+        }
         m
     }
 
