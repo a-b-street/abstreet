@@ -1,10 +1,12 @@
 use crate::app::App;
+use crate::helpers::color_for_mode;
 use crate::info::{header_btns, make_tabs, throughput, DataOptions, Details, Tab};
 use abstutil::prettyprint_usize;
 use ezgui::{Color, EventCtx, GeomBatch, Line, PlotOptions, ScatterPlotV2, Series, Text, Widget};
-use geom::{ArrowCap, Distance, PolyLine};
+use geom::{ArrowCap, Distance, Duration, PolyLine, Time};
 use map_model::{IntersectionID, IntersectionType};
-use std::collections::BTreeSet;
+use sim::TripMode;
+use std::collections::{BTreeMap, BTreeSet};
 
 pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID) -> Vec<Widget> {
     let mut rows = header(ctx, app, details, id, Tab::IntersectionInfo(id));
@@ -157,33 +159,29 @@ pub fn current_demand(
 
 // TODO a fan chart might be nicer
 fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) -> Widget {
-    let series = if opts.show_before {
-        Series {
-            label: "Delay through intersection (before changes)".to_string(),
-            color: Color::BLUE.alpha(0.9),
-            pts: app
-                .prebaked()
-                .intersection_delays
-                .get(&i)
-                .cloned()
-                .unwrap_or_else(Vec::new),
-        }
+    let data = if opts.show_before {
+        app.prebaked()
     } else {
-        Series {
-            label: "Delay through intersection (after changes)".to_string(),
-            color: Color::RED.alpha(0.9),
-            pts: app
-                .primary
-                .sim
-                .get_analytics()
-                .intersection_delays
-                .get(&i)
-                .cloned()
-                .unwrap_or_else(Vec::new),
-        }
+        app.primary.sim.get_analytics()
     };
-
-    ScatterPlotV2::new(ctx, series, PlotOptions::new())
+    let mut by_mode: BTreeMap<TripMode, Vec<(Time, Duration)>> = TripMode::all()
+        .into_iter()
+        .map(|m| (m, Vec::new()))
+        .collect();
+    if let Some(list) = data.intersection_delays.get(&i) {
+        for (t, dt, mode) in list {
+            by_mode.get_mut(mode).unwrap().push((*t, *dt));
+        }
+    }
+    let series: Vec<Series<Duration>> = by_mode
+        .into_iter()
+        .map(|(mode, pts)| Series {
+            label: mode.ongoing_verb().to_string(),
+            color: color_for_mode(app, mode),
+            pts,
+        })
+        .collect();
+    ScatterPlotV2::new(ctx, "delay", series, PlotOptions::new())
 }
 
 fn header(

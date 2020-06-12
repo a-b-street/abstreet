@@ -23,7 +23,7 @@ pub struct Analytics {
     pub finished_trips: Vec<(Time, TripID, Option<TripMode>, Duration)>,
     // TODO This subsumes finished_trips
     pub trip_log: Vec<(Time, TripID, Option<PathRequest>, TripPhaseType)>,
-    pub intersection_delays: BTreeMap<IntersectionID, Vec<(Time, Duration)>>,
+    pub intersection_delays: BTreeMap<IntersectionID, Vec<(Time, Duration, TripMode)>>,
     // Per parking lane or lot, when does a spot become filled (true) or free (false)
     pub parking_lane_changes: BTreeMap<LaneID, Vec<(Time, bool)>>,
     pub parking_lot_changes: BTreeMap<ParkingLotID, Vec<(Time, bool)>>,
@@ -115,11 +115,11 @@ impl Analytics {
         }
 
         // Intersection delays
-        if let Event::IntersectionDelayMeasured(id, delay) = ev {
+        if let Event::IntersectionDelayMeasured(id, delay, mode) = ev {
             self.intersection_delays
                 .entry(id)
                 .or_insert_with(Vec::new)
-                .push((time, delay));
+                .push((time, delay, mode));
         }
 
         // Parking spot changes
@@ -236,7 +236,7 @@ impl Analytics {
         for (i, list1) in &self.intersection_delays {
             if let Some(list2) = before.intersection_delays.get(i) {
                 let mut sum1 = Duration::ZERO;
-                for (t, dt) in list1 {
+                for (t, dt, _) in list1 {
                     if *t > now {
                         break;
                     }
@@ -244,7 +244,7 @@ impl Analytics {
                 }
 
                 let mut sum2 = Duration::ZERO;
-                for (t, dt) in list2 {
+                for (t, dt, _) in list2 {
                     if *t > now {
                         break;
                     }

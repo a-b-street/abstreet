@@ -1,7 +1,7 @@
 use crate::widgets::line_plot::Yvalue;
 use crate::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, PlotOptions, ScreenDims,
-    ScreenPt, ScreenRectangle, Series, Text, TextExt, Widget, WidgetImpl, WidgetOutput,
+    Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, PlotOptions,
+    ScreenDims, ScreenPt, ScreenRectangle, Series, Text, TextExt, Widget, WidgetImpl, WidgetOutput,
 };
 use geom::{Angle, Circle, Distance, Duration, PolyLine, Pt2D, Time};
 
@@ -178,31 +178,89 @@ impl WidgetImpl for ScatterPlot {
     }
 }
 
-// TODO Dedupe
+// TODO Dedupe. This one is more like LinePlot now.
 
 // The X is always time
 pub struct ScatterPlotV2 {
-    draw_data: Drawable,
+    series: Vec<SeriesState>,
     draw_grid: Drawable,
 
     top_left: ScreenPt,
     dims: ScreenDims,
 }
 
+struct SeriesState {
+    label: String,
+    enabled: bool,
+    draw: Drawable,
+}
+
 impl ScatterPlotV2 {
-    pub fn new<T: Yvalue<T>>(ctx: &EventCtx, data: Series<T>, opts: PlotOptions<T>) -> Widget {
+    // id must be unique in a Composite
+    pub fn new<T: Yvalue<T>>(
+        ctx: &EventCtx,
+        id: &str,
+        series: Vec<Series<T>>,
+        opts: PlotOptions<T>,
+    ) -> Widget {
+        let legend = if series.len() == 1 {
+            let radius = 15.0;
+            // Can't hide if there's just one series
+            Widget::row(vec![
+                Widget::draw_batch(
+                    ctx,
+                    GeomBatch::from(vec![(
+                        series[0].color,
+                        Circle::new(Pt2D::new(radius, radius), Distance::meters(radius))
+                            .to_polygon(),
+                    )]),
+                )
+                .margin(5),
+                series[0].label.clone().draw_text(ctx),
+            ])
+        } else {
+            let mut row = Vec::new();
+            for s in &series {
+                row.push(Widget::row(vec![
+                    Widget::new(Box::new(
+                        Checkbox::colored(ctx, &s.label, s.color, true)
+                            .take_checkbox()
+                            .callback_to_plot(id, &s.label),
+                    ))
+                    // TODO Messy! We have to remember to repeat what Checkbox::text does,
+                    // because we used take_checkbox
+                    .named(&s.label)
+                    .margin_right(8),
+                    Line(&s.label).draw(ctx),
+                ]));
+            }
+            Widget::row(row).flex_wrap(ctx, 24)
+        };
+
         // Assume min_x is Time::START_OF_DAY and min_y is T::zero()
         let max_x = opts.max_x.unwrap_or_else(|| {
-            data.pts
+            series
                 .iter()
-                .map(|(t, _)| *t)
+                .map(|s| {
+                    s.pts
+                        .iter()
+                        .map(|(t, _)| *t)
+                        .max()
+                        .unwrap_or(Time::START_OF_DAY)
+                })
                 .max()
                 .unwrap_or(Time::START_OF_DAY)
         });
         let max_y = opts.max_y.unwrap_or_else(|| {
-            data.pts
+            series
                 .iter()
-                .map(|(_, value)| *value)
+                .map(|s| {
+                    s.pts
+                        .iter()
+                        .map(|(_, value)| *value)
+                        .max()
+                        .unwrap_or(T::zero())
+                })
                 .max()
                 .unwrap_or(T::zero())
         });
@@ -255,20 +313,28 @@ impl ScatterPlotV2 {
             }
         }
 
-        let mut batch = GeomBatch::new();
         let circle = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(4.0)).to_polygon();
-        for (t, y) in data.pts {
-            let percent_x = t.to_percent(max_x);
-            let percent_y = y.to_percent(max_y);
-            // Y inversion
-            batch.push(
-                data.color,
-                circle.translate(percent_x * width, (1.0 - percent_y) * height),
-            );
+        let mut series_state = Vec::new();
+        for s in series {
+            let mut batch = GeomBatch::new();
+            for (t, y) in s.pts {
+                let percent_x = t.to_percent(max_x);
+                let percent_y = y.to_percent(max_y);
+                // Y inversion
+                batch.push(
+                    s.color,
+                    circle.translate(percent_x * width, (1.0 - percent_y) * height),
+                );
+            }
+            series_state.push(SeriesState {
+                label: s.label,
+                enabled: true,
+                draw: batch.upload(ctx),
+            });
         }
 
         let plot = ScatterPlotV2 {
-            draw_data: ctx.upload(batch),
+            series: series_state,
             draw_grid: ctx.upload(grid_batch),
 
             top_left: ScreenPt::new(0.0, 0.0),
@@ -301,8 +367,11 @@ impl ScatterPlotV2 {
 
         // Don't let the x-axis fill the parent container
         Widget::row(vec![Widget::col(vec![
-            Line(data.label).draw(ctx),
-            Widget::row(vec![y_axis.evenly_spaced(), Widget::new(Box::new(plot))]),
+            legend,
+            Widget::row(vec![
+                y_axis.evenly_spaced(),
+                Widget::new(Box::new(plot)).named(id),
+            ]),
             x_axis.evenly_spaced(),
         ])])
     }
@@ -321,6 +390,30 @@ impl WidgetImpl for ScatterPlotV2 {
 
     fn draw(&self, g: &mut GfxCtx) {
         g.redraw_at(self.top_left, &self.draw_grid);
-        g.redraw_at(self.top_left, &self.draw_data);
+        for series in &self.series {
+            if series.enabled {
+                g.redraw_at(self.top_left, &series.draw);
+            }
+        }
+    }
+
+    fn update_series(&mut self, label: String, enabled: bool) {
+        for series in &mut self.series {
+            if series.label == label {
+                series.enabled = enabled;
+                return;
+            }
+        }
+        panic!("ScatterPlotV2 doesn't have a series {}", label);
+    }
+
+    fn can_restore(&self) -> bool {
+        true
+    }
+    fn restore(&mut self, _: &mut EventCtx, prev: &Box<dyn WidgetImpl>) {
+        let prev = prev.downcast_ref::<ScatterPlotV2>().unwrap();
+        for (s1, s2) in self.series.iter_mut().zip(prev.series.iter()) {
+            s1.enabled = s2.enabled;
+        }
     }
 }

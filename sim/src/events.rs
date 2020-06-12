@@ -30,7 +30,7 @@ pub enum Event {
     BikeStoppedAtSidewalk(CarID, LaneID),
 
     AgentEntersTraversable(AgentID, Traversable),
-    IntersectionDelayMeasured(IntersectionID, Duration),
+    IntersectionDelayMeasured(IntersectionID, Duration, TripMode),
 
     TripFinished {
         trip: TripID,
