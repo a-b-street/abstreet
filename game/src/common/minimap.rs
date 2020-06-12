@@ -49,15 +49,16 @@ impl Minimap {
         m
     }
 
+    fn map_to_minimap_pct(&self, pt: Pt2D) -> (f64, f64) {
+        let inner_rect = self.composite.rect_of("minimap");
+        let pct_x = (pt.x() * self.zoom - self.offset_x) / inner_rect.width();
+        let pct_y = (pt.y() * self.zoom - self.offset_y) / inner_rect.height();
+        (pct_x, pct_y)
+    }
+
     fn set_zoom(&mut self, ctx: &mut EventCtx, app: &App, zoom_lvl: usize) {
         // Make the frame wind up in the same relative position on the minimap
-        let (pct_x, pct_y) = {
-            let map_center = ctx.canvas.center_to_map_pt();
-            let inner_rect = self.composite.rect_of("minimap");
-            let pct_x = (map_center.x() * self.zoom - self.offset_x) / inner_rect.width();
-            let pct_y = (map_center.y() * self.zoom - self.offset_y) / inner_rect.height();
-            (pct_x, pct_y)
-        };
+        let (pct_x, pct_y) = self.map_to_minimap_pct(ctx.canvas.center_to_map_pt());
 
         let zoom_speed: f64 = 2.0;
         self.zoom_lvl = zoom_lvl;
@@ -91,6 +92,22 @@ impl Minimap {
             self.composite = make_minimap_panel(ctx, app, self.zoom_lvl);
 
             if just_zoomed_in {
+                self.recenter(ctx);
+            }
+        } else if self.zoomed && !self.dragging {
+            // If either corner of the cursor is out of bounds on the minimap, recenter.
+            let mut ok = true;
+            for pt in vec![
+                ScreenPt::new(0.0, 0.0),
+                ScreenPt::new(ctx.canvas.window_width, ctx.canvas.window_height),
+            ] {
+                let (pct_x, pct_y) = self.map_to_minimap_pct(ctx.canvas.screen_to_map(pt));
+                if pct_x < 0.0 || pct_x > 1.0 || pct_y < 0.0 || pct_y > 1.0 {
+                    ok = false;
+                    break;
+                }
+            }
+            if !ok {
                 self.recenter(ctx);
             }
         }
