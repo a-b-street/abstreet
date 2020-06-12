@@ -22,10 +22,10 @@ pub struct ScatterPlot {
 }
 
 impl ScatterPlot {
-    pub fn new(
+    pub fn new<I: Into<String>>(
         ctx: &mut EventCtx,
-        x_name: &str,
-        y_name: &str,
+        x_name: I,
+        y_name: I,
         points: Vec<(Duration, Duration)>,
     ) -> Widget {
         if points.is_empty() {
@@ -95,7 +95,7 @@ impl ScatterPlot {
         )
         .evenly_spaced();
         let y_label = {
-            let label = Text::from(Line(format!("{} (minutes)", y_name)))
+            let label = Text::from(Line(format!("{} (minutes)", y_name.into())))
                 .render_ctx(ctx)
                 .rotate(Angle::new_degs(90.0))
                 .autocrop();
@@ -110,7 +110,7 @@ impl ScatterPlot {
                 .collect(),
         )
         .evenly_spaced();
-        let x_label = format!("{} (minutes)", x_name)
+        let x_label = format!("{} (minutes)", x_name.into())
             .draw_text(ctx)
             .centered_horiz();
 

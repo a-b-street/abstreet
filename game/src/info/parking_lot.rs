@@ -19,7 +19,7 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: ParkingLot
     );
 
     let mut series = vec![Series {
-        label: "After changes".to_string(),
+        label: format!("After \"{}\"", app.primary.map.get_edits().edits_name),
         color: app.cs.after_changes,
         pts: app.primary.sim.get_analytics().parking_lot_availability(
             app.primary.sim.time(),
@@ -29,7 +29,7 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: ParkingLot
     }];
     if app.has_prebaked().is_some() {
         series.push(Series {
-            label: "Before changes".to_string(),
+            label: format!("Before \"{}\"", app.primary.map.get_edits().edits_name),
             color: app.cs.before_changes.alpha(0.5),
             pts: app.prebaked().parking_lot_availability(
                 app.primary.sim.get_end_of_day(),

@@ -33,11 +33,17 @@ impl Checkbox {
         }
     }
 
-    pub fn text(ctx: &EventCtx, label: &str, hotkey: Option<MultiKey>, enabled: bool) -> Widget {
+    pub fn text<I: Into<String>>(
+        ctx: &EventCtx,
+        label: I,
+        hotkey: Option<MultiKey>,
+        enabled: bool,
+    ) -> Widget {
+        let label = label.into();
         Checkbox::new(
             enabled,
-            Btn::text_fg(format!("[ ] {}", label)).build(ctx, label, hotkey.clone()),
-            Btn::text_fg(format!("[X] {}", label)).build(ctx, label, hotkey),
+            Btn::text_fg(format!("[ ] {}", label)).build(ctx, &label, hotkey.clone()),
+            Btn::text_fg(format!("[X] {}", label)).build(ctx, &label, hotkey),
         )
         .outline(ctx.style().outline_thickness, ctx.style().outline_color)
         .named(label)

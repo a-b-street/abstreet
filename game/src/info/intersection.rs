@@ -145,9 +145,16 @@ pub fn current_demand(
     let batch = batch.translate(-bounds.min_x, -bounds.min_y).scale(zoom);
 
     let mut txt = Text::from(Line(format!(
-        "How many active trips will cross this intersection?"
+        "Active agent demand at {}",
+        app.primary.sim.time().ampm_tostring()
     )));
-    txt.add(Line(format!("Total: {}", prettyprint_usize(total_demand))).secondary());
+    txt.add(
+        Line(format!(
+            "Includes all {} active agents anywhere on the map",
+            prettyprint_usize(total_demand)
+        ))
+        .secondary(),
+    );
 
     rows.push(
         Widget::col(vec![

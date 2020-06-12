@@ -14,7 +14,7 @@ pub struct ActiveTraffic {
 impl ActiveTraffic {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         let mut active_agents = vec![Series {
-            label: "After changes".to_string(),
+            label: format!("After \"{}\"", app.primary.map.get_edits().edits_name),
             color: app.cs.after_changes,
             pts: app
                 .primary
@@ -24,7 +24,7 @@ impl ActiveTraffic {
         }];
         if app.has_prebaked().is_some() {
             active_agents.push(Series {
-                label: "Before changes".to_string(),
+                label: format!("Before \"{}\"", app.primary.map.get_edits().edits_name),
                 color: app.cs.before_changes.alpha(0.5),
                 pts: app
                     .prebaked()

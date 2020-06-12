@@ -640,17 +640,16 @@ fn check_for_missing_groups(
             phase.yield_groups.insert(g);
         }
     }
-    signal.phases.push(phase);
-    let last_phase = signal.phases.len() - 1;
+    signal.phases.insert(0, phase);
     let id = signal.id;
     change_traffic_signal(signal, ctx, app);
-    *composite = make_signal_diagram(ctx, app, id, last_phase, true);
+    *composite = make_signal_diagram(ctx, app, id, 0, true);
 
     Transition::Push(msg(
         "Error: missing turns",
         vec![
             format!("{} turns are missing from this traffic signal", num_missing),
-            "They've all been added as a new last phase. Please update your changes to include \
+            "They've all been added as a new first phase. Please update your changes to include \
              them."
                 .to_string(),
         ],

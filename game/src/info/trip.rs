@@ -232,7 +232,11 @@ pub fn finished(
         col.push(
             Btn::text_bg(
                 format!("show before changes for {}", trip),
-                Text::from_all(vec![Line("After / "), Line("Before").secondary()]),
+                Text::from_all(vec![
+                    Line("After / "),
+                    Line("Before").secondary(),
+                    Line(format!(" \"{}\"", app.primary.map.get_edits().edits_name)),
+                ]),
                 app.cs.section_bg,
                 app.cs.hovering,
             )
@@ -248,7 +252,11 @@ pub fn finished(
         col.push(
             Btn::text_bg(
                 format!("show after changes for {}", trip),
-                Text::from_all(vec![Line("After / ").secondary(), Line("Before")]),
+                Text::from_all(vec![
+                    Line("After / ").secondary(),
+                    Line("Before"),
+                    Line(format!(" \"{}\"", app.primary.map.get_edits().edits_name)),
+                ]),
                 app.cs.section_bg,
                 app.cs.hovering,
             )

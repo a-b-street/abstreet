@@ -527,7 +527,11 @@ fn throughput<F: Fn(&Analytics) -> Vec<(TripMode, Vec<(Time, usize)>)>>(
         // TODO Ahh these colors don't show up differently at all.
         for (m, pts) in get_data(app.prebaked()) {
             series.push(Series {
-                label: format!("{} (before changes)", m.noun()),
+                label: format!(
+                    "{} (before \"{}\")",
+                    m.noun(),
+                    app.primary.map.get_edits().edits_name
+                ),
                 color: color_for_mode(app, m).alpha(0.3),
                 pts,
             });
@@ -606,7 +610,13 @@ impl DataOptions {
 
     pub fn to_controls(&self, ctx: &mut EventCtx, app: &App) -> Widget {
         Widget::col(vec![if app.has_prebaked().is_some() {
-            Checkbox::text(ctx, "Show before changes", None, self.show_before)
+            Checkbox::text(
+                ctx,
+                format!("Show before \"{}\"", app.primary.map.get_edits().edits_name),
+                None,
+                self.show_before,
+            )
+            .named("Show before changes")
         } else {
             Widget::nothing()
         }])

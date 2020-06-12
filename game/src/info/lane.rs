@@ -36,7 +36,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
     if l.is_parking() {
         let capacity = l.number_parking_spots();
         let mut series = vec![Series {
-            label: "After changes".to_string(),
+            label: format!("After \"{}\"", app.primary.map.get_edits().edits_name),
             color: app.cs.after_changes,
             pts: app.primary.sim.get_analytics().parking_lane_availability(
                 app.primary.sim.time(),
@@ -46,7 +46,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
         }];
         if app.has_prebaked().is_some() {
             series.push(Series {
-                label: "Before changes".to_string(),
+                label: format!("Before \"{}\"", app.primary.map.get_edits().edits_name),
                 color: app.cs.before_changes.alpha(0.5),
                 pts: app.prebaked().parking_lane_availability(
                     app.primary.sim.get_end_of_day(),

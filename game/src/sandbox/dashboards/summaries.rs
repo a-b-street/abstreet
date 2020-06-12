@@ -189,8 +189,14 @@ fn scatter_plot(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
 
     ScatterPlot::new(
         ctx,
-        "Trip time before changes",
-        "Trip time after changes",
+        format!(
+            "Trip time before \"{}\"",
+            app.primary.map.get_edits().edits_name
+        ),
+        format!(
+            "Trip time after \"{}\"",
+            app.primary.map.get_edits().edits_name
+        ),
         points,
     )
     .outline(2.0, Color::WHITE)
