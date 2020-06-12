@@ -175,18 +175,15 @@ pub fn traffic(
     )));
     rows.push(txt.draw(ctx));
 
-    rows.push(opts.to_controls(ctx, app));
+    rows.push(opts.to_controls(ctx, app).margin_below(10));
 
     let r = map.get_l(id).parent;
-    rows.push(
-        throughput(
-            ctx,
-            app,
-            move |a| a.road_thruput.count_per_hour(r),
-            opts.show_before,
-        )
-        .margin(10),
-    );
+    rows.push(throughput(
+        ctx,
+        app,
+        move |a| a.road_thruput.count_per_hour(r),
+        opts.show_before,
+    ));
 
     rows
 }

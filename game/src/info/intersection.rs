@@ -58,17 +58,14 @@ pub fn traffic(
     )));
     rows.push(txt.draw(ctx));
 
-    rows.push(opts.to_controls(ctx, app));
+    rows.push(opts.to_controls(ctx, app).margin_below(10));
 
-    rows.push(
-        throughput(
-            ctx,
-            app,
-            move |a| a.intersection_thruput.count_per_hour(id),
-            opts.show_before,
-        )
-        .margin(10),
-    );
+    rows.push(throughput(
+        ctx,
+        app,
+        move |a| a.intersection_thruput.count_per_hour(id),
+        opts.show_before,
+    ));
 
     rows
 }
@@ -90,9 +87,9 @@ pub fn delay(
     let i = app.primary.map.get_i(id);
 
     assert!(i.is_traffic_signal());
-    rows.push(opts.to_controls(ctx, app));
+    rows.push(opts.to_controls(ctx, app).margin_below(10));
 
-    rows.push(delay_plot(ctx, app, id, opts).margin(10));
+    rows.push(delay_plot(ctx, app, id, opts));
 
     rows
 }
@@ -133,12 +130,12 @@ pub fn current_demand(
     for (pl, demand) in demand_per_group {
         let percent = (demand as f64) / (total_demand as f64);
         batch.push(
-            Color::RED,
+            Color::hex("#A3A3A3"),
             pl.make_arrow(percent * Distance::meters(3.0), ArrowCap::Triangle)
                 .unwrap(),
         );
         txt_batch.append(
-            Text::from(Line(prettyprint_usize(demand)))
+            Text::from(Line(prettyprint_usize(demand)).fg(Color::RED))
                 .render_ctx(ctx)
                 .scale(0.15 / ctx.get_scale_factor())
                 .centered_on(pl.middle()),
@@ -151,8 +148,16 @@ pub fn current_demand(
         "How many active trips will cross this intersection?"
     )));
     txt.add(Line(format!("Total: {}", prettyprint_usize(total_demand))).secondary());
-    rows.push(txt.draw(ctx));
-    rows.push(Widget::draw_batch(ctx, batch));
+
+    rows.push(
+        Widget::col(vec![
+            txt.draw(ctx).margin_below(10),
+            Widget::draw_batch(ctx, batch),
+        ])
+        .padding(10)
+        .bg(app.cs.inner_panel)
+        .outline(2.0, Color::WHITE),
+    );
 
     rows
 }
@@ -176,12 +181,21 @@ fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) 
     let series: Vec<Series<Duration>> = by_mode
         .into_iter()
         .map(|(mode, pts)| Series {
-            label: mode.ongoing_verb().to_string(),
+            label: mode.noun().to_string(),
             color: color_for_mode(app, mode),
             pts,
         })
         .collect();
-    ScatterPlotV2::new(ctx, "delay", series, PlotOptions::new())
+    Widget::col(vec![
+        Line("Delay through intersection")
+            .small_heading()
+            .draw(ctx)
+            .margin_below(10),
+        ScatterPlotV2::new(ctx, "delay", series, PlotOptions::new()),
+    ])
+    .padding(10)
+    .bg(app.cs.inner_panel)
+    .outline(2.0, Color::WHITE)
 }
 
 fn header(

@@ -518,7 +518,7 @@ fn throughput<F: Fn(&Analytics) -> Vec<(TripMode, Vec<(Time, usize)>)>>(
     let mut series = get_data(app.primary.sim.get_analytics())
         .into_iter()
         .map(|(m, pts)| Series {
-            label: m.ongoing_verb().to_string(),
+            label: m.noun().to_string(),
             color: color_for_mode(app, m),
             pts,
         })
@@ -527,14 +527,23 @@ fn throughput<F: Fn(&Analytics) -> Vec<(TripMode, Vec<(Time, usize)>)>>(
         // TODO Ahh these colors don't show up differently at all.
         for (m, pts) in get_data(app.prebaked()) {
             series.push(Series {
-                label: format!("{} (before changes)", m.ongoing_verb()),
+                label: format!("{} (before changes)", m.noun()),
                 color: color_for_mode(app, m).alpha(0.3),
                 pts,
             });
         }
     }
 
-    LinePlot::new(ctx, "throughput", series, PlotOptions::new())
+    Widget::col(vec![
+        Line("Number of crossing agents per hour")
+            .small_heading()
+            .draw(ctx)
+            .margin_below(10),
+        LinePlot::new(ctx, "throughput", series, PlotOptions::new()),
+    ])
+    .padding(10)
+    .bg(app.cs.inner_panel)
+    .outline(2.0, Color::WHITE)
 }
 
 fn make_tabs(

@@ -284,12 +284,12 @@ impl ScatterPlotV2 {
                     break;
                 }
                 grid_batch.push(
-                    Color::BLACK,
+                    Color::hex("#7C7C7C"),
                     PolyLine::new(vec![
                         Pt2D::new(0.0, (1.0 - pct) * height),
                         Pt2D::new(width, (1.0 - pct) * height),
                     ])
-                    .make_polygons(Distance::meters(5.0)),
+                    .make_polygons(Distance::meters(1.0)),
                 );
             }
         }
@@ -303,12 +303,12 @@ impl ScatterPlotV2 {
                     break;
                 }
                 grid_batch.push(
-                    Color::BLACK,
+                    Color::hex("#7C7C7C"),
                     PolyLine::new(vec![
                         Pt2D::new(pct * width, 0.0),
                         Pt2D::new(pct * width, height),
                     ])
-                    .make_polygons(Distance::meters(5.0)),
+                    .make_polygons(Distance::meters(1.0)),
                 );
             }
         }
@@ -367,7 +367,7 @@ impl ScatterPlotV2 {
 
         // Don't let the x-axis fill the parent container
         Widget::row(vec![Widget::col(vec![
-            legend,
+            legend.margin_below(10),
             Widget::row(vec![
                 y_axis.evenly_spaced(),
                 Widget::new(Box::new(plot)).named(id),

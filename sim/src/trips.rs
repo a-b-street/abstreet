@@ -1361,6 +1361,15 @@ impl TripMode {
             TripMode::Drive => "driving",
         }
     }
+
+    pub fn noun(self) -> &'static str {
+        match self {
+            TripMode::Walk => "Pedestrian",
+            TripMode::Bike => "Bike",
+            TripMode::Transit => "Bus",
+            TripMode::Drive => "Car",
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
