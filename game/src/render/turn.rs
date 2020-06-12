@@ -21,13 +21,13 @@ impl DrawTurnGroup {
                 .iter()
                 .map(|t| *offset_per_lane.entry(t.src).or_insert(0))
                 .max()
-                .unwrap() as f64;
+                .unwrap();
             let (pl, width) = group.src_center_and_width(map);
-            let (block, arrow) = make_geom(offset, pl, width, group.angle);
+            let (block, arrow) = make_geom(offset as f64, pl, width, group.angle);
             let mut seen_lanes = HashSet::new();
             for t in &group.members {
                 if !seen_lanes.contains(&t.src) {
-                    *offset_per_lane.get_mut(&t.src).unwrap() += 1;
+                    *offset_per_lane.get_mut(&t.src).unwrap() = offset + 1;
                     seen_lanes.insert(t.src);
                 }
             }
@@ -58,13 +58,13 @@ impl DrawUberTurnGroup {
                 .iter()
                 .map(|ut| *offset_per_lane.entry(ut.entry()).or_insert(0))
                 .max()
-                .unwrap() as f64;
+                .unwrap();
             let (pl, width) = group.src_center_and_width(map);
-            let (block, arrow) = make_geom(offset, pl, width, group.angle());
+            let (block, arrow) = make_geom(offset as f64, pl, width, group.angle());
             let mut seen_lanes = HashSet::new();
             for ut in &group.members {
                 if !seen_lanes.contains(&ut.entry()) {
-                    *offset_per_lane.get_mut(&ut.entry()).unwrap() += 1;
+                    *offset_per_lane.get_mut(&ut.entry()).unwrap() = offset + 1;
                     seen_lanes.insert(ut.entry());
                 }
             }

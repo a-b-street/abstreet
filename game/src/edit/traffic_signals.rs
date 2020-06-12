@@ -12,7 +12,7 @@ use ezgui::{
     HorizontalAlignment, Key, Line, Outcome, RewriteColor, Text, TextExt, VerticalAlignment,
     Widget,
 };
-use geom::{ArrowCap, Duration};
+use geom::{ArrowCap, Distance, Duration};
 use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Phase,
     TurnGroupID, TurnPriority,
@@ -28,7 +28,8 @@ pub struct TrafficSignalEditor {
     mode: GameplayMode,
 
     groups: Vec<DrawTurnGroup>,
-    group_selected: Option<TurnGroupID>,
+    // And the next priority to toggle to
+    group_selected: Option<(TurnGroupID, Option<TurnPriority>)>,
 
     // The first ControlTrafficSignal is the original
     pub command_stack: Vec<ControlTrafficSignal>,
@@ -165,52 +166,52 @@ impl State for TrafficSignalEditor {
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
                 for g in &self.groups {
                     if g.block.contains_pt(pt) {
-                        self.group_selected = Some(g.id);
+                        let phase = &orig_signal.phases[self.current_phase];
+                        let next_priority = match phase.get_priority_of_group(g.id) {
+                            TurnPriority::Banned => {
+                                if phase.could_be_protected(g.id, &orig_signal.turn_groups) {
+                                    Some(TurnPriority::Protected)
+                                } else if g.id.crosswalk {
+                                    None
+                                } else {
+                                    Some(TurnPriority::Yield)
+                                }
+                            }
+                            TurnPriority::Yield => Some(TurnPriority::Banned),
+                            TurnPriority::Protected => {
+                                if g.id.crosswalk {
+                                    Some(TurnPriority::Banned)
+                                } else {
+                                    Some(TurnPriority::Yield)
+                                }
+                            }
+                        };
+                        self.group_selected = Some((g.id, next_priority));
                         break;
                     }
                 }
             }
         }
 
-        if let Some(id) = self.group_selected {
-            let mut new_signal = orig_signal.clone();
-            let phase = &mut new_signal.phases[self.current_phase];
-            // Just one key to toggle between the 3 states
-            let next_priority = match phase.get_priority_of_group(id) {
-                TurnPriority::Banned => {
-                    if phase.could_be_protected(id, &orig_signal.turn_groups) {
-                        Some(TurnPriority::Protected)
-                    } else if id.crosswalk {
-                        None
-                    } else {
-                        Some(TurnPriority::Yield)
-                    }
-                }
-                TurnPriority::Yield => Some(TurnPriority::Banned),
-                TurnPriority::Protected => {
-                    if id.crosswalk {
-                        Some(TurnPriority::Banned)
-                    } else {
-                        Some(TurnPriority::Yield)
-                    }
-                }
-            };
+        if let Some((id, next_priority)) = self.group_selected {
             if let Some(pri) = next_priority {
                 if app.per_obj.left_click(
                     ctx,
                     format!(
                         "toggle from {:?} to {:?}",
-                        phase.get_priority_of_group(id),
+                        orig_signal.phases[self.current_phase].get_priority_of_group(id),
                         pri
                     ),
                 ) {
-                    phase.edit_group(&orig_signal.turn_groups[&id], pri);
+                    let mut new_signal = orig_signal.clone();
+                    new_signal.phases[self.current_phase]
+                        .edit_group(&orig_signal.turn_groups[&id], pri);
                     self.command_stack.push(orig_signal.clone());
                     self.redo_stack.clear();
                     self.top_panel = make_top_panel(ctx, app, true, false);
                     change_traffic_signal(new_signal, ctx, app);
                     self.change_phase(self.current_phase, ctx, app);
-                    return Transition::Keep;
+                    return Transition::KeepWithMouseover;
                 }
             }
         }
@@ -277,11 +278,18 @@ impl State for TrafficSignalEditor {
         }
 
         let signal = app.primary.map.get_traffic_signal(self.i);
-        let phase = &signal.phases[self.current_phase];
+        let phase = match self.group_selected {
+            Some((id, _)) => {
+                let mut p = signal.phases[self.current_phase].clone();
+                p.edit_group(&signal.turn_groups[&id], TurnPriority::Banned);
+                p
+            }
+            _ => signal.phases[self.current_phase].clone(),
+        };
         let mut batch = GeomBatch::new();
         draw_signal_phase(
             g.prerender,
-            phase,
+            &phase,
             self.i,
             None,
             &mut batch,
@@ -290,31 +298,66 @@ impl State for TrafficSignalEditor {
         );
 
         for g in &self.groups {
-            if Some(g.id) == self.group_selected {
-                batch.push(app.cs.selected, g.block.clone());
-                // Overwrite the original thing
-                batch.push(
-                    app.cs.selected,
-                    signal.turn_groups[&g.id]
-                        .geom
-                        .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle)
-                        .unwrap(),
-                );
+            if self
+                .group_selected
+                .as_ref()
+                .map(|(id, _)| *id == g.id)
+                .unwrap_or(false)
+            {
+                // TODO Add outlines, and refactor this mess
+                let block_color = match self.group_selected.unwrap().1 {
+                    Some(TurnPriority::Protected) => {
+                        batch.push(
+                            Color::rgba(114, 206, 54, 0.5),
+                            signal.turn_groups[&g.id]
+                                .geom
+                                .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle)
+                                .unwrap(),
+                        );
+
+                        Color::hex("#72CE36")
+                    }
+                    Some(TurnPriority::Yield) => {
+                        batch.extend(
+                            app.cs.signal_permitted_turn,
+                            signal.turn_groups[&g.id].geom.dashed_arrow(
+                                BIG_ARROW_THICKNESS,
+                                Distance::meters(1.2),
+                                Distance::meters(0.3),
+                                ArrowCap::Triangle,
+                            ),
+                        );
+                        app.cs.signal_permitted_turn.alpha(1.0)
+                    }
+                    Some(TurnPriority::Banned) => {
+                        batch.push(
+                            Color::rgba(235, 50, 35, 0.5),
+                            signal.turn_groups[&g.id]
+                                .geom
+                                .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle)
+                                .unwrap(),
+                        );
+                        Color::hex("#EB3223")
+                    }
+                    None => app.cs.signal_turn_block_bg,
+                };
+                batch.push(block_color, g.block.clone());
+                batch.push(Color::WHITE, g.arrow.clone());
             } else {
                 batch.push(app.cs.signal_turn_block_bg, g.block.clone());
+                let arrow_color = match phase.get_priority_of_group(g.id) {
+                    TurnPriority::Protected => app.cs.signal_protected_turn,
+                    TurnPriority::Yield => app.cs.signal_permitted_turn.alpha(1.0),
+                    TurnPriority::Banned => app.cs.signal_banned_turn,
+                };
+                batch.push(arrow_color, g.arrow.clone());
             }
-            let arrow_color = match phase.get_priority_of_group(g.id) {
-                TurnPriority::Protected => app.cs.signal_protected_turn,
-                TurnPriority::Yield => app.cs.signal_permitted_turn.alpha(1.0),
-                TurnPriority::Banned => app.cs.signal_banned_turn,
-            };
-            batch.push(arrow_color, g.arrow.clone());
         }
         batch.draw(g);
 
         self.composite.draw(g);
         self.top_panel.draw(g);
-        if let Some(id) = self.group_selected {
+        if let Some((id, _)) = self.group_selected {
             let osd = if id.crosswalk {
                 Text::from(Line(format!(
                     "Crosswalk across {}",
