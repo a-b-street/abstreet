@@ -53,6 +53,21 @@ pub enum EditCmd {
     },
 }
 
+impl EditCmd {
+    pub fn short_name(&self) -> String {
+        match self {
+            EditCmd::ChangeLaneType { lt, id, .. } => format!("{} on #{}", lt.short_name(), id.0),
+            EditCmd::ReverseLane { l, .. } => format!("reverse {}", l),
+            EditCmd::ChangeSpeedLimit { id, new, .. } => format!("limit {} for {}", new, id),
+            EditCmd::ChangeIntersection { i, new, .. } => match new {
+                EditIntersection::StopSign(_) => format!("stop sign #{}", i.0),
+                EditIntersection::TrafficSignal(_) => format!("traffic signal #{}", i.0),
+                EditIntersection::Closed => format!("close {}", i),
+            },
+        }
+    }
+}
+
 pub struct EditEffects {
     pub changed_roads: BTreeSet<RoadID>,
     pub changed_intersections: BTreeSet<IntersectionID>,

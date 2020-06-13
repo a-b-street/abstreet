@@ -18,11 +18,11 @@ use crate::render::{DrawIntersection, DrawLane, DrawRoad};
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, Outcome, PersistentSplit, RewriteColor, ScreenRectangle, TextExt, VerticalAlignment,
+    hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, PersistentSplit, RewriteColor, ScreenRectangle, Text, TextExt, VerticalAlignment,
     Widget, WrappedWizard,
 };
-use geom::{Polygon, Speed};
+use geom::Speed;
 use map_model::{
     connectivity, EditCmd, EditIntersection, IntersectionID, LaneID, LaneType, MapEdits,
     PathConstraints, PermanentMapEdits,
@@ -32,7 +32,8 @@ use std::collections::BTreeSet;
 
 pub struct EditMode {
     tool_panel: WrappedComposite,
-    composite: Composite,
+    top_center: Composite,
+    changelist: Composite,
     orig_edits: MapEdits,
     orig_dirty: bool,
 
@@ -40,8 +41,7 @@ pub struct EditMode {
     mode: GameplayMode,
 
     // edits name, number of commands
-    top_panel_key: (String, usize),
-    once: bool,
+    changelist_key: (String, usize),
 }
 
 impl EditMode {
@@ -52,18 +52,17 @@ impl EditMode {
         let edits = app.primary.map.get_edits();
         EditMode {
             tool_panel: tool_panel(ctx, app),
-            composite: make_topcenter(ctx, app, &mode),
+            top_center: make_topcenter(ctx, app, &mode),
+            changelist: make_changelist(ctx, app),
             orig_edits: edits.clone(),
             orig_dirty,
             mode,
-            top_panel_key: (edits.edits_name.clone(), edits.commands.len()),
-            once: true,
+            changelist_key: (edits.edits_name.clone(), edits.commands.len()),
         }
     }
 
     fn quit(&self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         let old_sim = app.suspended_sim.take().unwrap();
-        app.layer = None;
 
         // If nothing changed, short-circuit
         if app.primary.map.get_edits() == &self.orig_edits {
@@ -102,19 +101,12 @@ impl EditMode {
 
 impl State for EditMode {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        // Can't do this in the constructor, because SandboxMode's on_destroy clears out the layer
-        if self.once {
-            // Once is never...
-            self.once = false;
-            // apply_map_edits will do the job later
-            app.layer = Some(Box::new(crate::layer::map::Static::edits(ctx, app)));
-        }
         {
             let edits = app.primary.map.get_edits();
-            let top_panel_key = (edits.edits_name.clone(), edits.commands.len());
-            if self.top_panel_key != top_panel_key {
-                self.top_panel_key = top_panel_key;
-                self.composite = make_topcenter(ctx, app, &self.mode);
+            let changelist_key = (edits.edits_name.clone(), edits.commands.len());
+            if self.changelist_key != changelist_key {
+                self.changelist_key = changelist_key;
+                self.changelist = make_changelist(ctx, app);
             }
         }
 
@@ -149,7 +141,19 @@ impl State for EditMode {
             return Transition::Push(Box::new(DebugMode::new(ctx, app)));
         }
 
-        match self.composite.event(ctx) {
+        match self.top_center.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "bulk edit" => {
+                    return Transition::Push(bulk::PaintSelect::new(ctx, app));
+                }
+                "finish editing" => {
+                    return self.quit(ctx, app);
+                }
+                _ => unreachable!(),
+            },
+            None => {}
+        }
+        match self.changelist.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "load edits" => {
                     // Autosave first
@@ -158,15 +162,9 @@ impl State for EditMode {
                     }
                     return Transition::Push(make_load_edits(
                         app,
-                        self.composite.rect_of("load edits").clone(),
+                        self.changelist.rect_of("load edits").clone(),
                         self.mode.clone(),
                     ));
-                }
-                "bulk edit" => {
-                    return Transition::Push(bulk::PaintSelect::new(ctx, app));
-                }
-                "finish editing" => {
-                    return self.quit(ctx, app);
                 }
                 "save edits as" => {
                     return Transition::Push(WizardState::new(Box::new(|wiz, ctx, app| {
@@ -174,21 +172,9 @@ impl State for EditMode {
                         Some(Transition::Pop)
                     })));
                 }
-                "reset edits" => {
-                    if app.primary.map.get_edits().edits_name != "untitled edits" {
-                        // Autosave, then cut over to blank edits.
-                        app.primary.map.save_edits();
-                    }
-                    apply_map_edits(ctx, app, MapEdits::new());
-                }
                 "undo" => {
                     let mut edits = app.primary.map.get_edits().clone();
-                    let id = match edits.commands.pop().unwrap() {
-                        EditCmd::ChangeLaneType { id, .. } => ID::Lane(id),
-                        EditCmd::ReverseLane { l, .. } => ID::Lane(l),
-                        EditCmd::ChangeSpeedLimit { id, .. } => ID::Road(id),
-                        EditCmd::ChangeIntersection { i, .. } => ID::Intersection(i),
-                    };
+                    let id = cmd_to_id(&edits.commands.pop().unwrap());
                     apply_map_edits(ctx, app, edits);
                     return Transition::Push(Warping::new(
                         ctx,
@@ -198,12 +184,25 @@ impl State for EditMode {
                         &mut app.primary,
                     ));
                 }
-                _ => unreachable!(),
+                x => {
+                    let idx = x["most recent change #".len()..].parse::<usize>().unwrap();
+                    let id = cmd_to_id(
+                        &app.primary.map.get_edits().commands
+                            [app.primary.map.get_edits().commands.len() - idx],
+                    );
+                    return Transition::Push(Warping::new(
+                        ctx,
+                        id.canonical_point(&app.primary).unwrap(),
+                        None,
+                        Some(id),
+                        &mut app.primary,
+                    ));
+                }
             },
             None => {}
         }
         // Just kind of constantly scrape this
-        app.opts.resume_after_edit = self.composite.persistent_split_value("finish editing");
+        app.opts.resume_after_edit = self.top_center.persistent_split_value("finish editing");
 
         if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             if let Some(id) = &app.primary.current_selection {
@@ -277,15 +276,9 @@ impl State for EditMode {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        // TODO Maybe this should be part of app.draw
-        // TODO This has an X button, but we never call update and allow it to be changed. Should
-        // just omit the button.
-        if let Some(ref l) = app.layer {
-            l.draw(g, app);
-        }
-
         self.tool_panel.draw(g);
-        self.composite.draw(g);
+        self.top_center.draw(g);
+        self.changelist.draw(g);
         CommonState::draw_osd(g, app);
     }
 }
@@ -391,49 +384,12 @@ fn make_load_edits(app: &App, btn: ScreenRectangle, mode: GameplayMode) -> Box<d
 }
 
 fn make_topcenter(ctx: &mut EventCtx, app: &App, mode: &GameplayMode) -> Composite {
-    // TODO Support redo. Bit harder here to reset the redo_stack when the edits
-    // change, because nested other places modify it too.
     Composite::new(
         Widget::col(vec![
+            Widget::row(vec![Line("Editing map").small_heading().draw(ctx)])
+                .centered()
+                .margin_below(10),
             Widget::row(vec![
-                Line("Editing map")
-                    .small_heading()
-                    .draw(ctx)
-                    .margin_right(5),
-                Widget::draw_batch(
-                    ctx,
-                    GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 30.0))]),
-                )
-                .margin_right(5),
-                Btn::text_fg(format!("{} ▼", &app.primary.map.get_edits().edits_name))
-                    .build(ctx, "load edits", lctrl(Key::L))
-                    .margin_right(5),
-                Btn::svg_def("../data/system/assets/tools/save.svg")
-                    .build(ctx, "save edits as", lctrl(Key::S))
-                    .margin_right(5),
-                (if !app.primary.map.get_edits().commands.is_empty() {
-                    Btn::svg_def("../data/system/assets/tools/undo.svg").build(
-                        ctx,
-                        "undo",
-                        lctrl(Key::Z),
-                    )
-                } else {
-                    Widget::draw_svg_transform(
-                        ctx,
-                        "../data/system/assets/tools/undo.svg",
-                        RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
-                    )
-                }),
-            ])
-            .centered()
-            .margin_below(10),
-            Widget::row(vec![
-                if !app.primary.map.get_edits().commands.is_empty() {
-                    Btn::text_fg("reset edits").build_def(ctx, None)
-                } else {
-                    Btn::text_fg("reset edits").inactive(ctx)
-                }
-                .margin_right(15),
                 if mode.can_edit_lanes() {
                     Btn::text_fg("bulk edit").build_def(ctx, hotkey(Key::B))
                 } else {
@@ -641,4 +597,76 @@ pub fn change_speed_limit(ctx: &mut EventCtx, default: Speed) -> Widget {
             ],
         ),
     ])
+}
+
+fn make_changelist(ctx: &mut EventCtx, app: &App) -> Composite {
+    // TODO Support redo. Bit harder here to reset the redo_stack when the edits
+    // change, because nested other places modify it too.
+    let edits = app.primary.map.get_edits();
+    let mut col = vec![
+        Widget::row(vec![
+            Btn::text_fg(format!("{} ▼", &edits.edits_name))
+                .build(ctx, "load edits", lctrl(Key::L))
+                .margin_right(10),
+            Btn::svg_def("../data/system/assets/tools/save.svg")
+                .build(ctx, "save edits as", lctrl(Key::S))
+                .centered_vert()
+                .margin_right(10),
+            (if !edits.commands.is_empty() {
+                Btn::svg_def("../data/system/assets/tools/undo.svg").build(
+                    ctx,
+                    "undo",
+                    lctrl(Key::Z),
+                )
+            } else {
+                Widget::draw_svg_transform(
+                    ctx,
+                    "../data/system/assets/tools/undo.svg",
+                    RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
+                )
+            })
+            .centered_vert(),
+        ])
+        .margin_below(10),
+        Text::from_multiline(vec![
+            Line(format!("{} lane types changed", edits.original_lts.len())),
+            Line(format!("{} lanes reversed", edits.reversed_lanes.len())),
+            Line(format!(
+                "{} speed limits changed",
+                edits.changed_speed_limits.len()
+            )),
+            Line(format!(
+                "{} intersections changed",
+                edits.original_intersections.len()
+            )),
+        ])
+        .draw(ctx)
+        .margin_below(10),
+    ];
+
+    for (idx, cmd) in edits.commands.iter().rev().take(5).enumerate() {
+        col.push(
+            Btn::plaintext(format!("{}) {}", idx + 1, cmd.short_name())).build(
+                ctx,
+                format!("most recent change #{}", idx + 1),
+                None,
+            ),
+        );
+    }
+    if edits.commands.len() > 5 {
+        col.push(format!("{} more...", edits.commands.len()).draw_text(ctx));
+    }
+
+    Composite::new(Widget::col(col).padding(16).bg(app.cs.panel_bg))
+        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+        .build(ctx)
+}
+
+fn cmd_to_id(cmd: &EditCmd) -> ID {
+    match cmd {
+        EditCmd::ChangeLaneType { id, .. } => ID::Lane(*id),
+        EditCmd::ReverseLane { l, .. } => ID::Lane(*l),
+        EditCmd::ChangeSpeedLimit { id, .. } => ID::Road(*id),
+        EditCmd::ChangeIntersection { i, .. } => ID::Intersection(*i),
+    }
 }

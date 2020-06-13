@@ -71,6 +71,18 @@ impl LaneType {
             LaneType::Construction => "a lane that's closed for construction",
         }
     }
+
+    pub fn short_name(self) -> &'static str {
+        match self {
+            LaneType::Driving => "driving lane",
+            LaneType::Biking => "bike lane",
+            LaneType::Bus => "bus lane",
+            LaneType::Parking => "parking lane",
+            LaneType::Sidewalk => "sidewalk",
+            LaneType::SharedLeftTurn => "left-turn lane",
+            LaneType::Construction => "construction",
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
