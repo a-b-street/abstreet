@@ -1,4 +1,6 @@
 use crate::utils::{download, osmconvert};
+use map_model::Map;
+use sim::Scenario;
 
 fn input() {
     download(
@@ -98,4 +100,11 @@ pub fn ensure_popdat_exists(
     };
 
     (crate::soundcast::import_data(&huge_map), huge_map)
+}
+
+pub fn adjust_private_parking(map: &mut Map, scenario: &Scenario) {
+    for (b, count) in scenario.count_parked_cars_per_bldg().consume() {
+        map.hack_override_offstreet_spots_individ(b, count);
+    }
+    map.save();
 }

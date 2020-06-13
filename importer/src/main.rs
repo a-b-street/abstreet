@@ -105,7 +105,7 @@ fn main() {
             }
         }
 
-        let maybe_map = if job.raw_to_map {
+        let mut maybe_map = if job.raw_to_map {
             Some(utils::raw_to_map(&name, !job.skip_ch, &mut timer))
         } else if job.scenario || job.scenario_everyone {
             Some(map_model::Map::new(abstutil::path_map(&name), &mut timer))
@@ -116,14 +116,21 @@ fn main() {
         #[cfg(feature = "scenarios")]
         if job.scenario {
             timer.start(format!("scenario for {}", name));
-            soundcast::make_weekday_scenario(
+            let scenario = soundcast::make_weekday_scenario(
                 maybe_map.as_ref().unwrap(),
                 maybe_popdat.as_ref().unwrap(),
                 maybe_huge_map.as_ref().unwrap(),
                 &mut timer,
-            )
-            .save();
+            );
+            scenario.save();
             timer.stop(format!("scenario for {}", name));
+
+            // This is a strange ordering.
+            if name == "downtown" {
+                timer.start(format!("adjust parking for {}", name));
+                seattle::adjust_private_parking(maybe_map.as_mut().unwrap(), &scenario);
+                timer.stop(format!("adjust parking for {}", name));
+            }
         }
 
         #[cfg(feature = "scenarios")]

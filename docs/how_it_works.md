@@ -12,15 +12,16 @@ Details below. Many limitations are mentioned; improvements are ongoing. I'll
 add pictures to explain better when I get time.
 
 <!--ts-->
-   * [How A/B Street works](#how-ab-street-works)
-      * [Driving](#driving)
-      * [Parking](#parking)
-      * [Biking](#biking)
-      * [Walking](#walking)
-      * [Transit](#transit)
-      * [Intersections](#intersections)
-      * [People and trips](#people-and-trips)
-      * [Map edits](#map-edits)
+
+- [How A/B Street works](#how-ab-street-works)
+  - [Driving](#driving)
+  - [Parking](#parking)
+  - [Biking](#biking)
+  - [Walking](#walking)
+  - [Transit](#transit)
+  - [Intersections](#intersections)
+  - [People and trips](#people-and-trips)
+  - [Map edits](#map-edits)
 
 <!-- Added by: dabreegster, at: Mon Jun  8 12:17:13 PDT 2020 -->
 
@@ -48,6 +49,8 @@ add pictures to explain better when I get time.
     [manually mapped](https://dabreegster.github.io/abstreet/map_parking.html)
   - Off-street: most buildings have at least a few parking spots in a driveway
     or carport
+    - Currently experimenting in the downtown map: set the number of available
+      spots based on number of cars seeded at midnight
   - Parking lots: the number of spots is inferred
 - Restrictions
   - All spots are public except for the few spots associated with each building

@@ -365,7 +365,7 @@ data/input/seattle/sidewalks.kml,94d385ba03ef1b57a5ba10965913ec6c,https://www.dr
 data/input/seattle/trips_2014.csv,d4a8e733045b28c0385fb81359d6df03,https://www.dropbox.com/s/5ppravwmk6bf20d/trips_2014.csv.zip?dl=0
 data/system/cities/seattle.bin,018968486daedf1b69a1b3be5a3749bf,https://www.dropbox.com/s/eupzog6iw7wtaas/seattle.bin.zip?dl=0
 data/system/maps/ballard.bin,84075fe9b2920cf45a20318a71cc67f7,https://www.dropbox.com/s/u4rvz50she3yrk0/ballard.bin.zip?dl=0
-data/system/maps/downtown.bin,54318d20d768ad7d76c422612456b359,https://www.dropbox.com/s/4do5cg4vc17lafo/downtown.bin.zip?dl=0
+data/system/maps/downtown.bin,7aac2dc62f5127f48036512b5602ebcb,https://www.dropbox.com/s/4do5cg4vc17lafo/downtown.bin.zip?dl=0
 data/system/maps/downtown_atx.bin,d46819d53a47b7628fbfb947f17bd790,https://www.dropbox.com/s/5avnbkd4oxby2hs/downtown_atx.bin.zip?dl=0
 data/system/maps/huge_austin.bin,884294efce5154c483a976c390089d15,https://www.dropbox.com/s/khy0m6v9yt0gjnt/huge_austin.bin.zip?dl=0
 data/system/maps/huge_seattle.bin,ad8b5a5ea710b0524741a800e5703060,https://www.dropbox.com/s/btvr3qajshnivhb/huge_seattle.bin.zip?dl=0
@@ -378,7 +378,7 @@ data/system/prebaked_results/lakeslice/weekday.bin,3b646ecf92e16df3c33bf7dbf3013
 data/system/prebaked_results/montlake/car vs bike contention.bin,8c1c883a5dcd6daa042740033c0c18c4,https://www.dropbox.com/s/jefg0ikjy9dsrdd/car%20vs%20bike%20contention.bin.zip?dl=0
 data/system/prebaked_results/montlake/weekday.bin,ae43e474b1ab111615e2efde90135491,https://www.dropbox.com/s/1aq7n9ow8tfqb5d/weekday.bin.zip?dl=0
 data/system/scenarios/ballard/weekday.bin,60d3eb1cdb8672e2d29cf3acf23ccabe,https://www.dropbox.com/s/67hys1v7m7oe979/weekday.bin.zip?dl=0
-data/system/scenarios/downtown/weekday.bin,8821147124da650f975483ed1e5bbb69,https://www.dropbox.com/s/pstvu4p7xj3gaoi/weekday.bin.zip?dl=0
+data/system/scenarios/downtown/weekday.bin,c3d252010b69e973f20b2cd8022e0fe5,https://www.dropbox.com/s/pstvu4p7xj3gaoi/weekday.bin.zip?dl=0
 data/system/scenarios/huge_seattle/weekday.bin,31bfc23f39bb54bef939119f6cfbd2e2,https://www.dropbox.com/s/u3pmsshwnf13g83/weekday.bin.zip?dl=0
 data/system/scenarios/lakeslice/weekday.bin,f33ade15eb1a177610c58d839d01620b,https://www.dropbox.com/s/858wxml3z0qlhxd/weekday.bin.zip?dl=0
 data/system/scenarios/montlake/everyone_weekday.bin,6806c7788fb71471e142287c44991eb3,https://www.dropbox.com/s/44s818fimpu53v1/everyone_weekday.bin.zip?dl=0

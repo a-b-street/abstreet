@@ -763,10 +763,17 @@ impl Map {
     pub fn hack_override_offstreet_spots(&mut self, spots_per_bldg: usize) {
         for b in &mut self.buildings {
             if let Some(ref mut p) = b.parking {
-                // Leave the parking garages alone
-                if p.num_spots == 1 {
+                if p.public_garage_name.is_none() {
                     p.num_spots = spots_per_bldg;
                 }
+            }
+        }
+    }
+    pub fn hack_override_offstreet_spots_individ(&mut self, b: BuildingID, spots: usize) {
+        let b = &mut self.buildings[b.0];
+        if let Some(ref mut p) = b.parking {
+            if p.public_garage_name.is_none() {
+                p.num_spots = spots;
             }
         }
     }
