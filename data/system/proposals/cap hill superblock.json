@@ -1,0 +1,1711 @@
+{
+  "map_name": "downtown",
+  "edits_name": "cap hill superblock",
+  "commands": [
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 6343949,
+            "i1": {
+              "osm_node_id": 53068796
+            },
+            "i2": {
+              "osm_node_id": 53068898
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 6343949,
+            "i1": {
+              "osm_node_id": 53068796
+            },
+            "i2": {
+              "osm_node_id": 53068898
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 6343949,
+            "i1": {
+              "osm_node_id": 53068796
+            },
+            "i2": {
+              "osm_node_id": 53068898
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 6343949,
+            "i1": {
+              "osm_node_id": 53068796
+            },
+            "i2": {
+              "osm_node_id": 53068898
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 6346526,
+            "i1": {
+              "osm_node_id": 1710097713
+            },
+            "i2": {
+              "osm_node_id": 53078437
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 6346526,
+            "i1": {
+              "osm_node_id": 1710097713
+            },
+            "i2": {
+              "osm_node_id": 53078437
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 6346526,
+            "i1": {
+              "osm_node_id": 1710097713
+            },
+            "i2": {
+              "osm_node_id": 53078437
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 6400834,
+            "i1": {
+              "osm_node_id": 53149373
+            },
+            "i2": {
+              "osm_node_id": 53149372
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 1,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 6400834,
+            "i1": {
+              "osm_node_id": 53149373
+            },
+            "i2": {
+              "osm_node_id": 53149372
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 1,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 6400834,
+            "i1": {
+              "osm_node_id": 53149373
+            },
+            "i2": {
+              "osm_node_id": 53149372
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 1,
+          "fwd": true,
+          "idx": 2
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 6430729,
+            "i1": {
+              "osm_node_id": 53068798
+            },
+            "i2": {
+              "osm_node_id": 53186025
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 6430729,
+            "i1": {
+              "osm_node_id": 53068798
+            },
+            "i2": {
+              "osm_node_id": 53186025
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 6430729,
+            "i1": {
+              "osm_node_id": 53068798
+            },
+            "i2": {
+              "osm_node_id": 53186025
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 6430729,
+            "i1": {
+              "osm_node_id": 53068798
+            },
+            "i2": {
+              "osm_node_id": 53186025
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 6456052,
+            "i1": {
+              "osm_node_id": 53200834
+            },
+            "i2": {
+              "osm_node_id": 53168934
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 6456052,
+            "i1": {
+              "osm_node_id": 53200834
+            },
+            "i2": {
+              "osm_node_id": 53168934
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 6456052,
+            "i1": {
+              "osm_node_id": 53200834
+            },
+            "i2": {
+              "osm_node_id": 53168934
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 6456052,
+            "i1": {
+              "osm_node_id": 53200834
+            },
+            "i2": {
+              "osm_node_id": 53168934
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 6456052,
+            "i1": {
+              "osm_node_id": 53208465
+            },
+            "i2": {
+              "osm_node_id": 53200834
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 6456052,
+            "i1": {
+              "osm_node_id": 53208465
+            },
+            "i2": {
+              "osm_node_id": 53200834
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 6456052,
+            "i1": {
+              "osm_node_id": 53208465
+            },
+            "i2": {
+              "osm_node_id": 53200834
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 6456052,
+            "i1": {
+              "osm_node_id": 53208465
+            },
+            "i2": {
+              "osm_node_id": 53200834
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 65588084,
+            "i1": {
+              "osm_node_id": 53149372
+            },
+            "i2": {
+              "osm_node_id": 1710097713
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 65588084,
+            "i1": {
+              "osm_node_id": 53149372
+            },
+            "i2": {
+              "osm_node_id": 1710097713
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 65588084,
+            "i1": {
+              "osm_node_id": 53149372
+            },
+            "i2": {
+              "osm_node_id": 1710097713
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 65588084,
+            "i1": {
+              "osm_node_id": 53149372
+            },
+            "i2": {
+              "osm_node_id": 1710097713
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 65588105,
+            "i1": {
+              "osm_node_id": 53068792
+            },
+            "i2": {
+              "osm_node_id": 53068794
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 65588105,
+            "i1": {
+              "osm_node_id": 53068792
+            },
+            "i2": {
+              "osm_node_id": 53068794
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 65588105,
+            "i1": {
+              "osm_node_id": 53068792
+            },
+            "i2": {
+              "osm_node_id": 53068794
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 65588105,
+            "i1": {
+              "osm_node_id": 53068792
+            },
+            "i2": {
+              "osm_node_id": 53068794
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 65588105,
+            "i1": {
+              "osm_node_id": 53068794
+            },
+            "i2": {
+              "osm_node_id": 53068795
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 65588105,
+            "i1": {
+              "osm_node_id": 53068794
+            },
+            "i2": {
+              "osm_node_id": 53068795
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 65588105,
+            "i1": {
+              "osm_node_id": 53068794
+            },
+            "i2": {
+              "osm_node_id": 53068795
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 65588105,
+            "i1": {
+              "osm_node_id": 53068794
+            },
+            "i2": {
+              "osm_node_id": 53068795
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 158882495,
+            "i1": {
+              "osm_node_id": 1710097713
+            },
+            "i2": {
+              "osm_node_id": 53163481
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 158882495,
+            "i1": {
+              "osm_node_id": 1710097713
+            },
+            "i2": {
+              "osm_node_id": 53163481
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 158882495,
+            "i1": {
+              "osm_node_id": 1710097713
+            },
+            "i2": {
+              "osm_node_id": 53163481
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 158882495,
+            "i1": {
+              "osm_node_id": 1710097713
+            },
+            "i2": {
+              "osm_node_id": 53163481
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 159118040,
+            "i1": {
+              "osm_node_id": 53109131
+            },
+            "i2": {
+              "osm_node_id": 53073259
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 2,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 159118040,
+            "i1": {
+              "osm_node_id": 53109131
+            },
+            "i2": {
+              "osm_node_id": 53073259
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 2,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 332601014,
+            "i1": {
+              "osm_node_id": 53073255
+            },
+            "i2": {
+              "osm_node_id": 6781731452
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 4,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 332601014,
+            "i1": {
+              "osm_node_id": 53073255
+            },
+            "i2": {
+              "osm_node_id": 6781731452
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 4,
+          "fwd": true,
+          "idx": 2
+        },
+        "lt": "Bus",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 332601014,
+            "i1": {
+              "osm_node_id": 53073255
+            },
+            "i2": {
+              "osm_node_id": 6781731452
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 4,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 332601014,
+            "i1": {
+              "osm_node_id": 53073255
+            },
+            "i2": {
+              "osm_node_id": 6781731452
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 4,
+          "fwd": false,
+          "idx": 1
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 332601014,
+            "i1": {
+              "osm_node_id": 53073255
+            },
+            "i2": {
+              "osm_node_id": 6781731452
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 4,
+          "fwd": false,
+          "idx": 2
+        },
+        "lt": "Bus",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 428341734,
+            "i1": {
+              "osm_node_id": 53068794
+            },
+            "i2": {
+              "osm_node_id": 4273751349
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 428341734,
+            "i1": {
+              "osm_node_id": 53068794
+            },
+            "i2": {
+              "osm_node_id": 4273751349
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 2
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 428341734,
+            "i1": {
+              "osm_node_id": 53068794
+            },
+            "i2": {
+              "osm_node_id": 4273751349
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 428341734,
+            "i1": {
+              "osm_node_id": 53068794
+            },
+            "i2": {
+              "osm_node_id": 4273751349
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 428341734,
+            "i1": {
+              "osm_node_id": 53200834
+            },
+            "i2": {
+              "osm_node_id": 53068794
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 428341734,
+            "i1": {
+              "osm_node_id": 53200834
+            },
+            "i2": {
+              "osm_node_id": 53068794
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 2
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 428341734,
+            "i1": {
+              "osm_node_id": 53200834
+            },
+            "i2": {
+              "osm_node_id": 53068794
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 428341734,
+            "i1": {
+              "osm_node_id": 53200834
+            },
+            "i2": {
+              "osm_node_id": 53068794
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 607690679,
+            "i1": {
+              "osm_node_id": 53073254
+            },
+            "i2": {
+              "osm_node_id": 53200834
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 607690679,
+            "i1": {
+              "osm_node_id": 53073254
+            },
+            "i2": {
+              "osm_node_id": 53200834
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 607690679,
+            "i1": {
+              "osm_node_id": 53073254
+            },
+            "i2": {
+              "osm_node_id": 53200834
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 607690679,
+            "i1": {
+              "osm_node_id": 53073254
+            },
+            "i2": {
+              "osm_node_id": 53200834
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 607691081,
+            "i1": {
+              "osm_node_id": 53068795
+            },
+            "i2": {
+              "osm_node_id": 53068796
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 607691081,
+            "i1": {
+              "osm_node_id": 53068795
+            },
+            "i2": {
+              "osm_node_id": 53068796
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 607691081,
+            "i1": {
+              "osm_node_id": 53068795
+            },
+            "i2": {
+              "osm_node_id": 53068796
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 607691081,
+            "i1": {
+              "osm_node_id": 53068795
+            },
+            "i2": {
+              "osm_node_id": 53068796
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 607691081,
+            "i1": {
+              "osm_node_id": 53068796
+            },
+            "i2": {
+              "osm_node_id": 53068798
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 607691081,
+            "i1": {
+              "osm_node_id": 53068796
+            },
+            "i2": {
+              "osm_node_id": 53068798
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 607691081,
+            "i1": {
+              "osm_node_id": 53068796
+            },
+            "i2": {
+              "osm_node_id": 53068798
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 607691081,
+            "i1": {
+              "osm_node_id": 53068796
+            },
+            "i2": {
+              "osm_node_id": 53068798
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 607691081,
+            "i1": {
+              "osm_node_id": 53068798
+            },
+            "i2": {
+              "osm_node_id": 1710097713
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 607691081,
+            "i1": {
+              "osm_node_id": 53068798
+            },
+            "i2": {
+              "osm_node_id": 1710097713
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 607691081,
+            "i1": {
+              "osm_node_id": 53068798
+            },
+            "i2": {
+              "osm_node_id": 1710097713
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 607691081,
+            "i1": {
+              "osm_node_id": 53068798
+            },
+            "i2": {
+              "osm_node_id": 1710097713
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": false,
+          "idx": 1
+        },
+        "lt": "Construction",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 723013181,
+            "i1": {
+              "osm_node_id": 53068795
+            },
+            "i2": {
+              "osm_node_id": 53168936
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 4,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 723013181,
+            "i1": {
+              "osm_node_id": 53068795
+            },
+            "i2": {
+              "osm_node_id": 53168936
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 4,
+          "fwd": true,
+          "idx": 2
+        },
+        "lt": "Bus",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 723013181,
+            "i1": {
+              "osm_node_id": 53068795
+            },
+            "i2": {
+              "osm_node_id": 53168936
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 4,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 723013181,
+            "i1": {
+              "osm_node_id": 53068795
+            },
+            "i2": {
+              "osm_node_id": 53168936
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 4,
+          "fwd": false,
+          "idx": 2
+        },
+        "lt": "Bus",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 723013181,
+            "i1": {
+              "osm_node_id": 53168934
+            },
+            "i2": {
+              "osm_node_id": 53068795
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 4,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 723013181,
+            "i1": {
+              "osm_node_id": 53168934
+            },
+            "i2": {
+              "osm_node_id": 53068795
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 4,
+          "fwd": true,
+          "idx": 2
+        },
+        "lt": "Bus",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 723013181,
+            "i1": {
+              "osm_node_id": 53168934
+            },
+            "i2": {
+              "osm_node_id": 53068795
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 4,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 723013181,
+            "i1": {
+              "osm_node_id": 53168934
+            },
+            "i2": {
+              "osm_node_id": 53068795
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 4,
+          "fwd": false,
+          "idx": 2
+        },
+        "lt": "Bus",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 723013181,
+            "i1": {
+              "osm_node_id": 6781731452
+            },
+            "i2": {
+              "osm_node_id": 53168934
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 4,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 723013181,
+            "i1": {
+              "osm_node_id": 6781731452
+            },
+            "i2": {
+              "osm_node_id": 53168934
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 4,
+          "fwd": true,
+          "idx": 2
+        },
+        "lt": "Bus",
+        "orig_lt": "Parking"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 723013181,
+            "i1": {
+              "osm_node_id": 6781731452
+            },
+            "i2": {
+              "osm_node_id": 53168934
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 4,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Biking",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 723013181,
+            "i1": {
+              "osm_node_id": 6781731452
+            },
+            "i2": {
+              "osm_node_id": 53168934
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 4,
+          "fwd": false,
+          "idx": 2
+        },
+        "lt": "Bus",
+        "orig_lt": "Parking"
+      }
+    }
+  ],
+  "proposal_description": [
+    "Capitol Hill Superblock",
+    "Remove vehicles traveling through some streets south of Cal Anderson Park, giving more room to people"
+  ]
+}

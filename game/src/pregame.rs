@@ -348,7 +348,8 @@ impl Proposals {
             buttons.push(
                 Btn::text_bg(&name, txt, app.cs.section_bg, app.cs.hovering)
                     .tooltip(Text::new())
-                    .build_def(ctx, None),
+                    .build_def(ctx, None)
+                    .margin_below(10),
             );
             proposals.insert(name, edits);
         }
@@ -370,10 +371,7 @@ impl Proposals {
                         txt.add(Line("Contact dabreegster@gmail.com to add your idea here!"));
                         txt.draw(ctx).centered_horiz().bg(app.cs.panel_bg)
                     },
-                    Widget::row(buttons)
-                        .flex_wrap(ctx, 80)
-                        .bg(app.cs.panel_bg)
-                        .padding(10),
+                    Widget::col(buttons).bg(app.cs.panel_bg).padding(10),
                 ])
                 .evenly_spaced(),
             )
