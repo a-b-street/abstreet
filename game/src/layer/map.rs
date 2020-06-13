@@ -168,7 +168,7 @@ impl BikeNetwork {
 }
 
 pub struct Static {
-    colorer: Colorer,
+    pub colorer: Colorer,
     name: &'static str,
 }
 

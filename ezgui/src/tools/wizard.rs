@@ -254,7 +254,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             }
             let mut col = Vec::new();
             if let Some(l) = query {
-                col.push(Line(l).small_heading().draw(self.ctx));
+                col.push(Line(l).small_heading().draw(self.ctx).margin_below(10));
             }
             col.push(
                 Menu::new(
@@ -269,14 +269,12 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             self.wizard.menu_comp = Some(
                 Composite::new(
                     Widget::row(vec![
-                        Widget::col(col),
-                        Btn::text_fg("X")
-                            .build(self.ctx, "quit", hotkey(Key::Escape))
-                            .margin(5),
+                        Widget::col(col).margin_right(15),
+                        Btn::plaintext("X").build(self.ctx, "quit", hotkey(Key::Escape)),
                     ])
                     .bg(self.ctx.style().panel_bg)
                     .outline(5.0, Color::WHITE)
-                    .padding(5),
+                    .padding(16),
                 )
                 .aligned(horiz, vert)
                 .build(self.ctx),

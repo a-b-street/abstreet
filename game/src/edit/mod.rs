@@ -18,9 +18,9 @@ use crate::render::{DrawIntersection, DrawLane, DrawRoad};
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Btn, Choice, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, PersistentSplit, RewriteColor, ScreenRectangle, Text, TextExt, VerticalAlignment,
-    Widget, WrappedWizard,
+    hotkey, lctrl, Btn, Choice, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment,
+    Key, Line, Outcome, PersistentSplit, RewriteColor, ScreenRectangle, Text, TextExt,
+    VerticalAlignment, Widget, WrappedWizard,
 };
 use geom::Speed;
 use map_model::{
@@ -42,6 +42,9 @@ pub struct EditMode {
 
     // edits name, number of commands
     changelist_key: (String, usize),
+
+    unzoomed: Drawable,
+    zoomed: Drawable,
 }
 
 impl EditMode {
@@ -50,6 +53,7 @@ impl EditMode {
         assert!(app.suspended_sim.is_none());
         app.suspended_sim = Some(app.primary.clear_sim());
         let edits = app.primary.map.get_edits();
+        let colorer = crate::layer::map::Static::edits(ctx, app).colorer;
         EditMode {
             tool_panel: tool_panel(ctx, app),
             top_center: make_topcenter(ctx, app, &mode),
@@ -58,6 +62,8 @@ impl EditMode {
             orig_dirty,
             mode,
             changelist_key: (edits.edits_name.clone(), edits.commands.len()),
+            unzoomed: colorer.unzoomed,
+            zoomed: colorer.zoomed,
         }
     }
 
@@ -68,6 +74,12 @@ impl EditMode {
         if app.primary.map.get_edits() == &self.orig_edits {
             app.primary.sim = old_sim;
             app.primary.dirty_from_edits = self.orig_dirty;
+            // Could happen if we load some edits, then load whatever we entered edit mode with.
+            ctx.loading_screen("apply edits", |_, mut timer| {
+                app.primary
+                    .map
+                    .recalculate_pathfinding_after_edits(&mut timer);
+            });
             return Transition::Pop;
         }
 
@@ -107,6 +119,9 @@ impl State for EditMode {
             if self.changelist_key != changelist_key {
                 self.changelist_key = changelist_key;
                 self.changelist = make_changelist(ctx, app);
+                let colorer = crate::layer::map::Static::edits(ctx, app).colorer;
+                self.unzoomed = colorer.unzoomed;
+                self.zoomed = colorer.zoomed;
             }
         }
 
@@ -166,7 +181,7 @@ impl State for EditMode {
                         self.mode.clone(),
                     ));
                 }
-                "save edits as" => {
+                "save edits as" | "save edits" => {
                     return Transition::Push(WizardState::new(Box::new(|wiz, ctx, app| {
                         save_edits_as(&mut wiz.wrap(ctx), app)?;
                         Some(Transition::Pop)
@@ -179,7 +194,7 @@ impl State for EditMode {
                     return Transition::Push(Warping::new(
                         ctx,
                         id.canonical_point(&app.primary).unwrap(),
-                        None,
+                        Some(10.0),
                         Some(id),
                         &mut app.primary,
                     ));
@@ -193,7 +208,7 @@ impl State for EditMode {
                     return Transition::Push(Warping::new(
                         ctx,
                         id.canonical_point(&app.primary).unwrap(),
-                        None,
+                        Some(10.0),
                         Some(id),
                         &mut app.primary,
                     ));
@@ -279,21 +294,29 @@ impl State for EditMode {
         self.tool_panel.draw(g);
         self.top_center.draw(g);
         self.changelist.draw(g);
+        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+            g.redraw(&self.unzoomed);
+        } else {
+            g.redraw(&self.zoomed);
+        }
         CommonState::draw_osd(g, app);
     }
 }
 
 pub fn save_edits_as(wizard: &mut WrappedWizard, app: &mut App) -> Option<()> {
     let map = &mut app.primary.map;
-    let new_default_name = if map.get_edits().edits_name == "untitled edits" {
-        "".to_string()
+    let (prompt, new_default_name) = if map.get_edits().edits_name == "untitled edits" {
+        ("Name these edits", "".to_string())
     } else {
-        format!("copy of {}", map.get_edits().edits_name)
+        (
+            "Name the new copy of these edits",
+            format!("copy of {}", map.get_edits().edits_name),
+        )
     };
 
     let name = loop {
         let candidate = wizard.input_something(
-            "Name the new copy of these edits",
+            prompt,
             Some(new_default_name.clone()),
             Box::new(|l| {
                 let l = l.trim().to_string();
@@ -627,6 +650,12 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Composite {
             })
             .centered_vert(),
         ])
+        .margin_below(10),
+        if app.primary.map.unsaved_edits() {
+            Btn::text_fg("Unsaved edits").build(ctx, "save edits", None)
+        } else {
+            Btn::text_fg("Autosaved!").inactive(ctx)
+        }
         .margin_below(10),
         Text::from_multiline(vec![
             Line(format!("{} lane types changed", edits.original_lts.len())),
