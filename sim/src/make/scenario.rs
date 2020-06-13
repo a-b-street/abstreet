@@ -340,10 +340,17 @@ fn find_spot_near_building(
         }
         let r = roads_queue.pop_front()?;
         if let Some(spots) = open_spots_per_road.get_mut(&r) {
+            // Fill in all private parking first before
             // TODO With some probability, skip this available spot and park farther away
             if let Some(idx) = spots
                 .iter()
-                .position(|(_, restriction)| restriction.map(|only_b| only_b == b).unwrap_or(true))
+                .position(|(_, restriction)| restriction == &Some(b))
+            {
+                return Some(spots.remove(idx).0);
+            }
+            if let Some(idx) = spots
+                .iter()
+                .position(|(_, restriction)| restriction.is_none())
             {
                 return Some(spots.remove(idx).0);
             }
