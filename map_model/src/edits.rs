@@ -20,6 +20,8 @@ pub struct MapEdits {
 
     // Edits without these are player generated.
     pub proposal_description: Vec<String>,
+    // The link is optional even for proposals
+    pub proposal_link: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -81,6 +83,7 @@ impl MapEdits {
             // Something has to fill this out later
             edits_name: "untitled edits".to_string(),
             proposal_description: Vec::new(),
+            proposal_link: None,
             commands: Vec::new(),
 
             original_lts: BTreeMap::new(),
@@ -215,6 +218,8 @@ pub struct PermanentMapEdits {
 
     // Edits without these are player generated.
     pub proposal_description: Vec<String>,
+    // The link is optional even for proposals
+    pub proposal_link: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -270,6 +275,7 @@ impl PermanentMapEdits {
             map_name: map.get_name().to_string(),
             edits_name: edits.edits_name.clone(),
             proposal_description: edits.proposal_description.clone(),
+            proposal_link: edits.proposal_link.clone(),
             commands: edits
                 .commands
                 .iter()
@@ -308,6 +314,7 @@ impl PermanentMapEdits {
         let mut edits = MapEdits {
             edits_name: perma.edits_name,
             proposal_description: perma.proposal_description,
+            proposal_link: perma.proposal_link,
             commands: perma
                 .commands
                 .into_iter()

@@ -1065,5 +1065,6 @@
   "proposal_description": [
     "Convert Lake Washington Blvd to a Stay Healthy Street",
     "No vehicle access north of Madison"
-  ]
+  ],
+  "proposal_link": "https://dabreegster.github.io/abstreet/lake_wash/proposal.html"
 }

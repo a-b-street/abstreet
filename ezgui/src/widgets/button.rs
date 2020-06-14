@@ -462,7 +462,7 @@ impl BtnBuilder {
                 ..
             } => {
                 assert_eq!(*unselected_bg_color, Color::WHITE);
-                *unselected_bg_color = Color::hex("#E9E9E9");
+                *unselected_bg_color = Color::grey(0.7);
                 let btn = self.build(ctx, "dummy", None).take_btn();
                 Widget::new(Box::new(JustDraw {
                     draw: btn.draw_normal,

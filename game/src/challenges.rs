@@ -131,12 +131,15 @@ impl Tab {
         master_col.push({
             let mut txt = Text::from(Line("A/B STREET").display_title());
             txt.add(Line("CHALLENGES").big_heading_styled());
-            txt.draw(ctx).centered_horiz().margin_below(10)
+            txt.draw(ctx).centered_horiz().margin_below(20)
         });
         master_col.push(
             Btn::text_bg2("Introductory Story")
                 .build_def(ctx, None)
                 .centered_horiz()
+                .bg(app.cs.panel_bg)
+                .padding(10)
+                .outline(10.0, Color::BLACK)
                 .margin_below(10),
         );
         cbs.push((

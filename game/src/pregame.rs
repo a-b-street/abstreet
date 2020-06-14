@@ -213,7 +213,7 @@ impl State for MainMenu {
                     }
                 }
                 "Community Proposals" => {
-                    return Transition::Push(Proposals::new(ctx, app));
+                    return Transition::Push(Proposals::new(ctx, app, None));
                 }
                 "Contribute parking data to OpenStreetMap" => {
                     return Transition::Push(crate::devtools::mapping::ParkingMapper::new(
@@ -331,52 +331,73 @@ impl State for About {
 struct Proposals {
     composite: Composite,
     proposals: HashMap<String, PermanentMapEdits>,
+    current: Option<String>,
 }
 
 impl Proposals {
-    fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    fn new(ctx: &mut EventCtx, app: &App, current: Option<String>) -> Box<dyn State> {
         let mut proposals = HashMap::new();
         let mut buttons = Vec::new();
+        let mut current_tab = Vec::new();
         for (name, edits) in
             abstutil::load_all_objects::<PermanentMapEdits>("../data/system/proposals".to_string())
         {
-            let mut txt = Text::new();
-            txt.add(Line(&edits.proposal_description[0]));
-            for l in edits.proposal_description.iter().skip(1) {
-                txt.add(Line(l).secondary());
+            if current == Some(name.clone()) {
+                let mut txt = Text::new();
+                txt.add(Line(&edits.proposal_description[0]).small_heading());
+                for l in edits.proposal_description.iter().skip(1) {
+                    txt.add(Line(l));
+                }
+                current_tab.push(txt.draw(ctx).margin_below(15).margin_above(15));
+
+                if edits.proposal_link.is_some() {
+                    current_tab.push(
+                        Btn::text_bg2("Read detailed write-up")
+                            .build_def(ctx, None)
+                            .margin_below(10),
+                    );
+                }
+                current_tab.push(Btn::text_bg2("Try out this proposal").build_def(ctx, None));
+
+                buttons.push(Btn::text_bg2(&edits.proposal_description[0]).inactive(ctx));
+            } else {
+                buttons.push(
+                    Btn::text_bg2(&edits.proposal_description[0])
+                        .tooltip(Text::new())
+                        .build(ctx, &name, None),
+                );
             }
-            buttons.push(
-                Btn::text_bg(&name, txt, app.cs.section_bg, app.cs.hovering)
-                    .tooltip(Text::new())
-                    .build_def(ctx, None)
-                    .margin_below(10),
-            );
+
             proposals.insert(name, edits);
         }
 
+        let mut col = vec![
+            {
+                let mut txt = Text::from(Line("A/B STREET").display_title());
+                txt.add(Line("PROPOSALS").big_heading_styled());
+                txt.add(Line(""));
+                txt.add(Line(
+                    "These are proposed changes to Seattle made by community members.",
+                ));
+                txt.add(Line("Contact dabreegster@gmail.com to add your idea here!"));
+                txt.draw(ctx).centered_horiz().margin_below(20)
+            },
+            Widget::row(buttons).flex_wrap(ctx, 80),
+        ];
+        col.extend(current_tab);
+
         Box::new(Proposals {
             proposals,
-            composite: Composite::new(
-                Widget::col(vec![
-                    Btn::svg_def("../data/system/assets/pregame/back.svg")
-                        .build(ctx, "back", hotkey(Key::Escape))
-                        .align_left(),
-                    {
-                        let mut txt = Text::from(Line("A/B STREET").display_title());
-                        txt.add(Line("PROPOSALS").big_heading_styled());
-                        txt.add(Line(""));
-                        txt.add(Line(
-                            "These are proposed changes to Seattle made by community members.",
-                        ));
-                        txt.add(Line("Contact dabreegster@gmail.com to add your idea here!"));
-                        txt.draw(ctx).centered_horiz().bg(app.cs.panel_bg)
-                    },
-                    Widget::col(buttons).bg(app.cs.panel_bg).padding(10),
-                ])
-                .evenly_spaced(),
-            )
+            composite: Composite::new(Widget::col(vec![
+                Btn::svg_def("../data/system/assets/pregame/back.svg")
+                    .build(ctx, "back", hotkey(Key::Escape))
+                    .align_left()
+                    .margin_below(20),
+                Widget::col(col).bg(app.cs.panel_bg).padding(16),
+            ]))
             .exact_size_percent(90, 85)
             .build(ctx),
+            current,
         })
     }
 }
@@ -388,8 +409,8 @@ impl State for Proposals {
                 "back" => {
                     return Transition::Pop;
                 }
-                x => {
-                    let edits = &self.proposals[x];
+                "Try out this proposal" => {
+                    let edits = &self.proposals[self.current.as_ref().unwrap()];
                     // Apply edits before setting up the sandbox, for simplicity
                     let map_name = edits.map_name.clone();
                     let edits = edits.clone();
@@ -421,6 +442,19 @@ impl State for Proposals {
                             ),
                         )));
                     }
+                }
+                "Read detailed write-up" => {
+                    let link = self.proposals[self.current.as_ref().unwrap()]
+                        .proposal_link
+                        .as_ref()
+                        .unwrap();
+                    #[cfg(not(target_arch = "wasm32"))]
+                    {
+                        let _ = webbrowser::open(link);
+                    }
+                }
+                x => {
+                    return Transition::Replace(Proposals::new(ctx, app, Some(x.to_string())));
                 }
             },
             None => {}
