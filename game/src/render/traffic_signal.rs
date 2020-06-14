@@ -20,10 +20,6 @@ pub fn draw_signal_phase(
     app: &App,
     signal_style: TrafficSignalStyle,
 ) {
-    let protected_color = app.cs.signal_protected_turn;
-    let yield_bg_color = app.cs.signal_permitted_turn;
-    let yield_outline_color = app.cs.signal_permitted_turn_outline;
-
     let signal = app.primary.map.get_traffic_signal(i);
 
     match signal_style {
@@ -64,7 +60,7 @@ pub fn draw_signal_phase(
                         if yellow_light {
                             yellow
                         } else {
-                            protected_color.alpha(percent)
+                            app.cs.signal_protected_turn.alpha(percent)
                         },
                         pl.exact_slice(slice_start, pl.length() - slice_end)
                             .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle)
@@ -111,7 +107,7 @@ pub fn draw_signal_phase(
                     if yellow_light {
                         yellow
                     } else {
-                        protected_color.alpha(percent)
+                        app.cs.signal_protected_turn.alpha(percent)
                     },
                     pl.exact_slice(SIDEWALK_THICKNESS, pl.length() - SIDEWALK_THICKNESS)
                         .dashed_arrow(
@@ -130,14 +126,14 @@ pub fn draw_signal_phase(
             for g in &phase.yield_groups {
                 assert!(!g.crosswalk);
                 batch.push(
-                    yield_bg_color,
+                    app.cs.signal_permitted_turn.alpha(0.3),
                     signal.turn_groups[g]
                         .geom
                         .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle)
                         .unwrap(),
                 );
                 batch.extend(
-                    yield_outline_color,
+                    app.cs.signal_permitted_turn,
                     signal.turn_groups[g]
                         .geom
                         .make_arrow_outline(BIG_ARROW_THICKNESS * 2.0, BIG_ARROW_THICKNESS / 2.0)
@@ -153,7 +149,7 @@ pub fn draw_signal_phase(
             for g in &phase.protected_groups {
                 if !g.crosswalk {
                     batch.push(
-                        protected_color,
+                        app.cs.signal_protected_turn,
                         signal.turn_groups[g]
                             .geom
                             .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle)
@@ -184,14 +180,14 @@ pub fn draw_signal_phase(
             for g in &phase.yield_groups {
                 assert!(!g.crosswalk);
                 batch.push(
-                    yield_bg_color,
+                    app.cs.signal_permitted_turn.alpha(0.3),
                     signal.turn_groups[g]
                         .geom
                         .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle)
                         .unwrap(),
                 );
                 batch.extend(
-                    yield_outline_color,
+                    app.cs.signal_permitted_turn,
                     signal.turn_groups[g]
                         .geom
                         .make_arrow_outline(BIG_ARROW_THICKNESS * 2.0, BIG_ARROW_THICKNESS / 2.0)
@@ -208,7 +204,7 @@ pub fn draw_signal_phase(
                     );
                 } else {
                     batch.push(
-                        protected_color,
+                        app.cs.signal_protected_turn,
                         signal.turn_groups[g]
                             .geom
                             .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle)
@@ -236,7 +232,7 @@ pub fn draw_signal_phase(
                 match phase.get_priority_of_turn(turn.id, signal) {
                     TurnPriority::Protected => {
                         batch.push(
-                            protected_color,
+                            app.cs.signal_protected_turn,
                             turn.geom
                                 .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle)
                                 .unwrap(),
@@ -244,7 +240,7 @@ pub fn draw_signal_phase(
                     }
                     TurnPriority::Yield => {
                         batch.extend(
-                            yield_outline_color,
+                            app.cs.signal_permitted_turn,
                             turn.geom
                                 .make_arrow_outline(
                                     BIG_ARROW_THICKNESS * 2.0,

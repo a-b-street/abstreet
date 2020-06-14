@@ -304,22 +304,33 @@ impl State for TrafficSignalEditor {
                 .map(|(id, _)| *id == g.id)
                 .unwrap_or(false)
             {
-                // TODO Add outlines, and refactor this mess
+                // TODO Refactor this mess. Maybe after things like "dashed with outline" can be
+                // expressed more composably like SVG, using lyon.
                 let block_color = match self.group_selected.unwrap().1 {
                     Some(TurnPriority::Protected) => {
+                        let green = Color::hex("#72CE36");
                         batch.push(
-                            Color::rgba(114, 206, 54, 0.5),
+                            green.alpha(0.5),
                             signal.turn_groups[&g.id]
                                 .geom
                                 .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle)
                                 .unwrap(),
                         );
-
-                        Color::hex("#72CE36")
+                        batch.extend(
+                            green,
+                            signal.turn_groups[&g.id]
+                                .geom
+                                .make_arrow_outline(BIG_ARROW_THICKNESS, Distance::meters(0.1))
+                                .unwrap(),
+                        );
+                        green
                     }
                     Some(TurnPriority::Yield) => {
                         batch.extend(
-                            app.cs.signal_permitted_turn,
+                            // TODO Ideally the inner part would be the lower opacity blue, but
+                            // can't yet express that it should cover up the thicker solid blue
+                            // beneath it
+                            Color::BLACK.alpha(0.8),
                             signal.turn_groups[&g.id].geom.dashed_arrow(
                                 BIG_ARROW_THICKNESS,
                                 Distance::meters(1.2),
@@ -327,17 +338,40 @@ impl State for TrafficSignalEditor {
                                 ArrowCap::Triangle,
                             ),
                         );
-                        app.cs.signal_permitted_turn.alpha(1.0)
+                        batch.extend(
+                            app.cs.signal_permitted_turn.alpha(0.8),
+                            signal.turn_groups[&g.id]
+                                .geom
+                                .exact_slice(
+                                    Distance::meters(0.1),
+                                    signal.turn_groups[&g.id].geom.length() - Distance::meters(0.1),
+                                )
+                                .dashed_arrow(
+                                    BIG_ARROW_THICKNESS / 2.0,
+                                    Distance::meters(1.0),
+                                    Distance::meters(0.5),
+                                    ArrowCap::Triangle,
+                                ),
+                        );
+                        app.cs.signal_permitted_turn
                     }
                     Some(TurnPriority::Banned) => {
+                        let red = Color::hex("#EB3223");
                         batch.push(
-                            Color::rgba(235, 50, 35, 0.5),
+                            red.alpha(0.5),
                             signal.turn_groups[&g.id]
                                 .geom
                                 .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle)
                                 .unwrap(),
                         );
-                        Color::hex("#EB3223")
+                        batch.extend(
+                            red,
+                            signal.turn_groups[&g.id]
+                                .geom
+                                .make_arrow_outline(BIG_ARROW_THICKNESS, Distance::meters(0.1))
+                                .unwrap(),
+                        );
+                        red
                     }
                     None => app.cs.signal_turn_block_bg,
                 };
@@ -347,7 +381,7 @@ impl State for TrafficSignalEditor {
                 batch.push(app.cs.signal_turn_block_bg, g.block.clone());
                 let arrow_color = match phase.get_priority_of_group(g.id) {
                     TurnPriority::Protected => app.cs.signal_protected_turn,
-                    TurnPriority::Yield => app.cs.signal_permitted_turn.alpha(1.0),
+                    TurnPriority::Yield => app.cs.signal_permitted_turn,
                     TurnPriority::Banned => app.cs.signal_banned_turn,
                 };
                 batch.push(arrow_color, g.arrow.clone());
