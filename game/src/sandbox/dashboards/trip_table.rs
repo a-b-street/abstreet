@@ -6,16 +6,14 @@ use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    Btn, Checkbox, Composite, EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome, ScreenDims,
-    ScreenPt, Text, TextExt, Widget,
+    Btn, Checkbox, Color, Composite, EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome,
+    RewriteColor, ScreenDims, ScreenPt, Text, TextExt, Widget,
 };
 use geom::{Distance, Duration, Polygon, Pt2D, Time};
 use sim::{TripEndpoint, TripID, TripMode};
 use std::collections::BTreeSet;
 
 const ROWS: usize = 10;
-
-// TODO Hover over a trip to preview its route on the map
 
 pub struct TripTable {
     composite: Composite,
@@ -385,7 +383,8 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
             0.15 * ctx.canvas.window_width,
         ))
         .named("preview")
-        .centered_horiz(),
+        .centered_horiz()
+        .margin_above(10),
     );
 
     Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(10))
@@ -506,6 +505,11 @@ fn preview_route(g: &mut GfxCtx, app: &App, trip: TripID) -> GeomBatch {
     batch.append(
         GeomBatch::mapspace_svg(g.prerender, "../data/system/assets/timeline/start_pos.svg")
             .scale(10.0)
+            .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
+            .color(RewriteColor::Change(
+                Color::hex("#5B5B5B"),
+                Color::hex("#CC4121"),
+            ))
             .centered_on(match start {
                 TripEndpoint::Bldg(b) => app.primary.map.get_b(b).label_center,
                 TripEndpoint::Border(i, _) => app.primary.map.get_i(i).polygon.center(),
@@ -514,6 +518,11 @@ fn preview_route(g: &mut GfxCtx, app: &App, trip: TripID) -> GeomBatch {
     batch.append(
         GeomBatch::mapspace_svg(g.prerender, "../data/system/assets/timeline/goal_pos.svg")
             .scale(10.0)
+            .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
+            .color(RewriteColor::Change(
+                Color::hex("#5B5B5B"),
+                Color::hex("#CC4121"),
+            ))
             .centered_on(match end {
                 TripEndpoint::Bldg(b) => app.primary.map.get_b(b).label_center,
                 TripEndpoint::Border(i, _) => app.primary.map.get_i(i).polygon.center(),

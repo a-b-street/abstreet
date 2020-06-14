@@ -357,6 +357,12 @@ fn make_timeline(
                 ctx.prerender,
                 "../data/system/assets/timeline/start_pos.svg",
             )
+            .scale(3.0)
+            .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
+            .color(RewriteColor::Change(
+                Color::hex("#5B5B5B"),
+                Color::hex("#CC4121"),
+            ))
             .centered_on(center),
         );
         details.zoomed.append(
@@ -364,7 +370,11 @@ fn make_timeline(
                 ctx.prerender,
                 "../data/system/assets/timeline/start_pos.svg",
             )
-            .scale(0.5)
+            .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
+            .color(RewriteColor::Change(
+                Color::hex("#5B5B5B"),
+                Color::hex("#CC4121"),
+            ))
             .centered_on(center),
         );
 
@@ -396,11 +406,21 @@ fn make_timeline(
 
         details.unzoomed.append(
             GeomBatch::mapspace_svg(ctx.prerender, "../data/system/assets/timeline/goal_pos.svg")
+                .scale(3.0)
+                .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
+                .color(RewriteColor::Change(
+                    Color::hex("#5B5B5B"),
+                    Color::hex("#CC4121"),
+                ))
                 .centered_on(center),
         );
         details.zoomed.append(
             GeomBatch::mapspace_svg(ctx.prerender, "../data/system/assets/timeline/goal_pos.svg")
-                .scale(0.5)
+                .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
+                .color(RewriteColor::Change(
+                    Color::hex("#5B5B5B"),
+                    Color::hex("#CC4121"),
+                ))
                 .centered_on(center),
         );
 

@@ -182,7 +182,6 @@ impl GeomBatch {
 pub enum RewriteColor {
     NoOp,
     Change(Color, Color),
-    ChangeMore(Vec<(Color, Color)>),
     ChangeAll(Color),
     ChangeAlpha(f32),
 }
@@ -197,14 +196,6 @@ impl RewriteColor {
                 } else {
                     c
                 }
-            }
-            RewriteColor::ChangeMore(ref list) => {
-                for (from, to) in list {
-                    if c == *from {
-                        return *to;
-                    }
-                }
-                c
             }
             RewriteColor::ChangeAll(to) => *to,
             RewriteColor::ChangeAlpha(alpha) => c.alpha(*alpha),
