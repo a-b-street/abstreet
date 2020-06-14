@@ -644,7 +644,9 @@ fn allow_block_the_box(osm_node_id: i64) -> bool {
     // Rainier and MLK
     osm_node_id == 53131428 ||
     // Montlake and 520
-    osm_node_id == 53128053
+    osm_node_id == 53128053 ||
+    // 12th and Boren
+    osm_node_id == 53165712
 }
 
 // TODO Various problems (bad geometry, multi-intersection turn restrictions) cause

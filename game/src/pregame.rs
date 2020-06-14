@@ -489,7 +489,10 @@ mod built_info {
     pub fn time() -> Text {
         let t = built::util::strptime(BUILT_TIME_UTC);
 
-        let mut txt = Text::from(Line(format!("Built on {}", t.date().naive_local())));
+        let mut txt = Text::from(Line(format!(
+            "This version built on {}",
+            t.date().naive_local()
+        )));
         // Releases every Sunday
         if (chrono::Utc::now() - t).num_days() > 8 {
             txt.append(Line(format!(" (get the new release from abstreet.org)")).fg(Color::RED));
