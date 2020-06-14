@@ -10,7 +10,7 @@ use crate::app::App;
 use crate::common::HeatmapOptions;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::hotkey_btn;
-use ezgui::{hotkey, Btn, Color, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Widget};
+use ezgui::{hotkey, Btn, Composite, EventCtx, GfxCtx, Key, Line, Outcome, TextExt, Widget};
 
 // TODO Good ideas in
 // https://towardsdatascience.com/top-10-map-types-in-data-visualization-b3a80898ea70
@@ -34,6 +34,7 @@ pub enum LayerOutcome {
     Close,
 }
 
+// TODO Maybe overkill, but could embed a minimap and preview the layer on hover
 pub struct PickLayer {
     composite: Composite,
 }
@@ -66,47 +67,55 @@ impl PickLayer {
                 .align_right(),
         ])];
 
-        col.extend(vec![
-            hotkey_btn(ctx, app, "None", Key::N),
-            hotkey_btn(ctx, app, "map edits", Key::E),
-            hotkey_btn(ctx, app, "worst traffic jams", Key::J),
-            hotkey_btn(ctx, app, "parking occupancy", Key::P),
-            hotkey_btn(ctx, app, "delay", Key::D),
-            hotkey_btn(ctx, app, "throughput", Key::T),
-            hotkey_btn(ctx, app, "bike network", Key::B),
-            hotkey_btn(ctx, app, "bus network", Key::U),
-            hotkey_btn(ctx, app, "population map", Key::X),
-            hotkey_btn(ctx, app, "amenities", Key::A),
-        ]);
-        if app.opts.dev {
-            // These need some work.
-            col.push(hotkey_btn(ctx, app, "backpressure", Key::Z));
-            col.push(hotkey_btn(ctx, app, "elevation", Key::S));
-        }
-        if app.primary.sim.get_pandemic_model().is_some() {
-            col.push(hotkey_btn(ctx, app, "pandemic model", Key::Y));
-        }
-        if let Some(name) = match app.layer {
-            None => Some("None"),
-            Some(ref l) => l.name(),
-        } {
-            for btn in &mut col {
-                if btn.is_btn(name) {
-                    *btn = Btn::text_bg2(name).inactive(ctx);
-                    break;
-                }
+        let current = match app.layer {
+            None => "None",
+            Some(ref l) => l.name().unwrap_or(""),
+        };
+        let btn = |name: &str, key| {
+            if name == current {
+                Btn::text_bg2(name).inactive(ctx)
+            } else {
+                hotkey_btn(ctx, app, name, key)
             }
+            .margin_below(10)
+        };
+
+        col.push(btn("None", Key::N));
+
+        col.push(
+            Widget::row(vec![
+                Widget::col(vec![
+                    "Traffic".draw_text(ctx).margin_below(10),
+                    btn("delay", Key::D),
+                    btn("throughput", Key::T),
+                    btn("worst traffic jams", Key::J),
+                ]),
+                Widget::col(vec![
+                    "Map".draw_text(ctx).margin_below(10),
+                    btn("map edits", Key::E),
+                    btn("parking occupancy", Key::P),
+                    btn("bike network", Key::B),
+                    btn("bus network", Key::U),
+                    btn("population map", Key::X),
+                ]),
+            ])
+            .evenly_spaced(),
+        );
+
+        col.extend(vec![
+            "Experimental".draw_text(ctx).margin_below(10),
+            btn("amenities", Key::A),
+            btn("backpressure", Key::Z),
+            btn("elevation", Key::S),
+        ]);
+        if app.primary.sim.get_pandemic_model().is_some() {
+            col.push(btn("pandemic model", Key::Y));
         }
 
         Box::new(PickLayer {
-            composite: Composite::new(
-                Widget::col(col.into_iter().map(|w| w.margin_below(15)).collect())
-                    .bg(app.cs.panel_bg)
-                    .outline(2.0, Color::WHITE)
-                    .padding(10),
-            )
-            .max_size_percent(35, 70)
-            .build(ctx),
+            composite: Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(16))
+                .exact_size_percent(35, 70)
+                .build(ctx),
         })
     }
 }
