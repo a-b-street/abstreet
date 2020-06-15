@@ -3,7 +3,8 @@ use crate::challenges::challenges_picker;
 use crate::devtools::DevToolsMode;
 use crate::edit::apply_map_edits;
 use crate::game::{msg, DrawBaselayer, State, Transition};
-use crate::sandbox::{GameplayMode, SandboxMode, TutorialPointer};
+use crate::sandbox::gameplay::Tutorial;
+use crate::sandbox::{GameplayMode, SandboxMode};
 use ezgui::{
     hotkey, hotkeys, Btn, Color, Composite, EventCtx, EventLoopMode, GfxCtx, Key, Line, Outcome,
     RewriteColor, Text, Widget,
@@ -164,17 +165,7 @@ impl State for MainMenu {
                     std::process::exit(0);
                 }
                 "Tutorial" => {
-                    return Transition::Push(Box::new(SandboxMode::new(
-                        ctx,
-                        app,
-                        GameplayMode::Tutorial(
-                            app.session
-                                .tutorial
-                                .as_ref()
-                                .map(|tut| tut.current)
-                                .unwrap_or(TutorialPointer::new(0, 0)),
-                        ),
-                    )));
+                    return Tutorial::start(ctx, app);
                 }
                 "Sandbox mode" => {
                     // We might've left with a synthetic map loaded.

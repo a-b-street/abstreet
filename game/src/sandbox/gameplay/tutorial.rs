@@ -1,6 +1,7 @@
 use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::common::{tool_panel, Minimap, Warping};
+use crate::cutscene::CutsceneBuilder;
 use crate::edit::EditMode;
 use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
@@ -59,6 +60,23 @@ impl TutorialPointer {
 }
 
 impl Tutorial {
+    pub fn start(ctx: &mut EventCtx, app: &mut App) -> Transition {
+        Transition::PushTwice(
+            Box::new(SandboxMode::new(
+                ctx,
+                app,
+                GameplayMode::Tutorial(
+                    app.session
+                        .tutorial
+                        .as_ref()
+                        .map(|tut| tut.current)
+                        .unwrap_or(TutorialPointer::new(0, 0)),
+                ),
+            )),
+            intro_story(ctx, app),
+        )
+    }
+
     pub fn new(
         ctx: &mut EventCtx,
         app: &mut App,
@@ -1382,4 +1400,39 @@ pub fn execute(_: &mut EventCtx, app: &mut App, id: ID, action: String) -> Trans
         _ => unreachable!(),
     };
     Transition::Push(response)
+}
+
+fn intro_story(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    CutsceneBuilder::new("Introductory Story")
+        .boss(
+            "Argh, the mayor's on my case again about the West Seattle bridge. This day couldn't \
+             get any worse.",
+        )
+        .player("Er, hello? Boss? I'm --")
+        .boss("Yet somehow it did.. You're the new recruit. Yeah, yeah. Come in.")
+        .boss(
+            "Due to budget cuts, we couldn't hire a real traffic engineer, so we just called some \
+             know-it-all from Reddit who seems to think they can fix Seattle traffic.",
+        )
+        .player("Yes, hi, my name is --")
+        .boss("We can't afford name-tags, didn't you hear, budget cuts? Your name doesn't matter.")
+        .boss(
+            "Look, you think fixing traffic is easy? Hah! You can't fix one intersection without \
+             breaking ten more.",
+        )
+        .boss(
+            "And everybody wants something different! Bike lanes here! More parking! Faster \
+             buses! Cheaper housing! Less rain! Free this, subsidized that!",
+        )
+        .boss(
+            "Light rail and robot cars aren't here to save the day! Alright, time to start your \
+             training.",
+        )
+        .build(
+            ctx,
+            app,
+            Box::new(|ctx| {
+                Text::from(Line("Time to learn the basic controls").fg(Color::BLACK)).draw(ctx)
+            }),
+        )
 }

@@ -1,7 +1,7 @@
 use crate::app::App;
-use crate::cutscene::CutsceneBuilder;
 use crate::game::{State, Transition};
 use crate::managed::{Callback, ManagedGUIState, WrappedComposite};
+use crate::sandbox::gameplay::Tutorial;
 use crate::sandbox::{GameplayMode, SandboxMode, TutorialState};
 use abstutil::Timer;
 use ezgui::{hotkey, Btn, Color, Composite, EventCtx, Key, Line, Text, TextExt, Widget};
@@ -134,7 +134,7 @@ impl Tab {
             txt.draw(ctx).centered_horiz().margin_below(20)
         });
         master_col.push(
-            Btn::text_bg2("Introductory Story")
+            Btn::text_bg2("Introduction and tutorial")
                 .build_def(ctx, None)
                 .centered_horiz()
                 .bg(app.cs.panel_bg)
@@ -142,9 +142,10 @@ impl Tab {
                 .outline(10.0, Color::BLACK)
                 .margin_below(10),
         );
+        // Slightly inconsistent: pushes twice and leaves this challenge picker open
         cbs.push((
-            "Introductory Story".to_string(),
-            Box::new(|ctx, app| Some(Transition::Push(make_story(ctx, app)))),
+            "Introduction and tutorial".to_string(),
+            Box::new(|ctx, app| Some(Tutorial::start(ctx, app))),
         ));
 
         // First list challenges
@@ -394,45 +395,4 @@ fn prebake(map: &Map, scenario: Scenario, time_limit: Option<Duration>, timer: &
         "prebake for {} / {}",
         scenario.map_name, scenario.scenario_name
     ));
-}
-
-fn make_story(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
-    CutsceneBuilder::new("Introductory Story")
-        .boss(
-            "Argh, the mayor's on my case again about the West Seattle bridge. This day couldn't \
-             get any worse.",
-        )
-        .player("Er, hello? Boss? I'm --")
-        .boss("Yet somehow it did.. You're the new recruit. Yeah, yeah. Come in.")
-        .boss(
-            "Due to budget cuts, we couldn't hire a real traffic engineer, so we just called some \
-             know-it-all from Reddit who seems to think they can fix Seattle traffic.",
-        )
-        .player("Yes, hi, my name is --")
-        .boss("We can't afford name-tags, didn't you hear, budget cuts? Your name doesn't matter.")
-        .boss(
-            "Look, you think fixing traffic is easy? Hah! You can't fix one intersection without \
-             breaking ten more.",
-        )
-        .boss(
-            "And everybody wants something different! Bike lanes here! More parking! Faster \
-             buses! Cheaper housing! Less rain! Free this, subsidized that!",
-        )
-        .boss("Light rail and robot cars aren't here to save the day! Alright, get to work.")
-        .build(
-            ctx,
-            app,
-            Box::new(|ctx| {
-                Text::from_multiline(vec![
-                    Line("What will you do next?").fg(Color::BLACK),
-                    Line(""),
-                    Line("- Learn the basics with the tutorial").fg(Color::BLACK),
-                    Line("- Tackle specific challenges").fg(Color::BLACK),
-                    Line("- Try out any idea in the sandbox").fg(Color::BLACK),
-                    Line("- Check out community proposals, and submit your own idea")
-                        .fg(Color::BLACK),
-                ])
-                .draw(ctx)
-            }),
-        )
 }
