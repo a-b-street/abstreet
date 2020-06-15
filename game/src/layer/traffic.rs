@@ -347,7 +347,7 @@ impl Throughput {
         let green = Color::hex("#5D9630");
 
         for (r, before, after) in before_road.compare(after_road) {
-            let pct_change = (after as f32) / (before as f32);
+            let pct_change = (after as f64) / (before as f64);
             // Filter out unchanged values
             if pct_change >= 0.9 && pct_change <= 1.1 {
                 continue;
@@ -360,7 +360,7 @@ impl Throughput {
             batch.push(color, map.get_r(r).get_thick_polygon(map).unwrap());
         }
         for (i, before, after) in before_intersection.compare(after_intersection) {
-            let pct_change = (after as f32) / (before as f32);
+            let pct_change = (after as f64) / (before as f64);
             // Filter out unchanged values
             if pct_change >= 0.9 && pct_change <= 1.1 {
                 continue;
@@ -384,11 +384,9 @@ impl Throughput {
                         .align_right(),
                 ]),
                 Checkbox::text(ctx, "Compare before edits", None, true).margin_below(5),
-                ColorLegend::gradient_3(
+                ColorLegend::gradient(
                     ctx,
-                    green,
-                    Color::WHITE,
-                    red,
+                    vec![green, Color::WHITE, red],
                     vec!["less", "-50%", "0%", "50%", "more"],
                 ),
             ])
@@ -411,6 +409,7 @@ pub struct Delay {
     time: Time,
     compare: bool,
     unzoomed: Drawable,
+    zoomed: Drawable,
     composite: Composite,
 }
 
@@ -451,6 +450,8 @@ impl Layer for Delay {
         self.composite.draw(g);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             g.redraw(&self.unzoomed);
+        } else {
+            g.redraw(&self.zoomed);
         }
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
@@ -464,43 +465,36 @@ impl Delay {
             return Delay::compare_delay(ctx, app);
         }
 
-        // TODO explain more
-        let mut colorer = Colorer::scaled(
-            ctx,
-            "Delay (minutes)",
-            Vec::new(),
-            app.cs.good_to_bad_monochrome_red.to_vec(),
-            vec!["0.5", "1", "5", "15", "longer"],
-        );
+        let map = &app.primary.map;
+        let mut unzoomed = GeomBatch::new();
+        unzoomed.push(app.cs.fade_map_dark, map.get_boundary_polygon().clone());
+        let mut zoomed = GeomBatch::new();
 
         let (per_road, per_intersection) = app.primary.sim.worst_delay(&app.primary.map);
         for (r, d) in per_road {
-            let color = if d < Duration::seconds(30.0) {
+            if d < Duration::minutes(1) {
                 continue;
-            } else if d < Duration::minutes(1) {
-                app.cs.good_to_bad_monochrome_red[0]
-            } else if d < Duration::minutes(5) {
-                app.cs.good_to_bad_monochrome_red[1]
-            } else if d < Duration::minutes(15) {
-                app.cs.good_to_bad_monochrome_red[2]
-            } else {
-                app.cs.good_to_bad_monochrome_red[3]
-            };
-            colorer.add_r(r, color, &app.primary.map);
+            }
+            let color = app.cs.good_to_bad_monochrome_red[0].lerp(
+                *app.cs.good_to_bad_monochrome_red.last().unwrap(),
+                ((d - Duration::minutes(1)) / Duration::minutes(15)).min(1.0),
+            );
+            unzoomed.push(color, map.get_r(r).get_thick_polygon(map).unwrap());
+            zoomed.push(
+                color.alpha(0.4),
+                map.get_r(r).get_thick_polygon(map).unwrap(),
+            );
         }
         for (i, d) in per_intersection {
-            let color = if d < Duration::seconds(30.0) {
+            if d < Duration::minutes(1) {
                 continue;
-            } else if d < Duration::minutes(1) {
-                app.cs.good_to_bad_monochrome_red[0]
-            } else if d < Duration::minutes(5) {
-                app.cs.good_to_bad_monochrome_red[1]
-            } else if d < Duration::minutes(15) {
-                app.cs.good_to_bad_monochrome_red[2]
-            } else {
-                app.cs.good_to_bad_monochrome_red[3]
-            };
-            colorer.add_i(i, color);
+            }
+            let color = app.cs.good_to_bad_monochrome_red[0].lerp(
+                *app.cs.good_to_bad_monochrome_red.last().unwrap(),
+                ((d - Duration::minutes(1)) / Duration::minutes(15)).min(1.0),
+            );
+            unzoomed.push(color, map.get_i(i).polygon.clone());
+            zoomed.push(color.alpha(0.4), map.get_i(i).polygon.clone());
         }
 
         let composite = Composite::new(
@@ -518,10 +512,13 @@ impl Delay {
                 } else {
                     Widget::nothing()
                 },
-                ColorLegend::scale(
+                ColorLegend::gradient(
                     ctx,
-                    app.cs.good_to_bad_monochrome_red.to_vec(),
-                    vec!["0.5", "1", "5", "15", "longer"],
+                    vec![
+                        app.cs.good_to_bad_monochrome_red[0],
+                        *app.cs.good_to_bad_monochrome_red.last().unwrap(),
+                    ],
+                    vec!["1", "5", "10", "15+"],
                 ),
             ])
             .padding(5)
@@ -533,7 +530,8 @@ impl Delay {
         Delay {
             time: app.primary.sim.time(),
             compare: false,
-            unzoomed: colorer.build_both(ctx, app).unzoomed,
+            unzoomed: ctx.upload(unzoomed),
+            zoomed: ctx.upload(zoomed),
             composite,
         }
     }
@@ -541,8 +539,9 @@ impl Delay {
     // TODO Needs work.
     fn compare_delay(ctx: &mut EventCtx, app: &App) -> Delay {
         let map = &app.primary.map;
-        let mut batch = GeomBatch::new();
-        batch.push(app.cs.fade_map_dark, map.get_boundary_polygon().clone());
+        let mut unzoomed = GeomBatch::new();
+        unzoomed.push(app.cs.fade_map_dark, map.get_boundary_polygon().clone());
+        let mut zoomed = GeomBatch::new();
         let red = Color::hex("#A32015");
         let green = Color::hex("#5D9630");
 
@@ -557,11 +556,12 @@ impl Delay {
 
             for (i, dt) in results {
                 let color = if dt < Duration::ZERO {
-                    green.lerp(Color::WHITE, (1.0 - (dt / fastest)) as f32)
+                    green.lerp(Color::WHITE, 1.0 - (dt / fastest))
                 } else {
-                    Color::WHITE.lerp(red, (dt / slowest) as f32)
+                    Color::WHITE.lerp(red, dt / slowest)
                 };
-                batch.push(color, map.get_i(i).polygon.clone());
+                unzoomed.push(color, map.get_i(i).polygon.clone());
+                zoomed.push(color.alpha(0.4), map.get_i(i).polygon.clone());
             }
         }
 
@@ -576,11 +576,9 @@ impl Delay {
                         .align_right(),
                 ]),
                 Checkbox::text(ctx, "Compare before edits", None, true).margin_below(5),
-                ColorLegend::gradient_3(
+                ColorLegend::gradient(
                     ctx,
-                    green,
-                    Color::WHITE,
-                    red,
+                    vec![green, Color::WHITE, red],
                     vec!["faster", "same", "slower"],
                 ),
             ])
@@ -593,7 +591,8 @@ impl Delay {
         Delay {
             time: app.primary.sim.time(),
             compare: true,
-            unzoomed: ctx.upload(batch),
+            unzoomed: ctx.upload(unzoomed),
+            zoomed: ctx.upload(zoomed),
             composite,
         }
     }

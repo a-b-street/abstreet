@@ -277,21 +277,32 @@ impl ColorLegend {
         ])])
     }
 
-    pub fn gradient_3<I: Into<String>>(
+    pub fn gradient<I: Into<String>>(
         ctx: &mut EventCtx,
-        low: Color,
-        mid: Color,
-        high: Color,
+        colors: Vec<Color>,
         labels: Vec<I>,
     ) -> Widget {
+        assert!(colors.len() >= 2);
+        let width = 300.0;
+        let n = colors.len();
         let mut batch = GeomBatch::new();
+        let width_each = width / ((n - 1) as f64);
         batch.fancy_push(
             FancyColor::LinearGradient(LinearGradient {
-                line: Line::new(Pt2D::new(0.0, 0.0), Pt2D::new(300.0, 0.0)),
-                stops: vec![(0.0, low), (0.5, mid), (1.0, high)],
+                line: Line::new(Pt2D::new(0.0, 0.0), Pt2D::new(width, 0.0)),
+                stops: colors
+                    .into_iter()
+                    .enumerate()
+                    .map(|(idx, color)| ((idx as f64) / ((n - 1) as f64), color))
+                    .collect(),
             }),
-            Polygon::rectangle(150.0, 32.0)
-                .union(Polygon::rectangle(150.0, 32.0).translate(150.0, 0.0)),
+            Polygon::union_all(
+                (0..n - 1)
+                    .map(|i| {
+                        Polygon::rectangle(width_each, 32.0).translate((i as f64) * width_each, 0.0)
+                    })
+                    .collect(),
+            ),
         );
         // Extra wrapping to make the labels stretch against just the scale, not everything else
         // TODO Long labels aren't nicely lined up with the boundaries between buckets

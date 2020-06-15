@@ -100,7 +100,7 @@ impl Color {
         )
     }
 
-    pub fn lerp(self, other: Color, pct: f32) -> Color {
+    pub fn lerp(self, other: Color, pct: f64) -> Color {
         Color::rgba_f(
             lerp(pct, (self.r, other.r)),
             lerp(pct, (self.g, other.g)),
@@ -149,7 +149,7 @@ impl LinearGradient {
         // In between two
         for ((pct1, c1), (pct2, c2)) in self.stops.iter().zip(self.stops.iter().skip(1)) {
             if pct >= *pct1 && pct <= *pct2 {
-                return c1.lerp(*c2, to_pct(pct, (*pct1, *pct2)) as f32);
+                return c1.lerp(*c2, to_pct(pct, (*pct1, *pct2)));
             }
         }
         unreachable!()
@@ -163,8 +163,8 @@ fn to_pct(value: f64, (low, high): (f64, f64)) -> f64 {
     (value - low) / (high - low)
 }
 
-fn lerp(pct: f32, (x1, x2): (f32, f32)) -> f32 {
-    x1 + pct * (x2 - x1)
+fn lerp(pct: f64, (x1, x2): (f32, f32)) -> f32 {
+    x1 + (pct as f32) * (x2 - x1)
 }
 
 impl FancyColor {

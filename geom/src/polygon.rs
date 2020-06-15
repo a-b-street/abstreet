@@ -257,6 +257,14 @@ impl Polygon {
         Polygon::precomputed(points, indices)
     }
 
+    pub fn union_all(mut list: Vec<Polygon>) -> Polygon {
+        let mut result = list.pop().unwrap();
+        for p in list {
+            result = result.union(p);
+        }
+        result
+    }
+
     pub fn intersection(&self, other: &Polygon) -> Vec<Polygon> {
         from_multi(to_geo(self.points()).intersection(&to_geo(other.points())))
     }

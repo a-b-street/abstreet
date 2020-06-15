@@ -69,12 +69,7 @@ impl Circle {
         // TODO Argh this one also leaves a little piece missing, but it looks less bad. Fine.
         let bigger = Circle::new(center, radius).to_polygon();
         let smaller = Circle::new(center, radius - thickness).to_polygon();
-        let mut polygons = bigger.difference(&smaller);
-        let mut result = polygons.pop().unwrap();
-        for p in polygons {
-            result = result.union(p);
-        }
-        result
+        Polygon::union_all(bigger.difference(&smaller))
     }
 }
 

@@ -127,10 +127,8 @@ impl<ID: ObjectID> World<ID> {
 
     // TODO This and delete assume the original bounds passed to the quadtree are still valid.
     pub fn add(&mut self, prerender: &Prerender, obj: Object<ID>) {
-        let mut unioned_polygon = obj.geometry[0].1.clone();
-        for (_, p) in &obj.geometry[1..] {
-            unioned_polygon = unioned_polygon.union(p.clone());
-        }
+        let unioned_polygon =
+            Polygon::union_all(obj.geometry.iter().map(|(_, p)| p.clone()).collect());
 
         let bounds = unioned_polygon.get_bounds();
         // This might break, it might not; the quadtree impl is a little unclear.
