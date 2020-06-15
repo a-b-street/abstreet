@@ -456,3 +456,11 @@ changes here.
 - model parking lots! and finally model public/private parking
 - fix up tutorial
 - starting a story map mode
+
+0.1.45
+
+- overhauled challenge cutscenes and hints
+- traffic signal challenge: fix score detection, add meter, much faster startup, no reset-to-midnight required
+- layers: use gradient for a few, delay comparison, new UI for picker
+- overhauled minimap controls, should be intuitive now
+- edit mode changelist UI started
