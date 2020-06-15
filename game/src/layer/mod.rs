@@ -88,7 +88,7 @@ impl PickLayer {
                     "Traffic".draw_text(ctx).margin_below(10),
                     btn("delay", Key::D),
                     btn("throughput", Key::T),
-                    btn("worst traffic jams", Key::J),
+                    btn("traffic jams", Key::J),
                 ]),
                 Widget::col(vec![
                     "Map".draw_text(ctx).margin_below(10),
@@ -136,8 +136,8 @@ impl State for PickLayer {
                 "delay" => {
                     app.layer = Some(Box::new(traffic::Delay::new(ctx, app, false)));
                 }
-                "worst traffic jams" => {
-                    app.layer = Some(Box::new(traffic::Dynamic::traffic_jams(ctx, app)));
+                "traffic jams" => {
+                    app.layer = Some(Box::new(traffic::TrafficJams::new(ctx, app)));
                 }
                 "throughput" => {
                     app.layer = Some(Box::new(traffic::Throughput::new(ctx, app, false)));

@@ -6,9 +6,12 @@ use ezgui::{
     hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Outcome, TextExt, VerticalAlignment, Widget,
 };
-use geom::{Duration, Time};
-use map_model::Traversable;
+use geom::{Distance, Duration, Polygon, Time};
+use map_model::{IntersectionID, Map, Traversable};
+use maplit::btreeset;
+use std::collections::BTreeSet;
 
+// TODO Collapse this abstraction
 pub struct Dynamic {
     time: Time,
     colorer: Colorer,
@@ -27,7 +30,6 @@ impl Layer for Dynamic {
     ) -> Option<LayerOutcome> {
         if app.primary.sim.time() != self.time {
             *self = match self.name {
-                "worst traffic jams" => Dynamic::traffic_jams(ctx, app),
                 "backpressure" => Dynamic::backpressure(ctx, app),
                 _ => unreachable!(),
             };
@@ -48,41 +50,6 @@ impl Layer for Dynamic {
 }
 
 impl Dynamic {
-    pub fn traffic_jams(ctx: &mut EventCtx, app: &App) -> Dynamic {
-        let jams = app.primary.sim.delayed_intersections(Duration::minutes(5));
-
-        // TODO Silly colors. Weird way of presenting this information. Epicenter + radius?
-        let others = Color::hex("#7FFA4D");
-        let early = Color::hex("#F4DA22");
-        let earliest = Color::hex("#EB5757");
-        let mut colorer = Colorer::discrete(
-            ctx,
-            format!("{} traffic jams", jams.len()),
-            Vec::new(),
-            vec![
-                ("longest lasting", earliest),
-                ("recent problems", early),
-                ("others", others),
-            ],
-        );
-
-        for (idx, (i, _)) in jams.into_iter().enumerate() {
-            if idx == 0 {
-                colorer.add_i(i, earliest);
-            } else if idx <= 5 {
-                colorer.add_i(i, early);
-            } else {
-                colorer.add_i(i, others);
-            }
-        }
-
-        Dynamic {
-            time: app.primary.sim.time(),
-            colorer: colorer.build_unzoomed(ctx, app),
-            name: "worst traffic jams",
-        }
-    }
-
     pub fn backpressure(ctx: &mut EventCtx, app: &App) -> Dynamic {
         // TODO Explain more. Vehicle traffic only!
         // TODO Same caveats as throughput()
@@ -585,5 +552,155 @@ impl Delay {
             zoomed: ctx.upload(zoomed),
             composite,
         }
+    }
+}
+
+pub struct TrafficJams {
+    time: Time,
+    unzoomed: Drawable,
+    zoomed: Drawable,
+    composite: Composite,
+}
+
+impl Layer for TrafficJams {
+    fn name(&self) -> Option<&'static str> {
+        Some("traffic jams")
+    }
+    fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        minimap: &Composite,
+    ) -> Option<LayerOutcome> {
+        if app.primary.sim.time() != self.time {
+            *self = TrafficJams::new(ctx, app);
+        }
+
+        self.composite.align_above(ctx, minimap);
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "close" => {
+                    return Some(LayerOutcome::Close);
+                }
+                _ => unreachable!(),
+            },
+            None => {}
+        }
+        None
+    }
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        self.composite.draw(g);
+        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+            g.redraw(&self.unzoomed);
+        } else {
+            g.redraw(&self.zoomed);
+        }
+    }
+    fn draw_minimap(&self, g: &mut GfxCtx) {
+        g.redraw(&self.unzoomed);
+    }
+}
+
+impl TrafficJams {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> TrafficJams {
+        // TODO Use cached delayed_intersections?
+        let mut unzoomed = GeomBatch::new();
+        unzoomed.push(
+            app.cs.fade_map_dark,
+            app.primary.map.get_boundary_polygon().clone(),
+        );
+        let mut zoomed = GeomBatch::new();
+        let mut cnt = 0;
+        // TODO Maybe look for intersections with delay > 5m, then expand out while roads have
+        // delay of at least 1m?
+        for (epicenter, boundary) in cluster_jams(
+            &app.primary.map,
+            app.primary.sim.delayed_intersections(Duration::minutes(5)),
+        ) {
+            cnt += 1;
+            unzoomed.push(Color::RED, boundary.to_outline(Distance::meters(5.0)));
+            unzoomed.push(Color::RED.alpha(0.7), boundary.clone());
+            unzoomed.push(Color::WHITE, epicenter.clone());
+
+            zoomed.push(
+                Color::RED.alpha(0.4),
+                boundary.to_outline(Distance::meters(5.0)),
+            );
+            zoomed.push(Color::RED.alpha(0.3), boundary);
+            zoomed.push(Color::WHITE.alpha(0.4), epicenter);
+        }
+
+        let composite = Composite::new(
+            Widget::col(vec![
+                Widget::row(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg")
+                        .margin_right(10),
+                    "Traffic jams".draw_text(ctx),
+                    Btn::plaintext("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                format!("{} jams detected", cnt).draw_text(ctx),
+            ])
+            .padding(5)
+            .bg(app.cs.panel_bg),
+        )
+        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+        .build(ctx);
+
+        TrafficJams {
+            time: app.primary.sim.time(),
+            unzoomed: ctx.upload(unzoomed),
+            zoomed: ctx.upload(zoomed),
+            composite,
+        }
+    }
+}
+
+struct Jam {
+    epicenter: IntersectionID,
+    members: BTreeSet<IntersectionID>,
+}
+
+// (Epicenter, entire shape)
+fn cluster_jams(map: &Map, problems: Vec<(IntersectionID, Time)>) -> Vec<(Polygon, Polygon)> {
+    let mut jams: Vec<Jam> = Vec::new();
+    // The delay itself doesn't matter, as long as they're sorted.
+    for (i, _) in problems {
+        // Is this connected to an existing problem?
+        if let Some(ref mut jam) = jams.iter_mut().find(|j| j.adjacent_to(map, i)) {
+            jam.members.insert(i);
+        } else {
+            jams.push(Jam {
+                epicenter: i,
+                members: btreeset! { i },
+            });
+        }
+    }
+
+    jams.into_iter()
+        .map(|jam| {
+            (
+                map.get_i(jam.epicenter).polygon.clone(),
+                Polygon::convex_hull(
+                    jam.members
+                        .into_iter()
+                        .map(|i| map.get_i(i).polygon.clone())
+                        .collect(),
+                ),
+            )
+        })
+        .collect()
+}
+
+impl Jam {
+    fn adjacent_to(&self, map: &Map, i: IntersectionID) -> bool {
+        for r in &map.get_i(i).roads {
+            let r = map.get_r(*r);
+            if self.members.contains(&r.src_i) || self.members.contains(&r.dst_i) {
+                return true;
+            }
+        }
+        false
     }
 }

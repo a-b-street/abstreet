@@ -540,9 +540,8 @@ impl State for TimeWarpScreen {
                 if let Some((i, t)) = di.currently_delayed.get(0) {
                     if app.primary.sim.time() - *t > di.halt_limit {
                         let id = ID::Intersection(*i);
-                        app.layer = Some(Box::new(crate::layer::traffic::Dynamic::traffic_jams(
-                            ctx, app,
-                        )));
+                        app.layer =
+                            Some(Box::new(crate::layer::traffic::TrafficJams::new(ctx, app)));
                         return Transition::Replace(Warping::new(
                             ctx,
                             id.canonical_point(&app.primary).unwrap(),
