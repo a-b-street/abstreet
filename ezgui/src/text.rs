@@ -6,7 +6,6 @@ use geom::Polygon;
 use std::collections::hash_map::DefaultHasher;
 use std::fmt::Write;
 use std::hash::Hasher;
-use textwrap;
 
 // Same as body()
 pub const DEFAULT_FONT: Font = Font::OverpassRegular;
@@ -18,7 +17,7 @@ pub const SELECTED_COLOR: Color = Color::grey(0.5);
 pub const INACTIVE_CHOICE_COLOR: Color = Color::grey(0.8);
 pub const SCALE_LINE_HEIGHT: f64 = 1.2;
 
-// TODO Don't do this!
+// TODO Almost gone!
 pub const MAX_CHAR_WIDTH: f64 = 25.0;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -216,14 +215,6 @@ impl Text {
         }
     }
 
-    // TODO Not at all correct!
-    pub fn add_wrapped(&mut self, line: String, width: f64) {
-        let wrap_to = width / MAX_CHAR_WIDTH;
-        for l in textwrap::wrap(&line, wrap_to as usize).into_iter() {
-            self.add(Line(l));
-        }
-    }
-
     pub fn is_empty(&self) -> bool {
         self.lines.is_empty()
     }
@@ -263,7 +254,7 @@ impl Text {
             // size.
             let line_height = assets.line_height(line[0].font, line[0].size);
 
-            let line_batch = render_text(line, tolerance, assets);
+            let line_batch = render_line(line, tolerance, assets);
             let line_dims = if line_batch.is_empty() {
                 ScreenDims::new(0.0, line_height)
             } else {
@@ -313,9 +304,74 @@ impl Text {
     pub fn draw(self, ctx: &EventCtx) -> Widget {
         JustDraw::wrap(ctx, self.render_ctx(ctx))
     }
+
+    pub fn wrap_to_pct(self, ctx: &EventCtx, pct: usize) -> Text {
+        self.inner_wrap_to_pct(
+            (pct as f64) / 100.0 * ctx.canvas.window_width,
+            &ctx.prerender.assets,
+        )
+    }
+
+    pub(crate) fn inner_wrap_to_pct(mut self, limit: f64, assets: &Assets) -> Text {
+        let mut lines = Vec::new();
+        for (bg, spans) in self.lines.drain(..) {
+            // First optimistically assume everything just fits.
+            if render_line(spans.clone(), svg::LOW_QUALITY, assets)
+                .get_dims()
+                .width
+                < limit
+            {
+                lines.push((bg, spans));
+                continue;
+            }
+
+            // Greedy approach, fit as many words on a line as possible. Don't do all of that
+            // hyphenation nonsense.
+            let mut width_left = limit;
+            let mut current_line = Vec::new();
+            for span in spans {
+                let mut current_span = span.clone();
+                current_span.text = String::new();
+                for word in span.text.split_whitespace() {
+                    let width = render_line(
+                        vec![TextSpan {
+                            text: word.to_string(),
+                            size: span.size,
+                            font: span.font,
+                            fg_color: span.fg_color,
+                        }],
+                        svg::LOW_QUALITY,
+                        assets,
+                    )
+                    .get_dims()
+                    .width;
+                    if width_left > width {
+                        current_span.text.push(' ');
+                        current_span.text.push_str(word);
+                        width_left -= width;
+                    } else {
+                        current_line.push(current_span);
+                        lines.push((bg, current_line.drain(..).collect()));
+
+                        current_span = span.clone();
+                        current_span.text = word.to_string();
+                        width_left = limit;
+                    }
+                }
+                if !current_span.text.is_empty() {
+                    current_line.push(current_span);
+                }
+            }
+            if !current_line.is_empty() {
+                lines.push((bg, current_line));
+            }
+        }
+        self.lines = lines;
+        self
+    }
 }
 
-fn render_text(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBatch {
+fn render_line(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBatch {
     // TODO This assumes size and font don't change mid-line. We might be able to support that now,
     // actually.
     // https://www.oreilly.com/library/view/svg-text-layout/9781491933817/ch04.html
@@ -352,7 +408,7 @@ fn render_text(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
 
     let svg_tree = match usvg::Tree::from_str(&svg, &assets.text_opts) {
         Ok(t) => t,
-        Err(err) => panic!("render_text({}): {}", contents, err),
+        Err(err) => panic!("render_line({}): {}", contents, err),
     };
     let mut batch = GeomBatch::new();
     match crate::svg::add_svg_inner(
@@ -362,7 +418,7 @@ fn render_text(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
         *assets.scale_factor.borrow(),
     ) {
         Ok(_) => batch,
-        Err(err) => panic!("render_text({}): {}", contents, err),
+        Err(err) => panic!("render_line({}): {}", contents, err),
     }
 }
 

@@ -203,7 +203,7 @@ impl State for MainMenu {
                     return Transition::Push(challenges_picker(ctx, app));
                 }
                 "About" => {
-                    return Transition::Push(About::new(ctx));
+                    return Transition::Push(About::new(ctx, app));
                 }
                 "Feedback" => {
                     // cargo fmt tries to remove this
@@ -246,7 +246,7 @@ struct About {
 }
 
 impl About {
-    fn new(ctx: &mut EventCtx) -> Box<dyn State> {
+    fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         let col = vec![
             Btn::svg_def("../data/system/assets/pregame/back.svg")
                 .build(ctx, "back", hotkey(Key::Escape))
@@ -258,19 +258,23 @@ impl About {
                     Line(""),
                     Line("Map data from OpenStreetMap and King County GIS"),
                     Line(""),
-                    // TODO Word wrapping please?
-                    Line("Disclaimer: This game is based on imperfect data, heuristics "),
-                    Line("concocted under the influence of cold brew, a simplified traffic "),
-                    Line("simulation model, and a deeply flawed understanding of how much "),
-                    Line("articulated buses can bend around tight corners. Use this as a "),
-                    Line("conversation starter with your city government, not a final "),
-                    Line("decision maker. Any resemblance of in-game characters to real "),
-                    Line("people is probably coincidental, except for Pedestrian #42."),
-                    Line("Have the appropriate amount of fun."),
+                    Line(
+                        "Disclaimer: This game is based on imperfect data, heuristics concocted \
+                         under the influence of cold brew, a simplified traffic simulation model, \
+                         and a deeply flawed understanding of how much articulated buses can bend \
+                         around tight corners. Use this as a conversation starter with your city \
+                         government, not a final decision maker. Any resemblance of in-game \
+                         characters to real people is probably coincidental, unless of course you \
+                         stumble across the elusive \"Dustin Bikelino\". Have the appropriate \
+                         amount of fun.",
+                    ),
                 ])
+                .wrap_to_pct(ctx, 50)
                 .draw(ctx)
                 .centered_horiz()
                 .align_vert_center()
+                .bg(app.cs.panel_bg)
+                .padding(16)
             },
             Btn::text_bg2("See full credits")
                 .build_def(ctx, None)
@@ -337,7 +341,12 @@ impl Proposals {
                 for l in edits.proposal_description.iter().skip(1) {
                     txt.add(Line(l));
                 }
-                current_tab.push(txt.draw(ctx).margin_below(15).margin_above(15));
+                current_tab.push(
+                    txt.wrap_to_pct(ctx, 70)
+                        .draw(ctx)
+                        .margin_below(15)
+                        .margin_above(15),
+                );
 
                 if edits.proposal_link.is_some() {
                     current_tab.push(

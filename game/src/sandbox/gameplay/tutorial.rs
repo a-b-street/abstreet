@@ -423,7 +423,7 @@ enum Task {
 }
 
 impl Task {
-    fn top_txt(self, ctx: &EventCtx, state: &TutorialState) -> Text {
+    fn top_txt(self, state: &TutorialState) -> Text {
         let simple = match self {
             Task::Nil => unreachable!(),
             Task::Camera => "Put out the fire at the fire station",
@@ -479,10 +479,7 @@ impl Task {
             }
             Task::Done => "Tutorial complete!",
         };
-
-        let mut txt = Text::new();
-        txt.add_wrapped(format!("[ ] {}", simple), 0.6 * ctx.canvas.window_width);
-        txt
+        Text::from(Line(simple))
     }
 
     fn label(self) -> &'static str {
@@ -729,7 +726,7 @@ impl TutorialState {
                         .centered_vert()
                         .align_right(),
                 ]));
-                col.push(task.top_txt(ctx, self).draw(ctx).margin(5));
+                col.push(task.top_txt(self).draw(ctx).margin(5));
             }
         }
         if edit_map {

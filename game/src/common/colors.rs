@@ -236,12 +236,6 @@ pub struct ColorLegend {}
 
 impl ColorLegend {
     pub fn row<S: Into<String>>(ctx: &mut EventCtx, color: Color, label: S) -> Widget {
-        // TODO This is a little specialized for info panels.
-        let mut txt = Text::new();
-        // TODO This is wider than the 0.35 of info panels, because add_wrapped is quite bad at max
-        // char width right now.
-        txt.add_wrapped(label.into(), 0.5 * ctx.canvas.window_width);
-
         let radius = 15.0;
         Widget::row(vec![
             Widget::draw_batch(
@@ -253,7 +247,7 @@ impl ColorLegend {
             )
             .margin(5)
             .centered_vert(),
-            txt.draw(ctx),
+            Text::from(Line(label)).wrap_to_pct(ctx, 35).draw(ctx),
         ])
     }
 

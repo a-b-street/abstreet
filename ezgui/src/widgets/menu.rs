@@ -191,9 +191,10 @@ impl<T: 'static + Clone> WidgetImpl for Menu<T> {
             };
             if let Some(pt) = g.canvas.get_cursor_in_screen_space() {
                 if rect.contains(pt) {
-                    let mut txt = Text::new();
-                    txt.add_wrapped(info.to_string(), 0.5 * g.canvas.window_width);
-                    g.draw_mouse_tooltip(txt);
+                    g.draw_mouse_tooltip(
+                        Text::from(Line(info))
+                            .inner_wrap_to_pct(0.3 * g.canvas.window_width, &g.prerender.assets),
+                    );
                 }
             }
         }

@@ -111,6 +111,17 @@ impl State for CutscenePlayer {
             },
             None => {}
         }
+        // TODO Should the Composite for text widgets with wrapping do this instead?
+        if ctx.input.is_window_resized() {
+            self.composite = make_panel(
+                ctx,
+                app,
+                &self.name,
+                &self.scenes,
+                &self.make_task,
+                self.idx,
+            );
+        }
 
         Transition::Keep
     }
@@ -172,7 +183,7 @@ fn make_panel(
                 Widget::row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/characters/boss.svg"),
                     Widget::row(vec![
-                        scenes[idx].msg.clone().draw(ctx),
+                        scenes[idx].msg.clone().wrap_to_pct(ctx, 30).draw(ctx),
                         Widget::draw_svg(ctx, "../data/system/assets/characters/player.svg"),
                     ])
                     .align_right(),
@@ -180,7 +191,7 @@ fn make_panel(
             } else {
                 Widget::row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/characters/boss.svg"),
-                    scenes[idx].msg.clone().draw(ctx),
+                    scenes[idx].msg.clone().wrap_to_pct(ctx, 30).draw(ctx),
                     Widget::draw_svg(ctx, "../data/system/assets/characters/player.svg")
                         .align_right(),
                 ])
