@@ -318,3 +318,72 @@ impl ColorLegend {
         ])])
     }
 }
+
+pub struct Scale;
+impl Scale {
+    pub fn diverging(low_color: Color, mid_color: Color, high_color: Color) -> DivergingScale {
+        DivergingScale {
+            low_color,
+            mid_color,
+            high_color,
+            min: 0.0,
+            avg: 0.5,
+            max: 1.0,
+            ignore: None,
+        }
+    }
+}
+
+pub struct DivergingScale {
+    low_color: Color,
+    mid_color: Color,
+    high_color: Color,
+    min: f64,
+    avg: f64,
+    max: f64,
+    ignore: Option<(f64, f64)>,
+}
+
+impl DivergingScale {
+    pub fn range(mut self, min: f64, max: f64) -> DivergingScale {
+        assert!(min < max);
+        self.min = min;
+        self.avg = (min + max) / 2.0;
+        self.max = max;
+        self
+    }
+
+    pub fn ignore(mut self, from: f64, to: f64) -> DivergingScale {
+        assert!(from < to);
+        self.ignore = Some((from, to));
+        self
+    }
+
+    pub fn eval(&self, value: f64) -> Option<Color> {
+        let value = value.max(self.min).min(self.max);
+        if let Some((from, to)) = self.ignore {
+            if value >= from && value <= to {
+                return None;
+            }
+        }
+        if value <= self.avg {
+            Some(
+                self.low_color
+                    .lerp(self.mid_color, (value - self.min) / (self.avg - self.min)),
+            )
+        } else {
+            Some(
+                self.mid_color
+                    .lerp(self.high_color, (value - self.avg) / (self.max - self.avg)),
+            )
+        }
+    }
+
+    pub fn make_legend<I: Into<String>>(self, ctx: &mut EventCtx, labels: Vec<I>) -> Widget {
+        ColorLegend::gradient(
+            ctx,
+            vec![self.low_color, self.mid_color, self.high_color],
+            labels,
+        )
+    }
+}

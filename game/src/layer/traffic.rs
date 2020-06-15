@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::common::{ColorLegend, Colorer};
+use crate::common::{ColorLegend, Colorer, Scale};
 use crate::layer::{Layer, LayerOutcome};
 use abstutil::Counter;
 use ezgui::{
@@ -165,6 +165,7 @@ pub struct Throughput {
     time: Time,
     compare: bool,
     unzoomed: Drawable,
+    zoomed: Drawable,
     composite: Composite,
 }
 
@@ -205,6 +206,8 @@ impl Layer for Throughput {
         self.composite.draw(g);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             g.redraw(&self.unzoomed);
+        } else {
+            g.redraw(&self.zoomed);
         }
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
@@ -298,11 +301,13 @@ impl Throughput {
                 }
             }
         }
+        let colorer = colorer.build_both(ctx, app);
 
         Throughput {
             time: app.primary.sim.time(),
             compare: false,
-            unzoomed: colorer.build_both(ctx, app).unzoomed,
+            unzoomed: colorer.unzoomed,
+            zoomed: colorer.zoomed,
             composite,
         }
     }
@@ -340,37 +345,25 @@ impl Throughput {
             }
         }
 
-        let mut batch = GeomBatch::new();
-        batch.push(app.cs.fade_map_dark, map.get_boundary_polygon().clone());
+        let mut unzoomed = GeomBatch::new();
+        unzoomed.push(app.cs.fade_map_dark, map.get_boundary_polygon().clone());
+        let mut zoomed = GeomBatch::new();
 
-        let red = Color::hex("#A32015");
-        let green = Color::hex("#5D9630");
+        let scale = Scale::diverging(Color::hex("#A32015"), Color::WHITE, Color::hex("#5D9630"))
+            .range(0.0, 2.0)
+            .ignore(0.9, 1.1);
 
         for (r, before, after) in before_road.compare(after_road) {
-            let pct_change = (after as f64) / (before as f64);
-            // Filter out unchanged values
-            if pct_change >= 0.9 && pct_change <= 1.1 {
-                continue;
+            if let Some(c) = scale.eval((after as f64) / (before as f64)) {
+                unzoomed.push(c, map.get_r(r).get_thick_polygon(map).unwrap());
+                zoomed.push(c.alpha(0.4), map.get_r(r).get_thick_polygon(map).unwrap());
             }
-            let color = if pct_change < 1.0 {
-                green.lerp(Color::WHITE, pct_change)
-            } else {
-                Color::WHITE.lerp(red, (pct_change - 1.0).min(1.0))
-            };
-            batch.push(color, map.get_r(r).get_thick_polygon(map).unwrap());
         }
         for (i, before, after) in before_intersection.compare(after_intersection) {
-            let pct_change = (after as f64) / (before as f64);
-            // Filter out unchanged values
-            if pct_change >= 0.9 && pct_change <= 1.1 {
-                continue;
+            if let Some(c) = scale.eval((after as f64) / (before as f64)) {
+                unzoomed.push(c, map.get_i(i).polygon.clone());
+                zoomed.push(c.alpha(0.4), map.get_i(i).polygon.clone());
             }
-            let color = if pct_change < 1.0 {
-                green.lerp(Color::WHITE, pct_change)
-            } else {
-                Color::WHITE.lerp(red, (pct_change - 1.0).min(1.0))
-            };
-            batch.push(color, map.get_i(i).polygon.clone());
         }
 
         let composite = Composite::new(
@@ -384,11 +377,7 @@ impl Throughput {
                         .align_right(),
                 ]),
                 Checkbox::text(ctx, "Compare before edits", None, true).margin_below(5),
-                ColorLegend::gradient(
-                    ctx,
-                    vec![green, Color::WHITE, red],
-                    vec!["less", "-50%", "0%", "50%", "more"],
-                ),
+                scale.make_legend(ctx, vec!["less", "-50%", "0%", "50%", "more"]),
             ])
             .padding(5)
             .bg(app.cs.panel_bg),
@@ -399,7 +388,8 @@ impl Throughput {
         Throughput {
             time: app.primary.sim.time(),
             compare: true,
-            unzoomed: ctx.upload(batch),
+            unzoomed: ctx.upload(unzoomed),
+            zoomed: ctx.upload(zoomed),
             composite,
         }
     }
