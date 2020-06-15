@@ -252,36 +252,25 @@ impl About {
                 .build(ctx, "back", hotkey(Key::Escape))
                 .align_left(),
             {
-                let mut txt = Text::new();
-                txt.add(Line("A/B STREET").display_title());
-                txt.add(Line("Created by Dustin Carlino, UX by Yuwen Li"));
-                txt.add(Line(""));
-                txt.add(Line("Map data from OpenStreetMap and King County GIS"));
-                txt.add(Line(""));
-                // TODO Word wrapping please?
-                txt.add(Line(
-                    "Disclaimer: This game is based on imperfect data, heuristics ",
-                ));
-                txt.add(Line(
-                    "concocted under the influence of cold brew, a simplified traffic ",
-                ));
-                txt.add(Line(
-                    "simulation model, and a deeply flawed understanding of how much ",
-                ));
-                txt.add(Line(
-                    "articulated buses can bend around tight corners. Use this as a ",
-                ));
-                txt.add(Line(
-                    "conversation starter with your city government, not a final ",
-                ));
-                txt.add(Line(
-                    "decision maker. Any resemblance of in-game characters to real ",
-                ));
-                txt.add(Line(
-                    "people is probably coincidental, except for Pedestrian #42.",
-                ));
-                txt.add(Line("Have the appropriate amount of fun."));
-                txt.draw(ctx).centered_horiz().align_vert_center()
+                Text::from_multiline(vec![
+                    Line("A/B STREET").display_title(),
+                    Line("Created by Dustin Carlino, UX by Yuwen Li"),
+                    Line(""),
+                    Line("Map data from OpenStreetMap and King County GIS"),
+                    Line(""),
+                    // TODO Word wrapping please?
+                    Line("Disclaimer: This game is based on imperfect data, heuristics "),
+                    Line("concocted under the influence of cold brew, a simplified traffic "),
+                    Line("simulation model, and a deeply flawed understanding of how much "),
+                    Line("articulated buses can bend around tight corners. Use this as a "),
+                    Line("conversation starter with your city government, not a final "),
+                    Line("decision maker. Any resemblance of in-game characters to real "),
+                    Line("people is probably coincidental, except for Pedestrian #42."),
+                    Line("Have the appropriate amount of fun."),
+                ])
+                .draw(ctx)
+                .centered_horiz()
+                .align_vert_center()
             },
             Btn::text_bg2("See full credits")
                 .build_def(ctx, None)
