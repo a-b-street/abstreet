@@ -44,7 +44,7 @@ impl Minimap {
             offset_y: 0.0,
         };
         if m.zoomed {
-            m.recenter(ctx);
+            m.recenter(ctx, app);
         }
         m
     }
@@ -72,13 +72,19 @@ impl Minimap {
         self.offset_y = map_center.y() * self.zoom - pct_y * inner_rect.height();
     }
 
-    fn recenter(&mut self, ctx: &EventCtx) {
+    fn recenter(&mut self, ctx: &EventCtx, app: &App) {
         // Recenter the minimap on the screen bounds
         let map_center = ctx.canvas.center_to_map_pt();
         let rect = self.composite.rect_of("minimap");
-        self.offset_x = map_center.x() * self.zoom - rect.width() / 2.0;
-        self.offset_y = map_center.y() * self.zoom - rect.height() / 2.0;
-        // TODO Adjust to not go out of the map boundary
+        let off_x = map_center.x() * self.zoom - rect.width() / 2.0;
+        let off_y = map_center.y() * self.zoom - rect.height() / 2.0;
+
+        // Don't go out of bounds.
+        let bounds = app.primary.map.get_bounds();
+        // TODO For boundaries without rectangular shapes, it'd be even nicer to clamp to the
+        // boundary.
+        self.offset_x = off_x.max(0.0).min(bounds.max_x * self.zoom - rect.width());
+        self.offset_y = off_y.max(0.0).min(bounds.max_y * self.zoom - rect.height());
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
@@ -92,10 +98,11 @@ impl Minimap {
             self.composite = make_minimap_panel(ctx, app, self.zoom_lvl);
 
             if just_zoomed_in {
-                self.recenter(ctx);
+                self.recenter(ctx, app);
             }
         } else if self.zoomed && !self.dragging {
             // If either corner of the cursor is out of bounds on the minimap, recenter.
+            // TODO This means clicking the pan buttons while along the boundary won't work.
             let mut ok = true;
             for pt in vec![
                 ScreenPt::new(0.0, 0.0),
@@ -108,7 +115,7 @@ impl Minimap {
                 }
             }
             if !ok {
-                self.recenter(ctx);
+                self.recenter(ctx, app);
             }
         }
 
