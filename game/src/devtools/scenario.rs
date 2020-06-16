@@ -17,12 +17,15 @@ pub struct ScenarioManager {
 
 impl ScenarioManager {
     pub fn new(scenario: Scenario, ctx: &mut EventCtx, app: &App) -> ScenarioManager {
-        let mut bldg_colors = Colorer::scaled(
+        let mut bldg_colors = Colorer::discrete(
             ctx,
             "Parked cars per building",
             Vec::new(),
-            vec![Color::BLUE, Color::RED, Color::BLACK],
-            vec!["0", "1-2", "3-4", "..."],
+            vec![
+                ("1-2", Color::BLUE),
+                ("3-4", Color::RED),
+                ("more", Color::BLACK),
+            ],
         );
         let mut total_cars_needed = 0;
         for (b, count) in scenario.count_parked_cars_per_bldg().consume() {

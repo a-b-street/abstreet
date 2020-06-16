@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::common::{ColorLegend, Colorer};
+use crate::common::{ColorLegend, ColorNetwork};
 use crate::layer::{Layer, LayerOutcome};
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
@@ -7,7 +7,7 @@ use ezgui::{
     Outcome, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::Time;
-use map_model::{BuildingID, LaneID, ParkingLotID};
+use map_model::{BuildingID, Map, ParkingLotID, RoadID};
 use sim::{ParkingSpot, VehicleType};
 use std::collections::HashSet;
 
@@ -199,10 +199,10 @@ impl Occupancy {
                 Checkbox::text(ctx, "Public garages", None, garages).margin_below(5),
                 Checkbox::text(ctx, "Parking lots", None, lots).margin_below(10),
                 Checkbox::text(ctx, "Private buildings", None, private_bldgs).margin_below(10),
-                ColorLegend::scale(
+                ColorLegend::gradient(
                     ctx,
-                    app.cs.good_to_bad.to_vec(),
-                    vec!["0%", "40%", "70%", "90%", "100%"],
+                    vec![app.cs.good_red, app.cs.bad_red],
+                    vec!["0%", "100%"],
                 ),
             ])
             .padding(5)
@@ -211,52 +211,33 @@ impl Occupancy {
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx);
 
-        // TODO Some kind of Scale abstraction that maps intervals of some quantity (percent,
-        // duration) to these 4 colors
-        let mut colorer = Colorer::scaled(
-            ctx,
-            "",
-            Vec::new(),
-            app.cs.good_to_bad.to_vec(),
-            vec!["0%", "40%", "70%", "90%", "100%"],
-        );
-
         let mut filled = Counter::new();
         let mut avail = Counter::new();
         let mut keys = HashSet::new();
         for spot in filled_spots {
-            let loc = Loc::new(spot);
+            let loc = Loc::new(spot, &app.primary.map);
             keys.insert(loc);
             filled.inc(loc);
         }
         for spot in avail_spots {
-            let loc = Loc::new(spot);
+            let loc = Loc::new(spot, &app.primary.map);
             keys.insert(loc);
             avail.inc(loc);
         }
 
+        let mut colorer = ColorNetwork::new(app);
         for loc in keys {
             let open = avail.get(loc);
             let closed = filled.get(loc);
             let percent = (closed as f64) / ((open + closed) as f64);
-            let color = if percent < 0.4 {
-                app.cs.good_to_bad[0]
-            } else if percent < 0.7 {
-                app.cs.good_to_bad[1]
-            } else if percent < 0.9 {
-                app.cs.good_to_bad[2]
-            } else {
-                app.cs.good_to_bad[3]
-            };
+            let color = app.cs.good_red.lerp(app.cs.bad_red, percent);
             match loc {
-                Loc::Lane(l) => colorer.add_l(l, color, &app.primary.map),
+                Loc::Road(r) => colorer.add_r(r, color),
                 Loc::Bldg(b) => colorer.add_b(b, color),
                 Loc::Lot(pl) => colorer.add_pl(pl, color),
             }
         }
-
-        colorer.intersections_from_roads(&app.primary.map);
-        let colorer = colorer.build(ctx, app);
+        let (unzoomed, zoomed) = colorer.build(ctx);
 
         Occupancy {
             time: app.primary.sim.time(),
@@ -264,8 +245,8 @@ impl Occupancy {
             garages,
             lots,
             private_bldgs,
-            unzoomed: colorer.unzoomed,
-            zoomed: colorer.zoomed,
+            unzoomed,
+            zoomed,
             composite,
         }
     }
@@ -273,15 +254,15 @@ impl Occupancy {
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]
 enum Loc {
-    Lane(LaneID),
+    Road(RoadID),
     Bldg(BuildingID),
     Lot(ParkingLotID),
 }
 
 impl Loc {
-    fn new(spot: ParkingSpot) -> Loc {
+    fn new(spot: ParkingSpot, map: &Map) -> Loc {
         match spot {
-            ParkingSpot::Onstreet(l, _) => Loc::Lane(l),
+            ParkingSpot::Onstreet(l, _) => Loc::Road(map.get_l(l).parent),
             ParkingSpot::Offstreet(b, _) => Loc::Bldg(b),
             ParkingSpot::Lot(pl, _) => Loc::Lot(pl),
         }

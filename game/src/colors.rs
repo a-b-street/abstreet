@@ -107,9 +107,10 @@ pub struct ColorScheme {
     pub bike_frame: Color,
 
     // Layers
-    pub good_to_bad: [Color; 4],
-    pub good_to_bad_monochrome_red: [Color; 4],
-    pub good_to_bad_monochrome_green: [Color; 4],
+    pub good_red: Color,
+    pub bad_red: Color,
+    pub good_green: Color,
+    pub bad_green: Color,
     pub bus_layer: Color,
     pub edits_layer: Color,
 
@@ -211,24 +212,10 @@ impl ColorScheme {
             bike_frame: Color::hex("#AAA9AD"),
 
             // Layers
-            good_to_bad: [
-                hex("#7FFA4D"),
-                hex("#F2C94C"),
-                hex("#EB5757"),
-                hex("#96322F"),
-            ],
-            good_to_bad_monochrome_red: [
-                hex("#F19A93"),
-                hex("#E8574B"),
-                hex("#C7271A"),
-                hex("#A32015"),
-            ],
-            good_to_bad_monochrome_green: [
-                hex("#BEDB92"),
-                hex("#77C063"),
-                hex("#569358"),
-                hex("#397A4C"),
-            ],
+            good_red: hex("#F19A93"),
+            bad_red: hex("#A32015"),
+            good_green: hex("#BEDB92"),
+            bad_green: hex("#397A4C"),
             bus_layer: hex("#4CA7E9"),
             edits_layer: hex("#12409D"),
 

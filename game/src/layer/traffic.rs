@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::common::{ColorLegend, ColorNetwork, Colorer, Scale};
+use crate::common::{ColorLegend, ColorNetwork, Scale};
 use crate::layer::{Layer, LayerOutcome};
 use abstutil::Counter;
 use ezgui::{
@@ -11,16 +11,16 @@ use map_model::{IntersectionID, Map, Traversable};
 use maplit::btreeset;
 use std::collections::BTreeSet;
 
-// TODO Collapse this abstraction
-pub struct Dynamic {
+pub struct Backpressure {
     time: Time,
-    colorer: Colorer,
-    name: &'static str,
+    unzoomed: Drawable,
+    zoomed: Drawable,
+    composite: Composite,
 }
 
-impl Layer for Dynamic {
+impl Layer for Backpressure {
     fn name(&self) -> Option<&'static str> {
-        Some(self.name)
+        Some("backpressure")
     }
     fn event(
         &mut self,
@@ -29,41 +29,38 @@ impl Layer for Dynamic {
         minimap: &Composite,
     ) -> Option<LayerOutcome> {
         if app.primary.sim.time() != self.time {
-            *self = match self.name {
-                "backpressure" => Dynamic::backpressure(ctx, app),
-                _ => unreachable!(),
-            };
+            *self = Backpressure::new(ctx, app);
         }
 
-        self.colorer.legend.align_above(ctx, minimap);
-        if self.colorer.event(ctx) {
-            return Some(LayerOutcome::Close);
+        self.composite.align_above(ctx, minimap);
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "close" => {
+                    return Some(LayerOutcome::Close);
+                }
+                _ => unreachable!(),
+            },
+            None => {}
         }
         None
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.colorer.draw(g, app);
+        self.composite.draw(g);
+        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+            g.redraw(&self.unzoomed);
+        } else {
+            g.redraw(&self.zoomed);
+        }
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
-        g.redraw(&self.colorer.unzoomed);
+        g.redraw(&self.unzoomed);
     }
 }
 
-impl Dynamic {
-    pub fn backpressure(ctx: &mut EventCtx, app: &App) -> Dynamic {
-        // TODO Explain more. Vehicle traffic only!
-        // TODO Same caveats as throughput()
-        let mut colorer = Colorer::scaled(
-            ctx,
-            "Backpressure (percentiles)",
-            Vec::new(),
-            app.cs.good_to_bad.to_vec(),
-            vec!["0", "50", "90", "99", "100"],
-        );
-
+impl Backpressure {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Backpressure {
         let mut cnt_per_r = Counter::new();
         let mut cnt_per_i = Counter::new();
-
         for path in app.primary.sim.get_all_driving_paths() {
             for step in path.get_steps() {
                 match step.as_traversable() {
@@ -77,52 +74,39 @@ impl Dynamic {
             }
         }
 
-        // TODO dedupe with throughput
-        {
-            let roads = cnt_per_r.sorted_asc();
-            let p50_idx = ((roads.len() as f64) * 0.5) as usize;
-            let p90_idx = ((roads.len() as f64) * 0.9) as usize;
-            let p99_idx = ((roads.len() as f64) * 0.99) as usize;
-            for (idx, list) in roads.into_iter().enumerate() {
-                let color = if idx < p50_idx {
-                    app.cs.good_to_bad[0]
-                } else if idx < p90_idx {
-                    app.cs.good_to_bad[1]
-                } else if idx < p99_idx {
-                    app.cs.good_to_bad[2]
-                } else {
-                    app.cs.good_to_bad[3]
-                };
-                for r in list {
-                    colorer.add_r(r, color, &app.primary.map);
-                }
-            }
-        }
-        {
-            let intersections = cnt_per_i.sorted_asc();
-            let p50_idx = ((intersections.len() as f64) * 0.5) as usize;
-            let p90_idx = ((intersections.len() as f64) * 0.9) as usize;
-            let p99_idx = ((intersections.len() as f64) * 0.99) as usize;
-            for (idx, list) in intersections.into_iter().enumerate() {
-                let color = if idx < p50_idx {
-                    app.cs.good_to_bad[0]
-                } else if idx < p90_idx {
-                    app.cs.good_to_bad[1]
-                } else if idx < p99_idx {
-                    app.cs.good_to_bad[2]
-                } else {
-                    app.cs.good_to_bad[3]
-                };
-                for i in list {
-                    colorer.add_i(i, color);
-                }
-            }
-        }
+        let composite = Composite::new(
+            Widget::col(vec![
+                Widget::row(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg")
+                        .margin_right(10),
+                    "Backpressure".draw_text(ctx),
+                    Btn::plaintext("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                // TODO Explain
+                ColorLegend::gradient(
+                    ctx,
+                    vec![app.cs.good_red, app.cs.bad_red],
+                    vec!["0%ile", "100%ile"],
+                ),
+            ])
+            .padding(5)
+            .bg(app.cs.panel_bg),
+        )
+        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+        .build(ctx);
 
-        Dynamic {
+        let mut colorer = ColorNetwork::new(app);
+        colorer.road_percentiles(cnt_per_r, app.cs.good_red, app.cs.bad_red);
+        colorer.intersection_percentiles(cnt_per_i, app.cs.good_red, app.cs.bad_red);
+        let (unzoomed, zoomed) = colorer.build(ctx);
+
+        Backpressure {
             time: app.primary.sim.time(),
-            colorer: colorer.build(ctx, app),
-            name: "backpressure",
+            unzoomed,
+            zoomed,
+            composite,
         }
     }
 }
@@ -205,10 +189,7 @@ impl Throughput {
                 },
                 ColorLegend::gradient(
                     ctx,
-                    vec![
-                        app.cs.good_to_bad_monochrome_red[0],
-                        *app.cs.good_to_bad_monochrome_red.last().unwrap(),
-                    ],
+                    vec![app.cs.good_red, app.cs.bad_red],
                     vec!["0%ile", "100%ile"],
                 ),
             ])
@@ -220,37 +201,16 @@ impl Throughput {
 
         let mut colorer = ColorNetwork::new(app);
         let stats = &app.primary.sim.get_analytics();
-
-        // TODO Actually display the counts at these percentiles
-        {
-            let cnt = stats.road_thruput.all_total_counts();
-            let roads = cnt.sorted_asc();
-            let len = roads.len() as f64;
-            for (idx, list) in roads.into_iter().enumerate() {
-                let color = app.cs.good_to_bad_monochrome_red[0].lerp(
-                    *app.cs.good_to_bad_monochrome_red.last().unwrap(),
-                    (idx as f64) / len,
-                );
-                for r in list {
-                    colorer.add_r(r, color);
-                }
-            }
-        }
-        // TODO dedupe
-        {
-            let cnt = stats.intersection_thruput.all_total_counts();
-            let intersections = cnt.sorted_asc();
-            let len = intersections.len() as f64;
-            for (idx, list) in intersections.into_iter().enumerate() {
-                let color = app.cs.good_to_bad_monochrome_red[0].lerp(
-                    *app.cs.good_to_bad_monochrome_red.last().unwrap(),
-                    (idx as f64) / len,
-                );
-                for i in list {
-                    colorer.add_i(i, color);
-                }
-            }
-        }
+        colorer.road_percentiles(
+            stats.road_thruput.all_total_counts(),
+            app.cs.good_red,
+            app.cs.bad_red,
+        );
+        colorer.intersection_percentiles(
+            stats.intersection_thruput.all_total_counts(),
+            app.cs.good_red,
+            app.cs.bad_red,
+        );
         let (unzoomed, zoomed) = colorer.build(ctx);
 
         Throughput {
@@ -408,8 +368,8 @@ impl Delay {
             if d < Duration::minutes(1) {
                 continue;
             }
-            let color = app.cs.good_to_bad_monochrome_red[0].lerp(
-                *app.cs.good_to_bad_monochrome_red.last().unwrap(),
+            let color = app.cs.good_red.lerp(
+                app.cs.bad_red,
                 ((d - Duration::minutes(1)) / Duration::minutes(15)).min(1.0),
             );
             colorer.add_r(r, color);
@@ -418,8 +378,8 @@ impl Delay {
             if d < Duration::minutes(1) {
                 continue;
             }
-            let color = app.cs.good_to_bad_monochrome_red[0].lerp(
-                *app.cs.good_to_bad_monochrome_red.last().unwrap(),
+            let color = app.cs.good_red.lerp(
+                app.cs.bad_red,
                 ((d - Duration::minutes(1)) / Duration::minutes(15)).min(1.0),
             );
             colorer.add_i(i, color);
@@ -442,10 +402,7 @@ impl Delay {
                 },
                 ColorLegend::gradient(
                     ctx,
-                    vec![
-                        app.cs.good_to_bad_monochrome_red[0],
-                        *app.cs.good_to_bad_monochrome_red.last().unwrap(),
-                    ],
+                    vec![app.cs.good_red, app.cs.bad_red],
                     vec!["1", "5", "10", "15+"],
                 ),
             ])

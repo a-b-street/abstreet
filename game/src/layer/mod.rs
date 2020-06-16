@@ -143,7 +143,7 @@ impl State for PickLayer {
                     app.layer = Some(Box::new(traffic::Throughput::new(ctx, app, false)));
                 }
                 "backpressure" => {
-                    app.layer = Some(Box::new(traffic::Dynamic::backpressure(ctx, app)));
+                    app.layer = Some(Box::new(traffic::Backpressure::new(ctx, app)));
                 }
                 "bike network" => {
                     app.layer = Some(Box::new(map::BikeNetwork::new(ctx, app)));

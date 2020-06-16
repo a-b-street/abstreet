@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::common::{ColorLegend, Colorer};
+use crate::common::{ColorLegend, ColorNetwork, Colorer};
 use crate::helpers::amenity_type;
 use crate::layer::{Layer, LayerOutcome};
 use abstutil::Counter;
@@ -59,12 +59,20 @@ impl Layer for BikeNetwork {
 
 impl BikeNetwork {
     pub fn new(ctx: &mut EventCtx, app: &App) -> BikeNetwork {
+        let mut num_lanes = 0;
+        let mut total_dist = Distance::ZERO;
         let mut on_bike_lanes = Counter::new();
         let mut off_bike_lanes = Counter::new();
+        let mut intersections_on = Counter::new();
+        let mut intersections_off = Counter::new();
         // Make sure all bikes lanes show up no matter what
         for l in app.primary.map.all_lanes() {
             if l.is_biking() {
                 on_bike_lanes.add(l.parent, 0);
+                intersections_on.add(l.src_i, 0);
+                intersections_on.add(l.src_i, 0);
+                num_lanes += 1;
+                total_dist += l.length();
             }
         }
 
@@ -80,49 +88,21 @@ impl BikeNetwork {
             }
         }
 
-        // TODO Weird combo colorer with two scales?!
-        let mut colors = app.cs.good_to_bad_monochrome_green.to_vec();
-        colors.extend(app.cs.good_to_bad_monochrome_red.to_vec());
-        let mut colorer = Colorer::scaled(
-            ctx,
-            "Bike throughput",
-            Vec::new(),
-            colors,
-            // Dummy
-            vec!["0", "50", "90", "99", "100", "50", "90", "99", "100"],
-        );
-
-        for (counter, scale) in vec![
-            (on_bike_lanes, &app.cs.good_to_bad_monochrome_green),
-            (off_bike_lanes, &app.cs.good_to_bad_monochrome_red),
-        ] {
-            let roads = counter.sorted_asc();
-            let p50_idx = ((roads.len() as f64) * 0.5) as usize;
-            let p90_idx = ((roads.len() as f64) * 0.9) as usize;
-            let p99_idx = ((roads.len() as f64) * 0.99) as usize;
-            for (idx, list) in roads.into_iter().enumerate() {
-                let color = if idx < p50_idx {
-                    scale[0]
-                } else if idx < p90_idx {
-                    scale[1]
-                } else if idx < p99_idx {
-                    scale[2]
+        // Use intersection data too, but bin as on bike lanes or not based on connecting roads
+        for ((i, mode, _), count) in &app.primary.sim.get_analytics().intersection_thruput.counts {
+            if *mode == TripMode::Bike {
+                if app
+                    .primary
+                    .map
+                    .get_i(*i)
+                    .roads
+                    .iter()
+                    .any(|r| on_bike_lanes.get(*r) > 0)
+                {
+                    intersections_on.add(*i, *count);
                 } else {
-                    scale[3]
-                };
-                for r in list {
-                    colorer.add_r(r, color, &app.primary.map);
+                    intersections_off.add(*i, *count);
                 }
-            }
-        }
-        colorer.intersections_from_roads(&app.primary.map);
-
-        let mut num_lanes = 0;
-        let mut total_dist = Distance::ZERO;
-        for l in app.primary.map.all_lanes() {
-            if l.is_biking() {
-                num_lanes += 1;
-                total_dist += l.length();
             }
         }
 
@@ -142,18 +122,17 @@ impl BikeNetwork {
                 ])
                 .draw(ctx)
                 .margin_below(10),
-                Line("Throughput on bike lanes (percentiles)").draw(ctx),
-                ColorLegend::scale(
+                Line("Throughput on bike lanes").draw(ctx),
+                ColorLegend::gradient(
                     ctx,
-                    app.cs.good_to_bad_monochrome_green.to_vec(),
-                    vec!["0%", "40%", "70%", "90%", "100%"],
-                )
-                .margin_below(10),
-                Line("Throughput on unprotected roads (percentiles)").draw(ctx),
-                ColorLegend::scale(
+                    vec![app.cs.good_green, app.cs.bad_green],
+                    vec!["0%ile", "100%ile"],
+                ),
+                Line("Throughput on unprotected roads").draw(ctx),
+                ColorLegend::gradient(
                     ctx,
-                    app.cs.good_to_bad_monochrome_red.to_vec(),
-                    vec!["0%", "40%", "70%", "90%", "100%"],
+                    vec![app.cs.good_red, app.cs.bad_red],
+                    vec!["0%ile", "100%ile"],
                 ),
             ])
             .padding(5)
@@ -161,13 +140,19 @@ impl BikeNetwork {
         )
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx);
-        let colorer = colorer.build(ctx, app);
+
+        let mut colorer = ColorNetwork::new(app);
+        colorer.road_percentiles(on_bike_lanes, app.cs.good_green, app.cs.bad_green);
+        colorer.road_percentiles(off_bike_lanes, app.cs.good_red, app.cs.bad_red);
+        colorer.intersection_percentiles(intersections_on, app.cs.good_green, app.cs.bad_green);
+        colorer.intersection_percentiles(intersections_off, app.cs.good_red, app.cs.bad_red);
+        let (unzoomed, zoomed) = colorer.build(ctx);
 
         BikeNetwork {
             composite,
             time: app.primary.sim.time(),
-            unzoomed: colorer.unzoomed,
-            zoomed: colorer.zoomed,
+            unzoomed,
+            zoomed,
         }
     }
 }

@@ -1,4 +1,5 @@
 use crate::app::App;
+use abstutil::Counter;
 use ezgui::{
     Btn, Color, Composite, Drawable, EventCtx, FancyColor, GeomBatch, GfxCtx, HorizontalAlignment,
     Line, LinearGradient, Outcome, Text, TextExt, VerticalAlignment, Widget,
@@ -18,7 +19,6 @@ pub struct ColorerBuilder {
     intersections: HashMap<IntersectionID, Color>,
     buildings: HashMap<BuildingID, Color>,
     bus_stops: HashMap<BusStopID, Color>,
-    parking_lots: HashMap<ParkingLotID, Color>,
 }
 
 pub struct Colorer {
@@ -53,32 +53,6 @@ impl Colorer {
             intersections: HashMap::new(),
             buildings: HashMap::new(),
             bus_stops: HashMap::new(),
-            parking_lots: HashMap::new(),
-        }
-    }
-
-    pub fn scaled<I: Into<String>>(
-        ctx: &mut EventCtx,
-        title: I,
-        extra_info: Vec<String>,
-        colors: Vec<Color>,
-        labels: Vec<&str>,
-    ) -> ColorerBuilder {
-        let mut prioritized_colors = colors.clone();
-        prioritized_colors.reverse();
-        let legend = vec![ColorLegend::scale(ctx, colors, labels)];
-
-        ColorerBuilder {
-            title: title.into(),
-            extra_info,
-            prioritized_colors,
-            legend,
-            lanes: HashMap::new(),
-            roads: HashMap::new(),
-            intersections: HashMap::new(),
-            buildings: HashMap::new(),
-            bus_stops: HashMap::new(),
-            parking_lots: HashMap::new(),
         }
     }
 
@@ -136,10 +110,6 @@ impl ColorerBuilder {
         self.bus_stops.insert(bs, color);
     }
 
-    pub fn add_pl(&mut self, pl: ParkingLotID, color: Color) {
-        self.parking_lots.insert(pl, color);
-    }
-
     pub fn intersections_from_roads(&mut self, map: &Map) {
         for i in map.all_intersections() {
             if let Some(idx) = i
@@ -190,11 +160,6 @@ impl ColorerBuilder {
                 Circle::new(pt, Distance::meters(5.0)).to_polygon(),
             );
             unzoomed.push(color, Circle::new(pt, Distance::meters(15.0)).to_polygon());
-        }
-
-        for (pl, color) in self.parking_lots {
-            zoomed.push(color.alpha(0.4), map.get_pl(pl).polygon.clone());
-            unzoomed.push(color, map.get_pl(pl).polygon.clone());
         }
 
         // Build the legend
@@ -382,8 +347,8 @@ impl DivergingScale {
 // TODO Bad name
 pub struct ColorNetwork<'a> {
     map: &'a Map,
-    unzoomed: GeomBatch,
-    zoomed: GeomBatch,
+    pub unzoomed: GeomBatch,
+    pub zoomed: GeomBatch,
 }
 
 impl<'a> ColorNetwork<'a> {
@@ -415,6 +380,45 @@ impl<'a> ColorNetwork<'a> {
         self.unzoomed.push(color, self.map.get_i(i).polygon.clone());
         self.zoomed
             .push(color.alpha(0.4), self.map.get_i(i).polygon.clone());
+    }
+
+    pub fn add_b(&mut self, b: BuildingID, color: Color) {
+        self.unzoomed.push(color, self.map.get_b(b).polygon.clone());
+        self.zoomed
+            .push(color.alpha(0.4), self.map.get_b(b).polygon.clone());
+    }
+
+    pub fn add_pl(&mut self, pl: ParkingLotID, color: Color) {
+        self.unzoomed
+            .push(color, self.map.get_pl(pl).polygon.clone());
+        self.zoomed
+            .push(color.alpha(0.4), self.map.get_pl(pl).polygon.clone());
+    }
+
+    pub fn road_percentiles(&mut self, counter: Counter<RoadID>, low: Color, high: Color) {
+        let roads = counter.sorted_asc();
+        let len = roads.len() as f64;
+        for (idx, list) in roads.into_iter().enumerate() {
+            let color = low.lerp(high, (idx as f64) / len);
+            for r in list {
+                self.add_r(r, color);
+            }
+        }
+    }
+    pub fn intersection_percentiles(
+        &mut self,
+        counter: Counter<IntersectionID>,
+        low: Color,
+        high: Color,
+    ) {
+        let intersections = counter.sorted_asc();
+        let len = intersections.len() as f64;
+        for (idx, list) in intersections.into_iter().enumerate() {
+            let color = low.lerp(high, (idx as f64) / len);
+            for i in list {
+                self.add_i(i, color);
+            }
+        }
     }
 
     pub fn build(self, ctx: &mut EventCtx) -> (Drawable, Drawable) {

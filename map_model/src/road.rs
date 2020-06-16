@@ -440,7 +440,7 @@ impl Road {
         let grade = rise / run;
         if grade <= -1.0 || grade >= 1.0 {
             // TODO Panic
-            println!("Grade of {} is {}%", self.id, grade * 100.0);
+            //println!("Grade of {} is {}%", self.id, grade * 100.0);
             if grade < 0.0 {
                 return -1.0;
             } else {

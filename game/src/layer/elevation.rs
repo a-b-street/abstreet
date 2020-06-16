@@ -1,12 +1,16 @@
 use crate::app::App;
-use crate::common::Colorer;
+use crate::common::{ColorLegend, ColorNetwork};
 use crate::layer::{Layer, LayerOutcome};
-use ezgui::{Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx};
+use ezgui::{
+    hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Outcome, TextExt, VerticalAlignment, Widget,
+};
 use geom::{ArrowCap, Distance, PolyLine};
 
 pub struct Elevation {
-    colorer: Colorer,
-    draw: Drawable,
+    unzoomed: Drawable,
+    zoomed: Drawable,
+    composite: Composite,
 }
 
 impl Layer for Elevation {
@@ -19,59 +23,48 @@ impl Layer for Elevation {
         _: &mut App,
         minimap: &Composite,
     ) -> Option<LayerOutcome> {
-        self.colorer.legend.align_above(ctx, minimap);
-        if self.colorer.event(ctx) {
-            return Some(LayerOutcome::Close);
+        self.composite.align_above(ctx, minimap);
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "close" => {
+                    return Some(LayerOutcome::Close);
+                }
+                _ => unreachable!(),
+            },
+            None => {}
         }
         None
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.colorer.draw(g, app);
+        self.composite.draw(g);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.draw);
+            g.redraw(&self.unzoomed);
+        } else {
+            g.redraw(&self.zoomed);
         }
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
-        g.redraw(&self.colorer.unzoomed);
-        g.redraw(&self.draw);
+        g.redraw(&self.unzoomed);
     }
 }
 
 impl Elevation {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Elevation {
-        // TODO Two passes because we have to construct the text first :(
-        let mut max = 0.0_f64;
-        for r in app.primary.map.all_roads() {
-            let pct = r.percent_grade(&app.primary.map).abs();
-            max = max.max(pct);
-        }
-
-        let mut colorer = Colorer::scaled(
-            ctx,
-            "Elevation change",
-            vec![format!("Steepest road: {:.0}%", max * 100.0)],
-            app.cs.good_to_bad.to_vec(),
-            vec!["flat", "1%", "5%", "15%", "steeper"],
-        );
+        let mut colorer = ColorNetwork::new(app);
 
         let mut max = 0.0_f64;
         for r in app.primary.map.all_roads() {
             let pct = r.percent_grade(&app.primary.map).abs();
             max = max.max(pct);
 
-            let color = if pct < 0.01 {
-                app.cs.good_to_bad[0]
-            } else if pct < 0.05 {
-                app.cs.good_to_bad[1]
-            } else if pct < 0.15 {
-                app.cs.good_to_bad[2]
-            } else {
-                app.cs.good_to_bad[3]
-            };
-            colorer.add_r(r.id, color, &app.primary.map);
+            let color = app.cs.good_red.lerp(
+                app.cs.bad_red,
+                // TODO Rescale based on a reasonable steepest grade, once the data doesn't suck
+                pct.max(0.0).min(1.0),
+            );
+            colorer.add_r(r.id, color);
         }
 
-        let arrow_color = Color::BLACK;
         let mut batch = GeomBatch::new();
         // Time for uphill arrows!
         // TODO Draw V's, not arrows.
@@ -97,7 +90,7 @@ impl Elevation {
             while dist + arrow_len <= len {
                 let (pt, angle) = pl.dist_along(dist);
                 batch.push(
-                    arrow_color,
+                    Color::BLACK,
                     PolyLine::new(vec![
                         pt.project_away(arrow_len / 2.0, angle.opposite()),
                         pt.project_away(arrow_len / 2.0, angle),
@@ -108,10 +101,35 @@ impl Elevation {
                 dist += btwn;
             }
         }
+        colorer.unzoomed.append(batch);
+
+        let composite = Composite::new(
+            Widget::col(vec![
+                Widget::row(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg")
+                        .margin_right(10),
+                    "Elevation change".draw_text(ctx),
+                    Btn::plaintext("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                format!("Steepest road: {:.0}%", max * 100.0).draw_text(ctx),
+                ColorLegend::gradient(
+                    ctx,
+                    vec![app.cs.good_red, app.cs.bad_red],
+                    vec!["flat", "steep"],
+                ),
+            ])
+            .padding(5)
+            .bg(app.cs.panel_bg),
+        )
+        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+        .build(ctx);
 
         Elevation {
-            colorer: colorer.build(ctx, app),
-            draw: batch.upload(ctx),
+            unzoomed: ctx.upload(colorer.unzoomed),
+            zoomed: ctx.upload(colorer.zoomed),
+            composite,
         }
     }
 }
