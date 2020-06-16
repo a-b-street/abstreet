@@ -47,7 +47,8 @@ impl PopularDestinations {
                 }
             }
             // TODO Er, the heatmap actually looks terrible.
-            Widget::col(o.to_controls(ctx, make_heatmap(&mut batch, map.get_bounds(), pts, o)))
+            let legend = make_heatmap(ctx, &mut batch, map.get_bounds(), pts, o);
+            Widget::col(o.to_controls(ctx, legend))
         } else {
             let max = per_bldg.max();
             let gradient = colorous::REDS;

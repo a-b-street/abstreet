@@ -97,9 +97,10 @@ impl PopulationMap {
         }
 
         let mut batch = GeomBatch::new();
-        let colors_and_labels = if let Some(ref o) = opts.heatmap {
+        let legend = if let Some(ref o) = opts.heatmap {
             pts.extend(repeat_pts);
             Some(make_heatmap(
+                ctx,
                 &mut batch,
                 app.primary.map.get_bounds(),
                 pts,
@@ -113,7 +114,7 @@ impl PopulationMap {
             }
             None
         };
-        let controls = make_controls(ctx, app, &opts, colors_and_labels);
+        let controls = make_controls(ctx, app, &opts, legend);
         PopulationMap {
             time: app.primary.sim.time(),
             opts,
@@ -142,7 +143,7 @@ fn make_controls(
     ctx: &mut EventCtx,
     app: &App,
     opts: &Options,
-    colors_and_labels: Option<(Vec<Color>, Vec<String>)>,
+    legend: Option<Widget>,
 ) -> Composite {
     let (total_ppl, ppl_in_bldg, ppl_off_map) = app.primary.sim.num_ppl();
 
@@ -163,17 +164,13 @@ fn make_controls(
                 .small()
                 .draw(ctx),
         ])
-        .centered(),
+        .centered()
+        .margin_below(5),
     ];
 
-    col.push(Checkbox::text(
-        ctx,
-        "Show heatmap",
-        None,
-        opts.heatmap.is_some(),
-    ));
+    col.push(Checkbox::text(ctx, "Show heatmap", None, opts.heatmap.is_some()).margin_below(5));
     if let Some(ref o) = opts.heatmap {
-        col.extend(o.to_controls(ctx, colors_and_labels.unwrap()));
+        col.extend(o.to_controls(ctx, legend.unwrap()));
     }
 
     Composite::new(Widget::col(col).padding(5).bg(app.cs.panel_bg))

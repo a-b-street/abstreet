@@ -207,32 +207,6 @@ impl ColorLegend {
         ])
     }
 
-    pub fn scale<I: Into<String>>(
-        ctx: &mut EventCtx,
-        colors: Vec<Color>,
-        labels: Vec<I>,
-    ) -> Widget {
-        assert_eq!(colors.len(), labels.len() - 1);
-        let mut batch = GeomBatch::new();
-        let mut x = 0.0;
-        for color in colors {
-            batch.push(color, Polygon::rectangle(64.0, 32.0).translate(x, 0.0));
-            x += 64.0;
-        }
-        // Extra wrapping to make the labels stretch against just the scale, not everything else
-        // TODO Long labels aren't nicely lined up with the boundaries between buckets
-        Widget::row(vec![Widget::col(vec![
-            Widget::draw_batch(ctx, batch),
-            Widget::row(
-                labels
-                    .into_iter()
-                    .map(|lbl| Line(lbl).small().draw(ctx))
-                    .collect(),
-            )
-            .evenly_spaced(),
-        ])])
-    }
-
     pub fn gradient<I: Into<String>>(
         ctx: &mut EventCtx,
         colors: Vec<Color>,

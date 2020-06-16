@@ -20,7 +20,6 @@ pub struct HeatmapOptions {
     resolution: usize,
     radius: usize,
     smoothing: bool,
-    outliers: bool,
     color_scheme: String,
 }
 
@@ -30,59 +29,52 @@ impl HeatmapOptions {
             resolution: 10,
             radius: 3,
             smoothing: true,
-            outliers: true,
             color_scheme: "Turbo".to_string(),
         }
     }
 
-    pub fn to_controls(
-        &self,
-        ctx: &mut EventCtx,
-        colors_and_labels: (Vec<Color>, Vec<String>),
-    ) -> Vec<Widget> {
-        let mut col = Vec::new();
-
-        // TODO Display the value...
-        col.push(Widget::row(vec![
-            "Resolution (meters)".draw_text(ctx).margin(5),
-            Spinner::new(ctx, (1, 100), self.resolution)
-                .named("resolution")
-                .align_right()
-                .centered_vert(),
-        ]));
-
-        col.push(Widget::row(vec![
-            "Radius (resolution multiplier)".draw_text(ctx).margin(5),
-            Spinner::new(ctx, (0, 10), self.radius)
-                .named("radius")
-                .align_right()
-                .centered_vert(),
-        ]));
-
-        col.push(Checkbox::text(ctx, "smoothing", None, self.smoothing));
-        col.push(Checkbox::text(ctx, "handle outliers", None, self.outliers));
-
-        col.push(Widget::row(vec![
-            "Color scheme".draw_text(ctx).margin(5),
-            Widget::dropdown(
-                ctx,
-                "Color scheme",
-                self.color_scheme.clone(),
-                vec!["Turbo", "Inferno", "Warm", "Cool", "Oranges", "Spectral"]
-                    .into_iter()
-                    .map(|x| Choice::string(x))
-                    .collect(),
-            ),
-        ]));
-
-        // Legend for the heatmap colors
-        col.push(ColorLegend::scale(
-            ctx,
-            colors_and_labels.0,
-            colors_and_labels.1,
-        ));
-
-        col
+    pub fn to_controls(&self, ctx: &mut EventCtx, legend: Widget) -> Vec<Widget> {
+        vec![
+            // TODO Display the value...
+            Widget::row(vec![
+                "Resolution (meters)"
+                    .draw_text(ctx)
+                    .centered_vert()
+                    .margin_right(10),
+                Spinner::new(ctx, (1, 100), self.resolution)
+                    .named("resolution")
+                    .align_right(),
+            ])
+            .margin_below(5),
+            Widget::row(vec![
+                "Radius (resolution multiplier)"
+                    .draw_text(ctx)
+                    .centered_vert()
+                    .margin_right(10),
+                Spinner::new(ctx, (0, 10), self.radius)
+                    .named("radius")
+                    .align_right(),
+            ])
+            .margin_below(5),
+            Checkbox::text(ctx, "smoothing", None, self.smoothing).margin_below(5),
+            Widget::row(vec![
+                "Color scheme"
+                    .draw_text(ctx)
+                    .centered_vert()
+                    .margin_right(5),
+                Widget::dropdown(
+                    ctx,
+                    "Color scheme",
+                    self.color_scheme.clone(),
+                    vec!["Turbo", "Inferno", "Warm", "Cool", "Oranges", "Spectral"]
+                        .into_iter()
+                        .map(|x| Choice::string(x))
+                        .collect(),
+                ),
+            ])
+            .margin_below(5),
+            legend,
+        ]
     }
 
     pub fn from_controls(c: &Composite) -> HeatmapOptions {
@@ -92,7 +84,6 @@ impl HeatmapOptions {
                 resolution: c.spinner("resolution"),
                 radius: c.spinner("radius"),
                 smoothing: c.is_checked("smoothing"),
-                outliers: c.is_checked("handle outliers"),
                 color_scheme: c.dropdown_value("Color scheme"),
             }
         } else {
@@ -101,13 +92,14 @@ impl HeatmapOptions {
     }
 }
 
-// Returns the colors and labels for each bucket of colors
+// Returns a legend
 pub fn make_heatmap(
+    ctx: &mut EventCtx,
     batch: &mut GeomBatch,
     bounds: &Bounds,
     pts: Vec<Pt2D>,
     opts: &HeatmapOptions,
-) -> (Vec<Color>, Vec<String>) {
+) -> Widget {
     // 7 colors, 8 labels
     let num_colors = 7;
     let gradient = match opts.color_scheme.as_ref() {
@@ -130,7 +122,7 @@ pub fn make_heatmap(
         let labels = std::iter::repeat("0".to_string())
             .take(num_colors + 1)
             .collect();
-        return (colors, labels);
+        return ColorLegend::gradient(ctx, colors, labels);
     }
 
     // At each point, add a 2D Gaussian kernel centered at the point.
@@ -202,36 +194,18 @@ pub fn make_heatmap(
         distrib.add(*count as usize);
     }
 
-    let max_count_per_bucket: Vec<(f64, Color)> = (1..=num_colors)
-        .map(|i| {
-            let pct = (i as f64) / (num_colors as f64);
-            if opts.outliers {
-                distrib.percentile(100.0 * pct).unwrap() as f64
-            } else {
-                (pct * (distrib.select(Statistic::Max) as f64)).round()
-            }
-        })
-        .zip(colors.clone().into_iter())
-        .collect();
-
     // Now draw rectangles
     let square = Polygon::rectangle(opts.resolution as f64, opts.resolution as f64);
     for y in 0..grid.height {
         for x in 0..grid.width {
             let count = grid.data[grid.idx(x, y)];
             if count > 0.0 {
-                let mut color = max_count_per_bucket[0].1;
-                for (max, c) in &max_count_per_bucket {
-                    if count >= *max {
-                        color = *c;
-                    } else {
-                        break;
-                    }
-                }
-
+                let pct = (count as f64) / (distrib.select(Statistic::Max) as f64);
+                let c = gradient.eval_continuous(pct);
+                // Don't block the map underneath
+                let color = Color::rgb(c.r as usize, c.g as usize, c.b as usize).alpha(0.6);
                 batch.push(
-                    // Don't block the map underneath
-                    color.alpha(0.6),
+                    color,
                     square.translate((x * opts.resolution) as f64, (y * opts.resolution) as f64),
                 );
             }
@@ -239,10 +213,15 @@ pub fn make_heatmap(
     }
 
     let mut labels = vec!["0".to_string()];
-    for (max, _) in max_count_per_bucket {
-        labels.push(max.to_string());
+    for i in 1..=num_colors {
+        let pct = (i as f64) / (num_colors as f64);
+        labels.push(
+            (pct * (distrib.select(Statistic::Max) as f64))
+                .round()
+                .to_string(),
+        );
     }
-    (colors, labels)
+    ColorLegend::gradient(ctx, colors, labels)
 }
 
 struct Grid<T> {
