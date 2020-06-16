@@ -108,7 +108,7 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
     ));
     kv.push((
         "Incline / grade".to_string(),
-        format!("{:.1}%", l.percent_grade(map) * 100.0),
+        format!("{:.1}%", r.percent_grade(map) * 100.0),
     ));
     kv.push((
         "Elevation details".to_string(),

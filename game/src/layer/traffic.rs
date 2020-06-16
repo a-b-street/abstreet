@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::common::{ColorLegend, Colorer, Scale};
+use crate::common::{ColorLegend, ColorNetwork, Colorer, Scale};
 use crate::layer::{Layer, LayerOutcome};
 use abstutil::Counter;
 use ezgui::{
@@ -192,20 +192,24 @@ impl Throughput {
                 Widget::row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg")
                         .margin_right(10),
-                    "Throughput (percentiles)".draw_text(ctx),
+                    "Throughput".draw_text(ctx),
                     Btn::plaintext("X")
                         .build(ctx, "close", hotkey(Key::Escape))
                         .align_right(),
                 ]),
+                // TODO Explain. What roads see the most movement?
                 if app.has_prebaked().is_some() {
                     Checkbox::text(ctx, "Compare before edits", None, false).margin_below(5)
                 } else {
                     Widget::nothing()
                 },
-                ColorLegend::scale(
+                ColorLegend::gradient(
                     ctx,
-                    app.cs.good_to_bad.to_vec(),
-                    vec!["0%", "40%", "70%", "90%", "100%"],
+                    vec![
+                        app.cs.good_to_bad_monochrome_red[0],
+                        *app.cs.good_to_bad_monochrome_red.last().unwrap(),
+                    ],
+                    vec!["0%ile", "100%ile"],
                 ),
             ])
             .padding(5)
@@ -214,35 +218,21 @@ impl Throughput {
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx);
 
-        let mut colorer = Colorer::scaled(
-            ctx,
-            "",
-            Vec::new(),
-            app.cs.good_to_bad.to_vec(),
-            vec!["0", "50", "90", "99", "100"],
-        );
-
+        let mut colorer = ColorNetwork::new(app);
         let stats = &app.primary.sim.get_analytics();
 
         // TODO Actually display the counts at these percentiles
         {
             let cnt = stats.road_thruput.all_total_counts();
             let roads = cnt.sorted_asc();
-            let p50_idx = ((roads.len() as f64) * 0.5) as usize;
-            let p90_idx = ((roads.len() as f64) * 0.9) as usize;
-            let p99_idx = ((roads.len() as f64) * 0.99) as usize;
+            let len = roads.len() as f64;
             for (idx, list) in roads.into_iter().enumerate() {
-                let color = if idx < p50_idx {
-                    app.cs.good_to_bad[0]
-                } else if idx < p90_idx {
-                    app.cs.good_to_bad[1]
-                } else if idx < p99_idx {
-                    app.cs.good_to_bad[2]
-                } else {
-                    app.cs.good_to_bad[3]
-                };
+                let color = app.cs.good_to_bad_monochrome_red[0].lerp(
+                    *app.cs.good_to_bad_monochrome_red.last().unwrap(),
+                    (idx as f64) / len,
+                );
                 for r in list {
-                    colorer.add_r(r, color, &app.primary.map);
+                    colorer.add_r(r, color);
                 }
             }
         }
@@ -250,37 +240,29 @@ impl Throughput {
         {
             let cnt = stats.intersection_thruput.all_total_counts();
             let intersections = cnt.sorted_asc();
-            let p50_idx = ((intersections.len() as f64) * 0.5) as usize;
-            let p90_idx = ((intersections.len() as f64) * 0.9) as usize;
-            let p99_idx = ((intersections.len() as f64) * 0.99) as usize;
+            let len = intersections.len() as f64;
             for (idx, list) in intersections.into_iter().enumerate() {
-                let color = if idx < p50_idx {
-                    app.cs.good_to_bad[0]
-                } else if idx < p90_idx {
-                    app.cs.good_to_bad[1]
-                } else if idx < p99_idx {
-                    app.cs.good_to_bad[2]
-                } else {
-                    app.cs.good_to_bad[3]
-                };
+                let color = app.cs.good_to_bad_monochrome_red[0].lerp(
+                    *app.cs.good_to_bad_monochrome_red.last().unwrap(),
+                    (idx as f64) / len,
+                );
                 for i in list {
                     colorer.add_i(i, color);
                 }
             }
         }
-        let colorer = colorer.build(ctx, app);
+        let (unzoomed, zoomed) = colorer.build(ctx);
 
         Throughput {
             time: app.primary.sim.time(),
             compare: false,
-            unzoomed: colorer.unzoomed,
-            zoomed: colorer.zoomed,
+            unzoomed,
+            zoomed,
             composite,
         }
     }
 
     fn compare_throughput(ctx: &mut EventCtx, app: &App) -> Throughput {
-        let map = &app.primary.map;
         let after = app.primary.sim.get_analytics();
         let before = app.prebaked();
         let hour = app.primary.sim.time().get_parts().0;
@@ -312,9 +294,7 @@ impl Throughput {
             }
         }
 
-        let mut unzoomed = GeomBatch::new();
-        unzoomed.push(app.cs.fade_map_dark, map.get_boundary_polygon().clone());
-        let mut zoomed = GeomBatch::new();
+        let mut colorer = ColorNetwork::new(app);
 
         let scale = Scale::diverging(Color::hex("#A32015"), Color::WHITE, Color::hex("#5D9630"))
             .range(0.0, 2.0)
@@ -322,14 +302,12 @@ impl Throughput {
 
         for (r, before, after) in before_road.compare(after_road) {
             if let Some(c) = scale.eval((after as f64) / (before as f64)) {
-                unzoomed.push(c, map.get_r(r).get_thick_polygon(map).unwrap());
-                zoomed.push(c.alpha(0.4), map.get_r(r).get_thick_polygon(map).unwrap());
+                colorer.add_r(r, c);
             }
         }
         for (i, before, after) in before_intersection.compare(after_intersection) {
             if let Some(c) = scale.eval((after as f64) / (before as f64)) {
-                unzoomed.push(c, map.get_i(i).polygon.clone());
-                zoomed.push(c.alpha(0.4), map.get_i(i).polygon.clone());
+                colorer.add_i(i, c);
             }
         }
 
@@ -351,12 +329,13 @@ impl Throughput {
         )
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx);
+        let (unzoomed, zoomed) = colorer.build(ctx);
 
         Throughput {
             time: app.primary.sim.time(),
             compare: true,
-            unzoomed: ctx.upload(unzoomed),
-            zoomed: ctx.upload(zoomed),
+            unzoomed,
+            zoomed,
             composite,
         }
     }
@@ -422,10 +401,7 @@ impl Delay {
             return Delay::compare_delay(ctx, app);
         }
 
-        let map = &app.primary.map;
-        let mut unzoomed = GeomBatch::new();
-        unzoomed.push(app.cs.fade_map_dark, map.get_boundary_polygon().clone());
-        let mut zoomed = GeomBatch::new();
+        let mut colorer = ColorNetwork::new(app);
 
         let (per_road, per_intersection) = app.primary.sim.worst_delay(&app.primary.map);
         for (r, d) in per_road {
@@ -436,11 +412,7 @@ impl Delay {
                 *app.cs.good_to_bad_monochrome_red.last().unwrap(),
                 ((d - Duration::minutes(1)) / Duration::minutes(15)).min(1.0),
             );
-            unzoomed.push(color, map.get_r(r).get_thick_polygon(map).unwrap());
-            zoomed.push(
-                color.alpha(0.4),
-                map.get_r(r).get_thick_polygon(map).unwrap(),
-            );
+            colorer.add_r(r, color);
         }
         for (i, d) in per_intersection {
             if d < Duration::minutes(1) {
@@ -450,8 +422,7 @@ impl Delay {
                 *app.cs.good_to_bad_monochrome_red.last().unwrap(),
                 ((d - Duration::minutes(1)) / Duration::minutes(15)).min(1.0),
             );
-            unzoomed.push(color, map.get_i(i).polygon.clone());
-            zoomed.push(color.alpha(0.4), map.get_i(i).polygon.clone());
+            colorer.add_i(i, color);
         }
 
         let composite = Composite::new(
@@ -483,22 +454,20 @@ impl Delay {
         )
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx);
+        let (unzoomed, zoomed) = colorer.build(ctx);
 
         Delay {
             time: app.primary.sim.time(),
             compare: false,
-            unzoomed: ctx.upload(unzoomed),
-            zoomed: ctx.upload(zoomed),
+            unzoomed,
+            zoomed,
             composite,
         }
     }
 
     // TODO Needs work.
     fn compare_delay(ctx: &mut EventCtx, app: &App) -> Delay {
-        let map = &app.primary.map;
-        let mut unzoomed = GeomBatch::new();
-        unzoomed.push(app.cs.fade_map_dark, map.get_boundary_polygon().clone());
-        let mut zoomed = GeomBatch::new();
+        let mut colorer = ColorNetwork::new(app);
         let red = Color::hex("#A32015");
         let green = Color::hex("#5D9630");
 
@@ -517,8 +486,7 @@ impl Delay {
                 } else {
                     Color::WHITE.lerp(red, dt / slowest)
                 };
-                unzoomed.push(color, map.get_i(i).polygon.clone());
-                zoomed.push(color.alpha(0.4), map.get_i(i).polygon.clone());
+                colorer.add_i(i, color);
             }
         }
 
@@ -544,12 +512,13 @@ impl Delay {
         )
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx);
+        let (unzoomed, zoomed) = colorer.build(ctx);
 
         Delay {
             time: app.primary.sim.time(),
             compare: true,
-            unzoomed: ctx.upload(unzoomed),
-            zoomed: ctx.upload(zoomed),
+            unzoomed,
+            zoomed,
             composite,
         }
     }

@@ -378,3 +378,46 @@ impl DivergingScale {
         )
     }
 }
+
+// TODO Bad name
+pub struct ColorNetwork<'a> {
+    map: &'a Map,
+    unzoomed: GeomBatch,
+    zoomed: GeomBatch,
+}
+
+impl<'a> ColorNetwork<'a> {
+    pub fn new(app: &'a App) -> ColorNetwork {
+        let mut unzoomed = GeomBatch::new();
+        unzoomed.push(
+            app.cs.fade_map_dark,
+            app.primary.map.get_boundary_polygon().clone(),
+        );
+        ColorNetwork {
+            map: &app.primary.map,
+            unzoomed,
+            zoomed: GeomBatch::new(),
+        }
+    }
+
+    pub fn add_r(&mut self, r: RoadID, color: Color) {
+        self.unzoomed.push(
+            color,
+            self.map.get_r(r).get_thick_polygon(self.map).unwrap(),
+        );
+        self.zoomed.push(
+            color.alpha(0.4),
+            self.map.get_r(r).get_thick_polygon(self.map).unwrap(),
+        );
+    }
+
+    pub fn add_i(&mut self, i: IntersectionID, color: Color) {
+        self.unzoomed.push(color, self.map.get_i(i).polygon.clone());
+        self.zoomed
+            .push(color.alpha(0.4), self.map.get_i(i).polygon.clone());
+    }
+
+    pub fn build(self, ctx: &mut EventCtx) -> (Drawable, Drawable) {
+        (ctx.upload(self.unzoomed), ctx.upload(self.zoomed))
+    }
+}

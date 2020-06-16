@@ -431,4 +431,22 @@ impl Road {
         }
         stops
     }
+
+    // Returns [-1.0, 1.0]. 0 is flat, positive is uphill, negative is downhill.
+    // TODO Or do we care about the total up/down along the possibly long road?
+    pub fn percent_grade(&self, map: &Map) -> f64 {
+        let rise = map.get_i(self.dst_i).elevation - map.get_i(self.src_i).elevation;
+        let run = self.center_pts.length();
+        let grade = rise / run;
+        if grade <= -1.0 || grade >= 1.0 {
+            // TODO Panic
+            println!("Grade of {} is {}%", self.id, grade * 100.0);
+            if grade < 0.0 {
+                return -1.0;
+            } else {
+                return 1.0;
+            }
+        }
+        grade
+    }
 }

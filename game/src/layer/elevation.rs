@@ -41,8 +41,8 @@ impl Elevation {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Elevation {
         // TODO Two passes because we have to construct the text first :(
         let mut max = 0.0_f64;
-        for l in app.primary.map.all_lanes() {
-            let pct = l.percent_grade(&app.primary.map).abs();
+        for r in app.primary.map.all_roads() {
+            let pct = r.percent_grade(&app.primary.map).abs();
             max = max.max(pct);
         }
 
@@ -55,8 +55,8 @@ impl Elevation {
         );
 
         let mut max = 0.0_f64;
-        for l in app.primary.map.all_lanes() {
-            let pct = l.percent_grade(&app.primary.map).abs();
+        for r in app.primary.map.all_roads() {
+            let pct = r.percent_grade(&app.primary.map).abs();
             max = max.max(pct);
 
             let color = if pct < 0.01 {
@@ -68,7 +68,7 @@ impl Elevation {
             } else {
                 app.cs.good_to_bad[3]
             };
-            colorer.add_l(l.id, color, &app.primary.map);
+            colorer.add_r(r.id, color, &app.primary.map);
         }
 
         let arrow_color = Color::BLACK;
