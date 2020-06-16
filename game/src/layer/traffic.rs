@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::common::{ColorLegend, ColorNetwork, Scale};
+use crate::common::{ColorLegend, ColorNetwork, ColorScale, Scale};
 use crate::layer::{Layer, LayerOutcome};
 use abstutil::Counter;
 use ezgui::{
@@ -85,11 +85,7 @@ impl Backpressure {
                         .align_right(),
                 ]),
                 // TODO Explain
-                ColorLegend::gradient(
-                    ctx,
-                    vec![app.cs.good_red, app.cs.bad_red],
-                    vec!["0%ile", "100%ile"],
-                ),
+                ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0%ile", "100%ile"]),
             ])
             .padding(5)
             .bg(app.cs.panel_bg),
@@ -98,8 +94,8 @@ impl Backpressure {
         .build(ctx);
 
         let mut colorer = ColorNetwork::new(app);
-        colorer.road_percentiles(cnt_per_r, app.cs.good_red, app.cs.bad_red);
-        colorer.intersection_percentiles(cnt_per_i, app.cs.good_red, app.cs.bad_red);
+        colorer.road_percentiles(cnt_per_r, &app.cs.good_to_bad_red);
+        colorer.intersection_percentiles(cnt_per_i, &app.cs.good_to_bad_red);
         let (unzoomed, zoomed) = colorer.build(ctx);
 
         Backpressure {
@@ -187,11 +183,7 @@ impl Throughput {
                 } else {
                     Widget::nothing()
                 },
-                ColorLegend::gradient(
-                    ctx,
-                    vec![app.cs.good_red, app.cs.bad_red],
-                    vec!["0%ile", "100%ile"],
-                ),
+                ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0%ile", "100%ile"]),
             ])
             .padding(5)
             .bg(app.cs.panel_bg),
@@ -203,13 +195,11 @@ impl Throughput {
         let stats = &app.primary.sim.get_analytics();
         colorer.road_percentiles(
             stats.road_thruput.all_total_counts(),
-            app.cs.good_red,
-            app.cs.bad_red,
+            &app.cs.good_to_bad_red,
         );
         colorer.intersection_percentiles(
             stats.intersection_thruput.all_total_counts(),
-            app.cs.good_red,
-            app.cs.bad_red,
+            &app.cs.good_to_bad_red,
         );
         let (unzoomed, zoomed) = colorer.build(ctx);
 
@@ -368,20 +358,20 @@ impl Delay {
             if d < Duration::minutes(1) {
                 continue;
             }
-            let color = app.cs.good_red.lerp(
-                app.cs.bad_red,
-                ((d - Duration::minutes(1)) / Duration::minutes(15)).min(1.0),
-            );
+            let color = app
+                .cs
+                .good_to_bad_red
+                .eval(((d - Duration::minutes(1)) / Duration::minutes(15)).min(1.0));
             colorer.add_r(r, color);
         }
         for (i, d) in per_intersection {
             if d < Duration::minutes(1) {
                 continue;
             }
-            let color = app.cs.good_red.lerp(
-                app.cs.bad_red,
-                ((d - Duration::minutes(1)) / Duration::minutes(15)).min(1.0),
-            );
+            let color = app
+                .cs
+                .good_to_bad_red
+                .eval(((d - Duration::minutes(1)) / Duration::minutes(15)).min(1.0));
             colorer.add_i(i, color);
         }
 
@@ -400,11 +390,7 @@ impl Delay {
                 } else {
                     Widget::nothing()
                 },
-                ColorLegend::gradient(
-                    ctx,
-                    vec![app.cs.good_red, app.cs.bad_red],
-                    vec!["1", "5", "10", "15+"],
-                ),
+                ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["1", "5", "10", "15+"]),
             ])
             .padding(5)
             .bg(app.cs.panel_bg),
@@ -460,7 +446,7 @@ impl Delay {
                 Checkbox::text(ctx, "Compare before edits", None, true).margin_below(5),
                 ColorLegend::gradient(
                     ctx,
-                    vec![green, Color::WHITE, red],
+                    &ColorScale(vec![green, Color::WHITE, red]),
                     vec!["faster", "same", "slower"],
                 ),
             ])

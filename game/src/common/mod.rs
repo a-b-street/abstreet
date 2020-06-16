@@ -7,7 +7,7 @@ mod panels;
 mod warp;
 
 pub use self::city_picker::CityPicker;
-pub use self::colors::{ColorLegend, ColorNetwork, Colorer, Scale};
+pub use self::colors::{ColorLegend, ColorNetwork, ColorScale, Colorer, Scale};
 pub use self::heatmap::{make_heatmap, HeatmapOptions};
 pub use self::minimap::Minimap;
 pub use self::panels::tool_panel;

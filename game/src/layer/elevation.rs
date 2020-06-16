@@ -57,8 +57,7 @@ impl Elevation {
             let pct = r.percent_grade(&app.primary.map).abs();
             max = max.max(pct);
 
-            let color = app.cs.good_red.lerp(
-                app.cs.bad_red,
+            let color = app.cs.good_to_bad_red.eval(
                 // TODO Rescale based on a reasonable steepest grade, once the data doesn't suck
                 pct.max(0.0).min(1.0),
             );
@@ -114,11 +113,7 @@ impl Elevation {
                         .align_right(),
                 ]),
                 format!("Steepest road: {:.0}%", max * 100.0).draw_text(ctx),
-                ColorLegend::gradient(
-                    ctx,
-                    vec![app.cs.good_red, app.cs.bad_red],
-                    vec!["flat", "steep"],
-                ),
+                ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["flat", "steep"]),
             ])
             .padding(5)
             .bg(app.cs.panel_bg),

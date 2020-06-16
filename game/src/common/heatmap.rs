@@ -1,4 +1,4 @@
-use crate::common::ColorLegend;
+use crate::common::{ColorLegend, ColorScale};
 use ezgui::{Checkbox, Choice, Color, Composite, EventCtx, GeomBatch, Spinner, TextExt, Widget};
 use geom::{Bounds, Histogram, Polygon, Pt2D, Statistic};
 
@@ -122,7 +122,7 @@ pub fn make_heatmap(
         let labels = std::iter::repeat("0".to_string())
             .take(num_colors + 1)
             .collect();
-        return ColorLegend::gradient(ctx, colors, labels);
+        return ColorLegend::gradient(ctx, &ColorScale(colors), labels);
     }
 
     // At each point, add a 2D Gaussian kernel centered at the point.
@@ -221,7 +221,7 @@ pub fn make_heatmap(
                 .to_string(),
         );
     }
-    ColorLegend::gradient(ctx, colors, labels)
+    ColorLegend::gradient(ctx, &ColorScale(colors), labels)
 }
 
 struct Grid<T> {

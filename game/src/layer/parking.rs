@@ -199,11 +199,7 @@ impl Occupancy {
                 Checkbox::text(ctx, "Public garages", None, garages).margin_below(5),
                 Checkbox::text(ctx, "Parking lots", None, lots).margin_below(10),
                 Checkbox::text(ctx, "Private buildings", None, private_bldgs).margin_below(10),
-                ColorLegend::gradient(
-                    ctx,
-                    vec![app.cs.good_red, app.cs.bad_red],
-                    vec!["0%", "100%"],
-                ),
+                ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0%", "100%"]),
             ])
             .padding(5)
             .bg(app.cs.panel_bg),
@@ -230,7 +226,7 @@ impl Occupancy {
             let open = avail.get(loc);
             let closed = filled.get(loc);
             let percent = (closed as f64) / ((open + closed) as f64);
-            let color = app.cs.good_red.lerp(app.cs.bad_red, percent);
+            let color = app.cs.good_to_bad_red.eval(percent);
             match loc {
                 Loc::Road(r) => colorer.add_r(r, color),
                 Loc::Bldg(b) => colorer.add_b(b, color),

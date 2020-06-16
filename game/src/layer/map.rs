@@ -123,17 +123,9 @@ impl BikeNetwork {
                 .draw(ctx)
                 .margin_below(10),
                 Line("Throughput on bike lanes").draw(ctx),
-                ColorLegend::gradient(
-                    ctx,
-                    vec![app.cs.good_green, app.cs.bad_green],
-                    vec!["0%ile", "100%ile"],
-                ),
+                ColorLegend::gradient(ctx, &app.cs.good_to_bad_green, vec!["0%ile", "100%ile"]),
                 Line("Throughput on unprotected roads").draw(ctx),
-                ColorLegend::gradient(
-                    ctx,
-                    vec![app.cs.good_red, app.cs.bad_red],
-                    vec!["0%ile", "100%ile"],
-                ),
+                ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0%ile", "100%ile"]),
             ])
             .padding(5)
             .bg(app.cs.panel_bg),
@@ -142,10 +134,10 @@ impl BikeNetwork {
         .build(ctx);
 
         let mut colorer = ColorNetwork::new(app);
-        colorer.road_percentiles(on_bike_lanes, app.cs.good_green, app.cs.bad_green);
-        colorer.road_percentiles(off_bike_lanes, app.cs.good_red, app.cs.bad_red);
-        colorer.intersection_percentiles(intersections_on, app.cs.good_green, app.cs.bad_green);
-        colorer.intersection_percentiles(intersections_off, app.cs.good_red, app.cs.bad_red);
+        colorer.road_percentiles(on_bike_lanes, &app.cs.good_to_bad_green);
+        colorer.road_percentiles(off_bike_lanes, &app.cs.good_to_bad_red);
+        colorer.intersection_percentiles(intersections_on, &app.cs.good_to_bad_green);
+        colorer.intersection_percentiles(intersections_off, &app.cs.good_to_bad_red);
         let (unzoomed, zoomed) = colorer.build(ctx);
 
         BikeNetwork {

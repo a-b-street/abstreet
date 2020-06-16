@@ -1,3 +1,4 @@
+use crate::common::ColorScale;
 use ezgui::{Choice, Color, Style};
 
 // I've gone back and forth how to organize color scheme code. I was previously against having one
@@ -107,10 +108,8 @@ pub struct ColorScheme {
     pub bike_frame: Color,
 
     // Layers
-    pub good_red: Color,
-    pub bad_red: Color,
-    pub good_green: Color,
-    pub bad_green: Color,
+    pub good_to_bad_red: ColorScale,
+    pub good_to_bad_green: ColorScale,
     pub bus_layer: Color,
     pub edits_layer: Color,
 
@@ -212,10 +211,8 @@ impl ColorScheme {
             bike_frame: Color::hex("#AAA9AD"),
 
             // Layers
-            good_red: hex("#F19A93"),
-            bad_red: hex("#A32015"),
-            good_green: hex("#BEDB92"),
-            bad_green: hex("#397A4C"),
+            good_to_bad_red: ColorScale(vec![hex("#F19A93"), hex("#A32015")]),
+            good_to_bad_green: ColorScale(vec![hex("#BEDB92"), hex("#397A4C")]),
             bus_layer: hex("#4CA7E9"),
             edits_layer: hex("#12409D"),
 

@@ -209,21 +209,22 @@ impl ColorLegend {
 
     pub fn gradient<I: Into<String>>(
         ctx: &mut EventCtx,
-        colors: Vec<Color>,
+        scale: &ColorScale,
         labels: Vec<I>,
     ) -> Widget {
-        assert!(colors.len() >= 2);
+        assert!(scale.0.len() >= 2);
         let width = 300.0;
-        let n = colors.len();
+        let n = scale.0.len();
         let mut batch = GeomBatch::new();
         let width_each = width / ((n - 1) as f64);
         batch.fancy_push(
             FancyColor::LinearGradient(LinearGradient {
                 line: Line::new(Pt2D::new(0.0, 0.0), Pt2D::new(width, 0.0)),
-                stops: colors
-                    .into_iter()
+                stops: scale
+                    .0
+                    .iter()
                     .enumerate()
-                    .map(|(idx, color)| ((idx as f64) / ((n - 1) as f64), color))
+                    .map(|(idx, color)| ((idx as f64) / ((n - 1) as f64), *color))
                     .collect(),
             }),
             Polygon::union_all(
@@ -312,7 +313,7 @@ impl DivergingScale {
     pub fn make_legend<I: Into<String>>(self, ctx: &mut EventCtx, labels: Vec<I>) -> Widget {
         ColorLegend::gradient(
             ctx,
-            vec![self.low_color, self.mid_color, self.high_color],
+            &ColorScale(vec![self.low_color, self.mid_color, self.high_color]),
             labels,
         )
     }
@@ -369,11 +370,11 @@ impl<'a> ColorNetwork<'a> {
             .push(color.alpha(0.4), self.map.get_pl(pl).polygon.clone());
     }
 
-    pub fn road_percentiles(&mut self, counter: Counter<RoadID>, low: Color, high: Color) {
+    pub fn road_percentiles(&mut self, counter: Counter<RoadID>, scale: &ColorScale) {
         let roads = counter.sorted_asc();
         let len = roads.len() as f64;
         for (idx, list) in roads.into_iter().enumerate() {
-            let color = low.lerp(high, (idx as f64) / len);
+            let color = scale.eval((idx as f64) / len);
             for r in list {
                 self.add_r(r, color);
             }
@@ -382,13 +383,12 @@ impl<'a> ColorNetwork<'a> {
     pub fn intersection_percentiles(
         &mut self,
         counter: Counter<IntersectionID>,
-        low: Color,
-        high: Color,
+        scale: &ColorScale,
     ) {
         let intersections = counter.sorted_asc();
         let len = intersections.len() as f64;
         for (idx, list) in intersections.into_iter().enumerate() {
-            let color = low.lerp(high, (idx as f64) / len);
+            let color = scale.eval((idx as f64) / len);
             for i in list {
                 self.add_i(i, color);
             }
@@ -397,5 +397,66 @@ impl<'a> ColorNetwork<'a> {
 
     pub fn build(self, ctx: &mut EventCtx) -> (Drawable, Drawable) {
         (ctx.upload(self.unzoomed), ctx.upload(self.zoomed))
+    }
+}
+
+pub struct ColorScale(pub Vec<Color>);
+
+impl ColorScale {
+    pub fn eval(&self, pct: f64) -> Color {
+        let (low, pct) = self.inner_eval(pct);
+        self.0[low].lerp(self.0[low + 1], pct)
+    }
+
+    #[allow(unused)]
+    pub fn from_colorous(gradient: colorous::Gradient) -> ColorScale {
+        let n = 7;
+        ColorScale(
+            (0..n)
+                .map(|i| {
+                    let c = gradient.eval_rational(i, n);
+                    Color::rgb(c.r as usize, c.g as usize, c.b as usize)
+                })
+                .collect(),
+        )
+    }
+
+    fn inner_eval(&self, pct: f64) -> (usize, f64) {
+        assert!(pct >= 0.0 && pct <= 1.0);
+        // What's the interval between each pair of colors?
+        let width = 1.0 / (self.0.len() - 1) as f64;
+        let low = (pct / width).floor() as usize;
+        if low == self.0.len() - 1 {
+            return (low - 1, 1.0);
+        }
+        (low, (pct % width) / width)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_scale() {
+        use super::ColorScale;
+        use ezgui::Color;
+
+        let two = ColorScale(vec![Color::BLACK, Color::WHITE]);
+        assert_same((0, 0.0), two.inner_eval(0.0));
+        assert_same((0, 0.5), two.inner_eval(0.5));
+        assert_same((0, 1.0), two.inner_eval(1.0));
+
+        let three = ColorScale(vec![Color::BLACK, Color::RED, Color::WHITE]);
+        assert_same((0, 0.0), three.inner_eval(0.0));
+        assert_same((0, 0.4), three.inner_eval(0.2));
+        assert_same((1, 0.0), three.inner_eval(0.5));
+        assert_same((1, 0.4), three.inner_eval(0.7));
+        assert_same((1, 1.0), three.inner_eval(1.0));
+    }
+
+    fn assert_same(expected: (usize, f64), actual: (usize, f64)) {
+        assert_eq!(expected.0, actual.0);
+        if (expected.1 - actual.1).abs() > 0.0001 {
+            panic!("{:?} != {:?}", expected, actual);
+        }
     }
 }
