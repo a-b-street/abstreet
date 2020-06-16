@@ -18,6 +18,7 @@ pub struct Occupancy {
     lots: bool,
     private_bldgs: bool,
     unzoomed: Drawable,
+    zoomed: Drawable,
     composite: Composite,
 }
 
@@ -78,6 +79,8 @@ impl Layer for Occupancy {
         self.composite.draw(g);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             g.redraw(&self.unzoomed);
+        } else {
+            g.redraw(&self.zoomed);
         }
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
@@ -253,6 +256,7 @@ impl Occupancy {
         }
 
         colorer.intersections_from_roads(&app.primary.map);
+        let colorer = colorer.build(ctx, app);
 
         Occupancy {
             time: app.primary.sim.time(),
@@ -260,7 +264,8 @@ impl Occupancy {
             garages,
             lots,
             private_bldgs,
-            unzoomed: colorer.build_both(ctx, app).unzoomed,
+            unzoomed: colorer.unzoomed,
+            zoomed: colorer.zoomed,
             composite,
         }
     }

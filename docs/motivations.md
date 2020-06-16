@@ -18,6 +18,9 @@ these here. In no particular order:
     scrapped? Was the amount of on-street parking on nearby residential roads
     factored in? Was there analysis of how trip time is impacted by parking in
     the neighborhood and walking a few blocks to a business on the arterial?
+  - I'm personally inspired by approaches like
+    [vTaiwan](https://info.vtaiwan.tw/) and
+    [PDIS](https://po.pdis.nat.gov.tw/en/opengov/)
 
 - **Accessibility leads to participation**: There's overhead to taking small
   ideas to advocacy groups or inconveniently timed public meetings. If the

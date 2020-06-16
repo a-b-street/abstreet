@@ -66,7 +66,7 @@ impl Floodfiller {
                 vec![format!("{} unreachable lanes", num_unreachable)],
                 vec![],
             ),
-            colorer: colorer.build_both(ctx, app),
+            colorer: colorer.build(ctx, app),
         })
     }
 }

@@ -544,7 +544,7 @@ pub fn close_intersection(
         c.add_l(l, color, &app.primary.map);
     }
 
-    err_state.downcast_mut::<WizardState>().unwrap().also_draw = Some(c.build_zoomed(ctx, app));
+    err_state.downcast_mut::<WizardState>().unwrap().also_draw = Some(c.build(ctx, app).zoomed);
     if pop_once {
         Transition::Push(err_state)
     } else {
@@ -587,7 +587,7 @@ pub fn check_parking_blackholes(
             "Error",
             vec![format!("{} lanes have parking disconnected", num_problems)],
         );
-        err_state.downcast_mut::<WizardState>().unwrap().also_draw = Some(c.build_zoomed(ctx, app));
+        err_state.downcast_mut::<WizardState>().unwrap().also_draw = Some(c.build(ctx, app).zoomed);
         Some(err_state)
     }
 }

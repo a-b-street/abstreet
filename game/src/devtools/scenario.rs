@@ -61,7 +61,7 @@ impl ScenarioManager {
                 ],
             ),
             scenario,
-            bldg_colors: bldg_colors.build_both(ctx, app),
+            bldg_colors: bldg_colors.build(ctx, app),
         }
     }
 }

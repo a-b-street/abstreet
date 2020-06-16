@@ -110,7 +110,7 @@ impl Elevation {
         }
 
         Elevation {
-            colorer: colorer.build_unzoomed(ctx, app),
+            colorer: colorer.build(ctx, app),
             draw: batch.upload(ctx),
         }
     }

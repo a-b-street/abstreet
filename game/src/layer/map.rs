@@ -15,6 +15,7 @@ pub struct BikeNetwork {
     composite: Composite,
     time: Time,
     unzoomed: Drawable,
+    zoomed: Drawable,
 }
 
 impl Layer for BikeNetwork {
@@ -47,6 +48,8 @@ impl Layer for BikeNetwork {
         self.composite.draw(g);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             g.redraw(&self.unzoomed);
+        } else {
+            g.redraw(&self.zoomed);
         }
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
@@ -158,11 +161,13 @@ impl BikeNetwork {
         )
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx);
+        let colorer = colorer.build(ctx, app);
 
         BikeNetwork {
             composite,
             time: app.primary.sim.time(),
-            unzoomed: colorer.build_both(ctx, app).unzoomed,
+            unzoomed: colorer.unzoomed,
+            zoomed: colorer.zoomed,
         }
     }
 }
@@ -219,7 +224,7 @@ impl Static {
         }
 
         Static {
-            colorer: colorer.build_unzoomed(ctx, app),
+            colorer: colorer.build(ctx, app),
             name: "bus network",
         }
     }
@@ -253,7 +258,7 @@ impl Static {
         }
 
         Static {
-            colorer: colorer.build_both(ctx, app),
+            colorer: colorer.build(ctx, app),
             name: "map edits",
         }
     }
@@ -308,7 +313,7 @@ impl Static {
         }
 
         Static {
-            colorer: colorer.build_both(ctx, app),
+            colorer: colorer.build(ctx, app),
             name: "amenities",
         }
     }

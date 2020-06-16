@@ -119,7 +119,7 @@ impl ShowBusRoute {
         ShowBusRoute {
             time: app.primary.sim.time(),
             route: id,
-            colorer: colorer.build_both(ctx, app),
+            colorer: colorer.build(ctx, app),
             labels,
             bus_locations,
         }

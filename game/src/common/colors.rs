@@ -157,7 +157,7 @@ impl ColorerBuilder {
         }
     }
 
-    pub fn build_both(self, ctx: &mut EventCtx, app: &App) -> Colorer {
+    pub fn build(self, ctx: &mut EventCtx, app: &App) -> Colorer {
         let mut zoomed = GeomBatch::new();
         let mut unzoomed = GeomBatch::new();
         let map = &app.primary.map;
@@ -220,15 +220,6 @@ impl ColorerBuilder {
             unzoomed: unzoomed.upload(ctx),
             legend,
         }
-    }
-
-    pub fn build_zoomed(self, ctx: &mut EventCtx, app: &App) -> Drawable {
-        self.build_both(ctx, app).zoomed
-    }
-    pub fn build_unzoomed(self, ctx: &mut EventCtx, app: &App) -> Colorer {
-        let mut c = self.build_both(ctx, app);
-        c.zoomed = GeomBatch::new().upload(ctx);
-        c
     }
 }
 

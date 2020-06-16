@@ -121,7 +121,7 @@ impl Dynamic {
 
         Dynamic {
             time: app.primary.sim.time(),
-            colorer: colorer.build_unzoomed(ctx, app),
+            colorer: colorer.build(ctx, app),
             name: "backpressure",
         }
     }
@@ -268,7 +268,7 @@ impl Throughput {
                 }
             }
         }
-        let colorer = colorer.build_both(ctx, app);
+        let colorer = colorer.build(ctx, app);
 
         Throughput {
             time: app.primary.sim.time(),
