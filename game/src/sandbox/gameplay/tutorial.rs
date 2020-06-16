@@ -257,7 +257,7 @@ impl Tutorial {
                 return Some(transition(ctx, app, tut));
             }
         } else if tut.interaction() == Task::WatchBikes {
-            if app.primary.sim.time() >= Time::START_OF_DAY + Duration::minutes(2) {
+            if app.primary.sim.time() >= Time::START_OF_DAY + Duration::minutes(3) {
                 tut.next();
                 return Some(transition(ctx, app, tut));
             }
@@ -410,7 +410,7 @@ impl GameplayState for Tutorial {
         self.last_finished_task >= Task::Camera
     }
     fn has_tool_panel(&self) -> bool {
-        self.last_finished_task >= Task::Camera
+        true
     }
     fn has_time_panel(&self) -> bool {
         self.last_finished_task >= Task::InspectObjects
@@ -461,7 +461,7 @@ impl Task {
                 }
                 return txt;
             }
-            Task::TimeControls => "Simulate until after 5pm",
+            Task::TimeControls => "Wait until after 5pm",
             Task::PauseResume => {
                 let mut txt = Text::from(Line("[ ] Pause/resume "));
                 txt.append(Line(format!("{} times", 3 - state.num_pauses)).fg(Color::GREEN));
@@ -488,7 +488,7 @@ impl Task {
                 return txt;
             }
             Task::LowParking => "Find a road with almost no parking spots available",
-            Task::WatchBikes => "Simulate 2 minutes",
+            Task::WatchBikes => "Watch for 3 minutes",
             Task::FixBikes => {
                 return Text::from(Line(format!(
                     "[ ] Complete all trips {} faster",
@@ -503,12 +503,12 @@ impl Task {
     fn label(self) -> &'static str {
         match self {
             Task::Nil => unreachable!(),
-            Task::Camera => "Moving the camera",
+            Task::Camera => "Moving the drone",
             Task::InspectObjects => "Interacting with objects",
-            Task::TimeControls => "Controlling time",
+            Task::TimeControls => "Passing the time",
             Task::PauseResume => "Pausing/resuming",
-            Task::Escort => "Following agents",
-            Task::LowParking => "Using extra data layers",
+            Task::Escort => "Following people",
+            Task::LowParking => "Exploring map layers",
             Task::WatchBikes => "Observing a problem",
             Task::FixBikes => "Editing lanes",
             Task::Done => "Tutorial complete!",
@@ -791,7 +791,7 @@ impl TutorialState {
                     for l in lines {
                         txt.add(Line(l));
                     }
-                    txt.draw(ctx)
+                    txt.wrap_to_pct(ctx, 30).draw(ctx)
                 }];
                 let mut controls = vec![Widget::row(vec![
                     if self.current.part > 0 {
@@ -851,7 +851,7 @@ impl TutorialState {
                             .outline(5.0, Color::WHITE)
                             .padding(16),
                     )
-                    .exact_size_percent(50, 30)
+                    .exact_size_percent(40, 40)
                     .build(ctx),
                 )
             } else {
@@ -903,34 +903,31 @@ impl TutorialState {
                 )
                 .msg(
                     vec![
-                        "Welcome to your first day as a contract traffic engineer --",
-                        "like a paid assassin, but capable of making WAY more people cry.",
-                        "Seattle is a fast-growing city, and nobody can decide how to fix the \
-                         traffic.",
-                    ],
-                    None,
-                )
-                // TODO Point out settings and the alternative?
-                .msg(
-                    vec![
-                        "Let's start with the controls.",
-                        "Click and drag to pan around the map, and use your scroll",
-                        "wheel or touchpad to zoom in and out.",
+                        "Let's start by piloting your fancy new drone.",
+                        "",
+                        "- Click and drag to pan around the map",
+                        "- Use your scroll wheel or touchpad to zoom in and out.",
                     ],
                     None,
                 )
                 .msg(
+                    vec!["If the controls feel wrong, try adjusting the settings."],
+                    arrow(tool_panel.inner.center_of("settings")),
+                )
+                .msg(
                     vec![
-                        "Let's try that ou--",
-                        "WHOA THERE'S A FIRE STATION ON FIRE!",
+                        "Let's try the drone ou--",
+                        "",
+                        "WHOA, THERE'S A FIRE STATION ON FIRE!",
                         "GO CLICK ON IT, QUICK!",
                     ],
                     None,
                 )
                 .msg(
                     vec![
-                        "Hint: Look around for an unusually red building",
-                        "Hint: You have to zoom in to interact with anything on the map.",
+                        "Hint:",
+                        "- Look around for an unusually red building",
+                        "- You have to zoom in to interact with anything on the map.",
                     ],
                     None,
                 ),
@@ -940,23 +937,17 @@ impl TutorialState {
             Stage::new(Task::InspectObjects)
                 .msg(
                     vec![
-                        "Er, sorry about that.",
-                        "Just a little joke we like to play on the new recruits.",
+                        "Er, sorry about that. Just a little joke we like to play on the new \
+                         recruits.",
                     ],
                     None,
                 )
                 .msg(
                     vec![
-                        "If you're going to storm out of here, you can always go back towards the \
-                         main screen using this button",
-                        "(But please continue with the training.)",
-                    ],
-                    arrow(tool_panel.inner.center_of("back")),
-                )
-                .msg(
-                    vec![
                         "Now, let's learn how to inspect and interact with objects in the map.",
-                        "Select something with your mouse, then click on it.",
+                        "",
+                        "- Click on something.",
+                        "- Hint: You have to zoom in before you can select anything.",
                     ],
                     None,
                 ),
@@ -981,7 +972,11 @@ impl TutorialState {
                     arrow(speed.composite.center_of("pause")),
                 )
                 .msg(
-                    vec!["Speed things up"],
+                    vec![
+                        "Speed things up",
+                        "",
+                        "(The keyboard shortcuts are very helpful here!)",
+                    ],
                     arrow(speed.composite.center_of("30x speed")),
                 )
                 .msg(
@@ -989,11 +984,11 @@ impl TutorialState {
                     arrow(speed.composite.center_of("step forwards")),
                 )
                 .msg(
-                    vec!["And reset to the beginning of the day"],
+                    vec!["And jump to the beginning of the day"],
                     arrow(speed.composite.center_of("reset to midnight")),
                 )
                 .msg(
-                    vec!["Let's try these controls out. Run the simulation until 5pm or later."],
+                    vec!["Let's try these controls out. Wait until 5pm or later."],
                     None,
                 ),
         );
@@ -1144,6 +1139,7 @@ impl TutorialState {
                 .msg(
                     vec![
                         "You don't have to manually chase them; just click to follow.",
+                        "",
                         "(If you do lose track of them, just reset)",
                     ],
                     arrow(speed.composite.center_of("reset to midnight")),
@@ -1184,30 +1180,27 @@ impl TutorialState {
                     vec![
                         "What an immature prank. You should re-evaluate your life decisions.",
                         "",
-                        "The map is quite large, so to help you orient",
-                        "the minimap shows you an overview of all activity.",
-                        "You can click and drag it just like the normal map.",
+                        "The map is quite large, so to help you orient, the minimap shows you an \
+                         overview of all activity. You can click and drag it just like the normal \
+                         map.",
                     ],
                     arrow(minimap.composite.center_of("minimap")),
                 )
                 .msg(
-                    vec!["Find addresses here"],
-                    arrow(minimap.composite.center_of("search")),
-                )
-                .msg(
                     vec![
-                        "Apply different layers to the map, to find data such as:",
+                        "You can apply different layers to the map, to find things like:",
+                        "",
                         "- roads with high traffic",
                         "- bus stops",
-                        "- current parking",
+                        "- how much parking is filled up",
                     ],
                     arrow(minimap.composite.center_of("change layers")),
                 )
                 .msg(
                     vec![
                         "Let's try these out.",
-                        "There are lots of cars parked everywhere.",
-                        "Can you find a road that's almost out of parking spots?",
+                        "There are lots of cars parked everywhere. Can you find a road that's \
+                         almost out of parking spots?",
                     ],
                     None,
                 ),
@@ -1224,8 +1217,8 @@ impl TutorialState {
                     vec![
                         "Well done!",
                         "",
-                        "Let's see what's happening over here.",
-                        "(Just watch for a moment at whatever speed you like.)",
+                        "Something's about to happen over here. Follow along and figure out what \
+                         the problem is, at whatever speed you'd like.",
                     ],
                     None,
                 ),
@@ -1240,17 +1233,17 @@ impl TutorialState {
                     vec![
                         "Looks like lots of cars and bikes trying to go to a house by the \
                          playfield.",
-                        "When lots of cars and bikes share the same lane,",
-                        "cars are delayed (assuming there's no room to pass) and",
-                        "the cyclist probably feels unsafe too.",
+                        "",
+                        "When lots of cars and bikes share the same lane, cars are delayed \
+                         (assuming there's no room to pass) and the cyclist probably feels unsafe \
+                         too.",
                     ],
                     None,
                 )
                 .msg(
                     vec![
-                        "Luckily, you have the power to modify lanes!",
-                        "What if you could transform the parking lanes that aren't being used much",
-                        "into a protected bike lane?",
+                        "Luckily, you have the power to modify lanes! What if you could transform \
+                         the parking lanes that aren't being used much into bike lanes?",
                     ],
                     None,
                 )
@@ -1260,38 +1253,43 @@ impl TutorialState {
                 )
                 .msg(
                     vec![
-                        "Some changes you make can't take effect until the next day;",
-                        "like what if you removed a parking lane while there are cars on it?",
-                        "So when you leave edit mode, the day will always reset to midnight.",
+                        "When you finish making edits, time will jump to the beginning of the \
+                         next day. You can't make most changes in the middle of the day.",
                         "",
-                        "People are on fixed schedules: every day, everybody leaves at exactly \
-                         the same time,",
-                        "making the same decision to drive, walk, bike, or take a bus.",
-                        "",
-                        "All you can influence is how their experience will be in the short term.",
+                        "Seattlites are really boring; they follow the exact same schedule \
+                         everyday. They're really stubborn, so even if you try to influence their \
+                         decision whether to drive, walk, bike, or take a bus, they'll do the \
+                         same thing. For now, you're just trying to make things better, assuming \
+                         people stick to their routine.",
                     ],
                     None,
                 )
                 .msg(
+                    // TODO Deliberately vague with the measurement.
                     vec![
                         format!(
-                            "So adjust lanes and complete all trips at least {} faster.",
+                            "So adjust lanes and speed up the slowest trip by at least {}.",
                             CAR_BIKE_CONTENTION_GOAL
                         ),
-                        "When all trips are done, you'll get your final score.".to_string(),
+                        "".to_string(),
+                        "You can explore results as trips finish. When everyone's finished, \
+                         you'll get your final score."
+                            .to_string(),
                     ],
-                    arrow(agent_meter.composite.center_of_panel()),
+                    arrow(agent_meter.composite.center_of("more data")),
                 ),
         );
 
         state.stages.push(Stage::new(Task::Done).msg(
             vec![
-                "Training complete!",
-                "Use sandbox mode to explore larger areas of Seattle and try out any ideas you \
-                 have.",
-                "Or try your skills at a particular challenge!",
+                "You're ready for the hard stuff now.",
                 "",
-                "Go have the appropriate amount of fun.",
+                "- Try out some challenges",
+                "- Explore larger parts of Seattle in the sandbox, and try out any ideas you've \
+                 got.",
+                "- Check out community proposals, and submit your own",
+                "",
+                "Go have the appropriate amount of fun!",
             ],
             None,
         ));
@@ -1403,7 +1401,7 @@ pub fn execute(_: &mut EventCtx, app: &mut App, id: ID, action: String) -> Trans
 }
 
 fn intro_story(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
-    CutsceneBuilder::new("Introductory Story")
+    CutsceneBuilder::new("Introduction")
         .boss(
             "Argh, the mayor's on my case again about the West Seattle bridge. This day couldn't \
              get any worse.",
@@ -1416,6 +1414,8 @@ fn intro_story(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
         )
         .player("Yes, hi, my name is --")
         .boss("We can't afford name-tags, didn't you hear, budget cuts? Your name doesn't matter.")
+        .player("What about my Insta handle?")
+        .boss("-glare-")
         .boss(
             "Look, you think fixing traffic is easy? Hah! You can't fix one intersection without \
              breaking ten more.",
@@ -1424,15 +1424,16 @@ fn intro_story(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
             "And everybody wants something different! Bike lanes here! More parking! Faster \
              buses! Cheaper housing! Less rain! Free this, subsidized that!",
         )
-        .boss(
-            "Light rail and robot cars aren't here to save the day! Alright, time to start your \
-             training.",
-        )
+        .boss("Light rail and robot cars aren't here to save the day! Know what you'll be using?")
+        .extra("drone", "The traffic drone")
+        .player("Is that... duct tape?")
+        .boss("We ran out of spit and prayers. Well, off to training for you!")
         .build(
             ctx,
             app,
             Box::new(|ctx| {
-                Text::from(Line("Time to learn the basic controls").fg(Color::BLACK)).draw(ctx)
+                Text::from(Line("Use the tutorial to learn the basic controls").fg(Color::BLACK))
+                    .draw(ctx)
             }),
         )
 }

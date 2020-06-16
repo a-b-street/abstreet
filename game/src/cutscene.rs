@@ -10,9 +10,14 @@ pub struct CutsceneBuilder {
     scenes: Vec<Scene>,
 }
 
+enum Layout {
+    PlayerSpeaking,
+    BossSpeaking,
+    Extra(&'static str),
+}
+
 struct Scene {
-    // TODO else boss. Simple till we have a 3-person scene.
-    player: bool,
+    layout: Layout,
     msg: Text,
 }
 
@@ -26,7 +31,7 @@ impl CutsceneBuilder {
 
     pub fn player<I: Into<String>>(mut self, msg: I) -> CutsceneBuilder {
         self.scenes.push(Scene {
-            player: true,
+            layout: Layout::PlayerSpeaking,
             msg: Text::from(Line(msg).fg(Color::BLACK)),
         });
         self
@@ -34,7 +39,15 @@ impl CutsceneBuilder {
 
     pub fn boss<I: Into<String>>(mut self, msg: I) -> CutsceneBuilder {
         self.scenes.push(Scene {
-            player: false,
+            layout: Layout::BossSpeaking,
+            msg: Text::from(Line(msg).fg(Color::BLACK)),
+        });
+        self
+    }
+
+    pub fn extra<I: Into<String>>(mut self, character: &'static str, msg: I) -> CutsceneBuilder {
+        self.scenes.push(Scene {
+            layout: Layout::Extra(character),
             msg: Text::from(Line(msg).fg(Color::BLACK)),
         });
         self
@@ -178,23 +191,34 @@ fn make_panel(
         ])
     } else {
         Widget::col(vec![
-            // TODO Can't get this centered better
-            if scenes[idx].player {
-                Widget::row(vec![
+            match scenes[idx].layout {
+                Layout::PlayerSpeaking => Widget::row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/characters/boss.svg"),
                     Widget::row(vec![
                         scenes[idx].msg.clone().wrap_to_pct(ctx, 30).draw(ctx),
                         Widget::draw_svg(ctx, "../data/system/assets/characters/player.svg"),
                     ])
                     .align_right(),
-                ])
-            } else {
-                Widget::row(vec![
+                ]),
+                Layout::BossSpeaking => Widget::row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/characters/boss.svg"),
                     scenes[idx].msg.clone().wrap_to_pct(ctx, 30).draw(ctx),
                     Widget::draw_svg(ctx, "../data/system/assets/characters/player.svg")
                         .align_right(),
-                ])
+                ]),
+                Layout::Extra(name) => Widget::row(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/characters/boss.svg").align_left(),
+                    Widget::col(vec![
+                        Widget::draw_svg(
+                            ctx,
+                            format!("../data/system/assets/characters/{}.svg", name),
+                        )
+                        .margin_below(10),
+                        scenes[idx].msg.clone().wrap_to_pct(ctx, 30).draw(ctx),
+                    ]),
+                    Widget::draw_svg(ctx, "../data/system/assets/characters/player.svg")
+                        .align_right(),
+                ]),
             }
             .margin_above(100),
             Widget::col(vec![

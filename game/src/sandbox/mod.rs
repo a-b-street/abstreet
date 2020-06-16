@@ -283,7 +283,7 @@ impl AgentMeter {
         let (finished, unfinished, by_mode) = app.primary.sim.num_trips();
 
         let rows = vec![
-            "Active agents".draw_text(ctx),
+            "Active trips".draw_text(ctx),
             Widget::row(vec![
                 Widget::row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/meters/pedestrian.svg")
