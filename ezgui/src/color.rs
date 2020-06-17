@@ -75,14 +75,6 @@ impl Color {
         Color::rgba_f(self.r, self.g, self.b, a)
     }
 
-    pub fn fade(&self, factor: f32) -> Color {
-        let mut c = self.clone();
-        c.r /= factor;
-        c.g /= factor;
-        c.b /= factor;
-        c
-    }
-
     pub fn hex(raw: &str) -> Color {
         // Skip the leading '#'
         let r = usize::from_str_radix(&raw[1..3], 16).unwrap();

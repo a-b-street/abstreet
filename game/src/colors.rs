@@ -106,6 +106,7 @@ pub struct ColorScheme {
     pub ped_preparing_bike_body: Color,
     pub ped_crowd: Color,
     pub bike_frame: Color,
+    pub parked_car: Color,
 
     // Layers
     pub good_to_bad_red: ColorScale,
@@ -209,6 +210,7 @@ impl ColorScheme {
             ped_preparing_bike_body: Color::rgb(255, 0, 144),
             ped_crowd: Color::rgb_f(0.2, 0.7, 0.7),
             bike_frame: Color::hex("#AAA9AD"),
+            parked_car: Color::hex("#938E85"),
 
             // Layers
             good_to_bad_red: ColorScale(vec![hex("#F19A93"), hex("#A32015")]),

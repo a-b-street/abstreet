@@ -196,7 +196,7 @@ fn zoomed_color_car(input: &DrawCarInput, cs: &ColorScheme) -> Color {
     } else {
         match input.status {
             CarStatus::Moving => cs.rotating_color_agents(input.id.0),
-            CarStatus::Parked => cs.rotating_color_agents(input.id.0).fade(1.5),
+            CarStatus::Parked => cs.parked_car,
         }
     }
 }
