@@ -174,31 +174,31 @@ impl Occupancy {
                             100.0 * (has_car as f64) / (total_ppl as f64)
                         }
                     )),
-                    Line(""),
                     Line(format!(
-                        "{} public spots filled",
-                        prettyprint_usize(filled_spots.len())
+                        "{} / {} public spots filled",
+                        prettyprint_usize(filled_spots.len()),
+                        prettyprint_usize(filled_spots.len() + avail_spots.len())
                     )),
                     Line(format!(
-                        "{} public spots available ",
-                        prettyprint_usize(avail_spots.len())
-                    )),
-                    Line(""),
-                    Line(format!(
-                        "{} private spots filled",
-                        prettyprint_usize(filled_private_spots)
-                    )),
-                    Line(format!(
-                        "{} private spots available ",
-                        prettyprint_usize(avail_private_spots)
+                        "{} / {} private spots filled",
+                        prettyprint_usize(filled_private_spots),
+                        prettyprint_usize(filled_private_spots + avail_private_spots)
                     )),
                 ])
                 .draw(ctx)
                 .margin_below(10),
-                Checkbox::text(ctx, "On-street spots", None, onstreet).margin_below(5),
-                Checkbox::text(ctx, "Public garages", None, garages).margin_below(5),
-                Checkbox::text(ctx, "Parking lots", None, lots).margin_below(10),
-                Checkbox::text(ctx, "Private buildings", None, private_bldgs).margin_below(10),
+                Widget::row(vec![
+                    Checkbox::text(ctx, "On-street spots", None, onstreet).margin_right(15),
+                    Checkbox::text(ctx, "Parking lots", None, lots),
+                ])
+                .evenly_spaced()
+                .margin_below(10),
+                Widget::row(vec![
+                    Checkbox::text(ctx, "Public garages", None, garages).margin_right(15),
+                    Checkbox::text(ctx, "Private buildings", None, private_bldgs),
+                ])
+                .evenly_spaced()
+                .margin_below(10),
                 ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0%", "100%"]),
             ])
             .padding(5)

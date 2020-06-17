@@ -276,7 +276,7 @@ impl<'a> ColorNetwork<'a> {
             .push(color.alpha(0.4), self.map.get_pl(pl).polygon.clone());
     }
 
-    pub fn road_percentiles(&mut self, counter: Counter<RoadID>, scale: &ColorScale) {
+    pub fn ranked_roads(&mut self, counter: Counter<RoadID>, scale: &ColorScale) {
         let roads = counter.sorted_asc();
         let len = roads.len() as f64;
         for (idx, list) in roads.into_iter().enumerate() {
@@ -286,11 +286,7 @@ impl<'a> ColorNetwork<'a> {
             }
         }
     }
-    pub fn intersection_percentiles(
-        &mut self,
-        counter: Counter<IntersectionID>,
-        scale: &ColorScale,
-    ) {
+    pub fn ranked_intersections(&mut self, counter: Counter<IntersectionID>, scale: &ColorScale) {
         let intersections = counter.sorted_asc();
         let len = intersections.len() as f64;
         for (idx, list) in intersections.into_iter().enumerate() {

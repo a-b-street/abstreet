@@ -3,7 +3,7 @@ use crate::common::{ColorLegend, ColorNetwork};
 use crate::layer::{Layer, LayerOutcome};
 use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    TextExt, VerticalAlignment, Widget,
+    Line, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{ArrowCap, Distance, PolyLine};
 
@@ -102,7 +102,11 @@ impl Elevation {
                         .build(ctx, "close", hotkey(Key::Escape))
                         .align_right(),
                 ]),
-                format!("Steepest road: {:.0}%", max * 100.0).draw_text(ctx),
+                Text::from_multiline(vec![
+                    Line(format!("Steepest road: {:.0}% grade", max * 100.0)),
+                    Line("Note: elevation data is currently wrong!").secondary(),
+                ])
+                .draw(ctx),
                 ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["flat", "steep"]),
             ])
             .padding(5)

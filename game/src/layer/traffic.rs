@@ -4,7 +4,7 @@ use crate::layer::{Layer, LayerOutcome};
 use abstutil::Counter;
 use ezgui::{
     hotkey, Btn, Checkbox, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Outcome, TextExt, VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Distance, Duration, Polygon, Time};
 use map_model::{IntersectionID, Map, Traversable};
@@ -74,8 +74,17 @@ impl Backpressure {
                         .build(ctx, "close", hotkey(Key::Escape))
                         .align_right(),
                 ]),
-                // TODO Explain
-                ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0%ile", "100%ile"]),
+                Text::from(
+                    Line("This counts all active trips passing through a road in the future")
+                        .secondary(),
+                )
+                .wrap_to_pct(ctx, 15)
+                .draw(ctx),
+                ColorLegend::gradient(
+                    ctx,
+                    &app.cs.good_to_bad_red,
+                    vec!["lowest count", "highest"],
+                ),
             ])
             .padding(5)
             .bg(app.cs.panel_bg),
@@ -84,8 +93,8 @@ impl Backpressure {
         .build(ctx);
 
         let mut colorer = ColorNetwork::new(app);
-        colorer.road_percentiles(cnt_per_r, &app.cs.good_to_bad_red);
-        colorer.intersection_percentiles(cnt_per_i, &app.cs.good_to_bad_red);
+        colorer.ranked_roads(cnt_per_r, &app.cs.good_to_bad_red);
+        colorer.ranked_intersections(cnt_per_i, &app.cs.good_to_bad_red);
         let (unzoomed, zoomed) = colorer.build(ctx);
 
         Backpressure {
@@ -167,13 +176,19 @@ impl Throughput {
                         .build(ctx, "close", hotkey(Key::Escape))
                         .align_right(),
                 ]),
-                // TODO Explain. What roads see the most movement?
+                Text::from(Line("This counts all people crossing since midnight").secondary())
+                    .wrap_to_pct(ctx, 15)
+                    .draw(ctx),
                 if app.has_prebaked().is_some() {
                     Checkbox::text(ctx, "Compare before edits", None, false).margin_below(5)
                 } else {
                     Widget::nothing()
                 },
-                ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0%ile", "100%ile"]),
+                ColorLegend::gradient(
+                    ctx,
+                    &app.cs.good_to_bad_red,
+                    vec!["lowest count", "highest"],
+                ),
             ])
             .padding(5)
             .bg(app.cs.panel_bg),
@@ -183,11 +198,11 @@ impl Throughput {
 
         let mut colorer = ColorNetwork::new(app);
         let stats = &app.primary.sim.get_analytics();
-        colorer.road_percentiles(
+        colorer.ranked_roads(
             stats.road_thruput.all_total_counts(),
             &app.cs.good_to_bad_red,
         );
-        colorer.intersection_percentiles(
+        colorer.ranked_intersections(
             stats.intersection_thruput.all_total_counts(),
             &app.cs.good_to_bad_red,
         );
@@ -256,13 +271,13 @@ impl Throughput {
                 Widget::row(vec![
                     Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg")
                         .margin_right(10),
-                    "Throughput (percent change)".draw_text(ctx),
+                    "Relative Throughput".draw_text(ctx),
                     Btn::plaintext("X")
                         .build(ctx, "close", hotkey(Key::Escape))
                         .align_right(),
                 ]),
                 Checkbox::text(ctx, "Compare before edits", None, true).margin_below(5),
-                scale.make_legend(ctx, vec!["less", "-50%", "0%", "50%", "more"]),
+                scale.make_legend(ctx, vec!["less traffic", "same", "more"]),
             ])
             .padding(5)
             .bg(app.cs.panel_bg),
@@ -503,15 +518,13 @@ impl TrafficJams {
         );
         let mut zoomed = GeomBatch::new();
         let mut cnt = 0;
-        // TODO Maybe look for intersections with delay > 5m, then expand out while roads have
-        // delay of at least 1m?
         for (epicenter, boundary) in cluster_jams(
             &app.primary.map,
             app.primary.sim.delayed_intersections(Duration::minutes(5)),
         ) {
             cnt += 1;
             unzoomed.push(Color::RED, boundary.to_outline(Distance::meters(5.0)));
-            unzoomed.push(Color::RED.alpha(0.7), boundary.clone());
+            unzoomed.push(Color::RED.alpha(0.5), boundary.clone());
             unzoomed.push(Color::WHITE, epicenter.clone());
 
             zoomed.push(
@@ -532,6 +545,11 @@ impl TrafficJams {
                         .build(ctx, "close", hotkey(Key::Escape))
                         .align_right(),
                 ]),
+                Text::from(
+                    Line("A jam starts when delay exceeds 5 mins, then spreads out").secondary(),
+                )
+                .wrap_to_pct(ctx, 15)
+                .draw(ctx),
                 format!("{} jams detected", cnt).draw_text(ctx),
             ])
             .padding(5)
@@ -574,12 +592,7 @@ fn cluster_jams(map: &Map, problems: Vec<(IntersectionID, Time)>) -> Vec<(Polygo
         .map(|jam| {
             (
                 map.get_i(jam.epicenter).polygon.clone(),
-                Polygon::convex_hull(
-                    jam.members
-                        .into_iter()
-                        .map(|i| map.get_i(i).polygon.clone())
-                        .collect(),
-                ),
+                Polygon::convex_hull(jam.all_polygons(map)),
             )
         })
         .collect()
@@ -594,5 +607,13 @@ impl Jam {
             }
         }
         false
+    }
+
+    fn all_polygons(self, map: &Map) -> Vec<Polygon> {
+        let mut polygons = Vec::new();
+        for i in self.members {
+            polygons.push(map.get_i(i).polygon.clone());
+        }
+        polygons
     }
 }
