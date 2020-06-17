@@ -527,11 +527,7 @@ fn throughput<F: Fn(&Analytics) -> Vec<(TripMode, Vec<(Time, usize)>)>>(
         // TODO Ahh these colors don't show up differently at all.
         for (m, pts) in get_data(app.prebaked()) {
             series.push(Series {
-                label: format!(
-                    "{} (before \"{}\")",
-                    m.noun(),
-                    app.primary.map.get_edits().edits_name
-                ),
+                label: m.noun().to_string(),
                 color: color_for_mode(app, m).alpha(0.3),
                 pts,
             });

@@ -4,6 +4,7 @@ use crate::{
 };
 use abstutil::prettyprint_usize;
 use geom::{Angle, Bounds, Circle, Distance, Duration, FindClosest, PolyLine, Pt2D, Time};
+use std::collections::{BTreeMap, HashSet};
 
 // The X is always time
 pub struct LinePlot<T: Yvalue<T>> {
@@ -59,7 +60,12 @@ impl<T: Yvalue<T>> LinePlot<T> {
             ])
         } else {
             let mut row = Vec::new();
+            let mut seen = HashSet::new();
             for s in &series {
+                if seen.contains(&s.label) {
+                    continue;
+                }
+                seen.insert(s.label.clone());
                 row.push(Widget::row(vec![
                     Widget::new(Box::new(
                         Checkbox::colored(ctx, &s.label, s.color, true)
@@ -156,15 +162,14 @@ impl<T: Yvalue<T>> LinePlot<T> {
             Pt2D::new(0.0, 0.0),
             Pt2D::new(width, height),
         ]));
-        let mut series_state = Vec::new();
+        let mut state: BTreeMap<String, GeomBatch> = BTreeMap::new();
         for s in series {
-            let mut batch = GeomBatch::new();
+            if !state.contains_key(&s.label) {
+                state.insert(s.label.clone(), GeomBatch::new());
+            }
+            let batch = state.get_mut(&s.label).unwrap();
+
             if max_x == Time::START_OF_DAY {
-                series_state.push(SeriesState {
-                    label: s.label,
-                    enabled: true,
-                    draw: ctx.upload(batch),
-                });
                 continue;
             }
 
@@ -189,15 +194,17 @@ impl<T: Yvalue<T>> LinePlot<T> {
                         .make_polygons_with_miter_threshold(Distance::meters(5.0), 10.0),
                 );
             }
-            series_state.push(SeriesState {
-                label: s.label,
-                enabled: true,
-                draw: ctx.upload(batch),
-            });
         }
 
         let plot = LinePlot {
-            series: series_state,
+            series: state
+                .into_iter()
+                .map(|(label, batch)| SeriesState {
+                    label,
+                    enabled: true,
+                    draw: ctx.upload(batch),
+                })
+                .collect(),
             draw_grid: ctx.upload(grid_batch),
             closest,
             max_x,
