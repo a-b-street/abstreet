@@ -3,7 +3,7 @@ use crate::common::{ColorLegend, ColorNetwork};
 use crate::layer::{Layer, LayerOutcome};
 use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Outcome, TextExt, VerticalAlignment, Widget,
+    TextExt, VerticalAlignment, Widget,
 };
 use geom::{ArrowCap, Distance, PolyLine};
 
@@ -23,17 +23,7 @@ impl Layer for Elevation {
         _: &mut App,
         minimap: &Composite,
     ) -> Option<LayerOutcome> {
-        self.composite.align_above(ctx, minimap);
-        match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "close" => {
-                    return Some(LayerOutcome::Close);
-                }
-                _ => unreachable!(),
-            },
-            None => {}
-        }
-        None
+        Layer::simple_event(ctx, minimap, &mut self.composite)
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.composite.draw(g);

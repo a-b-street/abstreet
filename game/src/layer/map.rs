@@ -5,7 +5,7 @@ use crate::layer::{Layer, LayerOutcome};
 use abstutil::Counter;
 use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Text, TextExt, VerticalAlignment, Widget,
+    Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Distance, Time};
 use map_model::LaneType;
@@ -32,17 +32,7 @@ impl Layer for BikeNetwork {
             *self = BikeNetwork::new(ctx, app);
         }
 
-        self.composite.align_above(ctx, minimap);
-        match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "close" => {
-                    return Some(LayerOutcome::Close);
-                }
-                _ => unreachable!(),
-            },
-            None => {}
-        }
-        None
+        Layer::simple_event(ctx, minimap, &mut self.composite)
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.composite.draw(g);
@@ -166,17 +156,7 @@ impl Layer for Static {
         _: &mut App,
         minimap: &Composite,
     ) -> Option<LayerOutcome> {
-        self.composite.align_above(ctx, minimap);
-        match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "close" => {
-                    return Some(LayerOutcome::Close);
-                }
-                _ => unreachable!(),
-            },
-            None => {}
-        }
-        None
+        Layer::simple_event(ctx, minimap, &mut self.composite)
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.composite.draw(g);

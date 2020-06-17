@@ -32,17 +32,7 @@ impl Layer for Backpressure {
             *self = Backpressure::new(ctx, app);
         }
 
-        self.composite.align_above(ctx, minimap);
-        match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "close" => {
-                    return Some(LayerOutcome::Close);
-                }
-                _ => unreachable!(),
-            },
-            None => {}
-        }
-        None
+        Layer::simple_event(ctx, minimap, &mut self.composite)
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.composite.draw(g);
@@ -488,17 +478,7 @@ impl Layer for TrafficJams {
             *self = TrafficJams::new(ctx, app);
         }
 
-        self.composite.align_above(ctx, minimap);
-        match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "close" => {
-                    return Some(LayerOutcome::Close);
-                }
-                _ => unreachable!(),
-            },
-            None => {}
-        }
-        None
+        Layer::simple_event(ctx, minimap, &mut self.composite)
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.composite.draw(g);

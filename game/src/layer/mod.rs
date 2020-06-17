@@ -15,9 +15,6 @@ use ezgui::{hotkey, Btn, Composite, EventCtx, GfxCtx, Key, Line, Outcome, TextEx
 // TODO Good ideas in
 // https://towardsdatascience.com/top-10-map-types-in-data-visualization-b3a80898ea70
 
-// TODO Easy refactoring:
-// - boilerplate for event and draw given Composite, unzoomed, zoomed
-// - Standard header with the icon
 pub trait Layer {
     fn name(&self) -> Option<&'static str>;
     fn event(
@@ -30,6 +27,23 @@ pub trait Layer {
     fn draw(&self, g: &mut GfxCtx, app: &App);
     // Just draw contents and do it always
     fn draw_minimap(&self, g: &mut GfxCtx);
+}
+
+impl dyn Layer {
+    fn simple_event(
+        ctx: &mut EventCtx,
+        minimap: &Composite,
+        composite: &mut Composite,
+    ) -> Option<LayerOutcome> {
+        composite.align_above(ctx, minimap);
+        match composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "close" => Some(LayerOutcome::Close),
+                _ => unreachable!(),
+            },
+            None => None,
+        }
+    }
 }
 
 // TODO Just return a bool for closed? Less readable...

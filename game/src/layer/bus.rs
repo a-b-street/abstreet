@@ -3,7 +3,7 @@ use crate::common::ColorDiscrete;
 use crate::layer::{Layer, LayerOutcome};
 use ezgui::{
     hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
+    Line, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Circle, Distance, Pt2D, Time};
 use map_model::{BusRouteID, PathConstraints, PathRequest, PathStep};
@@ -34,17 +34,7 @@ impl Layer for ShowBusRoute {
             *self = ShowBusRoute::new(ctx, app, self.route);
         }
 
-        self.composite.align_above(ctx, minimap);
-        match self.composite.event(ctx) {
-            Some(Outcome::Clicked(x)) => match x.as_ref() {
-                "close" => {
-                    return Some(LayerOutcome::Close);
-                }
-                _ => unreachable!(),
-            },
-            None => {}
-        }
-        None
+        Layer::simple_event(ctx, minimap, &mut self.composite)
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
