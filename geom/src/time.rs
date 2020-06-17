@@ -44,6 +44,15 @@ impl Time {
             centis as usize,
         )
     }
+    // Rounded up
+    pub fn get_hours(self) -> usize {
+        let (hr, min, sec, cs) = self.get_parts();
+        if min > 0 || sec > 0 || cs > 0 {
+            hr + 1
+        } else {
+            hr
+        }
+    }
 
     pub fn ampm_tostring(self) -> String {
         let (mut hours, minutes, seconds, remainder) = self.get_parts();

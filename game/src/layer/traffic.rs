@@ -220,7 +220,7 @@ impl Throughput {
     fn compare_throughput(ctx: &mut EventCtx, app: &App) -> Throughput {
         let after = app.primary.sim.get_analytics();
         let before = app.prebaked();
-        let hour = app.primary.sim.time().get_parts().0;
+        let hour = app.primary.sim.time().get_hours();
 
         let mut after_road = Counter::new();
         let mut before_road = Counter::new();

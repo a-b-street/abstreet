@@ -595,32 +595,46 @@ pub trait ContextualActions {
 #[derive(Clone, PartialEq)]
 pub struct DataOptions {
     pub show_before: bool,
+    pub show_end_of_day: bool,
 }
 
 impl DataOptions {
-    pub fn new(app: &App) -> DataOptions {
+    pub fn new() -> DataOptions {
         DataOptions {
-            show_before: app.has_prebaked().is_some(),
+            show_before: false,
+            show_end_of_day: false,
         }
     }
 
     pub fn to_controls(&self, ctx: &mut EventCtx, app: &App) -> Widget {
-        Widget::col(vec![if app.has_prebaked().is_some() {
+        if app.has_prebaked().is_none() {
+            return Widget::nothing();
+        }
+        Widget::row(vec![
             Checkbox::text(
                 ctx,
                 format!("Show before \"{}\"", app.primary.map.get_edits().edits_name),
                 None,
                 self.show_before,
             )
-            .named("Show before changes")
-        } else {
-            Widget::nothing()
-        }])
+            .named("Show before changes"),
+            if self.show_before {
+                Checkbox::text(ctx, "Show full day", None, self.show_end_of_day)
+            } else {
+                Widget::nothing()
+            },
+        ])
+        .evenly_spaced()
     }
 
     pub fn from_controls(c: &Composite) -> DataOptions {
+        let show_before =
+            c.has_widget("Show before changes") && c.is_checked("Show before changes");
         DataOptions {
-            show_before: c.has_widget("Show before changes") && c.is_checked("Show before changes"),
+            show_before,
+            show_end_of_day: show_before
+                && c.has_widget("Show full day")
+                && c.is_checked("Show full day"),
         }
     }
 }

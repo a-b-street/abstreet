@@ -60,10 +60,15 @@ pub fn traffic(
 
     rows.push(opts.to_controls(ctx, app).margin_below(10));
 
+    let time = if opts.show_end_of_day {
+        app.primary.sim.get_end_of_day()
+    } else {
+        app.primary.sim.time()
+    };
     rows.push(throughput(
         ctx,
         app,
-        move |a| a.intersection_thruput.count_per_hour(id),
+        move |a| a.intersection_thruput.count_per_hour(id, time),
         opts.show_before,
     ));
 
@@ -180,8 +185,16 @@ fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) 
         .into_iter()
         .map(|m| (m, Vec::new()))
         .collect();
+    let limit = if opts.show_end_of_day {
+        app.primary.sim.get_end_of_day()
+    } else {
+        app.primary.sim.time()
+    };
     if let Some(list) = data.intersection_delays.get(&i) {
         for (t, dt, mode) in list {
+            if *t > limit {
+                break;
+            }
             by_mode.get_mut(mode).unwrap().push((*t, *dt));
         }
     }
@@ -198,7 +211,15 @@ fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) 
             .small_heading()
             .draw(ctx)
             .margin_below(10),
-        ScatterPlotV2::new(ctx, "delay", series, PlotOptions::new()),
+        ScatterPlotV2::new(
+            ctx,
+            "delay",
+            series,
+            PlotOptions {
+                max_x: Some(limit),
+                max_y: None,
+            },
+        ),
     ])
     .padding(10)
     .bg(app.cs.inner_panel)
@@ -230,16 +251,10 @@ fn header(
     rows.push(make_tabs(ctx, &mut details.hyperlinks, tab, {
         let mut tabs = vec![
             ("Info", Tab::IntersectionInfo(id)),
-            (
-                "Traffic",
-                Tab::IntersectionTraffic(id, DataOptions::new(app)),
-            ),
+            ("Traffic", Tab::IntersectionTraffic(id, DataOptions::new())),
         ];
         if i.is_traffic_signal() {
-            tabs.push((
-                "Delay",
-                Tab::IntersectionDelay(id, DataOptions { show_before: false }),
-            ));
+            tabs.push(("Delay", Tab::IntersectionDelay(id, DataOptions::new())));
             tabs.push(("Current demand", Tab::IntersectionDemand(id)));
         }
         tabs

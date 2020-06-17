@@ -178,10 +178,15 @@ pub fn traffic(
     rows.push(opts.to_controls(ctx, app).margin_below(10));
 
     let r = map.get_l(id).parent;
+    let time = if opts.show_end_of_day {
+        app.primary.sim.get_end_of_day()
+    } else {
+        app.primary.sim.time()
+    };
     rows.push(throughput(
         ctx,
         app,
-        move |a| a.road_thruput.count_per_hour(r),
+        move |a| a.road_thruput.count_per_hour(r, time),
         opts.show_before,
     ));
 
@@ -206,7 +211,7 @@ fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID, tab: Tab
 
     let mut tabs = vec![
         ("Info", Tab::LaneInfo(id)),
-        ("Traffic", Tab::LaneTraffic(id, DataOptions::new(app))),
+        ("Traffic", Tab::LaneTraffic(id, DataOptions::new())),
     ];
     if app.opts.dev {
         tabs.push(("Debug", Tab::LaneDebug(id)));

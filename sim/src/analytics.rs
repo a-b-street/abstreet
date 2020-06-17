@@ -583,12 +583,12 @@ impl<X: Ord + Clone> TimeSeriesCount<X> {
         cnt
     }
 
-    pub fn count_per_hour(&self, id: X) -> Vec<(TripMode, Vec<(Time, usize)>)> {
+    pub fn count_per_hour(&self, id: X, time: Time) -> Vec<(TripMode, Vec<(Time, usize)>)> {
+        let hour = time.get_hours();
         let mut results = Vec::new();
         for mode in TripMode::all() {
             let mut pts = Vec::new();
-            // TODO Hmm
-            for hour in 0..24 {
+            for hour in 0..=hour {
                 let cnt = self
                     .counts
                     .get(&(id.clone(), mode, hour))
@@ -597,6 +597,7 @@ impl<X: Ord + Clone> TimeSeriesCount<X> {
                 pts.push((Time::START_OF_DAY + Duration::hours(hour), cnt));
                 pts.push((Time::START_OF_DAY + Duration::hours(hour + 1), cnt));
             }
+            pts.pop();
             results.push((mode, pts));
         }
         results
