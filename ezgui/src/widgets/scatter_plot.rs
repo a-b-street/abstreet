@@ -184,6 +184,8 @@ impl WidgetImpl for ScatterPlot {
 pub struct ScatterPlotV2 {
     series: Vec<SeriesState>,
     draw_grid: Drawable,
+    // TODO Recompute when a series is disabled
+    draw_avg: Drawable,
 
     top_left: ScreenPt,
     dims: ScreenDims,
@@ -197,7 +199,7 @@ struct SeriesState {
 
 impl ScatterPlotV2 {
     // id must be unique in a Composite
-    pub fn new<T: Yvalue<T>>(
+    pub fn new<T: Yvalue<T> + std::ops::AddAssign + std::ops::Div<f64, Output = T>>(
         ctx: &EventCtx,
         id: &str,
         series: Vec<Series<T>>,
@@ -315,9 +317,13 @@ impl ScatterPlotV2 {
 
         let circle = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(4.0)).to_polygon();
         let mut series_state = Vec::new();
+        let mut sum = T::zero();
+        let mut cnt = 0;
         for s in series {
             let mut batch = GeomBatch::new();
             for (t, y) in s.pts {
+                cnt += 1;
+                sum += y;
                 let percent_x = t.to_percent(max_x);
                 let percent_y = y.to_percent(max_y);
                 // Y inversion
@@ -332,10 +338,31 @@ impl ScatterPlotV2 {
                 draw: batch.upload(ctx),
             });
         }
+        let mut avg_batch = GeomBatch::new();
+        if sum != T::zero() {
+            let avg = (sum / (cnt as f64)).to_percent(max_y);
+            avg_batch.extend(
+                Color::hex("#F2F2F2"),
+                PolyLine::new(vec![
+                    Pt2D::new(0.0, (1.0 - avg) * height),
+                    Pt2D::new(width, (1.0 - avg) * height),
+                ])
+                .exact_dashed_polygons(
+                    Distance::meters(1.0),
+                    Distance::meters(10.0),
+                    Distance::meters(4.0),
+                ),
+            );
+
+            let txt = Text::from(Line("avg")).render_ctx(ctx).autocrop();
+            let width = txt.get_dims().width;
+            avg_batch.append(txt.centered_on(Pt2D::new(-width / 2.0, (1.0 - avg) * height)));
+        }
 
         let plot = ScatterPlotV2 {
             series: series_state,
             draw_grid: ctx.upload(grid_batch),
+            draw_avg: ctx.upload(avg_batch),
 
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(width, height),
@@ -395,6 +422,7 @@ impl WidgetImpl for ScatterPlotV2 {
                 g.redraw_at(self.top_left, &series.draw);
             }
         }
+        g.redraw_at(self.top_left, &self.draw_avg);
     }
 
     fn update_series(&mut self, label: String, enabled: bool) {
