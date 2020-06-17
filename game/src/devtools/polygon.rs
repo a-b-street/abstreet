@@ -1,8 +1,10 @@
 use crate::app::App;
 use crate::common::CommonState;
 use crate::game::{State, Transition};
-use crate::managed::WrappedComposite;
-use ezgui::{hotkey, Color, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Text};
+use ezgui::{
+    hotkey, Btn, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Text,
+    VerticalAlignment, Widget,
+};
 use geom::{Circle, Distance, LonLat, Polygon, Pt2D};
 use std::fs::File;
 use std::io::{Error, Write};
@@ -31,13 +33,22 @@ impl PolygonEditor {
     ) -> Box<dyn State> {
         points.pop();
         Box::new(PolygonEditor {
-            composite: WrappedComposite::quick_menu(
-                ctx,
-                app,
-                "Polygon editor",
-                vec![],
-                vec![(hotkey(Key::X), "export as an Osmosis polygon filter")],
-            ),
+            composite: Composite::new(
+                Widget::col(vec![
+                    Widget::row(vec![
+                        Line("Polygon editor").small_heading().draw(ctx),
+                        Btn::text_fg("X")
+                            .build(ctx, "close", hotkey(Key::Escape))
+                            .align_right(),
+                    ]),
+                    Btn::text_fg("export as an Osmosis polygon filter")
+                        .build_def(ctx, hotkey(Key::X)),
+                ])
+                .padding(16)
+                .bg(app.cs.panel_bg),
+            )
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .build(ctx),
             name,
             points,
             mouseover_pt: None,

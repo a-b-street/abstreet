@@ -15,6 +15,9 @@ use ezgui::{hotkey, Btn, Composite, EventCtx, GfxCtx, Key, Line, Outcome, TextEx
 // TODO Good ideas in
 // https://towardsdatascience.com/top-10-map-types-in-data-visualization-b3a80898ea70
 
+// TODO Easy refactoring:
+// - boilerplate for event and draw given Composite, unzoomed, zoomed
+// - Standard header with the icon
 pub trait Layer {
     fn name(&self) -> Option<&'static str>;
     fn event(

@@ -1,26 +1,26 @@
 use crate::app::App;
-use crate::common::{Colorer, CommonState};
+use crate::common::{ColorDiscrete, CommonState};
 use crate::devtools::blocks::BlockMap;
 use crate::devtools::destinations::PopularDestinations;
 use crate::game::{State, Transition};
-use crate::managed::WrappedComposite;
 use abstutil::prettyprint_usize;
-use ezgui::{hotkey, Color, Composite, EventCtx, GfxCtx, Key, Outcome};
+use ezgui::{
+    hotkey, Btn, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Text, VerticalAlignment, Widget,
+};
 use sim::Scenario;
 
 pub struct ScenarioManager {
     composite: Composite,
     scenario: Scenario,
-
-    bldg_colors: Colorer,
+    unzoomed: Drawable,
+    zoomed: Drawable,
 }
 
 impl ScenarioManager {
     pub fn new(scenario: Scenario, ctx: &mut EventCtx, app: &App) -> ScenarioManager {
-        let mut bldg_colors = Colorer::discrete(
-            ctx,
-            "Parked cars per building",
-            Vec::new(),
+        let mut colorer = ColorDiscrete::new(
+            app,
             vec![
                 ("1-2", Color::BLUE),
                 ("3-4", Color::RED),
@@ -33,38 +33,59 @@ impl ScenarioManager {
             let color = if count == 0 {
                 continue;
             } else if count == 1 || count == 2 {
-                Color::BLUE
+                "1-2"
             } else if count == 3 || count == 4 {
-                Color::RED
+                "3-4"
             } else {
-                Color::BLACK
+                "more"
             };
-            bldg_colors.add_b(b, color);
+            colorer.add_b(b, color);
         }
 
         let (filled_spots, free_parking_spots) = app.primary.sim.get_all_parking_spots();
         assert!(filled_spots.is_empty());
 
+        let (unzoomed, zoomed, legend) = colorer.build(ctx);
         ScenarioManager {
-            composite: WrappedComposite::quick_menu(
-                ctx,
-                app,
-                format!("Scenario {}", scenario.scenario_name),
-                vec![
-                    format!("{} people", prettyprint_usize(scenario.people.len())),
-                    format!("seed {} parked cars", prettyprint_usize(total_cars_needed)),
-                    format!(
-                        "{} parking spots",
-                        prettyprint_usize(free_parking_spots.len()),
-                    ),
-                ],
-                vec![
-                    (hotkey(Key::B), "block map"),
-                    (hotkey(Key::D), "popular destinations"),
-                ],
-            ),
+            composite: Composite::new(
+                Widget::col(vec![
+                    Widget::row(vec![
+                        Line(format!("Scenario {}", scenario.scenario_name))
+                            .small_heading()
+                            .draw(ctx),
+                        Btn::text_fg("X")
+                            .build(ctx, "close", hotkey(Key::Escape))
+                            .align_right(),
+                    ]),
+                    Btn::text_fg("block map").build_def(ctx, hotkey(Key::B)),
+                    Btn::text_fg("popular destinations").build_def(ctx, hotkey(Key::D)),
+                    Text::from_multiline(vec![
+                        Line(format!(
+                            "{} people",
+                            prettyprint_usize(scenario.people.len())
+                        )),
+                        Line(format!(
+                            "seed {} parked cars",
+                            prettyprint_usize(total_cars_needed)
+                        )),
+                        Line(format!(
+                            "{} parking spots",
+                            prettyprint_usize(free_parking_spots.len()),
+                        )),
+                        Line(""),
+                        Line("Parked cars per building"),
+                    ])
+                    .draw(ctx),
+                    legend,
+                ])
+                .padding(16)
+                .bg(app.cs.panel_bg),
+            )
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
+            .build(ctx),
+            unzoomed,
+            zoomed,
             scenario,
-            bldg_colors: bldg_colors.build(ctx, app),
         }
     }
 }
@@ -96,7 +117,11 @@ impl State for ScenarioManager {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.bldg_colors.draw(g, app);
+        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+            g.redraw(&self.unzoomed);
+        } else {
+            g.redraw(&self.zoomed);
+        }
         self.composite.draw(g);
         CommonState::draw_osd(g, app);
     }

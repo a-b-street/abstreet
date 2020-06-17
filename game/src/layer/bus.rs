@@ -1,7 +1,10 @@
 use crate::app::App;
-use crate::common::Colorer;
+use crate::common::ColorDiscrete;
 use crate::layer::{Layer, LayerOutcome};
-use ezgui::{Color, Composite, EventCtx, GeomBatch, GfxCtx, Line, Text};
+use ezgui::{
+    hotkey, Btn, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Text, TextExt, VerticalAlignment, Widget,
+};
 use geom::{Circle, Distance, Pt2D, Time};
 use map_model::{BusRouteID, PathConstraints, PathRequest, PathStep};
 
@@ -9,10 +12,12 @@ use map_model::{BusRouteID, PathConstraints, PathRequest, PathStep};
 pub struct ShowBusRoute {
     time: Time,
     route: BusRouteID,
-
-    colorer: Colorer,
     labels: Vec<(Text, Pt2D)>,
     bus_locations: Vec<Pt2D>,
+
+    composite: Composite,
+    unzoomed: Drawable,
+    zoomed: Drawable,
 }
 
 impl Layer for ShowBusRoute {
@@ -29,15 +34,27 @@ impl Layer for ShowBusRoute {
             *self = ShowBusRoute::new(ctx, app, self.route);
         }
 
-        self.colorer.legend.align_above(ctx, minimap);
-        if self.colorer.event(ctx) {
-            return Some(LayerOutcome::Close);
+        self.composite.align_above(ctx, minimap);
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "close" => {
+                    return Some(LayerOutcome::Close);
+                }
+                _ => unreachable!(),
+            },
+            None => {}
         }
         None
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.colorer.draw(g, app);
+        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+            g.redraw(&self.unzoomed);
+        } else {
+            g.redraw(&self.zoomed);
+        }
+        self.composite.draw(g);
 
+        // TODO Do this once
         let mut screen_batch = GeomBatch::new();
         for (label, pt) in &self.labels {
             screen_batch.append(
@@ -60,7 +77,7 @@ impl Layer for ShowBusRoute {
         batch.draw(g);
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
-        g.redraw(&self.colorer.unzoomed);
+        g.redraw(&self.unzoomed);
     }
 }
 
@@ -74,13 +91,7 @@ impl ShowBusRoute {
             bus_locations.push(pt);
         }
 
-        let color = app.cs.unzoomed_bus;
-        let mut colorer = Colorer::discrete(
-            ctx,
-            &route.name,
-            vec![format!("{} buses", bus_locations.len())],
-            vec![("route", color)],
-        );
+        let mut colorer = ColorDiscrete::new(app, vec![("route", app.cs.unzoomed_bus)]);
         for (stop1, stop2) in
             route
                 .stops
@@ -103,7 +114,7 @@ impl ShowBusRoute {
                 .get_steps()
             {
                 if let PathStep::Lane(l) = step {
-                    colorer.add_l(*l, color, map);
+                    colorer.add_l(*l, "route");
                 }
             }
         }
@@ -116,11 +127,31 @@ impl ShowBusRoute {
             ));
         }
 
+        let (unzoomed, zoomed, legend) = colorer.build(ctx);
         ShowBusRoute {
             time: app.primary.sim.time(),
             route: id,
-            colorer: colorer.build(ctx, app),
             labels,
+            unzoomed,
+            zoomed,
+            composite: Composite::new(
+                Widget::col(vec![
+                    Widget::row(vec![
+                        Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg")
+                            .margin_right(10),
+                        Line(&route.name).draw(ctx),
+                        Btn::plaintext("X")
+                            .build(ctx, "close", hotkey(Key::Escape))
+                            .align_right(),
+                    ]),
+                    format!("{} buses", bus_locations.len()).draw_text(ctx),
+                    legend,
+                ])
+                .padding(5)
+                .bg(app.cs.panel_bg),
+            )
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+            .build(ctx),
             bus_locations,
         }
     }

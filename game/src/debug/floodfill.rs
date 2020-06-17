@@ -1,14 +1,17 @@
 use crate::app::App;
-use crate::common::Colorer;
+use crate::common::ColorDiscrete;
 use crate::game::{State, Transition};
-use crate::managed::WrappedComposite;
-use ezgui::{Color, Composite, EventCtx, GfxCtx, Outcome};
+use ezgui::{
+    hotkey, Btn, Color, Composite, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, TextExt, VerticalAlignment, Widget,
+};
 use map_model::{connectivity, LaneID, Map, PathConstraints};
 use std::collections::HashSet;
 
 pub struct Floodfiller {
     composite: Composite,
-    colorer: Colorer,
+    unzoomed: Drawable,
+    zoomed: Drawable,
 }
 
 impl Floodfiller {
@@ -35,38 +38,39 @@ impl Floodfiller {
         unreachable_lanes: HashSet<LaneID>,
         title: String,
     ) -> Box<dyn State> {
-        let map = &app.primary.map;
-        // Localized and debug
-        let reachable_color = Color::GREEN;
-        let unreachable_color = Color::RED;
-
-        let mut colorer = Colorer::discrete(
-            ctx,
-            "Lane connectivity",
-            Vec::new(),
-            vec![
-                ("unreachable", unreachable_color),
-                ("reachable", reachable_color),
-            ],
+        let mut colorer = ColorDiscrete::new(
+            app,
+            vec![("unreachable", Color::RED), ("reachable", Color::GREEN)],
         );
         for l in reachable_lanes {
-            colorer.add_l(l, reachable_color, map);
+            colorer.add_l(l, "reachable");
         }
         let num_unreachable = unreachable_lanes.len();
         for l in unreachable_lanes {
-            colorer.add_l(l, unreachable_color, map);
+            colorer.add_l(l, "unreachable");
             println!("{} is unreachable", l);
         }
 
+        let (unzoomed, zoomed, legend) = colorer.build(ctx);
         Box::new(Floodfiller {
-            composite: WrappedComposite::quick_menu(
-                ctx,
-                app,
-                title,
-                vec![format!("{} unreachable lanes", num_unreachable)],
-                vec![],
-            ),
-            colorer: colorer.build(ctx, app),
+            composite: Composite::new(
+                Widget::col(vec![
+                    Widget::row(vec![
+                        Line(title).small_heading().draw(ctx),
+                        Btn::text_fg("X")
+                            .build(ctx, "close", hotkey(Key::Escape))
+                            .align_right(),
+                    ]),
+                    format!("{} unreachable lanes", num_unreachable).draw_text(ctx),
+                    legend,
+                ])
+                .padding(16)
+                .bg(app.cs.panel_bg),
+            )
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .build(ctx),
+            unzoomed,
+            zoomed,
         })
     }
 }
@@ -92,7 +96,11 @@ impl State for Floodfiller {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.colorer.draw(g, app);
+        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+            g.redraw(&self.unzoomed);
+        } else {
+            g.redraw(&self.zoomed);
+        }
         self.composite.draw(g);
     }
 }

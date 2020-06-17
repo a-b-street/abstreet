@@ -263,7 +263,8 @@ pub struct WizardState {
     wizard: Wizard,
     // Returning None means stay in this WizardState
     cb: Box<dyn Fn(&mut Wizard, &mut EventCtx, &mut App) -> Option<Transition>>,
-    pub also_draw: Option<Drawable>,
+    // (unzoomed, zoomed)
+    pub also_draw: Option<(Drawable, Drawable)>,
     pub custom_pop: Option<Transition>,
 }
 
@@ -302,8 +303,12 @@ impl State for WizardState {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        if let Some(ref d) = self.also_draw {
-            g.redraw(d);
+        if let Some((ref unzoomed, ref zoomed)) = self.also_draw {
+            if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+                g.redraw(unzoomed);
+            } else {
+                g.redraw(zoomed);
+            }
         } else {
             State::grey_out_map(g, app);
         }

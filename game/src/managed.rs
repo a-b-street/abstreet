@@ -1,9 +1,6 @@
 use crate::app::App;
 use crate::game::{DrawBaselayer, State, Transition};
-use ezgui::{
-    hotkey, Btn, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, MultiKey, Outcome,
-    Text, VerticalAlignment, Widget,
-};
+use ezgui::{Composite, EventCtx, GfxCtx, Outcome};
 use std::collections::HashMap;
 
 pub type Callback = Box<dyn Fn(&mut EventCtx, &mut App) -> Option<Transition>>;
@@ -53,46 +50,6 @@ impl WrappedComposite {
 
     pub fn draw(&self, g: &mut GfxCtx) {
         self.inner.draw(g);
-    }
-}
-
-impl WrappedComposite {
-    // Always includes a built-in "X" quit option
-    pub fn quick_menu<I: Into<String>>(
-        ctx: &mut EventCtx,
-        app: &App,
-        title: I,
-        info: Vec<String>,
-        actions: Vec<(Option<MultiKey>, &str)>,
-    ) -> Composite {
-        Composite::new(
-            Widget::col(vec![
-                Widget::row(vec![
-                    Line(title.into()).small_heading().draw(ctx),
-                    Btn::text_fg("X")
-                        .build(ctx, "close", hotkey(Key::Escape))
-                        .align_right(),
-                ]),
-                {
-                    let mut txt = Text::new();
-                    for l in info {
-                        txt.add(Line(l));
-                    }
-                    txt.draw(ctx)
-                },
-                Widget::row(
-                    actions
-                        .into_iter()
-                        .map(|(key, action)| Btn::text_fg(action).build_def(ctx, key))
-                        .collect(),
-                )
-                .flex_wrap(ctx, 60),
-            ])
-            .padding(10)
-            .bg(app.cs.panel_bg),
-        )
-        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-        .build(ctx)
     }
 }
 

@@ -9,7 +9,7 @@ pub use self::lanes::LaneEditor;
 pub use self::stop_signs::StopSignEditor;
 pub use self::traffic_signals::TrafficSignalEditor;
 use crate::app::{App, ShowEverything};
-use crate::common::{tool_panel, Colorer, CommonState, Warping};
+use crate::common::{tool_panel, ColorDiscrete, CommonState, Warping};
 use crate::debug::DebugMode;
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
@@ -53,7 +53,7 @@ impl EditMode {
         assert!(app.suspended_sim.is_none());
         app.suspended_sim = Some(app.primary.clear_sim());
         let edits = app.primary.map.get_edits();
-        let colorer = crate::layer::map::Static::edits(ctx, app).colorer;
+        let layer = crate::layer::map::Static::edits(ctx, app);
         EditMode {
             tool_panel: tool_panel(ctx, app),
             top_center: make_topcenter(ctx, app, &mode),
@@ -62,8 +62,8 @@ impl EditMode {
             orig_dirty,
             mode,
             changelist_key: (edits.edits_name.clone(), edits.commands.len()),
-            unzoomed: colorer.unzoomed,
-            zoomed: colorer.zoomed,
+            unzoomed: layer.unzoomed,
+            zoomed: layer.zoomed,
         }
     }
 
@@ -119,9 +119,9 @@ impl State for EditMode {
             if self.changelist_key != changelist_key {
                 self.changelist_key = changelist_key;
                 self.changelist = make_changelist(ctx, app);
-                let colorer = crate::layer::map::Static::edits(ctx, app).colorer;
-                self.unzoomed = colorer.unzoomed;
-                self.zoomed = colorer.zoomed;
+                let layer = crate::layer::map::Static::edits(ctx, app);
+                self.unzoomed = layer.unzoomed;
+                self.zoomed = layer.zoomed;
             }
         }
 
@@ -538,13 +538,13 @@ pub fn close_intersection(
         )],
     );
 
-    let color = Color::RED;
-    let mut c = Colorer::discrete(ctx, "", Vec::new(), vec![("disconnected", color)]);
+    let mut c = ColorDiscrete::new(app, vec![("disconnected", Color::RED)]);
     for l in disconnected {
-        c.add_l(l, color, &app.primary.map);
+        c.add_l(l, "disconnected");
     }
 
-    err_state.downcast_mut::<WizardState>().unwrap().also_draw = Some(c.build(ctx, app).zoomed);
+    let (unzoomed, zoomed, _) = c.build(ctx);
+    err_state.downcast_mut::<WizardState>().unwrap().also_draw = Some((unzoomed, zoomed));
     if pop_once {
         Transition::Push(err_state)
     } else {
@@ -568,26 +568,26 @@ pub fn check_parking_blackholes(
     }
 
     apply_map_edits(ctx, app, edits);
-    let color = Color::RED;
     let mut num_problems = 0;
-    let mut c = Colorer::discrete(ctx, "", Vec::new(), vec![("parking disconnected", color)]);
+    let mut c = ColorDiscrete::new(app, vec![("parking disconnected", Color::RED)]);
     for (l, _) in
         connectivity::redirect_parking_blackholes(&app.primary.map, &mut Timer::throwaway())
     {
         if ok_originally.contains(&l) {
             num_problems += 1;
-            c.add_l(l, color, &app.primary.map);
+            c.add_l(l, "parking disconnected");
         }
     }
     if num_problems == 0 {
         None
     } else {
-        apply_map_edits(ctx, app, orig_edits);
         let mut err_state = msg(
             "Error",
             vec![format!("{} lanes have parking disconnected", num_problems)],
         );
-        err_state.downcast_mut::<WizardState>().unwrap().also_draw = Some(c.build(ctx, app).zoomed);
+        let (unzoomed, zoomed, _) = c.build(ctx);
+        err_state.downcast_mut::<WizardState>().unwrap().also_draw = Some((unzoomed, zoomed));
+        apply_map_edits(ctx, app, orig_edits);
         Some(err_state)
     }
 }

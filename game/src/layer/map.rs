@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::common::{ColorLegend, ColorNetwork, Colorer};
+use crate::common::{ColorDiscrete, ColorLegend, ColorNetwork};
 use crate::helpers::amenity_type;
 use crate::layer::{Layer, LayerOutcome};
 use abstutil::Counter;
@@ -150,7 +150,9 @@ impl BikeNetwork {
 }
 
 pub struct Static {
-    pub colorer: Colorer,
+    composite: Composite,
+    pub unzoomed: Drawable,
+    pub zoomed: Drawable,
     name: &'static str,
 }
 
@@ -164,27 +166,72 @@ impl Layer for Static {
         _: &mut App,
         minimap: &Composite,
     ) -> Option<LayerOutcome> {
-        self.colorer.legend.align_above(ctx, minimap);
-        if self.colorer.event(ctx) {
-            return Some(LayerOutcome::Close);
+        self.composite.align_above(ctx, minimap);
+        match self.composite.event(ctx) {
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "close" => {
+                    return Some(LayerOutcome::Close);
+                }
+                _ => unreachable!(),
+            },
+            None => {}
         }
         None
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.colorer.draw(g, app);
+        self.composite.draw(g);
+        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+            g.redraw(&self.unzoomed);
+        } else {
+            g.redraw(&self.zoomed);
+        }
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
-        g.redraw(&self.colorer.unzoomed);
+        g.redraw(&self.unzoomed);
     }
 }
 
 impl Static {
+    fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        colorer: ColorDiscrete,
+        name: &'static str,
+        title: String,
+        extra: Widget,
+    ) -> Static {
+        let (unzoomed, zoomed, legend) = colorer.build(ctx);
+        let composite = Composite::new(
+            Widget::col(vec![
+                Widget::row(vec![
+                    Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg")
+                        .margin_right(10),
+                    title.draw_text(ctx),
+                    Btn::plaintext("X")
+                        .build(ctx, "close", hotkey(Key::Escape))
+                        .align_right(),
+                ]),
+                extra,
+                legend,
+            ])
+            .padding(5)
+            .bg(app.cs.panel_bg),
+        )
+        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+        .build(ctx);
+
+        Static {
+            composite,
+            unzoomed,
+            zoomed,
+            name,
+        }
+    }
+
     pub fn bus_network(ctx: &mut EventCtx, app: &App) -> Static {
         // TODO Same color for both?
-        let mut colorer = Colorer::discrete(
-            ctx,
-            "Bus network",
-            Vec::new(),
+        let mut colorer = ColorDiscrete::new(
+            app,
             vec![
                 ("bus lanes", app.cs.bus_layer),
                 ("bus stops", app.cs.bus_layer),
@@ -192,59 +239,65 @@ impl Static {
         );
         for l in app.primary.map.all_lanes() {
             if l.is_bus() {
-                colorer.add_l(l.id, app.cs.bus_layer, &app.primary.map);
+                colorer.add_l(l.id, "bus lanes");
             }
         }
-        colorer.intersections_from_roads(&app.primary.map);
         for bs in app.primary.map.all_bus_stops().keys() {
-            colorer.add_bs(*bs, app.cs.bus_layer);
+            colorer.add_bs(*bs, "bus stops");
         }
 
-        Static {
-            colorer: colorer.build(ctx, app),
-            name: "bus network",
-        }
+        Static::new(
+            ctx,
+            app,
+            colorer,
+            "bus network",
+            "Bus network".to_string(),
+            Widget::nothing(),
+        )
     }
 
     pub fn edits(ctx: &mut EventCtx, app: &App) -> Static {
-        let edits = app.primary.map.get_edits();
-
-        let mut colorer = Colorer::discrete(
-            ctx,
-            format!("Map edits ({})", edits.edits_name),
-            vec![
-                format!("{} lane types changed", edits.original_lts.len()),
-                format!("{} lanes reversed", edits.reversed_lanes.len()),
-                format!("{} speed limits changed", edits.changed_speed_limits.len()),
-                format!(
-                    "{} intersections changed",
-                    edits.original_intersections.len()
-                ),
-            ],
+        let mut colorer = ColorDiscrete::new(
+            app,
             vec![("modified lane/intersection", app.cs.edits_layer)],
         );
 
+        let edits = app.primary.map.get_edits();
         for l in edits.original_lts.keys().chain(&edits.reversed_lanes) {
-            colorer.add_l(*l, app.cs.edits_layer, &app.primary.map);
+            colorer.add_l(*l, "modified lane/intersection");
         }
         for i in edits.original_intersections.keys() {
-            colorer.add_i(*i, app.cs.edits_layer);
+            colorer.add_i(*i, "modified lane/intersection");
         }
         for r in &edits.changed_speed_limits {
-            colorer.add_r(*r, app.cs.edits_layer, &app.primary.map);
+            colorer.add_r(*r, "modified lane/intersection");
         }
 
-        Static {
-            colorer: colorer.build(ctx, app),
-            name: "map edits",
-        }
+        Static::new(
+            ctx,
+            app,
+            colorer,
+            "map edits",
+            format!("Map edits ({})", edits.edits_name),
+            Text::from_multiline(vec![
+                Line(format!("{} lane types changed", edits.original_lts.len())),
+                Line(format!("{} lanes reversed", edits.reversed_lanes.len())),
+                Line(format!(
+                    "{} speed limits changed",
+                    edits.changed_speed_limits.len()
+                )),
+                Line(format!(
+                    "{} intersections changed",
+                    edits.original_intersections.len()
+                )),
+            ])
+            .draw(ctx),
+        )
     }
 
     pub fn amenities(ctx: &mut EventCtx, app: &App) -> Static {
-        let mut colorer = Colorer::discrete(
-            ctx,
-            "Amenities",
-            Vec::new(),
+        let mut colorer = ColorDiscrete::new(
+            app,
             vec![
                 ("groceries", Color::BLACK),
                 ("food", Color::RED),
@@ -264,34 +317,23 @@ impl Static {
             let mut other = false;
             for (_, a) in &b.amenities {
                 if let Some(t) = amenity_type(a) {
-                    colorer.add_b(
-                        b.id,
-                        match t {
-                            "groceries" => Color::BLACK,
-                            "food" => Color::RED,
-                            "bar" => Color::BLUE,
-                            "medical" => Color::PURPLE,
-                            "church / temple" => Color::GREEN,
-                            "education" => Color::CYAN,
-                            "bank / post office" => Color::YELLOW,
-                            "media" => Color::PINK,
-                            "childcare" => Color::ORANGE,
-                            "shopping" => Color::WHITE,
-                            _ => unreachable!(),
-                        },
-                    );
+                    colorer.add_b(b.id, t);
                 } else {
                     other = true;
                 }
             }
             if other {
-                colorer.add_b(b.id, Color::hex("#96322F"));
+                colorer.add_b(b.id, "other");
             }
         }
 
-        Static {
-            colorer: colorer.build(ctx, app),
-            name: "amenities",
-        }
+        Static::new(
+            ctx,
+            app,
+            colorer,
+            "amenities",
+            "Amenities".to_string(),
+            Widget::nothing(),
+        )
     }
 }

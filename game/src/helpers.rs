@@ -149,7 +149,7 @@ pub fn color_for_trip_phase(app: &App, tpt: TripPhaseType) -> Color {
     }
 }
 
-pub fn amenity_type(a: &str) -> Option<&str> {
+pub fn amenity_type(a: &str) -> Option<&'static str> {
     if a == "supermarket" || a == "convenience" {
         Some("groceries")
     } else if a == "restaurant"

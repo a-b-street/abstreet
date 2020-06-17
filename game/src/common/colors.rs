@@ -1,190 +1,96 @@
 use crate::app::App;
 use abstutil::Counter;
-use ezgui::{
-    Btn, Color, Composite, Drawable, EventCtx, FancyColor, GeomBatch, GfxCtx, HorizontalAlignment,
-    Line, LinearGradient, Outcome, Text, TextExt, VerticalAlignment, Widget,
-};
+use ezgui::{Color, Drawable, EventCtx, FancyColor, GeomBatch, Line, LinearGradient, Text, Widget};
 use geom::{Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID};
 use std::collections::HashMap;
 
-pub struct ColorerBuilder {
-    title: String,
-    extra_info: Vec<String>,
-    // First takes precedence
-    prioritized_colors: Vec<Color>,
-    legend: Vec<Widget>,
-    lanes: HashMap<LaneID, Color>,
-    roads: HashMap<RoadID, Color>,
-    intersections: HashMap<IntersectionID, Color>,
-    buildings: HashMap<BuildingID, Color>,
-    bus_stops: HashMap<BusStopID, Color>,
+pub struct ColorDiscrete<'a> {
+    map: &'a Map,
+    unzoomed: GeomBatch,
+    zoomed: GeomBatch,
+    // Store both, so we can build the legend in the original order later
+    categories: Vec<(&'static str, Color)>,
+    colors: HashMap<&'static str, Color>,
 }
 
-pub struct Colorer {
-    pub zoomed: Drawable,
-    pub unzoomed: Drawable,
-    pub legend: Composite,
-}
-
-impl Colorer {
-    // Colors listed earlier override those listed later. This is used in unzoomed mode, when one
-    // road has lanes of different colors.
-    pub fn discrete<I: Into<String>>(
-        ctx: &mut EventCtx,
-        title: I,
-        extra_info: Vec<String>,
-        entries: Vec<(&'static str, Color)>,
-    ) -> ColorerBuilder {
-        let mut legend = Vec::new();
-        let mut prioritized_colors = Vec::new();
-        for (label, color) in entries {
-            legend.push(ColorLegend::row(ctx, color, label));
-            prioritized_colors.push(color);
-        }
-
-        ColorerBuilder {
-            title: title.into(),
-            extra_info,
-            prioritized_colors,
-            legend,
-            lanes: HashMap::new(),
-            roads: HashMap::new(),
-            intersections: HashMap::new(),
-            buildings: HashMap::new(),
-            bus_stops: HashMap::new(),
-        }
-    }
-
-    // If true, destruct this Colorer.
-    pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
-        match self.legend.event(ctx) {
-            Some(Outcome::Clicked(x)) if x == "close" => true,
-            Some(Outcome::Clicked(_)) => unreachable!(),
-            None => false,
-        }
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx, app: &App) {
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.unzoomed);
-        } else {
-            g.redraw(&self.zoomed);
-        }
-
-        self.legend.draw(g);
-    }
-}
-
-impl ColorerBuilder {
-    pub fn add_l(&mut self, l: LaneID, color: Color, map: &Map) {
-        self.lanes.insert(l, color);
-        let r = map.get_parent(l).id;
-        if let Some(existing) = self.roads.get(&r) {
-            if self.prioritized_colors.iter().position(|c| *c == color)
-                < self.prioritized_colors.iter().position(|c| c == existing)
-            {
-                self.roads.insert(r, color);
-            }
-        } else {
-            self.roads.insert(r, color);
-        }
-    }
-
-    pub fn add_r(&mut self, r: RoadID, color: Color, map: &Map) {
-        self.roads.insert(r, color);
-        for l in map.get_r(r).all_lanes() {
-            self.lanes.insert(l, color);
-        }
-    }
-
-    pub fn add_i(&mut self, i: IntersectionID, color: Color) {
-        self.intersections.insert(i, color);
-    }
-
-    pub fn add_b(&mut self, b: BuildingID, color: Color) {
-        self.buildings.insert(b, color);
-    }
-
-    pub fn add_bs(&mut self, bs: BusStopID, color: Color) {
-        self.bus_stops.insert(bs, color);
-    }
-
-    pub fn intersections_from_roads(&mut self, map: &Map) {
-        for i in map.all_intersections() {
-            if let Some(idx) = i
-                .roads
-                .iter()
-                .filter_map(|r| {
-                    self.roads
-                        .get(r)
-                        .and_then(|color| self.prioritized_colors.iter().position(|c| c == color))
-                })
-                .min()
-            {
-                self.add_i(i.id, self.prioritized_colors[idx]);
-            }
-        }
-    }
-
-    pub fn build(self, ctx: &mut EventCtx, app: &App) -> Colorer {
-        let mut zoomed = GeomBatch::new();
+impl<'a> ColorDiscrete<'a> {
+    pub fn new(app: &'a App, categories: Vec<(&'static str, Color)>) -> ColorDiscrete<'a> {
         let mut unzoomed = GeomBatch::new();
-        let map = &app.primary.map;
+        unzoomed.push(
+            app.cs.fade_map_dark,
+            app.primary.map.get_boundary_polygon().clone(),
+        );
+        ColorDiscrete {
+            map: &app.primary.map,
+            unzoomed,
+            zoomed: GeomBatch::new(),
+            colors: categories.iter().cloned().collect(),
+            categories,
+        }
+    }
 
-        unzoomed.push(app.cs.fade_map_dark, map.get_boundary_polygon().clone());
+    pub fn add_l(&mut self, l: LaneID, category: &'static str) {
+        let color = self.colors[category];
+        self.unzoomed.push(
+            color,
+            self.map.get_parent(l).get_thick_polygon(self.map).unwrap(),
+        );
+        let lane = self.map.get_l(l);
+        self.zoomed.push(
+            color.alpha(0.4),
+            lane.lane_center_pts.make_polygons(lane.width),
+        );
+    }
 
-        for (l, color) in self.lanes {
-            zoomed.push(
-                color.alpha(0.4),
-                app.primary.draw_map.get_l(l).polygon.clone(),
-            );
-        }
-        for (r, color) in self.roads {
-            unzoomed.push(color, map.get_r(r).get_thick_polygon(&map).unwrap());
-        }
+    pub fn add_r(&mut self, r: RoadID, category: &'static str) {
+        let color = self.colors[category];
+        self.unzoomed.push(
+            color,
+            self.map.get_r(r).get_thick_polygon(self.map).unwrap(),
+        );
+        self.zoomed.push(
+            color.alpha(0.4),
+            self.map.get_r(r).get_thick_polygon(self.map).unwrap(),
+        );
+    }
 
-        for (i, color) in self.intersections {
-            zoomed.push(color.alpha(0.4), map.get_i(i).polygon.clone());
-            unzoomed.push(color, map.get_i(i).polygon.clone());
-        }
-        for (b, color) in self.buildings {
-            zoomed.push(color.alpha(0.4), map.get_b(b).polygon.clone());
-            unzoomed.push(color, map.get_b(b).polygon.clone());
-        }
+    pub fn add_i(&mut self, i: IntersectionID, category: &'static str) {
+        let color = self.colors[category];
+        self.unzoomed.push(color, self.map.get_i(i).polygon.clone());
+        self.zoomed
+            .push(color.alpha(0.4), self.map.get_i(i).polygon.clone());
+    }
 
-        for (bs, color) in self.bus_stops {
-            let pt = map.get_bs(bs).sidewalk_pos.pt(map);
-            zoomed.push(
-                color.alpha(0.4),
-                Circle::new(pt, Distance::meters(5.0)).to_polygon(),
-            );
-            unzoomed.push(color, Circle::new(pt, Distance::meters(15.0)).to_polygon());
-        }
+    pub fn add_b(&mut self, b: BuildingID, category: &'static str) {
+        let color = self.colors[category];
+        self.unzoomed.push(color, self.map.get_b(b).polygon.clone());
+        self.zoomed
+            .push(color.alpha(0.4), self.map.get_b(b).polygon.clone());
+    }
 
-        // Build the legend
-        let mut col = vec![Widget::row(vec![
-            Widget::draw_svg(ctx, "../data/system/assets/tools/layers.svg").margin_right(10),
-            self.title.draw_text(ctx).centered_vert().margin_right(5),
-            Btn::plaintext("X").build(ctx, "close", None).align_right(),
-        ])];
-        if !self.extra_info.is_empty() {
-            let mut txt = Text::new();
-            for line in self.extra_info {
-                txt.add(Line(line).small());
-            }
-            col.push(txt.draw(ctx).margin_below(5));
-        }
-        col.extend(self.legend);
-        let legend = Composite::new(Widget::col(col).bg(app.cs.panel_bg).padding(16))
-            .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
-            .build(ctx);
+    pub fn add_bs(&mut self, bs: BusStopID, category: &'static str) {
+        let color = self.colors[category];
+        let pt = self.map.get_bs(bs).sidewalk_pos.pt(self.map);
+        self.zoomed.push(
+            color.alpha(0.4),
+            Circle::new(pt, Distance::meters(5.0)).to_polygon(),
+        );
+        self.unzoomed
+            .push(color, Circle::new(pt, Distance::meters(15.0)).to_polygon());
+    }
 
-        Colorer {
-            zoomed: zoomed.upload(ctx),
-            unzoomed: unzoomed.upload(ctx),
-            legend,
-        }
+    pub fn build(self, ctx: &mut EventCtx) -> (Drawable, Drawable, Widget) {
+        let legend = self
+            .categories
+            .into_iter()
+            .map(|(name, color)| ColorLegend::row(ctx, color, name))
+            .collect();
+        (
+            ctx.upload(self.unzoomed),
+            ctx.upload(self.zoomed),
+            Widget::col(legend),
+        )
     }
 }
 

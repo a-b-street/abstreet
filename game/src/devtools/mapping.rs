@@ -256,7 +256,8 @@ impl ParkingMapper {
                     .make_polygons(thickness),
             );
         }
-        state.downcast_mut::<WizardState>().unwrap().also_draw = Some(ctx.upload(batch));
+        state.downcast_mut::<WizardState>().unwrap().also_draw =
+            Some((ctx.upload(batch.clone()), ctx.upload(batch)));
         state
     }
 }
