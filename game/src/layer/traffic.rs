@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::common::{ColorLegend, ColorNetwork, ColorScale, Scale};
+use crate::common::{ColorLegend, ColorNetwork, ColorScale, DivergingScale};
 use crate::layer::{Layer, LayerOutcome};
 use abstutil::Counter;
 use ezgui::{
@@ -251,9 +251,9 @@ impl Throughput {
 
         let mut colorer = ColorNetwork::new(app);
 
-        let scale = Scale::diverging(Color::hex("#A32015"), Color::WHITE, Color::hex("#5D9630"))
+        let scale = DivergingScale::new(Color::hex("#5D9630"), Color::WHITE, Color::hex("#A32015"))
             .range(0.0, 2.0)
-            .ignore(0.9, 1.1);
+            .ignore(0.7, 1.3);
 
         for (r, before, after) in before_road.compare(after_road) {
             if let Some(c) = scale.eval((after as f64) / (before as f64)) {

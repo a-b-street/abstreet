@@ -156,21 +156,6 @@ impl ColorLegend {
     }
 }
 
-pub struct Scale;
-impl Scale {
-    pub fn diverging(low_color: Color, mid_color: Color, high_color: Color) -> DivergingScale {
-        DivergingScale {
-            low_color,
-            mid_color,
-            high_color,
-            min: 0.0,
-            avg: 0.5,
-            max: 1.0,
-            ignore: None,
-        }
-    }
-}
-
 pub struct DivergingScale {
     low_color: Color,
     mid_color: Color,
@@ -182,6 +167,18 @@ pub struct DivergingScale {
 }
 
 impl DivergingScale {
+    pub fn new(low_color: Color, mid_color: Color, high_color: Color) -> DivergingScale {
+        DivergingScale {
+            low_color,
+            mid_color,
+            high_color,
+            min: 0.0,
+            avg: 0.5,
+            max: 1.0,
+            ignore: None,
+        }
+    }
+
     pub fn range(mut self, min: f64, max: f64) -> DivergingScale {
         assert!(min < max);
         self.min = min;

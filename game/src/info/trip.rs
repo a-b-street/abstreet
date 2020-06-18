@@ -14,7 +14,7 @@ use std::collections::BTreeMap;
 #[derive(Clone)]
 pub struct OpenTrip {
     pub show_after: bool,
-    // (unzoomed, zoomed)
+    // (unzoomed, zoomed). Indexed by order of TripPhase.
     cached_routes: Vec<Option<(Polygon, Vec<Polygon>)>>,
 }
 // Ignore cached_routes
@@ -563,6 +563,10 @@ fn make_timeline(
             }
         } else if p.has_path_req {
             path_impossible = true;
+        }
+        // Just fill this in so the indexing doesn't mess up
+        if idx == open_trip.cached_routes.len() {
+            open_trip.cached_routes.push(None);
         }
     }
 
