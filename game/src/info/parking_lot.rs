@@ -3,6 +3,7 @@ use crate::info::{header_btns, make_tabs, Details, Tab};
 use abstutil::prettyprint_usize;
 use ezgui::{EventCtx, Line, LinePlot, PlotOptions, Series, TextExt, Widget};
 use map_model::ParkingLotID;
+use std::collections::HashSet;
 
 pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: ParkingLotID) -> Vec<Widget> {
     let mut rows = header(ctx, details, id, Tab::ParkingLot(id));
@@ -41,11 +42,12 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: ParkingLot
     rows.push("Parking spots available".draw_text(ctx).margin_above(10));
     rows.push(LinePlot::new(
         ctx,
-        "parking spots available",
         series,
         PlotOptions {
+            filterable: false,
             max_x: None,
             max_y: Some(capacity),
+            disabled: HashSet::new(),
         },
     ));
 

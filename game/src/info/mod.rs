@@ -23,7 +23,7 @@ use sim::{
     AgentID, Analytics, CarID, ParkingSpot, PedestrianID, PersonID, PersonState, TripID, TripMode,
     VehicleType,
 };
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 pub use trip::OpenTrip;
 
 pub struct InfoPanel {
@@ -513,7 +513,7 @@ fn throughput<F: Fn(&Analytics) -> Vec<(TripMode, Vec<(Time, usize)>)>>(
     ctx: &EventCtx,
     app: &App,
     get_data: F,
-    show_before: bool,
+    opts: &DataOptions,
 ) -> Widget {
     let mut series = get_data(app.primary.sim.get_analytics())
         .into_iter()
@@ -523,7 +523,7 @@ fn throughput<F: Fn(&Analytics) -> Vec<(TripMode, Vec<(Time, usize)>)>>(
             pts,
         })
         .collect::<Vec<_>>();
-    if show_before {
+    if opts.show_before {
         // TODO Ahh these colors don't show up differently at all.
         for (m, pts) in get_data(app.prebaked()) {
             series.push(Series {
@@ -534,12 +534,14 @@ fn throughput<F: Fn(&Analytics) -> Vec<(TripMode, Vec<(Time, usize)>)>>(
         }
     }
 
+    let mut plot_opts = PlotOptions::filterable();
+    plot_opts.disabled = opts.disabled_series();
     Widget::col(vec![
         Line("Number of crossing agents per hour")
             .small_heading()
             .draw(ctx)
             .margin_below(10),
-        LinePlot::new(ctx, "throughput", series, PlotOptions::new()),
+        LinePlot::new(ctx, series, plot_opts),
     ])
     .padding(10)
     .bg(app.cs.inner_panel)
@@ -596,6 +598,7 @@ pub trait ContextualActions {
 pub struct DataOptions {
     pub show_before: bool,
     pub show_end_of_day: bool,
+    disabled_modes: BTreeSet<TripMode>,
 }
 
 impl DataOptions {
@@ -603,6 +606,7 @@ impl DataOptions {
         DataOptions {
             show_before: false,
             show_end_of_day: false,
+            disabled_modes: BTreeSet::new(),
         }
     }
 
@@ -630,11 +634,26 @@ impl DataOptions {
     pub fn from_controls(c: &Composite) -> DataOptions {
         let show_before =
             c.has_widget("Show before changes") && c.is_checked("Show before changes");
+        let mut disabled_modes = BTreeSet::new();
+        for m in TripMode::all() {
+            let label = m.noun();
+            if c.has_widget(label) && !c.is_checked(label) {
+                disabled_modes.insert(m);
+            }
+        }
         DataOptions {
             show_before,
             show_end_of_day: show_before
                 && c.has_widget("Show full day")
                 && c.is_checked("Show full day"),
+            disabled_modes,
         }
+    }
+
+    pub fn disabled_series(&self) -> HashSet<String> {
+        self.disabled_modes
+            .iter()
+            .map(|m| m.noun().to_string())
+            .collect()
     }
 }

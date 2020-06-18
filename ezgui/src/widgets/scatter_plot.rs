@@ -1,70 +1,28 @@
-use crate::widgets::line_plot::Yvalue;
+use crate::widgets::line_plot::{make_legend, Yvalue};
 use crate::{
-    Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, PlotOptions,
-    ScreenDims, ScreenPt, Series, Text, TextExt, Widget, WidgetImpl, WidgetOutput,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, PlotOptions, ScreenDims,
+    ScreenPt, Series, Text, TextExt, Widget, WidgetImpl, WidgetOutput,
 };
 use geom::{Angle, Circle, Distance, Duration, PolyLine, Pt2D, Time};
 
-// TODO Should rescale grid when a series is enabled. aka lift the enabling out of here and into
-// DataOptions.
-
 // The X is always time
-pub struct ScatterPlot<T: Yvalue<T> + std::ops::AddAssign + std::ops::Div<f64, Output = T>> {
-    series: Vec<SeriesState<T>>,
-    draw_grid: Drawable,
-    draw_avg: Drawable,
-    max_y: T,
+pub struct ScatterPlot {
+    draw: Drawable,
 
     top_left: ScreenPt,
     dims: ScreenDims,
 }
 
-struct SeriesState<T: Yvalue<T> + std::ops::AddAssign + std::ops::Div<f64, Output = T>> {
-    label: String,
-    enabled: bool,
-    draw: Drawable,
+impl ScatterPlot {
+    pub fn new<T: Yvalue<T> + std::ops::AddAssign + std::ops::Div<f64, Output = T>>(
+        ctx: &EventCtx,
+        mut series: Vec<Series<T>>,
+        opts: PlotOptions<T>,
+    ) -> Widget {
+        let legend = make_legend(ctx, &series, &opts);
+        series.retain(|s| !opts.disabled.contains(&s.label));
 
-    sum: T,
-    cnt: usize,
-}
-
-impl<T: Yvalue<T> + std::ops::AddAssign + std::ops::Div<f64, Output = T>> ScatterPlot<T> {
-    // id must be unique in a Composite
-    pub fn new(ctx: &EventCtx, id: &str, series: Vec<Series<T>>, opts: PlotOptions<T>) -> Widget {
-        let legend = if series.len() == 1 {
-            let radius = 15.0;
-            // Can't hide if there's just one series
-            Widget::row(vec![
-                Widget::draw_batch(
-                    ctx,
-                    GeomBatch::from(vec![(
-                        series[0].color,
-                        Circle::new(Pt2D::new(radius, radius), Distance::meters(radius))
-                            .to_polygon(),
-                    )]),
-                )
-                .margin(5),
-                series[0].label.clone().draw_text(ctx),
-            ])
-        } else {
-            let mut row = Vec::new();
-            for s in &series {
-                row.push(Widget::row(vec![
-                    Widget::new(Box::new(
-                        Checkbox::colored(ctx, &s.label, s.color, true)
-                            .take_checkbox()
-                            .callback_to_plot(id, &s.label),
-                    ))
-                    // TODO Messy! We have to remember to repeat what Checkbox::text does,
-                    // because we used take_checkbox
-                    .named(&s.label)
-                    .margin_right(8),
-                    Line(&s.label).draw(ctx),
-                ]));
-            }
-            Widget::row(row).flex_wrap(ctx, 24)
-        };
-
+        // TODO Refactor this part with LinePlot too
         // Assume min_x is Time::START_OF_DAY and min_y is T::zero()
         let max_x = opts.max_x.unwrap_or_else(|| {
             series
@@ -98,7 +56,7 @@ impl<T: Yvalue<T> + std::ops::AddAssign + std::ops::Div<f64, Output = T>> Scatte
         let width = 0.22 * ctx.canvas.window_width;
         let height = 0.2 * ctx.canvas.window_height;
 
-        let mut grid_batch = GeomBatch::new();
+        let mut batch = GeomBatch::new();
         // Grid lines for the Y scale. Draw up to 10 lines max to cover the order of magnitude of
         // the range.
         // TODO This caps correctly, but if the max is 105, then suddenly we just have 2 grid
@@ -111,7 +69,7 @@ impl<T: Yvalue<T> + std::ops::AddAssign + std::ops::Div<f64, Output = T>> Scatte
                 if pct > 1.0 {
                     break;
                 }
-                grid_batch.push(
+                batch.push(
                     Color::hex("#7C7C7C"),
                     PolyLine::new(vec![
                         Pt2D::new(0.0, (1.0 - pct) * height),
@@ -130,7 +88,7 @@ impl<T: Yvalue<T> + std::ops::AddAssign + std::ops::Div<f64, Output = T>> Scatte
                 if pct > 1.0 {
                     break;
                 }
-                grid_batch.push(
+                batch.push(
                     Color::hex("#7C7C7C"),
                     PolyLine::new(vec![
                         Pt2D::new(pct * width, 0.0),
@@ -142,11 +100,9 @@ impl<T: Yvalue<T> + std::ops::AddAssign + std::ops::Div<f64, Output = T>> Scatte
         }
 
         let circle = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(4.0)).to_polygon();
-        let mut series_state = Vec::new();
+        let mut sum = T::zero();
+        let mut cnt = 0;
         for s in series {
-            let mut sum = T::zero();
-            let mut cnt = 0;
-            let mut batch = GeomBatch::new();
             for (t, y) in s.pts {
                 cnt += 1;
                 sum += y;
@@ -158,26 +114,33 @@ impl<T: Yvalue<T> + std::ops::AddAssign + std::ops::Div<f64, Output = T>> Scatte
                     circle.translate(percent_x * width, (1.0 - percent_y) * height),
                 );
             }
-            series_state.push(SeriesState {
-                label: s.label,
-                enabled: true,
-                draw: batch.upload(ctx),
-                sum,
-                cnt,
-            });
         }
 
-        let dims = ScreenDims::new(width, height);
-        let draw_avg = find_avg(ctx, &series_state, max_y, dims);
+        if sum != T::zero() {
+            let avg = (sum / (cnt as f64)).to_percent(max_y);
+            batch.extend(
+                Color::hex("#F2F2F2"),
+                PolyLine::new(vec![
+                    Pt2D::new(0.0, (1.0 - avg) * height),
+                    Pt2D::new(width, (1.0 - avg) * height),
+                ])
+                .exact_dashed_polygons(
+                    Distance::meters(1.0),
+                    Distance::meters(10.0),
+                    Distance::meters(4.0),
+                ),
+            );
+
+            let txt = Text::from(Line("avg")).render_ctx(ctx).autocrop();
+            let width = txt.get_dims().width;
+            batch.append(txt.centered_on(Pt2D::new(-width / 2.0, (1.0 - avg) * height)));
+        }
 
         let plot = ScatterPlot {
-            series: series_state,
-            draw_grid: ctx.upload(grid_batch),
-            draw_avg,
-            max_y,
+            draw: ctx.upload(batch),
 
             top_left: ScreenPt::new(0.0, 0.0),
-            dims,
+            dims: ScreenDims::new(width, height),
         };
 
         let num_x_labels = 3;
@@ -207,18 +170,13 @@ impl<T: Yvalue<T> + std::ops::AddAssign + std::ops::Div<f64, Output = T>> Scatte
         // Don't let the x-axis fill the parent container
         Widget::row(vec![Widget::col(vec![
             legend.margin_below(10),
-            Widget::row(vec![
-                y_axis.evenly_spaced(),
-                Widget::new(Box::new(plot)).named(id),
-            ]),
+            Widget::row(vec![y_axis.evenly_spaced(), Widget::new(Box::new(plot))]),
             x_axis.evenly_spaced(),
         ])])
     }
 }
 
-impl<T: Yvalue<T> + std::ops::AddAssign + std::ops::Div<f64, Output = T>> WidgetImpl
-    for ScatterPlot<T>
-{
+impl WidgetImpl for ScatterPlot {
     fn get_dims(&self) -> ScreenDims {
         self.dims
     }
@@ -230,72 +188,6 @@ impl<T: Yvalue<T> + std::ops::AddAssign + std::ops::Div<f64, Output = T>> Widget
     fn event(&mut self, _ctx: &mut EventCtx, _output: &mut WidgetOutput) {}
 
     fn draw(&self, g: &mut GfxCtx) {
-        g.redraw_at(self.top_left, &self.draw_grid);
-        for series in &self.series {
-            if series.enabled {
-                g.redraw_at(self.top_left, &series.draw);
-            }
-        }
-        g.redraw_at(self.top_left, &self.draw_avg);
+        g.redraw_at(self.top_left, &self.draw);
     }
-
-    fn update_series(&mut self, ctx: &mut EventCtx, label: String, enabled: bool) {
-        for series in &mut self.series {
-            if series.label == label {
-                series.enabled = enabled;
-                self.draw_avg = find_avg(ctx, &self.series, self.max_y, self.dims);
-                return;
-            }
-        }
-        panic!("ScatterPlot doesn't have a series {}", label);
-    }
-
-    fn can_restore(&self) -> bool {
-        true
-    }
-    fn restore(&mut self, ctx: &mut EventCtx, prev: &Box<dyn WidgetImpl>) {
-        let prev = prev.downcast_ref::<ScatterPlot<T>>().unwrap();
-        for (s1, s2) in self.series.iter_mut().zip(prev.series.iter()) {
-            s1.enabled = s2.enabled;
-        }
-        self.draw_avg = find_avg(ctx, &self.series, self.max_y, self.dims);
-    }
-}
-
-fn find_avg<T: Yvalue<T> + std::ops::AddAssign + std::ops::Div<f64, Output = T>>(
-    ctx: &EventCtx,
-    series: &Vec<SeriesState<T>>,
-    max_y: T,
-    dims: ScreenDims,
-) -> Drawable {
-    let mut sum = T::zero();
-    let mut cnt = 0;
-    for s in series {
-        if s.enabled {
-            sum += s.sum;
-            cnt += s.cnt;
-        }
-    }
-
-    let mut avg_batch = GeomBatch::new();
-    if sum != T::zero() {
-        let avg = (sum / (cnt as f64)).to_percent(max_y);
-        avg_batch.extend(
-            Color::hex("#F2F2F2"),
-            PolyLine::new(vec![
-                Pt2D::new(0.0, (1.0 - avg) * dims.height),
-                Pt2D::new(dims.width, (1.0 - avg) * dims.height),
-            ])
-            .exact_dashed_polygons(
-                Distance::meters(1.0),
-                Distance::meters(10.0),
-                Distance::meters(4.0),
-            ),
-        );
-
-        let txt = Text::from(Line("avg")).render_ctx(ctx).autocrop();
-        let width = txt.get_dims().width;
-        avg_batch.append(txt.centered_on(Pt2D::new(-width / 2.0, (1.0 - avg) * dims.height)));
-    }
-    ctx.upload(avg_batch)
 }

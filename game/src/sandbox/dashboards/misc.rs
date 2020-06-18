@@ -36,7 +36,7 @@ impl ActiveTraffic {
             composite: Composite::new(
                 Widget::col(vec![
                     DashTab::ActiveTraffic.picker(ctx, app),
-                    LinePlot::new(ctx, "active agents", active_agents, PlotOptions::new()),
+                    LinePlot::new(ctx, active_agents, PlotOptions::fixed()),
                 ])
                 .bg(app.cs.panel_bg)
                 .padding(10),

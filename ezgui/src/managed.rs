@@ -518,9 +518,6 @@ impl Widget {
     pub(crate) fn take_just_draw(self) -> JustDraw {
         *self.widget.downcast::<JustDraw>().ok().unwrap()
     }
-    pub(crate) fn take_checkbox(self) -> Checkbox {
-        *self.widget.downcast::<Checkbox>().ok().unwrap()
-    }
 }
 
 enum Dims {
@@ -684,21 +681,10 @@ impl Composite {
         let mut output = WidgetOutput {
             redo_layout: false,
             outcome: None,
-            plot_changed: Vec::new(),
         };
         self.top_level.widget.event(ctx, &mut output);
         if self.scroll_offset() != before || output.redo_layout {
             self.recompute_layout(ctx, true);
-        }
-
-        // TODO Fantastic hack
-        for ((plot_id, checkbox_label), enabled) in output.plot_changed {
-            // TODO Can't downcast and ignore the type param
-            self.top_level
-                .find_mut(&plot_id)
-                .unwrap()
-                .widget
-                .update_series(ctx, checkbox_label, enabled);
         }
 
         output.outcome

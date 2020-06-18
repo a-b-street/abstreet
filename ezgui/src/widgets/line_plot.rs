@@ -4,12 +4,11 @@ use crate::{
 };
 use abstutil::prettyprint_usize;
 use geom::{Angle, Bounds, Circle, Distance, Duration, FindClosest, PolyLine, Pt2D, Time};
-use std::collections::{BTreeMap, HashSet};
+use std::collections::HashSet;
 
 // The X is always time
 pub struct LinePlot<T: Yvalue<T>> {
-    series: Vec<SeriesState>,
-    draw_grid: Drawable,
+    draw: Drawable,
 
     // The geometry here is in screen-space.
     max_x: Time,
@@ -20,67 +19,37 @@ pub struct LinePlot<T: Yvalue<T>> {
     dims: ScreenDims,
 }
 
-struct SeriesState {
-    label: String,
-    enabled: bool,
-    draw: Drawable,
-}
-
 pub struct PlotOptions<T: Yvalue<T>> {
+    pub filterable: bool,
     pub max_x: Option<Time>,
     pub max_y: Option<T>,
+    pub disabled: HashSet<String>,
 }
 
 impl<T: Yvalue<T>> PlotOptions<T> {
-    pub fn new() -> PlotOptions<T> {
+    pub fn filterable() -> PlotOptions<T> {
         PlotOptions {
+            filterable: true,
             max_x: None,
             max_y: None,
+            disabled: HashSet::new(),
+        }
+    }
+
+    pub fn fixed() -> PlotOptions<T> {
+        PlotOptions {
+            filterable: false,
+            max_x: None,
+            max_y: None,
+            disabled: HashSet::new(),
         }
     }
 }
 
 impl<T: Yvalue<T>> LinePlot<T> {
-    // ID must be unique in a Composite
-    pub fn new(ctx: &EventCtx, id: &str, series: Vec<Series<T>>, opts: PlotOptions<T>) -> Widget {
-        let legend = if series.len() == 1 {
-            let radius = 15.0;
-            // Can't hide if there's just one series
-            Widget::row(vec![
-                Widget::draw_batch(
-                    ctx,
-                    GeomBatch::from(vec![(
-                        series[0].color,
-                        Circle::new(Pt2D::new(radius, radius), Distance::meters(radius))
-                            .to_polygon(),
-                    )]),
-                )
-                .margin(5),
-                series[0].label.clone().draw_text(ctx),
-            ])
-        } else {
-            let mut row = Vec::new();
-            let mut seen = HashSet::new();
-            for s in &series {
-                if seen.contains(&s.label) {
-                    continue;
-                }
-                seen.insert(s.label.clone());
-                row.push(Widget::row(vec![
-                    Widget::new(Box::new(
-                        Checkbox::colored(ctx, &s.label, s.color, true)
-                            .take_checkbox()
-                            .callback_to_plot(id, &s.label),
-                    ))
-                    // TODO Messy! We have to remember to repeat what Checkbox::text does,
-                    // because we used take_checkbox
-                    .named(&s.label)
-                    .margin_right(8),
-                    Line(&s.label).draw(ctx),
-                ]));
-            }
-            Widget::row(row).flex_wrap(ctx, 24)
-        };
+    pub fn new(ctx: &EventCtx, mut series: Vec<Series<T>>, opts: PlotOptions<T>) -> Widget {
+        let legend = make_legend(ctx, &series, &opts);
+        series.retain(|s| !opts.disabled.contains(&s.label));
 
         // Assume min_x is Time::START_OF_DAY and min_y is T::zero()
         let max_x = opts.max_x.unwrap_or_else(|| {
@@ -115,7 +84,7 @@ impl<T: Yvalue<T>> LinePlot<T> {
         let width = 0.23 * ctx.canvas.window_width;
         let height = 0.2 * ctx.canvas.window_height;
 
-        let mut grid_batch = GeomBatch::new();
+        let mut batch = GeomBatch::new();
         // Grid lines for the Y scale. Draw up to 10 lines max to cover the order of magnitude of
         // the range.
         // TODO This caps correctly, but if the max is 105, then suddenly we just have 2 grid
@@ -128,7 +97,7 @@ impl<T: Yvalue<T>> LinePlot<T> {
                 if pct > 1.0 {
                     break;
                 }
-                grid_batch.push(
+                batch.push(
                     Color::hex("#7C7C7C"),
                     PolyLine::new(vec![
                         Pt2D::new(0.0, (1.0 - pct) * height),
@@ -147,7 +116,7 @@ impl<T: Yvalue<T>> LinePlot<T> {
                 if pct > 1.0 {
                     break;
                 }
-                grid_batch.push(
+                batch.push(
                     Color::hex("#7C7C7C"),
                     PolyLine::new(vec![
                         Pt2D::new(pct * width, 0.0),
@@ -162,13 +131,7 @@ impl<T: Yvalue<T>> LinePlot<T> {
             Pt2D::new(0.0, 0.0),
             Pt2D::new(width, height),
         ]));
-        let mut state: BTreeMap<String, GeomBatch> = BTreeMap::new();
         for s in series {
-            if !state.contains_key(&s.label) {
-                state.insert(s.label.clone(), GeomBatch::new());
-            }
-            let batch = state.get_mut(&s.label).unwrap();
-
             if max_x == Time::START_OF_DAY {
                 continue;
             }
@@ -197,15 +160,7 @@ impl<T: Yvalue<T>> LinePlot<T> {
         }
 
         let plot = LinePlot {
-            series: state
-                .into_iter()
-                .map(|(label, batch)| SeriesState {
-                    label,
-                    enabled: true,
-                    draw: ctx.upload(batch),
-                })
-                .collect(),
-            draw_grid: ctx.upload(grid_batch),
+            draw: ctx.upload(batch),
             closest,
             max_x,
             max_y,
@@ -241,10 +196,7 @@ impl<T: Yvalue<T>> LinePlot<T> {
         // Don't let the x-axis fill the parent container
         Widget::row(vec![Widget::col(vec![
             legend.margin_below(10),
-            Widget::row(vec![
-                y_axis.evenly_spaced(),
-                Widget::new(Box::new(plot)).named(id),
-            ]),
+            Widget::row(vec![y_axis.evenly_spaced(), Widget::new(Box::new(plot))]),
             x_axis.evenly_spaced(),
         ])])
     }
@@ -262,12 +214,7 @@ impl<T: Yvalue<T>> WidgetImpl for LinePlot<T> {
     fn event(&mut self, _ctx: &mut EventCtx, _output: &mut WidgetOutput) {}
 
     fn draw(&self, g: &mut GfxCtx) {
-        g.redraw_at(self.top_left, &self.draw_grid);
-        for series in &self.series {
-            if series.enabled {
-                g.redraw_at(self.top_left, &series.draw);
-            }
-        }
+        g.redraw_at(self.top_left, &self.draw);
 
         if let Some(cursor) = g.canvas.get_cursor_in_screen_space() {
             if ScreenRectangle::top_left(self.top_left, self.dims).contains(cursor) {
@@ -277,19 +224,17 @@ impl<T: Yvalue<T>> WidgetImpl for LinePlot<T> {
                     Pt2D::new(cursor.x - self.top_left.x, cursor.y - self.top_left.y),
                     radius,
                 ) {
-                    if self.series.iter().any(|s| s.label == label && s.enabled) {
-                        // TODO If some/all of the matches have the same t, write it once?
-                        let t = self.max_x.percent_of(pt.x() / self.dims.width);
-                        let y_percent = 1.0 - (pt.y() / self.dims.height);
+                    // TODO If some/all of the matches have the same t, write it once?
+                    let t = self.max_x.percent_of(pt.x() / self.dims.width);
+                    let y_percent = 1.0 - (pt.y() / self.dims.height);
 
-                        // TODO Draw this info in the ColorLegend
-                        txt.add(Line(format!(
-                            "{}: at {}, {}",
-                            label,
-                            t.ampm_tostring(),
-                            self.max_y.from_percent(y_percent).prettyprint()
-                        )));
-                    }
+                    // TODO Draw this info in the ColorLegend
+                    txt.add(Line(format!(
+                        "{}: at {}, {}",
+                        label,
+                        t.ampm_tostring(),
+                        self.max_y.from_percent(y_percent).prettyprint()
+                    )));
                 }
                 if !txt.is_empty() {
                     g.fork_screenspace();
@@ -298,26 +243,6 @@ impl<T: Yvalue<T>> WidgetImpl for LinePlot<T> {
                     g.unfork();
                 }
             }
-        }
-    }
-
-    fn update_series(&mut self, _: &mut EventCtx, label: String, enabled: bool) {
-        for series in &mut self.series {
-            if series.label == label {
-                series.enabled = enabled;
-                return;
-            }
-        }
-        panic!("LinePlot doesn't have a series {}", label);
-    }
-
-    fn can_restore(&self) -> bool {
-        true
-    }
-    fn restore(&mut self, _: &mut EventCtx, prev: &Box<dyn WidgetImpl>) {
-        let prev = prev.downcast_ref::<LinePlot<T>>().unwrap();
-        for (s1, s2) in self.series.iter_mut().zip(prev.series.iter()) {
-            s1.enabled = s2.enabled;
         }
     }
 }
@@ -387,4 +312,41 @@ pub struct Series<T> {
     pub color: Color,
     // X-axis is time. Assume this is sorted by X.
     pub pts: Vec<(Time, T)>,
+}
+
+pub fn make_legend<T: Yvalue<T>>(
+    ctx: &EventCtx,
+    series: &Vec<Series<T>>,
+    opts: &PlotOptions<T>,
+) -> Widget {
+    let mut row = Vec::new();
+    let mut seen = HashSet::new();
+    for s in series {
+        if seen.contains(&s.label) {
+            continue;
+        }
+        seen.insert(s.label.clone());
+        if opts.filterable {
+            row.push(Widget::row(vec![
+                Checkbox::colored(ctx, &s.label, s.color, !opts.disabled.contains(&s.label))
+                    .margin_right(8),
+                Line(&s.label).draw(ctx),
+            ]));
+        } else {
+            let radius = 15.0;
+            row.push(Widget::row(vec![
+                Widget::draw_batch(
+                    ctx,
+                    GeomBatch::from(vec![(
+                        s.color,
+                        Circle::new(Pt2D::new(radius, radius), Distance::meters(radius))
+                            .to_polygon(),
+                    )]),
+                )
+                .margin(5),
+                s.label.clone().draw_text(ctx),
+            ]));
+        }
+    }
+    Widget::row(row).flex_wrap(ctx, 24)
 }

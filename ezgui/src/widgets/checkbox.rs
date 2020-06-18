@@ -8,9 +8,6 @@ pub struct Checkbox {
     pub(crate) enabled: bool,
     btn: Button,
     other_btn: Button,
-
-    // TODO Biiiit of a hack. If Plot could embed a Composite, that'd actually work better.
-    cb_to_plot: Option<(String, String)>,
 }
 
 impl Checkbox {
@@ -21,14 +18,12 @@ impl Checkbox {
                 enabled,
                 btn: true_btn.take_btn(),
                 other_btn: false_btn.take_btn(),
-                cb_to_plot: None,
             }))
         } else {
             Widget::new(Box::new(Checkbox {
                 enabled,
                 btn: false_btn.take_btn(),
                 other_btn: true_btn.take_btn(),
-                cb_to_plot: None,
             }))
         }
     }
@@ -91,11 +86,6 @@ impl Checkbox {
 
         Checkbox::new(enabled, false_btn, true_btn).named(label)
     }
-
-    pub(crate) fn callback_to_plot(mut self, plot_id: &str, checkbox_label: &str) -> Checkbox {
-        self.cb_to_plot = Some((plot_id.to_string(), checkbox_label.to_string()));
-        self
-    }
 }
 
 impl WidgetImpl for Checkbox {
@@ -114,26 +104,10 @@ impl WidgetImpl for Checkbox {
             self.btn.set_pos(self.other_btn.top_left);
             self.enabled = !self.enabled;
             output.redo_layout = true;
-            if let Some(ref pair) = self.cb_to_plot {
-                output.plot_changed.push((pair.clone(), self.enabled));
-            }
         }
     }
 
     fn draw(&self, g: &mut GfxCtx) {
         self.btn.draw(g);
-    }
-
-    fn can_restore(&self) -> bool {
-        // TODO I'm nervous about doing this one in general, so just do it for plot checkboxes.
-        self.cb_to_plot.is_some()
-    }
-    fn restore(&mut self, _: &mut EventCtx, prev: &Box<dyn WidgetImpl>) {
-        let prev = prev.downcast_ref::<Checkbox>().unwrap();
-        if self.enabled != prev.enabled {
-            std::mem::swap(&mut self.btn, &mut self.other_btn);
-            self.btn.set_pos(self.other_btn.top_left);
-            self.enabled = !self.enabled;
-        }
     }
 }

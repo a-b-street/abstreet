@@ -69,7 +69,7 @@ pub fn traffic(
         ctx,
         app,
         move |a| a.intersection_thruput.count_per_hour(id, time),
-        opts.show_before,
+        &opts,
     ));
 
     rows
@@ -213,11 +213,12 @@ fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) 
             .margin_below(10),
         ScatterPlot::new(
             ctx,
-            "delay",
             series,
             PlotOptions {
+                filterable: true,
                 max_x: Some(limit),
                 max_y: None,
+                disabled: opts.disabled_series(),
             },
         ),
     ])

@@ -39,11 +39,6 @@ pub trait WidgetImpl: downcast_rs::Downcast {
     fn restore(&mut self, _ctx: &mut EventCtx, _prev: &Box<dyn WidgetImpl>) {
         unreachable!()
     }
-
-    /// Internal hack. Don't override.
-    fn update_series(&mut self, _ctx: &mut EventCtx, _label: String, _enabled: bool) {
-        unreachable!()
-    }
 }
 
 pub enum Outcome {
@@ -56,9 +51,6 @@ pub struct WidgetOutput {
     /// This widget produced an Outcome, and event handling should immediately stop. Most widgets
     /// shouldn't set this.
     pub outcome: Option<Outcome>,
-
-    /// Internal hack.
-    pub(crate) plot_changed: Vec<((String, String), bool)>,
 }
 
 downcast_rs::impl_downcast!(WidgetImpl);

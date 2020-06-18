@@ -3,6 +3,7 @@ use crate::info::{header_btns, make_table, make_tabs, throughput, DataOptions, D
 use abstutil::prettyprint_usize;
 use ezgui::{Btn, EventCtx, Line, LinePlot, PlotOptions, Series, Text, TextExt, Widget};
 use map_model::{LaneID, OriginalLane};
+use std::collections::HashSet;
 
 pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec<Widget> {
     let mut rows = header(ctx, app, details, id, Tab::LaneInfo(id));
@@ -58,11 +59,12 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
         rows.push("Parking spots available".draw_text(ctx).margin_above(10));
         rows.push(LinePlot::new(
             ctx,
-            "parking spots available",
             series,
             PlotOptions {
+                filterable: false,
                 max_x: None,
                 max_y: Some(capacity),
+                disabled: HashSet::new(),
             },
         ));
     }
@@ -187,7 +189,7 @@ pub fn traffic(
         ctx,
         app,
         move |a| a.road_thruput.count_per_hour(r, time),
-        opts.show_before,
+        &opts,
     ));
 
     rows
