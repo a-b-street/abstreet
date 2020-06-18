@@ -33,7 +33,7 @@ struct Bus {
     car: CarID,
     route: BusRouteID,
     // Where does each passenger want to deboard?
-    passengers: Vec<(PedestrianID, BusStopID)>,
+    passengers: Vec<(PersonID, BusStopID)>,
     state: BusState,
 }
 
@@ -166,11 +166,11 @@ impl TransitSimState {
 
                 // Deboard existing passengers.
                 let mut still_riding = Vec::new();
-                for (ped, stop2) in bus.passengers.drain(..) {
+                for (person, stop2) in bus.passengers.drain(..) {
                     if stop1 == stop2 {
-                        trips.ped_left_bus(now, ped, map, scheduler);
+                        trips.person_left_bus(now, person, bus.car, map, scheduler);
                     } else {
-                        still_riding.push((ped, stop2));
+                        still_riding.push((person, stop2));
                     }
                 }
                 bus.passengers = still_riding;
@@ -181,9 +181,13 @@ impl TransitSimState {
                     self.peds_waiting.remove(&stop1).unwrap_or_else(Vec::new)
                 {
                     if bus.route == route {
-                        bus.passengers.push((ped, stop2));
-                        let (trip, person) =
-                            trips.ped_boarded_bus(now, ped, now - started_waiting, walking);
+                        let (trip, person) = trips.ped_boarded_bus(
+                            now,
+                            ped,
+                            bus.car,
+                            now - started_waiting,
+                            walking,
+                        );
                         self.events.push(Event::TripPhaseStarting(
                             trip,
                             person,
@@ -194,6 +198,7 @@ impl TransitSimState {
                             }),
                             TripPhaseType::RidingBus(route, stop1, bus.car),
                         ));
+                        bus.passengers.push((person, stop2));
                     } else {
                         still_waiting.push((ped, route, stop2, started_waiting));
                     }
@@ -223,7 +228,7 @@ impl TransitSimState {
         }
     }
 
-    // If true, the pedestrian boarded a bus immediately.
+    // Returns the bus if the pedestrian boarded immediately.
     pub fn ped_waiting_for_bus(
         &mut self,
         now: Time,
@@ -234,7 +239,7 @@ impl TransitSimState {
         route_id: BusRouteID,
         stop2: BusStopID,
         map: &Map,
-    ) -> bool {
+    ) -> Option<CarID> {
         assert!(stop1 != stop2);
         if let Some(route) = self.routes.get(&route_id) {
             for bus in &route.buses {
@@ -244,7 +249,7 @@ impl TransitSimState {
                             .get_mut(bus)
                             .unwrap()
                             .passengers
-                            .push((ped, stop2));
+                            .push((person, stop2));
                         self.events.push(Event::TripPhaseStarting(
                             trip,
                             person,
@@ -255,7 +260,7 @@ impl TransitSimState {
                             }),
                             TripPhaseType::RidingBus(route_id, stop1, *bus),
                         ));
-                        return true;
+                        return Some(*bus);
                     }
                 }
             }
@@ -270,14 +275,14 @@ impl TransitSimState {
             .entry(stop1)
             .or_insert_with(Vec::new)
             .push((ped, route_id, stop2, now));
-        false
+        None
     }
 
     pub fn collect_events(&mut self) -> Vec<Event> {
         self.events.drain(..).collect()
     }
 
-    pub fn get_passengers(&self, bus: CarID) -> &Vec<(PedestrianID, BusStopID)> {
+    pub fn get_passengers(&self, bus: CarID) -> &Vec<(PersonID, BusStopID)> {
         &self.buses[&bus].passengers
     }
 

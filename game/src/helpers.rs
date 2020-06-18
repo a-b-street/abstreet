@@ -30,6 +30,7 @@ impl ID {
         match id {
             AgentID::Car(id) => ID::Car(id),
             AgentID::Pedestrian(id) => ID::Pedestrian(id),
+            AgentID::BusPassenger(_, bus) => ID::Car(bus),
         }
     }
 

@@ -83,10 +83,11 @@ impl fmt::Display for PedestrianID {
 pub enum AgentID {
     Car(CarID),
     Pedestrian(PedestrianID),
+    BusPassenger(PersonID, CarID),
 }
 
 impl AgentID {
-    pub fn as_car(self) -> CarID {
+    pub(crate) fn as_car(self) -> CarID {
         match self {
             AgentID::Car(id) => id,
             _ => panic!("Not a CarID: {:?}", self),
@@ -99,6 +100,7 @@ impl fmt::Display for AgentID {
         match self {
             AgentID::Car(id) => write!(f, "AgentID({})", id),
             AgentID::Pedestrian(id) => write!(f, "AgentID({})", id),
+            AgentID::BusPassenger(person, bus) => write!(f, "AgentID({} on {})", person, bus),
         }
     }
 }

@@ -61,10 +61,9 @@ pub fn ongoing(
         AgentID::Car(c) => match c.1 {
             VehicleType::Car => "driving",
             VehicleType::Bike => "biking",
-            // TODO And probably riding a bus is broken, I don't know how that gets mapped right
-            // now
-            VehicleType::Bus => "riding the bus",
+            VehicleType::Bus => unreachable!(),
         },
+        AgentID::BusPassenger(_, _) => "riding the bus",
     };
     let time_so_far = app.primary.sim.time() - start_time;
 

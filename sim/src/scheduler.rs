@@ -30,6 +30,7 @@ impl Command {
         match id {
             AgentID::Car(c) => Command::UpdateCar(c),
             AgentID::Pedestrian(p) => Command::UpdatePed(p),
+            AgentID::BusPassenger(_, _) => unreachable!(),
         }
     }
 

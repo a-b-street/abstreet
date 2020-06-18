@@ -70,6 +70,7 @@ impl TripManager {
             ped_speed,
             vehicles,
             delayed_trips: Vec::new(),
+            on_bus: None,
         });
     }
     pub fn random_person(&mut self, ped_speed: Speed, vehicle_specs: Vec<VehicleSpec>) -> &Person {
@@ -465,7 +466,7 @@ impl TripManager {
                     None,
                     TripPhaseType::WaitingForBus(route, stop),
                 ));
-                if transit.ped_waiting_for_bus(
+                if let Some(bus) = transit.ped_waiting_for_bus(
                     now,
                     ped,
                     trip.id,
@@ -476,6 +477,12 @@ impl TripManager {
                     map,
                 ) {
                     trip.legs.pop_front();
+                    self.active_trip_mode
+                        .remove(&AgentID::Pedestrian(ped))
+                        .unwrap();
+                    self.active_trip_mode
+                        .insert(AgentID::BusPassenger(trip.person, bus), trip.id);
+                    self.people[trip.person.0].on_bus = Some(bus);
                     None
                 } else {
                     Some(route)
@@ -489,35 +496,44 @@ impl TripManager {
         &mut self,
         now: Time,
         ped: PedestrianID,
+        bus: CarID,
         blocked_time: Duration,
         walking: &mut WalkingSimState,
     ) -> (TripID, PersonID) {
-        // TODO Make sure canonical pt is the bus while the ped is riding it
-        let trip = &mut self.trips[self.active_trip_mode[&AgentID::Pedestrian(ped)].0];
+        let trip = &mut self.trips[self
+            .active_trip_mode
+            .remove(&AgentID::Pedestrian(ped))
+            .unwrap()
+            .0];
         trip.total_blocked_time += blocked_time;
 
         trip.legs.pop_front();
         walking.ped_boarded_bus(now, ped);
+        self.active_trip_mode
+            .insert(AgentID::BusPassenger(trip.person, bus), trip.id);
+        self.people[trip.person.0].on_bus = Some(bus);
         (trip.id, trip.person)
     }
 
     // TODO Need to characterize delay the bus experienced
-    pub fn ped_left_bus(
+    pub fn person_left_bus(
         &mut self,
         now: Time,
-        ped: PedestrianID,
+        person: PersonID,
+        bus: CarID,
         map: &Map,
         scheduler: &mut Scheduler,
     ) {
         let trip = &mut self.trips[self
             .active_trip_mode
-            .remove(&AgentID::Pedestrian(ped))
+            .remove(&AgentID::BusPassenger(person, bus))
             .unwrap()
             .0];
         let start = match trip.legs.pop_front().unwrap() {
             TripLeg::RideBus(_, stop) => SidewalkSpot::bus_stop(stop, map),
             _ => unreachable!(),
         };
+        self.people[person.0].on_bus.take().unwrap();
 
         if !trip.spawn_ped(
             now,
@@ -768,8 +784,7 @@ impl TripManager {
         let a = match &trip.legs[0] {
             TripLeg::Walk(_) => AgentID::Pedestrian(person.ped),
             TripLeg::Drive(c, _) => AgentID::Car(*c),
-            // TODO Should be the bus, but apparently transit sim tracks differently?
-            TripLeg::RideBus(_, _) => AgentID::Pedestrian(person.ped),
+            TripLeg::RideBus(_, _) => AgentID::BusPassenger(person.id, person.on_bus.unwrap()),
             TripLeg::Remote(_) => {
                 return TripResult::RemoteTrip;
             }
@@ -1337,9 +1352,11 @@ impl TripMode {
             AgentID::Car(id) => match id.1 {
                 VehicleType::Car => TripMode::Drive,
                 VehicleType::Bike => TripMode::Bike,
-                // Little confusing; this means buses, not bus riders.
+                // TODO Little confusing; this means buses, not bus riders.
                 VehicleType::Bus => TripMode::Transit,
             },
+            // TODO Now we can detangle this, right?
+            AgentID::BusPassenger(_, _) => TripMode::Transit,
         }
     }
 
@@ -1423,6 +1440,7 @@ pub struct Person {
     pub vehicles: Vec<Vehicle>,
 
     delayed_trips: Vec<(TripID, TripSpec, Option<PathRequest>, Option<Path>)>,
+    on_bus: Option<CarID>,
 }
 
 impl Person {

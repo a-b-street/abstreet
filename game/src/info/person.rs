@@ -511,6 +511,9 @@ fn header(
                         }
                         VehicleType::Bus => unreachable!(),
                     },
+                    AgentID::BusPassenger(_, _) => {
+                        ("riding a bus", Some("../data/system/assets/meters/bus.svg"))
+                    }
                 }
             } else {
                 // TODO Really should clean up the TripModeChange issue

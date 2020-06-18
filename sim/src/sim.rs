@@ -923,6 +923,16 @@ impl Sim {
         match id {
             AgentID::Pedestrian(id) => self.walking.agent_properties(id, self.time),
             AgentID::Car(id) => self.driving.agent_properties(id, self.time),
+            // TODO Harder to measure some of this stuff
+            AgentID::BusPassenger(_, _) => AgentProperties {
+                total_time: Duration::ZERO,
+                waiting_here: Duration::ZERO,
+                total_waiting: Duration::ZERO,
+                dist_crossed: Distance::ZERO,
+                total_dist: Distance::meters(0.1),
+                lanes_crossed: 0,
+                total_lanes: 0,
+            },
         }
     }
 
@@ -1023,6 +1033,7 @@ impl Sim {
         match id {
             AgentID::Car(car) => self.driving.get_path(car),
             AgentID::Pedestrian(ped) => self.walking.get_path(ped),
+            AgentID::BusPassenger(_, _) => None,
         }
     }
     pub fn get_all_driving_paths(&self) -> Vec<&Path> {
@@ -1038,6 +1049,7 @@ impl Sim {
         match id {
             AgentID::Car(car) => self.driving.trace_route(self.time, car, map, dist_ahead),
             AgentID::Pedestrian(ped) => self.walking.trace_route(self.time, ped, map, dist_ahead),
+            AgentID::BusPassenger(_, _) => None,
         }
     }
 
@@ -1076,15 +1088,6 @@ impl Sim {
         }
     }
 
-    pub fn does_agent_exist(&self, id: AgentID) -> bool {
-        match id {
-            AgentID::Car(id) => {
-                self.parking.lookup_parked_car(id).is_some() || self.driving.does_car_exist(id)
-            }
-            AgentID::Pedestrian(id) => self.walking.does_ped_exist(id),
-        }
-    }
-
     pub fn canonical_pt_for_agent(&self, id: AgentID, map: &Map) -> Option<Pt2D> {
         match id {
             AgentID::Car(id) => self
@@ -1092,6 +1095,7 @@ impl Sim {
                 .canonical_pt(id, map)
                 .or_else(|| Some(self.get_draw_car(id, map)?.body.last_pt())),
             AgentID::Pedestrian(id) => Some(self.get_draw_ped(id, map)?.pos),
+            AgentID::BusPassenger(_, bus) => Some(self.get_draw_car(bus, map)?.body.last_pt()),
         }
     }
 
