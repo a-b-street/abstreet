@@ -114,7 +114,7 @@ Constructing the map:
 - `map_model`: the final representation of the map, also conversion from the
   intermediate map format into the final format
 - `map_editor`: GUI for modifying geometry of maps and creating maps from
-  scratch
+  scratch. pretty abandoned as of June 2020
 - `importer`: tool to run the entire import pipeline
 - `updater`: tool to download/upload large files used in the import pipeline
 

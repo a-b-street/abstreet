@@ -52,123 +52,146 @@ impl OptionsPanel {
                 Widget::col(vec![
                     Widget::row(vec![
                         Line("Settings").small_heading().draw(ctx),
-                        Btn::text_fg("X")
+                        Btn::plaintext("X")
                             .build(ctx, "close", hotkey(Key::Escape))
                             .align_right(),
-                    ]),
-                    Checkbox::text(ctx, "Enable developer mode", None, app.opts.dev).margin(5),
-                    Checkbox::text(
-                        ctx,
-                        "Invert direction of vertical scrolling",
-                        None,
-                        ctx.canvas.invert_scroll,
-                    )
-                    .margin(5),
-                    Checkbox::text(
-                        ctx,
-                        "Enable panning map when cursor is at edge of screen",
-                        None,
-                        ctx.canvas.edge_auto_panning,
-                    )
-                    .named("disable pan"),
-                    Checkbox::text(
-                        ctx,
-                        "Use touchpad to pan and hold Control to zoom",
-                        None,
-                        ctx.canvas.touchpad_to_move,
-                    )
-                    .margin(5),
-                    Widget::row(vec![
-                        "Traffic signal rendering:".draw_text(ctx).margin(5),
-                        Widget::dropdown(
+                    ])
+                    .margin_below(10),
+                    Checkbox::text(ctx, "Enable developer mode", None, app.opts.dev)
+                        .margin_below(10),
+                    "Camera controls".draw_text(ctx).margin_below(10),
+                    Widget::col(vec![
+                        Checkbox::text(
                             ctx,
-                            "Traffic signal rendering",
-                            app.opts.traffic_signal_style.clone(),
-                            vec![
-                                Choice::new(
-                                    "Brian's variation of arrows showing the protected and \
-                                     permitted movements",
-                                    TrafficSignalStyle::BAP,
-                                ),
-                                Choice::new(
-                                    "arrows showing the protected and permitted movements",
-                                    TrafficSignalStyle::GroupArrows,
-                                ),
-                                Choice::new(
-                                    "arrows showing the protected and permitted movements, with \
-                                     sidewalks",
-                                    TrafficSignalStyle::Sidewalks,
-                                ),
-                                Choice::new(
-                                    "icons for movements (like the editor UI)",
-                                    TrafficSignalStyle::Icons,
-                                ),
-                                Choice::new(
-                                    "arrows showing individual turns (to debug)",
-                                    TrafficSignalStyle::IndividualTurnArrows,
-                                ),
-                            ],
-                        ),
-                    ]),
-                    Widget::row(vec![
-                        "Color scheme:".draw_text(ctx).margin(5),
-                        Widget::dropdown(
-                            ctx,
-                            "Color scheme",
-                            app.opts.color_scheme,
-                            ColorSchemeChoice::choices(),
-                        ),
-                    ]),
-                    Widget::row(vec![
-                        format!(
-                            "Scale factor for text / UI elements (your monitor is {}):",
-                            ctx.monitor_scale_factor()
+                            "Invert direction of vertical scrolling",
+                            None,
+                            ctx.canvas.invert_scroll,
                         )
-                        .draw_text(ctx)
-                        .margin(5),
-                        Widget::dropdown(
+                        .margin_below(10),
+                        Checkbox::text(
                             ctx,
-                            "Scale factor",
-                            ctx.get_scale_factor(),
-                            vec![
-                                Choice::new("0.5", 0.5),
-                                Choice::new("1.0", 1.0),
-                                Choice::new("1.5", 1.5),
-                                Choice::new("2.0", 2.0),
-                            ],
+                            "Pan map when cursor is at edge of screen",
+                            None,
+                            ctx.canvas.edge_auto_panning,
+                        )
+                        .named("autopan")
+                        .margin_below(10),
+                        Checkbox::text(
+                            ctx,
+                            "Use touchpad to pan and hold Control to zoom",
+                            None,
+                            ctx.canvas.touchpad_to_move,
+                        )
+                        .margin_below(10),
+                        Checkbox::text(
+                            ctx,
+                            "Use arrow keys to pan and Q/W to zoom",
+                            None,
+                            ctx.canvas.keys_to_pan,
                         ),
-                    ]),
-                    Widget::row(vec![
-                        "Camera zoom to switch to unzoomed view"
+                    ])
+                    .bg(app.cs.section_bg)
+                    .padding(8)
+                    .margin_below(10),
+                    "Appearance".draw_text(ctx).margin_below(10),
+                    Widget::col(vec![
+                        Widget::row(vec![
+                            "Traffic signal rendering:".draw_text(ctx).margin_right(15),
+                            Widget::dropdown(
+                                ctx,
+                                "Traffic signal rendering",
+                                app.opts.traffic_signal_style.clone(),
+                                vec![
+                                    Choice::new(
+                                        "Brian's variation of arrows showing the protected and \
+                                         permitted movements",
+                                        TrafficSignalStyle::BAP,
+                                    ),
+                                    Choice::new(
+                                        "arrows showing the protected and permitted movements",
+                                        TrafficSignalStyle::GroupArrows,
+                                    ),
+                                    Choice::new(
+                                        "arrows showing the protected and permitted movements, \
+                                         with sidewalks",
+                                        TrafficSignalStyle::Sidewalks,
+                                    ),
+                                    Choice::new(
+                                        "icons for movements (like the editor UI)",
+                                        TrafficSignalStyle::Icons,
+                                    ),
+                                    Choice::new(
+                                        "arrows showing individual turns (to debug)",
+                                        TrafficSignalStyle::IndividualTurnArrows,
+                                    ),
+                                ],
+                            ),
+                        ])
+                        .margin_below(10),
+                        Widget::row(vec![
+                            "Color scheme:".draw_text(ctx).margin_right(5),
+                            Widget::dropdown(
+                                ctx,
+                                "Color scheme",
+                                app.opts.color_scheme,
+                                ColorSchemeChoice::choices(),
+                            ),
+                        ])
+                        .margin_below(10),
+                        Widget::row(vec![
+                            format!(
+                                "Scale factor for text / UI elements (your monitor is {}):",
+                                ctx.monitor_scale_factor()
+                            )
                             .draw_text(ctx)
-                            .margin(5),
-                        Widget::dropdown(
+                            .margin_right(15),
+                            Widget::dropdown(
+                                ctx,
+                                "Scale factor",
+                                ctx.get_scale_factor(),
+                                vec![
+                                    Choice::new("0.5", 0.5),
+                                    Choice::new("1.0", 1.0),
+                                    Choice::new("1.5", 1.5),
+                                    Choice::new("2.0", 2.0),
+                                ],
+                            ),
+                        ])
+                        .margin_below(10),
+                        Widget::row(vec![
+                            "Camera zoom to switch to unzoomed view"
+                                .draw_text(ctx)
+                                .margin_right(15),
+                            Widget::dropdown(
+                                ctx,
+                                "min zoom",
+                                app.opts.min_zoom_for_detail,
+                                vec![
+                                    Choice::new("1.0", 1.0),
+                                    Choice::new("2.0", 2.0),
+                                    Choice::new("3.0", 3.0),
+                                    Choice::new("4.0", 4.0),
+                                    Choice::new("5.0", 5.0),
+                                    Choice::new("6.0", 6.0),
+                                ],
+                            ),
+                        ])
+                        .margin_below(10),
+                        Checkbox::text(
                             ctx,
-                            "min zoom",
-                            app.opts.min_zoom_for_detail,
-                            vec![
-                                Choice::new("1.0", 1.0),
-                                Choice::new("2.0", 2.0),
-                                Choice::new("3.0", 3.0),
-                                Choice::new("4.0", 4.0),
-                                Choice::new("5.0", 5.0),
-                                Choice::new("6.0", 6.0),
-                            ],
+                            "Draw enlarged unzoomed agents",
+                            None,
+                            app.opts.large_unzoomed_agents,
                         ),
-                    ]),
-                    Checkbox::text(
-                        ctx,
-                        "Draw enlarged unzoomed agents",
-                        None,
-                        app.opts.large_unzoomed_agents,
-                    )
-                    .margin(5),
+                    ])
+                    .bg(app.cs.section_bg)
+                    .padding(8)
+                    .margin_below(10),
                     Btn::text_bg2("Apply")
                         .build_def(ctx, hotkey(Key::Enter))
-                        .margin(5)
                         .centered_horiz(),
                 ])
-                .padding(10)
+                .padding(16)
                 .bg(app.cs.panel_bg),
             )
             .build(ctx),
@@ -190,7 +213,10 @@ impl State for OptionsPanel {
                     ctx.canvas.touchpad_to_move = self
                         .composite
                         .is_checked("Use touchpad to pan and hold Control to zoom");
-                    ctx.canvas.edge_auto_panning = self.composite.is_checked("disable pan");
+                    ctx.canvas.keys_to_pan = self
+                        .composite
+                        .is_checked("Use arrow keys to pan and Q/W to zoom");
+                    ctx.canvas.edge_auto_panning = self.composite.is_checked("autopan");
                     app.opts.dev = self.composite.is_checked("Enable developer mode");
 
                     let style = self.composite.dropdown_value("Traffic signal rendering");

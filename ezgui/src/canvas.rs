@@ -1,5 +1,5 @@
 use crate::assets::Assets;
-use crate::{ScreenDims, ScreenPt, ScreenRectangle, UserInput};
+use crate::{hotkey, Key, ScreenDims, ScreenPt, ScreenRectangle, UserInput};
 use abstutil::Timer;
 use geom::{Bounds, Pt2D};
 use serde::{Deserialize, Serialize};
@@ -37,6 +37,7 @@ pub struct Canvas {
     pub invert_scroll: bool,
     pub touchpad_to_move: bool,
     pub edge_auto_panning: bool,
+    pub keys_to_pan: bool,
 
     // TODO Bit weird and hacky to mutate inside of draw() calls.
     pub(crate) covered_areas: RefCell<Vec<ScreenRectangle>>,
@@ -67,6 +68,7 @@ impl Canvas {
             invert_scroll: false,
             touchpad_to_move: false,
             edge_auto_panning: false,
+            keys_to_pan: false,
 
             covered_areas: RefCell::new(Vec::new()),
 
@@ -87,19 +89,7 @@ impl Canvas {
             if self.touchpad_to_move {
                 if let Some((scroll_x, scroll_y)) = input.get_mouse_scroll() {
                     if self.lctrl_held {
-                        let old_zoom = self.cam_zoom;
-                        // By popular request, some limits ;)
-                        self.cam_zoom = 1.1_f64
-                            .powf(old_zoom.log(1.1) + scroll_y)
-                            .max(self.min_zoom())
-                            .min(150.0);
-
-                        // Make screen_to_map of cursor_{x,y} still point to the same thing after
-                        // zooming.
-                        self.cam_x = ((self.cam_zoom / old_zoom) * (self.cursor_x + self.cam_x))
-                            - self.cursor_x;
-                        self.cam_y = ((self.cam_zoom / old_zoom) * (self.cursor_y + self.cam_y))
-                            - self.cursor_y;
+                        self.zoom(scroll_y, (self.cursor_x, self.cursor_y));
                     } else {
                         // Woo, inversion is different for the two. :P
                         self.cam_x += scroll_x * PAN_SPEED;
@@ -112,19 +102,28 @@ impl Canvas {
                 }
 
                 if let Some((_, scroll)) = input.get_mouse_scroll() {
-                    let old_zoom = self.cam_zoom;
-                    // By popular request, some limits ;)
-                    self.cam_zoom = 1.1_f64
-                        .powf(old_zoom.log(1.1) + scroll)
-                        .max(self.min_zoom())
-                        .min(150.0);
+                    self.zoom(scroll, (self.cursor_x, self.cursor_y));
+                }
+            }
 
-                    // Make screen_to_map of cursor_{x,y} still point to the same thing after
-                    // zooming.
-                    self.cam_x =
-                        ((self.cam_zoom / old_zoom) * (self.cursor_x + self.cam_x)) - self.cursor_x;
-                    self.cam_y =
-                        ((self.cam_zoom / old_zoom) * (self.cursor_y + self.cam_y)) - self.cursor_y;
+            if self.keys_to_pan {
+                if input.new_was_pressed(&hotkey(Key::LeftArrow).unwrap()) {
+                    self.cam_x -= PAN_SPEED;
+                }
+                if input.new_was_pressed(&hotkey(Key::RightArrow).unwrap()) {
+                    self.cam_x += PAN_SPEED;
+                }
+                if input.new_was_pressed(&hotkey(Key::UpArrow).unwrap()) {
+                    self.cam_y -= PAN_SPEED;
+                }
+                if input.new_was_pressed(&hotkey(Key::DownArrow).unwrap()) {
+                    self.cam_y += PAN_SPEED;
+                }
+                if input.new_was_pressed(&hotkey(Key::Q).unwrap()) {
+                    self.zoom(1.0, (self.window_width / 2.0, self.window_height / 2.0));
+                }
+                if input.new_was_pressed(&hotkey(Key::W).unwrap()) {
+                    self.zoom(-1.0, (self.window_width / 2.0, self.window_height / 2.0));
                 }
             }
         }
@@ -150,8 +149,8 @@ impl Canvas {
             let cursor_map_pt = self.screen_to_map(self.get_cursor());
             let inner_bounds = self.get_inner_bounds();
             let map_bounds = self.get_map_bounds();
-            if !inner_bounds.contains(cursor_screen_pt)
-                && self.edge_auto_panning
+            if self.edge_auto_panning
+                && !inner_bounds.contains(cursor_screen_pt)
                 && map_bounds.contains(cursor_map_pt)
             {
                 let center_pt = self.center_to_screen_pt().to_pt();
@@ -161,11 +160,25 @@ impl Canvas {
                     f64::sqrt(displacement_x.powf(2.0) + displacement_y.powf(2.0));
                 let displacement_unit_x = displacement_x / displacement_magnitude;
                 let displacement_unit_y = displacement_y / displacement_magnitude;
-                //Add displacement along each axis
+                // Add displacement along each axis
                 self.cam_x += displacement_unit_x * PAN_SPEED;
                 self.cam_y += displacement_unit_y * PAN_SPEED;
             }
         }
+    }
+
+    fn zoom(&mut self, delta: f64, focus: (f64, f64)) {
+        let old_zoom = self.cam_zoom;
+        // By popular request, some limits ;)
+        self.cam_zoom = 1.1_f64
+            .powf(old_zoom.log(1.1) + delta)
+            .max(self.min_zoom())
+            .min(150.0);
+
+        // Make screen_to_map of the focus point still point to the same thing after
+        // zooming.
+        self.cam_x = ((self.cam_zoom / old_zoom) * (focus.0 + self.cam_x)) - focus.0;
+        self.cam_y = ((self.cam_zoom / old_zoom) * (focus.1 + self.cam_y)) - focus.1;
     }
 
     pub(crate) fn start_drawing(&self) {
