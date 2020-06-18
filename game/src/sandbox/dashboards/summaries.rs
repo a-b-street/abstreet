@@ -4,8 +4,8 @@ use crate::helpers::color_for_mode;
 use crate::sandbox::dashboards::DashTab;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    Checkbox, Choice, Color, Composite, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx, Line,
-    Outcome, ScatterPlot, Text, TextExt, Widget,
+    Checkbox, Choice, Color, CompareTimes, Composite, DrawWithTooltips, EventCtx, GeomBatch,
+    GfxCtx, Line, Outcome, Text, TextExt, Widget,
 };
 use geom::{Distance, Duration, Polygon, Pt2D};
 use sim::TripMode;
@@ -187,7 +187,7 @@ fn scatter_plot(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         return Widget::nothing();
     }
 
-    ScatterPlot::new(
+    CompareTimes::new(
         ctx,
         format!(
             "Trip time before \"{}\"",

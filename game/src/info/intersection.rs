@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::helpers::color_for_mode;
 use crate::info::{header_btns, make_tabs, throughput, DataOptions, Details, Tab};
 use abstutil::prettyprint_usize;
-use ezgui::{Color, EventCtx, GeomBatch, Line, PlotOptions, ScatterPlotV2, Series, Text, Widget};
+use ezgui::{Color, EventCtx, GeomBatch, Line, PlotOptions, ScatterPlot, Series, Text, Widget};
 use geom::{ArrowCap, Distance, Duration, PolyLine, Time};
 use map_model::{IntersectionID, IntersectionType};
 use sim::TripMode;
@@ -211,7 +211,7 @@ fn delay_plot(ctx: &EventCtx, app: &App, i: IntersectionID, opts: &DataOptions) 
             .small_heading()
             .draw(ctx)
             .margin_below(10),
-        ScatterPlotV2::new(
+        ScatterPlot::new(
             ctx,
             "delay",
             series,

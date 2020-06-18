@@ -8,6 +8,7 @@
 //! * [`Autocomplete`] - select predefined value by combining text entry with menus
 //! * [`Button`] - clickable buttons with keybindings and tooltips
 //! * [`Checkbox`] - toggle between two buttons
+//! * [`CompareTimes`] - a scatter plot specialized for comparing times
 //! * [`DrawWithTooltips`] - draw static geometry, with mouse tooltips in certain regions
 //! * [`Dropdown`] - a button that expands into a menu
 //! * [`Filler`] - just carve out space in the layout for something else
@@ -62,6 +63,7 @@ pub use crate::widgets::autocomplete::Autocomplete;
 pub use crate::widgets::button::Btn;
 pub(crate) use crate::widgets::button::Button;
 pub use crate::widgets::checkbox::Checkbox;
+pub use crate::widgets::compare_times::CompareTimes;
 pub(crate) use crate::widgets::dropdown::Dropdown;
 pub use crate::widgets::filler::Filler;
 pub use crate::widgets::just_draw::DrawWithTooltips;
@@ -69,7 +71,7 @@ pub(crate) use crate::widgets::just_draw::JustDraw;
 pub use crate::widgets::line_plot::{LinePlot, PlotOptions, Series};
 pub(crate) use crate::widgets::menu::Menu;
 pub use crate::widgets::persistent_split::PersistentSplit;
-pub use crate::widgets::scatter_plot::{ScatterPlot, ScatterPlotV2};
+pub use crate::widgets::scatter_plot::ScatterPlot;
 pub use crate::widgets::slider::{AreaSlider, Slider};
 pub use crate::widgets::spinner::Spinner;
 pub(crate) use crate::widgets::text_box::TextBox;

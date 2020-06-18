@@ -698,7 +698,7 @@ impl Composite {
                 .find_mut(&plot_id)
                 .unwrap()
                 .widget
-                .update_series(checkbox_label, enabled);
+                .update_series(ctx, checkbox_label, enabled);
         }
 
         output.outcome

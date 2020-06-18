@@ -1,6 +1,7 @@
 pub mod autocomplete;
 pub mod button;
 pub mod checkbox;
+pub mod compare_times;
 pub mod containers;
 pub mod dropdown;
 pub mod filler;
@@ -40,7 +41,7 @@ pub trait WidgetImpl: downcast_rs::Downcast {
     }
 
     /// Internal hack. Don't override.
-    fn update_series(&mut self, _label: String, _enabled: bool) {
+    fn update_series(&mut self, _ctx: &mut EventCtx, _label: String, _enabled: bool) {
         unreachable!()
     }
 }

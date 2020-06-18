@@ -301,7 +301,7 @@ impl<T: Yvalue<T>> WidgetImpl for LinePlot<T> {
         }
     }
 
-    fn update_series(&mut self, label: String, enabled: bool) {
+    fn update_series(&mut self, _: &mut EventCtx, label: String, enabled: bool) {
         for series in &mut self.series {
             if series.label == label {
                 series.enabled = enabled;
