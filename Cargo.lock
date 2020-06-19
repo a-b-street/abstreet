@@ -775,7 +775,7 @@ dependencies = [
  "image 0.23.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "instant 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "lru 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "lyon 0.15.6 (git+https://github.com/nical/lyon)",
+ "lyon 0.15.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.110 (registry+https://github.com/rust-lang/crates.io-index)",
  "simsearch 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "stdweb 0.4.20 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1002,7 +1002,7 @@ dependencies = [
  "geom 0.1.0",
  "instant 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "kml 0.1.0",
- "lttb 0.1.1 (git+https://github.com/jeromefroe/lttb-rs)",
+ "lttb 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "map_model 0.1.0",
  "maplit 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "petgraph 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1702,31 +1702,31 @@ dependencies = [
 
 [[package]]
 name = "lttb"
-version = "0.1.1"
-source = "git+https://github.com/jeromefroe/lttb-rs#9df13ad4bfc6830f1a6f453dc50b3e00290df5fa"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "lyon"
-version = "0.15.6"
-source = "git+https://github.com/nical/lyon#c1160f1e312182c9e95d263caf19007eb68d1168"
+version = "0.15.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "lyon_algorithms 0.15.0 (git+https://github.com/nical/lyon)",
- "lyon_tessellation 0.15.6 (git+https://github.com/nical/lyon)",
+ "lyon_algorithms 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lyon_tessellation 0.15.8 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "lyon_algorithms"
 version = "0.15.0"
-source = "git+https://github.com/nical/lyon#c1160f1e312182c9e95d263caf19007eb68d1168"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "lyon_path 0.15.2 (git+https://github.com/nical/lyon)",
+ "lyon_path 0.15.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "sid 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "lyon_geom"
-version = "0.15.2"
-source = "git+https://github.com/nical/lyon#c1160f1e312182c9e95d263caf19007eb68d1168"
+version = "0.15.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "arrayvec 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "euclid 0.20.10 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1736,18 +1736,18 @@ dependencies = [
 [[package]]
 name = "lyon_path"
 version = "0.15.2"
-source = "git+https://github.com/nical/lyon#c1160f1e312182c9e95d263caf19007eb68d1168"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "lyon_geom 0.15.2 (git+https://github.com/nical/lyon)",
+ "lyon_geom 0.15.3 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "lyon_tessellation"
-version = "0.15.6"
-source = "git+https://github.com/nical/lyon#c1160f1e312182c9e95d263caf19007eb68d1168"
+version = "0.15.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "arrayvec 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "lyon_path 0.15.2 (git+https://github.com/nical/lyon)",
+ "lyon_path 0.15.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "sid 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -4068,12 +4068,12 @@ dependencies = [
 "checksum lock_api 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)" = "c4da24a77a3d8a6d4862d95f72e6fdb9c09a643ecdb402d754004a557f2bec75"
 "checksum log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)" = "14b6052be84e6b71ab17edffc2eeabf5c2c3ae1fdb464aae35ac50c67a44e1f7"
 "checksum lru 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)" = "0609345ddee5badacf857d4f547e0e5a2e987db77085c24cd887f73573a04237"
-"checksum lttb 0.1.1 (git+https://github.com/jeromefroe/lttb-rs)" = "<none>"
-"checksum lyon 0.15.6 (git+https://github.com/nical/lyon)" = "<none>"
-"checksum lyon_algorithms 0.15.0 (git+https://github.com/nical/lyon)" = "<none>"
-"checksum lyon_geom 0.15.2 (git+https://github.com/nical/lyon)" = "<none>"
-"checksum lyon_path 0.15.2 (git+https://github.com/nical/lyon)" = "<none>"
-"checksum lyon_tessellation 0.15.6 (git+https://github.com/nical/lyon)" = "<none>"
+"checksum lttb 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "abfc750d3204167b4b1092f1c7ee3ddab3f3419627e2b0f8417bbdf2030b2448"
+"checksum lyon 0.15.8 (registry+https://github.com/rust-lang/crates.io-index)" = "a23d454ca7a53ad3385d9e45da4c97ea9a8233df5392353bc4a1a798d59dea9f"
+"checksum lyon_algorithms 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)" = "d2e86e6055dbe55f459f98a65d990bbab535f4306d38e30459a3b7aec0bd027b"
+"checksum lyon_geom 0.15.3 (registry+https://github.com/rust-lang/crates.io-index)" = "9962a2ba81382716b87d7d358493cb71844c1f9165ddad763cd9f4d3f5474df2"
+"checksum lyon_path 0.15.2 (registry+https://github.com/rust-lang/crates.io-index)" = "c81a044414965c051b7b4785770820d23146480a2d8573cd825f03a00a5b8dd8"
+"checksum lyon_tessellation 0.15.8 (registry+https://github.com/rust-lang/crates.io-index)" = "a71f29de2e42414f80fd10a1c568a34b2cc911a85506f6bc36366d3b198c6398"
 "checksum mac 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "c41e0c4fef86961ac6d6f8a82609f55f31b05e4fce149ac5710e439df7619ba4"
 "checksum malloc_buf 0.0.6 (registry+https://github.com/rust-lang/crates.io-index)" = "62bb907fe88d54d8d9ce32a3cceab4218ed2f6b7d35617cafe9adf84e43919cb"
 "checksum maplit 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)" = "3e2e65a1a2e43cfcb47a895c4c8b10d1f4a61097f9f254f183aee60cad9c651d"

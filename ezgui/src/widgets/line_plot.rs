@@ -3,7 +3,7 @@ use crate::{
     ScreenRectangle, Text, TextExt, Widget, WidgetImpl, WidgetOutput,
 };
 use abstutil::prettyprint_usize;
-use geom::{Angle, Bounds, Circle, Distance, Duration, FindClosest, PolyLine, Pt2D, Time};
+use geom::{Angle, Bounds, Circle, Distance, Duration, FindClosest, PolyLine, Polygon, Pt2D, Time};
 use std::collections::HashSet;
 
 // The X is always time
@@ -151,10 +151,7 @@ impl<T: Yvalue<T>> LinePlot<T> {
                 closest.add(s.label.clone(), &pts);
                 batch.push(
                     s.color,
-                    // The input data might be nice and deduped, but after trimming precision for
-                    // Pt2D, there might be small repeats. Just plow ahead and draw anyway.
-                    PolyLine::unchecked_new(pts)
-                        .make_polygons_with_miter_threshold(Distance::meters(5.0), 10.0),
+                    thick_lineseries(pts, Distance::meters(5.0), ctx.get_scale_factor()),
                 );
             }
         }
@@ -349,4 +346,40 @@ pub fn make_legend<T: Yvalue<T>>(
         }
     }
     Widget::row(row).flex_wrap(ctx, 24)
+}
+
+// TODO If this proves useful, lift to geom
+fn thick_lineseries(pts: Vec<Pt2D>, width: Distance, scale: f64) -> Polygon {
+    use lyon::math::{point, Point};
+    use lyon::path::Path;
+    use lyon::tessellation::geometry_builder::{BuffersBuilder, Positions, VertexBuffers};
+    use lyon::tessellation::{StrokeOptions, StrokeTessellator};
+
+    let mut builder = Path::builder();
+    for (idx, pt) in pts.into_iter().enumerate() {
+        let pt = point(pt.x() as f32, pt.y() as f32);
+        if idx == 0 {
+            builder.move_to(pt);
+        } else {
+            builder.line_to(pt);
+        }
+    }
+    let path = builder.build();
+
+    let mut geom: VertexBuffers<Point, u32> = VertexBuffers::new();
+    let mut buffer = BuffersBuilder::new(&mut geom, Positions);
+    StrokeTessellator::new()
+        .tessellate(
+            &path,
+            &StrokeOptions::tolerance(0.01).with_line_width(width.inner_meters() as f32),
+            &mut buffer,
+        )
+        .unwrap();
+    Polygon::precomputed(
+        geom.vertices
+            .into_iter()
+            .map(|v| Pt2D::new(scale * f64::from(v.x), scale * f64::from(v.y)))
+            .collect(),
+        geom.indices.into_iter().map(|idx| idx as usize).collect(),
+    )
 }
