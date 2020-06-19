@@ -14,7 +14,7 @@ use ezgui::{
     GfxCtx, HorizontalAlignment, Key, Line, Outcome, Text, VerticalAlignment, Widget, Wizard,
 };
 use geom::Pt2D;
-use map_model::NORMAL_LANE_THICKNESS;
+use map_model::{ControlTrafficSignal, NORMAL_LANE_THICKNESS};
 use sim::{AgentID, Sim, TripID};
 use std::collections::HashSet;
 
@@ -61,6 +61,7 @@ impl DebugMode {
                             (hotkey(Key::Y), "load previous sim state"),
                             (hotkey(Key::U), "load next sim state"),
                             (None, "pick a savestate to load"),
+                            (None, "find bad traffic signals"),
                         ]
                         .into_iter()
                         .map(|(key, action)| {
@@ -208,6 +209,9 @@ impl State for DebugMode {
                         max_x: bounds.max_x,
                         max_y: bounds.max_y,
                     });
+                }
+                "find bad traffic signals" => {
+                    find_bad_signals(app);
                 }
                 _ => unreachable!(),
             },
@@ -598,5 +602,18 @@ impl ContextualActions for Actions {
 
     fn is_paused(&self) -> bool {
         true
+    }
+}
+
+fn find_bad_signals(app: &App) {
+    println!("Bad traffic signals:");
+    for i in app.primary.map.all_intersections() {
+        if i.is_traffic_signal() {
+            let first = &ControlTrafficSignal::get_possible_policies(&app.primary.map, i.id)[0].0;
+            if first == "phase per road" || first == "arbitrary assignment" {
+                println!("- {}", i.id);
+                ControlTrafficSignal::brute_force(&app.primary.map, i.id);
+            }
+        }
     }
 }
