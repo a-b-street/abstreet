@@ -6,7 +6,7 @@ use map_model::{
     Traversable, TurnGroupID,
 };
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, VecDeque};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Analytics {
@@ -546,16 +546,26 @@ pub struct TripPhase {
 pub struct TimeSeriesCount<X: Ord + Clone> {
     // (Road or intersection, mode, hour block) -> count for that hour
     pub counts: BTreeMap<(X, TripMode, usize), usize>,
+
+    // Very expensive to store, so it's optional. But useful to flag on to experiment with
+    // representations better than the hour count above.
+    pub raw: Vec<(Time, TripMode, X)>,
 }
 
 impl<X: Ord + Clone> TimeSeriesCount<X> {
     fn new() -> TimeSeriesCount<X> {
         TimeSeriesCount {
             counts: BTreeMap::new(),
+            raw: Vec::new(),
         }
     }
 
     fn record(&mut self, time: Time, id: X, mode: TripMode) {
+        // TODO Manually change flag
+        if false {
+            self.raw.push((time, mode, id.clone()));
+        }
+
         let hour = time.get_parts().0;
         *self.counts.entry((id, mode, hour)).or_insert(0) += 1;
     }
@@ -601,5 +611,71 @@ impl<X: Ord + Clone> TimeSeriesCount<X> {
             results.push((mode, pts));
         }
         results
+    }
+
+    pub fn raw_throughput(&self, now: Time, id: X) -> Vec<(TripMode, Vec<(Time, usize)>)> {
+        let window_size = Duration::hours(1);
+        let mut pts_per_mode: BTreeMap<TripMode, Vec<(Time, usize)>> = BTreeMap::new();
+        let mut windows_per_mode: BTreeMap<TripMode, Window> = BTreeMap::new();
+        for mode in TripMode::all() {
+            pts_per_mode.insert(mode, vec![(Time::START_OF_DAY, 0)]);
+            windows_per_mode.insert(mode, Window::new(window_size));
+        }
+
+        for (t, m, x) in &self.raw {
+            if *x != id {
+                continue;
+            }
+            if *t > now {
+                break;
+            }
+
+            let count = windows_per_mode.get_mut(m).unwrap().add(*t);
+            pts_per_mode.get_mut(m).unwrap().push((*t, count));
+        }
+
+        for (m, pts) in pts_per_mode.iter_mut() {
+            let mut window = windows_per_mode.remove(m).unwrap();
+
+            // Add a drop-off after window_size (+ a little epsilon!)
+            let t = (pts.last().unwrap().0 + window_size + Duration::seconds(0.1)).min(now);
+            if pts.last().unwrap().0 != t {
+                pts.push((t, window.count(t)));
+            }
+
+            if pts.last().unwrap().0 != now {
+                pts.push((now, window.count(now)));
+            }
+        }
+
+        pts_per_mode.into_iter().collect()
+    }
+}
+
+struct Window {
+    times: VecDeque<Time>,
+    window_size: Duration,
+}
+
+impl Window {
+    fn new(window_size: Duration) -> Window {
+        Window {
+            times: VecDeque::new(),
+            window_size,
+        }
+    }
+
+    // Returns the count at time
+    fn add(&mut self, time: Time) -> usize {
+        self.times.push_back(time);
+        self.count(time)
+    }
+
+    // Grab the count at this time, but don't add a new time
+    fn count(&mut self, end: Time) -> usize {
+        while !self.times.is_empty() && end - *self.times.front().unwrap() > self.window_size {
+            self.times.pop_front();
+        }
+        self.times.len()
     }
 }

@@ -188,7 +188,13 @@ pub fn traffic(
     rows.push(throughput(
         ctx,
         app,
-        move |a| a.road_thruput.count_per_hour(r, time),
+        move |a| {
+            if a.road_thruput.raw.is_empty() {
+                a.road_thruput.count_per_hour(r, time)
+            } else {
+                a.road_thruput.raw_throughput(time, r)
+            }
+        },
         &opts,
     ));
 

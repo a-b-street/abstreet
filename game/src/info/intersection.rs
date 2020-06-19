@@ -68,7 +68,13 @@ pub fn traffic(
     rows.push(throughput(
         ctx,
         app,
-        move |a| a.intersection_thruput.count_per_hour(id, time),
+        move |a| {
+            if a.intersection_thruput.raw.is_empty() {
+                a.intersection_thruput.count_per_hour(id, time)
+            } else {
+                a.intersection_thruput.raw_throughput(time, id)
+            }
+        },
         &opts,
     ));
 
