@@ -20,7 +20,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: abst_windows
-          path: abst_windows.zip
+          path: abst_windows
   build-macos:
     runs-on: macos-latest
     if: "contains(github.event.head_commit.message, '[rebuild]')"

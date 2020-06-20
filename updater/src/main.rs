@@ -18,6 +18,9 @@ async fn main() {
             "--dry" => {
                 just_compare();
             }
+            "--checklinks" => {
+                check_links().await;
+            }
             x => {
                 println!("Unknown argument {}", x);
                 std::process::exit(1);
@@ -100,13 +103,14 @@ fn upload() {
     // Anything missing or needing updating?
     for (path, entry) in &mut local.0 {
         let remote_path = format!("{}/{}.zip", remote_base, path);
-        if remote.0.get(path).map(|x| &x.checksum) != Some(&entry.checksum) {
+        let changed = remote.0.get(path).map(|x| &x.checksum) != Some(&entry.checksum);
+        if changed {
             std::fs::create_dir_all(std::path::Path::new(&remote_path).parent().unwrap()).unwrap();
             run(Command::new("zip").arg(&remote_path).arg(&path));
         }
-        // The sharelink shouldn't change
         entry.dropbox_url = remote.0.get(path).map(|x| x.dropbox_url.clone().unwrap());
-        if entry.dropbox_url.is_none() {
+        // The sharelink sometimes changes when the file does.
+        if entry.dropbox_url.is_none() || changed {
             // Dropbox crashes when trying to upload lots of tiny screenshots. :D
             std::thread::sleep(std::time::Duration::from_millis(1000));
             let url = run(Command::new("dropbox").arg("sharelink").arg(remote_path))
@@ -121,6 +125,23 @@ fn upload() {
 
     local.write(format!("{}/MANIFEST.txt", remote_base));
     local.write("data/MANIFEST.txt".to_string());
+}
+
+async fn check_links() {
+    let client = reqwest::Client::new();
+
+    for (file, entry) in Manifest::load("data/MANIFEST.txt".to_string()).unwrap().0 {
+        // TODO Fiddle with this as needed
+        if file.contains("input") {
+            continue;
+        }
+        println!("> Check remote for {}", file);
+        let url = entry.dropbox_url.unwrap();
+        let url = format!("{}{}", &url[..url.len() - 1], "1");
+        if let Err(err) = client.head(&url).send().await.unwrap().error_for_status() {
+            println!("{} broken: {}", url, err);
+        }
+    }
 }
 
 // keyed by path
