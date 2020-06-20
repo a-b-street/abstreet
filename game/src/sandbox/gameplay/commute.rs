@@ -81,16 +81,11 @@ impl OptimizeCommute {
         CutsceneBuilder::new("Optimize one commute: part 1")
             .boss("Listen up, I've got a special job for you today.")
             .player("What is it? The scooter coalition back with demands for more valet parking?")
-            .boss("No, all the tax-funded valets are still busy the kayakers.")
+            .boss("No, all the tax-funded valets are still busy with the kayakers.")
             .boss(
-                "I've got a... friend who's tired of getting stuck in traffic on Broadway. You've \
-                 got to make their commute as fast as possible.",
+                "I've got a... friend who's tired of getting stuck in traffic. You've got to make \
+                 their commute as fast as possible.",
             )
-            .player(
-                "Ah, it's about time we finally put in those new bike lanes along Broadway! I'll \
-                 get right on --",
-            )
-            .boss("No! Just smooth things out for this one person.")
             .player("Uh, what's so special about them?")
             .boss(
                 "That's none of your concern! I've anonymized their name, so don't even bother \

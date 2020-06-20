@@ -1257,7 +1257,7 @@ impl TutorialState {
                          next day. You can't make most changes in the middle of the day.",
                         "",
                         "Seattlites are really boring; they follow the exact same schedule \
-                         everyday. They're really stubborn, so even if you try to influence their \
+                         everyday. They're also stubborn, so even if you try to influence their \
                          decision whether to drive, walk, bike, or take a bus, they'll do the \
                          same thing. For now, you're just trying to make things better, assuming \
                          people stick to their routine.",

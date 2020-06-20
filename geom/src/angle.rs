@@ -8,6 +8,7 @@ pub struct Angle(f64);
 impl Angle {
     pub const ZERO: Angle = Angle(0.0);
 
+    // TODO Normalize here, and be careful about % vs euclid_rem
     pub(crate) fn new_rads(rads: f64) -> Angle {
         // Retain more precision for angles...
         Angle((rads * 10_000_000.0).round() / 10_000_000.0)

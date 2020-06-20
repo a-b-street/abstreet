@@ -77,7 +77,14 @@ impl Renderable for DrawRoad {
                         // even easier, just skip the center lines?
                         let txt = Text::from(Line(name).fg(app.cs.road_center_line))
                             .bg(app.cs.driving_lane);
-                        let (pt, angle) = r.center_pts.dist_along(r.center_pts.length() / 2.0);
+                        let (pt, mut angle) = r.center_pts.dist_along(r.center_pts.length() / 2.0);
+                        let theta = angle.normalized_degrees().rem_euclid(360.0);
+                        if theta > 90.0 {
+                            angle = angle.opposite();
+                        }
+                        if theta > 270.0 {
+                            angle = angle.opposite();
+                        }
                         batch.append(
                             txt.render_to_batch(g.prerender)
                                 .scale(0.1)

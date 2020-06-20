@@ -26,7 +26,7 @@ impl Options {
         Options {
             dev: false,
 
-            label_roads: false,
+            label_roads: true,
             traffic_signal_style: TrafficSignalStyle::BAP,
             color_scheme: ColorSchemeChoice::Standard,
             min_zoom_for_detail: 4.0,
