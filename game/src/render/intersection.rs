@@ -6,7 +6,7 @@ use crate::render::{
     draw_signal_phase, DrawOptions, Renderable, CROSSWALK_LINE_THICKNESS, OUTLINE_THICKNESS,
 };
 use abstutil::Timer;
-use ezgui::{Drawable, FancyColor, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, Text};
+use ezgui::{Color, Drawable, FancyColor, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, Text};
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D, Time, EPSILON_DIST};
 use map_model::raw::DrivingSide;
 use map_model::{
@@ -318,6 +318,10 @@ fn make_octagon(center: Pt2D, radius: Distance, facing: Angle) -> Polygon {
 }
 
 pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorScheme) {
+    if make_rainbow_crosswalk(batch, turn, map) {
+        return;
+    }
+
     let width = map.get_l(turn.id.src).width;
     // Start at least width out to not hit sidewalk corners. Also account for the thickness of the
     // crosswalk line itself. Center the lines inside these two boundaries.
@@ -355,6 +359,58 @@ pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorS
             dist_along += tile_every;
         }
     }
+}
+
+fn make_rainbow_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map) -> bool {
+    // TODO The crosswalks aren't tagged in OSM yet. Manually hardcoding some now.
+    let node = map.get_i(turn.id.parent).orig_id.osm_node_id;
+    let way = map.get_parent(turn.id.src).orig_id.osm_way_id;
+    match (node, way) {
+        // Broadway and Pine
+        (53073255, 428246441) |
+        (53073255, 332601014) |
+        // Broadway and Pike
+        (53073254, 6447455) |
+        (53073254, 607690679) |
+        // 10th and Pine
+        (53168934, 6456052) |
+        // 10th and Pike
+        (53200834, 6456052) |
+        // 11th and Pine
+        (53068795, 607691081) |
+        (53068795, 65588105) |
+        // 11th and Pike
+        (53068794, 65588105) => {}
+        _ => { return false; }
+    }
+
+    let total_width = map.get_l(turn.id.src).width;
+    let colors = vec![
+        Color::WHITE,
+        Color::RED,
+        Color::ORANGE,
+        Color::YELLOW,
+        Color::GREEN,
+        Color::BLUE,
+        Color::hex("#8B00FF"),
+        Color::WHITE,
+    ];
+    let band_width = total_width / (colors.len() as f64);
+    let slice = turn
+        .geom
+        .exact_slice(total_width, turn.geom.length() - total_width)
+        .shift_left(total_width / 2.0 - band_width / 2.0)
+        .unwrap();
+    for (idx, color) in colors.into_iter().enumerate() {
+        batch.push(
+            color,
+            slice
+                .shift_right(band_width * (idx as f64))
+                .unwrap()
+                .make_polygons(band_width),
+        );
+    }
+    true
 }
 
 // TODO copied from DrawLane

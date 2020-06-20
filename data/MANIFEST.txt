@@ -100,7 +100,7 @@ data/input/screenshots/downtown/08x02_i11.gif,b32a0707a42efe5743ddd0c7b0eb7158,h
 data/input/screenshots/downtown/08x03_i219.gif,df11ea5609438589184705d2e8b1f3d3,https://www.dropbox.com/s/i484j3yjiivbh7l/08x03_i219.gif.zip?dl=0
 data/input/screenshots/downtown/08x04_i210.gif,c17e7ad6826033bbf7883ebbd00ef715,https://www.dropbox.com/s/mm4tyj28oemznr2/08x04_i210.gif.zip?dl=0
 data/input/screenshots/downtown/08x05_i126.gif,16fec94ab1e56952928a74d97090284e,https://www.dropbox.com/s/nyuiw5cxq6onihm/08x05_i126.gif.zip?dl=0
-data/input/screenshots/downtown/08x06_i123.gif,6e15aa746656c61de7acf55786e6cc73,https://www.dropbox.com/s/win6ackppf7jqig/08x06_i123.gif.zip?dl=0
+data/input/screenshots/downtown/08x06_i123.gif,ac313d913a372c6618b3183cb7279b52,https://www.dropbox.com/s/win6ackppf7jqig/08x06_i123.gif.zip?dl=0
 data/input/screenshots/downtown/08x07_i114.gif,82a9784cb2c4f5e503b149fe59ce2bb9,https://www.dropbox.com/s/zgdlxs819w7jm3u/08x07_i114.gif.zip?dl=0
 data/input/screenshots/downtown/08x08_i100.gif,63557091985fe6f288ce2143dd28c3ae,https://www.dropbox.com/s/6zmreieujfyfijz/08x08_i100.gif.zip?dl=0
 data/input/screenshots/downtown/08x09_i119.gif,39310bbebbc9fa1be034c4d507799ebe,https://www.dropbox.com/s/zyobqtke0bvao1m/08x09_i119.gif.zip?dl=0
