@@ -50,23 +50,42 @@ impl Renderable for DrawRoad {
         ID::Road(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &App, opts: &DrawOptions) {
+    fn draw(&self, g: &mut GfxCtx, app: &App, _: &DrawOptions) {
         g.redraw(&self.draw_center_line);
 
-        if opts.label_roads {
+        if app.opts.label_roads {
             // Lazily calculate
             let mut label = self.label.borrow_mut();
             if label.is_none() {
                 let mut batch = GeomBatch::new();
                 let r = app.primary.map.get_r(self.id);
 
-                let mut txt = Text::new().with_bg();
-                txt.add(Line(r.get_name()));
-                batch.append(
-                    txt.render_to_batch(g.prerender)
-                        .scale(0.1)
-                        .centered_on(r.center_pts.middle()),
-                );
+                if false {
+                    // Style 1: banner
+                    let mut txt = Text::new().with_bg();
+                    txt.add(Line(r.get_name()));
+                    batch.append(
+                        txt.render_to_batch(g.prerender)
+                            .scale(0.1)
+                            .centered_on(r.center_pts.middle()),
+                    );
+                } else {
+                    // Style 2: Yellow center-line
+                    let name = r.get_name();
+                    if r.center_pts.length() >= Distance::meters(30.0) && name != "???" {
+                        // TODO If it's definitely straddling bus/bike lanes, change the color? Or
+                        // even easier, just skip the center lines?
+                        let txt = Text::from(Line(name).fg(app.cs.road_center_line))
+                            .bg(app.cs.driving_lane);
+                        let (pt, angle) = r.center_pts.dist_along(r.center_pts.length() / 2.0);
+                        batch.append(
+                            txt.render_to_batch(g.prerender)
+                                .scale(0.1)
+                                .centered_on(pt)
+                                .rotate(angle.invert_y()),
+                        );
+                    }
+                }
                 *label = Some(g.prerender.upload(batch));
             }
             // TODO Covered up sometimes. We could fork and force a different z value...

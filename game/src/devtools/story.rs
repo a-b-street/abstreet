@@ -279,7 +279,6 @@ impl State for StoryMapEditor {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         let mut opts = DrawOptions::new();
         opts.label_buildings = true;
-        opts.label_roads = true;
         app.draw(g, opts, &DontDrawAgents {}, &ShowEverything::new());
 
         match self.mode {

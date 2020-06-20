@@ -9,25 +9,31 @@ use geom::Duration;
 // TODO SimOptions stuff too
 #[derive(Clone)]
 pub struct Options {
+    pub dev: bool,
+
+    pub label_roads: bool,
     pub traffic_signal_style: TrafficSignalStyle,
     pub color_scheme: ColorSchemeChoice,
-    pub dev: bool,
-    pub time_increment: Duration,
-    pub resume_after_edit: bool,
     pub min_zoom_for_detail: f64,
     pub large_unzoomed_agents: bool,
+
+    pub time_increment: Duration,
+    pub resume_after_edit: bool,
 }
 
 impl Options {
     pub fn default() -> Options {
         Options {
+            dev: false,
+
+            label_roads: false,
             traffic_signal_style: TrafficSignalStyle::BAP,
             color_scheme: ColorSchemeChoice::Standard,
-            dev: false,
-            time_increment: Duration::minutes(10),
-            resume_after_edit: true,
             min_zoom_for_detail: 4.0,
             large_unzoomed_agents: false,
+
+            time_increment: Duration::minutes(10),
+            resume_after_edit: true,
         }
     }
 }
@@ -95,6 +101,8 @@ impl OptionsPanel {
                     .margin_below(10),
                     "Appearance".draw_text(ctx).margin_below(10),
                     Widget::col(vec![
+                        Checkbox::text(ctx, "Draw road names", None, app.opts.label_roads)
+                            .margin_below(10),
                         Widget::row(vec![
                             "Traffic signal rendering:".draw_text(ctx).margin_right(15),
                             Widget::dropdown(
@@ -207,6 +215,8 @@ impl State for OptionsPanel {
                     return Transition::Pop;
                 }
                 "Apply" => {
+                    app.opts.dev = self.composite.is_checked("Enable developer mode");
+
                     ctx.canvas.invert_scroll = self
                         .composite
                         .is_checked("Invert direction of vertical scrolling");
@@ -217,8 +227,8 @@ impl State for OptionsPanel {
                         .composite
                         .is_checked("Use arrow keys to pan and Q/W to zoom");
                     ctx.canvas.edge_auto_panning = self.composite.is_checked("autopan");
-                    app.opts.dev = self.composite.is_checked("Enable developer mode");
 
+                    app.opts.label_roads = self.composite.is_checked("Draw road names");
                     let style = self.composite.dropdown_value("Traffic signal rendering");
                     if app.opts.traffic_signal_style != style {
                         app.opts.traffic_signal_style = style;

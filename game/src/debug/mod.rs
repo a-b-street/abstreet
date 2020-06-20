@@ -295,7 +295,6 @@ impl State for DebugMode {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         let mut opts = DrawOptions::new();
         opts.label_buildings = self.layers.show_labels;
-        opts.label_roads = self.layers.show_labels;
         app.draw(g, opts, &app.primary.sim, self);
 
         if let Some(ref results) = self.search_results {

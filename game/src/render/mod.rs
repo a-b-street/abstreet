@@ -75,7 +75,6 @@ fn draw_vehicle(
 pub struct DrawOptions {
     pub suppress_traffic_signal_details: Vec<IntersectionID>,
     pub label_buildings: bool,
-    pub label_roads: bool,
 }
 
 impl DrawOptions {
@@ -83,7 +82,6 @@ impl DrawOptions {
         DrawOptions {
             suppress_traffic_signal_details: Vec::new(),
             label_buildings: false,
-            label_roads: false,
         }
     }
 }
