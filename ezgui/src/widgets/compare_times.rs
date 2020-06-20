@@ -99,7 +99,7 @@ impl CompareTimes {
                 .rotate(Angle::new_degs(90.0))
                 .autocrop();
             // The text is already scaled; don't use Widget::draw_batch and scale it again.
-            JustDraw::wrap(ctx, label).centered_vert()
+            JustDraw::wrap(ctx, label).centered_vert().margin_right(5)
         };
 
         let x_axis = Widget::row(

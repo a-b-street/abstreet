@@ -282,9 +282,7 @@ fn crosswalk_icon(geom: &PolyLine) -> (Pt2D, Angle) {
     let l = Line::new(geom.points()[1], geom.points()[2]);
     (
         l.dist_along(Distance::meters(1.0)),
-        l.angle()
-            .shortest_rotation_towards(Angle::new_degs(90.0))
-            .invert_y(),
+        l.angle().shortest_rotation_towards(Angle::new_degs(90.0)),
     )
 }
 

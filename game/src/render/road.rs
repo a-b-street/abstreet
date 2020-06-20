@@ -82,7 +82,7 @@ impl Renderable for DrawRoad {
                             txt.render_to_batch(g.prerender)
                                 .scale(0.1)
                                 .centered_on(pt)
-                                .rotate(angle.invert_y()),
+                                .rotate(angle),
                         );
                     }
                 }

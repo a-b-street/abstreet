@@ -21,7 +21,7 @@ impl Angle {
         Angle::new_rads(self.0 + std::f64::consts::PI)
     }
 
-    pub fn invert_y(self) -> Angle {
+    pub(crate) fn invert_y(self) -> Angle {
         Angle::new_rads(2.0 * std::f64::consts::PI - self.0)
     }
 

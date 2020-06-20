@@ -31,11 +31,7 @@ impl AlmostDrawLane {
                     GeomBatch::mapspace_svg(prerender, "../data/system/assets/map/bus_only.svg")
                         .scale(0.06)
                         .centered_on(pt)
-                        .rotate(
-                            angle
-                                .shortest_rotation_towards(Angle::new_degs(-90.0))
-                                .invert_y(),
-                        ),
+                        .rotate(angle.shortest_rotation_towards(Angle::new_degs(-90.0))),
                 );
                 dist += btwn;
             }
@@ -51,11 +47,7 @@ impl AlmostDrawLane {
                     GeomBatch::mapspace_svg(prerender, "../data/system/assets/meters/bike.svg")
                         .scale(0.06)
                         .centered_on(pt)
-                        .rotate(
-                            angle
-                                .shortest_rotation_towards(Angle::new_degs(-90.0))
-                                .invert_y(),
-                        ),
+                        .rotate(angle.shortest_rotation_towards(Angle::new_degs(-90.0))),
                 );
                 dist += btwn;
             }

@@ -14,6 +14,7 @@ use ezgui::{
     VerticalAlignment, Widget, GUI,
 };
 use geom::{Angle, Duration, Polygon, Pt2D, Time};
+use std::collections::HashSet;
 
 fn main() {
     // Control flow surrendered here. App implements State, which has an event handler and a draw
@@ -73,13 +74,18 @@ impl App {
                 }]),
                 Widget::row(vec![
                     // Examples of styling widgets
-                    Widget::col(col1).outline(3.0, Color::BLACK).margin(5),
-                    Widget::col(col2).outline(3.0, Color::BLACK).margin(5),
-                    Widget::col(col3).outline(3.0, Color::BLACK).margin(5),
+                    Widget::col(col1)
+                        .outline(3.0, Color::BLACK)
+                        .padding(5)
+                        .margin_right(5),
+                    Widget::col(col2)
+                        .outline(3.0, Color::BLACK)
+                        .padding(5)
+                        .margin_right(5),
+                    Widget::col(col3).outline(3.0, Color::BLACK).padding(5),
                 ]),
                 LinePlot::new(
                     ctx,
-                    "timeseries",
                     vec![
                         Series {
                             label: "Linear".to_string(),
@@ -100,10 +106,12 @@ impl App {
                         },
                     ],
                     PlotOptions {
+                        filterable: false,
                         // Without this, the plot doesn't stretch to cover times in between whole
                         // seconds.
                         max_x: Some(Time::START_OF_DAY + self.elapsed),
                         max_y: None,
+                        disabled: HashSet::new(),
                     },
                 ),
             ])
@@ -232,7 +240,7 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
             .render_to_batch(&ctx.prerender)
             .scale(2.0)
             .centered_on(Pt2D::new(600.0, 500.0))
-            .rotate(Angle::new_degs(30.0)),
+            .rotate(Angle::new_degs(-30.0)),
     );
     // This is a bit of a hack; it's needed so that zooming in/out has reasonable limits.
     ctx.canvas.map_dims = (5000.0, 5000.0);
