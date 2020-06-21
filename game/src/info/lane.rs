@@ -217,10 +217,10 @@ fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID, tab: Tab
     ]));
     rows.push(format!("@ {}", r.get_name()).draw_text(ctx));
 
-    let mut tabs = vec![
-        ("Info", Tab::LaneInfo(id)),
-        ("Traffic", Tab::LaneTraffic(id, DataOptions::new())),
-    ];
+    let mut tabs = vec![("Info", Tab::LaneInfo(id))];
+    if !l.is_parking() {
+        tabs.push(("Traffic", Tab::LaneTraffic(id, DataOptions::new())));
+    }
     if app.opts.dev {
         tabs.push(("Debug", Tab::LaneDebug(id)));
     }

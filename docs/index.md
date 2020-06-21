@@ -1,4 +1,4 @@
-# A/B Street
+# Case studies
 
 See [the main page](https://github.com/dabreegster/abstreet/) for now. I'll
 probably organize everything here eventually.

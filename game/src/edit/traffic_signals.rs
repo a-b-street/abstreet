@@ -533,6 +533,7 @@ fn edit_entire_signal(app: &App, i: IntersectionID, mode: GameplayMode) -> Box<d
                         Choice::from(ControlTrafficSignal::get_possible_policies(
                             &app.primary.map,
                             i,
+                            &mut Timer::throwaway(),
                         ))
                     })?;
                 Some(Transition::PopWithData(Box::new(move |state, ctx, app| {
@@ -596,10 +597,13 @@ fn edit_entire_signal(app: &App, i: IntersectionID, mode: GameplayMode) -> Box<d
                 Some(Transition::PopWithData(Box::new(move |state, ctx, app| {
                     let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
                     let orig_signal = app.primary.map.get_traffic_signal(editor.i);
-                    let new_signal =
-                        ControlTrafficSignal::get_possible_policies(&app.primary.map, editor.i)
-                            .remove(0)
-                            .1;
+                    let new_signal = ControlTrafficSignal::get_possible_policies(
+                        &app.primary.map,
+                        editor.i,
+                        &mut Timer::throwaway(),
+                    )
+                    .remove(0)
+                    .1;
                     editor.command_stack.push(orig_signal.clone());
                     editor.redo_stack.clear();
                     editor.top_panel = make_top_panel(ctx, app, true, false);

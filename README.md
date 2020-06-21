@@ -26,6 +26,7 @@ Measure the effects:
 ## Documentation
 
 - [How A/B Street works](docs/how_it_works.md)
+- [Case studies](https://dabreegster.github.io/abstreet/)
 - Technical
   - [Developer guide](docs/dev.md)
   - [Map model](docs/articles/map/article.md)

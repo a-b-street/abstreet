@@ -2,10 +2,15 @@ use crate::{
     ControlTrafficSignal, IntersectionID, Map, Phase, RoadID, TurnGroup, TurnGroupID, TurnPriority,
     TurnType,
 };
+use abstutil::Timer;
 use geom::Duration;
 use std::collections::BTreeMap;
 
-pub fn get_possible_policies(map: &Map, id: IntersectionID) -> Vec<(String, ControlTrafficSignal)> {
+pub fn get_possible_policies(
+    map: &Map,
+    id: IntersectionID,
+    timer: &mut Timer,
+) -> Vec<(String, ControlTrafficSignal)> {
     let mut results = Vec::new();
 
     // TODO Cache with lazy_static. Don't serialize in Map; the repo of signal data may evolve
@@ -17,10 +22,10 @@ pub fn get_possible_policies(map: &Map, id: IntersectionID) -> Vec<(String, Cont
         if let Some(ts) = ControlTrafficSignal::import(raw, id, map) {
             results.push(("hand-mapped current real settings".to_string(), ts));
         } else {
-            panic!(
+            timer.error(format!(
                 "seattle_traffic_signals data for {} out of date, go update it",
                 map.get_i(id).orig_id.osm_node_id
-            );
+            ));
         }
     }
 

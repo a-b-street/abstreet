@@ -108,6 +108,7 @@ pub struct Timer<'a> {
 
     notes: Vec<String>,
     pub(crate) warnings: Vec<String>,
+    pub(crate) errors: Vec<String>,
 
     sink: Option<Box<dyn TimerSink + 'a>>,
 }
@@ -128,6 +129,7 @@ impl<'a> Timer<'a> {
             outermost_name: name.clone(),
             notes: Vec::new(),
             warnings: Vec::new(),
+            errors: Vec::new(),
             sink: None,
         };
         t.start(name);
@@ -178,6 +180,10 @@ impl<'a> Timer<'a> {
 
     pub fn warn(&mut self, line: String) {
         self.warnings.push(line);
+    }
+
+    pub fn error(&mut self, line: String) {
+        self.errors.push(line);
     }
 
     // Used to end the scope of a timer early.
@@ -416,6 +422,14 @@ impl<'a> std::ops::Drop for Timer<'a> {
         if !self.warnings.is_empty() {
             self.println(format!("{} warnings:", self.warnings.len()));
             for line in &self.warnings {
+                Timer::selfless_println(&mut self.sink, line.to_string());
+            }
+            self.println(String::new());
+        }
+
+        if !self.errors.is_empty() {
+            self.println(format!("***** {} errors: *****", self.errors.len()));
+            for line in &self.errors {
                 Timer::selfless_println(&mut self.sink, line.to_string());
             }
             self.println(String::new());

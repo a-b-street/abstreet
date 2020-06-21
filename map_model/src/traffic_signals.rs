@@ -29,7 +29,7 @@ pub struct Phase {
 
 impl ControlTrafficSignal {
     pub fn new(map: &Map, id: IntersectionID, timer: &mut Timer) -> ControlTrafficSignal {
-        let mut policies = ControlTrafficSignal::get_possible_policies(map, id);
+        let mut policies = ControlTrafficSignal::get_possible_policies(map, id, timer);
         if policies.len() == 1 {
             timer.warn(format!("Falling back to greedy_assignment for {}", id));
         }
@@ -39,8 +39,9 @@ impl ControlTrafficSignal {
     pub fn get_possible_policies(
         map: &Map,
         id: IntersectionID,
+        timer: &mut Timer,
     ) -> Vec<(String, ControlTrafficSignal)> {
-        get_possible_policies(map, id)
+        get_possible_policies(map, id, timer)
     }
     // TODO tmp
     pub fn brute_force(map: &Map, id: IntersectionID) {
