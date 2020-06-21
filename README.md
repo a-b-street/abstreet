@@ -11,6 +11,10 @@ a city affect the movement of drivers, cyclists, transit users, and pedestrians.
   or [read all instructions](docs/INSTRUCTIONS.md) (new releases every Sunday)
 - [build from source](docs/dev.md) (new changes daily)
 
+## Show, don't tell
+
+[Alpha release trailer](https://www.youtube.com/watch?v=LxPD4n_1-LU)
+
 Find a problem:
 
 ![exploring_traffic](docs/videos/exploring_traffic.gif)

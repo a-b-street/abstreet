@@ -9,23 +9,24 @@ omitted.
 TODO: Integrate pictures from
 [these slides](https://docs.google.com/presentation/d/1cF7qFtjAzkXL_r62CjxBvgQnLvuQ9I2WTE2iX_5tMCY/edit?usp=sharing).
 
-Everything here should be up-to-date as of September 2019.
+[This recorded presentation](https://youtu.be/chYd5I-5oyc?t=439) covers some of
+this.
+
+Everything here should be up-to-date as of June 2020.
 
 <!--ts-->
+   * [A/B Street's map model](#ab-streets-map-model)
+      * [The final map](#the-final-map)
+         * [Coordinate system](#coordinate-system)
+         * [Invariants](#invariants)
+      * [From OSM to RawMap (convert_osm crate)](#from-osm-to-rawmap-convert_osm-crate)
+      * [RawMap to InitialMap](#rawmap-to-initialmap)
+      * [InitialMap to Map](#initialmap-to-map)
+      * [Live edits](#live-edits)
+      * [Development tricks](#development-tricks)
+      * [Appendix: PolyLines](#appendix-polylines)
 
-- [A/B Street's map model](#ab-streets-map-model)
-  - [The final map](#the-final-map)
-    - [Coordinate system](#coordinate-system)
-    - [Invariants](#invariants)
-  - [From OSM to raw_data (convert_osm crate)](#from-osm-to-raw_data-convert_osm-crate)
-  - [raw_data to InitialMap](#raw_data-to-initialmap)
-  - [InitialMap to HalfMap](#initialmap-to-halfmap)
-  - [HalfMap to Map](#halfmap-to-map)
-  - [Live edits](#live-edits)
-  - [Development tricks](#development-tricks)
-  - [Appendix: PolyLines](#appendix-polylines)
-
-<!-- Added by: dabreegster, at: Tue Jul  9 07:16:53 BST 2019 -->
+<!-- Added by: dabreegster, at: Sun Jun 21 16:17:03 PDT 2020 -->
 
 <!--te-->
 
@@ -60,6 +61,9 @@ for some portion of Seattle. Each map has these objects:
 - **Bus route**: A bus route has a name and a list of stops that buses will
   cycle between. In the future, they'll include information about the
   frequency/schedule of the route.
+- **Parking lot**: A parking lot is connected to a road, has a shape, and has
+  some internal driving "aisles." The number and position of individual parking
+  spots is auto-generated.
 
 ### Coordinate system
 
@@ -129,41 +133,30 @@ takes a few seconds to load a serialized map.
     to preserve lots of out-of-bounds geometry.
   - Area polygons are intersected with the boundary polygon using the `clipping`
     crate
+- `lib.rs`: Remove cul-de-sacs (roads that begin and end at the same
+  intersection), because they mess up parking hints and pathfinding.
 - `lib.rs`: Apply parking hints from a King County GIS blockface dataset
   - Match each blockface to the nearest edge of a road
   - Interpret the metadata to assign on-street parking there or not
 - `lib.rs`: Apply offstreet parking hints from a King County GIS dataset
   - Match each point to the building containing it, plumbing through the number
     of spots
-- `lib.rs`: Apply sidewalk presence hints from a King County GIS dataset
+- `lib.rs`: **Disabled**: Apply sidewalk presence hints from a King County GIS
+  dataset
   - Match each sidewalk line to the nearest edge of a road
   - Update the road to have a sidewalk on none, one, or both sides
 - `lib.rs` using the `gtfs` crate: Load bus route info from GTFS
-- `neighborhoods.rs`: Load neighborhood polygons from an extra geojson file
-  - If the polygon isn't completely in-bounds, just remove it
+- `lib.rs` using the `srtm` module: Load (extremely poor quality) elevation data
 
 ## RawMap to InitialMap
 
-The remainder of map construction is done in the `map_model` crate, driven by
-the `precompute.sh` script. There's one intermediate structure between `RawMap`
-and `Map`, called `InitialMap`.
+The remainder of map construction is done in the `map_model` crate. There's one
+intermediate structure between `RawMap` and `Map`, called `InitialMap`.
 
-- `raw.rs`: Apply manually-defined fixes
-  - There's a separate crate, `map_editor`, that displays RawMaps and allows me
-    to manually specify fixes for weird geometry problems.
-  - The `MapFixes` can delete roads and intersections, then create new ones with
-    custom tags and geometry. Sometimes OSM's model of a complicated
-    intersection is so hard to use that it's easier to just start over from
-    scratch.
-  - There's also a fix to merge short roads. This arbitrarily deletes one
-    intersection connected to the short road, then extends the geometry of all
-    roads connected to the other.
 - `make/remove_disconnected.rs`: Remove disconnected roads
   - Just floodfill from some road, assuming all roads are bidirectional, to get
     different partitions.
   - Remove roads from all but the largest partition
-  - Also remove cul-de-sacs (roads that begin and end at the same intersection),
-    because they mess up parking hints and pathfinding.
 - `make/initial/mod.rs` and `make/initial/lane_specs.rs`: Interpret OSM tags to
   figure out what lanes are on each side of each road, also figuring out the
   total width of the road.
@@ -220,6 +213,17 @@ Still in the `map_model` crate.
       lanes created
     - Some of these OSM tags are just completely wrong sometimes. If the filter
       makes an incoming lane lose all of its turns, then ignore that tag.
+- `make/parking_blackholes.rs`: Find well-connected roads near "blackhole"
+  lanes.
+  - Starting from most driving/biking lanes, most other lanes are reachable.
+    Some aren't -- such as one-way highways inevitably leading from or to a
+    border. These are "blackholes" -- pathfinding to or from here may fail.
+  - Find the largest strongly-connected component (SCC) in the driving graph.
+    From every other lane (a blackhole), floodfill both forwards and backwards
+    to find the nearest driving lane part of the main SCC.
+  - Later, if a car needs to park by a building on a blackhole road, it'll
+    instead start searching for parking at the redirect. This prevents it from
+    being forced to instead exit the map through a border.
 - `make/buildings.rs`: Match buildings up with sidewalks
   - Find the closest sidewalk polyline to each building's center. Then draw a
     straight line for the front path between the edge of the building and the
@@ -227,6 +231,12 @@ Still in the `map_model` crate.
   - Filter out buildings too far away from any sidewalk
   - The front path might cross through other buildings; this is probably not
     worth fixing.
+- `make/buildings.rs`: Same for parking lots
+  - Similar process to match parking lots to nearest sidewalk and driving lane
+  - Try to place parking spots along both sides of parking aisles
+  - Filter out overlapping spots
+- `make/bridges.rs`: Find what roads lie beneath bridges, and update their
+  Z-order accordingly for later drawing.
 - `stop_signs.rs`: Instantiate default stop sign policies
   - Rank incoming roads by OSM priority (arterial beats residential)
   - If there's only one rank, then make an all-way stop
@@ -284,17 +294,6 @@ Still in the `map_model` crate.
   - Later when figuring out which bus to use for a pedestrian, the resulting
     list of nodes is scanned for the first and last bus stop along the same
     route.
-- `make/parking_blackholes.rs`: Find well-connected roads near "blackhole"
-  lanes.
-  - Starting from most driving/biking lanes, most other lanes are reachable.
-    Some aren't -- such as one-way highways inevitably leading from or to a
-    border. These are "blackholes" -- pathfinding to or from here may fail.
-  - Find the largest strongly-connected component (SCC) in the driving graph.
-    From every other lane (a blackhole), floodfill both forwards and backwards
-    to find the nearest driving lane part of the main SCC.
-  - Later, if a car needs to park by a building on a blackhole road, it'll
-    instead start searching for parking at the redirect. This prevents it from
-    being forced to instead exit the map through a border.
 
 ## Live edits
 
@@ -302,6 +301,7 @@ A key feature of A/B Street is the player editing the map and seeing how traffic
 responds. The possible edits include:
 
 - Change lane types (driving, bus, bike, parking -- sidewalks are fixed)
+- Change speed limits
 - Reverse a lane
 - Change a stop sign policy (which roads have a stop sign and which have
   priority)
@@ -342,10 +342,10 @@ drawing layer, which uploads new geometry to the GPU accordingly.
 - Don't be afraid of manual intervention
   - The data isn't perfect. It's easy to spend lots of time fiddling with code
     to automatically handle all problems
-  - But it's sometimes faster to just manually point at problems and have a
-    human determine some fix. This is what the `map_editor` crate does.
-  - It can be sometimes easier to completely delete funky OSM data, and just map
-    it again from scratch.
+  - Instead of automatically resolving problems, prefer good tooling for finding
+    and specifying fixes
+  - Be careful of derivative structures that could get out of sync with OSM.
+    Prefer contributing real fixes to OSM.
 - Screenshot diff testing
   - When working on the code for intersection geometry, it's easy to check a few
     example cases get fixed by some change. But what if another part of the map
@@ -362,9 +362,10 @@ drawing layer, which uploads new geometry to the GPU accordingly.
   - For the final product, lanes and such are just a contiguous array, indexed
     by numeric IDs.
   - But sometimes, we need IDs that're the same between different boundary
-    polygons of maps, like for MapFixes. Using (longitude, latitude) pairs hits
-    floating-point serialization and comparison issues, so referring to roads as
-    (OSM way ID, OSM node ID 1, OSM node ID 2) works instead.
+    polygons of maps, so that player edits can be applied anywhere. Using
+    (longitude, latitude) pairs hits floating-point serialization and comparison
+    issues, so referring to roads as (OSM way ID, OSM node ID 1, OSM node ID 2)
+    works instead.
 
 ## Appendix: PolyLines
 

@@ -4,7 +4,6 @@
 
 You will first need:
 
-- Standard Unix dependencies: `curl`, `unzip`, `gunzip`, `md5sum` (`md5` on Mac)
 - Rust, at least 1.43. https://www.rust-lang.org/tools/install
 - On Linux, `sudo apt-get install xorg-dev libxcb-shape0-dev libxcb-xfixes0-dev`
   or the equivalent for your distro
@@ -81,6 +80,7 @@ To run all pieces of the importer, you'll need some extra dependencies:
 - `osmconvert`: See https://wiki.openstreetmap.org/wiki/Osmconvert#Download
 - `libgdal-dev`: See https://gdal.org/ if your OS package manager doesn't have
   this
+- Standard Unix utilities: `curl`, `unzip`, `gunzip`
 
 You can rerun specific stages of the importer:
 

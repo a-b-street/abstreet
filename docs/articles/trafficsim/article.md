@@ -2,7 +2,11 @@
 
 This article describes how cars, bikes, buses, and pedestrians are modeled in
 A/B Street. All code lives in the `sim` crate. This is up-to-date as of
-July 2019.
+July 2019. Since then, the main change is some gridlock resolution that I've yet
+to describe.
+
+[This recorded presentation](https://youtu.be/chYd5I-5oyc?t=1086) covers some of
+this.
 
 The traffic simulation models different agents (cars, bikes, buses, pedestrians,
 and intersections) over time. Agents don't constantly sense and react to the

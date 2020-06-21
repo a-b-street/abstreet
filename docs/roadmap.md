@@ -20,11 +20,26 @@ If I had resources to hire a team, this is roughly how I'd organize different
 roles. If you're interested in helping, these aren't strictly defined positions,
 just ideas of related tasks.
 
+### UI and data visualization
+
+We've got a UX designer, but implementing all of the new designs takes time.
+Also:
+
+- improve color schemes for colorblind players, implement night mode, rain
+  effects, etc
+- refactor and clean up the GUI library for other Rust users
+- lots of data viz design / implementation needed
+
+### Game design
+
+- the tutorial mode needs attention
+- many ideas for challenge/story modes, but playtesting, tuning, and game design
+  needed
+
 ### Map data / GIS
 
 Support more cities:
 
-- generalize the import pipeline (mostly done)
 - write docs/tools to help people add new cities without programming experience
 - add support for non-OpenStreetMap input: GeoJSON for parking in Perth, other
   trip demand sources, etc
@@ -67,21 +82,6 @@ Improve existing models:
 - pedestrians walking on road shoulders (some streets have no sidewalks)
 - buses: transfers, proper schedules, multiple buses per route
 
-### UI and data visualization
-
-We've got a UX designer, but implementing all of the new designs takes time.
-Also:
-
-- minimap camera controls are notoriously hard to get right
-- refactor and clean up the GUI library for other Rust users
-- lots of data viz design / implementation needed
-
-### Game design
-
-- the tutorial mode needs attention
-- many ideas for challenge/story modes, but playtesting, tuning, and game design
-  needed
-
 ### Web
 
 A/B Street runs on the web via WASM and WebGL; just waiting on vector text
@@ -91,18 +91,17 @@ support. Besides that:
 
 ## Contributing for non-programmers
 
-I've heard many people want to help with something other than programming or
-design. The best ideas are to start mapping, especially since most work is
-directly through OpenStreetMap:
+There's plenty to do besides programming!
 
-- sidewalks, crosswalks,
-  [on-street parking](https://dabreegster.github.io/abstreet/map_parking.html)
-- traffic signal timing (needs more planning / tooling)
-- fixing geometry problems with the map editor (needs tooling)
-
-Playtesting by attempting to implement real proposals would also be helpful, to
-expose where it's awkward for A/B Street to edit the map and to write up
-problems encountered.
+- Mapping, most of which directly contributes to OpenStreetMap:
+  - sidewalks and crosswalks
+  - [on-street parking](https://dabreegster.github.io/abstreet/map_parking.html)
+  - [traffic signal timing](https://docs.google.com/document/d/1Od_7WvBVYsvpY4etRI0sKmYmZnwXMAXcJxVmm8Iwdcg/edit?usp=sharing)
+- Playtesting by attempting to implement real proposals would also be helpful,
+  to expose where it's awkward for A/B Street to edit the map and to write up
+  problems encountered.
+- Advocacy: I'm not great at finding the right people to to get ideas
+  implemented for real. Maybe you are?
 
 ## Long-term vision
 

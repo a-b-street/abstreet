@@ -464,3 +464,13 @@ changes here.
 - layers: use gradient for a few, delay comparison, new UI for picker
 - overhauled minimap controls, should be intuitive now
 - edit mode changelist UI started
+
+0.2.0 (alpha launch)
+
+- road names now shown by default, in a new style
+- all layers now use gradients and show up zoomed in. worst traffic jam layer revamped.
+- scatter and line plot improvements
+- internal UI fixes: proper word wrap
+- bugfixes for following people riding the bus
+- rainbow crosswalks in one neighborhood
+- final polishing for launch
