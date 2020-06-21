@@ -405,8 +405,7 @@ fn maybe_save_first(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Opti
         save_edits_as(&mut wizard, app)?;
     }
     ctx.loading_screen("reset map and sim", |ctx, mut timer| {
-        // Either they chose discard, or bailed out of the save menu
-        if app.primary.map.unsaved_edits() {
+        if !app.primary.map.get_edits().commands.is_empty() {
             apply_map_edits(ctx, app, MapEdits::new());
             app.primary
                 .map

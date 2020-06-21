@@ -25,8 +25,7 @@ Or you can [build from source](/docs/dev.md).
 ## Playing the game
 
 - Use the **tutorial** to learn the controls.
-- Play the **challenges** for directed gameplay. As of June 2020, these're under
-  active development.
+- Play the **challenges** for directed gameplay.
 - Try out any ideas in the **sandbox**.
 
 ## Data source licensing
