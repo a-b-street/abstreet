@@ -10,11 +10,11 @@ Grab a pre-built binary release -- updated every Sunday, announced at
 [r/abstreet](http://old.reddit.com/r/abstreet):
 
 - Windows:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.45/abstreet_windows_v0_1_45.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.2.0/abstreet_windows_v0_2_0.zip
 - Mac:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.45/abstreet_mac_v0_1_45.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.2.0/abstreet_mac_v0_2_0.zip
 - Linux:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.45/abstreet_linux_v0_1_45.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.2.0/abstreet_linux_v0_2_0.zip
 
 Unzip the folder, then run `play_abstreet.sh` or `play_abstreet.bat`. On
 Windows, you'll probably get a warning about running software from an unknown

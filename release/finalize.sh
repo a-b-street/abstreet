@@ -19,10 +19,11 @@ unzip abst_mac.zip
 rm -f abst_mac.zip
 mv abst_mac abstreet_mac_$VERSION
 
-echo y | unzip abst_windows.zip
-unzip abst_windows.zip
+mkdir abstreet_windows_$VERSION
+cd abstreet_windows_$VERSION
+unzip ../abst_windows.zip
+cd ..
 rm -f abst_windows.zip
-mv abst_windows abstreet_mac_$VERSION
 
 zip -r abstreet_linux_$VERSION abstreet_linux_$VERSION
 zip -r abstreet_mac_$VERSION abstreet_mac_$VERSION
