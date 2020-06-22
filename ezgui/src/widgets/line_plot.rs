@@ -149,10 +149,7 @@ impl<T: Yvalue<T>> LinePlot<T> {
             pts.dedup();
             if pts.len() >= 2 {
                 closest.add(s.label.clone(), &pts);
-                batch.push(
-                    s.color,
-                    thick_lineseries(pts, Distance::meters(5.0), ctx.get_scale_factor()),
-                );
+                batch.push(s.color, thick_lineseries(pts, Distance::meters(5.0)));
             }
         }
 
@@ -349,7 +346,7 @@ pub fn make_legend<T: Yvalue<T>>(
 }
 
 // TODO If this proves useful, lift to geom
-fn thick_lineseries(pts: Vec<Pt2D>, width: Distance, scale: f64) -> Polygon {
+fn thick_lineseries(pts: Vec<Pt2D>, width: Distance) -> Polygon {
     use lyon::math::{point, Point};
     use lyon::path::Path;
     use lyon::tessellation::geometry_builder::{BuffersBuilder, Positions, VertexBuffers};
@@ -378,7 +375,7 @@ fn thick_lineseries(pts: Vec<Pt2D>, width: Distance, scale: f64) -> Polygon {
     Polygon::precomputed(
         geom.vertices
             .into_iter()
-            .map(|v| Pt2D::new(scale * f64::from(v.x), scale * f64::from(v.y)))
+            .map(|v| Pt2D::new(f64::from(v.x), f64::from(v.y)))
             .collect(),
         geom.indices.into_iter().map(|idx| idx as usize).collect(),
     )

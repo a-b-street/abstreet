@@ -47,16 +47,6 @@ impl TutorialPointer {
     pub fn new(stage: usize, part: usize) -> TutorialPointer {
         TutorialPointer { stage, part }
     }
-
-    fn max(self, other: TutorialPointer) -> TutorialPointer {
-        if self.stage > other.stage {
-            self
-        } else if other.stage > self.stage {
-            other
-        } else {
-            TutorialPointer::new(self.stage, self.part.max(other.part))
-        }
-    }
 }
 
 impl Tutorial {
@@ -87,7 +77,6 @@ impl Tutorial {
         }
         let mut tut = app.session.tutorial.take().unwrap();
         tut.current = current;
-        tut.latest = tut.latest.max(current);
         let state = tut.make_state(ctx, app);
         app.session.tutorial = Some(tut);
         state
@@ -369,7 +358,7 @@ impl GameplayState for Tutorial {
 
         if let Some(ref msg) = self.msg_panel {
             // Arrows underneath the message panel, but on top of other panels
-            if let Some((_, Some(fxn))) = tut.lines() {
+            if let Some((_, _, Some(fxn))) = tut.lines() {
                 let pt = (fxn)(g, app);
                 g.fork_screenspace();
                 g.draw_polygon(
@@ -481,13 +470,25 @@ impl Task {
                     txt.add(Line("[ ] wait for them to park"));
                 }
                 if state.prank_done {
-                    txt.add(Line("[X] draw WASH ME on the window").fg(Color::GREEN));
+                    txt.add(Line("[X] click car and press c to draw WASH ME").fg(Color::GREEN));
                 } else {
-                    txt.add(Line("[ ] draw WASH ME on the window"));
+                    txt.add(Line("[ ] click car and press "));
+                    // TODO ctx.style().hotkey_color
+                    txt.append(Line(Key::C.describe()).fg(Color::GREEN));
+                    txt.append(Line(" to draw WASH ME"));
                 }
                 return txt;
             }
-            Task::LowParking => "Find a road with almost no parking spots available",
+            Task::LowParking => {
+                let mut txt = Text::from(Line(
+                    "1) Find a road with almost no parking spots available",
+                ));
+                txt.add(Line("2) Click it and press "));
+                // TODO ctx.style().hotkey_color
+                txt.append(Line(Key::C.describe()).fg(Color::GREEN));
+                txt.append(Line(" to check the occupancy"));
+                return txt;
+            }
             Task::WatchBikes => "Watch for 3 minutes",
             Task::FixBikes => {
                 return Text::from(Line(format!(
@@ -517,7 +518,11 @@ impl Task {
 }
 
 struct Stage {
-    messages: Vec<(Vec<String>, Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>>)>,
+    messages: Vec<(
+        Vec<String>,
+        HorizontalAlignment,
+        Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>>,
+    )>,
     task: Task,
     warp_to: Option<(ID, f64)>,
     spawn: Option<Box<dyn Fn(&mut App)>>,
@@ -542,8 +547,23 @@ impl Stage {
         lines: Vec<I>,
         point_to: Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>>,
     ) -> Stage {
-        self.messages
-            .push((lines.into_iter().map(|l| l.into()).collect(), point_to));
+        self.messages.push((
+            lines.into_iter().map(|l| l.into()).collect(),
+            HorizontalAlignment::Center,
+            point_to,
+        ));
+        self
+    }
+    fn left_aligned_msg<I: Into<String>>(
+        mut self,
+        lines: Vec<I>,
+        point_to: Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>>,
+    ) -> Stage {
+        self.messages.push((
+            lines.into_iter().map(|l| l.into()).collect(),
+            HorizontalAlignment::Left,
+            point_to,
+        ));
         self
     }
 
@@ -589,7 +609,6 @@ impl Stage {
 
 pub struct TutorialState {
     stages: Vec<Stage>,
-    latest: TutorialPointer,
     pub current: TutorialPointer,
 
     window_dims: (f64, f64),
@@ -667,7 +686,13 @@ impl TutorialState {
             Task::Nil
         }
     }
-    fn lines(&self) -> Option<&(Vec<String>, Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>>)> {
+    fn lines(
+        &self,
+    ) -> Option<&(
+        Vec<String>,
+        HorizontalAlignment,
+        Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>>,
+    )> {
         let stage = self.stage();
         if self.current.part == stage.messages.len() {
             None
@@ -681,7 +706,6 @@ impl TutorialState {
         if self.current.part == self.stage().messages.len() + 1 {
             self.current = TutorialPointer::new(self.current.stage + 1, 0);
         }
-        self.latest = self.latest.max(self.current);
     }
     fn prev(&mut self) {
         if self.current.part == 0 {
@@ -714,7 +738,7 @@ impl TutorialState {
                 txt.append(Line(format!("/{}", self.stages.len())).fg(Color::grey(0.7)));
                 txt.draw(ctx).margin(5)
             },
-            if self.current.stage == self.latest.stage {
+            if self.current.stage == self.stages.len() - 1 {
                 Btn::text_fg(">").inactive(ctx)
             } else {
                 Btn::text_fg(">").build(ctx, "next tutorial", None)
@@ -782,7 +806,7 @@ impl TutorialState {
             top_center: self.make_top_center(ctx, &app.cs, last_finished_task >= Task::WatchBikes),
             last_finished_task,
 
-            msg_panel: if let Some((ref lines, _)) = self.lines() {
+            msg_panel: if let Some((ref lines, horiz_align, _)) = self.lines() {
                 let mut col = vec![{
                     let mut txt = Text::new();
                     txt.add(Line(self.stage().task.label()).small_heading());
@@ -852,6 +876,7 @@ impl TutorialState {
                             .padding(16),
                     )
                     .exact_size_percent(40, 40)
+                    .aligned(*horiz_align, VerticalAlignment::Center)
                     .build(ctx),
                 )
             } else {
@@ -864,7 +889,6 @@ impl TutorialState {
     fn new(ctx: &mut EventCtx, app: &App) -> TutorialState {
         let mut state = TutorialState {
             stages: Vec::new(),
-            latest: TutorialPointer::new(0, 0),
             current: TutorialPointer::new(0, 0),
             window_dims: (ctx.canvas.window_width, ctx.canvas.window_height),
 
@@ -937,8 +961,8 @@ impl TutorialState {
             Stage::new(Task::InspectObjects)
                 .msg(
                     vec![
-                        "Er, sorry about that. Just a little joke we like to play on the new \
-                         recruits.",
+                        "What, no fire? Er, sorry about that. Just a little joke we like to play \
+                         on the new recruits.",
                     ],
                     None,
                 )
@@ -1120,7 +1144,7 @@ impl TutorialState {
                     vec!["You can see the number of them here."],
                     arrow(agent_meter.composite.center_of_panel()),
                 )
-                .msg(
+                .left_aligned_msg(
                     vec![
                         "Why don't you follow this car to their destination,",
                         "see where they park, and then play a little... prank?",
@@ -1256,7 +1280,7 @@ impl TutorialState {
                         "When you finish making edits, time will jump to the beginning of the \
                          next day. You can't make most changes in the middle of the day.",
                         "",
-                        "Seattlites are really boring; they follow the exact same schedule \
+                        "Seattleites are really boring; they follow the exact same schedule \
                          everyday. They're also stubborn, so even if you try to influence their \
                          decision whether to drive, walk, bike, or take a bus, they'll do the \
                          same thing. For now, you're just trying to make things better, assuming \
@@ -1293,14 +1317,6 @@ impl TutorialState {
             ],
             None,
         ));
-
-        // For my debugging sanity
-        if app.opts.dev {
-            state.latest = TutorialPointer::new(
-                state.stages.len() - 1,
-                state.stages.last().as_ref().unwrap().messages.len(),
-            );
-        }
 
         state
 
@@ -1435,7 +1451,7 @@ fn intro_story(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
             ctx,
             app,
             Box::new(|ctx| {
-                Text::from(Line("Use the tutorial to learn the basic controls").fg(Color::BLACK))
+                Text::from(Line("Use the tutorial to learn the basic controls.").fg(Color::BLACK))
                     .draw(ctx)
             }),
         )

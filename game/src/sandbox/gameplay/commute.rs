@@ -93,8 +93,8 @@ impl OptimizeCommute {
             )
             .boss("JUST GET TO WORK, KID!")
             .player(
-                "Somebody's blackmailing the boss. Guess it's time to help this VIP (very \
-                 impatient person).",
+                "(Somebody's blackmailing the boss. Guess it's time to help this Very Impatient \
+                 Person.)",
             )
             .build(ctx, app, cutscene_task(mode))
     }
@@ -116,7 +116,7 @@ impl OptimizeCommute {
                  \"friend\" more important than the city's carbon-neutral goals?",
             )
             .boss("Everyone's calling in favors these days. Just make it happen!")
-            .player("Too many people have dirt on the boss. Guess we have another VIP to help.")
+            .player("(Too many people have dirt on the boss. Guess we have another VIP to help.)")
             .build(ctx, app, cutscene_task(mode))
     }
 }
@@ -187,7 +187,7 @@ impl GameplayState for OptimizeCommute {
                     // TODO Multiple hints. Point to follow button.
                     let mut txt = Text::from(Line("Hints"));
                     txt.add(Line(""));
-                    txt.add(Line("Use the locator at the top to find the VIP."));
+                    txt.add(Line("Use the locator at the top right to find the VIP."));
                     txt.add(Line("You can wait for one of their trips to begin or end."));
                     txt.add(Line("Focus on trips spent mostly waiting"));
                     let contents = txt.draw(ctx);
