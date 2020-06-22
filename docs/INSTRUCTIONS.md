@@ -10,7 +10,7 @@ Grab a pre-built binary release -- updated every Sunday, announced at
 [r/abstreet](http://old.reddit.com/r/abstreet):
 
 - Windows:
-  https://github.com/dabreegster/abstreet/releases/download/v0.2.0a/abstreet_windows_v0_2_0a.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.2.0a/abstreet_windows_v0_2_0b.zip
 - Mac:
   https://github.com/dabreegster/abstreet/releases/download/v0.2.0a/abstreet_mac_v0_2_0a.zip
   - There are some issues with HiDPI Retina displays; please report any

@@ -5,7 +5,7 @@ road instead of a bus lane? A/B Street is a game exploring how small changes to
 a city affect the movement of drivers, cyclists, transit users, and pedestrians.
 
 - Play on
-  [Windows](https://github.com/dabreegster/abstreet/releases/download/v0.2.0a/abstreet_windows_v0_2_0a.zip),
+  [Windows](https://github.com/dabreegster/abstreet/releases/download/v0.2.0a/abstreet_windows_v0_2_0b.zip),
   [Mac](https://github.com/dabreegster/abstreet/releases/download/v0.2.0a/abstreet_mac_v0_2_0a.zip),
   [Linux](https://github.com/dabreegster/abstreet/releases/download/v0.2.0a/abstreet_linux_v0_2_0a.zip),
   or [read all instructions](docs/INSTRUCTIONS.md) (new releases every Sunday)
