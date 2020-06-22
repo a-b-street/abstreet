@@ -68,6 +68,9 @@ pub fn setup(
     )
     .unwrap();
 
+    // TODO Should this be display.gl_window().window().inner_size()? I think some resize events
+    // always happen soon after startup, so it probably doesn't matter much. Changing this on Linux
+    // messes up the loading screen size (which happens before resize events get processed).
     let window_size = event_loop.primary_monitor().size();
     (
         PrerenderInnards {
@@ -253,6 +256,11 @@ impl PrerenderInnards {
     }
 
     pub fn window_resized(&self, _: f64, _: f64) {}
+
+    pub fn get_inner_size(&self) -> (f64, f64) {
+        let size = self.display.gl_window().window().inner_size();
+        (size.width.into(), size.height.into())
+    }
 
     pub fn set_window_icon(&self, icon: winit::window::Icon) {
         self.display

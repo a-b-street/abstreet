@@ -72,6 +72,18 @@ impl<G: GUI> State<G> {
         // Update some ezgui state that's stashed in Canvas for sad reasons.
         {
             if let Event::WindowResized(width, height) = input.event {
+                let inner_size = prerender.inner.get_inner_size();
+                println!(
+                    "winit event says the window was resized from {}, {} to {}, {}. But inner \
+                     size is {}, {}, so using that",
+                    self.canvas.window_width,
+                    self.canvas.window_height,
+                    width,
+                    height,
+                    inner_size.0,
+                    inner_size.1
+                );
+                let (width, height) = inner_size;
                 prerender.inner.window_resized(width, height);
                 self.canvas.window_width = width;
                 self.canvas.window_height = height;

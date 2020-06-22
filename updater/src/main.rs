@@ -162,7 +162,8 @@ impl Manifest {
             if entry.file_type().is_dir() {
                 continue;
             }
-            let path = entry.path().display().to_string();
+            let orig_path = entry.path().display().to_string();
+            let path = orig_path.replace("\\", "/");
             if path.contains("system/assets/")
                 || path.contains("system/fonts")
                 || path.contains("system/proposals")
@@ -175,7 +176,7 @@ impl Manifest {
             println!("> compute md5sum of {}", path);
 
             // since these files can be very large, computes the md5 hash in chunks
-            let mut file = File::open(&path).unwrap();
+            let mut file = File::open(&orig_path).unwrap();
             let mut buffer = [0 as u8; MD5_BUF_READ_SIZE];
             let mut context = md5::Context::new();
             while let Ok(n) = file.read(&mut buffer) {

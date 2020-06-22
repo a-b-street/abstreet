@@ -325,6 +325,11 @@ impl PrerenderInnards {
         }
     }
 
+    pub fn get_inner_size(&self) -> (f64, f64) {
+        let size = self.window.inner_size();
+        (size.width.into(), size.height.into())
+    }
+
     pub fn set_window_icon(&self, icon: winit::window::Icon) {
         self.window.set_window_icon(Some(icon));
     }
