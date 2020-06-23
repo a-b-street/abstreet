@@ -155,7 +155,6 @@ pub enum Key {
     Backspace,
     LeftShift,
     LeftControl,
-    RightControl,
     LeftAlt,
     RightAlt,
     LeftArrow,
@@ -243,7 +242,6 @@ impl Key {
             | Key::Backspace
             | Key::LeftShift
             | Key::LeftControl
-            | Key::RightControl
             | Key::LeftAlt
             | Key::RightAlt
             | Key::LeftArrow
@@ -273,7 +271,6 @@ impl Key {
             Key::Backspace => "Backspace".to_string(),
             Key::LeftShift => "Shift".to_string(),
             Key::LeftControl => "left Control".to_string(),
-            Key::RightControl => "right Control".to_string(),
             Key::LeftAlt => "left Alt".to_string(),
             Key::RightAlt => "right Alt".to_string(),
             Key::LeftArrow => "← arrow".to_string(),
@@ -353,7 +350,6 @@ impl Key {
             VirtualKeyCode::Back => Key::Backspace,
             VirtualKeyCode::LShift => Key::LeftShift,
             VirtualKeyCode::LControl => Key::LeftControl,
-            VirtualKeyCode::RControl => Key::RightControl,
             VirtualKeyCode::LAlt => Key::LeftAlt,
             VirtualKeyCode::RAlt => Key::RightAlt,
             VirtualKeyCode::Left => Key::LeftArrow,

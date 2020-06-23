@@ -105,11 +105,11 @@ impl UI {
 impl GUI for UI {
     fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
         if self.info_key_held {
-            self.info_key_held = !ctx.input.key_released(Key::RightControl);
+            self.info_key_held = !ctx.input.key_released(Key::LeftAlt);
         } else {
             self.info_key_held = ctx
                 .input
-                .unimportant_key_pressed(Key::RightControl, "hold to show info");
+                .unimportant_key_pressed(Key::LeftAlt, "hold to show info");
         }
 
         ctx.canvas_movement();
