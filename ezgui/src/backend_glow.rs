@@ -72,6 +72,7 @@ pub fn setup(
         );
     }
 
+    // TODO Once this is fixed in glium, do the same thing here
     let window_size = event_loop.primary_monitor().size();
     (
         PrerenderInnards {

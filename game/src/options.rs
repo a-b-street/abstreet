@@ -263,7 +263,8 @@ impl State for OptionsPanel {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        State::grey_out_map(g, app);
         self.composite.draw(g);
     }
 }
