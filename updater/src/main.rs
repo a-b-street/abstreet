@@ -47,6 +47,7 @@ async fn download() {
     }
 
     // Anything missing or needing updating?
+    let mut ok = true;
     for (path, entry) in truth.0 {
         if local.0.get(&path).map(|x| &x.checksum) != Some(&entry.checksum) {
             std::fs::create_dir_all(std::path::Path::new(&path).parent().unwrap()).unwrap();
@@ -56,11 +57,16 @@ async fn download() {
                 }
                 Err(e) => {
                     println!("{}, continuing", e);
+                    ok = false;
                 }
             };
             // Whether or not download failed, still try to clean up tmp file
             rm(TMP_DOWNLOAD_NAME);
         }
+    }
+    if !ok {
+        // Fail the build.
+        panic!("Failed to download something");
     }
 }
 
@@ -107,6 +113,16 @@ fn upload() {
         if changed {
             std::fs::create_dir_all(std::path::Path::new(&remote_path).parent().unwrap()).unwrap();
             run(Command::new("zip").arg(&remote_path).arg(&path));
+            // Wait for the Dropbox client to sync
+            loop {
+                std::thread::sleep(std::time::Duration::from_millis(1000));
+                println!("Waiting for {} to sync", remote_path);
+                if run(Command::new("dropbox").arg("filestatus").arg(&remote_path))
+                    .contains("up to date")
+                {
+                    break;
+                }
+            }
         }
         entry.dropbox_url = remote.0.get(path).map(|x| x.dropbox_url.clone().unwrap());
         // The sharelink sometimes changes when the file does.
