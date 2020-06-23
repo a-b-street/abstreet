@@ -47,7 +47,7 @@ async fn download() {
     }
 
     // Anything missing or needing updating?
-    let mut ok = true;
+    let mut failed = Vec::new();
     for (path, entry) in truth.0 {
         if local.0.get(&path).map(|x| &x.checksum) != Some(&entry.checksum) {
             std::fs::create_dir_all(std::path::Path::new(&path).parent().unwrap()).unwrap();
@@ -57,16 +57,16 @@ async fn download() {
                 }
                 Err(e) => {
                     println!("{}, continuing", e);
-                    ok = false;
+                    failed.push(path);
                 }
             };
             // Whether or not download failed, still try to clean up tmp file
             rm(TMP_DOWNLOAD_NAME);
         }
     }
-    if !ok {
+    if !failed.is_empty() {
         // Fail the build.
-        panic!("Failed to download something");
+        panic!("Failed to download stuff: {:?}", failed);
     }
 }
 

@@ -4,7 +4,7 @@
 
 You will first need:
 
-- Rust, at least 1.43. https://www.rust-lang.org/tools/install
+- Stable Rust, at least 1.43. https://www.rust-lang.org/tools/install
 - On Linux, `sudo apt-get install xorg-dev libxcb-shape0-dev libxcb-xfixes0-dev`
   or the equivalent for your distro
 
