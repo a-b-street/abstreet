@@ -173,7 +173,7 @@ calling out milestones. "UI churn" is pretty much constantly happening.
 ## Year 3 (June 2020-2021)
 
 - June: parking lots, real minimap controls, road labels
-  - **June 22**: alpha launch! [r/Seattle](https://old.reddit.com/r/Seattle/comments/hdtucd/ab_street_think_you_can_fix_seattles_traffic/), [r/SeattleWA](https://old.reddit.com/r/SeattleWA/comments/hdttu8/ab_street_think_you_can_fix_seattles_traffic/), [r/UrbanPlanning](https://old.reddit.com/r/urbanplanning/comments/hdylmo/ab_street_a_traffic_simulation_game/), [HN](https://news.ycombinator.com/item?id=23605048#23608365)
+  - **June 22**: alpha launch! [r/Seattle](https://old.reddit.com/r/Seattle/comments/hdtucd/ab_street_think_you_can_fix_seattles_traffic/), [r/SeattleWA](https://old.reddit.com/r/SeattleWA/comments/hdttu8/ab_street_think_you_can_fix_seattles_traffic/), [r/UrbanPlanning](https://old.reddit.com/r/urbanplanning/comments/hdylmo/ab_street_a_traffic_simulation_game/), [HN](https://news.ycombinator.com/item?id=23605048#23608365), [GeekWire](https://www.geekwire.com/2020/want-fix-seattle-traffic-redditor-makes-game-allows-players-tweak-city-streets/)
 
 ## Retrospective
 

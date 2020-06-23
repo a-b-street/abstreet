@@ -254,7 +254,7 @@ impl Manifest {
                         || map == "downtown"
                         || map == "lakeslice"
                         || map == "montlake"
-                        || map == "mt_baker"
+                        || map == "south_seattle"
                         || map == "udistrict"
                         || map == "west_seattle"
                 }
