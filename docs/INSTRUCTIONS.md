@@ -14,6 +14,8 @@ Grab a pre-built binary release -- updated every Sunday, announced at
   - If clicking buttons seems to be a bit off, might be
     [this issue](https://github.com/dabreegster/abstreet/issues/65). Workaround
     is to manually resize the window, then maximize again.
+  - If the game immediately crashes, it might be a
+    [graphics card problem](https://github.com/dabreegster/abstreet/issues/79).
 - Mac:
   https://github.com/dabreegster/abstreet/releases/download/v0.2.0a/abstreet_mac_v0_2_0a.zip
   - There are some issues with HiDPI Retina displays; please report any
