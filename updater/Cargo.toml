@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 md5 = "0.7.0"
-reqwest = "0.10"
+reqwest = { version = "0.10.6", default-features=false, features=["rustls-tls"] }
 tokio = { version = "0.2", features = ["full"] }
 walkdir = "2.3.1"
 zip = "0.5.5"
