@@ -112,7 +112,7 @@ pub fn extract_osm(
                 }
             }
         }
-        if !valid {
+        if !valid || gps_pts.is_empty() {
             continue;
         }
         let pts = map.gps_bounds.forcibly_convert(&gps_pts);
@@ -458,6 +458,7 @@ fn is_road(tags: &BTreeMap<String, String>) -> bool {
         "planned",
         "razed",
         "corridor",
+        "junction",
     ] {
         if tags.get(osm::HIGHWAY) == Some(&value.to_string()) {
             return false;
