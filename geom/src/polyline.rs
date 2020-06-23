@@ -629,7 +629,7 @@ impl PolyLine {
 
         if let Some(idx) = self.lines().iter().position(|l| l.contains_pt(pt)) {
             let mut pts = self.pts.clone();
-            pts.split_off(idx + 1);
+            pts.truncate(idx + 1);
             // Make sure the last line isn't too tiny
             if *pts.last().unwrap() == pt {
                 pts.pop();

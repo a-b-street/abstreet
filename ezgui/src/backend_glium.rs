@@ -68,18 +68,12 @@ pub fn setup(
     )
     .unwrap();
 
-    // TODO Should this be display.gl_window().window().inner_size()? I think some resize events
-    // always happen soon after startup, so it probably doesn't matter much. Changing this on Linux
-    // messes up the loading screen size (which happens before resize events get processed).
-    //
-    // But actually on Windows, maybe there isn't that initial spurt of resize events.
     let window_size = display.gl_window().window().inner_size();
-    let scale_factor = display.gl_window().window().scale_factor();
     println!(
         "Initial inner window size is {:?}, monitor is {:?}, scale factor is {}",
         window_size,
         event_loop.primary_monitor().size(),
-        scale_factor
+        display.gl_window().window().scale_factor()
     );
     (
         PrerenderInnards {

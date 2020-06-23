@@ -15,7 +15,7 @@ One-time setup:
 
 2.  Grab the minimal amount of data to get started: `cargo run --bin updater`.
 
-3.  Run the game: `cd game; cargo run --release`
+3.  Run the game: `cd game; RUST_BACKTRACE=1 cargo run --release`
 
 ## Development tips
 

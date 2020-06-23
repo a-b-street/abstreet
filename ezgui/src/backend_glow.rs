@@ -72,8 +72,14 @@ pub fn setup(
         );
     }
 
-    // TODO Once this is fixed in glium, do the same thing here
-    let window_size = event_loop.primary_monitor().size();
+    let window_size = windowed_context.window().inner_size();
+    println!(
+        "Initial inner window size is {:?}, monitor is {:?}, scale factor is {}",
+        window_size,
+        event_loop.primary_monitor().size(),
+        windowed_context.window().scale_factor()
+    );
+
     (
         PrerenderInnards {
             gl,

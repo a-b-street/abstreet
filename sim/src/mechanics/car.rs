@@ -93,6 +93,12 @@ impl Car {
                 i += 1;
             }
 
+            if result.len() < 2 {
+                panic!(
+                    "{} at {} has front at {}. Didn't even wind up with two points",
+                    self.vehicle.id, now, front
+                );
+            }
             PolyLine::new(result)
         };
 
