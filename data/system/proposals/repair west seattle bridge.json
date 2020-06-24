@@ -1,0 +1,1796 @@
+{
+  "map_name": "west_seattle",
+  "edits_name": "repair west seattle bridge",
+  "commands": [
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 4744015,
+            "i1": {
+              "osm_node_id": 60562415
+            },
+            "i2": {
+              "osm_node_id": 60562426
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 4744015,
+            "i1": {
+              "osm_node_id": 60562415
+            },
+            "i2": {
+              "osm_node_id": 60562426
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 4744040,
+            "i1": {
+              "osm_node_id": 30232675
+            },
+            "i2": {
+              "osm_node_id": 1961249096
+            }
+          },
+          "num_fwd": 1,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 6424831,
+            "i1": {
+              "osm_node_id": 634075875
+            },
+            "i2": {
+              "osm_node_id": 634092934
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 2,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Bus"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 6424831,
+            "i1": {
+              "osm_node_id": 634075875
+            },
+            "i2": {
+              "osm_node_id": 634092934
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 2,
+          "fwd": false,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Bus"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 8083061,
+            "i1": {
+              "osm_node_id": 60562780
+            },
+            "i2": {
+              "osm_node_id": 60562784
+            }
+          },
+          "num_fwd": 1,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 8083084,
+            "i1": {
+              "osm_node_id": 60562402
+            },
+            "i2": {
+              "osm_node_id": 60562905
+            }
+          },
+          "num_fwd": 1,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 8083085,
+            "i1": {
+              "osm_node_id": 60562911
+            },
+            "i2": {
+              "osm_node_id": 634092902
+            }
+          },
+          "num_fwd": 1,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 8083086,
+            "i1": {
+              "osm_node_id": 634092844
+            },
+            "i2": {
+              "osm_node_id": 60562920
+            }
+          },
+          "num_fwd": 1,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 8083087,
+            "i1": {
+              "osm_node_id": 53138945
+            },
+            "i2": {
+              "osm_node_id": 634092869
+            }
+          },
+          "num_fwd": 1,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 30969875,
+            "i1": {
+              "osm_node_id": 354296277
+            },
+            "i2": {
+              "osm_node_id": 60562415
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 30969875,
+            "i1": {
+              "osm_node_id": 354296277
+            },
+            "i2": {
+              "osm_node_id": 60562415
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 30969875,
+            "i1": {
+              "osm_node_id": 3396419022
+            },
+            "i2": {
+              "osm_node_id": 354296277
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 30969875,
+            "i1": {
+              "osm_node_id": 3396419022
+            },
+            "i2": {
+              "osm_node_id": 354296277
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 30969888,
+            "i1": {
+              "osm_node_id": 60562784
+            },
+            "i2": {
+              "osm_node_id": 1218478564
+            }
+          },
+          "num_fwd": 1,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 31659197,
+            "i1": {
+              "osm_node_id": 60562420
+            },
+            "i2": {
+              "osm_node_id": 354344952
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 31659197,
+            "i1": {
+              "osm_node_id": 60562420
+            },
+            "i2": {
+              "osm_node_id": 354344952
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 31659870,
+            "i1": {
+              "osm_node_id": 60562721
+            },
+            "i2": {
+              "osm_node_id": 7283200630
+            }
+          },
+          "num_fwd": 1,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 32182279,
+            "i1": {
+              "osm_node_id": 60562911
+            },
+            "i2": {
+              "osm_node_id": 60562912
+            }
+          },
+          "num_fwd": 1,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 32182366,
+            "i1": {
+              "osm_node_id": 60562788
+            },
+            "i2": {
+              "osm_node_id": 634095252
+            }
+          },
+          "num_fwd": 1,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 49891358,
+            "i1": {
+              "osm_node_id": 634095161
+            },
+            "i2": {
+              "osm_node_id": 634092844
+            }
+          },
+          "num_fwd": 1,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 49891359,
+            "i1": {
+              "osm_node_id": 60562923
+            },
+            "i2": {
+              "osm_node_id": 60562433
+            }
+          },
+          "num_fwd": 1,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 49891360,
+            "i1": {
+              "osm_node_id": 634092869
+            },
+            "i2": {
+              "osm_node_id": 60562923
+            }
+          },
+          "num_fwd": 1,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 49891362,
+            "i1": {
+              "osm_node_id": 4270691576
+            },
+            "i2": {
+              "osm_node_id": 634092841
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 49891362,
+            "i1": {
+              "osm_node_id": 4270691576
+            },
+            "i2": {
+              "osm_node_id": 634092841
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 49891362,
+            "i1": {
+              "osm_node_id": 4270691576
+            },
+            "i2": {
+              "osm_node_id": 634092841
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 2
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 49891366,
+            "i1": {
+              "osm_node_id": 634092902
+            },
+            "i2": {
+              "osm_node_id": 60562869
+            }
+          },
+          "num_fwd": 1,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 49891367,
+            "i1": {
+              "osm_node_id": 60562905
+            },
+            "i2": {
+              "osm_node_id": 60562911
+            }
+          },
+          "num_fwd": 1,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 49891694,
+            "i1": {
+              "osm_node_id": 634095106
+            },
+            "i2": {
+              "osm_node_id": 634095112
+            }
+          },
+          "num_fwd": 1,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 49891695,
+            "i1": {
+              "osm_node_id": 634095112
+            },
+            "i2": {
+              "osm_node_id": 634095121
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 49891695,
+            "i1": {
+              "osm_node_id": 634095112
+            },
+            "i2": {
+              "osm_node_id": 634095121
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 49891701,
+            "i1": {
+              "osm_node_id": 634095252
+            },
+            "i2": {
+              "osm_node_id": 634095142
+            }
+          },
+          "num_fwd": 1,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 52839794,
+            "i1": {
+              "osm_node_id": 354344952
+            },
+            "i2": {
+              "osm_node_id": 4271612194
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 52839794,
+            "i1": {
+              "osm_node_id": 354344952
+            },
+            "i2": {
+              "osm_node_id": 4271612194
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 52839841,
+            "i1": {
+              "osm_node_id": 60562780
+            },
+            "i2": {
+              "osm_node_id": 60562420
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 52839841,
+            "i1": {
+              "osm_node_id": 60562780
+            },
+            "i2": {
+              "osm_node_id": 60562420
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 52839883,
+            "i1": {
+              "osm_node_id": 60562427
+            },
+            "i2": {
+              "osm_node_id": 634095121
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 52839883,
+            "i1": {
+              "osm_node_id": 60562427
+            },
+            "i2": {
+              "osm_node_id": 634095121
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 52839980,
+            "i1": {
+              "osm_node_id": 30232603
+            },
+            "i2": {
+              "osm_node_id": 1855120258
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 52839980,
+            "i1": {
+              "osm_node_id": 30232603
+            },
+            "i2": {
+              "osm_node_id": 1855120258
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 174860580,
+            "i1": {
+              "osm_node_id": 60562440
+            },
+            "i2": {
+              "osm_node_id": 60562619
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 174860580,
+            "i1": {
+              "osm_node_id": 60562440
+            },
+            "i2": {
+              "osm_node_id": 60562619
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 174860580,
+            "i1": {
+              "osm_node_id": 60562440
+            },
+            "i2": {
+              "osm_node_id": 60562619
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 2
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 174860581,
+            "i1": {
+              "osm_node_id": 1855120258
+            },
+            "i2": {
+              "osm_node_id": 30232674
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 174860581,
+            "i1": {
+              "osm_node_id": 1855120258
+            },
+            "i2": {
+              "osm_node_id": 30232674
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 174860581,
+            "i1": {
+              "osm_node_id": 1855120258
+            },
+            "i2": {
+              "osm_node_id": 30232674
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 2
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 185509443,
+            "i1": {
+              "osm_node_id": 1961249096
+            },
+            "i2": {
+              "osm_node_id": 30232709
+            }
+          },
+          "num_fwd": 1,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 370819950,
+            "i1": {
+              "osm_node_id": 634095121
+            },
+            "i2": {
+              "osm_node_id": 60562433
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 370819950,
+            "i1": {
+              "osm_node_id": 634095121
+            },
+            "i2": {
+              "osm_node_id": 60562433
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 370819950,
+            "i1": {
+              "osm_node_id": 634095121
+            },
+            "i2": {
+              "osm_node_id": 60562433
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 2
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 370819953,
+            "i1": {
+              "osm_node_id": 60562402
+            },
+            "i2": {
+              "osm_node_id": 60562788
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 370819953,
+            "i1": {
+              "osm_node_id": 60562402
+            },
+            "i2": {
+              "osm_node_id": 60562788
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 370819953,
+            "i1": {
+              "osm_node_id": 60562402
+            },
+            "i2": {
+              "osm_node_id": 60562788
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 2
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 370819955,
+            "i1": {
+              "osm_node_id": 60562788
+            },
+            "i2": {
+              "osm_node_id": 60562780
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 370819955,
+            "i1": {
+              "osm_node_id": 60562788
+            },
+            "i2": {
+              "osm_node_id": 60562780
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 370819955,
+            "i1": {
+              "osm_node_id": 60562788
+            },
+            "i2": {
+              "osm_node_id": 60562780
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 2
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 370819956,
+            "i1": {
+              "osm_node_id": 30232675
+            },
+            "i2": {
+              "osm_node_id": 60562440
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 370819956,
+            "i1": {
+              "osm_node_id": 30232675
+            },
+            "i2": {
+              "osm_node_id": 60562440
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 370819956,
+            "i1": {
+              "osm_node_id": 30232675
+            },
+            "i2": {
+              "osm_node_id": 60562440
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 2
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 371447803,
+            "i1": {
+              "osm_node_id": 60562426
+            },
+            "i2": {
+              "osm_node_id": 60562427
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 371447803,
+            "i1": {
+              "osm_node_id": 60562426
+            },
+            "i2": {
+              "osm_node_id": 60562427
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 428004916,
+            "i1": {
+              "osm_node_id": 4271612194
+            },
+            "i2": {
+              "osm_node_id": 60562721
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 428004916,
+            "i1": {
+              "osm_node_id": 4271612194
+            },
+            "i2": {
+              "osm_node_id": 60562721
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 428004916,
+            "i1": {
+              "osm_node_id": 4271612194
+            },
+            "i2": {
+              "osm_node_id": 60562721
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 2
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 428004916,
+            "i1": {
+              "osm_node_id": 4271612194
+            },
+            "i2": {
+              "osm_node_id": 60562721
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 3
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 428004917,
+            "i1": {
+              "osm_node_id": 60562721
+            },
+            "i2": {
+              "osm_node_id": 3396419023
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 428004917,
+            "i1": {
+              "osm_node_id": 60562721
+            },
+            "i2": {
+              "osm_node_id": 3396419023
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 428004917,
+            "i1": {
+              "osm_node_id": 60562721
+            },
+            "i2": {
+              "osm_node_id": 3396419023
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 2
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 428004917,
+            "i1": {
+              "osm_node_id": 60562721
+            },
+            "i2": {
+              "osm_node_id": 3396419023
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 3
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 461663072,
+            "i1": {
+              "osm_node_id": 1218478564
+            },
+            "i2": {
+              "osm_node_id": 53083679
+            }
+          },
+          "num_fwd": 1,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 492433537,
+            "i1": {
+              "osm_node_id": 4844547461
+            },
+            "i2": {
+              "osm_node_id": 30232674
+            }
+          },
+          "num_fwd": 1,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 513402621,
+            "i1": {
+              "osm_node_id": 60562433
+            },
+            "i2": {
+              "osm_node_id": 30232675
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 513402621,
+            "i1": {
+              "osm_node_id": 60562433
+            },
+            "i2": {
+              "osm_node_id": 30232675
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 513402621,
+            "i1": {
+              "osm_node_id": 60562433
+            },
+            "i2": {
+              "osm_node_id": 30232675
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 2
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 513402621,
+            "i1": {
+              "osm_node_id": 60562433
+            },
+            "i2": {
+              "osm_node_id": 30232675
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 3
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 557115665,
+            "i1": {
+              "osm_node_id": 5373381381
+            },
+            "i2": {
+              "osm_node_id": 4844547461
+            }
+          },
+          "num_fwd": 1,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 620762190,
+            "i1": {
+              "osm_node_id": 634092872
+            },
+            "i2": {
+              "osm_node_id": 634092844
+            }
+          },
+          "num_fwd": 1,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 620762193,
+            "i1": {
+              "osm_node_id": 30232674
+            },
+            "i2": {
+              "osm_node_id": 60562402
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 620762193,
+            "i1": {
+              "osm_node_id": 30232674
+            },
+            "i2": {
+              "osm_node_id": 60562402
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 620762193,
+            "i1": {
+              "osm_node_id": 30232674
+            },
+            "i2": {
+              "osm_node_id": 60562402
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 2
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 621088600,
+            "i1": {
+              "osm_node_id": 60562920
+            },
+            "i2": {
+              "osm_node_id": 60562923
+            }
+          },
+          "num_fwd": 1,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 738304365,
+            "i1": {
+              "osm_node_id": 634092841
+            },
+            "i2": {
+              "osm_node_id": 634092844
+            }
+          },
+          "num_fwd": 1,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 779823730,
+            "i1": {
+              "osm_node_id": 1193597422
+            },
+            "i2": {
+              "osm_node_id": 30232603
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 779823730,
+            "i1": {
+              "osm_node_id": 1193597422
+            },
+            "i2": {
+              "osm_node_id": 30232603
+            }
+          },
+          "num_fwd": 2,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 784157654,
+            "i1": {
+              "osm_node_id": 440453319
+            },
+            "i2": {
+              "osm_node_id": 354296277
+            }
+          },
+          "num_fwd": 1,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Driving",
+        "orig_lt": "Construction"
+      }
+    }
+  ],
+  "proposal_description": [
+    "Repair the West Seattle bridge",
+    "This reopens the West Seattle bridge and removes the bus-only restrictions on the low bridge. Use this to explore what traffic might've looked like before March 2020."
+  ],
+  "proposal_link": "https://dabreegster.github.io/abstreet/west_seattle/proposal.html"
+}

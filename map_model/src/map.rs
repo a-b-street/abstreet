@@ -1375,8 +1375,13 @@ fn recalculate_turns(
     // TODO Deal with turn_lookup
 
     match i.intersection_type {
-        // Stop sign policy doesn't depend on incoming lane types. Leave edits alone.
-        IntersectionType::StopSign => {}
+        IntersectionType::StopSign => {
+            // Stop sign policy usually doesn't depend on incoming lane types, except when changing
+            // to/from construction. To be safe, always regenerate. Edits to stop signs are rare
+            // anyway. And when we're smarter about preserving traffic signal changes in the face
+            // of lane changes, we can do the same here.
+            map.stop_signs.insert(id, ControlStopSign::new(map, id));
+        }
         IntersectionType::TrafficSignal => {
             map.traffic_signals
                 .insert(id, ControlTrafficSignal::new(map, id, timer));

@@ -1,6 +1,6 @@
 # West Seattle mitigations
 
-_Draft, updated May 14, 2020 by Dustin Carlino (<dabreegster@gmail.com>)_
+_Draft, updated June 23, 2020 by Dustin Carlino (<dabreegster@gmail.com>)_
 
 In March 2020, the West Seattle bridge was closed due to cracks forming. As of
 May, COVID-19's impact on commuting means the area still hasn't seen how the
@@ -55,7 +55,8 @@ Once the simulation is running smoothly, A/B Street can be used to make changes
 part of the road into a bus lane -- and evaluate the effects on individual trips
 and aggregate groups.
 
-## Next steps
+## Repair the bridge
 
-It'd be useful to first get a baseline with the high bridge restored. Should now
-be possible using edits.
+Community proposals now includes a "repair the bridge" option, which should
+restore things to how they were before March 2020. This is useful as a baseline,
+to explore what traffic patterns were like before the closure.
