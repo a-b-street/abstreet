@@ -225,39 +225,8 @@ impl State for EditMode {
             }
         } else {
             if let Some(ID::Intersection(id)) = app.primary.current_selection {
-                if app.primary.map.maybe_get_stop_sign(id).is_some()
-                    && self.mode.can_edit_stop_signs()
-                    && app.per_obj.left_click(ctx, "edit stop signs")
-                {
-                    return Transition::Push(Box::new(StopSignEditor::new(
-                        ctx,
-                        app,
-                        id,
-                        self.mode.clone(),
-                    )));
-                }
-                if app.primary.map.maybe_get_traffic_signal(id).is_some()
-                    && app.per_obj.left_click(ctx, "edit traffic signal")
-                {
-                    return Transition::Push(Box::new(TrafficSignalEditor::new(
-                        ctx,
-                        app,
-                        id,
-                        self.mode.clone(),
-                    )));
-                }
-                if app.primary.map.get_i(id).is_closed()
-                    && app.per_obj.left_click(ctx, "re-open closed intersection")
-                {
-                    // This resets to the original state; it doesn't undo the closure to the last
-                    // state. Seems reasonable to me.
-                    let mut edits = app.primary.map.get_edits().clone();
-                    edits.commands.push(EditCmd::ChangeIntersection {
-                        i: id,
-                        old: app.primary.map.get_i_edit(id),
-                        new: edits.original_intersections[&id].clone(),
-                    });
-                    apply_map_edits(ctx, app, edits);
+                if let Some(state) = maybe_edit_intersection(ctx, app, id, &self.mode) {
+                    return Transition::Push(state);
                 }
             }
             if let Some(ID::Lane(l)) = app.primary.current_selection {
@@ -620,6 +589,47 @@ pub fn change_speed_limit(ctx: &mut EventCtx, default: Speed) -> Widget {
             ],
         ),
     ])
+}
+
+pub fn maybe_edit_intersection(
+    ctx: &mut EventCtx,
+    app: &mut App,
+    id: IntersectionID,
+    mode: &GameplayMode,
+) -> Option<Box<dyn State>> {
+    if app.primary.map.maybe_get_stop_sign(id).is_some()
+        && mode.can_edit_stop_signs()
+        && app.per_obj.left_click(ctx, "edit stop signs")
+    {
+        return Some(Box::new(StopSignEditor::new(ctx, app, id, mode.clone())));
+    }
+
+    if app.primary.map.maybe_get_traffic_signal(id).is_some()
+        && app.per_obj.left_click(ctx, "edit traffic signal")
+    {
+        return Some(Box::new(TrafficSignalEditor::new(
+            ctx,
+            app,
+            id,
+            mode.clone(),
+        )));
+    }
+
+    if app.primary.map.get_i(id).is_closed()
+        && app.per_obj.left_click(ctx, "re-open closed intersection")
+    {
+        // This resets to the original state; it doesn't undo the closure to the last
+        // state. Seems reasonable to me.
+        let mut edits = app.primary.map.get_edits().clone();
+        edits.commands.push(EditCmd::ChangeIntersection {
+            i: id,
+            old: app.primary.map.get_i_edit(id),
+            new: edits.original_intersections[&id].clone(),
+        });
+        apply_map_edits(ctx, app, edits);
+    }
+
+    None
 }
 
 fn make_changelist(ctx: &mut EventCtx, app: &App) -> Composite {

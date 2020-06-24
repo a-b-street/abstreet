@@ -1,6 +1,6 @@
 use crate::app::App;
 use crate::common::CommonState;
-use crate::edit::{apply_map_edits, can_edit_lane, change_speed_limit};
+use crate::edit::{apply_map_edits, can_edit_lane, change_speed_limit, maybe_edit_intersection};
 use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use crate::render::Renderable;
@@ -112,6 +112,12 @@ impl State for LaneEditor {
                 if !can_edit_lane(&self.mode, l, app) {
                     app.primary.current_selection = None;
                 }
+            } else if let Some(ID::Intersection(i)) = app.primary.current_selection {
+                if app.primary.map.maybe_get_stop_sign(i).is_some()
+                    && !self.mode.can_edit_stop_signs()
+                {
+                    app.primary.current_selection = None;
+                }
             } else {
                 app.primary.current_selection = None;
             }
@@ -124,6 +130,11 @@ impl State for LaneEditor {
                     l,
                     self.mode.clone(),
                 )));
+            }
+        }
+        if let Some(ID::Intersection(id)) = app.primary.current_selection {
+            if let Some(state) = maybe_edit_intersection(ctx, app, id, &self.mode) {
+                return Transition::Replace(state);
             }
         }
 
