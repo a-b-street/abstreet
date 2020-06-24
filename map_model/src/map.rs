@@ -790,13 +790,13 @@ impl Map {
         }
     }
 
-    pub fn save_edits(&mut self) {
+    pub fn save_edits(&self) {
+        // Don't overwrite the current edits with the compressed first. Otherwise, undo/redo order
+        // in the UI gets messed up.
         let mut edits = self.edits.clone();
         edits.commands.clear();
         edits.compress(self);
-        self.edits = edits;
-
-        self.edits.save(self);
+        edits.save(self);
     }
 
     // new_edits assumed to be valid. Returns roads changed, turns deleted, turns added,

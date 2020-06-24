@@ -89,10 +89,6 @@ impl EditMode {
                 .recalculate_pathfinding_after_edits(&mut timer);
             // Parking state might've changed
             app.primary.clear_sim();
-            // Autosave
-            if app.primary.map.get_edits().edits_name != "untitled edits" {
-                app.primary.map.save_edits();
-            }
             if app.opts.resume_after_edit {
                 if self.mode.reset_after_edits() {
                     Transition::PopThenReplaceThenPush(
@@ -171,10 +167,6 @@ impl State for EditMode {
         match self.changelist.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "load edits" => {
-                    // Autosave first
-                    if app.primary.map.get_edits().edits_name != "untitled edits" {
-                        app.primary.map.save_edits();
-                    }
                     return Transition::Push(make_load_edits(
                         app,
                         self.changelist.rect_of("load edits").clone(),
@@ -493,6 +485,11 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
 
     if app.layer.as_ref().and_then(|l| l.name()) == Some("map edits") {
         app.layer = Some(Box::new(crate::layer::map::Static::edits(ctx, app)));
+    }
+
+    // Autosave
+    if app.primary.map.get_edits().edits_name != "untitled edits" {
+        app.primary.map.save_edits();
     }
 }
 
