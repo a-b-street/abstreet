@@ -72,14 +72,19 @@ pub fn setup(
         );
     }
 
-    let window_size = windowed_context.window().inner_size();
+    let inner_window = windowed_context.window().inner_size();
+    let monitor = event_loop.primary_monitor().size();
+    let initial_size = if cfg!(target_os = "linux") {
+        monitor
+    } else {
+        inner_window
+    };
     println!(
-        "Initial inner window size is {:?}, monitor is {:?}, scale factor is {}",
-        window_size,
-        event_loop.primary_monitor().size(),
+        "Inner window size is {:?}, monitor is {:?}, scale factor is {}",
+        inner_window,
+        monitor,
         windowed_context.window().scale_factor()
     );
-
     (
         PrerenderInnards {
             gl,
@@ -88,7 +93,7 @@ pub fn setup(
             total_bytes_uploaded: Cell::new(0),
         },
         event_loop,
-        ScreenDims::new(window_size.width.into(), window_size.height.into()),
+        ScreenDims::new(initial_size.width.into(), initial_size.height.into()),
     )
 }
 

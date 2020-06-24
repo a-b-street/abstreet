@@ -68,11 +68,17 @@ pub fn setup(
     )
     .unwrap();
 
-    let window_size = display.gl_window().window().inner_size();
+    let inner_window = display.gl_window().window().inner_size();
+    let monitor = event_loop.primary_monitor().size();
+    let initial_size = if cfg!(target_os = "linux") {
+        monitor
+    } else {
+        inner_window
+    };
     println!(
-        "Initial inner window size is {:?}, monitor is {:?}, scale factor is {}",
-        window_size,
-        event_loop.primary_monitor().size(),
+        "Inner window size is {:?}, monitor is {:?}, scale factor is {}",
+        inner_window,
+        monitor,
         display.gl_window().window().scale_factor()
     );
     (
@@ -82,7 +88,7 @@ pub fn setup(
             total_bytes_uploaded: Cell::new(0),
         },
         event_loop,
-        ScreenDims::new(window_size.width.into(), window_size.height.into()),
+        ScreenDims::new(initial_size.width.into(), initial_size.height.into()),
     )
 }
 
