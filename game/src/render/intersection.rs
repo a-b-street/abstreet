@@ -6,7 +6,7 @@ use crate::render::{
     draw_signal_phase, DrawOptions, Renderable, CROSSWALK_LINE_THICKNESS, OUTLINE_THICKNESS,
 };
 use abstutil::Timer;
-use ezgui::{Color, Drawable, FancyColor, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, Text};
+use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, Text};
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D, Time, EPSILON_DIST};
 use map_model::raw::DrivingSide;
 use map_model::{
@@ -33,14 +33,7 @@ impl DrawIntersection {
     ) -> DrawIntersection {
         // Order matters... main polygon first, then sidewalk corners.
         let mut default_geom = GeomBatch::new();
-        default_geom.push(
-            if i.is_closed() {
-                cs.under_construction
-            } else {
-                cs.normal_intersection
-            },
-            i.polygon.clone(),
-        );
+        default_geom.push(cs.normal_intersection, i.polygon.clone());
         default_geom.extend(cs.sidewalk, calculate_corners(i, map, timer));
 
         for turn in &map.get_turns_in_intersection(i.id) {
@@ -71,7 +64,15 @@ impl DrawIntersection {
                 }
             }
             IntersectionType::Construction => {
-                default_geom.fancy_push(FancyColor::Hatching, i.polygon.clone());
+                // TODO Centering seems weird
+                default_geom.append(
+                    GeomBatch::mapspace_svg(
+                        prerender,
+                        "../data/system/assets/map/under_construction.svg",
+                    )
+                    .scale(0.08)
+                    .centered_on(i.polygon.center()),
+                );
             }
             IntersectionType::TrafficSignal => {}
         }

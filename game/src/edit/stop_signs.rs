@@ -57,7 +57,7 @@ impl StopSignEditor {
                 } else {
                     Btn::text_fg("reset to default").inactive(ctx)
                 },
-                Btn::text_fg("close intersection for construction").build_def(ctx, None),
+                Btn::text_fg("close intersection for construction").build_def(ctx, hotkey(Key::C)),
                 Btn::text_fg("convert to traffic signal").build_def(ctx, None),
                 Btn::text_fg("Finish").build_def(ctx, hotkey(Key::Escape)),
             ])

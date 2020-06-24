@@ -164,8 +164,7 @@ pub struct Drawable {
 #[derive(Copy, Clone)]
 struct Vertex {
     position: [f32; 2],
-    // Each type of Color encodes something different here. See the actually_upload method and
-    // fragment_140.glsl.
+    // RGBA
     // TODO Make this u8?
     style: [f32; 4],
 }

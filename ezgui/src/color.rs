@@ -24,7 +24,6 @@ impl fmt::Display for Color {
 #[derive(Clone, PartialEq)]
 pub enum FancyColor {
     RGBA(Color),
-    Hatching,
     LinearGradient(LinearGradient),
 }
 
@@ -163,7 +162,6 @@ impl FancyColor {
     pub(crate) fn style(&self, pt: Pt2D) -> [f32; 4] {
         match self {
             FancyColor::RGBA(c) => [c.r, c.g, c.b, c.a],
-            FancyColor::Hatching => [100.0, 0.0, 0.0, 0.0],
             FancyColor::LinearGradient(ref lg) => {
                 let c = lg.interp(pt);
                 [c.r, c.g, c.b, c.a]

@@ -3,7 +3,7 @@ use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use abstutil::Timer;
-use ezgui::{Drawable, FancyColor, GeomBatch, GfxCtx, Prerender, RewriteColor};
+use ezgui::{Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor};
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{Lane, LaneID, LaneType, Map, Road, TurnType, PARKING_SPOT_LENGTH};
 
@@ -19,7 +19,7 @@ pub struct AlmostDrawLane {
 impl AlmostDrawLane {
     pub fn finish(mut self, prerender: &Prerender, _: &ColorScheme, lane: &Lane) -> DrawLane {
         // Need prerender to load the (cached) SVGs
-        if lane.is_bus() {
+        if lane.is_bus() || lane.is_biking() || lane.lane_type == LaneType::Construction {
             let buffer = Distance::meters(2.0);
             let btwn = Distance::meters(30.0);
             let len = lane.lane_center_pts.length();
@@ -27,28 +27,38 @@ impl AlmostDrawLane {
             let mut dist = buffer;
             while dist + buffer <= len {
                 let (pt, angle) = lane.lane_center_pts.dist_along(dist);
-                self.draw_default.append(
-                    GeomBatch::mapspace_svg(prerender, "../data/system/assets/map/bus_only.svg")
+                if lane.is_bus() {
+                    self.draw_default.append(
+                        GeomBatch::mapspace_svg(
+                            prerender,
+                            "../data/system/assets/map/bus_only.svg",
+                        )
                         .scale(0.06)
                         .centered_on(pt)
                         .rotate(angle.shortest_rotation_towards(Angle::new_degs(-90.0))),
-                );
-                dist += btwn;
-            }
-        } else if lane.is_biking() {
-            let buffer = Distance::meters(2.0);
-            let btwn = Distance::meters(30.0);
-            let len = lane.lane_center_pts.length();
-
-            let mut dist = buffer;
-            while dist + buffer <= len {
-                let (pt, angle) = lane.lane_center_pts.dist_along(dist);
-                self.draw_default.append(
-                    GeomBatch::mapspace_svg(prerender, "../data/system/assets/meters/bike.svg")
-                        .scale(0.06)
-                        .centered_on(pt)
-                        .rotate(angle.shortest_rotation_towards(Angle::new_degs(-90.0))),
-                );
+                    );
+                } else if lane.is_biking() {
+                    self.draw_default.append(
+                        GeomBatch::mapspace_svg(prerender, "../data/system/assets/meters/bike.svg")
+                            .scale(0.06)
+                            .centered_on(pt)
+                            .rotate(angle.shortest_rotation_towards(Angle::new_degs(-90.0))),
+                    );
+                } else if lane.lane_type == LaneType::Construction {
+                    // TODO Still not quite centered right, but close enough
+                    self.draw_default.append(
+                        GeomBatch::mapspace_svg(
+                            prerender,
+                            "../data/system/assets/map/under_construction.svg",
+                        )
+                        .scale(0.05)
+                        .rotate_around_batch_center(
+                            angle.shortest_rotation_towards(Angle::new_degs(-90.0)),
+                        )
+                        .autocrop()
+                        .centered_on(pt),
+                    );
+                }
                 dist += btwn;
             }
         }
@@ -94,7 +104,7 @@ impl DrawLane {
                 LaneType::Sidewalk => cs.sidewalk,
                 LaneType::Biking => cs.bike_lane,
                 LaneType::SharedLeftTurn => cs.driving_lane,
-                LaneType::Construction => cs.under_construction,
+                LaneType::Construction => cs.parking_lane,
             },
             polygon.clone(),
         );
@@ -137,10 +147,7 @@ impl DrawLane {
                             .make_polygons(Distance::meters(0.25)),
                     );
                 }
-                LaneType::Construction => {
-                    // TODO Can't put this in ColorScheme without switching to FancyColor
-                    draw.fancy_push(FancyColor::Hatching, polygon.clone());
-                }
+                LaneType::Construction => {}
             };
         }
 

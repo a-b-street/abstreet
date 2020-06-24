@@ -136,18 +136,20 @@ impl Polygon {
     }
 
     pub fn rotate(&self, angle: Angle) -> Polygon {
-        let center = self.center();
+        self.rotate_around(angle, self.center())
+    }
 
+    pub fn rotate_around(&self, angle: Angle, pivot: Pt2D) -> Polygon {
         Polygon {
             points: self
                 .points
                 .iter()
                 .map(|pt| {
-                    let origin_pt = Pt2D::new(pt.x() - center.x(), pt.y() - center.y());
+                    let origin_pt = Pt2D::new(pt.x() - pivot.x(), pt.y() - pivot.y());
                     let (sin, cos) = angle.normalized_radians().sin_cos();
                     Pt2D::new(
-                        center.x() + origin_pt.x() * cos - origin_pt.y() * sin,
-                        center.y() + origin_pt.y() * cos + origin_pt.x() * sin,
+                        pivot.x() + origin_pt.x() * cos - origin_pt.y() * sin,
+                        pivot.y() + origin_pt.y() * cos + origin_pt.x() * sin,
                     )
                 })
                 .collect(),
