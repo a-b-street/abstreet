@@ -41,7 +41,6 @@ pub struct Map {
     bounds: Bounds,
     driving_side: DrivingSide,
 
-    turn_lookup: Vec<TurnID>,
     // TODO Argh, hack, initialization order is hard!
     pathfinder: Option<Pathfinder>,
     pathfinder_dirty: bool,
@@ -136,7 +135,6 @@ impl Map {
             gps_bounds: GPSBounds::new(),
             bounds: Bounds::new(),
             driving_side: DrivingSide::Right,
-            turn_lookup: Vec::new(),
             pathfinder: None,
             pathfinder_dirty: false,
             city_name: "blank city".to_string(),
@@ -363,10 +361,6 @@ impl Map {
 
     pub fn get_traffic_signal(&self, id: IntersectionID) -> &ControlTrafficSignal {
         &self.traffic_signals[&id]
-    }
-
-    pub fn lookup_turn_by_idx(&self, idx: usize) -> Option<TurnID> {
-        self.turn_lookup.get(idx).cloned()
     }
 
     // All these helpers should take IDs and return objects.
@@ -923,7 +917,6 @@ fn make_half_map(
         gps_bounds,
         bounds,
         driving_side: raw.driving_side,
-        turn_lookup: Vec::new(),
         pathfinder: None,
         pathfinder_dirty: false,
         city_name: raw.city_name.clone(),
@@ -1102,15 +1095,10 @@ fn make_half_map(
         for t in make::turns::make_all_turns(map.driving_side, i, &map.roads, &map.lanes, timer) {
             assert!(!map.turns.contains_key(&t.id));
             i.turns.insert(t.id);
+            if t.geom.length() < geom::EPSILON_DIST {
+                timer.warn(format!("{} is a very short turn", t.id));
+            }
             map.turns.insert(t.id, t);
-        }
-    }
-
-    for t in map.turns.values_mut() {
-        t.lookup_idx = map.turn_lookup.len();
-        map.turn_lookup.push(t.id);
-        if t.geom.length() < geom::EPSILON_DIST {
-            timer.warn(format!("u{} is a very short turn", t.lookup_idx));
         }
     }
 
@@ -1371,8 +1359,6 @@ fn recalculate_turns(
         }
         map.turns.insert(t.id, t);
     }
-
-    // TODO Deal with turn_lookup
 
     match i.intersection_type {
         IntersectionType::StopSign => {

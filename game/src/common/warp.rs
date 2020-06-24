@@ -146,10 +146,6 @@ fn inner_warp(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Transitio
                     }
                 })));
             }
-            'T' => {
-                let t = app.primary.map.lookup_turn_by_idx(idx)?;
-                ID::Turn(t)
-            }
             _ => {
                 return None;
             }

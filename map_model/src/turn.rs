@@ -75,9 +75,6 @@ pub struct Turn {
     // Empty except for TurnType::Crosswalk. Usually just one other ID, except for the case of 4
     // duplicates at a degenerate intersection.
     pub other_crosswalk_ids: BTreeSet<TurnID>,
-
-    // Just for convenient debugging lookup.
-    pub lookup_idx: usize,
 }
 
 impl Turn {

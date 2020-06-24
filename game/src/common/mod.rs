@@ -144,16 +144,6 @@ impl CommonState {
             ID::ParkingLot(pl) => {
                 osd.append(Line(pl.to_string()).fg(id_color));
             }
-            ID::Turn(t) => {
-                // Only selectable in dev mode anyway
-                osd.append_all(vec![
-                    Line(format!("TurnID({})", map.get_t(t).lookup_idx)).fg(id_color),
-                    Line(" between "),
-                    Line(map.get_parent(t.src).get_name()).fg(name_color),
-                    Line(" and "),
-                    Line(map.get_parent(t.dst).get_name()).fg(name_color),
-                ]);
-            }
             ID::Intersection(i) => {
                 if map.get_i(i).is_border() {
                     osd.append(Line("Border "));

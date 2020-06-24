@@ -289,7 +289,6 @@ impl DrawMap {
             ID::Intersection(id) => {
                 return Some(self.get_i(id));
             }
-            ID::Turn(_) => unreachable!(),
             ID::Building(id) => {
                 return Some(self.get_b(id));
             }

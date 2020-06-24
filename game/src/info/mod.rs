@@ -84,7 +84,6 @@ impl Tab {
             ID::Road(_) => unreachable!(),
             ID::Lane(l) => Tab::LaneInfo(l),
             ID::Intersection(i) => Tab::IntersectionInfo(i),
-            ID::Turn(_) => unreachable!(),
             ID::Building(b) => Tab::BldgInfo(b),
             ID::ParkingLot(b) => Tab::ParkingLot(b),
             ID::Car(c) => {

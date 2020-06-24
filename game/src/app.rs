@@ -405,7 +405,7 @@ impl App {
                     agents_on.push(Traversable::Lane(map.get_pl(id).driving_pos.lane()));
                 }
 
-                ID::BusStop(_) | ID::Turn(_) | ID::Car(_) | ID::Pedestrian(_) | ID::PedCrowd(_) => {
+                ID::BusStop(_) | ID::Car(_) | ID::Pedestrian(_) | ID::PedCrowd(_) => {
                     panic!("{:?} shouldn't be in the quadtree", id)
                 }
             }

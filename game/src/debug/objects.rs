@@ -79,9 +79,6 @@ impl ObjectDebugger {
                     println!("- {} = {}", road.id, road.orig_id);
                 }
             }
-            ID::Turn(id) => {
-                println!("{}", abstutil::to_json(map.get_t(id)));
-            }
             ID::Building(id) => {
                 println!("{}", abstutil::to_json(map.get_b(id)));
             }
