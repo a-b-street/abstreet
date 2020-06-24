@@ -379,6 +379,9 @@ fn make_load_edits(app: &App, btn: ScreenRectangle, mode: GameplayMode) -> Box<d
                         app.primary.map.get_name(),
                     ))
                     .into_iter()
+                    .chain(abstutil::load_all_objects::<PermanentMapEdits>(
+                        "../data/system/proposals".to_string(),
+                    ))
                     .filter_map(|(path, perma)| {
                         PermanentMapEdits::from_permanent(perma, &app.primary.map)
                             .map(|edits| (path, edits))
