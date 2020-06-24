@@ -15,6 +15,7 @@ pub fn setup(
     let window = winit::window::WindowBuilder::new()
         .with_title(window_title)
         .with_maximized(true);
+    // TODO Need the same fallback as backend_glium
     // multisampling: 2 looks bad, 4 looks fine
     let context = glutin::ContextBuilder::new()
         .with_multisampling(4)

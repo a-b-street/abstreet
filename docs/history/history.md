@@ -29,14 +29,15 @@ antagonistically the city is designed towards walking.) Very early on, I fell in
 love with a Nintendo 64 game called Banjo Kazooie, which led me to the online
 fan communities of the early 2000's. I wanted to create games too, so I started
 learning programming via library books and lots of questions on IRC. Because I
-never had any confidence in art, I wound up working on roguelikes, which led to
-a fervent interest in pathfinding algorithms and
-[collaborative diffusion](http://www.cs.colorado.edu/~ralex/papers/PDF/OOPSLA06antiobjects.pdf).
-When I started driving in high school, I quickly realized how bad people were at
-it. I remember being stuck at the intersection of
-[Florida Blvd and Cloud](https://www.openstreetmap.org/node/1279204989) and
-first wondering if the pathfinding algorithms could help with traffic. Can you
-see where this is going?
+never had any confidence in art, I wound up working on
+[roguelikes](https://github.com/dabreegster/mnemonicrl/), which led to a
+fervent interest in pathfinding algorithms and [collaborative
+diffusion](http://www.cs.colorado.edu/~ralex/papers/PDF/OOPSLA06antiobjects.pdf).
+When I started driving in high school, I quickly realized how bad people were
+at it. I remember being stuck at the intersection of [Florida Blvd and
+Cloud](https://www.openstreetmap.org/node/1279204989) and first wondering if
+the pathfinding algorithms could help with traffic. Can you see where this is
+going?
 
 ![Impatience is a virtue](cloud_florida.jpg)
 

@@ -13,14 +13,25 @@ pub fn setup(
     ScreenDims,
 ) {
     let event_loop = winit::event_loop::EventLoop::new();
-    let window = winit::window::WindowBuilder::new()
-        .with_title(window_title)
-        .with_maximized(true);
-    // multisampling: 2 looks bad, 4 looks fine
-    let context = glutin::ContextBuilder::new()
-        .with_multisampling(4)
-        .with_depth_buffer(2);
-    let display = glium::Display::new(window, context, &event_loop).unwrap();
+    let display = match glium::Display::new(
+        winit::window::WindowBuilder::new().with_title(window_title).with_maximized(true),
+        // multisampling: 2 looks bad, 4 looks fine
+        glutin::ContextBuilder::new().with_multisampling(4).with_depth_buffer(2),
+        &event_loop)
+    {
+        Ok(d) => d,
+        Err(err1) => match glium::Display::new(
+            winit::window::WindowBuilder::new().with_title(window_title).with_maximized(true),
+            glutin::ContextBuilder::new(),
+            &event_loop)
+        {
+            Ok(d) => {
+                println!("Preferred glutin context failed, falling back on default");
+                d
+            }
+            Err(err2) => panic!("Can't create an OpenGL window. Please file an issue at https://github.com/dabreegster/abstreet/issues/ and include output.txt. First attempt {}, second attempt {}", err1, err2),
+        }
+    };
 
     let (vertex_shader, fragment_shader) =
         if display.is_glsl_version_supported(&glium::Version(glium::Api::Gl, 1, 4)) {
