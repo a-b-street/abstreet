@@ -3,6 +3,7 @@ use crate::common::Warping;
 use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use crate::sandbox::{GameplayMode, SandboxMode};
+use abstutil::prettyprint_usize;
 use ezgui::{
     hotkey, AreaSlider, Btn, Choice, Color, Composite, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, PersistentSplit, RewriteColor, Text,
@@ -510,7 +511,7 @@ impl TimeWarpScreen {
                         .build_def(ctx, hotkey(Key::Escape))
                         .centered_horiz(),
                 ])
-                .padding(10)
+                .padding(16)
                 .bg(app.cs.panel_bg),
             )
             .build(ctx),
@@ -553,20 +554,46 @@ impl State for TimeWarpScreen {
                 }
             }
 
-            // I'm covered in shame for not doing this from the start.
-            let mut txt = Text::from(Line("Let's do the time warp again!").small_heading());
-            txt.add(Line(format!(
-                "Simulating until it's {}",
-                self.target.ampm_tostring()
-            )));
-            txt.add(Line(format!(
-                "It's currently {}",
-                app.primary.sim.time().ampm_tostring()
-            )));
-            txt.add(Line(format!(
-                "Have been simulating for {}",
-                Duration::realtime_elapsed(self.started)
-            )));
+            let now = app.primary.sim.time();
+            let (finished_after, _, _) = app.primary.sim.num_trips();
+            let finished_before = if app.has_prebaked().is_some() {
+                let mut cnt = 0;
+                for (t, _, _, _) in &app.prebaked().finished_trips {
+                    if *t > now {
+                        break;
+                    }
+                    cnt += 1;
+                }
+                Some(cnt)
+            } else {
+                None
+            };
+            let txt = Text::from_multiline(vec![
+                // I'm covered in shame for not doing this from the start.
+                Line("Let's do the time warp again!").small_heading(),
+                Line(format!(
+                    "{} / {}",
+                    now.ampm_tostring(),
+                    self.target.ampm_tostring()
+                )),
+                Line(format!(
+                    "Elapsed simulation time: {}",
+                    Duration::realtime_elapsed(self.started)
+                )),
+                if let Some(n) = finished_before {
+                    Line(format!(
+                        "Finished trips: {} ({} compared to before \"{}\")",
+                        prettyprint_usize(finished_after),
+                        compare_count(finished_after, n),
+                        app.primary.map.get_edits().edits_name,
+                    ))
+                } else {
+                    Line(format!(
+                        "Finished trips: {}",
+                        prettyprint_usize(finished_after)
+                    ))
+                },
+            ]);
 
             self.composite
                 .replace(ctx, "text", txt.draw(ctx).named("text"));
@@ -705,4 +732,15 @@ fn area_under_curve(raw: Vec<(Time, usize)>, width: f64, height: f64) -> Polygon
     }
     downsampled.push(downsampled[0]);
     Polygon::new(&downsampled)
+}
+
+// TODO Maybe color, put in helpers
+fn compare_count(after: usize, before: usize) -> String {
+    if after == before {
+        "+0".to_string()
+    } else if after > before {
+        format!("+{}", after - before)
+    } else {
+        format!("-{}", before - after)
+    }
 }

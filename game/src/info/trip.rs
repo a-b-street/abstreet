@@ -570,11 +570,9 @@ fn make_timeline(
     }
 
     let mut col = vec![
-        Widget::row(vec![
-            start_btn,
-            Widget::row(timeline),
-            goal_btn,
-        ]).evenly_spaced().margin_above(25),
+        Widget::row(vec![start_btn, Widget::row(timeline), goal_btn])
+            .evenly_spaced()
+            .margin_above(25),
         Widget::row(vec![
             start_time.ampm_tostring().draw_text(ctx),
             if let Some(t) = end_time {
