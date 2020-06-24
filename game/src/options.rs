@@ -2,7 +2,8 @@ use crate::app::App;
 use crate::colors::ColorSchemeChoice;
 use crate::game::{State, Transition};
 use ezgui::{
-    hotkey, Btn, Checkbox, Choice, Composite, EventCtx, GfxCtx, Key, Line, Outcome, TextExt, Widget,
+    hotkey, Btn, Checkbox, Choice, Composite, EventCtx, GfxCtx, Key, Line, Outcome, Spinner,
+    TextExt, Widget,
 };
 use geom::Duration;
 
@@ -94,7 +95,16 @@ impl OptionsPanel {
                             "Use arrow keys to pan and Q/W to zoom",
                             None,
                             ctx.canvas.keys_to_pan,
-                        ),
+                        )
+                        .margin_below(10),
+                        Widget::row(vec![
+                            "Scroll speed for menus"
+                                .draw_text(ctx)
+                                .centered_vert()
+                                .margin_right(10),
+                            Spinner::new(ctx, (1, 50), ctx.canvas.gui_scroll_speed)
+                                .named("gui_scroll_speed"),
+                        ]),
                     ])
                     .bg(app.cs.section_bg)
                     .padding(8)
@@ -227,6 +237,7 @@ impl State for OptionsPanel {
                         .composite
                         .is_checked("Use arrow keys to pan and Q/W to zoom");
                     ctx.canvas.edge_auto_panning = self.composite.is_checked("autopan");
+                    ctx.canvas.gui_scroll_speed = self.composite.spinner("gui_scroll_speed");
 
                     app.opts.label_roads = self.composite.is_checked("Draw road names");
                     let style = self.composite.dropdown_value("Traffic signal rendering");

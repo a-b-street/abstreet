@@ -38,6 +38,7 @@ pub struct Canvas {
     pub touchpad_to_move: bool,
     pub edge_auto_panning: bool,
     pub keys_to_pan: bool,
+    pub gui_scroll_speed: usize,
 
     // TODO Bit weird and hacky to mutate inside of draw() calls.
     pub(crate) covered_areas: RefCell<Vec<ScreenRectangle>>,
@@ -69,6 +70,7 @@ impl Canvas {
             touchpad_to_move: false,
             edge_auto_panning: false,
             keys_to_pan: false,
+            gui_scroll_speed: 5,
 
             covered_areas: RefCell::new(Vec::new()),
 

@@ -66,6 +66,9 @@ impl Event {
                 // This one only happens on Mac. The scrolling is way too fast, so slow it down.
                 // Probably the better way is to convert the LogicalPosition to a PhysicalPosition
                 // somehow knowing the DPI.
+                //
+                // See https://gist.github.com/Pokechu22/2ee22711bec84136e1e94e225bd916b4 for
+                // detailed analysis.
                 MouseScrollDelta::PixelDelta(pos) => {
                     Some(Event::MouseWheelScroll(0.1 * pos.x, 0.1 * pos.y))
                 }

@@ -545,8 +545,6 @@ pub struct Composite {
     clip_rect: Option<ScreenRectangle>,
 }
 
-const SCROLL_SPEED: f64 = 5.0;
-
 impl Composite {
     pub fn new(top_level: Widget) -> CompositeBuilder {
         CompositeBuilder {
@@ -660,12 +658,12 @@ impl Composite {
         {
             if let Some((dx, dy)) = ctx.input.get_mouse_scroll() {
                 let x_offset = if self.scrollable_x {
-                    self.scroll_offset().0 + dx * SCROLL_SPEED
+                    self.scroll_offset().0 + dx * (ctx.canvas.gui_scroll_speed as f64)
                 } else {
                     0.0
                 };
                 let y_offset = if self.scrollable_y {
-                    self.scroll_offset().1 - dy * SCROLL_SPEED
+                    self.scroll_offset().1 - dy * (ctx.canvas.gui_scroll_speed as f64)
                 } else {
                     0.0
                 };
