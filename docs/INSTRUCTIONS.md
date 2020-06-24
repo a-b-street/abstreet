@@ -13,16 +13,21 @@ Grab a pre-built binary release -- updated every Sunday, announced at
   https://github.com/dabreegster/abstreet/releases/download/v0.2.0a/abstreet_windows_v0_2_0d.zip
   - If the game immediately crashes, it might be a
     [graphics card problem](https://github.com/dabreegster/abstreet/issues/79).
+  - Unzip the folder, then run `play_abstreet.bat`. You'll probably getting a
+    warning about running software from an unknown publisher.
 - Mac:
   https://github.com/dabreegster/abstreet/releases/download/v0.2.0a/abstreet_mac_v0_2_0a.zip
+  - Unzip the directory, then run `play_abstreet.sh`.
+  - If that just opens a text file instead of running the game, then instead
+    open terminal, `cd` to the directory you just unzipped. Then do:
+    `cd game; RUST_BACKTRACE=1 ./game 1> ../output.txt 2>&1`
+  - [Help needed](https://github.com/dabreegster/abstreet/issues/66) to package
+    this as a Mac .app, to make this process simpler
 - Linux:
   https://github.com/dabreegster/abstreet/releases/download/v0.2.0a/abstreet_linux_v0_2_0a.zip
+  - Unzip the directory, then run `play_abstreet.sh`.
 
-Unzip the folder, then run `play_abstreet.sh` or `play_abstreet.bat`. On
-Windows, you'll probably get a warning about running software from an unknown
-publisher.
-
-Or you can [build from source](/docs/dev.md).
+Or you can [compile from source](/docs/dev.md).
 
 ## Playing the game
 

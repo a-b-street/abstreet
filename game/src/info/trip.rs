@@ -185,7 +185,7 @@ pub fn future(
                     start_time.ampm_tostring()
                 ))))
                 .build(ctx, format!("wait for {}", trip), None)
-                .margin(5),
+                .margin_above(10),
         );
         details
             .time_warpers
@@ -569,11 +569,12 @@ fn make_timeline(
         }
     }
 
-    timeline.insert(0, start_btn.margin(5));
-    timeline.push(goal_btn.margin(5));
-
     let mut col = vec![
-        Widget::row(timeline).evenly_spaced().margin_above(25),
+        Widget::row(vec![
+            start_btn,
+            Widget::row(timeline),
+            goal_btn,
+        ]).evenly_spaced().margin_above(25),
         Widget::row(vec![
             start_time.ampm_tostring().draw_text(ctx),
             if let Some(t) = end_time {
