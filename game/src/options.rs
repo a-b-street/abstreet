@@ -11,6 +11,7 @@ use geom::Duration;
 #[derive(Clone)]
 pub struct Options {
     pub dev: bool,
+    pub debug_all_agents: bool,
 
     pub label_roads: bool,
     pub traffic_signal_style: TrafficSignalStyle,
@@ -26,6 +27,7 @@ impl Options {
     pub fn default() -> Options {
         Options {
             dev: false,
+            debug_all_agents: false,
 
             label_roads: true,
             traffic_signal_style: TrafficSignalStyle::BAP,
@@ -64,8 +66,6 @@ impl OptionsPanel {
                             .align_right(),
                     ])
                     .margin_below(10),
-                    Checkbox::text(ctx, "Enable developer mode", None, app.opts.dev)
-                        .margin_below(10),
                     "Camera controls".draw_text(ctx).margin_below(10),
                     Widget::col(vec![
                         Checkbox::text(
@@ -205,6 +205,21 @@ impl OptionsPanel {
                     .bg(app.cs.section_bg)
                     .padding(8)
                     .margin_below(10),
+                    "Debug".draw_text(ctx).margin_below(10),
+                    Widget::col(vec![
+                        Checkbox::text(ctx, "Enable developer mode", None, app.opts.dev)
+                            .margin_below(10),
+                        Checkbox::text(
+                            ctx,
+                            "Draw all agents to debug geometry (Slow!)",
+                            None,
+                            app.opts.debug_all_agents,
+                        )
+                        .margin_below(10),
+                    ])
+                    .bg(app.cs.section_bg)
+                    .padding(8)
+                    .margin_below(10),
                     Btn::text_bg2("Apply")
                         .build_def(ctx, hotkey(Key::Enter))
                         .centered_horiz(),
@@ -226,6 +241,9 @@ impl State for OptionsPanel {
                 }
                 "Apply" => {
                     app.opts.dev = self.composite.is_checked("Enable developer mode");
+                    app.opts.debug_all_agents = self
+                        .composite
+                        .is_checked("Draw all agents to debug geometry (Slow!)");
 
                     ctx.canvas.invert_scroll = self
                         .composite

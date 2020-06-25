@@ -399,6 +399,8 @@ impl AgentCache {
         acs: &AgentColorScheme,
         g: &mut GfxCtx,
         maybe_radius: Option<Distance>,
+        debug_all_agents: bool,
+        cs: &ColorScheme,
     ) {
         let now = source.time();
         if let Some((time, r, ref orig_acs, ref draw)) = self.unzoomed {
@@ -438,6 +440,20 @@ impl AgentCache {
         let draw = g.upload(batch);
         g.redraw(&draw);
         self.unzoomed = Some((now, maybe_radius, acs.clone(), draw));
+
+        if debug_all_agents {
+            let mut cnt = 0;
+            for input in source.get_all_draw_cars(map) {
+                cnt += 1;
+                draw_vehicle(input, map, g.prerender, cs);
+            }
+            println!(
+                "At {}, debugged {} cars",
+                source.time(),
+                abstutil::prettyprint_usize(cnt)
+            );
+            // Pedestrians aren't the ones crashing
+        }
     }
 }
 

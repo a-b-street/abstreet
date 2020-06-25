@@ -279,6 +279,8 @@ impl Minimap {
             } else {
                 None
             },
+            app.opts.debug_all_agents,
+            &app.cs,
         );
 
         // The cursor

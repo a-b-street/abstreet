@@ -220,6 +220,8 @@ impl App {
                 } else {
                     None
                 },
+                self.opts.debug_all_agents,
+                &self.cs,
             );
         } else {
             let mut cache = self.primary.draw_map.agents.borrow_mut();
