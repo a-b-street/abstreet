@@ -15,7 +15,7 @@ use ezgui::{
 };
 use geom::Pt2D;
 use map_model::{ControlTrafficSignal, NORMAL_LANE_THICKNESS};
-use sim::{AgentID, Sim, TripID};
+use sim::{AgentID, Sim};
 use std::collections::HashSet;
 
 pub struct DebugMode {
@@ -399,23 +399,14 @@ fn load_savestate(wiz: &mut Wizard, ctx: &mut EventCtx, app: &mut App) -> Option
 }
 
 fn calc_all_routes(ctx: &EventCtx, app: &mut App) -> (usize, Drawable) {
-    let trips: Vec<TripID> = app
-        .primary
-        .sim
-        .get_trip_positions(&app.primary.map)
-        .canonical_pt_per_trip
-        .keys()
-        .cloned()
-        .collect();
+    let agents = app.primary.sim.active_agents();
     let mut batch = GeomBatch::new();
     let mut cnt = 0;
     let sim = &app.primary.sim;
     let map = &app.primary.map;
     for maybe_trace in
-        Timer::new("calculate all routes").parallelize("route to geometry", trips, |trip| {
-            sim.trip_to_agent(trip)
-                .ok()
-                .and_then(|agent| sim.trace_route(agent, map, None))
+        Timer::new("calculate all routes").parallelize("route to geometry", agents, |id| {
+            sim.trace_route(id, map, None)
                 .map(|trace| trace.make_polygons(NORMAL_LANE_THICKNESS))
         })
     {

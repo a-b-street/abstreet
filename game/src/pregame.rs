@@ -247,7 +247,10 @@ impl About {
                     Line("A/B STREET").display_title(),
                     Line("Created by Dustin Carlino, UX by Yuwen Li"),
                     Line(""),
-                    Line("Map data from OpenStreetMap and King County GIS"),
+                    Line(
+                        "Data from OpenStreetMap, King County GIS, and Puget Sound Regional \
+                         Council",
+                    ),
                     Line(""),
                     Line(
                         "Disclaimer: This game is based on imperfect data, heuristics concocted \

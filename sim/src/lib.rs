@@ -39,7 +39,6 @@ use map_model::{
     PathConstraints, PathRequest, Position,
 };
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
 use std::fmt;
 
 // http://pccsc.net/bicycle-parking-info/ says 68 inches, which is 1.73m
@@ -534,21 +533,6 @@ impl CreateCar {
             start_dist,
             maybe_parked_car: Some(parked_car),
             trip_and_person: Some((trip, person)),
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize, PartialEq, Clone)]
-pub struct TripPositions {
-    pub time: Time,
-    pub canonical_pt_per_trip: BTreeMap<TripID, Pt2D>,
-}
-
-impl TripPositions {
-    pub(crate) fn new(time: Time) -> TripPositions {
-        TripPositions {
-            time,
-            canonical_pt_per_trip: BTreeMap::new(),
         }
     }
 }

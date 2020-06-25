@@ -3,8 +3,8 @@ use crate::{
     DrawPedestrianInput, DrivingSimState, Event, GetDrawAgents, IntersectionSimState, OrigPersonID,
     PandemicModel, ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, Person, PersonID,
     PersonState, Router, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripEndpoint,
-    TripID, TripManager, TripMode, TripPhaseType, TripPositions, TripResult, TripSpawner,
-    UnzoomedAgent, Vehicle, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH, MIN_CAR_LENGTH,
+    TripID, TripManager, TripMode, TripPhaseType, TripResult, TripSpawner, UnzoomedAgent, Vehicle,
+    VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH, MIN_CAR_LENGTH,
 };
 use abstutil::Timer;
 use derivative::Derivative;
@@ -47,10 +47,6 @@ pub struct Sim {
     #[derivative(PartialEq = "ignore")]
     step_count: usize,
 
-    // Lazily computed.
-    #[derivative(PartialEq = "ignore")]
-    #[serde(skip_serializing, skip_deserializing)]
-    trip_positions: Option<TripPositions>,
     // Don't serialize, to reduce prebaked savestate size. Analytics are saved once covering the
     // full day and can be trimmed to any time.
     #[derivative(PartialEq = "ignore")]
@@ -135,7 +131,6 @@ impl Sim {
             edits_name: "untitled edits".to_string(),
             run_name: opts.run_name,
             step_count: 0,
-            trip_positions: None,
             alerts: opts.alerts,
 
             analytics: Analytics::new(),
@@ -413,7 +408,6 @@ impl Sim {
             }
         }
 
-        self.trip_positions = None;
         halt
     }
 
@@ -1048,21 +1042,6 @@ impl Sim {
             AgentID::Pedestrian(ped) => self.walking.trace_route(self.time, ped, map, dist_ahead),
             AgentID::BusPassenger(_, _) => None,
         }
-    }
-
-    pub fn get_trip_positions(&mut self, map: &Map) -> &TripPositions {
-        if self.trip_positions.is_some() {
-            return self.trip_positions.as_ref().unwrap();
-        }
-
-        let mut trip_positions = TripPositions::new(self.time);
-        self.driving
-            .populate_trip_positions(&mut trip_positions, map);
-        self.walking
-            .populate_trip_positions(&mut trip_positions, map);
-
-        self.trip_positions = Some(trip_positions);
-        self.trip_positions.as_ref().unwrap()
     }
 
     pub fn get_canonical_pt_per_trip(&self, trip: TripID, map: &Map) -> TripResult<Pt2D> {

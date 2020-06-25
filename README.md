@@ -91,6 +91,8 @@ Core team:
 
 Others:
 
+- All
+  [contributors](https://github.com/dabreegster/abstreet/graphs/contributors)
 - Logo by [Ryan Pierson](https://www.ryandpierson.com/)
 - Graphic design advice from [Starcat Games](http://starcatgames.com/),
   [Daniel Huffman](https://somethingaboutmaps.wordpress.com/),
@@ -105,6 +107,9 @@ Others:
   [Anokhee Jandhyala](https://github.com/anokhee/visual-synthesizer)
 - Pandemic modeling by Orestis Malaspinas (<orestis.malaspinas@hesge.ch>)
 - Game design advice from Christopher Klein
+- Lots of help with rendering SVG and fonts from
+  [RazrFalcon](https://github.com/RazrFalcon) and
+  [nical](https://github.com/nical)
 
 Data:
 

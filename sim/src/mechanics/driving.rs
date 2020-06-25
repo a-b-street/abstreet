@@ -3,8 +3,8 @@ use crate::mechanics::Queue;
 use crate::{
     ActionAtEnd, AgentID, AgentProperties, CarID, Command, CreateCar, DistanceInterval,
     DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSimState, PersonID, Scheduler,
-    TimeInterval, TransitSimState, TripManager, TripPositions, UnzoomedAgent, Vehicle,
-    WalkingSimState, FOLLOWING_DISTANCE,
+    TimeInterval, TransitSimState, TripManager, UnzoomedAgent, Vehicle, WalkingSimState,
+    FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Duration, PolyLine, Time};
@@ -831,24 +831,6 @@ impl DrivingSimState {
 
     pub fn does_car_exist(&self, id: CarID) -> bool {
         self.cars.contains_key(&id)
-    }
-
-    pub fn populate_trip_positions(&self, trip_positions: &mut TripPositions, map: &Map) {
-        for queue in self.queues.values() {
-            if queue.cars.is_empty() {
-                continue;
-            }
-
-            for (car, dist) in
-                queue.get_car_positions(trip_positions.time, &self.cars, &self.queues)
-            {
-                if let Some((trip, _)) = self.cars[&car].trip_and_person {
-                    trip_positions
-                        .canonical_pt_per_trip
-                        .insert(trip, queue.id.dist_along(dist, map).0);
-                }
-            }
-        }
     }
 
     pub fn get_all_draw_cars(

@@ -2,7 +2,7 @@ use crate::{
     AgentID, AgentProperties, Command, CreatePedestrian, DistanceInterval, DrawPedCrowdInput,
     DrawPedestrianInput, Event, IntersectionSimState, ParkingSimState, ParkingSpot,
     PedCrowdLocation, PedestrianID, PersonID, Scheduler, SidewalkPOI, SidewalkSpot, TimeInterval,
-    TransitSimState, TripID, TripManager, TripPositions, UnzoomedAgent,
+    TransitSimState, TripID, TripManager, UnzoomedAgent,
 };
 use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
 use geom::{Distance, Duration, Line, PolyLine, Speed, Time};
@@ -387,14 +387,6 @@ impl WalkingSimState {
 
     pub fn does_ped_exist(&self, id: PedestrianID) -> bool {
         self.peds.contains_key(&id)
-    }
-
-    pub fn populate_trip_positions(&self, trip_positions: &mut TripPositions, map: &Map) {
-        for ped in self.peds.values() {
-            trip_positions
-                .canonical_pt_per_trip
-                .insert(ped.trip, ped.get_draw_ped(trip_positions.time, map).pos);
-        }
     }
 
     pub fn get_draw_peds_on(
