@@ -24,12 +24,17 @@ pub fn make_all_buildings(
         query.insert(center);
     }
 
-    // Skip buildings that're too far away from their sidewalk
+    // equiv_pos could be a little closer, so use two buffers
+    let sidewalk_buffer = Distance::meters(7.5);
+    let driveway_buffer = Distance::meters(7.0);
     let sidewalk_pts = find_sidewalk_points(
         map.get_bounds(),
         query,
         map.all_lanes(),
-        Distance::meters(100.0),
+        // Don't put connections too close to intersections
+        sidewalk_buffer,
+        // Try not to skip any buildings, but more than 1km from a sidewalk is a little much
+        Distance::meters(1000.0),
         timer,
     );
 
@@ -74,9 +79,10 @@ pub fn make_all_buildings(
             {
                 let driving_pos = sidewalk_pos.equiv_pos(driving_lane, Distance::ZERO, map);
 
-                let buffer = Distance::meters(7.0);
-                if driving_pos.dist_along() > buffer
-                    && map.get_l(driving_lane).length() - driving_pos.dist_along() > buffer
+                // This shouldn't fail much anymore, unless equiv_pos winds up being pretty
+                // different
+                if driving_pos.dist_along() > driveway_buffer
+                    && map.get_l(driving_lane).length() - driving_pos.dist_along() > driveway_buffer
                 {
                     let driveway_line = PolyLine::new(vec![
                         sidewalk_line.pt1(),
@@ -126,11 +132,14 @@ pub fn make_all_parking_lots(
         query.insert(center);
     }
 
+    let sidewalk_buffer = Distance::meters(7.5);
+    let driveway_buffer = Distance::meters(7.0);
     let sidewalk_pts = find_sidewalk_points(
         map.get_bounds(),
         query,
         map.all_lanes(),
-        Distance::meters(500.0),
+        sidewalk_buffer,
+        Distance::meters(1000.0),
         timer,
     );
 
@@ -160,9 +169,8 @@ pub fn make_all_parking_lots(
             {
                 let driving_pos = sidewalk_pos.equiv_pos(driving_lane, Distance::ZERO, map);
 
-                let buffer = Distance::meters(7.0);
-                if driving_pos.dist_along() > buffer
-                    && map.get_l(driving_lane).length() - driving_pos.dist_along() > buffer
+                if driving_pos.dist_along() > driveway_buffer
+                    && map.get_l(driving_lane).length() - driving_pos.dist_along() > driveway_buffer
                 {
                     driveway = Some((
                         PolyLine::new(vec![

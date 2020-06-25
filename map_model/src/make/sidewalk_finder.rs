@@ -1,6 +1,6 @@
 use crate::{Lane, LaneID, Position};
 use abstutil::Timer;
-use geom::{Bounds, Distance, FindClosest, HashablePt2D};
+use geom::{Bounds, Distance, FindClosest, HashablePt2D, EPSILON_DIST};
 use std::collections::{HashMap, HashSet};
 
 // If the result doesn't contain a requested point, then there was no matching sidewalk close
@@ -9,6 +9,7 @@ pub fn find_sidewalk_points(
     bounds: &Bounds,
     pts: HashSet<HashablePt2D>,
     lanes: &Vec<Lane>,
+    buffer: Distance,
     max_dist_away: Distance,
     timer: &mut Timer,
 ) -> HashMap<HashablePt2D, Position> {
@@ -20,8 +21,13 @@ pub fn find_sidewalk_points(
     timer.start_iter("index lanes", lanes.len());
     for l in lanes {
         timer.next();
-        if l.is_sidewalk() {
-            closest.add(l.id, l.lane_center_pts.points());
+        if l.is_sidewalk() && l.length() > (buffer + EPSILON_DIST) * 2.0 {
+            closest.add(
+                l.id,
+                l.lane_center_pts
+                    .exact_slice(buffer, l.lane_center_pts.length() - buffer)
+                    .points(),
+            );
         }
     }
 

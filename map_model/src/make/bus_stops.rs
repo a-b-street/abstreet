@@ -36,6 +36,7 @@ pub fn make_bus_stops(
         bounds,
         bus_stop_pts,
         map.all_lanes(),
+        Distance::ZERO,
         Distance::meters(10.0),
         timer,
     )

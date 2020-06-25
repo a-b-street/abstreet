@@ -75,6 +75,27 @@ impl Line {
         }
     }
 
+    // TODO Duplicate code, but doesn't panic
+    fn safe_intersection(&self, other: &Line) -> Option<Pt2D> {
+        // From http://bryceboe.com/2006/10/23/line-segment-intersection-algorithm/
+        if is_counter_clockwise(self.pt1(), other.pt1(), other.pt2())
+            == is_counter_clockwise(self.pt2(), other.pt1(), other.pt2())
+            || is_counter_clockwise(self.pt1(), self.pt2(), other.pt1())
+                == is_counter_clockwise(self.pt1(), self.pt2(), other.pt2())
+        {
+            return None;
+        }
+
+        let hit = self.infinite().intersection(&other.infinite())?;
+        if self.contains_pt(hit) {
+            // TODO and other contains pt, then we dont need ccw check thing
+            Some(hit)
+        } else {
+            // TODO Should be impossible?
+            None
+        }
+    }
+
     // An intersection that isn't just two endpoints touching
     pub fn crosses(&self, other: &Line) -> bool {
         if self.pt1() == other.pt1()
@@ -84,7 +105,7 @@ impl Line {
         {
             return false;
         }
-        self.intersection(other).is_some()
+        self.safe_intersection(other).is_some()
     }
 
     // TODO Also return the distance along self

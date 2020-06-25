@@ -469,7 +469,8 @@ fn is_road(tags: &BTreeMap<String, String>) -> bool {
 }
 
 fn is_bldg(tags: &BTreeMap<String, String>) -> bool {
-    tags.contains_key("building")
+    // Sorry, the towers at Gasworks don't count. :)
+    tags.contains_key("building") && !tags.contains_key("abandoned:man_made")
 }
 
 fn get_area_type(tags: &BTreeMap<String, String>) -> Option<AreaType> {
