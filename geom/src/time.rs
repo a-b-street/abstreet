@@ -185,6 +185,10 @@ impl Time {
     pub fn clamped_sub(self, dt: Duration) -> Time {
         Time::seconds_since_midnight((self.0 - dt.inner_seconds()).max(0.0))
     }
+
+    pub fn round_seconds(self, s: f64) -> Time {
+        Time::seconds_since_midnight(s * (self.0 / s).round())
+    }
 }
 
 // 24-hour format by default

@@ -446,7 +446,8 @@ impl State for JumpToTime {
             .primary
             .sim
             .get_end_of_day()
-            .percent_of(self.composite.area_slider("time slider").get_percent());
+            .percent_of(self.composite.area_slider("time slider").get_percent())
+            .round_seconds(600.0);
         if target != self.target {
             self.target = target;
             self.composite.replace(
