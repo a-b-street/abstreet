@@ -56,9 +56,8 @@ impl Event {
                     if dx == 0.0 && dy == 0.0 {
                         None
                     } else {
-                        // TODO Also x?
                         Some(Event::MouseWheelScroll(
-                            f64::from(dx),
+                            scroll_wheel_multiplier() * f64::from(dx),
                             scroll_wheel_multiplier() * f64::from(dy),
                         ))
                     }

@@ -10,7 +10,7 @@ Grab a pre-built binary release -- updated every Sunday, announced at
 [r/abstreet](http://old.reddit.com/r/abstreet):
 
 - Windows:
-  https://github.com/dabreegster/abstreet/releases/download/v0.2.0a/abstreet_windows_v0_2_0d.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.2.0a/abstreet_windows_v0_2_0e.zip
   - If the game immediately crashes, it might be a
     [graphics card problem](https://github.com/dabreegster/abstreet/issues/79).
   - Unzip the folder, then run `play_abstreet.bat`. You'll probably getting a

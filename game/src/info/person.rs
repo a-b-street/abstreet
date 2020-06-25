@@ -384,10 +384,16 @@ pub fn crowd(
             .agent_to_person(AgentID::Pedestrian(*id))
             .unwrap();
         // TODO What other info is useful to summarize?
-        rows.push(Widget::row(vec![
-            format!("{})", idx + 1).draw_text(ctx),
-            Btn::text_fg(person.to_string()).build_def(ctx, None),
-        ]));
+        rows.push(
+            Widget::row(vec![
+                format!("{})", idx + 1)
+                    .draw_text(ctx)
+                    .centered_vert()
+                    .margin_right(10),
+                Btn::text_fg(person.to_string()).build_def(ctx, None),
+            ])
+            .margin_below(10),
+        );
         details.hyperlinks.insert(
             person.to_string(),
             Tab::PersonTrips(
