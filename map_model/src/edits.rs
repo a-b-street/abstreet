@@ -270,7 +270,7 @@ enum PermanentEditCmd {
 }
 
 impl PermanentMapEdits {
-    fn to_permanent(edits: &MapEdits, map: &Map) -> PermanentMapEdits {
+    pub fn to_permanent(edits: &MapEdits, map: &Map) -> PermanentMapEdits {
         PermanentMapEdits {
             map_name: map.get_name().to_string(),
             edits_name: edits.edits_name.clone(),

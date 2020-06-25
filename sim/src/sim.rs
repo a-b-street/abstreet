@@ -715,9 +715,6 @@ impl Sim {
     }
 
     pub fn dump_before_abort(&self) {
-        println!(
-            "********************************************************************************"
-        );
         println!("At {}", self.time);
         if let Some(path) = self.find_previous_savestate(self.time) {
             println!("Debug from {}", path);

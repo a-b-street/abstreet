@@ -5,6 +5,7 @@ use crate::render::DrawOptions;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use ezgui::{Canvas, Drawable, EventCtx, EventLoopMode, GfxCtx, Wizard, GUI};
 use geom::Polygon;
+use map_model::PermanentMapEdits;
 
 // This is the top-level of the GUI logic. This module should just manage interactions between the
 // top-level game states.
@@ -189,12 +190,49 @@ impl GUI for Game {
     }
 
     fn dump_before_abort(&self, canvas: &Canvas) {
+        println!();
         println!(
             "********************************************************************************"
         );
-        println!("UI broke! Primary sim:");
-        self.app.primary.sim.dump_before_abort();
         canvas.save_camera_state(self.app.primary.map.get_name());
+        println!(
+            "Crash! Please report to https://github.com/dabreegster/abstreet/issues/ and include \
+             all output.txt; at least everything below here!"
+        );
+
+        println!();
+        self.app.primary.sim.dump_before_abort();
+
+        println!();
+        println!("Camera:");
+        println!(
+            r#"{{ "cam_x": {}, "cam_y": {}, "cam_zoom": {} }}"#,
+            canvas.cam_x, canvas.cam_y, canvas.cam_zoom
+        );
+
+        println!();
+        if self.app.primary.map.get_edits().commands.is_empty() {
+            println!("No edits");
+        } else {
+            println!("Edits:");
+            println!(
+                "{}",
+                abstutil::to_json(&PermanentMapEdits::to_permanent(
+                    self.app.primary.map.get_edits(),
+                    &self.app.primary.map
+                ))
+            );
+        }
+
+        // Repeat, because it can be hard to see the top of the report if it's long
+        println!();
+        println!(
+            "Crash! Please report to https://github.com/dabreegster/abstreet/issues/ and include \
+             all output.txt; at least everything above here until the start of the report!"
+        );
+        println!(
+            "********************************************************************************"
+        );
     }
 
     fn before_quit(&self, canvas: &Canvas) {
