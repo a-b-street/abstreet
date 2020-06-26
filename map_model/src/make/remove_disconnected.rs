@@ -14,7 +14,17 @@ pub fn remove_disconnected_roads(map: &mut RawMap, timer: &mut Timer) {
     }
 
     let mut partitions: Vec<Vec<OriginalRoad>> = Vec::new();
-    let mut unvisited_roads: BTreeSet<OriginalRoad> = map.roads.keys().cloned().collect();
+    let mut unvisited_roads: BTreeSet<OriginalRoad> = map
+        .roads
+        .iter()
+        .filter_map(|(id, r)| {
+            if r.osm_tags.get("railway") == Some(&"light_rail".to_string()) {
+                None
+            } else {
+                Some(*id)
+            }
+        })
+        .collect();
 
     while !unvisited_roads.is_empty() {
         let mut queue_roads: Vec<OriginalRoad> = vec![*unvisited_roads.iter().next().unwrap()];

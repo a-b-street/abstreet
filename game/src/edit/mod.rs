@@ -469,6 +469,7 @@ pub fn can_edit_lane(mode: &GameplayMode, l: LaneID, app: &App) -> bool {
     mode.can_edit_lanes()
         && !app.primary.map.get_l(l).is_sidewalk()
         && app.primary.map.get_l(l).lane_type != LaneType::SharedLeftTurn
+        && app.primary.map.get_l(l).lane_type != LaneType::LightRail
 }
 
 pub fn close_intersection(

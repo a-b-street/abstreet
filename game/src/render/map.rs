@@ -66,7 +66,11 @@ impl DrawMap {
         let mut all_roads = GeomBatch::new();
         for r in road_refs {
             all_roads.push(
-                osm_rank_to_color(cs, r.get_rank()),
+                if r.is_light_rail() {
+                    cs.light_rail_track
+                } else {
+                    osm_rank_to_color(cs, r.get_rank())
+                },
                 r.get_thick_polygon(map).get(timer),
             );
             /*if false {

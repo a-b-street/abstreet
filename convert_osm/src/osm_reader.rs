@@ -168,6 +168,16 @@ pub fn extract_osm(
                     complicated_turn_restrictions: Vec::new(),
                 },
             ));
+        } else if tags.get("railway") == Some(&"light_rail".to_string()) {
+            roads.push((
+                way.id,
+                RawRoad {
+                    center_points: pts,
+                    osm_tags: tags,
+                    turn_restrictions: Vec::new(),
+                    complicated_turn_restrictions: Vec::new(),
+                },
+            ));
         } else if is_bldg(&tags) {
             let mut deduped = pts.clone();
             deduped.dedup();

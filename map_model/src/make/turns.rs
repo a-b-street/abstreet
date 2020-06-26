@@ -118,6 +118,7 @@ fn make_vehicle_turns(
             lane_types.insert(lt);
         }
     }
+    lane_types.remove(&LaneType::LightRail);
     lane_types.remove(&LaneType::Parking);
     lane_types.remove(&LaneType::SharedLeftTurn);
     lane_types.remove(&LaneType::Construction);

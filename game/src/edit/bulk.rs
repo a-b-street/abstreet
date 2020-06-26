@@ -155,7 +155,9 @@ impl State for RouteSelect {
 fn pathfind(map: &Map, i1: IntersectionID, i2: IntersectionID) -> Option<Vec<RoadID>> {
     let mut graph: UnGraphMap<IntersectionID, RoadID> = UnGraphMap::new();
     for r in map.all_roads() {
-        graph.add_edge(r.src_i, r.dst_i, r.id);
+        if !r.is_light_rail() {
+            graph.add_edge(r.src_i, r.dst_i, r.id);
+        }
     }
     let (_, path) = petgraph::algo::astar(
         &graph,
@@ -330,6 +332,11 @@ impl State for PaintSelect {
                 app.primary.current_selection = Some(ID::Road(app.primary.map.get_l(l).parent));
             } else {
                 app.primary.current_selection = None;
+            }
+            if let Some(ID::Road(r)) = app.primary.current_selection {
+                if app.primary.map.get_r(r).is_light_rail() {
+                    app.primary.current_selection = None;
+                }
             }
         }
 

@@ -21,14 +21,15 @@ impl DrawRoad {
         let center = r.get_current_center(map);
         let width = Distance::meters(0.25);
         // If the road is a one-way (only parking and sidewalk on the off-side), draw a solid line
-        // No center line at all if there's a shared left turn lane
-        if r.children_backwards
-            .iter()
-            .all(|(_, lt)| *lt == LaneType::Parking || *lt == LaneType::Sidewalk)
+        // No center line at all if there's a shared left turn lane or it's light rail
+        if !r.is_light_rail()
+            && r.children_backwards
+                .iter()
+                .all(|(_, lt)| *lt == LaneType::Parking || *lt == LaneType::Sidewalk)
         {
             draw.push(cs.road_center_line, center.make_polygons(width));
         } else if r.children_forwards.is_empty()
-            || r.children_forwards[0].1 != LaneType::SharedLeftTurn
+            || (r.children_forwards[0].1 != LaneType::SharedLeftTurn && !r.is_light_rail())
         {
             draw.extend(
                 cs.road_center_line,
@@ -59,18 +60,7 @@ impl Renderable for DrawRoad {
             if label.is_none() {
                 let mut batch = GeomBatch::new();
                 let r = app.primary.map.get_r(self.id);
-
-                if false {
-                    // Style 1: banner
-                    let mut txt = Text::new().with_bg();
-                    txt.add(Line(r.get_name()));
-                    batch.append(
-                        txt.render_to_batch(g.prerender)
-                            .scale(0.1)
-                            .centered_on(r.center_pts.middle()),
-                    );
-                } else {
-                    // Style 2: Yellow center-line
+                if !r.is_light_rail() {
                     let name = r.get_name();
                     if r.center_pts.length() >= Distance::meters(30.0) && name != "???" {
                         // TODO If it's definitely straddling bus/bike lanes, change the color? Or

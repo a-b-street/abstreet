@@ -45,6 +45,7 @@ impl abstutil::Cloneable for Value {}
 
 impl ParkingMapper {
     pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
+        app.primary.current_selection = None;
         ParkingMapper::make(ctx, app, Show::TODO, BTreeMap::new())
     }
 
@@ -69,6 +70,9 @@ impl ParkingMapper {
         let mut done = HashSet::new();
         let mut todo = HashSet::new();
         for r in map.all_roads() {
+            if r.is_light_rail() {
+                continue;
+            }
             if r.osm_tags.contains_key(osm::INFERRED_PARKING)
                 && !data.contains_key(&r.orig_id.osm_way_id)
             {
@@ -268,7 +272,7 @@ impl State for ParkingMapper {
 
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
-            let maybe_r = match app.calculate_current_selection(
+            let mut maybe_r = match app.calculate_current_selection(
                 ctx,
                 &DontDrawAgents {},
                 &ShowEverything::new(),
@@ -280,6 +284,11 @@ impl State for ParkingMapper {
                 Some(ID::Lane(l)) => Some(map.get_l(l).parent),
                 _ => None,
             };
+            if let Some(r) = maybe_r {
+                if map.get_r(r).is_light_rail() {
+                    maybe_r = None;
+                }
+            }
             if let Some(id) = maybe_r {
                 if self
                     .selected

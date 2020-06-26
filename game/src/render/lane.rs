@@ -96,18 +96,21 @@ impl DrawLane {
         let polygon = lane.lane_center_pts.make_polygons(lane.width);
 
         let mut draw = GeomBatch::new();
-        draw.push(
-            match lane.lane_type {
-                LaneType::Driving => cs.driving_lane,
-                LaneType::Bus => cs.bus_lane,
-                LaneType::Parking => cs.parking_lane,
-                LaneType::Sidewalk => cs.sidewalk,
-                LaneType::Biking => cs.bike_lane,
-                LaneType::SharedLeftTurn => cs.driving_lane,
-                LaneType::Construction => cs.parking_lane,
-            },
-            polygon.clone(),
-        );
+        if lane.lane_type != LaneType::LightRail {
+            draw.push(
+                match lane.lane_type {
+                    LaneType::Driving => cs.driving_lane,
+                    LaneType::Bus => cs.bus_lane,
+                    LaneType::Parking => cs.parking_lane,
+                    LaneType::Sidewalk => cs.sidewalk,
+                    LaneType::Biking => cs.bike_lane,
+                    LaneType::SharedLeftTurn => cs.driving_lane,
+                    LaneType::Construction => cs.parking_lane,
+                    LaneType::LightRail => unreachable!(),
+                },
+                polygon.clone(),
+            );
+        }
         if draw_lane_markings {
             match lane.lane_type {
                 LaneType::Sidewalk => {
@@ -148,6 +151,37 @@ impl DrawLane {
                     );
                 }
                 LaneType::Construction => {}
+                LaneType::LightRail => {
+                    let track_width = lane.width / 4.0;
+                    draw.push(
+                        cs.light_rail_track,
+                        lane.lane_center_pts
+                            .shift_right((lane.width - track_width) / 2.5)
+                            .get(timer)
+                            .make_polygons(track_width),
+                    );
+                    draw.push(
+                        cs.light_rail_track,
+                        lane.lane_center_pts
+                            .shift_left((lane.width - track_width) / 2.5)
+                            .get(timer)
+                            .make_polygons(track_width),
+                    );
+
+                    // Start away from the intersections
+                    let tile_every = Distance::meters(3.0);
+                    let mut dist_along = tile_every;
+                    while dist_along < lane.lane_center_pts.length() - tile_every {
+                        let (pt, angle) = lane.dist_along(dist_along);
+                        // Reuse perp_line. Project away an arbitrary amount
+                        let pt2 = pt.project_away(Distance::meters(1.0), angle);
+                        draw.push(
+                            cs.light_rail_track,
+                            perp_line(Line::new(pt, pt2), lane.width).make_polygons(track_width),
+                        );
+                        dist_along += tile_every;
+                    }
+                }
             };
         }
 

@@ -449,4 +449,8 @@ impl Road {
         }
         grade
     }
+
+    pub fn is_light_rail(&self) -> bool {
+        !self.children_forwards.is_empty() && self.children_forwards[0].1 == LaneType::LightRail
+    }
 }

@@ -33,6 +33,7 @@ pub enum LaneType {
     Bus,
     SharedLeftTurn,
     Construction,
+    LightRail,
 }
 
 impl LaneType {
@@ -45,6 +46,7 @@ impl LaneType {
             LaneType::Sidewalk => false,
             LaneType::SharedLeftTurn => false,
             LaneType::Construction => false,
+            LaneType::LightRail => true,
         }
     }
 
@@ -57,6 +59,7 @@ impl LaneType {
             LaneType::Sidewalk => true,
             LaneType::SharedLeftTurn => false,
             LaneType::Construction => false,
+            LaneType::LightRail => true,
         }
     }
 
@@ -69,6 +72,7 @@ impl LaneType {
             LaneType::Sidewalk => "a sidewalk",
             LaneType::SharedLeftTurn => "a shared left-turn lane",
             LaneType::Construction => "a lane that's closed for construction",
+            LaneType::LightRail => "a light rail track",
         }
     }
 
@@ -81,6 +85,7 @@ impl LaneType {
             LaneType::Sidewalk => "sidewalk",
             LaneType::SharedLeftTurn => "left-turn lane",
             LaneType::Construction => "construction",
+            LaneType::LightRail => "light rail track",
         }
     }
 }

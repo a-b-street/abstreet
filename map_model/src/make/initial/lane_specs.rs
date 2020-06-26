@@ -14,6 +14,9 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
     }
 
     // Easy special cases first.
+    if osm_tags.get("railway") == Some(&"light_rail".to_string()) {
+        return (vec![LaneType::LightRail], Vec::new());
+    }
     if osm_tags.get("junction") == Some(&"roundabout".to_string()) {
         return (vec![LaneType::Driving, LaneType::Sidewalk], Vec::new());
     }
@@ -209,6 +212,7 @@ impl RoadSpec {
             LaneType::Bus => 'u',
             LaneType::SharedLeftTurn => 'l',
             LaneType::Construction => 'c',
+            LaneType::LightRail => 'r',
         }
     }
 
@@ -221,6 +225,7 @@ impl RoadSpec {
             'u' => Some(LaneType::Bus),
             'l' => Some(LaneType::SharedLeftTurn),
             'c' => Some(LaneType::Construction),
+            'r' => Some(LaneType::LightRail),
             _ => None,
         }
     }

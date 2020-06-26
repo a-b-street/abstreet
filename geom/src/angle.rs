@@ -63,11 +63,14 @@ impl Angle {
     // sure the text is never upside-down.
     pub fn reorient(self) -> Angle {
         let theta = self.normalized_degrees().rem_euclid(360.0);
-        if theta > 90.0 || theta > 270.0 {
-            self.opposite()
-        } else {
-            self
+        let mut result = self;
+        if theta > 90.0 {
+            result = result.opposite();
         }
+        if theta > 270.0 {
+            result = result.opposite();
+        }
+        result
     }
 }
 

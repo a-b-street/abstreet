@@ -71,7 +71,8 @@ impl Ring {
         self.pts
     }
 
-    // The order of results isn't meaningful. Dedupes.
+    // Be careful with the order of results. Hits on an earlier line segment of other show up first,
+    // but if the ring hits a line segment at multiple points, who knows. Dedupes.
     pub fn all_intersections(&self, other: &PolyLine) -> Vec<Pt2D> {
         let mut hits = Vec::new();
         let mut seen = HashSet::new();
