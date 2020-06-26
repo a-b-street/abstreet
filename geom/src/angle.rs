@@ -58,6 +58,17 @@ impl Angle {
             ((self.normalized_degrees() - other.normalized_degrees() + 540.0) % 360.0) - 180.0;
         rotation.abs() < within_degrees
     }
+
+    // I don't know how to describe what this does. Use for rotating labels in map-space and making
+    // sure the text is never upside-down.
+    pub fn reorient(self) -> Angle {
+        let theta = self.normalized_degrees().rem_euclid(360.0);
+        if theta > 90.0 || theta > 270.0 {
+            self.opposite()
+        } else {
+            self
+        }
+    }
 }
 
 impl fmt::Display for Angle {
