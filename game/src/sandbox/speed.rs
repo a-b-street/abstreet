@@ -582,6 +582,7 @@ impl State for TimeWarpScreen {
                     Duration::realtime_elapsed(self.started)
                 )),
                 if let Some(n) = finished_before {
+                    // TODO Underline
                     Line(format!(
                         "Finished trips: {} ({} compared to before \"{}\")",
                         prettyprint_usize(finished_after),

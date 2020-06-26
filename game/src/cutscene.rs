@@ -184,7 +184,7 @@ fn make_panel(
     let inner = if idx == scenes.len() {
         Widget::col(vec![
             (make_task)(ctx),
-            Btn::text_fg_line("Start", Line("Start").fg(Color::BLACK))
+            Btn::txt("Start", Text::from(Line("Start").fg(Color::BLACK)))
                 .build_def(ctx, hotkey(Key::Enter))
                 .centered_horiz()
                 .align_bottom(),
@@ -225,9 +225,12 @@ fn make_panel(
                 Widget::row(vec![prev.margin_right(15), next])
                     .centered_horiz()
                     .margin_below(10),
-                Btn::text_fg_line("Skip cutscene", Line("Skip cutscene").fg(Color::BLACK))
-                    .build_def(ctx, None)
-                    .centered_horiz(),
+                Btn::txt(
+                    "Skip cutscene",
+                    Text::from(Line("Skip cutscene").fg(Color::BLACK)),
+                )
+                .build_def(ctx, None)
+                .centered_horiz(),
             ])
             .align_bottom(),
         ])
@@ -264,7 +267,7 @@ impl FYI {
             composite: Composite::new(
                 Widget::col(vec![
                     contents,
-                    Btn::text_fg_line("Okay", Line("Okay").fg(Color::BLACK))
+                    Btn::txt("Okay", Text::from(Line("Okay").fg(Color::BLACK)))
                         .build_def(ctx, hotkeys(vec![Key::Escape, Key::Space, Key::Enter]))
                         .centered_horiz()
                         .align_bottom(),

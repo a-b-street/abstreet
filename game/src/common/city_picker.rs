@@ -61,7 +61,7 @@ impl CityPicker {
         let mut this_city = vec![];
         for name in abstutil::list_all_objects(abstutil::path_all_maps()) {
             if let Some((_, color, _)) = regions.iter().find(|(n, _, _)| &name == n) {
-                let btn = Btn::text_fg_line(&name, Line(nice_map_name(&name)).fg(*color))
+                let btn = Btn::txt(&name, Text::from(Line(nice_map_name(&name)).fg(*color)))
                     .tooltip(Text::new());
                 this_city.push(
                     if &name == app.primary.map.get_name() {
@@ -73,9 +73,9 @@ impl CityPicker {
                 );
             } else {
                 other_cities.push(
-                    Btn::text_fg(nice_map_name(&name))
+                    Btn::txt(&name, Text::from(Line(nice_map_name(&name))))
                         .tooltip(Text::new())
-                        .build(ctx, name, None)
+                        .build_def(ctx, None)
                         .margin_below(5),
                 );
             }

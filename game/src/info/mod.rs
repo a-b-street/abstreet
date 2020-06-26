@@ -614,13 +614,16 @@ impl DataOptions {
             return Widget::nothing();
         }
         Widget::row(vec![
-            Checkbox::text(
+            Checkbox::custom_text(
                 ctx,
-                format!("Show before \"{}\"", app.primary.map.get_edits().edits_name),
+                "Show before changes",
+                vec![
+                    Line("Show before "),
+                    Line(&app.primary.map.get_edits().edits_name).underlined(),
+                ],
                 None,
                 self.show_before,
-            )
-            .named("Show before changes"),
+            ),
             if self.show_before {
                 Checkbox::text(ctx, "Show full day", None, self.show_end_of_day)
             } else {

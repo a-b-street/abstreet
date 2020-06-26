@@ -1,6 +1,6 @@
 use crate::{
     svg, Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, MultiKey, Outcome,
-    RewriteColor, ScreenDims, ScreenPt, Text, TextSpan, Widget, WidgetImpl, WidgetOutput,
+    RewriteColor, ScreenDims, ScreenPt, Text, Widget, WidgetImpl, WidgetOutput,
 };
 use geom::Polygon;
 
@@ -147,9 +147,8 @@ impl Btn {
         BtnBuilder::TextFG(label.clone(), Text::from(Line(label)), None)
     }
 
-    pub fn text_fg_line<I: Into<String>>(label: I, line: TextSpan) -> BtnBuilder {
-        let label = label.into();
-        BtnBuilder::TextFG(label.clone(), Text::from(line), None)
+    pub fn txt<I: Into<String>>(label: I, txt: Text) -> BtnBuilder {
+        BtnBuilder::TextFG(label.into(), txt, None)
     }
 
     pub fn text_bg<I: Into<String>>(

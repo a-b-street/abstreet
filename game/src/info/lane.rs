@@ -177,7 +177,7 @@ pub fn traffic(
     )));
     rows.push(txt.draw(ctx));
 
-    rows.push(opts.to_controls(ctx, app).margin_below(10));
+    rows.push(opts.to_controls(ctx, app).margin_below(15));
 
     let r = map.get_l(id).parent;
     let time = if opts.show_end_of_day {

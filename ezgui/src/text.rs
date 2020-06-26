@@ -47,6 +47,7 @@ pub struct TextSpan {
     fg_color: Color,
     size: usize,
     font: Font,
+    underlined: bool,
 }
 
 impl TextSpan {
@@ -99,6 +100,11 @@ impl TextSpan {
         self.size = 16;
         self
     }
+
+    pub fn underlined(mut self) -> TextSpan {
+        self.underlined = true;
+        self
+    }
 }
 
 // TODO What's the better way of doing this? Also "Line" is a bit of a misnomer
@@ -109,6 +115,7 @@ pub fn Line<S: Into<String>>(text: S) -> TextSpan {
         fg_color: DEFAULT_FG_COLOR,
         size: DEFAULT_FONT_SIZE,
         font: DEFAULT_FONT,
+        underlined: false,
     }
 }
 
@@ -351,6 +358,7 @@ impl Text {
                             size: span.size,
                             font: span.font,
                             fg_color: span.fg_color,
+                            underlined: false,
                         }],
                         svg::LOW_QUALITY,
                         assets,
@@ -408,9 +416,14 @@ fn render_line(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
     for span in spans {
         write!(
             &mut contents,
-            r##"<tspan fill="{}">{}</tspan>"##,
+            r##"<tspan fill="{}" {}>{}</tspan>"##,
             // TODO Doesn't support alpha
             span.fg_color.to_hex(),
+            if span.underlined {
+                "text-decoration=\"underline\""
+            } else {
+                ""
+            },
             htmlescape::encode_minimal(&span.text)
         )
         .unwrap();

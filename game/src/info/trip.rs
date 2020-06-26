@@ -234,7 +234,8 @@ pub fn finished(
                 Text::from_all(vec![
                     Line("After / "),
                     Line("Before").secondary(),
-                    Line(format!(" \"{}\"", app.primary.map.get_edits().edits_name)),
+                    Line(" "),
+                    Line(&app.primary.map.get_edits().edits_name).underlined(),
                 ]),
                 app.cs.section_bg,
                 app.cs.hovering,
@@ -254,7 +255,8 @@ pub fn finished(
                 Text::from_all(vec![
                     Line("After / ").secondary(),
                     Line("Before"),
-                    Line(format!(" \"{}\"", app.primary.map.get_edits().edits_name)),
+                    Line(" "),
+                    Line(&app.primary.map.get_edits().edits_name).underlined(),
                 ]),
                 app.cs.section_bg,
                 app.cs.hovering,

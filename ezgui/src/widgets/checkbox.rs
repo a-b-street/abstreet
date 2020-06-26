@@ -1,6 +1,6 @@
 use crate::{
-    Btn, Button, Color, EventCtx, GeomBatch, GfxCtx, MultiKey, ScreenDims, ScreenPt, Widget,
-    WidgetImpl, WidgetOutput,
+    Btn, Button, Color, EventCtx, GeomBatch, GfxCtx, Line, MultiKey, ScreenDims, ScreenPt, Text,
+    TextSpan, Widget, WidgetImpl, WidgetOutput,
 };
 use geom::{Polygon, Pt2D};
 
@@ -39,6 +39,28 @@ impl Checkbox {
             enabled,
             Btn::text_fg(format!("[ ] {}", label)).build(ctx, &label, hotkey.clone()),
             Btn::text_fg(format!("[X] {}", label)).build(ctx, &label, hotkey),
+        )
+        .outline(ctx.style().outline_thickness, ctx.style().outline_color)
+        .named(label)
+    }
+
+    pub fn custom_text<I: Into<String>>(
+        ctx: &EventCtx,
+        label: I,
+        spans: Vec<TextSpan>,
+        hotkey: Option<MultiKey>,
+        enabled: bool,
+    ) -> Widget {
+        let label = label.into();
+        let mut off = vec![Line("[ ] ")];
+        let mut on = vec![Line("[X] ")];
+        off.extend(spans.clone());
+        on.extend(spans);
+
+        Checkbox::new(
+            enabled,
+            Btn::txt(&label, Text::from_all(off)).build_def(ctx, hotkey.clone()),
+            Btn::txt(&label, Text::from_all(on)).build_def(ctx, hotkey),
         )
         .outline(ctx.style().outline_thickness, ctx.style().outline_color)
         .named(label)
