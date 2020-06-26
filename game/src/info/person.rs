@@ -156,7 +156,7 @@ pub fn trips(
                     Widget::nothing()
                 },
                 Btn::plaintext(if open_trips.contains_key(t) {
-                    "▼"
+                    "↓"
                 } else {
                     "▲"
                 })

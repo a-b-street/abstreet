@@ -94,11 +94,11 @@ pub fn freeform_controller(
         )
         .margin(5),
         "Map:".draw_text(ctx).margin(5),
-        Btn::text_fg(format!("{} ▼", nice_map_name(app.primary.map.get_name())))
+        Btn::text_fg(format!("{} ↓", nice_map_name(app.primary.map.get_name())))
             .build(ctx, "change map", lctrl(Key::L))
             .margin(5),
         "Traffic:".draw_text(ctx).margin(5),
-        Btn::text_fg(format!("{} ▼", scenario_name))
+        Btn::text_fg(format!("{} ↓", scenario_name))
             .build(ctx, "change traffic", hotkey(Key::S))
             .margin(5),
         Btn::svg_def("../data/system/assets/tools/edit_map.svg")

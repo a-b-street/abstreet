@@ -159,9 +159,9 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
 
 fn make_btn(ctx: &EventCtx, name: &str, label: &str, blank_btn_label: bool) -> Button {
     (if blank_btn_label {
-        Btn::text_fg("▼")
+        Btn::text_fg("↓")
     } else {
-        Btn::text_fg(format!("{} ▼", name))
+        Btn::text_fg(format!("{} ↓", name))
     })
     .build(ctx, label, None)
     .take_btn()

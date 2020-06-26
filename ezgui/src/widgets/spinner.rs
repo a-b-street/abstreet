@@ -27,7 +27,7 @@ impl Spinner {
         let up = Btn::text_fg("▲")
             .build(ctx, "increase value", None)
             .take_btn();
-        let down = Btn::text_fg("▼")
+        let down = Btn::text_fg("↓")
             .build(ctx, "decrease value", None)
             .take_btn();
 

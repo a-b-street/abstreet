@@ -4,7 +4,7 @@ use geom::Bounds;
 use lru::LruCache;
 use std::cell::RefCell;
 use std::collections::HashMap;
-use usvg::Options;
+use usvg::{fontdb, Options};
 
 // TODO We don't need refcell maybe? Can we take &mut Assets?
 pub struct Assets {
@@ -16,6 +16,7 @@ pub struct Assets {
     // Keyed by filename, then scale factor mangled into a hashable form. Tuple doesn't work
     // because of borrowing.
     svg_cache: RefCell<HashMap<String, HashMap<usize, (GeomBatch, Bounds)>>>,
+    font_to_id: HashMap<Font, fontdb::ID>,
     pub text_opts: Options,
 }
 
@@ -28,11 +29,37 @@ impl Assets {
             text_cache: RefCell::new(LruCache::new(500)),
             line_height_cache: RefCell::new(HashMap::new()),
             svg_cache: RefCell::new(HashMap::new()),
+            font_to_id: HashMap::new(),
             text_opts: Options::default(),
         };
+        a.text_opts.fontdb = fontdb::Database::new();
+        a.text_opts.fontdb.load_fonts_dir(font_dir);
+        for font in vec![
+            Font::BungeeInlineRegular,
+            Font::BungeeRegular,
+            Font::OverpassBold,
+            Font::OverpassRegular,
+            Font::OverpassSemiBold,
+        ] {
+            a.font_to_id.insert(
+                font,
+                a.text_opts
+                    .fontdb
+                    .query(&fontdb::Query {
+                        families: &vec![fontdb::Family::Name(font.family())],
+                        weight: match font {
+                            Font::OverpassBold => fontdb::Weight::BOLD,
+                            Font::OverpassSemiBold => fontdb::Weight::SEMIBOLD,
+                            _ => fontdb::Weight::NORMAL,
+                        },
+                        stretch: fontdb::Stretch::Normal,
+                        style: fontdb::Style::Normal,
+                    })
+                    .unwrap(),
+            );
+        }
         *a.default_line_height.borrow_mut() =
             a.line_height(text::DEFAULT_FONT, *a.default_font_size.borrow());
-        a.text_opts.font_directories.push(font_dir);
         a
     }
 
@@ -43,21 +70,20 @@ impl Assets {
             return *height;
         }
 
-        // TODO This is expensive and hacky!
-        let mut db = usvg::Database::new();
-        db.populate(&self.text_opts);
         // This seems to be missing line_gap, and line_gap is 0, so manually adjust here.
-        let height = text::SCALE_LINE_HEIGHT
-            * *self.scale_factor.borrow()
-            * db.load_font_idx(match font {
-                Font::BungeeInlineRegular => 0,
-                Font::BungeeRegular => 1,
-                Font::OverpassBold => 2,
-                Font::OverpassRegular => 3,
-                Font::OverpassSemiBold => 4,
+        let line_height = self
+            .text_opts
+            .fontdb
+            .with_face_data(self.font_to_id[&font], |data, face_index| {
+                let font = ttf_parser::Font::from_data(data, face_index).unwrap();
+                let units_per_em = font.units_per_em().unwrap();
+                let ascent = font.ascender();
+                let descent = font.descender();
+                let scale = (font_size as f64) / (units_per_em as f64);
+                ((ascent - descent) as f64) * scale
             })
-            .unwrap()
-            .height(font_size as f64);
+            .unwrap();
+        let height = text::SCALE_LINE_HEIGHT * *self.scale_factor.borrow() * line_height;
 
         self.line_height_cache.borrow_mut().insert(key, height);
         height

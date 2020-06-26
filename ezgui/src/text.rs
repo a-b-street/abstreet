@@ -29,6 +29,18 @@ pub enum Font {
     OverpassSemiBold,
 }
 
+impl Font {
+    pub fn family(self) -> &'static str {
+        match self {
+            Font::BungeeInlineRegular => "Bungee Inline",
+            Font::BungeeRegular => "Bungee",
+            Font::OverpassBold => "Overpass",
+            Font::OverpassRegular => "Overpass",
+            Font::OverpassSemiBold => "Overpass",
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct TextSpan {
     text: String,
@@ -381,14 +393,13 @@ fn render_line(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
 
     write!(
         &mut svg,
-        r##"<text x="0" y="0" font-size="{}" {}>"##,
+        r##"<text x="0" y="0" font-size="{}" font-family="{}" {}>"##,
         spans[0].size,
+        spans[0].font.family(),
         match spans[0].font {
-            Font::BungeeInlineRegular => "font-family=\"Bungee Inline\"",
-            Font::BungeeRegular => "font-family=\"Bungee\"",
-            Font::OverpassBold => "font-family=\"Overpass\" font-weight=\"bold\"",
-            Font::OverpassRegular => "font-family=\"Overpass\"",
-            Font::OverpassSemiBold => "font-family=\"Overpass\" font-weight=\"600\"",
+            Font::OverpassBold => "font-weight=\"bold\"",
+            Font::OverpassSemiBold => "font-weight=\"600\"",
+            _ => "",
         }
     )
     .unwrap();

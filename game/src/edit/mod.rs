@@ -638,7 +638,7 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Composite {
     let edits = app.primary.map.get_edits();
     let mut col = vec![
         Widget::row(vec![
-            Btn::text_fg(format!("{} ▼", &edits.edits_name))
+            Btn::text_fg(format!("{} ↓", &edits.edits_name))
                 .build(ctx, "load edits", lctrl(Key::L))
                 .margin_right(10),
             Btn::svg_def("../data/system/assets/tools/save.svg")

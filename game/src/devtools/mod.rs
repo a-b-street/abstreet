@@ -38,7 +38,7 @@ impl DevToolsMode {
                     .margin_below(5),
                     Widget::row(vec![
                         "Change map:".draw_text(ctx).margin_right(10),
-                        Btn::text_fg(format!("{} ▼", nice_map_name(app.primary.map.get_name())))
+                        Btn::text_fg(format!("{} ↓", nice_map_name(app.primary.map.get_name())))
                             .build(ctx, "change map", None),
                     ])
                     .margin_below(5),

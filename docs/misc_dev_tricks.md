@@ -145,9 +145,17 @@ java -jar ~/Downloads/josm-tested.jar ~/abstreet/map_editor/diff.osc
 JOSM: Press (and release T), then click to pan. Download a relevant layer,
 select the .osc, merge, then upload.
 
+## Fonts
+
+fontdrop.info
+
 ## Release checklist
 
 What things are sensitive to changes in map data and simulation rules?
 
 - tutorial
 - optimize commute challenges
+
+What things do I always forget to test?
+
+- DPI issues, use `--scale_factor`

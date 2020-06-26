@@ -336,7 +336,7 @@ fn make_panel(
                     GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 30.0))]),
                 )
                 .margin_right(5),
-                Btn::text_fg(format!("{} ▼", story.name))
+                Btn::text_fg(format!("{} ↓", story.name))
                     .build(ctx, "load", lctrl(Key::L))
                     .margin_right(5),
                 if dirty {

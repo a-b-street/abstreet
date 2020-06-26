@@ -27,6 +27,7 @@ serde = "1.0.110"
 simsearch = "0.2.0"
 stdweb  = { version = "0.4.20", optional = true }
 stretch = "0.3.2"
-usvg = { git = "https://github.com/dabreegster/resvg", default-features=false }
+ttf-parser = "0.6.1"
+usvg = { git = "https://github.com/RazrFalcon/resvg", default-features=false }
 webgl_stdweb = { version = "0.3", optional = true }
 winit = "0.22.2"
