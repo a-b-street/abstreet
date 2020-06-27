@@ -105,7 +105,7 @@ fn make_vehicle_turns(
     all_roads: &Vec<Road>,
     lanes: &Vec<Lane>,
     timer: &mut Timer,
-) -> Vec<Turn> {
+) -> impl Iterator<Item=Turn> {
     let sorted_roads: Vec<&Road> = i
         .get_roads_sorted_by_incoming_angle(all_roads)
         .iter()
@@ -259,7 +259,7 @@ fn make_vehicle_turns(
         }
     }
 
-    result.into_iter().filter_map(|x| x).collect()
+    result.into_iter().filter_map(|x| x)
 }
 
 fn make_vehicle_turns_for_dead_end(
