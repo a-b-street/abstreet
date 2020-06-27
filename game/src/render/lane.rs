@@ -184,6 +184,9 @@ impl DrawLane {
                 }
             };
         }
+        if road.is_private() {
+            draw.push(cs.private_road.alpha(0.5), polygon.clone());
+        }
 
         AlmostDrawLane {
             id: lane.id,

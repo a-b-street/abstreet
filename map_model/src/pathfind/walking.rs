@@ -205,7 +205,7 @@ fn make_input_graph(
     let mut input_graph = InputGraph::new();
 
     for l in map.all_lanes() {
-        if l.is_sidewalk() {
+        if l.is_sidewalk() && !map.get_r(l.parent).is_private() {
             let cost = to_s(l.length());
             let n1 = nodes.get(Node::SidewalkEndpoint(l.id, true));
             let n2 = nodes.get(Node::SidewalkEndpoint(l.id, false));

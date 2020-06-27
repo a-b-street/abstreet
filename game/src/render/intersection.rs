@@ -45,6 +45,10 @@ impl DrawIntersection {
             }
         }
 
+        if i.is_private(map) {
+            default_geom.push(cs.private_road.alpha(0.5), i.polygon.clone());
+        }
+
         match i.intersection_type {
             IntersectionType::Border => {
                 let r = map.get_r(*i.roads.iter().next().unwrap());

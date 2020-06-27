@@ -20,6 +20,11 @@ impl DrawRoad {
         let mut draw = GeomBatch::new();
         let center = r.get_current_center(map);
         let width = Distance::meters(0.25);
+        let color = if r.is_private() {
+            cs.road_center_line.lerp(cs.private_road, 0.5)
+        } else {
+            cs.road_center_line
+        };
         // If the road is a one-way (only parking and sidewalk on the off-side), draw a solid line
         // No center line at all if there's a shared left turn lane or it's light rail
         if !r.is_light_rail()
@@ -27,12 +32,12 @@ impl DrawRoad {
                 .iter()
                 .all(|(_, lt)| *lt == LaneType::Parking || *lt == LaneType::Sidewalk)
         {
-            draw.push(cs.road_center_line, center.make_polygons(width));
+            draw.push(color, center.make_polygons(width));
         } else if r.children_forwards.is_empty()
             || (r.children_forwards[0].1 != LaneType::SharedLeftTurn && !r.is_light_rail())
         {
             draw.extend(
-                cs.road_center_line,
+                color,
                 center.dashed_lines(width, Distance::meters(2.0), Distance::meters(1.0)),
             );
         }
@@ -65,8 +70,17 @@ impl Renderable for DrawRoad {
                     if r.center_pts.length() >= Distance::meters(30.0) && name != "???" {
                         // TODO If it's definitely straddling bus/bike lanes, change the color? Or
                         // even easier, just skip the center lines?
-                        let txt = Text::from(Line(name).fg(app.cs.road_center_line))
-                            .bg(app.cs.driving_lane);
+                        let fg = if r.is_private() {
+                            app.cs.road_center_line.lerp(app.cs.private_road, 0.5)
+                        } else {
+                            app.cs.road_center_line
+                        };
+                        let bg = if r.is_private() {
+                            app.cs.driving_lane.lerp(app.cs.private_road, 0.5)
+                        } else {
+                            app.cs.driving_lane
+                        };
+                        let txt = Text::from(Line(name).fg(fg)).bg(bg);
                         let (pt, angle) = r.center_pts.dist_along(r.center_pts.length() / 2.0);
                         batch.append(
                             txt.render_to_batch(g.prerender)

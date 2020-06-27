@@ -13,5 +13,7 @@ void main() {
     //float gray = dot(pass_style.rgb, vec3(0.299, 0.587, 0.114));
     //f_color = vec4(vec3(gray), pass_style.a);
 
+    //f_color = vec4(1.0 - pass_style.r, 1.0 - pass_style.g, 1.0 - pass_style.b, pass_style.a);
+
     f_color = pass_style;
 }

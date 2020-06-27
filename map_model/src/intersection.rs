@@ -60,6 +60,14 @@ impl Intersection {
         self.intersection_type == IntersectionType::TrafficSignal
     }
 
+    pub fn is_light_rail(&self, map: &Map) -> bool {
+        self.roads.iter().all(|r| map.get_r(*r).is_light_rail())
+    }
+
+    pub fn is_private(&self, map: &Map) -> bool {
+        self.roads.iter().all(|r| map.get_r(*r).is_private())
+    }
+
     pub fn get_incoming_lanes(&self, map: &Map, constraints: PathConstraints) -> Vec<LaneID> {
         self.incoming_lanes
             .iter()

@@ -68,6 +68,8 @@ impl DrawMap {
             all_roads.push(
                 if r.is_light_rail() {
                     cs.light_rail_track
+                } else if r.is_private() {
+                    cs.private_road
                 } else {
                     osm_rank_to_color(cs, r.get_rank())
                 },
@@ -118,7 +120,16 @@ impl DrawMap {
             // TODO Would be neat to show closed intersections here, but then edits need to
             // regenerate this
             if i.is_stop_sign() {
-                all_intersections.push(osm_rank_to_color(cs, i.get_rank(map)), i.polygon.clone());
+                all_intersections.push(
+                    if i.is_light_rail(map) {
+                        cs.light_rail_track
+                    } else if i.is_private(map) {
+                        cs.private_road
+                    } else {
+                        osm_rank_to_color(cs, i.get_rank(map))
+                    },
+                    i.polygon.clone(),
+                );
             /*if false {
                 all_intersections.push(
                     color,
