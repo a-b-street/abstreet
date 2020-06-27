@@ -264,8 +264,8 @@ impl Road {
     pub fn all_lanes(&self) -> Vec<LaneID> {
         self.children_forwards
             .iter()
+            .chain(self.children_backwards.iter())
             .map(|(id, _)| *id)
-            .chain(self.children_backwards.iter().map(|(id, _)| *id))
             .collect()
     }
 
