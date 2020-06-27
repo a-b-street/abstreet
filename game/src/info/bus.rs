@@ -48,7 +48,8 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
         if let Some(hgram) = sim
             .get_analytics()
             .bus_passenger_delays(sim.time(), r.id)
-            .remove(&id)
+            .find(|x| x.0==id)
+            .map(|x| x.1)
         {
             txt.add(Line(format!("  Waiting: {}", hgram.describe())).secondary());
         }
@@ -158,7 +159,8 @@ fn passenger_delay(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Bus
         .primary
         .sim
         .get_analytics()
-        .bus_passenger_delays(app.primary.sim.time(), id);
+        .bus_passenger_delays(app.primary.sim.time(), id)
+        .collect::<std::collections::BTreeMap<_,_>>();
     for idx in 0..route.stops.len() {
         col.push(Widget::row(vec![
             format!("Stop {}", idx + 1).draw_text(ctx),
