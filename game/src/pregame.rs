@@ -187,7 +187,7 @@ impl State for MainMenu {
                     return Transition::Push(Box::new(SandboxMode::new(
                         ctx,
                         app,
-                        GameplayMode::PlayScenario(map_path, scenario.to_string()),
+                        GameplayMode::PlayScenario(map_path, scenario.to_string(), Vec::new()),
                     )));
                 }
                 "Challenges" => {
@@ -432,6 +432,7 @@ impl State for Proposals {
                             GameplayMode::PlayScenario(
                                 abstutil::path_map(&map_name),
                                 "weekday".to_string(),
+                                Vec::new(),
                             ),
                         )));
                     }

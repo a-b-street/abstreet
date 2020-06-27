@@ -23,7 +23,7 @@ use ezgui::{
 use geom::{Duration, Polygon};
 use map_model::{EditCmd, EditIntersection, Map, MapEdits};
 use rand_xorshift::XorShiftRng;
-use sim::{Analytics, OrigPersonID, Scenario, ScenarioGenerator};
+use sim::{Analytics, OrigPersonID, Scenario, ScenarioGenerator, ScenarioModifier};
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub enum GameplayMode {
@@ -31,7 +31,7 @@ pub enum GameplayMode {
     // Map path
     Freeform(String),
     // Map path, scenario name
-    PlayScenario(String, String),
+    PlayScenario(String, String, Vec<ScenarioModifier>),
     FixTrafficSignals,
     OptimizeCommute(OrigPersonID, Duration),
 
@@ -80,7 +80,7 @@ impl GameplayMode {
     pub fn map_path(&self) -> String {
         match self {
             GameplayMode::Freeform(ref path) => path.to_string(),
-            GameplayMode::PlayScenario(ref path, _) => path.to_string(),
+            GameplayMode::PlayScenario(ref path, _, _) => path.to_string(),
             GameplayMode::FixTrafficSignals => abstutil::path_map("downtown"),
             GameplayMode::OptimizeCommute(_, _) => abstutil::path_map("montlake"),
             GameplayMode::Tutorial(_) => abstutil::path_map("montlake"),
@@ -100,7 +100,7 @@ impl GameplayMode {
                 s.only_seed_buses = None;
                 return Some(s);
             }
-            GameplayMode::PlayScenario(_, ref scenario) => scenario.to_string(),
+            GameplayMode::PlayScenario(_, ref scenario, _) => scenario.to_string(),
             // TODO Some of these WILL have scenarios!
             GameplayMode::Tutorial(_) => {
                 return None;
@@ -114,20 +114,22 @@ impl GameplayMode {
                 ScenarioGenerator::small_run(map)
             })
             .generate(map, &mut rng, &mut Timer::new("generate scenario"))
-        } else if name == "5 weekdays repeated" {
-            let s: Scenario =
-                abstutil::read_binary(abstutil::path_scenario(map.get_name(), "weekday"), timer);
-            s.repeat_days(5)
         } else {
             let path = abstutil::path_scenario(map.get_name(), &name);
-            match abstutil::maybe_read_binary(path.clone(), timer) {
+            let mut scenario = match abstutil::maybe_read_binary(path.clone(), timer) {
                 Ok(s) => s,
                 Err(err) => {
                     println!("\n\n{} is missing or corrupt. Check https://github.com/dabreegster/abstreet/blob/master/docs/dev.md and file an issue if you have trouble.", path);
                     println!("\n{}", err);
                     std::process::exit(1);
                 }
+            };
+            if let GameplayMode::PlayScenario(_, _, ref modifiers) = self {
+                for m in modifiers {
+                    scenario = m.apply(scenario);
+                }
             }
+            scenario
         })
     }
 
@@ -229,9 +231,9 @@ impl GameplayMode {
             }
         });
         match self {
-            GameplayMode::Freeform(_) => freeform::Freeform::new(ctx, app, self.clone()),
-            GameplayMode::PlayScenario(_, ref scenario) => {
-                play_scenario::PlayScenario::new(ctx, app, scenario, self.clone())
+            GameplayMode::Freeform(_) => freeform::Freeform::new(ctx, app),
+            GameplayMode::PlayScenario(_, ref scenario, ref modifiers) => {
+                play_scenario::PlayScenario::new(ctx, app, scenario, modifiers.clone())
             }
             GameplayMode::FixTrafficSignals => {
                 fix_traffic_signals::FixTrafficSignals::new(ctx, app)

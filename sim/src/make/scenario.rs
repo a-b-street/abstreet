@@ -191,33 +191,6 @@ impl Scenario {
         Scenario::rand_speed(rng, Speed::miles_per_hour(2.0), Speed::miles_per_hour(3.0))
     }
 
-    // Utter hack. Blindly repeats all trips taken by each person every day.
-    //
-    // What happens if the last place a person winds up in a day isn't the same as where their
-    // first trip the next starts? Will crash as soon as the scenario is instantiated, through
-    // check_schedule().
-    //
-    // The bigger problem is that any people that seem to require multiple cars... will wind up
-    // needing LOTS of cars.
-    pub fn repeat_days(mut self, days: usize) -> Scenario {
-        self.scenario_name = format!("{} repeated for {} days", self.scenario_name, days);
-        for person in &mut self.people {
-            let mut trips = Vec::new();
-            let mut offset = Duration::ZERO;
-            for _ in 0..days {
-                for trip in &person.trips {
-                    trips.push(IndividTrip {
-                        depart: trip.depart + offset,
-                        trip: trip.trip.clone(),
-                    });
-                }
-                offset += Duration::hours(24);
-            }
-            person.trips = trips;
-        }
-        self
-    }
-
     pub fn count_parked_cars_per_bldg(&self) -> Counter<BuildingID> {
         let mut per_bldg = Counter::new();
         // Pass in a dummy RNG

@@ -28,9 +28,9 @@ pub struct Freeform {
 }
 
 impl Freeform {
-    pub fn new(ctx: &mut EventCtx, app: &App, mode: GameplayMode) -> Box<dyn GameplayState> {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn GameplayState> {
         Box::new(Freeform {
-            top_center: freeform_controller(ctx, app, mode, "none"),
+            top_center: make_top_center(ctx, app),
         })
     }
 }
@@ -80,47 +80,38 @@ impl GameplayState for Freeform {
     }
 }
 
-pub fn freeform_controller(
-    ctx: &mut EventCtx,
-    app: &App,
-    gameplay: GameplayMode,
-    scenario_name: &str,
-) -> Composite {
-    let mut rows = vec![Widget::row(vec![
-        Line("Sandbox").small_heading().draw(ctx).margin(5),
-        Widget::draw_batch(
-            ctx,
-            GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
-        )
-        .margin(5),
-        "Map:".draw_text(ctx).margin(5),
-        Btn::text_fg(format!("{} ↓", nice_map_name(app.primary.map.get_name())))
-            .build(ctx, "change map", lctrl(Key::L))
+fn make_top_center(ctx: &mut EventCtx, app: &App) -> Composite {
+    let rows = vec![
+        Widget::row(vec![
+            Line("Sandbox").small_heading().draw(ctx).margin(5),
+            Widget::draw_batch(
+                ctx,
+                GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, 50.0))]),
+            )
             .margin(5),
-        "Traffic:".draw_text(ctx).margin(5),
-        Btn::text_fg(format!("{} ↓", scenario_name))
-            .build(ctx, "change traffic", hotkey(Key::S))
-            .margin(5),
-        Btn::svg_def("../data/system/assets/tools/edit_map.svg")
-            .build(ctx, "edit map", lctrl(Key::E))
-            .margin(5),
-    ])
-    .centered()];
-    if let GameplayMode::Freeform(_) = gameplay {
-        rows.push(
-            Btn::text_fg("Start a new trip")
-                .build_def(ctx, None)
-                .centered_horiz(),
-        );
-        rows.push(
-            Text::from_all(vec![
-                Line("Select an intersection and press "),
-                Line(Key::Z.describe()).fg(ctx.style().hotkey_color),
-                Line(" to start traffic nearby"),
-            ])
-            .draw(ctx),
-        );
-    }
+            "Map:".draw_text(ctx).margin(5),
+            Btn::text_fg(format!("{} ↓", nice_map_name(app.primary.map.get_name())))
+                .build(ctx, "change map", lctrl(Key::L))
+                .margin(5),
+            "Traffic:".draw_text(ctx).margin(5),
+            Btn::text_fg("none ↓")
+                .build(ctx, "change traffic", hotkey(Key::S))
+                .margin(5),
+            Btn::svg_def("../data/system/assets/tools/edit_map.svg")
+                .build(ctx, "edit map", lctrl(Key::E))
+                .margin(5),
+        ])
+        .centered(),
+        Btn::text_fg("Start a new trip")
+            .build_def(ctx, None)
+            .centered_horiz(),
+        Text::from_all(vec![
+            Line("Select an intersection and press "),
+            Line(Key::Z.describe()).fg(ctx.style().hotkey_color),
+            Line(" to start traffic nearby"),
+        ])
+        .draw(ctx),
+    ];
 
     Composite::new(Widget::col(rows).bg(app.cs.panel_bg).padding(10))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
@@ -147,14 +138,6 @@ pub fn make_change_traffic(btn: ScreenRectangle, current: String) -> Box<dyn Sta
                              quiet, so you may need to fast-forward to morning rush hour. Data \
                              comes from Puget Sound Regional Council's Soundcast model.",
                         ));
-                        list.push(
-                            Choice::new("5 weekdays repeated", "5 weekdays repeated".to_string())
-                                .tooltip(
-                                    "Same as the weekday traffic pattern, but blindly repeated 5 \
-                                     times. This isn't realistic; people don't take exactly the \
-                                     same trips every day.",
-                                ),
-                        );
                     } else {
                         list.push(Choice::new(name.clone(), name));
                     }
@@ -187,7 +170,7 @@ pub fn make_change_traffic(btn: ScreenRectangle, current: String) -> Box<dyn Sta
             if scenario_name == "none" {
                 GameplayMode::Freeform(map_path)
             } else {
-                GameplayMode::PlayScenario(map_path, scenario_name)
+                GameplayMode::PlayScenario(map_path, scenario_name, Vec::new())
             },
         ))))
     }))

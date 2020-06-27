@@ -15,7 +15,7 @@ pub(crate) use self::events::Event;
 pub use self::events::{AlertLocation, TripPhaseType};
 pub use self::make::{
     BorderSpawnOverTime, IndividTrip, OffMapLocation, OriginDestination, PersonSpec, Scenario,
-    ScenarioGenerator, SimFlags, SpawnOverTime, SpawnTrip, TripSpawner, TripSpec,
+    ScenarioGenerator, ScenarioModifier, SimFlags, SpawnOverTime, SpawnTrip, TripSpawner, TripSpec,
 };
 pub(crate) use self::mechanics::{
     DrivingSimState, IntersectionSimState, ParkingSimState, WalkingSimState,

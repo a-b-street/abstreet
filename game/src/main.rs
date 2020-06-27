@@ -102,7 +102,11 @@ fn main() {
         let map_path = abstutil::path_map(parts[4]);
         let scenario = abstutil::basename(parts[5]);
         flags.sim_flags.load = map_path.clone();
-        mode = Some(sandbox::GameplayMode::PlayScenario(map_path, scenario));
+        mode = Some(sandbox::GameplayMode::PlayScenario(
+            map_path,
+            scenario,
+            Vec::new(),
+        ));
     }
     let start_with_edits = args.optional("--edits");
 

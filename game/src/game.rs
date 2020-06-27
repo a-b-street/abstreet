@@ -197,7 +197,7 @@ impl GUI for Game {
         canvas.save_camera_state(self.app.primary.map.get_name());
         println!(
             "Crash! Please report to https://github.com/dabreegster/abstreet/issues/ and include \
-             all output.txt; at least everything below here!"
+             all output.txt; at least everything starting from the stack trace above!"
         );
 
         println!();

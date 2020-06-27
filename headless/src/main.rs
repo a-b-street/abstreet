@@ -2,7 +2,7 @@ use abstutil::{prettyprint_usize, CmdArgs, Timer};
 use map_model::Map;
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
-use sim::{AlertHandler, Scenario, Sim, SimFlags};
+use sim::{AlertHandler, Scenario, ScenarioModifier, Sim, SimFlags};
 
 // This is specialized to experiment with running the pandemic model over long time periods.
 // Original functionality for profiling and debugging gridlock have been removed.
@@ -29,8 +29,8 @@ fn main() {
         abstutil::path_scenario(map.get_name(), "weekday"),
         &mut timer,
     );
-    base_scenario
-        .repeat_days(num_days)
+    ScenarioModifier::RepeatDays(num_days)
+        .apply(base_scenario)
         .instantiate(&mut sim, &map, &mut rng, &mut timer);
     timer.done();
 
