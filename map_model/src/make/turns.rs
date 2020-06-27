@@ -714,8 +714,8 @@ fn from_pt(pt: Point2d<f64>) -> Pt2D {
 fn is_turn_allowed(turn: &Turn, roads: &Vec<Road>, lanes: &Vec<Lane>) -> bool {
     let l = &lanes[turn.id.src.0];
     let r = &roads[l.parent.0];
-    if let Some(types) = l.get_turn_restrictions(r) {
-        types.contains(&turn.turn_type)
+    if let Some(mut types) = l.get_turn_restrictions(r) {
+        types.any(|turntype| turntype==turn.turn_type)
     } else {
         true
     }

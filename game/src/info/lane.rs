@@ -89,7 +89,7 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
         ));
     }
 
-    if let Some(types) = l.get_turn_restrictions(r) {
+    if let Some(types) = l.get_turn_restrictions(r).map(|types| -> std::collections::BTreeSet<_> {types.collect()}) { // TODO is BTreeSet really needed for debugging? Would Vec be enough?
         kv.push(("Turn restrictions".to_string(), format!("{:?}", types)));
     }
     for (restriction, to) in &r.turn_restrictions {
