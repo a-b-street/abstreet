@@ -426,17 +426,16 @@ impl Map {
             .cloned()
     }
 
-    pub fn get_next_turns_and_lanes(
-        &self,
+    pub fn get_next_turns_and_lanes<'slf>(
+        &'slf self,
         from: LaneID,
         parent: IntersectionID,
-    ) -> Vec<(&Turn, &Lane)> {
+    ) -> impl Iterator<Item=(&'slf Turn, &'slf Lane)> + 'slf {
         self.get_i(parent)
             .turns
             .iter()
-            .filter(|t| t.src == from)
-            .map(|t| (self.get_t(*t), self.get_l(t.dst)))
-            .collect()
+            .filter(move |t| t.src == from)
+            .map(move |t| (self.get_t(*t), self.get_l(t.dst)))
     }
 
     pub fn get_turns_for(&self, from: LaneID, constraints: PathConstraints) -> Vec<&Turn> {
