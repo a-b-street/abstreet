@@ -435,10 +435,6 @@ impl OriginalLane {
         {
             return Err(format!("number of lanes has changed in {:?}", self));
         }
-        if self.fwd {
-            Ok(r.children_forwards[self.idx].0)
-        } else {
-            Ok(r.children_backwards[self.idx].0)
-        }
+        Ok(r.children(self.fwd)[self.idx].0)
     }
 }

@@ -1016,14 +1016,15 @@ fn make_half_map(
             map.intersections[src_i.0].outgoing_lanes.push(id);
             map.intersections[dst_i.0].incoming_lanes.push(id);
 
-            let (unshifted_pts, other_lanes_width): (PolyLine, Distance) = if lane.reverse_pts {
-                let w = road.width_back(&map);
-                road.children_backwards.push((id, lane.lane_type));
-                (road.center_pts.reversed(), w)
-            } else {
-                let w = road.width_fwd(&map);
-                road.children_forwards.push((id, lane.lane_type));
-                (road.center_pts.clone(), w)
+            let (unshifted_pts, other_lanes_width): (PolyLine, Distance) = {
+                let dir = lane.reverse_pts;
+                let w = road.width(&map, !dir);
+                road.children_mut(!dir).push((id, lane.lane_type));
+                if dir {
+                    (road.center_pts.reversed(), w)
+                } else {
+                    (road.center_pts.clone(), w)
+                }
             };
             // TODO probably different behavior for oneways
             // TODO need to factor in yellow center lines (but what's the right thing to even do?
@@ -1183,11 +1184,7 @@ impl EditCmd {
                 lane.lane_type = lt;
                 let r = &mut map.roads[lane.parent.0];
                 let (fwds, idx) = r.dir_and_offset(id);
-                if fwds {
-                    r.children_forwards[idx] = (id, lt);
-                } else {
-                    r.children_backwards[idx] = (id, lt);
-                }
+                r.children_mut(fwds)[idx] = (id, lt);
 
                 effects.changed_roads.insert(lane.parent);
                 effects.changed_intersections.insert(lane.src_i);
@@ -1221,13 +1218,9 @@ impl EditCmd {
 
                 // We can only reverse the lane closest to the center.
                 let r = &mut map.roads[lane.parent.0];
-                if *dst_i == r.dst_i {
-                    assert_eq!(r.children_backwards.remove(0).0, l);
-                    r.children_forwards.insert(0, (l, lane.lane_type));
-                } else {
-                    assert_eq!(r.children_forwards.remove(0).0, l);
-                    r.children_backwards.insert(0, (l, lane.lane_type));
-                }
+                let dir = *dst_i == r.dst_i;
+                assert_eq!(r.children_mut(!dir).remove(0).0, l);
+                r.children_mut(dir).insert(0, (l, lane.lane_type));
                 effects.changed_roads.insert(r.id);
                 effects.changed_intersections.insert(lane.src_i);
                 effects.changed_intersections.insert(lane.dst_i);
