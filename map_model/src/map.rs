@@ -365,12 +365,11 @@ impl Map {
 
     // All these helpers should take IDs and return objects.
 
-    pub fn get_turns_in_intersection(&self, id: IntersectionID) -> Vec<&Turn> {
+    pub fn get_turns_in_intersection<'slf>(&'slf self, id: IntersectionID) -> impl Iterator<Item=&'slf Turn> + 'slf {
         self.get_i(id)
             .turns
             .iter()
-            .map(|t| self.get_t(*t))
-            .collect()
+            .map(move |t| self.get_t(*t))
     }
 
     // The turns may belong to two different intersections!

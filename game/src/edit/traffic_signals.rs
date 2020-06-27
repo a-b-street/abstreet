@@ -501,7 +501,6 @@ fn edit_entire_signal(app: &App, i: IntersectionID, mode: GameplayMode) -> Box<d
         .primary
         .map
         .get_turns_in_intersection(i)
-        .iter()
         .any(|t| t.between_sidewalks());
     let current_offset = app.primary.map.get_traffic_signal(i).offset;
 
