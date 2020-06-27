@@ -304,6 +304,10 @@ impl RawRoad {
     pub fn synthetic(&self) -> bool {
         self.osm_tags.get(osm::SYNTHETIC) == Some(&"true".to_string())
     }
+
+    pub fn is_light_rail(&self) -> bool {
+        self.osm_tags.get("railway") == Some(&"light_rail".to_string())
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

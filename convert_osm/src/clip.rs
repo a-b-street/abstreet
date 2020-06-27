@@ -16,8 +16,7 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
     retain_btreemap(&mut map.roads, |_, r| {
         let first_in = boundary_polygon.contains_pt(r.center_points[0]);
         let last_in = boundary_polygon.contains_pt(*r.center_points.last().unwrap());
-        let light_rail = r.osm_tags.get("railway") == Some(&"light_rail".to_string());
-        first_in || last_in || light_rail
+        first_in || last_in || r.is_light_rail()
     });
 
     // First pass: Clip roads beginning out of bounds

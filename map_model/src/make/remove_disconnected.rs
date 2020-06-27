@@ -17,13 +17,7 @@ pub fn remove_disconnected_roads(map: &mut RawMap, timer: &mut Timer) {
     let mut unvisited_roads: BTreeSet<OriginalRoad> = map
         .roads
         .iter()
-        .filter_map(|(id, r)| {
-            if r.osm_tags.get("railway") == Some(&"light_rail".to_string()) {
-                None
-            } else {
-                Some(*id)
-            }
-        })
+        .filter_map(|(id, r)| if r.is_light_rail() { None } else { Some(*id) })
         .collect();
 
     while !unvisited_roads.is_empty() {

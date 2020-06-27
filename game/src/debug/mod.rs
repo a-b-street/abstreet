@@ -445,6 +445,9 @@ impl ContextualActions for Actions {
                 actions.push((Key::X, "debug area geometry".to_string()));
                 actions.push((Key::F2, "debug area triangles".to_string()));
             }
+            ID::ParkingLot(_) => {
+                actions.push((Key::H, "hide this".to_string()));
+            }
             _ => {}
         }
         actions
