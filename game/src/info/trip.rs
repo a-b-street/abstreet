@@ -148,7 +148,7 @@ pub fn future(
     if now > start_time {
         col.extend(make_table(
             ctx,
-            vec![("Start delayed", (now - start_time).to_string())],
+            vec![("Start delayed", (now - start_time).to_string())].into_iter(),
         ));
     }
 
@@ -158,7 +158,7 @@ pub fn future(
     {
         col.extend(make_table(
             ctx,
-            vec![("Estimated trip time", estimated_trip_time.to_string())],
+            vec![("Estimated trip time", estimated_trip_time.to_string())].into_iter(),
         ));
 
         let phases = app.prebaked().get_trip_phases(trip, &app.primary.map);
@@ -175,7 +175,7 @@ pub fn future(
                 ("Departure", start_time.ampm_tostring()),
                 ("From", name1),
                 ("To", name2),
-            ],
+            ].into_iter(),
         ));
 
         col.push(
@@ -314,7 +314,7 @@ pub fn aborted(ctx: &mut EventCtx, app: &App, trip: TripID) -> Widget {
             ("Departure", start_time.ampm_tostring()),
             ("From", name1),
             ("To", name2),
-        ],
+        ].into_iter(),
     ));
 
     Widget::col(col)

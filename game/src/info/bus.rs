@@ -64,7 +64,7 @@ pub fn bus_status(ctx: &mut EventCtx, app: &App, details: &mut Details, id: CarI
     let mut rows = bus_header(ctx, app, details, id, Tab::BusStatus(id));
 
     let kv = app.primary.sim.bus_properties(id, &app.primary.map);
-    rows.extend(make_table(ctx, kv));
+    rows.extend(make_table(ctx, kv.into_iter()));
 
     let route = app.primary.sim.bus_route_id(id).unwrap();
     rows.push(passenger_delay(ctx, app, details, route));

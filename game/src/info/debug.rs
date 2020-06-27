@@ -12,11 +12,9 @@ pub fn area(ctx: &EventCtx, app: &App, _: &mut Details, id: AreaID) -> Vec<Widge
     ]));
 
     let a = app.primary.map.get_a(id);
-    let mut kv = Vec::new();
-    for (k, v) in &a.osm_tags {
-        kv.push((k.to_string(), v.to_string()));
-    }
-    rows.extend(make_table(ctx, kv));
+    rows.extend(make_table(ctx, a.osm_tags.iter().map(|(k, v)|
+        (k.to_string(), v.to_string())
+    )));
 
     rows
 }

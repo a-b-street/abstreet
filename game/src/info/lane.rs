@@ -32,7 +32,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
 
     kv.push(("Length", l.length().describe_rounded()));
 
-    rows.extend(make_table(ctx, kv));
+    rows.extend(make_table(ctx, kv.into_iter()));
 
     if l.is_parking() {
         let capacity = l.number_parking_spots();
@@ -121,7 +121,7 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
         ),
     ));
 
-    rows.extend(make_table(ctx, kv));
+    rows.extend(make_table(ctx, kv.into_iter()));
 
     rows.push(Widget::row(vec![
         "Copy OriginalLane to clipboard: "
@@ -138,7 +138,7 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
     txt.add(Line("Raw OpenStreetMap data"));
     rows.push(txt.draw(ctx));
 
-    rows.extend(make_table(ctx, r.osm_tags.clone().into_iter().collect()));
+    rows.extend(make_table(ctx, r.osm_tags.clone().into_iter()));
 
     rows
 }
