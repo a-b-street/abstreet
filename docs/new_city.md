@@ -19,6 +19,9 @@ If you have an Osmosis polygon filter (see below), you can also pass
 first make sure your .osm has been clipped:
 `osmconvert large_map.osm -B=clipping.poly --complete-ways -o=smaller_map.osm`.
 
+You can also try `--oneshot_drive_on_left`, but you'll spot some bugs. Get in
+touch if you need these fixed soon or want to help.
+
 ## Including the city by default
 
 1.  Make sure you can run `import.sh` -- see
