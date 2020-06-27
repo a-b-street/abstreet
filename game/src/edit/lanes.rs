@@ -230,9 +230,9 @@ fn can_change_lane_type(l: LaneID, new_lt: LaneType, map: &Map) -> Option<String
     let r = map.get_parent(l);
     let (fwds, idx) = r.dir_and_offset(l);
     let (mut proposed_lts, other_side) = if fwds {
-        (r.get_lane_types().0, r.get_lane_types().1)
+        (r.get_lane_types().0.collect::<Vec<_>>(), r.get_lane_types().1.collect::<Vec<_>>())
     } else {
-        (r.get_lane_types().1, r.get_lane_types().0)
+        (r.get_lane_types().1.collect::<Vec<_>>(), r.get_lane_types().0.collect::<Vec<_>>())
     };
     proposed_lts[idx] = new_lt;
 

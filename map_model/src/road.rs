@@ -113,11 +113,14 @@ pub struct Road {
     pub dst_i: IntersectionID,
 }
 
+type HomogenousTuple2<T> = (T, T);
+
 impl Road {
-    pub fn get_lane_types(&self) -> (Vec<LaneType>, Vec<LaneType>) {
+    pub fn get_lane_types<'slf>(&'slf self) -> HomogenousTuple2<impl Iterator<Item=LaneType> + 'slf> {
+        let get_lanetype = |(_, lanetype): &(_, LaneType)| *lanetype;
         (
-            self.children_forwards.iter().map(|pair| pair.1).collect(),
-            self.children_backwards.iter().map(|pair| pair.1).collect(),
+            self.children_forwards.iter().map(get_lanetype.clone()),
+            self.children_backwards.iter().map(get_lanetype.clone()),
         )
     }
 
