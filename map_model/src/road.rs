@@ -75,7 +75,7 @@ impl DirectedRoadID {
     // Strict for bikes. If there are bike lanes, not allowed to use other lanes.
     pub fn lanes(self, constraints: PathConstraints, map: &Map) -> Vec<LaneID> {
         let r = map.get_r(self.id);
-        constraints.filter_lanes(&r.children(self.forwards).iter().map(|(l, _)| *l).collect(), map)
+        constraints.filter_lanes(r.children(self.forwards).iter().map(|(l, _)| *l), map)
     }
 }
 
