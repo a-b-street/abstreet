@@ -362,16 +362,16 @@ impl SidewalkSpot {
             });
         }
 
-        let lanes = map
+        map
             .get_i(i)
-            .get_incoming_lanes(map, PathConstraints::Pedestrian);
-        if lanes.is_empty() {
-            return None;
-        }
-        Some(SidewalkSpot {
-            sidewalk_pos: Position::new(lanes[0], map.get_l(lanes[0]).length()),
-            connection: SidewalkPOI::Border(i, origin),
-        })
+            .get_incoming_lanes(map, PathConstraints::Pedestrian)
+            .next()
+            .map(|lane0| {
+                SidewalkSpot {
+                    sidewalk_pos: Position::new(lane0, map.get_l(lane0).length()),
+                    connection: SidewalkPOI::Border(i, origin),
+                }
+            })
     }
 
     pub fn end_at_border(
@@ -379,12 +379,13 @@ impl SidewalkSpot {
         destination: Option<OffMapLocation>,
         map: &Map,
     ) -> Option<SidewalkSpot> {
-        let lanes = map
+        if let Some(lane0) = map
             .get_i(i)
-            .get_incoming_lanes(map, PathConstraints::Pedestrian);
-        if !lanes.is_empty() {
+            .get_incoming_lanes(map, PathConstraints::Pedestrian)
+            .next()
+        {
             return Some(SidewalkSpot {
-                sidewalk_pos: Position::new(lanes[0], map.get_l(lanes[0]).length()),
+                sidewalk_pos: Position::new(lane0, map.get_l(lane0).length()),
                 connection: SidewalkPOI::Border(i, destination),
             });
         }

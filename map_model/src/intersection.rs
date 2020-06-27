@@ -60,12 +60,11 @@ impl Intersection {
         self.intersection_type == IntersectionType::TrafficSignal
     }
 
-    pub fn get_incoming_lanes(&self, map: &Map, constraints: PathConstraints) -> Vec<LaneID> {
+    pub fn get_incoming_lanes<'slf>(&'slf self, map: &'slf Map, constraints: PathConstraints) -> impl Iterator<Item=LaneID> + 'slf {
         self.incoming_lanes
             .iter()
-            .filter(|l| constraints.can_use(map.get_l(**l), map))
+            .filter(move |l| constraints.can_use(map.get_l(**l), map))
             .cloned()
-            .collect()
     }
 
     // Strict for bikes. If there are bike lanes, not allowed to use other lanes.
