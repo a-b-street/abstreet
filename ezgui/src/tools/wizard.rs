@@ -190,18 +190,14 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         )
     }
 
-    pub fn input_percent(&mut self, query: &str) -> Option<f64> {
+    pub fn input_percent(&mut self, query: &str) -> Option<usize> {
         self.input_something(
             query,
             None,
             Box::new(|line| {
-                line.parse::<f64>().ok().and_then(|num| {
-                    if num >= 0.0 && num <= 1.0 {
-                        Some(num)
-                    } else {
-                        None
-                    }
-                })
+                line.parse::<usize>()
+                    .ok()
+                    .and_then(|num| if num <= 100 { Some(num) } else { None })
             }),
         )
     }

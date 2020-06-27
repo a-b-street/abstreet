@@ -333,14 +333,22 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
         ])
         .margin_below(5),
     );
+    let (_, unfinished, _) = app.primary.sim.num_trips();
     col.push(
-        format!(
-            "{} trips aborted due to simulation glitch",
-            prettyprint_usize(aborted)
-        )
-        .draw_text(ctx)
-        .margin_below(5),
+        Text::from_multiline(vec![
+            Line(format!(
+                "{} trips aborted due to simulation glitch",
+                prettyprint_usize(aborted)
+            )),
+            Line(format!(
+                "{} unfinished trips remaining",
+                prettyprint_usize(unfinished)
+            )),
+        ])
+        .draw(ctx)
+        .margin_below(10),
     );
+
     col.push(
         Widget::row(vec![
             if opts.skip > 0 {

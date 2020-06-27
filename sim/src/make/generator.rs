@@ -185,6 +185,7 @@ impl SpawnOverTime {
                     trips: vec![IndividTrip {
                         depart,
                         trip: SpawnTrip::UsingParkedCar(from_bldg, goal),
+                        cancelled: false,
                     }],
                 });
                 return;
@@ -204,6 +205,7 @@ impl SpawnOverTime {
                     trips: vec![IndividTrip {
                         depart,
                         trip: SpawnTrip::UsingBike(start_spot, goal),
+                        cancelled: false,
                     }],
                 });
                 return;
@@ -228,6 +230,7 @@ impl SpawnOverTime {
                         trips: vec![IndividTrip {
                             depart,
                             trip: SpawnTrip::UsingTransit(start_spot, goal, route, stop1, stop2),
+                            cancelled: false,
                         }],
                     });
                     return;
@@ -240,6 +243,7 @@ impl SpawnOverTime {
                 trips: vec![IndividTrip {
                     depart,
                     trip: SpawnTrip::JustWalking(start_spot, goal),
+                    cancelled: false,
                 }],
             });
             return;
@@ -295,6 +299,7 @@ impl BorderSpawnOverTime {
                                     stop1,
                                     stop2,
                                 ),
+                                cancelled: false,
                             }],
                         });
                         continue;
@@ -307,6 +312,7 @@ impl BorderSpawnOverTime {
                     trips: vec![IndividTrip {
                         depart,
                         trip: SpawnTrip::JustWalking(start.clone(), goal),
+                        cancelled: false,
                     }],
                 });
             }
@@ -337,6 +343,7 @@ impl BorderSpawnOverTime {
                             is_bike: constraints == PathConstraints::Bike,
                             origin: None,
                         },
+                        cancelled: false,
                     }],
                 });
             }
