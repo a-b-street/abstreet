@@ -269,11 +269,10 @@ impl Road {
             .collect()
     }
 
-    pub fn lanes_on_side(&self, dir: bool) -> Vec<LaneID> {
+    pub fn lanes_on_side<'slf>(&'slf self, dir: bool) -> impl Iterator<Item=LaneID> + 'slf {
         self.children(dir)
             .iter()
             .map(|(id, _)| *id)
-            .collect()
     }
 
     pub fn get_current_center(&self, map: &Map) -> PolyLine {
