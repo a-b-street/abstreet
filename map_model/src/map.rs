@@ -458,7 +458,7 @@ impl Map {
     }
 
     // These come back sorted
-    pub fn get_next_roads(&self, from: RoadID) -> Vec<RoadID> {
+    pub fn get_next_roads(&self, from: RoadID) -> impl Iterator<Item=RoadID> {
         let mut roads: BTreeSet<RoadID> = BTreeSet::new();
 
         let r = self.get_r(from);
@@ -466,7 +466,7 @@ impl Map {
             roads.extend(self.get_i(id).roads.clone());
         }
 
-        roads.into_iter().collect()
+        roads.into_iter()
     }
 
     pub fn get_parent(&self, id: LaneID) -> &Road {
