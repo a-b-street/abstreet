@@ -211,7 +211,10 @@ impl Lane {
         }
     }
 
-    pub fn get_turn_restrictions<'slf, 'road>(&'slf self, road: &'slf Road) -> Option<impl Iterator<Item=TurnType> + 'slf> {
+    pub fn get_turn_restrictions<'a>(
+        &'a self,
+        road: &'a Road,
+    ) -> Option<impl Iterator<Item = TurnType> + 'a> {
         if !self.is_driving() {
             return None;
         }
@@ -232,34 +235,31 @@ impl Lane {
         if part == &"none" {
             return None;
         }
-        Some(
-            part.split(';')
-                .flat_map(|s| match s {
-                    "left" | "left\\left" => vec![TurnType::Left],
-                    "right" => vec![TurnType::Right],
-                    // TODO What is blank supposed to mean? From few observed cases, same as through
-                    "through" | "" => vec![
-                        TurnType::Straight,
-                        TurnType::LaneChangeLeft,
-                        TurnType::LaneChangeRight,
-                    ],
-                    // TODO Check this more carefully
-                    "slight_right" | "slight right" | "merge_to_right" => vec![
-                        TurnType::Straight,
-                        TurnType::LaneChangeRight,
-                        TurnType::Right,
-                    ],
-                    "slight_left" | "slight left" | "merge_to_left" | "sharp_left" => {
-                        vec![TurnType::Straight, TurnType::LaneChangeLeft, TurnType::Left]
-                    }
-                    "reverse" => {
-                        // TODO We need TurnType::UTurn. Until then, u-turns usually show up as
-                        // left turns.
-                        vec![TurnType::Left]
-                    }
-                    _ => panic!("What's turn restriction {}?", s),
-                })
-        )
+        Some(part.split(';').flat_map(|s| match s {
+            "left" | "left\\left" => vec![TurnType::Left],
+            "right" => vec![TurnType::Right],
+            // TODO What is blank supposed to mean? From few observed cases, same as through
+            "through" | "" => vec![
+                TurnType::Straight,
+                TurnType::LaneChangeLeft,
+                TurnType::LaneChangeRight,
+            ],
+            // TODO Check this more carefully
+            "slight_right" | "slight right" | "merge_to_right" => vec![
+                TurnType::Straight,
+                TurnType::LaneChangeRight,
+                TurnType::Right,
+            ],
+            "slight_left" | "slight left" | "merge_to_left" | "sharp_left" => {
+                vec![TurnType::Straight, TurnType::LaneChangeLeft, TurnType::Left]
+            }
+            "reverse" => {
+                // TODO We need TurnType::UTurn. Until then, u-turns usually show up as
+                // left turns.
+                vec![TurnType::Left]
+            }
+            _ => panic!("What's turn restriction {}?", s),
+        }))
     }
 
     pub fn get_max_cost(&self, constraints: PathConstraints, map: &Map) -> usize {

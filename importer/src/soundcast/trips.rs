@@ -177,21 +177,30 @@ fn clip_trips(map: &Map, popdat: &PopDat, huge_map: &Map, timer: &mut Timer) -> 
         .all_outgoing_borders()
         .into_iter()
         .filter(|i| {
-            !i.get_incoming_lanes(map, PathConstraints::Pedestrian)
-                .is_empty()
+            i.get_incoming_lanes(map, PathConstraints::Pedestrian)
+                .next()
+                .is_some()
         })
         .filter_map(|i| i.polygon.center().to_gps(bounds).map(|pt| (i.id, pt)))
         .collect();
     let outgoing_borders_driving: Vec<(IntersectionID, LonLat)> = map
         .all_outgoing_borders()
         .into_iter()
-        .filter(|i| !i.get_incoming_lanes(map, PathConstraints::Car).is_empty())
+        .filter(|i| {
+            i.get_incoming_lanes(map, PathConstraints::Car)
+                .next()
+                .is_some()
+        })
         .filter_map(|i| i.polygon.center().to_gps(bounds).map(|pt| (i.id, pt)))
         .collect();
     let outgoing_borders_biking: Vec<(IntersectionID, LonLat)> = map
         .all_outgoing_borders()
         .into_iter()
-        .filter(|i| !i.get_incoming_lanes(map, PathConstraints::Bike).is_empty())
+        .filter(|i| {
+            i.get_incoming_lanes(map, PathConstraints::Bike)
+                .next()
+                .is_some()
+        })
         .filter_map(|i| i.polygon.center().to_gps(bounds).map(|pt| (i.id, pt)))
         .collect();
 

@@ -119,7 +119,7 @@ impl Road {
         }
     }
 
-    pub fn children_mut(&mut self, fwds: bool) -> &mut Vec<(LaneID, LaneType)> {
+    pub(crate) fn children_mut(&mut self, fwds: bool) -> &mut Vec<(LaneID, LaneType)> {
         if fwds {
             &mut self.children_forwards
         } else {
@@ -127,11 +127,11 @@ impl Road {
         }
     }
 
-    pub fn get_lane_types<'slf>(&'slf self) -> HomogenousTuple2<impl Iterator<Item=LaneType> + 'slf> {
-        let get_lanetype = |(_, lanetype): &(_, LaneType)| *lanetype;
+    pub fn get_lane_types<'a>(&'a self) -> HomogenousTuple2<impl Iterator<Item = LaneType> + 'a> {
+        let get_lanetype = |(_, lt): &(_, LaneType)| *lt;
         (
-            self.children(true).iter().map(get_lanetype.clone()),
-            self.children_backwards.iter().map(get_lanetype.clone()),
+            self.children_forwards.iter().map(get_lanetype.clone()),
+            self.children_backwards.iter().map(get_lanetype),
         )
     }
 
@@ -147,11 +147,7 @@ impl Road {
     // it counts up from there. Returns true for the forwards direction, false for backwards.
     pub fn dir_and_offset(&self, lane: LaneID) -> (bool, usize) {
         for &fwds in [true, false].iter() {
-            if let Some(idx) = self
-                .children(fwds)
-                .iter()
-                .position(|pair| pair.0 == lane)
-            {
+            if let Some(idx) = self.children(fwds).iter().position(|pair| pair.0 == lane) {
                 return (fwds, idx);
             }
         }
@@ -269,10 +265,8 @@ impl Road {
             .collect()
     }
 
-    pub fn lanes_on_side<'slf>(&'slf self, dir: bool) -> impl Iterator<Item=LaneID> + 'slf {
-        self.children(dir)
-            .iter()
-            .map(|(id, _)| *id)
+    pub fn lanes_on_side<'a>(&'a self, dir: bool) -> impl Iterator<Item = LaneID> + 'a {
+        self.children(dir).iter().map(|(id, _)| *id)
     }
 
     pub fn get_current_center(&self, map: &Map) -> PolyLine {

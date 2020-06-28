@@ -70,7 +70,7 @@ impl BikeNetwork {
         for ((r, mode, _), count) in &app.primary.sim.get_analytics().road_thruput.counts {
             if *mode == TripMode::Bike {
                 let (mut fwd, mut back) = app.primary.map.get_r(*r).get_lane_types();
-                if fwd.any(|lanetype| lanetype==LaneType::Biking) || back.any(|lanetype| lanetype==LaneType::Biking) {
+                if fwd.any(|lt| lt == LaneType::Biking) || back.any(|lt| lt == LaneType::Biking) {
                     on_bike_lanes.add(*r, *count);
                 } else {
                     off_bike_lanes.add(*r, *count);

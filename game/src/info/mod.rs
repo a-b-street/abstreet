@@ -484,16 +484,18 @@ impl InfoPanel {
     }
 }
 
-fn make_table<I: Into<String>>(ctx: &EventCtx, rows: impl Iterator<Item=(I, String)>) -> Vec<Widget> {
-    rows
-        .map(|(k, v)| {
-            Widget::row(vec![
-                Line(k).secondary().draw(ctx),
-                // TODO not quite...
-                v.draw_text(ctx).centered_vert().align_right(),
-            ])
-        })
-        .collect()
+fn make_table<I: Into<String>>(
+    ctx: &EventCtx,
+    rows: impl Iterator<Item = (I, String)>,
+) -> Vec<Widget> {
+    rows.map(|(k, v)| {
+        Widget::row(vec![
+            Line(k).secondary().draw(ctx),
+            // TODO not quite...
+            v.draw_text(ctx).centered_vert().align_right(),
+        ])
+    })
+    .collect()
 
     // Attempt two
     /*let mut keys = Text::new();

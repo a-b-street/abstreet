@@ -175,7 +175,8 @@ pub fn future(
                 ("Departure", start_time.ampm_tostring()),
                 ("From", name1),
                 ("To", name2),
-            ].into_iter(),
+            ]
+            .into_iter(),
         ));
 
         col.push(
@@ -314,7 +315,8 @@ pub fn aborted(ctx: &mut EventCtx, app: &App, trip: TripID) -> Widget {
             ("Departure", start_time.ampm_tostring()),
             ("From", name1),
             ("To", name2),
-        ].into_iter(),
+        ]
+        .into_iter(),
     ));
 
     Widget::col(col)

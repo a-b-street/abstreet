@@ -8,6 +8,7 @@ use ezgui::{
 use geom::{Circle, Distance, Polygon, Pt2D, Statistic, Time};
 use map_model::{BusRouteID, BusStopID};
 use sim::{AgentID, CarID};
+use std::collections::BTreeMap;
 
 pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID) -> Vec<Widget> {
     let mut rows = vec![];
@@ -48,7 +49,7 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
         if let Some(hgram) = sim
             .get_analytics()
             .bus_passenger_delays(sim.time(), r.id)
-            .find(|x| x.0==id)
+            .find(|x| x.0 == id)
             .map(|x| x.1)
         {
             txt.add(Line(format!("  Waiting: {}", hgram.describe())).secondary());
@@ -160,7 +161,7 @@ fn passenger_delay(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Bus
         .sim
         .get_analytics()
         .bus_passenger_delays(app.primary.sim.time(), id)
-        .collect::<std::collections::BTreeMap<_,_>>();
+        .collect::<BTreeMap<_, _>>();
     for idx in 0..route.stops.len() {
         col.push(Widget::row(vec![
             format!("Stop {}", idx + 1).draw_text(ctx),

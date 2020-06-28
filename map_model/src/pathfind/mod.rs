@@ -363,10 +363,8 @@ impl PathConstraints {
     }
 
     // Strict for bikes. If there are bike lanes, not allowed to use other lanes.
-    pub fn filter_lanes(self, lanes: impl Iterator<Item=LaneID>, map: &Map) -> Vec<LaneID> {
-        let choices: Vec<LaneID> = lanes
-            .filter(|l| self.can_use(map.get_l(*l), map))
-            .collect();
+    pub fn filter_lanes(self, lanes: impl Iterator<Item = LaneID>, map: &Map) -> Vec<LaneID> {
+        let choices: Vec<LaneID> = lanes.filter(|l| self.can_use(map.get_l(*l), map)).collect();
         if self == PathConstraints::Bike {
             let just_bike_lanes: Vec<LaneID> = choices
                 .iter()

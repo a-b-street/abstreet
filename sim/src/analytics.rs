@@ -324,7 +324,7 @@ impl Analytics {
         &self,
         now: Time,
         r: BusRouteID,
-    ) -> impl Iterator<Item=(BusStopID, Histogram<Duration>)> {
+    ) -> impl Iterator<Item = (BusStopID, Histogram<Duration>)> {
         let mut waiting_per_stop = BTreeMap::new();
         for (t, stop, route) in &self.bus_passengers_waiting {
             if *t > now {
@@ -349,19 +349,17 @@ impl Analytics {
             }
         }
 
-        waiting_per_stop
-            .into_iter()
-            .filter_map(move |(k, v)| {
-                let mut delays = Histogram::new();
-                for t in v {
-                    delays.add(now - t);
-                }
-                if delays.count() == 0 {
-                    None
-                } else {
-                    Some((k, delays))
-                }
-            })
+        waiting_per_stop.into_iter().filter_map(move |(k, v)| {
+            let mut delays = Histogram::new();
+            for t in v {
+                delays.add(now - t);
+            }
+            if delays.count() == 0 {
+                None
+            } else {
+                Some((k, delays))
+            }
+        })
     }
 
     pub fn get_trip_phases(&self, trip: TripID, map: &Map) -> Vec<TripPhase> {

@@ -365,11 +365,11 @@ impl Map {
 
     // All these helpers should take IDs and return objects.
 
-    pub fn get_turns_in_intersection<'slf>(&'slf self, id: IntersectionID) -> impl Iterator<Item=&'slf Turn> + 'slf {
-        self.get_i(id)
-            .turns
-            .iter()
-            .map(move |t| self.get_t(*t))
+    pub fn get_turns_in_intersection<'a>(
+        &'a self,
+        id: IntersectionID,
+    ) -> impl Iterator<Item = &'a Turn> + 'a {
+        self.get_i(id).turns.iter().map(move |t| self.get_t(*t))
     }
 
     // The turns may belong to two different intersections!
@@ -426,11 +426,11 @@ impl Map {
             .cloned()
     }
 
-    pub fn get_next_turns_and_lanes<'slf>(
-        &'slf self,
+    pub fn get_next_turns_and_lanes<'a>(
+        &'a self,
         from: LaneID,
         parent: IntersectionID,
-    ) -> impl Iterator<Item=(&'slf Turn, &'slf Lane)> + 'slf {
+    ) -> impl Iterator<Item = (&'a Turn, &'a Lane)> + 'a {
         self.get_i(parent)
             .turns
             .iter()
@@ -458,7 +458,7 @@ impl Map {
     }
 
     // These come back sorted
-    pub fn get_next_roads(&self, from: RoadID) -> impl Iterator<Item=RoadID> {
+    pub fn get_next_roads(&self, from: RoadID) -> impl Iterator<Item = RoadID> {
         let mut roads: BTreeSet<RoadID> = BTreeSet::new();
 
         let r = self.get_r(from);

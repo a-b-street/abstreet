@@ -59,7 +59,7 @@ impl Intersection {
     pub fn is_traffic_signal(&self) -> bool {
         self.intersection_type == IntersectionType::TrafficSignal
     }
-  
+
     pub fn is_light_rail(&self, map: &Map) -> bool {
         self.roads.iter().all(|r| map.get_r(*r).is_light_rail())
     }
@@ -68,7 +68,11 @@ impl Intersection {
         self.roads.iter().all(|r| map.get_r(*r).is_private())
     }
 
-    pub fn get_incoming_lanes<'slf>(&'slf self, map: &'slf Map, constraints: PathConstraints) -> impl Iterator<Item=LaneID> + 'slf {
+    pub fn get_incoming_lanes<'a>(
+        &'a self,
+        map: &'a Map,
+        constraints: PathConstraints,
+    ) -> impl Iterator<Item = LaneID> + 'a {
         self.incoming_lanes
             .iter()
             .filter(move |l| constraints.can_use(map.get_l(**l), map))

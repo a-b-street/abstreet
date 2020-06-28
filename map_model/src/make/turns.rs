@@ -105,7 +105,7 @@ fn make_vehicle_turns(
     all_roads: &Vec<Road>,
     lanes: &Vec<Lane>,
     timer: &mut Timer,
-) -> impl Iterator<Item=Turn> {
+) -> impl Iterator<Item = Turn> {
     let sorted_roads: Vec<&Road> = i
         .get_roads_sorted_by_incoming_angle(all_roads)
         .iter()
@@ -474,7 +474,7 @@ fn make_degenerate_crosswalks(
     lanes: &Vec<Lane>,
     r1: &Road,
     r2: &Road,
-) -> Option<impl Iterator<Item=Turn>> {
+) -> Option<impl Iterator<Item = Turn>> {
     let l1_in = get_sidewalk(lanes, r1.incoming_lanes(i))?;
     let l1_out = get_sidewalk(lanes, r1.outgoing_lanes(i))?;
     let l2_in = get_sidewalk(lanes, r2.incoming_lanes(i))?;
@@ -714,7 +714,7 @@ fn is_turn_allowed(turn: &Turn, roads: &Vec<Road>, lanes: &Vec<Lane>) -> bool {
     let l = &lanes[turn.id.src.0];
     let r = &roads[l.parent.0];
     if let Some(mut types) = l.get_turn_restrictions(r) {
-        types.any(|turntype| turntype==turn.turn_type)
+        types.any(|turn_type| turn_type == turn.turn_type)
     } else {
         true
     }
