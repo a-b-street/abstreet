@@ -1143,6 +1143,11 @@ impl Sim {
             .get_last_time()
             .max(Time::START_OF_DAY + Duration::hours(24))
     }
+
+    pub fn current_phase_and_remaining_time(&self, i: IntersectionID) -> (usize, Duration) {
+        self.intersections
+            .current_phase_and_remaining_time(self.time, i)
+    }
 }
 
 // Invasive debugging

@@ -62,7 +62,7 @@ pub enum TripSpec {
 
 // This structure is created temporarily by a Scenario or to interactively spawn agents.
 pub struct TripSpawner {
-    trips: Vec<(PersonID, Time, TripSpec, TripEndpoint)>,
+    trips: Vec<(PersonID, Time, TripSpec, TripEndpoint, bool)>,
 }
 
 impl TripSpawner {
@@ -76,6 +76,7 @@ impl TripSpawner {
         start_time: Time,
         spec: TripSpec,
         trip_start: TripEndpoint,
+        cancelled: bool,
         map: &Map,
     ) {
         // TODO We'll want to repeat this validation when we spawn stuff later for a second leg...
@@ -164,6 +165,7 @@ impl TripSpawner {
                                 goal: SidewalkSpot::building(*b, map),
                             },
                             trip_start,
+                            cancelled,
                         ));
                         return;
                     }
@@ -173,7 +175,8 @@ impl TripSpawner {
             TripSpec::Remote { .. } => {}
         };
 
-        self.trips.push((person.id, start_time, spec, trip_start));
+        self.trips
+            .push((person.id, start_time, spec, trip_start, cancelled));
     }
 
     pub fn finalize(
@@ -209,7 +212,7 @@ impl TripSpawner {
         }
 
         timer.start_iter("spawn trips", paths.len());
-        for ((p, start_time, spec, trip_start), maybe_req, maybe_path) in paths {
+        for ((p, start_time, spec, trip_start, cancelled), maybe_req, maybe_path) in paths {
             timer.next();
 
             // TODO clone() is super weird to do here, but we just need to make the borrow checker
@@ -331,10 +334,15 @@ impl TripSpawner {
                     map,
                 ),
             };
-            scheduler.push(
-                start_time,
-                Command::StartTrip(trip, spec, maybe_req, maybe_path),
-            );
+
+            if cancelled {
+                trips.cancel_trip(trip);
+            } else {
+                scheduler.push(
+                    start_time,
+                    Command::StartTrip(trip, spec, maybe_req, maybe_path),
+                );
+            }
         }
     }
 }

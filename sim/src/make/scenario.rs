@@ -37,6 +37,7 @@ pub struct PersonSpec {
 pub struct IndividTrip {
     pub depart: Time,
     pub trip: SpawnTrip,
+    pub cancelled: bool,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -124,7 +125,7 @@ impl Scenario {
                     &mut tmp_rng,
                     map,
                 );
-                spawner.schedule_trip(person, t.depart, spec, t.trip.start(map), map);
+                spawner.schedule_trip(person, t.depart, spec, t.trip.start(map), t.cancelled, map);
             }
         }
 
@@ -575,6 +576,7 @@ impl PersonSpec {
         // For each indexed car, is it parked somewhere, or off-map?
         let mut car_locations: Vec<(usize, Option<BuildingID>)> = Vec::new();
 
+        // TODO If the trip is cancelled, this should be affected...
         for trip in &self.trips {
             let use_for_trip = match trip.trip {
                 SpawnTrip::VehicleAppearing {

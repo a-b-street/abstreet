@@ -15,7 +15,7 @@ use ezgui::{
 use geom::{ArrowCap, Distance, Duration};
 use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Phase,
-    TurnGroupID, TurnPriority,
+    PhaseType, TurnGroupID, TurnPriority,
 };
 use std::collections::BTreeSet;
 
@@ -619,24 +619,44 @@ fn edit_entire_signal(app: &App, i: IntersectionID, mode: GameplayMode) -> Box<d
 }
 
 fn change_duration(app: &App, i: IntersectionID, idx: usize) -> Box<dyn State> {
-    let current_duration = app.primary.map.get_traffic_signal(i).phases[idx].duration;
+    let current_type = app.primary.map.get_traffic_signal(i).phases[idx]
+        .phase_type
+        .clone();
 
+    // TODO This UI shouldn't be a wizard
     WizardState::new(Box::new(move |wiz, ctx, _| {
-        let new_duration = wiz.wrap(ctx).input_something(
+        let mut wizard = wiz.wrap(ctx);
+        let new_duration = Duration::seconds(wizard.input_something(
             "How long should this phase be (seconds)?",
-            Some(format!("{}", current_duration.inner_seconds() as usize)),
+            Some(format!(
+                "{}",
+                current_type.simple_duration().inner_seconds() as usize
+            )),
             Box::new(|line| {
                 line.parse::<usize>()
                     .ok()
                     .and_then(|n| if n != 0 { Some(n) } else { None })
             }),
-        )?;
+        )? as f64);
+        let fixed = format!("Fixed: always {}", new_duration);
+        let adaptive = format!(
+            "Adaptive: some multiple of {}, based on current demand",
+            new_duration
+        );
+        let choice = wizard.choose_string("How should this phase be timed?", move || {
+            vec![fixed.clone(), adaptive.clone()]
+        })?;
+        let new_type = if choice.starts_with("Fixed") {
+            PhaseType::Fixed(new_duration)
+        } else {
+            PhaseType::Adaptive(new_duration)
+        };
         Some(Transition::PopWithData(Box::new(move |state, ctx, app| {
             let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
             let orig_signal = app.primary.map.get_traffic_signal(editor.i);
 
             let mut new_signal = orig_signal.clone();
-            new_signal.phases[idx].duration = Duration::seconds(new_duration as f64);
+            new_signal.phases[idx].phase_type = new_type;
             editor.command_stack.push(orig_signal.clone());
             editor.redo_stack.clear();
             editor.top_panel = make_top_panel(ctx, app, true, false);
@@ -713,9 +733,10 @@ fn make_previewer(i: IntersectionID, phase: usize) -> Box<dyn State> {
                 // Start at the current phase
                 let signal = app.primary.map.get_traffic_signal(i);
                 // TODO Use the offset correctly
+                // TODO If there are adaptive phases, this could land anywhere
                 let mut step = Duration::ZERO;
                 for idx in 0..phase {
-                    step += signal.phases[idx].duration;
+                    step += signal.phases[idx].phase_type.simple_duration();
                 }
                 app.primary.sim.timed_step(
                     &app.primary.map,

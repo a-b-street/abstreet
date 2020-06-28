@@ -258,19 +258,27 @@ impl State for EditScenarioModifiers {
 fn new_modifier(scenario_name: String, modifiers: Vec<ScenarioModifier>) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, app| {
         let mut wizard = wiz.wrap(ctx);
-        match wizard.choose_string("", || vec!["repeat days"])?.as_str() {
-            x if x == "repeat days" => {
-                let n = wizard.input_usize("Repeat everyone's schedule how many days?")?;
-                let mut mods = modifiers.clone();
-                mods.push(ScenarioModifier::RepeatDays(n));
-                Some(Transition::PopThenReplace(EditScenarioModifiers::new(
-                    ctx,
-                    app,
-                    scenario_name.clone(),
-                    mods,
-                )))
-            }
+        let new_mod = match wizard
+            .choose_string("", || {
+                vec!["repeat days", "cancel all trips for some people"]
+            })?
+            .as_str()
+        {
+            x if x == "repeat days" => ScenarioModifier::RepeatDays(
+                wizard.input_usize("Repeat everyone's schedule how many days?")?,
+            ),
+            x if x == "cancel all trips for some people" => ScenarioModifier::CancelPeople(
+                wizard.input_percent("What percent of people should cancel trips? (0 to 100)")?,
+            ),
             _ => unreachable!(),
-        }
+        };
+        let mut mods = modifiers.clone();
+        mods.push(new_mod);
+        Some(Transition::PopThenReplace(EditScenarioModifiers::new(
+            ctx,
+            app,
+            scenario_name.clone(),
+            mods,
+        )))
     }))
 }

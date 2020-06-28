@@ -70,11 +70,7 @@ pub struct ShowTrafficSignal {
 
 impl ShowTrafficSignal {
     pub fn new(ctx: &mut EventCtx, app: &App, i: IntersectionID) -> Box<dyn State> {
-        let (idx, _, _) = app
-            .primary
-            .map
-            .get_traffic_signal(i)
-            .current_phase_and_remaining_time(app.primary.sim.time());
+        let (idx, _) = app.primary.sim.current_phase_and_remaining_time(i);
         return Box::new(ShowTrafficSignal {
             i,
             composite: make_signal_diagram(ctx, app, i, idx, false),

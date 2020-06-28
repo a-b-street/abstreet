@@ -1097,6 +1097,7 @@ impl TutorialState {
                                 goal: DrivingGoal::ParkNear(goal_bldg),
                                 is_bike: false,
                             },
+                            cancelled: false,
                         }],
                     });
                     // Will definitely get there first
@@ -1114,6 +1115,7 @@ impl TutorialState {
                                     goal: DrivingGoal::ParkNear(goal_bldg),
                                     is_bike: false,
                                 },
+                                cancelled: false,
                             }],
                         });
                     }

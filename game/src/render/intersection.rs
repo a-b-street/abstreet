@@ -45,6 +45,10 @@ impl DrawIntersection {
             }
         }
 
+        if i.is_private(map) {
+            default_geom.push(cs.private_road.alpha(0.5), i.polygon.clone());
+        }
+
         match i.intersection_type {
             IntersectionType::Border => {
                 let r = map.get_r(*i.roads.iter().next().unwrap());
@@ -141,14 +145,13 @@ impl Renderable for DrawIntersection {
                 .map(|(t, _)| *t != app.primary.sim.time())
                 .unwrap_or(true);
             if recalc {
-                let (idx, phase, t) =
-                    signal.current_phase_and_remaining_time(app.primary.sim.time());
+                let (idx, remaining) = app.primary.sim.current_phase_and_remaining_time(self.id);
                 let mut batch = GeomBatch::new();
                 draw_signal_phase(
                     g.prerender,
-                    phase,
+                    &signal.phases[idx],
                     self.id,
-                    Some(t),
+                    Some(remaining),
                     &mut batch,
                     app,
                     app.opts.traffic_signal_style.clone(),

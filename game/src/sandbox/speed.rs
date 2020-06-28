@@ -741,8 +741,8 @@ fn compare_count(after: usize, before: usize) -> String {
     if after == before {
         "+0".to_string()
     } else if after > before {
-        format!("+{}", after - before)
+        format!("+{}", prettyprint_usize(after - before))
     } else {
-        format!("-{}", before - after)
+        format!("-{}", prettyprint_usize(before - after))
     }
 }

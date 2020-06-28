@@ -668,6 +668,14 @@ impl TripManager {
         self.person_finished_trip(now, person, parking, scheduler, map);
     }
 
+    // Different than aborting a trip. Don't warp any vehicles or change where the person is.
+    pub fn cancel_trip(&mut self, id: TripID) {
+        let trip = &mut self.trips[id.0];
+        self.unfinished_trips -= 1;
+        trip.aborted = true;
+        self.events.push(Event::TripAborted(trip.id));
+    }
+
     pub fn abort_trip(
         &mut self,
         now: Time,
@@ -918,6 +926,7 @@ impl TripManager {
         scheduler: &mut Scheduler,
         map: &Map,
     ) {
+        assert!(!self.trips[trip.0].aborted);
         if !self.pathfinding_upfront && maybe_path.is_none() && maybe_req.is_some() {
             maybe_path = map.pathfind(maybe_req.clone().unwrap());
         }

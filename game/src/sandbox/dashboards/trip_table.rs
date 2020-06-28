@@ -11,7 +11,7 @@ use ezgui::{
 };
 use geom::{Distance, Duration, Polygon, Pt2D, Time};
 use sim::{TripEndpoint, TripID, TripMode};
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, HashMap};
 
 const ROWS: usize = 10;
 
@@ -179,6 +179,19 @@ struct Entry {
 }
 
 fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
+    // Only make one pass through prebaked data
+    let trip_times_before = if app.has_prebaked().is_some() {
+        let mut times = HashMap::new();
+        for (_, id, maybe_mode, dt) in &app.prebaked().finished_trips {
+            if maybe_mode.is_some() {
+                times.insert(*id, *dt);
+            }
+        }
+        Some(times)
+    } else {
+        None
+    };
+
     // Gather raw data
     let mut data = Vec::new();
     let sim = &app.primary.sim;
@@ -193,7 +206,7 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
             aborted += 1;
             continue;
         };
-        let (_, start, end, _) = sim.trip_info(*id);
+        let (departure, start, end, _) = sim.trip_info(*id);
         if !opts.off_map_starts {
             if let TripEndpoint::Border(_, _) = start {
                 continue;
@@ -206,10 +219,9 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
         }
 
         let (_, waiting) = sim.finished_trip_time(*id).unwrap();
-        let (departure, _, _, _) = sim.trip_info(*id);
-        let duration_before = if app.has_prebaked().is_some() {
-            if let Some(dt) = app.prebaked().finished_trip_time(*id) {
-                dt
+        let duration_before = if let Some(ref times) = trip_times_before {
+            if let Some(dt) = times.get(id) {
+                *dt
             } else {
                 // Aborted
                 aborted += 1;
@@ -333,14 +345,22 @@ fn make(ctx: &mut EventCtx, app: &App, opts: &Options) -> Composite {
         ])
         .margin_below(5),
     );
+    let (_, unfinished, _) = app.primary.sim.num_trips();
     col.push(
-        format!(
-            "{} trips aborted due to simulation glitch",
-            prettyprint_usize(aborted)
-        )
-        .draw_text(ctx)
-        .margin_below(5),
+        Text::from_multiline(vec![
+            Line(format!(
+                "{} trips aborted due to simulation glitch",
+                prettyprint_usize(aborted)
+            )),
+            Line(format!(
+                "{} unfinished trips remaining",
+                prettyprint_usize(unfinished)
+            )),
+        ])
+        .draw(ctx)
+        .margin_below(10),
     );
+
     col.push(
         Widget::row(vec![
             if opts.skip > 0 {

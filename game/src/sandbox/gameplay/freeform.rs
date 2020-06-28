@@ -263,6 +263,7 @@ impl State for AgentSpawner {
                                     self.composite.dropdown_value("mode"),
                                     map,
                                 ),
+                                cancelled: false,
                             }],
                         });
                     }
@@ -529,6 +530,7 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                         origin: None,
                     },
                     TripEndpoint::Border(lane.src_i, None),
+                    false,
                     map,
                 );
             }
@@ -549,6 +551,7 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                         ),
                     },
                     TripEndpoint::Border(lane.src_i, None),
+                    false,
                     map,
                 );
             }
