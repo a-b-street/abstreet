@@ -105,7 +105,7 @@ fn make_vehicle_turns(
     all_roads: &Vec<Road>,
     lanes: &Vec<Lane>,
     timer: &mut Timer,
-) -> Vec<Turn> {
+) -> impl Iterator<Item=Turn> {
     let sorted_roads: Vec<&Road> = i
         .get_roads_sorted_by_incoming_angle(all_roads)
         .iter()
@@ -259,7 +259,7 @@ fn make_vehicle_turns(
         }
     }
 
-    result.into_iter().filter_map(|x| x).collect()
+    result.into_iter().filter_map(|x| x)
 }
 
 fn make_vehicle_turns_for_dead_end(
@@ -474,7 +474,7 @@ fn make_degenerate_crosswalks(
     lanes: &Vec<Lane>,
     r1: &Road,
     r2: &Road,
-) -> Option<Vec<Turn>> {
+) -> Option<impl Iterator<Item=Turn>> {
     let l1_in = get_sidewalk(lanes, r1.incoming_lanes(i))?;
     let l1_out = get_sidewalk(lanes, r1.outgoing_lanes(i))?;
     let l2_in = get_sidewalk(lanes, r2.incoming_lanes(i))?;
@@ -524,8 +524,7 @@ fn make_degenerate_crosswalks(
         .map(|mut t| {
             t.other_crosswalk_ids.remove(&t.id);
             t
-        })
-        .collect(),
+        }),
     )
 }
 
@@ -714,8 +713,8 @@ fn from_pt(pt: Point2d<f64>) -> Pt2D {
 fn is_turn_allowed(turn: &Turn, roads: &Vec<Road>, lanes: &Vec<Lane>) -> bool {
     let l = &lanes[turn.id.src.0];
     let r = &roads[l.parent.0];
-    if let Some(types) = l.get_turn_restrictions(r) {
-        types.contains(&turn.turn_type)
+    if let Some(mut types) = l.get_turn_restrictions(r) {
+        types.any(|turntype| turntype==turn.turn_type)
     } else {
         true
     }

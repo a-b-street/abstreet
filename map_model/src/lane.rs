@@ -5,7 +5,6 @@ use crate::{
 };
 use geom::{Angle, Distance, Line, PolyLine, Pt2D};
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeSet;
 use std::fmt;
 
 // Bit longer than the longest car.
@@ -212,7 +211,7 @@ impl Lane {
         }
     }
 
-    pub fn get_turn_restrictions(&self, road: &Road) -> Option<BTreeSet<TurnType>> {
+    pub fn get_turn_restrictions<'slf, 'road>(&'slf self, road: &'slf Road) -> Option<impl Iterator<Item=TurnType> + 'slf> {
         if !self.is_driving() {
             return None;
         }
@@ -260,7 +259,6 @@ impl Lane {
                     }
                     _ => panic!("What's turn restriction {}?", s),
                 })
-                .collect(),
         )
     }
 

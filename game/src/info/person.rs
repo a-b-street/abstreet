@@ -237,7 +237,7 @@ pub fn bio(
     if app.opts.dev {
         table.push(("Debug ID", format!("{:?}", person.orig_id)));
     }
-    rows.extend(make_table(ctx, table));
+    rows.extend(make_table(ctx, table.into_iter()));
     // TODO Mad libs!
     // - Keeps a collection of ___ at all times
     // - Origin story: accidentally fell into a vat of cheese curds

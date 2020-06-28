@@ -335,11 +335,7 @@ impl Router {
         // Look for other candidate lanes. Must be the same lane type -- if there was a bus/bike
         // lane originally and pathfinding already decided to use it, stick with that decision.
         let orig_lt = map.get_l(orig_target_lane).lane_type;
-        let siblings = if parent.is_forwards(orig_target_lane) {
-            &parent.children_forwards
-        } else {
-            &parent.children_backwards
-        };
+        let siblings = parent.children(parent.is_forwards(orig_target_lane));
 
         let (_, turn1, best_lane, turn2) = siblings
             .iter()

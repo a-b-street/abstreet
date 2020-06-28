@@ -59,7 +59,7 @@ impl Intersection {
     pub fn is_traffic_signal(&self) -> bool {
         self.intersection_type == IntersectionType::TrafficSignal
     }
-
+  
     pub fn is_light_rail(&self, map: &Map) -> bool {
         self.roads.iter().all(|r| map.get_r(*r).is_light_rail())
     }
@@ -68,17 +68,16 @@ impl Intersection {
         self.roads.iter().all(|r| map.get_r(*r).is_private())
     }
 
-    pub fn get_incoming_lanes(&self, map: &Map, constraints: PathConstraints) -> Vec<LaneID> {
+    pub fn get_incoming_lanes<'slf>(&'slf self, map: &'slf Map, constraints: PathConstraints) -> impl Iterator<Item=LaneID> + 'slf {
         self.incoming_lanes
             .iter()
-            .filter(|l| constraints.can_use(map.get_l(**l), map))
+            .filter(move |l| constraints.can_use(map.get_l(**l), map))
             .cloned()
-            .collect()
     }
 
     // Strict for bikes. If there are bike lanes, not allowed to use other lanes.
     pub fn get_outgoing_lanes(&self, map: &Map, constraints: PathConstraints) -> Vec<LaneID> {
-        constraints.filter_lanes(&self.outgoing_lanes, map)
+        constraints.filter_lanes(self.outgoing_lanes.iter().copied(), map)
     }
 
     pub fn get_zorder(&self, map: &Map) -> isize {

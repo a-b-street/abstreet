@@ -75,12 +75,7 @@ impl DirectedRoadID {
     // Strict for bikes. If there are bike lanes, not allowed to use other lanes.
     pub fn lanes(self, constraints: PathConstraints, map: &Map) -> Vec<LaneID> {
         let r = map.get_r(self.id);
-
-        if self.forwards {
-            constraints.filter_lanes(&r.children_forwards.iter().map(|(l, _)| *l).collect(), map)
-        } else {
-            constraints.filter_lanes(&r.children_backwards.iter().map(|(l, _)| *l).collect(), map)
-        }
+        constraints.filter_lanes(r.children(self.forwards).iter().map(|(l, _)| *l), map)
     }
 }
 
@@ -113,11 +108,30 @@ pub struct Road {
     pub dst_i: IntersectionID,
 }
 
+type HomogenousTuple2<T> = (T, T);
+
 impl Road {
-    pub fn get_lane_types(&self) -> (Vec<LaneType>, Vec<LaneType>) {
+    pub fn children(&self, fwds: bool) -> &Vec<(LaneID, LaneType)> {
+        if fwds {
+            &self.children_forwards
+        } else {
+            &self.children_backwards
+        }
+    }
+
+    pub fn children_mut(&mut self, fwds: bool) -> &mut Vec<(LaneID, LaneType)> {
+        if fwds {
+            &mut self.children_forwards
+        } else {
+            &mut self.children_backwards
+        }
+    }
+
+    pub fn get_lane_types<'slf>(&'slf self) -> HomogenousTuple2<impl Iterator<Item=LaneType> + 'slf> {
+        let get_lanetype = |(_, lanetype): &(_, LaneType)| *lanetype;
         (
-            self.children_forwards.iter().map(|pair| pair.1).collect(),
-            self.children_backwards.iter().map(|pair| pair.1).collect(),
+            self.children(true).iter().map(get_lanetype.clone()),
+            self.children_backwards.iter().map(get_lanetype.clone()),
         )
     }
 
@@ -132,19 +146,14 @@ impl Road {
     // lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then
     // it counts up from there. Returns true for the forwards direction, false for backwards.
     pub fn dir_and_offset(&self, lane: LaneID) -> (bool, usize) {
-        if let Some(idx) = self
-            .children_forwards
-            .iter()
-            .position(|pair| pair.0 == lane)
-        {
-            return (true, idx);
-        }
-        if let Some(idx) = self
-            .children_backwards
-            .iter()
-            .position(|pair| pair.0 == lane)
-        {
-            return (false, idx);
+        for &fwds in [true, false].iter() {
+            if let Some(idx) = self
+                .children(fwds)
+                .iter()
+                .position(|pair| pair.0 == lane)
+            {
+                return (fwds, idx);
+            }
         }
         panic!("{} doesn't contain {}", self.id, lane);
     }
@@ -153,58 +162,33 @@ impl Road {
         // TODO Crossing bike/bus lanes means higher layers of sim should know to block these off
         // when parking/unparking
         let (fwds, idx) = self.dir_and_offset(parking);
-        if fwds {
-            self.children_forwards[0..idx]
-                .iter()
-                .rev()
-                .chain(self.children_backwards.iter())
-                .find(|(_, lt)| *lt == LaneType::Driving)
-                .map(|(id, _)| *id)
-        } else {
-            self.children_backwards[0..idx]
-                .iter()
-                .rev()
-                .chain(self.children_forwards.iter())
-                .find(|(_, lt)| *lt == LaneType::Driving)
-                .map(|(id, _)| *id)
-        }
+        self.children(fwds)[0..idx]
+            .iter()
+            .rev()
+            .chain(self.children(!fwds).iter())
+            .find(|(_, lt)| *lt == LaneType::Driving)
+            .map(|(id, _)| *id)
     }
 
     pub fn sidewalk_to_bike(&self, sidewalk: LaneID) -> Option<LaneID> {
         // TODO Crossing bus lanes means higher layers of sim should know to block these off
         // Oneways mean we might need to consider the other side of the road.
         let (fwds, idx) = self.dir_and_offset(sidewalk);
-        if fwds {
-            self.children_forwards[0..idx]
-                .iter()
-                .rev()
-                .chain(self.children_backwards.iter())
-                .find(|(_, lt)| *lt == LaneType::Driving || *lt == LaneType::Biking)
-                .map(|(id, _)| *id)
-        } else {
-            self.children_backwards[0..idx]
-                .iter()
-                .rev()
-                .chain(self.children_forwards.iter())
-                .find(|(_, lt)| *lt == LaneType::Driving || *lt == LaneType::Biking)
-                .map(|(id, _)| *id)
-        }
+        self.children(fwds)[0..idx]
+            .iter()
+            .rev()
+            .chain(self.children(!fwds).iter())
+            .find(|(_, lt)| *lt == LaneType::Driving || *lt == LaneType::Biking)
+            .map(|(id, _)| *id)
     }
 
     pub fn bike_to_sidewalk(&self, bike: LaneID) -> Option<LaneID> {
         // TODO Crossing bus lanes means higher layers of sim should know to block these off
         let (fwds, idx) = self.dir_and_offset(bike);
-        if fwds {
-            self.children_forwards[idx..]
-                .iter()
-                .find(|(_, lt)| *lt == LaneType::Sidewalk)
-                .map(|(id, _)| *id)
-        } else {
-            self.children_backwards[idx..]
-                .iter()
-                .find(|(_, lt)| *lt == LaneType::Sidewalk)
-                .map(|(id, _)| *id)
-        }
+        self.children(fwds)[idx..]
+            .iter()
+            .find(|(_, lt)| *lt == LaneType::Sidewalk)
+            .map(|(id, _)| *id)
     }
 
     pub(crate) fn speed_limit_from_osm(&self) -> Speed {
@@ -255,18 +239,10 @@ impl Road {
     ) -> Result<LaneID, Error> {
         let lane_types: HashSet<LaneType> = types.into_iter().collect();
         let (dir, from_idx) = self.dir_and_offset(from);
-        let mut list = if dir {
-            &self.children_forwards
-        } else {
-            &self.children_backwards
-        };
+        let mut list = self.children(dir);
         // Deal with one-ways and sidewalks on both sides
         if list.len() == 1 && list[0].1 == LaneType::Sidewalk {
-            list = if dir {
-                &self.children_backwards
-            } else {
-                &self.children_forwards
-            };
+            list = self.children(!dir);
         }
 
         if let Some((_, lane)) = list
@@ -288,20 +264,15 @@ impl Road {
     pub fn all_lanes(&self) -> Vec<LaneID> {
         self.children_forwards
             .iter()
+            .chain(self.children_backwards.iter())
             .map(|(id, _)| *id)
-            .chain(self.children_backwards.iter().map(|(id, _)| *id))
             .collect()
     }
 
-    pub fn lanes_on_side(&self, dir: bool) -> Vec<LaneID> {
-        if dir {
-            &self.children_forwards
-        } else {
-            &self.children_backwards
-        }
-        .iter()
-        .map(|(id, _)| *id)
-        .collect()
+    pub fn lanes_on_side<'slf>(&'slf self, dir: bool) -> impl Iterator<Item=LaneID> + 'slf {
+        self.children(dir)
+            .iter()
+            .map(|(id, _)| *id)
     }
 
     pub fn get_current_center(&self, map: &Map) -> PolyLine {
@@ -316,25 +287,21 @@ impl Road {
     }
 
     pub fn any_on_other_side(&self, l: LaneID, lt: LaneType) -> Option<LaneID> {
-        let search = if self.is_forwards(l) {
-            &self.children_backwards
-        } else {
-            &self.children_forwards
-        };
+        let search = self.children(!self.is_forwards(l));
         search.iter().find(|(_, t)| lt == *t).map(|(id, _)| *id)
     }
 
-    pub fn width_fwd(&self, map: &Map) -> Distance {
-        self.children_forwards
+    pub fn width(&self, map: &Map, fwds: bool) -> Distance {
+        self.children(fwds)
             .iter()
             .map(|(l, _)| map.get_l(*l).width)
             .sum()
     }
+    pub fn width_fwd(&self, map: &Map) -> Distance {
+        self.width(map, true)
+    }
     pub fn width_back(&self, map: &Map) -> Distance {
-        self.children_backwards
-            .iter()
-            .map(|(l, _)| map.get_l(*l).width)
-            .sum()
+        self.width(map, false)
     }
 
     pub fn get_thick_polyline(&self, map: &Map) -> Warn<(PolyLine, Distance)> {
