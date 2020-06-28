@@ -7,7 +7,7 @@ use ezgui::{
     RewriteColor, Text, TextExt, VerticalAlignment, Widget,
 };
 use geom::{Angle, ArrowCap, Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D};
-use map_model::{IntersectionID, Phase, TurnPriority, SIDEWALK_THICKNESS};
+use map_model::{IntersectionID, Phase, PhaseType, TurnPriority, SIDEWALK_THICKNESS};
 use std::collections::BTreeSet;
 
 // Only draws a box when time_left is present
@@ -37,7 +37,10 @@ pub fn draw_signal_phase(
             }
 
             let (yellow_light, percent) = if let Some(t) = time_left {
-                (t <= Duration::seconds(5.0), (t / phase.duration) as f32)
+                (
+                    t <= Duration::seconds(5.0),
+                    (t / phase.phase_type.simple_duration()) as f32,
+                )
             } else {
                 (false, 1.0)
             };
@@ -261,7 +264,7 @@ pub fn draw_signal_phase(
 
     let radius = Distance::meters(2.0);
     let center = app.primary.map.get_i(i).polygon.center();
-    let percent = time_left.unwrap() / phase.duration;
+    let percent = time_left.unwrap() / phase.phase_type.simple_duration();
     batch.push(
         app.cs.signal_box,
         Circle::new(center, 1.2 * radius).to_polygon(),
@@ -316,7 +319,14 @@ pub fn make_signal_diagram(
         txt.add(Line(""));
         txt.add(Line(format!("{} phases", signal.phases.len())).small_heading());
         txt.add(Line(format!("Signal offset: {}", signal.offset)));
-        txt.add(Line(format!("One cycle lasts {}", signal.cycle_length())));
+        {
+            let mut total = Duration::ZERO;
+            for p in &signal.phases {
+                total += p.phase_type.simple_duration();
+            }
+            // TODO Say "normally" or something?
+            txt.add(Line(format!("One cycle lasts {}", total)));
+        }
         txt.draw(ctx)
     };
     let mut col = if edit_mode {
@@ -379,10 +389,15 @@ pub fn make_signal_diagram(
         let phase_col = if edit_mode {
             Widget::col(vec![
                 Widget::row(vec![
-                    Line(format!("Phase {}: {}", idx + 1, phase.duration))
-                        .small_heading()
-                        .draw(ctx)
-                        .margin_right(10),
+                    match phase.phase_type {
+                        PhaseType::Fixed(d) => Line(format!("Phase {}: {}", idx + 1, d)),
+                        PhaseType::Adaptive(d) => {
+                            Line(format!("Phase {}: {} (adaptive)", idx + 1, d))
+                        }
+                    }
+                    .small_heading()
+                    .draw(ctx)
+                    .margin_right(10),
                     Btn::svg_def("../data/system/assets/tools/edit.svg").build(
                         ctx,
                         format!("change duration of phase {}", idx + 1),
@@ -426,7 +441,12 @@ pub fn make_signal_diagram(
             ])
         } else {
             Widget::col(vec![
-                format!("Phase {}: {}", idx + 1, phase.duration).draw_text(ctx),
+                match phase.phase_type {
+                    PhaseType::Fixed(d) => format!("Phase {}: {}", idx + 1, d).draw_text(ctx),
+                    PhaseType::Adaptive(d) => {
+                        format!("Phase {}: {} (adaptive)", idx + 1, d).draw_text(ctx)
+                    }
+                },
                 phase_btn,
             ])
         }

@@ -3,7 +3,7 @@ use crate::{
     DirectedRoadID, IntersectionID, Map, TurnGroup, TurnGroupID, TurnID, TurnPriority, TurnType,
 };
 use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, Timer};
-use geom::{Duration, Time};
+use geom::Duration;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -24,7 +24,25 @@ pub struct ControlTrafficSignal {
 pub struct Phase {
     pub protected_groups: BTreeSet<TurnGroupID>,
     pub yield_groups: BTreeSet<TurnGroupID>,
-    pub duration: Duration,
+    pub phase_type: PhaseType,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+pub enum PhaseType {
+    Fixed(Duration),
+    // Same as fixed, but when this phase would normally end, if there's still incoming demand,
+    // repeat the phase entirely.
+    // TODO This is a silly policy, but a start towards variable timers.
+    Adaptive(Duration),
+}
+
+impl PhaseType {
+    // TODO Maybe don't have this; force callers to acknowledge different policies
+    pub fn simple_duration(&self) -> Duration {
+        match self {
+            PhaseType::Fixed(d) | PhaseType::Adaptive(d) => *d,
+        }
+    }
 }
 
 impl ControlTrafficSignal {
@@ -46,26 +64,6 @@ impl ControlTrafficSignal {
     // TODO tmp
     pub fn brute_force(map: &Map, id: IntersectionID) {
         brute_force(map, id)
-    }
-
-    pub fn cycle_length(&self) -> Duration {
-        let mut cycle_length = Duration::ZERO;
-        for p in &self.phases {
-            cycle_length += p.duration;
-        }
-        cycle_length
-    }
-
-    pub fn current_phase_and_remaining_time(&self, now: Time) -> (usize, &Phase, Duration) {
-        let mut now_offset = ((now + self.offset) - Time::START_OF_DAY) % self.cycle_length();
-        for (idx, p) in self.phases.iter().enumerate() {
-            if now_offset < p.duration {
-                return (idx, p, p.duration - now_offset);
-            } else {
-                now_offset -= p.duration;
-            }
-        }
-        unreachable!()
     }
 
     pub fn validate(self) -> Result<ControlTrafficSignal, String> {
@@ -165,7 +163,7 @@ impl Phase {
         Phase {
             protected_groups: BTreeSet::new(),
             yield_groups: BTreeSet::new(),
-            duration: Duration::seconds(30.0),
+            phase_type: PhaseType::Fixed(Duration::seconds(30.0)),
         }
     }
 
@@ -244,7 +242,14 @@ impl ControlTrafficSignal {
                         .iter()
                         .map(|t| export_turn_group(t, map))
                         .collect(),
-                    duration_seconds: p.duration.inner_seconds() as usize,
+                    phase_type: match p.phase_type {
+                        PhaseType::Fixed(d) => {
+                            seattle_traffic_signals::PhaseType::Fixed(d.inner_seconds() as usize)
+                        }
+                        PhaseType::Adaptive(d) => {
+                            seattle_traffic_signals::PhaseType::Adaptive(d.inner_seconds() as usize)
+                        }
+                    },
                 })
                 .collect(),
         }
@@ -273,7 +278,14 @@ impl ControlTrafficSignal {
                 phases.push(Phase {
                     protected_groups,
                     yield_groups,
-                    duration: Duration::seconds(p.duration_seconds as f64),
+                    phase_type: match p.phase_type {
+                        seattle_traffic_signals::PhaseType::Fixed(d) => {
+                            PhaseType::Fixed(Duration::seconds(d as f64))
+                        }
+                        seattle_traffic_signals::PhaseType::Adaptive(d) => {
+                            PhaseType::Adaptive(Duration::seconds(d as f64))
+                        }
+                    },
                 });
             } else {
                 return None;

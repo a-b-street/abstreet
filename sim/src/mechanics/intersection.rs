@@ -4,8 +4,8 @@ use crate::{AgentID, AlertLocation, CarID, Command, Event, Scheduler, Speed, Tri
 use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap};
 use geom::{Duration, Time};
 use map_model::{
-    ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, Map, RoadID, Traversable,
-    TurnID, TurnPriority, TurnType,
+    ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, Map, PhaseType, RoadID,
+    Traversable, TurnID, TurnPriority, TurnType,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet};
@@ -35,6 +35,10 @@ struct State {
         deserialize_with = "deserialize_btreemap"
     )]
     waiting: BTreeMap<Request, Time>,
+
+    // Only relevant for traffic signals
+    current_phase: usize,
+    phase_ends_at: Time,
 }
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Clone, Debug)]
@@ -66,6 +70,8 @@ impl IntersectionSimState {
                     id: i.id,
                     accepted: BTreeSet::new(),
                     waiting: BTreeMap::new(),
+                    current_phase: 0,
+                    phase_ends_at: Time::START_OF_DAY,
                 },
             );
             if i.is_traffic_signal() && !use_freeform_policy_everywhere {
@@ -152,7 +158,7 @@ impl IntersectionSimState {
                 protected.push(req);
             }
         } else if let Some(ref signal) = map.maybe_get_traffic_signal(i) {
-            let (_, phase, _) = signal.current_phase_and_remaining_time(now);
+            let phase = &signal.phases[self.state[&i].current_phase];
             for (req, _) in all {
                 match phase.get_priority_of_turn(req.turn, signal) {
                     TurnPriority::Protected => {
@@ -195,17 +201,52 @@ impl IntersectionSimState {
 
     // This is only triggered for traffic signals.
     pub fn update_intersection(
-        &self,
+        &mut self,
         now: Time,
         id: IntersectionID,
         map: &Map,
         scheduler: &mut Scheduler,
     ) {
+        let state = self.state.get_mut(&id).unwrap();
+        let signal = map.get_traffic_signal(id);
+
+        // Switch to a new phase?
+        if now != Time::START_OF_DAY {
+            assert_eq!(now, state.phase_ends_at);
+            let old_phase = &signal.phases[state.current_phase];
+            match old_phase.phase_type {
+                PhaseType::Fixed(_) => {
+                    state.current_phase += 1;
+                }
+                PhaseType::Adaptive(_) => {
+                    // TODO Make a better policy here. For now, if there's _anyone_ waiting to
+                    // start a protected turn, repeat this phase for the full duration. Note that
+                    // "waiting" is only defined as "at the end of the lane, ready to start the
+                    // turn." If a vehicle/ped is a second away from the intersection, this won't
+                    // detect that. We could pass in all of the Queues here and use that to count
+                    // all incoming agents, even ones a little farther away.
+                    if state.waiting.keys().all(|req| {
+                        old_phase.get_priority_of_turn(req.turn, signal) != TurnPriority::Protected
+                    }) {
+                        state.current_phase += 1;
+                        self.events.push(Event::Alert(
+                            AlertLocation::Intersection(id),
+                            "Repeating an adaptive phase".to_string(),
+                        ));
+                    }
+                }
+            }
+            if state.current_phase == signal.phases.len() {
+                state.current_phase = 0;
+            }
+        }
+
+        state.phase_ends_at = now
+            + signal.phases[state.current_phase]
+                .phase_type
+                .simple_duration();
+        scheduler.push(state.phase_ends_at, Command::UpdateIntersection(id));
         self.wakeup_waiting(now, id, scheduler, map);
-        let (_, _, remaining) = map
-            .get_traffic_signal(id)
-            .current_phase_and_remaining_time(now);
-        scheduler.push(now + remaining, Command::UpdateIntersection(id));
     }
 
     // For cars: The head car calls this when they're at the end of the lane WaitingToAdvance. If
@@ -393,6 +434,21 @@ impl IntersectionSimState {
         }
         (per_road, per_intersection)
     }
+
+    pub fn current_phase_and_remaining_time(
+        &self,
+        now: Time,
+        i: IntersectionID,
+    ) -> (usize, Duration) {
+        let state = &self.state[&i];
+        if now > state.phase_ends_at {
+            panic!(
+                "At {}, but {} should have advanced its phase at {}",
+                now, i, state.phase_ends_at
+            );
+        }
+        (state.current_phase, state.phase_ends_at - now)
+    }
 }
 
 impl IntersectionSimState {
@@ -469,7 +525,11 @@ impl IntersectionSimState {
             return true;
         }
 
-        let (_, phase, remaining_phase_time) = signal.current_phase_and_remaining_time(now);
+        let state = &self.state[&req.turn.parent];
+        let phase = &signal.phases[state.current_phase];
+        let full_phase_duration = phase.phase_type.simple_duration();
+        let remaining_phase_time = state.phase_ends_at - now;
+        let our_time = state.waiting[req];
 
         // Can't go at all this phase.
         let our_priority = phase.get_priority_of_turn(req.turn, signal);
@@ -482,7 +542,6 @@ impl IntersectionSimState {
             return false;
         }
 
-        let our_time = self.state[&req.turn.parent].waiting[req];
         if our_priority == TurnPriority::Yield
             && now < our_time + WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL
         {
@@ -509,12 +568,12 @@ impl IntersectionSimState {
         let time_to_cross = turn.geom.length() / speed;
         if time_to_cross > remaining_phase_time {
             // Actually, we might have bigger problems...
-            if time_to_cross > phase.duration {
+            if time_to_cross > full_phase_duration {
                 self.events.push(Event::Alert(
                     AlertLocation::Intersection(req.turn.parent),
                     format!(
                         "{:?} is impossible to fit into phase duration of {}",
-                        req, phase.duration
+                        req, full_phase_duration
                     ),
                 ));
             } else {
