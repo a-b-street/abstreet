@@ -432,12 +432,6 @@ fn is_road(tags: &BTreeMap<String, String>) -> bool {
     if !tags.contains_key(osm::HIGHWAY) {
         return false;
     }
-    if tags.get("access") == Some(&"no".to_string())
-        && tags.get("bus") != Some(&"yes".to_string())
-        && tags.get("highway") != Some(&"construction".to_string())
-    {
-        return false;
-    }
 
     // https://github.com/Project-OSRM/osrm-backend/blob/master/profiles/car.lua is another
     // potential reference

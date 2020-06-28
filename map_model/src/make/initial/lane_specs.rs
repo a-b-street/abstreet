@@ -81,7 +81,7 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
         && osm_tags.get("bus") == Some(&"yes".to_string())
     {
         LaneType::Bus
-    } else if osm_tags.get("highway") == Some(&"construction".to_string()) {
+    } else if osm_tags.get("access") == Some(&"no".to_string()) {
         LaneType::Construction
     } else {
         LaneType::Driving
