@@ -5,7 +5,7 @@ use crate::{
     BusStopID, ControlStopSign, ControlTrafficSignal, EditCmd, EditEffects, EditIntersection,
     Intersection, IntersectionID, IntersectionType, Lane, LaneID, LaneType, MapEdits, ParkingLot,
     ParkingLotID, Path, PathConstraints, PathRequest, Position, Road, RoadID, Turn, TurnGroupID,
-    TurnID, TurnType, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
+    TurnID, TurnType, Zone, ZoneID, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer, Warn};
 use geom::{Angle, Bounds, Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D, Speed};
@@ -31,6 +31,7 @@ pub struct Map {
     bus_routes: Vec<BusRoute>,
     areas: Vec<Area>,
     parking_lots: Vec<ParkingLot>,
+    zones: Vec<Zone>,
     boundary_polygon: Polygon,
 
     // Note that border nodes belong in neither!
@@ -89,6 +90,10 @@ impl Map {
                             prettyprint_usize(serialized_size_bytes(&map.parking_lots))
                         );
                         println!(
+                            "- zones: {} bytes",
+                            prettyprint_usize(serialized_size_bytes(&map.zones))
+                        );
+                        println!(
                             "- pathfinder: {} bytes",
                             prettyprint_usize(serialized_size_bytes(&map.pathfinder))
                         );
@@ -125,6 +130,7 @@ impl Map {
             bus_routes: Vec::new(),
             areas: Vec::new(),
             parking_lots: Vec::new(),
+            zones: Vec::new(),
             boundary_polygon: Polygon::new(&vec![
                 Pt2D::new(0.0, 0.0),
                 Pt2D::new(1.0, 0.0),
@@ -282,6 +288,10 @@ impl Map {
         &self.parking_lots
     }
 
+    pub fn all_zones(&self) -> &Vec<Zone> {
+        &self.zones
+    }
+
     pub fn maybe_get_r(&self, id: RoadID) -> Option<&Road> {
         self.roads.get(id.0)
     }
@@ -353,6 +363,10 @@ impl Map {
 
     pub fn get_pl(&self, id: ParkingLotID) -> &ParkingLot {
         &self.parking_lots[id.0]
+    }
+
+    pub fn get_z(&self, id: ZoneID) -> &Zone {
+        &self.zones[id.0]
     }
 
     pub fn get_stop_sign(&self, id: IntersectionID) -> &ControlStopSign {
@@ -909,6 +923,7 @@ fn make_half_map(
         bus_routes: Vec::new(),
         areas: Vec::new(),
         parking_lots: Vec::new(),
+        zones: Vec::new(),
         boundary_polygon: raw.boundary_polygon.clone(),
         stop_signs: BTreeMap::new(),
         traffic_signals: BTreeMap::new(),
@@ -1120,6 +1135,8 @@ fn make_half_map(
 
     map.parking_lots =
         make::buildings::make_all_parking_lots(&raw.parking_lots, &raw.parking_aisles, &map, timer);
+
+    map.zones = make::zones::make_all_zones(&map);
 
     for (idx, a) in raw.areas.iter().enumerate() {
         map.areas.push(Area {

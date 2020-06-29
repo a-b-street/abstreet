@@ -17,6 +17,7 @@ mod stop_signs;
 mod traffic_signals;
 mod traversable;
 mod turn;
+mod zone;
 
 pub use crate::area::{Area, AreaID, AreaType};
 pub use crate::building::{Building, BuildingID, FrontPath, OffstreetParking};
@@ -37,6 +38,7 @@ pub use crate::stop_signs::{ControlStopSign, RoadWithStopSign};
 pub use crate::traffic_signals::{ControlTrafficSignal, Phase, PhaseType};
 pub use crate::traversable::{Position, Traversable};
 pub use crate::turn::{Turn, TurnGroup, TurnGroupID, TurnID, TurnPriority, TurnType};
+pub use crate::zone::{Zone, ZoneID};
 use abstutil::Cloneable;
 use geom::Distance;
 
