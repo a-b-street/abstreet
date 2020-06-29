@@ -474,3 +474,13 @@ changes here.
 - bugfixes for following people riding the bus
 - rainbow crosswalks in one neighborhood
 - final polishing for launch
+
+0.2.1
+
+- busy week due to launch, but many new features in the pipeline
+- many bug fixes
+- edit mode: proper autosave, load proposals, jump between lane/intersection editors
+- very first steps on light rail... importing the tracks
+- starting a new traffic scenario modifier system, to repeat entire scenario or outright cancel trips for some people. many more ideas for filters and actions coming soon.
+- starting to represent private roads
+- add a very simple actuated traffic signal

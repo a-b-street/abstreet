@@ -781,7 +781,7 @@ dependencies = [
  "stdweb 0.4.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "stretch 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "ttf-parser 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "usvg 0.10.0 (git+https://github.com/RazrFalcon/resvg)",
+ "usvg 0.10.0 (git+https://github.com/dabreegster/resvg)",
  "webgl_stdweb 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "winit 0.22.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -863,7 +863,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "fontdb"
 version = "0.1.0"
-source = "git+https://github.com/RazrFalcon/fontdb?rev=818bfe3#818bfe3de8be75dde947aeebef82ac6b0c7be1e4"
+source = "git+https://github.com/RazrFalcon/fontdb?rev=2299573#2299573ebbe359fcd3daaed317ce774ee7debcaa"
 dependencies = [
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "memmap2 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -3489,12 +3489,12 @@ dependencies = [
 [[package]]
 name = "usvg"
 version = "0.10.0"
-source = "git+https://github.com/RazrFalcon/resvg#a1c84b08ed2ee3335fc1276ccbc14182d6844db7"
+source = "git+https://github.com/dabreegster/resvg#e1291d4a2a316d2468a6220f7f3312f70a615f8c"
 dependencies = [
  "base64 0.12.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "data-url 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "flate2 1.0.14 (registry+https://github.com/rust-lang/crates.io-index)",
- "fontdb 0.1.0 (git+https://github.com/RazrFalcon/fontdb?rev=818bfe3)",
+ "fontdb 0.1.0 (git+https://github.com/RazrFalcon/fontdb?rev=2299573)",
  "harfbuzz_rs 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "kurbo 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -4021,7 +4021,7 @@ dependencies = [
 "checksum float-cmp 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)" = "75224bec9bfe1a65e2d34132933f2de7fe79900c96a0174307554244ece8150e"
 "checksum float_next_after 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)" = "4fc612c5837986b7104a87a0df74a5460931f1c5274be12f8d0f40aa2f30d632"
 "checksum fnv 1.0.6 (registry+https://github.com/rust-lang/crates.io-index)" = "2fad85553e09a6f881f739c29f0b00b0f01357c743266d478b68951ce23285f3"
-"checksum fontdb 0.1.0 (git+https://github.com/RazrFalcon/fontdb?rev=818bfe3)" = "<none>"
+"checksum fontdb 0.1.0 (git+https://github.com/RazrFalcon/fontdb?rev=2299573)" = "<none>"
 "checksum foreign-types 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)" = "f6f339eb8adc052cd2ca78910fda869aefa38d22d5cb648e6485e4d3fc06f3b1"
 "checksum foreign-types-shared 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "00b0228411908ca8685dba7fc2cdd70ec9990a6e753e89b6ac91a84c40fbaf4b"
 "checksum freetype 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)" = "11926b2b410b469d0e9399eca4cbbe237a9ef02176c485803b29216307e8e028"
@@ -4310,7 +4310,7 @@ dependencies = [
 "checksum unreachable 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "1f2ae5ddb18e1c92664717616dd9549dde73f539f01bd7b77c2edb2446bdff91"
 "checksum untrusted 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)" = "a156c684c91ea7d62626509bce3cb4e1d9ed5c4d978f7b4352658f96a4c26b4a"
 "checksum url 2.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "829d4a8476c35c9bf0bbce5a3b23f4106f79728039b726d292bb93bc106787cb"
-"checksum usvg 0.10.0 (git+https://github.com/RazrFalcon/resvg)" = "<none>"
+"checksum usvg 0.10.0 (git+https://github.com/dabreegster/resvg)" = "<none>"
 "checksum utf-8 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = "a9aee9ba280438b56d1ebc5329f2094f0ff457f811eeeff0b278d75aa99db400"
 "checksum uuid 0.8.1 (git+https://github.com/uuid-rs/uuid?rev=9bb93b6)" = "<none>"
 "checksum vec_map 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)" = "05c78687fb1a80548ae3250346c3db86a80a7cdd77bda190189f2d0a0987c81a"

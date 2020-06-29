@@ -28,6 +28,6 @@ simsearch = "0.2.0"
 stdweb  = { version = "0.4.20", optional = true }
 stretch = "0.3.2"
 ttf-parser = "0.6.1"
-usvg = { git = "https://github.com/RazrFalcon/resvg", default-features=false }
+usvg = { git = "https://github.com/dabreegster/resvg", default-features=false }
 webgl_stdweb = { version = "0.3", optional = true }
 winit = "0.22.2"
